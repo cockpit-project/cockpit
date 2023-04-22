@@ -44,7 +44,7 @@ const _ = cockpit.gettext;
 export function is_mounted(client, block) {
     const block_fsys = client.blocks_fsys[block.path];
     const mounted_at = block_fsys ? block_fsys.MountPoints : [];
-    const config = utils.array_find(block.Configuration, function (c) { return c[0] == "fstab" });
+    const config = block.Configuration.find(c => c[0] == "fstab");
     if (config && config[1].dir.v) {
         let dir = utils.decode_filename(config[1].dir.v);
         if (dir[0] != "/")
@@ -55,10 +55,10 @@ export function is_mounted(client, block) {
 }
 
 export function get_fstab_config(block, also_child_config) {
-    let config = utils.array_find(block.Configuration, c => c[0] == "fstab");
+    let config = block.Configuration.find(c => c[0] == "fstab");
 
     if (!config && also_child_config && client.blocks_crypto[block.path])
-        config = utils.array_find(client.blocks_crypto[block.path].ChildConfiguration, c => c[0] == "fstab");
+        config = client.blocks_crypto[block.path].ChildConfiguration.find(c => c[0] == "fstab");
 
     if (config && utils.decode_filename(config[1].type.v) != "swap") {
         let dir = utils.decode_filename(config[1].dir.v);
@@ -115,7 +115,7 @@ export function get_cryptobacking_noauto(client, block) {
     if (!crypto_backing)
         return false;
 
-    const crypto_config = utils.array_find(crypto_backing.Configuration, function (c) { return c[0] == "crypttab" });
+    const crypto_config = crypto_backing.Configuration.find(c => c[0] == "crypttab");
     if (!crypto_config)
         return false;
 

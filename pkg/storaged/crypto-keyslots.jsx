@@ -39,7 +39,7 @@ import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
-import { array_find, decode_filename, encode_filename, block_name, for_each_async } from "./utils.js";
+import { decode_filename, encode_filename, block_name, for_each_async } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import { parse_options, unparse_options } from "./format-dialog.jsx";
@@ -208,7 +208,7 @@ export function existing_passphrase_fields(explanation) {
 }
 
 function get_stored_passphrase(block, just_type) {
-    const pub_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
+    const pub_config = block.Configuration.find(c => c[0] == "crypttab");
     if (pub_config && pub_config[1]["passphrase-path"] && decode_filename(pub_config[1]["passphrase-path"].v) != "") {
         if (just_type)
             return Promise.resolve("stored");
@@ -338,9 +338,9 @@ function ensure_root_nbde_support(steps, progress) {
 function ensure_fstab_option(steps, progress, client, block, option) {
     const cleartext = client.blocks_cleartext[block.path];
     const crypto = client.blocks_crypto[block.path];
-    const fsys_config = (cleartext
-        ? array_find(cleartext.Configuration, function (c) { return c[0] == "fstab" })
-        : array_find(crypto.ChildConfiguration, function (c) { return c[0] == "fstab" }));
+    const fsys_config = cleartext
+        ? cleartext.Configuration.find(c => c[0] == "fstab")
+        : crypto.ChildConfiguration.find(c => c[0] == "fstab");
     const fsys_options = fsys_config && parse_options(decode_filename(fsys_config[1].opts.v));
 
     if (!fsys_options || fsys_options.indexOf(option) >= 0)
@@ -362,7 +362,7 @@ function ensure_fstab_option(steps, progress, client, block, option) {
 }
 
 function ensure_crypto_option(steps, progress, client, block, option) {
-    const crypto_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
+    const crypto_config = block.Configuration.find(c => c[0] == "crypttab");
     const crypto_options = crypto_config && parse_options(decode_filename(crypto_config[1].options.v));
     if (!crypto_options || crypto_options.indexOf(option) >= 0)
         return Promise.resolve();
@@ -398,9 +398,9 @@ function ensure_non_root_nbde_support(steps, progress, client, block) {
 function ensure_nbde_support(steps, progress, client, block) {
     const cleartext = client.blocks_cleartext[block.path];
     const crypto = client.blocks_crypto[block.path];
-    const fsys_config = (cleartext
-        ? array_find(cleartext.Configuration, function (c) { return c[0] == "fstab" })
-        : array_find(crypto.ChildConfiguration, function (c) { return c[0] == "fstab" }));
+    const fsys_config = cleartext
+        ? cleartext.Configuration.find(c => c[0] == "fstab")
+        : crypto.ChildConfiguration.find(c => c[0] == "fstab");
     const dir = decode_filename(fsys_config[1].dir.v);
 
     if (dir == "/") {

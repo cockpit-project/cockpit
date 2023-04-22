@@ -239,7 +239,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         return;
     }
 
-    const crypto_config = utils.array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
+    const crypto_config = block.Configuration.find(c => c[0] == "crypttab");
     let crypto_options;
     if (crypto_config) {
         crypto_options = (utils.decode_filename(crypto_config[1].options.v)

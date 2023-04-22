@@ -21,7 +21,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import cockpit from "cockpit";
 import { dialog_open, TextInput, PassInput } from "./dialog.jsx";
-import { array_find, encode_filename, decode_filename, block_name } from "./utils.js";
+import { encode_filename, decode_filename, block_name } from "./utils.js";
 import { parse_options, unparse_options, extract_option } from "./format-dialog.jsx";
 import { is_mounted } from "./fsys-tab.jsx";
 
@@ -63,7 +63,7 @@ export function edit_config(block, modify) {
 
     return block.GetSecretConfiguration({}).then(
         function (items) {
-            old_config = array_find(items, function (c) { return c[0] == "crypttab" });
+            old_config = items.find(c => c[0] == "crypttab");
             new_config = ["crypttab", old_config ? Object.assign({ }, old_config[1]) : { }];
 
             // UDisks insists on always having a "passphrase-contents" field when
@@ -168,7 +168,7 @@ export class CryptoTab extends React.Component {
         }
 
         let old_options, passphrase_path;
-        const old_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
+        const old_config = block.Configuration.find(c => c[0] == "crypttab");
         if (old_config) {
             old_options = (decode_filename(old_config[1].options.v)
                     .split(",")
@@ -184,8 +184,7 @@ export class CryptoTab extends React.Component {
         const extra_options = unparse_options(split_options);
 
         function edit_options() {
-            const fsys_config = array_find(client.blocks_crypto[block.path].ChildConfiguration,
-                                           c => c[0] == "fstab");
+            const fsys_config = client.blocks_crypto[block.path].ChildConfiguration.find(c => c[0] == "fstab");
             const content_block = client.blocks_cleartext[block.path];
             const is_fsys = fsys_config || (content_block && content_block.IdUsage == "filesystem");
 

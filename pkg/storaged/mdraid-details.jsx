@@ -98,9 +98,7 @@ class MDRaidSidebar extends React.Component {
             running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
 
         function render_member(block) {
-            const active_state = utils.array_find(mdraid.ActiveDevices, function(as) {
-                return as[0] == block.path;
-            });
+            const active_state = mdraid.ActiveDevices.find(as => as[0] == block.path);
 
             function state_text(state) {
                 return {

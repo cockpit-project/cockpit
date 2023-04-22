@@ -32,6 +32,7 @@ import { useInit } from "hooks";
 import { useDialogs } from "dialogs.jsx";
 
 import "menu-select-widget.scss";
+import { EmptyState, EmptyStateVariant, Title } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -133,11 +134,29 @@ export const LangModal = () => {
                     <Divider />
                     <MenuContent>
                         <MenuList>
-                            {Object.keys(manifest.locales || { })
-                                    .filter(key => !searchInput || manifest.locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()))
-                                    .map(key => {
-                                        return <MenuItem itemId={key} key={key} data-value={key}>{manifest.locales[key]}</MenuItem>;
-                                    })}
+                            {
+                                (() => {
+                                    const filteredLocales = Object.keys(manifest.locales || {})
+                                            .filter(key => !searchInput || manifest.locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()));
+
+                                    if (filteredLocales.length === 0) {
+                                        return (
+                                            <MenuItem>
+                                                <EmptyState style={{ padding: "0" }} variant={EmptyStateVariant.xs}>
+                                                    <Title headingLevel="h4" size="md">No results found.</Title>
+                                                </EmptyState>
+                                            </MenuItem>
+                                        );
+                                    }
+                                    return filteredLocales.map(key => {
+                                        return (
+                                            <MenuItem itemId={key} key={key} data-value={key}>
+                                                {manifest.locales[key]}
+                                            </MenuItem>
+                                        );
+                                    });
+                                })()
+                            }
                         </MenuList>
                     </MenuContent>
                 </Menu>

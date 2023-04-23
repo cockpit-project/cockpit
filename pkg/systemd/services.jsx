@@ -610,10 +610,11 @@ class ServicesPageBody extends React.Component {
     // compute filtered and sorted list of [Id, unit]
     computeSelectedUnits() {
         const unitType = '.' + this.props.activeTab;
-        const currentTextFilter = decodeURIComponent(this.props.options.name || '').toLowerCase();
+        const options = cockpit.location.options;
+        const currentTextFilter = decodeURIComponent(options.name || '').toLowerCase();
         const filters = {
-            activeState: JSON.parse(this.props.options.activestate || '[]'),
-            fileState: JSON.parse(this.props.options.filestate || '[]')
+            activeState: JSON.parse(options.activestate || '[]'),
+            fileState: JSON.parse(options.filestate || '[]')
         };
         const selectedUnits = [];
         const ids = new Set();
@@ -664,7 +665,7 @@ class ServicesPageBody extends React.Component {
 
         /* Navigation: unit details page with a path, service list without;
          * the details page does its own loading, we don't need to wait for isFullyLoaded */
-        const path = this.props.path;
+        const path = cockpit.location.path;
         if (path.length == 1) {
             const unit_id = path[0];
 
@@ -709,7 +710,7 @@ class ServicesPageBody extends React.Component {
                                          fileStateDropdownOptions={fileStateDropdownOptions}
                                          filtersRef={this.filtersRef}
                                          loadingUnits={this.props.isLoading}
-                                         options={this.props.options}
+                                         options={cockpit.location.options}
                                          onOptionsChanged={this.onOptionsChanged}
                     />
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
@@ -880,14 +881,16 @@ const ServicesPage = () => {
 
     /* Listen for permission changes for "Create timer" button */
     useEvent(superuser, "changed");
-    const { path, options } = usePageLocation();
+    // trigger re-renders when location changes (e.g. through changing filters)
+    usePageLocation();
 
+    const options = cockpit.location.options;
     const activeTab = options.type || 'service';
     const owner = options.owner || 'system';
     const setOwner = (owner) => cockpit.location.go(cockpit.location.path, { ...cockpit.location.options, owner });
 
     if (owner !== 'system' && owner !== 'user') {
-        console.warn("not a valid location: " + path);
+        console.warn("not a valid location: " + JSON.stringify(cockpit.location));
         cockpit.location = '';
         return;
     }
@@ -895,7 +898,7 @@ const ServicesPage = () => {
     return (
         <WithDialogs>
             <Page>
-                {path.length == 0 &&
+                {cockpit.location.path.length == 0 &&
                 <PageSection variant={PageSectionVariants.light} type="nav" className="services-header">
                     <Flex>
                         <ServiceTabs activeTab={activeTab}
@@ -922,8 +925,6 @@ const ServicesPage = () => {
                     key={owner}
                     activeTab={activeTab}
                     owner={owner}
-                    path={path}
-                    options={options}
                     privileged={superuser.allowed}
                     setTabErrors={setTabErrors}
                     isLoading={isLoading}

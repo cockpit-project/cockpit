@@ -340,7 +340,7 @@ function ensure_fstab_option(steps, progress, client, block, option) {
     const crypto = client.blocks_crypto[block.path];
     const fsys_config = cleartext
         ? cleartext.Configuration.find(c => c[0] == "fstab")
-        : crypto.ChildConfiguration.find(c => c[0] == "fstab");
+        : crypto?.ChildConfiguration.find(c => c[0] == "fstab");
     const fsys_options = fsys_config && parse_options(decode_filename(fsys_config[1].opts.v));
 
     if (!fsys_options || fsys_options.indexOf(option) >= 0)

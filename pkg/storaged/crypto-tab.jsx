@@ -184,7 +184,7 @@ export class CryptoTab extends React.Component {
         const extra_options = unparse_options(split_options);
 
         function edit_options() {
-            const fsys_config = client.blocks_crypto[block.path].ChildConfiguration.find(c => c[0] == "fstab");
+            const fsys_config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
             const content_block = client.blocks_cleartext[block.path];
             const is_fsys = fsys_config || (content_block && content_block.IdUsage == "filesystem");
 

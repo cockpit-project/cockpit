@@ -242,7 +242,7 @@ function create_tabs(client, target, is_partition, is_extended) {
     }
 
     if (is_crypto) {
-        const config = client.blocks_crypto[block.path].ChildConfiguration.find(c => c[0] == "fstab");
+        const config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
         if (config && !content_block)
             add_tab(_("Filesystem"), FilesystemTab, false, ["mismounted-fsys"]);
         add_tab(_("Encryption"), CryptoTab);
@@ -293,7 +293,7 @@ function create_tabs(client, target, is_partition, is_extended) {
             if (!block_fsys)
                 add_menu_action(_("Lock"), lock);
         } else {
-            const config = client.blocks_crypto[block.path].ChildConfiguration.find(c => c[0] == "fstab");
+            const config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
             if (config && !content_block)
                 add_action(_("Mount"), () => mounting_dialog(client, block, "mount"));
             else

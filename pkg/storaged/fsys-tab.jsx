@@ -58,7 +58,7 @@ export function get_fstab_config(block, also_child_config) {
     let config = block.Configuration.find(c => c[0] == "fstab");
 
     if (!config && also_child_config && client.blocks_crypto[block.path])
-        config = client.blocks_crypto[block.path].ChildConfiguration.find(c => c[0] == "fstab");
+        config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
 
     if (config && utils.decode_filename(config[1].type.v) != "swap") {
         let dir = utils.decode_filename(config[1].dir.v);

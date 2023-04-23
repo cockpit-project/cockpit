@@ -1617,32 +1617,8 @@ export function is_interesting_interface(iface) {
     return !iface.Device || is_managed(iface.Device);
 }
 
-export function array_find(array, predicate) {
-    if (array === null || array === undefined) {
-        throw new TypeError('Array.prototype.find called on null or undefined');
-    }
-    if (typeof predicate !== 'function') {
-        throw new TypeError('predicate must be a function');
-    }
-    const list = Object(array);
-    const length = list.length >>> 0;
-    const thisArg = arguments[1];
-
-    for (let i = 0; i < length; i++) {
-        if (i in list) {
-            const value = list[i];
-            if (predicate.call(thisArg, value, i, list)) {
-                return value;
-            }
-        }
-    }
-    return undefined;
-}
-
 export function member_connection_for_interface(group, iface) {
-    return group && array_find(group.Members, function (s) {
-        return is_interface_connection(iface, s);
-    });
+    return group?.Members.find(s => is_interface_connection(iface, s));
 }
 
 export function member_interface_choices(model, group) {

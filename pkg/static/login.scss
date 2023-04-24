@@ -132,8 +132,8 @@ p {
 }
 
 .container {
-  margin-right: auto;
-  margin-left: auto;
+  margin-inline-end: auto;
+  margin-inline-start: auto;
 }
 
 /* Bump options & connection away from user/pass */
@@ -229,7 +229,7 @@ form .control-label {
   height: 1rem;
   align-self: flex-start;
   margin-top: calc((1.5rem - 1rem) / 2);
-  margin-right: 0.5rem;
+  margin-inline-end: 0.5rem;
 }
 
 label.checkbox {
@@ -402,11 +402,9 @@ label.checkbox {
 
 .spinner {
   animation: 0.6s linear infinite rotation;
-  border-bottom: 4px solid rgb(0 0 0 / 25%);
-  border-left: 4px solid rgb(0 0 0 / 25%);
-  border-right: 4px solid rgb(0 0 0 / 25%);
+  border: 4px solid rgb(0 0 0 / 25%);
+  border-block-start-color: rgb(0 0 0 / 75%);
   border-radius: 100%;
-  border-top: 4px solid rgb(0 0 0 / 75%);
   height: 1.5rem;
   width: 1.5rem;
 }
@@ -444,7 +442,7 @@ label.checkbox {
 @supports (display: grid) {
   .pf-c-alert > svg {
     float: none;
-    margin-right: 0;
+    margin-inline-end: 0;
   }
 }
 
@@ -572,7 +570,7 @@ label.checkbox {
 .caret {
   vertical-align: middle;
   margin: calc((1.5rem - 16px) / 2) 0;
-  margin-right: 0.25rem;
+  margin-inline-end: 0.25rem;
   transition: all 300ms;
 }
 
@@ -585,9 +583,8 @@ label.checkbox {
   display: flex;
   padding: 0.5rem 0.75rem;
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  inset-inline-start: auto;
 }
 
 .input-clear > svg {
@@ -602,7 +599,7 @@ label.checkbox {
 
 /* Reserve a little space for the clear icon in the input */
 .server-box > .form-control {
-  padding-right: 2rem;
+  padding-inline-end: 2rem;
 }
 
 #option-group:hover svg,
@@ -611,7 +608,7 @@ label.checkbox {
 }
 
 #option-group div {
-  margin-left: -3px;
+  margin-inline-start: -3px;
   margin-top: 3px;
   margin-bottom: 1rem;
 }
@@ -694,7 +691,7 @@ label.checkbox {
   }
 
   .login-pf .container .login-area {
-    border-right: 1px solid #474747;
+    border-inline-end: 1px solid #474747;
   }
 }
 
@@ -739,7 +736,7 @@ body.login-pf {
 }
 
 #recent-hosts > h1 {
-  padding-left: 1.5rem;
+  padding-inline-start: 1.5rem;
 }
 
 .login-pf #badge {
@@ -815,7 +812,7 @@ a:hover {
 
 .host-remove {
   background: transparent;
-  margin-right: 1.5rem;
+  margin-inline-end: 1.5rem;
   padding: 0.375rem 1rem;
   /* Allow ::before to size relative to .host-remove */
   position: relative;
@@ -827,10 +824,7 @@ a:hover {
   content: "";
   display: block;
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   background-color: #151515;
   border: none;
   mask: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 352 512'%3E%3Cpath d='m242.7 256 100-100a31.5 31.5 0 0 0 0-44.5l-22.2-22.3a31.5 31.5 0 0 0-44.4 0L176 189.2 76 89.3a31.5 31.5 0 0 0-44.5 0L9.2 111.5a31.5 31.5 0 0 0 0 44.4l100 100.1-100 100a31.5 31.5 0 0 0 0 44.5l22.3 22.3a31.5 31.5 0 0 0 44.4 0l100.1-100 100 100a31.5 31.5 0 0 0 44.5 0l22.3-22.2a31.5 31.5 0 0 0 0-44.5L242.8 256z'/%3E%3C/svg%3E");
@@ -1006,10 +1000,7 @@ input[type="password"] + .login-password-toggle .password-hide {
     display: block;
     content: "";
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     z-index: 1;
   }
 

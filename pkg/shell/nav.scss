@@ -69,6 +69,7 @@ $desktop: $phone + 1px;
     .pf-c-text-input-group__icon {
       padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm) !important;
       color: var(--pf-global--palette--black-200);
+      inset-inline-start: var(--pf-global--spacer--sm);
     }
 
     .pf-c-text-input-group__text-input,
@@ -77,9 +78,7 @@ $desktop: $phone + 1px;
     }
 
     .pf-c-text-input-group__text-input {
-      // Reserve space for the × icon
-      padding-right: var(--pf-global--spacer--xl);
-      // Stroke outside, based on PF search dark mode mockups
+      padding-inline-start: var(--pf-global--spacer--xl);
       border: 1px solid var(--pf-global--palette--black-700);
     }
 
@@ -88,7 +87,7 @@ $desktop: $phone + 1px;
       align-self: center;
       justify-content: center;
       position: absolute;
-      right: var(--pf-global--spacer--sm);
+      inset-inline-end: var(--pf-global--spacer--sm);
       width: var(--pf-global--spacer--xl);
 
       // Recolor × icon
@@ -147,7 +146,7 @@ $desktop: $phone + 1px;
 
 .screenreader-text {
   position: absolute;
-  left: -999px;
+  inset-inline-start: -999px;
   width: 1px;
   height: 1px;
   top: auto;
@@ -168,7 +167,7 @@ $desktop: $phone + 1px;
 [dir="rtl"] {
   // Not setting this breaks pixel tests
   .screenreader-text {
-    right: -999px;
+    inset-inline-end: -999px;
   }
 }
 
@@ -177,11 +176,11 @@ $desktop: $phone + 1px;
   // Adapt PF4's new header select for 2-up
   .ct-topnav-content .pf-c-toolbar__item:not(.super-user-indicator) {
     // Remove the margin spacing between each
-    margin-right: 0;
+    margin-inline-end: 0;
 
     // Collapse the 2 side border lines into 1
     + .pf-c-toolbar__item button::before {
-      margin-left: -1px;
+      margin-inline-start: -1px;
     }
   }
 
@@ -198,10 +197,7 @@ $desktop: $phone + 1px;
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     background: var(--pf-global--BackgroundColor--dark-200);
 
     .pf-theme-dark & {
@@ -245,7 +241,7 @@ $desktop: $phone + 1px;
     background-color: var(--pf-global--BackgroundColor--dark-300);
 
     > .pf-c-select > button {
-      padding-left: var(--pf-global--spacer--lg);
+      padding-inline-start: var(--pf-global--spacer--lg);
     }
   }
 
@@ -284,13 +280,12 @@ $desktop: $phone + 1px;
 
   .header {
     .pf-c-toolbar__item {
-      margin-right: 0;
+      margin-inline-end: 0;
     }
   }
 
   .nav-system-menu {
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     height: auto;
     overflow: auto;
     max-height: calc(100vh - var(--nav-icon-size));
@@ -301,7 +296,7 @@ $desktop: $phone + 1px;
   .nav-hosts-menu {
     position: absolute;
     bottom: var(--nav-icon-size);
-    right: var(--pf-global--spacer--md);
+    inset-inline-end: var(--pf-global--spacer--md);
     max-width: 100vw;
   }
 
@@ -325,7 +320,7 @@ $desktop: $phone + 1px;
     }
 
     > button {
-      padding-left: 0;
+      padding-inline-start: 0;
     }
   }
 
@@ -347,7 +342,7 @@ $desktop: $phone + 1px;
 @media (max-width: $phone-tiny) {
   // Don't have a gap for the hosts selection
   .nav-hosts-menu {
-    right: 0;
+    inset-inline-end: 0;
   }
 
   // Make the hosts selection fill the width of the page
@@ -461,7 +456,7 @@ $desktop: $phone + 1px;
     grid-template-columns: 1fr auto;
     justify-content: space-between;
     gap: 0 var(--pf-global--spacer--md);
-    padding-right: var(--pf-global--spacer--md);
+    padding-inline-end: var(--pf-global--spacer--md);
     // In mobile, sometimes items wrap; neighbors should also fill the space
     height: 100%;
 
@@ -500,10 +495,7 @@ $desktop: $phone + 1px;
         content: "";
         background-color: var(--pf-c-nav__link--Color);
         border-radius: 3px;
-        top: 6px;
-        right: 5px;
-        bottom: 6px;
-        left: 5px;
+        inset: 6px 5px;
       }
     }
   }
@@ -595,7 +587,7 @@ $desktop: $phone + 1px;
 }
 
 .ct-topnav-content {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 // Rework navigation toggles in desktop and (especially) mobile modes
@@ -650,7 +642,7 @@ $desktop: $phone + 1px;
 }
 
 .ct-locked > .ct-lock-wrapper > svg {
-  margin-right: var(--pf-global--spacer--sm);
+  margin-inline-end: var(--pf-global--spacer--sm);
   color: var(--pf-global--palette--gold-400);
 }
 
@@ -771,12 +763,10 @@ $desktop: $phone + 1px;
     &::after {
       pointer-events: none;
       border: 1px solid #444548;
-      border-width: 0 1px 0 0;
+      border-width: 0;
+      border-inline-end: 1px;
       position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
+      inset: 0;
       content: "";
     }
   }

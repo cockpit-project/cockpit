@@ -61,8 +61,7 @@
   /* Remove _most_ of the gaps on the sides of small screens */
   /* to maximize space, but still keep the boxy panel look */
   .col-md-12 > .panel {
-    margin-left: -10px;
-    margin-right: -10px;
+    margin-inline: -10px;
   }
 
   .panel {
@@ -89,7 +88,7 @@
 
   .panel > .panel-heading {
     position: sticky;
-    left: 0;
+    inset-inline-start: 0;
     top: 0;
   }
 
@@ -139,10 +138,10 @@
 /* Make things line up */
 .table tbody tr > :first-child,
 .table thead tr > :first-child {
-  padding-left: 1rem;
+  padding-inline-start: 1rem;
 }
 
 .table tbody tr > :last-child,
 .table thead tr > :last-child {
-  padding-right: 1rem;
+  padding-inline-end: 1rem;
 }

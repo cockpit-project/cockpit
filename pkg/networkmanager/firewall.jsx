@@ -263,7 +263,7 @@ class SearchInput extends React.Component {
 
     render() {
         return (
-            <Toolbar>
+            <Toolbar className="filter-services-toolbar">
                 <ToolbarContent>
                     <ToolbarItem variant="label">
                         {_("Filter services")}

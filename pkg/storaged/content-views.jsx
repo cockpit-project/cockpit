@@ -906,6 +906,7 @@ export class VGroup extends React.Component {
                     Message(cockpit.format(_("The $0 package will be installed to create VDO devices."), vdo_package),
                             {
                                 visible: vals => vals.purpose === 'vdo' && need_vdo_install,
+                                style: { marginTop: '1px' }
                             }),
 
                     /* Not Implemented

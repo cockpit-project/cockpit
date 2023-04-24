@@ -23,7 +23,7 @@ import { AboutModal } from "@patternfly/react-core/dist/esm/components/AboutModa
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Menu, MenuContent, MenuInput, MenuItem, MenuList } from "@patternfly/react-core/dist/esm/components/Menu/index.js";
+import { Menu, MenuContent, MenuSearch, MenuSearchInput, MenuItem, MenuList } from "@patternfly/react-core/dist/esm/components/Menu/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
@@ -127,15 +127,17 @@ export const LangModal = () => {
                       onSelect={(_, selected) => setSelected(selected)}
                       activeItemId={selected}
                       selected={selected}>
-                    <MenuInput>
-                        <TextInput
-                            value={searchInput}
-                            aria-label={_("Filter menu items")}
-                            iconVariant="search"
-                            type="search"
-                            onChange={setSearchInput}
-                        />
-                    </MenuInput>
+                    <MenuSearch>
+                        <MenuSearchInput>
+                            <TextInput
+                                value={searchInput}
+                                aria-label={_("Filter menu items")}
+                                iconVariant="search"
+                                type="search"
+                                onChange={setSearchInput}
+                            />
+                        </MenuSearchInput>
+                    </MenuSearch>
                     <Divider />
                     <MenuContent>
                         <MenuList>

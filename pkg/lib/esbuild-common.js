@@ -37,4 +37,4 @@ export const esbuildStylesPlugins = [
             return source;
         }
     }),
-]
+];

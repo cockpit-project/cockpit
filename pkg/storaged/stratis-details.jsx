@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
@@ -430,16 +430,19 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
     const header = (
         <Card>
-            <CardHeader>
+            <CardHeader actions={{
+                actions: (
+                    <>
+                        <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
+                        <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
+                    </>
+                ),
+            }}>
                 <CardTitle>
                     <Text component={TextVariants.h2}>
                         {fmt_to_fragments((pool.Encrypted ? _("Encrypted Stratis pool $0") : _("Stratis pool $0")), <b>{pool.Name}</b>)}
                     </Text>
                 </CardTitle>
-                <CardActions>
-                    <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
-                    <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
-                </CardActions>
             </CardHeader>
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
@@ -685,11 +688,9 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
     const content = (
         <Card>
-            <CardHeader>
+            <CardHeader actions={{ actions: <><StorageButton onClick={create_fs}>{_("Create new filesystem")}</StorageButton></> }}>
                 <CardTitle><Text component={TextVariants.h2}>{_("Filesystems")}</Text></CardTitle>
-                <CardActions>
-                    <StorageButton onClick={create_fs}>{_("Create new filesystem")}</StorageButton>
-                </CardActions>
+
             </CardHeader>
             <CardBody className="contains-list">
                 <ListingTable emptyCaption={_("No filesystems")}
@@ -802,11 +803,9 @@ export const StratisLockedPoolDetails = ({ client, uuid }) => {
 
     const header = (
         <Card>
-            <CardHeader>
+            <CardHeader actions={{ actions: <><StorageButton kind="primary" onClick={unlock}>{_("Unlock")}</StorageButton></> }}>
                 <CardTitle><Text component={TextVariants.h2}>{_("Locked encrypted Stratis pool")}</Text></CardTitle>
-                <CardActions>
-                    <StorageButton kind="primary" onClick={unlock}>{_("Unlock")}</StorageButton>
-                </CardActions>
+
             </CardHeader>
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">

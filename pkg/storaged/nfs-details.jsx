@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import {
@@ -284,27 +284,27 @@ export class NFSDetails extends React.Component {
 
         const header = (
             <Card>
-                <CardHeader>
+                <CardHeader actions={{
+                    actions: <>
+                        { entry.mounted
+                            ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
+                            : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                        }
+                        { "\n" }
+                        { entry.fstab
+                            ? [
+                                <StorageButton key="1" onClick={edit}>{_("Edit")}</StorageButton>,
+                                "\n",
+                                <StorageButton key="2" onClick={remove} kind="danger">{_("Remove")}</StorageButton>
+                            ]
+                            : null
+                        }
+                    </>,
+                }}>
                     <CardTitle>
                         <Text component={TextVariants.h2}>{entry.fields[0]}</Text>
                     </CardTitle>
-                    <CardActions>
-                        <>
-                            { entry.mounted
-                                ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
-                                : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
-                            }
-                            { "\n" }
-                            { entry.fstab
-                                ? [
-                                    <StorageButton key="1" onClick={edit}>{_("Edit")}</StorageButton>,
-                                    "\n",
-                                    <StorageButton key="2" onClick={remove} kind="danger">{_("Remove")}</StorageButton>
-                                ]
-                                : null
-                            }
-                        </>
-                    </CardActions>
+
                 </CardHeader>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">

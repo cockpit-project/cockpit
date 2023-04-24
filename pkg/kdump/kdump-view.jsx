@@ -234,7 +234,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                     <FormGroup fieldId="kdump-settings-compression" label={_("Compression")} hasNoPaddingTop>
                         <Checkbox id="kdump-settings-compression"
                                   isChecked={compressionEnabled}
-                                  onChange={setCompressionEnabled}
+                                  onChange={(_, c) => setCompressionEnabled(c)}
                                   isDisabled={!compressionAllowed}
                                   label={_("Compress crash dumps to save space")} />
                     </FormGroup>
@@ -297,7 +297,7 @@ export class KdumpPage extends React.Component {
     render() {
         let kdumpLocation = (
             <div className="dialog-wait-ct">
-                <Spinner isSVG size="md" />
+                <Spinner size="md" />
                 <span>{ _("Loading...") }</span>
             </div>
         );
@@ -346,7 +346,7 @@ export class KdumpPage extends React.Component {
             // still waiting for result
             reservedMemory = (
                 <div className="dialog-wait-ct">
-                    <Spinner isSVG size="md" />
+                    <Spinner size="md" />
                     <span>{ _("Reading...") }</span>
                 </div>
             );
@@ -407,7 +407,7 @@ export class KdumpPage extends React.Component {
         }
         let serviceWaiting;
         if (this.props.stateChanging)
-            serviceWaiting = <Spinner isSVG size="md" />;
+            serviceWaiting = <Spinner size="md" />;
 
         let testButton;
         if (serviceRunning) {

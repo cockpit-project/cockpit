@@ -26,7 +26,7 @@ import React from 'react';
 import { createRoot } from "react-dom/client";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle, DropdownToggleAction } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle, DropdownToggleAction } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 
 import { superuser } from "superuser";
 
@@ -130,7 +130,7 @@ class OverviewPage extends React.Component {
                             ]}
                             toggleVariant="secondary"
                             splitButtonVariant="action"
-                            onToggle={isOpen => this.setState({ actionIsOpen: isOpen })}
+                            onToggle={(_event, isOpen) => this.setState({ actionIsOpen: isOpen })}
                             id="shutdown-group"
                         />
                     }

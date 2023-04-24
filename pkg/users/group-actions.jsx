@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
 
-import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 
 import { delete_group_dialog } from "./delete-group-dialog.js";
 import { rename_group_dialog } from "./rename-group-dialog.jsx";
@@ -47,7 +47,7 @@ export const GroupActions = ({ group, accounts }) => {
     ];
 
     const kebab = (
-        <Dropdown toggle={<KebabToggle onToggle={setKebabOpen} />}
+        <Dropdown toggle={<KebabToggle onToggle={(_, isOpen) => setKebabOpen(isOpen)} />}
                 isPlain
                 isOpen={isKebabOpen}
                 position="right"

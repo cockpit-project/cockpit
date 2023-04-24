@@ -86,7 +86,7 @@ export const TeamPortDialog = ({ connection, dev, settings }) => {
             </FormGroup>
             {teamMode == 'activebackup'
                 ? <FormGroup fieldId={idPrefix + "-activebackup-sticky-input"}>
-                    <Checkbox id={idPrefix + "-activebackup-sticky-input"} isChecked={sticky} onChange={setSticky} label={_("Sticky")} />
+                    <Checkbox id={idPrefix + "-activebackup-sticky-input"} isChecked={sticky} onChange={(_, s) => setSticky(s)} label={_("Sticky")} />
                 </FormGroup>
                 : null}
             {teamMode == 'lacp'

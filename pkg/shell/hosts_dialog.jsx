@@ -856,7 +856,7 @@ class ChangeAuth extends React.Component {
                     }
                     {offer_key_setup &&
                         <FormGroup label={ _("Automatic login") } hasNoPaddingTop isInline>
-                            <Checkbox onChange={checked => this.setState({ auto_login: checked })}
+                            <Checkbox onChange={(_event, checked) => this.setState({ auto_login: checked })}
                                       isChecked={this.state.auto_login} id="login-setup-keys"
                                       label={auto_text} body={this.state.auto_login ? auto_details : null} />
                         </FormGroup>

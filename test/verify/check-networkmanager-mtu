@@ -48,7 +48,7 @@ class TestNetworkingMTU(NetworkCase):
         b.wait_visible("#network-mtu-settings-dialog")
 
         # wait until dialog initialized
-        b.wait_visible("#network-mtu-settings-dialog > button[aria-label=Close]")
+        b.wait_visible("#network-mtu-settings-dialog button[aria-label=Close]")
         b.wait_visible("#network-mtu-settings-custom")
         b.assert_pixels("#network-mtu-settings-dialog", "networking-mtu-settings-dialog")
 

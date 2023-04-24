@@ -84,7 +84,7 @@ export const BridgePortDialog = ({ connection, dev, settings }) => {
                 <TextInput id={idPrefix + "-path-cost-input"} value={pathCost} onChange={setPathCost} />
             </FormGroup>
             <FormGroup fieldId={idPrefix + "-hairPin-mode-input"}>
-                <Checkbox id={idPrefix + "-hairPin-mode-input"} isChecked={hairPin} onChange={setHairPin} label={_("Hair pin mode")} />
+                <Checkbox id={idPrefix + "-hairPin-mode-input"} isChecked={hairPin} onChange={(_, hp) => setHairPin(hp)} label={_("Hair pin mode")} />
             </FormGroup>
         </NetworkModal>
     );

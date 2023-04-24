@@ -24,7 +24,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
-import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
@@ -103,9 +103,9 @@ export const MacMenu = ({ idPrefix, model, mac, setMAC }) => {
                 onClear={clearSelection}
                 onCreateOption={onCreateOption}
                 onSelect={onSelect}
-                onToggle={value => setIsOpen(value)}
+                onToggle={(_event, value) => setIsOpen(value)}
                 selections={optionsMap.find(option => option.value == mac)}
-                variant={SelectVariant.typeahead}
+                variant="typeahead"
                 toggleId={idPrefix + "-mac-input"}
         >
             {optionsMap.map((option, index) => (
@@ -126,7 +126,7 @@ export const MemberInterfaceChoices = ({ idPrefix, memberChoices, setMemberChoic
                           isChecked={memberChoices[iface]}
                           key={iface}
                           label={iface}
-                          onChange={checked => setMemberChoices({ ...memberChoices, [iface]: checked })}
+                          onChange={(_event, checked) => setMemberChoices({ ...memberChoices, [iface]: checked })}
                 />
             ))}
         </Stack>

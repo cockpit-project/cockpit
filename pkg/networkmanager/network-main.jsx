@@ -22,7 +22,7 @@ import React from 'react';
 import { useEvent } from "hooks";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
@@ -137,6 +137,15 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
     const url = "/system/logs/#/?prio=debug&_SYSTEMD_UNIT=NetworkManager.service,firewalld.service";
     /* End of properties for the LogsPanel component */
 
+    const actions = privileged && (
+        <>
+            <NetworkAction buttonText={_("Add bond")} type='bond' />
+            <NetworkAction buttonText={_("Add team")} type='team' />
+            <NetworkAction buttonText={_("Add bridge")} type='bridge' />
+            <NetworkAction buttonText={_("Add VLAN")} type='vlan' />
+        </>
+    );
+
     return (
         <Page data-test-wait={operationInProgress} id="networking">
             <PageSection id="networking-graphs" className="networking-graphs" variant={PageSectionVariants.light}>
@@ -145,18 +154,18 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
             <PageSection>
                 <Gallery hasGutter>
                     {firewall.installed && <Card id="networking-firewall-summary">
-                        <CardHeader>
+                        <CardHeader actions={{
+                            actions: <><Button variant="secondary" id="networking-firewall-link"
+                                        component="a"
+                                        onClick={() => cockpit.jump("/network/firewall", cockpit.transport.host)}>
+                                {_("Edit rules and zones")}
+                            </Button></>,
+                        }}>
                             <Flex alignItems={{ default: 'alignItemsCenter' }}>
                                 <CardTitle><Text component={TextVariants.h2}>{_("Firewall")}</Text></CardTitle>
                                 <FirewallSwitch firewall={firewall} />
                             </Flex>
-                            <CardActions>
-                                <Button variant="secondary" id="networking-firewall-link"
-                                        component="a"
-                                        onClick={() => cockpit.jump("/network/firewall", cockpit.transport.host)}>
-                                    {_("Edit rules and zones")}
-                                </Button>
-                            </CardActions>
+
                         </CardHeader>
                         <CardBody>
                             <Button variant="link"
@@ -168,14 +177,8 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                         </CardBody>
                     </Card>}
                     <Card id="networking-interfaces">
-                        <CardHeader>
+                        <CardHeader actions={{ actions }}>
                             <CardTitle><Text component={TextVariants.h2}>{_("Interfaces")}</Text></CardTitle>
-                            {privileged && <CardActions>
-                                <NetworkAction buttonText={_("Add bond")} type='bond' />
-                                <NetworkAction buttonText={_("Add team")} type='team' />
-                                <NetworkAction buttonText={_("Add bridge")} type='bridge' />
-                                <NetworkAction buttonText={_("Add VLAN")} type='vlan' />
-                            </CardActions>}
                         </CardHeader>
                         <ListingTable aria-label={_("Managed interfaces")}
                                       variant='compact'

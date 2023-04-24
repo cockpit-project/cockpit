@@ -49,7 +49,7 @@ class TestTeam(NetworkCase):
         b.wait_visible("#network-team-settings-dialog")
 
         # wait until dialog initialized
-        b.wait_visible("#network-team-settings-dialog > button[aria-label=Close]")
+        b.wait_visible("#network-team-settings-dialog button[aria-label=Close]")
         b.wait_in_text("#network-team-settings-body", "cockpit2")
         b.assert_pixels("#network-team-settings-dialog", "networking-team-settings-dialog")
 

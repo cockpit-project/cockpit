@@ -96,7 +96,7 @@ export function install_dialog(pkg, options) {
             footer_message = (
                 <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                     <span>{ progress_message }</span>
-                    <Spinner isSvg size="sm" />
+                    <Spinner size="sm" />
                 </Flex>
             );
         else if (data?.download_size) {

@@ -225,7 +225,7 @@ import { DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells,
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
-import { Select as TypeAheadSelect, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select as TypeAheadSelect, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Slider } from "@patternfly/react-core/dist/esm/components/Slider/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Split } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
@@ -444,7 +444,7 @@ export const dialog_open = (def) => {
             idle_message: (running_promise
                 ? <>
                     <span>{running_title}</span>
-                    <Spinner isSVG className="dialog-wait-ct-spinner" size="md" />
+                    <Spinner className="dialog-wait-ct-spinner" size="md" />
                 </>
                 : null),
             extra_element: extra,
@@ -577,13 +577,13 @@ const TypeAheadSelectElement = ({ options, change }) => {
 
     return (
         <TypeAheadSelect
-            variant={SelectVariant.typeahead}
+            variant="typeahead"
             isCreatable
             createText={_("Use")}
             id="nfs-path-on-server"
             isOpen={isOpen}
             selections={value}
-            onToggle={isOpen => setIsOpen(isOpen)}
+            onToggle={(_event, isOpen) => setIsOpen(isOpen)}
             onSelect={(event, value) => { setValue(value); change(value) }}
             onClear={() => setValue(false)}
             isDisabled={options.disabled}>
@@ -705,7 +705,7 @@ export const SelectSpaces = (tag, title, options) => {
                         const block = spc.block ? nice_block_name(spc.block) : "";
                         const desc = block === spc.desc ? "" : spc.desc;
 
-                        const on_change = (checked) => {
+                        const on_change = (_event, checked) => {
                             if (checked && !selected)
                                 change(val.concat(spc));
                             else if (!checked && selected)
@@ -808,7 +808,7 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
                           }
                       </>
                   }
-                  onChange={update_function} />
+                  onChange={(_, v) => update_function(v)} />
     );
 };
 
@@ -861,7 +861,7 @@ const TextInputCheckedComponent = ({ tag, val, title, update_function }) => {
             <Checkbox isChecked={val !== false}
                       id={tag}
                       label={title}
-                      onChange={checked => update_function(checked ? "" : false)} />
+                      onChange={(_event, checked) => update_function(checked ? "" : false)} />
             {val !== false && <TextInputPF4 id={tag + "-input"} value={val} onChange={update_function} />}
         </div>
     );

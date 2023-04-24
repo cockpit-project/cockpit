@@ -233,7 +233,7 @@ export class KpatchSettings extends React.Component {
 
         if (this.state.loaded === false || this.state.patchName === null) {
             // Not yet recognized
-            state = <Spinner isSVG size="md" />;
+            state = <Spinner size="md" />;
         } else if (this.state.unavailable.length > 0) {
             state = <Popover headerContent={ _("Unavailable packages") } bodyContent={ this.state.unavailable.join(", ") }>
                 <span>
@@ -259,7 +259,7 @@ export class KpatchSettings extends React.Component {
         const body = <Form><Checkbox id="apply-kpatch"
                                isChecked={this.state.applyCheckbox}
                                label={_("Apply kernel live patches")}
-                               onChange={checked => this.setState({ applyCheckbox: checked })}
+                               onChange={(_event, checked) => this.setState({ applyCheckbox: checked })}
                                body={<>
                                    <Radio id="current-future"
                                           label={_("for current and future kernels")}
@@ -287,7 +287,7 @@ export class KpatchSettings extends React.Component {
                     </Flex>
                     <Flex>
                         <Button variant="secondary"
-                                isSmall
+                                size="sm"
                                 isDisabled={!this.props.privileged || this.state.updating || !this.state.loaded || this.state.unavailable.length > 0}
                                 onClick={action}>
                             {actionText}

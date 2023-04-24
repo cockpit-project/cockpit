@@ -101,7 +101,7 @@ export const BridgeDialog = ({ connection, dev, settings }) => {
                     <MemberInterfaceChoices idPrefix={idPrefix} memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
                 <FormGroup label={_("Options")} fieldId={idPrefix + "-stp-enabled-input"} hasNoPaddingTop>
-                    <Checkbox id={idPrefix + "-stp-enabled-input"} isChecked={stp} onChange={setStp} label={_("Spanning tree protocol (STP)")} />
+                    <Checkbox id={idPrefix + "-stp-enabled-input"} isChecked={stp} onChange={(_, s) => setStp(s)} label={_("Spanning tree protocol (STP)")} />
                     {stp && <>
                         <FormGroup fieldId="network-bridge-stp-settings-priority-input" label={_("STP priority")}>
                             <TextInput id="network-bridge-stp-settings-priority-input" className="network-number-field" value={priority} onChange={setPriority} />

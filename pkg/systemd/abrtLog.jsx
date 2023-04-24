@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 
 import React from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionToggle } from "@patternfly/react-core/dist/esm/components/Accordion/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
@@ -286,10 +286,8 @@ export class AbrtLogDetails extends React.Component {
                 </GalleryItem>
                 <GalleryItem id="abrt-details">
                     <Card>
-                        <CardHeader>
-                            <CardActions>
-                                <Button variant="danger" onClick={this.onDelete}>{_("Delete")}</Button>
-                            </CardActions>
+                        <CardHeader actions={{ actions: <><Button variant="danger" onClick={this.onDelete}>{_("Delete")}</Button></> }}>
+
                             <CardTitle><h2>{_("Extended information")}</h2></CardTitle>
                         </CardHeader>
                         <CardBody>

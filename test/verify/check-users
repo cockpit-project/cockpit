@@ -530,7 +530,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "jussi")
         b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
         b.wait_not_present("#account-groups-helper")
-        b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + button[aria-label='Close {m.get_admin_group()}']")
+        b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
         b.wait(lambda: not is_admin())
         b.wait_not_present(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
         if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
@@ -1155,11 +1155,11 @@ class TestAccounts(MachineCase):
 
         # Primary group cannot be remove but others have a remove button
         b.wait_visible(".pf-c-label-group__list .pf-c-label__content:contains(admin)")
-        b.wait_not_present(".pf-c-label-group__list .pf-c-label__content:contains(admin) + button")
-        b.wait_visible(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + button[aria-label='Close {m.get_admin_group()}']")
+        b.wait_not_present(".pf-c-label-group__list .pf-c-label__content:contains(admin) + span > button")
+        b.wait_visible(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
 
         # Clicking on the close button removes the group
-        b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + button[aria-label='Close {m.get_admin_group()}']")
+        b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
         b.wait_not_present(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()})")
         b.wait_not_present(".pf-c-select__menu")
 

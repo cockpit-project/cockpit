@@ -1226,7 +1226,7 @@ server {
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.wait_visible('article.system-health')
+        b.wait_visible('.pf-c-card.system-health')
 
     @skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @skipOstree("nginx not installed")

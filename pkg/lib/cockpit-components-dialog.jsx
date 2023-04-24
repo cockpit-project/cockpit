@@ -144,7 +144,7 @@ class DialogFooter extends React.Component {
                 cancel_disabled = true;
             wait_element = <div className="dialog-wait-ct">
                 <span>{ this.state.action_progress_message }</span>
-                <Spinner isSVG className="dialog-wait-ct-spinner" size="md" />
+                <Spinner className="dialog-wait-ct-spinner" size="md" />
             </div>;
         } else if (this.props.idle_message) {
             wait_element = <div className="dialog-wait-ct">

@@ -41,9 +41,9 @@ class TestNetworkingVLAN(NetworkCase):
         b.wait_visible("#network-vlan-settings-dialog")
 
         # wait until dialog initialized
-        b.wait_visible("#network-vlan-settings-dialog > button[aria-label=Close]")
+        b.wait_visible("#network-vlan-settings-dialog button[aria-label=Close]")
         # Remove focus ring around the close button, which causes pixel tests retries.
-        b.blur("#network-vlan-settings-dialog > button[aria-label=Close]")
+        b.blur("#network-vlan-settings-dialog button[aria-label=Close]")
         b.wait_visible("#network-vlan-settings-interface-name-input")
         b.assert_pixels("#network-vlan-settings-dialog", "networking-vlan-settings-dialog")
 

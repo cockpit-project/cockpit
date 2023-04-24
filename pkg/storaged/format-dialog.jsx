@@ -98,7 +98,7 @@ export function initial_mount_options(client, block) {
 
 export const mount_explanation = {
     local:
-    <FormHelperText isHidden={false} component="div">
+    <FormHelperText>
         <HelperText>
             <HelperTextItem hasIcon>
                 {_("Mounts before services start")}
@@ -112,7 +112,7 @@ export const mount_explanation = {
         </HelperText>
     </FormHelperText>,
     nofail:
-    <FormHelperText isHidden={false} component="div">
+    <FormHelperText>
         <HelperText>
             <HelperTextItem hasIcon>
                 {_("Mounts in parallel with services")}
@@ -123,7 +123,7 @@ export const mount_explanation = {
         </HelperText>
     </FormHelperText>,
     netdev:
-    <FormHelperText isHidden={false} component="div">
+    <FormHelperText>
         <HelperText>
             <HelperTextItem hasIcon>
                 {_("Mounts in parallel with services, but after network is available")}
@@ -134,7 +134,7 @@ export const mount_explanation = {
         </HelperText>
     </FormHelperText>,
     never:
-    <FormHelperText isHidden={false} component="div">
+    <FormHelperText>
         <HelperText>
             <HelperTextItem hasIcon>
                 {_("Does not mount during boot")}

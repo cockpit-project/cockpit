@@ -20,12 +20,11 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { Alert, AlertActionCloseButton } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
-import { AlertGroup } from "@patternfly/react-core/dist/esm/components/AlertGroup/index.js";
+import { Alert, AlertActionCloseButton, AlertGroup } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
@@ -391,20 +390,20 @@ export class SETroubleshootPage extends React.Component {
                 if (this.state.selected[k])
                     this.props.deleteAlert(k).then(() => this.setState(prevState => ({ selected: { ...prevState.selected, [k]: false } })));
         };
+        const actions = (
+            !emptyState
+                ? <Button className="selinux-alert-dismiss"
+                variant="danger"
+                onClick={onDeleteClick}
+                isDisabled={ !this.props.deleteAlert || !selectedCnt}>
+                    {selectedCnt ? cockpit.format(cockpit.ngettext("Dismiss $0 alert", "Dismiss $0 alerts", selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
+                </Button>
+                : null
+        );
         const troubleshooting = (
             <Card>
-                <CardHeader>
+                <CardHeader actions={{ actions }}>
                     <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
-                    {!emptyState
-                        ? <CardActions>
-                            <Button className="selinux-alert-dismiss"
-                                variant="danger"
-                                onClick={onDeleteClick}
-                                isDisabled={ !this.props.deleteAlert || !selectedCnt}>
-                                {selectedCnt ? cockpit.format(cockpit.ngettext("Dismiss $0 alert", "Dismiss $0 alerts", selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
-                            </Button>
-                        </CardActions>
-                        : null}
                 </CardHeader>
                 <CardBody className="contains-list">
                     {!emptyState

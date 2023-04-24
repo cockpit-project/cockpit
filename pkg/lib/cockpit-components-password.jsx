@@ -119,7 +119,7 @@ export const PasswordFormFields = ({
                               value={Number.isInteger(passwordStrength) ? passwordStrength : 0} />
                     <div id={idPrefix + "-password-meter-message"} className="pf-c-form__helper-text" aria-live="polite">{passwordMessage}</div>
                 </div>
-                {error_password && <FormHelperText isHidden={false} component="div">
+                {error_password && <FormHelperText>
                     <HelperText component="ul" aria-live="polite" id="password-error-message">
                         <HelperTextItem isDynamic variant="warning" component="li">
                             {error_password}

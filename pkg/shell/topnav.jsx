@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Dropdown, DropdownGroup, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Dropdown, DropdownGroup, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { Masthead, MastheadContent } from "@patternfly/react-core/dist/esm/components/Masthead/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/components/ToggleGroup/index.js";
@@ -223,7 +223,7 @@ export class TopNav extends React.Component {
                         <ToolbarContent className="ct-topnav-content">
                             {(connected && this.state.frame && !this.state.frame.getAttribute("data-ready")) &&
                                 <ToolbarItem id="machine-spinner">
-                                    <Spinner isSVG size="lg" style={{ "--pf-c-spinner--Color": "#fff", "--pf-c-spinner--diameter": "2rem" }} />
+                                    <Spinner size="lg" style={{ "--pf-c-spinner--Color": "#fff", "--pf-c-spinner--diameter": "2rem" }} />
                                 </ToolbarItem>
                             }
                             { connected &&
@@ -233,7 +233,7 @@ export class TopNav extends React.Component {
                             }
                             { this.props.index.has_oops &&
                                 <ToolbarItem>
-                                    <Button id="navbar-oops" variant="link" isLarge isDanger
+                                    <Button id="navbar-oops" variant="link" size="lg" isDanger
                                             onClick={() => Dialogs.show(<OopsModal />)}>{_("Ooops!")}</Button>
                                 </ToolbarItem>
                             }
@@ -244,7 +244,7 @@ export class TopNav extends React.Component {
                                         document.getElementById("toggle-docs").focus();
                                     }}
                                     toggle={
-                                        <DropdownToggle id="toggle-docs" icon={<HelpIcon size="md" />} onToggle={isOpen => { this.setState({ docsOpened: isOpen }) }}>
+                                        <DropdownToggle id="toggle-docs" icon={<HelpIcon size="md" />} onToggle={(_event, isOpen) => { this.setState({ docsOpened: isOpen }) }}>
                                             {_("Help")}
                                         </DropdownToggle>
                                     }
@@ -262,7 +262,7 @@ export class TopNav extends React.Component {
                                         document.getElementById("toggle-menu").focus();
                                     }}
                                     toggle={
-                                        <DropdownToggle id="toggle-menu" icon={<CogIcon size="md" />} onToggle={(isOpen, ev) => this.setState({ menuOpened: isOpen, showActivePages: ev.altKey }) }>
+                                        <DropdownToggle id="toggle-menu" icon={<CogIcon size="md" />} onToggle={(_event, isOpen) => this.setState({ menuOpened: isOpen, showActivePages: _event.altKey }) }>
                                             {_("Session")}
                                         </DropdownToggle>
                                     }

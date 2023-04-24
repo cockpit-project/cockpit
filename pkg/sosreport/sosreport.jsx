@@ -28,12 +28,12 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
-import { Dropdown, DropdownItem, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
@@ -317,9 +317,9 @@ const SOSDialog = () => {
             </FormGroup>
             <FormGroup label={_("Options")} hasNoPaddingTop>
                 <Checkbox label={_("Obfuscate network addresses, hostnames, and usernames")}
-                          id="sos-dialog-cb-1" isChecked={obfuscate} onChange={setObfuscate} />
+                          id="sos-dialog-cb-1" isChecked={obfuscate} onChange={(_, o) => setObfuscate(o)} />
                 <Checkbox label={_("Use verbose logging")}
-                          id="sos-dialog-cb-2" isChecked={verbose} onChange={setVerbose} />
+                          id="sos-dialog-cb-2" isChecked={verbose} onChange={(_, v) => setVerbose(v)} />
             </FormGroup>
         </Form>
     </Modal>;
@@ -387,7 +387,7 @@ const Menu = ({ items }) => {
 
     return (
         <Dropdown onSelect={() => setIsOpen(!isOpen)}
-                  toggle={<KebabToggle onToggle={setIsOpen} />}
+                  toggle={<KebabToggle onToggle={(_, isOpen) => setIsOpen(isOpen)} />}
                   isOpen={isOpen}
                   isPlain
                   position="right"
@@ -487,15 +487,15 @@ const SOSBody = () => {
     return (
         <PageSection>
             <Card className="ct-card">
-                <CardHeader>
+                <CardHeader actions={{
+                    actions: <Button id="create-button" variant="primary" onClick={run_report}>
+                        {_("Run report")}
+                    </Button>,
+                }}>
                     <CardTitle>
                         <Text component={TextVariants.h2}>{_("Reports")}</Text>
                     </CardTitle>
-                    <CardActions>
-                        <Button id="create-button" variant="primary" onClick={run_report}>
-                            {_("Run report")}
-                        </Button>
-                    </CardActions>
+
                 </CardHeader>
                 <CardBody className="contains-list">
                     <ListingTable emptyCaption={_("No system reports.")}

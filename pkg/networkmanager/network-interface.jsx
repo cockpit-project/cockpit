@@ -20,7 +20,7 @@ import cockpit from "cockpit";
 import React, { useContext } from "react";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
@@ -328,7 +328,7 @@ export const NetworkInterfacePage = ({
                         <DescriptionListTerm>{_("General")}</DescriptionListTerm>
                         <DescriptionListDescription>
                             <Checkbox id="autoreconnect" isDisabled={!privileged}
-                                      onChange={checked => {
+                                      onChange={(_event, checked) => {
                                           settings.connection.autoconnect = checked;
                                           settings_applier(self.model, dev, con)(settings);
                                       }}
@@ -707,21 +707,25 @@ export const NetworkInterfacePage = ({
             <PageSection>
                 <Gallery hasGutter>
                     <Card className="network-interface-details">
-                        <CardHeader>
+                        <CardHeader actions={{
+                            actions: (
+                                <>
+                                    {isDeletable && isManaged &&
+                                    <Button variant="danger"
+                                                 onClick={syn_click(model, deleteConnections)}
+                                                 id="network-interface-delete">
+                                        {_("Delete")}
+                                    </Button>}
+                                    {onoff}
+                                </>
+                            ),
+                        }}>
                             <CardTitle className="network-interface-details-title">
                                 <span id="network-interface-name">{dev_name}</span>
                                 <span id="network-interface-hw">{renderDesc()}</span>
                                 <span id="network-interface-mac">{renderMac()}</span>
                             </CardTitle>
-                            <CardActions>
-                                {isDeletable && isManaged &&
-                                <Button variant="danger"
-                                         onClick={syn_click(model, deleteConnections)}
-                                         id="network-interface-delete">
-                                    {_("Delete")}
-                                </Button>}
-                                {onoff}
-                            </CardActions>
+
                         </CardHeader>
                         <CardBody>
                             <DescriptionList id="network-interface-settings" className="network-interface-settings pf-m-horizontal-on-sm">

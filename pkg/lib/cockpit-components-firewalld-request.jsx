@@ -19,7 +19,7 @@
 import React, { useState } from 'react';
 import { Alert, AlertActionCloseButton, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Select, SelectOption } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import { PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 
@@ -133,7 +133,7 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
                             <ToolbarItem>
                                 <Select
                                     aria-label={_("Zone")}
-                                    onToggle={isOpen => setZoneSelectorOpened(isOpen)}
+                                    onToggle={(_event, isOpen) => setZoneSelectorOpened(isOpen)}
                                     isOpen={zoneSelectorOpened}
                                     onSelect={ (e, sel) => { setSelectedZone(sel); setZoneSelectorOpened(false) } }
                                     selections={selectedZone}

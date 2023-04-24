@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import PropTypes from "prop-types";
 import { debounce } from 'throttle-debounce';
 
@@ -149,7 +149,7 @@ export class FileAutoComplete extends React.Component {
         });
     }
 
-    onToggle(isOpen) {
+    onToggle(_, isOpen) {
         this.setState({ isOpen });
     }
 
@@ -172,7 +172,7 @@ export class FileAutoComplete extends React.Component {
                                              value={option.path} />);
         return (
             <Select
-                variant={SelectVariant.typeahead}
+                variant="typeahead"
                 id={this.props.id}
                 isInputValuePersisted
                 onTypeaheadInputChanged={this.debouncedChange}

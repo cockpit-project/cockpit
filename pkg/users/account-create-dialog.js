@@ -117,7 +117,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
                            <Checkbox id="accounts-create-force-password-change"
                                      className="pf-u-mb-xs"
                                      label={_("Require password change on first login")}
-                                     isChecked={change_passw_force} onChange={checked => change("change_passw_force", checked)} />
+                                     isChecked={change_passw_force} onChange={(_event, checked) => change("change_passw_force", checked)} />
                        } />
 
                 <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
@@ -468,7 +468,7 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
         if (state.dialogLoading) {
             props.body = (
                 <Bullseye>
-                    <Spinner isSVG />
+                    <Spinner />
                 </Bullseye>
             );
         } else {

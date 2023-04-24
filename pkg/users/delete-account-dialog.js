@@ -31,7 +31,7 @@ function DeleteAccountDialogBody({ state, change }) {
     return (
         <Checkbox id="account-confirm-delete-files"
                   label={_("Delete files")}
-                  isChecked={delete_files} onChange={checked => change("delete_files", checked)} />
+                  isChecked={delete_files} onChange={(_event, checked) => change("delete_files", checked)} />
     );
 }
 

@@ -23,7 +23,7 @@ import React, { useState, useRef, useLayoutEffect } from 'react';
 import { useEvent } from "hooks.js";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Dropdown, DropdownItem, DropdownSeparator, DropdownToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Dropdown, DropdownItem, DropdownSeparator, DropdownToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 
 import { AngleLeftIcon, AngleRightIcon, SearchMinusIcon } from '@patternfly/react-icons';
 

@@ -31,12 +31,12 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { Page, PageGroup, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Progress, ProgressVariant } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
-import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
-import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth, fitContent } from '@patternfly/react-table';
+import { Table, Thead, Tbody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth, fitContent } from '@patternfly/react-table';
 import {
     AngleRightIcon, AngleDownIcon, ExclamationTriangleIcon, ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon,
     ResourcesFullIcon, ResourcesAlmostFullIcon, ResourcesAlmostEmptyIcon
@@ -673,8 +673,8 @@ class CurrentMetrics extends React.Component {
                     cells={ [{ title: _("Device"), transforms: [fitContent] }, _("Read"), _("Write")] }
                     rows={disksUsage}
                     rowWrapper={ props => <RowWrapper device-name={ props.row[0] } {...props} /> }>
-                    <TableHeader />
-                    <TableBody className="pf-m-tabular-nums disks-nowrap" />
+                    <Thead />
+                    <Tbody className="pf-m-tabular-nums disks-nowrap" />
                 </Table>
             );
 
@@ -737,8 +737,8 @@ class CurrentMetrics extends React.Component {
                                 aria-label={ _("Top 5 CPU services") }
                                 cells={ [{ title: _("Service"), transforms: [cellWidth(80)] }, "%"] }
                                 rows={this.state.topServicesCPU}>
-                                <TableHeader />
-                                <TableBody />
+                                <Thead />
+                                <Tbody />
                             </Table> }
                     </CardBody>
                 </Card>
@@ -770,8 +770,8 @@ class CurrentMetrics extends React.Component {
                                 aria-label={ _("Top 5 memory services") }
                                 cells={ [{ title: _("Service"), transforms: [cellWidth(80)] }, _("Used")] }
                                 rows={this.state.topServicesMemory}>
-                                <TableHeader />
-                                <TableBody />
+                                <Thead />
+                                <Tbody />
                             </Table> }
                     </CardBody>
                 </Card>
@@ -833,8 +833,8 @@ class CurrentMetrics extends React.Component {
                             aria-label={ _("Network usage") }
                             cells={ [_("Interface"), _("In"), _("Out")] } rows={netIO}
                             rowWrapper={ props => <RowWrapper data-interface={ props.row[0] } {...props} /> }>
-                            <TableHeader />
-                            <TableBody className="network-nowrap-shrink" />
+                            <Thead />
+                            <Tbody className="network-nowrap-shrink" />
                         </Table>
                     </CardBody>
                 </Card>
@@ -1480,7 +1480,7 @@ class MetricsHistory extends React.Component {
         this.load_data(this.oldest_timestamp - (LOAD_HOURS * MSEC_PER_H), LOAD_HOURS * SAMPLES_PER_H, true);
     }
 
-    handleToggle(isOpen) {
+    handleToggle(_, isOpen) {
         this.setState({ isDatepickerOpened: isOpen });
     }
 
@@ -1744,7 +1744,7 @@ class MetricsHistory extends React.Component {
                             <Select
                                 toggleAriaLabel={_("Graph visibility options menu")}
                                 className="select-min metrics-label"
-                                variant={SelectVariant.checkbox}
+                                variant="checkbox"
                                 isCheckboxSelectionBadgeHidden
                                 isOpen={!!this.state.isOpenColumnVisibility}
                                 onSelect={(_, selection) => {

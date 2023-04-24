@@ -24,7 +24,7 @@ import 'cockpit-dark-theme'; // once per page
 import React, { useState, useEffect, useCallback } from "react";
 import { createRoot } from 'react-dom/client';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Card } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
@@ -828,8 +828,8 @@ const ServicesPageFilters = ({
                            categoryName={_("Active state")}>
                 <Select aria-label={_("Active state")}
                         toggleId="services-dropdown-active-state"
-                        variant={SelectVariant.checkbox}
-                        onToggle={setActiveStateFilterIsOpen}
+                        variant="checkbox"
+                        onToggle={(_, isOpen) => setActiveStateFilterIsOpen(isOpen)}
                         onSelect={onActiveStateSelect}
                         selections={filters.activeState}
                         isOpen={activeStateFilterIsOpen}
@@ -844,8 +844,8 @@ const ServicesPageFilters = ({
                            categoryName={_("File state")}>
                 <Select aria-label={_("File state")}
                         toggleId="services-dropdown-file-state"
-                        variant={SelectVariant.checkbox}
-                        onToggle={setFileStateFilterIsOpen}
+                        variant="checkbox"
+                        onToggle={(_, isOpen) => setFileStateFilterIsOpen(isOpen)}
                         onSelect={onFileStateSelect}
                         selections={filters.fileState}
                         isOpen={fileStateFilterIsOpen}

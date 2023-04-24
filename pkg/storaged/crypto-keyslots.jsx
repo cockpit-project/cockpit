@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -658,7 +658,7 @@ const RemovePassphraseField = (tag, key, dev) => {
                         <Checkbox id="force-remove-passphrase"
                                   isChecked={val !== false}
                                   label={_("Confirm removal with an alternate passphrase")}
-                                  onChange={checked => change(checked ? "" : false)}
+                                  onChange={(_event, checked) => change(checked ? "" : false)}
                                   body={val === false
                                       ? <p className="slot-warning">
                                           {_("Removing a passphrase without confirmation of another passphrase may prevent unlocking or key management, if other passphrases are forgotten or lost.")}
@@ -836,19 +836,21 @@ export class CryptoKeyslots extends React.Component {
 
         return (
             <Card className="key-slot-panel">
-                <CardHeader>
-                    <CardActions>
+                <CardHeader actions={{
+                    actions: <>
                         <span className="key-slot-panel-remaining">
                             { remaining < 6 ? (remaining ? cockpit.format(cockpit.ngettext("$0 slot remains", "$0 slots remain", remaining), remaining) : _("No available slots")) : null }
                         </span>
                         <StorageButton onClick={() => add_dialog(client, block)}
-                                       ariaLabel={_("Add")}
-                                       excuse={(keys.length == max_slots)
-                                           ? _("No free key slots")
-                                           : null}>
+                                           ariaLabel={_("Add")}
+                                           excuse={(keys.length == max_slots)
+                                               ? _("No free key slots")
+                                               : null}>
                             <PlusIcon />
                         </StorageButton>
-                    </CardActions>
+                    </>,
+                }}>
+
                     <CardTitle><Text component={TextVariants.h2}>{_("Keys")}</Text></CardTitle>
                 </CardHeader>
                 <CardBody className="contains-list">

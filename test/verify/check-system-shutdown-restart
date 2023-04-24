@@ -98,7 +98,7 @@ class TestShutdownRestart(MachineCase):
         b2.switch_to_top()
 
         b2.wait_visible(".curtains-ct")
-        b2.wait_visible(".curtains-ct .ct-spinner")
+        b2.wait_visible(".curtains-ct .pf-c-spinner")
         b2.wait_in_text(".curtains-ct h1", "rebooting")
 
         m.wait_reboot()

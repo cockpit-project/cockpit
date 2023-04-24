@@ -21,7 +21,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
@@ -188,7 +188,7 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, del
     return (
         <Dropdown id="service-actions" title={ _("Additional actions") }
                   toggle={<KebabToggle isDisabled={disabled}
-                                       onToggle={setIsActionOpen} />}
+                                       onToggle={(_, isOpen) => setIsActionOpen(isOpen)} />}
                   isOpen={isActionOpen}
                   isPlain
                   onSelect={() => setIsActionOpen(!isActionOpen)}
@@ -524,7 +524,7 @@ export class ServiceDetails extends React.Component {
         if (this.state.waitsAction || this.state.waitsFileAction) {
             status = [
                 <div key="updating" className="status-updating">
-                    <Spinner isSVG size="md" className="status-icon" />
+                    <Spinner size="md" className="status-icon" />
                     <span className="status">{ _("Updating status...") }</span>
                 </div>
             ];

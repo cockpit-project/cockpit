@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
@@ -113,17 +113,15 @@ export const Application = ({ metainfo_db, id, progress, progress_title, action 
 
         return (
             <Card>
-                <CardHeader>
+                <CardHeader actions={{
+                    actions: <>{progress_or_launch}<ActionButton comp={comp} progress={progress} action={action} /></>,
+                }}>
                     <CardTitle>
                         <Flex alignItems={{ default: 'alignItemsCenter' }}>
                             <img src={icon_url(comp.icon)} role="presentation" alt="" />
                             <span>{comp.summary}</span>
                         </Flex>
                     </CardTitle>
-                    <CardActions>
-                        {progress_or_launch}
-                        <ActionButton comp={comp} progress={progress} action={action} />
-                    </CardActions>
                 </CardHeader>
                 <CardBody>
                     <Stack hasGutter>

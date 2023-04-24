@@ -201,7 +201,7 @@ def install_python_bridge():
     import build
     builder = build.ProjectBuilder(BASE_DIR)
     wheel = builder.build('wheel', f'{BASE_DIR}/tmp/wheel')
-    return ['--install', wheel]
+    return ['--install', wheel, '--run-command', 'sed -i "s_/usr/bin_/usr/local/bin_" /usr/share/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy']
 
 
 def main():

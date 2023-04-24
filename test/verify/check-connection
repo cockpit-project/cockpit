@@ -23,7 +23,7 @@ import os
 import subprocess
 
 import parent  # noqa: F401
-from testlib import (MachineCase, TEST_DIR, nondestructive, todoPybridgeRHEL8, test_main, wait,
+from testlib import (MachineCase, TEST_DIR, nondestructive, test_main, wait,
                      skipBrowser, skipDistroPackage, skipImage, skipOstree)
 
 
@@ -823,7 +823,6 @@ export XDG_CONFIG_DIRS=/usr/local
 
     @skipOstree("OSTree doesn't have cockpit-ws")
     @skipImage("Kernel does not allow user namespaces", "debian-*")
-    @todoPybridgeRHEL8(reason="regression from https://github.com/cockpit-project/cockpit/pull/18398")
     @nondestructive
     def testCockpitDesktop(self):
         m = self.machine
@@ -862,7 +861,8 @@ export XDG_CONFIG_DIRS=/usr/local
 
         for (pages, asserts) in cases:
             for page in pages:
-                m.execute(f'''su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" {self.libexecdir}/cockpit-desktop {page}' admin''')
+                m.execute(f'''su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" {self.libexecdir}/cockpit-desktop {page}' admin''',
+                          timeout=10)
 
                 out = m.execute("cat /tmp/out.html")
                 for a in asserts:
@@ -888,13 +888,18 @@ ResultAny=yes
 ResultInactive=yes
 ResultActive=yes""")
 
-        self.write_file(r"/tmp/browser.sh", """#!/bin/sh -e
+        if os.environ.get("TEST_SCENARIO") == "pybridge":
+            pgrep = "^/usr/bin/python.*cockpit-bridge.*--privileged"
+        else:
+            pgrep = "^/usr/bin/cockpit-bridge.*--privileged"
+
+        self.write_file("/tmp/browser.sh", f"""#!/bin/sh -e
 curl --silent --compressed -o /tmp/out.html "$@"
 # wait until privileged bridge starts
-until pgrep -f '[c]ockpit-bridge.*--privileged'; do sleep 1; done
+until pgrep -f '{pgrep}'; do sleep 1; done
 """)
         m.execute("chmod 755 /tmp/browser.sh")
-        m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin")
+        m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin", timeout=10)
         self.assertIn('id="overview"', m.execute("cat /tmp/out.html"))
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")

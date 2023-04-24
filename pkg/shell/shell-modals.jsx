@@ -32,7 +32,6 @@ import { useInit } from "hooks";
 import { useDialogs } from "dialogs.jsx";
 
 import "menu-select-widget.scss";
-import { EmptyState, EmptyStateVariant, Title } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -142,9 +141,7 @@ export const LangModal = () => {
                                     if (filteredLocales.length === 0) {
                                         return (
                                             <MenuItem>
-                                                <EmptyState style={{ padding: "0" }} variant={EmptyStateVariant.xs}>
-                                                    <Title headingLevel="h4" size="md">No results found.</Title>
-                                                </EmptyState>
+                                               {_("No results found")}
                                             </MenuItem>
                                         );
                                     }

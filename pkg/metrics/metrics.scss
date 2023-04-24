@@ -12,7 +12,7 @@
 
 #app {
   section.pf-c-page__main-breadcrumb {
-    padding-bottom: var(--pf-c-page__main-breadcrumb--PaddingTop);
+    padding-block-end: var(--pf-c-page__main-breadcrumb--PaddingTop);
   }
 }
 
@@ -33,7 +33,7 @@ html {
 
 // Remove doubled-up padding on "main" sections, when two+ sections are used.
 .pf-c-page__main-section + .pf-c-page__main-section {
-  padding-top: 0;
+  padding-block-start: 0;
 }
 
 // FIXME: More styles from ct-system-overview
@@ -74,12 +74,12 @@ html {
       // including table headings
       > :first-child,
       > :first-child > thead > tr > th {
-        padding-top: 0;
+        padding-block-start: 0;
       }
 
       .pf-c-table thead th:not(:first-child),
       .pf-c-table tbody td:not(:first-child) {
-        text-align: right;
+        text-align: inline-end;
       }
     }
 
@@ -105,21 +105,21 @@ html {
 
     .progress-stack {
       display: grid;
-      padding-bottom: var(--pf-global--spacer--sm);
+      padding-block-end: var(--pf-global--spacer--sm);
       grid-gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
 
       &:not(:first-child) {
-        padding-top: var(--pf-global--spacer--sm);
+        padding-block-start: var(--pf-global--spacer--sm);
       }
     }
 
     .progress-stack-no-space {
       display: grid;
-      padding-bottom: var(--pf-global--spacer--sm);
+      padding-block-end: var(--pf-global--spacer--sm);
       grid-gap: 0;
 
       &:not(:first-child) {
-        padding-top: var(--pf-global--spacer--sm);
+        padding-block-start: var(--pf-global--spacer--sm);
       }
 
       // avoid the "x" icon on high CPU usage
@@ -129,7 +129,7 @@ html {
 
       // don't center the "View all CPUs" button
       button {
-        padding-left: 0;
+        padding-inline-start: 0;
         width: fit-content;
       }
     }
@@ -169,7 +169,7 @@ html {
 
     + .pf-c-progress {
       // Add a tiny gap for sandwiched usage bars (as in CPU)
-      padding-top: 1px;
+      padding-block-start: 1px;
     }
   }
 
@@ -226,7 +226,7 @@ html {
 
   .pf-m-grid-lg.pf-c-table {
     tbody:first-of-type {
-      border-top: none;
+      border-block-start: none;
     }
 
     tbody tr:not(.pf-c-table__expandable-row) {
@@ -237,7 +237,7 @@ html {
       --pf-c-table-tr--responsive--border-width--base: 1px;
 
       &:last-child {
-        border-bottom: none;
+        border-block-end: none;
       }
 
       > * {
@@ -250,7 +250,7 @@ html {
   .all-disks-no-gap {
     // don't center the "View all disks" button
     button {
-      padding-left: 0;
+      padding-inline-start: 0;
       width: fit-content;
     }
   }
@@ -258,7 +258,7 @@ html {
 
 .pf-c-popover {
   thead th:not(:first-child) {
-    text-align: right;
+    text-align: inline-end;
   }
 
   .disks-nowrap {
@@ -267,7 +267,7 @@ html {
     }
 
     td:not(:first-child) {
-      text-align: right;
+      text-align: inline-end;
     }
   }
 }
@@ -278,7 +278,7 @@ html {
   }
 
   .current-metrics .pf-c-card__body {
-    overflow-y: auto;
+    overflow-block: auto;
     max-height: 50vw;
   }
 
@@ -360,7 +360,7 @@ $graphs: cpu, memory, disks, network;
 
   &-graphs {
     flex-basis: var(--graph-column-size);
-    margin-left: auto;
+    margin-inline-start: auto;
     display: grid;
     grid-template-columns: repeat(var(--graph-cnt), minmax(var(--column-size), 1fr));
 
@@ -372,13 +372,13 @@ $graphs: cpu, memory, disks, network;
   &-sublabels.pf-c-content {
     small {
       font-size: var(--pf-global--FontSize--xs);
-      margin-bottom: var(--pf-global--spacer--xs) !important;
+      margin-block-end: var(--pf-global--spacer--xs) !important;
     }
     display: flex;
   }
 
   &-label-graph {
-    text-align: right;
+    text-align: inline-end;
 
     & .metrics-sublabels {
       justify-content: flex-end;
@@ -420,10 +420,10 @@ $graphs: cpu, memory, disks, network;
     }
 
     time:first-child {
-      margin-left: calc(3rem + var(--pf-global--spacer--sm));
+      margin-inline-start: calc(3rem + var(--pf-global--spacer--sm));
 
       + .spikes_count {
-        padding-left: calc(var(--pf-global--spacer--xl) + var(--pf-global--spacer--md));
+        padding-inline-start: calc(var(--pf-global--spacer--xl) + var(--pf-global--spacer--md));
         color: var(--pf-global--Color--200);
       }
     }
@@ -471,14 +471,12 @@ $graphs: cpu, memory, disks, network;
 
   &-time,
   &-heading {
-    padding-right: var(--pf-c-page__main-section--PaddingRight);
-    padding-left: var(--pf-c-page__main-section--PaddingLeft);
+    padding-inline: var(--pf-c-page__main-section--PaddingLeft) var(--pf-c-page__main-section--PaddingRight);
   }
 
   &-time {
     background: var(--metrics-heading-time-color);
-    padding-top: var(--pf-global--spacer--md);
-    padding-bottom: var(--pf-global--spacer--sm);
+    padding-block: var(--pf-global--spacer--md) var(--pf-global--spacer--sm);
 
     // Time has tabular numbers, but it's not what we want for a heading
     time {
@@ -516,7 +514,7 @@ $graphs: cpu, memory, disks, network;
       width: 100%;
       top: 0;
       bottom: 0;
-      border-right: 1px solid rgb(0 0 0 / 30%);
+      border-inline-end: 1px solid rgb(0 0 0 / 30%);
     }
 
     &.valid-data.have-saturation::before {
@@ -529,14 +527,14 @@ $graphs: cpu, memory, disks, network;
       position: absolute;
       z-index: 1;
       width: 50%;
-      left: 50%;
+      inset-inline-start: 50%;
     }
 
     .polygon {
       // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
       position: absolute;
       top: 0;
-      left: 0;
+      inset-inline-start: 0;
       clip-path: polygon(var(--points));
       background: var(--gradient);
       height: 100%;
@@ -551,16 +549,26 @@ $graphs: cpu, memory, disks, network;
     }
 
     .polygon.polygon-use {
-      transform: scale(-1);
+      transform: scaleX(-1);
     }
 
     .polygon-use {
       grid-area: utilization;
+
+      // Revert flip for RTL
+      [dir="rtl"] & {
+        transform: none;
+      }
     }
 
     .polygon-sat {
       opacity: 0.7;
       grid-area: saturation;
+
+      // Flip polygons for RTL
+      [dir="rtl"] & {
+        transform: scaleX(-1);
+      }
     }
 
     .compressed.polygon-sat {
@@ -571,6 +579,11 @@ $graphs: cpu, memory, disks, network;
     .compressed.polygon-use {
       background: var(--gradient-flip);
       clip-path: inset(0 0 0 calc(100% - var(--utilization) * 100%));
+
+      // Flip for RTL
+      [dir="rtl"] & {
+        transform: scaleX(-1);
+      }
     }
   }
 
@@ -589,14 +602,13 @@ $graphs: cpu, memory, disks, network;
 
   &-data.empty-data::after {
     position: initial;
-    border-right: 1px dotted rgb(0 0 0 / 30%);
+    border-inline-end: 1px dotted rgb(0 0 0 / 30%);
   }
 
   &-data.empty-data.have-saturation::after {
     position: absolute;
-    border-left: 1px dotted rgb(0 0 0 / 30%);
-    border-right: none;
-    left: 50%;
+    border-inline: 1px dotted rgb(0 0 0 / 30%) none;
+    inset-inline-start: 50%;
   }
 
   &-hour {
@@ -638,7 +650,7 @@ $graphs: cpu, memory, disks, network;
 
     time:first-child {
       + .spikes_count {
-        padding-left: 0;
+        padding-inline-start: 0;
       }
     }
   }
@@ -649,8 +661,8 @@ $graphs: cpu, memory, disks, network;
   }
 
   .metrics-label-graph-mobile {
-    padding-left: var(--pf-global--spacer--sm);
-    padding-top: var(--pf-global--spacer--sm);
+    padding-inline-start: var(--pf-global--spacer--sm);
+    padding-block-start: var(--pf-global--spacer--sm);
     font-size: var(--pf-global--FontSize--sm);
   }
 
@@ -691,7 +703,7 @@ $graphs: cpu, memory, disks, network;
   .pcp-settings-modal-text {
     // "Read more..." link
     a {
-      padding-left: 1em;
+      padding-inline-start: 1em;
       white-space: nowrap;
     }
   }

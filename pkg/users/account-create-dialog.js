@@ -121,13 +121,13 @@ function AccountCreateBody({ state, errors, change, shells }) {
                        } />
 
                 <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                    <FlexItem spacer={{ default: 'spacerSm' }}>
+                    <FlexItem spacer={{ default: 'spacerNone' }}>
                         <Radio id="accounts-create-locked"
                                isChecked={locked} onChange={(_, checked) => change("locked", checked)}
                                label={_("Disallow password authentication")} />
                     </FlexItem>
 
-                    <FlexItem spacer={{ default: 'spacerLg' }}>
+                    <FlexItem spacer={{ default: 'spacerNone' }}>
                         <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
                                  showClose={false}>
                             <HelpIcon />

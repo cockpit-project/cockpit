@@ -9,7 +9,7 @@
   }
 
   &-caption {
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
   &-tabs {
@@ -32,7 +32,7 @@
     width: 100%;
 
     // Containing hack part 1
-    float: left;
+    float: inline-start;
 
     &::after {
       // Containing hack part 2: Clearfix CSS hack,
@@ -49,7 +49,7 @@
     // Don't scroll table's expanded contents vertically.
     // Instead, rely on page scrolling.
     // Important for mobile; also useful for desktop.
-    overflow-y: visible !important;
+    overflow-block: visible !important;
     max-height: unset !important;
   }
 }
@@ -73,8 +73,8 @@
     overflow: hidden;
     max-height: 0;
     // Padding should 'tween between 0 and the actual padding (unstated)
-    padding-top: 0;
-    padding-bottom: 0;
+    padding-block-start: 0;
+    padding-block-end: 0;
   }
 
   67% {

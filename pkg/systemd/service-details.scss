@@ -9,7 +9,7 @@
 .comma-list {
   display: inline;
   list-style: none;
-  padding-left: 0;
+  padding-inline-start: 0;
 }
 
 .comma-list li {
@@ -18,12 +18,12 @@
 
 .comma-list li:not(:last-child)::after {
   content: ",";
-  margin-right: 0.5em;
+  margin-inline-end: 0.5em;
 }
 
 /* Rely on flex for spacing only */
 #service-actions button {
-  padding-left: 0;
+  padding-inline-start: 0;
 }
 
 .service-thumbtack-icon {
@@ -31,7 +31,7 @@
 }
 
 .action-button {
-  margin-left: 2rem;
+  margin-inline-start: 2rem;
 }
 
 .status-icon::before {
@@ -39,7 +39,7 @@
 }
 
 .status-icon {
-  margin-right: 0.5rem;
+  margin-inline-end: 0.5rem;
   color: var(--pf-global--icon--Color--light);
 }
 
@@ -56,7 +56,7 @@
 
 .side-note {
   color: var(--pf-global--Color--300);
-  padding-left: 1em;
+  padding-inline-start: 1em;
 }
 
 .pf-theme-dark .side-note {

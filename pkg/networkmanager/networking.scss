@@ -70,7 +70,7 @@ th {
   }
 
   &-delete {
-    margin-right: var(--pf-global--spacer--lg);
+    margin-inline-end: var(--pf-global--spacer--lg);
   }
 
   // Seems to be used for the "general" checkbox
@@ -80,7 +80,7 @@ th {
     }
 
     input {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
   }
 }
@@ -98,7 +98,7 @@ th {
 
 .network-interface-members {
   .pf-c-switch {
-    margin-right: var(--pf-global--spacer--md);
+    margin-inline-end: var(--pf-global--spacer--md);
   }
 
   .pf-c-table tbody > tr > * {
@@ -106,14 +106,13 @@ th {
   }
 
   .btn-group {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding-block: 0.5rem;
   }
 }
 
 // If the button is not the first item in the DescriptionListDescription all left padding
 .network-interface-settings dd .pf-c-description-list__text button:not(:first-child) {
-  padding-left: var(--pf-global--spacer--md);
+  padding-inline-start: var(--pf-global--spacer--md);
 }
 
 #network-mtu-settings-custom {
@@ -122,7 +121,7 @@ th {
 }
 
 #network-mtu-settings-input {
-  margin-left: 0.5em;
+  margin-inline-start: 0.5em;
   width: 5em;
   display: inline;
 }
@@ -176,7 +175,7 @@ th {
     opacity: 0.75;
 
     &:first-of-type {
-      margin-right: 1em;
+      margin-inline-end: 1em;
     }
   }
 
@@ -205,7 +204,7 @@ th {
 
 @media screen and (max-width: $pf-global--breakpoint--md) {
   .zone-section-heading.pf-c-card__header {
-    padding-left: var(--pf-global--spacer--md);
+    padding-inline-start: var(--pf-global--spacer--md);
   }
 }
 
@@ -246,12 +245,12 @@ th {
 
     /* Start line at the midpoint for the first radio */
     &:first-of-type::after {
-      left: 50%;
+      inset-inline-start: 50%;
     }
 
     /* End line at the midpoint for the last radio */
     &:last-of-type::after {
-      right: 50%;
+      inset-inline-end: 50%;
     }
   }
 }

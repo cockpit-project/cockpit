@@ -84,8 +84,8 @@
   text-align: left;
   padding-top: 0.75em;
   padding-bottom: 0.75em;
-  padding-left: 0;
-  padding-right: 0;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
   vertical-align: top;
   white-space: default;
   color: black;
@@ -96,13 +96,13 @@
 }
 
 .dialog-select-row-table td:first-child {
-  padding-left: 0.75em;
-  border-left: 1px solid #d1d1d1;
+  padding-inline-start: 0.75em;
+  border-inline-start: 1px solid #d1d1d1;
 }
 
 .dialog-select-row-table td:last-child {
-  padding-right: 0.75em;
-  border-right: 1px solid #d1d1d1;
+  padding-inline-end: 0.75em;
+  border-inline-end: 1px solid #d1d1d1;
 }
 
 .dialog-select-row-table th {
@@ -112,16 +112,16 @@
   padding: 0;
   padding-top: 0.75em;
   padding-bottom: 0.75em;
-  padding-left: 0;
-  padding-right: 0;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
 }
 
 .dialog-select-row-table th:first-child {
-  padding-left: 0.75em;
+  padding-inline-start: 0.75em;
 }
 
 .dialog-select-row-table th:last-child {
-  padding-right: 0.75em;
+  padding-inline-end: 0.75em;
 }
 
 td.storage-icon {
@@ -167,7 +167,7 @@ td.job-action {
 }
 
 .content-nav-item-warning:first-child {
-  padding-right: var(--pf-global--spacer--sm);
+  padding-inline-end: var(--pf-global--spacer--sm);
 }
 
 .content-action {
@@ -176,7 +176,7 @@ td.job-action {
 }
 
 .dialog-item-tooltip {
-  margin-left: 5px;
+  margin-inline-start: 5px;
   padding: 0;
   white-space: nowrap;
 }
@@ -200,12 +200,12 @@ tr[class*="content-level-"] {
   // Move the button over
   > .pf-c-table__toggle > button {
     position: relative;
-    left: var(--offset);
+    inset-inline-start: var(--offset);
   }
 
   // Add space for the button and offset
   > .pf-c-table__toggle + td {
-    padding-left: calc(var(--offset) + var(--pf-c-table--cell--PaddingLeft));
+    padding-inline-start: calc(var(--offset) + var(--pf-c-table--cell--PaddingLeft));
   }
 }
 
@@ -221,7 +221,7 @@ tr[class*="content-level-"] {
 }
 
 .tab-actions button {
-  margin-left: 0.3em;
+  margin-inline-start: 0.3em;
 }
 
 a.disabled {
@@ -232,7 +232,7 @@ a.disabled {
 
 .tab-row-actions {
   display: inline-block;
-  margin-left: 2em;
+  margin-inline-start: 2em;
 }
 
 /* Make tooltips inside tables visible.
@@ -244,7 +244,7 @@ td.storage-action {
 
 .network-keys-table td {
   vertical-align: baseline;
-  padding-right: 10px;
+  padding-inline-end: 10px;
 }
 
 .combobox-container .input-group {
@@ -259,7 +259,7 @@ td.storage-action {
 }
 
 .just-installed {
-  margin-right: 1em;
+  margin-inline-end: 1em;
 }
 
 .faded {
@@ -278,11 +278,11 @@ td.storage-action {
 }
 
 .radio-horizontal label {
-  margin-right: 1em;
+  margin-inline-end: 1em;
 }
 
 .key-slot-panel-remaining {
-  margin-right: 1em;
+  margin-inline-end: 1em;
 }
 
 .sigkey-heading {
@@ -302,11 +302,11 @@ td.storage-action {
 }
 
 .progressive-disclosure .form-group {
-  padding-left: 20px;
+  padding-inline-start: 20px;
 }
 
 .progressive-disclosure .form-group > :first-child {
-  margin-left: -20px;
+  margin-inline-start: -20px;
 }
 
 .progressive-disclosure .form-group > :not(:first-child) {

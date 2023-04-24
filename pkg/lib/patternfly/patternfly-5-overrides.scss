@@ -4,8 +4,8 @@
 
 // https://github.com/patternfly/patternfly-react/pull/8953
 .pf-c-input-group__text {
-  padding-left: var(--pf-global--spacer--sm);
-  padding-right: var(--pf-global--spacer--sm);
+  padding-inline-start: var(--pf-global--spacer--sm);
+  padding-inline-end: var(--pf-global--spacer--sm);
 }
 
 // PF Select is deprecated - no issue reported upstream - this needs to be removed from our codebase
@@ -97,7 +97,7 @@ select.pf-c-form-control {
 .pf-c-description-list {
   // When using horizontal ruler inside description list it's just for the spacing - don't show it
   > hr {
-    border-top: none;
+    border-block-start: none;
   }
 }
 
@@ -145,7 +145,7 @@ select.pf-c-form-control {
 // https://github.com/patternfly/patternfly-design/issues/1012
 .pf-c-form__group-control {
   .pf-c-form__group, .pf-c-form__section {
-    padding-top: var(--pf-global--spacer--md);
+    padding-block-start: var(--pf-global--spacer--md);
   }
 }
 
@@ -180,7 +180,7 @@ select.pf-c-form-control {
 
 // When there is an Alert above the Form add some spacing
 .pf-c-modal-box .pf-c-alert + .pf-c-form {
-  padding-top: var(--pf-global--FontSize--sm);
+  padding-block-start: var(--pf-global--FontSize--sm);
 }
 
 // HACK: Not possible to specify text, so needs some hacks, see https://github.com/patternfly/patternfly-react/issues/6140
@@ -189,7 +189,7 @@ select.pf-c-form-control {
     color: var(--pf-c-button--m-link--Color);
 
     .pf-c-button__icon {
-      margin-right: var(--pf-global--spacer--sm);
+      margin-inline-end: var(--pf-global--spacer--sm);
     }
   }
 }
@@ -278,17 +278,17 @@ select.pf-c-form-control {
 
     .pf-c-text-input-group__text {
       &::before {
-        border-top-color: transparent;
-        border-right-color: transparent;
-        border-left-color: transparent;
+        border-block-start-color: transparent;
+        border-inline-end-color: transparent;
+        border-inline-start-color: transparent;
       }
 
       &:is(:focus,:hover)::after {
-        border-bottom-color: var(--pf-global--active-color--100);
+        border-block-end-color: var(--pf-global--active-color--100);
       }
 
       &:not(:focus):not(:hover)::after {
-        border-bottom-color: var(--pf-global--BorderColor--400);
+        border-block-end-color: var(--pf-global--BorderColor--400);
       }
     }
   }
@@ -320,7 +320,7 @@ select.pf-c-form-control {
 
   // Swap image padding in buttons
   .pf-c-dropdown__toggle-image {
-    margin-right: unset;
+    margin-inline-start: unset;
     gap: var(--pf-c-dropdown__toggle-image--MarginRight);
   }
 
@@ -345,20 +345,20 @@ select.pf-c-form-control {
   // Toolbar content (as seen in the shell) should be left aligned in RTL
   // See: https://github.com/patternfly/patternfly/issues/3812
   .pf-c-toolbar__content {
-    margin-right: auto;
-    margin-left: 0;
+    margin-inline-start: auto;
+    margin-inline-end: 0;
   }
 
   // Dropdown toggles: Swap image margins to be on left instead
   .pf-c-dropdown__toggle {
     &-image {
-      margin-right: 0;
-      margin-left: var(--pf-c-dropdown__toggle-image--MarginRight);
+      margin-inline-start: 0;
+      margin-inline-end: var(--pf-c-dropdown__toggle-image--MarginRight);
     }
 
     &-icon {
-      margin-right: var(--pf-c-dropdown__toggle-icon--MarginLeft);
-      margin-left: var(--pf-c-dropdown__toggle-icon--MarginRight);
+      margin-inline-start: var(--pf-c-dropdown__toggle-icon--MarginLeft);
+      margin-inline-end: var(--pf-c-dropdown__toggle-icon--MarginRight);
     }
   }
 

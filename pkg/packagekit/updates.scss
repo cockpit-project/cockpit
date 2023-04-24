@@ -10,8 +10,8 @@
 
 .pf-c-table tr:nth-child(1) {
   > td, th {
-    --pf-c-table--cell--PaddingTop: 0.5rem;
-    --pf-c-table--cell--PaddingBottom: 0.5rem;
+    --pf-c-table--cell--PaddingTop: var(--pf-global--spacer--sm);
+    --pf-c-table--cell--PaddingBottom: var(--pf-global--spacer--sm);
 
     padding: var(--pf-c-table--cell--PaddingTop) var(--pf-c-table--cell--PaddingRight) var(--pf-c-table--cell--PaddingBottom) var(--pf-c-table--cell--PaddingLeft);
   }
@@ -27,15 +27,16 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 0 1rem;
+  padding: 1.5rem 0 var(--pf-global--spacer-md);
 
   &--actions {
     > .pf-c-button,
     > .btn-group {
-      margin: 5px 5px 0 0;
+      margin-block: 5px 0;
+      margin-inline: 0 5px;
 
       &:last-child {
-        margin-right: 0;
+        margin-inline-end: 0;
       }
     }
   }
@@ -54,7 +55,7 @@
 
 .ct-table tr {
   .severity-icon {
-    margin-right: var(--pf-global--spacer--xs);
+    margin-inline-end: var(--pf-global--spacer--xs);
   }
 
   td.changelog {
@@ -127,7 +128,7 @@ div.changelog {
 
 /* Add some space between the spinner and the text */
 .progress-description > svg {
-  margin-right: var(--pf-global--spacer--sm);
+  margin-inline-end: var(--pf-global--spacer--sm);
 }
 
 .flow-list-blank-slate {
@@ -145,7 +146,8 @@ div.changelog {
     text-align: left;
     box-sizing: border-box;
     width: 22rem;
-    padding: 0 1ex 0 0;
+    padding: 0;
+    padding-inline-end: 1ex;
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
@@ -162,12 +164,12 @@ div.changelog {
   text-align: center;
 
   th {
-    text-align: left;
-    padding-right: 3ex;
+    text-align: start;
+    padding-inline-end: 3ex;
   }
 
   td {
-    text-align: left;
+    text-align: start;
   }
 }
 
@@ -184,7 +186,9 @@ table.header-buttons {
   }
 
   h2 {
-    margin: 0 4rem 0 0; /* vertical default ones break vertical alignment */
+    /* vertical default ones break vertical alignment */
+    margin: 0;
+    margin-inline-end: 4rem;
   }
 }
 
@@ -225,7 +229,7 @@ table.header-buttons {
     align-items: baseline;
 
     > svg {
-      margin-right: 1ex;
+      margin-inline-end: 1ex;
     }
   }
 }
@@ -235,19 +239,20 @@ table.header-buttons {
 }
 
 .update-success-actions > button {
-  margin: 0.25rem 0 0.25rem 0.5rem;
+  margin: var(--pf-global--spacer-xs) 0;
+  margin-inline-start: var(--pf-global--spacer--sm);
 }
 
 .update-success-table-title {
-  padding-left: 0.5em;
+  padding-inline-start: var(--pf-global--spacer--sm);
 }
 
 .cockpit-update-warning {
-  margin-right: 1rem;
+  margin-inline-end: var(--pf-global--spacer-md);
 }
 
 .cockpit-update-warning-icon {
-  margin-right: 0.5rem;
+  margin-inline-end: var(--pf-global--spacer--sm);
 }
 
 .cockpit-update-warning-text {

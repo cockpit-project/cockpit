@@ -34,16 +34,16 @@
   }
 
   // Set the right padding so that the button aligns with the other alerts in the page on the side
-  padding-right: var(--pf-c-page__main-section--PaddingRight);
+  padding-inline-end: var(--pf-c-page__main-section--PaddingRight);
 
   > .pf-c-alert__action {
-    margin-right: 0;
-    margin-left: var(--pf-global--spacer--md);
+    margin-inline-end: 0;
+    margin-inline-start: var(--pf-global--spacer--md);
   }
 
   // Align left content with the rest of the page
   @media (min-width: $pf-global--breakpoint--xl) {
-    padding-left: var(--pf-global--spacer--lg);
+    padding-inline-start: var(--pf-global--spacer--lg);
   }
 }
 
@@ -76,7 +76,7 @@
 
   &-hostname > h1,
   &-subheading {
-    padding-right: 1rem;
+    padding-inline-end: 1rem;
   }
 
   &-actions {
@@ -173,21 +173,21 @@
     th, td {
       &:first-child {
         :not([dir="rtl"]) & {
-          padding-left: 0;
+          padding-inline-start: 0;
         }
 
         [dir="rtl"] & {
-          padding-right: 0;
+          padding-inline-end: 0;
         }
       }
 
       &:last-child {
         :not([dir="rtl"]) & {
-          padding-right: 0;
+          padding-inline-end: 0;
         }
 
         [dir="rtl"] & {
-          padding-left: 0;
+          padding-inline-start: 0;
         }
       }
     }
@@ -235,7 +235,7 @@
 
 .ct-inline-list .pf-c-list.pf-m-inline {
   display: inline-flex;
-  margin-left: 1rem;
+  margin-inline-start: 1rem;
 }
 
 /* Add a subtle dropshadow to the alerts, to separate them from the background, similar to the cards on the page */
@@ -259,7 +259,7 @@
 }
 
 .pf-c-alert .pf-c-alert__description a {
-  padding-left: 15px;
+  padding-inline-start: 15px;
 }
 
 // Stretch modal content to fill body

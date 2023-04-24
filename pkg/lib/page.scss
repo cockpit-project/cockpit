@@ -102,7 +102,7 @@ a.disabled:hover {
 
 .dialog-wait-ct {
   /* Right align footer idle messages after the buttons */
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   column-gap: var(--pf-global--spacer--sm);
   align-items: center;
@@ -163,7 +163,7 @@ a.disabled:hover {
 
 // Let PF4 handle the scrolling through page component otherwise we might get double scrollbar
 html:not(.index-page) body {
-  overflow-y: hidden;
+  overflow-block: hidden;
 
   // Ensure UI fills the entire page (and does not run over)
   .ct-page-fill {
@@ -188,8 +188,8 @@ html:not(.index-page) body {
 // buttons or not.
 .pf-c-page__main-breadcrumb .pf-c-button {
   --offset: calc(-1 * var(--pf-global--spacer--sm));
-  margin-top: var(--offset);
-  margin-bottom: var(--offset);
+  margin-block-start: var(--offset);
+  margin-block-end: var(--offset);
 }
 
 // To be used only from testlib.py for pixel-tests

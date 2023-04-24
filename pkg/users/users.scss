@@ -69,7 +69,7 @@
 }
 
 .outline-question-circle-icon {
-  margin-left: var(--pf-global--spacer--sm);
+  margin-inline-start: var(--pf-global--spacer--sm);
 }
 
 .accounts-toolbar-header > .pf-c-toolbar__content-section {
@@ -108,4 +108,18 @@
 
 #groups-create, #account-create {
   min-width: 11rem;
+}
+
+#group-confirm-delete-dialog .list-item {
+  margin-inline-end: var(--pf-global--spacer--lg);
+}
+
+// We cannot use the PF helper pf-u-ml-lg here, as it doesn't support RTL yet
+#current-account-badge {
+  margin-inline-start: var(--pf-global--spacer--lg);
+}
+
+// Pretty sure paths are LTR, even in an RTL display
+output {
+  direction: ltr;
 }

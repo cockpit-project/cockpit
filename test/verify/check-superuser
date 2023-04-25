@@ -512,12 +512,7 @@ class TestSuperuserDashboard(MachineCase):
         # The superuser indicator in the Shell should apply to machine2
 
         b.check_superuser_indicator("Limited access")
-        b.open_superuser_dialog()
-        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input[type=password]", "foobar")
-        b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-        b.check_superuser_indicator("Administrative access")
+        b.become_superuser()
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
@@ -525,10 +520,7 @@ class TestSuperuserDashboard(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
         b.leave_page()
-        b.open_superuser_dialog()
-        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
-        b.check_superuser_indicator("Limited access")
+        b.drop_superuser()
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'access-denied')

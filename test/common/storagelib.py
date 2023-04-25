@@ -564,7 +564,7 @@ MakeDirectory=yes
         # which will look at /boot and do the right thing.
         #
         # Then we copy (most of) the old root to the new disk, into a
-        # LUKS container.
+        # logical volume sitting on top of a LUKS container.
         #
         # The kernel command line is changed to use the new root
         # filesystem, and grub is installed on the new disk. The boot
@@ -588,11 +588,13 @@ parted -s {dev} mktable msdos
 parted -s {dev} mkpart primary ext4 1M 500M
 parted -s {dev} mkpart primary ext4 500M 100%
 echo {passphrase} | cryptsetup luksFormat --pbkdf-memory=300 {dev}2
-echo {passphrase} | cryptsetup luksOpen --pbkdf-memory=300 {dev}2 dm-test
 luks_uuid=$(blkid -p {dev}2 -s UUID -o value)
-mkfs.ext4 /dev/mapper/dm-test
+echo {passphrase} | cryptsetup luksOpen --pbkdf-memory=300 {dev}2 luks-$luks_uuid
+vgcreate root /dev/mapper/luks-$luks_uuid
+lvcreate root -n root -l100%VG
+mkfs.ext4 /dev/root/root
 mkdir /new-root
-mount /dev/mapper/dm-test /new-root
+mount /dev/root/root /new-root
 mkfs.ext4 {dev}1
 mkdir /new-root/boot
 mount {dev}1 /new-root/boot
@@ -604,7 +606,7 @@ umount /new-root/boot
 mount {dev}1 /boot
 echo "(hd0) {dev}" >/boot/grub2/device.map
 sed -i -e 's,/boot/,/,' /boot/loader/entries/*
-uuid=$(blkid -p /dev/mapper/dm-test -s UUID -o value)
+uuid=$(blkid -p /dev/root/root -s UUID -o value)
 buuid=$(blkid -p {dev}1 -s UUID -o value)
 echo "UUID=$uuid / auto defaults 0 0" >/new-root/etc/fstab
 echo "UUID=$buuid /boot auto defaults 0 0" >>/new-root/etc/fstab
@@ -617,13 +619,12 @@ grub2-install {dev}
   mv /boot/loader/entries.stowed /boot/loader/entries
   ! test -f /etc/kernel/cmdline.stowed || mv /etc/kernel/cmdline.stowed /etc/kernel/cmdline
 )
-grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid"
+grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid rd.lvm.lv=root/root"
 ! test -f /etc/kernel/cmdline || cp /etc/kernel/cmdline /new-root/etc/kernel/cmdline
 """, timeout=300)
-        luks_uuid = m.execute(f"blkid -p {dev}2 -s UUID -o value").strip()
         m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
         m.wait_reboot(300)
-        self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), f"/dev/mapper/luks-{luks_uuid}")
+        self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), "/dev/mapper/root-root")
 
 
 class StorageCase(MachineCase, StorageHelpers):

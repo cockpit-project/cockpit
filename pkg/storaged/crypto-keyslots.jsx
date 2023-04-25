@@ -303,6 +303,21 @@ function ensure_package_installed(steps, progress, package_name) {
                                 return install_missing_packages(data, status_callback(progress));
                         }
                     });
+            })
+            .catch(error => {
+            // Something wrong with PackageKit, maybe it is not even
+            // installed.  Let's show the error during fixing.
+                progress(null, null);
+                steps.push({
+                    title: cockpit.format(_("The $0 package must be installed."), package_name),
+                    func: progress => {
+                        if (error.problem == "not-found") {
+                            return Promise.reject(cockpit.format(_("Error installing $0: PackageKit is not installed"), package_name));
+                        } else {
+                            return Promise.reject(cockpit.format(_("Unexpected PackageKit error during installation of $0: $1"), package_name, error.toString())); // not-covered: OS error
+                        }
+                    }
+                });
             });
 }
 

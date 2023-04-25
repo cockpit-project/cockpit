@@ -32,11 +32,16 @@ const _ = cockpit.gettext;
 function formatPkgs(pkgs) {
     const names = Object.keys(pkgs).filter(i => i != "_time");
     names.sort();
-    return names.map(n => (
-        <Tooltip key={n} id="tip-history" content={ n + " " + pkgs[n] }>
-            <li>{n}</li>
-        </Tooltip>)
-    );
+    return names.map(n => {
+        const tooltipRef = React.useRef(null);
+
+        return (
+            <React.Fragment key={n}>
+                <li ref={tooltipRef}>{n}</li>
+                <Tooltip triggerRef={tooltipRef} content={ n + " " + pkgs[n] } />
+            </React.Fragment>
+        );
+    });
 }
 
 export const PackageList = ({ packages }) => packages ? <ul className='flow-list'>{formatPkgs(packages)}</ul> : null;

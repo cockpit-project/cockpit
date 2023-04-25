@@ -237,7 +237,6 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
-    @todoPybridgeRHEL8(reason="regression from https://github.com/cockpit-project/cockpit/pull/18398")
     def testRemoveBridgeConfig(self):
         m = self.machine
         b = self.browser

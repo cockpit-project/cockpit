@@ -412,14 +412,18 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         self.send_signal(signal.SIGKILL)
 
     def _close(self) -> None:
+        if self._pty_fd is not None:
+            os.close(self._pty_fd)
+            self._pty_fd = None
+
         if self._process is not None:
+            if self._process.stdin is not None:
+                self._process.stdin.close()
+                self._process.stdin = None
             try:
                 self.terminate()  # best effort...
             except PermissionError:
                 logger.debug("can't kill %i due to EPERM", self._process.pid)
-        if self._pty_fd is not None:
-            os.close(self._pty_fd)
-            self._pty_fd = None
 
 
 class StdioTransport(_Transport):

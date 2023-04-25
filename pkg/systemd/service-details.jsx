@@ -26,7 +26,6 @@ import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Card, CardHeader, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
@@ -607,7 +606,7 @@ export class ServiceDetails extends React.Component {
             });
 
         return (
-            <Card>
+            <Card className="ct-card">
                 { this.state.showDeleteDialog &&
                 <DeleteModal
                     name={this.props.unit.Description}
@@ -623,24 +622,20 @@ export class ServiceDetails extends React.Component {
                 />
                 }
                 <CardHeader>
-                    <Flex className="service-top-panel" spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                        <CardTitle>
-                            <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
-                            {this.state.isPinned &&
-                                <Tooltip content={_("Pinned unit")}>
-                                    <ThumbtackIcon className='service-thumbtack-icon' />
-                                </Tooltip>}
-                        </CardTitle>
+                    <Flex className="service-top-panel" spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
+                        <CardTitle component="h2" className="service-name">{this.props.unit.Description}</CardTitle>
+                        {this.state.isPinned &&
+                        <Tooltip content={_("Pinned unit")}>
+                            <ThumbtackIcon className='service-thumbtack-icon' />
+                        </Tooltip>}
                         { showAction &&
                             <>
                                 { !masked && !isStatic &&
                                     <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.right}>
-                                        <span>
-                                            <Switch isChecked={enabled}
-                                                    aria-label={tooltipMessage}
-                                                    isDisabled={this.state.waitsAction || this.state.waitsFileAction}
-                                                    onChange={this.onOnOffSwitch} />
-                                        </span>
+                                        <Switch isChecked={enabled}
+                                                aria-label={tooltipMessage}
+                                                isDisabled={this.state.waitsAction || this.state.waitsFileAction}
+                                                onChange={this.onOnOffSwitch} />
                                     </Tooltip>
                                 }
                                 <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}

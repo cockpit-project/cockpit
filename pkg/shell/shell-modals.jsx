@@ -63,7 +63,6 @@ export const AboutCockpitModal = () => {
             productName={_("Web Console")}
             brandImageSrc="../shell/images/cockpit-icon.svg"
             brandImageAlt={_("Web console logo")}
-            backgroundImageSrc="../shell/images/bg-plain.jpg"
         >
             <TextContent>
                 <Text component={TextVariants.p}>

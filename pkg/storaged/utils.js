@@ -576,7 +576,20 @@ export function is_netdev(client, path) {
     return false;
 }
 
-function get_children(client, path) {
+/* GET_CHILDREN gets the direct children of the storage object at
+   PATH, like the partitions of a partitioned block device, or the
+   volume group of a physical volume.  By calling GET_CHILDREN
+   recursively, you can traverse the whole storage hierachy from
+   hardware drives at the bottom to filesystems at the top.
+
+   GET_CHILDREN_FOR_TEARDOWN is similar but doesn't consider things
+   like volume groups to be children of their physical volumes.  This
+   is appropriate for teardown processing, where tearing down a
+   physical volume does not imply tearing down the whole volume groups
+   with everything that it contains.
+*/
+
+function get_children_for_teardown(client, path) {
     const children = [];
 
     if (client.blocks_cleartext[path]) {
@@ -624,6 +637,30 @@ function get_children(client, path) {
     return children;
 }
 
+export function get_children(client, path) {
+    const children = get_children_for_teardown(client, path);
+
+    if (client.blocks[path]) {
+        const mdraid = client.blocks[path].MDRaidMember;
+        if (mdraid != "/")
+            children.push(mdraid);
+    }
+
+    if (client.blocks_pvol[path]) {
+        const vgroup = client.blocks_pvol[path].VolumeGroup;
+        if (vgroup != "/")
+            children.push(vgroup);
+    }
+
+    if (client.blocks_stratis_blockdev[path]) {
+        const pool = client.blocks_stratis_blockdev[path].Pool;
+        if (pool != "/")
+            children.push(pool);
+    }
+
+    return children;
+}
+
 export function get_active_usage(client, path, top_action, child_action) {
     function get_usage(path, level) {
         const block = client.blocks[path];
@@ -635,7 +672,7 @@ export function get_active_usage(client, path, top_action, child_action) {
         const stratis_blockdev = block && client.blocks_stratis_blockdev[path];
         const stratis_pool = stratis_blockdev && client.stratis_pools[stratis_blockdev.Pool];
 
-        const usage = flatten(get_children(client, path).map(p => get_usage(p, level + 1)));
+        const usage = flatten(get_children_for_teardown(client, path).map(p => get_usage(p, level + 1)));
 
         function get_actions(teardown_action) {
             const actions = [];

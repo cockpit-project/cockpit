@@ -38,7 +38,7 @@ import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
-import { array_find, decode_filename, encode_filename, block_name, for_each_async } from "./utils.js";
+import { array_find, decode_filename, encode_filename, block_name, for_each_async, get_children } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import { parse_options, unparse_options } from "./format-dialog.jsx";
@@ -394,15 +394,26 @@ function ensure_non_root_nbde_support(steps, progress, client, block) {
             .then(() => ensure_crypto_option(steps, progress, client, block, "_netdev"));
 }
 
-function ensure_nbde_support(steps, progress, client, block) {
-    const cleartext = client.blocks_cleartext[block.path];
-    const crypto = client.blocks_crypto[block.path];
-    const fsys_config = (cleartext
-        ? array_find(cleartext.Configuration, function (c) { return c[0] == "fstab" })
-        : array_find(crypto.ChildConfiguration, function (c) { return c[0] == "fstab" }));
-    const dir = decode_filename(fsys_config[1].dir.v);
+function contains_rootfs(client, path) {
+    const block = client.blocks[path];
+    const crypto = client.blocks_crypto[path];
+    let fsys_config = null;
 
-    if (dir == "/") {
+    if (block)
+        fsys_config = block.Configuration.find(c => c[0] == "fstab");
+    if (!fsys_config && crypto)
+        fsys_config = crypto.ChildConfiguration.find(c => c[0] == "fstab");
+
+    if (fsys_config) {
+        const dir = decode_filename(fsys_config[1].dir.v);
+        return dir == "/";
+    }
+
+    return get_children(client, path).some(p => contains_rootfs(client, p));
+}
+
+function ensure_nbde_support(steps, progress, client, block) {
+    if (contains_rootfs(client, block.path)) {
         if (client.get_config("nbde_root_help", false)) {
             steps.is_root = true;
             return ensure_root_nbde_support(steps, progress);

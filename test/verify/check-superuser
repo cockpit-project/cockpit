@@ -21,7 +21,7 @@ import os
 import time
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, todoPybridgeRHEL8, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, todoPybridgeRHEL8, test_main, wait
 
 
 def allow_old_cockpit_ws_messages(test):
@@ -155,6 +155,7 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18676")
     def testNotAdmin(self):
         b = self.browser
         m = self.machine
@@ -177,6 +178,30 @@ session include system-auth
         b.wait_in_text(".pf-c-modal-box:contains('Problem becoming administrator')", "Admin is not in the sudoers file.")
         b.click(".pf-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
+
+        # no stray/hanging sudo process
+        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
+
+        # cancelling auth dialog stops sudo
+        b.open_superuser_dialog()
+        b.wait_in_text(".pf-c-modal-box", "Switch to administrative access")
+        b.wait_in_text(".pf-c-modal-box", "Password for admin")
+        status = m.execute("loginctl --lines=0 user-status admin")
+        self.assertIn("sudo", status)
+        self.assertIn("cockpit-askpass", status)
+
+        b.click(".pf-c-modal-box button:contains('Cancel')")
+        b.wait_not_present(".pf-c-modal-box")
+
+        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
+
+        # logging out cleans up pending sudo auth; user should either go to "State: closing" or disappear completely
+        b.open_superuser_dialog()
+        b.wait_in_text(".pf-c-modal-box", "Password for admin")
+        self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
+        b.logout()
+        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin || true"), tries=10)
+        self.assertNotIn("cockpit", m.execute("loginctl --lines=0 user-status admin || true"))
 
     def testBrokenBridgeConfig(self):
         b = self.browser

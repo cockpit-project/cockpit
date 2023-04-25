@@ -525,6 +525,18 @@ class TestSuperuserDashboard(MachineCase):
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'access-denied')
 
+        # back to superuser on machine2
+        b.become_superuser()
+        user = self.machines["machine2"].execute("loginctl user-status admin")
+        self.assertIn("cockpit-bridge --privileged", user)
+        # no stray askpass process
+        self.assertNotIn("cockpit-askpass", user)
+        # logging out cleans up logind sessions on both machines
+        b.logout()
+        for m in [self.machine, self.machines["machine2"]]:
+            m.execute('while [ "$(loginctl show-user --property=State --value admin)" = "active" ]; do sleep 1; done')
+            self.assertNotIn("cockpit", "loginctl user-status admin")
+
         self.allow_hostkey_messages()
 
 

@@ -985,7 +985,6 @@ password=foobar
     def testCryptoPolicies(self):
         m = self.machine
         b = self.browser
-        self.allow_restart_journal_messages()
 
         def shown_profile_text(profile):
             return profile if profile == "FIPS" else profile[0] + profile[1:].lower()

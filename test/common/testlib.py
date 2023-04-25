@@ -2131,11 +2131,11 @@ class MachineCase(unittest.TestCase):
             m.execute(f"hostnamectl set-hostname {name}")
             if disable_preload:
                 self.disable_preload("packagekit", "playground", "systemd", machine=m)
-    def reboot(self, timeout_sec):
+    def reboot(self, timeout_sec = None):
         self.machine.allow_restart_journal_messages()
         self.machine.reboot(timeout_sec = timeout_sec)
         
-    def wait_reboot(self, timeout_sec): 
+    def wait_reboot(self, timeout_sec = None): 
         self.machine.allow_restart_journal_messages()
         self.machine.wait_reboot(timeout_sec = timeout_sec)
     

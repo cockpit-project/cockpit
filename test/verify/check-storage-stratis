@@ -128,6 +128,7 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text("#detail-content", "fsys1-renamed")
 
         # Destroy one filesystem
+        self.wait_mounted(1, 1)
         self.content_dropdown_action(1, "Delete")
         self.dialog_wait_open()
         b.assert_pixels("#dialog", "delete-fsys")
@@ -157,6 +158,7 @@ class TestStorageStratis(StorageCase):
         self.assertEqual("Hello Stratis!", m.execute("cat /run/fsys2-copy/FILE"))
 
         # Delete the copy
+        self.wait_mounted(2, 1)
         self.content_dropdown_action(2, "Delete")
         self.confirm()
         b.wait_not_in_text("#detail-content", "fsys2-copy")
@@ -194,6 +196,8 @@ class TestStorageStratis(StorageCase):
                          self.inode("/dev/stratis/pool0-renamed/fsys3"))
 
         # Destroy the pool
+        self.wait_mounted(1, 1)
+        self.wait_mounted(2, 1)
         b.click('#detail-header button:contains(Delete)')
         self.dialog_wait_open()
         b.assert_pixels('#dialog', "delete-pool")

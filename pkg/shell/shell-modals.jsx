@@ -141,7 +141,7 @@ export const LangModal = () => {
                                     if (filteredLocales.length === 0) {
                                         return (
                                             <MenuItem>
-                                               {_("No results found")}
+                                                {_("No results found")}
                                             </MenuItem>
                                         );
                                     }

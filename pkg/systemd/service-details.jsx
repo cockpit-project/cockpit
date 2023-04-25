@@ -25,7 +25,7 @@ import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from "@pattern
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
-import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardHeader, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
@@ -622,32 +622,36 @@ export class ServiceDetails extends React.Component {
                     }
                 />
                 }
-                <CardTitle className="service-top-panel">
-                    <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
-                    {this.state.isPinned &&
-                        <Tooltip content={_("Pinned unit")}>
-                            <ThumbtackIcon className='service-thumbtack-icon' />
-                        </Tooltip>}
-                    { showAction &&
-                        <>
-                            { !masked && !isStatic &&
-                                <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.right}>
-                                    <span>
-                                        <Switch isChecked={enabled}
-                                                aria-label={tooltipMessage}
-                                                isDisabled={this.state.waitsAction || this.state.waitsFileAction}
-                                                onChange={this.onOnOffSwitch} />
-                                    </span>
-                                </Tooltip>
-                            }
-                            <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}
-                                            actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
-                                            deleteActionCallback={isCustom && isTimer ? this.deleteAction : null}
-                                            disabled={this.state.waitsAction || this.state.waitsFileAction}
-                                            isPinned={this.state.isPinned} pinUnitCallback={this.pinUnit} />
-                        </>
-                    }
-                </CardTitle>
+                <CardHeader>
+                    <Flex className="service-top-panel" spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                        <CardTitle>
+                            <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
+                            {this.state.isPinned &&
+                                <Tooltip content={_("Pinned unit")}>
+                                    <ThumbtackIcon className='service-thumbtack-icon' />
+                                </Tooltip>}
+                        </CardTitle>
+                        { showAction &&
+                            <>
+                                { !masked && !isStatic &&
+                                    <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.right}>
+                                        <span>
+                                            <Switch isChecked={enabled}
+                                                    aria-label={tooltipMessage}
+                                                    isDisabled={this.state.waitsAction || this.state.waitsFileAction}
+                                                    onChange={this.onOnOffSwitch} />
+                                        </span>
+                                    </Tooltip>
+                                }
+                                <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}
+                                                actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
+                                                deleteActionCallback={isCustom && isTimer ? this.deleteAction : null}
+                                                disabled={this.state.waitsAction || this.state.waitsFileAction}
+                                                isPinned={this.state.isPinned} pinUnitCallback={this.pinUnit} />
+                            </>
+                        }
+                    </Flex>
+                </CardHeader>
                 <CardBody>
                     <DescriptionList isHorizontal>
                         <DescriptionListGroup>

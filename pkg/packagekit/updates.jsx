@@ -504,10 +504,12 @@ class RestartServices extends React.Component {
     render() {
         let body;
         if (this.props.tracerRunning) {
-            body = (<>
-                <div className="spinner spinner-xs spinner-inline" />
-                <p>{_("Reloading the state of remaining services")}</p>
-            </>);
+            body = (
+                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <Spinner isSvg size="sm" />
+                    <p>{_("Reloading the state of remaining services")}</p>
+                </Flex>
+            );
         } else if (this.props.tracerPackages.daemons.length > 0) {
             body = (<>
                 {cockpit.ngettext("The following service will be restarted:", "The following services will be restarted:", this.props.tracerPackages.daemons.length)}

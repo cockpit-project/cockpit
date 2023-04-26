@@ -61,7 +61,6 @@ class TestShutdownRestart(MachineCase):
         b.click("#machine-reconnect")
         b.wait_visible("#login")
 
-        self.allow_restart_journal_messages()
         self.allow_journal_messages("Shutdown scheduled for .*")
         self.check_journal_messages()
 

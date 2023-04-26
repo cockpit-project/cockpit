@@ -2140,8 +2140,6 @@ class MachineCase(unittest.TestCase):
         self.machine.wait_reboot(timeout_sec = timeout_sec)
     
 
-
-
 ###########################
 # Global helper functions
 #

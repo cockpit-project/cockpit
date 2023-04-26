@@ -594,7 +594,7 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18713")
     def testTroubleshooting(self):
         b = self.browser
         m1 = self.machine
@@ -729,7 +729,7 @@ class TestMultiMachine(MachineCase):
                                     '.*: server offered unsupported authentication methods: .*')
 
     @skipImage("TODO: Broken on Arch Linux", "arch")
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18714")
     def testSshKeySetup(self):
         b = self.browser
         m1 = self.machine

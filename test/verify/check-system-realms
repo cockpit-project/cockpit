@@ -695,7 +695,7 @@ class TestIPA(TestRealms, CommonTests):
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
     @timeout(900)
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18676")
     def testClientCertAuthentication(self):
         m = self.machine
         b = self.browser

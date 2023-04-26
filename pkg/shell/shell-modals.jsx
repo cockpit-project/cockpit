@@ -146,8 +146,8 @@ export const LangModal = () => {
 
                                     if (filteredLocales.length === 0) {
                                         return (
-                                            <MenuItem>
-                                                {_("No results found")}
+                                            <MenuItem isDisabled>
+                                                {_("No languages match")}
                                             </MenuItem>
                                         );
                                     }

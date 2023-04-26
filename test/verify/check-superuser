@@ -267,7 +267,7 @@ session include system-auth
         b.click(".pf-c-modal-box button:contains('Close')")
         b.check_superuser_indicator("Limited access")
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18711")
     def testMultipleBridgeConfig(self):
         b = self.browser
 
@@ -391,7 +391,7 @@ class TestSuperuserOldWebserver(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
         m = self.machine
@@ -543,7 +543,7 @@ class TestSuperuserOldDashboard(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
         m = self.machines["machine1"]
@@ -607,7 +607,7 @@ class TestSuperuserDashboardOldMachine(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
     }
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
 

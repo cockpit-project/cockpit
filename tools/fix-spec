@@ -14,4 +14,4 @@ PROVIDES=$(npm ls --omit dev --package-lock-only --depth=Infinity |
 
 
 awk -v p="$PROVIDES" '/Version/ { gsub(/0/, "'$version'") }; gsub(/#NPM_PROVIDES/, p) 1' "$spec" > "$spec".new
-mv "$spec".new "$spec"
+mv -f "$spec".new "$spec"

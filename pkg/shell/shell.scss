@@ -255,3 +255,10 @@ $desktop: $phone + 1px;
   --pf-global--BackgroundColor--100: var(--pf-global--BackgroundColor--light-100);
   --pf-global--Color--100: var(--pf-global--Color--dark-100);
 }
+
+// Customize the about screen with the Cockpit logo
+.pf-c-about-modal-box {
+  --pf-c-about-modal-box--BackgroundImage: linear-gradient(#000d, #000d), url(../shell/images/cockpit-icon.svg);
+  --pf-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
+  --pf-c-about-modal-box--BackgroundSize--min-width: 786px;
+}

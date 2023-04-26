@@ -46,7 +46,7 @@ EXTRA_DIST += build.js files.js package.json package-lock.json
 -include $(wildcard pkg/Makefile.qunit*)
 
 install-data-hook::
-	cd $(srcdir)/dist; find -type f -exec install -D -m 644 '{}' '$(DESTDIR)$(datadir)/cockpit/{}' \;
+	cd $(srcdir)/dist; find -type f -exec install -D -m 644 '{}' '$(abspath $(DESTDIR)$(datadir))/cockpit/{}' \;
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(datadir)/cockpit

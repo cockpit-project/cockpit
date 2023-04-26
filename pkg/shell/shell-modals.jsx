@@ -26,7 +26,7 @@ import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Menu, MenuContent, MenuInput, MenuItem, MenuList } from "@patternfly/react-core/dist/esm/components/Menu/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
-import { TextContent, TextList, TextListItem } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import { useInit } from "hooks";
 import { useDialogs } from "dialogs.jsx";
@@ -65,9 +65,15 @@ export const AboutCockpitModal = () => {
             brandImageAlt={_("Web console logo")}
             backgroundImageSrc="../shell/images/bg-plain.jpg"
         >
-            <div>{_("Cockpit is an interactive Linux server admin interface.")}</div>
-            <div><a rel="noopener noreferrer" target="_blank" href="https://cockpit-project.org/">{_("Project website")}</a></div>
             <TextContent>
+                <Text component={TextVariants.p}>
+                    {_("Cockpit is an interactive Linux server admin interface.")}
+                </Text>
+                <Text component={TextVariants.p}>
+                    <Text component={TextVariants.a} href="https://cockpit-project.org" target="_blank" rel="noopener noreferrer">
+                        {_("Project website")}
+                    </Text>
+                </Text>
                 <TextList component="dl">
                     {packages === null && <span>{_("Loading packages...")}</span>}
                     {packages !== null && packages.map(p =>

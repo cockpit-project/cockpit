@@ -61,13 +61,6 @@ export function mock_hostnamed(value) {
     }
 }
 
-export function array_find(array, pred) {
-    for (let i = 0; i < array.length; i++)
-        if (pred(array[i]))
-            return array[i];
-    return undefined;
-}
-
 export function flatten(array_of_arrays) {
     if (array_of_arrays.length > 0)
         return Array.prototype.concat.apply([], array_of_arrays);
@@ -659,9 +652,7 @@ export function get_active_usage(client, path, top_action, child_action) {
                 });
             });
         } else if (mdraid) {
-            const active_state = array_find(mdraid.ActiveDevices, function (as) {
-                return as[0] == block.path;
-            });
+            const active_state = mdraid.ActiveDevices.find(as => as[0] == block.path);
             usage.push({
                 level,
                 usage: 'mdraid-member',

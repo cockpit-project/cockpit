@@ -33,29 +33,13 @@
   margin-right: 0.5em;
 }
 
-.service-top-panel {
-  padding-bottom: 1.25rem;
-  display: flex;
-  align-items: baseline;
+/* Rely on flex for spacing only */
+#service-actions button {
+  padding-left: 0;
 }
 
-.service-top-panel > .service-name {
-  margin: 0 0.75rem 0 0;
-}
-
-.service-top-panel .pf-c-switch {
-  vertical-align: text-bottom;
-  margin: 0 0 0 0.75rem;
-}
-
-.service-top-panel > .service-thumbtack-icon {
+.service-thumbtack-icon {
   color: var(--pf-global--icon--Color--light);
-  margin: 0 0.5rem 0 0;
-}
-
-/* Make the kebab wrapper flex to parents for proper alignment */
-.service-top-panel .pf-c-dropdown {
-  display: flex;
 }
 
 .action-button {

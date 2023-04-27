@@ -43,6 +43,12 @@ distdir: $(DISTFILES)
 	@echo '  DIST     $(DIST_ARCHIVES)'
 
 # Needed to ensure the tarball is correct for $(VERSION) override
+dist-hook: $(distdir)/src/cockpit/_version.py
+$(distdir)/src/cockpit/_version.py: FORCE
+	$(srcdir)/tools/dist-setuptools '$(srcdir)' '$(distdir)'
+	@rm -f $(distdir)/src/cockpit/_version.py
+	$(AM_V_GEN) echo "__version__ = '$(VERSION)'" > $@
+
 $(distdir)/version.m4: FORCE
 	@rm -f $(distdir)/version.m4
 	$(AM_V_GEN) echo 'm4_define(VERSION_NUMBER, [$(VERSION)])' > $@

@@ -1239,6 +1239,16 @@ BEGIN {{
         b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='In']", "0")
         b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='Out']", "0")
 
+        b.assert_pixels(
+            ".current-metrics", "metrics-cards", ignore=[
+                ".pf-c-description-list",
+                ".pf-c-progress",
+                "td[data-label='%']", "td[data-label=In", "td[data-label=Out]",
+                "table[aria-label='Network usage'] th",
+                "td[data-label=Used]", "td[data-label=Service]"
+            ]
+        )
+
 
 @skipImage("TODO: Arch Linux packagekit support", "arch")
 @skipDistroPackage()

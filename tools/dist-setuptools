@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('srcdir')
+    parser.add_argument('distdir')
+    args = parser.parse_args()
+
+    # setuptools can't create an sdist without writing (at least) an .egg-info
+    # directory to the source directory.  That  conflicts with automake's
+    # desire that `make dist` should not modify the source directory.
+    #
+    # As a hack: we use the setuptools egg_info command (with its output
+    # redirected to /tmp) to get a list of the files that we need to ship, and
+    # copy those over manually.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        subprocess.check_call([sys.executable, '-c', 'from setuptools import setup; setup();',
+                               '--quiet', 'egg_info', '--egg-base', tmpdir], cwd=args.srcdir)
+
+        # Collect the result
+        # We need to filter out the /tmp/xyz/src/cockpit.egg-info bits,
+        # which we can do by only taking the relative pathnames.
+        with open(f'{tmpdir}/cockpit.egg-info/SOURCES.txt') as file:
+            distfiles = [line.strip() for line in file if not os.path.isabs(line)]
+
+    # Copy the required source files into the named destination directory
+    for filename in distfiles:
+        source = f'{args.srcdir}/{filename}'
+        destination = f'{args.distdir}/{filename}'
+        if not os.path.exists(destination):  # avoid re-copying e.g. AUTHORS
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
+            shutil.copy(source, destination)
+
+
+if __name__ == '__main__':
+    main()

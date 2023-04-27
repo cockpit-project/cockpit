@@ -924,7 +924,7 @@ main (int argc,
 
   g_autofree gchar *guid = g_dbus_generate_guid ();
   g_autoptr(GDBusServer) direct_dbus_server = g_dbus_server_new_sync (
-          "unix:tmpdir=/tmp/dbus-tests",
+          "unix:tmpdir=/tmp",
           G_DBUS_SERVER_FLAGS_NONE,
           guid,
           NULL,

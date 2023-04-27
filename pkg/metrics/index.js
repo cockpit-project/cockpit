@@ -17,13 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import '../lib/patternfly/patternfly-4-cockpit.scss';
 import 'cockpit-dark-theme'; // once per page
 
 import React from 'react';
 import { createRoot } from "react-dom/client";
 import { Application } from './metrics.jsx';
-
-import './metrics.scss';
 
 document.addEventListener("DOMContentLoaded", function () {
     const root = createRoot(document.getElementById("app"));

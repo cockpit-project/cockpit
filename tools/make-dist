@@ -6,7 +6,7 @@ cd "$(realpath -m "$0"/../..)"
 message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
 
 # Set the version number from the state at the time the build was requested
-VERSION="$(git describe --tags --long --dirty | tr '-' '.')"
+VERSION="$(git describe --tags --long --dirty=.dirty | sed 's/-\([0-9]*\)-g/.dev\1+g/')"
 
 while [ $# != 0 ] ; do
     case "$1" in

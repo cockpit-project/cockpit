@@ -76,6 +76,12 @@ AC_ARG_ENABLE(ssh, AS_HELP_STRING([--disable-ssh], [Disable cockpit-ssh build an
 AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" != "no")
 AC_MSG_RESULT(${enable_ssh:=yes})
 
+# --enable-pybridge
+AC_MSG_CHECKING([whether to install the python cockpit-bridge])
+AC_ARG_ENABLE(bridge, AS_HELP_STRING([--enable-pybridge], [Install python cockpit-bridge]))
+AM_CONDITIONAL(WITH_PYBRIDGE, test "$enable_pybridge" = "yes")
+AC_MSG_RESULT(${enable_pybridge:=no})
+
 
 # pkg-config
 GLIB_API_VERSION="GLIB_VERSION_2_56"

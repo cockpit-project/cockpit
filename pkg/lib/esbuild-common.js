@@ -11,7 +11,7 @@ export const esbuildStylesPlugins = [
     replace({
         include: /\.css$/,
         values: {
-            '576px': '236px',
+            // Do not override the sm breakpoint as for width < 768px the left nav is hidden
             '768px': '428px',
             '992px': '652px',
             '1200px': '876px',

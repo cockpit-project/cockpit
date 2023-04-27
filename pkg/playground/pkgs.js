@@ -1,6 +1,6 @@
 import cockpit from "cockpit";
 
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 
 document.addEventListener("DOMContentLoaded", () => {
     const proxy = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Packages", "/packages");

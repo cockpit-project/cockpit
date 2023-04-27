@@ -888,15 +888,10 @@ ResultAny=yes
 ResultInactive=yes
 ResultActive=yes""")
 
-        if os.environ.get("TEST_SCENARIO") == "pybridge":
-            pgrep = "^/usr/bin/python.*cockpit-bridge.*--privileged"
-        else:
-            pgrep = "^/usr/bin/cockpit-bridge.*--privileged"
-
-        self.write_file("/tmp/browser.sh", f"""#!/bin/sh -e
+        self.write_file("/tmp/browser.sh", """#!/bin/sh -e
 curl --silent --compressed -o /tmp/out.html "$@"
 # wait until privileged bridge starts
-until pgrep -f '{pgrep}'; do sleep 1; done
+until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do sleep 1; done
 """)
         m.execute("chmod 755 /tmp/browser.sh")
         m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin", timeout=10)

@@ -36,6 +36,8 @@ distdir: $(DISTFILES)
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
 	sed -i "s/[@]VERSION@/$(VERSION)/" "$(distdir)/src/client/org.cockpit_project.CockpitClient.metainfo.xml"
 	$(srcdir)/tools/fix-spec $(distdir)/tools/cockpit.spec $(VERSION)
+	test -z '$(HACK_SPEC_FOR_PYTHON)' || \
+		sed -i 's/\(define cockpit_enable_python\) 0/\1 1/' $(distdir)/tools/cockpit.spec
 	sed -i "/^pkgver=/ s/0/$(VERSION)/" "$(distdir)/tools/arch/PKGBUILD"
 	sed -i "1 s/0/$(VERSION)/" "$(distdir)/tools/debian/changelog"
 	cp -r "$(srcdir)/dist" "$(distdir)"

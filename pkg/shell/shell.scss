@@ -262,3 +262,35 @@ $desktop: $phone + 1px;
   --pf-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
   --pf-c-about-modal-box--BackgroundSize--min-width: 786px;
 }
+
+@media (max-width: 60rem) {
+  // Allow about content to fill the about modal's width
+  .pf-c-about-modal-box {
+    grid-template-areas:
+      "brand   close"
+      "header  header"
+      "content content";
+  }
+}
+
+@media (max-width: 40rem) {
+  // Redefine about modal spacing for smaller sizes
+  .pf-c-about-modal-box {
+    > .pf-c-about-modal-box__brand,
+    > .pf-c-about-modal-box__close,
+    > .pf-c-about-modal-box__header {
+      padding-left: var(--pf-global--spacer--xl);
+      padding-right: var(--pf-global--spacer--xl);
+    }
+
+    > .pf-c-about-modal-box__brand,
+    > .pf-c-about-modal-box__close {
+      padding-top: var(--pf-global--spacer--xl);
+      padding-bottom: var(--pf-global--spacer--2xl);
+    }
+
+    > .pf-c-about-modal-box__content {
+      margin: var(--pf-global--spacer--lg) var(--pf-global--spacer--xl);
+    }
+  }
+}

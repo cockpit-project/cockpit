@@ -1,4 +1,4 @@
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import 'cockpit-dark-theme'; // once per page
 import cockpit from "cockpit";

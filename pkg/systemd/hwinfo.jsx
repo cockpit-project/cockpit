@@ -18,7 +18,7 @@
  */
 
 import 'cockpit-dark-theme'; // once per page
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 import 'polyfills'; // once per application
 
 import cockpit from "cockpit";

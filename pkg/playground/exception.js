@@ -1,5 +1,5 @@
 /* An unhandled javascript exception */
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 import cockpit from "cockpit";
 
 const button = document.getElementById("exception");

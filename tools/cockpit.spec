@@ -137,6 +137,9 @@ BuildRequires: gdb
 # For documentation
 BuildRequires: xmlto
 
+# For pytest unit tests
+BuildRequires: procps-ng
+
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-devel
 

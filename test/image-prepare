@@ -197,13 +197,6 @@ def validate_packages():
             """]
 
 
-def install_python_bridge():
-    import build
-    builder = build.ProjectBuilder(BASE_DIR)
-    wheel = builder.build('wheel', f'{BASE_DIR}/tmp/wheel')
-    return ['--install', wheel, '--run-command', 'sed -i "s_/usr/bin_/usr/local/bin_" /usr/share/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy']
-
-
 def main():
     parser = argparse.ArgumentParser(
         description='Prepare testing environment, download images and build and install cockpit',
@@ -227,7 +220,8 @@ def main():
     if args.quick:
         customize.append("--quick")
 
-    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
+    makevars = ['HACK_SPEC_FOR_PYTHON=1'] if args.python else []
+    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist', *makevars], text=True).strip()
 
     if args.image in ["fedora-coreos", "rhel4edge"]:
         customize += build_install_ostree(dist_tar, args.image, args.verbose, args.quick)
@@ -241,9 +235,6 @@ def main():
 
     # post build/install test preparation
     customize += ["--script", os.path.join(TEST_DIR, "vm.install")]
-
-    if args.python:
-        customize += install_python_bridge()
 
     if args.env:
         customize += ['--run-command', r'printf "%s\n" >>/etc/environment ' + shlex.join(args.env)]

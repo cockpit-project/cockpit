@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import os
-
 import parent  # noqa: F401
 from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
 
@@ -44,9 +42,6 @@ class TestLoopback(MachineCase):
 
         self.restore_file("/usr/bin/cockpit-bridge")
         m.execute("rm /usr/bin/cockpit-bridge")
-        if os.environ.get("TEST_SCENARIO") == "pybridge":
-            self.restore_file("/usr/local/bin/cockpit-bridge")
-            m.execute("rm /usr/local/bin/cockpit-bridge")
 
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")

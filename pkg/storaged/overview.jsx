@@ -20,9 +20,9 @@
 import React from "react";
 
 import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
-import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 
 import { StoragePlots } from "./plot.jsx";
 
@@ -41,9 +41,9 @@ export const Overview = ({ client, plot_state }) => {
     return (
         <Page id="main-storage">
             <PageSection>
-                <Grid hasGutter>
-                    <GridItem md={8} lg={9}>
-                        <Gallery hasGutter>
+                <Flex hasGutter alignItems={{ default: 'alignItemsFlexStart' }}>
+                    <FlexItem flex={{ lg: 'flex_3' }}>
+                        <Stack hasGutter>
                             <Card>
                                 <CardBody>
                                     <StoragePlots plot_state={plot_state} />
@@ -54,17 +54,17 @@ export const Overview = ({ client, plot_state }) => {
                             <NFSPanel client={client} />
                             <JobsPanel client={client} />
                             <StorageLogsPanel />
-                        </Gallery>
-                    </GridItem>
-                    <GridItem md={4} lg={3} className="storage-sidebar">
-                        <Gallery hasGutter>
+                        </Stack>
+                    </FlexItem>
+                    <FlexItem flex={{ lg: 'flex_1' }} className="storage-sidebar">
+                        <Stack hasGutter>
                             <ThingsPanel client={client} />
                             <DrivesPanel client={client} />
                             <IscsiPanel client={client} />
                             <OthersPanel client={client} />
-                        </Gallery>
-                    </GridItem>
-                </Grid>
+                        </Stack>
+                    </FlexItem>
+                </Flex>
             </PageSection>
         </Page>
     );

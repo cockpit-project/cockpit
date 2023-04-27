@@ -53,6 +53,11 @@ Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
+# Experimental Python support
+%if !%{defined cockpit_enable_python}
+%define cockpit_enable_python 0
+%endif
+
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{pcp})
 # This split does not apply to EPEL/COPR nor packit c8s builds, only to our own
@@ -162,6 +167,22 @@ Suggests: cockpit-selinux
 Requires: subscription-manager-cockpit
 %endif
 
+%if %{cockpit_enable_python}
+BuildRequires:  python3-devel
+BuildRequires:  python3-pip
+BuildRequires:  python3-setuptools
+BuildRequires:  python3-wheel
+%if 0%{?rhel} == 0
+# All of these are only required for running pytest (which we only do on Fedora)
+BuildRequires:  procps-ng
+BuildRequires:  pyproject-rpm-macros
+BuildRequires:  python3-pytest-asyncio
+BuildRequires:  python3-pytest-cov
+BuildRequires:  python3-pytest-timeout
+BuildRequires:  python3-tox-current-env
+%endif
+%endif
+
 %prep
 %setup -q -n cockpit-%{version}
 
@@ -174,6 +195,9 @@ Requires: subscription-manager-cockpit
     --docdir=%_defaultdocdir/%{name} \
 %endif
     --with-pamdir='%{pamdir}' \
+%if %{cockpit_enable_python}
+    --enable-pybridge \
+%endif
 %if 0%{?build_basic} == 0
     --disable-ssh \
 %endif
@@ -182,6 +206,10 @@ Requires: subscription-manager-cockpit
 
 %check
 make -j$(nproc) check
+
+%if %{cockpit_enable_python} && 0%{?rhel} == 0
+%tox
+%endif
 
 %install
 %make_install
@@ -257,13 +285,15 @@ done
 rm -r %{buildroot}/%{_prefix}/%{__lib}/tmpfiles.d
 find %{buildroot}/%{_unitdir}/ -type f ! -name 'cockpit-session*' -delete
 for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
-    rm %{buildroot}/%{_libexecdir}/$libexec
+    rm -f %{buildroot}/%{_libexecdir}/$libexec
 done
 rm -r %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
 rm -f %{buildroot}/%{_libdir}/security/pam_*
-rm %{buildroot}/usr/bin/cockpit-bridge
+rm -f %{buildroot}/usr/bin/cockpit-bridge
 rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
 rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
+rm -rf %{buildroot}%{python3_sitelib}/cockpit/
+rm -rf %{buildroot}%{python3_sitelib}/cockpit-%{version}.dist-info/
 %endif
 
 # when not building optional packages, remove their files
@@ -344,6 +374,10 @@ system on behalf of the web based user interface.
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %{_libexecdir}/cockpit-askpass
+%if %{cockpit_enable_python}
+%{python3_sitelib}/%{name}/
+%{python3_sitelib}/%{name}-%{version}.dist-info/
+%endif
 
 %package doc
 Summary: Cockpit deployment and developer guide

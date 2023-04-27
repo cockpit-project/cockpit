@@ -20,27 +20,6 @@ pytest-cov: $(BUILT_SOURCES) $(DIST_STAMP) $(MANIFESTS)
 	$(MAKE) test-server
 	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest --cov
 
-PYTHON_BRIDGE_FILES = \
-	src/cockpit/__init__.py \
-	src/cockpit/bridge.py \
-	src/cockpit/channel.py \
-	src/cockpit/channels/__init__.py \
-	src/cockpit/channels/dbus.py \
-	src/cockpit/channels/filesystem.py \
-	src/cockpit/channels/http.py \
-	src/cockpit/channels/metrics.py \
-	src/cockpit/channels/packages.py \
-	src/cockpit/channels/stream.py \
-	src/cockpit/channels/trivial.py \
-	src/cockpit/internal_endpoints.py \
-	src/cockpit/packages.py \
-	src/cockpit/peer.py \
-	src/cockpit/protocol.py \
-	src/cockpit/router.py \
-	src/cockpit/samples.py \
-	src/cockpit/transports.py \
-	$(NULL)
-
 # -----------------------------------------------------------------------------
 #  C
 

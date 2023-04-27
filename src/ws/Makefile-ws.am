@@ -117,11 +117,6 @@ test_auth_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_auth_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
 test_auth_SOURCES = src/ws/test-auth.c
 
-TEST_PROGRAM += test-channelresponse
-test_channelresponse_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
-test_channelresponse_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
-test_channelresponse_SOURCES = src/ws/test-channelresponse.c
-
 TEST_PROGRAM += test-compat
 test_compat_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_compat_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
@@ -132,15 +127,24 @@ test_creds_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_creds_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
 test_creds_SOURCES = src/ws/test-creds.c
 
-TEST_PROGRAM += test-handlers
-test_handlers_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
-test_handlers_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
-test_handlers_SOURCES = src/ws/test-handlers.c
-
 TEST_PROGRAM += test-kerberos
 test_kerberos_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_kerberos_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS) $(krb5_LIBS)
 test_kerberos_SOURCES = src/ws/test-kerberos.c
+
+if !WITH_PYBRIDGE
+
+# These are -ws tests but they involve invoking ./cockpit-bridge.
+
+TEST_PROGRAM += test-channelresponse
+test_channelresponse_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_channelresponse_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_channelresponse_SOURCES = src/ws/test-channelresponse.c
+
+TEST_PROGRAM += test-handlers
+test_handlers_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_handlers_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_handlers_SOURCES = src/ws/test-handlers.c
 
 TEST_PROGRAM += test-webservice
 test_webservice_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
@@ -154,6 +158,7 @@ test_authssh_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_authssh_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
 test_authssh_SOURCES = src/ws/test-authssh.c
 
+endif
 endif
 
 noinst_PROGRAMS += mock-pam-conv-mod.so

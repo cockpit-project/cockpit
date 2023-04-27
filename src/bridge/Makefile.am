@@ -38,6 +38,8 @@ libcockpit_metrics_a_SOURCES = \
 	src/bridge/cockpitsamples.h \
 	$(NULL)
 
+if !WITH_PYBRIDGE
+
 # -----------------------------------------------------------------------------
 # libcockpit-bridge.a: code used in cockpit-bridge and its tests
 
@@ -226,6 +228,8 @@ dist_check_DATA += \
 	src/bridge/mock-server.crt \
 	src/bridge/mock-server.key \
 	$(NULL)
+
+endif
 
 # -----------------------------------------------------------------------------
 # polkit

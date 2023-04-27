@@ -20,6 +20,21 @@ pytest-cov: $(BUILT_SOURCES) $(DIST_STAMP) $(MANIFESTS)
 	$(MAKE) test-server
 	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest --cov
 
+if WITH_PYBRIDGE
+INSTALL_DATA_LOCAL_TARGETS += install-python
+install-python:
+	@# wheel-based installation with .dist-info.
+	@# This needs to work on RHEL8 up through modern Fedora, offline, with
+	@# system packages available to the build.
+	@rm -rf tmp/pybuild
+	'$(srcdir)'/tools/dist-setuptools '$(srcdir)' tmp/pybuild
+	cd tmp/pybuild && python3 -c 'from setuptools import setup; setup()' bdist_wheel
+	python3 -m pip install --no-index --force-reinstall --root='$(DESTDIR)/' --prefix='$(prefix)' tmp/pybuild/dist/*.whl
+	mkdir -p $(DESTDIR)$(libexecdir)
+	mv -t $(DESTDIR)$(libexecdir) $(DESTDIR)$(bindir)/cockpit-askpass
+endif
+
+
 # -----------------------------------------------------------------------------
 #  C
 

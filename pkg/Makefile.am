@@ -43,7 +43,10 @@ EXTRA_DIST += build.js files.js package.json package-lock.json
 
 # This is how the qunit tests get included.  We need to prevent automake from
 # seeing them during ./autogen.sh, but need make to find them at compile time.
+# We don't run them in the pybridge case since they're part of `pytest`.
+if !WITH_PYBRIDGE
 -include $(wildcard pkg/Makefile.qunit*)
+endif
 
 install-data-hook::
 	cd $(srcdir)/dist; find */* -type f -exec install -D -m 644 '{}' '$(abspath $(DESTDIR)$(datadir))/cockpit/{}' \;

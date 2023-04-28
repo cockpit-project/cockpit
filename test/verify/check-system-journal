@@ -560,7 +560,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_field("reason", "killed by SIGSEGV")
         b.click("button:contains(Problem details)")
         b.click("#abrt-details .pf-c-accordion__toggle:contains('core_backtrace')")
-        b.wait_visible("#abrt-details .pf-c-accordion__expanded-content-body dt:contains('signal') + dd:contains('11')")
+        b.wait_visible("#abrt-details .pf-c-accordion__expandable-content.pf-m-expanded dt:contains('signal') + dd:contains('11')")
 
     @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive

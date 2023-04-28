@@ -22,7 +22,7 @@ import React from "react";
 
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
 
 import { journal } from "journal";
@@ -81,11 +81,11 @@ export class JournalOutput {
                 onKeyPress={ev => this.onEvent(ev, entry.__CURSOR, full_content)}>
                 <div className="cockpit-log-warning" role="cell">
                     { warning
-                        ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="sm" />
+                        ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
                         : null
                     }
                     { problem
-                        ? <TimesCircleIcon className="ct-icon-times-circle" size="sm" />
+                        ? <TimesCircleIcon className="ct-icon-times-circle" />
                         : null
                     }
                 </div>
@@ -166,11 +166,12 @@ export class LogsPanel extends React.Component {
     }
 
     render() {
+        const actions = (this.state.logs.length > 0 && this.props.goto_url) && <Button variant="secondary" onClick={e => cockpit.jump(this.props.goto_url)}>{_("View all logs")}</Button>;
+
         return (
             <Card className="cockpit-log-panel">
-                <CardHeader>
+                <CardHeader actions={{ actions }}>
                     <CardTitle>{this.props.title}</CardTitle>
-                    { (this.state.logs.length > 0 && this.props.goto_url) && <CardActions><Button variant="secondary" onClick={e => cockpit.jump(this.props.goto_url)}>{_("View all logs")}</Button></CardActions>}
                 </CardHeader>
                 <CardBody className={(!this.state.logs.length && this.props.emptyMessage.length) ? "empty-message" : "contains-list"}>
                     { this.state.logs.length ? this.state.logs : this.props.emptyMessage }

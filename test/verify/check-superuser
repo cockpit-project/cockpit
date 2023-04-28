@@ -21,7 +21,7 @@ import os
 import time
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, todoPybridgeRHEL8, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, todoPybridgeRHEL8, test_main, wait
 
 
 def allow_old_cockpit_ws_messages(test):
@@ -155,6 +155,7 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18676")
     def testNotAdmin(self):
         b = self.browser
         m = self.machine
@@ -177,6 +178,30 @@ session include system-auth
         b.wait_in_text(".pf-c-modal-box:contains('Problem becoming administrator')", "Admin is not in the sudoers file.")
         b.click(".pf-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
+
+        # no stray/hanging sudo process
+        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
+
+        # cancelling auth dialog stops sudo
+        b.open_superuser_dialog()
+        b.wait_in_text(".pf-c-modal-box", "Switch to administrative access")
+        b.wait_in_text(".pf-c-modal-box", "Password for admin")
+        status = m.execute("loginctl --lines=0 user-status admin")
+        self.assertIn("sudo", status)
+        self.assertIn("cockpit-askpass", status)
+
+        b.click(".pf-c-modal-box button:contains('Cancel')")
+        b.wait_not_present(".pf-c-modal-box")
+
+        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
+
+        # logging out cleans up pending sudo auth; user should either go to "State: closing" or disappear completely
+        b.open_superuser_dialog()
+        b.wait_in_text(".pf-c-modal-box", "Password for admin")
+        self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
+        b.logout()
+        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin || true"), tries=10)
+        self.assertNotIn("cockpit", m.execute("loginctl --lines=0 user-status admin || true"))
 
     def testBrokenBridgeConfig(self):
         b = self.browser
@@ -267,7 +292,7 @@ session include system-auth
         b.click(".pf-c-modal-box button:contains('Close')")
         b.check_superuser_indicator("Limited access")
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18711")
     def testMultipleBridgeConfig(self):
         b = self.browser
 
@@ -391,7 +416,7 @@ class TestSuperuserOldWebserver(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
         m = self.machine
@@ -512,12 +537,7 @@ class TestSuperuserDashboard(MachineCase):
         # The superuser indicator in the Shell should apply to machine2
 
         b.check_superuser_indicator("Limited access")
-        b.open_superuser_dialog()
-        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input[type=password]", "foobar")
-        b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-        b.check_superuser_indicator("Administrative access")
+        b.become_superuser()
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
@@ -525,13 +545,22 @@ class TestSuperuserDashboard(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
         b.leave_page()
-        b.open_superuser_dialog()
-        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
-        b.check_superuser_indicator("Limited access")
+        b.drop_superuser()
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'access-denied')
+
+        # back to superuser on machine2
+        b.become_superuser()
+        user = self.machines["machine2"].execute("loginctl user-status admin")
+        self.assertIn("cockpit-bridge --privileged", user)
+        # no stray askpass process
+        self.assertNotIn("cockpit-askpass", user)
+        # logging out cleans up logind sessions on both machines
+        b.logout()
+        for m in [self.machine, self.machines["machine2"]]:
+            m.execute('while [ "$(loginctl show-user --property=State --value admin)" = "active" ]; do sleep 1; done')
+            self.assertNotIn("cockpit", "loginctl user-status admin")
 
         self.allow_hostkey_messages()
 
@@ -543,7 +572,7 @@ class TestSuperuserOldDashboard(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
         m = self.machines["machine1"]
@@ -607,7 +636,7 @@ class TestSuperuserDashboardOldMachine(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
     }
 
-    @todoPybridge()
+    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
 

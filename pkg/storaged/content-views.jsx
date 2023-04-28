@@ -26,10 +26,12 @@ import {
 import * as utils from "./utils.js";
 
 import React from "react";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
-import { DropdownSeparator } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import {
+    DropdownSeparator
+} from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -551,7 +553,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
 
     let info = null;
     if (job_object && client.path_jobs[job_object])
-        info = <Spinner isSVG size="md" />;
+        info = <Spinner size="md" />;
     if (tabs.has_warnings)
         info = <>{info}<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /></>;
     if (info)
@@ -753,9 +755,9 @@ const BlockContent = ({ client, block, allow_partitions }) => {
 
     return (
         <Card>
-            <CardHeader>
+            <CardHeader actions={{ actions: format_disk_btn }}>
                 <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
-                <CardActions>{format_disk_btn}</CardActions>
+
             </CardHeader>
             <CardBody className="contains-list">
                 <ListingTable rows={ block_rows(client, block) }
@@ -1018,9 +1020,9 @@ export class VGroup extends React.Component {
 
         return (
             <Card>
-                <CardHeader>
+                <CardHeader actions={{ actions: new_volume_link }}>
                     <CardTitle><Text component={TextVariants.h2}>{_("Logical volumes")}</Text></CardTitle>
-                    <CardActions>{new_volume_link}</CardActions>
+
                 </CardHeader>
                 <CardBody className="contains-list">
                     <ListingTable emptyCaption={_("No logical volumes")}

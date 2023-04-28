@@ -527,6 +527,7 @@ class TestStorageNBDE(StorageCase, PackageCase):
         with b.wait_timeout(60):
             if need_fixing:
                 b.wait_in_text("#dialog", "Add Network Bound Disk Encryption")
+                b.wait_in_text("#dialog", "The clevis-systemd package must be installed")
                 self.dialog_apply()
             b.wait_in_text("#dialog", "No key available with this passphrase.")
             self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
@@ -570,7 +571,13 @@ class TestStorageNBDE(StorageCase, PackageCase):
         self.dialog({"at_boot": "nofail"})
         self.content_tab_wait_in_info(1, 2, "Options", "nofail")
 
-        # Add a second key, this should not show the fixing dialog.
+        if need_fixing:
+            # Break things again, including PackageKit
+            m.execute("if type dnf; then dnf remove -y clevis-systemd; else apt-get purge -y clevis-systemd; fi")
+            m.execute("systemctl mask --now packagekit")
+
+        # Add a second key, this should try to fix things again, but
+        # we have to help with the package install
         #
         b.click(panel + "[aria-label=Add]")
         self.dialog_wait_open()
@@ -581,8 +588,36 @@ class TestStorageNBDE(StorageCase, PackageCase):
         b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
         b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
         self.dialog_apply()
-        self.dialog_wait_close()
-        self.dialog_wait_close()
+        with b.wait_timeout(60):
+            if need_fixing:
+                b.wait_in_text("#dialog", "Add Network Bound Disk Encryption")
+                b.wait_in_text("#dialog", "The clevis-systemd package must be installed")
+                self.dialog_apply()
+                b.wait_in_text("#dialog", "PackageKit is not installed")
+                self.dialog_cancel()
+                self.dialog_wait_close()
+
+                # Manually install the missing package, Cockpit should
+                # be happy with that even when PackageKit is not
+                # available.  Also disable the unit, for variety.
+                # Cockpit will enable it without needing explicit
+                # confirmation.
+                #
+                m.execute("if type dnf; then dnf install -y clevis-systemd; else apt-get install -y clevis-systemd; fi")
+                m.execute("systemctl disable --now clevis-luks-askpass.path")
+
+                b.click(panel + "[aria-label=Add]")
+                self.dialog_wait_open()
+                self.dialog_wait_apply_enabled()
+                self.dialog_set_val("type", "tang")
+                self.dialog_set_val("tang_url", "http://10.111.112.5")
+                self.dialog_apply()
+                b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+                b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+                self.dialog_apply()
+
+            self.dialog_wait_close()
+
         b.wait_visible(panel + "ul li:nth-child(3)")
         b.wait_in_text(panel + "ul li:nth-child(3)", "http://10.111.112.5")
 
@@ -632,26 +667,17 @@ class TestStorageNBDE(StorageCase, PackageCase):
 
         self.login_and_go("/storage")
 
-        # Add a clevis key to the root filesystem and then reboot.
+        # Add a clevis key and then reboot.
         #
         # We also remove the original passphrase in order to be sure
         # that it was in fact clevis that has unlocked the rootfs, and
         # not the magic provided by "encrypt_root"
 
-        b.wait_visible("#mounts")
-        for i in range(1, 100):
-            if b.text(f"#mounts tbody tr:nth-child({i}) td[data-label=Mount]") == "/":
-                b.click(f"#mounts tbody tr:nth-child({i})")
-                break
+        b.click('#devices .sidepanel-row:contains("/dev/root/")')
+        b.wait_visible("#storage-detail")
+        b.click('.sidepanel-row:contains("Encrypted partition")')
 
-        b.wait_visible("#detail-content")
-        for i in range(1, 100):
-            col = self.content_row_tbody(i) + ' tr:first-child td[data-label="Used for"]'
-            if b.text(col) == "/":
-                root_row = i
-                break
-
-        tab = self.content_tab_expand(root_row, 3)
+        tab = self.content_tab_expand(2, 2)
         panel = tab + " .pf-c-card:contains(Keys) "
         b.wait_visible(panel)
         b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
@@ -668,6 +694,8 @@ class TestStorageNBDE(StorageCase, PackageCase):
             b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
             self.dialog_apply()
             b.wait_in_text("#dialog", "Add Network Bound Disk Encryption")
+            b.wait_in_text("#dialog", "The clevis-dracut package must be installed")
+            b.wait_in_text("#dialog", "The initrd must be regenerated")
             self.dialog_apply()
             self.dialog_wait_close()
 

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";

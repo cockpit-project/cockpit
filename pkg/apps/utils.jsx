@@ -56,7 +56,7 @@ export const ProgressBar = ({ size, title, data, ariaLabelledBy }) => {
                 {_("Waiting for other programs to finish using the package manager...")}
             </SplitItem>
             <SplitItem>
-                <Spinner isSVG size="md" />
+                <Spinner size="md" />
             </SplitItem>
         </Split>);
     } else {

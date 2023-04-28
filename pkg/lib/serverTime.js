@@ -23,7 +23,7 @@ import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicke
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
-import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
@@ -469,7 +469,7 @@ export function ServerTimeConfig() {
                 body = <div>{cockpit.format(_("Synchronized with $0"), ntp.server)}</div>;
         } else {
             if (ntp.server) {
-                icon = <Spinner size="md" isSVG />;
+                icon = <Spinner size="md" />;
                 header = _("Synchronizing");
                 body = <div>{cockpit.format(_("Trying to synchronize with $0"), ntp.server)}</div>;
             } else {
@@ -595,8 +595,8 @@ function ChangeSystimeBody({ state, errors, change }) {
         <Form isHorizontal>
             <FormGroup fieldId="systime-timezones" label={_("Time zone")}>
                 <Validated errors={errors} error_key="time_zone">
-                    <Select id="systime-timezones" variant={SelectVariant.typeahead}
-                            isOpen={zonesOpen} onToggle={setZonesOpen}
+                    <Select id="systime-timezones" variant="typeahead"
+                            isOpen={zonesOpen} onToggle={(_, isOpen) => setZonesOpen(isOpen)}
                             selections={time_zone}
                             onSelect={(event, value) => { setZonesOpen(false); change("time_zone", value) }}
                             menuAppendTo="parent">
@@ -606,7 +606,7 @@ function ChangeSystimeBody({ state, errors, change }) {
             </FormGroup>
             <FormGroup fieldId="change_systime" label={_("Set time")} isStack>
                 <Select id="change_systime"
-                        isOpen={modeOpen} onToggle={setModeOpen}
+                        isOpen={modeOpen} onToggle={(_, isOpen) => setModeOpen(isOpen)}
                         selections={mode} onSelect={(event, value) => { setModeOpen(false); change("mode", value) }}
                         menuAppendTo="parent">
                     { mode_options }

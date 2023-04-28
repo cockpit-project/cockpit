@@ -20,7 +20,7 @@
 import React from "react";
 import { createRoot } from 'react-dom/client';
 
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 import "page.scss";
 
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";

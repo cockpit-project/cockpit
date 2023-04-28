@@ -439,7 +439,7 @@ function WorkflowRow(props) {
         <Split hasGutter>
             <SplitItem>{props.label}</SplitItem>
             <SplitItem isFilled>
-                {props.problemState === ProblemState.REPORTING && <Spinner isSVG size="md" /> }
+                {props.problemState === ProblemState.REPORTING && <Spinner size="md" /> }
                 {status}
             </SplitItem>
             <SplitItem>{button}</SplitItem>

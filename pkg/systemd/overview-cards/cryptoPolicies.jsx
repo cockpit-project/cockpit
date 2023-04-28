@@ -224,7 +224,7 @@ export const CryptoPolicyStatus = () => {
         return (
             <li className="system-health-crypto-policies">
                 <Flex spacer={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
-                    <FlexItem><ExclamationTriangleIcon size="sm" className="crypto-policies-health-card-icon" /></FlexItem>
+                    <FlexItem><ExclamationTriangleIcon className="crypto-policies-health-card-icon" /></FlexItem>
                     <div>
                         <div id="inconsistent_crypto_policy">
                             {currentCryptoPolicy === "FIPS" ? _("FIPS is not properly enabled") : _("Crypto policy is inconsistent")}

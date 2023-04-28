@@ -99,11 +99,11 @@ const LastLogin = () => {
             headerClass += " system-information-failed-login-warning";
         }
 
-        icon = <ExclamationTriangleIcon className={iconClass} size="sm" />;
+        icon = <ExclamationTriangleIcon className={iconClass} />;
         headerText = cockpit.format(cockpit.ngettext("$0 failed login attempt", "$0 failed login attempts", failedLogins), failedLogins);
         underlineText = getFormattedDateTime(messages['last-login-time'] * 1000) + " " + generate_line(messages['last-login-host'], messages['last-login-line']);
     } else {
-        icon = <UserIcon className="system-information-last-login-icon" size="sm" />;
+        icon = <UserIcon className="system-information-last-login-icon" />;
         headerText = lastLoginText;
         underlineClass += " ct-grey-text pf-u-font-size-sm";
         underlineText = generate_line(messages['last-login-host'], messages['last-login-line']);

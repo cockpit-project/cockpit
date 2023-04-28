@@ -23,7 +23,7 @@ import 'cockpit-dark-theme'; // once per page
 import React from "react";
 import { createRoot } from "react-dom/client";
 
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 
 import * as troubleshootClient from "./setroubleshoot-client.js";
 import * as selinuxClient from "./selinux-client.js";

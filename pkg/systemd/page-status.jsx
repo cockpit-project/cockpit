@@ -57,7 +57,7 @@ function get_pficon(name) {
     if (name == "check")
         return <CheckIcon color="green" data-pficon={name} />;
     if (name == "spinner")
-        return <Spinner isSVG size="md" data-pficon={name} />;
+        return <Spinner size="md" data-pficon={name} />;
 
     throw new Error(`get_pficon(): unknown icon name ${name}`);
 }

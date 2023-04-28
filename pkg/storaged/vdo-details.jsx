@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename, reload_systemd } from "./utils.js";
@@ -256,16 +256,18 @@ export class VDODetails extends React.Component {
 
         const header = (
             <Card>
-                <CardHeader>
-                    <CardTitle><Text component={TextVariants.h2}>{cockpit.format(_("VDO device $0"), vdo.name)}</Text></CardTitle>
-                    <CardActions>
+                <CardHeader actions={{
+                    actions: <>
                         { block
                             ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
                             : <StorageButton onClick={vdo.start}>{_("Start")}</StorageButton>
                         }
                         { "\n" }
                         <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
-                    </CardActions>
+                    </>,
+                }}>
+                    <CardTitle><Text component={TextVariants.h2}>{cockpit.format(_("VDO device $0"), vdo.name)}</Text></CardTitle>
+
                 </CardHeader>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">

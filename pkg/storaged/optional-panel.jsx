@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { EmptyState, EmptyStateBody, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
@@ -106,11 +106,9 @@ export class OptionalPanel extends React.Component {
 
         return (
             <Card className={className} id={id}>
-                <CardHeader>
+                <CardHeader actions={{ actions: heading_right }}>
                     <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
-                    <CardActions>
-                        { heading_right }
-                    </CardActions>
+
                 </CardHeader>
                 <CardBody className="contains-list">
                     { feature_enabled

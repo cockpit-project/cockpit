@@ -24,8 +24,8 @@ import { superuser } from "superuser";
 import { admins } from './users.js';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
-import { Card, CardActions, CardExpandableContent, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Card, CardExpandableContent, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
+import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
@@ -82,7 +82,7 @@ const UserActions = ({ account }) => {
     );
 
     const kebab = (
-        <Dropdown toggle={<KebabToggle onToggle={setKebabOpen} />}
+        <Dropdown toggle={<KebabToggle onToggle={(_, isOpen) => setKebabOpen(isOpen)} />}
                 isPlain
                 isOpen={isKebabOpen}
                 position="right"
@@ -301,7 +301,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
                 { superuser.allowed &&
                     <>
                         {isExpanded && <ToolbarItem variant="separator" />}
-                        <ToolbarItem alignment={{ md: 'alignRight' }}>
+                        <ToolbarItem align={{ md: 'alignRight' }}>
                             <Button variant="secondary" id="groups-create" onClick={() => group_create_dialog(groups, setIsExpanded, min_gid, max_gid)}>
                                 {_("Create new group")}
                             </Button>
@@ -314,7 +314,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
 
     return (
         <Card className="ct-card" isExpanded={isExpanded}>
-            <CardHeader
+            <CardHeader actions={{ actions: tableToolbar, hasNoOffset: true }}
                 className="ct-card-expandable-header"
                 onExpand={() => setIsExpanded(!isExpanded)}
                 toggleButtonProps={{
@@ -340,9 +340,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
                         </Button>}
                     </>}
                 </CardTitle>
-                <CardActions>
-                    {tableToolbar}
-                </CardActions>
+
             </CardHeader>
             <CardExpandableContent>
                 <ListingTable columns={columns}
@@ -441,7 +439,7 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
                 { superuser.allowed &&
                     <>
                         <ToolbarItem variant="separator" />
-                        <ToolbarItem alignment={{ md: 'alignRight' }}>
+                        <ToolbarItem align={{ md: 'alignRight' }}>
                             <Button id="accounts-create" onClick={() => account_create_dialog(accounts, min_uid, max_uid, shells)}>
                                 {_("Create new account")}
                             </Button>
@@ -454,11 +452,10 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
 
     return (
         <Card className="ct-card">
-            <CardHeader>
+            <CardHeader actions={{ actions: tableToolbar }}>
                 <CardTitle>
                     <Text component={TextVariants.h2}>{_("Accounts")}</Text>
                 </CardTitle>
-                {tableToolbar}
             </CardHeader>
             <ListingTable columns={columns}
                           id="accounts-list"

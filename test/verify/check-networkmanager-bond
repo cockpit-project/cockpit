@@ -46,12 +46,12 @@ class TestBonding(NetworkCase):
         b.click("button:contains('Add bond')")
         b.wait_visible("#network-bond-settings-dialog")
         # wait until dialog initialized
-        b.wait_visible("#network-bond-settings-dialog > button[aria-label=Close]")
+        b.wait_visible("#network-bond-settings-dialog button[aria-label=Close]")
         b.wait_visible("#network-bond-settings-mac-input-select-typeahead")
         # menu is not visible by default, but gets initialized dynamically
         b.assert_pixels("#network-bond-settings-dialog", "networking-bond-settings-dialog")
 
-        b.click("#network-bond-settings-dialog > button[aria-label=Close]")
+        b.click("#network-bond-settings-dialog button[aria-label=Close]")
         b.wait_not_present("#network-bond-settings-dialog")
         b.click("button:contains('Add bond')")
         b.wait_visible("#network-bond-settings-dialog")

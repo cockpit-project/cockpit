@@ -22,8 +22,8 @@ import React, { useState } from 'react';
 import { useObject, useEvent } from 'hooks.js';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Card, CardActions, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { Dropdown, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Card, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
+import { Dropdown, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { OverflowMenu, OverflowMenuContent, OverflowMenuControl, OverflowMenuDropdownItem, OverflowMenuGroup, OverflowMenuItem } from "@patternfly/react-core/dist/esm/components/OverflowMenu/index.js";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
@@ -109,17 +109,16 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
     else
         return null;
 
+    const actions = allow_mods && (
+        <Button variant="secondary" id="authorized-key-add" onClick={() => add_authorized_key_dialog(manager)}>
+            {_("Add key")}
+        </Button>
+    );
+
     return (
         <Card id="account-authorized-keys">
-            <CardHeader>
+            <CardHeader actions={{ actions }}>
                 <CardTitle><Text component={TextVariants.h2}>{_("Authorized public SSH keys")}</Text></CardTitle>
-                { allow_mods &&
-                <CardActions>
-                    <Button variant="secondary" id="authorized-key-add" onClick={() => add_authorized_key_dialog(manager)}>
-                        {_("Add key")}
-                    </Button>
-                </CardActions>
-                }
             </CardHeader>
             <ListingTable
                 aria-label={ _("Authorized public SSH keys") }
@@ -157,7 +156,7 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                                                   }}
                                                   toggle={
                                                       <KebabToggle
-                                                      onToggle={open => {
+                                                      onToggle={(_event, open) => {
                                                           if (open)
                                                               setOpenedMenu([...openedMenu, k.fp]);
                                                           else

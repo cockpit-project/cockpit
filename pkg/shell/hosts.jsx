@@ -184,13 +184,13 @@ export class CockpitHosts extends React.Component {
                                     <HostLine user={user} host={label} />
                                 </span>
                             </span>
-                            {this.state.opened && <CaretUpIcon size="md" className="pf-c-select__toggle-arrow mobile_v" aria-hidden="true" />}
-                            {!this.state.opened && <CaretDownIcon size="md" className="pf-c-select__toggle-arrow mobile_v" aria-hidden="true" />}
+                            {this.state.opened && <CaretUpIcon className="pf-c-select__toggle-arrow mobile_v pf-c-icon pf-m-lg" aria-hidden="true" />}
+                            {!this.state.opened && <CaretDownIcon className="pf-c-select__toggle-arrow mobile_v pf-c-icon pf-m-lg" aria-hidden="true" />}
                             <span className="pf-c-select__toggle-wrapper mobile_v">
                                 {_("Host")}
                             </span>
-                            {this.state.opened && <CaretUpIcon className="pf-c-select__toggle-arrow desktop_v" aria-hidden="true" />}
-                            {!this.state.opened && <CaretDownIcon className="pf-c-select__toggle-arrow desktop_v" aria-hidden="true" />}
+                            {this.state.opened && <CaretUpIcon className="pf-c-select__toggle-arrow desktop_v pf-c-icon" aria-hidden="true" />}
+                            {!this.state.opened && <CaretDownIcon className="pf-c-select__toggle-arrow desktop_v pf-c-icon" aria-hidden="true" />}
                         </button>
                     </div>
 

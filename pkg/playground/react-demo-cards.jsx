@@ -21,7 +21,7 @@ import React from "react";
 import { createRoot } from 'react-dom/client';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardFooter, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
 const CardsDemo = () => {
@@ -41,12 +41,10 @@ const CardsDemo = () => {
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
         <Card key="card5">
-            <CardHeader>
-                <CardActions>
-                    <input type="checkbox" />
-                    <Button className="btn">click</Button>
-                </CardActions>
-            </CardHeader>
+            <CardHeader actions={{
+                actions: <><input type="checkbox" />
+                    <Button className="btn">click</Button></>,
+            }} />
             <CardTitle>This is a card header</CardTitle>
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,

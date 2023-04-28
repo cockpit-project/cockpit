@@ -47,7 +47,7 @@ class TestBridge(NetworkCase):
         b.wait_visible("#network-bridge-settings-dialog")
 
         # wait until dialog initialized
-        b.wait_visible("#network-bridge-settings-dialog > button[aria-label=Close]")
+        b.wait_visible("#network-bridge-settings-dialog button[aria-label=Close]")
         b.wait_in_text("#network-bridge-settings-body", "cockpit2")
         b.assert_pixels("#network-bridge-settings-dialog", "networking-bridge-settings-dialog")
 

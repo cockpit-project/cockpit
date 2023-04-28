@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { PlusIcon, MinusIcon } from "@patternfly/react-icons";
@@ -216,13 +216,17 @@ export class VGroupDetails extends React.Component {
 
         const header = (
             <Card>
-                <CardHeader>
+                <CardHeader actions={{
+                    actions: (
+                        <>
+                            <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
+                            { "\n" }
+                            <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
+                        </>
+                    ),
+                }}>
                     <CardTitle><Text component={TextVariants.h2}>{fmt_to_fragments(_("LVM2 volume group $0"), <b>{vgroup.Name}</b>)}</Text></CardTitle>
-                    <CardActions>
-                        <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
-                        { "\n" }
-                        <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
-                    </CardActions>
+
                 </CardHeader>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">

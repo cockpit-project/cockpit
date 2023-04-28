@@ -24,21 +24,20 @@ import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { EmptyState, EmptyStateIcon, EmptyStateSecondaryActions, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
+import { EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
-import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { ExclamationCircleIcon, HelpIcon, UndoIcon } from '@patternfly/react-icons';
 import { show_unexpected_error } from "./dialog-utils.js";
@@ -182,11 +181,9 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
 
     if (!accounts.length) {
         return (
-            <EmptyState variant={EmptyStateVariant.small}>
-                <Spinner isSVG size="xl" />
-                <Title headingLevel="h1" size="lg">
-                    {_("Loading...")}
-                </Title>
+            <EmptyState variant={EmptyStateVariant.sm}>
+                <EmptyStateHeader titleText={_("Loading...")} headingLevel="h1" />
+                <EmptyStateFooter><Spinner size="xl" /></EmptyStateFooter>
             </EmptyState>
         );
     }
@@ -195,16 +192,15 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
 
     if (!account) {
         return (
-            <EmptyState variant={EmptyStateVariant.small} id="account-failure">
-                <EmptyStateIcon icon={ExclamationCircleIcon} />
-                <Title headingLevel="h1" size="lg">
-                    {_("Account not available or cannot be edited.")}
-                </Title>
-                <EmptyStateSecondaryActions>
-                    <Breadcrumb>
-                        <BreadcrumbItem to="#/">{_("Back to accounts")}</BreadcrumbItem>
-                    </Breadcrumb>
-                </EmptyStateSecondaryActions>
+            <EmptyState variant={EmptyStateVariant.sm} id="account-failure">
+                <EmptyStateHeader titleText={<>{_("Account not available or cannot be edited.")}</>} icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h1" />
+                <EmptyStateFooter>
+                    <EmptyStateActions>
+                        <Breadcrumb>
+                            <BreadcrumbItem to="#/">{_("Back to accounts")}</BreadcrumbItem>
+                        </Breadcrumb>
+                    </EmptyStateActions>
+                </EmptyStateFooter>
             </EmptyState>
         );
     }
@@ -228,6 +224,20 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
     else
         last_login = timeformat.dateTime(new Date(account.lastLogin));
 
+    const actions = superuser.allowed && (
+        <>
+            <Button variant="secondary" onClick={() => logout_account()} id="account-logout"
+              isDisabled={!account.loggedIn || account.uid == 0}>
+                {_("Terminate session")}
+            </Button>
+            { "\n" }
+            <Button isDisabled={account.uid == 0} variant="danger" id="account-delete"
+                  onClick={() => delete_account_dialog(account)}>
+                {_("Delete")}
+            </Button>
+        </>
+    );
+
     return (
         <Page id="account">
             <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
@@ -239,21 +249,8 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
             <PageSection>
                 <Gallery hasGutter>
                     <Card className="account-details" id="account-details">
-                        <CardHeader>
+                        <CardHeader actions={{ actions }}>
                             <CardTitle id="account-title"><Text component={TextVariants.h2}>{title_name}</Text></CardTitle>
-                            { superuser.allowed &&
-                            <CardActions>
-                                <Button variant="secondary" onClick={() => logout_account()} id="account-logout"
-                                  isDisabled={!account.loggedIn || account.uid == 0}>
-                                    {_("Terminate session")}
-                                </Button>
-                                { "\n" }
-                                <Button isDisabled={account.uid == 0} variant="danger" id="account-delete"
-                                      onClick={() => delete_account_dialog(account)}>
-                                    {_("Delete")}
-                                </Button>
-                            </CardActions>
-                            }
                         </CardHeader>
                         <CardBody>
                             <Form isHorizontal onSubmit={apply_modal_dialog}>
@@ -284,7 +281,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                             <Checkbox id="account-locked"
                                                         isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
                                                         isChecked={edited_locked != null ? edited_locked : account.isLocked}
-                                                        onChange={checked => change_locked(checked)}
+                                                        onChange={(_event, checked) => change_locked(checked)}
                                                         label={_("Disallow interactive password")} />
 
                                             <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
@@ -452,10 +449,10 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
                    isDisabled={!superuser.allowed || loading}
                    isOpen={isOpenGroup}
                    onSelect={onSelectGroup}
-                   onToggle={setIsOpenGroup}
+                   onToggle={(_, isOpen) => setIsOpenGroup(isOpen)}
                    selections={selected}
                    toggleId="account-groups"
-                   variant={SelectVariant.typeaheadMulti}
+                   variant="typeaheadmulti"
                 >
                     {groups.map((option, index) => (
                         <SelectOption

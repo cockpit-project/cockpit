@@ -252,7 +252,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                             </FormGroup>
                             <FormGroup className="pf-m-1-col-on-sm remove-button-group">
                                 <Button variant='secondary'
-                                        isSmall
+                                        size="sm"
                                         onClick={() => setDns(dns.filter((_, index) => index !== i))}
                                         aria-label={_("Remove item")}
                                         icon={<MinusIcon />} />
@@ -297,7 +297,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                             </FormGroup>
                             <FormGroup className="pf-m-1-col-on-sm remove-button-group">
                                 <Button variant='secondary'
-                                        isSmall
+                                        size="sm"
                                         onClick={() => setDnsSearch(dnsSearch.filter((_, index) => index !== i))}
                                         aria-label={_("Remove item")}
                                         icon={<MinusIcon />} />
@@ -366,7 +366,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                             </FormGroup>
                             <FormGroup className="pf-m-1-col-on-sm remove-button-group">
                                 <Button variant='secondary'
-                                        isSmall
+                                        size="sm"
                                         onClick={() => setRoutes(routes.filter((_, index) => index !== i))}
                                         aria-label={_("Remove item")}
                                         icon={<MinusIcon />} />

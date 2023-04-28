@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -39,7 +39,7 @@ import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
-import { decode_filename, encode_filename, block_name, for_each_async } from "./utils.js";
+import { decode_filename, encode_filename, block_name, for_each_async, get_children } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import { parse_options, unparse_options } from "./format-dialog.jsx";
@@ -303,6 +303,21 @@ function ensure_package_installed(steps, progress, package_name) {
                                 return install_missing_packages(data, status_callback(progress));
                         }
                     });
+            })
+            .catch(error => {
+            // Something wrong with PackageKit, maybe it is not even
+            // installed.  Let's show the error during fixing.
+                progress(null, null);
+                steps.push({
+                    title: cockpit.format(_("The $0 package must be installed."), package_name),
+                    func: progress => {
+                        if (error.problem == "not-found") {
+                            return Promise.reject(cockpit.format(_("Error installing $0: PackageKit is not installed"), package_name));
+                        } else {
+                            return Promise.reject(cockpit.format(_("Unexpected PackageKit error during installation of $0: $1"), package_name, error.toString())); // not-covered: OS error
+                        }
+                    }
+                });
             });
 }
 
@@ -395,15 +410,26 @@ function ensure_non_root_nbde_support(steps, progress, client, block) {
             .then(() => ensure_crypto_option(steps, progress, client, block, "_netdev"));
 }
 
-function ensure_nbde_support(steps, progress, client, block) {
-    const cleartext = client.blocks_cleartext[block.path];
-    const crypto = client.blocks_crypto[block.path];
-    const fsys_config = cleartext
-        ? cleartext.Configuration.find(c => c[0] == "fstab")
-        : crypto.ChildConfiguration.find(c => c[0] == "fstab");
-    const dir = decode_filename(fsys_config[1].dir.v);
+function contains_rootfs(client, path) {
+    const block = client.blocks[path];
+    const crypto = client.blocks_crypto[path];
+    let fsys_config = null;
 
-    if (dir == "/") {
+    if (block)
+        fsys_config = block.Configuration.find(c => c[0] == "fstab");
+    if (!fsys_config && crypto)
+        fsys_config = crypto.ChildConfiguration.find(c => c[0] == "fstab");
+
+    if (fsys_config) {
+        const dir = decode_filename(fsys_config[1].dir.v);
+        return dir == "/";
+    }
+
+    return get_children(client, path).some(p => contains_rootfs(client, p));
+}
+
+function ensure_nbde_support(steps, progress, client, block) {
+    if (contains_rootfs(client, block.path)) {
         if (client.get_config("nbde_root_help", false)) {
             steps.is_root = true;
             return ensure_root_nbde_support(steps, progress);
@@ -658,7 +684,7 @@ const RemovePassphraseField = (tag, key, dev) => {
                         <Checkbox id="force-remove-passphrase"
                                   isChecked={val !== false}
                                   label={_("Confirm removal with an alternate passphrase")}
-                                  onChange={checked => change(checked ? "" : false)}
+                                  onChange={(_event, checked) => change(checked ? "" : false)}
                                   body={val === false
                                       ? <p className="slot-warning">
                                           {_("Removing a passphrase without confirmation of another passphrase may prevent unlocking or key management, if other passphrases are forgotten or lost.")}
@@ -836,19 +862,21 @@ export class CryptoKeyslots extends React.Component {
 
         return (
             <Card className="key-slot-panel">
-                <CardHeader>
-                    <CardActions>
+                <CardHeader actions={{
+                    actions: <>
                         <span className="key-slot-panel-remaining">
                             { remaining < 6 ? (remaining ? cockpit.format(cockpit.ngettext("$0 slot remains", "$0 slots remain", remaining), remaining) : _("No available slots")) : null }
                         </span>
                         <StorageButton onClick={() => add_dialog(client, block)}
-                                       ariaLabel={_("Add")}
-                                       excuse={(keys.length == max_slots)
-                                           ? _("No free key slots")
-                                           : null}>
+                                           ariaLabel={_("Add")}
+                                           excuse={(keys.length == max_slots)
+                                               ? _("No free key slots")
+                                               : null}>
                             <PlusIcon />
                         </StorageButton>
-                    </CardActions>
+                    </>,
+                }}>
+
                     <CardTitle><Text component={TextVariants.h2}>{_("Keys")}</Text></CardTitle>
                 </CardHeader>
                 <CardBody className="contains-list">

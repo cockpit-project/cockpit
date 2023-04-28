@@ -382,7 +382,7 @@ export const AutoUpdates = ({ privileged, packagekit_backend }) => {
                 <Flex>
                     <Button variant="secondary"
                             isDisabled={!privileged}
-                            isSmall
+                            size="sm"
                             onClick={() => {
                                 if (!backend.installed) {
                                     install_dialog(backend.packageName)

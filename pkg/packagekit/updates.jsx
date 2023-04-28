@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
@@ -32,7 +32,7 @@ import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.j
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
-import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
@@ -506,7 +506,7 @@ class RestartServices extends React.Component {
         if (this.props.tracerRunning) {
             body = (
                 <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                    <Spinner isSvg size="sm" />
+                    <Spinner size="sm" />
                     <p>{_("Reloading the state of remaining services")}</p>
                 </Flex>
             );
@@ -577,7 +577,7 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
     }
 
     const cancelButton = transactionProps.AllowCancel
-        ? <Button variant="secondary" onClick={onCancel} isSmall>{_("Cancel")}</Button>
+        ? <Button variant="secondary" onClick={onCancel} size="sm">{_("Cancel")}</Button>
         : null;
 
     if (actions.length === 0 && percentage === 0) {
@@ -597,7 +597,7 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
             <Grid hasGutter>
                 <GridItem span="9">
                     <div className="progress-description">
-                        <Spinner isSVG size="md" />
+                        <Spinner size="md" />
                         <strong>{ PK_STATUS_STRINGS[lastAction?.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
                         &nbsp;{curPackage}
                     </div>
@@ -929,7 +929,7 @@ class CardsPage extends React.Component {
                     {this.props.cockpitUpdate &&
                         <Flex flex={{ default: 'inlineFlex' }} className="cockpit-update-warning">
                             <FlexItem>
-                                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle cockpit-update-warning-icon" size="sm" />
+                                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle cockpit-update-warning-icon" />
                                 <strong className="cockpit-update-warning-text">
                                     <span className="pf-screen-reader">{_("Danger alert:")}</span>
                                     {_("Web Console will restart")}
@@ -963,8 +963,7 @@ class CardsPage extends React.Component {
         return cardContents.map(card => {
             return (
                 <Card key={card.id} className={card.className} id={card.id}>
-                    <CardHeader>
-                        {card.actions && <CardActions>{card.actions}</CardActions>}
+                    <CardHeader actions={{ actions: card.actions }}>
                         <CardTitle><h2>{card.title}</h2></CardTitle>
                     </CardHeader>
                     <CardBody className={card.containsList ? "contains-list" : null}>

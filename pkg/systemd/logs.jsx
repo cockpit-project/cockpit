@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import '../lib/patternfly/patternfly-4-cockpit.scss';
+import '../lib/patternfly/patternfly-5-cockpit.scss';
 import 'cockpit-dark-theme'; // once per page
 
 import cockpit from "cockpit";
@@ -31,7 +31,7 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
-import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem, ToolbarToggleGroup } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import {
@@ -187,12 +187,12 @@ export const LogsPage = () => {
             <PageSection id="journal" padding={{ default: 'noPadding' }}>
                 <Toolbar>
                     <ToolbarContent>
-                        <ToolbarToggleGroup className="pf-u-flex-wrap pf-u-flex-grow-1" toggleIcon={<><span className="pf-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="md">
+                        <ToolbarToggleGroup className="pf-u-flex-wrap pf-u-flex-grow-1" toggleIcon={<><span className="pf-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
                             <ToolbarGroup>
                                 <ToolbarItem>
                                     <Select toggleId="logs-predefined-filters"
                                             isOpen={isOpenTimeFilter}
-                                            onToggle={setIsOpenTimeFilter}
+                                            onToggle={(_, isOpen) => setIsOpenTimeFilter(isOpen)}
                                             onSelect={(e, selection) => {
                                                 setIsOpenTimeFilter(false);
                                                 onTimeFilterChange(selection);
@@ -210,7 +210,7 @@ export const LogsPage = () => {
                                 <ToolbarItem>
                                     <Select toggleId="journal-prio-menu"
                                             isOpen={isOpenPrioFilter}
-                                            onToggle={setIsOpenPrioFilter}
+                                            onToggle={(_, isOpen) => setIsOpenPrioFilter(isOpen)}
                                             onSelect={(e, selection) => {
                                                 setIsOpenPrioFilter(false);
                                                 onJournalPrioChange(selection.value);
@@ -306,7 +306,7 @@ const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, curre
     /* The noResultsFoundText is not shown because of https://github.com/patternfly/patternfly-react/issues/6005 */
     return (
         <Select {...(currentIdentifiers === undefined && { loadingVariant: 'spinner' })}
-                onToggle={setIsOpenIdentifiersFilter}
+                onToggle={(_, isOpen) => setIsOpenIdentifiersFilter(isOpen)}
                 onSelect={(e, selection) => {
                     setIsOpenIdentifiersFilter(false);
                     onIdentifiersFilterChange(selection);
@@ -319,7 +319,7 @@ const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, curre
                 }}
                 selections={identifiersFilter}
                 typeAheadAriaLabel={_("Select a identifier")}
-                variant={SelectVariant.typeahead}>
+                variant="typeahead">
             {identifiersArray}
         </Select>
     );

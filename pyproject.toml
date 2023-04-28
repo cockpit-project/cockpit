@@ -1,28 +1,6 @@
 [build-system]
-requires = ["setuptools >= 61"]
+requires = ["setuptools >= 39.2.0"]
 build-backend = "setuptools.build_meta"
-
-[project]
-name = "cockpit"
-version = '0'
-
-[project.scripts]
-cockpit-bridge = "cockpit.bridge:main"
-cockpit-askpass = "cockpit._vendor.ferny.interaction_client:main"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-include = [
-  "cockpit",
-  "cockpit.channels",
-  "cockpit.data",
-  "cockpit._vendor",
-  "cockpit._vendor.ferny",
-  "cockpit._vendor.systemd_ctypes",
-]
-
-[tool.setuptools.package-data]
-"cockpit.data" = ["*.html"]
 
 [tool.mypy]
 mypy_path = 'src/cockpit'

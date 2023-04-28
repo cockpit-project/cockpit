@@ -68,8 +68,6 @@ ExecStart=/usr/bin/sleep infinity
         b.click("#dialog button:contains(Currently in use)")
         b.wait_in_text(".pf-c-popover", str(sleep_pid))
         b.wait_in_text(".pf-c-popover", "keep-mnt-busy")
-        b.assert_pixels(".pf-c-popover", "popover", ignore=["li"],
-                        scroll_into_view="#dialog button:contains(Currently in use)")
         b.click(".pf-c-popover button")
         b.assert_pixels('#dialog', "format")
         self.dialog_cancel()

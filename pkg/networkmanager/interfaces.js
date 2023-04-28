@@ -404,6 +404,12 @@ export function NetworkManagerModel() {
         subscription = client.subscribe({ }, signal_emitted);
         client.addEventListener("notify", onNotifyEventHandler);
         watch = client.watch({ path_namespace: "/org/freedesktop" });
+        client.addEventListener("owner", (event, owner) => {
+            if (owner) {
+                watch.remove();
+                watch = client.watch({ path_namespace: "/org/freedesktop" });
+            }
+        });
     });
 
     self.close = function close() {

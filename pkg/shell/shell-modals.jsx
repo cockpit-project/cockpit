@@ -140,11 +140,27 @@ export const LangModal = () => {
                     <Divider />
                     <MenuContent>
                         <MenuList>
-                            {Object.keys(manifest.locales || { })
-                                    .filter(key => !searchInput || manifest.locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()))
-                                    .map(key => {
-                                        return <MenuItem itemId={key} key={key} data-value={key}>{manifest.locales[key]}</MenuItem>;
-                                    })}
+                            {
+                                (() => {
+                                    const filteredLocales = Object.keys(manifest.locales || {})
+                                            .filter(key => !searchInput || manifest.locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()));
+
+                                    if (filteredLocales.length === 0) {
+                                        return (
+                                            <MenuItem isDisabled>
+                                                {_("No languages match")}
+                                            </MenuItem>
+                                        );
+                                    }
+                                    return filteredLocales.map(key => {
+                                        return (
+                                            <MenuItem itemId={key} key={key} data-value={key}>
+                                                {manifest.locales[key]}
+                                            </MenuItem>
+                                        );
+                                    });
+                                })()
+                            }
                         </MenuList>
                     </MenuContent>
                 </Menu>

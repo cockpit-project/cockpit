@@ -88,6 +88,12 @@ class TestStorageFormat(StorageCase):
         else:
             check_type("ntfs", 128)
 
+        # Verify button text is 'Format' when no filesystem is selected
+        self.content_dropdown_action(1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "empty")
+        b.wait_text("#dialog .apply", "Format")
+
     def testFormatCancel(self):
         m = self.machine
         b = self.browser

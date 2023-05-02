@@ -72,16 +72,18 @@ def hotp_token(secret, counter, digits=6, hash_alg=hashlib.sha1):
     return numbers[-digits:].rjust(digits, '0')
 
 
-def setup_fake_chrony(machine):
-    # Our Debian/Ubuntu VM images have systemd-timesyncd installed, which conflicts with chrony.
-    # Set up a mock chrony.service to make ipa-client-install happy
-    machine.write("/run/systemd/system/chrony.service", """
+def maybe_setup_fake_chrony(machine):
+    # Some of our VM images have systemd-timesyncd installed, which
+    # conflicts with chrony.  Set up a mock chrony.service to make
+    # ipa-client-install happy.
+    if machine.execute("type chronyc || echo not-found").strip() == "not-found":
+        machine.write("/run/systemd/system/chrony.service", """
 [Service]
 Type=oneshot
 ExecStart=/bin/true
 """)
-    machine.execute("ln -s /bin/true /usr/bin/chronyc")
-    machine.execute("systemctl unmask chrony")
+        machine.execute("ln -s /bin/true /usr/bin/chronyc")
+        machine.execute("systemctl unmask chrony")
 
 
 @skipDistroPackage()
@@ -510,8 +512,7 @@ class TestIPA(TestRealms, CommonTests):
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
         wait(lambda: self.machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
 
-        if "ubuntu" in self.machine.image or "debian" in self.machine.image:
-            setup_fake_chrony(self.machine)
+        maybe_setup_fake_chrony(self.machine)
 
         # wait until FreeIPA started up
         self.machines['services'].execute("""podman exec -i freeipa sh -ec '
@@ -1005,8 +1006,7 @@ class TestKerberos(MachineCase):
 
     def setUp(self):
         super().setUp()
-        if "ubuntu" in self.machine.image or "debian" in self.machine.image:
-            setup_fake_chrony(self.machine)
+        maybe_setup_fake_chrony(self.machine)
 
     def configure_kerberos(self, keytab):
         self.machines["services"].execute("/root/run-freeipa")

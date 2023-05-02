@@ -288,8 +288,15 @@ class TestSystemInfo(PackageCase):
         b = self.browser
 
         if m.image.startswith("debian") or m.image.startswith("ubuntu") or m.image == "arch":
-            # timesyncd is default
-            pass
+            if m.execute("type chronyc || true").strip() != "":
+                # chronyd is default, install timesyncd
+                self.addPackageSet("timesyncd")
+                self.enableRepo()
+                m.execute("apt-get update; apt-get install -y systemd-timesyncd")
+                m.execute("systemctl restart systemd-timedated; timedatectl set-ntp off; timedatectl set-ntp on")
+            else:
+                # timesyncd is default
+                pass
         else:
             # chronyd is default, give priority to timesyncd
             self.write_file("/etc/systemd/ntp-units.d/10-test.list", "systemd-timesyncd.service")

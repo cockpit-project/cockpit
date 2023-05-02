@@ -109,7 +109,7 @@ const _ = cockpit.gettext;
             });
         }
 
-        onThemeChanged(value) {
+        onThemeChanged(_, value) {
             this.setState({ theme: value });
             localStorage.setItem('terminal:theme', value);
         }

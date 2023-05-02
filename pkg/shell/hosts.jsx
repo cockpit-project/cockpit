@@ -196,15 +196,13 @@ export class CockpitHosts extends React.Component {
 
                     { this.state.opened &&
                     <HostsSelector>
-                        <PageSidebar isNavOpen={this.props.opened} theme="dark" className={"sidebar-hosts" + (this.state.editing ? " edit-hosts" : "")} nav={
-                            <>
-                                <CockpitNav selector={this.props.selector} groups={groups} item_render={render} sorting={(a, b) => true} filtering={this.filterHosts} current={label} />
-                                <div className="nav-hosts-actions">
-                                    {this.props.machines.list.length > 1 && <Button variant="secondary" onClick={this.onEditHosts}>{this.state.editing ? _("Stop editing hosts") : _("Edit hosts")}</Button>}
-                                    <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>
-                                </div>
-                            </>
-                        } />
+                        <PageSidebar isSidebarOpen={this.props.opened} theme="dark" className={"sidebar-hosts" + (this.state.editing ? " edit-hosts" : "")}>
+                            <CockpitNav selector={this.props.selector} groups={groups} item_render={render} sorting={(a, b) => true} filtering={this.filterHosts} current={label} />
+                            <div className="nav-hosts-actions">
+                                {this.props.machines.list.length > 1 && <Button variant="secondary" onClick={this.onEditHosts}>{this.state.editing ? _("Stop editing hosts") : _("Edit hosts")}</Button>}
+                                <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>
+                            </div>
+                        </PageSidebar>
                     </HostsSelector>
                     }
                 </div>

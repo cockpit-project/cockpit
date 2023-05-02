@@ -95,7 +95,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
                 <FormSelect
                         data-selected={shell}
                         id="accounts-create-user-shell"
-                        onChange={selection => { change("shell", selection) }}
+                        onChange={(_, selection) => { change("shell", selection) }}
                         value={shell}>
                     { shells.map(shell_path => <FormSelectOption key={shell_path} value={shell_path} label={shell_path} />) }
                 </FormSelect>
@@ -112,7 +112,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
             <FormGroup label={_("Authentication")} fieldId="accounts-create-locked" hasNoPaddingTop>
                 <Radio id="account-use-password"
                        label={_("Use password")}
-                       isChecked={!locked} onChange={checked => change("locked", !checked)}
+                       isChecked={!locked} onChange={(_, checked) => change("locked", !checked)}
                        description={
                            <Checkbox id="accounts-create-force-password-change"
                                      className="pf-u-mb-xs"
@@ -123,7 +123,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
                 <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                     <FlexItem spacer={{ default: 'spacerSm' }}>
                         <Radio id="accounts-create-locked"
-                               isChecked={locked} onChange={checked => change("locked", checked)}
+                               isChecked={locked} onChange={(_, checked) => change("locked", checked)}
                                label={_("Disallow password authentication")} />
                     </FlexItem>
 

@@ -2,12 +2,6 @@
 // Pull in variables (for breakpoints)
 @use "global-variables" as *;
 
-// https://github.com/patternfly/patternfly/pull/5478
-.pf-c-form__group-label-help {
-  --pf-c-form__group-label-help--BackgroundColor: transparent;
-  background-color: var(--pf-c-form__group-label-help--BackgroundColor);
-}
-
 // https://github.com/patternfly/patternfly-react/pull/8953
 .pf-c-input-group__text {
   padding-left: var(--pf-global--spacer--sm);
@@ -18,23 +12,6 @@
 // Make select have the expected width
 .pf-c-select[data-popper-reference-hidden=false] {
   width: auto;
-}
-
-// https://github.com/patternfly/patternfly-react/pull/8954
-// Icons get sizing wrong
-svg:not(.ct-plot):not(.pf-c-icon) {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.125em;
-}
-
-// https://github.com/patternfly/patternfly-react/pull/8949
-// Card titles have wrong font settings
-.pf-c-card__title {
-  font-family: var(--pf-c-card__title-text--FontFamily);
-  font-size: var(--pf-c-card__title-text--FontSize);
-  font-weight: var(--pf-c-card__title-text--FontWeight);
-  line-height: var(--pf-c-card__title-text--LineHeight);
 }
 
 // https://github.com/patternfly/patternfly/issues/5501

@@ -159,19 +159,19 @@ export const TeamDialog = ({ connection, dev, settings }) => {
                     <MemberInterfaceChoices idPrefix={idPrefix} memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
                 <FormGroup fieldId={idPrefix + "-runner-select"} label={_("Runner")}>
-                    <FormSelect id={idPrefix + "-runner-select"} onChange={setRunner}
+                    <FormSelect id={idPrefix + "-runner-select"} onChange={(_, val) => setRunner(val)}
                                 value={runner}>
                         {team_runner_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>
                 {(runner == "loadbalance" || runner == "lacp") && <FormGroup fieldId={idPrefix + "-balancer-select"} label={_("Balancer")}>
-                    <FormSelect id={idPrefix + "-balancer-select"} onChange={setBalancer}
+                    <FormSelect id={idPrefix + "-balancer-select"} onChange={(_, val) => setBalancer(val)}
                                 value={balancer}>
                         {team_balancer_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>}
                 {runner == "active-backup" && <FormGroup fieldId={idPrefix + "-primary-select"} label={_("Primary")}>
-                    <FormSelect id={idPrefix + "-primary-select"} onChange={setPrimary}
+                    <FormSelect id={idPrefix + "-primary-select"} onChange={(_, val) => setPrimary(val)}
                                 value={primary}>
                         <>
                             <FormSelectOption key='-' value={null} label='-' />
@@ -182,7 +182,7 @@ export const TeamDialog = ({ connection, dev, settings }) => {
                     </FormSelect>
                 </FormGroup>}
                 <FormGroup fieldId={idPrefix + "-link-watch-select"} label={_("Link watch")}>
-                    <FormSelect id={idPrefix + "-link-watch-select"} onChange={setLinkWatch}
+                    <FormSelect id={idPrefix + "-link-watch-select"} onChange={(_, val) => setLinkWatch(val)}
                                 value={linkWatch}>
                         {team_watch_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
@@ -200,7 +200,7 @@ export const TeamDialog = ({ connection, dev, settings }) => {
                         <TextInput id={idPrefix + "-ping-interval-input"} className="network-number-field" value={pingInterval} onChange={setPingInterval} />
                     </FormGroup>
                     <FormGroup fieldId={idPrefix + "-ping-target-input"} label={_("Ping target")}>
-                        <TextInput id={idPrefix + "-ping-target-input"} value={pingTarget} onChange={setPingTarget} />
+                        <TextInput id={idPrefix + "-ping-target-input"} value={pingTarget} onChange={(_, val) => setPingTarget(val)} />
                     </FormGroup>
                 </>}
             </>

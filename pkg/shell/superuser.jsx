@@ -203,7 +203,7 @@ const UnlockDialog = ({ proxy, host }) => {
             <Form isHorizontal>
                 <FormGroup fieldId="switch-to-admin-access-bridge-select"
                            label={_("Method")}>
-                    <FormSelect value={method} onChange={setMethod} isDisabled={busy}>
+                    <FormSelect value={method} onChange={(_, method) => setMethod(method)} isDisabled={busy}>
                         { methods.map(m => <FormSelectOption value={m} key={m}
                                                              label={_(proxy.Methods[m].v.label.v)} />) }
                     </FormSelect>

@@ -190,23 +190,21 @@ function ZoneSection(props) {
 
     return <Card className="zone-section" data-id={props.zone.id}>
         <CardHeader actions={{ actions }} className="zone-section-heading">
-            <CardTitle>
-                <Flex alignItems={{ default: 'alignSelfBaseline' }} spaceItems={{ default: 'spaceItemsXl' }}>
-                    <Title headingLevel="h2" size="xl">
-                        { cockpit.format(_("$0 zone"), upperCaseFirstLetter(props.zone.name || props.zone.id)) }
-                    </Title>
-                    <Flex>
-                        { props.zone.interfaces.length > 0 &&
-                        <span>
-                            <strong>{cockpit.ngettext("Interface", "Interfaces", props.zone.interfaces.length)}</strong> {props.zone.interfaces.join(", ")}
-                        </span>
-                        }
-                        <span>
-                            <strong>{_("Allowed addresses")}</strong> {props.zone.source.length ? props.zone.source.join(", ") : _("Entire subnet")}
-                        </span>
-                    </Flex>
+            <Flex alignItems={{ default: 'alignSelfBaseline' }} spaceItems={{ default: 'spaceItemsXl' }}>
+                <CardTitle component="h2">
+                    { cockpit.format(_("$0 zone"), upperCaseFirstLetter(props.zone.name || props.zone.id)) }
+                </CardTitle>
+                <Flex>
+                    { props.zone.interfaces.length > 0 &&
+                    <span>
+                        <strong>{cockpit.ngettext("Interface", "Interfaces", props.zone.interfaces.length)}</strong> {props.zone.interfaces.join(", ")}
+                    </span>
+                    }
+                    <span>
+                        <strong>{_("Allowed addresses")}</strong> {props.zone.source.length ? props.zone.source.join(", ") : _("Entire subnet")}
+                    </span>
                 </Flex>
-            </CardTitle>
+            </Flex>
         </CardHeader>
         {(props.zone.services.length > 0 || props.zone.ports.length > 0) &&
         <CardBody className="contains-list">

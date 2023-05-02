@@ -24,15 +24,9 @@
 
 .service-unit-status {
   white-space: nowrap;
-  text-align: right;
 
   &-failed {
     color: red;
-    white-space: break-spaces;
-  }
-
-  &-flex-container {
-    --pf-l-flex--FlexWrap: nowrap;
   }
 }
 
@@ -71,6 +65,7 @@
 }
 
 .service-unit-first-column {
+  min-width: 20rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(5rem, 25rem));
   grid-gap: var(--pf-global--spacer--sm);
@@ -84,20 +79,20 @@
   color: var(--pf-global--icon--Color--light);
 }
 
-.pf-c-table .pf-c-table__action.service-unit-second-column {
-  --pf-c-table--cell--Width: 20%;
+.service-unit-triggers {
+  min-width: 20ch;
+}
 
-  &-flex-container {
-    row-gap: var(--pf-global--spacer--sm);
-  }
+.pf-c-table .service-unit-second-column {
+  --pf-c-table--cell--Width: 20%;
 }
 
 // Don't show labels from mobile mode
-.pf-m-grid-md.pf-c-table [data-label]::before {
+.pf-c-table [data-label]::before {
   display: none;
 }
 
-.pf-m-grid-md.pf-c-table [data-label] {
+.pf-c-table [data-label] {
   display: revert;
 }
 

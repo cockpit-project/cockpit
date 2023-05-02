@@ -205,7 +205,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                        onChange={setDelayNumber} />
                             <FormSelect className="delay-unit"
                                         value={delayUnit}
-                                        onChange={setDelayUnit}
+                                        onChange={(_, val) => setDelayUnit(val)}
                                         aria-label={_("Delay")}>
                                 <FormSelectOption value="sec" label={_("Seconds")} />
                                 <FormSelectOption value="min" label={_("Minutes")} />
@@ -220,7 +220,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                         <FormGroup label={_("Repeat")}>
                             <FormSelect value={repeat}
                                         id="drop-repeat"
-                                        onChange={value => {
+                                        onChange={(_, value) => {
                                             if (value == repeat)
                                                 return;
 
@@ -311,7 +311,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                         {repeat == "weekly" && <>
                                             <FormSelect value={repeatPatterns[idx].day}
                                                         className="week-days"
-                                                        onChange={day => {
+                                                        onChange={(_, day) => {
                                                             const arr = [...repeatPatterns];
                                                             arr[idx].day = day;
                                                             setRepeatPatterns(arr);
@@ -330,7 +330,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                         {repeat == "monthly" && <>
                                             <FormSelect value={repeatPatterns[idx].day}
                                                         className="month-days"
-                                                        onChange={day => {
+                                                        onChange={(_, day) => {
                                                             const arr = [...repeatPatterns];
                                                             arr[idx].day = day;
                                                             setRepeatPatterns(arr);

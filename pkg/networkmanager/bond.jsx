@@ -168,13 +168,13 @@ export const BondDialog = ({ connection, dev, settings }) => {
                     <MacMenu idPrefix={idPrefix} model={model} mac={mac} setMAC={setMAC} />
                 </FormGroup>
                 <FormGroup fieldId={idPrefix + "-mode-select"} label={_("Mode")}>
-                    <FormSelect id={idPrefix + "-mode-select"} onChange={setMode}
+                    <FormSelect id={idPrefix + "-mode-select"} onChange={(_, val) => setMode(val)}
                                 value={mode}>
                         {bond_mode_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>
                 {mode == "active-backup" && <FormGroup fieldId={idPrefix + "-primary-select"} label={_("Primary")}>
-                    <FormSelect id={idPrefix + "-primary-select"} onChange={setPrimary}
+                    <FormSelect id={idPrefix + "-primary-select"} onChange={(_, val) => setPrimary(val)}
                                 value={primary}>
                         <>
                             <FormSelectOption key='-' value={null} label='-' />
@@ -185,7 +185,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                     </FormSelect>
                 </FormGroup>}
                 <FormGroup fieldId={idPrefix + "-link-monitoring-select"} label={_("Link monitoring")}>
-                    <FormSelect id={idPrefix + "-link-monitoring-select"} onChange={setLinkMonitoring}
+                    <FormSelect id={idPrefix + "-link-monitoring-select"} onChange={(_, val) => setLinkMonitoring(val)}
                                 value={linkMonitoring}>
                         {bond_monitoring_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>

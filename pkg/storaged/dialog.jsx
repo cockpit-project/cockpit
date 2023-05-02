@@ -628,7 +628,7 @@ export const SelectOne = (tag, title, options) => {
                 <div data-field={tag} data-field-type="select" data-value={val}>
                     <FormSelect value={val} aria-label={tag}
                                 validated={validated}
-                                onChange={change}>
+                                onChange={(_, value) => change(value)}>
                         { options.choices.map(c => <FormSelectOption value={c.value} isDisabled={c.disabled}
                                                                      key={c.title} label={c.title} />) }
                     </FormSelect>
@@ -652,7 +652,7 @@ export const SelectOneRadio = (tag, title, options) => {
                     { options.choices.map(c => (
                         <Radio key={c.value} isChecked={val == c.value} data-data={c.value}
                             id={tag + '.' + c.value}
-                            onChange={event => change(c.value)} label={c.title} />))
+                            onChange={() => change(c.value)} label={c.title} />))
                     }
                 </Split>
             );
@@ -945,7 +945,7 @@ class SizeSliderElement extends React.Component {
             text_val = cockpit.format_number(val / unit);
         }
 
-        const change_unit = (u) => this.setState({
+        const change_unit = (_, u) => this.setState({
             unit: Number(u),
         });
 

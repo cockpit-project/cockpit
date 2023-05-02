@@ -547,7 +547,7 @@ class AddEditServicesModal extends React.Component {
         });
     }
 
-    onToggleType(value, event) {
+    onToggleType(event) {
         this.setState({
             custom: event.target.value === "ports"
         });
@@ -827,7 +827,7 @@ class ActivateZoneModal extends React.Component {
                                         .map(z =>
                                             <Radio key={z} id={z} name="zone" value={z}
                                                    isChecked={this.state.zone == z}
-                                                   onChange={(value, e) => this.onChange("zone", e.target.value)}
+                                                   onChange={e => this.onChange("zone", e.target.value)}
                                                    label={ firewall.zones[z].id } />
                                         )}
                             </FlexItem>
@@ -836,7 +836,7 @@ class ActivateZoneModal extends React.Component {
                                 { customZones.map(z =>
                                     <Radio key={z} id={z} name="zone" value={z}
                                            isChecked={this.state.zone == z}
-                                           onChange={(value, e) => this.onChange("zone", e.target.value)}
+                                           onChange={e => this.onChange("zone", e.target.value)}
                                            label={ firewall.zones[z].id } />
                                 )}
                             </FlexItem>
@@ -878,13 +878,13 @@ class ActivateZoneModal extends React.Component {
                                isChecked={this.state.ipRange == "ip-entire-subnet"}
                                value="ip-entire-subnet"
                                id="ip-entire-subnet"
-                               onChange={(value, e) => this.onChange("ipRange", e.target.value)}
+                               onChange={e => this.onChange("ipRange", e.target.value)}
                                label={ _("Entire subnet") } />
                         <Radio name="add-zone-ip"
                                isChecked={this.state.ipRange == "ip-range"}
                                value="ip-range"
                                id="ip-range"
-                               onChange={(value, e) => this.onChange("ipRange", e.target.value)}
+                               onChange={e => this.onChange("ipRange", e.target.value)}
                                label={ _("Range") } />
                         {this.state.ipRange === "ip-range" && (
                             <>

@@ -161,7 +161,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                                   dialogErrorDetail={error?.details} />}
             <Form id="kdump-settings-form" isHorizontal>
                 <FormGroup fieldId="kdump-settings-location" label={_("Location")}>
-                    <FormSelect key="location" onChange={changeStorageLocation}
+                    <FormSelect key="location" onChange={(_, val) => changeStorageLocation(val)}
                                 id="kdump-settings-location" value={storageLocation}>
                         <FormSelectOption value='local'
                                           label={_("Local filesystem")} />

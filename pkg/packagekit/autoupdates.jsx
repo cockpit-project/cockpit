@@ -270,19 +270,19 @@ const AutoUpdatesDialog = ({ backend }) => {
             <Form isHorizontal onSubmit={save}>
                 <FormGroup fieldId="type" label={_("Type")} hasNoPaddingTop>
                     <Radio isChecked={!enabled}
-                           onChange={e => { setEnabled(false); setType(null) }}
+                           onChange={() => { setEnabled(false); setType(null) }}
                            isDisabled={pending}
                            label={_("No updates")}
                            id="no-updates"
                            name="type" />
                     <Radio isChecked={enabled && type === "security"}
-                           onChange={e => { setEnabled(true); setType("security") }}
+                           onChange={() => { setEnabled(true); setType("security") }}
                            isDisabled={pending}
                            label={_("Security updates only")}
                            id="security-updates"
                            name="type" />
                     <Radio isChecked={enabled && type === "all"}
-                           onChange={e => { setEnabled(true); setType("all") }}
+                           onChange={() => { setEnabled(true); setType("all") }}
                            isDisabled={pending}
                            label={_("All updates")}
                            id="all-updates"
@@ -296,7 +296,7 @@ const AutoUpdatesDialog = ({ backend }) => {
                             <FormSelect id="auto-update-day"
                                          isDisabled={pending}
                                          value={day == "" ? "everyday" : day}
-                                         onChange={d => setDay(d == "everyday" ? "" : d) }>
+                                         onChange={(_, d) => setDay(d == "everyday" ? "" : d) }>
                                 <FormSelectOption value="everyday" label={_("every day")} />
                                 <FormSelectOption value="mon" label={_("Mondays")} />
                                 <FormSelectOption value="tue" label={_("Tuesdays")} />

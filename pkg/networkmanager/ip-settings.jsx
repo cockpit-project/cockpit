@@ -161,7 +161,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <FormSelect className="network-ip-settings-method"
                                             id={idPrefix + "-select-method"}
                                             aria-label={_("Select method")}
-                                            onChange={setMethod}
+                                            onChange={(_, val) => setMethod(val)}
                                             value={method}>
                                     {(topic == "ipv4" ? ipv4_method_choices : ipv6_method_choices).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                                 </FormSelect>

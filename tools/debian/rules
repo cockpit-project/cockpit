@@ -10,7 +10,7 @@ ifneq ($(SLOW_ARCHES),)
 endif
 
 %:
-	dh $@
+	dh $@ --buildsystem=autoconf
 
 override_dh_auto_configure:
 	dh_auto_configure -- \

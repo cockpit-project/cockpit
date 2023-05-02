@@ -163,6 +163,34 @@ class TestStorageStratis(StorageCase):
         self.confirm()
         b.wait_not_in_text("#detail-content", "fsys2-copy")
 
+        # Make an unmounted copy of the filesystem
+        self.content_dropdown_action(1, "Snapshot")
+        self.dialog_wait_open()
+        self.dialog_set_val('name', 'fsys2-copy')
+        self.dialog_set_val('at_boot', 'never')
+        self.dialog_apply_secondary()
+        self.dialog_wait_close()
+        b.wait_in_text("#detail-content", "fsys2-copy")
+
+        # Delete the copy
+        self.content_dropdown_action(2, "Delete")
+        self.confirm()
+        b.wait_not_in_text("#detail-content", "fsys2-copy")
+
+        # Create an unmounted filesystem
+        b.click("button:contains(Create new filesystem)")
+        self.dialog_wait_open()
+        self.dialog_set_val('name', 'fsys-unmounted')
+        self.dialog_apply_secondary()
+        self.dialog_wait_close()
+
+        b.wait_in_text("#detail-content", "fsys-unmounted")
+
+        # Delete the unmounted filesystem
+        self.content_dropdown_action(2, "Delete")
+        self.confirm()
+        b.wait_not_in_text("#detail-content", "fsys2-copy")
+
         # Add a data blockdev
         b.click('#detail-sidebar .pf-c-card__actions button')
         self.dialog_wait_open()

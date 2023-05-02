@@ -305,6 +305,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
         mount_options = mount_options.concat(forced_options);
 
         let mount_point = vals.mount_point;
+        if (mount_point == "")
+            return Promise.resolve();
         if (mount_point[0] != "/")
             mount_point = "/" + mount_point;
 
@@ -365,7 +367,10 @@ export const StratisPoolDetails = ({ client, pool }) => {
                           }),
                 TextInput("mount_point", _("Mount point"),
                           {
-                              validate: val => is_valid_mount_point(client, null, val)
+                              validate: (val, values, variant) => {
+                                  if (variant !== "nomount")
+                                      return is_valid_mount_point(client, null, val);
+                              }
                           }),
                 CheckBoxes("mount_options", _("Mount options"),
                            {
@@ -517,7 +522,10 @@ export const StratisPoolDetails = ({ client, pool }) => {
                               }),
                     TextInput("mount_point", _("Mount point"),
                               {
-                                  validate: val => is_valid_mount_point(client, null, val)
+                                  validate: (val, values, variant) => {
+                                      if (variant !== "nomount")
+                                          return is_valid_mount_point(client, null, val);
+                                  }
                               }),
                     CheckBoxes("mount_options", _("Mount options"),
                                {

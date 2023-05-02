@@ -296,7 +296,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                       {
                           visible: is_filesystem,
                           value: old_dir || "",
-                          validate: val => is_valid_mount_point(client, block, val)
+                          validate: (val, values, variant) => {
+                              if (variant !== "nomount")
+                                  return is_valid_mount_point(client, block, val);
+                          }
                       }),
             SelectOne("type", _("Type"),
                       { choices: filesystem_options }),
@@ -484,17 +487,19 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         mount_options.push(vals.mount_options.extra);
 
                     mount_point = vals.mount_point;
-                    if (mount_point[0] != "/")
-                        mount_point = "/" + mount_point;
+                    if (mount_point != "") {
+                        if (mount_point[0] != "/")
+                            mount_point = "/" + mount_point;
 
-                    config_items.push(["fstab", {
-                        dir: { t: 'ay', v: utils.encode_filename(mount_point) },
-                        type: { t: 'ay', v: utils.encode_filename("auto") },
-                        opts: { t: 'ay', v: utils.encode_filename(mount_options.join(",") || "defaults") },
-                        freq: { t: 'i', v: 0 },
-                        passno: { t: 'i', v: 0 },
-                        "track-parents": { t: 'b', v: true }
-                    }]);
+                        config_items.push(["fstab", {
+                            dir: { t: 'ay', v: utils.encode_filename(mount_point) },
+                            type: { t: 'ay', v: utils.encode_filename("auto") },
+                            opts: { t: 'ay', v: utils.encode_filename(mount_options.join(",") || "defaults") },
+                            freq: { t: 'i', v: 0 },
+                            passno: { t: 'i', v: 0 },
+                            "track-parents": { t: 'b', v: true }
+                        }]);
+                    }
                 }
 
                 if (config_items.length > 0)

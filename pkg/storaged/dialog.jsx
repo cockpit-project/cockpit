@@ -380,7 +380,7 @@ export const dialog_open = (def) => {
 
     function run_action(progress_callback, variant) {
         const func = () => {
-            return validate()
+            return validate(variant)
                     .then(() => {
                         const visible_values = { variant };
                         fields.forEach(f => {
@@ -453,10 +453,10 @@ export const dialog_open = (def) => {
         };
     };
 
-    const validate = () => {
+    const validate = (variant) => {
         return Promise.all(fields.map(f => {
             if (is_visible(f, values) && f.options && f.options.validate)
-                return f.options.validate(values[f.tag], values);
+                return f.options.validate(values[f.tag], values, variant);
             else
                 return null;
         })).then(results => {

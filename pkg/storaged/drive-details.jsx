@@ -21,7 +21,6 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
@@ -73,7 +72,7 @@ export class DriveDetails extends React.Component {
 
         const header = (
             <Card>
-                <CardTitle><Text component={TextVariants.h2}>{_("Drive")}</Text></CardTitle>
+                <CardTitle component="h2">{_("Drive")}</CardTitle>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">
                         <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />

@@ -340,7 +340,6 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
                         </Button>}
                     </>}
                 </CardTitle>
-
             </CardHeader>
             <CardExpandableContent>
                 <ListingTable columns={columns}
@@ -453,9 +452,7 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
     return (
         <Card className="ct-card">
             <CardHeader actions={{ actions: tableToolbar }}>
-                <CardTitle>
-                    <Text component={TextVariants.h2}>{_("Accounts")}</Text>
-                </CardTitle>
+                <CardTitle component="h2">{_("Accounts")}</CardTitle>
             </CardHeader>
             <ListingTable columns={columns}
                           id="accounts-list"

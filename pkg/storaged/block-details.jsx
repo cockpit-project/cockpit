@@ -21,7 +21,6 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import * as utils from "./utils.js";
@@ -36,7 +35,7 @@ export class BlockDetails extends React.Component {
 
         const header = (
             <Card>
-                <CardTitle><Text component={TextVariants.h2}>{_("Block")}</Text></CardTitle>
+                <CardTitle component="h2">{_("Block")}</CardTitle>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">
                         <DescriptionListGroup>

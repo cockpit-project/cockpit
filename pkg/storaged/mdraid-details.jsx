@@ -21,7 +21,6 @@ import cockpit from "cockpit";
 import React from "react";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { MinusIcon, PlusIcon } from "@patternfly/react-icons";
 import * as utils from "./utils.js";
@@ -316,7 +315,7 @@ export class MDRaidDetails extends React.Component {
                         <StorageButton kind="danger" onClick={delete_dialog}>{_("Delete")}</StorageButton>
                     </>,
                 }}>
-                    <CardTitle><Text component={TextVariants.h2}>{ cockpit.format(_("RAID device $0"), utils.mdraid_name(mdraid)) }</Text></CardTitle>
+                    <CardTitle component="h2">{ cockpit.format(_("RAID device $0"), utils.mdraid_name(mdraid)) }</CardTitle>
                 </CardHeader>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">

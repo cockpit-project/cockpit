@@ -21,7 +21,6 @@ import cockpit from "cockpit";
 import React from "react";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import {
     dialog_open, TextInput, ComboBox, CheckBoxes,
@@ -301,10 +300,7 @@ export class NFSDetails extends React.Component {
                         }
                     </>,
                 }}>
-                    <CardTitle>
-                        <Text component={TextVariants.h2}>{entry.fields[0]}</Text>
-                    </CardTitle>
-
+                    <CardTitle component="h2">{entry.fields[0]}</CardTitle>
                 </CardHeader>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">

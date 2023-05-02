@@ -25,7 +25,6 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Card, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Dropdown, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { OverflowMenu, OverflowMenuContent, OverflowMenuControl, OverflowMenuDropdownItem, OverflowMenuGroup, OverflowMenuItem } from "@patternfly/react-core/dist/esm/components/OverflowMenu/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -118,7 +117,7 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
     return (
         <Card id="account-authorized-keys">
             <CardHeader actions={{ actions }}>
-                <CardTitle><Text component={TextVariants.h2}>{_("Authorized public SSH keys")}</Text></CardTitle>
+                <CardTitle component="h2">{_("Authorized public SSH keys")}</CardTitle>
             </CardHeader>
             <ListingTable
                 aria-label={ _("Authorized public SSH keys") }

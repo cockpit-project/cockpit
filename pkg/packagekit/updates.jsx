@@ -964,7 +964,7 @@ class CardsPage extends React.Component {
             return (
                 <Card key={card.id} className={card.className} id={card.id}>
                     <CardHeader actions={{ actions: card.actions }}>
-                        <CardTitle><h2>{card.title}</h2></CardTitle>
+                        <CardTitle component="h2">{card.title}</CardTitle>
                     </CardHeader>
                     <CardBody className={card.containsList ? "contains-list" : null}>
                         {card.body}

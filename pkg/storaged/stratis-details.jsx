@@ -21,7 +21,6 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
@@ -438,10 +437,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
                     </>
                 ),
             }}>
-                <CardTitle>
-                    <Text component={TextVariants.h2}>
-                        {fmt_to_fragments((pool.Encrypted ? _("Encrypted Stratis pool $0") : _("Stratis pool $0")), <b>{pool.Name}</b>)}
-                    </Text>
+                <CardTitle component="h2">
+                    {fmt_to_fragments((pool.Encrypted ? _("Encrypted Stratis pool $0") : _("Stratis pool $0")), <b>{pool.Name}</b>)}
                 </CardTitle>
             </CardHeader>
             <CardBody>
@@ -689,7 +686,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
     const content = (
         <Card>
             <CardHeader actions={{ actions: <><StorageButton onClick={create_fs}>{_("Create new filesystem")}</StorageButton></> }}>
-                <CardTitle><Text component={TextVariants.h2}>{_("Filesystems")}</Text></CardTitle>
+                <CardTitle component="h2">{_("Filesystems")}</CardTitle>
 
             </CardHeader>
             <CardBody className="contains-list">
@@ -806,8 +803,7 @@ export const StratisStoppedPoolDetails = ({ client, uuid }) => {
     const header = (
         <Card>
             <CardHeader actions={{ actions: <><StorageButton kind="primary" onClick={start}>{_("Start")}</StorageButton></> }}>
-                <CardTitle><Text component={TextVariants.h2}>{_("Stopped Stratis pool")}</Text></CardTitle>
-
+                <CardTitle component="h2">{_("Stopped Stratis pool")}</CardTitle>
             </CardHeader>
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
@@ -823,7 +819,7 @@ export const StratisStoppedPoolDetails = ({ client, uuid }) => {
     const content = (
         <Card>
             <CardHeader>
-                <CardTitle><Text component={TextVariants.h2}>{_("Filesystems")}</Text></CardTitle>
+                <CardTitle component="h2">{_("Filesystems")}</CardTitle>
             </CardHeader>
             <CardBody className="contains-list">
                 <ListingTable emptyCaption={_("Start pool to see filesystems.")}

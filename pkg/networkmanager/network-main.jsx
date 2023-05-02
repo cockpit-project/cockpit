@@ -26,7 +26,6 @@ import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/di
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import { FirewallSwitch } from "./firewall-switch.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -162,10 +161,9 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                             </Button></>,
                         }}>
                             <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                                <CardTitle><Text component={TextVariants.h2}>{_("Firewall")}</Text></CardTitle>
+                                <CardTitle component="h2">{_("Firewall")}</CardTitle>
                                 <FirewallSwitch firewall={firewall} />
                             </Flex>
-
                         </CardHeader>
                         <CardBody>
                             <Button variant="link"
@@ -178,7 +176,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                     </Card>}
                     <Card id="networking-interfaces">
                         <CardHeader actions={{ actions }}>
-                            <CardTitle><Text component={TextVariants.h2}>{_("Interfaces")}</Text></CardTitle>
+                            <CardTitle component="h2">{_("Interfaces")}</CardTitle>
                         </CardHeader>
                         <ListingTable aria-label={_("Managed interfaces")}
                                       variant='compact'
@@ -193,7 +191,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                     {unmanaged.length > 0 &&
                     <Card id="networking-unmanaged-interfaces">
                         <CardHeader>
-                            <CardTitle><Text component={TextVariants.h2}>{_("Unmanaged interfaces")}</Text></CardTitle>
+                            <CardTitle component="h2">{_("Unmanaged interfaces")}</CardTitle>
                         </CardHeader>
                         <ListingTable aria-label={_("Unmanaged interfaces")}
                                       variant='compact'

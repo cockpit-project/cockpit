@@ -30,7 +30,6 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
@@ -403,7 +402,7 @@ export class SETroubleshootPage extends React.Component {
         const troubleshooting = (
             <Card>
                 <CardHeader actions={{ actions }}>
-                    <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
+                    <CardTitle component="h2">{title}</CardTitle>
                 </CardHeader>
                 <CardBody className="contains-list">
                     {!emptyState

@@ -153,12 +153,11 @@ class Router(CockpitProtocolServer):
             raise RoutingError('not-supported')
 
     def drop_channel(self, channel: str) -> None:
-        assert channel in self.open_channels, (self.open_channels, channel)
         try:
             self.open_channels.pop(channel)
             logger.debug('router dropped channel %s', channel)
         except KeyError:
-            logger.error('trying to drop non-existent channel %s', channel)
+            logger.error('trying to drop non-existent channel %s from %s', channel, self.open_channels)
 
         # were we waiting to exit?
         if not self.open_channels and self._eof and self.transport:

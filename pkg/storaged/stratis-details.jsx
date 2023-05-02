@@ -707,27 +707,28 @@ export const StratisPoolDetails = ({ client, pool }) => {
                              content={content} />;
 };
 
-export function unlock_pool(client, uuid, show_devs) {
+export function start_pool(client, uuid, show_devs) {
     const manager = client.stratis_manager;
-    const locked_props = manager.LockedPools[uuid];
-    const devs = locked_props.devs.v.map(d => d.devnode).sort();
+    const stopped_props = manager.StoppedPools[uuid];
+    const devs = stopped_props.devs.v.map(d => d.devnode).sort();
+    let key_desc = null;
 
-    if (!locked_props.key_description ||
-        locked_props.key_description.t != "(bv)" ||
-        !locked_props.key_description.v[0] ||
-        locked_props.key_description.v[1].t != "(bs)" ||
-        !locked_props.key_description.v[1].v[0]) {
-        dialog_open({
-            Title: _("Error"),
-            Body: _("This pool can not be unlocked here because its key description is not in the expected format.")
-        });
-        return;
+    if (stopped_props.key_description &&
+        stopped_props.key_description.t == "(bv)" &&
+        stopped_props.key_description.v[0]) {
+        if (stopped_props.key_description.v[1].t != "(bs)" ||
+            !stopped_props.key_description.v[1].v[0]) {
+            dialog_open({
+                Title: _("Error"),
+                Body: _("This pool can not be unlocked here because its key description is not in the expected format.")
+            });
+            return;
+        }
+        key_desc = stopped_props.key_description.v[1].v[1];
     }
 
-    const key_desc = locked_props.key_description.v[1].v[1];
-
-    function unlock() {
-        return client.stratis_unlock_pool(uuid)
+    function start(unlock_method) {
+        return client.stratis_start_pool(uuid, unlock_method)
                 .then((result, code, message) => {
                     if (code)
                         return Promise.reject(message);
@@ -750,7 +751,7 @@ export function unlock_pool(client, uuid, show_devs) {
                 Title: _("Unlock"),
                 action: function(vals) {
                     return client.stratis_store_passphrase(key_desc, vals.passphrase)
-                            .then(unlock)
+                            .then(() => start("keyring"))
                             .catch(ex => {
                                 return remove_passphrase(client, key_desc)
                                         .then(() => Promise.reject(ex));
@@ -763,22 +764,23 @@ export function unlock_pool(client, uuid, show_devs) {
         });
     }
 
-    return manager.client.call(manager.path, "org.storage.stratis2.FetchProperties.r2", "GetProperties", [["KeyList"]])
-            .catch(() => [{ }])
-            .then(([result]) => {
-                let keys = [];
-                if (result.KeyList && result.KeyList[0])
-                    keys = result.KeyList[1].v;
-                if (keys.indexOf(key_desc) >= 0)
-                    return unlock();
-                else
-                    unlock_with_keydesc(key_desc);
-            });
+    if (!key_desc) {
+        return start();
+    } else {
+        return (client.stratis_list_keys()
+                .catch(() => [{ }])
+                .then(keys => {
+                    if (keys.indexOf(key_desc) >= 0)
+                        return start("keyring");
+                    else
+                        unlock_with_keydesc(key_desc);
+                }));
+    }
 }
 
-const StratisLockedPoolSidebar = ({ client, uuid }) => {
-    const locked_props = client.stratis_manager.LockedPools[uuid];
-    const devs = locked_props.devs.v.map(d => d.devnode).sort();
+const StratisStoppedPoolSidebar = ({ client, uuid }) => {
+    const stopped_props = client.stratis_manager.StoppedPools[uuid];
+    const devs = stopped_props.devs.v.map(d => d.devnode).sort();
 
     function render_dev(dev) {
         const block = client.slashdevs_block[dev];
@@ -796,15 +798,15 @@ const StratisLockedPoolSidebar = ({ client, uuid }) => {
     );
 };
 
-export const StratisLockedPoolDetails = ({ client, uuid }) => {
-    function unlock() {
-        return unlock_pool(client, uuid);
+export const StratisStoppedPoolDetails = ({ client, uuid }) => {
+    function start() {
+        return start_pool(client, uuid);
     }
 
     const header = (
         <Card>
-            <CardHeader actions={{ actions: <><StorageButton kind="primary" onClick={unlock}>{_("Unlock")}</StorageButton></> }}>
-                <CardTitle><Text component={TextVariants.h2}>{_("Locked encrypted Stratis pool")}</Text></CardTitle>
+            <CardHeader actions={{ actions: <><StorageButton kind="primary" onClick={start}>{_("Start")}</StorageButton></> }}>
+                <CardTitle><Text component={TextVariants.h2}>{_("Stopped Stratis pool")}</Text></CardTitle>
 
             </CardHeader>
             <CardBody>
@@ -824,7 +826,7 @@ export const StratisLockedPoolDetails = ({ client, uuid }) => {
                 <CardTitle><Text component={TextVariants.h2}>{_("Filesystems")}</Text></CardTitle>
             </CardHeader>
             <CardBody className="contains-list">
-                <ListingTable emptyCaption={_("Unlock pool to see filesystems.")}
+                <ListingTable emptyCaption={_("Start pool to see filesystems.")}
                               aria-label={_("Filesystems")}
                               columns={[_("Name"), _("Used for"), _("Size")]}
                               showHeader={false}
@@ -834,6 +836,6 @@ export const StratisLockedPoolDetails = ({ client, uuid }) => {
 
     return <StdDetailsLayout client={client}
                              header={header}
-                             sidebar={<StratisLockedPoolSidebar client={client} uuid={uuid} />}
+                             sidebar={<StratisStoppedPoolSidebar client={client} uuid={uuid} />}
                              content={content} />;
 };

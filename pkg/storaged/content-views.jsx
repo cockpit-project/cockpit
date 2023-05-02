@@ -121,7 +121,7 @@ function create_tabs(client, target, is_partition, is_extended) {
     const block_swap = content_block && client.blocks_swap[content_block.path];
 
     const block_stratis_blockdev = block && client.blocks_stratis_blockdev[block.path];
-    const block_stratis_locked_pool = block && client.blocks_stratis_locked_pool[block.path];
+    const block_stratis_stopped_pool = block && client.blocks_stratis_stopped_pool[block.path];
 
     const lvol = (endsWith(target.iface, ".LogicalVolume")
         ? target
@@ -130,7 +130,7 @@ function create_tabs(client, target, is_partition, is_extended) {
     const is_filesystem = (content_block && content_block.IdUsage == 'filesystem');
     const is_stratis = ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "stratis") ||
                         (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) ||
-                        block_stratis_locked_pool);
+                        block_stratis_stopped_pool);
 
     // Adjust for encryption leaking out of Stratis
     if (is_crypto && is_stratis)
@@ -439,7 +439,7 @@ function create_tabs(client, target, is_partition, is_extended) {
 function block_description(client, block) {
     let type, used_for, link, size, critical_size;
     const block_stratis_blockdev = client.blocks_stratis_blockdev[block.path];
-    const block_stratis_locked_pool = client.blocks_stratis_locked_pool[block.path];
+    const block_stratis_stopped_pool = client.blocks_stratis_stopped_pool[block.path];
     const vdo = client.legacy_vdo_overlay.find_by_backing_block(block);
     const cleartext = client.blocks_cleartext[block.path];
     if (cleartext)
@@ -455,9 +455,9 @@ function block_description(client, block) {
         if (config) {
             type = C_("storage-id-desc", "Filesystem (encrypted)");
             used_for = mount_point;
-        } else if (block_stratis_locked_pool) {
+        } else if (block_stratis_stopped_pool) {
             type = _("Stratis member");
-            used_for = block_stratis_locked_pool;
+            used_for = block_stratis_stopped_pool;
             link = ["pool", used_for];
             omit_encrypted_label = true;
         } else

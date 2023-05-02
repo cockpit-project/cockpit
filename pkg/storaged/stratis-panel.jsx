@@ -25,9 +25,9 @@ import {
     decode_filename, fmt_size,
     get_available_spaces, prepare_available_spaces,
 } from "./utils.js";
-import { validate_pool_name, unlock_pool } from "./stratis-details.jsx";
+import { validate_pool_name, start_pool } from "./stratis-details.jsx";
 import { StorageButton } from "./storage-controls.jsx";
-import { UnlockIcon } from "@patternfly/react-icons";
+import { PlayIcon } from "@patternfly/react-icons";
 
 const _ = cockpit.gettext;
 
@@ -61,8 +61,8 @@ function stratis_pool_row(client, path) {
     };
 }
 
-function stratis_locked_pool_row(client, uuid) {
-    const action = <StorageButton onClick={() => unlock_pool(client, uuid, true)}><UnlockIcon /></StorageButton>;
+function stratis_stopped_pool_row(client, uuid) {
+    const action = <StorageButton ariaLabel={_("Start pool")} onClick={() => start_pool(client, uuid, true)}><PlayIcon /></StorageButton>;
 
     return {
         client,
@@ -70,7 +70,7 @@ function stratis_locked_pool_row(client, uuid) {
         name: uuid,
         key: uuid,
         truncate_name: false,
-        detail: _("Locked encrypted Stratis pool"),
+        detail: _("Stopped Stratis pool"),
         go: () => cockpit.location.go(["pool", uuid])
     };
 }
@@ -80,17 +80,17 @@ export function stratis_rows(client) {
         return client.stratis_pools[path_a].Name.localeCompare(client.stratis_pools[path_b].Name);
     }
 
-    function cmp_locked_pool(uuid_a, uuid_b) {
+    function cmp_stopped_pool(uuid_a, uuid_b) {
         return uuid_a.localeCompare(uuid_b);
     }
 
     const pools = Object.keys(client.stratis_pools).sort(cmp_pool)
             .map(p => stratis_pool_row(client, p));
 
-    const locked_pools = Object.keys(client.stratis_manager.LockedPools).sort(cmp_locked_pool)
-            .map(uuid => stratis_locked_pool_row(client, uuid));
+    const stopped_pools = Object.keys(client.stratis_manager.StoppedPools).sort(cmp_stopped_pool)
+            .map(uuid => stratis_stopped_pool_row(client, uuid));
 
-    return pools.concat(locked_pools);
+    return pools.concat(stopped_pools);
 }
 
 function store_new_passphrase(client, desc_prefix, passphrase) {

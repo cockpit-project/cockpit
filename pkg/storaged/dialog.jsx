@@ -490,6 +490,15 @@ export const dialog_open = (def) => {
             update();
         },
 
+        get_value: (tag) => {
+            return values[tag];
+        },
+
+        update_actions: (new_actions) => {
+            Object.assign(def.Action, new_actions);
+            update_footer(null, null);
+        },
+
         set_nested_values: (key, new_vals) => {
             const updated = values[key];
             Object.assign(updated, new_vals);

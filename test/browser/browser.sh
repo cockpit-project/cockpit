@@ -31,6 +31,12 @@ if grep -q platform:el8 /etc/os-release; then
     dnf module switch-to -y nodejs:16
 fi
 
+# HACK: nodejs 20 is very segfaulty: https://bugzilla.redhat.com/show_bug.cgi?id=2190075
+if grep -q VERSION_ID=39 /etc/os-release; then
+    dnf install -y nodejs18
+    ln -sfn node-18 /usr/bin/node
+fi
+
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
 # and is hard to disable as it does not use systemd
 if rpm -q setroubleshoot-server; then

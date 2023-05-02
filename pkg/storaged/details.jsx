@@ -32,7 +32,7 @@ import { VGroupDetails } from "./vgroup-details.jsx";
 import { MDRaidDetails } from "./mdraid-details.jsx";
 import { VDODetails } from "./vdo-details.jsx";
 import { NFSDetails } from "./nfs-details.jsx";
-import { StratisPoolDetails, StratisLockedPoolDetails } from "./stratis-details.jsx";
+import { StratisPoolDetails, StratisStoppedPoolDetails } from "./stratis-details.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
@@ -123,12 +123,12 @@ export class Details extends React.Component {
         } else if (this.props.type == "pool") {
             const pool = (client.stratis_poolnames_pool[this.props.name] ||
                           client.stratis_pooluuids_pool[this.props.name]);
-            const locked_props = client.stratis_manager.LockedPools[this.props.name];
+            const stopped_props = client.stratis_manager.StoppedPools[this.props.name];
 
             if (pool)
                 body = <StratisPoolDetails client={client} pool={pool} />;
-            else if (locked_props)
-                body = <StratisLockedPoolDetails client={client} uuid={this.props.name} />;
+            else if (stopped_props)
+                body = <StratisStoppedPoolDetails client={client} uuid={this.props.name} />;
         }
 
         if (!body)

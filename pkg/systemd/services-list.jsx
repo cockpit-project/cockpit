@@ -49,6 +49,7 @@ export const ServicesList = ({ units, isTimer, filtersRef }) => {
     return (
         <ListingTable aria-label={_("Systemd units")}
                       columns={columns}
+                      gridBreakPoint={isTimer ? "grid-xl" : "grid-lg"}
                       showHeader={false}
                       id="services-list"
                       rows={ units.map(unit => getServicesRow({ key: unit[0], isTimer, shortId: unit[0], ...unit[1] })) }
@@ -109,18 +110,20 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
         },
         {
             title: (
-                <Flex id={cockpit.format("$0-service-unit-state", Id)} className='service-unit-status-flex-container'>
-                    <FlexItem flex={{ default: 'flex_2' }} className={"service-unit-status" + (HasFailed ? " service-unit-status-failed" : "")}>
+                <Flex
+                    id={cockpit.format("$0-service-unit-state", Id)}
+                    flexWrap={{ default: 'wrap', md: 'nowrap' }}
+                    justifyContent={{ default: 'justifyContentFlexStart', [isTimer ? 'xl' : 'lg']: 'justifyContentFlexEnd' }}
+                    className='service-unit-status-flex-container'>
+                    <FlexItem className={"service-unit-status" + (HasFailed ? " service-unit-status-failed" : "")}>
                         {HasFailed && <ExclamationCircleIcon className='ct-exclamation-circle' />}
                         {CombinedState}
                     </FlexItem>
-                    <FlexItem flex={{ default: 'flex_1' }}>
-                        {tooltipMessage ? <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.left}>{unitFileState}</Tooltip> : unitFileState}
-                    </FlexItem>
+                    {tooltipMessage ? <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.left}>{unitFileState}</Tooltip> : unitFileState}
                 </Flex>
             ),
             props: {
-                className: 'pf-c-table__action service-unit-second-column'
+                className: 'service-unit-second-column'
             }
         },
     ];

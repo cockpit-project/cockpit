@@ -77,7 +77,6 @@ __all__ = (
     'skipMobile',
     'skipOstree',
     'skipBrowser',
-    'skipPackage',
     'todo',
     'todoPybridge',
     'todoPybridgeRHEL8',
@@ -2216,14 +2215,6 @@ def skipDistroPackage():
     """
     if 'distropkg' in testvm.DEFAULT_IMAGE:
         return unittest.skip(f"{testvm.DEFAULT_IMAGE}: Do not test BaseOS packages")
-    return lambda testEntity: testEntity
-
-
-def skipPackage(*args):
-    packages_env = os.environ.get("TEST_SKIP_PACKAGES", "").split()
-    for package in args:
-        if package in packages_env:
-            return unittest.skip("{0} is excluded in $TEST_SKIP_PACKAGES".format(package))
     return lambda testEntity: testEntity
 
 

@@ -4,14 +4,11 @@ import os
 
 import parent  # noqa: F401
 from testlib import MachineCase, TEST_DIR, nondestructive, skipDistroPackage, skipOstree, test_main
-from fmf_metadata import FMF
 
 
 EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")
 
 
-@FMF.tag("example")
-@FMF.link("https://bugzilla.redhat.com/show_bug.cgi?id=1")
 @nondestructive
 @skipDistroPackage()
 class TestPinger(MachineCase):
@@ -22,8 +19,6 @@ class TestPinger(MachineCase):
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
         self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "/home/admin/.local/share/cockpit/")
 
-    @FMF.summary("This basic test: pinger")
-    @FMF.link("https://github.com/cockpit-project/cockpit/issues/2", "https://github.com/cockpit-project/cockpit/issues/3")
     def testBasic(self):
         b = self.browser
 
@@ -33,7 +28,6 @@ class TestPinger(MachineCase):
         b.wait_in_text("#result", "success")
         b.wait_in_text("#output", "--- 127.0.0.1 ping statistics")
 
-    @FMF.tag("fast", "tier1")
     def testExtend(self):
         """
         This is example test should set summary
@@ -43,7 +37,6 @@ class TestPinger(MachineCase):
         self.testBasic()
 
 
-@FMF.tag("example")
 @nondestructive
 @skipDistroPackage()
 class TestXHRProxy(MachineCase):
@@ -53,7 +46,6 @@ class TestXHRProxy(MachineCase):
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
         self.machine.upload([os.path.join(EXAMPLES_DIR, "xhr-proxy")], "/home/admin/.local/share/cockpit/")
 
-    @FMF.tag("example2")
     @skipOstree("No Python installed")
     def testBasic(self):
         m = self.machine
@@ -89,7 +81,6 @@ class TestXHRProxy(MachineCase):
         b.wait_in_text("#output", "File not found")
 
 
-@FMF.tag("example")
 @nondestructive
 @skipDistroPackage()
 class TestLongRunning(MachineCase):

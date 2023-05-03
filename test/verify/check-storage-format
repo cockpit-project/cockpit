@@ -43,7 +43,8 @@ class TestStorageFormat(StorageCase):
         self.dialog_set_val("mount_point", "/foo")
         self.dialog_apply_secondary()
 
-        b.wait_in_text("#dialog", "Error creating file system")
+        b.wait_in_text("#dialog", "Error creating")
+        b.wait_in_text("#dialog", "too small")
 
     def testFormatTypes(self):
         m = self.machine
@@ -108,22 +109,18 @@ class TestStorageFormat(StorageCase):
         b.wait_in_text("#drives", "VirtIO")
 
         # Make a super slow block device so that we have enough
-        # chances to cancel the Format.
+        # chances to cancel the operation
 
         disk = self.add_ram_disk()
-        m.execute(f"""disk={disk}; echo "0 `blockdev --getsz $disk` delay $disk 0 500" | dmsetup create superslow""")
+        blocks = int(m.execute(f"blockdev --getsz {disk}"))
+
+        m.execute(f"echo '0 {blocks} delay {disk} 0 500' | dmsetup create superslow")
         b.click("#others .sidepanel-row:contains('/dev/mapper/superslow')")
         b.wait_visible('#storage-detail')
 
-        self.content_row_action(1, "Format")
-        self.dialog_wait_open()
-        self.dialog_set_val("mount_point", "/foo")
-        self.dialog_apply()
-        with b.wait_timeout(60):
-            b.wait_in_text("footer", "Creating filesystem on /dev/mapper/superslow")
-        self.dialog_cancel()
-        self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 2, "Unrecognized data")
+        # Put a signature near the end
+        sigoff = (blocks - 1) * 512
+        m.execute(f"echo hello | dd if=/dev/stdin of=/dev/mapper/superslow bs=1 count=5 seek={sigoff}")
 
         self.content_row_action(1, "Format")
         self.dialog_wait_open()
@@ -134,7 +131,10 @@ class TestStorageFormat(StorageCase):
             b.wait_in_text("footer", "Erasing /dev/mapper/superslow")
         self.dialog_cancel()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 2, "Unrecognized data")
+
+        # The signature should still be there
+        sig = m.execute(f"dd if=/dev/mapper/superslow of=/dev/stdout bs=1 count=5 skip={sigoff}")
+        self.assertEqual(sig, 'hello')
 
     def testAtBoot(self):
         m = self.machine

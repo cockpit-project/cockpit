@@ -48,7 +48,7 @@ class TestStorageLuks(StorageCase):
         self.login_and_go("/storage")
 
         # Add a disk and partition it
-        m.add_disk("50M", serial="MYDISK")
+        m.add_disk("100M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
         b.click('.sidepanel-row:contains("MYDISK")')
         b.wait_visible("#storage-detail")
@@ -61,7 +61,7 @@ class TestStorageLuks(StorageCase):
         # Format it with luks
         self.content_row_action(1, "Create partition")
         self.dialog_wait_open()
-        self.dialog_set_val("size", 17)
+        self.dialog_set_val("size", 60)
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("crypto", self.default_crypto_type)
         self.dialog_set_val("name", "ENCRYPTED")

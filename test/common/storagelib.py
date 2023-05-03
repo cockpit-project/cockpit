@@ -655,3 +655,8 @@ class StorageCase(MachineCase, StorageHelpers):
 
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
         self.allow_journal_messages("pcp-archive: no such metric: disk.*")
+
+        # UDisks2 invalidates the Size property and cockpit-bridge
+        # gets it immediately.  But sometimes the interface is already
+        # gone.
+        self.allow_journal_messages("org.freedesktop.UDisks2: couldn't get property org.freedesktop.UDisks2.Filesystem Size .* No such interface.*")

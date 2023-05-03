@@ -19,12 +19,11 @@
 
 import parent  # noqa: F401
 from packagelib import PackageCase
-from testlib import skipImage, skipOstree, skipPackage, test_main, nondestructive
+from testlib import skipImage, skipOstree, test_main, nondestructive
 
 
 @skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
 @skipOstree("Not supported")
-@skipPackage("cockpit-apps")
 @nondestructive
 class TestApps(PackageCase):
 

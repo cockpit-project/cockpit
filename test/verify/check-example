@@ -23,12 +23,9 @@ import time
 import unittest
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipPackage, test_main, todo
-from fmf_metadata import FMF
+from testlib import MachineCase, nondestructive, skipDistroPackage, test_main, todo
 
 
-@FMF.tag("example")
-@skipPackage("example")
 @skipDistroPackage()
 class TestExample(MachineCase):
 
@@ -58,7 +55,6 @@ class TestExample(MachineCase):
         self.login_and_go("/system")
 
 
-@FMF.tag("example")
 @nondestructive
 @skipDistroPackage()
 class TestNondestructiveExample(MachineCase):
@@ -70,7 +66,6 @@ class TestNondestructiveExample(MachineCase):
         self.assertIn("usr", self.machine.execute("ls -l /").strip())
 
 
-@FMF.tag("example")
 @skipDistroPackage()
 class TestSimple(unittest.TestCase):
 
@@ -91,7 +86,6 @@ class TestSimple(unittest.TestCase):
         self.assertTrue(True)
 
 
-@FMF.tag("example")
 @skipDistroPackage()
 class TestTodo(unittest.TestCase):
     def setUp(self):

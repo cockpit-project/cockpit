@@ -2153,32 +2153,56 @@ def get_decorator(method, _class, name, default=None):
 # Test decorators
 #
 
-def skipBrowser(reason: str, *args: str):
+def skipBrowser(reason: str, *browsers: str):
+    """Decorator for skipping a test on given browser(s)
+
+    Skips a test for provided *reason* on *browsers*.
+    """
     browser = os.environ.get("TEST_BROWSER", "chromium")
-    if browser in args:
+    if browser in browsers:
         return unittest.skip("{0}: {1}".format(browser, reason))
     return lambda testEntity: testEntity
 
 
-def skipImage(reason: str, *args: str):
-    if any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, arg) for arg in args):
+def skipImage(reason: str, *images: str):
+    """Decorator for skipping a test for given image(s)
+
+    Skip a test for a provided *reason* for given *images*. These
+    support Unix shell style patterns via fnmatch.fnmatch.
+
+    Example: @skipImage("no btrfs support on RHEL", "rhel-*")
+    """
+    if any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, img) for img in images):
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda testEntity: testEntity
 
 
-def onlyImage(reason: str, *args: str):
-    if not any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, arg) for arg in args):
+def onlyImage(reason: str, *images: str):
+    """Decorator to only run a test on given image(s)
+
+    Only run this test on provided *images* for *reason*. These
+    support Unix shell style patterns via fnmatch.fnmatch.
+    """
+    if not any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, arg) for arg in images):
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda testEntity: testEntity
 
 
 def skipOstree(reason: str):
+    """Decorator for skipping a test on OSTree images
+
+    Skip test for *reason* on OSTree images defined in OSTREE_IMAGES in bots/lib/constants.py.
+    """
     if testvm.DEFAULT_IMAGE in OSTREE_IMAGES:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda testEntity: testEntity
 
 
 def skipMobile():
+    """Decorator for skipping a test on mobile
+
+    Skip test on when TEST_MOBILE is set.
+    """
     if bool(os.environ.get("TEST_MOBILE", "")):
         return unittest.skip("mobile: This test breaks on small screen sizes")
     return lambda testEntity: testEntity

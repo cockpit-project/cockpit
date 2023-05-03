@@ -21,6 +21,21 @@ disable = [
   "W1113",  # Keyword argument before variable positional arguments  (PEP-570 is Python 3.8)
 ]
 
+[tool.ruff]
+exclude = [
+    ".git/",
+    "modules/",
+    "node_modules/",
+    "pkg/",
+    "test/common/",
+    "test/verify/",
+    "tools/",
+]
+ignore = [
+    "E731",  # Do not assign a `lambda` expression, use a `def`
+]
+line-length = 155
+
 [tool.pytest.ini_options]
 addopts = ['--strict-markers']  # cf. https://github.com/cockpit-project/cockpit/pull/18584#issuecomment-1490243994
 pythonpath = ["src"]

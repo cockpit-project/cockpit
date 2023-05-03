@@ -29,3 +29,12 @@ def test_bridge_mypy():
     # only test src/cockpit; src/systemd_ctypes does not have type annotations yet
     # disable caching, as it otherwise often crashes with "Cannot find component 'inotify' for 'systemd_ctypes...."
     subprocess.check_call(['mypy', '--no-incremental', 'src/cockpit'], cwd=ROOT_DIR)
+
+
+def test_ruff():
+    try:
+        subprocess.check_call(['ruff', 'check', '--no-cache', '.'], cwd=ROOT_DIR)
+    except FileNotFoundError:
+        pytest.skip('ruff not installed')
+    except subprocess.CalledProcessError:
+        pytest.fail()

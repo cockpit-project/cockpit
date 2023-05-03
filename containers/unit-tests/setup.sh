@@ -43,6 +43,7 @@ dependencies="\
     pkg-config \
     python3 \
     python3-mypy \
+    python3-pip \
     python3-pytest-asyncio \
     python3-pytest-cov \
     python3-pytest-timeout \
@@ -61,6 +62,9 @@ apt-get install -y --no-install-recommends eatmydata
 DEBIAN_FRONTEND=noninteractive eatmydata apt-get install -y --no-install-recommends ${dependencies}
 
 adduser --gecos "Builder" builder
+
+# See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1030835
+pip install --break-system-packages ruff
 
 # minimize image
 # useful command: dpkg-query --show -f '${package} ${installed-size}\n' | sort -k2n

@@ -29,6 +29,12 @@ test_flake8() {
     find_python_files | xargs -r -0 flake8
 }
 
+test_ruff() {
+    command -v ruff >/dev/null || skip 'no ruff'
+    test -n "$(ruff check --show-files . 2>/dev/null)" || return 0  # no python changes
+    ruff check --no-cache .
+}
+
 test_pyvulture() {
     # vulture to find unused variables/functions
 

@@ -26,6 +26,7 @@ addopts = ['--strict-markers']  # cf. https://github.com/cockpit-project/cockpit
 pythonpath = ["src"]
 testpaths = ["test/pytest"]
 log_cli = true
+required_plugins = ["pytest-asyncio"]
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

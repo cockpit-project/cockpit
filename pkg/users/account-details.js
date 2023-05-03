@@ -33,7 +33,6 @@ import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGrou
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
@@ -250,7 +249,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                 <Gallery hasGutter>
                     <Card className="account-details" id="account-details">
                         <CardHeader actions={{ actions }}>
-                            <CardTitle id="account-title"><Text component={TextVariants.h2}>{title_name}</Text></CardTitle>
+                            <CardTitle id="account-title" component="h2">{title_name}</CardTitle>
                         </CardHeader>
                         <CardBody>
                             <Form isHorizontal onSubmit={apply_modal_dialog}>

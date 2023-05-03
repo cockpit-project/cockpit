@@ -28,7 +28,6 @@ import * as utils from "./utils.js";
 import React from "react";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import {
     DropdownSeparator
 } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
@@ -756,8 +755,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
     return (
         <Card>
             <CardHeader actions={{ actions: format_disk_btn }}>
-                <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
-
+                <CardTitle component="h2">{title}</CardTitle>
             </CardHeader>
             <CardBody className="contains-list">
                 <ListingTable rows={ block_rows(client, block) }
@@ -1021,8 +1019,7 @@ export class VGroup extends React.Component {
         return (
             <Card>
                 <CardHeader actions={{ actions: new_volume_link }}>
-                    <CardTitle><Text component={TextVariants.h2}>{_("Logical volumes")}</Text></CardTitle>
-
+                    <CardTitle component="h2">{_("Logical volumes")}</CardTitle>
                 </CardHeader>
                 <CardBody className="contains-list">
                     <ListingTable emptyCaption={_("No logical volumes")}

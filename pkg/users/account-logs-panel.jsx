@@ -21,7 +21,6 @@ import cockpit from 'cockpit';
 import React, { useState } from 'react';
 
 import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { Text } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { ListingTable } from 'cockpit-components-table.jsx';
 
 import * as timeformat from "timeformat.js";
@@ -73,9 +72,7 @@ export function AccountLogs({ name }) {
 
     return (
         <Card id="account-logs">
-            <CardTitle>
-                <Text component="h2">{_("Login history")}</Text>
-            </CardTitle>
+            <CardTitle component="h2">{_("Login history")}</CardTitle>
             <CardBody className="contains-list">
                 <ListingTable variant="compact" aria-label={ _("Login history list") }
                     columns={ [

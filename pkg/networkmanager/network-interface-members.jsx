@@ -22,7 +22,6 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Card, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { MinusIcon } from '@patternfly/react-icons';
 
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -204,8 +203,7 @@ export const NetworkInterfaceMembers = ({
     return (
         <Card id="network-interface-members" className="network-interface-members">
             <CardHeader actions={{ actions: add_btn }}>
-                <CardTitle><Text component={TextVariants.h2}>{_("Interface members")}</Text></CardTitle>
-
+                <CardTitle component="h2">{_("Interface members")}</CardTitle>
             </CardHeader>
             <ListingTable aria-label={_("Interface members")}
                           className="networking-interface-members"

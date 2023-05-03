@@ -38,7 +38,6 @@ import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form
 import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -492,10 +491,7 @@ const SOSBody = () => {
                         {_("Run report")}
                     </Button>,
                 }}>
-                    <CardTitle>
-                        <Text component={TextVariants.h2}>{_("Reports")}</Text>
-                    </CardTitle>
-
+                    <CardTitle component="h2">{_("Reports")}</CardTitle>
                 </CardHeader>
                 <CardBody className="contains-list">
                     <ListingTable emptyCaption={_("No system reports.")}

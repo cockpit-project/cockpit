@@ -24,7 +24,6 @@ import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/di
 import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Tab, Tabs } from "@patternfly/react-core/dist/esm/components/Tabs/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { CheckIcon, CopyIcon, ExternalLinkAltIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 
@@ -158,7 +157,7 @@ export class Modifications extends React.Component {
                 <ModificationsExportDialog show={this.state.showDialog} shell={this.props.shell} ansible={this.props.ansible} onClose={ () => this.setState({ showDialog: false }) } />
                 <Card className="modifications-table">
                     <CardHeader>
-                        <CardTitle><Text component={TextVariants.h2}>{this.props.title}</Text></CardTitle>
+                        <CardTitle component="h2">{this.props.title}</CardTitle>
                         { !emptyRow &&
                             <Button variant="secondary" onClick={() => this.setState({ showDialog: true }) }>
                                 {_("View automation script")}

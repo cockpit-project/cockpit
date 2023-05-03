@@ -328,9 +328,7 @@ class HardwareInfo extends React.Component {
                     <Gallery hasGutter>
                         <Card>
                             <CardHeader>
-                                <CardTitle>
-                                    <Text component={TextVariants.h2}>{_("System information")}</Text>
-                                </CardTitle>
+                                <CardTitle component="h2">{_("System information")}</CardTitle>
                             </CardHeader>
                             <CardBody>
                                 <SystemInfo info={this.props.info.system}
@@ -341,9 +339,7 @@ class HardwareInfo extends React.Component {
                         </Card>
                         <Card id="pci-listing">
                             <CardHeader>
-                                <CardTitle>
-                                    <Text component={TextVariants.h2}>{_("PCI")}</Text>
-                                </CardTitle>
+                                <CardTitle component="h2">{_("PCI")}</CardTitle>
                             </CardHeader>
                             <CardBody className="contains-list">
                                 { pci }
@@ -351,9 +347,7 @@ class HardwareInfo extends React.Component {
                         </Card>
                         <Card id="memory-listing">
                             <CardHeader>
-                                <CardTitle>
-                                    <Text component={TextVariants.h2}>{_("Memory")}</Text>
-                                </CardTitle>
+                                <CardTitle component="h2">{_("Memory")}</CardTitle>
                             </CardHeader>
                             <CardBody className="contains-list">
                                 { memory }

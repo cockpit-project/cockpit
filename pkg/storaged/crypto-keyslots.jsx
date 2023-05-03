@@ -876,8 +876,7 @@ export class CryptoKeyslots extends React.Component {
                         </StorageButton>
                     </>,
                 }}>
-
-                    <CardTitle><Text component={TextVariants.h2}>{_("Keys")}</Text></CardTitle>
+                    <CardTitle component="h2">{_("Keys")}</CardTitle>
                 </CardHeader>
                 <CardBody className="contains-list">
                     <DataList isCompact className="crypto-keyslots-list" aria-label={_("Keys")}>

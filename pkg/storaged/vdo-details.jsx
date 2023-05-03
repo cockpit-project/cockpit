@@ -21,7 +21,6 @@ import cockpit from "cockpit";
 import React from "react";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename, reload_systemd } from "./utils.js";
 import {
@@ -266,8 +265,7 @@ export class VDODetails extends React.Component {
                         <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
                     </>,
                 }}>
-                    <CardTitle><Text component={TextVariants.h2}>{cockpit.format(_("VDO device $0"), vdo.name)}</Text></CardTitle>
-
+                    <CardTitle component="h2">{cockpit.format(_("VDO device $0"), vdo.name)}</CardTitle>
                 </CardHeader>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">

@@ -22,7 +22,6 @@ import React from "react";
 
 import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import { StorageButton } from "./storage-controls.jsx";
 import { block_name, mdraid_name, lvol_name, format_delay } from "./utils.js";
@@ -200,7 +199,7 @@ export class JobsPanel extends React.Component {
 
         return (
             <Card className="detail-jobs">
-                <CardTitle><Text component={TextVariants.h2}>{_("Jobs")}</Text></CardTitle>
+                <CardTitle component="h2">{_("Jobs")}</CardTitle>
                 <CardBody className="contains-list">
                     <DataList isCompact aria-label={_("Jobs")}>
                         { jobs.map((p) => <JobRow key={p} client={client} job={client.jobs[p]} now={server_now} />) }

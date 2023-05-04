@@ -107,7 +107,8 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         assert my_object._dbus_bus == self.bridge.internal_bus.server
         assert my_object._dbus_path == '/foo'
 
-        values, = await self.transport.check_bus_call('/foo', 'org.freedesktop.DBus.Properties', 'GetAll', ["test.iface"])
+        values, = await self.transport.check_bus_call('/foo', 'org.freedesktop.DBus.Properties',
+                                                      'GetAll', ["test.iface"])
         assert values == {'Prop': {'t': 's', 'v': 'none'}}
 
     async def test_dbus_watch(self):
@@ -175,7 +176,8 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         root_null = await self.transport.check_open('null', superuser=True)
 
         # stop the bridge
-        stop = self.transport.send_bus_call(self.transport.internal_bus, '/superuser', 'cockpit.Superuser', 'Stop', [])
+        stop = self.transport.send_bus_call(self.transport.internal_bus, '/superuser',
+                                            'cockpit.Superuser', 'Stop', [])
 
         # that should have implicitly closed the open channel
         await self.transport.assert_msg('', command='close', channel=root_null)
@@ -207,11 +209,13 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
         # start the bridge.  with a password this is more complicated
         with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):
-            start = self.transport.send_bus_call(self.transport.internal_bus, '/superuser', 'cockpit.Superuser', 'Start', ['pseudo'])
+            start = self.transport.send_bus_call(self.transport.internal_bus, '/superuser',
+                                                 'cockpit.Superuser', 'Start', ['pseudo'])
             # first, init state
             await self.transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'init'})
             # then, we'll be asked for a password
-            await self.transport.assert_bus_signal('/superuser', 'cockpit.Superuser', 'Prompt', ['', 'can haz pw?', '', False, ''])
+            await self.transport.assert_bus_signal('/superuser', 'cockpit.Superuser', 'Prompt',
+                                                   ['', 'can haz pw?', '', False, ''])
             # give it
             await self.transport.check_bus_call('/superuser', 'cockpit.Superuser', 'Answer', ['p4ssw0rd'])
             # and now the bridge should be running
@@ -239,13 +243,16 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
         # start the bridge.  with a password this is more complicated
         with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):
-            start = self.transport.send_bus_call(self.transport.internal_bus, '/superuser', 'cockpit.Superuser', 'Start', ['pseudo'])
+            start = self.transport.send_bus_call(self.transport.internal_bus, '/superuser',
+                                                 'cockpit.Superuser', 'Start', ['pseudo'])
             # first, init state
             await self.transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'init'})
             # then, we'll be asked for a password
-            await self.transport.assert_bus_signal('/superuser', 'cockpit.Superuser', 'Prompt', ['', 'can haz pw?', '', False, ''])
+            await self.transport.assert_bus_signal('/superuser', 'cockpit.Superuser', 'Prompt',
+                                                   ['', 'can haz pw?', '', False, ''])
             # give it
-            await self.transport.check_bus_call('/superuser', 'cockpit.Superuser', 'Answer', ['p5ssw0rd'])  # wrong password
+            await self.transport.check_bus_call('/superuser', 'cockpit.Superuser',
+                                                'Answer', ['p5ssw0rd'])  # wrong password
             # pseudo fails after the first wrong attempt
             await self.transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'none'})
 

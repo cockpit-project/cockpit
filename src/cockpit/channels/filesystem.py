@@ -163,7 +163,8 @@ class FsReplaceChannel(Channel):
                 except OSError as ex:
                     raise ChannelError('internal-error', message=str(ex))
             else:
-                raise ChannelError('internal-error', message=f"Could not find unique file name for replacing {self._path}")
+                raise ChannelError('internal-error',
+                                   message=f"Could not find unique file name for replacing {self._path}")
 
             try:
                 self._tempfile = os.fdopen(fd, 'wb')

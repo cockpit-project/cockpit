@@ -172,7 +172,8 @@ class HostRoutingRule(RoutingRule):
 
         assert isinstance(host, str)
 
-        # BUG: The front-end relies on this.  This prevents us from setting the default username via SSH config, unfortunately.
+        # BUG: The front-end relies on this.  This prevents us from setting the
+        # default username via SSH config, unfortunately.
         user_from_host, _, _ = host.rpartition('@')
         user = options.get('user') or user_from_host or getpass.getuser()
 

@@ -307,7 +307,8 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     _close_on_eof: bool = False
     _eof: bool = False
 
-    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> asyncio.Transport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop,
+                               options: Dict[str, object]) -> asyncio.Transport:
         """Creates the transport for this channel, according to options.
 
         The event loop for the transport is passed to the function.  The

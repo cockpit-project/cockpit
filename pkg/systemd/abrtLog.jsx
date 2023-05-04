@@ -288,7 +288,7 @@ export class AbrtLogDetails extends React.Component {
                     <Card>
                         <CardHeader actions={{ actions: <><Button variant="danger" onClick={this.onDelete}>{_("Delete")}</Button></> }}>
 
-                            <CardTitle><h2>{_("Extended information")}</h2></CardTitle>
+                            <CardTitle component="h2">{_("Extended information")}</CardTitle>
                         </CardHeader>
                         <CardBody>
                             <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>

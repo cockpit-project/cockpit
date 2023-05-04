@@ -472,7 +472,7 @@ export class ReportingTable extends React.Component {
     render() {
         return (
             <Card>
-                <CardTitle><h2>{_("Crash reporting")}</h2></CardTitle>
+                <CardTitle component="h2">{_("Crash reporting")}</CardTitle>
                 <CardBody>
                     <FAFWorkflowRow problem={this.props.problem} />
                     {

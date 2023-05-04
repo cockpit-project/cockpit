@@ -43,6 +43,22 @@ testpaths = ["test/pytest"]
 log_cli = true
 required_plugins = ["pytest-asyncio"]
 
+[tool.vulture]
+paths = [
+   "src",
+   "test/pytest",
+   "tools/vulture_whitelist",
+]
+ignore_names = [
+   "do_*",
+   "test[A-Z0-9]*",
+]
+ignore_decorators = [
+   "@*.register_function",
+   "@*.getter",
+   "@bus.Interface.Method"
+]
+
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 

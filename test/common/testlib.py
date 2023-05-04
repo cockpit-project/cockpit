@@ -1158,6 +1158,14 @@ class Browser:
         if not (Image and self.pixels_label):
             return
 
+        # If the page overflows make sure to not show a scrollbar
+        # Don't apply this hack for login and terminal and shell as they don't use PF Page
+        if not self.is_present("#shell-page") and not self.is_present("#login-details") and not self.is_present("#system-terminal-page"):
+            self.switch_to_frame(self.cdp.cur_frame)
+            classes = self.attr("main", "class")
+            if "pf-c-page__main" in classes:
+                self.set_attr("main.pf-c-page__main", "class", f"{classes} pixel-test")
+
         if self.current_layout:
             previous_layout = self.current_layout["name"]
             for layout in self.layouts:

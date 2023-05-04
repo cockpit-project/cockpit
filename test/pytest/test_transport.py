@@ -117,25 +117,25 @@ class TestSpooler(unittest.IsolatedAsyncioTestCase):
 
     async def test_poll_eof(self) -> None:
         spooler = self.create_spooler()
-        while not spooler.is_closed():
+        while spooler._fd != -1:
             await asyncio.sleep(0.1)
         assert spooler.get() == b''
 
     async def test_nopoll_eof(self) -> None:
         spooler = self.create_spooler()
         assert spooler.get() == b''
-        assert spooler.is_closed()
+        assert spooler._fd == -1
 
     async def test_poll_small(self) -> None:
         spooler = self.create_spooler(b'abcd')
-        while not spooler.is_closed():
+        while spooler._fd != -1:
             await asyncio.sleep(0.1)
         assert spooler.get() == b'abcd'
 
     async def test_nopoll_small(self) -> None:
         spooler = self.create_spooler(b'abcd')
         assert spooler.get() == b'abcd'
-        assert spooler.is_closed()
+        assert spooler._fd == -1
 
     async def test_big(self) -> None:
         loop = asyncio.get_running_loop()
@@ -156,12 +156,12 @@ class TestSpooler(unittest.IsolatedAsyncioTestCase):
                 while len(spooler.get()) < written:
                     await asyncio.sleep(0.01)
 
-            assert not spooler.is_closed()
+            assert spooler._fd != -1
         finally:
             os.close(writer)
 
         await asyncio.sleep(0.1)
-        assert spooler.is_closed()
+        assert spooler._fd == -1
 
         assert len(spooler.get()) == written
 
@@ -177,7 +177,7 @@ class TestEpollLimitations(unittest.IsolatedAsyncioTestCase):
         loop = asyncio.get_running_loop()
         with open(filename) as fp:
             spooler = cockpit.transports.Spooler(loop, fp.fileno())
-        while not spooler.is_closed():
+        while spooler._fd != -1:
             await asyncio.sleep(0.1)
 
     @unittest.expectedFailure

@@ -371,9 +371,6 @@ class Browser:
         """
         self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "click", 0, 0, 0)
 
-    def mousedown(self, selector: str):
-        self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "mousedown", 0, 0, 0)
-
     def val(self, selector: str):
         """Get the value attribute of a selector.
 
@@ -679,23 +676,6 @@ class Browser:
             code_2 += "_" + parts[1].upper()
         self.wait_js_cond("cockpit.language == '%s' || cockpit.language == '%s'" % (code_1, code_2))
 
-    def dialog_complete(self, sel: str, button: str = ".pf-m-primary", result: str = "hide"):
-        self.click(sel + " " + button)
-        self.wait_not_present(sel + " .dialog-wait-ct")
-
-        dialog_visible = self.call_js_func('ph_is_visible', sel)
-        if result == "hide":
-            if dialog_visible:
-                raise AssertionError(sel + " dialog did not complete and close")
-        elif result == "fail":
-            if not dialog_visible:
-                raise AssertionError(sel + " dialog is closed no failures present")
-            dialog_error = self.call_js_func('ph_is_present', sel + " .dialog-error")
-            if not dialog_error:
-                raise AssertionError(sel + " dialog has no errors")
-        else:
-            raise Error("invalid dialog result argument: " + result)
-
     def dialog_cancel(self, sel: str, button: str = "button[data-dismiss='modal']"):
         self.click(sel + " " + button)
         self.wait_not_visible(sel)
@@ -740,17 +720,6 @@ class Browser:
 
     def leave_page(self):
         self.switch_to_top()
-
-    def wait_action_btn(self, sel: str, entry: str):
-        self.wait_text(sel + ' button:first-child', entry)
-
-    def click_action_btn(self, sel: str, entry: Optional[str] = None):
-        # We don't need to open the menu, it's enough to simulate a
-        # click on the invisible button.
-        if entry:
-            self.click(sel + ' a:contains("%s")' % entry)
-        else:
-            self.click(sel + ' button:first-child')
 
     def try_login(self, user: Optional[str] = None, password: Optional[str] = None, superuser: Optional[bool] = True, legacy_authorized: Optional[bool] = None):
         """Fills in the login dialog and clicks the button.

@@ -16,6 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
+import contextlib
 import logging
 import os
 
@@ -75,15 +76,19 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         """
         try:
             assert self.init_future is None
-
-            # Connect the transport
-            transport = await self.do_connect_transport()
-            assert transport is not None
-            assert self._closed or self.transport is transport
-
-            # Wait for the other side to send "init"
             self.init_future = asyncio.get_running_loop().create_future()
+
             try:
+                # Connect the transport
+                connect_task = asyncio.create_task(self.do_connect_transport())
+                logger.debug('Awaiting .do_connect_transport() and init_future')
+                await asyncio.wait([connect_task, self.init_future], return_when=asyncio.FIRST_COMPLETED)
+                logger.debug('No longer awaiting .do_connect_transport() and init_future')
+                with contextlib.suppress(asyncio.CancelledError):
+                    if not connect_task.done():
+                        connect_task.cancel()
+                    await connect_task
+
                 # Wait for the other side to send "init"
                 init_message = await self.init_future
             finally:

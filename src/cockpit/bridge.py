@@ -154,7 +154,6 @@ def try_to_receive_stderr():
             with theirs:
                 interaction_client.command(2, 'cockpit.send-stderr', fds=[theirs.fileno()])
             _msg, fds, _flags, _addr = socket.recv_fds(ours, 1, 1)
-        interaction_client.command(2, 'ferny.end')
     except OSError:
         return
 

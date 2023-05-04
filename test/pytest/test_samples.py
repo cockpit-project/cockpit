@@ -149,8 +149,9 @@ class TestSamples(unittest.TestCase):
 
                 assert 20 < temperature < 50
 
-            expected = ['hwmon4/temp4_input', 'hwmon4/temp3_input', 'hwmon4/temp2_input', 'hwmon4/temp1_input', 'hwmon3/temp3_input', 'hwmon2/temp1_input']
-            sensors = [os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p)) for p in samples['cpu.temperature']]
+            expected = ['hwmon4/temp4_input', 'hwmon4/temp3_input', 'hwmon4/temp2_input',
+                        'hwmon4/temp1_input', 'hwmon3/temp3_input', 'hwmon2/temp1_input']
+            sensors = [os.path.relpath(p, start=self.mock.hwmon_mock) for p in samples['cpu.temperature']]
             assert sorted(sensors) == sorted(expected)
 
     def test_cgroup_disk_io(self):

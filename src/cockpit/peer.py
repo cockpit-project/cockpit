@@ -57,13 +57,21 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         user_env = dict(e.split('=', 1) for e in env)
         return SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
 
-    async def start(self, init_host: Optional[str] = None) -> None:
+    async def start(self, init_host: Optional[str] = None) -> Dict[str, object]:
         """Request that the Peer is started and connected to the router.
 
         Creates the transport, connects it to the protocol, and participates in
         exchanging of init messages.  If anything goes wrong, an exception will
         be thrown and you must call .close() to make sure the connection is
         properly shut down.
+
+        The Peer starts out in a frozen state (ie: attempts to send messages to
+        it will initially be queued). If init_host is not None then an init
+        message is sent with the given 'host' field and the queue is thawed.
+        Otherwise, the caller is responsible for sending the init message and
+        thawing the peer.
+
+        In any case, the return value is the init message from the peer.
         """
         try:
             assert self.init_future is None
@@ -76,15 +84,22 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
             # Wait for the other side to send "init"
             self.init_future = asyncio.get_running_loop().create_future()
             try:
-                await self.init_future
+                # Wait for the other side to send "init"
+                init_message = await self.init_future
             finally:
                 self.init_future = None
 
-            # Send "init" back
-            self.write_control(command='init', version=1, host=init_host or self.router.init_host)
+            logger.debug('Got init message: %s', init_message)
 
-            # Thaw the queued messages
-            self.thaw_endpoint()
+            if init_host is not None:
+                logger.debug('  sending init message back, host %s', init_host)
+                # Send "init" back
+                self.write_control(command='init', version=1, host=init_host)
+
+                # Thaw the queued messages
+                self.thaw_endpoint()
+
+            return init_message
 
         except Exception as exc:
             self.close(exc)
@@ -111,7 +126,8 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
     # Handling of interesting events
     def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
         if command == 'init' and self.init_future is not None:
-            self.init_future.set_result(True)
+            logger.debug('Got init message with active init_future.  Setting result.')
+            self.init_future.set_result(message)
         else:
             raise CockpitProtocolError(f'Received unexpected control message {command}')
 
@@ -199,7 +215,8 @@ class PeerRoutingRule(RoutingRule):
         if self.peer is None:
             self.peer = ConfiguredPeer(self.router, self.config)
             self.peer.add_done_callback(self.peer_closed)
-            self.peer.start_in_background()
+            assert self.router.init_host
+            self.peer.start_in_background(init_host=self.router.init_host)
 
         return self.peer
 

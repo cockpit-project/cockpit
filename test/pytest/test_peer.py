@@ -12,6 +12,8 @@ from mocktransport import MockTransport, assert_no_subprocesses, settle_down
 
 
 class Bridge(Router):
+    init_host = 'localhost'
+
     def __init__(self):
         rule = PeerRoutingRule(self, {
             "spawn": [sys.executable, mockpeer.__file__],

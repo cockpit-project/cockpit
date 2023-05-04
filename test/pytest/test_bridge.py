@@ -78,7 +78,6 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         await self.transport.assert_msg('', command='done', channel=echo)
         await self.transport.assert_msg('', command='close', channel=echo)
 
-    @unittest.skip
     async def test_host(self):
         await self.start()
 
@@ -88,14 +87,14 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         # try to open a null channel, no host
         await self.transport.check_open('null')
 
-        # try to open a null channel, a different host (not yet supported)
-        await self.transport.check_open('null', host='other', problem='not-supported')
+        # try to open a null channel, a different host which is sure to fail DNS
+        await self.transport.check_open('null', host='¡invalid!', problem='no-host')
 
         # make sure host check happens before superuser
         # ie: requesting superuser=True on another host should fail because we
-        # can't contact the other host ('not-supported'), rather than trying to
-        # first go to our superuser self.bridge ('access-denied')
-        await self.transport.check_open('null', host='other', superuser=True, problem='not-supported')
+        # can't contact the other host ('no-host'), rather than trying to first
+        # go to our superuser self.bridge ('access-denied')
+        await self.transport.check_open('null', host='¡invalid!', superuser=True, problem='no-host')
 
         # but make sure superuser is indeed failing as we expect, on our host
         await self.transport.check_open('null', host=MOCK_HOSTNAME, superuser=True, problem='access-denied')

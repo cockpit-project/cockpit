@@ -175,12 +175,6 @@ class CockpitProtocol(asyncio.Protocol):
             else:
                 self._communication_done.set_exception(exc)
 
-    def write_frame(self, frame):
-        frame_length = len(frame)
-        header = f'{frame_length}\n'.encode('ascii')
-        if self.transport is not None:
-            self.transport.write(header + frame)
-
     def write_channel_data(self, channel, payload):
         """Send a given payload (bytes) on channel (string)"""
         # Channel is certainly ascii (as enforced by .encode() below)

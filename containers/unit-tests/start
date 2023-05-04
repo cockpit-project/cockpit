@@ -54,6 +54,7 @@ class PodmanTemporaryDirectory(tempfile.TemporaryDirectory):
     """TemporaryDirectory subclass capable of removing files owned by subuids"""
     @classmethod
     def _rmtree(cls, name, ignore_errors=False):
+        del ignore_errors  # can't remove or rename this kwarg
         podman('unshare', 'rm', '-r', name)
 
     def __enter__(self):

@@ -217,16 +217,13 @@ class DiskSampler(Sampler):
         with open('/proc/diskstats') as diskstats:
             all_read_bytes = 0
             all_written_bytes = 0
-            num_ops = 0
 
             for line in diskstats:
                 # https://www.kernel.org/doc/Documentation/ABI/testing/procfs-diskstats
                 fields = line.strip().split()
                 dev_major = fields[0]
                 dev_name = fields[2]
-                num_reads_merged = fields[4]
                 num_sectors_read = fields[5]
-                num_writes_merged = fields[8]
                 num_sectors_written = fields[9]
 
                 # ignore device-mapper and md
@@ -246,7 +243,6 @@ class DiskSampler(Sampler):
 
                 all_read_bytes += read_bytes
                 all_written_bytes += written_bytes
-                num_ops += int(num_reads_merged) + int(num_writes_merged)
 
                 samples['disk.dev.read'][dev_name] = read_bytes
                 samples['disk.dev.written'][dev_name] = written_bytes

@@ -343,7 +343,13 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
         assert isinstance(protocol.exc, BrokenPipeError)
 
     async def test_window_size(self) -> None:
-        protocol, transport = self.subprocess(['bash', '-ic', 'while true; do sleep 0.1; echo ${LINES}x${COLUMNS}; done'],
+        protocol, transport = self.subprocess(['bash', '-ic',
+                                               '''
+                                                   while true; do
+                                                       sleep 0.1
+                                                       echo ${LINES}x${COLUMNS}
+                                                   done
+                                               '''],
                                               pty=True,
                                               window={"rows": 22, "cols": 33})
         protocol.output = []

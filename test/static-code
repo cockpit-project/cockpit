@@ -35,15 +35,13 @@ test_ruff() {
     ruff check --no-cache .
 }
 
-test_pyvulture() {
-    # vulture to find unused variables/functions
-
-    python3 -c 'import vulture' 2>/dev/null || skip 'no python3-vulture'
-    find_python_files | xargs -r -0 python3 -m vulture \
-        --min-confidence "${VULTURE_CONFIDENCE:-100}" \
-        --ignore-names 'do_*,test[A-Z0-9]*,__*__,ignore_errors' \
-        --ignore-decorators '@*'
-}
+if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
+    test_pyvulture() {
+        # vulture to find unused variables/functions
+        command -v vulture >/dev/null || skip 'no vulture'
+        find_python_files | xargs -r -0 vulture
+    }
+fi
 
 test_js_translatable_strings() {
     # Translatable strings must be marked with _(""), not _('')

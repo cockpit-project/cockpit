@@ -31,7 +31,7 @@ fi
     cd "${tmpdir}"
     git init -qb main .
     git add .
-    test/static-code
+    WITH_PARTIAL_TREE=1 test/static-code
 )
 
 # paranoia: make sure we delete what we think we will

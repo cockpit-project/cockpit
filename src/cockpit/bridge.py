@@ -159,6 +159,7 @@ def try_to_receive_stderr():
 
     try:
         stderr_fd, = fds
+        os.dup(2)
         os.dup2(stderr_fd, 2)
     finally:
         for fd in fds:

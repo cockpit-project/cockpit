@@ -43,9 +43,12 @@ class TestPackages(unittest.TestCase):
         os.environ['XDG_DATA_DIRS'] = str(self.workdir)
         os.environ['XDG_DATA_HOME'] = '/nonexisting'
 
-        (self.package_dir / 'basic').mkdir()
-        (self.package_dir / 'basic' / 'manifest.json').write_text(
-            '{"description": "standard package", "requires": {"cockpit": "42"}}')
+        self.make_package('basic', description="standard package", requires={"cockpit": "42"})
+
+    def make_package(self, dirname: str, **kwargs: object) -> None:
+        (self.package_dir / dirname).mkdir()
+        with (self.package_dir / dirname / 'manifest.json').open('w') as file:
+            json.dump(kwargs, file, indent=2)
 
     def test_basic(self):
         packages = Packages()
@@ -87,10 +90,8 @@ class TestPackages(unittest.TestCase):
         }
 
     def test_priority(self):
-        (self.package_dir / 'vip').mkdir()
-        (self.package_dir / 'vip' / 'manifest.json').write_text('{"name": "basic", "description": "VIP", "priority": 100}')
-        (self.package_dir / 'guest').mkdir()
-        (self.package_dir / 'guest' / 'manifest.json').write_text('{"description": "Guest"}')
+        self.make_package('vip', name='basic', description='VIP', priority=100)
+        self.make_package('guest', description='Guest')
 
         packages = Packages()
         assert len(packages.packages) == 2
@@ -104,28 +105,30 @@ class TestPackages(unittest.TestCase):
         assert parsed['basic'] == {'name': 'basic', 'description': 'VIP', 'priority': 100}
         assert parsed['guest'] == {'description': 'Guest'}
 
-    def add_conditional_manifest(self, name, conditions):
-        (self.package_dir / name).mkdir()
-        (self.package_dir / name / 'manifest.json').write_text(f'{{"conditions": [ {conditions} ] }}')
-
     def test_conditions(self):
-        self.add_conditional_manifest('empty', '')
+        self.make_package('empty', conditions=[])
 
         # path-exists only
-        self.add_conditional_manifest('exists-1-yes', '{"path-exists": "/usr"}')
-        self.add_conditional_manifest('exists-1-no', '{"path-exists": "/nonexisting"}')
-        self.add_conditional_manifest('exists-2-yes', '{"path-exists": "/usr"}, {"path-exists": "/bin/sh"}')
-        self.add_conditional_manifest('exists-2-no', '{"path-exists": "/usr"}, {"path-exists": "/nonexisting"}')
+        self.make_package('exists-1-yes', conditions=[{'path-exists': '/usr'}])
+        self.make_package('exists-1-no', conditions=[{'path-exists': '/nonexisting'}])
+        self.make_package('exists-2-yes', conditions=[{"path-exists": "/usr"},
+                                                      {"path-exists": "/bin/sh"}])
+        self.make_package('exists-2-no', conditions=[{"path-exists": "/usr"},
+                                                     {"path-exists": "/nonexisting"}])
 
         # path-not-exists only
-        self.add_conditional_manifest('notexists-1-yes', '{"path-not-exists": "/nonexisting"}')
-        self.add_conditional_manifest('notexists-1-no', '{"path-not-exists": "/usr"}')
-        self.add_conditional_manifest('notexists-2-yes', '{"path-not-exists": "/nonexisting"}, {"path-not-exists": "/obscure"}')
-        self.add_conditional_manifest('notexists-2-no', '{"path-not-exists": "/nonexisting"}, {"path-not-exists": "/usr"}')
+        self.make_package('notexists-1-yes', conditions=[{"path-not-exists": "/nonexisting"}])
+        self.make_package('notexists-1-no', conditions=[{"path-not-exists": "/usr"}])
+        self.make_package('notexists-2-yes', conditions=[{"path-not-exists": "/nonexisting"},
+                                                         {"path-not-exists": "/obscure"}])
+        self.make_package('notexists-2-no', conditions=[{"path-not-exists": "/nonexisting"},
+                                                        {"path-not-exists": "/usr"}])
 
         # mixed
-        self.add_conditional_manifest('mixed-yes', '{"path-exists": "/usr"}, {"path-not-exists": "/nonexisting"}')
-        self.add_conditional_manifest('mixed-no', '{"path-exists": "/nonexisting"}, {"path-not-exists": "/obscure"}')
+        self.make_package('mixed-yes', conditions=[{"path-exists": "/usr"},
+                                                   {"path-not-exists": "/nonexisting"}])
+        self.make_package('mixed-no', conditions=[{"path-exists": "/nonexisting"},
+                                                  {"path-not-exists": "/obscure"}])
 
         packages = Packages()
         assert set(packages.packages.keys()) == {
@@ -133,20 +136,21 @@ class TestPackages(unittest.TestCase):
         }
 
     def test_conditions_errors(self):
-        self.add_conditional_manifest('broken-syntax-1', '1')
-        self.add_conditional_manifest('broken-syntax-2', '["path-exists"]')
-        self.add_conditional_manifest('broken-syntax-3', '{"path-exists": "/foo", "path-not-exists": "/bar"}')
+        self.make_package('broken-syntax-1', conditions=[1])
+        self.make_package('broken-syntax-2', conditions=[["path-exists"]])
+        self.make_package('broken-syntax-3', conditions=[{"path-exists": "/foo", "path-not-exists": "/bar"}])
 
-        self.add_conditional_manifest('unknown-predicate-good', '{"path-exists": "/usr"}, {"frobnicated": true}')
-        self.add_conditional_manifest('unknown-predicate-bad', '{"path-exists": "/nonexisting"}, {"frobnicated": true}')
+        self.make_package('unknown-predicate-good', conditions=[{"path-exists": "/usr"},
+                                                                {"frobnicated": True}])
+        self.make_package('unknown-predicate-bad', conditions=[{"path-exists": "/nonexisting"},
+                                                               {"frobnicated": True}])
 
         packages = Packages()
         assert set(packages.packages.keys()) == {'basic', 'unknown-predicate-good'}
 
     def test_condition_hides_priority(self):
-        (self.package_dir / 'vip').mkdir()
-        (self.package_dir / 'vip' / 'manifest.json').write_text(
-            '{"name": "basic", "description": "VIP", "priority": 100, "conditions": [{"path-exists": "/nonexisting"}]}')
+        self.make_package('vip', name="basic", description="VIP", priority=100,
+                          conditions=[{"path-exists": "/nonexisting"}])
 
         packages = Packages()
         assert packages.packages['basic'].name == 'basic'

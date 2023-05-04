@@ -495,9 +495,6 @@ class Spooler:
             self._contents = []
         return result
 
-    def is_closed(self) -> bool:
-        return self._fd == -1
-
     def close(self) -> None:
         if self._fd != -1:
             self._loop.remove_reader(self._fd)

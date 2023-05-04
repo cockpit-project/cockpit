@@ -11,18 +11,22 @@ import tempfile
 from pathlib import Path
 from typing import Dict
 
-from cockpit._vendor import systemd_ctypes
+from cockpit._vendor.systemd_ctypes import bus, EventLoopPolicy
 from cockpit.bridge import Bridge
 from cockpit.channels import CHANNEL_TYPES
 
 from mocktransport import MockTransport, MOCK_HOSTNAME, settle_down
 
-asyncio.set_event_loop_policy(systemd_ctypes.EventLoopPolicy())
+asyncio.set_event_loop_policy(EventLoopPolicy())
 
 
-class test_iface(systemd_ctypes.bus.Object):
-    sig = systemd_ctypes.bus.Interface.Signal('s')
-    prop = systemd_ctypes.bus.Interface.Property('s', value='none')
+class test_iface(bus.Object):
+    sig = bus.Interface.Signal('s')
+    prop = bus.Interface.Property('s', value='none')
+
+    @bus.Interface.Method('s')
+    def get_prop(self) -> str:
+        return self.prop
 
 
 class TestBridge(unittest.IsolatedAsyncioTestCase):
@@ -111,6 +115,9 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
                                                       'GetAll', ["test.iface"])
         assert values == {'Prop': {'t': 's', 'v': 'none'}}
 
+        result, = await self.transport.check_bus_call('/foo', 'test.iface', 'GetProp', [])
+        assert result == 'none'
+
     async def test_dbus_watch(self):
         await self.start()
 
@@ -125,7 +132,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         self.transport.send_json(internal, watch={'path': '/foo', 'interface': 'test.iface'}, id='4')
         meta = await self.transport.next_msg(internal)
         assert meta['meta']['test.iface'] == {
-            'methods': {},
+            'methods': {'GetProp': {'in': [], 'out': ['s']}},
             'properties': {'Prop': {'flags': 'r', 'type': 's'}},
             'signals': {'Sig': {'in': ['s']}}
         }

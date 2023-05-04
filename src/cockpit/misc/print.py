@@ -169,7 +169,7 @@ def get_commands(args: list[str]) -> Iterable[list[str]]:
             yield command
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--no-wait', action='store_true',
                         help="Don't for [Enter] after printing, before exit")
@@ -196,7 +196,7 @@ def main():
             printer.init()
         need_init = False
 
-        args: list[object] = []
+        positional: list[object] = []
         kwargs: dict[str, object] = {}
         func = getattr(printer, command[0])
 
@@ -222,9 +222,9 @@ def main():
             if key is not None:
                 kwargs[key] = value
             else:
-                args.append(value)
+                positional.append(value)
 
-        func(*args, **kwargs)
+        func(*positional, **kwargs)
 
 
 if __name__ == '__main__':

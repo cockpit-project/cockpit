@@ -136,7 +136,7 @@ select.pf-c-form-control {
       // https://github.com/patternfly/patternfly/issues/3713
       // https://github.com/patternfly/patternfly/issues/4362
       margin: unset;
-      padding-left: unset;
+      padding-inline: var(--pf-c-card__actions--PaddingLeft) unset;
     }
   }
 }
@@ -309,12 +309,83 @@ select.pf-c-form-control {
   }
 }
 
+// Fix icons in buttons
+.pf-c-button__icon.pf-m-start {
+  margin-inline: 0 var(--pf-c-button__icon--m-start--MarginRight);
+}
+
+// RTL fix: Modal close button
+.pf-c-modal {
+  &-box__header {
+    padding-inline: var(--pf-c-modal-box__header--PaddingRight) var(--pf-c-modal-box__header--PaddingLeft);
+  }
+
+  &-box__close {
+    text-align: end;
+    inset-inline: auto var(--pf-c-modal-box__close--Right);
+
+    + * {
+      margin-inline: 0 var(--pf-c-modal-box__close--sibling--MarginRight);
+    }
+  }
+}
+
+// RTL fix: Menu item alignment
+.pf-c-menu__item-main {
+  text-align: start;
+}
+
+// RTL fix: inline button alignment
+.pf-c-button.pf-m-link.pf-m-inline {
+  text-align: start;
+}
+
+// RTL fix: alert icons
+.pf-c-alert__icon {
+  margin-inline: 0 var(--pf-c-alert__icon--MarginRight);
+}
+
+// RTL fix: card
+.pf-c-card__actions {
+  padding-left: unset;
+  padding-inline: var(--pf-c-card__actions--PaddingLeft) 0;
+}
+
+// RTL fix: table
+.pf-c-table tr > * {
+  padding-inline: var(--pf-c-table--cell--PaddingLeft) var(--pf-c-table--cell--PaddingRight);
+}
+
+// RTL fix: description lists
+.pf-c-description-list__term, .pf-c-description-list__description {
+  text-align: start;
+}
+
+// RTL fix: about modal
+.pf-c-about-modal-box__close {
+  padding-inline: 0 var(--pf-c-about-modal-box__close--PaddingRight);
+}
+
+// RTL fix: card toggle
+.pf-c-card__header-toggle-icon {
+  margin-inline: var(--pf-c-card__header-toggle--MarginLeft) var(--pf-c-card__header-toggle--MarginRight);
+
+  [dir="rtl"] {
+    transform: scaleX(-1);
+  }
+}
+
+// RTL fix: Select toggle
+.pf-c-select__toggle {
+  padding-inline: var(--pf-c-select__toggle--PaddingLeft) var(--pf-c-select__toggle--PaddingRight);
+}
+
 // Override PF to fix Right to Left languages
 [dir="rtl"] {
   // Flip outlines for buttons
   .pf-m-split-button {
     button::before {
-      transform: scaleX(-100%);
+      transform: scaleX(-1);
     }
   }
 
@@ -337,7 +408,7 @@ select.pf-c-form-control {
     &, &:hover, &:not(.pf-m-expanded) .pf-c-nav__link {
       &::after {
         width: 100%;
-        transform: scaleX(-100%);
+        transform: scaleX(-1);
       }
     }
   }
@@ -365,15 +436,13 @@ select.pf-c-form-control {
   // Flip popup directions, part 1 of 2
   .pf-c-dropdown .pf-c-menu.pf-m-align-right,
   .pf-c-dropdown__menu.pf-m-align-right {
-    right: unset;
-    left: 0;
+    inset-inline: unset 0;
   }
 
   // Flip popup directions, part 2 of 2
   .pf-c-dropdown .pf-c-menu.pf-m-align-left,
   .pf-c-dropdown__menu.pf-m-align-left {
-    right: 0;
-    left: unset;
+    inset-inline: 0 unset;
   }
 
   // Another case of aligning to the left instead of start
@@ -383,7 +452,8 @@ select.pf-c-form-control {
 
   // Flip breadcrum divider
   .pf-c-breadcrumb__item-divider {
-    transform: scaleX(-100%);
+    transform: scaleX(-1);
+    margin-inline: 0 var(--pf-c-breadcrumb__item-divider--MarginRight);
   }
 }
 
@@ -393,8 +463,7 @@ select.pf-c-form-control {
 // except this only affects the sides, not the top and bottom.
 @media screen and (max-width: $pf-global--breakpoint--sm) {
   .pf-c-page__main > section.pf-c-page__main-section:not(.pf-m-padding) {
-    padding-left: 0;
-    padding-right: 0;
+    padding-inline: 0;
   }
 }
 

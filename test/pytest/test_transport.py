@@ -94,7 +94,7 @@ class Protocol(cockpit.transports.SubprocessProtocol):
 
 
 class TestSpooler(unittest.IsolatedAsyncioTestCase):
-    async def bad_fd(self) -> None:
+    async def test_bad_fd(self) -> None:
         # Make sure failing to construct succeeds without further failures
         loop = asyncio.get_running_loop()
         try:

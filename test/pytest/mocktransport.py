@@ -5,6 +5,8 @@ import subprocess
 
 from typing import Any, Dict, Iterable, Optional, Tuple
 
+from cockpit.router import Router
+
 MOCK_HOSTNAME = 'mockbox'
 
 
@@ -78,6 +80,7 @@ class MockTransport(asyncio.Transport):
         return channel
 
     async def check_open(self, payload, channel=None, problem=None, reply_keys: Optional[Dict[str, object]] = None, **kwargs):
+        assert isinstance(self.protocol, Router)
         ch = self.send_open(payload, channel, **kwargs)
         if problem is None:
             await self.assert_msg('', command='ready', channel=ch, **(reply_keys or {}))

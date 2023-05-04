@@ -119,7 +119,9 @@ class InterfaceCache:
         self.cache.update(interfaces)
 
     async def introspect_path(self, bus, destination, object_path):
-        xml, = await bus.call_method_async(destination, object_path, 'org.freedesktop.DBus.Introspectable', 'Introspect')
+        xml, = await bus.call_method_async(destination, object_path,
+                                           'org.freedesktop.DBus.Introspectable',
+                                           'Introspect')
 
         et = ET.fromstring(xml)
 
@@ -327,7 +329,8 @@ class DBusChannel(Channel):
                 return
             except KeyError:
                 self.send_message(error=["org.freedesktop.DBus.Error.UnknownMethod",
-                                         [f"Introspection data for method {iface} {method} not available"]], id=cookie)
+                                         [f"Introspection data for method {iface} {method} not available"]],
+                                  id=cookie)
                 return
             except Exception as exc:
                 self.send_message(error=['python.error', [f'Introspection: {str(exc)}']], id=cookie)
@@ -397,7 +400,9 @@ class DBusChannel(Channel):
         self.add_async_signal_handler(handler,
                                       path=path,
                                       interface="org.freedesktop.DBus.ObjectManager")
-        objects, = await self.bus.call_method_async(self.name, path, 'org.freedesktop.DBus.ObjectManager', 'GetManagedObjects')
+        objects, = await self.bus.call_method_async(self.name, path,
+                                                    'org.freedesktop.DBus.ObjectManager',
+                                                    'GetManagedObjects')
         for p, ifaces in objects.items():
             for iface, props in ifaces.items():
                 if interface_name is None or iface == interface_name:
@@ -447,7 +452,9 @@ class DBusChannel(Channel):
             if name.startswith("org.freedesktop.DBus."):
                 continue
             try:
-                props, = await self.bus.call_method_async(self.name, path, 'org.freedesktop.DBus.Properties', 'GetAll', 's', name)
+                props, = await self.bus.call_method_async(self.name, path,
+                                                          'org.freedesktop.DBus.Properties',
+                                                          'GetAll', 's', name)
                 notify_update(notify, path, name, props)
             except BusError:
                 pass

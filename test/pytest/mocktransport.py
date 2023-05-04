@@ -26,7 +26,7 @@ def assert_no_subprocesses():
     print('Some subprocesses still running', running)
     # Clear it out for the sake of the other tests
     subprocess.call(['pkill', '-9', '-P', f'{os.getpid()}'])
-    for _ in range(100):    # zombie vacuum
+    for _ in range(100):  # zombie vacuum
         os.waitpid(-1, os.WNOHANG)  # will eventually throw, failing the test (which we want)
     assert False  # more than 100?
 
@@ -79,7 +79,14 @@ class MockTransport(asyncio.Transport):
         self.send_json('', command='open', channel=channel, payload=payload, **kwargs)
         return channel
 
-    async def check_open(self, payload, channel=None, problem=None, reply_keys: Optional[Dict[str, object]] = None, **kwargs):
+    async def check_open(
+        self,
+        payload,
+        channel=None,
+        problem=None,
+        reply_keys: Optional[Dict[str, object]] = None,
+        **kwargs,
+    ):
         assert isinstance(self.protocol, Router)
         ch = self.send_open(payload, channel, **kwargs)
         if problem is None:
@@ -164,7 +171,12 @@ class MockTransport(asyncio.Transport):
         self.send_json(bus, call=[path, iface, name, args], id=tag)
         return tag
 
-    async def assert_bus_reply(self, tag: str, expected_reply: Optional[list] = None, bus: Optional[str] = None) -> list:
+    async def assert_bus_reply(
+        self,
+        tag: str,
+        expected_reply: Optional[list] = None,
+        bus: Optional[str] = None,
+    ) -> list:
         if bus is None:
             bus = await self.ensure_internal_bus()
         reply = await self.next_msg(bus)
@@ -184,25 +196,47 @@ class MockTransport(asyncio.Transport):
         assert 'error' in reply, reply
         assert reply['error'] == [code, [message]]
 
-    async def check_bus_call(self, path: str, iface: str, name: str, args: list, expected_reply: Optional[list] = None, bus: Optional[str] = None) -> list:
+    async def check_bus_call(
+        self,
+        path: str,
+        iface: str,
+        name: str,
+        args: list,
+        expected_reply: Optional[list] = None,
+        bus: Optional[str] = None,
+    ) -> list:
         if bus is None:
             bus = await self.ensure_internal_bus()
         tag = self.send_bus_call(bus, path, iface, name, args)
         return await self.assert_bus_reply(tag, expected_reply, bus=bus)
 
-    async def assert_bus_props(self, path: str, iface: str, expected_values: Dict[str, object], bus: Optional[str] = None) -> None:
-        values, = await self.check_bus_call(path, 'org.freedesktop.DBus.Properties', 'GetAll', [iface], bus=bus)
+    async def assert_bus_props(
+        self, path: str, iface: str, expected_values: Dict[str, object], bus: Optional[str] = None
+    ) -> None:
+        (values,) = await self.check_bus_call(path, 'org.freedesktop.DBus.Properties', 'GetAll', [iface], bus=bus)
         for key, value in expected_values.items():
             assert values[key]['v'] == value
 
-    async def assert_bus_meta(self, path: str, iface: str, expected: Iterable[str], bus: Optional[str] = None) -> None:
+    async def assert_bus_meta(
+        self,
+        path: str,
+        iface: str,
+        expected: Iterable[str],
+        bus: Optional[str] = None,
+    ) -> None:
         if bus is None:
             bus = await self.ensure_internal_bus()
         meta = await self.next_msg(bus)
         assert 'meta' in meta, meta
         assert set(meta['meta'][iface]['properties']) == set(expected)
 
-    async def assert_bus_notify(self, path: str, iface: str, expected: Dict[str, object], bus: Optional[str] = None) -> None:
+    async def assert_bus_notify(
+        self,
+        path: str,
+        iface: str,
+        expected: Dict[str, object],
+        bus: Optional[str] = None,
+    ) -> None:
         if bus is None:
             bus = await self.ensure_internal_bus()
         notify = await self.next_msg(bus)
@@ -218,7 +252,14 @@ class MockTransport(asyncio.Transport):
         await self.assert_bus_notify(path, iface, expected, bus)
         await self.assert_msg(bus, id=tag, reply=[])
 
-    async def assert_bus_signal(self, path: str, iface: str, name: str, args: list, bus: Optional[str] = None) -> None:
+    async def assert_bus_signal(
+        self,
+        path: str,
+        iface: str,
+        name: str,
+        args: list,
+        bus: Optional[str] = None,
+    ) -> None:
         if bus is None:
             bus = await self.ensure_internal_bus()
         signal = await self.next_msg(bus)

@@ -44,7 +44,8 @@ SET_PDEATHSIG = 1
 class SocketStreamChannel(ProtocolChannel):
     payload = 'stream'
 
-    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> asyncio.Transport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop,
+                               options: Dict[str, object]) -> asyncio.Transport:
         if 'unix' in options and 'port' in options:
             raise ChannelError('protocol-error', message='cannot specify both "port" and "unix" options')
 
@@ -67,12 +68,14 @@ class SocketStreamChannel(ProtocolChannel):
                 host = options.get('address', 'localhost')
                 # TODO: generic JSON validation
                 if not isinstance(host, str):
-                    raise ChannelError('protocol-error', message='"address" option for stream channel must be a string')
+                    raise ChannelError('protocol-error',
+                                       message='"address" option for stream channel must be a string')
                 label = f'TCP socket {host}:{port}'
 
                 transport, _ = await loop.create_connection(lambda: self, host, port)
             else:
-                raise ChannelError('protocol-error', message='no "port" or "unix" or other address option for channel')
+                raise ChannelError('protocol-error',
+                                   message='no "port" or "unix" or other address option for channel')
 
             logger.debug('SocketStreamChannel: connected to %s', label)
         except OSError as error:
@@ -107,7 +110,8 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         if window is not None:
             self._transport.set_window_size(**window)
 
-    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SubprocessTransport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop,
+                               options: Dict[str, object]) -> SubprocessTransport:
         args = options['spawn']
 
         # TODO: generic JSON validation

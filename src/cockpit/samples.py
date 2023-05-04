@@ -31,6 +31,36 @@ HWMON_PATH = '/sys/class/hwmon'
 Samples = DefaultDict[str, Any]
 
 
+def read_int_file(rootfd: int, statfile: str, include_zero: bool = False, key: bytes = b'') -> Optional[int]:
+    # Not every stat is available, such as cpu.weight
+    try:
+        fd = os.open(statfile, os.O_RDONLY, dir_fd=rootfd)
+    except FileNotFoundError:
+        return None
+
+    try:
+        data = os.read(fd, 1024)
+    finally:
+        os.close(fd)
+
+    if key:
+        start = data.index(key) + len(key)
+        end = data.index(b'\n', start)
+        # cpu.stat are in usecs
+        value = int(data[start:end])
+    else:
+        # Some samples such as "memory.max" contains "max" when there is a no limit
+        try:
+            value = int(data)
+        except ValueError:
+            return None
+
+    if value > 0 or include_zero:
+        return value
+
+    return None
+
+
 class SampleDescription(NamedTuple):
     name: str
     units: str
@@ -237,36 +267,6 @@ class CGroupSampler(Sampler):
 
     cgroups_v2: Optional[bool] = None
 
-    @staticmethod
-    def read_cgroup_integer_stat(rootfd: int, statfile: str, include_zero: bool = False, key: bytes = b'') -> Optional[int]:
-        # Not every stat is available, such as cpu.weight
-        try:
-            fd = os.open(statfile, os.O_RDONLY, dir_fd=rootfd)
-        except FileNotFoundError:
-            return None
-
-        try:
-            data = os.read(fd, 1024)
-        finally:
-            os.close(fd)
-
-        if key:
-            start = data.index(key) + len(key)
-            end = data.index(b'\n', start)
-            # cpu.stat are in usecs
-            value = int(data[start:end])
-        else:
-            # Some samples such as "memory.max" contains "max" when there is a no limit
-            try:
-                value = int(data)
-            except ValueError:
-                return None
-
-        if value > 0 or include_zero:
-            return value
-
-        return None
-
     def sample(self, samples: Samples) -> None:
         if self.cgroups_v2 is None:
             self.cgroups_v2 = os.path.exists('/sys/fs/cgroup/cgroup.controllers')
@@ -279,12 +279,12 @@ class CGroupSampler(Sampler):
                 if not cgroup:
                     continue
 
-                samples['cgroup.memory.usage'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.current', True)
-                samples['cgroup.memory.limit'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.max')
-                samples['cgroup.memory.sw-usage'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.swap.current', True)
-                samples['cgroup.memory.sw-limit'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.swap.max')
-                samples['cgroup.cpu.shares'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'cpu.weight')
-                usage_usec = self.read_cgroup_integer_stat(rootfd, 'cpu.stat', True, key=b'usage_usec')
+                samples['cgroup.memory.usage'][cgroup] = read_int_file(rootfd, 'memory.current', True)
+                samples['cgroup.memory.limit'][cgroup] = read_int_file(rootfd, 'memory.max')
+                samples['cgroup.memory.sw-usage'][cgroup] = read_int_file(rootfd, 'memory.swap.current', True)
+                samples['cgroup.memory.sw-limit'][cgroup] = read_int_file(rootfd, 'memory.swap.max')
+                samples['cgroup.cpu.shares'][cgroup] = read_int_file(rootfd, 'cpu.weight')
+                usage_usec = read_int_file(rootfd, 'cpu.stat', True, key=b'usage_usec')
                 if usage_usec:
                     samples['cgroup.cpu.usage'][cgroup] = usage_usec / 1000
         else:
@@ -295,10 +295,10 @@ class CGroupSampler(Sampler):
                 if not cgroup:
                     continue
 
-                samples['cgroup.memory.usage'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.usage_in_bytes', True)
-                samples['cgroup.memory.limit'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.limit_in_bytes')
-                samples['cgroup.memory.sw-usage'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.memsw.usage_in_bytes', True)
-                samples['cgroup.memory.sw-limit'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.memsw.limit_in_bytes')
+                samples['cgroup.memory.usage'][cgroup] = read_int_file(rootfd, 'memory.usage_in_bytes', True)
+                samples['cgroup.memory.limit'][cgroup] = read_int_file(rootfd, 'memory.limit_in_bytes')
+                samples['cgroup.memory.sw-usage'][cgroup] = read_int_file(rootfd, 'memory.memsw.usage_in_bytes', True)
+                samples['cgroup.memory.sw-limit'][cgroup] = read_int_file(rootfd, 'memory.memsw.limit_in_bytes')
 
             cpu_path = '/sys/fs/cgroup/cpu/'
             for path, _, _, rootfd in os.fwalk(cpu_path):
@@ -307,8 +307,8 @@ class CGroupSampler(Sampler):
                 if not cgroup:
                     continue
 
-                samples['cgroup.cpu.shares'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'cpu.shares')
-                usage_nsec = self.read_cgroup_integer_stat(rootfd, 'cpuacct.usage')
+                samples['cgroup.cpu.shares'][cgroup] = read_int_file(rootfd, 'cpu.shares')
+                usage_nsec = read_int_file(rootfd, 'cpuacct.usage')
                 if usage_nsec:
                     samples['cgroup.cpu.usage'][cgroup] = usage_nsec / 1000000
 

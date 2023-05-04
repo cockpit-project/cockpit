@@ -28,6 +28,7 @@ import socket
 import subprocess
 from typing import Dict, Iterable, List, Tuple, Type
 
+from cockpit._vendor.ferny import interaction_client
 from cockpit._vendor.systemd_ctypes import bus, run_async
 
 from . import polyfills
@@ -150,24 +151,25 @@ async def run(args) -> None:
 
 
 def try_to_receive_stderr():
-    fds = []
     try:
-        stderr_socket = socket.fromfd(2, socket.AF_UNIX, socket.SOCK_STREAM)
         ours, theirs = socket.socketpair()
-        socket.send_fds(stderr_socket, [b'\0ferny\0(["send-stderr"], {})'], [theirs.fileno(), 1])
-        theirs.close()
-        _msg, fds, _flags, _addr = socket.recv_fds(ours, 1, 1)
+        with ours:
+            with theirs:
+                interaction_client.command(2, 'cockpit.send-stderr', fds=[theirs.fileno()])
+            _msg, fds, _flags, _addr = socket.recv_fds(ours, 1, 1)
     except OSError:
         return
 
-    if fds:
-        # This is our new stderr.  We have to be careful not to leak it.
+    try:
         stderr_fd, = fds
-
-        try:
-            os.dup2(stderr_fd, 2)
-        finally:
-            os.close(stderr_fd)
+        # We're about to abruptly drop our end of the stderr socketpair that we
+        # share with the ferny agent.  ferny would normally treat that as an
+        # unexpected error. Instruct it to do a clean exit, instead.
+        interaction_client.command(2, 'ferny.end')
+        os.dup2(stderr_fd, 2)
+    finally:
+        for fd in fds:
+            os.close(fd)
 
 
 def setup_logging(*, debug: bool):

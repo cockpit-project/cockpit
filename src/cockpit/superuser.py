@@ -19,8 +19,9 @@ import asyncio
 import logging
 import getpass
 import os
+import socket
 
-from typing import Dict, List, Optional, Sequence, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from ._vendor.systemd_ctypes import bus
 from ._vendor import ferny
@@ -44,7 +45,15 @@ class SuperuserPeer(ConfiguredPeer):
         return transport
 
 
-class AuthorizeResponder(ferny.InteractionResponder):
+class CockpitResponder(ferny.InteractionResponder):
+    async def do_custom_command(self, command: str, args: Tuple, fds: List[int], stderr: str) -> None:
+        if command == 'cockpit.send-stderr':
+            with socket.socket(fileno=fds[0]) as sock:
+                fds.pop(0)
+                socket.send_fds(sock, [b'\0'], [2])
+
+
+class AuthorizeResponder(CockpitResponder):
     def __init__(self, router: Router):
         self.router = router
 
@@ -53,7 +62,7 @@ class AuthorizeResponder(ferny.InteractionResponder):
         return await self.router.request_authorization(f'plain1:{hexuser}')
 
 
-class SuperuserRoutingRule(RoutingRule, ferny.InteractionResponder, bus.Object, interface='cockpit.Superuser'):
+class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface='cockpit.Superuser'):
     superuser_configs: Dict[str, Dict[str, object]]
     pending_prompt: Optional[asyncio.Future]
     peer: Optional[Peer]

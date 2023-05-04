@@ -7,7 +7,7 @@ pw = os.environ.get('PSEUDO_PASSWORD')
 if pw:
     reader, writer = os.pipe()
     # '-' is the (ignored) argv[0], and 'can haz pw' is the message in argv[1]
-    interaction_client.interact(2, writer, ['-', 'can haz pw?'], {})
+    interaction_client.askpass(2, writer, ['-', 'can haz pw?'], {})
     os.close(writer)
 
     response = os.read(reader, 1024).decode('utf-8').strip()

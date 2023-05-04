@@ -150,7 +150,7 @@ class FsReplaceChannel(Channel):
     def do_data(self, data):
         if self._tempfile is None:
             # keep this bounded, in case anything unexpected goes wrong
-            for i in range(10):
+            for _ in range(10):
                 suffix = ''.join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789_", k=6))
                 self._temppath = f'{self._path}.cockpit-tmp.{suffix}'
                 try:

@@ -94,7 +94,7 @@ def parse_sourcemap(f, line_starts, dir_name):
         if "node_modules" not in s and (s.endswith(".js") or s.endswith(".jsx")):
             our_sources.add(s)
 
-    dst_col, src_id, src_line, src_col = 0, 0, 0, 0
+    dst_col, src_id, src_line = 0, 0, 0
     for dst_line, line in enumerate(lines):
         segments = line.split(',')
         dst_col = 0
@@ -109,7 +109,6 @@ def parse_sourcemap(f, line_starts, dir_name):
                 src_id += parse[1]
                 src = sources[src_id]
                 src_line += parse[2]
-                src_col += parse[3]
 
             if src in our_sources:
                 norm_src = os.path.normpath(os.path.join(dir_name, src))

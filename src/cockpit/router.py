@@ -63,9 +63,6 @@ class Endpoint:
     def __init__(self, router: 'Router'):
         self.router = router
 
-    def endpoint_is_frozen(self) -> bool:
-        return self.__endpoint_frozen_queue is not None
-
     def freeze_endpoint(self):
         assert self.__endpoint_frozen_queue is None
         logger.debug('Freezing endpoint %s', self)

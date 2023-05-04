@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -B
 
 import argparse
 import glob
@@ -27,7 +27,6 @@ import testvm   # NOQA: imported through parent.py
 
 from lcov import prepare_for_code_coverage, create_coverage_report  # NOQA: E402
 
-sys.dont_write_bytecode = True
 os.environ['PYTHONUNBUFFERED'] = '1'
 
 

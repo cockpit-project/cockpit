@@ -175,7 +175,6 @@ class Package:
         self.manifest = patch_libexecdir(self.manifest)
 
         self.name = self.manifest.get('name', path.name)
-        self.content_security_policy = None
         self.priority = self.manifest.get('priority', 1)
         self.bridges = self.manifest.get('bridges', [])
 

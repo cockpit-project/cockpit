@@ -2278,9 +2278,7 @@ def timeout(seconds: str):
 
 
 class TapRunner:
-
     def __init__(self, verbosity=1):
-        self.stream = unittest.runner._WritelnDecorator(sys.stderr)
         self.verbosity = verbosity
 
     def runOne(self, test):

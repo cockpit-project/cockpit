@@ -3,6 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Cockpit <cockpit@cockpit-project.org>
 Build-Depends: debhelper-compat (= 13),
+               dh-python,
                gettext (>= 0.19.7),
                gettext (>= 0.21) | appstream,
                libssh-dev (>= 0.8.5),
@@ -23,8 +24,14 @@ Build-Depends: debhelper-compat (= 13),
                xmlto,
                docbook-xsl,
                glib-networking,
-               openssh-client <!nocheck>,
                python3,
+               python3-pip,
+               python3-setuptools,
+               python3-wheel,
+               openssh-client <!nocheck>,
+               procps <!nocheck>,
+               python3-pytest-asyncio <!nocheck>,
+               python3-pytest-timeout <!nocheck>,
 Standards-Version: 4.6.2
 Homepage: https://cockpit-project.org/
 Vcs-Git: https://salsa.debian.org/utopia-team/cockpit.git
@@ -56,7 +63,9 @@ Package: cockpit-bridge
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
+         ${python3:Depends},
          glib-networking
+Recommends: openssh-client
 Provides: cockpit-ssh
 Breaks: cockpit-ws (<< 181.x),
 Replaces: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)

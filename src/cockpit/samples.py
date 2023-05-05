@@ -151,7 +151,12 @@ class CPUTemperatureSampler(Sampler):
 
     @staticmethod
     def scan_sensors() -> Iterable[str]:
-        with Handle.open(HWMON_PATH, os.O_RDONLY | os.O_DIRECTORY) as top_fd:
+        try:
+            top_fd = Handle.open(HWMON_PATH, os.O_RDONLY | os.O_DIRECTORY)
+        except FileNotFoundError:
+            return
+
+        with top_fd:
             for hwmon_name in os.listdir(top_fd):
                 with Handle.open(hwmon_name, os.O_RDONLY | os.O_DIRECTORY, dir_fd=top_fd) as subdir_fd:
                     for sensor in CPUTemperatureSampler.detect_cpu_sensors(subdir_fd):

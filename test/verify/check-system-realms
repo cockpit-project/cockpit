@@ -339,7 +339,7 @@ class CommonTests:
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         self.wait_reboot()
-
+        
         self.allow_journal_messages(".*No authentication agent found.*")
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')

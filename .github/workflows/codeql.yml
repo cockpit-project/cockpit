@@ -1,5 +1,9 @@
 name: CodeQL
-on: [pull_request]
+on:
+  push:
+    branches: [main, rhel-*]
+  pull_request:
+    branches: [main, rhel-*]
 
 jobs:
   analyze:

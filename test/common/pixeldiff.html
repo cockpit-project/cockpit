@@ -27,6 +27,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+.pixelcompare-wrapper {
+  background: red;
+}
 .pixelcompare-wrapper.pixelcompare-horizontal {
   height: 100% !important;
 }
@@ -38,7 +41,6 @@ SOFTWARE.
   z-index: 30;
 }
 img.pixelcompare-before, img.pixelcompare-after {
-  height: 100%;
   object-fit: cover;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -571,33 +573,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const img_now = document.createElement("img");
     img_now.setAttribute("src", base + "-pixels.png");
-    img_now.setAttribute("width", "100%");
 
     const img_ref = document.createElement("img");
     img_ref.setAttribute("src", base + "-reference.png");
-    img_ref.setAttribute("width", "100%");
 
     const img_delta = document.createElement("img");
     img_delta.setAttribute("src", base + "-delta.png");
-    img_delta.setAttribute("width", "100%");
 
-    img_now.addEventListener("load", () => {
-        const diff = document.getElementById("diff");
-        diff.style.width = img_now.naturalWidth + "px";
-        diff.style.height = img_now.naturalHeight + "px";
-        const ecompare = document.createElement("div");
-        ecompare.classList.add("pixelcompare");
-        ecompare.setAttribute("data-pixelcompare", "");
-        ecompare.appendChild(img_now);
-        ecompare.appendChild(img_ref);
-        diff.appendChild(ecompare);
-        window.setup_pixelcompare();
+    let loaded = { };
 
-        const delta = document.getElementById("delta");
-        delta.style.width = img_now.naturalWidth + "px";
-        delta.style.height = img_now.naturalHeight + "px";
-        delta.appendChild(img_delta);
-    });
+    function load_event(tag) {
+        loaded[tag] = true;
+        if (loaded.now && loaded.ref && loaded.delta) {
+            const diff = document.getElementById("diff");
+            const w = Math.max(img_now.naturalWidth, img_ref.naturalWidth);
+            const h = Math.max(img_now.naturalHeight, img_ref.naturalHeight);
+            diff.style.width = w + "px";
+            diff.style.height = h + "px";
+            const ecompare = document.createElement("div");
+            ecompare.classList.add("pixelcompare");
+            ecompare.setAttribute("data-pixelcompare", "");
+            ecompare.appendChild(img_now);
+            ecompare.appendChild(img_ref);
+            diff.appendChild(ecompare);
+            window.setup_pixelcompare();
+
+            const delta = document.getElementById("delta");
+            delta.style.width = img_delta.naturalWidth + "px";
+            delta.style.height = img_delta.naturalHeight + "px";
+            delta.appendChild(img_delta);
+        }
+    }
+
+    img_now.addEventListener("load", () => load_event("now"));
+    img_ref.addEventListener("load", () => load_event("ref"));
+    img_delta.addEventListener("load", () => load_event("delta"));
 });
         </script>
     </head

@@ -1073,7 +1073,9 @@ class Browser:
         else:
             img_now = Image.open(io.BytesIO(png_now)).convert("RGBA")
             img_ref = Image.open(io.BytesIO(png_ref)).convert("RGBA")
-            img_delta = img_ref.copy()
+            img_delta = Image.new("RGBA",
+                                  (max(img_now.size[0], img_ref.size[0]), max(img_now.size[1], img_ref.size[1])),
+                                  (255, 0, 0, 255))
 
             # The current snapshot and the reference don't need to
             # be perfectly identical.  They might differ in the
@@ -1110,17 +1112,17 @@ class Browser:
             def img_eq(ref, now, delta):
                 # This is slow but exactly what we want.
                 # ImageMath might be able to speed this up.
-                if ref.size != now.size:
-                    return False
                 data_ref = ref.load()
                 data_now = now.load()
                 data_delta = delta.load()
                 result = True
                 count = 0
-                width, height = ref.size
+                width, height = delta.size
                 for y in range(height):
                     for x in range(width):
-                        if data_ref[x, y] != data_now[x, y]:
+                        if x >= ref.size[0] or x >= now.size[0] or y >= ref.size[1] or y >= now.size[1]:
+                            result = False
+                        elif data_ref[x, y] != data_now[x, y]:
                             if masked(data_ref[x, y]) or ignorable_coord(x, y) or ignorable_change(data_ref[x, y], data_now[x, y]):
                                 data_delta[x, y] = (0, 255, 0, 255)
                             else:
@@ -1128,6 +1130,8 @@ class Browser:
                                 count += 1
                                 if count > 5:
                                     result = False
+                        else:
+                            data_delta[x, y] = data_ref[x, y]
                 return result
 
             if not img_eq(img_ref, img_now, img_delta):

@@ -249,12 +249,12 @@ class CockpitClient(Gtk.Application):
         self.no_ui = options.lookup_value('no-ui') is not None
 
         if options.lookup_value('disable-uniqueness'):
-            self.flags = Gio.ApplicationFlags.NON_UNIQUE
+            self.set_flags(Gio.ApplicationFlags.NON_UNIQUE)
 
         self.enable_run_js = bool(options.lookup_value('enable-run-js'))
 
         if flatpak_id := os.getenv('FLATPAK_ID'):
-            self.application_id = flatpak_id
+            self.set_application_id(flatpak_id)
 
         if external_ws := options.lookup_value('external-ws'):
             self.ws = ExternalCockpitWs(external_ws.get_string())

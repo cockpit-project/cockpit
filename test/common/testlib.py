@@ -1792,15 +1792,16 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append("Failed to connect to coredump service: No such file or directory")
             self.allowed_messages.append("Failed to connect to coredump service: Connection refused")
 
+        #
         # HACK: pybridge bugs
-        if os.environ.get("TEST_SCENARIO") == "pybridge":
-            # https://github.com/cockpit-project/cockpit/issues/18386
-            self.allowed_messages += [
-                "asyncio-ERROR: Task was destroyed but it is pending!",
-                "task:.*Task pending.*cockpit/channels/dbus.py.*"]
+        #
+        # https://github.com/cockpit-project/cockpit/issues/18386
+        self.allowed_messages += [
+            "asyncio-ERROR: Task was destroyed but it is pending!",
+            "task:.*Task pending.*cockpit/channels/dbus.py.*"]
+        # happens fairly reliably with TestKeys.testAuthorizedKeys, TestConnection.testTls and TestHistoryMetrics.testEvents
+        self.allowed_messages.append('cockpit.router-ERROR: trying to drop non-existent channel .* from .*')
 
-            # happens fairly reliably with TestKeys.testAuthorizedKeys, TestConnection.testTls and TestHistoryMetrics.testEvents
-            self.allowed_messages.append('cockpit.router-ERROR: trying to drop non-existent channel .* from .*')
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:

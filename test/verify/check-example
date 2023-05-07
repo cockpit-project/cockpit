@@ -100,16 +100,6 @@ class TestTodo(unittest.TestCase):
     def testTodoPass(self):
         assert 2 + 2 == 4
 
-    @todo('2 is not yet sufficiently large', flaky=True)
-    def testTodoFailFlaky(self):
-        phase_modulator_js = 2.0 ** 32
-        assert 2 + 2 + phase_modulator_js == 5 + phase_modulator_js
-
-    @todo('2 is not yet sufficiently large', flaky=True)
-    def testTodoPassFlaky(self):
-        phase_modulator_js = 2.0 ** 64
-        assert 2 + 2 + phase_modulator_js == 5 + phase_modulator_js
-
 
 if __name__ == '__main__':
     test_main()

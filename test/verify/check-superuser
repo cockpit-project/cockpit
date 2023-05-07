@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import time
 
 import parent  # noqa: F401
@@ -256,7 +255,7 @@ session include system-auth
         b.enter_page("/playground/pkgs")
         b.click("#reload")
         b.leave_page()
-        if os.environ.get("TEST_SCENARIO") == "pybridge":
+        if self.is_pybridge():
             b.check_superuser_indicator("")
         else:
             # C bridge gets that wrong: Its .Bridges property remains at [sudo, pkexec], showing a broken indicator

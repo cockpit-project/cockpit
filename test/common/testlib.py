@@ -23,6 +23,7 @@ import argparse
 import base64
 import errno
 import fnmatch
+import functools
 import os
 import shutil
 import socket
@@ -1398,6 +1399,10 @@ class MachineCase(unittest.TestCase):
     def is_devel_build(self) -> bool:
         return os.environ.get('NODE_ENV') == 'development'
 
+    def is_pybridge(self) -> bool:
+        # some tests start e.g. centos-7 as first machine, bridge may not exist there
+        return any('python' in m.execute('head -c 30 /usr/bin/cockpit-bridge || true') for m in self.machines.values())
+
     def disable_preload(self, *packages, machine=None):
         if machine is None:
             machine = self.machine
@@ -2261,15 +2266,33 @@ def todo(reason=''):
 
 
 def todoPybridge(reason=None):
-    if os.getenv('TEST_SCENARIO') == 'pybridge':
-        return todo(reason or 'still fails with python bridge')
-    return lambda testEntity: testEntity
+    if not reason:
+        reason = 'still fails with python bridge'
+
+    def wrap(test_method):
+        @functools.wraps(test_method)
+        def wrapped_test(self):
+            is_pybridge = self.is_pybridge()
+            try:
+                test_method(self)
+                if is_pybridge:
+                    return unittest.fail(reason)
+                return None
+            # only accept our testlib Errors, plus RuntimeError for TestSuperuserDashboardOldMachine
+            except (Error, RuntimeError):
+                if is_pybridge:
+                    traceback.print_exc()
+                    return self.skipTest(reason)
+                raise
+
+        return wrapped_test
+
+    return wrap
 
 
 def todoPybridgeRHEL8(reason=None):
-    if os.getenv('TEST_SCENARIO') == 'pybridge' and (
-            testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8')):
-        return todo(reason or 'known fail on el8 with python bridge')
+    if testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8'):
+        return todoPybridge(reason or 'known fail on el8 with python bridge')
     return lambda testEntity: testEntity
 
 

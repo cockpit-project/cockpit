@@ -1095,7 +1095,7 @@ ExecStart=/usr/local/bin/{packageName}
                            systemctl daemon-reload'''.format(system_service))
 
         m.start_cockpit()
-        if os.environ.get("TEST_SCENARIO") != "pybridge":
+        if not self.is_pybridge():
             # TODO: conditions not implemented on C bridge; once we drop it, drop this special case and
             # enable the manifest documentation for conditions in doc/guide/packages.xml
             self.assertIn("\nupdates", m.execute("cockpit-bridge --packages"))

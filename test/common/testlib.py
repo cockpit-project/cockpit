@@ -1366,9 +1366,6 @@ class MachineCase(unittest.TestCase):
             else:
                 if machine.image == reference_image:
                     pixels_label = self.label()
-        # HACK: until @todoPybridge disappears from all pixel tests
-        if os.environ.get("TEST_SCENARIO") == "pybridge":
-            pixels_label = None
         browser = Browser(machine.web_address,
                           label=label, pixels_label=pixels_label, coverage_label=self.label() if coverage else None,
                           port=machine.web_port, machine=self)

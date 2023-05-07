@@ -110,17 +110,15 @@ class Test:
 
         # If the test was marked with @todo then...
         if self.todo is not None:
-            todo_reason, flaky = self.todo
-            if self.returncode == 0 and not flaky:
+            if self.returncode == 0:
                 # The test passed, but it shouldn't have.
                 self.returncode = 1  # that's a fail
-                self._print_test(print_tap, todo_reason=f'# expected failure: {todo_reason}')
+                self._print_test(print_tap, todo_reason=f'# expected failure: {self.todo}')
                 return None, 1
             else:
-                # The test either failed (always OK) or passed (and flaky=True)
+                # The test failed as expected
                 # Outputs  'not ok 1 test # TODO ...'
-                #      or  'ok 1 test # TODO ...'
-                self._print_test(print_tap, todo_reason=f'# TODO {todo_reason}')
+                self._print_test(print_tap, todo_reason=f'# TODO {self.todo}')
                 return None, 0
 
         if self.returncode == 0:

@@ -227,24 +227,14 @@ class TestSystemd(unittest.TestCase):
                                  env=env, capture_output=True)
         stdout = process.stdout
 
-        expected_fails = 0
-
         # A @todo test which fails should write 'not ok ... # TODO ...'
         self.assertRegex(stdout, rb"\nnot ok . .*test/verify/check-example TestTodo.testTodoFail # TODO 2 is not yet sufficiently large\n")
 
         # A @todo test which passes should write 'not ok ... # expected failure ...' and hard fail
         self.assertRegex(stdout, rb"\nnot ok . .*test/verify/check-example TestTodo.testTodoPass # expected failure: 2 is not yet sufficiently large\n")
-        expected_fails += 1
 
-        # A @todo(flaky=True) test which fails writes 'not ok ... # TODO ...' just like flaky=False
-        self.assertRegex(stdout, rb"\nnot ok . .*test/verify/check-example TestTodo.testTodoFailFlaky # TODO 2 is not yet sufficiently large\n")
-
-        # But @todo(flaky=True) which passes writes 'ok ... # TODO ...' and isn't a hard fail
-        self.assertRegex(stdout, rb"\nok . .*test/verify/check-example TestTodo.testTodoPassFlaky # TODO 2 is not yet sufficiently large\n")
-
-        # There should have been 4 cases: pass/fail flaky and pass/fail non-flaky
-        # The 'pass' non-flaky case results in a positive return code (expected_fails is 1)
-        self.assertEqual(process.returncode, expected_fails)
+        # There should have been 2 cases, one fail
+        self.assertEqual(process.returncode, 1)
 
 
 @skipDistroPackage()

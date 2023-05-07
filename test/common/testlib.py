@@ -2246,32 +2246,28 @@ def no_retry_when_changed(testEntity):
     return testEntity
 
 
-def todo(reason='', flaky=False):
+def todo(reason=''):
     """Tests decorated with @todo are expected to fail.
 
     An optional reason can be given, and will appear in the TAP output if run
     via run-tests.
-
-    If flaky=False (the default) then the test is expected to always fail.  An
-    unexpected pass is considered to be an error in that case.  If flaky=True
-    then a pass is not considered to be an error.
     """
     def wrapper(testEntity):
-        testEntity._testlib__todo = (reason, flaky)
+        testEntity._testlib__todo = reason
         return testEntity
     return wrapper
 
 
-def todoPybridge(reason=None, flaky=False):
+def todoPybridge(reason=None):
     if os.getenv('TEST_SCENARIO') == 'pybridge':
-        return todo(reason or 'still fails with python bridge', flaky)
+        return todo(reason or 'still fails with python bridge')
     return lambda testEntity: testEntity
 
 
-def todoPybridgeRHEL8(reason=None, flaky=False):
+def todoPybridgeRHEL8(reason=None):
     if os.getenv('TEST_SCENARIO') == 'pybridge' and (
             testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8')):
-        return todo(reason or 'known fail on el8 with python bridge', flaky)
+        return todo(reason or 'known fail on el8 with python bridge')
     return lambda testEntity: testEntity
 
 

@@ -914,9 +914,6 @@ main (int argc,
 
   program_name = basename (argv[0]);
 
-  /* Cleanup the umask */
-  umask (077);
-
   rhost = getenv ("COCKPIT_REMOTE_PEER") ?: "";
 
   save_environment ();

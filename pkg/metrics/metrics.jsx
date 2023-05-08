@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, { useState } from 'react';
+import React, { useState, createRef } from 'react';
 
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
@@ -1032,6 +1032,8 @@ class MetricsMinute extends React.Component {
         };
         this.onHover = this.onHover.bind(this);
         this.findLogs = this.findLogs.bind(this);
+
+        this.spikesButtonRef = createRef();
     }
 
     componentDidMount() {
@@ -1153,19 +1155,23 @@ class MetricsMinute extends React.Component {
                     {this.props.events.events.map(t => RESOURCES[t].event_description).join(", ")}
                 </span>
             );
-            desc = <div className="metrics-events">
-                <time>{ timeformat.time(timestamp) }</time>
-                <span className="spikes_count" />
-                {this.state.logs?.length > 0
-                    ? <Popover position="right" hasAutoWidth className="metrics-events-popover" bodyContent={logsPanel}>
-                        <Button
-                            variant="link" isInline
-                            className="spikes_info">
-                            {resourceDesc}
-                        </Button>
-                    </Popover>
-                    : <span className="spikes_info">{resourceDesc}</span>}
-            </div>;
+            desc = (
+                <>
+                    <div className="metrics-events">
+                        <time>{ timeformat.time(timestamp) }</time>
+                        <span className="spikes_count" />
+                        {this.state.logs?.length > 0
+                            ? <Button
+                                    ref={this.spikesButtonRef}
+                                    variant="link" isInline
+                                    className="spikes_info">
+                                {resourceDesc}
+                            </Button>
+                            : <span className="spikes_info">{resourceDesc}</span>}
+                    </div>
+                    {this.state.logs?.length > 0 && <Popover position="right" hasAutoWidth className="metrics-events-popover" bodyContent={logsPanel} triggerRef={this.spikesButtonRef} />}
+                </>
+            );
         }
 
         return (

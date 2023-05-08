@@ -193,7 +193,7 @@ class TestStorageLegacyVDO(StorageCase):
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda; lvcreate -n lvol -L 5G vdo_vgroup")
         # Create VDO; this is not supported any more, thus no UI for it
-        m.execute("vdo create --device /dev/vdo_vgroup/lvol --name vdo0 --vdoLogicalSize 5G")
+        m.execute("vdo create --device /dev/vdo_vgroup/lvol --name vdo0 --vdoLogicalSize 5G", timeout=300)
 
         b.wait_in_text("#devices", "vdo0")
         b.click("#devices .sidepanel-row:contains(vdo0)")

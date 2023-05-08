@@ -88,7 +88,9 @@ class SuperuserRoutingRule(RoutingRule, ferny.InteractionResponder, bus.Object, 
         self.pending_prompt = asyncio.get_running_loop().create_future()
         try:
             logger.debug('prompting for %s', prompt)
-            self.prompt(messages, prompt, '', echo, '')
+            # with sudo, all stderr messages are treated as warning/errors by the UI
+            # (such as the lecture or "wrong password"), so pass them in the "error" field
+            self.prompt('', prompt, '', echo, messages)
             return await self.pending_prompt
         finally:
             self.pending_prompt = None

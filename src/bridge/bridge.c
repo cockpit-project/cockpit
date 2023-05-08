@@ -368,9 +368,6 @@ run_bridge (const gchar *interactive,
         g_warning ("couldn't change to runtime dir: %s: %s", directory, g_strerror (errno));
     }
 
-  /* Reset the umask, typically this is done in .bashrc for a login shell */
-  umask (022);
-
   /* Start daemons if necessary */
   if (!interactive && !privileged_peer)
     {

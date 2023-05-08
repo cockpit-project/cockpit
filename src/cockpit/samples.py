@@ -319,7 +319,7 @@ class CGroupDiskIO(Sampler):
         with Handle.open('cgroup', os.O_RDONLY, dir_fd=fd) as cgroup_fd:
             cgroup_name = os.read(cgroup_fd, 2048).decode().strip()
 
-            # Skip leadin ::0/
+            # Skip leading ::0/
             return cgroup_name[4:]
 
     @staticmethod
@@ -350,7 +350,7 @@ class CGroupDiskIO(Sampler):
                     with Handle.open(path, os.O_PATH, dir_fd=proc_fd) as pid_fd:
                         cgroup_name = self.get_cgroup_name(pid_fd)
                         proc_read, proc_write = self.get_proc_io(pid_fd)
-                except (FileNotFoundError, PermissionError):
+                except (FileNotFoundError, PermissionError, ProcessLookupError):
                     continue
 
                 reads[cgroup_name] = reads.get(cgroup_name, 0) + proc_read

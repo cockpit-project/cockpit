@@ -1482,7 +1482,6 @@ class TestGrafanaClient(MachineCase):
             bg.set_input_text("input[name='password']", "foobar")
             bg.click("button:contains('Log in')")
             bg.wait_in_text("body", "Add your first data source")
-            bg.wait_visible(".sidemenu")
 
             # HACK Unsigned plugin needs to be enabled manually
             # See https://github.com/performancecopilot/grafana-pcp/issues/94
@@ -1502,7 +1501,7 @@ class TestGrafanaClient(MachineCase):
             bg.click("[aria-label='Add new data source PCP Redis']")
             bg.set_input_text("input[placeholder='http://localhost:44322']", redis_url)
             bg.click("button:contains('Save &')")  # Save & [tT]est
-            bg.wait_in_text(".page-body", "Data source is working")
+            bg.wait_in_text("body", "Data source is working")
 
             # Grafana auto-discovers "host" variable for incoming metrics; it takes a while to receive the first
             # measurement; that event is not observable directly in Grafana, and the dashboard does not auto-update to
@@ -1512,9 +1511,9 @@ class TestGrafanaClient(MachineCase):
             wait(lambda: mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/query?expr=kernel.all.load'").strip() != '[]', delay=10, tries=30)
 
             # Switch to "Dashboards" tab, import "Host Overview"
-            bg.click(".page-header__tabs a[href$='/dashboards']")
+            bg.click("a[href$='/dashboards'][role=tab]")
             with bg.wait_timeout(60):
-                bg.wait_not_in_text(".page-header__title", "Loading")
+                bg.wait_not_in_text("body", "Loading")
             bg.click("tr:contains('PCP Redis: Host Overview') button:contains('Import')")
             bg.wait_visible("tr:contains('PCP Redis: Host Overview') button:contains('Re-import')")
 

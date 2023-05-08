@@ -92,13 +92,13 @@ class TestStorageVDO(StorageCase):
 
         # compressible data should affect logical usage
         m.execute("dd if=/dev/zero of=/run/data/empty bs=1M count=1000")
-        self.content_row_wait_in_col(1, 4, "1.2 / 10 GB")
+        self.content_row_wait_in_col(1, 4, "1.2 / 10 GB", alternate_val="1.2 / 9.9 GB")
         # but not physical usage
         self.content_tab_wait_in_info(1, 2, "Data used", "3.86 GB (64%)")
 
         # incompressible data
         m.execute("dd if=/dev/urandom of=/run/data/gibberish bs=1M count=1000")
-        self.content_row_wait_in_col(1, 4, "2.2 / 10 GB")
+        self.content_row_wait_in_col(1, 4, "2.2 / 10 GB", alternate_val="2.2 / 9.9 GB")
         # equal amount of physical space (not completely predictable due to random data)
         self.content_tab_wait_in_info(1, 2, "Data used", "4.8", "4.9")
         self.content_tab_wait_in_info(1, 2, "Data used", cond=lambda sel: re.search(r"\(8[1234]%\)", b.text(sel)))

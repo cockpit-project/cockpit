@@ -17,16 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
-
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, test_main
-from testvm import DEFAULT_IMAGE
+from testlib import MachineCase, nondestructive, test_main, onlyImage
 
 HOST = "host.containers.internal"
 
 
-@unittest.skipUnless(DEFAULT_IMAGE in ["fedora-coreos", "rhel4edge"], "no cockpit/ws container on this image")
+@onlyImage("no cockpit/ws container on this image", "fedora-coreos", "rhel4edge")
 @nondestructive
 class TestWsBastionContainer(MachineCase):
     def setUp(self):
@@ -226,7 +223,7 @@ class TestWsBastionContainer(MachineCase):
         b.wait_visible('#content')
 
 
-@unittest.skipUnless(DEFAULT_IMAGE in ["fedora-coreos", "rhel4edge"], "no cockpit/ws container on this image")
+@onlyImage("no cockpit/ws container on this image", "fedora-coreos", "rhel4edge")
 @nondestructive
 class TestWsPrivileged(MachineCase):
     def testService(self):

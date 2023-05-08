@@ -92,3 +92,28 @@ $plotColorTotal: 0;
     --ct-plot-color-#{i}: #{$plotColors[$i]};
   }
 }
+
+[dir="rtl"] {
+  // Mirror the entire graph (placement & animation)
+  .ct-plot {
+    transform: scaleX(-1);
+
+    // Flip the text back (so it's not a mirror image)
+    text {
+      transform: scaleX(-1);
+      transform-origin: 50%;
+      transform-box: fill-box;
+    }
+
+    // Set the anchor point for y-axis and units
+    .ct-plot-axis-y text,
+    .ct-plot-unit {
+      transform-origin: 0%;
+    }
+
+    // Set the anchor point for the title
+    .ct-plot-title {
+      transform-origin: 100%;
+    }
+  }
+}

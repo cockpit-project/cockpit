@@ -509,6 +509,9 @@ export const VDOPoolTab = ({ client, lvol }) => {
     const vdo_iface = client.vdo_vols[lvol.path];
     const vdo_pool_vol = client.lvols[vdo_iface.VDOPool];
 
+    if (!vdo_pool_vol)
+        return null;
+
     function grow() {
         lvol_grow(client, vdo_pool_vol, { });
     }

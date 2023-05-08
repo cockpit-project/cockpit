@@ -19,12 +19,10 @@
 
 import parent  # noqa: F401
 import re
-import unittest
 
 from packagelib import PackageCase
 from storagelib import StorageCase, StorageHelpers
-from testlib import test_main
-import testvm
+from testlib import test_main, onlyImage
 
 
 SIZE_10G = "10000000000"
@@ -176,8 +174,7 @@ class TestStorageVDO(StorageCase):
         b.wait_in_text("#detail-content", "No logical volumes")
 
 
-@unittest.skipUnless(testvm.DEFAULT_IMAGE.startswith("rhel-8") or testvm.DEFAULT_IMAGE.startswith("centos-8"),
-                     "legacy VDO API only supported on RHEL 8")
+@onlyImage("legacy VDO API only supported on RHEL 8", "rhel-8*", "centos-8*")
 class TestStorageLegacyVDO(StorageCase):
 
     def testVdo(self):
@@ -400,8 +397,7 @@ config: !Configuration
         b.wait_in_text("#devices", "vdo1")
 
 
-@unittest.skipUnless(testvm.DEFAULT_IMAGE.startswith("rhel-") or testvm.DEFAULT_IMAGE.startswith("centos"),
-                     "VDO API only supported on RHEL")
+@onlyImage("VDO API only supported on RHEL", "rhel-*", "centos-*")
 class TestStoragePackagesVDO(PackageCase, StorageHelpers):
 
     provision = {"0": {"memory_mb": 1500}}

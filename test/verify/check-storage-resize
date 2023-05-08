@@ -22,7 +22,6 @@ import unittest
 
 from storagelib import StorageCase
 from testlib import skipImage, test_main
-from testvm import DEFAULT_IMAGE
 
 
 class TestStorageResize(StorageCase):
@@ -120,7 +119,7 @@ class TestStorageResize(StorageCase):
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
-    @unittest.skipIf(DEFAULT_IMAGE.startswith("rhel-") or DEFAULT_IMAGE.startswith("centos"), "NTFS not supported on RHEL")
+    @skipImage("NTFS not supported on RHEL", "rhel-*", "centos-*")
     def testResizeNtfs(self):
         self.checkResize("ntfs", False,
                          can_shrink=True, shrink_needs_unmount=True,

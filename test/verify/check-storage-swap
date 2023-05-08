@@ -17,15 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 import parent  # noqa: F401
 from storagelib import StorageCase
-from testlib import test_main, nondestructive
-from testvm import DEFAULT_IMAGE
+from testlib import test_main, nondestructive, onlyImage
 
 
 @nondestructive
-@unittest.skipIf(not DEFAULT_IMAGE.startswith("fedora"), "No zram by default")
+@onlyImage("No zram by default", "fedora-*")
 class TestStorageswap(StorageCase):
 
     def testZram(self):

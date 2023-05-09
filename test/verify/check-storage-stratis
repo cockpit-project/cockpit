@@ -91,6 +91,7 @@ class TestStorageStratis(StorageCase):
 
         b.click('.sidepanel-row:contains("pool0")')
         b.wait_visible('#storage-detail')
+        b.wait_in_text(".pf-c-alert", "All devices fully allocated")
 
         udisk_contains_stratis_private = "physical-originsub" in m.execute("udisksctl dump")
 

@@ -20,9 +20,11 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { FilesystemTab, mounting_dialog, is_mounted, is_valid_mount_point, get_fstab_config } from "./fsys-tab.jsx";
@@ -426,6 +428,18 @@ export const StratisPoolDetails = ({ client, pool }) => {
     }
 
     const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
+    const alerts = [];
+    /* NO_ALLOC_SPACE alert:
+     * https://github.com/stratis-storage/stratis-cli/blob/v3.5.1/src/stratis_cli/_error_codes.py#L105
+     */
+    if (pool.NoAllocSpace) {
+        alerts.push({
+            short: _("All devices fully allocated"),
+            detail: _("Every device belonging to the pool has been fully allocated. To increase the allocable space, add additional data devices to the pool."),
+            variant: "info"
+        });
+    }
+    console.info({ alerts });
 
     const header = (
         <Card>
@@ -442,20 +456,27 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 </CardTitle>
             </CardHeader>
             <CardBody>
-                <DescriptionList className="pf-m-horizontal-on-sm">
-                    <DescriptionListGroup>
-                        <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "UUID")}</DescriptionListTerm>
-                        <DescriptionListDescription>{ pool.Uuid }</DescriptionListDescription>
-                    </DescriptionListGroup>
-                    { use &&
-                    <DescriptionListGroup>
-                        <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "Usage")}</DescriptionListTerm>
-                        <DescriptionListDescription className="pf-u-align-self-center">
-                            <StorageUsageBar stats={use} critical={0.95} />
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    }
-                </DescriptionList>
+                <Stack hasGutter>
+                    {alerts.length && alerts.map((alert, idx) => (
+                        <Alert key={idx} variant={alert.variant} isInline isPlain title={alert.short}>
+                            {alert.detail}
+                        </Alert>
+                    ))}
+                    <DescriptionList className="pf-m-horizontal-on-sm">
+                        <DescriptionListGroup>
+                            <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "UUID")}</DescriptionListTerm>
+                            <DescriptionListDescription>{ pool.Uuid }</DescriptionListDescription>
+                        </DescriptionListGroup>
+                        { use &&
+                        <DescriptionListGroup>
+                            <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "Usage")}</DescriptionListTerm>
+                            <DescriptionListDescription className="pf-u-align-self-center">
+                                <StorageUsageBar stats={use} critical={0.95} />
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        }
+                    </DescriptionList>
+                </Stack>
             </CardBody>
         </Card>
     );

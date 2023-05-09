@@ -61,12 +61,8 @@ class TestStorageBasic(StorageCase):
         self.content_row_wait_in_col(1, 2, "ext2 filesystem")
 
         self.content_tab_expand(1, 1)
-        b.assert_pixels("#detail-content", "partition", ignore=[
-            # UUID is not stable
-            "dt:contains(UUID) + dd",
-            # browsers/harfbuzz don't render "ext2 filesystem" label reliably
-            "td[data-label='Type']",
-        ])
+        b.assert_pixels("#detail-content", "partition",
+                        mock={"dd.mock-partition-uuid > div": "a12978a1-5d6e-f24f-93de-11789977acde"})
         self.content_tab_expand(1, 2)
         b.assert_pixels("#detail-content", "filesystem")
 

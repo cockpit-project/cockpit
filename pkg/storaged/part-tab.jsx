@@ -43,7 +43,9 @@ export class PartitionTab extends React.Component {
 
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("UUID")}</DescriptionListTerm>
-                    <DescriptionListDescription>{block_part.UUID}</DescriptionListDescription>
+                    <DescriptionListDescription className="mock-partition-uuid">
+                        {block_part.UUID}
+                    </DescriptionListDescription>
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>

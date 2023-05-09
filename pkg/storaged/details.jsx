@@ -21,9 +21,9 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
-import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 
 import * as utils from "./utils.js";
 import { BlockDetails } from "./block-details.jsx";
@@ -42,39 +42,37 @@ export class StdDetailsLayout extends React.Component {
         if (this.props.sidebar) {
             return (
                 <>
-                    <GridItem id="detail-header" span={12}>
+                    <StackItem id="detail-header">
                         { this.props.alert }
                         { this.props.header }
-                    </GridItem>
-                    <GridItem span={12}>
-                        <Flex direction={{ default: 'column', xl: 'row', "2xl": 'row' }}>
-                            <FlexItem flex={{ default: 'flex_3' }}>
-                                <div id="detail-content">
-                                    { this.props.content }
-                                    <JobsPanel client={this.props.client} />
-                                </div>
-                            </FlexItem>
-                            <FlexItem id="detail-sidebar"
-                                      flex={{ default: 'flex_1' }}>
-                                { this.props.sidebar }
-                            </FlexItem>
-                        </Flex>
-                    </GridItem>
+                    </StackItem>
+                    <Flex direction={{ default: 'column', xl: 'row', "2xl": 'row' }}>
+                        <FlexItem flex={{ default: 'flex_3' }}>
+                            <div id="detail-content">
+                                { this.props.content }
+                                <JobsPanel client={this.props.client} />
+                            </div>
+                        </FlexItem>
+                        <FlexItem id="detail-sidebar"
+                                  flex={{ default: 'flex_1' }}>
+                            { this.props.sidebar }
+                        </FlexItem>
+                    </Flex>
                 </>
             );
         } else {
             return (
                 <>
-                    <GridItem id="detail-header" md={12}>
+                    <StackItem id="detail-header">
                         { this.props.alert }
                         { this.props.header }
-                    </GridItem>
-                    <GridItem md={12}>
-                        <GridItem id="detail-content">
+                    </StackItem>
+                    <StackItem>
+                        <div id="detail-content">
                             { this.props.content }
-                        </GridItem>
+                        </div>
                         <JobsPanel client={this.props.client} />
-                    </GridItem>
+                    </StackItem>
                 </>
             );
         }
@@ -132,7 +130,7 @@ export class Details extends React.Component {
         }
 
         if (!body)
-            body = <GridItem span={12}>{_("Not found")}</GridItem>;
+            body = _("Not found");
 
         return (
             <Page id="storage-detail">
@@ -143,9 +141,9 @@ export class Details extends React.Component {
                     </Breadcrumb>
                 </PageBreadcrumb>
                 <PageSection>
-                    <Grid hasGutter>
+                    <Stack hasGutter>
                         {body}
-                    </Grid>
+                    </Stack>
                 </PageSection>
             </Page>
         );

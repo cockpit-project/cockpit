@@ -333,6 +333,36 @@ class Browser:
         """
         return self.eval_js("%s(%s)" % (func, ','.join(map(jsquote, args))))
 
+    def set_css(self, text: str):
+        """Set extra CSS rules for the current frame
+
+        Each call to this function replaces the CSS that has been set
+        previously with this function.
+
+        :param text: The text for the extra CSS style sheet
+        """
+        self.cdp.invoke("setCSS", frame=self.cdp.cur_frame, text=text)
+
+    def set_mock(self, mock: Optional[Dict[str, str]], base: Optional[str] = ""):
+        """Replace some DOM elements with mock text
+
+        The 'mock' parameter is a dictionary from CSS selectors to the
+        text that the elements matching the selector should be
+        replaced with.
+
+        :param mock: the mock data, see above
+        :param base: if given, all selectors are relative to this one
+        """
+        text = ""
+        if mock is not None:
+            for sel in mock:
+                # "font-size-adjust" is a standards-based hack
+                # "zoom": is a proprietary hack for Chrome
+                text += (f"{base} :is({sel}) {{ font-size-adjust: 0; zoom: 0.01%; }}\n" +
+                         f"{base} :is({sel})::after {{ content: '{mock[sel]}'; font-size-adjust: initial; zoom: 1000000% }}\n" +
+                         f"{base} :is({sel}) > * {{ display: none }}\n")
+        self.set_css(text)
+
     def cookie(self, name: str):
         """Retrieve a browser cookie by name
 
@@ -977,12 +1007,16 @@ class Browser:
 
     def assert_pixels_in_current_layout(self, selector: str, key: str,
                                         ignore: List[str] = [],
+                                        mock: Optional[Dict[str, str]] = None,
                                         scroll_into_view: Optional[str] = None,
                                         wait_animations: bool = True):
         """Compare the given element with its reference in the current layout"""
 
         if not (Image and self.pixels_label):
             return
+
+        if mock is not None:
+            self.set_mock(mock, base=selector)
 
         self._adjust_window_for_fixed_content_size()
         self.call_js_func('ph_scrollIntoViewIfNeeded', scroll_into_view or selector)
@@ -1121,8 +1155,12 @@ class Browser:
                 print("Differences in pixel test " + base)
                 self.failed_pixel_tests += 1
 
+        if mock is not None:
+            self.set_mock(None)
+
     def assert_pixels(self, selector: str, key: str,
                       ignore: List[str] = [],
+                      mock: Optional[Dict[str, str]] = None,
                       skip_layouts: List[str] = [],
                       scroll_into_view: Optional[str] = None,
                       wait_animations: bool = True,
@@ -1148,7 +1186,7 @@ class Browser:
                     time.sleep(wait_delay)
                     if "rtl" in self.current_layout["name"]:
                         self._set_direction("rtl")
-                    self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
+                    self.assert_pixels_in_current_layout(selector, key, ignore=ignore, mock=mock,
                                                          scroll_into_view=scroll_into_view,
                                                          wait_animations=wait_animations)
 

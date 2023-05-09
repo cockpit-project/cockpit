@@ -648,46 +648,48 @@ export class ServiceDetails extends React.Component {
                     </Flex>
                 </CardHeader>
                 <CardBody>
-                    <DescriptionList isHorizontal>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
-                            <DescriptionListDescription id="statuses">
-                                { status }
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>{ _("Path") }</DescriptionListTerm>
-                            <DescriptionListDescription id="path">{this.props.unit.FragmentPath}</DescriptionListDescription>
-                        </DescriptionListGroup>
-                        {unit.MemoryCurrent
-                            ? <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("Memory") }</DescriptionListTerm>
-                                <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent)}</DescriptionListDescription>
-                            </DescriptionListGroup>
-                            : null}
-                        {this.props.unit.Listen && this.props.unit.Listen.length && <DescriptionListGroup>
-                            <DescriptionListTerm>{ _("Listen") }</DescriptionListTerm>
-                            <DescriptionListDescription id="listen">
-                                {cockpit.format("$0 ($1)", this.props.unit.Listen[0][1], this.props.unit.Listen[0][0])}
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>}
-                        { notMetConditions.length > 0 &&
+                    <Stack hasGutter>
+                        <DescriptionList isHorizontal>
                             <DescriptionListGroup>
-                                <DescriptionListTerm className="failed">{ _("Condition failed") }</DescriptionListTerm>
-                                <DescriptionListDescription id="condition">
-                                    {notMetConditions.map(cond => <div key={cond}>{cond}</div>)}
+                                <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
+                                <DescriptionListDescription id="statuses">
+                                    { status }
                                 </DescriptionListDescription>
                             </DescriptionListGroup>
-                        }
-                        {triggerRelationshipsList}
-                    </DescriptionList>
-                    {extraRelationshipsList.length
-                        ? <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
-                            <DescriptionList isHorizontal>
-                                {extraRelationshipsList}
-                            </DescriptionList>
-                        </ExpandableSection>
-                        : null}
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("Path") }</DescriptionListTerm>
+                                <DescriptionListDescription id="path">{this.props.unit.FragmentPath}</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            {unit.MemoryCurrent
+                                ? <DescriptionListGroup>
+                                    <DescriptionListTerm>{ _("Memory") }</DescriptionListTerm>
+                                    <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent)}</DescriptionListDescription>
+                                </DescriptionListGroup>
+                                : null}
+                            {this.props.unit.Listen && this.props.unit.Listen.length && <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("Listen") }</DescriptionListTerm>
+                                <DescriptionListDescription id="listen">
+                                    {cockpit.format("$0 ($1)", this.props.unit.Listen[0][1], this.props.unit.Listen[0][0])}
+                                </DescriptionListDescription>
+                            </DescriptionListGroup>}
+                            { notMetConditions.length > 0 &&
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm className="failed">{ _("Condition failed") }</DescriptionListTerm>
+                                    <DescriptionListDescription id="condition">
+                                        {notMetConditions.map(cond => <div key={cond}>{cond}</div>)}
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+                            }
+                            {triggerRelationshipsList}
+                        </DescriptionList>
+                        {extraRelationshipsList.length
+                            ? <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
+                                <DescriptionList isHorizontal>
+                                    {extraRelationshipsList}
+                                </DescriptionList>
+                            </ExpandableSection>
+                            : null}
+                    </Stack>
                 </CardBody>
             </Card>
         );

@@ -67,6 +67,12 @@ class TestPages(MachineCase):
     def testBasic(self):
         m = self.machine
         b = self.browser
+
+        # HACK: somehow the "services" preload causes a race condition and injects some spurious `window.hashchange /`
+        # event when switching between pages, losing the "on details page" state
+        # see debugging history in https://github.com/cockpit-project/cockpit/pull/18766
+        self.disable_preload("systemd")
+
         self.restore_dir("/etc/systemd/system", post_restore_action="systemctl daemon-reload")
         self.addCleanup(m.execute, "systemctl stop test.timer test.service")
         m.write("/etc/systemd/system/test.service",

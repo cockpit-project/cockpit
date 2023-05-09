@@ -350,8 +350,11 @@ class AddEditServicesModal extends React.Component {
     }
 
     getCustomId() {
-        const all_ports = this.state.custom_tcp_ports.concat(this.state.custom_udp_ports);
-        return "custom--" + all_ports.map(this.getName).join('-');
+        return "custom--" + (
+            this.state.custom_tcp_ports.map(port => this.getName(port, "tcp"))
+                    .concat(this.state.custom_udp_ports.map(port => this.getName(port, "udp")))
+                    .join('-')
+        );
     }
 
     checkNullValues() {
@@ -463,9 +466,9 @@ class AddEditServicesModal extends React.Component {
         });
     }
 
-    getName(port) {
+    getName(port, type) {
         const known = this.state.avail_services[port];
-        if (known)
+        if (known && known.type.includes(type))
             return known.name;
         else
             return port;
@@ -480,9 +483,7 @@ class AddEditServicesModal extends React.Component {
                 return [0, _("Invalid port number")];
             else
                 return [port, ""];
-        } else if (avail.type.indexOf(type) < 0)
-            return [0, _("Port number and type do not match")];
-        else {
+        } else {
             return [avail.port, ""];
         }
     }
@@ -530,13 +531,18 @@ class AddEditServicesModal extends React.Component {
                 [targets[3]]: value
             };
 
-            let all_ports = new_ports.concat(oldState.custom_udp_ports);
-            if (event_id === "udp-ports")
-                all_ports = oldState.custom_tcp_ports.concat(new_ports);
+            let all_ports;
+            if (event_id === "udp-ports") {
+                const old_ports = oldState.custom_tcp_ports.map(port => this.getName(port, "tcp"));
+                all_ports = old_ports.concat(new_ports.map(port => this.getName(port, "udp")));
+            } else {
+                const old_ports = oldState.custom_udp_ports.map(port => this.getName(port, "udp"));
+                all_ports = new_ports.map(port => this.getName(port, "tcp")).concat(old_ports);
+            }
 
             if (oldState.generate_custom_id) {
                 if (all_ports.length > 0)
-                    newState.custom_id = "custom--" + all_ports.map(this.getName).join('-');
+                    newState.custom_id = "custom--" + all_ports.join('-');
                 else
                     newState.custom_id = "";
             }

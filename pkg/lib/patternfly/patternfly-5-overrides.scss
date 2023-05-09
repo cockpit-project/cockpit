@@ -367,10 +367,10 @@ select.pf-c-form-control {
 }
 
 // RTL fix: card toggle
-.pf-c-card__header-toggle-icon {
+.pf-c-card__header-toggle {
   margin-inline: var(--pf-c-card__header-toggle--MarginLeft) var(--pf-c-card__header-toggle--MarginRight);
 
-  [dir="rtl"] {
+  [dir="rtl"] & {
     transform: scaleX(-1);
   }
 }
@@ -378,6 +378,20 @@ select.pf-c-form-control {
 // RTL fix: Select toggle
 .pf-c-select__toggle {
   padding-inline: var(--pf-c-select__toggle--PaddingLeft) var(--pf-c-select__toggle--PaddingRight);
+
+  * + &-arrow {
+    margin-inline: var(--pf-c-select__toggle-arrow--MarginLeft) var(--pf-c-select__toggle-arrow--MarginRight);
+  }
+}
+
+// RTL fix: Menu item
+.pf-c-select__menu-item {
+  padding-inline: var(--pf-c-select__menu-item--PaddingLeft) var(--pf-c-select__menu-item--PaddingRight);
+  text-align: start;
+
+  &-icon {
+    inset-inline: auto var(--pf-c-select__menu-item-icon--Right);
+  }
 }
 
 // Override PF to fix Right to Left languages

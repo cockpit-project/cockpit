@@ -41,7 +41,7 @@ export const Overview = ({ client, plot_state }) => {
     return (
         <Page id="main-storage">
             <PageSection>
-                <Flex hasGutter alignItems={{ default: 'alignItemsFlexStart' }}>
+                <Flex alignItems={{ default: 'alignItemsFlexStart' }}>
                     <FlexItem flex={{ lg: 'flex_3' }}>
                         <Stack hasGutter>
                             <Card>

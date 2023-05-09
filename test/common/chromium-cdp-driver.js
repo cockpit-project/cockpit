@@ -204,6 +204,18 @@ function setupLocalFunctions(client) {
             client.Page.reload(args);
         });
     };
+
+    async function setCSS({ text, frame }) {
+        await client.DOM.enable();
+        await client.CSS.enable();
+        const id = (await client.CSS.createStyleSheet({ frameId: frameNameToFrameId[frame] })).styleSheetId;
+        await client.CSS.setStyleSheetText({
+            styleSheetId: id,
+            text
+        });
+    }
+
+    client.setCSS = setCSS;
 }
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python

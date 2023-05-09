@@ -79,7 +79,7 @@ html {
 
       .pf-c-table thead th:not(:first-child),
       .pf-c-table tbody td:not(:first-child) {
-        text-align: inline-end;
+        text-align: end;
       }
     }
 
@@ -258,7 +258,7 @@ html {
 
 .pf-c-popover {
   thead th:not(:first-child) {
-    text-align: inline-end;
+    text-align: end;
   }
 
   .disks-nowrap {
@@ -267,7 +267,7 @@ html {
     }
 
     td:not(:first-child) {
-      text-align: inline-end;
+      text-align: end;
     }
   }
 }
@@ -378,7 +378,7 @@ $graphs: cpu, memory, disks, network;
   }
 
   &-label-graph {
-    text-align: inline-end;
+    text-align: end;
 
     & .metrics-sublabels {
       justify-content: flex-end;
@@ -812,4 +812,12 @@ $graphs: cpu, memory, disks, network;
       display: none;
     }
   }
+}
+
+// RTL: Fix align right utility class
+// This should actually a PF override, but as it needs to change an unintented
+// margin (which may possibly be specified elsewhere), we don't want unintended
+// consiquences by overriding it everywhere.
+.pf-c-page__main-breadcrumb .pf-m-align-right {
+  margin-inline: auto 0;
 }

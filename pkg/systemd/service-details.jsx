@@ -606,7 +606,7 @@ export class ServiceDetails extends React.Component {
             });
 
         return (
-            <Card className="ct-card">
+            <Card id="service-details-unit" className="ct-card">
                 { this.state.showDeleteDialog &&
                 <DeleteModal
                     name={this.props.unit.Description}

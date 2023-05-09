@@ -20,7 +20,7 @@
 import React, { useRef, useState } from "react";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
-import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -155,20 +155,16 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
                 </Breadcrumb>
             </PageBreadcrumb>
             <PageSection id="service-details">
-                <Gallery hasGutter>
-                    <GalleryItem id="service-details-unit">
-                        <ServiceDetails unit={unitProps}
-                                        owner={owner}
-                                        permitted={superuser.allowed}
-                                        loadingUnits={reloading}
-                                        isValid={unitIsValid}
-                                        pinnedUnits={pinnedUnits} />
-                    </GalleryItem>
+                <Stack hasGutter>
+                    <ServiceDetails unit={unitProps}
+                                    owner={owner}
+                                    permitted={superuser.allowed}
+                                    loadingUnits={reloading}
+                                    isValid={unitIsValid}
+                                    pinnedUnits={pinnedUnits} />
                     {(load_state === "loaded" || load_state === "masked") &&
-                    <GalleryItem id="service-details-logs">
-                        <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", [service_type]: cur_unit_id }} />
-                    </GalleryItem>}
-                </Gallery>
+                    <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", [service_type]: cur_unit_id }} />}
+                </Stack>
             </PageSection>
         </WithDialogs>
     );

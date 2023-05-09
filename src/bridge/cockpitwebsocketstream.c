@@ -239,26 +239,20 @@ on_socket_connect (GObject *object,
 {
   g_autoptr(CockpitWebSocketStream) self = user_data; /* capture the ref passed to the async op */
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
-  const gchar *problem = "protocol-error";
   g_autofree const gchar **protocols = NULL;
   g_autoptr(GList) names = NULL;
-  GList *l;
   g_autoptr(GError) error = NULL;
-  JsonObject *options;
-  JsonObject *headers;
-  const gchar *value;
-  JsonNode *node;
 
   g_autoptr(GIOStream) io = cockpit_connect_stream_finish (result, &error);
   if (error)
     {
-      problem = cockpit_stream_problem (error, self->origin, "couldn't connect",
-                                        cockpit_channel_close_options (channel));
+      const char *problem = cockpit_stream_problem (error, self->origin, "couldn't connect",
+                                                    cockpit_channel_close_options (channel));
       cockpit_channel_close (channel, problem);
       return;
     }
 
-  options = cockpit_channel_get_options (channel);
+  JsonObject *options = cockpit_channel_get_options (channel);
 
   if (!cockpit_json_get_strv (options, "protocols", NULL, &protocols))
     {
@@ -269,7 +263,7 @@ on_socket_connect (GObject *object,
 
   self->client = web_socket_client_new_for_stream (self->url, self->origin, protocols, io);
 
-  node = json_object_get_member (options, "headers");
+  JsonNode *node = json_object_get_member (options, "headers");
   if (node)
     {
       if (!JSON_NODE_HOLDS_OBJECT (node))
@@ -279,9 +273,9 @@ on_socket_connect (GObject *object,
           return;
         }
 
-      headers = json_node_get_object (node);
+      JsonObject *headers = json_node_get_object (node);
       names = json_object_get_members (headers);
-      for (l = names; l != NULL; l = g_list_next (l))
+      for (GList *l = names; l != NULL; l = g_list_next (l))
         {
           node = json_object_get_member (headers, l->data);
           if (!node || !JSON_NODE_HOLDS_VALUE (node) || json_node_get_value_type (node) != G_TYPE_STRING)
@@ -291,7 +285,7 @@ on_socket_connect (GObject *object,
                                     self->origin, (gchar *)l->data);
               return;
             }
-          value = json_node_get_string (node);
+          const gchar *value = json_node_get_string (node);
 
           g_debug ("%s: sending header: %s %s", self->origin, (gchar *)l->data, value);
           web_socket_client_include_header (WEB_SOCKET_CLIENT (self->client), l->data, value);

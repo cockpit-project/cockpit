@@ -380,6 +380,10 @@ select.pf-c-form-control {
   * + &-arrow {
     margin-inline: var(--pf-c-select__toggle-arrow--MarginLeft) var(--pf-c-select__toggle-arrow--MarginRight);
   }
+
+  .pf-c-select__toggle-clear {
+    padding-inline: var(--pf-c-select__toggle-clear--PaddingLeft) var(--pf-c-select__toggle-clear--PaddingRight);
+  }
 }
 
 // RTL fix: Menu item
@@ -392,6 +396,27 @@ select.pf-c-form-control {
   }
 }
 
+// RTL fix: Input group padding and icons
+.pf-c-text-input-group {
+  &__text-input {
+    padding-inline: var(--pf-c-text-input-group__text-input--PaddingLeft) var(--pf-c-text-input-group__text-input--PaddingRight);
+  }
+
+  &__icon {
+    inset-inline: var(--pf-c-text-input-group__icon--Left) 0;
+  }
+}
+
+// RTL fix: List item actions
+.pf-c-data-list__item-action {
+  margin-inline: var(--pf-c-data-list__item-action--MarginLeft) 0;
+}
+
+// RTL fix: Align right utilities in flexes
+.pf-l-flex > .pf-m-align-right {
+  margin-inline: auto 0;
+}
+
 // Override PF to fix Right to Left languages
 [dir="rtl"] {
   // Flip outlines for buttons
@@ -399,6 +424,11 @@ select.pf-c-form-control {
     button::before {
       transform: scaleX(-1);
     }
+  }
+
+  // Flip submit button icons (they're often arrows or direction related)
+  .pf-c-button > .pf-svg {
+    transform: scaleX(-1);
   }
 
   // Swap image padding in buttons
@@ -457,6 +487,21 @@ select.pf-c-form-control {
   // Another case of aligning to the left instead of start
   .pf-c-dropdown__menu-item {
     text-align: start;
+  }
+
+  // Fix spacing around menu icons
+  .pf-c-dropdown__menu-item-icon {
+    margin-inline: 0 var(--pf-c-dropdown__menu-item-icon--MarginRight);
+  }
+
+  // Flip external icons
+  a[target] svg {
+    transform: scaleX(-1);
+  }
+
+  // Fix spacing in link icons
+  .pf-c-button__icon.pf-m-end {
+    margin-inline: var(--pf-c-button__icon--m-end--MarginLeft) 0;
   }
 
   // Flip breadcrum divider

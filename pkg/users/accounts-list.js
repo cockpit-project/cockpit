@@ -182,7 +182,7 @@ const getAccountRow = (account, current, groups) => {
             title: (
                 <span>
                     <a href={"#/" + account.name}>{account.name}</a>
-                    {current && <Badge className="pf-u-ml-lg" id="current-account-badge">{_("Your account")}</Badge>}
+                    {current && <Badge id="current-account-badge">{_("Your account")}</Badge>}
                 </span>
             ),
             sortKey: account.name,

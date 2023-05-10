@@ -1,8 +1,8 @@
 .insights-icon {
-  width: auto;
-  height: 1.25rem;
+  inline-size: auto;
+  block-size: 1.25rem;
   flex-basis: 22px;
-  margin-right: 0.5rem;
+  margin-inline-end: 0.5rem;
   justify-self: center;
 
   /* JavaScript-set numbers; default to 0 */
@@ -17,26 +17,26 @@
   /*  Use flex here (with auto below) so everything always adds up properly */
   display: flex;
   flex-direction: column;
-  width: 22px;
-  height: 22px;
+  inline-size: 22px;
+  block-size: 22px;
   /*  Inner gap between colors and border */
   padding: 1px;
   /* The top border offset is provided by the border of the first block */
-  padding-top: 0;
+  padding-block-start: 0;
 
   > * {
     /*  If there's a value, set to 1px. Otherwise, divide by 0 and it becomes invalid */
     --pixel-onoff: calc(var(--severity) / var(--severity) * 1px);
     /*  Hit severity is mapped to the --servity variable in blocks below. */
-    height: calc(var(--severity) / var(--total) * 100%);
+    block-size: calc(var(--severity) / var(--total) * 100%);
     /*  Make it stretchy so the math always works out. ("Fudge factor") */
     flex: auto;
     /*  Anti-alias the edges ever-so-slightly */
     border-radius: 1px;
     /* If there's a value, then there's a gap at top */
-    margin-top: var(--pixel-onoff);
+    margin-block-start: var(--pixel-onoff);
     /* If there's a value, always round height up to 1px minimum */
-    min-height: var(--pixel-onoff);
+    min-block-size: var(--pixel-onoff);
   }
 
   &-critical {

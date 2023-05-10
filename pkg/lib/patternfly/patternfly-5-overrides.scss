@@ -4,14 +4,13 @@
 
 // https://github.com/patternfly/patternfly-react/pull/8953
 .pf-c-input-group__text {
-  padding-left: var(--pf-global--spacer--sm);
-  padding-right: var(--pf-global--spacer--sm);
+  padding-inline: var(--pf-global--spacer--sm);
 }
 
 // PF Select is deprecated - no issue reported upstream - this needs to be removed from our codebase
 // Make select have the expected width
-.pf-c-select[data-popper-reference-hidden=false] {
-  width: auto;
+.pf-c-select[data-popper-reference-hidden="false"] {
+  inline-size: auto;
 }
 
 // https://github.com/patternfly/patternfly/issues/5501
@@ -68,7 +67,7 @@ to wrap around when there isn't enough space.
 /* Fix select menu rendering */
 ul.pf-c-select__menu {
   /* Don't get too tall */
-  max-height: min(20rem, 50vh);
+  max-block-size: min(20rem, 50vh);
   /* Don't have a horizontal scrollbar */
   overflow-y: auto;
 }
@@ -97,7 +96,7 @@ select.pf-c-form-control {
 .pf-c-description-list {
   // When using horizontal ruler inside description list it's just for the spacing - don't show it
   > hr {
-    border-top: none;
+    border-block-start: none;
   }
 }
 
@@ -136,7 +135,7 @@ select.pf-c-form-control {
       // https://github.com/patternfly/patternfly/issues/3713
       // https://github.com/patternfly/patternfly/issues/4362
       margin: unset;
-      padding-left: unset;
+      padding-inline: var(--pf-c-card__actions--PaddingLeft) unset;
     }
   }
 }
@@ -145,7 +144,7 @@ select.pf-c-form-control {
 // https://github.com/patternfly/patternfly-design/issues/1012
 .pf-c-form__group-control {
   .pf-c-form__group, .pf-c-form__section {
-    padding-top: var(--pf-global--spacer--md);
+    padding-block-start: var(--pf-global--spacer--md);
   }
 }
 
@@ -172,7 +171,7 @@ select.pf-c-form-control {
       }
 
       .pf-c-toolbar__content-section {
-        width: auto;
+        inline-size: auto;
       }
     }
   }
@@ -180,7 +179,7 @@ select.pf-c-form-control {
 
 // When there is an Alert above the Form add some spacing
 .pf-c-modal-box .pf-c-alert + .pf-c-form {
-  padding-top: var(--pf-global--FontSize--sm);
+  padding-block-start: var(--pf-global--FontSize--sm);
 }
 
 // HACK: Not possible to specify text, so needs some hacks, see https://github.com/patternfly/patternfly-react/issues/6140
@@ -189,7 +188,7 @@ select.pf-c-form-control {
     color: var(--pf-c-button--m-link--Color);
 
     .pf-c-button__icon {
-      margin-right: var(--pf-global--spacer--sm);
+      margin-inline-end: var(--pf-global--spacer--sm);
     }
   }
 }
@@ -228,7 +227,7 @@ select.pf-c-form-control {
 // https://github.com/patternfly/patternfly-react/issues/7592
 .pf-c-search-input__menu.pf-c-panel {
   position: absolute;
-  width: 100%;
+  inline-size: 100%;
 }
 
 // Breadcrumb links should have the correct pointing hand cursor.
@@ -278,17 +277,17 @@ select.pf-c-form-control {
 
     .pf-c-text-input-group__text {
       &::before {
-        border-top-color: transparent;
-        border-right-color: transparent;
-        border-left-color: transparent;
+        border-block-start-color: transparent;
+        border-inline-end-color: transparent;
+        border-inline-start-color: transparent;
       }
 
       &:is(:focus,:hover)::after {
-        border-bottom-color: var(--pf-global--active-color--100);
+        border-block-end-color: var(--pf-global--active-color--100);
       }
 
       &:not(:focus):not(:hover)::after {
-        border-bottom-color: var(--pf-global--BorderColor--400);
+        border-block-end-color: var(--pf-global--BorderColor--400);
       }
     }
   }
@@ -309,18 +308,102 @@ select.pf-c-form-control {
   }
 }
 
+// Fix icons in buttons
+.pf-c-button__icon.pf-m-start {
+  margin-inline: 0 var(--pf-c-button__icon--m-start--MarginRight);
+}
+
+// RTL fix: Modal close button
+.pf-c-modal {
+  &-box__header {
+    padding-inline: var(--pf-c-modal-box__header--PaddingRight) var(--pf-c-modal-box__header--PaddingLeft);
+  }
+
+  &-box__close {
+    text-align: end;
+    inset-inline: auto var(--pf-c-modal-box__close--Right);
+
+    + * {
+      margin-inline: 0 var(--pf-c-modal-box__close--sibling--MarginRight);
+    }
+  }
+}
+
+// RTL fix: Menu item alignment
+.pf-c-menu__item-main {
+  text-align: start;
+}
+
+// RTL fix: inline button alignment
+.pf-c-button.pf-m-link.pf-m-inline {
+  text-align: start;
+}
+
+// RTL fix: alert icons
+.pf-c-alert__icon {
+  margin-inline: 0 var(--pf-c-alert__icon--MarginRight);
+}
+
+// RTL fix: card
+.pf-c-card__actions {
+  padding-inline: var(--pf-c-card__actions--PaddingLeft) 0;
+}
+
+// RTL fix: table
+.pf-c-table tr > * {
+  padding-inline: var(--pf-c-table--cell--PaddingLeft) var(--pf-c-table--cell--PaddingRight);
+}
+
+// RTL fix: description lists
+.pf-c-description-list__term, .pf-c-description-list__description {
+  text-align: start;
+}
+
+// RTL fix: about modal
+.pf-c-about-modal-box__close {
+  padding-inline: 0 var(--pf-c-about-modal-box__close--PaddingRight);
+}
+
+// RTL fix: card toggle
+.pf-c-card__header-toggle {
+  margin-inline: var(--pf-c-card__header-toggle--MarginLeft) var(--pf-c-card__header-toggle--MarginRight);
+
+  [dir="rtl"] & {
+    transform: scaleX(-1);
+  }
+}
+
+// RTL fix: Select toggle
+.pf-c-select__toggle {
+  padding-inline: var(--pf-c-select__toggle--PaddingLeft) var(--pf-c-select__toggle--PaddingRight);
+
+  * + &-arrow {
+    margin-inline: var(--pf-c-select__toggle-arrow--MarginLeft) var(--pf-c-select__toggle-arrow--MarginRight);
+  }
+}
+
+// RTL fix: Menu item
+.pf-c-select__menu-item {
+  padding-inline: var(--pf-c-select__menu-item--PaddingLeft) var(--pf-c-select__menu-item--PaddingRight);
+  text-align: start;
+
+  &-icon {
+    inset-inline: auto var(--pf-c-select__menu-item-icon--Right);
+  }
+}
+
 // Override PF to fix Right to Left languages
 [dir="rtl"] {
   // Flip outlines for buttons
   .pf-m-split-button {
     button::before {
-      transform: scaleX(-100%);
+      transform: scaleX(-1);
     }
   }
 
   // Swap image padding in buttons
   .pf-c-dropdown__toggle-image {
-    margin-right: unset;
+    margin-inline-end: unset;
     gap: var(--pf-c-dropdown__toggle-image--MarginRight);
   }
 
@@ -336,8 +419,8 @@ select.pf-c-form-control {
   .pf-c-nav__link.pf-m-current {
     &, &:hover, &:not(.pf-m-expanded) .pf-c-nav__link {
       &::after {
-        width: 100%;
-        transform: scaleX(-100%);
+        inline-size: 100%;
+        transform: scaleX(-1);
       }
     }
   }
@@ -345,35 +428,30 @@ select.pf-c-form-control {
   // Toolbar content (as seen in the shell) should be left aligned in RTL
   // See: https://github.com/patternfly/patternfly/issues/3812
   .pf-c-toolbar__content {
-    margin-right: auto;
-    margin-left: 0;
+    margin-inline: 0 auto;
   }
 
   // Dropdown toggles: Swap image margins to be on left instead
   .pf-c-dropdown__toggle {
     &-image {
-      margin-right: 0;
-      margin-left: var(--pf-c-dropdown__toggle-image--MarginRight);
+      margin-inline: var(--pf-c-dropdown__toggle-image--MarginRight) 0;
     }
 
     &-icon {
-      margin-right: var(--pf-c-dropdown__toggle-icon--MarginLeft);
-      margin-left: var(--pf-c-dropdown__toggle-icon--MarginRight);
+      margin-inline: var(--pf-c-dropdown__toggle-icon--MarginRight) var(--pf-c-dropdown__toggle-icon--MarginLeft);
     }
   }
 
   // Flip popup directions, part 1 of 2
   .pf-c-dropdown .pf-c-menu.pf-m-align-right,
   .pf-c-dropdown__menu.pf-m-align-right {
-    right: unset;
-    left: 0;
+    inset-inline: 0 unset;
   }
 
   // Flip popup directions, part 2 of 2
   .pf-c-dropdown .pf-c-menu.pf-m-align-left,
   .pf-c-dropdown__menu.pf-m-align-left {
-    right: 0;
-    left: unset;
+    inset-inline: unset 0;
   }
 
   // Another case of aligning to the left instead of start
@@ -383,7 +461,8 @@ select.pf-c-form-control {
 
   // Flip breadcrum divider
   .pf-c-breadcrumb__item-divider {
-    transform: scaleX(-100%);
+    transform: scaleX(-1);
+    margin-inline: 0 var(--pf-c-breadcrumb__item-divider--MarginRight);
   }
 }
 
@@ -393,8 +472,7 @@ select.pf-c-form-control {
 // except this only affects the sides, not the top and bottom.
 @media screen and (max-width: $pf-global--breakpoint--sm) {
   .pf-c-page__main > section.pf-c-page__main-section:not(.pf-m-padding) {
-    padding-left: 0;
-    padding-right: 0;
+    padding-inline: 0;
   }
 }
 

@@ -39,7 +39,7 @@ export function delete_group_dialog(group) {
                     </Text>
                 </TextContent>
                 <List>
-                    {group.userlistPrimary.map(account => <ListItem key={account}>{account}</ListItem>)}
+                    {group.userlistPrimary.map(account => <ListItem className='list-item' key={account}>{account}</ListItem>)}
                 </List>
             </Stack>
             : null

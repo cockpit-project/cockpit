@@ -71,6 +71,7 @@ $desktop: $phone + 1px;
       padding-block: var(--pf-global--spacer--md) var(--pf-global--spacer--sm) !important;
       padding-inline: var(--pf-global--spacer--md) !important;
       color: var(--pf-global--palette--black-200);
+      inset-inline-start: var(--pf-global--spacer--sm);
     }
 
     .pf-c-text-input-group__text-input,
@@ -774,7 +775,8 @@ $desktop: $phone + 1px;
     &::after {
       pointer-events: none;
       border: 1px solid #444548;
-      border-width: 0 1px 0 0;
+      border-width: 0;
+      border-inline-end: 1px;
       position: absolute;
       inset: 0;
       content: "";

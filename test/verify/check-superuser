@@ -154,7 +154,6 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
-    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18676")
     def testNotAdmin(self):
         b = self.browser
         m = self.machine

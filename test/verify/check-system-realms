@@ -28,7 +28,7 @@ import parent  # noqa: F401
 
 import packagelib
 from testlib import (Error, MachineCase, no_retry_when_changed, nondestructive, skipBrowser, skipDistroPackage,
-                     skipImage, skipOstree, todoPybridge, test_main, wait, timeout)
+                     skipImage, skipOstree, test_main, wait, timeout)
 
 
 WAIT_KRB_SCRIPT = """
@@ -696,7 +696,6 @@ class TestIPA(TestRealms, CommonTests):
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
     @timeout(900)
-    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18676")
     def testClientCertAuthentication(self):
         m = self.machine
         b = self.browser

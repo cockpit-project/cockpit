@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main, Error
 
 
 @skipOstree("OSTree always uses loopback")
@@ -30,13 +30,22 @@ class TestLoopback(MachineCase):
         b = self.browser
         m = self.machine
 
+        m.verbose = True
+
         # Start Cockpit with option to access SSH
         m.stop_cockpit()
-        pid = m.spawn(f"{self.libexecdir}/cockpit-ws --local-ssh --no-tls", "cockpit-ws")
+        pid = m.spawn(f"env G_MESSAGES_DEBUG=all {self.libexecdir}/cockpit-ws --local-ssh --no-tls", "cockpit-ws")
         self.addCleanup(m.execute, "kill %i" % pid)
         m.wait_for_cockpit_running()
 
-        b.login_and_go("/system", user="admin")
+        try:
+            b.login_and_go("/system", user="admin")
+        except Error:
+            log = m.execute("cat /var/log/cockpit-ws")
+            print("--------------------------")
+            print(log)
+            print("--------------------------")
+            raise
         b.logout()
         b.wait_visible("#login")
 
@@ -67,6 +76,24 @@ class TestLoopback(MachineCase):
 
         self.allow_journal_messages("Cannot run program cockpit-bridge: No such file or directory",
                                     ".*server offered unsupported authentication methods: public-key.*")
+
+    def testBasic2(self):
+        self.testBasic()
+
+    def testBasic3(self):
+        self.testBasic()
+
+    def testBasic4(self):
+        self.testBasic()
+
+    def testBasic5(self):
+        self.testBasic()
+
+    def testBasic6(self):
+        self.testBasic()
+
+    def testBasic7(self):
+        self.testBasic()
 
 
 if __name__ == '__main__':

@@ -538,7 +538,7 @@ static const DefaultFixture fixture_shell_path_login = {
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
       "Set-Cookie: cockpit=deleted; PATH=/; SameSite=strict; HttpOnly\r*"
-      "<html class=\"pf-theme-dark\">*"
+      "<html>*"
       "<base href=\"/path/\">*"
       "login-button*"
 };
@@ -619,7 +619,7 @@ static const DefaultFixture fixture_shell_login = {
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
       "Set-Cookie: cockpit=deleted*"
-      "<html class=\"pf-theme-dark\">*"
+      "<html>*"
       "<base href=\"/\">*"
       "login-button*"
 };
@@ -680,7 +680,7 @@ static const DefaultFixture fixture_resource_login = {
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
     "Set-Cookie: cockpit=deleted*"
-    "<html class=\"pf-theme-dark\">*"
+    "<html>*"
     "login-button*"
 };
 
@@ -709,7 +709,7 @@ static const DefaultFixture fixture_host_login = {
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
   .expect = "HTTP/1.1 200*"
       "Set-Cookie: machine-cockpit+host=deleted*"
-      "<html class=\"pf-theme-dark\">*"
+      "<html>*"
       "<base href=\"/\">*"
       "login-button*"
 };

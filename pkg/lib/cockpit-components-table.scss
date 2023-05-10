@@ -24,9 +24,9 @@
     // Push buttons to the right by stretching the heading
     flex: auto;
     // Add a bit of minimum margin to the right of the heading
-    margin-right: var(--pf-global--spacer--md);
+    margin-inline-end: var(--pf-global--spacer--md);
     // Set a minimum height of 3rem, so when buttons wrap, there's spacing
-    min-height: var(--pf-global--spacer--2xl);
+    min-block-size: var(--pf-global--spacer--2xl);
     // Make sure textual content is aligned to the center
     display: flex;
     align-items: center;
@@ -34,11 +34,12 @@
 
   &-actions {
     > * {
-      margin: var(--pf-global--spacer--xs) 0 var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+      margin-block: var(--pf-global--spacer--xs);
+      margin-inline: var(--pf-global--spacer--sm) 0;
     }
 
     > :first-child {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
   }
 
@@ -64,7 +65,7 @@
     // unless a width is set. (This affects panels the most, but not only.)
     // As the width is smaller than the contents, and this is a table,
     // the cell will stay at the correct width.
-    width: 1px;
+    inline-size: 1px;
   }
 
   // Properly align actions on the end
@@ -99,7 +100,7 @@
 .pf-c-table tbody tr:first-child.error {
   &, tbody.pf-m-expanded > & {
     background-color: var(--ct-color-list-critical-bg) !important; /* keep red background when expanded */
-    border-top: 1px solid var(--ct-color-list-critical-border);
-    border-bottom: 1px solid var(--ct-color-list-critical-border);
+    border-block-start: 1px solid var(--ct-color-list-critical-border);
+    border-block-end: 1px solid var(--ct-color-list-critical-border);
   }
 }

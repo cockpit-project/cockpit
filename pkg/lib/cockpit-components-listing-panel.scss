@@ -5,11 +5,12 @@
   &-actions {
     order: 2;
     flex-grow: 1;
-    padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--lg) var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+    padding-block: var(--pf-global--spacer--sm);
+    padding-inline: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
   }
 
   &-caption {
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
   &-tabs {
@@ -28,11 +29,12 @@
     --pf-c-table--border-width--base: 0;
 
     // Add some sizing to the body
-    padding: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
-    width: 100%;
+    padding-block: var(--pf-global--spacer--md);
+    padding-inline: var(--pf-global--spacer--lg);
+    inline-size: 100%;
 
     // Containing hack part 1
-    float: left;
+    float: inline-start;
 
     &::after {
       // Containing hack part 2: Clearfix CSS hack,
@@ -50,7 +52,7 @@
     // Instead, rely on page scrolling.
     // Important for mobile; also useful for desktop.
     overflow-y: visible !important;
-    max-height: unset !important;
+    max-block-size: unset !important;
   }
 }
 
@@ -71,10 +73,9 @@
     transform-origin: top;
     // Overflow will revert when done (but should be hidden during animation)
     overflow: hidden;
-    max-height: 0;
+    max-block-size: 0;
     // Padding should 'tween between 0 and the actual padding (unstated)
-    padding-top: 0;
-    padding-bottom: 0;
+    padding-block: 0;
   }
 
   67% {
@@ -82,11 +83,11 @@
     // 100vh makes sense, but would cause different speeds on different devices
     // Screens are almost all =< 12000px; data is almost always smaller
     // we'll relax it to to 100vh at 100%, just in case.
-    max-height: 1200px;
+    max-block-size: 1200px;
   }
 
   100% {
     // Allow content to extend to the height of the screen (just in case)
-    max-height: 100vh;
+    max-block-size: 100vh;
   }
 }

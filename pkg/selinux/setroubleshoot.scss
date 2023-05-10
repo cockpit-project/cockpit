@@ -48,20 +48,20 @@
   gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
 
   > div:first-child {
-    width: 70%;
+    inline-size: 70%;
     flex: auto;
   }
 
   + hr {
-    margin-top: var(--pf-global--spacer--sm);
+    margin-block-start: var(--pf-global--spacer--sm);
   }
 
   .pf-c-expandable-section__content {
-    margin-top: unset;
+    margin-block-start: unset;
   }
 }
 
 .selinux-details textarea {
-  margin-top: var(--pf-global--spacer--xs);
+  margin-block-start: var(--pf-global--spacer--xs);
   resize: none;
 }

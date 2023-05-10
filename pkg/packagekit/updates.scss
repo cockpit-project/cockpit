@@ -13,13 +13,15 @@
     --pf-c-table--cell--PaddingTop: 0.5rem;
     --pf-c-table--cell--PaddingBottom: 0.5rem;
 
-    padding: var(--pf-c-table--cell--PaddingTop) var(--pf-c-table--cell--PaddingRight) var(--pf-c-table--cell--PaddingBottom) var(--pf-c-table--cell--PaddingLeft);
+    padding-block: var(--pf-c-table--cell--PaddingTop) var(--pf-c-table--cell--PaddingBottom);
+
+    padding-inline: var(--pf-c-table--cell--PaddingLeft) var(--pf-c-table--cell--PaddingRight);
   }
 }
 
 .kpatches-labelgroup ul.pf-c-label-group__list,
 .kpatches-labelgroup li.pf-c-label-group__list-item:last-child, {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .pk-updates--header {
@@ -27,15 +29,17 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 0 1rem;
+  padding-block: 1.5rem 1rem;
+  padding-inline: 0;
 
   &--actions {
     > .pf-c-button,
     > .btn-group {
-      margin: 5px 5px 0 0;
+      margin-block: 5px 0;
+      margin-inline: 0 5px;
 
       &:last-child {
-        margin-right: 0;
+        margin-inline-end: 0;
       }
     }
   }
@@ -54,7 +58,7 @@
 
 .ct-table tr {
   .severity-icon {
-    margin-right: var(--pf-global--spacer--xs);
+    margin-inline-end: var(--pf-global--spacer--xs);
   }
 
   td.changelog {
@@ -68,8 +72,8 @@
     }
 
     &, p {
-      max-width: 60vw;
-      margin-bottom: 0;  // counter-act <Markdown>
+      max-inline-size: 60vw;
+      margin-block-end: 0;  // counter-act <Markdown>
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -77,7 +81,7 @@
 
   th:last-child,
   td.changelog:last-child {
-    text-align: left;
+    text-align: start;
   }
 }
 
@@ -94,7 +98,7 @@
 }
 
 div.changelog {
-  max-height: 20em;
+  max-block-size: 20em;
   overflow: auto;
   white-space: pre-wrap;
 }
@@ -112,8 +116,9 @@ div.changelog {
 
 /* don't let the install progress bar get too wide */
 .progress-main-view {
-  max-width: 60rem;
-  margin: 10ex auto 0;
+  max-inline-size: 60rem;
+  margin-block: 10ex 0;
+  margin-inline: auto;
 
   .pf-l-grid {
     align-items: end;
@@ -122,30 +127,32 @@ div.changelog {
 
 /* workaround font not supporting tabular numbers yet https://github.com/cockpit-project/cockpit/issues/15090 */
 .pf-c-progress__status {
-  min-width: 3ch;
+  min-inline-size: 3ch;
 }
 
 /* Add some space between the spinner and the text */
 .progress-description > svg {
-  margin-right: var(--pf-global--spacer--sm);
+  margin-inline-end: var(--pf-global--spacer--sm);
 }
 
 .flow-list-blank-slate {
-  margin: 0 auto;
-  max-width: 69rem;
+  margin-block: 0;
+  margin-inline: auto;
+  max-inline-size: 69rem;
   text-align: center;
 }
 
 .flow-list {
   padding: 0;
-  text-align: left;
+  text-align: start;
   box-sizing: border-box;
 
   li {
-    text-align: left;
+    text-align: start;
     box-sizing: border-box;
-    width: 22rem;
-    padding: 0 1ex 0 0;
+    inline-size: 22rem;
+    padding-block: 0;
+    padding-inline: 0 1ex;
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
@@ -155,45 +162,47 @@ div.changelog {
 
 // prevent overflowo on small screens
 .error-log {
-  max-width: 100%;
+  max-inline-size: 100%;
 }
 
 .update-log {
   text-align: center;
 
   th {
-    text-align: left;
-    padding-right: 3ex;
+    text-align: start;
+    padding-inline-end: 3ex;
   }
 
   td {
-    text-align: left;
+    text-align: start;
   }
 }
 
 .update-log-content {
-  margin: 0 10ex;
-  height: 13em;
+  margin-block: 0;
+  margin-inline: 10ex;
+  block-size: 13em;
   overflow-y: auto;
 }
 
 table.header-buttons {
-  margin-bottom: 20px; /* replacement for h2's margin-bottom */
+  margin-block-end: 20px; /* replacement for h2's margin-bottom */
   td {
     vertical-align: middle;
   }
 
   h2 {
-    margin: 0 4rem 0 0; /* vertical default ones break vertical alignment */
+    margin-block: 0;
+    margin-inline: 0 4rem; /* vertical default ones break vertical alignment */
   }
 }
 
 #auto-update-day {
-  max-width: 10rem;
+  max-inline-size: 10rem;
 }
 
 #auto-update-time {
-  max-width: 7rem;
+  max-inline-size: 7rem;
 }
 
 .auto-update-group {
@@ -202,11 +211,12 @@ table.header-buttons {
 }
 
 .pk-updates .pf-c-description-list + div {
-  padding-top: var(--pf-global--spacer--md);
+  padding-block-start: var(--pf-global--spacer--md);
 }
 
 .restart-services-modal-body {
-  padding: 1em 0;
+  padding-block: 1em;
+  padding-inline: 0;
 }
 
 .pf-c-content ul {
@@ -216,7 +226,7 @@ table.header-buttons {
 .updates-history {
   // Constrain  time's width
   .history-time {
-    width: 0;
+    inline-size: 0;
     white-space: nowrap;
   }
 
@@ -225,29 +235,30 @@ table.header-buttons {
     align-items: baseline;
 
     > svg {
-      margin-right: 1ex;
+      margin-inline-end: 1ex;
     }
   }
 }
 
 .updates-success-table {
-  margin-bottom: 1em;
+  margin-block-end: 1em;
 }
 
 .update-success-actions > button {
-  margin: 0.25rem 0 0.25rem 0.5rem;
+  margin-block: 0.25rem;
+  margin-inline: 0.5rem 0;
 }
 
 .update-success-table-title {
-  padding-left: 0.5em;
+  padding-inline-start: 0.5em;
 }
 
 .cockpit-update-warning {
-  margin-right: 1rem;
+  margin-inline-end: 1rem;
 }
 
 .cockpit-update-warning-icon {
-  margin-right: 0.5rem;
+  margin-inline-end: 0.5rem;
 }
 
 .cockpit-update-warning-text {
@@ -255,7 +266,7 @@ table.header-buttons {
 }
 
 .autoupdates-card-error {
-  margin-bottom: var(--pf-global--spacer--md);
+  margin-block-end: var(--pf-global--spacer--md);
 }
 
 .ct-info-circle {

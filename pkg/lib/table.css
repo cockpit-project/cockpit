@@ -4,12 +4,12 @@
 
 /* Panels don't draw borders between them */
 .panel > .table > tbody:first-child td {
-  border-top: 1px solid rgb(221 221 221);
+  border-block-start: 1px solid rgb(221 221 221);
 }
 
 /* Table headers should not generate a double border */
 .panel .table thead tr th {
-  border-bottom: none;
+  border-block-end: none;
 }
 
 /* Fix panel heading alignment & mobile layout */
@@ -20,8 +20,9 @@
   display: flex;
   flex-wrap: wrap;
   /* (28px small size widget height) + (0.5rem * 2) */
-  min-height: calc(28px + 1rem);
-  padding: 0.5rem 1rem;
+  min-block-size: calc(28px + 1rem);
+  padding-block: 0.5rem;
+  padding-inline: 1rem;
   position: relative;
   z-index: 100;
 }
@@ -54,15 +55,14 @@
 .panel-heading > :last-child:not(:first-child),
 .panel-heading > .panel-heading-actions {
   flex: auto;
-  text-align: right;
+  text-align: end;
 }
 
 @media screen and (max-width: 640px) {
   /* Remove _most_ of the gaps on the sides of small screens */
   /* to maximize space, but still keep the boxy panel look */
   .col-md-12 > .panel {
-    margin-left: -10px;
-    margin-right: -10px;
+    margin-inline: -10px;
   }
 
   .panel {
@@ -73,7 +73,7 @@
     --hi-width: 20px;
     --hi-width3: calc(var(--hi-width) * 3);
     --transparent: rgb(255 255 255 / 0%); /* WebKit needs white transparent */
-    max-width: 100vw;
+    max-inline-size: 100vw;
     overflow-x: auto;
     position: relative;
     background-image:
@@ -89,8 +89,8 @@
 
   .panel > .panel-heading {
     position: sticky;
-    left: 0;
-    top: 0;
+    inset-inline-start: 0;
+    inset-block-start: 0;
   }
 
   .panel .table thead th {
@@ -139,10 +139,10 @@
 /* Make things line up */
 .table tbody tr > :first-child,
 .table thead tr > :first-child {
-  padding-left: 1rem;
+  padding-inline-start: 1rem;
 }
 
 .table tbody tr > :last-child,
 .table thead tr > :last-child {
-  padding-right: 1rem;
+  padding-inline-end: 1rem;
 }

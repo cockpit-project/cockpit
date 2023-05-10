@@ -46,21 +46,21 @@ html.index-page body {
 }
 
 #machine-change-auth > p {
-  margin-bottom: 5px;
+  margin-block-end: 5px;
 }
 
 // Fix fingerprint layout
 .add-host-fingerprint {
-  margin-top: var(--pf-global--spacer--md);
+  margin-block-start: var(--pf-global--spacer--md);
 
   td {
     padding: 0;
     line-height: inherit;
-    height: auto;
+    block-size: auto;
     vertical-align: middle !important;
 
     &:first-child {
-      padding-right: var(--pf-global--spacer--md);
+      padding-inline-end: var(--pf-global--spacer--md);
     }
   }
 }
@@ -68,7 +68,8 @@ html.index-page body {
 .machine-key {
   margin: 0;
   white-space: pre-line;
-  padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+  padding-block: var(--pf-global--spacer--xs);
+  padding-inline: var(--pf-global--spacer--sm);
 }
 
 .login-setup-checkbox-wrapper {
@@ -77,14 +78,14 @@ html.index-page body {
 }
 
 #edit-machine-port {
-  width: 100px;
+  inline-size: 100px;
 }
 
 #connecting {
-  height: 100%;
+  block-size: 100%;
   background-color: var(--ct-global--palette--black-250);
   text-align: center;
-  padding-top: 120px;
+  padding-block-start: 120px;
 }
 
 /* System information */
@@ -100,7 +101,7 @@ html.index-page body {
 .display-language-modal {
   /* Do not let the language menu expand to the end of the page */
   .pf-c-menu__content {
-    max-height: 20rem;
+    max-block-size: 20rem;
     overflow: auto;
   }
 }
@@ -108,7 +109,7 @@ html.index-page body {
 iframe.container-frame {
   display: none;
   border: none;
-  width: 100%;
+  inline-size: 100%;
 }
 
 // Page layout
@@ -119,8 +120,8 @@ $desktop: $phone + 1px;
 .page {
   --nav-width: 15rem;
   display: grid;
-  width: 100%;
-  height: 100%;
+  inline-size: 100%;
+  block-size: 100%;
 
   // Set masthead and toolbar to transparent, so the background shows through
   // (including the accent line)
@@ -178,7 +179,7 @@ $desktop: $phone + 1px;
     grid-template-columns: minmax(min-content, var(--nav-width)) 1fr;
 
     > .navbar {
-      max-width: var(--nav-width);
+      max-inline-size: var(--nav-width);
     }
 
     .sidebar {
@@ -231,12 +232,12 @@ $desktop: $phone + 1px;
 
 /* Alert fixups */
 .modal-content .pf-c-alert {
-  text-align: left;
-  margin-bottom: 24px;
+  text-align: start;
+  margin-block-end: 24px;
 }
 
 .early-failure {
-  height: 100%;
+  block-size: 100%;
 }
 
 // Header menu buttons don't need a background color (especially in dark mode)

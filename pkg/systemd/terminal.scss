@@ -3,7 +3,7 @@
 @import "global-variables";
 
 .console-ct-container {
-  height: 100%;
+  block-size: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
   overflow: hidden;
@@ -11,20 +11,17 @@
 
 .console-ct-container .terminal-body,
 .console-ct-container .console-ct {
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
 }
 
 .console-ct-container .terminal-group {
-  border-bottom: 1px solid var(--ct-color-border);
+  border-block-end: 1px solid var(--ct-color-border);
 }
 
 .xterm-accessibility {
   /* Allow for scrollbar clicking */
   /* (scrollbars are 18px or less across common OSes) */
-  right: 18px !important;
+  inset-inline-end: 18px !important;
 }
 
 .console-ct-container .terminal-body {
@@ -70,7 +67,7 @@
       padding: 0;
 
       select {
-        min-width: 5rem;
+        min-inline-size: 5rem;
       }
     }
     padding: 0;

@@ -5,7 +5,7 @@
 // However, the toolbar also lacks a border and is sticky, so add a bottom
 // border to the toolbar to separate the toolbar and list.
 .services-toolbar {
-  border-bottom: 1px solid var(--pf-global--BorderColor--100);
+  border-block-end: 1px solid var(--pf-global--BorderColor--100);
 }
 
 // Magic pixie dust to make the list a bit faster and more furious
@@ -33,7 +33,7 @@
 .service-unit-file-state {
   display: inline-block;
   font-size: var(--pf-global--FontSize--sm);
-  min-width: 5rem;
+  min-inline-size: 5rem;
   text-align: center;
 }
 
@@ -44,28 +44,28 @@
 
 // Add some spacing between the tab label and the icon
 .pf-c-nav__link > .ct-exclamation-circle {
-  margin-left: 0.5rem;
+  margin-inline-start: 0.5rem;
 }
 
 .services-header.pf-c-page__main-nav {
-  padding-bottom: 1rem;
-  padding-right: 0;
+  padding-block-end: 1rem;
+  padding-inline-end: 0;
 
   > .pf-l-flex {
     // Add spacing between the tabs and the 'Create timer' button in mobile
     row-gap: var(--pf-global--spacer--sm);
     // Align 'Create timer' button with the right side of the services list card
-    margin-right: var(--pf-c-page__main-section--PaddingRight);
+    margin-inline-end: var(--pf-c-page__main-section--PaddingRight);
   }
 }
 
 // Add some spacing between the icon and the status string in the list
 .service-unit-status-failed > .ct-exclamation-circle {
-  margin-right: 0.5rem;
+  margin-inline-end: 0.5rem;
 }
 
 .service-unit-first-column {
-  min-width: 20rem;
+  min-inline-size: 20rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(5rem, 25rem));
   grid-gap: var(--pf-global--spacer--sm);
@@ -80,7 +80,7 @@
 }
 
 .service-unit-triggers {
-  min-width: 20ch;
+  min-inline-size: 20ch;
 }
 
 .pf-c-table .service-unit-second-column {

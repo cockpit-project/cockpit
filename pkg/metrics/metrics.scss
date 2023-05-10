@@ -550,17 +550,28 @@ $graphs: cpu, memory, disks, network;
       }
     }
 
+    // we always need to flip the polygons in Y direction, as the SVG coordinate system's Y goes downwards
+    // flip them in X direction for RTL
+
     .polygon.polygon-use {
-      transform: scale(-1);
-    }
-
-    .polygon-use {
       grid-area: utilization;
+      transform: scale(-1);
+
+      // Revert horizontal flip for RTL
+      [dir="rtl"] & {
+        transform: scaleY(-1);
+      }
     }
 
-    .polygon-sat {
-      opacity: 0.7;
+    .polygon.polygon-sat {
       grid-area: saturation;
+      opacity: 0.7;
+      transform: scaleY(-1);
+
+      // Flip polygons for RTL
+      [dir="rtl"] & {
+        transform: scale(-1);
+      }
     }
 
     .compressed.polygon-sat {

@@ -2207,7 +2207,7 @@ def nondestructive(testEntity):
 
     Can be used on test classes and individual test methods.
     """
-    testEntity._testlib__nondestructive = True
+    setattr(testEntity, '_testlib__nondestructive', True)
     return testEntity
 
 
@@ -2218,7 +2218,7 @@ def no_retry_when_changed(testEntity):
     takes a long time, this prevents timeouts. Can be used on test classes and
     individual methods.
     """
-    testEntity._testlib__no_retry_when_changed = True
+    setattr(testEntity, '_testlib__no_retry_when_changed', True)
     return testEntity
 
 
@@ -2229,7 +2229,7 @@ def todo(reason=''):
     via run-tests.
     """
     def wrapper(testEntity):
-        testEntity._testlib__todo = reason
+        setattr(testEntity, '_testlib__todo', reason)
         return testEntity
     return wrapper
 
@@ -2272,7 +2272,7 @@ def timeout(seconds: str):
     applies to test/common/run-tests, not to calling check-* directly.
     """
     def wrapper(testEntity):
-        testEntity._testlib__timeout = seconds
+        setattr(testEntity, '_testlib__timeout', seconds)
         return testEntity
     return wrapper
 

@@ -19,21 +19,19 @@ import collections
 import multiprocessing
 import numbers
 import os
-import unittest
-from unittest import mock
-from pathlib import Path
 
 import pytest
 
 import cockpit.samples
 
 
-@pytest.fixture(scope="session")
-def hwmon_mock(tmpdir_factory):
-    hwmon_dir = Path(tmpdir_factory.mktemp('hwmon'))
+@pytest.fixture
+def hwmon_mock(tmpdir_factory, monkeypatch):
+    hwmon_dir = tmpdir_factory.mktemp('hwmon')
+    monkeypatch.setattr(cockpit.samples, "HWMON_PATH", str(hwmon_dir))
 
     # hwmon1 - no name
-    Path(hwmon_dir, 'hwmon1').mkdir()
+    (hwmon_dir / 'hwmon1').mkdir()
 
     # hwmon2 - no label (on ARM)
     hwmon2_dir = hwmon_dir / 'hwmon2'
@@ -80,86 +78,80 @@ def hwmon_mock(tmpdir_factory):
     with open(hwmon4_dir / 'temp4_label', 'w') as fp:
         fp.write('Core 2')
 
-    return str(hwmon_dir)
+    return hwmon_dir
 
 
-@pytest.fixture(scope="class")
-def samples_fixture(request, hwmon_mock):
-    class MockSamples:
-        def __init__(self):
-            self.hwmon_mock = hwmon_mock
+def get_checked_samples(sampler: cockpit.samples.Sampler) -> cockpit.samples.Samples:
+    cls = sampler.__class__
 
-    request.cls.mock = MockSamples()
+    samples: cockpit.samples.Samples = collections.defaultdict(dict)
+    sampler.sample(samples)
+
+    assert set(samples) == set(descr.name for descr in cls.descriptions)
+
+    for descr in cls.descriptions:
+        sample = samples[descr.name]
+
+        if descr.instanced:
+            assert isinstance(sample, dict)
+        else:
+            assert isinstance(sample, numbers.Real)
+
+    return samples
 
 
-@pytest.mark.usefixtures("samples_fixture")
-class TestSamples(unittest.TestCase):
-    def get_checked_samples(self, sampler: cockpit.samples.Sampler) -> cockpit.samples.Samples:
-        cls = sampler.__class__
+def test_descriptions():
+    for cls in cockpit.samples.SAMPLERS:
+        # currently broken in containers with no cgroups or temperatures present
+        if cls in [cockpit.samples.CGroupSampler, cockpit.samples.CPUTemperatureSampler]:
+            continue
 
-        samples: cockpit.samples.Samples = collections.defaultdict(dict)
-        sampler.sample(samples)
+        get_checked_samples(cls())
 
-        self.assertEqual(set(samples), set(descr.name for descr in cls.descriptions))
 
-        for descr in cls.descriptions:
-            sample = samples[descr.name]
+def test_cgroup_descriptions():
+    if not os.path.exists('/sys/fs/cgroup/system.slice'):
+        pytest.xfail('No cgroups present')
 
-            if descr.instanced:
-                assert isinstance(sample, dict)
-            else:
-                assert isinstance(sample, numbers.Real)
+    get_checked_samples(cockpit.samples.CGroupSampler())
 
-        return samples
 
-    def test_descriptions(self):
-        for cls in cockpit.samples.SAMPLERS:
-            # currently broken in containers with no cgroups or temperatures present
-            if cls in [cockpit.samples.CGroupSampler, cockpit.samples.CPUTemperatureSampler]:
-                continue
+def test_temperature_descriptions():
+    samples = collections.defaultdict(dict)
+    cockpit.samples.CPUTemperatureSampler().sample(samples)
+    if not samples:
+        pytest.xfail('No CPU temperature present')
 
-            self.get_checked_samples(cls())
+    get_checked_samples(cockpit.samples.CPUTemperatureSampler())
 
-    def test_cgroup_descriptions(self):
-        if not os.path.exists('/sys/fs/cgroup/system.slice'):
-            pytest.xfail('No cgroups present')
 
-        self.get_checked_samples(cockpit.samples.CGroupSampler())
+def test_cpu():
+    samples = get_checked_samples(cockpit.samples.CPUSampler())
+    assert len(samples['cpu.core.user']) == multiprocessing.cpu_count()
 
-    def test_temperature_descriptions(self):
-        samples = collections.defaultdict(dict)
-        cockpit.samples.CPUTemperatureSampler().sample(samples)
-        if not samples:
-            pytest.xfail('No CPU temperature present')
 
-        self.get_checked_samples(cockpit.samples.CPUTemperatureSampler())
+def test_cpu_temperature(hwmon_mock):
+    samples = collections.defaultdict(dict)
+    cockpit.samples.CPUTemperatureSampler().sample(samples)
+    samples = get_checked_samples(cockpit.samples.CPUTemperatureSampler())
+    for name, temperature in samples['cpu.temperature'].items():
+        # no name
+        assert 'hwmon1' not in name
 
-    def test_cpu(self):
-        samples = self.get_checked_samples(cockpit.samples.CPUSampler())
-        self.assertEqual(len(samples['cpu.core.user']), multiprocessing.cpu_count())
+        assert 20 < temperature < 50
 
-    def test_cpu_temperature(self):
-        samples = collections.defaultdict(dict)
-        with mock.patch("cockpit.samples.HWMON_PATH", self.mock.hwmon_mock):
-            cockpit.samples.CPUTemperatureSampler().sample(samples)
-            samples = self.get_checked_samples(cockpit.samples.CPUTemperatureSampler())
-            for name, temperature in samples['cpu.temperature'].items():
-                # no name
-                assert 'hwmon1' not in name
+    expected = ['hwmon4/temp4_input', 'hwmon4/temp3_input', 'hwmon4/temp2_input',
+                'hwmon4/temp1_input', 'hwmon3/temp3_input', 'hwmon2/temp1_input']
+    sensors = [os.path.relpath(p, start=hwmon_mock) for p in samples['cpu.temperature']]
+    assert sorted(sensors) == sorted(expected)
 
-                assert 20 < temperature < 50
 
-            expected = ['hwmon4/temp4_input', 'hwmon4/temp3_input', 'hwmon4/temp2_input',
-                        'hwmon4/temp1_input', 'hwmon3/temp3_input', 'hwmon2/temp1_input']
-            sensors = [os.path.relpath(p, start=self.mock.hwmon_mock) for p in samples['cpu.temperature']]
-            assert sorted(sensors) == sorted(expected)
+def test_cgroup_disk_io():
+    samples = collections.defaultdict(dict)
+    cockpit.samples.CGroupDiskIO().sample(samples)
+    samples = get_checked_samples(cockpit.samples.CGroupDiskIO())
 
-    def test_cgroup_disk_io(self):
-        samples = collections.defaultdict(dict)
-        cockpit.samples.CGroupDiskIO().sample(samples)
-        samples = self.get_checked_samples(cockpit.samples.CGroupDiskIO())
-
-        assert len(samples['disk.cgroup.read']) == len(samples['disk.cgroup.written'])
-        for cgroup in samples['disk.cgroup.read']:
-            assert samples['disk.cgroup.read'][cgroup] >= 0
-            assert samples['disk.cgroup.written'][cgroup] >= 0
+    assert len(samples['disk.cgroup.read']) == len(samples['disk.cgroup.written'])
+    for cgroup in samples['disk.cgroup.read']:
+        assert samples['disk.cgroup.read'][cgroup] >= 0
+        assert samples['disk.cgroup.written'][cgroup] >= 0

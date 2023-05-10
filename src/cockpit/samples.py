@@ -191,7 +191,13 @@ class DiskSampler(Sampler):
 
             for line in diskstats:
                 # https://www.kernel.org/doc/Documentation/ABI/testing/procfs-diskstats
-                [dev_major, _, dev_name, _, num_reads_merged, num_sectors_read, _, _, num_writes_merged, num_sectors_written, *_] = line.strip().split()
+                fields = line.strip().split()
+                dev_major = fields[0]
+                dev_name = fields[2]
+                num_reads_merged = fields[4]
+                num_sectors_read = fields[5]
+                num_writes_merged = fields[8]
+                num_sectors_written = fields[9]
 
                 # ignore device-mapper and md
                 if dev_major in ['9', '253']:

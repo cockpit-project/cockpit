@@ -3,6 +3,8 @@
 
 set -eu
 
+# requires: pyproject.toml
+
 # we consider any function named test_* to be a test case
 # each test is considered to succeed if it exits with no output
 # exit with status 77 is a skip, with the message in the output

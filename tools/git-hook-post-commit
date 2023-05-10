@@ -15,8 +15,9 @@ tmpdir="tmp/pre-push/${commit}"
 rm -rf "tmp/pre-push/${commit}"
 
 # unpack all of the changed files, plus the test/static-code from that commit
-files="$(git diff-tree --no-commit-id --no-renames --diff-filter=d --name-only -r "${commit}" --) test/static-code"
-git archive --prefix="${tmpdir}/" "${commit}" -- ${files} | tar x
+changed_files="$(git diff-tree --no-commit-id --no-renames --diff-filter=d --name-only -r "${commit}" --)"
+required_files="$(git cat-file -p "${commit}":test/static-code | sed -n 's/^# requires: //p') test/static-code"
+git archive --prefix="${tmpdir}/" "${commit}" -- ${changed_files} ${required_files} | tar x
 
 # check that node_modules always gets updated with package.json
 if [ -e "${tmpdir}/package.json" -a ! -e "${tmpdir}/node_modules" ]; then

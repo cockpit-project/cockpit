@@ -160,7 +160,14 @@ class SuperuserRoutingRule(RoutingRule, ferny.InteractionResponder, bus.Object, 
         if self.peer is not None and self.current not in self.superuser_configs:
             self.stop()
 
+    def cancel_prompt(self):
+        if self.pending_prompt is not None:
+            self.pending_prompt.cancel()
+            self.pending_prompt = None
+
     def shutdown(self):
+        self.cancel_prompt()
+
         if self.peer is not None:
             self.peer.close()
 

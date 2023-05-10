@@ -12,7 +12,7 @@
 
 #app {
   section.pf-c-page__main-breadcrumb {
-    padding-bottom: var(--pf-c-page__main-breadcrumb--PaddingTop);
+    padding-block-end: var(--pf-c-page__main-breadcrumb--PaddingTop);
   }
 }
 
@@ -33,7 +33,7 @@ html {
 
 // Remove doubled-up padding on "main" sections, when two+ sections are used.
 .pf-c-page__main-section + .pf-c-page__main-section {
-  padding-top: 0;
+  padding-block-start: 0;
 }
 
 // FIXME: More styles from ct-system-overview
@@ -56,7 +56,7 @@ html {
     // Make sure the cards do not get taller than 50% of the screen
     // ...and when they do, they should scroll
     @media screen and (orientation: landscape) {
-      max-height: 50vh;
+      max-block-size: 50vh;
       overflow: auto;
     }
 
@@ -74,12 +74,12 @@ html {
       // including table headings
       > :first-child,
       > :first-child > thead > tr > th {
-        padding-top: 0;
+        padding-block-start: 0;
       }
 
       .pf-c-table thead th:not(:first-child),
       .pf-c-table tbody td:not(:first-child) {
-        text-align: right;
+        text-align: end;
       }
     }
 
@@ -105,21 +105,21 @@ html {
 
     .progress-stack {
       display: grid;
-      padding-bottom: var(--pf-global--spacer--sm);
+      padding-block-end: var(--pf-global--spacer--sm);
       grid-gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
 
       &:not(:first-child) {
-        padding-top: var(--pf-global--spacer--sm);
+        padding-block-start: var(--pf-global--spacer--sm);
       }
     }
 
     .progress-stack-no-space {
       display: grid;
-      padding-bottom: var(--pf-global--spacer--sm);
+      padding-block-end: var(--pf-global--spacer--sm);
       grid-gap: 0;
 
       &:not(:first-child) {
-        padding-top: var(--pf-global--spacer--sm);
+        padding-block-start: var(--pf-global--spacer--sm);
       }
 
       // avoid the "x" icon on high CPU usage
@@ -129,8 +129,8 @@ html {
 
       // don't center the "View all CPUs" button
       button {
-        padding-left: 0;
-        width: fit-content;
+        padding-inline-start: 0;
+        inline-size: fit-content;
       }
     }
 
@@ -169,7 +169,7 @@ html {
 
     + .pf-c-progress {
       // Add a tiny gap for sandwiched usage bars (as in CPU)
-      padding-top: 1px;
+      padding-block-start: 1px;
     }
   }
 
@@ -220,13 +220,13 @@ html {
       --pf-c-table--cell--MinWidth: 0;
       display: inline;
     }
-    width: 2rem;
-    min-width: 0;
+    inline-size: 2rem;
+    min-inline-size: 0;
   }
 
   .pf-m-grid-lg.pf-c-table {
     tbody:first-of-type {
-      border-top: none;
+      border-block-start: none;
     }
 
     tbody tr:not(.pf-c-table__expandable-row) {
@@ -237,7 +237,7 @@ html {
       --pf-c-table-tr--responsive--border-width--base: 1px;
 
       &:last-child {
-        border-bottom: none;
+        border-block-end: none;
       }
 
       > * {
@@ -250,15 +250,15 @@ html {
   .all-disks-no-gap {
     // don't center the "View all disks" button
     button {
-      padding-left: 0;
-      width: fit-content;
+      padding-inline-start: 0;
+      inline-size: fit-content;
     }
   }
 }
 
 .pf-c-popover {
   thead th:not(:first-child) {
-    text-align: right;
+    text-align: end;
   }
 
   .disks-nowrap {
@@ -267,7 +267,7 @@ html {
     }
 
     td:not(:first-child) {
-      text-align: right;
+      text-align: end;
     }
   }
 }
@@ -278,8 +278,8 @@ html {
   }
 
   .current-metrics .pf-c-card__body {
-    overflow-y: auto;
-    max-height: 50vw;
+    overflow-block: auto;
+    max-block-size: 50vw;
   }
 
   // Trim down the gutter space between cards
@@ -337,12 +337,12 @@ $graphs: cpu, memory, disks, network;
 
   --column-size: 10vw;
   --half-column-size: 8vw;
-  --data-min-height: 5px;
+  --data-min-block-size: 5px;
 
   --graph-column-size: 60%;
 
   &-hour-compressed {
-    --data-min-height: 1px;
+    --data-min-block-size: 1px;
     display: flex;
     background-color: var(--pf-global--BackgroundColor--light-300);
   }
@@ -360,25 +360,25 @@ $graphs: cpu, memory, disks, network;
 
   &-graphs {
     flex-basis: var(--graph-column-size);
-    margin-left: auto;
+    margin-inline-start: auto;
     display: grid;
     grid-template-columns: repeat(var(--graph-cnt), minmax(var(--column-size), 1fr));
 
     .metrics-data {
-      min-height: var(--data-min-height);
+      min-block-size: var(--data-min-height);
     }
   }
 
   &-sublabels.pf-c-content {
     small {
       font-size: var(--pf-global--FontSize--xs);
-      margin-bottom: var(--pf-global--spacer--xs) !important;
+      margin-block-end: var(--pf-global--spacer--xs) !important;
     }
     display: flex;
   }
 
   &-label-graph {
-    text-align: right;
+    text-align: end;
 
     & .metrics-sublabels {
       justify-content: flex-end;
@@ -399,13 +399,13 @@ $graphs: cpu, memory, disks, network;
   }
 
   &-events-hour-header-expanded {
-    width: calc(100% - var(--graph-column-size));
+    inline-size: calc(100% - var(--graph-column-size));
   }
 
   &-selectors,
   &-events-wrapper {
     flex-basis: calc(100% - var(--graph-column-size));
-    width: 100%;
+    inline-size: 100%;
   }
 
   &-events {
@@ -416,14 +416,14 @@ $graphs: cpu, memory, disks, network;
     font-size: var(--pf-global--FontSize--sm);
 
     &-expander {
-      min-width: 3rem;
+      min-inline-size: 3rem;
     }
 
     time:first-child {
-      margin-left: calc(3rem + var(--pf-global--spacer--sm));
+      margin-inline-start: calc(3rem + var(--pf-global--spacer--sm));
 
       + .spikes_count {
-        padding-left: calc(var(--pf-global--spacer--xl) + var(--pf-global--spacer--md));
+        padding-inline-start: calc(var(--pf-global--spacer--xl) + var(--pf-global--spacer--md));
         color: var(--pf-global--Color--200);
       }
     }
@@ -471,14 +471,12 @@ $graphs: cpu, memory, disks, network;
 
   &-time,
   &-heading {
-    padding-right: var(--pf-c-page__main-section--PaddingRight);
-    padding-left: var(--pf-c-page__main-section--PaddingLeft);
+    padding-inline: var(--pf-c-page__main-section--PaddingLeft) var(--pf-c-page__main-section--PaddingRight);
   }
 
   &-time {
     background: var(--metrics-heading-time-color);
-    padding-top: var(--pf-global--spacer--md);
-    padding-bottom: var(--pf-global--spacer--sm);
+    padding-block: var(--pf-global--spacer--md) var(--pf-global--spacer--sm);
 
     // Time has tabular numbers, but it's not what we want for a heading
     time {
@@ -501,7 +499,8 @@ $graphs: cpu, memory, disks, network;
     --gradient-flip: linear-gradient(to left, var(--gradient-fragment));
     display: grid;
     contain: strict;
-    margin: 0 var(--pf-global--spacer--sm);
+    margin-block: 0;
+    margin-inline: var(--pf-global--spacer--sm);
     // Make SVG and generated before/after line position relative to metrics-data
     position: relative;
     grid-template-areas: "utilization";
@@ -513,14 +512,13 @@ $graphs: cpu, memory, disks, network;
       content: "";
       position: absolute;
       z-index: 1;
-      width: 100%;
-      top: 0;
-      bottom: 0;
-      border-right: 1px solid rgb(0 0 0 / 30%);
+      inline-size: 100%;
+      inset-block: 0;
+      border-inline-end: 1px solid rgb(0 0 0 / 30%);
     }
 
     &.valid-data.have-saturation::before {
-      width: 50%;
+      inline-size: 50%;
     }
 
     // horizontal tick mark for saturation half, for resources that have it
@@ -528,19 +526,19 @@ $graphs: cpu, memory, disks, network;
       content: "";
       position: absolute;
       z-index: 1;
-      width: 50%;
-      left: 50%;
+      inline-size: 50%;
+      inset-inline-start: 50%;
     }
 
     .polygon {
       // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
       position: absolute;
-      top: 0;
-      left: 0;
+      inset-block-start: 0;
+      inset-inline-start: 0;
       clip-path: polygon(var(--points));
       background: var(--gradient);
-      height: 100%;
-      width: 100%;
+      block-size: 100%;
+      inline-size: 100%;
     }
 
     @each $graph in $graphs {
@@ -578,6 +576,11 @@ $graphs: cpu, memory, disks, network;
     .compressed.polygon-use {
       background: var(--gradient-flip);
       clip-path: inset(0 0 0 calc(100% - var(--utilization) * 100%));
+
+      // Flip for RTL
+      [dir="rtl"] & {
+        transform: scaleX(-1);
+      }
     }
   }
 
@@ -589,25 +592,26 @@ $graphs: cpu, memory, disks, network;
   &-data::after {
     content: "";
     z-index: -1;
-    top: 0;
-    bottom: 0;
+    inset-block-start: 0;
+    inset-block-end: 0;
     position: absolute;
   }
 
   &-data.empty-data::after {
     position: initial;
-    border-right: 1px dotted rgb(0 0 0 / 30%);
+    border-inline-end: 1px dotted rgb(0 0 0 / 30%);
   }
 
   &-data.empty-data.have-saturation::after {
     position: absolute;
-    border-left: 1px dotted rgb(0 0 0 / 30%);
-    border-right: none;
-    left: 50%;
+    border-inline-start: 1px dotted rgb(0 0 0 / 30%);
+    border-inline-end: none;
+    inset-inline-start: 50%;
   }
 
   &-hour {
-    padding: 0 var(--pf-global--spacer--sm);
+    padding-block: 0;
+    padding-inline: var(--pf-global--spacer--sm);
   }
 
   &-hour:not(.metrics-hour-compressed) .metrics-minute,
@@ -622,7 +626,7 @@ $graphs: cpu, memory, disks, network;
   }
 
   .pf-c-card__body:first-child {
-    padding-top: 0;
+    padding-block-start: 0;
   }
 }
 
@@ -645,7 +649,7 @@ $graphs: cpu, memory, disks, network;
 
     time:first-child {
       + .spikes_count {
-        padding-left: 0;
+        padding-inline-start: 0;
       }
     }
   }
@@ -656,14 +660,14 @@ $graphs: cpu, memory, disks, network;
   }
 
   .metrics-label-graph-mobile {
-    padding-left: var(--pf-global--spacer--sm);
-    padding-top: var(--pf-global--spacer--sm);
+    padding-inline-start: var(--pf-global--spacer--sm);
+    padding-block-start: var(--pf-global--spacer--sm);
     font-size: var(--pf-global--FontSize--sm);
   }
 
   .square {
-    width: 1rem;
-    height: 1rem;
+    inline-size: 1rem;
+    block-size: 1rem;
   }
 
   @each $graph in $graphs {
@@ -691,21 +695,21 @@ $graphs: cpu, memory, disks, network;
 }
 
 .select-min {
-  width: min-content;
+  inline-size: min-content;
 }
 
 #pcp-settings-modal {
   .pcp-settings-modal-text {
     // "Read more..." link
     a {
-      padding-left: 1em;
+      padding-inline-start: 1em;
       white-space: nowrap;
     }
   }
 
   // leave some space for the focus rings
   .pf-c-switch {
-    margin-bottom: 10px;
+    margin-block-end: 10px;
   }
 }
 
@@ -727,13 +731,14 @@ $graphs: cpu, memory, disks, network;
     font-family: var(--pf-global--FontFamily--monospace);
     // Aligning percentages to the right, especially when monospaced,
     // makes  it easier to see high percentages
-    text-align: right;
+    text-align: end;
   }
 }
 
 // FIXME: We probably want to adapt some of these for the general log message widget
 .cockpit-logline {
-  padding: 0.25rem 0;
+  padding-block: 0.25rem;
+  padding-inline: 0;
 }
 
 .cockpit-log-message {
@@ -752,7 +757,8 @@ $graphs: cpu, memory, disks, network;
 // this fixes it by realigning and offsetting
 .cockpit-log-warning {
   transform: translateY(calc((var(--pf-global--spacer--md) - 22px) / -2));
-  margin: 0 var(--pf-global--spacer--xs) 0 0;
+  margin: 0;
+  margin-inline-end: var(--pf-global--spacer--xs);
   align-self: baseline;
 }
 
@@ -774,12 +780,12 @@ $graphs: cpu, memory, disks, network;
   .metrics-events-popover {
     .cockpit-log-panel {
       // Limit the size of the popover to make it more elegant
-      max-height: 65vw;
+      max-block-size: 65vw;
     }
 
     .pf-c-popover__content {
       // Limit the width of the popover in desktop mode
-      max-width: max(30rem, 40vw);
+      max-inline-size: max(30rem, 40vw);
     }
   }
 }
@@ -787,14 +793,15 @@ $graphs: cpu, memory, disks, network;
 @media (max-width: 800px) {
   .metrics-events-popover {
     // Make the popover into a sheet from the bottom in mobile mode
-    inset: auto 0 0 0 !important;
+    inset-block: auto 0 !important;
+    inset-inline: 0 !important;
     transform: none !important;
-    max-height: 100%;
-    min-height: 25vh;
+    max-block-size: 100%;
+    min-block-size: 25vh;
 
     .pf-c-popover__content {
       // Limit the width of the popover in desktop mode
-      max-width: max(100vw);
+      max-inline-size: max(100vw);
     }
 
     // As a sheet at the bottom, it doesn't point to anything

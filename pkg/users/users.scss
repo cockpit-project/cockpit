@@ -109,3 +109,17 @@
 #groups-create, #account-create {
   min-inline-size: 11rem;
 }
+
+#group-confirm-delete-dialog .list-item {
+  margin-inline-end: var(--pf-global--spacer--lg);
+}
+
+// We cannot use the PF helper pf-u-ml-lg here, as it doesn't support RTL yet
+#current-account-badge {
+  margin-inline-start: var(--pf-global--spacer--lg);
+}
+
+// Pretty sure paths are LTR, even in an RTL display
+output {
+  direction: ltr;
+}

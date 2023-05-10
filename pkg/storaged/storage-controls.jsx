@@ -210,7 +210,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, small }
                  aria-label={cockpit.format(_("Usage of $0"), block)}
                  aria-valuetext={labelText}>
                 <div className="pf-c-progress__indicator ct-progress-other" aria-hidden="true" style={{ width: total_fraction * 100 + "%" }} />
-                <div className="pf-c-progress__indicator" style={{ left: off_fraction * 100 + "%", width: fraction * 100 + "%" }} />
+                <div className="pf-c-progress__indicator" style={{ insetInlineStart: off_fraction * 100 + "%", width: fraction * 100 + "%" }} />
             </div>
         </div>);
 };

@@ -262,4 +262,8 @@ $desktop: $phone + 1px;
   --pf-c-about-modal-box--BackgroundImage: linear-gradient(#000d, #000d), url(../shell/images/cockpit-icon.svg);
   --pf-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
   --pf-c-about-modal-box--BackgroundSize--min-width: 786px;
+
+  [dir="rtl"] {
+    --pf-c-about-modal-box--BackgroundPosition: calc(100% - 30rem) 10rem;
+  }
 }

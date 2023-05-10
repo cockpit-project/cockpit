@@ -26,7 +26,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
-import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
@@ -276,18 +276,18 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                 </FormGroup>
                                 <FormGroup fieldId="account-locked" label={_("Options")} hasNoPaddingTop>
                                     <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                                        <Flex className="accounts-column-one" spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                        <FlexItem spacer={{ default: 'spacerNone' }}>
                                             <Checkbox id="account-locked"
                                                         isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
                                                         isChecked={edited_locked != null ? edited_locked : account.isLocked}
                                                         onChange={(_event, checked) => change_locked(checked)}
                                                         label={_("Disallow interactive password")} />
+                                        </FlexItem>
 
-                                            <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
-                                                        showClose={false}>
-                                                <HelpIcon />
-                                            </Popover>
-                                        </Flex>
+                                        <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
+                                                    showClose={false}>
+                                            <HelpIcon />
+                                        </Popover>
                                         <span id="account-expiration-text">
                                             {expiration.account_text}
                                         </span>

@@ -10,8 +10,8 @@
 
 .pf-c-table tr:nth-child(1) {
   > td, th {
-    --pf-c-table--cell--PaddingTop: 0.5rem;
-    --pf-c-table--cell--PaddingBottom: 0.5rem;
+    --pf-c-table--cell--PaddingTop: var(--pf-global--spacer--sm);
+    --pf-c-table--cell--PaddingBottom: var(--pf-global--spacer--sm);
 
     padding-block: var(--pf-c-table--cell--PaddingTop) var(--pf-c-table--cell--PaddingBottom);
 
@@ -192,8 +192,9 @@ table.header-buttons {
   }
 
   h2 {
+    /* vertical default ones break vertical alignment */
     margin-block: 0;
-    margin-inline: 0 4rem; /* vertical default ones break vertical alignment */
+    margin-inline: 0 4rem;
   }
 }
 
@@ -245,20 +246,20 @@ table.header-buttons {
 }
 
 .update-success-actions > button {
-  margin-block: 0.25rem;
-  margin-inline: 0.5rem 0;
+  margin-block: var(--pf-global--spacer--xs);
+  margin-inline: var(--pf-global--spacer--sm) 0;
 }
 
 .update-success-table-title {
-  padding-inline-start: 0.5em;
+  padding-inline-start: var(--pf-global--spacer--sm);
 }
 
 .cockpit-update-warning {
-  margin-inline-end: 1rem;
+  margin-inline-end: var(--pf-global--spacer--md);
 }
 
 .cockpit-update-warning-icon {
-  margin-inline-end: 0.5rem;
+  margin-inline-end: var(--pf-global--spacer--sm);
 }
 
 .cockpit-update-warning-text {

@@ -2283,7 +2283,7 @@ def todoPybridge(reason=None):
             try:
                 test_method(self)
                 if is_pybridge:
-                    return unittest.fail(reason)
+                    return self.fail(reason)
                 return None
             # only accept our testlib Errors, plus RuntimeError for TestSuperuserDashboardOldMachine
             except (Error, RuntimeError):

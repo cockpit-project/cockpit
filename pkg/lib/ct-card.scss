@@ -2,27 +2,26 @@
 
 /* Rely on the margin from the Card for spacing */
 .ct-card.pf-c-card .table {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 // FIXME: Once PF4 provides a property for removing padding: https://github.com/patternfly/patternfly-react/issues/5606
 .ct-card.pf-c-card .pf-c-card__body.contains-list {
-  padding-left: 0;
-  padding-right: 0;
-  padding-bottom: 0;
+  padding-inline: 0;
+  padding-block-end: 0;
 
   > .pf-c-table > :last-child > tr:last-child {
-    border-bottom: none;
+    border-block-end: none;
   }
 
   // Remove excess padding from compact tables toggles
   // And adjust the padding to left align the toggles with the card header
   > .pf-c-table {
     .pf-c-table__toggle {
-      padding-left: 0;
+      padding-inline-start: 0;
 
       > .pf-c-button {
-        padding-left: var(--pf-global--spacer--lg);
+        padding-inline-start: var(--pf-global--spacer--lg);
       }
     }
   }
@@ -37,8 +36,7 @@
 // as card headers already add enough space
 .ct-card > .pf-c-card__body > .pf-c-empty-state {
   --pf-c-empty-state__body--MarginTop: 0;
-  padding-top: 0;
-  padding-bottom: var(--pf-global--spacer--md);
+  padding-block: 0 var(--pf-global--spacer--md);
 }
 
 .ct-cards-grid {

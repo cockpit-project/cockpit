@@ -18,12 +18,12 @@
 
   .pf-c-page__main {
     // Constrain page to viewport height, so journal can overflow
-    max-height: 100vh;
+    max-block-size: 100vh;
   }
 
   // Static width for the service selector as it likes to resize a lot while loading
   #journal-identifier-menu ul.pf-c-select__menu {
-    width: 10rem;
+    inline-size: 10rem;
   }
 
   // Long names without spaces do not wrap; triggers overflow and overlaps with check icon
@@ -59,7 +59,7 @@
   }
 
   .pf-l-split {
-    padding-bottom: var(--pf-global--gutter);
+    padding-block-end: var(--pf-global--gutter);
     align-items: center;
   }
 
@@ -69,7 +69,7 @@
 
   // For abrt log details: add some gutter between the tabs and their content
   .pf-c-tab-content > .pf-c-description-list {
-    padding-top: var(--pf-global--spacer--md);
+    padding-block-start: var(--pf-global--spacer--md);
   }
 
   .table-hide-labels {
@@ -93,14 +93,15 @@
 
   .panel-heading {
     position: sticky;
-    top: 0;
+    inset-block-start: 0;
     color: var(--pf-global--Color--300);
     background-color: var(--pf-global--BackgroundColor--100);
     border: none;
     font-size: var(--pf-global--FontSize--md);
     font-family: var(--pf-global--FontFamily--heading--sans-serif);
     font-weight: var(--pf-global--FontWeight--bold);
-    padding: var(--pf-global--spacer--lg) var(--pf-global--spacer--lg) var(--pf-global--spacer--sm);
+    padding-block: var(--pf-global--spacer--lg) var(--pf-global--spacer--sm);
+    padding-inline: var(--pf-global--spacer--lg);
   }
 }
 
@@ -116,7 +117,7 @@
 }
 
 #accordion-markup {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .pf-c-toolbar {
@@ -127,8 +128,7 @@
   --pf-c-toolbar--PaddingBottom: 0;
 
   .pf-c-toolbar__group {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding-block: 0.5rem;
   }
 
   .pf-c-toolbar__group:nth-child(3) {
@@ -141,7 +141,7 @@
   }
 
   .text-help {
-    padding-left: var(--pf-global--spacer--xs);
+    padding-inline-start: var(--pf-global--spacer--xs);
   }
 
   // Hide filters from advanced search dropdown entries which already exist in the toolbar

@@ -12,7 +12,7 @@
 }
 
 .account-details .pf-c-card__header {
-  margin-bottom: var(--pf-global--spacer--lg);
+  margin-block-end: var(--pf-global--spacer--lg);
 }
 
 #account .pf-l-gallery {
@@ -29,34 +29,34 @@
 }
 
 #account-details div.checkbox:first-child {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 #account-details div.checkbox:last-child {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .size-text-ct {
   display: inline;
-  width: 8em;
-  text-align: left;
+  inline-size: 8em;
+  text-align: start;
   margin: 2px;
 }
 
 @media (min-width: 500px) {
   .modal-sm-ct {
-    width: 32rem;
+    inline-size: 32rem;
   }
 }
 
 .account-column-one {
-  min-width: 280px;
+  min-inline-size: 280px;
   display: inline-block;
 }
 
 .expiration-modal .pf-c-form__group-control {
   .pf-c-radio:first-child {
-    padding-bottom: var(--pf-global--spacer--sm);
+    padding-block-end: var(--pf-global--spacer--sm);
   }
   // Work around for https://github.com/patternfly/patternfly/issues/4061
   .pf-c-radio:nth-child(2) input {
@@ -69,7 +69,7 @@
 }
 
 .outline-question-circle-icon {
-  margin-left: var(--pf-global--spacer--sm);
+  margin-inline-start: var(--pf-global--spacer--sm);
 }
 
 .accounts-toolbar-header > .pf-c-toolbar__content-section {
@@ -77,8 +77,8 @@
 }
 
 .dot {
-  height: 20px;
-  width: 20px;
+  block-size: 20px;
+  inline-size: 20px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -107,5 +107,5 @@
 }
 
 #groups-create, #account-create {
-  min-width: 11rem;
+  min-inline-size: 11rem;
 }

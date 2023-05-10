@@ -31,19 +31,18 @@
 
 .cockpit-log-panel .pf-c-card__body .panel-heading,
 .cockpit-log-panel .panel-body .panel-heading {
-  border-top: 0;
+  border-block-start: 0;
   background-color: var(--ct-color-bg);
   font-weight: var(--pf-global--FontWeight--normal);
-  padding-top: var(--pf-global--spacer--sm);
-  padding-bottom: var(--pf-global--spacer--sm);
-  width: auto;
+  padding-block: var(--pf-global--spacer--sm);
+  inline-size: auto;
   color: var(--ct-color-list-text);
   display: flex;
 }
 
 .cockpit-log-panel .pf-c-card__body .panel-heading {
   /* Align sub-heading within a PF4 card to the heading of the card */
-  padding-left: var(--pf-global--spacer--lg);
+  padding-inline-start: var(--pf-global--spacer--lg);
 }
 
 .cockpit-log-panel .panel-body .panel-heading:not(:first-child)::after {
@@ -51,7 +50,8 @@
   display: block;
   flex: auto;
   background: linear-gradient(var(--ct-color-bg) 50%, var(--ct-color-border) calc(50% + 1px), var(--ct-color-bg) calc(50% + 2px));
-  margin: 0 0 0 0.5rem;
+  margin-block: 0;
+  margin-inline: 0.5rem 0;
 }
 
 .cockpit-logline {
@@ -62,7 +62,8 @@
   --log-service: minmax(var(--log-service-min), max-content);
   background-color: var(--ct-color-list-bg);
   font-size: var(--font-small);
-  padding: 0.5rem 1rem;
+  padding-block: 0.5rem;
+  padding-inline: 1rem;
   display: grid;
   grid-template-columns: var(--log-icon) var(--log-time) var(--log-message) var(--log-service);
   grid-gap: var(--pf-global--spacer--sm);
@@ -80,7 +81,7 @@
 }
 
 .cockpit-log-panel .cockpit-logline + .panel-heading {
-  border-top-width: 1px;
+  border-block-start-width: 1px;
 }
 
 /* Don't show headers without content */
@@ -99,10 +100,11 @@
 }
 
 .empty-message {
-  width: 100%;
+  inline-size: 100%;
   color: var(--pf-global--Color--200);
   display: block;
-  padding: 0.5rem 1rem;
+  padding-block: 0.5rem;
+  padding-inline: 1rem;
   text-align: center;
 }
 
@@ -136,7 +138,7 @@
 }
 
 .cockpit-log-service-container > .pf-c-badge {
-  margin-left: var(--pf-global--spacer--xs);
+  margin-inline-start: var(--pf-global--spacer--xs);
 }
 
 .cockpit-log-service-container {

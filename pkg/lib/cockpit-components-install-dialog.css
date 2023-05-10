@@ -1,16 +1,18 @@
 .package-list-ct {
-  margin: 1em 0;
+  margin-block: 1em;
+  margin-inline: 0;
   padding: 0;
-  max-width: 110rem;
-  text-align: left;
+  max-inline-size: 110rem;
+  text-align: start;
   box-sizing: border-box;
 }
 
 .package-list-ct li {
-  text-align: left;
+  text-align: start;
   box-sizing: border-box;
-  width: 22rem;
-  padding: 0 1ex;
+  inline-size: 22rem;
+  padding-block: 0;
+  padding-inline: 1ex;
   display: inline-block;
   overflow: hidden;
   white-space: nowrap;
@@ -24,7 +26,7 @@
 @keyframes dialogScaleUpCt {
   0% {
     opacity: 0;
-    max-height: 0;
+    max-block-size: 0;
   }
 
   25% {
@@ -32,7 +34,7 @@
   }
 
   50% {
-    max-height: 100vh;
+    max-block-size: 100vh;
   }
 
   100% {

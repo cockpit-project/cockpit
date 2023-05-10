@@ -54,7 +54,8 @@ $desktop: $phone + 1px;
   // https://github.com/patternfly/patternfly-design/issues/1112
   .search {
     background: transparent !important;
-    padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm);
+    padding-block: var(--pf-global--spacer--md) var(--pf-global--spacer--sm);
+    padding-inline: var(--pf-global--spacer--md);
 
     > .pf-c-text-input-group__main {
       background: var(--ct-color-nav-search);
@@ -67,7 +68,8 @@ $desktop: $phone + 1px;
 
     // Adjust search icon
     .pf-c-text-input-group__icon {
-      padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm) !important;
+      padding-block: var(--pf-global--spacer--md) var(--pf-global--spacer--sm) !important;
+      padding-inline: var(--pf-global--spacer--md) !important;
       color: var(--pf-global--palette--black-200);
     }
 
@@ -78,7 +80,7 @@ $desktop: $phone + 1px;
 
     .pf-c-text-input-group__text-input {
       // Reserve space for the × icon
-      padding-right: var(--pf-global--spacer--xl);
+      padding-inline-end: var(--pf-global--spacer--xl);
       // Stroke outside, based on PF search dark mode mockups
       border: 1px solid var(--pf-global--palette--black-700);
     }
@@ -88,8 +90,8 @@ $desktop: $phone + 1px;
       align-self: center;
       justify-content: center;
       position: absolute;
-      right: var(--pf-global--spacer--sm);
-      width: var(--pf-global--spacer--xl);
+      inset-inline-end: var(--pf-global--spacer--sm);
+      inline-size: var(--pf-global--spacer--xl);
 
       // Recolor × icon
       > .pf-c-button {
@@ -107,7 +109,7 @@ $desktop: $phone + 1px;
     display: inline-block;
     font-size: var(--pf-global--FontSize--sm);
     font-weight: var(--pf-global--FontWeight--normal);
-    width: 100%;
+    inline-size: 100%;
   }
 
   .pf-m-current .nav-item-hint {
@@ -130,7 +132,8 @@ $desktop: $phone + 1px;
   }
 
   .no-results {
-    padding: var(--pf-global--spacer--md) 0;
+    padding-block: var(--pf-global--spacer--md);
+    padding-inline: 0;
   }
 }
 
@@ -140,25 +143,26 @@ $desktop: $phone + 1px;
   display: block;
 
   > iframe {
-    height: 100%;
+    block-size: 100%;
     position: absolute;
   }
 }
 
 .screenreader-text {
   position: absolute;
-  left: -999px;
-  width: 1px;
-  height: 1px;
-  top: auto;
+  inset-inline-start: -999px;
+  inline-size: 1px;
+  block-size: 1px;
+  inset-block-start: auto;
 
   &:focus {
     display: inline-block;
-    height: auto;
-    width: auto;
+    block-size: auto;
+    inline-size: auto;
     position: static;
-    padding: 19px 0;
-    width: 100%;
+    padding-block: 19px;
+    padding-inline: 0;
+    inline-size: 100%;
     text-align: center;
     background-color: var(--pf-global--BackgroundColor--dark-300);
     color: white;
@@ -168,7 +172,7 @@ $desktop: $phone + 1px;
 [dir="rtl"] {
   // Not setting this breaks pixel tests
   .screenreader-text {
-    right: -999px;
+    inset-inline-end: -999px;
   }
 }
 
@@ -177,11 +181,11 @@ $desktop: $phone + 1px;
   // Adapt PF4's new header select for 2-up
   .ct-topnav-content .pf-c-toolbar__item:not(.super-user-indicator) {
     // Remove the margin spacing between each
-    margin-right: 0;
+    margin-inline-end: 0;
 
     // Collapse the 2 side border lines into 1
     + .pf-c-toolbar__item button::before {
-      margin-left: -1px;
+      margin-inline-start: -1px;
     }
   }
 
@@ -191,17 +195,14 @@ $desktop: $phone + 1px;
 
   .area-ct-subnav {
     // Make a separator between host selector & search
-    border-top: 1px solid var(--pf-global--Color--300);
+    border-block-start: 1px solid var(--pf-global--Color--300);
   }
 
   .view-hosts .sidebar-hosts {
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     background: var(--pf-global--BackgroundColor--dark-200);
 
     .pf-theme-dark & {
@@ -221,7 +222,7 @@ $desktop: $phone + 1px;
   }
 
   .header {
-    border-left: 1px solid var(--pf-global--BackgroundColor--dark-100);
+    border-inline-start: 1px solid var(--pf-global--BackgroundColor--dark-100);
     background: linear-gradient(to right, var(--pf-global--BackgroundColor--dark-100) -1rem, var(--pf-global--BackgroundColor--dark-300) 1rem);
 
     .credential-unlocked {
@@ -231,7 +232,7 @@ $desktop: $phone + 1px;
 
     .pf-c-dropdown__menu {
       // Correct the offset
-      margin-top: -4px;
+      margin-block-start: -4px;
     }
   }
 
@@ -245,7 +246,7 @@ $desktop: $phone + 1px;
     background-color: var(--pf-global--BackgroundColor--dark-300);
 
     > .pf-c-select > button {
-      padding-left: var(--pf-global--spacer--lg);
+      padding-inline-start: var(--pf-global--spacer--lg);
     }
   }
 
@@ -284,25 +285,24 @@ $desktop: $phone + 1px;
 
   .header {
     .pf-c-toolbar__item {
-      margin-right: 0;
+      margin-inline-end: 0;
     }
   }
 
   .nav-system-menu {
-    left: 0;
-    right: 0;
-    height: auto;
+    inset-inline: 0;
+    block-size: auto;
     overflow: auto;
-    max-height: calc(100vh - var(--nav-icon-size));
-    max-width: 29rem;
+    max-block-size: calc(100vh - var(--nav-icon-size));
+    max-inline-size: 29rem;
     display: block;
   }
 
   .nav-hosts-menu {
     position: absolute;
-    bottom: var(--nav-icon-size);
-    right: var(--pf-global--spacer--md);
-    max-width: 100vw;
+    inset-block-end: var(--nav-icon-size);
+    inset-inline-end: var(--pf-global--spacer--md);
+    max-inline-size: 100vw;
   }
 
   .pf-m-dark.pf-c-select {
@@ -315,17 +315,17 @@ $desktop: $phone + 1px;
   .ct-switcher > .pf-c-select {
     .pf-c-select__toggle {
       display: block;
-      width: auto;
+      inline-size: auto;
     }
 
     .pf-c-select__toggle-arrow {
       transform: rotate(180deg) scale(1.5);
       margin: unset;
-      margin-top: 4px;
+      margin-block-start: 4px;
     }
 
     > button {
-      padding-left: 0;
+      padding-inline-start: 0;
     }
   }
 
@@ -347,27 +347,27 @@ $desktop: $phone + 1px;
 @media (max-width: $phone-tiny) {
   // Don't have a gap for the hosts selection
   .nav-hosts-menu {
-    right: 0;
+    inset-inline-end: 0;
   }
 
   // Make the hosts selection fill the width of the page
   .view-hosts .sidebar-hosts .pf-c-page__sidebar-body {
-    width: 100vw;
+    inline-size: 100vw;
   }
 }
 
 .navbar.navbar-pf-vertical {
-  border-top: 0;
+  border-block-start: 0;
 }
 
 .ct-switcher {
-  height: 100%;
+  block-size: 100%;
 
   > .pf-c-select {
-    height: 100%;
+    block-size: 100%;
 
     .pf-c-select__toggle-text {
-      text-align: left;
+      text-align: start;
     }
   }
 
@@ -396,11 +396,12 @@ $desktop: $phone + 1px;
 }
 
 .pf-c-select__toggle {
-  height: 100%;
+  block-size: 100%;
 }
 
 .nav-action {
-  margin: 0 0 0 auto !important;
+  margin-block: 0 !important;
+  margin-inline: auto 0 !important;
 }
 
 .host-apps {
@@ -414,9 +415,9 @@ $desktop: $phone + 1px;
   @media (max-width: $phone) {
     display: grid;
     grid-template-rows: auto 1fr;
-    max-height: calc(100vh - var(--nav-icon-size));
+    max-block-size: calc(100vh - var(--nav-icon-size));
     position: sticky;
-    top: 0;
+    inset-block-start: 0;
 
     > .pf-c-nav {
       overflow: auto;
@@ -461,9 +462,9 @@ $desktop: $phone + 1px;
     grid-template-columns: 1fr auto;
     justify-content: space-between;
     gap: 0 var(--pf-global--spacer--md);
-    padding-right: var(--pf-global--spacer--md);
+    padding-inline-end: var(--pf-global--spacer--md);
     // In mobile, sometimes items wrap; neighbors should also fill the space
-    height: 100%;
+    block-size: 100%;
 
     > .nav-item-name {
       grid-area: name;
@@ -500,10 +501,8 @@ $desktop: $phone + 1px;
         content: "";
         background-color: var(--pf-c-nav__link--Color);
         border-radius: 3px;
-        top: 6px;
-        right: 5px;
-        bottom: 6px;
-        left: 5px;
+        inset-block: 6px;
+        inset-inline: 5px;
       }
     }
   }
@@ -519,12 +518,12 @@ $desktop: $phone + 1px;
     grid-template-rows: max-content max-content max-content;
 
     @media (min-width: $desktop) {
-      max-height: 100%;
+      max-block-size: 100%;
     }
 
     @media (max-width: $phone) {
       // Don't run off the top of the page in mobile
-      max-height: calc(100vh - var(--nav-icon-size));
+      max-block-size: calc(100vh - var(--nav-icon-size));
     }
   }
 
@@ -537,7 +536,8 @@ $desktop: $phone + 1px;
     --button-margin-y: 0.75rem;
     display: grid;
     gap: var(--pf-global--spacer--sm);
-    margin: var(--button-margin-y) var(--button-margin-x);
+    margin-block: var(--button-margin-y);
+    margin-inline: var(--button-margin-x);
 
     > button {
       html:not(.pf-theme-dark) & {
@@ -565,7 +565,8 @@ $desktop: $phone + 1px;
   .nav-item-actions {
     display: flex;
     gap: var(--pf-global--spacer--xs);
-    padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+    padding-block: var(--pf-global--spacer--xs);
+    padding-inline: var(--pf-global--spacer--sm);
     // Pull the background color over
     background: var(--pf-c-nav__link--BackgroundColor);
 
@@ -595,7 +596,7 @@ $desktop: $phone + 1px;
 }
 
 .ct-topnav-content {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 // Rework navigation toggles in desktop and (especially) mobile modes
@@ -650,7 +651,7 @@ $desktop: $phone + 1px;
 }
 
 .ct-locked > .ct-lock-wrapper > svg {
-  margin-right: var(--pf-global--spacer--sm);
+  margin-inline-end: var(--pf-global--spacer--sm);
   color: var(--pf-global--palette--gold-400);
 }
 
@@ -660,7 +661,8 @@ $desktop: $phone + 1px;
       > .ct-lock-wrapper {
         background: var(--pf-global--BackgroundColor--dark-200);
         border-radius: var(--pf-global--BorderRadius--sm);
-        padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+        padding-block: var(--pf-global--spacer--xs);
+        padding-inline: var(--pf-global--spacer--sm);
 
         > svg {
           color: var(--pf-global--palette--gold-300);
@@ -694,22 +696,23 @@ $desktop: $phone + 1px;
   #nav-system-item,
   .ct-nav-toggle > button {
     // Stretch to navbar
-    height: 100%;
+    block-size: 100%;
     // Don't stretch to fill content; make optimal width same as height
-    width: var(--pf-global--spacer--4xl);
+    inline-size: var(--pf-global--spacer--4xl);
     // Leave enough space for 5 items (4 + spinner)
-    max-width: calc(100vw / 5);
+    max-inline-size: calc(100vw / 5);
     display: grid !important;
     grid-template-rows: 28px 1fr;
     justify-content: center;
     justify-items: center;
     color: var(--pf-global--Color--light-100);
-    padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--xs);
+    padding-block: var(--pf-global--spacer--sm);
+    padding-inline: var(--pf-global--spacer--xs);
     align-items: center;
 
     > .pf-c-select__toggle-wrapper {
       flex: none;
-      max-width: 100%;
+      max-inline-size: 100%;
     }
 
     // Remove the toggled outline
@@ -728,22 +731,22 @@ $desktop: $phone + 1px;
 
     .pf-c-select__toggle-arrow {
       // This is here because Chrome is weird sometimes...
-      padding: 2px 0 5px;
+      padding-block: 2px 5px;
+      padding-inline: 0;
     }
   }
 
   .ct-nav-toggle .pf-c-dropdown__menu {
-    top: auto;
-    bottom: 100%;
+    inset-block: auto 100%;
   }
 }
 
 // HACK: Don't span the navigation as wide or tall as possible
 .nav-hosts-menu {
-  height: auto;
+  block-size: auto;
 
   .pf-c-page__sidebar .pf-c-nav {
-    width: unset;
+    inline-size: unset;
   }
 }
 
@@ -773,10 +776,7 @@ $desktop: $phone + 1px;
       border: 1px solid #444548;
       border-width: 0 1px 0 0;
       position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
+      inset: 0;
       content: "";
     }
   }
@@ -791,8 +791,8 @@ $desktop: $phone + 1px;
 }
 
 @keyframes navHostsEditButtonsAppear {
-  0% { opacity: 0; max-height: 0; max-width: 0; }
-  50% { opacity: 0; max-height: 0; max-width: 0; }
-  75% { opacity: 0; max-height: 100%; max-width: 100%; }
-  100% { opacity: 1; max-height: 100%; max-width: 100%; }
+  0% { opacity: 0; max-block-size: 0; max-inline-size: 0; }
+  50% { opacity: 0; max-block-size: 0; max-inline-size: 0; }
+  75% { opacity: 0; max-block-size: 100%; max-inline-size: 100%; }
+  100% { opacity: 1; max-block-size: 100%; max-inline-size: 100%; }
 }

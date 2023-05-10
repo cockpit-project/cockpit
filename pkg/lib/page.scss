@@ -38,8 +38,8 @@ a {
 }
 
 .btn {
-  min-height: 26px;
-  min-width: 26px;
+  min-block-size: 26px;
+  min-inline-size: 26px;
 }
 
 .btn.disabled, .pf-c-button.disabled {
@@ -71,7 +71,7 @@ a.disabled:hover {
 }
 
 .curtains-ct {
-  width: 100%;
+  inline-size: 100%;
 }
 
 /* Animation of new items */
@@ -102,7 +102,7 @@ a.disabled:hover {
 
 .dialog-wait-ct {
   /* Right align footer idle messages after the buttons */
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   column-gap: var(--pf-global--spacer--sm);
   align-items: center;
@@ -167,7 +167,7 @@ html:not(.index-page) body {
 
   // Ensure UI fills the entire page (and does not run over)
   .ct-page-fill {
-    height: 100% !important;
+    block-size: 100% !important;
   }
 }
 
@@ -188,8 +188,7 @@ html:not(.index-page) body {
 // buttons or not.
 .pf-c-page__main-breadcrumb .pf-c-button {
   --offset: calc(-1 * var(--pf-global--spacer--sm));
-  margin-top: var(--offset);
-  margin-bottom: var(--offset);
+  margin-block: var(--offset);
 }
 
 // To be used only from testlib.py for pixel-tests

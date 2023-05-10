@@ -26,7 +26,7 @@
 
 html {
   font-family: sans-serif;
-  height: 100%;
+  block-size: 100%;
   background: #000;
 }
 
@@ -47,7 +47,8 @@ h1, h2, h3, h4 {
 h1 {
   font-size: 1.75rem;
   line-height: 1.3;
-  padding: 0 0 1rem;
+  padding-block: 0 1rem;
+  padding-inline: 0;
 }
 
 h2 {
@@ -128,26 +129,26 @@ input::-moz-focus-inner {
 }
 
 p {
-  margin: 0 0 1rem;
+  margin-block: 0 1rem;
+  margin-inline: 0;
 }
 
 .container {
-  margin-right: auto;
-  margin-left: auto;
+  margin-inline: auto;
 }
 
 /* Bump options & connection away from user/pass */
 #option-group,
 #option-group[hidden] + #server-group {
-  margin-top: 1rem;
+  margin-block-start: 1rem;
 }
 
 #option-group {
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
 }
 
 .form-group:not(:first-child) {
-  margin-top: 1rem;
+  margin-block-start: 1rem;
 }
 
 .login-actions {
@@ -169,8 +170,9 @@ label {
 form .control-label {
   display: flex;
   align-items: center;
-  min-height: 2rem;
-  padding: 0 0 0.5rem;
+  min-block-size: 2rem;
+  padding-block: 0 0.5rem;
+  padding-inline: 0;
 }
 
 .form-control {
@@ -181,12 +183,13 @@ form .control-label {
 .form-control[type="password"],
 .form-control[type="text"] {
   display: block;
-  width: 100%;
-  padding: 0.25rem 0.5rem;
+  inline-size: 100%;
+  padding-block: 0.25rem;
+  padding-inline: 0.5rem;
   background-color: #fff;
   background-image: none;
   border: 1px solid #ededed;
-  border-bottom-color: #72767b;
+  border-block-end-color: #72767b;
   border-radius: 1px;
   transition: border-color 0.15s ease-in-out;
   color: #151515;
@@ -197,14 +200,14 @@ form .control-label {
 .form-control[type="text"]:hover,
 .form-control[type="password"]:focus,
 .form-control[type="text"]:focus {
-  border-bottom-color: #06c;
+  border-block-end-color: #06c;
 }
 
 .pf-c-button.pf-m-control:focus,
 .form-control[type="password"]:focus,
 .form-control[type="text"]:focus {
-  padding-bottom: calc(0.25rem - 1px);
-  border-bottom-width: 2px;
+  padding-block-end: calc(0.25rem - 1px);
+  border-block-end-width: 2px;
 }
 
 .pf-c-button.pf-m-control:focus,
@@ -219,17 +222,18 @@ form .control-label {
 }
 
 .checkbox-row {
-  margin: 1rem 0 0;
+  margin-block: 1rem 0;
+  margin-inline: 0;
   display: flex;
   align-items: baseline;
 }
 
 .checkbox-row > input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
+  inline-size: 1rem;
+  block-size: 1rem;
   align-self: flex-start;
-  margin-top: calc((1.5rem - 1rem) / 2);
-  margin-right: 0.5rem;
+  margin-block-start: calc((1.5rem - 1rem) / 2);
+  margin-inline-end: 0.5rem;
 }
 
 label.checkbox {
@@ -238,8 +242,7 @@ label.checkbox {
 
 .help-block {
   display: block;
-  margin-top: 5px;
-  margin-bottom: 1rem;
+  margin-block: 5px 1rem;
   color: #737373;
 }
 
@@ -254,7 +257,7 @@ label.checkbox {
 
 .form-group::after {
   clear: both;
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
 }
 
 .pf-c-button {
@@ -262,7 +265,8 @@ label.checkbox {
   background-image: none;
   border: 1px solid transparent;
   white-space: nowrap;
-  padding: 0.375rem 1rem;
+  padding-block: 0.375rem;
+  padding-inline: 1rem;
   border-radius: 3px;
   font-size: inherit;
   font-weight: 400;
@@ -336,13 +340,14 @@ label.checkbox {
 }
 
 .login-pf {
-  height: 100%;
+  block-size: 100%;
 }
 
 .login-pf #brand img {
   display: block;
-  margin: 0 auto;
-  max-width: 100%;
+  margin-block: 0;
+  margin-inline: auto;
+  max-inline-size: 100%;
 }
 
 .unsupported-browser #brand {
@@ -350,14 +355,15 @@ label.checkbox {
 }
 
 .login-pf #banner {
-  margin: 1rem 0 0.5rem;
+  margin-block: 1rem 0.5rem;
+  margin-inline: 0;
   grid-area: banner;
-  width: 100%;
+  inline-size: 100%;
 }
 
 #banner-message {
   white-space: pre-wrap;
-  max-height: 12em;
+  max-block-size: 12em;
   overflow: auto;
 }
 
@@ -365,8 +371,9 @@ label.checkbox {
   background-color: rgb(255 255 255 / 50%);
   background: white;
   color: #333;
-  padding: 3rem 3rem 2rem;
-  width: 100%;
+  padding-block: 3rem 2rem;
+  padding-inline: 3rem;
+  inline-size: 100%;
 }
 
 #main {
@@ -374,9 +381,9 @@ label.checkbox {
 }
 
 .login-pf .container .details p:first-child {
-  border-top: 1px solid #474747;
-  padding-top: 1.5rem;
-  margin-top: 1.5rem;
+  border-block-start: 1px solid #474747;
+  padding-block-start: 1.5rem;
+  margin-block-start: 1.5rem;
 }
 
 .login-pf .details p {
@@ -384,7 +391,7 @@ label.checkbox {
 }
 
 .login-pf .details p + p {
-  margin-top: 0.5rem;
+  margin-block-start: 0.5rem;
 }
 
 .login-pf .container .control-label {
@@ -397,18 +404,18 @@ label.checkbox {
 
 .login-pf .container .form-group:last-child,
 .login-pf .container .form-group:last-child .help-block:last-child {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .spinner {
   animation: 0.6s linear infinite rotation;
-  border-bottom: 4px solid rgb(0 0 0 / 25%);
-  border-left: 4px solid rgb(0 0 0 / 25%);
-  border-right: 4px solid rgb(0 0 0 / 25%);
+  border-block-end: 4px solid rgb(0 0 0 / 25%);
+  border-inline-start: 4px solid rgb(0 0 0 / 25%);
+  border-inline-end: 4px solid rgb(0 0 0 / 25%);
   border-radius: 100%;
-  border-top: 4px solid rgb(0 0 0 / 75%);
-  height: 1.5rem;
-  width: 1.5rem;
+  border-block-start: 4px solid rgb(0 0 0 / 75%);
+  block-size: 1.5rem;
+  inline-size: 1.5rem;
 }
 
 /* Alerts */
@@ -421,7 +428,8 @@ label.checkbox {
     "icon title   action"
     ".    content content";
   background-color: #fff;
-  margin: 0 0 1.5rem;
+  margin-block: 0 1.5rem;
+  margin-inline: 0;
   display: grid;
   border: 3px solid #009596;
   border-width: 2px 0 0;
@@ -434,17 +442,18 @@ label.checkbox {
 
 .pf-c-alert > svg {
   grid-area: icon;
-  height: 1.125rem;
-  width: 1.125rem;
-  margin: 1.25rem 1rem 1rem;
-  float: left;
+  block-size: 1.125rem;
+  inline-size: 1.125rem;
+  margin-block: 1.25rem 1rem;
+  margin-inline: 1rem;
+  float: inline-start;
   color: #009596;
 }
 
 @supports (display: grid) {
   .pf-c-alert > svg {
     float: none;
-    margin-right: 0;
+    margin-inline-end: 0;
   }
 }
 
@@ -495,7 +504,7 @@ label.checkbox {
 
 #server-group::before {
   clear: both;
-  margin-top: 5px;
+  margin-block-start: 5px;
 }
 
 .login-fatal {
@@ -504,8 +513,9 @@ label.checkbox {
 
 .unsupported-browser ul {
   display: inline-block;
-  margin: 0 auto;
-  text-align: left;
+  margin-block: 0;
+  margin-inline: auto;
+  text-align: start;
 }
 
 .unsupported-browser a {
@@ -538,7 +548,7 @@ label.checkbox {
 #hostkey-fingerprint {
   font-size: large;
   font-weight: bold;
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 #hostkey-type {
@@ -547,7 +557,8 @@ label.checkbox {
 
 #hostkey-verify-help-cmds {
   border-radius: 0.25rem;
-  padding: 0.5rem 1rem;
+  padding-block: 0.5rem;
+  padding-inline: 1rem;
   background: rgb(150 150 150 / 20%);
 }
 
@@ -571,8 +582,9 @@ label.checkbox {
 
 .caret {
   vertical-align: middle;
-  margin: calc((1.5rem - 16px) / 2) 0;
-  margin-right: 0.25rem;
+  margin-block: calc((1.5rem - 16px) / 2);
+  margin-inline: 0;
+  margin-inline-end: 0.25rem;
   transition: all 300ms;
 }
 
@@ -583,16 +595,16 @@ label.checkbox {
 
 .input-clear {
   display: flex;
-  padding: 0.5rem 0.75rem;
+  padding-block: 0.5rem;
+  padding-inline: 0.75rem;
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  inset-block: 0;
+  inset-inline-end: 0;
 }
 
 .input-clear > svg {
-  height: 1rem;
-  width: auto;
+  block-size: 1rem;
+  inline-size: auto;
 }
 
 /* Only show clear icon when the field has text */
@@ -602,7 +614,7 @@ label.checkbox {
 
 /* Reserve a little space for the clear icon in the input */
 .server-box > .form-control {
-  padding-right: 2rem;
+  padding-inline-end: 2rem;
 }
 
 #option-group:hover svg,
@@ -611,16 +623,15 @@ label.checkbox {
 }
 
 #option-group div {
-  margin-left: -3px;
-  margin-top: 3px;
-  margin-bottom: 1rem;
+  margin-inline-start: -3px;
+  margin-block: 3px 1rem;
 }
 
 .login-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
+  block-size: 2.5rem;
   flex-basis: 100%;
 }
 
@@ -651,12 +662,12 @@ label.checkbox {
   }
 
   .login-pf .container {
-    width: 100%;
+    inline-size: 100%;
     padding: 2rem;
   }
 
   .login-pf #badge {
-    max-width: calc(100vw - 2rem);
+    max-inline-size: calc(100vw - 2rem);
   }
 
   /* Brand container */
@@ -673,28 +684,29 @@ label.checkbox {
 /* Large phones and desktops */
 @media (min-width: 481px) {
   .unsupported-browser-heading {
-    margin: 2rem 0 1rem;
+    margin-block: 2rem 1rem;
+    margin-inline: 0;
   }
 
   .login-pf #brand {
     padding: 0;
-    margin-bottom: 1rem;
+    margin-block-end: 1rem;
   }
 }
 
 /* Desktop only */
 @media (min-width: 1024px) {
   .control-label {
-    text-align: right;
+    text-align: end;
   }
 
   .login-pf #brand img {
     margin: 0;
-    text-align: left;
+    text-align: start;
   }
 
   .login-pf .container .login-area {
-    border-right: 1px solid #474747;
+    border-inline-end: 1px solid #474747;
   }
 }
 
@@ -716,30 +728,32 @@ body.login-pf {
 }
 
 .login-pf .container .details p:first-child {
-  border-top: 0;
-  padding-top: 0;
-  margin-top: 0;
+  border-block-start: 0;
+  padding-block-start: 0;
+  margin-block-start: 0;
 }
 
 .login-button {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .login-pf .details {
   grid-area: details;
-  padding: 1.5rem 3rem;
-  width: 100%;
+  padding-block: 1.5rem;
+  padding-inline: 3rem;
+  inline-size: 100%;
   background: #ededed;
 }
 
 #recent-hosts {
   grid-area: recent;
-  margin-top: 1rem;
-  padding: 3rem 1.5rem 1.5rem;
+  margin-block-start: 1rem;
+  padding-block: 3rem 1.5rem;
+  padding-inline: 1.5rem;
 }
 
 #recent-hosts > h1 {
-  padding-left: 1.5rem;
+  padding-inline-start: 1.5rem;
 }
 
 .login-pf #badge {
@@ -748,12 +762,13 @@ body.login-pf {
 
 .login-pf .container .login-area {
   border: none;
-  width: auto;
+  inline-size: auto;
 }
 
 details > summary {
   display: block;
-  padding: 0.5rem 0;
+  padding-block: 0.5rem;
+  padding-inline: 0;
   cursor: pointer;
 }
 
@@ -775,7 +790,7 @@ details[open] > summary > .caret {
 }
 
 .login-pf #brand.text-brand {
-  width: auto;
+  inline-size: auto;
   background: none;
 }
 
@@ -796,16 +811,17 @@ a:hover {
 }
 
 .host-line + .host-line {
-  border-top-width: 0;
+  border-block-start-width: 0;
 }
 
 .host-name {
   flex: auto;
-  text-align: left;
+  text-align: start;
   color: #06c;
   border: none;
   /* As we're making the list flush to the card, we should indent the contents to align */
-  padding: 0.5rem 1rem 0.5rem 1.5rem;
+  padding-block: 0.5rem;
+  padding-inline: 1.5rem 1rem;
 }
 
 .host-name:hover {
@@ -815,8 +831,9 @@ a:hover {
 
 .host-remove {
   background: transparent;
-  margin-right: 1.5rem;
-  padding: 0.375rem 1rem;
+  margin-inline-end: 1.5rem;
+  padding-block: 0.375rem;
+  padding-inline: 1rem;
   /* Allow ::before to size relative to .host-remove */
   position: relative;
 }
@@ -827,10 +844,7 @@ a:hover {
   content: "";
   display: block;
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   background-color: #151515;
   border: none;
   mask: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 352 512'%3E%3Cpath d='m242.7 256 100-100a31.5 31.5 0 0 0 0-44.5l-22.2-22.3a31.5 31.5 0 0 0-44.4 0L176 189.2 76 89.3a31.5 31.5 0 0 0-44.5 0L9.2 111.5a31.5 31.5 0 0 0 0 44.4l100 100.1-100 100a31.5 31.5 0 0 0 0 44.5l22.3 22.3a31.5 31.5 0 0 0 44.4 0l100.1-100 100 100a31.5 31.5 0 0 0 44.5 0l22.3-22.2a31.5 31.5 0 0 0 0-44.5L242.8 256z'/%3E%3C/svg%3E");
@@ -873,25 +887,28 @@ a:hover {
 
 .unsupported-browser ul {
   color: #555;
-  margin: 0 0 1rem;
+  margin-block: 0 1rem;
+  margin-inline: 0;
 }
 
 .browser-recommendations {
-  margin: 1rem 0 0;
+  margin-block: 1rem 0;
+  margin-inline: 0;
 }
 
 .browser-recommendations h3 {
   font: inherit;
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 .dialog-error {
-  margin: 0 0 1rem;
+  margin-block: 0 1rem;
+  margin-inline: 0;
 }
 
 #login-again {
   display: block;
-  margin-top: 1rem;
+  margin-block-start: 1rem;
 }
 
 .password-with-toggle {
@@ -902,12 +919,12 @@ a:hover {
 .pf-c-button.login-password-toggle {
   display: flex;
   align-items: center;
-  border-left-width: 0;
+  border-inline-start-width: 0;
 }
 
 .login-password-toggle > svg {
-  height: 1rem;
-  width: auto;
+  block-size: 1rem;
+  inline-size: auto;
 }
 
 /* Show the appropriate eye icon based on the password text status */
@@ -917,7 +934,7 @@ input[type="password"] + .login-password-toggle .password-hide {
 }
 
 .pf-c-helper-text {
-  margin-top: 1rem;
+  margin-block-start: 1rem;
 }
 
 .pf-c-helper-text.pf-m-warning {
@@ -946,7 +963,7 @@ input[type="password"] + .login-password-toggle .password-hide {
   .form-control[type="text"] {
     background: #393f44;
     border-color: #393f44;
-    border-bottom-color: #6c6f72;
+    border-block-end-color: #6c6f72;
     color: #f0f0f0;
   }
 
@@ -1006,10 +1023,7 @@ input[type="password"] + .login-password-toggle .password-hide {
     display: block;
     content: "";
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     z-index: 1;
   }
 

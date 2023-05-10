@@ -1,5 +1,8 @@
 {
   "extends": "stylelint-config-standard-scss",
+  "plugins": [
+    "stylelint-use-logical-spec"
+  ],
   "rules": {
     "indentation": 2,
 
@@ -34,6 +37,7 @@
     "scss/no-global-function-names": null,
     "scss/operator-no-unspaced": null,
     "selector-class-pattern": null,
-    "selector-id-pattern": null
+    "selector-id-pattern": null,
+    "liberty/use-logical-spec": "always"
   }
 }

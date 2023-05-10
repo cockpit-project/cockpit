@@ -41,18 +41,18 @@
 }
 
 #storage .create-storage {
-  margin-bottom: 10px;
+  margin-block-end: 10px;
 }
 
 @media (max-width: 1560px) {
   #storage .create-storage .col-lg-6 {
-    width: 100%;
+    inline-size: 100%;
   }
 }
 
 #storage .create-storage button {
-  margin-bottom: 5px;
-  width: 100%;
+  margin-block-end: 5px;
+  inline-size: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -76,113 +76,109 @@
 }
 
 .dialog-select-row-table {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .dialog-select-row-table td,
 .dialog-select-row-table td:first-child {
-  text-align: left;
-  padding-top: 0.75em;
-  padding-bottom: 0.75em;
-  padding-left: 0;
-  padding-right: 0;
+  text-align: start;
+  padding-block: 0.75em;
+  padding-inline: 0;
   vertical-align: top;
   white-space: default;
   color: black;
-  width: auto;
-  height: auto;
-  border-top: 1px solid #d1d1d1;
-  border-bottom: 1px solid #d1d1d1;
+  inline-size: auto;
+  block-size: auto;
+  border-block-start: 1px solid #d1d1d1;
+  border-block-end: 1px solid #d1d1d1;
 }
 
 .dialog-select-row-table td:first-child {
-  padding-left: 0.75em;
-  border-left: 1px solid #d1d1d1;
+  padding-inline-start: 0.75em;
+  border-inline-start: 1px solid #d1d1d1;
 }
 
 .dialog-select-row-table td:last-child {
-  padding-right: 0.75em;
-  border-right: 1px solid #d1d1d1;
+  padding-inline-end: 0.75em;
+  border-inline-end: 1px solid #d1d1d1;
 }
 
 .dialog-select-row-table th {
   font-weight: bold;
-  text-align: left;
+  text-align: start;
   color: var(--pf-global--palette--black-800);
   padding: 0;
-  padding-top: 0.75em;
-  padding-bottom: 0.75em;
-  padding-left: 0;
-  padding-right: 0;
+  padding-block: 0.75em;
+  padding-inline: 0;
 }
 
 .dialog-select-row-table th:first-child {
-  padding-left: 0.75em;
+  padding-inline-start: 0.75em;
 }
 
 .dialog-select-row-table th:last-child {
-  padding-right: 0.75em;
+  padding-inline-end: 0.75em;
 }
 
 td.storage-icon {
-  width: 48px;
+  inline-size: 48px;
 }
 
 div.progress {
-  width: 100%;
-  height: var(--pf-global--FontSize-xs);
+  inline-size: 100%;
+  block-size: var(--pf-global--FontSize-xs);
 }
 
 #detail-header div.progress {
-  min-width: 250px;
+  min-inline-size: 250px;
 }
 
 #storage-detail .ct-table {
-  border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+  border-block-start: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
 }
 
 td.usage-text {
-  text-align: right;
+  text-align: end;
 }
 
 td.job-description {
-  width: 50%;
+  inline-size: 50%;
 }
 
 td.job-status {
-  width: 15%;
-  text-align: right;
+  inline-size: 15%;
+  text-align: end;
 }
 
 td.job-action {
-  text-align: right;
+  text-align: end;
 }
 
 .detail-jobs {
-  margin-top: 20px;
+  margin-block-start: 20px;
 }
 
 .storage-graph {
-  height: 180px;
+  block-size: 180px;
 }
 
 .content-nav-item-warning:first-child {
-  padding-right: var(--pf-global--spacer--sm);
+  padding-inline-end: var(--pf-global--spacer--sm);
 }
 
 .content-action {
-  text-align: right;
+  text-align: end;
   white-space: nowrap !important;
 }
 
 .dialog-item-tooltip {
-  margin-left: 5px;
+  margin-inline-start: 5px;
   padding: 0;
   white-space: nowrap;
 }
 
 .modal-footer-teardown {
-  text-align: left;
+  text-align: start;
 }
 
 .pf-c-modal-box__body table {
@@ -190,7 +186,7 @@ td.job-action {
 }
 
 * + .modal-footer-teardown {
-  padding-top: var(--pf-global--spacer--xl);
+  padding-block-start: var(--pf-global--spacer--xl);
 }
 
 tr[class*="content-level-"] {
@@ -200,12 +196,12 @@ tr[class*="content-level-"] {
   // Move the button over
   > .pf-c-table__toggle > button {
     position: relative;
-    left: var(--offset);
+    inset-inline-start: var(--offset);
   }
 
   // Add space for the button and offset
   > .pf-c-table__toggle + td {
-    padding-left: calc(var(--offset) + var(--pf-c-table--cell--PaddingLeft));
+    padding-inline-start: calc(var(--offset) + var(--pf-c-table--cell--PaddingLeft));
   }
 }
 
@@ -216,12 +212,12 @@ tr[class*="content-level-"] {
 }
 
 .tab-actions {
-  float: right;
-  margin-top: -15px;
+  float: inline-end;
+  margin-block-start: -15px;
 }
 
 .tab-actions button {
-  margin-left: 0.3em;
+  margin-inline-start: 0.3em;
 }
 
 a.disabled {
@@ -232,7 +228,7 @@ a.disabled {
 
 .tab-row-actions {
   display: inline-block;
-  margin-left: 2em;
+  margin-inline-start: 2em;
 }
 
 /* Make tooltips inside tables visible.
@@ -244,11 +240,11 @@ td.storage-action {
 
 .network-keys-table td {
   vertical-align: baseline;
-  padding-right: 10px;
+  padding-inline-end: 10px;
 }
 
 .combobox-container .input-group {
-  width: 100%;
+  inline-size: 100%;
 }
 
 /* Prevent long names from sticking out of dialog titles
@@ -259,7 +255,7 @@ td.storage-action {
 }
 
 .just-installed {
-  margin-right: 1em;
+  margin-inline-end: 1em;
 }
 
 .faded {
@@ -270,25 +266,26 @@ td.storage-action {
 
 .widest-title {
   visibility: hidden;
-  height: 0;
+  block-size: 0;
 }
 
 .radio-horizontal input[type="radio"] {
-  margin-top: 5px;
+  margin-block-start: 5px;
 }
 
 .radio-horizontal label {
-  margin-right: 1em;
+  margin-inline-end: 1em;
 }
 
 .key-slot-panel-remaining {
-  margin-right: 1em;
+  margin-inline-end: 1em;
 }
 
 .sigkey-heading {
   color: var(--pf-global--Color--dark-100);
   font-size: var(--pf-global--FontSize--sm);
-  margin: var(--pf-global--spacer--md) 0 0;
+  margin-block: var(--pf-global--spacer--md) 0;
+  margin-inline: 0;
 }
 
 .sigkey-hash {
@@ -297,20 +294,20 @@ td.storage-action {
 }
 
 .pf-c-modal-box h3 {
-  margin-top: 0;
+  margin-block-start: 0;
   line-height: 24px;
 }
 
 .progressive-disclosure .form-group {
-  padding-left: 20px;
+  padding-inline-start: 20px;
 }
 
 .progressive-disclosure .form-group > :first-child {
-  margin-left: -20px;
+  margin-inline-start: -20px;
 }
 
 .progressive-disclosure .form-group > :not(:first-child) {
-  margin-top: 0.5em;
+  margin-block-start: 0.5em;
   animation: showRemovalDisclosure ease-in-out 200ms;
 }
 
@@ -336,24 +333,25 @@ td.storage-action {
 }
 
 .pf-c-modal-box .key-source .radio-horizontal {
-  margin-bottom: 2ex;
+  margin-block-end: 2ex;
 }
 
 // This is needs to avoid showing scrollbar in dialog
 .size-slider {
-  padding-bottom: var(--pf-global--spacer--xs);
+  padding-block-end: var(--pf-global--spacer--xs);
 }
 
 /* Overview side panels */
 
 .sidepanel-row {
-  padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--lg);
-  border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+  padding-block: var(--pf-global--spacer--sm);
+  padding-inline: var(--pf-global--spacer--lg);
+  border-block-start: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
 }
 
 .sidepanel-row.pf-c-empty-state {
   .pf-c-empty-state__body {
-    margin-top: 0;
+    margin-block-start: 0;
   }
 }
 
@@ -368,7 +366,7 @@ td.storage-action {
 
 .sidepanel-row-info {
   font-size: var(--pf-global--FontSize--xs);
-  max-width: 50ch;
+  max-inline-size: 50ch;
 }
 
 .panel-heading {
@@ -376,7 +374,8 @@ td.storage-action {
 }
 
 .storage_alert_action_buttons button {
-  margin: 0.5rem 0.2rem 0.2rem 0;
+  margin-block: 0.5rem 0.2rem;
+  margin-inline: 0 0.2rem;
 }
 
 // We wrap the data list row with a label to make checkboxes clickable from the whole row
@@ -397,11 +396,11 @@ td.storage-action {
 }
 
 .pf-c-description-list .pf-c-progress {
-  max-width: 30ch;
+  max-inline-size: 30ch;
 }
 
 #mounts .pf-c-progress__measure, #nfs-mounts .pf-c-progress__measure, #detail-content .pf-c-progress__measure {
-  min-width: 7rem;
+  min-inline-size: 7rem;
 }
 
 // Hatched effect for progressbars that are parts of a group, but not the main

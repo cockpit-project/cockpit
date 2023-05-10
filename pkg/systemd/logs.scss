@@ -30,6 +30,13 @@
   #journal-identifier-menu .pf-c-select__menu-item {
     white-space: normal;
   }
+
+  // This might be a PF bug; but it seems the top calculation no longer needs
+  // to take the toolbar content's row-gap into consideration. Changing it
+  // locally, as I'm not certain if it's PF or the way we're using it.
+  .pf-c-toolbar__expandable-content.pf-m-expanded {
+    inset-block: 0 auto;
+  }
 }
 
 #log-details {

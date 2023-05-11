@@ -51,10 +51,12 @@ test_js_translatable_strings() {
     ! git grep -n -E "(gettext|_)\(['\`]" -- {src,pkg}/'*'.{js,jsx}
 }
 
-test_eslint() {
-    test -x node_modules/.bin/eslint -a -x /usr/bin/node || skip 'no eslint'
-    find_scripts 'node' '*.js?' | xargs -0 node_modules/.bin/eslint
-}
+if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
+    test_eslint() {
+        test -x node_modules/.bin/eslint -a -x /usr/bin/node || skip 'no eslint'
+        find_scripts 'node' '*.js?' | xargs -0 node_modules/.bin/eslint
+    }
+fi
 
 test_no_translatable_attr() {
     # Use of translatable attribute in HTML: should be 'translate' instead

@@ -934,9 +934,6 @@ main (int argc,
 
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
-  signal (SIGTSTP, SIG_IGN);
-  signal (SIGHUP, SIG_IGN);
-  signal (SIGPIPE, SIG_IGN);
 
   cockpit_authorize_logger (authorize_logger, DEBUG_SESSION);
 
@@ -1004,6 +1001,7 @@ main (int argc,
       signal (SIGTERM, pass_to_child);
       signal (SIGINT, pass_to_child);
       signal (SIGQUIT, pass_to_child);
+      signal (SIGHUP, pass_to_child);
 
       FILE *login_messages = cockpit_json_print_open_memfd ("cockpit login messages", 1);
 
@@ -1019,6 +1017,7 @@ main (int argc,
       signal (SIGTERM, SIG_DFL);
       signal (SIGINT, SIG_DFL);
       signal (SIGQUIT, SIG_DFL);
+      signal (SIGHUP, SIG_DFL);
 
       close (login_messages_fd);
 

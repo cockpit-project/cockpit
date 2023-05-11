@@ -556,32 +556,29 @@ $graphs: cpu, memory, disks, network;
     .polygon.polygon-use {
       grid-area: utilization;
       // horizontally the use graphs go to the left on LTR, to the right on RTL
-      transform: scale(-1);
-      [dir="rtl"] & { transform: scaleY(-1); }
+      transform: scale(-1, -1);
+      [dir="rtl"] & { transform: scale(1, -1); }
     }
 
     .polygon.polygon-sat {
       grid-area: saturation;
       opacity: 0.7;
       // horizontally the load graphs go to the right on LTR, to the left on RTL
-      transform: scaleY(-1);
-      [dir="rtl"] & { transform: scale(-1); }
+      transform: scale(1, -1);
+      [dir="rtl"] & { transform: scale(-1, -1); }
     }
 
     .compressed.polygon-sat {
       background: var(--gradient);
       clip-path: inset(0 calc(100% - var(--saturation) * 100%) 0 0);
       opacity: 0.7;
+      [dir="rtl"] & { transform: scale(-1, 1); }
     }
 
     .compressed.polygon-use {
       background: var(--gradient-flip);
       clip-path: inset(0 0 0 calc(100% - var(--utilization) * 100%));
-
-      // Flip for RTL
-      [dir="rtl"] & {
-        transform: scaleX(-1);
-      }
+      [dir="rtl"] & { transform: scale(-1, 1); }
     }
   }
 

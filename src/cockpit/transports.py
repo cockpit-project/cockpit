@@ -19,6 +19,7 @@
 
 import asyncio
 import collections
+import ctypes
 import errno
 import fcntl
 import logging
@@ -30,6 +31,17 @@ import subprocess
 import termios
 
 from typing import Any, ClassVar, Deque, Dict, List, Optional, Sequence, Tuple
+
+
+libc6 = ctypes.cdll.LoadLibrary('libc.so.6')
+
+
+def prctl(*args):
+    if libc6.prctl(*args) != 0:
+        raise OSError('prctl() failed')
+
+
+SET_PDEATHSIG = 1
 
 
 logger = logging.getLogger(__name__)
@@ -327,6 +339,11 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
                  pty: bool = False,
                  window: Optional[Dict[str, int]] = None,
                  **kwargs: Any):
+
+        # go down as a team -- we don't want any leaked processes when the bridge terminates
+        def preexec_fn():
+            prctl(SET_PDEATHSIG, signal.SIGTERM)
+
         if pty:
             self._pty_fd, session_fd = os.openpty()
 
@@ -336,14 +353,15 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             kwargs['stderr'] = session_fd
             self._process = subprocess.Popen(args,
                                              stdin=session_fd, stdout=session_fd,
-                                             start_new_session=True, **kwargs)
+                                             preexec_fn=preexec_fn, start_new_session=True, **kwargs)
             os.close(session_fd)
 
             in_fd, out_fd = self._pty_fd, self._pty_fd
             self._eio_is_eof = True
 
         else:
-            self._process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, **kwargs)
+            self._process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                             preexec_fn=preexec_fn, **kwargs)
             assert self._process.stdin and self._process.stdout
             in_fd = self._process.stdout.fileno()
             out_fd = self._process.stdin.fileno()

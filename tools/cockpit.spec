@@ -170,8 +170,6 @@ Requires: subscription-manager-cockpit
 %if %{cockpit_enable_python}
 BuildRequires:  python3-devel
 BuildRequires:  python3-pip
-BuildRequires:  python3-setuptools
-BuildRequires:  python3-wheel
 %if 0%{?rhel} == 0
 # All of these are only required for running pytest (which we only do on Fedora)
 BuildRequires:  procps-ng

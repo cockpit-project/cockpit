@@ -313,6 +313,17 @@ select.pf-c-form-control {
   margin-inline: 0 var(--pf-c-button__icon--m-start--MarginRight);
 }
 
+// RTL fix: Masthead actions should be on the far side
+.pf-c-masthead__content {
+  margin-inline: auto var(--pf-c-masthead__content--MarginLeft);
+}
+
+// RTL fix: Menu direction should take direction into consideration
+.pf-c-dropdown .pf-c-menu.pf-m-align-right,
+.pf-c-dropdown__menu.pf-m-align-right {
+  inset-inline: auto 0;
+}
+
 // RTL fix: Modal close button
 .pf-c-modal {
   &-box__header {
@@ -428,6 +439,11 @@ select.pf-c-form-control {
 
   // Flip submit button icons (they're often arrows or direction related)
   .pf-c-button > .pf-svg {
+    transform: scaleX(-1);
+  }
+
+  // Flip expandable buttons
+  .pf-c-expandable-section__toggle-icon {
     transform: scaleX(-1);
   }
 

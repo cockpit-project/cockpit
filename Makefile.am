@@ -47,7 +47,7 @@ distdir: $(DISTFILES)
 # Needed to ensure the tarball is correct for $(VERSION) override
 dist-hook: $(distdir)/src/cockpit/_version.py
 $(distdir)/src/cockpit/_version.py: FORCE
-	$(srcdir)/tools/dist-setuptools '$(srcdir)' '$(distdir)'
+	python3 '$(srcdir)'/src/build_backend.py --copy '$(srcdir)' '$(distdir)'
 	@rm -f $(distdir)/src/cockpit/_version.py
 	$(AM_V_GEN) echo "__version__ = '$(VERSION)'" > $@
 

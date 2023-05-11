@@ -1,6 +1,7 @@
 [build-system]
-requires = ["setuptools >= 39.2.0"]
-build-backend = "setuptools.build_meta"
+requires = []
+backend-path = ['src']
+build-backend = 'build_backend'
 
 [tool.mypy]
 mypy_path = 'src/cockpit'

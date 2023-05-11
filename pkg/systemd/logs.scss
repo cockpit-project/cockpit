@@ -72,6 +72,11 @@
     padding-block-start: var(--pf-global--spacer--md);
   }
 
+  // RTL: Pass through computer-generated text as-is
+  .pf-c-description-list__text {
+    @extend .ct-rtl-passthrough;
+  }
+
   .table-hide-labels {
     [data-label] {
       display: revert;

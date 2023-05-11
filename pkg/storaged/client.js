@@ -481,7 +481,7 @@ function init_model(callback) {
     }
 
     function enable_clevis_features() {
-        return cockpit.spawn(["which", "clevis-luks-bind"], { err: "ignore" }).then(
+        return cockpit.script("type clevis-luks-bind", { err: "ignore" }).then(
             function () {
                 client.features.clevis = true;
                 return Promise.resolve();
@@ -496,7 +496,7 @@ function init_model(callback) {
         // $PATH, such as when connecting from CentOS to another
         // machine via SSH as non-root.
         const std_path = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
-        return cockpit.spawn(["which", "mount.nfs"], { err: "message", environ: [std_path] }).then(
+        return cockpit.script("type mount.nfs", { err: "message", environ: [std_path] }).then(
             function () {
                 client.features.nfs = true;
                 client.nfs.start();

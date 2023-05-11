@@ -16,10 +16,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
-import ctypes
 import logging
 import os
-import signal
 import subprocess
 
 from typing import Dict
@@ -29,16 +27,6 @@ from ..channel import ProtocolChannel, ChannelError
 from ..transports import SubprocessTransport, SubprocessProtocol
 
 logger = logging.getLogger(__name__)
-
-libc6 = ctypes.cdll.LoadLibrary('libc.so.6')
-
-
-def prctl(*args):
-    if libc6.prctl(*args) != 0:
-        raise OSError('prctl() failed')
-
-
-SET_PDEATHSIG = 1
 
 
 class SocketStreamChannel(ProtocolChannel):
@@ -153,8 +141,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             env.update(dict(e.split('=', 1) for e in environ))
 
         try:
-            transport = SubprocessTransport(loop, self, args, pty, window, env=env, cwd=cwd, stderr=stderr,
-                                            preexec_fn=lambda: prctl(SET_PDEATHSIG, signal.SIGHUP))
+            transport = SubprocessTransport(loop, self, args, pty, window, env=env, cwd=cwd, stderr=stderr)
             logger.debug('Spawned process args=%s pid=%i', args, transport.get_pid())
             return transport
         except FileNotFoundError as error:

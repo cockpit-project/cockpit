@@ -26,6 +26,8 @@ import pytest
     ['mypy', '--no-incremental', 'src/cockpit'],
 
     ['ruff', 'check', '--no-cache', '.'],
+
+    ['vulture'],
 ], ids=lambda argv: argv[0])
 def test_linter(command, pytestconfig):
     try:

@@ -15,26 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import pytest
-import shutil
 import subprocess
 
+import pytest
 
-ROOT_DIR = os.path.realpath(f'{__file__}/../../..')
 
-
-@pytest.mark.skipif(not shutil.which('mypy'), reason='mypy is not installed')
-def test_bridge_mypy():
+@pytest.mark.parametrize('command', [
     # only test src/cockpit; src/systemd_ctypes does not have type annotations yet
     # disable caching, as it otherwise often crashes with "Cannot find component 'inotify' for 'systemd_ctypes...."
-    subprocess.check_call(['mypy', '--no-incremental', 'src/cockpit'], cwd=ROOT_DIR)
+    ['mypy', '--no-incremental', 'src/cockpit'],
 
-
-def test_ruff():
+    ['ruff', 'check', '--no-cache', '.'],
+], ids=lambda argv: argv[0])
+def test_linter(command, pytestconfig):
     try:
-        subprocess.check_call(['ruff', 'check', '--no-cache', '.'], cwd=ROOT_DIR)
-    except FileNotFoundError:
-        pytest.skip('ruff not installed')
+        subprocess.check_call(command, cwd=pytestconfig.rootdir)
+    except FileNotFoundError as exc:
+        pytest.skip(f'{exc.filename} not installed')
     except subprocess.CalledProcessError:
         pytest.fail()

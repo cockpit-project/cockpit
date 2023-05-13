@@ -1023,10 +1023,10 @@ password=foobar
         # RHEL 8 has no SHA1 policy, so do not show it.
         b.click("#crypto-policy-button")
         func = b.wait_not_present if m.image.startswith('rhel-8') or m.image.startswith('centos-8') else b.wait_visible
-        func(".pf-c-menu__item-main .pf-c-menu__item-text:contains('Default:sha1')")
+        func(".pf-c-menu__item-main .pf-c-menu__item-text:contains('DEFAULT:SHA1')")
 
         # Test if a new subpolicy can be set
-        new_profile = "LEGACY:AD-SUPPORT"
+        new_profile = "LEGACY:AD-support"
         change_profile(profile, new_profile)
 
         profile = m.execute(cmd + " --show").strip()
@@ -1070,7 +1070,7 @@ password=foobar
         m.execute(cmd + " --set DEFAULT")
         b.wait_text("#inconsistent_crypto_policy", "Crypto policy is inconsistent")
         m.execute(cmd + " --set FIPS:OSPP")
-        b.wait_text("#crypto-policy-button", "Fips:ospp")
+        b.wait_text("#crypto-policy-button", "FIPS:OSPP")
         b.wait_not_present("#inconsistent_crypto_policy")
 
         # Setting via dialog

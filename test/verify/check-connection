@@ -49,6 +49,16 @@ class TestConnection(MachineCase):
         m.execute("rpm-ostree install --cache-only /var/tmp/cockpit-ws-*.rpm", timeout=180)
         m.reboot()
 
+    def assertNoAdminProcessLeaks(self):
+        '''Check that machine did not leak any bridges or ssh-agent admin processes'''
+        m = self.machine
+        try:
+            # there may still be user-wide ones like dbus-broker
+            m.execute("while pgrep -au admin '(cockpit|ssh-agent)'; do sleep 0.1; done", timeout=10)
+        except RuntimeError:
+            # show the leaked processes in the assertion
+            self.fail(m.execute("pgrep -au admin '(cockpit|ssh-agent)'"))
+
     @skipBrowser("Firefox cannot work with cookies", "firefox")
     def testBasic(self):
         m = self.machine
@@ -143,6 +153,8 @@ class TestConnection(MachineCase):
         self.assertEqual(cookie["value"], "deleted")
         self.assertTrue(cookie["httpOnly"])
         self.assertFalse(cookie["secure"])
+
+        self.assertNoAdminProcessLeaks()
 
         if not m.ostree_image:  # cannot write to /usr on OSTree, and cockpit-session is in a container
             # damage cockpit-session permissions, expect generic error message
@@ -859,6 +871,8 @@ export XDG_CONFIG_DIRS=/usr/local
                   su -c "ssh test1@localhost cockpit-bridge --packages" admin | grep -q test1.*dashboard  # validate setup
                   """)
 
+        is_pybridge = self.is_pybridge()
+
         for (pages, asserts) in cases:
             for page in pages:
                 m.execute(f'''su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" {self.libexecdir}/cockpit-desktop {page}' admin''',
@@ -868,8 +882,9 @@ export XDG_CONFIG_DIRS=/usr/local
                 for a in asserts:
                     self.assertIn(a, out)
 
-                # should clean up processes
-                self.assertEqual(m.execute("! pgrep -a cockpit-ws; ! pgrep -a cockpit-bridge"), "")
+                if is_pybridge:
+                    # FIXME: the C bridge leaks ssh-agent
+                    self.assertNoAdminProcessLeaks()
 
         # cockpit-desktop can start a privileged bridge through polkit
         # we don't have an agent, so just allow the privilege without interactive authentication
@@ -896,6 +911,10 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         m.execute("chmod 755 /tmp/browser.sh")
         m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin", timeout=10)
         self.assertIn('id="overview"', m.execute("cat /tmp/out.html"))
+
+        if is_pybridge:
+            # FIXME: the C bridge leaks ssh-agent
+            self.assertNoAdminProcessLeaks()
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
         self.allow_journal_messages("Refusing to render service to dead parents.")

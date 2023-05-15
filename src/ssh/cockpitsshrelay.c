@@ -2143,6 +2143,7 @@ cockpit_ssh_relay_start (CockpitSshRelay *self)
   int in;
   int out;
   int rc;
+  g_autofree gchar *command = NULL;
 
   static struct ssh_channel_callbacks_struct channel_cbs = {
     .channel_data_function = on_channel_data,
@@ -2186,14 +2187,22 @@ cockpit_ssh_relay_start (CockpitSshRelay *self)
                                       G_CALLBACK (on_pipe_close),
                                       self);
 
-  for (rc = SSH_AGAIN; rc == SSH_AGAIN; )
-    rc = ssh_channel_request_exec (self->channel, self->ssh_data->ssh_options->command);
+  /* For bastion host mode (where SSH_AUTH_SOCK is definitively not set for us), try to run bridge under ssh-agent;
+   * if that fails (may not be installed), run without. We don't want/need an agent for remote connections from
+   * a local Cockpit shell*/
+  if (g_getenv ("SSH_AUTH_SOCK") != NULL)
+    command = g_strdup (self->ssh_data->ssh_options->command);
+  else
+    /* HACK: this sucks; does not work with exec (keeps the extra shell around), and requires a POSIX shell */
+    command = g_strdup_printf ("ssh-agent %1$s || %1$s", self->ssh_data->ssh_options->command);
+
+  do {
+    rc = ssh_channel_request_exec (self->channel, command);
+  } while (rc == SSH_AGAIN);
 
   if (rc != SSH_OK)
     {
-      g_message ("%s: couldn't execute command: %s: %s", self->logname,
-                 self->ssh_data->ssh_options->command,
-                 ssh_get_error (self->session));
+      g_message ("%s: couldn't execute command: %s: %s", self->logname, command, ssh_get_error (self->session));
       problem = "internal-error";
       goto out;
     }

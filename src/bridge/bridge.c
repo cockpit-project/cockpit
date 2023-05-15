@@ -235,13 +235,6 @@ start_dbus_daemon (void)
   return start_helper_process (cmd, "^(.*)$", "DBUS_SESSION_BUS_ADDRESS");
 }
 
-static GSubprocess *
-start_ssh_agent (void)
-{
-  const char * const cmd[] = { "ssh-agent", "-s", "-D", NULL };
-  return start_helper_process (cmd, "SSH_AUTH_SOCK=([^;]*);", "SSH_AUTH_SOCK");
-}
-
 static gboolean
 on_signal_done (gpointer data)
 {
@@ -330,7 +323,6 @@ run_bridge (const gchar *interactive,
   const gchar *directory;
   struct passwd *pwd;
   g_autoptr (GSubprocess) dbus_daemon_process = NULL;
-  g_autoptr (GSubprocess) ssh_agent_process = NULL;
   guint sig_term;
   guint sig_int;
   uid_t uid;
@@ -372,7 +364,6 @@ run_bridge (const gchar *interactive,
   if (!interactive && !privileged_peer)
     {
       dbus_daemon_process = start_dbus_daemon ();
-      ssh_agent_process = start_ssh_agent ();
     }
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
@@ -437,8 +428,6 @@ run_bridge (const gchar *interactive,
 
   if (dbus_daemon_process)
     g_subprocess_send_signal (dbus_daemon_process, SIGTERM);
-  if (ssh_agent_process)
-    g_subprocess_send_signal (ssh_agent_process, SIGTERM);
 
   g_source_remove (sig_term);
   g_source_remove (sig_int);

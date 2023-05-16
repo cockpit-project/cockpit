@@ -109,7 +109,8 @@ on_pipe_close (CockpitPipe *pipe,
           g_str_equal (problem, "internal-error"))
         {
           status = cockpit_pipe_exit_status (pipe);
-          if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
+          // HUP: bridge child cleaned up by our PR_SET_PDEATHSIG
+          if (WIFSIGNALED (status) && (WTERMSIG (status) == SIGTERM || WTERMSIG (status) == SIGHUP))
             problem = "terminated";
           else if (is_cockpit && WIFEXITED (status) && WEXITSTATUS (status) == 127)
             problem = "no-cockpit";      // cockpit-bridge not installed

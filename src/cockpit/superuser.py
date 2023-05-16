@@ -40,7 +40,10 @@ class SuperuserPeer(ConfiguredPeer):
     async def do_connect_transport(self) -> asyncio.Transport:
         agent = ferny.InteractionAgent(self.responder)
         transport = await self.spawn(self.args, self.env, stderr=agent, start_new_session=True)
-        await agent.communicate()
+        try:
+            await agent.communicate()
+        except ferny.InteractionError as exc:
+            raise PeerError('authentication-failed', message=str(exc))
         return transport
 
 
@@ -132,7 +135,7 @@ class SuperuserRoutingRule(RoutingRule, ferny.InteractionResponder, bus.Object, 
 
         try:
             await self.peer.start()
-        except (OSError, PeerError, ferny.InteractionError) as exc:
+        except (OSError, PeerError) as exc:
             raise bus.BusError('cockpit.Superuser.Error', str(exc))
 
         self.current = name

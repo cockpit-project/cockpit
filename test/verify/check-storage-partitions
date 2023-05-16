@@ -79,7 +79,7 @@ class TestStoragePartitions(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("type", "empty")
 
-        slider = self.dialog_field("size") + " .pf-c-slider .pf-c-slider__rail"
+        slider = self.dialog_field("size") + " .pf-v5-c-slider .pf-v5-c-slider__rail"
 
         # Move the slider one pixel past the middle, this should give a fractional size.
         # See https://github.com/cockpit-project/cockpit/pull/10968 for more about this.
@@ -88,7 +88,7 @@ class TestStoragePartitions(StorageCase):
 
         b.mouse(slider, "click", about_half_way, 0)
         self.dialog_wait_val("size", 27.3)
-        b.focus(slider + " + .pf-c-slider__thumb")
+        b.focus(slider + " + .pf-v5-c-slider__thumb")
         b.key_press(chr(37), use_ord=True)  # arrow left
         self.dialog_wait_val("size", 26.7)
 

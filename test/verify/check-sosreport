@@ -57,10 +57,10 @@ only-plugins=release,date,host,cgroups,networking
             b.assert_pixels("#app", "limited")
 
         b.click("#app button:contains(Turn on administrative access)")
-        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
-        b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")
 
         b.wait_in_text("#app", "No system reports.")
         if urlroot == "":
@@ -68,9 +68,9 @@ only-plugins=release,date,host,cgroups,networking
 
         b.click("button:contains('Run report')")
         b.wait_visible("#sos-dialog")
-        b.set_input_text("#sos-dialog .pf-c-form__group:contains(Report label) input", "mylabel")
-        b.set_input_text("#sos-dialog .pf-c-form__group:contains(Encryption passphrase) input", "foobar")
-        b.set_checked("#sos-dialog .pf-c-check:contains(Obfuscate) input", True)
+        b.set_input_text("#sos-dialog .pf-v5-c-form__group:contains(Report label) input", "mylabel")
+        b.set_input_text("#sos-dialog .pf-v5-c-form__group:contains(Encryption passphrase) input", "foobar")
+        b.set_checked("#sos-dialog .pf-v5-c-check:contains(Obfuscate) input", True)
         if urlroot == "":
             b.assert_pixels("#sos-dialog", "dialog")
         b.click("#sos-dialog button:contains(Run report)")
@@ -103,7 +103,7 @@ only-plugins=release,date,host,cgroups,networking
             topdir = names[0].split("/")[0]
             tar.getmember(os.path.join(topdir, "etc/os-release"))
 
-        b.click("tr:contains(mylabel) button.pf-c-dropdown__toggle")
+        b.click("tr:contains(mylabel) button.pf-v5-c-dropdown__toggle")
         b.click("tr:contains(mylabel) li:contains(Delete)")
         b.click("#sos-remove-dialog button:contains(Delete)")
         wait(lambda: m.execute(f"! test -f /var/tmp/{base_report_gpg} && echo yes"))
@@ -134,8 +134,8 @@ only-plugins=release,date,host,cgroups,networking
 
         b.click("button:contains('Run report')")
         b.wait_visible("#sos-dialog")
-        b.set_input_text("#sos-dialog .pf-c-form__group:contains(Report label) input", "mylabel")
-        b.set_checked("#sos-dialog .pf-c-check:contains(Use verbose logging) input", True)
+        b.set_input_text("#sos-dialog .pf-v5-c-form__group:contains(Report label) input", "mylabel")
+        b.set_checked("#sos-dialog .pf-v5-c-check:contains(Use verbose logging) input", True)
         b.click("#sos-dialog button:contains(Run report)")
         with b.wait_timeout(120):
             b.wait_not_present("#sos-dialog")
@@ -170,13 +170,13 @@ only-plugins=release,date,host,cgroups,networking
         self.allow_journal_messages(".*xml.*")
 
         self.login_and_go("/apps")
-        b.wait_not_present(".pf-c-empty-state")
+        b.wait_not_present(".pf-v5-c-empty-state")
         image_os = m.image.split('-')[0]
         if image_os in ['fedora', 'debian', 'ubuntu']:
-            b.wait_visible(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic reports']")
-            b.wait_visible(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic reports'] button:contains('Remove')")
+            b.wait_visible(".app-list .pf-v5-c-data-list__item-row div[rowId='Diagnostic reports']")
+            b.wait_visible(".app-list .pf-v5-c-data-list__item-row div[rowId='Diagnostic reports'] button:contains('Remove')")
         else:
-            b.wait_not_present(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic reports']")
+            b.wait_not_present(".app-list .pf-v5-c-data-list__item-row div[rowId='Diagnostic reports']")
 
 
 if __name__ == '__main__':

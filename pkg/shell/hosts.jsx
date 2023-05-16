@@ -177,20 +177,20 @@ export class CockpitHosts extends React.Component {
         return (
             <>
                 <div className="ct-switcher">
-                    <div className="pf-c-select pf-m-dark">
-                        <button onClick={this.toggleMenu} id="host-toggle" aria-labelledby="host-toggle" aria-expanded={(this.state.opened ? "true" : "false")} aria-haspopup="listbox" type="button" className="ct-nav-toggle pf-c-select__toggle pf-m-plain">
-                            <span className="pf-c-select__toggle-wrapper desktop_v">
-                                <span className="pf-c-select__toggle-text">
+                    <div className="pf-v5-c-select pf-m-dark">
+                        <button onClick={this.toggleMenu} id="host-toggle" aria-labelledby="host-toggle" aria-expanded={(this.state.opened ? "true" : "false")} aria-haspopup="listbox" type="button" className="ct-nav-toggle pf-v5-c-select__toggle pf-m-plain">
+                            <span className="pf-v5-c-select__toggle-wrapper desktop_v">
+                                <span className="pf-v5-c-select__toggle-text">
                                     <HostLine user={user} host={label} />
                                 </span>
                             </span>
-                            {this.state.opened && <CaretUpIcon className="pf-c-select__toggle-arrow mobile_v pf-c-icon pf-m-lg" aria-hidden="true" />}
-                            {!this.state.opened && <CaretDownIcon className="pf-c-select__toggle-arrow mobile_v pf-c-icon pf-m-lg" aria-hidden="true" />}
-                            <span className="pf-c-select__toggle-wrapper mobile_v">
+                            {this.state.opened && <CaretUpIcon className="pf-v5-c-select__toggle-arrow mobile_v pf-v5-c-icon pf-m-lg" aria-hidden="true" />}
+                            {!this.state.opened && <CaretDownIcon className="pf-v5-c-select__toggle-arrow mobile_v pf-v5-c-icon pf-m-lg" aria-hidden="true" />}
+                            <span className="pf-v5-c-select__toggle-wrapper mobile_v">
                                 {_("Host")}
                             </span>
-                            {this.state.opened && <CaretUpIcon className="pf-c-select__toggle-arrow desktop_v pf-c-icon" aria-hidden="true" />}
-                            {!this.state.opened && <CaretDownIcon className="pf-c-select__toggle-arrow desktop_v pf-c-icon" aria-hidden="true" />}
+                            {this.state.opened && <CaretUpIcon className="pf-v5-c-select__toggle-arrow desktop_v pf-v5-c-icon" aria-hidden="true" />}
+                            {!this.state.opened && <CaretDownIcon className="pf-v5-c-select__toggle-arrow desktop_v pf-v5-c-icon" aria-hidden="true" />}
                         </button>
                     </div>
 

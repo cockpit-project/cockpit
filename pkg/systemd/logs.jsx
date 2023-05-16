@@ -187,7 +187,7 @@ export const LogsPage = () => {
             <PageSection id="journal" padding={{ default: 'noPadding' }}>
                 <Toolbar>
                     <ToolbarContent>
-                        <ToolbarToggleGroup className="pf-u-flex-wrap pf-u-flex-grow-1 pf-u-align-items-flex-start" toggleIcon={<><span className="pf-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
+                        <ToolbarToggleGroup className="pf-v5-u-flex-wrap pf-v5-u-flex-grow-1 pf-v5-u-align-items-flex-start" toggleIcon={<><span className="pf-v5-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
                             <ToolbarGroup>
                                 <ToolbarItem>
                                     <Select toggleId="logs-predefined-filters"

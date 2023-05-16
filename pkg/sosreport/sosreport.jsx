@@ -477,7 +477,7 @@ const SOSBody = () => {
                 { title: <LabelGroup>{labels}</LabelGroup> },
                 {
                     title: <>{action}{menu}</>,
-                    props: { className: "pf-c-table__action table-row-action" }
+                    props: { className: "pf-v5-c-table__action table-row-action" }
                 },
             ]
         };
@@ -515,7 +515,7 @@ const SOSPage = () => {
             <Page>
                 <PageSection padding={{ default: "padding" }} variant={PageSectionVariants.light}>
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                        <h2 className="pf-u-font-size-3xl">{_("System diagnostics")}</h2>
+                        <h2 className="pf-v5-u-font-size-3xl">{_("System diagnostics")}</h2>
                     </Flex>
                 </PageSection>
                 <SOSBody />

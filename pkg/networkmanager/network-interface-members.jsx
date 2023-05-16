@@ -125,7 +125,7 @@ export const NetworkInterfaceMembers = ({
                                 </Button>}
                             </div>
                         ),
-                        props: { className: "pf-c-table__action" }
+                        props: { className: "pf-v5-c-table__action" }
                     },
                 ],
                 props: {

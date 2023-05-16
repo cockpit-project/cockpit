@@ -115,7 +115,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
                        isChecked={!locked} onChange={(_, checked) => change("locked", !checked)}
                        description={
                            <Checkbox id="accounts-create-force-password-change"
-                                     className="pf-u-mb-xs"
+                                     className="pf-v5-u-mb-xs"
                                      label={_("Require password change on first login")}
                                      isChecked={change_passw_force} onChange={(_event, checked) => change("change_passw_force", checked)} />
                        } />

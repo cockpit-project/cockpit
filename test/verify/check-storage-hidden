@@ -82,7 +82,7 @@ class TestStorageHiddenLuks(StorageCase):
         self.content_row_wait_in_col(1, 2, "Inactive volume")
 
         # Deleting the volume group should still remove the fstab entry
-        b.click('.pf-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
+        b.click('.pf-v5-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute(f"grep {mount_point_1} /etc/fstab || true"), "")
@@ -126,7 +126,7 @@ class TestStorageHidden(StorageCase):
         # we need to wait for mdadm --monitor to stop using the device before delete
         m.execute("while fuser -s /dev/md127; do sleep 0.2; done", timeout=20)
 
-        self.browser.click('.pf-c-card__header:contains("RAID device") button:contains("Delete")')
+        self.browser.click('.pf-v5-c-card__header:contains("RAID device") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute(f"grep {mount_point_2} /etc/fstab || true"), "")

@@ -42,7 +42,7 @@ class TestStorageNfs(StorageCase):
         self.addCleanup(m.execute, "if [ -e /mnt/test ]; then umount /mnt/test 2>/dev/null || true; rm -r /mnt/test; fi")
 
         # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .pf-c-empty-state")
+        b.wait_visible("#nfs-mounts .pf-v5-c-empty-state")
 
         orig_fstab = m.execute("cat /etc/fstab")
 
@@ -57,7 +57,7 @@ class TestStorageNfs(StorageCase):
 
         b.wait_visible("#nfs-mounts td:contains(/home/foo)")
         b.wait_visible("#nfs-mounts td:contains(/mnt/test)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mnt/test) .pf-c-progress__status", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt/test) .pf-v5-c-progress__status", "")
 
         # Should be saved to fstab
         self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
@@ -68,10 +68,10 @@ class TestStorageNfs(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         b.set_input_text(self.dialog_field("remote") + " input", "/usr/share")
-        b.click(self.dialog_field("remote") + " .pf-c-select ul > li > button")
+        b.click(self.dialog_field("remote") + " .pf-v5-c-select ul > li > button")
         self.dialog_set_val("dir", "/run/share")
         self.dialog_apply()
-        b.wait_visible("#dialog .pf-c-alert.pf-m-danger")
+        b.wait_visible("#dialog .pf-v5-c-alert.pf-m-danger")
         self.dialog_cancel()
         self.dialog_wait_close()
 
@@ -86,7 +86,7 @@ class TestStorageNfs(StorageCase):
 
         b.wait_visible("#nfs-mounts td:contains(/home/bar)")
         b.wait_visible("#nfs-mounts td:contains(/mounts/bar)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .pf-c-progress__status", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .pf-v5-c-progress__status", "")
         m.execute("test -d /mounts/bar")
 
         # Go to details of /home/bar
@@ -191,7 +191,7 @@ class TestStorageNfs(StorageCase):
                 return len(choices) == 2 and "/home/foo" in choices and "/home/bar" in choices
             self.retry(None, check, None)
 
-        b.click('#dialog [data-field="remote"] button.pf-c-select__toggle-button')
+        b.click('#dialog [data-field="remote"] button.pf-v5-c-select__toggle-button')
         wait_for_exports()
 
     def testNfsMountWithoutDiscovery(self):
@@ -218,7 +218,7 @@ class TestStorageNfs(StorageCase):
         self.dialog_set_val("server", "127.0.0.1")
         # Manually add a remote location to the select
         b.set_input_text("[data-field=remote] input", "/home/foo")
-        b.click("button.pf-c-select__menu-item")
+        b.click("button.pf-v5-c-select__menu-item")
         self.dialog_set_val("dir", "/mnt")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -226,7 +226,7 @@ class TestStorageNfs(StorageCase):
 
         b.wait_visible("#nfs-mounts td:contains(/home/foo)")
         b.wait_visible("#nfs-mounts td:contains(/mnt)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .pf-c-progress__status", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .pf-v5-c-progress__status", "")
 
     def testNfsBusy(self):
         m = self.machine
@@ -241,7 +241,7 @@ class TestStorageNfs(StorageCase):
         m.execute("systemctl restart nfs-server")
 
         # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .pf-c-empty-state")
+        b.wait_visible("#nfs-mounts .pf-v5-c-empty-state")
 
         # Add /home/foo
         b.click("#nfs-mounts [aria-label=Add]")
@@ -254,7 +254,7 @@ class TestStorageNfs(StorageCase):
 
         b.wait_visible("#nfs-mounts td:contains(/home/foo)")
         b.wait_visible("#nfs-mounts td:contains(/mounts/foo)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .pf-c-progress__status", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .pf-v5-c-progress__status", "")
 
         # Go to details of /home/foo
         b.go("#/")
@@ -294,7 +294,7 @@ class TestStorageNfs(StorageCase):
         self.dialog_wait_close()
 
         # We are back on the Overview with nothing there
-        b.wait_visible("#nfs-mounts .pf-c-empty-state")
+        b.wait_visible("#nfs-mounts .pf-v5-c-empty-state")
 
 
 # Re-use allowed journal messages from StorageCase

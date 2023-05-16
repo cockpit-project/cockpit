@@ -112,7 +112,7 @@ export class SystemInfomationCard extends React.Component {
             <Card className="system-information">
                 <CardTitle>{_("System information")}</CardTitle>
                 <CardBody>
-                    <table className="pf-c-table pf-m-grid-md pf-m-compact">
+                    <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">
                         <tbody>
                             {this.state.hardwareText && <tr>
                                 <th scope="row">{_("Model")}</th>

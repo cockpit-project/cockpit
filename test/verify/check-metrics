@@ -42,7 +42,7 @@ def getCompressedMinuteValue(test, g_type, saturation, hour, minute):
 
 
 def progressValue(test, progress_bar_sel):
-    sel = progress_bar_sel + " .pf-c-progress__indicator"
+    sel = progress_bar_sel + " .pf-v5-c-progress__indicator"
     test.browser.wait_visible(sel)
     test.browser.wait_attr_contains(sel, "style", "width:")
     style = test.browser.attr(sel, "style")
@@ -180,16 +180,16 @@ class TestHistoryMetrics(MachineCase):
         b.wait_js_func("ph_count_check", ".metrics-hour", 1)
 
         # VM just started, we don't have 12 hours of data
-        b.wait_in_text(".metrics .pf-c-alert", "No data available between")
+        b.wait_in_text(".metrics .pf-v5-c-alert", "No data available between")
         # initial data gap is < 24 hours, does not show date
         year = m.execute("date +%Y").strip()
-        self.assertNotIn(year, b.text(".metrics .pf-c-alert"))
+        self.assertNotIn(year, b.text(".metrics .pf-v5-c-alert"))
 
         # can try to load earlier data; only updates "no data" alert as there is no data
         b.wait_text(".bottom-panel button", "Load earlier data")
         b.click(".bottom-panel button")
         # now the gap is > 24 hours, does show date
-        b.wait_in_text(".metrics .pf-c-alert", year)
+        b.wait_in_text(".metrics .pf-v5-c-alert", year)
         # still only one hour
         b.wait_js_func("ph_count_check", ".metrics-hour", 1)
 
@@ -214,12 +214,12 @@ class TestHistoryMetrics(MachineCase):
         b.set_checked("#column-visibility-option-network", True)
 
         # Change date to yesterday, should be empty
-        b.click("#date-picker-select-toggle .pf-c-select__toggle-arrow")
-        b.click(".pf-c-select__menu-wrapper:nth-child(2) button")
-        b.wait_text(".pf-c-empty-state", "No data available")
+        b.click("#date-picker-select-toggle .pf-v5-c-select__toggle-arrow")
+        b.click(".pf-v5-c-select__menu-wrapper:nth-child(2) button")
+        b.wait_text(".pf-v5-c-empty-state", "No data available")
 
         # Breadcrumb back to Overview page
-        b.click(".pf-c-breadcrumb li:first-child")
+        b.click(".pf-v5-c-breadcrumb li:first-child")
         b.enter_page("/system")
         b.wait_visible('.system-information')
 
@@ -408,7 +408,7 @@ class TestHistoryMetrics(MachineCase):
         m.execute("timedatectl set-time @1600550674")
         login(self)
         # self.waitStream(3) # FIXME: wait for new data - pcp does not handle time change greatly
-        b.wait_text("#date-picker-select-toggle .pf-c-select__toggle-text", "Today")
+        b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Today")
 
         b.select_PF4("#date-picker-select-toggle", "Wednesday, September 16, 2020")
         self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 51), 0.5)
@@ -417,11 +417,11 @@ class TestHistoryMetrics(MachineCase):
         # Reload should keep the filters intact
         b.reload()
         b.enter_page("/metrics")
-        b.wait_text("#date-picker-select-toggle .pf-c-select__toggle-text", "Wednesday, September 16, 2020")
+        b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Wednesday, September 16, 2020")
 
         b.click("#date-picker-select-toggle")
-        b.click(".pf-c-select__menu-item:contains('Today')")
-        b.wait_text("#date-picker-select-toggle .pf-c-select__toggle-text", "Today")
+        b.click(".pf-v5-c-select__menu-item:contains('Today')")
+        b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Today")
         # self.waitStream(4) # FIXME: wait for new data - pcp does not handle time change greatly
 
         b.logout()
@@ -476,7 +476,7 @@ class TestHistoryMetrics(MachineCase):
         b.wait_in_text(".cockpit-logline:first-child .cockpit-log-message", "cpu-piglet")
         b.click(".cockpit-logline:first-child .cockpit-log-message")
         b.enter_page("/system/logs")
-        b.wait_in_text(".pf-c-card__title", "cpu-piglet")
+        b.wait_in_text(".pf-v5-c-card__title", "cpu-piglet")
         b.click("li:contains('Logs')")
         b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
 
@@ -504,11 +504,11 @@ class TestHistoryMetrics(MachineCase):
 
         self.login_and_go("/metrics")
 
-        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
-        b.wait_in_text(".pf-c-empty-state", "pmlogger.service is not running")
+        b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-v5-c-empty-state", "pmlogger.service is not running")
 
         # enable pmlogger in settings dialog from empty state
-        b.click(".pf-c-empty-state button.pf-m-primary")
+        b.click(".pf-v5-c-empty-state button.pf-m-primary")
         b.wait_visible("#pcp-settings-modal")
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
@@ -522,7 +522,7 @@ class TestHistoryMetrics(MachineCase):
         # page auto-updates every minute and starts to receive data
         with self.browser.wait_timeout(90):
             self.browser.wait_js_cond("ph_count('.metrics-data-cpu.valid-data') >= 1")
-        b.wait_not_present(".pf-c-empty-state")
+        b.wait_not_present(".pf-v5-c-empty-state")
 
         b.logout()
 
@@ -543,11 +543,11 @@ class TestHistoryMetrics(MachineCase):
 
         self.login_and_go("/metrics")
 
-        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
-        b.wait_in_text(".pf-c-empty-state", "pmlogger.service has failed")
+        b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-v5-c-empty-state", "pmlogger.service has failed")
 
         # Troubleshoot
-        b.click(".pf-c-empty-state button.pf-m-link")
+        b.click(".pf-v5-c-empty-state button.pf-m-link")
         b.enter_page("/system/services")
         b.wait_in_text("#service-details", "pmlogger.service")
 
@@ -611,9 +611,9 @@ class TestHistoryMetrics(MachineCase):
             b.wait_visible('#switch-pmproxy:checked')
             applySettings(b)
             if firewalld_alert:
-                b.wait_visible(".pf-c-alert:contains(pmproxy)")
+                b.wait_visible(".pf-v5-c-alert:contains(pmproxy)")
             else:
-                b.wait_not_present(".pf-c-alert:contains(pmproxy)")
+                b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
             m.execute('while [ $(systemctl is-active pmproxy) = activating ]; do sleep 1; done')
             self.assertEqual(m.execute("systemctl is-active pmproxy").strip(), "active")
             self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
@@ -629,7 +629,7 @@ class TestHistoryMetrics(MachineCase):
             b.wait_visible("#switch-pmproxy:not(:checked)")
             applySettings(b)
             # always clears the firewalld alert
-            b.wait_not_present(".pf-c-alert:contains(pmproxy)")
+            b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
             self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
             self.assertEqual(m.execute("! systemctl is-enabled pmproxy").strip(), "disabled")
             # keeps redis running, it's a shared service
@@ -657,7 +657,7 @@ class TestHistoryMetrics(MachineCase):
         applySettings(b)
         m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
         self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
-        b.wait_not_present(".pf-c-alert:contains(pmproxy)")
+        b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
 
         checkEnable(True)
         checkDisable()
@@ -682,7 +682,7 @@ class TestHistoryMetrics(MachineCase):
         # Go to firewall page from alert
         checkDisable()
         checkEnable(True)
-        b.click(".pf-c-alert button.pf-m-link")
+        b.click(".pf-v5-c-alert button.pf-m-link")
         b.enter_page("/network/firewall")
         b.wait_visible("#firewall-heading")
         b.go("/metrics")
@@ -691,8 +691,8 @@ class TestHistoryMetrics(MachineCase):
         # add pmproxy to default zone directly in alert
         default_zone = m.execute("firewall-cmd --get-default-zone").strip()
         b.wait_text("#firewalld-request-pmproxy", default_zone)
-        b.click(".pf-c-alert button.pf-m-primary")
-        b.wait_not_present(".pf-c-alert:contains(pmproxy)")
+        b.click(".pf-v5-c-alert button.pf-m-primary")
+        b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
         self.assertIn("pmproxy", m.execute("firewall-cmd --list-services").strip())
         self.assertIn("pmproxy", m.execute("firewall-cmd --list-services --permanent").strip())
 
@@ -704,8 +704,8 @@ class TestHistoryMetrics(MachineCase):
         checkDisable()
         m.execute("firewall-cmd --remove-service pmproxy")
         checkEnable(True)
-        b.click(".pf-c-alert button.pf-m-primary")
-        b.wait_not_present(".pf-c-alert:contains(pmproxy)")
+        b.click(".pf-v5-c-alert button.pf-m-primary")
+        b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
         self.assertIn("pmproxy", m.execute("firewall-cmd --list-services").strip())
 
         # error during zone addition: zone disappears underneath us
@@ -723,12 +723,12 @@ class TestHistoryMetrics(MachineCase):
         checkEnable(True)
         b.select_PF4("#firewalld-request-pmproxy", "comeandgo")
         m.execute("firewall-cmd --permanent --delete-zone comeandgo; firewall-cmd  --reload")
-        b.click(".pf-c-alert button.pf-m-primary")
-        b.wait_in_text(".pf-c-alert.pf-m-warning", "Failed to enable pmproxy in firewalld")
-        b.wait_in_text(".pf-c-alert.pf-m-warning", "INVALID_ZONE: comeandgo")
+        b.click(".pf-v5-c-alert button.pf-m-primary")
+        b.wait_in_text(".pf-v5-c-alert.pf-m-warning", "Failed to enable pmproxy in firewalld")
+        b.wait_in_text(".pf-v5-c-alert.pf-m-warning", "INVALID_ZONE: comeandgo")
         # close warning
-        b.click(".pf-c-alert.pf-m-warning button.pf-m-plain")
-        b.wait_not_present(".pf-c-alert:contains(pmproxy)")
+        b.click(".pf-v5-c-alert.pf-m-warning button.pf-m-plain")
+        b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
 
         # reacts to service changes from outside; this is asynchronous and the dialog deliberately
         # does not update automatically, so retry a few times
@@ -819,11 +819,11 @@ class TestCurrentMetrics(MachineCase):
         b.wait_not_in_text("#current-metrics-card-cpu", "cpu-piglet")
 
         # Load is a flex, each part looks like "1 min: 1.41,"; wait until the 1min load is low
-        b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) < 5)
+        b.wait(lambda: float(b.text("#load-avg .pf-v5-l-flex div:first-child").split()[-1].rstrip(',')) < 5)
 
         m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
                   "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=100K count=500 status=none & done'")
-        b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
+        b.wait(lambda: float(b.text("#load-avg .pf-v5-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
         m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
 
         container_name = "pod-cpu-hog"
@@ -873,7 +873,7 @@ class TestCurrentMetrics(MachineCase):
 
         # this settles down slowly, don't wait for becoming really quiet
         with b.wait_timeout(300):
-            b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) < 10)
+            b.wait(lambda: float(b.text("#load-avg .pf-v5-l-flex div:first-child").split()[-1].rstrip(',')) < 10)
 
         # Files with CPU temperature do not exist, nothing is displayed
         b.wait_not_present("#current-metrics-card-cpu .temperature")
@@ -1033,7 +1033,7 @@ BEGIN {{
 
         # total memory is shown as tooltip
         b.mouse("#current-memory-usage", "mouseenter")
-        b.wait_in_text(".pf-c-tooltip", "B total")
+        b.wait_in_text(".pf-v5-c-tooltip", "B total")
         b.mouse("#current-memory-usage", "mouseleave")
 
         # table entries are links to Services page
@@ -1063,7 +1063,7 @@ BEGIN {{
 
             # total swap is shown as tooltip
             b.mouse("#current-swap-usage", "mouseenter")
-            b.wait_in_text(".pf-c-tooltip", "B total")
+            b.wait_in_text(".pf-v5-c-tooltip", "B total")
             b.mouse("#current-swap-usage", "mouseleave")
         else:
             m.execute("systemctl stop mem-hog")
@@ -1133,7 +1133,7 @@ BEGIN {{
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))  # this should stay calm
         # read in popover
         b.click("#current-metrics-card-disks .all-disks-no-gap button")
-        b.wait_visible(".pf-c-popover .disks-nowrap")
+        b.wait_visible(".pf-v5-c-popover .disks-nowrap")
         b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Read']")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Write']")))  # write should stay calm
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='sr0'] [data-label='Read']")))  # other disks should stay calm
@@ -1147,7 +1147,7 @@ BEGIN {{
         m.execute("systemctl stop disk-read-hog")
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Read']")))  # back to quiet
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-read")))  # back to quiet
-        b.click(".pf-c-popover__close > button")
+        b.click(".pf-v5-c-popover__close > button")
         # writing lots of data
         m.execute("systemd-run --collect --slice cockpittest --unit disk-write-hog sh -ec "
                   " 'while true; do dd if=/dev/zero of=/var/tmp/blob bs=1M count=100; done'")
@@ -1169,7 +1169,7 @@ BEGIN {{
         m.execute("systemctl stop disk-write-hog")
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Write']")))  # back to quiet
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))  # back to quiet
-        b.click(".pf-c-popover__close > button")
+        b.click(".pf-v5-c-popover__close > button")
         # top service should be podman container busybox-write-hog
         m.execute(f"podman run --rm -d --name busybox-write-hog {self.busybox_image} /bin/ash -c 'while true; do dd if=/dev/urandom of=/testfile bs=20M count=100; done'")
         self.addCleanup(m.execute, "podman rm -f busybox-write-hog || true")
@@ -1194,21 +1194,21 @@ BEGIN {{
                   """)
         self.addCleanup(m.execute, "umount /var/cockpittest /var/cockpit-ro-test")
 
-        self.assertLess(progressValue(self, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
-        progress_sel = ".pf-c-progress[data-disk-usage-target='/var/cockpittest'] .pf-c-progress__status"
+        self.assertLess(progressValue(self, ".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
+        progress_sel = ".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest'] .pf-v5-c-progress__status"
         # free size is anything between 40 and 50 MB
         self.assertRegex(b.text(progress_sel), r"^4\d\.\d MB free$")
         # total size is shown in tooltip
         b.mouse(progress_sel, "mouseenter")
-        b.wait_in_text(".pf-c-tooltip", "total")
+        b.wait_in_text(".pf-v5-c-tooltip", "total")
         # total size is anything between 40 and 50 MB
-        self.assertRegex(b.text(".pf-c-tooltip"), r"^4\d\.\d MB total$")
+        self.assertRegex(b.text(".pf-v5-c-tooltip"), r"^4\d\.\d MB total$")
         b.mouse(progress_sel, "mouseleave")
         # read-only loop devices are not shown
-        self.assertFalse(b.is_present(".pf-c-progress[data-disk-usage-target='/var/cockpit-ro-test']"))
+        self.assertFalse(b.is_present(".pf-v5-c-progress[data-disk-usage-target='/var/cockpit-ro-test']"))
 
         m.execute("dd if=/dev/zero of=/var/cockpittest/blob bs=1M count=40")
-        b.wait(lambda: progressValue(self, ".pf-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)
+        b.wait(lambda: progressValue(self, ".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)
 
         # clicking on progress leads to the storage page
         if not m.ostree_image:
@@ -1273,8 +1273,8 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         if m.ostree_image:
             self.login_and_go("/metrics")
-            b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
-            b.wait_not_present(".pf-c-empty-state button.pf-m-primary")
+            b.wait_in_text(".pf-v5-c-empty-state", "cockpit-pcp is missing")
+            b.wait_not_present(".pf-v5-c-empty-state button.pf-m-primary")
 
             b.click("#metrics-header-section button.pf-m-secondary")
             b.wait_visible("#pcp-settings-modal")
@@ -1318,8 +1318,8 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         # install c-pcp from the empty state
         self.login_and_go("/metrics")
-        b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
-        b.click(".pf-c-empty-state button.pf-m-primary")
+        b.wait_in_text(".pf-v5-c-empty-state", "cockpit-pcp is missing")
+        b.click(".pf-v5-c-empty-state button.pf-m-primary")
         b.click("#dialog button:contains('Install')")
         b.wait_not_present("#dialog")
         b.click("button:contains('Log out')")
@@ -1329,7 +1329,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
         b.enter_page("/metrics")
-        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
         b.logout()
 
         # install c-pcp from the Metrics Settings dialog
@@ -1357,8 +1357,8 @@ class TestMetricsPackages(packagelib.PackageCase):
         b.click('#login-button')
         b.enter_page("/metrics")
         # this is just a fake cockpit-pcp package
-        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
-        b.wait_in_text(".pf-c-empty-state", "pmlogger.service is failing to collect data")
+        b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-v5-c-empty-state", "pmlogger.service is failing to collect data")
 
         # install redis
         b.click("#metrics-header-section button.pf-m-secondary")
@@ -1409,17 +1409,17 @@ class TestMultiCPU(MachineCase):
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
         # View all CPUs
         b.click("#current-metrics-card-cpu button")
-        b.wait(lambda: int(b.text(".pf-c-popover .cpu-all dd:nth-of-type(1)")[:-1]) > 50)
-        b.wait(lambda: int(b.text(".pf-c-popover .cpu-all dd:nth-of-type(2)")[:-1]) > 20)
-        b.click(".pf-c-popover button")
-        b.wait_not_present(".pf-c-popover")
+        b.wait(lambda: int(b.text(".pf-v5-c-popover .cpu-all dd:nth-of-type(1)")[:-1]) > 50)
+        b.wait(lambda: int(b.text(".pf-v5-c-popover .cpu-all dd:nth-of-type(2)")[:-1]) > 20)
+        b.click(".pf-v5-c-popover button")
+        b.wait_not_present(".pf-v5-c-popover")
 
         # the top CPU core runs cpu-hog
         b.wait(lambda: progressValue(self, "#current-top-cpu-usage") >= 58)
         b.wait(lambda: progressValue(self, "#current-top-cpu-usage") <= 70)
         # looks like "average: 45% max: 60%"
-        b.wait(lambda: int(b.text("#current-cpu-usage .pf-c-progress__status").split()[-1].rstrip('%')) >= 58)
-        b.wait(lambda: int(b.text("#current-cpu-usage .pf-c-progress__status").split()[-1].rstrip('%')) <= 70)
+        b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) >= 58)
+        b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) <= 70)
 
 
 @skipOstree("no PCP support")
@@ -1452,9 +1452,9 @@ class TestGrafanaClient(MachineCase):
         self.login_and_go("/metrics")
 
         # pmlogger data collection is not running initially
-        b.wait_in_text(".pf-c-empty-state", "Metrics history could not be loaded")
-        b.wait_in_text(".pf-c-empty-state", "pmlogger.service is not running")
-        b.click(".pf-c-empty-state button.pf-m-primary")
+        b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
+        b.wait_in_text(".pf-v5-c-empty-state", "pmlogger.service is not running")
+        b.click(".pf-v5-c-empty-state button.pf-m-primary")
         b.wait_visible("#pcp-settings-modal")
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
@@ -1471,7 +1471,7 @@ class TestGrafanaClient(MachineCase):
 
         # enable pmproxy service in firewalld in the alert
         b.wait_visible("#firewalld-request-pmproxy")
-        b.click(".pf-c-alert button.pf-m-primary")
+        b.click(".pf-v5-c-alert button.pf-m-primary")
 
         # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)
         bg = Browser(mg.forward['3000'], label=self.label() + "-" + mg.label, machine=self)

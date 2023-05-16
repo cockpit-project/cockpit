@@ -320,7 +320,7 @@ class HardwareInfo extends React.Component {
             <Page>
                 <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
                     <Breadcrumb>
-                        <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
+                        <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-v5-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
                         <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                     </Breadcrumb>
                 </PageBreadcrumb>

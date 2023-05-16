@@ -55,7 +55,7 @@ export class ListingPanel extends React.Component {
 
         return (
             <div className="ct-listing-panel">
-                {listingDetail && <div className="ct-listing-panel-actions pf-c-tabs">
+                {listingDetail && <div className="ct-listing-panel-actions pf-v5-c-tabs">
                     {listingDetail}
                 </div>}
                 {this.props.tabRenderers.length && <Tabs activeKey={this.state.activeTab} className="ct-listing-panel-tabs" mountOnEnter onSelect={this.handleTabClick}>

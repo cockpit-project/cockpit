@@ -149,7 +149,7 @@ class TestKeys(MachineCase):
             return b.eval_js("cockpit.spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
 
         def toggleExpandedStateKey(identifier):
-            b.click(f"tr[data-name='{identifier}'] .pf-c-table__toggle > button")
+            b.click(f"tr[data-name='{identifier}'] .pf-v5-c-table__toggle > button")
 
         def waitKeyPresent(identifier, present):
             if present:
@@ -162,7 +162,7 @@ class TestKeys(MachineCase):
             b.wait_visible(f"tr[data-name='{identifier}'][data-loaded={'true' if enabled else 'false'}]")
 
         def toggleKeyState(identifier):
-            b.click(f"tr[data-name='{identifier}'] .pf-c-switch__input")
+            b.click(f"tr[data-name='{identifier}'] .pf-v5-c-switch__input")
 
         def selectTab(identifier, title):
             b.click(f"tr[data-name='{identifier}'] + tr li > button:contains('{title}')")
@@ -228,7 +228,7 @@ session    optional     pam_ssh_add.so
         self.assertEqual(text, id_rsa[5:])
 
         selectTab('id_rsa', 'Public key')
-        b.wait_val("tr[data-name=id_rsa] + tr .pf-c-clipboard-copy input",
+        b.wait_val("tr[data-name=id_rsa] + tr .pf-v5-c-clipboard-copy input",
                    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP"
                    "2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQW"
                    "nT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIy"
@@ -270,7 +270,7 @@ session    optional     pam_ssh_add.so
         b.assert_pixels("#credentials-modal", "ssh-keys-dialog")
 
         b.click("#id_ed25519-change-password")
-        b.wait_visible('#credentials-modal .pf-c-helper-text__item.pf-m-success')
+        b.wait_visible('#credentials-modal .pf-v5-c-helper-text__item.pf-m-success')
 
         # Log off and log back in, and we should have both loaded automatically
         if auto_load:
@@ -299,16 +299,16 @@ session    optional     pam_ssh_add.so
         b.click("#ssh-file-add-custom")
         b.set_file_autocomplete_val("#ssh-file-add-key", "/bad")
         b.click("#ssh-file-add")
-        b.wait_text("#credentials-modal .pf-m-error > .pf-c-helper-text__item-text", "Not a valid private key")
+        b.wait_text("#credentials-modal .pf-m-error > .pf-v5-c-helper-text__item-text", "Not a valid private key")
 
-        b.click("#credentials-modal .pf-c-select__toggle-typeahead")
-        b.set_input_text("#credentials-modal .pf-c-select__toggle-typeahead", "/var/test/")
-        b.wait_in_text("#credentials-modal .pf-c-select__menu-item.pf-m-disabled", "No such file or directory")
-        b.focus("#credentials-modal .pf-c-select__toggle-typeahead")
+        b.click("#credentials-modal .pf-v5-c-select__toggle-typeahead")
+        b.set_input_text("#credentials-modal .pf-v5-c-select__toggle-typeahead", "/var/test/")
+        b.wait_in_text("#credentials-modal .pf-v5-c-select__menu-item.pf-m-disabled", "No such file or directory")
+        b.focus("#credentials-modal .pf-v5-c-select__toggle-typeahead")
         b.key_press("\b\b\b\b\b")
-        b.wait_visible("#credentials-modal .pf-c-select__menu-item.directory:contains('/var/lib/')")
-        b.click("#credentials-modal .pf-c-select__toggle-clear")
-        b.wait_val("#credentials-modal .pf-c-select__toggle-typeahead", "")
+        b.wait_visible("#credentials-modal .pf-v5-c-select__menu-item.directory:contains('/var/lib/')")
+        b.click("#credentials-modal .pf-v5-c-select__toggle-clear")
+        b.wait_val("#credentials-modal .pf-v5-c-select__toggle-typeahead", "")
 
         b.set_file_autocomplete_val("#ssh-file-add-key", "/tmp/new.rsa")
         b.click("#ssh-file-add")
@@ -328,7 +328,7 @@ session    optional     pam_ssh_add.so
         waitKeyDetail(new_key, 'Type', 'RSA')
         self.assertNotEqual(getKeyDetail(new_key, 'Fingerprint'), "")
         selectTab(new_key, 'Public key')
-        self.assertTrue(b.val(f"tr[data-name='{new_key}'] + tr .pf-c-clipboard-copy input").startswith(new_pk))
+        self.assertTrue(b.val(f"tr[data-name='{new_key}'] + tr .pf-v5-c-clipboard-copy input").startswith(new_pk))
 
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality

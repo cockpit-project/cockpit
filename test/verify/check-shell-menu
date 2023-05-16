@@ -78,7 +78,7 @@ class TestMenu(MachineCase):
         if not m.ostree_image:
             pkgname = "cockpit" if m.image == "arch" else "cockpit-bridge"
             b.wait_visible(f'#about-cockpit-modal:contains("{pkgname}")')
-        b.click('.pf-c-about-modal-box__close button')
+        b.click('.pf-v5-c-about-modal-box__close button')
         b.wait_not_present('#about-cockpit-modal')
 
         # Clicking inside the iframed pages should close the docs menu
@@ -142,7 +142,7 @@ class TestMenu(MachineCase):
         time.sleep(35)
         with b.wait_timeout(3):
             b.wait_visible("#session-timeout-modal")
-            self.assertGreater(int(b.text("#session-timeout-modal .pf-c-modal-box__body").split()[-2]), 15)
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-v5-c-modal-box__body").split()[-2]), 15)
         # click on "Continue session"
         b.click("#session-timeout-modal footer button")
         b.wait_not_present("#session-timeout-modal")
@@ -151,7 +151,7 @@ class TestMenu(MachineCase):
         time.sleep(30)
         with b.wait_timeout(8):
             b.wait_popup("session-timeout-modal")
-            self.assertGreater(int(b.text("#session-timeout-modal .pf-c-modal-box__body").split()[-2]), 20)
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-v5-c-modal-box__body").split()[-2]), 20)
 
         time.sleep(30)
         # that logs you out

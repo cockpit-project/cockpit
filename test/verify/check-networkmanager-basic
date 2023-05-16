@@ -56,9 +56,9 @@ class TestNetworkingBasic(NetworkCase):
                 "td[data-label=Sending]",
                 "td[data-label=Receiving]",
                 "td[data-label='IP address']",
-                "#networking-graphs .pf-l-grid",
-                ".cockpit-log-panel .pf-c-card__body",
-                "#networking-firewall-summary .pf-c-card__body",
+                "#networking-graphs .pf-v5-l-grid",
+                ".cockpit-log-panel .pf-v5-c-card__body",
+                "#networking-firewall-summary .pf-v5-c-card__body",
             ],
             # IPv6 addresses vary wildly, and their different rendered widths change the column widths
             skip_layouts=['medium', 'mobile', 'rtl']
@@ -97,20 +97,20 @@ class TestNetworkingBasic(NetworkCase):
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.192.0")
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
-        b.wait_in_text(f"#network-interface .pf-c-card:contains('{iface}')", "1.2.3.4/18")
+        b.wait_in_text(f"#network-interface .pf-v5-c-card:contains('{iface}')", "1.2.3.4/18")
 
         # Disconnect
-        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
-        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
         self.wait_for_iface_setting('Status', 'Inactive')
 
         # Reconnect through the UI
-        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
-        b.wait_in_text(f"#network-interface .pf-c-card:contains('{iface}')", "1.2.3.4/18")
+        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
+        b.wait_in_text(f"#network-interface .pf-v5-c-card:contains('{iface}')", "1.2.3.4/18")
 
         # Disconnect from the CLI, UI reacts
         m.execute(f"nmcli device disconnect {iface}")
-        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", False)
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", False)
 
         # Switch it back to "auto" from the command line and bring it
         # up again
@@ -236,8 +236,8 @@ class TestNetworkingBasic(NetworkCase):
         b.click("#networking-nm-crashed a")
         b.enter_page("/system/services")
         b.wait_text(".service-name", "Network Manager")
-        b.click(".service-top-panel .pf-c-dropdown button")
-        b.click(".service-top-panel .pf-c-dropdown__menu a:contains('Start')")
+        b.click(".service-top-panel .pf-v5-c-dropdown button")
+        b.click(".service-top-panel .pf-v5-c-dropdown__menu a:contains('Start')")
         b.wait_in_text("#statuses", "Running")
 
         # networking page should notice start from Services page

@@ -71,8 +71,8 @@ class TestTeam(NetworkCase):
 
         # Deactivate the team and make sure it is still there after a
         # reload.
-        self.wait_onoff(".pf-c-card__header:contains('tteam')", True)
-        self.toggle_onoff(".pf-c-card__header:contains('tteam')")
+        self.wait_onoff(".pf-v5-c-card__header:contains('tteam')", True)
+        self.toggle_onoff(".pf-v5-c-card__header:contains('tteam')")
         self.wait_for_iface_setting('Status', 'Inactive')
         b.reload()
         b.enter_page("/network")
@@ -119,7 +119,7 @@ class TestTeam(NetworkCase):
         self.select_iface('tteam')
         b.wait_visible("#network-interface")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
-        b.wait_in_text("#network-interface .pf-c-card:contains('tteam')", "10.111")
+        b.wait_in_text("#network-interface .pf-v5-c-card:contains('tteam')", "10.111")
 
         # Check team port
         b.click("#network-interface-members button:contains(cockpit1)")

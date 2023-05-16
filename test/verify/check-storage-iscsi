@@ -108,7 +108,7 @@ class TestStorageISCSI(StorageCase):
         self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
 
         # Add the target a second time, just to check that the sorting function works
-        b.click('#storage-detail a.pf-c-breadcrumb__link')
+        b.click('#storage-detail a.pf-v5-c-breadcrumb__link')
         b.wait_visible('#storage')
         b.click('#add-iscsi-portal')
         self.dialog_wait_open()

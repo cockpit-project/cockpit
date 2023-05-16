@@ -142,7 +142,7 @@ class TestConnection(MachineCase):
             b.wait_visible(".curtains-ct")
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
-        b.wait_in_text('.curtains-ct .pf-c-empty-state__body', "Connection has timed out.")
+        b.wait_in_text('.curtains-ct .pf-v5-c-empty-state__body', "Connection has timed out.")
         m.execute("iptables -w -D INPUT -p tcp --dport 9090 -j REJECT")
         b.click("#machine-reconnect")
         b.enter_page("/system")
@@ -1240,7 +1240,7 @@ server {
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.wait_visible('.pf-c-card.system-health')
+        b.wait_visible('.pf-v5-c-card.system-health')
 
     @skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @skipOstree("nginx not installed")

@@ -46,7 +46,7 @@ class TestStorageMdRaid(StorageCase):
         })""", states)
 
     def raid_add_disk(self, name):
-        self.dialog_open_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .pf-c-card__header button'),
+        self.dialog_open_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .pf-v5-c-card__header button'),
                                     expect=lambda: self.dialog_is_present('disks', name))
         self.dialog_set_val("disks", {name: True})
         self.dialog_apply_with_retry()
@@ -55,11 +55,11 @@ class TestStorageMdRaid(StorageCase):
         self.browser.click(f'#detail-sidebar .sidepanel-row:contains("{name}") button.pf-m-secondary')
 
     def raid_action(self, action):
-        self.browser.click(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
+        self.browser.click(f'.pf-v5-c-card__header:contains("RAID device") button:contains({action})')
 
     def raid_default_action_start(self, action):
-        self.browser.wait_visible(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
-        self.browser.click(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
+        self.browser.wait_visible(f'.pf-v5-c-card__header:contains("RAID device") button:contains({action})')
+        self.browser.click(f'.pf-v5-c-card__header:contains("RAID device") button:contains({action})')
 
     def raid_default_action_finish(self, action):
         if action == "Stop":
@@ -141,7 +141,7 @@ class TestStorageMdRaid(StorageCase):
                           "QEMU QEMU HARDDISK (DISK3)": "In sync"})
 
         def wait_degraded_state(is_degraded):
-            degraded_selector = ".pf-c-alert h4"
+            degraded_selector = ".pf-v5-c-alert h4"
             if is_degraded:
                 b.wait_in_text(degraded_selector, 'The RAID array is in a degraded state')
             else:
@@ -308,7 +308,7 @@ class TestStorageMdRaid(StorageCase):
         self.raid_default_action("Stop")
         b.wait_in_text(info_field("State"), "Not running")
 
-        b.wait_visible('#detail-sidebar .pf-c-card__header button:disabled')
+        b.wait_visible('#detail-sidebar .pf-v5-c-card__header button:disabled')
         b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
         b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
 
@@ -316,7 +316,7 @@ class TestStorageMdRaid(StorageCase):
         b.wait_in_text(info_field("State"), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
-        b.wait_not_present('#detail-sidebar .pf-c-card__header button:disabled')
+        b.wait_not_present('#detail-sidebar .pf-v5-c-card__header button:disabled')
         b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
         b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
 

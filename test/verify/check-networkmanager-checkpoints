@@ -46,8 +46,8 @@ class TestNetworkingCheckpoints(NetworkCase):
         b.wait_visible("#network-interface")
 
         # Disconnect
-        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
-        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
 
         # Wait for dialog to appear and dismiss it
         with b.wait_timeout(60):
@@ -132,8 +132,8 @@ class TestNetworkingCheckpoints(NetworkCase):
         self.slow_down_dhclient(dhcp_delay)
 
         # Disconnect and trigger a slow rollback
-        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
-        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
         with b.wait_timeout(120):
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
             b.wait_not_present("#confirm-breaking-change-popup")
@@ -155,8 +155,8 @@ class TestNetworkingCheckpoints(NetworkCase):
         b.wait_visible("#network-interface")
 
         # Disconnect
-        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
-        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
 
         # The checkpoint should be destroyed before it is being rolled
         # back.

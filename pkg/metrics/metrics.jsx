@@ -764,7 +764,7 @@ class CurrentMetrics extends React.Component {
 
             allCpus = (
                 <Popover minWidth={0} aria-label={ _("View all CPUs") } bodyContent={cores}>
-                    <Button variant="link" className='pf-u-font-size-sm'>{ _("View all CPUs") }</Button>
+                    <Button variant="link" className='pf-v5-u-font-size-sm'>{ _("View all CPUs") }</Button>
                 </Popover>);
         } else {
             cpu_label = this.state.cpuUsed + '%';
@@ -801,7 +801,7 @@ class CurrentMetrics extends React.Component {
 
             allDisks = (
                 <Popover minWidth={0} aria-label={ _("View all disks") } bodyContent={disksTableContent}>
-                    <Button variant="link" className='pf-u-font-size-sm'>{ _("View per-disk throughput") }</Button>
+                    <Button variant="link" className='pf-v5-u-font-size-sm'>{ _("View per-disk throughput") }</Button>
                 </Popover>
             );
         }
@@ -1982,7 +1982,7 @@ export const Application = () => {
                     <Flex>
                         <FlexItem>
                             <Breadcrumb>
-                                <BreadcrumbItem onClick={() => cockpit.jump("/system")} className="pf-c-breadcrumb__link">{_("Overview")}</BreadcrumbItem>
+                                <BreadcrumbItem onClick={() => cockpit.jump("/system")} className="pf-v5-c-breadcrumb__link">{_("Overview")}</BreadcrumbItem>
                                 <BreadcrumbItem isActive>{_("Metrics and history")}</BreadcrumbItem>
                             </Breadcrumb>
                         </FlexItem>

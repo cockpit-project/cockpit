@@ -229,7 +229,7 @@ export const CryptoPolicyStatus = () => {
                         <div id="inconsistent_crypto_policy">
                             {currentCryptoPolicy === "FIPS" ? _("FIPS is not properly enabled") : _("Crypto policy is inconsistent")}
                         </div>
-                        <Button isInline variant="link" className="pf-u-font-size-sm"
+                        <Button isInline variant="link" className="pf-v5-u-font-size-sm"
                                 onClick={() => Dialogs.show(<CryptoPolicyDialog currentCryptoPolicy={currentCryptoPolicy}
                                                                                 fipsEnabled={fipsEnabled}
                                                                                 reApply />)}>

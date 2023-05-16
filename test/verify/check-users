@@ -46,10 +46,10 @@ def getUserAddDetails(machine):
 
 
 def performUserAction(browser, user, action):
-    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown button")
-    browser.click(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown button")
-    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown button[aria-expanded=true]")
-    browser.click(f".pf-c-dropdown__menu-item:contains({action})")
+    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) .pf-v5-c-dropdown button")
+    browser.click(f"#accounts-list tbody tr:contains({user}) .pf-v5-c-dropdown button")
+    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) .pf-v5-c-dropdown button[aria-expanded=true]")
+    browser.click(f".pf-v5-c-dropdown__menu-item:contains({action})")
 
 
 def createUser(
@@ -179,7 +179,7 @@ class TestAccounts(MachineCase):
         b.set_input_text('#accounts-create-password-pw1', good_password)
         b.set_input_text('#accounts-create-password-pw2', good_password)
         b.click('#accounts-create-dialog button.apply')
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-error", "The full name must not contain colons.")
+        b.wait_in_text("#accounts-create-dialog .pf-v5-c-form__helper-text .pf-m-error", "The full name must not contain colons.")
         b.click('#accounts-create-dialog button.cancel')
         b.wait_visible("#accounts")
 
@@ -200,8 +200,8 @@ class TestAccounts(MachineCase):
         b.set_checked("#account-locked", True)
         b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
 
-        # go back to accounts overview, check pf-c-breadcrumb
-        b.click("#account .pf-c-breadcrumb a")
+        # go back to accounts overview, check pf-v5-c-breadcrumb
+        b.click("#account .pf-v5-c-breadcrumb a")
         b.wait_visible("#accounts-create")
 
         # Create a user from the UI
@@ -218,7 +218,7 @@ class TestAccounts(MachineCase):
         # wrong password confirmation
         b.set_input_text('#accounts-create-password-pw2', good_password + 'b')
         b.click('#accounts-create-dialog button.apply')
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-error", "The passwords do not match")
+        b.wait_in_text("#accounts-create-dialog .pf-v5-c-form__helper-text .pf-m-error", "The passwords do not match")
         b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
 
         # too long password
@@ -226,19 +226,19 @@ class TestAccounts(MachineCase):
         b.set_input_text('#accounts-create-password-pw1', long_password)
         b.set_input_text('#accounts-create-password-pw2', long_password)
         b.click('#accounts-create-dialog button.apply')
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning", "Password is longer than 256 characters")
+        b.wait_in_text("#accounts-create-dialog .pf-v5-c-form__helper-text .pf-m-warning", "Password is longer than 256 characters")
         b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
 
         # changing input clears the error message
         b.set_input_text('#accounts-create-password-pw1', "test")
         b.set_input_text('#accounts-create-password-pw2', "test")
-        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning")
+        b.wait_not_present("#accounts-create-dialog .pf-v5-c-form__helper-text .pf-m-warning")
 
         # correct password confirmation
         b.set_input_text('#accounts-create-password-pw1', good_password)
         b.set_input_text('#accounts-create-password-pw2', good_password)
         b.click('#accounts-create-dialog button.apply')
-        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning")
+        b.wait_not_present("#accounts-create-dialog .pf-v5-c-form__helper-text .pf-m-warning")
         b.wait_not_present('#accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Berta Bestimmt")
 
@@ -274,9 +274,9 @@ class TestAccounts(MachineCase):
         performUserAction(b, 'robert', 'Lock account')
         b.click("#account-confirm-lock-dialog footer .pf-m-danger.apply")
         # lock option is now disabled
-        b.click("#accounts-list tbody tr:contains(robert) .pf-c-dropdown button")
-        b.wait_in_text(".pf-c-dropdown__menu li:contains('Lock account') .pf-m-disabled", 'Lock account')
-        b.click("#accounts-list tbody tr:contains(robert) .pf-c-dropdown button")
+        b.click("#accounts-list tbody tr:contains(robert) .pf-v5-c-dropdown button")
+        b.wait_in_text(".pf-v5-c-dropdown__menu li:contains('Lock account') .pf-m-disabled", 'Lock account')
+        b.click("#accounts-list tbody tr:contains(robert) .pf-v5-c-dropdown button")
         # change is visible on details page
         performUserAction(b, 'robert', 'Edit user')
         b.wait_in_text('#account-title', 'Robert Robertson')
@@ -316,14 +316,14 @@ class TestAccounts(MachineCase):
         )
 
         # Check Robert's groups
-        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label:contains(users)")
+        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v5-c-label:contains(users)")
         if not m.ostree_image:  # Users group does not exist in coreos image
             m.execute("/usr/bin/gpasswd -a robert users")
-            b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-cyan:contains(users)", "users")
+            b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v5-c-label.pf-m-cyan:contains(users)", "users")
         m.execute(f"/usr/bin/gpasswd -a robert {m.get_admin_group()}")
-        b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold", m.get_admin_group())
+        b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v5-c-label.pf-m-gold", m.get_admin_group())
         m.execute(f"/usr/bin/gpasswd -d robert {m.get_admin_group()}")
-        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold")
+        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v5-c-label.pf-m-gold")
 
         # test filters
         b.set_input_text("#accounts-filter input", "root")
@@ -337,7 +337,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#accounts-filter input", uid)
         b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='ID']", uid)
         b.set_input_text("#accounts-filter input", "spooky")
-        b.wait_visible("#accounts div.pf-c-empty-state")
+        b.wait_visible("#accounts div.pf-v5-c-empty-state")
 
         b.inject_js("""
                     function getTextColumn(query_selector) {
@@ -469,16 +469,16 @@ class TestAccounts(MachineCase):
         )
 
         # Password is weak, lets change it to another weak - this should still not accept
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning", "Password quality check failed:")
+        b.wait_in_text("#accounts-create-dialog .pf-v5-c-form__helper-text .pf-m-warning", "Password quality check failed:")
         b.wait_visible('#accounts-create-dialog button.pf-m-warning')
         b.set_input_text('#accounts-create-password-pw1', "bar")
         b.set_input_text('#accounts-create-password-pw2', "bar")
-        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning")
+        b.wait_not_present("#accounts-create-dialog .pf-v5-c-form__helper-text .pf-m-warning")
         b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
         b.click('#accounts-create-dialog button.apply')
 
         # Password is weak, confirm button should be disabled after first click
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning", "Password quality check failed:")
+        b.wait_in_text("#accounts-create-dialog .pf-v5-c-form__helper-text .pf-m-warning", "Password quality check failed:")
         b.wait_visible("button.apply:disabled")
 
         # Lets confirm the weak password now
@@ -508,7 +508,7 @@ class TestAccounts(MachineCase):
         b.wait_visible("#account-locked:checked")
         b.set_checked('#account-locked', False)
         b.wait(lambda: not is_locked())
-        b.wait_not_present(admin_role_sel + f" .pf-c-label:contains(:{m.get_admin_group()})")
+        b.wait_not_present(admin_role_sel + f" .pf-v5-c-label:contains(:{m.get_admin_group()})")
         b.click("#account-groups")
         b.click(admin_role_sel + f" li:contains({m.get_admin_group()}) > button")
         b.wait(is_admin)
@@ -528,23 +528,23 @@ class TestAccounts(MachineCase):
         # Use [x] button on the group label to remove the account from group
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
-        b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
+        b.wait_visible(admin_role_sel + f" .pf-v5-c-label:contains({m.get_admin_group()})")
         b.wait_not_present("#account-groups-helper")
-        b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
+        b.click(f".pf-v5-c-label-group__list .pf-v5-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
         b.wait(lambda: not is_admin())
-        b.wait_not_present(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
+        b.wait_not_present(admin_role_sel + f" .pf-v5-c-label:contains({m.get_admin_group()})")
         if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
             b.wait_visible("#account-groups-helper")
         m.execute(f"/usr/bin/gpasswd -a jussi {m.get_admin_group()}")
         with b.wait_timeout(20):
-            b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
+            b.wait_visible(admin_role_sel + f" .pf-v5-c-label:contains({m.get_admin_group()})")
 
         # Cannot lock the current account
         b.wait_visible("#account-locked[disabled]")
 
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
-        b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
+        b.wait_visible(admin_role_sel + f" .pf-v5-c-label:contains({m.get_admin_group()})")
         b.wait_not_present("#account-groups-helper")
         b.logout()
         b.login_and_go("/users")
@@ -560,23 +560,23 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw2", 'a')
         b.wait_visible("#account-set-password-meter.danger")
         b.click('#account-set-password-dialog button.apply')
-        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text .pf-m-warning", "Password quality check failed:")
+        b.wait_in_text("#account-set-password-dialog .pf-v5-c-form__helper-text .pf-m-warning", "Password quality check failed:")
         b.wait_visible('#account-set-password-dialog button.pf-m-warning')
 
         # password mismatch
         b.set_input_text("#account-set-password-pw1", good_password + 'a')
         b.set_input_text("#account-set-password-pw2", good_password + 'b')
         b.click('#account-set-password-dialog button.apply')
-        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text .pf-m-error", "The passwords do not match")
+        b.wait_in_text("#account-set-password-dialog .pf-v5-c-form__helper-text .pf-m-error", "The passwords do not match")
         b.wait_not_present('#account-set-password-dialog button.pf-m-warning')
 
         # too long password
         long_password = "2a02-x!h4a" * 30
         b.set_input_text('#account-set-password-pw1', long_password)
         b.set_input_text('#account-set-password-pw2', long_password)
-        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text .pf-m-warning")
+        b.wait_not_present("#account-set-password-dialog .pf-v5-c-form__helper-text .pf-m-warning")
         b.click('#account-set-password-dialog button.apply')
-        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text .pf-m-warning", "Password is longer than 256 characters")
+        b.wait_in_text("#account-set-password-dialog .pf-v5-c-form__helper-text .pf-m-warning", "Password is longer than 256 characters")
         b.wait_not_present('#account-set-password-dialog button.pf-m-warning')
 
         good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
@@ -584,7 +584,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw1", good_password_2)
         b.set_input_text("#account-set-password-pw2", good_password_2)
         b.wait_visible("#account-set-password-meter.success")
-        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text .pf-m-warning")
+        b.wait_not_present("#account-set-password-dialog .pf-v5-c-form__helper-text .pf-m-warning")
         b.click('#account-set-password-dialog button.apply')
         b.wait_not_present('#account-set-password-dialog')
 
@@ -917,7 +917,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw1", new_password_2)
         b.set_input_text("#account-set-password-pw2", new_password_2)
         b.click('#account-set-password-dialog button.apply')
-        b.wait_in_text("#account-set-password-dialog .pf-c-modal-box__body", "must wait longer")
+        b.wait_in_text("#account-set-password-dialog .pf-v5-c-modal-box__body", "must wait longer")
 
     @skipOstree("ssh root login not allowed")
     def testRootLogin(self):
@@ -984,13 +984,13 @@ class TestAccounts(MachineCase):
 
         # Try an invalid date
         b.set_input_text("#account-expiration-input input", "blah")
-        b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
-        b.wait_text("#account-expiration .pf-c-form__helper-text .pf-m-error", "Invalid expiration date")
+        b.click("#account-expiration .pf-v5-c-modal-box__footer button:contains(Change)")
+        b.wait_text("#account-expiration .pf-v5-c-form__helper-text .pf-m-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
         when = datetime.datetime.now() + datetime.timedelta(days=30)
         b.set_input_text("#account-expiration-input input", when.isoformat().split("T")[0])
-        b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.click("#account-expiration .pf-v5-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#account-expiration")
         b.wait_in_text("#account-expiration-text", "Expire account on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
@@ -999,7 +999,7 @@ class TestAccounts(MachineCase):
         b.click("#account-expiration-button")
         b.wait_visible("#account-expiration")
         b.click("#account-expiration-never")
-        b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.click("#account-expiration .pf-v5-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#account-expiration")
         b.wait_text("#account-expiration-text", "Never expire account")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
@@ -1013,12 +1013,12 @@ class TestAccounts(MachineCase):
 
         # Try an invalid number
         b.set_input_text("#password-expiration-input", "-3")
-        b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
-        b.wait_text("#password-expiration .pf-c-form__helper-text .pf-m-error", "Invalid number of days")
+        b.click("#password-expiration .pf-v5-c-modal-box__footer button:contains(Change)")
+        b.wait_text("#password-expiration .pf-v5-c-form__helper-text .pf-m-error", "Invalid number of days")
 
         # Expire password every 30 days
         b.set_input_text("#password-expiration-input", "30")
-        b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.click("#password-expiration .pf-v5-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#password-expiration")
         b.wait_in_text("#password-expiration-text", "Require password change on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
@@ -1027,7 +1027,7 @@ class TestAccounts(MachineCase):
         b.click("#password-expiration-button")
         b.wait_visible("#password-expiration")
         b.click("#password-expiration-never")
-        b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.click("#password-expiration .pf-v5-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#password-expiration")
         b.wait_text("#password-expiration-text", "Never expire password")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
@@ -1037,7 +1037,7 @@ class TestAccounts(MachineCase):
         b.wait_visible("#password-expiration")
         b.click("#password-expiration-expires")
         b.set_input_text("#password-expiration-input", "30")
-        b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.click("#password-expiration .pf-v5-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#password-expiration")
 
         b.logout()
@@ -1056,7 +1056,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "scruffy")
         b.click("#password-reset-button")
         b.wait_visible("#password-reset")
-        b.click("#password-reset .pf-c-modal-box__footer button:contains(Reset)")
+        b.click("#password-reset .pf-v5-c-modal-box__footer button:contains(Reset)")
         b.wait_not_present("password-reset")
         b.wait_in_text("#password-expiration-text", "Password must be changed")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
@@ -1084,8 +1084,8 @@ class TestAccounts(MachineCase):
         m = self.machine
 
         def performGroupAction(browser, group, action):
-            browser.click(f"#groups-list tbody tr:contains({group}) .pf-c-dropdown button")
-            browser.click(f"#groups-list tbody tr:contains({group}) .pf-c-dropdown__menu li:contains({action})")
+            browser.click(f"#groups-list tbody tr:contains({group}) .pf-v5-c-dropdown button")
+            browser.click(f"#groups-list tbody tr:contains({group}) .pf-v5-c-dropdown__menu li:contains({action})")
 
         def selectGroupFromMenu(group, enabled):
             if enabled:
@@ -1093,16 +1093,16 @@ class TestAccounts(MachineCase):
             else:
                 wait(lambda: "testgroup0" in m.execute("groups admin"))
 
-            b.wait_not_present(".pf-c-select__menu")
+            b.wait_not_present(".pf-v5-c-select__menu")
             b.click("#account-groups")
-            b.click(f".pf-c-select__menu li:contains({group}) button")
+            b.click(f".pf-v5-c-select__menu li:contains({group}) button")
             if enabled:
-                b.wait_in_text(".pf-c-label-group__list", group)
-                b.wait_not_present(f".pf-c-select__menu li:contains({group}) button")
+                b.wait_in_text(".pf-v5-c-label-group__list", group)
+                b.wait_not_present(f".pf-v5-c-select__menu li:contains({group}) button")
                 wait(lambda: "testgroup0" in m.execute("groups admin"))
             else:
-                b.wait_not_in_text(".pf-c-label-group__list", group)
-                b.wait_not_present(f".pf-c-select__menu li:contains({group}) button")
+                b.wait_not_in_text(".pf-v5-c-label-group__list", group)
+                b.wait_not_present(f".pf-v5-c-select__menu li:contains({group}) button")
                 wait(lambda: "testgroup0" not in m.execute("groups admin"))
 
         m.execute("groupadd testgroup0")
@@ -1128,8 +1128,8 @@ class TestAccounts(MachineCase):
 
         # Delete it
         performGroupAction(b, 'testgroup0', 'Delete group')
-        b.wait_text("#group-confirm-delete-dialog footer .pf-c-button.apply", "Delete")
-        b.click("#group-confirm-delete-dialog footer .pf-c-button.apply")
+        b.wait_text("#group-confirm-delete-dialog footer .pf-v5-c-button.apply", "Delete")
+        b.click("#group-confirm-delete-dialog footer .pf-v5-c-button.apply")
         b.wait_not_present('#group-confirm-delete-dialog')
         b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "testgroup0")
@@ -1139,9 +1139,9 @@ class TestAccounts(MachineCase):
 
         # Groups used as primary need force deletion
         performGroupAction(b, 'anton', 'Delete group')
-        b.wait_text("#group-confirm-delete-dialog footer .pf-c-button.apply", "Force delete")
+        b.wait_text("#group-confirm-delete-dialog footer .pf-v5-c-button.apply", "Force delete")
         b.assert_pixels("#group-confirm-delete-dialog", "group-delete-dialog")
-        b.click("#group-confirm-delete-dialog footer .pf-c-button.apply")
+        b.click("#group-confirm-delete-dialog footer .pf-v5-c-button.apply")
         b.wait_not_present('#account-confirm-delete-dialog')
         b.wait(lambda: "#/" == b.eval_js('window.location.hash'))
         b.wait_visible("#groups-list")
@@ -1150,18 +1150,18 @@ class TestAccounts(MachineCase):
         b.click('#accounts-list td[data-label="Username"] a[href="#/admin"]')
 
         # Existing groups appear in labels
-        b.wait_in_text(".pf-c-label-group__list", "admin")
-        b.wait_in_text(".pf-c-label-group__list", m.get_admin_group())
+        b.wait_in_text(".pf-v5-c-label-group__list", "admin")
+        b.wait_in_text(".pf-v5-c-label-group__list", m.get_admin_group())
 
         # Primary group cannot be remove but others have a remove button
-        b.wait_visible(".pf-c-label-group__list .pf-c-label__content:contains(admin)")
-        b.wait_not_present(".pf-c-label-group__list .pf-c-label__content:contains(admin) + span > button")
-        b.wait_visible(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
+        b.wait_visible(".pf-v5-c-label-group__list .pf-v5-c-label__content:contains(admin)")
+        b.wait_not_present(".pf-v5-c-label-group__list .pf-v5-c-label__content:contains(admin) + span > button")
+        b.wait_visible(f".pf-v5-c-label-group__list .pf-v5-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
 
         # Clicking on the close button removes the group
-        b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
-        b.wait_not_present(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()})")
-        b.wait_not_present(".pf-c-select__menu")
+        b.click(f".pf-v5-c-label-group__list .pf-v5-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
+        b.wait_not_present(f".pf-v5-c-label-group__list .pf-v5-c-label__content:contains({m.get_admin_group()})")
+        b.wait_not_present(".pf-v5-c-select__menu")
 
         # Add admin to the testgroup0 group
         selectGroupFromMenu("testgroup0", True)
@@ -1169,14 +1169,14 @@ class TestAccounts(MachineCase):
         # Check that changes ar persistent after reload
         b.reload()
         b.enter_page("/users")
-        b.wait_in_text(".pf-c-label-group__list", "testgroup0")
+        b.wait_in_text(".pf-v5-c-label-group__list", "testgroup0")
 
         # Clicking on a used groups in the menu will remove it
         selectGroupFromMenu("testgroup0", False)
 
         # Clicking on the undo button will add the removed group back
         b.click("#group-undo-btn")
-        b.wait_in_text(".pf-c-label-group__list", "testgroup0")
+        b.wait_in_text(".pf-v5-c-label-group__list", "testgroup0")
         m.execute("/usr/bin/gpasswd -d admin testgroup0")
 
         # Clicking on the undo button will remove the added group back
@@ -1184,7 +1184,7 @@ class TestAccounts(MachineCase):
         b.enter_page("/users")
         selectGroupFromMenu("testgroup0", True)
         b.click("#group-undo-btn")
-        b.wait_not_in_text(".pf-c-label-group__list", "testgroup0")
+        b.wait_not_in_text(".pf-v5-c-label-group__list", "testgroup0")
         wait(lambda: "testgroup0" not in m.execute("groups admin"))
 
     def testGroupCreate(self):
@@ -1208,7 +1208,7 @@ class TestAccounts(MachineCase):
         b.wait_in_text("#groups-create-name-helper", "A group with this name already exists")
         b.set_input_text("#groups-create-name", "titans")
         b.click("#groups-create-dialog button.pf-m-primary")
-        b.wait_in_text("#groups-create-dialog .pf-c-alert", "GID '0' already exists")
+        b.wait_in_text("#groups-create-dialog .pf-v5-c-alert", "GID '0' already exists")
 
         # Validation check for chars used in group name and valid group ID
         b.set_input_text("#groups-create-name", "titan@1000")
@@ -1244,8 +1244,8 @@ class TestAccounts(MachineCase):
         self.login_and_go("/users")
         b.click("button:contains('more...')")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("titan")')
-        b.click("#groups-list tbody tr:contains(titan) .pf-c-dropdown button")
-        b.click("#groups-list tbody tr:contains(titan) .pf-c-dropdown__menu li:contains('Rename group')")
+        b.click("#groups-list tbody tr:contains(titan) .pf-v5-c-dropdown button")
+        b.click("#groups-list tbody tr:contains(titan) .pf-v5-c-dropdown__menu li:contains('Rename group')")
 
         b.set_input_text("#group-confirm-rename-dialog #group-name", "phoebe")
         b.click("#group-confirm-rename-dialog .apply")
@@ -1254,7 +1254,7 @@ class TestAccounts(MachineCase):
         self.assertNotIn("titan", m.execute("getent group"))
 
         # Rename and delete actions are available only for user created groups
-        b.wait_not_present(f"#groups-list tbody tr:contains({m.get_admin_group()}) .pf-c-dropdown button")
+        b.wait_not_present(f"#groups-list tbody tr:contains({m.get_admin_group()}) .pf-v5-c-dropdown button")
 
 
 if __name__ == '__main__':

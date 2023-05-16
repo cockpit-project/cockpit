@@ -55,29 +55,29 @@ class TestServices(MachineCase):
         self.browser.click(f'#services-filter li:nth-child({n}) a')
 
     def wait_onoff(self, val):
-        self.browser.wait_visible(".service-top-panel .pf-c-switch__input" + (":checked" if val else ":not(:checked)"))
+        self.browser.wait_visible(".service-top-panel .pf-v5-c-switch__input" + (":checked" if val else ":not(:checked)"))
 
     def toggle_onoff(self):
-        self.browser.click(".service-top-panel .pf-c-switch__input")
+        self.browser.click(".service-top-panel .pf-v5-c-switch__input")
 
     def do_action(self, action):
-        self.browser.click(".service-top-panel .pf-c-dropdown button")
-        self.browser.click(f".service-top-panel .pf-c-dropdown__menu a:contains('{action}')")
+        self.browser.click(".service-top-panel .pf-v5-c-dropdown button")
+        self.browser.click(f".service-top-panel .pf-v5-c-dropdown__menu a:contains('{action}')")
 
     def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
         self.browser.wait_collected_text("#statuses .status", "".join(statuses))
         if onoff:
             self.wait_onoff(enabled)
         else:
-            self.browser.wait_not_present(".service-top-panel .pf-c-switch")
+            self.browser.wait_not_present(".service-top-panel .pf-v5-c-switch")
 
         if kebab:
-            self.browser.click(".service-top-panel .pf-c-dropdown button")
-            self.browser.wait_text(".service-top-panel .pf-c-dropdown__menu", "".join(actions))
-            # Click away to close the pf-c-dropdown__menu
-            self.browser.click(".service-top-panel .pf-c-dropdown button")
+            self.browser.click(".service-top-panel .pf-v5-c-dropdown button")
+            self.browser.wait_text(".service-top-panel .pf-v5-c-dropdown__menu", "".join(actions))
+            # Click away to close the pf-v5-c-dropdown__menu
+            self.browser.click(".service-top-panel .pf-v5-c-dropdown button")
         else:
-            self.browser.wait_not_present(".service-top-panel .pf-c-dropdown")
+            self.browser.wait_not_present(".service-top-panel .pf-v5-c-dropdown")
 
     def svc_sel(self, service):
         return f'tr[data-goto-unit="{service}"]'
@@ -102,10 +102,10 @@ class TestServices(MachineCase):
 
         self.browser.click("#services-dropdown-file-state")
         for state in states:
-            self.browser.set_checked(f".pf-c-select__menu label:contains('{state}') input", True)
+            self.browser.set_checked(f".pf-v5-c-select__menu label:contains('{state}') input", True)
         self.browser.click("#services-dropdown-file-state")
         for state in states:
-            self.browser.wait_visible(f".pf-c-chip-group__label:contains('File state') + .pf-c-chip-group__list li:contains('{state}')")
+            self.browser.wait_visible(f".pf-v5-c-chip-group__label:contains('File state') + .pf-v5-c-chip-group__list li:contains('{state}')")
 
     def select_active_state(self, states):
         if not isinstance(states, list):
@@ -113,13 +113,13 @@ class TestServices(MachineCase):
 
         self.browser.click("#services-dropdown-active-state")
         for state in states:
-            self.browser.set_checked(f".pf-c-select__menu label:contains('{state}') input", True)
+            self.browser.set_checked(f".pf-v5-c-select__menu label:contains('{state}') input", True)
         self.browser.click("#services-dropdown-active-state")
         for state in states:
-            self.browser.wait_visible(f".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('{state}')")
+            self.browser.wait_visible(f".pf-v5-c-chip-group__label:contains('Active state') + .pf-v5-c-chip-group__list li:contains('{state}')")
 
     def wait_page_load(self):
-        self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
+        self.browser.wait_not_present(".pf-v5-c-empty-state .pf-v5-c-spinner[aria-valuetext='Loading...']")
 
     def wait_service_in_panel(self, service, title):
         self.wait_service_state(service, title)
@@ -294,8 +294,8 @@ WantedBy=default.target
 
         # Test breadcrumb link when service id contains special characters
         self.goto_service("special@:-characters.service")
-        b.wait_in_text(".pf-c-breadcrumb", "special@:-characters.service")
-        b.click(".pf-c-breadcrumb a:contains('Services')")
+        b.wait_in_text(".pf-v5-c-breadcrumb", "special@:-characters.service")
+        b.click(".pf-v5-c-breadcrumb a:contains('Services')")
         b.wait_visible("#services-list")
 
         # Selects Targets tab
@@ -309,7 +309,7 @@ WantedBy=default.target
             self.wait_service_present("ctrl-alt-del.target")
             self.goto_service("ctrl-alt-del.target")
             b.wait_in_text(".service-name", "Reboot")
-            b.click("#services-page .pf-c-breadcrumb__link")
+            b.click("#services-page .pf-v5-c-breadcrumb__link")
 
         # Selects Sockets tab
         self.pick_tab(3)
@@ -336,7 +336,7 @@ WantedBy=default.target
         self.goto_service("test.timer")
         b.wait_in_text('.service-unit-next-trigger', today)  # next run
         b.wait_in_text('.service-unit-last-trigger', "unknown")  # last trigger
-        b.click(".pf-c-breadcrumb a:contains('Services')")
+        b.click(".pf-v5-c-breadcrumb a:contains('Services')")
 
         self.run_systemctl(user, "stop test.timer")
 
@@ -355,7 +355,7 @@ WantedBy=default.target
             self.goto_service("deleteme.timer")
             self.do_action("Delete")
             b.click("#delete-timer-modal-btn")
-            b.wait_not_present(".pf-c-modal-box")
+            b.wait_not_present(".pf-v5-c-modal-box")
             self.wait_page_load()
             self.assertNotIn("deleteme", m.execute("systemctl list-timers"))
             m.execute(f"! test -f {path}/deleteme.service")
@@ -363,10 +363,10 @@ WantedBy=default.target
 
             # system timers are not allowed to be deleted
             self.goto_service("cockpit-system.timer")
-            b.click(".service-top-panel .pf-c-dropdown button")
-            b.wait_in_text(".service-top-panel .pf-c-dropdown__menu", "Disallow running")
-            b.wait_not_in_text(".service-top-panel .pf-c-dropdown__menu", "Delete")
-            b.click(".pf-c-breadcrumb a:contains('Services')")
+            b.click(".service-top-panel .pf-v5-c-dropdown button")
+            b.wait_in_text(".service-top-panel .pf-v5-c-dropdown__menu", "Disallow running")
+            b.wait_not_in_text(".service-top-panel .pf-v5-c-dropdown__menu", "Delete")
+            b.click(".pf-v5-c-breadcrumb a:contains('Services')")
 
             # Selects Paths tab - the test VM does not have any user path units
             self.pick_tab(5)
@@ -408,7 +408,7 @@ WantedBy=default.target
                             # in medium layout we sometimes get a scrollbar depending on how many test-fail logs exist
                             skip_layouts=["medium"],
                             # ignore the switcher, it causes a tiny flake around the sides.
-                            ignore=[".pf-c-switch__toggle"])
+                            ignore=[".pf-v5-c-switch__toggle"])
         b.click(".action-button:contains('Start service')")
         b.go(f'/system/services#/{suffix}')
         self.wait_service_present("test-fail.service")
@@ -465,12 +465,12 @@ WantedBy=default.target
 
         def init_filter_state():
             if not b.is_visible("#services-text-filter"):
-                b.click(".pf-c-toolbar__toggle button")
+                b.click(".pf-v5-c-toolbar__toggle button")
 
-            if b.is_present(".pf-c-toolbar__expandable-content.pf-m-expanded button:contains('Clear all filters')"):
-                b.click(".pf-c-toolbar__expandable-content.pf-m-expanded button:contains('Clear all filters')")
-            elif b.is_present(".pf-c-toolbar__content > .pf-c-toolbar__item > button:contains('Clear all filters')"):
-                b.click(".pf-c-toolbar__content > .pf-c-toolbar__item > button:contains('Clear all filters')")
+            if b.is_present(".pf-v5-c-toolbar__expandable-content.pf-m-expanded button:contains('Clear all filters')"):
+                b.click(".pf-v5-c-toolbar__expandable-content.pf-m-expanded button:contains('Clear all filters')")
+            elif b.is_present(".pf-v5-c-toolbar__content > .pf-v5-c-toolbar__item > button:contains('Clear all filters')"):
+                b.click(".pf-v5-c-toolbar__content > .pf-v5-c-toolbar__item > button:contains('Clear all filters')")
             else:
                 b.set_input_text("#services-text-filter input", "")
 
@@ -483,11 +483,11 @@ WantedBy=default.target
         self.pick_tab(3)
         self.goto_service("dbus.socket")
         if not user:
-            self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen .pf-c-description-list__text"))
+            self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen .pf-v5-c-description-list__text"))
         else:
-            self.assertIn("/run/user/", b.text("#listen .pf-c-description-list__text"))
-        self.assertIn(b.text("#Triggers .pf-c-description-list__text"), ["dbus.service", "dbus-broker.service"])
-        b.click(".pf-c-breadcrumb a:contains('Services')")
+            self.assertIn("/run/user/", b.text("#listen .pf-v5-c-description-list__text"))
+        self.assertIn(b.text("#Triggers .pf-v5-c-description-list__text"), ["dbus.service", "dbus-broker.service"])
+        b.click(".pf-v5-c-breadcrumb a:contains('Services')")
 
         # Select services tab
         self.pick_tab(1)
@@ -570,7 +570,7 @@ WantedBy=default.target
         b.set_input_text("#services-text-filter input", "failing")
         self.select_active_state("Not running")
         self.wait_service_not_present("test.service")
-        b.wait_visible("#services-page .pf-c-empty-state")
+        b.wait_visible("#services-page .pf-v5-c-empty-state")
 
         # Check resetting filter
         b.click("#clear-all-filters")
@@ -584,15 +584,15 @@ WantedBy=default.target
         self.select_active_state("Not running")
         self.select_active_state("Running")
         self.wait_service_present("test.service")
-        b.click(".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('Not running') button")
-        b.wait_not_present(".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('Not running')")
+        b.click(".pf-v5-c-chip-group__label:contains('Active state') + .pf-v5-c-chip-group__list li:contains('Not running') button")
+        b.wait_not_present(".pf-v5-c-chip-group__label:contains('Active state') + .pf-v5-c-chip-group__list li:contains('Not running')")
         self.wait_service_not_present("test.service")
-        b.click(".pf-c-chip-group:contains('Active state') .pf-c-chip-group__close > button")
-        b.wait_not_present(".pf-c-chip-group")
+        b.click(".pf-v5-c-chip-group:contains('Active state') .pf-v5-c-chip-group__close > button")
+        b.wait_not_present(".pf-v5-c-chip-group")
 
         # Check that journalbox shows empty state
         self.goto_service("systemd-exit.service")
-        b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
+        b.wait_text('.cockpit-log-panel .pf-v5-c-card__body', "No log entries")
         b.wait_not_present("button:contains('View all logs')")
 
         b.go(f'/system/services#/{suffix}')
@@ -619,14 +619,14 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
             self.run_systemctl(user, "start mem-hog.service")
             # If the test fails before we stop the mem-hog the next test run will not get the correct memory usage here
             self.addCleanup(self.run_systemctl, user, "stop mem-hog.service || true")
-            b.wait_visible("#memory .pf-c-description-list__text")
-            initial_memory = float(b.text("#memory .pf-c-description-list__text").split(" ")[0])
+            b.wait_visible("#memory .pf-v5-c-description-list__text")
+            initial_memory = float(b.text("#memory .pf-v5-c-description-list__text").split(" ")[0])
             self.assertGreater(initial_memory, 0.5)
             m.execute(f"touch /tmp/continue{params}")
             self.addCleanup(m.execute, f"rm /tmp/continue{params}")
             # MemoryCurrent auto-updates every 30s - when it updates the memory used should be ~50MiB
             with b.wait_timeout(60):
-                b.wait(lambda: float(b.text("#memory .pf-c-description-list__text").split(" ")[0]) > 40)
+                b.wait(lambda: float(b.text("#memory .pf-v5-c-description-list__text").split(" ")[0]) > 40)
             self.run_systemctl(user, "stop mem-hog.service")
             b.wait_not_present("#memory")
         # Check that listen is not shown for .service units
@@ -634,7 +634,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
 
         # Check empty state error for nonexisent unit with valid name
         b.go(f'/system/services#/nonexistent.service{suffix}')
-        b.wait_in_text(".pf-c-empty-state", "Unit nonexistent.service not found")
+        b.wait_in_text(".pf-v5-c-empty-state", "Unit nonexistent.service not found")
         b.click("a:contains('View all services')")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')
@@ -644,8 +644,8 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         # Check empty state error for invalid unit name
         b.go(f'/system/services#/nonexistent{suffix}')
         b.enter_page("/system/services")
-        b.wait_in_text(".pf-c-empty-state", "Loading unit failed")
-        b.wait_in_text(".pf-c-empty-state", "Unit name nonexistent is not valid")
+        b.wait_in_text(".pf-v5-c-empty-state", "Loading unit failed")
+        b.wait_in_text(".pf-v5-c-empty-state", "Unit name nonexistent is not valid")
 
     def testLogs(self):
         self._testLogs(False)
@@ -670,12 +670,12 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         # Check test.service and then start it
         self.goto_service("test.service")
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
-        b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
+        b.wait_text('.cockpit-log-panel .pf-v5-c-card__body', "No log entries")
         self.toggle_onoff()
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
-        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "START")
-        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
-        b.click(".cockpit-log-panel .pf-c-card__header button")
+        b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "START")
+        b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "WORKING")
+        b.click(".cockpit-log-panel .pf-v5-c-card__header button")
 
         b.enter_page("/system/logs")
         b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
@@ -688,8 +688,8 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.wait_in_text(".cockpit-logline:nth-child(2)", "WORKING")
         b.click(".cockpit-logline:nth-child(2)")
         b.enter_page("/system/logs")
-        b.wait_text(".pf-c-card__title", "WORKING")
-        b.click(".pf-c-breadcrumb li:contains('Logs')")
+        b.wait_text(".pf-v5-c-card__title", "WORKING")
+        b.click(".pf-v5-c-breadcrumb li:contains('Logs')")
         b.wait_val("#journal-grep input", f"priority:debug {service_type}:test.service ")
         b.go(append_user("/system/services#/test.service"))
         b.enter_page("/system/services")
@@ -1104,7 +1104,7 @@ Where=/fail
 
         self.do_action("Stop")
 
-        b.wait_in_text(".pf-c-empty-state", "Unit test-transient.service not found")
+        b.wait_in_text(".pf-v5-c-empty-state", "Unit test-transient.service not found")
         b.click("a:contains('View all services')")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')
@@ -1118,7 +1118,7 @@ Where=/fail
         b.wait_not_present("html.pf-theme-dark")
         b.switch_to_top()
         b.open_superuser_dialog()
-        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        b.click(".pf-v5-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
         b.check_superuser_indicator("Limited access")
         b.enter_page("/system/services")
         b.wait_not_present("html.pf-theme-dark")
@@ -1130,18 +1130,18 @@ Where=/fail
         self.login_and_go("/system/services#/?activestate=[\"Running\"]&filestate=[\"Disabled\"%2C\"Enabled\"]&name=test&type=service&owner=user")
         self.wait_page_load()
 
-        b.wait_visible(".pf-c-chip-group:contains(Active state) li:contains(Running)")
-        b.wait_visible(".pf-c-chip-group:contains(File state) li:contains(Disabled)")
-        b.wait_visible(".pf-c-chip-group:contains(File state) li:contains(Enabled)")
+        b.wait_visible(".pf-v5-c-chip-group:contains(Active state) li:contains(Running)")
+        b.wait_visible(".pf-v5-c-chip-group:contains(File state) li:contains(Disabled)")
+        b.wait_visible(".pf-v5-c-chip-group:contains(File state) li:contains(Enabled)")
         b.wait_visible(".services-text-filter input[value=test]")
-        b.wait_visible(".pf-c-nav__list a.pf-m-current:contains(Services)")
+        b.wait_visible(".pf-v5-c-nav__list a.pf-m-current:contains(Services)")
         b.wait_visible("#user.pf-m-selected")
         # there is no running "test" service
-        self.browser.wait_in_text(".pf-c-empty-state", "No matching results")
+        self.browser.wait_in_text(".pf-v5-c-empty-state", "No matching results")
         # filter survives a reload, same URL
         b.reload()
         b.enter_page("/system/services")
-        self.browser.wait_in_text(".pf-c-empty-state", "No matching results")
+        self.browser.wait_in_text(".pf-v5-c-empty-state", "No matching results")
 
         # Changing the UI filters should also affect the URL
         b.click("#system")
@@ -1149,10 +1149,10 @@ Where=/fail
         self.assertIn("owner=system", url)
 
         # Mass remove active state filters and check the URL
-        b.click(".pf-c-chip-group:contains(Active state) .pf-c-chip-group__close button")
+        b.click(".pf-v5-c-chip-group:contains(Active state) .pf-v5-c-chip-group__close button")
         b.wait_js_cond('window.location.hash == "#/?filestate=%5B%22Disabled%22%2C%22Enabled%22%5D&name=test&type=service&owner=system"')
 
-        b.click(".pf-c-toolbar__content > .pf-c-toolbar__item > button:contains('Clear all filters')")
+        b.click(".pf-v5-c-toolbar__content > .pf-v5-c-toolbar__item > button:contains('Clear all filters')")
         b.wait_js_cond('window.location.hash == "#/?type=service&owner=system"')
 
         # Test text input clear button
@@ -1228,15 +1228,15 @@ WantedBy=multi-user.target
         b.wait_in_text("#statuses", "Running")
         b.wait_in_text("#statuses", "Automatically starts")
         b.wait_in_text("#service-details-unit", "/etc/systemd/system/flower-rose.service")
-        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "Perfume")
+        b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "Perfume")
 
         # details: alias
-        b.click(".pf-c-breadcrumb a:contains('Services')")
+        b.click(".pf-v5-c-breadcrumb a:contains('Services')")
         self.goto_service("flower-byanyothername.service")
         b.wait_in_text("#statuses", "Running")
         b.wait_in_text("#statuses", "Automatically starts")
         b.wait_in_text("#service-details-unit", "/etc/systemd/system/flower-rose.service")
-        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "Perfume")
+        b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "Perfume")
 
     def testUnprivileged(self):
         b = self.browser
@@ -1262,7 +1262,7 @@ WantedBy=multi-user.target
         b.wait_in_text("#service-details-unit", "/etc/systemd/system/test.service")
         # unprivileged users cannot read the system journal on all OSes; only check it on Fedora, where we know it's allowed
         if m.image.startswith("fedora"):
-            b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
+            b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "WORKING")
         # reacts to changes
         m.execute("systemctl stop test.service")
         self.check_service_details(["Read-only", "Disabled"], [], False, onoff=False, kebab=False)
@@ -1274,7 +1274,7 @@ class TestTimers(MachineCase):
         return f'tr[data-goto-unit="{service}"]'
 
     def wait_page_load(self):
-        self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
+        self.browser.wait_not_present(".pf-v5-c-empty-state .pf-v5-c-spinner[aria-valuetext='Loading...']")
 
     def testCreate(self):
         m = self.machine
@@ -1316,7 +1316,7 @@ class TestTimers(MachineCase):
         # checks for invalid input messages
         b.wait_text("#servicename-helper", "Only alphabets, numbers, : , _ , . , @ , - are allowed")
         b.wait_text("#description-helper", "This field cannot be empty")
-        b.wait_text(".pf-c-date-picker__helper-text", "Invalid time format")
+        b.wait_text(".pf-v5-c-date-picker__helper-text", "Invalid time format")
 
         # checks for command not found
         b.set_input_text("#servicename", "testing")
@@ -1333,17 +1333,17 @@ class TestTimers(MachineCase):
         b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.select_from_dropdown("#drop-repeat", "yearly")
         b.click("[data-index=0] [aria-label=Add]")
-        b.set_input_text("[data-index=0] .pf-c-date-picker:nth-child(1) input", "2036-01-01")
-        b.set_input_text("[data-index=0] .pf-c-date-picker:nth-child(2) input", "16:00")
-        b.set_input_text("[data-index=1] .pf-c-date-picker:nth-child(1) input", "2037-01-01")
-        b.set_input_text("[data-index=1] .pf-c-date-picker:nth-child(2) input", "01:22")
+        b.set_input_text("[data-index=0] .pf-v5-c-date-picker:nth-child(1) input", "2036-01-01")
+        b.set_input_text("[data-index=0] .pf-v5-c-date-picker:nth-child(2) input", "16:00")
+        b.set_input_text("[data-index=1] .pf-v5-c-date-picker:nth-child(1) input", "2037-01-01")
+        b.set_input_text("[data-index=1] .pf-v5-c-date-picker:nth-child(2) input", "01:22")
 
         # shows creation errors
         m.execute("chattr +i /etc/systemd/system")
         try:
             b.click("#timer-save-button")
-            b.wait_in_text("#timer-dialog .pf-c-alert", "Timer creation failed")
-            b.wait_in_text("#timer-dialog .pf-c-alert", "Not permitted")
+            b.wait_in_text("#timer-dialog .pf-v5-c-alert", "Timer creation failed")
+            b.wait_in_text("#timer-dialog .pf-v5-c-alert", "Not permitted")
         finally:
             m.execute("chattr -i /etc/systemd/system")
 

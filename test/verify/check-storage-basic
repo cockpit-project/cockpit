@@ -32,11 +32,11 @@ class TestStorageBasic(StorageCase):
         self.login_and_go("/storage", superuser=False)
 
         b.wait_visible("#devices")
-        b.wait_not_present("#devices .pf-c-dropdown button")
+        b.wait_not_present("#devices .pf-v5-c-dropdown button")
 
         b.relogin('/storage', superuser=True)
 
-        b.wait_visible("#devices .pf-c-dropdown button:not([disabled])")
+        b.wait_visible("#devices .pf-v5-c-dropdown button:not([disabled])")
 
         # Add a disk, partition it, format it, and finally remove it.
         disk = self.add_ram_disk()

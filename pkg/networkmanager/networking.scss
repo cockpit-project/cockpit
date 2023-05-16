@@ -4,14 +4,14 @@
 
 #firewall,
 #network-page {
-  .pf-c-card {
+  .pf-v5-c-card {
     @extend .ct-card;
   }
 }
 
 #networking, #network-interface {
-  .pf-l-gallery {
-    --pf-l-gallery--GridTemplateColumns: 1fr;
+  .pf-v5-l-gallery {
+    --pf-v5-l-gallery--GridTemplateColumns: 1fr;
   }
 }
 
@@ -25,7 +25,7 @@
 #network-interface {
   @at-root {
     #network-interface-name {
-      font-weight: var(--pf-c-card__title--FontWeight);
+      font-weight: var(--pf-v5-c-card__title--FontWeight);
     }
 
     .network-interface-status > span {
@@ -42,7 +42,7 @@
   block-size: 180px;
 }
 
-.pf-c-page__main-breadcrumb + .networking-graphs {
+.pf-v5-c-page__main-breadcrumb + .networking-graphs {
   // Remove the top padding when following a breadcrumb
   padding-block-start: 0;
 }
@@ -54,11 +54,11 @@ th {
   }
 
   &.networking-spacer {
-    inline-size: var(--pf-global--spacer--4xl);
+    inline-size: var(--pf-v5-global--spacer--4xl);
   }
 
   &.networking-action {
-    inline-size: var(--pf-global--spacer--3xl);
+    inline-size: var(--pf-v5-global--spacer--3xl);
   }
 }
 
@@ -66,11 +66,11 @@ th {
   &-title {
     display: grid;
     grid-auto-flow: column;
-    grid-gap: var(--pf-global--spacer--md);
+    grid-gap: var(--pf-v5-global--spacer--md);
   }
 
   &-delete {
-    margin-inline-end: var(--pf-global--spacer--lg);
+    margin-inline-end: var(--pf-v5-global--spacer--lg);
   }
 
   // Seems to be used for the "general" checkbox
@@ -87,7 +87,7 @@ th {
 
 #networking-interfaces, #networking-unmanaged-interfaces {
   th > .pf-m-link {
-    font-weight: var(--pf-global--FontWeight--bold);
+    font-weight: var(--pf-v5-global--FontWeight--bold);
 
     // Preserve the same baseline as other elements, so items align
     display: inline;
@@ -97,11 +97,11 @@ th {
 }
 
 .network-interface-members {
-  .pf-c-switch {
-    margin-inline-end: var(--pf-global--spacer--md);
+  .pf-v5-c-switch {
+    margin-inline-end: var(--pf-v5-global--spacer--md);
   }
 
-  .pf-c-table tbody > tr > * {
+  .pf-v5-c-table tbody > tr > * {
     vertical-align: middle;
   }
 
@@ -111,8 +111,8 @@ th {
 }
 
 // If the button is not the first item in the DescriptionListDescription all left padding
-.network-interface-settings dd .pf-c-description-list__text button:not(:first-child) {
-  padding-inline-start: var(--pf-global--spacer--md);
+.network-interface-settings dd .pf-v5-c-description-list__text button:not(:first-child) {
+  padding-inline-start: var(--pf-v5-global--spacer--md);
 }
 
 #network-mtu-settings-custom {
@@ -131,12 +131,12 @@ th {
   z-index: 2000;
 }
 
-.pf-l-flex > .network-ip-settings-method {
+.pf-v5-l-flex > .network-ip-settings-method {
   inline-size: 12rem;
 }
 
 #network-ip-settings-body {
-  .pf-c-form__label {
+  .pf-v5-c-form__label {
     // Don't allow labels to wrap
     white-space: nowrap;
   }
@@ -154,7 +154,7 @@ th {
 
 #add-services-dialog {
   .service-list {
-    border: 1px solid var(--pf-c-data-list--BorderTopColor);
+    border: 1px solid var(--pf-v5-c-data-list--BorderTopColor);
     block-size: 30rem;
     // full height minus UI, for mobile and small desktops
     max-block-size: calc(100vh - 20rem);
@@ -198,13 +198,13 @@ th {
   block-size: 100%;
 
   .ct-table tbody tr:first-of-type td:nth-child(2) {
-    font-weight: var(--pf-global--FontWeight--bold);
+    font-weight: var(--pf-v5-global--FontWeight--bold);
   }
 }
 
-@media screen and (max-width: $pf-global--breakpoint--md) {
-  .zone-section-heading.pf-c-card__header {
-    padding-inline-start: var(--pf-global--spacer--md);
+@media screen and (max-width: $pf-v5-global--breakpoint--md) {
+  .zone-section-heading.pf-v5-c-card__header {
+    padding-inline-start: var(--pf-v5-global--spacer--md);
   }
 }
 
@@ -216,14 +216,14 @@ th {
 
 #add-zone-dialog legend {
   color: var(--ct-color-subtle-copy);
-  font-size: var(--pf-global--FontSize--sm);
+  font-size: var(--pf-v5-global--FontSize--sm);
 }
 
 .add-zone-zones legend {
   line-height: 3;
 }
 
-#add-zone-dialog .add-zone-zones .pf-c-radio__label {
+#add-zone-dialog .add-zone-zones .pf-v5-c-radio__label {
   text-transform: capitalize;
 }
 
@@ -290,8 +290,8 @@ th {
   }
 }
 
-.pf-c-dropdown__menu-item.pf-m-danger {
-  color: var(--pf-global--danger-color--200);
+.pf-v5-c-dropdown__menu-item.pf-m-danger {
+  color: var(--pf-v5-global--danger-color--200);
 }
 
 // Remove the default top padding from the toolbar

@@ -186,7 +186,7 @@ class TestStorageLvm2(StorageCase):
         self.content_row_wait_in_col(2, 1, "thin")
 
         # add a disk and resize the pool
-        b.click('#detail-sidebar .pf-c-card__header button')
+        b.click('#detail-sidebar .pf-v5-c-card__header button')
         self.dialog_wait_open()
         self.dialog_set_val('disks', {dev_2: True})
         self.dialog_apply()
@@ -232,7 +232,7 @@ class TestStorageLvm2(StorageCase):
         self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
 
         # remove volume group
-        b.click('.pf-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
+        b.click('.pf-v5-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         b.wait_not_in_text("#devices", "vgroup0")
@@ -267,7 +267,7 @@ class TestStorageLvm2(StorageCase):
         b.wait_in_text("#detail-sidebar", "Partition of Linux scsi_debug")
 
         # Add the unused space of disk2
-        self.dialog_with_retry(trigger=lambda: b.click('#detail-sidebar .pf-c-card__header button'),
+        self.dialog_with_retry(trigger=lambda: b.click('#detail-sidebar .pf-v5-c-card__header button'),
                                expect=lambda: self.dialog_is_present(
                                    'disks', "unpartitioned space on " + disk2),
                                values={"disks": {disk2: True}})

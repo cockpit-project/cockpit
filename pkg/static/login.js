@@ -197,7 +197,7 @@ import "./login.scss";
                 // Render a "helper text" warning above the log in button
                 document.querySelector("#login .login-actions").insertAdjacentHTML(
                     "beforebegin",
-                    "<div class='pf-c-helper-text pf-m-warning' id='bypass-warning'>" +
+                    "<div class='pf-v5-c-helper-text pf-m-warning' id='bypass-warning'>" +
                     _("Cockpit might not render correctly in your browser") +
                     "</div>"
                 );
@@ -622,7 +622,7 @@ import "./login.scss";
 
             const b1 = document.createElement("button");
             b1.textContent = host;
-            b1.classList.add("pf-c-button", "pf-m-tertiary", "host-name");
+            b1.classList.add("pf-v5-c-button", "pf-m-tertiary", "host-name");
             b1.addEventListener("click", () => {
                 id("server-field").value = host;
                 call_login();

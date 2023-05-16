@@ -5,11 +5,11 @@
 @import "@patternfly/patternfly/components/Table/table.scss";
 
 .ct-limited-access-alert {
-  --pf-c-alert--GridTemplateColumns: auto auto 1fr;
+  --pf-v5-c-alert--GridTemplateColumns: auto auto 1fr;
 
   // Fix vertical alignment
   // Unset the H4 line-height (as PF3/Bootstrap/etc. sets it; PF4 doesn't)
-  > .pf-c-alert__title {
+  > .pf-v5-c-alert__title {
     line-height: unset;
   }
 
@@ -23,9 +23,9 @@
   //
   // When we have the upcoming version of PF4 in Cockpit, we should drop this code
   // (and adjust things for the button to show up on the side of desktop mode instead)
-  @media (max-width: $pf-global--breakpoint--lg) {
+  @media (max-width: $pf-v5-global--breakpoint--lg) {
     grid-template-areas: "icon title" ". content" ". action";
-    grid-gap: var(--pf-global--spacer--sm) 0;
+    grid-gap: var(--pf-v5-global--spacer--sm) 0;
   }
 
   @media (max-width: 320px) {
@@ -34,15 +34,15 @@
   }
 
   // Set the right padding so that the button aligns with the other alerts in the page on the side
-  padding-inline-end: var(--pf-c-page__main-section--PaddingRight);
+  padding-inline-end: var(--pf-v5-c-page__main-section--PaddingRight);
 
-  > .pf-c-alert__action {
-    margin-inline: var(--pf-global--spacer--md) 0;
+  > .pf-v5-c-alert__action {
+    margin-inline: var(--pf-v5-global--spacer--md) 0;
   }
 
   // Align left content with the rest of the page
-  @media (min-width: $pf-global--breakpoint--xl) {
-    padding-inline-start: var(--pf-global--spacer--lg);
+  @media (min-width: $pf-v5-global--breakpoint--xl) {
+    padding-inline-start: var(--pf-v5-global--spacer--lg);
   }
 }
 
@@ -69,7 +69,7 @@
     flex-basis: 15rem;
 
     > h1 {
-      font-size: var(--pf-global--FontSize--2xl) !important;
+      font-size: var(--pf-v5-global--FontSize--2xl) !important;
     }
   }
 
@@ -83,22 +83,22 @@
   }
 
   &-subheading {
-    font-size: var(--pf-global--FontSize--md);
+    font-size: var(--pf-v5-global--FontSize--md);
   }
 }
 
-.pf-l-gallery.ct-system-overview {
+.pf-v5-l-gallery.ct-system-overview {
   --cards: 2;
-  --pf-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
+  --pf-v5-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
 
   // Small mobile: Reduce spacing
   @media (max-width: 320px) {
-    // --pf-l-gallery--m-gutter--GridGap: 0.25rem;
+    // --pf-v5-l-gallery--m-gutter--GridGap: 0.25rem;
   }
 
   // Mobile: reduce to 1 card wide and minimize spacing
   @media (max-width: 680px) {
-    --pf-l-gallery--m-gutter--GridGap: var(--pf-global--spacer--sm);
+    --pf-v5-l-gallery--m-gutter--GridGap: var(--pf-v5-global--spacer--sm);
     --cards: 1;
   }
 
@@ -109,17 +109,17 @@
 
   // Extra large desktop: Let cards align to the left at an optimal size
   @media (min-width: 110rem) {
-    --pf-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
+    --pf-v5-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
   }
 
   // VMs @ 1024x768; add a little leeway For titlebars, start bar, etc.
   @media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
-    --pf-l-gallery--m-gutter--GridGap: var(--pf-global--spacer--sm);
+    --pf-v5-l-gallery--m-gutter--GridGap: var(--pf-v5-global--spacer--sm);
 
     // Also skim off some vertical space for the cards
-    .pf-c-card {
-      --pf-c-card--first-child--PaddingTop: var(--pf-global--spacer--md);
-      --pf-c-card--child--PaddingRight: var(--pf-global--spacer--md);
+    .pf-v5-c-card {
+      --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--md);
+      --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
     }
   }
 
@@ -127,14 +127,14 @@
     grid-column: 1 / -1;
   }
 
-  .pf-c-card {
+  .pf-v5-c-card {
     &__title-text {
-      font-size: var(--pf-global--FontSize--xl);
-      font-weight: var(--pf-global--FontWeight--normal);
+      font-size: var(--pf-v5-global--FontSize--xl);
+      font-weight: var(--pf-v5-global--FontWeight--normal);
     }
 
     &__body {
-      &:last-child .pf-c-table:last-child tr:last-child {
+      &:last-child .pf-v5-c-table:last-child tr:last-child {
         /* Remove the border of tables when it's the last item in a card and there isn't a card footer */
         border-block-end: none;
       }
@@ -142,7 +142,7 @@
       p {
         + p,
         + button {
-          margin-block-start: calc(var(--pf-global--LineHeight--md) * 1rem);
+          margin-block-start: calc(var(--pf-v5-global--LineHeight--md) * 1rem);
         }
       }
 
@@ -151,12 +151,12 @@
       }
 
       th {
-        font-size: var(--pf-global--FontSize--sm);
+        font-size: var(--pf-v5-global--FontSize--sm);
       }
     }
   }
 
-  .pf-c-progress {
+  .pf-v5-c-progress {
     &__status {
       display: flex;
       align-items: baseline;
@@ -196,68 +196,68 @@
 @media (max-width: 779px) {
   /* Reduce gutter & padding on smaller widths, for desktop & mobile */
 
-  .pf-l-gallery.ct-system-overview {
-    --pf-l-gallery--m-gutter--GridGap: calc(var(--pf-global--gutter--md)/2);
+  .pf-v5-l-gallery.ct-system-overview {
+    --pf-v5-l-gallery--m-gutter--GridGap: calc(var(--pf-v5-global--gutter--md)/2);
   }
 
-  .pf-c-card {
-    --pf-c-card--first-child--PaddingTop: var(--pf-global--spacer--md);
-    --pf-c-card--child--PaddingRight: var(--pf-global--spacer--md);
-    --pf-c-card--child--PaddingBottom: var(--pf-global--spacer--md);
-    --pf-c-card--child--PaddingLeft: var(--pf-global--spacer--md);
-    --pf-c-card__title--not-last-child--PaddingBottom: var(--pf-global--spacer--sm);
+  .pf-v5-c-card {
+    --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--md);
+    --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
+    --pf-v5-c-card--child--PaddingBottom: var(--pf-v5-global--spacer--md);
+    --pf-v5-c-card--child--PaddingLeft: var(--pf-v5-global--spacer--md);
+    --pf-v5-c-card__title--not-last-child--PaddingBottom: var(--pf-v5-global--spacer--sm);
   }
 }
 
 @media (min-width: 780px) {
   /* Embiggen subheading & card headings when there's space */
 
-  .pf-l-gallery.ct-system-overview .pf-c-card__title-text {
-    font-size: var(--pf-global--FontSize--2xl);
+  .pf-v5-l-gallery.ct-system-overview .pf-v5-c-card__title-text {
+    font-size: var(--pf-v5-global--FontSize--2xl);
   }
 
   .ct-overview-header-subheading {
-    font-size: var(--pf-global--FontSize--lg);
+    font-size: var(--pf-v5-global--FontSize--lg);
   }
 }
 
 #machine_id {
-  font-family: var(--pf-global--FontFamily--redhatfont--monospace);
+  font-family: var(--pf-v5-global--FontFamily--redhatfont--monospace);
   // Some browsers don't support anywhere yet, so we provide break-word as a fallback
   overflow-wrap: break-word;
   overflow-wrap: anywhere;
 }
 
-.pf-c-table tr > * {
+.pf-v5-c-table tr > * {
   vertical-align: top;
 }
 
-.ct-inline-list .pf-c-list.pf-m-inline {
+.ct-inline-list .pf-v5-c-list.pf-m-inline {
   display: inline-flex;
   margin-inline-start: 1rem;
 }
 
 /* Add a subtle dropshadow to the alerts, to separate them from the background, similar to the cards on the page */
-.pf-c-page__main-section:not(.ct-overview-header),
-.pf-l-gallery {
-  > .pf-c-alert {
-    box-shadow: var(--pf-global--BoxShadow--sm);
+.pf-v5-c-page__main-section:not(.ct-overview-header),
+.pf-v5-l-gallery {
+  > .pf-v5-c-alert {
+    box-shadow: var(--pf-v5-global--BoxShadow--sm);
 
     // Default PF4 blue and background grey are too close in shade
     // So: Lighten up the blue to provide a touch more contrast
     // (Based on default's light green, but in a blue shade)
     &.pf-m-info {
-      --pf-c-alert--BackgroundColor: #f1f8fe;
+      --pf-v5-c-alert--BackgroundColor: #f1f8fe;
     }
   }
 }
 
-#motd-box > .pf-c-alert {
-  /* Spacing between the MOTD is handled by the .pf-l-gallery grid */
+#motd-box > .pf-v5-c-alert {
+  /* Spacing between the MOTD is handled by the .pf-v5-l-gallery grid */
   margin-block-end: 0;
 }
 
-.pf-c-alert .pf-c-alert__description a {
+.pf-v5-c-alert .pf-v5-c-alert__description a {
   padding-inline-start: 15px;
 }
 
@@ -265,21 +265,21 @@
 // This redirects scrolling from the modal body to the select widget
 .ct-m-stretch-body {
   // Use flex to let children fully expand to the content
-  .pf-c-modal-box__body {
+  .pf-v5-c-modal-box__body {
     &, > :only-child {
       // Let children fully stretch to content
       display: flex;
     }
 
     > :only-child,
-    .pf-c-menu__content {
+    .pf-v5-c-menu__content {
       // Get squishy with children and the menu content
       flex: auto;
     }
 
-    .pf-c-menu__content {
+    .pf-v5-c-menu__content {
       // Relax the height constraint
-      --pf-c-menu__content--MaxHeight: 100%;
+      --pf-v5-c-menu__content--MaxHeight: 100%;
     }
   }
 }

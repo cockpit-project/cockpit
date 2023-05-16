@@ -7,7 +7,7 @@ import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("hammer").addEventListener("click", e => e.target.setAttribute("hidden", "hidden"));
 
-    document.querySelector(".cockpit-internal-reauthorize .pf-c-button").addEventListener("click", () => {
+    document.querySelector(".cockpit-internal-reauthorize .pf-v5-c-button").addEventListener("click", () => {
         document.querySelector(".cockpit-internal-reauthorize span").textContent = "checking...";
         cockpit.script("pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1", { superuser: "try" })
                 .stream(data => console.debug(data))
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
     });
 
-    document.querySelector(".super-channel .pf-c-button").addEventListener("click", () => {
+    document.querySelector(".super-channel .pf-v5-c-button").addEventListener("click", () => {
         document.querySelector(".super-channel span").textContent = "checking...";
         cockpit.spawn(["id"], { superuser: true })
                 .then(data => {
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
     });
 
-    document.querySelector(".lock-channel .pf-c-button").addEventListener("click", () => {
+    document.querySelector(".lock-channel .pf-v5-c-button").addEventListener("click", () => {
         document.querySelector(".lock-channel span").textContent = "locking...";
         cockpit.spawn(["flock", "-o", "/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
                       { superuser: "try", err: "message" })

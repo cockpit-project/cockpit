@@ -237,7 +237,7 @@ class TestStorageLuks(StorageCase):
 
         # add one more passphrase
         tab = self.content_tab_expand(1, 2)
-        panel = tab + " .pf-c-card:contains(Keys) "
+        panel = tab + " .pf-v5-c-card:contains(Keys) "
         b.wait_visible(panel)
         b.click(panel + "[aria-label=Add]")
         self.dialog_wait_open()
@@ -269,7 +269,7 @@ class TestStorageLuks(StorageCase):
         # do not accept the same passphrase
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-1")
         b.click("button:contains('Remove')")
-        b.wait_in_text(".pf-c-alert__title", "No key available with this passphrase.")
+        b.wait_in_text(".pf-v5-c-alert__title", "No key available with this passphrase.")
         # delete with passphrase from slot 0
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja")
         b.click("button:contains('Remove')")
@@ -285,8 +285,8 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_apply()
-        b.wait_visible(".pf-c-alert")
-        self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
+        b.wait_visible(".pf-v5-c-alert")
+        self.assertIn(b.text("h4.pf-v5-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
         self.dialog_cancel()
 
         # add more passphrases, seven exactly, to reach the limit of eight for LUKSv1
@@ -301,14 +301,14 @@ class TestStorageLuks(StorageCase):
             self.dialog_wait_close()
 
         # check if add button is inactive
-        b.wait_visible(panel + ".pf-c-card__header button:disabled")
+        b.wait_visible(panel + ".pf-v5-c-card__header button:disabled")
         # check if edit button is inactive
-        slots_row = tab + " .pf-c-card ul li:first-child"
+        slots_row = tab + " .pf-v5-c-card ul li:first-child"
         b.wait_visible(slots_row + " button:disabled")
 
         # remove one slot
-        slots_list = tab + " .pf-c-card ul "
-        b.wait_visible(".pf-c-data-list__cell:contains('Slot 7')")
+        slots_list = tab + " .pf-v5-c-card ul "
+        b.wait_visible(".pf-v5-c-data-list__cell:contains('Slot 7')")
         b.click(slots_list + "li:last-child button[aria-label=Remove]")
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-6")
         b.click("button:contains('Remove')")
@@ -328,8 +328,8 @@ class TestStorageLuks(StorageCase):
             self.dialog_wait_open()
             self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_apply()
-            b.wait_visible(".pf-c-alert")
-            self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
+            b.wait_visible(".pf-v5-c-alert")
+            self.assertIn(b.text("h4.pf-v5-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
             self.dialog_cancel()
             # change one of the passphrases
             b.wait_visible(slots_list + "li:last-child [aria-label=Edit]")
@@ -508,7 +508,7 @@ class TestStorageNBDE(StorageCase, PackageCase):
 
         self.content_tab_wait_in_info(1, 2, "Options", "nofail")
         tab = self.content_tab_expand(1, 2)
-        panel = tab + " .pf-c-card:contains(Keys) "
+        panel = tab + " .pf-v5-c-card:contains(Keys) "
         b.wait_visible(panel)
         b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
 
@@ -639,7 +639,7 @@ class TestStorageNBDE(StorageCase, PackageCase):
         # Remove one key on client
         #
         tab = self.content_tab_expand(1, 2)
-        panel = tab + " .pf-c-card:contains(Keys) "
+        panel = tab + " .pf-v5-c-card:contains(Keys) "
         b.click(panel + 'ul li:contains("Slot 1") button[aria-label=Remove]')
         self.confirm()
         b.wait_not_present(panel + 'ul li:contains("Slot 1")')
@@ -678,7 +678,7 @@ class TestStorageNBDE(StorageCase, PackageCase):
         b.click('.sidepanel-row:contains("Encrypted partition")')
 
         tab = self.content_tab_expand(2, 2)
-        panel = tab + " .pf-c-card:contains(Keys) "
+        panel = tab + " .pf-v5-c-card:contains(Keys) "
         b.wait_visible(panel)
         b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
 

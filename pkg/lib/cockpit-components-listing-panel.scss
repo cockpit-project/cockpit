@@ -5,8 +5,8 @@
   &-actions {
     order: 2;
     flex-grow: 1;
-    padding-block: var(--pf-global--spacer--sm);
-    padding-inline: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
+    padding-block: var(--pf-v5-global--spacer--sm);
+    padding-inline: var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg);
   }
 
   &-caption {
@@ -18,19 +18,19 @@
     order: 1;
   }
 
-  .pf-c-tab-content {
+  .pf-v5-c-tab-content {
     order: 3;
     flex-basis: 100%;
   }
 
   &-body {
     // Don't let PF4 automatically add a border in tables inside the body
-    --pf-c-table__expandable-row--after--BorderLeftWidth: 0;
-    --pf-c-table--border-width--base: 0;
+    --pf-v5-c-table__expandable-row--after--BorderLeftWidth: 0;
+    --pf-v5-c-table--border-width--base: 0;
 
     // Add some sizing to the body
-    padding-block: var(--pf-global--spacer--md);
-    padding-inline: var(--pf-global--spacer--lg);
+    padding-block: var(--pf-v5-global--spacer--md);
+    padding-inline: var(--pf-v5-global--spacer--lg);
     inline-size: 100%;
 
     // Containing hack part 1
@@ -47,7 +47,7 @@
 }
 
 .ct-table {
-  > tbody > .pf-c-table__expandable-row {
+  > tbody > .pf-v5-c-table__expandable-row {
     // Don't scroll table's expanded contents vertically.
     // Instead, rely on page scrolling.
     // Important for mobile; also useful for desktop.
@@ -61,9 +61,9 @@
 
 @media not all and (prefers-reduced-motion: reduce) {
   // Add expansion animations when prefers-reduced isn't enabled
-  .ct-table .pf-c-table__expandable-row-content {
+  .ct-table .pf-v5-c-table__expandable-row-content {
     // Animation ends at or before 2/3 in most cases; so we extend by 1.5 to compensate
-    animation: ctListingPanelShow calc(var(--pf-global--TransitionDuration) * 1.5) var(--pf-global--TimingFunction);
+    animation: ctListingPanelShow calc(var(--pf-v5-global--TransitionDuration) * 1.5) var(--pf-v5-global--TimingFunction);
   }
 }
 

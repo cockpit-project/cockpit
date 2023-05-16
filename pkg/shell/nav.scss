@@ -7,9 +7,9 @@ $phone: 767px;
 $desktop: $phone + 1px;
 
 :root {
-  --ct-color-nav-menu: var(--pf-global--BackgroundColor--dark-300);
-  --ct-color-nav-highlight: var(--pf-global--BackgroundColor--dark--400);
-  --ct-color-nav-highlight-text: var(--pf-global--BackgroundColor--light-100);
+  --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--dark-300);
+  --ct-color-nav-highlight: var(--pf-v5-global--BackgroundColor--dark--400);
+  --ct-color-nav-highlight-text: var(--pf-v5-global--BackgroundColor--light-100);
   --ct-color-nav-search: #1b1b1b;
 }
 
@@ -21,27 +21,27 @@ $desktop: $phone + 1px;
 
   // Overrides for dark theme (as PF's dark theme is currently odd with nav)
   .pf-theme-dark & {
-    --ct-color-nav-menu: var(--pf-global--BackgroundColor--150);
-    --ct-color-nav-search: var(--pf-global--BackgroundColor--200);
-    --ct-color-nav-highlight: var(--pf-global--palette--gold-600);
-    --ct-color-nav-highlight-text: var(--pf-global--palette--gold-300);
+    --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--150);
+    --ct-color-nav-search: var(--pf-v5-global--BackgroundColor--200);
+    --ct-color-nav-highlight: var(--pf-v5-global--palette--gold-600);
+    --ct-color-nav-highlight-text: var(--pf-v5-global--palette--gold-300);
 
-    .pf-c-nav__link {
-      --pf-c-nav__link--hover--BackgroundColor: var(--pf-global--BackgroundColor--dark-300);
-      --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+    .pf-v5-c-nav__link {
+      --pf-v5-c-nav__link--hover--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-300);
+      --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
     }
 
-    .search .pf-c-text-input-group__text-input {
-      border-color: var(--pf-global--BorderColor--300);
+    .search .pf-v5-c-text-input-group__text-input {
+      border-color: var(--pf-v5-global--BorderColor--300);
     }
 
-    .sidebar-hosts .pf-c-nav__item {
-      --pf-c-nav__link--hover--BackgroundColor: var(--pf-global--BackgroundColor--dark-300);
-      --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+    .sidebar-hosts .pf-v5-c-nav__item {
+      --pf-v5-c-nav__link--hover--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-300);
+      --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
     }
 
     .nav-item-hint {
-      color: var(--pf-global--palette--black-300);
+      color: var(--pf-v5-global--palette--black-300);
     }
   }
 
@@ -54,71 +54,71 @@ $desktop: $phone + 1px;
   // https://github.com/patternfly/patternfly-design/issues/1112
   .search {
     background: transparent !important;
-    padding-block: var(--pf-global--spacer--md) var(--pf-global--spacer--sm);
-    padding-inline: var(--pf-global--spacer--md);
+    padding-block: var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--sm);
+    padding-inline: var(--pf-v5-global--spacer--md);
 
-    > .pf-c-text-input-group__main {
+    > .pf-v5-c-text-input-group__main {
       background: var(--ct-color-nav-search);
     }
 
-    .pf-c-text-input-group__text::after,
-    .pf-c-text-input-group__text::before {
+    .pf-v5-c-text-input-group__text::after,
+    .pf-v5-c-text-input-group__text::before {
       border: none;
     }
 
     // Adjust search icon
-    .pf-c-text-input-group__icon {
-      padding-block: var(--pf-global--spacer--md) var(--pf-global--spacer--sm) !important;
-      padding-inline: var(--pf-global--spacer--md) !important;
-      color: var(--pf-global--palette--black-200);
-      inset-inline-start: var(--pf-global--spacer--sm);
+    .pf-v5-c-text-input-group__icon {
+      padding-block: var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--sm) !important;
+      padding-inline: var(--pf-v5-global--spacer--md) !important;
+      color: var(--pf-v5-global--palette--black-200);
+      inset-inline-start: var(--pf-v5-global--spacer--sm);
     }
 
-    .pf-c-text-input-group__text-input,
-    .pf-c-text-input-group__text-input::placeholder {
-      color: var(--pf-global--palette--black-100);
+    .pf-v5-c-text-input-group__text-input,
+    .pf-v5-c-text-input-group__text-input::placeholder {
+      color: var(--pf-v5-global--palette--black-100);
     }
 
-    .pf-c-text-input-group__text-input {
+    .pf-v5-c-text-input-group__text-input {
       // Reserve space for the × icon
-      padding-inline: var(--pf-global--spacer--xl) 0;
+      padding-inline: var(--pf-v5-global--spacer--xl) 0;
       // Stroke outside, based on PF search dark mode mockups
-      border: 1px solid var(--pf-global--palette--black-700);
+      border: 1px solid var(--pf-v5-global--palette--black-700);
     }
 
     // Reposition the × icon over the entry & recolor it
-    .pf-c-text-input-group__utilities {
+    .pf-v5-c-text-input-group__utilities {
       align-self: center;
       justify-content: center;
       position: absolute;
-      inset-inline-end: var(--pf-global--spacer--sm);
-      inline-size: var(--pf-global--spacer--xl);
+      inset-inline-end: var(--pf-v5-global--spacer--sm);
+      inline-size: var(--pf-v5-global--spacer--xl);
 
       // Recolor × icon
-      > .pf-c-button {
-        color: var(--pf-global--palette--black-400);
+      > .pf-v5-c-button {
+        color: var(--pf-v5-global--palette--black-400);
 
         &:hover {
-          color: var(--pf-global--palette--black-200);
+          color: var(--pf-v5-global--palette--black-200);
         }
       }
     }
   }
 
   .nav-item-hint {
-    color: var(--pf-global--palette--black-400);
+    color: var(--pf-v5-global--palette--black-400);
     display: inline-block;
-    font-size: var(--pf-global--FontSize--sm);
-    font-weight: var(--pf-global--FontWeight--normal);
+    font-size: var(--pf-v5-global--FontSize--sm);
+    font-weight: var(--pf-v5-global--FontWeight--normal);
     inline-size: 100%;
   }
 
   .pf-m-current .nav-item-hint {
-    color: var(--pf-global--palette--black-300);
+    color: var(--pf-v5-global--palette--black-300);
   }
 
   .non-menu-item .nav-item-hint {
-    color: var(--pf-global--primary-color--light-100);
+    color: var(--pf-v5-global--primary-color--light-100);
   }
 
   // Add hover effect for clear search link
@@ -127,13 +127,13 @@ $desktop: $phone + 1px;
   }
 
   .non-menu-item {
-    color: var(--pf-c-nav__link--Color);
+    color: var(--pf-v5-c-nav__link--Color);
     display: flex;
     justify-content: center;
   }
 
   .no-results {
-    padding-block: var(--pf-global--spacer--md);
+    padding-block: var(--pf-v5-global--spacer--md);
     padding-inline: 0;
   }
 }
@@ -165,7 +165,7 @@ $desktop: $phone + 1px;
     padding-inline: 0;
     inline-size: 100%;
     text-align: center;
-    background-color: var(--pf-global--BackgroundColor--dark-300);
+    background-color: var(--pf-v5-global--BackgroundColor--dark-300);
     color: white;
   }
 }
@@ -180,12 +180,12 @@ $desktop: $phone + 1px;
 /* Desktop navigation */
 @media (min-width: $desktop) {
   // Adapt PF4's new header select for 2-up
-  .ct-topnav-content .pf-c-toolbar__item:not(.super-user-indicator) {
+  .ct-topnav-content .pf-v5-c-toolbar__item:not(.super-user-indicator) {
     // Remove the margin spacing between each
     margin-inline-end: 0;
 
     // Collapse the 2 side border lines into 1
-    + .pf-c-toolbar__item button::before {
+    + .pf-v5-c-toolbar__item button::before {
       margin-inline-start: -1px;
     }
   }
@@ -196,7 +196,7 @@ $desktop: $phone + 1px;
 
   .area-ct-subnav {
     // Make a separator between host selector & search
-    border-block-start: 1px solid var(--pf-global--Color--300);
+    border-block-start: 1px solid var(--pf-v5-global--Color--300);
   }
 
   .view-hosts .sidebar-hosts {
@@ -204,17 +204,17 @@ $desktop: $phone + 1px;
     transform-origin: top;
     position: absolute;
     inset: 0;
-    background: var(--pf-global--BackgroundColor--dark-200);
+    background: var(--pf-v5-global--BackgroundColor--dark-200);
 
     .pf-theme-dark & {
-      background: var(--pf-global--BackgroundColor--dark-300);
+      background: var(--pf-v5-global--BackgroundColor--dark-300);
     }
 
     z-index: 399; // Modals have 400 and modals should be in front of host switcher
 
     &.edit-hosts {
-      .pf-c-nav__list {
-        .pf-c-button {
+      .pf-v5-c-nav__list {
+        .pf-v5-c-button {
           animation: navHostsEditButtonsAppear 400ms;
           animation-timing-function: ease-in-out;
         }
@@ -223,31 +223,31 @@ $desktop: $phone + 1px;
   }
 
   .header {
-    border-inline-start: 1px solid var(--pf-global--BackgroundColor--dark-100);
-    background: linear-gradient(to right, var(--pf-global--BackgroundColor--dark-100) -1rem, var(--pf-global--BackgroundColor--dark-300) 1rem);
+    border-inline-start: 1px solid var(--pf-v5-global--BackgroundColor--dark-100);
+    background: linear-gradient(to right, var(--pf-v5-global--BackgroundColor--dark-100) -1rem, var(--pf-v5-global--BackgroundColor--dark-300) 1rem);
 
     .credential-unlocked {
       /* AAA contrast: simulate #a1a1a1 on #151515 */
       opacity: 0.6;
     }
 
-    .pf-c-dropdown__menu {
+    .pf-v5-c-dropdown__menu {
       // Correct the offset
       margin-block-start: -4px;
     }
   }
 
   .pf-theme-dark {
-    > .pf-c-select__toggle {
-      background-color: var(--pf-global--BackgroundColor--dark-300);
+    > .pf-v5-c-select__toggle {
+      background-color: var(--pf-v5-global--BackgroundColor--dark-300);
     }
   }
 
   .ct-switcher {
-    background-color: var(--pf-global--BackgroundColor--dark-300);
+    background-color: var(--pf-v5-global--BackgroundColor--dark-300);
 
-    > .pf-c-select > button {
-      padding-inline-start: var(--pf-global--spacer--lg);
+    > .pf-v5-c-select > button {
+      padding-inline-start: var(--pf-v5-global--spacer--lg);
     }
   }
 
@@ -285,7 +285,7 @@ $desktop: $phone + 1px;
   }
 
   .header {
-    .pf-c-toolbar__item {
+    .pf-v5-c-toolbar__item {
       margin-inline-end: 0;
     }
   }
@@ -302,24 +302,24 @@ $desktop: $phone + 1px;
   .nav-hosts-menu {
     position: absolute;
     inset-block-end: var(--nav-icon-size);
-    inset-inline-end: var(--pf-global--spacer--md);
+    inset-inline-end: var(--pf-v5-global--spacer--md);
     max-inline-size: 100vw;
   }
 
-  .pf-m-dark.pf-c-select {
-    .pf-c-select__toggle {
-      color: var(--pf-global--Color--light-100) !important;
+  .pf-m-dark.pf-v5-c-select {
+    .pf-v5-c-select__toggle {
+      color: var(--pf-v5-global--Color--light-100) !important;
       background-color: transparent;
     }
   }
 
-  .ct-switcher > .pf-c-select {
-    .pf-c-select__toggle {
+  .ct-switcher > .pf-v5-c-select {
+    .pf-v5-c-select__toggle {
       display: block;
       inline-size: auto;
     }
 
-    .pf-c-select__toggle-arrow {
+    .pf-v5-c-select__toggle-arrow {
       transform: rotate(180deg) scale(1.5);
       margin: unset;
       margin-block-start: 4px;
@@ -352,7 +352,7 @@ $desktop: $phone + 1px;
   }
 
   // Make the hosts selection fill the width of the page
-  .view-hosts .sidebar-hosts .pf-c-page__sidebar-body {
+  .view-hosts .sidebar-hosts .pf-v5-c-page__sidebar-body {
     inline-size: 100vw;
   }
 }
@@ -364,10 +364,10 @@ $desktop: $phone + 1px;
 .ct-switcher {
   block-size: 100%;
 
-  > .pf-c-select {
+  > .pf-v5-c-select {
     block-size: 100%;
 
-    .pf-c-select__toggle-text {
+    .pf-v5-c-select__toggle-text {
       text-align: start;
     }
   }
@@ -389,14 +389,14 @@ $desktop: $phone + 1px;
 }
 
 .pf-theme-dark {
-  .pf-c-select__toggle {
+  .pf-v5-c-select__toggle {
     > * {
-      color: var(--pf-global--Color--light-100);
+      color: var(--pf-v5-global--Color--light-100);
     }
   }
 }
 
-.pf-c-select__toggle {
+.pf-v5-c-select__toggle {
   block-size: 100%;
 }
 
@@ -410,7 +410,7 @@ $desktop: $phone + 1px;
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
-  scrollbar-color: var(--pf-global--Color--400) var(--pf-global--BackgroundColor--dark-200);
+  scrollbar-color: var(--pf-v5-global--Color--400) var(--pf-v5-global--BackgroundColor--dark-200);
 
   // In mobile, make the search at the top and the rest scroll
   @media (max-width: $phone) {
@@ -420,7 +420,7 @@ $desktop: $phone + 1px;
     position: sticky;
     inset-block-start: 0;
 
-    > .pf-c-nav {
+    > .pf-v5-c-nav {
       overflow: auto;
     }
   }
@@ -431,23 +431,23 @@ $desktop: $phone + 1px;
   display: flex;
   justify-content: space-between;
 
-  > .pf-c-nav__section-title:not(a) {
+  > .pf-v5-c-nav__section-title:not(a) {
     flex: auto;
   }
 
   a {
-    color: var(--pf-global--link--Color--light);
+    color: var(--pf-v5-global--link--Color--light);
     font-weight: normal;
 
     &:hover {
-      color: var(--pf-global--link--Color--light--hover);
+      color: var(--pf-v5-global--link--Color--light--hover);
     }
   }
 }
 
 .nav-system-menu {
   // Flow items, if wider (useful for mobile)
-  .pf-c-nav__list {
+  .pf-v5-c-nav__list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
 
@@ -457,13 +457,13 @@ $desktop: $phone + 1px;
   }
 
   // Give additional style to individual menu items
-  .pf-c-nav__link {
+  .pf-v5-c-nav__link {
     display: grid;
     grid-template: "name status" "match match";
     grid-template-columns: 1fr auto;
     justify-content: space-between;
-    gap: 0 var(--pf-global--spacer--md);
-    padding-inline-end: var(--pf-global--spacer--md);
+    gap: 0 var(--pf-v5-global--spacer--md);
+    padding-inline-end: var(--pf-v5-global--spacer--md);
     // In mobile, sometimes items wrap; neighbors should also fill the space
     block-size: 100%;
 
@@ -500,7 +500,7 @@ $desktop: $phone + 1px;
       &::before {
         position: absolute;
         content: "";
-        background-color: var(--pf-c-nav__link--Color);
+        background-color: var(--pf-v5-c-nav__link--Color);
         border-radius: 3px;
         inset-block: 6px;
         inset-inline: 5px;
@@ -510,11 +510,11 @@ $desktop: $phone + 1px;
 }
 
 .view-hosts .sidebar-hosts {
-  .pf-c-nav__list {
+  .pf-v5-c-nav__list {
     overflow-y: auto;
   }
 
-  .pf-c-page__sidebar-body {
+  .pf-v5-c-page__sidebar-body {
     display: grid;
     grid-template-rows: max-content max-content max-content;
 
@@ -528,7 +528,7 @@ $desktop: $phone + 1px;
     }
   }
 
-  .pf-c-nav {
+  .pf-v5-c-nav {
     overflow: auto;
   }
 
@@ -536,27 +536,27 @@ $desktop: $phone + 1px;
     --button-margin-x: 1rem;
     --button-margin-y: 0.75rem;
     display: grid;
-    gap: var(--pf-global--spacer--sm);
+    gap: var(--pf-v5-global--spacer--sm);
     margin-block: var(--button-margin-y);
     margin-inline: var(--button-margin-x);
 
     > button {
       html:not(.pf-theme-dark) & {
-        color: var(--pf-global--BackgroundColor--200);
+        color: var(--pf-v5-global--BackgroundColor--200);
 
         &::after {
-          border-color: var(--pf-global--BackgroundColor--200);
+          border-color: var(--pf-v5-global--BackgroundColor--200);
         }
       }
     }
   }
 
   .nav-item {
-    --pf-c-nav--m-dark__item--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+    --pf-v5-c-nav--m-dark__item--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
     display: grid;
     grid-template-columns: 1fr auto;
 
-    > .pf-c-nav__link {
+    > .pf-v5-c-nav__link {
       flex-direction: column;
       justify-content: center;
       word-break: break-word;
@@ -565,11 +565,11 @@ $desktop: $phone + 1px;
 
   .nav-item-actions {
     display: flex;
-    gap: var(--pf-global--spacer--xs);
-    padding-block: var(--pf-global--spacer--xs);
-    padding-inline: var(--pf-global--spacer--sm);
+    gap: var(--pf-v5-global--spacer--xs);
+    padding-block: var(--pf-v5-global--spacer--xs);
+    padding-inline: var(--pf-v5-global--spacer--sm);
     // Pull the background color over
-    background: var(--pf-c-nav__link--BackgroundColor);
+    background: var(--pf-v5-c-nav__link--BackgroundColor);
 
     @media (min-width: $desktop) {
       // Desktop has limited horizontal space, so stack these
@@ -578,21 +578,21 @@ $desktop: $phone + 1px;
     }
 
     > button {
-      --pf-c-button--m-secondary--Color: rgb(255 255 255 / 75%);
-      --pf-c-button--m-secondary--BorderColor: rgb(255 255 255 / 75%);
-      --pf-c-button--m-secondary--hover--Color: rgb(255 255 255 / 100%);
-      --pf-c-button--m-secondary--hover--BorderColor: rgb(255 255 255 / 100%);
+      --pf-v5-c-button--m-secondary--Color: rgb(255 255 255 / 75%);
+      --pf-v5-c-button--m-secondary--BorderColor: rgb(255 255 255 / 75%);
+      --pf-v5-c-button--m-secondary--hover--Color: rgb(255 255 255 / 100%);
+      --pf-v5-c-button--m-secondary--hover--BorderColor: rgb(255 255 255 / 100%);
 
       // Simulate PF4's disabled icon, but with alpha
-      --pf-c-button--disabled--BackgroundColor: rgb(255 255 255 / 17%);
-      --pf-c-button--disabled--Color: rgb(0 7 13 / 45%);
+      --pf-v5-c-button--disabled--BackgroundColor: rgb(255 255 255 / 17%);
+      --pf-v5-c-button--disabled--Color: rgb(0 7 13 / 45%);
       margin: 0;
     }
   }
 
   // Use the "current" background for actions color when item is selected
   .pf-m-current + .nav-item-actions {
-    background-color: var(--pf-c-nav__link--m-current--BackgroundColor);
+    background-color: var(--pf-v5-c-nav__link--m-current--BackgroundColor);
   }
 }
 
@@ -602,15 +602,15 @@ $desktop: $phone + 1px;
 
 // Rework navigation toggles in desktop and (especially) mobile modes
 .super-user-indicator > button,
-.ct-nav-toggle:not(.pf-c-dropdown) {
-  color: var(--pf-global--Color--light-100) !important;
+.ct-nav-toggle:not(.pf-v5-c-dropdown) {
+  color: var(--pf-v5-global--Color--light-100) !important;
   background: transparent;
 }
 
-.ct-nav-toggle:not(.pf-c-dropdown) {
+.ct-nav-toggle:not(.pf-v5-c-dropdown) {
   &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
     text-decoration: none;
-    // approximate --pf-global--BackgroundColor--dark-400, but with opacity
+    // approximate --pf-v5-global--BackgroundColor--dark-400, but with opacity
     background: rgb(249 252 255 / 32%) !important;
 
     .hostname {
@@ -620,7 +620,7 @@ $desktop: $phone + 1px;
 
   &:focus {
     text-decoration: none;
-    outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
+    outline: 1px dotted var(--pf-v5-global--BackgroundColor--light-100);
   }
 }
 
@@ -628,10 +628,10 @@ $desktop: $phone + 1px;
 // This can go away once we move the host selector inside the Masthead
 // https://github.com/patternfly/patternfly/issues/4524
 @media (max-width: $phone) {
-  .ct-nav-toggle.pf-c-dropdown {
+  .ct-nav-toggle.pf-v5-c-dropdown {
     &:hover, &:active, &.active, &.interact, &[aria-expanded="true"], &.pf-m-expanded {
       text-decoration: none;
-      // approximate --pf-global--BackgroundColor--dark-400, but with opacity
+      // approximate --pf-v5-global--BackgroundColor--dark-400, but with opacity
       background: rgb(249 252 255 / 32%);
 
       .hostname {
@@ -641,7 +641,7 @@ $desktop: $phone + 1px;
 
     &:focus {
       text-decoration: none;
-      outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
+      outline: 1px dotted var(--pf-v5-global--BackgroundColor--light-100);
     }
   }
 
@@ -652,21 +652,21 @@ $desktop: $phone + 1px;
 }
 
 .ct-locked > .ct-lock-wrapper > svg {
-  margin-inline-end: var(--pf-global--spacer--sm);
-  color: var(--pf-global--palette--gold-400);
+  margin-inline-end: var(--pf-v5-global--spacer--sm);
+  color: var(--pf-v5-global--palette--gold-400);
 }
 
 .super-user-indicator {
   @media (min-width: $desktop) {
     > .ct-locked {
       > .ct-lock-wrapper {
-        background: var(--pf-global--BackgroundColor--dark-200);
-        border-radius: var(--pf-global--BorderRadius--sm);
-        padding-block: var(--pf-global--spacer--xs);
-        padding-inline: var(--pf-global--spacer--sm);
+        background: var(--pf-v5-global--BackgroundColor--dark-200);
+        border-radius: var(--pf-v5-global--BorderRadius--sm);
+        padding-block: var(--pf-v5-global--spacer--xs);
+        padding-inline: var(--pf-v5-global--spacer--sm);
 
         > svg {
-          color: var(--pf-global--palette--gold-300);
+          color: var(--pf-v5-global--palette--gold-300);
         }
       }
 
@@ -674,7 +674,7 @@ $desktop: $phone + 1px;
         background: none;
 
         > .ct-lock-wrapper {
-          background: var(--pf-global--BackgroundColor--dark-400);
+          background: var(--pf-v5-global--BackgroundColor--dark-400);
         }
       }
     }
@@ -699,45 +699,45 @@ $desktop: $phone + 1px;
     // Stretch to navbar
     block-size: 100%;
     // Don't stretch to fill content; make optimal width same as height
-    inline-size: var(--pf-global--spacer--4xl);
+    inline-size: var(--pf-v5-global--spacer--4xl);
     // Leave enough space for 5 items (4 + spinner)
     max-inline-size: calc(100vw / 5);
     display: grid !important;
     grid-template-rows: 28px 1fr;
     justify-content: center;
     justify-items: center;
-    color: var(--pf-global--Color--light-100);
-    padding-block: var(--pf-global--spacer--sm);
-    padding-inline: var(--pf-global--spacer--xs);
+    color: var(--pf-v5-global--Color--light-100);
+    padding-block: var(--pf-v5-global--spacer--sm);
+    padding-inline: var(--pf-v5-global--spacer--xs);
     align-items: center;
 
-    > .pf-c-select__toggle-wrapper {
+    > .pf-v5-c-select__toggle-wrapper {
       flex: none;
       max-inline-size: 100%;
     }
 
     // Remove the toggled outline
-    .pf-c-select__toggle::before {
+    .pf-v5-c-select__toggle::before {
       display: none !important;
     }
     // Don't show dropdown icon
-    .pf-c-dropdown__toggle-icon {
+    .pf-v5-c-dropdown__toggle-icon {
       display: none;
     }
 
-    .pf-c-dropdown__toggle-image {
+    .pf-v5-c-dropdown__toggle-image {
       align-self: center;
       margin: 0 !important;
     }
 
-    .pf-c-select__toggle-arrow {
+    .pf-v5-c-select__toggle-arrow {
       // This is here because Chrome is weird sometimes...
       padding-block: 2px 5px;
       padding-inline: 0;
     }
   }
 
-  .ct-nav-toggle .pf-c-dropdown__menu {
+  .ct-nav-toggle .pf-v5-c-dropdown__menu {
     inset-block: auto 100%;
   }
 }
@@ -746,7 +746,7 @@ $desktop: $phone + 1px;
 .nav-hosts-menu {
   block-size: auto;
 
-  .pf-c-page__sidebar .pf-c-nav {
+  .pf-v5-c-page__sidebar .pf-v5-c-nav {
     inline-size: unset;
   }
 }
@@ -756,20 +756,20 @@ $desktop: $phone + 1px;
 .pf-theme-dark {
   // Change sidebar background color when dark
   nav,
-  .ct-switcher > .pf-c-select {
-    --ct-color-nav-menu: var(--pf-global--BackgroundColor--dark-100);
-    --pf-global--BackgroundColor--300: var(--pf-global--BackgroundColor--dark-200);
+  .ct-switcher > .pf-v5-c-select {
+    --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--dark-100);
+    --pf-v5-global--BackgroundColor--300: var(--pf-v5-global--BackgroundColor--dark-200);
   }
 
   // Redefine the background color for current links
-  .area-ct-subnav .pf-c-nav__item {
+  .area-ct-subnav .pf-v5-c-nav__item {
     > .pf-m-current, .pf-m-current + .nav-item-actions {
-      --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-200);
+      --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-200);
     }
   }
 
   // Add a border to the right of the sidebar (without affecting flow)
-  .ct-switcher > .pf-c-select,
+  .ct-switcher > .pf-v5-c-select,
   .area-ct-subnav.nav-system-menu.sidebar,
   .navbar.navbar-default navbar-pf.navbar-pf-vertical {
     &::after {

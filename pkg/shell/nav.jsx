@@ -39,10 +39,10 @@ export const SidebarToggle = () => {
     }, [active]);
 
     return (
-        <Button className={"pf-c-select__toggle ct-nav-toggle " + (active ? "active" : "")}
+        <Button className={"pf-v5-c-select__toggle ct-nav-toggle " + (active ? "active" : "")}
                 id="nav-system-item" variant="plain"
                 onClick={() => setActive(!active)}>
-            <ContainerNodeIcon className="pf-c-icon pf-m-lg" />
+            <ContainerNodeIcon className="pf-v5-c-icon pf-m-lg" />
             {_("System")}
         </Button>
     );
@@ -88,7 +88,7 @@ export class CockpitNav extends React.Component {
                 let i = all.findIndex(item => item === cur);
                 i += step;
                 if (i < 0 || i >= all.length)
-                    document.querySelector("#" + sel + " .pf-c-text-input-group__text-input").focus();
+                    document.querySelector("#" + sel + " .pf-v5-c-text-input-group__text-input").focus();
                 else
                     all[i].focus();
             }
@@ -103,7 +103,7 @@ export class CockpitNav extends React.Component {
                 focusNextItem(-1, -1);
             else if (ev.keyCode === 27) { // Escape - clean selection
                 self.setState({ search: "" });
-                document.querySelector("#" + sel + " .pf-c-text-input-group__text-input").focus();
+                document.querySelector("#" + sel + " .pf-v5-c-text-input-group__text-input").focus();
             }
         }
 
@@ -139,17 +139,17 @@ export class CockpitNav extends React.Component {
                 <SearchInput placeholder={_("Search")} value={this.state.search} onChange={(_, search) => this.setState({ search })} onClear={() => this.setState({ search: "" })} className="search" />
                 <Nav onSelect={this.onSelect} theme="dark">
                     { groups.map(g =>
-                        <section className="pf-c-nav__section" aria-labelledby={"section-title-" + g.name} key={g.name}>
+                        <section className="pf-v5-c-nav__section" aria-labelledby={"section-title-" + g.name} key={g.name}>
                             <div className="nav-group-heading">
-                                <h2 className="pf-c-nav__section-title" id={"section-title-" + g.name}>{g.name}</h2>
+                                <h2 className="pf-v5-c-nav__section-title" id={"section-title-" + g.name}>{g.name}</h2>
                                 { g.action &&
-                                    <a className="pf-c-nav__section-title nav-item" href={g.action.path} onClick={ ev => {
+                                    <a className="pf-v5-c-nav__section-title nav-item" href={g.action.path} onClick={ ev => {
                                         this.props.jump(g.action.path);
                                         ev.preventDefault();
                                     }}>{g.action.label}</a>
                                 }
                             </div>
-                            <ul className="pf-c-nav__list">
+                            <ul className="pf-v5-c-nav__list">
                                 {g.items.map(i => this.props.item_render(i, this.state.search.toLowerCase()))}
                             </ul>
                         </section>
@@ -213,11 +213,11 @@ export function CockpitNavItem(props) {
         header_matches = props.keyword === props.header.toLowerCase();
 
     const classes = props.className ? [props.className] : [];
-    classes.push("pf-c-nav__item", "nav-item");
+    classes.push("pf-v5-c-nav__item", "nav-item");
 
     return (
         <li className={classes.join(" ")}>
-            <a className={"pf-c-nav__link" + (props.active ? " pf-m-current" : "")}
+            <a className={"pf-v5-c-nav__link" + (props.active ? " pf-m-current" : "")}
                 aria-current={props.active && "page"}
                 href={cockpit.location.encode(props.to, {}, true)} onClick={ev => {
                     props.jump(props.to);

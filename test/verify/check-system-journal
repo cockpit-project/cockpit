@@ -48,7 +48,7 @@ class TestJournal(MachineCase):
                     var count = '';
                     if (e.querySelectorAll('.cockpit-log-service-container').length > 0) {
                         ident = e.querySelector('.cockpit-log-service-reduced').textContent;
-                        count = e.querySelector('.pf-c-badge').textContent;
+                        count = e.querySelector('.pf-v5-c-badge').textContent;
                     } else {
                         ident = e.querySelector('.cockpit-log-service');
                         ident = ident ? ident.textContent : "";
@@ -125,7 +125,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         })""", expected)
 
         def wait_journal_empty():
-            b.wait_in_text(".pf-c-empty-state__body", "Can not find any logs using the current combination of filters.")
+            b.wait_in_text(".pf-v5-c-empty-state__body", "Can not find any logs using the current combination of filters.")
 
         b.go("#/?priority=debug&service=log123.service")
         wait_journal_empty()
@@ -215,17 +215,17 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_log_present("JUST ERROR")
 
         # We cannot open this select with tests but we need to wait until it gets loaded
-        b.select_PF4("#journal-identifier-menu .pf-c-select__toggle", "just-a-service")
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "just-a-service")
         wait_log_not_present("JUST ERROR")
         wait_log_present("THE SERVICE")
-        b.select_PF4("#journal-identifier-menu .pf-c-select__toggle", "All")
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
         wait_log_present("JUST ERROR")
         wait_log_present("THE SERVICE")
 
         self.browser.select_PF4("#journal-prio-menu", "Error and above")
         wait_log_not_present("THE SERVICE")
         wait_log_present("JUST ERROR")
-        b.select_PF4("#journal-identifier-menu .pf-c-select__toggle", "check-journal")
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "check-journal")
         b.wait_not_present("#journal-identifier-menu + ul button:contains('just-a-service')")
 
         b.go("#/?tag=test-stream&priority=notice")
@@ -453,8 +453,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         "Load earlier entries"
                         ])
 
-        b.click("#journal-identifier-menu .pf-c-select__toggle")
-        b.wait_visible("#journal-identifier-menu .pf-c-select__toggle + ul button:contains('check-journal')")
+        b.click("#journal-identifier-menu .pf-v5-c-select__toggle")
+        b.wait_visible("#journal-identifier-menu .pf-v5-c-select__toggle + ul button:contains('check-journal')")
 
         # New messages are not streamed when 'until' is in the past
         m.execute("logger -p user.err --tag check-journal RIGHT NOW")
@@ -477,10 +477,10 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         def check_entry(msg, bin_msg):
             b.click(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
-            b.wait_text(".pf-c-card__title", msg)
+            b.wait_text(".pf-v5-c-card__title", msg)
             wait_field("FOO", "bar")
             wait_field("BIN", bin_msg)
-            b.click('.pf-c-breadcrumb li:first')
+            b.click('.pf-v5-c-breadcrumb li:first')
             b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
 
         m.execute(fr"printf 'MESSAGE={bin_data_short['MSG']}\nPRIORITY=3\nFOO=bar\nBIN={bin_data_short['BIN']}\n' | logger --journald")
@@ -498,7 +498,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         m.execute(r"printf 'PRIORITY=3\nFOO=bar\n' | logger --journald")
         self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
         b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')")
-        b.wait_text(".pf-c-card__title", "[no data]")
+        b.wait_text(".pf-v5-c-card__title", "[no data]")
 
     @nondestructive
     def testLogLevel(self):
@@ -559,8 +559,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("button:contains(Problem info)")
         wait_field("reason", "killed by SIGSEGV")
         b.click("button:contains(Problem details)")
-        b.click("#abrt-details .pf-c-accordion__toggle:contains('core_backtrace')")
-        b.wait_visible("#abrt-details .pf-c-accordion__expandable-content.pf-m-expanded dt:contains('signal') + dd:contains('11')")
+        b.click("#abrt-details .pf-v5-c-accordion__toggle:contains('core_backtrace')")
+        b.wait_visible("#abrt-details .pf-v5-c-accordion__expandable-content.pf-m-expanded dt:contains('signal') + dd:contains('11')")
 
     @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive
@@ -590,7 +590,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_in_text("#entry-heading", "sleep")
         # details view should hide log view
         b.wait_not_present("h2:contains('Crash reporting')")
-        b.wait_visible(".pf-c-card__title:contains('(sleep) crashed in')")
+        b.wait_visible(".pf-v5-c-card__title:contains('(sleep) crashed in')")
         b.wait_not_present("button.pf-m-danger:contains('Delete')")
 
     @skipImage("ABRT not available", *NO_ABRT)
@@ -630,8 +630,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
         b.click(sleep_crash_list_sel)
-        b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
-        b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef']")
+        b.click("#abrt-reporting .pf-v5-l-split:first-child button:contains('Report')")
+        b.wait_visible("#abrt-reporting .pf-v5-l-split:first-child a[href$='/reports/bthash/123deadbeef']")
 
         # "Unreport" the problem to test reporting unknown problem
         m.execute('find /var/spool/abrt -name "reported_to" -or -name "ureports_counter" | xargs rm')
@@ -644,18 +644,18 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.reload()
         b.enter_page("/system/logs")
 
-        b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Report')")
+        b.click("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') button:contains('Report')")
 
         test_user = 'correcthorsebatterystaple'
 
         # Since libreport version `2.15.2-7` bugzilla plugin only requires API key
-        b.wait_visible(".pf-c-modal-box__body input[type='password']")
-        b.set_val(".pf-c-modal-box__body input", test_user)
-        b.click(".pf-c-modal-box__footer button:contains('Send')")
+        b.wait_visible(".pf-v5-c-modal-box__body input[type='password']")
+        b.set_val(".pf-v5-c-modal-box__body input", test_user)
+        b.click(".pf-v5-c-modal-box__footer button:contains('Send')")
 
-        b.wait_not_present(".pf-c-modal-box__body p:contains('Password')")
-        b.click(".pf-c-modal-box__footer button:contains('No')")
-        b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
+        b.wait_not_present(".pf-v5-c-modal-box__body p:contains('Password')")
+        b.click(".pf-v5-c-modal-box__footer button:contains('No')")
+        b.wait_visible("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
 
     @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive
@@ -687,10 +687,10 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
 
         b.click(sleep_crash_list_sel)
-        b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Report')")
-        b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Cancel me')")
-        b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Cancel')")
-        b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Reporting was canceled')")
+        b.click("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') button:contains('Report')")
+        b.wait_visible("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') .pf-v5-l-split__item:contains('Cancel me')")
+        b.click("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') button:contains('Cancel')")
+        b.wait_visible("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') .pf-v5-l-split__item:contains('Reporting was canceled')")
 
     @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive
@@ -717,8 +717,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
         b.click(sleep_crash_list_sel)
-        b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
-        b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef']")
+        b.click("#abrt-reporting .pf-v5-l-split:first-child button:contains('Report')")
+        b.wait_visible("#abrt-reporting .pf-v5-l-split:first-child a[href$='/reports/bthash/123deadbeef']")
 
 
 if __name__ == '__main__':

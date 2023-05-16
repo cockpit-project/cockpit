@@ -19,11 +19,11 @@
 </head>
 
 <body class="login-pf">
-  <div id="banner" class="pf-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
+  <div id="banner" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
     <svg fill="currentColor" viewBox="0 0 448 512" aria-hidden="true">
       <path d="M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z" />
     </svg>
-    <span id="banner-message" class="pf-c-alert__title"></span>
+    <span id="banner-message" class="pf-v5-c-alert__title"></span>
   </div>
 
   <span id="badge"></span>
@@ -31,11 +31,11 @@
   <div class="container" id="main">
     <h1 id="brand" class="hide-before"></h1>
 
-    <div id="error-group" class="pf-c-alert pf-m-danger pf-m-inline dialog-error noscript" aria-label="inline danger alert">
+    <div id="error-group" class="pf-v5-c-alert pf-m-danger pf-m-inline dialog-error noscript" aria-label="inline danger alert">
       <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
         <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
       </svg>
-      <h2 id="login-error-message" class="pf-c-alert__title">
+      <h2 id="login-error-message" class="pf-v5-c-alert__title">
         <span class="noscript" translate>Please enable JavaScript to use the Web Console.</span>
       </h2>
     </div>
@@ -59,7 +59,7 @@
         </div>
       </div>
       <details id="login-override">
-        <summary class="pf-c-expandable-section">
+        <summary class="pf-v5-c-expandable-section">
           <svg height="16" width="16" viewBox="0 0 16 16" id="option-caret" class="caret caret-right" aria-hidden="true">
             <polygon fill="#ffffff" points="4,0 4,14 12,7"></polygon>
           </svg>
@@ -71,11 +71,11 @@
       </details>
     </div>
 
-    <div id="info-group" class="pf-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
+    <div id="info-group" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
       <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
         <path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z" />
       </svg>
-      <h2 id="login-info-message" class="pf-c-alert__title"></h2>
+      <h2 id="login-info-message" class="pf-v5-c-alert__title"></h2>
     </div>
 
     <div id="login" class="login-area" hidden>
@@ -83,9 +83,9 @@
 
         <div id="hostkey-group" class="form-group" hidden>
           <h1 id="hostkey-title"></h1>
-          <div id="hostkey-warning-group" class="pf-c-alert pf-m-warning pf-m-inline dialog-error" aria-label="inline warning alert" hidden>
+          <div id="hostkey-warning-group" class="pf-v5-c-alert pf-m-warning pf-m-inline dialog-error" aria-label="inline warning alert" hidden>
             <svg fill="currentColor" viewBox="0 0 576 512" aria-hidden="true"><path d="M569.52 440.01c18.46 32-4.71 71.99-41.58 71.99H48.05c-36.93 0-60-40.05-41.57-71.99L246.42 24c18.47-32.01 64.72-31.96 83.16 0L569.52 440zM288 354a46 46 0 100 92 46 46 0 000-92zm-43.67-165.35l7.41 136A12 12 0 00263.74 336h48.54a12 12 0 0011.98-11.35l7.42-136A12 12 0 00319.7 176h-63.38a12 12 0 00-11.98 12.65z"/></svg>
-            <h2 translate class="pf-c-alert__title">Changed keys are often the result of an operating system reinstallation. However, an unexpected change may indicate a third-party attempt to intercept your connection.</h2>
+            <h2 translate class="pf-v5-c-alert__title">Changed keys are often the result of an operating system reinstallation. However, an unexpected change may indicate a third-party attempt to intercept your connection.</h2>
               </div>
           <p id="hostkey-message-1"></p>
           <p translate>To ensure that your connection is not intercepted by a malicious third-party, please verify the host key fingerprint:</p>
@@ -106,7 +106,7 @@
           <label for="login-password-input" class="control-label" translate>Password</label>
           <div class="password-with-toggle">
             <input type="password" class="form-control" id="login-password-input" autocomplete="current-password">
-            <button type="button" id="login-password-toggle" class="pf-c-button pf-m-control login-password-toggle" aria-label="Show password">
+            <button type="button" id="login-password-toggle" class="pf-v5-c-button pf-m-control login-password-toggle" aria-label="Show password">
               <svg fill="currentColor" aria-hidden="true" viewBox="0 0 640 512">
                 <path class="password-show" d="M572.52 241.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400a144 144 0 1 1 144-144 143.93 143.93 0 0 1-144 144zm0-240a95.31 95.31 0 0 0-25.31 3.79 47.85 47.85 0 0 1-66.9 66.9A95.78 95.78 0 1 0 288 160z"/>
                 <path class="password-hide" d="M320 400c-75.85 0-137.25-58.71-142.9-133.11L72.2 185.82c-13.79 17.3-26.48 35.59-36.72 55.59a32.35 32.35 0 0 0 0 29.19C89.71 376.41 197.07 448 320 448c26.91 0 52.87-4 77.89-10.46L346 397.39a144.13 144.13 0 0 1-26 2.61zm313.82 58.1-110.55-85.44a331.25 331.25 0 0 0 81.25-102.07 32.35 32.35 0 0 0 0-29.19C550.29 135.59 442.93 64 320 64a308.15 308.15 0 0 0-147.32 37.7L45.46 3.37A16 16 0 0 0 23 6.18L3.37 31.45A16 16 0 0 0 6.18 53.9l588.36 454.73a16 16 0 0 0 22.46-2.81l19.64-25.27a16 16 0 0 0-2.82-22.45zm-183.72-142-39.3-30.38A94.75 94.75 0 0 0 416 256a94.76 94.76 0 0 0-121.31-92.21A47.65 47.65 0 0 1 304 192a46.64 46.64 0 0 1-1.54 10l-73.61-56.89A142.31 142.31 0 0 1 320 112a143.92 143.92 0 0 1 144 144c0 21.63-5.29 41.79-13.9 60.11z"/>
@@ -141,7 +141,7 @@
         </div>
 
         <div class="form-group login-actions">
-          <button class="pf-c-button pf-m-primary login-button" id="login-button" type="submit">
+          <button class="pf-v5-c-button pf-m-primary login-button" id="login-button" type="submit">
             <span class="spinner"></span>
             <span id="login-button-text" class="button-text" translate>Log in</span>
           </button>
@@ -157,7 +157,7 @@
 
     <div id="login-fatal" hidden>
       <div id="login-fatal-message"></div>
-      <a id="login-again" class="pf-c-button pf-m-primary" href="#" translate hidden>Try again</a>
+      <a id="login-again" class="pf-v5-c-button pf-m-primary" href="#" translate hidden>Try again</a>
     </div>
   </div>
 

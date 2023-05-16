@@ -5,8 +5,8 @@
 @import "@patternfly/patternfly/utilities/Flex/flex.scss";
 
 // https://github.com/patternfly/patternfly-react/issues/5993
-.pf-c-popover.pf-m-width-auto {
-  --pf-c-popover--MaxWidth: min(300px, 90%);
+.pf-v5-c-popover.pf-m-width-auto {
+  --pf-v5-c-popover--MaxWidth: min(300px, 90%);
 }
 
 #journal {
@@ -16,32 +16,32 @@
     border: none;
   }
 
-  .pf-c-page__main {
+  .pf-v5-c-page__main {
     // Constrain page to viewport height, so journal can overflow
     max-block-size: 100vh;
   }
 
   // Static width for the service selector as it likes to resize a lot while loading
-  #journal-identifier-menu ul.pf-c-select__menu {
+  #journal-identifier-menu ul.pf-v5-c-select__menu {
     inline-size: 10rem;
   }
 
   // Long names without spaces do not wrap; triggers overflow and overlaps with check icon
-  #journal-identifier-menu .pf-c-select__menu-item {
+  #journal-identifier-menu .pf-v5-c-select__menu-item {
     white-space: normal;
   }
 }
 
 #log-details {
-  .pf-l-gallery {
-    --pf-l-gallery--GridTemplateColumns: 1fr;
+  .pf-v5-l-gallery {
+    --pf-v5-l-gallery--GridTemplateColumns: 1fr;
   }
 
-  .pf-c-page__main-breadcrumb {
-    padding: var(--pf-global--gutter);
+  .pf-v5-c-page__main-breadcrumb {
+    padding: var(--pf-v5-global--gutter);
   }
 
-  .pf-c-card__title,
+  .pf-v5-c-card__title,
   .multiline {
     word-break: break-all;
     white-space: pre-wrap !important;
@@ -51,18 +51,18 @@
     font-family: monospace, monospace;
   }
 
-  .pf-l-split {
-    padding-block-end: var(--pf-global--gutter);
+  .pf-v5-l-split {
+    padding-block-end: var(--pf-v5-global--gutter);
     align-items: center;
   }
 
-  .pf-c-description-list {
-    --pf-c-description-list--m-horizontal__term--width: 25ch;
+  .pf-v5-c-description-list {
+    --pf-v5-c-description-list--m-horizontal__term--width: 25ch;
   }
 
   // For abrt log details: add some gutter between the tabs and their content
-  .pf-c-tab-content > .pf-c-description-list {
-    padding-block-start: var(--pf-global--spacer--md);
+  .pf-v5-c-tab-content > .pf-v5-c-description-list {
+    padding-block-start: var(--pf-v5-global--spacer--md);
   }
 
   .table-hide-labels {
@@ -76,7 +76,7 @@
   }
 
   // Let the description list set the color, not the wrapper accordion component
-  .pf-c-accordion__expanded-content {
+  .pf-v5-c-accordion__expanded-content {
     color: unset;
   }
 }
@@ -87,20 +87,20 @@
   .panel-heading {
     position: sticky;
     inset-block-start: 0;
-    color: var(--pf-global--Color--300);
-    background-color: var(--pf-global--BackgroundColor--100);
+    color: var(--pf-v5-global--Color--300);
+    background-color: var(--pf-v5-global--BackgroundColor--100);
     border: none;
-    font-size: var(--pf-global--FontSize--md);
-    font-family: var(--pf-global--FontFamily--heading--sans-serif);
-    font-weight: var(--pf-global--FontWeight--bold);
-    padding-block: var(--pf-global--spacer--lg) var(--pf-global--spacer--sm);
-    padding-inline: var(--pf-global--spacer--lg);
+    font-size: var(--pf-v5-global--FontSize--md);
+    font-family: var(--pf-v5-global--FontFamily--heading--sans-serif);
+    font-weight: var(--pf-v5-global--FontWeight--bold);
+    padding-block: var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--sm);
+    padding-inline: var(--pf-v5-global--spacer--lg);
   }
 }
 
 .pf-theme-dark {
   #journal-box .panel-heading {
-    color: var(--pf-global--Color--400);
+    color: var(--pf-v5-global--Color--400);
   }
 }
 
@@ -113,36 +113,36 @@
   margin-block-end: 0;
 }
 
-.pf-c-toolbar {
-  --pf-c-toolbar--BackgroundColor: var(--pf-c-page__main-section--BackgroundColor);
+.pf-v5-c-toolbar {
+  --pf-v5-c-toolbar--BackgroundColor: var(--pf-v5-c-page__main-section--BackgroundColor);
 
   // Make toolbar stretch to all the available space and wrap up to two lines
-  .pf-c-toolbar__group:nth-child(3) {
+  .pf-v5-c-toolbar__group:nth-child(3) {
     flex-grow: 1;
   }
 
   // Make text filter stretch to all the available space
-  .pf-c-toolbar__item.text-search, #journal-grep {
+  .pf-v5-c-toolbar__item.text-search, #journal-grep {
     flex-grow: 1;
   }
 
   .text-help {
-    padding-inline-start: var(--pf-global--spacer--xs);
+    padding-inline-start: var(--pf-v5-global--spacer--xs);
   }
 
   // Hide filters from advanced search dropdown entries which already exist in the toolbar
-  #journal-grep .pf-c-panel__main-body {
-    .pf-c-form__group:nth-child(5), .pf-c-form__group:nth-child(6) {
+  #journal-grep .pf-v5-c-panel__main-body {
+    .pf-v5-c-form__group:nth-child(5), .pf-v5-c-form__group:nth-child(6) {
       display: none;
     }
   }
 
-  .pf-c-toolbar__expandable-content.pf-m-expanded .pf-c-divider {
+  .pf-v5-c-toolbar__expandable-content.pf-m-expanded .pf-v5-c-divider {
     display: none;
   }
 
   // FIXME: When porting the selects to the PF5 select implementation drop this
-  .pf-c-toolbar__item {
+  .pf-v5-c-toolbar__item {
     align-self: center;
   }
 }

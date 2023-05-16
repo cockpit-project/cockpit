@@ -4,23 +4,23 @@
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
 /* Style the list cards as ct-cards */
-.pf-c-page__main-section .pf-c-card {
+.pf-v5-c-page__main-section .pf-v5-c-card {
   @extend .ct-card;
 }
 
-.pf-c-table tr:nth-child(1) {
+.pf-v5-c-table tr:nth-child(1) {
   > td, th {
-    --pf-c-table--cell--PaddingTop: var(--pf-global--spacer--sm);
-    --pf-c-table--cell--PaddingBottom: var(--pf-global--spacer--sm);
+    --pf-v5-c-table--cell--PaddingTop: var(--pf-v5-global--spacer--sm);
+    --pf-v5-c-table--cell--PaddingBottom: var(--pf-v5-global--spacer--sm);
 
-    padding-block: var(--pf-c-table--cell--PaddingTop) var(--pf-c-table--cell--PaddingBottom);
+    padding-block: var(--pf-v5-c-table--cell--PaddingTop) var(--pf-v5-c-table--cell--PaddingBottom);
 
-    padding-inline: var(--pf-c-table--cell--PaddingLeft) var(--pf-c-table--cell--PaddingRight);
+    padding-inline: var(--pf-v5-c-table--cell--PaddingLeft) var(--pf-v5-c-table--cell--PaddingRight);
   }
 }
 
-.kpatches-labelgroup ul.pf-c-label-group__list,
-.kpatches-labelgroup li.pf-c-label-group__list-item:last-child, {
+.kpatches-labelgroup ul.pf-v5-c-label-group__list,
+.kpatches-labelgroup li.pf-v5-c-label-group__list-item:last-child, {
   margin-block-end: 0;
 }
 
@@ -33,7 +33,7 @@
   padding-inline: 0;
 
   &--actions {
-    > .pf-c-button,
+    > .pf-v5-c-button,
     > .btn-group {
       margin-block: 5px 0;
       margin-inline: 0 5px;
@@ -52,13 +52,13 @@
 }
 
 // Make header's content bold
-.pf-c-table tr:nth-child(1) td:nth-child(2) {
-  font-weight: var(--pf-global--FontWeight--bold);
+.pf-v5-c-table tr:nth-child(1) td:nth-child(2) {
+  font-weight: var(--pf-v5-global--FontWeight--bold);
 }
 
 .ct-table tr {
   .severity-icon {
-    margin-inline-end: var(--pf-global--spacer--xs);
+    margin-inline-end: var(--pf-v5-global--spacer--xs);
   }
 
   td.changelog {
@@ -120,19 +120,19 @@ div.changelog {
   margin-block: 10ex 0;
   margin-inline: auto;
 
-  .pf-l-grid {
+  .pf-v5-l-grid {
     align-items: end;
   }
 }
 
 /* workaround font not supporting tabular numbers yet https://github.com/cockpit-project/cockpit/issues/15090 */
-.pf-c-progress__status {
+.pf-v5-c-progress__status {
   min-inline-size: 3ch;
 }
 
 /* Add some space between the spinner and the text */
 .progress-description > svg {
-  margin-inline-end: var(--pf-global--spacer--sm);
+  margin-inline-end: var(--pf-v5-global--spacer--sm);
 }
 
 .flow-list-blank-slate {
@@ -208,11 +208,11 @@ table.header-buttons {
 
 .auto-update-group {
   // Add spacing between rows for when the flex items wrap
-  row-gap: var(--pf-global--spacer--sm);
+  row-gap: var(--pf-v5-global--spacer--sm);
 }
 
-.pk-updates .pf-c-description-list + div {
-  padding-block-start: var(--pf-global--spacer--md);
+.pk-updates .pf-v5-c-description-list + div {
+  padding-block-start: var(--pf-v5-global--spacer--md);
 }
 
 .restart-services-modal-body {
@@ -220,7 +220,7 @@ table.header-buttons {
   padding-inline: 0;
 }
 
-.pf-c-content ul {
+.pf-v5-c-content ul {
   list-style-type: none;
 }
 
@@ -246,30 +246,30 @@ table.header-buttons {
 }
 
 .update-success-actions > button {
-  margin-block: var(--pf-global--spacer--xs);
-  margin-inline: var(--pf-global--spacer--sm) 0;
+  margin-block: var(--pf-v5-global--spacer--xs);
+  margin-inline: var(--pf-v5-global--spacer--sm) 0;
 }
 
 .update-success-table-title {
-  padding-inline-start: var(--pf-global--spacer--sm);
+  padding-inline-start: var(--pf-v5-global--spacer--sm);
 }
 
 .cockpit-update-warning {
-  margin-inline-end: var(--pf-global--spacer--md);
+  margin-inline-end: var(--pf-v5-global--spacer--md);
 }
 
 .cockpit-update-warning-icon {
-  margin-inline-end: var(--pf-global--spacer--sm);
+  margin-inline-end: var(--pf-v5-global--spacer--sm);
 }
 
 .cockpit-update-warning-text {
-  color: var(--pf-global--warning-color--200);
+  color: var(--pf-v5-global--warning-color--200);
 }
 
 .autoupdates-card-error {
-  margin-block-end: var(--pf-global--spacer--md);
+  margin-block-end: var(--pf-v5-global--spacer--md);
 }
 
 .ct-info-circle {
-  color: var(--pf-global--info-color--100);
+  color: var(--pf-v5-global--info-color--100);
 }

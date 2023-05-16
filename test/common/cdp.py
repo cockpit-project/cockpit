@@ -323,8 +323,7 @@ class CDP:
             src = src.replace('function assert( fn ) {', 'function assert( fn ) { if (true) return true; else ')
             # HACK: sizzle tracks document and when we switch frames, it sees the old document
             # although we execute it in different context.
-            if (self.browser.name == "firefox"):
-                src = src.replace('context = context || document;', 'context = context || window.document;')
+            src = src.replace('context = context || document;', 'context = context || window.document;')
             self.invoke("Page.addScriptToEvaluateOnNewDocument", source=src, no_trace=True)
 
         if self.start_profile:

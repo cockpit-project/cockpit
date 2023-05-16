@@ -68,15 +68,15 @@ class TestTuned(MachineCase):
 
         b.wait_text('#tuned-status-button', recommended_profile)
         b.click('#tuned-status-button')
-        title_selector = ".pf-c-modal-box__header:contains('Change performance profile')"
+        title_selector = ".pf-v5-c-modal-box__header:contains('Change performance profile')"
         b.wait_visible(title_selector)
-        body_selector = ".pf-c-modal-box:contains('Change performance profile')"
+        body_selector = ".pf-v5-c-modal-box:contains('Change performance profile')"
         b.wait_visible(f"{body_selector} li > button.pf-m-selected p")
 
         # Make sure we see the recommended profile and its badges
         b.wait_in_text(f"{body_selector} li > button.pf-m-selected p", recommended_profile)
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-c-label:contains('recommended')")
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-c-label:contains('active')")
+        b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-v5-c-label:contains('recommended')")
+        b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-v5-c-label:contains('active')")
 
         b.click(f"{body_selector} li > button p:contains('balanced')")
         b.wait_visible(f"{body_selector} li > button.pf-m-selected p:contains('balanced')")

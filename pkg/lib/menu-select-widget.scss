@@ -3,24 +3,24 @@
 // A menu gives us the interaction we want, but the styling is a bit off.
 // Therefore, we're changing the visuals here locally.
 // PF4 upstream request for multi-select @ https://github.com/patternfly/patternfly/issues/4027
-.ct-menu-select-widget.pf-c-menu {
+.ct-menu-select-widget.pf-v5-c-menu {
   // Divider is silly between the widgets in this context
-  .pf-c-divider {
+  .pf-v5-c-divider {
     display: none;
 
-    + .pf-c-menu__content {
+    + .pf-v5-c-menu__content {
       // There should be minimal space between the widgets (replacing the divider)
-      margin-block-start: var(--pf-global--spacer--sm);
+      margin-block-start: var(--pf-v5-global--spacer--sm);
     }
   }
 
-  .pf-c-menu__content {
+  .pf-v5-c-menu__content {
     // An overflow multi-select widget needs an outline
-    border: 1px solid var(--pf-global--BorderColor--100);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
   }
 
   // Search should not be inset when there's no border containing it
-  .pf-c-menu__search {
+  .pf-v5-c-menu__search {
     padding: 0;
   }
 
@@ -29,7 +29,7 @@
   // when active but also keep the background color when the list loses
   // focus (such as when the keyboard or mouse navigates outside,
   // including initial rendering of the list.
-  .pf-c-menu__list:not(:focus-within) .pf-m-selected {
-    background-color: var(--pf-c-menu__list-item--hover--BackgroundColor);
+  .pf-v5-c-menu__list:not(:focus-within) .pf-m-selected {
+    background-color: var(--pf-v5-c-menu__list-item--hover--BackgroundColor);
   }
 }

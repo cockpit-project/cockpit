@@ -5,19 +5,19 @@
 
 /* Globally resize headings */
 h1 {
-  --ct-heading-font-size: var(--pf-global--FontSize--4xl);
+  --ct-heading-font-size: var(--pf-v5-global--FontSize--4xl);
 }
 
 h2 {
-  --ct-heading-font-size: var(--pf-global--FontSize--3xl);
+  --ct-heading-font-size: var(--pf-v5-global--FontSize--3xl);
 }
 
 h3 {
-  --ct-heading-font-size: var(--pf-global--FontSize--2xl);
+  --ct-heading-font-size: var(--pf-v5-global--FontSize--2xl);
 }
 
 h4 {
-  --ct-heading-font-size: var(--pf-global--FontSize--lg);
+  --ct-heading-font-size: var(--pf-v5-global--FontSize--lg);
 }
 
 // Only apply a custom font size when a heading does NOT have a PF4 class
@@ -42,11 +42,11 @@ a {
   min-inline-size: 26px;
 }
 
-.btn.disabled, .pf-c-button.disabled {
+.btn.disabled, .pf-v5-c-button.disabled {
   pointer-events: auto;
 }
 
-.btn.disabled:hover, .pf-c-button.disabled:hover {
+.btn.disabled:hover, .pf-v5-c-button.disabled:hover {
   z-index: auto;
 }
 
@@ -104,7 +104,7 @@ a.disabled:hover {
   /* Right align footer idle messages after the buttons */
   margin-inline-start: auto;
   display: flex;
-  column-gap: var(--pf-global--spacer--sm);
+  column-gap: var(--pf-v5-global--spacer--sm);
   align-items: center;
 }
 
@@ -113,24 +113,24 @@ a.disabled:hover {
   --ct-color-light-red: #f8cccc;
   --ct-color-red-hat-red : #e00;
 
-  // Blend between --pf-global--palette--black-200 and 300
+  // Blend between --pf-v5-global--palette--black-200 and 300
   --ct-global--palette--black-250: #e6e6e6;
 
   /* Semantic colors */
-  --ct-color-fg: var(--pf-global--color--100);
-  --ct-color-bg: var(--pf-global--BackgroundColor--100);
+  --ct-color-fg: var(--pf-v5-global--color--100);
+  --ct-color-bg: var(--pf-v5-global--BackgroundColor--100);
   --ct-color-text: var(--ct-color-fg);
 
-  --ct-color-link        : var(--pf-global--active-color--100);
-  --ct-color-link-visited: var(--pf-global--active-color--100);
+  --ct-color-link        : var(--pf-v5-global--active-color--100);
+  --ct-color-link-visited: var(--pf-v5-global--active-color--100);
 
-  --ct-color-subtle-copy: var(--pf-global--disabled-color--100);
+  --ct-color-subtle-copy: var(--pf-v5-global--disabled-color--100);
 
   // General border color (semantic shortcut, instead of specifying the color directly)
-  --ct-color-border: var(--pf-global--BorderColor--100);
+  --ct-color-border: var(--pf-v5-global--BorderColor--100);
 
   // Used for highlighting link blocks (with a light background blue)
-  --ct-color-link-hover-bg  : var(--pf-global--palette--light-blue-100);
+  --ct-color-link-hover-bg  : var(--pf-v5-global--palette--light-blue-100);
 
   /* Colors used for custom lists */
   // as seen in Journal, Listing, Table widgets and pages like Machines, Updates, Services
@@ -139,24 +139,24 @@ a.disabled:hover {
   --ct-color-list-bg                 : var(--ct-color-bg);
   --ct-color-list-border             : var(--ct-color-border);
   --ct-color-list-hover-text         : var(--ct-color-link);
-  --ct-color-list-hover-bg           : var(--pf-global--BackgroundColor--150);
-  --ct-color-list-hover-border       : var(--pf-global--BackgroundColor--150);
-  --ct-color-list-hover-icon         : var(--pf-global--palette--light-blue-400);
+  --ct-color-list-hover-bg           : var(--pf-v5-global--BackgroundColor--150);
+  --ct-color-list-hover-border       : var(--pf-v5-global--BackgroundColor--150);
+  --ct-color-list-hover-icon         : var(--pf-v5-global--palette--light-blue-400);
   --ct-color-list-selected-text      : var(--ct-color-link);
-  --ct-color-list-selected-bg        : var(--pf-global--BackgroundColor--150);
-  --ct-color-list-selected-border    : var(--pf-global--BackgroundColor--150);
-  --ct-color-list-active-text        : var(--pf-global--palette--blue-500);
+  --ct-color-list-selected-bg        : var(--pf-v5-global--BackgroundColor--150);
+  --ct-color-list-selected-border    : var(--pf-v5-global--BackgroundColor--150);
+  --ct-color-list-active-text        : var(--pf-v5-global--palette--blue-500);
   --ct-color-list-active-bg          : var(--ct-color-bg);
   --ct-color-list-active-border      : var(--ct-color-list-border);
-  --ct-color-list-critical-bg        : var(--pf-global--palette--red-50);
+  --ct-color-list-critical-bg        : var(--pf-v5-global--palette--red-50);
   --ct-color-list-critical-border    : #e6bcbc; // red-500 mixed with white @ 50%
-  --ct-color-list-critical-alert-text: var(--pf-global--palette--red-200);
+  --ct-color-list-critical-alert-text: var(--pf-v5-global--palette--red-200);
 }
 
 .pf-theme-dark {
   --ct-color-list-critical-bg        : #261213; // red-100 mixed with black-850 @ 20%
-  --ct-color-list-critical-border    : var(--pf-global--danger-color--200);
-  --ct-color-list-critical-alert-text: var(--pf-global--palette--red-8888);
+  --ct-color-list-critical-border    : var(--pf-v5-global--danger-color--200);
+  --ct-color-list-critical-alert-text: var(--pf-v5-global--palette--red-8888);
 }
 
 [hidden] { display: none !important; }
@@ -172,22 +172,22 @@ html:not(.index-page) body {
 }
 
 .ct-icon-info-circle {
-  color: var(--pf-global--info-color--100);
+  color: var(--pf-v5-global--info-color--100);
 }
 
 .ct-icon-exclamation-triangle {
-  color: var(--pf-global--warning-color--100);
+  color: var(--pf-v5-global--warning-color--100);
 }
 
 .ct-icon-times-circle {
-  color: var(--pf-global--danger-color--100);
+  color: var(--pf-v5-global--danger-color--100);
 }
 
 // Action buttons in headers add extra space. Offset that with a negative margin
 // to compensate, so headings are always the same height regardless of action
 // buttons or not.
-.pf-c-page__main-breadcrumb .pf-c-button {
-  --offset: calc(-1 * var(--pf-global--spacer--sm));
+.pf-v5-c-page__main-breadcrumb .pf-v5-c-button {
+  --offset: calc(-1 * var(--pf-v5-global--spacer--sm));
   margin-block: var(--offset);
 }
 

@@ -50,7 +50,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
         b.click("#delay")
         b.click("button:contains('No delay')")
-        b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
+        b.wait_text("#delay .pf-v5-c-select__toggle-text", "No delay")
         b.click(f"#shutdown-dialog button{self.danger_btn_class}")
         b.switch_to_top()
 
@@ -93,12 +93,12 @@ class TestShutdownRestart(MachineCase):
         b2.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
         b2.click("#delay")
         b2.click("button:contains('No delay')")
-        b2.wait_text("#delay .pf-c-select__toggle-text", "No delay")
+        b2.wait_text("#delay .pf-v5-c-select__toggle-text", "No delay")
         b2.click(f"#shutdown-dialog button{self.danger_btn_class}")
         b2.switch_to_top()
 
         b2.wait_visible(".curtains-ct")
-        b2.wait_visible(".curtains-ct .pf-c-spinner")
+        b2.wait_visible(".curtains-ct .pf-v5-c-spinner")
         b2.wait_in_text(".curtains-ct h1", "rebooting")
 
         m.wait_reboot()
@@ -123,7 +123,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_not_present("#delay-helper")
         b.click("#delay")
         b.click("button:contains('Specific time')")
-        b.wait_text("#delay .pf-c-select__toggle-text", "Specific time")
+        b.wait_text("#delay .pf-v5-c-select__toggle-text", "Specific time")
         b.wait_not_val("#shutdown-time-input", "")
         b.wait_not_present("#delay-helper")
         old = b.val("#shutdown-time-input")
@@ -146,7 +146,7 @@ class TestShutdownRestart(MachineCase):
         b.click("button[aria-label='Toggle date picker']")
         today_label = m.execute("date +'%-d %B %Y'").strip()
         today_format = m.execute("date +'%-m/%-d/%Y'").strip()
-        b.click(f".pf-c-calendar-month__dates-cell:not(.pf-m-adjacent-month) button[aria-label='{today_label}']")
+        b.click(f".pf-v5-c-calendar-month__dates-cell:not(.pf-m-adjacent-month) button[aria-label='{today_label}']")
         b.wait_val(".shutdown-date-picker input", today_format)
         b.blur(".shutdown-date-picker input")
 

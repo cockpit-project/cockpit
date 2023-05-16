@@ -142,7 +142,7 @@ OnCalendar=daily
         b.switch_to_top()
         self.checkDocs(["Configuring system settings"])
         b.click_system_menu("/system/services")
-        b.wait_visible("ol.pf-c-breadcrumb__list")
+        b.wait_visible("ol.pf-v5-c-breadcrumb__list")
         b.wait_text(".service-name", "Test Service")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
@@ -208,7 +208,7 @@ OnCalendar=daily
         # TestSystemInfo.testHardwareInfo does this more carefully
         b.go("/system/hwinfo")
         b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(3) dd', " 20")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(3) dd', " 20")
 
         # Check the playground page
         b.switch_to_top()
@@ -431,7 +431,7 @@ OnCalendar=daily
 
         self.login_and_go()
 
-        filter_sel = ".pf-c-text-input-group__text-input"
+        filter_sel = ".pf-v5-c-text-input-group__text-input"
 
         # Check that some page disappears and some stay
         b.focus(filter_sel)
@@ -712,7 +712,7 @@ OnCalendar=daily
         b.switch_to_top()
         b.wait_visible("#development-info")
         b.mouse("#development-info", "mouseenter")
-        b.wait_in_text(".pf-c-tooltip", "My Little Page Status")
+        b.wait_in_text(".pf-v5-c-tooltip", "My Little Page Status")
         b.mouse("#development-info", "mouseleave")
 
         b.go("/playground/notifications-receiver")

@@ -72,7 +72,7 @@ class TestKdump(KdumpHelpers):
         b.wait_visible("#app")
 
         def assertActive(active):
-            b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
+            b.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
         if m.image.startswith("rhel-") or m.image in ["centos-8-stream"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
@@ -80,10 +80,10 @@ class TestKdump(KdumpHelpers):
             assertActive(True)
         else:
             # crashkernel command line not set
-            b.wait_visible(".pf-c-switch__input:disabled")
+            b.wait_visible(".pf-v5-c-switch__input:disabled")
             # right now we have no memory reserved
             b.mouse("span + div > .popover-ct-kdump", "mouseenter")
-            b.wait_in_text(".pf-c-tooltip", "No memory reserved.")
+            b.wait_in_text(".pf-v5-c-tooltip", "No memory reserved.")
             b.mouse("span + div >.popover-ct-kdump", "mouseleave")
             # newer kdump.service have `ConditionKernelCommandLine=crashkernel` which fails gracefully
             unit = m.execute("systemctl cat kdump.service")
@@ -153,7 +153,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text(pathInput, customPath)
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # we should get an error
-        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title",
+        b.wait_in_text("#kdump-settings-dialog h4.pf-v5-c-alert__title",
                        "Unable to save settings: Directory /var/crash2 isn't writable or doesn't exist")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
@@ -409,10 +409,10 @@ class TestKdumpNFS(KdumpHelpers):
             b.wait_not_present("#kdump-settings-dialog")
 
         # enable service, regenerates initrd and tests NFS settings
-        b.wait_visible(".pf-c-switch__input:not(:checked)")
-        b.click(".pf-c-switch__input")
+        b.wait_visible(".pf-v5-c-switch__input:not(:checked)")
+        b.click(".pf-v5-c-switch__input")
         with b.wait_timeout(300):
-            b.wait_visible(".pf-c-switch__input:checked")
+            b.wait_visible(".pf-v5-c-switch__input:checked")
         b.wait_in_text("#app", "Service is running")
 
         # explicit nfs option, unset path
@@ -428,16 +428,16 @@ class TestKdumpNFS(KdumpHelpers):
 
         # set custom path
         self.login_and_go("/kdump")
-        b.wait_visible(".pf-c-switch__input:checked")
+        b.wait_visible(".pf-v5-c-switch__input:checked")
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_input_text("#kdump-settings-nfs-directory", "dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # dumps directory does not exist, error
-        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-v5-c-alert__title", "Unable to save settings")
         # also shows error details
-        b.click("#kdump-settings-dialog div.pf-c-alert__toggle button")
-        b.wait_in_text("#kdump-settings-dialog .pf-c-code-block__code", 'does not exist in dump target "10.111.113.2:/srv/kdump"')
+        b.click("#kdump-settings-dialog div.pf-v5-c-alert__toggle button")
+        b.wait_in_text("#kdump-settings-dialog .pf-v5-c-code-block__code", 'does not exist in dump target "10.111.113.2:/srv/kdump"')
         # create the directory on the NFS server
         self.machines["nfs"].execute("mkdir /srv/kdump/dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
@@ -447,7 +447,7 @@ class TestKdumpNFS(KdumpHelpers):
         self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
         self.assertIn("\npath dumps\n", conf)
 
-        b.wait_visible(".pf-c-switch__input:checked")
+        b.wait_visible(".pf-v5-c-switch__input:checked")
 
         self.crashKernel()
         self.assertIn("Kdump compressed dump",

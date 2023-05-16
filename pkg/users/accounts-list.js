@@ -145,7 +145,7 @@ const getGroupRow = (group, accounts, isUserCreatedGroup) => {
         columns.push(
             {
                 title: <GroupActions group={group} accounts={accounts} isUserCreatedGroup={isUserCreatedGroup} />,
-                props: { className: "pf-c-table__action" }
+                props: { className: "pf-v5-c-table__action" }
             }
         );
     }
@@ -211,7 +211,7 @@ const getAccountRow = (account, current, groups) => {
         },
         {
             title: <UserActions account={account} />,
-            props: { className: "pf-c-table__action" }
+            props: { className: "pf-v5-c-table__action" }
         },
     ];
 
@@ -322,7 +322,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
                     'aria-label': _("Groups"),
                     'aria-expanded': isExpanded
                 }}>
-                <CardTitle className="pf-l-flex pf-m-space-items-sm pf-m-align-items-center">
+                <CardTitle className="pf-v5-l-flex pf-m-space-items-sm pf-m-align-items-center">
                     <Text component={TextVariants.h2}>{_("Groups")}</Text>
                     {(!isExpanded && !groups.length) && <HelperText> <HelperTextItem variant="indeterminate">{_("Loading...")}</HelperTextItem></HelperText>}
                     {(!isExpanded && filtered_groups.length > 0) && <>

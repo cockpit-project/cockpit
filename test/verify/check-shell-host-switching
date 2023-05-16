@@ -240,7 +240,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_text_not("#system_information_systime_button", "")
         b.click(".system-information a")  # View hardware details
         b.enter_page("/system/hwinfo", "10.111.113.3")
-        b.click(".pf-c-breadcrumb li:first-child")
+        b.click(".pf-v5-c-breadcrumb li:first-child")
         b.enter_page("/system", "10.111.113.3")
         b.wait_in_text(".ct-overview-header-hostname", "machine3")
 
@@ -363,7 +363,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("button:contains('Edit hosts')")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
-        b.wait_visible('#hosts_setup_server_dialog .pf-c-modal-box__title:contains("Edit host")')
+        b.wait_visible('#hosts_setup_server_dialog .pf-v5-c-modal-box__title:contains("Edit host")')
         b.set_input_text('#add-machine-user', 'hera')
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         with b.wait_timeout(30):
@@ -414,7 +414,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
         b.wait_visible("iframe.container-frame[name='cockpit1:franz@10.111.113.3/system']")
 
-        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@machine3")
+        b.wait_text("#hosts-sel button .pf-v5-c-select__toggle-text", "franz@machine3")
         b.click("#hosts-sel button")
         b.wait_text(".nav-item a[href='/@10.111.113.3']", "franz @machine3")
         b.click("button:contains('Edit hosts')")
@@ -434,7 +434,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         with b.wait_timeout(30):
             b.wait_not_present('#hosts_setup_server_dialog')
 
-        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@machine2")
+        b.wait_text("#hosts-sel button .pf-v5-c-select__toggle-text", "admin@machine2")
 
         # Changing the address of a host will navigate to that host,
         # and that will close the host switcher.  Let's open it again

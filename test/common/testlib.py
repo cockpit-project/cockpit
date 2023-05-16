@@ -542,7 +542,7 @@ class Browser:
         if self.is_present(f"{selector}.pf-m-typeahead"):
             self.wait_val(f"{selector} > div input[type=text]", value)
         else:
-            self.wait_text(f"{selector} .pf-c-select__toggle-text", value)
+            self.wait_text(f"{selector} .pf-v5-c-select__toggle-text", value)
 
     def set_input_text(self, selector: str, val: str, append: bool = False, value_check: bool = True, blur: bool = True):
         self.focus(selector)
@@ -559,10 +559,10 @@ class Browser:
             self.wait_val(selector, val)
 
     def set_file_autocomplete_val(self, group_identifier: str, location: str):
-        self.set_input_text(f"{group_identifier} .pf-c-select__toggle-typeahead", location)
+        self.set_input_text(f"{group_identifier} .pf-v5-c-select__toggle-typeahead", location)
         # click away the selection list, to force a state update
-        self.click(f"{group_identifier} .pf-c-select__toggle-typeahead")
-        self.wait_not_present(f"{group_identifier} .pf-c-select__menu")
+        self.click(f"{group_identifier} .pf-v5-c-select__toggle-typeahead")
+        self.wait_not_present(f"{group_identifier} .pf-v5-c-select__menu")
 
     def wait_timeout(self, timeout: int):
         browser = self
@@ -884,14 +884,14 @@ class Browser:
         self.open_superuser_dialog()
 
         if passwordless:
-            self.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access.")
-            self.click(".pf-c-modal-box button:contains('Close')")
-            self.wait_not_present(".pf-c-modal-box:contains('You now have administrative access.')")
+            self.wait_in_text(".pf-v5-c-modal-box:contains('Administrative access')", "You now have administrative access.")
+            self.click(".pf-v5-c-modal-box button:contains('Close')")
+            self.wait_not_present(".pf-v5-c-modal-box:contains('You now have administrative access.')")
         else:
-            self.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
-            self.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
-            self.click(".pf-c-modal-box button:contains('Authenticate')")
-            self.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
+            self.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
+            self.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
+            self.click(".pf-v5-c-modal-box button:contains('Authenticate')")
+            self.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")
 
         self.check_superuser_indicator("Administrative access")
         self.switch_to_frame(cur_frame)
@@ -901,8 +901,8 @@ class Browser:
         self.switch_to_top()
 
         self.open_superuser_dialog()
-        self.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-        self.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
+        self.click(".pf-v5-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        self.wait_not_present(".pf-v5-c-modal-box:contains('Switch to limited access')")
         self.check_superuser_indicator("Limited access")
 
         self.switch_to_frame(cur_frame)
@@ -1175,8 +1175,8 @@ class Browser:
         if not self.is_present("#shell-page") and not self.is_present("#login-details") and not self.is_present("#system-terminal-page"):
             self.switch_to_frame(self.cdp.cur_frame)
             classes = self.attr("main", "class")
-            if "pf-c-page__main" in classes:
-                self.set_attr("main.pf-c-page__main", "class", f"{classes} pixel-test")
+            if "pf-v5-c-page__main" in classes:
+                self.set_attr("main.pf-v5-c-page__main", "class", f"{classes} pixel-test")
 
         if self.current_layout:
             previous_layout = self.current_layout["name"]

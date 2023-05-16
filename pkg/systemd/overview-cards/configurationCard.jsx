@@ -61,7 +61,7 @@ export const ConfigurationCard = ({ hostname }) => {
             <Card className="system-configuration">
                 <CardTitle>{_("Configuration")}</CardTitle>
                 <CardBody>
-                    <table className="pf-c-table pf-m-grid-md pf-m-compact">
+                    <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">
                         <tbody>
                             <tr>
                                 <th scope="row">{_("Hostname")}</th>

@@ -39,7 +39,7 @@ class TestStorageRaid1(StorageCase):
         self.devices_dropdown('Create RAID device')
         self.dialog_wait_open()
         # No swap block devices should show up
-        b.wait_not_in_text("#dialog .pf-c-data-list", "zram")
+        b.wait_not_in_text("#dialog .pf-v5-c-data-list", "zram")
         self.dialog_set_val("level", "raid1")
         self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})
         self.dialog_set_val("name", "SOMERAID")

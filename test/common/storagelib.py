@@ -96,27 +96,27 @@ class StorageHelpers:
         self.machine.execute(f'echo 1 > /sys/block/{os.path.basename(device)}/device/delete')
 
     def devices_dropdown(self, title):
-        self.browser.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
-        self.browser.click(f"#devices .pf-c-dropdown a:contains('{title}')")
+        self.browser.click("#devices .pf-v5-c-dropdown button.pf-v5-c-dropdown__toggle")
+        self.browser.click(f"#devices .pf-v5-c-dropdown a:contains('{title}')")
 
     # Content
 
     def content_row_tbody(self, index):
-        return "#detail-content > .pf-c-card > div > table > tbody:nth-of-type(%d)" % index
+        return "#detail-content > .pf-v5-c-card > div > table > tbody:nth-of-type(%d)" % index
 
     def content_row_expand(self, index):
         b = self.browser
         tbody = self.content_row_tbody(index)
         b.wait_visible(tbody)
         if "pf-m-expanded" not in (b.attr(tbody, "class") or ""):
-            b.click(tbody + " tr td.pf-c-table__toggle button")
+            b.click(tbody + " tr td.pf-v5-c-table__toggle button")
             b.wait_visible(tbody + ".pf-m-expanded")
 
     def content_row_action(self, index, title, isExpandable=True):
         if isExpandable:
             btn = self.content_row_tbody(index) + f" tr:first-child td button:contains({title})"
         else:
-            btn = "#detail-content > .pf-c-card > div > table > :nth-child(%d)" % index + f" td button:contains({title})"
+            btn = "#detail-content > .pf-v5-c-card > div > table > :nth-child(%d)" % index + f" td button:contains({title})"
         self.browser.click(btn)
 
     # The row might come and go a couple of times until it has the
@@ -127,19 +127,19 @@ class StorageHelpers:
         if isExpandable:
             col = self.content_row_tbody(row_index) + " tr:first-child > :nth-child(%d)" % (col_index + 1)
         else:
-            col = "#detail-content > .pf-c-card > div > table > :nth-child(%d)" % row_index + " > :nth-child(%d)" % (col_index + 1)
+            col = "#detail-content > .pf-v5-c-card > div > table > :nth-child(%d)" % row_index + " > :nth-child(%d)" % (col_index + 1)
         wait(lambda: self.browser.is_present(col) and (val in self.browser.text(col) or (alternate_val and alternate_val in self.browser.text(col))))
 
     def content_dropdown_action(self, index, title, isExpandable=True):
         if isExpandable:
-            dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-c-dropdown"
+            dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-v5-c-dropdown"
         else:
-            dropdown = "#detail-content > .pf-c-card > div > table > :nth-child(%d)" % index + " td:last-child .pf-c-dropdown"
-        self.browser.click(dropdown + " button.pf-c-dropdown__toggle")
+            dropdown = "#detail-content > .pf-v5-c-card > div > table > :nth-child(%d)" % index + " td:last-child .pf-v5-c-dropdown"
+        self.browser.click(dropdown + " button.pf-v5-c-dropdown__toggle")
         self.browser.click(dropdown + f" a:contains('{title}')")
 
     def content_tab_expand(self, row_index, tab_index):
-        tab_btn = self.content_row_tbody(row_index) + " .pf-c-tabs ul li:nth-child(%d) button" % tab_index
+        tab_btn = self.content_row_tbody(row_index) + " .pf-v5-c-tabs ul li:nth-child(%d) button" % tab_index
         tab = self.content_row_tbody(row_index) + " .ct-listing-panel-body[data-key=%d]" % (tab_index - 1)
         self.content_row_expand(row_index)
         self.browser.click(tab_btn)
@@ -178,8 +178,8 @@ class StorageHelpers:
 
         def check():
             row = self.content_row_tbody(row_index)
-            row_item = row + " tr td.pf-c-table__toggle button"
-            tab_btn = row + " .pf-c-tabs ul li:nth-child(%d) button" % tab_index
+            row_item = row + " tr td.pf-v5-c-table__toggle button"
+            tab_btn = row + " .pf-v5-c-tabs ul li:nth-child(%d) button" % tab_index
             tab = row + " .ct-listing-panel-body[data-key=%d]" % (tab_index - 1)
             cell = tab + f" dt:contains({title}) + *"
 
@@ -238,7 +238,7 @@ class StorageHelpers:
         self.browser.wait_visible('#dialog')
 
     def dialog_wait_alert(self, text):
-        self.browser.wait_in_text('#dialog .pf-c-alert__title', text)
+        self.browser.wait_in_text('#dialog .pf-v5-c-alert__title', text)
 
     def dialog_field(self, field):
         return f'#dialog [data-field="{field}"]'
@@ -280,8 +280,8 @@ class StorageHelpers:
                 self.browser.set_checked(sel + " input[type=checkbox]", True)
                 self.browser.set_input_text(sel + " [type=text]", val)
         elif ftype == "combobox":
-            self.browser.click(sel + " button.pf-c-select__toggle-button")
-            self.browser.click(sel + f" .pf-c-select__menu li:contains('{val}') button")
+            self.browser.click(sel + " button.pf-v5-c-select__toggle-button")
+            self.browser.click(sel + f" .pf-v5-c-select__menu li:contains('{val}') button")
         else:
             self.browser.set_val(sel, val)
 
@@ -313,7 +313,7 @@ class StorageHelpers:
 
     def dialog_wait_error(self, field, val):
         # XXX - allow for more than one error
-        self.browser.wait_in_text('#dialog .pf-c-form__helper-text .pf-m-error', val)
+        self.browser.wait_in_text('#dialog .pf-v5-c-form__helper-text .pf-m-error', val)
 
     def dialog_wait_not_present(self, field):
         self.browser.wait_not_present(self.dialog_field(field))

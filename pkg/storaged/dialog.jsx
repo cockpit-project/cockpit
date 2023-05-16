@@ -775,8 +775,8 @@ export const SelectSpace = (tag, title, options) => {
                         return (
                             <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
                                 <DataListItemRow>
-                                    <div className="pf-c-data-list__item-control">
-                                        <div className="pf-c-data-list__check">
+                                    <div className="pf-v5-c-data-list__item-control">
+                                        <div className="pf-v5-c-data-list__check">
                                             <input type='radio' value={desc} name='space' checked={val == spc} onChange={on_change} />
                                         </div>
                                     </div>
@@ -1135,7 +1135,7 @@ export const TeardownMessage = (usage) => {
                     use.actions.length ? use.actions.join(", ") : "-",
                     {
                         title: <UsersPopover users={use.users || []} />,
-                        props: { className: "pf-u-text-align-right" }
+                        props: { className: "pf-v5-u-text-align-right" }
                     }
                 ]
             });

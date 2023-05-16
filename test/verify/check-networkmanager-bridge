@@ -104,7 +104,7 @@ class TestBridge(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbridge'] th button")
         b.wait_visible("#network-interface")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
-        b.wait_in_text("#network-interface .pf-c-card:contains('tbridge')", "10.111")
+        b.wait_in_text("#network-interface .pf-v5-c-card:contains('tbridge')", "10.111")
 
         # Check bridge port
         b.click("#network-interface-members button:contains(cockpit1)")

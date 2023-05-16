@@ -192,11 +192,11 @@ class TestStorageStratis(StorageCase):
         b.wait_not_in_text("#detail-content", "fsys2-copy")
 
         # Add a data blockdev
-        b.click('#detail-sidebar .pf-c-card__actions button')
+        b.click('#detail-sidebar .pf-v5-c-card__actions button')
         self.dialog_wait_open()
         self.dialog_set_val('disks', {dev_3: True})
         # FIXME: Remove ignore when fixed: https://bugzilla.redhat.com/show_bug.cgi?id=2183084
-        # b.assert_pixels("#dialog", "add-disk", ignore=[".pf-c-data-list__item-content:contains(stratis)"])
+        # b.assert_pixels("#dialog", "add-disk", ignore=[".pf-v5-c-data-list__item-content:contains(stratis)"])
         self.dialog_apply()
         self.dialog_wait_close()
 
@@ -204,7 +204,7 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_3})', "data")
 
         # Add a cache blockdev
-        b.click('#detail-sidebar .pf-c-card__actions button')
+        b.click('#detail-sidebar .pf-v5-c-card__actions button')
         self.dialog({'tier': "cache",
                      'disks': {dev_4: True}})
         b.wait_in_text('#detail-sidebar', dev_4)
@@ -290,7 +290,7 @@ class TestStorageStratis(StorageCase):
         self.assertIn("noauto", m.execute("grep /run/fsys1 /etc/fstab"))
 
         # Add a data blockdev
-        b.click('#detail-sidebar .pf-c-card__actions button')
+        b.click('#detail-sidebar .pf-v5-c-card__actions button')
         self.dialog({'passphrase': "foodeeboodeebar",
                      'disks': {dev_2: True}})
         b.wait_in_text('#detail-sidebar', dev_2)
@@ -515,9 +515,9 @@ class TestStoragePackagesStratis(PackageCase, StorageCase):
             self.dialog_wait_close()
             b.wait_in_text("#devices", "pool0")
         else:
-            b.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
-            b.wait_visible("#devices .pf-c-dropdown a:contains('Create RAID device')")
-            b.wait_not_present("#devices .pf-c-dropdown a:contains('Create Stratis pool')")
+            b.click("#devices .pf-v5-c-dropdown button.pf-v5-c-dropdown__toggle")
+            b.wait_visible("#devices .pf-v5-c-dropdown a:contains('Create RAID device')")
+            b.wait_not_present("#devices .pf-v5-c-dropdown a:contains('Create Stratis pool')")
 
 
 if __name__ == '__main__':

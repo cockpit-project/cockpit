@@ -1,55 +1,55 @@
 @use "_global-variables.scss" as *;
 
 /* Rely on the margin from the Card for spacing */
-.ct-card.pf-c-card .table {
+.ct-card.pf-v5-c-card .table {
   margin-block-end: 0;
 }
 
 // FIXME: Once PF4 provides a property for removing padding: https://github.com/patternfly/patternfly-react/issues/5606
-.ct-card.pf-c-card .pf-c-card__body.contains-list {
+.ct-card.pf-v5-c-card .pf-v5-c-card__body.contains-list {
   padding-inline: 0;
   padding-block-end: 0;
 
-  > .pf-c-table > :last-child > tr:last-child {
+  > .pf-v5-c-table > :last-child > tr:last-child {
     border-block-end: none;
   }
 
   // Remove excess padding from compact tables toggles
   // And adjust the padding to left align the toggles with the card header
-  > .pf-c-table {
-    .pf-c-table__toggle {
+  > .pf-v5-c-table {
+    .pf-v5-c-table__toggle {
       padding-inline-start: 0;
 
-      > .pf-c-button {
-        padding-inline-start: var(--pf-global--spacer--lg);
+      > .pf-v5-c-button {
+        padding-inline-start: var(--pf-v5-global--spacer--lg);
       }
     }
   }
 }
 
-.ct-card.pf-c-card .pf-c-card__title-text {
+.ct-card.pf-v5-c-card .pf-v5-c-card__title-text {
   font-weight: normal;
-  font-size: var(--pf-global--FontSize--2xl);
+  font-size: var(--pf-v5-global--FontSize--2xl);
 }
 
 // Remove excess top padding from top-level empty state in cards,
 // as card headers already add enough space
-.ct-card > .pf-c-card__body > .pf-c-empty-state {
-  --pf-c-empty-state__body--MarginTop: 0;
-  padding-block: 0 var(--pf-global--spacer--md);
+.ct-card > .pf-v5-c-card__body > .pf-v5-c-empty-state {
+  --pf-v5-c-empty-state__body--MarginTop: 0;
+  padding-block: 0 var(--pf-v5-global--spacer--md);
 }
 
 .ct-cards-grid {
   --ct-grid-columns: 2;
-  --pf-l-gallery--GridTemplateColumns: repeat(var(--ct-grid-columns), 1fr);
+  --pf-v5-l-gallery--GridTemplateColumns: repeat(var(--ct-grid-columns), 1fr);
 
-  > .pf-c-card:not(.ct-card-info) {
+  > .pf-v5-c-card:not(.ct-card-info) {
     // Extend all non-info cards to be full width;
     // let ct-card-info fit 1 column of the grid
     grid-column: 1 / -1;
   }
 
-  @media screen and (max-width: $pf-global--breakpoint--lg) {
+  @media screen and (max-width: $pf-v5-global--breakpoint--lg) {
     // Shrink to 1 column when space is constrained
     --ct-grid-columns: 1;
   }
@@ -57,7 +57,7 @@
 
 // Remove redundant padding from embedded toolbars (handled by header)
 // Toolbars in card headers are not a common scenario so no need to upstream this
-.ct-card.pf-c-card .pf-c-toolbar,
-.ct-card.pf-c-card .pf-c-toolbar__content {
+.ct-card.pf-v5-c-card .pf-v5-c-toolbar,
+.ct-card.pf-v5-c-card .pf-v5-c-toolbar__content {
   padding: 0;
 }

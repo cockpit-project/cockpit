@@ -201,16 +201,16 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, small }
     const labelText = small ? cockpit.format_bytes(stats[0]) : utils.format_fsys_usage(stats[0], stats[1]);
 
     return (
-        <div className={"pf-c-progress pf-m-outside pf-m-singleline" + (fraction > critical ? " pf-m-danger" : "") + (small ? " pf-m-sm" : "")}>
-            <div className="pf-c-progress__status" aria-hidden="true">
-                <span className="pf-c-progress__measure">{labelText}</span>
+        <div className={"pf-v5-c-progress pf-m-outside pf-m-singleline" + (fraction > critical ? " pf-m-danger" : "") + (small ? " pf-m-sm" : "")}>
+            <div className="pf-v5-c-progress__status" aria-hidden="true">
+                <span className="pf-v5-c-progress__measure">{labelText}</span>
             </div>
-            <div className="pf-c-progress__bar ct-thin-progress" role="progressbar"
+            <div className="pf-v5-c-progress__bar ct-thin-progress" role="progressbar"
                  aria-valuemin="0" aria-valuemax={stats[1]} aria-valuenow={stats[0]}
                  aria-label={cockpit.format(_("Usage of $0"), block)}
                  aria-valuetext={labelText}>
-                <div className="pf-c-progress__indicator ct-progress-other" aria-hidden="true" style={{ width: total_fraction * 100 + "%" }} />
-                <div className="pf-c-progress__indicator" style={{ insetInlineStart: off_fraction * 100 + "%", width: fraction * 100 + "%" }} />
+                <div className="pf-v5-c-progress__indicator ct-progress-other" aria-hidden="true" style={{ width: total_fraction * 100 + "%" }} />
+                <div className="pf-v5-c-progress__indicator" style={{ insetInlineStart: off_fraction * 100 + "%", width: fraction * 100 + "%" }} />
             </div>
         </div>);
 };

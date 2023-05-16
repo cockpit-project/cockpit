@@ -126,7 +126,7 @@ export class UsageCard extends React.Component {
             <Card className="system-usage">
                 <CardTitle>{_("Usage")}</CardTitle>
                 <CardBody>
-                    <table className="pf-c-table pf-m-grid-md pf-m-compact">
+                    <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">
                         <tbody>
                             <tr>
                                 <th id="system-usage-cpu-progress" scope="row">{_("CPU")}</th>

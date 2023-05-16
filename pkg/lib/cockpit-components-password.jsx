@@ -98,7 +98,7 @@ export const PasswordFormFields = ({
                        labelIcon={password_label_info &&
                            <Popover bodyContent={password_label_info}>
                                <button onClick={e => e.preventDefault()}
-                                       className="pf-c-form__group-label-help">
+                                       className="pf-v5-c-form__group-label-help">
                                    <HelpIcon noVerticalAlign />
                                </button>
                            </Popover>
@@ -117,7 +117,7 @@ export const PasswordFormFields = ({
                               measureLocation={ProgressMeasureLocation.none}
                               variant={variant}
                               value={Number.isInteger(passwordStrength) ? passwordStrength : 0} />
-                    <div id={idPrefix + "-password-meter-message"} className="pf-c-form__helper-text" aria-live="polite">{passwordMessage}</div>
+                    <div id={idPrefix + "-password-meter-message"} className="pf-v5-c-form__helper-text" aria-live="polite">{passwordMessage}</div>
                 </div>
                 {error_password && <FormHelperText>
                     <HelperText component="ul" aria-live="polite" id="password-error-message">

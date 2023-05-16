@@ -7,25 +7,25 @@
 @import "@patternfly/patternfly/components/DataList/data-list.scss";
 @import "@patternfly/patternfly/layouts/Flex/flex.scss";
 
-#account .pf-c-card {
+#account .pf-v5-c-card {
   @extend .ct-card;
 }
 
-.account-details .pf-c-card__header {
-  margin-block-end: var(--pf-global--spacer--lg);
+.account-details .pf-v5-c-card__header {
+  margin-block-end: var(--pf-v5-global--spacer--lg);
 }
 
-#account .pf-l-gallery {
-  --pf-l-gallery--GridTemplateColumns: 1fr;
+#account .pf-v5-l-gallery {
+  --pf-v5-l-gallery--GridTemplateColumns: 1fr;
 }
 
-#account .pf-c-page__main-section,
-#account .pf-c-page__main-nav {
-  padding: var(--pf-global--gutter);
+#account .pf-v5-c-page__main-section,
+#account .pf-v5-c-page__main-nav {
+  padding: var(--pf-v5-global--gutter);
 }
 
 .delete-resource-red {
-  color: var(--pf-global--danger-color--200);
+  color: var(--pf-v5-global--danger-color--200);
 }
 
 #account-details div.checkbox:first-child {
@@ -54,12 +54,12 @@
   display: inline-block;
 }
 
-.expiration-modal .pf-c-form__group-control {
-  .pf-c-radio:first-child {
-    padding-block-end: var(--pf-global--spacer--sm);
+.expiration-modal .pf-v5-c-form__group-control {
+  .pf-v5-c-radio:first-child {
+    padding-block-end: var(--pf-v5-global--spacer--sm);
   }
   // Work around for https://github.com/patternfly/patternfly/issues/4061
-  .pf-c-radio:nth-child(2) input {
+  .pf-v5-c-radio:nth-child(2) input {
     align-self: center;
   }
 }
@@ -69,11 +69,11 @@
 }
 
 .outline-question-circle-icon {
-  margin-inline-start: var(--pf-global--spacer--sm);
+  margin-inline-start: var(--pf-v5-global--spacer--sm);
 }
 
-.accounts-toolbar-header > .pf-c-toolbar__content-section {
-  row-gap: var(--pf-global--spacer--sm);
+.accounts-toolbar-header > .pf-v5-c-toolbar__content-section {
+  row-gap: var(--pf-v5-global--spacer--sm);
 }
 
 .dot {
@@ -86,20 +86,20 @@
 // Iterate through supported PF color names for light and dark modes
 @each $color in cyan gold {
   .group-#{"" + $color} {
-    background-color: var(--pf-global--palette--#{$color}-100);
+    background-color: var(--pf-v5-global--palette--#{$color}-100);
 
     .pf-theme-dark & {
-      background-color: var(--pf-global--palette--#{$color}-300);
+      background-color: var(--pf-v5-global--palette--#{$color}-300);
     }
   }
 }
 // PF adapts this color properly across light and dark
 .group-grey {
-  background-color: var(--pf-global--BorderColor--100);
+  background-color: var(--pf-v5-global--BorderColor--100);
 }
 
 .group-more-btn {
-  font-size: var(--pf-global--FontSize--sm);
+  font-size: var(--pf-v5-global--FontSize--sm);
 }
 
 #groups-list td:first-child {
@@ -111,12 +111,12 @@
 }
 
 #group-confirm-delete-dialog .list-item {
-  margin-inline-end: var(--pf-global--spacer--lg);
+  margin-inline-end: var(--pf-v5-global--spacer--lg);
 }
 
-// We cannot use the PF helper pf-u-ml-lg here, as it doesn't support RTL yet
+// We cannot use the PF helper pf-v5-u-ml-lg here, as it doesn't support RTL yet
 #current-account-badge {
-  margin-inline-start: var(--pf-global--spacer--lg);
+  margin-inline-start: var(--pf-v5-global--spacer--lg);
 }
 
 // Pretty sure paths are LTR, even in an RTL display

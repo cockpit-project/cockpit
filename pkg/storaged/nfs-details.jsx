@@ -316,7 +316,7 @@ export class NFSDetails extends React.Component {
 
                         <DescriptionListGroup>
                             <DescriptionListTerm className="control-DescriptionListTerm">{_("Size")}</DescriptionListTerm>
-                            <DescriptionListDescription className="pf-u-align-self-center">
+                            <DescriptionListDescription className="pf-v5-u-align-self-center">
                                 { entry.mounted
                                     ? <StorageUsageBar stats={fsys_size} critical={0.95} block={entry.fields[1]} />
                                     : "--"

@@ -20,7 +20,7 @@
 @use "ct-card";
 @use "page";
 
-#app .pf-c-card {
+#app .pf-v5-c-card {
   @extend .ct-card;
 }
 
@@ -37,7 +37,7 @@
 }
 
 /* Table cells should collapse on mobile */
-.ct-table.pf-c-table tbody > tr > * {
+.ct-table.pf-v5-c-table tbody > tr > * {
   word-break: break-word;
 }
 
@@ -45,7 +45,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+  gap: var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--md);
 
   > div:first-child {
     inline-size: 70%;
@@ -53,15 +53,15 @@
   }
 
   + hr {
-    margin-block-start: var(--pf-global--spacer--sm);
+    margin-block-start: var(--pf-v5-global--spacer--sm);
   }
 
-  .pf-c-expandable-section__content {
+  .pf-v5-c-expandable-section__content {
     margin-block-start: unset;
   }
 }
 
 .selinux-details textarea {
-  margin-block-start: var(--pf-global--spacer--xs);
+  margin-block-start: var(--pf-v5-global--spacer--xs);
   resize: none;
 }

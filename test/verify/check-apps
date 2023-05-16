@@ -100,7 +100,7 @@ class TestApps(PackageCase):
             m.write("/etc/cockpit/cockpit.conf", f"[WebService]\nUrlRoot={urlroot}")
 
         self.login_and_go("/apps", urlroot=urlroot)
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
 
         self.createAppStreamPackage("app-1", "1.0", "1")
         self.createAppStreamRepoPackage()
@@ -112,19 +112,19 @@ class TestApps(PackageCase):
             b.click(".app-list #app-1")
         b.wait_visible('a[href="https://app-1.com"]')
         b.wait_visible(f'#app-page img[src^="{urlroot}/cockpit/channel/"]')
-        b.click(".pf-c-breadcrumb a:contains('Applications')")
+        b.click(".pf-v5-c-breadcrumb a:contains('Applications')")
 
         b.wait_visible("#list-page")
         b.wait_not_present("#app-page")
 
-        b.click(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Install')")
-        b.wait_visible(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Remove')")
-        b.wait_visible(f".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
+        b.click(".app-list .pf-v5-c-data-list__item-row:contains('app-1') button:contains('Install')")
+        b.wait_visible(".app-list .pf-v5-c-data-list__item-row:contains('app-1') button:contains('Remove')")
+        b.wait_visible(f".app-list .pf-v5-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("test -f /stamp-app-1-1.0-1")
 
-        b.click(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Remove')")
-        b.wait_visible(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Install')")
-        b.wait_visible(f".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
+        b.click(".app-list .pf-v5-c-data-list__item-row:contains('app-1') button:contains('Remove')")
+        b.wait_visible(".app-list .pf-v5-c-data-list__item-row:contains('app-1') button:contains('Install')")
+        b.wait_visible(f".app-list .pf-v5-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
     def testWithUrlRoot(self):
@@ -143,7 +143,7 @@ class TestApps(PackageCase):
         self.addCleanup(m.execute, "for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info; do umount $d; done")
 
         self.login_and_go("/apps")
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
 
         m.write("/usr/share/app-info/xmls/test.xml", """
 <components origin="test">
@@ -163,8 +163,8 @@ class TestApps(PackageCase):
   </component>
 </components>""")
 
-        b.wait_visible(".app-list .pf-c-data-list__item-row:contains('SUMMARY:none') button:contains('Install')")
-        b.click(".app-list .pf-c-data-list__item-row:contains('SUMMARY:none') .pf-m-inline")
+        b.wait_visible(".app-list .pf-v5-c-data-list__item-row:contains('SUMMARY:none') button:contains('Install')")
+        b.click(".app-list .pf-v5-c-data-list__item-row:contains('SUMMARY:none') .pf-m-inline")
 
         b.wait_visible(".app-description:contains('DESCRIPTION:none')")
 
@@ -201,7 +201,7 @@ class TestApps(PackageCase):
         self.addCleanup(m.execute, "for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info; do umount $d; done")
 
         self.login_and_go("/apps")
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
 
         self.allow_journal_messages(".*/usr/share/app-info/xmls/test.xml.*",
                                     ".*xml.etree.ElementTree.ParseError.*")
@@ -221,8 +221,8 @@ class TestApps(PackageCase):
     <pkgname>foo</pkgname>
   </component>
 </components>""")
-            b.wait_not_present(".pf-c-empty-state")
-            b.wait_visible(".app-list .pf-c-data-list__item-row:contains('Summary')")
+            b.wait_not_present(".pf-v5-c-empty-state")
+            b.wait_visible(".app-list .pf-v5-c-data-list__item-row:contains('Summary')")
 
         # First lay down some good XML so that we can later detect the reaction to broken XML.
         reset()
@@ -231,14 +231,14 @@ class TestApps(PackageCase):
         m.write("/usr/share/app-info/xmls/test.xml", """
 This <is <not XML.
 """)
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
         reset()
 
         # Not really AppStream
         m.write("/usr/share/app-info/xmls/test.xml", """
 <foo></foo>
 """)
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
         reset()
 
         # No origin
@@ -256,7 +256,7 @@ This <is <not XML.
     <pkgname>foo</pkgname>
   </component>
 </components>""")
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
         reset()
 
         # No package
@@ -273,7 +273,7 @@ This <is <not XML.
     <launchable type="cockpit-manifest">foo</launchable>
   </component>
 </components>""")
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
         reset()
 
         # No id
@@ -287,7 +287,7 @@ This <is <not XML.
     <pkgname>foo</pkgname>
   </component>
 </components>""")
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
         reset()
 
         # Error (launchable without type) in earlier entry, shouldn't affect the later entry
@@ -316,8 +316,8 @@ This <is <not XML.
     <pkgname>foo</pkgname>
   </component>
 </components>""")
-        b.wait_not_present(".pf-c-empty-state")
-        b.wait_visible(".app-list .pf-c-data-list__item-row:contains('Summary 2')")
+        b.wait_not_present(".pf-v5-c-empty-state")
+        b.wait_visible(".app-list .pf-v5-c-data-list__item-row:contains('Summary 2')")
 
 
 if __name__ == '__main__':

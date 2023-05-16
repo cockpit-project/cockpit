@@ -79,7 +79,7 @@ def start_machine_troubleshoot(b, new=False, known_host=False, password=None):
 def fail_login(b):
     b.click('#hosts_setup_server_dialog button:contains(Log in)')
     b.wait_visible('#hosts_setup_server_dialog button:contains(Log in):not([disabled])')
-    b.wait_in_text("#hosts_setup_server_dialog .pf-c-alert", "Login failed")
+    b.wait_in_text("#hosts_setup_server_dialog .pf-v5-c-alert", "Login failed")
 
 
 def add_machine(b, address, known_host=False, password="foobar"):
@@ -540,7 +540,7 @@ class TestMultiMachine(MachineCase):
         b.go("/@10.0.0.0/playground/test")
         with b.wait_timeout(30):
             b.wait_text(".curtains-ct h1", "Not connected to host")
-        self.assertEqual(b.text(".curtains-ct .pf-c-empty-state__body"), "Cannot connect to an unknown host")
+        self.assertEqual(b.text(".curtains-ct .pf-v5-c-empty-state__body"), "Cannot connect to an unknown host")
 
         self.allow_hostkey_messages()
         # Might happen when killing the bridge.

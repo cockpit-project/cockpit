@@ -85,8 +85,8 @@ const LastLogin = () => {
     let icon = null;
     let headerText = null;
     let underlineText = null;
-    let headerClass = "pf-u-text-break-word";
-    let underlineClass = "pf-u-text-break-word";
+    let headerClass = "pf-v5-u-text-break-word";
+    let underlineClass = "pf-v5-u-text-break-word";
     const lastLoginText = _("Last successful login:") + " " + getFormattedDateTime(messages['last-login-time'] * 1000);
     const failedLogins = messages['fail-count'];
 
@@ -105,7 +105,7 @@ const LastLogin = () => {
     } else {
         icon = <UserIcon className="system-information-last-login-icon" />;
         headerText = lastLoginText;
-        underlineClass += " ct-grey-text pf-u-font-size-sm";
+        underlineClass += " ct-grey-text pf-v5-u-font-size-sm";
         underlineText = generate_line(messages['last-login-host'], messages['last-login-line']);
     }
 
@@ -125,13 +125,13 @@ const LastLogin = () => {
                         {underlineText}
                     </div>
                     {failedLogins &&
-                    <div id="system_last_login_success" className="pf-u-text-break-word">
+                    <div id="system_last_login_success" className="pf-v5-u-text-break-word">
                         {lastLoginText}
                     </div>
                     }
                     {name &&
                         <Button variant="link" isInline
-                                className="pf-u-font-size-sm"
+                                className="pf-v5-u-font-size-sm"
                                 onClick={() => cockpit.jump("/users#/" + name)}>
                             {_("View login history")}
                         </Button>

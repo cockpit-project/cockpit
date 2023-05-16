@@ -100,7 +100,7 @@ class TestSystemInfo(PackageCase):
 
         # ensure general page/card layout without the changing specifics
         b.assert_pixels("#overview", "overview", ignore=[
-            ".system-health .pf-c-card__body",
+            ".system-health .pf-v5-c-card__body",
             "#system_machine_id",
             "#system_uptime",
             # #system_information_systime_button is not enough, need to grab the icon as well
@@ -122,13 +122,13 @@ class TestSystemInfo(PackageCase):
         old_alt = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E sha256 | cut -d' ' -f2 | tr -d '\n'")
 
         b.click("#system-ssh-keys-link")
-        b.wait_in_text("#system_information_ssh_keys .pf-c-list", "ED25519")
-        b.wait_in_text("#system_information_ssh_keys .pf-c-list", "RSA")
-        b.wait_in_text("#system_information_ssh_keys .pf-c-list", "ECDSA")
-        b.wait_not_in_text("#system_information_ssh_keys .pf-c-list", new_default)
-        b.wait_in_text("#system_information_ssh_keys .pf-c-list", old_default)
-        b.wait_not_in_text("#system_information_ssh_keys .pf-c-list", new_alt)
-        b.wait_in_text("#system_information_ssh_keys .pf-c-list", old_alt)
+        b.wait_in_text("#system_information_ssh_keys .pf-v5-c-list", "ED25519")
+        b.wait_in_text("#system_information_ssh_keys .pf-v5-c-list", "RSA")
+        b.wait_in_text("#system_information_ssh_keys .pf-v5-c-list", "ECDSA")
+        b.wait_not_in_text("#system_information_ssh_keys .pf-v5-c-list", new_default)
+        b.wait_in_text("#system_information_ssh_keys .pf-v5-c-list", old_default)
+        b.wait_not_in_text("#system_information_ssh_keys .pf-v5-c-list", new_alt)
+        b.wait_in_text("#system_information_ssh_keys .pf-v5-c-list", old_alt)
 
         b.click('#system_information_ssh_keys button:contains("Close")')
         b.wait_not_present("#system_information_ssh_keys")
@@ -141,13 +141,13 @@ class TestSystemInfo(PackageCase):
 
         b.click("#system-ssh-keys-link")
         b.wait_visible("#system_information_ssh_keys")
-        b.wait_not_in_text("#system_information_ssh_keys .pf-c-list", "ED25519")
-        b.wait_in_text("#system_information_ssh_keys .pf-c-list", "RSA")
-        b.wait_not_in_text("#system_information_ssh_keys .pf-c-list", "ECDSA")
-        b.wait_in_text("#system_information_ssh_keys .pf-c-list", new_default)
-        b.wait_not_in_text("#system_information_ssh_keys .pf-c-list", old_default)
-        b.wait_not_in_text("#system_information_ssh_keys .pf-c-list", old_alt)
-        b.wait_in_text("#system_information_ssh_keys .pf-c-list", new_alt)
+        b.wait_not_in_text("#system_information_ssh_keys .pf-v5-c-list", "ED25519")
+        b.wait_in_text("#system_information_ssh_keys .pf-v5-c-list", "RSA")
+        b.wait_not_in_text("#system_information_ssh_keys .pf-v5-c-list", "ECDSA")
+        b.wait_in_text("#system_information_ssh_keys .pf-v5-c-list", new_default)
+        b.wait_not_in_text("#system_information_ssh_keys .pf-v5-c-list", old_default)
+        b.wait_not_in_text("#system_information_ssh_keys .pf-v5-c-list", old_alt)
+        b.wait_in_text("#system_information_ssh_keys .pf-v5-c-list", new_alt)
 
         b.wait_in_text('#system_information_os_text',
                        "Foobar Adventure Linux Server 2.0 (Day of Doom)")
@@ -198,9 +198,9 @@ class TestSystemInfo(PackageCase):
 
     def set_change_time_dialog_mode(self, mode):
         b = self.browser
-        b.click("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button")
+        b.click("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button")
         b.click(f"#change_systime button:contains('{mode}')")
-        b.wait_in_text("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button", mode)
+        b.wait_in_text("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button", mode)
 
     def testTime(self):
         m = self.machine
@@ -228,12 +228,12 @@ class TestSystemInfo(PackageCase):
         b.wait_visible('#system_information_systime_button[disabled]')
 
         # Gain admin access
-        b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
-        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
-        b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-        b.wait_not_present(".pf-c-alert:contains('Web console is running in limited access mode.')")
+        b.click(".pf-v5-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")
+        b.wait_not_present(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
 
         # Change the date
         b.click("#system_information_systime_button")
@@ -431,7 +431,7 @@ class TestSystemInfo(PackageCase):
 
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
-        b.click("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button")
+        b.click("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button")
         b.wait_visible("#change_systime button:contains('Automatically using NTP')")
         b.wait_not_present("#change_systime button:contains('Automatically using specific NTP servers')")
         b.wait_not_present("#change_systime button:contains('Automatically using additional NTP servers')")
@@ -493,17 +493,17 @@ class TestSystemInfo(PackageCase):
         # system info
         b.wait_in_text('#hwinfo-system-info-list', "CPU")
         # QEMU VM type
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(1) dd', "Other")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(1) dd', "Other")
         # Name
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(2) dd', "Standard PC")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "Standard PC")
         # BIOS
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(1) dd', "SeaBIOS")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "SeaBIOS")
         # BIOS date gets parsed
         parsed_bios_date = m.execute("date --date $(cat /sys/class/dmi/id/bios_date) '+%B %-d, %Y'").strip()
-        b.wait_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(3) dd', parsed_bios_date)
+        b.wait_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(3) dd', parsed_bios_date)
 
         pci_selector = '#hwinfo #pci-listing'
-        heading_selector = ' .pf-c-card__title'
+        heading_selector = ' .pf-v5-c-card__title'
         # PCI
         b.wait_in_text(pci_selector + heading_selector, "PCI")
 
@@ -520,7 +520,7 @@ class TestSystemInfo(PackageCase):
         b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
 
         # go back to system page
-        b.click('.pf-c-breadcrumb li:first')
+        b.click('.pf-v5-c-breadcrumb li:first')
 
         b.enter_page("/system")
 
@@ -559,8 +559,8 @@ class TestSystemInfo(PackageCase):
         b.wait_in_text('#system_information_hardware_text', "VENDOR NAME")
         b.click(hardware_page_link)
         b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(2) dd', "NAME")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(3) dd', "VENDOR")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "NAME")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(3) dd', "VENDOR")
 
         # Clean up after lazy OEMs, falls back to board vendor/name
         m.write("/sys/class/dmi/id/sys_vendor", "To Be Filled By O.E.M.")
@@ -573,8 +573,8 @@ class TestSystemInfo(PackageCase):
         b.wait_in_text('#system_information_hardware_text', "brdven brdnam")
         b.click(hardware_page_link)
         b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(2) dd', "brdnam")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-c-description-list__group:nth-of-type(3) dd', "brdven")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "brdnam")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(3) dd', "brdven")
 
         # /proc/cpuinfo on x86; very incomplete, just what pkg/lib/machine-info.js looks at
         m.write("/tmp/cpuinfo", """processor\t: 0
@@ -592,7 +592,7 @@ model name\t: Professor NumberCrunch
 
         b.reload()
         b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(1) dd', "2x Professor NumberCrunch")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x Professor NumberCrunch")
 
         # /proc/cpuinfo on PowerPC; complete info
         m.write("/tmp/cpuinfo", """processor\t: 0
@@ -608,7 +608,7 @@ revision\t: 2.3 (pvr 004e 1203)
 
         b.reload()
         b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(1) dd', "2x POWER9 (architected), altivec supported")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x POWER9 (architected), altivec supported")
 
         # correct CPU count on overview
         b.go("/system")
@@ -643,7 +643,7 @@ machine         : 8561
 
         b.go('/system/hwinfo')
         b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(1) dd', "2x IBM/S390")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x IBM/S390")
 
         # umount mocked /sys/class/dmi/id
         m.execute("umount /sys/class/dmi/id")
@@ -823,9 +823,9 @@ fi
         self.login_and_go('/system/hwinfo', superuser=False)
         b.wait_visible('#cpu_mitigations[disabled]')
         b.mouse('#tip-cpu-security', 'mouseenter')
-        b.wait_text('.pf-c-tooltip', 'The user admin is not permitted to change cpu security mitigations')
+        b.wait_text('.pf-v5-c-tooltip', 'The user admin is not permitted to change cpu security mitigations')
         b.mouse('#tip-cpu-security', 'mouseleave')
-        b.wait_not_present("div.pf-c-tooltip")
+        b.wait_not_present("div.pf-v5-c-tooltip")
 
         # Behaviour if grub update tools are missing
         b.logout()
@@ -838,7 +838,7 @@ fi
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        b.wait_visible('#cpu-mitigations-dialog .pf-c-alert__title:contains(No supported grub update mechanism found)')
+        b.wait_visible('#cpu-mitigations-dialog .pf-v5-c-alert__title:contains(No supported grub update mechanism found)')
 
         self.allow_journal_messages('Sourcing file `/etc/default/grub.*',
                                     'Generating grub configuration file.*',
@@ -914,7 +914,7 @@ password=foobar
         m.execute("systemctl mask packagekit")
 
         def progressValue(number):
-            sel = ".system-usage tr:nth-child(%i) .pf-c-progress__indicator" % number
+            sel = ".system-usage tr:nth-child(%i) .pf-v5-c-progress__indicator" % number
             b.wait_visible(sel)
             b.wait_attr_contains(sel, "style", "width:")
             style = b.attr(sel, "style")
@@ -1003,9 +1003,9 @@ password=foobar
 
         def change_profile(profile, new_profile):
             b.click("#crypto-policy-button")
-            b.wait_in_text(".pf-c-menu__item.pf-m-selected", shown_profile_text(profile))
+            b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
             profile_button_name = shown_profile_text(new_profile)
-            b.click(f".pf-c-menu__item-main .pf-c-menu__item-text:contains('{profile_button_name}')")
+            b.click(f".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('{profile_button_name}')")
             b.click("#crypto-policy-save-reboot")
             # Initramfs re-generation takes a while
             m.wait_reboot(timeout_sec=600)
@@ -1023,7 +1023,7 @@ password=foobar
         # RHEL 8 has no SHA1 policy, so do not show it.
         b.click("#crypto-policy-button")
         func = b.wait_not_present if m.image.startswith('rhel-8') or m.image.startswith('centos-8') else b.wait_visible
-        func(".pf-c-menu__item-main .pf-c-menu__item-text:contains('Default:sha1')")
+        func(".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('Default:sha1')")
 
         # Test if a new subpolicy can be set
         new_profile = "LEGACY:AD-SUPPORT"
@@ -1041,9 +1041,9 @@ password=foobar
         b.enter_page("/system")
         b.wait_text("#crypto-policy-button", shown_profile_text(profile))
         b.click("#crypto-policy-button")
-        b.wait_in_text(".pf-c-menu__item.pf-m-selected", shown_profile_text(profile))
-        b.wait_in_text(".pf-c-menu__item.pf-m-selected", "Custom crypto policy")
-        b.click("#crypto-policy-dialog button.pf-c-button.pf-m-link")
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", "Custom crypto policy")
+        b.click("#crypto-policy-dialog button.pf-v5-c-button.pf-m-link")
 
     @skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
     @skipOstree("crypto-policies not available")
@@ -1057,8 +1057,8 @@ password=foobar
         m.execute(cmd + " --set FIPS")
         self.login_and_go("/system")
         b.wait_text("#inconsistent_crypto_policy", "FIPS is not properly enabled")
-        b.click(".system-health-crypto-policies button.pf-c-button.pf-m-link")
-        b.wait_in_text(".pf-c-menu__item.pf-m-selected .pf-c-label.pf-m-orange", "inconsistent")
+        b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
         b.click("#crypto-policy-save-reboot")
         # Initramfs re-generation takes a while
         m.wait_reboot(timeout_sec=600)
@@ -1076,8 +1076,8 @@ password=foobar
         # Setting via dialog
         m.execute(cmd + " --set DEFAULT")
         b.wait_text("#inconsistent_crypto_policy", "Crypto policy is inconsistent")
-        b.click(".system-health-crypto-policies button.pf-c-button.pf-m-link")
-        b.wait_in_text(".pf-c-menu__item.pf-m-selected .pf-c-label.pf-m-orange", "inconsistent")
+        b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
         b.click("#crypto-policy-save-reboot")
         m.wait_reboot()
         m.start_cockpit()

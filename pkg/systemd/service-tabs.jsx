@@ -56,7 +56,7 @@ export function ServiceTabs({ onChange, activeTab, tabErrors }) {
                                  key={key}
                                  preventDefault
                                  isActive={activeItem == key}>
-                            <Button variant="link" component="a" style={{ "--pf-c-button--m-link--Color": "var(--pf-global--Color--200)", "--pf-c-nav__link--m-current--Color": "var(--pf-global--Color--100)", "--pf-c-nav__link--hover--Color": "var(--pf-global--Color--200)" }}>
+                            <Button variant="link" component="a" style={{ "--pf-v5-c-button--m-link--Color": "var(--pf-v5-global--Color--200)", "--pf-v5-c-nav__link--m-current--Color": "var(--pf-v5-global--Color--100)", "--pf-v5-c-nav__link--hover--Color": "var(--pf-v5-global--Color--200)" }}>
                                 {service_tabs[key]}
                                 {tabErrors[key] ? <ExclamationCircleIcon className="ct-exclamation-circle" /> : null}
                             </Button>

@@ -86,7 +86,7 @@ class TestSelinux(MachineCase):
         # starting rhsm.service), so let's give them some time to
         # appear before cleaning it all out.
         with b.wait_timeout(60):
-            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v5-c-table__toggle')")
         time.sleep(30)
 
         dismiss_sel = ".selinux-alert-dismiss"
@@ -94,7 +94,7 @@ class TestSelinux(MachineCase):
         # there are some distros with broken SELinux policies which always appear; so first, clean these up
         while True:
             # we either have no alerts, or an expand button in the table
-            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v5-c-table__toggle')")
             if "No SELinux alerts." in b.text('body'):
                 break
             num_alerts = b.call_js_func("ph_count", "#selinux-alerts tbody")
@@ -124,7 +124,7 @@ class TestSelinux(MachineCase):
             b.wait_visible(row_selector)
 
         # expand it to see details
-        toggle_selector = row_selector + " .pf-c-table__toggle button"
+        toggle_selector = row_selector + " .pf-v5-c-table__toggle button"
         b.click(toggle_selector)
 
         # this should have two alerts, but there seems to be a known issue that some messages are delayed
@@ -145,8 +145,8 @@ class TestSelinux(MachineCase):
         sebool_path = m.execute("command -v setsebool").strip()
         m.execute(f"chmod a-x {sebool_path}")
         b.click(f"{sebool_selector1} button{self.default_btn_class}")
-        b.wait_in_text(f"{sebool_selector1} .pf-c-alert", "Solution failed")
-        b.wait_in_text(f"{sebool_selector1} .pf-c-alert", "setsebool: Permission denied")
+        b.wait_in_text(f"{sebool_selector1} .pf-v5-c-alert", "Solution failed")
+        b.wait_in_text(f"{sebool_selector1} .pf-v5-c-alert", "setsebool: Permission denied")
 
         # we can't re-attempt the solution, dismiss it
         b.click(row_selector + " input[type=checkbox]")
@@ -161,7 +161,7 @@ class TestSelinux(MachineCase):
 
         # applying solution works now
         b.click(sebool_selector1 + " button" + self.default_btn_class)
-        b.wait_in_text(sebool_selector1 + " .pf-c-alert__title", "Solution applied successfully")
+        b.wait_in_text(sebool_selector1 + " .pf-v5-c-alert__title", "Solution applied successfully")
         self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))
         # system modifications automatically update for this new sebool
         # was "enable homedir", is now "read home directory"
@@ -189,7 +189,7 @@ class TestSelinux(MachineCase):
             b.wait_visible(row_selector)
 
         # expand it to see details
-        toggle_selector = row_selector + " .pf-c-table__toggle button"
+        toggle_selector = row_selector + " .pf-v5-c-table__toggle button"
         b.click(toggle_selector)
 
         try:
@@ -204,7 +204,7 @@ class TestSelinux(MachineCase):
             b.wait_not_present(btn_sel)
 
             # the fix should be applied
-            b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
+            b.wait_in_text(row_selector + " .pf-v5-c-alert__title", "Solution applied successfully")
 
             # and the button should not come back
             b.wait_not_present(btn_sel)
@@ -226,11 +226,11 @@ class TestSelinux(MachineCase):
             # fallback for older Chrome releases
             b.grant_permissions("clipboardRead", "clipboardWrite")
 
-        b.wait_visible(".pf-c-data-list__cell:contains(Allow zebra)")
-        b.wait_visible(".pf-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
+        b.wait_visible(".pf-v5-c-data-list__cell:contains(Allow zebra)")
+        b.wait_visible(".pf-v5-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
         b.click("button:contains('View automation script')")
-        shell_script_sel = ".automation-script-modal .pf-c-modal-box__body section:nth-child(2) textarea"
-        ansible_script_sel = ".automation-script-modal .pf-c-modal-box__body section:nth-child(3) textarea"
+        shell_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
+        ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(3) textarea"
         b.wait_in_text(shell_script_sel, "boolean -D")
         b.wait_in_text(shell_script_sel, "fcontext -D")
         b.wait_in_text(shell_script_sel, "boolean -m -1 zebra_write_config")
@@ -263,7 +263,7 @@ class TestSelinux(MachineCase):
         b.reload()
         b.enter_page("/selinux")
         with b.wait_timeout(30):
-            b.wait_visible(".pf-c-data-list__cell:contains(Disallow zebra)")
+            b.wait_visible(".pf-v5-c-data-list__cell:contains(Disallow zebra)")
         b.click("button:contains('View automation script')")
         b.click("button:contains('Ansible')")
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
@@ -323,7 +323,7 @@ class TestSelinuxEnforcing(MachineCase):
         def assertEnforce(active):
             # polled every 10s
             with b.wait_timeout(20):
-                b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
+                b.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(True)
@@ -331,7 +331,7 @@ class TestSelinuxEnforcing(MachineCase):
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button
-        b.click(".pf-c-switch__input")
+        b.click(".pf-v5-c-switch__input")
         assertEnforce(False)
         m.execute("getenforce | grep -q 'Permissive'")
 

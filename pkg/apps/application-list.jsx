@@ -143,7 +143,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         <Page id="list-page">
             <PageSection variant={PageSectionVariants.light}>
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                    <h2 className="pf-u-font-size-3xl">{_("Applications")}</h2>
+                    <h2 className="pf-v5-u-font-size-3xl">{_("Applications")}</h2>
                     <FlexItem align={{ default: 'alignRight' }}>
                         <Flex>
                             {refresh_progress}

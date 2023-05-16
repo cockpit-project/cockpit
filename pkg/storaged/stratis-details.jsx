@@ -455,7 +455,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                     { use &&
                     <DescriptionListGroup>
                         <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "Usage")}</DescriptionListTerm>
-                        <DescriptionListDescription className="pf-u-align-self-center">
+                        <DescriptionListDescription className="pf-v5-u-align-self-center">
                             <StorageUsageBar stats={use} critical={0.95} />
                         </DescriptionListDescription>
                     </DescriptionListGroup>
@@ -667,11 +667,11 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 title: <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])),
                     Number(pool.TotalPhysicalSize)]}
                                         critical={1} total={total} offset={offset} />,
-                props: { className: "pf-u-text-align-right" }
+                props: { className: "pf-v5-u-text-align-right" }
             },
             {
                 title: <>{actions}<StorageBarMenu key="menu" menuItems={menuitems} isKebab /></>,
-                props: { className: "pf-c-table__action content-action" }
+                props: { className: "pf-v5-c-table__action content-action" }
             }
         ];
 

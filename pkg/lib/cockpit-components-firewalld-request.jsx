@@ -125,7 +125,7 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
         return null;
     } else {
         alert = (
-            <Alert isInline variant="info" title={title} className="pf-u-box-shadow-sm">
+            <Alert isInline variant="info" title={title} className="pf-v5-u-box-shadow-sm">
                 <Toolbar className="ct-alert-toolbar">
                     <ToolbarContent>
                         <ToolbarGroup spaceItems={{ default: "spaceItemsMd" }}>

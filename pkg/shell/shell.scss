@@ -27,12 +27,12 @@
 @import "@patternfly/patternfly/components/Icon/icon.css";
 
 :root {
-  --ct-color-host-accent: var(--pf-global--active-color--100);
-  --ct-topnav-background: var(--pf-global--BackgroundColor--dark-100);
+  --ct-color-host-accent: var(--pf-v5-global--active-color--100);
+  --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-100);
 }
 
 .pf-theme-dark {
-  --ct-topnav-background: var(--pf-global--BackgroundColor--dark-200);
+  --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-200);
 }
 
 /* Hacks on top for now */
@@ -51,7 +51,7 @@ html.index-page body {
 
 // Fix fingerprint layout
 .add-host-fingerprint {
-  margin-block-start: var(--pf-global--spacer--md);
+  margin-block-start: var(--pf-v5-global--spacer--md);
 
   td {
     padding: 0;
@@ -60,7 +60,7 @@ html.index-page body {
     vertical-align: middle !important;
 
     &:first-child {
-      padding-inline-end: var(--pf-global--spacer--md);
+      padding-inline-end: var(--pf-v5-global--spacer--md);
     }
   }
 }
@@ -68,8 +68,8 @@ html.index-page body {
 .machine-key {
   margin: 0;
   white-space: pre-line;
-  padding-block: var(--pf-global--spacer--xs);
-  padding-inline: var(--pf-global--spacer--sm);
+  padding-block: var(--pf-v5-global--spacer--xs);
+  padding-inline: var(--pf-v5-global--spacer--sm);
 }
 
 .login-setup-checkbox-wrapper {
@@ -100,7 +100,7 @@ html.index-page body {
 
 .display-language-modal {
   /* Do not let the language menu expand to the end of the page */
-  .pf-c-menu__content {
+  .pf-v5-c-menu__content {
     max-block-size: 20rem;
     overflow: auto;
   }
@@ -126,12 +126,12 @@ $desktop: $phone + 1px;
   // Set masthead and toolbar to transparent, so the background shows through
   // (including the accent line)
 
-  .pf-c-masthead {
-    --pf-c-masthead--BackgroundColor: transparent;
+  .pf-v5-c-masthead {
+    --pf-v5-c-masthead--BackgroundColor: transparent;
   }
 
-  .pf-c-toolbar {
-    --pf-c-toolbar--BackgroundColor: transparent;
+  .pf-v5-c-toolbar {
+    --pf-v5-c-toolbar--BackgroundColor: transparent;
   }
 
   @media (max-width: $phone) {
@@ -147,7 +147,7 @@ $desktop: $phone + 1px;
     .sidebar-toggle {
       grid-area: sidebar;
       display: flex;
-      background: var(--pf-global--BackgroundColor--dark-100);
+      background: var(--pf-v5-global--BackgroundColor--dark-100);
     }
 
     > .header,
@@ -168,8 +168,8 @@ $desktop: $phone + 1px;
     }
 
     // Remove excess padding from masthead in mobile
-    .pf-c-masthead {
-      --pf-c-masthead--inset: 0;
+    .pf-v5-c-masthead {
+      --pf-v5-c-masthead--inset: 0;
     }
   }
 
@@ -231,7 +231,7 @@ $desktop: $phone + 1px;
 }
 
 /* Alert fixups */
-.modal-content .pf-c-alert {
+.modal-content .pf-v5-c-alert {
   text-align: start;
   margin-block-end: 24px;
 }
@@ -241,29 +241,29 @@ $desktop: $phone + 1px;
 }
 
 // Header menu buttons don't need a background color (especially in dark mode)
-.pf-c-toolbar .pf-c-dropdown__toggle {
-  --pf-c-dropdown__toggle--BackgroundColor: transparent;
+.pf-v5-c-toolbar .pf-v5-c-dropdown__toggle {
+  --pf-v5-c-dropdown__toggle--BackgroundColor: transparent;
 }
 
 // Header menu buttons don't need a background color (especially in dark mode)
-.pf-c-toolbar .pf-c-dropdown__toggle {
-  --pf-c-dropdown__toggle--BackgroundColor: transparent;
+.pf-v5-c-toolbar .pf-v5-c-dropdown__toggle {
+  --pf-v5-c-dropdown__toggle--BackgroundColor: transparent;
 }
 
 // PF hardcodes header colors to dark, which does funky things
 // ...so swap them back properly for dropdown menus
-.pf-c-masthead .pf-c-dropdown__menu {
-  --pf-global--BackgroundColor--100: var(--pf-global--BackgroundColor--light-100);
-  --pf-global--Color--100: var(--pf-global--Color--dark-100);
+.pf-v5-c-masthead .pf-v5-c-dropdown__menu {
+  --pf-v5-global--BackgroundColor--100: var(--pf-v5-global--BackgroundColor--light-100);
+  --pf-v5-global--Color--100: var(--pf-v5-global--Color--dark-100);
 }
 
 // Customize the about screen with the Cockpit logo
-.pf-c-about-modal-box {
-  --pf-c-about-modal-box--BackgroundImage: linear-gradient(#000d, #000d), url(../shell/images/cockpit-icon.svg);
-  --pf-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
-  --pf-c-about-modal-box--BackgroundSize--min-width: 786px;
+.pf-v5-c-about-modal-box {
+  --pf-v5-c-about-modal-box--BackgroundImage: linear-gradient(#000d, #000d), url(../shell/images/cockpit-icon.svg);
+  --pf-v5-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
+  --pf-v5-c-about-modal-box--BackgroundSize--min-width: 786px;
 
   [dir="rtl"] {
-    --pf-c-about-modal-box--BackgroundPosition: calc(100% - 30rem) 10rem;
+    --pf-v5-c-about-modal-box--BackgroundPosition: calc(100% - 30rem) 10rem;
   }
 }

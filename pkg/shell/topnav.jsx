@@ -223,7 +223,7 @@ export class TopNav extends React.Component {
                         <ToolbarContent className="ct-topnav-content">
                             {(connected && this.state.frame && !this.state.frame.getAttribute("data-ready")) &&
                                 <ToolbarItem id="machine-spinner">
-                                    <Spinner size="lg" style={{ "--pf-c-spinner--Color": "#fff", "--pf-c-spinner--diameter": "2rem" }} />
+                                    <Spinner size="lg" style={{ "--pf-v5-c-spinner--Color": "#fff", "--pf-v5-c-spinner--diameter": "2rem" }} />
                                 </ToolbarItem>
                             }
                             { connected &&
@@ -244,7 +244,7 @@ export class TopNav extends React.Component {
                                         document.getElementById("toggle-docs").focus();
                                     }}
                                     toggle={
-                                        <DropdownToggle id="toggle-docs" icon={<HelpIcon className="toggle-docs-icon pf-c-icon pf-m-lg" />} onToggle={(_event, isOpen) => { this.setState({ docsOpened: isOpen }) }}>
+                                        <DropdownToggle id="toggle-docs" icon={<HelpIcon className="toggle-docs-icon pf-v5-c-icon pf-m-lg" />} onToggle={(_event, isOpen) => { this.setState({ docsOpened: isOpen }) }}>
                                             {_("Help")}
                                         </DropdownToggle>
                                     }
@@ -262,7 +262,7 @@ export class TopNav extends React.Component {
                                         document.getElementById("toggle-menu").focus();
                                     }}
                                     toggle={
-                                        <DropdownToggle id="toggle-menu" icon={<CogIcon className="pf-c-icon pf-m-lg" />} onToggle={(_event, isOpen) => this.setState({ menuOpened: isOpen, showActivePages: _event.altKey }) }>
+                                        <DropdownToggle id="toggle-menu" icon={<CogIcon className="pf-v5-c-icon pf-m-lg" />} onToggle={(_event, isOpen) => this.setState({ menuOpened: isOpen, showActivePages: _event.altKey }) }>
                                             {_("Session")}
                                         </DropdownToggle>
                                     }

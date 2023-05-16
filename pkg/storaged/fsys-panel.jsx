@@ -99,7 +99,7 @@ export class FilesystemsPanel extends React.Component {
                         title: fsys_size
                             ? <StorageUsageBar stats={fsys_size} critical={0.95} block={block.IdLabel || block_name(block)} />
                             : fmt_size(block.Size),
-                        props: { className: "pf-u-text-align-right" }
+                        props: { className: "pf-v5-u-text-align-right" }
                     }
                 ]
             };
@@ -142,7 +142,7 @@ export class FilesystemsPanel extends React.Component {
                             title: <StorageUsageBar stats={[Number(fs.Used[0] && Number(fs.Used[1])),
                                 Number(pool.TotalPhysicalSize)]}
                                                     critical={1} total={total} offset={offsets[i]} />,
-                            props: { className: "pf-u-text-align-right" }
+                            props: { className: "pf-v5-u-text-align-right" }
                         }
                     ]
                 };

@@ -27,16 +27,16 @@
 @import "@patternfly/patternfly/utilities/Text/text.scss";
 @import "@patternfly/patternfly/utilities/Alignment/alignment.scss";
 
-#storage .pf-c-card {
+#storage .pf-v5-c-card {
   @extend .ct-card;
 }
 
-#storage .pf-l-gallery {
-  --pf-l-gallery--GridTemplateColumns: 1fr;
+#storage .pf-v5-l-gallery {
+  --pf-v5-l-gallery--GridTemplateColumns: 1fr;
 }
 
-#storage-detail .pf-c-page__main-section,
-#storage-detail .pf-c-page__main-nav {
+#storage-detail .pf-v5-c-page__main-section,
+#storage-detail .pf-v5-c-page__main-nav {
   overflow: auto;
 }
 
@@ -66,7 +66,7 @@
 }
 
 #storage .ct-table th {
-  font-weight: var(--pf-global--FontWeight--bold);
+  font-weight: var(--pf-v5-global--FontWeight--bold);
 }
 
 #storage .storage-sidebar table td {
@@ -106,7 +106,7 @@
 .dialog-select-row-table th {
   font-weight: bold;
   text-align: start;
-  color: var(--pf-global--palette--black-800);
+  color: var(--pf-v5-global--palette--black-800);
   padding: 0;
   padding-block: 0.75em;
   padding-inline: 0;
@@ -126,7 +126,7 @@ td.storage-icon {
 
 div.progress {
   inline-size: 100%;
-  block-size: var(--pf-global--FontSize-xs);
+  block-size: var(--pf-v5-global--FontSize-xs);
 }
 
 #detail-header div.progress {
@@ -134,7 +134,7 @@ div.progress {
 }
 
 #storage-detail .ct-table {
-  border-block-start: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+  border-block-start: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--BorderColor--100);
 }
 
 td.usage-text {
@@ -163,7 +163,7 @@ td.job-action {
 }
 
 .content-nav-item-warning:first-child {
-  padding-inline-end: var(--pf-global--spacer--sm);
+  padding-inline-end: var(--pf-v5-global--spacer--sm);
 }
 
 .content-action {
@@ -181,27 +181,27 @@ td.job-action {
   text-align: start;
 }
 
-.pf-c-modal-box__body table {
-  --pf-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
+.pf-v5-c-modal-box__body table {
+  --pf-v5-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
 }
 
 * + .modal-footer-teardown {
-  padding-block-start: var(--pf-global--spacer--xl);
+  padding-block-start: var(--pf-v5-global--spacer--xl);
 }
 
 tr[class*="content-level-"] {
   --multiplier: 0;
-  --offset: calc(var(--pf-global--spacer--lg) * var(--multiplier));
+  --offset: calc(var(--pf-v5-global--spacer--lg) * var(--multiplier));
 
   // Move the button over
-  > .pf-c-table__toggle > button {
+  > .pf-v5-c-table__toggle > button {
     position: relative;
     inset-inline-start: var(--offset);
   }
 
   // Add space for the button and offset
-  > .pf-c-table__toggle + td {
-    padding-inline-start: calc(var(--offset) + var(--pf-c-table--cell--PaddingLeft));
+  > .pf-v5-c-table__toggle + td {
+    padding-inline-start: calc(var(--offset) + var(--pf-v5-c-table--cell--PaddingLeft));
   }
 }
 
@@ -221,7 +221,7 @@ tr[class*="content-level-"] {
 }
 
 a.disabled {
-  color: var(--pf-global--palette--light-blue-200);
+  color: var(--pf-v5-global--palette--light-blue-200);
   text-decoration: none;
   cursor: not-allowed;
 }
@@ -282,9 +282,9 @@ td.storage-action {
 }
 
 .sigkey-heading {
-  color: var(--pf-global--Color--dark-100);
-  font-size: var(--pf-global--FontSize--sm);
-  margin-block: var(--pf-global--spacer--md) 0;
+  color: var(--pf-v5-global--Color--dark-100);
+  font-size: var(--pf-v5-global--FontSize--sm);
+  margin-block: var(--pf-v5-global--spacer--md) 0;
   margin-inline: 0;
 }
 
@@ -293,7 +293,7 @@ td.storage-action {
   font-size: 140%;
 }
 
-.pf-c-modal-box h3 {
+.pf-v5-c-modal-box h3 {
   margin-block-start: 0;
   line-height: 24px;
 }
@@ -325,47 +325,47 @@ td.storage-action {
 }
 
 .delete-resource-red {
-  color: var(--pf-global--danger-color--200);
+  color: var(--pf-v5-global--danger-color--200);
 }
 
-.pf-c-modal-box .slot-warning {
-  color: var(--pf-global--danger-color--200);
+.pf-v5-c-modal-box .slot-warning {
+  color: var(--pf-v5-global--danger-color--200);
 }
 
-.pf-c-modal-box .key-source .radio-horizontal {
+.pf-v5-c-modal-box .key-source .radio-horizontal {
   margin-block-end: 2ex;
 }
 
 // This is needs to avoid showing scrollbar in dialog
 .size-slider {
-  padding-block-end: var(--pf-global--spacer--xs);
+  padding-block-end: var(--pf-v5-global--spacer--xs);
 }
 
 /* Overview side panels */
 
 .sidepanel-row {
-  padding-block: var(--pf-global--spacer--sm);
-  padding-inline: var(--pf-global--spacer--lg);
-  border-block-start: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+  padding-block: var(--pf-v5-global--spacer--sm);
+  padding-inline: var(--pf-v5-global--spacer--lg);
+  border-block-start: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--BorderColor--100);
 }
 
-.sidepanel-row.pf-c-empty-state {
-  .pf-c-empty-state__body {
+.sidepanel-row.pf-v5-c-empty-state {
+  .pf-v5-c-empty-state__body {
     margin-block-start: 0;
   }
 }
 
-.sidepanel-row:not(.pf-c-empty-state):hover {
+.sidepanel-row:not(.pf-v5-c-empty-state):hover {
   color: var(--ct-color-list-hover-text);
   cursor: pointer;
 }
 
 .sidepanel-row-name {
-  font-size: var(--pf-global--FontSize--sm);
+  font-size: var(--pf-v5-global--FontSize--sm);
 }
 
 .sidepanel-row-info {
-  font-size: var(--pf-global--FontSize--xs);
+  font-size: var(--pf-v5-global--FontSize--xs);
   max-inline-size: 50ch;
 }
 
@@ -391,24 +391,24 @@ td.storage-action {
 }
 
 // So that "Stored passphrase" fits
-.pf-c-description-list.ct-wide-labels {
-  --pf-c-description-list--m-horizontal__term--width: minmax(0, 18ch);
+.pf-v5-c-description-list.ct-wide-labels {
+  --pf-v5-c-description-list--m-horizontal__term--width: minmax(0, 18ch);
 }
 
-.pf-c-description-list .pf-c-progress {
+.pf-v5-c-description-list .pf-v5-c-progress {
   max-inline-size: 30ch;
 }
 
-#mounts .pf-c-progress__measure, #nfs-mounts .pf-c-progress__measure, #detail-content .pf-c-progress__measure {
+#mounts .pf-v5-c-progress__measure, #nfs-mounts .pf-v5-c-progress__measure, #detail-content .pf-v5-c-progress__measure {
   min-inline-size: 7rem;
 }
 
 // Hatched effect for progressbars that are parts of a group, but not the main
 .ct-progress-other {
   // Use the page's default background color
-  --bg-light: var(--pf-global--BackgroundColor--100);
+  --bg-light: var(--pf-v5-global--BackgroundColor--100);
   // Alternate with the used color of the progress bar
-  --bg-dark: var(--pf-c-progress__indicator--BackgroundColor);
+  --bg-dark: var(--pf-v5-c-progress__indicator--BackgroundColor);
   // Repeat a gradient with hard stops, a perfect slant, and a consistency
   // with all "other" hatched backgrounds (fixed, so they repeat the same)
   background: repeating-linear-gradient(
@@ -419,26 +419,26 @@ td.storage-action {
     var(--bg-dark) 50%,
     var(--bg-light) 50%
   ) top left fixed;
-  background-size: var(--pf-global--spacer--sm) var(--pf-global--spacer--sm);
+  background-size: var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--sm);
   // Overlay at 1/3  to mix the light and dark against the trough color
   opacity: 0.333;
 }
 
 .ct-warning-text {
-  color: var(--pf-global--warning-color--200);
+  color: var(--pf-v5-global--warning-color--200);
 }
 
 td button.pf-m-link {
   padding: 0;
 }
 
-@media (max-width: $pf-global--breakpoint--md - 1) {
+@media (max-width: $pf-v5-global--breakpoint--md - 1) {
   .show-only-when-wide {
     display: none;
   }
 }
 
-@media (min-width: $pf-global--breakpoint--md) {
+@media (min-width: $pf-v5-global--breakpoint--md) {
   .show-only-when-narrow {
     display: none;
   }

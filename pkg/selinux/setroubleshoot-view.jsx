@@ -361,16 +361,16 @@ export class SETroubleshootPage extends React.Component {
                 ];
                 // if the alert has level "red", it's critical
                 const criticalAlert = (itm.details && 'level' in itm.details && itm.details.level == "red")
-                    ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle pf-c-icon pf-m-lg" />
+                    ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle pf-v5-c-icon pf-m-lg" />
                     : null;
                 const columns = [
                     { title: criticalAlert },
                     { title: itm.description }
                 ];
                 if (itm.count > 1) {
-                    columns.push({ title: <Badge isRead>{itm.count}</Badge>, props: { className: "pf-c-table__action" } });
+                    columns.push({ title: <Badge isRead>{itm.count}</Badge>, props: { className: "pf-v5-c-table__action" } });
                 } else {
-                    columns.push({ title: <span />, props: { className: "pf-c-table__action" } });
+                    columns.push({ title: <span />, props: { className: "pf-v5-c-table__action" } });
                 }
                 return ({
                     props: { key: itm.details ? itm.details.localId : index },

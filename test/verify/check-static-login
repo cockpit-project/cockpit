@@ -409,7 +409,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # this doesn't actually record anything, but logging into cockpit should work
         m.start_cockpit()
         b.login_and_go("/system", user="user", password="abcdefg")
-        b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
+        b.wait_visible(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
         b.logout()
 
         self.allow_journal_messages(".*value for the SHELL variable was not found the /etc/shells.*",
@@ -468,7 +468,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.logout()
         b.login_and_go("/system", user="unpriv")
         # not an admin
-        b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
+        b.wait_visible(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
 
         b.wait_in_text('#system_last_login', "Last successful login")
         b.wait_in_text('#system_last_login_from', "web console")
@@ -530,7 +530,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
         b.click("#delay")
         b.click("button:contains('5 minutes')")
-        b.wait_text("#delay .pf-c-select__toggle-text", "5 minutes")
+        b.wait_text("#delay .pf-v5-c-select__toggle-text", "5 minutes")
         b.click(f"#shutdown-dialog button{self.danger_btn_class}")
 
         # cancel reboot
@@ -562,7 +562,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.open("/system")
         b.wait_visible("#unsupported-browser")
         b.wait_in_text("#show-other-login-options-text", "Bypass browser check")
-        b.click(".pf-c-expandable-section")
+        b.click(".pf-v5-c-expandable-section")
 
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")

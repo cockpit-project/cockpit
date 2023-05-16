@@ -59,18 +59,18 @@ pre {
   white-space: pre-wrap;
 }
 
-.pf-c-button,
+.pf-v5-c-button,
 label {
   font-weight: 600;
 }
 
-.pf-c-button,
+.pf-v5-c-button,
 img {
   vertical-align: middle;
 }
 
 #option-group,
-.pf-c-button,
+.pf-v5-c-button,
 .input-clear,
 button {
   cursor: pointer;
@@ -87,7 +87,7 @@ summary {
   text-decoration: none;
 }
 
-.pf-c-button:focus,
+.pf-v5-c-button:focus,
 .host-remove:focus,
 button:focus,
 a:focus {
@@ -179,7 +179,7 @@ form .control-label {
   color: #151515;
 }
 
-.pf-c-button.pf-m-control,
+.pf-v5-c-button.pf-m-control,
 .form-control[type="password"],
 .form-control[type="text"] {
   display: block;
@@ -195,7 +195,7 @@ form .control-label {
   color: #151515;
 }
 
-.pf-c-button.pf-m-control:hover,
+.pf-v5-c-button.pf-m-control:hover,
 .form-control[type="password"]:hover,
 .form-control[type="text"]:hover,
 .form-control[type="password"]:focus,
@@ -203,14 +203,14 @@ form .control-label {
   border-block-end-color: #06c;
 }
 
-.pf-c-button.pf-m-control:focus,
+.pf-v5-c-button.pf-m-control:focus,
 .form-control[type="password"]:focus,
 .form-control[type="text"]:focus {
   padding-block-end: calc(0.25rem - 1px);
   border-block-end-width: 2px;
 }
 
-.pf-c-button.pf-m-control:focus,
+.pf-v5-c-button.pf-m-control:focus,
 .form-control:focus {
   outline: 0;
 }
@@ -246,12 +246,12 @@ label.checkbox {
   color: #737373;
 }
 
-.pf-c-button,
+.pf-v5-c-button,
 .caret {
   display: inline-block;
 }
 
-.pf-c-button[spinning] .spinner {
+.pf-v5-c-button[spinning] .spinner {
   display: inline-flex;
 }
 
@@ -260,7 +260,7 @@ label.checkbox {
   margin-block-end: 1rem;
 }
 
-.pf-c-button {
+.pf-v5-c-button {
   text-align: center;
   background-image: none;
   border: 1px solid transparent;
@@ -273,12 +273,12 @@ label.checkbox {
   user-select: none;
 }
 
-.pf-c-button:focus,
-.pf-c-button:hover {
+.pf-v5-c-button:focus,
+.pf-v5-c-button:hover {
   text-decoration: none;
 }
 
-.pf-c-button:active {
+.pf-v5-c-button:active {
   outline: 0;
   background-image: none;
 }
@@ -326,14 +326,14 @@ label.checkbox {
   outline: none;
 }
 
-.pf-c-button.pf-m-warning {
+.pf-v5-c-button.pf-m-warning {
   background-color: #f0ab00;
   border-color: #f0ab00;
   color: black;
 }
 
-.pf-c-button.pf-m-warning:hover,
-.pf-c-button.pf-m-warning:focus {
+.pf-v5-c-button.pf-m-warning:hover,
+.pf-v5-c-button.pf-m-warning:focus {
   background-color: #c58c00;
   border-color: #c58c00;
   color: black;
@@ -417,7 +417,7 @@ label.checkbox {
 }
 
 /* Alerts */
-.pf-c-alert {
+.pf-v5-c-alert {
   color: #151515;
   position: relative;
   grid-template-columns: max-content 1fr max-content;
@@ -434,11 +434,11 @@ label.checkbox {
   box-shadow: rgb(3 3 3 / 16%) 0 0.5rem 1rem 0, rgb(3 3 3 / 8%) 0 0 0.5rem 0;
 }
 
-.pf-c-alert.pf-m-inline {
+.pf-v5-c-alert.pf-m-inline {
   box-shadow: none;
 }
 
-.pf-c-alert > svg {
+.pf-v5-c-alert > svg {
   grid-area: icon;
   block-size: 1.125rem;
   inline-size: 1.125rem;
@@ -449,54 +449,54 @@ label.checkbox {
 }
 
 @supports (display: grid) {
-  .pf-c-alert > svg {
+  .pf-v5-c-alert > svg {
     float: none;
     margin-inline-end: 0;
   }
 }
 
-.pf-c-alert__title {
+.pf-v5-c-alert__title {
   grid-area: title;
   font-size: 1rem;
   margin: 1rem;
 }
 
-.pf-c-alert.pf-m-inline.pf-m-danger {
+.pf-v5-c-alert.pf-m-inline.pf-m-danger {
   background: #faeae8;
   border-color: #c9190b;
 }
 
-.pf-c-alert.pf-m-danger > svg {
+.pf-v5-c-alert.pf-m-danger > svg {
   color: #c9190b;
 }
 
-.pf-c-alert.pf-m-danger .pf-c-alert__title {
+.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title {
   color: #a30000;
 }
 
-.pf-c-alert.pf-m-inline.pf-m-warning {
+.pf-v5-c-alert.pf-m-inline.pf-m-warning {
   background: #fdf7e7;
   border-color: #f0ab00;
 }
 
-.pf-c-alert.pf-m-warning > svg {
+.pf-v5-c-alert.pf-m-warning > svg {
   color: #f0ab00;
 }
 
-.pf-c-alert.pf-m-warning .pf-c-alert__title {
+.pf-v5-c-alert.pf-m-warning .pf-v5-c-alert__title {
   color: #795600;
 }
 
-.pf-c-alert.pf-m-inline.pf-m-info {
+.pf-v5-c-alert.pf-m-inline.pf-m-info {
   background: #e7f1fa;
   border-color: #73bcf7;
 }
 
-.pf-c-alert.pf-m-info > svg {
+.pf-v5-c-alert.pf-m-info > svg {
   color: #73bcf7;
 }
 
-.pf-c-alert.pf-m-info .pf-c-alert__title {
+.pf-v5-c-alert.pf-m-info .pf-v5-c-alert__title {
   color: #004368;
 }
 
@@ -560,8 +560,8 @@ label.checkbox {
   background: rgb(150 150 150 / 20%);
 }
 
-.pf-c-button .spinner,
-.pf-c-button[spinning] .button-text,
+.pf-v5-c-button .spinner,
+.pf-v5-c-button[spinning] .button-text,
 .hide-before::before {
   display: none;
 }
@@ -637,7 +637,7 @@ label.checkbox {
   flex-basis: max-content;
 }
 
-.pf-c-button[disabled] {
+.pf-v5-c-button[disabled] {
   background-color: #333;
   background-image: none;
   border-color: #555;
@@ -914,7 +914,7 @@ a:hover {
   grid-template-columns: 1fr auto;
 }
 
-.pf-c-button.login-password-toggle {
+.pf-v5-c-button.login-password-toggle {
   display: flex;
   align-items: center;
   border-inline-start-width: 0;
@@ -931,11 +931,11 @@ input[type="password"] + .login-password-toggle .password-hide {
   display: none;
 }
 
-.pf-c-helper-text {
+.pf-v5-c-helper-text {
   margin-block-start: 1rem;
 }
 
-.pf-c-helper-text.pf-m-warning {
+.pf-v5-c-helper-text.pf-m-warning {
   color: #795600;
 }
 
@@ -956,7 +956,7 @@ input[type="password"] + .login-password-toggle .password-hide {
     color: #f0f0f0;
   }
 
-  .pf-c-button.pf-m-control,
+  .pf-v5-c-button.pf-m-control,
   .form-control[type="password"],
   .form-control[type="text"] {
     background: #393f44;
@@ -996,17 +996,17 @@ input[type="password"] + .login-password-toggle .password-hide {
     color: #999;
   }
 
-  .pf-c-alert.pf-m-inline.pf-m-danger {
+  .pf-v5-c-alert.pf-m-inline.pf-m-danger {
     background: #1e2125;
     border-color: #fe5142;
   }
 
-  .pf-c-alert.pf-m-danger > svg,
-  .pf-c-alert.pf-m-danger .pf-c-alert__title {
+  .pf-v5-c-alert.pf-m-danger > svg,
+  .pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title {
     color: #fe5142;
   }
 
-  .pf-c-button[disabled] {
+  .pf-v5-c-button[disabled] {
     background-color: #444548;
     border-color: #444548;
     color: #c6c7c8;
@@ -1025,7 +1025,7 @@ input[type="password"] + .login-password-toggle .password-hide {
     z-index: 1;
   }
 
-  .pf-c-helper-text.pf-m-warning {
+  .pf-v5-c-helper-text.pf-m-warning {
     color: #f0ab00;
   }
 }

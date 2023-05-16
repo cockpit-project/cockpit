@@ -31,8 +31,7 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
-import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
+import { Label, LabelGroup } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";

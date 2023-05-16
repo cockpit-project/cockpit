@@ -211,6 +211,9 @@ class CDP:
                 src = f.read()
             # HACK: injecting sizzle fails on missing `document` in assert()
             src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
+            # HACK: sizzle tracks document and when we switch frames, it sees the old document
+            # although we execute it in different context.
+            src = src.replace('context = context || document;', 'context = context || window.document;')
             self.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=src, no_trace=True)
 
     def kill(self):

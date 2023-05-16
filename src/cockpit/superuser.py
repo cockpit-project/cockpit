@@ -135,6 +135,8 @@ class SuperuserRoutingRule(RoutingRule, ferny.InteractionResponder, bus.Object, 
 
         try:
             await self.peer.start()
+        except asyncio.CancelledError:
+            raise bus.BusError('cockpit.Superuser.Error.Cancelled', 'Operation aborted')
         except (OSError, PeerError) as exc:
             raise bus.BusError('cockpit.Superuser.Error', str(exc))
 

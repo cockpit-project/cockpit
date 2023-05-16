@@ -37,7 +37,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
-import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
+import { LabelGroup } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Progress, ProgressSize } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";

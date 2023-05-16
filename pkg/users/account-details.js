@@ -28,8 +28,7 @@ import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/di
 import { EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
-import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
-import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
+import { Label, LabelGroup } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";

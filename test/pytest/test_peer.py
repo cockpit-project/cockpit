@@ -4,20 +4,23 @@ import sys
 
 import pytest
 
+from cockpit.protocol import CockpitProtocolError
 from cockpit.router import Router
-from cockpit.peer import PeerRoutingRule
+from cockpit.peer import ConfiguredPeer, PeerRoutingRule
 
 import mockpeer
 from mocktransport import MockTransport, assert_no_subprocesses, settle_down
 
+PEER_CONFIG = {
+    "spawn": [sys.executable, mockpeer.__file__],
+    "environ": ['PYTHONPATH=' + ':'.join(sys.path)],
+    "match": {"payload": "test"},
+}
+
 
 class Bridge(Router):
     def __init__(self):
-        rule = PeerRoutingRule(self, {
-            "spawn": [sys.executable, mockpeer.__file__],
-            "environ": ['PYTHONPATH=' + ':'.join(sys.path)],
-            "match": {"payload": "test"},
-        })
+        rule = PeerRoutingRule(self, PEER_CONFIG)
         super().__init__([rule])
 
     def do_send_init(self):
@@ -100,3 +103,75 @@ async def test_killed(monkeypatch, transport, rule):
     os.kill(rule.peer.transport._process.pid, 9)
     await transport.assert_msg('', command='close', channel=channel, problem='peer-disconnected')
     await settle_down()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('init_type', ['wrong-command', 'channel-control', 'data', 'break-protocol'])
+async def test_await_failure(init_type, monkeypatch, bridge):
+    monkeypatch.setenv('INIT_TYPE', init_type)
+    peer = ConfiguredPeer(bridge, PEER_CONFIG)
+    with pytest.raises(CockpitProtocolError):
+        await peer.start()
+    peer.close()
+    await settle_down()
+
+
+@pytest.mark.asyncio
+async def test_await_broken_connect(bridge):
+    class BrokenConnect(ConfiguredPeer):
+        async def do_connect_transport(self):
+            42 / 0
+
+    peer = BrokenConnect(bridge, PEER_CONFIG)
+    with pytest.raises(ZeroDivisionError):
+        await peer.start()
+    peer.close()
+    await settle_down()
+
+
+@pytest.mark.asyncio
+async def test_await_broken_after_connect(bridge):
+    class BrokenConnect(ConfiguredPeer):
+        async def do_connect_transport(self):
+            await super().do_connect_transport()
+            42 / 0
+
+    peer = BrokenConnect(bridge, PEER_CONFIG)
+    with pytest.raises(ZeroDivisionError):
+        await peer.start()
+    peer.close()
+    await settle_down()
+
+
+class CancellableConnect(ConfiguredPeer):
+    was_cancelled = False
+
+    async def do_connect_transport(self):
+        await super().do_connect_transport()
+        try:
+            # We should get cancelled here when the mockpeer sends "init"
+            await asyncio.sleep(10000)
+        except asyncio.CancelledError:
+            self.was_cancelled = True
+            raise
+
+
+@pytest.mark.asyncio
+async def test_await_cancellable_connect_init(bridge):
+    peer = CancellableConnect(bridge, PEER_CONFIG)
+    await peer.start()
+    peer.close()
+    await settle_down()
+    assert peer.was_cancelled
+
+
+@pytest.mark.asyncio
+async def test_await_cancellable_connect_close(monkeypatch, event_loop, bridge):
+    monkeypatch.setenv('INIT_TYPE', 'silence')  # make sure we never get "init"
+    peer = CancellableConnect(bridge, PEER_CONFIG)
+    event_loop.call_later(0.1, peer.close)  # call peer.close() after .start() is running
+    with pytest.raises(asyncio.CancelledError):
+        await peer.start()
+    # we already called .close()
+    await settle_down()
+    assert peer.was_cancelled

@@ -194,7 +194,7 @@ class MockTransport(asyncio.Transport):
         assert 'id' in reply, reply
         assert reply['id'] == tag, reply
         assert 'error' in reply, reply
-        assert reply['error'] == [code, [message]]
+        assert reply['error'] == [code, [message]], reply['error']
 
     async def check_bus_call(
         self,

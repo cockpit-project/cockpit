@@ -35,7 +35,6 @@ class PeerError(CockpitProblem):
 class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
     done_callbacks: List[Callable[[], None]]
     init_future: Optional[asyncio.Future]
-    start_task: Optional[asyncio.Task]
 
     def __init__(self, router: Router):
         super().__init__(router)
@@ -43,9 +42,8 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         # All Peers start out frozen — we only unfreeze after we see the first 'init' message
         self.freeze_endpoint()
 
+        self.init_future = asyncio.get_running_loop().create_future()
         self.done_callbacks = []
-        self.init_future = None
-        self.start_task = None
 
     # Initialization
     async def do_connect_transport(self) -> asyncio.Transport:
@@ -61,48 +59,64 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         """Request that the Peer is started and connected to the router.
 
         Creates the transport, connects it to the protocol, and participates in
-        exchanging of init messages.  If anything goes wrong, an exception will
-        be thrown and you must call .close() to make sure the connection is
-        properly shut down.
+        exchanging of init messages.  If anything goes wrong, the connection
+        will be closed and an exception will be raised.
         """
-        try:
-            assert self.init_future is None
+        assert self.init_future is not None
 
-            # Connect the transport
-            transport = await self.do_connect_transport()
-            assert transport is not None
-            assert self._closed or self.transport is transport
-
-            # Wait for the other side to send "init"
-            self.init_future = asyncio.get_running_loop().create_future()
+        def _connect_task_done(task: asyncio.Task) -> None:
+            assert task is connect_task
             try:
-                await self.init_future
-            finally:
-                self.init_future = None
+                task.result()
+            except asyncio.CancelledError:  # we did that (below)
+                pass                        # we want to ignore it
+            except Exception as exc:
+                self.close(exc)
 
-            # Send "init" back
-            self.write_control(command='init', version=1, host=init_host or self.router.init_host)
+        connect_task = asyncio.create_task(self.do_connect_transport())
+        connect_task.add_done_callback(_connect_task_done)
 
-            # Thaw the queued messages
-            self.thaw_endpoint()
+        try:
+            # Wait for something to happen:
+            #   - exception from our connection function
+            #   - receiving "init" from the other side
+            #   - receiving EOF from the other side
+            #   - .close() was called
+            #   - other transport exception
+            await self.init_future
 
-        except Exception as exc:
-            self.close(exc)
+        except EOFError:
+            # This is a fairly generic error.  If the connection process is
+            # still running, perhaps we'd get a better error message from it.
+            await connect_task
+            # Otherwise, re-raise
             raise
 
+        finally:
+            self.init_future = None
+
+            # In any case (failure or success) make sure this is done.
+            if not connect_task.done():
+                connect_task.cancel()
+
+        # Send "init" back
+        self.write_control(command='init', version=1, host=init_host or self.router.init_host)
+
+        # Thaw the queued messages
+        self.thaw_endpoint()
+
     # Background initialization
-    def _start_task_done(self, task: asyncio.Task) -> None:
-        assert task is self.start_task
-        self.start_task = None
-
-        try:
-            task.result()
-        except (OSError, CockpitProblem, asyncio.CancelledError):
-            pass  # Those are expected.  Others will throw.
-
     def start_in_background(self, init_host: Optional[str] = None) -> None:
-        self.start_task = asyncio.create_task(self.start(init_host))
-        self.start_task.add_done_callback(self._start_task_done)
+        def _start_task_done(task: asyncio.Task) -> None:
+            assert task is start_task
+
+            try:
+                task.result()
+            except (EOFError, OSError, CockpitProblem, asyncio.CancelledError):
+                pass  # Those are expected.  Others will throw.
+
+        start_task = asyncio.create_task(self.start(init_host))
+        start_task.add_done_callback(_start_task_done)
 
     # Shutdown
     def add_done_callback(self, callback: Callable[[], None]) -> None:
@@ -115,10 +129,18 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         else:
             raise CockpitProtocolError(f'Received unexpected control message {command}')
 
+    def eof_received(self) -> bool:
+        # We always expect to be the ones to close the connection, so if we get
+        # an EOF, then we consider it to be an error.  This allows us to
+        # distinguish close caused by unexpected EOF (but no errno from a
+        # syscall failure) vs. close caused by calling .close() on our side.
+        self.close(EOFError('The peer unexpectedly sent EOF'))
+        return True
+
     def do_closed(self, exc: Optional[Exception]) -> None:
         logger.debug('Peer %s connection lost %s', self.__class__.__name__, exc)
 
-        if exc is None:
+        if exc is None or isinstance(exc, EOFError):
             self.shutdown_endpoint(problem='peer-disconnected')
         elif isinstance(exc, CockpitProblem):
             self.shutdown_endpoint(problem=exc.problem, **exc.kwargs)
@@ -126,10 +148,13 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
             self.shutdown_endpoint(problem='internal-error',
                                    message=f"[{exc.__class__.__name__}] {str(exc)}")
 
-        if self.init_future is not None and exc is not None:
-            self.init_future.set_exception(exc)
-        elif self.start_task is not None:
-            self.start_task.cancel()
+        # If .start() is running, we need to make sure it stops running,
+        # raising the correct exception.
+        if self.init_future is not None and not self.init_future.done():
+            if exc is not None:
+                self.init_future.set_exception(exc)
+            else:
+                self.init_future.cancel()
 
         for callback in self.done_callbacks:
             callback()

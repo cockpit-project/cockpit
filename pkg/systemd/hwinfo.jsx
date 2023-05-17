@@ -222,7 +222,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                         <DataListAction>
                             <div id="nosmt-switch">
                                 <Switch isDisabled={this.state.rebooting}
-                                        onChange={ value => this.setState({ nosmt: value }) }
+                                        onChange={ (_event, value) => this.setState({ nosmt: value }) }
                                         isChecked={ this.state.nosmt } />
                             </div>
                         </DataListAction>

@@ -1500,7 +1500,7 @@ class OsUpdates extends React.Component {
                                  actions={this.state.applyActions}
                                  onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
                                  rebootAfter={this.state.rebootAfterSuccess}
-                                 setRebootAfter={ enabled => this.setState({ rebootAfterSuccess: enabled }) }
+                                 setRebootAfter={ (_event, enabled) => this.setState({ rebootAfterSuccess: enabled }) }
             />;
 
         case "updateSuccess": {

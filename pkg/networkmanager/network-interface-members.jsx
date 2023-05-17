@@ -67,7 +67,7 @@ export const NetworkInterfaceMembers = ({
                     aria-label={cockpit.format(_("Switch of $0"), iface.Name)}
                     isDisabled={!privileged}
                     isChecked={!!(dev && dev.ActiveConnection)}
-                    onChange={val => {
+                    onChange={(_event, val) => {
                         if (val) {
                             with_checkpoint(
                                 model,

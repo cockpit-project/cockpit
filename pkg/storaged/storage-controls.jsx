@@ -157,7 +157,7 @@ export class StorageOnOff extends React.Component {
     render() {
         const self = this;
 
-        function onChange(val) {
+        function onChange(_event, val) {
             const promise = self.props.onChange(val);
             if (promise) {
                 promise.catch(error => {

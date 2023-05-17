@@ -65,7 +65,7 @@ const initStore = function(rootElement) {
         dataStore.selinuxStatusError = undefined;
         dataStore.render();
     };
-    const selinuxChangeMode = function(newMode) {
+    const selinuxChangeMode = function(_event, newMode) {
         selinuxClient.setEnforcing(newMode).then(
             function() {
                 dataStore.selinuxStatus.enforcing = newMode;

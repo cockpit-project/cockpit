@@ -22,12 +22,10 @@ import json
 import logging
 import os
 import pwd
-
 from typing import Dict, Optional
 
-from ._vendor.systemd_ctypes import bus, pathwatch, inotify, Variant
-
 from . import config
+from ._vendor.systemd_ctypes import Variant, bus, inotify, pathwatch
 
 logger = logging.getLogger(__name__)
 

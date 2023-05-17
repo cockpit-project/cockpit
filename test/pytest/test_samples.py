@@ -20,9 +20,8 @@ import multiprocessing
 import numbers
 import os
 
-import pytest
-
 import cockpit.samples
+import pytest
 
 
 @pytest.fixture

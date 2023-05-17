@@ -17,10 +17,9 @@
 
 import collections
 import logging
-
 from typing import Dict, List, Optional
 
-from .protocol import CockpitProtocolServer, CockpitProtocolError
+from .protocol import CockpitProtocolError, CockpitProtocolServer
 
 logger = logging.getLogger(__name__)
 

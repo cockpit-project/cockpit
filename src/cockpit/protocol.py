@@ -19,11 +19,9 @@ import asyncio
 import json
 import logging
 import uuid
-
 from typing import ClassVar, Dict, Optional
 
 from ._vendor import systemd_ctypes
-
 
 logger = logging.getLogger(__name__)
 

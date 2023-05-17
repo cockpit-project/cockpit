@@ -6,7 +6,6 @@ import shutil
 import subprocess
 import tarfile
 import zipfile
-
 from typing import Dict, Iterable, Optional
 
 from cockpit import __version__

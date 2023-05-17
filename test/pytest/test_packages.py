@@ -17,10 +17,9 @@
 
 import json
 
-import pytest
-
 import cockpit.config
-from cockpit.packages import parse_accept_language, Packages
+import pytest
+from cockpit.packages import Packages, parse_accept_language
 
 
 @pytest.mark.parametrize("test_input,expected", [

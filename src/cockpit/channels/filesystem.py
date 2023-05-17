@@ -18,12 +18,10 @@
 import logging
 import os
 import random
-
 from typing import Dict
 
 from .._vendor.systemd_ctypes import PathWatch
 from .._vendor.systemd_ctypes.inotify import Event as InotifyEvent
-
 from ..channel import Channel, ChannelError, GeneratorChannel
 
 logger = logging.getLogger(__name__)

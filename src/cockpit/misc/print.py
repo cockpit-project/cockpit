@@ -24,7 +24,6 @@ import readline  # noqa side-effecting import
 import shlex
 import sys
 import time
-
 from typing import BinaryIO, Iterable, Optional
 
 

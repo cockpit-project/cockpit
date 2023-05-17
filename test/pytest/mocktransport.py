@@ -2,7 +2,6 @@ import asyncio
 import json
 import os
 import subprocess
-
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 from cockpit.router import Router

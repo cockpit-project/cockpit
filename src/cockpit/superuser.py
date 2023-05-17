@@ -16,16 +16,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
-import logging
 import getpass
+import logging
 import os
-
 from typing import Dict, List, Optional, Sequence, Union
 
-from ._vendor.systemd_ctypes import bus
 from ._vendor import ferny
+from ._vendor.systemd_ctypes import bus
+from .peer import ConfiguredPeer, Peer, PeerError
 from .router import Router, RoutingError, RoutingRule
-from .peer import Peer, PeerError, ConfiguredPeer
 
 logger = logging.getLogger(__name__)
 

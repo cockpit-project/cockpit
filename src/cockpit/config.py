@@ -50,7 +50,7 @@ class Config(bus.Object, interface='cockpit.Config'):
         try:
             int_val = int(value)
         except ValueError:
-            logger.warning(f'cockpit.conf: [{section}] {key} is not an integer')
+            logger.warning('cockpit.conf: [%s] %s is not an integer', section, key)
             return default
 
         return min(max(int_val, minimum), maximum)

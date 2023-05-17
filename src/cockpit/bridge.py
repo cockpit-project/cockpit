@@ -95,7 +95,7 @@ class Bridge(Router, PackagesListener):
             try:
                 file = open('/usr/lib/os-release', encoding='utf-8')
             except FileNotFoundError:
-                logger.warn("Neither /etc/os-release nor /usr/lib/os-release exists")
+                logger.warning("Neither /etc/os-release nor /usr/lib/os-release exists")
                 return {}
 
         with file:

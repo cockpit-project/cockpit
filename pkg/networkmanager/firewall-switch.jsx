@@ -42,7 +42,7 @@ export class FirewallSwitch extends React.Component {
         return null;
     }
 
-    onSwitchChanged(value) {
+    onSwitchChanged(_event, value) {
         this.setState({ pendingTarget: value });
 
         if (value)

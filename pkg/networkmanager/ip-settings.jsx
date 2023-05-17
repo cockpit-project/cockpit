@@ -226,7 +226,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <Switch
                                     isChecked={!ignoreAutoDns}
                                     isDisabled={!canAuto}
-                                    onChange={value => setIgnoreAutoDns(!value)}
+                                    onChange={(_event, value) => setIgnoreAutoDns(!value)}
                                     label={_("Automatic")} />
                                 <Button variant="secondary"
                                         isDisabled={!canHaveExtra}
@@ -271,7 +271,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <Switch
                                     isChecked={!ignoreAutoDns}
                                     isDisabled={!canAuto}
-                                    onChange={value => setIgnoreAutoDns(!value)}
+                                    onChange={(_event, value) => setIgnoreAutoDns(!value)}
                                     label={_("Automatic")} />
                                 <Button variant="secondary"
                                         isDisabled={!canHaveExtra}

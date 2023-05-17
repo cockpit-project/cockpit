@@ -48,7 +48,7 @@ const initStore = function(rootElement) {
 
     // whether we're actively trying to change the state
     dataStore.stateChanging = false;
-    function setServiceState(desiredState) {
+    function setServiceState(_event, desiredState) {
         if (dataStore.stateChanging) {
             console.log("already trying to change state");
             return;

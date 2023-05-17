@@ -133,7 +133,7 @@ export const CredentialsModal = () => {
                                         title: <Switch aria-label={_("Use key")}
                                                        isChecked={!!currentKey.loaded}
                                                        key={"switch-" + index}
-                                                       onChange={value => onToggleKey(currentKeyId, value)} />,
+                                                       onChange={(_event, value) => onToggleKey(currentKeyId, value)} />,
                                     }
                                 ],
                                 expandedContent,

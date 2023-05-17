@@ -675,7 +675,7 @@ export const NetworkInterfacePage = ({
         onoff = (
             <Switch isChecked={!!(dev && dev.ActiveConnection)}
                     isDisabled={!iface || (dev && dev.State == 20)}
-                    onChange={enable => enable ? connect() : disconnect()}
+                    onChange={(_event, enable) => enable ? connect() : disconnect()}
                     aria-label={_("Enable or disable the device")} />
         );
     }

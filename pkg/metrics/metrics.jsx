@@ -1496,7 +1496,7 @@ const PCPConfigDialog = ({
                                         </TextContent>
                                     </Flex>
                                 }
-                                onChange={enable => {
+                                onChange={(_event, enable) => {
                                     // pmproxy needs pmlogger, auto-disable it
                                     setDialogLoggerValue(enable);
                                     if (!enable)
@@ -1514,7 +1514,7 @@ const PCPConfigDialog = ({
                                     </Flex>
                                 }
                                 isDisabled={ !dialogLoggerValue }
-                            onChange={enable => setDialogProxyValue(enable)} />
+                            onChange={(_event, enable) => setDialogProxyValue(enable)} />
                 </StackItem>
             </Stack>
         </Modal>);

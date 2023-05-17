@@ -488,7 +488,7 @@ class AddEditServicesModal extends React.Component {
         }
     }
 
-    validate(event, event) {
+    validate(event, value) {
         let error = "";
         let targets = ['tcp', 'custom_tcp_ports', 'tcp_error', 'custom_tcp_value'];
         if (event.target.id === "udp-ports")
@@ -689,7 +689,7 @@ class AddEditServicesModal extends React.Component {
                             </FormGroup>
 
                             <FormGroup label="UDP">
-                                <TextInput id="udp-ports" type="text" onChange={this.validate)}
+                                <TextInput id="udp-ports" type="text" onChange={this.validate}
                                            validated={this.state.udp_error ? "error" : "default"}
                                            isDisabled={this.state.avail_services == null}
                                            value={this.state.custom_udp_value}

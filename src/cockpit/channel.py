@@ -17,11 +17,9 @@
 
 import asyncio
 import logging
-
 from typing import ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
 
 from .router import Endpoint, Router, RoutingRule
-
 
 logger = logging.getLogger(__name__)
 

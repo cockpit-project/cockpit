@@ -23,7 +23,6 @@ import signal
 import subprocess
 import unittest
 import unittest.mock
-
 from typing import Any, List, Optional, Tuple
 
 import cockpit.transports

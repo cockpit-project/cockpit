@@ -24,6 +24,7 @@ def install():
     # introduced in 3.9
     if not hasattr(socket, 'recv_fds'):
         import array
+
         import _socket
 
         def recv_fds(sock, bufsize, maxfds, flags=0):

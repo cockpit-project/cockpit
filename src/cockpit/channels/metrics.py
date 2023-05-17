@@ -17,14 +17,14 @@
 
 import asyncio
 import json
+import logging
 import sys
 import time
-import logging
-from typing import Dict, List, NamedTuple, Optional, Set, Tuple, Union
 from collections import defaultdict
+from typing import Dict, List, NamedTuple, Optional, Set, Tuple, Union
 
 from ..channel import AsyncChannel, ChannelError
-from ..samples import SAMPLERS, Sampler, Samples, SampleDescription
+from ..samples import SAMPLERS, SampleDescription, Sampler, Samples
 
 logger = logging.getLogger(__name__)
 

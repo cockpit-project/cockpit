@@ -18,8 +18,8 @@
 import asyncio
 import http.client
 import logging
-import ssl
 import socket
+import ssl
 import threading
 
 from ..channel import Channel

@@ -17,10 +17,9 @@
 
 import os
 import re
-from ._vendor.systemd_ctypes import Handle
-
 from typing import Any, DefaultDict, Iterable, List, NamedTuple, Optional, Tuple
 
+from ._vendor.systemd_ctypes import Handle
 
 USER_HZ = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
 MS_PER_JIFFY = 1000 / (USER_HZ if (USER_HZ > 0) else 100)

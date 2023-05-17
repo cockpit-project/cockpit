@@ -2,8 +2,8 @@ import asyncio
 import os
 import sys
 
-from cockpit.transports import StdioTransport
 from cockpit.protocol import CockpitProtocolServer
+from cockpit.transports import StdioTransport
 
 
 class MockPeer(CockpitProtocolServer):

@@ -20,12 +20,11 @@ import getpass
 import logging
 import re
 import socket
-
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from ._vendor import ferny
-from .router import RoutingRule, Router
 from .peer import Peer, PeerError
+from .router import Router, RoutingRule
 
 logger = logging.getLogger(__name__)
 

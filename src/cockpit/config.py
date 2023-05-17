@@ -18,7 +18,6 @@
 import configparser
 import logging
 import os
-
 from pathlib import Path
 
 from ._vendor.systemd_ctypes import bus

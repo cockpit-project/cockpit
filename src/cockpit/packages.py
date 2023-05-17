@@ -25,13 +25,11 @@ import mimetypes
 import os
 import re
 import shutil
-
 from pathlib import Path
 from typing import ClassVar, Dict, List, Optional, Pattern, Tuple
 
-from ._vendor.systemd_ctypes import bus
-
 from . import config
+from ._vendor.systemd_ctypes import bus
 
 VERSION = '300'
 logger = logging.getLogger(__name__)

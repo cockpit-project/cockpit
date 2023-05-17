@@ -23,6 +23,11 @@ disable = [
 ]
 
 [tool.ruff]
+select = [
+    "E",       # pycodestyle
+    "F",       # pyflakes
+    "I",       # isort
+]
 exclude = [
     ".git/",
     "modules/",

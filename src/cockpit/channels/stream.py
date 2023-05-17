@@ -19,12 +19,10 @@ import asyncio
 import logging
 import os
 import subprocess
-
 from typing import Dict
 
-
-from ..channel import ProtocolChannel, ChannelError
-from ..transports import SubprocessTransport, SubprocessProtocol
+from ..channel import ChannelError, ProtocolChannel
+from ..transports import SubprocessProtocol, SubprocessTransport
 
 logger = logging.getLogger(__name__)
 

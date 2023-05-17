@@ -1,8 +1,8 @@
 # COCKPIT BOOTLOADER
 
-from hashlib import sha256
 import os
 import sys
+from hashlib import sha256
 
 
 class Bootloader:

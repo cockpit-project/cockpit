@@ -2,20 +2,18 @@ import argparse
 import asyncio
 import json
 import os
-import pytest
-import unittest
-import unittest.mock
 import sys
 import tempfile
-
+import unittest
+import unittest.mock
 from pathlib import Path
 from typing import Dict
 
-from cockpit._vendor.systemd_ctypes import bus, EventLoopPolicy
+import pytest
+from cockpit._vendor.systemd_ctypes import EventLoopPolicy, bus
 from cockpit.bridge import Bridge
 from cockpit.channels import CHANNEL_TYPES
-
-from mocktransport import MockTransport, MOCK_HOSTNAME, settle_down
+from mocktransport import MOCK_HOSTNAME, MockTransport, settle_down
 
 asyncio.set_event_loop_policy(EventLoopPolicy())
 

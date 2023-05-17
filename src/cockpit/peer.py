@@ -18,12 +18,11 @@
 import asyncio
 import logging
 import os
-
 from typing import Callable, Dict, List, Optional, Sequence
 
+from .protocol import CockpitProblem, CockpitProtocol, CockpitProtocolError
 from .router import Endpoint, Router, RoutingRule
-from .protocol import CockpitProtocol, CockpitProblem, CockpitProtocolError
-from .transports import SubprocessTransport, SubprocessProtocol
+from .transports import SubprocessProtocol, SubprocessTransport
 
 logger = logging.getLogger(__name__)
 

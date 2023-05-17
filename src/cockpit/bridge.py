@@ -20,19 +20,17 @@ import asyncio
 import ctypes
 import json
 import logging
-import pwd
 import os
+import pwd
 import shlex
 import signal
 import socket
 import subprocess
-
 from typing import Dict, Iterable, List, Tuple, Type
 
 from cockpit._vendor.systemd_ctypes import bus, run_async
 
 from . import polyfills
-
 from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
 from .config import Config, Environment

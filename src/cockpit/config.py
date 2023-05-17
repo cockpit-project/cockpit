@@ -37,8 +37,8 @@ class Config(bus.Object, interface='cockpit.Config'):
     def get_string(self, section, key):
         try:
             return self.config[section][key]
-        except KeyError:
-            raise bus.BusError('cockpit.Config.KeyError', f'key {key} in section {section} does not exist')
+        except KeyError as exc:
+            raise bus.BusError('cockpit.Config.KeyError', f'key {key} in section {section} does not exist') from exc
 
     @bus.Interface.Method(out_types='u', in_types='ssuuu')
     def get_u_int(self, section, key, default, maximum, minimum):

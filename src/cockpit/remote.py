@@ -101,7 +101,7 @@ class SshPeer(Peer):
                                        interaction_responder=responder)
         except (OSError, socket.gaierror) as exc:
             logger.debug('connecting to host %s failed: %s', host, exc)
-            raise PeerError('no-host', error='no-host', message=str(exc))
+            raise PeerError('no-host', error='no-host', message=str(exc)) from exc
 
         except ferny.HostKeyError as exc:
             logger.debug('bad host key: %s', exc)
@@ -128,7 +128,7 @@ class SshPeer(Peer):
 
             raise PeerError('authentication-failed',
                             error=responder.error_message or 'authentication-failed',
-                            auth_method_results=results)
+                            auth_method_results=results) from exc
 
         except ferny.SshError as exc:
             logger.debug('unknown failure connecting to host %s: %s', host, exc)

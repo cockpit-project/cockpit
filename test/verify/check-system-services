@@ -483,10 +483,10 @@ WantedBy=default.target
         self.pick_tab(3)
         self.goto_service("dbus.socket")
         if not user:
-            self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen .pf-v5-c-description-list__text"))
+            self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen"))
         else:
-            self.assertIn("/run/user/", b.text("#listen .pf-v5-c-description-list__text"))
-        self.assertIn(b.text("#Triggers .pf-v5-c-description-list__text"), ["dbus.service", "dbus-broker.service"])
+            self.assertIn("/run/user/", b.text("#listen"))
+        self.assertIn(b.text("#Triggers"), ["dbus.service", "dbus-broker.service"])
         b.click(".pf-v5-c-breadcrumb a:contains('Services')")
 
         # Select services tab
@@ -619,14 +619,14 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
             self.run_systemctl(user, "start mem-hog.service")
             # If the test fails before we stop the mem-hog the next test run will not get the correct memory usage here
             self.addCleanup(self.run_systemctl, user, "stop mem-hog.service || true")
-            b.wait_visible("#memory .pf-v5-c-description-list__text")
-            initial_memory = float(b.text("#memory .pf-v5-c-description-list__text").split(" ")[0])
+            b.wait_visible("#memory")
+            initial_memory = float(b.text("#memory").split(" ")[0])
             self.assertGreater(initial_memory, 0.5)
             m.execute(f"touch /tmp/continue{params}")
             self.addCleanup(m.execute, f"rm /tmp/continue{params}")
             # MemoryCurrent auto-updates every 30s - when it updates the memory used should be ~50MiB
             with b.wait_timeout(60):
-                b.wait(lambda: float(b.text("#memory .pf-v5-c-description-list__text").split(" ")[0]) > 40)
+                b.wait(lambda: float(b.text("#memory").split(" ")[0]) > 40)
             self.run_systemctl(user, "stop mem-hog.service")
             b.wait_not_present("#memory")
         # Check that listen is not shown for .service units

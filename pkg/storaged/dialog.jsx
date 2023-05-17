@@ -922,7 +922,7 @@ class SizeSliderElement extends React.Component {
         const min = this.props.min || 0;
         const { unit } = this.state;
 
-        const change_slider = (f) => {
+        const change_slider = (_event, f) => {
             onChange(Math.max(min, size_slider_round(f * max / 100, round)));
         };
 

@@ -1115,13 +1115,13 @@ Where=/fail
         self.login_and_go("/system/services")
         self.wait_page_load()
 
-        b.wait_not_present("html.pf-theme-dark")
+        b.wait_not_present("html.pf-v5-theme-dark")
         b.switch_to_top()
         b.open_superuser_dialog()
         b.click(".pf-v5-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
         b.check_superuser_indicator("Limited access")
         b.enter_page("/system/services")
-        b.wait_not_present("html.pf-theme-dark")
+        b.wait_not_present("html.pf-v5-theme-dark")
 
     def testServicesFiltersURLConsistency(self):
         b = self.browser

@@ -16,16 +16,16 @@ import "./login.scss";
     /* Dark mode */
     const theme = localStorage.getItem('shell:style') || 'auto';
     if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && theme === "auto") || theme === "dark") {
-        document.documentElement.classList.add('pf-theme-dark');
+        document.documentElement.classList.add('pf-v5-theme-dark');
     } else {
-        document.documentElement.classList.remove('pf-theme-dark');
+        document.documentElement.classList.remove('pf-v5-theme-dark');
     }
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
         if ((event.matches && theme === "auto") || theme === "dark") {
-            document.documentElement.classList.add('pf-theme-dark');
+            document.documentElement.classList.add('pf-v5-theme-dark');
         } else {
-            document.documentElement.classList.remove('pf-theme-dark');
+            document.documentElement.classList.remove('pf-v5-theme-dark');
         }
     });
 

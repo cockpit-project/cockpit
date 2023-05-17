@@ -20,7 +20,7 @@ $desktop: $phone + 1px;
   position: relative;
 
   // Overrides for dark theme (as PF's dark theme is currently odd with nav)
-  .pf-theme-dark & {
+  .pf-v5-theme-dark & {
     --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--150);
     --ct-color-nav-search: var(--pf-v5-global--BackgroundColor--200);
     --ct-color-nav-highlight: var(--pf-v5-global--palette--gold-600);
@@ -206,7 +206,7 @@ $desktop: $phone + 1px;
     inset: 0;
     background: var(--pf-v5-global--BackgroundColor--dark-200);
 
-    .pf-theme-dark & {
+    .pf-v5-theme-dark & {
       background: var(--pf-v5-global--BackgroundColor--dark-300);
     }
 
@@ -237,7 +237,7 @@ $desktop: $phone + 1px;
     }
   }
 
-  .pf-theme-dark {
+  .pf-v5-theme-dark {
     > .pf-v5-c-select__toggle {
       background-color: var(--pf-v5-global--BackgroundColor--dark-300);
     }
@@ -388,7 +388,7 @@ $desktop: $phone + 1px;
   }
 }
 
-.pf-theme-dark {
+.pf-v5-theme-dark {
   .pf-v5-c-select__toggle {
     > * {
       color: var(--pf-v5-global--Color--light-100);
@@ -541,7 +541,7 @@ $desktop: $phone + 1px;
     margin-inline: var(--button-margin-x);
 
     > button {
-      html:not(.pf-theme-dark) & {
+      html:not(.pf-v5-theme-dark) & {
         color: var(--pf-v5-global--BackgroundColor--200);
 
         &::after {
@@ -753,7 +753,7 @@ $desktop: $phone + 1px;
 
 /* Dark mode adjustments */
 
-.pf-theme-dark {
+.pf-v5-theme-dark {
   // Change sidebar background color when dark
   nav,
   .ct-switcher > .pf-v5-c-select {

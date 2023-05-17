@@ -48,7 +48,7 @@ export function ServiceTabs({ onChange, activeTab, tabErrors }) {
 
     return (
         <Nav variant="tertiary" id="services-filter"
-             onSelect={result => { setActiveItem(result.itemId); onChange(result.itemId) }}>
+             onSelect={(_event, result) => { setActiveItem(result.itemId); onChange(result.itemId) }}>
             <NavList>
                 {Object.keys(service_tabs).map(key => {
                     return (

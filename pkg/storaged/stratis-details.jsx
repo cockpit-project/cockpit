@@ -36,6 +36,7 @@ import {
     TextInput, PassInput, SelectOne, SelectSpaces,
     CheckBoxes,
     BlockingMessage, TeardownMessage,
+    Skip,
     init_active_usage_processes
 } from "./dialog.jsx";
 
@@ -48,6 +49,7 @@ import {
 } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { mount_explanation } from "./format-dialog.jsx";
+import { validate_url, get_tang_adv, TangKeyVerification } from "./crypto-keyslots.jsx";
 
 import { std_reply, with_keydesc, with_stored_passphrase } from "./stratis-utils.js";
 
@@ -204,6 +206,74 @@ export const StratisPoolDetails = ({ client, pool }) => {
             Inits: [
                 init_active_usage_processes(client, usage)
             ]
+        });
+    }
+
+    function add_tang() {
+        return with_keydesc(client, pool, (keydesc, keydesc_set) => {
+            dialog_open({
+                Title: _("Add Tang keyserver"),
+                Fields: [
+                    TextInput("tang_url", _("Keyserver address"),
+                              {
+                                  validate: validate_url
+                              }),
+                    Skip("medskip",
+                         {
+                             visible: () => !keydesc_set
+                         }),
+                    PassInput("passphrase", _("Disk passphrase"),
+                              {
+                                  visible: () => !keydesc_set,
+                                  validate: val => !val.length && _("Passphrase cannot be empty"),
+                                  explanation: _("Adding a keyserver requires unlocking the pool. Please provide the existing pool passphrase.")
+                              })
+                ],
+                Action: {
+                    Title: _("Add"),
+                    action: function (vals, progress) {
+                        return get_tang_adv(vals.tang_url)
+                                .then(adv => confirm_tang_trust(vals.tang_url, adv, keydesc, vals.passphrase));
+                    }
+                }
+            });
+        });
+    }
+
+    function confirm_tang_trust(url, adv, keydesc, passphrase) {
+        dialog_open({
+            Title: _("Verify key"),
+            Body: <TangKeyVerification url={url} adv={adv} />,
+            Action: {
+                Title: _("Trust key"),
+                action: function (vals, progress) {
+                    function bind() {
+                        return pool.BindClevis("tang", JSON.stringify({ url, adv })).then(std_reply);
+                    }
+
+                    if (passphrase)
+                        return with_stored_passphrase(client, keydesc, passphrase, bind);
+                    else
+                        return bind();
+                }
+            }
+        });
+    }
+
+    function remove_tang() {
+        dialog_open({
+            Title: _("Remove Tang keyserver?"),
+            Body: <div>
+                <p>{ fmt_to_fragments(_("Remove $0?"), <b>{tang_url}</b>) }</p>
+                <p className="slot-warning">{ fmt_to_fragments(_("Keyserver removal may prevent unlocking $0."), <b>{pool.Name}</b>) }</p>
+            </div>,
+            Action: {
+                DangerButton: true,
+                Title: _("Remove"),
+                action: function (vals) {
+                    return pool.UnbindClevis().then(std_reply);
+                }
+            }
         });
     }
 
@@ -370,6 +440,11 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
     const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
 
+    const can_tang = (pool.Encrypted &&
+                      pool.ClevisInfo[0] && // pool has consistent clevis config
+                      (!pool.ClevisInfo[1][0] || pool.ClevisInfo[1][1][0] == "tang")); // not bound or bound to "tang"
+    const tang_url = can_tang && pool.ClevisInfo[1][0] ? JSON.parse(pool.ClevisInfo[1][1][1]).url : null;
+
     const header = (
         <Card>
             <CardHeader actions={{
@@ -395,6 +470,26 @@ export const StratisPoolDetails = ({ client, pool }) => {
                         <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "Usage")}</DescriptionListTerm>
                         <DescriptionListDescription className="pf-v5-u-align-self-center">
                             <StorageUsageBar stats={use} critical={0.95} />
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    }
+                    { can_tang &&
+                    <DescriptionListGroup>
+                        <DescriptionListTerm className="control-DescriptionListTerm">
+                            {_("storage", "Keyserver")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription>
+                            { tang_url == null ? "-" : tang_url }
+                            <DescriptionListDescription className="tab-row-actions">
+                                { tang_url == null
+                                    ? <StorageButton onClick={add_tang}>{_("Add")}</StorageButton>
+                                    : null
+                                }
+                                { tang_url != null
+                                    ? <StorageButton onClick={remove_tang}>{_("Remove")}</StorageButton>
+                                    : null
+                                }
+                            </DescriptionListDescription>
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                     }
@@ -651,20 +746,6 @@ export function start_pool(client, uuid, show_devs) {
     const devs = stopped_props.devs.v.map(d => d.devnode).sort();
     let key_desc = null;
 
-    if (stopped_props.key_description &&
-        stopped_props.key_description.t == "(bv)" &&
-        stopped_props.key_description.v[0]) {
-        if (stopped_props.key_description.v[1].t != "(bs)" ||
-            !stopped_props.key_description.v[1].v[0]) {
-            dialog_open({
-                Title: _("Error"),
-                Body: _("This pool can not be unlocked here because its key description is not in the expected format.")
-            });
-            return;
-        }
-        key_desc = stopped_props.key_description.v[1].v[1];
-    }
-
     function start(unlock_method) {
         return client.stratis_start_pool(uuid, unlock_method).then(std_reply);
     }
@@ -691,9 +772,7 @@ export function start_pool(client, uuid, show_devs) {
         });
     }
 
-    if (!key_desc) {
-        return start();
-    } else {
+    function unlock_with_keyring() {
         return (client.stratis_list_keys()
                 .catch(() => [{ }])
                 .then(keys => {
@@ -702,6 +781,33 @@ export function start_pool(client, uuid, show_devs) {
                     else
                         unlock_with_keydesc(key_desc);
                 }));
+    }
+
+    if (stopped_props.key_description &&
+        stopped_props.key_description.t == "(bv)" &&
+        stopped_props.key_description.v[0]) {
+        if (stopped_props.key_description.v[1].t != "(bs)" ||
+            !stopped_props.key_description.v[1].v[0]) {
+            dialog_open({
+                Title: _("Error"),
+                Body: _("This pool can not be unlocked here because its key description is not in the expected format.")
+            });
+            return;
+        }
+        key_desc = stopped_props.key_description.v[1].v[1];
+    }
+
+    if (!key_desc) {
+        // Not an encrypted pool, just start it
+        return start();
+    } else {
+        if (stopped_props.clevis_info &&
+            stopped_props.clevis_info.t == "(bv)" &&
+            stopped_props.clevis_info.v[0]) {
+            return start("clevis").catch(unlock_with_keyring);
+        } else {
+            return unlock_with_keyring();
+        }
     }
 }
 
@@ -726,13 +832,25 @@ const StratisStoppedPoolSidebar = ({ client, uuid }) => {
 };
 
 export const StratisStoppedPoolDetails = ({ client, uuid }) => {
+    const stopped_props = client.stratis_manager.StoppedPools[uuid];
+    const clevis_info = stopped_props.clevis_info;
+
+    const can_tang = clevis_info && clevis_info.v[0] && (!clevis_info.v[1].v[0] || clevis_info.v[1].v[1][0] == "tang");
+    const tang_url = can_tang && clevis_info.v[1].v[0] ? JSON.parse(clevis_info.v[1].v[1][1]).url : null;
+
     function start() {
         return start_pool(client, uuid);
     }
 
     const header = (
         <Card>
-            <CardHeader actions={{ actions: <><StorageButton kind="primary" onClick={start}>{_("Start")}</StorageButton></> }}>
+            <CardHeader actions={{
+                actions: <StorageButton kind="primary"
+                                                           spinner
+                                                           onClick={start}>
+                    {_("Start")}
+                </StorageButton>
+            }}>
                 <CardTitle component="h2">{_("Stopped Stratis pool")}</CardTitle>
             </CardHeader>
             <CardBody>
@@ -741,6 +859,16 @@ export const StratisStoppedPoolDetails = ({ client, uuid }) => {
                         <DescriptionListTerm>{_("storage", "UUID")}</DescriptionListTerm>
                         <DescriptionListDescription>{ uuid }</DescriptionListDescription>
                     </DescriptionListGroup>
+                    { can_tang &&
+                    <DescriptionListGroup>
+                        <DescriptionListTerm className="control-DescriptionListTerm">
+                            {_("storage", "Keyserver")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription>
+                            { tang_url || "-" }
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    }
                 </DescriptionList>
             </CardBody>
         </Card>

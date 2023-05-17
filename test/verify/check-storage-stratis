@@ -549,5 +549,111 @@ class TestStoragePackagesStratis(PackageCase, StorageCase):
             b.wait_not_present("#devices .pf-v5-c-dropdown a:contains('Create Stratis pool')")
 
 
+@skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+class TestStorageStratisNBDE(PackageCase, StorageCase):
+    provision = {
+        "0": {"address": "10.111.112.1/20", "memory_mb": 2048},
+        "tang": {"address": "10.111.112.5/20"}
+    }
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        tang_m = self.machines["tang"]
+        tang_m.execute("systemctl start tangd.socket")
+        tang_m.execute("firewall-cmd --add-port 80/tcp")
+
+        self.login_and_go("/storage")
+
+        dev_1 = "/dev/sda"
+        m.add_disk("4G", serial="DISK1")
+        b.wait_in_text("#drives", dev_1)
+
+        dev_2 = "/dev/sdb"
+        m.add_disk("5G", serial="DISK2")
+        b.wait_in_text("#drives", dev_2)
+
+        # Create an encrypted pool and bind it to tang
+
+        self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
+                                    expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                                    self.dialog_check({"name": "pool0"})))
+        self.dialog_set_val("encrypt.on", True)
+        self.dialog_set_val("passphrase", "foodeeboodeebar")
+        self.dialog_set_val("passphrase2", "foodeeboodeebar")
+        self.dialog_set_val("disks", {dev_1: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_in_text("#devices", "pool0")
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_visible('#storage-detail')
+        b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
+        b.wait_in_text('#detail-header', "Keyserver")
+
+        b.click('#detail-header button:contains(Add)')
+        self.dialog_wait_open()
+        self.dialog_set_val("tang_url", "10.111.112.5")
+        self.dialog_set_val("passphrase", "foodeeboodeebar")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+        b.wait_in_text('#detail-header', "10.111.112.5")
+
+        # Stop the pool and start it again.  This should not ask for the passphrase
+
+        m.execute("stratis pool stop pool0")
+        b.wait_in_text('#detail-header', "Stopped Stratis pool")
+        b.click('#detail-header button:contains(Start)')
+        b.wait_not_in_text('#detail-header', "Stopped")
+        b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
+
+        # Add a blockdevice.  This still requires the passphrase...
+
+        b.click('#detail-sidebar .pf-v5-c-card__actions button')
+        self.dialog({'disks': {dev_2: True}, 'passphrase': "foodeeboodeebar"})
+
+        # Remove the keyserver and add it back, but try first with the
+        # wrong passphrase already in the keyring
+
+        b.click('#detail-header button:contains(Remove)')
+        self.confirm()
+
+        m.execute("echo foobar | stratis key set pool0 --capture-key")
+        b.click('#detail-header button:contains(Add)')
+        self.dialog_wait_open()
+        self.dialog_set_val("tang_url", "10.111.112.5")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            b.wait_in_text('#dialog', "Command failed")
+        m.execute("stratis key unset pool0")
+        m.execute("echo foodeeboodeebar | stratis key set pool0 --capture-key")
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+        b.wait_in_text('#detail-header', "10.111.112.5")
+        m.execute("stratis key unset pool0")
+
+        # Create a mounted filesystem and reboot.
+
+        b.click("button:contains(Create new filesystem)")
+        self.dialog({'name': 'fsys1',
+                     'mount_point': '/run/fsys1'})
+        b.wait_in_text("#detail-content", "fsys1")
+        m.reboot()
+        m.start_cockpit()
+        b.relogin()
+        b.enter_page("/storage")
+        b.wait_visible("#storage-detail")
+        self.wait_mounted(1, 1)  # should be mounted after boot
+
+
 if __name__ == '__main__':
     test_main()

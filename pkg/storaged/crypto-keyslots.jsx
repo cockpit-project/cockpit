@@ -52,7 +52,7 @@ const _ = cockpit.gettext;
 /* Tang advertisement utilities
  */
 
-function get_tang_adv(url) {
+export function get_tang_adv(url) {
     return cockpit.spawn(["curl", "-sSf", url + "/adv"], { err: "message" })
             .then(JSON.parse)
             .catch(error => {
@@ -487,7 +487,7 @@ function parse_url(url) {
     }
 }
 
-function validate_url(url) {
+export function validate_url(url) {
     if (url.length === 0)
         return _("Address cannot be empty");
     if (!parse_url(url))
@@ -606,35 +606,36 @@ function add_or_update_tang(dlg, vals, block, url, adv, old_key, passphrase) {
             .catch(request_passphrase_on_error_handler(dlg, vals, passphrase, block));
 }
 
-function edit_tang_adv(client, block, key, url, adv, passphrase) {
+export const TangKeyVerification = ({ url, adv }) => {
     const parsed = parse_url(url);
     const cmd = cockpit.format("ssh $0 tang-show-keys $1", parsed.hostname, parsed.port);
-
     const sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
 
+    return <>
+        <p>{_("Make sure the key hash from the Tang server matches one of the following:")}</p>
+
+        <h2 className="sigkey-heading">{_("SHA256")}</h2>
+        { sigkey_thps.map(s => <p key={s} className="sigkey-hash">{s.sha256}</p>) }
+
+        <h2 className="sigkey-heading">{_("SHA1")}</h2>
+        { sigkey_thps.map(s => <p key={s} className="sigkey-hash">{s.sha1}</p>) }
+
+        <p>
+            {_("Manually check with SSH: ")}
+            <ClipboardCopy hoverTip={_("Copy to clipboard")}
+                                  clickTip={_("Successfully copied to clipboard!")}
+                                  variant="inline-compact"
+                                  isCode>
+                {cmd}
+            </ClipboardCopy>
+        </p>
+    </>;
+};
+
+function edit_tang_adv(client, block, key, url, adv, passphrase) {
     const dlg = dialog_open({
         Title: _("Verify key"),
-        Body: (
-            <>
-                <p>{_("Make sure the key hash from the Tang server matches one of the following:")}</p>
-
-                <h2 className="sigkey-heading">{_("SHA256")}</h2>
-                { sigkey_thps.map(s => <p key={s} className="sigkey-hash">{s.sha256}</p>) }
-
-                <h2 className="sigkey-heading">{_("SHA1")}</h2>
-                { sigkey_thps.map(s => <p key={s} className="sigkey-hash">{s.sha1}</p>) }
-
-                <p>
-                    {_("Manually check with SSH: ")}
-                    <ClipboardCopy hoverTip={_("Copy to clipboard")}
-                                   clickTip={_("Successfully copied to clipboard!")}
-                                   variant="inline-compact"
-                                   isCode>
-                        {cmd}
-                    </ClipboardCopy>
-                </p>
-            </>
-        ),
+        Body: <TangKeyVerification url={url} adv={adv} />,
         Fields: existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase.")),
         Action: {
             Title: _("Trust key"),

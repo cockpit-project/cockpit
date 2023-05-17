@@ -16,6 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
+import contextlib
 import getpass
 import logging
 import os
@@ -25,6 +26,7 @@ from cockpit._vendor import ferny
 from cockpit._vendor.systemd_ctypes import bus
 
 from .peer import ConfiguredPeer, Peer, PeerError
+from .polkit import PolkitAgent
 from .router import Router, RoutingError, RoutingRule
 
 logger = logging.getLogger(__name__)
@@ -38,12 +40,20 @@ class SuperuserPeer(ConfiguredPeer):
         self.responder = responder
 
     async def do_connect_transport(self) -> asyncio.Transport:
-        agent = ferny.InteractionAgent(self.responder)
-        transport = await self.spawn(self.args, self.env, stderr=agent, start_new_session=True)
-        try:
-            await agent.communicate()
-        except ferny.InteractionError as exc:
-            raise PeerError('authentication-failed', message=str(exc)) from exc
+        async with contextlib.AsyncExitStack() as context:
+            if 'pkexec' in self.args:
+                logger.debug('connecting polkit superuser peer transport %r', self.args)
+                await context.enter_async_context(PolkitAgent(self.responder))
+            else:
+                logger.debug('connecting non-polkit superuser peer transport %r', self.args)
+
+            agent = ferny.InteractionAgent(self.responder)
+            transport = await self.spawn(self.args, self.env, stderr=agent, start_new_session=True)
+            try:
+                await agent.communicate()
+            except ferny.InteractionError as exc:
+                raise PeerError('authentication-failed', message=str(exc)) from exc
+
         return transport
 
 

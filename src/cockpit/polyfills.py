@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import contextlib
 import socket
 
 
@@ -41,3 +42,21 @@ def install():
             return sock.sendmsg(buffers, [(_socket.SOL_SOCKET, _socket.SCM_RIGHTS, array.array("i", fds))])
 
         socket.send_fds = send_fds
+
+    # introduced in 3.7
+    if not hasattr(contextlib, 'AsyncExitStack'):
+        class AsyncExitStack:
+            async def __aenter__(self):
+                self.cms = []
+                return self
+
+            async def enter_async_context(self, cm):
+                result = await cm.__aenter__()
+                self.cms.append(cm)
+                return result
+
+            async def __aexit__(self, exc_type, exc_value, traceback):
+                for cm in self.cms:
+                    cm.__aexit__(exc_type, exc_value, traceback)
+
+        contextlib.AsyncExitStack = AsyncExitStack

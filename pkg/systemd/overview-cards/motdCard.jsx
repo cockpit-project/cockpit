@@ -73,7 +73,7 @@ const MotdEditDialog = ({ text }) => {
                              dialogErrorDetail={errorDetail} />}
                 <TextArea resizeOrientation="vertical"
                           value={value}
-                          onChange={setValue} />
+                          onChange={(_event, value) => setValue(value)} />
             </Stack>
         </Modal>);
 };

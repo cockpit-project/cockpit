@@ -40,7 +40,7 @@ function AddAuthorizedKeyDialogBody({ state, change }) {
         <TextArea id="authorized-keys-text"
                   placeholder={_("Paste the contents of your public SSH key file here")}
                   className="form-control"
-                  value={text} onChange={value => change("text", value)} />
+                  value={text} onChange={(_event, value) => change("text", value)} />
     );
 }
 

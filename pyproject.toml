@@ -24,6 +24,7 @@ disable = [
 
 [tool.ruff]
 select = [
+    "A",       # flake8-builtins
     "B",       # flake8-bugbear
     "E",       # pycodestyle
     "F",       # pyflakes
@@ -39,6 +40,7 @@ exclude = [
     "tools/",
 ]
 ignore = [
+    "A003",  # Class attribute is shadowing a python builtin
     "B011",  # Do not `assert False` (`python -O` removes these calls), raise `AssertionError()`
     "E731",  # Do not assign a `lambda` expression, use a `def`
 ]

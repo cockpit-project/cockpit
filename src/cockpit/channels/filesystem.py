@@ -120,10 +120,10 @@ class FsReadChannel(GeneratorChannel):
 
         except FileNotFoundError:
             return {'tag': '-'}
-        except PermissionError:
-            raise ChannelError('access-denied')
-        except OSError as error:
-            raise ChannelError('internal-error', message=str(error)) from error
+        except PermissionError as exc:
+            raise ChannelError('access-denied') from exc
+        except OSError as exc:
+            raise ChannelError('internal-error', message=str(exc)) from exc
 
 
 class FsReplaceChannel(Channel):
@@ -156,10 +156,10 @@ class FsReplaceChannel(Channel):
                     break
                 except FileExistsError:
                     continue
-                except PermissionError:
-                    raise ChannelError('access-denied')
-                except OSError as ex:
-                    raise ChannelError('internal-error', message=str(ex))
+                except PermissionError as exc:
+                    raise ChannelError('access-denied') from exc
+                except OSError as exc:
+                    raise ChannelError('internal-error', message=str(exc)) from exc
             else:
                 raise ChannelError('internal-error',
                                    message=f"Could not find unique file name for replacing {self._path}")

@@ -75,9 +75,9 @@ class InternalMetricsChannel(AsyncChannel):
 
             try:
                 sampler, desc = self.samplers_cache[name]
-            except KeyError:
+            except KeyError as exc:
                 logger.error('unsupported metric: %s', name)
-                raise ChannelError('not-supported', message=f'unsupported metric: {name}')
+                raise ChannelError('not-supported', message=f'unsupported metric: {name}') from exc
 
             if units and units != desc.units:
                 raise ChannelError('not-supported', message=f'{name} has units {desc.units}, not {units}')

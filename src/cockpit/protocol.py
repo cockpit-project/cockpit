@@ -120,16 +120,16 @@ class CockpitProtocol(asyncio.Protocol):
         header = bytes(view[:10])
         try:
             newline = header.index(b'\n')
-        except ValueError:
+        except ValueError as exc:
             if len(header) < 10:
                 # Let's try reading more
                 return len(header) - 10
-            raise CockpitProtocolError("size line is too long")
+            raise CockpitProtocolError("size line is too long") from exc
 
         try:
             length = int(header[:newline])
-        except ValueError:
-            raise CockpitProtocolError("frame size is not an integer")
+        except ValueError as exc:
+            raise CockpitProtocolError("frame size is not an integer") from exc
 
         start = newline + 1
         end = start + length

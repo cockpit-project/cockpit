@@ -94,7 +94,7 @@ class cockpit_Machines(bus.Object):
                 contents = json.load(fp)
         except json.JSONDecodeError as exc:
             # Refuse to replace corrupted file
-            raise bus.BusError('cockpit.Machines.Error', f'File {filename} is in invalid format: {exc}.')
+            raise bus.BusError('cockpit.Machines.Error', f'File {filename} is in invalid format: {exc}.') from exc
         except FileNotFoundError:
             # But an empty file is an expected case
             contents = {}

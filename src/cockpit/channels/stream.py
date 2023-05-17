@@ -49,8 +49,8 @@ class SocketStreamChannel(ProtocolChannel):
             elif 'port' in options:
                 try:
                     port: int = int(options['port'])  # type: ignore
-                except ValueError:
-                    raise ChannelError('protocol-error', message='invalid "port" option for stream channel')
+                except ValueError as exc:
+                    raise ChannelError('protocol-error', message='invalid "port" option for stream channel') from exc
                 host = options.get('address', 'localhost')
                 # TODO: generic JSON validation
                 if not isinstance(host, str):

@@ -793,7 +793,7 @@ class CurrentMetrics extends React.Component {
                     <Thead>
                         <Tr>{diskColumns.map(col => <Th key={col}>{col}</Th>)}</Tr>
                     </Thead>
-                    <Tbody className="pf-m-tabular-nums disks-nowrap">
+                    <Tbody className="pf-v5-m-tabular-nums disks-nowrap">
                         {make_rows(disksUsage, rowWrapperDisks, diskColumns)}
                     </Tbody>
                 </Table>
@@ -967,7 +967,7 @@ class CurrentMetrics extends React.Component {
                                         <Th>{_("Write")}</Th>
                                     </Tr>
                                 </Thead>
-                                <Tbody className="pf-m-tabular-nums">
+                                <Tbody className="pf-v5-m-tabular-nums">
                                     {make_rows(this.state.topServicesDiskIO, rowWrapperDiskIO, [_("Service"), _("Read"), _("Write")])}
                                 </Tbody>
                             </Table> }

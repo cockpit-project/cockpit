@@ -30,3 +30,5 @@ between these hosts.
  * [Guiding Principles](https://cockpit-project.org/ideals.html)
  * [Release Notes](https://cockpit-project.org/blog/category/release.html)
  * [Privacy Policy](https://cockpit-project.org/privacy.html)
+
+Add Ukraine version.

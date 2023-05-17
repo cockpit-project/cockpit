@@ -101,7 +101,7 @@ export class TopNav extends React.Component {
         return null;
     }
 
-    handleModeClick = (isSelected, event) => {
+    handleModeClick = (event, isSelected) => {
         const theme = event.currentTarget.id;
         this.setState({ theme });
 

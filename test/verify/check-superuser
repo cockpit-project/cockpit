@@ -328,9 +328,9 @@ session include system-auth
         b.leave_page()
         b.check_superuser_indicator("Limited access")
 
-        # Get admin rights with "pkexec" method
+        # Get admin rights with Polkit method
         b.open_superuser_dialog()
-        b.set_val(".pf-c-modal-box:contains('Switch to administrative access') select", "pkexec")
+        b.set_val(".pf-c-modal-box:contains('Switch to administrative access') select", "Polkit")
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access') select", "Polkit")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Please authenticate")
@@ -347,7 +347,7 @@ session include system-auth
 
         # Run the regular sudo method, which should work as always
         b.open_superuser_dialog()
-        b.set_val(".pf-c-modal-box:contains('Switch to administrative access') select", "sudo")
+        b.set_val(".pf-c-modal-box:contains('Switch to administrative access') select", "Sudo")
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access') select", "Sudo")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")

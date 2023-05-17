@@ -289,7 +289,6 @@ session include system-auth
         b.click(".pf-v5-c-modal-box button:contains('Close')")
         b.check_superuser_indicator("Limited access")
 
-    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18711")
     def testMultipleBridgeConfig(self):
         b = self.browser
 

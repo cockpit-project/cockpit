@@ -302,7 +302,6 @@ class DBusChannel(Channel):
         path, iface, method, args = message['call']
         cookie = message.get('id')
         flags = message.get('flags')
-        type = message.get('type')
 
         timeout = message.get('timeout')
         if timeout is not None:
@@ -313,7 +312,7 @@ class DBusChannel(Channel):
             timeout = 2 ** 64 - 1
 
         # We have to figure out the signature of the call.  Either we got told it:
-        signature = type
+        signature = message.get('type')
 
         # ... or there aren't any arguments
         if signature is None and len(args) == 0:
@@ -337,15 +336,15 @@ class DBusChannel(Channel):
                 return
 
         try:
-            reply = await self.bus.call_method_async(self.name, path, iface, method, signature, *args,
-                                                     timeout=timeout)
+            method_call = self.bus.message_new_method_call(self.name, path, iface, method, signature, *args)
+            reply = await self.bus.call_async(method_call, timeout=timeout)
             # If the method call has kicked off any signals related to
             # watch processing, wait for that to be done.
             async with self.watch_processing_lock:
                 # TODO: stop hard-coding the endian flag here.
-                self.send_message(reply=[reply], id=cookie,
+                self.send_message(reply=[reply.get_body()], id=cookie,
                                   flags="<" if flags is not None else None,
-                                  type=type)
+                                  type=reply.get_signature(True))
         except BusError as error:
             # actually, should send the fields from the message body
             self.send_message(error=[error.name, [error.message]], id=cookie)

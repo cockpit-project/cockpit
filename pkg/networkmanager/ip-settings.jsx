@@ -182,7 +182,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                     return (
                         <Grid key={i} hasGutter>
                             <FormGroup fieldId={idPrefix + "-address-" + i} label={_("Address")} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-address-" + i} value={address.address} onChange={value => setAddresses(
+                                <TextInput id={idPrefix + "-address-" + i} value={address.address} onChange={(_event, value) => setAddresses(
                                     addresses.map((item, index) =>
                                         i === index
                                             ? addressIpv4Helper(value)
@@ -190,7 +190,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-netmask-" + i} label={prefixText} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-netmask-" + i} value={address.netmask} onChange={value => setAddresses(
+                                <TextInput id={idPrefix + "-netmask-" + i} value={address.netmask} onChange={(_event, value) => setAddresses(
                                     addresses.map((item, index) =>
                                         i === index
                                             ? { ...item, netmask: value }
@@ -198,7 +198,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-gateway-" + i} label={_("Gateway")} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-gateway-" + i} value={address.gateway} onChange={value => setAddresses(
+                                <TextInput id={idPrefix + "-gateway-" + i} value={address.gateway} onChange={(_event, value) => setAddresses(
                                     addresses.map((item, index) =>
                                         i === index
                                             ? { ...item, gateway: value }
@@ -243,7 +243,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                     return (
                         <Grid key={i} hasGutter>
                             <FormGroup fieldId={idPrefix + "-dns-server-" + i} label={_("Server")}>
-                                <TextInput id={idPrefix + "-dns-server-" + i} value={server} onChange={value => setDns(
+                                <TextInput id={idPrefix + "-dns-server-" + i} value={server} onChange={(_event, value) => setDns(
                                     dns.map((item, index) =>
                                         i === index
                                             ? value
@@ -288,7 +288,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                     return (
                         <Grid key={i} hasGutter>
                             <FormGroup fieldId={idPrefix + "-search-domain-" + i} label={_("Search domain")}>
-                                <TextInput id={idPrefix + "-search-domain-" + i} value={domain} onChange={value => setDnsSearch(
+                                <TextInput id={idPrefix + "-search-domain-" + i} value={domain} onChange={(_event, value) => setDnsSearch(
                                     dnsSearch.map((item, index) =>
                                         i === index
                                             ? value
@@ -316,7 +316,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <Switch
                                     isChecked={!ignoreAutoRoutes}
                                     isDisabled={!canAuto}
-                                    onChange={value => setIgnoreAutoRoutes(!value)}
+                                    onChange={(_event, value) => setIgnoreAutoRoutes(!value)}
                                     label={_("Automatic")} />
                                 <Button variant="secondary"
                                         isDisabled={isOff}
@@ -333,7 +333,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                     return (
                         <Grid key={i} hasGutter>
                             <FormGroup fieldId={idPrefix + "-route-address-" + i} label={_("Address")} className="pf-m-3-col-on-sm">
-                                <TextInput id={idPrefix + "-route-address-" + i} value={route.address} onChange={value => setRoutes(
+                                <TextInput id={idPrefix + "-route-address-" + i} value={route.address} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
                                             ? { ...item, address: value }
@@ -341,7 +341,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-route-netmask-" + i} label={_("Prefix length or netmask")} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-route-netmask-" + i} value={route.netmask} onChange={value => setRoutes(
+                                <TextInput id={idPrefix + "-route-netmask-" + i} value={route.netmask} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
                                             ? { ...item, netmask: value }
@@ -349,7 +349,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-route-gateway-" + i} label={_("Gateway")} className="pf-m-3-col-on-sm">
-                                <TextInput id={idPrefix + "-route-gateway-" + i} value={route.gateway} onChange={value => setRoutes(
+                                <TextInput id={idPrefix + "-route-gateway-" + i} value={route.gateway} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
                                             ? { ...item, gateway: value }
@@ -357,7 +357,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-route-metric-" + i} label={_("Metric")} className="pf-m-2-col-on-sm">
-                                <TextInput id={idPrefix + "-route-metric-" + i} value={route.metric} onChange={value => setRoutes(
+                                <TextInput id={idPrefix + "-route-metric-" + i} value={route.metric} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
                                             ? { ...item, metric: value }

@@ -133,7 +133,7 @@ export const LangModal = () => {
                                 aria-label={_("Filter menu items")}
                                 iconVariant="search"
                                 type="search"
-                                onChange={setSearchInput}
+                                onChange={(_event, value) => setSearchInput(value)}
                             />
                         </MenuSearchInput>
                     </MenuSearch>

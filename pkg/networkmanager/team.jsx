@@ -189,18 +189,18 @@ export const TeamDialog = ({ connection, dev, settings }) => {
                 </FormGroup>
                 {linkWatch == 'ethtool' && <>
                     <FormGroup fieldId={idPrefix + "-link-up-delay-input"} label={_("Link up delay")}>
-                        <TextInput id={idPrefix + "-link-up-delay-input"} className="network-number-field" value={linkUpDelay} onChange={setLinkUpDelay} />
+                        <TextInput id={idPrefix + "-link-up-delay-input"} className="network-number-field" value={linkUpDelay} onChange={(_event, value) => setLinkUpDelay(value)} />
                     </FormGroup>
                     <FormGroup fieldId={idPrefix + "-link-down-delay-input"} label={_("Link down delay")}>
-                        <TextInput id={idPrefix + "-link-down-delay-input"} className="network-number-field" value={linkDownDelay} onChange={setLinkDownDelay} />
+                        <TextInput id={idPrefix + "-link-down-delay-input"} className="network-number-field" value={linkDownDelay} onChange={(_event, value) => setLinkDownDelay(value)} />
                     </FormGroup>
                 </>}
                 {linkWatch != 'ethtool' && <>
                     <FormGroup fieldId={idPrefix + "-ping-interval-input"} label={_("Ping interval")}>
-                        <TextInput id={idPrefix + "-ping-interval-input"} className="network-number-field" value={pingInterval} onChange={setPingInterval} />
+                        <TextInput id={idPrefix + "-ping-interval-input"} className="network-number-field" value={pingInterval} onChange={(_event, value) => setPingInterval(value)} />
                     </FormGroup>
                     <FormGroup fieldId={idPrefix + "-ping-target-input"} label={_("Ping target")}>
-                        <TextInput id={idPrefix + "-ping-target-input"} value={pingTarget} onChange={(_, val) => setPingTarget(val)} />
+                        <TextInput id={idPrefix + "-ping-target-input"} value={pingTarget} onChange={(_event, value) => setPingTarget(value)} />
                     </FormGroup>
                 </>}
             </>

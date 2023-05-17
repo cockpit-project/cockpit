@@ -425,14 +425,14 @@ const JoinDialog = ({ realmd_client }) => {
                 <FormGroup label={ _("Domain address") } fieldId="realms-op-address" validated={addressValid}>
                     <TextInput id="realms-op-address" placeholder="domain.example.com"
                                data-discover={ (!addressValid || addressValid == "default") ? null : "done" }
-                               value={address} onChange={validateAddress} isDisabled={pending} />
+                               value={address} onChange={(_event, value) => validateAddress(value)} isDisabled={pending} />
                 </FormGroup>
 
                 <FormGroup label={ _("Domain administrator name") } fieldId="realms-op-admin">
-                    <TextInput id="realms-op-admin" placeholder="admin" value={admin} onChange={setAdmin} isDisabled={pending} />
+                    <TextInput id="realms-op-admin" placeholder="admin" value={admin} onChange={(_event, value) => setAdmin(value)} isDisabled={pending} />
                 </FormGroup>
                 <FormGroup label={ _("Domain administrator password") } fieldId="realms-op-admin-password">
-                    <TextInput id="realms-op-admin-password" type="password" value={adminPassword} onChange={setAdminPassword} isDisabled={pending} />
+                    <TextInput id="realms-op-admin-password" type="password" value={adminPassword} onChange={(_event, value) => setAdminPassword(value)} isDisabled={pending} />
                 </FormGroup>
                 <FormHelper fieldId="realms-op-address" helperText={domainHelperText} helperTextInvalid={addressValid == "error" && domainHelperText} icon={domainHelperIcon} />
             </Form>

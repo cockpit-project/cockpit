@@ -85,7 +85,7 @@ export const MtuDialog = ({ connection, dev, settings }) => {
                        label={
                            <>
                                <span>{_("Set to")}</span>
-                               <TextInput id={idPrefix + "-input"} value={mtu} onChange={setMtu} />
+                               <TextInput id={idPrefix + "-input"} value={mtu} onChange={(_event, value) => setMtu(value)} />
                            </>
                        }
                        name="mtu-mode"

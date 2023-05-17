@@ -559,7 +559,7 @@ export const TextInput = (tag, title, options) => {
                           aria-label={title}
                           value={val}
                           isDisabled={options.disabled}
-                          onChange={change} />
+                          onChange={(_event, value) => change(value)} />
     };
 };
 
@@ -576,7 +576,7 @@ export const PassInput = (tag, title, options) => {
                    disabled={options.disabled}
                    aria-label={title}
                    type="password" value={val}
-                   onChange={change} />
+                   onChange={(_event, value) => change(value)} />
     };
 };
 
@@ -871,7 +871,7 @@ const TextInputCheckedComponent = ({ tag, val, title, update_function }) => {
                       id={tag}
                       label={title}
                       onChange={(_event, checked) => update_function(checked ? "" : false)} />
-            {val !== false && <TextInputPF4 id={tag + "-input"} value={val} onChange={update_function} />}
+            {val !== false && <TextInputPF4 id={tag + "-input"} value={val} onChange={(_event, value) => update_function(value)} />}
         </div>
     );
 };
@@ -955,7 +955,7 @@ class SizeSliderElement extends React.Component {
                     <Slider showBoundaries={false} value={(slider_val / max) * 100} onChange={change_slider} />
                 </GridItem>
                 <GridItem span={6} sm={2}>
-                    <TextInputPF4 className="size-text" value={text_val} onChange={change_text} />
+                    <TextInputPF4 className="size-text" value={text_val} onChange={(_event, value) => change_text(value)} />
                 </GridItem>
                 <GridItem span={6} sm={2}>
                     <FormSelect className="size-unit" value={unit} aria-label={tag} onChange={change_unit}>

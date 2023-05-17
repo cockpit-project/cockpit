@@ -69,7 +69,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
                        fieldId="accounts-create-real-name">
                 <TextInput id="accounts-create-real-name"
                            validated={(errors?.real_name) ? "error" : "default"}
-                           value={real_name} onChange={value => change("real_name", value)} />
+                           value={real_name} onChange={(_event, value) => change("real_name", value)} />
                 <FormHelper fieldId="accounts-create-real-name" helperTextInvalid={errors?.real_name} />
             </FormGroup>
 
@@ -77,14 +77,14 @@ function AccountCreateBody({ state, errors, change, shells }) {
                        fieldId="accounts-create-user-name">
                 <TextInput id="accounts-create-user-name"
                            validated={(errors?.user_name) ? "error" : "default"}
-                           value={user_name} onChange={value => change("user_name", value)} />
+                           value={user_name} onChange={(_event, value) => change("user_name", value)} />
                 <FormHelper fieldId="accounts-create-user-name" helperTextInvalid={errors?.user_name} />
             </FormGroup>
 
             <FormGroup label={_("Home directory")}
                        fieldId="accounts-create-user-home-dir">
                 <TextInput id="accounts-create-user-home-dir"
-                    onChange={value => change("home_dir", value)}
+                    onChange={(_event, value) => change("home_dir", value)}
                     placeholder={_("Path to directory")}
                     value={state.home_dir} />
                 <FormHelper fieldId="accounts-create-user-home-dir" helperTextInvalid={errors?.home_dir} />
@@ -104,7 +104,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
             <FormGroup label={_("User ID")}
                        fieldId="accounts-create-user-uid">
                 <TextInput id="accounts-create-user-uid"
-                    onChange={value => change("uid", value)}
+                    onChange={(_event, value) => change("uid", value)}
                     value={state.uid} />
                 <FormHelper fieldId="accounts-create-user-uid" helperTextInvalid={errors?.uid} />
             </FormGroup>

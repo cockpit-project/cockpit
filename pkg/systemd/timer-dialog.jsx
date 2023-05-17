@@ -159,7 +159,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                     <TextInput id='servicename'
                                value={name}
                                validated={submitted && validationFailed.name ? "error" : "default"}
-                               onChange={setName} />
+                               onChange={(_event, value) => setName(value)} />
                     <FormHelper fieldId="servicename"
                                 helperTextInvalid={submitted && validationFailed.name && (!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed"))} />
                 </FormGroup>
@@ -168,7 +168,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                     <TextInput id='description'
                                value={description}
                                validated={submitted && validationFailed.description ? "error" : "default"}
-                               onChange={setDescription} />
+                               onChange={(_event, value) => setDescription(value)} />
                     <FormHelper fieldId="description" helperTextInvalid={submitted && validationFailed.description && _("This field cannot be empty")} />
                 </FormGroup>
                 <FormGroup label={_("Command")}
@@ -176,7 +176,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                     <TextInput id='command'
                                value={command}
                                validated={submitted && validationFailed.command ? "error" : "default"}
-                               onChange={str => { setCommandNotFound(false); setCommand(str) }} />
+                               onChange={(_event, str) => { setCommandNotFound(false); setCommand(str) }} />
                     <FormHelper fieldId="command"
                                 helperTextInvalid={submitted && validationFailed.command && (commandNotFound ? _("Command not found") : _("This field cannot be empty"))} />
                 </FormGroup>
@@ -202,7 +202,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                             <TextInput className="delay-number"
                                        value={delayNumber}
                                        validated={submitted && validationFailed.delayNumber ? "error" : "default"}
-                                       onChange={setDelayNumber} />
+                                       onChange={(_event, value) => setDelayNumber(value)} />
                             <FormSelect className="delay-unit"
                                         value={delayUnit}
                                         onChange={(_, val) => setDelayUnit(val)}
@@ -290,7 +290,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                             <TextInput className='delay-number'
                                                        id={repeat}
                                                        value={repeatPatterns[idx].second}
-                                                       onChange={second => {
+                                                       onChange={(_event, second) => {
                                                            const arr = [...repeatPatterns];
                                                            arr[idx].second = second;
                                                            setRepeatPatterns(arr);
@@ -300,7 +300,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                         {repeat == "hourly" && <>
                                             <TextInput className='delay-number'
                                                        value={repeatPatterns[idx].minute}
-                                                       onChange={minute => {
+                                                       onChange={(_event, minute) => {
                                                            const arr = [...repeatPatterns];
                                                            arr[idx].minute = minute;
                                                            setRepeatPatterns(arr);

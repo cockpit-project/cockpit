@@ -78,10 +78,10 @@ export const BridgePortDialog = ({ connection, dev, settings }) => {
                       title={_("Bridge port settings")}
         >
             <FormGroup fieldId={idPrefix + "-prio-input"} label={_("Priority")}>
-                <TextInput id={idPrefix + "-prio-input"} value={priority} onChange={setPriority} />
+                <TextInput id={idPrefix + "-prio-input"} value={priority} onChange={(_event, value) => setPriority(value)} />
             </FormGroup>
             <FormGroup fieldId={idPrefix + "-path-cost-input"} label={_("Path cost")}>
-                <TextInput id={idPrefix + "-path-cost-input"} value={pathCost} onChange={setPathCost} />
+                <TextInput id={idPrefix + "-path-cost-input"} value={pathCost} onChange={(_event, value) => setPathCost(value)} />
             </FormGroup>
             <FormGroup fieldId={idPrefix + "-hairPin-mode-input"}>
                 <Checkbox id={idPrefix + "-hairPin-mode-input"} isChecked={hairPin} onChange={(_, hp) => setHairPin(hp)} label={_("Hair pin mode")} />

@@ -33,7 +33,7 @@ function RenameGroupDialogBody({ state, change }) {
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
             <FormGroup fieldId="group-name" label={_("New name")}>
-                <TextInput id="group-name" onChange={val => change("name", val)} value={name} />
+                <TextInput id="group-name" onChange={(_event, val) => change("name", val)} value={name} />
             </FormGroup>
             <HelperText>
                 <HelperTextItem variant="warning">{_("Renaming a group may affect sudo and similar rules")}</HelperTextItem>

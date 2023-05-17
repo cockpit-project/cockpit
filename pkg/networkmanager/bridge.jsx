@@ -104,16 +104,16 @@ export const BridgeDialog = ({ connection, dev, settings }) => {
                     <Checkbox id={idPrefix + "-stp-enabled-input"} isChecked={stp} onChange={(_, s) => setStp(s)} label={_("Spanning tree protocol (STP)")} />
                     {stp && <>
                         <FormGroup fieldId="network-bridge-stp-settings-priority-input" label={_("STP priority")}>
-                            <TextInput id="network-bridge-stp-settings-priority-input" className="network-number-field" value={priority} onChange={setPriority} />
+                            <TextInput id="network-bridge-stp-settings-priority-input" className="network-number-field" value={priority} onChange={(_event, value) => setPriority(value)} />
                         </FormGroup>
                         <FormGroup fieldId="network-bridge-stp-settings-forward-delay-input" label={_("STP forward delay")}>
-                            <TextInput id="network-bridge-stp-settings-forward-delay-input" className="network-number-field" value={forwardDelay} onChange={setForwardDelay} />
+                            <TextInput id="network-bridge-stp-settings-forward-delay-input" className="network-number-field" value={forwardDelay} onChange={(_event, value) => setForwardDelay(value)} />
                         </FormGroup>
                         <FormGroup fieldId="network-bridge-stp-settings-hello-time-input" label={_("STP hello time")}>
-                            <TextInput id="network-bridge-stp-settings-hello-time-input" className="network-number-field" value={helloTime} onChange={setHelloTime} />
+                            <TextInput id="network-bridge-stp-settings-hello-time-input" className="network-number-field" value={helloTime} onChange={(_event, value) => setHelloTime(value)} />
                         </FormGroup>
                         <FormGroup fieldId="network-bridge-stp-settings-max-age-input" label={_("STP maximum message age")}>
-                            <TextInput id="network-bridge-stp-settings-max-age-input" className="network-number-field" value={maxAge} onChange={setMaxAge} />
+                            <TextInput id="network-bridge-stp-settings-max-age-input" className="network-number-field" value={maxAge} onChange={(_event, value) => setMaxAge(value)} />
                         </FormGroup>
                     </>}
                 </FormGroup>

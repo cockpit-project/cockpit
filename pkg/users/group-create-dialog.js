@@ -40,7 +40,7 @@ function GroupCreateBody({ state, errors, change }) {
                        fieldId="groups-create-name">
                 <TextInput id="groups-create-name"
                            validated={(errors?.name) ? "error" : "default"}
-                           value={name} onChange={value => change("name", value)} />
+                           value={name} onChange={(_event, value) => change("name", value)} />
                 <FormHelper fieldId="groups-create-name" helperTextInvalid={errors?.name} />
             </FormGroup>
 
@@ -50,7 +50,7 @@ function GroupCreateBody({ state, errors, change }) {
                        fieldId="groups-create-id">
                 <TextInput id="groups-create-id"
                            validated={(errors?.id) ? "error" : "default"}
-                           value={id} onChange={value => change("id", value)} />
+                           value={id} onChange={(_event, value) => change("id", value)} />
                 <FormHelper fieldId="groups-create-id" helperTextInvalid={errors?.id} />
             </FormGroup>
         </Form>

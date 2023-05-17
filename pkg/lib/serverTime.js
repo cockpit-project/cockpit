@@ -567,7 +567,7 @@ function ChangeSystimeBody({ state, errors, change }) {
             <Flex className="ntp-server-input-group" spaceItems={{ default: 'spaceItemsSm' }} key={i}>
                 <FlexItem grow={{ default: 'grow' }}>
                     <TextInput value={s} placeholder={_("NTP server")} aria-label={_("NTP server")}
-                               onChange={(value, event) => change_server(event, i, value)} />
+                               onChange={(event, value) => change_server(event, i, value)} />
                 </FlexItem>
                 <Button variant="secondary" onClick={event => add_server(event, i)}
                         icon={ <PlusIcon /> } />

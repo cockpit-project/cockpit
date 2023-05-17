@@ -447,7 +447,7 @@ class DBusChannel(Channel):
                                           interface="org.freedesktop.DBus.Properties",
                                           path=path)
 
-        for name, interface in meta.items():
+        for name in meta:
             if name.startswith("org.freedesktop.DBus."):
                 continue
             try:

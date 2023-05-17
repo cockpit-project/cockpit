@@ -118,7 +118,7 @@ async def test_await_failure(init_type, monkeypatch, bridge):
 async def test_await_broken_connect(bridge):
     class BrokenConnect(ConfiguredPeer):
         async def do_connect_transport(self):
-            42 / 0
+            _ = 42 / 0
 
     peer = BrokenConnect(bridge, PEER_CONFIG)
     with pytest.raises(ZeroDivisionError):
@@ -132,7 +132,7 @@ async def test_await_broken_after_connect(bridge):
     class BrokenConnect(ConfiguredPeer):
         async def do_connect_transport(self):
             await super().do_connect_transport()
-            42 / 0
+            _ = 42 / 0
 
     peer = BrokenConnect(bridge, PEER_CONFIG)
     with pytest.raises(ZeroDivisionError):

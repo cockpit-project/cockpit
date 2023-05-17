@@ -24,6 +24,7 @@ disable = [
 
 [tool.ruff]
 select = [
+    "B",       # flake8-bugbear
     "E",       # pycodestyle
     "F",       # pyflakes
     "I",       # isort
@@ -38,6 +39,7 @@ exclude = [
     "tools/",
 ]
 ignore = [
+    "B011",  # Do not `assert False` (`python -O` removes these calls), raise `AssertionError()`
     "E731",  # Do not assign a `lambda` expression, use a `def`
 ]
 line-length = 118

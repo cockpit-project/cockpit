@@ -286,10 +286,10 @@ const PageSystemInformationChangeHostname = () => {
         >
             <Form isHorizontal onSubmit={onSubmit}>
                 <FormGroup fieldId="sich-pretty-hostname" label={_("Pretty host name")}>
-                    <TextInput id="sich-pretty-hostname" value={pretty} onChange={onPrettyChanged} />
+                    <TextInput id="sich-pretty-hostname" value={pretty} onChange={(_event, value) => onPrettyChanged(value)} />
                 </FormGroup>
                 <FormGroup fieldId="sich-hostname" label={_("Real host name")}>
-                    <TextInput id="sich-hostname" value={hostname} onChange={onHostnameChanged} validated={error.length ? "error" : "default"} />
+                    <TextInput id="sich-hostname" value={hostname} onChange={(_event, value) => onHostnameChanged(value)} validated={error.length ? "error" : "default"} />
                     <FormHelperText isHidden={error.length == 0} component="div">
                         <HelperText>
                             {error.map((err, i) =>

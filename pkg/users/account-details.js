@@ -262,7 +262,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                                              event.target.blur();
                                                          }
                                                      }}
-                                                     onChange={value => set_edited_real_name(value)}
+                                                     onChange={(_event, value) => set_edited_real_name(value)}
                                                      onBlur={() => change_real_name()} />
                                         : <output id="account-real-name">{account.gecos}</output>}
                                 </FormGroup>

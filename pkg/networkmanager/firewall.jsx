@@ -270,7 +270,7 @@ class SearchInput extends React.Component {
                     <ToolbarItem>
                         <TextInput type="search"
                                    id={this.props.id}
-                                   onChange={this.onValueChanged}
+                                   onChange={(_event, value) => this.onValueChanged(value)}
                                    value={this.state.value}
                         />
                     </ToolbarItem>
@@ -488,7 +488,7 @@ class AddEditServicesModal extends React.Component {
         }
     }
 
-    validate(value, event) {
+    validate(event, event) {
         let error = "";
         let targets = ['tcp', 'custom_tcp_ports', 'tcp_error', 'custom_tcp_value'];
         if (event.target.id === "udp-ports")
@@ -628,7 +628,7 @@ class AddEditServicesModal extends React.Component {
                                    id="add-services-dialog--services"
                                    value="services"
                                    isChecked={!this.state.custom}
-                                   onChange={this.onToggleType}
+                                   onChange={(_event, value) => this.onToggleType(value)}
                                    label={_("Services")} />
                             <Radio name="type"
                                    id="add-services-dialog--ports"
@@ -689,7 +689,7 @@ class AddEditServicesModal extends React.Component {
                             </FormGroup>
 
                             <FormGroup label="UDP">
-                                <TextInput id="udp-ports" type="text" onChange={this.validate}
+                                <TextInput id="udp-ports" type="text" onChange={this.validate)}
                                            validated={this.state.udp_error ? "error" : "default"}
                                            isDisabled={this.state.avail_services == null}
                                            value={this.state.custom_udp_value}
@@ -698,13 +698,13 @@ class AddEditServicesModal extends React.Component {
                             </FormGroup>
 
                             <FormGroup label={_("ID")}>
-                                <TextInput id="service-name" onChange={this.setId} isDisabled={!!this.props.custom_id || this.state.avail_services == null}
+                                <TextInput id="service-name" onChange={(_event, value) => this.setId(value)} isDisabled={!!this.props.custom_id || this.state.avail_services == null}
                                            value={this.state.custom_id} />
                                 <FormHelper helperText={_("If left empty, ID will be generated based on associated port services and port numbers")} />
                             </FormGroup>
 
                             <FormGroup label={_("Description")}>
-                                <TextInput id="service-description" onChange={this.setDescription} isDisabled={this.state.avail_services == null}
+                                <TextInput id="service-description" onChange={(_event, value) => this.setDescription(value)} isDisabled={this.state.avail_services == null}
                                            value={this.state.custom_description} />
                             </FormGroup>
                         </>
@@ -892,7 +892,7 @@ class ActivateZoneModal extends React.Component {
                                label={ _("Range") } />
                         {this.state.ipRange === "ip-range" && (
                             <>
-                                <TextInput id="add-zone-ip" onChange={value => this.onChange("ipRangeValue", value)} />
+                                <TextInput id="add-zone-ip" onChange={(_event, value) => this.onChange("ipRangeValue", value)} />
                                 <FormHelperText>{_("IP address with routing prefix. Separate multiple values with a comma. Example: 192.0.2.0/24, 2001:db8::/32")}</FormHelperText>
                             </>
                         )}

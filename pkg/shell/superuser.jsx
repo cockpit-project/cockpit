@@ -164,7 +164,7 @@ const UnlockDialog = ({ proxy, host }) => {
                         autoFocus // eslint-disable-line jsx-a11y/no-autofocus
                         id="switch-to-admin-access-password"
                         isDisabled={busy}
-                        onChange={setValue}
+                        onChange={(_event, value) => setValue(value)}
                         type={!prompt.echo ? 'password' : 'text'}
                         validated={!error ? "default" : validated || "error"}
                         value={value}

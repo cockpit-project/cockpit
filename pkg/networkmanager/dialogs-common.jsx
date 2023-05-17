@@ -136,7 +136,7 @@ export const MemberInterfaceChoices = ({ idPrefix, memberChoices, setMemberChoic
 export const Name = ({ idPrefix, iface, setIface }) => {
     return (
         <FormGroup fieldId={idPrefix + "-interface-name-input"} label={_("Name")}>
-            <TextInput id={idPrefix + "-interface-name-input"} value={iface} onChange={setIface} />
+            <TextInput id={idPrefix + "-interface-name-input"} value={iface} onChange={(_event, value) => setIface(value)} />
         </FormGroup>
     );
 };

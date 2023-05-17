@@ -102,7 +102,7 @@ export const VlanDialog = ({ connection, dev, settings }) => {
                     </FormSelect>
                 </FormGroup>
                 <FormGroup fieldId={idPrefix + "-vlan-id-input"} label={_("VLAN ID")}>
-                    <TextInput id={idPrefix + "-vlan-id-input"} value={vlanId} onChange={value => {
+                    <TextInput id={idPrefix + "-vlan-id-input"} value={vlanId} onChange={(_event, value) => {
                         setVlanId(value);
                         if (iface == (parent + "." + vlanId))
                             setIface(parent + "." + value);

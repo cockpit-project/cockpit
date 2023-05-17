@@ -191,18 +191,18 @@ export const BondDialog = ({ connection, dev, settings }) => {
                     </FormSelect>
                 </FormGroup>
                 <FormGroup fieldId={idPrefix + "-link-monitoring-interval-input"} label={_("Monitoring interval")}>
-                    <TextInput id={idPrefix + "-link-monitoring-interval-input"} className="network-number-field" value={linkMonitoringInterval} onChange={setLinkMonitoringInterval} />
+                    <TextInput id={idPrefix + "-link-monitoring-interval-input"} className="network-number-field" value={linkMonitoringInterval} onChange={(_event, value) => setLinkMonitoringInterval(value)} />
                 </FormGroup>
                 {linkMonitoring == 'mii' && <>
                     <FormGroup fieldId={idPrefix + "-link-up-delay-input"} label={_("Link up delay")}>
-                        <TextInput id={idPrefix + "-link-up-delay-input"} className="network-number-field" value={linkUpDelay} onChange={setLinkUpDelay} />
+                        <TextInput id={idPrefix + "-link-up-delay-input"} className="network-number-field" value={linkUpDelay} onChange={(_event, value) => setLinkUpDelay(value)} />
                     </FormGroup>
                     <FormGroup fieldId={idPrefix + "-link-down-delay-input"} label={_("Link down delay")}>
-                        <TextInput id={idPrefix + "-link-down-delay-input"} className="network-number-field" value={linkDownDelay} onChange={setLinkDownDelay} />
+                        <TextInput id={idPrefix + "-link-down-delay-input"} className="network-number-field" value={linkDownDelay} onChange={(_event, value) => setLinkDownDelay(value)} />
                     </FormGroup>
                 </>}
                 {linkMonitoring == 'arp' && <FormGroup fieldId={idPrefix + "-monitoring-targets-input"} label={_("Monitoring targets")}>
-                    <TextInput id={idPrefix + "-monitoring-targets-input"} value={monitoringTargets} onChange={setMonitoringTargets} />
+                    <TextInput id={idPrefix + "-monitoring-targets-input"} value={monitoringTargets} onChange={(_event, value) => setMonitoringTargets(value)} />
                 </FormGroup>}
             </>
         </NetworkModal>

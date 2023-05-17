@@ -301,11 +301,11 @@ const SOSDialog = () => {
         <br />
         <Form isHorizontal>
             <FormGroup label={_("Report label")}>
-                <TextInput id="sos-dialog-ti-1" value={label} onChange={setLabel} />
+                <TextInput id="sos-dialog-ti-1" value={label} onChange={(_event, value) => setLabel(value)} />
             </FormGroup>
             <FormGroup label={_("Encryption passphrase")}>
                 <InputGroup>
-                    <TextInput type={showPassphrase ? "text" : "password"} value={passphrase} onChange={setPassphrase}
+                    <TextInput type={showPassphrase ? "text" : "password"} value={passphrase} onChange={(_event, value) => setPassphrase(value)}
                                id="sos-dialog-ti-2" autoComplete="new-password" />
                     <Button variant="control" onClick={() => setShowPassphrase(!showPassphrase)}>
                         { showPassphrase ? <EyeSlashIcon /> : <EyeIcon /> }

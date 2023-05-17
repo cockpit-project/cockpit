@@ -158,7 +158,7 @@ function PasswordExpirationDialogBody({ state, errors, change }) {
                            <span id="password-expiration-before">{before}</span>
                            <TextInput className="size-text-ct" id="password-expiration-input"
                                   validated={(errors?.days) ? "error" : "default"}
-                                  value={days} onChange={value => change("days", value)} isDisabled={mode != "expires"} />
+                                  value={days} onChange={(_event, value) => change("days", value)} isDisabled={mode != "expires"} />
                            <span id="password-expiration-after">{after}</span>
                        </>}
                        isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />

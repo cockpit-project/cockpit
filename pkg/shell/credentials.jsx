@@ -260,13 +260,13 @@ const KeyPassword = ({ currentKey, change, setDialogError }) => {
                 </HelperTextItem>
             </HelperText>}
             <FormGroup label={_("Password")} fieldId={(currentKey.name || currentKey.comment) + "-old-password"} type="password">
-                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-old-password"} value={oldPassword} onChange={setOldPassword} />
+                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-old-password"} value={oldPassword} onChange={(_event, value) => setOldPassword(value)} />
             </FormGroup>
             <FormGroup label={_("New password")} fieldId={(currentKey.name || currentKey.comment) + "-new-password"} type="password">
-                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-new-password"} value={newPassword} onChange={setNewPassword} />
+                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-new-password"} value={newPassword} onChange={(_event, value) => setNewPassword(value)} />
             </FormGroup>
             <FormGroup label={_("Confirm password")} fieldId={(currentKey.name || currentKey.comment) + "-confirm-password"} type="password">
-                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-confirm-password"} value={confirmPassword} onChange={setConfirmPassword} />
+                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-confirm-password"} value={confirmPassword} onChange={(_event, value) => setConfirmPassword(value)} />
             </FormGroup>
             <ActionGroup>
                 <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
@@ -316,7 +316,7 @@ const UnlockKey = ({ keyName, load, onClose }) => {
             <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
                 {dialogError && <ModalError dialogError={dialogError} />}
                 <FormGroup label={_("Password")} fieldId={keyName + "-password"} type="password">
-                    <TextInput type="password" id={keyName + "-password"} value={password} onChange={setPassword} />
+                    <TextInput type="password" id={keyName + "-password"} value={password} onChange={(_event, value) => setPassword(value)} />
                 </FormGroup>
             </Form>
         </Modal>

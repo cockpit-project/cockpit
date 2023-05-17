@@ -690,7 +690,7 @@ const RemovePassphraseField = (tag, key, dev) => {
                                           {_("Removing a passphrase without confirmation of another passphrase may prevent unlocking or key management, if other passphrases are forgotten or lost.")}
                                       </p>
                                       : <FormGroup label={_("Passphrase from any other key slot")} fieldId="remove-passphrase">
-                                          <TextInputPF id="remove-passphrase" type="password" value={val} onChange={value => change(value)} />
+                                          <TextInputPF id="remove-passphrase" type="password" value={val} onChange={(_event, value) => change(value)} />
                                       </FormGroup>
                                   }
                         />

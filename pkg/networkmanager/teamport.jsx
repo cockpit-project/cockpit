@@ -82,7 +82,7 @@ export const TeamPortDialog = ({ connection, dev, settings }) => {
                       title={_("Team port settings")}
         >
             <FormGroup fieldId={idPrefix + "-" + teamMode + "-prio-input"} label={_("Priority")}>
-                <TextInput id={idPrefix + "-" + teamMode + "-prio-input"} value={priority} onChange={setPriority} />
+                <TextInput id={idPrefix + "-" + teamMode + "-prio-input"} value={priority} onChange={(_event, value) => setPriority(value)} />
             </FormGroup>
             {teamMode == 'activebackup'
                 ? <FormGroup fieldId={idPrefix + "-activebackup-sticky-input"}>
@@ -91,7 +91,7 @@ export const TeamPortDialog = ({ connection, dev, settings }) => {
                 : null}
             {teamMode == 'lacp'
                 ? <FormGroup fieldId={idPrefix + "-" + teamMode + "-key-input"} label={_("LACP key")}>
-                    <TextInput id={idPrefix + "-" + teamMode + "-key-input"} value={key} onChange={setKey} />
+                    <TextInput id={idPrefix + "-" + teamMode + "-key-input"} value={key} onChange={(_event, value) => setKey(value)} />
                 </FormGroup>
                 : null}
         </NetworkModal>

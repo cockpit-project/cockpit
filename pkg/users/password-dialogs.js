@@ -140,7 +140,7 @@ function SetPasswordDialogBody({ state, errors, change }) {
                 <FormGroup label={_("Old password")}
                            fieldId="account-set-password-old">
                     <TextInput className="check-passwords" type="password" id="account-set-password-old"
-                               autoComplete="current-password" value={password_old} onChange={value => change("password_old", value)} />
+                               autoComplete="current-password" value={password_old} onChange={(_event, value) => change("password_old", value)} />
                     <FormHelper helperTextInvalid={errors?.password_old} />
                 </FormGroup>
             </> }

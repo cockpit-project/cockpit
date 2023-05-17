@@ -1198,21 +1198,22 @@ static gchar *
 rule_superuser_id (RouterRule *rule)
 {
   gboolean privileged;
-  const gchar **spawn = NULL;
-  gchar *id;
 
   if (rule->config
       && cockpit_json_get_bool (rule->config, "privileged", FALSE, &privileged)
-      && privileged
-      && cockpit_json_get_strv (rule->config, "spawn", NULL, &spawn)
-      && spawn)
-    {
-      id = g_path_get_basename (spawn[0]);
-      g_free (spawn);
-      return id;
+      && privileged) {
+      /* if bridge has a label, prefer that */
+      const gchar *label;
+      if (cockpit_json_get_string (rule->config, "label", NULL, &label) && label)
+        return g_strdup (label);
+
+      /* else, use program name */
+      g_autofree const gchar **spawn = NULL;
+      if (cockpit_json_get_strv (rule->config, "spawn", NULL, &spawn) && spawn)
+        return g_path_get_basename (spawn[0]);
     }
-  else
-    return NULL;
+
+  return NULL;
 }
 
 /* D-Bus interface */

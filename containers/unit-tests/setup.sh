@@ -47,6 +47,7 @@ dependencies="\
     python3-pytest-asyncio \
     python3-pytest-cov \
     python3-pytest-timeout \
+    python3-polib \
     ssh \
     strace \
     valgrind \

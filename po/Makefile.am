@@ -24,9 +24,9 @@ po/cockpit.js.pot:
 		$$( cd $(srcdir) && find pkg/ ! -name 'test-*' -name '*.js' -o -name '*.jsx') | \
 		sed '/^#/ s/, c-format//' > $@
 
-po/cockpit.manifest.pot: $(srcdir)/package-lock.json
+po/cockpit.manifest.pot:
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
-	$(srcdir)/pkg/lib/manifest2po.js -d $(srcdir) -o $@ \
+	$(srcdir)/pkg/lib/manifest2po.py -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find pkg/ -name 'manifest.json')
 
 po/cockpit.appstream.pot:

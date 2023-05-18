@@ -6,9 +6,9 @@ PO_LINGUAS = $(addprefix po/,$(LINGUAS))
 PO_INPUTS = $(addsuffix .po,$(PO_LINGUAS))
 
 # Extract translate attribute, Glade style, angular-gettext HTML translations
-po/cockpit.html.pot: $(srcdir)/package-lock.json
+po/cockpit.html.pot:
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
-	$(srcdir)/pkg/lib/html2po.js -d $(srcdir) -o $@ \
+	$(srcdir)/pkg/lib/html2po.py -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find pkg/ -name '*.html')
 
 # Extract cockpit style javascript translations

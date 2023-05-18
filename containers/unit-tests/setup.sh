@@ -42,11 +42,13 @@ dependencies="\
     nodejs \
     pkg-config \
     python3 \
+    python3-bs4 \
     python3-mypy \
     python3-pip \
     python3-pytest-asyncio \
     python3-pytest-cov \
     python3-pytest-timeout \
+    python3-polib \
     ssh \
     strace \
     valgrind \

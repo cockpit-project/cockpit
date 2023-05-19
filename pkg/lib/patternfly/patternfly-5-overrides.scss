@@ -176,8 +176,15 @@ select.pf-v5-c-form-control {
 
 // Flex should use gap, not a margin hack
 // https://github.com/patternfly/patternfly/issues/4523
+// Override default spacing from lg -> md
 .pf-v5-l-flex {
   gap: var(--pf-v5-l-flex--spacer-base);
+  &:not([class*="pf-m-space-items-"]) {
+    > * {
+      --pf-v5-l-flex--spacer--column: 0;
+    }
+    gap: var(--pf-v5-l-flex--spacer--md);
+  }
 
   // Negate the margin hack used by immediate flex children
   // (except for nested flex, as we want to mind the gap)
@@ -188,7 +195,7 @@ select.pf-v5-c-form-control {
   // Undo all spacer modification adjustments
   &[class*="pf-m-space-items-"] {
     > * {
-      --pf-v5-l-flex--spacer: 0;
+      --pf-v5-l-flex--spacer--column: 0;
     }
   }
 

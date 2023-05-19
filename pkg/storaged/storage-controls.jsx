@@ -68,7 +68,7 @@ class StorageControl extends React.Component {
     }
 }
 
-function checked(callback) {
+function checked(callback, setSpinning) {
     return function (event) {
         if (!event)
             return;
@@ -82,31 +82,41 @@ function checked(callback) {
             return;
 
         const promise = client.run(callback);
-        if (promise)
+        if (promise) {
+            if (setSpinning)
+                setSpinning(true);
+            promise.finally(() => {
+                if (setSpinning)
+                    setSpinning(false);
+            });
             promise.catch(function (error) {
                 dialog_open({
                     Title: _("Error"),
                     Body: error.toString()
                 });
             });
+        }
         event.stopPropagation();
     };
 }
 
-export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, onlyWide }) => (
-    <StorageControl excuse={excuse}
-                    content={excuse => (
-                        <Button id={id}
-                                aria-label={ariaLabel}
-                                onClick={checked(onClick)}
-                                variant={kind || "secondary"}
-                                isDisabled={!!excuse}
-                                className={onlyWide ? "show-only-when-wide" : null}
-                                style={excuse ? { pointerEvents: 'none' } : null}>
-                            {children}
-                        </Button>
-                    )} />
-);
+export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, onlyWide, spinner }) => {
+    const [spinning, setSpinning] = useState(false);
+
+    return <StorageControl excuse={excuse}
+                           content={excuse => (
+                               <Button id={id}
+                                       aria-label={ariaLabel}
+                                       onClick={checked(onClick, setSpinning)}
+                                       variant={kind || "secondary"}
+                                       isDisabled={!!excuse || (spinner && spinning)}
+                                       className={onlyWide ? "show-only-when-wide" : null}
+                                       style={excuse ? { pointerEvents: 'none' } : null}
+                                       isLoading={spinner ? spinning : undefined}>
+                                   {children}
+                               </Button>
+                           )} />;
+};
 
 export const StorageLink = ({ id, excuse, onClick, children }) => (
     <StorageControl excuse={excuse}

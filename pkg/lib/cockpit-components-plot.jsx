@@ -278,11 +278,11 @@ export const ZoomControls = ({ plot_state }) => {
             { "\n" }
             <Button variant="secondary" onClick={() => zoom_state.scroll_left()}
                     isDisabled={!zoom_state.enable_scroll_left}>
-                <AngleLeftIcon />
+                <AngleLeftIcon className="shows-direction" />
             </Button>
             <Button variant="secondary" onClick={() => zoom_state.scroll_right()}
                     isDisabled={!zoom_state.enable_scroll_right}>
-                <AngleRightIcon />
+                <AngleRightIcon className="shows-direction" />
             </Button>
         </div>
     );

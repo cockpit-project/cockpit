@@ -1322,7 +1322,7 @@ const HourDescription = ({ minute_events, isHourExpanded, onToggleHourExpanded, 
     return (
         <span className={"metrics-events" + (isHourExpanded ? " metrics-events-hour-header-expanded" : "")}>
             {spikes > 0 &&
-                <Button variant="plain" className="metrics-events-expander" onClick={() => onToggleHourExpanded(!isHourExpanded)} icon={isHourExpanded ? <AngleDownIcon /> : <AngleRightIcon />} />}
+                <Button variant="plain" className="metrics-events-expander" onClick={() => onToggleHourExpanded(!isHourExpanded)} icon={isHourExpanded ? <AngleDownIcon /> : <AngleRightIcon className="shows-direction" />} />}
             <time>{ timeformat.time(startTime) }</time>
             <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsBaseline' }} className="spikes_count">
                 {spikes >= 10 && <ResourcesFullIcon color="var(--resource-icon-color-full)" />}

@@ -192,7 +192,10 @@ OnCalendar=daily
         # Check that the system page is translated
         b.go("/system")
         b.enter_page("/system")
-        b.wait_in_text(".ct-overview-header", "Neustart")
+        b.click(".ct-overview-header button:contains('Neustart')")
+
+        # Restart dialog is loaded from pkg/lib and it also needs to be translated
+        b.wait_in_text("#shutdown-dialog", "Nachricht an angemeldete Benutzer")
 
         # Systemd timer localization
         b.go("/system/services")

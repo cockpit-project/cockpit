@@ -70,7 +70,7 @@ function buildFile(po_file, subdir, webpack_module, webpack_compilation) {
             for (const [msgid, translation] of Object.entries(context)) {
                 /* Only include msgids which appear in this source directory */
                 const references = translation.comments.reference.split(/\s/);
-                if (!references.some(str => str.startsWith(`pkg/${subdir}`) || str.startsWith(config.src_directory)))
+                if (!references.some(str => str.startsWith(`pkg/${subdir}`) || str.startsWith(config.src_directory) || str.startsWith(`pkg/lib`)))
                     continue;
 
                 if (translation.comments.flag?.match(/\bfuzzy\b/))

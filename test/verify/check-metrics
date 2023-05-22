@@ -499,7 +499,7 @@ class TestHistoryMetrics(MachineCase):
 
         m.execute("""mount -t tmpfs tmpfs /var/log/pcp/pmlogger
                      chown -R pcp:pcp /var/log/pcp/pmlogger
-                     restorecon /var/log/pcp/pmlogger || true""")
+                     if selinuxenabled; then restorecon /var/log/pcp/pmlogger; fi""")
         self.addCleanup(m.execute, "systemctl stop pmlogger; until umount /var/log/pcp/pmlogger; do sleep 1; done")
 
         self.login_and_go("/metrics")
@@ -534,6 +534,7 @@ class TestHistoryMetrics(MachineCase):
 
         m.write("/run/systemd/system/pmlogger.service.d/break.conf", "[Service]\nExecStart=\nExecStart=/bin/false")
         m.execute(r"""mount -t tmpfs tmpfs /var/log/pcp/pmlogger
+                      if selinuxenabled; then restorecon /var/log/pcp/pmlogger; fi
                       systemctl daemon-reload
                       systemctl start pmlogger || true""")
         self.addCleanup(m.execute,

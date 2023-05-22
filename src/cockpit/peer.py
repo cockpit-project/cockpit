@@ -124,7 +124,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
     # Handling of interesting events
     def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
         if command == 'init' and self.init_future is not None:
-            self.init_future.set_result(True)
+            self.init_future.set_result(None)
         else:
             raise CockpitProtocolError(f'Received unexpected control message {command}')
 

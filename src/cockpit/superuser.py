@@ -98,7 +98,7 @@ class SuperuserRoutingRule(RoutingRule, ferny.InteractionResponder, bus.Object, 
         finally:
             self.pending_prompt = None
 
-    def __init__(self, router: Router, privileged: bool = False):
+    def __init__(self, router: Router, *, privileged: bool = False):
         super().__init__(router)
 
         self.superuser_configs = {}

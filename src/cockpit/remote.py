@@ -144,7 +144,7 @@ class SshPeer(Peer):
         elif host is None:
             super().do_kill(None, group)
 
-    def __init__(self, router: Router, host: str, user: Optional[str], password: Optional[str], private: bool):
+    def __init__(self, router: Router, host: str, user: Optional[str], password: Optional[str], *, private: bool):
         super().__init__(router)
         self.host = host
         self.user = user
@@ -195,7 +195,7 @@ class HostRoutingRule(RoutingRule):
             logger.debug('%s is not among the existing remotes %s.  Opening a new connection.', key, self.remotes)
             password = options.get('password')
             assert password is None or isinstance(password, str)
-            peer = SshPeer(self.router, host, user, password, nonce is not None)
+            peer = SshPeer(self.router, host, user, password, private=nonce is not None)
             peer.add_done_callback(lambda: self.remotes.__delitem__(key))
             self.remotes[key] = peer
 

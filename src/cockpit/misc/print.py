@@ -70,6 +70,7 @@ class Printer:
 
     def http(self,
              path: str,
+             *,
              method: str = 'GET',
              done: bool = True,
              channel: Optional[str] = None,

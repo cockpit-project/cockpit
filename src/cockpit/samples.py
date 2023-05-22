@@ -30,7 +30,7 @@ HWMON_PATH = '/sys/class/hwmon'
 Samples = DefaultDict[str, Any]
 
 
-def read_int_file(rootfd: int, statfile: str, include_zero: bool = False, key: bytes = b'') -> Optional[int]:
+def read_int_file(rootfd: int, statfile: str, default: Optional[int] = None, key: bytes = b'') -> Optional[int]:
     # Not every stat is available, such as cpu.weight
     try:
         fd = os.open(statfile, os.O_RDONLY, dir_fd=rootfd)
@@ -45,19 +45,14 @@ def read_int_file(rootfd: int, statfile: str, include_zero: bool = False, key: b
     if key:
         start = data.index(key) + len(key)
         end = data.index(b'\n', start)
-        # cpu.stat are in usecs
-        value = int(data[start:end])
-    else:
+        data = data[start:end]
+
+    try:
+        # 0 often means "none", so replace it with default value
+        return int(data) or default
+    except ValueError:
         # Some samples such as "memory.max" contains "max" when there is a no limit
-        try:
-            value = int(data)
-        except ValueError:
-            return None
-
-    if value > 0 or include_zero:
-        return value
-
-    return None
+        return None
 
 
 class SampleDescription(NamedTuple):
@@ -76,15 +71,15 @@ class Sampler:
 
 class CPUSampler(Sampler):
     descriptions = [
-        SampleDescription('cpu.basic.nice', 'millisec', 'counter', False),
-        SampleDescription('cpu.basic.user', 'millisec', 'counter', False),
-        SampleDescription('cpu.basic.system', 'millisec', 'counter', False),
-        SampleDescription('cpu.basic.iowait', 'millisec', 'counter', False),
+        SampleDescription('cpu.basic.nice', 'millisec', 'counter', instanced=False),
+        SampleDescription('cpu.basic.user', 'millisec', 'counter', instanced=False),
+        SampleDescription('cpu.basic.system', 'millisec', 'counter', instanced=False),
+        SampleDescription('cpu.basic.iowait', 'millisec', 'counter', instanced=False),
 
-        SampleDescription('cpu.core.nice', 'millisec', 'counter', True),
-        SampleDescription('cpu.core.user', 'millisec', 'counter', True),
-        SampleDescription('cpu.core.system', 'millisec', 'counter', True),
-        SampleDescription('cpu.core.iowait', 'millisec', 'counter', True),
+        SampleDescription('cpu.core.nice', 'millisec', 'counter', instanced=True),
+        SampleDescription('cpu.core.user', 'millisec', 'counter', instanced=True),
+        SampleDescription('cpu.core.system', 'millisec', 'counter', instanced=True),
+        SampleDescription('cpu.core.iowait', 'millisec', 'counter', instanced=True),
     ]
 
     def sample(self, samples: Samples) -> None:
@@ -110,10 +105,10 @@ class CPUSampler(Sampler):
 
 class MemorySampler(Sampler):
     descriptions = [
-        SampleDescription('memory.free', 'bytes', 'instant', False),
-        SampleDescription('memory.used', 'bytes', 'instant', False),
-        SampleDescription('memory.cached', 'bytes', 'instant', False),
-        SampleDescription('memory.swap-used', 'bytes', 'instant', False),
+        SampleDescription('memory.free', 'bytes', 'instant', instanced=False),
+        SampleDescription('memory.used', 'bytes', 'instant', instanced=False),
+        SampleDescription('memory.cached', 'bytes', 'instant', instanced=False),
+        SampleDescription('memory.swap-used', 'bytes', 'instant', instanced=False),
     ]
 
     def sample(self, samples: Samples) -> None:
@@ -131,7 +126,7 @@ class CPUTemperatureSampler(Sampler):
     sensors: Optional[List[str]] = None
 
     descriptions = [
-        SampleDescription('cpu.temperature', 'celsius', 'instant', True),
+        SampleDescription('cpu.temperature', 'celsius', 'instant', instanced=True),
     ]
 
     @staticmethod
@@ -206,10 +201,10 @@ class CPUTemperatureSampler(Sampler):
 
 class DiskSampler(Sampler):
     descriptions = [
-        SampleDescription('disk.all.read', 'bytes', 'counter', False),
-        SampleDescription('disk.all.written', 'bytes', 'counter', False),
-        SampleDescription('disk.dev.read', 'bytes', 'counter', True),
-        SampleDescription('disk.dev.written', 'bytes', 'counter', True),
+        SampleDescription('disk.all.read', 'bytes', 'counter', instanced=False),
+        SampleDescription('disk.all.written', 'bytes', 'counter', instanced=False),
+        SampleDescription('disk.dev.read', 'bytes', 'counter', instanced=True),
+        SampleDescription('disk.dev.written', 'bytes', 'counter', instanced=True),
     ]
 
     def sample(self, samples: Samples) -> None:
@@ -252,12 +247,12 @@ class DiskSampler(Sampler):
 
 class CGroupSampler(Sampler):
     descriptions = [
-        SampleDescription('cgroup.memory.usage', 'bytes', 'instant', True),
-        SampleDescription('cgroup.memory.limit', 'bytes', 'instant', True),
-        SampleDescription('cgroup.memory.sw-usage', 'bytes', 'instant', True),
-        SampleDescription('cgroup.memory.sw-limit', 'bytes', 'instant', True),
-        SampleDescription('cgroup.cpu.usage', 'millisec', 'counter', True),
-        SampleDescription('cgroup.cpu.shares', 'count', 'instant', True),
+        SampleDescription('cgroup.memory.usage', 'bytes', 'instant', instanced=True),
+        SampleDescription('cgroup.memory.limit', 'bytes', 'instant', instanced=True),
+        SampleDescription('cgroup.memory.sw-usage', 'bytes', 'instant', instanced=True),
+        SampleDescription('cgroup.memory.sw-limit', 'bytes', 'instant', instanced=True),
+        SampleDescription('cgroup.cpu.usage', 'millisec', 'counter', instanced=True),
+        SampleDescription('cgroup.cpu.shares', 'count', 'instant', instanced=True),
     ]
 
     cgroups_v2: Optional[bool] = None
@@ -274,12 +269,12 @@ class CGroupSampler(Sampler):
                 if not cgroup:
                     continue
 
-                samples['cgroup.memory.usage'][cgroup] = read_int_file(rootfd, 'memory.current', True)
+                samples['cgroup.memory.usage'][cgroup] = read_int_file(rootfd, 'memory.current', 0)
                 samples['cgroup.memory.limit'][cgroup] = read_int_file(rootfd, 'memory.max')
-                samples['cgroup.memory.sw-usage'][cgroup] = read_int_file(rootfd, 'memory.swap.current', True)
+                samples['cgroup.memory.sw-usage'][cgroup] = read_int_file(rootfd, 'memory.swap.current', 0)
                 samples['cgroup.memory.sw-limit'][cgroup] = read_int_file(rootfd, 'memory.swap.max')
                 samples['cgroup.cpu.shares'][cgroup] = read_int_file(rootfd, 'cpu.weight')
-                usage_usec = read_int_file(rootfd, 'cpu.stat', True, key=b'usage_usec')
+                usage_usec = read_int_file(rootfd, 'cpu.stat', 0, key=b'usage_usec')
                 if usage_usec:
                     samples['cgroup.cpu.usage'][cgroup] = usage_usec / 1000
         else:
@@ -290,9 +285,9 @@ class CGroupSampler(Sampler):
                 if not cgroup:
                     continue
 
-                samples['cgroup.memory.usage'][cgroup] = read_int_file(rootfd, 'memory.usage_in_bytes', True)
+                samples['cgroup.memory.usage'][cgroup] = read_int_file(rootfd, 'memory.usage_in_bytes', 0)
                 samples['cgroup.memory.limit'][cgroup] = read_int_file(rootfd, 'memory.limit_in_bytes')
-                samples['cgroup.memory.sw-usage'][cgroup] = read_int_file(rootfd, 'memory.memsw.usage_in_bytes', True)
+                samples['cgroup.memory.sw-usage'][cgroup] = read_int_file(rootfd, 'memory.memsw.usage_in_bytes', 0)
                 samples['cgroup.memory.sw-limit'][cgroup] = read_int_file(rootfd, 'memory.memsw.limit_in_bytes')
 
             cpu_path = '/sys/fs/cgroup/cpu/'
@@ -311,8 +306,8 @@ class CGroupSampler(Sampler):
 class CGroupDiskIO(Sampler):
     IO_RE = re.compile(rb'\bread_bytes: (?P<read>\d+).*\nwrite_bytes: (?P<write>\d+)', flags=re.S)
     descriptions = [
-        SampleDescription('disk.cgroup.read', 'bytes', 'counter', True),
-        SampleDescription('disk.cgroup.written', 'bytes', 'counter', True),
+        SampleDescription('disk.cgroup.read', 'bytes', 'counter', instanced=True),
+        SampleDescription('disk.cgroup.written', 'bytes', 'counter', instanced=True),
     ]
 
     @staticmethod
@@ -360,8 +355,8 @@ class CGroupDiskIO(Sampler):
 
 class NetworkSampler(Sampler):
     descriptions = [
-        SampleDescription('network.interface.tx', 'bytes', 'counter', True),
-        SampleDescription('network.interface.rx', 'bytes', 'counter', True),
+        SampleDescription('network.interface.tx', 'bytes', 'counter', instanced=True),
+        SampleDescription('network.interface.rx', 'bytes', 'counter', instanced=True),
     ]
 
     def sample(self, samples: Samples) -> None:
@@ -380,8 +375,8 @@ class NetworkSampler(Sampler):
 
 class MountSampler(Sampler):
     descriptions = [
-        SampleDescription('mount.total', 'bytes', 'instant', True),
-        SampleDescription('mount.used', 'bytes', 'instant', True),
+        SampleDescription('mount.total', 'bytes', 'instant', instanced=True),
+        SampleDescription('mount.used', 'bytes', 'instant', instanced=True),
     ]
 
     def sample(self, samples: Samples) -> None:
@@ -402,8 +397,8 @@ class MountSampler(Sampler):
 
 class BlockSampler(Sampler):
     descriptions = [
-        SampleDescription('block.device.read', 'bytes', 'counter', True),
-        SampleDescription('block.device.written', 'bytes', 'counter', True),
+        SampleDescription('block.device.read', 'bytes', 'counter', instanced=True),
+        SampleDescription('block.device.written', 'bytes', 'counter', instanced=True),
     ]
 
     def sample(self, samples: Samples) -> None:

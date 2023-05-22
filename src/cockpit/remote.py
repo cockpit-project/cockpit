@@ -22,7 +22,8 @@ import re
 import socket
 from typing import Dict, List, Optional, Tuple
 
-from ._vendor import ferny
+from cockpit._vendor import ferny
+
 from .peer import Peer, PeerError
 from .router import Router, RoutingRule
 

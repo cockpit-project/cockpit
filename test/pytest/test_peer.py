@@ -2,12 +2,14 @@ import asyncio
 import os
 import sys
 
-import mockpeer
 import pytest
+
 from cockpit.peer import ConfiguredPeer, PeerRoutingRule
 from cockpit.protocol import CockpitProtocolError
 from cockpit.router import Router
-from mocktransport import MockTransport, assert_no_subprocesses, settle_down
+
+from . import mockpeer
+from .mocktransport import MockTransport, assert_no_subprocesses, settle_down
 
 PEER_CONFIG = {
     "spawn": [sys.executable, mockpeer.__file__],

@@ -10,10 +10,12 @@ from pathlib import Path
 from typing import Dict
 
 import pytest
+
 from cockpit._vendor.systemd_ctypes import EventLoopPolicy, bus
 from cockpit.bridge import Bridge
 from cockpit.channels import CHANNEL_TYPES
-from mocktransport import MOCK_HOSTNAME, MockTransport, settle_down
+
+from .mocktransport import MOCK_HOSTNAME, MockTransport, settle_down
 
 asyncio.set_event_loop_policy(EventLoopPolicy())
 

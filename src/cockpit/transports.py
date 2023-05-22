@@ -400,7 +400,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     def get_pipe_transport(self, fd: int) -> asyncio.Transport:
         raise NotImplementedError
 
-    def send_signal(self, sig: signal.Signals) -> None:  # type: ignore # https://github.com/python/mypy/issues/13885
+    def send_signal(self, sig: signal.Signals) -> None:  # type: ignore[override] # mypy/issues/13885
         assert self._process is not None
         # We try to avoid using subprocess.send_signal().  It contains a call
         # to waitpid() internally to avoid signalling the wrong process (if a

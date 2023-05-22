@@ -48,7 +48,7 @@ class SocketStreamChannel(ProtocolChannel):
             # TCP
             elif 'port' in options:
                 try:
-                    port: int = int(options['port'])  # type: ignore
+                    port: int = int(options['port'])  # type: ignore[call-overload]
                 except ValueError as exc:
                     raise ChannelError('protocol-error', message='invalid "port" option for stream channel') from exc
                 host = options.get('address', 'localhost')

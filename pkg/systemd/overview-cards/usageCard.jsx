@@ -127,10 +127,10 @@ export class UsageCard extends React.Component {
                 <CardTitle>{_("Usage")}</CardTitle>
                 <CardBody>
                     <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">
-                        <tbody>
-                            <tr>
-                                <th id="system-usage-cpu-progress" scope="row">{_("CPU")}</th>
-                                <td>
+                        <tbody className="pf-v5-c-table__tbody">
+                            <tr className="pf-v5-c-table__tr">
+                                <th className="pf-v5-c-table__th" id="system-usage-cpu-progress" scope="row">{_("CPU")}</th>
+                                <td className="pf-v5-c-table__td">
                                     <Progress value={this.state.cpuUsed}
                                         className="pf-m-sm"
                                         min={0} max={100}
@@ -140,9 +140,9 @@ export class UsageCard extends React.Component {
                                         measureLocation={ProgressMeasureLocation.outside} />
                                 </td>
                             </tr>
-                            <tr>
-                                <th id="system-usage-memory-progress" scope="row">{_("Memory")}</th>
-                                <td>
+                            <tr className="pf-v5-c-table__tr">
+                                <th className="pf-v5-c-table__th" id="system-usage-memory-progress" scope="row">{_("Memory")}</th>
+                                <td className="pf-v5-c-table__td">
                                     <Progress value={this.state.memUsed}
                                         className="pf-m-sm"
                                         min={0} max={this.state.memTotal}

@@ -192,8 +192,8 @@ class ConfiguredPeer(Peer):
     env: Sequence[str]
 
     def __init__(self, router: Router, config: Dict[str, object]):
-        self.args = config['spawn']  # type: ignore
-        self.env = config.get('environ', [])  # type: ignore
+        self.args = config['spawn']  # type: ignore[assignment]
+        self.env = config.get('environ', [])  # type: ignore[assignment]
         super().__init__(router)
 
     async def do_connect_transport(self):
@@ -211,7 +211,7 @@ class PeerRoutingRule(RoutingRule):
 
     def apply_rule(self, options: Dict[str, object]) -> Optional[Peer]:
         # Check that we match
-        for key, value in self.config['match'].items():  # type: ignore
+        for key, value in self.config['match'].items():  # type: ignore[attr-defined]
             if key not in options:
                 logger.debug('        rejecting because key %s is missing', key)
                 return None
@@ -255,7 +255,7 @@ class PeersRoutingRule(RoutingRule):
 
         for config in bridge_configs:
             # Those are handled elsewhere...
-            if config.get('privileged') or 'host' in config['match']:  # type: ignore
+            if config.get('privileged') or 'host' in config['match']:  # type: ignore[operator]
                 continue
 
             # Try to reuse an existing rule, if one exists...

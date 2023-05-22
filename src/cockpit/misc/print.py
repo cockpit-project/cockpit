@@ -20,7 +20,7 @@ import ast
 import json
 import os
 import pydoc
-import readline  # noqa side-effecting import
+import readline  # noqa: F401, side-effecting import
 import shlex
 import sys
 import time
@@ -90,7 +90,7 @@ class Printer:
         if headers is not None:
             our_headers.update(headers)
         # mypy is right: kwargs could include  `done` or `method`, but codifying that is really awkward
-        self.http(path, internal='packages', channel=channel, headers=our_headers, **kwargs)  # type: ignore
+        self.http(path, internal='packages', channel=channel, headers=our_headers, **kwargs)  # type: ignore[arg-type]
 
     def spawn(self, *args: str, channel: Optional[str] = None, **kwargs: object) -> None:
         """Open a stream channel with a spawned command"""

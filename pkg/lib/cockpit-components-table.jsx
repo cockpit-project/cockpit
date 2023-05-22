@@ -188,7 +188,7 @@ export const ListingTable = ({
     const rowsComponents = (isSortable ? (sortMethod ? sortMethod(rows, activeSortDirection, activeSortIndex) : sortRows()) : rows).map((row, rowIndex) => {
         const rowProps = row.props || {};
         if (onRowClick) {
-            rowProps.isHoverable = true;
+            rowProps.isClickable = true;
             rowProps.onRowClick = (event) => onRowClick(event, row);
         }
 

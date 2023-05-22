@@ -333,7 +333,7 @@ class DBusChannel(Channel):
                                   id=cookie)
                 return
             except Exception as exc:
-                self.send_message(error=['python.error', [f'Introspection: {str(exc)}']], id=cookie)
+                self.send_message(error=['python.error', [f'Introspection: {exc!s}']], id=cookie)
                 return
 
         try:

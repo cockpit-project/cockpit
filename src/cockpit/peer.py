@@ -145,7 +145,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
             self.shutdown_endpoint(problem=exc.problem, **exc.kwargs)
         else:
             self.shutdown_endpoint(problem='internal-error',
-                                   message=f"[{exc.__class__.__name__}] {str(exc)}")
+                                   message=f"[{exc.__class__.__name__}] {exc!s}")
 
         # If .start() is running, we need to make sure it stops running,
         # raising the correct exception.

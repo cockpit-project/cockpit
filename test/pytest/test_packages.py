@@ -23,10 +23,11 @@ import cockpit.config
 from cockpit.packages import Packages, parse_accept_language
 
 
-@pytest.mark.parametrize("test_input,expected", [
-                         ('de-at, zh-CH, en,', ['de-at', 'zh-ch', 'en']),
-                         ('es-es, nl;q=0.8, fr;q=0.9', ['es-es', 'fr', 'nl']),
-                         ('fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5', ['fr-ch', 'fr', 'en', 'de', '*'])])
+@pytest.mark.parametrize(("test_input", "expected"), [
+    ('de-at, zh-CH, en,', ['de-at', 'zh-ch', 'en']),
+    ('es-es, nl;q=0.8, fr;q=0.9', ['es-es', 'fr', 'nl']),
+    ('fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5', ['fr-ch', 'fr', 'en', 'de', '*'])
+])
 def test_parse_accept_language(test_input, expected):
     assert parse_accept_language({'Accept-Language': test_input}) == expected
 

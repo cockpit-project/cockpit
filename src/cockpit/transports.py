@@ -324,7 +324,8 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         # zero.  For that reason, we need to store our own copy of the return
         # status.  See https://github.com/python/cpython/issues/59960
         assert isinstance(self._protocol, SubprocessProtocol)
-        assert self._process is not None and self._process.pid == pid
+        assert self._process is not None
+        assert self._process.pid == pid
         self._returncode = code
         logger.debug('Process exited with status %d', self._returncode)
         if not self._closing:
@@ -360,7 +361,8 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         else:
             self._process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                              preexec_fn=preexec_fn, **kwargs)
-            assert self._process.stdin and self._process.stdout
+            assert self._process.stdin
+            assert self._process.stdout
             in_fd = self._process.stdout.fileno()
             out_fd = self._process.stdin.fileno()
 

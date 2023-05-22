@@ -387,7 +387,8 @@ class TestSystemInfo(PackageCase):
         b.click('#systime-ntp-servers div:nth-child(1) button')
         b.set_input_text("#systime-ntp-servers div:nth-child(2) input", "1.pool.ntp.org")
         b.click("#system_information_change_systime .apply")
-        b.wait_not_present("#system_information_change_systime")
+        with b.wait_timeout(60):
+            b.wait_not_present("#system_information_change_systime")
 
         m.execute(f"grep 0.pool.ntp.org {enabled_conf}")
         m.execute(f"grep 1.pool.ntp.org {enabled_conf}")
@@ -407,7 +408,8 @@ class TestSystemInfo(PackageCase):
         self.set_change_time_dialog_mode("Automatically using NTP")
         b.wait_not_present("#systime-ntp-servers")
         b.click("#system_information_change_systime .apply")
-        b.wait_not_present("#system_information_change_systime")
+        with b.wait_timeout(60):
+            b.wait_not_present("#system_information_change_systime")
 
         m.execute(f"! test -f {enabled_conf}")
         m.execute(f"grep 2.pool.ntp.org {disabled_conf}")

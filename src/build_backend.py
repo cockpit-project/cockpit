@@ -14,7 +14,7 @@ PACKAGE = f'cockpit-{__version__}'
 TAG = 'py3-none-any'
 
 
-def find_sources(srcpkg: bool) -> Iterable[str]:
+def find_sources(*, srcpkg: bool) -> Iterable[str]:
     try:
         subprocess.check_call(['modules/checkout'], stdout=2)       # Needed for git builds...
     except FileNotFoundError:                                       # ...but not present in tarball...

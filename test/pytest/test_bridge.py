@@ -36,10 +36,8 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.transport.stop()
 
-    async def start(self, args=None, send_init=True) -> None:
-        if args is None:
-            args = argparse.Namespace(privileged=False)
-        self.bridge = Bridge(args)
+    async def start(self, *, send_init: bool = True) -> None:
+        self.bridge = Bridge(argparse.Namespace(privileged=False))
         self.transport = MockTransport(self.bridge)
 
         if send_init:

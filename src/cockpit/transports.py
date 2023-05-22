@@ -81,9 +81,9 @@ class _Transport(asyncio.Transport):
         self._in_fd = in_fd
         self._out_fd = out_fd
 
-        os.set_blocking(in_fd, False)
+        os.set_blocking(in_fd, False)  # noqa: FBT003: ruff/issues/3247
         if out_fd != in_fd:
-            os.set_blocking(out_fd, False)
+            os.set_blocking(out_fd, False)  # noqa: FBT003
 
         self._protocol.connection_made(self)
         self.resume_reading()
@@ -307,9 +307,9 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
         return watcher
 
-    def get_stderr(self, reset: bool = False) -> Optional[str]:
+    def get_stderr(self, *, reset: bool = False) -> Optional[str]:
         if self._stderr is not None:
-            return self._stderr.get(reset).decode(errors='replace')
+            return self._stderr.get(reset=reset).decode(errors='replace')
         else:
             return None
 
@@ -335,6 +335,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
                  loop: asyncio.AbstractEventLoop,
                  protocol: SubprocessProtocol,
                  args: Sequence[str],
+                 *,
                  pty: bool = False,
                  window: Optional[Dict[str, int]] = None,
                  **kwargs: Any):
@@ -482,7 +483,7 @@ class Spooler:
 
         self._fd = os.dup(fd)
 
-        os.set_blocking(self._fd, False)
+        os.set_blocking(self._fd, False)  # # noqa: FBT003: ruff/issues/3247
         loop.add_reader(self._fd, self._read_ready)
 
     def _read_ready(self) -> None:
@@ -504,7 +505,7 @@ class Spooler:
             return False
         return select.select([self._fd], [], [], 0) != ([], [], [])
 
-    def get(self, reset: bool = False) -> bytes:
+    def get(self, *, reset: bool = False) -> bytes:
         while self._is_ready():
             self._read_ready()
 

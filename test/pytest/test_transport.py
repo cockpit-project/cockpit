@@ -146,7 +146,7 @@ class TestSpooler(unittest.IsolatedAsyncioTestCase):
             os.close(reader)
 
         try:
-            os.set_blocking(writer, False)
+            os.set_blocking(writer, False)  # noqa: FBT003: ruff/issues/3247
             written = 0
             blob = b'a' * 64 * 1024  # NB: pipe buffer is 64k
             while written < 1024 * 1024:

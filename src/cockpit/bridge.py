@@ -70,7 +70,7 @@ class Bridge(Router, PackagesListener):
         self.bridge_rules = []
         self.args = args
 
-        self.superuser_rule = SuperuserRoutingRule(self, args.privileged)
+        self.superuser_rule = SuperuserRoutingRule(self, privileged=args.privileged)
         self.internal_bus.export('/superuser', self.superuser_rule)
         self.internal_bus.export('/packages', self.packages)
         self.internal_bus.export('/config', Config())
@@ -170,7 +170,7 @@ def try_to_receive_stderr():
             os.close(stderr_fd)
 
 
-def setup_logging(debug: bool):
+def setup_logging(*, debug: bool):
     """Setup our logger with optional filtering of modules if COCKPIT_DEBUG env is set"""
 
     modules = os.getenv('COCKPIT_DEBUG', '')
@@ -235,7 +235,7 @@ def main() -> None:
     if args.privileged:
         try_to_receive_stderr()
 
-    setup_logging(args.debug)
+    setup_logging(debug=args.debug)
 
     # Special modes
     if args.packages:

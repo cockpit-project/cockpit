@@ -345,7 +345,7 @@ class DBusChannel(Channel):
                 # TODO: stop hard-coding the endian flag here.
                 self.send_message(reply=[reply.get_body()], id=cookie,
                                   flags="<" if flags is not None else None,
-                                  type=reply.get_signature(True))
+                                  type=reply.get_signature(True))  # noqa: FBT003
         except BusError as error:
             # actually, should send the fields from the message body
             self.send_message(error=[error.name, [error.message]], id=cookie)

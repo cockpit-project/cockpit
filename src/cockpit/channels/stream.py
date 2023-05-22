@@ -139,7 +139,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             env.update(dict(e.split('=', 1) for e in environ))
 
         try:
-            transport = SubprocessTransport(loop, self, args, pty, window, env=env, cwd=cwd, stderr=stderr)
+            transport = SubprocessTransport(loop, self, args, pty=pty, window=window, env=env, cwd=cwd, stderr=stderr)
             logger.debug('Spawned process args=%s pid=%i', args, transport.get_pid())
             return transport
         except FileNotFoundError as error:

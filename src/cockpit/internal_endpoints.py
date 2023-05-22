@@ -24,8 +24,9 @@ import os
 import pwd
 from typing import Dict, Optional
 
+from cockpit._vendor.systemd_ctypes import Variant, bus, inotify, pathwatch
+
 from . import config
-from ._vendor.systemd_ctypes import Variant, bus, inotify, pathwatch
 
 logger = logging.getLogger(__name__)
 

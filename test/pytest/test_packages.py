@@ -17,8 +17,9 @@
 
 import json
 
-import cockpit.config
 import pytest
+
+import cockpit.config
 from cockpit.packages import Packages, parse_accept_language
 
 

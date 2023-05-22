@@ -21,8 +21,9 @@ import logging
 import os
 from typing import Dict, List, Optional, Sequence, Union
 
-from ._vendor import ferny
-from ._vendor.systemd_ctypes import bus
+from cockpit._vendor import ferny
+from cockpit._vendor.systemd_ctypes import bus
+
 from .peer import ConfiguredPeer, Peer, PeerError
 from .router import Router, RoutingError, RoutingRule
 

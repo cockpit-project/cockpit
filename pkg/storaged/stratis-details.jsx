@@ -468,6 +468,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
     const sidebar = <StratisPoolSidebar client={client} pool={pool} />;
 
     function render_fsys(fsys, offset, total) {
+        const overhead = pool.TotalPhysicalUsed[0] ? (Number(pool.TotalPhysicalUsed[1]) - total) : 0;
+        const pool_total = Number(pool.TotalPhysicalSize) - overhead;
         const block = client.slashdevs_block[fsys.Devnode];
 
         if (!block) {
@@ -664,8 +666,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 title: mount_point
             },
             {
-                title: <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])),
-                    Number(pool.TotalPhysicalSize)]}
+                title: <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), pool_total]}
                                         critical={1} total={total} offset={offset} />,
                 props: { className: "pf-v5-u-text-align-right" }
             },

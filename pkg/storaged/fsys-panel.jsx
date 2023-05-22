@@ -124,6 +124,9 @@ export class FilesystemsPanel extends React.Component {
                     total += Number(fs.Used[1]);
             });
 
+            const overhead = pool.TotalPhysicalUsed[0] ? (Number(pool.TotalPhysicalUsed[1]) - total) : 0;
+            const pool_total = Number(pool.TotalPhysicalSize) - overhead;
+
             return filesystems.map((fs, i) => {
                 const block = client.slashdevs_block[fs.Devnode];
                 let mount = "-";
@@ -139,8 +142,7 @@ export class FilesystemsPanel extends React.Component {
                         { title: "Stratis" },
                         { title: mount },
                         {
-                            title: <StorageUsageBar stats={[Number(fs.Used[0] && Number(fs.Used[1])),
-                                Number(pool.TotalPhysicalSize)]}
+                            title: <StorageUsageBar stats={[Number(fs.Used[0] && Number(fs.Used[1])), pool_total]}
                                                     critical={1} total={total} offset={offsets[i]} />,
                             props: { className: "pf-v5-u-text-align-right" }
                         }

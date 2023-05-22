@@ -87,7 +87,7 @@ def get_checked_samples(sampler: cockpit.samples.Sampler) -> cockpit.samples.Sam
     samples: cockpit.samples.Samples = collections.defaultdict(dict)
     sampler.sample(samples)
 
-    assert set(samples) == set(descr.name for descr in cls.descriptions)
+    assert set(samples) == {descr.name for descr in cls.descriptions}
 
     for descr in cls.descriptions:
         sample = samples[descr.name]

@@ -160,7 +160,7 @@ class Router(CockpitProtocolServer):
             self.transport.close()
 
     def shutdown_endpoint(self, endpoint: Endpoint, **kwargs) -> None:
-        channels = set(key for key, value in self.open_channels.items() if value == endpoint)
+        channels = {key for key, value in self.open_channels.items() if value == endpoint}
         logger.debug('shutdown_endpoint(%s, %s) will close %s', endpoint, kwargs, channels)
         for channel in channels:
             self.write_control(command='close', channel=channel, **kwargs)

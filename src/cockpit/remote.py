@@ -89,7 +89,7 @@ class SshPeer(Peer):
             port = None
 
         responder = PasswordResponder(self.password)
-        options = dict(StrictHostKeyChecking='yes')
+        options = {"StrictHostKeyChecking": 'yes'}
 
         if self.password is not None:
             options.update(NumberOfPasswordPrompts='1')

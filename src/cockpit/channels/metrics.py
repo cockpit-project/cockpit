@@ -150,7 +150,7 @@ class InternalMetricsChannel(AsyncChannel):
 
                     data.append(instances)
                 else:
-                    data.append([val for val in value.values()])
+                    data.append(list(value.values()))
             else:
                 old_value = last_samples.get(metricinfo.desc.name)
                 assert not isinstance(value, dict)

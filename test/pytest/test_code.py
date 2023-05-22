@@ -35,4 +35,4 @@ def test_linter(command, pytestconfig):
     except FileNotFoundError as exc:
         pytest.skip(f'{exc.filename} not installed')
     except subprocess.CalledProcessError:
-        pytest.fail()
+        pytest.fail('linting failed')

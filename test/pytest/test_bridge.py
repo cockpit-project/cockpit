@@ -497,7 +497,7 @@ async def test_channel(channeltype, tmp_path):
                 await settle_down()
                 return
             else:
-                assert False, (payload, args, control)
+                pytest.fail('unexpected event', (payload, args, control))
         else:
             saw_data = True
 

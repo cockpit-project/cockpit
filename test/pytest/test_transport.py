@@ -25,6 +25,8 @@ import unittest
 import unittest.mock
 from typing import Any, List, Optional, Tuple
 
+import pytest
+
 import cockpit.transports
 
 
@@ -96,10 +98,9 @@ class TestSpooler(unittest.IsolatedAsyncioTestCase):
     async def test_bad_fd(self) -> None:
         # Make sure failing to construct succeeds without further failures
         loop = asyncio.get_running_loop()
-        try:
+        with pytest.raises(OSError) as raises:
             cockpit.transports.Spooler(loop, -1)
-        except OSError as exc:
-            assert exc.errno == errno.EBADF
+        assert raises.value.errno == errno.EBADF
 
     def create_spooler(self, to_write: bytes = b'') -> cockpit.transports.Spooler:
         loop = asyncio.get_running_loop()

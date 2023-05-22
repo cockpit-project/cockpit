@@ -4,6 +4,8 @@ import os
 import subprocess
 from typing import Any, Dict, Iterable, Optional, Tuple
 
+import pytest
+
 from cockpit.router import Router
 
 MOCK_HOSTNAME = 'mockbox'
@@ -27,7 +29,7 @@ def assert_no_subprocesses():
     subprocess.call(['pkill', '-9', '-P', f'{os.getpid()}'])
     for _ in range(100):  # zombie vacuum
         os.waitpid(-1, os.WNOHANG)  # will eventually throw, failing the test (which we want)
-    assert False  # more than 100?
+    pytest.fail('failed to reap all children')
 
 
 def assert_no_tasks(allow_tasks=0):

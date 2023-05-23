@@ -319,6 +319,12 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text('#detail-sidebar', dev_2)
         b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_2})', "data")
 
+        # Change the passphrase
+        b.click('#detail-header button:contains(Change passphrase)')
+        self.dialog({'old_passphrase': "foodeeboodeebar",
+                     'new_passphrase': "boodeefoodeebar",
+                     'new_passphrase2': "boodeefoodeebar"})
+
         m.reboot()
         m.start_cockpit()
         b.relogin()
@@ -335,7 +341,7 @@ class TestStorageStratis(StorageCase):
         self.dialog_set_val('passphrase', "wrong-passphrase")
         self.dialog_apply()
         b.wait_visible("#dialog .pf-v5-c-alert.pf-m-danger")
-        self.dialog_set_val('passphrase', "foodeeboodeebar")
+        self.dialog_set_val('passphrase', "boodeefoodeebar")
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_not_in_text('#detail-header', "Stopped")
@@ -347,7 +353,7 @@ class TestStorageStratis(StorageCase):
         self.wait_mounted(1, 1)
 
         # Reboot (this requires the passphrase)
-        self.setup_systemd_password_agent("foodeeboodeebar")
+        self.setup_systemd_password_agent("boodeefoodeebar")
         m.reboot()
         m.start_cockpit()
         b.relogin()

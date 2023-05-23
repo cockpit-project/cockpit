@@ -50,8 +50,7 @@ import {
 import { fmt_to_fragments } from "utils.jsx";
 import { mount_explanation } from "./format-dialog.jsx";
 import { validate_url, get_tang_adv, TangKeyVerification } from "./crypto-keyslots.jsx";
-
-import { std_reply, with_keydesc, with_stored_passphrase } from "./stratis-utils.js";
+import { std_reply, with_keydesc, with_stored_passphrase, get_unused_keydesc } from "./stratis-utils.js";
 
 const _ = cockpit.gettext;
 
@@ -277,6 +276,52 @@ export const StratisPoolDetails = ({ client, pool }) => {
         });
     }
 
+    function change_passphrase() {
+        with_keydesc(client, pool, (keydesc, keydesc_set) => {
+            if (!keydesc) {
+                dialog_open({
+                    Title: _("Error"),
+                    Body: _("The passphrase can not be changed here because the key description of the pool is not in the expected format.")
+                });
+                return;
+            }
+
+            dialog_open({
+                Title: _("Change passphrase"),
+                Fields: [
+                    PassInput("old_passphrase", _("Old passphrase"),
+                              { visible: vals => !keydesc_set,
+                                validate: val => !val.length && _("Passphrase cannot be empty")
+                              }),
+                    Skip("medskip"),
+                    PassInput("new_passphrase", _("New passphrase"),
+                              { validate: val => !val.length && _("Passphrase cannot be empty") }),
+                    PassInput("new_passphrase2", _("Repeat passphrase"),
+                              { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match") })
+                ],
+                Action: {
+                    Title: _("Save"),
+                    action: vals => {
+                        function rebind() {
+                            return get_unused_keydesc(client, pool.Name)
+                                .then(new_keydesc => {
+                                    return with_stored_passphrase(client, new_keydesc, vals.new_passphrase,
+                                                                  () => pool.RebindKeyring(new_keydesc))
+                                        .then(std_reply);
+                                });
+                        }
+
+                        if (keydesc) {
+                            return with_stored_passphrase(client, keydesc, vals.old_passphrase, rebind);
+                        } else {
+                            return rebind();
+                        }
+                    }
+                }
+            });
+        });
+    }
+
     function rename() {
         dialog_open({
             Title: _("Rename Stratis pool"),
@@ -450,6 +495,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
             <CardHeader actions={{
                 actions: (
                     <>
+                        { pool.Encrypted &&
+                          <StorageButton onClick={change_passphrase}>{_("Change passphrase")}</StorageButton> }
                         <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
                         <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
                     </>

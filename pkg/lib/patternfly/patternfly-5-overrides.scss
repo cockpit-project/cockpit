@@ -273,16 +273,6 @@ select.pf-v5-c-form-control {
     }
   }
 
-  // PatternFly doesn't define gold color in dark mode
-  .pf-v5-c-label {
-    --pf-v5-c-label--m-gold--BackgroundColor: var(--pf-v5-global--BackgroundColor--300);
-    --pf-v5-c-label--m-gold__content--Color: var(--pf-v5-global--palette--gold-100);
-
-    &.pf-m-gold {
-      --pf-v5-c-label__content--Color: var(--pf-v5-c-label--m-gold__content--Color);
-    }
-  }
-
   // FIXME: https://github.com/patternfly/patternfly/issues/5278
   .pf-v5-c-modal-box .pf-v5-c-table {
     background-color: inherit;

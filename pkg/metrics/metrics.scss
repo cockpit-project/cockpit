@@ -29,6 +29,11 @@ html {
   --resource-icon-color-empty: var(--pf-v5-global--palette--black-400);
   --resource-icon-color-middle: var(--pf-v5-global--palette--orange-500);
   --resource-icon-color-full: var(--pf-v5-global--palette--orange-200);
+
+  // Adjust alert color to seperate itself from the history section background
+  .pf-v5-c-alert {
+    --pf-v5-c-alert--m-inline--m-info--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
+  }
 }
 
 // Remove doubled-up padding on "main" sections, when two+ sections are used.

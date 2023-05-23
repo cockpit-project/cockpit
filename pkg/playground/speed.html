@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Cockpit Speed Tests</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="speed.css" type="text/css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="speed.css" type="text/css" rel="stylesheet" />
     <script src="../base1/cockpit.js"></script>
     <script src="speed.js"></script>
 </head>
-<body class="pf-v5-m-tabular-nums" hidden>
+<body class="pf-v5-m-tabular-nums" hidden="true">
     <div class="pf-v5-c-page">
         <main class="pf-v5-c-page__main" tabindex="-1">
             <section class="pf-v5-c-page__main-section pf-m-light">
@@ -36,19 +36,19 @@
                     <tbody>
                         <tr>
                             <td><label class="control-label" for="message">Message</label></td>
-                            <td><input class="form-control" id="message" value="100000"></td>
+                            <td><input class="form-control" id="message" value="100000" /></td>
                         </tr>
                         <tr>
                             <td><label class="control-label" for="batch">Batch</label></td>
-                            <td><input class="form-control" id="batch" value="1"></td>
+                            <td><input class="form-control" id="batch" value="1" /></td>
                         </tr>
                         <tr>
                             <td><label class="control-label" for="interval">Interval</label></td>
-                            <td><input class="form-control" id="interval" value="100"></td>
+                            <td><input class="form-control" id="interval" value="100" /></td>
                         </tr>
                         <tr>
                             <td><label class="control-label" for="binary">Binary</label></td>
-                            <td><input type="checkbox" id="binary"></td>
+                            <td><input type="checkbox" id="binary" /></td>
                         </tr>
                         <tr>
                             <td><button class="pf-v5-c-button pf-m-secondary pf-m-primary" id="echo-normal">Normal Channel</button></td>
@@ -63,7 +63,7 @@
                     <tbody>
                         <tr>
                             <td><label class="control-label" for="message">Path</label></td>
-                            <td><input class="form-control" id="read-path" value="/dev/sda"></td>
+                            <td><input class="form-control" id="read-path" value="/dev/sda" /></td>
                         </tr>
                         <tr>
                             <td><button class="pf-v5-c-button pf-m-secondary pf-m-primary" id="read-normal">Normal Channel</button></td>
@@ -78,7 +78,7 @@
                     <tbody>
                         <tr>
                             <td><label class="control-label" for="message">Path</label></td>
-                            <td><input class="form-control" id="download-path" value="/dev/sda"></td>
+                            <td><input class="form-control" id="download-path" value="/dev/sda" /></td>
                         </tr>
                         <tr>
                             <td><button class="pf-v5-c-button pf-m-secondary pf-m-primary" id="download-external">External Download</button></td>
@@ -92,15 +92,15 @@
                     <tbody>
                         <tr>
                             <td><label class="control-label" for="spawn">command</label></td>
-                            <td><input class="form-control" id="spawn-command" value="seq 1000000"></td>
+                            <td><input class="form-control" id="spawn-command" value="seq 1000000" /></td>
                         </tr>
                         <tr>
                             <td><label class="control-label" for="spawn-result">result</label></td>
-                            <td><label class="form-control" id="spawn-result"></label>
+                            <td><label class="form-control" id="spawn-result"></label></td>
                         </tr>
                         <tr>
                             <td><label class="control-label" for="spawn-output">output block</label></td>
-                            <td><pre id="spawn-output"></pre>
+                            <td><pre id="spawn-output"></pre></td>
                         </tr>
                         <tr>
                             <td><button class="pf-v5-c-button pf-m-secondary pf-m-primary" id="spawn">spawn command</button></td>

@@ -83,6 +83,16 @@ test_json_verify() {
     done
 }
 
+test_html_verify() {
+    # Check all HTML files for syntactic validity
+
+    git ls-files -z 'pkg/*.html' | while read -d '' filename; do
+        if ! python3 -c "import xml.etree.ElementTree as ET; ET.parse('${filename}')"; then
+            echo "${filename} contains invalid XML"
+        fi
+    done
+}
+
 test_include_config_h() {
     # Every C file should #include "config.h" at the top
 

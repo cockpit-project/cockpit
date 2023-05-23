@@ -619,7 +619,9 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
             self.run_systemctl(user, "start mem-hog.service")
             # If the test fails before we stop the mem-hog the next test run will not get the correct memory usage here
             self.addCleanup(self.run_systemctl, user, "stop mem-hog.service || true")
-            b.wait_visible("#memory")
+            # initial memory detection takes very long especially on RHEL 8
+            with b.wait_timeout(60):
+                b.wait_visible("#memory")
             initial_memory = float(b.text("#memory").split(" ")[0])
             self.assertGreater(initial_memory, 0.5)
             m.execute(f"touch /tmp/continue{params}")

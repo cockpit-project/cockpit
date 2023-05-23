@@ -49,6 +49,8 @@ import {
 import { fmt_to_fragments } from "utils.jsx";
 import { mount_explanation } from "./format-dialog.jsx";
 
+import { std_reply, with_keydesc, with_stored_passphrase } from "./stratis-utils.js";
+
 const _ = cockpit.gettext;
 
 function teardown_block(block) {
@@ -59,129 +61,71 @@ function destroy_filesystem(client, fsys) {
     const block = client.slashdevs_block[fsys.Devnode];
     const pool = client.stratis_pools[fsys.Pool];
 
-    return teardown_block(block)
-            .then(() => {
-                return pool.call("DestroyFilesystems", [[fsys.path]])
-                        .then(([result, code, message]) => {
-                            if (code)
-                                return Promise.reject(message);
-                        });
-            });
+    return teardown_block(block).then(() => pool.DestroyFilesystems([fsys.path]).then(std_reply));
 }
 
 function destroy_pool(client, pool) {
     return for_each_async(client.stratis_pool_filesystems[pool.path], fsys => destroy_filesystem(client, fsys))
-            .then(() => {
-                return client.stratis_manager.call("DestroyPool", [pool.path])
-                        .then(([result, code, message]) => {
-                            if (code)
-                                return Promise.reject(message);
-                        });
-            });
-}
-
-function remove_passphrase(client, key_desc) {
-    return client.stratis_manager.UnsetKey(key_desc)
-            .then((result, code, message) => {
-                if (code)
-                    return Promise.reject(message);
-            })
-            .catch(ex => {
-                console.warn("Failed to remove passphrase from key ring", ex.toString());
-            });
+            .then(() => client.stratis_manager.DestroyPool(pool.path).then(std_reply));
 }
 
 const StratisPoolSidebar = ({ client, pool }) => {
     const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
 
     function add_disks() {
-        if (!pool.Encrypted ||
-            !pool.KeyDescription ||
-            !pool.KeyDescription[0] ||
-            !pool.KeyDescription[1][0]) {
-            add_disks_with_keydesc(false);
-            return;
-        }
+        with_keydesc(client, pool, (keydesc, keydesc_set) => {
+            const ask_passphrase = keydesc && !keydesc_set;
 
-        const key_desc = pool.KeyDescription[1][1];
-        return client.stratis_list_keys()
-                .then(keys => {
-                    if (keys.indexOf(key_desc) >= 0)
-                        add_disks_with_keydesc(false);
-                    else
-                        add_disks_with_keydesc(key_desc);
-                })
-                .catch(ex => {
-                    console.warn("Failed fetch properties", ex.toString());
-                });
-    }
+            dialog_open({
+                Title: _("Add block devices"),
+                Fields: [
+                    SelectOne("tier", _("Tier"),
+                              {
+                                  choices: [
+                                      { value: "data", title: _("Data") },
+                                      { value: "cache", title: _("Cache"), disabled: pool.Encrypted }
+                                  ]
+                              }),
+                    PassInput("passphrase", _("Passphrase"),
+                              {
+                                  visible: () => ask_passphrase,
+                                  validate: val => !val.length && _("Passphrase cannot be empty"),
+                              }),
+                    SelectSpaces("disks", _("Block devices"),
+                                 {
+                                     empty_warning: _("No disks are available."),
+                                     validate: function(disks) {
+                                         if (disks.length === 0)
+                                             return _("At least one disk is needed.");
+                                     },
+                                     spaces: get_available_spaces(client)
+                                 })
+                ],
+                Action: {
+                    Title: _("Add"),
+                    action: function(vals) {
+                        return prepare_available_spaces(client, vals.disks)
+                                .then(paths => {
+                                    const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
 
-    function add_disks_with_keydesc(key_desc) {
-        dialog_open({
-            Title: _("Add block devices"),
-            Fields: [
-                SelectOne("tier", _("Tier"),
-                          {
-                              choices: [
-                                  { value: "data", title: _("Data") },
-                                  { value: "cache", title: _("Cache"), disabled: pool.Encrypted }
-                              ]
-                          }),
-                PassInput("passphrase", _("Passphrase"),
-                          {
-                              visible: () => !!key_desc,
-                              validate: val => !val.length && _("Passphrase cannot be empty"),
-                          }),
-                SelectSpaces("disks", _("Block devices"),
-                             {
-                                 empty_warning: _("No disks are available."),
-                                 validate: function(disks) {
-                                     if (disks.length === 0)
-                                         return _("At least one disk is needed.");
-                                 },
-                                 spaces: get_available_spaces(client)
-                             })
-            ],
-            Action: {
-                Title: _("Add"),
-                action: function(vals) {
-                    return prepare_available_spaces(client, vals.disks)
-                            .then(paths => {
-                                const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
-
-                                function add() {
-                                    if (vals.tier == "data") {
-                                        return pool.call("AddDataDevs", [devs])
-                                                .then(([result, code, message]) => {
-                                                    if (code)
-                                                        return Promise.reject(message);
-                                                });
-                                    } else if (vals.tier == "cache") {
-                                        const has_cache = blockdevs.some(bd => bd.Tier == 1);
-                                        const method = has_cache ? "AddCacheDevs" : "InitCache";
-                                        return pool.call(method, [devs])
-                                                .then(([result, code, message]) => {
-                                                    if (code)
-                                                        return Promise.reject(message);
-                                                });
+                                    function add() {
+                                        if (vals.tier == "data") {
+                                            return pool.AddDataDevs(devs).then(std_reply);
+                                        } else if (vals.tier == "cache") {
+                                            const has_cache = blockdevs.some(bd => bd.Tier == 1);
+                                            const method = has_cache ? "AddCacheDevs" : "InitCache";
+                                            return pool[method](devs).then(std_reply);
+                                        }
                                     }
-                                }
 
-                                if (key_desc) {
-                                    return client.stratis_store_passphrase(key_desc, vals.passphrase)
-                                            .then(add)
-                                            .catch(ex => {
-                                                return remove_passphrase(client, key_desc)
-                                                        .then(() => Promise.reject(ex));
-                                            })
-                                            .then(() => {
-                                                return remove_passphrase(client, key_desc);
-                                            });
-                                } else
-                                    return add();
-                            });
+                                    if (ask_passphrase) {
+                                        return with_stored_passphrase(client, keydesc, vals.passphrase, add);
+                                    } else
+                                        return add();
+                                });
+                    }
                 }
-            }
+            });
         });
     }
 
@@ -276,11 +220,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
             Action: {
                 Title: _("Rename"),
                 action: function (vals) {
-                    return pool.SetName(vals.name)
-                            .then((result, code, message) => {
-                                if (code)
-                                    return Promise.reject(message);
-                            });
+                    return pool.SetName(vals.name).then(std_reply);
                 }
             }
         });
@@ -416,10 +356,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 Variants: [{ tag: "nomount", Title: _("Create only") }],
                 action: function (vals) {
                     return client.stratis_create_filesystem(pool, vals.name)
-                            .then((result, code, message) => {
-                                if (code)
-                                    return Promise.reject(message);
-
+                            .then(std_reply)
+                            .then(result => {
                                 if (result[0])
                                     return set_mount_options(result[1][0][0], vals);
                                 else
@@ -503,11 +441,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 Action: {
                     Title: _("Rename"),
                     action: function (vals) {
-                        return fsys.SetName(vals.name)
-                                .then((result, code, message) => {
-                                    if (code)
-                                        return Promise.reject(message);
-                                });
+                        return fsys.SetName(vals.name).then(std_reply);
                     }
                 }
             });
@@ -573,10 +507,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
                     Variants: [{ tag: "nomount", Title: _("Create snapshot only") }],
                     action: function (vals) {
                         return pool.SnapshotFilesystem(fsys.path, vals.name)
-                                .then((result, code, message) => {
-                                    if (code)
-                                        return Promise.reject(message);
-
+                                .then(std_reply)
+                                .then(result => {
                                     if (result[0])
                                         return set_mount_options(result[1], vals);
                                     else
@@ -734,11 +666,7 @@ export function start_pool(client, uuid, show_devs) {
     }
 
     function start(unlock_method) {
-        return client.stratis_start_pool(uuid, unlock_method)
-                .then((result, code, message) => {
-                    if (code)
-                        return Promise.reject(message);
-                });
+        return client.stratis_start_pool(uuid, unlock_method).then(std_reply);
     }
 
     function unlock_with_keydesc(key_desc) {
@@ -756,15 +684,8 @@ export function start_pool(client, uuid, show_devs) {
             Action: {
                 Title: _("Unlock"),
                 action: function(vals) {
-                    return client.stratis_store_passphrase(key_desc, vals.passphrase)
-                            .then(() => start("keyring"))
-                            .catch(ex => {
-                                return remove_passphrase(client, key_desc)
-                                        .then(() => Promise.reject(ex));
-                            })
-                            .then(() => {
-                                return remove_passphrase(client, key_desc);
-                            });
+                    return with_stored_passphrase(client, key_desc, vals.passphrase,
+                                                  () => start("keyring"));
                 }
             }
         });

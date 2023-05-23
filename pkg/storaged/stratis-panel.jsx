@@ -29,6 +29,8 @@ import { validate_pool_name, start_pool } from "./stratis-details.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import { PlayIcon } from "@patternfly/react-icons";
 
+import { std_reply, get_unused_keydesc, with_stored_passphrase } from "./stratis-utils.js";
+
 const _ = cockpit.gettext;
 
 export function stratis_feature(client) {
@@ -91,21 +93,6 @@ export function stratis_rows(client) {
             .map(uuid => stratis_stopped_pool_row(client, uuid));
 
     return pools.concat(stopped_pools);
-}
-
-function store_new_passphrase(client, desc_prefix, passphrase) {
-    return client.stratis_list_keys()
-            .catch(() => [{ }])
-            .then(keys => {
-                let desc;
-                for (let i = 0; i < 1000; i++) {
-                    desc = desc_prefix + (i > 0 ? "." + i.toFixed() : "");
-                    if (keys.indexOf(desc) == -1)
-                        break;
-                }
-                return client.stratis_store_passphrase(desc, passphrase)
-                        .then(() => Promise.resolve(desc));
-            });
 }
 
 export function create_stratis_pool(client) {
@@ -173,25 +160,13 @@ export function create_stratis_pool(client) {
                     const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
 
                     function create(key_desc) {
-                        return client.stratis_create_pool(vals.name, devs, key_desc)
-                                .then((result, code, message) => {
-                                    if (code)
-                                        return Promise.reject(message);
-                                });
+                        return client.stratis_create_pool(vals.name, devs, key_desc).then(std_reply);
                     }
 
                     if (vals.encrypt.on) {
-                        return store_new_passphrase(client, vals.name, vals.passphrase)
-                                .then(key_desc => {
-                                    return create(key_desc)
-                                            .finally(() => {
-                                                return client.stratis_manager.UnsetKey(key_desc)
-                                                        .then((result, code, message) => {
-                                                            if (code)
-                                                                console.warn(message);
-                                                        });
-                                            });
-                                });
+                        return get_unused_keydesc(client, vals.name)
+                                .then(keydesc => with_stored_passphrase(client, keydesc, vals.passphrase,
+                                                                        () => create(keydesc)));
                     } else {
                         return create(false);
                     }

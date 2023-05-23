@@ -838,6 +838,9 @@ OnCalendar=daily
             b.click(f"#nav-system .nav-item a[href='{href}']")
             b.wait_visible(f"iframe.container-frame[name='cockpit1:localhost{href}'][data-loaded]")
 
+        # logging out too fast, some D-Bus services get disconnected
+        self.allow_restart_journal_messages()
+
 
 if __name__ == '__main__':
     test_main()

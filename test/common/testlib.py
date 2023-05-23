@@ -1818,6 +1818,20 @@ class MachineCase(unittest.TestCase):
         # happens fairly reliably with TestKeys.testAuthorizedKeys, TestConnection.testTls and TestHistoryMetrics.testEvents
         self.allowed_messages.append('cockpit.router-ERROR: trying to drop non-existent channel .* from .*')
 
+        # https://github.com/cockpit-project/cockpit/issues/18355
+        self.allowed_messages += [
+            "exception ignored in:.*DBusChannel.setup_path_watch.*",
+            "Traceback .*most recent call last.*",
+            "File .*",
+            "async with self.watch_processing_lock:",
+            "self.release.*",
+            "self._wake_up_first.*",
+            "fut.set_result.*",
+            "self._check_closed.*",
+            "raise RuntimeError.*",
+            "RuntimeError: Event loop is closed",
+        ]
+
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:

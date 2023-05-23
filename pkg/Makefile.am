@@ -9,7 +9,7 @@ pixmaps_DATA = pkg/sosreport/cockpit-sosreport.png
 
 EXTRA_DIST += \
 	pkg/users/mock \
-	pkg/lib/qunit-template.html \
+	pkg/lib/qunit-template.html.in \
 	pkg/lib/cockpit-po-plugin.js \
 	$(pkg_TESTS) \
 	$(metainfo_DATA) \

@@ -9,7 +9,7 @@ export const cockpitTestHtmlPlugin = ({ testFiles }) => ({
     name: 'CockpitTestHtmlPlugin',
     setup(build) {
         build.onEnd(async () => {
-            const data = fs.readFileSync(path.resolve(libdir, "qunit-template.html"), "utf8");
+            const data = fs.readFileSync(path.resolve(libdir, "qunit-template.html.in"), "utf8");
             testFiles.forEach(file => {
                 const test = path.parse(file).name;
                 const output = _.template(data.toString())({

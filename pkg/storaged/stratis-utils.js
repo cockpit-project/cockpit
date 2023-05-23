@@ -32,7 +32,7 @@ export function with_keydesc(client, pool, func) {
     } else {
         const keydesc = pool.KeyDescription[1][1];
         return client.stratis_list_keys()
-                .catch(() => [])
+                .catch(() => []) // not-covered: internal error
                 .then(keys => func(keydesc, keys.indexOf(keydesc) >= 0));
     }
 }
@@ -43,15 +43,13 @@ export function with_stored_passphrase(client, keydesc, passphrase, func) {
             .finally(() => {
                 return client.stratis_manager.UnsetKey(keydesc)
                         .then(std_reply)
-                        .catch(ex => {
-                            console.warn("Failed to remove passphrase from key ring", ex.toString());
-                        });
+                        .catch(ex => { console.warn("Failed to remove passphrase from key ring", ex.toString()) }); // not-covered: internal error
             });
 }
 
 export function get_unused_keydesc(client, desc_prefix) {
     return client.stratis_list_keys()
-            .catch(() => [])
+            .catch(() => []) // not-covered: internal error
             .then(keys => {
                 let desc;
                 for (let i = 0; i < 1000; i++) {

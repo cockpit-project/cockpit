@@ -61,7 +61,7 @@ logger = logging.getLogger(__name__)
 # channel does this by doing automatic introspection and property
 # retrieval without much direction from the JavaScript client.
 #
-# The details of what exactly is done is not speficied very strictly,
+# The details of what exactly is done is not specified very strictly,
 # and the Python bridge will likely differ from the C bridge
 # significantly. This will be informed by what existing code actually
 # needs, and we might end up with a more concrete description of what

@@ -93,7 +93,7 @@ read_proc_self_cgroup (size_t *out_length)
   *out_length = strlen (result);
 
   /* Make sure we have a non-empty result, and that it ends with a
-   * newline: this could only fail if the kernel retuned something
+   * newline: this could only fail if the kernel returned something
    * unexpected.
    */
   assert (*out_length >= 5); /* "0::/\n" */

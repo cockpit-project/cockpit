@@ -79,7 +79,7 @@ load_cert_from_dir (const char *dir_name,
  * Return certificate path on success, or %NULL if none is found or
  * another error occurs (such as a permissions problem, etc).
  *
- * @error must be a pointer to a `char *` originally containining %NULL.
+ * @error must be a pointer to a `char *` originally containing %NULL.
  * It will be set to the error message in case of errors, and %NULL will
  * be returned.  If the error is "no certificate was found" and
  * @missing_ok is %TRUE then %NULL will be returned, but @error will be

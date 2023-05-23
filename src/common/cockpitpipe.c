@@ -1610,7 +1610,7 @@ cockpit_pipe_exit_status (CockpitPipe *self)
 /**
  * cockpit_pipe_consume:
  * @buffer: a data buffer
- * @before: amount of preceeding bytes to discard
+ * @before: amount of preceding bytes to discard
  * @length: length of data to consume
  * @after: amount of trailing bytes to discard
  *

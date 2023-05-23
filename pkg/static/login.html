@@ -3,18 +3,18 @@
 
 <head>
   <title>Loading...</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
   <meta insert="dynamic_content_here" />
   <script type="text/javascript">/*insert_translations_here*/</script>
   <script type="text/javascript" src="cockpit/static/login.js"></script>
-  <link href="cockpit/static/login.css" type="text/css" rel="stylesheet">
-  <link href="cockpit/static/branding.css" type="text/css" rel="stylesheet">
+  <link href="cockpit/static/login.css" type="text/css" rel="stylesheet" />
+  <link href="cockpit/static/branding.css" type="text/css" rel="stylesheet" />
 </head>
 
 <body class="login-pf">
-  <div id="banner" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
+  <div id="banner" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden="true">
     <svg fill="currentColor" viewBox="0 0 448 512" aria-hidden="true">
       <path d="M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z" />
     </svg>
@@ -31,22 +31,22 @@
         <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
       </svg>
       <h2 id="login-error-message" class="pf-v5-c-alert__title">
-        <span class="noscript" translate>Please enable JavaScript to use the Web Console.</span>
+        <span class="noscript" translate="yes">Please enable JavaScript to use the Web Console.</span>
       </h2>
     </div>
 
-    <div class="unsupported-browser" id="unsupported-browser" hidden>
-      <h2 class="unsupported-browser-heading" translate>A modern browser is required for security, reliability, and performance.</h2>
+    <div class="unsupported-browser" id="unsupported-browser" hidden="true">
+      <h2 class="unsupported-browser-heading" translate="yes">A modern browser is required for security, reliability, and performance.</h2>
       <div class="browser-recommendations">
         <div class="browser-download">
-          <h3 translate>Download a new browser for free</h3>
+          <h3 translate="yes">Download a new browser for free</h3>
           <ul>
             <li><a href="https://firefox.com/">Mozilla Firefox</a> / Linux, Windows, macOS</li>
             <li><a href="https://www.google.com/chrome/">Google Chrome</a> / Linux, Windows, macOS</li>
           </ul>
         </div>
         <div class="browser-bundled">
-          <h3 translate>Or use a bundled browser</h3>
+          <h3 translate="yes">Or use a bundled browser</h3>
           <ul>
             <li><a href="https://www.microsoft.com/">Microsoft Edge</a> / Windows</li>
             <li><a href="https://www.apple.com/safari/">Apple Safari</a> / macOS</li>
@@ -58,7 +58,7 @@
           <svg height="16" width="16" viewBox="0 0 16 16" id="option-caret" class="caret caret-right" aria-hidden="true">
             <polygon fill="#ffffff" points="4,0 4,14 12,7"></polygon>
           </svg>
-          <span id="show-other-login-options-text" translate>
+          <span id="show-other-login-options-text" translate="yes">
             Bypass browser check
           </span>
         </summary>
@@ -66,41 +66,41 @@
       </details>
     </div>
 
-    <div id="info-group" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
+    <div id="info-group" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden="true">
       <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
         <path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z" />
       </svg>
       <h2 id="login-info-message" class="pf-v5-c-alert__title"></h2>
     </div>
 
-    <div id="login" class="login-area" hidden>
+    <div id="login" class="login-area" hidden="true">
       <form onsubmit="return false">
 
-        <div id="hostkey-group" class="form-group" hidden>
+        <div id="hostkey-group" class="form-group" hidden="true">
           <h1 id="hostkey-title"></h1>
-          <div id="hostkey-warning-group" class="pf-v5-c-alert pf-m-warning pf-m-inline dialog-error" aria-label="inline warning alert" hidden>
+          <div id="hostkey-warning-group" class="pf-v5-c-alert pf-m-warning pf-m-inline dialog-error" aria-label="inline warning alert" hidden="true">
             <svg fill="currentColor" viewBox="0 0 576 512" aria-hidden="true"><path d="M569.52 440.01c18.46 32-4.71 71.99-41.58 71.99H48.05c-36.93 0-60-40.05-41.57-71.99L246.42 24c18.47-32.01 64.72-31.96 83.16 0L569.52 440zM288 354a46 46 0 100 92 46 46 0 000-92zm-43.67-165.35l7.41 136A12 12 0 00263.74 336h48.54a12 12 0 0011.98-11.35l7.42-136A12 12 0 00319.7 176h-63.38a12 12 0 00-11.98 12.65z"/></svg>
-            <h2 translate class="pf-v5-c-alert__title">Changed keys are often the result of an operating system reinstallation. However, an unexpected change may indicate a third-party attempt to intercept your connection.</h2>
+            <h2 translate="yes" class="pf-v5-c-alert__title">Changed keys are often the result of an operating system reinstallation. However, an unexpected change may indicate a third-party attempt to intercept your connection.</h2>
               </div>
           <p id="hostkey-message-1"></p>
-          <p translate>To ensure that your connection is not intercepted by a malicious third-party, please verify the host key fingerprint:</p>
+          <p translate="yes">To ensure that your connection is not intercepted by a malicious third-party, please verify the host key fingerprint:</p>
           <pre id="hostkey-fingerprint"></pre>
           <p id="hostkey-type"></p>
           <p id="hostkey-verify-help-1"></p>
           <pre id="hostkey-verify-help-cmds"></pre>
-          <p translate>The resulting fingerprint is fine to share via public methods, including email.</p>
-          <p translate>If the fingerprint matches, click "Accept key and log in". Otherwise, do not log in and contact your administrator.</p>
+          <p translate="yes">The resulting fingerprint is fine to share via public methods, including email.</p>
+          <p translate="yes">If the fingerprint matches, click "Accept key and log in". Otherwise, do not log in and contact your administrator.</p>
         </div>
 
         <div id="user-group" class="form-group">
-          <label for="login-user-input" class="control-label" translate>User name</label>
-          <input type="text" class="form-control" id="login-user-input" autocorrect="off" autocapitalize="none" autofocus autocomplete="username">
+          <label for="login-user-input" class="control-label" translate="yes">User name</label>
+          <input type="text" class="form-control" id="login-user-input" autocorrect="off" autocapitalize="none" autofocus="true" autocomplete="username" />
         </div>
 
         <div id="password-group" class="form-group">
-          <label for="login-password-input" class="control-label" translate>Password</label>
+          <label for="login-password-input" class="control-label" translate="yes">Password</label>
           <div class="password-with-toggle">
-            <input type="password" class="form-control" id="login-password-input" autocomplete="current-password">
+            <input type="password" class="form-control" id="login-password-input" autocomplete="current-password" />
             <button type="button" id="login-password-toggle" class="pf-v5-c-button pf-m-control login-password-toggle" aria-label="Show password">
               <svg fill="currentColor" aria-hidden="true" viewBox="0 0 640 512">
                 <path class="password-show" d="M572.52 241.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400a144 144 0 1 1 144-144 143.93 143.93 0 0 1-144 144zm0-240a95.31 95.31 0 0 0-25.31 3.79 47.85 47.85 0 0 1-66.9 66.9A95.78 95.78 0 1 0 288 160z"/>
@@ -110,25 +110,25 @@
           </div>
         </div>
 
-        <div id="conversation-group" class="form-group" hidden>
+        <div id="conversation-group" class="form-group" hidden="true">
           <div id="conversation-message"></div>
           <label id="conversation-prompt" for="conversation-input"></label>
-          <input type="password" class="form-control" id="conversation-input" autocomplete="one-time-code">
+          <input type="password" class="form-control" id="conversation-input" autocomplete="one-time-code" />
         </div>
 
         <div id="option-group">
           <a href="#" id="show-other-login-options">
             <svg height="16" width="16" viewBox="0 0 16 16" id="option-caret" class="caret caret-right" aria-hidden="true">
               <polygon fill="#ffffff" points="4,0 4,14 12,7"></polygon>
-            </svg><span id="show-other-login-options-text" translate>Other options</span>
+            </svg><span id="show-other-login-options-text" translate="yes">Other options</span>
             <!-- Above: Span needs to be immediately next to SVG to prevent whitespace in the link -->
           </a>
         </div>
 
-        <div id="server-group" class="form-group" hidden>
-          <label title="Log in to another system. Leave blank to log in to the local system." for="server-field" id="server-field-label" class="control-label" translate>Connect to</label>
+        <div id="server-group" class="form-group" hidden="true">
+          <label title="Log in to another system. Leave blank to log in to the local system." for="server-field" id="server-field-label" class="control-label" translate="yes">Connect to</label>
           <div class="server-box">
-            <input type="text" class="form-control" id="server-field" placeholder=" ">
+            <input type="text" class="form-control" id="server-field" placeholder=" " />
             <span class="input-clear" id="server-clear" aria-hidden="true">
               <svg fill="currentColor" viewBox="0 0 352 512"><path d="m242.72 256 100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.29 12.28-32.19 0-44.48z"/></svg>
             </span>
@@ -138,33 +138,33 @@
         <div class="form-group login-actions">
           <button class="pf-v5-c-button pf-m-primary login-button" id="login-button" type="submit">
             <span class="spinner"></span>
-            <span id="login-button-text" class="button-text" translate>Log in</span>
+            <span id="login-button-text" class="button-text" translate="yes">Log in</span>
           </button>
-          <a id="get-out-link" href="/" translate>Cancel</a>
+          <a id="get-out-link" href="/" translate="yes">Cancel</a>
         </div>
       </form>
     </div>
 
-    <div id="login-wait-validating" hidden>
-      <span class="help-block" translate>Validating authentication token</span>
+    <div id="login-wait-validating" hidden="true">
+      <span class="help-block" translate="yes">Validating authentication token</span>
       <span class="spinner col-xs-15"></span>
     </div>
 
-    <div id="login-fatal" hidden>
+    <div id="login-fatal" hidden="true">
       <div id="login-fatal-message"></div>
-      <a id="login-again" class="pf-v5-c-button pf-m-primary" href="#" translate hidden>Try again</a>
+      <a id="login-again" class="pf-v5-c-button pf-m-primary" href="#" translate="yes" hidden="true">Try again</a>
     </div>
   </div>
 
-  <div class="details" id="login-details" hidden>
+  <div class="details" id="login-details" hidden="true">
     <p>
-      <label class="control-label"><span translate>Server</span>: <b id="server-name"></b></label>
+      <label class="control-label"><span translate="yes">Server</span>: <b id="server-name"></b></label>
     </p>
     <p id="login-note" class="login-note"></p>
   </div>
 
-  <div class="container" id="recent-hosts" hidden>
-    <h1 translate>Recent hosts</h1>
+  <div class="container" id="recent-hosts" hidden="true">
+    <h1 translate="yes">Recent hosts</h1>
     <div class="server-box" id="recent-hosts-list">
       <!-- Here show up recent hosts -->
     </div>

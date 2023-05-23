@@ -2,18 +2,18 @@
 <html id="shell-page" class="index-page pf-v5-theme-dark">
   <head>
     <title>Cockpit</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="shell.css" rel="stylesheet">
-    <link href="../../static/branding.css" rel="stylesheet">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="shell.css" rel="stylesheet" />
+    <link href="../../static/branding.css" rel="stylesheet" />
     <script src="../base1/cockpit.js"></script>
     <script src="../manifests.js"></script>
     <script src="../*/po.js"></script>
   </head>
-  <body class="pf-v5-m-tabular-nums" hidden>
+  <body class="pf-v5-m-tabular-nums" hidden="true">
     <div id="main" class="page">
-        <a class="screenreader-text skiplink desktop_v" href="#content" translate>Skip to content</a>
-        <a class="screenreader-text skiplink desktop_v" href="#hosts-sel" translate>Skip main navigation</a>
+        <a class="screenreader-text skiplink desktop_v" href="#content" translate="yes">Skip to content</a>
+        <a class="screenreader-text skiplink desktop_v" href="#hosts-sel" translate="yes">Skip main navigation</a>
 
         <div id="sidebar-toggle" class="pf-v5-c-select pf-m-dark sidebar-toggle">
         </div>
@@ -42,11 +42,11 @@
 
         <div id="content" role="main" class="area-ct-content" tabindex="-1">
           <!-- This is where the iframes appear -->
-          <div id="early-failure-ready" class="curtains-ct" hidden></div>
+          <div id="early-failure-ready" class="curtains-ct" hidden="true"></div>
         </div>
     </div>
 
-    <div id="early-failure" class="early-failure" hidden>
+    <div id="early-failure" class="early-failure" hidden="true">
     </div>
 
     <script src="shell.js"></script>

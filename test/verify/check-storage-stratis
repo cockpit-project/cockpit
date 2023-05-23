@@ -57,6 +57,10 @@ class TestStorageStratis(StorageCase):
         m.add_disk(SIZE_4GB, serial="DISK4")
         b.wait_in_text("#drives", dev_4)
 
+        dev_5 = "/dev/sde"
+        m.add_disk(SIZE_4GB, serial="DISK5")
+        b.wait_in_text("#drives", dev_5)
+
         # Create a pool
         self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
                                     expect=lambda: (self.dialog_is_present('disks', dev_1) and
@@ -194,6 +198,8 @@ class TestStorageStratis(StorageCase):
         # Add a data blockdev
         b.click('#detail-sidebar .pf-v5-c-card__actions button')
         self.dialog_wait_open()
+        self.dialog_apply()
+        self.dialog_wait_error("disks", "At least one")
         self.dialog_set_val('disks', {dev_3: True})
         # FIXME: Remove ignore when fixed: https://bugzilla.redhat.com/show_bug.cgi?id=2183084
         # b.assert_pixels("#dialog", "add-disk", ignore=[".pf-v5-c-data-list__item-content:contains(stratis)"])
@@ -209,6 +215,13 @@ class TestStorageStratis(StorageCase):
                      'disks': {dev_4: True}})
         b.wait_in_text('#detail-sidebar', dev_4)
         b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_4})', "cache")
+
+        # Add a second cache blockdev, this uses a different code path
+        b.click('#detail-sidebar .pf-v5-c-card__actions button')
+        self.dialog({'tier': "cache",
+                     'disks': {dev_5: True}})
+        b.wait_in_text('#detail-sidebar', dev_5)
+        b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_5})', "cache")
 
         # Rename the pool
         b.click('#detail-header button:contains(Rename)')
@@ -263,7 +276,11 @@ class TestStorageStratis(StorageCase):
         m.add_disk("4G", serial="DISK2")
         b.wait_in_text("#drives", dev_2)
 
-        # Create an encrypted pool with a filesystem, but don't mount it
+        # Create an encrypted pool with a filesystem, but don't mount
+        # it.  Cockpit will chose a key description for the pool and
+        # we occupy its first choice in order to force Cockpit to use
+        # something else.
+        m.execute("echo not-the-passphrase | stratis key set --capture-key pool0")
         self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
                                     expect=lambda: (self.dialog_is_present('disks', dev_1) and
                                                     self.dialog_check({"name": "pool0"})))
@@ -274,6 +291,7 @@ class TestStorageStratis(StorageCase):
         b.assert_pixels("#dialog", "create-encrypted-pool")
         self.dialog_apply()
         self.dialog_wait_close()
+        m.execute("stratis key unset pool0")
 
         b.wait_in_text("#devices", "pool0")
         b.click('.sidepanel-row:contains("pool0")')
@@ -291,8 +309,13 @@ class TestStorageStratis(StorageCase):
 
         # Add a data blockdev
         b.click('#detail-sidebar .pf-v5-c-card__actions button')
-        self.dialog({'passphrase': "foodeeboodeebar",
-                     'disks': {dev_2: True}})
+        self.dialog_wait_open()
+        self.dialog_set_val('disks', {dev_2: True})
+        self.dialog_apply()
+        self.dialog_wait_error("passphrase", "Passphrase cannot be empty")
+        self.dialog_set_val('passphrase', "foodeeboodeebar")
+        self.dialog_apply()
+        self.dialog_wait_close()
         b.wait_in_text('#detail-sidebar', dev_2)
         b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_2})', "data")
 
@@ -308,7 +331,13 @@ class TestStorageStratis(StorageCase):
 
         # Unlock the pool
         b.click('#detail-header button:contains(Start)')
-        self.dialog({'passphrase': "foodeeboodeebar"})
+        self.dialog_wait_open()
+        self.dialog_set_val('passphrase', "wrong-passphrase")
+        self.dialog_apply()
+        b.wait_visible("#dialog .pf-v5-c-alert.pf-m-danger")
+        self.dialog_set_val('passphrase', "foodeeboodeebar")
+        self.dialog_apply()
+        self.dialog_wait_close()
         b.wait_not_in_text('#detail-header', "Stopped")
         b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
 

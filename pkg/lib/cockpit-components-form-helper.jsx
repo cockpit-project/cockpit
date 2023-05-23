@@ -28,10 +28,8 @@ export const FormHelper = ({ helperText, helperTextInvalid, variant, icon, field
     if (!(helperText || helperTextInvalid))
         return null;
 
-    // FIXME: isHidden still adds some padding which is desired so that the form elements don't move when validation text appears
-    // Fix this seperately to avoid breaking pixe tests
     return (
-        <FormHelperText isHidden={false}>
+        <FormHelperText>
             <HelperText>
                 <HelperTextItem
                     id={fieldId ? (fieldId + "-helper") : undefined}

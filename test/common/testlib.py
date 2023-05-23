@@ -1820,7 +1820,7 @@ class MachineCase(unittest.TestCase):
 
         # https://github.com/cockpit-project/cockpit/issues/18355
         self.allowed_messages += [
-            "exception ignored in:.*DBusChannel.setup_path_watch.*",
+            "[eE]xception ignored in:.*DBusChannel.setup_path_watch.*",
             "Traceback .*most recent call last.*",
             "File .*",
             "async with self.watch_processing_lock:",

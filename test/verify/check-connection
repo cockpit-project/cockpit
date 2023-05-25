@@ -18,13 +18,22 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import base64
-import time
 import os
 import subprocess
+import time
 
 import parent  # noqa: F401
-from testlib import (MachineCase, TEST_DIR, nondestructive, test_main, wait,
-                     skipBrowser, skipDistroPackage, skipImage, skipOstree)
+from testlib import (
+    TEST_DIR,
+    MachineCase,
+    nondestructive,
+    skipBrowser,
+    skipDistroPackage,
+    skipImage,
+    skipOstree,
+    test_main,
+    wait,
+)
 
 
 @skipDistroPackage()

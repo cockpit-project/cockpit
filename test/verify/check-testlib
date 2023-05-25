@@ -17,14 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
-import subprocess
 import os
 import re
+import subprocess
+import unittest
 
 import parent  # noqa: F401
-from testlib import (MachineCase, TEST_DIR, no_retry_when_changed, nondestructive,
-                     skipDistroPackage, test_main)
+from testlib import TEST_DIR, MachineCase, no_retry_when_changed, nondestructive, skipDistroPackage, test_main
 
 dirname = os.path.dirname(__file__)
 run_tests = os.path.join(TEST_DIR, "common", "run-tests")

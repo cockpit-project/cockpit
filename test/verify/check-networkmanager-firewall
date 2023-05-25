@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import parent  # noqa: F401
 import time
-from testlib import Error, nondestructive, skipDistroPackage, skipOstree, test_main, wait
+
+import parent  # noqa: F401
 from netlib import NetworkCase
+from testlib import Error, nondestructive, skipDistroPackage, skipOstree, test_main, wait
 
 
 def wait_unit_state(machine, unit, state):

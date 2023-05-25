@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import parent  # noqa: F401
 import re
 
+import parent  # noqa: F401
 from packagelib import PackageCase
 from storagelib import StorageCase, StorageHelpers
-from testlib import test_main, onlyImage
-
+from testlib import onlyImage, test_main
 
 SIZE_10G = "10000000000"
 

@@ -17,11 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import parent  # noqa: F401
-from storagelib import StorageCase
-from packagelib import PackageCase
-from testlib import skipImage, test_main, wait, timeout, attach
 import subprocess
+
+import parent  # noqa: F401
+from packagelib import PackageCase
+from storagelib import StorageCase
+from testlib import attach, skipImage, test_main, timeout, wait
 
 
 def console_screenshot(machine, name):

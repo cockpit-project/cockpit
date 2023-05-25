@@ -26,8 +26,9 @@ import unittest
 from glob import glob
 
 import parent  # noqa: F401
-import testvm
 from testlib import skipDistroPackage, test_main
+
+import testvm
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")

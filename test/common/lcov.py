@@ -23,17 +23,17 @@
 # - write_lcov (coverage_data, outlabel)
 # - create_coverage_report()
 
-import json
-import os
-import sys
 import glob
 import gzip
-import subprocess
+import json
+import os
 import re
-
+import subprocess
+import sys
 from bisect import bisect_left
 
 import parent  # NOQA: imported through a custom PYTHONPATH
+
 from task import github
 
 BASE_DIR = os.path.realpath(f'{__file__}/../../..')

@@ -20,7 +20,16 @@
 import time
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, todoPybridgeRHEL8, test_main, wait
+from testlib import (
+    MachineCase,
+    nondestructive,
+    skipDistroPackage,
+    skipImage,
+    test_main,
+    todoPybridge,
+    todoPybridgeRHEL8,
+    wait,
+)
 
 
 def allow_old_cockpit_ws_messages(test):

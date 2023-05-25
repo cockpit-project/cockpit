@@ -552,11 +552,14 @@ MakeDirectory=yes
         # the initrd is regenerated again from within the new root.
 
         self.setup_systemd_password_agent(passphrase)
+        install_items = [
+            '/etc/systemd/system/sysinit.target.wants/test-password-agent.path',
+            '/etc/systemd/system/test-password-agent.path',
+            '/etc/systemd/system/test-password-agent.service',
+            '/usr/local/bin/test-password-agent',
+        ]
         m.write("/etc/dracut.conf.d/01-askpass.conf",
-                'install_items+=" /usr/local/bin/test-password-agent ' +
-                '/etc/systemd/system/test-password-agent.service ' +
-                '/etc/systemd/system/test-password-agent.path ' +
-                '/etc/systemd/system/sysinit.target.wants/test-password-agent.path "')
+                f'install_items+=" {" ".join(install_items)} "')
 
         # The first step is to move /boot to a new unencrypted
         # partition on the new disk but keep it mounted at /boot.

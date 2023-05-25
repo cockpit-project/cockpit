@@ -22,11 +22,13 @@ import argparse
 import os
 import shlex
 import shutil
-import sys
 import subprocess
+import sys
 
-from common.parent import BASE_DIR, TEST_DIR, BOTS_DIR, ensure_bots
-ensure_bots()  # NOQA: testvm lives in bots/
+from common.parent import BASE_DIR, BOTS_DIR, TEST_DIR, ensure_bots
+
+ensure_bots()  # : testvm lives in bots/
+
 from lib import testmap  # NOQA: imported through parent.py
 from lib.constants import DEFAULT_IMAGE  # NOQA: imported through parent.py
 from machine.machine_core import machine_virtual  # NOQA: imported through parent.py
@@ -207,8 +209,10 @@ def main():
                         help="Equivalent to --env=COCKPIT_DEBUG=all")
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
-    parser.add_argument('-o', '--overlay', action='store_true', help='Install into existing test/image/ overlay instead of from pristine base image')
-    parser.add_argument('-p', '--python', action='store_true', help='Install the python bridge into the image (experimental)')
+    parser.add_argument('-o', '--overlay', action='store_true',
+                        help='Install into existing test/image/ overlay instead of from pristine base image')
+    parser.add_argument('-p', '--python', action='store_true',
+                        help='Install the python bridge into the image (experimental)')
     parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 

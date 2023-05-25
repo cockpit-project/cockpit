@@ -19,7 +19,6 @@
 
 import configparser
 import ctypes
-import gi
 import logging
 import os
 import signal
@@ -29,8 +28,10 @@ import sys
 import tempfile
 import textwrap
 
+import gi
+
 gi.require_version("Gtk", "3.0")
-from gi.repository import GLib, Gio, Gtk  # NOQA
+from gi.repository import GLib, Gio, Gtk  # noqa: I001, E402
 
 try:
     gi.require_version("WebKit2", "4.1")

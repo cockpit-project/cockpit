@@ -3,7 +3,6 @@
 import argparse
 import binascii
 import errno
-import functools
 import glob
 import importlib.machinery
 import importlib.util
@@ -66,7 +65,7 @@ class Test:
         if self.nondestructive:
             assert self.machine_id is not None, f"need to assign nondestructive test {self} {self.command} to a machine"
         self.outfile = tempfile.TemporaryFile()
-        self.process = subprocess.Popen(["timeout", "-v", str(self.timeout)] + self.command,
+        self.process = subprocess.Popen(["timeout", "-v", str(self.timeout), *self.command],
                                         stdout=self.outfile, stderr=subprocess.STDOUT)
 
     def poll(self):
@@ -90,7 +89,7 @@ class Test:
         """
 
         print_tap = not opts.list
-        affected = any([self.command[0].endswith(t) for t in affected_tests])
+        affected = any(self.command[0].endswith(t) for t in affected_tests)
         retry_reason = ""
 
         # Try affected tests 3 times
@@ -298,7 +297,7 @@ def get_affected_tests(test_dir, base_branch, test_files):
     # Drop changes in css files - this does not affect tests thus no reason to retry
     files = [f.decode("utf-8") for f in diff_out.strip().splitlines() if not f.endswith(b"css")]
 
-    changed_pkgs = set("check-" + pkg.split('/')[1] for pkg in files)
+    changed_pkgs = {"check-" + pkg.split('/')[1] for pkg in files}
     changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
 
     return changed_tests
@@ -339,7 +338,7 @@ def detect_tests(test_files, image, opts):
                 # most tests should take much less than 10mins, so default to that;
                 # longer tests can be annotated with @timeout(seconds)
                 # check the test function first, fall back to the class'es timeout
-                if opts.tests and not any([t in test_str for t in opts.tests]):
+                if opts.tests and not any(t in test_str for t in opts.tests):
                     continue
                 if test_str in opts.exclude:
                     continue
@@ -414,7 +413,7 @@ def run(opts, image):
         made_progress = False
 
         # mop up finished tests
-        logging.debug(f"test loop: {len(running_tests)} running tests")
+        logging.debug("test loop: %d running tests", len(running_tests))
         for test in running_tests.copy():
             poll_result = test.poll()
             if poll_result is not None:
@@ -423,7 +422,7 @@ def run(opts, image):
                 test_machine = test.machine_id  # test_finish() resets it
                 retry_reason, test_result = test.finish(changed_tests, opts)
                 fail_count += test_result
-                logging.debug(f"test {test} finished; result {test_result} retry reason {retry_reason}")
+                logging.debug("test %s finished; result %s retry reason %s", test, test_result, retry_reason)
 
                 if test_machine is not None and not opts.machine:
                     # unassign from global machine
@@ -447,7 +446,7 @@ def run(opts, image):
         if opts.machine:
             if not running_tests and serial_tests:
                 test = serial_tests.pop(0)
-                logging.debug(f"Static machine is free, assigning next test {test}")
+                logging.debug("Static machine is free, assigning next test %s", test)
                 test.assign_machine(-1, opts.machine, opts.browser)
                 test.start()
                 running_tests.append(test)
@@ -458,24 +457,25 @@ def run(opts, image):
                 if machine.is_available():
                     if serial_tests:
                         test = serial_tests.pop(0)
-                        logging.debug(f"Global machine {idx} is free, assigning next test {test}")
+                        logging.debug("Global machine %s is free, assigning next test %s", idx, test)
                         machine.running_test = test
                         test.assign_machine(idx, machine.ssh_address, machine.web_address)
                         test.start()
                         running_tests.append(test)
                     else:
-                        logging.debug(f"Global machine {idx} is free, and no more serial tests; killing")
+                        logging.debug("Global machine %s is free, and no more serial tests; killing", idx)
                         machine.kill()
 
                     made_progress = True
 
         def running_cost():
-            return functools.reduce(lambda cost, test: cost + test.cost, running_tests, 0)
+            return sum(test.cost for test in running_tests)
 
         # fill the remaining available job slots with parallel tests; run tests with a cost higher than #jobs by themselves
         while parallel_tests and (running_cost() + parallel_tests[0].cost <= opts.jobs or len(running_tests) == 0):
             test = parallel_tests.pop(0)
-            logging.debug(f"{len(running_tests)} running tests with total cost {running_cost()}, starting next parallel test {test}")
+            logging.debug("%d running tests with total cost %d, starting next parallel test %s",
+                          len(running_tests), running_cost(), test)
             test.start()
             running_tests.append(test)
             made_progress = True

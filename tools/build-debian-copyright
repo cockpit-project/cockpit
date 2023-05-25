@@ -10,7 +10,6 @@ import re
 import sys
 import time
 
-
 BASE_DIR = os.path.realpath(f'{__file__}/../..')
 TEMPLATE_FILE = f'{BASE_DIR}/tools/debian/copyright.template'
 
@@ -102,9 +101,9 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
             licenses = find_patterns(license_patterns, comment)
             if not licenses:
                 raise SystemError('Can not determine licenses of:\n%s' % comment)
-            for license in licenses:
-                if license.lower() not in license_ids:
-                    raise KeyError('License {license} not found in {TEMPLATE_FILE}')
+            for license_id in licenses:
+                if license_id.lower() not in license_ids:
+                    raise KeyError('License {license_id} not found in {TEMPLATE_FILE}')
 
             # All bundles also contain our own code
             licenses.add("LGPL-2.1-or-later")

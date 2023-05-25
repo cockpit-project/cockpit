@@ -20,11 +20,12 @@
 from __future__ import print_function
 
 import argparse
-import cdp
+import os
 import re
 import subprocess
 import sys
-import os
+
+import cdp
 
 tap_line_re = re.compile(r'^(ok [0-9]+|not ok [0-9]+|bail out!|[0-9]+\.\.[0-9]+|# )', re.IGNORECASE)
 

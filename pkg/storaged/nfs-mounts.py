@@ -59,7 +59,7 @@ def parse_tab(name):
 def index_tab(tab):
     by_remote = {}
     for t in tab:
-        if not t[0] in by_remote:
+        if t[0] not in by_remote:
             by_remote[t[0]] = []
         by_remote[t[0]].append(t)
     return by_remote

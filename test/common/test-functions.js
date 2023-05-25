@@ -315,3 +315,13 @@ function ph_element_clip(sel) {
 function ph_count_animations(sel) {
     return ph_find(sel).getAnimations({ subtree: true }).length;
 }
+
+function ph_set_texts(new_texts) {
+    for (const sel in new_texts) {
+        const elts = ph_select(sel);
+        if (elts.length == 0)
+            throw new Error(sel + " not found");
+        for (const elt of ph_select(sel))
+            elt.textContent = new_texts[sel];
+    }
+}

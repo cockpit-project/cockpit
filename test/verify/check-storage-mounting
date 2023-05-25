@@ -77,6 +77,8 @@ ExecStart=/usr/bin/sleep infinity
         b.wait_in_text("#dialog", "Test Service")
         b.wait_in_text("#dialog", "/usr/bin/sleep infinity")
         b.wait_in_text("#dialog", "The listed processes and services will be forcefully stopped.")
+        b.assert_pixels("#dialog", "busy-unmount", mock={"td[data-label='PID']": "1234",
+                                                         "td[data-label='Runtime']": "a little while"})
         self.confirm()
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
 

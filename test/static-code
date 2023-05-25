@@ -4,6 +4,12 @@
 set -eu
 
 # requires: pyproject.toml
+# requires: containers/flatpak/test/ruff.toml
+# requires: pkg/ruff.toml
+# requires: src/client/ruff.toml
+# requires: test/common/ruff.toml
+# requires: test/verify/ruff.toml
+# requires: tools/vulture-suppressions/ruff.toml
 
 # we consider any function named test_* to be a test case
 # each test is considered to succeed if it exits with no output
@@ -33,8 +39,7 @@ test_flake8() {
 
 test_ruff() {
     command -v ruff >/dev/null || skip 'no ruff'
-    test -n "$(ruff check --show-files . 2>/dev/null)" || return 0  # no python changes
-    ruff check --no-cache .
+    find_python_files | xargs -r -0 ruff check --no-cache
 }
 
 if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then

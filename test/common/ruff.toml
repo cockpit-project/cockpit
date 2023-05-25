@@ -1,0 +1,39 @@
+extend = "../../pyproject.toml"
+ignore = [
+    "E501",     # https://github.com/charliermarsh/ruff/issues/3206#issuecomment-1562681390
+
+    "A001",     # Variable is shadowing a Python builtin
+    "A002",     # Argument is shadowing a Python builtin
+    "B006",     # Do not use mutable data structures for argument defaults
+    "B007",     # Loop control variable` not used within loop body
+    "B010",     # Do not call `setattr` with a constant attribute value. It is not any safer than normal property access.
+    "C417",     # Unnecessary `map` usage (rewrite using a `list` comprehension)
+    "FBT001",   # Boolean positional arg in function definition
+    "FBT002",   # Boolean default value in function definition
+    "FBT003",   # Boolean positional value in function call
+    "PT009",    # Use a regular `assert` instead of unittest-style `assertEqual`
+]
+
+[isort]
+section-order = [
+    "future", "standard-library", "third-party",
+    "test-common", "bots",
+    "first-party", "local-folder"
+]
+force-to-top = ["parent"]
+
+[isort.sections]
+"bots" = [
+    "lib",
+    "machine_core",
+    "task",
+    "testvm",
+]
+"test-common" = [
+    "cdp",
+    "parent",
+    "netlib",
+    "packagelib",
+    "storagelib",
+    "testlib",
+]

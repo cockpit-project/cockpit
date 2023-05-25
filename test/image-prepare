@@ -48,12 +48,17 @@ def build_rpms(dist_tar, image, verbose, quick):
         machine.upload([dist_tar], vm_tar)
 
         # build srpm
-        machine.execute(f'''su builder -c 'rpmbuild --define "_topdir /var/tmp/build" -ts "{vm_tar}"' ''')
+        machine.execute(fr'''
+            su builder -c 'rpmbuild --define "_topdir /var/tmp/build" -ts "{vm_tar}"'
+        ''')
 
         # build rpms
         mock_opts = ("--verbose" if verbose else "") + (" --nocheck" if quick else "")
-        machine.execute("su builder -c 'mock --no-clean --disablerepo=* --offline --resultdir /var/tmp/build "
-                        f"{mock_opts} --rebuild /var/tmp/build/SRPMS/*.src.rpm'", timeout=1800)
+        machine.execute(fr'''
+            su builder -c 'mock --no-clean --disablerepo=* --offline \
+                                --resultdir /var/tmp/build {mock_opts} \
+                                --rebuild /var/tmp/build/SRPMS/*.src.rpm'
+        ''', timeout=1800)
 
         # download rpms
         vm_rpms = machine.execute("find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm'").strip().split()
@@ -85,25 +90,31 @@ def build_install_package(dist_tar, image):
         args.append("dpkg --purge cockpit cockpit-ws cockpit-bridge cockpit-system")
     else:
         # subscription-manager-cockpit needs these, thus --nodeps
-        args.append("if rpm -q cockpit-ws >/dev/null 2>&1; then rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system; fi")
+        args.append(r"""
+            if rpm -q cockpit-ws >/dev/null 2>&1
+                then rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
+            fi
+        """)
 
     args += ["--build", dist_tar]
 
     if 'debian' in image or 'ubuntu' in image:
         args.append("--run-command")
-        extra_suppress = ""
+        suppress = {'initial-upload-closes-no-bugs', 'newer-standards-version'}
         # older lintian not yet complain about pkg/static/login.html and src/common/fail.html
         if image in ["debian-stable", "ubuntu-2204"]:
-            extra_suppress += ",mismatched-override"
+            suppress.add("mismatched-override")
         # Ubuntu 22.04 raises elf-error on *-dbgsym: "In program headers: Unable to find program interpreter name"
         if image == "ubuntu-2204":
-            extra_suppress += ",elf-error"
+            suppress.add("elf-error")
 
-        args.append(
-            "cd /var/tmp/build; runuser -u admin --" +
-            " lintian --fail-on warning,error --tag-display-limit 0 --display-info" +
-            " --suppress-tags initial-upload-closes-no-bugs,newer-standards-version" + extra_suppress +
-            " cockpit*.changes >&2")
+        args.append(fr"""
+            cd /var/tmp/build;
+            runuser -u admin -- \
+                lintian --fail-on warning,error \
+                --tag-display-limit 0 --display-info \
+                --suppress-tags {','.join(suppress)} \
+                cockpit*.changes >&2""")
     return args
 
 
@@ -137,48 +148,59 @@ def build_install_rhel8(dist_tar, image, verbose, quick):
     # in distropkg, keep basic OS packages, otherwise build/install cockpit
     if 'distropkg' not in image:
         args += [
-            # remove already installed packages
             "--run-command",
-            "if rpm -q cockpit-ws >/dev/null 2>&1; then rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system; fi",
+            fr"""
+                # remove already installed packages
+                if rpm -q cockpit-ws >/dev/null 2>&1; then
+                    rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
+                fi
 
-            # create cockpit.spec
-            "--run-command",
-            f"tar xf '{vm_dist_tar}' -O '*/tools/cockpit.spec' | sed '/%define build_all/d' > /var/tmp/cockpit.spec",
+                # create cockpit.spec
+                tar xf '{vm_dist_tar}' -O '*/tools/cockpit.spec' | sed '/%define build_all/d' > /var/tmp/cockpit.spec
 
-            # create srpm
-            "--run-command",
-            """su builder -c 'rpmbuild --define "_topdir /var/tmp/build" --define "_sourcedir /var/tmp" """
-            """-bs /var/tmp/cockpit.spec' """,
+                # create srpm
+                su builder -c 'rpmbuild --define "_topdir /var/tmp/build" \
+                                       --define "_sourcedir /var/tmp" \
+                                       -bs /var/tmp/cockpit.spec'
 
-            # build rpms in mock
-            "--run-command",
-            """su builder -c 'mock --no-clean --no-cleanup-after --disablerepo=* --offline --resultdir /var/tmp/build """
-            f"""{"--nocheck" if quick else ""} {"--verbose" if verbose else ""} --rebuild /var/tmp/build/SRPMS/*.src.rpm' """,
+                # build rpms in mock
+                su builder -c '
+                    mock --no-clean --no-cleanup-after \
+                                    --disablerepo=* \
+                                    --offline \
+                                    --resultdir /var/tmp/build \
+                                    {"--nocheck" if quick else ""} \
+                                    {"--verbose" if verbose else ""} \
+                                    --rebuild /var/tmp/build/SRPMS/*.src.rpm'
 
-            # install rpms
-            "--run-command",
-            "rpm -U --force --verbose $(find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm')"]
+                # install rpms
+                rpm -U --force --verbose $(find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm')
+            """
+        ]
 
     # always build cockpit-appstream
     args += [
-        # create cockpit-appstream.spec
         "--run-command",
-        f"tar xf '{vm_dist_tar}' -O '*/tools/cockpit.spec' | sed '/^Name:/ s/$/-appstream/; /%define build_all/d' > /var/tmp/cockpit-appstream.spec",
+        fr"""
+            # create cockpit-appstream.spec
+            tar xf '{vm_dist_tar}' -O '*/tools/cockpit.spec' |
+                sed '/^Name:/ s/$/-appstream/; /%define build_all/d' > /var/tmp/cockpit-appstream.spec
 
-        # create srpm
-        "--run-command",
-        """su builder -c 'rpmbuild --define "_topdir /var/tmp/appstream" --define "_sourcedir /var/tmp" """
-        """-bs /var/tmp/cockpit-appstream.spec' """,
+            # create srpm
+            su builder -c 'rpmbuild --define "_topdir /var/tmp/appstream" \
+                                    --define "_sourcedir /var/tmp" \
+                                    -bs /var/tmp/cockpit-appstream.spec'
 
-        # build rpms in mock
-        "--run-command",
-        """su builder -c 'mock --no-clean --disablerepo=* --offline --resultdir /var/tmp/appstream """
-        f"""--nocheck {"--verbose" if verbose else ""} --rebuild /var/tmp/appstream/SRPMS/*.src.rpm' """,
+            # build rpms in mock
+            su builder -c 'mock --no-clean --disablerepo=* --offline \
+                                --resultdir /var/tmp/appstream \
+                                --nocheck {"--verbose" if verbose else ""} \
+                                --rebuild /var/tmp/appstream/SRPMS/*.src.rpm'
 
-        # install rpms
-        "--run-command",
-        "rpm -i --verbose $(find /var/tmp/appstream -name '*.rpm' -not -name '*.src.rpm')"]
-
+            # install rpms
+            rpm -i --verbose $(find /var/tmp/appstream -name '*.rpm' -not -name '*.src.rpm')
+        """
+    ]
     return args
 
 

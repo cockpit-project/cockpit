@@ -62,7 +62,7 @@ class TestStorageBasic(StorageCase):
 
         self.content_tab_expand(1, 1)
         b.assert_pixels("#detail-content", "partition",
-                        mock={"dd.mock-partition-uuid > div": "a12978a1-5d6e-f24f-93de-11789977acde"})
+                        mock={"dt:contains(UUID) + dd": "a12978a1-5d6e-f24f-93de-11789977acde"})
         self.content_tab_expand(1, 2)
         b.assert_pixels("#detail-content", "filesystem")
 

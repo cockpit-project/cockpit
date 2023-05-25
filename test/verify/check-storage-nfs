@@ -278,6 +278,8 @@ class TestStorageNfs(StorageCase):
         b.wait_in_text("#dialog", "sleep infinity")
         b.wait_in_text("#dialog", "The listed processes will be forcefully stopped.")
         b.wait_in_text("#dialog", "Stop and unmount")
+        b.assert_pixels("#dialog", "unmount", mock={"td[data-label='PID']": "1234",
+                                                    "td[data-label='Runtime']": "a little while"})
         self.dialog_apply()
         self.dialog_wait_close()
 

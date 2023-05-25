@@ -17,8 +17,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import print_function
-
 import argparse
 import os
 import re
@@ -57,12 +55,6 @@ if opts.strip and opts.test.startswith(opts.strip):
     opts.test = opts.test[len(opts.strip):]
 
 cdp = cdp.CDP("C.utf8")
-
-if sys.version[0] >= '3':
-    # with Python 3, don't rely on external locale, in case it is C
-    import codecs
-    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
 
 try:
     cdp.browser.path(cdp.show_browser)

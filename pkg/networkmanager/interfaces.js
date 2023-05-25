@@ -720,13 +720,25 @@ export function NetworkManagerModel() {
         case 11: return 'vlan';
         case 12: return 'adsl';
         case 13: return 'bridge';
-        case 14: return 'loopback';
+        case 14: return 'generic';
         case 15: return 'team';
         case 16: return 'tun';
         case 17: return 'ip_tunnel';
         case 18: return 'macvlan';
         case 19: return 'vxlan';
         case 20: return 'veth';
+        case 21: return 'macsec';
+        case 22: return 'dummy';
+        case 23: return 'ppp';
+        case 24: return 'ovs_interface';
+        case 25: return 'ovs_port';
+        case 26: return 'ovs_bridge';
+        case 27: return 'wpan';
+        case 28: return '6lowpan';
+        case 29: return 'wireguard';
+        case 30: return 'wifi_p2p';
+        case 31: return 'vrf';
+        case 32: return 'loopback';
         default: return '';
         }
     }
@@ -1620,7 +1632,7 @@ export function is_interface_connection(iface, connection) {
 }
 
 export function is_interesting_interface(iface) {
-    return !iface.Device || is_managed(iface.Device);
+    return !iface.Device || (is_managed(iface.Device) && iface.Device.DeviceType != "loopback");
 }
 
 export function member_connection_for_interface(group, iface) {

@@ -61,7 +61,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         }
 
         // Skip loopback
-        if (iface.Device && iface.Device.DeviceType == 'loopback')
+        if (iface.Name == "lo" || (iface.Device && iface.Device.DeviceType == 'loopback'))
             return;
 
         // Skip members

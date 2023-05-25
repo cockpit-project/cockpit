@@ -21,7 +21,16 @@ import re
 import subprocess
 
 import parent  # noqa: F401
-from testlib import MachineCase, skipBrowser, skipDistroPackage, skipImage, todoPybridge, todoPybridgeRHEL8, test_main, wait
+from testlib import (
+    MachineCase,
+    skipBrowser,
+    skipDistroPackage,
+    skipImage,
+    test_main,
+    todoPybridge,
+    todoPybridgeRHEL8,
+    wait,
+)
 
 
 def kill_user_admin(machine):

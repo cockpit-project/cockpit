@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+from time import sleep
+
 import parent  # noqa: F401
 from storagelib import StorageCase
 from testlib import Error, test_main
-from time import sleep
 
 
 def info_field(name):

@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 import parent  # noqa: F401
 from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main
-import time
 
 sleep_crash_list_sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
 

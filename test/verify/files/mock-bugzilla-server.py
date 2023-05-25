@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
+from xmlrpc.server import SimpleXMLRPCRequestHandler, SimpleXMLRPCServer
 
 
 class RequestHandler(SimpleXMLRPCRequestHandler):

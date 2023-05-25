@@ -17,40 +17,38 @@
 
 """Tools for writing Cockpit test cases."""
 
-from time import sleep
-
 import argparse
 import base64
 import errno
 import fnmatch
 import functools
+import glob
+import gzip
+import io
+import itertools
+import json
 import os
+import re
 import shutil
 import socket
-import sys
-import traceback
 import subprocess
-import re
-import json
+import sys
 import tempfile
 import time
+import traceback
 import unittest
-import gzip
-import itertools
-import glob
-
+from time import sleep
 from typing import Any, Callable, Dict, List, Optional, Union
 
-import testvm
 import cdp
 
+import testvm
 from lib.constants import OSTREE_IMAGES
 
 from lcov import write_lcov
 
 try:
     from PIL import Image
-    import io
 except ImportError:
     Image = None
 

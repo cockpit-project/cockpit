@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 from packagelib import PackageCase
-from testlib import skipImage, skipOstree, test_main, nondestructive
+from testlib import nondestructive, skipImage, skipOstree, test_main
 
 
 @skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")

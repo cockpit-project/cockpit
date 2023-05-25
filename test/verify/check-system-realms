@@ -17,19 +17,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import re
-import time
-import struct
-import hmac
-import hashlib
 import base64
+import hashlib
+import hmac
+import re
+import struct
+import time
 
 import parent  # noqa: F401
-
 import packagelib
-from testlib import (Error, MachineCase, no_retry_when_changed, nondestructive, skipBrowser, skipDistroPackage,
-                     skipImage, skipOstree, test_main, wait, timeout)
-
+from testlib import (
+    Error,
+    MachineCase,
+    no_retry_when_changed,
+    nondestructive,
+    skipBrowser,
+    skipDistroPackage,
+    skipImage,
+    skipOstree,
+    test_main,
+    timeout,
+    wait,
+)
 
 WAIT_KRB_SCRIPT = """
 set -ex

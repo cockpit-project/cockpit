@@ -1,31 +1,32 @@
 #!/usr/bin/python3 -B
 
 import argparse
+import binascii
+import errno
+import functools
 import glob
+import importlib.machinery
+import importlib.util
+import logging
 import os
+import socket
 import string
 import subprocess
 import sys
-import unittest
-import errno
-import time
-import socket
 import tempfile
-import binascii
-import logging
-import functools
-
-import importlib.machinery
-import importlib.util
-
+import time
+import unittest
 from typing import List, Optional, Tuple
 
 import parent
-parent.ensure_bots()  # NOQA: testvm lives in bots/
-import testlib   # NOQA: imported through parent.py
-import testvm   # NOQA: imported through parent.py
 
-from lcov import prepare_for_code_coverage, create_coverage_report  # NOQA: E402
+parent.ensure_bots()  # OQA: testvm lives in bots/
+
+import testlib  # noqa: E402, imported through parent.py
+
+import testvm  # noqa: E402, imported through parent.py
+
+from lcov import create_coverage_report, prepare_for_code_coverage  # NOQA: E402
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 

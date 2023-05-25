@@ -9,11 +9,21 @@ import time
 # import Cockpit's machinery for test VMs and its browser test API
 import parent  # noqa: F401
 import packagelib
-from testlib import (Browser, Error, MachineCase, nondestructive, skipDistroPackage, skipImage, skipOstree,
-                     skipMobile, test_main, wait)
+from testlib import (
+    Browser,
+    Error,
+    MachineCase,
+    nondestructive,
+    skipDistroPackage,
+    skipImage,
+    skipMobile,
+    skipOstree,
+    test_main,
+    wait,
+)
 
-from machine_core import ssh_connection
 from lib.constants import TEST_OS_DEFAULT
+from machine_core import ssh_connection
 
 
 def getMaximumSpike(test, g_type, saturation, hour, minute):

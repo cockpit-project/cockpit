@@ -1,7 +1,7 @@
 import asyncio
 import ssl
-import unittest
 import tempfile
+import unittest
 import xmlrpc.server
 
 asyncio.BaseTransport.get_protocol
@@ -17,6 +17,6 @@ ssl.create_default_context().verify_mode
 
 unittest.IsolatedAsyncioTestCase.asyncTearDown
 
-tempfile.TemporaryDirectory._rmtree  # type: ignore
+tempfile.TemporaryDirectory._rmtree  # type: ignore[attr-defined]
 
 xmlrpc.server.SimpleXMLRPCRequestHandler.rpc_paths

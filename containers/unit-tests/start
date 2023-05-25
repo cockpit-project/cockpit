@@ -22,7 +22,6 @@ import os
 import shlex
 import sys
 import tempfile
-
 from subprocess import run
 
 
@@ -53,7 +52,7 @@ def podman(*args, check=True):
 class PodmanTemporaryDirectory(tempfile.TemporaryDirectory):
     """TemporaryDirectory subclass capable of removing files owned by subuids"""
     @classmethod
-    def _rmtree(cls, name, ignore_errors=False):
+    def _rmtree(cls, name, ignore_errors=False):  # noqa: FBT002
         del ignore_errors  # can't remove or rename this kwarg
         podman('unshare', 'rm', '-r', name)
 

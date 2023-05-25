@@ -44,7 +44,7 @@ class TestStorageMultipath(StorageCase):
             if len(blocks) != len(expected):
                 return False
             for i in range(len(expected)):
-                if not expected[i] in blocks[i]:
+                if expected[i] not in blocks[i]:
                     return False
             return True
 

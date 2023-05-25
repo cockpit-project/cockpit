@@ -308,7 +308,7 @@ class MetainfoDB:
         for file in self.available_by_file:
             for id in self.available_by_file[file]:
                 comp = self.available_by_file[file][id]
-                if not comp['id'] in comps:
+                if comp['id'] not in comps:
                     comps[comp['id']] = comp
                 else:
                     z = comp.copy()

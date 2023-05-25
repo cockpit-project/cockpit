@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 import textwrap
-import warnings
 
 from testlib import MachineCase
 
@@ -29,7 +29,7 @@ class PackageCase(MachineCase):
         self.repo_dir = os.path.join(self.vm_tmpdir, "repo")
 
         if self.machine.ostree_image:
-            warnings.warn("PackageCase: OSTree images can't install additional packages")
+            logging.warning("PackageCase: OSTree images can't install additional packages")
             return
 
         # expected backend; hardcode this on image names to check the auto-detection

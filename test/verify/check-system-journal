@@ -606,7 +606,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # Restarting the reportd service will trigger some errors. Some depend
-        # on timing (interrupting the GetWorkflows call), so let’s ignore some
+        # on timing (interrupting the GetWorkflows call), so let's ignore some
         # variations of the same thing.
         self.allow_journal_messages('.*Remote peer disconnected')
         self.allow_browser_errors('.*Failed to get workflows for problem .*: disconnected')

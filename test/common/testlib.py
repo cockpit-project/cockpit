@@ -1228,7 +1228,7 @@ class Browser:
                 assert not self.is_visible("#navbar-oops"), "Cockpit shows an Oops"
 
 
-class _DebugOutcome(unittest.case._Outcome):  # type: ignore
+class _DebugOutcome(unittest.case._Outcome):  # type: ignore[name-defined]
     """Run debug actions after test methods
 
     This will do screenshots, HTML dumps, and sitting before cleanup handlers run.
@@ -1280,7 +1280,7 @@ class _DebugOutcome(unittest.case._Outcome):  # type: ignore
         return superResult
 
 
-unittest.case._Outcome = _DebugOutcome  # type: ignore
+unittest.case._Outcome = _DebugOutcome  # type: ignore[attr-defined]
 
 
 class MachineCase(unittest.TestCase):

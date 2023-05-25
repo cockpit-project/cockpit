@@ -57,8 +57,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
                 b.wait_text(line_sel(i), t)
             except Exception as e:
                 print("-----")
-                for i in range(max(1, i - 5), i + 5):
-                    print(b.text(line_sel(i)))
+                for j in range(max(1, i - 5), i + 5):
+                    print(b.text(line_sel(j)))
                 print("-----")
                 raise e
 

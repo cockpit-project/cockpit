@@ -45,9 +45,9 @@ debug = False
 # "BSD-2-Clause License"
 
 # Mapping of base64 letter -> integer value.
-B64 = dict((c, i) for i, c in
-           enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-                     '0123456789+/'))
+B64 = {c: i for i, c in
+       enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+                 '0123456789+/')}
 
 
 def parse_vlq(segment):
@@ -458,8 +458,8 @@ def create_coverage_report():
     if len(lcov_files) > 0:
         all_file = f"{BASE_DIR}/lcov/all.info"
         diff_file = f"{BASE_DIR}/lcov/diff.info"
-        subprocess.check_call(["lcov", "--quiet", "--output", all_file] +
-                              sum(map(lambda f: ["--add", f], lcov_files), []))
+        subprocess.check_call(["lcov", "--quiet", "--output", all_file,
+                               *sum(map(lambda f: ["--add", f], lcov_files), [])])
         subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
                                "--extract", all_file, "*/github-pr.diff"])
         summary = subprocess.check_output(["genhtml", "--no-function-coverage",

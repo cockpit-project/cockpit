@@ -22,7 +22,7 @@ case "$TEST_SCENARIO" in
         test/image-prepare --verbose ${PREPARE_OPTS} "${TEST_OS}"
         test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${RUN_OPTS}
         ;;
-    dnf-copr*|daily)
+    daily)
         bots/image-customize --fresh -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y copr enable @storage/udisks-daily && dnf -y --setopt=install_weak_deps=False update >&2' $TEST_OS
         test/image-prepare --verbose --overlay $TEST_OS
         test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties

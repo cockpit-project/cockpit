@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
 
 import os
 
-import parent  # noqa: F401
 from testlib import TEST_DIR, MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
 
 EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")

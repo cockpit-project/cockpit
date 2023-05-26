@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../test/common/pywrap", sys.argv)
 
 # This file is part of Cockpit.
 #
@@ -17,10 +17,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# ruff: noqa: I001
-
 import argparse
 import fnmatch
+import os
 import subprocess
 import sys
 import time
@@ -28,8 +27,9 @@ import urllib
 import urllib.parse
 from urllib.request import Request, urlopen
 
-from parent import BASE_DIR
 import task
+
+BASE_DIR = os.path.realpath(f'{__file__}/../..')
 
 DAYS = 7
 TASK_NAME = "Validate all URLs"

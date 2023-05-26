@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -B
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/pywrap", sys.argv)
 
 import argparse
 import binascii
@@ -17,15 +17,11 @@ import time
 import unittest
 from typing import List, Optional, Tuple
 
-import parent
+import testlib
 
-parent.ensure_bots()  # OQA: testvm lives in bots/
+import testvm
 
-import testlib  # noqa: E402, imported through parent.py
-
-import testvm  # noqa: E402, imported through parent.py
-
-from lcov import create_coverage_report, prepare_for_code_coverage  # NOQA: E402
+from lcov import create_coverage_report, prepare_for_code_coverage
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 

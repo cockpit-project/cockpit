@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/pywrap", sys.argv)
 
 # This file is part of Cockpit.
 #
@@ -31,8 +31,6 @@ import re
 import subprocess
 import sys
 from bisect import bisect_left
-
-import parent  # NOQA: imported through a custom PYTHONPATH
 
 from task import github
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
 # Run this with --help to see available options for tracing and debugging
 # See https://github.com/cockpit-project/cockpit/blob/main/test/common/testlib.py
 # "class Browser" and "class MachineCase" for the available API.
@@ -7,7 +7,6 @@ import re
 import time
 
 # import Cockpit's machinery for test VMs and its browser test API
-import parent  # noqa: F401
 import packagelib
 from testlib import (
     Browser,

@@ -95,7 +95,7 @@ export class JournalOutput {
                     count > 1
                         ? <div className="cockpit-log-service-container" role="cell">
                             <div className="cockpit-log-service-reduced">{ident}</div>
-                            <Badge isRead key={count}>{count}</Badge>
+                            <Badge screenReaderText={_("Occurrences")} isRead key={count}>{count}</Badge>
                         </div>
                         : <div className="cockpit-log-service" role="cell">{ident}</div>
                 }

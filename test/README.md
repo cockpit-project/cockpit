@@ -131,36 +131,80 @@ You can set these environment variables to configure the test suite:
 See the [bots documentation](https://github.com/cockpit-project/bots/blob/main/README.md)
 for details about the tools and configuration for these.
 
-## Faster iteration
+## Convenient test VM SSH access
+
+It is recommended to add a snippet like this to your `~/.ssh/config`. Then
+you can log in to test machines without authentication:
+
+    Match final host 127.0.0.2
+        User root
+        StrictHostKeyChecking no
+        UserKnownHostsFile /dev/null
+        CheckHostIp no
+        IdentityFile ~/src/cockpit/bots/machine/identity
+        IdentitiesOnly yes
+
+Many cockpit developers take it a step further, and add an alias to
+allow typing `ssh c`:
+
+    Host c
+        Hostname 127.0.0.2
+        Port 2201
+
+The `final` keyword in the first rule will cause it to be checked (and matched)
+after the `Hostname` substitution in the `c` rule.
+
+## Fast develop/test iteration
 
 Each `image-prepare` invocation will always start from the pristine image and
 ignore the current overlay in `test/images`. It is thorough, but also rather
-slow. If you want to iterate on changing only JavaScript/HTML code, you can use
-this shortcut to copy updated bundles into a prepared VM overlay image:
+slow. If you want to iterate on changing only JavaScript/HTML code, as opposed
+to the bridge or webserver, the whole build and test cycle can be done much
+faster.
 
-    make && bots/image-customize -u dist:/usr/share/cockpit/ $TEST_OS
+You always need to do at least one initial `test/image-prepare $TEST_OS` run.
+Afterwards it depends on the kind of test you want to run.
+
+### Nondestructive tests
+
+Many test methods or classes are marked as `@nondestructive`, meaning that
+they restore the state of the test VM enough that other tests can run
+afterwards. This is the fastest and most convenient situation for both
+iterating on the code and debugging failing tests.
+
+Start the prepared VM with `bots/vm-run $TEST_OS`. Note the SSH and cockpit
+ports. If this is the only running VM, it will have the ports in the
+examples below, otherwise the port will be different.
+
+Then start building the page you are working on
+[in watch and rsync mode](../HACKING.md#working-on-cockpits-session-pages), e.g.
+
+    RSYNC=c ./build.js -w users
+
+(Assuming the `c` SSH alias from the previous section and first running VM).
+
+Then you can run a corresponding test against the running VM, with additional
+debug output:
+
+    TEST_OS=... test/verify/check-users -t --machine 127.0.0.2:2201 --browser 127.0.0.2:9091 TestAccounts.testBasic
+
+### Destructive tests
+
+Other tests need one or more fresh VMs. Instead of a full `test/image-prepare`
+run (which is slow), you can update the existing VM overlay with updated
+bundles. Start the build in watch mode, but without rsyncing, e.g.
+
+    ./build.js -w storaged
+
+and after each iteration, copy the new bundles into the VM overlay:
+
+    bots/image-customize -u dist:/usr/share/cockpit/ $TEST_OS
+
+Then run the test as you would normally do, e.g.
+
+    TEST_OS=... test/verify/check-storage-stratis -t TestStorageStratis.testBasic
 
 Use `bots/vm-reset` to clean up all prepared overlays in `test/images`.
-
-Many of the verify tests can also be run against an already running
-machine. Although be aware that lots of the tests change state on
-the target machine -- so only do this with the ones marked with
-`@nondestructive`.
-
-    test/verify/check-connection --machine=10.1.1.2 --browser 10.1.1.2:9090
-
-In particular, you can use our standard test VMs with this mode:
-
-    test/image-prepare
-    bots/vm-run fedora-37
-
-Note the SSH and cockpit ports. If this is the only running VM, it will have
-the addresses in the example below, otherwise the port will be different.
-
-Now you can change the code (see [HACKING.md](../HACKING.md) for watch
-mode), copy it into the VM, and run the test against it:
-
-    test/verify/check-connection --machine 127.0.0.2:2201 --browser 127.0.0.2:9091
 
 ## Debugging tests
 
@@ -202,27 +246,6 @@ in before the section.  This makes it easier to run these sections
 ad-hoc when doing incremental development.
 
 ## Helpful tips
-
-If you add a snippet like this to your `~/.ssh/config` then you'll be able to
-log in to test machines without authentication:
-
-    Match final host 127.0.0.2
-        User root
-        StrictHostKeyChecking no
-        UserKnownHostsFile /dev/null
-        CheckHostIp no
-        IdentityFile ~/src/cockpit/bots/machine/identity
-        IdentitiesOnly yes
-
-Many cockpit developers take it a step further, and add an alias to
-allow typing `ssh c`:
-
-    Host c
-        Hostname 127.0.0.2
-        Port 2201
-
-The `final` keyword in the first rule will cause it to be checked (and matched)
-after the `Hostname` substitution in the `c` rule.
 
 For web access, if you'd like to avoid Chromium (or Chrome) prompting
 about certificate errors while connecting to localhost, you can change

@@ -16,4 +16,6 @@ PYTHONPATH="${top_srcdir}/test/common:${top_srcdir}/bots:${top_srcdir}/bots/mach
 export PYTHONPATH
 
 # Run the script
-exec python3 "$@"
+# -B     : don't write .pyc files on import; also PYTHONDONTWRITEBYTECODE=x
+# -P     : don't prepend a potentially unsafe path to sys.path
+exec python3 -B -P "$@"

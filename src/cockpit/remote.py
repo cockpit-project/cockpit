@@ -105,17 +105,26 @@ class SshPeer(Peer):
             raise PeerError('no-host', error='no-host', message=str(exc)) from exc
 
         except ferny.HostKeyError as exc:
-            logger.debug('bad host key: %s', exc)
-            # If we saw a hostkey then we can issue a detailed error message
-            # containing the key that would need to be accepted.  That will
-            # cause the front-end to present a dialog.
             if responder.hostkeys_seen:
+                # If we saw a hostkey then we can issue a detailed error message
+                # containing the key that would need to be accepted.  That will
+                # cause the front-end to present a dialog.
                 _reason, host, algorithm, key, fingerprint = responder.hostkeys_seen[0]
-                raise PeerError('unknown-hostkey', error='unknown-hostkey', auth_method_results={},
-                                host_key=f'{host} {algorithm} {key}', host_fingerprint=fingerprint) from exc
+                error_args = {'host_key': f'{host} {algorithm} {key}', 'host_fingerprint': fingerprint}
+            else:
+                error_args = {}
 
-            # We get here in the non-private session case.  throw a generic error.
-            raise PeerError('unknown-host', error='unknown-host', auth_method_results={}) from exc
+            if isinstance(exc, ferny.ChangedHostKeyError):
+                error = 'invalid-hostkey'
+            elif self.private:
+                error = 'unknown-hostkey'
+            else:
+                # non-private session case.  throw a generic error.
+                error = 'unknown-host'
+
+            logger.debug('SshPeer got a %s %s; private %s, seen hostkeys %r; raising %s with extra args %r',
+                         type(exc), exc, self.private, responder.hostkeys_seen, error, error_args)
+            raise PeerError(error, error=error, auth_method_results={}, **error_args) from exc
 
         except ferny.AuthenticationError as exc:
             logger.debug('authentication to host %s failed: %s', host, exc)

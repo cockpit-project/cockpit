@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
 
 # This file is part of Cockpit.
 #
@@ -22,7 +22,6 @@ import re
 import subprocess
 import unittest
 
-import parent  # noqa: F401
 from testlib import TEST_DIR, MachineCase, no_retry_when_changed, nondestructive, skipDistroPackage, test_main
 
 dirname = os.path.dirname(__file__)

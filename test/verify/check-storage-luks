@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
 
 # This file is part of Cockpit.
 #
@@ -19,7 +19,6 @@
 
 import subprocess
 
-import parent  # noqa: F401
 from packagelib import PackageCase
 from storagelib import StorageCase
 from testlib import attach, skipImage, test_main, timeout, wait

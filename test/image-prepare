@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/common/pywrap", sys.argv)
 # Build and run a bots/image-customize command to prepare a VM for testing Cockpit.
 
 # This file is part of Cockpit.
@@ -25,13 +25,13 @@ import shutil
 import subprocess
 import sys
 
-from common.parent import BASE_DIR, BOTS_DIR, TEST_DIR, ensure_bots
+from lib import testmap
+from lib.constants import DEFAULT_IMAGE
+from machine.machine_core import machine_virtual
 
-ensure_bots()  # : testvm lives in bots/
-
-from lib import testmap  # NOQA: imported through parent.py
-from lib.constants import DEFAULT_IMAGE  # NOQA: imported through parent.py
-from machine.machine_core import machine_virtual  # NOQA: imported through parent.py
+BASE_DIR = os.path.realpath(f'{__file__}/../..')
+TEST_DIR = f'{BASE_DIR}/test'
+BOTS_DIR = f'{BASE_DIR}/bots'
 
 
 def build_rpms(dist_tar, image, verbose, quick):

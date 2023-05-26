@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
 
 # This file is part of Cockpit.
 #
@@ -20,7 +20,6 @@
 import datetime
 import os
 
-import parent  # noqa: F401
 from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main, wait
 
 good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"

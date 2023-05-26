@@ -41,11 +41,9 @@ from time import sleep
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import cdp
-
 import testvm
-from lib.constants import OSTREE_IMAGES
-
 from lcov import write_lcov
+from lib.constants import OSTREE_IMAGES
 
 try:
     from PIL import Image

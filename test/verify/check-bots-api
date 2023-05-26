@@ -25,9 +25,8 @@ import tempfile
 import unittest
 from glob import glob
 
-from testlib import skipDistroPackage, test_main
-
 import testvm
+from testlib import skipDistroPackage, test_main
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")

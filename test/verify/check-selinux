@@ -19,6 +19,7 @@
 
 import time
 
+from lib.constants import TEST_OS_DEFAULT
 from testlib import (
     Error,
     MachineCase,
@@ -29,8 +30,6 @@ from testlib import (
     skipOstree,
     test_main,
 )
-
-from lib.constants import TEST_OS_DEFAULT
 
 FIX_AUDITD = """
 set -e

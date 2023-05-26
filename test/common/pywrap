@@ -3,6 +3,15 @@
 # Run a Python script, setting up PYTHONPATH for access to test/common and the
 # python libraries in bots/.  Checks out the bots first, if necessary.
 
+# This is intended to be used from the interpreter line of executable Python
+# scripts, referring to it with a relative path.  The interpreter line should
+# look something like so:
+
+  #!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../test/common/pywrap", sys.argv)
+
+# with the `/../test/common/` part determined by the location of the script
+# relative to this script.
+
 set -eu
 
 realpath="$(realpath "$0")"

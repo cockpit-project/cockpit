@@ -18,7 +18,7 @@ jobs:
 
       - name: Run npm-update bot
         run: |
-          tools/make-bots
+          test/common/make-bots
           git config --global user.name "GitHub Workflow"
           git config --global user.email "cockpituous@cockpit-project.org"
           mkdir -p ~/.config/cockpit-dev

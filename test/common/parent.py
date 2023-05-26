@@ -14,5 +14,5 @@ sys.path.append(f'{BOTS_DIR}/machine')
 
 def ensure_bots():
     if not os.path.isdir(BOTS_DIR):
-        subprocess.check_call([f'{BASE_DIR}/tools/make-bots'])
+        subprocess.check_call([f'{BASE_DIR}/test/common/make-bots'])
         importlib.invalidate_caches()

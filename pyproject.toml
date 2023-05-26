@@ -4,7 +4,7 @@ backend-path = ['src']
 build-backend = 'build_backend'
 
 [tool.mypy]
-mypy_path = 'src/cockpit'
+mypy_path = 'src/cockpit:test/common'
 exclude = '_vendor'
 [[tool.mypy.overrides]]
 module = ["cockpit._vendor.*"]

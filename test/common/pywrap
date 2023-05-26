@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Run a Python script, setting up PYTHONPATH for access to test/common and the
+# python libraries in bots/.  Checks out the bots first, if necessary.
+
+set -eu
+
+realpath="$(realpath "$0")"
+top_srcdir="${realpath%/*}/../.."
+
+# Check out the bots if required
+test -d "${top_srcdir}/bots" || "${top_srcdir}/test/common/make-bots"
+
+# Prepend the path
+PYTHONPATH="${top_srcdir}/test/common:${top_srcdir}/bots:${top_srcdir}/bots/machine${PYTHONPATH:+:${PYTHONPATH}}"
+export PYTHONPATH
+
+# Run the script
+exec python3 "$@"

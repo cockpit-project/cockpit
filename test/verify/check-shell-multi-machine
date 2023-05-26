@@ -604,7 +604,7 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
 
-    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18713")
+    @todoPybridge(reason="wrong error: peer-disconnected instead of no-cockpit")
     def testTroubleshooting(self):
         b = self.browser
         m1 = self.machine

@@ -141,8 +141,11 @@ you can log in to test machines without authentication:
         StrictHostKeyChecking no
         UserKnownHostsFile /dev/null
         CheckHostIp no
-        IdentityFile ~/src/cockpit/bots/machine/identity
+        IdentityFile CHECKOUT_DIR/bots/machine/identity
         IdentitiesOnly yes
+
+You need to replace `CHECKOUT_DIR` with the actual directory where you cloned
+`cockpit.git`, or `bots.git` if you have a separate clone for that.
 
 Many cockpit developers take it a step further, and add an alias to
 allow typing `ssh c`:

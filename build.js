@@ -153,7 +153,9 @@ async function build() {
             }
         },
 
-        ...args.rsync ? [cockpitRsyncEsbuildPlugin({ source: "dist/" + (args.onlydir || '') })] : [],
+        ...(args.rsync || process.env.RSYNC)
+            ? [cockpitRsyncEsbuildPlugin({ source: "dist/" + (args.onlydir || '') })]
+            : [],
     ];
 
     if (useWasm) {

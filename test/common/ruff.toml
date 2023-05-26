@@ -13,27 +13,3 @@ ignore = [
     "FBT003",   # Boolean positional value in function call
     "PT009",    # Use a regular `assert` instead of unittest-style `assertEqual`
 ]
-
-[isort]
-section-order = [
-    "future", "standard-library", "third-party",
-    "test-common", "bots",
-    "first-party", "local-folder"
-]
-force-to-top = ["parent"]
-
-[isort.sections]
-"bots" = [
-    "lib",
-    "machine_core",
-    "task",
-    "testvm",
-]
-"test-common" = [
-    "cdp",
-    "parent",
-    "netlib",
-    "packagelib",
-    "storagelib",
-    "testlib",
-]

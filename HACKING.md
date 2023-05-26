@@ -93,14 +93,14 @@ disable them, run it with `-e`/`--no-eslint` and/or `-s`/`--no-stylelint`.
 Reload cockpit in your browser after page is built. Press `Ctrl`-`C` to
 stop watch mode once you are done with changing the code.
 
-You often need to test code changes in a VM. There is an `-r`/`--rsync`
-option for copying the built page into the given SSH target's
-/usr/share/cockpit/ directory. If you use Cockpit's own test VMs and set up the
+You often need to test code changes in a VM. You can set the `$RSYNC` env
+variable to copy the built page into the given SSH target's
+/usr/local/share/cockpit/ directory. If you use Cockpit's own test VMs and set up the
 SSH `c` alias as described in [test/README.md](./test/README.md), you can use
 one of these commands:
 
-    ./build.js -w -r c kdump
-    ./build.js -w -r c
+    RSYNC=c ./build.js -w kdump
+    RSYNC=c ./build.js -w
 
 To make Cockpit use system packages again, instead of your checkout directory,
 remove the symlink with the following command and log back into Cockpit:

@@ -735,8 +735,9 @@ export const SelectSpaces = (tag, title, options) => {
                         const desc = block === spc.desc ? "" : spc.desc;
 
                         const on_change = (_event, checked) => {
+                            // Be careful to keep "val" in the same order as "options.spaces".
                             if (checked && !selected)
-                                change(val.concat(spc));
+                                change(options.spaces.filter(v => val.indexOf(v) >= 0 || v == spc));
                             else if (!checked && selected)
                                 change(val.filter(v => (v != spc)));
                         };

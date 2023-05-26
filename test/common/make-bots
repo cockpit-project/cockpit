@@ -10,6 +10,7 @@ V="${V-0}" # default to friendly messages
 
 set -eu
 cd "${0%/*}/../.."
+# shellcheck source-path=SCRIPTDIR/../..
 . test/common/git-utils.sh
 
 if [ ! -e bots ]; then

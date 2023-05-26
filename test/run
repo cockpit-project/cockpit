@@ -5,7 +5,7 @@
 
 set -eu
 
-tools/make-bots
+test/common/make-bots
 test/common/pixel-tests pull
 
 TEST_SCENARIO="${TEST_SCENARIO:-verify}"

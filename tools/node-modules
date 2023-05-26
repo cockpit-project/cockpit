@@ -7,7 +7,7 @@ V="${V-0}" # default to friendly messages
 
 set -eu
 cd "${0%/*}/.."
-. tools/git-utils.sh
+. test/common/git-utils.sh
 
 cmd_remove() {
     # if we did this for ourselves the rm is enough, but it might be the case
@@ -57,7 +57,7 @@ EOF
 }
 
 cmd_install() {
-    test -e bots || tools/make-bots
+    test -e bots || test/common/make-bots
 
     # We first read the result directly into the cache, then we unpack it.
     tree="$(bots/npm download < package.json | tar_to_cache)"
@@ -82,7 +82,7 @@ cmd_push() {
 }
 
 cmd_verify() {
-    test -e bots || tools/make-bots
+    test -e bots || test/common/make-bots
 
     # Verifies that the package.json and node_modules of the given commit match.
     commit="$(git rev-parse "$1:node_modules")"

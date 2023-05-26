@@ -1,9 +1,11 @@
+# shellcheck shell=sh
 # doesn't do anything on its own.  must be sourced.
 
 # The script which sources this script must set the following variables:
 #   GITHUB_REPO = the relative repo name of the submodule on github
 #   SUBDIR = the location in the working tree where the submodule goes
-# We also expect `set -eu`.
+# We also expect `set -eu`, but set them ourselves for shellcheck.
+set -eu
 [ -n "${GITHUB_REPO}" ]
 [ -n "${SUBDIR}" ]
 
@@ -13,6 +15,7 @@ unset GIT_DIR GIT_EXEC_PATH GIT_PREFIX GIT_REFLOG_ACTION GIT_WORK_TREE
 GITHUB_BASE="${GITHUB_BASE:-cockpit-project/cockpit}"
 GITHUB_REPOSITORY="${GITHUB_BASE%/*}/${GITHUB_REPO}"
 HTTPS_REMOTE="https://github.com/${GITHUB_REPOSITORY}"
+# shellcheck disable=SC2034 # used in other scripts
 SSH_REMOTE="git@github.com:${GITHUB_REPOSITORY}"
 
 CACHE_DIR="${XDG_CACHE_HOME-${HOME}/.cache}/cockpit-dev/${GITHUB_REPOSITORY}.git"
@@ -118,6 +121,7 @@ tar_to_cache() {
     # Use a sub-shell to enable cleanup of the temporary directory
     (
         tmpdir="$(mktemp --tmpdir --directory cockpit-tar-to-git.XXXXXX)"
+        # shellcheck disable=SC2064 # we want ${tmpdir} expanded now
         trap "rm -r '${tmpdir}'" EXIT
 
         export GIT_INDEX_FILE="${tmpdir}/tmp-index"

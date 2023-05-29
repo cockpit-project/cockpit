@@ -306,20 +306,6 @@ const LeaveDialog = ({ realmd_client }) => {
         </Modal>);
 };
 
-const DOMAIN_VALID_HELPER_TEXT = {
-    default: _("Validating address"),
-    success: _("Contacted domain"),
-    error: _("Domain could not be contacted"),
-    unsupported: _("Domain is not supported"),
-};
-
-const DOMAIN_VALID_HELPER_ICON = {
-    default: <InProgressIcon />,
-    success: <CheckIcon />,
-    error: <ExclamationCircleIcon />,
-    unsupported: <ExclamationCircleIcon />,
-};
-
 let domainValidateTimeout;
 
 const JoinDialog = ({ realmd_client }) => {
@@ -388,6 +374,20 @@ const JoinDialog = ({ realmd_client }) => {
     useEffect(() => checkAddress(""), []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const join_disabled = pending || addressValid !== "success" || !admin || !kerberosMembership;
+
+    const DOMAIN_VALID_HELPER_TEXT = {
+        default: _("Validating address"),
+        success: _("Contacted domain"),
+        error: _("Domain could not be contacted"),
+        unsupported: _("Domain is not supported"),
+    };
+
+    const DOMAIN_VALID_HELPER_ICON = {
+        default: <InProgressIcon />,
+        success: <CheckIcon />,
+        error: <ExclamationCircleIcon />,
+        unsupported: <ExclamationCircleIcon />,
+    };
 
     const domainHelperText = DOMAIN_VALID_HELPER_TEXT[addressValid];
     const domainHelperIcon = DOMAIN_VALID_HELPER_ICON[addressValid];

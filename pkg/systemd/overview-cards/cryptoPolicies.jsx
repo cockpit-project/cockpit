@@ -34,27 +34,6 @@ import "./cryptoPolicies.scss";
 
 const _ = cockpit.gettext;
 
-// Found in /usr/share/crypto-policies/policies/
-const cryptopolicies = {
-    DEFAULT: _("Recommended, secure settings for current threat models."),
-    "DEFAULT:SHA1": _("DEFAULT with SHA-1 signature verification allowed."),
-    LEGACY: _("Higher interoperability at the cost of an increased attack surface."),
-    "LEGACY:AD-SUPPORT": _("LEGACY with Active Directory interoperability."),
-    FIPS: (<Flex alignItems={{ default: 'alignItemsCenter' }}>
-        {_("Only use approved and allowed algorithms when booting in FIPS mode.")}
-        <Button component='a'
-                rel="noopener noreferrer" target="_blank"
-                variant='link'
-                isInline
-                icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
-                href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/assembly_installing-a-rhel-8-system-with-fips-mode-enabled_security-hardening">
-            {_("Learn more")}
-        </Button>
-    </Flex>),
-    "FIPS:OSPP": _("FIPS with further Common Criteria restrictions."),
-    FUTURE: _("Protects from anticipated near-term future attacks at the expense of interoperability."),
-};
-
 const displayProfileText = profile => profile === "FIPS" ? profile : profile.charAt(0) + profile.slice(1, profile.length).toLowerCase();
 const isInconsistentPolicy = (policy, fipsEnabled) => policy === "FIPS" !== fipsEnabled;
 
@@ -122,6 +101,27 @@ const CryptoPolicyDialog = ({
     const [error, setError] = useState();
     const [inProgress, setInProgress] = useState(false);
     const [selected, setSelected] = useState(currentCryptoPolicy);
+
+    // Found in /usr/share/crypto-policies/policies/
+    const cryptopolicies = {
+        DEFAULT: _("Recommended, secure settings for current threat models."),
+        "DEFAULT:SHA1": _("DEFAULT with SHA-1 signature verification allowed."),
+        LEGACY: _("Higher interoperability at the cost of an increased attack surface."),
+        "LEGACY:AD-SUPPORT": _("LEGACY with Active Directory interoperability."),
+        FIPS: (<Flex alignItems={{ default: 'alignItemsCenter' }}>
+            {_("Only use approved and allowed algorithms when booting in FIPS mode.")}
+            <Button component='a'
+                    rel="noopener noreferrer" target="_blank"
+                    variant='link'
+                    isInline
+                    icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
+                    href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/assembly_installing-a-rhel-8-system-with-fips-mode-enabled_security-hardening">
+                {_("Learn more")}
+            </Button>
+        </Flex>),
+        "FIPS:OSPP": _("FIPS with further Common Criteria restrictions."),
+        FUTURE: _("Protects from anticipated near-term future attacks at the expense of interoperability."),
+    };
 
     const policies = Object.keys(cryptopolicies)
             .filter(pol => pol.endsWith(':SHA1') ? shaSubPolicyAvailable : true)

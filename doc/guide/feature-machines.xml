@@ -19,7 +19,8 @@
     <filename>/etc/ssh/ssh_known_hosts</filename>.</para>
 
   <para>The machine data is stored in
-    <filename>/etc/cockpit/machines.d/*.json</filename>.  Settings in
+    <filename>/etc/cockpit/machines.d/*.json</filename>, or below <code>$XDG_CONFIG_DIRS</code>
+    if set (see <ulink url="./cockpit.conf.5.html">cockpit.conf</ulink>). Settings in
     lexicographically later files amend or override settings in earlier ones.
     Cockpit itself writes into <filename>99-webui.json</filename>; packages or
     admins who want to pre-configure machines should ship files like

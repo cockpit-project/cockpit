@@ -22,6 +22,7 @@ import json
 import logging
 import os
 import pwd
+from pathlib import Path
 from typing import Dict, Optional
 
 from cockpit._vendor.systemd_ctypes import Variant, bus, inotify, pathwatch
@@ -64,7 +65,7 @@ class cockpit_LoginMessages(bus.Object):
 
 
 class cockpit_Machines(bus.Object):
-    path: str
+    path: Path
     watch: pathwatch.PathWatch
     pending_notify: Optional[asyncio.Handle]
 
@@ -91,7 +92,7 @@ class cockpit_Machines(bus.Object):
     @bus.Interface.Method(in_types=['s', 's', 'a{sv}'])
     def update(self, filename: str, hostname: str, attrs: Dict[str, Variant]) -> None:
         try:
-            with open(f'{self.path}/{filename}', 'r') as fp:
+            with self.path.joinpath(filename).open() as fp:
                 contents = json.load(fp)
         except json.JSONDecodeError as exc:
             # Refuse to replace corrupted file
@@ -102,8 +103,8 @@ class cockpit_Machines(bus.Object):
 
         contents.setdefault(hostname, {}).update({key: value.value for key, value in attrs.items()})
 
-        os.makedirs(self.path, exist_ok=True)
-        with open(f'{self.path}/{filename}', 'w') as fp:
+        self.path.mkdir(parents=True, exist_ok=True)
+        with open(self.path.joinpath(filename), 'w') as fp:
             json.dump(contents, fp, indent=2)
 
     def notify(self):
@@ -123,12 +124,12 @@ class cockpit_Machines(bus.Object):
         self.notify()
 
     def __init__(self):
-        self.path = f'{config.ETC_COCKPIT}/machines.d'
+        self.path = config.lookup_config('/machines.d')
         self.loop = asyncio.get_running_loop()
 
         # ignore the first callback
         self.pending_notify = ...
-        self.watch = pathwatch.PathWatch(self.path, self)
+        self.watch = pathwatch.PathWatch(str(self.path), self)
         self.pending_notify = None
 
 

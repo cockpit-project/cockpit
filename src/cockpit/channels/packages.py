@@ -17,6 +17,7 @@
 
 import logging
 
+from .. import data
 from ..channel import Channel
 
 logger = logging.getLogger(__name__)
@@ -48,9 +49,7 @@ class PackagesChannel(Channel):
         self.send_message(status=200, reason='OK', headers={k: v for k, v in headers.items() if v is not None})
 
     def http_error(self, status, message):
-        # with (importlib.resources.file('cockpit.data') / 'data' / 'fail.html').open() ...  (from py3.7)
-        fail_path = __file__.replace('/channels/packages.py', '/data/fail.html')
-        template = __loader__.get_data(fail_path)
+        template = data.read_cockpit_data_file('fail.html')
         self.send_message(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
         self.send_data(template.replace(b'@@message@@', message.encode('utf-8')))
 

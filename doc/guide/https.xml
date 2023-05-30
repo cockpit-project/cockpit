@@ -24,12 +24,14 @@
     <para>This behavior can be overridden by setting the
       <code>AllowUnencrypted</code> option in <code>cockpit.conf</code>.</para>
   </section>
-    
+
   <section id="https-certificates">
     <title>Certificates</title>
 
-    <para>Cockpit will load a certificate from the <code>/etc/cockpit/ws-certs.d</code>
-      directory. It will use the last file with a <code>.cert</code> or <code>.crt</code>
+    <para>Cockpit will load a certificate from the <code>/etc/cockpit/ws-certs.d</code>,
+    directory, or below <code>$XDG_CONFIG_DIRS</code> if set (see
+      <ulink url="./cockpit.conf.5.html">cockpit.conf</ulink>).
+      It will use the last file with a <code>.cert</code> or <code>.crt</code>
       extension in alphabetical order. The file should contain one or more OpenSSL
       style <literal>BEGIN CERTIFICATE</literal> blocks for the server certificate and
       the intermediate certificate authorities.</para>

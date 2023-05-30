@@ -38,11 +38,14 @@
   <refsect1 id="cockpit-conf-description">
     <title>DESCRIPTION</title>
   <para>
-    Cockpit can be configured via /etc/cockpit/cockpit.conf.  This file is not required
-    and may need to be created manually.  The file has a INI file syntax and thus
-    contains key / value pairs, grouped into topical groups. See the examples below for
-    details..
-  </para>
+    Cockpit can be configured via /etc/cockpit/cockpit.conf. If <code>$XDG_CONFIG_DIRS</code>
+    is set, then the first path containing a <filename>../cockpit/cockpit.conf</filename> is used
+    instead. Other configuration files and directories are searched for in the same way.</para>
+
+  <para>
+    This file is not required and may need to be created manually.  The file has a INI file
+    syntax and thus contains key / value pairs, grouped into topical groups. See the examples
+    below for details. </para>
 
   <para>Note: The port that cockpit listens on cannot be changed in this file. To change
     the port change the systemd <filename>cockpit.socket</filename> file.</para>

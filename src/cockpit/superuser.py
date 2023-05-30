@@ -153,7 +153,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         self.peer.add_done_callback(self.peer_done)
 
         try:
-            await self.peer.start()
+            await self.peer.start(init_host=self.router.init_host)
         except asyncio.CancelledError:
             raise bus.BusError('cockpit.Superuser.Error.Cancelled', 'Operation aborted') from None
         except (OSError, PeerError) as exc:

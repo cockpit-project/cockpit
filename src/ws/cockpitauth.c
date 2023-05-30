@@ -1078,8 +1078,12 @@ cockpit_session_launch (CockpitAuth *self,
 
       /* We capture stderr only for Cockpit Client; we don't want to
        * send log messages to potential remote attackers.
+       *
+       * Only do that if COCKPIT_DEBUG is off, though: otherwise the
+       * stderr is going to be too long to make sense of in the browser.
        */
-      capture_stderr = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
+      if (g_getenv("COCKPIT_DEBUG") == NULL)
+          capture_stderr = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
 
       if (command == NULL && unix_path == NULL)
         command = cockpit_ws_ssh_program;

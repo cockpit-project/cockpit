@@ -50,7 +50,7 @@ async def test_shutdown(transport, rule):
 
     # Force the Peer closed
     rule.peer.close()
-    await transport.assert_msg('', command='close', channel='channel.1', problem='peer-disconnected')
+    await transport.assert_msg('', command='close', channel='channel.1', problem='terminated')
 
     # But it should spawn again
     await transport.check_open('test')
@@ -86,14 +86,14 @@ async def test_shutdown_before_init(monkeypatch, transport, rule):
     while rule.peer.transport is None:
         await asyncio.sleep(0)
     rule.peer.close()
-    await transport.assert_msg('', command='close', channel=channel, problem='peer-disconnected')
+    await transport.assert_msg('', command='close', channel=channel, problem='terminated')
     await settle_down()
 
 
 @pytest.mark.asyncio
 async def test_exit_without_init(monkeypatch, transport):
     monkeypatch.setenv('INIT_TYPE', 'exit')
-    await transport.check_open('test', problem='peer-disconnected')
+    await transport.check_open('test', problem='terminated')
     await settle_down()
 
 
@@ -101,7 +101,7 @@ async def test_exit_without_init(monkeypatch, transport):
 async def test_killed(monkeypatch, transport, rule):
     channel = await transport.check_open('test')
     os.kill(rule.peer.transport._process.pid, 9)
-    await transport.assert_msg('', command='close', channel=channel, problem='peer-disconnected')
+    await transport.assert_msg('', command='close', channel=channel, problem='terminated')
     await settle_down()
 
 

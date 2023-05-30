@@ -19,6 +19,8 @@ PEER_CONFIG = {
 
 
 class Bridge(Router):
+    init_host = 'localhost'
+
     def __init__(self):
         rule = PeerRoutingRule(self, PEER_CONFIG)
         super().__init__([rule])

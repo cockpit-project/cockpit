@@ -140,7 +140,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         logger.debug('Peer %s connection lost %s', self.__class__.__name__, exc)
 
         if exc is None or isinstance(exc, EOFError):
-            self.shutdown_endpoint(problem='peer-disconnected')
+            self.shutdown_endpoint(problem='terminated')
         elif isinstance(exc, CockpitProblem):
             self.shutdown_endpoint(problem=exc.problem, **exc.kwargs)
         else:

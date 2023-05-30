@@ -19,7 +19,6 @@ import json
 
 import pytest
 
-import cockpit.config
 from cockpit.packages import Packages, parse_accept_language
 
 
@@ -45,8 +44,8 @@ def pkgdir(tmp_path, monkeypatch):
 
 @pytest.fixture
 def confdir(tmp_path, monkeypatch):
-    monkeypatch.setattr(cockpit.config, 'ETC_COCKPIT', tmp_path)
-    return tmp_path
+    monkeypatch.setenv('XDG_CONFIG_DIRS', str(tmp_path))
+    return tmp_path / 'cockpit'
 
 
 def make_package(pkgdir, dirname: str, **kwargs: object) -> None:

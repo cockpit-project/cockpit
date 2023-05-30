@@ -167,7 +167,7 @@ class Package:
             self.manifest = json.load(manifest_file)
 
         self.try_override(self.path / 'override.json')
-        self.try_override(config.ETC_COCKPIT / f'{path.name}.override.json')
+        self.try_override(config.lookup_config(f'{path.name}.override.json'))
         self.try_override(config.DOT_CONFIG_COCKPIT / f'{path.name}.override.json')
 
         # HACK: drop this after getting rid of ${libexecdir}, see above

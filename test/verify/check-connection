@@ -1112,9 +1112,10 @@ UnixPath=/run/cockpit/session
     @skipOstree("test assumes local install")
     @nondestructive
     def testXdgConfig(self):
+        xdg_env = f"XDG_CONFIG_DIRS={self.vm_tmpdir}/xdg:/etc/test-xdg\n"
         m = self.machine
         self.write_file("/etc/systemd/system/service.d/xdg.conf",
-                        f"[Service]\nEnvironment=XDG_CONFIG_DIRS={self.vm_tmpdir}/xdg:/etc/test-xdg\n",
+                        f"[Service]\nEnvironment={xdg_env}\n",
                         post_restore_action="systemctl daemon-reload")
         m.execute("systemctl daemon-reload")
 
@@ -1146,6 +1147,17 @@ UnixPath=/run/cockpit/session
         self.assertNotIn("ws-certs.d", m.execute("ls /etc/cockpit"))
         # properly iterates over dirs, ignores the one without files
         self.assertNotIn("xdg", m.execute(f"ls {self.vm_tmpdir}"))
+
+        # bridge respects it too
+        self.write_file("/etc/environment", f"{xdg_env}\n", append=True)
+        m.write("/etc/test-xdg/cockpit/systemd.override.json", """{
+    "menu": {
+        "services": { "label": "Hackices" }
+    }
+}""")
+        self.login_and_go(None)
+        b.wait_visible("#nav-system li:contains(Hackices)")
+        self.assertFalse(b.is_present("#nav-system li:contains(Services)"))
 
 
 @skipDistroPackage()

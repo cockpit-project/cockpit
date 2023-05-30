@@ -24,9 +24,26 @@ from cockpit._vendor.systemd_ctypes import bus
 
 logger = logging.getLogger(__name__)
 
-ETC_COCKPIT = Path('/etc/cockpit')
 XDG_CONFIG_HOME = Path(os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config'))
 DOT_CONFIG_COCKPIT = XDG_CONFIG_HOME / 'cockpit'
+
+
+def lookup_config(filename: str) -> Path:
+    config_dirs = os.environ.get('XDG_CONFIG_DIRS', '/etc').split(':')
+    fallback = None
+    for config_dir in config_dirs:
+        config_path = Path(config_dir, 'cockpit', filename)
+        if not fallback:
+            fallback = config_path
+        if config_path.exists():
+            logger.debug('lookup_config(%s): found %s', filename, config_path)
+            return config_path
+
+    # default to the first entry in XDG_CONFIG_DIRS; that's not according to the spec,
+    # but what Cockpit has done for years
+    logger.debug('lookup_config(%s): defaulting to %s', filename, fallback)
+    assert fallback  # mypy; config_dirs always has at least one string
+    return fallback
 
 
 class Config(bus.Object, interface='cockpit.Config'):
@@ -58,16 +75,10 @@ class Config(bus.Object, interface='cockpit.Config'):
     @bus.Interface.Method()
     def reload(self):
         self.config = configparser.ConfigParser(interpolation=None)
-
-        config_dirs = os.environ.get('XDG_CONFIG_DIRS', '/etc').split(':')
-        for config_dir in config_dirs:
-            config_file = os.path.join(config_dir, 'cockpit', 'cockpit.conf')
-            if os.path.exists(config_file):
-                logger.debug("cockpit.Config: loading %s", config_file)
-                self.config.read(config_file)
-                break
-
-        # it's ok to not have a config file and thus leave self.config empty
+        cockpit_conf = lookup_config('cockpit.conf')
+        logger.debug("cockpit.Config: loading %s", cockpit_conf)
+        # this may not exist, but it's ok to not have a config file and thus leave self.config empty
+        self.config.read(cockpit_conf)
 
 
 class Environment(bus.Object, interface='cockpit.Environment'):

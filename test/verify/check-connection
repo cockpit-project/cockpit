@@ -1109,6 +1109,44 @@ UnixPath=/run/cockpit/session
         m.start_cockpit()
         self.login_and_go("/system")
 
+    @skipOstree("test assumes local install")
+    @nondestructive
+    def testXdgConfig(self):
+        m = self.machine
+        self.write_file("/etc/systemd/system/service.d/xdg.conf",
+                        f"[Service]\nEnvironment=XDG_CONFIG_DIRS={self.vm_tmpdir}/xdg:/etc/test-xdg\n",
+                        post_restore_action="systemctl daemon-reload")
+        m.execute("systemctl daemon-reload")
+
+        m.execute("mkdir -p /etc/test-xdg/cockpit; mv /etc/cockpit/ws-certs.d /etc/test-xdg/cockpit/")
+        self.addCleanup(m.execute, "rm -rf /etc/test-xdg")
+        m.write("/etc/test-xdg/cockpit/cockpit.conf",
+                "[WebService]\nLoginTitle=ExDeeGee\nAllowUnencrypted=true\n")
+
+        # make sure this is not used
+        m.write("/etc/cockpit/cockpit.conf",
+                "[WebService]\nLoginTitle=NoNoNo\nAllowUnencrypted=false\n")
+        m.start_cockpit(tls=True)
+
+        # https works
+        out = m.execute("curl --insecure --head https://localhost:9090/")
+        self.assertIn("HTTP/1.1 200 OK", out)
+        self.assertIn("Set-Cookie: cockpit", out)
+
+        # http from non-localhost works
+        b = self.browser
+        b.open("/system")
+        b.wait_visible("#login")
+        b.wait_text("#server-name", "ExDeeGee")
+
+        # uses the expected certs
+        self.assertEqual(m.execute("readlink /run/cockpit/tls/server/key.source").strip(),
+                         "/etc/test-xdg/cockpit/ws-certs.d/0-self-signed.key")
+        # and did not generate new ones
+        self.assertNotIn("ws-certs.d", m.execute("ls /etc/cockpit"))
+        # properly iterates over dirs, ignores the one without files
+        self.assertNotIn("xdg", m.execute(f"ls {self.vm_tmpdir}"))
+
 
 @skipDistroPackage()
 class TestReverseProxy(MachineCase):

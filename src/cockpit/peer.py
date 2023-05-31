@@ -31,6 +31,11 @@ class PeerError(CockpitProblem):
     pass
 
 
+class PeerExited(Exception):
+    def __init__(self, exit_code: int):
+        self.exit_code = exit_code
+
+
 class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
     done_callbacks: List[Callable[[], None]]
     init_future: Optional[asyncio.Future]
@@ -84,7 +89,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
             #   - other transport exception
             await self.init_future
 
-        except EOFError:
+        except PeerExited:
             # This is a fairly generic error.  If the connection process is
             # still running, perhaps we'd get a better error message from it.
             await connect_task
@@ -111,7 +116,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
 
             try:
                 task.result()
-            except (EOFError, OSError, CockpitProblem, asyncio.CancelledError):
+            except (OSError, PeerExited, CockpitProblem, asyncio.CancelledError):
                 pass  # Those are expected.  Others will throw.
 
         start_task = asyncio.create_task(self.start(init_host))
@@ -133,14 +138,22 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         # an EOF, then we consider it to be an error.  This allows us to
         # distinguish close caused by unexpected EOF (but no errno from a
         # syscall failure) vs. close caused by calling .close() on our side.
-        self.close(EOFError('The peer unexpectedly sent EOF'))
+        # The process is still running at this point, so keep it and handle
+        # the error in process_exited().
+        logger.debug('Peer %s received unexpected EOF', self.__class__.__name__)
         return True
 
     def do_closed(self, exc: Optional[Exception]) -> None:
-        logger.debug('Peer %s connection lost %s', self.__class__.__name__, exc)
+        logger.debug('Peer %s connection lost %s %s', self.__class__.__name__, type(exc), exc)
 
-        if exc is None or isinstance(exc, EOFError):
+        if exc is None:
             self.shutdown_endpoint(problem='terminated')
+        elif isinstance(exc, PeerExited):
+            # a common case is that the called peer does not exist
+            if exc.exit_code == 127:
+                self.shutdown_endpoint(problem='no-cockpit')
+            else:
+                self.shutdown_endpoint(problem='terminated', message=f'Peer exited with status {exc.exit_code}')
         elif isinstance(exc, CockpitProblem):
             self.shutdown_endpoint(problem=exc.problem, **exc.kwargs)
         else:
@@ -161,6 +174,9 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
     def process_exited(self) -> None:
         assert isinstance(self.transport, SubprocessTransport)
         logger.debug('Peer %s exited, status %d', self.__class__.__name__, self.transport.get_returncode())
+        returncode = self.transport.get_returncode()
+        assert isinstance(returncode, int)
+        self.close(PeerExited(returncode))
 
     # Forwarding data: from the peer to the router
     def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:

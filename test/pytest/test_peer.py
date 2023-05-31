@@ -98,6 +98,13 @@ async def test_exit_without_init(monkeypatch, transport):
 
 
 @pytest.mark.asyncio
+async def test_exit_not_found(monkeypatch, transport):
+    monkeypatch.setenv('INIT_TYPE', 'exit-not-found')
+    await transport.check_open('test', problem='no-cockpit')
+    await settle_down()
+
+
+@pytest.mark.asyncio
 async def test_killed(monkeypatch, transport, rule):
     channel = await transport.check_open('test')
     os.kill(rule.peer.transport._process.pid, 9)

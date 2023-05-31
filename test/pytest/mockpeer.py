@@ -21,6 +21,9 @@ class MockPeer(CockpitProtocolServer):
             print('i like printf debugging', flush=True)
         elif init_type == 'exit':
             sys.exit()
+        elif init_type == 'exit-not-found':
+            # shell error code for "command not found"
+            sys.exit(127)
         elif init_type != 'silence':
             self.write_control(command='init', version=1)
 

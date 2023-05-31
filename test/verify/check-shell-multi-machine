@@ -705,7 +705,7 @@ class TestMultiMachine(MachineCase):
 
         change_ssh_port(m2, "10.111.113.2", 2222)
         m2.disconnect()
-        del m2  # No more access to m2
+        del self.machines["machine2"]  # No more access to m2
 
         self.login_and_go(None)
         b.go(machine_path)
@@ -715,9 +715,11 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text('#hosts_setup_server_dialog h1', "Could not contact")
         b.set_input_text("#edit-machine-port", "2222")
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
-        # Using libssh's knownhosts api port is taken into account when verifying a host
-        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        if not self.is_pybridge():
+            # Using libssh's knownhosts api port is taken into account when verifying a host
+            # with python bridge, ssh(1) tracks known hosts by name/IP, not by port
+            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
         b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
         b.set_input_text("#login-custom-password", "alt-password")
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')

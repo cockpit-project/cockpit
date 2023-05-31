@@ -21,7 +21,7 @@ import re
 import subprocess
 import time
 
-from testlib import MachineCase, skipDistroPackage, skipImage, test_main, todoPybridge, todoPybridgeRHEL8
+from testlib import MachineCase, skipDistroPackage, skipImage, test_main, todoPybridgeRHEL8
 
 
 def break_hostkey(m, address):
@@ -604,7 +604,7 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
 
-    @todoPybridge(reason="wrong error: peer-disconnected instead of no-cockpit")
+    @todoPybridgeRHEL8()
     def testTroubleshooting(self):
         b = self.browser
         m1 = self.machine

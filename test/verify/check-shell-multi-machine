@@ -46,11 +46,22 @@ def fix_hostkey(m, key=None):
 
 
 def break_bridge(m):
-    m.execute("ln -snf /bin/false /usr/local/bin/cockpit-bridge")
+    # we really want to get a "not found" in the shell, not a "permission denied" (which we would get with a
+    # non-executable present file or link)
+    m.execute("""
+        mkdir -p /tmp/overlay /tmp/work
+        mount -t overlay overlay -o lowerdir=/usr/bin,upperdir=/tmp/overlay,workdir=/tmp/work /usr/bin
+        rm /usr/bin/cockpit-bridge
+        """)
 
 
 def fix_bridge(m):
-    m.execute("rm /usr/local/bin/cockpit-bridge")
+    # umount lives in /usr, so needs a little dance for the EBUSY
+    m.execute("""
+        umount -l /usr/bin
+        while mountpoint -q /usr/bin; do sleep 0.5; done
+        rm -rf /tmp/overlay /tmp/work /tmp/umount
+        """)
 
 
 def check_failed_state(b, expected_title):
@@ -722,6 +733,7 @@ class TestMultiMachine(MachineCase):
                                     '.* host key for server has changed to: .*',
                                     '.* spawning remote bridge failed .*',
                                     '.*: bridge failed: .*',
+                                    '.*: cockpit-bridge: command not found',
                                     '.*: received truncated .*',
                                     '.*: Socket error: disconnected',
                                     '.*: host key for this server changed key type: .*',

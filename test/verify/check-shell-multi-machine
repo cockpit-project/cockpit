@@ -740,7 +740,7 @@ class TestMultiMachine(MachineCase):
                                     '.*: server offered unsupported authentication methods: .*')
 
     @skipImage("TODO: Broken on Arch Linux", "arch")
-    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18714")
+    @todoPybridgeRHEL8()
     def testSshKeySetup(self):
         b = self.browser
         m1 = self.machine

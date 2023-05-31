@@ -100,7 +100,7 @@ class cockpit_Machines(bus.Object):
             # But an empty file is an expected case
             contents = {}
 
-        contents[hostname] = {key: value.value for key, value in attrs.items()}
+        contents.setdefault(hostname, {}).update({key: value.value for key, value in attrs.items()})
 
         os.makedirs(self.path, exist_ok=True)
         with open(f'{self.path}/{filename}', 'w') as fp:

@@ -70,6 +70,7 @@ class PackageCase(MachineCase):
             self.restore_file("/etc/pacman.conf")
             self.restore_file("/etc/pacman.d/mirrorlist")
             self.restore_file("/usr/share/libalpm/hooks/90-packagekit-refresh.hook")
+
             self.machine.execute("rm /etc/pacman.conf /etc/pacman.d/mirrorlist /var/lib/pacman/sync/* /usr/share/libalpm/hooks/90-packagekit-refresh.hook")
             self.machine.execute("test -d /var/lib/PackageKit/alpm && rm -r /var/lib/PackageKit/alpm || true")  # Drop alpm state directory as it interferes with running offline
             # Initial config for installation
@@ -87,6 +88,13 @@ Server = file://{empty_repo_dir}
             self.machine.execute(f"mkdir -p {empty_repo_dir} || true")
             self.machine.execute(f"repo-add {empty_repo_dir}/empty.db.tar.gz")
             self.machine.write("/etc/pacman.conf", config)
+            # Clean up possible leftover lockfile
+            self.machine.execute("""
+                if [ -f /var/lib/pacman/db.lck ]; then
+                    fuser -k /var/lib/pacman/db.lck || true;
+                    rm /var/lib/pacman/db.lck;
+                fi
+            """)
             self.machine.execute("pacman -Sy")
         else:
             self.restore_dir("/etc/yum.repos.d", reboot_safe=True)

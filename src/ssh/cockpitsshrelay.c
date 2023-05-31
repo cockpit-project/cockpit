@@ -1259,6 +1259,7 @@ parse_host (const gchar *host,
 {
   GError *error = NULL;
   g_autoptr (GRegex) regex = g_regex_new ("^"
+         "(ssh:\\/\\/)?"      /* optional ssh:// protocol prefix */
          "(?:(.+)@)?"         /* optional username */
          "(?|"                /* one of... */
            "\\[([^]@]+)\\]"     /* hostname in square brackets, no @ */
@@ -1277,7 +1278,7 @@ parse_host (const gchar *host,
 
   if (g_regex_match (regex, host, 0, &info))
     {
-      g_autofree gchar *port_str = g_match_info_fetch (info, 3);
+      g_autofree gchar *port_str = g_match_info_fetch (info, 4);
       /* regexp makes sure that it's a positive number, so don't need much error checking */
       guint value = atoi (port_str ?: "");
       if (value < 65536)
@@ -1290,9 +1291,9 @@ parse_host (const gchar *host,
           return FALSE;
         }
 
-      *hostname = g_match_info_fetch (info, 2);
+      *hostname = g_match_info_fetch (info, 3);
 
-      *username = g_match_info_fetch (info, 1);
+      *username = g_match_info_fetch (info, 2);
       if ((*username)[0] == '\0')
         {
           g_free (*username);

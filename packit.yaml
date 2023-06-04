@@ -23,26 +23,6 @@ srpm_build_deps:
 # use the nicely formatted release NEWS from our upstream release, instead of git shortlog
 copy_upstream_release_description: true
 jobs:
-  - job: tests
-    trigger: pull_request
-    targets:
-      - fedora-37
-      - fedora-38
-      - fedora-latest-aarch64
-      - fedora-development
-      - centos-stream-8-x86_64
-      - centos-stream-9-x86_64
-      - centos-stream-9-aarch64
-
-  # run build/unit tests on some interesting architectures
-  - job: copr_build
-    trigger: pull_request
-    targets:
-      # 32 bit
-      - fedora-development-i386
-      # big-endian
-      - fedora-development-s390x
-
   - job: copr_build
     trigger: release
     owner: "@cockpit"

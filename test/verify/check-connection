@@ -190,6 +190,21 @@ class TestConnection(testlib.MachineCase):
         self.allow_core_dumps = True
         self.allow_journal_messages(".*org.freedesktop.hostname1.*DBus.Error.NoReply.*")
 
+    def testBasic2(self):
+        self.testBasic()
+
+    def testBasic3(self):
+        self.testBasic()
+
+    def testBasic4(self):
+        self.testBasic()
+
+    def testBasic5(self):
+        self.testBasic()
+
+    def testBasic6(self):
+        self.testBasic()
+
     @testlib.skipOstree("OSTree doesn't use systemd units")
     @testlib.nondestructive
     def testUnitLifecycle(self):

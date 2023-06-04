@@ -26,7 +26,7 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, Pattern, Tuple
+from typing import Callable, ClassVar, Dict, List, Optional, Pattern, Tuple
 
 from cockpit._vendor.systemd_ctypes import bus
 
@@ -150,6 +150,11 @@ class PackagesListener:
 
 
 class Package:
+    CONDITIONS: ClassVar[Dict[str, Callable[[str], bool]]] = {
+        'path-exists': os.path.exists,
+        'path-not-exists': lambda p: not os.path.exists(p),
+    }
+
     # For po.js files, the interesting part is the locale name
     PO_JS_RE: ClassVar[Pattern] = re.compile(r'po\.([^.]+)\.js(\.gz)?')
 
@@ -264,11 +269,6 @@ class Package:
             if self.manifest['priority'] <= at_least_prio:
                 return False
 
-        CONDITIONS = {
-            'path-exists': os.path.exists,
-            'path-not-exists': lambda p: not os.path.exists(p),
-        }
-
         for condition in self.manifest.get('conditions', []):
             try:
                 (predicate, value), = condition.items()
@@ -278,7 +278,7 @@ class Package:
                 return False
 
             try:
-                test_fn = CONDITIONS[predicate]
+                test_fn = Package.CONDITIONS[predicate]
             except KeyError:
                 # do *not* ignore manifests with unknown predicates, for forward compatibility
                 logger.warning('ignoring unknown predicate in %s: %s', self.path, predicate)

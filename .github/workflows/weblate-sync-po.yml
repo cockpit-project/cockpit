@@ -38,7 +38,7 @@ jobs:
       - name: Run po-refresh bot
         run: |
           cd src
-          tools/make-bots
+          test/common/make-bots
           git config --global user.name "GitHub Workflow"
           git config --global user.email "cockpituous@cockpit-project.org"
           mkdir -p ~/.config/cockpit-dev

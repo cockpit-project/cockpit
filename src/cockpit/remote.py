@@ -181,10 +181,15 @@ class HostRoutingRule(RoutingRule):
 
         assert isinstance(host, str)
 
-        # BUG: The front-end relies on this.  This prevents us from setting the
-        # default username via SSH config, unfortunately.
-        user_from_host, _, _ = host.rpartition('@')
-        user = options.get('user') or user_from_host or getpass.getuser()
+        user = options.get('user')
+        # HACK: the front-end relies on this for tracking connections without an explicit user name;
+        # the user will then be determined by SSH (`User` in the config or the current user)
+        # See cockpit_router_normalize_host_params() in src/bridge/cockpitrouter.c
+        if user == getpass.getuser():
+            user = None
+        if not user:
+            user_from_host, _, _ = host.rpartition('@')
+            user = user_from_host or None  # avoid ''
 
         if options.get('session') == 'private':
             nonce = options.get('channel')

@@ -868,15 +868,17 @@ class Browser:
 
         self.open_superuser_dialog()
 
+        pf_prefix = "" if self.machine.system_before(293) else "-v5"
+
         if passwordless:
-            self.wait_in_text(".pf-v5-c-modal-box:contains('Administrative access')", "You now have administrative access.")
-            self.click(".pf-v5-c-modal-box button:contains('Close')")
-            self.wait_not_present(".pf-v5-c-modal-box:contains('You now have administrative access.')")
+            self.wait_in_text(f".pf{pf_prefix}-c-modal-box:contains('Administrative access')", "You now have administrative access.")
+            self.click(f".pf{pf_prefix}-c-modal-box button:contains('Close')")
+            self.wait_not_present(f".pf{pf_prefix}-c-modal-box:contains('You now have administrative access.')")
         else:
-            self.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
-            self.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
-            self.click(".pf-v5-c-modal-box button:contains('Authenticate')")
-            self.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")
+            self.wait_in_text(f".pf{pf_prefix}-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
+            self.set_input_text(f".pf{pf_prefix}-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
+            self.click(f".pf{pf_prefix}-c-modal-box button:contains('Authenticate')")
+            self.wait_not_present(f".pf{pf_prefix}-c-modal-box:contains('Switch to administrative access')")
 
         self.check_superuser_indicator("Administrative access")
         self.switch_to_frame(cur_frame)
@@ -885,9 +887,11 @@ class Browser:
         cur_frame = self.cdp.cur_frame
         self.switch_to_top()
 
+        pf_prefix = "" if self.machine.system_before(293) else "-v5"
+
         self.open_superuser_dialog()
-        self.click(".pf-v5-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-        self.wait_not_present(".pf-v5-c-modal-box:contains('Switch to limited access')")
+        self.click(f".pf{pf_prefix}-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        self.wait_not_present(f".pf{pf_prefix}-c-modal-box:contains('Switch to limited access')")
         self.check_superuser_indicator("Limited access")
 
         self.switch_to_frame(cur_frame)

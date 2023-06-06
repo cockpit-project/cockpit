@@ -9,7 +9,7 @@
 
 function ph_select(sel) {
     if (!window.Sizzle)
-        throw new Error("Sizzle was not properly loaded");
+        return Array.from(document.querySelectorAll(sel));
     return window.Sizzle(sel);
 }
 

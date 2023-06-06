@@ -192,8 +192,11 @@ class Browser:
         self.machine = machine
         path = os.path.dirname(__file__)
         sizzle_js = os.path.join(path, "../../node_modules/sizzle/dist/sizzle.js")
+        helpers = [os.path.join(path, "test-functions.js")]
+        if os.path.exists(sizzle_js):
+            helpers.append(sizzle_js)
         self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
-                           inject_helpers=[os.path.join(path, "test-functions.js"), sizzle_js],
+                           inject_helpers=helpers,
                            start_profile=coverage_label is not None)
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))

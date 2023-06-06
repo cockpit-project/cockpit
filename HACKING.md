@@ -8,6 +8,13 @@ Start by getting the code:
 The remainder of the commands assume you're in the top level of the
 Cockpit git repository checkout.
 
+**Do not clone a fork!** This will not work for various reasons (missing tags,
+determining version, integration with bots commands). Please keep `origin` as
+the read-only actual upstream project, and add your fork as a separate writable
+remote, for example with
+
+    git remote add my git@github.com:yourgithubid/cockpit.git
+
 ## Setting up development container
 
 The cockpit team maintains a [cockpit/tasks container](https://quay.io/repository/cockpit/tasks)

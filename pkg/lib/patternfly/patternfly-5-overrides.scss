@@ -57,14 +57,16 @@ ul.pf-v5-c-select__menu {
 /* (This can be seen when the longest text is selected on a non-stretched select) */
 /* Upstream: https://github.com/patternfly/patternfly/issues/4387 */
 /* Cockpit-Podman: https://github.com/cockpit-project/cockpit-podman/issues/755 */
-select.pf-v5-c-form-control {
-  --pf-v5-c-form-control--PaddingRight: 41px;
-  --pf-v5-c-form-control--PaddingLeft: 8px;
+.pf-v5-c-form-control {
+  > select {
+    --pf-v5-c-form-control--PaddingRight: 41px;
+    --pf-v5-c-form-control--PaddingLeft: 8px;
+  }
 
-  // Firefox's select text has additional padding (4px)
-  @-moz-document url-prefix() {
-    --pf-v5-c-form-control--PaddingRight: 37px;
-    --pf-v5-c-form-control--PaddingLeft: 4px;
+  // Dropmarker is over to the left one pixel too much; bump to the right
+  &__utilities {
+    inset-inline-end: -1px;
+    position: relative;
   }
 }
 

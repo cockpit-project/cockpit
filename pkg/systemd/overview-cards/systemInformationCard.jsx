@@ -127,13 +127,13 @@ export class SystemInfomationCard extends React.Component {
                                 </td>
                             </tr>}
                             <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th system-information-machine-id" skope="row">{_("Machine ID")}</th>
+                                <th className="pf-v5-c-table__th system-information-machine-id" scope="row">{_("Machine ID")}</th>
                                 <td className="pf-v5-c-table__td">
                                     <div id="system_machine_id">{this.state.machineID}</div>
                                 </td>
                             </tr>
                             <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th system-information-uptime" skope="row">{_("Uptime")}</th>
+                                <th className="pf-v5-c-table__th system-information-uptime" scope="row">{_("Uptime")}</th>
                                 <td className="pf-v5-c-table__td">
                                     <div id="system_uptime">{this.state.systemUptime}</div>
                                 </td>

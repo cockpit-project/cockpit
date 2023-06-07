@@ -258,7 +258,7 @@ export const ZoomControls = ({ plot_state }) => {
         <div>
             <Dropdown
                 isOpen={isOpen}
-                toggle={<DropdownToggle onToggle={setIsOpen}>{format_range(zoom_state.x_range)}</DropdownToggle>}
+                toggle={<DropdownToggle onToggle={(_, isOpen) => setIsOpen(isOpen)}>{format_range(zoom_state.x_range)}</DropdownToggle>}
                 dropdownItems={[
                     <DropdownItem key="now" onClick={() => { zoom_state.goto_now(); setIsOpen(false) }}>
                         {_("Go to now")}

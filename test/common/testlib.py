@@ -1327,6 +1327,9 @@ class MachineCase(unittest.TestCase):
             result = self.defaultTestResult()
             errors = result.errors
             self._feedErrorsToResult(result, self._outcome.errors)
+        elif hasattr(self._outcome, 'result') and hasattr(self._outcome.result, '_excinfo'):
+            # pytest emulating unittest
+            return self._outcome.result._excinfo is None
         else:
             # Python 3.11+ now records errors and failures seperate
             errors = self._outcome.result.errors + self._outcome.result.failures

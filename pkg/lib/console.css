@@ -1,5 +1,10 @@
 @import "xterm/css/xterm.css";
 
+.console-ct > .terminal {
+  display: flex;
+  block-size: 100%;
+}
+
 .terminal:focus .terminal-cursor {
   border: none;
   animation: blink 1s step-end infinite;

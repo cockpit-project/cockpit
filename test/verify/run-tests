@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 import glob
-import imp
+import importlib.machinery
+import importlib.util
 import os
 import string
 import subprocess
@@ -31,15 +32,16 @@ def check_valid(filename):
 
 def run(opts):
     # Now actually load the tests, any modules that start with "check-*"
-    loader = unittest.TestLoader()
+    test_loader = unittest.TestLoader()
     suite = unittest.TestSuite()
     for filename in glob.glob(os.path.join(os.path.dirname(__file__), "check-*")):
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
             continue
-        with open(filename, 'rb') as fp:
-            module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
-            suite.addTest(loader.loadTestsFromModule(module))
+        loader = importlib.machinery.SourceFileLoader(name, filename)
+        module = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
+        loader.exec_module(module)
+        suite.addTest(test_loader.loadTestsFromModule(module))
 
     # And now load new testlib, and run all the tests we got
     return testlib.test_main(options=opts, suite=suite)

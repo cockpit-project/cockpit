@@ -13,6 +13,10 @@ INSTALL_FLATPAK_TARGETS = \
 	install-cockpit-client-symlink \
 	$(NULL)
 
+if WITH_PYBRIDGE
+INSTALL_FLATPAK_TARGETS += install-python install-bundles
+endif
+
 install-for-flatpak: $(INSTALL_FLATPAK_TARGETS)
 	appstream-util validate --nonet src/client/org.cockpit_project.CockpitClient.metainfo.xml
 	if test -s "${DOWNSTREAM_RELEASES_XML}"; then \

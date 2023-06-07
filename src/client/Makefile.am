@@ -20,6 +20,10 @@ install-cockpit-client-symlink:
 
 dist_cockpitclient_SCRIPTS += src/client/cockpit-client-ssh
 
+if WITH_PYBRIDGE
+dist_cockpitclient_SCRIPTS += src/client/cockpit-beiboot
+endif
+
 dbusservicesdir = $(datadir)/dbus-1/services
 dist_dbusservices_DATA = src/client/org.cockpit_project.CockpitClient.service
 

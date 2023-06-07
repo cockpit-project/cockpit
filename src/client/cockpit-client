@@ -319,6 +319,12 @@ class InternalCockpitWs:
         self.config_dir.cleanup()
 
     def write_config(self):
+        for ssh_client in ['cockpit-beiboot', 'cockpit-client-ssh']:
+            if os.path.exists(f'{libexecdir}/{ssh_client}'):
+                break
+        else:
+            sys.exit('Unable to find suitable ssh client helper')
+
         self.config_dir = tempfile.TemporaryDirectory(prefix='cockpit-client-', suffix='-etc')
         os.mkdir(f'{self.config_dir.name}/cockpit')
         with open(f'{self.config_dir.name}/cockpit/cockpit.conf', 'x') as cockpit_conf:
@@ -331,7 +337,7 @@ class InternalCockpitWs:
 
                 [Ssh-Login]
                 ReportStderr = true
-                Command = {libexecdir}/cockpit-client-ssh
+                Command = {libexecdir}/{ssh_client}
                 '''
 
             cockpit_conf.write(textwrap.dedent(config))

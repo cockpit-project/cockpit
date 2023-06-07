@@ -1,0 +1,313 @@
+#!/usr/bin/env python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2022 Red Hat, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import argparse
+import asyncio
+import base64
+import importlib.resources
+import json
+import logging
+import lzma
+import os
+import shlex
+import sys
+from pathlib import Path
+from typing import Iterable, Optional, Sequence
+
+from cockpit import polyfills
+from cockpit._vendor import ferny
+from cockpit._vendor.bei import beipack, bootloader
+from cockpit.bridge import setup_logging
+from cockpit.channel import ChannelRoutingRule
+from cockpit.channels import PackagesChannel
+from cockpit.data import read_cockpit_data_file
+from cockpit.packages import Package, Packages
+from cockpit.peer import Peer
+from cockpit.protocol import CockpitProblem
+from cockpit.router import Router, RoutingRule
+from cockpit.transports import StdioTransport
+
+logger = logging.getLogger(__name__)
+
+
+def ensure_ferny_askpass() -> Path:
+    src_path = importlib.resources.files(ferny.__name__) / 'interaction_client.py'
+    src_data = src_path.read_bytes()
+
+    xdg_cache_home = os.environ.get('XDG_CACHE_HOME')
+    if xdg_cache_home is None:
+        xdg_cache_home = os.path.expanduser('~/.cache')
+    dest_path = Path(xdg_cache_home, 'cockpit-client-askpass')
+
+    logger.debug("Checking if %s exists...", dest_path)
+
+    # Check first to see if we already wrote the current version
+    try:
+        if dest_path.read_bytes() != src_data:
+            logger.debug("  ... it exists but is not the same version...")
+            raise ValueError
+        if not dest_path.stat().st_mode & 0o100:
+            logger.debug("  ... it has the correct contents, but is not executable...")
+            raise ValueError
+    except (FileNotFoundError, ValueError):
+        logger.debug("  ... writing contents.")
+        dest_path.write_bytes(src_data)
+        dest_path.chmod(0o700)
+
+    return dest_path
+
+
+def get_bridge_beipack_xz() -> tuple[str, bytes]:
+    try:
+        bridge_beipack_xz = read_cockpit_data_file('cockpit-bridge.beipack.xz')
+        logger.debug('Got pre-built cockpit-bridge.beipack.xz')
+    except FileNotFoundError:
+        logger.debug('Pre-built cockpit-bridge.beipack.xz; building our own.')
+        # beipack ourselves
+        cockpit_contents = beipack.collect_module('cockpit', recursive=True)
+        bridge_beipack = beipack.pack(cockpit_contents, entrypoint='cockpit.bridge:main')
+        bridge_beipack_xz = lzma.compress(bridge_beipack.encode())
+        logger.debug('  ... done!')
+
+    return 'cockpit/data/cockpit-bridge.beipack.xz', bridge_beipack_xz
+
+
+def get_xdg_data_dirs():
+    try:
+        yield os.environ['XDG_DATA_HOME']
+    except KeyError:
+        yield os.path.expanduser('~/.local/share')
+
+    try:
+        yield from os.environ['XDG_DATA_DIRS'].split(':')
+    except KeyError:
+        yield from ('/usr/local/share', '/usr/share')
+
+
+def get_interesting_files() -> Iterable[str]:
+    for datadir in get_xdg_data_dirs():
+        logger.debug("Scanning for manifest files under %s", datadir)
+        for file in Path(datadir).glob('cockpit/*/manifest.json'):
+            logger.debug("Considering file %s", file)
+            try:
+                manifest = json.loads(file.read_text())
+            except json.JSONDecodeError as exc:
+                logger.error("%s: %s", file, exc)
+                continue
+            if not isinstance(manifest, dict):
+                logger.error("%s: json document isn't an object", file)
+                continue
+
+            try:
+                conditions = manifest['conditions']
+            except KeyError:
+                continue
+
+            for condition in conditions:
+                for key, value in condition.items():
+                    if key in ['path-exists', 'path-not-exists']:
+                        yield value
+
+
+BEIBOOT_GADGETS = {
+    "report_exists": r"""
+    import os
+    def report_exists(files):
+        command('cockpit.report-exists', {name: os.path.exists(name) for name in files})
+    """,
+    **ferny.BEIBOOT_GADGETS
+}
+
+
+class DefaultRoutingRule(RoutingRule):
+    peer: Peer
+
+    def __init__(self, router: Router, peer: Peer):
+        super().__init__(router)
+        self.peer = peer
+
+    def apply_rule(self, options: dict[str, object]) -> Peer:
+        return self.peer
+
+    def shutdown(self) -> None:
+        self.peer.close()
+
+
+class AuthorizeResponder(ferny.InteractionResponder):
+    router: Router
+
+    def __init__(self, router: Router, payload: bytes):
+        self.router = router
+        self.payload = payload
+
+    async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
+        if hint == 'none':
+            # We have three problems here:
+            #
+            #   - we have no way to present a message on the login
+            #     screen without presenting a prompt and a button
+            #   - the login screen will not try to repost the login
+            #     request because it doesn't understand that we are not
+            #     waiting on input, which means that it won't notice
+            #     that we've logged in successfully
+            #   - cockpit-ws has an issue where if we retry the request
+            #     again after login succeeded then it won't forward the
+            #     init message to the client, stalling the login.  This
+            #     is a race and can't be fixed without -ws changes.
+            #
+            # Let's avoid all of that by just showing nothing.
+            return None
+
+        challenge = 'X-Conversation - ' + base64.b64encode(prompt.encode()).decode()
+        response = await self.router.request_authorization(challenge,
+                                                           messages=messages,
+                                                           prompt=prompt,
+                                                           hint=hint,
+                                                           echo=False)
+
+        b64 = response.removeprefix('X-Conversation -').strip()
+        passwd = base64.b64decode(b64.encode()).decode()
+        logger.debug('Returning a %d chars password', len(passwd))
+        return passwd
+
+    async def do_custom_command(self, command: str, args: tuple, fds: list[int], stderr: str) -> None:
+        logger.debug('Got ferny command %s %s %s', command, args, stderr)
+
+        if command == 'beiboot.provide':
+            size, = args
+            assert size == len(self.payload)
+            assert isinstance(self.router, SshBridge)
+            assert self.router.ssh_peer.transport is not None
+            self.router.ssh_peer.transport.write(self.payload)
+
+        elif command == 'cockpit.report-exists':
+            file_status, = args
+            # Constructed to throw KeyError if an unexpected file is requested
+            # HACK:  ...please don't look at this code...
+            Package.CONDITIONS = {
+                'path-exists': lambda filename: file_status[filename],
+                'path-not-exists': lambda filename: not file_status[filename],
+            }
+            self.router.packages = Packages()  # type: ignore[attr-defined]
+            self.router.routing_rules.insert(0, ChannelRoutingRule(self.router, [PackagesChannel]))
+
+
+class SshPeer(Peer):
+    def __init__(self, router: Router, destination: str):
+        self.destination = destination
+        super().__init__(router)
+
+    async def do_connect_transport(self) -> asyncio.Transport:
+        beipack_filename, bridge_beipack_xz = get_bridge_beipack_xz()
+        agent = ferny.InteractionAgent(AuthorizeResponder(self.router, bridge_beipack_xz))
+
+        # We want to run a python interpreter somewhere...
+        cmd: Sequence[str] = ('python3', '-ic', '# cockpit-bridge')
+        env: Sequence[str] = ()
+
+        # Remote host?  Wrap command with SSH
+        if self.destination != 'localhost':
+            ssh_askpass = ensure_ferny_askpass()
+            env = (
+                f'SSH_ASKPASS={ssh_askpass!s}',
+                'DISPLAY=x',
+                'SSH_ASKPASS_REQUIRE=force',
+            )
+            cmd = ('ssh', self.destination, shlex.join(cmd))
+
+        # Running in flatpak?  Wrap command with flatpak-spawn --host
+        if os.path.exists('/.flatpak-info'):
+            cmd = ('flatpak-spawn', '--host',
+                   *(f'--env={kv}' for kv in env),
+                   *cmd)
+            env = ()
+
+        logger.debug("Launching command: cmd=%s env=%s", cmd, env)
+        transport = await self.spawn(cmd, env, stderr=agent, start_new_session=True)
+
+        # Send the first-stage bootloader
+        stage1 = bootloader.make_bootloader([
+            ('report_exists', [list(get_interesting_files())]),
+            ('boot_xz', [beipack_filename, len(bridge_beipack_xz)])
+        ], gadgets=BEIBOOT_GADGETS)
+        transport.write(stage1.encode())
+
+        # Wait for "init" or error, handling auth and beiboot requests
+        await agent.communicate()
+
+        return transport
+
+
+class SshBridge(Router):
+    packages: Packages
+    ssh_peer: SshPeer
+
+    def __init__(self, args: argparse.Namespace):
+        self.ssh_peer = SshPeer(self, args.destination)
+
+        super().__init__([
+            DefaultRoutingRule(self, self.ssh_peer),
+        ])
+
+    def do_send_init(self):
+        pass  # wait for the peer to do it first
+
+    def do_init(self, message):
+        self.ssh_peer.write_control(**message)
+
+
+async def run(args) -> None:
+    logger.debug("Hi. How are you today?")
+
+    bridge = SshBridge(args)
+    StdioTransport(asyncio.get_running_loop(), bridge)
+
+    try:
+        message = await bridge.ssh_peer.start()
+        bridge.write_control(**dict(message, packages={p: None for p in bridge.packages.packages}))
+        bridge.ssh_peer.thaw_endpoint()
+    except ferny.InteractionError as exc:
+        sys.exit(str(exc))
+    except CockpitProblem as exc:
+        bridge.write_control(command='init', problem=exc.problem, **exc.kwargs)
+        return
+
+    logger.debug('Startup done.  Looping until connection closes.')
+    try:
+        await bridge.communicate()
+    except BrokenPipeError:
+        # expected if the peer doesn't hang up cleanly
+        pass
+
+
+def main() -> None:
+    polyfills.install()
+
+    parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
+    parser.add_argument('--debug', action='store_true')
+    parser.add_argument('destination', help="Name of the remote host to connect to, or 'localhost'")
+    args = parser.parse_args()
+
+    setup_logging(debug=args.debug)
+
+    asyncio.run(run(args), debug=args.debug)
+
+
+if __name__ == '__main__':
+    main()

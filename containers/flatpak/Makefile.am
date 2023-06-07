@@ -10,6 +10,7 @@ INSTALL_FLATPAK_TARGETS = \
 	install-dist_dbusservicesDATA \
 	install-dist_scalableiconDATA \
 	install-dist_symboliciconDATA \
+	install-cockpit-client-symlink \
 	$(NULL)
 
 install-for-flatpak: $(INSTALL_FLATPAK_TARGETS)
@@ -20,6 +21,4 @@ install-for-flatpak: $(INSTALL_FLATPAK_TARGETS)
 	        "${DOWNSTREAM_RELEASES_XML}"; \
 	fi
 	appstream-util validate --nonet $(DESTDIR)$(datadir)/metainfo/org.cockpit_project.CockpitClient.metainfo.xml
-	mkdir -p $(DESTDIR)/$(bindir)
-	ln -sfTv $(cockpitclientdir)/cockpit-client $(DESTDIR)/$(bindir)/cockpit-client
 	cp -rT dist/static $(pkgdatadir)/static

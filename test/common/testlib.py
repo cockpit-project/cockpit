@@ -1322,8 +1322,7 @@ class MachineCase(unittest.TestCase):
             cls.global_machine.kill()
 
     def label(self):
-        (unused, sep, label) = self.id().partition(".")
-        return label.replace(".", "-")
+        return self.__class__.__name__ + '-' + self._testMethodName
 
     def new_machine(self, image=None, forward={}, restrict=True, cleanup=True, **kwargs):
         machine_class = self.machine_class

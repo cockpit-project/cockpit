@@ -48,8 +48,10 @@ if !WITH_PYBRIDGE
 -include $(wildcard pkg/Makefile.qunit*)
 endif
 
-install-data-hook::
+INSTALL_DATA_LOCAL_TARGETS += install-bundles
+install-bundles:
 	cd $(srcdir)/dist; find */* -type f -exec install -D -m 644 '{}' '$(abspath $(DESTDIR)$(datadir))/cockpit/{}' \;
 
-uninstall-hook:
+UNINSTALL_LOCAL_TARGETS += uninstall-bundles
+uninstall-bundles:
 	rm -rf $(DESTDIR)$(datadir)/cockpit

@@ -480,7 +480,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
             b.wait_text(".pf-v5-c-card__title", msg)
             wait_field("FOO", "bar")
             wait_field("BIN", bin_msg)
-            b.click('.pf-v5-c-breadcrumb li:first')
+            b.click('.pf-v5-c-breadcrumb li:first-of-type')
             b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
 
         m.execute(fr"printf 'MESSAGE={bin_data_short['MSG']}\nPRIORITY=3\nFOO=bar\nBIN={bin_data_short['BIN']}\n' | logger --journald")

@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, test_main
+import netlib
+import testlib
 
 
-@nondestructive
-@skipDistroPackage()
-class TestBridge(NetworkCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestBridge(netlib.NetworkCase):
     def testBasic(self):
         b = self.browser
 
@@ -122,4 +122,4 @@ class TestBridge(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

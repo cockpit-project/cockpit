@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
+import testlib
 
 
-@skipOstree("OSTree always uses loopback")
-@skipDistroPackage()
-@nondestructive
-class TestLoopback(MachineCase):
+@testlib.skipOstree("OSTree always uses loopback")
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestLoopback(testlib.MachineCase):
 
     def testBasic(self):
         b = self.browser
@@ -69,4 +69,4 @@ class TestLoopback(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

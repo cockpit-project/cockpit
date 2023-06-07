@@ -19,12 +19,12 @@
 
 import time
 
-from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, test_main
+import testlib
 
 
-@nondestructive
-@skipDistroPackage()
-class TestMenu(MachineCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestMenu(testlib.MachineCase):
 
     def testDarkThemeSwitcher(self):
         b = self.browser
@@ -57,7 +57,7 @@ class TestMenu(MachineCase):
             switch_style("#dark")
             b._wait_present("html.pf-v5-theme-dark")
 
-    @enableAxe
+    @testlib.enableAxe
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -160,4 +160,4 @@ class TestMenu(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

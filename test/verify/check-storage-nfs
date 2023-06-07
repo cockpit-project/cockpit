@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from packagelib import PackageCase
-from storagelib import StorageCase, StorageHelpers
-from testlib import nondestructive, skipOstree, test_main
+import packagelib
+import storagelib
+import testlib
 
 
-@nondestructive
-class TestStorageNfs(StorageCase):
+@testlib.nondestructive
+class TestStorageNfs(storagelib.StorageCase):
 
     def testNfsClient(self):
         m = self.machine
@@ -299,9 +299,9 @@ class TestStorageNfs(StorageCase):
 
 
 # Re-use allowed journal messages from StorageCase
-@skipOstree("No udisks/cockpit-storaged on OSTree images")
-@nondestructive
-class TestStoragePackagesNFS(PackageCase, StorageCase, StorageHelpers):
+@testlib.skipOstree("No udisks/cockpit-storaged on OSTree images")
+@testlib.nondestructive
+class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase, storagelib.StorageHelpers):
 
     def testNfsMissingPackages(self):
         m = self.machine
@@ -364,4 +364,4 @@ class TestStoragePackagesNFS(PackageCase, StorageCase, StorageHelpers):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

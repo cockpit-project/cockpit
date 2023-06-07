@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, nondestructive, test_main
+import testlib
 
 test_manifest = """
 {
@@ -47,8 +47,8 @@ test_html = """
 """
 
 
-@nondestructive
-class TestPackages(MachineCase):
+@testlib.nondestructive
+class TestPackages(testlib.MachineCase):
 
     def testBasic(self):
         m = self.machine
@@ -110,4 +110,4 @@ class TestPackages(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

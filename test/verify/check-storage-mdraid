@@ -19,15 +19,15 @@
 
 from time import sleep
 
-from storagelib import StorageCase
-from testlib import Error, test_main
+import storagelib
+import testlib
 
 
 def info_field(name):
     return f'#detail-header dt:contains("{name}") + dd'
 
 
-class TestStorageMdRaid(StorageCase):
+class TestStorageMdRaid(storagelib.StorageCase):
 
     def wait_states(self, states):
         self.browser.wait_js_func("""(function(states) {
@@ -73,7 +73,7 @@ class TestStorageMdRaid(StorageCase):
                     sleep(10)
                     self.browser.wait_in_text(info_field("State"), "Not running")
                     break
-                except Error as ex:
+                except testlib.Error as ex:
                     if not ex.msg.startswith('timeout'):
                         raise
                     print("Stopping failed, retrying...")
@@ -345,4 +345,4 @@ class TestStorageMdRaid(StorageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

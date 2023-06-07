@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from netlib import NetworkCase, re
-from testlib import skipDistroPackage, skipImage, skipOstree, test_main, wait
+import netlib
+import testlib
 
 
-@skipImage("No network checkpoint support", "ubuntu-*")
-@skipDistroPackage()
-class TestNetworkingCheckpoints(NetworkCase):
+@testlib.skipImage("No network checkpoint support", "ubuntu-*")
+@testlib.skipDistroPackage()
+class TestNetworkingCheckpoints(netlib.NetworkCase):
     def testCheckpoint(self):
         b = self.browser
         m = self.machine
@@ -65,9 +65,9 @@ class TestNetworkingCheckpoints(NetworkCase):
                 b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
             b.wait_not_present("#confirm-breaking-change-popup")
 
-    @skipImage("Main interface settings are read-only", "debian-*")
-    @skipImage("not using dhclient", "arch")
-    @skipOstree("not using dhclient")
+    @testlib.skipImage("Main interface settings are read-only", "debian-*")
+    @testlib.skipImage("not using dhclient", "arch")
+    @testlib.skipOstree("not using dhclient")
     def testCheckpointSlowRollback(self):
         b = self.browser
         m = self.machine
@@ -164,7 +164,7 @@ class TestNetworkingCheckpoints(NetworkCase):
             lines = m.execute("journalctl -u NetworkManager | grep op=").split("\n")
             last_checkpoint = None
             for line in lines:
-                match = re.search('op="checkpoint-create" arg="([^"]*)"', line)
+                match = netlib.re.search('op="checkpoint-create" arg="([^"]*)"', line)
                 if match:
                     last_checkpoint = match[1]
             if last_checkpoint:
@@ -173,8 +173,8 @@ class TestNetworkingCheckpoints(NetworkCase):
                         return True
             return False
 
-        wait(checkpoint_was_destroyed)
+        testlib.wait(checkpoint_was_destroyed)
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

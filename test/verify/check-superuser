@@ -19,16 +19,7 @@
 
 import time
 
-from testlib import (
-    MachineCase,
-    nondestructive,
-    skipDistroPackage,
-    skipImage,
-    test_main,
-    todoPybridge,
-    todoPybridgeRHEL8,
-    wait,
-)
+import testlib
 
 
 def allow_old_cockpit_ws_messages(test):
@@ -39,9 +30,9 @@ def allow_old_cockpit_ws_messages(test):
                                 "admin: Executing command .*COMMAND=.*cockpit-bridge --privileged.*")
 
 
-@nondestructive
-@skipDistroPackage()
-class TestSuperuser(MachineCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestSuperuser(testlib.MachineCase):
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -186,7 +177,7 @@ session include system-auth
         b.wait_not_present(".pf-v5-c-modal-box:contains('Problem becoming administrator')")
 
         # no stray/hanging sudo process
-        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
+        testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
 
         # cancelling auth dialog stops sudo
         b.open_superuser_dialog()
@@ -199,14 +190,14 @@ session include system-auth
         b.click(".pf-v5-c-modal-box button:contains('Cancel')")
         b.wait_not_present(".pf-v5-c-modal-box")
 
-        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
+        testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
 
         # logging out cleans up pending sudo auth; user should either go to "State: closing" or disappear completely
         b.open_superuser_dialog()
         b.wait_in_text(".pf-v5-c-modal-box", "Password for admin")
         self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
         b.logout()
-        wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin || true"), tries=10)
+        testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin || true"), tries=10)
         self.assertNotIn("cockpit", m.execute("loginctl --lines=0 user-status admin || true"))
 
     def testBrokenBridgeConfig(self):
@@ -376,8 +367,8 @@ session include system-auth
         b.wait_not_present(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
 
 
-@skipDistroPackage()
-class TestSuperuserOldShell(MachineCase):
+@testlib.skipDistroPackage()
+class TestSuperuserOldShell(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
         "machine2": {"address": "10.111.113.2/20", "image": "centos-7", "memory_mb": 512},
@@ -412,15 +403,15 @@ class TestSuperuserOldShell(MachineCase):
         b.wait_popdown("shutdown-dialog")
 
 
-@skipImage("TODO: broken on Arch Linux", "arch")
-@skipDistroPackage()
-class TestSuperuserOldWebserver(MachineCase):
+@testlib.skipImage("TODO: broken on Arch Linux", "arch")
+@testlib.skipDistroPackage()
+class TestSuperuserOldWebserver(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7", "memory_mb": 512},
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
+    @testlib.todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
         m = self.machine
@@ -504,14 +495,14 @@ class TestSuperuserOldWebserver(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
 
-@skipDistroPackage()
-class TestSuperuserDashboard(MachineCase):
+@testlib.skipDistroPackage()
+class TestSuperuserDashboard(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def test(self):
         b = self.browser
         self.setup_provisioned_hosts()
@@ -567,14 +558,14 @@ class TestSuperuserDashboard(MachineCase):
         self.allow_hostkey_messages()
 
 
-@skipDistroPackage()
-class TestSuperuserOldDashboard(MachineCase):
+@testlib.skipDistroPackage()
+class TestSuperuserOldDashboard(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7", "memory_mb": 512},
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
+    @testlib.todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
         m = self.machines["machine1"]
@@ -631,14 +622,14 @@ class TestSuperuserOldDashboard(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
 
-@skipDistroPackage()
-class TestSuperuserDashboardOldMachine(MachineCase):
+@testlib.skipDistroPackage()
+class TestSuperuserDashboardOldMachine(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},
         "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
     }
 
-    @todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
+    @testlib.todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
 
@@ -669,4 +660,4 @@ class TestSuperuserDashboardOldMachine(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

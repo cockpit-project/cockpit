@@ -25,19 +25,7 @@ import struct
 import time
 
 import packagelib
-from testlib import (
-    Error,
-    MachineCase,
-    no_retry_when_changed,
-    nondestructive,
-    skipBrowser,
-    skipDistroPackage,
-    skipImage,
-    skipOstree,
-    test_main,
-    timeout,
-    wait,
-)
+import testlib
 
 WAIT_KRB_SCRIPT = """
 set -ex
@@ -94,9 +82,9 @@ ExecStart=/bin/true
         machine.execute("systemctl unmask chrony")
 
 
-@skipDistroPackage()
+@testlib.skipDistroPackage()
 class CommonTests:
-    @timeout(900)
+    @testlib.timeout(900)
     def testQualifiedUsers(self):
         m = self.machine
         b = self.browser
@@ -481,11 +469,11 @@ class CommonTests:
         m.execute("mv /etc/sssd/pki/sssd_auth_ca_db.pem.valid /etc/sssd/pki/sssd_auth_ca_db.pem")
 
 
-@skipOstree("No realmd available")
-@skipImage("No realmd available", "arch")
-@skipDistroPackage()
-@no_retry_when_changed
-class TestRealms(MachineCase):
+@testlib.skipOstree("No realmd available")
+@testlib.skipImage("No realmd available", "arch")
+@testlib.skipDistroPackage()
+@testlib.no_retry_when_changed
+class TestRealms(testlib.MachineCase):
     """Common variables and tests for all supported domain backends"""
 
     provision = {
@@ -505,9 +493,9 @@ class TestRealms(MachineCase):
         self.allow_journal_messages("couldn't get all properties of org.freedesktop.realmd.Service.*org.freedesktop.DBus.Error.NoReply: Remote peer disconnected")
 
 
-@skipImage("freeipa not currently available", "debian-*")
-@skipDistroPackage()
-@no_retry_when_changed
+@testlib.skipImage("freeipa not currently available", "debian-*")
+@testlib.skipDistroPackage()
+@testlib.no_retry_when_changed
 class TestIPA(TestRealms, CommonTests):
     def setUp(self):
         super().setUp()
@@ -518,7 +506,7 @@ class TestIPA(TestRealms, CommonTests):
         self.machines['services'].execute("/root/run-freeipa")
         # Wait for FreeIPA to come up and DNS to work as expected
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
-        wait(lambda: self.machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+        testlib.wait(lambda: self.machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
 
         maybe_setup_fake_chrony(self.machine)
 
@@ -621,7 +609,7 @@ class TestIPA(TestRealms, CommonTests):
         m.execute("! test -e /etc/cockpit/ws-certs.d/10-ipa.cert")
         m.execute("! test -e /etc/cockpit/ws-certs.d/10-ipa.key")
         # should have stopped cert tracking
-        wait(lambda: "status:" not in m.execute("ipa-getcert list"))
+        testlib.wait(lambda: "status:" not in m.execute("ipa-getcert list"))
 
     def testUnqualifiedUsers(self):
         """Extend the common test with 2FA login"""
@@ -652,7 +640,7 @@ class TestIPA(TestRealms, CommonTests):
         alice_hotp_key = base64.b64decode(alice_hotp_key)
 
         # wait until this propagates to the client
-        wait(lambda: m.execute("su -s /bin/sh -c 'su - alice </dev/null' - nobody 2>&1 | grep 'Second Factor'"))
+        testlib.wait(lambda: m.execute("su -s /bin/sh -c 'su - alice </dev/null' - nobody 2>&1 | grep 'Second Factor'"))
 
         m.start_cockpit()
 
@@ -703,7 +691,7 @@ class TestIPA(TestRealms, CommonTests):
         self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*",
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
-    @timeout(900)
+    @testlib.timeout(900)
     def testClientCertAuthentication(self):
         m = self.machine
         b = self.browser
@@ -841,9 +829,9 @@ ipa-advise enable-admins-sudo | sh -ex
         m.execute(f"! su -c '{ccache_env} klist' alice")
 
 
-@skipImage("adcli not on test images", "debian-*", "ubuntu-*")
-@skipDistroPackage()
-@no_retry_when_changed
+@testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*")
+@testlib.skipDistroPackage()
+@testlib.no_retry_when_changed
 class TestAD(TestRealms, CommonTests):
     def setUp(self):
         super().setUp()
@@ -858,7 +846,7 @@ class TestAD(TestRealms, CommonTests):
         m = self.machine
 
         # Wait for AD to come up and DNS to work as expected
-        wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+        testlib.wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
         # DNS is not sufficient yet, needs to start LDAP server as well
         m.execute("until nc -z f0.cockpit.lan 389; do sleep 1; done")
         # also wait for Kerberos
@@ -1000,12 +988,12 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 # This is here because our test framework can't run ipa VM's twice
 
 
-@skipOstree("No realmd available")
-@skipImage("No realmd available", "arch")
-@skipImage("freeipa not currently available", "debian-*")
-@skipDistroPackage()
-@no_retry_when_changed
-class TestKerberos(MachineCase):
+@testlib.skipOstree("No realmd available")
+@testlib.skipImage("No realmd available", "arch")
+@testlib.skipImage("freeipa not currently available", "debian-*")
+@testlib.skipDistroPackage()
+@testlib.no_retry_when_changed
+class TestKerberos(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100", "memory_mb": 512},
         "services": {"image": "services", "memory_mb": 1500}
@@ -1027,7 +1015,7 @@ class TestKerberos(MachineCase):
         self.machine.execute(JOIN_SCRIPT % args, timeout=1800)
         self.machine.execute(WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
-    @skipBrowser("Firefox cannot work with cookies", "firefox")
+    @testlib.skipBrowser("Firefox cannot work with cookies", "firefox")
     def testNegotiate(self):
         self.allow_hostkey_messages()
         b = self.browser
@@ -1127,9 +1115,9 @@ class TestKerberos(MachineCase):
         self.allow_journal_messages(".*Request ticket server HTTP/x0.cockpit.lan@COCKPIT.LAN not found in keytab.*")
 
 
-@skipImage("No realmd available", "arch")
-@skipOstree("Package (un)install does not work on OSTree")
-@skipDistroPackage()
+@testlib.skipImage("No realmd available", "arch")
+@testlib.skipOstree("Package (un)install does not work on OSTree")
+@testlib.skipDistroPackage()
 class TestPackageInstall(packagelib.PackageCase):
 
     def setUp(self):
@@ -1149,7 +1137,7 @@ class TestPackageInstall(packagelib.PackageCase):
                     b.wait_in_text("div.pf-v5-c-tooltip", text)
                     b.mouse("#system_information_domain_tooltip", "mouseleave")
                     return True
-                except (RuntimeError, Error):
+                except (RuntimeError, testlib.Error):
                     return False
             b.wait(check)
 
@@ -1201,7 +1189,7 @@ class TestPackageInstall(packagelib.PackageCase):
         # domain" dialog won't ever appear; just check that it was installed
         m.execute("test -e /realmd-stub")
 
-    @nondestructive
+    @testlib.nondestructive
     def testDialogTransition(self):
         m = self.machine
         b = self.browser
@@ -1239,4 +1227,4 @@ class TestPackageInstall(packagelib.PackageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

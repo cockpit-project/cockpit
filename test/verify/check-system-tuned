@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, skipOstree, test_main
+import testlib
 
 
-@nondestructive
-@skipOstree("No tuned packaged")
-@skipImage("No tuned packaged", "arch")
-@skipDistroPackage()
-class TestTuned(MachineCase):
+@testlib.nondestructive
+@testlib.skipOstree("No tuned packaged")
+@testlib.skipImage("No tuned packaged", "arch")
+@testlib.skipDistroPackage()
+class TestTuned(testlib.MachineCase):
 
     def testBasic(self):
         b = self.browser
@@ -120,4 +120,4 @@ class TestTuned(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

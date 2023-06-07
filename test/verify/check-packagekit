@@ -21,8 +21,8 @@ import os
 import re
 import time
 
-from packagelib import PackageCase
-from testlib import nondestructive, onlyImage, skipDistroPackage, skipImage, skipOstree, test_main
+import packagelib
+import testlib
 
 WAIT_SCRIPT = """
 set -ex
@@ -39,7 +39,7 @@ OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-s
 OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "rhel4edge", "centos-*"]
 
 
-class NoSubManCase(PackageCase):
+class NoSubManCase(packagelib.PackageCase):
 
     def setUp(self):
         super().setUp()
@@ -54,8 +54,8 @@ class NoSubManCase(PackageCase):
         self.allow_journal_messages("(Created symlink|Removed).*dnf-automatic-install.timer.*")
 
 
-@skipImage("TODO: Fails with 401 on our test runners", "arch")
-@skipOstree("Image uses OSTree")
+@testlib.skipImage("TODO: Fails with 401 on our test runners", "arch")
+@testlib.skipOstree("Image uses OSTree")
 class TestUpdates(NoSubManCase):
 
     def setUp(self):
@@ -140,8 +140,8 @@ class TestUpdates(NoSubManCase):
 
         self.fail("Timed out waiting for updates spinner to go away")
 
-    @nondestructive
-    @skipImage("kpatch is not available", *OSesWithoutKpatch)
+    @testlib.nondestructive
+    @testlib.skipImage("kpatch is not available", *OSesWithoutKpatch)
     def testKpatch(self):
         b = self.browser
         m = self.machine
@@ -277,7 +277,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # Patches should be installed
         m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
 
-    @nondestructive
+    @testlib.nondestructive
     def testBasic(self):
         # no security updates, no changelogs
         b = self.browser
@@ -431,8 +431,8 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
-    @skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
-    @skipImage("tracer not available", *OSesWithoutTracer)
+    @testlib.skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
+    @testlib.skipImage("tracer not available", *OSesWithoutTracer)
     def testTracer(self):
         b = self.browser
         m = self.machine
@@ -615,9 +615,9 @@ ExecStart=/usr/local/bin/{self.packageName}
             testStatusCard=True,
         ).execute()
 
-    @skipImage("Arch Linux does not start services by default", "arch")
-    @skipImage("tracer not available", *OSesWithoutTracer)
-    @nondestructive
+    @testlib.skipImage("Arch Linux does not start services by default", "arch")
+    @testlib.skipImage("tracer not available", *OSesWithoutTracer)
+    @testlib.nondestructive
     def testFailServiceRestart(self):
         b = self.browser
         m = self.machine
@@ -680,7 +680,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_not_in_text("#restart-services-modal .pf-v5-l-stack__item", packageName)
         b.wait_visible("#restart-services-modal .pf-v5-c-alert")
 
-    @skipImage("No security changelog support in packagekit", "arch")
+    @testlib.skipImage("No security changelog support in packagekit", "arch")
     def testInfoSecurity(self):
         b = self.browser
         m = self.machine
@@ -868,8 +868,8 @@ ExecStart=/usr/local/bin/{packageName}
         # and the previous one, not expaned
         b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")
 
-    @skipImage("No security changelog support in packagekit", "arch")
-    @nondestructive
+    @testlib.skipImage("No security changelog support in packagekit", "arch")
+    @testlib.nondestructive
     def testSecurityOnly(self):
         b = self.browser
         m = self.machine
@@ -909,8 +909,8 @@ ExecStart=/usr/local/bin/{packageName}
             # secnocve should be displayed properly
             self.check_nth_update(2, "secnocve", "1-2", "security", desc_matches=["Fix leak"])
 
-    @skipImage("No changelog support in Arch Linux", "arch")
-    @nondestructive
+    @testlib.skipImage("No changelog support in Arch Linux", "arch")
+    @testlib.nondestructive
     def testInfoTruncation(self):
         b = self.browser
         m = self.machine
@@ -1009,7 +1009,7 @@ ExecStart=/usr/local/bin/{packageName}
         m.wait_reboot()
         self.allow_restart_journal_messages()
 
-    @nondestructive
+    @testlib.nondestructive
     def testUpdateError(self):
         b = self.browser
         m = self.machine
@@ -1040,7 +1040,7 @@ ExecStart=/usr/local/bin/{packageName}
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))
 
-    @nondestructive
+    @testlib.nondestructive
     def testPackageKitCrash(self):
         b = self.browser
         m = self.machine
@@ -1077,7 +1077,7 @@ ExecStart=/usr/local/bin/{packageName}
         # error message visible
         b.wait_in_text("#app .pf-v5-c-page .pf-v5-l-stack .pf-v5-c-code-block__content", "PackageKit crashed")
 
-    @nondestructive
+    @testlib.nondestructive
     def testNoPackageKit(self):
         b = self.browser
         m = self.machine
@@ -1120,8 +1120,8 @@ ExecStart=/usr/local/bin/{packageName}
             b.wait_visible(".system-health")
             self.assertFalse(b.is_present(self.update_text))
 
-    @skipDistroPackage()
-    @nondestructive
+    @testlib.skipDistroPackage()
+    @testlib.nondestructive
     def testUnprivileged(self):
         b = self.browser
         m = self.machine
@@ -1159,8 +1159,8 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_not_present("#available-updates")
 
 
-@skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
-@skipOstree("Image uses OSTree")
+@testlib.skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
+@testlib.skipOstree("Image uses OSTree")
 class TestWsUpdate(NoSubManCase):
     def testBasic(self):
         # The main case for this is that cockpit-ws itself gets upgraded, which
@@ -1228,7 +1228,7 @@ class TestWsUpdate(NoSubManCase):
         self.allow_restart_journal_messages()
 
 
-@skipImage("kpatch is not available", *OSesWithoutKpatch)
+@testlib.skipImage("kpatch is not available", *OSesWithoutKpatch)
 class TestKpatchInstall(NoSubManCase):
     def testBasic(self):
         b = self.browser
@@ -1267,8 +1267,8 @@ class TestKpatchInstall(NoSubManCase):
         m.execute("rpm -q kpatch kpatch-dnf")
 
 
-@onlyImage("No subscriptions", "rhel-*")
-class TestUpdatesSubscriptions(PackageCase):
+@testlib.onlyImage("No subscriptions", "rhel-*")
+class TestUpdatesSubscriptions(packagelib.PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},
         "services": {"image": "services", "memory_mb": 1024}
@@ -1414,8 +1414,8 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_in_text("#status", "System is up to date")
 
 
-@skipOstree
-@nondestructive
+@testlib.skipOstree
+@testlib.nondestructive
 class TestAutoUpdates(NoSubManCase):
 
     def setUp(self):
@@ -1633,7 +1633,7 @@ class TestAutoUpdates(NoSubManCase):
         else:
             raise NotImplementedError(self.backend)
 
-    @skipDistroPackage()
+    @testlib.skipDistroPackage()
     def testPrivilegeChange(self):
         b = self.browser
         m = self.machine
@@ -1693,7 +1693,7 @@ class TestAutoUpdates(NoSubManCase):
         self.assertNotIn("Shutdown", out)
 
 
-@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
+@testlib.skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
 class TestAutoUpdatesInstall(NoSubManCase):
     def testUnsupported(self):
         b = self.browser
@@ -1726,7 +1726,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
             b.wait_not_present("#settings")
             b.wait_not_present("#autoupdates-settings")
 
-    @skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch")
     def testInstall(self):
         b = self.browser
         m = self.machine
@@ -1774,4 +1774,4 @@ WantedBy=basic.target
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

@@ -25,12 +25,12 @@ import tempfile
 import unittest
 from glob import glob
 
+import testlib
 import testvm
-from testlib import skipDistroPackage, test_main
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
-@skipDistroPackage()
+@testlib.skipDistroPackage()
 class TestImageCustomize(unittest.TestCase):
 
     def checkBoot(self, image):
@@ -127,7 +127,7 @@ class TestImageCustomize(unittest.TestCase):
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
-@skipDistroPackage()
+@testlib.skipDistroPackage()
 class TestBotsVM(unittest.TestCase):
 
     def testBasic(self):
@@ -164,4 +164,4 @@ class TestBotsVM(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

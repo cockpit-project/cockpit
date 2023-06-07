@@ -22,21 +22,11 @@ import os
 import subprocess
 import time
 
-from testlib import (
-    TEST_DIR,
-    MachineCase,
-    nondestructive,
-    skipBrowser,
-    skipDistroPackage,
-    skipImage,
-    skipOstree,
-    test_main,
-    wait,
-)
+import testlib
 
 
-@skipDistroPackage()
-class TestConnection(MachineCase):
+@testlib.skipDistroPackage()
+class TestConnection(testlib.MachineCase):
     def setUp(self):
         super().setUp()
         self.ws_executable = f"{self.libexecdir}/cockpit-ws"
@@ -67,7 +57,7 @@ class TestConnection(MachineCase):
             # show the leaked processes in the assertion
             self.fail(m.execute("pgrep -au admin '(cockpit|ssh-agent)'"))
 
-    @skipBrowser("Firefox cannot work with cookies", "firefox")
+    @testlib.skipBrowser("Firefox cannot work with cookies", "firefox")
     def testBasic(self):
         m = self.machine
 
@@ -191,7 +181,7 @@ class TestConnection(MachineCase):
         m.execute("""systemctl daemon-reload
                      systemctl restart systemd-hostnamed
                      pkill -e -SEGV systemd-hostnam""")
-        wait(lambda: m.execute("journalctl -b | grep 'Process.*systemd-hostnam.*of user.*dumped core.'"))
+        testlib.wait(lambda: m.execute("journalctl -b | grep 'Process.*systemd-hostnam.*of user.*dumped core.'"))
 
         # Make sure the core dumps exist in the directory, so we can download them
         cores = m.execute("find /var/lib/systemd/coredump -type f")
@@ -200,8 +190,8 @@ class TestConnection(MachineCase):
         self.allow_core_dumps = True
         self.allow_journal_messages(".*org.freedesktop.hostname1.*DBus.Error.NoReply.*")
 
-    @skipOstree("OSTree doesn't use systemd units")
-    @nondestructive
+    @testlib.skipOstree("OSTree doesn't use systemd units")
+    @testlib.nondestructive
     def testUnitLifecycle(self):
         m = self.machine
 
@@ -303,8 +293,8 @@ class TestConnection(MachineCase):
             out = m.execute(f"su -c '! nc -U /run/cockpit/wsinstance/{s} 2>&1 || exit 1' admin")
             self.assertIn("Permission denied", out)
 
-    @skipOstree("OSTree doesn't use systemd units")
-    @nondestructive
+    @testlib.skipOstree("OSTree doesn't use systemd units")
+    @testlib.nondestructive
     def testHttpsInstanceDoS(self):
         m = self.machine
         # prevent generating core dump artifacts
@@ -347,8 +337,8 @@ class TestConnection(MachineCase):
         out = m.execute("curl --silent --show-error --head --unix /run/cockpit/wsinstance/https@new.sock http://dummy")
         self.assertIn("HTTP/1.1 200 OK", out)
 
-    @skipBrowser("Firefox needs proper cert and CA", "firefox")
-    @nondestructive
+    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
+    @testlib.nondestructive
     def testTls(self):
         m = self.machine
         b = self.browser
@@ -494,7 +484,7 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://172.27.0.15:9090"))
 
-    @nondestructive
+    @testlib.nondestructive
     def testConfigOrigins(self):
         m = self.machine
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090")
@@ -516,8 +506,8 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages('peer did not close io when expected')
 
-    @skipOstree("OSTree doesn't have cockpit-ws")
-    @nondestructive
+    @testlib.skipOstree("OSTree doesn't have cockpit-ws")
+    @testlib.nondestructive
     def test100YearsCert(self):
         m = self.machine
 
@@ -561,8 +551,8 @@ class TestConnection(MachineCase):
         m.execute(f'test ! {selfsign} -nt /tmp/timestamp')
         m.execute('rm /tmp/timestamp')
 
-    @skipOstree("OSTree doesn't use systemd units")
-    @nondestructive
+    @testlib.skipOstree("OSTree doesn't use systemd units")
+    @testlib.nondestructive
     def testSocket(self):
         m = self.machine
 
@@ -632,7 +622,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages(".*Peer failed to perform TLS handshake")
 
-    @skipOstree("Can't remove/upgrade packages on OSTree")
+    @testlib.skipOstree("Can't remove/upgrade packages on OSTree")
     def testWsPackage(self):
         m = self.machine
 
@@ -705,8 +695,8 @@ class TestConnection(MachineCase):
         if root_login_disallowed:
             self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
 
-    @skipOstree("OSTree doesn't have cockpit-ws")
-    @nondestructive
+    @testlib.skipOstree("OSTree doesn't have cockpit-ws")
+    @testlib.nondestructive
     def testCommandline(self):
         m = self.machine
 
@@ -729,7 +719,7 @@ class TestConnection(MachineCase):
         self.addCleanup(m.execute, f"kill {pid}")
 
         # The port may not be available immediately, so wait for it
-        wait(lambda: 'A Custom Title' in m.curl('-k', 'https://localhost:9000/'))
+        testlib.wait(lambda: 'A Custom Title' in m.curl('-k', 'https://localhost:9000/'))
 
         output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || echo $?')
         self.assertIn('7', output.strip())
@@ -740,7 +730,7 @@ class TestConnection(MachineCase):
         # Large requests are processed correctly with TLS
         self.assertIn('A Custom Title', m.curl('-k', 'https://localhost:9000/', headers=large_headers))
 
-    @nondestructive
+    @testlib.nondestructive
     def testHeadRequest(self):
         m = self.machine
         m.start_cockpit()
@@ -777,8 +767,8 @@ class TestConnection(MachineCase):
         headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit+123/channel/foo")
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
-    @skipOstree("ssh root login not allowed")
-    @nondestructive
+    @testlib.skipOstree("ssh root login not allowed")
+    @testlib.nondestructive
     def testFlowControl(self):
         m = self.machine
         b = self.browser
@@ -804,8 +794,8 @@ class TestConnection(MachineCase):
         # This fails when flow control is not present
         self.assertLess(rss, 250000)
 
-    @skipOstree("OSTree doesn't have cockpit-ws")
-    @nondestructive
+    @testlib.skipOstree("OSTree doesn't have cockpit-ws")
+    @testlib.nondestructive
     def testLocalSession(self):
         m = self.machine
 
@@ -841,9 +831,9 @@ export XDG_CONFIG_DIRS=/usr/local
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
-    @skipOstree("OSTree doesn't have cockpit-ws")
-    @skipImage("Kernel does not allow user namespaces", "debian-*")
-    @nondestructive
+    @testlib.skipOstree("OSTree doesn't have cockpit-ws")
+    @testlib.skipImage("Kernel does not allow user namespaces", "debian-*")
+    @testlib.nondestructive
     def testCockpitDesktop(self):
         m = self.machine
         m.stop_cockpit()
@@ -931,7 +921,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.allow_journal_messages(r".*cannot reauthorize identity\(s\): unix-user:.*")
         self.allow_journal_messages("admin: Executing command .*COMMAND=.*cockpit-bridge --privileged.*")
 
-    @skipBrowser("Firefox needs proper cert and CA", "firefox")
+    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):
         m = self.machine
         b = self.browser
@@ -964,9 +954,9 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
                 if 'Error during WebSocket handshake: Unexpected response code: 403' in log:
                     return True
             return False
-        wait(check_wss_log)
+        testlib.wait(check_wss_log)
 
-        wait(lambda: m.execute("grep 'received request from bad Origin' /var/log/ws-notls.log"))
+        testlib.wait(lambda: m.execute("grep 'received request from bad Origin' /var/log/ws-notls.log"))
 
         # sanity check: unencrypted http through SSL proxy does not work
         m.execute("! curl http://localhost:9090")
@@ -1015,7 +1005,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://172.27.0.15:9091"))
 
-    @nondestructive
+    @testlib.nondestructive
     def testCaCert(self):
         m = self.machine
 
@@ -1035,7 +1025,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         m.write("/etc/cockpit/ws-certs.d/0-self-signed-ca.pem", "FAKE CERT FOR TESTING\n")
         self.assertEqual(m.execute("curl -sfS http://localhost:9090/ca.cer"), "FAKE CERT FOR TESTING\n")
 
-    @nondestructive
+    @testlib.nondestructive
     def test_branding(self):
         m = self.machine
         m.start_cockpit()
@@ -1086,8 +1076,8 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         b.wait_visible("#login")
         b.assert_pixels("body", "login-screen")
 
-    @skipOstree("no cockpit-ws package")
-    @nondestructive
+    @testlib.skipOstree("no cockpit-ws package")
+    @testlib.nondestructive
     def testAuthUnixPath(self):
         """test UnixPath for auth method in cockpit.conf"""
         m = self.machine
@@ -1109,8 +1099,8 @@ UnixPath=/run/cockpit/session
         m.start_cockpit()
         self.login_and_go("/system")
 
-    @skipOstree("test assumes local install")
-    @nondestructive
+    @testlib.skipOstree("test assumes local install")
+    @testlib.nondestructive
     def testXdgConfig(self):
         xdg_env = f"XDG_CONFIG_DIRS={self.vm_tmpdir}/xdg:/etc/test-xdg\n"
         m = self.machine
@@ -1160,8 +1150,8 @@ UnixPath=/run/cockpit/session
         self.assertFalse(b.is_present("#nav-system li:contains(Services)"))
 
 
-@skipDistroPackage()
-class TestReverseProxy(MachineCase):
+@testlib.skipDistroPackage()
+class TestReverseProxy(testlib.MachineCase):
 
     provision = {
         "0": {"forward": {"443": 8443}}
@@ -1190,7 +1180,7 @@ ProtocolHeader = X-Forwarded-Proto
         return subprocess.check_output(
             ["curl", "--verbose",
              "--resolve", f"alice:{https_port}:{https_host}",
-             "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
+             "--cacert", os.path.join(testlib.TEST_DIR, "../src/tls/ca/ca.pem"),
              *args,
              f"https://alice:{https_port}{path}"],
             stderr=subprocess.STDOUT)
@@ -1221,9 +1211,9 @@ ProtocolHeader = X-Forwarded-Proto
         b.logout()
         b.cdp.invoke("Browser.close")
 
-    @skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
-    @skipOstree("nginx not installed")
-    @skipBrowser("Firefox needs proper cert and CA", "firefox")
+    @testlib.skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipOstree("nginx not installed")
+    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
         """test proxying to Cockpit with TLS
 
@@ -1300,9 +1290,9 @@ server {
         b.click('#login-button')
         b.wait_visible('.pf-v5-c-card.system-health')
 
-    @skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
-    @skipOstree("nginx not installed")
-    @skipBrowser("Firefox needs proper cert and CA", "firefox")
+    @testlib.skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipOstree("nginx not installed")
+    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
         """test proxying to Cockpit with plain HTTP
 
@@ -1376,4 +1366,4 @@ server {
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

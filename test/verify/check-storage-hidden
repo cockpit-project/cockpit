@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from storagelib import StorageCase, json
-from testlib import nondestructive, onlyImage, test_main
+import storagelib
+import testlib
 
 
-class TestStorageHiddenLuks(StorageCase):
+class TestStorageHiddenLuks(storagelib.StorageCase):
 
     # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
     provision = {
@@ -88,7 +88,7 @@ class TestStorageHiddenLuks(StorageCase):
         self.assertEqual(m.execute(f"grep {'my-crypto-tag'} /etc/crypttab || true"), "")
 
 
-class TestStorageHidden(StorageCase):
+class TestStorageHidden(storagelib.StorageCase):
 
     def testHiddenRaid(self):
         m = self.machine
@@ -130,8 +130,8 @@ class TestStorageHidden(StorageCase):
         b.wait_visible("#storage")
         self.assertEqual(m.execute(f"grep {mount_point_2} /etc/fstab || true"), "")
 
-    @onlyImage("Only test snaps on Ubuntu", "ubuntu*")
-    @nondestructive
+    @testlib.onlyImage("Only test snaps on Ubuntu", "ubuntu*")
+    @testlib.nondestructive
     def testHiddenSnap(self):
         m = self.machine
         b = self.browser
@@ -141,7 +141,7 @@ class TestStorageHidden(StorageCase):
         # We expect there to be at least one loop back device mounted
         # somewhere below /snap.
         snap_loops = []
-        devices = json.loads(m.execute("lsblk --json --list --output NAME,TYPE,MOUNTPOINT"))
+        devices = storagelib.json.loads(m.execute("lsblk --json --list --output NAME,TYPE,MOUNTPOINT"))
         for d in devices["blockdevices"]:
             if d["type"] == "loop" and d["mountpoint"].startswith("/snap/"):
                 snap_loops.append(d["name"])
@@ -159,4 +159,4 @@ class TestStorageHidden(StorageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

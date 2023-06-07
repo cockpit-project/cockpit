@@ -19,15 +19,15 @@
 
 import json
 
-from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, skipOstree, test_main
+import netlib
+import testlib
 
 
-@skipOstree("NetworkManager-team not installed")
-@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
-@skipDistroPackage()
-@nondestructive
-class TestTeam(NetworkCase):
+@testlib.skipOstree("NetworkManager-team not installed")
+@testlib.skipImage("TODO: networkmanager fails on Arch Linux", "arch")
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestTeam(netlib.NetworkCase):
     def testBasic(self):
         b = self.browser
 
@@ -142,4 +142,4 @@ class TestTeam(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

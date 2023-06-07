@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, test_main, wait
+import netlib
+import testlib
 
 
-@nondestructive
-@skipDistroPackage()
-class TestNetworkingBasic(NetworkCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestNetworkingBasic(netlib.NetworkCase):
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -67,7 +67,7 @@ class TestNetworkingBasic(NetworkCase):
         self.select_iface(iface)
         b.wait_visible("#network-interface")
 
-        con_id = wait(lambda: self.iface_con_id(iface))
+        con_id = testlib.wait(lambda: self.iface_con_id(iface))
 
         # Toggle "Connect automatically"
         #
@@ -132,7 +132,7 @@ class TestNetworkingBasic(NetworkCase):
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
 
-        wait(lambda: "yes" in m.execute(f"nmcli -f ipv4.ignore-auto-dns connection show '{con_id}'"))
+        testlib.wait(lambda: "yes" in m.execute(f"nmcli -f ipv4.ignore-auto-dns connection show '{con_id}'"))
 
     def testIpHelper(self):
         b = self.browser
@@ -249,7 +249,7 @@ class TestNetworkingBasic(NetworkCase):
         assert_stopped(False)
         b.click("#networking-nm-disabled button")
         assert_running()
-        wait(lambda: m.execute("systemctl is-enabled NetworkManager"))
+        testlib.wait(lambda: m.execute("systemctl is-enabled NetworkManager"))
 
         # /usr in ostree is readonly
         if not m.ostree_image:
@@ -265,4 +265,4 @@ class TestNetworkingBasic(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

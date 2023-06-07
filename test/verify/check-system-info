@@ -20,8 +20,8 @@
 import re
 import time
 
-from packagelib import PackageCase
-from testlib import enableAxe, nondestructive, onlyImage, skipDistroPackage, skipImage, skipOstree, test_main, wait
+import packagelib
+import testlib
 
 os_release = """
 NAME="Foobar Adventure Linux Server"
@@ -54,15 +54,15 @@ def ssh_reconnect(machine, timeout_sec=120):
     raise error
 
 
-@skipDistroPackage()
-class TestSystemInfo(PackageCase):
+@testlib.skipDistroPackage()
+class TestSystemInfo(packagelib.PackageCase):
     def setUp(self):
         super().setUp()
 
         # Most OSes don't set nosmt by default, but there are some exceptions
         self.expect_smt_default = self.machine.image in ["fedora-coreos"]
 
-    @enableAxe
+    @testlib.enableAxe
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -264,7 +264,7 @@ class TestSystemInfo(PackageCase):
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
-        wait(ntp_enabled)
+        testlib.wait(ntp_enabled)
 
         # Change the date
         b.click("#system_information_systime_button")
@@ -280,7 +280,7 @@ class TestSystemInfo(PackageCase):
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
         self.assertIn("EEST 2018\n", m.execute("date"))
 
-    @skipImage("timesyncd not available", "rhel*", "centos-*")
+    @testlib.skipImage("timesyncd not available", "rhel*", "centos-*")
     def testTimeServersTimesyncd(self):
         m = self.machine
         b = self.browser
@@ -327,7 +327,7 @@ class TestSystemInfo(PackageCase):
         self.assertIn("1.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
 
         # restarts timesyncd to pick up the new config
-        wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
+        testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
         prev_timesyncd_start = get_timesyncd_start()
 
         # Set conf from the outside, check that we pick that up, and
@@ -346,9 +346,9 @@ class TestSystemInfo(PackageCase):
         self.assertIn("2.pool.ntp.org", m.execute(f"grep '^#NTP=' {conf}"))
 
         # restarts timesyncd to pick up the new config
-        wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
+        testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
 
-    @skipImage("chronyd not available", "arch")
+    @testlib.skipImage("chronyd not available", "arch")
     def testTimeServersChronyd(self):
         m = self.machine
         b = self.browser
@@ -393,7 +393,7 @@ class TestSystemInfo(PackageCase):
         m.execute(f"! test -f {disabled_conf}")
 
         # restarts chronyd to pick up the new config
-        wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)
+        testlib.wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)
         prev_chronyd_start = get_chronyd_start()
 
         # Set conf from the outside, check that we pick that up, and
@@ -413,7 +413,7 @@ class TestSystemInfo(PackageCase):
         m.execute(f"grep 2.pool.ntp.org {disabled_conf}")
 
         # restarts timesyncd to pick up the new config
-        wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)
+        testlib.wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)
 
     def testTimeServersUnsupported(self):
         m = self.machine
@@ -436,7 +436,7 @@ class TestSystemInfo(PackageCase):
         b.wait_not_present("#change_systime button:contains('Automatically using specific NTP servers')")
         b.wait_not_present("#change_systime button:contains('Automatically using additional NTP servers')")
 
-    @nondestructive
+    @testlib.nondestructive
     def testMotd(self):
         m = self.machine
         b = self.browser
@@ -478,7 +478,7 @@ class TestSystemInfo(PackageCase):
         b.wait_text('#motd', "Hello cockpit team")
         self.assertEqual("Hello cockpit team", self.machine.execute("cat /etc/motd").rstrip())
 
-    @nondestructive
+    @testlib.nondestructive
     def testHardwareInfo(self):
         b = self.browser
         m = self.machine
@@ -692,7 +692,7 @@ machine         : 8561
         b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single rank")
         b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=Speed]', "2400 MT/s")
 
-    @ nondestructive
+    @ testlib.nondestructive
     def testCPUSecurityMitigationsDetect(self):
         b = self.browser
         m = self.machine
@@ -736,7 +736,7 @@ machine         : 8561
         spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
         spoof_threads(2, True, self.expect_smt_default, None)
 
-    @skipImage("TODO: add Arch Linux grub entry support", "arch")
+    @testlib.skipImage("TODO: add Arch Linux grub entry support", "arch")
     def testCPUSecurityMitigationsEnable(self):
         b = self.browser
         m = self.machine
@@ -847,8 +847,8 @@ fi
                                     '.*warning: setlocale: LC_ALL: cannot change locale.*',
                                     'done')
 
-    @onlyImage("insights-client is only on RHEL", "rhel*")
-    @nondestructive
+    @testlib.onlyImage("insights-client is only on RHEL", "rhel*")
+    @testlib.nondestructive
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser
@@ -925,13 +925,13 @@ password=foobar
 
         # CPU
         # first wait until system settles down
-        wait(lambda: progressValue(1) < 20)
+        testlib.wait(lambda: progressValue(1) < 20)
         m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done", "cpu_hog.log")
-        wait(lambda: progressValue(1) > 75)
+        testlib.wait(lambda: progressValue(1) > 75)
         m.execute("pkill -e -f [c]at.*urandom")
         # should go back to idle usage
         # HACK: work around pmie CPU usage https://bugzilla.redhat.com/show_bug.cgi?id=2140572
-        wait(lambda: progressValue(1) < 20, tries=200)
+        testlib.wait(lambda: progressValue(1) < 20, tries=200)
 
         # memory: our test machines should use a reasonable chunk of available memory; MiB or GiB
         b.wait_in_text(".system-usage tr:nth-child(2)", "iB")
@@ -955,10 +955,10 @@ password=foobar
         m.execute("kill %d" % mem_hog)
         # Should go back to initial_usage, but it doesn't always, for example on fedora.
         # So let's be happy if the usage drops significantly
-        wait(lambda: progressValue(2) <= hog_usage - 15)
+        testlib.wait(lambda: progressValue(2) <= hog_usage - 15)
         self.assertGreater(progressValue(2), 10)
 
-    @nondestructive
+    @testlib.nondestructive
     def testShutdownStatus(self):
         m = self.machine
         b = self.browser
@@ -991,8 +991,8 @@ password=foobar
         dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
         self.assertIn('(st) "" ', m.execute(dbus_call).strip())
 
-    @skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
-    @skipOstree("crypto-policies not available")
+    @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipOstree("crypto-policies not available")
     def testCryptoPolicies(self):
         m = self.machine
         b = self.browser
@@ -1045,8 +1045,8 @@ password=foobar
         b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", "Custom crypto policy")
         b.click("#crypto-policy-dialog button.pf-v5-c-button.pf-m-link")
 
-    @skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
-    @skipOstree("crypto-policies not available")
+    @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipOstree("crypto-policies not available")
     def testInconsistentCryptoPolicy(self):
         m = self.machine
         b = self.browser
@@ -1087,4 +1087,4 @@ password=foobar
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

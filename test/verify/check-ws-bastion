@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, nondestructive, onlyImage, test_main
+import testlib
 
 HOST = "host.containers.internal"
 
 
-@onlyImage("no cockpit/ws container on this image", "fedora-coreos", "rhel4edge")
-@nondestructive
-class TestWsBastionContainer(MachineCase):
+@testlib.onlyImage("no cockpit/ws container on this image", "fedora-coreos", "rhel4edge")
+@testlib.nondestructive
+class TestWsBastionContainer(testlib.MachineCase):
     def setUp(self):
         super().setUp()
         # stop ws container from previous runs
@@ -222,9 +222,9 @@ class TestWsBastionContainer(MachineCase):
         b.wait_visible('#content')
 
 
-@onlyImage("no cockpit/ws container on this image", "fedora-coreos", "rhel4edge")
-@nondestructive
-class TestWsPrivileged(MachineCase):
+@testlib.onlyImage("no cockpit/ws container on this image", "fedora-coreos", "rhel4edge")
+@testlib.nondestructive
+class TestWsPrivileged(testlib.MachineCase):
     def testService(self):
         # the install script should have created a cockpit.service, but not started it
         m = self.machine
@@ -258,4 +258,4 @@ class TestWsPrivileged(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

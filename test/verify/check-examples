@@ -2,14 +2,14 @@
 
 import os
 
-from testlib import TEST_DIR, MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
+import testlib
 
-EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")
+EXAMPLES_DIR = os.path.join(os.path.dirname(testlib.TEST_DIR), "examples")
 
 
-@nondestructive
-@skipDistroPackage()
-class TestPinger(MachineCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestPinger(testlib.MachineCase):
 
     def setUp(self):
         super().setUp()
@@ -35,16 +35,16 @@ class TestPinger(MachineCase):
         self.testBasic()
 
 
-@nondestructive
-@skipDistroPackage()
-class TestXHRProxy(MachineCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestXHRProxy(testlib.MachineCase):
     def setUp(self):
         super().setUp()
         self.restore_dir("/home/admin")
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
         self.machine.upload([os.path.join(EXAMPLES_DIR, "xhr-proxy")], "/home/admin/.local/share/cockpit/")
 
-    @skipOstree("No Python installed")
+    @testlib.skipOstree("No Python installed")
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -79,9 +79,9 @@ class TestXHRProxy(MachineCase):
         b.wait_in_text("#output", "File not found")
 
 
-@nondestructive
-@skipDistroPackage()
-class TestLongRunning(MachineCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestLongRunning(testlib.MachineCase):
 
     def setUp(self):
         super().setUp()
@@ -183,4 +183,4 @@ class TestLongRunning(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

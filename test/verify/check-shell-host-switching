@@ -19,10 +19,10 @@
 
 import time
 
-from testlib import MachineCase, no_retry_when_changed, skipDistroPackage, test_main, todoPybridgeRHEL8
+import testlib
 
 
-@skipDistroPackage()
+@testlib.skipDistroPackage()
 class HostSwitcherHelpers:
 
     def check_discovered_addresses(self, b, addresses):
@@ -100,9 +100,9 @@ class HostSwitcherHelpers:
             self.authorize_pubkey(self.machines[m], "admin", pubkey)
 
 
-@skipDistroPackage()
-@todoPybridgeRHEL8()
-class TestHostSwitching(MachineCase, HostSwitcherHelpers):
+@testlib.skipDistroPackage()
+@testlib.todoPybridgeRHEL8()
+class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
     provision = {
         'machine1': {"address": "10.111.113.1/20", "memory_mb": 512},
         'machine2': {"address": "10.111.113.2/20", "memory_mb": 512},
@@ -333,7 +333,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b, [])
         self.check_discovered_addresses(b2, [])
 
-    @no_retry_when_changed
+    @testlib.no_retry_when_changed
     def testEdit(self):
         b = self.browser
         m1 = self.machines['machine1']
@@ -462,4 +462,4 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

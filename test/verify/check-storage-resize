@@ -19,11 +19,11 @@
 
 import unittest
 
-from storagelib import StorageCase
-from testlib import skipImage, test_main
+import storagelib
+import testlib
 
 
-class TestStorageResize(StorageCase):
+class TestStorageResize(storagelib.StorageCase):
 
     # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
     provision = {
@@ -118,13 +118,13 @@ class TestStorageResize(StorageCase):
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
-    @skipImage("NTFS not supported on RHEL", "rhel-*", "centos-*")
+    @testlib.skipImage("NTFS not supported on RHEL", "rhel-*", "centos-*")
     def testResizeNtfs(self):
         self.checkResize("ntfs", False,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=True)
 
-    @skipImage("TODO: arch does not mount the LUKS partition after growing", "arch")
+    @testlib.skipImage("TODO: arch does not mount the LUKS partition after growing", "arch")
     def testResizeLuks(self):
         self.checkResize("ext4", True,
                          can_shrink=True, shrink_needs_unmount=True,
@@ -296,4 +296,4 @@ class TestStorageResize(StorageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

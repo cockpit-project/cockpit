@@ -22,15 +22,15 @@ import re
 import subprocess
 import unittest
 
-from testlib import TEST_DIR, MachineCase, no_retry_when_changed, nondestructive, skipDistroPackage, test_main
+import testlib
 
 dirname = os.path.dirname(__file__)
-run_tests = os.path.join(TEST_DIR, "common", "run-tests")
-VERIFY_DIR = os.path.join(TEST_DIR, "verify")
-ROOT_DIR = os.path.dirname(TEST_DIR)
+run_tests = os.path.join(testlib.TEST_DIR, "common", "run-tests")
+VERIFY_DIR = os.path.join(testlib.TEST_DIR, "verify")
+ROOT_DIR = os.path.dirname(testlib.TEST_DIR)
 
 
-@skipDistroPackage()
+@testlib.skipDistroPackage()
 class TestRunTestListing(unittest.TestCase):
 
     def testBasic(self):
@@ -68,8 +68,8 @@ class TestRunTestListing(unittest.TestCase):
 
 # This can't be @nondestructive, as we run our own @nondestructive test nested inside this test. This will already call the
 # cleanup handlers, and the outside cleanup would then fail to do that again.
-@skipDistroPackage()
-class TestRunTest(MachineCase):
+@testlib.skipDistroPackage()
+class TestRunTest(testlib.MachineCase):
     def testExistingMachine(self):
         env = os.environ.copy()
         try:
@@ -235,9 +235,9 @@ class TestSystemd(unittest.TestCase):
         self.assertEqual(process.returncode, 1)
 
 
-@skipDistroPackage()
-@nondestructive
-class TestTestlib(MachineCase):
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestTestlib(testlib.MachineCase):
     def testRestoreAPI(self):
         m = self.machine
 
@@ -286,14 +286,14 @@ class TestTestlib(MachineCase):
         assert not self.system_before(100)
 
 
-@skipDistroPackage()
+@testlib.skipDistroPackage()
 class NoTestRetryExample(unittest.TestCase):
 
     def testFail(self):
         if os.environ.get('TEST_FAILURES'):
             self.assertFalse(True)
 
-    @no_retry_when_changed
+    @testlib.no_retry_when_changed
     def testNoRetry(self):
         self.assertTrue(True)
 
@@ -302,4 +302,4 @@ class NoTestRetryExample(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

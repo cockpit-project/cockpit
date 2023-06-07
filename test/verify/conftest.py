@@ -1,9 +1,10 @@
 import importlib.machinery
 import importlib.util
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import pytest
+import testlib
 
 
 @pytest.hookimpl
@@ -24,3 +25,17 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Optional[p
         return collector
 
     return None
+
+
+@pytest.hookimpl
+def pytest_collection_modifyitems(session: pytest.Session, items: List[pytest.Item]) -> None:
+    """Sorts the tests to place all non-destructive tests together"""
+    assert isinstance(items, list)
+
+    def is_nondestructive(item: pytest.Item) -> bool:
+        assert isinstance(item, pytest.Function)
+        assert isinstance(item.parent, pytest.Class | pytest.Module)
+        return testlib.get_decorator(item.obj, item.parent.obj, "nondestructive", False)
+
+    # put the destructive tests last under the assumption that they're slower
+    items.sort(key=is_nondestructive, reverse=True)

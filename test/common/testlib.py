@@ -25,7 +25,6 @@ import functools
 import glob
 import gzip
 import io
-import itertools
 import json
 import os
 import re
@@ -1243,61 +1242,6 @@ class Browser:
                 assert not self.is_visible("#navbar-oops"), "Cockpit shows an Oops"
 
 
-class _DebugOutcome(unittest.case._Outcome):  # type: ignore[name-defined]
-    """Run debug actions after test methods
-
-    This will do screenshots, HTML dumps, and sitting before cleanup handlers run.
-    """
-
-    def testPartExecutor(self, test_case, isTest=False):
-        def failureHandler(exc_info, python_311=False):
-            if python_311:
-                # exc_info is now a string
-                print(exc_info, file=sys.stderr)
-            else:
-                # strip off the two topmost frames for testPartExecutor and TestCase.run(); uninteresting and breaks naughties
-                traceback.print_exception(exc_info[0], exc_info[1], exc_info[2].tb_next.tb_next)
-            try:
-                test_case.snapshot("FAIL")
-                test_case.copy_js_log("FAIL")
-                test_case.copy_journal("FAIL")
-                test_case.copy_cores("FAIL")
-            except (OSError, RuntimeError):
-                # failures in these debug artifacts should not skip cleanup actions
-                sys.stderr.write("Failed to generate debug artifact:\n")
-                traceback.print_exc(file=sys.stderr)
-
-            if opts.sit:
-                sit(test_case.machines)
-
-        superResult = super().testPartExecutor(test_case, isTest)
-        ran_debug = hasattr(test_case, "_ran_debug")
-
-        if ran_debug or not isinstance(test_case, MachineCase):
-            return superResult
-
-        # Python < 3.11 (Outcome class does not have a errors attribute anymore
-        # https://github.com/python/cpython/commit/664448d81f41c5fa971d8523a71b0f19e76cc136#diff-c6fe1ffe930def48a6adf1fa99b974737bac586fdacccacd1474e7b2f11370ebL79
-        if hasattr(self, 'errors'):
-            if self.errors and not isTest:
-                (err_case, exc_info) = self.errors[-1]
-                if exc_info:
-                    assert err_case == test_case
-                    setattr(test_case, "_ran_debug", True)
-                    failureHandler(exc_info, python_311=False)
-        elif self.result.errors or self.result.failures:
-            errors = [err for err in itertools.chain(self.result.errors, self.result.failures) if err[0] == test_case]
-            if errors:
-                (err_case, exc_info) = errors[-1]
-                setattr(test_case, "_ran_debug", True)
-                failureHandler(exc_info, python_311=True)
-
-        return superResult
-
-
-unittest.case._Outcome = _DebugOutcome  # type: ignore[attr-defined]
-
-
 class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     libexecdir = None
@@ -1385,7 +1329,7 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(browser.kill)
         return browser
 
-    def checkSuccess(self):
+    def getError(self):
         # errors is a list of (method, exception) calls (usually multiple
         # per method); None exception means success
         errors = []
@@ -1396,12 +1340,15 @@ class MachineCase(unittest.TestCase):
             self._feedErrorsToResult(result, self._outcome.errors)
         elif hasattr(self._outcome, 'result') and hasattr(self._outcome.result, '_excinfo'):
             # pytest emulating unittest
-            return self._outcome.result._excinfo is None
+            return self._outcome.result._excinfo
         else:
             # Python 3.11+ now records errors and failures seperate
             errors = self._outcome.result.errors + self._outcome.result.failures
 
-        return not any(e[1] for e in errors)
+        try:
+            return errors[0][1]
+        except IndexError:
+            return None
 
     def is_nondestructive(self):
         test_method = getattr(self.__class__, self._testMethodName)
@@ -1629,13 +1576,32 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(terminate_sessions)
 
     def tearDown(self):
+        error = self.getError()
+
+        if error:
+            print(error, file=sys.stderr)
+            try:
+                self.snapshot("FAIL")
+                self.copy_js_log("FAIL")
+                self.copy_journal("FAIL")
+                self.copy_cores("FAIL")
+            except (OSError, RuntimeError):
+                # failures in these debug artifacts should not skip cleanup actions
+                sys.stderr.write("Failed to generate debug artifact:\n")
+                traceback.print_exc(file=sys.stderr)
+
+            if opts.sit:
+                sit(self.machines)
+
         if self.browser:
             self.browser.write_coverage_data()
+
         if self.machine.ssh_reachable:
             self.check_journal_messages()
-            if self.checkSuccess():
+            if not error:
                 self.check_browser_errors()
                 self.check_pixel_tests()
+
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def login_and_go(self, path: Optional[str] = None, user: Optional[str] = None, host: Optional[str] = None,
@@ -1875,7 +1841,7 @@ class MachineCase(unittest.TestCase):
             self.copy_js_log("FAIL")
             self.copy_journal("FAIL")
             self.copy_cores("FAIL")
-            if self.checkSuccess():
+            if not self.getError():
                 # fail test on the unexpected messages
                 raise Error(UNEXPECTED_MESSAGE + "journal messages:\n" + first)
 

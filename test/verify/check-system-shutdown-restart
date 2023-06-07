@@ -57,12 +57,11 @@ class TestShutdownRestart(testlib.MachineCase):
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
-        m.wait_reboot()
+        self.wait_reboot()
         m.start_cockpit()
         b.click("#machine-reconnect")
         b.wait_visible("#login")
 
-        self.allow_restart_journal_messages()
         self.allow_journal_messages("Shutdown scheduled for .*")
         self.check_journal_messages()
 
@@ -88,7 +87,7 @@ class TestShutdownRestart(testlib.MachineCase):
         b2.wait_visible(".curtains-ct .pf-v5-c-spinner")
         b2.wait_in_text(".curtains-ct h1", "rebooting")
 
-        m.wait_reboot()
+        self.wait_reboot()
 
         with b2.wait_timeout(30):
             b2.wait_visible("#machine-troubleshoot")

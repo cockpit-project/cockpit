@@ -641,7 +641,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.dialog_wait_close()
         b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_3), "cache")
 
-        m.reboot()
+        self.reboot()
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
@@ -670,7 +670,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
 
         # Reboot (this requires the passphrase)
         self.setup_systemd_password_agent(passphrase)
-        m.reboot()
+        self.reboot()
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
@@ -712,7 +712,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         b.wait_text(self.card_row_col("Stratis filesystems", 1, 1), "fsys1")
         b.wait_text(self.card_row_col("Stratis filesystems", 1, 3), "/run/fsys1")
 
-        m.reboot()
+        self.reboot()
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
@@ -1027,7 +1027,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
                      'mount_point': '/run/fsys1'})
         b.wait_text(self.card_row_col("Stratis filesystems", 1, 1), "fsys1")
         b.wait_text(self.card_row_col("Stratis filesystems", 1, 3), "/run/fsys1")
-        m.reboot()
+        self.reboot()
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")

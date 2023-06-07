@@ -541,7 +541,7 @@ machine         : 8561
                        (':not(:checked)' if self.expect_smt_default else ':checked'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
 
-        m.wait_reboot()
+        self.wait_reboot()
         if self.expect_smt_default:
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
         else:
@@ -586,7 +586,7 @@ fi
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (':checked' if self.expect_smt_default else ':not(:checked)'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        m.wait_reboot()
+        self.wait_reboot()
         if self.expect_smt_default:
             self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
         else:
@@ -595,7 +595,7 @@ fi
         # updates mitigations=nosmt when that is present
         m.upload(["../pkg/lib/kernelopt.sh"], "/tmp/")
         m.execute("/tmp/kernelopt.sh remove nosmt; /tmp/kernelopt.sh set mitigations=auto,nosmt")
-        m.reboot()
+        self.reboot()
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
         b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
@@ -603,7 +603,7 @@ fi
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        m.wait_reboot()
+        self.wait_reboot()
         self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
         self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
 
@@ -781,7 +781,6 @@ password=foobar
     def testCryptoPolicies(self):
         m = self.machine
         b = self.browser
-        self.allow_restart_journal_messages()
 
         def shown_profile_text(profile):
             return "Default" if profile == "DEFAULT" else profile
@@ -793,7 +792,7 @@ password=foobar
             b.click(f"#crypto-policy-dialog .pf-v5-c-menu__list-item[data-value='{profile_button_name}'] button")
             b.click("#crypto-policy-save-reboot")
             # Initramfs re-generation takes a while
-            m.wait_reboot(timeout_sec=600)
+            self.wait_reboot(timeout_sec=600)
             m.start_cockpit()
             self.login_and_go("/system")
             b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
@@ -853,7 +852,6 @@ password=foobar
     def testInconsistentCryptoPolicy(self):
         m = self.machine
         b = self.browser
-        self.allow_restart_journal_messages()
         cmd = "update-crypto-policies"
 
         # Admin sets FIPS crypto policy in terminal, but FIPS mode is disabled
@@ -869,7 +867,7 @@ password=foobar
             b.click("#crypto-policy-dialog .pf-v5-c-menu__list-item[data-value='DEFAULT'] button")
         b.click("#crypto-policy-save-reboot")
         # Initramfs re-generation takes a while
-        m.wait_reboot(timeout_sec=600)
+        self.wait_reboot(timeout_sec=600)
         m.start_cockpit()
         self.login_and_go("/system")
         if self.supportsFIPS:
@@ -892,7 +890,7 @@ password=foobar
         b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
         b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
         b.click("#crypto-policy-save-reboot")
-        m.wait_reboot()
+        self.wait_reboot()
         m.start_cockpit()
         self.login_and_go("/system")
         b.wait_text("#crypto-policy-button", "Default")

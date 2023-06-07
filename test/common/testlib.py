@@ -1320,6 +1320,7 @@ class MachineCase(unittest.TestCase):
     def kill_global_machine(cls):
         if cls.global_machine:
             cls.global_machine.kill()
+            cls.global_machine = None
 
     def label(self):
         return self.__class__.__name__ + '-' + self._testMethodName
@@ -1459,6 +1460,7 @@ class MachineCase(unittest.TestCase):
                 raise unittest.SkipTest("Cannot provision machines if test is marked as nondestructive")
             self.machine = self.machines['machine1'] = MachineCase.get_global_machine()
         else:
+            MachineCase.kill_global_machine()
             first_machine = True
             # First create all machines, wait for them later
             for key in sorted(provision.keys()):

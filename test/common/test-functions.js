@@ -8,9 +8,18 @@
  */
 
 function ph_select(sel) {
-    if (!window.Sizzle)
+    if (!window.Sizzle) {
         return Array.from(document.querySelectorAll(sel));
-    return window.Sizzle(sel);
+    }
+
+    if (sel.includes(":contains(")) {
+        if (!window.Sizzle) {
+            throw new Error("Using ':contains' when window.Sizzle is not available.");
+        }
+        return window.Sizzle(sel);
+    } else {
+        return Array.from(document.querySelectorAll(sel));
+    }
 }
 
 function ph_only(els, sel) {

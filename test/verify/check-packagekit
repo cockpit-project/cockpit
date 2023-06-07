@@ -505,7 +505,7 @@ ExecStart=/usr/local/bin/{self.packageName}
                         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
                         # ensure that rebooting actually worked
-                        m.wait_reboot()
+                        self.testObj.wait_reboot()
                         self.testObj.login_and_go("/updates")
                     else:
                         b.wait_in_text("#status", "1 service needs to be restarted")
@@ -530,7 +530,7 @@ ExecStart=/usr/local/bin/{self.packageName}
                         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
                         # ensure that rebooting actually worked
-                        m.wait_reboot()
+                        self.testObj.wait_reboot()
                         self.testObj.login_and_go("/updates")
                     else:
                         # update required a service restart
@@ -808,7 +808,7 @@ ExecStart=/usr/local/bin/{packageName}
             b.wait_in_text(".curtains-ct h1", "Disconnected")
 
             # ensure that rebooting actually worked
-            m.wait_reboot()
+            self.wait_reboot()
             self.login_and_go("/updates")
         else:
             b.click("#ignore")
@@ -958,8 +958,7 @@ ExecStart=/usr/local/bin/{packageName}
         # reboots automatically
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
-        m.wait_reboot()
-        self.allow_restart_journal_messages()
+        self.wait_reboot()
 
     @testlib.nondestructive
     def testUpdateError(self):

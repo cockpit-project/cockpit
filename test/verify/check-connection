@@ -1474,7 +1474,6 @@ server {
         self.checkCockpitOnProxy(urlroot="/myroot", login=False)
         kill_ws()
 
-        self.allow_restart_journal_messages()
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
         self.allow_journal_messages("couldn't change to runtime dir.*Permission denied")
 

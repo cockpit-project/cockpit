@@ -2435,6 +2435,20 @@ class MachineCase(unittest.TestCase):
         if not self.machine.ws_container and self.file_exists(disallowed_conf):
             self.sed_file('/root/d', disallowed_conf)
 
+    def reboot(self, timeout_sec: int | None = None) -> None:
+        self.allow_restart_journal_messages()
+        if timeout_sec is None:
+            self.machine.reboot()
+        else:
+            self.machine.reboot(timeout_sec=timeout_sec)
+
+    def wait_reboot(self, timeout_sec: int | None = None) -> None:
+        self.allow_restart_journal_messages()
+        if timeout_sec is None:
+            self.machine.wait_reboot()
+        else:
+            self.machine.wait_reboot(timeout_sec=timeout_sec)
+
     def setup_provisioned_hosts(self, disable_preload: bool = False) -> None:
         """Setup provisioned hosts for testing
 

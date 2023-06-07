@@ -1412,7 +1412,7 @@ class TestTimers(testlib.MachineCase):
         m.execute("timedatectl set-time '2036-01-01 12:00:00'")
         # this sometimes confuses PAM session tracking
         self.allow_journal_messages("cockpit-session: admin: couldn't close session: System error: Unknown error -7")
-        m.reboot()
+        self.reboot()
 
         m.execute("timedatectl set-time '2036-01-01 15:30:00'")
         self.login_and_go("/system/services")
@@ -1656,13 +1656,11 @@ class TestTimers(testlib.MachineCase):
         b.click("#timer-save-button")
         b.wait_not_present("#timer-dialog")
         b.wait_visible(self.svc_sel('boot_timer.timer'))
-        m.reboot()
+        self.reboot()
         m.start_cockpit()
         with testvm.Timeout(seconds=15, machine=m, error_message="Timeout while waiting for boot timer to run"):
             m.execute("while [ ! -f /tmp/hello ] ; do sleep 0.5; done")
         self.assertIn("hello", m.execute("cat /tmp/hello"))
-
-        self.allow_restart_journal_messages()
 
 
 if __name__ == '__main__':

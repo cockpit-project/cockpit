@@ -234,7 +234,6 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         # Relogin on different page, as reloging on terminal prompts asking if you want to leave the site
         b.go("/system")
         b.relogin("/system")
-        self.allow_restart_journal_messages()
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
         b.wait_visible('.terminal')

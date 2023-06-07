@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import netlib
+import testlib
 from lib.constants import TEST_OS_DEFAULT
-from netlib import NetworkCase
-from testlib import skipDistroPackage, test_main, wait
 
 
-@skipDistroPackage()
-class TestNetworkingSettings(NetworkCase):
+@testlib.skipDistroPackage()
+class TestNetworkingSettings(netlib.NetworkCase):
     provision = {
         "machine1": {"memory_mb": 512},
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
@@ -63,7 +63,7 @@ class TestNetworkingSettings(NetworkCase):
                              value)
 
         # Check that we now have connection settings
-        con_id = wait(lambda: self.iface_con_id(iface))
+        con_id = testlib.wait(lambda: self.iface_con_id(iface))
         assert_connection_setting(con_id, "ipv4.method", "manual")
 
         # The interface will be activated. Deactivate it.
@@ -81,7 +81,7 @@ class TestNetworkingSettings(NetworkCase):
         self.wait_for_iface_setting('Status', '10.111.')
 
         # Check again that we now have connection settings
-        con_id = wait(lambda: self.iface_con_id(iface))
+        con_id = testlib.wait(lambda: self.iface_con_id(iface))
         assert_connection_setting(con_id, "ipv4.method", "auto")
 
         # Change some more settins and check that the actual config
@@ -150,7 +150,7 @@ class TestNetworkingSettings(NetworkCase):
 
         # by default there's a route to link-local only (fe80::)
         show_cmd = f"ip -6 route show dev {iface}"
-        wait(lambda: "fe80::/64" in m.execute(show_cmd))
+        testlib.wait(lambda: "fe80::/64" in m.execute(show_cmd))
         # add a manual one
         self.configure_iface_setting('IPv6')
         b.wait_visible("#network-ip-settings-dialog")
@@ -163,7 +163,7 @@ class TestNetworkingSettings(NetworkCase):
         b.wait_not_present("#network-ip-settings-dialog")
 
         # setting should be applied
-        wait(lambda: "metric 42" in m.execute(show_cmd))
+        testlib.wait(lambda: "metric 42" in m.execute(show_cmd))
         out = m.execute(show_cmd)
         self.assertIn("fe80:2::/60 via fe80:2::3 proto static metric 42", out)
         self.assertIn("fe80:2::3 proto static metric 42", out)
@@ -185,4 +185,4 @@ class TestNetworkingSettings(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

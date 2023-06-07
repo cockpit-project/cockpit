@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, test_main, wait
+import netlib
+import testlib
 
 
-@skipDistroPackage()
-@nondestructive
-class TestNetworkingOther(NetworkCase):
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestNetworkingOther(netlib.NetworkCase):
     def testOther(self):
         b = self.browser
         m = self.machine
@@ -33,7 +33,7 @@ class TestNetworkingOther(NetworkCase):
         # Create a tun device and let NetworkManager manage it
         m.execute(f"ip tuntap add mode tun dev {iface}")
         self.addCleanup(m.execute, f"ip link del dev {iface}")
-        wait(lambda: m.execute(f'nmcli device | grep {iface} | grep -v unavailable'))
+        testlib.wait(lambda: m.execute(f'nmcli device | grep {iface} | grep -v unavailable'))
         m.execute(f"nmcli dev set {iface} managed yes")
 
         self.login_and_go("/network")
@@ -54,4 +54,4 @@ class TestNetworkingOther(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

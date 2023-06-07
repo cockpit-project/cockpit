@@ -6,22 +6,10 @@
 import re
 import time
 
-# import Cockpit's machinery for test VMs and its browser test API
 import packagelib
+import testlib
 from lib.constants import TEST_OS_DEFAULT
 from machine_core import ssh_connection
-from testlib import (
-    Browser,
-    Error,
-    MachineCase,
-    nondestructive,
-    skipDistroPackage,
-    skipImage,
-    skipMobile,
-    skipOstree,
-    test_main,
-    wait,
-)
 
 
 def getMaximumSpike(test, g_type, saturation, hour, minute):
@@ -128,8 +116,8 @@ def login(self):
         self.login_and_go("/metrics")
 
 
-@skipDistroPackage()
-class TestHistoryMetrics(MachineCase):
+@testlib.skipDistroPackage()
+class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
         # start with a clean slate and avoid running into restart limits
@@ -165,7 +153,7 @@ class TestHistoryMetrics(MachineCase):
         })""")
         self.assertLessEqual(leading_empty, 4)
 
-    @skipOstree("no PCP support")
+    @testlib.skipOstree("no PCP support")
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -231,7 +219,7 @@ class TestHistoryMetrics(MachineCase):
         b.enter_page("/system")
         b.wait_visible('.system-information')
 
-    @skipOstree("no PCP support")
+    @testlib.skipOstree("no PCP support")
     def testEvents(self):
         b = self.browser
         m = self.machine
@@ -499,8 +487,8 @@ class TestHistoryMetrics(MachineCase):
         self.assertIn("since=2021-3-8%2010%3A39%3A0", url)
         self.assertIn("until=2021-3-8%2010%3A39%3A45", url)
 
-    @nondestructive
-    @skipOstree("no PCP support")
+    @testlib.nondestructive
+    @testlib.skipOstree("no PCP support")
     def testNoDataEnable(self):
         b = self.browser
         m = self.machine
@@ -534,8 +522,8 @@ class TestHistoryMetrics(MachineCase):
 
         b.logout()
 
-    @nondestructive
-    @skipOstree("no PCP support")
+    @testlib.nondestructive
+    @testlib.skipOstree("no PCP support")
     def testNoDataFailed(self):
         b = self.browser
         m = self.machine
@@ -560,8 +548,8 @@ class TestHistoryMetrics(MachineCase):
         b.enter_page("/system/services")
         b.wait_in_text("#service-details", "pmlogger.service")
 
-    @nondestructive
-    @skipOstree("no PCP support")
+    @testlib.nondestructive
+    @testlib.skipOstree("no PCP support")
     def testLoggerSettings(self):
         b = self.browser
         m = self.machine
@@ -594,8 +582,8 @@ class TestHistoryMetrics(MachineCase):
         m.execute("until systemctl is-active pmlogger; do sleep 1; done")
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
 
-    @nondestructive
-    @skipOstree("no PCP support")
+    @testlib.nondestructive
+    @testlib.skipOstree("no PCP support")
     def testPmProxySettings(self):
         b = self.browser
         m = self.machine
@@ -628,7 +616,7 @@ class TestHistoryMetrics(MachineCase):
             self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
             self.assertEqual(m.execute("systemctl is-enabled pmproxy").strip(), "enabled")
             self.assertIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
-            wait(lambda: hostname in m.execute("curl --max-time 10 --silent --show-error 'http://localhost:44322/series/labels?names=hostname'"), delay=10, tries=30)
+            testlib.wait(lambda: hostname in m.execute("curl --max-time 10 --silent --show-error 'http://localhost:44322/series/labels?names=hostname'"), delay=10, tries=30)
 
         def checkDisable():
             b.click("#metrics-header-section button.pf-m-secondary")
@@ -753,7 +741,7 @@ class TestHistoryMetrics(MachineCase):
                     break
                 time.sleep(1)
             else:
-                raise Error("PCP settings dialog did not get expected value")
+                raise testlib.Error("PCP settings dialog did not get expected value")
 
         m.execute(f"systemctl stop {redis}")
         checkEnabled(False)
@@ -765,9 +753,9 @@ class TestHistoryMetrics(MachineCase):
         checkEnabled(True)
 
 
-@skipDistroPackage()
-@nondestructive
-class TestCurrentMetrics(MachineCase):
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestCurrentMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
         # packagekit/dnf often eats a lot of CPU; silence it to have better control over CPU usage
@@ -1241,7 +1229,7 @@ BEGIN {{
         b.wait_visible(progress_sel)
         self.assertFalse(b.is_present("#current-disks-usage button"))
 
-    @skipOstree("no netcat on CoreOS")
+    @testlib.skipOstree("no netcat on CoreOS")
     def testNetwork(self):
         b = self.browser
         m = self.machine
@@ -1273,8 +1261,8 @@ BEGIN {{
         b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='Out']", "0")
 
 
-@skipImage("TODO: Arch Linux packagekit support", "arch")
-@skipDistroPackage()
+@testlib.skipImage("TODO: Arch Linux packagekit support", "arch")
+@testlib.skipDistroPackage()
 class TestMetricsPackages(packagelib.PackageCase):
     def testBasic(self):
         b = self.browser
@@ -1386,14 +1374,14 @@ class TestMetricsPackages(packagelib.PackageCase):
         self.assertIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
 
 
-@skipDistroPackage()
-class TestMultiCPU(MachineCase):
+@testlib.skipDistroPackage()
+class TestMultiCPU(testlib.MachineCase):
 
     provision = {
         "0": {"cpus": 2}
     }
 
-    @skipOstree("no PCP support")
+    @testlib.skipOstree("no PCP support")
     def testCPUUsage(self):
         b = self.browser
         m = self.machine
@@ -1431,10 +1419,10 @@ class TestMultiCPU(MachineCase):
         b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) <= 70)
 
 
-@skipOstree("no PCP support")
-@skipDistroPackage()
-@skipMobile()
-class TestGrafanaClient(MachineCase):
+@testlib.skipOstree("no PCP support")
+@testlib.skipDistroPackage()
+@testlib.skipMobile()
+class TestGrafanaClient(testlib.MachineCase):
 
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},
@@ -1483,7 +1471,7 @@ class TestGrafanaClient(MachineCase):
         b.click(".pf-v5-c-alert button.pf-m-primary")
 
         # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)
-        bg = Browser(mg.forward['3000'], label=self.label() + "-" + mg.label, machine=self)
+        bg = testlib.Browser(mg.forward['3000'], label=self.label() + "-" + mg.label, machine=self)
         try:
             bg.open("/")
             bg.wait_in_text("body", "Welcome to Grafana")
@@ -1515,9 +1503,9 @@ class TestGrafanaClient(MachineCase):
             # Grafana auto-discovers "host" variable for incoming metrics; it takes a while to receive the first
             # measurement; that event is not observable directly in Grafana, and the dashboard does not auto-update to
             # new variables; so probe the API until it appears
-            wait(lambda: "grafana-client" in mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/labels?names=hostname'"), delay=10, tries=30)
+            testlib.wait(lambda: "grafana-client" in mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/labels?names=hostname'"), delay=10, tries=30)
             # ... and the load metrics as well
-            wait(lambda: mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/query?expr=kernel.all.load'").strip() != '[]', delay=10, tries=30)
+            testlib.wait(lambda: mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/query?expr=kernel.all.load'").strip() != '[]', delay=10, tries=30)
 
             # Switch to "Dashboards" tab, import "Host Overview"
             bg.click("a[href$='/dashboards'][role=tab]")
@@ -1540,4 +1528,4 @@ class TestGrafanaClient(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

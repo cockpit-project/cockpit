@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, skipDistroPackage, test_main, todoPybridgeRHEL8
+import testlib
 
 
-@skipDistroPackage()
-class TestShutdownRestart(MachineCase):
+@testlib.skipDistroPackage()
+class TestShutdownRestart(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512}
@@ -31,7 +31,7 @@ class TestShutdownRestart(MachineCase):
         super().setUp()
         self.setup_provisioned_hosts()
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -160,4 +160,4 @@ class TestShutdownRestart(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

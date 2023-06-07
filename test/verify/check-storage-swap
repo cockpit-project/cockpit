@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from storagelib import StorageCase
-from testlib import nondestructive, onlyImage, test_main
+import storagelib
+import testlib
 
 
-@nondestructive
-@onlyImage("No zram by default", "fedora-*")
-class TestStorageswap(StorageCase):
+@testlib.nondestructive
+@testlib.onlyImage("No zram by default", "fedora-*")
+class TestStorageswap(storagelib.StorageCase):
 
     def testZram(self):
         m = self.machine
@@ -41,4 +41,4 @@ class TestStorageswap(StorageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

@@ -20,15 +20,7 @@
 import re
 import subprocess
 
-from testlib import (
-    MachineCase,
-    skipBrowser,
-    skipDistroPackage,
-    skipImage,
-    test_main,
-    todoPybridgeRHEL8,
-    wait,
-)
+import testlib
 
 
 def kill_user_admin(machine):
@@ -64,9 +56,9 @@ KEY_IDS_MD5 = [
 ]
 
 
-@skipImage("TODO: ssh key check fails on Arch Linux", "arch")
-@skipDistroPackage()
-class TestMultiMachineKeyAuth(MachineCase):
+@testlib.skipImage("TODO: ssh key check fails on Arch Linux", "arch")
+@testlib.skipDistroPackage()
+class TestMultiMachineKeyAuth(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
@@ -125,8 +117,8 @@ class TestMultiMachineKeyAuth(MachineCase):
             self.disable_preload("packagekit", "playground", "systemd", machine=self.machine2)
 
     # Possible workaround - ssh as `admin` and just do `m.execute()`
-    @skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
-    @todoPybridgeRHEL8()
+    @testlib.skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
+    @testlib.todoPybridgeRHEL8()
     def testBasic(self):
         b = self.browser
         m1 = self.machine
@@ -190,7 +182,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.wait_visible("#login")
 
         # Make sure ssh-agent exits
-        wait(lambda: "ssh-agent" not in m1.execute("ps xa | grep ss[h]-agent || true"))
+        testlib.wait(lambda: "ssh-agent" not in m1.execute("ps xa | grep ss[h]-agent || true"))
 
         self.login_and_go("/system")
         b.switch_to_top()
@@ -238,8 +230,8 @@ class TestMultiMachineKeyAuth(MachineCase):
                                     "sudo: a password is required")
 
     # Possible workaround - ssh as `admin` and just do `m.execute()`
-    @skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
-    @todoPybridgeRHEL8()
+    @testlib.skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
+    @testlib.todoPybridgeRHEL8()
     def testLockedIdentity(self):
         b = self.browser
         m1 = self.machine
@@ -276,7 +268,7 @@ Host 10.111.113.2
         b.wait_visible("a[href='/@10.111.113.2']")
         self.allow_hostkey_messages()
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testLockedDefaultIdentity(self):
         b = self.browser
         m1 = self.machine
@@ -313,4 +305,4 @@ Host 10.111.113.2
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

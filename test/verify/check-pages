@@ -20,14 +20,14 @@
 import os
 import time
 
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
+import testlib
 
 RHEL_DOC_BASE = "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console"
 
 
-@nondestructive
-@skipDistroPackage()
-class TestPages(MachineCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestPages(testlib.MachineCase):
     def checkDocs(self, items):
         m = self.machine
         b = self.browser
@@ -630,7 +630,7 @@ OnCalendar=daily
         b.key_press("stuff/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(5) button", "other")
 
-    @skipOstree("No PCP available")
+    @testlib.skipOstree("No PCP available")
     def testPlots(self):
         b = self.browser
         m = self.machine
@@ -842,4 +842,4 @@ OnCalendar=daily
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

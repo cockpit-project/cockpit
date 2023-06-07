@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from storagelib import StorageCase
-from testlib import nondestructive, skipMobile, test_main, wait
+import storagelib
+import testlib
 
 
-@nondestructive
-class TestStoragePartitions(StorageCase):
+@testlib.nondestructive
+class TestStoragePartitions(storagelib.StorageCase):
 
     def testPartitions(self):
         b = self.browser
@@ -59,7 +59,7 @@ class TestStoragePartitions(StorageCase):
         self.confirm()
         self.content_row_wait_in_col(1, 0, "Free space")
 
-    @skipMobile()
+    @testlib.skipMobile()
     def testSizeSlider(self):
         m = self.machine
         b = self.browser
@@ -101,8 +101,8 @@ class TestStoragePartitions(StorageCase):
 
         # With old Udisks2 versions, the partition will end up being
         # 25.1M while newer versions give us 26M or 25M.
-        wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() in ["25M", "25.1M", "26M"])
+        testlib.wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() in ["25M", "25.1M", "26M"])
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

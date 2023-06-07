@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, nondestructive, skipDistroPackage, test_main
+import testlib
 
 
-@skipDistroPackage()
-class TestRoles(MachineCase):
+@testlib.skipDistroPackage()
+class TestRoles(testlib.MachineCase):
 
-    @nondestructive
+    @testlib.nondestructive
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -104,7 +104,7 @@ class TestRoles(MachineCase):
         b.wait_visible(admin_role_sel)
         b.wait_visible("#account-groups")
 
-    @nondestructive
+    @testlib.nondestructive
     def testDynamic(self):
         m = self.machine
         b = self.browser
@@ -123,4 +123,4 @@ class TestRoles(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

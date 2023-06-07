@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from storagelib import StorageCase
-from testlib import nondestructive, test_main, wait
+import storagelib
+import testlib
 
 
-@nondestructive
-class TestStorageBasic(StorageCase):
+@testlib.nondestructive
+class TestStorageBasic(storagelib.StorageCase):
 
     def testBasic(self):
         m = self.machine
@@ -56,7 +56,7 @@ class TestStorageBasic(StorageCase):
 
         # create filesystem on the first partition
         # HACK - the block device might disappear briefly when udevd does its BLKRRPART.
-        wait(lambda: m.execute(f'mke2fs {disk}1'), delay=1, tries=5)
+        testlib.wait(lambda: m.execute(f'mke2fs {disk}1'), delay=1, tries=5)
         self.content_row_wait_in_col(1, 2, "ext2 filesystem")
 
         self.content_tab_expand(1, 1)
@@ -73,4 +73,4 @@ class TestStorageBasic(StorageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

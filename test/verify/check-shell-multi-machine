@@ -21,7 +21,7 @@ import re
 import subprocess
 import time
 
-from testlib import MachineCase, skipDistroPackage, skipImage, test_main, todoPybridgeRHEL8
+import testlib
 
 
 def break_hostkey(m, address):
@@ -145,9 +145,9 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     raise error
 
 
-@skipDistroPackage()
-@todoPybridgeRHEL8()
-class TestMultiMachineAdd(MachineCase):
+@testlib.skipDistroPackage()
+@testlib.todoPybridgeRHEL8()
+class TestMultiMachineAdd(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 660},
@@ -255,8 +255,8 @@ class TestMultiMachineAdd(MachineCase):
         self.allow_hostkey_messages()
 
 
-@skipDistroPackage()
-class TestMultiMachine(MachineCase):
+@testlib.skipDistroPackage()
+class TestMultiMachine(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 660},
@@ -382,7 +382,7 @@ class TestMultiMachine(MachineCase):
         self.machine.start_cockpit()
         self.checkDirectLogin('/')
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testUrlRoot(self):
         b = self.browser
         m = self.machine
@@ -444,7 +444,7 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testExternalPage(self):
         b = self.browser
         m1 = self.machine
@@ -476,7 +476,7 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testFrameNavigation(self):
         b = self.browser
         m2 = self.machine2
@@ -562,7 +562,7 @@ class TestMultiMachine(MachineCase):
                                     ".*: bridge program failed: Child process exited with code .*",
                                     "/playground/test.html: failed to retrieve resource: authentication-failed")
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testFrameReload(self):
         b = self.browser
 
@@ -604,7 +604,7 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testTroubleshooting(self):
         b = self.browser
         m1 = self.machine
@@ -741,8 +741,8 @@ class TestMultiMachine(MachineCase):
                                     '.*: host key for this server changed key type: .*',
                                     '.*: server offered unsupported authentication methods: .*')
 
-    @skipImage("TODO: Broken on Arch Linux", "arch")
-    @todoPybridgeRHEL8()
+    @testlib.skipImage("TODO: Broken on Arch Linux", "arch")
+    @testlib.todoPybridgeRHEL8()
     def testSshKeySetup(self):
         b = self.browser
         m1 = self.machine
@@ -837,7 +837,7 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testSshKeySetupCustom(self):
         b = self.browser
         m1 = self.machine
@@ -873,4 +873,4 @@ class TestMultiMachine(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

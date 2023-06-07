@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from packagelib import PackageCase
-from testlib import nondestructive, skipImage, skipOstree, test_main
+import packagelib
+import testlib
 
 
-@skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
-@skipOstree("Not supported")
-@nondestructive
-class TestApps(PackageCase):
+@testlib.skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
+@testlib.skipOstree("Not supported")
+@testlib.nondestructive
+class TestApps(packagelib.PackageCase):
 
     def setUp(self):
         super().setUp()
@@ -320,4 +320,4 @@ This <is <not XML.
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, test_main
+import netlib
+import testlib
 
 
-@nondestructive
-@skipDistroPackage()
-class TestNetworkingVLAN(NetworkCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestNetworkingVLAN(netlib.NetworkCase):
     def testVlan(self):
         b = self.browser
         m = self.machine
@@ -69,4 +69,4 @@ class TestNetworkingVLAN(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

@@ -19,13 +19,13 @@
 
 import time
 
+import testlib
 import testvm
-from testlib import MachineCase, nondestructive, skipDistroPackage, test_main, wait
 
 
-@nondestructive
-@skipDistroPackage()
-class TestServices(MachineCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestServices(testlib.MachineCase):
 
     def setUp(self):
         super().setUp()
@@ -1269,8 +1269,8 @@ WantedBy=multi-user.target
         self.check_service_details(["Read-only", "Disabled"], [], False, onoff=False, kebab=False)
 
 
-@skipDistroPackage()
-class TestTimers(MachineCase):
+@testlib.skipDistroPackage()
+class TestTimers(testlib.MachineCase):
     def svc_sel(self, service):
         return f'tr[data-goto-unit="{service}"]'
 
@@ -1295,7 +1295,7 @@ class TestTimers(MachineCase):
                      if [ $ntp == "yes" ]; then
                          timedatectl set-ntp off
                      fi""")
-        wait(lambda: "false" in m.execute(
+        testlib.wait(lambda: "false" in m.execute(
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
         m.execute("timedatectl set-time '2036-01-01 12:00:00'")
         m.reboot()
@@ -1556,4 +1556,4 @@ class TestTimers(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

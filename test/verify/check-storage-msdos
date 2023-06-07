@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from storagelib import StorageCase
-from testlib import test_main
+import storagelib
+import testlib
 
 
-class TestStorageMsDOS(StorageCase):
+class TestStorageMsDOS(storagelib.StorageCase):
 
     def testDosParts(self):
         m = self.machine
@@ -86,4 +86,4 @@ class TestStorageMsDOS(StorageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

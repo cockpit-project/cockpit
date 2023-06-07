@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import netlib
+import testlib
 from lib.constants import TEST_OS_DEFAULT
-from netlib import NetworkCase
-from testlib import skipDistroPackage, test_main
 
 
-@skipDistroPackage()
-class TestNetworkingMAC(NetworkCase):
+@testlib.skipDistroPackage()
+class TestNetworkingMAC(netlib.NetworkCase):
     provision = {
         "machine1": {"memory_mb": 512},
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
@@ -102,4 +102,4 @@ class TestNetworkingMAC(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

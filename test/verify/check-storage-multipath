@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from storagelib import StorageCase
-from testlib import skipImage, test_main
+import storagelib
+import testlib
 
 
-@skipImage("UDisks doesn't have support for multipath", "debian-*", "ubuntu-*", "arch")
-class TestStorageMultipath(StorageCase):
+@testlib.skipImage("UDisks doesn't have support for multipath", "debian-*", "ubuntu-*", "arch")
+class TestStorageMultipath(storagelib.StorageCase):
 
     def testBasic(self):
         m = self.machine
@@ -111,4 +111,4 @@ class TestStorageMultipath(StorageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

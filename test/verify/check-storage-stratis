@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from packagelib import PackageCase
-from storagelib import StorageCase
-from testlib import skipImage, test_main
+import packagelib
+import storagelib
+import testlib
 
 
-@skipImage("No Stratis", "debian-*", "ubuntu-*")
-class TestStorageStratis(StorageCase):
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+class TestStorageStratis(storagelib.StorageCase):
     def setUp(self):
         super().setUp()
 
@@ -508,8 +508,8 @@ class TestStorageStratis(StorageCase):
         destroy()
 
 
-@skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
-class TestStoragePackagesStratis(PackageCase, StorageCase):
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase):
 
     def testStratisOndemandInstallation(self):
         m = self.machine
@@ -549,4 +549,4 @@ class TestStoragePackagesStratis(PackageCase, StorageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

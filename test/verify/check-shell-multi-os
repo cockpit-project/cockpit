@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, skipDistroPackage, test_main, todoPybridgeRHEL8, wait
+import testlib
 
 
 def wait_addresses(b, expected):
@@ -68,8 +68,8 @@ def add_stock_machine(b, address, password):
     b.wait_popdown('dashboard_setup_server_dialog')
 
 
-@skipDistroPackage()
-class TestMultiOS(MachineCase):
+@testlib.skipDistroPackage()
+class TestMultiOS(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "memory_mb": 512},
         "centos-7": {"address": "10.111.113.5/20", "image": "centos-7", "memory_mb": 512}
@@ -94,7 +94,7 @@ class TestMultiOS(MachineCase):
                 .proxy("org.freedesktop.DBus", "/").call("GetId");
         })""", address)
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testCentOS7(self):
         dev_m = self.machine
         dev_b = self.browser
@@ -117,8 +117,8 @@ class TestMultiOS(MachineCase):
         stock_m.start_cockpit()
 
         # Wait for connectivity between the two
-        wait(lambda: stock_m.execute("ip addr >&2 && ping -q -w5 -c5 10.111.113.1"))
-        wait(lambda: dev_m.execute("ip addr  >&2 && ping -q -w5 -c5 10.111.113.5"))
+        testlib.wait(lambda: stock_m.execute("ip addr >&2 && ping -q -w5 -c5 10.111.113.1"))
+        testlib.wait(lambda: dev_m.execute("ip addr  >&2 && ping -q -w5 -c5 10.111.113.5"))
 
         stock_m.execute("hostnamectl set-hostname stock")
         stock_b = self.new_browser(stock_m)
@@ -159,14 +159,14 @@ class TestMultiOS(MachineCase):
         self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
 
 
-@skipDistroPackage()
-class TestMultiOSDirect(MachineCase):
+@testlib.skipDistroPackage()
+class TestMultiOSDirect(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "memory_mb": 512},
         "centos-7": {"address": "10.111.113.5/20", "image": "centos-7", "memory_mb": 512}
     }
 
-    @todoPybridgeRHEL8()
+    @testlib.todoPybridgeRHEL8()
     def testCentos7Direct(self):
         b = self.browser
 
@@ -210,4 +210,4 @@ class TestMultiOSDirect(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

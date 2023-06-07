@@ -19,19 +19,19 @@
 
 import subprocess
 
-from packagelib import PackageCase
-from storagelib import StorageCase
-from testlib import attach, skipImage, test_main, timeout, wait
+import packagelib
+import storagelib
+import testlib
 
 
 def console_screenshot(machine, name):
     subprocess.run("virsh -c qemu:///session screenshot %s '%s'" % (str(machine._domain.ID()), name),
                    shell=True)
-    attach(name, move=True)
+    testlib.attach(name, move=True)
     print("Wrote screenshot to " + name)
 
 
-class TestStorageLuks(StorageCase):
+class TestStorageLuks(storagelib.StorageCase):
 
     # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
     provision = {
@@ -195,7 +195,7 @@ class TestStorageLuks(StorageCase):
         # after a logout.
 
         b.logout()
-        wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
+        testlib.wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
 
     def testLuks1Slots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
@@ -464,7 +464,7 @@ class TestStorageLuks(StorageCase):
         self.wait_mounted(1, 1)
 
 
-class TestStorageNBDE(StorageCase, PackageCase):
+class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "memory_mb": 2048},
         "tang": {"address": "10.111.112.5/20"}
@@ -644,8 +644,8 @@ class TestStorageNBDE(StorageCase, PackageCase):
         self.confirm()
         b.wait_not_present(panel + 'ul li:contains("Slot 1")')
 
-    @skipImage("TODO: don't know how to encrypt the rootfs", "debian-*", "ubuntu-*", "arch")
-    @timeout(1200)
+    @testlib.skipImage("TODO: don't know how to encrypt the rootfs", "debian-*", "ubuntu-*", "arch")
+    @testlib.timeout(1200)
     def testRootReboot(self):
         m = self.machine
         b = self.browser
@@ -723,4 +723,4 @@ class TestStorageNBDE(StorageCase, PackageCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

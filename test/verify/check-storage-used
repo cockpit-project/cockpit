@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from storagelib import StorageCase
-from testlib import nondestructive, test_main
+import storagelib
+import testlib
 
 
-@nondestructive
-class TestStorageUsed(StorageCase):
+@testlib.nondestructive
+class TestStorageUsed(storagelib.StorageCase):
 
     def testUsed(self):
         m = self.machine
@@ -135,4 +135,4 @@ ExecStart=/usr/bin/sleep infinity
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

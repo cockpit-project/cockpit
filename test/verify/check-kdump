@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import testlib
 from lib.constants import TEST_OS_DEFAULT
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, skipOstree, test_main, timeout
 
 
-class KdumpHelpers(MachineCase):
+class KdumpHelpers(testlib.MachineCase):
     def enableKdump(self):
         # all current Fedora/CentOS/RHEL images use BootLoaderSpec
         self.machine.execute("grubby --args=crashkernel=256M --update-kernel=ALL")
@@ -48,10 +48,10 @@ class KdumpHelpers(MachineCase):
         self.machine.wait_boot(timeout_sec=300)
 
 
-@skipOstree("kexec-tools not installed")
-@skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
-@timeout(900)
-@skipDistroPackage()
+@testlib.skipOstree("kexec-tools not installed")
+@testlib.skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
+@testlib.timeout(900)
+@testlib.skipDistroPackage()
 class TestKdump(KdumpHelpers):
 
     def enableLocalSsh(self):
@@ -172,7 +172,7 @@ class TestKdump(KdumpHelpers):
         m.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done", timeout=180)
         self.assertIn("Kdump compressed dump", m.execute(f"file {customPath}/127.0.0.1*/vmcore"))
 
-    @nondestructive
+    @testlib.nondestructive
     def testConfiguration(self):
         b = self.browser
         m = self.machine
@@ -243,7 +243,7 @@ class TestKdump(KdumpHelpers):
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn(current + " -c", conf)
 
-    @nondestructive
+    @testlib.nondestructive
     def testConfigurationSUSE(self):
         b = self.browser
         m = self.machine
@@ -371,10 +371,10 @@ class TestKdump(KdumpHelpers):
         b.wait_text("#kdump-target-info", "Remote over CIFS/SMB")
 
 
-@skipOstree("kexec-tools not installed")
-@skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
-@timeout(900)
-@skipDistroPackage()
+@testlib.skipOstree("kexec-tools not installed")
+@testlib.skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
+@testlib.timeout(900)
+@testlib.skipDistroPackage()
 class TestKdumpNFS(KdumpHelpers):
     provision = {
         "0": {"address": "10.111.113.1/24", "memory_mb": 1024},
@@ -454,4 +454,4 @@ class TestKdumpNFS(KdumpHelpers):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

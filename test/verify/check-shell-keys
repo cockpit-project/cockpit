@@ -17,15 +17,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, nondestructive, skipBrowser, skipDistroPackage, test_main
+import testlib
 
 FP_SHA256 = "SHA256:iyVAl4Z8riL9Jg4fV9Wv/6cbqebdDtsBEMkojNLLYX8"
 KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEAkRTvQCSEZNPXpA5bP82ilQn3TMeQ6z2NO3O0UwY9z test-name"
 
 
-@skipDistroPackage()
-@nondestructive
-class TestKeys(MachineCase):
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestKeys(testlib.MachineCase):
     def testAuthorizedKeys(self):
         m = self.machine
         b = self.browser
@@ -138,7 +138,7 @@ class TestKeys(MachineCase):
         self.allow_journal_messages('')
 
     # Possible workaround - ssh as `admin` and just do `m.execute()`
-    @skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
+    @testlib.skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
     def testPrivateKeys(self):
         b = self.browser
         m = self.machine
@@ -352,4 +352,4 @@ session    optional     pam_ssh_add.so
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

@@ -19,12 +19,12 @@
 
 import subprocess
 
-from testlib import MachineCase, nondestructive, skipBrowser, skipDistroPackage, test_main
+import testlib
 
 
-@skipDistroPackage()
-@nondestructive
-class TestEmbed(MachineCase):
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestEmbed(testlib.MachineCase):
 
     def testBasic(self):
         b = self.browser
@@ -73,7 +73,7 @@ Shell=/shell/index.html
         b.switch_to_frame("embed-auth")
         b.wait_visible("#login-user-input")
 
-    @skipBrowser("Chromium cannot inspect cross-origin frames", "chromium")
+    @testlib.skipBrowser("Chromium cannot inspect cross-origin frames", "chromium")
     def testCrossOrigin(self):
         b = self.browser
         m = self.machine
@@ -103,4 +103,4 @@ Shell=/shell/index.html
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

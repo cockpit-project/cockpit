@@ -17,19 +17,19 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, nondestructive, skipDistroPackage, test_main, wait
+import testlib
 
 
-@skipDistroPackage()
-@nondestructive
-class TestSession(MachineCase):
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestSession(testlib.MachineCase):
 
     def testBasic(self):
         m = self.machine
         b = self.browser
 
         def wait_session(should_exist):
-            wait(lambda: (should_exist == ("admin" in m.execute("loginctl list-sessions"))))
+            testlib.wait(lambda: (should_exist == ("admin" in m.execute("loginctl list-sessions"))))
 
         wait_session(False)
 
@@ -67,4 +67,4 @@ class TestSession(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

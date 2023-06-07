@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import netlib
+import testlib
 from lib.constants import TEST_OS_DEFAULT
-from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, skipOstree, test_main, wait
 
 
-@nondestructive
-@skipDistroPackage()
-class TestBonding(NetworkCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestBonding(netlib.NetworkCase):
     def testBasic(self):
         b = self.browser
 
@@ -119,11 +119,11 @@ class TestBonding(NetworkCase):
 
         iface1 = "cockpit1"
         self.add_veth(iface1, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
-        wait(lambda: m.execute(f'nmcli device | grep {iface1} | grep -v unavailable'))
+        testlib.wait(lambda: m.execute(f'nmcli device | grep {iface1} | grep -v unavailable'))
 
         iface2 = "cockpit2"
         self.add_veth(iface2, dhcp_cidr="10.111.114.1/24", dhcp_range=['10.111.114.2', '10.111.114.254'])
-        wait(lambda: m.execute(f'nmcli device | grep {iface2} | grep -v unavailable'))
+        testlib.wait(lambda: m.execute(f'nmcli device | grep {iface2} | grep -v unavailable'))
 
         m.execute(f"nmcli con add type ethernet ifname {iface1} con-name TEST1")
         m.execute(f"nmcli con add type ethernet ifname {iface2} con-name TEST2")
@@ -258,14 +258,14 @@ class TestBonding(NetworkCase):
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
 
 
-@skipDistroPackage()
-class TestBondingVirt(NetworkCase):
+@testlib.skipDistroPackage()
+class TestBondingVirt(netlib.NetworkCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
     }
 
-    @skipImage("Main interface can't be managed", "debian-*", "ubuntu-*")
+    @testlib.skipImage("Main interface can't be managed", "debian-*", "ubuntu-*")
     def testMain(self):
         b = self.browser
         m = self.machine
@@ -295,9 +295,9 @@ class TestBondingVirt(NetworkCase):
         b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
         b.wait_visible(f"#networking-interfaces tr[data-interface='{iface}']")
 
-    @skipImage("TODO: no dhclient on Arch image", "arch")
-    @skipImage("Main interface can't be managed", "debian-*", "ubuntu-*")
-    @skipOstree("not using dhclient")
+    @testlib.skipImage("TODO: no dhclient on Arch image", "arch")
+    @testlib.skipImage("Main interface can't be managed", "debian-*", "ubuntu-*")
+    @testlib.skipOstree("not using dhclient")
     def testSlowly(self):
         b = self.browser
         m = self.machine
@@ -330,4 +330,4 @@ class TestBondingVirt(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

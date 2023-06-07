@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
+import testlib
 
 
-@skipDistroPackage()
-@nondestructive
-class TestReauthorize(MachineCase):
+@testlib.skipDistroPackage()
+@testlib.nondestructive
+class TestReauthorize(testlib.MachineCase):
     def testBasic(self):
         self.allow_journal_messages('.*dropping message while waiting for child to exit.*')
         b = self.browser
@@ -60,7 +60,7 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
-    @skipOstree("ssh root login not allowed")
+    @testlib.skipOstree("ssh root login not allowed")
     def testSuper(self):
         b = self.browser
 
@@ -120,4 +120,4 @@ class TestReauthorize(MachineCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

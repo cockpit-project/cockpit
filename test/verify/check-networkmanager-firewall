@@ -19,8 +19,8 @@
 
 import time
 
-from netlib import NetworkCase
-from testlib import Error, nondestructive, skipDistroPackage, skipOstree, test_main, wait
+import netlib
+import testlib
 
 
 def wait_unit_state(machine, unit, state):
@@ -32,7 +32,7 @@ def wait_unit_state(machine, unit, state):
         line = machine.execute(f"systemctl show -p ActiveState {unit}")
         return line.strip().split("=")[1]
 
-    wait(lambda: active_state(unit) == state, delay=0.2)
+    testlib.wait(lambda: active_state(unit) == state, delay=0.2)
 
 
 def get_active_rules(machine):
@@ -46,10 +46,10 @@ def get_active_rules(machine):
     return active_rules
 
 
-@skipOstree("no firewalld")
-@nondestructive
-@skipDistroPackage()
-class TestFirewall(NetworkCase):
+@testlib.skipOstree("no firewalld")
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestFirewall(netlib.NetworkCase):
     def setUp(self):
         super().setUp()
         m = self.machine
@@ -92,7 +92,7 @@ class TestFirewall(NetworkCase):
         try:
             m.execute("systemctl start firewalld")
             wait_unit_state(m, "firewalld", "active")
-        except Error:
+        except testlib.Error:
             print("====== firewalld.service =======")
             print(m.execute("systemctl status firewalld"))
             raise
@@ -103,7 +103,7 @@ class TestFirewall(NetworkCase):
         try:
             m.execute("systemctl stop firewalld")
             wait_unit_state(m, "firewalld", "inactive")
-        except Error:
+        except testlib.Error:
             print("====== firewalld.service =======")
             print(m.execute("systemctl status firewalld"))
             raise
@@ -545,4 +545,4 @@ class TestFirewall(NetworkCase):
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

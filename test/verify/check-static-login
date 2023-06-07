@@ -22,21 +22,12 @@ import re
 import subprocess
 import time
 
-from testlib import (
-    MachineCase,
-    nondestructive,
-    skipBrowser,
-    skipDistroPackage,
-    skipImage,
-    skipOstree,
-    test_main,
-    wait,
-)
+import testlib
 
 
-@nondestructive
-@skipDistroPackage()
-class TestLogin(MachineCase):
+@testlib.nondestructive
+@testlib.skipDistroPackage()
+class TestLogin(testlib.MachineCase):
     def check_shell(self):
         b = self.browser
         b.wait_visible("#content")
@@ -206,7 +197,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
                                     "noise-rc-.*")
 
-    @skipOstree("logs in via ssh, not cockpit-session")
+    @testlib.skipOstree("logs in via ssh, not cockpit-session")
     def testLogging(self):
         m = self.machine
         b = self.browser
@@ -264,7 +255,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # But after that login, they should be gone again
         verify_correct(True, 0)
 
-    @skipImage("Arch Linux has no pwquality by default", "arch")
+    @testlib.skipImage("Arch Linux has no pwquality by default", "arch")
     def testExpired(self):
         m = self.machine
         b = self.browser
@@ -406,8 +397,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @skipImage("No tlog", "debian-*", "ubuntu-*", "arch", "centos-8-stream")
-    @skipOstree("No tlog")
+    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch", "centos-8-stream")
+    @testlib.skipOstree("No tlog")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser
@@ -461,8 +452,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 
-    @skipImage("No SELinux", "debian-*", "ubuntu-*", "arch")
-    @skipOstree("No semanage")
+    @testlib.skipImage("No SELinux", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipOstree("No semanage")
     def testSELinuxRestrictedUser(self):
         m = self.machine
         b = self.browser
@@ -578,7 +569,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.check_shell()
 
-    @skipOstree("Starting on OSTree is weird")
+    @testlib.skipOstree("Starting on OSTree is weird")
     def testFailingWebsocket(self, safari=False, cacert=False):
         m = self.machine
         b = self.browser
@@ -615,13 +606,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         else:
             b.wait_not_present("#safari-cert-help")
 
-    @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
-    @skipOstree("Starting on OSTree is weird")
+    @testlib.skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
+    @testlib.skipOstree("Starting on OSTree is weird")
     def testFailingWebsocketSafari(self):
         self.testFailingWebsocket(safari=True, cacert=True)
 
-    @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
-    @skipOstree("Starting on OSTree is weird")
+    @testlib.skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
+    @testlib.skipOstree("Starting on OSTree is weird")
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 
@@ -740,7 +731,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(".*[aA]ccount .*locked due to .* failed logins.*")
         self.allow_journal_messages(".*minutes left to unlock.*")
 
-    @skipOstree("root logins disabled by default with ssh")
+    @testlib.skipOstree("root logins disabled by default with ssh")
     def testPamAccess(self):
         b = self.browser
         m = self.machine
@@ -762,7 +753,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_journal_messages(r"cockpit-session: user account access failed.*root.*")
 
-    @skipOstree("sssd not available")
+    @testlib.skipOstree("sssd not available")
     def testClientCertAuthentication(self):
         m = self.machine
 
@@ -892,9 +883,9 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         journal_cursor = self.machine.journal_cursor()
         m.execute(f'! curl -ksS --cert {alice_cert_expired} --key {alice_key} https://localhost:9090/cockpit/login')
         m.stop_cockpit()
-        wait(lambda: re.search(r'.*Invalid TLS peer certificate.* expired',
-                               m.execute(f"journalctl -ocat --cursor '{journal_cursor}' SYSLOG_IDENTIFIER=cockpit-tls")),
-             tries=10)
+        testlib.wait(lambda: re.search(r'.*Invalid TLS peer certificate.* expired',
+                     m.execute(f"journalctl -ocat --cursor '{journal_cursor}' SYSLOG_IDENTIFIER=cockpit-tls")),
+                     tries=10)
         self.allow_journal_messages('.*Invalid TLS peer certificate.* expired')
         self.allow_journal_messages('.*TLS handshake failed: Error in the certificate verification.*')
 
@@ -966,4 +957,4 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 
 
 if __name__ == '__main__':
-    test_main()
+    testlib.test_main()

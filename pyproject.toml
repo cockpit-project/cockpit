@@ -86,9 +86,10 @@ ignore_names = [
    "test[A-Z0-9]*",
 ]
 ignore_decorators = [
-   "@*.register_function",
    "@*.getter",
-   "@bus.Interface.Method"
+   "@*.register_function",
+   "@bus.Interface.Method",
+   "@pytest.hookimpl",
 ]
 
 [tool.coverage.paths]

@@ -223,9 +223,9 @@ class CockpitClient(Gtk.Application):
         context.set_sandbox_enabled(enabled=True)
         context.set_cache_model(WebKit2.CacheModel.DOCUMENT_VIEWER)
 
-        cookiesPath = os.path.join(data_manager.get_local_storage_directory(), "cookies.txt")
+        cookiesFile = os.path.join(GLib.get_user_state_dir(), "cockpit-client", "cookies.txt")
         cookies = context.get_cookie_manager()
-        cookies.set_persistent_storage(cookiesPath, WebKit2.CookiePersistentStorage.TEXT)
+        cookies.set_persistent_storage(cookiesFile, WebKit2.CookiePersistentStorage.TEXT)
 
         self.uri = self.ws.start()
 

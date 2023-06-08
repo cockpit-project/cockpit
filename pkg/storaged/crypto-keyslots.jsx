@@ -623,25 +623,29 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
     const dlg = dialog_open({
         Title: _("Verify key"),
         Body: (
-            <>
-                <p>{_("Make sure the key hash from the Tang server matches one of the following:")}</p>
+            <TextContent>
+                <Text component={TextVariants.p}>{_("Check the key hash with the Tang server.")}</Text>
 
-                <h2 className="sigkey-heading">{_("SHA256")}</h2>
-                { sigkey_thps.map(s => <p key={s} className="sigkey-hash">{s.sha256}</p>) }
-
-                <h2 className="sigkey-heading">{_("SHA1")}</h2>
-                { sigkey_thps.map(s => <p key={s} className="sigkey-hash">{s.sha1}</p>) }
-
-                <p>
-                    {_("Manually check with SSH: ")}
+                <Text component={TextVariants.h3}>{_("How to check")}</Text>
+                <Text component={TextVariants.p}>
+                    {_("In a terminal, run: ")}
                     <ClipboardCopy hoverTip={_("Copy to clipboard")}
                                    clickTip={_("Successfully copied to clipboard!")}
                                    variant="inline-compact"
                                    isCode>
                         {cmd}
                     </ClipboardCopy>
-                </p>
-            </>
+                </Text>
+                <Text component={TextVariants.p}>
+                    {_("Check that the SHA-256 or SHA-1 hash from the command matches this dialog.")}
+                </Text>
+
+                <Text component={TextVariants.h3}>{_("SHA-256")}</Text>
+                { sigkey_thps.map(s => <Text key={s.sha256} component={TextVariants.pre}>{s.sha256}</Text>) }
+
+                <Text component={TextVariants.h3}>{_("SHA-1")}</Text>
+                { sigkey_thps.map(s => <Text key={s.sha1} component={TextVariants.pre}>{s.sha1}</Text>) }
+            </TextContent>
         ),
         Fields: existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase.")),
         Action: {

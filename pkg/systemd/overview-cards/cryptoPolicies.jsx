@@ -34,7 +34,7 @@ import "./cryptoPolicies.scss";
 
 const _ = cockpit.gettext;
 
-const displayProfileText = profile => profile === "FIPS" ? profile : profile.charAt(0) + profile.slice(1, profile.length).toLowerCase();
+const displayProfileText = profile => profile === "DEFAULT" ? _("Default") : profile;
 const isInconsistentPolicy = (policy, fipsEnabled) => policy === "FIPS" !== fipsEnabled;
 
 export const CryptoPolicyRow = () => {

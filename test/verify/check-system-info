@@ -999,13 +999,13 @@ password=foobar
         self.allow_restart_journal_messages()
 
         def shown_profile_text(profile):
-            return profile if profile == "FIPS" else profile[0] + profile[1:].lower()
+            return "Default" if profile == "DEFAULT" else profile
 
         def change_profile(profile, new_profile):
             b.click("#crypto-policy-button")
             b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
             profile_button_name = shown_profile_text(new_profile)
-            b.click(f".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('{profile_button_name}')")
+            b.click(f"#crypto-policy-dialog .pf-v5-c-menu__list-item[data-value='{profile_button_name}'] button")
             b.click("#crypto-policy-save-reboot")
             # Initramfs re-generation takes a while
             m.wait_reboot(timeout_sec=600)
@@ -1023,7 +1023,7 @@ password=foobar
         # RHEL 8 has no SHA1 policy, so do not show it.
         b.click("#crypto-policy-button")
         func = b.wait_not_present if m.image.startswith('rhel-8') or m.image.startswith('centos-8') else b.wait_visible
-        func(".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('Default:sha1')")
+        func(".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('DEFAULT:SHA1')")
 
         # Test if a new subpolicy can be set
         new_profile = "LEGACY:AD-SUPPORT"
@@ -1070,7 +1070,7 @@ password=foobar
         m.execute(cmd + " --set DEFAULT")
         b.wait_text("#inconsistent_crypto_policy", "Cryptographic policy is inconsistent")
         m.execute(cmd + " --set FIPS:OSPP")
-        b.wait_text("#crypto-policy-button", "Fips:ospp")
+        b.wait_text("#crypto-policy-button", "FIPS:OSPP")
         b.wait_not_present("#inconsistent_crypto_policy")
 
         # Setting via dialog

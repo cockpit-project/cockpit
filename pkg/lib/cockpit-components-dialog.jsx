@@ -25,7 +25,6 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
-import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
@@ -44,7 +43,7 @@ const _ = cockpit.gettext;
  *  - list of actions, each an object with:
  *      - clicked
  *         Callback function that is expected to return a promise.
- *         parameter: callback to set the progress text (will be displayed next to spinner)
+ *         parameter: callback to set the progress text
  *      - caption optional, defaults to 'Ok'
  *      - disabled optional, defaults to false
  *      - style defaults to 'secondary', other options: 'primary', 'danger'
@@ -70,10 +69,11 @@ class DialogFooter extends React.Component {
         this.setState({ action_progress_message: msg, action_progress_cancel: cancel });
     }
 
-    action_click(handler, e) {
+    action_click(handler, caption, e) {
         this.setState({
             action_progress_message: '',
             action_in_progress: true,
+            action_caption_in_progress: caption,
             action_canceled: false,
         });
 
@@ -144,7 +144,6 @@ class DialogFooter extends React.Component {
                 cancel_disabled = true;
             wait_element = <div className="dialog-wait-ct">
                 <span>{ this.state.action_progress_message }</span>
-                <Spinner className="dialog-wait-ct-spinner" size="md" />
             </div>;
         } else if (this.props.idle_message) {
             wait_element = <div className="dialog-wait-ct">
@@ -167,8 +166,9 @@ class DialogFooter extends React.Component {
                 key={ caption }
                 className="apply"
                 variant={ variant }
+                isLoading={ this.state.action_in_progress && this.state.action_caption_in_progress == caption }
                 isDanger={ action.danger }
-                onClick={ this.action_click.bind(this, action.clicked) }
+                onClick={ this.action_click.bind(this, action.clicked, caption) }
                 isDisabled={ actions_disabled || action.disabled }
             >{ caption }</Button>
             );

@@ -38,7 +38,7 @@ class KdumpHelpers(MachineCase):
         # we should get a warning dialog, confirm
         b.click(f"button{self.danger_btn_class}")
         # wait until we've actually triggered a crash
-        b.wait_visible(".dialog-wait-ct")
+        b.wait_visible(".apply.pf-m-in-progress")
 
         # wait for disconnect and then try connecting again
         b.switch_to_top()

@@ -21,9 +21,7 @@ import pytest
 
 
 @pytest.mark.parametrize('command', [
-    # only test src/cockpit; src/systemd_ctypes does not have type annotations yet
-    # disable caching, as it otherwise often crashes with "Cannot find component 'inotify' for 'systemd_ctypes...."
-    ['mypy', '--no-incremental', 'src/cockpit'],
+    ['mypy', 'src'],
 
     ['ruff', 'check', '--no-cache', '.'],
 

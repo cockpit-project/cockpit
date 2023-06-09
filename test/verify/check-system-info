@@ -1030,7 +1030,7 @@ password=foobar
         change_profile(profile, new_profile)
 
         profile = m.execute(cmd + " --show").strip()
-        self.assertEquals(profile, new_profile)
+        self.assertEqual(profile, new_profile)
         b.wait_text("#crypto-policy-button", shown_profile_text(profile))
         new_profile = "FIPS"
         change_profile(profile, new_profile)

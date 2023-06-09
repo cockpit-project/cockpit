@@ -39,3 +39,22 @@ def pytest_collection_modifyitems(session: pytest.Session, items: List[pytest.It
 
     # put the destructive tests last under the assumption that they're slower
     items.sort(key=is_nondestructive, reverse=True)
+
+
+@pytest.hookimpl
+def pytest_configure(config: pytest.Config) -> None:
+    """Tweaks test distribution for long-running tasks
+
+    pytest-xdist sends large chunks of tasks to the workers to reduce
+    latency, but since our tasks are long, this isn't helpful. It also
+    means that we can end up with a large string of very slow tests on
+    one worker. Disable it, if possible.
+
+    https://github.com/pytest-dev/pytest-xdist/issues/855
+    """
+    try:
+        # If parallel enabled and maxschedchunk not otherwise given...
+        if config.option.numprocesses and config.option.maxschedchunk is None:
+            config.option.maxschedchunk = 1
+    except AttributeError:
+        pass  # no pytest-xdist plugin installed, or plugin is too old

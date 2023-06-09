@@ -484,3 +484,5 @@ def create_coverage_report():
                 api.post(f"pulls/{pull}/reviews",
                          {"commit_id": rev, "event": "COMMENT",
                           "comments": comments})
+    else:
+        sys.stderr.write("Error: no code coverage files generated\n")

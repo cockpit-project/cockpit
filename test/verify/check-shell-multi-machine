@@ -451,7 +451,7 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
 
         # Modify the terminals to be different on the two machines.
-        for machine, name in zip((m1, m2), ('m1', 'm2')):
+        for machine, name in zip((m1, m2), ('m1', 'm2'), strict=True):
             # This page may be either compressed or uncompressed
             machine.execute(f"""
                 FILENAME=/usr/share/cockpit/systemd/terminal.html*

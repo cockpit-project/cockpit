@@ -1,0 +1,4 @@
+from cockpit._vendor.ferny import InteractionHandler
+
+InteractionHandler.commands
+InteractionHandler.run_command

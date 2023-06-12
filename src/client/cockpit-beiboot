@@ -23,7 +23,6 @@ import base64
 import importlib.resources
 import json
 import logging
-import lzma
 import os
 import shlex
 import sys
@@ -32,11 +31,11 @@ from typing import Iterable, Optional, Sequence
 
 from cockpit import polyfills
 from cockpit._vendor import ferny
-from cockpit._vendor.bei import beipack, bootloader
+from cockpit._vendor.bei import bootloader
+from cockpit.beipack import BridgeBeibootHelper
 from cockpit.bridge import setup_logging
 from cockpit.channel import ChannelRoutingRule
 from cockpit.channels import PackagesChannel
-from cockpit.data import read_cockpit_data_file
 from cockpit.packages import Package, Packages
 from cockpit.peer import Peer
 from cockpit.protocol import CockpitProblem
@@ -71,21 +70,6 @@ def ensure_ferny_askpass() -> Path:
         dest_path.chmod(0o700)
 
     return dest_path
-
-
-def get_bridge_beipack_xz() -> tuple[str, bytes]:
-    try:
-        bridge_beipack_xz = read_cockpit_data_file('cockpit-bridge.beipack.xz')
-        logger.debug('Got pre-built cockpit-bridge.beipack.xz')
-    except FileNotFoundError:
-        logger.debug('Pre-built cockpit-bridge.beipack.xz; building our own.')
-        # beipack ourselves
-        cockpit_contents = beipack.collect_module('cockpit', recursive=True)
-        bridge_beipack = beipack.pack(cockpit_contents, entrypoint='cockpit.bridge:main')
-        bridge_beipack_xz = lzma.compress(bridge_beipack.encode())
-        logger.debug('  ... done!')
-
-    return 'cockpit/data/cockpit-bridge.beipack.xz', bridge_beipack_xz
 
 
 def get_xdg_data_dirs():
@@ -150,11 +134,11 @@ class DefaultRoutingRule(RoutingRule):
 
 
 class AuthorizeResponder(ferny.InteractionResponder):
+    commands = ('ferny.askpass', 'cockpit.report-exists')
     router: Router
 
-    def __init__(self, router: Router, payload: bytes):
+    def __init__(self, router: Router):
         self.router = router
-        self.payload = payload
 
     async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
         if hint == 'none':
@@ -189,14 +173,7 @@ class AuthorizeResponder(ferny.InteractionResponder):
     async def do_custom_command(self, command: str, args: tuple, fds: list[int], stderr: str) -> None:
         logger.debug('Got ferny command %s %s %s', command, args, stderr)
 
-        if command == 'beiboot.provide':
-            size, = args
-            assert size == len(self.payload)
-            assert isinstance(self.router, SshBridge)
-            assert self.router.ssh_peer.transport is not None
-            self.router.ssh_peer.transport.write(self.payload)
-
-        elif command == 'cockpit.report-exists':
+        if command == 'cockpit.report-exists':
             file_status, = args
             # Constructed to throw KeyError if an unexpected file is requested
             # HACK:  ...please don't look at this code...
@@ -214,8 +191,10 @@ class SshPeer(Peer):
         super().__init__(router)
 
     async def do_connect_transport(self) -> asyncio.Transport:
-        beipack_filename, bridge_beipack_xz = get_bridge_beipack_xz()
-        agent = ferny.InteractionAgent(AuthorizeResponder(self.router, bridge_beipack_xz))
+        beiboot_helper = BridgeBeibootHelper(self)
+
+        agent = ferny.InteractionAgent(AuthorizeResponder(self.router))
+        agent.add_handler(beiboot_helper)
 
         # We want to run a python interpreter somewhere...
         cmd: Sequence[str] = ('python3', '-ic', '# cockpit-bridge')
@@ -244,7 +223,7 @@ class SshPeer(Peer):
         # Send the first-stage bootloader
         stage1 = bootloader.make_bootloader([
             ('report_exists', [list(get_interesting_files())]),
-            ('boot_xz', [beipack_filename, len(bridge_beipack_xz)])
+            *beiboot_helper.steps,
         ], gadgets=BEIBOOT_GADGETS)
         transport.write(stage1.encode())
 

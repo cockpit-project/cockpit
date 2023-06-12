@@ -23,8 +23,8 @@ import textwrap
 from testlib import Error, MachineCase, wait
 
 
-def from_udisks_ascii(bytes):
-    return ''.join(map(chr, bytes[:-1]))
+def from_udisks_ascii(codepoints):
+    return ''.join(map(chr, codepoints[:-1]))
 
 
 class StorageHelpers:

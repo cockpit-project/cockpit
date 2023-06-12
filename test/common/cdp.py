@@ -157,8 +157,8 @@ def get_browser(browser):
     raise SystemError(f"Unsupported browser: {browser}")
 
 
-def jsquote(str):
-    return json.dumps(str)
+def jsquote(obj):
+    return json.dumps(obj)
 
 
 class CDP:

@@ -531,7 +531,7 @@ select.pf-v5-c-form-control {
 // intended mainly for PF PageSection elements (pf-v5-c-page__main-section).
 // It's similar to adding padding={{ default: 'noPadding', sm: 'padding' }},
 // except this only affects the sides, not the top and bottom.
-@media screen and (max-width: $pf-v5-global--breakpoint--sm) {
+@media screen and (max-width: var(--pf-global--breakpoint--sm)) {
   .pf-v5-c-page__main > section.pf-v5-c-page__main-section:not(.pf-m-padding) {
     padding-inline: 0;
   }

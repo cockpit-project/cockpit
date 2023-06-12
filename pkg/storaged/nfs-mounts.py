@@ -9,12 +9,12 @@
 # If a entry from mtab is also found in fstab, we report only the
 # fstab entry and mark it is "mounted".
 
-import select
-import re
-import sys
 import json
 import os
+import re
+import select
 import subprocess
+import sys
 
 
 class Watcher:

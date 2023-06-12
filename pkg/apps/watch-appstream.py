@@ -1,10 +1,9 @@
+import gzip
+import json
 import os
 import sys
 import traceback
-
-import gzip
 import xml.etree.ElementTree as ET
-import json
 
 # Our own little abstraction on top of inotify.  This only supports
 # watching directories non-recursively, but it also supports watching

@@ -986,7 +986,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-expiration .pf-v5-c-form__helper-text .pf-m-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
-        when = datetime.datetime.now() + datetime.timedelta(days=30)
+        when = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)
         b.set_input_text("#account-expiration-input input", when.isoformat().split("T")[0])
         b.click("#account-expiration .pf-v5-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#account-expiration")

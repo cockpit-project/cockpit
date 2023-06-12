@@ -81,9 +81,9 @@ class _Transport(asyncio.Transport):
         self._in_fd = in_fd
         self._out_fd = out_fd
 
-        os.set_blocking(in_fd, False)  # noqa: FBT003: ruff/issues/3247
+        os.set_blocking(in_fd, False)
         if out_fd != in_fd:
-            os.set_blocking(out_fd, False)  # noqa: FBT003
+            os.set_blocking(out_fd, False)
 
         self._protocol.connection_made(self)
         self.resume_reading()
@@ -483,7 +483,7 @@ class Spooler:
 
         self._fd = os.dup(fd)
 
-        os.set_blocking(self._fd, False)  # # noqa: FBT003: ruff/issues/3247
+        os.set_blocking(self._fd, False)
         loop.add_reader(self._fd, self._read_ready)
 
     def _read_ready(self) -> None:

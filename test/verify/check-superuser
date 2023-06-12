@@ -81,6 +81,24 @@ class TestSuperuser(testlib.MachineCase):
         b.leave_page()
         b.check_superuser_indicator("Administrative access")
 
+    def testSudoIOLogging(self):
+        b = self.browser
+        m = self.machine
+
+        self.write_file("/etc/sudoers.d/log", "Defaults log_output\n")
+
+        # with explicitly becoming superuser
+        self.login_and_go(superuser=False)
+        b.check_superuser_indicator("Limited access")
+        b.become_superuser()
+        self.assertIn("00\n", m.execute("ls /var/log/sudo-io"))
+        b.logout()
+
+        # with immediate superuser at login
+        b.login_and_go()
+        b.check_superuser_indicator("Administrative access")
+        b.logout()
+
     def testNoPasswd(self):
         b = self.browser
 

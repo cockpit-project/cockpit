@@ -23,6 +23,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <poll.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -118,6 +119,15 @@ cockpit_socket_receive_fd (int  socket_fd,
                         .msg_control = &cmsg,
                         .msg_controllen = CMSG_LEN (sizeof *out_fd) };
   assert (msg.msg_controllen <= sizeof cmsg);
+
+  /* recvmsg() has no MSG_DONTWAIT, and e.g. sudo makes stdin non-blocking with `log_output` option */
+  struct pollfd socket_pfd = { .fd = socket_fd, .events = POLLIN };
+  int ret;
+  do
+      ret = poll (&socket_pfd, 1, -1);
+  while (ret == -1 && errno == EINTR);
+  if (ret <= 0) /* error or timeout; the latter should not happen, but pass it on as "EOF" */
+    return ret;
 
   ssize_t s;
   do

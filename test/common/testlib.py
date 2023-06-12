@@ -1972,7 +1972,7 @@ class MachineCase(unittest.TestCase):
                 sys.stderr.write(traceback.format_exc())
 
     def copy_journal(self, title: str, label: Optional[str] = None):
-        for name, m in self.machines.items():
+        for _, m in self.machines.items():
             if m.ssh_reachable:
                 log = "%s-%s-%s.log.gz" % (label or self.label(), m.label, title)
                 with open(log, "w") as fp:
@@ -1983,7 +1983,7 @@ class MachineCase(unittest.TestCase):
     def copy_cores(self, title: str, label: Optional[str] = None):
         if self.allow_core_dumps:
             return
-        for name, m in self.machines.items():
+        for _, m in self.machines.items():
             if m.ssh_reachable:
                 directory = "%s-%s-%s.core" % (label or self.label(), m.label, title)
                 dest = os.path.abspath(directory)
@@ -2006,7 +2006,7 @@ class MachineCase(unittest.TestCase):
         usage. Wait for up to a minute, then return. There is no error if the
         CPU stays busy, as usually a test then should just try to run anyway.
         """
-        for retry in range(20):
+        for _ in range(20):
             # get the CPU percentage of the most busy process
             busy_proc = self.machine.execute("ps --no-headers -eo pcpu,pid,args | sort -k 1 -n -r | head -n1")
             if float(busy_proc.split()[0]) < 20.0:
@@ -2543,7 +2543,7 @@ def sit(machines={}):
     The current test case is suspended so that the user can inspect
     the browser.
     """
-    for (name, machine) in machines.items():
+    for (_, machine) in machines.items():
         sys.stderr.write(machine.diagnose())
     print("Press RET to continue...")
     sys.stdin.readline()

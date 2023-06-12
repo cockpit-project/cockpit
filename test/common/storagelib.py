@@ -438,10 +438,10 @@ class StorageHelpers:
                 "GetManagedObjects", "", [])))""")]))
 
     def configuration_field(self, dev, tab, field):
-        all = self.udisks_objects()
-        for path in all:
-            if "org.freedesktop.UDisks2.Block" in all[path]:
-                iface = all[path]["org.freedesktop.UDisks2.Block"]
+        managerObjects = self.udisks_objects()
+        for path in managerObjects:
+            if "org.freedesktop.UDisks2.Block" in managerObjects[path]:
+                iface = managerObjects[path]["org.freedesktop.UDisks2.Block"]
                 if from_udisks_ascii(iface["Device"]) == dev or from_udisks_ascii(iface["PreferredDevice"]) == dev:
                     for entry in iface["Configuration"]:
                         if entry[0] == tab:
@@ -457,11 +457,11 @@ class StorageHelpers:
         self.assertNotIn(text, self.configuration_field(dev, tab, field))
 
     def child_configuration_field(self, dev, tab, field):
-        all = self.udisks_objects()
-        for path in all:
-            if "org.freedesktop.UDisks2.Encrypted" in all[path]:
-                block_iface = all[path]["org.freedesktop.UDisks2.Block"]
-                crypto_iface = all[path]["org.freedesktop.UDisks2.Encrypted"]
+        udisks_objects = self.udisks_objects()
+        for path in udisks_objects:
+            if "org.freedesktop.UDisks2.Encrypted" in udisks_objects[path]:
+                block_iface = udisks_objects[path]["org.freedesktop.UDisks2.Block"]
+                crypto_iface = udisks_objects[path]["org.freedesktop.UDisks2.Encrypted"]
                 if from_udisks_ascii(block_iface["Device"]) == dev or from_udisks_ascii(block_iface["PreferredDevice"]) == dev:
                     for entry in crypto_iface["ChildConfiguration"]:
                         if entry[0] == tab:
@@ -475,10 +475,10 @@ class StorageHelpers:
         self.assertIn(text, self.child_configuration_field(dev, tab, field))
 
     def lvol_child_configuration_field(self, lvol, tab, field):
-        all = self.udisks_objects()
-        for path in all:
-            if "org.freedesktop.UDisks2.LogicalVolume" in all[path]:
-                iface = all[path]["org.freedesktop.UDisks2.LogicalVolume"]
+        udisk_objects = self.udisks_objects()
+        for path in udisk_objects:
+            if "org.freedesktop.UDisks2.LogicalVolume" in udisk_objects[path]:
+                iface = udisk_objects[path]["org.freedesktop.UDisks2.LogicalVolume"]
                 if iface["Name"] == lvol:
                     for entry in iface["ChildConfiguration"]:
                         if entry[0] == tab:

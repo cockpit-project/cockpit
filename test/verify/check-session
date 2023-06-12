@@ -39,8 +39,8 @@ class TestSession(MachineCase):
 
         # Check session type
         if not m.ostree_image:
-            id = m.execute("loginctl list-sessions | awk '/admin/ {print $1}'").strip()
-            self.assertEqual(m.execute(f"loginctl show-session -p Type {id}").strip(), "Type=web")
+            session_id = m.execute("loginctl list-sessions | awk '/admin/ {print $1}'").strip()
+            self.assertEqual(m.execute(f"loginctl show-session -p Type {session_id}").strip(), "Type=web")
 
         # Logout
         b.logout()

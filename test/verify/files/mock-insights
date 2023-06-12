@@ -93,8 +93,8 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        len = int(self.headers.get('content-length', 0))
-        data = self.rfile.read(len)
+        content_length = int(self.headers.get('content-length', 0))
+        data = self.rfile.read(content_length)
 
         m = self.match("/r/insights/v1/systems")
         if m:

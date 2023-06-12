@@ -1191,8 +1191,8 @@ class Browser:
         if not (Image and self.pixels_label):
             return
 
-        all = set(glob.glob(os.path.join(TEST_DIR, "reference", self.pixels_label + "*-pixels.png")))
-        unused = all - self.used_pixel_references
+        pixel_references = set(glob.glob(os.path.join(TEST_DIR, "reference", self.pixels_label + "*-pixels.png")))
+        unused = pixel_references - self.used_pixel_references
         for u in unused:
             print("Unused reference image " + os.path.basename(u))
             self.failed_pixel_tests += 1

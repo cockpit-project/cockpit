@@ -1,11 +1,11 @@
 #! /usr/bin/python3
 
-import sys
 import json
-import subprocess
 import os
-import signal
 import pwd
+import signal
+import subprocess
+import sys
 import time
 
 # mount-users   --  Find and terminate processes that keep a mount busy

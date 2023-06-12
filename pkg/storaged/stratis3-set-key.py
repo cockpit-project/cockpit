@@ -1,5 +1,6 @@
-import dbus
 import sys
+
+import dbus
 
 reply = dbus.SystemBus().call_blocking('org.storage.stratis3', '/org/storage/stratis3',
                                        'org.storage.stratis3.Manager.r0', 'SetKey',

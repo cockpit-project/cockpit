@@ -1,9 +1,9 @@
 #! /usr/bin/python3
 
-import sys
-import os
-import time
 import json
+import os
+import sys
+import time
 
 from vdo.statistics import NotAvailable, Samples, VDOStatistics
 from vdo.vdomgmnt import Configuration, SizeString

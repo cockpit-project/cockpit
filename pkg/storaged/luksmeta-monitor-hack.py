@@ -3,14 +3,14 @@
 # This simulates the org.freedesktop.UDisks.Encrypted.Slots property
 # et al for versions of UDisks that don't have them yet.
 
-import sys
-import json
-import subprocess
-import re
-import base64
-import signal
 import atexit
+import base64
+import json
 import os
+import re
+import signal
+import subprocess
+import sys
 
 
 def b64_decode(data):

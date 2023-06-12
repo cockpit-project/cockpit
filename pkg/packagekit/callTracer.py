@@ -1,4 +1,5 @@
 import json
+
 from tracer.query import Query
 
 q = Query()

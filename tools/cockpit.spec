@@ -53,7 +53,11 @@ Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
-# Experimental Python support
+# Use Python bridge on non-stable versions
+%if 0%{?fedora} >= 39
+%define cockpit_enable_python 1
+%endif
+
 %if !%{defined cockpit_enable_python}
 %define cockpit_enable_python 0
 %endif

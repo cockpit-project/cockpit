@@ -56,13 +56,13 @@ class TestStorageFormat(StorageCase):
         b.click('#drives .sidepanel-row:contains("DISK1")')
         b.wait_visible('#storage-detail')
 
-        def check_type(type, label_limit, head_action=False):
+        def check_type(fstype, label_limit, head_action=False):
             if head_action:
                 self.content_row_action(1, "Format")
             else:
                 self.content_dropdown_action(1, "Format")
             self.dialog_wait_open()
-            self.dialog_set_val("type", type)
+            self.dialog_set_val("type", fstype)
             self.dialog_set_val("mount_point", "/foo")
             self.dialog_set_val("name", "X" * (label_limit + 1))
             self.dialog_apply_secondary()
@@ -70,12 +70,12 @@ class TestStorageFormat(StorageCase):
             self.dialog_set_val("name", "X" * label_limit)
             self.dialog_apply_secondary()
             self.dialog_wait_close()
-            self.content_row_wait_in_col(1, 2, type + " filesystem")
+            self.content_row_wait_in_col(1, 2, fstype + " filesystem")
 
-        def check_unsupported_type(type):
+        def check_unsupported_type(fstype):
             self.content_dropdown_action(1, "Format")
             self.dialog_wait_open()
-            b.wait_not_present(f'#dialog li[value={type}]')
+            b.wait_not_present(f'#dialog li[value={fstype}]')
             self.dialog_cancel()
             self.dialog_wait_close()
 

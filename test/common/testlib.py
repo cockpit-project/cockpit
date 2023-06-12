@@ -360,10 +360,10 @@ class Browser:
                 return c
         return None
 
-    def go(self, hash: str):
-        self.call_js_func('ph_go', hash)
+    def go(self, url_hash: str):
+        self.call_js_func('ph_go', url_hash)
 
-    def mouse(self, selector: str, type: str, x: int = 0, y: int = 0, btn: int = 0, ctrlKey: bool = False, shiftKey: bool = False, altKey: bool = False, metaKey: bool = False):
+    def mouse(self, selector: str, event: str, x: int = 0, y: int = 0, btn: int = 0, ctrlKey: bool = False, shiftKey: bool = False, altKey: bool = False, metaKey: bool = False):
         """Simulate a browser mouse event
 
         :param selector: the element to interact with
@@ -377,7 +377,7 @@ class Browser:
         :param metaKey: press the meta key
         """
         self.wait_visible(selector)
-        self.call_js_func('ph_mouse', selector, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
+        self.call_js_func('ph_mouse', selector, event, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
 
     def click(self, selector: str):
         """Click on a ui element
@@ -559,7 +559,7 @@ class Browser:
             def __enter__(self):
                 pass
 
-            def __exit__(self, type, value, traceback):
+            def __exit__(self, type_, value, traceback):
                 browser.cdp.timeout = self.timeout
         r = WaitParamsRestorer(self.cdp.timeout)
         self.cdp.timeout = timeout
@@ -669,19 +669,19 @@ class Browser:
         self.wait_visible(selector)
         self.wait_js_func('ph_text_matches', selector, pattern)
 
-    def wait_popup(self, id: str):
+    def wait_popup(self, elem_id: str):
         """Wait for a popup to open.
 
         :param id: the 'id' attribute of the popup.
         """
-        self.wait_visible('#' + id)
+        self.wait_visible('#' + elem_id)
 
-    def wait_popdown(self, id: str):
+    def wait_popdown(self, elem_id: str):
         """Wait for a popup to close.
 
         :param id: the 'id' attribute of the popup.
         """
-        self.wait_not_visible('#' + id)
+        self.wait_not_visible('#' + elem_id)
 
     def wait_language(self, lang: str):
         parts = lang.split("-")
@@ -1910,10 +1910,10 @@ class MachineCase(unittest.TestCase):
         report = self.browser.eval_js("axe.run()", no_trace=True)
 
         # trim the report
-        def delkeys(dict, *keys):
+        def delkeys(dictionary, *keys):
             for key in keys:
                 try:
-                    del dict[key]
+                    del dictionary[key]
                 except KeyError:
                     pass
         delkeys(report, "passes", "inapplicable", "timestamp")

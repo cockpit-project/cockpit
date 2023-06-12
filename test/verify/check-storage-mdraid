@@ -68,7 +68,7 @@ class TestStorageMdRaid(StorageCase):
             # few times.  Also, it might come back spontaneously after
             # having been stopped successfully; wait a bit before
             # checking whether it is really off.
-            for retry in range(3):
+            for _ in range(3):
                 try:
                     sleep(10)
                     self.browser.wait_in_text(info_field("State"), "Not running")

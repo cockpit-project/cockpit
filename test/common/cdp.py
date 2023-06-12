@@ -247,7 +247,7 @@ class CDP:
     def find_cdp_port(self):
         """Find an unused port and claim it through lock file"""
 
-        for retry in range(100):
+        for _ in range(100):
             # don't use the default CDP port 9222 to avoid interfering with running browsers
             port = random.randint(9223, 10222)
             if self.claim_port(port):
@@ -293,7 +293,7 @@ class CDP:
                 sys.stderr.write("Started %s (pid %i) on port %i\n" % (cmd[0], self._browser.pid, cdp_port))
 
         # wait for CDP to be up and have at least one target
-        for retry in range(120):
+        for _ in range(120):
             try:
                 res = urllib.request.urlopen(f"http://127.0.0.1:{cdp_port}/json/list", timeout=5)
                 if res.getcode() == 200 and json.loads(res.read()):

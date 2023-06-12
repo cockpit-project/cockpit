@@ -397,7 +397,7 @@ def run(opts, image):
         # a given serial runner is done.
         num_global = min(serial_tests_len, opts.jobs)
 
-        for i in range(num_global):
+        for _ in range(num_global):
             global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,
                                                  memory_mb=opts.nondestructive_memory_mb,
                                                  machine_class=machine_class or testvm.VirtMachine))

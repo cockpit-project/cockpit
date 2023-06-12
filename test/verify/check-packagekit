@@ -128,7 +128,7 @@ class TestUpdates(NoSubManCase):
         '''Wait until spinner is gone from updates icon for 3 s'''
 
         good_count = 0
-        for retry in range(60):
+        for _ in range(60):
             classes = self.browser.attr(self.update_icon, "class")
             if classes is not None and "pf-v5-c-spinner" in classes:
                 good_count = 0

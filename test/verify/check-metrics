@@ -742,7 +742,7 @@ class TestHistoryMetrics(MachineCase):
         # reacts to service changes from outside; this is asynchronous and the dialog deliberately
         # does not update automatically, so retry a few times
         def checkEnabled(expected):
-            for retry in range(10):
+            for _ in range(10):
                 b.click("#metrics-header-section button.pf-m-secondary")
                 b.wait_visible('#switch-pmproxy')
                 found = b.is_present("#switch-pmproxy" + (expected and ":checked" or ":not(:checked)"))

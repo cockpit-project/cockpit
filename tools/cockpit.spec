@@ -294,8 +294,7 @@ rm -f %{buildroot}/%{_libdir}/security/pam_*
 rm -f %{buildroot}/usr/bin/cockpit-bridge
 rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
 rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
-rm -rf %{buildroot}%{python3_sitelib}/cockpit/
-rm -rf %{buildroot}%{python3_sitelib}/cockpit-%{version}.dist-info/
+rm -rf %{buildroot}%{python3_sitelib}/cockpit*
 %endif
 
 # when not building optional packages, remove their files
@@ -377,8 +376,7 @@ system on behalf of the web based user interface.
 %{_bindir}/cockpit-bridge
 %{_libexecdir}/cockpit-askpass
 %if %{cockpit_enable_python}
-%{python3_sitelib}/%{name}/
-%{python3_sitelib}/%{name}-%{version}.dist-info/
+%{python3_sitelib}/%{name}*
 %endif
 
 %package doc

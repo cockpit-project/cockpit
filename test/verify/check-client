@@ -21,7 +21,7 @@ import testlib
 
 
 # Run this on more OSes as we roll out the pybridge
-@testlib.onlyImage("needs pybridge", "debian-testing")
+@testlib.onlyImage("needs pybridge", "debian-testing", "ubuntu-stable")
 class TestClient(testlib.MachineCase):
 
     provision = {

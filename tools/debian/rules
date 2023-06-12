@@ -4,7 +4,7 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 # Keep the older C bridge on stable releases
 # also keep it on Ubuntu until testCockpitDesktop gets fixed
-C_BRIDGE = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),11 22.04 22.10 23.04)
+C_BRIDGE = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),11 22.04)
 ifeq ($(C_BRIDGE),)
 CONFIG_OPTIONS += --enable-pybridge
 endif

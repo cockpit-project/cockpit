@@ -53,7 +53,7 @@ class BrowserTest(unittest.TestCase):
         handler = self.win_actions.connect('action-added', lambda _group, name: actions.add(name))
         main = GLib.MainContext.default()
         while not actions:
-            main.iteration(True)
+            main.iteration(may_block=True)
         self.win_actions.disconnect(handler)
         self.assertIn("run-js", actions)
 
@@ -91,7 +91,7 @@ class BrowserTest(unittest.TestCase):
         main = GLib.MainContext.default()
         GLib.timeout_add_seconds(JS_TIMEOUT, on_timeout)
         while not result:
-            main.iteration(True)
+            main.iteration(may_block=True)
 
         self.win_actions.disconnect(handler)
 

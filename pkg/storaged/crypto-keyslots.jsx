@@ -37,7 +37,7 @@ import { check_missing_packages, install_missing_packages, Enum as PkEnum } from
 
 import {
     dialog_open,
-    SelectOneRadio, TextInput, PassInput, Skip
+    SelectOneRadio, TextInput, PassInput
 } from "./dialog.jsx";
 import { decode_filename, encode_filename, block_name, for_each_async, get_children } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
@@ -197,7 +197,6 @@ function passphrase_test(block, passphrase) {
 
 export function existing_passphrase_fields(explanation) {
     return [
-        Skip("medskip", { visible: vals => vals.needs_explicit_passphrase }),
         PassInput("passphrase", _("Disk passphrase"),
                   {
                       visible: vals => vals.needs_explicit_passphrase,
@@ -510,7 +509,6 @@ function add_dialog(client, block) {
                                    { value: "tang", title: _("Tang keyserver") }
                                ]
                            }),
-            Skip("medskip"),
             PassInput("new_passphrase", _("New passphrase"),
                       {
                           visible: vals => !client.features.clevis || vals.type == "luks-passphrase",
@@ -560,7 +558,6 @@ function edit_passphrase_dialog(block, key) {
         Fields: [
             PassInput("old_passphrase", _("Old passphrase"),
                       { validate: val => !val.length && _("Passphrase cannot be empty") }),
-            Skip("medskip"),
             PassInput("new_passphrase", _("New passphrase"),
                       {
                           validate: val => !val.length && _("Passphrase cannot be empty"),

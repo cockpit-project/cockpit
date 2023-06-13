@@ -21,11 +21,14 @@ import getpass
 import logging
 import os
 import socket
+from tempfile import TemporaryDirectory
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from cockpit._vendor import ferny
+from cockpit._vendor.bei.bootloader import make_bootloader
 from cockpit._vendor.systemd_ctypes import bus
 
+from .beipack import BridgeBeibootHelper
 from .peer import ConfiguredPeer, Peer, PeerError
 from .polkit import PolkitAgent
 from .router import Router, RoutingError, RoutingRule
@@ -49,7 +52,22 @@ class SuperuserPeer(ConfiguredPeer):
                 logger.debug('connecting non-polkit superuser peer transport %r', self.args)
 
             agent = ferny.InteractionAgent(self.responder)
-            transport = await self.spawn(self.args, self.env, stderr=agent, start_new_session=True)
+
+            if 'SUDO_ASKPASS=ferny-askpass' in self.env:
+                tmpdir = context.enter_context(TemporaryDirectory())
+                ferny_askpass = ferny.write_askpass_to_tmpdir(tmpdir)
+                env: Sequence[str] = [f'SUDO_ASKPASS={ferny_askpass}']
+            else:
+                env = self.env
+
+            transport = await self.spawn(self.args, env, stderr=agent, start_new_session=True)
+
+            if '# cockpit-bridge' in self.args:
+                logger.debug('going to beiboot superuser bridge %r', self.args)
+                helper = BridgeBeibootHelper(self, ['--privileged'])
+                agent.add_handler(helper)
+                transport.write(make_bootloader(helper.steps, gadgets=ferny.BEIBOOT_GADGETS).encode())
+
             try:
                 await agent.communicate()
             except ferny.InteractionError as exc:
@@ -59,6 +77,8 @@ class SuperuserPeer(ConfiguredPeer):
 
 
 class CockpitResponder(ferny.InteractionResponder):
+    commands = ('ferny.askpass', 'cockpit.send-stderr')
+
     async def do_custom_command(self, command: str, args: Tuple, fds: List[int], stderr: str) -> None:
         if command == 'cockpit.send-stderr':
             with socket.socket(fileno=fds[0]) as sock:

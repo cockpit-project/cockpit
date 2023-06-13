@@ -35,12 +35,12 @@ class Watcher:
         self.inotify.process(event)
 
 
-def field_escape(str):
-    return str.replace("\\", "\\134").replace(" ", "\\040").replace("\t", "\\011")
+def field_escape(field):
+    return field.replace("\\", "\\134").replace(" ", "\\040").replace("\t", "\\011")
 
 
-def field_unescape(str):
-    return re.sub("\\\\([0-7]{1,3})", lambda m: chr(int(m.group(1), 8)), str)
+def field_unescape(field):
+    return re.sub("\\\\([0-7]{1,3})", lambda m: chr(int(m.group(1), 8)), field)
 
 
 def parse_tab(name):

@@ -162,13 +162,13 @@ def jsquote(obj):
 
 
 class CDP:
-    def __init__(self, lang=None, verbose=False, trace=False, inject_helpers=[], start_profile=False):
+    def __init__(self, lang=None, verbose=False, trace=False, inject_helpers=None, start_profile=False):
         self.lang = lang
         self.timeout = 15
         self.valid = False
         self.verbose = verbose
         self.trace = trace
-        self.inject_helpers = inject_helpers
+        self.inject_helpers = inject_helpers or []
         self.start_profile = start_profile
         self.browser = get_browser(os.environ.get("TEST_BROWSER", "chromium"))
         self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))

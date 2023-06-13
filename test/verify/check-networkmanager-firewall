@@ -128,7 +128,7 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         # Path to the "pkcheck" PolicyKit utility
-        pkcheck = m.execute("which pkcheck").strip()
+        pkcheck = m.execute("command -v pkcheck").strip()
         # "Hide" pkcheck
         m.execute(f"mount --bind /dev/null '{pkcheck}'")
 

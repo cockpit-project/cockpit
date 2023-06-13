@@ -466,7 +466,9 @@ class TestFirewall(NetworkCase):
             b.wait_visible(f".zone-section[data-id='{zone}'] tr[data-row-id='{service}']")
             self.assertIn(service, m.execute(f"firewall-cmd --zone={zone} --list-services"))
 
-        def addZone(zone, interfaces=[], sources=None, error=None):
+        def addZone(zone, interfaces=None, sources=None, error=None):
+            if interfaces is None:
+                interfaces = []
             b.click("#add-zone-button")
             b.wait_visible("#add-zone-dialog")
             b.wait_visible(f"#add-zone-dialog footer button.{self.btn_primary}:disabled")

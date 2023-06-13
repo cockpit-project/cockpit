@@ -269,6 +269,7 @@ class SshBridge(Router):
         pass  # wait for the peer to do it first
 
     def do_init(self, message):
+        assert 'superuser' not in message  # see 'capabilities' below
         self.ssh_peer.write_control(**message)
 
 
@@ -280,6 +281,9 @@ async def run(args) -> None:
 
     try:
         message = await bridge.ssh_peer.start()
+        # https://github.com/cockpit-project/cockpit/issues/18927
+        if 'capabilities' in message:
+            message['capabilities']['explicit-superuser'] = False
         bridge.write_control(**dict(message, packages={p: None for p in bridge.packages.packages}))
         bridge.ssh_peer.thaw_endpoint()
     except ferny.InteractionError as exc:

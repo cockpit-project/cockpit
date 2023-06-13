@@ -26,5 +26,6 @@ async def test_bridge_beiboot():
     peer = BeibootPeer(Router([]))
     init_msg = await peer.start()
     assert init_msg['version'] == 1
+    assert 'packages' not in init_msg
     peer.close()
     await settle_down()

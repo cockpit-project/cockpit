@@ -17,13 +17,11 @@
 
 import argparse
 import asyncio
-import ctypes
 import json
 import logging
 import os
 import pwd
 import shlex
-import signal
 import socket
 import subprocess
 from typing import Dict, Iterable, List, Optional, Tuple, Type
@@ -209,17 +207,11 @@ def setup_logging(*, debug: bool):
 
 
 def start_ssh_agent() -> None:
-    prctl = ctypes.CDLL(None).prctl
-    PR_SET_PDEATHSIG = 1
-
-    # NB: We prefer SIGTERM to SIGKILL here since the agent needs to have a
-    # chance to clean up its listener socket.
+    # Launch the agent so that it goes down with us on EOF; PDEATHSIG would be more robust,
+    # but it gets cleared on setgid ssh-agent, which some distros still do
     try:
-        proc = subprocess.Popen(['ssh-agent',
-                                 '-D',  # no-daemon
-                                 '-s',  # shell-style output
-                                 ], stdout=subprocess.PIPE, universal_newlines=True,
-                                preexec_fn=lambda: prctl(PR_SET_PDEATHSIG, signal.SIGTERM))
+        proc = subprocess.Popen(['ssh-agent', 'sh', '-ec', 'echo $SSH_AUTH_SOCK; read a'],
+                                stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         assert proc.stdout is not None
 
         # Wait for the agent to write at least one line and look for the

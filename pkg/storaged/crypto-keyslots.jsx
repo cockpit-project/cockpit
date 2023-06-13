@@ -515,6 +515,7 @@ function add_dialog(client, block) {
                       {
                           visible: vals => !client.features.clevis || vals.type == "luks-passphrase",
                           validate: val => !val.length && _("Passphrase cannot be empty"),
+                          new_password: true
                       }),
             PassInput("new_passphrase2", _("Repeat passphrase"),
                       {
@@ -523,7 +524,8 @@ function add_dialog(client, block) {
                               return (vals.new_passphrase.length &&
                                                         vals.new_passphrase != val &&
                                                         _("Passphrases do not match"));
-                          }
+                          },
+                          new_password: true
                       }),
             TextInput("tang_url", _("Keyserver address"),
                       {
@@ -560,9 +562,15 @@ function edit_passphrase_dialog(block, key) {
                       { validate: val => !val.length && _("Passphrase cannot be empty") }),
             Skip("medskip"),
             PassInput("new_passphrase", _("New passphrase"),
-                      { validate: val => !val.length && _("Passphrase cannot be empty") }),
+                      {
+                          validate: val => !val.length && _("Passphrase cannot be empty"),
+                          new_password: true
+                      }),
             PassInput("new_passphrase2", _("Repeat passphrase"),
-                      { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match") })
+                      {
+                          validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match"),
+                          new_password: true
+                      })
         ],
         Action: {
             Title: _("Save"),

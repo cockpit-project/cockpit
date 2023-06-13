@@ -330,6 +330,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                                     return _("Passphrase cannot be empty");
                                             },
                                             visible: vals => is_encrypted(vals) && vals.crypto != " keep",
+                                            new_password: true
                                         }),
                               PassInput("passphrase2", _("Confirm"),
                                         {
@@ -338,6 +339,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                                     return _("Passphrases do not match");
                                             },
                                             visible: vals => is_encrypted(vals) && vals.crypto != " keep",
+                                            new_password: true
                                         }),
                               CheckBoxes("store_passphrase", "",
                                          {

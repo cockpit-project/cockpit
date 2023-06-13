@@ -131,7 +131,8 @@ export function create_stratis_pool(client) {
                                                  if (phrase === "")
                                                      return _("Passphrase cannot be empty");
                                              },
-                                             visible: vals => vals.encrypt.on
+                                             visible: vals => vals.encrypt.on,
+                                             new_password: true
                                          }),
                                PassInput("passphrase2", _("Confirm"),
                                          {
@@ -139,7 +140,8 @@ export function create_stratis_pool(client) {
                                                  if (phrase2 != vals.passphrase)
                                                      return _("Passphrases do not match");
                                              },
-                                             visible: vals => vals.encrypt.on
+                                             visible: vals => vals.encrypt.on,
+                                             new_password: true
                                          })
                            ]
                        }),

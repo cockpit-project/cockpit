@@ -37,7 +37,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         await self.transport.stop()
 
     async def start(self, *, send_init: bool = True) -> None:
-        self.bridge = Bridge(argparse.Namespace(privileged=False))
+        self.bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
         self.transport = MockTransport(self.bridge)
 
         if send_init:
@@ -418,7 +418,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 @pytest.mark.asyncio
 @pytest.mark.parametrize('channeltype', CHANNEL_TYPES)
 async def test_channel(channeltype, tmp_path):
-    bridge = Bridge(argparse.Namespace(privileged=False))
+    bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
     transport = MockTransport(bridge)
     await transport.assert_msg('', command='init')
     transport.send_init()

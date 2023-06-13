@@ -36,7 +36,7 @@ def get_bridge_beipack_xz() -> Tuple[str, bytes]:
         logger.debug('Pre-built cockpit-bridge.beipack.xz; building our own.')
         # beipack ourselves
         cockpit_contents = beipack.collect_module('cockpit', recursive=True)
-        bridge_beipack = beipack.pack(cockpit_contents, entrypoint='cockpit.bridge:main')
+        bridge_beipack = beipack.pack(cockpit_contents, entrypoint='cockpit.bridge:main', args='beipack=True')
         bridge_beipack_xz = lzma.compress(bridge_beipack.encode())
         logger.debug('  ... done!')
 

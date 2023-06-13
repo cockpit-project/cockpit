@@ -26,7 +26,7 @@ import shlex
 import signal
 import socket
 import subprocess
-from typing import Dict, Iterable, List, Tuple, Type
+from typing import Dict, Iterable, List, Optional, Tuple, Type
 
 from cockpit._vendor.ferny import interaction_client
 from cockpit._vendor.systemd_ctypes import bus, run_async
@@ -61,25 +61,29 @@ class InternalBus:
 
 class Bridge(Router, PackagesListener):
     internal_bus: InternalBus
-    packages: Packages
+    packages: Optional[Packages]
     bridge_rules: List[Dict[str, object]]
     args: argparse.Namespace
 
     def __init__(self, args: argparse.Namespace):
         self.internal_bus = InternalBus(EXPORTS)
-        self.packages = Packages(self)
         self.bridge_rules = []
         self.args = args
 
         self.superuser_rule = SuperuserRoutingRule(self, privileged=args.privileged)
         self.internal_bus.export('/superuser', self.superuser_rule)
-        self.internal_bus.export('/packages', self.packages)
+
         self.internal_bus.export('/config', Config())
         self.internal_bus.export('/environment', Environment())
 
         self.peers_rule = PeersRoutingRule(self)
 
-        self.packages_loaded()
+        if args.beipack:
+            self.packages = None
+        else:
+            self.packages = Packages(self)
+            self.internal_bus.export('/packages', self.packages)
+            self.packages_loaded()
 
         super().__init__([
             HostRoutingRule(self),
@@ -109,10 +113,17 @@ class Bridge(Router, PackagesListener):
             self.superuser_rule.init(superuser)
 
     def do_send_init(self) -> None:
-        self.write_control(command='init', version=1,
-                           checksum=self.packages.checksum,
-                           packages={p: None for p in self.packages.packages},
-                           os_release=self.get_os_release(), capabilities={'explicit-superuser': True})
+        if self.packages is not None:
+            packages_info = {
+                'checksum': self.packages.checksum,
+                'packages': {p: None for p in self.packages.packages}
+            }
+        else:
+            packages_info = {}
+
+        self.write_control(command='init', version=1, **packages_info,
+                           os_release=self.get_os_release(),
+                           capabilities={'explicit-superuser': True})
 
     # PackagesListener interface
     def packages_loaded(self):
@@ -217,7 +228,7 @@ def start_ssh_agent() -> None:
         logger.warning("Could not start ssh-agent: %s", exc)
 
 
-def main() -> None:
+def main(*, beipack: bool = False) -> None:
     polyfills.install()
 
     parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
@@ -228,6 +239,9 @@ def main() -> None:
     parser.add_argument('--debug', action='store_true', help='Enable debug output (very verbose)')
     parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
     args = parser.parse_args()
+
+    # This is determined by who calls us
+    args.beipack = beipack
 
     # If we were run with --privileged then our stderr is currently being
     # consumed by the main bridge looking for startup-related error messages.

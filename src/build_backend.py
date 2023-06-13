@@ -75,10 +75,10 @@ def build_wheel(wheel_directory: str,
     }
 
     with zipfile.ZipFile(f'{wheel_directory}/{wheel_filename}', 'w') as wheel:
-        def beipack_self(main: str) -> bytes:
+        def beipack_self(main: str, args: str = '') -> bytes:
             from cockpit._vendor.bei import beipack
             contents = {name: wheel.read(name) for name in wheel.namelist()}
-            pack = beipack.pack(contents, main).encode('utf-8')
+            pack = beipack.pack(contents, main, args=args).encode('utf-8')
             return lzma.compress(pack, preset=lzma.PRESET_EXTREME)
 
         def write_distinfo(filename: str, lines: Iterable[str]) -> None:
@@ -94,7 +94,7 @@ def build_wheel(wheel_directory: str,
         for filename in find_sources(srcpkg=False):
             wheel.write(filename, arcname=os.path.relpath(filename, start='src'))
 
-        wheel.writestr('cockpit/data/cockpit-bridge.beipack.xz', beipack_self('cockpit.bridge:main'))
+        wheel.writestr('cockpit/data/cockpit-bridge.beipack.xz', beipack_self('cockpit.bridge:main', 'beipack=True'))
 
         for filename, lines in distinfo.items():
             write_distinfo(filename, lines)

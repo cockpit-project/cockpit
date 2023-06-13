@@ -30,8 +30,7 @@ def fuser(mount_point):
         # Field two is everything between the first "(" and the last ")", the rest is space separated.
         comm_start = stat.index("(") + 1
         comm_end = stat.rindex(")")
-        return ([stat[0:comm_start - 1].strip(), stat[comm_start:comm_end]] +
-                list(filter(lambda f: f != "", stat[comm_end + 1:-1].split(" "))))
+        return ([stat[0:comm_start - 1].strip(), stat[comm_start:comm_end], *list(filter(lambda f: f != '', stat[comm_end + 1:-1].split(' ')))])
 
     def get_loginuser(pid):
         uid = os.stat("/proc/%s" % pid).st_uid
@@ -141,7 +140,7 @@ def stop_pids(pids):
 
 def stop_units(units):
     if len(units) > 0:
-        subprocess.check_call(["systemctl", "stop"] + units)
+        subprocess.check_call(['systemctl', 'stop', *units])
 
 
 def stop(users):

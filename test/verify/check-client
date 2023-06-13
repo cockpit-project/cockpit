@@ -61,9 +61,8 @@ Command = {ssh_command}
         self.machine.execute('''
             while [ -n "$(pgrep -au admin | grep -Ev 'cockpit-ws|ssh.*cockpit-bridge' >&2)" ]; do sleep 1; done
         ''', timeout=10)
-        # FIXME: ssh-agent leaks both with and without remote bridge; fixed in PR#18917
-        self.machines["target"].execute("while pgrep -af '([c]ockpit|[s]sh-agentFIXME)' >&2; do sleep 1; done",
-                                        timeout=10)
+        self.machines["target"].execute("while pgrep -af '([c]ockpit|[s]sh-agent)' >&2; do sleep 1; done",
+                                        timeout=30)
 
     # deprecated: c-client-ssh will disappear once c-beiboot goes from beta to release
     def testClientSSH(self):

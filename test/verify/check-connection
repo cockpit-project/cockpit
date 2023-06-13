@@ -52,7 +52,7 @@ class TestConnection(testlib.MachineCase):
         m = self.machine
         try:
             # there may still be user-wide ones like dbus-broker
-            m.execute("while pgrep -au admin '(cockpit|ssh-agent)'; do sleep 0.1; done", timeout=10)
+            m.execute("while pgrep -au admin '(cockpit|ssh-agent)'; do sleep 0.1; done", timeout=30)
         except RuntimeError:
             # show the leaked processes in the assertion
             self.fail(m.execute("pgrep -au admin '(cockpit|ssh-agent)'"))

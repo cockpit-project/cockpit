@@ -1042,7 +1042,7 @@ password=foobar
         b.wait_text("#crypto-policy-button", shown_profile_text(profile))
         b.click("#crypto-policy-button")
         b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
-        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", "Custom crypto policy")
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", "Custom cryptographic policy")
         b.click("#crypto-policy-dialog button.pf-v5-c-button.pf-m-link")
 
     @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
@@ -1068,14 +1068,14 @@ password=foobar
         self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "1")
 
         m.execute(cmd + " --set DEFAULT")
-        b.wait_text("#inconsistent_crypto_policy", "Crypto policy is inconsistent")
+        b.wait_text("#inconsistent_crypto_policy", "Cryptographic policy is inconsistent")
         m.execute(cmd + " --set FIPS:OSPP")
         b.wait_text("#crypto-policy-button", "Fips:ospp")
         b.wait_not_present("#inconsistent_crypto_policy")
 
         # Setting via dialog
         m.execute(cmd + " --set DEFAULT")
-        b.wait_text("#inconsistent_crypto_policy", "Crypto policy is inconsistent")
+        b.wait_text("#inconsistent_crypto_policy", "Cryptographic policy is inconsistent")
         b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
         b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
         b.click("#crypto-policy-save-reboot")

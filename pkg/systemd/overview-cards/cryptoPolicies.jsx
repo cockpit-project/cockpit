@@ -59,10 +59,10 @@ export const CryptoPolicyRow = () => {
 
     return (
         <tr>
-            <th scope="row">{_("Crypto policy")}</th>
+            <th scope="row">{_("Cryptographic policy")}</th>
             <td>
                 <PrivilegedButton variant="link" buttonId="crypto-policy-button" tooltipId="tip-crypto-policy"
-                                  excuse={ _("The user $0 is not permitted to change crypto policies") }
+                                  excuse={ _("The user $0 is not permitted to change cryptographic policies") }
                                   onClick={() => Dialogs.show(<CryptoPolicyDialog
                                                                   currentCryptoPolicy={currentCryptoPolicy}
                                                                   setCurrentCryptoPolicy={setCurrentCryptoPolicy}
@@ -139,7 +139,7 @@ const CryptoPolicyDialog = ({
         policies.push({
             name: currentCryptoPolicy,
             title: displayProfileText(currentCryptoPolicy),
-            description: _("Custom crypto policy"),
+            description: _("Custom cryptographic policy"),
             active: !isInconsistentPolicy(currentCryptoPolicy, fipsEnabled),
             inconsistent: isInconsistentPolicy(currentCryptoPolicy, fipsEnabled),
             recommended: false,
@@ -151,7 +151,7 @@ const CryptoPolicyDialog = ({
             id="crypto-policies-help"
             bodyContent={
                 <div>
-                    {_("Crypto Policies is a system component that configures the core cryptographic subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols.")}
+                    {_("Cryptographic Policies is a system component that configures the core cryptographic subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols.")}
                 </div>
             }
             footerContent={
@@ -178,7 +178,7 @@ const CryptoPolicyDialog = ({
                help={help}
                onClose={Dialogs.close}
                id="crypto-policy-dialog"
-               title={_("Change crypto policy")}
+               title={_("Change cryptographic policy")}
                footer={
                    <>
                        {inProgress &&
@@ -227,13 +227,13 @@ export const CryptoPolicyStatus = () => {
                     <FlexItem><ExclamationTriangleIcon className="crypto-policies-health-card-icon" /></FlexItem>
                     <div>
                         <div id="inconsistent_crypto_policy">
-                            {currentCryptoPolicy === "FIPS" ? _("FIPS is not properly enabled") : _("Crypto policy is inconsistent")}
+                            {currentCryptoPolicy === "FIPS" ? _("FIPS is not properly enabled") : _("Cryptographic policy is inconsistent")}
                         </div>
                         <Button isInline variant="link" className="pf-v5-u-font-size-sm"
                                 onClick={() => Dialogs.show(<CryptoPolicyDialog currentCryptoPolicy={currentCryptoPolicy}
                                                                                 fipsEnabled={fipsEnabled}
                                                                                 reApply />)}>
-                            {_("Review crypto policy")}
+                            {_("Review cryptographic policy")}
                         </Button>
                     </div>
                 </Flex>

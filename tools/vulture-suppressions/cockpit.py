@@ -9,5 +9,6 @@ User.id
 User.shell
 
 # getattr()
+Printer.dbus_call
 Printer.help
 Printer.wait

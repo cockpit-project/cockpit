@@ -54,13 +54,14 @@ class Printer:
         """Send init.  This is normally done automatically, but you can override it."""
         self.control('init', host=host, version=version, **kwargs)
 
-    def open(self, payload: str, channel: Optional[str] = None, **kwargs: object) -> None:
+    def open(self, payload: str, channel: Optional[str] = None, **kwargs: object) -> str:
         """Opens a channel for the named payload.  A channel name is generated if not provided."""
         if channel is None:
             self.last_channel += 1
             channel = f'ch{self.last_channel}'
 
         self.control('open', channel=channel, payload=payload, **kwargs)
+        return channel
 
     def done(self, channel: Optional[str] = None, **kwargs: object) -> None:
         """Sends a done command on the named channel, or the last opened channel."""
@@ -95,6 +96,14 @@ class Printer:
     def spawn(self, *args: str, channel: Optional[str] = None, **kwargs: object) -> None:
         """Open a stream channel with a spawned command"""
         self.open('stream', spawn=args, channel=channel, **kwargs)
+
+    def dbus_open(self, *args: str, channel: Optional[str] = None, bus: str = 'internal', **kwargs: object) -> str:
+        return self.open('dbus-json3', channel=channel, bus=bus)
+
+    def dbus_call(self, *args: str, channel: Optional[str] = None, bus: str = 'internal', **kwargs: object) -> None:
+        if channel is None:
+            channel = self.dbus_open(bus=bus)
+        self.json(channel, call=[*args], id=1)
 
     def help(self) -> None:
         """Show help"""

@@ -78,7 +78,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         ])
         self.lookup_action('run-js').set_enabled(app.enable_run_js)
 
-        self.webview.get_settings().set_enable_developer_extras(True)
+        self.webview.get_settings().set_enable_developer_extras(enabled=True)
         self.webview.connect('decide-policy', self.decide_policy)
         self.webview.load_uri(uri)
 
@@ -220,7 +220,7 @@ class CockpitClient(Gtk.Application):
         context = WebKit2.WebContext.get_default()
         data_manager = context.get_website_data_manager()
         data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
-        context.set_sandbox_enabled(True)
+        context.set_sandbox_enabled(enabled=True)
         context.set_cache_model(WebKit2.CacheModel.DOCUMENT_VIEWER)
 
         cookiesPath = os.path.join(data_manager.get_local_storage_directory(), "cookies.txt")

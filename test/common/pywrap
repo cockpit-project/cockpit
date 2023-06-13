@@ -26,5 +26,5 @@ export PYTHONPATH
 
 # Run the script
 # -B     : don't write .pyc files on import; also PYTHONDONTWRITEBYTECODE=x
-# -P     : don't prepend a potentially unsafe path to sys.path
-exec python3 -B -P "$@"
+# -P     : don't prepend a potentially unsafe path to sys.path -- but not available in RHEL 8/9 yet, use once we can
+exec python3 -B "$@"

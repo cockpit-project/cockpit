@@ -103,7 +103,7 @@ def element_value(xml, tag):
     return elt.text if elt is not None else None
 
 
-def convert_description(xml, use_lang=True):
+def convert_description(xml, *, use_lang=True):
     if xml is None:
         return None
 
@@ -134,7 +134,7 @@ def convert_description(xml, use_lang=True):
 
     # If we found nothing that matches lang, fall back to default
     if lang is not None and len(res) == 0:
-        res = convert_description(xml, False)
+        res = convert_description(xml, use_lang=False)
 
     return res
 

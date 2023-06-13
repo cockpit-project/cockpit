@@ -233,7 +233,8 @@ import { TextInput as TextInputPF4 } from "@patternfly/react-core/dist/esm/compo
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
-import { ExclamationTriangleIcon, InfoIcon, HelpIcon } from "@patternfly/react-icons";
+import { ExclamationTriangleIcon, InfoIcon, HelpIcon, EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
+import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
 
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -563,6 +564,27 @@ export const TextInput = (tag, title, options) => {
     };
 };
 
+const PassInputElement = ({ tag, title, options, val, change, validated }) => {
+    const [show, setShow] = useState(false);
+
+    return (
+        <InputGroup>
+            <TextInputPF4 data-field={tag} data-field-type="text-input"
+                          validated={validated}
+                          disabled={options.disabled}
+                          aria-label={title}
+                          autoComplete={options.new_password ? "new-password" : null}
+                          type={show ? "text" : "password"}
+                          value={val}
+                          onChange={(_event, value) => change(value)} />
+            <Button variant="control"
+                    onClick={() => setShow(!show)}
+                    isDisabled={options.disabled}>
+                { show ? <EyeSlashIcon /> : <EyeIcon /> }
+            </Button>
+        </InputGroup>);
+};
+
 export const PassInput = (tag, title, options) => {
     return {
         tag,
@@ -571,12 +593,12 @@ export const PassInput = (tag, title, options) => {
         initial_value: options.value || "",
 
         render: (val, change, validated) =>
-            <TextInputPF4 data-field={tag} data-field-type="text-input"
-                   validated={validated}
-                   disabled={options.disabled}
-                   aria-label={title}
-                   type="password" value={val}
-                   onChange={(_event, value) => change(value)} />
+            <PassInputElement tag={tag}
+                              title={title}
+                              options={options}
+                              val={val}
+                              change={change}
+                              validated={validated} />
     };
 };
 

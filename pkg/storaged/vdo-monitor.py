@@ -107,7 +107,7 @@ def monitor_volume(dev):
 
     def sample():
         try:
-            stats = Samples.assay([VDOStatistics()], dev, False).samples[0].sample
+            stats = Samples.assay([VDOStatistics()], dev, mustBeVDO=False).samples[0].sample
             return {key: stats.get(key) for key in monitored_fields}
         except Exception as e:
             # Ignore errors from non-existing devices.  These happen

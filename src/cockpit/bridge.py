@@ -79,6 +79,14 @@ class Bridge(Router, PackagesListener):
         self.peers_rule = PeersRoutingRule(self)
 
         if args.beipack:
+            # Some special stuff for beipack
+            self.superuser_rule.set_configs([
+                {
+                    "privileged": True,
+                    "spawn": ["sudo", "-k", "-A", "python3", "-ic", "# cockpit-bridge", "--privileged"],
+                    "environ": ["SUDO_ASKPASS=ferny-askpass"],
+                }
+            ])
             self.packages = None
         else:
             self.packages = Packages(self)

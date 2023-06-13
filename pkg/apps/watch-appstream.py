@@ -139,11 +139,11 @@ def convert_description(xml, use_lang=True):
     return res
 
 
-def convert_cached_icon(dir, origin, xml):
+def convert_cached_icon(directory, origin, xml):
     icon = xml.text
 
     def try_size(sz):
-        path = os.path.join(dir, "..", "icons", origin, sz, icon)
+        path = os.path.join(directory, "..", "icons", origin, sz, icon)
         return path if os.path.exists(path) else None
 
     return try_size("64x64") or try_size("128x128")
@@ -163,7 +163,7 @@ def convert_local_icon(xml):
     return None
 
 
-def find_and_convert_icon(dir, origin, xml):
+def find_and_convert_icon(directory, origin, xml):
     if xml is None:
         return None
 
@@ -172,7 +172,7 @@ def find_and_convert_icon(dir, origin, xml):
 
     if icon is not None:
         if icon.attrib['type'] == 'cached':
-            return convert_cached_icon(dir, origin, icon)
+            return convert_cached_icon(directory, origin, icon)
         elif icon.attrib['type'] == 'remote':
             return convert_remote_icon(icon)
         elif icon.attrib['type'] == 'local':
@@ -214,7 +214,7 @@ def convert_urls(xml):
     return urls
 
 
-def convert_collection_component(dir, origin, xml):
+def convert_collection_component(directory, origin, xml):
     component_id = element_value(xml, 'id')
     pkgname = element_value(xml, 'pkgname')
     launchables = convert_launchables(xml)
@@ -229,7 +229,7 @@ def convert_collection_component(dir, origin, xml):
         'name': element_value(xml, 'name'),
         'summary': element_value(xml, 'summary'),
         'description': convert_description(element(xml, 'description')),
-        'icon': find_and_convert_icon(dir, origin, xml),
+        'icon': find_and_convert_icon(directory, origin, xml),
         'screenshots': convert_screenshots(element(xml, 'screenshots')),
         'launchables': launchables,
         'urls': urls

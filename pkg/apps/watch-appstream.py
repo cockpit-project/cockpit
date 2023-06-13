@@ -198,9 +198,9 @@ def convert_launchables(xml):
     ables = []
 
     for elt in xml.iter('launchable'):
-        type = elt.attrib['type']
-        if type == "cockpit-manifest":
-            ables.append({'name': elt.text, 'type': type})
+        launchable_type = elt.attrib['type']
+        if launchable_type == "cockpit-manifest":
+            ables.append({'name': elt.text, 'type': launchable_type})
 
     return ables
 
@@ -215,16 +215,16 @@ def convert_urls(xml):
 
 
 def convert_collection_component(dir, origin, xml):
-    id = element_value(xml, 'id')
+    component_id = element_value(xml, 'id')
     pkgname = element_value(xml, 'pkgname')
     launchables = convert_launchables(xml)
     urls = convert_urls(xml)
 
-    if not id or not pkgname or len(launchables) == 0:
+    if not component_id or not pkgname or len(launchables) == 0:
         return None
 
     return {
-        'id': id,
+        'id': component_id,
         'pkgname': pkgname,
         'name': element_value(xml, 'name'),
         'summary': element_value(xml, 'summary'),
@@ -305,8 +305,8 @@ class MetainfoDB:
             else:
                 comps[comp['id']] = comp
         for file in self.available_by_file:
-            for id in self.available_by_file[file]:
-                comp = self.available_by_file[file][id]
+            for comp_id in self.available_by_file[file]:
+                comp = self.available_by_file[file][comp_id]
                 if comp['id'] not in comps:
                     comps[comp['id']] = comp
                 else:

@@ -45,9 +45,9 @@ def fuser(mount_point):
             unit = systemd_manager.GetUnitByPID(int(pid))
             if unit not in results:
                 unit_obj = bus.get_object('org.freedesktop.systemd1', unit)
-                id = unit_obj.Get("org.freedesktop.systemd1.Unit", "Id",
-                                  dbus_interface="org.freedesktop.DBus.Properties")
-                if id.endswith(".scope"):
+                unit_id = unit_obj.Get("org.freedesktop.systemd1.Unit", "Id",
+                                       dbus_interface="org.freedesktop.DBus.Properties")
+                if unit_id.endswith(".scope"):
                     stat = get_stat(pid)
                     start = int(stat[21]) / os.sysconf('SC_CLK_TCK')
                     results[pid] = {"pid": int(pid),
@@ -60,7 +60,7 @@ def fuser(mount_point):
                                         dbus_interface="org.freedesktop.DBus.Properties")
                     timestamp = unit_obj.Get("org.freedesktop.systemd1.Unit", "ActiveEnterTimestamp",
                                              dbus_interface="org.freedesktop.DBus.Properties")
-                    results[unit] = {"unit": id,
+                    results[unit] = {"unit": unit_id,
                                      "cmd": get_cmdline(pid),
                                      "desc": desc,
                                      "user": get_loginuser(pid),

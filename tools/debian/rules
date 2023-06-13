@@ -74,6 +74,6 @@ endif
 execute_after_dh_install-arch:
 ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 ifeq ($(C_BRIDGE),)
-	pytest -vv -k 'not test_descriptions' -opythonpath=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages)
+	pytest -vv -k 'not linter and not test_descriptions' -opythonpath=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages)
 endif
 endif

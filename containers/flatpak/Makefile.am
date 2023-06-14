@@ -26,3 +26,4 @@ install-for-flatpak: $(INSTALL_FLATPAK_TARGETS)
 	fi
 	appstream-util validate --nonet $(DESTDIR)$(datadir)/metainfo/org.cockpit_project.CockpitClient.metainfo.xml
 	cp -rT dist/static $(DESTDIR)$(pkgdatadir)/static
+	rm -rf $(DESTDIR)$(pkgdatadir)/apps $(DESTDIR)$(pkgdatadir)/playground

@@ -257,7 +257,14 @@ class SshBridge(Router):
         pass  # wait for the peer to do it first
 
     def do_init(self, message):
-        assert 'superuser' not in message  # see 'capabilities' below
+        # https://github.com/cockpit-project/cockpit/issues/18927
+        #
+        # We tell cockpit-ws that we have the explicit-superuser capability and
+        # handle it ourselves (just below) by sending `superuser-init-done` and
+        # passing {'superuser': False} on to the actual bridge (Python or C).
+        if isinstance(message.get('superuser'), dict):
+            self.write_control(command='superuser-init-done')
+        message['superuser'] = False
         self.ssh_peer.write_control(**message)
 
 
@@ -269,9 +276,10 @@ async def run(args) -> None:
 
     try:
         message = await bridge.ssh_peer.start()
-        # https://github.com/cockpit-project/cockpit/issues/18927
-        if 'capabilities' in message:
-            message['capabilities']['explicit-superuser'] = False
+
+        # See comment in do_init() above: we tell cockpit-ws that we support
+        # this and then handle it ourselves when we get the init message.
+        message.setdefault('capabilities', {})['explicit-superuser'] = True
 
         # only patch the packages line if we are in beiboot mode
         if bridge.packages:

@@ -186,8 +186,11 @@ class AuthorizeResponder(ferny.InteractionResponder):
 
 
 class SshPeer(Peer):
-    def __init__(self, router: Router, destination: str):
+    always: bool
+
+    def __init__(self, router: Router, destination: str, args: argparse.Namespace):
         self.destination = destination
+        self.always = args.always
         super().__init__(router)
 
     async def do_connect_transport(self) -> asyncio.Transport:
@@ -220,8 +223,14 @@ class SshPeer(Peer):
         logger.debug("Launching command: cmd=%s env=%s", cmd, env)
         transport = await self.spawn(cmd, env, stderr=agent, start_new_session=True)
 
+        if not self.always:
+            exec_cockpit_bridge_steps = [('try_exec', (['cockpit-bridge'],))]
+        else:
+            exec_cockpit_bridge_steps = []
+
         # Send the first-stage bootloader
         stage1 = bootloader.make_bootloader([
+            *exec_cockpit_bridge_steps,
             ('report_exists', [list(get_interesting_files())]),
             *beiboot_helper.steps,
         ], gadgets=BEIBOOT_GADGETS)
@@ -234,11 +243,11 @@ class SshPeer(Peer):
 
 
 class SshBridge(Router):
-    packages: Packages
+    packages: Optional[Packages] = None
     ssh_peer: SshPeer
 
     def __init__(self, args: argparse.Namespace):
-        self.ssh_peer = SshPeer(self, args.destination)
+        self.ssh_peer = SshPeer(self, args.destination, args)
 
         super().__init__([
             DefaultRoutingRule(self, self.ssh_peer),
@@ -263,7 +272,12 @@ async def run(args) -> None:
         # https://github.com/cockpit-project/cockpit/issues/18927
         if 'capabilities' in message:
             message['capabilities']['explicit-superuser'] = False
-        bridge.write_control(**dict(message, packages={p: None for p in bridge.packages.packages}))
+
+        # only patch the packages line if we are in beiboot mode
+        if bridge.packages:
+            message['packages'] = {p: None for p in bridge.packages.packages}
+
+        bridge.write_control(**message)
         bridge.ssh_peer.thaw_endpoint()
     except ferny.InteractionError as exc:
         sys.exit(str(exc))
@@ -283,6 +297,7 @@ def main() -> None:
     polyfills.install()
 
     parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
+    parser.add_argument('--always', action='store_true', help="Never try to run cockpit-bridge from the system")
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('destination', help="Name of the remote host to connect to, or 'localhost'")
     args = parser.parse_args()

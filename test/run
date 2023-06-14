@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This is the expected entry point for Cockpit CI; will be called without
 # arguments but with an appropriate $TEST_OS, and optionally $TEST_SCENARIO
@@ -8,26 +8,26 @@ set -eu
 test/common/make-bots
 test/common/pixel-tests pull
 
-TEST_SCENARIO="${TEST_SCENARIO:-verify}"
-[ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || export NODE_ENV=development
+PREPARE_OPTS=""
+RUN_OPTS=""
 
-case "$TEST_SCENARIO" in
-    verify|devel|firefox|firefox-devel|pybridge)
-        RUN_OPTS="--track-naughties"
-        PREPARE_OPTS=""
-        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || RUN_OPTS="$RUN_OPTS --coverage"
-        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%pybridge}" ] || PREPARE_OPTS="$PREPARE_OPTS --python"
-        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO##firefox}" ] || export TEST_BROWSER=firefox
+# every known case needs to set RUN_OPTS to something non-empty, so that we can check if we hit any branch
+case "${TEST_SCENARIO:=}" in
+    *devel*) RUN_OPTS="$RUN_OPTS --coverage"; export NODE_ENV=development ;;&
+    *pybridge*) RUN_OPTS="$RUN_OPTS "; PREPARE_OPTS="$PREPARE_OPTS --python" ;;&
+    *firefox*) RUN_OPTS="$RUN_OPTS "; export TEST_BROWSER=firefox ;;&
 
-        test/image-prepare --verbose ${PREPARE_OPTS} "${TEST_OS}"
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${RUN_OPTS}
-        ;;
-    daily)
-        bots/image-customize --fresh -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y copr enable @storage/udisks-daily && dnf -y --setopt=install_weak_deps=False update >&2' $TEST_OS
-        test/image-prepare --verbose --overlay $TEST_OS
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties
-        ;;
-    *)
-        echo "Unknown test scenario: $TEST_SCENARIO"
-        exit 1
+    *daily*)
+        bots/image-customize --fresh -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y copr enable @storage/udisks-daily && dnf -y --setopt=install_weak_deps=False update >&2' "$TEST_OS"
+        RUN_OPTS="$RUN_OPTS "
+        PREPARE_OPTS="$PREPARE_OPTS --overlay"
+        ;;&
 esac
+
+if [ -n "$TEST_SCENARIO" ] && [ -z "$RUN_OPTS" ]; then
+    echo "Unknown test scenario: $TEST_SCENARIO"
+    exit 1
+fi
+
+test/image-prepare --verbose ${PREPARE_OPTS} "$TEST_OS"
+test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties ${RUN_OPTS}

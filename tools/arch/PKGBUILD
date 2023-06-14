@@ -13,7 +13,8 @@ url='https://cockpit-project.org/'
 license=(LGPL)
 install=cockpit.install
 makedepends=(krb5 libssh accountsservice perl-json perl-locale-po json-glib glib-networking
-             git intltool gtk-doc gobject-introspection networkmanager libgsystem xmlto npm pcp)
+             git intltool gtk-doc gobject-introspection networkmanager libgsystem xmlto npm pcp
+             python-build python-installer python-wheel)
 source=("cockpit-${pkgver}.tar.xz"
         "cockpit.pam"
         "cockpit-ws.sysuser.conf"
@@ -40,12 +41,14 @@ build() {
     --disable-dependency-tracking \
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
-    --with-cockpit-ws-instance-user=cockpit-wsinstance
+    --with-cockpit-ws-instance-user=cockpit-wsinstance \
+    --enable-pybridge
+
   make all
 }
 
 package_cockpit() {
-  depends=(krb5 libssh accountsservice perl-json perl-locale-po json-glib glib-networking)
+  depends=(krb5 libssh accountsservice perl-json perl-locale-po json-glib glib-networking python)
   backup=('etc/pam.d/cockpit')
   optdepends=("cockpit-pcp: reading performance metrics"
               "cockpit-podman: user interface for managing podman containers"

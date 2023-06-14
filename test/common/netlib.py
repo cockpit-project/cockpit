@@ -22,13 +22,13 @@ from testlib import Error, MachineCase, wait
 
 
 class NetworkHelpers:
-    '''Mix-in class for tests that require network setup'''
+    """Mix-in class for tests that require network setup"""
 
     def add_veth(self, name, dhcp_cidr=None, dhcp_range=['10.111.112.2', '10.111.127.254']):
-        '''Add a veth device that is manageable with NetworkManager
+        """Add a veth device that is manageable with NetworkManager
 
         This is safe for @nondestructive tests, the interface gets cleaned up automatically.
-        '''
+        """
         self.machine.execute(r"""set -e
             mkdir -p /run/udev/rules.d/
             echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-%(name)s-test.rules
@@ -50,7 +50,7 @@ class NetworkHelpers:
             self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
 
     def nm_activate_eth(self, iface):
-        '''Create an NM connection for a given interface'''
+        """Create an NM connection for a given interface"""
 
         m = self.machine
         wait(lambda: m.execute(f'nmcli device | grep "{iface}.*disconnected"'))

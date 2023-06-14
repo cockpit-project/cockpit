@@ -251,10 +251,10 @@ class TestHistoryMetrics(MachineCase):
         #
 
         # disable swap, so that we can test current metrics without swap
-        m.execute('''systemctl stop "*.swap" "swap-create@*" "systemd-zram-setup@*" || true
+        m.execute("""systemctl stop "*.swap" "swap-create@*" "systemd-zram-setup@*" || true
                      systemctl mask "swap-create@" "systemd-zram-setup@"
                      swapoff --all
-                     while [ -n "$(swapon --show)" ]; do sleep 1; done''')
+                     while [ -n "$(swapon --show)" ]; do sleep 1; done""")
 
         prepareArchive(m, "disk.tar.gz", 1597672800)
 
@@ -472,8 +472,8 @@ class TestHistoryMetrics(MachineCase):
             return
 
         m.upload(["verify/files/metrics-archives/journal.journal.gz"], "/tmp")
-        m.execute('''gunzip /tmp/journal.journal.gz
-                     cp /tmp/journal.journal /var/log/journal/*/''')
+        m.execute("""gunzip /tmp/journal.journal.gz
+                     cp /tmp/journal.journal /var/log/journal/*/""")
         b.reload()
         b.enter_page("/metrics")
 

@@ -20,7 +20,7 @@ import socket
 
 
 def install():
-    '''Add shims for older Python versions'''
+    """Add shims for older Python versions"""
 
     # introduced in 3.9
     if not hasattr(socket, 'recv_fds'):

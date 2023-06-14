@@ -28,7 +28,7 @@ def from_udisks_ascii(codepoints):
 
 
 class StorageHelpers:
-    '''Mix-in class for using in tests that derive from something else than MachineCase or StorageCase'''
+    """Mix-in class for using in tests that derive from something else than MachineCase or StorageCase"""
 
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)
@@ -46,12 +46,12 @@ class StorageHelpers:
         self.browser.wait(step)
 
     def add_ram_disk(self, size=50):
-        '''Add per-test RAM disk
+        """Add per-test RAM disk
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
 
         Return the device name.
-        '''
+        """
         # sanity test: should not yet be loaded
         self.machine.execute("test ! -e /sys/module/scsi_debug")
         self.machine.execute(f"modprobe scsi_debug dev_size_mb={size}")
@@ -62,7 +62,7 @@ class StorageHelpers:
         return dev
 
     def add_loopback_disk(self, size=50, name=None):
-        '''Add per-test loopback disk
+        """Add per-test loopback disk
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
 
@@ -71,7 +71,7 @@ class StorageHelpers:
         simulation of a "real" disk.
 
         Return the device name.
-        '''
+        """
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1969408
         # It would be nicer to remove $F immediately after the call to
         # losetup, but that will break some versions of lvm2.
@@ -88,11 +88,11 @@ class StorageHelpers:
         return dev
 
     def force_remove_disk(self, device):
-        '''Act like the given device gets physically removed.
+        """Act like the given device gets physically removed.
 
         This circumvents all the normal EBUSY failures, and thus can be used for testing
         the cleanup after a forceful removal.
-        '''
+        """
         self.machine.execute(f'echo 1 > /sys/block/{os.path.basename(device)}/device/delete')
 
     def devices_dropdown(self, title):

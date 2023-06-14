@@ -35,10 +35,10 @@ BOTS_DIR = f'{BASE_DIR}/bots'
 
 
 def build_rpms(dist_tar, image, verbose, quick):
-    '''build RPMs from a tarball in an image
+    """build RPMs from a tarball in an image
 
     Return local rpm path list.
-    '''
+    """
     subprocess.check_call([os.path.join(BOTS_DIR, "image-download"), image])
     machine = machine_virtual.VirtMachine(image=image)
     try:
@@ -48,17 +48,17 @@ def build_rpms(dist_tar, image, verbose, quick):
         machine.upload([dist_tar], vm_tar)
 
         # build srpm
-        machine.execute(fr'''
+        machine.execute(fr"""
             su builder -c 'rpmbuild --define "_topdir /var/tmp/build" -ts "{vm_tar}"'
-        ''')
+        """)
 
         # build rpms
         mock_opts = ("--verbose" if verbose else "") + (" --nocheck" if quick else "")
-        machine.execute(fr'''
+        machine.execute(fr"""
             su builder -c 'mock --no-clean --disablerepo=* --offline \
                                 --resultdir /var/tmp/build {mock_opts} \
                                 --rebuild /var/tmp/build/SRPMS/*.src.rpm'
-        ''', timeout=1800)
+        """, timeout=1800)
 
         # download rpms
         vm_rpms = machine.execute("find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm'").strip().split()
@@ -82,7 +82,7 @@ def build_rpms(dist_tar, image, verbose, quick):
 #
 
 def build_install_package(dist_tar, image):
-    '''Default rpm/deb/arch package build/install'''
+    """Default rpm/deb/arch package build/install"""
 
     # our images have distro cockpit packages pre-installed, remove them
     args = ["--run-command"]
@@ -119,11 +119,11 @@ def build_install_package(dist_tar, image):
 
 
 def build_install_ostree(dist_tar, image, verbose, quick):
-    '''Special treatment of build/install on CoreOS
+    """Special treatment of build/install on CoreOS
 
     OSTree image can't build packages, build them on corresponding OSes and invoke
     test/ostree.install to install them into the OSTree and the cockpit/ws container.
-    '''
+    """
     rpms = build_rpms(dist_tar, testmap.get_build_image(image), verbose, quick)
     args = []
     for rpm in rpms:
@@ -135,12 +135,12 @@ def build_install_ostree(dist_tar, image, verbose, quick):
 
 
 def build_install_rhel8(dist_tar, image, verbose, quick):
-    '''Special treatment of build/install on RHEL/CentOS 8
+    """Special treatment of build/install on RHEL/CentOS 8
 
     Here, cockpit is delivered as two mostly identical source packages: "cockpit" with
     build_basic=1, and "cockpit-appstream" with build_optional=1. The spec has proper build_*
     defaults depending on the Name:.
-    '''
+    """
     vm_dist_tar = os.path.join("/var/tmp", os.path.basename(dist_tar))
 
     args = ["--upload", f"{dist_tar}:{vm_dist_tar}"]
@@ -205,7 +205,7 @@ def build_install_rhel8(dist_tar, image, verbose, quick):
 
 
 def validate_packages():
-    '''Post-install package checks'''
+    """Post-install package checks"""
 
     # check for files that are shipped by more than one RPM
     return ["--run-command",

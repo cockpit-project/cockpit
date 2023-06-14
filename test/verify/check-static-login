@@ -798,7 +798,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # ensure sssd certificate lookup without validation works
         user_obj = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
                              'org.freedesktop.sssd.infopipe.Users FindByCertificate s -- '
-                             '''"$(cat %s)" | sed 's/^o "//; s/"$//' ''' % alice_cert)
+                             """"$(cat %s)" | sed 's/^o "//; s/"$//' """ % alice_cert)
         self.assertEqual(m.execute('busctl get-property org.freedesktop.sssd.infopipe ' + user_obj.strip() +
                                    ' org.freedesktop.sssd.infopipe.Users.User name').strip(),
                          's "alice"')
@@ -816,7 +816,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         if has_validate_api:
             err = m.execute('! busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
                             'org.freedesktop.sssd.infopipe.Users FindByValidCertificate s -- '
-                            '''"$(cat %s)" 2>&1''' % alice_cert)
+                            """"$(cat %s)" 2>&1""" % alice_cert)
             # HACK: sssd 2.6.1 has a broken error message ("Invalid certificate provided"), accept that as well
             # until 2.6.2 is available everywhere. https://github.com/SSSD/sssd/issues/5911
             self.assertRegex(err, "Invalid certificate provided|Certificate authority file not found")
@@ -826,7 +826,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
                 m.write("/etc/sssd/pki/sssd_auth_ca_db.pem", f.read())
             u = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
                           'org.freedesktop.sssd.infopipe.Users FindByCertificate s -- '
-                          '''"$(cat %s)" | sed 's/^o "//; s/"$//' ''' % alice_cert)
+                          """"$(cat %s)" | sed 's/^o "//; s/"$//' """ % alice_cert)
             self.assertEqual(u, user_obj)
 
         # These tests have to be run with curl, as chromium-headless does not support selecting/handling client-side

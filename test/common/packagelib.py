@@ -126,11 +126,11 @@ Server = file://{empty_repo_dir}
 
     def createPackage(self, name, version, release, install=False,
                       postinst=None, depends="", content=None, arch=None, provides=None, **updateinfo):
-        '''Create a dummy package in repo_dir on self.machine
+        """Create a dummy package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
-        '''
+        """
         if provides:
             provides = f"Provides: {provides}"
         else:
@@ -146,11 +146,11 @@ Server = file://{empty_repo_dir}
             self.updateInfo[(name, version, release)] = updateinfo
 
     def createDeb(self, name, version, depends, postinst, install, content, arch, provides):
-        '''Create a dummy deb in repo_dir on self.machine
+        """Create a dummy deb in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
-        '''
+        """
         m = self.machine
 
         if arch is None:
@@ -194,11 +194,11 @@ Server = file://{empty_repo_dir}
         self.addCleanup(m.execute, f"dpkg -P --force-depends --force-remove-reinstreq {name} 2>/dev/null || true")
 
     def createRpm(self, name, version, release, requires, post, install, content, arch, provides):
-        '''Create a dummy rpm in repo_dir on self.machine
+        """Create a dummy rpm in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
-        '''
+        """
         if post:
             postcode = '\n%%post\n' + post
         else:
@@ -255,11 +255,11 @@ rm -rf ~/rpmbuild
         self.addCleanup(self.machine.execute, f"rpm -e --nodeps {name} 2>/dev/null || true")
 
     def createPacmanPkg(self, name, version, release, requires, postinst, install, content, arch, provides):
-        '''Create a dummy pacman package in repo_dir on self.machine
+        """Create a dummy pacman package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
-        '''
+        """
 
         if arch is None:
             arch = 'any'
@@ -344,12 +344,12 @@ post_upgrade() {{
                 changes += "\n  * " + ", ".join(info["cves"])
 
             path = "{0}/changelogs/{1}/{2}/{2}_{3}-{4}".format(self.repo_dir, pkg[0], pkg, ver, rel)
-            contents = '''{0} ({1}-{2}) unstable; urgency=medium
+            contents = """{0} ({1}-{2}) unstable; urgency=medium
 
   * {3}
 
  -- Joe Developer <joe@example.com>  Wed, 31 May 2017 14:52:25 +0200
-'''.format(pkg, ver, rel, changes)
+""".format(pkg, ver, rel, changes)
             self.machine.execute("mkdir -p $(dirname {0}); echo '{1}' > {0}".format(path, contents))
 
     def createYumUpdateInfo(self):
@@ -369,7 +369,7 @@ post_upgrade() {{
                 refs += '      <reference href="https://access.redhat.com/errata/{0}" id="{0}" title="{0}" type="self"/>\n'.format(
                     e)
 
-            xml += '''  <update from="test@example.com" status="stable" type="{severity}" version="2.0">
+            xml += """  <update from="test@example.com" status="stable" type="{severity}" version="2.0">
     <id>UPDATE-{pkg}-{ver}-{rel}</id>
     <title>{pkg} {ver}-{rel} update</title>
     <issued date="2017-01-01 12:34:56"/>
@@ -385,7 +385,7 @@ post_upgrade() {{
       </collection>
     </pkglist>
   </update>
-'''.format(pkg=pkg, ver=ver, rel=rel, refs=refs,
+""".format(pkg=pkg, ver=ver, rel=rel, refs=refs,
                 desc=info.get("changes", ""), severity=info.get("severity", "bugfix"))
 
         xml += '</updates>\n'
@@ -397,21 +397,21 @@ post_upgrade() {{
     def enableRepo(self):
         if self.backend == "apt":
             self.createAptChangelogs()
-            self.machine.execute('''set -e; echo 'deb [trusted=yes] file://{0} /' > /etc/apt/sources.list.d/test.list
+            self.machine.execute("""set -e; echo 'deb [trusted=yes] file://{0} /' > /etc/apt/sources.list.d/test.list
                                     cd {0}; apt-ftparchive packages . > Packages
                                     xz -c Packages > Packages.xz
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
-                                    '''.format(self.repo_dir))
+                                    """.format(self.repo_dir))
             pid = self.machine.spawn(f"cd {self.repo_dir}; exec python3 -m http.server 12345", "changelog")
             # pid will not be present for rebooting tests
             self.addCleanup(self.machine.execute, "kill %i || true" % pid)
             self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
         elif self.backend == "alpm":
-            self.machine.execute(f'''set -e;
+            self.machine.execute(f"""set -e;
                                      cd {self.repo_dir}
                                      repo-add {self.repo_dir}/testrepo.db.tar.gz *.pkg.tar.zst
-                    ''')
+                    """)
 
             config = f"""
 [testrepo]
@@ -422,8 +422,8 @@ Server = file://{self.repo_dir}
                 self.machine.write("/etc/pacman.conf", config, append=True)
 
         else:
-            self.machine.execute('''set -e; printf '[updates]\nname=cockpittest\nbaseurl=file://{0}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
+            self.machine.execute("""set -e; printf '[updates]\nname=cockpittest\nbaseurl=file://{0}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
                                     echo '{1}' > /tmp/updateinfo.xml
                                     createrepo_c {0}
                                     modifyrepo_c /tmp/updateinfo.xml {0}/repodata
-                                    $(which dnf 2>/dev/null|| which yum) clean all'''.format(self.repo_dir, self.createYumUpdateInfo()))
+                                    $(which dnf 2>/dev/null|| which yum) clean all""".format(self.repo_dir, self.createYumUpdateInfo()))

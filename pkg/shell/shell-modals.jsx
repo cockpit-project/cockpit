@@ -194,7 +194,7 @@ export function OopsModal(props) {
             <br />
             <br />
             <span>{("You can try restarting Cockpit by pressing refresh in your browser. The javascript console contains details about this error") + " ("}
-                <b>{_("Ctrl-Shift-J")}</b>
+                <b>{_("Ctrl-Shift-I")}</b>
                 {" " + _("in most browsers") + ")."}
             </span>
         </Modal>

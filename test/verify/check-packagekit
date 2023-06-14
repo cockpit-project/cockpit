@@ -125,7 +125,7 @@ class TestUpdates(NoSubManCase):
         return row
 
     def wait_checking_updates(self):
-        '''Wait until spinner is gone from updates icon for 3 s'''
+        """Wait until spinner is gone from updates icon for 3 s"""
 
         good_count = 0
         for _ in range(60):
@@ -1084,13 +1084,13 @@ ExecStart=/usr/local/bin/{packageName}
 
         m.execute("systemctl stop packagekit")
         system_service = m.execute("systemctl show -p FragmentPath packagekit.service | cut -f2 -d=").strip()
-        m.execute('''mv {0} {0}.disabled
+        m.execute("""mv {0} {0}.disabled
                      mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled
-                     systemctl daemon-reload'''.format(system_service))
+                     systemctl daemon-reload""".format(system_service))
         self.addCleanup(m.execute,
-                        '''mv {0}.disabled {0}
+                        """mv {0}.disabled {0}
                            mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
-                           systemctl daemon-reload'''.format(system_service))
+                           systemctl daemon-reload""".format(system_service))
 
         m.start_cockpit()
         if not self.is_pybridge():
@@ -1734,7 +1734,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         m.execute('dnf remove -y dnf-automatic')
 
         # provide minimal content in order for the backend to be seen as supported
-        timerContent = '''
+        timerContent = """
 [Unit]
 Description=dnf-automatic timer
 # See comment in dnf-makecache.service
@@ -1747,7 +1747,7 @@ Unit=-.mount
 
 [Install]
 WantedBy=basic.target
-        '''
+        """
         self.createPackage('dnf-automatic', '1', '1', content={
             '/etc/dnf/automatic.conf': '',
             '/usr/lib/systemd/system/dnf-automatic.timer': timerContent,

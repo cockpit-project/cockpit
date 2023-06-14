@@ -42,11 +42,11 @@ class TestConnection(MachineCase):
         self.ws_executable = f"{self.libexecdir}/cockpit-ws"
 
     def ostree_setup_ws(self):
-        '''Overlay cockpit-ws package on OSTree image
+        """Overlay cockpit-ws package on OSTree image
 
         Disable the cockpit/ws container. This is for tests that don't work with the container,
         and to make sure that overlaying cockpit-ws works as well.
-        '''
+        """
         m = self.machine
         if not m.ostree_image:
             return
@@ -58,7 +58,7 @@ class TestConnection(MachineCase):
         m.reboot()
 
     def assertNoAdminProcessLeaks(self):
-        '''Check that machine did not leak any bridges or ssh-agent admin processes'''
+        """Check that machine did not leak any bridges or ssh-agent admin processes"""
         m = self.machine
         try:
             # there may still be user-wide ones like dbus-broker
@@ -822,12 +822,12 @@ class TestConnection(MachineCase):
         m.execute("pkill cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
 
         # start ws with --local-session and existing running bridge
-        self.write_file("/tmp/local.sh", f'''#!/bin/bash -eu
+        self.write_file("/tmp/local.sh", f"""#!/bin/bash -eu
 coproc env G_MESSAGES_DEBUG=all cockpit-bridge
 export G_MESSAGES_DEBUG=all
 export XDG_CONFIG_DIRS=/usr/local
 {self.ws_executable} -p 9999 -a 127.0.0.90 --local-session=- <&${{COPROC[0]}} >&${{COPROC[1]}}
-''')
+""")
         m.execute("chmod a+x /tmp/local.sh")
         m.spawn("su - -c /tmp/local.sh admin", "local.sh")
         m.wait_for_cockpit_running('127.0.0.90', 9999)
@@ -883,7 +883,7 @@ export XDG_CONFIG_DIRS=/usr/local
 
         for (pages, asserts) in cases:
             for page in pages:
-                m.execute(f'''su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" {self.libexecdir}/cockpit-desktop {page}' admin''',
+                m.execute(f"""su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" {self.libexecdir}/cockpit-desktop {page}' admin""",
                           timeout=10)
 
                 out = m.execute("cat /tmp/out.html")
@@ -1089,18 +1089,18 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
     @skipOstree("no cockpit-ws package")
     @nondestructive
     def testAuthUnixPath(self):
-        '''test UnixPath for auth method in cockpit.conf'''
+        """test UnixPath for auth method in cockpit.conf"""
         m = self.machine
 
         m.execute(['systemctl', 'start', 'cockpit-session.socket'])
         self.addCleanup(m.execute, 'systemctl stop cockpit-session.socket')
-        m.write('/etc/cockpit/cockpit.conf', '''
+        m.write('/etc/cockpit/cockpit.conf', """
 [Negotiate]
 Action=none
 
 [Basic]
 UnixPath=/run/cockpit/session
-''')
+""")
 
         # make sure this isn't being run via spawning
         m.execute(f'chmod 700 {self.libexecdir}/cockpit-session')
@@ -1225,11 +1225,11 @@ ProtocolHeader = X-Forwarded-Proto
     @skipOstree("nginx not installed")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
-        '''test proxying to Cockpit with TLS
+        """test proxying to Cockpit with TLS
 
         As described on https://github.com/cockpit-project/cockpit/wiki/Proxying-Cockpit-over-NGINX
         This use use case is important for proxying a remote machine.
-        '''
+        """
         m = self.machine
 
         m.write("/etc/nginx/conf.d/cockpit.conf", """
@@ -1304,10 +1304,10 @@ server {
     @skipOstree("nginx not installed")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
-        '''test proxying to Cockpit with plain HTTP
+        """test proxying to Cockpit with plain HTTP
 
         This can be done when nginx and cockpit run on the same machine.
-        '''
+        """
         m = self.machine
 
         m.write("/etc/nginx/conf.d/cockpit.conf", """

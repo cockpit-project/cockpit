@@ -356,10 +356,10 @@ class CommonTests:
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
 
     def checkClientCertAuthentication(self):
-        '''Common tests for certificate authentication
+        """Common tests for certificate authentication
 
         This assumes that IdM and sssd are all set up correctly already.
-        '''
+        """
         m = self.machine
         b = self.browser
 
@@ -393,7 +393,7 @@ class CommonTests:
         # ensure sssd certificate lookup works
         user_obj = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
                              'org.freedesktop.sssd.infopipe.Users FindByCertificate s -- '
-                             '''"$(cat /var/tmp/alice.pem)" | sed 's/^o "//; s/"$//' ''')
+                             """"$(cat /var/tmp/alice.pem)" | sed 's/^o "//; s/"$//' """)
         self.assertEqual(m.execute('busctl get-property org.freedesktop.sssd.infopipe ' + user_obj.strip() +
                                    ' org.freedesktop.sssd.infopipe.Users.User name').strip(),
                          's "alice"')
@@ -486,7 +486,7 @@ class CommonTests:
 @skipDistroPackage()
 @no_retry_when_changed
 class TestRealms(MachineCase):
-    '''Common variables and tests for all supported domain backends'''
+    """Common variables and tests for all supported domain backends"""
 
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100", "memory_mb": 700},
@@ -535,12 +535,12 @@ class TestIPA(TestRealms, CommonTests):
         self.machine.execute("echo '10.111.112.100 ipa-ca.cockpit.lan' >> /etc/hosts")
 
         # HACK: Figure out why this happens
-        self.allow_journal_messages('''.*didn't receive expected "authorize" message''',
+        self.allow_journal_messages(""".*didn't receive expected "authorize" message""",
                                     'cockpit-session:$')
         self.allow_journal_messages('/bin/bash: /home/admin/.bashrc: Permission denied')
 
     def checkBackendSpecifics(self):
-        '''Check domain backend specific integration'''
+        """Check domain backend specific integration"""
 
         m = self.machine
         b = self.browser
@@ -611,7 +611,7 @@ class TestIPA(TestRealms, CommonTests):
         self.allow_journal_messages("Received unexpected TLS connection and no certificate was configured")
 
     def checkBackendSpecificCleanup(self):
-        '''Check domain backend specific integration after leaving domain'''
+        """Check domain backend specific integration after leaving domain"""
 
         m = self.machine
 
@@ -624,7 +624,7 @@ class TestIPA(TestRealms, CommonTests):
         wait(lambda: "status:" not in m.execute("ipa-getcert list"))
 
     def testUnqualifiedUsers(self):
-        '''Extend the common test with 2FA login'''
+        """Extend the common test with 2FA login"""
 
         m = self.machine
         b = self.browser
@@ -754,10 +754,10 @@ ipa-advise enable-admins-sudo | sh -ex
         # this is specific to IPA, as with AD cockpit-ws does not get a keytab
 
         # as we can't do cert auth in the browser, splice socat in between to do that for us
-        m.execute(f'''! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443
+        m.execute(f"""! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443
                       mkdir -p /run/systemd/system/cockpit.socket.d/
                       printf "[Socket]\nListenStream=\nListenStream=443" > /run/systemd/system/cockpit.socket.d/listen.conf
-                      sed -i '/\\[WebService/ aOrigins = http://{m.web_address}:{m.web_port}' /etc/cockpit/cockpit.conf''')
+                      sed -i '/\\[WebService/ aOrigins = http://{m.web_address}:{m.web_port}' /etc/cockpit/cockpit.conf""")
         m.spawn("socat TCP-LISTEN:9090,reuseaddr,fork OPENSSL:x0.cockpit.lan:443,cert=/var/tmp/alice.pem,key=/var/tmp/alice.key", "socat-certauth.log")
         m.start_cockpit(tls=True)
 
@@ -872,22 +872,22 @@ class TestAD(TestRealms, CommonTests):
         m.write("/etc/sssd/conf.d/rhbz1839805.conf", "[domain/cockpit.lan]\nad_gpo_access_control=disabled\n", perm="0600")
 
         # HACK: Figure out why this happens
-        self.allow_journal_messages('''.*didn't receive expected "authorize" message''',
+        self.allow_journal_messages(""".*didn't receive expected "authorize" message""",
                                     'cockpit-session:$')
         self.allow_journal_messages('/bin/bash: /home/admin/.bashrc: Permission denied')
 
     def checkBackendSpecifics(self):
-        '''Check domain backend specific integration'''
+        """Check domain backend specific integration"""
 
         pass
 
     def checkBackendSpecificCleanup(self):
-        '''Check domain backend specific integration after leaving domain'''
+        """Check domain backend specific integration after leaving domain"""
 
         pass
 
     def testUnqualifiedUsers(self):
-        '''Extend the test to check a new AD user'''
+        """Extend the test to check a new AD user"""
 
         super().testUnqualifiedUsers()
 

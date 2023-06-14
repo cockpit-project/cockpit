@@ -61,10 +61,10 @@ LIBEXECDIR = None
 
 
 def get_libexecdir() -> str:
-    '''Detect libexecdir on current machine
+    """Detect libexecdir on current machine
 
     This only works for systems which have cockpit-ws installed.
-    '''
+    """
     global LIBEXECDIR
     if LIBEXECDIR is None:
         for candidate in ['/usr/local/libexec', '/usr/libexec', '/usr/local/lib/cockpit', '/usr/lib/cockpit']:
@@ -217,7 +217,7 @@ class Package:
 
     @staticmethod
     def sortify_version(version: str) -> str:
-        '''Convert a version string to a form that can be compared'''
+        """Convert a version string to a form that can be compared"""
         # 0-pad each numeric component.  Only supports numeric versions like 1.2.3.
         return '.'.join(part.zfill(8) for part in version.split('.'))
 

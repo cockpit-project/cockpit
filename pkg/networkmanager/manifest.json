@@ -1,5 +1,8 @@
 {
     "name": "network",
+    "conditions": [
+        {"path-exists": "/usr/share/dbus-1/system.d/org.freedesktop.NetworkManager.conf"}
+    ],
     "menu": {
         "index": {
             "label": "Networking",

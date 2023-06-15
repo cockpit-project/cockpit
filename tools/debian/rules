@@ -64,7 +64,14 @@ endif
 
 	make install-tests DESTDIR=debian/cockpit-tests
 
-	# run pytests *after* installation, so that we can make sure that we installed the right files
+execute_after_dh_install-indep:
+	# avoid dh_missing failure
+ifeq ($(C_BRIDGE),)
+	rm -r debian/tmp/usr/lib/python*
+endif
+
+# run pytests *after* installation, so that we can make sure that we installed the right files
+execute_after_dh_install-arch:
 ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 ifeq ($(C_BRIDGE),)
 	pytest -opythonpath=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages)

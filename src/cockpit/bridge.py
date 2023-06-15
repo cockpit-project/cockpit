@@ -232,6 +232,9 @@ def start_ssh_agent() -> None:
         else:
             proc.terminate()
 
+    except FileNotFoundError:
+        logger.debug("Couldn't start ssh-agent (FileNotFoundError)")
+
     except OSError as exc:
         logger.warning("Could not start ssh-agent: %s", exc)
 

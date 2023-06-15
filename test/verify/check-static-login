@@ -826,7 +826,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 
         def do_test(authopts, expected, not_expected=[], session_leader=None):
             m.start_cockpit(tls=True)
-            output = m.execute(['curl', '-ksS', '-D-'] + authopts + ['https://localhost:9090/cockpit/login'])
+            output = m.execute(['curl', '-ksS', '-D-', *authopts, 'https://localhost:9090/cockpit/login'])
             for s in expected:
                 self.assertIn(s, output)
             for s in not_expected:

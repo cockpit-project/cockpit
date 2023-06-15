@@ -61,7 +61,23 @@ sed \
     -e "s|@ARCHIVE_TYPE@|${ARCHIVE_TYPE}|" \
     -e "s|@ARCHIVE_LOCATION@|${ARCHIVE_LOCATION}|" \
     -e "s|@ARCHIVE_SHA256@|${ARCHIVE_SHA256}|" \
+    -e "s|@PYBRIDGE_ENABLE@|${PYBRIDGE_ENABLE:-disable}|" \
     "${0%/*}/cockpit-client.yml.in" > "${FLATPAK_ID}.yml.tmp"
+
+if [ "${PYBRIDGE_ENABLE:-}" = 'enable' ]; then
+    printf "
+  - name: cockpit-podman
+    buildsystem: simple
+    build-commands:
+      - make install PREFIX=/app
+
+    sources:
+      - type: archive
+        url: %s
+        sha256: %s
+" $(cat "${0%/*}/beiboot-extra-packages") >> "${FLATPAK_ID}.yml.tmp"
+fi
+
 mv "${FLATPAK_ID}.yml.tmp" "${FLATPAK_ID}.yml"
 touch "${FLATPAK_ID}.releases.xml"
 echo "${FLATPAK_ID}.yml"

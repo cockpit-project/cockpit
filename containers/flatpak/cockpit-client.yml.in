@@ -16,6 +16,7 @@ modules:
     buildsystem: autotools
     config-opts:
       - --enable-cockpit-client
+      - --@PYBRIDGE_ENABLE@-pybridge
       - --disable-polkit
       - --disable-ssh
       - --disable-pcp

@@ -267,6 +267,10 @@ class SshBridge(Router):
         message['superuser'] = False
         self.ssh_peer.write_control(**message)
 
+    def eof_received(self) -> bool:
+        # We don't care about a clean exit.  Let's just shutdown.
+        return False
+
 
 async def run(args) -> None:
     logger.debug("Hi. How are you today?")

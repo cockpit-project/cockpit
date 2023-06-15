@@ -27,7 +27,7 @@ import os
 import shlex
 import sys
 from pathlib import Path
-from typing import Iterable, Optional, Sequence
+from typing import Dict, Iterable, Optional, Sequence
 
 from cockpit import polyfills
 from cockpit._vendor import ferny
@@ -240,6 +240,14 @@ class SshPeer(Peer):
         await agent.communicate()
 
         return transport
+
+    def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
+        if command == 'authorize':
+            # We've disabled this for explicit-superuser bridges, but older
+            # bridges don't support that and will ask us anyway.
+            return
+
+        super().transport_control_received(command, message)
 
 
 class SshBridge(Router):

@@ -10,6 +10,11 @@ test/common/pixel-tests pull
 
 PREPARE_OPTS=""
 RUN_OPTS=""
+ALL_TESTS="$(test/common/run-tests --test-dir test/verify -l)"
+
+RE_NETWORKING='Networking|Bonding|Bridge|Firewall|Team|IPA|AD'
+RE_STORAGE='Storage'
+RE_EXPENSIVE='HostSwitching|MultiMachine|Updates|Superuser|Kdump|Pages'
 
 # every known case needs to set RUN_OPTS to something non-empty, so that we can check if we hit any branch
 case "${TEST_SCENARIO:=}" in
@@ -22,6 +27,24 @@ case "${TEST_SCENARIO:=}" in
         RUN_OPTS="$RUN_OPTS "
         PREPARE_OPTS="$PREPARE_OPTS --overlay"
         ;;&
+
+    # split tests into roughly equal scenarios for more parallelism
+    *networking*)
+        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_NETWORKING")"
+        PREPARE_OPTS="$PREPARE_OPTS --quick"
+        ;;&
+    *storage*)
+        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_STORAGE")"
+        PREPARE_OPTS="$PREPARE_OPTS --quick"
+        ;;&
+    *expensive*)
+        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_EXPENSIVE")"
+        PREPARE_OPTS="$PREPARE_OPTS --quick"
+        ;;&
+    *other*)
+        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -Ev "$RE_NETWORKING|$RE_STORAGE|$RE_EXPENSIVE")"
+        ;;&
+
 esac
 
 if [ -n "$TEST_SCENARIO" ] && [ -z "$RUN_OPTS" ]; then

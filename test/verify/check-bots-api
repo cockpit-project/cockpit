@@ -154,7 +154,7 @@ class TestBotsVM(unittest.TestCase):
         # test SSH command and that we have the expected flag file
         self.assertEqual(ssh_command[0], "ssh")
         with testvm.Timeout(seconds=30, error_message="Timed out waiting for ssh command"):
-            out = subprocess.check_output(ssh_command + ["cat", "/var/custom-test"])
+            out = subprocess.check_output([*ssh_command, "cat", "/var/custom-test"])
         self.assertEqual(out, b"hello\n")
 
         # should cleanly stop on SIGTERM

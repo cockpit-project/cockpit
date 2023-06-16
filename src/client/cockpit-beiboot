@@ -52,6 +52,7 @@ def ensure_ferny_askpass() -> Path:
     xdg_cache_home = os.environ.get('XDG_CACHE_HOME')
     if xdg_cache_home is None:
         xdg_cache_home = os.path.expanduser('~/.cache')
+    os.makedirs(xdg_cache_home, exist_ok=True)
     dest_path = Path(xdg_cache_home, 'cockpit-client-askpass')
 
     logger.debug("Checking if %s exists...", dest_path)

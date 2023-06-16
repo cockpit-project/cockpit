@@ -33,8 +33,6 @@ class TestClient(testlib.MachineCase):
         super().setUp()
         self.machine.upload(["../src/client/cockpit-beiboot"], "/usr/local/bin/")
         self.machines["target"].execute("hostnamectl set-hostname target")
-        # FIXME: create cache dir in the client
-        self.machine.execute("runuser -u admin -- mkdir -p ~admin/.cache")
 
     def writeConfig(self, ssh_command):
         self.machine.write("/etc/cockpit/cockpit.conf", f"""
@@ -82,8 +80,6 @@ exec "$@"
 """, perm="755")
 
         m.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
-        # FIXME: create directory in c-client-ssh
-        m.execute("runuser -u admin -- mkdir -p ~admin/.local/share")
 
         self.checkLoginScenarios()
 

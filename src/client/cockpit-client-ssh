@@ -48,6 +48,7 @@ def base64_decode(s):
 def cockpit_client_ssh():
     # this is pretty evil, but oh well...
     xdg_data_home = os.getenv('XDG_DATA_HOME') or os.path.expanduser('~/.local/share')
+    os.makedirs(xdg_data_home, exist_ok=True)
     askpass = os.path.join(xdg_data_home, 'cockpit-client-askpass')
     shutil.copy(__file__, askpass, follow_symlinks=False)
 

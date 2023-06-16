@@ -1,0 +1,224 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2023 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import testlib
+
+
+# Run this on more OSes as we roll out the pybridge
+@testlib.onlyImage("needs pybridge", "debian-testing")
+class TestClient(testlib.MachineCase):
+
+    provision = {
+        "client": {"address": "10.111.113.1/24", "memory_mb": 660},
+        "target": {"address": "10.111.113.2/24", "memory_mb": 660},
+    }
+
+    def setUp(self):
+        super().setUp()
+        self.machine.upload(["../src/client/cockpit-beiboot"], "/usr/local/bin/")
+        self.machines["target"].execute("hostnamectl set-hostname target")
+        # FIXME: create cache dir in the client
+        self.machine.execute("runuser -u admin -- mkdir -p ~admin/.cache")
+
+    def writeConfig(self, ssh_command):
+        self.machine.write("/etc/cockpit/cockpit.conf", f"""
+[WebService]
+X-For-CockpitClient = true
+LoginTo = true
+
+[Ssh-Login]
+ReportStderr = true
+Command = {ssh_command}
+""")
+
+    def logout(self, check_last_host=None):
+        b = self.browser
+
+        b.assert_no_oops()
+        b.open_session_menu()
+        b.click('#logout')
+        # FIXME: This is broken, nothing appears
+        # b.wait_text("#brand", "Connect to:")
+        if check_last_host:
+            b.wait_val("#server-field", check_last_host)
+
+        # no leaked processes
+        # FIXME: leaks ssh on debian-testing with c-client-ssh (but not on fedora-38/pybridge)
+        self.machine.execute('''
+            while [ -n "$(pgrep -au admin | grep -Ev 'cockpit-ws|ssh.*cockpit-bridge' >&2)" ]; do sleep 1; done
+        ''', timeout=10)
+        # FIXME: ssh-agent leaks both with and without remote bridge; fixed in PR#18917
+        self.machines["target"].execute("while pgrep -af '([c]ockpit|[s]sh-agentFIXME)' >&2; do sleep 1; done",
+                                        timeout=10)
+
+    # deprecated: c-client-ssh will disappear once c-beiboot goes from beta to release
+    def testClientSSH(self):
+        m = self.machine
+
+        m.upload(["../src/client/cockpit-client-ssh"], "/usr/local/bin/")
+        # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-client-ssh
+        self.writeConfig("/usr/local/bin/cockpit-client-ssh")
+        # fake flatpak-spawn wrapper
+        m.write("/usr/local/bin/flatpak-spawn", """#!/bin/sh -eu
+[ "$1" = "--host" ] || exit 1
+shift
+exec "$@"
+""", perm="755")
+
+        m.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
+        # FIXME: create directory in c-client-ssh
+        m.execute("runuser -u admin -- mkdir -p ~admin/.local/share")
+
+        self.checkLoginScenarios()
+
+    def testBeibootNoBridge(self):
+        # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
+        self.writeConfig("/usr/local/bin/cockpit-beiboot")
+        self.machine.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
+        # set up target machine: no cockpit
+        self.machines["target"].execute("rm /usr/bin/cockpit-bridge; rm -r /usr/share/cockpit")
+
+        self.checkLoginScenarios()
+
+    def testBeibootWithBridge(self):
+        # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
+        self.writeConfig("/usr/local/bin/cockpit-beiboot")
+        self.machine.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
+
+        self.checkLoginScenarios()
+
+    def checkLoginScenarios(self):
+        m = self.machine
+        mt = self.machines["target"]
+        b = self.browser
+        b.open("/")
+
+        # same username + password login, unknown host key
+        b.wait_text("#brand", "Connect to:")
+        b.wait_not_visible("#recent-hosts-list")
+        b.set_val("#server-field", "10.111.113.2")
+        b.click("#login-button")
+        b.wait_in_text("#conversation-group", "authenticity of host '10.111.113.2")
+        b.set_val("#conversation-input", "yes")
+        b.click("#login-button")
+        b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
+        b.set_val("#conversation-input", "foobar")
+        b.click("#login-button")
+
+        b.wait_visible('#content')
+        b.wait_in_text("#host-apps", "Services")
+        b.wait_in_text("#host-apps", "Terminal")
+        b.wait_in_text("#host-toggle", "admin@target")
+        b.become_superuser()
+        b.drop_superuser()
+        self.logout(check_last_host="10.111.113.2")
+
+        # remembers the last host it connected to
+        b.wait_in_text("#recent-hosts-list", "10.111.113.2")
+
+        # same username + password login, now host is known
+        b.click("#login-button")
+        b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
+        b.set_val("#conversation-input", "foobar")
+        b.click("#login-button")
+
+        b.wait_visible('#content')
+        b.wait_in_text("#host-toggle", "admin@target")
+        b.become_superuser()
+        b.drop_superuser()
+        self.logout()
+
+        # wrong password, SSH gives you three attempts
+        b.click("#login-button")
+        for _ in range(3):
+            b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
+            b.set_val("#conversation-input", "wrong")
+            b.click("#login-button")
+        b.wait_in_text("#login-fatal-message", "admin@10.111.113.2: Permission denied")
+        b.click("#login-again")
+        b.wait_text("#brand", "Connect to:")
+        # resets the host field
+        b.wait_val("#server-field", "")
+
+        # connect to most recent host
+        b.click("#recent-hosts-list .host-line button.host-name")
+        b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
+        b.set_val("#conversation-input", "foobar")
+        b.click("#login-button")
+        b.wait_visible('#content')
+        b.wait_in_text("#host-toggle", "admin@target")
+        self.logout()
+
+        # different user name + password
+        mt.execute("useradd -s /bin/bash user; echo user:barfoo | chpasswd")
+        b.set_val("#server-field", "user@10.111.113.2")
+        b.click("#login-button")
+        b.wait_text("#conversation-prompt", "user@10.111.113.2's password: ")
+        b.set_val("#conversation-input", "barfoo")
+        b.click("#login-button")
+        b.wait_visible('#content')
+        b.wait_in_text("#host-toggle", "user@target")
+
+        # not a sudoer
+        b.open_superuser_dialog()
+        b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "barfoo")
+        b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
+        b.click(".pf-v5-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
+        b.wait_not_present(".pf-v5-c-modal-box")
+        b.check_superuser_indicator("Limited access")
+
+        self.logout()
+        b.wait_in_text("#recent-hosts-list", "user@10.111.113.2")
+
+        # unreachable host
+        b.set_val("#server-field", "unknownhost")
+        b.click("#login-button")
+        b.wait_in_text("#login-fatal-message", "Could not resolve hostname unknownhost")
+        b.click("#login-again")
+        b.wait_text("#brand", "Connect to:")
+        # does not appear in recent hosts
+        b.wait_in_text("#recent-hosts-list", "10.111.113.2")
+        self.assertNotIn("unknownhost", b.text("#recent-hosts-list"))
+
+        # unencrypted SSH key login
+        m.execute("runuser -u admin -- ssh-keygen -t rsa -N '' -f ~admin/.ssh/id_rsa")
+        pubkey = m.execute("cat ~admin/.ssh/id_rsa.pub")
+        mt.write("/home/user/.ssh/authorized_keys", pubkey, owner="user:user", perm="600")
+        b.click("#recent-hosts-list .host-line:contains('user@10.111.113.2') button.host-name")
+        b.wait_visible('#content')
+        b.wait_in_text("#host-toggle", "user@target")
+        self.logout()
+
+        # encrypted SSH key login
+        m.execute("runuser -u admin -- ssh-keygen -f ~admin/.ssh/id_rsa -p -P '' -N foobarfoo")
+        b.click("#login-button")
+        b.wait_text("#conversation-prompt", "Enter passphrase for key '/home/admin/.ssh/id_rsa': ")
+        b.set_val("#conversation-input", "wrong")
+        b.click("#login-button")
+        b.wait_val("#conversation-input", "")
+        b.wait_text("#conversation-prompt", "Enter passphrase for key '/home/admin/.ssh/id_rsa': ")
+        b.set_val("#conversation-input", "foobarfoo")
+        b.click("#login-button")
+        b.wait_visible('#content')
+        b.wait_in_text("#host-toggle", "user@target")
+        self.logout()
+
+
+if __name__ == '__main__':
+    testlib.test_main()

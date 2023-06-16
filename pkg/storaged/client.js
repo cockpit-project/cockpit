@@ -862,7 +862,7 @@ function legacy_vdo_overlay() {
     function start() {
         let buf = "";
 
-        return cockpit.spawn(["/bin/sh", "-c", "head -1 $(which vdo || echo /dev/null)"],
+        return cockpit.spawn(["/bin/sh", "-c", "head -1 $(command -v vdo || echo /dev/null)"],
                              { err: "ignore" })
                 .then(function (shebang) {
                     if (shebang != "") {

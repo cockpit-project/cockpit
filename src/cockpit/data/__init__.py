@@ -1,11 +1,12 @@
-try:
+import sys
+
+if sys.version_info >= (3, 11):
     import importlib.resources
 
     def read_cockpit_data_file(filename: str) -> bytes:
         return (importlib.resources.files('cockpit.data') / filename).read_bytes()
 
-except ImportError:
-    # Python 3.6
+else:
     import importlib.abc
 
     def read_cockpit_data_file(filename: str) -> bytes:

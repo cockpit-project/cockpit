@@ -325,13 +325,13 @@ class TestSelinuxEnforcing(testlib.MachineCase):
                 b.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
-        assertEnforce(True)
+        assertEnforce(active=True)
         self.addCleanup(m.execute, "setenforce 1")
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button
         b.click(".pf-v5-c-switch__input")
-        assertEnforce(False)
+        assertEnforce(active=False)
         m.execute("getenforce | grep -q 'Permissive'")
 
         # when in permissive mode, expect a warning
@@ -339,7 +339,7 @@ class TestSelinuxEnforcing(testlib.MachineCase):
 
         # switch back using cli, ui should react
         m.execute("setenforce 1")
-        assertEnforce(True)
+        assertEnforce(active=True)
 
         # warning should disappear
         b.wait_not_in_text("div.selinux-policy-ct", "Setting deviates")
@@ -356,7 +356,7 @@ class TestSelinuxEnforcing(testlib.MachineCase):
         b.switch_to_top()
         b.go("/selinux")
         b.enter_page("/selinux")
-        assertEnforce(False)
+        assertEnforce(active=False)
         b.wait_in_text("div.selinux-policy-ct", "Setting deviates")
 
 

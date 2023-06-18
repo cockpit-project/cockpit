@@ -44,7 +44,7 @@ class TestWsBastionContainer(testlib.MachineCase):
         m.execute("podman run -d --name cockpit-bastion -p 9090:9090 localhost/cockpit/ws")
         m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
 
-        b.ignore_ssl_certificate_errors(True)
+        b.ignore_ssl_certificate_errors(ignore=True)
         b.open("/", tls=True)
 
         b.wait_visible("#login")
@@ -92,7 +92,7 @@ class TestWsBastionContainer(testlib.MachineCase):
 
         m.execute(f"ssh-keyscan localhost | sed 's/^localhost/{HOST}/' > /root/known_hosts")
         self.addCleanup(m.execute, "rm /root/known_hosts")
-        b.ignore_ssl_certificate_errors(True)
+        b.ignore_ssl_certificate_errors(ignore=True)
 
         def check_login():
             m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
@@ -140,7 +140,7 @@ class TestWsBastionContainer(testlib.MachineCase):
                   "localhost/cockpit/ws")
         m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
 
-        b.ignore_ssl_certificate_errors(True)
+        b.ignore_ssl_certificate_errors(ignore=True)
         b.open("/", tls=True)
 
         b.wait_visible("#login")
@@ -180,7 +180,7 @@ class TestWsBastionContainer(testlib.MachineCase):
                   "localhost/cockpit/ws")
         m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
 
-        b.ignore_ssl_certificate_errors(True)
+        b.ignore_ssl_certificate_errors(ignore=True)
         b.open("/", tls=True)
         b.set_val("#login-user-input", "admin")
         b.set_val("#server-field", HOST)

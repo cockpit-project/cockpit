@@ -70,21 +70,21 @@ class TestFirewall(netlib.NetworkCase):
 
         # Zones should be visible as unprivileged user
         self.login_and_go("/network", superuser=False)
-        self.wait_onoff("#networking-firewall-summary", True)
+        self.wait_onoff("#networking-firewall-summary", val=True)
         wait_unit_state(m, "firewalld", "active")
         b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
         m.execute("systemctl stop firewalld")
         b.relogin("/network", superuser=True)
 
-        self.wait_onoff("#networking-firewall-summary", False)
+        self.wait_onoff("#networking-firewall-summary", val=False)
         self.toggle_onoff("#networking-firewall-summary")
-        self.wait_onoff("#networking-firewall-summary", True)
+        self.wait_onoff("#networking-firewall-summary", val=True)
         wait_unit_state(m, "firewalld", "active")
 
         b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
 
         self.toggle_onoff("#networking-firewall-summary")
-        self.wait_onoff("#networking-firewall-summary", False)
+        self.wait_onoff("#networking-firewall-summary", val=False)
         wait_unit_state(m, "firewalld", "inactive")
         b.wait_in_text("#networking-firewall-summary", "0 active zones")
 
@@ -97,7 +97,7 @@ class TestFirewall(netlib.NetworkCase):
             print(m.execute("systemctl status firewalld"))
             raise
 
-        self.wait_onoff("#networking-firewall-summary", True)
+        self.wait_onoff("#networking-firewall-summary", val=True)
         b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
 
         try:
@@ -108,7 +108,7 @@ class TestFirewall(netlib.NetworkCase):
             print(m.execute("systemctl status firewalld"))
             raise
 
-        self.wait_onoff("#networking-firewall-summary", False)
+        self.wait_onoff("#networking-firewall-summary", val=False)
         b.wait_in_text("#networking-firewall-summary", "0 active zones")
 
         b.click("#networking-firewall-link")
@@ -154,7 +154,7 @@ class TestFirewall(netlib.NetworkCase):
 
         # Zones should be visible as unprivileged user
         self.login_and_go("/network/firewall", superuser=False)
-        self.wait_onoff("#firewall-heading-title-group", True)
+        self.wait_onoff("#firewall-heading-title-group", val=True)
         wait_unit_state(m, "firewalld", "active")
         # Wait until the default zone is listed
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
@@ -167,9 +167,9 @@ class TestFirewall(netlib.NetworkCase):
         # "Add services" button should not be present
         b.wait_not_present(".add-services-button")
 
-        self.wait_onoff("#firewall-heading-title-group", False)
+        self.wait_onoff("#firewall-heading-title-group", val=False)
         self.toggle_onoff("#firewall-heading-title-group")
-        self.wait_onoff("#firewall-heading-title-group", True)
+        self.wait_onoff("#firewall-heading-title-group", val=True)
         wait_unit_state(m, "firewalld", "active")
 
         # Wait until the default zone is listed
@@ -209,7 +209,7 @@ class TestFirewall(netlib.NetworkCase):
 
         # switch service off again
         self.toggle_onoff("#firewall-heading-title-group")
-        self.wait_onoff("#firewall-heading-title-group", False)
+        self.wait_onoff("#firewall-heading-title-group", val=False)
         wait_unit_state(m, "firewalld", "inactive")
         # "Add services" button should be hidden again
         b.wait_not_present(".zone-section[data-id='public'] .add-services-button")

@@ -51,8 +51,8 @@ class TestBridge(netlib.NetworkCase):
         b.assert_pixels("#network-bridge-settings-dialog", "networking-bridge-settings-dialog")
 
         b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
-        b.set_checked(f"input[data-iface='{iface1}']", True)
-        b.set_checked(f"input[data-iface='{iface2}']", True)
+        b.set_checked(f"input[data-iface='{iface1}']", val=True)
+        b.set_checked(f"input[data-iface='{iface2}']", val=True)
         b.click("#network-bridge-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bridge-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tbridge']")
@@ -60,8 +60,8 @@ class TestBridge(netlib.NetworkCase):
         # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbridge'] button")
         b.wait_visible("#network-interface")
-        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface1}']", True)
-        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface2}']", True)
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface1}']", val=True)
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface2}']", val=True)
 
         b.wait_text_not("#network-interface-mac", "")
         self.configure_iface_setting('Bridge')
@@ -95,7 +95,7 @@ class TestBridge(netlib.NetworkCase):
         b.click("button:contains('Add bridge')")
         b.wait_visible("#network-bridge-settings-dialog")
         b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
-        b.set_checked(f"input[data-iface='{iface}']", True)
+        b.set_checked(f"input[data-iface='{iface}']", val=True)
         b.click("#network-bridge-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bridge-settings-dialog")
 
@@ -111,7 +111,7 @@ class TestBridge(netlib.NetworkCase):
         b.wait_visible("#network-bridge-port-settings-dialog")
         b.set_input_text("#network-bridge-port-settings-prio-input", "35")
         b.set_input_text("#network-bridge-port-settings-path-cost-input", "90")
-        b.set_checked("#network-bridge-port-settings-hairPin-mode-input", True)
+        b.set_checked("#network-bridge-port-settings-hairPin-mode-input", val=True)
         b.click("#network-bridge-port-settings-save")
         b.wait_not_present("#network-bridge-port-settings-dialog")
 

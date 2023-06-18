@@ -144,7 +144,7 @@ class TestStorageVDO(storagelib.StorageCase):
         self.dialog_set_val("vdo_psize", 6000)
         # grossly overcommitted
         self.dialog_set_val("vdo_lsize", 20000)
-        self.dialog_set_val("vdo_options.compression", False)
+        self.dialog_set_val("vdo_options.compression", val=False)
         self.dialog_apply()
         self.dialog_wait_close()
 

@@ -31,17 +31,17 @@ class TestExample(testlib.MachineCase):
     @unittest.expectedFailure
     def testExpectedFail(self):
         self.login_and_go("/system")
-        self.assertFalse(True)
+        self.assertFalse(True)  # noqa: FBT003
 
     def testFail(self):
         self.login_and_go("/system")
         if os.environ.get('TEST_FAILURES'):
-            self.assertFalse(True)
+            self.assertFalse(True)  # noqa: FBT003
 
     @unittest.skip
     def testSkip(self):
         self.login_and_go("/system")
-        self.assertFalse(True)
+        self.assertFalse(True)  # noqa: FBT003
 
     def testRaiseSkip(self):
         raise unittest.SkipTest("dynamic skip")
@@ -75,14 +75,14 @@ class TestSimple(unittest.TestCase):
                 sys.stderr.write(">1%i\n" % i)
             else:
                 print(">2", i)
-        self.assertTrue(True)
+        self.assertTrue(True)  # noqa: FBT003
 
     @unittest.expectedFailure
     def testTwo(self):
-        self.assertFalse(True)
+        self.assertFalse(True)  # noqa: FBT003
 
     def testThree(self):
-        self.assertTrue(True)
+        self.assertTrue(True)  # noqa: FBT003
 
 
 @testlib.skipDistroPackage()

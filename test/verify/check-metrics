@@ -204,10 +204,10 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # Change graph visibility
         b.wait_visible(".metrics-events:contains('Network I/O')")
-        b.set_checked("#column-visibility-option-network", False)
+        b.set_checked("#column-visibility-option-network", val=False)
         b.wait_not_present(".metrics-events:contains('Network I/O')")
         b.wait_not_present(".metrics-label-graph:contains(Network)")
-        b.set_checked("#column-visibility-option-network", True)
+        b.set_checked("#column-visibility-option-network", val=True)
 
         # Change date to yesterday, should be empty
         b.click("#date-picker-select-toggle .pf-v5-c-select__toggle-arrow")
@@ -251,20 +251,20 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text(".metrics-heading", "CPU")
 
         # Big spike lasting 3 minutes
-        self.assertGreaterEqual(getMaximumSpike(self, "disks", False, 1597662000000, 25), 0.9)
-        self.assertGreaterEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 26), 0.9)
-        self.assertGreaterEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 27), 0.9)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="disks", saturation=False, hour=1597662000000, minute=25), 0.9)
+        self.assertGreaterEqual(getCompressedMinuteValue(test=self, g_type="disks", saturation=False, hour=1597662000000, minute=26), 0.9)
+        self.assertGreaterEqual(getCompressedMinuteValue(test=self, g_type="disks", saturation=False, hour=1597662000000, minute=27), 0.9)
 
         # Smaller spike lasting 2 minutes
-        self.assertGreaterEqual(getMaximumSpike(self, "disks", False, 1597662000000, 28), 0.4)
-        self.assertLessEqual(getMaximumSpike(self, "disks", False, 1597662000000, 28), 0.6)
-        self.assertGreaterEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 29), 0.4)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="disks", saturation=False, hour=1597662000000, minute=28), 0.4)
+        self.assertLessEqual(getMaximumSpike(test=self, g_type="disks", saturation=False, hour=1597662000000, minute=28), 0.6)
+        self.assertGreaterEqual(getCompressedMinuteValue(test=self, g_type="disks", saturation=False, hour=1597662000000, minute=29), 0.4)
         # recognized as event
 
         self.assertIn("Disk I/O", events_at(1597662000000, 28))
 
         # No visible activity after that
-        self.assertLessEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 30), 0.01)
+        self.assertLessEqual(getCompressedMinuteValue(test=self, g_type="disks", saturation=False, hour=1597662000000, minute=30), 0.01)
 
         # swap usage is not shown if there is no swap
         b.wait_visible("#current-memory-usage")
@@ -306,43 +306,43 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text(".metrics-heading", "CPU")
 
         # Test network - Big spike lasting 2 minutes
-        self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 3), 0.5)
-        self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 4), 0.5)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="network", saturation=False, hour=1598950800000, minute=3), 0.5)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="network", saturation=False, hour=1598950800000, minute=4), 0.5)
         # recognized as event
         self.assertIn("Network I/O", events_at(1598950800000, 3))
         # but it's not a new event in minute 4
         self.assertNotIn("Network I/O", events_at(1598950800000, 4))
 
         # Followed by smaller spike
-        self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 5), 0.35)
-        self.assertLessEqual(getMaximumSpike(self, "network", False, 1598950800000, 5), 0.5)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="network", saturation=False, hour=1598950800000, minute=5), 0.35)
+        self.assertLessEqual(getMaximumSpike(test=self, g_type="network", saturation=False, hour=1598950800000, minute=5), 0.5)
         # still not a new spike
         self.assertNotIn("Network I/O", events_at(1598950800000, 5))
 
         # Followed by virtually no data
-        self.assertLessEqual(getCompressedMinuteValue(self, "network", False, 1598950800000, 6), 0.01)
+        self.assertLessEqual(getCompressedMinuteValue(test=self, g_type="network", saturation=False, hour=1598950800000, minute=6), 0.01)
 
         # Test CPU load - big - small - big spikes
-        self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 3), 0.9)
-        self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 4), 0.5)
-        self.assertLessEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 4), 0.55)
-        self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 5), 0.9)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="cpu", saturation=False, hour=1598950800000, minute=3), 0.9)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="cpu", saturation=False, hour=1598950800000, minute=4), 0.5)
+        self.assertLessEqual(getMaximumSpike(test=self, g_type="cpu", saturation=False, hour=1598950800000, minute=4), 0.55)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="cpu", saturation=False, hour=1598950800000, minute=5), 0.9)
         self.assertIn("CPU", events_at(1598950800000, 2))
         self.assertIn("CPU", events_at(1598950800000, 5))
 
         # Test CPU saturation - 3 spikes, each 2 minutes (medium, big, small)
-        self.assertGreaterEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 3), 0.5)
-        self.assertLessEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 3), 0.6)
-        self.assertGreaterEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 4), 0.5)
-        self.assertLessEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 4), 0.6)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=3), 0.5)
+        self.assertLessEqual(getMaximumSpike(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=3), 0.6)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=4), 0.5)
+        self.assertLessEqual(getMaximumSpike(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=4), 0.6)
 
-        self.assertGreaterEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 5), 0.8)
-        self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 6), 0.8)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=5), 0.8)
+        self.assertGreaterEqual(getCompressedMinuteValue(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=6), 0.8)
 
-        self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 7), 0.3)
-        self.assertLessEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 7), 0.4)
-        self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 8), 0.3)
-        self.assertLessEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 8), 0.4)
+        self.assertGreaterEqual(getCompressedMinuteValue(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=7), 0.3)
+        self.assertLessEqual(getCompressedMinuteValue(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=7), 0.4)
+        self.assertGreaterEqual(getCompressedMinuteValue(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=8), 0.3)
+        self.assertLessEqual(getCompressedMinuteValue(test=self, g_type="cpu", saturation=True, hour=1598950800000, minute=8), 0.4)
 
         self.assertNotIn("Load", events_at(1598950800000, 2))
         self.assertIn("Load", events_at(1598950800000, 3))
@@ -362,17 +362,17 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text(".metrics-heading", "CPU")
 
         # basic RAM consumption after boot; it's still a network spike, thus event+SVG
-        self.assertLessEqual(getMaximumSpike(self, "memory", False, 1600236000000, 44), 0.3)
+        self.assertLessEqual(getMaximumSpike(test=self, g_type="memory", saturation=False, hour=1600236000000, minute=44), 0.3)
         self.assertNotIn("Memory", events_at(1600236000000, 44))
         if have_swap:
-            self.assertAlmostEqual(getMaximumSpike(self, "memory", True, 1600236000000, 44), 0)
+            self.assertAlmostEqual(getMaximumSpike(test=self, g_type="memory", saturation=True, hour=1600236000000, minute=44), 0)
             self.assertNotIn("Swap", events_at(1600236000000, 44))
 
             # swap event from :46 to :47
-            self.assertGreater(getMaximumSpike(self, "memory", True, 1600236000000, 46), 0.9)
+            self.assertGreater(getMaximumSpike(test=self, g_type="memory", saturation=True, hour=1600236000000, minute=46), 0.9)
             self.assertIn("Swap", events_at(1600236000000, 46))
             # continuous, no new Swap event, but still a Memory+Network event
-            self.assertGreater(getMaximumSpike(self, "memory", True, 1600236000000, 47), 0.9)
+            self.assertGreater(getMaximumSpike(test=self, g_type="memory", saturation=True, hour=1600236000000, minute=47), 0.9)
             self.assertNotIn("Swap", events_at(1600236000000, 47))
 
         else:
@@ -381,19 +381,19 @@ class TestHistoryMetrics(testlib.MachineCase):
             b.wait_not_present(".metrics-data-memory .saturation")
 
         # memory spike in :47
-        self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 47), 0.6)
+        self.assertGreater(getMaximumSpike(test=self, g_type="memory", saturation=False, hour=1600236000000, minute=47), 0.6)
         self.assertIn("Memory", events_at(1600236000000, 47))
 
         # at :54 the machine is loaded to ~80% so no event even if elevated
-        self.assertGreater(getCompressedMinuteValue(self, "memory", False, 1600236000000, 54), 0.8)
+        self.assertGreater(getCompressedMinuteValue(test=self, g_type="memory", saturation=False, hour=1600236000000, minute=54), 0.8)
         b.wait_not_present("#metrics-hour-1600236000000 div.metrics-minute[data-minute=54] .metrics-events")
         if have_swap:
-            self.assertAlmostEqual(getCompressedMinuteValue(self, "memory", True, 1600236000000, 54), 0.0)
+            self.assertAlmostEqual(getCompressedMinuteValue(test=self, g_type="memory", saturation=True, hour=1600236000000, minute=54), 0.0)
 
         # everything is quiet in :55
-        self.assertLess(getCompressedMinuteValue(self, "memory", False, 1600236000000, 55), 0.4)
+        self.assertLess(getCompressedMinuteValue(test=self, g_type="memory", saturation=False, hour=1600236000000, minute=55), 0.4)
         if have_swap:
-            self.assertAlmostEqual(getCompressedMinuteValue(self, "memory", True, 1600236000000, 55), 0.0)
+            self.assertAlmostEqual(getCompressedMinuteValue(test=self, g_type="memory", saturation=True, hour=1600236000000, minute=55), 0.0)
 
         b.logout()
 
@@ -407,7 +407,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Today")
 
         b.select_PF4("#date-picker-select-toggle", "Wednesday, September 16, 2020")
-        self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 51), 0.5)
+        self.assertGreater(getMaximumSpike(test=self, g_type="memory", saturation=False, hour=1600236000000, minute=51), 0.5)
         self.assertIn("Memory", events_at(1600236000000, 51))
 
         # Reload should keep the filters intact
@@ -656,29 +656,29 @@ class TestHistoryMetrics(testlib.MachineCase):
         self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
         b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
 
-        checkEnable(True)
+        checkEnable(firewalld_alert=True)
         checkDisable()
 
         # redis already running
         m.execute(f"systemctl start {redis}")
-        checkEnable(True)
+        checkEnable(firewalld_alert=True)
         checkDisable()
 
         # pmproxy already running; 44322 queries hang without redis and until restart
         m.execute(f"systemctl disable --now {redis}; systemctl start pmproxy")
-        checkEnable(True)
+        checkEnable(firewalld_alert=True)
 
         # without firewalld
         m.execute("firewall-cmd --remove-service pmproxy; firewall-cmd --permanent --remove-service pmproxy")
         m.execute("systemctl stop firewalld")
         self.allow_journal_messages(".*org.fedoraproject.FirewallD1.*disconnected.*")
         checkDisable()
-        checkEnable(False)
+        checkEnable(firewalld_alert=False)
         m.execute("systemctl start firewalld")
 
         # Go to firewall page from alert
         checkDisable()
-        checkEnable(True)
+        checkEnable(firewalld_alert=True)
         b.click(".pf-v5-c-alert button.pf-m-link")
         b.enter_page("/network/firewall")
         b.wait_visible("#firewall-heading")
@@ -695,12 +695,12 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # now service is already enabled, does not show alert
         checkDisable()
-        checkEnable(False)
+        checkEnable(firewalld_alert=False)
 
         # firewalld service enabled in permanent config already, does not trip over ALREADY_ENABLED
         checkDisable()
         m.execute("firewall-cmd --remove-service pmproxy")
-        checkEnable(True)
+        checkEnable(firewalld_alert=True)
         b.click(".pf-v5-c-alert button.pf-m-primary")
         b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
         self.assertIn("pmproxy", m.execute("firewall-cmd --list-services").strip())
@@ -717,7 +717,7 @@ class TestHistoryMetrics(testlib.MachineCase):
                      firewall-cmd --reload
                   """)
         self.addCleanup(m.execute, "nmcli con delete fake; firewall-cmd --permanent --delete-zone comeandgo || true; firewall-cmd  --reload")
-        checkEnable(True)
+        checkEnable(firewalld_alert=True)
         b.select_PF4("#firewalld-request-pmproxy", "comeandgo")
         m.execute("firewall-cmd --permanent --delete-zone comeandgo; firewall-cmd  --reload")
         b.click(".pf-v5-c-alert button.pf-m-primary")
@@ -744,13 +744,13 @@ class TestHistoryMetrics(testlib.MachineCase):
                 raise testlib.Error("PCP settings dialog did not get expected value")
 
         m.execute(f"systemctl stop {redis}")
-        checkEnabled(False)
+        checkEnabled(expected=False)
         m.execute(f"systemctl start {redis}")
-        checkEnabled(True)
+        checkEnabled(expected=True)
         m.execute("systemctl stop pmproxy")
-        checkEnabled(False)
+        checkEnabled(expected=False)
         m.execute("systemctl start pmproxy")
-        checkEnabled(True)
+        checkEnabled(expected=True)
 
 
 @testlib.skipDistroPackage()
@@ -1390,12 +1390,12 @@ class TestMultiCPU(testlib.MachineCase):
         login(self)
 
         # one core is busy, the other idle -- that should be 50% total usage
-        self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", False, 1598968800000, 44), 0.2)
-        self.assertLessEqual(getCompressedMinuteValue(self, "cpu", False, 1598968800000, 44), 0.55)
+        self.assertGreaterEqual(getCompressedMinuteValue(test=self, g_type="cpu", saturation=False, hour=1598968800000, minute=44), 0.2)
+        self.assertLessEqual(getCompressedMinuteValue(test=self, g_type="cpu", saturation=False, hour=1598968800000, minute=44), 0.55)
 
         # next minute, both cores are busy
-        self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598968800000, 45), 0.5)
-        self.assertLessEqual(getMaximumSpike(self, "cpu", False, 1598968800000, 45), 1.0)
+        self.assertGreaterEqual(getMaximumSpike(test=self, g_type="cpu", saturation=False, hour=1598968800000, minute=45), 0.5)
+        self.assertLessEqual(getMaximumSpike(test=self, g_type="cpu", saturation=False, hour=1598968800000, minute=45), 1.0)
 
         b.wait_timeout(60)
 

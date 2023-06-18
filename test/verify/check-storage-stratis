@@ -283,7 +283,7 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
                                     expect=lambda: (self.dialog_is_present('disks', dev_1) and
                                                     self.dialog_check({"name": "pool0"})))
-        self.dialog_set_val("encrypt.on", True)
+        self.dialog_set_val("encrypt.on", val=True)
         self.dialog_set_val("passphrase", "foodeeboodeebar")
         self.dialog_set_val("passphrase2", "foodeeboodeebar")
         self.dialog_set_val("disks", {dev_1: True})

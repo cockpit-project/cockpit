@@ -72,10 +72,10 @@ class TestNetworkingBasic(netlib.NetworkCase):
         # Toggle "Connect automatically"
         #
         b.wait_visible('#autoreconnect:checked')
-        b.set_checked('#autoreconnect', False)
+        b.set_checked('#autoreconnect', val=False)
         self.assertEqual(m.execute(f"nmcli -g connection.autoconnect con show {con_id}"), "no\n")
         b.wait_visible('#autoreconnect:not(:checked)')
-        b.set_checked('#autoreconnect', True)
+        b.set_checked('#autoreconnect', val=True)
         b.wait_visible('#autoreconnect:checked')
         self.assertEqual(m.execute(f"nmcli -g connection.autoconnect con show {con_id}"), "yes\n")
 
@@ -99,7 +99,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_in_text(f"#network-interface .pf-v5-c-card:contains('{iface}')", "1.2.3.4/18")
 
         # Disconnect
-        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", True)
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=True)
         self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
         self.wait_for_iface_setting('Status', 'Inactive')
 
@@ -109,7 +109,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         # Disconnect from the CLI, UI reacts
         m.execute(f"nmcli device disconnect {iface}")
-        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", False)
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=False)
 
         # Switch it back to "auto" from the command line and bring it
         # up again
@@ -125,10 +125,10 @@ class TestNetworkingBasic(netlib.NetworkCase):
         #
         self.configure_iface_setting('IPv4')
         b.wait_visible("#network-ip-settings-dialog")
-        self.wait_onoff("#network-ip-settings-dialog [data-field='dns']", True)
+        self.wait_onoff("#network-ip-settings-dialog [data-field='dns']", val=True)
         self.toggle_onoff("#network-ip-settings-dialog [data-field='dns']")
         # The "DNS search domains" setting should follow suit
-        self.wait_onoff("#network-ip-settings-dialog [data-field='dns_search']", False)
+        self.wait_onoff("#network-ip-settings-dialog [data-field='dns_search']", val=False)
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
 
@@ -219,19 +219,19 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         # stop/start NM on CLI, page should notice
         m.execute("systemctl stop NetworkManager")
-        assert_stopped(True)
+        assert_stopped(enabled=True)
         m.execute("systemctl start NetworkManager")
         assert_running()
 
         # stop NM, test inline start button
         m.execute("systemctl stop NetworkManager")
-        assert_stopped(True)
+        assert_stopped(enabled=True)
         b.click("#networking-nm-crashed button")
         assert_running()
 
         # stop NM, test troubleshoot button
         m.execute("systemctl stop NetworkManager")
-        assert_stopped(True)
+        assert_stopped(enabled=True)
         b.click("#networking-nm-crashed a")
         b.enter_page("/system/services")
         b.wait_text(".service-name", "Network Manager")
@@ -246,7 +246,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         # stop and disable NM, enablement info notification
         m.execute("systemctl stop NetworkManager; systemctl disable NetworkManager")
-        assert_stopped(False)
+        assert_stopped(enabled=False)
         b.click("#networking-nm-disabled button")
         assert_running()
         testlib.wait(lambda: m.execute("systemctl is-enabled NetworkManager"))

@@ -157,7 +157,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         # Degrade and repair it
 
         m.execute(f"mdadm --quiet {dev} --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1; udevadm trigger")
-        wait_degraded_state(True)
+        wait_degraded_state(is_degraded=True)
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})
         self.raid_remove_disk("DISK1")
@@ -168,7 +168,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
                           "QEMU QEMU HARDDISK (DISK2)": "In sync",
                           "QEMU QEMU HARDDISK (DISK3)": "In sync"})
 
-        wait_degraded_state(False)
+        wait_degraded_state(is_degraded=False)
 
         # Turn it off and on again
         with b.wait_timeout(30):
@@ -208,7 +208,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.content_row_wait_in_col(1, 1, part_prefix + "1")
 
         # Create second partition
-        self.content_row_action(2, "Create partition", False)
+        self.content_row_action(2, "Create partition", isExpandable=False)
         self.dialog({"type": "ext4",
                      "mount_point": "/foo2",
                      "name": "Two"})
@@ -241,12 +241,12 @@ class TestStorageMdRaid(storagelib.StorageCase):
         b.wait_not_in_text('#detail-sidebar', "DISK2")
         self.raid_default_action("Start")
         b.wait_in_text(info_field("State"), "Running")
-        wait_degraded_state(True)
+        wait_degraded_state(is_degraded=True)
 
         # Add DISK1.  The array recovers.
         self.raid_add_disk("DISK1")
         b.wait_in_text('#detail-sidebar', "DISK1")
-        wait_degraded_state(False)
+        wait_degraded_state(is_degraded=False)
 
         # Add DISK2 again, as a spare
         self.raid_add_disk("DISK2")

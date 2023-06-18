@@ -109,24 +109,24 @@ class TestStorageResize(storagelib.StorageCase):
             self.wait_content_tab_action_disabled(1, 1, "Shrink")
 
     def testResizeExt4(self):
-        self.checkResize("ext4", False,
+        self.checkResize("ext4", crypto=False,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=False)
 
     def testResizeXfs(self):
-        self.checkResize("xfs", False,
+        self.checkResize("xfs", crypto=False,
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
     @testlib.skipImage("NTFS not supported on RHEL", "rhel-*", "centos-*")
     def testResizeNtfs(self):
-        self.checkResize("ntfs", False,
+        self.checkResize("ntfs", crypto=False,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=True)
 
     @testlib.skipImage("TODO: arch does not mount the LUKS partition after growing", "arch")
     def testResizeLuks(self):
-        self.checkResize("ext4", True,
+        self.checkResize("ext4", crypto=True,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=False)
 

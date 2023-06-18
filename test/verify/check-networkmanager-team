@@ -54,8 +54,8 @@ class TestTeam(netlib.NetworkCase):
         b.assert_pixels("#network-team-settings-dialog", "networking-team-settings-dialog")
 
         b.set_input_text("#network-team-settings-interface-name-input", "tteam")
-        b.set_checked(f"input[data-iface='{iface1}']", True)
-        b.set_checked(f"input[data-iface='{iface2}']", True)
+        b.set_checked(f"input[data-iface='{iface1}']", val=True)
+        b.set_checked(f"input[data-iface='{iface2}']", val=True)
         b.click("#network-team-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-team-settings-dialog")
 
@@ -71,7 +71,7 @@ class TestTeam(netlib.NetworkCase):
 
         # Deactivate the team and make sure it is still there after a
         # reload.
-        self.wait_onoff(".pf-v5-c-card__header:contains('tteam')", True)
+        self.wait_onoff(".pf-v5-c-card__header:contains('tteam')", val=True)
         self.toggle_onoff(".pf-v5-c-card__header:contains('tteam')")
         self.wait_for_iface_setting('Status', 'Inactive')
         b.reload()
@@ -108,7 +108,7 @@ class TestTeam(netlib.NetworkCase):
         b.click("button:contains('Add team')")
         b.wait_visible("#network-team-settings-dialog")
         b.set_input_text("#network-team-settings-interface-name-input", "tteam")
-        b.set_checked(f"input[data-iface='{iface}']", True)
+        b.set_checked(f"input[data-iface='{iface}']", val=True)
         b.click("#network-team-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-team-settings-dialog")
 
@@ -126,7 +126,7 @@ class TestTeam(netlib.NetworkCase):
         b.click("#networking-edit-teamport")
         b.wait_visible("#network-team-port-settings-dialog")
         b.set_input_text("#network-team-port-settings-activebackup-prio-input", "10")
-        b.set_checked("#network-team-port-settings-activebackup-sticky-input", True)
+        b.set_checked("#network-team-port-settings-activebackup-sticky-input", val=True)
         b.click("#network-team-port-settings-save")
         b.wait_not_present("#network-team-port-settings-dialog")
 

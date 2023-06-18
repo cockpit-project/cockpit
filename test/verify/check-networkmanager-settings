@@ -89,9 +89,9 @@ class TestNetworkingSettings(netlib.NetworkCase):
 
         self.configure_iface_setting('IPv4')
         b.wait_visible("#network-ip-settings-dialog")
-        self.wait_onoff("[data-field=dns]", True)
+        self.wait_onoff("[data-field=dns]", val=True)
         self.toggle_onoff("[data-field=dns]")
-        self.wait_onoff("[data-field=dns_search]", False)
+        self.wait_onoff("[data-field=dns_search]", val=False)
         b.click("#network-ip-settings-dns-add")
         b.set_input_text("#network-ip-settings-dns-server-0", "1.2.3.4")
         b.click("#network-ip-settings-dns-search-add")
@@ -104,8 +104,8 @@ class TestNetworkingSettings(netlib.NetworkCase):
         assert_connection_setting(con_id, "ipv4.dns-search", "foo.com")
 
         self.configure_iface_setting('IPv4')
-        self.wait_onoff("[data-field=dns]", False)
-        self.wait_onoff("[data-field=dns_search]", False)
+        self.wait_onoff("[data-field=dns]", val=False)
+        self.wait_onoff("[data-field=dns_search]", val=False)
         b.wait_val("#network-ip-settings-dns-server-0", "1.2.3.4")
         b.wait_val("#network-ip-settings-search-domain-0", "foo.com")
         b.click("#network-ip-settings-cancel")

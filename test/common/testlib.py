@@ -1274,13 +1274,13 @@ class _DebugOutcome(unittest.case._Outcome):  # type: ignore[name-defined]
                 if exc_info:
                     assert err_case == test_case
                     setattr(test_case, "_ran_debug", True)
-                    failureHandler(exc_info, False)
+                    failureHandler(exc_info, python_311=False)
         elif self.result.errors or self.result.failures:
             errors = [err for err in itertools.chain(self.result.errors, self.result.failures) if err[0] == test_case]
             if errors:
                 (err_case, exc_info) = errors[-1]
                 setattr(test_case, "_ran_debug", True)
-                failureHandler(exc_info, True)
+                failureHandler(exc_info, python_311=True)
 
         return superResult
 

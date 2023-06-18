@@ -31,11 +31,11 @@ class TestSession(testlib.MachineCase):
         def wait_session(should_exist):
             testlib.wait(lambda: (should_exist == ("admin" in m.execute("loginctl list-sessions"))))
 
-        wait_session(False)
+        wait_session(should_exist=False)
 
         # Login
         self.login_and_go("/system")
-        wait_session(True)
+        wait_session(should_exist=True)
 
         # Check session type
         if not m.ostree_image:
@@ -45,25 +45,25 @@ class TestSession(testlib.MachineCase):
         # Logout
         b.logout()
         b.wait_visible("#login")
-        wait_session(False)
+        wait_session(should_exist=False)
 
         # Login again
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
         b.enter_page("/system")
-        wait_session(True)
+        wait_session(should_exist=True)
 
         # Kill session from the outside
         m.execute("loginctl terminate-user admin")
-        wait_session(False)
+        wait_session(should_exist=False)
 
         b.relogin("/system", "admin")
-        wait_session(True)
+        wait_session(should_exist=True)
 
         # Kill session from the inside
         b.logout()
-        wait_session(False)
+        wait_session(should_exist=False)
 
 
 if __name__ == '__main__':

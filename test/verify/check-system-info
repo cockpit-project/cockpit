@@ -727,14 +727,14 @@ machine         : 8561
                 if cmdline:
                     m.execute('while ! umount /proc/cmdline; do sleep 1; done')
 
-        spoof_threads(1, False)
-        spoof_threads(2, True, True, 'param1 param2 nosmt param3=value3')
-        spoof_threads(2, True, True, 'param1 param2 nosmt=force param3=value3')
-        spoof_threads(2, True, True, 'param1 mitigations=auto,nosmt param3=value3')
-        spoof_threads(2, True, True, 'param1 mitigations=nosmt,something param3=value3')
-        spoof_threads(2, True, False, 'param1 mitigations=something param3=value3')
-        spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
-        spoof_threads(2, True, self.expect_smt_default, None)
+        spoof_threads(1, expect_link_present=False)
+        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 param2 nosmt param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 param2 nosmt=force param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 mitigations=auto,nosmt param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 mitigations=nosmt,something param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=False, cmdline='param1 mitigations=something param3=value3')
+        spoof_threads(2, expect_link_present=False, cmdline='param1 nosmt=someunknown param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=self.expect_smt_default, cmdline=None)
 
     @testlib.skipImage("TODO: add Arch Linux grub entry support", "arch")
     def testCPUSecurityMitigationsEnable(self):

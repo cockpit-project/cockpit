@@ -218,75 +218,75 @@ class TestConnection(testlib.MachineCase):
 
         # at the beginning, no cockpit related units are running
         m.stop_cockpit()
-        expect_actives(False, False, [])
+        expect_actives(ws_socket=False, instance_sockets=False, http_instances=[])
 
         # http only mode
 
         m.start_cockpit(tls=False)
-        expect_actives(True, False, [])
+        expect_actives(ws_socket=True, instance_sockets=False, http_instances=[])
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
 
-        expect_actives(True, True, ["http"])
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"])
         self.assertRaises(subprocess.CalledProcessError, m.execute,
                           "curl --silent https://127.0.0.1:9090")
         # c-tls knows it can't do https, and not activate that instance
-        expect_actives(True, True, ["http"])
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"])
 
         m.restart_cockpit()
-        expect_actives(True, True, ["http"])
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"])
 
         m.stop_cockpit()
-        expect_actives(False, False, [])
+        expect_actives(ws_socket=False, instance_sockets=False, http_instances=[])
 
         # cleans up also when cockpit-tls crashes or idle-exits, not just by explicit stop request
         m.start_cockpit(tls=False)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
         m.execute("pkill -e cockpit-tls")
-        expect_actives(True, False, [])
+        expect_actives(ws_socket=True, instance_sockets=False, http_instances=[])
 
         # and recovers from that
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
-        expect_actives(True, True, ["http"])
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"])
 
         # https mode
 
         m.start_cockpit(tls=True)
-        expect_actives(True, False, [], 0)
+        expect_actives(ws_socket=True, instance_sockets=False, http_instances=[], https_instances=0)
 
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
 
-        expect_actives(True, True, ["http"], 0)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http"], 1)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=1)
 
         m.restart_cockpit()
-        expect_actives(True, True, ["http"], 1)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=1)
 
         m.stop_cockpit()
-        expect_actives(False, False, [], 0)
+        expect_actives(ws_socket=False, instance_sockets=False, http_instances=[], https_instances=0)
 
         m.start_cockpit(tls=True)
-        expect_actives(True, False, [], 0)
+        expect_actives(ws_socket=True, instance_sockets=False, http_instances=[], https_instances=0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
 
-        expect_actives(True, True, ["http"], 0)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http"], 1)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=1)
 
         # cleans up also when cockpit-tls crashes or idle-exits, not just by explicit stop request
         m.execute("pkill -e cockpit-tls")
-        expect_actives(True, False, [], 0)
+        expect_actives(ws_socket=True, instance_sockets=False, http_instances=[], https_instances=0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
-        expect_actives(True, True, ["http"], 0)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=0)
         # next https request after crash doesn't leak an instance
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http"], 1)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=1)
 
         # instance service+socket going away does not confuse cockpit-tls' bookkeeping
         m.execute("systemctl stop cockpit-wsinstance-https@*.service cockpit-wsinstance-https@*.socket")
-        expect_actives(True, True, ["http"], 0)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --show-error -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http"], 1)
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"], https_instances=1)
 
         # sockets are inaccessible to users, only to cockpit-tls
         for s in ["http.sock", "https-factory.sock"]:
@@ -456,7 +456,7 @@ class TestConnection(testlib.MachineCase):
         m.upload(["../tools/debian/tests/smoke"], "/tmp")
         m.execute("/tmp/smoke")
 
-        b.ignore_ssl_certificate_errors(True)
+        b.ignore_ssl_certificate_errors(ignore=True)
         self.login_and_go("/system", tls=True)
         cookie = b.cookie("cockpit")
         # cookie should be marked as secure
@@ -942,7 +942,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
 
-        b.ignore_ssl_certificate_errors(True)
+        b.ignore_ssl_certificate_errors(ignore=True)
         b.open(f"https://{b.address}:{b.port}/system")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
@@ -1193,7 +1193,7 @@ ProtocolHeader = X-Forwarded-Proto
         self.assertIn(b"subject: CN=alice; DC=COCKPIT", out)
 
         # works with browser (but we can't set our CA)
-        b.ignore_ssl_certificate_errors(True)
+        b.ignore_ssl_certificate_errors(ignore=True)
         (https_host, https_port) = self.machine.forward["443"].split(':')
         b.open(f"https://{https_host}:{https_port}{urlroot}/system")
         if login:
@@ -1276,7 +1276,7 @@ server {
 
         # embedding
         b = self.browser
-        b.ignore_ssl_certificate_errors(True)
+        b.ignore_ssl_certificate_errors(ignore=True)
         (https_host, https_port) = self.machine.forward["443"].split(':')
         b.open(f"https://{https_host}:{https_port}/embed-cockpit/index.html")
         b.set_val("#embed-address", f"https://{https_host}:{https_port}/cockpit-root")

@@ -38,11 +38,11 @@ class TestServices(testlib.MachineCase):
         # We manipulate with `/etc/systemd/system` so `daemon-reload` to keep it in proper state
         # Also `reset-failed` as failed units can be still listed with `systemctl` even when all files
         # were removed and daemon reloaded.
-        self.restore_dir("/etc/systemd/system", "systemctl daemon-reload; systemctl reset-failed", True)
+        self.restore_dir("/etc/systemd/system", "systemctl daemon-reload; systemctl reset-failed", reboot_safe=True)
         user_post_restore = "su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); systemctl --user daemon-reload; systemctl --user reset-failed'"
-        self.restore_dir("/etc/systemd/user", user_post_restore, True)
-        self.restore_dir("/etc/xdg/systemd/user", user_post_restore, True)
-        self.restore_dir("/home/admin/.config", user_post_restore, True)
+        self.restore_dir("/etc/systemd/user", user_post_restore, reboot_safe=True)
+        self.restore_dir("/etc/xdg/systemd/user", user_post_restore, reboot_safe=True)
+        self.restore_dir("/home/admin/.config", user_post_restore, reboot_safe=True)
 
     def run_systemctl(self, user, cmd):
         if user:
@@ -66,7 +66,7 @@ class TestServices(testlib.MachineCase):
     def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
         self.browser.wait_collected_text("#statuses .status", "".join(statuses))
         if onoff:
-            self.wait_onoff(enabled)
+            self.wait_onoff(val=enabled)
         else:
             self.browser.wait_not_present(".service-top-panel .pf-v5-c-switch")
 
@@ -101,7 +101,7 @@ class TestServices(testlib.MachineCase):
 
         self.browser.click("#services-dropdown-file-state")
         for state in states:
-            self.browser.set_checked(f".pf-v5-c-select__menu label:contains('{state}') input", True)
+            self.browser.set_checked(f".pf-v5-c-select__menu label:contains('{state}') input", val=True)
         self.browser.click("#services-dropdown-file-state")
         for state in states:
             self.browser.wait_visible(f".pf-v5-c-chip-group__label:contains('File state') + .pf-v5-c-chip-group__list li:contains('{state}')")
@@ -112,7 +112,7 @@ class TestServices(testlib.MachineCase):
 
         self.browser.click("#services-dropdown-active-state")
         for state in states:
-            self.browser.set_checked(f".pf-v5-c-select__menu label:contains('{state}') input", True)
+            self.browser.set_checked(f".pf-v5-c-select__menu label:contains('{state}') input", val=True)
         self.browser.click("#services-dropdown-active-state")
         for state in states:
             self.browser.wait_visible(f".pf-v5-c-chip-group__label:contains('Active state') + .pf-v5-c-chip-group__list li:contains('{state}')")
@@ -161,8 +161,8 @@ while true; do
 done
 """, perm="755")
         # After writing files out tell systemd about them
-        self.run_systemctl(False, "daemon-reload")
-        self.run_systemctl(True, "daemon-reload || true")
+        self.run_systemctl(user=False, cmd="daemon-reload")
+        self.run_systemctl(user=True, cmd="daemon-reload || true")
 
         # When the test fails while `test.service` is active, the process keeps running and
         # `systemctl status test.service` still shows it as active until this process dies
@@ -178,7 +178,7 @@ done
         self._testBasic()
 
     def testBasicSession(self):
-        self._testBasic(True)
+        self._testBasic(user=True)
 
     def _testBasic(self, user=False):
         m = self.machine
@@ -260,7 +260,7 @@ WantedBy=default.target
         self.make_test_service(path)
         # ensure we have one running timer; in user mode we do not have
         # a running logind session at this point yet, so enable instead
-        self.run_systemctl(False, ("enable --global --runtime" if user else "start") + " deleteme.timer")
+        self.run_systemctl(user=False, cmd=("enable --global --runtime" if user else "start") + " deleteme.timer")
         self.addCleanup(self.run_systemctl, user, "stop deleteme.timer || true")
 
         url = "/system/services#/?owner=user" if user else "/system/services"
@@ -386,22 +386,22 @@ WantedBy=default.target
         self.wait_service_present("test.service")
         m.execute("udevadm trigger; udevadm settle")
         self.goto_service("test.service")
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], enabled=True)
 
         # Stop and disable and back again
         self.toggle_onoff()
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=False)
         self.toggle_onoff()
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], enabled=True)
         self.toggle_onoff()  # later on we need some disabled test
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=False)
 
         # Check service that fails to start
         b.go(f'/system/services#/{suffix}')
         self.goto_service("test-fail.service")
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=False)
         self.toggle_onoff()
-        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
+        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], enabled=True)
         if not user:
             b.assert_pixels("#service-details-unit", "details-test-fail",
                             # in medium layout we sometimes get a scrollbar depending on how many test-fail logs exist
@@ -415,18 +415,18 @@ WantedBy=default.target
 
         # Check static service
         self.goto_service("systemd-exit.service")
-        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)", "Pin unit"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=True, onoff=False)
 
         # Mask and unmask
         self.do_action("Disallow running (mask)")
         b.click("#mask-service button.pf-m-danger")
-        self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
+        self.check_service_details(["Masked"], ["Allow running (unmask)"], enabled=False, onoff=False)
 
         # Masked services have no relationships and therefore the expandable section should not be present
         b.wait_not_present("#service-details-show-relationships")
 
         self.do_action("Allow running (unmask)")
-        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)", "Pin unit"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=True, onoff=False)
 
         # Pin unit
         b.go(f'/system/services#/{suffix}')
@@ -456,7 +456,7 @@ WantedBy=default.target
 
         # Unpin unit
         self.goto_service("test.service")
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Unpin unit"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Unpin unit"], enabled=False)
         self.do_action("Unpin unit")
         b.wait_not_present('#service-details-unit > article > div > svg.service-thumbtack-icon')
         b.go(f'/system/services#/{suffix}')
@@ -649,10 +649,10 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.wait_in_text(".pf-v5-c-empty-state", "Unit name nonexistent is not valid")
 
     def testLogs(self):
-        self._testLogs(False)
+        self._testLogs(user=False)
 
     def testLogsUser(self):
-        self._testLogs(True)
+        self._testLogs(user=True)
 
     def _testLogs(self, user=False):
         b = self.browser
@@ -670,10 +670,10 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
 
         # Check test.service and then start it
         self.goto_service("test.service")
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=False)
         b.wait_text('.cockpit-log-panel .pf-v5-c-card__body', "No log entries")
         self.toggle_onoff()
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], enabled=True)
         b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "START")
         b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "WORKING")
         b.click(".cockpit-log-panel .pf-v5-c-card__header button")
@@ -761,7 +761,7 @@ WantedBy=multi-user.target
 
         self.wait_service_in_panel("condtest.service", "Enabled")
         self.goto_service("condtest.service")
-        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)", "Pin unit"], True)
+        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=True)
         self.do_action("Start")
         b.wait_text("#condition", "Condition ConditionDirectoryNotEmpty=/var/tmp/empty was not met")
 
@@ -769,14 +769,14 @@ WantedBy=multi-user.target
         m.execute("touch /var/tmp/empty/non-empty")
         self.addCleanup(m.execute, "rm /var/tmp/empty/non-empty")
         self.do_action("Start")
-        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Stop", "Disallow running (mask)", "Pin unit"], enabled=True)
         b.wait_not_present("#condition")
 
     def testRelationships(self):
         self._testRelationships()
 
     def testRelationshipsUser(self):
-        self._testRelationships(True)
+        self._testRelationships(user=True)
 
     def _testRelationships(self, user=False):
         b = self.browser
@@ -917,40 +917,40 @@ WantedBy=default.target
         self.goto_service("test-fail.service")
         b.wait_js_cond('window.location.hash === "#/test-fail.service"')
 
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=False)
 
-        self.wait_onoff(False)
+        self.wait_onoff(val=False)
         self.toggle_onoff()
 
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], enabled=True)
 
         # Disabling should reset the "Failed to start" status
-        self.wait_onoff(True)
+        self.wait_onoff(val=True)
         self.toggle_onoff()
 
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=False)
 
-        self.wait_onoff(False)
+        self.wait_onoff(val=False)
         self.toggle_onoff()
 
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], enabled=True)
 
         # Just reset the failed status, but leave it enabled
         self.do_action("Clear")
 
         self.check_service_details(["Not running", "Automatically starts"],
-                                   ["Start", "Disallow running (mask)", "Pin unit"], True)
+                                   ["Start", "Disallow running (mask)", "Pin unit"], enabled=True)
 
         self.do_action("Start")
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], enabled=True)
 
         # Masking should also clear the failed status
         self.do_action("Disallow running (mask)")
         b.click("#mask-service button.pf-m-danger")
-        self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
+        self.check_service_details(["Masked"], ["Allow running (unmask)"], enabled=False, onoff=False)
 
     def count_failures(self):
         return int(self.machine.execute("systemctl --failed --plain --no-legend | wc -l"))
@@ -1013,7 +1013,7 @@ ExecStart=/usr/bin/false
         b.wait_visible('tr[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
         # Nav link should have icon
-        self.check_system_menu_services_error(True, pixel_label="menu_error")
+        self.check_system_menu_services_error(expected=True, pixel_label="menu_error")
 
         n_failures = self.count_failures()
         health_message = "1 service has failed" if n_failures == 1 else f"{n_failures} services have failed"
@@ -1035,7 +1035,7 @@ ExecStart=/usr/bin/false
             b.wait_not_present('a:contains("Services") .ct-exclamation-circle')
 
             # Nav link should not have icon
-            self.check_system_menu_services_error(False)
+            self.check_system_menu_services_error(expected=False)
 
             # System page should not have notification
             b.click_system_menu('/system')
@@ -1066,7 +1066,7 @@ Where=/fail
 
         if self.count_failures() == 1:
             # Nav link should not have icon
-            self.check_system_menu_services_error(False)
+            self.check_system_menu_services_error(expected=False)
 
             # System page should not have notification
             b.click_system_menu("/system")
@@ -1101,7 +1101,7 @@ Where=/fail
         self.addCleanup(m.execute, "systemctl stop test-transient.service || true")
         self.wait_service_present("test-transient.service")
         self.goto_service("test-transient.service")
-        self.check_service_details(["Static", "Running"], ["Restart", "Stop", "Disallow running (mask)", "Pin unit"], False, onoff=False)
+        self.check_service_details(["Static", "Running"], ["Restart", "Stop", "Disallow running (mask)", "Pin unit"], enabled=False, onoff=False)
 
         self.do_action("Stop")
 
@@ -1164,7 +1164,7 @@ Where=/fail
 
         # ensure that there is at least one running service
         self.make_test_service("/etc/systemd/user")
-        self.run_systemctl(True, "enable --now test.service")
+        self.run_systemctl(user=True, cmd="enable --now test.service")
         b.click("#user")
         self.wait_service_state("test.service", "active")
         self.wait_service_state("test.service", "Enabled")
@@ -1259,14 +1259,14 @@ WantedBy=multi-user.target
 
         # details page
         self.goto_service("test.service")
-        self.check_service_details(["Read-only", "Running"], [], False, onoff=False, kebab=False)
+        self.check_service_details(["Read-only", "Running"], [], enabled=False, onoff=False, kebab=False)
         b.wait_in_text("#service-details-unit", "/etc/systemd/system/test.service")
         # unprivileged users cannot read the system journal on all OSes; only check it on Fedora, where we know it's allowed
         if m.image.startswith("fedora"):
             b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "WORKING")
         # reacts to changes
         m.execute("systemctl stop test.service")
-        self.check_service_details(["Read-only", "Disabled"], [], False, onoff=False, kebab=False)
+        self.check_service_details(["Read-only", "Disabled"], [], enabled=False, onoff=False, kebab=False)
 
 
 @testlib.skipDistroPackage()

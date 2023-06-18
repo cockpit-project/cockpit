@@ -623,7 +623,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         # Bad hostkey
         break_hostkey(m1, "10.111.113.2")
-        start_machine_troubleshoot(b, True, True)
+        start_machine_troubleshoot(b, new=True, known_host=True)
         b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
         b.click("#hosts_setup_server_dialog button:contains(Cancel)")
         b.wait_not_present('#hosts_setup_server_dialog')
@@ -633,14 +633,14 @@ class TestMultiMachine(testlib.MachineCase):
         m1.execute("mkdir -p /home/admin/.ssh/")
         break_hostkey(m1, "10.111.113.2")
 
-        start_machine_troubleshoot(b, True, True)
+        start_machine_troubleshoot(b, new=True, known_host=True)
         b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
         b.click("#hosts_setup_server_dialog button:contains(Cancel)")
         fix_hostkey(m1)
 
         # Bad cockpit
         break_bridge(m2)
-        start_machine_troubleshoot(b, True, password="foobar")
+        start_machine_troubleshoot(b, new=True, password="foobar")
         check_failed_state(b, "Cockpit is not installed")
         fix_bridge(m2)
 
@@ -774,7 +774,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         b.wait_in_text("#hosts_setup_server_dialog", "Create a new SSH key and authorize it")
         b.set_input_text('#login-custom-password', "foobar")
-        b.set_checked("#login-setup-keys", True)
+        b.set_checked("#login-setup-keys", val=True)
         # Leave passphrase empty on Coreos, since it can't load keys into the agent
         if not m1.ostree_image:
             b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
@@ -800,7 +800,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b.wait_in_text("#hosts_setup_server_dialog", "Authorize SSH key")
-        b.set_checked("#login-setup-keys", True)
+        b.set_checked("#login-setup-keys", val=True)
         b.set_input_text('#login-custom-password', "foobar")
         b.click('#hosts_setup_server_dialog button:contains(Log in)')
         b.wait_not_present('#hosts_setup_server_dialog')
@@ -816,9 +816,9 @@ class TestMultiMachine(testlib.MachineCase):
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_in_text('#hosts_setup_server_dialog', "The SSH key for logging in")
-        b.set_checked('#hosts_setup_server_dialog input[value=key]', True)
+        b.set_checked('#hosts_setup_server_dialog input[value=key]', val=True)
         b.set_input_text('#hosts_setup_server_dialog #locked-identity-password', "foobarfoo")
-        b.set_checked("#login-setup-keys", True)
+        b.set_checked("#login-setup-keys", val=True)
         b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
         b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password2', "foobar")
         b.click('#hosts_setup_server_dialog button:contains(Log in)')

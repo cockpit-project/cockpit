@@ -216,9 +216,9 @@ session    optional     pam_ssh_add.so
         b.click("#sshkeys")
 
         # Automatically loaded
-        waitKeyLoaded('id_rsa', auto_load)
+        waitKeyLoaded('id_rsa', enabled=auto_load)
         toggleExpandedStateKey('id_rsa')
-        waitKeyRowExpanded('id_rsa', True)
+        waitKeyRowExpanded('id_rsa', expanded=True)
         waitTabActive('id_rsa', 'Details')
         waitKeyDetail('id_rsa', 'Comment', "test@test")
         waitKeyDetail('id_rsa', 'Type', "RSA")
@@ -234,14 +234,14 @@ session    optional     pam_ssh_add.so
                    "3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A"
                    "9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test@test")
         toggleExpandedStateKey('id_rsa')
-        waitKeyRowExpanded('id_rsa', False)
+        waitKeyRowExpanded('id_rsa', expanded=False)
 
         # Load the id_ed25519 key
-        waitKeyLoaded('id_ed25519', False)
+        waitKeyLoaded('id_ed25519', enabled=False)
         toggleKeyState('id_ed25519')
         b.set_input_text("#id_ed25519-password", "locked")
         b.click("#id_ed25519-unlock")
-        waitKeyLoaded('id_ed25519', True)
+        waitKeyLoaded('id_ed25519', enabled=True)
 
         # Both keys are now loaded
         keys = list_keys()
@@ -252,7 +252,7 @@ session    optional     pam_ssh_add.so
         # Unload the RSA key
         if auto_load:
             toggleKeyState('id_rsa')
-            waitKeyLoaded('id_rsa', False)
+            waitKeyLoaded('id_rsa', enabled=False)
 
         # Only DSA keys now loaded
         keys = list_keys()
@@ -290,7 +290,7 @@ session    optional     pam_ssh_add.so
         new_pk = m.execute("cat /tmp/new.rsa.pub").strip().split()[0]
         m.execute("rm /tmp/new.rsa.pub")
 
-        waitKeyPresent('id_rsa', True)
+        waitKeyPresent('id_rsa', present=True)
 
         b.wait_visible("#credential-keys")
         b.wait_not_present("#ssh-file-add")
@@ -321,7 +321,7 @@ session    optional     pam_ssh_add.so
         toggleKeyState(new_key)
 
         toggleExpandedStateKey(new_key)
-        waitKeyRowExpanded(new_key, True)
+        waitKeyRowExpanded(new_key, expanded=True)
         waitTabActive(new_key, 'Details')
         waitKeyDetail(new_key, 'Type', 'RSA')
         self.assertNotEqual(getKeyDetail(new_key, 'Fingerprint'), "")
@@ -331,7 +331,7 @@ session    optional     pam_ssh_add.so
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality
         # "agent_only" keys cannot be turned off, or have their passwords changed
-        waitKeyLoaded(new_key, True)
+        waitKeyLoaded(new_key, enabled=True)
 
         # Test adding key with passphrase
         m.execute("ssh-keygen -t rsa -N 'foobar' -f /tmp/new_with_passphrase.rsa")

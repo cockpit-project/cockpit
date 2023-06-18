@@ -59,8 +59,8 @@ class TestBonding(netlib.NetworkCase):
         b.wait_not_present("#popover-bond-help-header")
 
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
-        b.set_checked(f"input[data-iface='{iface1}']", True)
-        b.set_checked(f"input[data-iface='{iface2}']", True)
+        b.set_checked(f"input[data-iface='{iface1}']", val=True)
+        b.set_checked(f"input[data-iface='{iface2}']", val=True)
         b.click("#network-bond-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bond-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tbond']")
@@ -69,9 +69,9 @@ class TestBonding(netlib.NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
         b.wait_visible("#network-interface")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface1}']")
-        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface1}']", True)
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface1}']", val=True)
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface2}']")
-        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface2}']", True)
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface2}']", val=True)
 
         b.wait_text_not("#network-interface-mac", "")
 
@@ -92,7 +92,7 @@ class TestBonding(netlib.NetworkCase):
 
         # Deactivate the bond and make sure it is still there after a
         # reload.
-        self.wait_onoff(".pf-v5-c-card__header:contains('tbond')", True)
+        self.wait_onoff(".pf-v5-c-card__header:contains('tbond')", val=True)
         self.toggle_onoff(".pf-v5-c-card__header:contains('tbond')")
         self.wait_for_iface_setting('Status', 'Inactive')
         b.wait_not_present(".pf-v5-c-card__header:contains('tbond') input[type=checkbox]:disabled")
@@ -142,8 +142,8 @@ class TestBonding(netlib.NetworkCase):
         b.click("button:contains('Add bond')")
         b.wait_visible("#network-bond-settings-dialog")
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
-        b.set_checked(f"input[data-iface='{iface1}']", True)
-        b.set_checked(f"input[data-iface='{iface2}']", True)
+        b.set_checked(f"input[data-iface='{iface1}']", val=True)
+        b.set_checked(f"input[data-iface='{iface2}']", val=True)
         b.click("#network-bond-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bond-settings-dialog")
 
@@ -177,7 +177,7 @@ class TestBonding(netlib.NetworkCase):
         self.addCleanup(m.execute, "nmcli dev delete tbond3000 2>/dev/null || true")
 
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
-        self.wait_onoff("#network-interface .pf-v5-c-card__header", True)
+        self.wait_onoff("#network-interface .pf-v5-c-card__header", val=True)
         self.wait_for_iface_setting('Status', 'Configuring')
 
         self.configure_iface_setting('Bond')
@@ -210,7 +210,7 @@ class TestBonding(netlib.NetworkCase):
         b.click("button:contains('Add bond')")
         b.wait_visible("#network-bond-settings-dialog")
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
-        b.set_checked(f"input[data-iface='{iface}']", True)
+        b.set_checked(f"input[data-iface='{iface}']", val=True)
         b.click("#network-bond-settings-mac-input")
         b.click("li button:contains('(cockpit1)')")
         b.click("#network-bond-settings-dialog button:contains('Save')")
@@ -279,7 +279,7 @@ class TestBondingVirt(netlib.NetworkCase):
         b.click("button:contains('Add bond')")
         b.wait_visible("#network-bond-settings-dialog")
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
-        b.set_checked(f"input[data-iface='{iface}']", True)
+        b.set_checked(f"input[data-iface='{iface}']", val=True)
         b.click("#network-bond-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bond-settings-dialog")
 
@@ -318,7 +318,7 @@ class TestBondingVirt(netlib.NetworkCase):
         b.click("button:contains('Add bond')")
         b.wait_visible("#network-bond-settings-dialog")
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
-        b.set_checked(f"input[data-iface='{iface}']", True)
+        b.set_checked(f"input[data-iface='{iface}']", val=True)
         b.click("#network-bond-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bond-settings-dialog")
 

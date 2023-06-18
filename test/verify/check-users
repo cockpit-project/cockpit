@@ -195,7 +195,7 @@ class TestAccounts(testlib.MachineCase):
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
         # now lock account
-        b.set_checked("#account-locked", True)
+        b.set_checked("#account-locked", val=True)
         b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
 
         # go back to accounts overview, check pf-v5-c-breadcrumb
@@ -504,7 +504,7 @@ class TestAccounts(testlib.MachineCase):
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
         b.wait_visible("#account-locked:checked")
-        b.set_checked('#account-locked', False)
+        b.set_checked('#account-locked', val=False)
         b.wait(lambda: not is_locked())
         b.wait_not_present(admin_role_sel + f" .pf-v5-c-label:contains(:{m.get_admin_group()})")
         b.click("#account-groups")
@@ -1162,7 +1162,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present(".pf-v5-c-select__menu")
 
         # Add admin to the testgroup0 group
-        selectGroupFromMenu("testgroup0", True)
+        selectGroupFromMenu("testgroup0", enabled=True)
 
         # Check that changes ar persistent after reload
         b.reload()
@@ -1170,7 +1170,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_in_text(".pf-v5-c-label-group__list", "testgroup0")
 
         # Clicking on a used groups in the menu will remove it
-        selectGroupFromMenu("testgroup0", False)
+        selectGroupFromMenu("testgroup0", enabled=False)
 
         # Clicking on the undo button will add the removed group back
         b.click("#group-undo-btn")
@@ -1180,7 +1180,7 @@ class TestAccounts(testlib.MachineCase):
         # Clicking on the undo button will remove the added group back
         b.reload()
         b.enter_page("/users")
-        selectGroupFromMenu("testgroup0", True)
+        selectGroupFromMenu("testgroup0", enabled=True)
         b.click("#group-undo-btn")
         b.wait_not_in_text(".pf-v5-c-label-group__list", "testgroup0")
         testlib.wait(lambda: "testgroup0" not in m.execute("groups admin"))

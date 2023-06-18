@@ -178,7 +178,7 @@ OnCalendar=daily
         # Test 'parent' manifest option
         b.switch_to_top()
         b.go("/metrics")
-        self.check_system_menu("Overview", True)
+        self.check_system_menu("Overview", present=True)
         self.checkDocs(["Performance Co-Pilot"])
 
         # Lets try changing the language
@@ -414,12 +414,12 @@ OnCalendar=daily
 
         self.login_and_go()
 
-        self.check_system_menu("Overview", True)
+        self.check_system_menu("Overview", present=True)
         self.restore_dir("/home/admin")
         m.write("/home/admin/.local/share/cockpit/foo/manifest.json",
                 '{ "menu": { "index": { "label": "FOO!" } } }')
         b.reload()
-        self.check_system_menu("FOO!", True)
+        self.check_system_menu("FOO!", present=True)
 
     def testMenuSearch(self):
         b = self.browser

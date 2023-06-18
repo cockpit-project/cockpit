@@ -236,10 +236,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             self.sed_file("s/# deny = 3/deny = 4/", "/etc/security/faillock.conf")
 
         # First login should have no messages
-        verify_correct(False, 0)
+        verify_correct(has_last=False, n_fail=0)
 
         # Next login should see the last login
-        verify_correct(True, 0)
+        verify_correct(has_last=True, n_fail=0)
 
         # Do some bogus login attempts
         b.try_login('admin', 'xyz')
@@ -250,10 +250,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text_not("#login-error-message", "")
 
         # We should see those bogus attempts now
-        verify_correct(False, 3)
+        verify_correct(has_last=False, n_fail=3)
 
         # But after that login, they should be gone again
-        verify_correct(True, 0)
+        verify_correct(has_last=True, n_fail=0)
 
     @testlib.skipImage("Arch Linux has no pwquality by default", "arch")
     def testExpired(self):
@@ -943,17 +943,17 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
             b.logout()
 
         # by name
-        check_server("localhost", True)
+        check_server("localhost", expect_fp_ack=True)
         # by name and port
-        check_server("localhost:22", True)
+        check_server("localhost:22", expect_fp_ack=True)
         # by IPv4 address; 127.0.0.1 is treated specially as ignore_hostkey fallback, and does not require FP
-        check_server("127.0.0.1", False)
+        check_server("127.0.0.1", expect_fp_ack=False)
         # by IPv4 address and port
-        check_server("127.0.0.1:22", False)
+        check_server("127.0.0.1:22", expect_fp_ack=False)
         # by IPv6 address
-        check_server("::1", True)
+        check_server("::1", expect_fp_ack=True)
         # by IPv6 address and port
-        check_server("[::1]:22", True)
+        check_server("[::1]:22", expect_fp_ack=True)
 
 
 if __name__ == '__main__':

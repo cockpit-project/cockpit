@@ -123,7 +123,7 @@ class TestStorageFormat(storagelib.StorageCase):
 
         self.content_row_action(1, "Format")
         self.dialog_wait_open()
-        self.dialog_set_val("erase.on", True)
+        self.dialog_set_val("erase.on", val=True)
         self.dialog_set_val("mount_point", "/foo")
         self.dialog_apply()
         with b.wait_timeout(60):
@@ -166,35 +166,35 @@ class TestStorageFormat(storagelib.StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-        format_partition("nofail", "local", False, True)
+        format_partition("nofail", "local", keep=False, row_action=True)
         self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
 
-        format_partition("local", "nofail", True)
+        format_partition("local", "nofail", keep=True)
         self.content_tab_wait_in_info(1, 1, "Mount point", "ignore failure")
         self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(dev, "crypttab", "options", "nofail")
 
-        format_partition("nofail", "netdev", True)
+        format_partition("nofail", "netdev", keep=True)
         self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
         self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(dev, "crypttab", "options", "_netdev")
 
-        format_partition("netdev", "never", True)
+        format_partition("netdev", "never", keep=True)
         self.content_tab_wait_in_info(1, 1, "Mount point", "never mount")
         self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(dev, "crypttab", "options", "noauto")
 
-        format_partition("never", "nofail", False)
+        format_partition("never", "nofail", keep=False)
         self.content_tab_wait_in_info(1, 1, "Mount point", "ignore failure")
         self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(dev, "crypttab", "options", "nofail")
 
-        format_partition("nofail", "netdev", False)
+        format_partition("nofail", "netdev", keep=False)
         self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
         self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(dev, "crypttab", "options", "_netdev")
 
-        format_partition("netdev", "never", False)
+        format_partition("netdev", "never", keep=False)
         self.content_tab_wait_in_info(1, 1, "Mount point", "never mount")
         self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(dev, "crypttab", "options", "noauto")

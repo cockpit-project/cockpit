@@ -291,14 +291,14 @@ class NoTestRetryExample(unittest.TestCase):
 
     def testFail(self):
         if os.environ.get('TEST_FAILURES'):
-            self.assertFalse(True)
+            self.assertFalse(True)  # noqa: FBT003
 
     @testlib.no_retry_when_changed
     def testNoRetry(self):
-        self.assertTrue(True)
+        self.assertTrue(True)  # noqa: FBT003
 
     def testBasic(self):
-        self.assertTrue(True)
+        self.assertTrue(True)  # noqa: FBT003
 
 
 if __name__ == '__main__':

@@ -183,14 +183,14 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.machine_remove(b, "10.111.113.2", m2)
         self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
 
-        self.machine_remove(b, "10.111.113.3", m3, True)
+        self.machine_remove(b, "10.111.113.3", m3, second_to_last=True)
         self.wait_host_addresses(b, ["localhost"])
 
         # Check that the two removed machines are listed in "Add Host"
         self.check_discovered_addresses(b, ["10.111.113.2", "10.111.113.3"])
 
         # Add one back, check addresses on both browsers
-        self.add_machine(b, "10.111.113.2", True)
+        self.add_machine(b, "10.111.113.2", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2")
         self.check_discovered_addresses(b, ["10.111.113.3"])
@@ -198,7 +198,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         # And the second one, check addresses
-        self.add_machine(b, "10.111.113.3", True)
+        self.add_machine(b, "10.111.113.3", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.connect_and_wait(b, "10.111.113.3")
         self.check_discovered_addresses(b, [])
@@ -306,7 +306,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.3"])
 
-        self.machine_remove(b, "10.111.113.3", m3, True)
+        self.machine_remove(b, "10.111.113.3", m3, second_to_last=True)
         self.wait_host_addresses(b, ["localhost"])
         self.wait_host_addresses(b2, ["localhost"])
 
@@ -316,7 +316,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b2, ["10.111.113.2", "10.111.113.3"])
 
         # Add one back, check addresses on both browsers
-        self.add_machine(b, "10.111.113.2", True)
+        self.add_machine(b, "10.111.113.2", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2")
@@ -326,7 +326,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         # And the second one, check addresses on both browsers
-        self.add_machine(b, "10.111.113.3", True)
+        self.add_machine(b, "10.111.113.3", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.connect_and_wait(b, "10.111.113.3")

@@ -67,7 +67,7 @@ class TestStorageLuks(storagelib.StorageCase):
         self.dialog_set_val("name", "ENCRYPTED")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
-        self.dialog_set_val("store_passphrase.on", True)
+        self.dialog_set_val("store_passphrase.on", val=True)
         self.dialog_set_val("crypto_options", "crypto,options")
         self.dialog_set_val("mount_point", mount_point_secret)
         b.assert_pixels("#dialog", "format")

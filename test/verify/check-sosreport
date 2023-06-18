@@ -69,7 +69,7 @@ only-plugins=release,date,host,cgroups,networking
         b.wait_visible("#sos-dialog")
         b.set_input_text("#sos-dialog .pf-v5-c-form__group:contains(Report label) input", "mylabel")
         b.set_input_text("#sos-dialog .pf-v5-c-form__group:contains(Encryption passphrase) input", "foobar")
-        b.set_checked("#sos-dialog .pf-v5-c-check:contains(Obfuscate) input", True)
+        b.set_checked("#sos-dialog .pf-v5-c-check:contains(Obfuscate) input", val=True)
         if urlroot == "":
             b.assert_pixels("#sos-dialog", "dialog")
         b.click("#sos-dialog button:contains(Run report)")
@@ -134,7 +134,7 @@ only-plugins=release,date,host,cgroups,networking
         b.click("button:contains('Run report')")
         b.wait_visible("#sos-dialog")
         b.set_input_text("#sos-dialog .pf-v5-c-form__group:contains(Report label) input", "mylabel")
-        b.set_checked("#sos-dialog .pf-v5-c-check:contains(Use verbose logging) input", True)
+        b.set_checked("#sos-dialog .pf-v5-c-check:contains(Use verbose logging) input", val=True)
         b.click("#sos-dialog button:contains(Run report)")
         with b.wait_timeout(120):
             b.wait_not_present("#sos-dialog")

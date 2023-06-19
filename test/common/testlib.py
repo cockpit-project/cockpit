@@ -1043,17 +1043,18 @@ class Browser:
         rect = self.call_js_func('ph_element_clip', selector)
 
         def relative_clips(sels):
-            return list(map(lambda r: (r['x'] - rect['x'],
-                                       r['y'] - rect['y'],
-                                       r['x'] - rect['x'] + r['width'],
-                                       r['y'] - rect['y'] + r['height']),
-                            self.call_js_func('ph_selector_clips', sels)))
+            return [(
+                    r['x'] - rect['x'],
+                    r['y'] - rect['y'],
+                    r['x'] - rect['x'] + r['width'],
+                    r['y'] - rect['y'] + r['height'])
+                    for r in self.call_js_func('ph_selector_clips', sels)]
 
         reference_dir = os.path.join(TEST_DIR, 'reference')
         if not os.path.exists(os.path.join(reference_dir, '.git')):
             raise SystemError("Pixel test references are missing, please run: test/common/pixel-tests pull")
 
-        ignore_rects = relative_clips(list(map(lambda item: selector + " " + item, ignore)))
+        ignore_rects = relative_clips([f"{selector} {item}" for item in ignore])
         base = self.pixels_label + "-" + key
         if self.current_layout != self.layouts[0]:
             base += "-" + self.current_layout["name"]

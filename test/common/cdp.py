@@ -364,7 +364,7 @@ class CDP:
         if self.valid:
             # needs to be wrapped in Promise
             messages = self.command("Promise.resolve(messages)")
-            return map(lambda m: "%s: %s" % tuple(m), messages)
+            return ["%s: %s" % tuple(m) for m in messages]
         return []
 
     def read_log(self):

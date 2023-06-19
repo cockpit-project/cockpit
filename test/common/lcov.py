@@ -25,6 +25,7 @@
 
 import glob
 import gzip
+import itertools
 import json
 import os
 import re
@@ -457,7 +458,7 @@ def create_coverage_report():
         all_file = f"{BASE_DIR}/lcov/all.info"
         diff_file = f"{BASE_DIR}/lcov/diff.info"
         subprocess.check_call(["lcov", "--quiet", "--output", all_file,
-                               *sum(map(lambda f: ["--add", f], lcov_files), [])])
+                               *itertools.chain(*[["--add", f] for f in lcov_files])])
         subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
                                "--extract", all_file, "*/github-pr.diff"])
         summary = subprocess.check_output(["genhtml", "--no-function-coverage",

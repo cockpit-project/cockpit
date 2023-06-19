@@ -164,7 +164,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # And now we remove cockpit-ssh which affects the default
         if not m.ostree_image:
-            self.restore_dir(self.libexecdir)
+            self.restore_file(f"{self.libexecdir}/cockpit-ssh")
             m.execute(f"rm {self.libexecdir}/cockpit-ssh")
             m.restart_cockpit()
             b.open("/system")

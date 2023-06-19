@@ -24,11 +24,13 @@ from testlib import Error, MachineCase, wait
 class NetworkHelpers:
     """Mix-in class for tests that require network setup"""
 
-    def add_veth(self, name, dhcp_cidr=None, dhcp_range=['10.111.112.2', '10.111.127.254']):
+    def add_veth(self, name, dhcp_cidr=None, dhcp_range=None):
         """Add a veth device that is manageable with NetworkManager
 
         This is safe for @nondestructive tests, the interface gets cleaned up automatically.
         """
+        if dhcp_range is None:
+            dhcp_range = ['10.111.112.2', '10.111.127.254']
         self.machine.execute(r"""set -e
             mkdir -p /run/udev/rules.d/
             echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-%(name)s-test.rules

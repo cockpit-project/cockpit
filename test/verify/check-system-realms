@@ -391,12 +391,12 @@ class CommonTests:
         # certificates; it just rejects cert requests. For interactive tests, grab src/tls/ca/alice.p12 and import
         # it into the browser.
 
-        def do_test(authopts, expected, not_expected=[], session_leader=None):
+        def do_test(authopts, expected, not_expected=None, session_leader=None):
             m.start_cockpit(tls=True)
             output = m.execute(['curl', '-ksS', '-D-', *authopts, 'https://localhost:9090/cockpit/login'])
             for s in expected:
                 self.assertIn(s, output)
-            for s in not_expected:
+            for s in (not_expected or []):
                 self.assertNotIn(s, output)
 
             # sessions/users often hang around in State=closing for a long time, ignore these

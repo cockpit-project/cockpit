@@ -176,12 +176,11 @@ function download(ev) {
 
     /* Allow use of HTTP URLs */
     if (path.value.indexOf("http") === 0) {
-        const anchor = document.createElement("a");
-        anchor.href = path.value;
+        const url = new URL(path.value);
         options.payload = "http-stream2";
-        options.address = anchor.hostname;
-        options.port = parseInt(anchor.port, 10);
-        options.path = anchor.pathname;
+        options.address = url.hostname;
+        options.port = parseInt(url.port, 10);
+        options.path = url.pathname;
         options.method = "GET";
     } else {
         options.payload = "fsread1";

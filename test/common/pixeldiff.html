@@ -564,7 +564,7 @@ window.setup_pixelcompare = function() {
         </script>
         <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const base = window.location.hash.replace("#", "");
+    const base = window.location.hash.replace(/[^\w-]/g, "");
     document.getElementById("key").textContent = base;
 
     const e_new = document.getElementById("new");

@@ -378,15 +378,9 @@ WantedBy=default.target
         # Selects Services tab
         self.pick_tab(1)
 
-        # Survives a burst of events
         suffix = ''
         if user:
             suffix = "?owner=user"
-        b.go(f"#/{suffix}")
-        self.wait_service_present("test.service")
-        m.execute("udevadm trigger; udevadm settle")
-        self.goto_service("test.service")
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], enabled=True)
 
         # Stop and disable and back again
         self.toggle_onoff()
@@ -633,7 +627,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
 
-        # Check empty state error for nonexisent unit with valid name
+        # Check empty state error for nonexistent unit with valid name
         b.go(f'/system/services#/nonexistent.service{suffix}')
         b.wait_in_text(".pf-v5-c-empty-state", "Unit nonexistent.service not found")
         b.click("a:contains('View all services')")
@@ -647,6 +641,13 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.enter_page("/system/services")
         b.wait_in_text(".pf-v5-c-empty-state", "Loading unit failed")
         b.wait_in_text(".pf-v5-c-empty-state", "Unit name nonexistent is not valid")
+
+        # Survives a burst of events
+        b.go(f"#/{suffix}")
+        self.wait_service_present("test.service")
+        m.execute("udevadm trigger; udevadm settle")
+        self.goto_service("test.service")
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], enabled=True)
 
     def testLogs(self):
         self._testLogs(user=False)

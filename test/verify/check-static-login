@@ -133,7 +133,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text("#account-user-name", "admin")
         try:
             m.execute("journalctl -p 7 SYSLOG_IDENTIFIER=cockpit-ws | grep 'cockpit-session: opening pam session'")
-            assert False, "cockpit-session debug messages found"
+            self.fail("cockpit-session debug messages found")
         except subprocess.CalledProcessError:
             pass
 

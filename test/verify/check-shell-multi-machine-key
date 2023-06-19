@@ -29,7 +29,9 @@ def kill_user_admin(machine):
     machine.execute("loginctl terminate-user admin || systemctl kill user-1000.slice")
 
 
-def authorize_user(m, user, public_keys=["verify/files/ssh/id_rsa.pub"]):
+def authorize_user(m, user, public_keys=None):
+    if public_keys is None:
+        public_keys = ["verify/files/ssh/id_rsa.pub"]
     m.execute(f"mkdir -p /home/{user}/.ssh")
     m.upload(public_keys, f"/home/{user}/.ssh/authorized_keys")
     m.execute("chown -R {0}:{0} /home/{0}/.ssh/".format(user))

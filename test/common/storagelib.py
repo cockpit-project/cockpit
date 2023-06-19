@@ -363,7 +363,9 @@ class StorageHelpers:
             else:
                 raise last_error
 
-    def dialog(self, values, expect={}, secondary=False):
+    def dialog(self, values, expect=None, secondary=False):
+        if expect is None:
+            expect = {}
         self.dialog_wait_open()
         for f in expect:
             self.dialog_wait_val(f, expect[f])

@@ -2,7 +2,6 @@ extend = "../../pyproject.toml"
 ignore = [
     "E501",     # https://github.com/charliermarsh/ruff/issues/3206#issuecomment-1562681390
 
-    "B006",     # Do not use mutable data structures for argument defaults
     "B010",     # Do not call `setattr` with a constant attribute value. It is not any safer than normal property access.
     "C417",     # Unnecessary `map` usage (rewrite using a `list` comprehension)
     "FBT001",   # Boolean positional arg in function definition

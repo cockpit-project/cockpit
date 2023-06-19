@@ -84,7 +84,7 @@ class TestUpdates(NoSubManCase):
         self.assertFalse(self.browser.is_present(selector.format(len(updates) + 1)))
 
     def check_nth_update(self, index, pkgname, version, severity="bug",
-                         num_issues=None, desc_matches=[], cves=[], bugs=[], arch=None):
+                         num_issues=None, desc_matches=None, cves=None, bugs=None, arch=None):
         """Check the contents of the package update table row at index
 
         None properties will not be tested.
@@ -119,7 +119,7 @@ class TestUpdates(NoSubManCase):
         desc = b.text(row + "> tr.pf-m-expanded")
 
         # details should contain all description bits, CVEs and bug numbers
-        for m in desc_matches + cves + bugs:
+        for m in (desc_matches or []) + (cves or []) + (bugs or []):
             self.assertIn(m, desc)
 
         return row

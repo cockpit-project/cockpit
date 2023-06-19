@@ -266,12 +266,10 @@ const CreateTimerDialogBody = ({ owner }) => {
                                 label = _("Run on");
 
                             let helperTextInvalid;
-                            let validated = "default";
                             const min = repeatPatterns[idx].minute;
                             const validationFailedMinute = !(/^[0-9]+$/.test(min) && min <= 59 && min >= 0);
 
                             if (submitted && repeat == 'hourly' && validationFailedMinute) {
-                                validated = "error";
                                 helperTextInvalid = _("Minute needs to be a number between 0-59");
                             }
 
@@ -279,7 +277,6 @@ const CreateTimerDialogBody = ({ owner }) => {
                             const validationFailedSecond = !(/^[0-9]+$/.test(sec) && sec <= 59 && sec >= 0);
 
                             if (submitted && repeat == 'minutely' && validationFailedSecond) {
-                                validated = "error";
                                 helperTextInvalid = _("Second needs to be a number between 0-59");
                             }
 
@@ -388,7 +385,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                             </InputGroup>
                                         </FlexItem>}
                                     </Flex>
-                                    <FormHelper helperTextInvalid={validated && helperTextInvalid} />
+                                    <FormHelper helperTextInvalid={helperTextInvalid} />
                                 </FormGroup>
                             );
                         })}

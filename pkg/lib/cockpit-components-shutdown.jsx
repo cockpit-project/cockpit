@@ -196,7 +196,7 @@ export class ShutdownModal extends React.Component {
                 <>
                     <Form isHorizontal onSubmit={this.onSubmit}>
                         <FormGroup fieldId="message" label={_("Message to logged in users")}>
-                            <TextArea id="message" resizeOrientation="vertical" value={this.state.message} onChange={v => this.setState({ message: v })} />
+                            <TextArea id="message" resizeOrientation="vertical" value={this.state.message} onChange={(_, v) => this.setState({ message: v })} />
                         </FormGroup>
                         <FormGroup fieldId="delay" label={_("Delay")}>
                             <Flex className="shutdown-delay-group" alignItems={{ default: 'alignItemsCenter' }}>

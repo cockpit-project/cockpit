@@ -139,7 +139,7 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
         try:
             m1.execute("ps xa | grep ssh-agent | grep -v grep")
         except subprocess.CalledProcessError:
-            assert False, "No running ssh-agent found"
+            self.fail("No running ssh-agent found")
 
         # pam-ssh-add isn't used on OSTree
         if m1.ostree_image:

@@ -47,6 +47,7 @@ class TestShutdownRestart(testlib.MachineCase):
         b.click("#reboot-button")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
+        b.set_input_text("#message", "Rebooting for maintenance")
         b.click("#delay")
         b.click("button:contains('No delay')")
         b.wait_text("#delay .pf-v5-c-select__toggle-text", "No delay")

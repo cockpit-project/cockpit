@@ -85,6 +85,7 @@ ExecStart=/bin/true
 @testlib.skipDistroPackage()
 class CommonTests:
     @testlib.timeout(900)
+    @testlib.skipImage("fails to leave the domain", "debian-*")
     def testQualifiedUsers(self):
         m = self.machine
         b = self.browser
@@ -493,7 +494,6 @@ class TestRealms(testlib.MachineCase):
         self.allow_journal_messages("couldn't get all properties of org.freedesktop.realmd.Service.*org.freedesktop.DBus.Error.NoReply: Remote peer disconnected")
 
 
-@testlib.skipImage("freeipa not currently available", "debian-*")
 @testlib.skipDistroPackage()
 @testlib.no_retry_when_changed
 class TestIPA(TestRealms, CommonTests):
@@ -990,7 +990,6 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 @testlib.skipOstree("No realmd available")
 @testlib.skipImage("No realmd available", "arch")
-@testlib.skipImage("freeipa not currently available", "debian-*")
 @testlib.skipDistroPackage()
 @testlib.no_retry_when_changed
 class TestKerberos(testlib.MachineCase):

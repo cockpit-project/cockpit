@@ -109,6 +109,8 @@ class NetworkCase(MachineCase, NetworkHelpers):
         m.execute("systemctl reload-or-restart NetworkManager")
 
         # our assertions and pixel tests assume that virbr0 is absent
+        m.execute('[ -z "$(systemctl --legend=false list-unit-files libvirtd.service)" ] || '
+                  'systemctl try-restart libvirtd.service')
         if 'default' in m.execute("virsh net-list --name || true"):
             m.execute("virsh net-autostart --disable default; virsh net-destroy default")
 

@@ -102,7 +102,7 @@ def build_install_package(dist_tar, image):
         args.append("--run-command")
         suppress = {'initial-upload-closes-no-bugs', 'newer-standards-version'}
         # older lintian not yet complain about pkg/static/login.html and src/common/fail.html
-        if image in ["debian-stable", "ubuntu-2204"]:
+        if image in ["ubuntu-2204"]:
             suppress.add("mismatched-override")
         # Ubuntu 22.04 raises elf-error on *-dbgsym: "In program headers: Unable to find program interpreter name"
         if image == "ubuntu-2204":

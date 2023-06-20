@@ -801,7 +801,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # we don't want to completely pinpoint the OS list to avoid lockstep image refreshes+cockpit PRs
         # and spontaneous packit test failures as sssd 2.6.1 goes into more distros; but make sure we hit
         # this code path on some known-good ones
-        if m.image.startswith("fedora") or m.image in ["debian-testing"]:
+        if m.image.startswith("fedora") or m.image.startswith("debian"):
             self.assertTrue(has_validate_api)
 
         if has_validate_api:

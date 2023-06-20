@@ -667,7 +667,7 @@ machine         : 8561
 
         b.reload()
         b.enter_page('/system/hwinfo')
-        distros_without_systemd_memory_dmi = ['rhel-8-7', 'rhel-8-8', 'rhel-8-9', 'centos-8-stream', 'debian-stable']
+        distros_without_systemd_memory_dmi = ['rhel-8-7', 'rhel-8-8', 'rhel-8-9', 'centos-8-stream']
 
         # Test more specific memory data with a fake dmidecode
         b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")

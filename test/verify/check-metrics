@@ -122,10 +122,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         super().setUp()
         # start with a clean slate and avoid running into restart limits
         self.machine.execute("systemctl stop pmlogger pmproxy; systemctl reset-failed pmlogger pmproxy 2>/dev/null || true")
-        if self.machine.image == 'debian-stable':
-            # HACK: work around pcp breaking permissions: https://bugzilla.redhat.com/show_bug.cgi?id=2013937
-            # This is failing in too many ways to meaningfully cover with naughty
-            self.machine.execute("chown -R pcp:pcp /var/log/pcp/pmlogger/")
 
     def waitStream(self, current_max):
         # should only have at most <current_max> valid minutes, the rest should be empty
@@ -456,7 +452,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # Journal was recorded on Fedora 33 and when trying to use it with older systemd it fails with:
         # `Journal file /var/log/journal/*/journal.journal uses an unsupported feature, ignoring file.`
 
-        if self.machine.image in ["centos-8-stream", "rhel-8-7", "rhel-8-8", "rhel-8-9", "debian-stable"]:
+        if self.machine.image in ["centos-8-stream", "rhel-8-7", "rhel-8-8", "rhel-8-9"]:
             return
 
         m.upload(["verify/files/metrics-archives/journal.journal.gz"], "/tmp")

@@ -2564,9 +2564,7 @@ def sit(machines=None):
     the browser.
     """
 
-    assert machines is None, "No machines found to sit in"
-
-    for (_, machine) in machines.items():
+    for (_, machine) in (machines or []).items():
         sys.stderr.write(machine.diagnose())
     print("Press RET to continue...")
     sys.stdin.readline()

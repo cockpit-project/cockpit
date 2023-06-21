@@ -494,6 +494,38 @@ WantedBy=default.target
         b.go(f'/system/services#/{suffix}')
         b.wait_not_present('#test.service > svg.service-thumbtack-icon-color')
 
+        # Check that `Listen` and `Triggers` properties are shown for socket units
+        self.pick_tab(3)
+        self.goto_service("dbus.socket")
+        if not user:
+            self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen"))
+        else:
+            self.assertIn("/run/user/", b.text("#listen"))
+        self.assertIn(b.text("#Triggers"), ["dbus.service", "dbus-broker.service"])
+        b.click(".pf-v5-c-breadcrumb a:contains('Services')")
+
+        # Check that journalbox shows empty state
+        self.goto_service("systemd-exit.service")
+        b.wait_text('.cockpit-log-panel .pf-v5-c-card__body', "No log entries")
+        b.wait_not_present("button:contains('View all logs')")
+
+    def testFilter(self):
+        b = self.browser
+
+        self.write_file("/run/systemd/system/test-fail.service",
+                        """
+[Unit]
+Description=Failing Test Service
+
+[Service]
+ExecStart=/usr/bin/false
+
+[Install]
+WantedBy=default.target
+""")
+        self.make_test_service("/etc/systemd/system")
+        self.machine.execute("systemctl enable --now test-fail.service")
+
         def init_filter_state():
             if not b.is_visible("#services-text-filter"):
                 b.click(".pf-v5-c-toolbar__toggle button")
@@ -508,20 +540,9 @@ WantedBy=default.target
             self.wait_service_present("test.service")
             self.wait_service_present("test-fail.service")
 
-        b.go(f'/system/services#/{suffix}')
-
-        # Check that `Listen` and `Triggers` properties are shown for socket units
-        self.pick_tab(3)
-        self.goto_service("dbus.socket")
-        if not user:
-            self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen"))
-        else:
-            self.assertIn("/run/user/", b.text("#listen"))
-        self.assertIn(b.text("#Triggers"), ["dbus.service", "dbus-broker.service"])
-        b.click(".pf-v5-c-breadcrumb a:contains('Services')")
-
-        # Select services tab
-        self.pick_tab(1)
+        self.login_and_go('/system/services')
+        self.wait_service_present("test-fail.service")
+        self.wait_service_state("test-fail.service", "failed")
 
         # Filter by id
         init_filter_state()
@@ -534,8 +555,7 @@ WantedBy=default.target
         b.set_input_text("#services-text-filter input", "Test Service")
         # test.service is not loaded, thus description search does not find it
         self.wait_service_present("test-fail.service")
-        if not user:
-            b.assert_pixels("#services-page", "text-filter-test", skip_layouts=["mobile"])
+        b.assert_pixels("#services-page", "text-filter-test", skip_layouts=["mobile"])
         b.set_layout("mobile")
         # Waiting a bit for the layout to stabilize.  The scrolling of
         # the header happens asynchronously with an animation.
@@ -545,8 +565,7 @@ WantedBy=default.target
         while b.call_js_func("ph_attr", nav_scroll_btn, "disabled") is None:
             b.click(nav_scroll_btn)
             time.sleep(0.5)
-        if not user:
-            b.assert_pixels_in_current_layout("#services-page", "text-filter-test")
+        b.assert_pixels_in_current_layout("#services-page", "text-filter-test")
         b.set_layout("desktop")
 
         # Filter by description capitalization not matching the unit description
@@ -556,11 +575,9 @@ WantedBy=default.target
         self.wait_service_present("test-fail.service")
 
         # Filter by Id capitalization not matching the unit Id
-        # NetworkManager exists only as a system service, skip user test
-        if not user:
-            init_filter_state()
-            b.set_input_text("#services-text-filter input", "networkmanager")
-            self.wait_service_present("NetworkManager.service")
+        init_filter_state()
+        b.set_input_text("#services-text-filter input", "networkmanager")
+        self.wait_service_present("NetworkManager.service")
 
         # Select only static services
         init_filter_state()
@@ -589,12 +606,13 @@ WantedBy=default.target
         self.wait_service_present("test-fail.service")
 
         # Select Alias and Masked services
-        # No indirect user services exist, skip user test
-        if not user:
-            init_filter_state()
-            self.select_file_state(["Indirect", "Masked"])
-            self.wait_service_not_present("test.service")
-            self.wait_service_present("getty@tty1.service")
+        self.machine.execute("systemctl mask test-fail.service")
+        self.wait_service_in_panel("test-fail.service", "Masked")
+        init_filter_state()
+        self.select_file_state(["Indirect", "Masked"])
+        self.wait_service_not_present("test.service")
+        self.wait_service_present("test-fail.service")
+        self.wait_service_present("getty@tty1.service")
 
         # Check filtering and selecting together - empty state
         init_filter_state()
@@ -620,11 +638,6 @@ WantedBy=default.target
         self.wait_service_not_present("test.service")
         b.click(".pf-v5-c-chip-group:contains('Active state') .pf-v5-c-chip-group__close > button")
         b.wait_not_present(".pf-v5-c-chip-group")
-
-        # Check that journalbox shows empty state
-        self.goto_service("systemd-exit.service")
-        b.wait_text('.cockpit-log-panel .pf-v5-c-card__body', "No log entries")
-        b.wait_not_present("button:contains('View all logs')")
 
     def testServiceMetrics(self):
         self._testServiceMetrics(user=False)

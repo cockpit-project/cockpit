@@ -995,7 +995,7 @@ class Browser:
                 self._set_window_size(shell_size[0] + delta[0], shell_size[1] + delta[1])
 
     def assert_pixels_in_current_layout(self, selector: str, key: str,
-                                        ignore: List[str] = None,
+                                        ignore: Optional[List[str]] = None,
                                         mock: Optional[Dict[str, str]] = None,
                                         sit_after_mock: bool = False,
                                         scroll_into_view: Optional[str] = None,

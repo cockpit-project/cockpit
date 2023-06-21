@@ -392,7 +392,6 @@ function Router(index) {
         if (event.origin !== origin)
             return;
 
-        let forward_command = false;
         let data = event.data;
         const child = event.source;
         if (!child)
@@ -460,8 +459,6 @@ function Router(index) {
             } else if (control.command === "jump") {
                 perform_jump(child, control);
                 return;
-            } else if (control.command == "logout" || control.command == "kill") {
-                forward_command = true;
             } else if (control.command === "hint") {
                 if (control.hint == "restart") {
                     /* watchdog handles current host for now */
@@ -479,7 +476,7 @@ function Router(index) {
                 return;
 
             /* Only control messages with a channel are forwardable */
-            } else if (control.channel === undefined && !forward_command) {
+            } else if (control.channel === undefined && (control.command !== "logout" && control.command !== "kill")) {
                 return;
 
             /* Add the child's group to all open channel messages */

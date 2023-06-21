@@ -256,34 +256,6 @@ WantedBy=default.target
         b.click(".pf-v5-c-breadcrumb a:contains('Services')")
         b.wait_visible("#services-list")
 
-        # Selects Targets tab
-        self.pick_tab(2)
-        b.wait_not_in_text("#services-list", "test")
-        self.wait_service_state("basic.target", "active")
-
-        if not user:
-            # Make sure that symlinked services also appear in the list
-            self.wait_service_state("reboot.target", "inactive")
-            self.wait_service_present("ctrl-alt-del.target")
-            self.goto_service("ctrl-alt-del.target")
-            b.wait_in_text(".service-name", "Reboot")
-            b.click("#services-page .pf-v5-c-breadcrumb__link")
-
-        # Selects Sockets tab
-        self.pick_tab(3)
-        b.wait_not_in_text("#services-list", "test")
-        b.wait_not_in_text("#services-list", ".target")
-        self.wait_service_state("dbus.socket", "active (running)")
-
-        if not user:
-            # Selects Paths tab - the test VM does not have any user path units
-            self.pick_tab(5)
-            b.wait_not_in_text("#services-list", "test")
-            b.wait_not_in_text("#services-list", ".target")
-            b.wait_not_in_text("#services-list", ".socket")
-            b.wait_not_in_text("#services-list", ".timer")
-            b.wait_visible(self.svc_sel("systemd-ask-password-console.path"))
-
         suffix = "?owner=user" if user else ''
 
         # Check empty state error for nonexistent unit with valid name
@@ -301,9 +273,7 @@ WantedBy=default.target
         b.wait_in_text(".pf-v5-c-empty-state", "Loading unit failed")
         b.wait_in_text(".pf-v5-c-empty-state", "Unit name nonexistent is not valid")
 
-        # Selects Services tab
         b.go(f"#/{suffix}")
-        self.pick_tab(1)
 
         # Survives a burst of events
         self.wait_service_present("test.service")
@@ -343,6 +313,9 @@ WantedBy=default.target
         self.check_service_details(["Static", "Not running"],
                                    ["Start", "Disallow running (mask)", "Pin unit"],
                                    enabled=True, onoff=False)
+        # Check that journalbox shows empty state
+        b.wait_text('.cockpit-log-panel .pf-v5-c-card__body', "No log entries")
+        b.wait_not_present("button:contains('View all logs')")
 
         # Mask and unmask
         self.do_action("Disallow running (mask)")
@@ -391,22 +364,6 @@ WantedBy=default.target
         self.check_service_off()
         b.go(f'/system/services#/{suffix}')
         b.wait_not_present('#test.service > svg.service-thumbtack-icon-color')
-
-        # Check that `Listen` and `Triggers` properties are shown for socket units
-        self.pick_tab(3)
-        self.goto_service("dbus.socket")
-        if not user:
-            self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen"))
-        else:
-            self.assertIn("/run/user/", b.text("#listen"))
-        self.assertIn(b.text("#Triggers"), ["dbus.service", "dbus-broker.service"])
-        b.click(".pf-v5-c-breadcrumb a:contains('Services')")
-
-        # Check that journalbox shows empty state
-        self.pick_tab(1)
-        self.goto_service("systemd-exit.service")
-        b.wait_text('.cockpit-log-panel .pf-v5-c-card__body', "No log entries")
-        b.wait_not_present("button:contains('View all logs')")
 
     def testFilter(self):
         b = self.browser
@@ -705,6 +662,57 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
             b.wait_not_present("#memory")
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
+
+    def testOtherTypes(self):
+        self._testOtherTypes(user=False)
+
+    def testOtherTypesSession(self):
+        self._testOtherTypes(user=True)
+
+    def _testOtherTypes(self, user):
+        b = self.browser
+
+        self.login_and_go(f'/system/services#/{"?owner=user" if user else ""}')
+
+        path = "/etc/systemd/user" if user else "/etc/systemd/system"
+        self.make_test_service(path)
+
+        # Targets tab
+        self.pick_tab(2)
+        b.wait_not_in_text("#services-list", "test")
+        self.wait_service_state("basic.target", "active")
+
+        if not user:
+            # Make sure that symlinked services also appear in the list
+            self.wait_service_state("reboot.target", "inactive")
+            self.wait_service_present("ctrl-alt-del.target")
+            self.goto_service("ctrl-alt-del.target")
+            b.wait_in_text(".service-name", "Reboot")
+            b.click("#services-page .pf-v5-c-breadcrumb__link")
+
+        # Sockets tab
+        self.pick_tab(3)
+        b.wait_not_in_text("#services-list", "test")
+        b.wait_not_in_text("#services-list", ".target")
+        self.wait_service_state("dbus.socket", "active (running)")
+
+        # Check that `Listen` and `Triggers` properties are shown for socket units
+        self.goto_service("dbus.socket")
+        if not user:
+            self.assertIn("/run/dbus/system_bus_socket (Stream)", b.text("#listen"))
+        else:
+            self.assertIn("/run/user/", b.text("#listen"))
+        self.assertIn(b.text("#Triggers"), ["dbus.service", "dbus-broker.service"])
+        b.click(".pf-v5-c-breadcrumb a:contains('Services')")
+
+        # Paths tab - the test VM does not have any user path units
+        if not user:
+            self.pick_tab(5)
+            b.wait_not_in_text("#services-list", "test")
+            b.wait_not_in_text("#services-list", ".target")
+            b.wait_not_in_text("#services-list", ".socket")
+            b.wait_not_in_text("#services-list", ".timer")
+            b.wait_visible(self.svc_sel("systemd-ask-password-console.path"))
 
     def testLogs(self):
         self._testLogs(user=False)

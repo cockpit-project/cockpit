@@ -205,8 +205,8 @@ class DBusChannel(Channel):
                                                      "/org/freedesktop/DBus",
                                                      "org.freedesktop.DBus",
                                                      "StartServiceByName", "su", self.name, 0)
-                except BusError as error:
-                    logger.debug("Failed to start service '%s': %s", self.name, error.message)
+                except BusError as start_error:
+                    logger.debug("Failed to start service '%s': %s", self.name, start_error.message)
                     self.send_message(owner=None)
             else:
                 logger.debug("Failed to get owner of service '%s': %s", self.name, error.message)

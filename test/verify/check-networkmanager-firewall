@@ -234,6 +234,12 @@ class TestFirewall(netlib.NetworkCase):
         b.click(".zone-section[data-id='public'] .add-services-button")
         b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-pop3")
 
+        # check functionality of radio buttons
+        b.click("#add-services-dialog input[value='ports']")
+        b.wait_not_present("#filter-services-input")
+        b.click("#add-services-dialog input[value='services']")
+        b.wait_visible("#filter-services-input")
+
         # filter for pop3
         b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-imap")
         b.set_input_text("#filter-services-input", "pop")

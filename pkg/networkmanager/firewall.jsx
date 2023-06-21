@@ -628,7 +628,7 @@ class AddEditServicesModal extends React.Component {
                                    id="add-services-dialog--services"
                                    value="services"
                                    isChecked={!this.state.custom}
-                                   onChange={(_event, value) => this.onToggleType(value)}
+                                   onChange={this.onToggleType}
                                    label={_("Services")} />
                             <Radio name="type"
                                    id="add-services-dialog--ports"

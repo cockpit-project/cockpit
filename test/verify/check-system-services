@@ -386,14 +386,28 @@ WantedBy=default.target
             b.wait_not_in_text("#services-list", ".timer")
             b.wait_visible(self.svc_sel("systemd-ask-password-console.path"))
 
+        suffix = "?owner=user" if user else ''
+
+        # Check empty state error for nonexistent unit with valid name
+        b.go(f'/system/services#/nonexistent.service{suffix}')
+        b.wait_in_text(".pf-v5-c-empty-state", "Unit nonexistent.service not found")
+        b.click("a:contains('View all services')")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/system/services"')
+        if user:
+            b.wait_js_cond(f"window.location.hash === '#/{suffix}'")
+
+        # Check empty state error for invalid unit name
+        b.go(f'/system/services#/nonexistent{suffix}')
+        b.enter_page("/system/services")
+        b.wait_in_text(".pf-v5-c-empty-state", "Loading unit failed")
+        b.wait_in_text(".pf-v5-c-empty-state", "Unit name nonexistent is not valid")
+
         # Selects Services tab
+        b.go(f"#/{suffix}")
         self.pick_tab(1)
 
         # Survives a burst of events
-        suffix = ''
-        if user:
-            suffix = "?owner=user"
-        b.go(f"#/{suffix}")
         self.wait_service_present("test.service")
         m.execute("udevadm trigger; udevadm settle")
         self.goto_service("test.service")
@@ -612,9 +626,20 @@ WantedBy=default.target
         b.wait_text('.cockpit-log-panel .pf-v5-c-card__body', "No log entries")
         b.wait_not_present("button:contains('View all logs')")
 
-        b.go(f'/system/services#/{suffix}')
+    def testServiceMetrics(self):
+        self._testServiceMetrics(user=False)
+
+    def testServiceMetricsSession(self):
+        self._testServiceMetrics(user=True)
+
+    def _testServiceMetrics(self, user):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go(f'/system/services#/{"?owner=user" if user else ""}')
 
         params = "-user" if user else ""
+        path = "/etc/systemd/user" if user else "/etc/systemd/system"
 
         self.write_file(f"/tmp/mem-hog{params}.awk", f'BEGIN {{ system("while [ ! -f /tmp/continue{params} ]; do sleep 1; done"); y = sprintf("%50000000s",""); system("sleep infinity") }}')
         self.write_file(f"{path}/mem-hog.service",
@@ -634,7 +659,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         # In some distros systemctl is showing memory current as [Not Set] for user units
         if not user or m.image not in ["rhel-8-7", "rhel-8-8", "rhel-8-9", "centos-8-stream"]:
             self.run_systemctl(user, "start mem-hog.service")
-            # If the test fails before we stop the mem-hog the next test run will not get the correct memory usage here
+            # If the test fails before we stop mem-hog, the next test run will not get the correct memory usage here
             self.addCleanup(self.run_systemctl, user, "stop mem-hog.service || true")
             # initial memory detection takes very long especially on RHEL 8
             with b.wait_timeout(60):
@@ -650,21 +675,6 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
             b.wait_not_present("#memory")
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
-
-        # Check empty state error for nonexisent unit with valid name
-        b.go(f'/system/services#/nonexistent.service{suffix}')
-        b.wait_in_text(".pf-v5-c-empty-state", "Unit nonexistent.service not found")
-        b.click("a:contains('View all services')")
-        b.switch_to_top()
-        b.wait_js_cond('window.location.pathname == "/system/services"')
-        if user:
-            b.wait_js_cond(f"window.location.hash === '#/{suffix}'")
-
-        # Check empty state error for invalid unit name
-        b.go(f'/system/services#/nonexistent{suffix}')
-        b.enter_page("/system/services")
-        b.wait_in_text(".pf-v5-c-empty-state", "Loading unit failed")
-        b.wait_in_text(".pf-v5-c-empty-state", "Unit name nonexistent is not valid")
 
     def testLogs(self):
         self._testLogs(user=False)

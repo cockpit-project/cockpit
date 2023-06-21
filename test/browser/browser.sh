@@ -34,7 +34,7 @@ fi
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
 # and is hard to disable as it does not use systemd
 if rpm -q setroubleshoot-server; then
-    dnf remove -y --noautoremove setroubleshoot-server
+    dnf remove -y --setopt=clean_requirements_on_remove=False setroubleshoot-server
 fi
 
 if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "basic" ]; then

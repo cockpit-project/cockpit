@@ -67,8 +67,8 @@ class MockTransport(asyncio.Transport):
         msg = str(len(msg)).encode('ascii') + b'\n' + msg
         self.protocol.data_received(msg)
 
-    def send_init(self, version=1, host=MOCK_HOSTNAME, **kwargs):
-        self.send_json('', command='init', version=version, host=host, **kwargs)
+    def send_init(self, version=1, host=MOCK_HOSTNAME, superuser=False, **kwargs):  # noqa: FBT002
+        self.send_json('', command='init', version=version, host=host, superuser=superuser, **kwargs)
 
     def get_id(self, prefix: str) -> str:
         self.next_id += 1

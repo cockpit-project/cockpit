@@ -220,11 +220,12 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
     # Connect-on-startup functionality
     def init(self, params: Dict[str, Union[bool, str, Sequence[str]]]) -> None:
-        name = params.get('id', 'any')
-        assert isinstance(name, str)
-        responder = AuthorizeResponder(self.router)
-        self._init_task = asyncio.create_task(self.go(name, responder))
-        self._init_task.add_done_callback(self._init_done)
+        if self.current != "root":
+            name = params.get('id', 'any')
+            assert isinstance(name, str)
+            responder = AuthorizeResponder(self.router)
+            self._init_task = asyncio.create_task(self.go(name, responder))
+            self._init_task.add_done_callback(self._init_done)
 
     def _init_done(self, task):
         logger.debug('superuser init done! %s', task.exception())

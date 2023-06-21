@@ -411,7 +411,6 @@ class TestSuperuserOldWebserver(testlib.MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @testlib.todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
         m = self.machine
@@ -565,7 +564,6 @@ class TestSuperuserOldDashboard(testlib.MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @testlib.todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
         m = self.machines["machine1"]

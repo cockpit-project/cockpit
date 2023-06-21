@@ -114,7 +114,7 @@ class Bridge(Router, PackagesListener):
             return dict(token.split('=', 1) for token in lexer)
 
     def do_init(self, message: Dict[str, object]) -> None:
-        superuser = message.get('superuser')
+        superuser = message.get('superuser', {})
         if isinstance(superuser, dict):
             self.superuser_rule.init(superuser)
 

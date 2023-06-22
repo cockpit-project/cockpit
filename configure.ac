@@ -78,7 +78,7 @@ AC_MSG_RESULT(${enable_ssh:=yes})
 
 # --enable-pybridge
 AC_MSG_CHECKING([whether to install the python cockpit-bridge])
-AC_ARG_ENABLE(bridge, AS_HELP_STRING([--enable-pybridge], [Install python cockpit-bridge]))
+AC_ARG_ENABLE(pybridge, AS_HELP_STRING([--enable-pybridge], [Install python cockpit-bridge]))
 AM_CONDITIONAL(WITH_PYBRIDGE, test "$enable_pybridge" = "yes")
 AC_MSG_RESULT(${enable_pybridge:=no})
 

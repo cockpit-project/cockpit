@@ -63,8 +63,10 @@ DEBIAN_FRONTEND=noninteractive eatmydata apt-get install -y --no-install-recomme
 
 adduser --gecos "Builder" builder
 
-# See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1030835
-pip install --break-system-packages ruff
+if [ "$(uname -m)" = "x86_64" ] ; then
+    # See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1030835
+    pip install --break-system-packages ruff
+fi
 
 # minimize image
 # useful command: dpkg-query --show -f '${package} ${installed-size}\n' | sort -k2n

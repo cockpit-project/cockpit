@@ -40,7 +40,7 @@ export const cockpitCompressPlugin = ({ subdir = '', exclude = null } = {}) => (
                 if (exclude && exclude.test(dirent))
                     continue;
                 if (dirent.endsWith('.js') || dirent.endsWith('.css')) {
-                    gzipPromises.push(exec('gzip', ['-9', dirent]));
+                    gzipPromises.push(exec('gzip', ['-n9', dirent]));
                 }
             }
             await Promise.all(gzipPromises);

@@ -300,7 +300,11 @@ const SuperuserDialogs = ({ superuser_proxy, host, create_trigger }) => {
                  }
              });
 
-    const show = superuser_proxy.Current != "root" && superuser_proxy.Current != "init";
+    if (!superuser_proxy || !superuser_proxy.valid)
+        return;
+
+    const show = (superuser_proxy.Current != "root" && superuser_proxy.Current != "init" &&
+                  superuser_proxy.Bridges.length > 0);
     const unlocked = superuser_proxy.Current != "none";
 
     function unlock() {
@@ -311,7 +315,7 @@ const SuperuserDialogs = ({ superuser_proxy, host, create_trigger }) => {
         D.show(<LockDialog proxy={superuser_proxy} host={host} />);
     }
 
-    if (!show || !superuser_proxy.Bridges || superuser_proxy.Bridges.length == 0)
+    if (!show)
         return null;
 
     return create_trigger(unlocked, unlocked ? lock : unlock);

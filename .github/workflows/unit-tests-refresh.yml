@@ -24,6 +24,10 @@ jobs:
         timeout-minutes: 10
         run: containers/unit-tests/build
 
+      - name: Run pytest-cov test
+        timeout-minutes: 15
+        run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make pytest-cov
+
       - name: Run amd64 gcc check-memory test
         timeout-minutes: 20
         run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make check-memory

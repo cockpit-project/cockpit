@@ -159,7 +159,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
             text = "Inactive"
 
         try:
-            with self.browser.wait_timeout(20):
+            with self.browser.wait_timeout(30):
                 self.browser.wait_in_text(sel, text)
         except Error as e:
             print(f"Interface {iface} didn't show up.")

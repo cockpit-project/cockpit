@@ -22,7 +22,6 @@ import ctypes
 import logging
 import os
 import signal
-import socket
 import subprocess
 import sys
 import tempfile
@@ -295,24 +294,17 @@ class ExternalCockpitWs:
 
 class InternalCockpitWs:
     def start(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # Static port is needed for WebKit local storage to persist across runs
-        self.socket.bind(('127.0.90.90', 9090))
-        self.socket.listen()
-
         self.write_config()
-        self.ws = subprocess.Popen([f'{libexecdir}/cockpit-ws'],
+        host = '127.0.0.90'
+        port = '9090'
+        self.ws = subprocess.Popen([f'{libexecdir}/cockpit-ws', f'--address={host}', f'--port={port}'],
                                    preexec_fn=self.preexec_fn, pass_fds=[3])
 
-        host, port = self.socket.getsockname()
         return f'http://{host}:{port}/'
 
     def preexec_fn(self):
         os.environ['XDG_CONFIG_DIRS'] = self.config_dir.name
-        os.environ['LISTEN_PID'] = str(os.getpid())
-        os.environ['LISTEN_FDS'] = str(1)
         prctl(prctl.SET_PDEATHSIG, signal.SIGKILL)
-        os.dup2(self.socket.fileno(), 3)
 
     def stop(self):
         self.ws.kill()

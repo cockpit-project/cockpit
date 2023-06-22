@@ -123,11 +123,15 @@ export class TopNav extends React.Component {
 
         if (!this.superuser_connection || (this.superuser_connection.options.host !=
                                            this.props.machine.connection_string)) {
-            if (this.superuser_connection)
+            if (this.superuser_connection) {
                 this.superuser_connection.close();
+                this.superuser_connection = null;
+            }
 
-            this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: this.props.machine.connection_string });
-            this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
+            if (connected) {
+                this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: this.props.machine.connection_string });
+                this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
+            }
         }
 
         const item = this.props.compiled.items[this.props.state.component];

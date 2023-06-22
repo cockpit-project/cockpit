@@ -64,7 +64,8 @@ class TestServices(testlib.MachineCase):
         self.browser.click(f".service-top-panel .pf-v5-c-dropdown__menu a:contains('{action}')")
 
     def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
-        self.browser.wait_collected_text("#statuses .status", "".join(statuses))
+        with self.browser.wait_timeout(60):
+            self.browser.wait_collected_text("#statuses .status", "".join(statuses))
         if onoff:
             self.wait_onoff(val=enabled)
         else:
@@ -79,17 +80,15 @@ class TestServices(testlib.MachineCase):
             self.browser.wait_not_present(".service-top-panel .pf-v5-c-dropdown")
 
     def check_service_on(self, expect_reload=True):
-        with self.browser.wait_timeout(60):
-            self.check_service_details(
-                ["Running", "Automatically starts"],
-                ["Reload" if expect_reload else "", "Restart", "Stop", "Disallow running (mask)", "Pin unit"],
-                enabled=True)
+        self.check_service_details(
+            ["Running", "Automatically starts"],
+            ["Reload" if expect_reload else "", "Restart", "Stop", "Disallow running (mask)", "Pin unit"],
+            enabled=True)
 
     def check_service_off(self):
-        with self.browser.wait_timeout(30):
-            self.check_service_details(["Disabled"],
-                                       ["Start", "Disallow running (mask)", "Pin unit"],
-                                       enabled=False)
+        self.check_service_details(["Disabled"],
+                                   ["Start", "Disallow running (mask)", "Pin unit"],
+                                   enabled=False)
 
     def svc_sel(self, service):
         return f'tr[data-goto-unit="{service}"]'

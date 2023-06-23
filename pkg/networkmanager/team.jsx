@@ -170,7 +170,7 @@ export const TeamDialog = ({ connection, dev, settings }) => {
                         {team_balancer_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>}
-                {runner == "active-backup" && <FormGroup fieldId={idPrefix + "-primary-select"} label={_("Primary")}>
+                {runner == "activebackup" && <FormGroup fieldId={idPrefix + "-primary-select"} label={_("Primary")}>
                     <FormSelect id={idPrefix + "-primary-select"} onChange={(_, val) => setPrimary(val)}
                                 value={primary}>
                         <>

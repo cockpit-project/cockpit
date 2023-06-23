@@ -2530,7 +2530,7 @@ def sit(machines=None):
     the browser.
     """
 
-    for (_, machine) in (machines or []).items():
+    for (_, machine) in (machines or {}).items():
         sys.stderr.write(machine.diagnose())
     print("Press RET to continue...")
     sys.stdin.readline()

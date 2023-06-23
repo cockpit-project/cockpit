@@ -85,7 +85,6 @@ ExecStart=/bin/true
 @testlib.skipDistroPackage()
 class CommonTests:
     @testlib.timeout(900)
-    @testlib.skipImage("fails to leave the domain", "debian-*")
     def testQualifiedUsers(self):
         m = self.machine
         b = self.browser
@@ -183,6 +182,10 @@ class CommonTests:
 
         # change home directory ownership back to local user
         m.execute("chown -R admin /home/admin")
+
+        if m.image.startswith("debian"):
+            # HACK: https://bugs.debian.org/1038925
+            m.execute(r"sed -i '/\[ntp\]/,/^$/ d' /var/lib/ipa-client/sysrestore/sysrestore.state")
 
         # Test domain info (PR #11096), leave the domain
         b.login_and_go("/system")

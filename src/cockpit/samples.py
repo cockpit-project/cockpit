@@ -387,12 +387,14 @@ class MountSampler(Sampler):
                     continue
 
                 path = line.split()[1]
-                res = os.statvfs(path)
-                if res:
-                    frsize = res.f_frsize
-                    total = frsize * res.f_blocks
-                    samples['mount.total'][path] = total
-                    samples['mount.used'][path] = total - frsize * res.f_bfree
+                try:
+                    res = os.statvfs(path)
+                except OSError:
+                    continue
+                frsize = res.f_frsize
+                total = frsize * res.f_blocks
+                samples['mount.total'][path] = total
+                samples['mount.used'][path] = total - frsize * res.f_bfree
 
 
 class BlockSampler(Sampler):

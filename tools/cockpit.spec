@@ -53,7 +53,7 @@ Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
-%if 0%{?fedora} >= 38
+%if 0%{?fedora} >= 38 || 0%{?rhel} >= 9
 %define cockpit_enable_python 1
 %endif
 

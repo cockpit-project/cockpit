@@ -21,8 +21,8 @@ import testlib
 
 
 # Run this on more OSes as we roll out the pybridge
-@testlib.skipImage("needs pybridge", "debian-stable", "ubuntu-2204", "fedora-37", "fedora-38",
-                   "fedora-testing", "rhel-8*", "centos-8*", "rhel-9*", "centos-9*")
+@testlib.skipImage("needs pybridge", "debian-stable", "ubuntu-2204", "fedora-37",
+                   "rhel-8*", "centos-8*", "rhel-9*", "centos-9*")
 # enable this once our cockpit/ws container can beiboot
 @testlib.skipOstree("client setup does not work with ws container")
 class TestClient(testlib.MachineCase):

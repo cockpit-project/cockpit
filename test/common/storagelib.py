@@ -265,8 +265,8 @@ class StorageHelpers:
             for label in val:
                 self.browser.set_checked(f'{sel} :contains("{label}") input', val)
         elif ftype == "size-slider":
-            self.browser.set_val(sel + " .size-unit", "1000000")
-            self.browser.set_input_text(sel + " .size-text", str(val))
+            self.browser.set_val(sel + " .size-unit select", "1000000")
+            self.browser.set_input_text(sel + " .size-text input", str(val))
         elif ftype == "select":
             self.browser.set_val(sel + " select", val)
         elif ftype == "select-radio":
@@ -304,8 +304,8 @@ class StorageHelpers:
         sel = self.dialog_field(field)
         ftype = self.browser.attr(sel, "data-field-type")
         if ftype == "size-slider":
-            self.browser.wait_val(sel + " .size-unit", unit)
-            self.browser.wait_val(sel + " .size-text", str(val))
+            self.browser.wait_val(sel + " .size-unit select", unit)
+            self.browser.wait_val(sel + " .size-text input", str(val))
         elif ftype == "select":
             self.browser.wait_attr(sel, "data-value", val)
         else:

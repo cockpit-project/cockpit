@@ -37,10 +37,12 @@ logger = logging.getLogger(__name__)
 
 
 class SuperuserPeer(ConfiguredPeer):
+    name: str
     responder: ferny.InteractionResponder
 
-    def __init__(self, router: Router, config: Dict[str, object], responder: ferny.InteractionResponder):
+    def __init__(self, router: Router, name: str, config: Dict[str, object], responder: ferny.InteractionResponder):
         super().__init__(router, config)
+        self.name = name
         self.responder = responder
 
     async def do_connect_transport(self) -> asyncio.Transport:
@@ -98,7 +100,7 @@ class AuthorizeResponder(CockpitResponder):
 class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface='cockpit.Superuser'):
     superuser_configs: Dict[str, Dict[str, object]]
     pending_prompt: Optional[asyncio.Future]
-    peer: Optional[Peer]
+    peer: Optional[SuperuserPeer]
 
     # D-Bus signals
     prompt = bus.Interface.Signal('s', 's', 's', 'b', 's')  # message, prompt, default, echo, error
@@ -169,7 +171,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"') from exc
 
         self.current = 'init'
-        self.peer = SuperuserPeer(self.router, config, responder)
+        self.peer = SuperuserPeer(self.router, name, config, responder)
         self.peer.add_done_callback(self.peer_done)
 
         try:
@@ -200,8 +202,11 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
         logger.debug("  bridges are now %s", self.bridges)
 
-        # If the currently-active bridge got removed...
-        if self.peer is not None and self.current not in self.superuser_configs:
+        # If the currently-active bridge got removed, stop it
+        if self.peer is not None and self.peer.name not in self.superuser_configs:
+            logger.debug("  stopping current superuser bridge '%s' (peer name %s), as it disappeared from configs",
+                         self.current, self.peer.name)
+
             self.stop()
 
     def cancel_prompt(self):

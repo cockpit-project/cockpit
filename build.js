@@ -108,6 +108,7 @@ async function build() {
     const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
 
     const cleanPlugin = (await import('./pkg/lib/esbuild-cleanup-plugin.js')).cleanPlugin;
+    const cockpitFilelistPlugin = (await import('./pkg/lib/esbuild-filelist-plugin.js')).cockpitFilelistPlugin;
     const cockpitCompressPlugin = (await import('./pkg/lib/esbuild-compress-plugin.js')).cockpitCompressPlugin;
     const cockpitPoEsbuildPlugin = (await import('./pkg/lib/cockpit-po-plugin.js')).cockpitPoEsbuildPlugin;
     const cockpitRsyncEsbuildPlugin = (await import('./pkg/lib/cockpit-rsync-plugin.js')).cockpitRsyncEsbuildPlugin;
@@ -145,6 +146,7 @@ async function build() {
         copy({ assets: [...assetFiles, ...redhat_fonts] }),
         // cockpit-ws cannot currently serve compressed login page
         ...production ? [cockpitCompressPlugin({ subdir: args.onlydir, exclude: /\/static/ })] : [],
+        cockpitFilelistPlugin({ subdirs: args.onlydir ? [args.onlydir] : all_subdirs }),
 
         {
             name: 'notify-end',

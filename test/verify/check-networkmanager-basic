@@ -66,6 +66,15 @@ class TestNetworkingBasic(netlib.NetworkCase):
         # Details of test iface
         self.select_iface(iface)
         b.wait_visible("#network-interface")
+        b.assert_pixels("#network-interface .network-interface-details",
+                        "network-interface",
+                        [
+                            "#network-interface-mac",
+                            ".networking-interface-status",
+                            "span + #networking-edit-ipv6",
+                            "span + #networking-edit-ipv4",
+                        ],
+                        )
 
         con_id = testlib.wait(lambda: self.iface_con_id(iface))
 

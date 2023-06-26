@@ -669,7 +669,9 @@ class TestMultiMachine(testlib.MachineCase):
         b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b.set_input_text('#login-custom-password', "foobar")
-        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        # Submit the dialog with Enter instead of clicking the Login button, for variety
+        b.focus("#login-custom-password")
+        b.key_press("\r")
         b.wait_not_present('#hosts_setup_server_dialog')
 
         # Reconnect

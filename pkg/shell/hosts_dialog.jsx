@@ -69,6 +69,14 @@ function is_method_supported(methods, method) {
     return result ? result !== "no-server-support" : false;
 }
 
+function prevent_default(callback) {
+    return event => {
+        callback();
+        event.preventDefault();
+        return false;
+    };
+}
+
 class NotSupported extends React.Component {
     render() {
         return (
@@ -247,7 +255,7 @@ class AddMachine extends React.Component {
         const title = this.state.old_machine ? _("Edit host") : _("Add new host");
         const submitText = this.state.old_machine ? _("Set") : _("Add");
 
-        const body = <Form isHorizontal>
+        const body = <Form isHorizontal onSubmit={prevent_default(callback)}>
             <FormGroup label={_("Host")}>
                 <TextInput id="add-machine-address" onChange={(_event, address) => this.setState({ address })}
                         validated={this.state.addressError ? "error" : "default"} onBlur={this.onAddressChange}
@@ -357,7 +365,7 @@ class MachinePort extends React.Component {
                 <span>{cockpit.format(_("Unable to contact $0."), this.props.full_address)}</span>
                 <span>{_("Is sshd running on a different port?")}</span>
             </p>
-            <Form isHorizontal>
+            <Form isHorizontal onSubmit={prevent_default(callback)}>
                 <FormGroup label={_("Port")}>
                     <TextInput id="edit-machine-port" onChange={(_event, value) => this.setState({ port: value })} />
                 </FormGroup>
@@ -823,7 +831,7 @@ class ChangeAuth extends React.Component {
             {statement}
             <br />
             {(offer_login_password || offer_key_password) &&
-                <Form isHorizontal>
+                <Form isHorizontal onSubmit={prevent_default(callback)}>
                     {both &&
                         <FormGroup label={_("Authentication")} isInline hasNoPaddingTop>
                             <Radio isChecked={this.state.auth === "password"}

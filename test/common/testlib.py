@@ -1005,6 +1005,11 @@ class Browser:
         if ignore is None:
             ignore = []
 
+        # Let's ignore PF SVG icons, they seem to be not entirely
+        # pixel perfect
+
+        ignore = ignore + [".pf-v5-svg"]
+
         if not (Image and self.pixels_label):
             return
 

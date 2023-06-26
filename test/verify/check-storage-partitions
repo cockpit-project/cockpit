@@ -93,7 +93,7 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         # Check that changing units affects the text input
         unit = "1000000000"
-        b.select_from_dropdown(".size-unit", unit)
+        b.select_from_dropdown(".size-unit > select", unit)
         self.dialog_wait_val("size", "0.0267", unit)
 
         self.dialog_apply()

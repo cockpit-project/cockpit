@@ -48,7 +48,7 @@ build() {
 }
 
 package_cockpit() {
-  depends=(krb5 libssh accountsservice perl-json perl-locale-po json-glib glib-networking python)
+  depends=(krb5 libssh json-glib glib-networking python)
   backup=('etc/pam.d/cockpit')
   optdepends=("cockpit-pcp: reading performance metrics"
               "cockpit-podman: user interface for managing podman containers"

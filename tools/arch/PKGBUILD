@@ -12,8 +12,8 @@ arch=('x86_64')
 url='https://cockpit-project.org/'
 license=(LGPL)
 install=cockpit.install
-makedepends=(krb5 libssh accountsservice perl-json perl-locale-po json-glib glib-networking
-             git intltool gtk-doc gobject-introspection networkmanager libgsystem xmlto npm pcp
+makedepends=(krb5 libssh accountsservice json-glib glib-networking
+             git intltool gtk-doc gobject-introspection networkmanager xmlto npm pcp
              python-build python-installer python-wheel)
 source=("cockpit-${pkgver}.tar.xz"
         "cockpit.pam"

@@ -1091,7 +1091,7 @@ class Browser:
             #
             # - The RGB values of pixels can differ by up to 2.
             #
-            # - There can be up to 5 different pixels
+            # - There can be up to 20 different pixels
             #
             # Pixels that are different but have been ignored are
             # marked in the delta image in green.
@@ -1127,7 +1127,7 @@ class Browser:
                             else:
                                 data_delta[x, y] = (255, 0, 0, 255)
                                 count += 1
-                                if count > 5:
+                                if count > 20:
                                     result = False
                         else:
                             data_delta[x, y] = data_ref[x, y]

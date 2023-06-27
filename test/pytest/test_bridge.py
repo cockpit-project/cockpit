@@ -164,7 +164,7 @@ async def verify_root_bridge_running(bridge, transport):
 
     # verify that the bridge thinks that it's the root bridge
     await transport.assert_bus_props('/superuser', 'cockpit.Superuser',
-                                     {'Bridges': bridge.superuser_bridges, 'Current': 'root'}, bus=root_dbus)
+                                     {'Bridges': [], 'Current': 'root'}, bus=root_dbus)
 
     # close up
     await transport.check_close(channel=root_dbus)

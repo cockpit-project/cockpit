@@ -891,7 +891,7 @@ password=foobar
         b.wait_text(".system-health-insights a", "Not connected to Insights")
 
         # Enable insights, results should appear automatically
-        m.execute("insights-client --register")
+        m.execute("insights-client --register", timeout=180)
         self.addCleanup(m.execute, "insights-client --unregister")
         with b.wait_timeout(60):
             b.wait_in_text(".system-health-insights a", "3 hits, including important")

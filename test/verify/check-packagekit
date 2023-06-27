@@ -186,8 +186,7 @@ class TestUpdates(NoSubManCase):
         # To make sure it has the same structure as we expect it to be first check the real command
         self.assertEqual(m.execute("kpatch list"), "Loaded patch modules:\n\nInstalled patch modules:\n")
 
-        kpatch = """
-#!/bin/bash
+        kpatch = """#!/bin/bash
 echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled patch modules:\nkpatch_3_10_0_1062_1_1 (3.10.0-1062.el7.x86_64)"
 """
 

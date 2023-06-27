@@ -1,83 +1,212 @@
-#!/bin/sh
+#!/usr/bin/python3
 
-# Usage:
-#    containers/flatpak/prepare [location] [checksum]
-#
-# Prepares the flatpak manifest file.
-#
-# If a [location] parameter is given, them it refers to an (existing)
-# tarball which will be used as a basis for creating the flatpak
-# metadata.  It can be a URL or a path to a local file.  If none is given, run
-# `make dist` and use the result.
-#
-# If [location] is a local path, then [checksum] can be left blank and will be
-# calculated.  If [location] is a URL then the checksum must be provided.
-#
-# If the FLATPAK_ID environment variable is set, it overrides the
-# default value of org.cockpit_project.CockpitClient.
-#
-# The output is written to the current working directory, and the filename is
-# printed to stdout.
+import argparse
+import contextlib
+import hashlib
+import json
+import logging
+import os
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+from typing import Any, List, Optional, Sequence
 
-set -eu
+logger = logging.getLogger(__name__)
 
-FLATPAK_ID="${FLATPAK_ID:-org.cockpit_project.CockpitClient}"
+FLATPAK_ID = 'org.cockpit_project.CockpitClient'
 
-ARCHIVE_LOCATION="${1:-}"
-ARCHIVE_SHA256="${2:-}"
+# Local filenames
+MANIFEST_JSON = f'{FLATPAK_ID}.json'
+PACKAGES_JSON = f'{FLATPAK_ID}.packages.json'
+RELEASES_XML = f'{FLATPAK_ID}.releases.xml'
 
-if test -z "${ARCHIVE_LOCATION}"; then
-    ARCHIVE_LOCATION="$("${0%/*}/../../tools/make-dist" IGNORE_UNUSED_PATTERNS=1 ONLYDIR=static)"
-fi
+# Constants related to extra packages
+UPSTREAM_REPOS = [
+    'cockpit-project/cockpit-machines',
+    'cockpit-project/cockpit-ostree',
+    'cockpit-project/cockpit-podman',
+]
+DOWNSTREAM_PACKAGES_URL = f'https://raw.githubusercontent.com/flathub/{FLATPAK_ID}/master/{PACKAGES_JSON}'
 
-case "${ARCHIVE_LOCATION}" in
-    http?://*)
-        ARCHIVE_TYPE="url"
-        FLATPAK_BRANCH=stable
-        ;;
-    /*)
-        ARCHIVE_TYPE="path"
-        FLATPAK_BRANCH=devel
-        ;;
-    *)
-        echo 'If specified, archive must be an https URL or an absolute local pathname' >&2
-        exit 1
-        ;;
-esac
+FLATPAK_DIR = os.path.dirname(__file__)
+TOP_DIR = os.path.dirname(os.path.dirname(FLATPAK_DIR))
 
-if test -z "${ARCHIVE_SHA256}"; then
-    if test -f "${ARCHIVE_LOCATION}"; then
-        ARCHIVE_SHA256="$(sha256sum "${ARCHIVE_LOCATION}" | cut -f1 -d' ')"
-    else
-        echo 'Archive must exist locally, or checksum must be explicitly given.' >&2
-        exit 1
-    fi
-fi
 
-printf "  %-8s %s\n" GEN "${FLATPAK_ID}.yml" >&2
-sed \
-    -e "s|@FLATPAK_ID@|${FLATPAK_ID}|" \
-    -e "s|@FLATPAK_BRANCH@|${FLATPAK_BRANCH}|" \
-    -e "s|@ARCHIVE_TYPE@|${ARCHIVE_TYPE}|" \
-    -e "s|@ARCHIVE_LOCATION@|${ARCHIVE_LOCATION}|" \
-    -e "s|@ARCHIVE_SHA256@|${ARCHIVE_SHA256}|" \
-    -e "s|@PYBRIDGE_ENABLE@|${PYBRIDGE_ENABLE:-disable}|" \
-    "${0%/*}/cockpit-client.yml.in" > "${FLATPAK_ID}.yml.tmp"
+def write_json(filename: str, content: Any) -> None:
+    """Something like g_file_set_contents() for JSON"""
+    tmpfile = f'{filename}.tmp'
+    try:
+        with open(tmpfile, 'w') as file:
+            json.dump(content, file, indent=2)
+    except BaseException:
+        with contextlib.suppress(OSError):
+            os.unlink(tmpfile)
+        raise
+    else:
+        os.rename(tmpfile, filename)
 
-if [ "${PYBRIDGE_ENABLE:-}" = 'enable' ]; then
-    printf "
-  - name: cockpit-podman
-    buildsystem: simple
-    build-commands:
-      - make install PREFIX=/app
 
-    sources:
-      - type: archive
-        url: %s
-        sha256: %s
-" $(cat "${0%/*}/beiboot-extra-packages") >> "${FLATPAK_ID}.yml.tmp"
-fi
+def fetch_json(url: str) -> Any:
+    with urllib.request.urlopen(url) as file:
+        return json.load(file)
 
-mv "${FLATPAK_ID}.yml.tmp" "${FLATPAK_ID}.yml"
-touch "${FLATPAK_ID}.releases.xml"
-echo "${FLATPAK_ID}.yml"
+
+def module_for_upstream(repo: str) -> Any:
+    logger.info('Fetching release info for %s', repo)
+    release = fetch_json(f'https://api.github.com/repos/{repo}/releases/latest')
+    url = release['assets'][0]['browser_download_url']
+    logger.info('%s', url)
+    with urllib.request.urlopen(url) as file:
+        sha256 = hashlib.sha256(file.read()).hexdigest()
+    logger.info('  %s', sha256)
+    return {
+        'name': os.path.basename(repo),
+        'buildsystem': 'simple',
+        'build-commands': ['make install PREFIX=/app'],
+        'sources': [
+            {
+                'type': 'archive',
+                'url': url,
+                'sha256': sha256
+            }
+        ]
+    }
+
+
+def create_manifest(
+    source_info: Any,
+    *,
+    branch: str = 'stable',
+    extra_modules: Sequence[Any] = ()
+) -> Any:
+    return {
+        'app-id': FLATPAK_ID,
+        'runtime': 'org.gnome.Platform',
+        'runtime-version': '43',
+        'sdk': 'org.gnome.Sdk',
+        'default-branch': branch,
+        'command': 'cockpit-client',
+        'rename-icon': 'cockpit-client',
+        'finish-args': [
+            '--talk-name=org.freedesktop.Flatpak',
+            '--socket=wayland',
+            '--socket=fallback-x11',
+            '--device=dri',
+            '--share=ipc'
+        ],
+        'modules': [
+            {
+                'name': 'cockpit-client',
+                'buildsystem': 'autotools',
+                'config-opts': [
+                    '--enable-cockpit-client',
+                    '--enable-pybridge',
+                    '--disable-polkit',
+                    '--disable-ssh',
+                    '--disable-pcp',
+                    '--with-systemdunitdir=/invalid',
+                    'CPPFLAGS=-Itools/mock-build-env',
+                    '--with-admin-group=root',
+                    '--disable-doc'
+                ],
+                'make-args': [
+                    'build-for-flatpak'
+                ],
+                'make-install-args': [
+                    f'DOWNSTREAM_RELEASES_XML={RELEASES_XML}'
+                ],
+                'install-rule': 'install-for-flatpak',
+                'sources': [
+                    source_info,
+                    {
+                        'type': 'file',
+                        'path': RELEASES_XML,
+                    }
+                ]
+            },
+            *extra_modules
+        ]
+    }
+
+
+def get_packages(origin: Optional[str]) -> List[Any]:
+    # 1. If --packages is explicitly given, always use it
+    # 2. Otherwise, try to use the already-existing file
+    # 3. ... but if it doesn't exist, act like 'downstream' (effectively the default)
+    # 4. In any case, write the local file if it changed (or is new)
+
+    try:
+        with open(PACKAGES_JSON, 'r') as file:
+            local_packages = json.load(file)
+    except FileNotFoundError:
+        local_packages = None
+
+    if origin == 'none':
+        packages = []
+
+    elif origin == 'upstream':
+        packages = [module_for_upstream(repo) for repo in UPSTREAM_REPOS]
+
+    elif origin == 'downstream' or local_packages is None:
+        packages = fetch_json(DOWNSTREAM_PACKAGES_URL)
+
+    else:
+        packages = local_packages
+
+    # Update local file (only if it) changed
+    if packages != local_packages:
+        write_json(PACKAGES_JSON, packages)
+
+    return packages
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--packages', choices=('none', 'upstream', 'downstream'),
+                        help="Get extra packages list from upstream/downstream")
+    parser.add_argument('--sha256', help="sha256sum of the source release")
+    parser.add_argument('location', help="Location of upstream source release (default: build a new one)", nargs='?')
+    args = parser.parse_args()
+
+    packages = get_packages(args.packages)
+
+    branch = 'devel'
+    if args.location is None:
+        try:
+            output = subprocess.check_output([f'{TOP_DIR}/tools/make-dist'],
+                                             universal_newlines=True)
+        except subprocess.CalledProcessError as exc:
+            sys.exit(exc.returncode)
+        location = {'path': output.rstrip('\n')}
+
+    elif args.location.startswith('https://'):
+        branch = 'stable'
+        location = {'url': args.location}
+
+    elif args.location.startswith('/') and os.path.exists(args.location):
+        location = {'path': args.location}
+
+    else:
+        parser.error('If the location is given it must be an absolute path or https URL.')
+
+    if args.sha256:
+        location['sha256'] = args.sha256
+    elif 'path' in location:
+        with open(location['path'], 'rb') as file:
+            location['sha256'] = hashlib.sha256(file.read()).hexdigest()
+    else:
+        parser.error('--sha256 must be provided for https URLs')
+
+    manifest = create_manifest({'type': 'archive', **location},
+                               branch=branch, extra_modules=packages)
+
+    write_json(MANIFEST_JSON, manifest)
+
+    Path(RELEASES_XML).touch()
+
+    print(os.path.abspath(MANIFEST_JSON))
+
+
+if __name__ == '__main__':
+    main()

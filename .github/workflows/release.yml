@@ -141,7 +141,8 @@ jobs:
              org.cockpit_project.CockpitClient.releases.xml \
              "${{ github.ref_name }}" \
              "$(date +%Y-%m-%d)"
-          git add "$(../src/containers/flatpak/prepare "${DOWNLOAD}" "${CHECKSUM}")"
+          git add "$(../src/containers/flatpak/prepare --packages=upstream --sha256="${CHECKSUM}" "${DOWNLOAD}")"
+          git add org.cockpit_project.CockpitClient.packages.json
           git add org.cockpit_project.CockpitClient.releases.xml
           git commit -m "Update to version ${{ github.ref_name }}"
           git show

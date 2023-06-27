@@ -267,3 +267,8 @@ $desktop: $phone + 1px;
     --pf-v5-c-about-modal-box--BackgroundPosition: calc(100% - 30rem) 10rem;
   }
 }
+
+// HACK: https://github.com/patternfly/patternfly/issues/5690
+.pf-v5-c-alert.pf-m-inline.pf-m-warning {
+  background-color: var(--pf-v5-global--BackgroundColor--400);
+}

@@ -402,7 +402,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # finish the package installation
         m.execute(f"touch {install_lockfile}")
 
-        b.wait_visible(".pf-c-empty-state__title:contains('Update was successful')")
+        b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
         # if tracer is not present, reboot is recommended
         if m.image in OSesWithoutTracer:
             b.wait_in_text("#app .pf-v5-c-empty-state button.pf-m-primary", "Reboot system...")
@@ -488,7 +488,7 @@ ExecStart=/usr/local/bin/{self.packageName}
                 b.wait_in_text("#install-all", "Install all updates")
                 b.click("#install-all")
                 with b.wait_timeout(60):
-                    b.wait_visible(".pf-c-empty-state__title:contains('Update was successful')")
+                    b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
 
                 b.wait_visible("#ignore")
                 b.wait_visible(".updates-success-table")
@@ -656,7 +656,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_in_text("#install-all", "Install all updates")
         b.click("#install-all")
         with b.wait_timeout(60):
-            b.wait_visible(".pf-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
 
         b.wait_visible("#ignore")
         b.wait_visible(".updates-success-table")
@@ -794,7 +794,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_not_present("#available-updates button#install-kpatches")
         b.click("#available-updates button#install-security")
         with b.wait_timeout(60):
-            b.wait_visible(".pf-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
 
         # history on restart page should show the three security updates
         b.click(".pf-v5-c-expandable-section__toggle")
@@ -829,7 +829,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # should have succeeded and show restart
         with b.wait_timeout(60):
-            b.wait_visible(".pf-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
         b.wait_visible("#ignore")
 
         # history on restart page should show the three non-security updates
@@ -1149,7 +1149,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.click("#available-updates button#install-all")
 
         with b.wait_timeout(60):
-            b.wait_visible(".pf-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
         b.click("#ignore")
 
         # should go back to updates overview, nothing pending any more
@@ -1203,7 +1203,7 @@ class TestWsUpdate(NoSubManCase):
         m.execute(f"touch {install_lockfile}")
 
         # should have succeeded and show restart page; cancel
-        b.wait_visible(".pf-c-empty-state__title:contains('Update was successful')")
+        b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
         b.click("#ignore")
         b.wait_in_text("#status", "System is up to date")
 
@@ -1713,7 +1713,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         b.click("#available-updates button#install-all")
         # wait until installation is finished
         with b.wait_timeout(60):
-            b.wait_visible(".pf-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
         b.click("#ignore")
 
         if self.backend == 'dnf':

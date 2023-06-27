@@ -212,7 +212,7 @@ def start_ssh_agent() -> None:
     # Launch the agent so that it goes down with us on EOF; PDEATHSIG would be more robust,
     # but it gets cleared on setgid ssh-agent, which some distros still do
     try:
-        proc = subprocess.Popen(['ssh-agent', 'sh', '-ec', 'echo $SSH_AUTH_SOCK; read a'],
+        proc = subprocess.Popen(['ssh-agent', 'sh', '-ec', 'echo SSH_AUTH_SOCK=$SSH_AUTH_SOCK; read a'],
                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         assert proc.stdout is not None
 
@@ -225,6 +225,7 @@ def start_ssh_agent() -> None:
                 break
         else:
             proc.terminate()
+            proc.wait()
 
     except FileNotFoundError:
         logger.debug("Couldn't start ssh-agent (FileNotFoundError)")

@@ -86,6 +86,8 @@ class Bridge(Router, PackagesListener):
                 }
             ])
             self.packages = None
+        elif args.privileged:
+            self.packages = None
         else:
             self.packages = Packages(self)
             self.internal_bus.export('/packages', self.packages)

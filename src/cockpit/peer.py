@@ -59,7 +59,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         user_env = dict(e.split('=', 1) for e in env)
         return SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
 
-    async def start(self, init_host: Optional[str] = None) -> Dict[str, object]:
+    async def start(self, init_args: Optional[Dict[str, object]] = None) -> Dict[str, object]:
         """Request that the Peer is started and connected to the router.
 
         Creates the transport, connects it to the protocol, and participates in
@@ -111,10 +111,10 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
             if not connect_task.done():
                 connect_task.cancel()
 
-        if init_host is not None:
-            logger.debug('  sending init message back, host %s', init_host)
+        if init_args is not None:
+            logger.debug('  sending init message back, args %s', init_args)
             # Send "init" back
-            self.write_control(command='init', version=1, host=init_host)
+            self.write_control(command='init', version=1, **init_args)
 
             # Thaw the queued messages
             self.thaw_endpoint()
@@ -122,7 +122,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         return init_message
 
     # Background initialization
-    def start_in_background(self, init_host: Optional[str] = None) -> None:
+    def start_in_background(self, init_args: Optional[Dict[str, object]] = None) -> None:
         def _start_task_done(task: asyncio.Task) -> None:
             assert task is start_task
 
@@ -131,7 +131,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
             except (OSError, PeerExited, CockpitProblem, asyncio.CancelledError):
                 pass  # Those are expected.  Others will throw.
 
-        start_task = asyncio.create_task(self.start(init_host))
+        start_task = asyncio.create_task(self.start(init_args))
         start_task.add_done_callback(_start_task_done)
 
     # Shutdown
@@ -253,7 +253,7 @@ class PeerRoutingRule(RoutingRule):
             self.peer = ConfiguredPeer(self.router, self.config)
             self.peer.add_done_callback(self.peer_closed)
             assert self.router.init_host
-            self.peer.start_in_background(init_host=self.router.init_host)
+            self.peer.start_in_background(init_args={'host': self.router.init_host})
 
         return self.peer
 

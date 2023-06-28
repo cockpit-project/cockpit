@@ -160,7 +160,7 @@ class SshPeer(Peer):
         self.private = private
 
         self.session = ferny.Session()
-        self.start_in_background(init_host=host)
+        self.start_in_background(init_args={'host':host})
 
 
 class HostRoutingRule(RoutingRule):

@@ -2,6 +2,14 @@
 // Pull in variables (for breakpoints)
 @use "global-variables" as *;
 
+// HACK: for https://github.com/patternfly/patternfly/issues/5695
+.pf-v5-theme-dark {
+  .pf-v5-c-form-control select {
+    background-color: var(--pf-v5-c-form-control--BackgroundColor);
+    border-block-end-color: var(--pf-v5-global--BorderColor--400);
+  }
+}
+
 // PF Select is deprecated - no issue reported upstream - this needs to be removed from our codebase
 // Make select have the expected width
 .pf-v5-c-select[data-popper-reference-hidden="false"] {

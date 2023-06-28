@@ -152,15 +152,24 @@ class SshPeer(Peer):
         elif host is None:
             super().do_kill(None, group)
 
-    def __init__(self, router: Router, host: str, user: Optional[str], password: Optional[str], *, private: bool):
-        super().__init__(router)
+    def __init__(self, router: Router, host: str, user: Optional[str], password: Optional[str], *,
+                 init_superuser: Optional[str], private: bool):
+        hexuser = ''.join(f'{c:02x}' for c in (user or getpass.getuser()).encode('ascii'))
+        super().__init__(router, auth_challenge_responses={f'plain1:{hexuser}': password or ""})
         self.host = host
         self.user = user
         self.password = password
         self.private = private
 
         self.session = ferny.Session()
-        self.start_in_background(init_args={'host':host})
+        init_args: Dict[str, object]
+        init_args = {'host': host}
+        if init_superuser is not None:
+            if init_superuser == "none":
+                init_args['superuser'] = False
+            else:
+                init_args['superuser'] = {'id': init_superuser}
+        self.start_in_background(init_args=init_args)
 
 
 class HostRoutingRule(RoutingRule):
@@ -208,7 +217,10 @@ class HostRoutingRule(RoutingRule):
             logger.debug('%s is not among the existing remotes %s.  Opening a new connection.', key, self.remotes)
             password = options.get('password')
             assert password is None or isinstance(password, str)
-            peer = SshPeer(self.router, host, user, password, private=nonce is not None)
+            init_superuser = options.get('init-superuser')
+            assert init_superuser is None or isinstance(init_superuser, str)
+            peer = SshPeer(self.router, host, user, password,
+                           init_superuser=init_superuser, private=nonce is not None)
             peer.add_done_callback(lambda: self.remotes.__delitem__(key))
             self.remotes[key] = peer
 

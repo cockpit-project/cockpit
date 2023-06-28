@@ -702,7 +702,6 @@ class TestSuperuserDashboardOldMachine(testlib.MachineCase):
         "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
     }
 
-    @testlib.todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
     def test(self):
         b = self.browser
 

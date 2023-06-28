@@ -733,6 +733,29 @@ $graphs: cpu, memory, disks, network;
   }
 }
 
+.current-cpu-usage:not(:last-child) {
+  // Bump CPU average above CPU max
+  z-index: 1;
+
+  // Make the background transparent, so CPU max shows through
+  .pf-v5-c-progress__bar {
+    --pf-v5-c-progress__bar--BackgroundColor: transparent;
+    --pf-v5-c-progress__bar--before--Opacity: 0;
+  }
+}
+
+.current-top-cpu-usage {
+  // Nudge max to be at the same place as average
+  margin-block-start: -5px;
+
+  // Lighten up the default bar
+  &:not(.pf-m-danger):not(.pf-m-warning) {
+    .pf-v5-c-progress__indicator {
+      opacity: 0.33;
+    }
+  }
+}
+
 // FIXME: We probably want to adapt some of these for the general log message widget
 .cockpit-logline {
   padding-block: 0.25rem;

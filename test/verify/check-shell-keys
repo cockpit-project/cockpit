@@ -300,13 +300,13 @@ session    optional     pam_ssh_add.so
         b.wait_text("#credentials-modal .pf-m-error > .pf-v5-c-helper-text__item-text", "Not a valid private key")
 
         b.click("#credentials-modal .pf-v5-c-select__toggle-typeahead")
-        b.set_input_text("#credentials-modal .pf-v5-c-select__toggle-typeahead", "/var/test/")
+        b.set_input_text("#credentials-modal .pf-v5-c-select__toggle-typeahead input", "/var/test/")
         b.wait_in_text("#credentials-modal .pf-v5-c-select__menu-item.pf-m-disabled", "No such file or directory")
-        b.focus("#credentials-modal .pf-v5-c-select__toggle-typeahead")
+        b.focus("#credentials-modal .pf-v5-c-select__toggle-typeahead input")
         b.key_press("\b\b\b\b\b")
         b.wait_visible("#credentials-modal .pf-v5-c-select__menu-item.directory:contains('/var/lib/')")
         b.click("#credentials-modal .pf-v5-c-select__toggle-clear")
-        b.wait_val("#credentials-modal .pf-v5-c-select__toggle-typeahead", "")
+        b.wait_val("#credentials-modal .pf-v5-c-select__toggle-typeahead input", "")
 
         b.set_file_autocomplete_val("#ssh-file-add-key", "/tmp/new.rsa")
         b.click("#ssh-file-add")

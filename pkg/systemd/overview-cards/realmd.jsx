@@ -187,6 +187,12 @@ export class RealmdClient {
         if (cockpit.transport.host !== "localhost")
             return Promise.resolve();
 
+        const server_sw = find_detail(realm, "server-software");
+        if (server_sw !== "ipa") {
+            console.log("cleaning up ws credentials not supported for server software", server_sw);
+            return Promise.resolve();
+        }
+
         const kerberos = this.dbus_realmd.proxy(KERBEROS, realm.path);
         return kerberos.wait()
                 .then(() => {

@@ -114,9 +114,11 @@ cmd_ipa_cleanup() {
     fi
 
     # clean up certificate; support both "copy" and "direct" modes from cmd_ipa_request()
-    rm "${COCKPIT_WS_CERTS_D}/10-ipa.cert" "${COCKPIT_WS_CERTS_D}/10-ipa.key"
-    ipa-getcert stop-tracking -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" || \
-        ipa-getcert stop-tracking -f /run/cockpit/certificate-helper/10-ipa.cert -k /run/cockpit/certificate-helper/10-ipa.key
+    if [ -e "${COCKPIT_WS_CERTS_D}/10-ipa.key" ]; then
+        rm "${COCKPIT_WS_CERTS_D}/10-ipa.cert" "${COCKPIT_WS_CERTS_D}/10-ipa.key"
+        ipa-getcert stop-tracking -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" || \
+            ipa-getcert stop-tracking -f /run/cockpit/certificate-helper/10-ipa.cert -k /run/cockpit/certificate-helper/10-ipa.key
+    fi
 }
 
 cmd_ipa() {

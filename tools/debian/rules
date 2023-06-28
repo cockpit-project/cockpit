@@ -58,6 +58,8 @@ override_dh_install:
 
 	dh_install -Xusr/src/debug
 ifeq ($(C_BRIDGE),)
+	# we don't need this, it contains full build paths and breaks reproducibility
+	rm -r debian/tmp/usr/lib/python*/*-packages/*.dist-info
 	dh_install -p cockpit-bridge debian/tmp/usr/lib/python*
 endif
 

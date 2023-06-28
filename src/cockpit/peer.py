@@ -39,8 +39,10 @@ class PeerExited(Exception):
 class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
     done_callbacks: List[Callable[[], None]]
     init_future: Optional[asyncio.Future]
+    auth_challenge_responses: Optional[Dict[str, str]]
+    auth_challenge_responses_remove_task: Optional[asyncio.Task]
 
-    def __init__(self, router: Router):
+    def __init__(self, router: Router, auth_challenge_responses: Optional[Dict[str, str]] = None):
         super().__init__(router)
 
         # All Peers start out frozen — we only unfreeze after we see the first 'init' message
@@ -48,6 +50,8 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
 
         self.init_future = asyncio.get_running_loop().create_future()
         self.done_callbacks = []
+        self.auth_challenge_responses = auth_challenge_responses
+        self.auth_challenge_responses_remove_task = None
 
     # Initialization
     async def do_connect_transport(self) -> None:
@@ -87,6 +91,13 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
 
         connect_task = asyncio.create_task(self.do_connect_transport())
         connect_task.add_done_callback(_connect_task_done)
+
+        async def remove_auth_responses_after_two_minutes():
+            await asyncio.sleep(120)
+            self.auth_challenge_responses = None
+
+        if self.auth_challenge_responses:
+            self.auth_challenge_responses_remove_task = asyncio.create_task(remove_auth_responses_after_two_minutes())
 
         try:
             # Wait for something to happen:
@@ -143,6 +154,18 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         if command == 'init' and self.init_future is not None:
             logger.debug('Got init message with active init_future.  Setting result.')
             self.init_future.set_result(message)
+        elif command == 'authorize':
+            logger.debug('Got authorize message.')
+            cookie = message.get('cookie')
+            challenge = message.get('challenge')
+            response = ""
+            if isinstance(challenge, str) and self.auth_challenge_responses:
+                challenge_pfx = ':'.join(challenge.split(':', 2)[0:2])
+                response = self.auth_challenge_responses.get(challenge_pfx, '')
+            self.write_control(command='authorize', cookie=cookie, response=response)
+        elif command == 'superuser-init-done':
+            logger.debug('Got superuser-init-done message')
+            self.auth_challenge_responses = None
         else:
             raise CockpitProtocolError(f'Received unexpected control message {command}')
 
@@ -180,6 +203,9 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
                 self.init_future.set_exception(exc)
             else:
                 self.init_future.cancel()
+
+        if self.auth_challenge_responses_remove_task and not self.auth_challenge_responses_remove_task.done():
+            self.auth_challenge_responses_remove_task.cancel()
 
         for callback in self.done_callbacks:
             callback()

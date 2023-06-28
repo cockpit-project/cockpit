@@ -124,7 +124,7 @@ class cockpit_Machines(bus.Object):
         self.notify()
 
     def __init__(self):
-        self.path = config.lookup_config('/machines.d')
+        self.path = config.lookup_config('machines.d')
         self.loop = asyncio.get_running_loop()
 
         # ignore the first callback

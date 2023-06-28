@@ -757,7 +757,7 @@ class CurrentMetrics extends React.Component {
                            aria-label={_("Current top CPU usage")}
                            id="current-top-cpu-usage"
                            value={top_cores[0][1]}
-                           className="pf-m-sm"
+                           className="current-top-cpu-usage pf-m-sm"
                            min={0} max={100}
                            variant={ top_cores[0][1] > 90 ? ProgressVariant.danger : ProgressVariant.info }
                            measureLocation="none" />;
@@ -833,7 +833,7 @@ class CurrentMetrics extends React.Component {
                             <Progress
                                 id="current-cpu-usage"
                                 value={this.state.cpuUsed}
-                                className="pf-m-sm"
+                                className="current-cpu-usage pf-m-sm"
                                 min={0} max={100}
                                 variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
                                 title={ num_cpu_str }

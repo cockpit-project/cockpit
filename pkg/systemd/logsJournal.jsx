@@ -137,7 +137,7 @@ export class JournalBox extends React.Component {
                 .done(() => {
                     this.setState({ streamFinished: true });
 
-                    if (!last) {
+                    if (!last && !promise.stopped) {
                         const journalctlOptions = {
                             boot,
                             count: 0,

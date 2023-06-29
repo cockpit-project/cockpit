@@ -50,7 +50,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         self.done_callbacks = []
 
     # Initialization
-    async def do_connect_transport(self) -> asyncio.Transport:
+    async def do_connect_transport(self) -> None:
         raise NotImplementedError
 
     async def spawn(self, argv: Sequence[str], env: Sequence[str], **kwargs) -> asyncio.Transport:
@@ -225,8 +225,8 @@ class ConfiguredPeer(Peer):
         self.env = config.get('environ', [])  # type: ignore[assignment]
         super().__init__(router)
 
-    async def do_connect_transport(self):
-        return await self.spawn(self.args, self.env)
+    async def do_connect_transport(self) -> None:
+        await self.spawn(self.args, self.env)
 
 
 class PeerRoutingRule(RoutingRule):

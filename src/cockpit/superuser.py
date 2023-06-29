@@ -45,7 +45,7 @@ class SuperuserPeer(ConfiguredPeer):
         self.name = name
         self.responder = responder
 
-    async def do_connect_transport(self) -> asyncio.Transport:
+    async def do_connect_transport(self) -> None:
         async with contextlib.AsyncExitStack() as context:
             if 'pkexec' in self.args:
                 logger.debug('connecting polkit superuser peer transport %r', self.args)
@@ -74,8 +74,6 @@ class SuperuserPeer(ConfiguredPeer):
                 await agent.communicate()
             except ferny.InteractionError as exc:
                 raise PeerError('authentication-failed', message=str(exc)) from exc
-
-        return transport
 
 
 class CockpitResponder(ferny.InteractionResponder):

@@ -230,7 +230,7 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
     async def test_true(self) -> None:
         protocol, transport = self.subprocess(['true'])
         await protocol.eof_and_exited_with_code(0)
-        assert transport.get_stderr() is None
+        assert transport.get_stderr() == ''
 
     async def test_cat(self) -> None:
         protocol, transport = self.subprocess(['cat'])

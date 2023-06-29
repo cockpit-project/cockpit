@@ -5,7 +5,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict
+from typing import AsyncGenerator, Dict
 
 import pytest
 
@@ -31,14 +31,15 @@ class test_iface(bus.Object):
 async def bridge() -> Bridge:
     bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
     # We use this for assertions
-    bridge.superuser_bridges = list(bridge.superuser_rule.bridges)
+    bridge.superuser_bridges = list(bridge.superuser_rule.bridges)  # type: ignore[attr-defined]
     return bridge
 
 
-def add_pseudo(bridge) -> None:
-    bridge.more_superuser_bridges = [*bridge.superuser_bridges, 'pseudo']
+def add_pseudo(bridge: Bridge) -> None:
+    bridge.more_superuser_bridges = [*bridge.superuser_bridges, 'pseudo']  # type: ignore[attr-defined]
 
     # Add pseudo to the existing set of superuser rules
+    assert bridge.packages is not None
     configs = bridge.packages.get_bridge_configs()
     configs.append({
         'label': 'pseudo',
@@ -55,7 +56,7 @@ def add_pseudo(bridge) -> None:
 
 
 @pytest.fixture
-async def no_init_transport(bridge: Bridge) -> MockTransport:
+async def no_init_transport(bridge: Bridge) -> AsyncGenerator[MockTransport, None]:
     transport = MockTransport(bridge)
     try:
         yield transport

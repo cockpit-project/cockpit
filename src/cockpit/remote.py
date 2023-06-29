@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import asyncio
 import getpass
 import logging
 import re
@@ -76,7 +75,7 @@ class SshPeer(Peer):
     password: Optional[str]
     private: bool
 
-    async def do_connect_transport(self) -> asyncio.Transport:
+    async def do_connect_transport(self) -> None:
         assert self.session is not None
         logger.debug('Starting ssh session user=%s, host=%s, private=%s', self.user, self.host, self.private)
 
@@ -145,7 +144,7 @@ class SshPeer(Peer):
             raise PeerError('internal-error', message=str(exc)) from exc
 
         args = self.session.wrap_subprocess_args(['cockpit-bridge'])
-        return await self.spawn(args, [])
+        await self.spawn(args, [])
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
         if host == self.host:

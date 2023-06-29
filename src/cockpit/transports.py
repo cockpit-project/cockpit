@@ -307,11 +307,11 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
         return watcher
 
-    def get_stderr(self, *, reset: bool = False) -> Optional[str]:
+    def get_stderr(self, *, reset: bool = False) -> str:
         if self._stderr is not None:
             return self._stderr.get(reset=reset).decode(errors='replace')
         else:
-            return None
+            return ''
 
     def _exited(self, pid: int, code: int) -> None:
         # NB: per AbstractChildWatcher API, this handler should be thread-safe,

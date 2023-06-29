@@ -62,8 +62,8 @@ class TestStorageStratis(storagelib.StorageCase):
 
         # Create a pool
         self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
-                                    expect=lambda: (self.dialog_is_present('disks', dev_1) and
-                                                    self.dialog_is_present('disks', dev_2) and
+                                    expect=lambda: (self.dialog_space_is_present('disks', dev_1) and
+                                                    self.dialog_space_is_present('disks', dev_2) and
                                                     self.dialog_check({"name": "pool0"})))
         self.dialog_set_val("disks", {dev_1: True, dev_2: True})
         b.assert_pixels("#dialog", "create-pool")
@@ -281,7 +281,7 @@ class TestStorageStratis(storagelib.StorageCase):
         # something else.
         m.execute("echo not-the-passphrase | stratis key set --capture-key pool0")
         self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
-                                    expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                    expect=lambda: (self.dialog_space_is_present('disks', dev_1) and
                                                     self.dialog_check({"name": "pool0"})))
         self.dialog_set_val("encrypt.on", val=True)
         self.dialog_set_val("passphrase", "foodeeboodeebar")
@@ -433,7 +433,7 @@ class TestStorageStratis(storagelib.StorageCase):
 
         # Create a pool
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
-                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                               expect=lambda: (self.dialog_space_is_present('disks', dev_1) and
                                                self.dialog_check({"name": "pool0"})),
                                values={"disks": {dev_1: True}})
         b.wait_in_text("#devices", "pool0")
@@ -468,7 +468,7 @@ class TestStorageStratis(storagelib.StorageCase):
 
         # Create a pool
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
-                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                               expect=lambda: (self.dialog_space_is_present('disks', dev_1) and
                                                self.dialog_check({"name": "pool0"})),
                                values={"disks": {dev_1: True}})
         b.wait_in_text("#devices", "pool0")

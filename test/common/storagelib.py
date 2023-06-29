@@ -263,7 +263,7 @@ class StorageHelpers:
             self.browser.set_checked(sel, val)
         elif ftype == "select-spaces":
             for label in val:
-                self.browser.set_checked(f'{sel} :contains("{label}") input', val)
+                self.browser.set_checked(f'{sel} tr:contains("{label}") input', val)
         elif ftype == "size-slider":
             self.browser.set_val(sel + " .size-unit", "1000000")
             self.browser.set_input_text(sel + " .size-text", str(val))
@@ -294,8 +294,9 @@ class StorageHelpers:
                                                return result;
                                              })""", self.dialog_field(field))
 
-    def dialog_is_present(self, field, label):
-        return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}") input')
+    def dialog_space_is_present(self, field, label, type_label=None):
+        subsel = "input" if type_label is None else f'td:contains("{type_label}")'
+        return self.browser.is_present(f'{self.dialog_field(field)} tr:contains("{label}") {subsel}')
 
     def dialog_wait_val(self, field, val, unit=None):
         if unit is None:

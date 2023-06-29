@@ -199,18 +199,26 @@ export function lvol_name(lvol) {
     return cockpit.format('$0 "$1"', type, lvol.Name);
 }
 
-export function drive_name(drive) {
+function drive_main_name(drive) {
     const name_parts = [];
     if (drive.Vendor)
         name_parts.push(drive.Vendor);
     if (drive.Model)
         name_parts.push(drive.Model);
 
-    let name = name_parts.join(" ");
-    if (drive.Serial)
-        name += " (" + drive.Serial + ")";
-    else if (drive.WWN)
-        name += " (" + drive.WWN + ")";
+    return name_parts.join(" ");
+}
+
+function drive_sub_name(drive) {
+    return drive.Serial || drive.WWN;
+}
+
+export function drive_name(drive) {
+    let name = drive_main_name(drive);
+    const sub = drive_sub_name(drive);
+
+    if (sub)
+        name += " (" + sub + ")";
 
     return name;
 }
@@ -236,16 +244,19 @@ export function get_block_link_parts(client, path) {
     if (!block)
         return;
 
-    let location, link;
+    let location, link, name, subname;
     if (client.mdraids[block.MDRaid]) {
         location = ["mdraid", client.mdraids[block.MDRaid].UUID];
         link = cockpit.format(_("RAID device $0"), mdraid_name(client.mdraids[block.MDRaid]));
     } else if (client.blocks_lvm2[path] &&
                client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
                client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
-        const target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
+        const lvol = client.lvols[client.blocks_lvm2[path].LogicalVolume];
+        const target = client.vgroups[lvol.VolumeGroup].Name;
         location = ["vg", target];
         link = cockpit.format(_("LVM2 volume group $0"), target);
+        name = target;
+        subname = lvol.Name;
     } else {
         const vdo = client.legacy_vdo_overlay.find_by_block(block);
         if (vdo) {
@@ -253,32 +264,49 @@ export function get_block_link_parts(client, path) {
             link = cockpit.format(_("VDO device $0"), vdo.name);
         } else {
             location = [block_name(block).replace(/^\/dev\//, "")];
-            if (client.drives[block.Drive])
+            if (client.drives[block.Drive]) {
                 link = drive_name(client.drives[block.Drive]);
-            else
+                name = drive_main_name(client.drives[block.Drive]);
+                subname = drive_sub_name(client.drives[block.Drive]);
+            } else
                 link = block_name(block);
         }
     }
 
+    if (!name) {
+        name = link;
+        subname = "";
+    }
+
     // Partitions of logical volumes are shown as just logical volumes.
-    let format;
-    if (is_lvol && is_crypt)
+    let format, type;
+    if (is_lvol && is_crypt) {
         format = _("Encrypted logical volume of $0");
-    else if (is_part && is_crypt)
+        type = _("logical volume");
+    } else if (is_part && is_crypt) {
         format = _("Encrypted partition of $0");
-    else if (is_lvol)
+        type = _("partition");
+    } else if (is_lvol) {
         format = _("Logical volume of $0");
-    else if (is_part)
+        type = _("logical volume");
+    } else if (is_part) {
         format = _("Partition of $0");
-    else if (is_crypt)
+        type = _("partition");
+    } else if (is_crypt) {
         format = _("Encrypted $0");
-    else
+        type = _("disk");
+    } else {
         format = "$0";
+        type = _("disk");
+    }
 
     return {
         location,
         format,
-        link
+        link,
+        type,
+        name,
+        subname
     };
 }
 
@@ -418,7 +446,15 @@ export function get_available_spaces(client) {
         const block = client.blocks[path];
         const parts = get_block_link_parts(client, path);
         const text = cockpit.format(parts.format, parts.link);
-        return { type: 'block', block, size: block.Size, desc: text };
+        return {
+            type: 'block',
+            block,
+            size: block.Size,
+            desc: text,
+            type_label: parts.type,
+            name: parts.name,
+            subname: parts.subname
+        };
     }
 
     const spaces = Object.keys(client.blocks).filter(is_free)
@@ -438,7 +474,10 @@ export function get_available_spaces(client) {
                     block,
                     start: p.start,
                     size: p.size,
-                    desc: cockpit.format(_("unpartitioned space on $0"), text)
+                    desc: cockpit.format(_("unpartitioned space on $0"), text),
+                    type_label: _("unpartitioned space"),
+                    name: link_parts.name,
+                    subname: link_parts.subname
                 });
             }
         }

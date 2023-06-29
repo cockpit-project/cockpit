@@ -106,8 +106,8 @@ class TestStorageHidden(storagelib.StorageCase):
         # Now do the same with a MDRAID
 
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID device'),
-                               expect=lambda: (self.dialog_is_present('disks', "DISK1") and
-                                               self.dialog_is_present('disks', "DISK2")),
+                               expect=lambda: (self.dialog_space_is_present('disks', "DISK1") and
+                                               self.dialog_space_is_present('disks', "DISK2")),
                                values={"name": "ARR",
                                        "disks": {"DISK1": True,
                                                  "DISK2": True}})

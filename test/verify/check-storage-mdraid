@@ -47,7 +47,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
     def raid_add_disk(self, name):
         self.dialog_open_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .pf-v5-c-card__header button'),
-                                    expect=lambda: self.dialog_is_present('disks', name))
+                                    expect=lambda: self.dialog_space_is_present('disks', name))
         self.dialog_set_val("disks", {name: True})
         self.dialog_apply_with_retry()
 

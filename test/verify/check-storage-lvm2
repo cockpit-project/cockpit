@@ -103,8 +103,8 @@ class TestStorageLvm2(storagelib.StorageCase):
         # create volume group in the UI
 
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
-                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
-                                               self.dialog_is_present('disks', dev_2) and
+                               expect=lambda: (self.dialog_space_is_present('disks', dev_1) and
+                                               self.dialog_space_is_present('disks', dev_2) and
                                                self.dialog_check({"name": "vgroup0"})),
                                values={"disks": {dev_1: True,
                                                  dev_2: True}})
@@ -254,8 +254,8 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Create a volume group out of disk1
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create LVM2 volume group'),
-                               expect=lambda: self.dialog_is_present('disks', disk1) and
-                               self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
+                               expect=lambda: self.dialog_space_is_present('disks', disk1,
+                                                                           type_label='unpartitioned space'),
                                values={"disks": {disk1: True}})
 
         b.wait_in_text("#devices", "vgroup0")
@@ -267,8 +267,8 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Add the unused space of disk2
         self.dialog_with_retry(trigger=lambda: b.click('#detail-sidebar .pf-v5-c-card__header button'),
-                               expect=lambda: self.dialog_is_present(
-                                   'disks', "unpartitioned space on " + disk2),
+                               expect=lambda: self.dialog_space_is_present('disks', disk2,
+                                                                           type_label='unpartitioned space'),
                                values={"disks": {disk2: True}})
         b.wait_in_text("#detail-sidebar", "Partition of " + disk2)
 

@@ -221,7 +221,6 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
-import { DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
@@ -235,12 +234,13 @@ import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/comp
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { ExclamationTriangleIcon, InfoIcon, HelpIcon, EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
+import { Table, Thead, Tbody, Tr, Td } from '@patternfly/react-table';
 
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 
-import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async } from "./utils.js";
+import { fmt_size, block_name, format_delay, for_each_async } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import client from "./client.js";
 
@@ -360,6 +360,7 @@ export const dialog_open = (def) => {
         return {
             id: "dialog",
             title,
+            variant: fields.some(f => f.large_modal) ? "large" : null,
             body: <Body body={def.Body}
                         teardown={def.Teardown}
                         fields={nested_fields}
@@ -724,100 +725,50 @@ export const SelectSpaces = (tag, title, options) => {
         options,
         initial_value: [],
         hasNoPaddingTop: options.spaces.length == 0,
+        large_modal: true,
         render: (val, change) => {
             if (options.spaces.length === 0)
                 return <span className="text-danger">{options.empty_warning}</span>;
 
             return (
-                <DataList isCompact
-                    data-field={tag} data-field-type="select-spaces">
-                    { options.spaces.map(spc => {
-                        const selected = (val.indexOf(spc) >= 0);
-                        const block = spc.block ? nice_block_name(spc.block) : "";
-                        const desc = block === spc.desc ? "" : spc.desc;
+                <Table variant="compact"
+                       data-field={tag} data-field-type="select-spaces">
+                    <Thead>
+                        <Tr />
+                    </Thead>
+                    <Tbody>
+                        { options.spaces.map((spc, row_index) => {
+                            const selected = (val.indexOf(spc) >= 0);
+                            const block = spc.block ? nice_block_name(spc.block) : "";
 
-                        const on_change = (_event, checked) => {
-                            if (checked && !selected)
-                                change(val.concat(spc));
-                            else if (!checked && selected)
-                                change(val.filter(v => (v != spc)));
-                        };
+                            const on_change = (_event, checked) => {
+                                if (checked && !selected)
+                                    change(val.concat(spc));
+                                else if (!checked && selected)
+                                    change(val.filter(v => (v != spc)));
+                            };
 
-                        return (
-                            <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
-                                <DataListItemRow>
-                                    <DataListCheck id={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
-                                                   isChecked={selected} onChange={on_change} />
-                                    <label htmlFor={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
-                                           className='data-list-row-checkbox-label'>
-                                        <DataListItemCells
-                                            dataListCells={[
-                                                <DataListCell key="select-space-name" className="select-space-name">
-                                                    {format_size_and_text(spc.size, desc)}
-                                                </DataListCell>,
-                                                <DataListCell alignRight isFilled={false} key="select-space-details" className="select-space-details">
-                                                    {block}
-                                                </DataListCell>,
-                                            ]}
-                                        />
-                                    </label>
-                                </DataListItemRow>
-                            </DataListItem>
-                        );
-                    })
-                    }
-                </DataList>
-            );
-        }
-    };
-};
-
-export const SelectSpace = (tag, title, options) => {
-    return {
-        tag,
-        title,
-        options,
-        initial_value: null,
-
-        render: (val, change) => {
-            if (options.spaces.length === 0)
-                return <span className="text-danger">{options.empty_warning}</span>;
-
-            return (
-                <DataList isCompact
-                    data-field={tag} data-field-type="select-spaces">
-                    { options.spaces.map(spc => {
-                        const block = spc.block ? nice_block_name(spc.block) : "";
-                        const desc = block === spc.desc ? "" : spc.desc;
-                        const on_change = (event) => {
-                            if (event.target.checked)
-                                change(spc);
-                        };
-
-                        return (
-                            <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
-                                <DataListItemRow>
-                                    <div className="pf-v5-c-data-list__item-control">
-                                        <div className="pf-v5-c-data-list__check">
-                                            <input type='radio' value={desc} name='space' checked={val == spc} onChange={on_change} />
-                                        </div>
-                                    </div>
-                                    <DataListItemCells
-                                        dataListCells={[
-                                            <DataListCell key="select-space-name" className="select-space-name">
-                                                {format_size_and_text(spc.size, desc)}
-                                            </DataListCell>,
-                                            <DataListCell alignRight isFilled={false} key="select-space-details" className="select-space-details">
-                                                {block}
-                                            </DataListCell>,
-                                        ]}
-                                    />
-                                </DataListItemRow>
-                            </DataListItem>
-                        );
-                    })
-                    }
-                </DataList>
+                            return (
+                                <Tr key={spc.block ? spc.block.Device : spc.desc}
+                                    onRowClick={() => on_change(null, !selected)}>
+                                    <Td select={{
+                                        // rowIndex is important for state management,
+                                        // without it, onRowClick has no visible effect
+                                        rowIndex: row_index,
+                                        onSelect: on_change,
+                                        isSelected: selected,
+                                    }} />
+                                    <Td>{block}</Td>
+                                    <Td>{spc.name}</Td>
+                                    <Td>{spc.subname}</Td>
+                                    <Td>{spc.type_label}</Td>
+                                    <Td modifier="nowrap">{fmt_size(spc.size)}</Td>
+                                </Tr>
+                            );
+                        })
+                        }
+                    </Tbody>
+                </Table>
             );
         }
     };

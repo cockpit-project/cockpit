@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import errno
+import logging
 import os
 import re
 from typing import Any, DefaultDict, Iterable, List, NamedTuple, Optional, Tuple
@@ -29,6 +31,8 @@ HWMON_PATH = '/sys/class/hwmon'
 # Samples = collections.defaultdict[str, Union[float, Dict[str, Union[float, None]]]]
 Samples = DefaultDict[str, Any]
 
+logger = logging.getLogger(__name__)
+
 
 def read_int_file(rootfd: int, statfile: str, default: Optional[int] = None, key: bytes = b'') -> Optional[int]:
     # Not every stat is available, such as cpu.weight
@@ -39,6 +43,11 @@ def read_int_file(rootfd: int, statfile: str, default: Optional[int] = None, key
 
     try:
         data = os.read(fd, 1024)
+    except OSError as e:
+        # cgroups can disappear between the open and read
+        if e.errno != errno.ENODEV:
+            logger.warning('Failed to read %s: %s', statfile, e)
+        return None
     finally:
         os.close(fd)
 

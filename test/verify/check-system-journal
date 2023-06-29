@@ -75,7 +75,6 @@ class TestJournal(testlib.MachineCase):
 
     def testBasic(self):
         b = self.browser
-        b.wait_timeout(120)
 
         m = self.machine
 
@@ -189,8 +188,9 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
             else:
                 stop_message = "Succeeded."
 
-            wait_log_lines([["systemd", "slow10.service: " + stop_message, ""], ["sh", "SLOW", "10"],
-                            ["systemd", "Started.*Slowly log 10 identical lines.", ""]])
+            with b.wait_timeout(30):
+                wait_log_lines([["systemd", "slow10.service: " + stop_message, ""], ["sh", "SLOW", "10"],
+                                ["systemd", "Started.*Slowly log 10 identical lines.", ""]])
 
         def wait_log_present(message):
             b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{message}')")

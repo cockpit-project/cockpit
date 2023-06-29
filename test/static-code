@@ -1,5 +1,5 @@
 #!/bin/bash
-# run static code checks like flake8, vulture.
+# run static code checks like eslint, flake8, mypy, ruff, vulture.
 
 set -eu
 
@@ -43,12 +43,21 @@ test_ruff() {
 }
 
 if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
+    test_mypy() {
+        command -v mypy >/dev/null || skip 'no mypy'
+        for pkg in systemd_ctypes ferny bei; do
+            test -e "src/cockpit/_vendor/${pkg}/__init__.py" || skip "no ${pkg}"
+        done
+        mypy --no-error-summary src/cockpit test/pytest
+    }
+
     test_vulture() {
         # vulture to find unused variables/functions
         command -v vulture >/dev/null || skip 'no vulture'
         find_python_files | xargs -r -0 vulture
     }
 fi
+
 
 test_js_translatable_strings() {
     # Translatable strings must be marked with _(""), not _('')

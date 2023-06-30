@@ -37,17 +37,17 @@
         timedate.addEventListener("changed", display_zone);
 
         function display_zone() {
-            current.innerHTML = timedate.Timezone;
+            current.textContent = timedate.Timezone;
         }
 
         function change_zone() {
             timedate.SetTimezone(input.value, true)
                     .catch(change_fail);
-            failure.innerHTML = "";
+            failure.textContent = "";
         }
 
         function change_fail(err) {
-            failure.innerHTML = err.message;
+            failure.textContent = err.message;
         }
 
     </script>

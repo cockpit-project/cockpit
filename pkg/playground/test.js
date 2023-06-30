@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function update_nav() {
-        document.getElementById("nav").innerHTML = '';
+        document.getElementById("nav").textContent = '';
         const path = ["top"].concat(cockpit.location.path);
         const e_nav = document.getElementById("nav");
         path.forEach((p, i) => {
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (error)
             return complain(error);
         document.getElementById('file-content').textContent = normalize_counter(content).counter;
-        document.getElementById('file-error').innerHTML = "";
+        document.getElementById('file-error').textContent = "";
     }
 
     counter.watch(changed);

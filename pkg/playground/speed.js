@@ -16,10 +16,10 @@ let close_problem;
 function update() {
     const element = document.getElementById("speed");
     if (channel || websocket) {
-        element.innerHTML = cockpit.format_bytes_per_sec((total * 1000) / (Date.now() - start));
+        element.textContent = cockpit.format_bytes_per_sec((total * 1000) / (Date.now() - start));
         console.log(total);
     } else {
-        element.innerHTML = "";
+        element.textContent = "";
     }
 
     const memory = document.getElementById("memory");
@@ -28,11 +28,11 @@ function update() {
         proc = cockpit.script("echo $PPID && cat /proc/$PPID/statm");
         proc.then(function(data) {
             const parts = data.split("\n");
-            pid.innerHTML = parts[0];
-            memory.innerHTML = parts[1];
+            pid.textContent = parts[0];
+            memory.textContent = parts[1];
             proc = null;
         }, function(ex) {
-            memory.innerHTML = String(ex);
+            memory.textContent = String(ex);
             proc = null;
         });
     }
@@ -200,7 +200,7 @@ function download(ev) {
 function spawn() {
     stop();
 
-    document.getElementById("spawn-result").innerHTML = "Running...";
+    document.getElementById("spawn-result").textContent = "Running...";
     const command = document.getElementById("spawn-command").value;
 
     start = Date.now();
@@ -212,17 +212,17 @@ function spawn() {
     channel.stream(data => {
         console.log("spawn: stream block length", data.length);
         total += data.length;
-        document.getElementById("spawn-output").innerHTML = data;
+        document.getElementById("spawn-output").textContent = data;
     });
     channel.then(() => {
         console.log("spawn: command finished successfully");
         stop();
-        document.getElementById("spawn-result").innerHTML = "success";
+        document.getElementById("spawn-result").textContent = "success";
     });
     channel.catch(ex => {
         console.log("spawn: command failed", JSON.stringify(ex));
         stop();
-        document.getElementById("spawn-result").innerHTML = `failed with exit code ${ex.exit_status}: ${ex.message}`;
+        document.getElementById("spawn-result").textContent = `failed with exit code ${ex.exit_status}: ${ex.message}`;
     });
 }
 

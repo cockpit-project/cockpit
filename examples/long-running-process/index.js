@@ -15,33 +15,33 @@ function showJournal(unitName, filter_arg) {
         return;
 
     // reset previous output
-    output.innerHTML = "";
+    output.textContent = "";
 
     const argv = ["journalctl", "--output=cat", "--unit", unitName, "--follow", "--lines=all", filter_arg];
     showJournal.journalctl = cockpit.spawn(argv, { superuser: "require", err: "message" })
             .stream(data => output.append(document.createTextNode(data)))
-            .catch(ex => { output.innerHTML = JSON.stringify(ex) });
+            .catch(ex => { output.textContent = JSON.stringify(ex) });
 }
 
 function update(process) {
-    state.innerHTML = cockpit.format("$0 $1", process.serviceName, process.state);
+    state.textContent = cockpit.format("$0 $1", process.serviceName, process.state);
 
     switch (process.state) {
     case ProcessState.INIT:
         break;
     case ProcessState.STOPPED:
         run_button.removeAttribute("disabled");
-        run_button.innerHTML = "Start";
+        run_button.textContent = "Start";
         break;
     case ProcessState.RUNNING:
         run_button.removeAttribute("disabled");
-        run_button.innerHTML = "Terminate";
+        run_button.textContent = "Terminate";
         // StateChangeTimestamp property is in µs since epoch, but journalctl expects seconds
         showJournal(process.serviceName, "--since=@" + Math.floor(process.startTimestamp / 1000000));
         break;
     case ProcessState.FAILED:
         run_button.setAttribute("disabled", "");
-        run_button.innerHTML = "Start";
+        run_button.textContent = "Start";
         // Show the whole journal of this boot
         showJournal(process.serviceName, "--boot");
         break;
@@ -77,7 +77,7 @@ cockpit.transport.wait(() => {
         else
             process.run(["/bin/sh", "-ec", command.value])
                     .catch(ex => {
-                        state.innerHTML = "Error: " + ex.toString();
+                        state.textContent = "Error: " + ex.toString();
                         run_button.setAttribute("disabled", "");
                     });
     });

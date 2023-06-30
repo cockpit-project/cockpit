@@ -9,7 +9,7 @@ function parent_window(assert) {
     assert.expect(4);
     window.assert = assert; // for the child frame
 
-    document.getElementById("qunit-header").innerHTML = "Cockpit Parent Frame";
+    document.getElementById("qunit-header").textContent = "Cockpit Parent Frame";
     window.name = "cockpit1";
     let initialized = false;
     let frame;

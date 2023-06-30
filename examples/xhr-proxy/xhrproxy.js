@@ -56,9 +56,9 @@ document.getElementById("get").addEventListener("click", () => {
     xhr.onreadystatechange = () => {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             console.log("XMLHttpRequest to", url, "done with status", xhr.status, "text", xhr.responseText);
-            document.getElementById("result").innerHTML = xhr.status.toString();
+            document.getElementById("result").textContent = xhr.status.toString();
             const output = document.getElementById("output");
-            output.innerHTML = "";
+            output.textContent = "";
             output.append(document.createTextNode(xhr.responseText));
         }
     };

@@ -10,18 +10,18 @@ function ping_run() {
             .then(ping_success)
             .catch(ping_fail);
 
-    result.innerHTML = "";
-    output.innerHTML = "";
+    result.textContent = "";
+    output.textContent = "";
 }
 
 function ping_success() {
     result.style.color = "green";
-    result.innerHTML = "success";
+    result.textContent = "success";
 }
 
 function ping_fail() {
     result.style.color = "red";
-    result.innerHTML = "fail";
+    result.textContent = "fail";
 }
 
 function ping_output(data) {

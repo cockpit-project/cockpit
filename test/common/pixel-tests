@@ -85,7 +85,7 @@ cmd_reset() {
     cmd_update
 }
 
-pixel_test_logs_url() {
+pixel_test_logs_urls() {
     arg=${1:-}
 
     if [[ "$arg" == http* ]]; then
@@ -107,37 +107,40 @@ print(json.load(sys.stdin)['head']['sha'])
     fi
 
     context=$(cat test/reference-image)
-    curl -s "https://api.github.com/repos/$repo/statuses/$revision" | python3 -c "
+    curl -s "https://api.github.com/repos/$repo/statuses/$revision?per_page=100" | python3 -c "
 import json
 import sys
 import os
 
+seen = set()
 for s in json.load(sys.stdin):
-    if s['context'] == sys.argv[1] and s['target_url']:
-        print(os.path.dirname(s['target_url']))
-        break
+    c = s['context']
+    if 'pybridge' in c or 'firefox' in c or 'devel' in c:
+        continue
+    if c.split('/')[0] == sys.argv[1] and s['target_url']:
+        url=os.path.dirname(s['target_url'])
+        if url not in seen:
+            seen.add(url)
+            print(url)
 " "$context"
 }
 
 cmd_fetch() {
-    url=$(pixel_test_logs_url ${1:-})
-    if [ -z "$url" ]; then
+    urls=$(pixel_test_logs_urls ${1:-})
+    if [ -z "$urls" ]; then
         echo >&2 "Can't find test results for $(cat test/reference-image), sorry."
         exit 1
     fi
-    url=${url/log.html/}
     cmd_update
-    echo "Fetching new pixel test references from $url"
-    pixels=$(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq)
-    if [[ -n "$pixels" ]]; then
+    for url in ${urls}; do
+        url=${url/log.html/}
+        echo "Fetching new pixel test references from $url"
+        pixels=$(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq)
         for f in ${pixels}; do
             echo "$f"
             curl -s --output-dir test/reference/ -O "$url/$f"
         done
-    else
-        echo "No new pixels found"
-        exit 1
-    fi 	
+    done
 }
 
 cmd_help() {

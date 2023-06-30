@@ -147,10 +147,7 @@ function AccountsPage() {
 }
 
 function get_locked(name, shadow) {
-    if (!shadow)
-        return;
-    const match = shadow.match(new RegExp(`${name}:!`));
-    return match !== null;
+    return Boolean((shadow || '').split('\n').find(line => line.startsWith(name + ':!')));
 }
 
 async function getLogins(shadow) {

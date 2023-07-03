@@ -378,6 +378,8 @@ class TestSubprocessTransport:
         while b'44x55\r\n' not in protocol.get_output():
             await asyncio.sleep(0.1)
 
+        transport.close()
+
     @pytest.mark.asyncio
     async def test_env(self) -> None:
         protocol, transport = self.subprocess(['bash', '-ic', 'echo $HOME'],
@@ -386,3 +388,5 @@ class TestSubprocessTransport:
         protocol.output = []
         while b'/test\r\n' not in protocol.get_output():
             await asyncio.sleep(0.1)
+
+        transport.close()

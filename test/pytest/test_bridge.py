@@ -10,13 +10,11 @@ from typing import AsyncGenerator, Dict
 import pytest
 import pytest_asyncio
 
-from cockpit._vendor.systemd_ctypes import EventLoopPolicy, bus
+from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
 from cockpit.channels import CHANNEL_TYPES
 
-from .mocktransport import MOCK_HOSTNAME, MockTransport, settle_down
-
-asyncio.set_event_loop_policy(EventLoopPolicy())
+from .mocktransport import MOCK_HOSTNAME, MockTransport
 
 
 class test_iface(bus.Object):
@@ -200,9 +198,6 @@ async def test_superuser_dbus(bridge, transport):
 
     # The Stop method call is done now
     await transport.assert_msg(transport.internal_bus, reply=[[]], id=stop)
-
-    # ...and the process should be gone
-    await settle_down()
 
 
 def format_methods(methods: Dict[str, str]):
@@ -522,7 +517,6 @@ async def test_channel(channeltype, tmp_path):
                 # because the channel sent data and finished, without error.
                 assert 'problem' not in control
                 assert saw_data
-                await settle_down()
                 return
             else:
                 pytest.fail('unexpected event', (payload, args, control))
@@ -546,5 +540,4 @@ async def test_channel(channeltype, tmp_path):
                 continue
             elif command == 'close':
                 assert 'problem' not in control
-                await settle_down()
                 return

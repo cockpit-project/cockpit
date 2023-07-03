@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import AsyncGenerator, Dict
 
 import pytest
+import pytest_asyncio
 
 from cockpit._vendor.systemd_ctypes import EventLoopPolicy, bus
 from cockpit.bridge import Bridge
@@ -27,7 +28,7 @@ class test_iface(bus.Object):
         return self.prop
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def bridge() -> Bridge:
     bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
     # We use this for assertions
@@ -55,7 +56,7 @@ def add_pseudo(bridge: Bridge) -> None:
     bridge.superuser_rule.set_configs(configs)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def no_init_transport(bridge: Bridge) -> AsyncGenerator[MockTransport, None]:
     transport = MockTransport(bridge)
     try:
@@ -64,13 +65,14 @@ async def no_init_transport(bridge: Bridge) -> AsyncGenerator[MockTransport, Non
         await transport.stop()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def transport(no_init_transport: MockTransport) -> MockTransport:
     await no_init_transport.assert_msg('', command='init')
     no_init_transport.send_init()
     return no_init_transport
 
 
+@pytest.mark.asyncio
 async def test_echo(transport):
     echo = await transport.check_open('echo')
 
@@ -85,6 +87,7 @@ async def test_echo(transport):
     await transport.assert_msg('', command='close', channel=echo)
 
 
+@pytest.mark.asyncio
 async def test_host(transport):
     # try to open a null channel, explicitly naming our host
     await transport.check_open('null', host=MOCK_HOSTNAME)
@@ -105,6 +108,7 @@ async def test_host(transport):
     await transport.check_open('null', host=MOCK_HOSTNAME, superuser=True, problem='access-denied')
 
 
+@pytest.mark.asyncio
 async def test_dbus_call_internal(bridge, transport):
     my_object = test_iface()
     bridge.internal_bus.export('/foo', my_object)
@@ -119,6 +123,7 @@ async def test_dbus_call_internal(bridge, transport):
     assert result == 'none'
 
 
+@pytest.mark.asyncio
 async def test_dbus_watch(bridge, transport):
     my_object = test_iface()
     bridge.internal_bus.export('/foo', my_object)
@@ -155,6 +160,7 @@ async def verify_root_bridge_not_running(bridge, transport):
     assert null not in bridge.open_channels
 
 
+@pytest.mark.asyncio
 async def verify_root_bridge_running(bridge, transport):
     await transport.assert_bus_props('/superuser', 'cockpit.Superuser',
                                      {'Bridges': bridge.more_superuser_bridges, 'Current': 'pseudo'})
@@ -171,6 +177,7 @@ async def verify_root_bridge_running(bridge, transport):
     await transport.check_close(channel=root_dbus)
 
 
+@pytest.mark.asyncio
 async def test_superuser_dbus(bridge, transport):
     add_pseudo(bridge)
     await verify_root_bridge_not_running(bridge, transport)
@@ -202,6 +209,7 @@ def format_methods(methods: Dict[str, str]):
     return {name: {'t': 'a{sv}', 'v': {'label': {'t': 's', 'v': label}}} for name, label in methods.items()}
 
 
+@pytest.mark.asyncio
 async def test_superuser_dbus_pw(bridge, transport, monkeypatch):
     monkeypatch.setenv('PSEUDO_PASSWORD', 'p4ssw0rd')
     add_pseudo(bridge)
@@ -236,6 +244,7 @@ async def test_superuser_dbus_pw(bridge, transport, monkeypatch):
     await verify_root_bridge_running(bridge, transport)
 
 
+@pytest.mark.asyncio
 async def test_superuser_dbus_wrong_pw(bridge, transport, monkeypatch):
     monkeypatch.setenv('PSEUDO_PASSWORD', 'p4ssw0rd')
     add_pseudo(bridge)
@@ -271,6 +280,7 @@ async def test_superuser_dbus_wrong_pw(bridge, transport, monkeypatch):
     await verify_root_bridge_not_running(bridge, transport)
 
 
+@pytest.mark.asyncio
 async def test_superuser_init(bridge, no_init_transport):
     add_pseudo(bridge)
     await no_init_transport.assert_msg('', command='init')
@@ -283,6 +293,7 @@ async def test_superuser_init(bridge, no_init_transport):
     await verify_root_bridge_running(bridge, transport)
 
 
+@pytest.mark.asyncio
 async def test_superuser_init_pw(bridge, no_init_transport, monkeypatch):
     monkeypatch.setenv('PSEUDO_PASSWORD', 'p4ssw0rd')
     add_pseudo(bridge)
@@ -299,6 +310,7 @@ async def test_superuser_init_pw(bridge, no_init_transport, monkeypatch):
     await verify_root_bridge_running(bridge, transport)
 
 
+@pytest.mark.asyncio
 async def test_no_login_messages(transport):
     await transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["{}"])
     await transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Dismiss', [], [])
@@ -314,6 +326,7 @@ def login_messages_envvar(monkeypatch):
     return None
 
 
+@pytest.mark.asyncio
 async def test_login_messages(login_messages_envvar, transport):
     del login_messages_envvar
 
@@ -328,6 +341,7 @@ async def test_login_messages(login_messages_envvar, transport):
     await transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["{}"])
 
 
+@pytest.mark.asyncio
 async def test_freeze(bridge, transport):
     koelle = await transport.check_open('echo')
     malle = await transport.check_open('echo')
@@ -359,6 +373,7 @@ async def test_freeze(bridge, transport):
     await transport.assert_msg('', command='close', channel=koelle)
 
 
+@pytest.mark.asyncio
 async def test_internal_metrics(transport):
     metrics = [
         {"name": "cpu.core.user", "derive": "rate"},
@@ -388,12 +403,14 @@ async def test_internal_metrics(transport):
     assert isinstance(data[0][1], int)
 
 
+@pytest.mark.asyncio
 async def test_fsread1_errors(transport):
     await transport.check_open('fsread1', path='/etc/shadow', problem='access-denied')
     await transport.check_open('fsread1', path='/', problem='internal-error',
                                reply_keys={'message': "[Errno 21] Is a directory: '/'"})
 
 
+@pytest.mark.asyncio
 async def test_fslist1_no_watch(transport):
     tempdir = tempfile.TemporaryDirectory()
     dir_path = Path(tempdir.name)
@@ -420,6 +437,7 @@ async def test_fslist1_no_watch(transport):
     await transport.check_close(channel=ch)
 
 
+@pytest.mark.asyncio
 async def test_fslist1_notexist(transport):
     await transport.check_open(
         'fslist1', path='/nonexisting', watch=False,

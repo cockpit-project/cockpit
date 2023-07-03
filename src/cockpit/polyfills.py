@@ -38,11 +38,6 @@ def install():
 
         socket.recv_fds = recv_fds
 
-        def send_fds(sock, buffers, fds, flags=0, address=None):
-            return sock.sendmsg(buffers, [(_socket.SOL_SOCKET, _socket.SCM_RIGHTS, array.array("i", fds))])
-
-        socket.send_fds = send_fds
-
     # introduced in 3.7
     if not hasattr(contextlib, 'AsyncExitStack'):
         class AsyncExitStack:

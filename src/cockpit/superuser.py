@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import array
 import asyncio
 import contextlib
 import getpass
@@ -83,7 +84,8 @@ class CockpitResponder(ferny.InteractionResponder):
         if command == 'cockpit.send-stderr':
             with socket.socket(fileno=fds[0]) as sock:
                 fds.pop(0)
-                socket.send_fds(sock, [b'\0'], [2])
+                # socket.send_fds(sock, [b'\0'], [2])  # New in Python 3.9
+                sock.sendmsg([b'\0'], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [2]))])
 
 
 class AuthorizeResponder(CockpitResponder):

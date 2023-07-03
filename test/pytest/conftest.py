@@ -12,29 +12,14 @@ from cockpit._vendor.systemd_ctypes import EventLoopPolicy
 polyfills.install()
 
 
-def my_subprocesses():
+def any_subprocesses() -> bool:
+    # Make sure we don't leak subprocesses
     try:
-        return subprocess.check_output(['pgrep', '-a', '-P', f'{os.getpid()}'], universal_newlines=True).splitlines()
-    except subprocess.CalledProcessError:
-        # no processes found?  good!
-        return []
-
-
-def assert_no_subprocesses():
-    running = my_subprocesses()
-    if not running:
-        return
-
-    print('Some subprocesses still running', running)
-
-    # Clear it out for the sake of the other tests
-    subprocess.call(['pkill', '-9', '-P', f'{os.getpid()}'])
-    try:
-        for _ in range(100):  # zombie vacuum
-            os.waitpid(-1, os.WNOHANG)
-    except OSError:
-        pass
-    pytest.fail('failed to reap all children')
+        os.waitid(os.P_ALL, -1, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+    except ChildProcessError:
+        return False  # good !
+    else:
+        return True  # at least one process (or zombie) still waitable
 
 
 @pytest.fixture(autouse=True)
@@ -52,14 +37,27 @@ def event_loop(monkeypatch) -> Iterable[asyncio.AbstractEventLoop]:
 
     yield loop
 
-    # Let things settle for a bit
+    # Let all tasks and subprocesses run to completion
     for _ in range(200):
-        # We expect at least one task: ourselves!
-        if not asyncio.all_tasks(loop=loop) and not my_subprocesses():
+        if not (asyncio.all_tasks(loop) or any_subprocesses()):
             break
         loop.run_until_complete(asyncio.sleep(0.005))
 
+    # No tasks left
     assert asyncio.all_tasks(loop=loop) == set()
-    assert_no_subprocesses()
+
+    # No subprocesses left
+    if any_subprocesses():
+        # Bad news.  Show some helpful output.
+        subprocess.run(['ps', 'f', f'--pid={os.getpid()}', f'--ppid={os.getpid()}'])
+        # clear it out for the sake of the other tests
+        subprocess.run(['pkill', '-9', '-P', f'{os.getpid()}'])
+        try:
+            for _ in range(100):  # zombie vacuum
+                os.wait()
+        except ChildProcessError:
+            pass
+
+        pytest.fail('Some subprocesses still running!')
 
     loop.close()

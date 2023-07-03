@@ -114,7 +114,7 @@ class HttpChannel(Channel):
                 command='response', status=response.status, reason=response.reason,
                 headers=self.parse_headers(response.headers)))
             self.read_send_response(response)
-        except http.client.HTTPException as error:
+        except (http.client.HTTPException, OSError) as error:
             msg = str(error)
             logger.debug('HTTP reading response failed: %s', msg)
             self.loop.call_soon_threadsafe(lambda: self.close(problem='terminated', message=msg))

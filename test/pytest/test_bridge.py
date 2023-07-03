@@ -314,6 +314,8 @@ async def test_no_login_messages(transport):
 
 @pytest.fixture
 def login_messages_envvar(monkeypatch):
+    if sys.version_info < (3, 8):
+        pytest.skip("os.memfd_create new in 3.8")
     fd = os.memfd_create('login messages')
     os.write(fd, b"msg")
     # this is questionable (since it relies on ordering of fixtures), but it works

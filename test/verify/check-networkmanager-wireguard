@@ -59,6 +59,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         # Validate each field, enter the right value, and then proceed to the next field
         #
         # check private-key
+        self.allow_browser_errors("wg: Key is not the correct length or format")
         b.click("#network-wireguard-settings-paste-key")
         b.set_input_text("#network-wireguard-settings-private-key-input", "incorrect key")
         b.set_input_text("#network-wireguard-settings-addresses-input", m1_ip4)

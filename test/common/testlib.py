@@ -1702,12 +1702,41 @@ class MachineCase(unittest.TestCase):
 
     # List of allowed console.error() messages during tests; these match substrings
     default_allowed_console_errors = [
+        # HACK: Fix these ASAP, these are major bugs
+        "Warning: validateDOMNesting.*cannot appear as a",
+        "Warning: Encountered two children with the same key",
+        "Warning: Failed.*type.*prop Invalid prop",
+        "Warning: Failed.*type:.*is marked as required in.*but its value is `null`",
+        "Warning: Failed.*type:.*is marked as required in.*but its value is `undefined`",
+        "Warning: React does not recognize the.*prop on a DOM element",
+        "Warning: .*prop on .* should not be null",
+        # HACK: this should be fixed, it's completely expected on OSes without tracer
+        "Tracer failed:.*",
         # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
         "Warning: .* setState.*on an unmounted component",
-        "Warning: Can't perform a React state update on an unmounted component."
+        "Warning: Can't perform a React state update on an unmounted component",
+        "Warning: Cannot update a component.*while rendering a different component",
+        "Warning: A component is changing an uncontrolled input to be controlled",
+        "Warning: A component is changing a controlled input to be uncontrolled",
+        "Warning: Can't call.*on a component that is not yet mounted. This is a no-op",
+        "Warning: Cannot update during an existing state transition",
+        r"Warning: You are calling ReactDOMClient.createRoot\(\) on a container that has already been passed to createRoot",
+
+        # FIXME: PatternFly complains about these, but https://www.a11y-collective.com/blog/the-first-rule-for-using-aria/
+        # and https://www.accessibility-developer-guide.com/knowledge/aria/bad-practices/
+        "aria-label",
+        # messages from our own pages
+        "CPU temperature metric closed.*",
+        "failed to call cockpit.Machines.Update().*",
+        "Failed to enable pmproxy in firewalld.*",
+        "Getting properties for problem.*",
+        "Channel for reportd D-Bus client closed.*",
+        "checkRealm failed.*",
     ]
 
-    default_allowed_console_errors += os.environ.get("TEST_ALLOW_BROWSER_ERRORS", "").split(",")
+    env_allow = os.environ.get("TEST_ALLOW_BROWSER_ERRORS")
+    if env_allow:
+        default_allowed_console_errors += env_allow.split(",")
 
     def allow_journal_messages(self, *patterns: str):
         """Don't fail if the journal contains a entry completely matching the given regexp"""

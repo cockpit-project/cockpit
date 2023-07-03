@@ -21,7 +21,6 @@ import errno
 import os
 import signal
 import subprocess
-import unittest
 import unittest.mock
 from typing import Any, List, Optional, Tuple
 
@@ -94,7 +93,7 @@ class Protocol(cockpit.transports.SubprocessProtocol):
         assert transport.get_returncode() == returncode
 
 
-class TestSpooler(unittest.IsolatedAsyncioTestCase):
+class TestSpooler:
     async def test_bad_fd(self) -> None:
         # Make sure failing to construct succeeds without further failures
         loop = asyncio.get_running_loop()
@@ -166,7 +165,7 @@ class TestSpooler(unittest.IsolatedAsyncioTestCase):
         assert len(spooler.get()) == written
 
 
-class TestEpollLimitations(unittest.IsolatedAsyncioTestCase):
+class TestEpollLimitations:
     # https://github.com/python/cpython/issues/73903
     #
     # There are some types of files that epoll doesn't work with, returning
@@ -180,16 +179,16 @@ class TestEpollLimitations(unittest.IsolatedAsyncioTestCase):
         while spooler._fd != -1:
             await asyncio.sleep(0.1)
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     async def test_read_file(self) -> None:
         await self.spool_file(__file__)
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     async def test_dev_null(self) -> None:
         await self.spool_file('/dev/null')
 
 
-class TestStdio(unittest.IsolatedAsyncioTestCase):
+class TestStdio:
     @contextlib.contextmanager
     def create_terminal(self):
         ours, theirs = os.openpty()
@@ -206,7 +205,7 @@ class TestStdio(unittest.IsolatedAsyncioTestCase):
         # Make sure write_eof() fails
         with self.create_terminal() as (ours, protocol, transport):
             assert not transport.can_write_eof()
-            with self.assertRaises(RuntimeError):
+            with pytest.raises(RuntimeError):
                 transport.write_eof()
             os.close(ours)
 
@@ -218,7 +217,7 @@ class TestStdio(unittest.IsolatedAsyncioTestCase):
                 await asyncio.sleep(0.1)
 
 
-class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
+class TestSubprocessTransport:
     def subprocess(self, args, **kwargs: Any) -> Tuple[Protocol, cockpit.transports.SubprocessTransport]:
         loop = asyncio.get_running_loop()
         protocol = Protocol()
@@ -280,22 +279,19 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
         assert transport.get_stderr() == ''
         assert transport.get_stderr(reset=True) == ''
 
-    async def test_safe_watcher_ENOSYS(self) -> None:
-        with unittest.mock.patch('asyncio.PidfdChildWatcher', unittest.mock.Mock(side_effect=OSError)):
-            protocol, transport = self.subprocess(['true'])
-            watcher = transport._get_watcher(asyncio.get_running_loop())
-            assert isinstance(watcher, asyncio.SafeChildWatcher)
-            await protocol.eof_and_exited_with_code(0)
-        assert isinstance(asyncio.PidfdChildWatcher, type)
+    async def test_safe_watcher_ENOSYS(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(asyncio, 'PidfdChildWatcher', unittest.mock.Mock(side_effect=OSError), raising=False)
+        protocol, transport = self.subprocess(['true'])
+        watcher = transport._get_watcher(asyncio.get_running_loop())
+        assert isinstance(watcher, asyncio.SafeChildWatcher)
+        await protocol.eof_and_exited_with_code(0)
 
-    async def test_safe_watcher_oldpy(self) -> None:
-        with unittest.mock.patch('asyncio.PidfdChildWatcher'):
-            del asyncio.PidfdChildWatcher
-            protocol, transport = self.subprocess(['true'])
-            watcher = transport._get_watcher(asyncio.get_running_loop())
-            assert isinstance(watcher, asyncio.SafeChildWatcher)
-            await protocol.eof_and_exited_with_code(0)
-        assert isinstance(asyncio.PidfdChildWatcher, type)
+    async def test_safe_watcher_oldpy(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delattr(asyncio, 'PidfdChildWatcher', raising=False)
+        protocol, transport = self.subprocess(['true'])
+        watcher = transport._get_watcher(asyncio.get_running_loop())
+        assert isinstance(watcher, asyncio.SafeChildWatcher)
+        await protocol.eof_and_exited_with_code(0)
 
     async def test_true_pty(self) -> None:
         loop = asyncio.get_running_loop()

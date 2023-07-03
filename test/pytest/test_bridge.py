@@ -5,10 +5,9 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import AsyncGenerator, Dict
+from typing import Dict, Iterable
 
 import pytest
-import pytest_asyncio
 
 from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
@@ -26,12 +25,16 @@ class test_iface(bus.Object):
         return self.prop
 
 
-@pytest_asyncio.fixture
-async def bridge() -> Bridge:
-    bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
-    # We use this for assertions
-    bridge.superuser_bridges = list(bridge.superuser_rule.bridges)  # type: ignore[attr-defined]
-    return bridge
+@pytest.fixture
+def bridge(event_loop) -> Bridge:
+    async def get_bridge() -> Bridge:
+        bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
+        asyncio.set_event_loop(None)
+        # We use this for assertions
+        bridge.superuser_bridges = list(bridge.superuser_rule.bridges)  # type: ignore[attr-defined]
+        return bridge
+
+    return event_loop.run_until_complete(get_bridge())
 
 
 def add_pseudo(bridge: Bridge) -> None:
@@ -54,18 +57,22 @@ def add_pseudo(bridge: Bridge) -> None:
     bridge.superuser_rule.set_configs(configs)
 
 
-@pytest_asyncio.fixture
-async def no_init_transport(bridge: Bridge) -> AsyncGenerator[MockTransport, None]:
-    transport = MockTransport(bridge)
+@pytest.fixture
+def no_init_transport(event_loop: asyncio.AbstractEventLoop,
+                      bridge: Bridge) -> Iterable[MockTransport]:
+    async def get_transport() -> MockTransport:
+        return MockTransport(bridge)
+    transport = event_loop.run_until_complete(get_transport())
     try:
         yield transport
     finally:
-        await transport.stop()
+        event_loop.run_until_complete(transport.stop())
 
 
-@pytest_asyncio.fixture
-async def transport(no_init_transport: MockTransport) -> MockTransport:
-    await no_init_transport.assert_msg('', command='init')
+@pytest.fixture
+def transport(event_loop: asyncio.AbstractEventLoop,
+              no_init_transport: MockTransport) -> MockTransport:
+    event_loop.run_until_complete(no_init_transport.assert_msg('', command='init'))
     no_init_transport.send_init()
     return no_init_transport
 

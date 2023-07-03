@@ -2,6 +2,7 @@ import asyncio
 import os
 import sys
 
+from cockpit._vendor import systemd_ctypes
 from cockpit.protocol import CockpitProtocolServer
 from cockpit.transports import StdioTransport
 
@@ -42,4 +43,4 @@ async def run():
 
 
 if __name__ == '__main__':
-    asyncio.run(run())
+    systemd_ctypes.run_async(run())

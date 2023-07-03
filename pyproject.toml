@@ -112,18 +112,36 @@ exclude_lines = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
+envlist = lint,pytest
 isolated_build = True
-envlist = site
+labels =
+  venv = py311-lint, py3{6,7,8,9,10,11,12}-pytest
 
-[testenv]
-deps=
-  pytest-asyncio
-  pytest-cov
-  pytest-timeout
-commands=
-  python3 -m pytest -opythonpath= --cov {posargs}
-
-[testenv:site]
+# The default test environments use system packages and never PyPI.
+[testenv:{lint,pytest}]
 sitepackages = True
-deps=
+install_command = python3 -m pip install --no-index --no-build-isolation {opts} {packages}
+wheel_build_env = pkg
+
+# All other environments (names like py311-lint, py36-pytest, etc) are isolated
+# from the system and get their packages from PyPI, according to the specific
+# test environment being requested.  We build the wheel in a common environment.
+[testenv]
+package = wheel
+wheel_build_env = venv-pkg
+skip_install = lint: True
+deps =
+  lint: mypy
+  lint: flake8
+  lint: ruff
+  lint: vulture
+  pytest
+  pytest-asyncio
+  pytest: pytest-cov
+  pytest: pytest-timeout
+  pytest: pytest-xdist
+allowlist_externals = test/static-code
+commands =
+  pytest: python3 -m pytest -opythonpath= {posargs}
+  lint: test/static-code --tap
 """

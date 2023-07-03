@@ -2,6 +2,7 @@ import glob
 import os
 import subprocess
 import sys
+from typing import Iterable
 
 import pytest
 
@@ -17,7 +18,17 @@ XFAIL = {
 }
 
 
-@pytest.mark.parametrize('html', glob.glob('*/test-*.html', root_dir=f'{SRCDIR}/qunit'))
+# Changed in version 3.10: Added the root_dir and dir_fd parameters.
+def glob_py310(fnmatch: str, root_dir: str) -> Iterable[str]:
+    prefix = f'{root_dir}/'
+    prefixlen = len(prefix)
+
+    for result in glob.glob(f'{prefix}{fnmatch}'):
+        assert result.startswith(prefix)
+        yield result[prefixlen:]
+
+
+@pytest.mark.parametrize('html', glob_py310('*/test-*.html', root_dir=f'{SRCDIR}/qunit'))
 def test_browser(html):
     if not os.path.exists(f'{BUILDDIR}/test-server'):
         pytest.skip('no test-server')

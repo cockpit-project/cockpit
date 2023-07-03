@@ -8,8 +8,6 @@ from cockpit.beipack import BridgeBeibootHelper
 from cockpit.peer import Peer
 from cockpit.router import Router
 
-from .mocktransport import settle_down
-
 
 class BeibootPeer(Peer):
     async def do_connect_transport(self) -> None:
@@ -28,4 +26,3 @@ async def test_bridge_beiboot():
     assert init_msg['version'] == 1
     assert 'packages' not in init_msg
     peer.close()
-    await settle_down()

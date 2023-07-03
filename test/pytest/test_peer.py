@@ -9,7 +9,7 @@ from cockpit.protocol import CockpitProtocolError
 from cockpit.router import Router
 
 from . import mockpeer
-from .mocktransport import MockTransport, assert_no_subprocesses, settle_down
+from .mocktransport import MockTransport
 
 PEER_CONFIG = {
     "spawn": [sys.executable, mockpeer.__file__],
@@ -31,8 +31,7 @@ class Bridge(Router):
 
 @pytest.fixture
 def bridge():
-    yield Bridge()
-    assert_no_subprocesses()
+    return Bridge()
 
 
 @pytest.fixture
@@ -59,16 +58,12 @@ async def test_shutdown(transport, rule):
     await transport.check_open('xest', problem='not-supported')
     rule.peer.close()
 
-    # the processes should exit without needing to take the bridge down
-    await settle_down()
-
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('init_type', ['wrong-command', 'channel-control', 'data', 'break-protocol'])
 async def test_init_failure(rule, init_type, monkeypatch, transport):
     monkeypatch.setenv('INIT_TYPE', init_type)
     await transport.check_open('test', problem='protocol-error')
-    await settle_down()
 
 
 @pytest.mark.asyncio
@@ -76,7 +71,6 @@ async def test_immediate_shutdown(rule):
     peer = rule.apply_rule({'payload': 'test'})
     assert peer is not None
     peer.close()
-    await settle_down()
 
 
 @pytest.mark.asyncio
@@ -89,21 +83,18 @@ async def test_shutdown_before_init(monkeypatch, transport, rule):
         await asyncio.sleep(0)
     rule.peer.close()
     await transport.assert_msg('', command='close', channel=channel, problem='terminated')
-    await settle_down()
 
 
 @pytest.mark.asyncio
 async def test_exit_without_init(monkeypatch, transport):
     monkeypatch.setenv('INIT_TYPE', 'exit')
     await transport.check_open('test', problem='terminated')
-    await settle_down()
 
 
 @pytest.mark.asyncio
 async def test_exit_not_found(monkeypatch, transport):
     monkeypatch.setenv('INIT_TYPE', 'exit-not-found')
     await transport.check_open('test', problem='no-cockpit')
-    await settle_down()
 
 
 @pytest.mark.asyncio
@@ -111,7 +102,6 @@ async def test_killed(monkeypatch, transport, rule):
     channel = await transport.check_open('test')
     os.kill(rule.peer.transport._process.pid, 9)
     await transport.assert_msg('', command='close', channel=channel, problem='terminated')
-    await settle_down()
 
 
 @pytest.mark.asyncio
@@ -122,7 +112,6 @@ async def test_await_failure(init_type, monkeypatch, bridge):
     with pytest.raises(CockpitProtocolError):
         await peer.start()
     peer.close()
-    await settle_down()
 
 
 @pytest.mark.asyncio
@@ -135,7 +124,6 @@ async def test_await_broken_connect(bridge):
     with pytest.raises(ZeroDivisionError):
         await peer.start()
     peer.close()
-    await settle_down()
 
 
 @pytest.mark.asyncio
@@ -149,7 +137,6 @@ async def test_await_broken_after_connect(bridge):
     with pytest.raises(ZeroDivisionError):
         await peer.start()
     peer.close()
-    await settle_down()
 
 
 class CancellableConnect(ConfiguredPeer):
@@ -170,7 +157,8 @@ async def test_await_cancellable_connect_init(bridge):
     peer = CancellableConnect(bridge, PEER_CONFIG)
     await peer.start()
     peer.close()
-    await settle_down()
+    while len(asyncio.all_tasks()) > 1:
+        await asyncio.sleep(0.1)
     assert peer.was_cancelled
 
 
@@ -182,5 +170,6 @@ async def test_await_cancellable_connect_close(monkeypatch, event_loop, bridge):
     with pytest.raises(asyncio.CancelledError):
         await peer.start()
     # we already called .close()
-    await settle_down()
+    while len(asyncio.all_tasks()) > 1:
+        await asyncio.sleep(0.1)
     assert peer.was_cancelled

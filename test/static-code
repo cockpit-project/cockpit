@@ -1,5 +1,5 @@
 #!/bin/bash
-# run static code checks like flake8, pyvulture.
+# run static code checks like flake8, vulture.
 
 set -eu
 
@@ -43,7 +43,7 @@ test_ruff() {
 }
 
 if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
-    test_pyvulture() {
+    test_vulture() {
         # vulture to find unused variables/functions
         command -v vulture >/dev/null || skip 'no vulture'
         find_python_files | xargs -r -0 vulture

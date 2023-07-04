@@ -34,7 +34,7 @@ import { journal } from "journal";
 
 const _ = cockpit.gettext;
 
-const Table = ({ lines, delimiter, type }) => {
+const Table = ({ lines, delimiter }) => {
     return (
         <DescriptionList className="pf-m-horizontal-on-sm">
             { lines.map((line, idx) => {

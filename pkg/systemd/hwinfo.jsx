@@ -213,6 +213,7 @@ const CPUSecurityMitigationsDialog = () => {
                     <DataListAction>
                         <div id="nosmt-switch">
                             <Switch isDisabled={rebooting}
+                                    aria-label={_("Enable or disable nosmt")}
                                     onChange={(_event, value) => setNoSMT(value)}
                                     isChecked={nosmt} />
                         </div>

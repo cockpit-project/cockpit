@@ -578,6 +578,7 @@ const PassInputElement = ({ tag, title, options, val, change, validated }) => {
                           value={val}
                           onChange={(_event, value) => change(value)} />
             <Button variant="control"
+                    tabIndex="-1"
                     onClick={() => setShow(!show)}
                     isDisabled={options.disabled}>
                 { show ? <EyeSlashIcon /> : <EyeIcon /> }

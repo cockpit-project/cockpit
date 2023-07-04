@@ -1,14 +1,8 @@
 [flake8]
-ignore=
-    # line break after binary operator
-    W504
-builtins =
-    # inotify.py get pasted together with other files
-    Inotify,
-    IN_CREATE, IN_MOVED_TO,
-    IN_MOVED_FROM, IN_MOVE_SELF,
-    IN_DELETE, IN_DELETE_SELF,
-    IN_CLOSE_WRITE,
-    IN_IGNORED,
-
-max-line-length = 200
+# Use flake8 only to cover rules not yet supported (or enabled by
+# default) with ruff.  See https://github.com/astral-sh/ruff/issues/2402
+# and https://github.com/astral-sh/ruff/releases/tag/v0.0.269
+select=
+  E1
+  E2
+  E3

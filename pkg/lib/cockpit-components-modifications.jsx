@@ -88,10 +88,10 @@ class ModificationsExportDialog extends React.Component {
                    title={_("Automation script") }>
                 <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>
                     <Tab eventKey="shell" title={_("Shell script")}>
-                        <TextArea resizeOrientation='vertical' isReadOnly defaultValue={this.props.shell.trim()} />
+                        <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={this.props.shell.trim()} />
                     </Tab>
                     <Tab eventKey="ansible" title={_("Ansible")}>
-                        <TextArea resizeOrientation='vertical' isReadOnly defaultValue={this.props.ansible.trim()} />
+                        <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={this.props.ansible.trim()} />
                         <div className="ansible-docs-link">
                             <OutlinedQuestionCircleIcon />
                             { _("Create new task file with this content.") }

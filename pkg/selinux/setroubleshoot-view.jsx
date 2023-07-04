@@ -120,7 +120,7 @@ class SELinuxEventDetails extends React.Component {
 
             // One line usually means one command
             if (itm.doText && itm.doText.indexOf("\n") < 0)
-                doElement = <TextArea aria-label={_("solution")} isReadOnly defaultValue={itm.doText} />;
+                doElement = <TextArea aria-label={_("solution")} readOnlyVariant="default" defaultValue={itm.doText} />;
 
             // There can be text with commands. Command always starts on a new line with '#'
             // Group subsequent commands into one `<TextArea>` element.
@@ -142,7 +142,7 @@ class SELinuxEventDetails extends React.Component {
                 });
                 doElement = parts.map((p, index) => p[0] == "#"
                     ? <TextArea aria-label={_("solution")}
-                                isReadOnly
+                                readOnlyVariant="plain"
                                 key={p}
                                 defaultValue={p.substr(2)} />
                     : <span key={p}>{p}</span>);

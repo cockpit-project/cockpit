@@ -86,7 +86,7 @@ const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => {
                title={_("Automation script") }>
             <Tabs activeKey={active_tab} onSelect={handleSelect}>
                 <Tab eventKey="ansible" title={_("Ansible")}>
-                    <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={ansible.trim()} />
+                    <TextArea aria-label={_("Ansible")} resizeOrientation='vertical' readOnlyVariant="default" defaultValue={ansible.trim()} />
                     <div className="ansible-docs-link">
                         <OutlinedQuestionCircleIcon />
                         { _("Create new task file with this content.") }
@@ -98,7 +98,7 @@ const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => {
                     </div>
                 </Tab>
                 <Tab eventKey="shell" title={_("Shell script")}>
-                    <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={shell.trim()} />
+                    <TextArea aria-label={_("Shell script")} resizeOrientation='vertical' readOnlyVariant="default" defaultValue={shell.trim()} />
                 </Tab>
             </Tabs>
         </Modal>

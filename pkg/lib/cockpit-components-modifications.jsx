@@ -41,6 +41,7 @@ class ModificationsExportDialog extends React.Component {
     constructor(props) {
         super(props);
 
+        this.timeoutId = null;
         this.state = {
             active_tab: "shell",
             copied: false
@@ -51,7 +52,11 @@ class ModificationsExportDialog extends React.Component {
     }
 
     handleSelect(event, active_tab) {
-        this.setState({ active_tab });
+        this.setState({ active_tab, copied: false });
+        if (this.timeoutId !== null) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
+        }
     }
 
     copyToClipboard() {
@@ -59,7 +64,7 @@ class ModificationsExportDialog extends React.Component {
             navigator.clipboard.writeText(this.props[this.state.active_tab].trim())
                     .then(() => {
                         this.setState({ copied: true });
-                        setTimeout(() => {
+                        this.timeoutId = setTimeout(() => {
                             this.setState({ copied: false });
                         }, 3000);
                     })

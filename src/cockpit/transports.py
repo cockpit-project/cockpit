@@ -343,6 +343,8 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         # go down as a team -- we don't want any leaked processes when the bridge terminates
         def preexec_fn():
             prctl(SET_PDEATHSIG, signal.SIGTERM)
+            if pty:
+                fcntl.ioctl(0, termios.TIOCSCTTY, 0)
 
         if pty:
             self._pty_fd, session_fd = os.openpty()

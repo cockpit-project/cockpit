@@ -557,7 +557,7 @@ export const TextInput = (tag, title, options) => {
         render: (val, change, validated) =>
             <TextInputPF4 data-field={tag} data-field-type="text-input"
                           validated={validated}
-                          aria-label={title}
+                          aria-label={title || tag}
                           value={val}
                           isDisabled={options.disabled}
                           onChange={(_event, value) => change(value)} />

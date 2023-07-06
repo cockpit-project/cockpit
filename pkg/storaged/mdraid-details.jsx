@@ -354,7 +354,8 @@ export class MDRaidDetails extends React.Component {
 
         const content = <Block client={this.props.client} block={block} />;
 
-        return <StdDetailsLayout client={this.props.client} alert={degraded_message}
+        return <StdDetailsLayout client={this.props.client}
+                                 alerts={[degraded_message]}
                                  header={ header }
                                  sidebar={ sidebar }
                                  content={ content }

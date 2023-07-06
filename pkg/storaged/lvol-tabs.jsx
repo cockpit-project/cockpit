@@ -400,11 +400,11 @@ export class BlockVolTab extends React.Component {
         }
 
         function shrink() {
-            lvol_shrink(client, lvol, info, unused_space);
+            return lvol_shrink(client, lvol, info, unused_space);
         }
 
         function grow() {
-            lvol_grow(client, lvol, info, unused_space);
+            return lvol_grow(client, lvol, info, unused_space);
         }
 
         return (

@@ -454,16 +454,18 @@ class Browser:
 
         :param selector: the selector
         """
-        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
+        self.wait_visible(f'{selector}:not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_focus', selector)
+        self.wait_js_cond(f'document.activeElement == document.querySelector("{selector}")')
 
     def blur(self, selector: str):
         """Remove keyboard focus from selected element.
 
         :param selector: the selector
         """
-        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
+        self.wait_visible(f'{selector}:not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_blur', selector)
+        self.wait_js_cond(f'document.activeElement != document.querySelector("{selector}")')
 
     # TODO: Unify them so we can have only one
     def key_press(self, keys: str, modifiers: int = 0, use_ord: bool = False):

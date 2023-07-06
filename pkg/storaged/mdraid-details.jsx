@@ -27,7 +27,7 @@ import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel } from "./side-panel.jsx";
 import { Block } from "./content-views.jsx";
-import { StorageButton, StorageOnOff } from "./storage-controls.jsx";
+import { StorageButton } from "./storage-controls.jsx";
 import {
     dialog_open, SelectSpaces, BlockingMessage, TeardownMessage,
     init_active_usage_processes
@@ -180,23 +180,6 @@ export class MDRaidDetails extends React.Component {
         if (mdraid.ChunkSize > 0)
             level += ", " + cockpit.format(_("$0 chunk size"), utils.fmt_size(mdraid.ChunkSize));
 
-        function toggle_bitmap(val) {
-            return mdraid.SetBitmapLocation(utils.encode_filename(val ? 'internal' : 'none'), {});
-        }
-
-        let bitmap = null;
-        if (mdraid.BitmapLocation) {
-            const value = utils.decode_filename(mdraid.BitmapLocation) != "none";
-            bitmap = (
-                <DescriptionListGroup>
-                    <DescriptionListTerm>{_("storage", "Bitmap")}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                        <StorageOnOff state={value} aria-label={_("Toggle bitmap")} onChange={toggle_bitmap} />
-                    </DescriptionListDescription>
-                </DescriptionListGroup>
-            );
-        }
-
         let degraded_message = null;
         if (mdraid.Degraded > 0) {
             const text = cockpit.format(
@@ -205,6 +188,24 @@ export class MDRaidDetails extends React.Component {
             );
             degraded_message = (
                 <Alert isInline variant="danger" title={_("The RAID array is in a degraded state")}> {text} </Alert>
+            );
+        }
+
+        function fix_bitmap() {
+            return mdraid.SetBitmapLocation(utils.encode_filename("internal"), { });
+        }
+
+        let bitmap_message = null;
+        if (mdraid.Level != "raid0" &&
+            client.mdraids_members[mdraid.path].some(m => m.Size > 100 * 1024 * 1024 * 1024) &&
+            mdraid.BitmapLocation && utils.decode_filename(mdraid.BitmapLocation) == "none") {
+            bitmap_message = (
+                <Alert isInline variant="warning"
+                       title={_("This RAID array has no write-intent bitmap. Such a bitmap can reduce sychronization times significantly.")}>
+                    <div className="storage_alert_action_buttons">
+                        <StorageButton onClick={fix_bitmap}>{_("Add a bitmap")}</StorageButton>
+                    </div>
+                </Alert>
             );
         }
 
@@ -338,9 +339,6 @@ export class MDRaidDetails extends React.Component {
                             <DescriptionListTerm>{_("storage", "RAID level")}</DescriptionListTerm>
                             <DescriptionListDescription>{ level }</DescriptionListDescription>
                         </DescriptionListGroup>
-
-                        { bitmap }
-
                         <DescriptionListGroup>
                             <DescriptionListTerm>{_("storage", "State")}</DescriptionListTerm>
                             <DescriptionListDescription>{ running ? _("Running") : _("Not running") }</DescriptionListDescription>
@@ -355,7 +353,7 @@ export class MDRaidDetails extends React.Component {
         const content = <Block client={this.props.client} block={block} />;
 
         return <StdDetailsLayout client={this.props.client}
-                                 alerts={[degraded_message]}
+                                 alerts={[degraded_message, bitmap_message]}
                                  header={ header }
                                  sidebar={ sidebar }
                                  content={ content }

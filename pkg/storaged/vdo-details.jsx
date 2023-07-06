@@ -105,7 +105,7 @@ export class VDODetails extends React.Component {
                         _("The creation of this VDO device did not finish and the device can't be used.")
                     </>} />
             );
-            return <StdDetailsLayout client={this.props.client} alert={broken} />;
+            return <StdDetailsLayout client={this.props.client} alerts={[broken]} />;
         }
 
         let alert = null;
@@ -341,6 +341,6 @@ export class VDODetails extends React.Component {
 
         const content = <Block client={client} block={block} allow_partitions={false} />;
 
-        return <StdDetailsLayout client={this.props.client} alert={alert} header={header} content={content} />;
+        return <StdDetailsLayout client={this.props.client} alerts={[alert]} header={header} content={content} />;
     }
 }

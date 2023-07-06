@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Card } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
@@ -37,47 +38,46 @@ import { JobsPanel } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
 
-export class StdDetailsLayout extends React.Component {
-    render() {
-        if (this.props.sidebar) {
-            return (
-                <>
-                    <StackItem id="detail-header">
-                        { this.props.alert }
-                        { this.props.header }
-                    </StackItem>
-                    <Flex direction={{ default: 'column', xl: 'row', "2xl": 'row' }}>
-                        <FlexItem flex={{ default: 'flex_3' }}>
-                            <div id="detail-content">
-                                { this.props.content }
-                                <JobsPanel client={this.props.client} />
-                            </div>
-                        </FlexItem>
-                        <FlexItem id="detail-sidebar"
-                                  flex={{ default: 'flex_1' }}>
-                            { this.props.sidebar }
-                        </FlexItem>
-                    </Flex>
-                </>
-            );
-        } else {
-            return (
-                <>
-                    <StackItem id="detail-header">
-                        { this.props.alert }
-                        { this.props.header }
-                    </StackItem>
-                    <StackItem>
+export const StdDetailsLayout = ({ client, alerts, header, content, sidebar }) => {
+    const top = <>
+        { (alerts || []).filter(a => !!a).map((a, i) => <StackItem key={i}><Card>{a}</Card></StackItem>) }
+        <StackItem id="detail-header">
+            { header }
+        </StackItem>
+    </>;
+
+    if (sidebar) {
+        return (
+            <>
+                { top }
+                <Flex direction={{ default: 'column', xl: 'row', "2xl": 'row' }}>
+                    <FlexItem flex={{ default: 'flex_3' }}>
                         <div id="detail-content">
-                            { this.props.content }
+                            { content }
+                            <JobsPanel client={client} />
                         </div>
-                        <JobsPanel client={this.props.client} />
-                    </StackItem>
-                </>
-            );
-        }
+                    </FlexItem>
+                    <FlexItem id="detail-sidebar"
+                              flex={{ default: 'flex_1' }}>
+                        { sidebar }
+                    </FlexItem>
+                </Flex>
+            </>
+        );
+    } else {
+        return (
+            <>
+                { top }
+                <StackItem>
+                    <div id="detail-content">
+                        { content }
+                    </div>
+                    <JobsPanel client={client} />
+                </StackItem>
+            </>
+        );
     }
-}
+};
 
 export class Details extends React.Component {
     render() {

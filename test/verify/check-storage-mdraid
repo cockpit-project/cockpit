@@ -343,6 +343,44 @@ class TestStorageMdRaid(storagelib.StorageCase):
         # The last disk can not be removed
         b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
 
+    def testBitmap(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Make two huge block devices, so that we can make a array
+        # that is beyond the threshold where Cockpit and mdadm start
+        # to worry about bitmaps.  The backing files are sparse, so
+        # this is okay as long nobody actually writes a lot to these
+        # devices.
+
+        dev1 = self.add_loopback_disk(110000)
+        dev2 = self.add_loopback_disk(110000)
+
+        # We need to use "--assume-clean" so that mdraid doesn't try
+        # to write 110GB to one of the devices during synchronization.
+
+        m.execute(f"mdadm --create md0 --level=1 --assume-clean --run --raid-devices=2 {dev1} {dev2}")
+        m.execute("udevadm trigger")
+
+        b.wait_in_text("#devices", "md0")
+        b.click('#devices .sidepanel-row:contains("md")')
+        b.wait_visible('#storage-detail')
+
+        self.wait_states({dev1: "In sync",
+                          dev2: "In sync"})
+
+        b.wait_not_present('.pf-v5-c-alert:contains("This RAID array has no write-intent bitmap")')
+
+        # Remove the bitmap, Cockpit should complain and let us put it back.
+
+        m.execute("mdadm --grow --bitmap=none /dev/md/md0; udevadm trigger /dev/md/md0")
+
+        b.wait_visible('.pf-v5-c-alert:contains("This RAID array has no write-intent bitmap")')
+        b.click('button:contains("Add a bitmap")')
+        b.wait_not_present('.pf-v5-c-alert:contains("This RAID array has no write-intent bitmap")')
+
 
 if __name__ == '__main__':
     testlib.test_main()

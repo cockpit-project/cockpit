@@ -456,11 +456,8 @@ def create_coverage_report():
         title = "?"
     if len(lcov_files) > 0:
         all_file = f"{BASE_DIR}/lcov/all.info"
-        diff_file = f"{BASE_DIR}/lcov/diff.info"
         subprocess.check_call(["lcov", "--quiet", "--output", all_file,
                                *itertools.chain(*[["--add", f] for f in lcov_files])])
-        subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
-                               "--extract", all_file, f"{BASE_DIR}/lcov/github-pr.diff"])
         summary = subprocess.check_output(["genhtml", "--no-function-coverage",
                                            "--prefix", os.getcwd(),
                                            "--title", title,
@@ -471,10 +468,14 @@ def create_coverage_report():
         if match:
             print("Overall line coverage:", match.group(1))
 
-        comments = get_review_comments(diff_file)
         rev = os.environ.get("TEST_REVISION", None)
         pull = os.environ.get("TEST_PULL", None)
         if rev and pull:
+            diff_file = f"{BASE_DIR}/lcov/diff.info"
+            github_pr_file = f"{BASE_DIR}/lcov/github-pr.diff"
+            subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
+                                   "--extract", all_file, github_pr_file])
+            comments = get_review_comments(diff_file)
             api = github.GitHub()
             old_comments = api.get(f"pulls/{pull}/comments?sort=created&direction=desc&per_page=100") or []
             for oc in old_comments:

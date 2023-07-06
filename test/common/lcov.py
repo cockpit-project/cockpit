@@ -460,7 +460,7 @@ def create_coverage_report():
         subprocess.check_call(["lcov", "--quiet", "--output", all_file,
                                *itertools.chain(*[["--add", f] for f in lcov_files])])
         subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
-                               "--extract", all_file, "*/github-pr.diff"])
+                               "--extract", all_file, f"{BASE_DIR}/lcov/github-pr.diff"])
         summary = subprocess.check_output(["genhtml", "--no-function-coverage",
                                            "--prefix", os.getcwd(),
                                            "--title", title,

@@ -395,7 +395,7 @@ const Menu = ({ items }) => {
 
 const MenuItem = ({ onClick, onlyNarrow, children }) => (
     <DropdownItem className={onlyNarrow ? "show-only-when-narrow" : null}
-                  onKeyPress={onClick}
+                  onKeyDown={onClick}
                   onClick={onClick}>
         {children}
     </DropdownItem>

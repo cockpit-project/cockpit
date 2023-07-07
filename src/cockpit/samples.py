@@ -157,8 +157,7 @@ class CPUTemperatureSampler(Sampler):
             # accept all labels on Intel
             predicate = None
         elif name in ['k8temp', 'k10temp']:
-            # ignore Tctl on AMD devices
-            predicate = (lambda label: label != 'Tctl')
+            predicate = None
         else:
             # Not a CPU sensor
             return

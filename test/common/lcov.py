@@ -261,7 +261,7 @@ class DiffMap:
         return None
 
     def find_source(self, diff_line):
-        return self.source_map[diff_line]
+        return self.source_map.get(diff_line)
 
 
 def print_diff_coverage(path, file_hits, out):
@@ -425,7 +425,10 @@ def get_review_comments(diff_info_file):
             if line.startswith("DA:"):
                 parts = line[3:].split(",")
                 if int(parts[1]) == 0:
-                    (src, line, text) = dm.find_source(int(parts[0]))
+                    info = dm.find_source(int(parts[0]))
+                    if not info:
+                        continue
+                    (src, line, text) = info
                     if not is_interesting_line(text):
                         continue
                     if src == cur_src and line == cur_line + 1:

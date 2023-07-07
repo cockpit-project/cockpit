@@ -897,7 +897,6 @@ class TestCurrentMetrics(testlib.MachineCase):
         # AMD
         m.execute("rm -rf /tmp/sensor-sys-class/hwmon/hwmon1/*")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/name", "k10temp")
-        # Tctl (temp1_input) will be ignored
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_label", "Tctl")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "40000")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_max", "100000")
@@ -911,7 +910,7 @@ class TestCurrentMetrics(testlib.MachineCase):
         b.logout()
         self.login_and_go("/metrics")
 
-        b.wait_in_text("#current-metrics-card-cpu", "35 °C")
+        b.wait_in_text("#current-metrics-card-cpu", "40 °C")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp3_input", "55000")
         b.wait_in_text("#current-metrics-card-cpu", "55 °C")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "90000")

@@ -186,9 +186,6 @@ detect_cpu_sensors (GList **devices,
           // only sample CPU Temperature in atk0110
           if (!g_str_equal (label_content, "CPU Temperature") && g_str_equal (hwmon_name, "atk0110"))
               continue;
-          // ignore Tctl on AMD devices
-          if (g_str_equal (label_content, "Tctl"))
-              continue;
         }
 
       *devices = g_list_append (*devices, g_steal_pointer (&sensor_path));

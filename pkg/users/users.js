@@ -141,7 +141,7 @@ function AccountsPage() {
     } else if (path.length === 1) {
         return (
             <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo} shadow={shadow || []}
-                            current_user={current_user_info?.name} user={path[0]} />
+                            current_user={current_user_info?.name} user={path[0]} shells={shells} />
         );
     } else return null;
 }

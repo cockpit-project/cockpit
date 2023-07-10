@@ -1254,6 +1254,27 @@ class TestAccounts(testlib.MachineCase):
         # Rename and delete actions are available only for user created groups
         b.wait_not_present(f"#groups-list tbody tr:contains({m.get_admin_group()}) .pf-v5-c-dropdown button")
 
+    def testChangeShell(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/users")
+
+        # Add a user externally
+        m.execute("useradd anton")
+        m.execute("echo anton:foobar | chpasswd")
+        with b.wait_timeout(30):
+            b.wait_in_text('#accounts-list', "anton")
+
+        b.go("#/anton")
+        b.wait_text("#account-shell", getUserAddDetails(m)["SHELL"])
+        b.click("#change-shell-button")
+        b.wait_visible("#shell-dialog")
+        new_shell = "/bin/sh"
+        b.select_from_dropdown("#edit-user-shell", new_shell)
+        b.click('#shell-dialog button.apply')
+        b.wait_text("#account-shell", new_shell)
+
 
 if __name__ == '__main__':
     testlib.test_main()

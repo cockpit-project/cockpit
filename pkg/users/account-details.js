@@ -41,6 +41,7 @@ import { ExclamationCircleIcon, HelpIcon, UndoIcon } from '@patternfly/react-ico
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
+import { account_shell_dialog } from "./shell-dialog.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
@@ -102,7 +103,7 @@ function get_expire(name) {
             .then(parse_expire);
 }
 
-export function AccountDetails({ accounts, groups, shadow, current_user, user }) {
+export function AccountDetails({ accounts, groups, shadow, current_user, user, shells }) {
     const [expiration, setExpiration] = useState(null);
     useEffect(() => {
         get_expire(user).then(setExpiration);
@@ -334,7 +335,16 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                     <output id="account-home-dir">{account.home}</output>
                                 </FormGroup> }
                                 { account.shell && <FormGroup fieldId="account-shell" hasNoPaddingTop label={_("Shell")}>
-                                    <output id="account-shell">{account.shell}</output>
+                                    <Flex flex={{ default: 'inlineFlex' }}>
+                                        <output id="account-shell">{account.shell}</output>
+                                        <Button onClick={() => account_shell_dialog(account, shells)}
+                                                isDisabled={!superuser.allowed}
+                                                variant="link"
+                                                isInline
+                                                id="change-shell-button">
+                                            {_("change")}
+                                        </Button>
+                                    </Flex>
                                 </FormGroup> }
                             </Form>
                         </CardBody>

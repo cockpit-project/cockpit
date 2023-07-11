@@ -118,7 +118,7 @@ Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends},
          udisks2 (>= 2.9),
-         libblockdev-mdraid2,
+         udisks2 (>= 2.10) | libblockdev-mdraid2,
          cockpit-bridge (>= ${source:Version}),
          python3,
          python3-dbus

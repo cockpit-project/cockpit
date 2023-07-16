@@ -564,6 +564,16 @@ async def test_channel(channeltype, tmp_path):
         '''SINGLE='foo:bar '\nDOUBLE=" bar//foo"\n''',
         {'SINGLE': 'foo:bar ', 'DOUBLE': ' bar//foo'}
     ),
+    # ignore ungrammatical lines
+    (
+        'A=a\nNOVALUE\nDOUBLEEQ=a=b\nB=b',
+        {'A': 'a', 'B': 'b'}
+    ),
+    # invalid values; anything outside [A-Za-z0-9] must be quoted; but our parser is more liberal
+    (
+        'X=a:b\nY=a b\nZ=a-b\nV=a_b',
+        {'X': 'a:b', 'Z': 'a-b', 'V': 'a_b'}
+    ),
 ])
 def test_get_os_release(os_release, expected):
     with unittest.mock.patch('builtins.open', unittest.mock.mock_open(read_data=os_release)):

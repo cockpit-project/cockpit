@@ -90,6 +90,13 @@ if [ "$PLAN" = "optional" ]; then
               TestStorageFormat.testFormatTooSmall
               TestStorageFormat.testFormatTypes
 
+              TestStorageMounting.testAtBoot
+              TestStorageMounting.testBadOption
+              TestStorageMounting.testFirstMount
+              TestStorageMounting.testMounting
+              TestStorageMounting.testMountingHelp
+              TestStorageMounting.testNeverAuto
+
               TestStoragePackagesNFS.testNfsMissingPackages
               TestStoragePartitions.testSizeSlider
               TestStorageIgnored.testIgnored

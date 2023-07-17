@@ -22,12 +22,16 @@ import testlib
 
 
 @testlib.skipImage("UDisks doesn't have support for iSCSI", "debian-*", "ubuntu-*", "arch")
+@testlib.nondestructive
 class TestStorageISCSI(storagelib.StorageCase):
 
     def testISCSI(self):
         m = self.machine
         b = self.browser
         b.wait_timeout(120)
+
+        self.restore_dir("/etc/iscsi")
+        self.restore_dir("/var/lib/iscsi")
 
         # ensure that we generate a /etc/iscsi/initiatorname.iscsi
         m.execute("systemctl start iscsid; systemctl stop iscsid")
@@ -55,6 +59,10 @@ class TestStorageISCSI(storagelib.StorageCase):
                   targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
                   targetcli /iscsi/%(tgt)s/tpg1/acls/%(ini)s set auth userid=admin password=barfoo
                   """ % {"tgt": target_iqn, "ini": initiator_iqn})
+        self.addCleanup(m.execute, f"""
+            targetcli /iscsi delete {target_iqn}
+            iscsiadm -m node -o delete || true
+            targetcli /backstores/ramdisk delete test""")
         # m.execute("targetcli ls")
 
         self.login_and_go("/storage")

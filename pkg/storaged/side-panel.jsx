@@ -60,7 +60,7 @@ export class SidePanel extends React.Component {
             show_all_button = (
                 <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
                     <Button variant='link'
-                            onKeyPress={ev => ev.key === "Enter" && this.setState({ collapsed: false })}
+                            onKeyDown={ev => ev.key === "Enter" && this.setState({ collapsed: false })}
                             onClick={() => { this.setState({ collapsed: false }) }}>
                         {this.props.show_all_text || _("Show all")}
                     </Button>
@@ -113,7 +113,7 @@ class SidePanelRow extends React.Component {
                 return;
 
             // only consider enter button for keyboard events
-            if (event.type === 'keypress' && event.key !== "Enter")
+            if (event.type === 'KeyDown' && event.key !== "Enter")
                 return;
 
             return this.props.go();
@@ -130,7 +130,7 @@ class SidePanelRow extends React.Component {
             decoration = (
                 <div role="presentation"
                      onClick={eat_event}
-                     onKeyPress={eat_event}>
+                     onKeyDown={eat_event}>
                     {this.props.actions}
                 </div>);
         else if (client.path_jobs[job_path])
@@ -142,7 +142,7 @@ class SidePanelRow extends React.Component {
             <FlexItem data-testkey={this.props.testkey}
                       className={"sidepanel-row " + (this.props.className || "")}
                       role="link" tabIndex="0"
-                      onKeyPress={this.props.go ? go : null}
+                      onKeyDown={this.props.go ? go : null}
                       onClick={this.props.go ? go : null}>
                 <Flex flexWrap={{ default: 'nowrap' }}>
                     <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-name pf-v5-u-text-break-word">{this.props.name}</FlexItem>

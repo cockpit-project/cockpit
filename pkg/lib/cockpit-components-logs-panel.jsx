@@ -55,7 +55,7 @@ export class JournalOutput {
         }
 
         // only consider enter button for keyboard events
-        if (ev.type === 'keypress' && ev.key !== "Enter")
+        if (ev.type === 'KeyDown' && ev.key !== "Enter")
             return;
 
         cockpit.jump("system/logs#/" + cursor + "?parent_options=" + JSON.stringify(this.search_options));
@@ -78,7 +78,7 @@ export class JournalOutput {
             <div className="cockpit-logline" role="row" tabIndex="0" key={entry.__CURSOR}
                 data-cursor={entry.__CURSOR}
                 onClick={ev => this.onEvent(ev, entry.__CURSOR, full_content)}
-                onKeyPress={ev => this.onEvent(ev, entry.__CURSOR, full_content)}>
+                onKeyDown={ev => this.onEvent(ev, entry.__CURSOR, full_content)}>
                 <div className="cockpit-log-warning" role="cell">
                     { warning
                         ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />

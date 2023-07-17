@@ -78,7 +78,7 @@ function checked(callback) {
             return;
 
         // only consider enter button for keyboard events
-        if (event.type === 'keypress' && event.key !== "Enter")
+        if (event.type === 'KeyDown' && event.key !== "Enter")
             return;
 
         const promise = client.run(callback);
@@ -217,7 +217,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, small }
 
 export const StorageMenuItem = ({ onClick, onlyNarrow, danger, children }) => (
     <DropdownItem className={(onlyNarrow ? "show-only-when-narrow" : "") + (danger ? " delete-resource-red" : "")}
-                  onKeyPress={checked(onClick)}
+                  onKeyDown={checked(onClick)}
                   onClick={checked(onClick)}>
         {children}
     </DropdownItem>

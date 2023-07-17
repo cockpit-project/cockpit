@@ -21,18 +21,17 @@ import storagelib
 import testlib
 
 
+@testlib.nondestructive
 class TestStorageMsDOS(storagelib.StorageCase):
 
     def testDosParts(self):
-        m = self.machine
         b = self.browser
 
         self.login_and_go("/storage")
 
         # Add a disk
-        m.add_disk("50M", serial="MYDISK")
-        b.wait_in_text("#drives", "MYDISK")
-        b.click('.sidepanel-row:contains("MYDISK")')
+        disk = self.add_ram_disk()
+        b.click(f'#drives .sidepanel-row:contains("{disk}")')
         b.wait_visible("#storage-detail")
 
         # Format it with a DOS partition table

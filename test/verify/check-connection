@@ -439,7 +439,21 @@ class TestConnection(testlib.MachineCase):
         headers = m.execute("curl -k --head -b cockpit.jar -s https://127.0.0.1:9090/")
         self.assertIn(
             "default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 wss://127.0.0.1:9090", headers)
-        self.assertIn("Access-Control-Allow-Origin: https://127.0.0.1:9090", headers)
+        if self.is_pybridge():
+            # We want to make sure we're *not* sending any CORS headers.
+            CORS_HEADERS = [
+                # https://en.wikipedia.org/wiki/Cross-origin_resource_sharing#Response_headers
+                'Access-Control-Allow-Credentials',
+                'Access-Control-Expose-Headers',
+                'Access-Control-Max-Age',
+                'Access-Control-Allow-Methods',
+                'Access-Control-Allow-Headers',
+            ]
+            for cors_header in CORS_HEADERS:
+                self.assertNotIn(cors_header, headers)
+        else:
+            self.assertIn("Access-Control-Allow-Origin: https://127.0.0.1:9090", headers)
+
         # CORP and Frame-Options are also set for dynamic paths
         self.assertIn("Cross-Origin-Resource-Policy: same-origin", headers)
         self.assertIn("X-Frame-Options: sameorigin", headers)

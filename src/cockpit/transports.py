@@ -472,17 +472,15 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             except PermissionError:
                 logger.debug("can't kill %i due to EPERM", self._process.pid)
 
-    def close(self) -> None:
-        super().close()
+    def _close_reader(self) -> None:
+        super()._close_reader()
 
-        if self._process is not None and self._returncode is None:
-            logger.debug('Closing running child process: kill %r', self)
-            try:
-                # avoid calling _process.kill(), as that will try to read the process' exit code and race with
-                # asyncio's ChildWatcher (which also wants to wait() the process)
-                os.kill(self._process.pid, signal.SIGTERM)
-            except (ProcessLookupError, PermissionError):
-                pass
+        if self._process is not None:
+            if self._process.stdout is not None:
+                self._process.stdout.close()
+            elif self._pty_fd is not None:
+                # We can't do a one-sided close on a pty — but we can stop writing to it
+                self._remove_write_queue()
 
 
 class StdioTransport(_Transport):

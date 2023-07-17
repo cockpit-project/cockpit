@@ -21,6 +21,7 @@ import storagelib
 import testlib
 
 
+@testlib.nondestructive
 class TestStorageUnused(storagelib.StorageCase):
 
     def testUnused(self):
@@ -39,17 +40,17 @@ class TestStorageUnused(storagelib.StorageCase):
         # So we partition a disk with two logical partitions, one of which
         # has a filesystem on it.
 
-        m.add_disk("50M", serial="DISK1")
-        m.add_disk("50M", serial="DISK2")
-        b.wait_in_text("#drives", "DISK1")
-        b.wait_in_text("#drives", "DISK2")
+        disk1 = self.add_ram_disk()
+        disk2 = self.add_loopback_disk()
+        b.wait_in_text("#drives", disk1)
+        b.wait_in_text("#others", disk2)
         script = """mktable msdos \
 mkpart extended 1 50 \
 mkpart logical ext2 2 24 \
 mkpart logical ext2 24 48"""
-        m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 " + script)
+        m.execute(f"parted -s {disk1} {script}")
         m.execute("udevadm settle")
-        m.execute("mke2fs -q -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")
+        m.execute(f"mke2fs -q -L TEST {disk1}5")
 
         b.inject_js("""
           ph_texts = function (sel) {
@@ -61,7 +62,7 @@ mkpart logical ext2 24 48"""
             print("blocks", blocks)
             # On Ubuntu we see /dev/ram devices as well
             # On Fedora also /dev/zram0 - see https://github.com/cockpit-project/cockpit/issues/14516
-            allowed = ["/dev/sda", "/dev/sdb", "/dev/vda", "/dev/ram", "/dev/zram"]
+            allowed = ["/dev/sda", "/dev/loop", "/dev/vda", "/dev/ram", "/dev/zram"]
             for block in blocks:
                 for allow in allowed:
                     if allow in block:
@@ -70,7 +71,7 @@ mkpart logical ext2 24 48"""
                     return False
 
             # Require these two to be present
-            return "/dev/sda6" in blocks and "/dev/sdb" in blocks
+            return f"{disk1}6" in blocks and disk2 in blocks
 
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID device'),
                                expect=check_free_block_devices,

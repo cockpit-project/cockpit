@@ -1173,17 +1173,16 @@ BEGIN {{
         # Disk usage
 
         # add 50 MB loopback disk; mount it once rw and once ro
-        m.execute("""set -e
-                  F=$(mktemp /var/tmp/loop.XXXX)
-                  dd if=/dev/zero of=$F bs=1M count=50
-                  mkfs -t ext3 $F
-                  mkdir -p /var/cockpittest /var/cockpit-ro-test
-                  mount -o loop $F /var/cockpittest
-                  RODEV=$(losetup -f --show $F)
-                  mount -r $RODEV /var/cockpit-ro-test
-                  losetup -d $RODEV
-                  rm $F
-                  """)
+        m.execute("""
+            F=$(mktemp /var/tmp/loop.XXXX)
+            dd if=/dev/zero of=$F bs=1M count=50
+            mkfs -t ext3 $F
+            mkdir -p /var/cockpittest /var/cockpit-ro-test
+            mount -o loop $F /var/cockpittest
+            RODEV=$(losetup -f --show $F)
+            mount -r $RODEV /var/cockpit-ro-test
+            losetup -d $RODEV
+            rm $F""")
         self.addCleanup(m.execute, "umount /var/cockpittest /var/cockpit-ro-test")
 
         self.assertLess(progressValue(self, ".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)

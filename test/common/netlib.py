@@ -31,7 +31,7 @@ class NetworkHelpers:
         """
         if dhcp_range is None:
             dhcp_range = ['10.111.112.2', '10.111.127.254']
-        self.machine.execute(r"""set -e
+        self.machine.execute(r"""
             mkdir -p /run/udev/rules.d/
             echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-%(name)s-test.rules
             udevadm control --reload
@@ -191,7 +191,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
         m.execute("systemctl restart NetworkManager")
 
     def slow_down_dhclient(self, delay):
-        self.machine.execute("""set -e
+        self.machine.execute("""
         mkdir -p {0}
         cp -a /usr/sbin/dhclient {0}/dhclient.real
         printf '#!/bin/sh\\nsleep {1}\\nexec {0}/dhclient.real "$@"' > {0}/dhclient

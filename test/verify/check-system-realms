@@ -853,7 +853,7 @@ class TestAD(TestRealms, CommonTests):
         # DNS is not sufficient yet, needs to start LDAP server as well
         m.execute("until nc -z f0.cockpit.lan 389; do sleep 1; done")
         # also wait for Kerberos
-        m.execute(f"set -e; until echo {self.admin_password} | kinit {self.admin_user}@COCKPIT.LAN; do sleep 1; done; kdestroy")
+        m.execute(f"until echo {self.admin_password} | kinit {self.admin_user}@COCKPIT.LAN; do sleep 1; done; kdestroy")
 
         # allow sudo access to domain admins; FIXME: Is there a server-side setting for this,
         # similar to "ipa-advise enable-admins-sudo"?

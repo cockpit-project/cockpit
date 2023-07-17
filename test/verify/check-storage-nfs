@@ -100,7 +100,7 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_set_val("dir", "/mounts/barbar")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.addCleanup(m.execute, "set -e; umount /mounts/barbar; rmdir /mounts/barbar")
+        self.addCleanup(m.execute, "umount /mounts/barbar; rmdir /mounts/barbar")
 
         b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/barbar")
         m.execute("! test -e /mounts/bar")

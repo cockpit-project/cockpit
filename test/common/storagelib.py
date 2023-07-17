@@ -55,7 +55,7 @@ class StorageHelpers:
         # sanity test: should not yet be loaded
         self.machine.execute("test ! -e /sys/module/scsi_debug")
         self.machine.execute(f"modprobe scsi_debug dev_size_mb={size}")
-        dev = self.machine.execute('set -e; while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
+        dev = self.machine.execute('while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
                                    '[ -n "$O" ] && break || sleep 0.1; done; echo "/dev/$O"').strip()
         # don't use addCleanup() here, this is often busy and needs to be cleaned up late; done in MachineCase.nonDestructiveSetup()
 
@@ -75,7 +75,7 @@ class StorageHelpers:
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1969408
         # It would be nicer to remove $F immediately after the call to
         # losetup, but that will break some versions of lvm2.
-        dev = self.machine.execute("set -e; F=$(mktemp /var/tmp/loop.XXXX); "
+        dev = self.machine.execute("F=$(mktemp /var/tmp/loop.XXXX); "
                                    "dd if=/dev/zero of=$F bs=1000000 count=%s; "
                                    "losetup --show %s $F" % (size, name if name else "--find")).strip()
         # If this device had partions in its last incarnation on this

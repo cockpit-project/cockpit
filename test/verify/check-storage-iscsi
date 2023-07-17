@@ -28,7 +28,6 @@ class TestStorageISCSI(storagelib.StorageCase):
     def testISCSI(self):
         m = self.machine
         b = self.browser
-        b.wait_timeout(120)
 
         self.restore_dir("/etc/iscsi")
         self.restore_dir("/var/lib/iscsi")
@@ -141,7 +140,8 @@ class TestStorageISCSI(storagelib.StorageCase):
 
         b.click('#iscsi-sessions .toggle-armed')
         b.click('#iscsi-sessions .sidepanel-row:contains(127.0.0.1) button.pf-m-danger')
-        b.wait_not_present('#iscsi-sessions .sidepanel-row:contains(127.0.0.1)')
+        with b.wait_timeout(120):
+            b.wait_not_present('#iscsi-sessions .sidepanel-row:contains(127.0.0.1)')
 
         b.click('#iscsi-sessions .toggle-armed')
         b.click('#iscsi-sessions .sidepanel-row:contains(172.27.0.15) button.pf-m-danger')

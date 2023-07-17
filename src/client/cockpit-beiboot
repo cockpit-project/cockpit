@@ -21,7 +21,6 @@ import argparse
 import asyncio
 import base64
 import importlib.resources
-import json
 import logging
 import os
 import shlex
@@ -36,7 +35,7 @@ from cockpit.beipack import BridgeBeibootHelper
 from cockpit.bridge import setup_logging
 from cockpit.channel import ChannelRoutingRule
 from cockpit.channels import PackagesChannel
-from cockpit.packages import Package, Packages
+from cockpit.packages import Packages, PackagesLoader
 from cockpit.peer import Peer
 from cockpit.protocol import CockpitProblem
 from cockpit.router import Router, RoutingRule
@@ -73,41 +72,37 @@ def ensure_ferny_askpass() -> Path:
     return dest_path
 
 
-def get_xdg_data_dirs():
-    try:
-        yield os.environ['XDG_DATA_HOME']
-    except KeyError:
-        yield os.path.expanduser('~/.local/share')
-
-    try:
-        yield from os.environ['XDG_DATA_DIRS'].split(':')
-    except KeyError:
-        yield from ('/usr/local/share', '/usr/share')
-
-
 def get_interesting_files() -> Iterable[str]:
-    for datadir in get_xdg_data_dirs():
-        logger.debug("Scanning for manifest files under %s", datadir)
-        for file in Path(datadir).glob('cockpit/*/manifest.json'):
-            logger.debug("Considering file %s", file)
-            try:
-                manifest = json.loads(file.read_text())
-            except json.JSONDecodeError as exc:
-                logger.error("%s: %s", file, exc)
-                continue
-            if not isinstance(manifest, dict):
-                logger.error("%s: json document isn't an object", file)
-                continue
+    for candidate in PackagesLoader.load_candidates():
+        try:
+            conditions = candidate.manifest['conditions']
+        except KeyError:
+            continue
 
-            try:
-                conditions = manifest['conditions']
-            except KeyError:
-                continue
+        assert isinstance(conditions, list)
+        for condition in conditions:
+            assert isinstance(condition, dict)
+            for key, value in condition.items():
+                if key in ['path-exists', 'path-not-exists']:
+                    yield value
 
-            for condition in conditions:
-                for key, value in condition.items():
-                    if key in ['path-exists', 'path-not-exists']:
-                        yield value
+
+class ProxyPackagesLoader(PackagesLoader):
+    file_status: Dict[str, bool]
+
+    def check_condition(self, condition: str, value: object) -> bool:
+        assert isinstance(value, str)
+        assert value in self.file_status
+
+        if condition == 'path-exists':
+            return self.file_status[value]
+        elif condition == 'path-not-exists':
+            return not self.file_status[value]
+        else:
+            raise KeyError
+
+    def __init__(self, file_status: Dict[str, bool]):
+        self.file_status = file_status
 
 
 BEIBOOT_GADGETS = {
@@ -176,13 +171,7 @@ class AuthorizeResponder(ferny.InteractionResponder):
 
         if command == 'cockpit.report-exists':
             file_status, = args
-            # Constructed to throw KeyError if an unexpected file is requested
-            # HACK:  ...please don't look at this code...
-            Package.CONDITIONS = {
-                'path-exists': lambda filename: file_status[filename],
-                'path-not-exists': lambda filename: not file_status[filename],
-            }
-            self.router.packages = Packages()  # type: ignore[attr-defined]
+            self.router.packages = Packages(loader=ProxyPackagesLoader(file_status))
             self.router.routing_rules.insert(0, ChannelRoutingRule(self.router, [PackagesChannel]))
 
 

@@ -19,7 +19,7 @@ import json
 
 import pytest
 
-from cockpit.packages import Packages, parse_accept_language
+from cockpit.packages import Packages
 
 
 @pytest.mark.parametrize(("test_input", "expected"), [
@@ -28,7 +28,7 @@ from cockpit.packages import Packages, parse_accept_language
     ('fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5', ['fr-ch', 'fr', 'en', 'de', '*'])
 ])
 def test_parse_accept_language(test_input, expected):
-    assert parse_accept_language({'Accept-Language': test_input}) == expected
+    assert Packages.parse_accept_language({'Accept-Language': test_input}) == expected
 
 
 @pytest.fixture

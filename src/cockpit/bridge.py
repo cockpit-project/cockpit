@@ -121,17 +121,15 @@ class Bridge(Router, PackagesListener):
             self.superuser_rule.init(superuser)
 
     def do_send_init(self) -> None:
-        if self.packages is not None:
-            packages_info = {
-                'checksum': self.packages.checksum,
-                'packages': {p: None for p in self.packages.packages}
-            }
-        else:
-            packages_info = {}
+        init_args = {
+            'capabilities': {'explicit-superuser': True},
+            'os-release': self.get_os_release(),
+        }
 
-        self.write_control(command='init', version=1, **packages_info,
-                           os_release=self.get_os_release(),
-                           capabilities={'explicit-superuser': True})
+        if self.packages is not None:
+            init_args['packages'] = {p: None for p in self.packages.packages}
+
+        self.write_control(command='init', version=1, **init_args)
 
     # PackagesListener interface
     def packages_loaded(self):

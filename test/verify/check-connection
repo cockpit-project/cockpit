@@ -437,8 +437,18 @@ class TestConnection(testlib.MachineCase):
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(
             base64.b64encode(b"admin:foobar").decode(), ))
         headers = m.execute("curl -k --head -b cockpit.jar -s https://127.0.0.1:9090/")
-        self.assertIn(
-            "default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 wss://127.0.0.1:9090", headers)
+
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/connect-src
+        #
+        #    Note: connect-src 'self' does not resolve to websocket
+        #    schemes in all browsers, more info in this issue.
+        #
+        # https://github.com/w3c/webappsec-csp/issues/7
+        #
+        # Make sure we send the explicit `wss://` item until we're absolutely
+        # sure about the browser support situation for `connect-src 'self';`.
+        self.assertIn("wss://127.0.0.1:9090", headers)
+
         if self.is_pybridge():
             # We want to make sure we're *not* sending any CORS headers.
             CORS_HEADERS = [

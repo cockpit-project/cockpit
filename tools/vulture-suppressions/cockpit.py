@@ -11,4 +11,5 @@ User.shell
 # getattr()
 Printer.dbus_call
 Printer.help
+Printer.packages_reload
 Printer.wait

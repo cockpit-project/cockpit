@@ -24,7 +24,7 @@ import readline  # noqa: F401, side-effecting import
 import shlex
 import sys
 import time
-from typing import BinaryIO, Iterable, Optional
+from typing import Any, BinaryIO, Iterable, Optional
 
 
 class Printer:
@@ -46,15 +46,15 @@ class Printer:
         """Send a json message (built from **kwargs) on a channel"""
         self.data(channel, json.dumps(kwargs, indent=2).encode('utf-8') + b'\n')
 
-    def control(self, command: str, **kwargs: object) -> None:
+    def control(self, command: str, **kwargs: Any) -> None:
         """Send a control message, build from **kwargs"""
         self.json('', command=command, **kwargs)
 
-    def init(self, host: str = 'localhost', version: int = 1, **kwargs: object) -> None:
+    def init(self, host: str = 'localhost', version: int = 1, **kwargs: Any) -> None:
         """Send init.  This is normally done automatically, but you can override it."""
         self.control('init', host=host, version=version, **kwargs)
 
-    def open(self, payload: str, channel: Optional[str] = None, **kwargs: object) -> str:
+    def open(self, payload: str, channel: Optional[str] = None, **kwargs: Any) -> str:
         """Opens a channel for the named payload.  A channel name is generated if not provided."""
         if channel is None:
             self.last_channel += 1
@@ -63,7 +63,7 @@ class Printer:
         self.control('open', channel=channel, payload=payload, **kwargs)
         return channel
 
-    def done(self, channel: Optional[str] = None, **kwargs: object) -> None:
+    def done(self, channel: Optional[str] = None, **kwargs: Any) -> None:
         """Sends a done command on the named channel, or the last opened channel."""
         if channel is None:
             channel = f'ch{self.last_channel}'
@@ -75,7 +75,7 @@ class Printer:
              method: str = 'GET',
              done: bool = True,
              channel: Optional[str] = None,
-             **kwargs: object) -> None:
+             **kwargs: Any) -> None:
         """Open a http1-stream channel.  Sends a 'done' as well, unless done=False."""
         self.open('http-stream1', path=path, method=method, channel=channel, **kwargs)
         if done:
@@ -84,7 +84,7 @@ class Printer:
     def packages(self, path: str,
                  headers: Optional[dict[str, str]] = None,
                  channel: Optional[str] = None,
-                 **kwargs: object) -> None:
+                 **kwargs: Any) -> None:
         """Request a file from the internal packages webserver"""
         # The packages webserver requires these for computing the content security policy
         our_headers = {'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost'}
@@ -97,13 +97,18 @@ class Printer:
         """Open a stream channel with a spawned command"""
         self.open('stream', spawn=args, channel=channel, **kwargs)
 
-    def dbus_open(self, *args: str, channel: Optional[str] = None, bus: str = 'internal', **kwargs: object) -> str:
-        return self.open('dbus-json3', channel=channel, bus=bus)
+    def dbus_open(self, channel: Optional[str] = None, bus: str = 'internal', **kwargs: Any) -> str:
+        return self.open('dbus-json3', channel=channel, bus=bus, **kwargs)
 
-    def dbus_call(self, *args: str, channel: Optional[str] = None, bus: str = 'internal', **kwargs: object) -> None:
+    def dbus_call(
+        self, *args: object, channel: Optional[str] = None, bus: str = 'internal', **kwargs: Any
+    ) -> None:
         if channel is None:
-            channel = self.dbus_open(bus=bus)
+            channel = self.dbus_open(bus=bus, **kwargs)
         self.json(channel, call=[*args], id=1)
+
+    def packages_reload(self, channel: Optional[str] = None) -> None:
+        self.dbus_call('/packages', 'cockpit.Packages', 'Reload', [], channel=channel)
 
     def help(self) -> None:
         """Show help"""

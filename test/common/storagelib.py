@@ -686,3 +686,12 @@ class StorageCase(MachineCase, StorageHelpers):
         # gets it immediately.  But sometimes the interface is already
         # gone.
         self.allow_journal_messages("org.freedesktop.UDisks2: couldn't get property org.freedesktop.UDisks2.Filesystem Size .* No such interface.*")
+
+
+class StorageSmartCase(StorageCase):
+    provision = {
+        "0": {
+            "disk_bus": "sata",
+            "disk_dev": "sda",
+        }
+    }

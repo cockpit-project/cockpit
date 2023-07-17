@@ -15,10 +15,12 @@ max-line-length = 118
 disable = [
   "C0114",  # Missing module docstring
   "C0115",  # Missing class docstring
+  "C0116",  # Missing function or method docstring
   "R0902",  # Too many instance attributes
   "R0903",  # Too few public methods
   "R0913",  # Too many arguments
   "R1705",  # Unnecessary "else" after "return"
+  "W0120",  # Else clause on loop without a break statement
   "W1113",  # Keyword argument before variable positional arguments  (PEP-570 is Python 3.8)
 ]
 
@@ -58,6 +60,7 @@ ignore = [
     "E731",  # Do not assign a `lambda` expression, use a `def`
     "PT011", # `pytest.raises(OSError)` is too broad
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+    "TCH001", # Move application import into a type-checking block
 ]
 line-length = 118
 src = []

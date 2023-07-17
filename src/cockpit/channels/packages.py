@@ -16,9 +16,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import logging
+from typing import Dict, Optional
 
 from .. import data
 from ..channel import Channel
+from ..packages import Packages
 
 logger = logging.getLogger(__name__)
 
@@ -27,50 +29,81 @@ class PackagesChannel(Channel):
     payload = 'http-stream1'
     restrictions = [("internal", "packages")]
 
-    headers = None
-    protocol = None
-    host = None
-    origin = None
-    out_headers = None
-    options = None
-    post = None
+    # used to carry data forward from open to done
+    options: Optional[Dict[str, object]] = None
 
-    def push_header(self, key, value):
-        if self.out_headers is None:
-            self.out_headers = {}
-        self.out_headers[key] = value
-
-    def http_ok(self, content_type, extra_headers=None):
-        headers = {'Content-Type': content_type}
-        if self.out_headers is not None:
-            headers.update(self.out_headers)
-        if extra_headers is not None:
-            headers.update(extra_headers)
-        self.send_message(status=200, reason='OK', headers={k: v for k, v in headers.items() if v is not None})
-
-    def http_error(self, status, message):
+    def http_error(self, status: int, message: str) -> None:
         template = data.read_cockpit_data_file('fail.html')
         self.send_message(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
         self.send_data(template.replace(b'@@message@@', message.encode('utf-8')))
 
-    def do_done(self):
-        assert not self.post
-        assert self.options['method'] == 'GET'
-        path = self.options['path']
+    def do_open(self, options: Dict[str, object]) -> None:
+        self.ready()
 
-        self.headers = self.options['headers']
-        self.protocol = self.headers['X-Forwarded-Proto']
-        self.host = self.headers['X-Forwarded-Host']
-        self.origin = f'{self.protocol}://{self.host}'
+        self.options = options
 
-        self.router.packages.serve_file(path, self)
+    def do_done(self) -> None:
+        packages: Packages = self.router.packages  # type: ignore[attr-defined]  # yes, this is evil
+        assert self.options is not None
+        options = self.options
+
+        try:
+            if options.get('method') != 'GET':
+                raise ValueError(f'Unsupported HTTP method {options["method"]}')
+
+            path = options.get('path')
+            if not isinstance(path, str) or not path.startswith('/'):
+                raise ValueError(f'Unsupported HTTP method {options["method"]}')
+
+            headers = options.get('headers')
+            if not isinstance(headers, dict) or not all(isinstance(value, str) for value in headers.values()):
+                raise ValueError(f'Unsupported HTTP method {options["method"]}')
+
+            document = packages.load_path(path, headers)
+
+            # Note: we can't cache documents right now.  See
+            # https://github.com/cockpit-project/cockpit/issues/19071
+            # for future plans.
+            out_headers = {
+                'Cache-Control': 'no-cache, no-store',
+                'Content-Type': document.content_type,
+            }
+
+            if document.content_encoding is not None:
+                out_headers['Content-Encoding'] = document.content_encoding
+
+            if document.content_security_policy is not None:
+                policy = document.content_security_policy
+
+                # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/connect-src
+                #
+                #    Note: connect-src 'self' does not resolve to websocket
+                #    schemes in all browsers, more info in this issue.
+                #
+                # https://github.com/w3c/webappsec-csp/issues/7
+                if "connect-src 'self';" in policy:
+                    protocol = headers.get('X-Forwarded-Proto')
+                    host = headers.get('X-Forwarded-Host')
+                    if not isinstance(protocol, str) or not isinstance(host, str):
+                        raise ValueError('Invalid host or protocol header')
+
+                    websocket_scheme = "wss" if protocol == "https" else "ws"
+                    websocket_origin = f"{websocket_scheme}://{host}"
+                    policy = policy.replace("connect-src 'self';", f"connect-src {websocket_origin} 'self';")
+
+                out_headers['Content-Security-Policy'] = policy
+
+            self.send_message(status=200, reason='OK', headers=out_headers)
+            self.send_data(document.data)
+
+        except ValueError as exc:
+            self.http_error(400, str(exc))
+
+        except KeyError:
+            self.http_error(404, 'Not found')
+
+        except OSError as exc:
+            self.http_error(500, f'Internal error: {exc!s}')
+
         self.done()
         self.close()
-
-    def do_data(self, data):
-        self.post += data
-
-    def do_open(self, options):
-        self.post = b''
-        self.options = options
-        self.ready()

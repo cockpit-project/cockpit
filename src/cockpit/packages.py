@@ -324,7 +324,6 @@ class Package:
             data, (content_type, encoding) = self.files[path]
 
         headers = {
-            "Access-Control-Allow-Origin": channel.origin,
             "Content-Encoding": encoding,
         }
         if content_type is not None and content_type.startswith('text/html'):

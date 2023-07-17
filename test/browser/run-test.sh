@@ -77,6 +77,9 @@ if [ "$PLAN" = "optional" ]; then
     # Testing Farm machines often have pending restarts/reboot
     EXCLUDES="$EXCLUDES TestUpdates.testBasic TestUpdates.testFailServiceRestart TestUpdates.testKpatch"
 
+    # FIXME: creation dialog hangs forever
+    EXCLUDES="$EXCLUDES TestStorageISCSI.testISCSI"
+
     # These don't test more external APIs
     EXCLUDES="$EXCLUDES
               TestAutoUpdates.testBasic

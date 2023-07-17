@@ -21,6 +21,7 @@ import storagelib
 import testlib
 
 
+@testlib.nondestructive
 class TestStorageRaid1(storagelib.StorageCase):
 
     def testRaidLevelOne(self):
@@ -29,18 +30,19 @@ class TestStorageRaid1(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        # Add four two and make a RAID out of them
-        m.add_disk("50M", serial="DISK1")
-        m.add_disk("50M", serial="DISK2")
-        b.wait_in_text("#drives", "DISK1")
-        b.wait_in_text("#drives", "DISK2")
+        # Create two disks and make a RAID out of them
+        disk1 = self.add_loopback_disk()
+        disk2 = self.add_loopback_disk()
+        b.wait_in_text("#others", disk1)
+        b.wait_in_text("#others", disk2)
 
+        self.addCleanup(m.execute, "mdadm --manage --stop /dev/md/SOMERAID")
         self.devices_dropdown('Create RAID device')
         self.dialog_wait_open()
         # No swap block devices should show up
         b.wait_not_in_text("#dialog .pf-v5-c-data-list", "zram")
         self.dialog_set_val("level", "raid1")
-        self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})
+        self.dialog_set_val("disks", {disk1: True, disk2: True})
         self.dialog_set_val("name", "SOMERAID")
         # The dialog should make sure that the Chunk size is ignored (has to be 0 for RAID 1)
         self.dialog_apply()

@@ -93,6 +93,7 @@ if [ "$PLAN" = "optional" ]; then
               TestStoragePackagesNFS.testNfsMissingPackages
               TestStoragePartitions.testSizeSlider
               TestStorageIgnored.testIgnored
+              TestStorageUnused.testUnused
 
               TestUpdates.testUnprivileged
               TestUpdates.testPackageKitCrash

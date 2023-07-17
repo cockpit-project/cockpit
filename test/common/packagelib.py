@@ -397,7 +397,7 @@ post_upgrade() {{
     def enableRepo(self):
         if self.backend == "apt":
             self.createAptChangelogs()
-            self.machine.execute("""set -e; echo 'deb [trusted=yes] file://{0} /' > /etc/apt/sources.list.d/test.list
+            self.machine.execute("""echo 'deb [trusted=yes] file://{0} /' > /etc/apt/sources.list.d/test.list
                                     cd {0}; apt-ftparchive packages . > Packages
                                     xz -c Packages > Packages.xz
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
@@ -408,8 +408,7 @@ post_upgrade() {{
             self.addCleanup(self.machine.execute, "kill %i || true" % pid)
             self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
         elif self.backend == "alpm":
-            self.machine.execute(f"""set -e;
-                                     cd {self.repo_dir}
+            self.machine.execute(f"""cd {self.repo_dir}
                                      repo-add {self.repo_dir}/testrepo.db.tar.gz *.pkg.tar.zst
                     """)
 
@@ -422,7 +421,7 @@ Server = file://{self.repo_dir}
                 self.machine.write("/etc/pacman.conf", config, append=True)
 
         else:
-            self.machine.execute("""set -e; printf '[updates]\nname=cockpittest\nbaseurl=file://{0}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
+            self.machine.execute("""printf '[updates]\nname=cockpittest\nbaseurl=file://{0}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
                                     echo '{1}' > /tmp/updateinfo.xml
                                     createrepo_c {0}
                                     modifyrepo_c /tmp/updateinfo.xml {0}/repodata

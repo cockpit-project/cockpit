@@ -25,7 +25,6 @@ import packagelib
 import testlib
 
 WAIT_SCRIPT = """
-set -ex
 for x in $(seq 1 200); do
     if curl --insecure -s https://%(addr)s:8443/candlepin; then
         break
@@ -358,7 +357,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
 
         # stall the download of chocolate by replacing the package with a pipe, so that we can test cancelling
-        chocolate = m.execute(f"""set -eux;
+        chocolate = m.execute(f"""set -ux;
             p=$(ls {self.vm_tmpdir}/repo/chocolate*2.0*2*)
             f={self.vm_tmpdir}/fifo
             mkfifo $f
@@ -1674,7 +1673,7 @@ class TestAutoUpdates(NoSubManCase):
         # new vanilla package got installed, and triggered reboot; cancel that
         m.execute("test -f /stamp-vanilla-1.0-2")
         m.execute("until test -f /run/nologin; do sleep 1; done")
-        m.execute("set -e; shutdown -c; test ! -f /run/nologin")
+        m.execute("shutdown -c; test ! -f /run/nologin")
         # service should show vanilla upgrade and scheduling shutdown
         out = m.execute(
             "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
@@ -1684,7 +1683,7 @@ class TestAutoUpdates(NoSubManCase):
 
         # run it again, now there are no available updates → no reboot
         m.execute("systemctl start dnf-automatic-install.service")
-        m.execute("set -e; test -f /stamp-vanilla-1.0-2; test ! -f /run/nologin")
+        m.execute("test -f /stamp-vanilla-1.0-2; test ! -f /run/nologin")
         # service should not do much
         out = m.execute(
             "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")

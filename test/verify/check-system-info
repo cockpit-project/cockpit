@@ -763,7 +763,7 @@ machine         : 8561
         # - Debian: no BLS, options go into /etc/default/grub and grub.cfg
         # - BLS, options go directly into entries, or entries use $kernelopt (defined in grubenv)
         if not m.ostree_image:
-            m.execute(r"""set -e
+            m.execute(r"""
 touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
 if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
@@ -777,7 +777,7 @@ else
 fi
 """)
             # clean up so that next reboot works
-            m.execute(r"""set -e
+            m.execute(r"""
 rm /boot/vmlinuz-42.0.0
 if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu

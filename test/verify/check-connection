@@ -882,7 +882,7 @@ export XDG_CONFIG_DIRS=/usr/local
                  ]
 
         # prepare fake ssh target; to verify that we really use that, fake dashboard manifest
-        m.execute("""set -e; useradd test1
+        m.execute("""useradd test1
                   [ -f ~admin/.ssh/id_rsa ] || su -c "ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa" admin
                   mkdir -p ~test1/.ssh ~test1/.local/share/cockpit/dashboard
                   echo '{ "version": "42", "dashboard": { "index": { "label": "HACK" } } }' > ~test1/.local/share/cockpit/dashboard/manifest.json

@@ -11,7 +11,8 @@ from typing import Dict, Iterable, Optional
 
 from cockpit import __version__
 
-PACKAGE = f'cockpit-{__version__}'
+VERSION = __version__ or '0'
+PACKAGE = f'cockpit-{VERSION}'
 TAG = 'py3-none-any'
 
 
@@ -65,7 +66,7 @@ def build_wheel(wheel_directory: str,
         'METADATA': [
             'Metadata-Version: 2.1',
             'Name: cockpit',
-            f'Version: {__version__}',
+            f'Version: {VERSION}',
         ],
         'entry_points.txt': [
             '[console_scripts]',

@@ -177,7 +177,8 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
     });
 
     task.catch(error => {
-        setError(error.toString());
+        console.error(JSON.stringify(error)); // easier investigation of failures, errors in pty mode may be hard to see
+        setError(error.toString() || _("sos report failed"));
         setErrorDetail(output);
     });
 

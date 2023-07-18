@@ -420,7 +420,7 @@ export class KdumpPage extends React.Component {
             const tooltip = _("Test is only available while the kdump service is running.");
             testButton = (
                 <Tooltip id="tip-test" content={tooltip}>
-                    <Button variant="secondary" isDisabled>
+                    <Button variant="secondary" isAriaDisabled>
                         {_("Test configuration")}
                     </Button>
                 </Tooltip>

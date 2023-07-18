@@ -633,6 +633,21 @@ OnCalendar=daily
         b.key_press("stuff/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(5) button", "other")
 
+        # Create test folder with known files
+        m.execute("mkdir /home/admin/newdir")
+        m.execute("mkdir /home/admin/newdir/dir1")
+        m.execute("mkdir /home/admin/newdir/dir2")
+        m.execute("touch /home/admin/newdir/file1")
+        m.execute("touch /home/admin/newdir/file2")
+        # test pre-selected autocomplete widget
+        b.wait_val("div#demo-file-ac-preselected input", "/home/admin/newdir/file1")
+        b.click("div#demo-file-ac-preselected input")
+        b.click("div#demo-file-ac input")
+        b.click("div#demo-file-ac-preselected input")
+        paths = ["/home/admin/newdir", "/home/admin/newdir/dir1", "/home/admin/newdir/dir2", "/home/admin/newdir/file1", "/home/admin/newdir/file2"]
+        for i in range(5):
+            b.wait_in_text(f"#file-autocomplete-widget-preselected li:nth-of-type({i+1}) button", paths[i])
+
     @testlib.skipOstree("No PCP available")
     def testPlots(self):
         b = self.browser

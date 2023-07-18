@@ -26,3 +26,8 @@ export function showFileAcDemo(rootElement) {
     const root = createRoot(rootElement);
     root.render(<FileAutoComplete id='file-autocomplete-widget' />);
 }
+
+export function showFileAcDemoPreselected(rootElement) {
+    const root = createRoot(rootElement);
+    root.render(<FileAutoComplete id='file-autocomplete-widget-preselected' value="/home/admin/newdir/file1" />);
+}

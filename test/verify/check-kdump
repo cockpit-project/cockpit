@@ -95,6 +95,12 @@ class TestKdump(KdumpHelpers):
             # ... and the button should be off
             assertActive(active=False)
 
+            # disabled "Test configuration" button should have a tooltip
+            b.wait_visible("button:contains(Test configuration)[aria-disabled=true]")
+            b.mouse("button:contains(Test configuration)", "mouseenter")
+            b.wait_in_text(".pf-v5-c-tooltip", "kdump service")
+            b.mouse("button:contains(Test configuration)", "mouseleave")
+
         # there shouldn't be any crash reports in the target directory
         self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
 

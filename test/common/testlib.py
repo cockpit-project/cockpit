@@ -2049,7 +2049,7 @@ class MachineCase(unittest.TestCase):
             if path.startswith("/home"):
                 cmd = f"umount -lf {path}"
             else:
-                cmd = f"umount {path} || {{ fuser -uvk {path}/* || true; sleep 1; umount {path}; }}"
+                cmd = f"umount {path} || {{ fuser -uvk {path} {path}/* >&2 || true; sleep 1; umount {path}; }}"
             self.addCleanup(self.machine.execute, cmd)
 
     def restore_file(self, path: str, post_restore_action: Optional[str] = None):

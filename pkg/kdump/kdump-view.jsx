@@ -34,12 +34,14 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
 import { useDialogs, DialogsContext } from "dialogs.jsx";
+import { fmt_to_fragments } from 'utils.jsx';
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -263,12 +265,39 @@ export class KdumpPage extends React.Component {
     }
 
     handleTestSettingsClick() {
+        // if we have multiple targets defined, the config is invalid
+        const target = this.props.kdumpStatus.target;
+        let verifyMessage;
+        if (!target.multipleTargets) {
+            let path = target.path || "/var/crash";
+            if (target.type === "local") {
+                verifyMessage = fmt_to_fragments(
+                    ' ' + _("Results of the crash will be stored in $0 as $1, if kdump is properly configured."),
+                    <span className="pf-v5-u-font-family-monospace-vf">{path}</span>,
+                    <span className="pf-v5-u-font-family-monospace-vf">vmcore</span>);
+            } else if (target.type === "ssh" || target.type == "nfs") {
+                path = (target.type == "nfs" && path[0] !== '/') ? '/' + path : path;
+                verifyMessage = fmt_to_fragments(
+                    ' ' + _("Results of the crash will be copied through $0 to $1 as $2, if kdump is properly configured."),
+                    <span className="pf-v5-u-font-family-monospace-vf">{target.type === "ssh" ? "SSH" : "NFS"}</span>,
+                    <span className="pf-v5-u-font-family-monospace-vf">{`${target.server}:${target.type === "nfs" ? target.export + path : path}`}</span>,
+                    <span className="pf-v5-u-font-family-monospace-vf">vmcore</span>);
+            }
+        }
+
         // open a dialog to confirm crashing the kernel to test the settings - then do it
         const dialogProps = {
             title: _("Test kdump settings"),
-            body: (
-                <span>{_("Test kdump settings by crashing the kernel. This may take a while and the system might not automatically reboot. Do not purposefully crash the system while any important task is running.")}</span>
-            )
+            body: (<TextContent>
+                <Text component={TextVariants.p}>
+                    {_("Test kdump settings by crashing the kernel. This may take a while and the system might not automatically reboot. Do not purposefully crash the system while any important task is running.")}
+                </Text>
+                {verifyMessage && <Text component={TextVariants.p}>
+                    {verifyMessage}
+                </Text>}
+            </TextContent>),
+            showClose: true,
+            titleIconVariant: "warning",
         };
         // also test modifying properties in subsequent render calls
         const footerProps = {

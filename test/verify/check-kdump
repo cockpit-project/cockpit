@@ -32,20 +32,24 @@ class KdumpHelpers(testlib.MachineCase):
         self.browser.switch_to_top()
         self.browser.relogin("/kdump")
 
-    def crashKernel(self):
+    def crashKernel(self, message, cancel=False):
         b = self.browser
         b.click(f"button{self.default_btn_class}")
-        # we should get a warning dialog, confirm
-        b.click(f"button{self.danger_btn_class}")
-        # wait until we've actually triggered a crash
-        b.wait_visible(".apply.pf-m-in-progress")
+        self.browser.wait_in_text(".pf-v5-c-modal-box__body", message)
+        if cancel:
+            b.click(".pf-v5-c-modal-box button:contains('Cancel')")
+        else:
+            # we should get a warning dialog, confirm
+            b.click(f"button{self.danger_btn_class}")
+            # wait until we've actually triggered a crash
+            b.wait_visible(".apply.pf-m-in-progress")
 
-        # wait for disconnect and then try connecting again
-        b.switch_to_top()
-        with b.wait_timeout(60):
-            b.wait_in_text("div.curtains-ct h1", "Disconnected")
-        self.machine.disconnect()
-        self.machine.wait_boot(timeout_sec=300)
+            # wait for disconnect and then try connecting again
+            b.switch_to_top()
+            with b.wait_timeout(60):
+                b.wait_in_text("div.curtains-ct h1", "Disconnected")
+            self.machine.disconnect()
+            self.machine.wait_boot(timeout_sec=300)
 
 
 @testlib.skipOstree("kexec-tools not installed")
@@ -141,6 +145,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text(pathInput, "/var/crash")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_not_present(pathInput)
+        self.crashKernel("copied through SSH to root@localhost:/var/crash as vmcore", cancel=True)
 
         # we should have the amount of memory reserved that we indicated
         b.wait_in_text("#app", "256 MiB")
@@ -174,7 +179,7 @@ class TestKdump(KdumpHelpers):
         assertActive(active=True)
 
         # crash the kernel and make sure it wrote a report into the right directory
-        self.crashKernel()
+        self.crashKernel("stored in /var/crash2 as vmcore")
         m.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done", timeout=180)
         self.assertIn("Kdump compressed dump", m.execute(f"file {customPath}/127.0.0.1*/vmcore"))
 
@@ -425,7 +430,7 @@ class TestKdumpNFS(KdumpHelpers):
         self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
         self.assertNotIn("\npath", conf)
 
-        self.crashKernel()
+        self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/var/crash")
 
         # dump is done during boot, so should exist now
         self.assertIn("Kdump compressed dump",
@@ -454,7 +459,7 @@ class TestKdumpNFS(KdumpHelpers):
 
         b.wait_visible(".pf-v5-c-switch__input:checked")
 
-        self.crashKernel()
+        self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/dumps")
         self.assertIn("Kdump compressed dump",
                       self.machines["nfs"].execute("file /srv/kdump/dumps/10.111.113.1*/vmcore"))
 

@@ -46,6 +46,11 @@ to the host operating system.
 
 Afterward, use a web browser to log into port `9090` on your host IP address as usual.
 
+Run this to show the "RUN" label command if you want to run the container with different arguments:
+```
+podman container runlabel --display RUN quay.io/cockpit/ws
+```
+
 ## Unprivileged bastion container
 
 When you run the container without `--privileged`, it presents an unbranded

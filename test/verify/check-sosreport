@@ -107,6 +107,19 @@ only-plugins=release,date,host,cgroups,networking
         b.click("#sos-remove-dialog button:contains(Delete)")
         testlib.wait(lambda: m.execute(f"! test -f /var/tmp/{base_report_gpg} && echo yes"))
 
+        # error reporting
+        self.write_file("/usr/sbin/sos", """#!/bin/sh
+echo "EssOhEss is kaputt" >&2
+exit 1""", perm="755")
+        b.click("button:contains('Run report')")
+        b.wait_visible("#sos-dialog")
+        b.click("#sos-dialog button:contains(Run report)")
+        b.wait_in_text("#sos-dialog .pf-v5-c-alert",
+                       "sos report failed" if self.is_pybridge() else "sos exited with code 1")
+        b.wait_in_text("#sos-dialog .pf-v5-c-alert", "EssOhEss is kaputt")
+        b.click("#sos-dialog button:contains(Cancel)")
+        b.wait_not_present("#sos-dialog")
+
         self.allow_journal_messages('.*comm="sosreport".*')
 
     def testWithUrlRoot(self):

@@ -160,7 +160,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                                 {_("Edit rules and zones")}
                             </Button>,
                         }}>
-                            <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                            <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
                                 <CardTitle component="h2">{_("Firewall")}</CardTitle>
                                 <FirewallSwitch firewall={firewall} />
                             </Flex>

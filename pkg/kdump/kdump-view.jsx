@@ -441,7 +441,7 @@ export class KdumpPage extends React.Component {
         return (
             <Page>
                 <PageSection variant={PageSectionVariants.light}>
-                    <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                    <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
                         <Title headingLevel="h2" size="3xl">
                             {_("Kernel crash dump")}
                         </Title>

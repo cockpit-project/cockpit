@@ -905,6 +905,7 @@ password=foobar
         b.become_superuser()
         b.wait_in_text(".system-health-insights a", "3 hits, including important")
         self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
+        b.logout()
 
     def testOverview(self):
         m = self.machine

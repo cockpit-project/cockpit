@@ -33,7 +33,7 @@ const _ = cockpit.gettext;
                 environ: [
                     "TERM=xterm-256color",
                 ],
-                directory: user.home || "/",
+                directory: cockpit.location.options.path || user.home || "/",
                 pty: true
             });
         }

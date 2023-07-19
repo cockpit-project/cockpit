@@ -322,7 +322,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
                     'aria-label': _("Groups"),
                     'aria-expanded': isExpanded
                 }}>
-                <CardTitle className="pf-v5-l-flex pf-m-align-items-center">
+                <CardTitle className="pf-v5-l-flex pf-m-align-items-center pf-m-space-items-md">
                     <Text component={TextVariants.h2}>{_("Groups")}</Text>
                     {(!isExpanded && !groups.length) && <HelperText> <HelperTextItem variant="indeterminate">{_("Loading...")}</HelperTextItem></HelperText>}
                     {(!isExpanded && filtered_groups.length > 0) && <>

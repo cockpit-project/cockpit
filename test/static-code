@@ -146,7 +146,7 @@ main() {
     tests=($(compgen -A function 'test_'))
     [ -n "${tap}" ] && printf "1..%d\n" "${#tests[@]}"
 
-    for test_function in ${tests[@]}; do
+    for test_function in "${tests[@]}"; do
         path="/static-code/$(echo ${test_function} | tr '_' '-')"
         counter=$((counter + 1))
         fail=''

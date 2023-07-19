@@ -256,7 +256,7 @@ class SELinuxStatus extends React.Component {
 
         return (
             <Stack hasGutter className="selinux-policy-ct">
-                <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
                     <h2>{_("SELinux policy")}</h2>
                     <Switch isChecked={this.props.selinuxStatus.enforcing}
                             label={_("Enforcing")}

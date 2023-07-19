@@ -2,29 +2,10 @@
 // Pull in variables (for breakpoints)
 @use "global-variables" as *;
 
-// https://github.com/patternfly/patternfly-react/pull/8953
-.pf-v5-c-input-group__text {
-  padding-inline: var(--pf-v5-global--spacer--sm);
-}
-
 // PF Select is deprecated - no issue reported upstream - this needs to be removed from our codebase
 // Make select have the expected width
 .pf-v5-c-select[data-popper-reference-hidden="false"] {
   inline-size: auto;
-}
-
-// https://github.com/patternfly/patternfly/issues/5501
-.pf-v5-theme-dark {
-  .pf-v5-c-alert.pf-m-custom {
-    --pf-v5-c-alert--BackgroundColor: var(--pf-v5-global--palette--black-600);
-    --pf-v5-c-alert__title--Color: var(--pf-v5-global--custom-color--200);
-  }
-}
-
-// https://github.com/patternfly/patternfly-react/issues/8993
-.pf-v5-c-about-modal-box__close {
-  --pf-v5-c-about-modal-box__close--c-button--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-200);
-  --pf-v5-c-about-modal-box__close--c-button--hover--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
 }
 
 /* WORKAROUND: Navigation problems with Tertiary Nav widget on mobile */

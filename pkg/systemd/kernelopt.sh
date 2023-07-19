@@ -41,7 +41,7 @@ grub() {
     elif cur=$(rpm-ostree kargs 2>&1); then
         if [ "$1" = set ]; then
             # replace if already present; can happen in the middle (must be separated by space) or at the beginning of line
-            if [ "${cur% $key *}" != "$cur" ] || [ "${cur% $key=*}" != "$cur" ] || [ "${cur#$key[ =]}" != "$cur" ]; then
+            if [ "${cur% $key *}" != "$cur" ] || [ "${cur% $key=*}" != "$cur" ] || [ "${cur#${key}[ =]}" != "$cur" ]; then
                 rpm-ostree kargs --replace="$2"
             else
                 rpm-ostree kargs --append="$2"

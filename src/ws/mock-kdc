@@ -24,12 +24,12 @@ cd $(dirname $0)
 
 warning()
 {
-	echo "mock-kdc: $@" >&2
+	echo "mock-kdc: $*" >&2
 }
 
 check_require()
 {
-	for n in $@; do
+	for n in "$@"; do
 		if ! which $n 2> /dev/null; then
 			warning "$n not present"
 			exit 18

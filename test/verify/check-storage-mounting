@@ -203,7 +203,7 @@ ExecStart=/usr/bin/sleep infinity
         m.execute("sed -i -e 's/noauto/noauto,x-systemd.automount/' /etc/fstab")
         b.wait_not_present(fsys_tab + " button:contains(Mount also automatically on boot)")
 
-    def testFirstMount(self):
+    def testFstabOptions(self):
         m = self.machine
         b = self.browser
 
@@ -222,6 +222,11 @@ ExecStart=/usr/bin/sleep infinity
                      "mount_options.extra": "x-foo"})
         m.execute("grep /run/data /etc/fstab")
         m.execute("grep 'x-foo' /etc/fstab")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "/run/data (ignore failure, x-foo)")
+
+        # absent mntopts and fsck columns implies "defaults"
+        m.execute(r"sed -i '/run\/data/ s/auto.*$/auto/' /etc/fstab")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "/run/data (stop boot on failure)")
 
     def testNeverAuto(self):
         m = self.machine

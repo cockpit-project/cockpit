@@ -633,7 +633,7 @@ client.mount_at = (block, target) => {
     const entry = block.Configuration.find(c => c[0] == "fstab" && utils.decode_filename(c[1].dir.v) == target);
     if (entry)
         return cockpit.script('set -e; mkdir -p "$2"; mount "$1" "$2" -o "$3"',
-                              [utils.decode_filename(block.Device), target, utils.decode_filename(entry[1].opts.v)],
+                              [utils.decode_filename(block.Device), target, utils.get_block_mntopts(entry[1])],
                               { superuser: true, err: "message" });
     else
         return Promise.reject(cockpit.format("Internal error: No fstab entry for $0 and $1",

@@ -61,15 +61,14 @@ export function get_fstab_config(block, also_child_config) {
         config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
 
     if (config && utils.decode_filename(config[1].type.v) != "swap") {
+        const mnt_opts = utils.get_block_mntopts(config[1]).split(",");
         let dir = utils.decode_filename(config[1].dir.v);
-        let opts = (utils.decode_filename(config[1].opts.v)
-                .split(",")
+        let opts = mnt_opts
                 .filter(function (s) { return s.indexOf("x-parent") !== 0 })
-                .join(","));
-        const parents = (utils.decode_filename(config[1].opts.v)
-                .split(",")
+                .join(",");
+        const parents = mnt_opts
                 .filter(function (s) { return s.indexOf("x-parent") === 0 })
-                .join(","));
+                .join(",");
         if (dir[0] != "/")
             dir = "/" + dir;
         if (opts == "defaults")

@@ -154,11 +154,11 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                 <Gallery hasGutter>
                     {firewall.installed && <Card id="networking-firewall-summary">
                         <CardHeader actions={{
-                            actions: <><Button variant="secondary" id="networking-firewall-link"
+                            actions: <Button variant="secondary" id="networking-firewall-link"
                                         component="a"
                                         onClick={() => cockpit.jump("/network/firewall", cockpit.transport.host)}>
                                 {_("Edit rules and zones")}
-                            </Button></>,
+                            </Button>,
                         }}>
                             <Flex alignItems={{ default: 'alignItemsCenter' }}>
                                 <CardTitle component="h2">{_("Firewall")}</CardTitle>

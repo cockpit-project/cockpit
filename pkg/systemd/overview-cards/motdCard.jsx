@@ -116,8 +116,8 @@ export const MotdCard = () => {
         <AlertActionCloseButton onClose={hideAlert} />
     </>;
 
-    // Switch to variant="custom" when https://github.com/patternfly/patternfly-react/pull/8974 is released
-    return <Alert id="motd-box" isInline className="pf-m-custom motd-box"
+    return <Alert id="motd-box" isInline className="motd-box"
+                  variant="custom"
                   title={<pre id="motd">{motdText}</pre>}
                   actionClose={actionClose} />;
 };

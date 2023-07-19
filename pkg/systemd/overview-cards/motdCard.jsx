@@ -108,9 +108,9 @@ export const MotdCard = () => {
     const actionClose = <>
         {superuser.allowed &&
         <Button variant="plain"
-                                     id="motd-box-edit"
-                                     onClick={() => Dialogs.show(<MotdEditDialog text={motdText} />)}
-                                     aria-label={_("Edit motd")}>
+                id="motd-box-edit"
+                onClick={() => Dialogs.show(<MotdEditDialog text={motdText} />)}
+                aria-label={_("Edit motd")}>
             <EditIcon />
         </Button>}
         <AlertActionCloseButton onClose={hideAlert} />

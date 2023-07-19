@@ -19,13 +19,15 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
+import * as Yup from "yup";
 
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
+import { transformValidationErrorObject } from "validation";
 
-import { has_errors, is_valid_char_name } from "./dialog-utils.js";
+import { has_errors } from "./dialog-utils.js";
 
 const _ = cockpit.gettext;
 
@@ -57,34 +59,6 @@ function GroupCreateBody({ state, errors, change }) {
     );
 }
 
-function validate_name(name, groups) {
-    if (!name)
-        return _("No group name specified");
-
-    for (let i = 0; i < name.length; i++) {
-        if (!is_valid_char_name(name[i]))
-            return _("The group name can only consist of letters from a-z, digits, dots, dashes and underscores");
-    }
-
-    for (let k = 0; k < groups.length; k++) {
-        if (groups[k].name == name)
-            return _("A group with this name already exists");
-    }
-
-    return null;
-}
-
-function validate_group(id, groups) {
-    if (!id)
-        return _("No ID specified");
-
-    const id_num = parseInt(id);
-    if (id_num.toString() !== id || id_num < 0)
-        return _("The group ID must be positive integer");
-
-    return null;
-}
-
 export function group_create_dialog(groups, setGroupsCardExpanded, min_gid, max_gid) {
     let dlg = null;
     const state = {
@@ -107,13 +81,26 @@ export function group_create_dialog(groups, setGroupsCardExpanded, min_gid, max_
     }
 
     function validate(name, id) {
-        const errs = { };
+        const validationSchema = Yup.object({
+            name: Yup.string()
+                    .typeError( _("Name must be a string"))
+                    .required(_("No group name specified"))
+                    .matches(/^[A-Za-z0-9_-]*$/, _('The group name can only consist of letters from a-z, digits, dots, dashes and underscores.'))
+                    .notOneOf(groups.map(g => g.name), _("A group with this name already exists")),
+            id: Yup.number()
+                    .typeError( _("ID must be a positive integer"))
+                    .required(_("No group ID specified"))
+                    .min(1, _("ID must be a positive integer"))
+                    .notOneOf(groups.map(g => g.gid), _("A group with this ID already exists")),
+        });
 
-        errs.name = validate_name(name, groups);
-        errs.id = validate_group(id, groups);
-        errors = errs;
+        try {
+            validationSchema.validateSync({ name, id }, { abortEarly: false });
+        } catch (validationErrors) {
+            errors = transformValidationErrorObject(validationErrors);
+        }
 
-        return !has_errors(errs);
+        return !has_errors(errors);
     }
 
     function create(name, id) {

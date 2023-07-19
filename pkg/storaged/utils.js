@@ -77,6 +77,11 @@ export function encode_filename(decoded) {
             .concat([0]));
 }
 
+export function get_block_mntopts(config) {
+    // treat an absent field as "default", like util-linux
+    return (config.opts ? decode_filename(config.opts.v) : "defaults");
+}
+
 export function fmt_size(bytes) {
     return cockpit.format_bytes(bytes);
 }

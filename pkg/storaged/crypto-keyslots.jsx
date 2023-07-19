@@ -39,7 +39,7 @@ import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
-import { decode_filename, encode_filename, block_name, for_each_async, get_children } from "./utils.js";
+import { decode_filename, encode_filename, get_block_mntopts, block_name, for_each_async, get_children } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import { parse_options, unparse_options } from "./format-dialog.jsx";
@@ -356,7 +356,7 @@ function ensure_fstab_option(steps, progress, client, block, option) {
     const fsys_config = cleartext
         ? cleartext.Configuration.find(c => c[0] == "fstab")
         : crypto?.ChildConfiguration.find(c => c[0] == "fstab");
-    const fsys_options = fsys_config && parse_options(decode_filename(fsys_config[1].opts.v));
+    const fsys_options = fsys_config && parse_options(get_block_mntopts(fsys_config[1]));
 
     if (!fsys_options || fsys_options.indexOf(option) >= 0)
         return Promise.resolve();

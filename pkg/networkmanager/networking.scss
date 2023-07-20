@@ -299,4 +299,10 @@ th {
   padding-block-start: 0;
 }
 
+// HACK for PF having a `div` in a `label` https://github.com/patternfly/patternfly/issues/5701
+.mtu-label-input {
+  display: inline;
+  margin-inline-start: var(--pf-v5-global--spacer--md);
+}
+
 /* End Firewall specific CSS */

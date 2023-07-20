@@ -1,0 +1,28 @@
+# reverse dependency test
+enabled: false
+
+adjust+:
+  when: revdeps == yes
+  enabled: true
+
+discover:
+    how: fmf
+    url: https://github.com/cockpit-project/cockpit-podman
+    ref: "main"
+execute:
+    how: tmt
+
+/podman-system:
+    summary: Run cockpit-podman system tests
+    discover+:
+        test: /test/browser/system
+
+/podman-user:
+    summary: Run cockpit-podman user tests
+    discover+:
+        test: /test/browser/user
+
+/podman-misc:
+    summary: Run other cockpit-podman tests
+    discover+:
+        test: /test/browser/other

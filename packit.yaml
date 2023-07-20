@@ -24,6 +24,7 @@ srpm_build_deps:
 copy_upstream_release_description: true
 jobs:
   - job: tests
+    identifier: self
     trigger: pull_request
     targets:
       - fedora-37
@@ -33,6 +34,21 @@ jobs:
       - centos-stream-8-x86_64
       - centos-stream-9-x86_64
       - centos-stream-9-aarch64
+
+  # current Fedora runs reverse dependency testing against https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/
+  - job: tests
+    identifier: revdeps
+    trigger: pull_request
+    targets:
+      - fedora-latest-stable
+    tf_extra_params:
+      environments:
+        - artifacts:
+          - type: repository-file
+            id: https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/repo/fedora-$releasever/group_cockpit-main-builds-fedora-$releasever.repo
+          tmt:
+            context:
+              revdeps: "yes"
 
   # run build/unit tests on some interesting architectures
   - job: copr_build

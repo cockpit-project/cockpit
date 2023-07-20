@@ -254,6 +254,8 @@ def main(*, beipack: bool = False) -> None:
     parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
     args = parser.parse_args()
 
+    raise OSError("KABOOM!")
+
     # This is determined by who calls us
     args.beipack = beipack
 

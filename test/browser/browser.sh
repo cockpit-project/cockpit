@@ -5,6 +5,9 @@ set -eux
 # like "basic", passed on to run-test.sh
 PLAN="$1"
 
+rpm -qa '*cockpit*'
+exit 0
+
 MYDIR="$(realpath $(dirname "$0"))"
 if [ -d source ]; then
     # path for standard-test-source

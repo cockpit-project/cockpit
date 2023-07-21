@@ -28,13 +28,16 @@ import "./systemInformationCard.scss";
 
 const _ = cockpit.gettext;
 
-export class SystemInfomationCard extends React.Component {
+export class SystemInformationCard extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {};
-        this.getDMIInfo = this.getDMIInfo.bind(this);
-        this.getMachineId = this.getMachineId.bind(this);
+        this.state = {
+            machineID: null,
+            model: null,
+            assetTag: null,
+            systemUptime: null,
+        };
         this.getSystemUptime = this.getSystemUptime.bind(this);
     }
 
@@ -60,7 +63,7 @@ export class SystemInfomationCard extends React.Component {
                 })
                 .fail(function(ex) {
                     // FIXME show proper Alerts
-                    console.error("Error reading machine id", ex);
+                    console.error("Error reading machine id", ex.toString());
                 })
                 .always(function() {
                     machine_id.close();
@@ -79,20 +82,20 @@ export class SystemInfomationCard extends React.Component {
                         name = fields.board_name;
                     }
                     if (!vendor || !name)
-                        self.setState({ hardwareText: undefined });
+                        self.setState({ model: null });
                     else
-                        self.setState({ hardwareText: vendor + " " + name });
+                        self.setState({ model: vendor + " " + name });
 
-                    self.setState({ assetTagText: fields.product_serial || fields.chassis_serial || undefined });
+                    self.setState({ assetTag: fields.product_serial || fields.chassis_serial });
                 })
                 .catch(ex => {
                     // try DeviceTree
                     machine_info.devicetree_info()
-                            .then(fields => self.setState({ assetTagText: fields.serial, hardwareText: fields.model || undefined }))
+                            .then(fields => self.setState({ assetTag: fields.serial, model: fields.model }))
                             .catch(dmiex => {
-                                console.debug("couldn't read dmi info: " + ex);
+                                console.debug("couldn't read dmi info: " + ex.toString());
                                 console.debug("couldn't read DeviceTree info: " + dmiex.toString());
-                                self.setState({ assetTagText: undefined, hardwareText: undefined });
+                                self.setState({ assetTag: null, model: null });
                             });
                 });
     }
@@ -104,7 +107,7 @@ export class SystemInfomationCard extends React.Component {
                     const bootTime = new Date().valueOf() - uptime * 1000;
                     this.setState({ systemUptime: timeformat.distanceToNow(bootTime) });
                 })
-                .fail(ex => console.error("Error reading system uptime", ex));
+                .fail(ex => console.error("Error reading system uptime", ex.toString()));
     }
 
     render() {
@@ -114,16 +117,16 @@ export class SystemInfomationCard extends React.Component {
                 <CardBody>
                     <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">
                         <tbody>
-                            {this.state.hardwareText && <tr>
+                            {this.state.model && <tr>
                                 <th scope="row">{_("Model")}</th>
                                 <td>
-                                    <div id="system_information_hardware_text">{this.state.hardwareText}</div>
+                                    <div id="system_information_hardware_text">{this.state.model}</div>
                                 </td>
                             </tr>}
-                            {this.state.assetTagText && <tr>
+                            {this.state.assetTag && <tr>
                                 <th scope="row">{_("Asset tag")}</th>
                                 <td>
-                                    <div id="system_information_asset_tag_text">{this.state.assetTagText}</div>
+                                    <div id="system_information_asset_tag_text">{this.state.assetTag}</div>
                                 </td>
                             </tr>}
                             <tr>

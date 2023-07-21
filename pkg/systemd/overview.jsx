@@ -30,7 +30,7 @@ import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle, DropdownToggl
 
 import { superuser } from "superuser";
 
-import { SystemInfomationCard } from './overview-cards/systemInformationCard.jsx';
+import { SystemInformationCard } from './overview-cards/systemInformationCard.jsx';
 import { ConfigurationCard } from './overview-cards/configurationCard.jsx';
 import { HealthCard } from './overview-cards/healthCard.jsx';
 import { MotdCard } from './overview-cards/motdCard.jsx';
@@ -169,7 +169,7 @@ class OverviewPage extends React.Component {
                         <MotdCard />
                         <HealthCard />
                         <UsageCard />
-                        <SystemInfomationCard />
+                        <SystemInformationCard />
                         <ConfigurationCard hostname={this.hostname_text()} />
                     </Gallery>
                 </PageSection>

@@ -50,7 +50,7 @@ export class SystemInformationCard extends React.Component {
     }
 
     componentWillUnmount() {
-        clearInterval(this.uptimeTimer);
+        clearInterval(this.uptimeTimer); // not-covered: callers currently never unmount this
     }
 
     getMachineId() {
@@ -58,7 +58,7 @@ export class SystemInformationCard extends React.Component {
 
         machine_id.read()
                 .then(machineID => this.setState({ machineID }))
-                .catch(ex => console.error("Error reading machine id", ex.toString()))
+                .catch(ex => console.error("Error reading machine id", ex.toString())) // not-covered: OS error
                 .finally(machine_id.close);
     }
 
@@ -80,7 +80,7 @@ export class SystemInformationCard extends React.Component {
                 })
                 .catch(ex => {
                     // try DeviceTree
-                    machine_info.devicetree_info()
+                    machine_info.devicetree_info() // not-covered: coverage only runs on x86_64
                             .then(fields => this.setState({ assetTag: fields.serial, model: fields.model }))
                             .catch(dmiex => {
                                 console.debug("couldn't read dmi info: " + ex.toString());
@@ -97,7 +97,7 @@ export class SystemInformationCard extends React.Component {
                     const bootTime = new Date().valueOf() - uptime * 1000;
                     this.setState({ systemUptime: timeformat.distanceToNow(bootTime) });
                 })
-                .catch(ex => console.error("Error reading system uptime", ex.toString()));
+                .catch(ex => console.error("Error reading system uptime", ex.toString())); // not-covered: OS error
     }
 
     render() {

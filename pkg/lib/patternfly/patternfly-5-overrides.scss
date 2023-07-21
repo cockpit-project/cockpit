@@ -156,6 +156,10 @@ select.pf-v5-c-form-control {
       }
     }
   }
+
+  // fixed in react-styles 5.0.0-prerelease.7, but it breaks the horizontal
+  // radio buttons in the firewall zone dialog instead
+  --pf-v5-c-toolbar__item--AlignSelf: baseline;
 }
 
 // When there is an Alert above the Form add some spacing

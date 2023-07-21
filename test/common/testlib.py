@@ -543,7 +543,7 @@ class Browser:
             self.wait_val(selector, val)
 
     def set_file_autocomplete_val(self, group_identifier: str, location: str):
-        self.set_input_text(f"{group_identifier} .pf-v5-c-select__toggle-typeahead", location)
+        self.set_input_text(f"{group_identifier} .pf-v5-c-select__toggle-typeahead input", location)
         # click away the selection list, to force a state update
         self.click(f"{group_identifier} .pf-v5-c-select__toggle-typeahead")
         self.wait_not_present(f"{group_identifier} .pf-v5-c-select__menu")

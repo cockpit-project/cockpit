@@ -241,7 +241,7 @@ const AutoUpdatesDialog = ({ backend }) => {
     function save(event) {
         setPending(true);
         backend.setConfig(enabled, type, day, time)
-                .always(Dialogs.close);
+                .finally(Dialogs.close);
 
         if (event)
             event.preventDefault();

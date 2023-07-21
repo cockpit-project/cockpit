@@ -53,8 +53,8 @@ const MotdEditDialog = ({ text }) => {
                        <Button variant='primary'
                                onClick={() => cockpit.file("/etc/motd", { superuser: "try", err: "message" })
                                        .replace(value)
-                                       .done(Dialogs.close)
-                                       .fail(exc => {
+                                       .then(Dialogs.close)
+                                       .catch(exc => {
                                            setError(_("Failed to save changes in /etc/motd"));
                                            setErrorDetail(exc.message);
                                        })}>

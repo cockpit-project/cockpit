@@ -55,24 +55,14 @@ export class SystemInformationCard extends React.Component {
 
     getMachineId() {
         const machine_id = cockpit.file("/etc/machine-id");
-        const self = this;
 
         machine_id.read()
-                .done(function(content) {
-                    self.setState({ machineID: content });
-                })
-                .fail(function(ex) {
-                    // FIXME show proper Alerts
-                    console.error("Error reading machine id", ex.toString());
-                })
-                .always(function() {
-                    machine_id.close();
-                });
+                .then(machineID => this.setState({ machineID }))
+                .catch(ex => console.error("Error reading machine id", ex.toString()))
+                .finally(machine_id.close);
     }
 
     getDMIInfo() {
-        const self = this;
-
         machine_info.dmi_info()
                 .then(fields => {
                     let vendor = fields.sys_vendor;
@@ -82,20 +72,20 @@ export class SystemInformationCard extends React.Component {
                         name = fields.board_name;
                     }
                     if (!vendor || !name)
-                        self.setState({ model: null });
+                        this.setState({ model: null });
                     else
-                        self.setState({ model: vendor + " " + name });
+                        this.setState({ model: vendor + " " + name });
 
-                    self.setState({ assetTag: fields.product_serial || fields.chassis_serial });
+                    this.setState({ assetTag: fields.product_serial || fields.chassis_serial });
                 })
                 .catch(ex => {
                     // try DeviceTree
                     machine_info.devicetree_info()
-                            .then(fields => self.setState({ assetTag: fields.serial, model: fields.model }))
+                            .then(fields => this.setState({ assetTag: fields.serial, model: fields.model }))
                             .catch(dmiex => {
                                 console.debug("couldn't read dmi info: " + ex.toString());
                                 console.debug("couldn't read DeviceTree info: " + dmiex.toString());
-                                self.setState({ assetTag: null, model: null });
+                                this.setState({ assetTag: null, model: null });
                             });
                 });
     }
@@ -107,7 +97,7 @@ export class SystemInformationCard extends React.Component {
                     const bootTime = new Date().valueOf() - uptime * 1000;
                     this.setState({ systemUptime: timeformat.distanceToNow(bootTime) });
                 })
-                .fail(ex => console.error("Error reading system uptime", ex.toString()));
+                .catch(ex => console.error("Error reading system uptime", ex.toString()));
     }
 
     render() {

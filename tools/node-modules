@@ -25,6 +25,12 @@ cmd_remove() {
 
 cmd_checkout() {
     # we default to check out the node_modules corresponding to the gitlink in the index
+    local force=""
+    if [ "${1-}" = "--force" ]; then
+        force="1"
+        shift
+    fi
+
     local sha="${1-$(get_index_gitlink node_modules)}"
 
     # fetch by sha to prevent us from downloading something we don't want
@@ -32,7 +38,7 @@ cmd_checkout() {
 
     # verify that our package.json is equal to the one the cached node_modules
     # was created with, unless --force is given
-    if [ "${1-}" != "--force" ]; then
+    if [ -z "$force" ]; then
         if ! cmp_from_cache "${sha}" '.package.json' 'package.json'; then
             cat >&2 <<EOF
 

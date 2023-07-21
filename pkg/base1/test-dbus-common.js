@@ -33,334 +33,240 @@ function deep_update(target, data) {
 }
 
 export function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line no-unused-vars
-    QUnit.test("call method", function (assert) {
-        const done = assert.async();
-        assert.expect(3);
-
+    QUnit.test("call method", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         assert.equal(typeof dbus.call, "function", "is a function");
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", ["Browser-side JS"])
-                .done(function(reply) {
-                    assert.deepEqual(reply, ["Word! You said `Browser-side JS'. I'm Skeleton, btw!"], "reply");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfully");
-                    done();
-                });
+        const reply = await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                                      "HelloWorld", ["Browser-side JS"]);
+        assert.deepEqual(reply, ["Word! You said `Browser-side JS'. I'm Skeleton, btw!"], "reply");
     });
 
-    QUnit.test("call method with timeout", function (assert) {
-        const done = assert.async();
-        assert.expect(2);
-
+    QUnit.test("call method with timeout", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "NeverReturn", [], { timeout: 10 })
-                .done(function(reply) {
-                    assert.ok(false, "should not be reached");
-                })
-                .fail(function(ex) {
-                    assert.ok(["org.freedesktop.DBus.Error.Timeout",
-                        "org.freedesktop.DBus.Error.NoReply"].indexOf(ex.name) >= 0);
-                })
-                .always(function() {
-                    assert.equal(this.state(), "rejected", "call timed out");
-                    done();
-                });
+        try {
+            await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "NeverReturn",
+                            [], { timeout: 10 });
+            assert.ok(false, "should not be reached");
+        } catch (ex) {
+            assert.ok([
+                "org.freedesktop.DBus.Error.Timeout",
+                "org.freedesktop.DBus.Error.NoReply"
+            ].indexOf(ex.name) >= 0);
+        }
     });
 
-    QUnit.test("close immediately", function (assert) {
+    QUnit.test("close immediately", assert => {
         const done = assert.async();
         assert.expect(1);
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.addEventListener("close", function(event, options) {
+        dbus.addEventListener("close", (_event, options) => {
             assert.equal(options.problem, "test-code", "got right code");
             done();
         });
 
-        window.setTimeout(function() {
-            dbus.close("test-code");
-        }, 100);
+        window.setTimeout(() => dbus.close("test-code"), 100);
     });
 
-    QUnit.test("call close", function (assert) {
-        const done = assert.async();
-        assert.expect(2);
-
+    QUnit.test("call close", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", ["Browser-side JS"])
-                .fail(function(ex) {
-                    assert.equal(ex.problem, "disconnected", "got right close code");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "rejected", "call rejected");
-                    done();
-                });
-
-        dbus.close();
+        try {
+            const promise = dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "HelloWorld", ["Browser-side JS"]);
+            dbus.close();
+            await promise;
+            // assert.ok(false, "should not be reached");
+        } catch (ex) {
+            assert.equal(ex.problem, "disconnected", "got right close code");
+        }
     });
 
-    QUnit.test("call closed", function (assert) {
-        const done = assert.async();
-        assert.expect(2);
-
+    QUnit.test("call closed", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.close("blah-blah");
 
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", ["Browser-side JS"])
-                .fail(function(ex) {
-                    assert.equal(ex.problem, "blah-blah", "got right close code");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "rejected", "call rejected");
-                    done();
-                });
+        try {
+            await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                            "HelloWorld", ["Browser-side JS"]);
+            assert.ok(false, "should not be reached");
+        } catch (ex) {
+            assert.equal(ex.problem, "blah-blah", "got right close code");
+        }
     });
 
-    QUnit.test("primitive types", function (assert) {
-        const done = assert.async();
-        assert.expect(2);
-
+    QUnit.test("primitive types", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestPrimitiveTypes", [
-                      10, true, 11, 12, 13, 14, 15, 16, 17,
-                      "a string", "/a/path", "asig",
-                      "ZWZnAA=="])
-                .done(function(reply) {
-                    assert.deepEqual(reply, [
-                        20, false, 111, 1012, 10013, 100014, 1000015, 10000016, 17.0 / Math.PI,
-                        "Word! You said `a string'. Rock'n'roll!", "/modified/a/path", "assgitasig",
-                        "Ynl0ZXN0cmluZyH/AA=="
-                    ], "round trip");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfully");
-                    done();
-                });
+        const reply = await dbus.call(
+            "/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TestPrimitiveTypes",
+            [10, true, 11, 12, 13, 14, 15, 16, 17, "a string", "/a/path", "asig", "ZWZnAA=="]);
+        assert.deepEqual(reply, [
+            20, false, 111, 1012, 10013, 100014, 1000015, 10000016, 17.0 / Math.PI,
+            "Word! You said `a string'. Rock'n'roll!", "/modified/a/path", "assgitasig",
+            "Ynl0ZXN0cmluZyH/AA=="
+        ], "round trip");
     });
 
-    QUnit.test.skipWithPybridge("integer bounds", function (assert) {
-        assert.expect(35);
-
+    QUnit.test.skipWithPybridge("integer bounds", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
 
-        function testNumber(type, value, valid) {
-            const done = assert.async();
-
-            dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                      "TestVariant", [{ t: type, v: value }])
-                    .fail(function(ex) {
-                        assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs");
-                    })
-                    .always(function() {
-                        if (valid)
-                            assert.equal(this.state(), "resolved", "accepted in bounds number");
-                        else
-                            assert.equal(this.state(), "rejected", "rejected out of bounds number");
-                        done();
-                    });
+        async function testNumber(type, value, valid) {
+            try {
+                await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                                "TestVariant", [{ t: type, v: value }]);
+                if (!valid)
+                    assert.ok(false, "should not be reached");
+            } catch (ex) {
+                assert.equal(valid, false);
+                assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs");
+            }
         }
 
-        testNumber('y', 0, true);
-        testNumber('y', 0xff, true);
-        testNumber('y', -1, false);
-        testNumber('y', 0xff + 1, false);
-        testNumber('n', -300, true);
-        testNumber('n', 300, true);
-        testNumber('n', -0x8000 - 1, false);
-        testNumber('n', 0x7fff + 1, false);
-        testNumber('q', 0, true);
-        testNumber('q', 300, true);
-        testNumber('q', -1, false);
-        testNumber('q', 0xffff + 1, false);
-        testNumber('i', -0xfffff, true);
-        testNumber('i', 0xfffff, true);
-        testNumber('i', -0x80000000 - 1, false);
-        testNumber('i', 0x7fffffff + 1, false);
-        testNumber('u', 0, true);
-        testNumber('u', 0xfffff, true);
-        testNumber('u', -1, false);
-        testNumber('u', 0xffffffff + 1, false);
-        testNumber('x', -0xfffffffff, true);
-        testNumber('x', 0xfffffffff, true);
-        testNumber('t', 0xfffffffff, true);
-        testNumber('t', -1, false);
+        await testNumber('y', 0, true);
+        await testNumber('y', 0xff, true);
+        await testNumber('y', -1, false);
+        await testNumber('y', 0xff + 1, false);
+        await testNumber('n', -300, true);
+        await testNumber('n', 300, true);
+        await testNumber('n', -0x8000 - 1, false);
+        await testNumber('n', 0x7fff + 1, false);
+        await testNumber('q', 0, true);
+        await testNumber('q', 300, true);
+        await testNumber('q', -1, false);
+        await testNumber('q', 0xffff + 1, false);
+        await testNumber('i', -0xfffff, true);
+        await testNumber('i', 0xfffff, true);
+        await testNumber('i', -0x80000000 - 1, false);
+        await testNumber('i', 0x7fffffff + 1, false);
+        await testNumber('u', 0, true);
+        await testNumber('u', 0xfffff, true);
+        await testNumber('u', -1, false);
+        await testNumber('u', 0xffffffff + 1, false);
+        await testNumber('x', -0xfffffffff, true);
+        await testNumber('x', 0xfffffffff, true);
+        await testNumber('t', 0xfffffffff, true);
+        await testNumber('t', -1, false);
     });
 
-    QUnit.test("non-primitive types", function (assert) {
-        const done = assert.async();
-        assert.expect(2);
-
+    QUnit.test("non-primitive types", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestNonPrimitiveTypes", [
-                      { one: "red", two: "blue" },
-                      { first: [42, 42], second: [43, 43] },
-                      [42, 'foo', 'bar'],
-                      ["one", "two"],
-                      ["/one", "/one/two"],
-                      ["ass", "git"],
-                      ["QUIA", "QkMA"]])
-                .done(function(reply) {
-                    assert.deepEqual(reply, [
-                        "{'one': 'red', 'two': 'blue'}{'first': (42, 42), 'second': (43, 43)}(42, 'foo', 'bar')array_of_strings: [one, two] array_of_objpaths: [/one, /one/two] array_of_signatures: [signature 'ass', 'git'] array_of_bytestrings: [AB, BC] "
-                    ], "round trip");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfully");
-                    done();
-                });
+        const reply = await dbus.call(
+            "/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+            "TestNonPrimitiveTypes", [
+                { one: "red", two: "blue" },
+                { first: [42, 42], second: [43, 43] },
+                [42, 'foo', 'bar'],
+                ["one", "two"],
+                ["/one", "/one/two"],
+                ["ass", "git"],
+                ["QUIA", "QkMA"]
+            ]);
+        assert.deepEqual(reply, [
+            "{'one': 'red', 'two': 'blue'}{'first': (42, 42), 'second': (43, 43)}(42, 'foo', 'bar')array_of_strings: [one, two] array_of_objpaths: [/one, /one/two] array_of_signatures: [signature 'ass', 'git'] array_of_bytestrings: [AB, BC] "
+        ], "round trip");
     });
 
-    QUnit.test.skipWithPybridge("variants", function (assert) {
-        const done = assert.async();
-        assert.expect(2);
-
+    QUnit.test.skipWithPybridge("variants", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestAsv", [{
-                      one: cockpit.variant("s", "foo"),
-                      two: cockpit.variant("o", "/bar"),
-                      three: cockpit.variant("g", "assgit"),
-                      four: cockpit.variant("y", 42),
-                      five: cockpit.variant("d", 1000.0)
-                  }])
-                .done(function(reply) {
-                    assert.deepEqual(reply, [
-                        "{'one': <'foo'>, 'two': <objectpath '/bar'>, 'three': <signature 'assgit'>, 'four': <byte 0x2a>, 'five': <1000.0>}"
-                    ], "round trip");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfully");
-                    done();
-                });
+        const reply = await dbus.call(
+            "/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+            "TestAsv", [{
+                one: cockpit.variant("s", "foo"),
+                two: cockpit.variant("o", "/bar"),
+                three: cockpit.variant("g", "assgit"),
+                four: cockpit.variant("y", 42),
+                five: cockpit.variant("d", 1000.0)
+            }]);
+        assert.deepEqual(reply, [
+            "{'one': <'foo'>, 'two': <objectpath '/bar'>, 'three': <signature 'assgit'>, 'four': <byte 0x2a>, 'five': <1000.0>}"
+        ], "round trip");
     });
 
-    QUnit.test.skipWithPybridge("bad variants", function (assert) {
-        const done = assert.async();
-        assert.expect(3);
-
+    QUnit.test.skipWithPybridge("bad variants", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestAsv", [{
-                      one: "foo",
-                      two: "/bar",
-                      three: "assgit",
-                      four: 42,
-                      five: 1000.0
-                  }])
-                .fail(function(ex) {
-                    assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
-                    assert.equal(ex.message, "Unexpected type 'string' in argument", "error message");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "rejected", "should fail");
-                    done();
-                });
+        try {
+            await dbus.call(
+                "/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TestAsv",
+                [{
+                    one: "foo",
+                    two: "/bar",
+                    three: "assgit",
+                    four: 42,
+                    five: 1000.0
+                }]);
+            assert.ok(false, "should not be reached");
+        } catch (ex) {
+            assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            assert.equal(ex.message, "Unexpected type 'string' in argument", "error message");
+        }
     });
 
-    QUnit.test("get all", function (assert) {
-        const done = assert.async();
-        assert.expect(2);
-
+    QUnit.test("get all", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "org.freedesktop.DBus.Properties",
-                  "GetAll", ["com.redhat.Cockpit.DBusTests.Frobber"])
-                .done(function(reply) {
-                    assert.deepEqual(reply, [{
-                        FinallyNormalName: { t: "s", v: "There aint no place like home" },
-                        ReadonlyProperty: { t: "s", v: "blah" },
-                        aay: { t: "aay", v: [] },
-                        ag: { t: "ag", v: [] },
-                        ao: { t: "ao", v: [] },
-                        as: { t: "as", v: [] },
-                        ay: { t: "ay", v: "QUJDYWJjAA==" },
-                        b: { t: "b", v: false },
-                        d: { t: "d", v: 43 },
-                        g: { t: "g", v: "" },
-                        i: { t: "i", v: 0 },
-                        n: { t: "n", v: 0 },
-                        o: { t: "o", v: "/" },
-                        q: { t: "q", v: 0 },
-                        s: { t: "s", v: "" },
-                        t: { t: "t", v: 0 },
-                        u: { t: "u", v: 0 },
-                        x: { t: "x", v: 0 },
-                        y: { t: "y", v: 42 }
-                    }], "reply");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfully");
-                    done();
-                });
+        const reply = await dbus.call("/otree/frobber", "org.freedesktop.DBus.Properties", "GetAll",
+                                      ["com.redhat.Cockpit.DBusTests.Frobber"]);
+        assert.deepEqual(reply, [{
+            FinallyNormalName: { t: "s", v: "There aint no place like home" },
+            ReadonlyProperty: { t: "s", v: "blah" },
+            aay: { t: "aay", v: [] },
+            ag: { t: "ag", v: [] },
+            ao: { t: "ao", v: [] },
+            as: { t: "as", v: [] },
+            ay: { t: "ay", v: "QUJDYWJjAA==" },
+            b: { t: "b", v: false },
+            d: { t: "d", v: 43 },
+            g: { t: "g", v: "" },
+            i: { t: "i", v: 0 },
+            n: { t: "n", v: 0 },
+            o: { t: "o", v: "/" },
+            q: { t: "q", v: 0 },
+            s: { t: "s", v: "" },
+            t: { t: "t", v: 0 },
+            u: { t: "u", v: 0 },
+            x: { t: "x", v: 0 },
+            y: { t: "y", v: 42 }
+        }], "reply");
     });
 
-    QUnit.test("call unimplemented", function (assert) {
-        const done = assert.async();
-        assert.expect(3);
-
+    QUnit.test("call unimplemented", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "UnimplementedMethod", [])
-                .fail(function(ex) {
-                    assert.equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
-                    assert.equal(ex.message, "Method UnimplementedMethod is not implemented on interface com.redhat.Cockpit.DBusTests.Frobber", "error message");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "rejected", "should fail");
-                    done();
-                });
+        try {
+            await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "UnimplementedMethod", []);
+            assert.ok(false, "should not be reached");
+        } catch (ex) {
+            assert.equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
+            assert.equal(ex.message, "Method UnimplementedMethod is not implemented on interface com.redhat.Cockpit.DBusTests.Frobber", "error message");
+        }
     });
 
-    QUnit.test.skipWithPybridge("call bad base64", function (assert) {
-        const done = assert.async();
-        assert.expect(3);
-
+    QUnit.test.skipWithPybridge("call bad base64", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestPrimitiveTypes", [10, true, 11, 12, 13, 14, 15, 16, 17, "a string", "/a/path", "asig",
-                      "Yooohooo!~ bad base64"])
-                .fail(function(ex) {
-                    assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
-                    assert.equal(ex.message, "Invalid base64 in argument", "error message");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "rejected", "should fail");
-                    done();
-                });
+        try {
+            await dbus.call(
+                "/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TestPrimitiveTypes",
+                [10, true, 11, 12, 13, 14, 15, 16, 17, "a string", "/a/path", "asig", "Yooohooo!~ bad base64"]);
+            assert.ok(false, "should not be reached");
+        } catch (ex) {
+            assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            assert.equal(ex.message, "Invalid base64 in argument", "error message");
+        }
     });
 
-    QUnit.test("call unknown", function (assert) {
-        const done = assert.async();
-        assert.expect(3);
-
+    QUnit.test("call unknown", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "UnknownBlahMethod", [1])
-                .fail(function(ex) {
-                    assert.equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
-                    assert.equal(ex.message, "Introspection data for method com.redhat.Cockpit.DBusTests.Frobber UnknownBlahMethod not available", "error message");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "rejected", "should fail");
-                    done();
-                });
+        try {
+            await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "UnknownBlahMethod", [1]);
+            assert.ok(false, "should not be reached");
+        } catch (ex) {
+            assert.equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
+            assert.equal(ex.message, "Introspection data for method com.redhat.Cockpit.DBusTests.Frobber UnknownBlahMethod not available", "error message");
+        }
     });
 
-    QUnit.test("signals", function (assert) {
-        const done = assert.async();
-        assert.expect(6);
-
+    QUnit.test("signals", async assert => {
         let received = false;
         const dbus = cockpit.dbus(bus_name, channel_options);
         dbus.subscribe({
             interface: "com.redhat.Cockpit.DBusTests.Frobber",
             path: "/otree/frobber"
-        }, function(path, iface, signal, args) {
+        }, (path, iface, signal, args) => {
             if (received)
                 return;
             assert.equal(path, "/otree/frobber", "got right path");
@@ -372,19 +278,12 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
             received = true;
         });
 
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "emission requested");
-                    assert.equal(received, true, "signal received");
-                    done();
-                });
+        await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
+        assert.equal(received, true, "signal received");
     });
 
-    QUnit.test("signal unsubscribe", function (assert) {
-        const done = assert.async();
-        assert.expect(4);
-
-        let received = true;
+    QUnit.test("signal unsubscribe", async assert => {
+        let received = false;
         const dbus = cockpit.dbus(bus_name, channel_options);
 
         function on_signal() {
@@ -396,25 +295,16 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
             path: "/otree/frobber"
         }, on_signal);
 
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "emission requested");
-                    assert.equal(received, true, "signal received");
-                })
-                .then(function() {
-                    subscription.remove();
-                    received = false;
+        await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
+        assert.equal(received, true, "signal received");
 
-                    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
-                            .always(function() {
-                                assert.equal(this.state(), "resolved", "second emission requested");
-                                assert.equal(received, false, "signal not received");
-                                done();
-                            });
-                });
+        subscription.remove();
+        received = false;
+        await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
+        assert.equal(received, false, "signal not received");
     });
 
-    QUnit.test("with types", function (assert) {
+    QUnit.test("with types", assert => {
         const done = assert.async();
         assert.expect(3);
 
@@ -432,7 +322,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("empty base64", function (assert) {
+    QUnit.test.skipWithPybridge("empty base64", assert => {
         const done = assert.async();
         assert.expect(3);
 

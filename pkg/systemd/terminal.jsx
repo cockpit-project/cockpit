@@ -79,10 +79,9 @@ const _ = cockpit.gettext;
             this.maxSize = 40;
         }
 
-        componentDidMount() {
-            cockpit.user().done(function (user) {
-                this.setState({ user, channel: this.createChannel(user) });
-            }.bind(this));
+        async componentDidMount() {
+            const user = await cockpit.user();
+            this.setState({ user, channel: this.createChannel(user) });
         }
 
         onTitleChanged(title) {

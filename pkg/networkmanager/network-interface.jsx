@@ -130,9 +130,9 @@ export const NetworkInterfacePage = ({
 
         function modify() {
             if (iface.MainConnection) {
-                return iface.MainConnection.activate(dev, null).fail(fail);
+                return iface.MainConnection.activate(dev, null).catch(fail);
             } else {
-                return dev.activate_with_settings(ghostSettings, null).fail(fail);
+                return dev.activate_with_settings(ghostSettings, null).catch(fail);
             }
         }
 
@@ -152,9 +152,7 @@ export const NetworkInterfacePage = ({
 
         function modify () {
             return dev.disconnect()
-                    .fail(function (error) {
-                        show_unexpected_error(error);
-                    });
+                    .catch(error => show_unexpected_error(error));
         }
 
         with_checkpoint(model, modify,

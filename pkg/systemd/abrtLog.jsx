@@ -216,8 +216,9 @@ export class AbrtLogDetails extends React.Component {
         this.renderBacktrace = this.renderBacktrace.bind(this);
     }
 
-    componentDidMount() {
-        this.props.service.GetProblemData(this.props.problem.path).done(details => this.setState({ details }));
+    async componentDidMount() {
+        const details = await this.props.service.GetProblemData(this.props.problem.path);
+        this.setState({ details });
     }
 
     handleSelect(event, active_tab) {

@@ -71,10 +71,7 @@ export const NetworkInterfaceMembers = ({
                         if (val) {
                             with_checkpoint(
                                 model,
-                                function () {
-                                    return member_con.activate(dev)
-                                            .fail(show_unexpected_error);
-                                },
+                                () => member_con.activate(dev).catch(show_unexpected_error),
                                 {
                                     devices: dev ? [dev] : [],
                                     fail_text: fmt_to_fragments(_("Switching on $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{iface.Name}</b>),
@@ -83,10 +80,7 @@ export const NetworkInterfaceMembers = ({
                         } else if (dev) {
                             with_checkpoint(
                                 model,
-                                function () {
-                                    return dev.disconnect()
-                                            .fail(show_unexpected_error);
-                                },
+                                () => dev.disconnect().catch(show_unexpected_error),
                                 {
                                     devices: [dev],
                                     fail_text: fmt_to_fragments(_("Switching off $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{iface.Name}</b>),
@@ -109,10 +103,7 @@ export const NetworkInterfaceMembers = ({
                                     onClick={syn_click(model, () => {
                                         with_checkpoint(
                                             model,
-                                            function () {
-                                                return (free_member_connection(member_con)
-                                                        .fail(show_unexpected_error));
-                                            },
+                                            () => free_member_connection(member_con).catch(show_unexpected_error),
                                             {
                                                 devices: dev ? [dev] : [],
                                                 fail_text: fmt_to_fragments(_("Removing $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{iface.Name}</b>),
@@ -167,7 +158,7 @@ export const NetworkInterfaceMembers = ({
                             () => {
                                 return set_member(model, main_connection, main_connection.Settings,
                                                   cs.type, iface.Name, true)
-                                        .fail(show_unexpected_error);
+                                        .catch(show_unexpected_error);
                             },
                             {
                                 devices: iface.Device ? [iface.Device] : [],

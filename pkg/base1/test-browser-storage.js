@@ -78,6 +78,4 @@ QUnit.test("session-storage", function (assert) {
 });
 
 // Start tests after we have a user object
-cockpit.user().done(function (user) {
-    QUnit.start();
-});
+cockpit.user().then(QUnit.start);

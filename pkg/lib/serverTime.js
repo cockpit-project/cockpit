@@ -112,7 +112,7 @@ export function ServerTime() {
 
     self.update = function update() {
         return cockpit.spawn(["date", "+%s:%z"], { err: "message" })
-                .done(function(data) {
+                .then(data => {
                     const parts = data.trim().split(":");
                     const timems = parseInt(parts[0], 10) * 1000;
                     let tzmin = parseInt(parts[1].slice(-2), 10);
@@ -125,34 +125,17 @@ export function ServerTime() {
                     remote_offset = offsetms;
                     emit_changed();
                 })
-                .fail(function(ex) {
-                    console.log("Couldn't calculate server time offset: " + cockpit.message(ex));
-                });
+                .catch(ex => console.log("Couldn't calculate server time offset: " + cockpit.message(ex)));
     };
 
-    self.change_time = function change_time(datestr, timestr) {
-        return new Promise((resolve, reject) => {
-            /*
-             * There is no way to make sense of this date without a round trip to the
-             * server, as the timezone is really server specific.
-             */
-            cockpit.spawn(["date", "--date=" + datestr + " " + timestr, "+%s"])
-                    .fail(function(ex) {
-                        reject(ex);
-                    })
-                    .done(function(data) {
-                        const seconds = parseInt(data.trim(), 10);
-                        timedate.call('SetTime', [seconds * 1000 * 1000, false, true])
-                                .fail(function(ex) {
-                                    reject(ex);
-                                })
-                                .done(function() {
-                                    self.update();
-                                    resolve();
-                                });
-                    });
-        });
-    };
+    /* There is no way to make sense of this date without a round trip to the
+     * server, as the timezone is really server specific. */
+    self.change_time = (datestr, timestr) => cockpit.spawn(["date", "--date=" + datestr + " " + timestr, "+%s"])
+            .then(data => {
+                const seconds = parseInt(data.trim(), 10);
+                return timedate.call('SetTime', [seconds * 1000 * 1000, false, true])
+                        .then(self.update);
+            });
 
     self.bump_time = function (millis) {
         return timedate.call('SetTime', [millis, true, true]);
@@ -166,21 +149,19 @@ export function ServerTime() {
         return timedate.call('SetTimezone', [tz, true]);
     };
 
-    self.poll_ntp_synchronized = function poll_ntp_synchronized() {
-        client.call(timedate.path,
-                    "org.freedesktop.DBus.Properties", "Get", ["org.freedesktop.timedate1", "NTPSynchronized"])
-                .fail(function(error) {
-                    if (error.name != "org.freedesktop.DBus.Error.UnknownProperty" &&
+    self.poll_ntp_synchronized = () => client.call(
+        timedate.path, "org.freedesktop.DBus.Properties", "Get", ["org.freedesktop.timedate1", "NTPSynchronized"])
+            .then(result => {
+                const ifaces = { "org.freedesktop.timedate1": { NTPSynchronized: result[0].v } };
+                const data = { };
+                data[timedate.path] = ifaces;
+                client.notify(data);
+            })
+            .catch(error => {
+                if (error.name != "org.freedesktop.DBus.Error.UnknownProperty" &&
                         error.problem != "not-found")
-                        console.log("can't get NTPSynchronized property", error);
-                })
-                .done(function(result) {
-                    const ifaces = { "org.freedesktop.timedate1": { NTPSynchronized: result[0].v } };
-                    const data = { };
-                    data[timedate.path] = ifaces;
-                    client.notify(data);
-                });
-    };
+                    console.log("can't get NTPSynchronized property", error);
+            });
 
     let ntp_waiting_value = null;
     let ntp_waiting_resolve = null;
@@ -201,7 +182,7 @@ export function ServerTime() {
         ntp_waiting_value = val;
         client.call(timedate.path,
                     "org.freedesktop.DBus.Properties", "Get", ["org.freedesktop.timedate1", "NTP"])
-                .done(function(result) {
+                .then(result => {
                 // Check if don't want to enable enabled or disable disabled
                     if (result[0].v === val) {
                         ntp_waiting_resolve();

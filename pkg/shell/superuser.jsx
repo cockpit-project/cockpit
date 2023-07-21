@@ -115,7 +115,7 @@ const UnlockDialog = ({ proxy, host }) => {
     }
 
     function init() {
-        return proxy.Stop().always(() => {
+        return proxy.Stop().finally(() => {
             if (proxy.Methods) {
                 const ids = Object.keys(proxy.Methods);
                 if (ids.length == 0)

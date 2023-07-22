@@ -965,7 +965,7 @@ class Browser:
         self.set_attr("html", "dir", direction)
 
     def set_layout(self, name: str):
-        layout = [lo for lo in self.layouts if lo["name"] == name][0]
+        layout = next(lo for lo in self.layouts if lo["name"] == name)
         if layout != self.current_layout:
             self.current_layout = layout
             size = layout["shell_size"]

@@ -395,7 +395,7 @@ async def test_internal_metrics(transport):
     assert meta['interval'] == interval
     assert meta['source'] == source
     assert isinstance(meta['metrics'], list)
-    instances = len([m['instances'] for m in meta['metrics'] if m['name'] == 'cpu.core.user'][0])
+    instances = len(next(m['instances'] for m in meta['metrics'] if m['name'] == 'cpu.core.user'))
 
     # actual data
     _, data = await transport.next_frame()

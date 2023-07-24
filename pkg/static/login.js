@@ -378,6 +378,8 @@ import "./login.scss";
             id("banner-message").textContent = environment.banner.trimEnd();
         }
 
+        id("bypass-browser-check").addEventListener("click", toggle_options);
+        id("bypass-browser-check").addEventListener("keypress", toggle_options);
         id("show-other-login-options").addEventListener("click", toggle_options);
         id("show-other-login-options").addEventListener("keypress", toggle_options);
         id("server-clear").addEventListener("click", function () {

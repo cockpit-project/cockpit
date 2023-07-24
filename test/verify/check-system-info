@@ -320,6 +320,7 @@ class TestSystemInfo(packagelib.PackageCase):
         b.click('#systime-ntp-servers div:nth-child(1) button')
         b.set_input_text("#systime-ntp-servers div:nth-child(2) input", "1.pool.ntp.org")
         b.click("#system_information_change_systime .apply")
+        print('test retry')
         with b.wait_timeout(120):  # Changing time on Arch can be slow
             b.wait_not_present("#system_information_change_systime")
 

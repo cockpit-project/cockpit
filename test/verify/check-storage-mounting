@@ -117,14 +117,14 @@ ExecStart=/usr/bin/sleep infinity
             })""", sel, low, high)
 
         b.go("#/")
-        b.wait_in_text("table[aria-label=Filesystems]", mount_point_bar)
-        bar_selector = f'table[aria-label=Filesystems] tr:contains("{mount_point_bar}") td:nth-child(4)'
+        b.wait_in_text("table[aria-label='Filesystems']", mount_point_bar)
+        bar_selector = f'table[aria-label="Filesystems"] tr:contains("{mount_point_bar}") td:nth-child(4)'
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         m.execute(f"dd if=/dev/zero of={mount_point_bar}/zero bs=1M count=30 status=none")
         wait_ratio_in_range(bar_selector, 0.5, 1.0)
         m.execute(f"rm {mount_point_bar}/zero")
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
-        b.click('table[aria-label=Filesystems] tr:contains("%s")' % mount_point_bar)
+        b.click('table[aria-label="Filesystems"] tr:contains("%s")' % mount_point_bar)
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):

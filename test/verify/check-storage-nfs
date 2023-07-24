@@ -46,7 +46,7 @@ class TestStorageNfs(storagelib.StorageCase):
         orig_fstab = m.execute("cat /etc/fstab")
 
         # Add /home/foo
-        b.click("#nfs-mounts button[aria-label=Add]")
+        b.click("#nfs-mounts button[aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/foo")
@@ -63,7 +63,7 @@ class TestStorageNfs(storagelib.StorageCase):
                          "127.0.0.1:/home/foo /mnt/test nfs defaults\n")
 
         # Try to add some non-exported directory
-        b.click("#nfs-mounts button[aria-label=Add]")
+        b.click("#nfs-mounts button[aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         b.set_input_text(self.dialog_field("remote") + " input", "/usr/share")
@@ -75,7 +75,7 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_wait_close()
 
         # Add /home/bar
-        b.click("#nfs-mounts button[aria-label=Add]")
+        b.click("#nfs-mounts button[aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/bar")
@@ -180,7 +180,7 @@ class TestStorageNfs(storagelib.StorageCase):
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")
 
-        b.click("#nfs-mounts [aria-label=Add]")
+        b.click("#nfs-mounts [aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
 
@@ -212,7 +212,7 @@ class TestStorageNfs(storagelib.StorageCase):
         self.restore_file("/usr/sbin/showmount")
         m.execute("chmod a-x /usr/sbin/showmount")
 
-        b.click("#nfs-mounts [aria-label=Add]")
+        b.click("#nfs-mounts [aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         # Manually add a remote location to the select
@@ -243,7 +243,7 @@ class TestStorageNfs(storagelib.StorageCase):
         b.wait_visible("#nfs-mounts .pf-v5-c-empty-state")
 
         # Add /home/foo
-        b.click("#nfs-mounts [aria-label=Add]")
+        b.click("#nfs-mounts [aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/foo")
@@ -360,7 +360,7 @@ class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase, sto
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_visible("#nfs-mounts button[aria-label=Add]")
+        b.wait_visible("#nfs-mounts button[aria-label='Add']")
 
 
 if __name__ == '__main__':

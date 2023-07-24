@@ -239,7 +239,7 @@ class TestStorageLuks(storagelib.StorageCase):
         tab = self.content_tab_expand(1, 2)
         panel = tab + " .pf-v5-c-card:contains(Keys) "
         b.wait_visible(panel)
-        b.click(panel + "[aria-label=Add]")
+        b.click(panel + "[aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("new_passphrase", "vainu-reku-toma-rolle-kaja-1")
@@ -265,7 +265,7 @@ class TestStorageLuks(storagelib.StorageCase):
         self.assert_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         # delete second key slot
-        b.click(panel + "li:nth-child(2) button[aria-label=Remove]")
+        b.click(panel + "li:nth-child(2) button[aria-label='Remove']")
         # do not accept the same passphrase
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-1")
         b.click("button:contains('Remove')")
@@ -291,7 +291,7 @@ class TestStorageLuks(storagelib.StorageCase):
 
         # add more passphrases, seven exactly, to reach the limit of eight for LUKSv1
         for i in range(1, 8):
-            b.click(panel + "button[aria-label=Add]")
+            b.click(panel + "button[aria-label='Add']")
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
             self.dialog_set_val("new_passphrase", f"vainu-reku-toma-rolle-kaja-{i}")
@@ -309,7 +309,7 @@ class TestStorageLuks(storagelib.StorageCase):
         # remove one slot
         slots_list = tab + " .pf-v5-c-card ul "
         b.wait_visible(".pf-v5-c-data-list__cell:contains('Slot 7')")
-        b.click(slots_list + "li:last-child button[aria-label=Remove]")
+        b.click(slots_list + "li:last-child button[aria-label='Remove']")
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-6")
         b.click("button:contains('Remove')")
         with b.wait_timeout(30):
@@ -318,7 +318,7 @@ class TestStorageLuks(storagelib.StorageCase):
         b.wait_not_present(slots_list + ":disabled")
         b.wait_not_present(panel + ":disabled")
         # remove slot 0, with the original passphrase
-        b.click(slots_list + "li:nth-child(1) button[aria-label=Remove]")
+        b.click(slots_list + "li:nth-child(1) button[aria-label='Remove']")
         b.click("#force-remove-passphrase")
         b.click("button:contains('Remove')")
         with b.wait_timeout(30):
@@ -332,8 +332,8 @@ class TestStorageLuks(storagelib.StorageCase):
             self.assertIn(b.text("h4.pf-v5-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
             self.dialog_cancel()
             # change one of the passphrases
-            b.wait_visible(slots_list + "li:last-child [aria-label=Edit]")
-            b.click(slots_list + "li:last-child [aria-label=Edit]")
+            b.wait_visible(slots_list + "li:last-child [aria-label='Edit']")
+            b.click(slots_list + "li:last-child [aria-label='Edit']")
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
             self.dialog_set_val("old_passphrase", "vainu-reku-toma-rolle-kaja-6")
@@ -514,7 +514,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
         # Add a key
         #
-        b.click(panel + "[aria-label=Add]")
+        b.click(panel + "[aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("type", "tang")
@@ -552,7 +552,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
         # Edit the key, without providing an existing passphrase
         #
-        b.click(panel + "ul li:nth-child(2) [aria-label=Edit]")
+        b.click(panel + "ul li:nth-child(2) [aria-label='Edit']")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_wait_val("tang_url", "10.111.112.5")
@@ -579,7 +579,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         # Add a second key, this should try to fix things again, but
         # we have to help with the package install
         #
-        b.click(panel + "[aria-label=Add]")
+        b.click(panel + "[aria-label='Add']")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("type", "tang")
@@ -606,7 +606,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
                 m.execute("if type dnf; then dnf install -y clevis-systemd; else apt-get install -y clevis-systemd; fi")
                 m.execute("systemctl disable --now clevis-luks-askpass.path")
 
-                b.click(panel + "[aria-label=Add]")
+                b.click(panel + "[aria-label='Add']")
                 self.dialog_wait_open()
                 self.dialog_wait_apply_enabled()
                 self.dialog_set_val("type", "tang")
@@ -640,7 +640,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         #
         tab = self.content_tab_expand(1, 2)
         panel = tab + " .pf-v5-c-card:contains(Keys) "
-        b.click(panel + 'ul li:contains("Slot 1") button[aria-label=Remove]')
+        b.click(panel + 'ul li:contains("Slot 1") button[aria-label="Remove"]')
         self.confirm()
         b.wait_not_present(panel + 'ul li:contains("Slot 1")')
 
@@ -683,7 +683,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
 
         with b.wait_timeout(360):
-            b.click(panel + "[aria-label=Add]")
+            b.click(panel + "[aria-label='Add']")
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
             self.dialog_set_val("type", "tang")
@@ -699,7 +699,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-        b.click(panel + "ul li:nth-child(1) button[aria-label=Remove]")
+        b.click(panel + "ul li:nth-child(1) button[aria-label='Remove']")
         b.click("#force-remove-passphrase")
         b.click("button:contains('Remove')")
         b.wait_in_text(panel + "ul li:nth-child(1)", "Keyserver")

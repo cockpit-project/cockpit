@@ -159,11 +159,19 @@ class TestSystemInfo(packagelib.PackageCase):
         b.click('#system_information_hostname_button')
         b.wait_visible("#system_information_change_hostname")
         b.wait_val("#sich-pretty-hostname", "Adventure Box")
+        # Test setting the pretty hostname, changes the normal hostname
+        b.set_input_text("#sich-pretty-hostname", "Adventure Time")
+        b.wait_val("#sich-hostname", "adventure-time")
+        # Changing the hostname should validate
+        b.set_input_text("#sich-hostname", 65 * "x")
+        b.wait_in_text("#system_information_change_hostname .pf-v5-c-helper-text__item-text", "64 characters or less")
+        b.set_input_text("#sich-hostname", "host1.cockpit.lan$")
+        b.wait_in_text("#system_information_change_hostname .pf-v5-c-helper-text__item-text", "Real host name can only contain")
         b.set_input_text("#sich-hostname", "host1.cockpit.lan")
         b.click("#system_information_change_hostname button:contains('Change')")
         b.wait_not_present("#system_information_change_hostname")
 
-        b.wait_in_text('#system_information_hostname_text', "Adventure Box (host1.cockpit.lan)")
+        b.wait_in_text('#system_information_hostname_text', "Adventure Time (host1.cockpit.lan)")
         self.assertEqual(m.execute("hostname").strip(), "host1.cockpit.lan")
 
         m.execute("hostnamectl set-hostname ''")

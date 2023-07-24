@@ -115,15 +115,36 @@ th {
   padding-inline-start: var(--pf-v5-global--spacer--md);
 }
 
-#network-mtu-settings-custom {
-  position: relative;
-  inset-block-start: 6px;
+// The modal body, by default, overflows to accomodate extra content. This is
+// normall good. However, it also can trim things that flow outside, such as
+// the focus ring of the MTU custom input. Since we know the modal won't have
+// much vertical content, we can disable the overflow to let the focus ring be
+// fully visible. (Otherwise the bottommost pixels are removed.)
+#network-mtu-settings-dialog .pf-v5-c-modal-box__body {
+  overflow: visible;
 }
 
-#network-mtu-settings-input {
-  margin-inline-start: 0.5em;
-  inline-size: 5em;
-  display: inline;
+// Vertically lign elements, the input is inside the selction, which PF
+// (rightfully) doesn't normally account for, so it needs center instead of
+// baseline (as the input is taller than the label text
+#network-mtu-settings-body .pf-v5-c-radio {
+  align-items: center;
+}
+
+// Use a grid to lay out elements. This could've been a flex, but a grid lets
+// us size elements from the parent element instead of having to specify
+// individual elements
+#network-mtu-settings-custom + .pf-v5-c-radio__label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: var(--pf-v5-global--spacer--md);
+}
+
+// Set the width of the input element; with a little extra space
+.mtu-label-input > input {
+  inline-size: 7ch;
+  font-variant: tabular-nums;
 }
 
 // Temporary curtain to hide the content as it loads
@@ -297,12 +318,6 @@ th {
 // Remove the default top padding from the toolbar
 .filter-services-toolbar {
   padding-block-start: 0;
-}
-
-// HACK for PF having a `div` in a `label` https://github.com/patternfly/patternfly/issues/5701
-.mtu-label-input {
-  display: inline;
-  margin-inline-start: var(--pf-v5-global--spacer--md);
 }
 
 /* End Firewall specific CSS */

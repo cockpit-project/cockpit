@@ -127,10 +127,7 @@ QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.spawn, "function", "spawn is a function");
 });
 
-QUnit.test("simple request", function (assert) {
-    const done = assert.async();
-    assert.expect(5);
-
+QUnit.test("simple request", async assert => {
     const peer = new MockPeer();
     peer.addEventListener("opened", function(event, channel, options) {
         assert.deepEqual(channel.options.spawn, ["/the/path", "arg1", "arg2"], "passed spawn correctly");
@@ -142,15 +139,9 @@ QUnit.test("simple request", function (assert) {
         this.close(channel);
     });
 
-    cockpit.spawn(["/the/path", "arg1", "arg2"])
-            .input("input", true)
-            .done(function(resp) {
-                assert.deepEqual(resp, "output", "returned right json");
-            })
-            .always(function() {
-                assert.equal(this.state(), "resolved", "didn't fail");
-                done();
-            });
+    const resp = await cockpit.spawn(["/the/path", "arg1", "arg2"])
+            .input("input", true);
+    assert.deepEqual(resp, "output", "returned right json");
 });
 
 QUnit.test("input large", function (assert) {
@@ -249,7 +240,7 @@ QUnit.test("channel options", function (assert) {
     cockpit.spawn(["/the/path", "arg"], options);
 });
 
-QUnit.test("streaming", function (assert) {
+QUnit.test("streaming", assert => {
     const done = assert.async();
     assert.expect(15);
 
@@ -279,25 +270,20 @@ QUnit.test("streaming", function (assert) {
             });
 });
 
-QUnit.test("with problem", function (assert) {
-    const done = assert.async();
-    assert.expect(4);
-
+QUnit.test("with problem", async assert => {
     const peer = new MockPeer();
-    peer.addEventListener("opened", function(event, channel) {
+    peer.addEventListener("opened", (_event, channel) => {
         peer.close(channel, { problem: "not-found" });
     });
 
-    cockpit.spawn("/unused")
-            .fail(function(ex) {
-                assert.equal(ex.problem, "not-found", "got problem");
-                assert.strictEqual(ex.exit_signal, null, "got no signal");
-                assert.strictEqual(ex.exit_status, null, "got no status");
-            })
-            .always(function() {
-                assert.equal(this.state(), "rejected", "should fail");
-                done();
-            });
+    try {
+        await cockpit.spawn("/unused");
+        assert.ok(false, "should not be reached");
+    } catch (ex) {
+        assert.equal(ex.problem, "not-found", "got problem");
+        assert.strictEqual(ex.exit_signal, null, "got no signal");
+        assert.strictEqual(ex.exit_status, null, "got no status");
+    }
 });
 
 QUnit.test("with status", function (assert) {

@@ -64,6 +64,8 @@ function process_manifest(manifest) {
         process_menu(manifest.tools);
     if (manifest.bridges)
         process_bridges(manifest.bridges);
+    if (manifest.docs)
+        process_docs(manifest.docs);
 }
 
 function process_keywords(keywords) {

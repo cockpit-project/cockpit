@@ -148,9 +148,12 @@ export class TopNav extends React.Component {
                 {cockpit.format(_("$0 documentation"), this.state.osRelease.NAME)}
             </DropdownItem>);
 
-        docItems.push(<DropdownItem key="cockpit-doc" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index" target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
-            {_("Web Console")}
-        </DropdownItem>);
+        // global documentation for cockpit as a whole
+        (cockpit.manifests.shell?.docs ?? []).forEach(doc => {
+            docItems.push(<DropdownItem key={doc.label} href={doc.url} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
+                {doc.label}
+            </DropdownItem>);
+        });
 
         if (docs.length > 0)
             docItems.push(<DropdownSeparator key="separator" />);

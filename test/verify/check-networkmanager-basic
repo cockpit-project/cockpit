@@ -79,8 +79,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_visible('#autoreconnect:checked')
         self.assertEqual(m.execute(f"nmcli -g connection.autoconnect con show {con_id}"), "yes\n")
 
-        # Configure a manual IP address
-        #
+        # Configure a manual IPv4 address
         self.configure_iface_setting('IPv4')
         b.wait_visible("#network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-dialog select", "manual")
@@ -96,7 +95,24 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.192.0")
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
-        b.wait_in_text(f"#network-interface .pf-v5-c-card:contains('{iface}')", "1.2.3.4/18")
+        self.wait_for_iface_setting("IPv4", "Address 1.2.3.4/18 via 1.2.3.1")
+
+        m.execute(f"until ip a show dev {iface} | grep -q 'inet 1.2.3.4/18'; do sleep 0.3; done",
+                  timeout=10)
+
+        # Configure manual IPv6 address
+        b.click("#networking-edit-ipv6")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.set_input_text("#network-ip-settings-address-0", "2001::1")
+        b.set_input_text("#network-ip-settings-netmask-0", "64")
+        b.set_input_text("#network-ip-settings-gateway-0", "::")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting("IPv6", "Address 2001:0:0:0:0:0:0:1/64")
+
+        m.execute(f"until ip a show dev {iface} | grep -q 'inet6 2001::1/64 scope global'; do sleep 0.3; done",
+                  timeout=10)
 
         # Disconnect
         self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=True)

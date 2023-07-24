@@ -450,10 +450,15 @@ $desktop: $phone + 1px;
   .pf-v5-c-nav__list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
+    gap: var(--pf-v5-c-nav__item--MarginTop) 0;
+  }
 
-    > a {
-      text-align: center;
-    }
+  // PF uses margin for non-first elements; it really should use gap in the
+  // parent instead; fixing it with a local override, specific for our menu, as
+  // we really need it for mobile. It changes desktop too, but does the right
+  // thing there (but it's not visabily noticable in desktop).
+  .nav-item {
+    --pf-v5-c-nav__item--MarginTop: 0;
   }
 
   // Give additional style to individual menu items

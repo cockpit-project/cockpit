@@ -1581,6 +1581,7 @@ class MachineCase(unittest.TestCase):
                 self.copy_js_log("FAIL")
                 self.copy_journal("FAIL")
                 self.copy_cores("FAIL")
+                self.copy_pkg_artifacts("FAIL")
             except (OSError, RuntimeError):
                 # failures in these debug artifacts should not skip cleanup actions
                 sys.stderr.write("Failed to generate debug artifact:\n")
@@ -1837,6 +1838,7 @@ class MachineCase(unittest.TestCase):
             self.copy_js_log("FAIL")
             self.copy_journal("FAIL")
             self.copy_cores("FAIL")
+            self.copy_pkg_artifacts("FAIL")
             if not self.getError():
                 # fail test on the unexpected messages
                 raise Error(UNEXPECTED_MESSAGE + "journal messages:\n" + first)
@@ -1955,6 +1957,17 @@ class MachineCase(unittest.TestCase):
                     m.execute("journalctl|gzip", stdout=fp)
                     print("Journal extracted to %s" % (log))
                     attach(log, move=True)
+
+    def copy_pkg_artifacts(self, title: str, label: Optional[str] = None):
+        for _, m in self.machines.items():
+            if m.ssh_reachable:
+                try:
+                    log = "%s-%s-%s-package-artifacts.gz" % (label or self.label(), m.label, title)
+                    m.execute(f"tar -zcf {log} /var/lib/cockpittest/pkg_artifacts")
+                    print("Package artifacts extracted to %s" % (log))
+                    attach(log, move=True)
+                except:
+                    print("No package artifacts")
 
     def copy_cores(self, title: str, label: Optional[str] = None):
         if self.allow_core_dumps:

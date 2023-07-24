@@ -14,7 +14,7 @@ from machine_core import ssh_connection
 
 def getMaximumSpike(test, g_type, saturation, hour, minute):
     # only for minutes with events, which have SVG graphs
-    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] div.metrics-data-{g_type} div"
+    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute='{minute}'] div.metrics-data-{g_type} div"
     if saturation:
         sel += ":nth-child(2)"
     else:
@@ -31,7 +31,7 @@ def getCompressedMinuteValue(test, g_type, saturation, hour, minute):
     # only for minutes without events, which only have bars
 
     polygon_class = ".polygon-sat" if saturation else ".polygon-use"
-    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] div.metrics-data-{g_type} .compressed{polygon_class}"
+    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute='{minute}'] div.metrics-data-{g_type} .compressed{polygon_class}"
     m = re.search(r"--%s:\s*([0-9.]+);" % (saturation and "saturation" or "utilization"), test.browser.attr(sel, "style"))
     test.assertIsNotNone(m)
     return float(m.group(1))
@@ -225,7 +225,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         def events_at(hour, minute):
             b.wait_visible(f"#metrics-hour-{hour}.metrics-hour-compressed")
             b.click(f"#metrics-hour-{hour} button.metrics-events-expander")
-            events = b.text(f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] .metrics-events")
+            events = b.text(f"#metrics-hour-{hour} div.metrics-minute[data-minute='{minute}'] .metrics-events")
             b.click(f"#metrics-hour-{hour} button.metrics-events-expander")
 
             return events
@@ -285,9 +285,9 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.assert_pixels(".metrics", "metrics-history-compressed-hour", ignore=[".nodata"], skip_layouts=["mobile", "rtl"])
 
         # Check that events are not visible for compressed hours
-        b.wait_not_present("#metrics-hour-1597662000000 div.metrics-minute[data-minute=28] .metrics-events")
+        b.wait_not_present("#metrics-hour-1597662000000 div.metrics-minute[data-minute='28'] .metrics-events")
         b.click("#metrics-hour-1597662000000 button.metrics-events-expander")
-        b.wait_visible("#metrics-hour-1597662000000 div.metrics-minute[data-minute=28] .metrics-events")
+        b.wait_visible("#metrics-hour-1597662000000 div.metrics-minute[data-minute='28'] .metrics-events")
 
         b.logout()
 
@@ -382,7 +382,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # at :54 the machine is loaded to ~80% so no event even if elevated
         self.assertGreater(getCompressedMinuteValue(test=self, g_type="memory", saturation=False, hour=1600236000000, minute=54), 0.8)
-        b.wait_not_present("#metrics-hour-1600236000000 div.metrics-minute[data-minute=54] .metrics-events")
+        b.wait_not_present("#metrics-hour-1600236000000 div.metrics-minute[data-minute='54'] .metrics-events")
         if have_swap:
             self.assertAlmostEqual(getCompressedMinuteValue(test=self, g_type="memory", saturation=True, hour=1600236000000, minute=54), 0.0)
 
@@ -446,7 +446,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         login(self)
         b.wait_in_text(".metrics-heading", "CPU")
         b.click("#metrics-hour-1615197600000 button.metrics-events-expander")
-        b.wait_in_text("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events span.spikes_info", "Load")
+        b.wait_in_text("#metrics-hour-1615197600000 div.metrics-minute[data-minute='39'] .metrics-events span.spikes_info", "Load")
 
         # Now add the journal
         # Journal was recorded on Fedora 33 and when trying to use it with older systemd it fails with:
@@ -463,7 +463,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         b.wait_in_text(".metrics-heading", "CPU")
         b.click("#metrics-hour-1615197600000 button.metrics-events-expander")
-        b.click("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events button.spikes_info")
+        b.click("#metrics-hour-1615197600000 div.metrics-minute[data-minute='39'] .metrics-events button.spikes_info")
         b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
         b.wait_in_text(".cockpit-logline:first-child .cockpit-log-message", "cpu-piglet")
         b.click(".cockpit-logline:first-child .cockpit-log-message")

@@ -470,17 +470,6 @@ function Transport() {
 
     let check_health_timer;
 
-    /* HACK: Compatibility if we're hosted by older Cockpit versions */
-    try {
-           /* See if we should communicate via parent */
-           if (!ws && window.parent !== window && window.parent.options &&
-                window.parent.options.protocol == "cockpit1") {
-               ws = new ParentWebSocket(window.parent);
-            }
-    } catch (ex) {
-       /* permission access errors */
-    }
-
     if (!ws) {
         const ws_loc = calculate_url();
         transport_debug("connecting to " + ws_loc);

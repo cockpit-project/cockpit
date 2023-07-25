@@ -627,6 +627,11 @@ $desktop: $phone + 1px;
     text-decoration: none;
     outline: 1px dotted var(--pf-v5-global--BackgroundColor--light-100);
   }
+
+  // The way the event is handled, it checks for the button, but not the icon. It should bubble, but doesn't. We can work around this by passing mouse events through.
+  svg {
+    pointer-events: none;
+  }
 }
 
 // In mobile view keep the non PF4 of displaying hover / focus state in the masthead / toolbar items

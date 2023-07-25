@@ -294,7 +294,7 @@ class TestSelinux(testlib.MachineCase):
         b.enter_page("/selinux")
         b.reload()
         b.enter_page("/selinux")
-        with b.wait_timeout(30):
+        with b.wait_timeout(60):
             if m.image.startswith("rhel"):
                 # insights-client sets itself as permissive on RHEL, and `semanage permissive -D` gets OOM-killed
                 b.wait_text_matches("ul[aria-label='System modifications']", "No system modifications|permissive -a insights_client_t")

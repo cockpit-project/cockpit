@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import re
 import time
 
@@ -441,6 +442,24 @@ class TestMultiMachine(testlib.MachineCase):
         # Add a machine
         self.login_and_go(None)
         self.add_machine("10.111.113.2")
+
+        # channels in frames cannot speak to other authenticated hosts
+        # firefox CDP cannot eval cockpit channels
+        if os.environ.get("TEST_BROWSER") != "firefox":
+            # remote frame can *not* use host channel option
+            b.go(m2_path)
+            b.enter_page("/playground/test", "10.111.113.2")
+            ex = b.eval_js('cockpit.spawn(["hostname"], { host: "10.111.113.1" })'
+                           '.then(() => Promise.reject("remote frame could speak to other host"))'
+                           '.catch(ex => ex)')
+            self.assertEqual(ex["problem"], "protocol-error")
+            self.assertEqual(ex["message"], "remote frames cannot open channels to other remote hosts")
+
+            # frame from initial machine (same host as shell) *can* use host channel option
+            b.go("/playground/test")
+            b.enter_page("/playground/test")
+            res = b.eval_js('cockpit.spawn(["hostname"], { host: "10.111.113.2" })')
+            self.assertEqual(res, "machine2\n")
 
         # Go to the path, remove the image
         b.go(m2_path)

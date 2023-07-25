@@ -105,7 +105,7 @@ The following fields are defined:
  * "binary": If present set to "raw"
  * "channel": A uniquely chosen channel id
  * "payload": A payload type, see below
- * "host": The destination host for the channel, defaults to "localhost"
+ * "host": The destination host for the channel; see "Host values" below
  * "user": Optional alternate user for authenticating with host
  * "superuser": Optional. Use "require" to run as root, or "try" to attempt to run as root.
  * "group": An optional channel group
@@ -200,6 +200,11 @@ will be expanded to
         "host": "my.host"
     }
 
+**Security restriction**: Only the Shell (top-level page) and frames from the
+same machine as the Shell are allowed to open channels to remote hosts. Pages
+(frames) loaded from remote machines are not allowed to do that. This ensures
+that pages from malicious remote hosts cannot run arbitrary commands on other
+hosts.
 
 Command: close
 --------------

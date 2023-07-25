@@ -397,10 +397,7 @@ function Router(index) {
         if (!child)
             return;
 
-        /* If it's binary data just send it.
-         * TODO: Once we start restricting what frames can
-         * talk to which hosts, we need to parse control
-         * messages here, and cross check channels */
+        // If it's binary data just send it.
         if (data instanceof window.ArrayBuffer) {
             cockpit.transport.inject(data, true);
             return;
@@ -481,6 +478,20 @@ function Router(index) {
 
             /* Add the child's group to all open channel messages */
             } else if (control.command == "open") {
+                // Prevent frames from malicious remote hosts from tampering with other machines
+                // The lookup may fail if a frame currently being removed
+                const child_host = source_by_name[child.name]?.default_host;
+                if (child_host && child_host !== "localhost" && child_host !== control.host) {
+                    console.warn("Blocking remote channel request from remote frame", child.name, ":", JSON.stringify(control));
+                    const reply = {
+                        command: "close",
+                        channel: control.channel,
+                        problem: "protocol-error",
+                        message: "remote frames cannot open channels to other remote hosts",
+                    };
+                    child.postMessage("\n" + JSON.stringify(reply), origin);
+                    return;
+                }
                 control.group = child.name;
                 data = "\n" + JSON.stringify(control);
             }

@@ -84,8 +84,15 @@ chown -R runtest "$SOURCE"
 echo core > /proc/sys/kernel/core_pattern
 
 # make sure that we can access cockpit through the firewall
+systemctl status firewalld || true
 systemctl start firewalld
-firewall-cmd --add-service=cockpit --permanent
+systemctl status firewalld || true
+if ! firewall-cmd --add-service=cockpit --permanent; then
+    journalctl -b
+    systemctl status firewalld || true
+    exit 1
+fi
+
 firewall-cmd --add-service=cockpit
 
 # Run tests as unprivileged user

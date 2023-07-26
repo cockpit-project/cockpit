@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import logging
+import threading
 from typing import Dict, Optional
 
 from .. import data
@@ -36,6 +38,8 @@ class PackagesChannel(Channel):
         template = data.read_cockpit_data_file('fail.html')
         self.send_message(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
         self.send_data(template.replace(b'@@message@@', message.encode('utf-8')))
+        self.done()
+        self.close()
 
     def do_open(self, options: Dict[str, object]) -> None:
         self.ready()
@@ -93,9 +97,6 @@ class PackagesChannel(Channel):
 
                 out_headers['Content-Security-Policy'] = policy
 
-            self.send_message(status=200, reason='OK', headers=out_headers)
-            self.send_data(document.data)
-
         except ValueError as exc:
             self.http_error(400, str(exc))
 
@@ -105,5 +106,16 @@ class PackagesChannel(Channel):
         except OSError as exc:
             self.http_error(500, f'Internal error: {exc!s}')
 
-        self.done()
-        self.close()
+        else:
+            self.send_message(status=200, reason='OK', headers=out_headers)
+            threading.Thread(args=(asyncio.get_running_loop(), document.data),
+                             target=self.send_document_data,
+                             daemon=True).start()
+
+    def send_document_data(self, loop, data):
+        # split data into 4K blocks, to not overwhelm the channel
+        block_size = 4096
+        for i in range(0, len(data), block_size):
+            loop.call_soon_threadsafe(self.send_data, data[i:i + block_size])
+        loop.call_soon_threadsafe(self.done)
+        loop.call_soon_threadsafe(self.close)

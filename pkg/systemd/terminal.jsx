@@ -149,7 +149,6 @@ const _ = cockpit.gettext;
                                     </ToolbarItem>
                                     <ToolbarItem>
                                         <NumberInput
-                                            inputProps={{ readOnlyVariant: 'default' }} // HACK for https://github.com/patternfly/patternfly-react/issues/9311
                                             className="font-size"
                                             value={this.state.size}
                                             min={this.minSize}

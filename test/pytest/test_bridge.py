@@ -452,12 +452,7 @@ async def test_fslist1_notexist(transport):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('channeltype', CHANNEL_TYPES)
-async def test_channel(channeltype, tmp_path):
-    bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
-    transport = MockTransport(bridge)
-    await transport.assert_msg('', command='init')
-    transport.send_init()
-
+async def test_channel(bridge, transport, channeltype, tmp_path):
     payload = channeltype.payload
     args = dict(channeltype.restrictions)
 

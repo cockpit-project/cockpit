@@ -1,4 +1,4 @@
-/*** PF4 overrides ***/
+/*** PF5 overrides ***/
 // Pull in variables (for breakpoints)
 @use "global-variables" as *;
 
@@ -210,6 +210,12 @@ select.pf-v5-c-form-control {
       --pf-v5-l-flex--spacer-base: var(--pf-v5-l-flex--spacer--#{$size});
     }
   }
+}
+
+// backported from https://github.com/patternfly/patternfly/pull/5788, fixed in 5.1.0-prerelease.4
+.pf-v5-c-radio {
+  display: grid;
+  width: unset;
 }
 
 // InputMenus now use the PF Panel component which mistakenly uses position:

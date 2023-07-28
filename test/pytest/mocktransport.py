@@ -24,6 +24,14 @@ class MockTransport(asyncio.Transport):
     def send_init(self, version=1, host=MOCK_HOSTNAME, **kwargs):
         self.send_json('', command='init', version=version, host=host, **kwargs)
 
+    def init(self, **kwargs: Any) -> Dict[str, object]:
+        channel, data = self.queue.get_nowait()
+        assert channel == ''
+        msg = json.loads(data)
+        assert msg['command'] == 'init'
+        self.send_init(**kwargs)
+        return msg
+
     def get_id(self, prefix: str) -> str:
         self.next_id += 1
         return f'{prefix}.{self.next_id}'
@@ -76,12 +84,13 @@ class MockTransport(asyncio.Transport):
         _, channel, data = data.split(b'\n', 2)
         self.queue.put_nowait((channel.decode('ascii'), data))
 
-    async def stop(self) -> None:
+    def stop(self, event_loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
         keep_open = self.protocol.eof_received()
         if keep_open:
-            self.close_future = asyncio.get_running_loop().create_future()
+            assert event_loop is not None
+            self.close_future = event_loop.create_future()
             try:
-                await self.close_future
+                event_loop.run_until_complete(self.close_future)
             finally:
                 self.close_future = None
 

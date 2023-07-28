@@ -27,15 +27,10 @@ class test_iface(bus.Object):
 
 
 @pytest.fixture
-def bridge(event_loop) -> Bridge:
-    async def get_bridge() -> Bridge:
-        bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
-        asyncio.set_event_loop(None)
-        # We use this for assertions
-        bridge.superuser_bridges = list(bridge.superuser_rule.bridges)  # type: ignore[attr-defined]
-        return bridge
-
-    return event_loop.run_until_complete(get_bridge())
+def bridge() -> Bridge:
+    bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
+    bridge.superuser_bridges = list(bridge.superuser_rule.bridges)  # type: ignore[attr-defined]
+    return bridge
 
 
 def add_pseudo(bridge: Bridge) -> None:

@@ -15,41 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import asyncio
 import logging
-import threading
-from typing import Dict, Optional
+from typing import Dict
 
 from .. import data
-from ..channel import Channel
+from ..channel import GeneratorChannel
 from ..packages import Packages
 
 logger = logging.getLogger(__name__)
 
 
-class PackagesChannel(Channel):
+class PackagesChannel(GeneratorChannel):
     payload = 'http-stream1'
     restrictions = [("internal", "packages")]
-
-    # used to carry data forward from open to done
-    options: Optional[Dict[str, object]] = None
 
     def http_error(self, status: int, message: str) -> None:
         template = data.read_cockpit_data_file('fail.html')
         self.send_message(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
         self.send_data(template.replace(b'@@message@@', message.encode('utf-8')))
-        self.done()
-        self.close()
 
-    def do_open(self, options: Dict[str, object]) -> None:
-        self.ready()
-
-        self.options = options
-
-    def do_done(self) -> None:
+    def do_yield_data(self, options: Dict[str, object]) -> GeneratorChannel.DataGenerator:
         packages: Packages = self.router.packages  # type: ignore[attr-defined]  # yes, this is evil
-        assert self.options is not None
-        options = self.options
 
         try:
             if options.get('method') != 'GET':
@@ -108,14 +94,10 @@ class PackagesChannel(Channel):
 
         else:
             self.send_message(status=200, reason='OK', headers=out_headers)
-            threading.Thread(args=(asyncio.get_running_loop(), document.data),
-                             target=self.send_document_data,
-                             daemon=True).start()
 
-    def send_document_data(self, loop, data):
-        # split data into 4K blocks, to not overwhelm the channel
-        block_size = 4096
-        for i in range(0, len(data), block_size):
-            loop.call_soon_threadsafe(self.send_data, data[i:i + block_size])
-        loop.call_soon_threadsafe(self.done)
-        loop.call_soon_threadsafe(self.close)
+            # split data into 4K blocks, to not overwhelm the channel
+            block_size = 4096
+            for i in range(0, len(document.data), block_size):
+                yield document.data[i:i + block_size]
+
+        return None

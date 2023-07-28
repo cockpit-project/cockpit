@@ -120,6 +120,10 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         wait_line(n, prompt)
         b.wait_not_in_text(".terminal .xterm-accessibility-tree", "disconnected")
 
+        # Check that closing the terminal tab is guarded by a confirmation dialog
+        b.close()
+        b.handle_alert(accept=False)
+
         def select_line(sel, width):
             # Select line by dragging mouse
             # Height on a line is around 14px, so start approx. in the middle of line

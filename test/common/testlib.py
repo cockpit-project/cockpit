@@ -237,6 +237,12 @@ class Browser:
         self.switch_to_top()
         self.cdp.invoke("Page.navigate", url=href)
 
+    def close(self):
+        self.cdp.invoke("Page.close")
+
+    def handle_alert(self, accept=True):
+        self.cdp.invoke("Page.handleJavaScriptDialog", accept=accept)
+
     def set_user_agent(self, ua: str):
         """Set the user agent of the browser
 

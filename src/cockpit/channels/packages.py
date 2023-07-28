@@ -15,12 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import asyncio
 import logging
-import threading
 from typing import Optional
 
-from ..channel import Channel
+from ..channel import AsyncChannel
 from ..data import read_cockpit_data_file
 from ..jsonutil import JsonObject, get_dict, get_str
 from ..packages import Packages
@@ -28,7 +26,7 @@ from ..packages import Packages
 logger = logging.getLogger(__name__)
 
 
-class PackagesChannel(Channel):
+class PackagesChannel(AsyncChannel):
     payload = 'http-stream1'
     restrictions = [("internal", "packages")]
 
@@ -42,19 +40,16 @@ class PackagesChannel(Channel):
         self.done()
         self.close()
 
-    def do_open(self, options: JsonObject) -> None:
-        self.ready()
-
-        self.options = options
-
-    def do_done(self) -> None:
+    async def run(self, options: JsonObject) -> None:
         packages: Packages = self.router.packages  # type: ignore[attr-defined]  # yes, this is evil
-        assert self.options is not None
-        options = self.options
 
         try:
             if get_str(options, 'method') != 'GET':
                 raise ValueError(f'Unsupported HTTP method {options["method"]}')
+
+            self.ready()
+            if await self.read() != b'':
+                raise ValueError('Received unexpected data')
 
             path = get_str(options, 'path')
             headers = get_dict(options, 'headers')
@@ -103,14 +98,4 @@ class PackagesChannel(Channel):
 
         else:
             self.send_message(status=200, reason='OK', headers=out_headers)
-            threading.Thread(args=(asyncio.get_running_loop(), document.data),
-                             target=self.send_document_data,
-                             daemon=True).start()
-
-    def send_document_data(self, loop, data):
-        # split data into 4K blocks, to not overwhelm the channel
-        block_size = 4096
-        for i in range(0, len(data), block_size):
-            loop.call_soon_threadsafe(self.send_data, data[i:i + block_size])
-        loop.call_soon_threadsafe(self.done)
-        loop.call_soon_threadsafe(self.close)
+            await self.sendfile(document.data)

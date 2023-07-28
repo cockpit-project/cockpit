@@ -20,8 +20,8 @@ import logging
 import threading
 from typing import Dict, Optional
 
-from .. import data
 from ..channel import Channel
+from ..data import read_cockpit_data_file
 from ..packages import Packages
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class PackagesChannel(Channel):
     options: Optional[Dict[str, object]] = None
 
     def http_error(self, status: int, message: str) -> None:
-        template = data.read_cockpit_data_file('fail.html')
+        template = read_cockpit_data_file('fail.html')
         self.send_message(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
         self.send_data(template.replace(b'@@message@@', message.encode('utf-8')))
         self.done()

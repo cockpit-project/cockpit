@@ -54,22 +54,17 @@ def add_pseudo(bridge: Bridge) -> None:
 
 
 @pytest.fixture
-def no_init_transport(event_loop: asyncio.AbstractEventLoop,
-                      bridge: Bridge) -> Iterable[MockTransport]:
-    async def get_transport() -> MockTransport:
-        return MockTransport(bridge)
-    transport = event_loop.run_until_complete(get_transport())
+def no_init_transport(event_loop: asyncio.AbstractEventLoop, bridge: Bridge) -> Iterable[MockTransport]:
+    transport = MockTransport(bridge)
     try:
         yield transport
     finally:
-        event_loop.run_until_complete(transport.stop())
+        transport.stop(event_loop)
 
 
 @pytest.fixture
-def transport(event_loop: asyncio.AbstractEventLoop,
-              no_init_transport: MockTransport) -> MockTransport:
-    event_loop.run_until_complete(no_init_transport.assert_msg('', command='init'))
-    no_init_transport.send_init()
+def transport(no_init_transport: MockTransport) -> MockTransport:
+    no_init_transport.init()
     return no_init_transport
 
 
@@ -281,8 +276,7 @@ async def test_superuser_dbus_wrong_pw(bridge, transport, monkeypatch):
 @pytest.mark.asyncio
 async def test_superuser_init(bridge, no_init_transport):
     add_pseudo(bridge)
-    await no_init_transport.assert_msg('', command='init')
-    no_init_transport.send_init(superuser={"id": "pseudo"})
+    no_init_transport.init(superuser={"id": "pseudo"})
     transport = no_init_transport
 
     # this should work right away without auth
@@ -295,8 +289,7 @@ async def test_superuser_init(bridge, no_init_transport):
 async def test_superuser_init_pw(bridge, no_init_transport, monkeypatch):
     monkeypatch.setenv('PSEUDO_PASSWORD', 'p4ssw0rd')
     add_pseudo(bridge)
-    await no_init_transport.assert_msg('', command='init')
-    no_init_transport.send_init(superuser={"id": "pseudo"})
+    no_init_transport.init(superuser={"id": "pseudo"})
     transport = no_init_transport
 
     msg = await transport.assert_msg('', command='authorize')

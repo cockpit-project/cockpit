@@ -17,7 +17,7 @@
 
 import asyncio
 import logging
-from typing import ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
+from typing import BinaryIO, ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
 
 from .jsonutil import JsonError, JsonObject, get_bool, get_str
 from .router import Endpoint, Router, RoutingRule
@@ -416,8 +416,11 @@ class AsyncChannel(Channel):
     This subclass provides asynchronous `read()` and `write()` calls for
     subclasses, with familiar semantics.  `write()` doesn't buffer, so the
     `done()` method on the base channel class can be used in a way similar to
-    `shutdown()`.  The subclass must provide a async `run()` function, which
-    will be spawned as a task.
+    `shutdown()`.  A high-level `sendfile()` method is available to send the
+    entire contents of a binary-mode file-like object.
+
+    The subclass must provide an async `run()` function, which will be spawned
+    as a task.
 
     On the receiving side, the channel will respond to flow control pings to
     indicate that it has received the data, but only after it has been consumed
@@ -455,6 +458,17 @@ class AsyncChannel(Channel):
         if not self.send_data(data):
             self.write_waiter = asyncio.get_running_loop().create_future()
             await self.write_waiter
+
+    async def sendfile(self, stream: BinaryIO) -> None:
+        loop = asyncio.get_running_loop()
+        with stream:
+            while True:
+                data = await loop.run_in_executor(None, stream.read, Channel.BLOCK_SIZE)
+                if data == b'':
+                    break
+                await self.write(data)
+
+            self.done()
 
     def do_resume_send(self) -> None:
         if self.write_waiter is not None:

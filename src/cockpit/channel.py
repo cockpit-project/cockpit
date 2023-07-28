@@ -423,8 +423,6 @@ class AsyncChannel(Channel):
     On the sending side, write() will block if the channel backs up.
     """
 
-    loop = None
-
     # Receive-side flow control: intermix pings and data in the queue and reply
     # to pings as we dequeue them.  This is a buffer: since we need to handle
     # do_data() without blocking, we have no choice.

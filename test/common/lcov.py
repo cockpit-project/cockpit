@@ -443,8 +443,15 @@ def prepare_for_code_coverage():
     # This gives us a convenient link at the top of the logs, see link-patterns.json
     print("Code coverage report in Coverage/index.html")
     os.makedirs("lcov", exist_ok=True)
+    # Detect the default branch to compare with, Anaconda still uses master as main.
+    branch = "main"
+    try:
+        subprocess.check_call(["git", "rev-parse", "--quiet", "--verify", branch], stdout=subprocess.DEVNULL)
+    except subprocess.SubprocessError:
+        branch = "master"
+
     with open("lcov/github-pr.diff", "w") as f:
-        subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", "main"], stdout=f)
+        subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", branch], stdout=f)
 
 
 def create_coverage_report():

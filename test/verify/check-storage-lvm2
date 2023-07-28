@@ -230,11 +230,19 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
 
+        # rename volume group
+        b.click('.pf-v5-c-card__header:contains("LVM2 volume group") button:contains("Rename")')
+        self.dialog_wait_open()
+        self.dialog_set_val("name", "vgroup1")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
         # remove volume group
+        b.click('.pf-v5-c-card__header:contains("LVM2 volume group vgroup1")')
         b.click('.pf-v5-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
-        b.wait_not_in_text("#devices", "vgroup0")
+        b.wait_not_in_text("#devices", "vgroup1")
         self.assertEqual(m.execute(f"grep {mount_point_thin} /etc/fstab || true"), "")
 
     def testUnpartitionedSpace(self):

@@ -19,6 +19,7 @@ import collections
 import contextlib
 import functools
 import gzip
+import io
 import json
 import logging
 import mimetypes
@@ -26,7 +27,20 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Callable, ClassVar, Dict, Iterable, List, NamedTuple, Optional, Pattern, Sequence, Tuple, TypeVar
+from typing import (
+    BinaryIO,
+    Callable,
+    ClassVar,
+    Dict,
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    Pattern,
+    Sequence,
+    Tuple,
+    TypeVar,
+)
 
 from cockpit._vendor.systemd_ctypes import bus
 
@@ -78,10 +92,10 @@ def sortify_version(version: str) -> str:
     return '.'.join(part.zfill(8) for part in version.split('.'))
 
 
-# A document is a binary blob with a Content-Type, optional Content-Encoding,
+# A document is a binary stream with a Content-Type, optional Content-Encoding,
 # and optional Content-Security-Policy
 class Document(NamedTuple):
-    data: bytes
+    data: BinaryIO
     content_type: str
     content_encoding: Optional[str] = None
     content_security_policy: Optional[str] = None
@@ -207,10 +221,6 @@ class Package:
         return ' '.join(f'{k} {v};' for k, v in policy.items()) + ' block-all-mixed-content'
 
     def load_file(self, filename: str) -> Document:
-        path = self.path / filename
-        logger.debug('  loading data from %s', path)
-        data = path.read_bytes()
-
         content_type, content_encoding = mimetypes.guess_type(filename)
         content_security_policy = None
 
@@ -219,7 +229,10 @@ class Package:
         elif content_type.startswith('text/html'):
             content_security_policy = self.get_content_security_policy()
 
-        return Document(data, content_type, content_encoding, content_security_policy)
+        path = self.path / filename
+        logger.debug('  loading data from %s', path)
+
+        return Document(path.open('rb'), content_type, content_encoding, content_security_policy)
 
     def load_translation(self, locales: List[str]) -> Document:
         self.ensure_scanned()
@@ -239,7 +252,7 @@ class Package:
 
         # We prefer to return an empty document than 404 in order to avoid
         # errors in the console when a translation can't be found
-        return Document(b'', 'text/javascript')
+        return Document(io.BytesIO(), 'text/javascript')
 
     def load_path(self, path: str, headers: JsonObject) -> Document:
         self.ensure_scanned()
@@ -483,10 +496,11 @@ class Packages(bus.Object, interface='cockpit.Packages'):
                 continue
             # find_translation will always find at least 'en'
             translation = package.load_translation(locales)
-            if translation.content_encoding == 'gzip':
-                data = gzip.decompress(translation.data)
-            else:
-                data = translation.data
+            with translation.data:
+                if translation.content_encoding == 'gzip':
+                    data = gzip.decompress(translation.data.read())
+                else:
+                    data = translation.data.read()
             chunks.append(data)
 
         chunks.append(b"""
@@ -502,11 +516,11 @@ class Packages(bus.Object, interface='cockpit.Packages'):
                 }
             }(this, """ + self.manifests.encode() + b"""))""")
 
-        return Document(b'\n'.join(chunks), 'text/javascript')
+        return Document(io.BytesIO(b'\n'.join(chunks)), 'text/javascript')
 
     def load_manifests_json(self) -> Document:
         logger.debug('Serving /manifests.json')
-        return Document(self.manifests.encode(), 'application/json')
+        return Document(io.BytesIO(self.manifests.encode()), 'application/json')
 
     PATH_RE = re.compile(
         r'/'                   # leading '/'

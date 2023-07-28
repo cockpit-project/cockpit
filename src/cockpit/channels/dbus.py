@@ -221,16 +221,16 @@ class DBusChannel(Channel):
         bus = options.get('bus')
         address = options.get('address')
 
-        if address is not None:
-            if bus is not None and bus != 'none':
-                raise ChannelError('protocol-error', message='only one of "bus" and "address" can be specified')
-            logger.debug('get bus with address %s for %s', address, self.name)
-            self.bus = Bus.new(address=address, bus_client=self.name is not None)
-        elif bus == 'internal':
-            logger.debug('get internal bus for %s', self.name)
-            self.bus = self.router.internal_bus.client
-        else:
-            try:
+        try:
+            if address is not None:
+                if bus is not None and bus != 'none':
+                    raise ChannelError('protocol-error', message='only one of "bus" and "address" can be specified')
+                logger.debug('get bus with address %s for %s', address, self.name)
+                self.bus = Bus.new(address=address, bus_client=self.name is not None)
+            elif bus == 'internal':
+                logger.debug('get internal bus for %s', self.name)
+                self.bus = self.router.internal_bus.client
+            else:
                 if bus == 'session':
                     logger.debug('get session bus for %s', self.name)
                     self.bus = Bus.default_user()
@@ -239,8 +239,8 @@ class DBusChannel(Channel):
                     self.bus = Bus.default_system()
                 else:
                     raise ChannelError('protocol-error', message=f'invalid bus "{bus}"')
-            except OSError as exc:
-                raise ChannelError('protocol-error', message=f'failed to connect to {bus} bus: {exc}') from exc
+        except OSError as exc:
+            raise ChannelError('protocol-error', message=f'failed to connect to {bus} bus: {exc}') from exc
 
         try:
             self.bus.attach_event(None, 0)

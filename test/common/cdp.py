@@ -44,7 +44,6 @@ class Browser(abc.ABC):
         Reimplement this in subclasses, so it is easier to return None
         than to raise the proper exception (done at once in path()).
         """
-        pass
 
     def path(self, show_browser):
         """Return the path of the browser, if available.

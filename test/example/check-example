@@ -69,7 +69,7 @@ class TestNondestructiveExample(testlib.MachineCase):
 class TestSimple(unittest.TestCase):
 
     def testOne(self):
-        for i in range(0, 10):
+        for i in range(10):
             time.sleep(0.100)
             if i % 2:
                 sys.stderr.write(">1%i\n" % i)

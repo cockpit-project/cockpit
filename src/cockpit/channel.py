@@ -274,7 +274,7 @@ class Channel(Endpoint):
 
     def do_resume_send(self) -> None:
         """Called to indicate that the channel may start sending again."""
-        pass  # change to `raise NotImplementedError` after everyone implements it
+        # change to `raise NotImplementedError` after everyone implements it
 
     def send_message(self, **kwargs):
         self.send_channel_message(self.channel, **kwargs)

@@ -151,7 +151,7 @@ def convert_cached_icon(directory, origin, xml):
 
 def convert_remote_icon(xml):
     url = xml.text
-    if url.startswith("http://") or url.startswith("https://"):
+    if url.startswith(('http://', 'https://')):
         return url
     return None
 

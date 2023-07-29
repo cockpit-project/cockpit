@@ -105,7 +105,7 @@ class TestMenu(testlib.MachineCase):
         with self.assertRaisesRegex(RuntimeError, "TypeError:.*undefined"):
             b.click("button")
             # Some round trips, one of which should update the deferred exception
-            for _ in range(0, 5):
+            for _ in range(5):
                 b.wait_visible("button")
                 time.sleep(2)
 

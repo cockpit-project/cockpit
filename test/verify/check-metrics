@@ -75,7 +75,7 @@ def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
 
 
 def redisService(image):
-    if image.startswith("debian") or image.startswith("ubuntu"):
+    if image.startswith(("debian", "ubuntu")):
         return "redis-server"
     return "redis"
 

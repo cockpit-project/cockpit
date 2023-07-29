@@ -62,7 +62,7 @@ def info(dev):
     in_luks2_slot_section = False
     in_luks2_token_section = False
     for line in result.splitlines():
-        if not (line.startswith(b" ") or line.startswith(b"\t")):
+        if not (line.startswith((b' ', b'\t'))):
             in_luks2_slot_section = False
             in_luks2_token_section = False
         if line == b"Keyslots:":

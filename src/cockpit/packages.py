@@ -26,24 +26,15 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Callable, ClassVar, Dict, Iterable, List, NamedTuple, Optional, Pattern, Tuple, TypeVar, Union
+from typing import Callable, ClassVar, Dict, Iterable, List, NamedTuple, Optional, Pattern, Tuple, TypeVar
 
 from cockpit._vendor.systemd_ctypes import bus
 
 from . import config
 from ._version import __version__
+from .jsonutil import JsonDocument, JsonObject
 
 logger = logging.getLogger(__name__)
-
-JsonList = List['JsonDocument']
-JsonObject = Dict[str, 'JsonDocument']
-JsonLiteral = Union[str, float, bool, None]
-JsonDocument = Union[JsonObject, JsonList, JsonLiteral]
-
-# HACK: Type narrowing over Union types is not supported in the general case,
-# but this works for the case we care about: knowing that when we pass in an
-# JsonObject, we'll get an JsonObject back.
-J = TypeVar('J', JsonObject, JsonDocument)
 
 
 def sortify_version(version: str) -> str:
@@ -225,6 +216,11 @@ class PackagesLoader:
             logger.warning('Could not detect libexecdir')
             # give readable error messages
             return '/nonexistent/libexec'
+
+    # HACK: Type narrowing over Union types is not supported in the general case,
+    # but this works for the case we care about: knowing that when we pass in an
+    # JsonObject, we'll get an JsonObject back.
+    J = TypeVar('J', JsonObject, JsonDocument)
 
     @classmethod
     def patch_libexecdir(cls, obj: J) -> J:

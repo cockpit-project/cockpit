@@ -80,10 +80,10 @@ def redisService(image):
     return "redis"
 
 
-def applySettings(browser):
-    browser.click("#pcp-settings-modal button.pf-m-primary")
+def applySettings(browser, dialog_selector):
+    browser.click(f"{dialog_selector} button.pf-m-primary")
     with browser.wait_timeout(30):
-        browser.wait_not_present("#pcp-settings-modal")
+        browser.wait_not_present(dialog_selector)
 
 
 def login(self):
@@ -122,6 +122,8 @@ class TestHistoryMetrics(testlib.MachineCase):
         super().setUp()
         # start with a clean slate and avoid running into restart limits
         self.machine.execute("systemctl stop pmlogger pmproxy; systemctl reset-failed pmlogger pmproxy 2>/dev/null || true")
+        # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
+        self.pcp_dialog_selector = "#pcp-settings-modal:first-child"
 
     def waitStream(self, current_max):
         # should only have at most <current_max> valid minutes, the rest should be empty
@@ -501,11 +503,11 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # enable pmlogger in settings dialog from empty state
         b.click(".pf-v5-c-empty-state button.pf-m-primary")
-        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible(self.pcp_dialog_selector)
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        applySettings(b)
+        applySettings(b, self.pcp_dialog_selector)
 
         m.execute("until systemctl is-active pmlogger; do sleep 1; done")
 
@@ -558,22 +560,22 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # disable pmlogger in settings dialog from header bar
         b.click("#metrics-header-section button.pf-m-secondary")
-        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible(self.pcp_dialog_selector)
         b.wait_visible("#switch-pmlogger:checked")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:not(:checked)")
-        applySettings(b)
+        applySettings(b, self.pcp_dialog_selector)
 
         self.assertEqual(m.execute("systemctl is-active pmlogger || true").strip(), "inactive")
         self.assertEqual(m.execute("systemctl is-enabled pmlogger || true").strip(), "disabled")
 
         # enable pmlogger in settings dialog from header bar
         b.click("#metrics-header-section button.pf-m-secondary")
-        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible(self.pcp_dialog_selector)
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        applySettings(b)
+        applySettings(b, self.pcp_dialog_selector)
 
         m.execute("until systemctl is-active pmlogger; do sleep 1; done")
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
@@ -598,11 +600,11 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         def checkEnable(firewalld_alert):
             b.click("#metrics-header-section button.pf-m-secondary")
-            b.wait_visible("#pcp-settings-modal")
+            b.wait_visible(self.pcp_dialog_selector)
             b.wait_visible("#switch-pmproxy:not(:checked)")
             b.click('#switch-pmproxy')
             b.wait_visible('#switch-pmproxy:checked')
-            applySettings(b)
+            applySettings(b, self.pcp_dialog_selector)
             if firewalld_alert:
                 b.wait_visible(".pf-v5-c-alert:contains(pmproxy)")
             else:
@@ -616,11 +618,11 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         def checkDisable():
             b.click("#metrics-header-section button.pf-m-secondary")
-            b.wait_visible("#pcp-settings-modal")
+            b.wait_visible(self.pcp_dialog_selector)
             b.wait_visible('#switch-pmproxy:checked')
             b.click('#switch-pmproxy')
             b.wait_visible("#switch-pmproxy:not(:checked)")
-            applySettings(b)
+            applySettings(b, self.pcp_dialog_selector)
             # always clears the firewalld alert
             b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
             self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
@@ -640,14 +642,14 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # pmproxy can't be enabled without pmlogger
         b.click("#metrics-header-section button.pf-m-secondary")
-        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible(self.pcp_dialog_selector)
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.wait_visible("#switch-pmproxy:not(:checked)")
         b.wait_visible("#switch-pmproxy:disabled")
         # enable pmlogger
         b.click('#switch-pmlogger')
         b.wait_visible('#switch-pmlogger:checked')
-        applySettings(b)
+        applySettings(b, self.pcp_dialog_selector)
         m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
         self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
         b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
@@ -730,8 +732,8 @@ class TestHistoryMetrics(testlib.MachineCase):
                 b.click("#metrics-header-section button.pf-m-secondary")
                 b.wait_visible('#switch-pmproxy')
                 found = b.is_present("#switch-pmproxy" + (expected and ":checked" or ":not(:checked)"))
-                b.click("#pcp-settings-modal button.btn-cancel")
-                b.wait_not_present("#pcp-settings-modal")
+                b.click(f"{self.pcp_dialog_selector} button.btn-cancel")
+                b.wait_not_present(self.pcp_dialog_selector)
 
                 if found:
                     break
@@ -1261,6 +1263,9 @@ BEGIN {{
 @testlib.skipImage("TODO: Arch Linux packagekit support", "arch")
 @testlib.skipDistroPackage()
 class TestMetricsPackages(packagelib.PackageCase):
+    # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
+    pcp_dialog_selector = "#pcp-settings-modal:first-child"
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -1271,7 +1276,7 @@ class TestMetricsPackages(packagelib.PackageCase):
             b.wait_not_present(".pf-v5-c-empty-state button.pf-m-primary")
 
             b.click("#metrics-header-section button.pf-m-secondary")
-            b.wait_visible("#pcp-settings-modal")
+            b.wait_visible(self.pcp_dialog_selector)
             b.wait_visible("#switch-pmlogger:not(:checked)")
             # no packagekit, can't enable
             b.wait_visible("#switch-pmlogger:disabled")
@@ -1330,11 +1335,11 @@ class TestMetricsPackages(packagelib.PackageCase):
         m.execute("pkcon remove -y cockpit-pcp pcp")
         self.login_and_go("/metrics")
         b.click("#metrics-header-section button.pf-m-secondary")
-        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible(self.pcp_dialog_selector)
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        applySettings(b)
+        applySettings(b, self.pcp_dialog_selector)
         # install dialog
         b.click("#dialog button:contains('Install')")
         b.wait_not_present("#dialog")
@@ -1356,11 +1361,11 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         # install redis
         b.click("#metrics-header-section button.pf-m-secondary")
-        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible(self.pcp_dialog_selector)
         b.wait_visible("#switch-pmproxy:not(:checked)")
         b.click("#switch-pmproxy")
         b.wait_visible("#switch-pmproxy:checked")
-        applySettings(b)
+        applySettings(b, self.pcp_dialog_selector)
         # install dialog
         b.click("#dialog button:contains('Install')")
         b.wait_not_present("#dialog")
@@ -1432,6 +1437,9 @@ class TestGrafanaClient(testlib.MachineCase):
         b = self.browser
         mg = self.machines['services']
 
+        # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
+        pcp_dialog_selector = "#pcp-settings-modal:first-child"
+
         # avoid dynamic host name changes during PCP data collection, and start from clean slate
         m.execute("""systemctl stop pmlogger || true
                      systemctl reset-failed pmlogger || true
@@ -1449,19 +1457,19 @@ class TestGrafanaClient(testlib.MachineCase):
         b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
         b.wait_in_text(".pf-v5-c-empty-state", "pmlogger.service is not running")
         b.click(".pf-v5-c-empty-state button.pf-m-primary")
-        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible(pcp_dialog_selector)
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        applySettings(b)
+        applySettings(b, pcp_dialog_selector)
 
         # enable pmproxy+redis (none of our test OSes have both of them running by default)
         b.click("#metrics-header-section button.pf-m-secondary")
-        b.wait_visible("#pcp-settings-modal")
+        b.wait_visible(pcp_dialog_selector)
         b.wait_visible("#switch-pmproxy:not(:checked)")
         b.click('#switch-pmproxy')
         b.wait_visible('#switch-pmproxy:checked')
-        applySettings(b)
+        applySettings(b, pcp_dialog_selector)
 
         # enable pmproxy service in firewalld in the alert
         b.wait_visible("#firewalld-request-pmproxy")

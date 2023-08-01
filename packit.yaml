@@ -59,6 +59,14 @@ jobs:
       # big-endian
       - fedora-development-s390x
 
+  # for cross-project testing
+  - job: copr_build
+    trigger: commit
+    branch: "^main$"
+    owner: "@cockpit"
+    project: "main-builds"
+    preserve_project: True
+
   - job: copr_build
     trigger: release
     owner: "@cockpit"

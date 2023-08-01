@@ -248,6 +248,31 @@ each section returns the machine to more or less the state that it was
 in before the section.  This makes it easier to run these sections
 ad-hoc when doing incremental development.
 
+## Coverage
+
+Every pull request will trigger a `$DEFAULT_OS/devel` scenario which creates a
+coverage report of the JavaScript code executed and writes comments about
+uncovered code in the pull request. The overall coverage percentage is recorded
+in prometheus for a subset of our projects and [visualized in Grafana](https://grafana-cockpit.apps.ocp.cloud.ci.centos.org/d/ci/cockpit-ci?orgId=1).
+
+To generate coverage locally for `TestApps`:
+
+```
+export NODE_ENV=devel
+./build.js
+./test/image-prepare -q
+./test/common/run-tests --test-dir test/verify --coverage TestApps
+```
+
+Code which is impossible or very hard to test in our tests can be excluded from
+appearing in a pull request as comment by adding a `not-covered` comment with a
+short justification:
+
+```javascript
+return cockpit.script(data, { superuser: "try", err: "message" })
+              .catch(console.error); // not-covered: OS error
+```
+
 ## Helpful tips
 
 For web access, if you'd like to avoid Chromium (or Chrome) prompting

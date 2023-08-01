@@ -574,6 +574,8 @@ OnCalendar=daily
         b = self.browser
         m = self.machine
 
+        self.restore_dir('/home/admin')
+
         stuff = os.path.join(self.vm_tmpdir, "stuff")
         # prepare a directory for testing file autocomplete widget
         m.execute(f"mkdir -p {stuff}/dir")

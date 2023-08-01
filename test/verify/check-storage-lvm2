@@ -137,6 +137,12 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
+        # rename the lvol0
+        self.content_tab_action(1, 1, "edit")
+        self.dialog_wait_open()
+        self.dialog({"name": "lvol1"})
+        self.content_row_wait_in_col(1, 1, "lvol1")
+
         # grow it
         self.content_tab_action(1, 1, "Grow")
         self.dialog({"size": 30})
@@ -146,7 +152,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
-        self.assert_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
+        self.assert_in_configuration("/dev/vgroup0/lvol1", "fstab", "dir", mount_point_one)
         self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
 
         # unmount it
@@ -161,7 +167,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         # delete it
         self.content_dropdown_action(1, "Delete")
         self.confirm()
-        b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
+        b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol1")
         self.assertEqual(m.execute(f"grep {mount_point_one} /etc/fstab || true"), "")
 
         # remove disk2

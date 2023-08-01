@@ -38,7 +38,7 @@ export const MtuDialog = ({ connection, dev, settings }) => {
     const [mtu, setMtu] = useState(settings.ethernet.mtu ? settings.ethernet.mtu : '');
 
     const onSubmit = (ev) => {
-        const mtuNew = parseInt(mtu, 10);
+        const mtuNew = mode == 'auto' ? 0 : parseInt(mtu, 10);
         if (isNaN(mtuNew) || mtuNew < 0) {
             setDialogError(_("MTU must be a positive number"));
             return;
@@ -47,7 +47,7 @@ export const MtuDialog = ({ connection, dev, settings }) => {
             ...settings,
             ethernet: {
                 ...settings.ethernet,
-                mtu: mode == 'auto' ? 0 : mtuNew,
+                mtu: mtuNew,
             }
         });
 

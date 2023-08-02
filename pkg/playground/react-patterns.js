@@ -27,7 +27,7 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { PatternDialogBody } from "./react-demo-dialog.jsx";
 import { showCardsDemo } from "./react-demo-cards.jsx";
-import { showFileAcDemo } from "./react-demo-file-autocomplete.jsx";
+import { showFileAcDemo, showFileAcDemoPreselected } from "./react-demo-file-autocomplete.jsx";
 
 /* -----------------------------------------------------------------------------
   Modal Dialog
@@ -122,6 +122,7 @@ document.addEventListener("DOMContentLoaded", function() {
      */
     // File autocomplete
     showFileAcDemo(document.getElementById('demo-file-ac'));
+    showFileAcDemoPreselected(document.getElementById('demo-file-ac-preselected'));
 
     // Cards
     showCardsDemo(document.getElementById('demo-cards'));

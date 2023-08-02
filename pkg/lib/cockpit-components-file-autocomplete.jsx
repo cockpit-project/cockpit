@@ -34,7 +34,7 @@ export class FileAutoComplete extends React.Component {
             isOpen: false,
             value: this.props.value || null,
         };
-        this.updateFiles(props.value || '/');
+
         this.typeaheadInputValue = "";
         this.allowFilesUpdate = true;
         this.updateFiles = this.updateFiles.bind(this);
@@ -43,7 +43,7 @@ export class FileAutoComplete extends React.Component {
         this.clearSelection = this.clearSelection.bind(this);
         this.onCreateOption = this.onCreateOption.bind(this);
 
-        this.debouncedChange = debounce(300, (value) => {
+        this.onPathChange = (value) => {
             if (!value) {
                 this.clearSelection();
                 return;
@@ -80,7 +80,9 @@ export class FileAutoComplete extends React.Component {
                     return this.updateFiles(parentDir + '/');
                 }
             }
-        });
+        };
+        this.debouncedChange = debounce(300, this.onPathChange);
+        this.onPathChange(this.state.value);
     }
 
     componentWillUnmount() {

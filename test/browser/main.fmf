@@ -1,6 +1,12 @@
 /basic:
   summary: Run browser integration tests for basic Cockpit packages
   require:
+    # ourself
+    - cockpit
+    - cockpit-kdump
+    - cockpit-networkmanager
+    - cockpit-sosreport
+    - cockpit-tests
     # build/test infra dependencies
     - git
     - make
@@ -22,6 +28,9 @@
 /network:
   summary: Run browser integration tests for cockpit-networkmanager
   require:
+    # ourself
+    - cockpit
+    - cockpit-networkmanager
     # build/test infra dependencies
     - git
     - make
@@ -38,6 +47,11 @@
 /optional:
   summary: Run browser integration tests for optional Cockpit packages
   require:
+    # ourself
+    - cockpit
+    - cockpit-storaged
+    - cockpit-packagekit
+    - cockpit-tests
     # build/test infra dependencies
     - git
     - make

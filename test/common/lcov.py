@@ -463,13 +463,17 @@ def create_coverage_report():
     output = os.environ.get("TEST_ATTACHMENTS", BASE_DIR)
     lcov_files = glob.glob(f"{BASE_DIR}/lcov/*.info.gz")
     try:
-        title = os.path.basename(subprocess.check_output(["git", "remote", "get-url", "origin"]))
+        title = os.path.basename(subprocess.check_output(["git", "remote", "get-url", "origin"])).decode().strip()
     except subprocess.CalledProcessError:
         title = "?"
     if len(lcov_files) > 0:
         all_file = f"{BASE_DIR}/lcov/all.info"
         diff_file = f"{BASE_DIR}/lcov/diff.info"
-        subprocess.check_call(["lcov", "--quiet", "--output", all_file,
+        excludes = []
+        # Exclude pkg/lib in Cockpit projects such as podman/machines.
+        if title != "cockpit.git":
+            excludes = ["--exclude", "pkg/lib"]
+        subprocess.check_call(["lcov", "--quiet", "--output", all_file, *excludes,
                                *itertools.chain(*[["--add", f] for f in lcov_files])])
         subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
                                "--extract", all_file, "*/github-pr.diff"])

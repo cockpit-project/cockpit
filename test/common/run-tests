@@ -119,7 +119,7 @@ class Test:
             return None, 0
 
         if not opts.thorough:
-            cmd = ["test-failure-policy"]
+            cmd = ["test-failure-policy", "--all"]
             if not opts.track_naughties:
                 cmd.append("--offline")
             cmd.append(testvm.DEFAULT_IMAGE)
@@ -131,6 +131,11 @@ class Test:
                     self.returncode = proc.returncode
                     self._print_test(skip_reason="# SKIP {0}".format(reason.decode("utf-8")))
                     return None, 0
+
+                if proc.returncode == 78:
+                    self.returncode = proc.returncode
+                    self._print_test(skip_reason="# NOTE {0}".format(reason.decode("utf-8")))
+                    return None, 1
 
                 if proc.returncode == 1:
                     retry_reason = reason.decode("utf-8")

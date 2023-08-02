@@ -228,65 +228,6 @@ ExecStart=/usr/bin/sleep infinity
         m.execute(r"sed -i '/run\/data/ s/auto.*$/auto/' /etc/fstab")
         self.content_tab_wait_in_info(1, 1, "Mount point", "/run/data (stop boot on failure)")
 
-    def testNeverAuto(self):
-        m = self.machine
-        b = self.browser
-
-        self.login_and_go("/storage")
-
-        # Add a disk and format it with luks and a filesystem, but with "Never unlock at boot"
-        disk = self.add_ram_disk()
-        b.click(f'#drives .sidepanel-row:contains("{disk}")')
-        b.wait_visible("#storage-detail")
-
-        self.content_row_action(1, "Format")
-        self.dialog({"type": "ext4",
-                     "crypto": self.default_crypto_type,
-                     "passphrase": "vainu-reku-toma-rolle-kaja",
-                     "passphrase2": "vainu-reku-toma-rolle-kaja",
-                     "at_boot": "never",
-                     "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
-        self.content_tab_wait_in_info(1, 1, "Mount point", "never mount at boot")
-
-        # The filesystem should be mounted but have the "noauto"
-        # option in both fstab and crypttab
-        self.wait_mounted(1, 1)
-        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
-        self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
-
-        # Unmounting should keep the noauto option, as always
-        self.content_dropdown_action(1, "Unmount")
-        self.confirm()
-        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
-        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
-        self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
-
-        # Mounting should also keep the "noauto", but it should not show up in the extra options
-        self.content_row_action(1, "Mount")
-        self.dialog_check({"mount_options.extra": False})
-        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
-        self.dialog_apply()
-        self.dialog_wait_close()
-        self.wait_mounted(1, 1)
-        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
-        self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
-
-        # As should updating the mount information
-        self.content_tab_info_action(1, 1, "Mount point")
-        self.dialog_check({"mount_options.extra": False})
-        self.dialog_apply()
-        self.dialog_wait_close()
-        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
-        self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
-
-        # Removing "noauto" from fstab but not from crypttab externally should show a warning
-        m.execute("sed -i -e 's/noauto//' /etc/fstab")
-        fsys_tab = self.content_tab_expand(1, 1)
-        b.wait_in_text(fsys_tab, "The filesystem is configured to be automatically mounted on boot but its encryption container will not be unlocked at that time.")
-        b.click(fsys_tab + " button:contains(Do not mount automatically)")
-        b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically)")
-
     def testBadOption(self):
         m = self.machine
         b = self.browser
@@ -528,6 +469,65 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
                      "mount_point": "/run/data"})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 2, "Mount point", "/run/data")
+
+    def testNeverAuto(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks and a filesystem, but with "Never unlock at boot"
+        disk = self.add_ram_disk()
+        b.click(f'#drives .sidepanel-row:contains("{disk}")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "at_boot": "never",
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "never mount at boot")
+
+        # The filesystem should be mounted but have the "noauto"
+        # option in both fstab and crypttab
+        self.wait_mounted(1, 1)
+        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
+        self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
+
+        # Unmounting should keep the noauto option, as always
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
+        self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
+
+        # Mounting should also keep the "noauto", but it should not show up in the extra options
+        self.content_row_action(1, "Mount")
+        self.dialog_check({"mount_options.extra": False})
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.wait_mounted(1, 1)
+        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
+        self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
+
+        # As should updating the mount information
+        self.content_tab_info_action(1, 1, "Mount point")
+        self.dialog_check({"mount_options.extra": False})
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
+        self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
+
+        # Removing "noauto" from fstab but not from crypttab externally should show a warning
+        m.execute("sed -i -e 's/noauto//' /etc/fstab")
+        fsys_tab = self.content_tab_expand(1, 1)
+        b.wait_in_text(fsys_tab, "The filesystem is configured to be automatically mounted on boot but its encryption container will not be unlocked at that time.")
+        b.click(fsys_tab + " button:contains(Do not mount automatically)")
+        b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically)")
 
 
 if __name__ == '__main__':

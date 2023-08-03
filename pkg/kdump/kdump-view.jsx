@@ -267,7 +267,7 @@ export class KdumpPage extends React.Component {
         const dialogProps = {
             title: _("Test kdump settings"),
             body: (
-                <span>{_("This will test kdump settings by crashing the kernel and thereby the system. Depending on the settings, the system may not automatically reboot and the process may take a while.")}</span>
+                <span>{_("Test kdump settings by crashing the kernel. This may take a while and the system might not automatically reboot. Do not purposefully crash the system while any important task is running.")}</span>
             )
         };
         // also test modifying properties in subsequent render calls

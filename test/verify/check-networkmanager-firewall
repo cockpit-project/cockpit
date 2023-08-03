@@ -472,13 +472,16 @@ class TestFirewall(netlib.NetworkCase):
             b.wait_visible(f".zone-section[data-id='{zone}'] tr[data-row-id='{service}']")
             self.assertIn(service, m.execute(f"firewall-cmd --zone={zone} --list-services"))
 
-        def addZone(zone, interfaces=None, sources=None, error=None):
+        def addZone(zone, interfaces=None, sources=None, error=None, do_pixel=False):
             if interfaces is None:
                 interfaces = []
             b.click("#add-zone-button")
             b.wait_visible("#add-zone-dialog")
             b.wait_visible(f"#add-zone-dialog footer button.{self.btn_primary}:disabled")
             b.click(f"#add-zone-dialog .add-zone-zones-firewalld input[value='{zone}']")
+
+            if do_pixel:
+                b.assert_pixels("#add-zone-dialog", "firewall-add-zone-dialog")
 
             for i in interfaces:
                 b.click(f"#add-zone-dialog input[value='{i}']")
@@ -512,7 +515,7 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
 
         # add predefined work zone
-        addZone("work", sources="192.168.1.0/24")
+        addZone("work", sources="192.168.1.0/24", do_pixel=True)
 
         addServiceToZone("pop3", "work")
         b.wait_visible(".zone-section[data-id='work'] tr[data-row-id='pop3']")

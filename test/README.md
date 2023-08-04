@@ -84,10 +84,70 @@ ssh and web.  See the "Helpful tips" section below.
 
 ## Pixel tests
 
-The verify test suite contains ["pixel tests"](https://cockpit-project.org/blog/pixel-testing.html).
-Make sure to create the test/reference submodule before running tests which contain pixel tests.
+Pixel tests in Cockpit ensure that updates of our dependencies or code changes
+don't break the UI: for example slight changes of layout, padding, color and
+everything which isn't easily spotted by a human. They also give us confidence
+that an update of our UI Framework doesn't introduce changes in how Cockpit
+looks.
 
- * test/common/pixel-tests pull
+Pixel tests make a screenshot of a selector and compare it to a known good
+reference image. if there is a difference, the test fails and a pixel
+difference is shown.
+
+This works as our tests run in the [cockpit/tasks container](https://quay.io/repository/cockpit/tasks)
+which pins the browser and font rendering so repeated runs provide the same
+pixels. To generate new pixels, this tasks container must be used; your own
+browser and font rendering software might generate different results. For more
+information read the ["introduction blog post"](https://cockpit-project.org/blog/pixel-testing.html).
+
+The test images are stored in a git submodule in the `test/reference` directory
+and be fetched with:
+
+```sh
+./test/common/pixel-tests update
+```
+
+As Cockpit tests under multiple distributions and it is not worth the effort to
+run pixel tests on every supported distribution we only run them for the
+image configured in `test/reference-image`.
+
+Our tests call `Browser.assert_pixels` at interesting and strategic places.
+This assertion method requires at least a CSS selector and an image title.
+Pixel tests are generated in five layouts by default: desktop, medium, mobile,
+dark and rtl.
+
+Take a screenshot of the content in `#detail-content`:
+```python
+browser.assert_pixels("#detail-content", "filesystem")
+```
+
+Take a screenshot of the content in `#detail-content` and ignore all elements
+with a class `disk-stats` as they change per test run:
+```python
+browser.assert_pixels("#detail-content", "filesystem", ignore=[".disks-stats"])
+```
+
+Take a screenshot of the content in `#detail-content` and skip it for a
+specific layout as it generates unstable pixels:
+```python
+browser.assert_pixels("#detail-content", "filesystem", skip_layouts=["rtl"])
+```
+
+To update pixel tests, locally run the test in the current tasks container, or
+create a draft PR and let the tests run for `test/reference-image` and
+afterwards fetch the new pixels:
+
+```
+./test/common/pixel-tests fetch "https://cockpit-logs.us-east-1.linodeobjects.com/<snip>/log.html"
+```
+
+Finally, upload the new pixel tests and commit the newly generated submodule commit:
+```
+./test/common/pixel-tests push
+```
+
+**Note** that you have to a part of the [Contributors group](https://github.com/orgs/cockpit-project/teams/contributors)
+to push pixel tests.
 
 ## Test Configuration
 

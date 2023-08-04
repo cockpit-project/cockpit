@@ -298,10 +298,14 @@ def get_affected_tests(test_dir, base_branch, test_files):
 
 
 def detect_tests(test_files, image, opts):
-    """Build the list of tests we'll parallelize and the ones we'll run serially"""
+    """Detect tests to be run
 
-    parallel_tests = []
-    serial_tests = []
+    Builds the list of tests we'll run in separate machines (destructive tests)
+    and the ones we can run on the same machine (nondestructive)
+    """
+
+    destructive_tests = []
+    nondestructive_tests = []
     seen_classes = {}
     machine_class = None
     test_id = 1
@@ -341,30 +345,30 @@ def detect_tests(test_files, image, opts):
                 rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
                 todo = testlib.get_decorator(test_method, test, "todo")
                 if getattr(test.__class__, "provision", None):
-                    # each additionally provisioned VM costs parallel test capacity
+                    # each additionally provisioned VM costs destructive test capacity
                     cost = len(test.__class__.provision)
                 else:
                     cost = 1
                 test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, todo, cost=cost)
                 if nd:
-                    serial_tests.append(test)
+                    nondestructive_tests.append(test)
                 else:
                     if not opts.nondestructive:
-                        parallel_tests.append(test)
+                        destructive_tests.append(test)
                 test_id += 1
 
-    # sort serial tests by class/test name, to avoid spurious errors where failures depend on the order of
+    # sort non destructive tests by class/test name, to avoid spurious errors where failures depend on the order of
     # execution but let's make sure we always test them both ways around; hash the image name, which is
     # robust, reproducible, and provides an even distribution of both directions
-    serial_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
+    nondestructive_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
 
-    return (serial_tests, parallel_tests, machine_class)
+    return (nondestructive_tests, destructive_tests, machine_class)
 
 
 def list_tests(opts):
     test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
-    serial_tests, parallel_tests, _ = detect_tests(test_files, "dummy", opts)
-    names = {t.command[-1] for t in serial_tests + parallel_tests}
+    nondestructive_tests, destructive_tests, _ = detect_tests(test_files, "dummy", opts)
+    names = {t.command[-1] for t in nondestructive_tests + destructive_tests}
     for n in sorted(names):
         print(n)
 
@@ -378,24 +382,24 @@ def run(opts, image):
 
     test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)
-    serial_tests, parallel_tests, machine_class = detect_tests(test_files, image, opts)
-    serial_tests_len = len(serial_tests)
-    parallel_tests_len = len(parallel_tests)
+    nondestructive_tests, destructive_tests, machine_class = detect_tests(test_files, image, opts)
+    nondestructive_tests_len = len(nondestructive_tests)
+    destructive_tests_len = len(destructive_tests)
 
     if opts.machine:
-        assert not parallel_tests
+        assert not destructive_tests
 
-    print(f"1..{serial_tests_len + parallel_tests_len}")
+    print(f"1..{nondestructive_tests_len + destructive_tests_len}")
     flush_stdout()
 
     running_tests = []
     global_machines = []
 
     if not opts.machine:
-        # Create appropriate number of serial machines; prioritize the nondestructive (serial) tests, to get
-        # them out of the way as fast as possible, then let the destructive (parallel) ones start as soon as
-        # a given serial runner is done.
-        num_global = min(serial_tests_len, opts.jobs)
+        # Create appropriate number of nondestructive machines; prioritize the nondestructive tests, to get
+        # them out of the way as fast as possible, then let the destructive ones start as soon as
+        # a given nondestructive runner is done.
+        num_global = min(nondestructive_tests_len, opts.jobs)
 
         for _ in range(num_global):
             global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,
@@ -433,31 +437,31 @@ def run(opts, image):
                 # run again if needed
                 if retry_reason:
                     if test.nondestructive:
-                        serial_tests.insert(0, test)
+                        nondestructive_tests.insert(0, test)
                     else:
-                        parallel_tests.insert(0, test)
+                        destructive_tests.insert(0, test)
 
         if opts.machine:
-            if not running_tests and serial_tests:
-                test = serial_tests.pop(0)
+            if not running_tests and nondestructive_tests:
+                test = nondestructive_tests.pop(0)
                 logging.debug("Static machine is free, assigning next test %s", test)
                 test.assign_machine(-1, opts.machine, opts.browser)
                 test.start()
                 running_tests.append(test)
                 made_progress = True
         else:
-            # find free global machines, and either assign a new serial test, or kill them to free resources
+            # find free global machines, and either assign a new non destructive test, or kill them to free resources
             for (idx, machine) in enumerate(global_machines):
                 if machine.is_available():
-                    if serial_tests:
-                        test = serial_tests.pop(0)
+                    if nondestructive_tests:
+                        test = nondestructive_tests.pop(0)
                         logging.debug("Global machine %s is free, assigning next test %s", idx, test)
                         machine.running_test = test
                         test.assign_machine(idx, machine.ssh_address, machine.web_address)
                         test.start()
                         running_tests.append(test)
                     else:
-                        logging.debug("Global machine %s is free, and no more serial tests; killing", idx)
+                        logging.debug("Global machine %s is free, and no more non destructive tests; killing", idx)
                         machine.kill()
 
                     made_progress = True
@@ -465,10 +469,10 @@ def run(opts, image):
         def running_cost():
             return sum(test.cost for test in running_tests)
 
-        # fill the remaining available job slots with parallel tests; run tests with a cost higher than #jobs by themselves
-        while parallel_tests and (running_cost() + parallel_tests[0].cost <= opts.jobs or len(running_tests) == 0):
-            test = parallel_tests.pop(0)
-            logging.debug("%d running tests with total cost %d, starting next parallel test %s",
+        # fill the remaining available job slots with destructive tests; run tests with a cost higher than #jobs by themselves
+        while destructive_tests and (running_cost() + destructive_tests[0].cost <= opts.jobs or len(running_tests) == 0):
+            test = destructive_tests.pop(0)
+            logging.debug("%d running tests with total cost %d, starting next destructive test %s",
                           len(running_tests), running_cost(), test)
             test.start()
             running_tests.append(test)
@@ -476,8 +480,8 @@ def run(opts, image):
 
         # are we done?
         if not running_tests:
-            assert not serial_tests, f"serial_tests should be empty: {[str(t) for t in serial_tests]}"
-            assert not parallel_tests, f"parallel_tests should be empty: {[str(t) for t in parallel_tests]}"
+            assert not nondestructive_tests, f"nondestructive_tests should be empty: {[str(t) for t in nondestructive_tests]}"
+            assert not destructive_tests, f"destructive_tests should be empty: {[str(t) for t in destructive_tests]}"
             break
 
         # Sleep if we didn't make progress
@@ -492,12 +496,12 @@ def run(opts, image):
     duration = int(time.time() - start_time)
     hostname = socket.gethostname().split(".")[0]
 
-    serial_details = []
+    nondestructive_details = []
     if not opts.machine:
         for (idx, machine) in enumerate(global_machines):
-            serial_details.append(f"{idx}: {machine.duration}s")
+            nondestructive_details.append(f"{idx}: {machine.duration}s")
 
-    details = f"[{duration}s on {hostname}, {parallel_tests_len} parallel tests, {serial_tests_len} serial tests: {', '.join(serial_details)}]"
+    details = f"[{duration}s on {hostname}, {destructive_tests_len} destructive tests, {nondestructive_tests_len} nondestructive tests: {', '.join(nondestructive_details)}]"
     print()
     if fail_count > 0:
         print(f"# {fail_count} TESTS FAILED {details}")

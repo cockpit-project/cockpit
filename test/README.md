@@ -1,7 +1,8 @@
 # Integration Tests of Cockpit
 
-This directory contains automated integration tests for Cockpit, and the support
-files for them.
+This directory contains automated integration tests for Cockpit, and the
+support files for them. The architecture of the automated integration tests is
+described in [ARCHITECTURE](./ARCHITECTURE.md)
 
 To run the tests on Fedora, refer to the [HACKING](../HACKING.md) guide for
 installation of all of the necessary build and test dependencies. There's

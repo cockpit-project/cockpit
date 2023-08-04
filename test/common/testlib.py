@@ -162,7 +162,7 @@ def attach(filename: str, move: bool = False):
 
     :param filename: file to put in attachments directory
     :param move: set this to true to move dynamically generated files which
-                 are not touched by parallel tests. (default False)
+                 are not touched by destructive tests. (default False)
     """
     if not opts.attachments:
         return

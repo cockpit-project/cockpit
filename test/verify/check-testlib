@@ -120,7 +120,7 @@ class TestRunTest(testlib.MachineCase):
         self.assertRegex(stdout, rb"\nnot ok 1 .*test\/verify\/check-example TestExample.testFail\n")
         self.assertNotRegex(stdout, b"RETRY 3")
         self.assertRegex(stdout, rb"\nok 2 .*test\/verify\/check-example TestExample.testSkip # SKIP testSkip \(__main__\.TestExample")
-        self.assertRegex(stdout, rb"# 1 TESTS FAILED \[\d*s on .*, 2 parallel tests, 0 serial tests: \]")
+        self.assertRegex(stdout, rb"# 1 TESTS FAILED \[\d*s on .*, 2 destructive tests, 0 nondestructive tests: \]")
 
         # Check retry logic for changed tests
         test_file = os.path.join(VERIFY_DIR, "check-testlib")

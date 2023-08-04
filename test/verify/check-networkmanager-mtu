@@ -51,6 +51,9 @@ class TestNetworkingMTU(netlib.NetworkCase):
         b.assert_pixels("#network-mtu-settings-dialog", "networking-mtu-settings-dialog")
 
         b.set_checked('#network-mtu-settings-custom', val=True)
+        b.set_input_text("#network-mtu-settings-input", "-1500")
+        b.click("button:contains('Save')")
+        b.wait_visible("#network-mtu-settings-error:contains('MTU must be a positive number')")
         b.set_input_text('#network-mtu-settings-input', "1400")
         b.click("#network-mtu-settings-save")
         b.wait_not_present("#network-mtu-settings-dialog")
@@ -58,6 +61,12 @@ class TestNetworkingMTU(netlib.NetworkCase):
 
         # We're debugging failures here log status to journal for diagnosis
         testlib.wait(lambda: "mtu 1400" in m.execute(f"ip link show {iface} | logger -s 2>&1"))
+
+        self.configure_iface_setting("MTU")
+        b.wait_visible("#network-mtu-settings-dialog")
+        b.set_checked("#network-mtu-settings-auto", val=True)
+        b.click("button:contains('Save')")
+        self.wait_for_iface_setting("MTU", "Automatic")
 
 
 if __name__ == '__main__':

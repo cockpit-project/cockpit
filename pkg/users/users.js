@@ -26,7 +26,7 @@ import { createRoot } from 'react-dom/client';
 import { superuser } from "superuser";
 
 import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
-import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "parsers.js";
+import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "pam_user_parser.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";

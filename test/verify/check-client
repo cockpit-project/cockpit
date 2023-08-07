@@ -37,6 +37,11 @@ class TestClient(testlib.MachineCase):
         self.m_client = self.machines["client"]
         self.m_client.upload(["../src/client/cockpit-beiboot"], "/usr/local/bin/")
         self.m_target.execute("hostnamectl set-hostname target")
+        # validate on-demand install: this does not work on arch, non-split package
+        if self.m_target.image.startswith("debian") or self.m_target.image.startswith("ubuntu"):
+            self.m_target.execute("dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp")
+        elif self.m_target.image != 'arch':
+            self.m_target.execute("rpm --erase --verbose cockpit-pcp pcp")
 
     def writeConfig(self, ssh_command):
         self.m_client.write("/etc/cockpit/cockpit.conf", f"""
@@ -138,6 +143,18 @@ exec "$@"
         b.wait_visible('#content')
         b.wait_in_text("#host-toggle", "admin@target")
         b.become_superuser()
+
+        # cockpit-pcp is installed on client, but not on target; recognize that
+        if self.m_target.image != 'arch':
+            b.go("/metrics")
+            b.enter_page("/metrics")
+            b.wait_in_text(".pf-v5-c-empty-state", "cockpit-pcp is missing")
+            # on-demand install is allowed
+            b.wait_in_text(".pf-v5-c-empty-state button.pf-m-primary", "Install cockpit-pcp")
+            b.click(".pf-v5-c-empty-state button.pf-m-primary")
+            b.wait_in_text(".pf-v5-c-modal-box", "cockpit-pcp will be installed")
+            b.click(".pf-v5-c-modal-box button.cancel")
+
         b.drop_superuser()
         self.logout()
 

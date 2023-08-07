@@ -20,7 +20,6 @@
 import testlib
 
 
-# Run this on more OSes as we roll out the pybridge
 @testlib.skipImage("needs pybridge", "debian-stable", "ubuntu-2204", "fedora-37",
                    "rhel-8*", "centos-8*")
 # enable this once our cockpit/ws container can beiboot
@@ -34,11 +33,13 @@ class TestClient(testlib.MachineCase):
 
     def setUp(self):
         super().setUp()
-        self.machine.upload(["../src/client/cockpit-beiboot"], "/usr/local/bin/")
-        self.machines["target"].execute("hostnamectl set-hostname target")
+        self.m_target = self.machines["target"]
+        self.m_client = self.machines["client"]
+        self.m_client.upload(["../src/client/cockpit-beiboot"], "/usr/local/bin/")
+        self.m_target.execute("hostnamectl set-hostname target")
 
     def writeConfig(self, ssh_command):
-        self.machine.write("/etc/cockpit/cockpit.conf", f"""
+        self.m_client.write("/etc/cockpit/cockpit.conf", f"""
 [WebService]
 X-For-CockpitClient = true
 LoginTo = true
@@ -61,15 +62,15 @@ Command = {ssh_command}
 
         # no leaked processes
         # FIXME: leaks ssh on debian-testing with c-client-ssh (but not on fedora-38/pybridge)
-        self.machine.execute('''
+        self.m_client.execute('''
             while [ -n "$(pgrep -au admin | grep -Ev 'cockpit-ws|ssh.*cockpit-bridge' >&2)" ]; do sleep 1; done
         ''', timeout=10)
-        self.machines["target"].execute("while pgrep -af '([c]ockpit|[s]sh-agent)' >&2; do sleep 1; done",
-                                        timeout=30)
+        self.m_target.execute("while pgrep -af '([c]ockpit|[s]sh-agent)' >&2; do sleep 1; done",
+                              timeout=30)
 
     # deprecated: c-client-ssh will disappear once c-beiboot goes from beta to release
     def testClientSSH(self):
-        m = self.machine
+        m = self.m_client
 
         m.upload(["../src/client/cockpit-client-ssh"], "/usr/local/bin/")
         # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-client-ssh
@@ -88,22 +89,20 @@ exec "$@"
     def testBeibootNoBridge(self):
         # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
         self.writeConfig("/usr/local/bin/cockpit-beiboot")
-        self.machine.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
+        self.m_client.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
         # set up target machine: no cockpit
-        self.machines["target"].execute("rm /usr/bin/cockpit-bridge; rm -r /usr/share/cockpit")
+        self.m_target.execute("rm /usr/bin/cockpit-bridge; rm -r /usr/share/cockpit")
 
         self.checkLoginScenarios()
 
     def testBeibootWithBridge(self):
         # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
         self.writeConfig("/usr/local/bin/cockpit-beiboot")
-        self.machine.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
+        self.m_client.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
 
         self.checkLoginScenarios()
 
     def checkLoginScenarios(self):
-        m = self.machine
-        mt = self.machines["target"]
         b = self.browser
         b.open("/")
 
@@ -164,7 +163,7 @@ exec "$@"
         self.logout()
 
         # different user name + password
-        mt.execute("useradd -s /bin/bash user; echo user:barfoo | chpasswd")
+        self.m_target.execute("useradd -s /bin/bash user; echo user:barfoo | chpasswd")
         b.set_val("#server-field", "user@10.111.113.2")
         b.click("#login-button")
         b.wait_text("#conversation-prompt", "user@10.111.113.2's password: ")
@@ -195,16 +194,16 @@ exec "$@"
         self.assertNotIn("unknownhost", b.text("#recent-hosts-list"))
 
         # unencrypted SSH key login
-        m.execute("runuser -u admin -- ssh-keygen -t rsa -N '' -f ~admin/.ssh/id_rsa")
-        pubkey = m.execute("cat ~admin/.ssh/id_rsa.pub")
-        mt.write("/home/user/.ssh/authorized_keys", pubkey, owner="user:user", perm="600")
+        self.m_client.execute("runuser -u admin -- ssh-keygen -t rsa -N '' -f ~admin/.ssh/id_rsa")
+        pubkey = self.m_client.execute("cat ~admin/.ssh/id_rsa.pub")
+        self.m_target.write("/home/user/.ssh/authorized_keys", pubkey, owner="user:user", perm="600")
         b.click("#recent-hosts-list .host-line:contains('user@10.111.113.2') button.host-name")
         b.wait_visible('#content')
         b.wait_in_text("#host-toggle", "user@target")
         self.logout()
 
         # encrypted SSH key login
-        m.execute("runuser -u admin -- ssh-keygen -f ~admin/.ssh/id_rsa -p -P '' -N foobarfoo")
+        self.m_client.execute("runuser -u admin -- ssh-keygen -f ~admin/.ssh/id_rsa -p -P '' -N foobarfoo")
         b.click("#login-button")
         b.wait_text("#conversation-prompt", "Enter passphrase for key '/home/admin/.ssh/id_rsa': ")
         b.set_val("#conversation-input", "wrong")

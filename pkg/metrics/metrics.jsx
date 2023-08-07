@@ -1796,7 +1796,9 @@ class MetricsHistory extends React.Component {
                         action={<Button onClick={() => cockpit.logout(true)}>{_("Log out")}</Button>}
             />;
 
-        if (cockpit.manifests && !cockpit.manifests.pcp)
+        // on a single machine, cockpit-pcp depends on pcp; but this may not be the case in the beiboot scenario,
+        // so additionally check if pcp is available on the logged in target machine
+        if ((cockpit.manifests && !cockpit.manifests.pcp) || this.pmlogger_service.exists === false)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("Package cockpit-pcp is missing for metrics history")}

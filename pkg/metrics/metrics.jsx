@@ -624,7 +624,7 @@ class CurrentMetrics extends React.Component {
     getCachedPodName = (uid, containerid) => this.state.podNameMapping[uid] && this.state.podNameMapping[uid][containerid];
 
     cgroupRow = (name, is_user, is_container, uid, ...values) => {
-        const podman_installed = cockpit.manifests && cockpit.manifests.podman;
+        const podman_installed = cockpit.manifests?.podman;
 
         const cgroupClickHandler = (name, isUser, isContainer, uid) => {
             if (isContainer) {
@@ -705,7 +705,6 @@ class CurrentMetrics extends React.Component {
         const memUsedFraction = memTotal ? this.state.memUsed / memTotal : 0;
         const memAvail = memTotal ? (memTotal - this.state.memUsed) : 0;
         const num_cpu_str = cockpit.format(cockpit.ngettext("$0 CPU", "$0 CPUs", numCpu), numCpu);
-        const have_storage = cockpit.manifests && cockpit.manifests.storage;
 
         const netIO = this.netInterfacesNames.map((iface, i) => [
             iface,
@@ -940,7 +939,7 @@ class CurrentMetrics extends React.Component {
                                         title={info.target}
                                         label={ cockpit.format(_("$0 free"), cockpit.format_bytes(info.avail, 1000)) } />
                                 );
-                                if (have_storage)
+                                if (cockpit.manifests?.storage)
                                     progress = <Button variant="link" isInline onClick={() => cockpit.jump("/storage") }>{progress}</Button>;
 
                                 return (

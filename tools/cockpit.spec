@@ -283,8 +283,9 @@ done
 for data in doc man pixmaps polkit-1; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
-rm -r %{buildroot}/%{_prefix}/%{__lib}/tmpfiles.d
-find %{buildroot}/%{_unitdir}/ -type f ! -name 'cockpit-session*' -delete
+for lib in systemd tmpfiles.d; do
+    rm -r %{buildroot}/%{_prefix}/%{__lib}/$lib
+done
 for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
     rm -f %{buildroot}/%{_libexecdir}/$libexec
 done
@@ -303,8 +304,6 @@ for pkg in apps packagekit pcp playground storaged; do
 done
 # files from -tests
 rm -f %{buildroot}/%{pamdir}/mock-pam-conv-mod.so
-rm -f %{buildroot}/%{_unitdir}/cockpit-session.socket
-rm -f %{buildroot}/%{_unitdir}/cockpit-session@.service
 # files from -pcp
 rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
 # files from -storaged
@@ -475,6 +474,8 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit-motd.service
 %{_unitdir}/cockpit.socket
+%{_unitdir}/cockpit-session.socket
+%{_unitdir}/cockpit-session@.service
 %{_unitdir}/cockpit-wsinstance-http.socket
 %{_unitdir}/cockpit-wsinstance-http.service
 %{_unitdir}/cockpit-wsinstance-https-factory.socket
@@ -493,7 +494,7 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-desktop
 %{_libexecdir}/cockpit-certificate-ensure
 %{_libexecdir}/cockpit-certificate-helper
-%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
+%{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
 %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 %{_mandir}/man8/%{name}_session_selinux.8cockpit.*
@@ -671,8 +672,6 @@ These files are not required for running Cockpit.
 
 %files -n cockpit-tests -f tests.list
 %{pamdir}/mock-pam-conv-mod.so
-%{_unitdir}/cockpit-session.socket
-%{_unitdir}/cockpit-session@.service
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration

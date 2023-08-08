@@ -66,17 +66,22 @@ class StorageHelpers:
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
 
-        Unlike add_ram_disk(), this can be called multiple times, and is less size constrained.
-        However, loopback devices look quite special to the OS, so they are not a very good
-        simulation of a "real" disk.
+        Unlike add_ram_disk(), this can be called multiple times, and
+        is less size constrained.  The backing file starts out sparse,
+        so this can be used to create massive block devices, as long
+        as you are careful to not actually use much of it.
+
+        However, loopback devices look quite special to the OS, so
+        they are not a very good simulation of a "real" disk.
 
         Return the device name.
+
         """
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1969408
         # It would be nicer to remove $F immediately after the call to
         # losetup, but that will break some versions of lvm2.
         dev = self.machine.execute("F=$(mktemp /var/tmp/loop.XXXX); "
-                                   "dd if=/dev/zero of=$F bs=1000000 count=%s; "
+                                   "truncate --size=%sMB $F; "
                                    "losetup --show %s $F" % (size, name if name else "--find")).strip()
         # If this device had partions in its last incarnation on this
         # machine, they might come back for unknown reasons, in a

@@ -29,7 +29,8 @@ import { validate_pool_name, start_pool } from "./stratis-details.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import { PlayIcon } from "@patternfly/react-icons";
 
-import { std_reply, get_unused_keydesc, with_stored_passphrase } from "./stratis-utils.js";
+import { std_reply, get_unused_keydesc, with_stored_passphrase, confirm_tang_trust } from "./stratis-utils.js";
+import { validate_url, get_tang_adv } from "./crypto-keyslots.jsx";
 
 const _ = cockpit.gettext;
 
@@ -119,32 +120,6 @@ export function create_stratis_pool(client) {
                           value: name,
                           validate: name => validate_pool_name(client, null, name)
                       }),
-            CheckBoxes("encrypt", "",
-                       {
-                           fields: [
-                               { tag: "on", title: _("Encrypt data") }
-                           ],
-                           nested_fields: [
-                               PassInput("passphrase", _("Passphrase"),
-                                         {
-                                             validate: function (phrase) {
-                                                 if (phrase === "")
-                                                     return _("Passphrase cannot be empty");
-                                             },
-                                             visible: vals => vals.encrypt.on,
-                                             new_password: true
-                                         }),
-                               PassInput("passphrase2", _("Confirm"),
-                                         {
-                                             validate: function (phrase2, vals) {
-                                                 if (phrase2 != vals.passphrase)
-                                                     return _("Passphrases do not match");
-                                             },
-                                             visible: vals => vals.encrypt.on,
-                                             new_password: true
-                                         })
-                           ]
-                       }),
             SelectSpaces("disks", _("Block devices"),
                          {
                              empty_warning: _("No block devices are available."),
@@ -153,7 +128,52 @@ export function create_stratis_pool(client) {
                                      return _("At least one block device is needed.");
                              },
                              spaces: get_available_spaces(client)
-                         })
+                         }),
+            CheckBoxes("encrypt_pass", client.features.stratis_crypto_binding ? _("Encryption") : "",
+                       {
+                           fields: [
+                               {
+                                   tag: "on",
+                                   title: (client.features.stratis_crypto_binding
+                                       ? _("Use a passphrase")
+                                       : _("Encrypt data"))
+                               }
+                           ],
+                           nested_fields: [
+                               PassInput("passphrase", _("Passphrase"),
+                                         {
+                                             validate: function (phrase) {
+                                                 if (phrase === "")
+                                                     return _("Passphrase cannot be empty");
+                                             },
+                                             visible: vals => vals.encrypt_pass.on,
+                                             new_password: true
+                                         }),
+                               PassInput("passphrase2", _("Confirm"),
+                                         {
+                                             validate: function (phrase2, vals) {
+                                                 if (phrase2 != vals.passphrase)
+                                                     return _("Passphrases do not match");
+                                             },
+                                             visible: vals => vals.encrypt_pass.on,
+                                             new_password: true
+                                         })
+                           ]
+                       }),
+            CheckBoxes("encrypt_tang", "",
+                       {
+                           visible: () => client.features.stratis_crypto_binding,
+                           fields: [
+                               { tag: "on", title: _("Use a Tang keyserver") }
+                           ],
+                           nested_fields: [
+                               TextInput("tang_url", _("Keyserver address"),
+                                         {
+                                             validate: validate_url,
+                                             visible: vals => vals.encrypt_tang && vals.encrypt_tang.on
+                                         }),
+                           ]
+                       })
         ],
         Action: {
             Title: _("Create"),
@@ -161,16 +181,28 @@ export function create_stratis_pool(client) {
                 return prepare_available_spaces(client, vals.disks).then(function (paths) {
                     const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
 
-                    function create(key_desc) {
-                        return client.stratis_create_pool(vals.name, devs, key_desc).then(std_reply);
+                    function create(key_desc, adv) {
+                        let clevis_info = null;
+                        if (adv)
+                            clevis_info = ["tang", JSON.stringify({ url: vals.tang_url, adv })];
+                        return client.stratis_create_pool(vals.name, devs, key_desc, clevis_info).then(std_reply);
                     }
 
-                    if (vals.encrypt.on) {
-                        return get_unused_keydesc(client, vals.name)
-                                .then(keydesc => with_stored_passphrase(client, keydesc, vals.passphrase,
-                                                                        () => create(keydesc)));
+                    function create2(adv) {
+                        if (vals.encrypt_pass.on) {
+                            return get_unused_keydesc(client, vals.name)
+                                    .then(keydesc => with_stored_passphrase(client, keydesc, vals.passphrase,
+                                                                            () => create(keydesc, adv)));
+                        } else {
+                            return create(false, adv);
+                        }
+                    }
+
+                    if (vals.encrypt_tang && vals.encrypt_tang.on) {
+                        return get_tang_adv(vals.tang_url)
+                                .then(adv => confirm_tang_trust(vals.tang_url, adv, () => create2(adv)));
                     } else {
-                        return create(false);
+                        return create2(false);
                     }
                 });
             }

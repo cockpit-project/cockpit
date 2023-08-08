@@ -17,6 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import cockpit from "cockpit";
+import React from "react";
+
+import { dialog_open } from "./dialog.jsx";
+import { TangKeyVerification } from "./crypto-keyslots.jsx";
+
+const _ = cockpit.gettext;
+
 export function std_reply(result, code, message) {
     if (code)
         return Promise.reject(message);
@@ -59,4 +67,15 @@ export function get_unused_keydesc(client, desc_prefix) {
                 }
                 return desc;
             });
+}
+
+export function confirm_tang_trust(url, adv, action) {
+    dialog_open({
+        Title: _("Verify key"),
+        Body: <TangKeyVerification url={url} adv={adv} />,
+        Action: {
+            Title: _("Trust key"),
+            action
+        }
+    });
 }

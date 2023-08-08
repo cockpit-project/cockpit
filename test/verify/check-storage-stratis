@@ -32,6 +32,8 @@ class TestStorageStratis(storagelib.StorageCase):
             self.machine.execute("systemctl enable --now stratisd")
             self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
 
+        self.stratis_v2 = self.image.startswith("rhel-8-9") or self.image == "centos-8-stream"
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -81,7 +83,7 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        if not m.image.startswith("rhel-8-9") and m.image != "centos-8-stream":
+        if not self.stratis_v2:
             # Stop the pool (only works with Stratis 3)
             pool_uuid = m.execute("stratis --unhyphenated-uuids pool list --name pool0 | grep ^UUID | cut -d' ' -f2").strip()
             m.execute("stratis pool stop pool0")
@@ -275,6 +277,8 @@ class TestStorageStratis(storagelib.StorageCase):
         m.add_disk("4G", serial="DISK2")
         b.wait_in_text("#drives", dev_2)
 
+        passphrase = "foodeeboodeebar"
+
         # Create an encrypted pool with a filesystem, but don't mount
         # it.  Cockpit will chose a key description for the pool and
         # we occupy its first choice in order to force Cockpit to use
@@ -283,9 +287,9 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
                                     expect=lambda: (self.dialog_is_present('disks', dev_1) and
                                                     self.dialog_check({"name": "pool0"})))
-        self.dialog_set_val("encrypt.on", val=True)
-        self.dialog_set_val("passphrase", "foodeeboodeebar")
-        self.dialog_set_val("passphrase2", "foodeeboodeebar")
+        self.dialog_set_val("encrypt_pass.on", val=True)
+        self.dialog_set_val("passphrase", passphrase)
+        self.dialog_set_val("passphrase2", passphrase)
         self.dialog_set_val("disks", {dev_1: True})
         b.assert_pixels("#dialog", "create-encrypted-pool")
         self.dialog_apply()
@@ -296,6 +300,7 @@ class TestStorageStratis(storagelib.StorageCase):
         b.click('.sidepanel-row:contains("pool0")')
         b.wait_visible('#storage-detail')
         b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
+
         b.click("button:contains(Create new filesystem)")
         self.dialog({'name': 'fsys1',
                      'mount_point': '/run/fsys1',
@@ -312,11 +317,25 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_set_val('disks', {dev_2: True})
         self.dialog_apply()
         self.dialog_wait_error("passphrase", "Passphrase cannot be empty")
-        self.dialog_set_val('passphrase', "foodeeboodeebar")
+        self.dialog_set_val('passphrase', passphrase)
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text('#detail-sidebar', dev_2)
         b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_2})', "data")
+
+        # Change the passphrase (if supported)
+        if not self.stratis_v2:
+            b.wait_visible('#detail-header .pf-v5-c-description-list__group:contains(Passphrase) button:contains(Remove)[aria-disabled=true]')
+            b.click('#detail-header .pf-v5-c-description-list__group:contains(Passphrase) button:contains(Change)')
+            self.dialog({'old_passphrase': passphrase,
+                         'new_passphrase': "boodeefoodeebar",
+                         'new_passphrase2': "boodeefoodeebar"})
+            # do it again, with the old passphrase in the keyring
+            m.execute("echo boodeefoodeebar | stratis key set pool0 --capture-key")
+            b.click('#detail-header .pf-v5-c-description-list__group:contains(Passphrase) button:contains(Change)')
+            self.dialog({'new_passphrase': passphrase,
+                         'new_passphrase2': passphrase})
+            m.execute("stratis key unset pool0")
 
         m.reboot()
         m.start_cockpit()
@@ -334,7 +353,7 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_set_val('passphrase', "wrong-passphrase")
         self.dialog_apply()
         b.wait_visible("#dialog .pf-v5-c-alert.pf-m-danger")
-        self.dialog_set_val('passphrase', "foodeeboodeebar")
+        self.dialog_set_val('passphrase', passphrase)
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_not_in_text('#detail-header', "Stopped")
@@ -346,7 +365,7 @@ class TestStorageStratis(storagelib.StorageCase):
         self.wait_mounted(1, 1)
 
         # Reboot (this requires the passphrase)
-        self.setup_systemd_password_agent("foodeeboodeebar")
+        self.setup_systemd_password_agent(passphrase)
         m.reboot()
         m.start_cockpit()
         b.relogin()
@@ -546,6 +565,172 @@ class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase)
             b.click("#devices .pf-v5-c-dropdown button.pf-v5-c-dropdown__toggle")
             b.wait_visible("#devices .pf-v5-c-dropdown a:contains('Create RAID device')")
             b.wait_not_present("#devices .pf-v5-c-dropdown a:contains('Create Stratis pool')")
+
+
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+@testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
+    provision = {
+        "0": {"address": "10.111.112.1/20", "memory_mb": 2048},
+        "tang": {"address": "10.111.112.5/20"}
+    }
+
+    def setUp(self):
+        super().setUp()
+
+        if self.image == "arch":
+            # Arch Linux does not enable systemd units by default
+            self.machine.execute("systemctl enable --now stratisd")
+            self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        tang_m = self.machines["tang"]
+        tang_m.execute("systemctl start tangd.socket")
+        tang_m.execute("firewall-cmd --add-port 80/tcp")
+
+        self.login_and_go("/storage")
+
+        dev_1 = "/dev/sda"
+        m.add_disk("4G", serial="DISK1")
+        b.wait_in_text("#drives", dev_1)
+
+        dev_2 = "/dev/sdb"
+        m.add_disk("5G", serial="DISK2")
+        b.wait_in_text("#drives", dev_2)
+
+        # Create an encrypted pool with both a passphrase and a keyserver
+        self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
+                                    expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                                    self.dialog_check({"name": "pool0"})))
+        self.dialog_set_val("encrypt_pass.on", val=True)
+        self.dialog_set_val("passphrase", "foodeeboodeebar")
+        self.dialog_set_val("passphrase2", "foodeeboodeebar")
+        self.dialog_set_val("encrypt_tang.on", val=True)
+        self.dialog_set_val("tang_url", "10.111.112.5")
+        self.dialog_set_val("disks", {dev_1: True})
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Check the key hash")
+        b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+
+        b.wait_in_text("#devices", "pool0")
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_visible('#storage-detail')
+        b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
+        b.wait_in_text('#detail-header', "Passphrase")
+        b.wait_in_text('#detail-header', "Keyserver")
+        b.wait_in_text('#detail-header', "10.111.112.5")
+
+        b.assert_pixels('#detail-header', "header",
+                        ignore=['.pf-v5-c-description-list__group:contains(UUID)'])
+
+        # Remove passphrase
+        b.click('#detail-header .pf-v5-c-description-list__group:contains(Passphrase) button:contains(Remove)')
+        self.confirm()
+        b.wait_in_text('#detail-header .pf-v5-c-description-list__group:contains(Passphrase)', "Add passphrase")
+        b.wait_visible('#detail-header .pf-v5-c-description-list__group:contains(Keyserver) button:contains(Remove)[aria-disabled=true]')
+
+        # Stop the pool and start it again.  This should not ask
+        # for the passphrase (since there isn't any)
+        m.execute("stratis pool stop pool0")
+        b.wait_in_text('#detail-header', "Stopped Stratis pool")
+        tang_m.execute("systemctl stop tangd.socket")
+        b.click('#detail-header button:contains(Start)')
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "Error communicating")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        tang_m.execute("systemctl start tangd.socket")
+        b.click('#detail-header button:contains(Start)')
+        b.wait_not_in_text('#detail-header', "Stopped")
+        b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
+
+        # Put passphrase back and do the stopping starting again,
+        # but without tang.  This should try clevis but then fall
+        # back to asking for a passphrase.
+
+        b.click('#detail-header .pf-v5-c-description-list__group:contains(Passphrase) button:contains(Add passphrase)')
+        self.dialog({'passphrase': "foodeeboodeebar",
+                     'passphrase2': "foodeeboodeebar"})
+        b.wait_visible('#detail-header .pf-v5-c-description-list__group:contains(Keyserver) button:contains(Remove):not([aria-disabled=true])')
+        m.execute("stratis pool stop pool0")
+        tang_m.execute("systemctl stop tangd.socket")
+        b.click('#detail-header button:contains(Start)')
+        self.dialog_wait_open()
+        self.dialog_set_val("passphrase", "foobar")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Finally start tang
+        tang_m.execute("systemctl start tangd.socket")
+        b.click('#detail-header button:contains(Start)')
+        b.wait_not_in_text('#detail-header', "Stopped")
+        b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
+
+        # Add a blockdevice.  This requires the passphrase.
+
+        b.click('#detail-sidebar .pf-v5-c-card__actions button')
+        self.dialog({'disks': {dev_2: True}, 'passphrase': "foodeeboodeebar"})
+
+        # Remove the keyserver and add it back
+
+        b.click('#detail-header .pf-v5-c-description-list__group:contains(Keyserver) button:contains(Remove)')
+        self.confirm()
+
+        b.click('#detail-header button:contains(Add keyserver)')
+        self.dialog_wait_open()
+        self.dialog_set_val("tang_url", "10.111.112.5")
+        self.dialog_set_val("passphrase", "foodeeboodeebar")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Check the key hash")
+        b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+            b.wait_in_text('#detail-header', "10.111.112.5")
+
+        # Remove the keyserver and add it back a second time, but try
+        # first with the wrong passphrase already in the keyring
+
+        b.click('#detail-header .pf-v5-c-description-list__group:contains(Keyserver) button:contains(Remove)')
+        self.confirm()
+
+        m.execute("echo foobar | stratis key set pool0 --capture-key")
+        b.click('#detail-header button:contains(Add keyserver)')
+        self.dialog_wait_open()
+        self.dialog_set_val("tang_url", "10.111.112.5")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Check the key hash")
+        b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            b.wait_in_text('#dialog', "Command failed")
+        m.execute("stratis key unset pool0")
+        m.execute("echo foodeeboodeebar | stratis key set pool0 --capture-key")
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+        b.wait_in_text('#detail-header', "10.111.112.5")
+        m.execute("stratis key unset pool0")
+
+        # Create a mounted filesystem and reboot.
+
+        b.click("button:contains(Create new filesystem)")
+        self.dialog({'name': 'fsys1',
+                     'mount_point': '/run/fsys1'})
+        b.wait_in_text("#detail-content", "fsys1")
+        m.reboot()
+        m.start_cockpit()
+        b.relogin()
+        b.enter_page("/storage")
+        b.wait_visible("#storage-detail")
+        self.wait_mounted(1, 1)  # should be mounted after boot
 
 
 if __name__ == '__main__':

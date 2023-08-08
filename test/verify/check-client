@@ -98,7 +98,7 @@ exec "$@"
         # set up target machine: no cockpit
         self.m_target.execute("rm /usr/bin/cockpit-bridge; rm -r /usr/share/cockpit")
 
-        self.checkLoginScenarios()
+        self.checkLoginScenarios(local_bridge=False)
 
     def testBeibootWithBridge(self):
         # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
@@ -107,7 +107,7 @@ exec "$@"
 
         self.checkLoginScenarios()
 
-    def checkLoginScenarios(self):
+    def checkLoginScenarios(self, *, local_bridge=True):
         b = self.browser
         b.open("/")
 
@@ -149,11 +149,16 @@ exec "$@"
             b.go("/metrics")
             b.enter_page("/metrics")
             b.wait_in_text(".pf-v5-c-empty-state", "cockpit-pcp is missing")
-            # on-demand install is allowed
-            b.wait_in_text(".pf-v5-c-empty-state button.pf-m-primary", "Install cockpit-pcp")
-            b.click(".pf-v5-c-empty-state button.pf-m-primary")
-            b.wait_in_text(".pf-v5-c-modal-box", "cockpit-pcp will be installed")
-            b.click(".pf-v5-c-modal-box button.cancel")
+            if local_bridge:
+                # on-demand install is allowed
+                b.wait_in_text(".pf-v5-c-empty-state button.pf-m-primary", "Install cockpit-pcp")
+                b.click(".pf-v5-c-empty-state button.pf-m-primary")
+                b.wait_in_text(".pf-v5-c-modal-box", "cockpit-pcp will be installed")
+                b.click(".pf-v5-c-modal-box button.cancel")
+            else:
+                # not currently supported in beiboot scenario
+                b.wait_in_text(".pf-v5-c-empty-state", "Installation not supported without installed cockpit package")
+                b.wait_not_present(".pf-v5-c-empty-state button")
 
         b.drop_superuser()
         self.logout()

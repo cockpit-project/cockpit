@@ -1578,6 +1578,7 @@ class MetricsHistory extends React.Component {
             isDatepickerOpened: false,
             selectedDate: null,
             packagekitExists: false,
+            isBeibootBridge: false,
             selectedVisibility: this.columns.reduce((a, v) => ({ ...a, [v[0]]: true }), {})
         };
 
@@ -1631,10 +1632,17 @@ class MetricsHistory extends React.Component {
                 .catch(ex => this.setState({ error: ex.toString() }));
     }
 
-    componentDidMount() {
-        packagekit.detect().then(exists => {
-            this.setState({ packagekitExists: exists });
-        });
+    async componentDidMount() {
+        const packagekitExists = await packagekit.detect();
+        // HACK: See https://github.com/cockpit-project/cockpit/issues/19143
+        let cmdline = "";
+        try {
+            cmdline = await cockpit.file("/proc/self/cmdline").read();
+        } catch (_ex) {}
+
+        const isBeibootBridge = cmdline?.includes("ic# cockpit-bridge");
+
+        this.setState({ packagekitExists, isBeibootBridge });
     }
 
     handleMoreData() {
@@ -1802,7 +1810,10 @@ class MetricsHistory extends React.Component {
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("Package cockpit-pcp is missing for metrics history")}
-                        action={this.state.packagekitExists ? <Button onClick={() => this.handleInstall()}>{_("Install cockpit-pcp")}</Button> : null}
+                        action={this.state.isBeibootBridge === true
+                            // See https://github.com/cockpit-project/cockpit/issues/19143
+                            ? <Text>{ _("Installation not supported without installed cockpit package") }</Text>
+                            : this.state.packagekitExists && <Button onClick={this.handleInstall}>{_("Install cockpit-pcp")}</Button>}
             />;
 
         if (!this.state.metricsAvailable) {

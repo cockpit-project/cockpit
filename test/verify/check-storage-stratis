@@ -277,6 +277,10 @@ class TestStorageStratis(storagelib.StorageCase):
         m.add_disk("4G", serial="DISK2")
         b.wait_in_text("#drives", dev_2)
 
+        dev_3 = "/dev/sdc"
+        m.add_disk("4G", serial="DISK3")
+        b.wait_in_text("#drives", dev_3)
+
         passphrase = "foodeeboodeebar"
 
         # Create an encrypted pool with a filesystem, but don't mount
@@ -337,6 +341,18 @@ class TestStorageStratis(storagelib.StorageCase):
                          'new_passphrase2': passphrase})
             m.execute("stratis key unset pool0")
 
+        # Add a cache blockdev (if supported)
+        if not self.stratis_v2:
+            b.click('#detail-sidebar .pf-v5-c-card__actions button')
+            self.dialog_wait_open()
+            self.dialog_set_val('tier', "cache")
+            self.dialog_set_val('disks', {dev_3: True})
+            self.dialog_set_val('passphrase', passphrase)
+            self.dialog_apply()
+            self.dialog_wait_close()
+            b.wait_in_text('#detail-sidebar', dev_3)
+            b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_3})', "cache")
+
         m.reboot()
         m.start_cockpit()
         b.relogin()
@@ -344,8 +360,8 @@ class TestStorageStratis(storagelib.StorageCase):
         b.wait_visible("#storage-detail")
 
         b.wait_in_text('#detail-header', "Stopped Stratis pool")
-        b.wait_in_text('#detail-sidebar', dev_1)
-        b.wait_in_text('#detail-sidebar', dev_2)
+        b.wait_in_text('#detail-sidebar', "DISK1")
+        b.wait_in_text('#detail-sidebar', "DISK2")
 
         # Unlock the pool
         b.click('#detail-header button:contains(Start)')

@@ -963,7 +963,7 @@ client.stratis_start = () => {
 // not allowed.  If we need to bump it, it should be bumped here for all
 // of them at the same time.
 //
-const stratis3_interface_revision = "r2";
+const stratis3_interface_revision = "r5";
 
 function stratis3_start() {
     const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });
@@ -985,11 +985,11 @@ function stratis3_start() {
                 };
 
                 client.stratis_start_pool = (uuid, unlock_method) => {
-                    return client.stratis_manager.StartPool(uuid, [!!unlock_method, unlock_method || ""]);
+                    return client.stratis_manager.StartPool(uuid, "uuid", [!!unlock_method, unlock_method || ""]);
                 };
 
                 client.stratis_create_pool = (name, devs, key_desc, clevis_info) => {
-                    return client.stratis_manager.CreatePool(name, [false, 0],
+                    return client.stratis_manager.CreatePool(name,
                                                              devs,
                                                              key_desc ? [true, key_desc] : [false, ""],
                                                              clevis_info ? [true, clevis_info] : [false, ["", ""]]);
@@ -1005,6 +1005,7 @@ function stratis3_start() {
 
                 client.features.stratis = true;
                 client.features.stratis_crypto_binding = true;
+                client.features.stratis_encrypted_caches = true;
                 client.stratis_pools = client.stratis_manager.client.proxies("org.storage.stratis3.pool." +
                                                                              stratis3_interface_revision,
                                                                              "/org/storage/stratis3",

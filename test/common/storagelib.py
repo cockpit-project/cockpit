@@ -273,7 +273,7 @@ class StorageHelpers:
             self.browser.set_val(sel + " .size-unit select", "1000000")
             self.browser.set_input_text(sel + " .size-text input", str(val))
         elif ftype == "select":
-            self.browser._wait_present(sel + f" select option[value={val}]:not([disabled])")
+            self.browser._wait_present(sel + f" select option[value='{val}']:not([disabled])")
             self.browser.set_val(sel + " select", val)
         elif ftype == "select-radio":
             self.browser.click(sel + f" input[data-data='{val}']")

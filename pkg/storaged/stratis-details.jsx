@@ -85,7 +85,11 @@ const StratisPoolSidebar = ({ client, pool }) => {
                               {
                                   choices: [
                                       { value: "data", title: _("Data") },
-                                      { value: "cache", title: _("Cache"), disabled: pool.Encrypted }
+                                      {
+                                          value: "cache",
+                                          title: _("Cache"),
+                                          disabled: pool.Encrypted && !client.features.stratis_encrypted_caches
+                                      }
                                   ]
                               }),
                     PassInput("passphrase", _("Passphrase"),

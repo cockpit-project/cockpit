@@ -167,10 +167,8 @@ mock_pam_conv_mod_so_CFLAGS = -fPIC $(AM_CFLAGS)
 mock_pam_conv_mod_so_LDFLAGS = -shared
 mock_pam_conv_mod_so_LDADD = $(PAM_LIBS)
 
-testserviceddir = $(systemdunitdir)/cockpit.service.d
-
 install-tests::
-	mkdir -p $(DESTDIR)$(pamdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
+	mkdir -p $(DESTDIR)$(pamdir) $(DESTDIR)/etc/cockpit
 	$(INSTALL_PROGRAM) mock-pam-conv-mod.so $(DESTDIR)$(pamdir)/
 
 install-exec-hook::

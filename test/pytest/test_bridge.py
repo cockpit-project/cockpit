@@ -403,6 +403,9 @@ async def test_fsread1_errors(transport):
     await transport.check_open('fsread1', path='/etc/shadow', problem='access-denied')
     await transport.check_open('fsread1', path='/', problem='internal-error',
                                reply_keys={'message': "[Errno 21] Is a directory: '/'"})
+    await transport.check_open('fsread1', path='/etc/passwd', max_read_size="lol",
+                               problem='protocol-error',
+                               reply_keys={'message': "max_read_size must be an integer"})
 
 
 @pytest.mark.asyncio

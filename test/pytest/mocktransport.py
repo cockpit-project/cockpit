@@ -12,6 +12,10 @@ class MockTransport(asyncio.Transport):
     next_id: int = 0
     close_future: Optional[asyncio.Future] = None
 
+    async def assert_empty(self):
+        await asyncio.sleep(0.1)
+        assert self.queue.qsize() == 0
+
     def send_json(self, _channel: str, **kwargs) -> None:
         msg = {k.replace('_', '-'): v for k, v in kwargs.items()}
         self.send_data(_channel, json.dumps(msg).encode('ascii'))
@@ -54,7 +58,7 @@ class MockTransport(asyncio.Transport):
         ch = self.send_open(payload, channel, **kwargs)
         if problem is None:
             await self.assert_msg('', command='ready', channel=ch, **(reply_keys or {}))
-            assert ch in self.protocol.open_channels
+            # it's possible that the channel already closed
         else:
             await self.assert_msg('', command='close', channel=ch, problem=problem, **(reply_keys or {}))
             assert ch not in self.protocol.open_channels

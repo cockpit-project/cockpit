@@ -80,6 +80,8 @@ class FsListChannel(Channel):
             else:
                 problem = 'internal-error'
             raise ChannelError(problem, message=str(error)) from error
+
+        self.ready()
         for entry in scan_dir:
             self.send_entry("present", entry)
 
@@ -107,6 +109,8 @@ class FsReadChannel(GeneratorChannel):
                 buf = os.stat(filep.fileno())
                 if max_read_size is not None and buf.st_size > max_read_size:
                     raise ChannelError('too-large')
+
+                self.ready()
 
                 while True:
                     data = filep.read1(Channel.BLOCK_SIZE)

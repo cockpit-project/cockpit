@@ -5,6 +5,7 @@ import os
 import sys
 import tempfile
 import unittest.mock
+from collections import deque
 from pathlib import Path
 from typing import Dict, Iterable
 
@@ -12,6 +13,7 @@ import pytest
 
 from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
+from cockpit.channel import Channel
 from cockpit.channels import CHANNEL_TYPES
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
@@ -409,7 +411,7 @@ async def test_fslist1_no_watch(transport):
     dir_path = Path(tempdir.name)
 
     # empty
-    ch = transport.send_open('fslist1', path=str(dir_path), watch=False)
+    ch = await transport.check_open('fslist1', path=str(dir_path), watch=False)
     await transport.assert_msg('', command='done', channel=ch)
     await transport.check_close(channel=ch)
 
@@ -417,7 +419,7 @@ async def test_fslist1_no_watch(transport):
     Path(dir_path, 'somefile').touch()
     Path(dir_path, 'somedir').mkdir()
 
-    ch = transport.send_open('fslist1', path=str(dir_path), watch=False)
+    ch = await transport.check_open('fslist1', path=str(dir_path), watch=False)
     # don't assume any ordering
     msg1 = await transport.next_msg(ch)
     msg2 = await transport.next_msg(ch)
@@ -497,20 +499,11 @@ async def test_channel(bridge, transport, channeltype, tmp_path):
             control = json.loads(msg)
             assert control['channel'] == ch
             command = control['command']
-            if command == 'done':
-                saw_data = True
-            elif command == 'ready':
+            if command == 'ready':
                 # If we get ready, it's our turn to send data first.
                 # Hopefully we didn't receive any before.
-                assert isinstance(bridge.open_channels[ch], channeltype)
                 assert not saw_data
                 break
-            elif command == 'close':
-                # If we got an immediate close message then it should be
-                # because the channel sent data and finished, without error.
-                assert 'problem' not in control
-                assert saw_data
-                return
             else:
                 pytest.fail('unexpected event', (payload, args, control))
         else:
@@ -561,3 +554,45 @@ async def test_channel(bridge, transport, channeltype, tmp_path):
 def test_get_os_release(os_release, expected):
     with unittest.mock.patch('builtins.open', unittest.mock.mock_open(read_data=os_release)):
         assert Bridge.get_os_release() == expected
+
+
+@pytest.mark.asyncio
+async def test_flow_control(transport, tmp_path):
+    bigun = tmp_path / 'bigun'
+    total_bytes = 8 * 1024 * 1024
+    recvd_bytes = 0
+    bigun.write_bytes(b'0' * total_bytes)
+    fsread1 = await transport.check_open('fsread1', path=str(bigun), flow_control=True)
+
+    # We should receive a number of blocks of initial data, each with a ping.
+    # We save the pings to reply later.
+    pings = deque()
+
+    async def recv_one():
+        nonlocal recvd_bytes
+
+        channel, data = await transport.next_frame()
+        assert channel == fsread1
+        assert data == b'0' * Channel.BLOCK_SIZE
+        recvd_bytes += len(data)
+
+        ping = await transport.next_msg('')
+        assert ping['command'] == 'ping'
+        assert ping['channel'] == fsread1
+        assert ping['sequence'] == recvd_bytes
+        pings.append(ping)
+
+    while recvd_bytes < Channel.SEND_WINDOW:
+        await recv_one()
+
+    # We should stall out here.  Make sure nothing else arrives.
+    await transport.assert_empty()
+
+    # Start sending pongs and make sure we receive a new block of data for each
+    # one (as the window extends)
+    while recvd_bytes < total_bytes:
+        ping = pings.popleft()
+        transport.send_json('', **dict(ping, command='pong'))
+        await recv_one()
+
+    transport.send_close(fsread1)

@@ -209,6 +209,7 @@ DialogFooter.propTypes = {
  *  - id optional, id that is assigned to the top level dialog node, but not the backdrop
  *  - variant: See PF4 Modal component's 'variant' property
  *  - titleIconVariant: See PF4 Modal component's 'titleIconVariant' property
+ *  - showClose optional, specifies if 'X' button for closing the dialog is present
  */
 class Dialog extends React.Component {
     componentDidMount() {
@@ -241,7 +242,7 @@ class Dialog extends React.Component {
             <Modal position="top" variant={this.props.variant || "medium"}
                    titleIconVariant={this.props.titleIconVariant}
                    onEscapePress={() => undefined}
-                   showClose={false}
+                   showClose={!!this.props.showClose}
                    id={this.props.id}
                    isOpen
                    help={help}
@@ -264,6 +265,7 @@ Dialog.propTypes = {
     footer: PropTypes.element, // is effectively required, see above
     id: PropTypes.string,
     error: PropTypes.object,
+    showClose: PropTypes.bool,
 };
 
 /* Create and show a dialog

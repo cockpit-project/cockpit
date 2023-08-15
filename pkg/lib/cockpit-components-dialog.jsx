@@ -247,7 +247,7 @@ class Dialog extends React.Component {
             <Modal position="top" variant={this.props.variant || "medium"}
                    titleIconVariant={this.props.titleIconVariant}
                    onEscapePress={() => undefined}
-                   showClose={false}
+                   onClose={this.cancel_click}
                    id={this.props.id}
                    isOpen
                    help={help}

@@ -240,12 +240,17 @@ export const StorageBarMenu = ({ label, isKebab, onlyNarrow, menuItems }) => {
     if (!client.superuser.allowed)
         return null;
 
+    function onToggle(event, isOpen) {
+        event.stopPropagation();
+        setIsOpen(isOpen);
+    }
+
     let toggle;
     if (isKebab)
-        toggle = <KebabToggle onToggle={(_, isOpen) => setIsOpen(isOpen)} />;
+        toggle = <KebabToggle onToggle={onToggle} />;
     else
         toggle = <DropdownToggle className="pf-m-primary" toggleIndicator={null}
-                                 onToggle={(_, isOpen) => setIsOpen(isOpen)} aria-label={label}>
+                                 onToggle={onToggle} aria-label={label}>
             <BarsIcon color="white" />
         </DropdownToggle>;
 

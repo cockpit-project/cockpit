@@ -1,0 +1,39 @@
+@import "global-variables";
+
+.dynamic-form-group {
+    .pf-v5-c-empty-state {
+        padding: 0;
+    }
+
+    .pf-v5-c-form__label {
+        // Don't allow labels to wrap
+        white-space: nowrap;
+    }
+
+    .remove-button-group {
+        // Move 'Remove' button the the end of the row
+        grid-column: -1;
+        // Move 'Remove' button to the bottom of the line so as to align with the other form fields
+        display: flex;
+        align-items: flex-end;
+    }
+
+    // Set check to the same height as input widgets and vertically align
+    .pf-v5-c-form__group-control > .pf-v5-c-check {
+        // Set height to the same as inputs
+        // Font height is font size * line height (1rem * 1.5)
+        // Widgets have 5px padding, 1px border (top & bottom): (5 + 1) * 2 = 12
+        // This all equals to 36px
+        height: calc(var(--pf-v5-global--FontSize--md) * var(--pf-v5-global--LineHeight--md) + 12px);
+        align-content: center;
+    }
+
+    // We use FormFieldGroup PF component for the nested look and for ability to add buttons to the header
+    // However we want to save space and not add indent to the left so we need to override it
+    .pf-v5-c-form__field-group-body {
+        // Stretch content fully
+        --pf-v5-c-form__field-group-body--GridColumn: 1 / -1;
+        // Reduce padding at the top
+        --pf-v5-c-form__field-group-body--PaddingTop: var(--pf-v5-global--spacer--xs);
+    }
+}

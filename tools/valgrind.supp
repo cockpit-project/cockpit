@@ -10,3 +10,16 @@
    fun:cockpit_certificate_find
    fun:main
 }
+
+# Valgrind reports this on clang/i386 and the backtrace does not include our
+# own code
+{
+   nettle_conditional_jump
+   Memcheck:Cond
+   fun:_nettle_ecc_pp1_redc
+   fun:_nettle_ecc_add_jjj
+   fun:_nettle_ecc_mul_a
+   ...
+   fun:async_handshake_thread
+   fun:g_task_thread_pool_thread
+}

@@ -96,7 +96,9 @@ export const PasswordFormFields = ({
     else
         variant = "danger";
 
-    let passwordStrengthValue = Number.isInteger(passwordStrength) ? passwordStrength : 0;
+    let passwordStrengthValue = Number.isInteger(passwordStrength) ? Number.parseInt(passwordStrength) : -1;
+    if (password !== "" && (passwordStrengthValue >= 0 && passwordStrengthValue < 25))
+        passwordStrengthValue = 25;
 
     return (
         <>

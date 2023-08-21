@@ -141,7 +141,7 @@ export const Name = ({ idPrefix, iface, setIface }) => {
     );
 };
 
-export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, children, isFormHorizontal }) => {
+export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, children, isFormHorizontal, isCreateDialog }) => {
     const Dialogs = useDialogs();
 
     return (
@@ -153,7 +153,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, chi
             footer={
                 <>
                     <Button variant='primary' id={idPrefix + "-save"} onClick={onSubmit}>
-                        {_("Save")}
+                        {isCreateDialog ? _("Add") : _("Save")}
                     </Button>
                     <Button variant='link' id={idPrefix + "-cancel"} onClick={Dialogs.close}>
                         {_("Cancel")}

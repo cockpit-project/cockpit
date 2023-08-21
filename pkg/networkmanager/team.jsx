@@ -151,7 +151,8 @@ export const TeamDialog = ({ connection, dev, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      title={_("Team settings")}
+                      title={!connection ? _("Add team") : _("Edit team settings")}
+                      isCreateDialog={!connection}
         >
             <>
                 <Name idPrefix={idPrefix} iface={iface} setIface={setIface} />

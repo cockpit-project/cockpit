@@ -76,7 +76,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked(f"input[data-iface='{iface1}']", val=True)
         b.set_checked(f"input[data-iface='{iface2}']", val=True)
-        b.click("#network-bond-settings-dialog button:contains('Save')")
+        b.click("#network-bond-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-bond-settings-dialog")
 
         self.select_iface('tbond')

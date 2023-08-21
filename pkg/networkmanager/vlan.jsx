@@ -88,7 +88,8 @@ export const VlanDialog = ({ connection, dev, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      title={_("VLAN settings")}
+                      title={!connection ? _("Add VLAN") : _("Edit VLAN settings")}
+                      isCreateDialog={!connection}
         >
             <>
                 <FormGroup fieldId={idPrefix + "-parent-select"} label={_("Parent")}>

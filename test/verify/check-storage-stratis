@@ -300,7 +300,9 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_set_val("passphrase", passphrase)
         self.dialog_set_val("passphrase2", passphrase)
         self.dialog_set_val("disks", {dev_1: True})
-        b.assert_pixels("#dialog", "create-encrypted-pool")
+        b.assert_pixels("#dialog", "create-encrypted-pool",
+                        # The small checkbox ticks render inconsistently
+                        ignore=["input[type=checkbox]"])
         self.dialog_apply()
         self.dialog_wait_close()
         m.execute("stratis key unset pool0")

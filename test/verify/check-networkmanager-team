@@ -56,7 +56,7 @@ class TestTeam(netlib.NetworkCase):
         b.set_input_text("#network-team-settings-interface-name-input", "tteam")
         b.set_checked(f"input[data-iface='{iface1}']", val=True)
         b.set_checked(f"input[data-iface='{iface2}']", val=True)
-        b.click("#network-team-settings-dialog button:contains('Save')")
+        b.click("#network-team-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-team-settings-dialog")
 
         b.wait_attr("#networking", "data-test-wait", "false")
@@ -109,7 +109,7 @@ class TestTeam(netlib.NetworkCase):
         b.wait_visible("#network-team-settings-dialog")
         b.set_input_text("#network-team-settings-interface-name-input", "tteam")
         b.set_checked(f"input[data-iface='{iface}']", val=True)
-        b.click("#network-team-settings-dialog button:contains('Save')")
+        b.click("#network-team-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-team-settings-dialog")
 
         b.wait_attr("#networking", "data-test-wait", "false")

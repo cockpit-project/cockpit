@@ -93,7 +93,8 @@ export const BridgeDialog = ({ connection, dev, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix="network-bridge-settings"
                       onSubmit={onSubmit}
-                      title={_("Bridge settings")}
+                      title={!connection ? _("Add bridge") : _("Edit bridge settings")}
+                      isCreateDialog={!connection}
         >
             <>
                 <Name idPrefix={idPrefix} iface={iface} setIface={setIface} />

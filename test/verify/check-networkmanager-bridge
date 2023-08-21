@@ -53,7 +53,7 @@ class TestBridge(netlib.NetworkCase):
         b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
         b.set_checked(f"input[data-iface='{iface1}']", val=True)
         b.set_checked(f"input[data-iface='{iface2}']", val=True)
-        b.click("#network-bridge-settings-dialog button:contains('Save')")
+        b.click("#network-bridge-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-bridge-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tbridge']")
 
@@ -96,7 +96,7 @@ class TestBridge(netlib.NetworkCase):
         b.wait_visible("#network-bridge-settings-dialog")
         b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
         b.set_checked(f"input[data-iface='{iface}']", val=True)
-        b.click("#network-bridge-settings-dialog button:contains('Save')")
+        b.click("#network-bridge-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-bridge-settings-dialog")
 
         # Check that it has the interface and the right IP address

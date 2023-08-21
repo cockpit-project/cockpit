@@ -132,7 +132,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      title={_("Bond settings")}
+                      title={!connection ? _("Add bond") : _("Edit bond settings")}
                       help={
                           <Popover
                               headerContent={_("Network bond")}
@@ -158,6 +158,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                               </Button>
                           </Popover>
                       }
+                      isCreateDialog={!connection}
         >
             <>
                 <Name idPrefix={idPrefix} iface={iface} setIface={setIface} />

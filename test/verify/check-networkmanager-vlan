@@ -49,7 +49,7 @@ class TestNetworkingVLAN(netlib.NetworkCase):
         b.select_from_dropdown("#network-vlan-settings-parent-select", iface)
         b.set_input_text("#network-vlan-settings-interface-name-input", "tvlan")
         b.set_input_text("#network-vlan-settings-vlan-id-input", "123")
-        b.click("#network-vlan-settings-dialog button:contains('Save')")
+        b.click("#network-vlan-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-vlan-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tvlan']")
 

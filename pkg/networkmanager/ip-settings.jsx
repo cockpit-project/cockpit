@@ -27,7 +27,7 @@ import { Grid } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
-import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
+import { PlusIcon, TrashIcon } from '@patternfly/react-icons';
 
 import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
@@ -206,11 +206,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup className="pf-m-1-col-on-sm remove-button-group">
-                                <Button variant='secondary'
+                                <Button variant='plain'
                                         isDisabled={method == 'manual' && i == 0}
                                         onClick={() => setAddresses(addresses.filter((_, index) => index !== i))}
                                         aria-label={_("Remove item")}
-                                        icon={<MinusIcon />} />
+                                        icon={<TrashIcon />} />
                             </FormGroup>
                         </Grid>
                     );
@@ -251,11 +251,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup className="pf-m-1-col-on-sm remove-button-group">
-                                <Button variant='secondary'
+                                <Button variant='plain'
                                         size="sm"
                                         onClick={() => setDns(dns.filter((_, index) => index !== i))}
                                         aria-label={_("Remove item")}
-                                        icon={<MinusIcon />} />
+                                        icon={<TrashIcon />} />
                             </FormGroup>
                         </Grid>
                     );
@@ -296,11 +296,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup className="pf-m-1-col-on-sm remove-button-group">
-                                <Button variant='secondary'
+                                <Button variant='plain'
                                         size="sm"
                                         onClick={() => setDnsSearch(dnsSearch.filter((_, index) => index !== i))}
                                         aria-label={_("Remove item")}
-                                        icon={<MinusIcon />} />
+                                        icon={<TrashIcon />} />
                             </FormGroup>
                         </Grid>
                     );
@@ -365,11 +365,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     ))} />
                             </FormGroup>
                             <FormGroup className="pf-m-1-col-on-sm remove-button-group">
-                                <Button variant='secondary'
+                                <Button variant='plain'
                                         size="sm"
                                         onClick={() => setRoutes(routes.filter((_, index) => index !== i))}
                                         aria-label={_("Remove item")}
-                                        icon={<MinusIcon />} />
+                                        icon={<TrashIcon />} />
                             </FormGroup>
                         </Grid>
                     );

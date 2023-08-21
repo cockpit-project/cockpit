@@ -1,4 +1,5 @@
 extend = "../common/ruff.toml"
 ignore = [
     "B023",     # Function definition does not bind loop variable
+    "PT",       # pytest rules do not apply as our integration tests use a custom unittest runner
 ]

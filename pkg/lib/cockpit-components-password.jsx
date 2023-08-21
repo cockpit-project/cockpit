@@ -96,6 +96,8 @@ export const PasswordFormFields = ({
     else
         variant = "danger";
 
+    let passwordStrengthValue = Number.isInteger(passwordStrength) ? passwordStrength : 0;
+
     return (
         <>
             <FormGroup label={password_label}
@@ -127,12 +129,12 @@ export const PasswordFormFields = ({
                 </InputGroup>
                 <div>
                     <Progress id={idPrefix + "-meter"}
-                              className={"ct-password-strength-meter " + variant}
-                              title={_("password quality")}
-                              size={ProgressSize.sm}
-                              measureLocation={ProgressMeasureLocation.none}
-                              variant={variant}
-                              value={Number.isInteger(passwordStrength) ? passwordStrength : 0} />
+                        className={"ct-password-strength-meter " + variant}
+                        title={_("password quality")}
+                        size={ProgressSize.sm}
+                        measureLocation={ProgressMeasureLocation.none}
+                        variant={variant}
+                        value={passwordStrengthValue} />
                     <div id={idPrefix + "-password-meter-message"} className="pf-v5-c-form__helper-text" aria-live="polite">{passwordMessage}</div>
                 </div>
                 {error_password && <FormHelperText>

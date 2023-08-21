@@ -18,12 +18,14 @@
  */
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
+import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
 import { FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { InputGroup, InputGroupItem } from '@patternfly/react-core/dist/esm/components/InputGroup/index.js';
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Progress, ProgressMeasureLocation, ProgressSize } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
-import { HelpIcon } from '@patternfly/react-icons';
+import { EyeIcon, EyeSlashIcon, HelpIcon } from '@patternfly/react-icons';
 
 import { FormHelper } from "cockpit-components-form-helper";
 
@@ -62,6 +64,8 @@ export const PasswordFormFields = ({
     const [passwordConfirm, setConfirmPassword] = useState("");
     const [passwordStrength, setPasswordStrength] = useState("");
     const [passwordMessage, setPasswordMessage] = useState("");
+    const [passwordHidden, setPasswordHidden] = useState(true);
+    const [passwordConfirmHidden, setPasswordConfirmHidden] = useState(true);
 
     function onPasswordChanged(value) {
         setPassword(value);
@@ -106,9 +110,21 @@ export const PasswordFormFields = ({
                        validated={error_password ? "warning" : "default"}
                        id={idPrefix + "-pw1-group"}
                        fieldId={idPrefix + "-pw1"}>
-                <TextInput className="check-passwords" type="password" id={idPrefix + "-pw1"}
-                           autoComplete="new-password" value={password} onChange={(_event, value) => onPasswordChanged(value)}
-                           validated={error_password ? "warning" : "default"} />
+                <InputGroup>
+                    <InputGroupItem isFill>
+                        <TextInput className="check-passwords" type={passwordHidden ? "password" : "text"} id={idPrefix + "-pw1"}
+                                   autoComplete="new-password" value={password} onChange={(_event, value) => onPasswordChanged(value)}
+                                   validated={error_password ? "warning" : "default"} />
+                    </InputGroupItem>
+                    <InputGroupItem>
+                        <Button
+                            variant="control"
+                            onClick={() => setPasswordHidden(!passwordHidden)}
+                            aria-label={passwordHidden ? _("Show password") : _("Hide password")}>
+                            {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
+                        </Button>
+                    </InputGroupItem>
+                </InputGroup>
                 <div>
                     <Progress id={idPrefix + "-meter"}
                               className={"ct-password-strength-meter " + variant}
@@ -131,8 +147,20 @@ export const PasswordFormFields = ({
             {password_confirm_label && <FormGroup label={password_confirm_label}
                        id={idPrefix + "-pw2-group"}
                        fieldId={idPrefix + "-pw2"}>
-                <TextInput type="password" id={idPrefix + "-pw2"} autoComplete="new-password"
-                           value={passwordConfirm} onChange={(_event, value) => { setConfirmPassword(value); change("password_confirm", value) }} />
+                <InputGroup>
+                    <InputGroupItem isFill>
+                        <TextInput type={passwordConfirmHidden ? "password" : "text"} id={idPrefix + "-pw2"} autoComplete="new-password"
+                            value={passwordConfirm} onChange={(_event, value) => { setConfirmPassword(value); change("password_confirm", value) }} />
+                    </InputGroupItem>
+                    <InputGroupItem>
+                        <Button
+                            variant="control"
+                            onClick={() => setPasswordConfirmHidden(!passwordConfirmHidden)}
+                            aria-label={passwordConfirmHidden ? _("Show confirmation password") : _("Hide confirmation password")}>
+                            {passwordConfirmHidden ? <EyeIcon /> : <EyeSlashIcon />}
+                        </Button>
+                    </InputGroupItem>
+                </InputGroup>
                 <FormHelper fieldId={idPrefix + "-pw2"} helperTextInvalid={error_password_confirm} />
             </FormGroup>}
         </>

@@ -213,6 +213,20 @@ class TestAccounts(testlib.MachineCase):
         b.set_input_text('#accounts-create-password-pw1', good_password)
         b.wait_visible("#accounts-create-password-meter.success")
 
+        # Test password show/hide functionality
+        b.wait_visible('#accounts-create-password-pw1[type="password"]')
+        b.click("#accounts-create-password-pw1-group button[aria-label='Show password']")
+        b.wait_visible('#accounts-create-password-pw1[type="text"]')
+        b.click("#accounts-create-password-pw1-group button[aria-label='Hide password']")
+        b.wait_visible('#accounts-create-password-pw1[type="password"]')
+
+        # Test confirmation password show/hide functionality
+        b.wait_visible('#accounts-create-password-pw2[type="password"]')
+        b.click("#accounts-create-password-pw2-group button[aria-label='Show confirmation password']")
+        b.wait_visible('#accounts-create-password-pw2[type="text"]')
+        b.click("#accounts-create-password-pw2-group button[aria-label='Hide confirmation password']")
+        b.wait_visible('#accounts-create-password-pw2[type="password"]')
+
         # wrong password confirmation
         b.set_input_text('#accounts-create-password-pw2', good_password + 'b')
         b.click('#accounts-create-dialog button.apply')

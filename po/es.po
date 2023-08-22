@@ -23,8 +23,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-14 02:47+0000\n"
-"PO-Revision-Date: 2023-08-07 17:21+0000\n"
+"POT-Creation-Date: 2023-08-18 02:50+0000\n"
+"PO-Revision-Date: 2023-08-18 13:30+0000\n"
 "Last-Translator: Miguel Ángel Sánchez <maletils@gmail.com>\n"
 "Language-Team: Spanish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/es/>\n"
@@ -735,20 +735,16 @@ msgid "Add Network Bound Disk Encryption"
 msgstr "Añadir cifrado de disco enlazado a la red"
 
 #: pkg/storaged/stratis-details.jsx:304
-#, fuzzy
-#| msgid "Tang keyserver"
 msgid "Add Tang keyserver"
-msgstr "Servidor de claves Tang"
+msgstr "Añadir servidor de claves Tang"
 
 #: pkg/networkmanager/network-main.jsx:144
 msgid "Add VLAN"
 msgstr "Añadir VLAN"
 
 #: pkg/storaged/mdraid-details.jsx:206
-#, fuzzy
-#| msgid "Add item"
 msgid "Add a bitmap"
-msgstr "Añadir elemento"
+msgstr "Añadir un mapa de bits"
 
 #: pkg/networkmanager/firewall.jsx:1042
 msgid "Add a new zone"
@@ -790,10 +786,8 @@ msgid "Add key"
 msgstr "Añadir clave"
 
 #: pkg/storaged/stratis-details.jsx:580
-#, fuzzy
-#| msgid "Tang keyserver"
 msgid "Add keyserver"
-msgstr "Servidor de claves Tang"
+msgstr "Añadir servidor de claves"
 
 #: pkg/networkmanager/network-interface-members.jsx:186
 msgid "Add member"
@@ -810,10 +804,8 @@ msgstr "Añadir una nueva zona"
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
 #: pkg/storaged/stratis-details.jsx:226 pkg/storaged/stratis-details.jsx:557
-#, fuzzy
-#| msgid "Old passphrase"
 msgid "Add passphrase"
-msgstr "Contraseña antigua"
+msgstr "Añadir contraseña"
 
 #: pkg/networkmanager/firewall.jsx:598
 msgid "Add ports"
@@ -866,16 +858,13 @@ msgstr ""
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
 #: pkg/storaged/stratis-details.jsx:314
-#, fuzzy
-#| msgid ""
-#| "Saving a new passphrase requires unlocking the disk. Please provide a "
-#| "current disk passphrase."
 msgid ""
 "Adding a keyserver requires unlocking the pool. Please provide the existing "
 "pool passphrase."
 msgstr ""
-"Para guardar una nueva contraseña se necesita primero desbloquear el disco. "
-"Por favor, introduzca una contraseña actual del disco."
+"Para añadir un servidor de claves se necesita primero desbloquear el grupo "
+"de almacenamiento. Por favor, introduzca la contraseña del grupo de "
+"almacenamiento existente."
 
 #: pkg/networkmanager/firewall.jsx:611
 msgid ""
@@ -3501,7 +3490,7 @@ msgstr "Instalar todas las actualizaciones de kpatch"
 # cockpit
 #: pkg/systemd/overview-cards/realmd.jsx:454
 msgid "Install realmd support"
-msgstr "Instalar soporte para realmd"
+msgstr "Instale soporte para realmd"
 
 #: pkg/packagekit/updates.jsx:1405 pkg/packagekit/updates.jsx:1412
 msgid "Install security updates"
@@ -3522,6 +3511,8 @@ msgstr "Instalar software"
 #: pkg/metrics/metrics.jsx:1815
 msgid "Installation not supported without installed cockpit package"
 msgstr ""
+"No es posible realizar su instalación sin tener el paquete de cockpit "
+"instalado"
 
 #: pkg/packagekit/updates.jsx:111
 msgid "Installed"
@@ -3758,8 +3749,6 @@ msgstr "Servidor de claves"
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
 #: pkg/storaged/stratis-details.jsx:575 pkg/storaged/stratis-details.jsx:952
-#, fuzzy
-#| msgid "Keyserver"
 msgctxt "storage"
 msgid "Keyserver"
 msgstr "Servidor de claves"
@@ -5162,8 +5151,6 @@ msgid "Passphrase"
 msgstr "Contraseña"
 
 #: pkg/storaged/stratis-details.jsx:552 pkg/storaged/stratis-details.jsx:942
-#, fuzzy
-#| msgid "Passphrase"
 msgctxt "storage"
 msgid "Passphrase"
 msgstr "Contraseña"
@@ -5409,10 +5396,8 @@ msgstr "Grupo para volúmenes de aprovisionamiento fino"
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
 #: pkg/storaged/stratis-details.jsx:310
-#, fuzzy
-#| msgid "Old passphrase"
 msgid "Pool passphrase"
-msgstr "Contraseña antigua"
+msgstr "Contraseña del grupo de almacenamiento"
 
 #: pkg/shell/hosts_dialog.jsx:369 pkg/storaged/iscsi-panel.jsx:127
 msgid "Port"
@@ -5871,10 +5856,8 @@ msgstr "¿Eliminar la contraseña del guardaclaves $0?"
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
 #: pkg/storaged/stratis-details.jsx:287
-#, fuzzy
-#| msgid "Remove passphrase"
 msgid "Remove passphrase?"
-msgstr "Eliminar la contraseña"
+msgstr "¿Eliminar la contraseña?"
 
 #: pkg/networkmanager/firewall.jsx:121
 msgid "Remove service $0"
@@ -7489,6 +7472,8 @@ msgid ""
 "This RAID array has no write-intent bitmap. Such a bitmap can reduce "
 "sychronization times significantly."
 msgstr ""
+"Este grupo RAID no tiene un mapa de bits. Los mapas de bits pueden reducir "
+"significativamente los tiempos de sincronización."
 
 #: pkg/storaged/vdo-details.jsx:116
 msgid "This VDO device does not use all of its backing device."
@@ -7529,6 +7514,8 @@ msgstr "La información sólo se almacenará en el sistema."
 msgid ""
 "This keyserver is the only way to unlock the pool and can not be removed."
 msgstr ""
+"Este servidor de claves es el único método para desbloquear el grupo de "
+"almacenamiento y no puede ser eliminado."
 
 #: pkg/storaged/lvol-tabs.jsx:440
 msgid "This logical volume is not completely used by its content."
@@ -7546,6 +7533,8 @@ msgstr "Esto llevará un tiempo"
 msgid ""
 "This passphrase is the only way to unlock the pool and can not be removed."
 msgstr ""
+"Esta contraseña es el único método para desbloquear el grupo de "
+"almacenamiento y no puede ser eliminada."
 
 #: pkg/packagekit/updates.jsx:1363
 msgid "This system is not registered"
@@ -8194,18 +8183,14 @@ msgid "Use"
 msgstr "Uso"
 
 #: pkg/storaged/stratis-panel.jsx:167
-#, fuzzy
-#| msgid "Tang keyserver"
 msgid "Use a Tang keyserver"
-msgstr "Servidor de claves Tang"
+msgstr "Utilizar un servidor de claves Tang"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
 #: pkg/storaged/stratis-panel.jsx:138
-#, fuzzy
-#| msgid "New passphrase"
 msgid "Use a passphrase"
-msgstr "Nueva contraseña"
+msgstr "Utilizar una contraseña"
 
 #: pkg/storaged/vdo-details.jsx:324 pkg/storaged/lvol-tabs.jsx:563
 msgid "Use compression"
@@ -9408,9 +9393,8 @@ msgid "username"
 msgstr "nombre de usuario"
 
 #: pkg/storaged/stratis-details.jsx:945
-#, fuzzy
 msgid "using key description $0"
-msgstr "Descripción"
+msgstr "utilizando la descripción de clave $0"
 
 #: pkg/storaged/manifest.json:0
 msgid "vdo"

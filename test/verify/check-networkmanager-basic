@@ -74,6 +74,8 @@ class TestNetworkingBasic(netlib.NetworkCase):
                             "span + #networking-edit-ipv6",
                             "span + #networking-edit-ipv4",
                         ],
+                        # IPv6 addresses vary wildly, and their different rendered widths change the column widths
+                        skip_layouts=['mobile']
                         )
 
         con_id = testlib.wait(lambda: self.iface_con_id(iface))

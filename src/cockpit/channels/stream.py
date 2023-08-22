@@ -22,6 +22,7 @@ import subprocess
 from typing import Dict
 
 from ..channel import ChannelError, ProtocolChannel
+from ..jsonutil import JsonObject
 from ..transports import SubprocessProtocol, SubprocessTransport
 
 logger = logging.getLogger(__name__)
@@ -30,8 +31,7 @@ logger = logging.getLogger(__name__)
 class SocketStreamChannel(ProtocolChannel):
     payload = 'stream'
 
-    async def create_transport(self, loop: asyncio.AbstractEventLoop,
-                               options: Dict[str, object]) -> asyncio.Transport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: JsonObject) -> asyncio.Transport:
         if 'unix' in options and 'port' in options:
             raise ChannelError('protocol-error', message='cannot specify both "port" and "unix" options')
 
@@ -48,7 +48,7 @@ class SocketStreamChannel(ProtocolChannel):
             # TCP
             elif 'port' in options:
                 try:
-                    port: int = int(options['port'])  # type: ignore[call-overload]
+                    port: int = int(options['port'])  # type: ignore[call-overload,arg-type]
                 except ValueError as exc:
                     raise ChannelError('protocol-error', message='invalid "port" option for stream channel') from exc
                 host = options.get('address', 'localhost')
@@ -83,9 +83,9 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
     def process_exited(self) -> None:
         self.close_on_eof()
 
-    def _get_close_args(self) -> Dict[str, object]:
+    def _get_close_args(self) -> JsonObject:
         assert isinstance(self._transport, SubprocessTransport)
-        args: Dict[str, object] = {'exit-status': self._transport.get_returncode()}
+        args: JsonObject = {'exit-status': self._transport.get_returncode()}
         stderr = self._transport.get_stderr()
         if stderr is not None:
             args['message'] = stderr
@@ -96,8 +96,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         if window is not None:
             self._transport.set_window_size(**window)
 
-    async def create_transport(self, loop: asyncio.AbstractEventLoop,
-                               options: Dict[str, object]) -> SubprocessTransport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: JsonObject) -> SubprocessTransport:
         args = options['spawn']
 
         # TODO: generic JSON validation
@@ -116,13 +115,13 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         if not isinstance(pty, bool):
             raise ChannelError('protocol-error', message='invalid "pty" option for stream channel')
 
-        window = options.get('window')
+        window: Dict[str, int] = options.get('window')  # type: ignore[assignment]
         if window is not None and (
                 not isinstance(window, dict) or
                 not all(isinstance(k, str) and isinstance(v, int) for k, v in window.items())):
             raise ChannelError('protocol-error', message='invalid "window" option for stream channel')
 
-        environ = options.get('environ')
+        environ: Dict[str, str] = options.get('environ')  # type: ignore[assignment]
 
         if err == 'out':
             stderr = subprocess.STDOUT

@@ -23,13 +23,14 @@ import logging
 import os
 import socket
 from tempfile import TemporaryDirectory
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from cockpit._vendor import ferny
 from cockpit._vendor.bei.bootloader import make_bootloader
 from cockpit._vendor.systemd_ctypes import bus
 
 from .beipack import BridgeBeibootHelper
+from .jsonutil import JsonObject
 from .peer import ConfiguredPeer, Peer, PeerError
 from .polkit import PolkitAgent
 from .router import Router, RoutingError, RoutingRule
@@ -41,7 +42,7 @@ class SuperuserPeer(ConfiguredPeer):
     name: str
     responder: ferny.InteractionResponder
 
-    def __init__(self, router: Router, name: str, config: Dict[str, object], responder: ferny.InteractionResponder):
+    def __init__(self, router: Router, name: str, config: JsonObject, responder: ferny.InteractionResponder):
         super().__init__(router, config)
         self.name = name
         self.responder = responder
@@ -98,7 +99,7 @@ class AuthorizeResponder(CockpitResponder):
 
 
 class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface='cockpit.Superuser'):
-    superuser_configs: Dict[str, Dict[str, object]]
+    superuser_configs: Dict[str, JsonObject]
     pending_prompt: Optional[asyncio.Future]
     peer: Optional[SuperuserPeer]
 
@@ -111,7 +112,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
     methods = bus.Interface.Property('a{sv}')
 
     # RoutingRule
-    def apply_rule(self, options: Dict[str, object]) -> Optional[Peer]:
+    def apply_rule(self, options: JsonObject) -> Optional[Peer]:
         superuser = options.get('superuser')
 
         if not superuser or self.current == 'root':
@@ -183,7 +184,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
         self.current = name
 
-    def set_configs(self, configs: List[Dict[str, object]]):
+    def set_configs(self, configs: List[JsonObject]):
         logger.debug("set_configs() with %d items", len(configs))
         self.superuser_configs = {}
         for config in configs:
@@ -224,7 +225,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         assert self.peer is None
 
     # Connect-on-startup functionality
-    def init(self, params: Dict[str, Union[bool, str, Sequence[str]]]) -> None:
+    def init(self, params: JsonObject) -> None:
         name = params.get('id', 'any')
         assert isinstance(name, str)
         responder = AuthorizeResponder(self.router)

@@ -19,6 +19,7 @@ import collections
 import logging
 from typing import Dict, List, Optional
 
+from .jsonutil import JsonDocument, JsonObject
 from .protocol import CockpitProtocolError, CockpitProtocolServer
 
 logger = logging.getLogger(__name__)
@@ -74,7 +75,7 @@ class Endpoint:
         self.__endpoint_frozen_queue = None
 
     # interface for receiving messages
-    def do_channel_control(self, channel: str, command: str, message: Dict[str, object]) -> None:
+    def do_channel_control(self, channel: str, command: str, message: JsonObject) -> None:
         raise NotImplementedError
 
     def do_channel_data(self, channel: str, data: bytes) -> None:
@@ -87,15 +88,15 @@ class Endpoint:
     def send_channel_data(self, channel: str, data: bytes) -> None:
         self.router.write_channel_data(channel, data)
 
-    def send_channel_message(self, channel: str, **kwargs) -> None:
+    def send_channel_message(self, channel: str, **kwargs: JsonDocument) -> None:
         self.router.write_message(channel, **kwargs)
 
-    def send_channel_control(self, channel, command, **kwargs) -> None:
+    def send_channel_control(self, channel, command, **kwargs: JsonDocument) -> None:
         self.router.write_control(channel=channel, command=command, **kwargs)
         if command == 'close':
             self.router.drop_channel(channel)
 
-    def shutdown_endpoint(self, **kwargs) -> None:
+    def shutdown_endpoint(self, **kwargs: JsonDocument) -> None:
         self.router.shutdown_endpoint(self, **kwargs)
 
 
@@ -111,7 +112,7 @@ class RoutingRule:
     def __init__(self, router: 'Router'):
         self.router = router
 
-    def apply_rule(self, options: Dict[str, object]) -> Optional[Endpoint]:
+    def apply_rule(self, options: JsonObject) -> Optional[Endpoint]:
         """Check if a routing rule applies to a given 'open' message.
 
         This should inspect the options dictionary and do one of the following three things:
@@ -137,7 +138,7 @@ class Router(CockpitProtocolServer):
         self.routing_rules = routing_rules
         self.open_channels = {}
 
-    def check_rules(self, options: Dict[str, object]) -> Endpoint:
+    def check_rules(self, options: JsonObject) -> Endpoint:
         for rule in self.routing_rules:
             logger.debug('  applying rule %s', rule)
             endpoint = rule.apply_rule(options)
@@ -172,7 +173,7 @@ class Router(CockpitProtocolServer):
         for endpoint in endpoints:
             endpoint.do_kill(host, group)
 
-    def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
+    def channel_control_received(self, channel: str, command: str, message: JsonObject) -> None:
         # If this is an open message then we need to apply the routing rules to
         # figure out the correct endpoint to connect.  If it's not an open
         # message, then we expect the endpoint to already exist.

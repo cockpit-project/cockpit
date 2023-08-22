@@ -23,6 +23,7 @@ from typing import Dict, List, Optional, Tuple
 
 from cockpit._vendor import ferny
 
+from .jsonutil import JsonObject
 from .peer import Peer, PeerError
 from .router import Router, RoutingRule
 
@@ -170,7 +171,7 @@ class HostRoutingRule(RoutingRule):
         super().__init__(router)
         self.remotes = {}
 
-    def apply_rule(self, options: Dict[str, object]) -> Optional[Peer]:
+    def apply_rule(self, options: JsonObject) -> Optional[Peer]:
         assert self.router is not None
 
         host = options.get('host')

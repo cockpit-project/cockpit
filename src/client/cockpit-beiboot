@@ -35,6 +35,7 @@ from cockpit.beipack import BridgeBeibootHelper
 from cockpit.bridge import setup_logging
 from cockpit.channel import ChannelRoutingRule
 from cockpit.channels import PackagesChannel
+from cockpit.jsonutil import JsonObject
 from cockpit.packages import Packages, PackagesLoader
 from cockpit.peer import Peer
 from cockpit.protocol import CockpitProblem
@@ -231,7 +232,7 @@ class SshPeer(Peer):
 
         return transport
 
-    def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
+    def transport_control_received(self, command: str, message: JsonObject) -> None:
         if command == 'authorize':
             # We've disabled this for explicit-superuser bridges, but older
             # bridges don't support that and will ask us anyway.

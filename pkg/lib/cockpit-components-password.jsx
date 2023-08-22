@@ -30,6 +30,7 @@ import { EyeIcon, EyeSlashIcon, HelpIcon } from '@patternfly/react-icons';
 import { FormHelper } from "cockpit-components-form-helper";
 
 import './cockpit-components-password.scss';
+import { Flex, FlexItem } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 
@@ -62,7 +63,7 @@ export const PasswordFormFields = ({
 }) => {
     const [password, setPassword] = useState(initial_password || "");
     const [passwordConfirm, setConfirmPassword] = useState("");
-    const [passwordStrength, setPasswordStrength] = useState("");
+    const [passwordStrength, setPasswordStrength] = useState();
     const [passwordMessage, setPasswordMessage] = useState("");
     const [passwordHidden, setPasswordHidden] = useState(true);
     const [passwordConfirmHidden, setPasswordConfirmHidden] = useState(true);
@@ -81,20 +82,30 @@ export const PasswordFormFields = ({
                         setPasswordMessage(strength.message);
                     });
         } else {
-            setPasswordStrength("");
+            setPasswordStrength();
             setPasswordMessage("");
         }
     }
 
     let variant;
-    if (passwordStrength === "")
-        variant = "default";
-    else if (passwordStrength > 66)
+    let message;
+    let messageColor;
+    if (passwordStrength > 66) {
         variant = "success";
-    else if (passwordStrength > 33)
+        messageColor = "pf-v5-u-success-color-200";
+        message = _("Strong password");
+    } else if (passwordStrength > 33) {
         variant = "warning";
-    else
+        messageColor = "pf-v5-u-warning-color-200";
+        message = _("Acceptable password");
+    } else {
         variant = "danger";
+        messageColor = "pf-v5-u-danger-color-200";
+        message = _("Weak password");
+    }
+
+    if (!passwordMessage && message)
+        setPasswordMessage(message);
 
     let passwordStrengthValue = Number.isInteger(passwordStrength) ? Number.parseInt(passwordStrength) : -1;
     if (password !== "" && (passwordStrengthValue >= 0 && passwordStrengthValue < 25))
@@ -129,16 +140,20 @@ export const PasswordFormFields = ({
                         </Button>
                     </InputGroupItem>
                 </InputGroup>
-                <div>
-                    <Progress id={idPrefix + "-meter"}
-                        className={"ct-password-strength-meter " + variant}
-                        title={_("password quality")}
-                        size={ProgressSize.sm}
-                        measureLocation={ProgressMeasureLocation.none}
-                        variant={variant}
-                        value={passwordStrengthValue} />
-                    <div id={idPrefix + "-password-meter-message"} className="pf-v5-c-form__helper-text" aria-live="polite">{passwordMessage}</div>
-                </div>
+                {passwordStrengthValue >= 0 && <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                    <FlexItem>
+                        <Progress id={idPrefix + "-meter"}
+                            className={"pf-v5-u-pt-xs ct-password-strength-meter " + variant}
+                            title={_("password quality")}
+                            size={ProgressSize.sm}
+                            measureLocation={ProgressMeasureLocation.none}
+                            variant={variant}
+                            value={passwordStrengthValue} />
+                    </FlexItem>
+                    <FlexItem>
+                        <div id={idPrefix + "-password-meter-message"} className={"pf-v5-c-form__helper-text " + messageColor} aria-live="polite">{passwordMessage}</div>
+                    </FlexItem>
+                </Flex>}
                 {error_password && <FormHelperText>
                     <HelperText component="ul" aria-live="polite" id="password-error-message">
                         <HelperTextItem isDynamic variant="warning" component="li">

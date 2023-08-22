@@ -18,12 +18,12 @@
 import logging
 import os
 import random
-from typing import Dict
 
 from cockpit._vendor.systemd_ctypes import PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
 
 from ..channel import Channel, ChannelError, GeneratorChannel
+from ..jsonutil import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ class FsListChannel(Channel):
 class FsReadChannel(GeneratorChannel):
     payload = 'fsread1'
 
-    def do_yield_data(self, options: Dict[str, object]) -> GeneratorChannel.DataGenerator:
+    def do_yield_data(self, options: JsonObject) -> GeneratorChannel.DataGenerator:
         binary = options.get('binary', False)
         max_read_size = options.get('max_read_size')
         # TODO: generic JSON validation

@@ -23,6 +23,8 @@ from typing import ClassVar, Dict, Optional
 
 from cockpit._vendor import systemd_ctypes
 
+from .jsonutil import JsonObject
+
 logger = logging.getLogger(__name__)
 
 
@@ -67,10 +69,10 @@ class CockpitProtocol(asyncio.Protocol):
     def do_closed(self, exc: Optional[Exception]) -> None:
         pass
 
-    def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
+    def transport_control_received(self, command: str, message: JsonObject) -> None:
         raise NotImplementedError
 
-    def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
+    def channel_control_received(self, channel: str, command: str, message: JsonObject) -> None:
         raise NotImplementedError
 
     def channel_data_received(self, channel: str, data: bytes) -> None:
@@ -274,7 +276,7 @@ class CockpitProtocolServer(CockpitProtocol):
         finally:
             self.authorizations.pop(cookie)
 
-    def do_authorize(self, message: Dict[str, object]) -> None:
+    def do_authorize(self, message: JsonObject) -> None:
         cookie = message.get('cookie')
         response = message.get('response')
 

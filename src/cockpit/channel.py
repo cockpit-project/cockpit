@@ -19,6 +19,7 @@ import asyncio
 import logging
 from typing import ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
 
+from .jsonutil import JsonObject
 from .router import Endpoint, Router, RoutingRule
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ class ChannelRoutingRule(RoutingRule):
         for entry in self.table.values():
             entry.sort(key=lambda cls: len(cls.restrictions), reverse=True)
 
-    def check_restrictions(self, restrictions: Sequence[Tuple[str, object]], options: Dict[str, object]) -> bool:
+    def check_restrictions(self, restrictions: Sequence[Tuple[str, object]], options: JsonObject) -> bool:
         for key, expected_value in restrictions:
             our_value = options.get(key)
 
@@ -58,7 +59,7 @@ class ChannelRoutingRule(RoutingRule):
         # Everything checked out
         return True
 
-    def apply_rule(self, options: Dict[str, object]) -> Optional['Channel']:
+    def apply_rule(self, options: JsonObject) -> Optional['Channel']:
         assert self.router is not None
 
         payload = options.get('payload')
@@ -93,7 +94,7 @@ class Channel(Endpoint):
 
     # Task management
     _tasks: Set[asyncio.Task]
-    _close_args: Optional[Dict[str, object]] = None
+    _close_args: Optional[JsonObject] = None
 
     # Must be filled in by the channel implementation
     payload: ClassVar[str]
@@ -298,15 +299,14 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     _transport: Optional[asyncio.Transport]
     _loop: Optional[asyncio.AbstractEventLoop]
     _send_pongs: bool = True
-    _last_ping: Optional[Dict[str, object]]
+    _last_ping: Optional[JsonObject]
     _create_transport_task = None
 
     # read-side EOF handling
     _close_on_eof: bool = False
     _eof: bool = False
 
-    async def create_transport(self, loop: asyncio.AbstractEventLoop,
-                               options: Dict[str, object]) -> asyncio.Transport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: JsonObject) -> asyncio.Transport:
         """Creates the transport for this channel, according to options.
 
         The event loop for the transport is passed to the function.  The
@@ -337,7 +337,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         assert isinstance(transport, asyncio.Transport)
         self._transport = transport
 
-    def _get_close_args(self) -> Dict[str, object]:
+    def _get_close_args(self) -> JsonObject:
         return {}
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
@@ -488,13 +488,13 @@ class GeneratorChannel(Channel):
     and sends the data which it yields.  If the generator returns a value it
     will be used for the close message.
     """
-    DataGenerator = Generator[bytes, None, Optional[Dict[str, object]]]
+    DataGenerator = Generator[bytes, None, Optional[JsonObject]]
     __generator: DataGenerator
 
-    def do_yield_data(self, options: Dict[str, object]) -> 'DataGenerator':
+    def do_yield_data(self, options: JsonObject) -> 'DataGenerator':
         raise NotImplementedError
 
-    def do_open(self, options: Dict[str, object]) -> None:
+    def do_open(self, options: JsonObject) -> None:
         self.__generator = self.do_yield_data(options)
         self.do_resume_send()
 

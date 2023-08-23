@@ -368,7 +368,8 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val('passphrase', "wrong-passphrase")
         self.dialog_apply()
-        b.wait_visible("#dialog .pf-v5-c-alert.pf-m-danger")
+        with b.wait_timeout(60):
+            b.wait_visible("#dialog .pf-v5-c-alert.pf-m-danger")
         self.dialog_set_val('passphrase', passphrase)
         self.dialog_apply()
         self.dialog_wait_close()

@@ -1,7 +1,5 @@
 #!/bin/sh -ex
 
-personality="$1"
-
 dependencies="\
     appstream-util \
     autoconf \

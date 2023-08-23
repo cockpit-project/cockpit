@@ -142,8 +142,12 @@ export class FilesystemsPanel extends React.Component {
                         { title: "Stratis" },
                         { title: mount },
                         {
-                            title: <StorageUsageBar stats={[Number(fs.Used[0] && Number(fs.Used[1])), pool_total]}
-                                                    critical={1} total={total} offset={offsets[i]} />,
+                            title: (pool.Overprovisioning
+                                ? <StorageUsageBar stats={[Number(fs.Used[0] && Number(fs.Used[1])), pool_total]}
+                                                       critical={1} total={total} offset={offsets[i]} />
+                                : <StorageUsageBar stats={[Number(fs.Used[0] && Number(fs.Used[1])), Number(fs.Size)]}
+                                                       critical={0.95} />
+                            ),
                             props: { className: "pf-v5-u-text-align-right" }
                         }
                     ]

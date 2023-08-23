@@ -139,11 +139,11 @@ Supported methods are as follows:
 
         sys.stderr.write("""Some examples:
 
-  python3 -m cockpit.print --no-init open null
+  python3 -m cockpit.misc.print --no-init open null
 
-  python3 -m cockpit.print open echo channel=x : data x "b'foo'" : done x | python3 -m cockpit.bridge
+  python3 -m cockpit.misc.print open echo channel=x : data x "b'foo'" : done x | python3 -m cockpit.bridge
 
-  python3 -m cockpit.print packages /manifests.js | python3 -m cockpit.bridge
+  python3 -m cockpit.misc.print packages /manifests.js | python3 -m cockpit.bridge
 
   ... etc
 

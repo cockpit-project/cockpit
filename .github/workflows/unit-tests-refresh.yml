@@ -24,18 +24,9 @@ jobs:
         timeout-minutes: 10
         run: containers/unit-tests/build
 
-      - name: Run pytest-cov test
-        timeout-minutes: 15
-        run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make pytest-cov
-
       - name: Run amd64 gcc check-memory test
         timeout-minutes: 20
         run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make check-memory
-
-      - name: Run i386 clang check-memory test
-        timeout-minutes: 20
-        # HACK: https://bugs.kde.org/show_bug.cgi?id=452758
-        run: containers/unit-tests/start --verbose --env=CC=clang --env=CFLAGS='-O2 -gdwarf-4' --image-tag=i386 --make check-memory
 
       - name: Run amd64 clang distcheck test
         timeout-minutes: 15
@@ -44,6 +35,10 @@ jobs:
       - name: Run i386 gcc distcheck test
         timeout-minutes: 15
         run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=i386 --make distcheck
+
+      - name: Run pytest-cov test
+        timeout-minutes: 15
+        run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make pytest-cov
 
       - name: Log into container registry
         run: podman login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io

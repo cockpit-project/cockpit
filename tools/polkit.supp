@@ -1,9 +1,0 @@
-{
-   server_freeLeak: https://bugs.freedesktop.org/show_bug.cgi?id=85506; only in Debian stable, fixed in 0.105-26
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:calloc
-   ...
-   fun:polkit_agent_listener_register_with_options
-   ...
-}

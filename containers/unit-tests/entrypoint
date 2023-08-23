@@ -2,10 +2,10 @@
 
 export TEST_BROWSER=firefox
 
-echo -n "Host: " && uname -srvm
+printf "Host: " && uname -srvm
 
 . /usr/lib/os-release
-echo -n "Container: \${NAME} \${VERSION} / " && ${personality} uname -nrvm
+printf "Container: \${NAME} \${VERSION} / " && ${personality} uname -nrvm
 echo
 
 set -ex

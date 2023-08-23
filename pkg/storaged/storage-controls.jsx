@@ -90,6 +90,7 @@ function checked(callback, setSpinning) {
                     setSpinning(false);
             });
             promise.catch(function (error) {
+                console.warn(error.toString());
                 dialog_open({
                     Title: _("Error"),
                     Body: error.toString()

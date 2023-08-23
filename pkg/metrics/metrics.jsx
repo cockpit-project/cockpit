@@ -725,7 +725,7 @@ class CurrentMetrics extends React.Component {
                         value={this.state.swapUsed}
                         className="pf-m-sm"
                         min={0} max={swapTotal}
-                        variant={swapUsedFraction > 0.9 ? ProgressVariant.danger : null}
+                        variant={swapUsedFraction > 0.9 ? ProgressVariant.danger : swapUsedFraction >= 0.8 ? ProgressVariant.warning : null}
                         label={ cockpit.format(_("$0 available"), cockpit.format_bytes(swapAvail)) } />
                 </Tooltip>);
         }
@@ -758,7 +758,7 @@ class CurrentMetrics extends React.Component {
                            value={top_cores[0][1]}
                            className="current-top-cpu-usage pf-m-sm"
                            min={0} max={100}
-                           variant={ top_cores[0][1] > 90 ? ProgressVariant.danger : ProgressVariant.info }
+                           variant={ top_cores[0][1] > 90 ? ProgressVariant.danger : top_cores[0][1] >= 80 ? ProgressVariant.warning : ProgressVariant.info }
                            measureLocation="none" />;
 
             allCpus = (
@@ -834,7 +834,7 @@ class CurrentMetrics extends React.Component {
                                 value={this.state.cpuUsed}
                                 className="current-cpu-usage pf-m-sm"
                                 min={0} max={100}
-                                variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
+                                variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : this.state.cpuUsed >= 80 ? ProgressVariant.warning : null }
                                 title={ num_cpu_str }
                                 label={ cpu_label } />
                             {topCore}
@@ -887,7 +887,7 @@ class CurrentMetrics extends React.Component {
                                     value={memTotal ? this.state.memUsed : undefined}
                                     className="pf-m-sm"
                                     min={0} max={memTotal}
-                                    variant={memUsedFraction > 0.9 ? ProgressVariant.danger : null}
+                                    variant={memUsedFraction > 0.9 ? ProgressVariant.danger : memUsedFraction >= 0.8 ? ProgressVariant.warning : null}
                                     label={ memAvail ? cockpit.format(_("$0 available"), cockpit.format_bytes(memAvail)) : "" } />
                             </Tooltip>
                             {swapProgress}
@@ -935,7 +935,7 @@ class CurrentMetrics extends React.Component {
                                         data-disk-usage-target={info.target}
                                         value={info.use} min={0} max={100}
                                         className="pf-m-sm"
-                                        variant={info.use > 90 ? ProgressVariant.danger : null}
+                                        variant={info.use > 90 ? ProgressVariant.danger : info.use >= 80 ? ProgressVariant.warning : null}
                                         title={info.target}
                                         label={ cockpit.format(_("$0 free"), cockpit.format_bytes(info.avail, 1000)) } />
                                 );

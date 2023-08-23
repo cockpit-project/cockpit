@@ -42,7 +42,6 @@ cockpit_disk_samples (CockpitSamples *samples)
   gchar **lines = NULL;
   guint64 bytes_read;
   guint64 bytes_written;
-  guint64 num_ops;
   gsize len;
   guint n;
   static gboolean not_supported = FALSE;
@@ -60,7 +59,6 @@ cockpit_disk_samples (CockpitSamples *samples)
 
   bytes_read = 0;
   bytes_written = 0;
-  num_ops = 0;
 
   lines = g_strsplit (contents, "\n", -1);
   for (n = 0; lines != NULL && lines[n] != NULL; n++)
@@ -148,7 +146,6 @@ cockpit_disk_samples (CockpitSamples *samples)
 
       bytes_read += num_sectors_read * 512;
       bytes_written += num_sectors_written * 512;
-      num_ops += num_reads_merged + num_writes_merged;
       cockpit_samples_sample (samples, "disk.dev.read", dev_name, num_sectors_read * 512);
       cockpit_samples_sample (samples, "disk.dev.written", dev_name, num_sectors_written * 512);
     }

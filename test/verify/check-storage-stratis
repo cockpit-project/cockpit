@@ -543,6 +543,73 @@ class TestStorageStratis(storagelib.StorageCase):
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         destroy()
 
+    @testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+    def testManagedSizes(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev_1 = "/dev/sda"
+        m.add_disk("4G", serial="DISK1")
+        b.wait_in_text("#drives", dev_1)
+
+        # Create a "managed" pool
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
+                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                               self.dialog_check({"name": "pool0"})),
+                               values={"managed.on": True, "disks": {dev_1: True}})
+        b.wait_in_text("#devices", "pool0")
+
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_visible('#storage-detail')
+
+        # Create a small filesystem
+        b.click("button:contains(Create new filesystem)")
+        self.dialog({'name': 'fsys1',
+                     'size': 900,
+                     'mount_point': '/run/fsys1'})
+        b.wait_in_text("#detail-content", "fsys1")
+
+        # Make a snapshot of it
+        self.content_dropdown_action(1, "Snapshot")
+        self.dialog({'name': 'fsys1-copy',
+                     'mount_point': '/run/fsys1-copy'})
+        b.wait_in_text("#detail-content", "fsys1-copy")
+
+        # And another filesystem
+        b.click("button:contains(Create new filesystem)")
+        self.dialog({'name': 'fsys2',
+                     'size': 800,
+                     'mount_point': '/run/fsys2'})
+        b.wait_in_text("#detail-content", "fsys2")
+
+        # And fill the rest by accepting the default size
+        b.click("button:contains(Create new filesystem)")
+        self.dialog({'name': 'fsys3',
+                     'mount_point': '/run/fsys3'})
+        b.wait_in_text("#detail-content", "fsys3")
+        b.wait_visible("button:contains(Create new filesystem):disabled")
+
+        # Snapshots are impossible now
+        self.content_dropdown_action(2, "Snapshot")
+        self.dialog_wait_open()
+        b.wait_in_text('#dialog', "Not enough space")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Delete a filesystem, and make another snapshot
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        b.wait_visible("button:contains(Create new filesystem):not(:disabled)")
+        self.content_dropdown_action(2, "Snapshot")
+        self.dialog({'name': 'fsys2-copy',
+                     'mount_point': '/run/fsys2-copy'})
+        b.wait_in_text("#detail-content", "fsys2-copy")
+
+        # And the pool should be full again
+        b.wait_visible("button:contains(Create new filesystem):disabled")
+
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
 class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase):

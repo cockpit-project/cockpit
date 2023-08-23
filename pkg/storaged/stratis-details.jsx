@@ -35,7 +35,7 @@ import { SidePanel } from "./side-panel.jsx";
 import {
     dialog_open,
     TextInput, PassInput, SelectOne, SelectSpaces,
-    CheckBoxes,
+    CheckBoxes, SizeSlider,
     BlockingMessage, TeardownMessage,
     init_active_usage_processes
 } from "./dialog.jsx";
@@ -187,6 +187,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
     const tang_url = can_tang && pool.ClevisInfo[1][0] ? JSON.parse(pool.ClevisInfo[1][1][1]).url : null;
 
     const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
+    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
 
     function delete_() {
         const location = cockpit.location;
@@ -453,6 +454,13 @@ export const StratisPoolDetails = ({ client, pool }) => {
                           {
                               validate: name => validate_fs_name(null, name)
                           }),
+                SizeSlider("size", _("Size"),
+                           {
+                               visible: () => managed_fsys_sizes,
+                               min: fsys_min_size,
+                               max: pool_free,
+                               round: 512
+                           }),
                 TextInput("mount_point", _("Mount point"),
                           {
                               validate: (val, values, variant) => {
@@ -503,7 +511,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 Title: _("Create and mount"),
                 Variants: [{ tag: "nomount", Title: _("Create only") }],
                 action: function (vals) {
-                    return client.stratis_create_filesystem(pool, vals.name)
+                    return client.stratis_create_filesystem(pool, vals.name, vals.size)
                             .then(std_reply)
                             .then(result => {
                                 if (result[0])
@@ -538,7 +546,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                         <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "UUID")}</DescriptionListTerm>
                         <DescriptionListDescription>{ pool.Uuid }</DescriptionListDescription>
                     </DescriptionListGroup>
-                    { use &&
+                    { !managed_fsys_sizes && use &&
                     <DescriptionListGroup>
                         <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "Usage")}</DescriptionListTerm>
                         <DescriptionListDescription className="pf-v5-u-align-self-center">
@@ -599,9 +607,25 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
     const sidebar = <StratisPoolSidebar client={client} pool={pool} />;
 
-    function render_fsys(fsys, offset, total) {
-        const overhead = pool.TotalPhysicalUsed[0] ? (Number(pool.TotalPhysicalUsed[1]) - total) : 0;
-        const pool_total = Number(pool.TotalPhysicalSize) - overhead;
+    const offsets = [];
+    let fsys_total_used = 0;
+    let fsys_total_size = 0;
+    filesystems.forEach(fs => {
+        offsets.push(fsys_total_used);
+        fsys_total_used += fs.Used[0] ? Number(fs.Used[1]) : 0;
+        fsys_total_size += Number(fs.Size);
+    });
+
+    const overhead = pool.TotalPhysicalUsed[0] ? (Number(pool.TotalPhysicalUsed[1]) - fsys_total_used) : 0;
+    const pool_total = Number(pool.TotalPhysicalSize) - overhead;
+    let pool_free = pool_total - fsys_total_size;
+    const fsys_min_size = 512 * 1024 * 1024;
+
+    // leave some margin since the above computation does not seem to
+    // be exactly right when snapshots are involved.
+    pool_free -= filesystems.length * 1024 * 1024;
+
+    function render_fsys(fsys, offset) {
         const block = client.slashdevs_block[fsys.Devnode];
 
         if (!block) {
@@ -642,6 +666,15 @@ export const StratisPoolDetails = ({ client, pool }) => {
         }
 
         function snapshot_fsys() {
+            if (managed_fsys_sizes && pool_free < Number(fsys.Size)) {
+                dialog_open({
+                    Title: _("Not enough space"),
+                    Body: cockpit.format(_("There is not enough space in the pool to make a snapshot of this filesystem. At least $0 are required but only $1 are available."),
+                                         fmt_size(Number(fsys.Size)), fmt_size(pool_free))
+                });
+                return;
+            }
+
             dialog_open({
                 Title: cockpit.format(_("Create a snapshot of filesystem $0"), fsys.Name),
                 Fields: [
@@ -792,8 +825,12 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 title: mount_point
             },
             {
-                title: <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), pool_total]}
-                                        critical={1} total={total} offset={offset} />,
+                title: (!managed_fsys_sizes
+                    ? <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), pool_total]}
+                                           critical={1} total={fsys_total_used} offset={offset} />
+                    : <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), Number(fsys.Size)]}
+                                           critical={0.95} />
+                ),
                 props: { className: "pf-v5-u-text-align-right" }
             },
             {
@@ -809,18 +846,16 @@ export const StratisPoolDetails = ({ client, pool }) => {
         };
     }
 
-    const offsets = [];
-    let total = 0;
-    filesystems.forEach(fs => {
-        offsets.push(total);
-        total += fs.Used[0] ? Number(fs.Used[1]) : 0;
-    });
-
-    const rows = filesystems.map((fs, i) => render_fsys(fs, offsets[i], total));
+    const rows = filesystems.map((fs, i) => render_fsys(fs, offsets[i]));
 
     const content = (
         <Card>
-            <CardHeader actions={{ actions: <><StorageButton onClick={create_fs}>{_("Create new filesystem")}</StorageButton></> }}>
+            <CardHeader actions={{
+                actions: <StorageButton onClick={create_fs}
+                                        excuse={managed_fsys_sizes && pool_free < fsys_min_size ? _("Not enough space for new filesystems") : null}>
+                    {_("Create new filesystem")}
+                </StorageButton>
+            }}>
                 <CardTitle component="h2">{_("Filesystems")}</CardTitle>
 
             </CardHeader>

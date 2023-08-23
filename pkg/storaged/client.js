@@ -995,17 +995,31 @@ function stratis3_start() {
                                                              clevis_info ? [true, clevis_info] : [false, ["", ""]]);
                 };
 
+                client.stratis_set_overprovisioning = (pool, flag) => {
+                    // DBusProxy is smart enough to allow
+                    // "pool.Overprovisioning = flag" to just work,
+                    // but we want to catch any error ourselves, and
+                    // we want to wait for the method call to
+                    // complete.
+                    return stratis.call(pool.path, "org.freedesktop.DBus.Properties", "Set",
+                                        ["org.storage.stratis3.pool." + stratis3_interface_revision,
+                                            "Overprovisioning",
+                                            cockpit.variant("b", flag)
+                                        ]);
+                };
+
                 client.stratis_list_keys = () => {
                     return client.stratis_manager.ListKeys();
                 };
 
-                client.stratis_create_filesystem = (pool, name) => {
-                    return pool.CreateFilesystems([[name, [false, ""]]]);
+                client.stratis_create_filesystem = (pool, name, size) => {
+                    return pool.CreateFilesystems([[name, size ? [true, size.toString()] : [false, ""]]]);
                 };
 
                 client.features.stratis = true;
                 client.features.stratis_crypto_binding = true;
                 client.features.stratis_encrypted_caches = true;
+                client.features.stratis_managed_fsys_sizes = true;
                 client.stratis_pools = client.stratis_manager.client.proxies("org.storage.stratis3.pool." +
                                                                              stratis3_interface_revision,
                                                                              "/org/storage/stratis3",

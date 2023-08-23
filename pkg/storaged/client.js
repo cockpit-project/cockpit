@@ -1051,6 +1051,7 @@ function stratis3_start() {
                 client.features.stratis_crypto_binding = true;
                 client.features.stratis_encrypted_caches = true;
                 client.features.stratis_managed_fsys_sizes = true;
+                client.features.stratis_grow_blockdevs = true;
                 client.stratis_pools = client.stratis_manager.client.proxies("org.storage.stratis3.pool." +
                                                                              stratis3_interface_revision,
                                                                              "/org/storage/stratis3",

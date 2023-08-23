@@ -33,6 +33,7 @@ import {
     dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage,
     init_active_usage_processes
 } from "./dialog.jsx";
+import { std_reply } from "./stratis-utils.js";
 
 const _ = cockpit.gettext;
 
@@ -56,6 +57,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     let fsys;
     let crypto_overhead;
     let vdo;
+    let stratis_bdev;
     const orig_size = lvol.Size;
 
     const block = client.lvols_block[lvol.path];
@@ -69,6 +71,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
             return;
         fsys = client.blocks_fsys[cleartext.path];
         vdo = client.legacy_vdo_overlay.find_by_backing_block(cleartext);
+        stratis_bdev = client.blocks_stratis_blockdev[cleartext.path];
         if (crypto.MetadataSize !== undefined)
             crypto_overhead = crypto.MetadataSize;
         else
@@ -76,6 +79,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     } else {
         fsys = client.blocks_fsys[block.path];
         vdo = client.legacy_vdo_overlay.find_by_backing_block(block);
+        stratis_bdev = client.blocks_stratis_blockdev[block.path];
         crypto_overhead = 0;
     }
 
@@ -108,6 +112,15 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
                 return vdo.grow_physical();
             else if (size - crypto_overhead < vdo.physical_size)
                 return Promise.reject(_("VDO backing devices can not be made smaller"));
+            else
+                return Promise.resolve();
+        } else if (stratis_bdev) {
+            const delta = size - crypto_overhead - Number(stratis_bdev.TotalPhysicalSize);
+            if (delta > 0) {
+                const pool = client.stratis_pools[stratis_bdev.Pool];
+                return pool.GrowPhysicalDevice(stratis_bdev.Uuid).then(std_reply);
+            } else if (delta < 0)
+                return Promise.reject(_("Stratis blockdevs can not be made smaller"));
             else
                 return Promise.resolve();
         } else if (size < orig_size) {
@@ -185,6 +198,13 @@ function get_resize_info(client, block, to_fit) {
                     grow_excuse = cockpit.format(_("$0 filesystems can not be made larger."),
                                                  block.IdType);
             }
+        } else if (client.blocks_stratis_blockdev[block.path] && client.features.stratis_grow_blockdevs) {
+            info = {
+                can_shrink: false,
+                can_grow: true,
+                grow_needs_unmount: false
+            };
+            shrink_excuse = _("Stratis blockdevs can not be made smaller");
         } else if (block.IdUsage == 'raid') {
             info = { };
             shrink_excuse = grow_excuse = _("Physical volumes can not be resized here.");
@@ -330,6 +350,10 @@ function lvol_shrink(client, lvol, info, to_fit) {
         const vdo = client.legacy_vdo_overlay.find_by_backing_block(client.blocks[content_path]);
         if (vdo)
             shrink_size = vdo.physical_size + crypto_overhead;
+
+        const stratis_bdev = client.blocks_stratis_blockdev[content_path];
+        if (stratis_bdev)
+            shrink_size = Number(stratis_bdev.TotalPhysicalSize) + crypto_overhead;
 
         if (shrink_size === undefined) {
             console.warn("Couldn't determine size to shrink to.");

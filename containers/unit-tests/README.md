@@ -1,9 +1,9 @@
 # Cockpit unit test container
 
-This container has all build dependencies and toolchains (GCC and clang) that
-we want to exercise Cockpit with, mostly for `make distcheck` and `make
-check-memory`. This container runs on [GitHub](.github/workflows/unit-tests.yml),
-but can be easily run locally too.
+This container has all build dependencies and toolchains (GCC and clang) that we
+want to exercise Cockpit with, mostly for `make distcheck` and `make check-memory`.
+This container runs on [GitHub](.github/workflows/unit-tests.yml), but can be easily
+run locally too.
 
 It assumes that the Cockpit source git checkout is available in `/source`. It
 will not modify that directory or take uncommitted changes into account, but it

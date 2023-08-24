@@ -1173,6 +1173,22 @@ UnixPath=/run/cockpit/session
         b.wait_visible("#nav-system li:contains(Hackices)")
         self.assertFalse(b.is_present("#nav-system li:contains(Services)"))
 
+    def testBridgeCLI(self):
+        m = self.machine
+
+        out = m.execute("cockpit-bridge --help")
+        # this needs to work with both the C and Python bridges
+        self.assertRegex(out, r"[uU]sage:")
+        self.assertIn("--packages", out)
+
+        version = m.execute("cockpit-bridge --version")
+        self.assertIn("Protocol: 1", version)
+        self.assertRegex(version, r"Version: \d{3,}")
+
+        packages = m.execute("cockpit-bridge --packages")
+        self.assertRegex(packages, r"(^|\n)base1\s+.*/usr/share/cockpit/base1")
+        self.assertRegex(packages, r"(^|\n)system\s+.*/usr/share/cockpit/systemd")
+
 
 @testlib.skipDistroPackage()
 class TestReverseProxy(testlib.MachineCase):

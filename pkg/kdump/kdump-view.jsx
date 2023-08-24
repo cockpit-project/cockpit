@@ -601,16 +601,6 @@ ${enableCrashKernel}
                         <CardBody>
                             <DescriptionList className="pf-m-horizontal-on-sm">
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
-                                    <DescriptionListDescription>
-                                        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                                            {serviceWaiting}
-                                            {kdumpServiceDetails}
-                                        </Flex>
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>
-
-                                <DescriptionListGroup>
                                     <DescriptionListTerm>{_("Reserved memory")}</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         {reservedMemory}
@@ -621,6 +611,16 @@ ${enableCrashKernel}
                                     <DescriptionListTerm>{_("Crash dump location")}</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         {settingsLink}
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                            {serviceWaiting}
+                                            {kdumpServiceDetails}
+                                        </Flex>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
 

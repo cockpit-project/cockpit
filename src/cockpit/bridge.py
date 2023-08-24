@@ -31,6 +31,7 @@ from cockpit._vendor.ferny import interaction_client
 from cockpit._vendor.systemd_ctypes import bus, run_async
 
 from . import polyfills
+from ._version import __version__
 from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
 from .config import Config, Environment
@@ -274,6 +275,9 @@ def main(*, beipack: bool = False) -> None:
     # Special modes
     if args.packages:
         Packages().show()
+        return
+    elif args.version:
+        print(f'Version: {__version__}\nProtocol: 1')
         return
     elif args.bridges:
         print(json.dumps(Packages().get_bridge_configs(), indent=2))

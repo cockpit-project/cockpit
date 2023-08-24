@@ -177,7 +177,7 @@ class SshPeer(Peer):
         self.always = args.always
         super().__init__(router)
 
-    async def do_connect_transport(self) -> asyncio.Transport:
+    async def do_connect_transport(self) -> None:
         beiboot_helper = BridgeBeibootHelper(self)
 
         agent = ferny.InteractionAgent(AuthorizeResponder(self.router))
@@ -222,8 +222,6 @@ class SshPeer(Peer):
 
         # Wait for "init" or error, handling auth and beiboot requests
         await agent.communicate()
-
-        return transport
 
     def transport_control_received(self, command: str, message: JsonObject) -> None:
         if command == 'authorize':

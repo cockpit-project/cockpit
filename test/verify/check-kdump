@@ -101,21 +101,9 @@ class TestKdump(KdumpHelpers):
 
         if m.image.startswith("fedora"):
             # crashkernel command line not set, needs to be explicitly enabled in Fedora
-            b.wait_visible(".pf-v5-c-switch__input:disabled")
-            # right now we have no memory reserved
-            b.mouse("span + div > .popover-ct-kdump", "mouseenter")
-            b.wait_in_text(".pf-v5-c-tooltip", "No memory reserved.")
-            b.mouse("span + div >.popover-ct-kdump", "mouseleave")
-            # newer kdump.service have `ConditionKernelCommandLine=crashkernel` which fails gracefully
-            unit = m.execute("systemctl cat kdump.service")
-            if 'ConditionKernelCommandLine=crashkernel' in unit:
-                # service should indicate that the unit is stopped
-                b.wait_in_text("#app", "Service is stopped")
-            else:
-                # service should indicate an error
-                b.wait_in_text("#app", "Service has an error")
-            # ... and the button should be off
-            self.assertActive(active=False)
+            b.wait_in_text(".pf-v5-c-alert__title", "Kernel did not boot with the crashkernel setting")
+            # no service on/off button
+            b.wait_not_present(".pf-v5-c-switch__input")
 
             # disabled "Test configuration" button should have a tooltip
             b.wait_visible("button:contains(Test configuration)[aria-disabled=true]")
@@ -129,8 +117,10 @@ class TestKdump(KdumpHelpers):
         else:
             # enabled by default in RHEL
             m.execute("until systemctl is-active kdump; do sleep 1; done")
-            b.wait_in_text("#app", "Service is running")
             self.assertActive(active=True)
+
+        # no alert about configuration
+        b.wait_not_present(".pf-v5-c-alert__title")
 
         # there shouldn't be any crash reports in the target directory
         self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
@@ -180,7 +170,6 @@ class TestKdump(KdumpHelpers):
         b.wait_in_text("#app", "192 MiB")
         # service should start up properly and the button should be on
         self.assertActive(active=True)
-        b.wait_in_text("#app", "Service is running")
         b.wait_text("#kdump-target-info", "Remote over SSH, root@localhost:/var/crash")
 
         # try to change the path to a directory that doesn't exist
@@ -204,7 +193,6 @@ class TestKdump(KdumpHelpers):
 
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled
-        b.wait_in_text("#app", "Service is running")
         self.assertActive(active=True)
 
         # crash the kernel and make sure it wrote a report into the right directory
@@ -461,7 +449,7 @@ class TestKdumpNFS(KdumpHelpers):
         self.enableKdump()
         self.login_and_go("/kdump")
         with b.wait_timeout(120):  # needs to rebuild initrd
-            b.wait_in_text("#app", "Service is running")
+            b.wait_visible(".pf-v5-c-switch__input:checked")
 
         # Wait a few seconds so that the newly written kdump.conf is
         # guaranteed to look older to kdump.service than the just
@@ -569,7 +557,7 @@ class TestKdumpNFSAnsible(KdumpHelpers):
         # Verify that kdump runs and crashkernel is configured
         kdump_machine.execute("until systemctl is-active kdump; do sleep 1; done")
         kdump_browser.login_and_go("/kdump")
-        kdump_browser.wait_in_text("#app", "Service is running")
+        kdump_browser.wait_visible(".pf-v5-c-switch__input:checked")
         kdump_browser.wait_in_text("#app", "192 MiB")
         self.assertActive(active=True, browser=kdump_browser)
 
@@ -627,7 +615,6 @@ class TestKdumpAnsible(KdumpHelpers):
         kdump_browser.login_and_go("/kdump")
 
         # Verify that kdump runs and crashkernel is configured
-        kdump_browser.wait_in_text("#app", "Service is running")
         kdump_browser.wait_in_text("#app", "192 MiB")
         self.assertActive(active=True, browser=kdump_browser)
 

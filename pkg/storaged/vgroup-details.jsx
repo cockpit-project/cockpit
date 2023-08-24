@@ -127,6 +127,67 @@ class VGroupSidebar extends React.Component {
     }
 }
 
+export function vgroup_rename(client, vgroup) {
+    const location = cockpit.location;
+
+    dialog_open({
+        Title: _("Rename volume group"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      {
+                          value: vgroup.Name,
+                          validate: utils.validate_lvm2_name
+                      })
+        ],
+        Action: {
+            Title: _("Rename"),
+            action: function (vals) {
+                return vgroup.Rename(vals.name, { })
+                        .then(function () {
+                            location.go(['vg', vals.name]);
+                        });
+            }
+        }
+    });
+}
+
+export function vgroup_delete(client, vgroup) {
+    const location = cockpit.location;
+    const usage = utils.get_active_usage(client, vgroup.path, _("delete"));
+
+    if (usage.Blocking) {
+        dialog_open({
+            Title: cockpit.format(_("$0 is in use"),
+                                  vgroup.Name),
+            Body: BlockingMessage(usage)
+        });
+        return;
+    }
+
+    dialog_open({
+        Title: cockpit.format(_("Permanently delete $0?"), vgroup.Name),
+        Teardown: TeardownMessage(usage),
+        Action: {
+            Danger: _("Deleting erases all data on a volume group."),
+            Title: _("Delete"),
+            action: function () {
+                return utils.teardown_active_usage(client, usage)
+                        .then(function () {
+                            return vgroup.Delete(true,
+                                                 { 'tear-down': { t: 'b', v: true } })
+                                    .then(utils.reload_systemd)
+                                    .then(function () {
+                                        location.go('/');
+                                    });
+                        });
+            }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage)
+        ]
+    });
+}
+
 export class VGroupDetails extends React.Component {
     constructor() {
         super();
@@ -152,75 +213,14 @@ export class VGroupDetails extends React.Component {
 
         this.ensurePolling(vgroup.NeedsPolling);
 
-        function rename() {
-            const location = cockpit.location;
-
-            dialog_open({
-                Title: _("Rename volume group"),
-                Fields: [
-                    TextInput("name", _("Name"),
-                              {
-                                  value: vgroup.Name,
-                                  validate: utils.validate_lvm2_name
-                              })
-                ],
-                Action: {
-                    Title: _("Rename"),
-                    action: function (vals) {
-                        return vgroup.Rename(vals.name, { })
-                                .then(function () {
-                                    location.go(['vg', vals.name]);
-                                });
-                    }
-                }
-            });
-        }
-
-        function delete_() {
-            const location = cockpit.location;
-            const usage = utils.get_active_usage(client, vgroup.path, _("delete"));
-
-            if (usage.Blocking) {
-                dialog_open({
-                    Title: cockpit.format(_("$0 is in use"),
-                                          vgroup.Name),
-                    Body: BlockingMessage(usage)
-                });
-                return;
-            }
-
-            dialog_open({
-                Title: cockpit.format(_("Permanently delete $0?"), vgroup.Name),
-                Teardown: TeardownMessage(usage),
-                Action: {
-                    Danger: _("Deleting erases all data on a volume group."),
-                    Title: _("Delete"),
-                    action: function () {
-                        return utils.teardown_active_usage(client, usage)
-                                .then(function () {
-                                    return vgroup.Delete(true,
-                                                         { 'tear-down': { t: 'b', v: true } })
-                                            .then(utils.reload_systemd)
-                                            .then(function () {
-                                                location.go('/');
-                                            });
-                                });
-                    }
-                },
-                Inits: [
-                    init_active_usage_processes(client, usage)
-                ]
-            });
-        }
-
         const header = (
             <Card>
                 <CardHeader actions={{
                     actions: (
                         <>
-                            <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
+                            <StorageButton onClick={() => vgroup_rename(client, vgroup)}>{_("Rename")}</StorageButton>
                             { "\n" }
-                            <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
+                            <StorageButton kind="danger" onClick={() => vgroup_delete(client, vgroup)}>{_("Delete")}</StorageButton>
                         </>
                     ),
                 }}>

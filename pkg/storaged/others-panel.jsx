@@ -25,30 +25,37 @@ import { block_name, fmt_size, make_block_path_cmp, get_other_devices } from "./
 
 const _ = cockpit.gettext;
 
+export function other_rows(client, options) {
+    function make_other(path) {
+        const block = client.blocks[path];
+        const name = block_name(block);
+        const dev = name.replace(/^\/dev\//, "");
+
+        return {
+            client,
+            kind: false,
+            testkey: dev,
+            devname: name,
+            name,
+            detail: cockpit.format(_("$0 block device"), fmt_size(block.Size)),
+            type: _("Block device"),
+            size: block.Size,
+            go: () => cockpit.location.go([dev]),
+            job_path: path,
+            key: path,
+            block
+        };
+    }
+
+    return get_other_devices(client)
+            .sort(make_block_path_cmp(client))
+            .map(make_other);
+}
+
 export class OthersPanel extends React.Component {
     render() {
         const client = this.props.client;
-
-        function make_other(path) {
-            const block = client.blocks[path];
-            const name = block_name(block);
-            const dev = name.replace(/^\/dev\//, "");
-
-            return {
-                client,
-                kind: false,
-                testkey: dev,
-                devname: block_name(block),
-                detail: cockpit.format(_("$0 block device"), fmt_size(block.Size)),
-                go: () => cockpit.location.go([dev]),
-                job_path: path,
-                key: path
-            };
-        }
-
-        const others = get_other_devices(client)
-                .sort(make_block_path_cmp(client))
-                .map(make_other);
+        const others = other_rows(client, {});
 
         if (others.length > 0)
             return (

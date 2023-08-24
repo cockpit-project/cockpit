@@ -39,7 +39,7 @@ function vdo_row(client, vdo) {
     };
 }
 
-export function vdo_rows(client) {
+export function vdo_rows(client, options) {
     function cmp_vdo(a, b) {
         return a.name.localeCompare(b.Name);
     }

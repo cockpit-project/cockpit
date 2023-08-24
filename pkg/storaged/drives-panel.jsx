@@ -26,74 +26,83 @@ import { fmt_size, drive_name, decode_filename, block_name } from "./utils.js";
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
 
+export function drive_rows(client) {
+    function cmp_drive(path_a, path_b) {
+        return client.drives[path_a].SortKey.localeCompare(client.drives[path_b].SortKey);
+    }
+
+    function classify_drive(drive) {
+        if (drive.MediaRemovable || drive.Media) {
+            for (let i = 0; i < drive.MediaCompatibility.length; i++)
+                if (drive.MediaCompatibility[i].indexOf("optical") === 0)
+                    return "optical";
+            return "removable";
+        }
+
+        return (drive.RotationRate === 0) ? "ssd" : "hdd";
+    }
+
+    function make_drive(path) {
+        const drive = client.drives[path];
+        let block = client.drives_block[path];
+
+        if (!block) {
+            // A drive without a primary block device might be
+            // a unconfigured multipath device.  Try to hobble
+            // along here by arbitrarily picking one of the
+            // multipath devices.
+            block = client.drives_multipath_blocks[path][0];
+        }
+
+        if (!block)
+            return null;
+
+        const dev = decode_filename(block.Device).replace(/^\/dev\//, "");
+
+        const name = drive_name(drive);
+        const classification = classify_drive(drive);
+        const size_str = fmt_size(drive.Size);
+        let type, desc;
+        if (classification == "removable") {
+            type = C_("storage", "Removable drive");
+            if (drive.Size === 0)
+                desc = type;
+            else
+                desc = size_str + " " + type;
+        } else if (classification == "optical") {
+            type = C_("storage", "Optical drive");
+            desc = type;
+        } else {
+            type = C_("Drive");
+            if (drive.Size === 0)
+                desc = type;
+            else
+                desc = size_str;
+        }
+
+        return {
+            client,
+            name,
+            devname: block_name(block),
+            size: drive.Size,
+            type,
+            detail: desc,
+            go: () => cockpit.location.go([dev]),
+            block: drive && client.drives_block[path],
+            job_path: path,
+            key: path
+        };
+    }
+
+    return Object.keys(client.drives).sort(cmp_drive).map(make_drive);
+}
+
 export class DrivesPanel extends React.Component {
     render() {
         const props = this.props;
         const client = props.client;
 
-        function cmp_drive(path_a, path_b) {
-            return client.drives[path_a].SortKey.localeCompare(client.drives[path_b].SortKey);
-        }
-
-        function classify_drive(drive) {
-            if (drive.MediaRemovable || drive.Media) {
-                for (let i = 0; i < drive.MediaCompatibility.length; i++)
-                    if (drive.MediaCompatibility[i].indexOf("optical") === 0)
-                        return "optical";
-                return "removable";
-            }
-
-            return (drive.RotationRate === 0) ? "ssd" : "hdd";
-        }
-
-        function make_drive(path) {
-            const drive = client.drives[path];
-            let block = client.drives_block[path];
-
-            if (!block) {
-                // A drive without a primary block device might be
-                // a unconfigured multipath device.  Try to hobble
-                // along here by arbitrarily picking one of the
-                // multipath devices.
-                block = client.drives_multipath_blocks[path][0];
-            }
-
-            if (!block)
-                return null;
-
-            const dev = decode_filename(block.Device).replace(/^\/dev\//, "");
-
-            const name = drive_name(drive);
-            const classification = classify_drive(drive);
-            const size_str = fmt_size(drive.Size);
-            let desc;
-            if (classification == "removable") {
-                if (drive.Size === 0)
-                    desc = C_("storage", "Removable drive");
-                else
-                    desc = size_str + " " + C_("storage", "Removable drive");
-            } else if (classification == "optical") {
-                desc = C_("storage", "Optical drive");
-            } else {
-                if (drive.Size === 0)
-                    desc = C_("Drive");
-                else
-                    desc = size_str;
-            }
-
-            return {
-                client,
-                name,
-                devname: block_name(block),
-                detail: desc,
-                go: () => cockpit.location.go([dev]),
-                job_path: path,
-                key: path
-            };
-        }
-
-        const drives = Object.keys(client.drives).sort(cmp_drive)
-                .map(make_drive);
+        const drives = drive_rows(client);
 
         return (
             <SidePanel id="drives"

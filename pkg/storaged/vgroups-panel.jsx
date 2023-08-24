@@ -42,7 +42,7 @@ function vgroup_row(client, path) {
     };
 }
 
-export function vgroup_rows(client) {
+export function vgroup_rows(client, options) {
     function cmp_vgroup(path_a, path_b) {
         return client.vgroups[path_a].Name.localeCompare(client.vgroups[path_b].Name);
     }

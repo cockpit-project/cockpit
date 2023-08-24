@@ -43,7 +43,7 @@ function mdraid_row(client, path) {
     };
 }
 
-export function mdraid_rows(client) {
+export function mdraid_rows(client, options) {
     function cmp_mdraid(path_a, path_b) {
         return mdraid_name(client.mdraids[path_a]).localeCompare(mdraid_name(client.mdraids[path_b]));
     }

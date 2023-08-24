@@ -157,6 +157,98 @@ class MDRaidSidebar extends React.Component {
     }
 }
 
+function mdraid_start(client, mdraid) {
+    return mdraid.Start({ "start-degraded": { t: 'b', v: true } });
+}
+
+function mdraid_stop(client, mdraid) {
+    const block = client.mdraids_block[mdraid.path];
+    const usage = utils.get_active_usage(client, block ? block.path : "", _("stop"));
+
+    if (usage.Blocking) {
+        dialog_open({
+            Title: cockpit.format(_("$0 is in use"), utils.mdraid_name(mdraid)),
+            Body: BlockingMessage(usage),
+        });
+        return;
+    }
+
+    if (usage.Teardown) {
+        dialog_open({
+            Title: cockpit.format(_("Confirm stopping of $0"),
+                                  utils.mdraid_name(mdraid)),
+            Teardown: TeardownMessage(usage),
+            Action: {
+                Title: _("Stop device"),
+                action: function () {
+                    return utils.teardown_active_usage(client, usage)
+                            .then(function () {
+                                return mdraid.Stop({});
+                            });
+                }
+            },
+            Inits: [
+                init_active_usage_processes(client, usage)
+            ]
+        });
+        return;
+    }
+
+    return mdraid.Stop({});
+}
+
+function mdraid_delete(client, mdraid) {
+    const block = client.mdraids_block[mdraid.path];
+    const location = cockpit.location;
+
+    function delete_() {
+        if (mdraid.Delete)
+            return mdraid.Delete({ 'tear-down': { t: 'b', v: true } }).then(utils.reload_systemd);
+
+        // If we don't have a Delete method, we simulate
+        // it by stopping the array and wiping all
+        // members.
+
+        function wipe_members() {
+            return Promise.all(client.mdraids_members[mdraid.path].map(member => member.Format('empty', { })));
+        }
+
+        if (mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0)
+            return mdraid.Stop({}).then(wipe_members);
+        else
+            return wipe_members();
+    }
+
+    const usage = utils.get_active_usage(client, block ? block.path : "", _("delete"));
+
+    if (usage.Blocking) {
+        dialog_open({
+            Title: cockpit.format(_("$0 is in use"), utils.mdraid_name(mdraid)),
+            Body: BlockingMessage(usage)
+        });
+        return;
+    }
+
+    dialog_open({
+        Title: cockpit.format(_("Permanently delete $0?"), utils.mdraid_name(mdraid)),
+        Teardown: TeardownMessage(usage),
+        Action: {
+            Title: _("Delete"),
+            Danger: _("Deleting erases all data on a RAID device."),
+            action: function () {
+                return utils.teardown_active_usage(client, usage)
+                        .then(delete_)
+                        .then(function () {
+                            location.go('/');
+                        });
+            }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage)
+        ]
+    });
+}
+
 export class MDRaidDetails extends React.Component {
     render() {
         const client = this.props.client;
@@ -214,106 +306,16 @@ export class MDRaidDetails extends React.Component {
         if (running === undefined)
             running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
 
-        function start() {
-            return mdraid.Start({ "start-degraded": { t: 'b', v: true } });
-        }
-
-        function stop() {
-            const usage = utils.get_active_usage(client, block ? block.path : "", _("stop"));
-
-            if (usage.Blocking) {
-                dialog_open({
-                    Title: cockpit.format(_("$0 is in use"), utils.mdraid_name(mdraid)),
-                    Body: BlockingMessage(usage),
-                });
-                return;
-            }
-
-            if (usage.Teardown) {
-                dialog_open({
-                    Title: cockpit.format(_("Confirm stopping of $0"),
-                                          utils.mdraid_name(mdraid)),
-                    Teardown: TeardownMessage(usage),
-                    Action: {
-                        Title: _("Stop device"),
-                        action: function () {
-                            return utils.teardown_active_usage(client, usage)
-                                    .then(function () {
-                                        return mdraid.Stop({});
-                                    });
-                        }
-                    },
-                    Inits: [
-                        init_active_usage_processes(client, usage)
-                    ]
-                });
-                return;
-            }
-
-            return mdraid.Stop({});
-        }
-
-        function delete_dialog() {
-            const location = cockpit.location;
-
-            function delete_() {
-                if (mdraid.Delete)
-                    return mdraid.Delete({ 'tear-down': { t: 'b', v: true } }).then(utils.reload_systemd);
-
-                // If we don't have a Delete method, we simulate
-                // it by stopping the array and wiping all
-                // members.
-
-                function wipe_members() {
-                    return Promise.all(client.mdraids_members[mdraid.path].map(member => member.Format('empty', { })));
-                }
-
-                if (mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0)
-                    return mdraid.Stop({}).then(wipe_members);
-                else
-                    return wipe_members();
-            }
-
-            const usage = utils.get_active_usage(client, block ? block.path : "", _("delete"));
-
-            if (usage.Blocking) {
-                dialog_open({
-                    Title: cockpit.format(_("$0 is in use"), utils.mdraid_name(mdraid)),
-                    Body: BlockingMessage(usage)
-                });
-                return;
-            }
-
-            dialog_open({
-                Title: cockpit.format(_("Permanently delete $0?"), utils.mdraid_name(mdraid)),
-                Teardown: TeardownMessage(usage),
-                Action: {
-                    Title: _("Delete"),
-                    Danger: _("Deleting erases all data on a RAID device."),
-                    action: function () {
-                        return utils.teardown_active_usage(client, usage)
-                                .then(delete_)
-                                .then(function () {
-                                    location.go('/');
-                                });
-                    }
-                },
-                Inits: [
-                    init_active_usage_processes(client, usage)
-                ]
-            });
-        }
-
         const header = (
             <Card>
                 <CardHeader actions={{
                     actions: <>
                         { running
-                            ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
-                            : <StorageButton onClick={start}>{_("Start")}</StorageButton>
+                            ? <StorageButton onClick={() => mdraid_stop(client, mdraid)}>{_("Stop")}</StorageButton>
+                            : <StorageButton onClick={() => mdraid_start(client, mdraid)}>{_("Start")}</StorageButton>
                         }
                         { "\n" }
-                        <StorageButton kind="danger" onClick={delete_dialog}>{_("Delete")}</StorageButton>
+                        <StorageButton kind="danger" onClick={() => mdraid_delete(client, mdraid)}>{_("Delete")}</StorageButton>
                     </>,
                 }}>
                     <CardTitle component="h2">{ cockpit.format(_("RAID device $0"), utils.mdraid_name(mdraid)) }</CardTitle>

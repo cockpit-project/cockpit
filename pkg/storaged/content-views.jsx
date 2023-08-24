@@ -106,7 +106,7 @@ export function set_crypto_auto_option(block, flag) {
     return set_crypto_options(block, null, flag, null, null);
 }
 
-function create_tabs(client, target, is_partition, is_extended) {
+function create_tabs(client, target, options) {
     function endsWith(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
@@ -224,7 +224,7 @@ function create_tabs(client, target, is_partition, is_extended) {
         }
     }
 
-    if (is_partition) {
+    if (options.is_partition) {
         add_tab(_("Partition"), PartitionTab);
     }
 
@@ -408,14 +408,14 @@ function create_tabs(client, target, is_partition, is_extended) {
         }
     }
 
-    if (block && !is_extended) {
+    if (block && !options.is_extended) {
         if (is_unrecognized)
             add_danger_action(_("Format"), () => format_dialog(client, block.path));
         else
             add_menu_danger_action(_("Format"), () => format_dialog(client, block.path));
     }
 
-    if (is_partition || lvol) {
+    if (options.is_partition || lvol) {
         add_menu_danger_action(_("Delete"), delete_);
     }
 
@@ -435,7 +435,7 @@ function create_tabs(client, target, is_partition, is_extended) {
     };
 }
 
-function block_description(client, block) {
+function block_description(client, block, options) {
     let type, used_for, link, size, critical_size;
     const block_stratis_blockdev = client.blocks_stratis_blockdev[block.path];
     const block_stratis_stopped_pool = client.blocks_stratis_stopped_pool[block.path];
@@ -522,7 +522,7 @@ function block_description(client, block) {
     };
 }
 
-function append_row(client, rows, level, key, name, desc, tabs, job_object) {
+function append_row(client, rows, level, key, name, desc, tabs, job_object, options) {
     function menuitem(action) {
         if (action.title)
             return <StorageMenuItem onlyNarrow={action.only_narrow} key={action.title} onClick={action.func} danger={action.danger}>{action.title}</StorageMenuItem>;
@@ -584,14 +584,14 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     });
 }
 
-function append_non_partitioned_block(client, rows, level, block, is_partition) {
-    const tabs = create_tabs(client, block, is_partition);
-    const desc = block_description(client, block);
+function append_non_partitioned_block(client, rows, level, block, options) {
+    const tabs = create_tabs(client, block, options);
+    const desc = block_description(client, block, options);
 
-    append_row(client, rows, level, block.path, utils.block_name(block), desc, tabs, block.path);
+    append_row(client, rows, level, block.path, utils.block_name(block), desc, tabs, block.path, options);
 }
 
-function append_partitions(client, rows, level, block) {
+function append_partitions(client, rows, level, block, options) {
     const block_ptable = client.blocks_ptable[block.path];
     const device_level = level;
 
@@ -636,8 +636,9 @@ function append_partitions(client, rows, level, block) {
             size: partition.size,
             type: _("Extended partition")
         };
-        const tabs = create_tabs(client, partition.block, true, true);
-        append_row(client, rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path);
+        const tabs = create_tabs(client, partition.block,
+                                 { is_partition: true, is_extended: true, ...options });
+        append_row(client, rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path, options);
         process_partitions(level + 1, partition.partitions);
     }
 
@@ -650,28 +651,81 @@ function append_partitions(client, rows, level, block) {
             else if (p.type == 'container')
                 append_extended_partition(level, p);
             else
-                append_non_partitioned_block(client, rows, level, p.block, true);
+                append_non_partitioned_block(client, rows, level, p.block, { is_partition: true, ...options });
         }
     }
 
     process_partitions(level, utils.get_partitions(client, block));
 }
 
-function append_device(client, rows, level, block) {
+function append_device(client, rows, level, block, options) {
     if (client.blocks_ptable[block.path])
-        append_partitions(client, rows, level, block);
+        append_partitions(client, rows, level, block, options);
     else
-        append_non_partitioned_block(client, rows, level, block, null);
+        append_non_partitioned_block(client, rows, level, block, options);
 }
 
-// TODO: this should be refactored to React component
-// The render method should collect _just_ data via more-or-less recent append_device() flow and
-// then return proper React component hierarchy based on this collected data.
-// Benefit: much easier debugging, better manipulation with "key" props and relying on well-tested React's functionality
-function block_rows(client, block) {
+export function block_content_rows(client, block, options) {
     const rows = [];
-    append_device(client, rows, 0, block);
+    append_device(client, rows, 0, block, options);
     return rows;
+}
+
+function format_disk(client, block) {
+    const usage = utils.get_active_usage(client, block.path, _("initialize"), _("delete"));
+
+    if (usage.Blocking) {
+        dialog_open({
+            Title: cockpit.format(_("$0 is in use"), utils.block_name(block)),
+            Body: BlockingMessage(usage),
+        });
+        return;
+    }
+
+    dialog_open({
+        Title: cockpit.format(_("Initialize disk $0"), utils.block_name(block)),
+        Teardown: TeardownMessage(usage),
+        Fields: [
+            SelectOne("type", _("Partitioning"),
+                      {
+                          value: "gpt",
+                          choices: [
+                              { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
+                              {
+                                  value: "gpt",
+                                  title: _("Compatible with modern system and hard disks > 2TB (GPT)")
+                              },
+                              { value: "empty", title: _("No partitioning") }
+                          ]
+                      }),
+            CheckBoxes("erase", _("Overwrite"),
+                       {
+                           fields: [
+                               { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
+                           ],
+                       }),
+        ],
+        Action: {
+            Title: _("Initialize"),
+            Danger: _("Initializing erases all data on a disk."),
+            wrapper: job_progress_wrapper(client, block.path),
+            action: function (vals) {
+                const options = {
+                    'tear-down': { t: 'b', v: true }
+                };
+                if (vals.erase.on)
+                    options.erase = { t: 's', v: "zero" };
+                return utils.teardown_active_usage(client, usage)
+                        .then(function () {
+                            return block.Format(vals.type, options);
+                        })
+                        .then(utils.reload_systemd);
+            }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage)
+        ]
+    });
 }
 
 const BlockContent = ({ client, block, allow_partitions }) => {
@@ -681,67 +735,11 @@ const BlockContent = ({ client, block, allow_partitions }) => {
     if (block.Size === 0)
         return null;
 
-    function format_disk() {
-        const usage = utils.get_active_usage(client, block.path, _("initialize"), _("delete"));
-
-        if (usage.Blocking) {
-            dialog_open({
-                Title: cockpit.format(_("$0 is in use"), utils.block_name(block)),
-                Body: BlockingMessage(usage),
-            });
-            return;
-        }
-
-        dialog_open({
-            Title: cockpit.format(_("Initialize disk $0"), utils.block_name(block)),
-            Teardown: TeardownMessage(usage),
-            Fields: [
-                SelectOne("type", _("Partitioning"),
-                          {
-                              value: "gpt",
-                              choices: [
-                                  { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                                  {
-                                      value: "gpt",
-                                      title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                                  },
-                                  { value: "empty", title: _("No partitioning") }
-                              ]
-                          }),
-                CheckBoxes("erase", _("Overwrite"),
-                           {
-                               fields: [
-                                   { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
-                               ],
-                           }),
-            ],
-            Action: {
-                Title: _("Initialize"),
-                Danger: _("Initializing erases all data on a disk."),
-                wrapper: job_progress_wrapper(client, block.path),
-                action: function (vals) {
-                    const options = {
-                        'tear-down': { t: 'b', v: true }
-                    };
-                    if (vals.erase.on)
-                        options.erase = { t: 's', v: "zero" };
-                    return utils.teardown_active_usage(client, usage)
-                            .then(function () {
-                                return block.Format(vals.type, options);
-                            })
-                            .then(utils.reload_systemd);
-                }
-            },
-            Inits: [
-                init_active_usage_processes(client, usage)
-            ]
-        });
-    }
-
     let format_disk_btn = null;
     if (allow_partitions)
         format_disk_btn = (
-            <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
+            <StorageButton onClick={() => format_disk(client, block)}
+                           excuse={block.ReadOnly ? _("Device is read-only") : null}>
                 {_("Create partition table")}
             </StorageButton>
         );
@@ -758,7 +756,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                 <CardTitle component="h2">{title}</CardTitle>
             </CardHeader>
             <CardBody className="contains-list">
-                <ListingTable rows={ block_rows(client, block) }
+                <ListingTable rows={ block_content_rows(client, block, {}) }
                               aria-label={_("Content")}
                               columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
                               showHeader={false} />
@@ -775,7 +773,7 @@ export const Block = ({ client, block, allow_partitions }) => {
     );
 };
 
-function append_logical_volume_block(client, rows, level, block, lvol) {
+function append_logical_volume_block(client, rows, level, block, lvol, options) {
     const desc = client.blocks_ptable[block.path]
         ? {
             size: block.Size,
@@ -783,12 +781,12 @@ function append_logical_volume_block(client, rows, level, block, lvol) {
             used_for: utils.block_name(block),
             link: [utils.block_name(block).replace(/^\/dev\//, "")]
         }
-        : block_description(client, block);
-    const tabs = create_tabs(client, block, false);
-    append_row(client, rows, level, block.path, lvol.Name, desc, tabs, block.path);
+        : block_description(client, block, options);
+    const tabs = create_tabs(client, block, options);
+    append_row(client, rows, level, block.path, lvol.Name, desc, tabs, block.path, options);
 }
 
-function append_logical_volume(client, rows, level, lvol) {
+function append_logical_volume(client, rows, level, lvol, options) {
     let tabs, desc, block;
 
     if (lvol.Type == "pool") {
@@ -796,15 +794,15 @@ function append_logical_volume(client, rows, level, lvol) {
             size: lvol.Size,
             type: _("Pool for thin volumes")
         };
-        tabs = create_tabs(client, lvol, false);
-        append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
+        tabs = create_tabs(client, lvol, options);
+        append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false, options);
         client.lvols_pool_members[lvol.path].forEach(function (member_lvol) {
-            append_logical_volume(client, rows, level + 1, member_lvol);
+            append_logical_volume(client, rows, level + 1, member_lvol, options);
         });
     } else {
         block = client.lvols_block[lvol.path];
         if (block)
-            append_logical_volume_block(client, rows, level, block, lvol);
+            append_logical_volume_block(client, rows, level, block, lvol, options);
         else {
             // If we can't find the block for a active
             // volume, Storaged or something below is
@@ -815,13 +813,13 @@ function append_logical_volume(client, rows, level, lvol) {
                 size: lvol.Size,
                 type: lvol.Active ? _("Unsupported volume") : _("Inactive volume")
             };
-            tabs = create_tabs(client, lvol, false);
-            append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
+            tabs = create_tabs(client, lvol, options);
+            append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false, options);
         }
     }
 }
 
-function vgroup_rows(client, vgroup) {
+export function vgroup_content_rows(client, vgroup, options) {
     const rows = [];
 
     const isVDOPool = lvol => Object.keys(client.vdo_vols).some(v => client.vdo_vols[v].VDOPool == lvol.path);
@@ -829,7 +827,7 @@ function vgroup_rows(client, vgroup) {
     (client.vgroups_lvols[vgroup.path] || []).forEach(lvol => {
         // Don't display VDO pool volumes as separate entities; they are an internal implementation detail and have no actions
         if (lvol.ThinPool == "/" && lvol.Origin == "/" && !isVDOPool(lvol))
-            append_logical_volume(client, rows, 0, lvol);
+            append_logical_volume(client, rows, 0, lvol, options);
     });
     return rows;
 }
@@ -849,6 +847,145 @@ function install_package(name, progress) {
             });
 }
 
+function create_logical_volume(client, vgroup) {
+    if (vgroup.FreeSize == 0)
+        return;
+
+    const purposes = [
+        {
+            value: "block",
+            title: _("Block device for filesystems"),
+        },
+        { value: "pool", title: _("Pool for thinly provisioned volumes") }
+        /* Not implemented
+           { value: "cache", Title: _("Cache") }
+        */
+    ];
+
+    const vdo_package = client.get_config("vdo_package", null);
+    const need_vdo_install = vdo_package && !(client.features.lvm_create_vdo || client.features.legacy_vdo);
+
+    if (client.features.lvm_create_vdo || client.features.legacy_vdo || vdo_package)
+        purposes.push({ value: "vdo", title: _("VDO filesystem volume (compression/deduplication)") });
+
+    dialog_open({
+        Title: _("Create logical volume"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      {
+                          value: next_default_logical_volume_name(client, vgroup, "lvol"),
+                          validate: utils.validate_lvm2_name
+                      }),
+            SelectOne("purpose", _("Purpose"),
+                      {
+                          value: "block",
+                          choices: purposes
+                      }),
+            Message(cockpit.format(_("The $0 package will be installed to create VDO devices."), vdo_package),
+                    {
+                        visible: vals => vals.purpose === 'vdo' && need_vdo_install,
+                    }),
+
+            /* Not Implemented
+               { SelectOne: "layout",
+               Title: _("Layout"),
+               Options: [
+               { value: "linear", Title: _("Linear"),
+               selected: true
+               },
+               { value: "striped", Title: _("Striped (RAID 0)"),
+               enabled: raid_is_possible
+               },
+               { value: "raid1", Title: _("Mirrored (RAID 1)"),
+               enabled: raid_is_possible
+               },
+               { value: "raid10", Title: _("Striped and mirrored (RAID 10)"),
+               enabled: raid_is_possible
+               },
+               { value: "raid4", Title: _("With dedicated parity (RAID 4)"),
+               enabled: raid_is_possible
+               },
+               { value: "raid5", Title: _("With distributed parity (RAID 5)"),
+               enabled: raid_is_possible
+               },
+               { value: "raid6", Title: _("With double distributed parity (RAID 6)"),
+               enabled: raid_is_possible
+               }
+               ],
+               },
+            */
+            SizeSlider("size", _("Size"),
+                       {
+                           visible: vals => vals.purpose !== 'vdo',
+                           max: vgroup.FreeSize,
+                           round: vgroup.ExtentSize
+                       }),
+
+            /* VDO parameters */
+            SizeSlider("vdo_psize", _("Size"),
+                       {
+                           visible: vals => vals.purpose === 'vdo',
+                           min: 5 * 1024 * 1024 * 1024,
+                           max: vgroup.FreeSize,
+                           round: vgroup.ExtentSize
+                       }),
+            SizeSlider("vdo_lsize", _("Logical size"),
+                       {
+                           visible: vals => vals.purpose === 'vdo',
+                           value: vgroup.FreeSize,
+                           // visually point out that this can be over-provisioned
+                           max: vgroup.FreeSize * 3,
+                           allow_infinite: true,
+                           round: vgroup.ExtentSize
+                       }),
+
+            CheckBoxes("vdo_options", _("Options"),
+                       {
+                           visible: vals => vals.purpose === 'vdo',
+                           fields: [
+                               {
+                                   tag: "compression",
+                                   title: _("Compression"),
+                                   tooltip: _("Save space by compressing individual blocks with LZ4")
+                               },
+                               {
+                                   tag: "deduplication",
+                                   title: _("Deduplication"),
+                                   tooltip: _("Save space by storing identical data blocks just once")
+                               },
+                           ],
+                           value: {
+                               compression: true,
+                               deduplication: true,
+                           }
+                       }),
+        ],
+        Action: {
+            Title: _("Create"),
+            action: (vals, progress) => {
+                if (vals.purpose == "block")
+                    return vgroup.CreatePlainVolume(vals.name, vals.size, { });
+                else if (vals.purpose == "pool")
+                    return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
+                else if (vals.purpose == "vdo") {
+                    return (need_vdo_install ? install_package(vdo_package, progress) : Promise.resolve())
+                            .then(() => {
+                                progress(_("Creating VDO device")); // not cancellable any more
+                                return vgroup.CreateVDOVolume(
+                                // HACK: emulate lvcreate's automatic pool name creation until
+                                // https://github.com/storaged-project/udisks/issues/939
+                                    vals.name, next_default_logical_volume_name(client, vgroup, "vpool"),
+                                    vals.vdo_psize, vals.vdo_lsize,
+                                    0, // default index memory
+                                    vals.vdo_options.compression, vals.vdo_options.deduplication,
+                                    "auto", { });
+                            });
+                }
+            }
+        }
+    });
+}
+
 export class VGroup extends React.Component {
     constructor () {
         super();
@@ -864,153 +1001,13 @@ export class VGroup extends React.Component {
     }
 
     render() {
-        const self = this;
         const vgroup = this.props.vgroup;
-        const client = self.props.client;
-
-        function create_logical_volume() {
-            if (vgroup.FreeSize == 0)
-                return;
-
-            const purposes = [
-                {
-                    value: "block",
-                    title: _("Block device for filesystems"),
-                },
-                { value: "pool", title: _("Pool for thinly provisioned volumes") }
-                /* Not implemented
-                                                 { value: "cache", Title: _("Cache") }
-                                                 */
-            ];
-
-            const vdo_package = client.get_config("vdo_package", null);
-            const need_vdo_install = vdo_package && !(client.features.lvm_create_vdo || client.features.legacy_vdo);
-
-            if (client.features.lvm_create_vdo || client.features.legacy_vdo || vdo_package)
-                purposes.push({ value: "vdo", title: _("VDO filesystem volume (compression/deduplication)") });
-
-            dialog_open({
-                Title: _("Create logical volume"),
-                Fields: [
-                    TextInput("name", _("Name"),
-                              {
-                                  value: next_default_logical_volume_name(client, vgroup, "lvol"),
-                                  validate: utils.validate_lvm2_name
-                              }),
-                    SelectOne("purpose", _("Purpose"),
-                              {
-                                  value: "block",
-                                  choices: purposes
-                              }),
-                    Message(cockpit.format(_("The $0 package will be installed to create VDO devices."), vdo_package),
-                            {
-                                visible: vals => vals.purpose === 'vdo' && need_vdo_install,
-                            }),
-
-                    /* Not Implemented
-                                 { SelectOne: "layout",
-                                 Title: _("Layout"),
-                                 Options: [
-                                 { value: "linear", Title: _("Linear"),
-                                 selected: true
-                                 },
-                                 { value: "striped", Title: _("Striped (RAID 0)"),
-                                 enabled: raid_is_possible
-                                 },
-                                 { value: "raid1", Title: _("Mirrored (RAID 1)"),
-                                 enabled: raid_is_possible
-                                 },
-                                 { value: "raid10", Title: _("Striped and mirrored (RAID 10)"),
-                                 enabled: raid_is_possible
-                                 },
-                                 { value: "raid4", Title: _("With dedicated parity (RAID 4)"),
-                                 enabled: raid_is_possible
-                                 },
-                                 { value: "raid5", Title: _("With distributed parity (RAID 5)"),
-                                 enabled: raid_is_possible
-                                 },
-                                 { value: "raid6", Title: _("With double distributed parity (RAID 6)"),
-                                 enabled: raid_is_possible
-                                 }
-                                 ],
-                                 },
-                               */
-                    SizeSlider("size", _("Size"),
-                               {
-                                   visible: vals => vals.purpose !== 'vdo',
-                                   max: vgroup.FreeSize,
-                                   round: vgroup.ExtentSize
-                               }),
-
-                    /* VDO parameters */
-                    SizeSlider("vdo_psize", _("Size"),
-                               {
-                                   visible: vals => vals.purpose === 'vdo',
-                                   min: 5 * 1024 * 1024 * 1024,
-                                   max: vgroup.FreeSize,
-                                   round: vgroup.ExtentSize
-                               }),
-                    SizeSlider("vdo_lsize", _("Logical size"),
-                               {
-                                   visible: vals => vals.purpose === 'vdo',
-                                   value: vgroup.FreeSize,
-                                   // visually point out that this can be over-provisioned
-                                   max: vgroup.FreeSize * 3,
-                                   allow_infinite: true,
-                                   round: vgroup.ExtentSize
-                               }),
-
-                    CheckBoxes("vdo_options", _("Options"),
-                               {
-                                   visible: vals => vals.purpose === 'vdo',
-                                   fields: [
-                                       {
-                                           tag: "compression",
-                                           title: _("Compression"),
-                                           tooltip: _("Save space by compressing individual blocks with LZ4")
-                                       },
-                                       {
-                                           tag: "deduplication",
-                                           title: _("Deduplication"),
-                                           tooltip: _("Save space by storing identical data blocks just once")
-                                       },
-                                   ],
-                                   value: {
-                                       compression: true,
-                                       deduplication: true,
-                                   }
-                               }),
-                ],
-                Action: {
-                    Title: _("Create"),
-                    action: (vals, progress) => {
-                        if (vals.purpose == "block")
-                            return vgroup.CreatePlainVolume(vals.name, vals.size, { });
-                        else if (vals.purpose == "pool")
-                            return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
-                        else if (vals.purpose == "vdo") {
-                            return (need_vdo_install ? install_package(vdo_package, progress) : Promise.resolve())
-                                    .then(() => {
-                                        progress(_("Creating VDO device")); // not cancellable any more
-                                        return vgroup.CreateVDOVolume(
-                                            // HACK: emulate lvcreate's automatic pool name creation until
-                                            // https://github.com/storaged-project/udisks/issues/939
-                                            vals.name, next_default_logical_volume_name(client, vgroup, "vpool"),
-                                            vals.vdo_psize, vals.vdo_lsize,
-                                            0, // default index memory
-                                            vals.vdo_options.compression, vals.vdo_options.deduplication,
-                                            "auto", { });
-                                    });
-                        }
-                    }
-                }
-            });
-        }
+        const client = this.props.client;
 
         const excuse = vgroup.FreeSize == 0 && _("No free space");
 
         const new_volume_link = (
-            <StorageButton onClick={create_logical_volume}
+            <StorageButton onClick={() => create_logical_volume(client, vgroup)}
                            excuse={excuse}>
                 {_("Create new logical volume")}
             </StorageButton>
@@ -1026,7 +1023,7 @@ export class VGroup extends React.Component {
                                   aria-label={_("Logical volumes")}
                                   columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
                                   showHeader={false}
-                                  rows={vgroup_rows(client, vgroup)} />
+                                  rows={vgroup_content_rows(client, vgroup, {})} />
                 </CardBody>
             </Card>
         );

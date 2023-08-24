@@ -78,7 +78,7 @@ function stratis_stopped_pool_row(client, uuid) {
     };
 }
 
-export function stratis_rows(client) {
+export function stratis_rows(client, options) {
     function cmp_pool(path_a, path_b) {
         return client.stratis_pools[path_a].Name.localeCompare(client.stratis_pools[path_b].Name);
     }

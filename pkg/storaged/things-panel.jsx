@@ -31,60 +31,71 @@ import { dialog_open } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
+export function thing_menu_items(client, options) {
+    // See OptionalPanel for a description of the "feature"
+    // argument here.
+
+    function menu_item(feature, title, action) {
+        const feature_enabled = !feature || feature.is_enabled();
+        const required_package = feature && feature.package;
+
+        if (!feature_enabled && !(required_package && client.features.packagekit))
+            return null;
+
+        function install_then_action() {
+            if (!feature_enabled) {
+                install_dialog(required_package, feature.dialog_options).then(
+                    () => {
+                        feature.enable()
+                                .then(action)
+                                .catch(error => {
+                                    dialog_open({
+                                        Title: _("Error"),
+                                        Body: error.toString()
+                                    });
+                                    if (options.update)
+                                        options.update();
+                                });
+                    },
+                    () => null /* ignore cancel */);
+            } else {
+                action();
+            }
+        }
+
+        return <StorageMenuItem key={title} onClick={install_then_action}>{title}</StorageMenuItem>;
+    }
+
+    const lvm2_feature = {
+        is_enabled: () => client.features.lvm2
+    };
+
+    const menu_items = [
+        menu_item(null, _("Create RAID device"), () => create_mdraid(client)),
+        menu_item(lvm2_feature, _("Create LVM2 volume group"), () => create_vgroup(client)),
+        menu_item(stratis_feature(client), _("Create Stratis pool"), () => create_stratis_pool(client))
+    ].filter(item => item !== null);
+
+    return menu_items;
+}
+
+export function thing_rows(client, options) {
+    return [].concat(
+        mdraid_rows(client, options),
+        vgroup_rows(client, options),
+        vdo_rows(client, options),
+        stratis_rows(client, options));
+}
+
 export class ThingsPanel extends React.Component {
     render() {
         const { client } = this.props;
-        const self = this;
 
-        // See OptionalPanel for a description of the "feature"
-        // argument here.
+        const actions = <StorageBarMenu id="devices-menu"
+                                        label={_("Create devices")}
+                                        menuItems={thing_menu_items(client, { update: () => this.setState({}) })} />;
 
-        function menu_item(feature, title, action) {
-            const feature_enabled = !feature || feature.is_enabled();
-            const required_package = feature && feature.package;
-
-            if (!feature_enabled && !(required_package && client.features.packagekit))
-                return null;
-
-            function install_then_action() {
-                if (!feature_enabled) {
-                    install_dialog(required_package, feature.dialog_options).then(
-                        () => {
-                            feature.enable()
-                                    .then(action)
-                                    .catch(error => {
-                                        dialog_open({
-                                            Title: _("Error"),
-                                            Body: error.toString()
-                                        });
-                                        self.setState({});
-                                    });
-                        },
-                        () => null /* ignore cancel */);
-                } else {
-                    action();
-                }
-            }
-
-            return <StorageMenuItem key={title} onClick={install_then_action}>{title}</StorageMenuItem>;
-        }
-
-        const lvm2_feature = {
-            is_enabled: () => client.features.lvm2
-        };
-
-        const actions = (
-            <StorageBarMenu id="devices-menu" label={_("Create devices")} menuItems={[
-                menu_item(null, _("Create RAID device"), () => create_mdraid(client)),
-                menu_item(lvm2_feature, _("Create LVM2 volume group"), () => create_vgroup(client)),
-                menu_item(stratis_feature(client), _("Create Stratis pool"), () => create_stratis_pool(client))].filter(item => item !== null)} />
-        );
-
-        const devices = [].concat(
-            mdraid_rows(client),
-            vgroup_rows(client),
-            vdo_rows(client),
-            stratis_rows(client));
+        const devices = thing_rows(client, {});
 
         return (
             <SidePanel id="devices"

@@ -354,6 +354,10 @@ AC_ARG_ENABLE([cockpit-client],
 AC_MSG_RESULT($enable_cockpit_client)
 AM_CONDITIONAL([ENABLE_COCKPIT_CLIENT], [test "$enable_cockpit_client" = "yes"])
 
+if test "$enable_cockpit_client" = "yes" && test "$enable_pybridge" = "no"; then
+        AC_MSG_ERROR([--enable-cockpit-client requires --enable-pybridge])
+fi
+
 # Debug
 
 AC_MSG_CHECKING([for debug mode])

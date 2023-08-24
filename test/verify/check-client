@@ -43,15 +43,15 @@ class TestClient(testlib.MachineCase):
         elif self.m_target.image != 'arch':
             self.m_target.execute("rpm --erase --verbose cockpit-pcp pcp")
 
-    def writeConfig(self, ssh_command):
-        self.m_client.write("/etc/cockpit/cockpit.conf", f"""
+        # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
+        self.m_client.write("/etc/cockpit/cockpit.conf", """
 [WebService]
 X-For-CockpitClient = true
 LoginTo = true
 
 [Ssh-Login]
 ReportStderr = true
-Command = {ssh_command}
+Command = /usr/local/bin/cockpit-beiboot
 """)
 
     def logout(self, check_last_host=None):
@@ -66,34 +66,13 @@ Command = {ssh_command}
             b.wait_val("#server-field", check_last_host)
 
         # no leaked processes
-        # FIXME: leaks ssh on debian-testing with c-client-ssh (but not on fedora-38/pybridge)
         self.m_client.execute('''
-            while [ -n "$(pgrep -au admin | grep -Ev 'cockpit-ws|ssh.*cockpit-bridge' >&2)" ]; do sleep 1; done
+            while [ -n "$(pgrep -au admin | grep -Ev 'cockpit-ws' >&2)" ]; do sleep 1; done
         ''', timeout=10)
         self.m_target.execute("while pgrep -af '([c]ockpit|[s]sh-agent)' >&2; do sleep 1; done",
                               timeout=30)
 
-    # deprecated: c-client-ssh will disappear once c-beiboot goes from beta to release
-    def testClientSSH(self):
-        m = self.m_client
-
-        m.upload(["../src/client/cockpit-client-ssh"], "/usr/local/bin/")
-        # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-client-ssh
-        self.writeConfig("/usr/local/bin/cockpit-client-ssh")
-        # fake flatpak-spawn wrapper
-        m.write("/usr/local/bin/flatpak-spawn", """#!/bin/sh -eu
-[ "$1" = "--host" ] || exit 1
-shift
-exec "$@"
-""", perm="755")
-
-        m.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
-
-        self.checkLoginScenarios()
-
     def testBeibootNoBridge(self):
-        # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
-        self.writeConfig("/usr/local/bin/cockpit-beiboot")
         self.m_client.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
         # set up target machine: no cockpit
         self.m_target.execute("rm /usr/bin/cockpit-bridge; rm -r /usr/share/cockpit")
@@ -101,11 +80,8 @@ exec "$@"
         self.checkLoginScenarios(local_bridge=False)
 
     def testBeibootWithBridge(self):
-        # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
-        self.writeConfig("/usr/local/bin/cockpit-beiboot")
         self.m_client.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
-
-        self.checkLoginScenarios()
+        self.checkLoginScenarios(local_bridge=True)
 
     def checkLoginScenarios(self, *, local_bridge=True):
         b = self.browser

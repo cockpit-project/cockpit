@@ -25,7 +25,7 @@ import pwd
 import shlex
 import socket
 import subprocess
-from typing import Iterable, List, Optional, Tuple, Type
+from typing import Iterable, List, Optional, Sequence, Tuple, Type
 
 from cockpit._vendor.ferny import interaction_client
 from cockpit._vendor.systemd_ctypes import bus, run_async
@@ -62,12 +62,12 @@ class InternalBus:
 class Bridge(Router, PackagesListener):
     internal_bus: InternalBus
     packages: Optional[Packages]
-    bridge_rules: List[JsonObject]
+    bridge_configs: Sequence[BridgeConfig]
     args: argparse.Namespace
 
     def __init__(self, args: argparse.Namespace):
         self.internal_bus = InternalBus(EXPORTS)
-        self.bridge_rules = []
+        self.bridge_configs = []
         self.args = args
 
         self.superuser_rule = SuperuserRoutingRule(self, privileged=args.privileged)
@@ -149,7 +149,7 @@ class Bridge(Router, PackagesListener):
     def packages_loaded(self) -> None:
         assert self.packages
         bridge_configs = self.packages.get_bridge_configs()
-        if self.bridge_rules != bridge_configs:
+        if self.bridge_configs != bridge_configs:
             self.superuser_rule.set_configs(bridge_configs)
             self.peers_rule.set_configs(bridge_configs)
             self.bridge_configs = bridge_configs

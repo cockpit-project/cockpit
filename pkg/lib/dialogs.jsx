@@ -108,7 +108,7 @@ export const WithDialogs = ({ children }) => {
     const Dialogs = {
         show: setDialog,
         close: () => setDialog(null),
-        isActive: dialog !== null
+        isActive: () => dialog !== null
     };
 
     return (

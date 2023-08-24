@@ -164,7 +164,8 @@ class AuthorizeResponder(ferny.InteractionResponder):
 
         if command == 'cockpit.report-exists':
             file_status, = args
-            self.router.packages = Packages(loader=ProxyPackagesLoader(file_status))
+            # FIXME: evil duck typing here -- this is a half-way Bridge
+            self.router.packages = Packages(loader=ProxyPackagesLoader(file_status))  # type: ignore[attr-defined]
             self.router.routing_rules.insert(0, ChannelRoutingRule(self.router, [PackagesChannel]))
 
 

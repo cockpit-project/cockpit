@@ -113,6 +113,19 @@ const exportAnsibleTask = (settings, os_release) => {
     return ansible;
 };
 
+function getLocation(target) {
+    let path = target.path || DEFAULT_KDUMP_PATH;
+
+    if (target.type === "ssh") {
+        path = `${target.server}:${path}`;
+    } else if (target.type == "nfs") {
+        path = path[0] !== '/' ? '/' + path : path;
+        path = `${target.server}:${target.export + path}`;
+    }
+
+    return path;
+}
+
 const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
     const Dialogs = useDialogs();
     const compressionAllowed = settings.compression?.allowed;
@@ -338,18 +351,17 @@ export class KdumpPage extends React.Component {
         const target = this.props.kdumpStatus.target;
         let verifyMessage;
         if (!target.multipleTargets) {
-            let path = target.path || DEFAULT_KDUMP_PATH;
+            const path = getLocation(target);
             if (target.type === "local") {
                 verifyMessage = fmt_to_fragments(
                     ' ' + _("Results of the crash will be stored in $0 as $1, if kdump is properly configured."),
                     <span className="pf-v5-u-font-family-monospace-vf">{path}</span>,
                     <span className="pf-v5-u-font-family-monospace-vf">vmcore</span>);
             } else if (target.type === "ssh" || target.type == "nfs") {
-                path = (target.type == "nfs" && path[0] !== '/') ? '/' + path : path;
                 verifyMessage = fmt_to_fragments(
                     ' ' + _("Results of the crash will be copied through $0 to $1 as $2, if kdump is properly configured."),
                     <span className="pf-v5-u-font-family-monospace-vf">{target.type === "ssh" ? "SSH" : "NFS"}</span>,
-                    <span className="pf-v5-u-font-family-monospace-vf">{`${target.server}:${target.type === "nfs" ? target.export + path : path}`}</span>,
+                    <span className="pf-v5-u-font-family-monospace-vf">{path}</span>,
                     <span className="pf-v5-u-font-family-monospace-vf">vmcore</span>);
             }
         }
@@ -433,17 +445,15 @@ ${enableCrashKernel}
             if (target.multipleTargets) {
                 kdumpLocation = _("invalid: multiple targets defined");
             } else {
+                const locationPath = getLocation(target);
                 if (target.type == "local") {
-                    if (target.path)
-                        kdumpLocation = cockpit.format(_("locally in $0"), target.path);
-                    else
-                        kdumpLocation = cockpit.format(_("locally in $0"), DEFAULT_KDUMP_PATH);
+                    kdumpLocation = cockpit.format(_("Local, $0"), locationPath);
                     targetCanChange = true;
                 } else if (target.type == "ssh") {
-                    kdumpLocation = _("Remote over SSH");
+                    kdumpLocation = cockpit.format(_("Remote over SSH, $0"), locationPath);
                     targetCanChange = true;
                 } else if (target.type == "nfs") {
-                    kdumpLocation = _("Remote over NFS");
+                    kdumpLocation = cockpit.format(_("Remote over NFS, $0"), locationPath);
                     targetCanChange = true;
                 } else if (target.type == "raw") {
                     kdumpLocation = _("Raw to a device");
@@ -463,9 +473,7 @@ ${enableCrashKernel}
             }
         }
         // this.storeLocation(this.props.kdumpStatus.config);
-        const settingsLink = targetCanChange
-            ? <Button variant="link" isInline id="kdump-change-target" onClick={this.handleSettingsClick}>{ kdumpLocation }</Button>
-            : <span id="kdump-target-info">{ kdumpLocation }</span>;
+        const settingsLink = targetCanChange && <Button variant="link" isInline id="kdump-change-target" onClick={this.handleSettingsClick}>{_("Edit")}</Button>;
         let reservedMemory;
         if (this.props.reservedMemory === undefined) {
             // still waiting for result
@@ -610,7 +618,10 @@ ${enableCrashKernel}
                                 <DescriptionListGroup>
                                     <DescriptionListTerm>{_("Crash dump location")}</DescriptionListTerm>
                                     <DescriptionListDescription>
-                                        {settingsLink}
+                                        <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                                            <span id="kdump-target-info">{ kdumpLocation }</span>
+                                            {settingsLink}
+                                        </Flex>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
 

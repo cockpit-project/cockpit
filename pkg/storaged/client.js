@@ -406,6 +406,37 @@ function update_indices() {
         }
     }
 
+    client.stratis_pool_stats = { };
+    for (path in client.stratis_pools) {
+        const pool = client.stratis_pools[path];
+        const filesystems = client.stratis_pool_filesystems[path];
+
+        const fsys_offsets = [];
+        let fsys_total_used = 0;
+        let fsys_total_size = 0;
+        filesystems.forEach(fs => {
+            fsys_offsets.push(fsys_total_used);
+            fsys_total_used += fs.Used[0] ? Number(fs.Used[1]) : 0;
+            fsys_total_size += Number(fs.Size);
+        });
+
+        const overhead = pool.TotalPhysicalUsed[0] ? (Number(pool.TotalPhysicalUsed[1]) - fsys_total_used) : 0;
+        const pool_total = Number(pool.TotalPhysicalSize) - overhead;
+        let pool_free = pool_total - fsys_total_size;
+
+        // leave some margin since the above computation does not seem to
+        // be exactly right when snapshots are involved.
+        pool_free -= filesystems.length * 1024 * 1024;
+
+        client.stratis_pool_stats[path] = {
+            fsys_offsets,
+            fsys_total_used,
+            fsys_total_size,
+            pool_total,
+            pool_free,
+        };
+    }
+
     client.blocks_cleartext = { };
     for (path in client.blocks) {
         block = client.blocks[path];

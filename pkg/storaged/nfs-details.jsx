@@ -213,6 +213,66 @@ export function nfs_fstab_dialog(client, entry) {
         show(false);
 }
 
+function checked(error_title, promise) {
+    promise.catch(error => {
+        dialog_open({
+            Title: error_title,
+            Body: error.toString()
+        });
+    });
+}
+
+function mount(client, entry) {
+    checked("Could not mount the filesystem",
+            client.nfs.mount_entry(entry));
+}
+
+function unmount(client, entry) {
+    const location = cockpit.location;
+    client.nfs.unmount_entry(entry)
+            .then(function () {
+                if (!entry.fstab)
+                    location.go("/");
+            })
+            .catch(function (error) {
+                nfs_busy_dialog(client,
+                                _("Unable to unmount filesystem"),
+                                entry, error,
+                                _("Stop and unmount"),
+                                function (users) {
+                                    return client.nfs.stop_and_unmount_entry(users, entry)
+                                            .then(function () {
+                                                if (!entry.fstab)
+                                                    location.go("/");
+                                            });
+                                });
+            });
+}
+
+function edit(client, entry) {
+    nfs_fstab_dialog(client, entry);
+}
+
+function remove(client, entry) {
+    const location = cockpit.location;
+    client.nfs.remove_entry(entry)
+            .then(function () {
+                location.go("/");
+            })
+            .catch(function (error) {
+                nfs_busy_dialog(client,
+                                _("Unable to remove mount"),
+                                entry, error,
+                                _("Stop and remove"),
+                                function (users) {
+                                    return client.nfs.stop_and_remove_entry(users, entry)
+                                            .then(function () {
+                                                location.go("/");
+                                            });
+                                });
+            });
+}
+
 export class NFSDetails extends React.Component {
     render() {
         const client = this.props.client;
@@ -221,80 +281,20 @@ export class NFSDetails extends React.Component {
         if (entry.mounted)
             fsys_size = client.nfs.get_fsys_size(entry);
 
-        function checked(error_title, promise) {
-            promise.catch(error => {
-                dialog_open({
-                    Title: error_title,
-                    Body: error.toString()
-                });
-            });
-        }
-
-        function mount() {
-            checked("Could not mount the filesystem",
-                    client.nfs.mount_entry(entry));
-        }
-
-        function unmount() {
-            const location = cockpit.location;
-            client.nfs.unmount_entry(entry)
-                    .then(function () {
-                        if (!entry.fstab)
-                            location.go("/");
-                    })
-                    .catch(function (error) {
-                        nfs_busy_dialog(client,
-                                        _("Unable to unmount filesystem"),
-                                        entry, error,
-                                        _("Stop and unmount"),
-                                        function (users) {
-                                            return client.nfs.stop_and_unmount_entry(users, entry)
-                                                    .then(function () {
-                                                        if (!entry.fstab)
-                                                            location.go("/");
-                                                    });
-                                        });
-                    });
-        }
-
-        function edit() {
-            nfs_fstab_dialog(client, entry);
-        }
-
-        function remove() {
-            const location = cockpit.location;
-            client.nfs.remove_entry(entry)
-                    .then(function () {
-                        location.go("/");
-                    })
-                    .catch(function (error) {
-                        nfs_busy_dialog(client,
-                                        _("Unable to remove mount"),
-                                        entry, error,
-                                        _("Stop and remove"),
-                                        function (users) {
-                                            return client.nfs.stop_and_remove_entry(users, entry)
-                                                    .then(function () {
-                                                        location.go("/");
-                                                    });
-                                        });
-                    });
-        }
-
         const header = (
             <Card>
                 <CardHeader actions={{
                     actions: <>
                         { entry.mounted
-                            ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
-                            : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                            ? <StorageButton onClick={() => unmount(client, entry)}>{_("Unmount")}</StorageButton>
+                            : <StorageButton onClick={() => mount(client, entry)}>{_("Mount")}</StorageButton>
                         }
                         { "\n" }
                         { entry.fstab
                             ? [
-                                <StorageButton key="1" onClick={edit}>{_("Edit")}</StorageButton>,
+                                <StorageButton key="1" onClick={() => edit(client, entry)}>{_("Edit")}</StorageButton>,
                                 "\n",
-                                <StorageButton key="2" onClick={remove} kind="danger">{_("Remove")}</StorageButton>
+                                <StorageButton key="2" onClick={() => remove(client, entry)} kind="danger">{_("Remove")}</StorageButton>
                             ]
                             : null
                         }

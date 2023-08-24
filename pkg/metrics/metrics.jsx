@@ -1989,7 +1989,8 @@ class MetricsHistory extends React.Component {
                                 })}
                             </CardBody>
                         </Card> }
-                        {nodata_alert}
+                        { nodata_alert ??
+                            <Alert className="moredata" variant="info" isInline title={ cockpit.format(_("Scroll down for more data")) } /> }
                         <div ref={this.bottomPanelRef} className="bottom-panel">
                             { this.state.loading ?? <EmptyStatePanel loading title={_("Loading...")} /> }
                         </div>

@@ -139,7 +139,7 @@ class TestKdump(KdumpHelpers):
         self.enableLocalSsh()
 
         # minimal nfs validation
-        b.wait_text("#kdump-change-target", "locally in /var/crash")
+        b.wait_text("#kdump-target-info", "Local, /var/crash")
 
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
@@ -181,7 +181,7 @@ class TestKdump(KdumpHelpers):
         # service should start up properly and the button should be on
         self.assertActive(active=True)
         b.wait_in_text("#app", "Service is running")
-        b.wait_text("#kdump-change-target", "Remote over SSH")
+        b.wait_text("#kdump-target-info", "Remote over SSH, root@localhost:/var/crash")
 
         # try to change the path to a directory that doesn't exist
         customPath = "/var/crash2"
@@ -200,7 +200,7 @@ class TestKdump(KdumpHelpers):
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         with b.wait_timeout(120):
             b.wait_not_present(pathInput)
-        b.wait_text("#kdump-change-target", f"locally in {customPath}")
+        b.wait_text("#kdump-target-info", f"Local, {customPath}")
 
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled
@@ -244,7 +244,7 @@ class TestKdump(KdumpHelpers):
         # Drop the custom path so we can make sure our changes are synced to JavaScript
         m.execute("sed -i 's#^path /var/crash#path /var/tmp#' /etc/kdump.conf")
         last_modified = m.execute("stat /etc/kdump.conf")
-        b.wait_text("#kdump-change-target", "locally in /var/tmp")
+        b.wait_text("#kdump-target-info", "Local, /var/tmp")
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_input_text("#kdump-settings-local-directory", "/var/crash")
@@ -346,11 +346,11 @@ class TestKdump(KdumpHelpers):
 
         # Remove malformed KDUMP_SAVEDIR to check default if nothing specified
         m.execute("sed -i '/KDUMP_SAVEDIR=.*/d' /etc/sysconfig/kdump")
-        b.wait_text("#kdump-change-target", "locally in /var/crash")
+        b.wait_text("#kdump-target-info", "Local, /var/crash")
 
         # Check fixing of (some) malformed lines and local target without file://
         m.execute("echo KDUMP_SAVEDIR=/tmp >> /etc/sysconfig/kdump")
-        b.wait_text("#kdump-change-target", "locally in /tmp")
+        b.wait_text("#kdump-target-info", "Local, /tmp")
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.click("button:contains('Save')")
@@ -370,7 +370,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text("#kdump-settings-ssh-directory", "/var/tmp/crash")
         b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
-        b.wait_text("#kdump-change-target", "Remote over SSH")
+        b.wait_text("#kdump-target-info", "Remote over SSH, admin@localhost:/var/tmp/crash")
         conf = m.execute("cat /etc/sysconfig/kdump")
         self.assertIn('KDUMP_SAVEDIR=ssh://admin@localhost/var/tmp/crash', conf)
         self.assertIn('KDUMP_SSH_IDENTITY="/home/admin/.ssh/id_rsa"', conf)
@@ -383,7 +383,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text("#kdump-settings-nfs-export", "/srv")
         b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
-        b.wait_text("#kdump-change-target", "Remote over NFS")
+        b.wait_text("#kdump-target-info", "Remote over NFS, someserver:/srv/var/crash")
         conf = m.execute("cat /etc/sysconfig/kdump")
         self.assertIn('KDUMP_SAVEDIR=nfs://someserver/srv', conf)
         self.assertNotIn("ssh://", conf)
@@ -394,7 +394,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text("#kdump-settings-nfs-directory", "dumps")
         b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
-        b.wait_text("#kdump-change-target", "Remote over NFS")
+        b.wait_text("#kdump-target-info", "Remote over NFS, someserver:/srv/dumps/var/crash")
         conf = m.execute("cat /etc/sysconfig/kdump")
         self.assertIn('KDUMP_SAVEDIR=nfs://someserver/srv/dumps', conf)
 
@@ -405,7 +405,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text("#kdump-settings-local-directory", "/var/tmp")
         b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
-        b.wait_text("#kdump-change-target", "locally in /var/tmp")
+        b.wait_text("#kdump-target-info", "Local, /var/tmp")
         conf = m.execute("cat /etc/sysconfig/kdump")
         self.assertIn('KDUMP_SAVEDIR=file:///var/tmp', conf)
         self.assertNotIn("nfs://", conf)
@@ -611,7 +611,7 @@ class TestKdumpAnsible(KdumpHelpers):
         pathInput = "#kdump-settings-local-directory"
         b.set_input_text(pathInput, customPath)
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_text("#kdump-change-target", f"locally in {customPath}")
+        b.wait_text("#kdump-target-info", f"Local, {customPath}")
 
         # HACK: workaround ansible role not creating /var/crash2 https://github.com/linux-system-roles/kdump/issues/8
         kdump_machine.execute(f"mkdir -p {customPath}")
@@ -649,7 +649,7 @@ class TestKdumpAnsible(KdumpHelpers):
         b.set_val("#kdump-settings-location", "local")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_not_present("#kdump-settings-dialog")
-        b.wait_text("#kdump-change-target", "locally in /var/crash")
+        b.wait_text("#kdump-target-info", "Local, /var/crash")
 
         b.click("#kdump-change-target")
         b.set_val("#kdump-settings-location", "ssh")
@@ -661,7 +661,7 @@ class TestKdumpAnsible(KdumpHelpers):
         b.set_input_text(pathInput, "/var/crash")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_not_present(pathInput)
-        b.wait_text("#kdump-change-target", "Remote over SSH")
+        b.wait_text("#kdump-target-info", "Remote over SSH, admin@localhost:/var/crash")
 
         self.enableLocalSsh()
         # running the role starts kdump.service which verifies if /var/crash is readable for the admin
@@ -675,7 +675,7 @@ class TestKdumpAnsible(KdumpHelpers):
         self.assertIn("\npath /var/crash\n", conf)
 
         kdump_browser.login_and_go("/kdump")
-        kdump_browser.wait_text("#kdump-change-target", "Remote over SSH")
+        kdump_browser.wait_text("#kdump-target-info", "Remote over SSH, admin@localhost:/var/crash")
         self.crashKernel("copied through SSH to admin@localhost:/var/crash as vmcore", cancel=True,
                          browser=kdump_browser, machine=kdump_machine)
 
@@ -685,7 +685,7 @@ class TestKdumpAnsible(KdumpHelpers):
         b.set_input_text(pathInput, "/var/crash2")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_not_present(sshInput)
-        b.wait_text("#kdump-change-target", "Remote over SSH")
+        b.wait_text("#kdump-target-info", "Remote over SSH, localhost:/var/crash2")
 
         self.run_ansible_playbook(browser=b, machine=kdump_machine)
         conf = kdump_machine.execute("cat /etc/kdump.conf")

@@ -270,7 +270,12 @@ async def run(args) -> None:
 
         # See comment in do_init() above: we tell cockpit-ws that we support
         # this and then handle it ourselves when we get the init message.
-        message.setdefault('capabilities', {})['explicit-superuser'] = True
+        capabilities = message.setdefault('capabilities', {})
+        if not isinstance(capabilities, dict):
+            bridge.write_control(command='init', problem='protocol-error', message='capabilities must be a dict')
+            return
+        assert isinstance(capabilities, dict)  # convince mypy
+        capabilities['explicit-superuser'] = True
 
         # only patch the packages line if we are in beiboot mode
         if bridge.packages:

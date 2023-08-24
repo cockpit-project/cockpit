@@ -3,6 +3,19 @@
 # This is the expected entry point for Cockpit CI; will be called without
 # arguments but with an appropriate $TEST_OS, and optionally $TEST_SCENARIO
 
+# Currently supported scenarios:
+# devel           - runs tests with coverage enabled and generates a html file
+#                   with coverage information and `NODE_ENV=development`
+#                   to get additional React checks and useful stack traces.
+# pybridge        - runs tests with the Python bridge
+# firefox         - runs tests using the Firefox browser instead of Chrome
+# networking      - networking related tests
+# storage         - storage related tests
+# expensive       - expensive tests (usually tests which reboot/generate a new initramfs)
+# other           - non-networking/storage/expensive tests
+# daily           - runs tests with dnf-nightly and udisks-daily repositories enabled
+# updates-testing - runs tests with updates-testing installed
+
 set -eu
 
 test/common/make-bots

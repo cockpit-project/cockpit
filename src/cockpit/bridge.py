@@ -254,7 +254,6 @@ def main(*, beipack: bool = False) -> None:
     parser.add_argument('--privileged', action='store_true', help='Privileged copy of the bridge')
     parser.add_argument('--packages', action='store_true', help='Show Cockpit package information')
     parser.add_argument('--bridges', action='store_true', help='Show Cockpit bridges information')
-    parser.add_argument('--rules', action='store_true', help='Show Cockpit bridge rules')
     parser.add_argument('--debug', action='store_true', help='Enable debug output (very verbose)')
     parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
     args = parser.parse_args()

@@ -29,7 +29,7 @@ install-python:
 	python3 -m pip install --no-index --force-reinstall --root='$(DESTDIR)/' --prefix='$(prefix)' \
 		"$$(python3 '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
 	mkdir -p $(DESTDIR)$(libexecdir)
-	mv -t $(DESTDIR)$(libexecdir) $(DESTDIR)$(bindir)/cockpit-askpass
+	mv -t $(DESTDIR)$(libexecdir) $(DESTDIR)$(bindir)/cockpit-askpass $(DESTDIR)$(bindir)/cockpit-beiboot
 endif
 
 

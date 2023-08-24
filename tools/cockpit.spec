@@ -285,7 +285,7 @@ for data in doc man pixmaps polkit-1; do
 done
 rm -r %{buildroot}/%{_prefix}/%{__lib}/tmpfiles.d
 find %{buildroot}/%{_unitdir}/ -type f ! -name 'cockpit-session*' -delete
-for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
+for libexec in cockpit-askpass cockpit-beiboot cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
     rm -f %{buildroot}/%{_libexecdir}/$libexec
 done
 rm -r %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
@@ -376,6 +376,7 @@ system on behalf of the web based user interface.
 %{_libexecdir}/cockpit-askpass
 %if %{cockpit_enable_python}
 %{python3_sitelib}/%{name}*
+%{_libexecdir}/cockpit-beiboot
 %endif
 
 %package doc

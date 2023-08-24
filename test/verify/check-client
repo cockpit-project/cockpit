@@ -35,7 +35,6 @@ class TestClient(testlib.MachineCase):
         super().setUp()
         self.m_target = self.machines["target"]
         self.m_client = self.machines["client"]
-        self.m_client.upload(["../src/client/cockpit-beiboot"], "/usr/local/bin/")
         self.m_target.execute("hostnamectl set-hostname target")
         # validate on-demand install: this does not work on arch, non-split package
         if self.m_target.image.startswith("debian") or self.m_target.image.startswith("ubuntu"):
@@ -44,14 +43,14 @@ class TestClient(testlib.MachineCase):
             self.m_target.execute("rpm --erase --verbose cockpit-pcp pcp")
 
         # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
-        self.m_client.write("/etc/cockpit/cockpit.conf", """
+        self.m_client.write("/etc/cockpit/cockpit.conf", f"""
 [WebService]
 X-For-CockpitClient = true
 LoginTo = true
 
 [Ssh-Login]
 ReportStderr = true
-Command = /usr/local/bin/cockpit-beiboot
+Command = {self.libexecdir}/cockpit-beiboot
 """)
 
     def logout(self, check_last_host=None):

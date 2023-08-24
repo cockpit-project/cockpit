@@ -3,12 +3,11 @@
 
 # We actually always install cockpit-client in libexec,
 # but ENABLE_COCKPIT_CLIENT controls whether we install
-# the desktop file, icons, a symlink in /usr/bin, and
-# cockpit-beiboot.
+# the desktop file, icons and a symlink in /usr/bin.
 # This is currently **EXPERIMENTAL**
 
 cockpitclientdir = $(libexecdir)
-dist_cockpitclient_SCRIPTS = src/client/cockpit-client src/client/cockpit-beiboot
+dist_cockpitclient_SCRIPTS = src/client/cockpit-client
 dist_cockpitclient_DATA = src/client/cockpit-client.ui
 
 if ENABLE_COCKPIT_CLIENT

@@ -545,7 +545,7 @@ ${enableCrashKernel}
         let testButton;
         if (serviceRunning) {
             testButton = (
-                <PrivilegedButton variant="secondary"
+                <PrivilegedButton variant="secondary" isDanger
                                   excuse={ _("The user $0 is not permitted to test crash the kernel") }
                                   onClick={this.handleTestSettingsClick}>
                     { _("Test configuration") }
@@ -555,13 +555,12 @@ ${enableCrashKernel}
             const tooltip = _("Test is only available while the kdump service is running.");
             testButton = (
                 <Tooltip id="tip-test" content={tooltip}>
-                    <Button variant="secondary" isAriaDisabled>
+                    <Button variant="secondary" isDanger isAriaDisabled>
                         {_("Test configuration")}
                     </Button>
                 </Tooltip>
             );
         }
-        const tooltip_info = _("This will test the kdump configuration by crashing the kernel.");
 
         let automationButton = null;
         if (this.props.kdumpStatus && this.props.kdumpStatus.config !== null && this.state.os_release !== null && targetCanChange) {
@@ -638,12 +637,7 @@ ${enableCrashKernel}
                                 <DescriptionListGroup>
                                     <DescriptionListTerm />
                                     <DescriptionListDescription>
-                                        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                                            {testButton}
-                                            <Tooltip id="tip-test-info" content={tooltip_info}>
-                                                <OutlinedQuestionCircleIcon className="popover-ct-kdump" />
-                                            </Tooltip>
-                                        </Flex>
+                                        {testButton}
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
                             </DescriptionList>

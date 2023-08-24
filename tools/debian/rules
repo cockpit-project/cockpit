@@ -61,6 +61,7 @@ ifeq ($(C_BRIDGE),)
 	# we don't need this, it contains full build paths and breaks reproducibility
 	rm -r debian/tmp/usr/lib/python*/*-packages/*.dist-info
 	dh_install -p cockpit-bridge debian/tmp/usr/lib/python*
+	dh_install -p cockpit-bridge debian/tmp/usr/lib/cockpit/cockpit-beiboot
 endif
 
 	make install-tests DESTDIR=debian/cockpit-tests

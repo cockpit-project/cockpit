@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # This file is part of Cockpit.
 #
 # Copyright (C) 2022 Red Hat, Inc.

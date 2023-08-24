@@ -23,7 +23,7 @@ import cockpit from "cockpit";
 import React, { useEffect, useState } from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
-import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup, FormSection } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -576,6 +576,7 @@ ${enableCrashKernel}
                     {kdumpSwitch}
                 </Tooltip>);
         }
+
         return (
             <Page>
                 <PageSection variant={PageSectionVariants.light}>
@@ -592,6 +593,11 @@ ${enableCrashKernel}
                 </PageSection>
                 <PageSection>
                     <Card>
+                        <CardTitle>
+                            <Title headingLevel="h4" size="xl">
+                                {_("Kdump settings")}
+                            </Title>
+                        </CardTitle>
                         <CardBody>
                             <DescriptionList className="pf-m-horizontal-on-sm">
                                 <DescriptionListGroup>

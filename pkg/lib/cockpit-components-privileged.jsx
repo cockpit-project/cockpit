@@ -50,7 +50,7 @@ export function Privileged({ excuse, allowed, placement, tooltipId, children }) 
 /**
  * Convenience element for a Privilege wrapped Button
  */
-export const PrivilegedButton = ({ tooltipId, placement, excuse, buttonId, onClick, ariaLabel, variant, children }) => {
+export const PrivilegedButton = ({ tooltipId, placement, excuse, buttonId, onClick, ariaLabel, variant, isDanger, children }) => {
     const [user, setUser] = useState(null);
     useEvent(superuser, "changed");
     useEffect(() => cockpit.user().then(user => setUser(user)));
@@ -58,7 +58,7 @@ export const PrivilegedButton = ({ tooltipId, placement, excuse, buttonId, onCli
     return (
         <Privileged allowed={ superuser.allowed } tooltipId={ tooltipId } placement={ placement }
                     excuse={ cockpit.format(excuse, user?.name ?? '') }>
-            <Button id={ buttonId } variant={ variant } onClick={ onClick }
+            <Button id={ buttonId } variant={ variant } isDanger={ isDanger } onClick={ onClick }
                     isInline isDisabled={ !superuser.allowed } aria-label={ ariaLabel }>
                 { children }
             </Button>

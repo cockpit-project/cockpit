@@ -74,18 +74,10 @@ def ensure_ferny_askpass() -> Path:
 
 
 def get_interesting_files() -> Iterable[str]:
-    for candidate in PackagesLoader.load_candidates():
-        try:
-            conditions = candidate.manifest['conditions']
-        except KeyError:
-            continue
-
-        assert isinstance(conditions, list)
-        for condition in conditions:
-            assert isinstance(condition, dict)
-            for key, value in condition.items():
-                if key in ['path-exists', 'path-not-exists']:
-                    yield value
+    for manifest in PackagesLoader.load_manifests():
+        for condition in manifest.conditions:
+            if condition.name in ('path-exists', 'path-not-exists') and isinstance(condition.value, str):
+                yield condition.value
 
 
 class ProxyPackagesLoader(PackagesLoader):

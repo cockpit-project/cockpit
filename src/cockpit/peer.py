@@ -21,6 +21,7 @@ import os
 from typing import Callable, List, Optional, Sequence
 
 from .jsonutil import JsonObject
+from .packages import BridgeConfig
 from .protocol import CockpitProblem, CockpitProtocol, CockpitProtocolError
 from .router import Endpoint, Router, RoutingRule
 from .transports import SubprocessProtocol, SubprocessTransport
@@ -221,9 +222,9 @@ class ConfiguredPeer(Peer):
     args: Sequence[str]
     env: Sequence[str]
 
-    def __init__(self, router: Router, config: JsonObject):
-        self.args = config['spawn']  # type: ignore[assignment]
-        self.env = config.get('environ', [])  # type: ignore[assignment]
+    def __init__(self, router: Router, config: BridgeConfig):
+        self.args = config.spawn
+        self.env = config.environ
         super().__init__(router)
 
     async def do_connect_transport(self) -> None:
@@ -231,17 +232,20 @@ class ConfiguredPeer(Peer):
 
 
 class PeerRoutingRule(RoutingRule):
-    config: JsonObject
+    config: BridgeConfig
+    match: JsonObject
     peer: Optional[Peer]
 
-    def __init__(self, router: Router, config: JsonObject):
+    def __init__(self, router: Router, config: BridgeConfig):
         super().__init__(router)
         self.config = config
+        self.match = config.match
         self.peer = None
 
     def apply_rule(self, options: JsonObject) -> Optional[Peer]:
         # Check that we match
-        for key, value in self.config['match'].items():  # type: ignore[attr-defined,union-attr]
+
+        for key, value in self.match.items():
             if key not in options:
                 logger.debug('        rejecting because key %s is missing', key)
                 return None
@@ -272,7 +276,7 @@ class PeersRoutingRule(RoutingRule):
     def apply_rule(self, options: JsonObject) -> Optional[Endpoint]:
         logger.debug('    considering %d rules', len(self.rules))
         for rule in self.rules:
-            logger.debug('      considering %s', rule.config.get('spawn'))
+            logger.debug('      considering %s', rule.config.name)
             endpoint = rule.apply_rule(options)
             if endpoint is not None:
                 logger.debug('        selected')
@@ -280,17 +284,17 @@ class PeersRoutingRule(RoutingRule):
         logger.debug('      no peer rules matched')
         return None
 
-    def set_configs(self, bridge_configs: List[JsonObject]) -> None:
+    def set_configs(self, bridge_configs: Sequence[BridgeConfig]) -> None:
         old_rules = self.rules
         self.rules = []
 
         for config in bridge_configs:
             # Those are handled elsewhere...
-            if config.get('privileged') or 'host' in config['match']:  # type: ignore[operator]
+            if config.privileged or 'host' in config.match:
                 continue
 
             # Try to reuse an existing rule, if one exists...
-            for rule in old_rules:
+            for rule in list(old_rules):
                 if rule.config == config:
                     old_rules.remove(rule)
                     break

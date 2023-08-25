@@ -4,6 +4,7 @@ import sys
 
 import pytest
 
+from cockpit.packages import BridgeConfig
 from cockpit.peer import ConfiguredPeer, PeerRoutingRule
 from cockpit.protocol import CockpitProtocolError
 from cockpit.router import Router
@@ -11,11 +12,11 @@ from cockpit.router import Router
 from . import mockpeer
 from .mocktransport import MockTransport
 
-PEER_CONFIG = {
+PEER_CONFIG = BridgeConfig({
     "spawn": [sys.executable, mockpeer.__file__],
     "environ": ['PYTHONPATH=' + ':'.join(sys.path)],
     "match": {"payload": "test"},
-}
+})
 
 
 class Bridge(Router):

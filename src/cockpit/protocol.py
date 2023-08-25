@@ -23,7 +23,7 @@ from typing import ClassVar, Dict, Optional
 
 from cockpit._vendor import systemd_ctypes
 
-from .jsonutil import JsonObject
+from .jsonutil import JsonError, JsonObject, get_str, typechecked
 
 logger = logging.getLogger(__name__)
 
@@ -78,27 +78,32 @@ class CockpitProtocol(asyncio.Protocol):
     def channel_data_received(self, channel: str, data: bytes) -> None:
         raise NotImplementedError
 
-    def frame_received(self, frame):
-        channel, _, data = frame.partition(b'\n')
-        channel = channel.decode('ascii')
+    def frame_received(self, frame: bytes) -> None:
+        header, _, data = frame.partition(b'\n')
 
-        if channel != '':
+        if header != b'':
+            channel = header.decode('ascii')
             logger.debug('data received: %d bytes of data for channel %s', len(data), channel)
             self.channel_data_received(channel, data)
-        else:
-            message = json.loads(data)
-            try:
-                command = message['command']
-            except KeyError as exc:
-                raise CockpitProtocolError('control message is missing command field') from exc
 
-            channel = message.get('channel')
+        else:
+            self.control_received(data)
+
+    def control_received(self, data: bytes):
+        try:
+            message = typechecked(json.loads(data), dict)
+            command = get_str(message, 'command')
+            channel = get_str(message, 'channel', None)
+
             if channel is not None:
                 logger.debug('channel control received %s', message)
                 self.channel_control_received(channel, command, message)
             else:
                 logger.debug('transport control received %s', message)
                 self.transport_control_received(command, message)
+
+        except (json.JSONDecodeError, JsonError) as exc:
+            raise CockpitProtocolError(f'control message: {exc!s}') from exc
 
     def consume_one_frame(self, view):
         """Consumes a single frame from view.

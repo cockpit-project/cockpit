@@ -23,7 +23,7 @@ from cockpit._vendor.systemd_ctypes import PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
 
 from ..channel import Channel, ChannelError, GeneratorChannel
-from ..jsonutil import JsonObject
+from ..jsonutil import JsonObject, get_int, get_str
 
 logger = logging.getLogger(__name__)
 
@@ -94,18 +94,14 @@ class FsReadChannel(GeneratorChannel):
     payload = 'fsread1'
 
     def do_yield_data(self, options: JsonObject) -> GeneratorChannel.DataGenerator:
-        binary = options.get('binary', False)
-        max_read_size = options.get('max_read_size')
-        # TODO: generic JSON validation
-        if max_read_size is not None and not isinstance(max_read_size, int):
-            raise ChannelError('protocol-error', message='max_read_size must be an integer')
-        if not isinstance(options['path'], str):
-            raise ChannelError('protocol-error', message='path is not a string')
+        path = get_str(options, 'path')
+        binary = get_str(options, 'binary', None)
+        max_read_size = get_int(options, 'max_read_size', None)
 
-        logger.debug('Opening file "%s" for reading', options['path'])
+        logger.debug('Opening file "%s" for reading', path)
 
         try:
-            with open(options['path'], 'rb') as filep:
+            with open(path, 'rb') as filep:
                 buf = os.stat(filep.fileno())
                 if max_read_size is not None and buf.st_size > max_read_size:
                     raise ChannelError('too-large')

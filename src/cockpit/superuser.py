@@ -23,14 +23,15 @@ import logging
 import os
 import socket
 from tempfile import TemporaryDirectory
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 from cockpit._vendor import ferny
 from cockpit._vendor.bei.bootloader import make_bootloader
-from cockpit._vendor.systemd_ctypes import bus
+from cockpit._vendor.systemd_ctypes import Variant, bus
 
 from .beipack import BridgeBeibootHelper
-from .jsonutil import JsonObject
+from .jsonutil import JsonObject, get_str
+from .packages import BridgeConfig
 from .peer import ConfiguredPeer, Peer, PeerError
 from .polkit import PolkitAgent
 from .router import Router, RoutingError, RoutingRule
@@ -42,7 +43,7 @@ class SuperuserPeer(ConfiguredPeer):
     name: str
     responder: ferny.InteractionResponder
 
-    def __init__(self, router: Router, name: str, config: JsonObject, responder: ferny.InteractionResponder):
+    def __init__(self, router: Router, name: str, config: BridgeConfig, responder: ferny.InteractionResponder):
         super().__init__(router, config)
         self.name = name
         self.responder = responder
@@ -99,7 +100,7 @@ class AuthorizeResponder(CockpitResponder):
 
 
 class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface='cockpit.Superuser'):
-    superuser_configs: Dict[str, JsonObject]
+    superuser_configs: Sequence[BridgeConfig] = ()
     pending_prompt: Optional[asyncio.Future]
     peer: Optional[SuperuserPeer]
 
@@ -109,7 +110,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
     # D-Bus properties
     bridges = bus.Interface.Property('as', value=[])
     current = bus.Interface.Property('s', value='none')
-    methods = bus.Interface.Property('a{sv}')
+    methods = bus.Interface.Property('a{sv}', value={})
 
     # RoutingRule
     def apply_rule(self, options: JsonObject) -> Optional[Peer]:
@@ -143,9 +144,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
     def __init__(self, router: Router, *, privileged: bool = False):
         super().__init__(router)
 
-        self.superuser_configs = {}
         self.pending_prompt = None
-        self.bridges = []
         self.peer = None
         self.startup = None
 
@@ -160,16 +159,14 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         if self.current != 'none':
             raise bus.BusError('cockpit.Superuser.Error', 'Superuser bridge already running')
 
-        if name == 'any' and self.bridges:
-            name = self.bridges[0]
-
         assert self.peer is None
         assert self.startup is None
 
-        try:
-            config = self.superuser_configs[name]
-        except KeyError as exc:
-            raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"') from exc
+        for config in self.superuser_configs:
+            if name in (config.name, 'any'):
+                break
+        else:
+            raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"')
 
         self.current = 'init'
         self.peer = SuperuserPeer(self.router, name, config, responder)
@@ -184,31 +181,28 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
         self.current = name
 
-    def set_configs(self, configs: List[JsonObject]):
+    def set_configs(self, configs: Sequence[BridgeConfig]):
         logger.debug("set_configs() with %d items", len(configs))
-        self.superuser_configs = {}
-        for config in configs:
-            if config.get('privileged', False):
-                spawn = config['spawn']
-                assert isinstance(spawn, list)
-                assert isinstance(spawn[0], str)
-                label = config.get('label')
-                if label is not None:
-                    assert isinstance(label, str)
-                    name = label
-                else:
-                    name = os.path.basename(spawn[0])
-                self.superuser_configs[name] = config
-        self.bridges = list(self.superuser_configs)
+        configs = [config for config in configs if config.privileged]
+        self.superuser_configs = tuple(configs)
+        self.bridges = [config.name for config in self.superuser_configs]
+        self.methods = {c.label: Variant({'label': Variant(c.label)}, 'a{sv}') for c in configs if c.label}
 
         logger.debug("  bridges are now %s", self.bridges)
 
-        # If the currently-active bridge got removed, stop it
-        if self.peer is not None and self.peer.name not in self.superuser_configs:
-            logger.debug("  stopping current superuser bridge '%s' (peer name %s), as it disappeared from configs",
-                         self.current, self.peer.name)
+        # If the currently active bridge got removed, stop it
+        if self.peer is not None:
+            if self.current == 'any':
+                removed = len(self.superuser_configs) == 0
+            else:
+                removed = any(c.name == self.peer.name for c in self.superuser_configs)
 
-            self.stop()
+            if removed:
+                logger.debug(
+                    "  stopping current superuser bridge '%s' (peer name %s), as it disappeared from configs",
+                    self.current, self.peer.name)
+
+                self.stop()
 
     def cancel_prompt(self):
         if self.pending_prompt is not None:
@@ -226,8 +220,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
     # Connect-on-startup functionality
     def init(self, params: JsonObject) -> None:
-        name = params.get('id', 'any')
-        assert isinstance(name, str)
+        name = get_str(params, 'id', 'any')
         responder = AuthorizeResponder(self.router)
         self._init_task = asyncio.create_task(self.go(name, responder))
         self._init_task.add_done_callback(self._init_done)
@@ -253,12 +246,3 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             self.pending_prompt.set_result(reply)
         else:
             logger.debug('got Answer, but no prompt pending')
-
-    @methods.getter
-    def get_methods(self):
-        methods = {}
-        for name, config in self.superuser_configs.items():
-            label = config.get('label')
-            if label:
-                methods[name] = {'t': 'a{sv}', 'v': {'label': {'t': 's', 'v': label}}}
-        return methods

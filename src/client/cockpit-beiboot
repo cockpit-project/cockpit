@@ -115,7 +115,7 @@ class DefaultRoutingRule(RoutingRule):
         super().__init__(router)
         self.peer = peer
 
-    def apply_rule(self, options: dict[str, object]) -> Peer:
+    def apply_rule(self, options: JsonObject) -> Peer:
         return self.peer
 
     def shutdown(self) -> None:

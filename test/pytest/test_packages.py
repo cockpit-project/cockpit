@@ -16,10 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
+from typing import List
 
 import pytest
 
-from cockpit.packages import Packages
+from cockpit.packages import Packages, parse_accept_language
 
 
 @pytest.mark.parametrize(("test_input", "expected"), [
@@ -27,8 +28,8 @@ from cockpit.packages import Packages
     ('es-es, nl;q=0.8, fr;q=0.9', ['es-es', 'fr', 'nl']),
     ('fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5', ['fr-ch', 'fr', 'en', 'de', '*'])
 ])
-def test_parse_accept_language(test_input, expected):
-    assert Packages.parse_accept_language({'Accept-Language': test_input}) == expected
+def test_parse_accept_language(test_input: str, expected: List[str]) -> None:
+    assert parse_accept_language({'Accept-Language': test_input}) == expected
 
 
 @pytest.fixture

@@ -15,6 +15,7 @@ from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
 from cockpit.channel import Channel
 from cockpit.channels import CHANNEL_TYPES
+from cockpit.packages import BridgeConfig
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
 
@@ -38,21 +39,23 @@ def bridge() -> Bridge:
 def add_pseudo(bridge: Bridge) -> None:
     bridge.more_superuser_bridges = [*bridge.superuser_bridges, 'pseudo']  # type: ignore[attr-defined]
 
-    # Add pseudo to the existing set of superuser rules
     assert bridge.packages is not None
-    configs = bridge.packages.get_bridge_configs()
-    configs.append({
-        'label': 'pseudo',
-        'spawn': [
-            sys.executable, os.path.abspath(f'{__file__}/../pseudo.py'),
-            sys.executable, '-m', 'cockpit.bridge', '--privileged'
-        ],
-        'environ': [
-            f'PYTHONPATH={":".join(sys.path)}'
-        ],
-        'privileged': True
-    })
-    bridge.superuser_rule.set_configs(configs)
+
+    # Add pseudo to the existing set of superuser rules
+    bridge.superuser_rule.set_configs([
+        *bridge.packages.get_bridge_configs(),
+        BridgeConfig({
+            'label': 'pseudo',
+            'spawn': [
+                sys.executable, os.path.abspath(f'{__file__}/../pseudo.py'),
+                sys.executable, '-m', 'cockpit.bridge', '--privileged'
+            ],
+            'environ': [
+                f'PYTHONPATH={":".join(sys.path)}'
+            ],
+            'privileged': True
+        })
+    ])
 
 
 @pytest.fixture
@@ -405,7 +408,7 @@ async def test_fsread1_errors(transport):
                                reply_keys={'message': "[Errno 21] Is a directory: '/'"})
     await transport.check_open('fsread1', path='/etc/passwd', max_read_size="lol",
                                problem='protocol-error',
-                               reply_keys={'message': "max_read_size must be an integer"})
+                               reply_keys={'message': "attribute 'max_read_size': must have type int"})
 
 
 @pytest.mark.asyncio

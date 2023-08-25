@@ -19,7 +19,7 @@ import asyncio
 import logging
 from typing import ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
 
-from .jsonutil import JsonObject
+from .jsonutil import JsonError, JsonObject, get_bool, get_str
 from .router import Endpoint, Router, RoutingRule
 
 logger = logging.getLogger(__name__)
@@ -112,9 +112,9 @@ class Channel(Endpoint):
         if command == 'open':
             self._tasks = set()
             self.channel = message['channel']
-            if message.get('flow-control'):
+            if get_bool(message, 'flow-control', default=False):
                 self._send_pings = True
-            self.group = message.get('group', 'default')
+            self.group = get_str(message, 'group', 'default')
             self.freeze_endpoint()
             self.do_open(message)
         elif command == 'ready':
@@ -140,6 +140,9 @@ class Channel(Endpoint):
             self.do_control(command, message)
         except ChannelError as exc:
             self.close(**exc.kwargs)
+        except JsonError as exc:
+            logger.warning("%s %s %s: %s", self, channel, command, exc)
+            self.close(problem='protocol-error', message=str(exc))
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
         # Already closing?  Ignore.

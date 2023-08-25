@@ -31,6 +31,8 @@ import subprocess
 import termios
 from typing import Any, ClassVar, Deque, Dict, List, Optional, Sequence, Tuple
 
+from .jsonutil import JsonObject, get_int
+
 libc6 = ctypes.cdll.LoadLibrary('libc.so.6')
 
 
@@ -263,6 +265,12 @@ class SubprocessProtocol(asyncio.Protocol):
         raise NotImplementedError
 
 
+class WindowSize:
+    def __init__(self, value: JsonObject):
+        self.rows = get_int(value, 'rows')
+        self.cols = get_int(value, 'cols')
+
+
 class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     """A bi-directional transport speaking with stdin/out of a subprocess.
 
@@ -337,7 +345,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
                  args: Sequence[str],
                  *,
                  pty: bool = False,
-                 window: Optional[Dict[str, int]] = None,
+                 window: Optional[WindowSize] = None,
                  **kwargs: Any):
 
         # go down as a team -- we don't want any leaked processes when the bridge terminates
@@ -350,7 +358,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             self._pty_fd, session_fd = os.openpty()
 
             if window is not None:
-                self.set_window_size(**window)
+                self.set_window_size(window)
 
             kwargs['stderr'] = session_fd
             self._process = subprocess.Popen(args,
@@ -378,9 +386,9 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
         self._get_watcher(loop).add_child_handler(self._process.pid, self._exited)
 
-    def set_window_size(self, rows: int, cols: int) -> None:
+    def set_window_size(self, size: WindowSize) -> None:
         assert self._pty_fd is not None
-        fcntl.ioctl(self._pty_fd, termios.TIOCSWINSZ, struct.pack('2H4x', rows, cols))
+        fcntl.ioctl(self._pty_fd, termios.TIOCSWINSZ, struct.pack('2H4x', size.rows, size.cols))
 
     def can_write_eof(self) -> bool:
         assert self._process is not None

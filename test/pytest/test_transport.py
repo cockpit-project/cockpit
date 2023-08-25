@@ -369,12 +369,12 @@ class TestSubprocessTransport:
                                                    done
                                                """],
                                               pty=True,
-                                              window={"rows": 22, "cols": 33})
+                                              window=cockpit.transports.WindowSize({'rows': 22, 'cols': 33}))
         protocol.output = []
         while b'22x33\r\n' not in protocol.get_output():
             await asyncio.sleep(0.1)
 
-        transport.set_window_size(44, 55)
+        transport.set_window_size(cockpit.transports.WindowSize({'rows': 44, 'cols': 55}))
         while b'44x55\r\n' not in protocol.get_output():
             await asyncio.sleep(0.1)
 

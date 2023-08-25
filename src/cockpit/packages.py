@@ -26,18 +26,29 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Callable, ClassVar, Dict, Iterable, List, NamedTuple, Optional, Pattern, Tuple, TypeVar
+from typing import Callable, ClassVar, Dict, Iterable, List, NamedTuple, Optional, Pattern, Sequence, Tuple, TypeVar
 
 from cockpit._vendor.systemd_ctypes import bus
 
 from . import config
 from ._version import __version__
-from .jsonutil import JsonDocument, JsonObject
+from .jsonutil import (
+    JsonDocument,
+    JsonError,
+    JsonObject,
+    get_bool,
+    get_dict,
+    get_int,
+    get_objv,
+    get_str,
+    get_strv,
+    typechecked,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def parse_accept_language(headers: Dict[str, str]) -> List[str]:
+def parse_accept_language(headers: JsonObject) -> List[str]:
     """Parse the Accept-Language header, if it exists.
 
     Returns an ordered list of languages.
@@ -45,13 +56,8 @@ def parse_accept_language(headers: Dict[str, str]) -> List[str]:
     https://tools.ietf.org/html/rfc7231#section-5.3.5
     """
 
-    accept_language = headers.get('Accept-Language')
-    if not isinstance(accept_language, str):
-        return []
-
-    accept_languages = accept_language.split(',')
     locales = []
-    for language in accept_languages:
+    for language in get_str(headers, 'Accept-Language', '').split(','):
         language = language.strip()
         locale, _, weightstr = language.partition(';q=')
         weight = float(weightstr or 1)
@@ -86,46 +92,72 @@ class PackagesListener:
         """Called when the packages have been reloaded"""
 
 
-class Candidate:
-    # immutable after __init__
-    path: Path
-    manifest: JsonObject
+class BridgeConfig:
+    def __init__(self, value: JsonObject):
+        self.label = get_str(value, 'label', None)
 
-    def __init__(self, path: Path, manifest: JsonObject):
+        self.privileged = get_bool(value, 'privileged', default=False)
+        self.match: JsonObject = get_dict(value, 'match', {})
+        if not self.privileged and not self.match:
+            raise JsonError(value, 'must have match rules or be privileged')
+
+        self.environ = get_strv(value, 'environ', ())
+        self.spawn = get_strv(value, 'spawn')
+        if not self.spawn:
+            raise JsonError(value, 'spawn vector must be non-empty')
+
+        self.name = self.label or self.spawn[0]
+
+
+class Condition:
+    def __init__(self, value: JsonObject):
+        try:
+            (self.name, self.value), = value.items()
+        except ValueError as exc:
+            raise JsonError(value, 'must contain exactly one key/value pair') from exc
+
+
+class Manifest(JsonObject):
+    # Skip version check when running out of the git checkout (__version__ is None)
+    COCKPIT_VERSION = __version__ and sortify_version(__version__)
+
+    def __init__(self, path: Path, value: JsonObject):
+        super().__init__(value)
         self.path = path
-        self.manifest = manifest
+        self.name = get_str(self, 'name', self.path.name)
+        self.bridges = get_objv(self, 'bridges', BridgeConfig)
+        self.priority = get_int(self, 'priority', 1)
+        self.csp = get_str(self, 'content-security-policy', '')
+        self.conditions = get_objv(self, 'conditions', Condition)
 
-    def get_name(self) -> str:
-        name = self.manifest.get('name')
-        return name if isinstance(name, str) else self.path.name
-
-    def get_priority(self) -> int:
-        priority = self.manifest.get('priority')
-        return priority if isinstance(priority, int) else 1
+        # Skip version check when running out of the git checkout (COCKPIT_VERSION is None)
+        if self.COCKPIT_VERSION is not None:
+            requires: JsonObject = get_dict(self, 'requires', {})
+            for name, version in requires.items():
+                if name != 'cockpit':
+                    raise JsonError(name, 'non-cockpit requirement listed')
+                if sortify_version(typechecked(version, str)) > self.COCKPIT_VERSION:
+                    raise JsonError(version, f'required cockpit version ({version}) not met')
 
 
 class Package:
     PO_JS_RE: ClassVar[Pattern] = re.compile(r'po\.([^.]+)\.js(\.gz)?')
 
     # immutable after __init__
+    manifest: Manifest
     name: str
-    manifest: JsonObject
-    bridges: List[JsonDocument]
+    path: Path
+    priority: int
 
     # computed later
     translations: Optional[Dict[str, str]] = None
     files: Optional[Dict[str, str]] = None
 
-    def __init__(self, candidate: Candidate):
-        self.name = candidate.get_name()
-        self.priority = candidate.get_priority()
-        self.path = candidate.path
-        self.manifest = candidate.manifest
-        bridges = self.manifest.get('bridges', [])
-        if isinstance(bridges, list):
-            self.bridges = bridges
-        else:
-            self.bridges = []
+    def __init__(self, manifest: Manifest):
+        self.manifest = manifest
+        self.name = manifest.name
+        self.path = manifest.path
+        self.priority = manifest.priority
 
     def ensure_scanned(self) -> None:
         """Ensure that the package has been scanned.
@@ -166,10 +198,7 @@ class Package:
             "img-src": "'self' data:",
         }
 
-        manifest_policy = self.manifest.get('content-security-policy', '')
-        if not isinstance(manifest_policy, str):
-            manifest_policy = ''
-        for item in manifest_policy.split(';'):
+        for item in self.manifest.csp.split(';'):
             item = item.strip()
             if item:
                 key, _, value = item.strip().partition(' ')
@@ -212,7 +241,7 @@ class Package:
         # errors in the console when a translation can't be found
         return Document(b'', 'text/javascript')
 
-    def load_path(self, path: str, headers: Dict[str, str]) -> Document:
+    def load_path(self, path: str, headers: JsonObject) -> Document:
         self.ensure_scanned()
         assert self.files is not None
         assert self.translations is not None
@@ -225,9 +254,6 @@ class Package:
 
 
 class PackagesLoader:
-    # Skip version check when running out of the git checkout (__version__ is None)
-    COCKPIT_VERSION = __version__ and sortify_version(__version__)
-
     CONDITIONS: ClassVar[Dict[str, Callable[[str], bool]]] = {
         'path-exists': os.path.exists,
         'path-not-exists': lambda p: not os.path.exists(p),
@@ -323,7 +349,7 @@ class PackagesLoader:
         return cls.patch_libexecdir(manifest)
 
     @classmethod
-    def load_candidates(cls) -> Iterable[Candidate]:
+    def load_manifests(cls) -> Iterable[Manifest]:
         for datadir in cls.get_xdg_data_dirs():
             logger.debug("Scanning for manifest files under %s", datadir)
             for file in Path(datadir).glob('cockpit/*/manifest.json'):
@@ -338,30 +364,11 @@ class PackagesLoader:
                     continue
 
                 parent = file.parent
-                yield Candidate(parent, cls.patch_manifest(manifest, parent))
-
-    @classmethod
-    def check_requires(cls, candidate: Candidate) -> bool:
-        try:
-            requires = candidate.manifest['requires']
-            if not isinstance(requires, dict):
-                logger.warning('%s: requires key in manifest is not a dictionary', candidate.path)
-                return False
-        except KeyError:
-            return True  # no requires?  no problem!
-
-        if any(package != 'cockpit' for package in requires):
-            return False
-
-        try:
-            cockpit_requires = requires['cockpit']
-            if not isinstance(cockpit_requires, str):
-                logger.warning('%s: requires key in manifest is not a dictionary', candidate.path)
-                return False
-            # Skip version check when running out of the git checkout
-            return not cls.COCKPIT_VERSION or cls.COCKPIT_VERSION >= sortify_version(cockpit_requires)
-        except KeyError:
-            return True  # no requires?  no problem!
+                manifest = cls.patch_manifest(manifest, parent)
+                try:
+                    yield Manifest(parent, manifest)
+                except JsonError as exc:
+                    logger.warning('%s %s', file, exc)
 
     def check_condition(self, condition: str, value: object) -> bool:
         check_fn = self.CONDITIONS[condition]
@@ -372,29 +379,17 @@ class PackagesLoader:
 
         return check_fn(value)
 
-    def check_conditions(self, candidate: Candidate) -> bool:
-        conditions = candidate.manifest.get('conditions', [])
-        if not isinstance(conditions, list):
-            logger.warning('  %s: conditions key in manifest is not a list', candidate.path)
-            return False
-
-        for condition in conditions:
+    def check_conditions(self, manifest: Manifest) -> bool:
+        for condition in manifest.conditions:
             try:
-                (predicate, value), = condition.items()  # type: ignore[union-attr] # can throw AttributeError
-            except (AttributeError, ValueError):
-                # ignore manifests with broken syntax
-                logger.warning('  %s: invalid condition in manifest: %s', candidate.path, condition)
-                return False
-
-            try:
-                okay = self.check_condition(predicate, value)
+                okay = self.check_condition(condition.name, condition.value)
             except KeyError:
                 # do *not* ignore manifests with unknown predicates, for forward compatibility
-                logger.warning('  %s: ignoring unknown predicate in manifest: %s', candidate.path, predicate)
+                logger.warning('  %s: ignoring unknown predicate in manifest: %s', manifest.path, condition.name)
                 continue
 
             if not okay:
-                logger.debug('  hiding package %s as its %s condition is not met', candidate.path, condition)
+                logger.debug('  hiding package %s as its %s condition is not met', manifest.path, condition)
                 return False
 
         return True
@@ -402,21 +397,24 @@ class PackagesLoader:
     def load_packages(self) -> Iterable[Tuple[str, Package]]:
         logger.debug('Scanning for available package manifests:')
         # Sort all available packages into buckets by to their claimed name
-        names: Dict[str, List[Candidate]] = collections.defaultdict(list)
-        for candidate in self.load_candidates():
-            logger.debug('  %s/manifest.json', candidate.path)
-            names[candidate.get_name()].append(candidate)
+        names: Dict[str, List[Manifest]] = collections.defaultdict(list)
+        for manifest in self.load_manifests():
+            logger.debug('  %s/manifest.json', manifest.path)
+            names[manifest.name].append(manifest)
         logger.debug('done.')
 
         logger.debug('Selecting packages to serve:')
         for name, candidates in names.items():
             # For each package name, iterate the candidates in descending
             # priority order and select the first one which passes all checks
-            for candidate in sorted(candidates, key=Candidate.get_priority, reverse=True):
-                if self.check_requires(candidate) and self.check_conditions(candidate):
-                    logger.debug('  creating package %s -> %s', name, candidate.path)
-                    yield name, Package(candidate)
-                    break
+            for candidate in sorted(candidates, key=lambda manifest: manifest.priority, reverse=True):
+                try:
+                    if self.check_conditions(candidate):
+                        logger.debug('  creating package %s -> %s', name, candidate.path)
+                        yield name, Package(candidate)
+                        break
+                except JsonError:
+                    logger.warning('  %s: ignoring package with invalid manifest file', candidate.path)
 
                 logger.debug('  ignoring %s: unmet conditions', candidate.path)
         logger.debug('done.')
@@ -443,7 +441,7 @@ class Packages(bus.Object, interface='cockpit.Packages'):
 
     def load(self) -> None:
         self.packages = dict(self.loader.load_packages())
-        self.manifests = json.dumps({name: package.manifest for name, package in self.packages.items()})
+        self.manifests = json.dumps({name: dict(package.manifest) for name, package in self.packages.items()})
         logger.debug('Packages loaded: %s', list(self.packages))
 
     def show(self):
@@ -452,11 +450,11 @@ class Packages(bus.Object, interface='cockpit.Packages'):
             menuitems = ''
             print(f'{name:20} {menuitems:40} {package.path}')
 
-    def get_bridge_configs(self):
-        bridges = []
-        for package in sorted(self.packages.values(), key=lambda package: -package.priority):
-            bridges.extend(package.bridges)
-        return bridges
+    def get_bridge_configs(self) -> Sequence[BridgeConfig]:
+        def yield_configs():
+            for package in sorted(self.packages.values(), key=lambda package: -package.priority):
+                yield from package.manifest.bridges
+        return tuple(yield_configs())
 
     # D-Bus Interface
     manifests = bus.Interface.Property('s', value="{}")
@@ -473,7 +471,7 @@ class Packages(bus.Object, interface='cockpit.Packages'):
             self.reload()
         self.saw_first_reload_hint = True
 
-    def load_manifests_js(self, headers: Dict[str, str]) -> Document:
+    def load_manifests_js(self, headers: JsonObject) -> Document:
         logger.debug('Serving /manifests.js')
 
         chunks: List[bytes] = []
@@ -516,7 +514,7 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         r'((?:[^/]+/)*[^/]+)'  # remaining path components
     )
 
-    def load_path(self, path: str, headers: Dict[str, str]) -> Document:
+    def load_path(self, path: str, headers: JsonObject) -> Document:
         logger.debug('packages: serving %s', path)
 
         match = self.PATH_RE.fullmatch(path)

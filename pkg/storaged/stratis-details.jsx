@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
@@ -56,6 +57,17 @@ import { std_reply, with_keydesc, with_stored_passphrase, confirm_tang_trust, ge
 const _ = cockpit.gettext;
 
 const fsys_min_size = 512 * 1024 * 1024;
+
+export function check_stratis_warnings(client, enter_warning) {
+    if (!client.features.stratis_grow_blockdevs)
+        return;
+
+    for (const p in client.stratis_pools) {
+        const blockdevs = client.stratis_pool_blockdevs[p] || [];
+        if (blockdevs.some(bd => bd.NewPhysicalSize[0] && Number(bd.NewPhysicalSize[1]) > Number(bd.TotalPhysicalSize)))
+            enter_warning(p, { warning: "unused-blockdevs" });
+    }
+}
 
 function teardown_block(block) {
     return for_each_async(block.Configuration, c => block.RemoveConfigurationItem(c, {}));
@@ -621,8 +633,27 @@ export const StratisPoolDetails = ({ client, pool }) => {
                       pool.ClevisInfo[0] && // pool has consistent clevis config
                       (!pool.ClevisInfo[1][0] || pool.ClevisInfo[1][1][0] == "tang")); // not bound or bound to "tang"
     const tang_url = can_tang && pool.ClevisInfo[1][0] ? JSON.parse(pool.ClevisInfo[1][1][1]).url : null;
+    const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
     const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
     const stats = client.stratis_pool_stats[pool.path];
+
+    function grow_blockdevs() {
+        return for_each_async(blockdevs, bd => pool.GrowPhysicalDevice(bd.Uuid));
+    }
+
+    let alert = null;
+    if (client.features.stratis_grow_blockdevs &&
+        blockdevs.some(bd => bd.NewPhysicalSize[0] && Number(bd.NewPhysicalSize[1]) > Number(bd.TotalPhysicalSize))) {
+        alert = (<Alert key="unused-space"
+                        isInline
+                        variant="warning"
+                        title={_("This pool does not use all the space on its block devices.")}>
+            {_("Some block devices of this pool have grown in size after the pool was created. The pool can be safely grown to use the newly available space.")}
+            <div className="storage_alert_action_buttons">
+                <StorageButton onClick={grow_blockdevs}>{_("Grow the pool to take all space")}</StorageButton>
+            </div>
+        </Alert>);
+    }
 
     function add_passphrase() {
         dialog_open({
@@ -863,6 +894,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
         </Card>);
 
     return <StdDetailsLayout client={client}
+                             alerts={[alert]}
                              header={header}
                              sidebar={sidebar}
                              content={content} />;

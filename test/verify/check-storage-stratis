@@ -617,6 +617,70 @@ class TestStorageStratis(storagelib.StorageCase):
         # And the pool should be full again
         b.wait_visible("button:contains(Create new filesystem):disabled")
 
+    @testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+    def testPoolResize(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev = "/dev/sda"
+        m.add_disk("4G", serial="DISK1")
+        b.wait_in_text("#drives", dev)
+
+        # Create a logical volume that we will later grow
+        m.execute(f"vgcreate vgroup0 {dev}; lvcreate vgroup0 -n lvol0 -L 1500000256b")
+        b.wait_in_text("#devices", "vgroup0")
+
+        # Create a pool
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
+                               expect=lambda: self.dialog_is_present('disks', "lvol0"),
+                               values={"disks": {"lvol0": True}})
+        b.wait_in_text("#devices", "pool0")
+        b.wait_in_text("#devices", "1.50 GB Stratis pool")
+
+        # Grow the logical volume in Cockpit, the pool should grow automatically
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+        self.content_tab_action(1, 1, "Grow")
+        self.dialog({"size": 1600})
+        b.go("#/")
+        b.wait_in_text("#devices", "1.60 GB Stratis pool")
+
+        # Grow the logical volume from outside of Cockpit, the pool should complain
+        m.execute("lvresize vgroup0/lvol0 -L +100000256b")
+        b.wait_visible('.sidepanel-row:contains(pool0) .ct-icon-exclamation-triangle')
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_visible('#storage-detail')
+        b.wait_visible('.pf-v5-c-alert:contains("This pool does not use all the space")')
+        b.click('button:contains("Grow the pool")')
+        b.wait_not_present('.pf-v5-c-alert')
+        b.wait_in_text("#detail-header", "1.7 GB")
+
+        b.go("#/")
+
+        # Grow the logical volume from outside of Cockpit, the logical volume should also complain
+        m.execute("lvresize vgroup0/lvol0 -L +100000256b")
+        b.wait_visible('.sidepanel-row:contains(vgroup0) .ct-icon-exclamation-triangle')
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+        vol_tab = self.content_tab_expand(1, 1)
+        # First shrink the volume to test whether Cockpit can figure out the right size for that
+        b.wait_in_text("#detail-content td[data-label=Size]", "1.80 GB")
+        b.wait_visible(vol_tab + " button:contains(Shrink volume)")
+        self.content_tab_action(1, 1, "Shrink volume")
+        b.wait_in_text("#detail-content td[data-label=Size]", "1.70 GB")
+        b.wait_not_present(vol_tab + " button:contains(Shrink volume)")
+        # Then enlarge the volume from the outside again and grow the blockdev
+        m.execute("lvresize vgroup0/lvol0 -L +100000256b")
+        b.wait_in_text("#detail-content td[data-label=Size]", "1.80 GB")
+        b.wait_visible(vol_tab + " button:contains(Grow content)")
+        self.content_tab_action(1, 1, "Grow content")
+        vol_tab = self.content_tab_expand(1, 1)
+        b.wait_not_present(vol_tab + " button:contains(Grow content)")
+        b.go("#/")
+        b.wait_in_text("#devices", "1.80 GB Stratis pool")
+
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
 class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase):

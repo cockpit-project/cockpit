@@ -37,6 +37,35 @@ from .jsonutil import JsonDocument, JsonObject
 logger = logging.getLogger(__name__)
 
 
+def parse_accept_language(headers: Dict[str, str]) -> List[str]:
+    """Parse the Accept-Language header, if it exists.
+
+    Returns an ordered list of languages.
+
+    https://tools.ietf.org/html/rfc7231#section-5.3.5
+    """
+
+    accept_language = headers.get('Accept-Language')
+    if not isinstance(accept_language, str):
+        return []
+
+    accept_languages = accept_language.split(',')
+    locales = []
+    for language in accept_languages:
+        language = language.strip()
+        locale, _, weightstr = language.partition(';q=')
+        weight = float(weightstr or 1)
+
+        # Skip possible empty locales
+        if not locale:
+            continue
+
+        # Locales are case-insensitive and we store our list in lowercase
+        locales.append((locale.lower(), weight))
+
+    return [locale for locale, _ in sorted(locales, key=lambda k: k[1], reverse=True)]
+
+
 def sortify_version(version: str) -> str:
     """Convert a version string to a form that can be compared"""
     # 0-pad each numeric component.  Only supports numeric versions like 1.2.3.
@@ -183,14 +212,16 @@ class Package:
         # errors in the console when a translation can't be found
         return Document(b'', 'text/javascript')
 
-    def load_path(self, path: str) -> Document:
+    def load_path(self, path: str, headers: Dict[str, str]) -> Document:
         self.ensure_scanned()
         assert self.files is not None
+        assert self.translations is not None
 
-        # We can throw either KeyError from the lookup on self.files[] (which
-        # will become a 404) or an OSError from .load_file() (which will become
-        # a 500).
-        return self.load_file(self.files[path])
+        if path == 'po.js':
+            locales = parse_accept_language(headers)
+            return self.load_translation(locales)
+        else:
+            return self.load_file(self.files[path])
 
 
 class PackagesLoader:
@@ -442,43 +473,13 @@ class Packages(bus.Object, interface='cockpit.Packages'):
             self.reload()
         self.saw_first_reload_hint = True
 
-    # Support for serving files via the packages channel
-    @staticmethod
-    def parse_accept_language(headers: Dict[str, str]) -> List[str]:
-        """Parse the Accept-Language header, if it exists.
-
-        Returns an ordered list of languages.
-
-        https://tools.ietf.org/html/rfc7231#section-5.3.5
-        """
-
-        accept_language = headers.get('Accept-Language')
-        if not isinstance(accept_language, str):
-            return []
-
-        accept_languages = accept_language.split(',')
-        locales = []
-        for language in accept_languages:
-            language = language.strip()
-            locale, _, weightstr = language.partition(';q=')
-            weight = float(weightstr or 1)
-
-            # Skip possible empty locales
-            if not locale:
-                continue
-
-            # Locales are case-insensitive and we store our list in lowercase
-            locales.append((locale.lower(), weight))
-
-        return [locale for locale, _ in sorted(locales, key=lambda k: k[1], reverse=True)]
-
     def load_manifests_js(self, headers: Dict[str, str]) -> Document:
         logger.debug('Serving /manifests.js')
 
         chunks: List[bytes] = []
 
         # Send the translations required for the manifest files, from each package
-        locales = self.parse_accept_language(headers)
+        locales = parse_accept_language(headers)
         for name, package in self.packages.items():
             if name in ['static', 'base1']:
                 continue
@@ -509,20 +510,25 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         logger.debug('Serving /manifests.json')
         return Document(self.manifests.encode(), 'application/json')
 
+    PATH_RE = re.compile(
+        r'/'                   # leading '/'
+        r'(?:([^/]+)/)?'       # optional leading path component
+        r'((?:[^/]+/)*[^/]+)'  # remaining path components
+    )
+
     def load_path(self, path: str, headers: Dict[str, str]) -> Document:
         logger.debug('packages: serving %s', path)
 
-        if path == '/manifests.js':
+        match = self.PATH_RE.fullmatch(path)
+        if match is None:
+            raise ValueError(f'Invalid HTTP path {path}')
+        packagename, filename = match.groups()
+
+        if packagename is not None:
+            return self.packages[packagename].load_path(filename, headers)
+        elif filename == 'manifests.js':
             return self.load_manifests_js(headers)
-        elif path == '/manifests.json':
+        elif filename == 'manifests.json':
             return self.load_manifests_json()
         else:
-            assert path.startswith('/')
-            package_name, _, package_path = path[1:].partition('/')
-
-            package = self.packages[package_name]
-            if package_path == 'po.js':
-                locales = self.parse_accept_language(headers)
-                return package.load_translation(locales)
-            else:
-                return package.load_path(package_path)
+            raise KeyError

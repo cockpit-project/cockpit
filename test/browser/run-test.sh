@@ -39,11 +39,6 @@ if [ "${TEST_OS#centos-}" != "$TEST_OS" ]; then
     TEST_OS="${TEST_OS}-stream"
 fi
 
-if [ "$ID" = "fedora" ]; then
-    # Testing Farm machines are really slow at some times of the day
-    export TEST_TIMEOUT_FACTOR=3
-fi
-
 TEST_ALLOW_JOURNAL_MESSAGES=""
 
 # HACK: CI hits this selinux denial. Unrelated to our tests.

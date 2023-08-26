@@ -6,12 +6,7 @@ set -eux
 PLAN="$1"
 
 MYDIR="$(realpath $(dirname "$0"))"
-if [ -d source ]; then
-    # path for standard-test-source
-    SOURCE="$(pwd)/source"
-else
-    SOURCE="$(realpath $MYDIR/../..)"
-fi
+SOURCE="$(realpath $MYDIR/../..)"
 # https://tmt.readthedocs.io/en/stable/overview.html#variables
 LOGS="${TMT_TEST_DATA:-$(pwd)/logs}"
 mkdir -p "$LOGS"

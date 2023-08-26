@@ -62,6 +62,11 @@ export TEST_ALLOW_JOURNAL_MESSAGES
 TESTS=""
 EXCLUDES=""
 RC=0
+
+# make it easy to check in logs
+echo "TEST_ALLOW_JOURNAL_MESSAGES: ${TEST_ALLOW_JOURNAL_MESSAGES:-}"
+echo "TEST_AUDIT_NO_SELINUX: ${TEST_AUDIT_NO_SELINUX:-}"
+
 if [ "$PLAN" = "optional" ]; then
     TESTS="$TESTS
            TestAutoUpdates

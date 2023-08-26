@@ -5,10 +5,13 @@ set -eux
 # like "basic", passed on to run-test.sh
 PLAN="$1"
 
+export TEST_BROWSER=${TEST_BROWSER:-firefox}
+
 MYDIR="$(realpath $(dirname "$0"))"
 SOURCE="$(realpath $MYDIR/../..)"
 # https://tmt.readthedocs.io/en/stable/overview.html#variables
 LOGS="${TMT_TEST_DATA:-$(pwd)/logs}"
+export SOURCE LOGS
 mkdir -p "$LOGS"
 chmod a+w "$LOGS"
 
@@ -84,7 +87,9 @@ firewall-cmd --add-service=cockpit --permanent
 firewall-cmd --add-service=cockpit
 
 # Run tests as unprivileged user
-su - -c "env TEST_BROWSER=firefox SOURCE=$SOURCE LOGS=$LOGS $MYDIR/run-test.sh $PLAN" runtest
+# once we drop support for RHEL 8, use this:
+# runuser -u runtest --whitelist-environment=TEST_BROWSER,TEST_ALLOW_JOURNAL_MESSAGES,TEST_AUDIT_NO_SELINUX,SOURCE,LOGS "$MYDIR/run-test.sh" "$PLAN"
+runuser -u runtest --preserve-environment env USER=runtest HOME="$(getent passwd runtest | cut -f6 -d:)" "$MYDIR/run-test.sh" "$PLAN"
 
 RC=$(cat $LOGS/exitcode)
 exit ${RC:-1}

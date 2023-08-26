@@ -3,9 +3,9 @@
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 # Keep the older C bridge on stable releases
-C_BRIDGE = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),11 12 22.04)
-ifeq ($(C_BRIDGE),)
-CONFIG_OPTIONS += --enable-pybridge
+OLD_BRIDGE = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),11 12 22.04)
+ifneq ($(OLD_BRIDGE),)
+CONFIG_OPTIONS += --enable-old-bridge
 endif
 
 # riscv is an emulated architecture for now, and too slow to run expensive unit tests
@@ -53,7 +53,7 @@ override_dh_install:
 	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 
 	dh_install -Xusr/src/debug
-ifeq ($(C_BRIDGE),)
+ifeq ($(OLD_BRIDGE),)
 	# we don't need this, it contains full build paths and breaks reproducibility
 	rm -r debian/tmp/usr/lib/python*/*-packages/*.dist-info
 	dh_install -p cockpit-bridge debian/tmp/usr/lib/python*
@@ -64,14 +64,14 @@ endif
 
 execute_after_dh_install-indep:
 	# avoid dh_missing failure
-ifeq ($(C_BRIDGE),)
+ifeq ($(OLD_BRIDGE),)
 	rm -r debian/tmp/usr/lib/python* debian/tmp/usr/lib/cockpit/cockpit-beiboot
 endif
 
 # run pytests *after* installation, so that we can make sure that we installed the right files
 execute_after_dh_install-arch:
 ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
-ifeq ($(C_BRIDGE),)
+ifeq ($(OLD_BRIDGE),)
 	pytest -vv -k 'not linter and not test_descriptions' -opythonpath=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages)
 endif
 endif

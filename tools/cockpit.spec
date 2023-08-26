@@ -53,12 +53,9 @@ Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
-%if 0%{?fedora} >= 38 || 0%{?rhel} >= 9
-%define cockpit_enable_python 1
-%endif
-
-%if !%{defined cockpit_enable_python}
-%define cockpit_enable_python 0
+# Don't change the bridge in the RHEL 8; the old SSH breaks some features, see @todoPybridgeRHEL8
+%if 0%{?rhel} == 8
+%define enable_old_bridge 1
 %endif
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
@@ -170,7 +167,7 @@ Suggests: cockpit-selinux
 Requires: subscription-manager-cockpit
 %endif
 
-%if %{cockpit_enable_python}
+%if 0%{?enable_old_bridge} == 0
 BuildRequires:  python3-devel
 BuildRequires:  python3-pip
 %if 0%{?rhel} == 0
@@ -196,8 +193,8 @@ BuildRequires:  python3-tox-current-env
     --docdir=%_defaultdocdir/%{name} \
 %endif
     --with-pamdir='%{pamdir}' \
-%if %{cockpit_enable_python}
-    --enable-pybridge \
+%if 0%{?enable_old_bridge}
+    --enable-old-bridge \
 %endif
 %if 0%{?build_basic} == 0
     --disable-ssh \
@@ -208,7 +205,7 @@ BuildRequires:  python3-tox-current-env
 %check
 make -j$(nproc) check
 
-%if %{cockpit_enable_python} && 0%{?rhel} == 0
+%if 0%{?enable_old_bridge} == 0 && 0%{?rhel} == 0
 %tox
 %endif
 
@@ -374,7 +371,7 @@ system on behalf of the web based user interface.
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %{_libexecdir}/cockpit-askpass
-%if %{cockpit_enable_python}
+%if 0%{?enable_old_bridge} == 0
 %{python3_sitelib}/%{name}*
 %{_libexecdir}/cockpit-beiboot
 %endif

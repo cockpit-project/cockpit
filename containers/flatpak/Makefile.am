@@ -11,11 +11,9 @@ INSTALL_FLATPAK_TARGETS = \
 	install-dist_scalableiconDATA \
 	install-dist_symboliciconDATA \
 	install-cockpit-client-symlink \
+	install-python \
+	install-bundles \
 	$(NULL)
-
-if WITH_PYBRIDGE
-INSTALL_FLATPAK_TARGETS += install-python install-bundles
-endif
 
 install-for-flatpak: $(INSTALL_FLATPAK_TARGETS)
 	appstream-util validate --nonet src/client/org.cockpit_project.CockpitClient.metainfo.xml

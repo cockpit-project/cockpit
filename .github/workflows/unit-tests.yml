@@ -9,8 +9,11 @@ jobs:
         startarg:
           # avoid check-memory on i386, it has literally thousands of uninteresting/wrong errors
           - { make: 'check-memory', cc: 'gcc', tag: 'latest' }
+          # with default Python bridge
           - { make: 'distcheck', cc: 'clang', tag: 'latest' }
           - { make: 'distcheck', cc: 'gcc', tag: 'i386' }
+          # with old C bridge
+          - { make: 'distcheck', cc: 'gcc', distcheck_flags: '--enable-old-bridge', tag: 'latest' }
           # this runs static code checks, unlike distcheck
           - { make: 'check', cc: 'gcc', tag: 'latest' }
           - { make: 'pytest-cov', cc: 'gcc', tag: 'latest' }
@@ -43,5 +46,6 @@ jobs:
               --env=FORCE_COLOR=1 \
               --env=CC='${{ matrix.startarg.cc }}' \
               --env=CFLAGS='-O2 -gdwarf-4' \
+              --env=EXTRA_DISTCHECK_CONFIGURE_FLAGS='${{ matrix.startarg.distcheck_flags }}' \
               --image-tag='${{ matrix.startarg.tag }}' \
               --make '${{ matrix.startarg.make }}'

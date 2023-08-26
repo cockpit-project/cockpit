@@ -20,7 +20,7 @@ pytest-cov: $(BUILT_SOURCES) $(DIST_STAMP) $(MANIFESTS)
 	$(MAKE) test-server
 	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest --cov
 
-if WITH_PYBRIDGE
+if !WITH_OLD_BRIDGE
 INSTALL_DATA_LOCAL_TARGETS += install-python
 install-python:
 	@# wheel-based installation with .dist-info.

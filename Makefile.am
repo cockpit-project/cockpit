@@ -67,7 +67,7 @@ dist-hook: $(distdir)/tools/debian/copyright
 $(distdir)/tools/debian/copyright: $(DIST_STAMP)
 	$(AM_V_GEN) NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $@
 
-DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
+DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only $(EXTRA_DISTCHECK_CONFIGURE_FLAGS)
 
 # Validate our AppStream metadata
 distcheck-hook::

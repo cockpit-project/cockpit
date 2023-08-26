@@ -38,7 +38,7 @@ libcockpit_metrics_a_SOURCES = \
 	src/bridge/cockpitsamples.h \
 	$(NULL)
 
-if !WITH_PYBRIDGE
+if WITH_OLD_BRIDGE
 
 # -----------------------------------------------------------------------------
 # libcockpit-bridge.a: code used in cockpit-bridge and its tests

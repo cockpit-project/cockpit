@@ -132,7 +132,7 @@ test_kerberos_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_kerberos_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS) $(krb5_LIBS)
 test_kerberos_SOURCES = src/ws/test-kerberos.c
 
-if !WITH_PYBRIDGE
+if WITH_OLD_BRIDGE
 
 # These are -ws tests but they involve invoking ./cockpit-bridge.
 

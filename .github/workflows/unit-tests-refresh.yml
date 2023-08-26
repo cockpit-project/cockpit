@@ -36,6 +36,10 @@ jobs:
         timeout-minutes: 15
         run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=i386 --make distcheck
 
+      - name: Run amd64 gcc distcheck test for C bridge
+        timeout-minutes: 15
+        run: containers/unit-tests/start --verbose --env=CC=gcc --env=EXTRA_DISTCHECK_CONFIGURE_FLAGS=--enable-old-bridge --image-tag=latest --make distcheck
+
       - name: Run pytest-cov test
         timeout-minutes: 15
         run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make pytest-cov

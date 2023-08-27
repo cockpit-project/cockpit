@@ -254,7 +254,7 @@ export const StorageBarMenu = ({ label, isKebab, onlyNarrow, menuItems }) => {
                   onSelect={() => setIsOpen(!isOpen)}
                   toggle={toggle}
                   isOpen={isOpen}
-                  isPlain
+                  isPlain={isKebab}
                   position="right"
                   dropdownItems={menuItems} />
     );

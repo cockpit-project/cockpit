@@ -1,15 +1,19 @@
 #!/bin/sh
 set -eu
 
-# install/upgrade RPMs that apply to OSTree
-# Note: cockpit-selinux would be desirable, but needs setroubleshoot-server which isn't installed
 cd /var/tmp/
 
+# install/upgrade RPMs that apply to OSTree
+# Note: cockpit-selinux would be desirable, but needs setroubleshoot-server which isn't installed
 rpm-ostree install --cache-only cockpit-bridge-*.rpm \
     cockpit-networkmanager-*.rpm cockpit-system-*.rpm cockpit-tests-*.rpm
 
-# update cockpit-ws and install scripts in the container
-for rpm in /var/tmp/cockpit-ws-*.rpm /var/tmp/cockpit-bridge-*.rpm; do
+# update cockpit packages and install scripts in the container
+for rpm in /var/tmp/cockpit-ws-*.rpm \
+           /var/tmp/cockpit-bridge-*.rpm \
+           /var/tmp/cockpit-networkmanager-*.rpm \
+           /var/tmp/cockpit-system-*.rpm \
+           /var/tmp/cockpit-tests-*.rpm; do
     rpm2cpio "$rpm" | cpio -i --make-directories --directory=/var/tmp/install
 done
 podman run --name build-cockpit -i \

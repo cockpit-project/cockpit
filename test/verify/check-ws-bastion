@@ -70,19 +70,25 @@ class TestWsBastionContainer(testlib.MachineCase):
 
         b.wait_visible('#content')
         b.wait_text('#current-username', 'admin')
+        # runs the ssh target's bridge (no beiboot)
+        m.execute("pgrep -f /usr/bin/[c]ockpit-bridge")
         b.logout()
 
         # remembers the last host via URL, server field should be pre-filled
         self.assertEqual(b.eval_js("window.location.pathname"), f"/={HOST}/system")
-        # FIXME: login page does not really set this in the DOM? DOM has empty value, but browser shows the value
-        # b.wait_text("#server-field", host)
         # this is only for Cockpit Client
         b.wait_not_visible("#recent-hosts")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "foobar")
         # second time SSH key is known
-        b.click("#login-button")
+        b.try_login()
         b.wait_visible('#content')
+        b.logout()
+
+        # disable target bridge, should use beiboot
+        m.execute("mount -o bind /dev/null /usr/bin/cockpit-bridge")
+        self.addCleanup(m.execute, "umount /usr/bin/cockpit-bridge")
+        b.try_login()
+        b.wait_visible('#content')
+        m.execute("pgrep -f '[p]ython3 -ic # cockpit-bridge'")
         b.logout()
 
     def testKnownHosts(self):
@@ -203,6 +209,8 @@ class TestWsBastionContainer(testlib.MachineCase):
             b.set_val("#login-password-input", KEY_PASSWORD)
             b.click("#login-button")
             b.wait_visible('#content')
+            # runs the ssh target's bridge (no beiboot)
+            m.execute("pgrep -f /usr/bin/[c]ockpit-bridge")
             b.logout()
 
             # now test with current OpenSSH format
@@ -213,8 +221,18 @@ class TestWsBastionContainer(testlib.MachineCase):
             b.set_val("#login-password-input", KEY_PASSWORD)
             b.click("#login-button")
             b.wait_visible('#content')
-
             b.logout()
+
+            # disable target bridge, should use beiboot
+            m.execute("mount -o bind /dev/null /usr/bin/cockpit-bridge")
+            try:
+                b.try_login(password=KEY_PASSWORD)
+                b.wait_visible('#content')
+                m.execute("pgrep -f '[p]ython3 -ic # cockpit-bridge'")
+            finally:
+                m.execute("umount /usr/bin/cockpit-bridge")
+            b.logout()
+
             m.execute("podman rm -f -t0 cockpit-bastion")
             m.execute("rm /home/admin/.ssh/authorized_keys")
 

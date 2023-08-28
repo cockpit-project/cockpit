@@ -1,25 +1,37 @@
-# Cockpit on Fedora CoreOS or other container hosts
+# Cockpit webserver container
 
-The standard Fedora and Red Hat Enterprise Linux CoreOS images does not contain
-Cockpit packages.
+[Cockpit](https://cockpit-project.org/) is a web-based graphical interface for Linux servers.
+It is [packaged in most major Linux distributions](https://cockpit-project.org/running.html).
 
-1. Install Cockpit packages as overlay RPMs:
-   ```
-   rpm-ostree install cockpit-system cockpit-ostree cockpit-podman
-   ```
+This container image provides Cockpit's web server and a subset of available pages (like the cockpit-system package)
+for deployment on container hosts such as Fedora CoreOS or Kubernetes, where installing rpms is difficult or impossible.
 
-   Depending on your configuration, you may want to use
-   [other extensions](https://apps.fedoraproject.org/packages/s/cockpit-) as
-   well, such as `cockpit-kdump` or `cockpit-networkmanager`.
+## Usage on container host distributions
 
-   If you have a custom-built OSTree, simply include the same packages in your build.
+The standard Fedora and Red Hat Enterprise Linux CoreOS images do not contain Cockpit packages. The
+`cockpit/ws` container includes a minimal set of builtin Cockpit pages which are being used when connecting to
+such a machine, i.e. a host which doesn't have the `cockpit-bridge` package installed.
 
-2. Reboot
+If these builtin pages are not enough for your use cases, you can install desired Cockpit packages
+as overlay RPMs. For example:
 
-Steps 1 and 2 are enough when the CoreOS machine is only connected to through another host running Cockpit.
+```
+rpm-ostree install cockpit-system cockpit-ostree cockpit-podman
+reboot
+```
 
-If you want to also run a web server to log in directly on the CoreOS host, you
-can use this container in two modes.
+Depending on your configuration, you may want to use
+[other extensions](https://packages.fedoraproject.org/search?query=cockpit-) as
+well, such as `cockpit-podman` or `cockpit-networkmanager`.
+
+If you have a custom-built OSTree, simply include the same packages in your build.
+
+These packages are enough when the CoreOS machine is only connected to through another host running Cockpit.
+
+You also need to run a Cockpit web server somewhere, as the "entry point" for browsers. That can
+then connect to the local host or any remote machine via ssh to get a Cockpit UI for that machine.
+
+This web server can be deployed as container. It has two modes, which are described below.
 
 ## Privileged ws container
 

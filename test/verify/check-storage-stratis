@@ -80,6 +80,7 @@ class TestStorageStratis(storagelib.StorageCase):
         b.wait_in_text("#devices", "pool0")
         b.wait_in_text("#devices", "8 GB Stratis pool")
         b.assert_pixels("#devices", "pool-row")
+        b.wait_not_present('#devices .ct-icon-exclamation-triangle')
 
         # Check that the next name is "pool1"
         self.devices_dropdown("Create Stratis pool")
@@ -101,6 +102,7 @@ class TestStorageStratis(storagelib.StorageCase):
 
         b.click('.sidepanel-row:contains("pool0")')
         b.wait_visible('#storage-detail')
+        b.wait_not_present('.pf-v5-c-alert')
 
         udisk_contains_stratis_private = "physical-originsub" in m.execute("udisksctl dump")
 
@@ -407,6 +409,61 @@ class TestStorageStratis(storagelib.StorageCase):
 
         # Check that the entry has disappeared from fstab
         self.assertEqual(m.execute("grep /run/fsys1 /etc/fstab || true"), "")
+
+    @testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+    def testAlerts(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev_1 = "/dev/sda"
+        m.add_disk("4G", serial="DISK1")
+        b.wait_in_text("#drives", dev_1)
+
+        dev_2 = "/dev/sdb"
+        m.add_disk("4G", serial="DISK2")
+        b.wait_in_text("#drives", dev_2)
+
+        # Create an encrypted pool with two block devices
+        self.devices_dropdown("Create Stratis pool")
+        self.dialog_wait_open()
+        self.dialog_set_val("encrypt_pass.on", val=True)
+        self.dialog_set_val("passphrase", "foodeeboodeebar")
+        self.dialog_set_val("passphrase2", "foodeeboodeebar")
+        self.dialog_set_val("disks", {dev_1: True})
+        self.dialog_set_val("disks", {dev_2: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_in_text("#devices", "pool0")
+        b.wait_not_present('.sidepanel-row:contains(pool0) .ct-icon-exclamation-triangle')
+
+        # Check that there is no alert on the details page
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
+        b.wait_not_present('.pf-v5-c-alert')
+
+        m.execute("""
+JSON=$(sudo cryptsetup token export --token-id=1 /dev/sda \
+       | jq '.key_description = "stratis-1-key-no-other-is-the-same"')
+sudo cryptsetup token remove --token-id=1 /dev/sda
+echo $JSON | sudo cryptsetup token import --token-id=1 /dev/sda
+systemctl restart stratisd
+        """)
+
+        b.go('#/')
+        b.wait_visible('.sidepanel-row:contains(pool0) .ct-icon-exclamation-triangle')
+
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_visible('.pf-v5-c-alert:contains("This pool is in a degraded state")')
+
+        b.click("button:contains(Create new filesystem)")
+        self.dialog_wait_open()
+        self.dialog_set_val("name", "fsys1")
+        self.dialog_set_val("mount_point", "/run/fsys1")
+        self.dialog_apply()
+        self.dialog_wait_alert("Pool is in state NoRequests where this action cannot be performed until the issue is resolved manually")
 
     def testCli(self):
         m = self.machine

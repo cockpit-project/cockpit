@@ -56,6 +56,7 @@ function stratis_pool_row(client, path) {
     return {
         client,
         name: pool.Name,
+        hasWarning: pool.AvailableActions && pool.AvailableActions !== "fully_operational",
         key: path,
         devname: "/dev/stratis/" + pool.Name + "/",
         detail: cockpit.format(_("$0 Stratis pool"), fmt_size(pool.TotalPhysicalSize)),

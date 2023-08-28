@@ -135,7 +135,7 @@ class SidePanelRow extends React.Component {
                 </div>);
         else if (client.path_jobs[job_path])
             decoration = <Spinner size="md" />;
-        else if (client.path_warnings[job_path])
+        else if (client.path_warnings[job_path] || this.props.hasWarning)
             decoration = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />;
 
         return (

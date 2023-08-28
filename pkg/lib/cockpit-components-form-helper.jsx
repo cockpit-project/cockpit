@@ -34,7 +34,7 @@ export const FormHelper = ({ helperText, helperTextInvalid, variant, icon, field
                 <HelperTextItem
                     id={fieldId ? (fieldId + "-helper") : undefined}
                     variant={formHelperVariant}
-                    hasIcon={formHelperVariant !== "default" || icon} icon={icon}>
+                    icon={icon}>
                     {formHelperVariant === "error" ? helperTextInvalid : helperText}
                 </HelperTextItem>
             </HelperText>

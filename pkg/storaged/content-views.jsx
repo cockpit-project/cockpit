@@ -46,7 +46,6 @@ import { FilesystemTab, is_mounted, mounting_dialog, get_fstab_config } from "./
 import { CryptoTab, edit_config } from "./crypto-tab.jsx";
 import { get_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { BlockVolTab, PoolVolTab, VDOPoolTab } from "./lvol-tabs.jsx";
-import { PartitionTab } from "./part-tab.jsx";
 import { SwapTab } from "./swap-tab.jsx";
 import { UnrecognizedTab } from "./unrecognized-tab.jsx";
 
@@ -222,10 +221,6 @@ function create_tabs(client, target, options) {
             if (client.vdo_vols[lvol.path])
                 add_tab(_("VDO pool"), VDOPoolTab);
         }
-    }
-
-    if (options.is_partition) {
-        add_tab(_("Partition"), PartitionTab);
     }
 
     let is_unrecognized = false;

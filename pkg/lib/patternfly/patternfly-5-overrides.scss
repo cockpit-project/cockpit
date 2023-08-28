@@ -591,3 +591,8 @@ select.pf-v5-c-form-control {
 .pf-v5-u-font-weight-light {
   font-weight: 300;
 }
+
+// Workaround for https://github.com/patternfly/patternfly/issues/5865
+.pf-v5-c-card.pf-m-selectable, .pf-v5-c-card.pf-m-clickable {
+  isolation: auto;
+}

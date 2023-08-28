@@ -7,6 +7,27 @@ import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/comp
 
 import './DynamicListForm.scss';
 
+/* Dynamic list with a variable number of rows. Each row is a custom component, usually an input field(s).
+ *
+ * Props:
+ *   - emptyStateString
+ *   - onChange
+ *   - id
+ *   - itemcomponent
+ *   - formclass (optional)
+ *   - options (optional)
+ *   - onValidationChange: A handler function which updates the parent's component's validation object.
+ *                         Its parameter is an array the same structure as 'validationFailed'.
+ *   - validationFailed: An array where each item represents a validation error of the corresponding row component index.
+ *                       A row is strictly mapped to an item of the array by its index.
+ *     Example: Let's have a dynamic form, where each row consists of 2 fields: name and email. Then a validation array of
+ *              these rows would look like this:
+ *     [
+ *       { name: "Name must not be empty }, // first row
+ *       { }, // second row
+ *       { name: "Name cannot containt number", email: "Email must contain '@'" } // third row
+ *     ]
+ */
 export class DynamicListForm extends React.Component {
     constructor(props) {
         super(props);
@@ -19,10 +40,16 @@ export class DynamicListForm extends React.Component {
         this.onItemChange = this.onItemChange.bind(this);
     }
 
-    removeItem(idx, field, value) {
+    removeItem(idx) {
         this.setState(state => {
+            const validationFailedDelta = this.props.validationFailed ? [...this.props.validationFailed] : [];
+            // We also need to remove any error messages which the item (row) may have contained
+            validationFailedDelta.splice(idx, 1);
+            this.props.onValidationChange?.(validationFailedDelta);
+
             const items = state.list.concat();
             items.splice(idx, 1);
+
             return { list: items };
         }, () => this.props.onChange(this.state.list.concat()));
     }
@@ -42,7 +69,7 @@ export class DynamicListForm extends React.Component {
     }
 
     render () {
-        const { id, label, actionLabel, formclass, emptyStateString, helperText } = this.props;
+        const { id, label, actionLabel, formclass, emptyStateString, helperText, validationFailed, onValidationChange } = this.props;
         const dialogValues = this.state;
         return (
             <FormFieldGroup header={
@@ -65,6 +92,22 @@ export class DynamicListForm extends React.Component {
                                     additem: this.addItem,
                                     options: this.props.options,
                                     itemCount: Object.keys(dialogValues.list).length,
+                                    validationFailed: validationFailed && validationFailed[idx],
+                                    onValidationChange: value => {
+                                        // Dynamic list consists of multiple rows. Therefore validationFailed object is presented as an array where each item represents a row
+                                        // Each row/item then consists of key-value pairs, which represent a field name and it's validation error
+                                        const delta = validationFailed ? [...validationFailed] : [];
+                                        // Update validation of only a single row
+                                        delta[idx] = value;
+
+                                        // If a row doesn't contain any fields with errors anymore, we delete the item of the array
+                                        // Deleting an item of an array replaces an item with an "empty item".
+                                        // This guarantees that an array of validation errors maps to the correct rows
+                                        if (Object.keys(delta[idx]).length == 0)
+                                            delete delta[idx];
+
+                                        onValidationChange?.(delta);
+                                    },
                                 });
                             })
                             }
@@ -84,6 +127,7 @@ export class DynamicListForm extends React.Component {
         );
     }
 }
+
 DynamicListForm.propTypes = {
     emptyStateString: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
@@ -91,4 +135,6 @@ DynamicListForm.propTypes = {
     itemcomponent: PropTypes.object.isRequired,
     formclass: PropTypes.string,
     options: PropTypes.object,
+    validationFailed: PropTypes.array,
+    onValidationChange: PropTypes.func,
 };

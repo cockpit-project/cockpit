@@ -188,9 +188,7 @@ def main(args):
                               {"password": "denied"})
             return
 
-    # for the time being, we only support running an installed cockpit-bridge on the remote,
-    # and leave beibooting to the flatpak
-    os.execlpe("python3", "python3", "-m", "cockpit.beiboot", "--remote-bridge=always", host, os.environ)
+    os.execlpe("python3", "python3", "-m", "cockpit.beiboot", host, os.environ)
 
 
 if __name__ == '__main__':

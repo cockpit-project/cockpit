@@ -265,6 +265,7 @@ export function stratis_content_rows(client, pool, options) {
     const stats = client.stratis_pool_stats[pool.path];
     const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
     const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
+
     function render_fsys(fsys, offset) {
         const block = client.slashdevs_block[fsys.Devnode];
 
@@ -641,16 +642,28 @@ export const StratisPoolDetails = ({ client, pool }) => {
         return for_each_async(blockdevs, bd => pool.GrowPhysicalDevice(bd.Uuid));
     }
 
-    let alert = null;
+    const alerts = [];
     if (client.features.stratis_grow_blockdevs &&
         blockdevs.some(bd => bd.NewPhysicalSize[0] && Number(bd.NewPhysicalSize[1]) > Number(bd.TotalPhysicalSize))) {
-        alert = (<Alert key="unused-space"
-                        isInline
-                        variant="warning"
-                        title={_("This pool does not use all the space on its block devices.")}>
+        alerts.push(<Alert key="unused-space"
+                           isInline
+                           variant="warning"
+                           title={_("This pool does not use all the space on its block devices.")}>
             {_("Some block devices of this pool have grown in size after the pool was created. The pool can be safely grown to use the newly available space.")}
             <div className="storage_alert_action_buttons">
                 <StorageButton onClick={grow_blockdevs}>{_("Grow the pool to take all space")}</StorageButton>
+            </div>
+        </Alert>);
+    }
+
+    if (pool.AvailableActions && pool.AvailableActions !== "fully_operational") {
+        const goToStratisLogs = () => cockpit.jump("/system/logs/#/?prio=warn&_SYSTEMD_UNIT=stratisd.service");
+        alerts.push(<Alert key="degraded"
+                           isInline
+                           variant="warning"
+                           title={_("This pool is in a degraded state.")}>
+            <div className="storage_alert_action_buttons">
+                <StorageLink onClick={goToStratisLogs}>{_("View logs")}</StorageLink>
             </div>
         </Alert>);
     }
@@ -894,7 +907,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
         </Card>);
 
     return <StdDetailsLayout client={client}
-                             alerts={[alert]}
+                             alerts={alerts}
                              header={header}
                              sidebar={sidebar}
                              content={content} />;

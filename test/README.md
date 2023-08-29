@@ -159,6 +159,7 @@ You can set these environment variables to configure the test suite:
                   "debian-testing"
                   "fedora-37"
                   "fedora-38"
+                  "fedora-39"
                   "fedora-coreos"
                   "fedora-testing"
                   "rhel-8-9"

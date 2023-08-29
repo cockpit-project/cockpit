@@ -119,6 +119,14 @@ class TestNetworkingSettings(netlib.NetworkCase):
 
         assert_connection_setting(con_id, "ipv6.method", "disabled")
 
+        # Open the dialog, expand all the fields and assert pixels
+        self.configure_iface_setting("IPv4")
+        b.click("#network-ip-settings-address-add")
+        b.click("#network-ip-settings-route-add")
+        b.click("#network-ip-settings-dns-add")
+        b.click("#network-ip-settings-dns-search-add")
+        b.assert_pixels("#network-ip-settings-dialog", "network-ip-settings-dialog")
+
     def testOtherSettings(self):
         b = self.browser
         m = self.machine

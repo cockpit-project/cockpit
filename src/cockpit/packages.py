@@ -274,24 +274,28 @@ class PackagesLoader:
             # give readable error messages
             return '/nonexistent/libexec'
 
+    @classmethod
+    def patch_libexecdir(cls, value: str) -> str:
+        if '${libexecdir}/cockpit-askpass' in value:
+            # extra-special case: we handle this internally
+            abs_askpass = shutil.which('cockpit-askpass')
+            if abs_askpass is not None:
+                return value.replace('${libexecdir}/cockpit-askpass', abs_askpass)
+        return value.replace('${libexecdir}', cls.get_libexecdir())
+
     # HACK: Type narrowing over Union types is not supported in the general case,
     # but this works for the case we care about: knowing that when we pass in an
     # JsonObject, we'll get an JsonObject back.
     J = TypeVar('J', JsonObject, JsonDocument)
 
     @classmethod
-    def patch_libexecdir(cls, obj: J) -> J:
+    def patch_strings(cls, obj: J, rewrite: Callable[[str], str]) -> J:
         if isinstance(obj, str):
-            if '${libexecdir}/cockpit-askpass' in obj:
-                # extra-special case: we handle this internally
-                abs_askpass = shutil.which('cockpit-askpass')
-                if abs_askpass is not None:
-                    return obj.replace('${libexecdir}/cockpit-askpass', abs_askpass)
-            return obj.replace('${libexecdir}', cls.get_libexecdir())
+            return rewrite(obj)
         elif isinstance(obj, dict):
-            return {key: cls.patch_libexecdir(value) for key, value in obj.items()}
+            return {key: cls.patch_strings(value, rewrite) for key, value in obj.items()}
         elif isinstance(obj, list):
-            return [cls.patch_libexecdir(item) for item in obj]
+            return [cls.patch_strings(item, rewrite) for item in obj]
         else:
             return obj
 
@@ -334,7 +338,7 @@ class PackagesLoader:
 
             manifest = cls.merge_patch(manifest, override)
 
-        return cls.patch_libexecdir(manifest)
+        return cls.patch_strings(manifest, cls.patch_libexecdir)
 
     @classmethod
     def get_xdg_data_dirs(cls) -> Iterable[str]:

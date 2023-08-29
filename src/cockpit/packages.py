@@ -26,7 +26,7 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Callable, ClassVar, Dict, Iterable, List, NamedTuple, Optional, Pattern, Sequence, Tuple, TypeVar
+from typing import Callable, ClassVar, Dict, Iterable, List, NamedTuple, Optional, Pattern, Sequence, Tuple
 
 from cockpit._vendor.systemd_ctypes import bus
 
@@ -42,6 +42,8 @@ from .jsonutil import (
     get_objv,
     get_str,
     get_strv,
+    merge_patch,
+    patch_strings,
     typechecked,
 )
 
@@ -283,38 +285,6 @@ class PackagesLoader:
                 return value.replace('${libexecdir}/cockpit-askpass', abs_askpass)
         return value.replace('${libexecdir}', cls.get_libexecdir())
 
-    # HACK: Type narrowing over Union types is not supported in the general case,
-    # but this works for the case we care about: knowing that when we pass in an
-    # JsonObject, we'll get an JsonObject back.
-    J = TypeVar('J', JsonObject, JsonDocument)
-
-    @classmethod
-    def patch_strings(cls, obj: J, rewrite: Callable[[str], str]) -> J:
-        if isinstance(obj, str):
-            return rewrite(obj)
-        elif isinstance(obj, dict):
-            return {key: cls.patch_strings(value, rewrite) for key, value in obj.items()}
-        elif isinstance(obj, list):
-            return [cls.patch_strings(item, rewrite) for item in obj]
-        else:
-            return obj
-
-    # https://www.rfc-editor.org/rfc/rfc7386
-    @classmethod
-    def merge_patch(cls, target: JsonDocument, patch: J) -> J:
-        # Loosely based on example code from the RFC
-        if not isinstance(patch, dict):
-            return patch
-
-        # Always take a copy ('result') — we never modify the input ('target')
-        result = dict(target if isinstance(target, dict) else {})
-        for name, value in patch.items():
-            if value is not None:
-                result[name] = cls.merge_patch(result.get(name), value)
-            else:
-                result.pop(name)
-        return result
-
     @classmethod
     def patch_manifest(cls, manifest: JsonObject, parent: Path) -> JsonObject:
         override_files = [
@@ -336,9 +306,9 @@ class PackagesLoader:
                 logger.warning('%s: override file is not a dictionary', override_file)
                 continue
 
-            manifest = cls.merge_patch(manifest, override)
+            manifest = merge_patch(manifest, override)
 
-        return cls.patch_strings(manifest, cls.patch_libexecdir)
+        return patch_strings(manifest, cls.patch_libexecdir)
 
     @classmethod
     def get_xdg_data_dirs(cls) -> Iterable[str]:

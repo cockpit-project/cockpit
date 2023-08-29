@@ -26,6 +26,10 @@ JsonDocument = Union[JsonObject, JsonList, JsonLiteral]
 
 DT = TypeVar('DT')
 T = TypeVar('T')
+# HACK: Type narrowing over Union types is not supported in the general case,
+# but this works for the case we care about: knowing that when we pass in an
+# JsonObject, we'll get an JsonObject back.
+J = TypeVar('J', JsonObject, JsonDocument)
 
 
 class JsonError(Exception):
@@ -100,3 +104,30 @@ def get_objv(obj: JsonObject, key: str, constructor: Callable[[JsonObject], T]) 
     def as_objv(value: JsonDocument) -> Sequence[T]:
         return tuple(constructor(typechecked(item, dict)) for item in typechecked(value, list))
     return _get(obj, as_objv, key, ())
+
+
+def patch_strings(obj: J, rewrite: Callable[[str], str]) -> J:
+    if isinstance(obj, str):
+        return rewrite(obj)
+    elif isinstance(obj, dict):
+        return {key: patch_strings(value, rewrite) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [patch_strings(item, rewrite) for item in obj]
+    else:
+        return obj
+
+
+# https://www.rfc-editor.org/rfc/rfc7386
+def merge_patch(target: JsonDocument, patch: J) -> J:
+    # Loosely based on example code from the RFC
+    if not isinstance(patch, dict):
+        return patch
+
+    # Always take a copy ('result') — we never modify the input ('target')
+    result = dict(target if isinstance(target, dict) else {})
+    for name, value in patch.items():
+        if value is not None:
+            result[name] = merge_patch(result.get(name), value)
+        else:
+            result.pop(name)
+    return result

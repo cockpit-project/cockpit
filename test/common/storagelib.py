@@ -607,6 +607,8 @@ mkfs.ext4 /dev/root/root
 mkdir /new-root
 mount /dev/root/root /new-root
 mkfs.ext4 {dev}1
+# don't move the EFI partition
+if mountpoint /boot/efi; then umount /boot/efi; fi
 mkdir /new-root/boot
 mount {dev}1 /new-root/boot
 tar --selinux --one-file-system -cf - --exclude /boot --exclude='/var/tmp/*' --exclude='/var/cache/*' \

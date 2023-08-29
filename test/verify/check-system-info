@@ -778,7 +778,7 @@ machine         : 8561
         # - BLS, options go directly into entries, or entries use $kernelopt (defined in grubenv)
         if not m.ostree_image:
             m.execute(r"""
-touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
+echo dummy > /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
 if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
     grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg

@@ -169,8 +169,6 @@ export class FilesystemsPanel extends React.Component {
                 go_to_block(row.props.client, row.props.path);
         }
 
-        // table-hover class is needed till PF4 Table has proper support for clickable rows
-        // https://github.com/patternfly/patternfly-react/issues/3267
         return (
             <OptionalPanel id="mounts" className="storage-mounts"
                 title={_("Filesystems")}>
@@ -178,7 +176,6 @@ export class FilesystemsPanel extends React.Component {
                     gridBreakPoint="grid-xl"
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("Filesystems")}
-                    className={mounts.length ? 'table-hover' : ''}
                     onRowClick={onRowClick}
                     columns={[
                         { title: _("Source"), sortable: true },

@@ -106,19 +106,9 @@
   }
 }
 
-/*
- * Fix up table row hovering.
- *
- * When you hover over table rows it's because they're clickable.
- */
-.table-hover > tbody > tr > td,
-.table-hover > tbody > tr > th {
-  cursor: pointer;
-}
-
-.table-hover > tbody > tr:hover > td,
-.table-hover > tbody > tr:hover > th {
-  /* PF3 uses a light blue; we have to force the override for hover colors */
+.pf-v5-c-table__tr.pf-m-clickable:hover > td,
+.pf-v5-c-table__tr.pf-m-clickable:hover > th {
+  /* PF5 has no hover background color; we have to force the override for hover colors */
   background-color: var(--ct-color-list-hover-bg) !important;
   color: var(--ct-color-list-hover-text) !important;
 }

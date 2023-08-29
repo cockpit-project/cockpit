@@ -70,15 +70,12 @@ export class LockedCryptoPanel extends React.Component {
             go_to_block(row.props.client, row.props.path);
         }
 
-        // table-hover class is needed till PF4 Table has proper support for clickable rows
-        // https://github.com/patternfly/patternfly-react/issues/3267
         return (
             <OptionalPanel id="locked-cryptos"
                 title={_("Locked devices")}>
                 <ListingTable
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("Locked devices")}
-                    className={locked_cryptos.length ? 'table-hover' : ''}
                     onRowClick={onRowClick}
                     columns={[
                         { title: _("Name"), sortable: true },

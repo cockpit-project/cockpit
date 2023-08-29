@@ -82,8 +82,6 @@ export class NFSPanel extends React.Component {
             cockpit.location.go(["nfs", row.props.entry.fields[0], row.props.entry.fields[1]]);
         }
 
-        // table-hover class is needed till PF4 Table has proper support for clickable rows
-        // https://github.com/patternfly/patternfly-react/issues/3267
         return (
             <OptionalPanel className="storage-mounts" id="nfs-mounts"
                        client={client}
@@ -96,7 +94,6 @@ export class NFSPanel extends React.Component {
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("NFS mounts")}
                     onRowClick={onRowClick}
-                    className={mounts.length ? 'table-hover' : ''}
                     emptyCaption={_("No NFS mounts set up")}
                     columns={[
                         { title: _("Server"), sortable: true },

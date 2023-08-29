@@ -295,18 +295,6 @@ class PackagesLoader:
         else:
             return obj
 
-    @classmethod
-    def get_xdg_data_dirs(cls) -> Iterable[str]:
-        try:
-            yield os.environ['XDG_DATA_HOME']
-        except KeyError:
-            yield os.path.expanduser('~/.local/share')
-
-        try:
-            yield from os.environ['XDG_DATA_DIRS'].split(':')
-        except KeyError:
-            yield from ('/usr/local/share', '/usr/share')
-
     # https://www.rfc-editor.org/rfc/rfc7386
     @classmethod
     def merge_patch(cls, target: JsonDocument, patch: J) -> J:
@@ -347,6 +335,18 @@ class PackagesLoader:
             manifest = cls.merge_patch(manifest, override)
 
         return cls.patch_libexecdir(manifest)
+
+    @classmethod
+    def get_xdg_data_dirs(cls) -> Iterable[str]:
+        try:
+            yield os.environ['XDG_DATA_HOME']
+        except KeyError:
+            yield os.path.expanduser('~/.local/share')
+
+        try:
+            yield from os.environ['XDG_DATA_DIRS'].split(':')
+        except KeyError:
+            yield from ('/usr/local/share', '/usr/share')
 
     @classmethod
     def load_manifests(cls) -> Iterable[Manifest]:

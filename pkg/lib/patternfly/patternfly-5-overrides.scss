@@ -68,6 +68,13 @@ select.pf-v5-c-form-control {
   }
 }
 
+// Workaround the transparent background for HTML select options
+// https://github.com/patternfly/patternfly/issues/5695
+.pf-v5-c-form-control option {
+  background-color: var(--pf-v5-c-form-control--BackgroundColor);
+  color: var(--pf-v5-c-form-control--Color);
+}
+
 // The default gap between the rows in horizontal lists is too large
 .pf-v5-c-description-list.pf-m-horizontal-on-sm,
 .pf-v5-c-description-list.pf-m-horizontal {

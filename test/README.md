@@ -157,7 +157,6 @@ You can set these environment variables to configure the test suite:
                   "centos-8-stream"
                   "debian-stable"
                   "debian-testing"
-                  "fedora-37"
                   "fedora-38"
                   "fedora-39"
                   "fedora-coreos"

@@ -26,6 +26,7 @@ import testlib
 
 dirname = os.path.dirname(__file__)
 run_tests = os.path.join(testlib.TEST_DIR, "common", "run-tests")
+EXAMPLE_DIR = os.path.join(testlib.TEST_DIR, "example")
 VERIFY_DIR = os.path.join(testlib.TEST_DIR, "verify")
 ROOT_DIR = os.path.dirname(testlib.TEST_DIR)
 
@@ -35,34 +36,35 @@ class TestRunTestListing(unittest.TestCase):
 
     def testBasic(self):
         # Listing on check-* file
-        self.assertEqual(subprocess.check_output([os.path.join(dirname, "check-example"), "-l", "TestNondestructiveExample"]).strip().decode(),
+        self.assertEqual(subprocess.check_output([os.path.join(EXAMPLE_DIR, "check-example"), "-l", "TestNondestructiveExample"]).strip().decode(),
                          "TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo")
         # Filter on class
-        p = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-l", "TestNondestructiveExample"], capture_output=True, check=True)
+        p = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "-l", "TestNondestructiveExample"], capture_output=True, check=True)
         self.assertIn(b"TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", p.stdout.strip())
         # Filter a specific test
         self.assertIn("TestNondestructiveExample.testOne",
-                      subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-l", "TestNondestructiveExample.testOne"]).strip().decode())
+                      subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "-l", "TestNondestructiveExample.testOne"]).strip().decode())
         # Exclude test patterns
-        out = subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-l",
+        out = subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "-l",
                                        "--exclude", "bogus", "--exclude", "TestNondestructiveExample.testTwo",
                                        "TestNondestructiveExample"]).strip().decode()
         self.assertIn("TestNondestructiveExample.testOne", out)
         self.assertNotIn("testTwo", out)
 
-        ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], check=True, capture_output=True)
+        ndtests = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "-n", "-l"], check=True, capture_output=True)
         self.assertIn(b"TestExample.testNondestructive\n", ndtests.stdout)
         self.assertIn(b"TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", ndtests.stdout)
 
         # nondestructive tests are sorted alphabetically
-        self.assertRegex(ndtests.stdout, re.compile(b".*TestAccounts.*TestFirewall.*TestLogin.*TestServices.*TestTerminal.*", re.S))
+        verify_ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], check=True, capture_output=True)
+        self.assertRegex(verify_ndtests.stdout, re.compile(b".*TestAccounts.*TestFirewall.*TestLogin.*TestServices.*TestTerminal.*", re.S))
 
     def testNonDestructive(self):
-        self.assertEqual(subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "--nondestructive", "-l", "TestExample"]).strip().decode(),
+        self.assertEqual(subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "--nondestructive", "-l", "TestExample"]).strip().decode(),
                          "TestExample.testNondestructive")
 
         # with short option and substring
-        self.assertEqual(subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-nl", "TestExamp"]).strip().decode(),
+        self.assertEqual(subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "-nl", "TestExamp"]).strip().decode(),
                          "TestExample.testNondestructive")
 
 
@@ -76,7 +78,7 @@ class TestRunTest(testlib.MachineCase):
             del env["TEST_JOBS"]
         except KeyError:
             pass
-        out = subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-vt",
+        out = subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "-vt",
                                        "--machine", self.machine.ssh_address + ":" + self.machine.ssh_port,
                                        "--browser", self.machine.web_address + ":" + self.machine.web_port,
                                        "TestNondestructiveExample"], env=env)
@@ -85,14 +87,14 @@ class TestRunTest(testlib.MachineCase):
         self.assertIn(b"TESTS PASSED", out)
 
         # can't be called with concurrency
-        p = subprocess.Popen([run_tests, "--test-dir", VERIFY_DIR, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67", "-j2"],
+        p = subprocess.Popen([run_tests, "--test-dir", EXAMPLE_DIR, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67", "-j2"],
                              stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         (out, err) = p.communicate()
         self.assertGreaterEqual(p.returncode, 1)
         self.assertIn(b"--machine cannot be used with concurrent jobs", err)
 
         # implies --nondestructive
-        out = subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67",
+        out = subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67",
                                        "TestExample.testBasic"], env=env)
         self.assertIn(b"1..0", out)
         self.assertNotIn(b"TestExample", out)
@@ -112,18 +114,18 @@ class TestRunTest(testlib.MachineCase):
             pass
 
         # Check that we retry 3 times failing tests
-        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestExample.testFail", "TestExample.testSkip"],
+        process = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "TestExample.testFail", "TestExample.testSkip"],
                                  env=env, capture_output=True)
         stdout = process.stdout
-        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/verify\/check-example TestExample.testFail # RETRY 1 \(be robust against unstable tests\)\n")
-        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/verify\/check-example TestExample.testFail # RETRY 2 \(be robust against unstable tests\)\n")
-        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/verify\/check-example TestExample.testFail\n")
+        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail # RETRY 1 \(be robust against unstable tests\)\n")
+        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail # RETRY 2 \(be robust against unstable tests\)\n")
+        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail\n")
         self.assertNotRegex(stdout, b"RETRY 3")
-        self.assertRegex(stdout, rb"\nok 2 .*test\/verify\/check-example TestExample.testSkip # SKIP testSkip \(__main__\.TestExample")
+        self.assertRegex(stdout, rb"\nok 2 .*test\/example\/check-example TestExample.testSkip # SKIP testSkip \(__main__\.TestExample")
         self.assertRegex(stdout, rb"# 1 TESTS FAILED \[\d*s on .*, 2 destructive tests, 0 nondestructive tests: \]")
 
         # Check retry logic for changed tests
-        test_file = os.path.join(VERIFY_DIR, "check-testlib")
+        test_file = os.path.join(EXAMPLE_DIR, "check-retry")
         with open(test_file, 'r') as f:
             original_test = f.read()
 
@@ -140,22 +142,22 @@ class TestRunTest(testlib.MachineCase):
         self.addCleanup(write_file, test_file, original_test)
         write_file(test_file, original_test.replace("class NoTest", "class Test"))
 
-        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestRetryExample.testFail", "TestRetryExample.testBasic",
+        process = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "TestRetryExample.testFail", "TestRetryExample.testBasic",
                                   "TestRetryExample.testNoRetry"], env=env, capture_output=True)
         stdout = process.stdout
 
         # Changed test need to succeed 3 times
-        self.assertRegex(stdout, rb"\nok 1 .*test\/verify\/check-testlib TestRetryExample.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nok 1 .*test\/verify\/check-testlib TestRetryExample.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nok 1 .*test\/verify\/check-testlib TestRetryExample.testBasic\n")
+        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic\n")
         self.assertNotRegex(stdout, b"RETRY 3")
 
         # Changed test is never retried
-        self.assertRegex(stdout, rb"\nnot ok 2 .*test\/verify\/check-testlib TestRetryExample.testFail\n")
+        self.assertRegex(stdout, rb"\nnot ok 2 .*test\/example\/check-retry TestRetryExample.testFail\n")
         self.assertNotRegex(stdout, b"testFail # RETRY")
 
         # Using @no_retry_when_changed prevents this retry logic
-        self.assertRegex(stdout, rb"\nok 3 .*test\/verify\/check-testlib TestRetryExample.testNoRetry\n")
+        self.assertRegex(stdout, rb"\nok 3 .*test\/example\/check-retry TestRetryExample.testNoRetry\n")
         self.assertNotRegex(stdout, b"testNoRetry # RETRY")
 
         # Check retry logic for changed source
@@ -169,14 +171,12 @@ class TestRunTest(testlib.MachineCase):
         write_file(shell, original_source + "\n")
 
         # create affected test for shell changes
-        with open(__file__) as f:
-            original_test = f.read()
-        affected_testfile = os.path.join(VERIFY_DIR, "check-shell-testlib")
-        new_content = original_test.replace("class Test", "class NeinTest")
+        affected_testfile = os.path.join(EXAMPLE_DIR, "check-shell-testlib")
+        new_content = original_test.replace("class NoTest", "class NeinTest")
         write_file(affected_testfile, new_content.replace("class NeinTestRetryExample", "class TestShell"), mode=0o777)
         self.addCleanup(os.unlink, affected_testfile)
 
-        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR,
+        process = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR,
                                   "TestShell.testBasic", "TestShell.testNoRetry"],
                                  env=env, capture_output=True)
         stdout = process.stdout
@@ -198,7 +198,7 @@ class TestRunTest(testlib.MachineCase):
         write_file(systemd, original_source + "\n")
 
         # create affected test for systemd changes
-        affected_testfile = os.path.join(VERIFY_DIR, "check-system-testlib")
+        affected_testfile = os.path.join(EXAMPLE_DIR, "check-system-testlib")
         write_file(affected_testfile, """#!/usr/bin/env python3
 import unittest
 class TestSystemd(unittest.TestCase):
@@ -207,7 +207,7 @@ class TestSystemd(unittest.TestCase):
         """, mode=0o777)
         self.addCleanup(os.unlink, affected_testfile)
 
-        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestSystemd.testBasic"],
+        process = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "TestSystemd.testBasic"],
                                  env=env, capture_output=True)
         stdout = process.stdout
         self.assertRegex(stdout, rb"\nok .* TestSystemd.testBasic\n")
@@ -221,15 +221,15 @@ class TestSystemd(unittest.TestCase):
             pass
         env["TEST_TODO"] = "1"
 
-        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestTodo"],
+        process = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "TestTodo"],
                                  env=env, capture_output=True)
         stdout = process.stdout
 
         # A @todo test which fails should write 'not ok ... # TODO ...'
-        self.assertRegex(stdout, rb"\nnot ok . .*test/verify/check-example TestTodo.testTodoFail # TODO 2 is not yet sufficiently large\n")
+        self.assertRegex(stdout, rb"\nnot ok . .*test/example/check-example TestTodo.testTodoFail # TODO 2 is not yet sufficiently large\n")
 
         # A @todo test which passes should write 'not ok ... # expected failure ...' and hard fail
-        self.assertRegex(stdout, rb"\nnot ok . .*test/verify/check-example TestTodo.testTodoPass # expected failure: 2 is not yet sufficiently large\n")
+        self.assertRegex(stdout, rb"\nnot ok . .*test/example/check-example TestTodo.testTodoPass # expected failure: 2 is not yet sufficiently large\n")
 
         # There should have been 2 cases, one fail
         self.assertEqual(process.returncode, 1)
@@ -284,21 +284,6 @@ class TestTestlib(testlib.MachineCase):
     def testMiscAPI(self):
         assert self.system_before(1000)
         assert not self.system_before(100)
-
-
-@testlib.skipDistroPackage()
-class NoTestRetryExample(unittest.TestCase):
-
-    def testFail(self):
-        if os.environ.get('TEST_FAILURES'):
-            self.assertFalse(True)  # noqa: FBT003
-
-    @testlib.no_retry_when_changed
-    def testNoRetry(self):
-        self.assertTrue(True)  # noqa: FBT003
-
-    def testBasic(self):
-        self.assertTrue(True)  # noqa: FBT003
 
 
 if __name__ == '__main__':

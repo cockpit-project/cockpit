@@ -31,12 +31,8 @@ def console_screenshot(machine, name):
     print("Wrote screenshot to " + name)
 
 
+@testlib.nondestructive
 class TestStorageLuks(storagelib.StorageCase):
-
-    # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
-    provision = {
-        "0": {"memory_mb": 1536}
-    }
 
     def testLuks(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
@@ -48,9 +44,9 @@ class TestStorageLuks(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add a disk and partition it
-        m.add_disk("100M", serial="MYDISK")
-        b.wait_in_text("#drives", "MYDISK")
-        b.click('.sidepanel-row:contains("MYDISK")')
+        disk = self.add_ram_disk(100)
+        b.wait_in_text("#drives", disk)
+        b.click(f'.sidepanel-row:contains("{disk}")')
         b.wait_visible("#storage-detail")
         b.click('button:contains(Create partition table)')
         self.dialog({"type": "gpt"})
@@ -196,6 +192,96 @@ class TestStorageLuks(storagelib.StorageCase):
 
         b.logout()
         testlib.wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
+
+    def testNoFsys(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks, but without filesystem
+        disk = self.add_ram_disk()
+        b.wait_in_text("#drives", disk)
+        b.click(f'.sidepanel-row:contains("{disk}")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "empty",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 2, "Unrecognized data (encrypted)")
+
+        # Lock it
+        self.content_dropdown_action(1, "Lock")
+        self.content_row_wait_in_col(1, 2, "Locked encrypted data")
+
+        # Make it readonly
+        self.content_tab_info_action(1, 1, "Options")
+        self.dialog({"options": "readonly"})
+        self.assertNotEqual(m.execute("grep readonly /etc/crypttab"), "")
+
+        # Unlock it
+        self.content_row_action(1, "Unlock")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+
+        # Try to format it, just for kicks
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+    def testKeepKeys(self):
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks and a filesystem
+
+        disk = self.add_ram_disk()
+        b.wait_in_text("#drives", disk)
+        b.click(f'.sidepanel-row:contains("{disk}")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+        # Format it again but keep the keys
+
+        self.content_dropdown_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": " keep",
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+        # Unmount (and lock) it
+
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+
+        # Format it again and keep the keys.  Because it's locked, we
+        # need the old passphrase.
+
+        self.content_dropdown_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": " keep",
+                     "old_passphrase": "vainu-reku-toma-rolle-kaja",
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+
+class TestStorageLuksDestructive(storagelib.StorageCase):
+
+    # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
+    provision = {
+        "0": {"memory_mb": 1536}
+    }
 
     def testLuks1Slots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
@@ -348,89 +434,6 @@ class TestStorageLuks(storagelib.StorageCase):
             self.wait_mounted(1, 1)
             self.assert_not_in_configuration(dev, "crypttab", "options", "noauto")
             self.assert_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
-
-    def testNoFsys(self):
-        m = self.machine
-        b = self.browser
-
-        self.login_and_go("/storage")
-
-        # Add a disk and format it with luks, but without filesystem
-        m.add_disk("50M", serial="MYDISK")
-        b.wait_in_text("#drives", "MYDISK")
-        b.click('.sidepanel-row:contains("MYDISK")')
-        b.wait_visible("#storage-detail")
-
-        self.content_row_action(1, "Format")
-        self.dialog({"type": "empty",
-                     "crypto": self.default_crypto_type,
-                     "passphrase": "vainu-reku-toma-rolle-kaja",
-                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(1, 2, "Unrecognized data (encrypted)")
-
-        # Lock it
-        self.content_dropdown_action(1, "Lock")
-        self.content_row_wait_in_col(1, 2, "Locked encrypted data")
-
-        # Make it readonly
-        self.content_tab_info_action(1, 1, "Options")
-        self.dialog({"options": "readonly"})
-        self.assertNotEqual(m.execute("grep readonly /etc/crypttab"), "")
-
-        # Unlock it
-        self.content_row_action(1, "Unlock")
-        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
-
-        # Try to format it, just for kicks
-        self.content_row_action(1, "Format")
-        self.dialog({"type": "ext4",
-                     "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
-
-    def testKeepKeys(self):
-        m = self.machine
-        b = self.browser
-
-        self.login_and_go("/storage")
-
-        # Add a disk and format it with luks and a filesystem
-
-        m.add_disk("50M", serial="MYDISK")
-        b.wait_in_text("#drives", "MYDISK")
-        b.click('.sidepanel-row:contains("MYDISK")')
-        b.wait_visible("#storage-detail")
-
-        self.content_row_action(1, "Format")
-        self.dialog({"type": "ext4",
-                     "crypto": self.default_crypto_type,
-                     "passphrase": "vainu-reku-toma-rolle-kaja",
-                     "passphrase2": "vainu-reku-toma-rolle-kaja",
-                     "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
-
-        # Format it again but keep the keys
-
-        self.content_dropdown_action(1, "Format")
-        self.dialog({"type": "ext4",
-                     "crypto": " keep",
-                     "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
-
-        # Unmount (and lock) it
-
-        self.content_dropdown_action(1, "Unmount")
-        self.confirm()
-        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
-
-        # Format it again and keep the keys.  Because it's locked, we
-        # need the old passphrase.
-
-        self.content_dropdown_action(1, "Format")
-        self.dialog({"type": "ext4",
-                     "crypto": " keep",
-                     "old_passphrase": "vainu-reku-toma-rolle-kaja",
-                     "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
     def testReboot(self):
         m = self.machine

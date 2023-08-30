@@ -21,13 +21,8 @@ import storagelib
 import testlib
 
 
+@testlib.nondestructive
 class TestStorageHiddenLuks(storagelib.StorageCase):
-
-    # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
-    provision = {
-        "0": {"memory_mb": 1536}
-    }
-
     def test(self):
         m = self.machine
         b = self.browser
@@ -36,10 +31,8 @@ class TestStorageHiddenLuks(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        m.add_disk("50M", serial="DISK1")
-        m.add_disk("50M", serial="DISK2")
-        b.wait_in_text("#drives", "DISK1")
-        b.wait_in_text("#drives", "DISK2")
+        disk = self.add_ram_disk()
+        b.wait_in_text("#drives", disk)
 
         # Create a volume group with a logical volume with a encrypted
         # filesystem.
@@ -47,7 +40,7 @@ class TestStorageHiddenLuks(storagelib.StorageCase):
         self.devices_dropdown('Create LVM2 volume group')
         self.dialog_wait_open()
         self.dialog_set_val('name', "TEST")
-        self.dialog_set_val('disks', {"DISK1": True})
+        self.dialog_set_val('disks', {disk: True})
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text('#devices', "TEST")
@@ -88,6 +81,7 @@ class TestStorageHiddenLuks(storagelib.StorageCase):
         self.assertEqual(m.execute(f"grep {'my-crypto-tag'} /etc/crypttab || true"), "")
 
 
+@testlib.nondestructive
 class TestStorageHidden(storagelib.StorageCase):
 
     def testHiddenRaid(self):
@@ -98,19 +92,19 @@ class TestStorageHidden(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        m.add_disk("50M", serial="DISK1")
-        m.add_disk("50M", serial="DISK2")
-        b.wait_in_text("#drives", "DISK1")
-        b.wait_in_text("#drives", "DISK2")
+        disk1 = self.add_loopback_disk()
+        disk2 = self.add_loopback_disk()
+        b.wait_in_text("#others", disk1)
+        b.wait_in_text("#others", disk2)
 
         # Now do the same with a MDRAID
 
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID device'),
-                               expect=lambda: (self.dialog_is_present('disks', "DISK1") and
-                                               self.dialog_is_present('disks', "DISK2")),
+                               expect=lambda: (self.dialog_is_present('disks', disk1) and
+                                               self.dialog_is_present('disks', disk2)),
                                values={"name": "ARR",
-                                       "disks": {"DISK1": True,
-                                                 "DISK2": True}})
+                                       "disks": {disk1: True,
+                                                 disk2: True}})
         b.wait_in_text('#devices', "ARR")
 
         b.click('#devices .sidepanel-row:contains("ARR")')
@@ -131,7 +125,6 @@ class TestStorageHidden(storagelib.StorageCase):
         self.assertEqual(m.execute(f"grep {mount_point_2} /etc/fstab || true"), "")
 
     @testlib.onlyImage("Only test snaps on Ubuntu", "ubuntu*")
-    @testlib.nondestructive
     def testHiddenSnap(self):
         m = self.machine
         b = self.browser

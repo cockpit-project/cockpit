@@ -100,6 +100,9 @@ if [ "$PLAN" = "optional" ]; then
               TestStorageMounting.testMounting
               TestStorageMounting.testMountingHelp
               TestStorageMounting.testNeverAuto
+              TestStorageMountingLUKS.testEncryptedMountingHelp
+              TestStorageMountingLUKS.testDuplicateMountPoints
+              TestStorageMountingLUKS.testNeverAuto
 
               TestStoragePackagesNFS.testNfsMissingPackages
               TestStoragePartitions.testSizeSlider

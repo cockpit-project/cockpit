@@ -41,21 +41,37 @@ import client from "./client.js";
 
 const _ = cockpit.gettext;
 
-export function is_mounted(client, block) {
+export function is_mounted(client, block, subvol) {
     const block_fsys = client.blocks_fsys[block.path];
     const mounted_at = block_fsys ? block_fsys.MountPoints : [];
-    const config = block.Configuration.find(c => c[0] == "fstab");
-    if (config && config[1].dir.v) {
-        let dir = utils.decode_filename(config[1].dir.v);
-        if (dir[0] != "/")
-            dir = "/" + dir;
+    const [, dir] = get_fstab_config(block, false, subvol);
+    if (dir) {
         return mounted_at.map(utils.decode_filename).indexOf(dir) >= 0;
     } else
         return null;
 }
 
-export function get_fstab_config(block, also_child_config) {
-    let config = block.Configuration.find(c => c[0] == "fstab");
+export function get_fstab_config(block, also_child_config, subvol) {
+    function match(c) {
+        const default_subvol = "/"; // XXX - get this from btrfs
+
+        if (c[0] != "fstab")
+            return false;
+        if (subvol !== undefined) {
+            const opts = utils.decode_filename(c[1].opts.v).split(",");
+            if (opts.indexOf("subvolid=" + subvol.id) >= 0)
+                return true;
+            if (opts.indexOf("subvol=" + subvol.pathname) >= 0)
+                return true;
+            if (subvol.pathname == default_subvol &&
+                !opts.find(o => o.indexOf("subvol=") >= 0 || o.indexOf("subvolid=") >= 0))
+                return true;
+            return false;
+        }
+        return true;
+    }
+
+    let config = block.Configuration.find(match);
 
     if (!config && also_child_config && client.blocks_crypto[block.path])
         config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
@@ -82,7 +98,7 @@ export function find_blocks_for_mount_point(client, mount_point, self) {
     const blocks = [];
 
     function is_self(b) {
-        return self && (b == self || client.blocks[b.CryptoBackingDevice] == self);
+        return self && (b == self || client.blocks[b.CryptoBackingDevice] == self || b.IdUUID == self.IdUUID);
     }
 
     for (const p in client.blocks) {
@@ -132,6 +148,10 @@ export function check_mismounted_fsys(client, path, enter_warning) {
     if (!block || !(block_fsys || dir))
         return;
 
+    // BTRFS warnings are handled in btrfs-details.jsx
+    if (client.blocks_fsys_btrfs[path])
+        return;
+
     const mounted_at = block_fsys ? block_fsys.MountPoints.map(utils.decode_filename) : [];
     const split_options = parse_options(opts);
     const opt_noauto = extract_option(split_options, "noauto");
@@ -165,9 +185,25 @@ export function check_mismounted_fsys(client, path, enter_warning) {
         enter_warning(path, { warning: "mismounted-fsys", type, other: other_mounts[0] });
 }
 
-export function mounting_dialog(client, block, mode, forced_options) {
+export function mount_at(block_fsys, target) {
+    const block = client.blocks[block_fsys.path];
+    if (block.IdType == "btrfs")
+        return cockpit.script('mkdir -p "$1" && mount "$1"', [target], { superuser: true, err: "message" });
+    else
+        return block_fsys.Mount({ });
+}
+
+export function unmount_at(block_fsys, target) {
+    const block = client.blocks[block_fsys.path];
+    if (block.IdType == "btrfs")
+        return cockpit.spawn(["umount", target], { superuser: true, err: "message" });
+    else
+        return block_fsys.Unmount({ });
+}
+
+export function mounting_dialog(client, block, mode, forced_options, subvol) {
     const block_fsys = client.blocks_fsys[block.path];
-    const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
+    const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true, subvol);
     const options = old_config ? old_opts : initial_tab_options(client, block, true);
 
     const split_options = parse_options(options);
@@ -179,9 +215,13 @@ export function mounting_dialog(client, block, mode, forced_options) {
     if (forced_options)
         for (const opt of forced_options)
             extract_option(split_options, opt);
+    if (subvol) {
+        extract_option(split_options, "subvol=" + subvol.pathname);
+        extract_option(split_options, "subvolid=" + subvol.id);
+    }
     const extra_options = unparse_options(split_options);
 
-    const is_filesystem_mounted = is_mounted(client, block);
+    const is_filesystem_mounted = is_mounted(client, block, subvol);
     let mount_point_users = null;
 
     function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type) {
@@ -215,9 +255,10 @@ export function mounting_dialog(client, block, mode, forced_options) {
                 return block.RemoveConfigurationItem(new_config, {});
             else if (old_config && !new_config)
                 return block.AddConfigurationItem(old_config, {});
-            else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts)) {
+            else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts))
                 return block.UpdateConfigurationItem(new_config, old_config, {});
-            }
+            else
+                return Promise.resolve();
         }
 
         function maybe_unmount() {
@@ -378,17 +419,6 @@ export function mounting_dialog(client, block, mode, forced_options) {
             ]);
     }
 
-    let teardown = null;
-    if (!is_filesystem_mounted && block_fsys && block_fsys.MountPoints.length > 0)
-        teardown = (
-            <>
-                {teardown}
-                <div className="modal-footer-teardown">
-                    <p>{cockpit.format(_("The filesystem is already mounted at $0. Proceeding will unmount it."),
-                                       utils.decode_filename(block_fsys.MountPoints[0]))}</p>
-                </div>
-            </>);
-
     const mode_title = {
         mount: _("Mount filesystem"),
         unmount: _("Unmount filesystem $0"),
@@ -414,6 +444,8 @@ export function mounting_dialog(client, block, mode, forced_options) {
             opts.push("_netdev");
         if (forced_options)
             opts = opts.concat(forced_options);
+        if (subvol)
+            opts.push("subvol=" + subvol.pathname);
         if (extra_options)
             opts = opts.concat(extra_options);
         return (maybe_set_crypto_options(null, false, null, null)
@@ -434,7 +466,6 @@ export function mounting_dialog(client, block, mode, forced_options) {
     const dlg = dialog_open({
         Title: cockpit.format(mode_title[mode], old_dir),
         Fields: fields,
-        Teardown: teardown,
         update: function (dlg, vals, trigger) {
             if (trigger == "at_boot")
                 dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
@@ -458,6 +489,8 @@ export function mounting_dialog(client, block, mode, forced_options) {
                         opts.push("_netdev");
                     if (forced_options)
                         opts = opts.concat(forced_options);
+                    if (subvol)
+                        opts.push("subvol=" + subvol.pathname);
                     if (vals.mount_options.extra !== false)
                         opts = opts.concat(parse_options(vals.mount_options.extra));
                     return (maybe_update_config(vals.mount_point, unparse_options(opts),
@@ -512,6 +545,7 @@ export class FilesystemTab extends React.Component {
     render() {
         const self = this;
         const block = self.props.block;
+        const subvol = self.props.subvol;
         const forced_options = self.props.forced_options;
         const is_locked = block && block.IdUsage == 'crypto';
         const block_fsys = block && self.props.client.blocks_fsys[block.path];
@@ -538,8 +572,8 @@ export class FilesystemTab extends React.Component {
             });
         }
 
-        const is_filesystem_mounted = is_mounted(self.props.client, block);
-        const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
+        const is_filesystem_mounted = is_mounted(self.props.client, block, subvol);
+        const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true, subvol);
         const split_options = parse_options(old_opts);
         extract_option(split_options, "noauto");
         const opt_ro = extract_option(split_options, "ro");
@@ -550,6 +584,10 @@ export class FilesystemTab extends React.Component {
         if (forced_options)
             for (const opt of forced_options)
                 extract_option(split_options, opt);
+        if (subvol) {
+            extract_option(split_options, "subvol=" + subvol.pathname);
+            extract_option(split_options, "subvolid=" + subvol.id);
+        }
 
         let mount_point_text = null;
         if (old_dir) {
@@ -660,7 +698,7 @@ export class FilesystemTab extends React.Component {
 
             function do_mount() {
                 if (crypto_backing == block)
-                    mounting_dialog(client, block, "mount", forced_options);
+                    mounting_dialog(client, block, "mount", forced_options, subvol);
                 else
                     return client.mount_at(block, old_dir);
             }
@@ -734,7 +772,7 @@ export class FilesystemTab extends React.Component {
         return (
             <div>
                 <DescriptionList className="pf-m-horizontal-on-sm">
-                    { !stratis_fsys &&
+                    { !(stratis_fsys || subvol) &&
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                         <DescriptionListDescription>
@@ -757,7 +795,7 @@ export class FilesystemTab extends React.Component {
                                 <FlexItem>{ mount_point_text }</FlexItem>
                                 <FlexItem>
                                     <StorageLink onClick={() => mounting_dialog(self.props.client, block, "update",
-                                                                                forced_options)}>
+                                                                                forced_options, subvol)}>
                                         {_("edit")}
                                     </StorageLink>
                                 </FlexItem>

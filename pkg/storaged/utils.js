@@ -663,6 +663,7 @@ export function get_active_usage(client, path, top_action, child_action) {
     function get_usage(path, level) {
         const block = client.blocks[path];
         const fsys = client.blocks_fsys[path];
+        const btrfs_volume = client.blocks_fsys_btrfs[block.path];
         const mdraid = block && client.mdraids[block.MDRaidMember];
         const pvol = client.blocks_pvol[path];
         const vgroup = pvol && client.vgroups[pvol.VolumeGroup];
@@ -682,7 +683,15 @@ export function get_active_usage(client, path, top_action, child_action) {
             return actions;
         }
 
-        if (fsys && fsys.MountPoints.length > 0) {
+        if (btrfs_volume) {
+            usage.push({
+                level: level,
+                usage: 'btrfs-member',
+                block: block,
+                location: btrfs_volume.data.label,
+                blocking: true
+            });
+        } else if (fsys) {
             fsys.MountPoints.forEach(mp => {
                 usage.push({
                     level,

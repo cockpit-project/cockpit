@@ -174,6 +174,7 @@ function init_proxies () {
     client.blocks_swap = proxies("Swapspace");
     client.iscsi_sessions = proxies("ISCSI.Session");
     client.vdo_vols = proxies("VDOVolume");
+    client.blocks_fsys_btrfs = proxies("Filesystem.BTRFS");
     client.jobs = proxies("Job");
 
     return client.storaged_client.watch({ path_namespace: "/org/freedesktop/UDisks2" });
@@ -437,6 +438,27 @@ function update_indices() {
         };
     }
 
+    const old_uuids = client.uuids_btrfs_volume;
+    let need_poll = false;
+    client.uuids_btrfs_volume = { };
+    client.uuids_btrfs_blocks = { };
+    for (const p in client.blocks_fsys_btrfs) {
+        const bfs = client.blocks_fsys_btrfs[p];
+        const uuid = bfs.data.uuid;
+        const block_fsys = client.blocks_fsys[p];
+        if ((block_fsys && block_fsys.MountPoints.length > 0) || !client.uuids_btrfs_volume[uuid]) {
+            client.uuids_btrfs_volume[uuid] = bfs;
+            if (!old_uuids || !old_uuids[uuid])
+                need_poll = true;
+        }
+        if (!client.uuids_btrfs_blocks[uuid])
+            client.uuids_btrfs_blocks[uuid] = [];
+        client.uuids_btrfs_blocks[uuid].push(client.blocks[p]);
+    }
+
+    if (need_poll)
+        btrfs_poll();
+
     client.blocks_cleartext = { };
     for (path in client.blocks) {
         block = client.blocks[path];
@@ -476,6 +498,49 @@ function update_indices() {
     }
 }
 
+export function btrfs_poll() {
+    if (!client.uuids_btrfs_subvols)
+        client.uuids_btrfs_subvols = { };
+    if (!client.uuids_btrfs_volume)
+        return;
+
+    const uuids_subvols = { };
+    Promise.all(Object.keys(client.uuids_btrfs_volume).map(uuid => {
+        const block = client.uuids_btrfs_blocks[uuid][0];
+        const block_fsys = client.blocks_fsys[block.path];
+        const mp = block_fsys.MountPoints[0];
+        if (mp) {
+            return cockpit.spawn(["btrfs", "subvolume", "list", "-ap", utils.decode_filename(mp)],
+                                 { superuser: true, err: "message" })
+                    .then(output => {
+                        const subvols = [{ pathname: "/", id: 5 }];
+                        for (const line of output.split("\n")) {
+                            const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
+                            if (m)
+                                subvols.push({ pathname: m[4], id: Number(m[1]) });
+                        }
+                        uuids_subvols[uuid] = subvols;
+                    });
+        } else {
+            uuids_subvols[uuid] = null;
+            return Promise.resolve();
+        }
+    }))
+            .then(() => {
+                if (JSON.stringify(client.uuids_btrfs_subvols) != JSON.stringify(uuids_subvols)) {
+                    console.log("SUBVOLS", JSON.stringify(uuids_subvols));
+                    client.uuids_btrfs_subvols = uuids_subvols;
+                    client.update();
+                }
+            });
+}
+
+function btrfs_start_polling() {
+    window.setInterval(btrfs_poll, 5000);
+    client.uuids_btrfs_subvols = { };
+    btrfs_poll();
+}
+
 client.update = () => {
     update_indices();
     client.path_warnings = find_warnings(client);
@@ -499,12 +564,18 @@ function init_model(callback) {
             function() {
                 client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
                 client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
-                return Promise.allSettled([client.manager_lvm2.wait(), client.manager_iscsi.wait()])
-                        .then(() => {
-                            client.features.lvm2 = client.manager_lvm2.valid;
-                            client.features.iscsi = (client.manager_iscsi.valid &&
-                                                            client.manager_iscsi.SessionsSupported !== false);
-                        });
+                client.manager_btrfs = proxy("Manager.BTRFS", "Manager");
+                return Promise.allSettled([client.manager_lvm2.wait(),
+                                           client.manager_iscsi.wait(),
+                                           client.manager_btrfs.wait()])
+                    .then(() => {
+                        client.features.lvm2 = client.manager_lvm2.valid;
+                        client.features.iscsi = (client.manager_iscsi.valid &&
+                                                 client.manager_iscsi.SessionsSupported !== false);
+                        client.features.btrfs = client.manager_btrfs.valid;
+                        if (client.features.btrfs)
+                            btrfs_start_polling();
+                    });
             }, function(error) {
                 console.warn("Can't enable storaged modules", error.toString());
                 return Promise.resolve();

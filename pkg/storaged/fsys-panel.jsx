@@ -26,6 +26,7 @@ import { StorageUsageBar } from "./storage-controls.jsx";
 import { block_name, fmt_size, go_to_block, flatten, is_snap } from "./utils.js";
 import { OptionalPanel } from "./optional-panel.jsx";
 import { get_fstab_config } from "./fsys-tab.jsx";
+import { btrfs_usage } from "./btrfs-details.jsx";
 
 const _ = cockpit.gettext;
 
@@ -51,6 +52,9 @@ export class FilesystemsPanel extends React.Component {
 
             // Stratis filesystems are handled separately
             if (client.blocks_stratis_fsys[path])
+                return false;
+
+            if (client.blocks_fsys_btrfs[path])
                 return false;
 
             if (block.HintIgnore)
@@ -158,13 +162,56 @@ export class FilesystemsPanel extends React.Component {
         const pools = Object.keys(client.stratis_pools).filter(has_filesystems)
                 .map(make_pool);
 
+        function make_btrfs_volume(uuid) {
+            const volume = client.uuids_btrfs_volume[uuid];
+            const subvols = client.uuids_btrfs_subvols[uuid];
+            const block = client.blocks[volume.path];
+            const use = btrfs_usage(client, volume);
+
+            if (!subvols)
+                return [];
+
+            function make_subvol(subvol) {
+                let mount = "-";
+                if (block) {
+                    const [, mp] = get_fstab_config(block, true, subvol);
+                    if (mp)
+                        mount = mp;
+                }
+
+                return {
+                    props: { path: uuid, client, key: uuid + ":" + subvol.pathname },
+                    columns: [
+                        {
+                            title: subvol.pathname == "/"
+                                ? volume.data.label
+                                : volume.data.label + "/" + subvol.pathname
+                        },
+                        { title: "btrfs" },
+                        { title: mount },
+                        {
+                            title: <StorageUsageBar stats={use} critical={0.95} />,
+                            props: { className: "ct-text-align-right" }
+                        }
+                    ]
+                };
+            }
+
+            return subvols.map(make_subvol);
+        }
+
+        const subvols = Object.keys(client.uuids_btrfs_volume).map(make_btrfs_volume);
+
         function onRowClick(event, row) {
             if (!event || event.button !== 0)
                 return;
 
             const stratis_pool = row.props.client.stratis_pools[row.props.path];
+            const btrfs_volume = row.props.client.uuids_btrfs_volume[row.props.path];
             if (stratis_pool) {
                 cockpit.location.go(["pool", stratis_pool.Name]);
+            } else if (btrfs_volume) {
+                cockpit.location.go(["btrfs", btrfs_volume.data.uuid]);
             } else
                 go_to_block(row.props.client, row.props.path);
         }
@@ -186,7 +233,7 @@ export class FilesystemsPanel extends React.Component {
                         { title: _("Mount"), sortable: true },
                         { title: _("Size") }
                     ]}
-                    rows={mounts.concat(flatten(pools))} />
+                    rows={mounts.concat(flatten(pools)).concat(flatten(subvols))} />
             </OptionalPanel>
         );
     }

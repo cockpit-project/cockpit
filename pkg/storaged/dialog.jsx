@@ -1067,9 +1067,10 @@ export const SizeSlider = (tag, title, options) => {
 export const BlockingMessage = (usage) => {
     const usage_desc = {
         pvol: _("physical volume of LVM2 volume group"),
-        mdraid: _("member of RAID device"),
-        vdo: _("backing device for VDO device"),
-        "stratis-pool-member": _("member of Stratis pool")
+        "mdraid-member": _("member of RAID device"),
+        "vdo-backing": _("backing device for VDO device"),
+        "stratis-pool-member": _("member of Stratis pool"),
+        "btrfs-member": _("member of BTRFS volume")
     };
 
     const rows = [];
@@ -1148,9 +1149,13 @@ export const TeardownMessage = (usage) => {
     usage.forEach((use, index) => {
         if (use.block) {
             const fsys = client.blocks_stratis_fsys[use.block.path];
-            const name = (fsys
-                ? fsys.Devnode
-                : block_name(client.blocks[use.block.CryptoBackingDevice] || use.block));
+            let name;
+            if (use.name)
+                name = use.name;
+            else if (fsys)
+                name = fsys.Devnode;
+            else
+                name = block_name(client.blocks[use.block.CryptoBackingDevice] || use.block);
             rows.push({
                 columns: [name,
                     use.location || "-",

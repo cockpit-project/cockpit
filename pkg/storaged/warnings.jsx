@@ -20,6 +20,7 @@
 import { get_parent } from "./utils.js";
 import { check_mismounted_fsys } from "./fsys-tab.jsx";
 import { check_stratis_warnings } from "./stratis-details.jsx";
+import { check_btrfs } from "./btrfs-details.jsx";
 
 export function find_warnings(client) {
     const path_warnings = { };
@@ -103,6 +104,7 @@ export function find_warnings(client) {
     for (const path in client.blocks) {
         check_unused_space(path);
         check_mismounted_fsys(client, path, enter_warning);
+        check_btrfs(client, path, push_warning);
     }
 
     check_stratis_warnings(client, enter_warning);

@@ -25,8 +25,9 @@ import { SidePanel } from "./side-panel.jsx";
 import { create_mdraid, mdraid_rows } from "./mdraids-panel.jsx";
 import { create_vgroup, vgroup_rows } from "./vgroups-panel.jsx";
 import { vdo_rows } from "./vdos-panel.jsx";
-import { StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import { stratis_feature, create_stratis_pool, stratis_rows } from "./stratis-panel.jsx";
+import { btrfs_feature, create_btrfs_volume, btrfs_rows } from "./btrfs-panel.jsx";
+import { StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import { dialog_open } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -73,7 +74,8 @@ export function thing_menu_items(client, options) {
     const menu_items = [
         menu_item(null, _("Create RAID device"), () => create_mdraid(client)),
         menu_item(lvm2_feature, _("Create LVM2 volume group"), () => create_vgroup(client)),
-        menu_item(stratis_feature(client), _("Create Stratis pool"), () => create_stratis_pool(client))
+        menu_item(stratis_feature(client), _("Create Stratis pool"), () => create_stratis_pool(client)),
+        menu_item(btrfs_feature(client), _("Create BTRFS volume"), () => create_btrfs_volume(client)),
     ].filter(item => item !== null);
 
     return menu_items;
@@ -84,7 +86,8 @@ export function thing_rows(client, options) {
         mdraid_rows(client, options),
         vgroup_rows(client, options),
         vdo_rows(client, options),
-        stratis_rows(client, options));
+        stratis_rows(client, options),
+        btrfs_rows(client));
 }
 
 export class ThingsPanel extends React.Component {

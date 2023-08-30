@@ -34,6 +34,7 @@ import { MDRaidDetails } from "./mdraid-details.jsx";
 import { VDODetails } from "./vdo-details.jsx";
 import { NFSDetails } from "./nfs-details.jsx";
 import { StratisPoolDetails, StratisStoppedPoolDetails } from "./stratis-details.jsx";
+import { BtrfsVolumeDetails } from "./btrfs-details.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
@@ -127,6 +128,10 @@ export class Details extends React.Component {
                 body = <StratisPoolDetails client={client} pool={pool} />;
             else if (stopped_props)
                 body = <StratisStoppedPoolDetails client={client} uuid={this.props.name} />;
+        } else if (this.props.type == "btrfs") {
+            const volume = client.uuids_btrfs_volume[name];
+            if (volume)
+                body = <BtrfsVolumeDetails client={client} volume={volume} />;
         }
 
         if (!body)

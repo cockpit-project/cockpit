@@ -126,7 +126,8 @@ function create_tabs(client, target, options) {
         ? target
         : block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
 
-    const is_filesystem = (content_block && content_block.IdUsage == 'filesystem');
+    const is_btrfs = (content_block && content_block.IdUsage == 'filesystem' && content_block.IdType == "btrfs");
+    const is_filesystem = (content_block && content_block.IdUsage == 'filesystem' && !is_btrfs);
     const is_stratis = ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "stratis") ||
                         (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) ||
                         block_stratis_stopped_pool);
@@ -162,13 +163,16 @@ function create_tabs(client, target, options) {
     }
 
     const tabs = [];
+    let has_tab_warnings = false;
 
     function add_tab(name, renderer, for_content, associated_warnings) {
         let tab_warnings = [];
         if (associated_warnings)
             tab_warnings = warnings.filter(w => associated_warnings.indexOf(w.warning) >= 0);
-        if (tab_warnings.length > 0)
+        if (tab_warnings.length > 0) {
             name = <div className="content-nav-item-warning"><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {name}</div>;
+            has_tab_warnings = true;
+        }
         tabs.push(
             {
                 name,
@@ -233,7 +237,8 @@ function create_tabs(client, target, options) {
     if (is_filesystem) {
         add_tab(_("Filesystem"), FilesystemTab, true, ["mismounted-fsys"]);
     } else if (content_block && (content_block.IdUsage == "raid" ||
-                                 client.legacy_vdo_overlay.find_by_backing_block(content_block))) {
+                                 client.legacy_vdo_overlay.find_by_backing_block(content_block) ||
+                                 is_btrfs)) {
         // no tab for these
     } else if (block_swap || (content_block && content_block.IdUsage == "other" && content_block.IdType == "swap")) {
         add_tab(_("Swap"), SwapTab, true);
@@ -419,7 +424,7 @@ function create_tabs(client, target, options) {
         add_menu_danger_action(_("Delete"), delete_);
     }
 
-    if (block_fsys) {
+    if (block_fsys && !is_btrfs) {
         if (is_mounted(client, content_block))
             add_menu_action(_("Unmount"), () => mounting_dialog(client, content_block, "unmount"));
         else
@@ -431,7 +436,7 @@ function create_tabs(client, target, options) {
         actions: tab_actions,
         menu_actions: tab_menu_actions,
         menu_danger_actions: tab_menu_danger_actions,
-        has_warnings: warnings.length > 0
+        has_warnings: has_tab_warnings
     };
 }
 
@@ -440,6 +445,7 @@ function block_description(client, block, options) {
     const block_stratis_blockdev = client.blocks_stratis_blockdev[block.path];
     const block_stratis_stopped_pool = client.blocks_stratis_stopped_pool[block.path];
     const vdo = client.legacy_vdo_overlay.find_by_backing_block(block);
+    const btrfs_volume = client.blocks_fsys_btrfs[block.path];
     const cleartext = client.blocks_cleartext[block.path];
     if (cleartext)
         block = cleartext;
@@ -461,6 +467,10 @@ function block_description(client, block, options) {
             omit_encrypted_label = true;
         } else
             type = C_("storage-id-desc", "Locked encrypted data");
+    } else if (btrfs_volume) {
+        type = _("BTRFS member");
+        used_for = btrfs_volume.data.label;
+        link = ["btrfs", btrfs_volume.data.uuid];
     } else if (block.IdUsage == "filesystem") {
         const [, mount_point] = get_fstab_config(block, true);
         type = cockpit.format(C_("storage-id-desc", "$0 filesystem"), block.IdType);

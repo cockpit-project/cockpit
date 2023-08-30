@@ -3709,6 +3709,7 @@ function factory() {
 
     cockpit.language = "en";
     cockpit.language_direction = "ltr";
+    const test_l10n = window.localStorage.test_l10n;
 
     cockpit.locale = function locale(po) {
         let lang = cockpit.language;
@@ -3796,8 +3797,12 @@ function factory() {
         if (po_data) {
             const translated = po_data[key];
             if (translated?.[1])
-                return translated[1];
+                string = translated[1];
         }
+
+        if (test_l10n === 'true')
+            return "»" + string + "«";
+
         return string;
     };
 

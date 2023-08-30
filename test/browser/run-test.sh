@@ -216,6 +216,7 @@ if [ "$PLAN" = "network" ]; then
 
               TestNetworkingBasic.testIpHelper
               TestNetworkingBasic.testNoService
+              TestNetworkingUnmanaged.testUnmanaged
               "
 fi
 

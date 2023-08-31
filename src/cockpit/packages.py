@@ -17,7 +17,6 @@
 
 import collections
 import contextlib
-import functools
 import gzip
 import json
 import logging
@@ -31,6 +30,7 @@ from typing import Callable, ClassVar, Dict, Iterable, List, NamedTuple, Optiona
 from cockpit._vendor.systemd_ctypes import bus
 
 from . import config
+from ._paths import libexecdir
 from ._version import __version__
 from .jsonutil import (
     JsonDocument,
@@ -261,29 +261,25 @@ class PackagesLoader:
         'path-not-exists': lambda p: not os.path.exists(p),
     }
 
-    @staticmethod
-    @functools.lru_cache()
-    def get_libexecdir() -> str:
-        """Detect libexecdir on current machine
-
-        This only works for systems which have cockpit-ws installed.
-        """
-        for candidate in ['/usr/local/libexec', '/usr/libexec', '/usr/local/lib/cockpit', '/usr/lib/cockpit']:
-            if os.path.exists(os.path.join(candidate, 'cockpit-askpass')):
-                return candidate
-        else:
-            logger.warning('Could not detect libexecdir')
-            # give readable error messages
-            return '/nonexistent/libexec'
-
     @classmethod
     def patch_libexecdir(cls, value: str) -> str:
-        if '${libexecdir}/cockpit-askpass' in value:
-            # extra-special case: we handle this internally
-            abs_askpass = shutil.which('cockpit-askpass')
-            if abs_askpass is not None:
-                return value.replace('${libexecdir}/cockpit-askpass', abs_askpass)
-        return value.replace('${libexecdir}', cls.get_libexecdir())
+        if '${libexecdir}' not in value:
+            return value
+
+        # normal case after `make install`
+        if libexecdir is not None:
+            return value.replace('${libexecdir}', libexecdir)
+
+        # for pure wheel installs, look in the path on a file-by-file basis
+        before, sep, after = value.partition('${libexecdir}/')
+        if sep:
+            abspath = shutil.which(after)
+            if abspath:
+                return f'{before}{abspath}'
+
+        # bzzt.
+        logger.warning('Could not expand %s', value)
+        return value.replace('${libexecdir}', '/nonexistent/libexec')
 
     @classmethod
     def patch_manifest(cls, manifest: JsonObject, parent: Path) -> JsonObject:

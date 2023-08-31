@@ -28,8 +28,11 @@ install-python:
 	@# system packages available to the build.
 	python3 -m pip install --no-index --force-reinstall --root='$(DESTDIR)/' --prefix='$(prefix)' \
 		"$$(python3 '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
+	@# pure-wheel installs don't have anything to do with libexecdir
+	@# but we want to use libexecdir (as configured) for distribution installs
 	mkdir -p $(DESTDIR)$(libexecdir)
 	mv -t $(DESTDIR)$(libexecdir) $(DESTDIR)$(bindir)/cockpit-askpass $(DESTDIR)$(bindir)/cockpit-beiboot
+	python3 $(srcdir)/tools/pep491.py '$(DESTDIR)$(prefix)' 'cockpit-$(VERSION)' 'cockpit/_paths.py' 'libexecdir = "$(libexecdir)"'
 endif
 
 

@@ -146,7 +146,8 @@ class Bridge(Router, PackagesListener):
         self.write_control(command='init', version=1, **init_args)
 
     # PackagesListener interface
-    def packages_loaded(self):
+    def packages_loaded(self) -> None:
+        assert self.packages
         bridge_configs = self.packages.get_bridge_configs()
         if self.bridge_rules != bridge_configs:
             self.superuser_rule.set_configs(bridge_configs)

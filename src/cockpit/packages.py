@@ -88,7 +88,7 @@ class Document(NamedTuple):
 
 
 class PackagesListener:
-    def packages_loaded(self):
+    def packages_loaded(self) -> None:
         """Called when the packages have been reloaded"""
 
 

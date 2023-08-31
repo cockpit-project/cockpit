@@ -65,8 +65,11 @@ export function check_stratis_warnings(client, enter_warning) {
 
     for (const p in client.stratis_pools) {
         const blockdevs = client.stratis_pool_blockdevs[p] || [];
+        const pool = client.stratis_pools[p];
         if (blockdevs.some(bd => bd.NewPhysicalSize[0] && Number(bd.NewPhysicalSize[1]) > Number(bd.TotalPhysicalSize)))
             enter_warning(p, { warning: "unused-blockdevs" });
+        if (pool.AvailableActions && pool.AvailableActions !== "fully_operational")
+            enter_warning(p, { warning: "not-fully-operational" });
     }
 }
 

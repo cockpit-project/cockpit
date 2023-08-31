@@ -145,9 +145,13 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <h2 className="pf-v5-u-font-size-3xl">{_("Applications")}</h2>
                     <FlexItem align={{ default: 'alignRight' }}>
-                        <Flex>
-                            {refresh_progress}
-                            {refresh_button}
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} spacer={{ default: 'spacerXs' }}>
+                            <FlexItem>
+                                {refresh_progress}
+                            </FlexItem>
+                            <FlexItem>
+                                {refresh_button}
+                            </FlexItem>
                         </Flex>
                     </FlexItem>
                 </Flex>

@@ -330,7 +330,31 @@ function ph_set_texts(new_texts) {
         const elts = ph_select(sel);
         if (elts.length == 0)
             throw new Error(sel + " not found");
-        for (const elt of ph_select(sel))
-            elt.textContent = new_texts[sel];
+        for (let elt of elts) {
+            // We have to be careful to not replace any actual nodes
+            // in the DOM since that would cause React to fail later
+            // when it tries to remove some of its nodes that are no
+            // longer in the DOM.  This means that setting the
+            // "textContent" property is out, for example.
+            //
+            // Instead, we insist on finding an actual "Text" node
+            // that we then modify.  If the given selector results in
+            // elements that have other elements in them, we refuse to
+            // mock them.
+            //
+            // However, for convenience, this function digs into
+            // elements that have exactly one other child element.
+            while (elt.children.length == 1)
+                elt = elt.children[0];
+            if (elt.children.length != 0)
+                throw new Error(sel + " can not be mocked since it contains more than text");
+            let subst = new_texts[sel];
+            for (const n of elt.childNodes) {
+                if (n.nodeType == 3) { // 3 == TEXT
+                    n.data = subst;
+                    subst = "";
+                }
+            }
+        }
     }
 }

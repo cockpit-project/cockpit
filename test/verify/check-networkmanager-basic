@@ -68,15 +68,10 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_visible("#network-interface")
         b.assert_pixels("#network-interface .network-interface-details",
                         "network-interface",
-                        [
-                            "#network-interface-mac",
-                            ".networking-interface-status",
-                            "span + #networking-edit-ipv6",
-                            "span + #networking-edit-ipv4",
-                        ],
-                        # IPv6 addresses vary wildly, and their different rendered widths change the column widths
-                        skip_layouts=['mobile']
-                        )
+                        mock={
+                            "#network-interface-mac": "11:22:33:44:55:66",
+                            ".networking-interface-status": "12.123.123.123/20, fedc:0:0:0:1234:ff:abcd:1234/64",
+                        })
 
         con_id = testlib.wait(lambda: self.iface_con_id(iface))
 

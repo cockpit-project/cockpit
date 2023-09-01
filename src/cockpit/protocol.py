@@ -20,7 +20,7 @@ import json
 import logging
 import uuid
 
-from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_str, typechecked
+from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_int, get_str, typechecked
 
 logger = logging.getLogger(__name__)
 
@@ -206,23 +206,14 @@ class CockpitProtocolServer(CockpitProtocol):
     def do_kill(self, host: 'str | None', group: 'str | None', message: JsonObject) -> None:
         raise NotImplementedError
 
-    def transport_control_received(self, command, message):
+    def transport_control_received(self, command: str, message: JsonObject) -> None:
         if command == 'init':
-            try:
-                if int(message['version']) != 1:
-                    raise CockpitProtocolError('incorrect version number', 'protocol-error')
-            except KeyError as exc:
-                raise CockpitProtocolError('version field is missing', 'protocol-error') from exc
-            except ValueError as exc:
-                raise CockpitProtocolError('version field is not an int', 'protocol-error') from exc
-
-            try:
-                self.init_host = message['host']
-            except KeyError as exc:
-                raise CockpitProtocolError('missing host field', 'protocol-error') from exc
+            if get_int(message, 'version') != 1:
+                raise CockpitProtocolError('incorrect version number')
+            self.init_host = get_str(message, 'host')
             self.do_init(message)
         elif command == 'kill':
-            self.do_kill(message.get('host'), message.get('group'), message)
+            self.do_kill(get_str(message, 'host', None), get_str(message, 'group', None), message)
         elif command == 'authorize':
             self.do_authorize(message)
         else:
@@ -247,11 +238,8 @@ class CockpitProtocolServer(CockpitProtocol):
             self.authorizations.pop(cookie)
 
     def do_authorize(self, message: JsonObject) -> None:
-        cookie = message.get('cookie')
-        response = message.get('response')
-
-        if not isinstance(cookie, str) or not isinstance(response, str):
-            raise CockpitProtocolError('invalid authorize response')
+        cookie = get_str(message, 'cookie')
+        response = get_str(message, 'response')
 
         if self.authorizations is None or cookie not in self.authorizations:
             logger.warning('no matching authorize request')

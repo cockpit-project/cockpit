@@ -103,48 +103,35 @@ class CockpitProtocol(asyncio.Protocol):
         except (json.JSONDecodeError, JsonError) as exc:
             raise CockpitProtocolError(f'control message: {exc!s}') from exc
 
-    def consume_one_frame(self, view):
+    def consume_one_frame(self, data: bytes) -> int:
         """Consumes a single frame from view.
 
         Returns positive if a number of bytes were consumed, or negative if no
         work can be done because of a given number of bytes missing.
         """
 
-        # Nothing to look at?  Save ourselves the trouble...
-        if not view:
-            return 0
-
-        view = bytes(view)
-        # We know the length + newline is never more than 10 bytes, so just
-        # slice that out and deal with it directly.  We don't have .index() on
-        # a memoryview, for example.
-        # From a performance standpoint, hitting the exception case is going to
-        # be very rare: we're going to receive more than the first few bytes of
-        # the packet in the regular case.  The more likely situation is where
-        # we get "unlucky" and end up splitting the header between two read()s.
-        header = bytes(view[:10])
         try:
-            newline = header.index(b'\n')
+            newline = data.index(b'\n')
         except ValueError as exc:
-            if len(header) < 10:
+            if len(data) < 10:
                 # Let's try reading more
-                return len(header) - 10
+                return len(data) - 10
             raise CockpitProtocolError("size line is too long") from exc
 
         try:
-            length = int(header[:newline])
+            length = int(data[:newline])
         except ValueError as exc:
             raise CockpitProtocolError("frame size is not an integer") from exc
 
         start = newline + 1
         end = start + length
 
-        if end > len(view):
+        if end > len(data):
             # We need to read more
-            return len(view) - end
+            return len(data) - end
 
         # We can consume a full frame
-        self.frame_received(view[start:end])
+        self.frame_received(data[start:end])
         return end
 
     def connection_made(self, transport):
@@ -192,7 +179,7 @@ class CockpitProtocol(asyncio.Protocol):
     def data_received(self, data):
         try:
             self.buffer += data
-            while True:
+            while self.buffer:
                 result = self.consume_one_frame(self.buffer)
                 if result <= 0:
                     return

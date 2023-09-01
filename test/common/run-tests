@@ -370,14 +370,16 @@ def detect_tests(test_files, image, opts):
     # robust, reproducible, and provides an even distribution of both directions
     nondestructive_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
 
+    # sort destructive tests by class/test name, mostly for niceness and --list
+    destructive_tests.sort(key=lambda t: t.command[-1])
+
     return (nondestructive_tests, destructive_tests, machine_class)
 
 
-def list_tests(opts):
+def list_tests(opts, image):
     test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
-    nondestructive_tests, destructive_tests, _ = detect_tests(test_files, "dummy", opts)
-    names = {t.command[-1] for t in nondestructive_tests + destructive_tests}
-    for n in sorted(names):
+    nondestructive_tests, destructive_tests, _ = detect_tests(test_files, image, opts)
+    for n in [t.command[-1] for t in [*nondestructive_tests, *destructive_tests]]:
         print(n)
 
 
@@ -574,7 +576,7 @@ def main():
     sys.path.append(os.path.realpath(opts.test_dir))
 
     if opts.list:
-        list_tests(opts)
+        list_tests(opts, image)
         return 0
 
     return run(opts, image)

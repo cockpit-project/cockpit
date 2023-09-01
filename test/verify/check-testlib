@@ -40,7 +40,8 @@ class TestRunTestListing(unittest.TestCase):
                          "TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo")
         # Filter on class
         p = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "-l", "TestNondestructiveExample"], capture_output=True, check=True)
-        self.assertIn(b"TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", p.stdout.strip())
+        self.assertIn(b"TestNondestructiveExample.testOne\n", p.stdout)
+        self.assertIn(b"TestNondestructiveExample.testTwo\n", p.stdout)
         # Filter a specific test
         self.assertIn("TestNondestructiveExample.testOne",
                       subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "-l", "TestNondestructiveExample.testOne"]).strip().decode())
@@ -53,11 +54,21 @@ class TestRunTestListing(unittest.TestCase):
 
         ndtests = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "-n", "-l"], check=True, capture_output=True)
         self.assertIn(b"TestExample.testNondestructive\n", ndtests.stdout)
-        self.assertIn(b"TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", ndtests.stdout)
+        self.assertIn(b"TestNondestructiveExample.testOne\n", ndtests.stdout)
+        self.assertIn(b"TestNondestructiveExample.testTwo\n", ndtests.stdout)
 
         # nondestructive tests are sorted alphabetically
-        verify_ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], check=True, capture_output=True)
+        env = os.environ.copy()
+        # ... ascending for even crc32(image):
+        env["TEST_OS"] = "dummy-1"
+        verify_ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"],
+                                        check=True, capture_output=True, env=env)
         self.assertRegex(verify_ndtests.stdout, re.compile(b".*TestAccounts.*TestFirewall.*TestLogin.*TestServices.*TestTerminal.*", re.S))
+        # ... descending for odd crc32(image)
+        env["TEST_OS"] = "dummy"
+        verify_ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"],
+                                        check=True, capture_output=True, env=env)
+        self.assertRegex(verify_ndtests.stdout, re.compile(b".*TestTerminal.*TestServices.*TestLogin.*TestFirewall.*TestAccounts.", re.S))
 
     def testNonDestructive(self):
         self.assertEqual(subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "--nondestructive", "-l", "TestExample"]).strip().decode(),

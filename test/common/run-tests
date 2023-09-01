@@ -158,7 +158,7 @@ class Test:
         self.output += b"\n"
         self._print_test()
         self.machine_id = None
-        return None, 1
+        return retry_reason, 1
 
     # internal methods
 
@@ -445,7 +445,7 @@ def run(opts, image):
                         global_machines[test_machine].reset()
 
                 # run again if needed
-                if retry_reason:
+                if test_result == 0 and retry_reason:
                     if test.nondestructive:
                         nondestructive_tests.insert(0, test)
                     else:

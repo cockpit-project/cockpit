@@ -19,7 +19,6 @@ import asyncio
 import json
 import logging
 import uuid
-from typing import Dict, Optional
 
 from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_str, typechecked
 
@@ -47,7 +46,7 @@ class CockpitProblem(Exception):
 
 
 class CockpitProtocolError(CockpitProblem):
-    def __init__(self, message, problem='protocol-error'):
+    def __init__(self, message: str, problem: str = 'protocol-error'):
         super().__init__(problem, message=message)
 
 
@@ -57,14 +56,15 @@ class CockpitProtocol(asyncio.Protocol):
     We need to use this because Python's SelectorEventLoop doesn't supported
     buffered protocols.
     """
-    transport: Optional[asyncio.Transport] = None
+    transport: 'asyncio.Transport | None' = None
     buffer = b''
     _closed: bool = False
+    _communication_done: 'asyncio.Future[None] | None' = None
 
     def do_ready(self) -> None:
         pass
 
-    def do_closed(self, exc: Optional[Exception]) -> None:
+    def do_closed(self, exc: 'Exception | None') -> None:
         pass
 
     def transport_control_received(self, command: str, message: JsonObject) -> None:
@@ -87,7 +87,7 @@ class CockpitProtocol(asyncio.Protocol):
         else:
             self.control_received(data)
 
-    def control_received(self, data: bytes):
+    def control_received(self, data: bytes) -> None:
         try:
             message = typechecked(json.loads(data), dict)
             command = get_str(message, 'command')
@@ -134,8 +134,9 @@ class CockpitProtocol(asyncio.Protocol):
         self.frame_received(data[start:end])
         return end
 
-    def connection_made(self, transport):
+    def connection_made(self, transport: asyncio.BaseTransport) -> None:
         logger.debug('connection_made(%s)', transport)
+        assert isinstance(transport, asyncio.Transport)
         self.transport = transport
         self.do_ready()
 
@@ -143,13 +144,13 @@ class CockpitProtocol(asyncio.Protocol):
             logger.debug('  but the protocol already was closed, so closing transport')
             transport.close()
 
-    def connection_lost(self, exc):
+    def connection_lost(self, exc: 'Exception | None') -> None:
         logger.debug('connection_lost')
         assert self.transport is not None
         self.transport = None
         self.close(exc)
 
-    def close(self, exc: Optional[Exception] = None) -> None:
+    def close(self, exc: 'Exception | None' = None) -> None:
         if self._closed:
             return
         self._closed = True
@@ -159,7 +160,7 @@ class CockpitProtocol(asyncio.Protocol):
 
         self.do_closed(exc)
 
-    def write_channel_data(self, channel, payload):
+    def write_channel_data(self, channel: str, payload: bytes) -> None:
         """Send a given payload (bytes) on channel (string)"""
         # Channel is certainly ascii (as enforced by .encode() below)
         frame_length = len(channel + '\n') + len(payload)
@@ -176,7 +177,7 @@ class CockpitProtocol(asyncio.Protocol):
         pretty = json.dumps(create_object(_msg, kwargs), indent=2) + '\n'
         self.write_channel_data('', pretty.encode())
 
-    def data_received(self, data):
+    def data_received(self, data: bytes) -> None:
         try:
             self.buffer += data
             while self.buffer:
@@ -187,22 +188,22 @@ class CockpitProtocol(asyncio.Protocol):
         except CockpitProtocolError as exc:
             self.close(exc)
 
-    def eof_received(self) -> Optional[bool]:
+    def eof_received(self) -> bool:
         return False
 
 
 # Helpful functionality for "server"-side protocol implementations
 class CockpitProtocolServer(CockpitProtocol):
-    init_host: Optional[str] = None
-    authorizations: Optional[Dict[str, asyncio.Future]] = None
+    init_host: 'str | None' = None
+    authorizations: 'dict[str, asyncio.Future[str]] | None' = None
 
-    def do_send_init(self):
+    def do_send_init(self) -> None:
         raise NotImplementedError
 
-    def do_init(self, message):
+    def do_init(self, message: JsonObject) -> None:
         pass
 
-    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+    def do_kill(self, host: 'str | None', group: 'str | None') -> None:
         raise NotImplementedError
 
     def transport_control_received(self, command, message):
@@ -227,7 +228,7 @@ class CockpitProtocolServer(CockpitProtocol):
         else:
             raise CockpitProtocolError(f'unexpected control message {command} received')
 
-    def do_ready(self):
+    def do_ready(self) -> None:
         self.do_send_init()
 
     # authorize request/response API

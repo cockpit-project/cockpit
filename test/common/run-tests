@@ -34,7 +34,7 @@ def flush_stdout():
 
 
 class Test:
-    def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected, todo, cost=1):
+    def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected, todo, provision):
         self.process = None
         self.retries = 0
         self.test_id = test_id
@@ -44,7 +44,9 @@ class Test:
         self.machine_id = None
         self.retry_when_affected = retry_when_affected
         self.todo = todo
-        self.cost = cost
+        self.provision = provision
+        # each additionally provisioned VM costs destructive test capacity
+        self.cost = len(provision) if provision else 1
         self.returncode = None
 
     def assign_machine(self, machine_id, ssh_address, web_address):
@@ -352,12 +354,8 @@ def detect_tests(test_files, image, opts):
                 nd = testlib.get_decorator(test_method, test, "nondestructive")
                 rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
                 todo = testlib.get_decorator(test_method, test, "todo")
-                if getattr(test.__class__, "provision", None):
-                    # each additionally provisioned VM costs destructive test capacity
-                    cost = len(test.__class__.provision)
-                else:
-                    cost = 1
-                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, todo, cost=cost)
+                provision = getattr(test.__class__, "provision", None)
+                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, todo, provision)
                 if nd:
                     nondestructive_tests.append(test)
                 else:

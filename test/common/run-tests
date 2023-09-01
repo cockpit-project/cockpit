@@ -50,7 +50,8 @@ class Test:
         self.returncode = None
 
     def assign_machine(self, machine_id, ssh_address, web_address):
-        assert self.nondestructive, "assigning a machine only works for nondestructive test"
+        assert self.nondestructive or not self.provision, \
+            "assigning a machine only works for nondestructive or non-provisioning test"
         self.machine_id = machine_id
         self.command.insert(-2, "--machine")
         self.command.insert(-2, ssh_address)
@@ -227,7 +228,7 @@ class GlobalMachine:
         self.web_address = f"{self.machine.web_address}:{self.machine.web_port}"
         self.running_test = None
 
-        # snapshot the clean boot, so that we can easily reset the VM when it gets corrupted
+    def snapshot(self):
         self.machine.wait_boot()
         self.machine.snapshot()
 
@@ -368,8 +369,10 @@ def detect_tests(test_files, image, opts):
     # robust, reproducible, and provides an even distribution of both directions
     nondestructive_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
 
-    # sort destructive tests by class/test name, mostly for niceness and --list
-    destructive_tests.sort(key=lambda t: t.command[-1])
+    # sort destructive tests:
+    # - put the "default provisioning" before "custom provisioning" to maximize VM reuse,
+    # - then by class/test name, for niceness and --list
+    destructive_tests.sort(key=lambda t: ('1' if t.provision else '0') + t.command[-1])
 
     return (nondestructive_tests, destructive_tests, machine_class)
 
@@ -392,6 +395,7 @@ def run(opts, image):
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)
     nondestructive_tests, destructive_tests, machine_class = detect_tests(test_files, image, opts)
     nondestructive_tests_len = len(nondestructive_tests)
+    nonprovision_tests_len = len([t for t in destructive_tests if not t.provision])
     destructive_tests_len = len(destructive_tests)
 
     if opts.machine:
@@ -407,12 +411,16 @@ def run(opts, image):
         # Create appropriate number of nondestructive machines; prioritize the nondestructive tests, to get
         # them out of the way as fast as possible, then let the destructive ones start as soon as
         # a given nondestructive runner is done.
-        num_global = min(nondestructive_tests_len, opts.jobs)
+        num_global = min(max(nondestructive_tests_len, nonprovision_tests_len), opts.jobs)
 
         for _ in range(num_global):
             global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,
                                                  memory_mb=opts.nondestructive_memory_mb,
                                                  machine_class=machine_class or testvm.VirtMachine))
+
+        # snapshot the clean boots, so that we can easily reset the VM when it gets corrupted
+        for m in global_machines:
+            m.snapshot()
 
     # test scheduling loop
     while True:
@@ -463,13 +471,21 @@ def run(opts, image):
                 if machine.is_available():
                     if nondestructive_tests:
                         test = nondestructive_tests.pop(0)
-                        logging.debug("Global machine %s is free, assigning next test %s", idx, test)
+                        logging.debug("Global machine %s is free, assigning next nondestructive test %s", idx, test)
+                        machine.running_test = test
+                        test.assign_machine(idx, machine.ssh_address, machine.web_address)
+                        test.start()
+                        running_tests.append(test)
+                    elif destructive_tests and not destructive_tests[0].provision:
+                        test = destructive_tests.pop(0)
+                        logging.debug("Global machine %s is free, assigning next non-provision test %s", idx, test)
+                        machine.reset()
                         machine.running_test = test
                         test.assign_machine(idx, machine.ssh_address, machine.web_address)
                         test.start()
                         running_tests.append(test)
                     else:
-                        logging.debug("Global machine %s is free, and no more non destructive tests; killing", idx)
+                        logging.debug("Global machine %s is free, and no more non destructive or non-provision tests; killing", idx)
                         machine.kill()
 
                     made_progress = True
@@ -480,6 +496,9 @@ def run(opts, image):
         # fill the remaining available job slots with destructive tests; run tests with a cost higher than #jobs by themselves
         while destructive_tests and (running_cost() + destructive_tests[0].cost <= opts.jobs or len(running_tests) == 0):
             test = destructive_tests.pop(0)
+            if not test.provision:
+                # provision a default VM and run the test in it
+                pass
             logging.debug("%d running tests with total cost %d, starting next destructive test %s",
                           len(running_tests), running_cost(), test)
             test.start()

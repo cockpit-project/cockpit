@@ -49,6 +49,7 @@ if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
         src/cockpit/_version.py
         src/cockpit/jsonutil.py
         src/cockpit/protocol.py
+        src/cockpit/transports.py
     '
     test_mypy() {
         command -v mypy >/dev/null || skip 'no mypy'

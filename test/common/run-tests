@@ -227,12 +227,12 @@ class GlobalMachine:
         self.web_address = f"{self.machine.web_address}:{self.machine.web_port}"
         self.running_test = None
 
+        # snapshot the clean boot, so that we can easily reset the VM when it gets corrupted
+        self.machine.wait_boot()
+        self.machine.snapshot()
+
     def reset(self):
-        # It is important to re-use self.networking here, so that the
-        # machine keeps its browser and control port.
-        self.machine.kill()
-        self.machine = self.machine_class(verbose=True, networking=self.networking, image=self.image)
-        self.machine.start()
+        self.machine.restore()
 
     def kill(self):
         assert self.running_test is None, "can't kill global machine with running test"

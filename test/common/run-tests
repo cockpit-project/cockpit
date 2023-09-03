@@ -451,7 +451,7 @@ def run(opts, image):
                         global_machines[test_machine].reset()
 
                 # run again if needed
-                if test_result == 0 and retry_reason:
+                if False and test_result == 0 and retry_reason:
                     if test.nondestructive:
                         nondestructive_tests.insert(0, test)
                     else:

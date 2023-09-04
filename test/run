@@ -27,6 +27,11 @@ case "${TEST_SCENARIO:=}" in
         RUN_OPTS="$RUN_OPTS "
         PREPARE_OPTS="$PREPARE_OPTS --overlay"
         ;;&
+   *updates-testing*)
+        bots/image-customize --fresh -v --run-command 'dnf -y update --enablerepo=updates-testing,updates-testing-modular >&2' "$TEST_OS"
+        RUN_OPTS="$RUN_OPTS "
+        PREPARE_OPTS="$PREPARE_OPTS --overlay"
+        ;;&
 
     # split tests into roughly equal scenarios for more parallelism
     *networking*)

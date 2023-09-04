@@ -994,7 +994,8 @@ class Browser:
                                         mock: Optional[Dict[str, str]] = None,
                                         sit_after_mock: bool = False,
                                         scroll_into_view: Optional[str] = None,
-                                        wait_animations: bool = True):
+                                        wait_animations: bool = True,
+                                        wait_delay: float = 0.5):
         """Compare the given element with its reference in the current layout"""
 
         if ignore is None:
@@ -1033,6 +1034,7 @@ class Browser:
         # wait half a second to and side-step all that complexity.
 
         if wait_animations:
+            time.sleep(wait_delay)
             self.wait_js_cond('ph_count_animations(%s) == 0' % jsquote(selector))
 
         rect = self.call_js_func('ph_element_clip', selector)
@@ -1178,13 +1180,13 @@ class Browser:
             for layout in self.layouts:
                 if layout["name"] not in skip_layouts:
                     self.set_layout(layout["name"])
-                    time.sleep(wait_delay)
                     if "rtl" in self.current_layout["name"]:
                         self._set_direction("rtl")
                     self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
                                                          mock=mock, sit_after_mock=sit_after_mock,
                                                          scroll_into_view=scroll_into_view,
-                                                         wait_animations=wait_animations)
+                                                         wait_animations=wait_animations,
+                                                         wait_delay=wait_delay)
 
                     if "rtl" in self.current_layout["name"]:
                         self._set_direction("ltr")

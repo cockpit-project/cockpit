@@ -30,6 +30,15 @@ install-python:
 		"$$(python3 '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
 	mkdir -p $(DESTDIR)$(libexecdir)
 	mv -t $(DESTDIR)$(libexecdir) $(DESTDIR)$(bindir)/cockpit-askpass $(DESTDIR)$(bindir)/cockpit-beiboot
+
+UNINSTALL_LOCAL_TARGETS += uninstall-python
+uninstall-python:
+	rm -rf tmp/wheel
+	rm -f $(DESTDIR)$(libexecdir)/cockpit-askpass $(DESTDIR)$(libexecdir)/cockpit-beiboot
+	rm -f $(DESTDIR)$(bindir)/cockpit-bridge
+	@# HACK: pip uninstall does not know about --root and --prefix
+	rm -r $(DESTDIR)$(prefix)/lib/python*/*-packages/cockpit \
+	      $(DESTDIR)$(prefix)/lib/python*/*-packages/cockpit-*.dist-info
 endif
 
 

@@ -138,6 +138,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
 
     const actions = privileged && (
         <>
+            <NetworkAction buttonText={_("Add VPN")} type='wg' />
             <NetworkAction buttonText={_("Add bond")} type='bond' />
             <NetworkAction buttonText={_("Add team")} type='team' />
             <NetworkAction buttonText={_("Add bridge")} type='bridge' />

@@ -585,6 +585,17 @@ export function NetworkManagerModel() {
             };
         }
 
+        if (settings.wireguard) {
+            result.wireguard = {
+                listen_port: get("wireguard", "listen-port", 0),
+                peers: get("wireguard", "peers", []).map(peer => ({
+                    publicKey: peer['public-key'].v,
+                    endpoint: peer.endpoint?.v, // enpoint of a peer is optional
+                    allowedIps: peer['allowed-ips'].v
+                })),
+            };
+        }
+
         return result;
     }
 
@@ -698,6 +709,33 @@ export function NetworkManagerModel() {
             delete result["802-3-ethernet"]["cloned-mac-address"];
         } else
             delete result["802-3-ethernet"];
+
+        if (settings.wireguard) {
+            set("wireguard", "private-key", "s", settings.wireguard.private_key);
+            set("wireguard", "listen-port", "u", settings.wireguard.listen_port);
+            set("wireguard", "peers", "aa{sv}", settings.wireguard.peers.map(peer => {
+                return {
+                    "public-key": {
+                        t: "s",
+                        v: peer.publicKey
+                    },
+                    ...peer.endpoint
+                        ? {
+                            endpoint: {
+                                t: "s",
+                                v: peer.endpoint
+                            }
+                        }
+                        : {},
+                    "allowed-ips": {
+                        t: "as",
+                        v: peer.allowedIps
+                    }
+                };
+            }));
+        } else {
+            delete result.wireguard;
+        }
 
         return result;
     }

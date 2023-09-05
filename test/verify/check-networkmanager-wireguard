@@ -1,0 +1,198 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+import subprocess
+import sys
+
+import netlib
+import packagelib
+import testlib
+
+
+class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
+    provision = {
+        "machine1": {"address": "192.168.100.11/24", "memory_mb": 768},
+        "machine2": {"address": "192.168.100.12/24", "memory_mb": 512}
+    }
+
+    def testVPN(self):
+        m1 = self.machines["machine1"]
+        m2 = self.machines["machine2"]
+        b = self.browser
+
+        self.login_and_go("/network")
+
+        # Peer 1 (client)
+        m1_port = 51820
+        m1_ip4 = "10.0.0.1"
+        m1_ip6 = "2001::1"
+        b.click("button:contains('Add VPN')")
+        b.wait_visible("#network-wireguard-settings-dialog")
+        iface_name = b.val("#network-wireguard-settings-interface-name-input")
+        b.wait_visible("#network-wireguard-settings-save:disabled")
+        if m1.image in ["rhel4edge", "centos-8-stream"] or m1.image.startswith("rhel-8"):
+            b.wait_visible(".pf-v5-c-alert:contains('wireguard-tools package is not installed')")
+            b.click("button:contains('Cancel')")
+            b.wait_not_present("#network-ip-settings-dialog")
+            b.wait_visible("#networking")
+            b.wait_not_present(f"#networking-interfaces th:contains('{iface_name}')")
+            # Skip the rest of the tests for images without wireguard-tools
+            # As without it private/public key, connection over IPv4/IPv6 etc can't be tested
+            return
+
+        # Peer 2 (server)
+        m2_port = 51820
+        m2_ip4 = "10.0.0.2"
+        m2_ip6 = "2001::2"
+        if not m2.ostree_image:
+            m2.execute(f"firewall-cmd --add-port={m2_port}/udp")
+        m2.execute("wg genkey > private")
+        m2_pubkey = m2.execute("wg pubkey < private").strip()
+        m2.execute("ip link add dev wg0 type wireguard")
+        m2.execute(f"ip addr add {m2_ip4}/24 dev wg0")
+        m2.execute("wg set wg0 private-key ./private")
+        m2.execute(f"wg set wg0 listen-port {m2_port}")
+        m2.execute("ip link set wg0 up")
+
+        # Validate each field, enter the right value, and then proceed to the next field
+        #
+        # check private-key
+        b.click("#network-wireguard-settings-paste-key")
+        b.set_input_text("#network-wireguard-settings-private-key-input", "incorrect key")
+        b.set_input_text("#network-wireguard-settings-addresses-input", m1_ip4)
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('key must be 32 bytes base64 encoded')")
+        b.click("#network-wireguard-settings-generated-key")
+
+        # check public-key
+        b.wait_not_val("#network-wireguard-settings-public-key input", "")
+        m1_pubkey = b.val("#network-wireguard-settings-public-key input")
+
+        # check listen-port
+        b.set_input_text("#network-wireguard-settings-listen-port-input", "66000")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('out of range')")
+        b.set_input_text("#network-wireguard-settings-listen-port-input", "sometext")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Listen port must be a number')")
+        b.set_input_text("#network-wireguard-settings-listen-port-input", str(m1_port))
+
+        # check ip addresses
+        b.set_input_text("#network-wireguard-settings-addresses-input", "10.0.0.1/24/56")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Addresses are not formatted correctly')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "10.0.0")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Invalid address 10.0.0')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "ten.one")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Invalid address ten.one')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "10 1")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Invalid address 10')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4/")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Invalid prefix or netmask')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4  ,  5.6.7.8  1.2.3.4.5")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Invalid address 1.2.3.4.5')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", f"{m1_ip4}/24 1.2.3.4")
+
+        # peer
+        b.click("button:contains('Add peer')")
+        b.wait_visible("#network-wireguard-settings-peer-0")
+        b.set_input_text("#network-wireguard-settings-publickey-peer-0", m2_pubkey)
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "192.168.100.12")
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", m2_ip4)
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Peer #1 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820 or example.com:51820')")
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "192.168.100.12:somestring")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('Peer #1 has invalid endpoint port. Port must be a number.')")
+        b.click("button:contains('Add peer')")
+        b.wait_visible("#network-wireguard-settings-peer-1")
+        b.set_input_text("#network-wireguard-settings-publickey-peer-1", m2_pubkey)
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-1", f"192.168.100.12:{m2_port}")
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-1", m2_ip4)
+        b.click("button#network-wireguard-settings-btn-close-peer-0")
+        b.wait_not_present("#network-wireguard-settings-peer-1")
+        b.assert_pixels("#network-wireguard-settings-dialog", "networking-wireguard-add-generated",
+                        ignore=["#network-wireguard-settings-private-key-input",
+                                "#network-wireguard-settings-public-key",
+                                "#network-wireguard-settings-publickey-peer-0"])
+        b.click("#network-wireguard-settings-save")
+        b.wait_not_present("#network-wireguard-settings-dialog")
+        b.wait_in_text(f"#networking-interfaces th:contains('{iface_name}') + td", f"1.2.3.4/32, {m1_ip4}/24")
+
+        # endpoint and port is not necessary for a peer if that peer estalishes the connectio first (i.e. the client)
+        m2.execute(f"wg set wg0 peer {m1_pubkey} allowed-ips {m1_ip4}/32")
+
+        # check connection over ipv4
+        try:
+            m1.execute(f"ping -c 5 {m2_ip4}")
+        except (subprocess.CalledProcessError, testlib.Error):
+            print("-------- status on m1 ----------", file=sys.stderr)
+            m1.execute("set -x; ip a >&2; ip route >&2; nmcli c >&2; wg >&2")
+            print("-------- status on m2 ----------", file=sys.stderr)
+            m2.execute("set -x; ip a >&2; ip route >&2; nmcli c >&2; wg >&2")
+            raise
+
+        # check connection over ipv6
+        m2.execute(f"ip addr add {m2_ip6}/64 dev wg0")
+        m2.execute(f"wg set wg0 peer {m1_pubkey} allowed-ips {m1_ip4}/32,{m1_ip6}")
+
+        b.click(f"#networking-interfaces button:contains('{iface_name}')")
+        b.click("#networking-edit-wg")
+        b.wait_visible("#network-wireguard-settings-dialog")
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m2_ip4}/32,{m2_ip6}")
+        b.click("#network-wireguard-settings-save")
+        b.wait_not_present("#network-wireguard-settings-dialog")
+
+        m1.execute("until wg show wg0 | grep -q 'allowed ips.*2001::2/128'; do sleep 1; done")
+
+        b.click("#networking-edit-ipv6")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.set_input_text("#network-ip-settings-address-0", m1_ip6)
+        b.set_input_text("#network-ip-settings-netmask-0", "64")
+        b.set_input_text("#network-ip-settings-gateway-0", "::")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting("IPv6", "Address 2001:0:0:0:0:0:0:1/64")
+
+        m1.execute(f"until ip a show dev {iface_name} | grep -q 'inet6 {m1_ip6}/64 scope global'; do sleep 0.3; done", timeout=10)
+
+        try:
+            m1.execute(f"ping -6 -c 5 {m2_ip6}")
+        except (subprocess.CalledProcessError, testlib.Error):
+            print("-------- status on m1 ----------", file=sys.stderr)
+            m1.execute("set -x; ip a >&2; ip -6 route >&2; nmcli c >&2; wg >&2")
+            print("-------- status on m2 ----------", file=sys.stderr)
+            m2.execute("set -x; ip a >&2; ip -6 route >&2; nmcli c >&2; wg >&2")
+            raise
+
+        b.go("/network")
+        # install wireguard-tools from the install dialog
+        if not m1.ostree_image:
+            m1.execute("pkcon remove -y wireguard-tools")
+            self.createPackage("wireguard-tools", "1", "1")
+            self.enableRepo()
+            # HACK: Packagekit on Arch Linux does not deal well with detecting new repositories
+            if m1.image == "arch":
+                m1.execute("systemctl restart packagekit")
+                m1.execute("pkcon refresh force")
+            b.click("button:contains('Add VPN')")
+            b.wait_visible("#dialog button:contains('Install'):enabled")
+            b.click("#dialog button:contains('Install')")
+            b.wait_not_present("#dialog")
+            b.wait_visible("#network-wireguard-settings-dialog")
+            b.wait_visible(".pf-v5-c-alert")
+            b.click("button:contains('Cancel')")
+
+        # lastly delete the interface
+        b.click(f"#networking-interfaces button:contains('{iface_name}')")
+        b.click("#network-interface-delete")
+        b.wait_not_present(f"#networking-interfaces th:contains('{iface_name}')")
+
+
+if __name__ == "__main__":
+    testlib.test_main()

@@ -128,7 +128,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         return false;
     };
     const addressIpv4Helper = (address) => {
-        const config = { address, netmask: null, gateway: null };
+        const config = { address, netmask: '', gateway: '' };
         const split = address.split('.');
 
         if (split.length !== 4)
@@ -141,7 +141,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
             return { ...config, netmask: "255.255.0.0" };
         } else if (split[0] <= 192 && split[0] <= 223) {
             return { ...config, netmask: "255.255.255.0" };
-        } else return { ...config, gateway: null };
+        } else return { ...config, gateway: '' };
     };
 
     return (

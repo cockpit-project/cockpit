@@ -19,6 +19,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import cockpit from 'cockpit';
+import * as packagekit from 'packagekit.js';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -35,11 +36,14 @@ import { IpSettingsDialog } from './ip-settings.jsx';
 import { TeamDialog, getGhostSettings as getTeamGhostSettings } from './team.jsx';
 import { TeamPortDialog } from './teamport.jsx';
 import { VlanDialog, getGhostSettings as getVlanGhostSettings } from './vlan.jsx';
+import { WireGuardDialog, getWireGuardGhostSettings } from './wireguard.jsx';
 import { MtuDialog } from './mtu.jsx';
 import { MacDialog } from './mac.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ModelContext } from './model-context.jsx';
 import { useDialogs } from "dialogs.jsx";
+import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { read_os_release } from "os-release.js";
 
 import {
     apply_group_member,
@@ -141,7 +145,7 @@ export const Name = ({ idPrefix, iface, setIface }) => {
     );
 };
 
-export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, children, isFormHorizontal, isCreateDialog }) => {
+export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, children, isFormHorizontal, isCreateDialog, submitDisabled = false }) => {
     const Dialogs = useDialogs();
 
     return (
@@ -152,7 +156,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, chi
             title={title}
             footer={
                 <>
-                    <Button variant='primary' id={idPrefix + "-save"} onClick={onSubmit}>
+                    <Button variant='primary' id={idPrefix + "-save"} onClick={onSubmit} isDisabled={submitDisabled}>
                         {isCreateDialog ? _("Add") : _("Save")}
                     </Button>
                     <Button variant='link' id={idPrefix + "-cancel"} onClick={Dialogs.close}>
@@ -198,9 +202,25 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
         if (type == 'vlan') settings = getVlanGhostSettings();
         if (type == 'team') settings = getTeamGhostSettings({ newIfaceName });
         if (type == 'bridge') settings = getBridgeGhostSettings({ newIfaceName });
+        if (type == 'wg') settings = getWireGuardGhostSettings({ newIfaceName });
     }
 
     const properties = { connection: con, dev, settings };
+
+    async function resolveDeps(type) {
+        if (type === 'wg') {
+            try {
+                await cockpit.script("command -v wg");
+            } catch {
+                const packagekitExits = await packagekit.detect();
+                const os_release = await read_os_release();
+
+                // RHEL/CentOS 8 does not have wireguard-tools
+                if (packagekitExits && os_release.PLATFORM_ID !== "platform:el8")
+                    await install_dialog("wireguard-tools");
+            }
+        }
+    }
 
     function show() {
         let dlg = null;
@@ -212,6 +232,8 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
             dlg = <TeamDialog {...properties} />;
         else if (type == 'bridge')
             dlg = <BridgeDialog {...properties} />;
+        else if (type == 'wg')
+            dlg = <WireGuardDialog {...properties} />;
         else if (type == 'mtu')
             dlg = <MtuDialog {...properties} />;
         else if (type == 'mac')
@@ -224,8 +246,11 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
             dlg = <IpSettingsDialog topic="ipv4" {...properties} />;
         else if (type == 'ipv6')
             dlg = <IpSettingsDialog topic="ipv6" {...properties} />;
+
         if (dlg)
-            Dialogs.show(dlg);
+            resolveDeps(type).then(() => {
+                Dialogs.show(dlg);
+            }).catch(console.error); // not-covered: OS error
     }
 
     return (
@@ -289,14 +314,18 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                                      rollback_on_failure: type !== 'vlan' && membersChanged
                                  });
     } else {
-        with_checkpoint(
-            model,
-            modify,
-            {
-                fail_text: cockpit.format(_("Creating this $0 will break the connection to the server, and will make the administration UI unavailable."), type == 'vlan' ? 'VLAN' : type),
-                anyway_text: _("Create it"),
-                hack_does_add_or_remove: true,
-                rollback_on_failure: type != 'vlan',
-            });
+        try {
+            with_checkpoint(
+                model,
+                modify,
+                {
+                    fail_text: cockpit.format(_("Creating this $0 will break the connection to the server, and will make the administration UI unavailable."), type == 'vlan' ? 'VLAN' : type),
+                    anyway_text: _("Create it"),
+                    hack_does_add_or_remove: true,
+                    rollback_on_failure: type != 'vlan',
+                });
+        } catch (e) {
+            setDialogError(typeof e === 'string' ? e : e.message);
+        }
     }
 };

@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+import time
 
 import packagelib
 import testlib
@@ -128,6 +129,50 @@ class TestApps(packagelib.PackageCase):
 
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
+
+    def testOsMap(self):
+        b = self.browser
+        m = self.machine
+
+        self.allow_journal_messages("can't remove watch: Invalid argument")
+
+        self.restore_dir("/usr/share/metainfo", reboot_safe=True)
+        self.restore_dir("/usr/share/app-info", reboot_safe=True)
+        self.restore_dir("/var/cache/app-info", reboot_safe=True)
+
+        # Make sure none of the appstream directories exist.  They
+        # will be created later and we need to cope with that.
+        m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
+
+        # use a fake distro map
+        self.write_file("/etc/cockpit/apps.override.json",
+                        '{ "config": { "appstream_data_packages":'
+                        '    {"testy": ["appstream-data-test"], "otheros": ["nosuchpackage"]}'
+                        '  }}')
+
+        self.createAppStreamPackage("app-1", "1.0", "1")
+        self.createAppStreamRepoPackage()
+
+        self.login_and_go("/apps")
+        b.wait_visible(".pf-v5-c-empty-state")
+
+        # os-release is a symlink target, don't clobber that
+        self.restore_file("/etc/os-release")
+        m.execute("rm /etc/os-release")
+
+        # unknown OS: nothing gets installed
+        m.write("/etc/os-release", 'ID="unmapped"\nID_LIKE="mysterious"\nVERSION_ID="1"\n')
+        b.click("#refresh")
+        # the progress bar is too fast to reliably catch it
+        time.sleep(1)
+        b.wait_not_present("#refresh-progress")
+        b.wait_visible(".pf-v5-c-empty-state")
+
+        # known OS: appstream-data-tst gets installed from the map
+        m.write("/etc/os-release", 'ID="derivative"\nID_LIKE="spicy testy"\nVERSION_ID="1"\n')
+        b.click("#refresh")
+        with b.wait_timeout(30):
+            b.wait_visible(".app-list #app-1")
 
     def testL10N(self):
         b = self.browser

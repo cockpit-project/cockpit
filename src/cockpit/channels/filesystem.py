@@ -23,7 +23,7 @@ from cockpit._vendor.systemd_ctypes import PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
 
 from ..channel import Channel, ChannelError, GeneratorChannel
-from ..jsonutil import JsonObject, get_int, get_str
+from ..jsonutil import JsonObject, get_bool, get_int, get_str
 
 logger = logging.getLogger(__name__)
 
@@ -63,9 +63,9 @@ class FsListChannel(Channel):
 
         self.send_message(event=event, path=entry.name, type=mode)
 
-    def do_open(self, options):
-        path = options.get('path')
-        watch = options.get('watch', True)
+    def do_open(self, options: JsonObject) -> None:
+        path = get_str(options, 'path')
+        watch = get_bool(options, 'watch', default=True)
 
         if watch:
             raise ChannelError('not-supported', message='watching is not implemented, use fswatch1')
@@ -142,8 +142,8 @@ class FsReplaceChannel(Channel):
             pass  # might have been removed from outside
 
     def do_open(self, options):
-        self._path = options.get('path')
-        self._tag = options.get('tag')
+        self._path = get_str(options, 'path')
+        self._tag = get_str(options, 'tag', None)
         self.ready()
 
     def do_data(self, data):
@@ -255,7 +255,7 @@ class FsWatchChannel(Channel):
             self.send_message(event='created' if fd else 'deleted', path=self._path, tag=self._tag)
 
     def do_open(self, options):
-        self._path = options['path']
+        self._path = get_str(options, 'path')
         self._tag = None
 
         self._active = False

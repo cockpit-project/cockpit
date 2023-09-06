@@ -242,6 +242,13 @@ class Channel(Endpoint):
         if not self._tasks:
             self._close_now()
 
+    def send_text(self, text: str) -> bool:
+        """Send text and handle book-keeping for flow control.
+
+        This is a wrapper around send_data() for sending strings as UTF-8.
+        """
+        return self.send_data(text.encode('utf-8'))
+
     def send_data(self, data: bytes) -> bool:
         """Send data and handle book-keeping for flow control.
 

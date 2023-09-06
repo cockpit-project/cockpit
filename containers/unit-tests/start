@@ -71,7 +71,7 @@ class SourceDirectory(PodmanTemporaryDirectory):
         else:
             opts = []
 
-        git('clone', '--recurse-submodule=modules/*', *opts, '.', self.name)
+        git('clone', '--recurse-submodule=vendor/*', *opts, '.', self.name)
 
         if not args.head and not args.branch:
             if stash := git_output('stash', 'create'):

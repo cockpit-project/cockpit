@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Checkout submodules
-        run: modules/checkout
+        run: vendor/checkout
 
       - name: Run venv tests
         run: runuser -u tox -- tox --colored=yes -m venv -- --color=yes

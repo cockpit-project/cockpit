@@ -101,20 +101,24 @@ class TestApps(packagelib.PackageCase):
 
         self.login_and_go("/apps", urlroot=urlroot)
         b.wait_in_text(".pf-v5-c-empty-state", "No applications installed or available")
+        b.wait_in_text(".pf-v5-c-empty-state", "Application information is missing")
 
         # still no metadata, but already installed application
         self.createAppStreamPackage("already", "1.0", "1", install=True)
         b.wait_not_present(".pf-v5-c-empty-state")
         b.wait_visible(".app-list .pf-v5-c-data-list__item-row:contains('already') button:contains('Remove')")
+        b.wait_in_text(".pf-v5-c-alert", "Application information is missing")
 
         self.createAppStreamPackage("app-1", "1.0", "1")
         self.createAppStreamRepoPackage()
 
-        # Refresh package info to install metadata
-        b.click("#refresh")
+        # Install package metadata
+        b.click(".pf-v5-c-alert button")
 
         with b.wait_timeout(30):
+            b.wait_not_present(".pf-v5-c-alert")
             b.click(".app-list #app-1")
+
         b.wait_visible('a[href="https://app-1.com"]')
         b.wait_visible(f'#app-page img[src^="{urlroot}/cockpit/channel/"]')
         b.click(".pf-v5-c-breadcrumb a:contains('Applications')")
@@ -172,6 +176,12 @@ class TestApps(packagelib.PackageCase):
         time.sleep(1)
         b.wait_not_present("#refresh-progress")
         b.wait_visible(".pf-v5-c-empty-state")
+        # wait until check for installed metadata package finished
+        b.wait_attr("#list-page", "data-packages-checked", "true")
+        # no appstream metadata available, don't advertise it
+        b.wait_in_text(".pf-v5-c-empty-state", "No applications installed or available")
+        self.assertNotIn("Install application information", b.text(".pf-v5-c-empty-state"))
+        b.wait_not_present(".pf-v5-c-empty-state button")
 
         # unknown OS: nothing gets installed
         m.write("/etc/os-release", 'ID="unmapped"\nID_LIKE="mysterious"\nVERSION_ID="1"\n')

@@ -497,7 +497,8 @@ async def test_channel(bridge, transport, channeltype, tmp_path):
         else:
             args = {'unix': srv}
     elif payload == 'metrics1':
-        args['metrics'] = [{'name': 'memory.free'}]
+        # args['metrics'] = [{'name': 'memory.free'}]
+        args['metrics'] = [{'name': 'mem.physmem'}, {'name': 'mem.util.available'}, {'name': 'kernel.all.load'}]
     elif payload == 'dbus-json3':
         if not os.path.exists('/run/dbus/system_bus_socket'):
             pytest.skip('no dbus')

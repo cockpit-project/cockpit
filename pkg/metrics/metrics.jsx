@@ -1581,6 +1581,7 @@ class MetricsHistory extends React.Component {
             selectedDate: null,
             packagekitExists: false,
             isBeibootBridge: false,
+            isPcpInstalled: true,
             selectedVisibility: this.columns.reduce((a, v) => ({ ...a, [v[0]]: true }), {})
         };
 
@@ -1702,6 +1703,7 @@ class MetricsHistory extends React.Component {
             debug("history metrics message", message);
             message = JSON.parse(message);
 
+            console.log(message);
             const init_current_hour = () => {
                 if (!this.data[current_hour])
                     this.data[current_hour] = [];
@@ -1771,6 +1773,11 @@ class MetricsHistory extends React.Component {
         metrics.addEventListener("close", (event, message) => {
             if (message.problem) {
                 debug("could not load metrics:", message.problem);
+
+                if (message.message === "Pcp is not installed") {
+                    this.setState({ isPcpInstalled: false, });
+                }
+
                 this.setState({
                     loading: false,
                     metricsAvailable: false,
@@ -1794,6 +1801,7 @@ class MetricsHistory extends React.Component {
                 }
             }
 
+            console.log("closing history channel");
             metrics.close();
         });
     }
@@ -1808,7 +1816,8 @@ class MetricsHistory extends React.Component {
 
         // on a single machine, cockpit-pcp depends on pcp; but this may not be the case in the beiboot scenario,
         // so additionally check if pcp is available on the logged in target machine
-        if ((cockpit.manifests && !cockpit.manifests.pcp) || this.pmlogger_service.exists === false)
+        console.log(`pcp installed: ${this.state.isPcpInstalled}`, `metricsAvailable: ${this.state.metricsAvailable}`);
+        if (!this.state.isPcpInstalled || this.pmlogger_service.exists === false)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("Package cockpit-pcp is missing for metrics history")}

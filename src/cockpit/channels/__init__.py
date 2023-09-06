@@ -22,6 +22,7 @@ from .metrics import InternalMetricsChannel
 from .packages import PackagesChannel
 from .stream import SocketStreamChannel, SubprocessStreamChannel
 from .trivial import EchoChannel, NullChannel
+from .pcp import PcpMetricsChannel
 
 CHANNEL_TYPES = [
     DBusChannel,
@@ -37,4 +38,5 @@ CHANNEL_TYPES = [
     PackagesChannel,
     SubprocessStreamChannel,
     SocketStreamChannel,
+    PcpMetricsChannel,
 ]

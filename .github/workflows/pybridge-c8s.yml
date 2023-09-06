@@ -20,7 +20,7 @@ jobs:
         run: git config --global --add safe.directory /__w/cockpit/cockpit
 
       - name: Install submodules
-        run: modules/checkout
+        run: vendor/checkout
 
       - name: Check --help
         run: PYTHONPATH=src python3 -m cockpit.bridge --help

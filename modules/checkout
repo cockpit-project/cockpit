@@ -1,9 +1,0 @@
-#!/bin/sh
-
-set -eu
-cd "${0%/*}/.."
-
-# Nothing missing?  Do nothing.
-git submodule status modules | grep -q ^- || exit 0
-
-git submodule update --init --checkout 'modules/*'

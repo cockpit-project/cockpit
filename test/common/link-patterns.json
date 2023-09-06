@@ -1,29 +1,29 @@
 [
     {
         "label": "screenshot",
-        "pattern": "Wrote screenshot to ([A-Za-z0-9\\-\\.]+\\.png)$",
+        "pattern": "Wrote screenshot to ([A-Za-z0-9.-]+.png)$",
         "url": "$1",
         "icon": "bi bi-camera-fill"
     },
     {
         "label": "new pixels",
-        "pattern": "New pixel test reference ([A-Za-z0-9\\-\\.]+\\.png)$",
+        "pattern": "New pixel test reference ([A-Za-z0-9.-]+.png)$",
         "url": "$1"
     },
     {
         "label": "journal",
-        "pattern": "Journal extracted to ([A-Za-z0-9\\-\\.]+\\.log(?:\\.[gx]z)?)$",
+        "pattern": "Journal extracted to ([A-Za-z0-9.-]+.log(?:.[gx]z)?)$",
         "url": "$1",
         "icon": "bi bi-card-text"
     },
     {
         "label": "changed pixels",
-        "pattern": "Differences in pixel test ([A-Za-z0-9\\-\\.]+)$",
+        "pattern": "Differences in pixel test ([A-Za-z0-9.-]+)$",
         "url": "pixeldiff.html#$1"
     },
     {
         "label": "coverage",
-        "pattern": "Code coverage report in ([A-Za-z0-9\\-\\.]+)$",
+        "pattern": "Code coverage report in ([A-Za-z0-9.-]+)$",
         "url": "$1/"
     }
 ]

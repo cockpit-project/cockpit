@@ -55,6 +55,7 @@ class PackageCase(MachineCase):
 
         # HACK: packagekit often hangs on shutdown; https://bugzilla.redhat.com/show_bug.cgi?id=1717185
         self.write_file("/etc/systemd/system/packagekit.service.d/timeout.conf", "[Service]\nTimeoutStopSec=5\n")
+        self.addCleanup(self.machine.execute, "systemctl stop packagekit; systemctl reset-failed packagekit || true")
 
         # disable all existing repositories to avoid hitting the network
         if self.backend == "apt":

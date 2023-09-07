@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-05 02:47+0000\n"
-"PO-Revision-Date: 2023-09-05 05:52+0000\n"
+"POT-Creation-Date: 2023-09-07 02:47+0000\n"
+"PO-Revision-Date: 2023-09-07 03:20+0000\n"
 "Last-Translator: Mie Yamamoto <myamamot@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
 "cockpit/main/ja/>\n"
@@ -2538,22 +2538,16 @@ msgid "Edit Tang keyserver"
 msgstr "Tang キーサーバーを編集する"
 
 #: pkg/networkmanager/vlan.jsx:91
-#, fuzzy
-#| msgid "VLAN settings"
 msgid "Edit VLAN settings"
-msgstr "VLAN 設定"
+msgstr "VLAN 設定の編集"
 
 #: pkg/networkmanager/bond.jsx:135
-#, fuzzy
-#| msgid "Bond settings"
 msgid "Edit bond settings"
-msgstr "ボンディング設定"
+msgstr "ボンディング設定の編集"
 
 #: pkg/networkmanager/bridge.jsx:96
-#, fuzzy
-#| msgid "Bridge settings"
 msgid "Edit bridge settings"
-msgstr "ブリッジ設定"
+msgstr "ブリッジ設定の編集"
 
 #: pkg/networkmanager/firewall.jsx:596
 msgid "Edit custom service in $0 zone"
@@ -2584,10 +2578,8 @@ msgid "Edit service $0"
 msgstr "サービス $0 を編集する"
 
 #: pkg/networkmanager/team.jsx:154
-#, fuzzy
-#| msgid "Team settings"
 msgid "Edit team settings"
-msgstr "チーム設定"
+msgstr "チーム設定の編集"
 
 #: pkg/users/accounts-list.js:59
 msgid "Edit user"
@@ -6558,6 +6550,8 @@ msgid ""
 "Some block devices of this pool have grown in size after the pool was "
 "created. The pool can be safely grown to use the newly available space."
 msgstr ""
+"プールの作成後に、このプールのブロックデバイスでサイズが増大したものがありま"
+"す。このプールを安全に拡張するには新たに利用可能な領域を使用してください。"
 
 #: pkg/packagekit/updates.jsx:97
 msgid ""
@@ -6747,10 +6741,8 @@ msgid "Stored passphrase"
 msgstr "保存されたパスフレーズ"
 
 #: pkg/storaged/lvol-tabs.jsx:123 pkg/storaged/lvol-tabs.jsx:207
-#, fuzzy
-#| msgid "VDO backing devices can not be made smaller"
 msgid "Stratis blockdevs can not be made smaller"
-msgstr "VDO バッキングデバイスを小さくすることはできません"
+msgstr "Stratis blockdevs は縮小できません"
 
 #: pkg/storaged/content-views.jsx:458 pkg/storaged/content-views.jsx:485
 #: pkg/storaged/content-views.jsx:492
@@ -6951,19 +6943,14 @@ msgid "Test kdump settings"
 msgstr "kdump 設定のテスト"
 
 #: pkg/kdump/kdump-view.jsx:293
-#, fuzzy
-#| msgid ""
-#| "This will test kdump settings by crashing the kernel and thereby the "
-#| "system. Depending on the settings, the system may not automatically "
-#| "reboot and the process may take a while."
 msgid ""
 "Test kdump settings by crashing the kernel. This may take a while and the "
 "system might not automatically reboot. Do not purposefully crash the system "
 "while any important task is running."
 msgstr ""
-"kdump 設定は、カーネル (つまり、システム) をクラッシュすることによりテストさ"
-"れます。設定に応じて、再起動が自動的に行われず、処理にしばらく時間がかかるこ"
-"とがあります。"
+"カーネルをクラッシュして kdump 設定をテストします。処理にしばらく時間がかか"
+"り、システムが自動的に再起動されない場合があります。重要なタスクを実行中に、"
+"システムを意図的にクラッシュさせないようにしてください。"
 
 #: pkg/networkmanager/networkmanager.jsx:65
 msgid "Testing connection"
@@ -7330,6 +7317,8 @@ msgid ""
 "There is not enough space in the pool to make a snapshot of this filesystem. "
 "At least $0 are required but only $1 are available."
 msgstr ""
+"このプールには、このファイルシステムのスナップショットを作成するための十分な"
+"領域がありません。少なくとも $0 が必要ですが、利用可能な領域は $1 のみです。"
 
 #: pkg/shell/failures.jsx:42
 msgid "There was an unexpected error while connecting to the machine."
@@ -7419,16 +7408,13 @@ msgstr ""
 "できません。"
 
 #: pkg/storaged/stratis-details.jsx:651
-#, fuzzy
-#| msgid "This VDO device does not use all of its backing device."
 msgid "This pool does not use all the space on its block devices."
-msgstr "この VDO デバイスは、そのバッキングデバイスをすべて使用していません。"
+msgstr ""
+"このプールは、プールのブロックデバイスにある領域をすべて使用していません。"
 
 #: pkg/storaged/stratis-details.jsx:664
-#, fuzzy
-#| msgid "The RAID array is in a degraded state"
 msgid "This pool is in a degraded state."
-msgstr "RAID アレイは劣化状態にあります"
+msgstr "このプールは、degraded の状態にあります。"
 
 #: pkg/packagekit/updates.jsx:1363
 msgid "This system is not registered"
@@ -8237,10 +8223,8 @@ msgid "View login history"
 msgstr "ログイン履歴の表示"
 
 #: pkg/storaged/stratis-details.jsx:666
-#, fuzzy
-#| msgid "View all logs"
 msgid "View logs"
-msgstr "すべてのログの表示"
+msgstr "ログの表示"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:160
 msgid "View metrics and history"
@@ -8384,6 +8368,14 @@ msgid ""
 "to know the maximum size for each filesystem in advance and creation of "
 "snapshots is limited."
 msgstr ""
+"このオプションが選択されている場合は、新しいプールでオーバープロビジョニング"
+"できません。対象のプールで作成する最大サイズを各ファイルシステムごとに指定す"
+"る必要があります。ファイルシステムは、作成後に拡張できません。全スナップ"
+"ショットの割り当ては作成時に行われます。それぞれの最大サイズの合計は、プール"
+"のサイズを超過できません。こうすることで、このプール内のファイルシステムで予"
+"想外に領域が不足しないようにするという利点があります。欠点としては、各システ"
+"ムの最大サイズと、スナップショットの作成には上限があることを事前に把握してお"
+"く必要があります。"
 
 #: pkg/systemd/terminal.jsx:176
 msgid "White"

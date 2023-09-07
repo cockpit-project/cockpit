@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-05 02:47+0000\n"
-"PO-Revision-Date: 2023-08-14 21:33+0000\n"
+"POT-Creation-Date: 2023-09-07 02:47+0000\n"
+"PO-Revision-Date: 2023-09-07 04:12+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -25,7 +25,7 @@ msgstr ""
 
 #: pkg/static/login.html:61
 msgid "            Bypass browser check          "
-msgstr "            웹 탐색기 점검을 우회합니다          "
+msgstr "            브라우저 검색을 우회합니다          "
 
 #: pkg/users/accounts-list.js:240
 msgid "# of users"
@@ -529,7 +529,7 @@ msgstr "이 이름을 가진 파일 시스템이 이미 이 풀에 있습니다.
 
 #: pkg/users/group-create-dialog.js:71
 msgid "A group with this name already exists"
-msgstr "이와 같은 이름을 갖는 그룹은 이미 존재합니다."
+msgstr "이 이름으로된 그룹이 이미 존재합니다"
 
 #: pkg/static/login.html:39
 msgid ""
@@ -1202,10 +1202,8 @@ msgid "Block"
 msgstr "블록"
 
 #: pkg/storaged/others-panel.jsx:41
-#, fuzzy
-#| msgid "Block devices"
 msgid "Block device"
-msgstr "블록 장치"
+msgstr "블럭 장치"
 
 #: pkg/storaged/content-views.jsx:857
 msgid "Block device for filesystems"
@@ -2531,22 +2529,16 @@ msgid "Edit Tang keyserver"
 msgstr "Tang 키 서버 편집"
 
 #: pkg/networkmanager/vlan.jsx:91
-#, fuzzy
-#| msgid "VLAN settings"
 msgid "Edit VLAN settings"
-msgstr "VLAN 설정"
+msgstr "VLAN 설정 편집"
 
 #: pkg/networkmanager/bond.jsx:135
-#, fuzzy
-#| msgid "Bond settings"
 msgid "Edit bond settings"
-msgstr "본드 설정"
+msgstr "본드 설정 편집"
 
 #: pkg/networkmanager/bridge.jsx:96
-#, fuzzy
-#| msgid "Bridge settings"
 msgid "Edit bridge settings"
-msgstr "브릿지 설정"
+msgstr "브릿지 설정 편집"
 
 #: pkg/networkmanager/firewall.jsx:596
 msgid "Edit custom service in $0 zone"
@@ -2577,10 +2569,8 @@ msgid "Edit service $0"
 msgstr "서비스 $0 편집"
 
 #: pkg/networkmanager/team.jsx:154
-#, fuzzy
-#| msgid "Team settings"
 msgid "Edit team settings"
-msgstr "팀 설정"
+msgstr "팀 설정 편집"
 
 #: pkg/users/accounts-list.js:59
 msgid "Edit user"
@@ -2647,16 +2637,12 @@ msgid "Encrypt data"
 msgstr "자료 암호화"
 
 #: pkg/storaged/stratis-panel.jsx:168
-#, fuzzy
-#| msgid "Edit Tang keyserver"
 msgid "Encrypt data with a Tang keyserver"
-msgstr "Tang 키 서버 편집"
+msgstr "Tang 키 서버로 데이터 암호화"
 
 #: pkg/storaged/stratis-panel.jsx:139
-#, fuzzy
-#| msgid "Encryption passphrase"
 msgid "Encrypt data with a passphrase"
-msgstr "암호화된 암호"
+msgstr "암호로 데이터 암호화"
 
 #: pkg/sosreport/sosreport.jsx:448
 msgid "Encrypted"
@@ -2668,7 +2654,7 @@ msgstr "$0 암호화됩니다"
 
 #: pkg/storaged/stratis-details.jsx:818
 msgid "Encrypted Stratis pool $0"
-msgstr "암호화된 스트라티스 풀 $0"
+msgstr "암호화된 Stratis 풀 $0"
 
 #: pkg/storaged/utils.js:271
 msgid "Encrypted logical volume of $0"
@@ -2712,11 +2698,11 @@ msgstr "강제"
 
 #: pkg/packagekit/updates.jsx:1429
 msgid "Enhancement updates available"
-msgstr "개선 최신화 사용 가능"
+msgstr "향상된 업데이트 사용 가능"
 
 #: pkg/networkmanager/mac.jsx:47
 msgid "Enter a valid MAC address"
-msgstr "유효한 맥(MAC) 주소를 입력하세요"
+msgstr "유효한 MAC 주소를 입력하세요"
 
 #: pkg/networkmanager/firewall.jsx:204 pkg/networkmanager/firewall.jsx:886
 msgid "Entire subnet"
@@ -2743,7 +2729,7 @@ msgstr "오류"
 
 #: pkg/systemd/logs.jsx:68
 msgid "Error and above"
-msgstr "오류 이상의 수준"
+msgstr "오류 이상"
 
 #: pkg/metrics/metrics.jsx:1848
 msgid "Error has occurred"
@@ -2751,7 +2737,7 @@ msgstr "오류가 발생했습니다"
 
 #: pkg/storaged/crypto-keyslots.jsx:315
 msgid "Error installing $0: PackageKit is not installed"
-msgstr "$0 설치 중에 오류: PackageKit이 설치되어 있지 않습니다"
+msgstr "$0 설치 중에 오류 발생: PackageKit이 설치되어 있지 않습니다"
 
 #: pkg/selinux/setroubleshoot-view.jsx:414
 #: pkg/systemd/overview-cards/configurationCard.jsx:176
@@ -2772,7 +2758,7 @@ msgstr "SELinux 모드 설정 도중 오류 발생: '$0'"
 
 #: pkg/networkmanager/mac.jsx:71
 msgid "Ethernet MAC"
-msgstr "Ethernet MAC"
+msgstr "이더넷 MAC"
 
 #: pkg/networkmanager/mtu.jsx:74
 msgid "Ethernet MTU"
@@ -2828,7 +2814,7 @@ msgstr "FIPS는 적절하게 활성화되지 않았습니다"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:122
 msgid "FIPS with further Common Criteria restrictions."
-msgstr "추가 공통 기준 제한이 있는 FIPS."
+msgstr "추가 공통 기준 제한 사항이 있는 FIPS."
 
 #: pkg/storaged/mdraid-details.jsx:104 pkg/networkmanager/interfaces.js:773
 msgid "Failed"
@@ -2870,7 +2856,7 @@ msgstr "tuned 비활성화에 실패했습니다"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:183
 msgid "Failed to disable tuned profile"
-msgstr "조정된 프로파일 비활성화에 실패함"
+msgstr "tuned 프로파일 비활성화에 실패함"
 
 #: pkg/shell/hosts_dialog.jsx:341
 msgid "Failed to edit machine: $0"
@@ -3145,10 +3131,8 @@ msgid "Grow logical volume"
 msgstr "논리 불륨 확장"
 
 #: pkg/storaged/stratis-details.jsx:654
-#, fuzzy
-#| msgid "Grow to take all space"
 msgid "Grow the pool to take all space"
-msgstr "모든 공간을 사용하여 확장하기"
+msgstr "모든 공간을 사용하여 풀 확장하기"
 
 #: pkg/storaged/vdo-details.jsx:115
 msgid "Grow to take all space"
@@ -4054,10 +4038,8 @@ msgid "Maintenance"
 msgstr "유지 관리"
 
 #: pkg/storaged/stratis-panel.jsx:184
-#, fuzzy
-#| msgid "Rename filesystem"
 msgid "Manage filesystem sizes"
-msgstr "파일 시스템 이름 변경"
+msgstr "파일 시스템 크기 관리"
 
 #: src/appstream/org.cockpit-project.cockpit-storaged.metainfo.xml.in:6
 msgid "Manage storage"
@@ -4774,16 +4756,12 @@ msgid "Not connected to host"
 msgstr "호스트에 연결되어 있지 않음"
 
 #: pkg/storaged/stratis-details.jsx:312
-#, fuzzy
-#| msgid "Not enough space to grow."
 msgid "Not enough space"
-msgstr "확장 공간이 부족합니다."
+msgstr "공간이 부족합니다"
 
 #: pkg/storaged/stratis-details.jsx:893
-#, fuzzy
-#| msgid "Block device for filesystems"
 msgid "Not enough space for new filesystems"
-msgstr "파일 시스템의 블록 장치"
+msgstr "새 파일 시스템을 위한 공간이 부족합니다"
 
 #: pkg/storaged/lvol-tabs.jsx:419
 msgid "Not enough space to grow."
@@ -6006,12 +5984,13 @@ msgid ""
 "Results of the crash will be copied through $0 to $1 as $2, if kdump is "
 "properly configured."
 msgstr ""
+"kdump가 올바르게 구성된 경우 충돌 결과는 $0에서 $1까지 $2로 복사됩니다."
 
 #: pkg/kdump/kdump-view.jsx:275
 msgid ""
 "Results of the crash will be stored in $0 as $1, if kdump is properly "
 "configured."
-msgstr ""
+msgstr "kdump가 올바르게 구성된 경우 충돌 결과는 $0에 $1로 저장됩니다."
 
 #: pkg/systemd/logs.jsx:263
 msgid "Resume"
@@ -6588,6 +6567,8 @@ msgid ""
 "Some block devices of this pool have grown in size after the pool was "
 "created. The pool can be safely grown to use the newly available space."
 msgstr ""
+"이 풀의 일부 블록 장치는 풀이 생성된 후 크기가 늘어났습니다. 풀은 새로 사용 "
+"가능한 공간을 활용하여 안전하게 확장할 수 있습니다."
 
 #: pkg/packagekit/updates.jsx:97
 msgid ""
@@ -6776,10 +6757,8 @@ msgid "Stored passphrase"
 msgstr "저장된 암호문"
 
 #: pkg/storaged/lvol-tabs.jsx:123 pkg/storaged/lvol-tabs.jsx:207
-#, fuzzy
-#| msgid "VDO backing devices can not be made smaller"
 msgid "Stratis blockdevs can not be made smaller"
-msgstr "VDO 백업 장치를 작게 할 수 없습니다"
+msgstr "Stratis blockdevs를 더 작게 할 수 없습니다"
 
 #: pkg/storaged/content-views.jsx:458 pkg/storaged/content-views.jsx:485
 #: pkg/storaged/content-views.jsx:492
@@ -6979,18 +6958,14 @@ msgid "Test kdump settings"
 msgstr "kdump 설정 시험"
 
 #: pkg/kdump/kdump-view.jsx:293
-#, fuzzy
-#| msgid ""
-#| "This will test kdump settings by crashing the kernel and thereby the "
-#| "system. Depending on the settings, the system may not automatically "
-#| "reboot and the process may take a while."
 msgid ""
 "Test kdump settings by crashing the kernel. This may take a while and the "
 "system might not automatically reboot. Do not purposefully crash the system "
 "while any important task is running."
 msgstr ""
-"kdump 설정은 커널을 충돌하여 시험합니다. 설정에 따라 재시작이 자동으로 수행되"
-"지 않고 처리 시간이 길어질 수 있습니다."
+"커널 충돌에 의해 kdump 설정을 시험합니다. 이와 같은 작업은 시간이 걸릴 수 "
+"있고 시스템은 자동으로 재시작되지 않을 수도 있습니다. 중요한 작업이 실행되는 "
+"동안 의도적으로 시스템을 충돌시키지 마세요."
 
 #: pkg/networkmanager/networkmanager.jsx:65
 msgid "Testing connection"
@@ -7340,6 +7315,8 @@ msgid ""
 "There is not enough space in the pool to make a snapshot of this filesystem. "
 "At least $0 are required but only $1 are available."
 msgstr ""
+"이 파일 시스템의 스냅샷을 만들기에는 풀 공간이 부족합니다. 최소 $0가 필요하지"
+"만 $1만 사용 가능합니다."
 
 #: pkg/shell/failures.jsx:42
 msgid "There was an unexpected error while connecting to the machine."
@@ -7426,16 +7403,12 @@ msgid ""
 msgstr "암호문은 풀을 잠금 해제하는 유일한 방법이고 제거 될 수 없습니다."
 
 #: pkg/storaged/stratis-details.jsx:651
-#, fuzzy
-#| msgid "This VDO device does not use all of its backing device."
 msgid "This pool does not use all the space on its block devices."
-msgstr "이 VDO 장치는 백업 장치를 사용하지 않습니다."
+msgstr "이 풀은 블록 장치의 모든 공간을 사용하지 않습니다."
 
 #: pkg/storaged/stratis-details.jsx:664
-#, fuzzy
-#| msgid "The RAID array is in a degraded state"
 msgid "This pool is in a degraded state."
-msgstr "레이드 배열은 성능이 저하된 상태입니다"
+msgstr "이 풀은 성능이 저하된 상태입니다."
 
 #: pkg/packagekit/updates.jsx:1363
 msgid "This system is not registered"
@@ -8250,10 +8223,8 @@ msgid "View login history"
 msgstr "로그인 내역 보기"
 
 #: pkg/storaged/stratis-details.jsx:666
-#, fuzzy
-#| msgid "View all logs"
 msgid "View logs"
-msgstr "모든 기록 보기"
+msgstr "기록 보기"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:160
 msgid "View metrics and history"
@@ -8397,6 +8368,12 @@ msgid ""
 "to know the maximum size for each filesystem in advance and creation of "
 "snapshots is limited."
 msgstr ""
+"이 옵션을 선택하면 새 풀에서 오버프로비저닝을 허용하지 않습니다. 풀에 생성되"
+"는 각 파일 시스템의 최대 크기를 지정해야 합니다. 파일 시스템을 생성한 후에는 "
+"더 크게 만들 수 없습니다. 스냅샷은 생성 시 완전히 할당됩니다. 모든 최대 크기"
+"의 합은 풀 크기를 초과할 수 없습니다. 이러한 기능의 장점은 풀의 파일 시스템에"
+"서 공간이 부족해질 수 없다는 것입니다. 단점은 각 파일 시스템의 최대 크기를 미"
+"리 알아야 하고 스냅샷 생성이 제한된다는 점입니다."
 
 #: pkg/systemd/terminal.jsx:176
 msgid "White"
@@ -8969,7 +8946,7 @@ msgstr "nfs 서버는 유효한 IPv6가 아닙니다"
 
 #: pkg/metrics/metrics.jsx:111
 msgid "nice"
-msgstr "nice"
+msgstr "nice값"
 
 #: pkg/storaged/crypto-tab.jsx:244 pkg/storaged/crypto-tab.jsx:253
 #: pkg/storaged/stratis-details.jsx:1019 pkg/storaged/stratis-details.jsx:1029
@@ -9061,7 +9038,7 @@ msgstr "pmlogger.service가 동작 하지 않습니다"
 
 #: pkg/metrics/metrics.jsx:647
 msgid "pod"
-msgstr "pod"
+msgstr "Pod"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "port"

@@ -2070,11 +2070,10 @@ class MachineCase(unittest.TestCase):
 
         if self.file_exists(path):
             backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
-            self.machine.execute("mkdir -p %(vm_tmpdir)s; cp -a %(path)s %(backup)s" % {
-                "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})
-            self.addCleanup(self.machine.execute, "mv %(backup)s %(path)s" % {"path": path, "backup": backup})
+            self.machine.execute(f"mkdir -p {self.vm_tmpdir}; cp -a {path} {backup}")
+            self.addCleanup(self.machine.execute, f"mv {backup} {path}")
         else:
-            self.addCleanup(self.machine.execute, "rm -rf %s" % path)
+            self.addCleanup(self.machine.execute, f"rm -f {path}")
 
     def write_file(self, path: str, content: str, append: bool = False, owner: Optional[str] = None, perm: Optional[str] = None,
                    post_restore_action: Optional[str] = None):

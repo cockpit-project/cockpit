@@ -157,6 +157,7 @@ class TestMultiOS(testlib.MachineCase):
 
         # Messages from previous versions of cockpit
         self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
+        self.allow_restart_journal_messages()
 
 
 @testlib.skipDistroPackage()

@@ -69,7 +69,7 @@ endif
 execute_after_dh_install-indep:
 	# avoid dh_missing failure
 ifeq ($(C_BRIDGE),)
-	rm -r debian/tmp/usr/lib/python*
+	rm -r debian/tmp/usr/lib/python* debian/tmp/usr/lib/cockpit/cockpit-beiboot
 endif
 
 # run pytests *after* installation, so that we can make sure that we installed the right files

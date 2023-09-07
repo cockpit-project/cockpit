@@ -15,15 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import errno
+import grp
+import json
 import logging
 import os
+import pwd
 import random
+import stat
+from typing import Callable, ClassVar, Dict, Optional, Sequence, Union
 
-from cockpit._vendor.systemd_ctypes import PathWatch
+from cockpit._vendor.systemd_ctypes import Handle, PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
+from cockpit._vendor.systemd_ctypes.pathwatch import Listener as PathListener
 
 from ..channel import Channel, ChannelError, GeneratorChannel
-from ..jsonutil import JsonObject, get_bool, get_int, get_str
+from ..jsonutil import JsonDocument, JsonObject, get_bool, get_int, get_str, get_strv
 
 logger = logging.getLogger(__name__)
 
@@ -41,53 +48,194 @@ def tag_from_path(path):
         return None
 
 
-def tag_from_fd(fd):
-    try:
-        return tag_from_stat(os.fstat(fd))
-    except OSError:
-        return None
+class AttributeReporter:
+    uid_cache: Dict[int, Union[str, int]]
+    gid_cache: Dict[int, Union[str, int]]
+    report_target: bool
+    getters: Dict[str, Callable[[os.stat_result], JsonDocument]]
 
+    def do_get_tag(self, buf: os.stat_result) -> str:
+        return tag_from_stat(buf)
 
-class FsListChannel(Channel):
-    payload = 'fslist1'
-
-    def send_entry(self, event, entry):
-        if entry.is_symlink():
-            mode = 'link'
-        elif entry.is_file():
-            mode = 'file'
-        elif entry.is_dir():
-            mode = 'directory'
+    def do_get_type(self, buf: os.stat_result) -> str:
+        if stat.S_ISDIR(buf.st_mode):
+            return 'directory'
+        elif stat.S_ISREG(buf.st_mode):
+            return 'file'
+        elif stat.S_ISLNK(buf.st_mode):
+            return 'link'
         else:
-            mode = 'special'
+            return 'special'
 
-        self.send_message(event=event, path=entry.name, type=mode)
+    def do_get_mode(self, buf: os.stat_result) -> int:
+        return buf.st_mode & 0o777
+
+    def do_get_owner(self, buf: os.stat_result) -> Union[int, str]:
+        if buf.st_uid not in self.uid_cache:
+            try:
+                self.uid_cache[buf.st_uid] = pwd.getpwuid(buf.st_uid).pw_name
+            except KeyError:
+                self.uid_cache[buf.st_uid] = buf.st_uid
+        return self.uid_cache[buf.st_uid]
+
+    def do_get_group(self, buf: os.stat_result) -> Union[int, str]:
+        if buf.st_gid not in self.gid_cache:
+            try:
+                self.gid_cache[buf.st_gid] = grp.getgrgid(buf.st_gid).gr_name
+            except KeyError:
+                self.gid_cache[buf.st_gid] = buf.st_gid
+        return self.gid_cache[buf.st_gid]
+
+    def do_get_size(self, buf: os.stat_result) -> int:
+        return buf.st_size
+
+    def do_get_modified(self, buf: os.stat_result) -> float:
+        return buf.st_mtime
+
+    def report(self, path: str, dir_fd: int = -1) -> JsonObject:
+        buf = os.lstat(path, dir_fd=dir_fd)
+        attrs = {attr: getter(buf) for attr, getter in self.getters.items()}
+        if self.report_target and stat.S_ISLNK(buf.st_mode):
+            try:
+                attrs['target'] = os.readlink(path, dir_fd=dir_fd)
+            except OSError:
+                pass  # no need to impede reporting the other attributes...
+        return attrs
+
+    def __init__(self, attrs: Sequence[str]) -> None:
+        self.uid_cache = {}
+        self.gid_cache = {}
+        # 'target' gets handled specially (since it's not in the stat data)
+        self.report_target = 'target' in attrs
+        self.getters = {attr: getattr(self, f'do_get_{attr}') for attr in attrs if attr != 'target'}
+
+
+class WatchAndListCommon(Channel, PathListener):
+    attrs: ClassVar[Sequence[str]] = ()
+    children: ClassVar[bool]
+
+    reporter: AttributeReporter
+    watch: Optional[PathWatch] = None
+    fd: Optional[Handle] = None
+    exists: Optional[bool] = None
+    path: str
+
+    def event(self, event: str, name: str) -> None:
+        attrs: JsonObject = {'event': event, 'path': name}
+
+        if event != 'deleted':
+            assert self.fd is not None
+
+            try:
+                attrs.update(self.reporter.report(name, dir_fd=self.fd))
+            except FileNotFoundError:
+                return  # we'll get the delete event delivered to us soon...
+            except OSError:
+                pass  # we're just not going to report attributes in that case
+        else:
+            attrs['deleted'] = True
+
+        logger.debug('%s %s', self.channel, attrs)
+        self.send_text(json.dumps(attrs) + '\n')
+
+    def do_close(self, error: Optional[int] = None) -> None:
+        if self.watch is not None:
+            self.watch.close()
+
+        if error is None:
+            self.close()
+        elif error == errno.ENOENT:
+            self.close(problem='not-found', message=os.strerror(error))
+        elif error in (errno.EPERM, errno.EACCES):
+            self.close(problem='access-denied', message=os.strerror(error))
+        else:
+            self.close(problem='internal-error', message=os.strerror(error))
+
+    def do_inotify_event(self, mask: InotifyEvent, _cookie: int, name: Optional[bytes]) -> None:
+        # If self.children is True, return if name is None
+        # If self.children is False, return if name is non-None
+        if self.children == (name is None):
+            return
+
+        if mask & (InotifyEvent.MOVED_FROM | InotifyEvent.DELETE):
+            event = 'deleted'
+        elif mask & (InotifyEvent.MOVED_TO | InotifyEvent.CREATE):
+            event = 'created'
+        elif mask & InotifyEvent.ATTRIB:
+            event = 'attribute-changed'
+        elif mask & InotifyEvent.CLOSE_WRITE:
+            event = 'done-hint'
+        else:
+            event = 'changed'
+
+        self.event(event, name.decode('utf-8') if name is not None else self.path)
+
+    def do_identity_changed(self, fd: Optional[Handle], err: Optional[int]) -> None:
+        self.fd = fd
+
+        if self.children and err is not None:
+            self.do_close(err)
+        elif (self.fd is not None) != self.exists:
+            if self.exists is not None:
+                self.event('deleted' if fd is None else 'created', self.path)
+            self.exists = self.fd is not None
 
     def do_open(self, options: JsonObject) -> None:
-        path = get_str(options, 'path')
-        watch = get_bool(options, 'watch', default=True)
+        self.path = get_str(options, 'path')
 
-        if watch:
-            raise ChannelError('not-supported', message='watching is not implemented, use fswatch1')
+        if not self.path.startswith('/'):
+            raise ChannelError('not-supported', message='Only absolute paths allowed')
 
         try:
-            scan_dir = os.scandir(path)
-        except OSError as error:
-            if isinstance(error, FileNotFoundError):
-                problem = 'not-found'
-            elif isinstance(error, PermissionError):
-                problem = 'access-denied'
+            self.reporter = AttributeReporter(get_strv(options, 'attrs', self.attrs))
+        except AttributeError as exc:
+            raise ChannelError('not-supported', message=str(exc)) from exc
+
+        try:
+            if get_bool(options, 'watch', default=True):
+                self.watch = PathWatch(self.path, self)
+                if self.is_closing():
+                    return
             else:
-                problem = 'internal-error'
-            raise ChannelError(problem, message=str(error)) from error
+                self.fd = Handle.open(self.path, os.O_PATH)
 
-        self.ready()
-        for entry in scan_dir:
-            self.send_entry("present", entry)
+            if self.children:
+                assert self.fd is not None
+                names = os.listdir(f'/proc/self/fd/{self.fd}')
+            elif self.fd is not None:
+                names = [self.path]
+            else:
+                names = []
 
-        if not watch:
-            self.done()
-            self.close()
+        except OSError as exc:
+            self.do_close(exc.errno)
+
+        else:
+            self.ready()
+
+            for name in names:
+                self.event('present', name)
+
+            if self.watch:
+                # make sure the user knows when the initial data is done
+                self.event('done', self.path)
+
+            else:
+                # otherwise, we're done here...
+                self.done()
+                self.close()
+
+
+class FsListChannel(WatchAndListCommon):
+    attrs = ('type',)
+    payload = 'fslist1'
+    children = True
+
+
+class FsWatchChannel(WatchAndListCommon):
+    attrs = ('tag',)
+    payload = 'fswatch1'
+    children = False
 
 
 class FsReadChannel(GeneratorChannel):
@@ -205,66 +353,3 @@ class FsReplaceChannel(Channel):
             self._tempfile.close()
             self.unlink_temppath()
             self._tempfile = None
-
-
-class FsWatchChannel(Channel):
-    payload = 'fswatch1'
-    _tag = None
-    _path = None
-    _watch = None
-
-    # The C bridge doesn't send the initial event, and the JS calls read()
-    # instead to figure out the initial state of the file.  If we send the
-    # initial state then we cause the event to get delivered twice.
-    # Ideally we'll sort that out at some point, but for now, suppress it.
-    _active = False
-
-    @staticmethod
-    def mask_to_event_and_type(mask):
-        if (InotifyEvent.CREATE or InotifyEvent.MOVED_TO) in mask:
-            return 'created', 'directory' if InotifyEvent.ISDIR in mask else 'file'
-        elif InotifyEvent.MOVED_FROM in mask or InotifyEvent.DELETE in mask or InotifyEvent.DELETE_SELF in mask:
-            return 'deleted', None
-        elif InotifyEvent.ATTRIB in mask:
-            return 'attribute-changed', None
-        elif InotifyEvent.CLOSE_WRITE in mask:
-            return 'done-hint', None
-        else:
-            return 'changed', None
-
-    def do_inotify_event(self, mask, _cookie, name):
-        logger.debug("do_inotify_event(%s): mask %X name %s", self._path, mask, name)
-        event, type_ = self.mask_to_event_and_type(mask)
-        if name:
-            # file inside watched directory changed
-            path = os.path.join(self._path, name.decode())
-            tag = tag_from_path(path)
-            self.send_message(event=event, path=path, tag=tag, type=type_)
-        else:
-            # the watched path itself changed; filter out duplicate events
-            tag = tag_from_path(self._path)
-            if tag == self._tag:
-                return
-            self._tag = tag
-            self.send_message(event=event, path=self._path, tag=self._tag, type=type_)
-
-    def do_identity_changed(self, fd, err):
-        logger.debug("do_identity_changed(%s): fd %s, err %s", self._path, str(fd), err)
-        self._tag = tag_from_fd(fd) if fd else '-'
-        if self._active:
-            self.send_message(event='created' if fd else 'deleted', path=self._path, tag=self._tag)
-
-    def do_open(self, options):
-        self._path = get_str(options, 'path')
-        self._tag = None
-
-        self._active = False
-        self._watch = PathWatch(self._path, self)
-        self._active = True
-
-        self.ready()
-
-    def do_close(self):
-        self._watch.close()
-        self._watch = None
-        self.close()

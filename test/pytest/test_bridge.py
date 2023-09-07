@@ -439,11 +439,27 @@ async def test_fslist1_no_watch(transport):
 
 
 @pytest.mark.asyncio
+async def test_fswatch1_notexist(transport):
+    tempdir = tempfile.TemporaryDirectory()
+    dir_path = Path(tempdir.name)
+
+    newfile = Path(dir_path, 'somefile')
+    ch = await transport.check_open('fswatch1', path=str(newfile))
+    await transport.assert_msg(ch, event='done', path=str(newfile))
+
+    newfile.touch()
+    await transport.assert_msg(ch, event='created', path=str(newfile))
+
+    newfile.unlink()
+    await transport.assert_msg(ch, event='deleted', path=str(newfile))
+
+
+@pytest.mark.asyncio
 async def test_fslist1_notexist(transport):
     await transport.check_open(
         'fslist1', path='/nonexisting', watch=False,
         problem='not-found',
-        reply_keys={'message': "[Errno 2] No such file or directory: '/nonexisting'"})
+        reply_keys={'message': "No such file or directory"})
 
 
 @pytest.mark.asyncio

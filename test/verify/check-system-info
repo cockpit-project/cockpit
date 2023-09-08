@@ -460,7 +460,9 @@ class TestSystemInfo(packagelib.PackageCase):
         # strips empty lines, but not leading spaces
         b.wait_text('#motd', "  Hello\n  World")
 
-        b.assert_pixels("#motd-box", "motd")
+        # For some reason, switching to RTL takes a long time
+        # here. Let's increase the delay.
+        b.assert_pixels("#motd-box", "motd", wait_delay=2.0)
 
         b.click('#motd-box button:not(#motd-box-edit)')
         b.wait_not_present('#motd-box')

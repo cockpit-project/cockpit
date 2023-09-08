@@ -1,0 +1,22 @@
+name: nightly
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  # can be run manually on https://github.com/cockpit-project/cockpit/actions
+  workflow_dispatch:
+jobs:
+  trigger:
+    permissions:
+      statuses: write
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Trigger updates-testing scenario
+        run: |
+          make bots
+          mkdir -p ~/.config/cockpit-dev
+          echo "${{ github.token }}" >> ~/.config/cockpit-dev/github-token
+          TEST_OS=$(PYTHONPATH=bots python3 -c 'from lib.constants import TEST_OS_DEFAULT; print(TEST_OS_DEFAULT)')
+          bots/tests-trigger --force "-" "${TEST_OS}/updates-testing"

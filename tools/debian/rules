@@ -25,14 +25,10 @@ override_dh_auto_configure:
 		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 
-# HACK: Debian's pip breaks --prefix: https://bugs.debian.org/1035546
-# redirect /usr/local to /usr, as merging the trees after install is brittle
-execute_before_dh_auto_install:
-	mkdir -p debian/tmp/usr; ln -s . debian/tmp/usr/local
-
-# undo the pip hack
-execute_after_dh_auto_install:
-	rm debian/tmp/usr/local
+# HACK: Debian's pip breaks --prefix: https://bugs.debian.org/1035546 with
+# default install layout
+override_dh_auto_install:
+	DEB_PYTHON_INSTALL_LAYOUT=deb dh_auto_install
 
 # avoid trying to start cockpit-motd.service and cockpit-wsinstance-*.socket etc.
 override_dh_installsystemd:

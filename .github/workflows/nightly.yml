@@ -15,7 +15,7 @@ jobs:
 
       - name: Trigger updates-testing scenario
         run: |
-          make bots
+          test/common/make-bots
           mkdir -p ~/.config/cockpit-dev
           echo "${{ github.token }}" >> ~/.config/cockpit-dev/github-token
           TEST_OS=$(PYTHONPATH=bots python3 -c 'from lib.constants import TEST_OS_DEFAULT; print(TEST_OS_DEFAULT)')

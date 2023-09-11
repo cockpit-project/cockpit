@@ -1799,6 +1799,7 @@ class MachineCase(unittest.TestCase):
             "Traceback .*most recent call last.*",
             "File .*",
             "async with self.watch_processing_lock:",
+            "self.send_message.*",
             "self.release.*",
             "self._wake_up_first.*",
             "fut.set_result.*",

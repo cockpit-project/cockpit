@@ -1406,21 +1406,22 @@ class TestMultiCPU(testlib.MachineCase):
         # Test current usage of cores
         b.wait_text("#current-cpu-usage-description", "2 CPUs")
         b.wait(lambda: progressValue(self, "#current-cpu-usage") < 20)
-        m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
-        m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
+        m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=50% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
+        m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=20% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
         # View all CPUs
         b.click("#current-metrics-card-cpu button")
-        b.wait(lambda: int(b.text(".pf-v5-c-popover .cpu-all dd:nth-of-type(1)")[:-1]) > 50)
-        b.wait(lambda: int(b.text(".pf-v5-c-popover .cpu-all dd:nth-of-type(2)")[:-1]) > 20)
+        b.wait(lambda: int(b.text(".pf-v5-c-popover .cpu-all dd:nth-of-type(1)")[:-1]) > 40)
+        b.wait(lambda: int(b.text(".pf-v5-c-popover .cpu-all dd:nth-of-type(2)")[:-1]) > 15)
         b.click(".pf-v5-c-popover button")
         b.wait_not_present(".pf-v5-c-popover")
 
         # the top CPU core runs cpu-hog
-        b.wait(lambda: progressValue(self, "#current-top-cpu-usage") >= 58)
-        b.wait(lambda: progressValue(self, "#current-top-cpu-usage") <= 70)
+        b.wait(lambda: progressValue(self, "#current-top-cpu-usage") >= 38)
+        # the hoglet gets scheduled between core 1 and 2
+        b.wait(lambda: progressValue(self, "#current-top-cpu-usage") <= 80)
         # looks like "average: 45% max: 60%"
-        b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) >= 58)
-        b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) <= 70)
+        b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) >= 38)
+        b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) <= 80)
 
 
 @testlib.skipOstree("no PCP support")

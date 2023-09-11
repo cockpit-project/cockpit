@@ -217,10 +217,7 @@ class TestApps(packagelib.PackageCase):
             b.open_session_menu()
             b.click(".display-language-menu")
             b.wait_visible('#display-language-modal')
-            if self.system_before(242):  # Changed in #15667
-                b.set_val("#display-language-modal select", lang)
-            else:
-                b.click(f'#display-language-modal li[data-value={lang}] button')
+            b.click(f'#display-language-modal li[data-value={lang}] button')
             b.click("#display-language-modal footer button.pf-m-primary")
             b.wait_language(lang)
             b.enter_page("/apps")

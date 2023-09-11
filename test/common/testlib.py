@@ -798,27 +798,16 @@ class Browser:
 
     def logout(self):
         self.assert_no_oops()
-
         self.switch_to_top()
 
-        # changed in #16522
-        prev_shell = self.machine.system_before(258)
-
-        if prev_shell:
-            self.wait_visible("#navbar-dropdown")
-        else:
-            self.wait_visible("#toggle-menu")
+        self.wait_visible("#toggle-menu")
         if self.is_present("button#machine-reconnect") and self.is_visible("button#machine-reconnect"):
             # happens when shutting down cockpit or rebooting machine
             self.click("button#machine-reconnect")
         else:
             # happens when cockpit is still running
-            if prev_shell:
-                self.click("#navbar-dropdown")
-                self.click('#go-logout')
-            else:
-                self.open_session_menu()
-                self.click('#logout')
+            self.open_session_menu()
+            self.click('#logout')
         self.wait_visible('#login')
 
         self.machine.allow_restart_journal_messages()

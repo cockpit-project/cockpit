@@ -336,6 +336,7 @@ WantedBy=default.target
         b.wait_not_present('#test.service > svg.service-thumbtack-icon-color')
 
         self.goto_service("test.service")
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], enabled=False)
         b.wait_not_present('#service-details-unit > article > div > svg.service-thumbtack-icon')
         self.do_action("Pin unit")
         b.is_present('#service-details-unit > article > div > svg.service-thumbtack-icon')

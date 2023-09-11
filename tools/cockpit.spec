@@ -103,7 +103,7 @@ BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
 BuildRequires: make
-BuildRequires: /usr/bin/python3
+BuildRequires: python3-devel
 %if 0%{?rhel} && 0%{?rhel} <= 8
 # RHEL 8's gettext does not yet have metainfo.its
 BuildRequires: gettext >= 0.19.7

@@ -1155,6 +1155,7 @@ class Browser:
                       skip_layouts: Optional[List[str]] = None,
                       scroll_into_view: Optional[str] = None,
                       wait_animations: bool = True,
+                      wait_after_layout_change: bool = False,
                       wait_delay: float = 0.5):
         """Compare the given element with its reference in all layouts"""
 
@@ -1182,6 +1183,8 @@ class Browser:
                     self.set_layout(layout["name"])
                     if "rtl" in self.current_layout["name"]:
                         self._set_direction("rtl")
+                    if wait_after_layout_change:
+                        time.sleep(wait_delay)
                     self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
                                                          mock=mock, sit_after_mock=sit_after_mock,
                                                          scroll_into_view=scroll_into_view,

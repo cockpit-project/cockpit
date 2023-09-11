@@ -203,7 +203,7 @@ class CDP:
         cmd = "client." + cmd
         res = self.command(cmd)
         if trace:
-            if "result" in res:
+            if res and "result" in res:
                 print("<- " + repr(res["result"]))
             else:
                 print("<- " + repr(res))

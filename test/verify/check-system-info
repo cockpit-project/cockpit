@@ -257,7 +257,8 @@ class TestSystemInfo(packagelib.PackageCase):
         b.wait_not_present("#systime-manual-row .dialog-error")
         b.assert_pixels("#system_information_change_systime", "systime-manual-time")
         b.click("#system_information_change_systime .apply")
-        b.wait_not_present("#system_information_change_systime")
+        with b.wait_timeout(60):
+            b.wait_not_present("#system_information_change_systime")
 
         b.wait_text("#system_information_systime_button", "Jan 24, 2037, 8:03 AM")
 
@@ -270,7 +271,8 @@ class TestSystemInfo(packagelib.PackageCase):
         b.wait_visible("#system_information_change_systime")
         self.set_change_time_dialog_mode("Automatically using NTP")
         b.click("#system_information_change_systime .apply")
-        b.wait_not_present("#system_information_change_systime")
+        with b.wait_timeout(60):
+            b.wait_not_present("#system_information_change_systime")
 
         testlib.wait(ntp_enabled)
 

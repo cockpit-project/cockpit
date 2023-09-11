@@ -277,25 +277,16 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded .spikes_count", "3 spikes")
         b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded .spikes_info", "1 Memory, 1 Disk I/O, 1 Network I/O")
 
-        # There is something really funny going on with the navigation
-        # bar in the mobile layout; it sometimes appears in a random
-        # position in the screenshot. We fix that by adding an extra
-        # delay after switching to "mobile".
-
         b.assert_pixels(".metrics", "metrics-history-expanded-hour", ignore=[".spikes_count"],
-                        skip_layouts=["mobile"])
-        b.set_layout("mobile")
-        time.sleep(1.0)
-        b.assert_pixels_in_current_layout(".metrics", "metrics-history-expanded-hour",
-                                          ignore=[".spikes_count"])
-        b.set_layout("desktop")
+                        wait_after_layout_change=True)
 
         b.click("#metrics-hour-1597662000000 button.metrics-events-expander")
         b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed", "1:00")
         b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed .spikes_count", "3 spikes")
         b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed .spikes_info", "1 Memory, 1 Disk I/O, 1 Network I/O")
 
-        b.assert_pixels(".metrics", "metrics-history-compressed-hour", ignore=[".nodata"], skip_layouts=["mobile", "rtl"])
+        b.assert_pixels(".metrics", "metrics-history-compressed-hour", ignore=[".nodata"],
+                        wait_after_layout_change=True)
 
         # Check that events are not visible for compressed hours
         b.wait_not_present("#metrics-hour-1597662000000 div.metrics-minute[data-minute='28'] .metrics-events")

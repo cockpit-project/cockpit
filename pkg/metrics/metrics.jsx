@@ -257,6 +257,7 @@ class CurrentMetrics extends React.Component {
         this.cgroupMemoryNames = [];
         this.cgroupDiskNames = [];
         this.disksNames = [];
+        this.cpuTemperature = null;
         this.cpuTemperatureColors = {
             textColor: "",
             iconColor: "",
@@ -325,7 +326,7 @@ class CurrentMetrics extends React.Component {
 
         if (!cockpit.hidden && (this.temperature_channel === null)) {
             this.temperature_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: INTERVAL, metrics: CPU_TEMPERATURE_METRICS });
-            this.temperature_channel.addEventListener("close", (ev, error) => console.error("CPU temperature metric closed:", error));
+            this.temperature_channel.addEventListener("close", (ev, error) => console.warn("CPU temperature metric closed:", error));
             this.temperature_channel.addEventListener("message", this.onTemperatureUpdate);
         }
 
@@ -431,7 +432,13 @@ class CurrentMetrics extends React.Component {
 
         data.forEach(temperatureSamples => decompress_samples(temperatureSamples, this.temperatureSamples));
 
-        this.cpuTemperature = parseInt(Math.max(...this.temperatureSamples[0]));
+        if (this.temperatureSamples[0].length > 0) {
+            this.cpuTemperature = Math.round(Math.max(...this.temperatureSamples[0]));
+        } else {
+            // close the channel when bridge couldn't sample temperature
+            this.temperature_channel.close("No samples received");
+            return;
+        }
 
         if (this.cpuTemperature <= 80) {
             this.cpuTemperatureColors.textColor = "";
@@ -816,7 +823,7 @@ class CurrentMetrics extends React.Component {
                 <Card id="current-metrics-card-cpu">
                     <CardHeader className='align-baseline'>
                         <CardTitle>{ _("CPU") }</CardTitle>
-                        { !isNaN(this.cpuTemperature) &&
+                        { this.cpuTemperature !== null &&
                         <span className="temperature">
                             <span className={this.cpuTemperatureColors.iconColor}>
                                 {this.cpuTemperatureColors.icon}

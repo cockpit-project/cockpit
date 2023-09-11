@@ -52,6 +52,18 @@ ReportStderr = true
 Command = {self.libexecdir}/cockpit-beiboot
 """)
 
+    def check_login(self, expected_user):
+        b = self.browser
+        b.wait_visible('#content')
+        b.wait_in_text("#host-toggle", expected_user)
+        b.enter_page("/system")
+        if self.is_devel_build():
+            b.wait_visible("#system_information_hostname_text")
+            # devel disables preloads
+        else:
+            b.wait_visible("#page_status_notification_updates")
+        b.switch_to_top()
+
     def logout(self, check_last_host=None):
         b = self.browser
 
@@ -96,11 +108,9 @@ Command = {self.libexecdir}/cockpit-beiboot
         b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
         b.set_val("#conversation-input", "foobar")
         b.click("#login-button")
-
-        b.wait_visible('#content')
+        self.check_login("admin@target")
         b.wait_in_text("#host-apps", "Services")
         b.wait_in_text("#host-apps", "Terminal")
-        b.wait_in_text("#host-toggle", "admin@target")
         b.become_superuser()
         b.drop_superuser()
         self.logout(check_last_host="10.111.113.2")
@@ -113,9 +123,7 @@ Command = {self.libexecdir}/cockpit-beiboot
         b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
         b.set_val("#conversation-input", "foobar")
         b.click("#login-button")
-
-        b.wait_visible('#content')
-        b.wait_in_text("#host-toggle", "admin@target")
+        self.check_login("admin@target")
         b.become_superuser()
 
         # cockpit-pcp is installed on client, but not on target; recognize that
@@ -154,8 +162,7 @@ Command = {self.libexecdir}/cockpit-beiboot
         b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
         b.set_val("#conversation-input", "foobar")
         b.click("#login-button")
-        b.wait_visible('#content')
-        b.wait_in_text("#host-toggle", "admin@target")
+        self.check_login("admin@target")
         self.logout()
 
         # different user name + password
@@ -165,8 +172,7 @@ Command = {self.libexecdir}/cockpit-beiboot
         b.wait_text("#conversation-prompt", "user@10.111.113.2's password: ")
         b.set_val("#conversation-input", "barfoo")
         b.click("#login-button")
-        b.wait_visible('#content')
-        b.wait_in_text("#host-toggle", "user@target")
+        self.check_login("user@target")
 
         # not a sudoer
         b.open_superuser_dialog()
@@ -194,8 +200,7 @@ Command = {self.libexecdir}/cockpit-beiboot
         pubkey = self.m_client.execute("cat ~admin/.ssh/id_rsa.pub")
         self.m_target.write("/home/user/.ssh/authorized_keys", pubkey, owner="user:user", perm="600")
         b.click("#recent-hosts-list .host-line:contains('user@10.111.113.2') button.host-name")
-        b.wait_visible('#content')
-        b.wait_in_text("#host-toggle", "user@target")
+        self.check_login("user@target")
         self.logout()
 
         # encrypted SSH key login
@@ -208,8 +213,7 @@ Command = {self.libexecdir}/cockpit-beiboot
         b.wait_text("#conversation-prompt", "Enter passphrase for key '/home/admin/.ssh/id_rsa': ")
         b.set_val("#conversation-input", "foobarfoo")
         b.click("#login-button")
-        b.wait_visible('#content')
-        b.wait_in_text("#host-toggle", "user@target")
+        self.check_login("user@target")
         self.logout()
 
 

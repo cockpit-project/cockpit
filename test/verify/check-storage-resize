@@ -61,7 +61,8 @@ class TestStorageResize(storagelib.StorageCase):
             self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
-        self.dialog_wait_close()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
         self.content_tab_wait_in_info(fsys_row, fsys_tab, "Name", "FSYS")
         self.content_tab_wait_in_info(fsys_row, fsys_tab, "Mount point", "/run/foo")
 

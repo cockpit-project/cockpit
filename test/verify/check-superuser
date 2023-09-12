@@ -81,6 +81,17 @@ class TestSuperuser(testlib.MachineCase):
         b.leave_page()
         b.check_superuser_indicator("Administrative access")
 
+        # Test that closing instead of cancelling the dialog keeps the "switch
+        # to administrative button"
+        b.open_superuser_dialog()
+        b.click(".pf-v5-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to limited access')")
+        b.check_superuser_indicator("Limited access")
+
+        b.open_superuser_dialog()
+        b.click(".pf-v5-c-modal-box__close button")
+        b.check_superuser_indicator("Limited access")
+
     def testSudoIOLogging(self):
         b = self.browser
         m = self.machine

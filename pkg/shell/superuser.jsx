@@ -51,7 +51,7 @@ const UnlockDialog = ({ proxy, host }) => {
     const [methods, setMethods] = useState(null);
     const [method, setMethod] = useState(false);
     const [busy, setBusy] = useState(false);
-    const [cancel, setCancel] = useState(null);
+    const [cancel, setCancel] = useState(() => D.close);
     const [prompt, setPrompt] = useState(null);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
@@ -178,7 +178,7 @@ const UnlockDialog = ({ proxy, host }) => {
                 <Button variant='primary' onClick={apply} isDisabled={busy} isLoading={busy}>
                     {_("Authenticate")}
                 </Button>
-                <Button variant='link' className='btn-cancel' onClick={cancel} isDisabled={!cancel}>
+                <Button variant='link' className='btn-cancel' onClick={cancel}>
                     {_("Cancel")}
                 </Button>
             </>);
@@ -215,8 +215,7 @@ const UnlockDialog = ({ proxy, host }) => {
                 <Button variant='primary' onClick={() => start(method)} isDisabled={busy} isLoading={busy}>
                     {_("Authenticate")}
                 </Button>
-                <Button variant='link' className='btn-cancel' onClick={busy ? cancel : D.close}
-                        isDisabled={busy && !cancel}>
+                <Button variant='link' className='btn-cancel' onClick={cancel}>
                     {_("Cancel")}
                 </Button>
             </>);
@@ -229,7 +228,7 @@ const UnlockDialog = ({ proxy, host }) => {
         <Modal isOpen
                position="top"
                variant="medium"
-               onClose={D.close}
+               onClose={cancel}
                title={title}
                titleIconVariant={title_icon}
                footer={footer}>

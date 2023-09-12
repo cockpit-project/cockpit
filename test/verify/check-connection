@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import base64
+import json
 import os
 import subprocess
 import time
@@ -1193,6 +1194,16 @@ UnixPath=/run/cockpit/session
         packages = m.execute("cockpit-bridge --packages")
         self.assertRegex(packages, r"(^|\n)base1\s+.*/usr/share/cockpit/base1")
         self.assertRegex(packages, r"(^|\n)system\s+.*/usr/share/cockpit/systemd")
+
+        if self.is_pybridge():
+            bridges = json.loads(m.execute("cockpit-bridge --bridges").strip())
+            bridge_names = [b['name'] for b in bridges]
+            self.assertGreater(len(bridges), 0)
+            self.assertIn('sudo', bridge_names)
+
+            # OStree has no PCP bridge
+            if not m.ostree_image:
+                self.assertIn(f'{self.libexecdir}/cockpit-pcp', bridge_names)
 
 
 @testlib.skipDistroPackage()

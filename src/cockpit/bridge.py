@@ -280,7 +280,7 @@ def main(*, beipack: bool = False) -> None:
         print(f'Version: {__version__}\nProtocol: 1')
         return
     elif args.bridges:
-        print(json.dumps(Packages().get_bridge_configs(), indent=2))
+        print(json.dumps([config.__dict__ for config in Packages().get_bridge_configs()], indent=2))
         return
 
     # The privileged bridge doesn't need ssh-agent, but the main one does

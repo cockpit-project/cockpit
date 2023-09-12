@@ -47,7 +47,9 @@ class TestBonding(netlib.NetworkCase):
         b.wait_visible("#network-bond-settings-dialog button[aria-label=Close]")
         b.wait_visible("#network-bond-settings-mac-input-select-typeahead")
         # menu is not visible by default, but gets initialized dynamically
-        b.assert_pixels("#network-bond-settings-dialog", "networking-bond-settings-dialog")
+        b.assert_pixels("#network-bond-settings-dialog", "networking-bond-settings-dialog",
+                        # help icon gets rendered with unstable noise
+                        ignore=["#bond-help-popup-button"])
 
         b.click("#network-bond-settings-dialog button[aria-label=Close]")
         b.wait_not_present("#network-bond-settings-dialog")

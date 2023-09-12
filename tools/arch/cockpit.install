@@ -1,8 +1,0 @@
-post_install() {
-  printf "# List of users which are not allowed to login to Cockpit\nroot\n" > /etc/cockpit/disallowed-users
-  chmod 644 /etc/cockpit/disallowed-users
-}
-
-post_remove() {
-  rm -f /etc/cockpit/disallowed-users
-}

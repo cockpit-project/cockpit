@@ -4,14 +4,13 @@
 # Contributor: Anatol Pomozov <anatol.pomozov@gmail.com>
 
 pkgbase=cockpit
-pkgname=(cockpit cockpit-pcp cockpit-test)
+pkgname=(cockpit cockpit-packagekit cockpit-pcp cockpit-storaged cockpit-test)
 pkgver=0
 pkgrel=1
 pkgdesc='A systemd web based user interface for Linux servers'
 arch=('x86_64')
 url='https://cockpit-project.org/'
 license=(LGPL)
-install=cockpit.install
 makedepends=(krb5 libssh accountsservice json-glib glib-networking
              git intltool gtk-doc gobject-introspection networkmanager xmlto npm pcp
              python-build python-installer python-wheel)
@@ -43,19 +42,22 @@ build() {
     --with-admin-group=wheel \
     --with-cockpit-user=cockpit-ws \
     --with-cockpit-ws-instance-user=cockpit-wsinstance
-
   make all
 }
 
 package_cockpit() {
   depends=(krb5 libssh json-glib glib-networking python)
-  backup=('etc/pam.d/cockpit')
+  backup=('etc/pam.d/cockpit' 'etc/cockpit/disallowed-users')
   optdepends=("cockpit-pcp: reading performance metrics"
+              "cockpit-storaged: manage storage"
+              "cockpit-packagekit: manage packaged"
               "cockpit-podman: user interface for managing podman containers"
               "cockpit-machines: user interface for managing virtual machines"
-              "udisks2: manage hard disks"
+              "polkit: elevate privileges"
+              "sudo: elevate privileges"
               "networkmanager: manage network connections"
-              "packagekit: manage packages")
+              "sssd: authentication"
+              "sscg: generate self-signed certificate")
 
   cd cockpit-$pkgver
   make DESTDIR="$pkgdir" install
@@ -71,9 +73,14 @@ package_cockpit() {
          "$pkgdir"/usr/share/metainfo/org.cockpit-project.cockpit-{selinux,sosreport}.metainfo.xml
 
   # remove plugins packaged separately
-  rm -rf "$pkgdir"/usr/share/cockpit/pcp \
+  rm -rf "$pkgdir"/usr/share/cockpit/{apps,packagekit,pcp,storaged} \
+         "$pkgdir"/usr/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml \
          "$pkgdir"/usr/lib/cockpit/cockpit-pcp \
          "$pkgdir"/var/lib/pcp
+
+  # Disallow root login by default
+  printf "# List of users which are not allowed to login to Cockpit\nroot\n" > "$pkgdir"/etc/cockpit/disallowed-users
+  chmod 644 "$pkgdir"/etc/cockpit/disallowed-users
 }
 
 package_cockpit-test() {
@@ -102,13 +109,9 @@ package_cockpit-pcp() {
 }
 
 _do_package_component() {
-  if [ "$1" ]; then
-    _component="$1"
-  else
-    _component="${pkgname#cockpit-}"
-  fi
+  _component="${1:-${pkgname#cockpit-}}"
 
-  cd cockpit-$pkgver
+  cd "$srcdir"/cockpit-$pkgver
   make DESTDIR="$pkgdir"/tmp install
 
   cd "$pkgdir"/tmp
@@ -120,4 +123,20 @@ _do_package_component() {
       "$pkgdir"/usr/share/metainfo/org.cockpit-project.$pkgname.metainfo.xml
 
   rm -rf "$pkgdir"/tmp
+}
+
+package_cockpit-storaged() {
+  pkgdesc='Cockpit user interface for storage, using udisks'
+  depends=(cockpit udisks2 dbus-python)
+  optdepends=(
+    "clevis: manage disk encryption"
+  )
+  _do_package_component
+}
+
+package_cockpit-packagekit() {
+  pkgdesc='Cockpit user interface for packages'
+  depends=(cockpit polkit packagekit python)
+  _do_package_component
+  _do_package_component apps
 }

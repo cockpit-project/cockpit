@@ -693,9 +693,12 @@ class TestConnection(testlib.MachineCase):
         install()
         self.assertIn('Activate the web console', m.execute("cat /etc/motd.d/cockpit"))
         self.assertIn('Activate the web console', m.execute("cat /etc/issue.d/cockpit.issue"))
-        # disallowed-users should not exists now as this is an upgrade
-        m.execute("test ! -e /etc/cockpit/disallowed-users")
-        m.execute("echo 'root' > /etc/cockpit/disallowed-users")
+        # disallowed-users should not exists now as this is an upgrade, except on Arch
+        if m.image != "arch":
+            m.execute("test ! -e /etc/cockpit/disallowed-users")
+            m.execute("echo 'root' > /etc/cockpit/disallowed-users")
+        else:
+            m.execute("test -e /etc/cockpit/disallowed-users")
 
         # HACK: On Arch Linux the symlink is overwritten, bug?
         if m.image != "arch":

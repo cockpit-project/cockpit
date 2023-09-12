@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-07 02:47+0000\n"
-"PO-Revision-Date: 2023-08-04 18:21+0000\n"
-"Last-Translator: Ville-Pekka Vainio <vpvainio@iki.fi>\n"
+"POT-Creation-Date: 2023-09-09 02:47+0000\n"
+"PO-Revision-Date: 2023-09-09 06:21+0000\n"
+"Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/fi/>\n"
 "Language: fi\n"
@@ -713,10 +713,8 @@ msgid "Add Network Bound Disk Encryption"
 msgstr "Lisää verkkoon sidottu levyn salaus"
 
 #: pkg/storaged/stratis-details.jsx:751
-#, fuzzy
-#| msgid "Tang keyserver"
 msgid "Add Tang keyserver"
-msgstr "Tang-avainpalvelin"
+msgstr "Lisää Tang-avainpalvelin"
 
 #: pkg/networkmanager/network-main.jsx:144 pkg/networkmanager/vlan.jsx:91
 msgid "Add VLAN"
@@ -783,10 +781,8 @@ msgid "Add new zone"
 msgstr "Lisää uusi vyöhyke"
 
 #: pkg/storaged/stratis-details.jsx:673 pkg/storaged/stratis-details.jsx:843
-#, fuzzy
-#| msgid "Old passphrase"
 msgid "Add passphrase"
-msgstr "Vanha tunnuslause"
+msgstr "Lisää tunnuslause"
 
 #: pkg/networkmanager/firewall.jsx:598
 msgid "Add ports"
@@ -1011,12 +1007,12 @@ msgstr ""
 msgid "Appearance"
 msgstr "Ulkomuoto"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:146
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:156
 #: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Sovellukset"
 
-#: pkg/apps/application-list.jsx:163
+#: pkg/apps/application-list.jsx:173
 msgid "Applications list"
 msgstr "Sovellusten luettelo"
 
@@ -1254,10 +1250,8 @@ msgid "Block"
 msgstr "Lohko"
 
 #: pkg/storaged/others-panel.jsx:41
-#, fuzzy
-#| msgid "Block devices"
 msgid "Block device"
-msgstr "Lohkolaitteet"
+msgstr "lohkolaite"
 
 #: pkg/storaged/content-views.jsx:857
 msgid "Block device for filesystems"
@@ -1554,7 +1548,7 @@ msgstr "Etsitään $0 pakettia"
 msgid "Checking for NBDE support in the initrd"
 msgstr "Tarkistetaan NBDE-tukea initrd:ssä"
 
-#: pkg/apps/application-list.jsx:124
+#: pkg/apps/application-list.jsx:134
 msgid "Checking for new applications"
 msgstr "Etsitään uusia sovelluksia"
 
@@ -3485,7 +3479,7 @@ msgstr "Asennetaan ohjelmistoja"
 
 #: pkg/metrics/metrics.jsx:1815
 msgid "Installation not supported without installed cockpit package"
-msgstr ""
+msgstr "Asennusta ei tueta ilman asennettua cockpit-pakettia"
 
 #: pkg/packagekit/updates.jsx:111
 msgid "Installed"
@@ -3712,8 +3706,6 @@ msgid "Keyserver"
 msgstr "Avainpalvelin"
 
 #: pkg/storaged/stratis-details.jsx:861 pkg/storaged/stratis-details.jsx:1026
-#, fuzzy
-#| msgid "Keyserver"
 msgctxt "storage"
 msgid "Keyserver"
 msgstr "Avainpalvelin"
@@ -4613,7 +4605,7 @@ msgstr "Yhtään NFS-liitosta ei ole asetettu"
 msgid "No SELinux alerts."
 msgstr "Ei SELinux-hälytyksiä."
 
-#: pkg/apps/application-list.jsx:160
+#: pkg/apps/application-list.jsx:170
 msgid "No applications installed or available."
 msgstr "Ei sovelluksia asennettuna tai saatavilla."
 
@@ -4824,10 +4816,8 @@ msgid "Not connected to host"
 msgstr "Ei yhdistetty koneeseen"
 
 #: pkg/storaged/stratis-details.jsx:312
-#, fuzzy
-#| msgid "Not enough space to grow."
 msgid "Not enough space"
-msgstr "Ei tarpeeksi tilaa kasvaa."
+msgstr "Ei tarpeeksi tilaa"
 
 #: pkg/storaged/stratis-details.jsx:893
 #, fuzzy
@@ -5118,8 +5108,6 @@ msgid "Passphrase"
 msgstr "Tunnuslause"
 
 #: pkg/storaged/stratis-details.jsx:838 pkg/storaged/stratis-details.jsx:1016
-#, fuzzy
-#| msgid "Passphrase"
 msgctxt "storage"
 msgid "Passphrase"
 msgstr "Tunnuslause"
@@ -5811,10 +5799,8 @@ msgid "Remove passphrase in key slot $0?"
 msgstr "Poista tunnuslause avainpaikasta $0?"
 
 #: pkg/storaged/stratis-details.jsx:734
-#, fuzzy
-#| msgid "Remove passphrase"
 msgid "Remove passphrase?"
-msgstr "Poista tunnuslause"
+msgstr "Poista tunnuslause?"
 
 #: pkg/networkmanager/firewall.jsx:121
 msgid "Remove service $0"
@@ -6052,12 +6038,16 @@ msgid ""
 "Results of the crash will be copied through $0 to $1 as $2, if kdump is "
 "properly configured."
 msgstr ""
+"Kaatumisen tulokset kopioidaan $0:sta $1:een nimellä $2, jos kdump on "
+"määritetty oikein."
 
 #: pkg/kdump/kdump-view.jsx:275
 msgid ""
 "Results of the crash will be stored in $0 as $1, if kdump is properly "
 "configured."
 msgstr ""
+"Kaatumisen tulokset tallennetaan kohtaan $0 nimellä $1, jos kdump on "
+"määritetty oikein."
 
 #: pkg/systemd/logs.jsx:263
 msgid "Resume"
@@ -6631,6 +6621,9 @@ msgid ""
 "Some block devices of this pool have grown in size after the pool was "
 "created. The pool can be safely grown to use the newly available space."
 msgstr ""
+"Joidenkin tämän varannon lohkolaitteiden koko on kasvanut varannon luomisen "
+"jälkeen. Varantoa voidaan turvallisesti kasvattaa hyödyntämään nyt vapaana "
+"olevaa tilaa."
 
 #: pkg/packagekit/updates.jsx:97
 msgid ""
@@ -7406,6 +7399,8 @@ msgid ""
 "There is not enough space in the pool to make a snapshot of this filesystem. "
 "At least $0 are required but only $1 are available."
 msgstr ""
+"Varannossa ei ole tarpeeksi tilaa tilannevedoksen tekemiseen tästä "
+"tiedostojärjestelmästä. Vähintään $0 vaaditaan, mutta vain $1 on saatavilla."
 
 #: pkg/shell/failures.jsx:42
 msgid "There was an unexpected error while connecting to the machine."
@@ -7433,6 +7428,8 @@ msgid ""
 "This RAID array has no write-intent bitmap. Such a bitmap can reduce "
 "sychronization times significantly."
 msgstr ""
+"Tällä RAID-ryhmällä ei ole kirjoitusaikeista bittikarttaa. Tällainen "
+"bittikartta voi lyhentää synkronointiaikoja merkittävästi."
 
 #: pkg/storaged/vdo-details.jsx:116
 msgid "This VDO device does not use all of its backing device."
@@ -7471,6 +7468,8 @@ msgstr "Nämä tiedot tallennetaan vain järjestelmään."
 msgid ""
 "This keyserver is the only way to unlock the pool and can not be removed."
 msgstr ""
+"Tämä avainpalvelin on ainoa tapa avata varannon lukitus, eikä sitä voi "
+"poistaa."
 
 #: pkg/storaged/lvol-tabs.jsx:464
 msgid "This logical volume is not completely used by its content."
@@ -7488,6 +7487,7 @@ msgstr "Tässä voi mennä hetki"
 msgid ""
 "This passphrase is the only way to unlock the pool and can not be removed."
 msgstr ""
+"Tämä salalause on ainoa tapa avata varannon lukitus, eikä sitä voi poistaa."
 
 #: pkg/storaged/stratis-details.jsx:651
 #, fuzzy
@@ -7496,10 +7496,8 @@ msgid "This pool does not use all the space on its block devices."
 msgstr "Tämä VDO-laite ei käytä kaikkia sen tukilaitetta."
 
 #: pkg/storaged/stratis-details.jsx:664
-#, fuzzy
-#| msgid "The RAID array is in a degraded state"
 msgid "This pool is in a degraded state."
-msgstr "RAID-pakka on heikentyneessä tilassa"
+msgstr "Varanto on heikentyneessä tilassa."
 
 #: pkg/packagekit/updates.jsx:1363
 msgid "This system is not registered"
@@ -7535,6 +7533,11 @@ msgid ""
 "representatives, developers or system administrators to assist with "
 "technical fault-finding and debugging."
 msgstr ""
+"Tämä työkalu luo arkiston konfiguraatio- ja diagnostiikkatiedoista käynnissä "
+"olevasta järjestelmästä. Arkisto voidaan tallentaa paikallisesti tai "
+"keskitetysti tallennus- tai seurantatarkoituksiin tai se voidaan lähettää "
+"teknisen tuen edustajille, kehittäjille tai järjestelmänvalvojille auttamaan "
+"teknisten vikojen etsinnässä ja virheenkorjauksessa."
 
 #: src/appstream/org.cockpit-project.cockpit-storaged.metainfo.xml.in:8
 msgid ""
@@ -7550,6 +7553,10 @@ msgid ""
 "firewalls using NetworkManager and Firewalld. NetworkManager is incompatible "
 "with Ubuntu's default systemd-networkd and Debian's ifupdown scripts."
 msgstr ""
+"Tämä työkalu hallitsee verkkoyhteyksiä, kuten sidoksia, siltoja, ryhmiä, "
+"VLAN-verkkoja ja palomuureja NetworkManagerin ja Firewalld:n avulla. "
+"NetworkManager ei ole yhteensopiva Ubuntun oletusarvoisten systemd-networkd- "
+"ja Debianin ifupdown-komentosarjojen kanssa."
 
 #: pkg/systemd/service-details.jsx:353
 msgid "This unit is not designed to be enabled explicitly."
@@ -8054,7 +8061,7 @@ msgstr "Päivityksen onnistumisen taulukko"
 msgid "Update history"
 msgstr "Päivityshistoria"
 
-#: pkg/apps/application-list.jsx:129
+#: pkg/apps/application-list.jsx:139
 msgid "Update package information"
 msgstr "Päivitä pakettitiedot"
 
@@ -8450,6 +8457,14 @@ msgid ""
 "to know the maximum size for each filesystem in advance and creation of "
 "snapshots is limited."
 msgstr ""
+"Kun tämä vaihtoehto on valittuna, uusi varanto ei salli yliallokaatiota. "
+"Sinun on määritettävä enimmäiskoko jokaiselle varannossa luodulle "
+"tiedostojärjestelmälle. Tiedostojärjestelmiä ei voi suurentaa luomisen "
+"jälkeen. Tilannevedokset on allokoitu kokonaan luomisen yhteydessä. Kaikkien "
+"enimmäiskokojen summa ei voi ylittää varannon kokoa. Tämän etuna on, että "
+"tämän varannon tietojärjestelmistä tila ei voi loppua yllättävällä tavalla. "
+"Haittapuolena on, että sinun on tiedettävä kunkin tiedostojärjestelmän "
+"enimmäiskoko etukäteen ja tilannevedosten luominen on rajoitettua."
 
 #: pkg/systemd/terminal.jsx:176
 msgid "White"

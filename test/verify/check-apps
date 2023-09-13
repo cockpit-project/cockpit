@@ -32,19 +32,19 @@ class TestApps(packagelib.PackageCase):
         self.appstream_collection = set()
         self.machine.upload(["verify/files/test.png"], "/var/tmp/")
 
-    def createAppStreamPackage(self, name, version, revision):
+    def createAppStreamPackage(self, name, version, revision, install=False):
         self.createPackage(name, version, revision, content={
             f"/usr/share/metainfo/org.cockpit-project.{name}.metainfo.xml": f"""
 <component type="addon">
   <extends>org.cockpit_project.cockpit</extends>
   <id>org.cockpit-project.{name}</id>
-  <icon type="local">/usr/share/pixmaps/test.png</icon>
+  <icon type="local">/usr/share/pixmaps/{name}.png</icon>
   <name>{name}</name>
-  <summary>An application for testing</summary>
+  <summary>{name} application for testing</summary>
   <launchable type="cockpit-manifest">{name}</launchable>
 </component>
 """,
-            "/usr/share/pixmaps/test.png": {"path": "/var/tmp/test.png"}})
+            f"/usr/share/pixmaps/{name}.png": {"path": "/var/tmp/test.png"}}, install=install)
         self.appstream_collection.add(name)
 
     def createAppStreamRepoPackage(self):
@@ -100,12 +100,17 @@ class TestApps(packagelib.PackageCase):
             m.write("/etc/cockpit/cockpit.conf", f"[WebService]\nUrlRoot={urlroot}")
 
         self.login_and_go("/apps", urlroot=urlroot)
-        b.wait_visible(".pf-v5-c-empty-state")
+        b.wait_in_text(".pf-v5-c-empty-state", "No applications installed or available")
+
+        # still no metadata, but already installed application
+        self.createAppStreamPackage("already", "1.0", "1", install=True)
+        b.wait_not_present(".pf-v5-c-empty-state")
+        b.wait_visible(".app-list .pf-v5-c-data-list__item-row:contains('already') button:contains('Remove')")
 
         self.createAppStreamPackage("app-1", "1.0", "1")
         self.createAppStreamRepoPackage()
 
-        # Refresh package info
+        # Refresh package info to install metadata
         b.click("#refresh")
 
         with b.wait_timeout(30):

@@ -3242,16 +3242,19 @@ function factory() {
         this.notify = notify;
 
         function close_perform(options) {
+            dbus_debug("dbus close_perform:", name, JSON.stringify(options));
             closed = options.problem || "disconnected";
             const outstanding = calls;
             calls = { };
             for (const id in outstanding) {
+                dbus_debug("... rejecting outstanding call", id);
                 outstanding[id].reject(new DBusError(closed, options.message));
             }
             self.dispatchEvent("close", options);
         }
 
         this.close = function close(options) {
+            dbus_debug("dbus close():", name, JSON.stringify(options), "have channel:", !!channel);
             if (typeof options == "string")
                 options = { problem: options };
             if (!options)
@@ -3263,12 +3266,12 @@ function factory() {
         };
 
         function on_ready(event, message) {
-            dbus_debug("dbus ready:", options);
+            dbus_debug("dbus on_ready:", name, JSON.stringify(options));
             self.unique_name = message["unique-name"];
         }
 
         function on_close(event, options) {
-            dbus_debug("dbus close:", options);
+            dbus_debug("dbus on_close:", name, JSON.stringify(options));
             channel.removeEventListener("ready", on_ready);
             channel.removeEventListener("message", on_message);
             channel.removeEventListener("close", on_close);

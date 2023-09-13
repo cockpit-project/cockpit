@@ -804,12 +804,6 @@ class TestConnection(testlib.MachineCase):
         b = self.browser
 
         self.login_and_go("/playground/speed", user="root", enable_root_login=True)
-
-        # Check the speed playground page
-        b.switch_to_top()
-        b.go("/playground/speed")
-        b.enter_page("/playground/speed")
-
         b.wait_text_not("#pid", "")
         pid = b.text("#pid")
 

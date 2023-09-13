@@ -103,15 +103,13 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         const os_list = [os_release.ID || "", ...(os_release.ID_LIKE || "").split(/\s+/)];
 
         if (cockpit.manifests.apps && cockpit.manifests.apps.config) {
-            let val = cockpit.manifests.apps.config[name];
+            const val = cockpit.manifests.apps.config[name];
             if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
-                os_list.find(c => {
-                    if (val[c]) {
-                        val = val[c];
-                        return true;
-                    }
-                    return false;
-                });
+                for (const os of os_list) {
+                    if (val[os])
+                        return val[os];
+                }
+                return def;
             }
             return val !== undefined ? val : def;
         } else {

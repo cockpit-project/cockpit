@@ -795,7 +795,7 @@ class TestConnection(testlib.MachineCase):
 
     @testlib.skipOstree("ssh root login not allowed")
     @testlib.nondestructive
-    def testFlowControl(self):
+    def testFlowControlDownload(self):
         m = self.machine
         b = self.browser
 
@@ -813,6 +813,23 @@ class TestConnection(testlib.MachineCase):
 
         # This fails when flow control is not present
         self.assertLess(rss, 250000)
+
+    @testlib.nondestructive
+    @testlib.skipImage("Broken with C bridge", "centos-8-stream", "rhel-8*")
+    def testFlowControlUpload(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/playground/speed")
+        self.addCleanup(m.execute, "rm -f /tmp/spawninput")
+        b.click("#spawn-input")
+
+        b.wait_text_not("#speed", "")
+        with b.wait_timeout(60):
+            b.wait_text("#spawn-input-result", "success")
+
+        self.assertEqual(int(m.execute("stat -c %s /tmp/spawninput")), 65536000)
+        self.assertEqual(m.execute("tail -c10 /tmp/spawninput").strip(), "a" * 10)
 
     @testlib.skipOstree("OSTree doesn't have cockpit-ws")
     @testlib.nondestructive

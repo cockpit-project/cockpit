@@ -226,6 +226,31 @@ function spawn() {
     });
 }
 
+function spawn_input() {
+    stop();
+
+    const el_result = document.getElementById("spawn-input-result");
+    el_result.textContent = "Running...";
+
+    start = Date.now();
+    total = 0;
+    channel = cockpit.spawn(["dd", "of=/tmp/spawninput"], { err: "message" });
+    const chunk = 'a'.repeat(65536);
+    for (let i = 0; i < 1000; i++) {
+        channel.input(chunk, true);
+        total += chunk.length;
+    }
+    channel.input(); // send EOF
+    channel
+            .then(() => {
+                el_result.textContent = "success";
+            })
+            .catch(ex => {
+                el_result.textContent = `failed with exit code ${ex.exit_status}: ${ex.message}`;
+            })
+            .finally(stop);
+}
+
 function stop() {
     update();
 
@@ -249,6 +274,7 @@ cockpit.transport.wait(function() {
     document.getElementById("read-sideband").addEventListener("click", read);
     document.getElementById("download-external").addEventListener("click", download);
     document.getElementById("spawn").addEventListener("click", spawn);
+    document.getElementById("spawn-input").addEventListener("click", spawn_input);
     document.getElementById("stop").addEventListener("click", stop);
     window.setInterval(update, 500);
     document.body.removeAttribute("hidden");

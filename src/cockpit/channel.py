@@ -302,7 +302,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     _transport: Optional[asyncio.Transport]
     _loop: Optional[asyncio.AbstractEventLoop]
     _send_pongs: bool = True
-    _last_ping: Optional[JsonObject]
+    _last_ping: Optional[JsonObject] = None
     _create_transport_task = None
 
     # read-side EOF handling

@@ -147,7 +147,8 @@ class TestApps(packagelib.PackageCase):
         # use a fake distro map
         self.write_file("/etc/cockpit/apps.override.json",
                         '{ "config": { "appstream_data_packages":'
-                        '    {"testy": ["appstream-data-test"], "otheros": ["nosuchpackage"]}'
+                        '    {"testy": ["appstream-data-test"], "otheros": ["nosuchpackage"]},'
+                        '              "appstream_config_packages": []'
                         '  }}')
 
         self.createAppStreamPackage("app-1", "1.0", "1")

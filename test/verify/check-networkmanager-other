@@ -49,6 +49,7 @@ class TestNetworkingOther(netlib.NetworkCase):
         b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
         b.set_input_text('#network-ip-settings-netmask-0', "24")
         b.click("#network-ip-settings-dialog button:contains('Save')")
+        self.addCleanup(m.execute, "nmcli con del tun0")
         b.wait_not_present("#network-ip-settings-dialog")
         self.wait_for_iface_setting('Status', '1.2.3.4/24')
 

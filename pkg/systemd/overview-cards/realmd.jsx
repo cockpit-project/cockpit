@@ -59,8 +59,12 @@ export class RealmdClient {
         this.callSerial = 1;
 
         cockpit.event_target(this);
+        console.log("SUPER INIT", JSON.stringify(superuser.allowed));
         this.initProxy();
-        superuser.addEventListener("changed", () => this.initProxy());
+        superuser.addEventListener("changed", () => {
+            console.log("SUPER CHANGE", JSON.stringify(superuser.allowed));
+            this.initProxy();
+        });
     }
 
     onClose(ev, options) {
@@ -97,8 +101,11 @@ export class RealmdClient {
     }
 
     initProxy() {
+        console.log("INIT PROXY");
+
         if (this.dbus_realmd) {
             this.dbus_realmd.removeEventListener("close", this.onClose);
+            console.log("INIT PROXY CLOSE");
             this.dbus_realmd.close();
         }
 

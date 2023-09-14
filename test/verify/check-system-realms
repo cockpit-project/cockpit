@@ -193,6 +193,7 @@ class CommonTests:
         # m.write("/etc/environment", "COCKPIT_DEBUG=all", append=True)
 
         # Test domain info (PR #11096), leave the domain
+        print("LOGGING IN")
         b.login_and_go("/system")
         # b.eval_js('window.debugging = "dbus"')
         b.wait_in_text(self.domain_sel, "cockpit.lan")

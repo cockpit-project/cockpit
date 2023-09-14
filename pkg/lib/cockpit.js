@@ -2955,6 +2955,7 @@ function factory() {
                     enumerable: false,
                     value: function() {
                         const dfd = cockpit.defer();
+                        console.log("XXX - proxy call", path, iface, name);
                         client.call(path, iface, name, Array.prototype.slice.call(arguments))
                             .done(function(reply) { dfd.resolve.apply(dfd, reply) })
                             .fail(function(ex) { dfd.reject(ex) });
@@ -3087,8 +3088,12 @@ function factory() {
         cache.each(iface, update);
     }
 
+    let client_id = 0;
+
     function DBusClient(name, options) {
         const self = this;
+        const myid = client_id++;
+
         event_mixin(self, { });
 
         const args = { };
@@ -3134,6 +3139,7 @@ function factory() {
                 channel.send(payload);
                 return true;
             }
+            console.log("DIDN'T SEND", myid, JSON.stringify({ channel: !!channel, valid: channel?.valid }));
             return false;
         }
 
@@ -3242,7 +3248,7 @@ function factory() {
         this.notify = notify;
 
         function close_perform(options) {
-            dbus_debug("dbus close_perform:", name, JSON.stringify(options));
+            console.log("dbus close_perform:", name, JSON.stringify(options));
             closed = options.problem || "disconnected";
             const outstanding = calls;
             calls = { };
@@ -3254,7 +3260,7 @@ function factory() {
         }
 
         this.close = function close(options) {
-            dbus_debug("dbus close():", name, JSON.stringify(options), "have channel:", !!channel);
+            console.log("dbus close():", myid, name, JSON.stringify(options), "have channel:", !!channel);
             if (typeof options == "string")
                 options = { problem: options };
             if (!options)
@@ -3271,7 +3277,7 @@ function factory() {
         }
 
         function on_close(event, options) {
-            dbus_debug("dbus on_close:", name, JSON.stringify(options));
+            console.log("dbus on_close:", name, JSON.stringify(options));
             channel.removeEventListener("ready", on_ready);
             channel.removeEventListener("message", on_message);
             channel.removeEventListener("close", on_close);
@@ -3298,8 +3304,10 @@ function factory() {
             const msg = JSON.stringify(method_call);
             if (send(msg))
                 calls[id] = dfd;
-            else
+            else {
+                console.log("DIDN'T SEND", closed);
                 dfd.reject(new DBusError(closed));
+            }
 
             return dfd.promise;
         };

@@ -138,7 +138,7 @@ class CommonTests:
         b.wait_visible("#realms-op-address:disabled")
         b.wait_visible("#realms-op-admin:disabled")
         b.wait_visible("#realms-op-admin-password:disabled")
-        b.cdp.trace = True
+        # b.cdp.trace = True
         with b.wait_timeout(300):
             b.wait_not_present("#realms-join-dialog")
 
@@ -190,11 +190,11 @@ class CommonTests:
             # HACK: https://bugs.debian.org/1038925
             m.execute(r"sed -i '/\[ntp\]/,/^$/ d' /var/lib/ipa-client/sysrestore/sysrestore.state")
 
-        m.write("/etc/environment", "COCKPIT_DEBUG=all", append=True)
+        # m.write("/etc/environment", "COCKPIT_DEBUG=all", append=True)
 
         # Test domain info (PR #11096), leave the domain
         b.login_and_go("/system")
-        b.eval_js('window.debugging = "dbus"')
+        # b.eval_js('window.debugging = "dbus"')
         b.wait_in_text(self.domain_sel, "cockpit.lan")
         b.click(self.domain_sel)
         b.wait_popup("realms-leave-dialog")

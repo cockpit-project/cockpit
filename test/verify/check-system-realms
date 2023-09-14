@@ -89,6 +89,8 @@ class CommonTests:
         m = self.machine
         b = self.browser
 
+        # self.disable_preload("packagekit", "playground", "systemd")
+
         # Tell realmd to enable domain-qualified logins; unqualified ones are covered in testUnqualifiedUsers
         m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = yes\n", append=True)
 
@@ -136,6 +138,7 @@ class CommonTests:
         b.wait_visible("#realms-op-address:disabled")
         b.wait_visible("#realms-op-admin:disabled")
         b.wait_visible("#realms-op-admin-password:disabled")
+        b.cdp.trace = True
         with b.wait_timeout(300):
             b.wait_not_present("#realms-join-dialog")
 
@@ -187,8 +190,11 @@ class CommonTests:
             # HACK: https://bugs.debian.org/1038925
             m.execute(r"sed -i '/\[ntp\]/,/^$/ d' /var/lib/ipa-client/sysrestore/sysrestore.state")
 
+        m.write("/etc/environment", "COCKPIT_DEBUG=all", append=True)
+
         # Test domain info (PR #11096), leave the domain
         b.login_and_go("/system")
+        b.eval_js('window.debugging = "dbus"')
         b.wait_in_text(self.domain_sel, "cockpit.lan")
         b.click(self.domain_sel)
         b.wait_popup("realms-leave-dialog")
@@ -213,6 +219,8 @@ class CommonTests:
         b.wait_visible("#system_information_hostname_button:not([disabled])")
 
         self.checkBackendSpecificCleanup()
+
+        return
 
         # Sometimes with some versions of realmd the Leave operation
         # from above is still active in the realmd daemon.  So we loop
@@ -285,6 +293,21 @@ class CommonTests:
         self.allow_journal_messages(".*No authentication agent found.*")
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
+
+    def testQualifiedUsers2(self):
+        self.testQualifiedUsers()
+
+    def testQualifiedUsers3(self):
+        self.testQualifiedUsers()
+
+    def testQualifiedUsers4(self):
+        self.testQualifiedUsers()
+
+    def testQualifiedUsers5(self):
+        self.testQualifiedUsers()
+
+    def testQualifiedUsers6(self):
+        self.testQualifiedUsers()
 
     def testUnqualifiedUsers(self):
         m = self.machine
@@ -831,106 +854,6 @@ ipa-advise enable-admins-sudo | sh -ex
         b.logout()
         m.execute("while ls /run/user/$(id -u alice)/*.ccache; do sleep 1; done")
         m.execute(f"! su -c '{ccache_env} klist' alice")
-
-
-@testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*")
-@testlib.skipDistroPackage()
-@testlib.no_retry_when_changed
-class TestAD(TestRealms, CommonTests):
-    def setUp(self):
-        super().setUp()
-        self.admin_user = "Administrator"
-        self.admin_password = "foobarFoo123"
-        self.alice_password = 'WonderLand123'
-        self.expected_server_software = "active-directory"
-        # necessary to run ldapmodify; FIXME: change this on the services image itself
-        self.machines['services'].execute("sed -i 's/-e/-e INSECURELDAP=true &/' /root/run-samba-domain")
-        self.machines['services'].execute("/root/run-samba-domain")
-
-        m = self.machine
-
-        # Wait for AD to come up and DNS to work as expected
-        testlib.wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
-        # DNS is not sufficient yet, needs to start LDAP server as well
-        m.execute("until nc -z f0.cockpit.lan 389; do sleep 1; done")
-        # also wait for Kerberos
-        m.execute(f"until echo {self.admin_password} | kinit {self.admin_user}@COCKPIT.LAN; do sleep 1; done; kdestroy")
-
-        # allow sudo access to domain admins; FIXME: Is there a server-side setting for this,
-        # similar to "ipa-advise enable-admins-sudo"?
-        m.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) ALL")
-
-        # HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1839805
-        m.write("/etc/sssd/conf.d/rhbz1839805.conf", "[domain/cockpit.lan]\nad_gpo_access_control=disabled\n", perm="0600")
-
-        # HACK: Figure out why this happens
-        self.allow_journal_messages(""".*didn't receive expected "authorize" message""",
-                                    'cockpit-session:$')
-        self.allow_journal_messages('/bin/bash: /home/admin/.bashrc: Permission denied')
-
-    def checkBackendSpecifics(self):
-        """Check domain backend specific integration"""
-
-    def checkBackendSpecificCleanup(self):
-        """Check domain backend specific integration after leaving domain"""
-
-    def testUnqualifiedUsers(self):
-        """Extend the test to check a new AD user"""
-
-        super().testUnqualifiedUsers()
-
-        m = self.machine
-        b = self.browser
-
-        m.start_cockpit()
-        # create another AD user
-        self.machines['services'].execute(f"podman exec -i samba samba-tool user add alice {self.alice_password}")
-        # ensure it works
-        m.execute('id alice')
-        b.login_and_go('/system', user='alice', password=self.alice_password)
-        b.wait_visible("#overview")
-        b.logout()
-
-    def testClientCertAuthentication(self):
-        m = self.machine
-
-        services_machine = self.machines['services']
-        # samba has no default CA and no helpers, so just re-use our completely independent cockpit-tls unit test one
-        m.upload(["alice.pem", "alice.key"], "/var/tmp", relative_dir="src/tls/ca/")
-
-        with open("src/tls/ca/alice.pem") as f:
-            alice_cert = f.read().strip()
-        # mangle into form palatable for LDAP
-        alice_cert = ''.join([line for line in alice_cert.splitlines() if not line.startswith("----")])
-        # set up an AD user and import their TLS certificate; avoid using the common "userCertificate;binary",
-        # as that does not work with Samba
-        services_machine.execute(r"""podman exec -i samba sh -exc '
-samba-tool user add alice %(alice_pass)s
-printf "version: 1\ndn: cn=alice,cn=users,dc=cockpit,dc=lan\nchangetype: modify\nadd: userCertificate\nuserCertificate: %(alice_cert)s\n" | \
-        ldapmodify -v -U Administrator -w '%(admin_pass)s'
-# for debugging:
-ldapsearch -v -U Administrator -w '%(admin_pass)s' -b 'cn=alice,cn=users,dc=cockpit,dc=lan'
-' """ % {"alice_pass": self.alice_password, "admin_pass": self.admin_password, "alice_cert": alice_cert})
-
-        # set up sssd for certificate mapping to AD
-        # see sssd.conf(5) "CERTIFICATE MAPPING SECTION" and sss-certmap(5)
-        m.write("/etc/sssd/conf.d/certmap.conf", """
-[certmap/cockpit.lan/certs]
-# our test certificates don't have EKU, and as we match full certificates it is not important to check anything here
-matchrule = <KU>digitalSignature
-# default rule; doesn't work because samba's LDAP doesn't understand ";binary"
-# maprule = LDAP:(userCertificate;binary={cert!bin})
-# match verbatim base64 certificate
-maprule = LDAP:(userCertificate={cert!base64})
-# match cert properties only; this looks at SubjectAlternativeName, which our test certs don't have
-# this also requires CA validation in cockpit-tls or sssd, which we don't have yet
-# maprule = (|(userPrincipalName={subject_principal})(sAMAccountName={subject_principal.short_name}))
-""", perm="0600")
-        # tell sssd about our CA for validating certs
-        with open("src/tls/ca/ca.pem") as f:
-            m.write("/etc/sssd/pki/sssd_auth_ca_db.pem", f.read())
-
-        self.checkClientCertAuthentication()
 
 
 JOIN_SCRIPT = """

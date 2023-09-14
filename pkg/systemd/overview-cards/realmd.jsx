@@ -64,6 +64,7 @@ export class RealmdClient {
     }
 
     onClose(ev, options) {
+        console.log("XXX RealmdClient.onclose", JSON.stringify(options));
         if (options.problem === "not-found") {
             // see if we can install it
             packagekit.detect().then(exists => {
@@ -154,8 +155,12 @@ export class RealmdClient {
     }
 
     leave(realm) {
+        console.log("XXX RealmdClient.leave start; valid:", JSON.stringify(realm.valid), "Configured:", JSON.stringify(realm.Configured), "path", realm.path);
         return this.cleanupWSCredentials(realm)
-                .then(() => realm.Deconfigure({ operation: cockpit.variant('s', "cockpit-leave-domain") }));
+                .then(() => {
+                    console.log("XXX RealmdClient.leave: cleanupWSCredentials done, calling D-Bus Deconfigure; valid", realm.valid);
+                    return realm.Deconfigure({ operation: cockpit.variant('s', "cockpit-leave-domain") });
+                });
     }
 
     installWSCredentials(realm, user, password) {
@@ -188,6 +193,7 @@ export class RealmdClient {
             return Promise.resolve();
 
         const server_sw = find_detail(realm, "server-software");
+        console.log("XXX cleanupWSCredentials; server-sw", server_sw);
         if (server_sw !== "ipa") {
             console.log("cleaning up ws credentials not supported for server software", server_sw);
             return Promise.resolve();
@@ -196,6 +202,7 @@ export class RealmdClient {
         const kerberos = this.dbus_realmd.proxy(KERBEROS, realm.path);
         return kerberos.wait()
                 .then(() => {
+                    console.log("XXX cleanupWSCredentials: got krb proxy");
                     const helper = cockpit.manifests.system.libexecdir + "/cockpit-certificate-helper";
                     return cockpit.spawn([helper, "ipa", "cleanup", kerberos.RealmName],
                                          { superuser: "require", err: "message" })
@@ -204,7 +211,7 @@ export class RealmdClient {
                                 return true;
                             });
                 })
-                .catch(() => true); // no Kerberos domain? nevermind then
+                .catch(() => console.log("failed to wait for krb proxy, no krb?")); // no Kerberos domain? nevermind then
     }
 
     allowHostnameChange() {

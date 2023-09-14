@@ -82,6 +82,118 @@ class TestReauthorize(testlib.MachineCase):
         b.leave_page()
         b.check_superuser_indicator("")
 
+    def testSudo1(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -s /bin/bash -c Barney")
+        m.execute("echo user:foobar | chpasswd")
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
+    def testSudo2(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -s /bin/bash -c Barney")
+        m.execute("echo user:foobar | chpasswd")
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
+    def testSudo3(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -s /bin/bash -c Barney")
+        m.execute("echo user:foobar | chpasswd")
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
+    def testSudo4(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -s /bin/bash -c Barney")
+        m.execute("echo user:foobar | chpasswd")
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
+    def testSudo5(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -s /bin/bash -c Barney")
+        m.execute("echo user:foobar | chpasswd")
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
+    def testSudo6(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -s /bin/bash -c Barney")
+        m.execute("echo user:foobar | chpasswd")
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
+    def testSudo7(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -s /bin/bash -c Barney")
+        m.execute("echo user:foobar | chpasswd")
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
+    def testSudo8(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -s /bin/bash -c Barney")
+        m.execute("echo user:foobar | chpasswd")
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
     def testSudo(self):
         m = self.machine
         b = self.browser

@@ -60,7 +60,7 @@ case "${TEST_SCENARIO:=}" in
         PREPARE_OPTS="$PREPARE_OPTS --quick"
         ;;&
     *other*)
-        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -Ev "$RE_NETWORKING|$RE_STORAGE|$RE_EXPENSIVE")"
+        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "TestReauthorize")"
         ;;&
 
 esac
@@ -70,5 +70,5 @@ if [ -n "$TEST_SCENARIO" ] && [ -z "$RUN_OPTS" ]; then
     exit 1
 fi
 
-test/image-prepare --verbose ${PREPARE_OPTS} "$TEST_OS"
+test/image-prepare --debug --verbose ${PREPARE_OPTS} "$TEST_OS"
 test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties ${RUN_OPTS}

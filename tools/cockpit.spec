@@ -54,7 +54,7 @@ Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
 # Don't change the bridge in the RHEL 8; the old SSH breaks some features, see @todoPybridgeRHEL8
-%if 0%{?rhel} == 8
+%if 0%{?rhel} == 8 && !%{defined enable_old_bridge}
 %define enable_old_bridge 1
 %endif
 

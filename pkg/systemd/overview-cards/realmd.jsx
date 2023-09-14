@@ -97,12 +97,16 @@ export class RealmdClient {
                 this.joined.push(realm);
         }
 
-        console.log("XXX - realms changed");
+        console.log("XXX - realms changed", JSON.stringify({ joined: this.joined.map(j => j.Name) }));
         this.dispatchEvent("changed");
     }
 
     initProxy() {
         console.log("INIT PROXY");
+        if (superuser.allowed == null) {
+            console.log("INIT SKIP");
+            return;
+        }
 
         if (this.dbus_realmd) {
             this.dbus_realmd.removeEventListener("close", this.onClose);

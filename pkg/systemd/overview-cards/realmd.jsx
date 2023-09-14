@@ -261,6 +261,7 @@ const LeaveDialog = ({ realmd_client }) => {
     const [expanded, setExpanded] = useState(false);
     const [pending, setPending] = useState(false);
     const [error, setError] = useState(null);
+    useEvent(realmd_client, "changed");
     const realm = realmd_client.joined[0];
 
     const onLeave = () => {

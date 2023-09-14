@@ -97,6 +97,7 @@ export class RealmdClient {
                 this.joined.push(realm);
         }
 
+        console.log("XXX - realms changed");
         this.dispatchEvent("changed");
     }
 
@@ -263,6 +264,8 @@ const LeaveDialog = ({ realmd_client }) => {
     const [error, setError] = useState(null);
     useEvent(realmd_client, "changed");
     const realm = realmd_client.joined[0];
+
+    console.log("XXX - Leave render");
 
     const onLeave = () => {
         setPending(true);

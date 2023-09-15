@@ -32,10 +32,11 @@ import {
     DropdownSeparator
 } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
-import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
+import { StorageButton, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
 import * as PK from "packagekit.js";
 import {
     format_dialog, parse_options, extract_option, unparse_options
@@ -567,7 +568,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object, opti
                 </span>)
         },
         { title: desc.type },
-        { title: desc.link ? <StorageLink onClick={() => cockpit.location.go(desc.link)}>{desc.used_for}</StorageLink> : desc.used_for },
+        { title: desc.link ? <Button isInline variant="link" onClick={() => cockpit.location.go(desc.link)}>{desc.used_for}</Button> : desc.used_for },
         {
             title: desc.size.length
                 ? <StorageUsageBar stats={desc.size} critical={desc.critical_size || 0.95} block={name} />

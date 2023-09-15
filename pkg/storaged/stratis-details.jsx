@@ -26,6 +26,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
 import { FilesystemTab, mounting_dialog, is_mounted, is_valid_mount_point, get_fstab_config } from "./fsys-tab.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -663,7 +664,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                            variant="warning"
                            title={_("This pool is in a degraded state.")}>
             <div className="storage_alert_action_buttons">
-                <StorageLink onClick={goToStratisLogs}>{_("View logs")}</StorageLink>
+                <Button variant="link" isInline onClick={goToStratisLogs}>{_("View logs")}</Button>
             </div>
         </Alert>);
     }

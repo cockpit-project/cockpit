@@ -151,91 +151,55 @@ class StorageHelpers:
         self.browser.wait_visible(tab)
         return tab
 
-    def content_tab_action(self, row_index, tab_index, title):
-        tab = self.content_tab_expand(row_index, tab_index)
-        btn = tab + f" button:contains({title})"
-        self.browser.wait_attr(btn, "disabled", None)
-        self.browser.click(btn)
-
-    def wait_content_tab_action_disabled(self, row_index, tab_index, title):
-        tab = self.content_tab_expand(row_index, tab_index)
-        btn = tab + f" button:disabled:contains({title})"
-        self.browser.wait_visible(btn)
-
-    # To check what's in a tab, we need to open the row and select the
-    # tab.
-    #
-    # However, sometimes we open the wrong row or the wrong tab
-    # because the right row or right tab still has to be created and
-    # take its right place.  If the right row or tab finally appears,
-    # it won't be open at that point and we will miss it if we only
-    # open a row/tab once.  So we just run the whole process in a big
-    # retry loop.
-    #
-    # XXX - Clicking a button in a tab has the same problem, but we
-    # ignore that for now.
-
-    def content_tab_wait_in_info(self, row_index, tab_index, title, val=None, alternate_val=None, cond=None):
-        b = self.browser
-
-        def setup():
-            pass
-
-        def check():
-            row = self.content_row_tbody(row_index)
-            row_item = row + " tr td.pf-v5-c-table__toggle button"
-            tab_btn = row + " .pf-v5-c-tabs ul li:nth-child(%d) button" % tab_index
-            tab = row + " .ct-listing-panel-body[data-key='%d']" % (tab_index - 1)
-            cell = tab + f" dt:contains({title}) + *"
-
-            # The DOM might change at any time while we are inspecting
-            # it, so we can't reliably test for a elements existence
-            # before clicking on it, for example.  Instead, we just
-            # click and catch the testlib.Error that happens when it
-            # is not there.  However, the click itself will wait for a
-            # timeout when the element is missing, so we check anyway
-            # before trying, just to speed things up.
-
+    def retry_in_content_tab(self, row_index, tab_index, func):
+        def step():
+            tab = self.content_tab_expand(row_index, tab_index)
             try:
-                if not b.is_present(row + ".pf-m-expanded"):
-                    if not b.is_present(row_item):
-                        return False
-                    b.click(row_item)
-                    if not b.is_present(row + ".pf-m-expanded"):
-                        return False
-
-                if not b.is_present(tab) or not b.is_visible(tab):
-                    if not b.is_present(tab_btn):
-                        return False
-                    b.click(tab_btn)
-                    if not b.is_visible(tab):
-                        return False
-
-                if not b.is_present(cell) or not b.is_visible(cell):
-                    return False
-
-                if val is not None and val in b.text(cell):
+                # We want anything in FUNC to fail really
+                # fast. Otherwise we have to wait really long for
+                # actual failures.
+                with self.browser.wait_timeout(0):
+                    func(tab)
                     return True
-                if alternate_val is not None and alternate_val in b.text(cell):
-                    return True
-                if cond is not None and cond(cell):
-                    return True
-                return False
             except Error:
                 return False
+        self.browser.wait(step)
 
-        def teardown():
-            pass
-        self.retry(setup, check, teardown)
+    def content_tab_action(self, row_index, tab_index, title):
+        def func(tab):
+            btn = tab + f" button:contains({title})"
+            self.browser.wait_attr(btn, "disabled", None)
+            self.browser.click(btn)
+        self.retry_in_content_tab(row_index, tab_index, func)
+
+    def wait_content_tab_action_disabled(self, row_index, tab_index, title):
+        def func(tab):
+            btn = tab + f" button:disabled:contains({title})"
+            self.browser.wait_visible(btn)
+        self.retry_in_content_tab(row_index, tab_index, func)
+
+    def content_tab_wait_in_info(self, row_index, tab_index, title, val=None, alternate_val=None, cond=None):
+        def func(tab):
+            cell = tab + f" dt:contains({title}) + *"
+            if val is not None and val in self.browser.text(cell):
+                return True
+            if alternate_val is not None and alternate_val in self.browser.text(cell):
+                return True
+            if cond is not None and cond(cell):
+                return True
+            raise Error("Info not found")
+        self.retry_in_content_tab(row_index, tab_index, func)
 
     def content_tab_info_label(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
         return tab + f" dt:contains({title})"
 
     def content_tab_info_action(self, row_index, tab_index, title):
-        label = self.content_tab_info_label(row_index, tab_index, title)
-        link = label + " + dd button.pf-m-link"
-        self.browser.click(link)
+        def func(tab):
+            label = tab + f" dt:contains({title})"
+            link = label + " + dd button.pf-m-link"
+            self.browser.click(link)
+        self.retry_in_content_tab(row_index, tab_index, func)
 
     # Dialogs
 

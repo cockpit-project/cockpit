@@ -585,10 +585,11 @@ class Browser:
                 if "exceptionDetails" in result:
                     trailer = "\n".join(self.cdp.get_js_log())
                     self.raise_cdp_exception("timeout\nwait_js_cond", cond, result["exceptionDetails"], trailer)
-                duration = time.time() - start
-                percent = int(duration / timeout * 100)
-                if percent >= 50:
-                    print(f"WARNING: Waiting for {cond} took {duration:.1f} seconds, which is {percent}% of the timeout.")
+                if timeout > 0:
+                    duration = time.time() - start
+                    percent = int(duration / timeout * 100)
+                    if percent >= 50:
+                        print(f"WARNING: Waiting for {cond} took {duration:.1f} seconds, which is {percent}% of the timeout.")
                 return
             except RuntimeError as e:
                 data = e.args[0]

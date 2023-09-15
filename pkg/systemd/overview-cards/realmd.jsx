@@ -96,6 +96,15 @@ export class RealmdClient {
     }
 
     initProxy() {
+        // Ignore intermediate states of superuser.allowed to
+        // avoid initializing the proxy twice during page
+        // load. This is less wasteful and helps the tests avoid
+        // race conditions. We are guaranteed to see a real "true"
+        // or "false" value eventually.
+        //
+        if (superuser.allowed === null)
+            return;
+
         if (this.dbus_realmd) {
             this.dbus_realmd.removeEventListener("close", this.onClose);
             this.dbus_realmd.close();

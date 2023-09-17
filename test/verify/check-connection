@@ -217,6 +217,7 @@ class TestConnection(testlib.MachineCase):
                 self.assertEqual(count, https_instances, out)
 
         # at the beginning, no cockpit related units are running
+        m.execute("systemctl reset-failed")
         m.stop_cockpit()
         expect_actives(ws_socket=False, instance_sockets=False, http_instances=[])
 
@@ -301,6 +302,7 @@ class TestConnection(testlib.MachineCase):
         orig = m.execute("cat /proc/sys/kernel/core_pattern").strip()
         m.execute("echo core > /proc/sys/kernel/core_pattern")
         self.addCleanup(m.execute, f"echo '{orig}' > /proc/sys/kernel/core_pattern")
+        self.addCleanup(m.execute, "systemctl reset-failed")
         m.start_cockpit(tls=True)
 
         # some netcat versions need an explicit shutdown option, others default to shutting down and don't have -N

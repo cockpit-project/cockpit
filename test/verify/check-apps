@@ -174,11 +174,11 @@ class TestApps(packagelib.PackageCase):
         b.wait_not_present("#refresh-progress")
         b.wait_visible(".pf-v5-c-empty-state")
 
-        # known OS: appstream-data-tst gets installed from the map
+        # known OS: appstream-data-test gets installed from the map
         m.write("/etc/os-release", 'ID="derivative"\nID_LIKE="spicy testy"\nVERSION_ID="1"\n')
         b.click("#refresh")
-        with b.wait_timeout(30):
-            b.wait_visible(".app-list #app-1")
+        m.execute("until test -e /usr/share/app-info/xmls/test.xml; do sleep 1; done")
+        b.wait_visible(".app-list #app-1")
 
     def testL10N(self):
         b = self.browser

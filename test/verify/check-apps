@@ -166,6 +166,13 @@ class TestApps(packagelib.PackageCase):
         self.restore_file("/etc/os-release")
         m.execute("rm /etc/os-release")
 
+        # get along with absent os-release
+        b.click("#refresh")
+        # the progress bar is too fast to reliably catch it
+        time.sleep(1)
+        b.wait_not_present("#refresh-progress")
+        b.wait_visible(".pf-v5-c-empty-state")
+
         # unknown OS: nothing gets installed
         m.write("/etc/os-release", 'ID="unmapped"\nID_LIKE="mysterious"\nVERSION_ID="1"\n')
         b.click("#refresh")

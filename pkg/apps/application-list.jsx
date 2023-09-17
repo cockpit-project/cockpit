@@ -100,7 +100,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
 
     function get_config(name, os_release, def) {
         // ID is a single value, ID_LIKE is a list
-        const os_list = [os_release.ID || "", ...(os_release.ID_LIKE || "").split(/\s+/)];
+        const os_list = [os_release?.ID || "", ...(os_release?.ID_LIKE || "").split(/\s+/)];
 
         if (cockpit.manifests.apps && cockpit.manifests.apps.config) {
             const val = cockpit.manifests.apps.config[name];

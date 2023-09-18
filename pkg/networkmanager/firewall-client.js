@@ -50,6 +50,11 @@ utils.list_interfaces().then(interfaces => {
 const firewalld_service = service.proxy('firewalld');
 let firewalld_dbus = null;
 
+function debug() {
+    if (window.debugging == "all" || window.debugging?.includes("firewalld")) // not-covered: debugging
+        console.debug("firewalld:", ...arguments); // not-covered: debugging
+}
+
 firewall.debouncedGetZones = debounce(300, () => {
     getZones()
             .then(() => getServices())
@@ -69,11 +74,13 @@ firewall.debouncedGetServices = debounce(300, () => {
 });
 
 function initFirewalldDbus() {
+    debug("initializing D-Bus connection");
     firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
     firewalld_dbus.addEventListener('owner', (event, owner) => {
         if (firewall.owner === owner)
             return;
+        debug("owner changed:", JSON.stringify(owner));
 
         firewall.owner = owner;
         firewall.enabled = !!owner;
@@ -194,11 +201,15 @@ function initFirewalldDbus() {
 
 firewalld_service.addEventListener('changed', () => {
     const installed = !!firewalld_service.exists;
+    debug("systemd service changed: exists", firewalld_service.exists, "state", firewalld_service.state,
+          "firewall.enabled:", JSON.stringify(firewall.enabled));
 
     /* HACK: cockpit.dbus() remains dead for non-activatable names, so reinitialize it if the service gets enabled and started
      * See https://github.com/cockpit-project/cockpit/pull/9125 */
-    if (!firewall.enabled && firewalld_service.state == 'running')
+    if (!firewall.enabled && firewalld_service.state == 'running') {
+        debug("reinitializing D-Bus connection after unit got started");
         initFirewalldDbus();
+    }
 
     if (firewall.installed == installed)
         return;
@@ -214,6 +225,7 @@ function getZones() {
             .then(reply => fetchZoneInfos(Object.keys(reply[0])))
             .then(zones => {
                 firewall.activeZones = new Set(zones.map(z => z.id));
+                debug("getActiveZones succeeded:", JSON.stringify([...firewall.activeZones]));
             })
             .then(() => firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                             'org.fedoraproject.FirewallD1',

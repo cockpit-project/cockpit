@@ -140,8 +140,19 @@ class StorageHelpers:
             dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-v5-c-dropdown"
         else:
             dropdown = "#detail-content > .pf-v5-c-card > div > table > :nth-child(%d)" % index + " td:last-child .pf-v5-c-dropdown"
-        self.browser.click(dropdown + " button.pf-v5-c-dropdown__toggle")
-        self.browser.click(dropdown + f" a:contains('{title}')")
+        btn = dropdown + f" a:contains('{title}')"
+
+        def step():
+            try:
+                if not self.browser.is_present(btn):
+                    self.browser.click(dropdown + " button.pf-v5-c-dropdown__toggle")
+                    self.browser.wait_visible(btn)
+                self.browser.click(btn)
+                return True
+            except Error:
+                return False
+
+        self.browser.wait(step)
 
     def content_tab_expand(self, row_index, tab_index):
         tab_btn = self.content_row_tbody(row_index) + " .pf-v5-c-tabs ul li:nth-child(%d) button" % tab_index

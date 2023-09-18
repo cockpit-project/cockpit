@@ -195,7 +195,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             if self.current == 'any':
                 removed = len(self.superuser_configs) == 0
             else:
-                removed = any(c.name == self.peer.name for c in self.superuser_configs)
+                removed = not any(c.name == self.peer.name for c in self.superuser_configs)
 
             if removed:
                 logger.debug(

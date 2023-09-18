@@ -26,6 +26,7 @@ import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/co
 import { Grid } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 
 import { PlusIcon, TrashIcon } from '@patternfly/react-icons';
 
@@ -165,12 +166,15 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                             value={method}>
                                     {(topic == "ipv4" ? ipv4_method_choices : ipv6_method_choices).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                                 </FormSelect>
-                                <Button variant="secondary"
+                                <Tooltip content={_("Add address")}>
+                                    <Button variant="secondary"
                                         isDisabled={!canHaveExtra}
                                         onClick={() => setAddresses([...addresses, { address: "", netmask: "", gateway: "" }])}
                                         id={idPrefix + "-address-add"}
-                                        aria-label={_("Add item")}
-                                        icon={<PlusIcon />} />
+                                        aria-label={_("Add address")}>
+                                        <PlusIcon />
+                                    </Button>
+                                </Tooltip>
                             </Flex>
                         }
                     />
@@ -228,12 +232,15 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     isDisabled={!canAuto}
                                     onChange={(_event, value) => setIgnoreAutoDns(!value)}
                                     label={_("Automatic")} />
-                                <Button variant="secondary"
+                                <Tooltip content={_("Add DNS server")}>
+                                    <Button variant="secondary"
                                         isDisabled={!canHaveExtra}
                                         onClick={() => setDns([...dns, ""])}
                                         id={idPrefix + "-dns-add"}
-                                        aria-label={_("Add item")}
-                                        icon={<PlusIcon />} />
+                                        aria-label={_("Add DNS server")}>
+                                        <PlusIcon />
+                                    </Button>
+                                </Tooltip>
                             </Flex>
                         }
                     />
@@ -273,12 +280,15 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     isDisabled={!canAuto}
                                     onChange={(_event, value) => setIgnoreAutoDns(!value)}
                                     label={_("Automatic")} />
-                                <Button variant="secondary"
+                                <Tooltip content={_("Add search domain")}>
+                                    <Button variant="secondary"
                                         isDisabled={!canHaveExtra}
                                         onClick={() => setDnsSearch([...dnsSearch, ""])}
                                         id={idPrefix + "-dns-search-add"}
-                                        aria-label={_("Add item")}
-                                        icon={<PlusIcon />} />
+                                        aria-label={_("Add search domain")}>
+                                        <PlusIcon />
+                                    </Button>
+                                </Tooltip>
                             </Flex>
                         }
                     />
@@ -318,12 +328,15 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     isDisabled={!canAuto}
                                     onChange={(_event, value) => setIgnoreAutoRoutes(!value)}
                                     label={_("Automatic")} />
-                                <Button variant="secondary"
+                                <Tooltip content={_("Add route")}>
+                                    <Button variant="secondary"
                                         isDisabled={isOff}
                                         onClick={() => setRoutes([...routes, { address: "", netmask: "", gateway: "", metric: "" }])}
                                         id={idPrefix + "-route-add"}
-                                        aria-label={_("Add item")}
-                                        icon={<PlusIcon />} />
+                                        aria-label={_("Add route")}>
+                                        <PlusIcon />
+                                    </Button>
+                                </Tooltip>
                             </Flex>
                         }
                     />

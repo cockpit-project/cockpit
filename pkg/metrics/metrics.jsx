@@ -707,7 +707,7 @@ class CurrentMetrics extends React.Component {
         const num_cpu_str = cockpit.format(cockpit.ngettext("$0 CPU", "$0 CPUs", numCpu), numCpu);
 
         const netIO = this.netInterfacesNames.map((iface, i) => [
-            iface,
+            <Button variant="link" isInline onClick={() => cockpit.jump(`/network#/${iface}`) } key={iface}>{iface}</Button>,
             this.state.netInterfacesRx[i] >= 1 ? cockpit.format_bytes_per_sec(this.state.netInterfacesRx[i]) : "0",
             this.state.netInterfacesTx[i] >= 1 ? cockpit.format_bytes_per_sec(this.state.netInterfacesTx[i]) : "0",
         ]);
@@ -805,7 +805,8 @@ class CurrentMetrics extends React.Component {
             );
         }
 
-        const rowPropsIface = row => ({ 'data-interface': row[0] });
+        // first element is the jump button, key is interface name
+        const rowPropsIface = row => ({ 'data-interface': row[0].key });
         const rowPropsDiskIO = row => ({ 'cgroup-name': row[0] });
         const topServicesCPUColumns = [_("Service"), "%"];
         const topServicesMemoryColumns = [_("Service"), _("Used")];

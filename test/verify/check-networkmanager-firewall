@@ -66,7 +66,11 @@ class TestFirewall(netlib.NetworkCase):
     def testNetworkingPage(self):
         b = self.browser
         m = self.machine
-        active_zones = len(m.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split())
+
+        def get_num_zones():
+            return len(m.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split())
+
+        active_zones = get_num_zones()
 
         # Zones should be visible as unprivileged user
         self.login_and_go("/network", superuser=False)
@@ -98,7 +102,12 @@ class TestFirewall(netlib.NetworkCase):
             raise
 
         self.wait_onoff("#networking-firewall-summary", val=True)
-        b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
+        try:
+            testlib.wait(lambda: get_num_zones() == active_zones)
+            b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
+        except testlib.Error:
+            m.execute("firewall-cmd --get-active-zones >&2")
+            raise
 
         try:
             m.execute("systemctl stop firewalld")

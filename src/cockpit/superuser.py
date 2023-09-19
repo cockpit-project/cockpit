@@ -147,6 +147,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         self.pending_prompt = None
         self.peer = None
         self.startup = None
+        self.initing_name: Optional[str] = None
 
         if privileged or os.getuid() == 0:
             self.current = 'root'
@@ -169,6 +170,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"')
 
         self.current = 'init'
+        self.initing_name = name
         self.peer = SuperuserPeer(self.router, name, config, responder)
         self.peer.add_done_callback(self.peer_done)
 
@@ -179,6 +181,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         except (OSError, PeerError) as exc:
             raise bus.BusError('cockpit.Superuser.Error', str(exc)) from exc
 
+        self.initing_name = None
         self.current = name
 
     def set_configs(self, configs: Sequence[BridgeConfig]):
@@ -194,13 +197,15 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         if self.peer is not None:
             if self.current == 'any':
                 removed = len(self.superuser_configs) == 0
+            elif self.initing_name is not None:
+                removed = not any(c.name == self.initing_name for c in self.superuser_configs)
             else:
                 removed = not any(c.name == self.peer.name for c in self.superuser_configs)
 
             if removed:
                 logger.debug(
                     "  stopping current superuser bridge '%s' (peer name %s), as it disappeared from configs",
-                    self.current, self.peer.name)
+                    self.initing_name or self.current, self.peer.name)
 
                 self.stop()
 

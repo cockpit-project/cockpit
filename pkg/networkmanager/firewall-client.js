@@ -204,20 +204,24 @@ function initFirewalldDbus() {
 
 firewalld_service.addEventListener('changed', () => {
     const installed = !!firewalld_service.exists;
+    const is_running = firewalld_service.state === 'running';
+
+    // we get lots of these events, for internal property changes; filter interesting changes
+    if (is_running === firewalld_service.prev_running && firewall.installed === installed)
+        return;
+    firewall.installed = installed;
+    firewalld_service.prev_running = is_running;
+
     debug("systemd service changed: exists", firewalld_service.exists, "state", firewalld_service.state,
           "firewall.enabled:", JSON.stringify(firewall.enabled));
 
     /* HACK: cockpit.dbus() remains dead for non-activatable names, so reinitialize it if the service gets enabled and started
      * See https://github.com/cockpit-project/cockpit/pull/9125 */
-    if (!firewall.enabled && firewalld_service.state == 'running') {
+    if (!firewall.enabled && is_running) {
         debug("reinitializing D-Bus connection after unit got started");
         initFirewalldDbus();
     }
 
-    if (firewall.installed == installed)
-        return;
-
-    firewall.installed = installed;
     firewall.dispatchEvent('changed');
 });
 

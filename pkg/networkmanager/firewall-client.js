@@ -75,6 +75,9 @@ firewall.debouncedGetServices = debounce(300, () => {
 
 function initFirewalldDbus() {
     debug("initializing D-Bus connection");
+    if (firewalld_dbus)
+        firewalld_dbus.close();
+
     firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
     firewalld_dbus.addEventListener('owner', (event, owner) => {

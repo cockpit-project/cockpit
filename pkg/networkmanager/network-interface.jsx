@@ -271,17 +271,7 @@ export const NetworkInterfacePage = ({
     }
 
     function renderConnectionSettingsRows(con, settings) {
-        if (!isManaged) {
-            return ([
-                <DescriptionListGroup key="not-managed-device">
-                    <DescriptionListDescription>
-                        {_("This device cannot be managed here.")}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>
-            ]);
-        }
-
-        if (!settings)
+        if (!isManaged || !settings)
             return [];
 
         let group_settings = null;
@@ -738,7 +728,6 @@ export const NetworkInterfacePage = ({
                                 <span id="network-interface-hw">{renderDesc()}</span>
                                 <span id="network-interface-mac">{renderMac()}</span>
                             </CardTitle>
-
                         </CardHeader>
                         <CardBody>
                             <DescriptionList id="network-interface-settings" className="network-interface-settings pf-m-horizontal-on-sm">
@@ -747,6 +736,12 @@ export const NetworkInterfacePage = ({
                                 {settingsRows}
                             </DescriptionList>
                         </CardBody>
+                        { !isManaged
+                            ? <CardBody>
+                                {_("This device cannot be managed here.")}
+                            </CardBody>
+                            : null
+                        }
                     </Card>
                     {renderConnectionMembers(iface.MainConnection)}
                 </Gallery>

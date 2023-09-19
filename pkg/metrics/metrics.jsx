@@ -223,23 +223,16 @@ function decompress_samples(samples, state) {
     });
 }
 
-function make_rows(rows, rowWrapper, _columns) {
-    return rows.map((columns, rowIndex) => {
-        const props = rowWrapper ? rowWrapper(columns) : {};
-
-        return (
-            <Tr key={"row-" + rowIndex} {...props}>
-                {columns.map((column, columnIndex) => {
-                    const dataLabel = _columns && _columns[columnIndex];
-                    return (
-                        <Td data-label={dataLabel} key={"column-" + columnIndex}>
-                            {column}
-                        </Td>
-                    );
-                })}
-            </Tr>
-        );
-    });
+function make_rows(rows, rowProps, columnLabels) {
+    return rows.map((columns, rowIndex) =>
+        <Tr key={"row-" + rowIndex} {...rowProps?.(columns)}>
+            {columns.map((column, columnIndex) =>
+                <Td data-label={columnLabels?.[columnIndex]} key={"column-" + columnIndex}>
+                    {column}
+                </Td>
+            )}
+        </Tr>
+    );
 }
 
 class CurrentMetrics extends React.Component {
@@ -787,7 +780,7 @@ class CurrentMetrics extends React.Component {
             : [];
 
         let allDisks = null;
-        const rowWrapperDisks = row => ({ 'device-name': row[0] });
+        const rowPropsDisks = row => ({ 'device-name': row[0] });
         const diskColumns = [_("Device"), _("Read"), _("Write")];
         if (disksUsage.length > 1) {
             const disksTableContent = (
@@ -800,7 +793,7 @@ class CurrentMetrics extends React.Component {
                         <Tr>{diskColumns.map(col => <Th key={col}>{col}</Th>)}</Tr>
                     </Thead>
                     <Tbody className="pf-v5-m-tabular-nums disks-nowrap">
-                        {make_rows(disksUsage, rowWrapperDisks, diskColumns)}
+                        {make_rows(disksUsage, rowPropsDisks, diskColumns)}
                     </Tbody>
                 </Table>
             );
@@ -812,8 +805,8 @@ class CurrentMetrics extends React.Component {
             );
         }
 
-        const rowWrapperIface = row => ({ 'data-interface': row[0] });
-        const rowWrapperDiskIO = row => ({ 'cgroup-name': row[0] });
+        const rowPropsIface = row => ({ 'data-interface': row[0] });
+        const rowPropsDiskIO = row => ({ 'cgroup-name': row[0] });
         const topServicesCPUColumns = [_("Service"), "%"];
         const topServicesMemoryColumns = [_("Service"), _("Used")];
         const ifaceColumns = [_("Interface"), _("In"), _("Out")];
@@ -974,7 +967,7 @@ class CurrentMetrics extends React.Component {
                                     </Tr>
                                 </Thead>
                                 <Tbody className="pf-v5-m-tabular-nums">
-                                    {make_rows(this.state.topServicesDiskIO, rowWrapperDiskIO, [_("Service"), _("Read"), _("Write")])}
+                                    {make_rows(this.state.topServicesDiskIO, rowPropsDiskIO, [_("Service"), _("Read"), _("Write")])}
                                 </Tbody>
                             </Table> }
                     </CardBody>
@@ -995,7 +988,7 @@ class CurrentMetrics extends React.Component {
                                 <Tr>{ifaceColumns.map(col => <Th key={col}>{col}</Th>)}</Tr>
                             </Thead>
                             <Tbody className="network-nowrap-shrink">
-                                {make_rows(netIO, rowWrapperIface, ifaceColumns)}
+                                {make_rows(netIO, rowPropsIface, ifaceColumns)}
                             </Tbody>
                         </Table>
                     </CardBody>

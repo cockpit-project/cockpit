@@ -1338,7 +1338,8 @@ export function syn_click(model, fun) {
 }
 
 export function is_managed(dev) {
-    return dev.State != 10;
+    // Never let the user manage loopback devices, nothing good can come from that.
+    return dev.State != 10 && dev.DeviceType != "loopback" && dev.Interface != "lo";
 }
 
 function render_interface_link(iface) {
@@ -1670,7 +1671,7 @@ export function is_interface_connection(iface, connection) {
 }
 
 export function is_interesting_interface(iface) {
-    return !iface.Device || (is_managed(iface.Device) && iface.Device.DeviceType != "loopback");
+    return !iface.Device || is_managed(iface.Device);
 }
 
 export function member_connection_for_interface(group, iface) {

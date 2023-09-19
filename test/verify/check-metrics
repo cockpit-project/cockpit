@@ -1268,19 +1268,14 @@ BEGIN {{
         b.click("[aria-label='Network usage'] [data-interface='lo'] button")
         b.enter_page("/network")
         b.wait_visible("#network-interface-name:contains('lo')")
-        if m.image in ["ubuntu-2204", "centos-8-stream"] or "rhel-8" in m.image:
-            b.wait_not_present(".pf-v5-c-switch")
-            b.wait_in_text("#network-interface-settings", "This device cannot be managed here.")
-        else:
-            # loopback can currently be managed, toggle on/off is present
-            b.wait_visible(".pf-v5-c-switch")
+        b.wait_in_text(".network-interface-details", "This device cannot be managed here.")
 
         b.go("/metrics")
         b.enter_page("/metrics")
         b.click("[aria-label='Network usage'] [data-interface='cockpittest1'] button")
         b.enter_page("/network")
         b.wait_visible("#network-interface-name:contains('cockpittest1')")
-        b.wait_in_text("#network-interface-settings", "This device cannot be managed here.")
+        b.wait_in_text(".network-interface-details", "This device cannot be managed here.")
 
 
 @testlib.skipImage("TODO: Arch Linux packagekit support", "arch")

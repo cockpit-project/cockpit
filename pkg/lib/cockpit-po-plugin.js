@@ -49,18 +49,23 @@ function buildFile(po_file, subdir, webpack_module, webpack_compilation) {
         webpack_compilation.fileDependencies.add(po_file);
 
     return new Promise((resolve, reject) => {
-        const parsed = gettext_parser.po.parse(fs.readFileSync(po_file), 'utf8');
+        // Read the PO file, remove fuzzy/disabled lines to avoid tripping up the validator
+        const po_data = fs.readFileSync(po_file, 'utf8')
+                .split('\n')
+                .filter(line => !line.startsWith('#~'))
+                .join('\n');
+        const parsed = gettext_parser.po.parse(po_data, { defaultCharset: 'utf8', validation: true });
         delete parsed.translations[""][""]; // second header copy
 
         const rtl_langs = ["ar", "fa", "he", "ur"];
-        const dir = rtl_langs.includes(parsed.headers.language) ? "rtl" : "ltr";
+        const dir = rtl_langs.includes(parsed.headers.Language) ? "rtl" : "ltr";
 
         // cockpit.js only looks at "plural-forms" and "language"
         const chunks = [
             '{\n',
             ' "": {\n',
-            `  "plural-forms": ${get_plural_expr(parsed.headers['plural-forms'])},\n`,
-            `  "language": "${parsed.headers.language}",\n`,
+            `  "plural-forms": ${get_plural_expr(parsed.headers['Plural-Forms'])},\n`,
+            `  "language": "${parsed.headers.Language}",\n`,
             `  "language-direction": "${dir}"\n`,
             ' }'
         ];

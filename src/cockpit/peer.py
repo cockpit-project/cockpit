@@ -219,10 +219,12 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
 
 
 class ConfiguredPeer(Peer):
+    config: BridgeConfig
     args: Sequence[str]
     env: Sequence[str]
 
     def __init__(self, router: Router, config: BridgeConfig):
+        self.config = config
         self.args = config.spawn
         self.env = config.environ
         super().__init__(router)

@@ -40,12 +40,10 @@ logger = logging.getLogger(__name__)
 
 
 class SuperuserPeer(ConfiguredPeer):
-    name: str
     responder: ferny.InteractionResponder
 
-    def __init__(self, router: Router, name: str, config: BridgeConfig, responder: ferny.InteractionResponder):
+    def __init__(self, router: Router, config: BridgeConfig, responder: ferny.InteractionResponder):
         super().__init__(router, config)
-        self.name = name
         self.responder = responder
 
     async def do_connect_transport(self) -> None:
@@ -169,7 +167,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"')
 
         self.current = 'init'
-        self.peer = SuperuserPeer(self.router, name, config, responder)
+        self.peer = SuperuserPeer(self.router, config, responder)
         self.peer.add_done_callback(self.peer_done)
 
         try:
@@ -179,7 +177,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         except (OSError, PeerError) as exc:
             raise bus.BusError('cockpit.Superuser.Error', str(exc)) from exc
 
-        self.current = name
+        self.current = self.peer.config.name
 
     def set_configs(self, configs: Sequence[BridgeConfig]):
         logger.debug("set_configs() with %d items", len(configs))
@@ -190,18 +188,10 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
         logger.debug("  bridges are now %s", self.bridges)
 
-        # If the currently active bridge got removed, stop it
+        # If the currently active bridge config is not in the new set of configs, stop it
         if self.peer is not None:
-            if self.current == 'any':
-                removed = len(self.superuser_configs) == 0
-            else:
-                removed = any(c.name == self.peer.name for c in self.superuser_configs)
-
-            if removed:
-                logger.debug(
-                    "  stopping current superuser bridge '%s' (peer name %s), as it disappeared from configs",
-                    self.current, self.peer.name)
-
+            if self.peer.config not in self.superuser_configs:
+                logger.debug("  stopping superuser bridge '%s': it disappeared from configs", self.peer.config.name)
                 self.stop()
 
     def cancel_prompt(self):

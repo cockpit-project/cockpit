@@ -92,17 +92,19 @@ class PackagesListener:
         """Called when the packages have been reloaded"""
 
 
-class BridgeConfig:
+class BridgeConfig(JsonObject):
     def __init__(self, value: JsonObject):
-        self.label = get_str(value, 'label', None)
+        super().__init__(value)
 
-        self.privileged = get_bool(value, 'privileged', default=False)
-        self.match: JsonObject = get_dict(value, 'match', {})
+        self.label = get_str(self, 'label', None)
+
+        self.privileged = get_bool(self, 'privileged', default=False)
+        self.match: JsonObject = get_dict(self, 'match', {})
         if not self.privileged and not self.match:
             raise JsonError(value, 'must have match rules or be privileged')
 
-        self.environ = get_strv(value, 'environ', ())
-        self.spawn = get_strv(value, 'spawn')
+        self.environ = get_strv(self, 'environ', ())
+        self.spawn = get_strv(self, 'spawn')
         if not self.spawn:
             raise JsonError(value, 'spawn vector must be non-empty')
 

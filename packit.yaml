@@ -23,86 +23,15 @@ srpm_build_deps:
 # use the nicely formatted release NEWS from our upstream release, instead of git shortlog
 copy_upstream_release_description: true
 jobs:
+  - job: copr_build
+    trigger: pull_request
+    targets:
+      - centos-stream-9-x86_64
+      - centos-stream-9-aarch64
+
   - job: tests
     identifier: self
     trigger: pull_request
     targets:
-      - fedora-38
-      - fedora-39
-      - fedora-latest-aarch64
-      - fedora-development
-      - centos-stream-8-x86_64
       - centos-stream-9-x86_64
       - centos-stream-9-aarch64
-
-  # current Fedora runs reverse dependency testing against https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/
-  - job: tests
-    identifier: revdeps
-    trigger: pull_request
-    targets:
-      - fedora-latest-stable
-    tf_extra_params:
-      environments:
-        - artifacts:
-          - type: repository-file
-            id: https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/repo/fedora-$releasever/group_cockpit-main-builds-fedora-$releasever.repo
-          tmt:
-            context:
-              revdeps: "yes"
-
-  # run build/unit tests on some interesting architectures
-  - job: copr_build
-    trigger: pull_request
-    targets:
-      # 32 bit
-      - fedora-development-i386
-      # big-endian
-      - fedora-development-s390x
-
-  # for cross-project testing
-  - job: copr_build
-    trigger: commit
-    branch: "^main$"
-    owner: "@cockpit"
-    project: "main-builds"
-    preserve_project: True
-
-  - job: copr_build
-    trigger: release
-    owner: "@cockpit"
-    project: "cockpit-preview"
-    preserve_project: True
-    actions:
-      # same as the global one, but specifying actions: does not inherit
-      post-upstream-clone:
-        # build patched spec
-        - tools/node-modules make_package_lock_json
-        - cp tools/cockpit.spec .
-        # packit will compute and set the version by itself
-        - tools/fix-spec ./cockpit.spec 0
-      # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0; this
-      # really should be the default, see https://github.com/packit/packit-service/issues/1505
-      create-archive:
-        - sh -exc "curl -L -O https://github.com/cockpit-project/cockpit/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
-        - sh -exc "ls ${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
-
-  - job: propose_downstream
-    trigger: release
-    dist_git_branches:
-      - fedora-development
-      - fedora-38
-      - fedora-39
-
-  - job: koji_build
-    trigger: commit
-    dist_git_branches:
-      - fedora-development
-      - fedora-38
-      - fedora-39
-
-  - job: bodhi_update
-    trigger: commit
-    dist_git_branches:
-      # rawhide updates are created automatically
-      - fedora-38
-      - fedora-39

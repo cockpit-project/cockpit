@@ -645,9 +645,9 @@ class TestAccounts(testlib.MachineCase):
 
         # On OSTree this happens over ssh
         if m.ostree_image:
-            self.restore_dir("/etc/ssh", '( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service')
+            self.restore_dir("/etc/ssh", restart_unit="sshd")
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
-            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+            m.execute("systemctl try-restart sshd.service")
 
         b.wait_visible("#login")
         b.wait_not_visible("#conversation-group")

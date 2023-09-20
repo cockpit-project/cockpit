@@ -53,7 +53,8 @@ class TestFirewall(netlib.NetworkCase):
     def setUp(self):
         super().setUp()
         m = self.machine
-        self.restore_dir("/etc/firewalld", "systemctl try-restart firewalld")
+        self.restore_dir("/etc/firewalld", restart_unit="firewalld")
+
         m.execute("systemctl restart firewalld")
         self.btn_danger = "pf-m-danger"
         self.btn_primary = "pf-m-primary"

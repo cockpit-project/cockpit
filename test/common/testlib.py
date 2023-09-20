@@ -2011,13 +2011,15 @@ class MachineCase(unittest.TestCase):
 
         return self.machine.execute(f"if test -e {path}; then echo yes; fi").strip() != ""
 
-    def restore_dir(self, path: str, post_restore_action: Optional[str] = None, reboot_safe: bool = False):
+    def restore_dir(self, path: str, post_restore_action: Optional[str] = None, reboot_safe: bool = False,
+                    restart_unit: Optional[str] = None):
         """Backup/restore a directory for a nondestructive test
 
         This takes care to not ever touch the original content on disk, but uses transient overlays.
         As this uses a bind mount, it does not work for files that get changed atomically (with mv);
         use restore_file() for these.
 
+        `restart_unit` will be stopped before restoring path, and restarted afterwards if it was running.
         The optional post_restore_action will run after restoring the original content.
 
         If the directory needs to survive reboot, `reboot_safe=True` needs to be specified; then this
@@ -2026,23 +2028,30 @@ class MachineCase(unittest.TestCase):
         if not self.is_nondestructive() and not self.machine.ostree_image:
             return  # skip for efficiency reasons
 
+        exe = self.machine.execute
+
         if not self.file_exists(path):
-            self.addCleanup(self.machine.execute, "rm -rf {0}".format(path))
+            self.addCleanup(exe, f"rm -rf '{path}'")
             return
 
         backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
-        self.machine.execute("mkdir -p %(vm_tmpdir)s; cp -a %(path)s/ %(backup)s/" % {
-            "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})
+        exe(f"mkdir -p {self.vm_tmpdir}; cp -a {path}/ {backup}/")
 
         if not reboot_safe:
-            self.machine.execute("mount -o bind %(backup)s %(path)s" % {
-                "path": path, "backup": backup})
+            exe(f"mount -o bind {backup} {path}")
+
+        if restart_unit:
+            restart_stamp = f"/run/cockpit_restart_{restart_unit}"
+            self.addCleanup(
+                exe,
+                f"if [ -e {restart_stamp} ]; then systemctl start {restart_unit}; rm {restart_stamp}; fi"
+            )
 
         if post_restore_action:
-            self.addCleanup(self.machine.execute, post_restore_action)
+            self.addCleanup(exe, post_restore_action)
 
         if reboot_safe:
-            self.addCleanup(self.machine.execute, f"rm -rf {path}; mv {backup} {path}")
+            self.addCleanup(exe, f"rm -rf {path}; mv {backup} {path}")
         else:
             # HACK: a lot of tests call this on /home/...; that restoration happens before killing all user
             # processes in nonDestructiveSetup(), so we have to do it lazily
@@ -2050,7 +2059,11 @@ class MachineCase(unittest.TestCase):
                 cmd = f"umount -lf {path}"
             else:
                 cmd = f"umount {path} || {{ fuser -uvk {path} {path}/* >&2 || true; sleep 1; umount {path}; }}"
-            self.addCleanup(self.machine.execute, cmd)
+            self.addCleanup(exe, cmd)
+
+        if restart_unit:
+            self.addCleanup(exe, f"if systemctl --quiet is-active {restart_unit}; then touch {restart_stamp}; fi; "
+                            f"systemctl stop {restart_unit}")
 
     def restore_file(self, path: str, post_restore_action: Optional[str] = None):
         """Backup/restore a file for a nondestructive test

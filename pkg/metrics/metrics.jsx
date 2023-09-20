@@ -27,6 +27,7 @@ import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.j
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Page, PageGroup, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
@@ -1322,7 +1323,7 @@ const HourDescription = ({ minute_events, isHourExpanded, onToggleHourExpanded, 
     return (
         <span className={"metrics-events" + (isHourExpanded ? " metrics-events-hour-header-expanded" : "")}>
             {spikes > 0 &&
-                <Button variant="plain" className="metrics-events-expander" onClick={() => onToggleHourExpanded(!isHourExpanded)} icon={isHourExpanded ? <AngleDownIcon /> : <AngleRightIcon />} />}
+                <Button variant="plain" className="metrics-events-expander" onClick={() => onToggleHourExpanded(!isHourExpanded)} icon={isHourExpanded ? <AngleDownIcon /> : <Icon shouldMirrorRTL><AngleRightIcon /></Icon>} />}
             <time>{ timeformat.time(startTime) }</time>
             <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsBaseline' }} className="spikes_count">
                 {spikes >= 10 && <ResourcesFullIcon color="var(--resource-icon-color-full)" />}

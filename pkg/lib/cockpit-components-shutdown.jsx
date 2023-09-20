@@ -212,7 +212,11 @@ export class ShutdownModal extends React.Component {
                                                 buttonAriaLabel={_("Toggle date picker")}
                                                 className='shutdown-date-picker'
                                                 dateFormat={timeformat.dateShort}
-                                                dateParse={timeformat.parseShortDate}
+                                                // https://github.com/patternfly/patternfly-react/issues/9721
+                                                dateParse={date => {
+                                                    const newDate = timeformat.parseShortDate(date);
+                                                    return Number.isNaN(newDate.valueOf()) ? false : newDate;
+                                                }}
                                                 invalidFormatText=""
                                                 isDisabled={!this.state.formFilled}
                                                 locale={timeformat.dateFormatLang()}

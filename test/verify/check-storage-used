@@ -71,7 +71,7 @@ ExecStart=/usr/bin/sleep infinity
                         mock={".pf-v5-c-popover__body p:nth-of-type(2) li": "process (user: root, pid: 1234)"},
                         scroll_into_view="#dialog button:contains(Currently in use)")
         b.click(".pf-v5-c-popover button")
-        b.assert_pixels('#dialog', "format")
+        b.assert_pixels('#dialog', "format", wait_after_layout_change=True)
         self.dialog_cancel()
         self.dialog_wait_close()
 

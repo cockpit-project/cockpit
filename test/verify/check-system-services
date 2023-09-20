@@ -419,7 +419,7 @@ WantedBy=default.target
         # the header happens asynchronously with an animation.
         time.sleep(2)
         # Now scroll the header all the way to the left to get a conistent pixel test result
-        nav_scroll_btn = ".services-header button[aria-label='Scroll left']"
+        nav_scroll_btn = ".services-header button[aria-label='Scroll back']"
         while b.call_js_func("ph_attr", nav_scroll_btn, "disabled") is None:
             b.click(nav_scroll_btn)
             time.sleep(0.5)

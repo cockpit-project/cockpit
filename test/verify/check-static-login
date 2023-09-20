@@ -262,7 +262,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # On OSTree this happens over ssh
         if m.ostree_image:
-            self.restore_dir("/etc/ssh", '( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service')
+            self.restore_dir("/etc/ssh", restart_unit="sshd")
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
             m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
 
@@ -361,7 +361,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         conf = "/etc/pam.d/cockpit"
         if m.ostree_image:
             conf = "/etc/pam.d/sshd"
-            self.restore_dir("/etc/ssh", '( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service')
+            self.restore_dir("/etc/ssh", restart_unit="sshd")
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
             m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
 
@@ -762,7 +762,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             # also, sssd is split into several services
             self.restore_dir("/etc/sssd", post_restore_action="systemctl stop 'sssd*'")
         else:
-            self.restore_dir("/etc/sssd", post_restore_action="systemctl try-restart sssd")
+            self.restore_dir("/etc/sssd", restart_unit="sssd")
 
         m.execute("useradd alice; echo alice:foobar123 | chpasswd")
         m.upload(["alice.pem", "alice.key", "alice-expired.pem", "bob.pem", "bob.key"], self.vm_tmpdir,

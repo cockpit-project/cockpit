@@ -49,7 +49,7 @@ class TestLoopback(testlib.MachineCase):
         self.assertIn("no-cockpit", b.text('#login-fatal'))
 
         m.disconnect()
-        self.restore_dir("/etc/ssh", post_restore_action="systemctl try-restart sshd.service")
+        self.restore_dir("/etc/ssh", restart_unit="sshd.service")
         m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
         m.execute("systemctl try-restart sshd.service")
         m.wait_execute()

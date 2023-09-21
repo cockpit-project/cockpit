@@ -196,7 +196,7 @@ class _Transport(asyncio.Transport):
             n_bytes -= len(block)
             logger.debug('  removed complete block.  %d remains.', n_bytes)
 
-        else:
+        if not self._queue:
             logger.debug('%s queue drained.')
             self._remove_write_queue()
             if self._eof:

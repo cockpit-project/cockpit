@@ -187,7 +187,8 @@ class _Transport(asyncio.Transport):
                 self._queue.appendleft(block[n_bytes:])
                 break
             n_bytes -= len(block)
-        else:
+
+        if not self._queue:
             self._remove_write_queue()
             if self._eof:
                 self._write_eof_now()

@@ -174,7 +174,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                             aria-label={_("Select method")}
                                             onChange={(_, val) => setMethod(val)}
                                             value={method}>
-                                    {get_ip_method_choices(topic, dev.DeviceType).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
+                                    {get_ip_method_choices(topic, dev?.DeviceType).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                                 </FormSelect>
                                 <Tooltip content={_("Add address")}>
                                     <Button variant="secondary"

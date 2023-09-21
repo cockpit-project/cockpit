@@ -596,6 +596,13 @@ export function NetworkManagerModel() {
             };
         }
 
+        // As NM support many vpn plugins, single out openvpn with the service name o.fd.NM.openvpn
+        if (settings.vpn && settings.vpn['service-type'].v === "org.freedesktop.NetworkManager.openvpn") {
+            result.openvpn = {
+                data: settings.vpn.data.v
+            };
+        }
+
         return result;
     }
 
@@ -733,8 +740,12 @@ export function NetworkManagerModel() {
                     }
                 };
             }));
-        } else {
+        } else
             delete result.wireguard;
+
+        if (settings.vpn) {
+            set("vpn", "service-type", "s", settings.vpn['service-type']);
+            set("vpn", "data", "a{ss}", settings.vpn.data);
         }
 
         return result;
@@ -1005,7 +1016,8 @@ export function NetworkManagerModel() {
         props: {
             Connection: { conv: conv_Object(type_Connection) },
             Ip4Config: { conv: conv_Object(type_Ipv4Config) },
-            Ip6Config: { conv: conv_Object(type_Ipv6Config) }
+            Ip6Config: { conv: conv_Object(type_Ipv6Config) },
+            Vpn: { def: false }
             // See below for "Group"
         },
 
@@ -1304,6 +1316,16 @@ export function NetworkManagerModel() {
     self.get_settings = function () {
         return get_object("/org/freedesktop/NetworkManager/Settings",
                           type_Settings);
+    };
+
+    self.list_active_connections = function() {
+        const result = [];
+        for (const path in objects) {
+            const obj = objects[path];
+            if (priv(obj).type === type_ActiveConnection)
+                result.push(obj);
+        }
+        return result;
     };
 
     /* Initialization.

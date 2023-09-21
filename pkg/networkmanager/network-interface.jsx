@@ -72,6 +72,7 @@ export const NetworkInterfacePage = ({
 
     const dev_name = iface.Name;
     const dev = iface.Device;
+    const active_connection = model.list_active_connections().find(ac => ac.Connection === iface.MainConnection);
     const isManaged = iface && (!dev || is_managed(dev));
 
     let ghostSettings = null;
@@ -146,6 +147,9 @@ export const NetworkInterfacePage = ({
     }
 
     function disconnect() {
+        if (active_connection.Vpn)
+            active_connection.deactivate();
+
         if (!dev) {
             console.log("Trying to switch off without a device?");
             return;
@@ -563,6 +567,19 @@ export const NetworkInterfacePage = ({
             return renderSettingsRow(_("WireGuard"), rows, configure);
         }
 
+        function renderOpenVPNSettingsRow() {
+            const rows = [];
+            const options = settings.openvpn;
+
+            if (!options) {
+                return null;
+            }
+
+            const configure = <NetworkAction type="openvpn" iface={iface} connectionSettings={settings} />;
+
+            return renderSettingsRow(_("OpenVPN"), rows, configure);
+        }
+
         return [
             render_group(),
             renderAutoconnectRow(),
@@ -576,6 +593,7 @@ export const NetworkInterfacePage = ({
             renderTeamSettingsRow(),
             renderTeamPortSettingsRow(),
             renderWireGuardSettingsRow(),
+            renderOpenVPNSettingsRow(),
         ];
     }
 
@@ -679,7 +697,7 @@ export const NetworkInterfacePage = ({
                         tooltipId="interface-switch"
                         excuse={ _("Not permitted to configure network devices") }>
                 <Switch id="interface-switch"
-                        isChecked={!!(dev && dev.ActiveConnection)}
+                        isChecked={!!active_connection}
                         isDisabled={!iface || (dev && dev.State == 20) || !privileged}
                         onChange={(_event, enable) => enable ? connect() : disconnect()}
                         aria-label={_("Enable or disable the device")} />

@@ -1,0 +1,186 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+import testlib
+
+
+# Deps: openvpn, network-manager-openvpn, easy-rsa (optional)
+class TestOpenVPN(testlib.MachineCase):
+    provision = {
+        "machine1": {"address": "192.168.100.11/24", "restrict": False},
+        "machine2": {"address": "192.168.100.12/24", "restrict": False},
+    }
+
+    def saveDialog(self):
+        b = self.browser
+        b.click("#network-openvpn-settings-save")
+
+    def testOpenvpn(self):
+        m1 = self.machines["machine1"]
+        m2 = self.machines["machine2"]
+        b = self.browser
+
+        keys_dir = "/etc/openvpn/server"
+
+        ###############################################################
+        #                           SERVER                            #
+        ###############################################################
+        m2.execute("openssl genrsa -out ca.key")
+        m2.execute("openssl req -x509 -new -sha512 -nodes -key ca.key -days 7307 -out ca.crt -subj '/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname'")
+        m2.execute(f"openssl dhparam -dsaparam -out {keys_dir}/dh2048.pem 2048")
+        m2.execute("openssl genrsa -out server.key")
+        host_conf = """ "
+[req]
+default_md = sha512
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+prompt = no
+[req_distinguished_name]
+C   = AU
+ST  = Victoria
+L   = Melbourne
+O   = My Company
+OU  = My Division
+CN  = testing.com
+[req_ext]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = testing.com
+DNS.2 = *.testing.com
+        " """
+        m2.execute(f"echo {host_conf} >> host.conf")
+        m2.execute("openssl req -new -sha512 -nodes -key server.key -out server.csr -config host.conf")
+        host_ext_conf = """ "
+basicConstraints = CA:FALSE
+nsCertType = server
+nsComment = "My First Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = testing.com
+DNS.2 = *.testing.com
+        " """
+        m2.execute(f"echo {host_ext_conf} >> host-ext.conf")
+        m2.execute("openssl x509 -req -sha512 -days 45 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -extfile host-ext.conf")
+
+        m2.execute("openssl genrsa -out client.key")
+        m2.execute("openssl req -new -sha512 -nodes -key client.key -out client.csr -config host.conf")
+        m2.execute("openssl x509 -req -sha512 -days 3650 -CA ca.crt -CAkey ca.key -in client.csr -set_serial 01 -out client.crt")
+        m2.execute(f"mv -t {keys_dir} ca.key ca.crt server.key server.crt client.key client.crt")
+        server_conf = """ "
+port 1194
+proto udp
+dev tun
+
+ca ca.crt
+cert server.crt
+key server.key
+dh dh2048.pem
+
+server 10.0.0.0 255.255.255.0
+
+keepalive 10 120
+data-ciphers-fallback AES-256-CBC
+
+persist-key
+persist-tun
+        " """
+        m2.execute(f"echo {server_conf} >> {keys_dir}/server.conf")
+        if 'fedora' in m2.image:
+            # TODO: in fedora systemd starting openvpn leads to permission errors
+            m2.execute("setenforce 0")
+        m2.execute("systemctl enable --now openvpn-server@server")
+        m2.execute("firewall-cmd --add-port=1194/udp")
+
+        # create .ovpn file for client
+        ovpn_conf = """ "# start
+client
+dev tun
+proto udp
+remote 192.168.100.12 1194 udp
+resolv-retry infinite
+persist-key
+persist-tun
+remote-cert-tls server
+data-ciphers-fallback AES-256-CBC
+        " """
+        m2.execute(f"echo {ovpn_conf} >> {keys_dir}/test.ovpn")
+        m2.execute(f"{{ echo '<ca>'; cat {keys_dir}/ca.crt; echo '</ca>'; }} >> {keys_dir}/test.ovpn")
+        m2.execute(f"{{ echo '<cert>'; cat {keys_dir}/client.crt; echo '</cert>'; }} >> {keys_dir}/test.ovpn")
+        m2.execute(f"{{ echo '<key>'; cat {keys_dir}/client.key; echo '</key>'; }} >> {keys_dir}/test.ovpn")
+
+        ###############################################################
+        #                           CLIENT                            #
+        ###############################################################
+
+        # download the .ovpn file from the server to client
+        m2.download(f"{keys_dir}/test.ovpn", "/tmp/test.ovpn")
+        m2.download(f"{keys_dir}/client.crt", "/tmp/client.crt")
+        m2.download(f"{keys_dir}/client.key", "/tmp/client.key")
+        m2.download(f"{keys_dir}/ca.crt", "/tmp/ca.crt")
+
+        # FIX: the client also doesn't work when selinux is enforcing
+        m1.execute("setenforce 0")
+
+        self.login_and_go("/network")
+        b.click("#networking-add-openvpn")
+        b.wait_visible("#network-openvpn-settings-dialog")
+        iface_name = b.val("#network-openvpn-settings-interface-name-input")
+
+        self.saveDialog()
+        b.wait_visible(".pf-v5-c-alert:contains('Remote cannot be empty')")
+        b.set_input_text("#network-openvpn-settings-remote-input", "192.168.100.12:1194:udp")
+
+        b.upload_file(".pf-v5-c-file-upload:has(#network-openvpn-settings-ca-filename) input[type=file]", "/tmp/empty-ca.crt")
+        self.saveDialog()
+        b.wait_visible(".pf-v5-c-alert:contains('CA certificate is empty.')")
+        b.upload_file(".pf-v5-c-file-upload:has(#network-openvpn-settings-ca-filename) input[type=file]", "/tmp/ca.crt")
+
+        b.upload_file(".pf-v5-c-file-upload:has(#network-openvpn-settings-user-cert-filename) input[type=file]", "/tmp/empty-client.crt")
+        self.saveDialog()
+        b.wait_visible(".pf-v5-c-alert:contains('User certificate is empty.')")
+        b.upload_file(".pf-v5-c-file-upload:has(#network-openvpn-settings-user-cert-filename) input[type=file]", "/tmp/client.crt")
+
+        b.upload_file(".pf-v5-c-file-upload:has(#network-openvpn-settings-user-key-filename) input[type=file]", "/tmp/empty-client.key")
+        self.saveDialog()
+        b.wait_visible(".pf-v5-c-alert:contains('User private key is empty.')")
+        b.upload_file(".pf-v5-c-file-upload:has(#network-openvpn-settings-user-key-filename) input[type=file]", "/tmp/client.key")
+
+        self.saveDialog()
+        b.wait_not_present("#network-openvpn-settings-dialog")
+        b.click(f"#networking-interfaces button:contains('{iface_name}')")
+        b.click(".pf-v5-c-switch__toggle")
+        b.click("#networking-edit-openvpn")
+        b.click("#network-openvpn-settings-cancel")
+        b.go("/network")
+        # FIX: the creation of bogus NM route, this could be either a problem with client config or server config not push the correct routes to client during initialization
+        m1.execute("until ip route | grep -q '192.168.100.12 via 172.27.0.2'; do sleep 1; done")
+        m1.execute("ip route del 192.168.100.12 via 172.27.0.2")
+        m1.execute("sleep 5; ping -c 1 10.0.0.1")
+        m2.execute("ping -c 1 10.0.0.6")
+
+        # delete the connection and check with just the .ovpn config file
+        m1.execute("nmcli con del con-openvpn0")
+        b.wait_not_present(f"#networking-interfaces button:contains('{iface_name}')")
+        b.click("#networking-add-openvpn")
+        b.wait_visible("#network-openvpn-settings-dialog")
+        b.upload_file(".pf-v5-c-file-upload:has(#network-openvpn-settings-config-filename) input[type=file]", "/tmp/test.ovpn")
+        b.wait_not_val("#network-openvpn-settings-ca-filename", "")
+        self.saveDialog()
+        b.wait_not_present("#network-openvpn-settings-dialog")
+        b.click(f"#networking-interfaces button:contains('{iface_name}')")
+        b.click(".pf-v5-c-switch__toggle")
+        b.go("/network")
+        m1.execute("until ip route | grep -q '192.168.100.12 via 172.27.0.2'; do sleep 1; done")
+        m1.execute("ip route del 192.168.100.12 via 172.27.0.2")
+        m1.execute("sleep 5; ping -c 1 10.0.0.1")
+        m2.execute("ping -c 1 10.0.0.6")
+
+
+if __name__ == "__main__":
+    testlib.test_main()

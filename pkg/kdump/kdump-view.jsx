@@ -25,7 +25,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
-import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup, FormSection } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
@@ -41,14 +41,77 @@ import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/compon
 import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
 import { useDialogs, DialogsContext } from "dialogs.jsx";
+import { read_os_release } from "os-release.js";
 import { fmt_to_fragments } from 'utils.jsx';
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { PrivilegedButton } from "cockpit-components-privileged.jsx";
+import { ModificationsExportDialog } from "cockpit-components-modifications.jsx";
 
 const _ = cockpit.gettext;
 const DEFAULT_KDUMP_PATH = "/var/crash";
+
+const exportAnsibleTask = (settings, os_release) => {
+    const target = Object.keys(settings.targets)[0];
+    const targetSettings = settings.targets[target];
+    const kdump_core_collector = settings.core_collector;
+
+    let role_name = "linux-system-roles";
+    if (os_release.NAME === "RHEL" || os_release.ID_LIKE?.includes('rhel')) {
+        role_name = "rhel-system-roles";
+    }
+
+    let ansible = `
+---
+# Also available via https://galaxy.ansible.com/ui/standalone/roles/linux-system-roles/kdump/
+- name: install ${role_name}
+  package:
+    name: ${role_name}
+    state: present
+  delegate_to: 127.0.0.1
+  become: true
+- name: run kdump system role
+  include_role:
+    name: ${role_name}.kdump
+  vars:
+    kdump_path: ${targetSettings.path || DEFAULT_KDUMP_PATH}
+    kdump_core_collector: ${kdump_core_collector}`;
+
+    if (target === "ssh") {
+        // HACK: we should not have to specify kdump_ssh_user and kdump_ssh_user as it is in kdump_target.location
+        // https://github.com/linux-system-roles/kdump/issues/184
+        let ssh_user;
+        let ssh_server;
+        const parts = targetSettings.server.split('@');
+        if (parts.length === 1) {
+            ssh_user = "root";
+            ssh_server = parts[0];
+        } else if (parts.length === 2) {
+            ssh_user = parts[0];
+            ssh_server = parts[1];
+        } else {
+            throw new Error("ssh server contains two @ symbols");
+        }
+        ansible += `
+    kdump_target:
+      type: ssh
+    kdump_sshkey: ${targetSettings.sshkey}
+    kdump_ssh_server: ${ssh_server}
+    kdump_ssh_user: ${ssh_user}`;
+    } else if (target === "nfs") {
+        ansible += `
+    kdump_target:
+      type: nfs
+      location: ${targetSettings.server}:${targetSettings.export}
+`;
+    } else if (target !== "local") {
+        // target is unsupported
+        throw new Error("Unsupported kdump target"); // not-covered: assertion
+    }
+
+    return ansible;
+};
 
 const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
     const Dialogs = useDialogs();
@@ -262,8 +325,12 @@ export class KdumpPage extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = { os_release: null };
+
         this.handleTestSettingsClick = this.handleTestSettingsClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
+        this.handleAutomationClick = this.handleAutomationClick.bind(this);
+        read_os_release().then(os_release => this.setState({ os_release }));
     }
 
     handleTestSettingsClick() {
@@ -323,6 +390,33 @@ export class KdumpPage extends React.Component {
         Dialogs.show(<KdumpSettingsModal settings={this.props.kdumpStatus.config}
                                          initialTarget={this.props.kdumpStatus.target}
                                          handleSave={this.props.onSaveSettings} />);
+    }
+
+    handleAutomationClick() {
+        const Dialogs = this.context;
+        let enableCrashKernel = '';
+        let kdumpconf = this.props.exportConfig(this.props.kdumpStatus.config);
+        kdumpconf = kdumpconf.replaceAll('$', '\\$');
+        if (this.state.os_release.NAME?.includes('Fedora')) {
+            enableCrashKernel = `
+# A reboot will be required if crashkernel was not set before
+kdumpctl reset-crashkernel`;
+        }
+        const shell = `
+cat > /etc/kdump.conf << EOF
+${kdumpconf}
+EOF
+systemctl enable --now kdump.service
+${enableCrashKernel}
+`;
+
+        Dialogs.show(
+            <ModificationsExportDialog
+              ansible={exportAnsibleTask(this.props.kdumpStatus.config, this.state.os_release)}
+              shell={shell}
+              show
+              onClose={Dialogs.close}
+            />);
     }
 
     render() {
@@ -461,6 +555,17 @@ export class KdumpPage extends React.Component {
         }
         const tooltip_info = _("This will test the kdump configuration by crashing the kernel.");
 
+        let automationButton = null;
+        if (this.props.kdumpStatus && this.props.kdumpStatus.config !== null && this.state.os_release !== null && targetCanChange) {
+            automationButton = (
+                <FlexItem align={{ md: 'alignRight' }}>
+                    <Button id="kdump-automation-script" variant="secondary" onClick={this.handleAutomationClick}>
+                        {_("View automation script")}
+                    </Button>
+                </FlexItem>
+            );
+        }
+
         let kdumpSwitch = (<Switch isChecked={!!serviceRunning}
                               onChange={this.props.onSetServiceState}
                               aria-label={_("kdump status")}
@@ -482,6 +587,7 @@ export class KdumpPage extends React.Component {
                         <HelperText>
                             <HelperTextItem variant="indeterminate">{serviceRunning ? _("Enabled") : _("Disabled")}</HelperTextItem>
                         </HelperText>
+                        {automationButton}
                     </Flex>
                 </PageSection>
                 <PageSection>

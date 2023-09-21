@@ -203,6 +203,8 @@ export class ConfigFile {
             this.settings._internal.core_collector.value &&
             (this.settings._internal.core_collector.value.split(" ").indexOf("-c") != -1)
         );
+
+        this.settings.core_collector = this.settings._internal?.core_collector?.value ?? defaultCoreCollector;
     }
 
     /* update single _internal setting to given value
@@ -302,7 +304,7 @@ export class ConfigFile {
 
     /* generate the config file from raw text and settings
      */
-    _generateConfig(settings) {
+    generateConfig(settings) {
         settings = this._persistSettings(settings);
 
         const lines = this._lines.slice(0);
@@ -350,7 +352,7 @@ export class ConfigFile {
     write(settings) {
         return this._fileHandle.modify((oldContent) => {
             this._parseText(oldContent, true);
-            return this._generateConfig(settings);
+            return this.generateConfig(settings);
         });
     }
 }

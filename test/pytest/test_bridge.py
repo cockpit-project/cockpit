@@ -602,3 +602,31 @@ async def test_flow_control(transport, tmp_path):
         await recv_one()
 
     transport.send_close(fsread1)
+
+
+@pytest.mark.asyncio
+async def test_large_upload(event_loop, transport, tmp_path):
+    fifo = str(tmp_path / 'pipe')
+    os.mkfifo(fifo)
+
+    sender = await transport.check_open('stream', spawn=['dd', f'of={fifo}'])
+    # cockpit.js doesn't do flow control, so neither do we...
+    chunk = b'0' * Channel.BLOCK_SIZE
+    loops = 100
+    for _ in range(loops):
+        transport.send_data(sender, chunk)
+    transport.send_done(sender)
+
+    # we should be in a state now where we have a bunch of bytes queued up in
+    # the bridge but they can't be delivered because nobody is reading from the
+    # pipe...  make sure dd is still running and we didn't get any messages.
+    await transport.assert_empty()
+
+    # start draining now, and make sure we get everything we sent.
+    with open(fifo, 'rb') as receiver:
+        received = await event_loop.run_in_executor(None, receiver.read)
+        assert len(received) == loops * Channel.BLOCK_SIZE
+
+    # and now our done and close messages should come
+    await transport.assert_msg('', command='done', channel=sender)
+    await transport.assert_msg('', command='close', channel=sender)

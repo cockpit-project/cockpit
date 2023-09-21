@@ -188,6 +188,7 @@ export class Modifications extends React.Component {
 }
 
 Modifications.propTypes = {
+    failed: PropTypes.bool,
     title: PropTypes.string.isRequired,
     permitted: PropTypes.bool.isRequired,
     entries: PropTypes.arrayOf(PropTypes.string),

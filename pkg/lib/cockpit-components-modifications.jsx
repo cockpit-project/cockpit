@@ -115,7 +115,7 @@ class ModificationsExportDialog extends React.Component {
 
 ModificationsExportDialog.propTypes = {
     shell: PropTypes.string.isRequired,
-    ansible: PropTypes.string,
+    ansible: PropTypes.string.isRequired,
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
 };
@@ -193,5 +193,5 @@ Modifications.propTypes = {
     permitted: PropTypes.bool.isRequired,
     entries: PropTypes.arrayOf(PropTypes.string),
     shell: PropTypes.string.isRequired,
-    ansible: PropTypes.string,
+    ansible: PropTypes.string.isRequired,
 };

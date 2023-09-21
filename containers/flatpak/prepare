@@ -39,6 +39,8 @@ def write_json(filename: str, content: Any) -> None:
     try:
         with open(tmpfile, 'w') as file:
             json.dump(content, file, indent=2)
+            file.write('\n')
+
     except BaseException:
         with contextlib.suppress(OSError):
             os.unlink(tmpfile)

@@ -152,7 +152,10 @@ class _Transport(asyncio.Transport):
         assert not self._eof
         self._eof = True
         if self._queue is None:
+            logger.debug('%s got EOF.  closing backend.', self)
             self._write_eof_now()
+        else:
+            logger.debug('%s got EOF.  bytes in queue, deferring close', self)
 
     def get_write_buffer_size(self) -> int:
         if self._queue is None:
@@ -170,6 +173,7 @@ class _Transport(asyncio.Transport):
         raise NotImplementedError
 
     def _write_ready(self) -> None:
+        logger.debug('%s _write_ready', self)
         assert self._queue is not None
 
         try:
@@ -180,16 +184,23 @@ class _Transport(asyncio.Transport):
             self.abort(exc)
             return
 
+        logger.debug('  successfully wrote %d bytes from the queue', n_bytes)
+
         while n_bytes:
             block = self._queue.popleft()
             if len(block) > n_bytes:
                 # This block wasn't completely written.
+                logger.debug('  incomplete block.  Stop.')
                 self._queue.appendleft(block[n_bytes:])
                 break
             n_bytes -= len(block)
+            logger.debug('  removed complete block.  %d remains.', n_bytes)
+
         else:
+            logger.debug('%s queue drained.')
             self._remove_write_queue()
             if self._eof:
+                logger.debug('%s queue drained.  closing backend now.')
                 self._write_eof_now()
             if self._closing:
                 self.abort()
@@ -201,6 +212,7 @@ class _Transport(asyncio.Transport):
             self._queue = None
 
     def _create_write_queue(self, data: bytes) -> None:
+        logger.debug('%s creating write queue for fd %s', self, self._out_fd)
         assert self._queue is None
         self._loop.add_writer(self._out_fd, self._write_ready)
         self._queue = collections.deque((data,))

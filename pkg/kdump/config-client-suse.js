@@ -231,7 +231,7 @@ export class ConfigFileSUSE extends ConfigFile {
 
     /* generate the config file from raw text and settings
      */
-    _generateConfig(settings) {
+    generateConfig(settings) {
         settings = this._persistSettings(settings);
 
         const lines = this._lines.slice(0);

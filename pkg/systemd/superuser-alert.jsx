@@ -29,15 +29,13 @@ import { superuser } from "superuser.js";
 
 const _ = cockpit.gettext;
 
-export class SuperuserAlert extends React.Component {
-    render () {
-        if (superuser.allowed)
-            return null;
+export const SuperuserAlert = () => {
+    if (superuser.allowed)
+        return null;
 
-        return <Alert className="ct-limited-access-alert"
-                      variant="warning" isInline
-                      customIcon={<LockIcon />}
-                      actionClose={<SuperuserButton />}
-        title={_("Web console is running in limited access mode.")} />;
-    }
-}
+    return <Alert className="ct-limited-access-alert"
+                  variant="warning" isInline
+                  customIcon={<LockIcon />}
+                  actionClose={<SuperuserButton />}
+                  title={_("Web console is running in limited access mode.")} />;
+};

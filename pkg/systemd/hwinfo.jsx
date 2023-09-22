@@ -55,78 +55,74 @@ import "./hwinfo.scss";
 
 const _ = cockpit.gettext;
 
-class SystemInfo extends React.Component {
-    render() {
-        const info = this.props.info;
-        if ((!info.name || !info.version) && info.alt_name && info.alt_version) {
-            info.name = info.alt_name;
-            info.version = info.alt_version;
-        }
-        const onSecurityClick = this.props.onSecurityClick;
-
-        const mitigations = (
-            <PrivilegedButton variant="link" buttonId="cpu_mitigations" tooltipId="tip-cpu-security"
-                        excuse={ _("The user $0 is not permitted to change cpu security mitigations") }
-                        onClick={ onSecurityClick }>
-                { _("Mitigations") }
-            </PrivilegedButton>
-        );
-
-        const bios_date = Date.parse(info.bios_date); // NaN for undefined, null, or invalid dates
-
-        return (
-            <Flex id="hwinfo-system-info-list" direction={{ default: 'column', sm: 'row' }}>
-                <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>
-                    <DescriptionList className="pf-m-horizontal-on-md">
-                        { info.type &&
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("Type") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ info.type }</DescriptionListDescription>
-                            </DescriptionListGroup> }
-                        { info.name &&
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("Name") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ info.name }</DescriptionListDescription>
-                            </DescriptionListGroup> }
-                        { info.version &&
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("Version") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ info.version }</DescriptionListDescription>
-                            </DescriptionListGroup> }
-                    </DescriptionList>
-                </FlexItem>
-                <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>
-                    <DescriptionList className="pf-m-horizontal-on-md">
-                        { info.bios_vendor && <>
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("BIOS") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ info.bios_vendor }</DescriptionListDescription>
-                            </DescriptionListGroup>
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("BIOS version") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ info.bios_version }</DescriptionListDescription>
-                            </DescriptionListGroup>
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("BIOS date") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ bios_date ? timeformat.date(bios_date) : info.bios_date }</DescriptionListDescription>
-                            </DescriptionListGroup>
-                        </> }
-                        { info.nproc !== undefined && <>
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("CPU") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ (info.nproc > 1) ? `${info.nproc}x ${info.cpu_model}` : info.cpu_model }</DescriptionListDescription>
-                            </DescriptionListGroup>
-                            { onSecurityClick !== undefined && <DescriptionListGroup>
-                                <DescriptionListTerm>{ _("CPU security") }</DescriptionListTerm>
-                                <DescriptionListDescription>{ mitigations }</DescriptionListDescription>
-                            </DescriptionListGroup>}
-                        </> }
-                    </DescriptionList>
-                </FlexItem>
-            </Flex>
-        );
+const SystemInfo = ({ info, onSecurityClick }) => {
+    if ((!info.name || !info.version) && info.alt_name && info.alt_version) {
+        info.name = info.alt_name;
+        info.version = info.alt_version;
     }
-}
+
+    const mitigations = (
+        <PrivilegedButton variant="link" buttonId="cpu_mitigations" tooltipId="tip-cpu-security"
+                    excuse={ _("The user $0 is not permitted to change cpu security mitigations") }
+                    onClick={ onSecurityClick }>
+            { _("Mitigations") }
+        </PrivilegedButton>
+    );
+
+    const bios_date = Date.parse(info.bios_date); // NaN for undefined, null, or invalid dates
+
+    return (
+        <Flex id="hwinfo-system-info-list" direction={{ default: 'column', sm: 'row' }}>
+            <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>
+                <DescriptionList className="pf-m-horizontal-on-md">
+                    { info.type &&
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("Type") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ info.type }</DescriptionListDescription>
+                        </DescriptionListGroup> }
+                    { info.name &&
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("Name") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ info.name }</DescriptionListDescription>
+                        </DescriptionListGroup> }
+                    { info.version &&
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("Version") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ info.version }</DescriptionListDescription>
+                        </DescriptionListGroup> }
+                </DescriptionList>
+            </FlexItem>
+            <FlexItem className="hwinfo-system-info-list-item" flex={{ default: 'flex_1' }}>
+                <DescriptionList className="pf-m-horizontal-on-md">
+                    { info.bios_vendor && <>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("BIOS") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ info.bios_vendor }</DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("BIOS version") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ info.bios_version }</DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("BIOS date") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ bios_date ? timeformat.date(bios_date) : info.bios_date }</DescriptionListDescription>
+                        </DescriptionListGroup>
+                    </> }
+                    { info.nproc !== undefined && <>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("CPU") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ (info.nproc > 1) ? `${info.nproc}x ${info.cpu_model}` : info.cpu_model }</DescriptionListDescription>
+                        </DescriptionListGroup>
+                        { onSecurityClick !== undefined && <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("CPU security") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ mitigations }</DescriptionListDescription>
+                        </DescriptionListGroup>}
+                    </> }
+                </DescriptionList>
+            </FlexItem>
+        </Flex>
+    );
+};
 
 function availableMitigations() {
     if (availableMitigations.cachedMitigations !== undefined)

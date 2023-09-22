@@ -31,22 +31,17 @@ import "./healthCard.scss";
 
 const _ = cockpit.gettext;
 
-export class HealthCard extends React.Component {
-    render() {
-        return (
-            <Card className="system-health">
-                <CardTitle>{_("Health")}</CardTitle>
-                <CardBody>
-                    <ul className="system-health-events">
-                        <PageStatusNotifications />
-                        <InsightsStatus />
-                        <CryptoPolicyStatus />
-                        <ShutDownStatus />
-                        <LastLogin />
-                    </ul>
-                </CardBody>
-                <CardFooter />
-            </Card>
-        );
-    }
-}
+export const HealthCard = () =>
+    <Card className="system-health">
+        <CardTitle>{_("Health")}</CardTitle>
+        <CardBody>
+            <ul className="system-health-events">
+                <PageStatusNotifications />
+                <InsightsStatus />
+                <CryptoPolicyStatus />
+                <ShutDownStatus />
+                <LastLogin />
+            </ul>
+        </CardBody>
+        <CardFooter />
+    </Card>;

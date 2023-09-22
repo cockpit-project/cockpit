@@ -43,13 +43,14 @@ import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { SortByDirection } from "@patternfly/react-table";
 import { ListingTable } from "cockpit-components-table.jsx";
-import { WithDialogs, DialogsContext } from "dialogs.jsx";
+import { WithDialogs, useDialogs } from "dialogs.jsx";
 
 import kernelopt_sh from "./kernelopt.sh";
 import detect from "./hw-detect.js";
 
 import { superuser } from "superuser";
 import { PrivilegedButton } from "cockpit-components-privileged.jsx";
+import { useInit } from "hooks";
 
 import "./hwinfo.scss";
 
@@ -154,25 +155,20 @@ function availableMitigations() {
     });
 }
 
-class CPUSecurityMitigationsDialog extends React.Component {
-    static contextType = DialogsContext;
+const CPUSecurityMitigationsDialog = () => {
+    const [nosmt, setNoSMT] = React.useState(undefined);
+    const [alert, setAlert] = React.useState(undefined);
+    const [rebooting, setRebooting] = React.useState(false);
 
-    constructor(props) {
-        super(props);
-        this.saveAndReboot = this.saveAndReboot.bind(this);
-        this.state = {
-            nosmt: undefined,
-            alert: undefined,
-            rebooting: false,
-        };
+    useInit(() => {
         availableMitigations().then(({ available, nosmt_enabled }) => {
-            this.setState({ nosmt: nosmt_enabled });
+            setNoSMT(nosmt_enabled);
         });
-    }
+    });
 
-    saveAndReboot() {
+    const saveAndReboot = () => {
         let options = [];
-        if (this.state.nosmt) {
+        if (nosmt) {
             options = ['set', 'nosmt'];
         } else {
             // this may either be an argument of its own, or part of mitigations=
@@ -188,173 +184,164 @@ class CPUSecurityMitigationsDialog extends React.Component {
         cockpit.script(kernelopt_sh, options, { superuser: "require", err: "message" })
                 .then(() => {
                     cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: "require", err: "message" })
-                            .catch(error => this.setState({ rebooting: false, alert: error.message }));
+                            .catch(error => { setRebooting(false); setAlert(error.message) });
                 })
-                .catch(error => this.setState({ rebooting: false, alert: error.message }));
-        this.setState({ rebooting: true });
+                .catch(error => { setRebooting(false); setAlert(error.message) });
+        setRebooting(true);
+    };
+
+    const Dialogs = useDialogs();
+    const rows = [];
+    if (nosmt !== undefined) {
+        rows.push(
+            <DataListItem key="nosmt">
+                <DataListItemRow>
+                    <DataListItemCells
+                        dataListCells={[
+                            <DataListCell key="primary content">
+                                <span>
+                                    <div className='nosmt-heading'>{ _("Disable simultaneous multithreading") } (nosmt)</div>
+                                    <small className='nosmt-read-more-link'>
+                                        <a href="https://access.redhat.com/security/vulnerabilities/L1TF" target="_blank" rel="noopener noreferrer">
+                                            <ExternalLinkAltIcon /> { _("Read more...") }
+                                        </a>
+                                    </small>
+                                </span>
+                            </DataListCell>,
+                        ]}
+                    />
+                    <DataListAction>
+                        <div id="nosmt-switch">
+                            <Switch isDisabled={rebooting}
+                                    onChange={(_event, value) => setNoSMT(value)}
+                                    isChecked={nosmt} />
+                        </div>
+                    </DataListAction>
+                </DataListItemRow>
+            </DataListItem>
+        );
     }
 
-    render() {
-        const Dialogs = this.context;
-        const rows = [];
-        if (this.state.nosmt !== undefined)
-            rows.push(
-                <DataListItem key="nosmt">
-                    <DataListItemRow>
-                        <DataListItemCells
-                            dataListCells={[
-                                <DataListCell key="primary content">
-                                    <span>
-                                        <div className='nosmt-heading'>{ _("Disable simultaneous multithreading") } (nosmt)</div>
-                                        <small className='nosmt-read-more-link'>
-                                            <a href="https://access.redhat.com/security/vulnerabilities/L1TF" target="_blank" rel="noopener noreferrer">
-                                                <ExternalLinkAltIcon /> { _("Read more...") }
-                                            </a>
-                                        </small>
-                                    </span>
-                                </DataListCell>,
-                            ]}
-                        />
-                        <DataListAction>
-                            <div id="nosmt-switch">
-                                <Switch isDisabled={this.state.rebooting}
-                                        onChange={ (_event, value) => this.setState({ nosmt: value }) }
-                                        isChecked={ this.state.nosmt } />
-                            </div>
-                        </DataListAction>
-                    </DataListItemRow>
-                </DataListItem>
-            );
+    const footer = (
+        <>
+            <Button variant='danger' isDisabled={rebooting || nosmt === undefined} onClick={saveAndReboot}>
+                { _("Save and reboot") }
+            </Button>
+            <Button variant='link' className='btn-cancel' isDisabled={rebooting} onClick={Dialogs.close}>
+                { _("Cancel") }
+            </Button>
+        </>
+    );
 
-        const footer = (
+    return (
+        <Modal isOpen id="cpu-mitigations-dialog"
+               position="top" variant="medium"
+               footer={footer}
+               onClose={Dialogs.close}
+               title={ _("CPU security toggles") }>
             <>
-                <Button variant='danger' isDisabled={this.state.rebooting || this.state.nosmt === undefined} onClick={this.saveAndReboot}>
-                    { _("Save and reboot") }
-                </Button>
-                <Button variant='link' className='btn-cancel' isDisabled={this.state.rebooting} onClick={Dialogs.close}>
-                    { _("Cancel") }
-                </Button>
+                <Text className='cpu-mitigations-dialog-info' component={TextVariants.p}>
+                    { _("Software-based workarounds help prevent CPU security issues. These mitigations have the side effect of reducing performance. Change these settings at your own risk.") }
+                </Text>
+                <DataList>
+                    { rows }
+                </DataList>
+                { alert !== undefined &&
+                <Alert variant="danger"
+                    actionClose={<AlertActionCloseButton onClose={() => setAlert(undefined)} />}
+                    title={alert} />}
             </>
-        );
+        </Modal>
+    );
+};
 
-        return (
-            <Modal isOpen id="cpu-mitigations-dialog"
-                   position="top" variant="medium"
-                   footer={footer}
-                   onClose={Dialogs.close}
-                   title={ _("CPU security toggles") }>
-                <>
-                    <Text className='cpu-mitigations-dialog-info' component={TextVariants.p}>
-                        { _("Software-based workarounds help prevent CPU security issues. These mitigations have the side effect of reducing performance. Change these settings at your own risk.") }
-                    </Text>
-                    <DataList>
-                        { rows }
-                    </DataList>
-                    { this.state.alert !== undefined &&
-                    <Alert variant="danger"
-                        actionClose={<AlertActionCloseButton onClose={() => this.setState({ alert: undefined })} />}
-                        title={this.state.alert} />}
-                </>
-            </Modal>
-        );
-    }
-}
+const HardwareInfo = ({ info }) => {
+    const [mitigationsAvailable, setMitigationsAvailable] = React.useState(false);
 
-class HardwareInfo extends React.Component {
-    static contextType = DialogsContext;
+    useInit(() => {
+        availableMitigations().then(({ available }) => setMitigationsAvailable(available));
+    });
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            mitigationsAvailable: false,
-        };
-        availableMitigations().then(({ available }) => {
-            this.setState({ mitigationsAvailable: available });
-        });
-    }
+    const Dialogs = useDialogs();
+    let pci = null;
+    let memory = null;
 
-    render() {
-        const Dialogs = this.context;
-        let pci = null;
-        let memory = null;
+    if (info.pci.length > 0) {
+        const sortedPci = info.pci.concat();
 
-        if (this.props.info.pci.length > 0) {
-            const sortedPci = this.props.info.pci.concat();
-
-            pci = (
-                <ListingTable aria-label={ _("PCI") }
-                    sortBy={{ index: 0, direction: SortByDirection.asc }}
-                    columns={ [
-                        { title: _("Class"), sortable: true },
-                        { title: _("Model"), sortable: true },
-                        { title: _("Vendor"), sortable: true },
-                        { title: _("Slot"), sortable: true }
-                    ] }
-                    rows={ sortedPci.map(dev => ({
-                        props: { key: dev.slot },
-                        columns: [dev.cls, dev.model, dev.vendor, dev.slot]
-                    }))} />
-            );
-        }
-
-        if (this.props.info.memory.length > 0) {
-            memory = (
-                <ListingTable aria-label={ _("Memory") }
-                    columns={ [_("ID"), _("Memory technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}
-                    rows={ this.props.info.memory.map(dimm => ({
-                        props: { key: dimm.locator },
-                        columns: [dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]
-                    })) } />
-            );
-        } else if (!superuser.allowed) {
-            memory = (<EmptyState>
-                {_("Viewing memory information requires administrative access.")}
-            </EmptyState>);
-        }
-
-        return (
-            <Page>
-                <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
-                    <Breadcrumb>
-                        <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-v5-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
-                        <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
-                    </Breadcrumb>
-                </PageBreadcrumb>
-                <PageSection>
-                    <Gallery hasGutter>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle component="h2">{_("System information")}</CardTitle>
-                            </CardHeader>
-                            <CardBody>
-                                <SystemInfo info={this.props.info.system}
-                                            onSecurityClick={ this.state.mitigationsAvailable
-                                                ? () => Dialogs.show(<CPUSecurityMitigationsDialog />)
-                                                : undefined } />
-                            </CardBody>
-                        </Card>
-                        <Card id="pci-listing">
-                            <CardHeader>
-                                <CardTitle component="h2">{_("PCI")}</CardTitle>
-                            </CardHeader>
-                            <CardBody className="contains-list">
-                                { pci }
-                            </CardBody>
-                        </Card>
-                        <Card id="memory-listing">
-                            <CardHeader>
-                                <CardTitle component="h2">{_("Memory")}</CardTitle>
-                            </CardHeader>
-                            <CardBody className="contains-list">
-                                { memory }
-                            </CardBody>
-                        </Card>
-                    </Gallery>
-                </PageSection>
-            </Page>
+        pci = (
+            <ListingTable aria-label={ _("PCI") }
+                sortBy={{ index: 0, direction: SortByDirection.asc }}
+                columns={ [
+                    { title: _("Class"), sortable: true },
+                    { title: _("Model"), sortable: true },
+                    { title: _("Vendor"), sortable: true },
+                    { title: _("Slot"), sortable: true }
+                ] }
+                rows={ sortedPci.map(dev => ({
+                    props: { key: dev.slot },
+                    columns: [dev.cls, dev.model, dev.vendor, dev.slot]
+                }))} />
         );
     }
-}
+
+    if (info.memory.length > 0) {
+        memory = (
+            <ListingTable aria-label={ _("Memory") }
+                columns={ [_("ID"), _("Memory technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}
+                rows={ info.memory.map(dimm => ({
+                    props: { key: dimm.locator },
+                    columns: [dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]
+                })) } />
+        );
+    } else if (!superuser.allowed) {
+        memory = (<EmptyState>
+            {_("Viewing memory information requires administrative access.")}
+        </EmptyState>);
+    }
+
+    return (
+        <Page>
+            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                <Breadcrumb>
+                    <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-v5-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
+                    <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
+                </Breadcrumb>
+            </PageBreadcrumb>
+            <PageSection>
+                <Gallery hasGutter>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle component="h2">{_("System information")}</CardTitle>
+                        </CardHeader>
+                        <CardBody>
+                            <SystemInfo info={info.system}
+                                        onSecurityClick={mitigationsAvailable
+                                            ? () => Dialogs.show(<CPUSecurityMitigationsDialog />)
+                                            : undefined } />
+                        </CardBody>
+                    </Card>
+                    <Card id="pci-listing">
+                        <CardHeader>
+                            <CardTitle component="h2">{_("PCI")}</CardTitle>
+                        </CardHeader>
+                        <CardBody className="contains-list">
+                            { pci }
+                        </CardBody>
+                    </Card>
+                    <Card id="memory-listing">
+                        <CardHeader>
+                            <CardTitle component="h2">{_("Memory")}</CardTitle>
+                        </CardHeader>
+                        <CardBody className="contains-list">
+                            { memory }
+                        </CardBody>
+                    </Card>
+                </Gallery>
+            </PageSection>
+        </Page>
+    );
+};
 
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);

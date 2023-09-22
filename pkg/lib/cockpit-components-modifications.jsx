@@ -127,7 +127,7 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
 
     let emptyRow = null;
     let fail_message = permitted ? _("No system modifications") : _("The logged in user is not permitted to view system modifications");
-    fail_message = failed ? _("Error running semanage to discover system modifications") : fail_message;
+    fail_message = failed || fail_message;
     if (entries === null) {
         emptyRow = <DataListItem>
             <DataListItemRow>
@@ -173,7 +173,7 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
 };
 
 Modifications.propTypes = {
-    failed: PropTypes.bool,
+    failed: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     permitted: PropTypes.bool.isRequired,
     entries: PropTypes.arrayOf(PropTypes.string),

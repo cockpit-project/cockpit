@@ -427,7 +427,7 @@ export class SETroubleshootPage extends React.Component {
                 shell={ "semanage import <<EOF\n" + this.props.selinuxStatus.shell.trim() + "\nEOF" }
                 ansible={ this.props.selinuxStatus.ansible }
                 entries={ this.props.selinuxStatus.modifications }
-                failed={ this.props.selinuxStatus.failed }
+                failed={this.props.selinuxStatus.failed ? _("Error running semanage to discover system modifications") : null}
             />
         );
 

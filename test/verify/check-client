@@ -42,13 +42,13 @@ class TestClient(testlib.MachineCase):
             self.m_target.execute("rpm --erase --verbose cockpit-pcp pcp")
 
         # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
-        self.m_client.write("/etc/cockpit/cockpit.conf", f"""
+        self.m_client.write("/etc/cockpit/cockpit.conf", """
 [WebService]
 X-For-CockpitClient = true
 LoginTo = true
 
 [Ssh-Login]
-Command = {self.libexecdir}/cockpit-beiboot
+Command = /usr/bin/env python3 -m cockpit.beiboot
 """)
 
     def check_login(self, expected_user):

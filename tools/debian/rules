@@ -54,7 +54,7 @@ override_dh_install:
 
 execute_after_dh_install-indep:
 	# avoid dh_missing failure
-	rm -r debian/tmp/usr/lib/python* debian/tmp/usr/lib/cockpit/cockpit-beiboot
+	rm -r debian/tmp/usr/lib/python*
 
 # run pytests *after* installation, so that we can make sure that we installed the right files
 execute_after_dh_install-arch:

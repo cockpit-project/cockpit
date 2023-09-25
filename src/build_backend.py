@@ -74,7 +74,6 @@ def build_wheel(wheel_directory: str,
         'entry_points.txt': [
             '[console_scripts]',
             'cockpit-askpass = cockpit._vendor.ferny.interaction_client:main',
-            'cockpit-beiboot = cockpit.beiboot:main',
             'cockpit-bridge = cockpit.bridge:main',
         ],
     }

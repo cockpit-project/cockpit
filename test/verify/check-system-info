@@ -514,6 +514,9 @@ class TestSystemInfo(packagelib.PackageCase):
         parsed_bios_date = m.execute("date --date $(cat /sys/class/dmi/id/bios_date) '+%B %-d, %Y'").strip()
         b.wait_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(3) dd', parsed_bios_date)
 
+        # Boot Type
+        b.wait_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(4) dd', "BIOS or Legacy")
+
         pci_selector = '#hwinfo #pci-listing'
         heading_selector = ' .pf-v5-c-card__title'
         # PCI
@@ -610,7 +613,7 @@ model name\t: Professor NumberCrunch
 
         b.reload()
         b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x Professor NumberCrunch")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(2) dd', "2x Professor NumberCrunch")
 
         # /proc/cpuinfo on PowerPC; complete info
         m.write("/tmp/cpuinfo", """processor\t: 0
@@ -626,7 +629,7 @@ revision\t: 2.3 (pvr 004e 1203)
 
         b.reload()
         b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x POWER9 (architected), altivec supported")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(2) dd', "2x POWER9 (architected), altivec supported")
 
         # correct CPU count on overview
         b.go("/system")
@@ -661,7 +664,7 @@ machine         : 8561
 
         b.go('/system/hwinfo')
         b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x IBM/S390")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(2) dd', "2x IBM/S390")
 
         # umount mocked /sys/class/dmi/id
         m.execute("umount /sys/class/dmi/id")
@@ -709,6 +712,26 @@ machine         : 8561
         b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory technology"]', "Unknown")
         b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single rank")
         b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=Speed]', "2400 MT/s")
+
+        # Pretend UEFI and Secure Boot is enabled
+        m.execute("echo -en '\\x06\\x00\\x00\\x00\\x01' > /tmp/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c")
+        self.write_file("/etc/cockpit/systemd.override.json",
+                        '{ "config": { "secure_boot_file": "/tmp/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c" } }')
+
+        b.reload()
+        b.go("/system/hwinfo")
+        b.enter_page('/system/hwinfo')
+
+        b.wait_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(4) dd', "EFI (Secure Boot enabled)")
+
+        # Pretend UEFI and Secure Boot is disabled
+        m.execute("echo -en '\\x06\\x00\\x00\\x00\\x00' > /tmp/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c")
+
+        b.reload()
+        b.go("/system/hwinfo")
+        b.enter_page('/system/hwinfo')
+
+        b.wait_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(4) dd', "EFI (Secure Boot disabled)")
 
     @ testlib.nondestructive
     def testCPUSecurityMitigationsDetect(self):

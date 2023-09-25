@@ -120,6 +120,16 @@ function findMemoryDevices(udevdb, info) {
     info.memory = memoryArray;
 }
 
+async function getBootType() {
+    const secure_boot_file = cockpit.manifests.system.config.secure_boot_file;
+    try {
+        const result = await cockpit.file(secure_boot_file, { binary: true }).read();
+        return `EFI (Secure Boot ${result[4] === 1 ? "enabled" : "disabled"})`;
+    } catch {
+        return "BIOS or Legacy";
+    }
+}
+
 export default function detect() {
     const info = { system: {}, pci: [], memory: [] };
     const tasks = [];
@@ -152,6 +162,11 @@ export default function detect() {
             .catch(error => {
                 console.warn("Failed to get udev information:", error.toString());
                 return true;
+            }));
+
+    tasks.push(getBootType()
+            .then(result => {
+                info.system.boot_type = result;
             }));
 
     // Fallback if systemd < 248

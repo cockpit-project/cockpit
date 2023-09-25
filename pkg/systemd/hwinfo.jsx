@@ -111,6 +111,10 @@ class SystemInfo extends React.Component {
                                 <DescriptionListDescription>{ bios_date ? timeformat.date(bios_date) : info.bios_date }</DescriptionListDescription>
                             </DescriptionListGroup>
                         </> }
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("Boot type") }</DescriptionListTerm>
+                            <DescriptionListDescription>{ info.boot_type }</DescriptionListDescription>
+                        </DescriptionListGroup>
                         { info.nproc !== undefined && <>
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{ _("CPU") }</DescriptionListTerm>

@@ -954,6 +954,83 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # by IPv6 address and port
         check_server("[::1]:22", expect_fp_ack=True)
 
+    # check cockpit-beiboot as replacement of cockpit-ssh on the login page
+    # once that becomes the default, TestMultiMachine* and the other TestLogin* cover this
+    @testlib.skipImage("needs pybridge", "rhel-8*", "centos-8*")
+    # enable this once our cockpit/ws container can beiboot
+    @testlib.skipOstree("client setup does not work with ws container")
+    def testLoginSshBeiboot(self):
+        m = self.machine
+        b = self.browser
+
+        # this matches our bots test VMs
+        my_ip = "172.27.0.15"
+        m.write("/etc/cockpit/cockpit.conf", """
+[Ssh-Login]
+Command = /usr/bin/env python3 -m cockpit.beiboot
+""", append=True)
+        m.start_cockpit()
+
+        def try_login(user, password, server=None):
+            b.open("/")
+            b.set_val('#login-user-input', user)
+            b.set_val('#login-password-input', password)
+            b.click("#show-other-login-options")
+            b.set_val("#server-field", server or my_ip)
+            b.click("#login-button")
+            # ack unknown host key; FIXME: this should be a proper authorize message, not a prompt
+            b.wait_in_text("#conversation-prompt", "authenticity of host")
+            b.set_val("#conversation-input", "yes")
+            b.click("#login-button")
+
+        def check_no_processes():
+            m.execute(f"while pgrep -af '[s]sh .* {my_ip}' >&2; do sleep 1; done")
+            m.execute("while pgrep -af '[c]ockpit.beiboot' >&2; do sleep 1; done")
+
+        def check_session(server=None):
+            b.wait_visible('#content')
+            b.enter_page('/system')
+            b.wait_visible('.system-information')
+            m.execute(f"pgrep -af '[s]sh .* -l admin .*{server or my_ip}'")
+            m.execute(f"pgrep -af '[c]ockpit.beiboot.*{server or my_ip}'")
+            b.logout()
+            check_no_processes()
+
+        # successful login through SSH
+        try_login("admin", "foobar")
+        check_session()
+
+        # wrong password
+        try_login("admin", "wrong")
+        b.wait_in_text("#login-error-message", "Authentication failed")
+        check_no_processes()
+        # goes back to normal login form
+        b.wait_visible('#login-user-input')
+
+        # colliding usernames; user names in "Connect to:" are *not* supported,
+        # but pin down the behaviour
+        try_login("admin", "foobar", server=f"other@{my_ip}")
+        check_session()
+
+        # IPv6
+        try_login("admin", "foobar", server="::1")
+        check_session(server="::1")
+        try_login("admin", "foobar", server="[::1]:22")
+        check_session(server="::1")
+
+        # empty password
+        self.write_file("/etc/ssh/sshd_config.d/01-empty-password.conf", "PermitEmptyPasswords yes",
+                        post_restore_action=self.restart_sshd)
+        m.execute(self.restart_sshd)
+        m.execute("passwd -d admin")
+        try_login("admin", "")
+        check_session()
+        m.execute("echo 'admin:foobar' | chpasswd")
+        if m.image == 'arch':
+            # HACK: PermitEmptyPasswords somehow breaks regular password auth
+            m.execute("rm /etc/ssh/sshd_config.d/01-empty-password.conf")
+            m.execute(self.restart_sshd)
+
 
 if __name__ == '__main__':
     testlib.test_main()

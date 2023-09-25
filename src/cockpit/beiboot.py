@@ -129,10 +129,25 @@ class AuthorizeResponder(ferny.AskpassHandler):
     commands = ('ferny.askpass', 'cockpit.report-exists')
     router: Router
 
-    def __init__(self, router: Router):
+    def __init__(self, router: Router, basic_password: Optional[str]):
         self.router = router
+        self.basic_password = basic_password
+        self.have_basic_password = bool(basic_password)
 
     async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
+        logger.debug("AuthorizeResponder: prompt %r, messages %r, hint %r", prompt, messages, hint)
+
+        if self.have_basic_password and 'password:' in prompt.lower():
+            # the UI currently expects us to fail on a wrong password, so only send it once
+            if self.basic_password is not None:
+                logger.debug("AuthorizeResponder: sending Basic auth password for prompt %r", prompt)
+                reply = self.basic_password
+                self.basic_password = None
+                return reply
+            else:
+                logger.debug("AuthorizeResponder: prompt %r, used up our password, failing", prompt)
+                raise CockpitProblem(problem='authentication-failed', message=messages.strip().splitlines()[-1])
+
         if hint == 'none':
             # We have three problems here:
             #
@@ -181,9 +196,20 @@ class SshPeer(Peer):
         super().__init__(router)
 
     async def do_connect_transport(self) -> None:
+        # do we have user/password (Basic auth) from the login page?
+        auth = await self.router.request_authorization("*")
+        ssh_opts = []
+        basic_password = None
+
+        if auth is not None and auth.startswith('Basic '):
+            user, basic_password = base64.b64decode(auth.split(' ', 1)[1]).decode().split(':', 1)
+            if user:  # this can be empty, i.e. auth is just ":"
+                logger.debug("got username %s and password from Basic auth", user)
+                ssh_opts = ['-l', user]
+
         beiboot_helper = BridgeBeibootHelper(self)
 
-        agent = ferny.InteractionAgent([AuthorizeResponder(self.router), beiboot_helper])
+        agent = ferny.InteractionAgent([AuthorizeResponder(self.router, basic_password), beiboot_helper])
 
         # We want to run a python interpreter somewhere...
         cmd: Sequence[str] = ('python3', '-ic', '# cockpit-bridge')
@@ -212,11 +238,11 @@ class SshPeer(Peer):
             host, _, port = self.destination.rpartition(':')
             # catch cases like `host:123` but not cases like `[2001:abcd::1]
             if port.isdigit():
-                host_args = ['-p', port, host]
+                ssh_opts += ['-p', port, host]
             else:
-                host_args = [self.destination]
+                ssh_opts += [self.destination]
 
-            cmd = ('ssh', *host_args, shlex.join(cmd))
+            cmd = ('ssh', *ssh_opts, shlex.join(cmd))
 
         # Running in flatpak?  Wrap command with flatpak-spawn --host
         if in_flatpak:

@@ -131,10 +131,25 @@ class AuthorizeResponder(ferny.AskpassHandler):
     commands = ('ferny.askpass', 'cockpit.report-exists')
     router: Router
 
-    def __init__(self, router: Router):
+    def __init__(self, router: Router, basic_password: Optional[str]):
         self.router = router
+        self.basic_password = basic_password
+        self.have_basic_password = basic_password is not None
 
     async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
+        logger.debug("AuthorizeResponder: prompt %r, messages %r, hint %r", prompt, messages, hint)
+
+        if self.have_basic_password and 'password:' in prompt.lower():
+            # with our NumberOfPasswordPrompts=1 ssh should never actually ask us more than once; assert that
+            if self.basic_password is None:
+                raise CockpitProtocolError(
+                    f"ssh asked for password a second time, but we already sent it; prompt: {messages}")
+
+            logger.debug("AuthorizeResponder: sending Basic auth password for prompt %r", prompt)
+            reply = self.basic_password
+            self.basic_password = None
+            return reply
+
         if hint == 'none':
             # We have three problems here:
             #
@@ -281,7 +296,7 @@ class SshPeer(Peer):
 
     async def boot(self, cmd: Sequence[str], env: Sequence[str], basic_password: 'str | None' = None) -> None:
         beiboot_helper = BridgeBeibootHelper(self)
-        agent = ferny.InteractionAgent([AuthorizeResponder(self.router), beiboot_helper])
+        agent = ferny.InteractionAgent([AuthorizeResponder(self.router, basic_password), beiboot_helper])
 
         logger.debug("Launching command: cmd=%s env=%s", cmd, env)
         transport = await self.spawn(cmd, env, stderr=agent, start_new_session=True)

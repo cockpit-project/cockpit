@@ -48,6 +48,12 @@ if grep -q 'ID=.*rhel' /etc/os-release; then
     dnf install -y kpatch kpatch-dnf
 fi
 
+# RHEL 8 does not build cockpit-tests; when dropping RHEL 8 support, move to test/browser/main.fmf
+if [ "$PLAN" = basic ] && ! grep -q el8 /etc/os-release; then
+    dnf install -y cockpit-tests
+fi
+
+
 # On CentOS Stream 8 the cockpit package is upgraded so the file isn't touched.
 if [ ! -f /etc/cockpit/disallowed-users ]; then
     echo 'root' > /etc/cockpit/disallowed-users

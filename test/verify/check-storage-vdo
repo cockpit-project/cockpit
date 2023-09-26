@@ -175,6 +175,11 @@ class TestStorageVDO(storagelib.StorageCase):
 @testlib.onlyImage("legacy VDO API only supported on RHEL 8", "rhel-8*", "centos-8*")
 class TestStorageLegacyVDO(storagelib.StorageCase):
 
+    def setUp(self):
+        super().setUp()
+        # packagekit eats too much CPU/memory in the background
+        self.machine.execute("systemctl mask packagekit; systemctl stop packagekit")
+
     def testVdo(self):
         m = self.machine
         b = self.browser

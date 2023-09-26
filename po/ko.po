@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-17 02:47+0000\n"
-"PO-Revision-Date: 2023-09-07 04:12+0000\n"
+"POT-Creation-Date: 2023-09-24 02:47+0000\n"
+"PO-Revision-Date: 2023-09-25 02:35+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -21,11 +21,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.18.2\n"
+"X-Generator: Weblate 5.0.2\n"
 
 #: pkg/static/login.html:61
 msgid "            Bypass browser check          "
-msgstr "            브라우저 검색을 우회합니다          "
+msgstr "            웹 탐색기 점검을 우회합니다          "
 
 #: pkg/users/accounts-list.js:240
 msgid "# of users"
@@ -35,7 +35,7 @@ msgstr "# 사용자"
 msgid "$0 (encrypted)"
 msgstr "$0 (암호화됨)"
 
-#: pkg/metrics/metrics.jsx:714
+#: pkg/metrics/metrics.jsx:707
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "$0 CPU"
@@ -53,7 +53,7 @@ msgid "$0 active zone"
 msgid_plural "$0 active zones"
 msgstr[0] "$0 활성 영역"
 
-#: pkg/metrics/metrics.jsx:736 pkg/metrics/metrics.jsx:898
+#: pkg/metrics/metrics.jsx:729 pkg/metrics/metrics.jsx:892
 msgid "$0 available"
 msgstr "$0 사용 가능"
 
@@ -141,7 +141,7 @@ msgstr "$0 파일 시스템을 더 작게 만들 수는 없습니다."
 msgid "$0 filesystems can not be resized here."
 msgstr "$0 파일 시스템은 여기에서 크기를 조정 할 수 없습니다."
 
-#: pkg/metrics/metrics.jsx:947
+#: pkg/metrics/metrics.jsx:941
 msgid "$0 free"
 msgstr "$0 공간"
 
@@ -244,13 +244,13 @@ msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 슬롯이 남아 있습니다"
 
-#: pkg/metrics/metrics.jsx:1338
+#: pkg/metrics/metrics.jsx:1332
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 순간 사용량"
 
-#: pkg/metrics/metrics.jsx:728 pkg/metrics/metrics.jsx:889
-#: pkg/metrics/metrics.jsx:955
+#: pkg/metrics/metrics.jsx:721 pkg/metrics/metrics.jsx:883
+#: pkg/metrics/metrics.jsx:949
 msgid "$0 total"
 msgstr "총 $0"
 
@@ -314,7 +314,7 @@ msgstr "1 일"
 msgid "1 hour"
 msgstr "1시간"
 
-#: pkg/metrics/metrics.jsx:857
+#: pkg/metrics/metrics.jsx:851
 msgid "1 min"
 msgstr "1 분"
 
@@ -350,7 +350,7 @@ msgstr "13일"
 msgid "14th"
 msgstr "14일"
 
-#: pkg/metrics/metrics.jsx:859
+#: pkg/metrics/metrics.jsx:853
 msgid "15 min"
 msgstr "15 분"
 
@@ -462,7 +462,7 @@ msgstr "40 분"
 msgid "4th"
 msgstr "4일"
 
-#: pkg/metrics/metrics.jsx:858
+#: pkg/metrics/metrics.jsx:852
 msgid "5 min"
 msgstr "5분"
 
@@ -576,7 +576,7 @@ msgstr "디스크를 제거하기 전 예비용 디스크를 추가해야 합니
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/network-interface.jsx:432
+#: pkg/networkmanager/network-interface.jsx:422
 msgid "ARP monitoring"
 msgstr "ARP 모니터링"
 
@@ -689,14 +689,12 @@ msgid "Add VLAN"
 msgstr "VLAN 추가"
 
 #: pkg/networkmanager/network-main.jsx:141
-#, fuzzy
-#| msgid "Add VLAN"
 msgid "Add VPN"
-msgstr "VLAN 추가"
+msgstr "VPN 추가"
 
 #: pkg/networkmanager/wireguard.jsx:205
 msgid "Add WireGuard VPN"
-msgstr ""
+msgstr "WireGuard VPN 추가"
 
 #: pkg/storaged/mdraid-details.jsx:298
 msgid "Add a bitmap"
@@ -759,10 +757,8 @@ msgid "Add passphrase"
 msgstr "암호문 추가"
 
 #: pkg/networkmanager/wireguard.jsx:290
-#, fuzzy
-#| msgid "Add member"
 msgid "Add peer"
-msgstr "멤버 추가"
+msgstr "장치(peer) 추가"
 
 #: pkg/networkmanager/firewall.jsx:598
 msgid "Add ports"
@@ -838,11 +834,11 @@ msgstr "$target에 물리 볼륨 추가 중"
 msgid "Adding rd.neednet=1 to kernel command line"
 msgstr "커널 명령행에 rd.neednet=1 추가하기"
 
-#: pkg/networkmanager/network-interface.jsx:313
+#: pkg/networkmanager/network-interface.jsx:303
 msgid "Additional DNS $val"
 msgstr "추가 DNS $val"
 
-#: pkg/networkmanager/network-interface.jsx:316
+#: pkg/networkmanager/network-interface.jsx:306
 msgid "Additional DNS search domains $val"
 msgstr "추가 DNS 검색 도메인 $val"
 
@@ -850,7 +846,7 @@ msgstr "추가 DNS 검색 도메인 $val"
 msgid "Additional actions"
 msgstr "추가 동작"
 
-#: pkg/networkmanager/network-interface.jsx:308
+#: pkg/networkmanager/network-interface.jsx:298
 msgid "Additional address $val"
 msgstr "추가 주소 $val"
 
@@ -867,7 +863,7 @@ msgstr "추가 포트"
 msgid "Address"
 msgstr "주소"
 
-#: pkg/networkmanager/network-interface.jsx:308
+#: pkg/networkmanager/network-interface.jsx:298
 msgid "Address $val"
 msgstr "주소 $val"
 
@@ -884,10 +880,8 @@ msgid "Addresses"
 msgstr "주소"
 
 #: pkg/networkmanager/wireguard.jsx:52
-#, fuzzy
-#| msgid "Address cannot be empty"
 msgid "Addresses are not formatted correctly"
-msgstr "주소는 비워 둘 수 없습니다"
+msgstr "주소가 올바른 형식이 아닙니다"
 
 #: src/bridge/org.cockpit-project.cockpit-bridge.policy.in:10
 msgid "Administration with Cockpit Web Console"
@@ -957,20 +951,18 @@ msgid "Allow running (unmask)"
 msgstr "실행 허용 (마스크 해제)"
 
 #: pkg/networkmanager/wireguard.jsx:318
-#, fuzzy
-#| msgid "Allowed addresses"
 msgid "Allowed IPs"
-msgstr "허용된 주소"
+msgstr "허용된 IP"
 
 #: pkg/networkmanager/firewall.jsx:204 pkg/networkmanager/firewall.jsx:880
 msgid "Allowed addresses"
 msgstr "허용된 주소"
 
-#: pkg/lib/cockpit-components-modifications.jsx:98
+#: pkg/lib/cockpit-components-modifications.jsx:91
 msgid "Ansible"
 msgstr "앤서블"
 
-#: pkg/lib/cockpit-components-modifications.jsx:106
+#: pkg/lib/cockpit-components-modifications.jsx:99
 msgid "Ansible roles documentation"
 msgstr "Ansible 역할 문서"
 
@@ -1125,7 +1117,7 @@ msgstr "승인된 공개 SSH 키"
 #: pkg/networkmanager/ip-settings.jsx:49 pkg/networkmanager/ip-settings.jsx:230
 #: pkg/networkmanager/ip-settings.jsx:275
 #: pkg/networkmanager/ip-settings.jsx:320 pkg/networkmanager/mtu.jsx:79
-#: pkg/networkmanager/network-interface.jsx:388
+#: pkg/networkmanager/network-interface.jsx:378
 msgid "Automatic"
 msgstr "자동"
 
@@ -1161,7 +1153,7 @@ msgstr "추가 NTP 서버를 자동으로 사용"
 msgid "Automatically using specific NTP servers"
 msgstr "특정 NTP 서버를 자동으로 사용"
 
-#: pkg/lib/cockpit-components-modifications.jsx:93
+#: pkg/lib/cockpit-components-modifications.jsx:86
 msgid "Automation script"
 msgstr "자동 스크립트"
 
@@ -1248,7 +1240,7 @@ msgstr "차단됨"
 
 #: pkg/networkmanager/network-interface.jsx:172
 #: pkg/networkmanager/network-interface.jsx:186
-#: pkg/networkmanager/network-interface.jsx:438
+#: pkg/networkmanager/network-interface.jsx:428
 msgid "Bond"
 msgstr "본드"
 
@@ -1270,11 +1262,11 @@ msgstr "바인딩 기준"
 
 #: pkg/networkmanager/network-interface.jsx:178
 #: pkg/networkmanager/network-interface.jsx:192
-#: pkg/networkmanager/network-interface.jsx:520
+#: pkg/networkmanager/network-interface.jsx:510
 msgid "Bridge"
 msgstr "브릿지"
 
-#: pkg/networkmanager/network-interface.jsx:542
+#: pkg/networkmanager/network-interface.jsx:532
 msgid "Bridge port"
 msgstr "브릿지 포트"
 
@@ -1286,8 +1278,8 @@ msgstr "브릿지 포트 설정"
 msgid "Broadcast"
 msgstr "브로트캐스트"
 
-#: pkg/networkmanager/network-interface.jsx:451
-#: pkg/networkmanager/network-interface.jsx:487
+#: pkg/networkmanager/network-interface.jsx:441
+#: pkg/networkmanager/network-interface.jsx:477
 msgid "Broken configuration"
 msgstr "손상된 설정"
 
@@ -1313,8 +1305,8 @@ msgstr ""
 "SSH 키 $0의 비밀번호를 $1의 ($2에서) 로그인 비밀번호로 변경하면, 키가 자동으"
 "로 제공되며 추후 비밀번호 없이 $3에 로그인 할 수 있습니다."
 
-#: pkg/metrics/metrics.jsx:108 pkg/metrics/metrics.jsx:825
-#: pkg/metrics/metrics.jsx:1577 pkg/metrics/metrics.jsx:1954
+#: pkg/metrics/metrics.jsx:108 pkg/metrics/metrics.jsx:819
+#: pkg/metrics/metrics.jsx:1571 pkg/metrics/metrics.jsx:1948
 #: pkg/systemd/hwinfo.jsx:116 pkg/systemd/overview-cards/usageCard.jsx:132
 msgid "CPU"
 msgstr "중앙처리장치"
@@ -1331,7 +1323,7 @@ msgstr "중앙처리장치 보안 전환"
 msgid "CPU usage"
 msgstr "중앙처리장치 사용량"
 
-#: pkg/metrics/metrics.jsx:1944
+#: pkg/metrics/metrics.jsx:1938
 msgid "CPU usage/load"
 msgstr "중앙처리장치 사용량/부하"
 
@@ -1354,7 +1346,7 @@ msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 #: pkg/static/login.html:143 pkg/playground/translate.html:39
 #: pkg/sosreport/sosreport.jsx:277 pkg/sosreport/sosreport.jsx:362
 #: pkg/lib/cockpit-components-shutdown.jsx:193
-#: pkg/lib/cockpit-components-dialog.jsx:131 pkg/metrics/metrics.jsx:1486
+#: pkg/lib/cockpit-components-dialog.jsx:131 pkg/metrics/metrics.jsx:1480
 #: pkg/systemd/timer-dialog.jsx:151 pkg/systemd/hwinfo.jsx:239
 #: pkg/systemd/reporting.jsx:424 pkg/systemd/service-details.jsx:84
 #: pkg/systemd/service-details.jsx:721
@@ -1464,7 +1456,7 @@ msgstr "시스템 시간 변경"
 msgid "Change the password of $0"
 msgstr "$0의 비밀번호 변경"
 
-#: pkg/networkmanager/interfaces.js:1655
+#: pkg/networkmanager/interfaces.js:1656
 msgid "Change the settings"
 msgstr "설정 변경"
 
@@ -1477,7 +1469,7 @@ msgstr ""
 "때때로 운영 체제 재설치로 인해 키가 변경될 수 있습니다. 그러나 예기치 않은 변"
 "경은 연결을 가로채는 타사의 시도를 나타낼 수도 있습니다."
 
-#: pkg/networkmanager/interfaces.js:1654
+#: pkg/networkmanager/interfaces.js:1655
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1581,7 +1573,7 @@ msgid "Client software"
 msgstr "클라이언트 소프트웨어"
 
 #: pkg/lib/cockpit-components-terminal.jsx:216
-#: pkg/lib/cockpit-components-modifications.jsx:84
+#: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/systemd/overview-cards/configurationCard.jsx:198
 #: pkg/systemd/overview-cards/realmd.jsx:278 pkg/apps/utils.jsx:87
 #: pkg/shell/shell-modals.jsx:191 pkg/shell/superuser.jsx:190
@@ -1669,7 +1661,7 @@ msgstr "진단 및 지원 자료 수집 및 꾸러미"
 msgid "Collect kernel crash dumps"
 msgstr "커널 충돌 덤프 수집"
 
-#: pkg/metrics/metrics.jsx:1499
+#: pkg/metrics/metrics.jsx:1493
 msgid "Collect metrics"
 msgstr "메트릭 수집"
 
@@ -1792,7 +1784,7 @@ msgstr "충돌 대상"
 msgid "Conflicts"
 msgstr "충돌"
 
-#: pkg/networkmanager/network-interface.jsx:334
+#: pkg/networkmanager/network-interface.jsx:324
 msgid "Connect automatically"
 msgstr "자동으로 연결"
 
@@ -1888,12 +1880,12 @@ msgstr "복사됨"
 msgid "Copy"
 msgstr "복사"
 
-#: pkg/lib/cockpit-components-modifications.jsx:81 pkg/systemd/logs.jsx:416
+#: pkg/lib/cockpit-components-modifications.jsx:73 pkg/systemd/logs.jsx:416
 #: pkg/storaged/crypto-keyslots.jsx:629
 msgid "Copy to clipboard"
 msgstr "클립보드로 복사"
 
-#: pkg/metrics/metrics.jsx:750
+#: pkg/metrics/metrics.jsx:743
 msgid "Core $0"
 msgstr "코어 $0"
 
@@ -1989,7 +1981,7 @@ msgstr "신규 그룹 만들기"
 msgid "Create new logical volume"
 msgstr "신규 논리 볼륨 만들기"
 
-#: pkg/lib/cockpit-components-modifications.jsx:102
+#: pkg/lib/cockpit-components-modifications.jsx:95
 msgid "Create new task file with this content."
 msgstr "이 컨텐츠로 신규 작업 파일을 만듭니다."
 
@@ -2108,7 +2100,7 @@ msgstr "Ctrl-Shift-I"
 msgid "Current boot"
 msgstr "현재 부팅"
 
-#: pkg/metrics/metrics.jsx:763
+#: pkg/metrics/metrics.jsx:756
 msgid "Current top CPU usage"
 msgstr "현재 최대 CPU 사용량"
 
@@ -2142,7 +2134,7 @@ msgstr "SHA-1 서명 확인이 허용되는 DEFAULT."
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/network-interface.jsx:313
+#: pkg/networkmanager/network-interface.jsx:303
 msgid "DNS $val"
 msgstr "DNS $val"
 
@@ -2150,7 +2142,7 @@ msgstr "DNS $val"
 msgid "DNS search domains"
 msgstr "DNS 검색 도메인"
 
-#: pkg/networkmanager/network-interface.jsx:316
+#: pkg/networkmanager/network-interface.jsx:306
 msgid "DNS search domains $val"
 msgstr "DNS 검색 도메인 $val"
 
@@ -2236,7 +2228,7 @@ msgstr "지연은 숫자여야 합니다"
 #: pkg/storaged/stratis-details.jsx:595 pkg/storaged/stratis-details.jsx:814
 #: pkg/networkmanager/firewall.jsx:121 pkg/networkmanager/firewall.jsx:182
 #: pkg/networkmanager/firewall.jsx:914
-#: pkg/networkmanager/network-interface.jsx:730
+#: pkg/networkmanager/network-interface.jsx:720
 msgid "Delete"
 msgstr "삭제"
 
@@ -2332,7 +2324,7 @@ msgstr "상세정보"
 msgid "Development"
 msgstr "개발"
 
-#: pkg/metrics/metrics.jsx:791 pkg/storaged/dialog.jsx:1093
+#: pkg/metrics/metrics.jsx:784 pkg/storaged/dialog.jsx:1093
 #: pkg/storaged/dialog.jsx:1172 pkg/storaged/crypto-panel.jsx:82
 msgid "Device"
 msgstr "장치"
@@ -2412,8 +2404,8 @@ msgstr "연결 해제됩니다"
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
 #: pkg/metrics/metrics.jsx:136 pkg/metrics/metrics.jsx:137
-#: pkg/metrics/metrics.jsx:1577 pkg/metrics/metrics.jsx:1944
-#: pkg/metrics/metrics.jsx:1956
+#: pkg/metrics/metrics.jsx:1571 pkg/metrics/metrics.jsx:1938
+#: pkg/metrics/metrics.jsx:1950
 msgid "Disk I/O"
 msgstr "디스크 I/O"
 
@@ -2429,13 +2421,13 @@ msgstr "디스크에 오류가 났습니다"
 msgid "Disk passphrase"
 msgstr "디스크 비밀번호"
 
-#: pkg/metrics/metrics.jsx:923 pkg/storaged/vgroup-details.jsx:62
+#: pkg/metrics/metrics.jsx:917 pkg/storaged/vgroup-details.jsx:62
 #: pkg/storaged/mdraids-panel.jsx:126 pkg/storaged/mdraid-details.jsx:60
 #: pkg/storaged/mdraid-details.jsx:156 pkg/storaged/vgroups-panel.jsx:78
 msgid "Disks"
 msgstr "디스크"
 
-#: pkg/metrics/metrics.jsx:798
+#: pkg/metrics/metrics.jsx:791
 msgid "Disks usage"
 msgstr "디스크 사용량"
 
@@ -2563,7 +2555,7 @@ msgstr "VLAN 설정 편집"
 
 #: pkg/networkmanager/wireguard.jsx:205
 msgid "Edit WireGuard VPN"
-msgstr ""
+msgstr "WireGuard VPN를 편집합니다"
 
 #: pkg/networkmanager/bond.jsx:135
 msgid "Edit bond settings"
@@ -2643,7 +2635,7 @@ msgstr "$target 비우는 중"
 msgid "Enable"
 msgstr "활성화"
 
-#: pkg/networkmanager/network-interface.jsx:691
+#: pkg/networkmanager/network-interface.jsx:681
 msgid "Enable or disable the device"
 msgstr "장치 활성화 또는 비활성화"
 
@@ -2726,16 +2718,16 @@ msgid "Ended"
 msgstr "종료됨"
 
 #: pkg/networkmanager/wireguard.jsx:309
-#, fuzzy
-#| msgid "Entrypoint"
 msgid "Endpoint"
-msgstr "시작점"
+msgstr "종료점"
 
 #: pkg/networkmanager/wireguard.jsx:276
 msgid ""
 "Endpoint acting as a \"server\" need to be specified as host:port, otherwise "
 "it can be left empty."
 msgstr ""
+"\"서버\"로 동작하는 종료점은 호스트:포트로 지정되어야 하며, 다시 말하면 공백"
+"으로 놔둘 수 있습니다."
 
 #: pkg/selinux/setroubleshoot-view.jsx:262
 msgid "Enforcing"
@@ -2776,7 +2768,7 @@ msgstr "오류"
 msgid "Error and above"
 msgstr "오류 이상"
 
-#: pkg/metrics/metrics.jsx:1855
+#: pkg/metrics/metrics.jsx:1849
 msgid "Error has occurred"
 msgstr "오류가 발생했습니다"
 
@@ -2789,7 +2781,7 @@ msgstr "$0 설치 중에 오류 발생: PackageKit이 설치되어 있지 않습
 msgid "Error message"
 msgstr "오류 메시지"
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/selinux/setroubleshoot-view.jsx:430
 msgid "Error running semanage to discover system modifications"
 msgstr "시스템 수정을 검색하기 위해 semanage 실행 중 오류 발생"
 
@@ -2841,7 +2833,7 @@ msgstr "$0의 계정 만료"
 msgid "Export"
 msgstr "내보내기"
 
-#: pkg/metrics/metrics.jsx:1516
+#: pkg/metrics/metrics.jsx:1510
 msgid "Export to network"
 msgstr "네트워크로 내보내기"
 
@@ -2886,7 +2878,7 @@ msgstr "영역 추가 실패"
 msgid "Failed to change password"
 msgstr "비밀번호 변경 실패"
 
-#: pkg/metrics/metrics.jsx:1492
+#: pkg/metrics/metrics.jsx:1486
 msgid "Failed to configure PCP"
 msgstr "PCP 구성에 실패하였습니다"
 
@@ -2901,7 +2893,7 @@ msgstr "tuned 비활성화에 실패했습니다"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:183
 msgid "Failed to disable tuned profile"
-msgstr "tuned 프로파일 비활성화에 실패함"
+msgstr "조정된 프로파일 비활성화에 실패함"
 
 #: pkg/shell/hosts_dialog.jsx:341
 msgid "Failed to edit machine: $0"
@@ -3068,7 +3060,7 @@ msgstr "초기화 전용"
 msgid "Formatting erases all data on a storage device."
 msgstr "초기화하면 저장장치에서 모든 자료가 제거됩니다."
 
-#: pkg/networkmanager/network-interface.jsx:512
+#: pkg/networkmanager/network-interface.jsx:502
 msgid "Forward delay $forward_delay"
 msgstr "포워드 딜레이 $forward_delay"
 
@@ -3116,7 +3108,7 @@ msgstr "성명"
 msgid "Gateway"
 msgstr "게이트웨이"
 
-#: pkg/systemd/abrtLog.jsx:296 pkg/networkmanager/network-interface.jsx:326
+#: pkg/systemd/abrtLog.jsx:296 pkg/networkmanager/network-interface.jsx:316
 msgid "General"
 msgstr "일반"
 
@@ -3136,15 +3128,15 @@ msgstr "응용프로그램으로 이동"
 msgid "Go to now"
 msgstr "지금 바로 가기"
 
-#: pkg/metrics/metrics.jsx:1938
+#: pkg/metrics/metrics.jsx:1932
 msgid "Graph visibility"
 msgstr "그래프 가시성"
 
-#: pkg/metrics/metrics.jsx:1926
+#: pkg/metrics/metrics.jsx:1920
 msgid "Graph visibility options menu"
 msgstr "그래프 가시성 옵션 메뉴"
 
-#: pkg/users/accounts-list.js:392 pkg/networkmanager/network-interface.jsx:411
+#: pkg/users/accounts-list.js:392 pkg/networkmanager/network-interface.jsx:401
 msgid "Group"
 msgstr "그룹"
 
@@ -3187,7 +3179,7 @@ msgstr "모든 공간을 사용하여 확장하기"
 msgid "Hair pin mode"
 msgstr "Hair pin 모드"
 
-#: pkg/networkmanager/network-interface.jsx:539
+#: pkg/networkmanager/network-interface.jsx:529
 msgid "Hairpin mode"
 msgstr "Hairpin 모드"
 
@@ -3203,7 +3195,7 @@ msgstr "하드웨어 정보"
 msgid "Health"
 msgstr "상태"
 
-#: pkg/networkmanager/network-interface.jsx:514
+#: pkg/networkmanager/network-interface.jsx:504
 msgid "Hello time $hello_time"
 msgstr "Hello 타임 $hello_time"
 
@@ -3262,7 +3254,7 @@ msgstr "점검하는 방법"
 msgid "ID"
 msgstr "ID"
 
-#: pkg/networkmanager/network-interface.jsx:557
+#: pkg/networkmanager/network-interface.jsx:547
 msgid "ID $id"
 msgstr "ID $id"
 
@@ -3279,13 +3271,11 @@ msgstr ""
 "라우팅 프리픽스와 IP 주소. 쉼표로 여러 값을 구분합니다. 예시: 192.0.2.0/24, "
 "2001 : db8 :: / 32"
 
-#: pkg/networkmanager/network-interface.jsx:579
+#: pkg/networkmanager/network-interface.jsx:569
 msgid "IPv4"
 msgstr "IPv4"
 
 #: pkg/networkmanager/wireguard.jsx:252
-#, fuzzy
-#| msgid "IPv4 address"
 msgid "IPv4 addresses"
 msgstr "IPv4 주소"
 
@@ -3293,7 +3283,7 @@ msgstr "IPv4 주소"
 msgid "IPv4 settings"
 msgstr "IPv4 설정"
 
-#: pkg/networkmanager/network-interface.jsx:580
+#: pkg/networkmanager/network-interface.jsx:570
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -3333,7 +3323,7 @@ msgstr ""
 msgid "Ignore"
 msgstr "무시"
 
-#: pkg/metrics/metrics.jsx:819
+#: pkg/metrics/metrics.jsx:813
 msgid "In"
 msgstr "입력"
 
@@ -3354,8 +3344,8 @@ msgstr ""
 msgid "In sync"
 msgstr "동기화"
 
-#: pkg/networkmanager/interfaces.js:793 pkg/networkmanager/interfaces.js:1353
-#: pkg/networkmanager/interfaces.js:1360
+#: pkg/networkmanager/interfaces.js:793 pkg/networkmanager/interfaces.js:1354
+#: pkg/networkmanager/interfaces.js:1361
 #: pkg/networkmanager/network-interface.jsx:255
 msgid "Inactive"
 msgstr "비활성"
@@ -3436,7 +3426,7 @@ msgstr "스트라티스 지원 설치"
 msgid "Install all updates"
 msgstr "모든 최신화 설치"
 
-#: pkg/metrics/metrics.jsx:1823
+#: pkg/metrics/metrics.jsx:1817
 msgid "Install cockpit-pcp"
 msgstr "cockpit-pcp 설치"
 
@@ -3460,7 +3450,7 @@ msgstr "setroubleshoot-server를 설치하여 SELinux 이벤트를 해결합니�
 msgid "Install software"
 msgstr "소프트웨어 설치"
 
-#: pkg/metrics/metrics.jsx:1822
+#: pkg/metrics/metrics.jsx:1816
 msgid "Installation not supported without installed cockpit package"
 msgstr "설치는 설치된 cockpit 꾸러미 없이 지원되지 않습니다"
 
@@ -3487,7 +3477,7 @@ msgstr "$0을 설치하면 $1이 제거됩니다."
 msgid "Installing packages"
 msgstr "꾸러미 설치"
 
-#: pkg/metrics/metrics.jsx:819 pkg/networkmanager/firewall.jsx:200
+#: pkg/metrics/metrics.jsx:813 pkg/networkmanager/firewall.jsx:200
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "연결장치"
@@ -3631,7 +3621,7 @@ msgstr "저널 항목"
 msgid "Journal entry not found"
 msgstr "저널 항목를 찾을 수 없습니다"
 
-#: pkg/metrics/metrics.jsx:1916
+#: pkg/metrics/metrics.jsx:1910
 msgid "Jump to"
 msgstr "다음으로 이동"
 
@@ -3837,27 +3827,23 @@ msgid "Listen"
 msgstr "경청하다"
 
 #: pkg/networkmanager/wireguard.jsx:242
-#, fuzzy
-#| msgid "Listen"
 msgid "Listen port"
-msgstr "경청하다"
+msgstr "수신 포트"
 
 #: pkg/networkmanager/wireguard.jsx:149
-#, fuzzy
-#| msgid "Size must be a number"
 msgid "Listen port must be a number"
-msgstr "크기는 숫자여야 합니다"
+msgstr "수신 포트는 숫자여야 합니다"
 
 #: pkg/systemd/services.jsx:683
 msgid "Listing units"
-msgstr "유닛 나열"
+msgstr "단위 나열"
 
 #: pkg/systemd/services.jsx:503
 msgid "Listing units failed: $0"
-msgstr "유닛을 나열하지 못했습니다. $0"
+msgstr "단위 나열에 실패함: $0"
 
 #: pkg/metrics/metrics.jsx:114 pkg/metrics/metrics.jsx:115
-#: pkg/metrics/metrics.jsx:854 pkg/metrics/metrics.jsx:1954
+#: pkg/metrics/metrics.jsx:848 pkg/metrics/metrics.jsx:1948
 msgid "Load"
 msgstr "적재"
 
@@ -3865,7 +3851,7 @@ msgstr "적재"
 msgid "Load balancing"
 msgstr "부하 분산"
 
-#: pkg/metrics/metrics.jsx:1984
+#: pkg/metrics/metrics.jsx:1978
 msgid "Load earlier data"
 msgstr "이전 자료 적재"
 
@@ -3905,7 +3891,7 @@ msgstr "단위 로드에 실패했습니다"
 msgid "Loading packages..."
 msgstr "꾸러미 적재 중..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:148
+#: pkg/lib/cockpit-components-modifications.jsx:134
 msgid "Loading system modifications..."
 msgstr "시스템 수정 적재 중..."
 
@@ -3915,7 +3901,7 @@ msgstr "장치 적재에 실패함"
 
 # translation auto-copied from project oVirt, version ovirt-3.5, document
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
-#: pkg/metrics/metrics.jsx:1983 pkg/systemd/logsJournal.jsx:268
+#: pkg/metrics/metrics.jsx:1977 pkg/systemd/logsJournal.jsx:268
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
 #: pkg/systemd/services.jsx:683 pkg/users/accounts-list.js:327
 #: pkg/users/accounts-list.js:348 pkg/users/accounts-list.js:461
@@ -3985,7 +3971,7 @@ msgstr "서버 사용자 계정으로 로그인합니다."
 msgid "Log messages"
 msgstr "로그 메세지"
 
-#: pkg/metrics/metrics.jsx:1811 pkg/shell/topnav.jsx:222
+#: pkg/metrics/metrics.jsx:1805 pkg/shell/topnav.jsx:222
 #: pkg/users/logout-account-dialog.js:36
 msgid "Log out"
 msgstr "로그아웃"
@@ -4076,7 +4062,7 @@ msgstr "MAC"
 msgid "MII (recommended)"
 msgstr "MII(권장 사항)"
 
-#: pkg/networkmanager/network-interface.jsx:391
+#: pkg/networkmanager/network-interface.jsx:381
 msgid "MTU"
 msgstr "MTU"
 
@@ -4198,12 +4184,12 @@ msgstr ""
 "마스크 서비스는 모든 종속 장치가 실행되지 않도록합니다. 이는 예상보다 큰 영향"
 "을 미칠 수 있습니다. 이 장치에 마스크를 설정할 지 확인하십시오."
 
-#: pkg/networkmanager/network-interface.jsx:516
+#: pkg/networkmanager/network-interface.jsx:506
 msgid "Maximum message age $max_age"
 msgstr "최대 메세지 수명 $max_age"
 
-#: pkg/metrics/metrics.jsx:122 pkg/metrics/metrics.jsx:885
-#: pkg/metrics/metrics.jsx:1577 pkg/metrics/metrics.jsx:1955
+#: pkg/metrics/metrics.jsx:122 pkg/metrics/metrics.jsx:879
+#: pkg/metrics/metrics.jsx:1571 pkg/metrics/metrics.jsx:1949
 #: pkg/systemd/hwinfo.jsx:306 pkg/systemd/hwinfo.jsx:350
 #: pkg/systemd/service-details.jsx:665
 #: pkg/systemd/overview-cards/usageCard.jsx:144
@@ -4218,7 +4204,7 @@ msgstr "메모리 기술"
 msgid "Memory usage"
 msgstr "메모리 사용량"
 
-#: pkg/metrics/metrics.jsx:1944
+#: pkg/metrics/metrics.jsx:1938
 msgid "Memory usage/swap"
 msgstr "메모리 사용량/스왑"
 
@@ -4246,15 +4232,15 @@ msgstr "방식"
 msgid "Metric"
 msgstr "메트릭"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2005
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1999
 msgid "Metrics and history"
 msgstr "측정 항목과 내역 보기"
 
-#: pkg/metrics/metrics.jsx:1846
+#: pkg/metrics/metrics.jsx:1840
 msgid "Metrics history could not be loaded"
 msgstr "메트릭 내역을 로드할 수 없습니다"
 
-#: pkg/metrics/metrics.jsx:1468 pkg/metrics/metrics.jsx:1562
+#: pkg/metrics/metrics.jsx:1462 pkg/metrics/metrics.jsx:1556
 msgid "Metrics settings"
 msgstr "메트릭 설정"
 
@@ -4434,7 +4420,7 @@ msgstr "다중 경로 장치"
 #: pkg/networkmanager/wireguard.jsx:256
 msgid ""
 "Multiple addresses can be specified using commas or spaces as delimiters."
-msgstr ""
+msgstr "다중 주소는 구분 기호로 쉼표(,) 또는 공백을 사용해 지정해야 합니다."
 
 #: pkg/storaged/nfs-details.jsx:125
 msgid "NFS mount"
@@ -4510,8 +4496,8 @@ msgstr "이름에는 공백이 없어야 합니다."
 msgid "Need at least one NTP server"
 msgstr "최소 하나의 NTP 서버가 필요합니다"
 
-#: pkg/metrics/metrics.jsx:984 pkg/metrics/metrics.jsx:1577
-#: pkg/metrics/metrics.jsx:1944 pkg/metrics/metrics.jsx:1957
+#: pkg/metrics/metrics.jsx:978 pkg/metrics/metrics.jsx:1571
+#: pkg/metrics/metrics.jsx:1938 pkg/metrics/metrics.jsx:1951
 msgid "Network"
 msgstr "네트워크"
 
@@ -4531,7 +4517,7 @@ msgstr "네트워크 장치 및 그래프에는 NetworkManager가 필요합니�
 msgid "Network logs"
 msgstr "네트워크 기록"
 
-#: pkg/metrics/metrics.jsx:993
+#: pkg/metrics/metrics.jsx:987
 msgid "Network usage"
 msgstr "네트워크 사용량"
 
@@ -4544,7 +4530,7 @@ msgid "NetworkManager is not running"
 msgstr "NetworkManager가 동작하지 않음"
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:1057
-#: pkg/networkmanager/network-interface.jsx:710
+#: pkg/networkmanager/network-interface.jsx:700
 #: pkg/networkmanager/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-networkmanager.metainfo.xml.in:5
 msgid "Networking"
@@ -4627,7 +4613,7 @@ msgstr "사용 가능한 홈이 없습니다"
 msgid "No block devices are available."
 msgstr "사용 가능한 블록 장치가 없습니다."
 
-#: pkg/networkmanager/interfaces.js:1355
+#: pkg/networkmanager/interfaces.js:1356
 msgid "No carrier"
 msgstr "캐리어 없음"
 
@@ -4635,11 +4621,11 @@ msgstr "캐리어 없음"
 msgid "No configuration found"
 msgstr "설정을 찾을 수 없습니다"
 
-#: pkg/metrics/metrics.jsx:1874
+#: pkg/metrics/metrics.jsx:1868
 msgid "No data available"
 msgstr "사용 가능한 데이터 없음"
 
-#: pkg/metrics/metrics.jsx:1870
+#: pkg/metrics/metrics.jsx:1864
 msgid "No data available between $0 and $1"
 msgstr "$0 ~ $1 사이에 사용 가능한 데이터 없음"
 
@@ -4673,7 +4659,7 @@ msgstr "드라이브가 연결되어 있지 않습니다"
 msgid "No encryption"
 msgstr "암호화 없음"
 
-#: pkg/metrics/metrics.jsx:1338
+#: pkg/metrics/metrics.jsx:1332
 msgid "No events"
 msgstr "사건 없음"
 
@@ -4717,7 +4703,7 @@ msgstr "추가된 키가 없습니다"
 msgid "No languages match"
 msgstr "일치하는 언어가 없습니다"
 
-#: pkg/metrics/metrics.jsx:1154 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1148 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "로그 항목이 없습니다"
 
@@ -4752,10 +4738,8 @@ msgid "No partitioning"
 msgstr "파티션 설정하지 않음"
 
 #: pkg/networkmanager/wireguard.jsx:341
-#, fuzzy
-#| msgid "No keys added"
 msgid "No peers added."
-msgstr "추가된 키가 없습니다"
+msgstr "추가된 장치(peer)가 없습니다."
 
 #: pkg/users/account-create-dialog.js:168
 msgid "No real name specified"
@@ -4781,7 +4765,7 @@ msgstr "규칙 히트 없음"
 msgid "No such file or directory"
 msgstr "이러한 파일 또는 디렉토리가 없습니다"
 
-#: pkg/lib/cockpit-components-modifications.jsx:143
+#: pkg/lib/cockpit-components-modifications.jsx:129
 msgid "No system modifications"
 msgstr "시스템 수정 없음"
 
@@ -4971,7 +4955,7 @@ msgstr "FIPS 방식으로 부팅 할 때에 승인되고 허용된 알고리즘�
 msgid "Ooops!"
 msgstr "어머나!"
 
-#: pkg/metrics/metrics.jsx:1455
+#: pkg/metrics/metrics.jsx:1449
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "메트릭을 공유하는 방화벽에서 pmproxy 서비스를 엽니다."
 
@@ -5019,13 +5003,13 @@ msgstr "기타 장치"
 msgid "Other options"
 msgstr "기타 옵션"
 
-#: pkg/metrics/metrics.jsx:819
+#: pkg/metrics/metrics.jsx:813
 msgid "Out"
 msgstr "출력"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/metrics/metrics.jsx:2004 pkg/systemd/hwinfo.jsx:323
+#: pkg/metrics/metrics.jsx:1998 pkg/systemd/hwinfo.jsx:323
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "개요"
@@ -5048,7 +5032,7 @@ msgstr "PCI"
 msgid "PID"
 msgstr "PID"
 
-#: pkg/metrics/metrics.jsx:1819
+#: pkg/metrics/metrics.jsx:1813
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "메트릭 내역에 꾸러미 cockpit-pcp가 누락되어 있습니다"
 
@@ -5080,7 +5064,7 @@ msgstr "분야 이름"
 msgid "Parent"
 msgstr "부모"
 
-#: pkg/networkmanager/network-interface.jsx:556
+#: pkg/networkmanager/network-interface.jsx:546
 msgid "Parent $parent"
 msgstr "부모 $parent"
 
@@ -5088,7 +5072,7 @@ msgstr "부모 $parent"
 msgid "Part of"
 msgstr "일부분"
 
-#: pkg/networkmanager/interfaces.js:1384
+#: pkg/networkmanager/interfaces.js:1385
 msgid "Part of $0"
 msgstr "$0의 일부분"
 
@@ -5211,10 +5195,8 @@ msgid "Paste error"
 msgstr "붙임 오류"
 
 #: pkg/networkmanager/wireguard.jsx:215
-#, fuzzy
-#| msgid "Use existing"
 msgid "Paste existing key"
-msgstr "기존 사용"
+msgstr "기존 키를 붙입니다"
 
 #: pkg/users/authorized-keys-panel.js:41
 msgid "Paste the contents of your public SSH key file here"
@@ -5228,7 +5210,7 @@ msgstr "경로"
 msgid "Path cost"
 msgstr "경로 비용"
 
-#: pkg/networkmanager/network-interface.jsx:537
+#: pkg/networkmanager/network-interface.jsx:527
 msgid "Path cost $path_cost"
 msgstr "경로 비용 $path_cost"
 
@@ -5264,24 +5246,29 @@ msgstr "일시정지"
 #: pkg/networkmanager/wireguard.jsx:160
 msgid "Peer #$0 has invalid endpoint port. Port must be a number."
 msgstr ""
+"장치(peer) #$0는 잘못된 종료점을 가지고 있습니다. 포트는 숫자이어야 합니다."
 
 #: pkg/networkmanager/wireguard.jsx:156
 msgid ""
 "Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. "
 "1.2.3.4:51820 or example.com:51820"
 msgstr ""
+"장치(peer) #$0는 잘못된 종료점을 가지고 있습니다. 호스트:포트, 예제) "
+"1.2.3.4:51820 또는 example.com:51820처럼 지정되어야 합니다"
 
 #: pkg/networkmanager/wireguard.jsx:268
 msgid "Peers"
-msgstr ""
+msgstr "장치(peer)"
 
 #: pkg/networkmanager/wireguard.jsx:273
 msgid ""
 "Peers are other machines that connect with this one. Public keys from other "
 "machines will be shared with each other."
 msgstr ""
+"장치(peer)는 이와 같은 장치에 연결되어 있는 다른 장비입니다. 다른 장비에서 공"
+"용 키는 서로 공유됩니다."
 
-#: pkg/metrics/metrics.jsx:1471
+#: pkg/metrics/metrics.jsx:1465
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5453,16 +5440,14 @@ msgstr "주"
 msgid "Priority"
 msgstr "우선순위"
 
-#: pkg/networkmanager/network-interface.jsx:510
-#: pkg/networkmanager/network-interface.jsx:535
+#: pkg/networkmanager/network-interface.jsx:500
+#: pkg/networkmanager/network-interface.jsx:525
 msgid "Priority $priority"
 msgstr "우선순위 $priority"
 
 #: pkg/networkmanager/wireguard.jsx:213
-#, fuzzy
-#| msgid "Private"
 msgid "Private key"
-msgstr "비공개"
+msgstr "개인 키"
 
 #: pkg/shell/superuser.jsx:194
 msgid "Problem becoming administrator"
@@ -5522,7 +5507,7 @@ msgstr "공개 키"
 
 #: pkg/networkmanager/wireguard.jsx:240
 msgid "Public key will be generated when a valid private key is entered"
-msgstr ""
+msgstr "공개 키는 유효한 개인 키가 입력 될 때에 생성됩니다"
 
 #: pkg/storaged/content-views.jsx:880
 msgid "Purpose"
@@ -5606,7 +5591,7 @@ msgstr "레이드 수준"
 msgid "RAID member"
 msgstr "레이드 구성요소"
 
-#: pkg/metrics/metrics.jsx:893
+#: pkg/metrics/metrics.jsx:887
 msgid "RAM"
 msgstr "램"
 
@@ -5634,12 +5619,12 @@ msgstr "순위"
 msgid "Raw to a device"
 msgstr "로우(raw) 장치"
 
-#: pkg/metrics/metrics.jsx:791 pkg/metrics/metrics.jsx:927
-#: pkg/metrics/metrics.jsx:972 pkg/metrics/metrics.jsx:977
+#: pkg/metrics/metrics.jsx:784 pkg/metrics/metrics.jsx:921
+#: pkg/metrics/metrics.jsx:966 pkg/metrics/metrics.jsx:971
 msgid "Read"
 msgstr "읽기"
 
-#: pkg/metrics/metrics.jsx:1477 pkg/systemd/hwinfo.jsx:215
+#: pkg/metrics/metrics.jsx:1471 pkg/systemd/hwinfo.jsx:215
 msgid "Read more..."
 msgstr "더 알아보기..."
 
@@ -5747,10 +5732,8 @@ msgid "Refusing to connect. Hostkey is unknown"
 msgstr "연결을 거부하고 있습니다. 알 수 없는 호스트 키입니다"
 
 #: pkg/networkmanager/wireguard.jsx:224
-#, fuzzy
-#| msgid "Generated"
 msgid "Regenerate"
-msgstr "생성됨"
+msgstr "다시-생성합니다"
 
 #: pkg/storaged/crypto-keyslots.jsx:336
 msgid "Regenerating initrd"
@@ -6254,7 +6237,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "토요일"
 
-#: pkg/metrics/metrics.jsx:1483 pkg/systemd/timer-dialog.jsx:148
+#: pkg/metrics/metrics.jsx:1477 pkg/systemd/timer-dialog.jsx:148
 #: pkg/storaged/fsys-tab.jsx:401 pkg/storaged/fsys-tab.jsx:533
 #: pkg/storaged/crypto-keyslots.jsx:576 pkg/storaged/crypto-keyslots.jsx:595
 #: pkg/storaged/crypto-tab.jsx:156 pkg/storaged/crypto-tab.jsx:199
@@ -6405,9 +6388,9 @@ msgstr "서버 연결이 종료되었습니다."
 msgid "Server software"
 msgstr "서버 소프트웨어"
 
-#: pkg/metrics/metrics.jsx:817 pkg/metrics/metrics.jsx:818
-#: pkg/metrics/metrics.jsx:873 pkg/metrics/metrics.jsx:911
-#: pkg/metrics/metrics.jsx:971 pkg/metrics/metrics.jsx:977
+#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:812
+#: pkg/metrics/metrics.jsx:867 pkg/metrics/metrics.jsx:905
+#: pkg/metrics/metrics.jsx:965 pkg/metrics/metrics.jsx:971
 #: pkg/storaged/dialog.jsx:1262 pkg/networkmanager/firewall.jsx:211
 msgid "Service"
 msgstr "서비스"
@@ -6515,7 +6498,7 @@ msgstr "공유되었습니다"
 msgid "Shell"
 msgstr "쉘"
 
-#: pkg/lib/cockpit-components-modifications.jsx:95
+#: pkg/lib/cockpit-components-modifications.jsx:88
 msgid "Shell script"
 msgstr "쉘 스크립트"
 
@@ -6711,7 +6694,7 @@ msgstr "원천"
 msgid "Space-saving computer"
 msgstr "공간-절약형 컴퓨터"
 
-#: pkg/networkmanager/network-interface.jsx:508
+#: pkg/networkmanager/network-interface.jsx:498
 msgid "Spanning tree protocol"
 msgstr "스패닝 트리 통신규약"
 
@@ -6927,8 +6910,8 @@ msgstr "일요일"
 msgid "Support is installed."
 msgstr "지원이 설치되어 있습니다."
 
-#: pkg/metrics/metrics.jsx:129 pkg/metrics/metrics.jsx:731
-#: pkg/metrics/metrics.jsx:1955 pkg/storaged/content-views.jsx:240
+#: pkg/metrics/metrics.jsx:129 pkg/metrics/metrics.jsx:724
+#: pkg/metrics/metrics.jsx:1949 pkg/storaged/content-views.jsx:240
 msgid "Swap"
 msgstr "스왑"
 
@@ -7023,7 +7006,7 @@ msgstr "시스템 시간"
 
 #: pkg/systemd/services-list.jsx:50
 msgid "Systemd units"
-msgstr "Systemd 유닛"
+msgstr "Systemd 단위"
 
 #: pkg/networkmanager/firewall.jsx:211
 msgid "TCP"
@@ -7043,11 +7026,11 @@ msgstr "대상"
 
 #: pkg/networkmanager/network-interface.jsx:174
 #: pkg/networkmanager/network-interface.jsx:188
-#: pkg/networkmanager/network-interface.jsx:463
+#: pkg/networkmanager/network-interface.jsx:453
 msgid "Team"
 msgstr "팀"
 
-#: pkg/networkmanager/network-interface.jsx:493
+#: pkg/networkmanager/network-interface.jsx:483
 msgid "Team port"
 msgstr "팀 포트"
 
@@ -7305,7 +7288,7 @@ msgstr "나열된 프로세서는 강제 종료됩니다."
 msgid "The listed services will be forcefully stopped."
 msgstr "나열된 서비스가 강제로 중지됩니다."
 
-#: pkg/lib/cockpit-components-modifications.jsx:143
+#: pkg/lib/cockpit-components-modifications.jsx:129
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "로그인한 사용자는 시스템 수정 사항을 볼 수 없습니다"
 
@@ -7468,7 +7451,7 @@ msgstr ""
 msgid "This VDO device does not use all of its backing device."
 msgstr "이 VDO 장치는 백업 장치를 사용하지 않습니다."
 
-#: pkg/networkmanager/network-interface.jsx:278
+#: pkg/networkmanager/network-interface.jsx:741
 msgid "This device cannot be managed here."
 msgstr "이 장치는 여기서 관리 할 수 없습니다."
 
@@ -7706,7 +7689,7 @@ msgstr ""
 "지문을 확인하려면 물리적인 장치 또는 신뢰할 수 있는 네트워크를 통해 $0에서 다"
 "음을 실행합니다:"
 
-#: pkg/metrics/metrics.jsx:1880
+#: pkg/metrics/metrics.jsx:1874
 msgid "Today"
 msgstr "오늘"
 
@@ -7731,15 +7714,15 @@ msgstr "데이터가 너무 많습니다"
 msgid "Tools"
 msgstr "도구"
 
-#: pkg/metrics/metrics.jsx:870
+#: pkg/metrics/metrics.jsx:864
 msgid "Top 5 CPU services"
 msgstr "상위 5개의 CPU 서비스"
 
-#: pkg/metrics/metrics.jsx:968
+#: pkg/metrics/metrics.jsx:962
 msgid "Top 5 disk usage services"
 msgstr "상위 5개 디스크 사용 서비스"
 
-#: pkg/metrics/metrics.jsx:908
+#: pkg/metrics/metrics.jsx:902
 msgid "Top 5 memory services"
 msgstr "상위 5개의 메모리 서비스"
 
@@ -7771,7 +7754,7 @@ msgstr "트리거 대상"
 msgid "Triggers"
 msgstr "트리거"
 
-#: pkg/metrics/metrics.jsx:1841
+#: pkg/metrics/metrics.jsx:1835
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
@@ -7979,7 +7962,7 @@ msgstr "알 수 없음 ($0)"
 msgid "Unknown application"
 msgstr "알 수 없는 응용프로그램"
 
-#: pkg/networkmanager/network-interface.jsx:297
+#: pkg/networkmanager/network-interface.jsx:287
 msgid "Unknown configuration"
 msgstr "알 수 없는 설정"
 
@@ -8132,8 +8115,8 @@ msgstr "가동 시간"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/metrics/metrics.jsx:1954 pkg/metrics/metrics.jsx:1955
-#: pkg/metrics/metrics.jsx:1956 pkg/metrics/metrics.jsx:1957
+#: pkg/metrics/metrics.jsx:1948 pkg/metrics/metrics.jsx:1949
+#: pkg/metrics/metrics.jsx:1950 pkg/metrics/metrics.jsx:1951
 #: pkg/systemd/overview-cards/usageCard.jsx:127
 #: pkg/storaged/unrecognized-tab.jsx:32
 msgid "Usage"
@@ -8179,7 +8162,7 @@ msgstr "다른 시스템에 대해 인증하려면 다음 키를 사용합니다
 msgid "Use verbose logging"
 msgstr "상세한 로그인 사용"
 
-#: pkg/metrics/metrics.jsx:818 pkg/metrics/metrics.jsx:912
+#: pkg/metrics/metrics.jsx:812 pkg/metrics/metrics.jsx:906
 #: pkg/storaged/swap-tab.jsx:65
 msgid "Used"
 msgstr "사용됨"
@@ -8267,7 +8250,7 @@ msgstr "VDO 풀"
 
 #: pkg/networkmanager/network-interface.jsx:176
 #: pkg/networkmanager/network-interface.jsx:190
-#: pkg/networkmanager/network-interface.jsx:560
+#: pkg/networkmanager/network-interface.jsx:550
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -8309,11 +8292,11 @@ msgstr "버전"
 msgid "Very securely erasing $target"
 msgstr "$target을 매우 안전하게 삭제"
 
-#: pkg/metrics/metrics.jsx:772 pkg/metrics/metrics.jsx:773
+#: pkg/metrics/metrics.jsx:765 pkg/metrics/metrics.jsx:766
 msgid "View all CPUs"
 msgstr "모든 CPU 보기"
 
-#: pkg/metrics/metrics.jsx:809
+#: pkg/metrics/metrics.jsx:802
 msgid "View all disks"
 msgstr "모든 디스크 보기"
 
@@ -8325,11 +8308,11 @@ msgstr "모든 기록 보기"
 msgid "View all services"
 msgstr "모든 서비스 보기"
 
-#: pkg/lib/cockpit-components-modifications.jsx:168
+#: pkg/lib/cockpit-components-modifications.jsx:154
 msgid "View automation script"
 msgstr "자동 스크립트 보기"
 
-#: pkg/metrics/metrics.jsx:1152
+#: pkg/metrics/metrics.jsx:1146
 msgid "View detailed logs"
 msgstr "상세한 기록 보기"
 
@@ -8349,7 +8332,7 @@ msgstr "기록 보기"
 msgid "View metrics and history"
 msgstr "측정 항목과 내역 보기"
 
-#: pkg/metrics/metrics.jsx:810
+#: pkg/metrics/metrics.jsx:803
 msgid "View per-disk throughput"
 msgstr "디스크-당 처리량 보기"
 
@@ -8500,19 +8483,19 @@ msgstr "흰색"
 
 #: pkg/networkmanager/wireguard.jsx:247
 msgid "Will be set to \"Automatic\""
-msgstr ""
+msgstr "\"자동\"으로 설정됩니다"
 
-#: pkg/networkmanager/network-interface.jsx:573
+#: pkg/networkmanager/network-interface.jsx:563
 msgid "WireGuard"
-msgstr ""
+msgstr "WireGuard"
 
 #: pkg/storaged/drive-details.jsx:81
 msgctxt "storage"
 msgid "World wide name"
 msgstr "월드 와이드 이름"
 
-#: pkg/metrics/metrics.jsx:791 pkg/metrics/metrics.jsx:931
-#: pkg/metrics/metrics.jsx:973 pkg/metrics/metrics.jsx:977
+#: pkg/metrics/metrics.jsx:784 pkg/metrics/metrics.jsx:925
+#: pkg/metrics/metrics.jsx:967 pkg/metrics/metrics.jsx:971
 msgid "Write"
 msgstr "쓰기"
 
@@ -8570,7 +8553,7 @@ msgstr "자동 로그인을 위해 키 비밀번호를 변경 할 수 있습니�
 msgid "You must wait longer to change your password"
 msgstr "비밀번호 변경을 위해 조금 더 기다려 주십시오"
 
-#: pkg/metrics/metrics.jsx:1810
+#: pkg/metrics/metrics.jsx:1804
 msgid "You need to relogin to be able to see metrics history"
 msgstr "메트릭을 기록을 보려면 다시 로그인해야 합니다"
 
@@ -8673,7 +8656,7 @@ msgstr "시간"
 msgid "avc"
 msgstr "avc"
 
-#: pkg/metrics/metrics.jsx:758
+#: pkg/metrics/metrics.jsx:751
 msgid "average: $0%"
 msgstr "평균: $0%"
 
@@ -8718,7 +8701,7 @@ msgstr "cgroups"
 msgid "change"
 msgstr "변경"
 
-#: pkg/metrics/metrics.jsx:660
+#: pkg/metrics/metrics.jsx:653
 msgid "cockpit-podman is not installed"
 msgstr "Cockpit-podman이 설치되어 있지 않습니다"
 
@@ -8795,7 +8778,7 @@ msgstr "드라이브"
 #: pkg/storaged/lvol-tabs.jsx:442 pkg/storaged/lvol-tabs.jsx:503
 #: pkg/storaged/crypto-tab.jsx:245 pkg/storaged/crypto-tab.jsx:254
 #: pkg/networkmanager/dialogs-common.jsx:262
-#: pkg/networkmanager/network-interface.jsx:359
+#: pkg/networkmanager/network-interface.jsx:349
 msgid "edit"
 msgstr "편집"
 
@@ -9007,7 +8990,7 @@ msgstr "장치"
 msgid "mask"
 msgstr "마스크"
 
-#: pkg/metrics/metrics.jsx:759
+#: pkg/metrics/metrics.jsx:752
 msgid "max: $0%"
 msgstr "최대: $0%"
 
@@ -9073,7 +9056,7 @@ msgstr "nfs 서버는 유효한 IPv6가 아닙니다"
 
 #: pkg/metrics/metrics.jsx:111
 msgid "nice"
-msgstr "nice값"
+msgstr "우선순위(nice)"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:89
 #: pkg/storaged/crypto-tab.jsx:244 pkg/storaged/crypto-tab.jsx:253
@@ -9151,21 +9134,21 @@ msgstr "LVM2 볼륨 그룹의 물리적인 볼륨"
 msgid "plugin"
 msgstr "플러그인"
 
-#: pkg/metrics/metrics.jsx:1838
+#: pkg/metrics/metrics.jsx:1832
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service가 실패했습니다"
 
-#: pkg/metrics/metrics.jsx:1840
+#: pkg/metrics/metrics.jsx:1834
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service는 자료 수집에 실패하였습니다"
 
-#: pkg/metrics/metrics.jsx:1831
+#: pkg/metrics/metrics.jsx:1825
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service가 동작 하지 않습니다"
 
-#: pkg/metrics/metrics.jsx:654
+#: pkg/metrics/metrics.jsx:647
 msgid "pod"
-msgstr "Pod"
+msgstr "pod"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "port"
@@ -9399,10 +9382,8 @@ msgid "warning"
 msgstr "경고"
 
 #: pkg/networkmanager/wireguard.jsx:84
-#, fuzzy
-#| msgid "PackageKit is not installed"
 msgid "wireguard-tools package is not installed"
-msgstr "PackageKit이 설치되어 있지 않습니다"
+msgstr "wireguard-tools 꾸러미는 이 설치되지 않았습니다"
 
 #: pkg/storaged/crypto-tab.jsx:244
 msgid "yes"

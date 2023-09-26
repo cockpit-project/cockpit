@@ -141,10 +141,20 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         self.done_callbacks.append(callback)
 
     # Handling of interesting events
+    def do_superuser_init_done(self) -> None:
+        pass
+
+    def do_authorize(self, message: JsonObject) -> None:
+        pass
+
     def transport_control_received(self, command: str, message: JsonObject) -> None:
         if command == 'init' and self.init_future is not None:
             logger.debug('Got init message with active init_future.  Setting result.')
             self.init_future.set_result(message)
+        elif command == 'authorize':
+            self.do_authorize(message)
+        elif command == 'superuser-init-done':
+            self.do_superuser_init_done()
         else:
             raise CockpitProtocolError(f'Received unexpected control message {command}')
 

@@ -49,8 +49,13 @@ can_exec(cockpit_ws_t,cockpit_ws_exec_t)
 # systemd can execute cockpit-session
 can_exec(init_t,cockpit_session_exec_t)
 
-# cockpit-ws can execute cockpit-session
+# cockpit-ws can execute cockpit-{ssh,session}
 can_exec(cockpit_ws_t,cockpit_session_exec_t)
+# ... and the real ssh (through beiboot/ferny)
+gen_require(`
+    type ssh_exec_t;
+')
+can_exec(cockpit_ws_t,ssh_exec_t)
 
 # cockpit-ws can read from /dev/urandom
 dev_read_urand(cockpit_ws_t) # for authkey

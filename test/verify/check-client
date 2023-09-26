@@ -184,6 +184,30 @@ Command = {self.libexecdir}/cockpit-beiboot
         self.logout()
         b.wait_in_text("#recent-hosts-list", "user@10.111.113.2")
 
+        # explicit port
+        b.set_val("#server-field", "10.111.113.2:22")
+        b.click("#login-button")
+        b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
+        b.set_val("#conversation-input", "foobar")
+        b.click("#login-button")
+        self.check_login("admin@target")
+        self.logout()
+        b.wait_in_text("#recent-hosts-list", "10.111.113.2:22")
+
+        # different user name + explicit port
+        b.set_val("#server-field", "user@10.111.113.2:22")
+        b.click("#login-button")
+        b.wait_text("#conversation-prompt", "user@10.111.113.2's password: ")
+        b.set_val("#conversation-input", "barfoo")
+        b.click("#login-button")
+        self.check_login("user@target")
+        self.logout()
+        b.wait_in_text("#recent-hosts-list", "user@10.111.113.2:22")
+
+        # remove that recent hosts entry, this also avoids ambiguous selectors further down
+        b.click("#recent-hosts-list .host-line:contains('user@10.111.113.2:22') button.host-remove")
+        b.wait_not_in_text("#recent-hosts-list", "user@10.111.113.2:22")
+
         # unreachable host
         b.set_val("#server-field", "unknownhost")
         b.click("#login-button")
@@ -193,6 +217,11 @@ Command = {self.libexecdir}/cockpit-beiboot
         # does not appear in recent hosts
         b.wait_in_text("#recent-hosts-list", "10.111.113.2")
         self.assertNotIn("unknownhost", b.text("#recent-hosts-list"))
+
+        # wrong port
+        b.set_val("#server-field", "10.111.113.2:222")
+        b.click("#login-button")
+        b.wait_in_text("#login-fatal-message", "connect to host 10.111.113.2 port 222: No route to host")
 
         # unencrypted SSH key login
         self.m_client.execute("runuser -u admin -- ssh-keygen -t rsa -N '' -f ~admin/.ssh/id_rsa")

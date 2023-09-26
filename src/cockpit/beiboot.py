@@ -193,7 +193,14 @@ class SshPeer(Peer):
                 'DISPLAY=x',
                 'SSH_ASKPASS_REQUIRE=force',
             )
-            cmd = ('ssh', self.destination, shlex.join(cmd))
+            host, _, port = self.destination.rpartition(':')
+            # catch cases like `host:123` but not cases like `[2001:abcd::1]
+            if port.isdigit():
+                host_args = ['-p', port, host]
+            else:
+                host_args = [self.destination]
+
+            cmd = ('ssh', *host_args, shlex.join(cmd))
 
         # Running in flatpak?  Wrap command with flatpak-spawn --host
         if os.path.exists('/.flatpak-info'):

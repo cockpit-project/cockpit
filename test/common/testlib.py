@@ -70,7 +70,6 @@ __all__ = (
     'onlyImage',
     'skipImage',
     'skipDistroPackage',
-    'skipMobile',
     'skipOstree',
     'skipBrowser',
     'todo',
@@ -2215,16 +2214,6 @@ def skipOstree(reason: str):
     """
     if testvm.DEFAULT_IMAGE in OSTREE_IMAGES:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
-    return lambda testEntity: testEntity
-
-
-def skipMobile():
-    """Decorator for skipping a test on mobile
-
-    Skip test on when TEST_MOBILE is set.
-    """
-    if bool(os.environ.get("TEST_MOBILE", "")):
-        return unittest.skip("mobile: This test breaks on small screen sizes")
     return lambda testEntity: testEntity
 
 

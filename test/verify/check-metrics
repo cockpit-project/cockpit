@@ -1442,7 +1442,6 @@ class TestMultiCPU(testlib.MachineCase):
 
 @testlib.skipOstree("no PCP support")
 @testlib.skipDistroPackage()
-@testlib.skipMobile()
 class TestGrafanaClient(testlib.MachineCase):
 
     provision = {

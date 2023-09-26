@@ -591,7 +591,7 @@ export function NetworkManagerModel() {
                 peers: get("wireguard", "peers", []).map(peer => ({
                     publicKey: peer['public-key'].v,
                     endpoint: peer.endpoint?.v, // enpoint of a peer is optional
-                    allowedIps: peer['allowed-ips'].v
+                    allowedIps: peer['allowed-ips']?.v
                 })),
             };
         }

@@ -123,6 +123,24 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.wait_not_present("#network-wireguard-settings-dialog")
         b.wait_in_text(f"#networking-interfaces th:contains('{iface_name}') + td", f"1.2.3.4/32, {m1_ip4}/24")
 
+        # if some wg properties are not valid, for example, if it was changed by some external tool, don't crash
+        m1.execute("sed -i 's/.*allowed-ips.*//' /etc/NetworkManager/system-connections/con-wg0.nmconnection")
+        m1.execute("systemctl restart NetworkManager")
+        b.reload()
+        b.enter_page("/network")
+        b.wait_visible("#networking")
+        b.click(f"#networking-interfaces button:contains('{iface_name}')")
+        b.wait_visible("#network-interface")
+        b.click("#networking-edit-wg")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v5-c-alert:contains('has invalid allowed-ips')")
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", m2_ip4)
+        b.click("#network-wireguard-settings-save")
+        b.wait_not_present("#network-wireguard-settings-dialog")
+
+        m1.execute("until wg show wg0 | grep -q 'allowed ips.*10.0.0.2/32'; do sleep 1; done")
+        m1.execute("until ip route | grep -q '10.0.0.0/24 dev wg0 proto kernel scope link src 10.0.0.1 metric 50'; do sleep 1; done")
+
         # endpoint and port is not necessary for a peer if that peer estalishes the connectio first (i.e. the client)
         m2.execute(f"wg set wg0 peer {m1_pubkey} allowed-ips {m1_ip4}/32")
 
@@ -140,7 +158,6 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         m2.execute(f"ip addr add {m2_ip6}/64 dev wg0")
         m2.execute(f"wg set wg0 peer {m1_pubkey} allowed-ips {m1_ip4}/32,{m1_ip6}")
 
-        b.click(f"#networking-interfaces button:contains('{iface_name}')")
         b.click("#networking-edit-wg")
         b.wait_visible("#network-wireguard-settings-dialog")
         b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m2_ip4}/32,{m2_ip6}")

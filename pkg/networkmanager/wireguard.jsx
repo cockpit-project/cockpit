@@ -73,7 +73,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
     const [listenPort, setListenPort] = useState(settings.wireguard.listen_port);
     const [addresses, setAddresses] = useState(addressesToString(settings.ipv4.addresses));
     const [dialogError, setDialogError] = useState("");
-    const [peers, setPeers] = useState(settings.wireguard.peers.map(peer => ({ ...peer, allowedIps: peer.allowedIps.join(",") })));
+    const [peers, setPeers] = useState(settings.wireguard.peers.map(peer => ({ ...peer, allowedIps: peer.allowedIps?.join(",") ?? '' })));
 
     // Additional check for `wg` after install_dialog for non-packagekit and el8 environments
     useEffect(() => {

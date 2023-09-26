@@ -23,7 +23,7 @@ from typing import Dict, List, Optional, Tuple
 
 from cockpit._vendor import ferny
 
-from .jsonutil import JsonObject
+from .jsonutil import JsonObject, get_str
 from .peer import Peer, PeerError
 from .router import Router, RoutingRule
 
@@ -153,11 +153,11 @@ class SshPeer(Peer):
         elif host is None:
             super().do_kill(None, group)
 
-    def __init__(self, router: Router, host: str, user: Optional[str], password: Optional[str], *, private: bool):
+    def __init__(self, router: Router, host: str, user: Optional[str], options: JsonObject, *, private: bool) -> None:
         super().__init__(router)
         self.host = host
         self.user = user
-        self.password = password
+        self.password = get_str(options, 'password', None)
         self.private = private
 
         self.session = ferny.Session()
@@ -173,15 +173,13 @@ class HostRoutingRule(RoutingRule):
 
     def apply_rule(self, options: JsonObject) -> Optional[Peer]:
         assert self.router is not None
+        assert self.router.init_host is not None
 
-        host = options.get('host')
-
-        if host is None or host == self.router.init_host:
+        host = get_str(options, 'host', self.router.init_host)
+        if host == self.router.init_host:
             return None
 
-        assert isinstance(host, str)
-
-        user = options.get('user')
+        user = get_str(options, 'user', None)
         # HACK: the front-end relies on this for tracking connections without an explicit user name;
         # the user will then be determined by SSH (`User` in the config or the current user)
         # See cockpit_router_normalize_host_params() in src/bridge/cockpitrouter.c
@@ -191,8 +189,8 @@ class HostRoutingRule(RoutingRule):
             user_from_host, _, _ = host.rpartition('@')
             user = user_from_host or None  # avoid ''
 
-        if options.get('session') == 'private':
-            nonce = options.get('channel')
+        if get_str(options, 'session', None) == 'private':
+            nonce = get_str(options, 'channel')
         else:
             nonce = None
 
@@ -207,9 +205,7 @@ class HostRoutingRule(RoutingRule):
 
         if key not in self.remotes:
             logger.debug('%s is not among the existing remotes %s.  Opening a new connection.', key, self.remotes)
-            password = options.get('password')
-            assert password is None or isinstance(password, str)
-            peer = SshPeer(self.router, host, user, password, private=nonce is not None)
+            peer = SshPeer(self.router, host, user, options, private=nonce is not None)
             peer.add_done_callback(lambda: self.remotes.__delitem__(key))
             self.remotes[key] = peer
 

@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from enum import Enum
-from typing import Callable, Dict, List, Sequence, Type, TypeVar, Union
+from typing import Callable, Dict, List, Optional, Sequence, Type, TypeVar, Union
 
 JsonList = List['JsonDocument']
 JsonObject = Dict[str, 'JsonDocument']
@@ -75,6 +75,10 @@ def get_int(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> U
 
 def get_str(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> Union[DT, str]:
     return _get(obj, lambda v: typechecked(v, str), key, default)
+
+
+def get_str_or_none(obj: JsonObject, key: str, default: Optional[str]) -> Optional[str]:
+    return _get(obj, lambda v: None if v is None else typechecked(v, str), key, default)
 
 
 def get_dict(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> Union[DT, JsonObject]:

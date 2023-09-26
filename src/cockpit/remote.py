@@ -23,7 +23,7 @@ from typing import Dict, List, Optional, Tuple
 
 from cockpit._vendor import ferny
 
-from .jsonutil import JsonObject, get_str
+from .jsonutil import JsonDocument, JsonObject, get_str, get_str_or_none
 from .peer import Peer, PeerError
 from .router import Router, RoutingRule
 
@@ -153,6 +153,15 @@ class SshPeer(Peer):
         elif host is None:
             super().do_kill(None, group)
 
+    def do_authorize(self, message: JsonObject) -> None:
+        if get_str(message, 'challenge').startswith('plain1:'):
+            cookie = get_str(message, 'cookie')
+            self.write_control(command='authorize', cookie=cookie, response=self.password or '')
+            self.password = None  # once is enough...
+
+    def do_superuser_init_done(self) -> None:
+        self.password = None
+
     def __init__(self, router: Router, host: str, user: Optional[str], options: JsonObject, *, private: bool) -> None:
         super().__init__(router)
         self.host = host
@@ -161,7 +170,15 @@ class SshPeer(Peer):
         self.private = private
 
         self.session = ferny.Session()
-        self.start_in_background(init_host=host)
+
+        superuser: JsonDocument
+        init_superuser = get_str_or_none(options, 'init-superuser', None)
+        if init_superuser in (None, 'none'):
+            superuser = False
+        else:
+            superuser = {'id': init_superuser}
+
+        self.start_in_background(init_host=host, superuser=superuser)
 
 
 class HostRoutingRule(RoutingRule):

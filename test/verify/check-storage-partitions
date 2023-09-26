@@ -59,7 +59,6 @@ class TestStoragePartitions(storagelib.StorageCase):
         self.confirm()
         self.content_row_wait_in_col(1, 0, "Free space")
 
-    @testlib.skipMobile()
     def testSizeSlider(self):
         m = self.machine
         b = self.browser

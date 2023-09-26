@@ -69,7 +69,7 @@ def add_stock_machine(b, address, password):
 
 
 @testlib.skipDistroPackage()
-class TestMultiOS(testlib.MachineCase):
+class TestCentos7(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "memory_mb": 512},
         "centos-7": {"address": "10.111.113.5/20", "image": "centos-7", "memory_mb": 512}
@@ -95,15 +95,9 @@ class TestMultiOS(testlib.MachineCase):
         })""", address)
 
     @testlib.todoPybridgeRHEL8()
-    def testCentOS7(self):
+    def test(self):
         dev_m = self.machine
         dev_b = self.browser
-
-        # Newer bridges running under an old cockpit-ws don't get the
-        # support that they need to prompt for the password. So open
-        # up sudo for this test.
-        dev_m.execute("echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/user-override")
-        dev_m.execute("echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/user-override")
 
         self.allow_hostkey_messages()
 
@@ -158,6 +152,45 @@ class TestMultiOS(testlib.MachineCase):
         # Messages from previous versions of cockpit
         self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
         self.allow_restart_journal_messages()
+
+
+@testlib.skipDistroPackage()
+class TestRHEL8(testlib.MachineCase):
+    provision = {
+        "0": {"address": "10.111.113.1/20", "memory_mb": 768},
+        "stock": {"address": "10.111.113.5/20", "image": "rhel-8-8", "memory_mb": 512}
+    }
+
+    @testlib.todoPybridgeRHEL8()
+    def test(self):
+        dev_m = self.machine
+        dev_b = self.browser
+
+        stock_m = self.machines['stock']
+        stock_m.execute("hostnamectl set-hostname stock")
+
+        # Wait for connectivity between the two
+        stock_m.execute("ping -q -w5 -c5 10.111.113.1")
+        dev_m.execute("ping -q -w5 -c5 10.111.113.5")
+
+        self.allow_hostkey_messages()
+
+        # New machine adding old machine
+
+        self.login_and_go()
+        dev_b.click("#hosts-sel button")
+        dev_addresses = ["localhost"]
+        wait_addresses(dev_b, dev_addresses)
+
+        add_machine(dev_b, "10.111.113.5", password="foobar")
+        dev_addresses.append("10.111.113.5")
+        wait_addresses(dev_b, dev_addresses)
+
+        dev_b.go("/@10.111.113.5/")
+        dev_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.5/system'][data-loaded]")
+        dev_b.enter_page("/system", host="10.111.113.5")
+        dev_b.wait_in_text(".ct-overview-header-hostname", "stock")
+        dev_b.wait_in_text(".ct-overview-header-hostname", "running Red Hat Enterprise Linux 8")
 
 
 @testlib.skipDistroPackage()

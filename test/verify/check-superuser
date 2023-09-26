@@ -595,6 +595,22 @@ class TestSuperuserDashboard(testlib.MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
+        # Logging out and logging back in should give us immediate
+        # superuser on m2 (once we have logged in there).
+        b.relogin()
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text("#login-custom-password", "foobar")
+        b.click('#hosts_setup_server_dialog button:contains("Log in")')
+        b.wait_not_present('#hosts_setup_server_dialog')
+        b.check_superuser_indicator("Administrative access")
+
+        b.enter_page("/playground/test", host="10.111.113.2")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
         b.drop_superuser()
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'access-denied')
@@ -705,7 +721,7 @@ class TestSuperuserDashboardOldMachine(testlib.MachineCase):
         "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
     }
 
-    @testlib.todoPybridge(reason="https://github.com/cockpit-project/cockpit/issues/18712")
+    @testlib.todoPybridgeRHEL8()
     def test(self):
         b = self.browser
 

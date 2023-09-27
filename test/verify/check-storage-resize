@@ -295,6 +295,52 @@ class TestStorageResize(storagelib.StorageCase):
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 
+    def testUnsupported(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        m.add_disk("500M", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+
+        m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        m.execute("lvcreate TEST -n vol -L 320m")
+        b.wait_in_text("#devices", "TEST")
+        b.click('#devices .sidepanel-row:contains("TEST")')
+        b.wait_visible("#storage-detail")
+        self.content_row_wait_in_col(1, 1, "vol")
+
+        m.execute("mkfs.ext4 -L FSYS /dev/TEST/vol")
+        self.content_tab_wait_in_info(1, 2, "Name", "FSYS")
+
+        def fake_fstype(fstype):
+            # Change fstype via a udev rule
+            m.write("/run/udev/rules.d/99-fake-fstype.rules",
+                    f'SUBSYSTEM=="block", ENV{{ID_FS_LABEL}}=="FSYS", ENV{{ID_FS_TYPE}}="{fstype}"\n')
+            m.execute("udevadm control --reload; udevadm trigger")
+
+        self.addCleanup(m.execute,
+                        "rm /run/udev/rules.d/99-fake-fstype.rules; udevadm control --reload; udevadm trigger")
+
+        def check_btn(title, excuse):
+            tab = self.content_tab_expand(1, 1)
+            btn = tab + f" button:disabled:contains({title})"
+            b.wait_visible(btn)
+            b.mouse(btn, "mouseenter", 0, 0, 0)
+            b.wait_in_text("#tip-storage", excuse)
+            b.mouse(btn, "mouseleave", 0, 0, 0)
+            b.wait_not_present("#tip-storage")
+
+        fake_fstype("udf")  # UDF is a real filesystem type that UDisks knows about. It can definitely not be resized.
+        self.content_row_wait_in_col(1, 2, "udf filesystem")
+        check_btn("Shrink", "udf filesystems can not be made smaller")
+        check_btn("Grow", "udf filesystems can not be made larger")
+
+        fake_fstype("fake")  # This is not a real filesystem and UDisks2 knows nothing about it.
+        self.content_row_wait_in_col(1, 2, "fake filesystem")
+        check_btn("Shrink", "fake filesystems can not be resized here")
+        check_btn("Grow", "fake filesystems can not be resized here")
+
 
 if __name__ == '__main__':
     testlib.test_main()

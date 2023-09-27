@@ -127,6 +127,31 @@ class TestNetworkingSettings(netlib.NetworkCase):
         b.click("#network-ip-settings-dns-search-add")
         b.assert_pixels("#network-ip-settings-dialog", "network-ip-settings-dialog")
 
+        # Check that IPv4/IPv6 settings dialogs only show the supported IP methods for wireguard
+        # Skip images without the wireguard-tools package
+        if m.image not in ["rhel4edge", "centos-8-stream"] and not m.image.startswith("rhel-8"):
+            b.go("/network")
+            b.click("#networking-add-wg")
+            b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4/24")
+            wg_iface = b.val("#network-wireguard-settings-interface-name-input")
+            b.click("#network-wireguard-settings-save")
+            self.select_iface(wg_iface)
+            self.configure_iface_setting("IPv4")
+            b._wait_present("#network-ip-settings-select-method option[value='manual']")
+            b._wait_present("#network-ip-settings-select-method option[value='disabled']")
+            unsupported_ip4_methods = ['auto', 'dhcp', 'link-local', 'ignore', 'shared']
+            for method in unsupported_ip4_methods:
+                b.wait_not_present(f"#network-ip-settings-select-method option[value='{method}']")
+            b.click("#network-ip-settings-cancel")
+            b.wait_not_present("#network-ip-settings-dialog")
+            self.configure_iface_setting("IPv6")
+            supported_ip6_methods = ['link-local', 'manual', 'disabled']
+            for method in supported_ip6_methods:
+                b._wait_present(f"#network-ip-settings-select-method option[value='{method}']")
+            unsupported_ip6_methods = ['auto', 'dhcp', 'ignore', 'shared']
+            for method in unsupported_ip6_methods:
+                b.wait_not_present(f"#network-ip-settings-select-method option[value='{method}']")
+
     def testOtherSettings(self):
         b = self.browser
         m = self.machine

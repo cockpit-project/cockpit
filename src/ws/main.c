@@ -270,8 +270,13 @@ main (int argc,
         }
       else
         {
-          const gchar *args[] = { opt_local_session, NULL };
-          pipe = cockpit_pipe_spawn (args, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+          g_auto(GStrv) args = NULL;
+          if (!g_shell_parse_argv (opt_local_session, NULL, &args, &error))
+            {
+              g_prefix_error (&error, "--local-session: ");
+              goto out;
+            }
+          pipe = cockpit_pipe_spawn ((const gchar **) args, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
         }
 
       /* Spawn a local session as a bridge */

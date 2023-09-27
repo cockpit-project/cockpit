@@ -101,12 +101,13 @@ export function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
                 const pool = client.stratis_pools[stratis_bdev.Pool];
                 return pool.GrowPhysicalDevice(stratis_bdev.Uuid).then(std_reply);
             } else if (delta < 0)
-                return Promise.reject(_("Stratis blockdevs can not be made smaller"));
+                // This shouldn't happen. But if it does, continuing is harmful, so we throw an error.
+                return Promise.reject(_("Stratis blockdevs can not be made smaller")); // not-covered: safety check
             else
                 return Promise.resolve();
         } else if (size < orig_size) {
-            // This shouldn't happen.  But if it does, continuing is harmful, so we throw an error.
-            return Promise.reject(_("Unrecognized data can not be made smaller here."));
+            // This shouldn't happen. But if it does, continuing is harmful, so we throw an error.
+            return Promise.reject(_("Unrecognized data can not be made smaller here.")); // not-covered: safety check
         } else {
             // Growing unrecognized content, nothing to do.
             return Promise.resolve();
@@ -337,8 +338,8 @@ export function shrink_dialog(client, lvol, info, to_fit) {
             shrink_size = Number(stratis_bdev.TotalPhysicalSize) + crypto_overhead;
 
         if (shrink_size === undefined) {
-            console.warn("Couldn't determine size to shrink to.");
-            return;
+            console.warn("Couldn't determine size to shrink to."); // not-covered: safety check
+            return; // not-covered: safety check
         }
     }
 

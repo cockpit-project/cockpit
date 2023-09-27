@@ -9,6 +9,8 @@ ifneq ($(SLOW_ARCHES),)
 	export COCKPIT_SKIP_SLOW_TESTS=1
 endif
 
+export deb_systemdsystemunitdir = $(shell pkgconf --variable=systemdsystemunitdir systemd | sed s,^/,,)
+
 %:
 	dh $@ --buildsystem=autoconf --with=python3
 

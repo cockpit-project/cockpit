@@ -150,7 +150,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
             }
 
             peersArr = peers.map((peer, index) => {
-                if (peer.endpoint !== '') {
+                if (peer.endpoint?.trim()) {
                     const parts = peer.endpoint.split(":");
                     if (parts.length !== 2) {
                         throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820 or example.com:51820"), index + 1);
@@ -160,7 +160,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
                         throw cockpit.format(_("Peer #$0 has invalid endpoint port. Port must be a number."), index + 1);
                     }
                 }
-                return ({ ...peer, allowedIps: peer.allowedIps.split(',') });
+                return ({ ...peer, allowedIps: peer.allowedIps.trim().split(',') });
             });
         } catch (e) {
             setDialogError(typeof e === 'string' ? e : e.message);

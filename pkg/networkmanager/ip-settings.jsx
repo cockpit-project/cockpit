@@ -47,11 +47,20 @@ const ip_method_choices = [
 ];
 
 const supported_ipv4_methods = ['auto', 'link-local', 'manual', 'shared', 'disabled'];
+// NM only supports a subset of IPv4 and IPv6 methods for wireguard
+// See: https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/blob/1.42.8/src/libnm-core-impl/nm-setting-wireguard.c#L1723
+const wg_supported_ipv4_methods = ['manual', 'disabled'];
+const wg_supported_ipv6_methods = ['link-local', 'manual', 'ignored', 'disabled'];
 
-export function get_ip_method_choices(topic) {
+export function get_ip_method_choices(topic, device_type) {
     if (topic === 'ipv4') {
+        if (device_type === 'wireguard')
+            return ip_method_choices.filter(item => wg_supported_ipv4_methods.includes(item.choice));
         return ip_method_choices.filter(item => supported_ipv4_methods.includes(item.choice));
     }
+
+    if (device_type === 'wireguard')
+        return ip_method_choices.filter(item => wg_supported_ipv6_methods.includes(item.choice));
 
     // IPv6 supports all the choices
     return ip_method_choices;
@@ -165,7 +174,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                             aria-label={_("Select method")}
                                             onChange={(_, val) => setMethod(val)}
                                             value={method}>
-                                    {get_ip_method_choices(topic).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
+                                    {get_ip_method_choices(topic, dev.DeviceType).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                                 </FormSelect>
                                 <Tooltip content={_("Add address")}>
                                     <Button variant="secondary"

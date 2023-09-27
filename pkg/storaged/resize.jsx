@@ -53,10 +53,7 @@ export function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
         fsys = client.blocks_fsys[cleartext.path];
         vdo = client.legacy_vdo_overlay.find_by_backing_block(cleartext);
         stratis_bdev = client.blocks_stratis_blockdev[cleartext.path];
-        if (crypto.MetadataSize !== undefined)
-            crypto_overhead = crypto.MetadataSize;
-        else
-            crypto_overhead = block.Size - cleartext.Size;
+        crypto_overhead = crypto.MetadataSize;
     } else {
         fsys = client.blocks_fsys[block.path];
         vdo = client.legacy_vdo_overlay.find_by_backing_block(block);
@@ -132,19 +129,12 @@ export function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
             return Promise.resolve();
     }
 
-    if (fsys && !fsys.Resize) {
-        // Fallback for old versions of UDisks.  This doesn't handle encrypted volumes.
-        if (size != orig_size) {
-            return lvol.Resize(size, { resize_fsys: { t: 'b', v: true } });
-        }
-    } else {
-        if (size < orig_size) {
-            return fsys_resize().then(crypto_resize)
-                    .then(lvm_resize);
-        } else if (size >= orig_size) {
-            return lvm_resize().then(crypto_resize)
-                    .then(fsys_resize);
-        }
+    if (size < orig_size) {
+        return fsys_resize().then(crypto_resize)
+                .then(lvm_resize);
+    } else if (size >= orig_size) {
+        return lvm_resize().then(crypto_resize)
+                .then(fsys_resize);
     }
 }
 
@@ -153,13 +143,9 @@ export function get_resize_info(client, block, to_fit) {
 
     if (block) {
         if (block.IdUsage == 'crypto' && client.blocks_crypto[block.path]) {
-            const encrypted = client.blocks_crypto[block.path];
             const cleartext = client.blocks_cleartext[block.path];
 
-            if (!encrypted.Resize) {
-                info = { };
-                shrink_excuse = grow_excuse = _("Encrypted volumes can not be resized here.");
-            } else if (!cleartext) {
+            if (!cleartext) {
                 info = { };
                 shrink_excuse = grow_excuse = _("Encrypted volumes need to be unlocked before they can be resized.");
             } else {

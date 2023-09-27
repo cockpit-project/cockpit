@@ -101,8 +101,8 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.click("button:contains('Add peer')")
         b.wait_visible("#network-wireguard-settings-peer-0")
         b.set_input_text("#network-wireguard-settings-publickey-peer-0", m2_pubkey)
-        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "192.168.100.12")
-        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", m2_ip4)
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "   192.168.100.12  ")  # test that the extra spaces are trimmed
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"  {m2_ip4}  ")  # test that the extra spaces are trimmed
         b.click("#network-wireguard-settings-save")
         b.wait_visible(".pf-v5-c-alert:contains('Peer #1 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820 or example.com:51820')")
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "192.168.100.12:somestring")

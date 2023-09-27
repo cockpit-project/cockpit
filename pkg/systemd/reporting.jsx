@@ -25,6 +25,7 @@ import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { useInit } from "hooks";
 
 import './reporting.scss';
 
@@ -67,30 +68,17 @@ function get_problem_properties(problem) {
                                     "GetAll", ["org.freedesktop.Problems2.Entry"]));
 }
 
-class FAFWorkflowRow extends React.Component {
-    constructor(props) {
-        super(props);
+const FAFWorkflowRow = ({ problem }) => {
+    const [problemState, setProblemState] = React.useState(ProblemState.REPORTABLE);
+    const [process, setProcess] = React.useState(null);
+    const [reportLinks, setReportLinks] = React.useState([]);
+    const [message, setMessage] = React.useState("");
 
-        this.state = {
-            problemState: ProblemState.REPORTABLE,
-            process: null,
-            reportLinks: [],
-            message: "",
-        };
-
-        this._onCancelButtonClick = this._onCancelButtonClick.bind(this);
-        this._onReportButtonClick = this._onReportButtonClick.bind(this);
-        this.updateStatusFromBus = this.updateStatusFromBus.bind(this);
-
-        this.updateStatusFromBus();
-    }
-
-    updateStatusFromBus() {
-        get_problem_properties(this.props.problem.path)
+    const updateStatusFromBus = () => {
+        get_problem_properties(problem.path)
                 .catch(exception => {
-                    this.setState({ problemState: ProblemState.UNREPORTABLE });
-
-                    console.error(cockpit.format("Getting properties for problem $0 failed: $1", this.props.problem.path, exception));
+                    setProblemState(ProblemState.UNREPORTABLE);
+                    console.error(cockpit.format("Getting properties for problem $0 failed: $1", problem.path, exception));
                 })
                 .then((properties) => {
                     if (!properties) {
@@ -98,7 +86,7 @@ class FAFWorkflowRow extends React.Component {
                     }
 
                     if (!properties[0].CanBeReported.v) {
-                        this.setState({ problemState: ProblemState.UNREPORTABLE });
+                        setProblemState(ProblemState.UNREPORTABLE);
 
                         return;
                     }
@@ -116,114 +104,139 @@ class FAFWorkflowRow extends React.Component {
                     }
 
                     if (reported) {
-                        this.setState({
-                            problemState: ProblemState.REPORTED,
-                            reportLinks,
-                        });
+                        setProblemState(ProblemState.REPORTED);
+                        setReportLinks(reportLinks);
                     }
                 });
-    }
+    };
 
-    _onCancelButtonClick(event) {
-        this.state.process.close("canceled");
-    }
+    useInit(() => {
+        updateStatusFromBus();
+    });
 
-    _onReportButtonClick(event) {
-        this.setState({ problemState: ProblemState.UNREPORTABLE });
+    const onCancelButtonClick = _event => process.close("canceled");
 
-        const process = cockpit.spawn(["reporter-ureport", "-d", this.props.problem.ID],
+    const onReportButtonClick = _event => {
+        setProblemState(ProblemState.UNREPORTABLE);
+        const process = cockpit.spawn(["reporter-ureport", "-d", problem.ID],
                                       {
                                           err: "out",
                                           superuser: "true",
                                       })
-                .stream((data) => this.setState({ message: data, }))
-                .then(() => this.setState({ problemState: ProblemState.REPORTED, }))
+                .stream((data) => setMessage(data))
+                .then(() => setProblemState(ProblemState.REPORTED))
                 .catch(exception => {
-                    this.setState({ problemState: ProblemState.REPORTABLE, });
+                    setProblemState(ProblemState.REPORTABLE);
 
                     if (exception.exit_signal != null) {
                         console.error(cockpit.format("reporter-ureport was killed with signal $0", exception.exit_signal));
                     }
                 })
-                .finally(() => this.updateStatusFromBus());
+                .finally(() => updateStatusFromBus());
 
-        this.setState({
-            problemState: ProblemState.REPORTING,
-            process,
-        });
-    }
+        setProblemState(ProblemState.REPORTING);
+        setProcess(process);
+    };
 
-    render() {
-        return <WorkflowRow label={_("Report to ABRT Analytics")}
-                            message={this.state.message}
-                            onCancelButtonClick={this._onCancelButtonClick}
-                            onReportButtonClick={this._onReportButtonClick}
-                            problemState={this.state.problemState}
-                            reportLinks={this.state.reportLinks}
-        />;
-    }
-}
+    return <WorkflowRow label={_("Report to ABRT Analytics")}
+                        message={message}
+                        onCancelButtonClick={onCancelButtonClick}
+                        onReportButtonClick={onReportButtonClick}
+                        problemState={problemState}
+                        reportLinks={reportLinks}
+    />;
+};
 
-class BusWorkflowRow extends React.Component {
-    constructor(props) {
-        super(props);
+const BusWorkflowRow = ({ problem, client, workflow }) => {
+    const [message, setMessage] = React.useState("");
+    const [problemState, setProblemState] = React.useState(ProblemState.REPORTABLE);
+    const [reportLinks, setReportLinks] = React.useState([]);
+    const [task, setTask] = React.useState(null);
+    const label = workflow[1];
+    const inputRef = React.createRef();
 
-        this.state = {
-            label: this.props.workflow[1],
-            message: "",
-            problemState: ProblemState.REPORTABLE,
-            reportLinks: [],
-            task: null,
+    const updateStatusFromBus = () => {
+        const on_get_properties = properties => {
+            if (!properties[0].CanBeReported.v) {
+                setProblemState(ProblemState.UNREPORTABLE);
+                return;
+            }
+
+            const reportLinks = [];
+            let reported = false;
+
+            for (const report of properties[0].Reports.v) {
+                if (!("WORKFLOW" in report[1])) {
+                    continue;
+                }
+                if (workflow[0] !== report[1].WORKFLOW.v.v) {
+                    continue;
+                }
+                if (report[0] === "ABRT Server" || report[0] === "uReport") {
+                    continue;
+                }
+                if ("URL" in report[1]) {
+                    reportLinks.push(report[1].URL.v.v);
+                }
+
+                reported = true;
+            }
+
+            if (reported) {
+                setProblemState(ProblemState.REPORTED);
+                setReportLinks(reportLinks);
+            }
+        };
+        const on_get_properties_rejected = exception => {
+            setProblemState(ProblemState.UNREPORTABLE);
+
+            console.error(cockpit.format("Getting properties for problem $0 failed: $1", problem.path, exception));
         };
 
-        this._createTask = this._createTask.bind(this);
-        this._onCancelButtonClick = this._onCancelButtonClick.bind(this);
-        this._onCreateTask = this._onCreateTask.bind(this);
-        this._onReportButtonClick = this._onReportButtonClick.bind(this);
-        this.updateStatusFromBus = this.updateStatusFromBus.bind(this);
+        get_problem_properties(problem.path).then(on_get_properties, on_get_properties_rejected);
+    };
 
-        this.updateStatusFromBus();
-    }
+    useInit(() => {
+        updateStatusFromBus();
+    });
 
-    _createTask(client) {
+    const createTask = client => {
         return client.call("/org/freedesktop/reportd/Service",
                            "org.freedesktop.reportd.Service", "CreateTask",
-                           [this.props.workflow[0], this.props.problem.path])
-                .then(result => this._onCreateTask(result[0], client));
-    }
+                           [workflow[0], problem.path])
+                .then(result => onCreateTask(result[0], client));
+    };
 
-    _onCancelButtonClick(event) {
-        this.state.task.Cancel();
-    }
+    const onCancelButtonClick = _event => task.Cancel();
 
-    _onCreateTask(object_path, client) {
+    const onCreateTask = (object_path, client) => {
         const task_proxy = client.proxy("org.freedesktop.reportd.Task", object_path);
 
         task_proxy
                 .wait()
-                .then((object_path) => {
-                    task_proxy.addEventListener("changed", (event, data) => {
+                .then((_object_path) => {
+                    task_proxy.addEventListener("changed", (_event, data) => {
                         switch (data.Status) {
                         case TaskState.RUNNING:
                             // To avoid a needless D-Bus round trip.
                             return;
                         case TaskState.CANCELED:
-                            this.setState({ message: _("Reporting was canceled"), });
+                            setMessage(_("Reporting was canceled"));
                             // falls through
                         case TaskState.ERROR:
-                            this.setState({ problemState: ProblemState.REPORTABLE, });
+                            setProblemState(ProblemState.REPORTABLE);
                             break;
                         case TaskState.COMPLETED:
-                            this.setState({ problemState: ProblemState.REPORTED, });
+                            setProblemState(ProblemState.REPORTED);
                             break;
                         default:
                             break;
                         }
 
-                        this.updateStatusFromBus();
+                        updateStatusFromBus();
                     });
-                    task_proxy.addEventListener("Prompt", (event, object_path, message, type) => {
-                        this.setState({ message: _("Waiting for input…") });
+                    task_proxy.addEventListener("Prompt", (_event, object_path, message, type) => {
+                        setMessage(_("Waiting for input…"));
                         const task_prompt = client.proxy("org.freedesktop.reportd.Task.Prompt", object_path);
                         const props = {
                             body: <p>{message}</p>,
@@ -242,7 +255,7 @@ class BusWorkflowRow extends React.Component {
                                 <div>
                                     <p>{message}</p>
                                     <input className="full-width"
-                                           ref={(input) => { this.input = input }}
+                                           ref={inputRef}
                                            type={type == PromptType.ASK_PASSWORD ? "password" : "text"} />
                                 </div>
                             );
@@ -251,7 +264,7 @@ class BusWorkflowRow extends React.Component {
                                     caption: _("Send"),
                                     clicked: () => {
                                         return task_prompt.wait().then(() => {
-                                            task_prompt.Input = this.input.value;
+                                            task_prompt.Input = inputRef.current.value;
                                             task_prompt.Commit();
                                         });
                                     },
@@ -286,15 +299,14 @@ class BusWorkflowRow extends React.Component {
 
                         show_modal_dialog(props, footerProps);
                     });
-                    task_proxy.addEventListener("Progress", (event, message) => {
+                    task_proxy.addEventListener("Progress", (_event, message) => {
                         if (/^\.+$/.exec(message) === null) {
                             // abrt-retrace-client starts printing dots if the last message it receives is repeated
-                            this.setState({ message, });
+                            setMessage(message);
                         }
                     });
 
-                    this.setState({ task: task_proxy, });
-
+                    setTask(task_proxy);
                     task_proxy.Start().catch(ex => {
                         /* GLib encodes errors for transport over the wire,
                          * but we don’t have a good way of decoding them without calling into GIO.
@@ -307,129 +319,75 @@ class BusWorkflowRow extends React.Component {
                             return;
                         }
 
-                        console.error(cockpit.format("reportd task for workflow $0 did not finish: $1", this.props.workflow[0], (ex.problem || ex.message)));
-                        this.setState({ message: _("Reporting failed") });
+                        console.error(cockpit.format("reportd task for workflow $0 did not finish: $1", workflow[0], (ex.problem || ex.message)));
+                        setMessage(_("Reporting failed"));
                     });
                 })
                 .catch(ex => console.error(cockpit.format("Setting up a D-Bus proxy for $0 failed: $1", object_path, ex)));
-    }
+    };
 
-    _onReportButtonClick(event) {
-        this.setState({ problemState: ProblemState.UNREPORTABLE });
+    const onReportButtonClick = (_event) => {
+        setMessage(_("Waiting to start…"));
+        setProblemState(ProblemState.REPORTING);
 
-        this.setState({
-            message: _("Waiting to start…"),
-            problemState: ProblemState.REPORTING,
-        });
-
-        this.props.client
-                .wait()
+        client.wait()
                 .catch(exception => console.error(cockpit.format("Channel for reportd D-Bus client closed: $0", exception.problem || exception.message)))
-                .then(() => this._createTask(this.props.client))
+                .then(() => createTask(client))
                 .catch(exception => {
-                    const message = cockpit.format("reportd task could not be created: $0", (exception.problem || exception.message));
-
-                    this.setState({
-                        message,
-                        problemState: ProblemState.REPORTABLE,
-                    });
-                    console.error(message);
+                    const newMessage = cockpit.format("reportd task could not be created: $0", (exception.problem || exception.message));
+                    setMessage(newMessage);
+                    setProblemState(ProblemState.REPORTABLE);
+                    console.error(newMessage);
                 });
-    }
+    };
 
-    render() {
-        return <WorkflowRow label={this.state.label}
-                            message={this.state.message}
-                            onCancelButtonClick={this._onCancelButtonClick}
-                            onReportButtonClick={this._onReportButtonClick}
-                            problemState={this.state.problemState}
-                            reportLinks={this.state.reportLinks}
-        />;
-    }
+    return <WorkflowRow label={label}
+                        message={message}
+                        onCancelButtonClick={onCancelButtonClick}
+                        onReportButtonClick={onReportButtonClick}
+                        problemState={problemState}
+                        reportLinks={reportLinks}
+    />;
+};
 
-    updateStatusFromBus() {
-        const on_get_properties = properties => {
-            if (!properties[0].CanBeReported.v) {
-                this.setState({ problemState: ProblemState.UNREPORTABLE });
+const WorkflowRow = ({ message, problemState, reportLinks, label, onReportButtonClick, onCancelButtonClick }) => {
+    let status = message;
 
-                return;
-            }
-
-            const reportLinks = [];
-            let reported = false;
-
-            for (const report of properties[0].Reports.v) {
-                if (!("WORKFLOW" in report[1])) {
-                    continue;
-                }
-                if (this.props.workflow[0] !== report[1].WORKFLOW.v.v) {
-                    continue;
-                }
-                if (report[0] === "ABRT Server" || report[0] === "uReport") {
-                    continue;
-                }
-                if ("URL" in report[1]) {
-                    reportLinks.push(report[1].URL.v.v);
-                }
-
-                reported = true;
-            }
-
-            if (reported) {
-                this.setState({
-                    problemState: ProblemState.REPORTED,
-                    reportLinks,
-                });
-            }
-        };
-        const on_get_properties_rejected = exception => {
-            this.setState({ problemState: ProblemState.UNREPORTABLE });
-
-            console.error(cockpit.format("Getting properties for problem $0 failed: $1", this.props.problem.path, exception));
-        };
-
-        get_problem_properties(this.props.problem.path).then(on_get_properties, on_get_properties_rejected);
-    }
-}
-
-function WorkflowRow(props) {
-    let status = props.message;
-
-    if (props.problemState === ProblemState.REPORTED) {
-        if (props.reportLinks.length === 1) {
+    if (problemState === ProblemState.REPORTED) {
+        if (reportLinks.length === 1) {
             status = (
-                <a href={props.reportLinks[0]} rel="noopener noreferrer" target="_blank">
+                <a href={reportLinks[0]} rel="noopener noreferrer" target="_blank">
                     <ExternalLinkAltIcon />{_("View report")}
                 </a>
             );
-        } else if (props.reportLinks.length > 1) {
-            const reportLinks = props.reportLinks.map((reportLink, index) => [
+        } else if (reportLinks.length > 1) {
+            const reportLinksComps = reportLinks.map((reportLink, index) => [
                 index > 0 && ", ",
                 <a key={index.toString()} href={reportLink} rel="noopener noreferrer" target="_blank">
                     <ExternalLinkAltIcon /> {index + 1}
                 </a>
             ]);
-            status = <p>{_("Reports:")} {reportLinks}</p>;
+            status = <p>{_("Reports:")} {reportLinksComps}</p>;
         } else {
             status = _("Reported; no links available");
         }
     }
 
     let button = null;
-    if (props.problemState === ProblemState.REPORTING) {
+    if (problemState === ProblemState.REPORTING) {
         button = (
-            <Button key={"cancel_" + props.label}
+            <Button key={"cancel_" + label}
                     variant="secondary"
-                    onClick={props.onCancelButtonClick}>
+                    onClick={onCancelButtonClick}>
                 {_("Cancel")}
             </Button>
         );
     } else {
         button = (
-            <Button key={"report_" + props.label}
+            <Button key={"report_" + label}
                     variant="primary"
-                    isDisabled={props.problemState !== ProblemState.REPORTABLE}
-                    onClick={props.problemState === ProblemState.REPORTABLE ? props.onReportButtonClick : undefined}>
+                    isDisabled={problemState !== ProblemState.REPORTABLE}
+                    onClick={problemState === ProblemState.REPORTABLE ? onReportButtonClick : undefined}>
                 {_("Report")}
             </Button>
         );
@@ -437,54 +395,48 @@ function WorkflowRow(props) {
 
     return (
         <Split hasGutter>
-            <SplitItem>{props.label}</SplitItem>
+            <SplitItem>{label}</SplitItem>
             <SplitItem isFilled>
-                {props.problemState === ProblemState.REPORTING && <Spinner size="md" /> }
+                {problemState === ProblemState.REPORTING && <Spinner size="md" /> }
                 {status}
             </SplitItem>
             <SplitItem>{button}</SplitItem>
         </Split>
     );
-}
+};
 
 const reportd_client = cockpit.dbus("org.freedesktop.reportd", { superuser: "try" });
 
-export class ReportingTable extends React.Component {
-    constructor(props) {
-        super(props);
+export const ReportingTable = ({ problem }) => {
+    const [workflows, setWorkflows] = React.useState([]);
 
-        this.state = {
-            workflows: [],
-        };
-
+    useInit(() => {
         reportd_client
                 .wait()
-                .then(() => this.getWorkflows(reportd_client),
+                .then(() => getWorkflows(reportd_client),
                       exception => console.error(cockpit.format("Channel for reportd D-Bus client closed: $0", exception.problem || exception.message)));
-    }
+    });
 
-    getWorkflows(client) {
-        client.call("/org/freedesktop/reportd/Service", "org.freedesktop.reportd.Service", "GetWorkflows", [this.props.problem.path])
-                .then((args, options) => this.setState({ workflows: args[0] }),
-                      exception => console.error(cockpit.format("Failed to get workflows for problem $0: $1", this.props.problem.path, (exception.problem || exception.message))));
-    }
+    const getWorkflows = client => {
+        client.call("/org/freedesktop/reportd/Service", "org.freedesktop.reportd.Service", "GetWorkflows", [problem.path])
+                .then((args, _options) => setWorkflows(args[0]),
+                      exception => console.error(cockpit.format("Failed to get workflows for problem $0: $1", problem.path, (exception.problem || exception.message))));
+    };
 
-    render() {
-        return (
-            <Card>
-                <CardTitle component="h2">{_("Crash reporting")}</CardTitle>
-                <CardBody>
-                    <FAFWorkflowRow problem={this.props.problem} />
-                    {
-                        this.state.workflows.map((workflow, index) => [
-                            <BusWorkflowRow key={index.toString()}
-                                            problem={this.props.problem}
-                                            client={reportd_client}
-                                            workflow={workflow} />
-                        ])
-                    }
-                </CardBody>
-            </Card>
-        );
-    }
-}
+    return (
+        <Card>
+            <CardTitle component="h2">{_("Crash reporting")}</CardTitle>
+            <CardBody>
+                <FAFWorkflowRow problem={problem} />
+                {
+                    workflows.map((workflow, index) => [
+                        <BusWorkflowRow key={index.toString()}
+                                        problem={problem}
+                                        client={reportd_client}
+                                        workflow={workflow} />
+                    ])
+                }
+            </CardBody>
+        </Card>
+    );
+};

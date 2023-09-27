@@ -153,12 +153,12 @@ class StorageHelpers:
 
     def retry_in_content_tab(self, row_index, tab_index, func):
         def step():
-            tab = self.content_tab_expand(row_index, tab_index)
             try:
                 # We want anything in FUNC to fail really
                 # fast. Otherwise we have to wait really long for
                 # actual failures.
                 with self.browser.wait_timeout(0):
+                    tab = self.content_tab_expand(row_index, tab_index)
                     func(tab)
                     return True
             except Error:

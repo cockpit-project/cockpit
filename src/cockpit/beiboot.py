@@ -22,7 +22,6 @@ import importlib.resources
 import logging
 import os
 import shlex
-import sys
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Sequence
 
@@ -309,8 +308,21 @@ async def run(args) -> None:
         bridge.write_control(message)
         bridge.ssh_peer.thaw_endpoint()
     except ferny.InteractionError as exc:
-        sys.exit(str(exc))
+        error = ferny.ssh_errors.get_exception_for_ssh_stderr(str(exc))
+        logger.debug("ferny.InteractionError: %s, interpreted as: %r", exc, error)
+        if isinstance(error, ferny.SshAuthenticationError):
+            problem = 'authentication-failed'
+        elif isinstance(error, ferny.SshHostKeyError):
+            problem = 'unknown-hostkey'
+        elif isinstance(error, OSError):
+            # usually DNS/socket errors
+            problem = 'unknown-host'
+        else:
+            problem = 'internal-error'
+        bridge.write_control(command='init', problem=problem, message=str(error))
+        return
     except CockpitProblem as exc:
+        logger.debug("CockpitProblem: %s", exc)
         bridge.write_control(exc.attrs, command='init')
         return
 

@@ -321,7 +321,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # create two updates; force installing chocolate before vanilla
         self.createPackage("vanilla", "1.0", "1", install=True)
         self.createPackage("vanilla", "1.0", "2", depends="chocolate",
-                           postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
+                           postinst=f"while [ ! -e {install_lockfile} ]; do sleep 1; done; rm -f {install_lockfile}")
         self.createPackage("chocolate", "2.0", "1", install=True, arch=self.secondary_arch)
         self.createPackage("chocolate", "2.0", "2", arch=self.secondary_arch)
         self.enableRepo()
@@ -452,11 +452,11 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
                 if self.rebootRequired:
                     # setting app as static in tracer's helper file will cause it to require a reboot
                     self.testObj.write_file("/etc/tracer/applications.xml",
-                                            """
+                                            f"""
 <applications>
-   <app name="{0}" type="static" />
+   <app name="{self.packageName}" type="static" />
 </applications>
-""".format(self.packageName))
+""")
 
                 scriptContent = "#!/bin/sh\nsleep infinity"
                 unitContent = f"""
@@ -984,7 +984,7 @@ ExecStart=/usr/local/bin/{packageName}
         # create two updates; force installing chocolate before vanilla
         self.createPackage("vanilla", "1.0", "1", install=True)
         self.createPackage("vanilla", "1.0", "2",
-                           postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
+                           postinst=f"while [ ! -e {install_lockfile} ]; do sleep 1; done; rm -f {install_lockfile}")
         self.enableRepo()
         m.execute("pkcon refresh")
 
@@ -1019,7 +1019,7 @@ ExecStart=/usr/local/bin/{packageName}
         m.execute("pkcon refresh")
 
         # break the upgrade by removing the generated packages from the repo
-        m.execute("rm -f {0}/vapor*.deb {0}/vapor*.rpm {0}/vapor*.pkg*".format(self.repo_dir))
+        m.execute(f"rm -f {self.repo_dir}/vapor*.deb {self.repo_dir}/vapor*.rpm {self.repo_dir}/vapor*.pkg*")
 
         m.start_cockpit()
         b.login_and_go("/updates")

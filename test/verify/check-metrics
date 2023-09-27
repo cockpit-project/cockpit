@@ -59,19 +59,19 @@ def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
     if name.endswith("zip"):
         command = f"unzip /tmp/{name} -d /"
 
-    machine.execute("""ntp=`timedatectl show --property NTP --value`
+    machine.execute(f"""ntp=`timedatectl show --property NTP --value`
                        if [ $ntp == "yes" ]; then
                            timedatectl set-ntp off
                        fi
                        systemctl stop pmlogger
                        # don't let NM set transient host names from DHCP
                        systemctl stop NetworkManager
-                       hostnamectl set-hostname {2}
+                       hostnamectl set-hostname {hostname}
                        rm -rf /var/log/pcp/pmlogger/*
-                       {0}
+                       {command}
                        # set-ntp off is asynchronous; wait until timesyncd stops before the time can be set
                        while systemctl is-active systemd-timesyncd; do sleep 1; done
-                       timedatectl set-time @{1}""".format(command, time, hostname))
+                       timedatectl set-time @{time}""")
 
 
 def redisService(image):

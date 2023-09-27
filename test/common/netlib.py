@@ -43,7 +43,7 @@ class NetworkHelpers:
         self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-{0}-test.rules; ip link del dev {0}".format(name))
         if dhcp_cidr:
             # up the remote end, give it an IP, and start DHCP server
-            self.machine.execute("ip a add {0} dev v_{1}; ip link set v_{1} up".format(dhcp_cidr, name))
+            self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")
             server = self.machine.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
                                         "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{0} --no-resolv "
                                         "--bind-interfaces --except-interface=lo --interface=v_{0} --dhcp-range={1},{2},4h".format(name, dhcp_range[0], dhcp_range[1]),
@@ -191,14 +191,14 @@ class NetworkCase(MachineCase, NetworkHelpers):
         m.execute("systemctl restart NetworkManager")
 
     def slow_down_dhclient(self, delay):
-        self.machine.execute("""
-        mkdir -p {0}
-        cp -a /usr/sbin/dhclient {0}/dhclient.real
-        printf '#!/bin/sh\\nsleep {1}\\nexec {0}/dhclient.real "$@"' > {0}/dhclient
-        chmod a+x {0}/dhclient
-        if selinuxenabled 2>&1; then chcon --reference /usr/sbin/dhclient {0}/dhclient; fi
-        mount -o bind {0}/dhclient /usr/sbin/dhclient
-        """.format(self.vm_tmpdir, delay))
+        self.machine.execute(f"""
+        mkdir -p {self.vm_tmpdir}
+        cp -a /usr/sbin/dhclient {self.vm_tmpdir}/dhclient.real
+        printf '#!/bin/sh\\nsleep {delay}\\nexec {self.vm_tmpdir}/dhclient.real "$@"' > {self.vm_tmpdir}/dhclient
+        chmod a+x {self.vm_tmpdir}/dhclient
+        if selinuxenabled 2>&1; then chcon --reference /usr/sbin/dhclient {self.vm_tmpdir}/dhclient; fi
+        mount -o bind {self.vm_tmpdir}/dhclient /usr/sbin/dhclient
+        """)
         self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
 
     def wait_onoff(self, sel, val):

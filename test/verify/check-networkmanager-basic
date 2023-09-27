@@ -201,8 +201,8 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
 
-        self.assertIn("192.168.1.1/25", m.execute("nmcli -g ipv4.addresses connection show {0}".format(iface)))
-        self.assertIn("192.168.1.126", m.execute("nmcli -g ipv4.gateway connection show {0}".format(iface)))
+        self.assertIn("192.168.1.1/25", m.execute(f"nmcli -g ipv4.addresses connection show {iface}"))
+        self.assertIn("192.168.1.126", m.execute(f"nmcli -g ipv4.gateway connection show {iface}"))
 
     def testNoService(self):
         b = self.browser

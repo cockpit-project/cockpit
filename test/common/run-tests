@@ -90,7 +90,7 @@ class Test:
         if self.returncode == 0 and affected and self.retry_when_affected and self.retries < 2:
             retry_reason = "test affected tests 3 times"
             self.retries += 1
-            self._print_test(print_tap, "# RETRY {0} ({1})".format(self.retries, retry_reason))
+            self._print_test(print_tap, f"# RETRY {self.retries} ({retry_reason})")
             return retry_reason, 0
 
         # If test is being skipped pick up the reason
@@ -142,7 +142,7 @@ class Test:
 
             except OSError as ex:
                 if ex.errno != errno.ENOENT:
-                    sys.stderr.write("\nCouldn't run test-failure-policy: {0}\n".format(str(ex)))
+                    sys.stderr.write(f"\nCouldn't run test-failure-policy: {ex!s}\n")
 
         # HACK: many tests are unstable, always retry them 3 times unless affected
         if not affected and not retry_reason and not opts.no_retry_fail:
@@ -152,7 +152,7 @@ class Test:
         has_pixel_test_message = testlib.PIXEL_TEST_MESSAGE.encode() in self.output
         if self.retries < 2 and not (has_unexpected_message or has_pixel_test_message) and retry_reason:
             self.retries += 1
-            self._print_test(retry_reason="# RETRY {0} ({1})".format(self.retries, retry_reason))
+            self._print_test(retry_reason=f"# RETRY {self.retries} ({retry_reason})")
             return retry_reason, 0
 
         self.output += b"\n"
@@ -340,7 +340,7 @@ def detect_tests(test_files, image, opts):
                 seen_classes[cls] = filename
 
                 test_method = getattr(test.__class__, test._testMethodName)
-                test_str = "{0}.{1}".format(cls, test._testMethodName)
+                test_str = f"{cls}.{test._testMethodName}"
                 # most tests should take much less than 10mins, so default to that;
                 # longer tests can be annotated with @timeout(seconds)
                 # check the test function first, fall back to the class'es timeout

@@ -53,9 +53,8 @@ import {
 import {
     bond_mode_choices,
 } from './bond.jsx';
-import {
-    ipv4_method_choices, ipv6_method_choices,
-} from './ip-settings.jsx';
+
+import { get_ip_method_choices } from './ip-settings.jsx';
 
 const _ = cockpit.gettext;
 
@@ -283,8 +282,7 @@ export const NetworkInterfacePage = ({
             const parts = [];
 
             if (params.method != "manual")
-                parts.push(choice_title((topic == "ipv4") ? ipv4_method_choices : ipv6_method_choices,
-                                        params.method, _("Unknown configuration")));
+                parts.push(choice_title(get_ip_method_choices(topic), params.method, _("Unknown configuration")));
 
             const addr_is_extra = (params.method != "manual");
             const addrs = [];

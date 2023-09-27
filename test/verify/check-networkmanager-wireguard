@@ -124,7 +124,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.wait_in_text(f"#networking-interfaces th:contains('{iface_name}') + td", f"1.2.3.4/32, {m1_ip4}/24")
 
         # if some wg properties are not valid, for example, if it was changed by some external tool, don't crash
-        m1.execute("sed -i 's/.*allowed-ips.*//' /etc/NetworkManager/system-connections/con-wg0.nmconnection")
+        m1.execute("sed -i '/allowed-ips/d' /etc/NetworkManager/system-connections/con-wg0.nmconnection")
         m1.execute("systemctl restart NetworkManager")
         b.reload()
         b.enter_page("/network")

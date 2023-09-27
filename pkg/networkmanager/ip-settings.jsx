@@ -36,25 +36,26 @@ import { useDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
-export const ipv4_method_choices =
-    [
-        { choice: 'auto', title: _("Automatic (DHCP)") },
-        { choice: 'link-local', title: _("Link local") },
-        { choice: 'manual', title: _("Manual") },
-        { choice: 'shared', title: _("Shared") },
-        { choice: 'disabled', title: _("Disabled") }
-    ];
+const ip_method_choices = [
+    { choice: 'auto', title: _("Automatic") },
+    { choice: 'dhcp', title: _("Automatic (DHCP only)") },
+    { choice: 'link-local', title: _("Link local") },
+    { choice: 'manual', title: _("Manual") },
+    { choice: 'ignore', title: _("Ignore") },
+    { choice: 'shared', title: _("Shared") },
+    { choice: 'disabled', title: _("Disabled") }
+];
 
-export const ipv6_method_choices =
-    [
-        { choice: 'auto', title: _("Automatic") },
-        { choice: 'dhcp', title: _("Automatic (DHCP only)") },
-        { choice: 'link-local', title: _("Link local") },
-        { choice: 'manual', title: _("Manual") },
-        { choice: 'ignore', title: _("Ignore") },
-        { choice: 'shared', title: _("Shared") },
-        { choice: 'disabled', title: _("Disabled") }
-    ];
+const supported_ipv4_methods = ['auto', 'link-local', 'manual', 'shared', 'disabled'];
+
+export function get_ip_method_choices(topic) {
+    if (topic === 'ipv4') {
+        return ip_method_choices.filter(item => supported_ipv4_methods.includes(item.choice));
+    }
+
+    // IPv6 supports all the choices
+    return ip_method_choices;
+}
 
 export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
     const Dialogs = useDialogs();
@@ -164,7 +165,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                             aria-label={_("Select method")}
                                             onChange={(_, val) => setMethod(val)}
                                             value={method}>
-                                    {(topic == "ipv4" ? ipv4_method_choices : ipv6_method_choices).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
+                                    {get_ip_method_choices(topic).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                                 </FormSelect>
                                 <Tooltip content={_("Add address")}>
                                     <Button variant="secondary"

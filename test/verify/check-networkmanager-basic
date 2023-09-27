@@ -139,7 +139,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
         m.execute(f"nmcli connection modify '{con_id}' ipv4.method auto")
         m.execute(f"nmcli connection modify '{con_id}' ipv4.gateway ''")
         m.execute(f"nmcli connection modify '{con_id}' ipv4.addresses ''")
-        self.wait_for_iface_setting('IPv4', "Automatic (DHCP)")
+        self.wait_for_iface_setting('IPv4', "Automatic")
         m.execute(f"nmcli connection up '{con_id}'")
         self.wait_for_iface_setting('Status', '10.111.')
 

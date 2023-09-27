@@ -40,51 +40,45 @@ const _ = cockpit.gettext;
  *    - title (string)
  *    - description (string)
  */
-export class ProfilesMenuDialogBody extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            selected_profile: this.props.active_profile,
-        };
-    }
+export const ProfilesMenuDialogBody = ({ active_profile, profiles, change_selected, isDisabled }) => {
+    const [selected_profile, setSelectedProfile] = React.useState(active_profile);
 
-    render() {
-        const profiles = this.props.profiles.map((itm) => {
-            return (
-                <MenuItem itemId={itm.name} key={itm.name} data-value={itm.name}
-                          description={itm.description} isDisabled={this.props.isDisabled}
-                          isActive={itm.active}>
-                    <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                        <p>{ itm.title }</p>
-                        <FlexItem>
-                            <LabelGroup>
-                                {itm.recommended && <Label color="green" variant='filled'>{_("recommended")}</Label>}
-                                {itm.active && <Label color="blue" variant='filled'>{_("active")}</Label>}
-                                {itm.inconsistent && <Label color="orange" variant='filled'>{_("inconsistent")}</Label>}
-                            </LabelGroup>
-                        </FlexItem>
-                    </Flex>
-                </MenuItem>
-            );
-        });
+    const menuProfiles = profiles.map((itm) => {
         return (
-            <Menu className="ct-menu-select-widget"
-                  isPlain
-                  isScrollable
-                  onSelect={(_, selected) => {
-                      this.setState({ selected_profile: selected });
-                      this.props.change_selected(selected);
-                  }}
-                  selected={this.state.selected_profile}>
-                <MenuContent>
-                    <MenuList>
-                        {profiles}
-                    </MenuList>
-                </MenuContent>
-            </Menu>
+            <MenuItem itemId={itm.name} key={itm.name} data-value={itm.name}
+                      description={itm.description} isDisabled={isDisabled}
+                      isActive={itm.active}>
+                <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                    <p>{ itm.title }</p>
+                    <FlexItem>
+                        <LabelGroup>
+                            {itm.recommended && <Label color="green" variant='filled'>{_("recommended")}</Label>}
+                            {itm.active && <Label color="blue" variant='filled'>{_("active")}</Label>}
+                            {itm.inconsistent && <Label color="orange" variant='filled'>{_("inconsistent")}</Label>}
+                        </LabelGroup>
+                    </FlexItem>
+                </Flex>
+            </MenuItem>
         );
-    }
-}
+    });
+    return (
+        <Menu className="ct-menu-select-widget"
+              isPlain
+              isScrollable
+              onSelect={(_, selected) => {
+                  setSelectedProfile(selected);
+                  change_selected(selected);
+              }}
+              selected={selected_profile}>
+            <MenuContent>
+                <MenuList>
+                    {menuProfiles}
+                </MenuList>
+            </MenuContent>
+        </Menu>
+    );
+};
+
 ProfilesMenuDialogBody.propTypes = {
     active_profile: PropTypes.string.isRequired,
     change_selected: PropTypes.func.isRequired,

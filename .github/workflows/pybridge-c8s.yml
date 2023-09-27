@@ -10,7 +10,14 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Install dependencies
-        run: dnf install -y git-core python3-pytest python3
+        run: |
+          for i in $(seq 5); do
+              if timeout 180 dnf install -y git-core python3-pytest python3; then
+                  exit 0
+              fi
+              sleep $((i * i * 5))
+          done
+          exit 1
 
       - name: Clone repository
         uses: actions/checkout@v3

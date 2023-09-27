@@ -92,6 +92,43 @@ def sortify_version(version: str) -> str:
     return '.'.join(part.zfill(8) for part in version.split('.'))
 
 
+@functools.lru_cache()
+def get_libexecdir() -> str:
+    """Detect libexecdir on current machine
+
+    This only works for systems which have cockpit-ws installed.
+    """
+    for candidate in ['/usr/local/libexec', '/usr/libexec', '/usr/local/lib/cockpit', '/usr/lib/cockpit']:
+        if os.path.exists(os.path.join(candidate, 'cockpit-askpass')):
+            return candidate
+    else:
+        logger.warning('Could not detect libexecdir')
+        # give readable error messages
+        return '/nonexistent/libexec'
+
+
+# HACK: Type narrowing over Union types is not supported in the general case,
+# but this works for the case we care about: knowing that when we pass in an
+# JsonObject, we'll get an JsonObject back.
+J = TypeVar('J', JsonObject, JsonDocument)
+
+
+def patch_libexecdir(obj: J) -> J:
+    if isinstance(obj, str):
+        if '${libexecdir}/cockpit-askpass' in obj:
+            # extra-special case: we handle this internally
+            abs_askpass = shutil.which('cockpit-askpass')
+            if abs_askpass is not None:
+                return obj.replace('${libexecdir}/cockpit-askpass', abs_askpass)
+        return obj.replace('${libexecdir}', get_libexecdir())
+    elif isinstance(obj, dict):
+        return {key: patch_libexecdir(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [patch_libexecdir(item) for item in obj]
+    else:
+        return obj
+
+
 # A document is a binary stream with a Content-Type, optional Content-Encoding,
 # and optional Content-Security-Policy
 class Document(NamedTuple):
@@ -281,42 +318,6 @@ class PackagesLoader:
         'path-not-exists': lambda p: not os.path.exists(p),
     }
 
-    @staticmethod
-    @functools.lru_cache()
-    def get_libexecdir() -> str:
-        """Detect libexecdir on current machine
-
-        This only works for systems which have cockpit-ws installed.
-        """
-        for candidate in ['/usr/local/libexec', '/usr/libexec', '/usr/local/lib/cockpit', '/usr/lib/cockpit']:
-            if os.path.exists(os.path.join(candidate, 'cockpit-askpass')):
-                return candidate
-        else:
-            logger.warning('Could not detect libexecdir')
-            # give readable error messages
-            return '/nonexistent/libexec'
-
-    # HACK: Type narrowing over Union types is not supported in the general case,
-    # but this works for the case we care about: knowing that when we pass in an
-    # JsonObject, we'll get an JsonObject back.
-    J = TypeVar('J', JsonObject, JsonDocument)
-
-    @classmethod
-    def patch_libexecdir(cls, obj: J) -> J:
-        if isinstance(obj, str):
-            if '${libexecdir}/cockpit-askpass' in obj:
-                # extra-special case: we handle this internally
-                abs_askpass = shutil.which('cockpit-askpass')
-                if abs_askpass is not None:
-                    return obj.replace('${libexecdir}/cockpit-askpass', abs_askpass)
-            return obj.replace('${libexecdir}', cls.get_libexecdir())
-        elif isinstance(obj, dict):
-            return {key: cls.patch_libexecdir(value) for key, value in obj.items()}
-        elif isinstance(obj, list):
-            return [cls.patch_libexecdir(item) for item in obj]
-        else:
-            return obj
-
     @classmethod
     def get_xdg_data_dirs(cls) -> Iterable[str]:
         try:
@@ -368,7 +369,7 @@ class PackagesLoader:
 
             manifest = cls.merge_patch(manifest, override)
 
-        return cls.patch_libexecdir(manifest)
+        return patch_libexecdir(manifest)
 
     @classmethod
     def load_manifests(cls) -> Iterable[Manifest]:

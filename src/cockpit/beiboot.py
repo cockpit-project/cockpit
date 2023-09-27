@@ -34,7 +34,7 @@ from cockpit.bridge import setup_logging
 from cockpit.channel import ChannelRoutingRule
 from cockpit.channels import PackagesChannel
 from cockpit.jsonutil import JsonObject
-from cockpit.packages import Packages, PackagesLoader
+from cockpit.packages import Packages, PackagesLoader, patch_libexecdir
 from cockpit.peer import Peer
 from cockpit.protocol import CockpitProblem
 from cockpit.router import Router, RoutingRule
@@ -44,9 +44,15 @@ logger = logging.getLogger('cockpit.beiboot')
 
 
 def ensure_ferny_askpass() -> Path:
+    """Create askpass executable
+
+    We need this for the flatpak: ssh and thus the askpass program run on the host (via flatpak-spawn),
+    not the flatpak. Thus we cannot use the shipped cockpit-askpass program.
+    """
     src_path = importlib.resources.files(ferny.__name__) / 'interaction_client.py'
     src_data = src_path.read_bytes()
 
+    # Create the file in $XDG_CACHE_HOME, one of the few locations that a flatpak can write to
     xdg_cache_home = os.environ.get('XDG_CACHE_HOME')
     if xdg_cache_home is None:
         xdg_cache_home = os.path.expanduser('~/.cache')
@@ -185,9 +191,21 @@ class SshPeer(Peer):
         cmd: Sequence[str] = ('python3', '-ic', '# cockpit-bridge')
         env: Sequence[str] = ()
 
+        in_flatpak = os.path.exists('/.flatpak-info')
+
         # Remote host?  Wrap command with SSH
         if self.destination != 'localhost':
-            ssh_askpass = ensure_ferny_askpass()
+            if in_flatpak:
+                # we run ssh and thus the helper on the host, always use the xdg-cache helper
+                ssh_askpass = ensure_ferny_askpass()
+            else:
+                # outside of the flatpak we expect cockpit-ws and thus an installed helper
+                askpass = patch_libexecdir('${libexecdir}/cockpit-askpass')
+                assert isinstance(askpass, str)
+                ssh_askpass = Path(askpass)
+                if not ssh_askpass.exists():
+                    logger.error("Could not find cockpit-askpass helper at %r", askpass)
+
             env = (
                 f'SSH_ASKPASS={ssh_askpass!s}',
                 'DISPLAY=x',
@@ -203,7 +221,7 @@ class SshPeer(Peer):
             cmd = ('ssh', *host_args, shlex.join(cmd))
 
         # Running in flatpak?  Wrap command with flatpak-spawn --host
-        if os.path.exists('/.flatpak-info'):
+        if in_flatpak:
             cmd = ('flatpak-spawn', '--host',
                    *(f'--env={kv}' for kv in env),
                    *cmd)

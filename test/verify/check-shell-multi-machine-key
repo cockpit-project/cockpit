@@ -34,7 +34,7 @@ def authorize_user(m, user, public_keys=None):
         public_keys = ["verify/files/ssh/id_rsa.pub"]
     m.execute(f"mkdir -p /home/{user}/.ssh")
     m.upload(public_keys, f"/home/{user}/.ssh/authorized_keys")
-    m.execute("chown -R {0}:{0} /home/{0}/.ssh/".format(user))
+    m.execute(f"chown -R {user}:{user} /home/{user}/.ssh/")
     m.execute(f"chmod 600 /home/{user}/.ssh/authorized_keys")
     m.execute(f"chmod 700 /home/{user}/.ssh")
 
@@ -69,12 +69,12 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
     def load_key(self, name, password):
         self.browser.switch_to_top()
         self.browser.eval_js("loaded = false")
-        self.browser.eval_js("""
+        self.browser.eval_js(f"""
             load = function (user) {{
-                const proc = cockpit.spawn([ 'ssh-add', '{0}' ], {{ pty: true, directory: user.home + '/.ssh' }});
+                const proc = cockpit.spawn([ 'ssh-add', '{name}' ], {{ pty: true, directory: user.home + '/.ssh' }});
                 proc.stream(data => {{
                         if (data.indexOf('passphrase') !== -1)
-                            proc.input('{1}\\n', true);
+                            proc.input('{password}\\n', true);
                         console.log(data);
                     }})
                     .then(() => {{
@@ -84,7 +84,7 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
                         console.error(JSON.stringify(ex));
                     }});
             }}
-        """.format(name, password))
+        """)
         self.browser.eval_js("cockpit.user().done(load)")
         self.browser.wait_js_cond('loaded === true')
 

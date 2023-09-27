@@ -216,33 +216,33 @@ Server = file://{empty_repo_dir}
                 if isinstance(data, dict):
                     installcmds += f"cp {data['path']} \"$RPM_BUILD_ROOT/{path}\""
                 else:
-                    installcmds += 'cat >"$RPM_BUILD_ROOT/{0}" <<\'EOF\'\n'.format(path) + data + '\nEOF\n'
+                    installcmds += f'cat >"$RPM_BUILD_ROOT/{path}" <<\'EOF\'\n' + data + '\nEOF\n'
                 installedfiles += f"{path}\n"
 
         architecture = ""
         if arch == self.primary_arch:
             architecture = f"BuildArch: {self.primary_arch}"
-        spec = """
-Summary: dummy {0}
-Name: {0}
-Version: {1}
-Release: {2}
+        spec = f"""
+Summary: dummy {name}
+Name: {name}
+Version: {version}
+Release: {release}
 License: BSD
-{8}
-{7}
-{4}
+{provides}
+{architecture}
+{requires}
 
 %%install
-{5}
+{installcmds}
 
 %%description
 Test package.
 
 %%files
-{6}
+{installedfiles}
 
-{3}
-""".format(name, version, release, postcode, requires, installcmds, installedfiles, architecture, provides)
+{postcode}
+"""
         self.machine.write("/tmp/spec", spec)
         cmd = """
 rpmbuild --quiet -bb /tmp/spec
@@ -344,14 +344,14 @@ post_upgrade() {{
             if info.get("cves"):
                 changes += "\n  * " + ", ".join(info["cves"])
 
-            path = "{0}/changelogs/{1}/{2}/{2}_{3}-{4}".format(self.repo_dir, pkg[0], pkg, ver, rel)
-            contents = """{0} ({1}-{2}) unstable; urgency=medium
+            path = f"{self.repo_dir}/changelogs/{pkg[0]}/{pkg}/{pkg}_{ver}-{rel}"
+            contents = f"""{pkg} ({ver}-{rel}) unstable; urgency=medium
 
-  * {3}
+  * {changes}
 
  -- Joe Developer <joe@example.com>  Wed, 31 May 2017 14:52:25 +0200
-""".format(pkg, ver, rel, changes)
-            self.machine.execute("mkdir -p $(dirname {0}); echo '{1}' > {0}".format(path, contents))
+"""
+            self.machine.execute(f"mkdir -p $(dirname {path}); echo '{contents}' > {path}")
 
     def createYumUpdateInfo(self):
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n<updates>\n'

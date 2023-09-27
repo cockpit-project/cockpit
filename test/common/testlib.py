@@ -513,7 +513,7 @@ class Browser:
 
     def select_from_dropdown(self, selector: str, value):
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
-        text_selector = "{0} option[value='{1}']".format(selector, value)
+        text_selector = f"{selector} option[value='{value}']"
         self._wait_present(text_selector)
         self.set_val(selector, value)
         self.wait_val(selector, value)
@@ -914,7 +914,7 @@ class Browser:
         if self.cdp and self.cdp.valid:
             self.cdp.command("clearExceptions()")
 
-            filename = "{0}-{1}.png".format(label or self.label, title)
+            filename = f"{label or self.label}-{title}.png"
             if self.body_clip:
                 ret = self.cdp.invoke("Page.captureScreenshot", clip=self.body_clip, no_trace=True)
             else:
@@ -927,7 +927,7 @@ class Browser:
             else:
                 print("Screenshot not available")
 
-            filename = "{0}-{1}.html".format(label or self.label, title)
+            filename = f"{label or self.label}-{title}.html"
             html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",
                                    no_trace=True)["result"]["value"]
             with open(filename, 'wb') as f:
@@ -1208,7 +1208,7 @@ class Browser:
 
         logs = list(self.get_js_log())
         if logs:
-            filename = "{0}-{1}.js.log".format(label or self.label, title)
+            filename = f"{label or self.label}-{title}.js.log"
             with open(filename, 'wb') as f:
                 f.write('\n'.join(logs).encode('UTF-8'))
             attach(filename, move=True)
@@ -1256,7 +1256,7 @@ class MachineCase(unittest.TestCase):
             return cls.global_machine
         cls.global_machine = cls.new_machine(cls, restrict=True, cleanup=False)
         if opts.trace:
-            print("Starting global machine {0}".format(cls.global_machine.label))
+            print(f"Starting global machine {cls.global_machine.label}")
         cls.global_machine.start()
         return cls.global_machine
 
@@ -1426,7 +1426,7 @@ class MachineCase(unittest.TestCase):
                     first_machine = False
                     self.machine = machine
                 if opts.trace:
-                    print("Starting {0} {1}".format(key, machine.label))
+                    print(f"Starting {key} {machine.label}")
                 machine.start()
 
         self.danger_btn_class = '.pf-m-danger'
@@ -1914,7 +1914,7 @@ class MachineCase(unittest.TestCase):
         # write the report
         if suffix:
             suffix = "-" + suffix
-        filename = "{0}{1}-axe.json.gz".format(label or self.label(), suffix)
+        filename = f"{label or self.label()}{suffix}-axe.json.gz"
         with gzip.open(filename, "wb") as f:
             f.write(json.dumps(report).encode('UTF-8'))
         print("Wrote accessibility report to " + filename)
@@ -1996,14 +1996,14 @@ class MachineCase(unittest.TestCase):
         The optional apply_change_action will be run both after sedding and after restoring the file.
         """
         m = self.machine
-        m.execute("sed -i.cockpittest '{0}' {1}".format(expr, path))
+        m.execute(f"sed -i.cockpittest '{expr}' {path}")
         if apply_change_action:
             m.execute(apply_change_action)
 
         if self.is_nondestructive():
             if apply_change_action:
                 self.addCleanup(m.execute, apply_change_action)
-            self.addCleanup(m.execute, "mv {0}.cockpittest {0}".format(path))
+            self.addCleanup(m.execute, f"mv {path}.cockpittest {path}")
 
     def file_exists(self, path: str) -> bool:
         """Check if file exists on test machine"""
@@ -2179,7 +2179,7 @@ def skipBrowser(reason: str, *browsers: str):
     """
     browser = os.environ.get("TEST_BROWSER", "chromium")
     if browser in browsers:
-        return unittest.skip("{0}: {1}".format(browser, reason))
+        return unittest.skip(f"{browser}: {reason}")
     return lambda testEntity: testEntity
 
 
@@ -2192,7 +2192,7 @@ def skipImage(reason: str, *images: str):
     Example: @skipImage("no btrfs support on RHEL", "rhel-*")
     """
     if any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, img) for img in images):
-        return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
+        return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
     return lambda testEntity: testEntity
 
 
@@ -2203,7 +2203,7 @@ def onlyImage(reason: str, *images: str):
     support Unix shell style patterns via fnmatch.fnmatch.
     """
     if not any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, arg) for arg in images):
-        return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
+        return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
     return lambda testEntity: testEntity
 
 
@@ -2213,7 +2213,7 @@ def skipOstree(reason: str):
     Skip test for *reason* on OSTree images defined in OSTREE_IMAGES in bots/lib/constants.py.
     """
     if testvm.DEFAULT_IMAGE in OSTREE_IMAGES:
-        return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
+        return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
     return lambda testEntity: testEntity
 
 
@@ -2318,22 +2318,22 @@ class TapRunner:
             return result
         except Exception:
             result.addError(test, sys.exc_info())
-            sys.stderr.write("Unexpected exception while running {0}\n".format(test))
+            sys.stderr.write(f"Unexpected exception while running {test}\n")
             sys.stderr.write(traceback.format_exc())
             return result
         else:
             result.printErrors()
 
         if result.skipped:
-            print("# Result {0} skipped: {1}".format(test, result.skipped[0][1]))
+            print(f"# Result {test} skipped: {result.skipped[0][1]}")
         elif result.wasSuccessful():
-            print("# Result {0} succeeded".format(test))
+            print(f"# Result {test} succeeded")
         else:
             for failure in result.failures:
                 print(failure[1])
             for error in result.errors:
                 print(error[1])
-            print("# Result {0} failed".format(test))
+            print(f"# Result {test} failed")
         return result
 
     def run(self, testable):
@@ -2364,13 +2364,13 @@ class TapRunner:
         # Report on the results
         duration = int(time.time() - start)
         hostname = socket.gethostname().split(".")[0]
-        details = "[{0}s on {1}]".format(duration, hostname)
+        details = f"[{duration}s on {hostname}]"
 
         MachineCase.kill_global_machine()
 
         # Return 77 if all tests were skipped
         if len(skips) == test_count:
-            sys.stdout.write("# SKIP {0}\n".format(", ".join(["{0} {1}".format(str(s[0]), s[1]) for s in skips])))
+            sys.stdout.write("# SKIP {0}\n".format(", ".join([f"{s[0]!s} {s[1]}" for s in skips])))
             return 77
         if failures:
             sys.stdout.write("# {0} TEST{1} FAILED {2}\n".format(failures, "S" if failures > 1 else "", details))
@@ -2386,7 +2386,7 @@ def print_tests(tests):
             print_tests(test)
         elif isinstance(test, unittest.loader._FailedTest):
             name = test.id().replace("unittest.loader._FailedTest.", "")
-            print("Error: '{0}' does not match a test".format(name), file=sys.stderr)
+            print(f"Error: '{name}' does not match a test", file=sys.stderr)
         else:
             print(test.id().replace("__main__.", ""))
 

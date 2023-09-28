@@ -1,13 +1,16 @@
 import asyncio
 import os
 import sys
+import time
 
 import pytest
 
+from cockpit.channel import ChannelError
 from cockpit.packages import BridgeConfig
 from cockpit.peer import ConfiguredPeer, PeerRoutingRule
 from cockpit.protocol import CockpitProtocolError
 from cockpit.router import Router
+from cockpit.transports import SubprocessTransport
 
 from . import mockpeer
 from .mocktransport import MockTransport
@@ -174,3 +177,34 @@ async def test_await_cancellable_connect_close(monkeypatch, event_loop, bridge):
     while len(asyncio.all_tasks()) > 1:
         await asyncio.sleep(0.1)
     assert peer.was_cancelled
+
+
+@pytest.mark.asyncio
+async def test_spawn_broken_pipe(bridge):
+    class BrokenPipePeer(ConfiguredPeer):
+        def __init__(self, *, specific_error=False):
+            super().__init__(bridge, PEER_CONFIG)
+            self.specific_error = specific_error
+
+        async def do_connect_transport(self) -> None:
+            transport = await self.spawn(['sh', '-c', 'exit 9'], ())
+            assert isinstance(transport, SubprocessTransport)
+            time.sleep(0.1)  # sync! increase chance for process to end already
+            transport.write(b'abcdefg\n')
+            while transport.get_returncode() is None:
+                await asyncio.sleep(0.1)
+            if self.specific_error:
+                raise ChannelError('not-supported', message='kaputt')
+
+    # BrokenPipe bubbles up without an error returned by do_connect_transport
+    peer = BrokenPipePeer(specific_error=False)
+    with pytest.raises(BrokenPipeError):
+        await peer.start()
+    peer.close()
+
+    # BrokenPipe gets trumped by specific error returned by do_connect_transport
+    peer = BrokenPipePeer(specific_error=True)
+    with pytest.raises(ChannelError) as raises:
+        await peer.start()
+    assert raises.value.kwargs == {'message': 'kaputt', 'problem': 'not-supported'}
+    peer.close()

@@ -40,7 +40,7 @@ from cockpit.protocol import CockpitProblem
 from cockpit.router import Router, RoutingRule
 from cockpit.transports import StdioTransport
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cockpit.beiboot')
 
 
 def ensure_ferny_askpass() -> Path:

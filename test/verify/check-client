@@ -66,9 +66,7 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
     def logout(self, check_last_host=None):
         b = self.browser
 
-        b.assert_no_oops()
-        b.open_session_menu()
-        b.click('#logout')
+        b.logout()
         # FIXME: This is broken, nothing appears
         # b.wait_text("#brand", "Connect to:")
         if check_last_host:

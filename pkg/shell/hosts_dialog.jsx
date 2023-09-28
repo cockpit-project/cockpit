@@ -32,11 +32,14 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
+import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
@@ -402,6 +405,7 @@ class HostKey extends React.Component {
 
         this.state = {
             inProgress: false,
+            verifyExpanded: false,
             error_options: props.error_options,
         };
 
@@ -464,8 +468,9 @@ class HostKey extends React.Component {
         }
 
         const callback = this.onAddKey;
-        const title = this.props.template === "invalid-hostkey" ? cockpit.format(_("$0 key changed"), this.props.host) : _("New host");
-        const submitText = _("Accept key and connect");
+        const title = cockpit.format(this.props.template === "invalid-hostkey" ? _("$0 key changed") : _("New host: $0"),
+                                     this.props.host);
+        const submitText = _("Trust and add host");
         let unknown = false;
         let body = null;
         if (!key_type) {
@@ -479,18 +484,24 @@ class HostKey extends React.Component {
                 <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), this.props.host)}</p>
                 <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
                 <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
-                <p>{_("If the fingerprint matches, click 'Accept key and connect'. Otherwise, do not connect and contact your administrator.")}</p>
+                <p>{_("If the fingerprint matches, click 'Trust and add host'. Otherwise, do not connect and contact your administrator.")}</p>
             </>;
         } else {
+            const fingerprint_help = <Popover bodyContent={
+                _("The resulting fingerprint is fine to share via public methods, including email. If you are asking someone else to do the verification for you, they can send the results using any method.")}>
+                <OutlinedQuestionCircleIcon />
+            </Popover>;
             body = <>
                 <p>{cockpit.format(_("You are connecting to $0 for the first time."), this.props.host)}</p>
-                <p>{_("To ensure that your connection is not intercepted by a malicious third-party, please verify the host key fingerprint:")}</p>
-                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
-                <p className="hostkey-type">({key_type})</p>
-                <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), this.props.host)}</p>
-                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
-                <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
-                <p>{_("If the fingerprint matches, click 'Accept key and connect'. Otherwise, do not connect and contact your administrator.")}</p>
+                <ExpandableSection toggleText={ _("Verify fingerprint") }
+                                   isExpanded={this.state.verifyExpanded}
+                                   onToggle={(_ev, verifyExpanded) => this.setState({ verifyExpanded }) }>
+                    <div>{_("Run this command over a trusted network or physically on the remote machine:")}</div>
+                    <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
+                    <div>{_("The fingerprint should match:")} {fingerprint_help}</div>
+                    <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
+                </ExpandableSection>
+                <Alert variant='warning' isInline isPlain title={_("Malicious pages on a remote machine may affect other connected hosts")} />
             </>;
         }
 

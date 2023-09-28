@@ -42,6 +42,7 @@ allow cockpit_ws_t self:process setrlimit;
 allow cockpit_ws_t self:tcp_socket create_stream_socket_perms;
 
 kernel_read_system_state(cockpit_ws_t)
+dev_read_sysfs(cockpit_ws_t)
 
 # cockpit-tls can execute cockpit-ws
 can_exec(cockpit_ws_t,cockpit_ws_exec_t)

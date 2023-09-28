@@ -83,17 +83,16 @@ Command = {self.libexecdir}/cockpit-beiboot
                               timeout=30)
 
     def testBeibootNoBridge(self):
-        self.m_client.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
         # set up target machine: no cockpit
         self.m_target.execute("rm /usr/bin/cockpit-bridge; rm -r /usr/share/cockpit")
-
         self.checkLoginScenarios(local_bridge=False)
 
     def testBeibootWithBridge(self):
-        self.m_client.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
         self.checkLoginScenarios(local_bridge=True)
 
     def checkLoginScenarios(self, *, local_bridge=True):
+        self.m_client.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
+
         b = self.browser
         b.open("/")
 

@@ -24,17 +24,14 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
+import { parse_options, unparse_options, extract_option, set_crypto_options, set_crypto_auto_option } from "./utils.js";
 
 import {
     dialog_open, TextInput, PassInput, CheckBoxes, SelectOne,
     StopProcessesMessage, stop_processes_danger_message
 } from "./dialog.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
-import {
-    initial_tab_options, parse_options, unparse_options, extract_option,
-    mount_explanation
-} from "./format-dialog.jsx";
-import { set_crypto_options, set_crypto_auto_option } from "./content-views.jsx";
+import { initial_tab_options, mount_explanation } from "./format-dialog.jsx";
 import { init_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 
 import client from "./client.js";
@@ -78,7 +75,7 @@ export function get_fstab_config(block, also_child_config) {
         return [];
 }
 
-export function find_blocks_for_mount_point(client, mount_point, self) {
+function find_blocks_for_mount_point(client, mount_point, self) {
     const blocks = [];
 
     function is_self(b) {

@@ -21,8 +21,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import cockpit from "cockpit";
 import { dialog_open, TextInput, PassInput } from "./dialog.jsx";
-import { encode_filename, decode_filename, block_name } from "./utils.js";
-import { parse_options, unparse_options, extract_option } from "./format-dialog.jsx";
+import { encode_filename, decode_filename, block_name, parse_options, unparse_options, extract_option, edit_crypto_config } from "./utils.js";
 import { is_mounted } from "./fsys-tab.jsx";
 
 import React from "react";
@@ -48,33 +47,6 @@ function parse_tag_mtime(tag) {
         }
     } else
         return null;
-}
-
-export function edit_config(block, modify) {
-    let old_config, new_config;
-
-    function commit() {
-        new_config[1]["track-parents"] = { t: 'b', v: true };
-        if (old_config)
-            return block.UpdateConfigurationItem(old_config, new_config, { });
-        else
-            return block.AddConfigurationItem(new_config, { });
-    }
-
-    return block.GetSecretConfiguration({}).then(
-        function (items) {
-            old_config = items.find(c => c[0] == "crypttab");
-            new_config = ["crypttab", old_config ? Object.assign({ }, old_config[1]) : { }];
-
-            // UDisks insists on always having a "passphrase-contents" field when
-            // adding a crypttab entry, but doesn't include one itself when returning
-            // an entry without a stored passphrase.
-            //
-            if (!new_config[1]['passphrase-contents'])
-                new_config[1]['passphrase-contents'] = { t: 'ay', v: encode_filename("") };
-
-            return modify(new_config[1], commit);
-        });
 }
 
 export class CryptoTab extends React.Component {
@@ -141,7 +113,7 @@ export class CryptoTab extends React.Component {
         this.monitor_slots(block);
 
         function edit_stored_passphrase() {
-            edit_config(block, function (config, commit) {
+            edit_crypto_config(block, function (config, commit) {
                 dialog_open({
                     Title: _("Stored passphrase"),
                     Fields: [
@@ -188,7 +160,7 @@ export class CryptoTab extends React.Component {
             const content_block = client.blocks_cleartext[block.path];
             const is_fsys = fsys_config || (content_block && content_block.IdUsage == "filesystem");
 
-            edit_config(block, function (config, commit) {
+            edit_crypto_config(block, function (config, commit) {
                 dialog_open({
                     Title: _("Encryption options"),
                     Fields: [

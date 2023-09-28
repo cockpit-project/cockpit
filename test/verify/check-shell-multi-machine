@@ -71,7 +71,7 @@ def start_machine_troubleshoot(b, new=False, known_host=False, password=None):
         if not known_host:
             b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
             b.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
-            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+            b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
     if password:
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b.set_input_text('#login-custom-password', password)
@@ -653,7 +653,19 @@ class TestMultiMachine(testlib.MachineCase):
         fix_hostkey(m1)
         start_machine_troubleshoot(b)
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+
+        # show fingerprint validation
+        b.wait_not_visible("#hosts_setup_server_dialog .hostkey-verify-help-cmds")
+        b.click("#hosts_setup_server_dialog .pf-v5-c-expandable-section__toggle")
+        b.wait_visible("#hosts_setup_server_dialog .hostkey-verify-help-cmds")
+        # run validation command
+        cmd = b.val("#hosts_setup_server_dialog .hostkey-verify-help-cmds input")
+        self.assertIn("ssh-keyscan", cmd)
+        fingerprint = m2.execute(cmd).strip()
+        # there is some additional noise around it, like the OpenSSH version and host name
+        self.assertIn(b.val("#hosts_setup_server_dialog .hostkey-fingerprint input"), fingerprint)
+
+        b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b.set_input_text('#login-custom-password', "foobar")
         # Submit the dialog with Enter instead of clicking the Login button, for variety
@@ -708,7 +720,7 @@ class TestMultiMachine(testlib.MachineCase):
             # Using libssh's knownhosts api port is taken into account when verifying a host
             # with python bridge, ssh(1) tracks known hosts by name/IP, not by port
             b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+            b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
         b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
         b.set_input_text("#login-custom-password", "alt-password")
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
@@ -753,7 +765,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.set_input_text('#add-machine-user', "fred")
         b.click('#hosts_setup_server_dialog button:contains(Add)')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
 
         # There is no key yet.  Create and authorize it.
@@ -853,7 +865,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_visible('#hosts_setup_server_dialog')
         b.click('#hosts_setup_server_dialog button:contains(Add)')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
         b.wait_in_text('#hosts_setup_server_dialog', "The SSH key")
         b.wait_not_present('.password-change-advice')
         b.wait_not_present('.login-setup-auto')

@@ -102,6 +102,77 @@ class TestStoragePartitions(storagelib.StorageCase):
         # 25.1M while newer versions give us 26M or 25M.
         testlib.wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() in ["25M", "25.1M", "26M"])
 
+    def testResize(self):
+        m = self.machine
+        b = self.browser
+
+        # Different versions of UDisks2 round partition sizes
+        # differently during creation, urks.  We nudge the input sizes
+        # a bit in the right places to end up with the same partition
+        # sizes on all platforms.
+
+        if self.storaged_version >= [2, 10]:
+            nudge = 1
+        else:
+            nudge = 0
+
+        self.login_and_go("/storage")
+
+        disk = self.add_ram_disk(100)
+        b.click(f'#drives .sidepanel-row:contains("{disk}")')
+        b.wait_visible('#storage-detail')
+
+        b.click('button:contains(Create partition table)')
+        self.dialog({"type": "gpt"})
+        self.content_row_wait_in_col(1, 0, "Free space")
+
+        # Make two partitions that cover the whole disk.
+
+        self.content_row_action(1, "Create partition")
+        self.dialog({"type": "ext4",
+                     "mount_point": "/foo1",
+                     "size": 80 + nudge},
+                    secondary=True)
+        self.content_row_action(2, "Create partition", isExpandable=False)
+        self.dialog({"type": "ext4",
+                     "mount_point": "/foo2",
+                     "size": 23},
+                    secondary=True)
+
+        self.content_tab_wait_in_info(1, 1, "Size", "80.7 MB")
+        self.content_tab_wait_in_info(2, 1, "Size", "22.0 MB")
+
+        # Both partitions can't be grown
+        self.wait_content_tab_action_disabled(1, 1, "Grow")
+        self.wait_content_tab_action_disabled(2, 1, "Grow")
+
+        # Shrink the first
+        self.content_tab_action(1, 1, "Shrink")
+        self.dialog({"size": 50})
+        self.content_tab_wait_in_info(1, 1, "Size", "50.3 MB")
+
+        # Grow it back externally, Cockpit should complain.  Shrink it
+        # again with Cockpit.
+        m.execute(f"parted -s {disk} resizepart 1 81.7MB")
+        self.content_tab_action(1, 1, "Shrink partition")
+        self.content_tab_wait_in_info(1, 1, "Size", "50.3 MB")
+
+        # Grow it back externally again. Grow the filesystem with
+        # Cockpit.
+        m.execute(f"parted -s {disk} resizepart 1 81.7MB")
+        self.content_tab_action(1, 1, "Grow content")
+        self.content_tab_wait_in_info(1, 1, "Size", "80.7 MB")
+        self.wait_content_tab_action_disabled(1, 1, "Grow")
+
+        # Delete second partition and grow the first to take all the
+        # space.
+        self.content_dropdown_action(2, "Delete")
+        self.confirm()
+        self.content_tab_action(1, 1, "Grow")
+        self.dialog({"size": 103})
+        self.wait_content_tab_action_disabled(1, 1, "Grow")
+        self.content_tab_wait_in_info(1, 1, "Size", "103 MB")
+
 
 if __name__ == '__main__':
     testlib.test_main()

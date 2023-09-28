@@ -44,18 +44,27 @@ export function find_warnings(client) {
         const block = client.blocks[path];
         const lvm2 = client.blocks_lvm2[path];
         const lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
+        const part = client.blocks_part[path];
 
-        if (!lvol)
+        let size, min_change;
+
+        if (lvol) {
+            size = lvol.Size;
+            min_change = client.vgroups[lvol.VolumeGroup].ExtentSize;
+        } else if (part) {
+            size = part.Size;
+            min_change = 1024 * 1024;
+        } else {
             return;
+        }
 
-        if (lvol.Size != block.Size) {
-            // Let's ignore inconsistent lvol/block combinations.
+        if (size != block.Size) {
+            // Let's ignore inconsistent lvol,part/block combinations.
             // These happen during a resize and the inconsistency will
             // eventually go away.
             return;
         }
 
-        const vgroup = client.vgroups[lvol.VolumeGroup];
         let content_path = null;
         let crypto_overhead = 0;
 
@@ -75,26 +84,26 @@ export function find_warnings(client) {
         const vdo = content_block ? client.legacy_vdo_overlay.find_by_backing_block(content_block) : null;
         const stratis_bdev = client.blocks_stratis_blockdev[content_path];
 
-        if (fsys && fsys.Size && (lvol.Size - fsys.Size - crypto_overhead) > vgroup.ExtentSize && fsys.Resize) {
+        if (fsys && fsys.Size && (size - fsys.Size - crypto_overhead) > min_change && fsys.Resize) {
             enter_warning(path, {
                 warning: "unused-space",
-                volume_size: lvol.Size - crypto_overhead,
+                volume_size: size - crypto_overhead,
                 content_size: fsys.Size
             });
         }
 
-        if (vdo && (lvol.Size - vdo.physical_size - crypto_overhead) > vgroup.ExtentSize) {
+        if (vdo && (size - vdo.physical_size - crypto_overhead) > min_change) {
             enter_warning(path, {
                 warning: "unused-space",
-                volume_size: lvol.Size - crypto_overhead,
+                volume_size: size - crypto_overhead,
                 content_size: vdo.physical_size
             });
         }
 
-        if (stratis_bdev && (lvol.Size - Number(stratis_bdev.TotalPhysicalSize) - crypto_overhead) > vgroup.ExtentSize) {
+        if (stratis_bdev && (size - Number(stratis_bdev.TotalPhysicalSize) - crypto_overhead) > min_change) {
             enter_warning(path, {
                 warning: "unused-space",
-                volume_size: lvol.Size - crypto_overhead,
+                volume_size: size - crypto_overhead,
                 content_size: Number(stratis_bdev.TotalPhysicalSize)
             });
         }

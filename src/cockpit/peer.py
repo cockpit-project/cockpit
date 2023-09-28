@@ -99,9 +99,11 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
             #   - other transport exception
             init_message = await self.init_future
 
-        except PeerExited:
-            # This is a fairly generic error.  If the connection process is
-            # still running, perhaps we'd get a better error message from it.
+        except (PeerExited, BrokenPipeError):
+            # These are fairly generic errors. PeerExited means that we observed the process exiting.
+            # BrokenPipeError means that we got EPIPE when attempting to write() to it. In both cases,
+            # the process is gone, but it's not clear why. If the connection process is still running,
+            # perhaps we'd get a better error message from it.
             await connect_task
             # Otherwise, re-raise
             raise

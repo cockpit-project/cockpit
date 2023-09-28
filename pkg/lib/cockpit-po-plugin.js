@@ -44,7 +44,7 @@ function get_plural_expr(statement) {
     return expr;
 }
 
-function buildFile(po_file, subdir, webpack_module, webpack_compilation, out_path, filter) {
+function buildFile(po_file, subdir, webpack_module, webpack_compilation, filename, filter) {
     return new Promise((resolve, reject) => {
         // Read the PO file, remove fuzzy/disabled lines to avoid tripping up the validator
         const po_data = fs.readFileSync(po_file, 'utf8')
@@ -95,6 +95,7 @@ function buildFile(po_file, subdir, webpack_module, webpack_compilation, out_pat
         const wrapper = config.wrapper?.(subdir) || DEFAULT_WRAPPER;
         const output = wrapper.replace('PO_DATA', chunks.join('')) + '\n';
 
+        const out_path = path.join(subdir ? (subdir + '/') : '', filename);
         if (webpack_compilation)
             webpack_compilation.emitAsset(out_path, new webpack_module.sources.RawSource(output));
         else
@@ -121,9 +122,9 @@ function run(webpack_module, webpack_compilation) {
             promises.push(Promise.all([
                 // Separate translations for the manifest.json file and normal pages
                 buildFile(po_file, subdir, webpack_module, webpack_compilation,
-                          `${subdir}/po.${lang}.js`, str => !str.includes('manifest.json')),
+                          `po.${lang}.js`, str => !str.includes('manifest.json')),
                 buildFile(po_file, subdir, webpack_module, webpack_compilation,
-                          `${subdir}/po.manifest.${lang}.js`, str => str.includes('manifest.json'))
+                          `po.manifest.${lang}.js`, str => str.includes('manifest.json'))
             ]));
         }
     }

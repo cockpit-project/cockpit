@@ -807,7 +807,12 @@ class Browser:
         else:
             # happens when cockpit is still running
             self.open_session_menu()
-            self.click('#logout')
+            try:
+                self.click('#logout')
+            except RuntimeError as e:
+                # logging out does destroy the current frame context, it races with the CDP driver finishing the command
+                if "Execution context was destroyed" not in str(e):
+                    raise
         self.wait_visible('#login')
 
         self.machine.allow_restart_journal_messages()

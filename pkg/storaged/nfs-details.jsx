@@ -26,10 +26,10 @@ import {
     dialog_open, TextInput, ComboBox, CheckBoxes,
     StopProcessesMessage, stop_processes_danger_message
 } from "./dialog.jsx";
-import * as format from "./format-dialog.jsx";
 
 import { StdDetailsLayout } from "./details.jsx";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
+import { parse_options, unparse_options, extract_option } from "./utils.js";
 
 const _ = cockpit.gettext;
 
@@ -80,10 +80,10 @@ function get_exported_directories(server) {
 
 export function nfs_fstab_dialog(client, entry) {
     const mount_options = entry ? entry.fields[3] : "defaults";
-    const split_options = format.parse_options(mount_options == "defaults" ? "" : mount_options);
-    const opt_auto = !format.extract_option(split_options, "noauto");
-    const opt_ro = format.extract_option(split_options, "ro");
-    const extra_options = format.unparse_options(split_options);
+    const split_options = parse_options(mount_options == "defaults" ? "" : mount_options);
+    const opt_auto = !extract_option(split_options, "noauto");
+    const opt_ro = extract_option(split_options, "ro");
+    const extra_options = unparse_options(split_options);
 
     function mounting_options(vals) {
         let opts = [];
@@ -92,8 +92,8 @@ export function nfs_fstab_dialog(client, entry) {
         if (vals.mount_options.ro)
             opts.push("ro");
         if (vals.mount_options.extra !== false)
-            opts = opts.concat(format.parse_options(vals.mount_options.extra));
-        return format.unparse_options(opts);
+            opts = opts.concat(parse_options(vals.mount_options.extra));
+        return unparse_options(opts);
     }
 
     function show(busy) {

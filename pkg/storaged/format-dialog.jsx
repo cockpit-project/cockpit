@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
+import { edit_crypto_config, parse_options, unparse_options, extract_option } from "./utils.js";
 
 import React from "react";
 import { FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -33,34 +34,10 @@ import {
 } from "./dialog.jsx";
 
 import { get_fstab_config, is_valid_mount_point } from "./fsys-tab.jsx";
-import { edit_config } from "./crypto-tab.jsx";
 import { init_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { job_progress_wrapper } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
-
-export function parse_options(options) {
-    if (options)
-        return (options.split(",")
-                .map(function (s) { return s.trim() })
-                .filter(function (s) { return s != "" }));
-    else
-        return [];
-}
-
-export function unparse_options(split) {
-    return split.join(",");
-}
-
-export function extract_option(split, opt) {
-    const index = split.indexOf(opt);
-    if (index >= 0) {
-        split.splice(index, 1);
-        return true;
-    } else {
-        return false;
-    }
-}
 
 export function initial_tab_options(client, block, for_fstab) {
     const options = { };
@@ -530,11 +507,11 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                             return block_ptable.CreatePartitionAndFormat(start, vals.size, "", "", { },
                                                                          vals.type, options);
                     } else if (keep_keys) {
-                        return (edit_config(block,
-                                            (config, commit) => {
-                                                config.options = new_crypto_options;
-                                                return commit();
-                                            })
+                        return (edit_crypto_config(block,
+                                                   (config, commit) => {
+                                                       config.options = new_crypto_options;
+                                                       return commit();
+                                                   })
                                 .then(() => maybe_unlock())
                                 .then(content_block => {
                                     return content_block.Format(vals.type, options);

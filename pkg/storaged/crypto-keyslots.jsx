@@ -39,11 +39,9 @@ import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
-import { decode_filename, encode_filename, get_block_mntopts, block_name, for_each_async, get_children } from "./utils.js";
+import { decode_filename, encode_filename, get_block_mntopts, block_name, for_each_async, get_children, parse_options, unparse_options, edit_crypto_config } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { StorageButton } from "./storage-controls.jsx";
-import { parse_options, unparse_options } from "./format-dialog.jsx";
-import { edit_config } from "./crypto-tab.jsx";
 
 import clevis_luks_passphrase_sh from "./clevis-luks-passphrase.sh";
 
@@ -384,7 +382,7 @@ function ensure_crypto_option(steps, progress, client, block, option) {
 
     const new_crypto_options = crypto_options.concat([option]);
     progress(cockpit.format(_("Adding \"$0\" to encryption options"), option), null);
-    return edit_config(block, (config, commit) => {
+    return edit_crypto_config(block, (config, commit) => {
         config.options = { t: 'ay', v: encode_filename(unparse_options(new_crypto_options)) };
         return commit();
     });

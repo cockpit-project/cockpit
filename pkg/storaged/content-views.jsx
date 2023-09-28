@@ -24,6 +24,7 @@ import {
     init_active_usage_processes
 } from "./dialog.jsx";
 import * as utils from "./utils.js";
+import { set_crypto_auto_option } from "./utils.js";
 
 import React from "react";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
@@ -38,13 +39,11 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { StorageButton, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
 import * as PK from "packagekit.js";
-import {
-    format_dialog, parse_options, extract_option, unparse_options
-} from "./format-dialog.jsx";
+import { format_dialog } from "./format-dialog.jsx";
 import { job_progress_wrapper } from "./jobs-panel.jsx";
 
 import { FilesystemTab, is_mounted, mounting_dialog, get_fstab_config } from "./fsys-tab.jsx";
-import { CryptoTab, edit_config } from "./crypto-tab.jsx";
+import { CryptoTab } from "./crypto-tab.jsx";
 import { get_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { BlockVolTab, PoolVolTab, VDOPoolTab } from "./lvol-tabs.jsx";
 import { PartitionTab } from "./part-tab.jsx";
@@ -73,38 +72,6 @@ function next_default_logical_volume_name(client, vgroup, prefix) {
     }
 
     return name;
-}
-
-export function set_crypto_options(block, readonly, auto, nofail, netdev) {
-    return edit_config(block, (config, commit) => {
-        const opts = config.options ? parse_options(utils.decode_filename(config.options.v)) : [];
-        if (readonly !== null) {
-            extract_option(opts, "readonly");
-            if (readonly)
-                opts.push("readonly");
-        }
-        if (auto !== null) {
-            extract_option(opts, "noauto");
-            if (!auto)
-                opts.push("noauto");
-        }
-        if (nofail !== null) {
-            extract_option(opts, "nofail");
-            if (nofail)
-                opts.push("nofail");
-        }
-        if (netdev !== null) {
-            extract_option(opts, "_netdev");
-            if (netdev)
-                opts.push("_netdev");
-        }
-        config.options = { t: 'ay', v: utils.encode_filename(unparse_options(opts)) };
-        return commit();
-    });
-}
-
-export function set_crypto_auto_option(block, flag) {
-    return set_crypto_options(block, null, flag, null, null);
 }
 
 function create_tabs(client, target, options) {

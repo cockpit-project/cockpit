@@ -47,6 +47,88 @@ export function compare_versions(a, b) {
     return a_ints.length - b_ints.length;
 }
 
+export function parse_options(options) {
+    if (options)
+        return (options.split(",")
+                .map(function (s) { return s.trim() })
+                .filter(function (s) { return s != "" }));
+    else
+        return [];
+}
+
+export function unparse_options(split) {
+    return split.join(",");
+}
+
+export function extract_option(split, opt) {
+    const index = split.indexOf(opt);
+    if (index >= 0) {
+        split.splice(index, 1);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export function edit_crypto_config(block, modify) {
+    let old_config, new_config;
+
+    function commit() {
+        new_config[1]["track-parents"] = { t: 'b', v: true };
+        if (old_config)
+            return block.UpdateConfigurationItem(old_config, new_config, { });
+        else
+            return block.AddConfigurationItem(new_config, { });
+    }
+
+    return block.GetSecretConfiguration({}).then(
+        function (items) {
+            old_config = items.find(c => c[0] == "crypttab");
+            new_config = ["crypttab", old_config ? Object.assign({ }, old_config[1]) : { }];
+
+            // UDisks insists on always having a "passphrase-contents" field when
+            // adding a crypttab entry, but doesn't include one itself when returning
+            // an entry without a stored passphrase.
+            //
+            if (!new_config[1]['passphrase-contents'])
+                new_config[1]['passphrase-contents'] = { t: 'ay', v: encode_filename("") };
+
+            return modify(new_config[1], commit);
+        });
+}
+
+export function set_crypto_options(block, readonly, auto, nofail, netdev) {
+    return edit_crypto_config(block, (config, commit) => {
+        const opts = config.options ? parse_options(decode_filename(config.options.v)) : [];
+        if (readonly !== null) {
+            extract_option(opts, "readonly");
+            if (readonly)
+                opts.push("readonly");
+        }
+        if (auto !== null) {
+            extract_option(opts, "noauto");
+            if (!auto)
+                opts.push("noauto");
+        }
+        if (nofail !== null) {
+            extract_option(opts, "nofail");
+            if (nofail)
+                opts.push("nofail");
+        }
+        if (netdev !== null) {
+            extract_option(opts, "_netdev");
+            if (netdev)
+                opts.push("_netdev");
+        }
+        config.options = { t: 'ay', v: encode_filename(unparse_options(opts)) };
+        return commit();
+    });
+}
+
+export function set_crypto_auto_option(block, flag) {
+    return set_crypto_options(block, null, flag, null, null);
+}
+
 export let hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
 
 // for unit tests

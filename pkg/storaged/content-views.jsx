@@ -193,7 +193,7 @@ function create_tabs(client, target, options) {
     }
 
     if (options.is_partition) {
-        add_tab(_("Partition"), PartitionTab);
+        add_tab(_("Partition"), PartitionTab, false, ["unused-space"]);
     }
 
     let is_unrecognized = false;

@@ -63,9 +63,12 @@ class BrowserTest(unittest.TestCase):
         self.app_actions.activate_action("quit")
         self.assertEqual(self.p_client.wait(), 0)
 
-    def run_js(self, js_name):
+    def run_js(self, js_name, substitutions=None):
         with open(os.path.join(TEST_DIR, js_name)) as f:
             js = f.read()
+
+        for (pattern, replacement) in (substitutions or []):
+            js = js.replace(pattern, replacement)
 
         # WebKit.run_javascript() needs some serializable return value
         js += '\ntrue\n'
@@ -117,6 +120,15 @@ class BrowserTest(unittest.TestCase):
 
         # check that `invalid` was not added and try to remove `localhost` from the list
         self.assertEqual(self.run_js("test-browser-login-remove.js"), "PASS")
+
+        # SSH login
+        host = os.environ.get("COCKPIT_TEST_SSH_HOST")
+        if host:
+            substs = [
+                ("%HOST%", host),
+                ("%PASS%", os.environ["COCKPIT_TEST_SSH_PASS"]),
+            ]
+            self.assertEqual(self.run_js("test-browser-login-ssh.js", substs), "page-load")
 
 
 unittest.main()

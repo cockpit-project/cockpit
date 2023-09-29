@@ -27,6 +27,11 @@ jobs:
 
       - name: Smoke-test the installed flatpak
         run: |
+          export COCKPIT_TEST_SSH_PASS=foobar
+          sudo useradd -c User -s /bin/bash user
+          echo user:$COCKPIT_TEST_SSH_PASS | sudo chpasswd
+          export COCKPIT_TEST_SSH_HOST=user@127.0.0.1
+
           . /etc/profile.d/flatpak.sh
           xvfb-run sh -ec '
             dbus-run-session containers/flatpak/test/test-ssh

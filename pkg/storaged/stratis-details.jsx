@@ -328,8 +328,7 @@ export function stratis_content_rows(client, pool, options) {
                     TextInput("mount_point", _("Mount point"),
                               {
                                   validate: (val, values, variant) => {
-                                      if (variant !== "nomount")
-                                          return is_valid_mount_point(client, null, val);
+                                      return is_valid_mount_point(client, null, val, variant == "nomount");
                                   }
                               }),
                     CheckBoxes("mount_options", _("Mount options"),
@@ -514,8 +513,7 @@ function create_fs(client, pool) {
             TextInput("mount_point", _("Mount point"),
                       {
                           validate: (val, values, variant) => {
-                              if (variant !== "nomount")
-                                  return is_valid_mount_point(client, null, val);
+                              return is_valid_mount_point(client, null, val, variant == "nomount");
                           }
                       }),
             CheckBoxes("mount_options", _("Mount options"),

@@ -96,16 +96,19 @@ function nice_block_name(block) {
     return utils.block_name(client.blocks[block.CryptoBackingDevice] || block);
 }
 
-export async function is_valid_mount_point(client, block, val, ignore_overmounting) {
-    if (val === "")
-        return _("Mount point cannot be empty");
+export function is_valid_mount_point(client, block, val, format_only, for_fstab) {
+    if (val === "") {
+        if (!format_only || for_fstab)
+            return _("Mount point cannot be empty");
+        return null;
+    }
 
     const other_blocks = find_blocks_for_mount_point(client, val, block);
     if (other_blocks.length > 0)
         return cockpit.format(_("Mount point is already used for $0"),
                               other_blocks.map(nice_block_name).join(", "));
 
-    if (!ignore_overmounting) {
+    if (!format_only) {
         const children = utils.find_children_for_mount_point(client, val, block);
         if (Object.keys(children).length > 0)
             return <>
@@ -329,8 +332,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
             TextInput("mount_point", _("Mount point"),
                       {
                           value: old_dir,
-                          validate: val => is_valid_mount_point(client, block, val,
-                                                                mode == "update" && !is_filesystem_mounted)
+                          validate: val => is_valid_mount_point(client, block, val, mode == "update" && !is_filesystem_mounted, true)
                       }),
             CheckBoxes("mount_options", _("Mount options"),
                        {

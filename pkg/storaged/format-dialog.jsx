@@ -274,8 +274,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                           visible: is_filesystem,
                           value: old_dir || "",
                           validate: (val, values, variant) => {
-                              if (variant !== "nomount")
-                                  return is_valid_mount_point(client, block, val);
+                              return is_valid_mount_point(client, block, val, variant == "nomount");
                           }
                       }),
             SelectOne("type", _("Type"),

@@ -459,6 +459,9 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.dialog_set_val("mount_point", "/run/data")
         self.dialog_apply()
         self.dialog_wait_error("mount_point", "Mount point is already used for /dev/test/one")
+        self.dialog_set_val("mount_point", "/run/data")  # to clear the error
+        self.dialog_apply_secondary()
+        self.dialog_wait_error("mount_point", "Mount point is already used for /dev/test/one")
         self.dialog_cancel()
         self.dialog_wait_close()
 

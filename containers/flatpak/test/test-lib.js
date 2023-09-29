@@ -64,6 +64,11 @@ function ph_wait_not_visible(sel) {
     }, 10000, "timed out waiting for " + sel + " to be visible");
 }
 
+function ph_wait_in_text(sel, match) {
+    return ph_wait_cond(() => window.cur_doc.querySelector(sel).textContent.includes(match),
+                        1000, `timed out waiting for ${sel} to contain ${match}`);
+}
+
 function ph_wait_count(sel, count) {
     return ph_wait_cond(() => (window.cur_doc.querySelectorAll(sel).length === count), 10000, "timed out waiting for " + sel + " to be visible");
 }
@@ -102,7 +107,7 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
         bubbles: true,
         cancelable: true,
         view: window,
-        detail: detail,
+        detail,
         screenX: left + (x || 0),
         screenY: top + (y || 0),
         clientX: left + (x || 0),

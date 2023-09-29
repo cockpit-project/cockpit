@@ -1193,14 +1193,15 @@ export function teardown_danger_message(usage, expect_single_unmount) {
     const usage_with_users = usage.filter(u => u.users);
     const n_processes = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.pid).length, 0);
     const n_services = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.unit).length, 0);
-    if (n_processes > 0 && n_services > 0)
+    if (n_processes > 0 && n_services > 0) {
         return _("Related processes and services will be forcefully stopped.");
-    else if (n_processes > 0)
+    } else if (n_processes > 0) {
         return _("Related processes will be forcefully stopped.");
-    else if (n_services > 0)
+    } else if (n_services > 0) {
         return _("Related services will be forcefully stopped.");
-    else
+    } else {
         return null;
+    }
 }
 
 export function init_active_usage_processes(client, usage, expect_single_unmount) {

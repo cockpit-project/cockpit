@@ -13,6 +13,7 @@ const info = {
 
         "playground/index.js",
         "playground/exception.js",
+        "playground/filesystem.jsx",
         "playground/metrics.js",
         "playground/pkgs.js",
         "playground/plot.js",
@@ -97,6 +98,7 @@ const info = {
 
         "playground/index.html",
         "playground/exception.html",
+        "playground/filesystem.html",
         "playground/hammer.gif",
         "playground/metrics.html",
         "playground/pkgs.html",

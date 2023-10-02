@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[no-test]"
+    labels:
+      - "node_modules"
+    groups:
+      eslint:
+        patterns:
+          - "eslint*"
+      esbuild:
+        patterns:
+          - "esbuild*"
+      stylelint:
+        patterns:
+          - "stylelint*"
+      xterm:
+        patterns:
+          - "xterm*"
+      patternfly:
+        patterns:
+          - "@patternfly*"

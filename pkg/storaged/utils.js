@@ -767,7 +767,31 @@ export function find_children_for_mount_point(client, mount_point, self) {
     return children;
 }
 
-export function get_active_usage(client, path, top_action, child_action) {
+export function get_fstab_config_with_client(client, block, also_child_config) {
+    let config = block.Configuration.find(c => c[0] == "fstab");
+
+    if (!config && also_child_config && client.blocks_crypto[block.path])
+        config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
+
+    if (config && decode_filename(config[1].type.v) != "swap") {
+        const mnt_opts = get_block_mntopts(config[1]).split(",");
+        let dir = decode_filename(config[1].dir.v);
+        let opts = mnt_opts
+                .filter(function (s) { return s.indexOf("x-parent") !== 0 })
+                .join(",");
+        const parents = mnt_opts
+                .filter(function (s) { return s.indexOf("x-parent") === 0 })
+                .join(",");
+        if (dir[0] != "/")
+            dir = "/" + dir;
+        if (opts == "defaults")
+            opts = "";
+        return [config, dir, opts, parents];
+    } else
+        return [];
+}
+
+export function get_active_usage(client, path, top_action, child_action, is_temporary) {
     function get_usage(usage, path, level) {
         const block = client.blocks[path];
         const fsys = client.blocks_fsys[path];
@@ -791,6 +815,9 @@ export function get_active_usage(client, path, top_action, child_action) {
         }
 
         function enter_unmount(block, location, is_top) {
+            const [, mount_point] = get_fstab_config_with_client(client, block);
+            const has_fstab_entry = is_temporary && location == mount_point;
+
             for (const u of usage) {
                 if (u.usage == 'mounted' && u.location == location) {
                     if (is_top) {
@@ -805,8 +832,9 @@ export function get_active_usage(client, path, top_action, child_action) {
                 block,
                 usage: 'mounted',
                 location,
-                set_noauto: !is_top,
-                actions: is_top ? get_actions(_("unmount")) : [_("unmount")],
+                has_fstab_entry,
+                set_noauto: !is_top && !is_temporary,
+                actions: (is_top ? get_actions(_("unmount")) : [_("unmount")]).concat(has_fstab_entry ? [_("mount")] : []),
                 blocking: false
             });
         }
@@ -965,6 +993,15 @@ export function teardown_active_usage(client, usage) {
         mdraid_remove(usage.filter(function(use) { return use.usage == "mdraid-member" })),
         pvol_remove(usage.filter(function(use) { return use.usage == "pvol" }))
     ));
+}
+
+export async function undo_temporary_teardown(client, usage) {
+    for (let i = usage.length - 1; i >= 0; i--) {
+        const u = usage[i];
+        if (u.usage == "mounted" && u.has_fstab_entry) {
+            await client.mount_at(u.block, u.location);
+        }
+    }
 }
 
 // TODO - generalize this to arbitrary number of arguments (when needed)

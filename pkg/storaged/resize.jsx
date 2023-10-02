@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import {
     block_name, get_active_usage, teardown_active_usage,
-    is_mounted_synch, get_partitions
+    undo_temporary_teardown, is_mounted_synch, get_partitions
 } from "./utils.js";
 import {
     existing_passphrase_fields, init_existing_passphrase,
@@ -255,7 +255,10 @@ export function grow_dialog(client, lvol_or_part, info, to_fit) {
         round_size = 1024 * 1024;
     }
 
-    const usage = get_active_usage(client, block && info.grow_needs_unmount ? block.path : null, _("grow"));
+    const usage = get_active_usage(client,
+                                   block && info.grow_needs_unmount ? block.path : null,
+                                   _("grow"), null,
+                                   true);
 
     if (usage.Blocking) {
         dialog_open({
@@ -304,6 +307,7 @@ export function grow_dialog(client, lvol_or_part, info, to_fit) {
                                                                  to_fit ? grow_size : vals.size,
                                                                  info.grow_needs_unmount,
                                                                  vals.passphrase || recovered_passphrase)
+                                    .then(() => undo_temporary_teardown(client, usage))
                                     .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });
             }
@@ -336,8 +340,10 @@ export function shrink_dialog(client, lvol_or_part, info, to_fit) {
         round_size = 1024 * 1024;
     }
 
-    const usage = get_active_usage(client, block && !to_fit && info.shrink_needs_unmount ? block.path : null,
-                                   _("shrink"));
+    const usage = get_active_usage(client,
+                                   block && !to_fit && info.shrink_needs_unmount ? block.path : null,
+                                   _("shrink"), null,
+                                   true);
 
     if (usage.Blocking) {
         dialog_open({
@@ -413,6 +419,7 @@ export function shrink_dialog(client, lvol_or_part, info, to_fit) {
                                                                  to_fit ? shrink_size : vals.size,
                                                                  to_fit ? false : info.shrink_needs_unmount,
                                                                  vals.passphrase || recovered_passphrase)
+                                    .then(() => undo_temporary_teardown(client, usage))
                                     .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });
             }

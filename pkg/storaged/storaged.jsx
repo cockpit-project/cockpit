@@ -30,7 +30,7 @@ import { PlotState } from "plot.js";
 
 import client from "./client";
 import { MultipathAlert } from "./multipath.jsx";
-import { Overview } from "./overview.jsx";
+import { OverviewX } from "./overviewx.jsx";
 import { Details } from "./details.jsx";
 import { update_plot_state } from "./plot.jsx";
 
@@ -88,7 +88,7 @@ class StoragePage extends React.Component {
         return (
             <>
                 <MultipathAlert client={client} />
-                {detail || <Overview client={client} plot_state={this.plot_state} />}
+                {detail || <OverviewX client={client} plot_state={this.plot_state} />}
             </>
         );
     }

@@ -544,6 +544,26 @@ function update_indices() {
         client.blocks_partitions[path].sort(function (a, b) { return a.Offset - b.Offset });
     }
 
+    client.iscsi_sessions_drives = { };
+    client.drives_iscsi_session = { };
+    for (path in client.drives) {
+        const block = client.drives_block[path];
+        if (!block)
+            continue;
+        for (const session_path in client.iscsi_sessions) {
+            const session = client.iscsi_sessions[session_path];
+            for (i = 0; i < block.Symlinks.length; i++) {
+                console.log("??", block.Symlinks[i], session.data.target_name);
+                if (utils.decode_filename(block.Symlinks[i]).includes(session.data.target_name)) {
+                    client.drives_iscsi_session[path] = session;
+                    if (!client.iscsi_sessions_drives[session_path])
+                        client.iscsi_sessions_drives[session_path] = [];
+                    client.iscsi_sessions_drives[session_path].push(client.drives[path]);
+                }
+            }
+        }
+    }
+
     client.path_jobs = { };
     function enter_job(job) {
         if (!job.Objects || !job.Objects.length)

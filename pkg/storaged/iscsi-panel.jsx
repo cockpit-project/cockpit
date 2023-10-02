@@ -25,7 +25,7 @@ import { CheckIcon, EditIcon, PlusIcon, TrashIcon } from "@patternfly/react-icon
 
 import { SidePanel } from "./side-panel.jsx";
 import { } from "./utils.js";
-import { StorageButton } from "./storage-controls.jsx";
+import { StorageButton, StorageMenuItem } from "./storage-controls.jsx";
 import { dialog_open, TextInput, PassInput, SelectRow } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -186,6 +186,22 @@ function iscsi_change_name(client) {
             });
 }
 
+export function iscsi_menu_items(client, options) {
+    if (!client.features.iscsi)
+        return [];
+
+    return [
+        <StorageMenuItem key="edit"
+                         onClick={() => iscsi_change_name(client)}>
+            {_("Change iSCSI initiator name")}
+        </StorageMenuItem>,
+        <StorageMenuItem key="add"
+                         onClick={() => iscsi_discover(client)}>
+            {_("Add iSCSI portal")}
+        </StorageMenuItem>,
+    ];
+}
+
 export function iscsi_rows(client, options) {
     function cmp_session(path_a, path_b) {
         const a = client.iscsi_sessions[path_a];
@@ -218,13 +234,28 @@ export function iscsi_rows(client, options) {
             actions,
             kind: "array",
             name: session.data.target_name || "",
+            type: _("iSCSI portal"),
             key: path,
-            detail: session.data.persistent_address + ":" + session.data.persistent_port
+            detail: session.data.persistent_address + ":" + session.data.persistent_port,
+            location: session.data.persistent_address + ":" + session.data.persistent_port,
+            portal: session
         };
     }
 
     return Object.keys(client.iscsi_sessions).sort(cmp_session)
             .map(make_session);
+}
+
+export function portal_menu_items(client, session, options) {
+    function iscsi_remove() {
+        return session.Logout({ 'node.startup': { t: 's', v: "manual" } });
+    }
+
+    return [
+        <StorageMenuItem key="iscsi-remove" danger onClick={iscsi_remove}>
+            {_("Disconnect")}
+        </StorageMenuItem>
+    ];
 }
 
 export class IscsiPanel extends React.Component {

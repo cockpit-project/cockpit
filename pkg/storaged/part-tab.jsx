@@ -51,7 +51,7 @@ export const PartitionTab = ({ client, block, warnings }) => {
         <div>
             <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                    <DescriptionListTerm>{_("Partition label")}</DescriptionListTerm>
                     <DescriptionListDescription>{block_part.Name || "-"}</DescriptionListDescription>
                 </DescriptionListGroup>
                 { !unused_space &&
@@ -67,12 +67,12 @@ export const PartitionTab = ({ client, block, warnings }) => {
                 </DescriptionListGroup>
                 }
                 <DescriptionListGroup>
-                    <DescriptionListTerm>{_("UUID")}</DescriptionListTerm>
+                    <DescriptionListTerm>{_("Partition UUID")}</DescriptionListTerm>
                     <DescriptionListDescription>{block_part.UUID}</DescriptionListDescription>
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
+                    <DescriptionListTerm>{_("Partition type")}</DescriptionListTerm>
                     <DescriptionListDescription>{block_part.Type}</DescriptionListDescription>
                 </DescriptionListGroup>
             </DescriptionList>

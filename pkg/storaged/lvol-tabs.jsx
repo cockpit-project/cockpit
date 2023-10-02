@@ -57,7 +57,7 @@ function lvol_rename(lvol) {
     });
 }
 
-const StructureDescription = ({ client, lvol }) => {
+export const StructureDescription = ({ client, lvol }) => {
     const struct = lvol.Structure;
 
     if (!struct)
@@ -218,7 +218,7 @@ export class BlockVolTab extends React.Component {
             <div>
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     <DescriptionListGroup>
-                        <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                        <DescriptionListTerm>{_("Logical volume name")}</DescriptionListTerm>
                         <DescriptionListDescription>
                             <Flex>
                                 <FlexItem>{this.props.lvol.Name}</FlexItem>
@@ -290,7 +290,7 @@ export class PoolVolTab extends React.Component {
         return (
             <DescriptionList className="pf-m-horizontal-on-sm">
                 <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                    <DescriptionListTerm>{_("Logical volume name")}</DescriptionListTerm>
                     <DescriptionListDescription>
                         <Flex>
                             <FlexItem>{this.props.lvol.Name}</FlexItem>
@@ -351,7 +351,7 @@ export const VDOPoolTab = ({ client, lvol }) => {
     return (
         <DescriptionList className="pf-m-horizontal-on-sm">
             <DescriptionListGroup>
-                <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                <DescriptionListTerm>{_("VDO name")}</DescriptionListTerm>
                 <DescriptionListDescription>{vdo_pool_vol.Name}</DescriptionListDescription>
             </DescriptionListGroup>
 

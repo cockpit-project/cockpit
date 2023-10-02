@@ -717,7 +717,7 @@ export class FilesystemTab extends React.Component {
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     { !stratis_fsys &&
                     <DescriptionListGroup>
-                        <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                        <DescriptionListTerm>{_("Filesystem label")}</DescriptionListTerm>
                         <DescriptionListDescription>
                             <Flex>
                                 <FlexItem>{this.props.block.IdLabel || "-"}</FlexItem>

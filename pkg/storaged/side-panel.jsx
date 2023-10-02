@@ -20,158 +20,77 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { OptionalPanel } from "./optional-panel.jsx";
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
+import { ListingTable } from "cockpit-components-table.jsx";
 import { get_block_link_parts, block_name } from "./utils.js";
-
-import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
-import { EmptyState, EmptyStateBody, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
-import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { warnings_icon } from "./warnings.jsx";
 
 const _ = cockpit.gettext;
 
 export class SidePanel extends React.Component {
-    constructor() {
-        super();
-        this.state = { collapsed: true };
-        this.current_rows_keys = [];
-        this.new_keys = [];
-    }
-
     render() {
-        let show_all_button = null;
-        let rows = this.props.rows.filter(row => !!row);
+        const rows = this.props.rows.filter(row => !!row);
 
         // Find new items for animations
-        const current_keys = rows.map(row => row.key);
-
-        if (JSON.stringify(this.current_rows_keys) !== JSON.stringify(current_keys)) {
-            if (this.current_rows_keys.length !== 0) {
-                const new_keys = current_keys.filter(key => this.current_rows_keys.indexOf(key) === -1);
-                if (new_keys.length)
-                    this.new_keys.push(...new_keys);
+        const children = rows.map(row => {
+            if (row.block) {
+                const client = row.client;
+                const parts = get_block_link_parts(client, row.block.path);
+                const backing = client.blocks[row.block.CryptoBackingDevice];
+                row.name = cockpit.format(parts.format, parts.link);
+                row.devname = block_name(backing || row.block);
+                row.go = () => { cockpit.location.go([row.devname.replace(/^\/dev\//, "")]) };
             }
-            this.current_rows_keys = current_keys;
-        }
 
-        // Collapse items by default if more than 20
-        if (this.state.collapsed && rows.length > 20) {
-            show_all_button = (
-                <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
-                    <Button variant='link'
-                            onKeyDown={ev => ev.key === "Enter" && this.setState({ collapsed: false })}
-                            onClick={() => { this.setState({ collapsed: false }) }}>
-                        {this.props.show_all_text || _("Show all")}
-                    </Button>
-                </FlexItem>);
-            rows = rows.slice(0, 20);
-        }
+            const eat_event = (event) => {
+                // Stop events from disabled actions. Otherwise they would
+                // reach the <tr> element and cause spurious navigation.
+                event.stopPropagation();
+            };
 
-        rows.forEach(row => {
-            if (row.key && this.new_keys.indexOf(row.key) !== -1)
-                row.className = (row.className || "") + " ct-new-item";
+            return {
+                props: { },
+                columns: [
+                    row.name,
+                    row.devname,
+                    row.detail,
+                    {
+                        title: <div role="presentation"
+                                  onClick={eat_event}
+                                  onKeyDown={eat_event}>
+                            {row.actions}
+                        </div>
+                    }
+                ],
+                go: row.go
+            };
         });
 
-        const children = rows.map(row => row.block ? <SidePanelBlockRow key={row.key} {...row} /> : <SidePanelRow key={row.key} {...row} />);
+        function onRowClick(event, row) {
+            if (!event || event.button !== 0)
+                return;
+
+            // StorageBarMenu sets this to tell us not to navigate when
+            // the kebabs are opened.
+            if (event.defaultPrevented)
+                return;
+
+            if (row.go)
+                row.go();
+        }
 
         return (
-            <OptionalPanel id={this.props.id}
-                           title={this.props.title}
-                           actions={this.props.actions}
-                           client={this.props.client}
-                           feature={this.props.feature}
-                           not_installed_text={this.props.not_installed_text}
-                           install_title={this.props.install_title}>
-                { this.props.rows.length > 0
-                    ? <Flex direction={{ default: 'column' }}
-                          spaceItems={{ default: 'spaceItemsNone' }}>
-                        { children }
-                        { show_all_button }
-                    </Flex>
-                    : <EmptyState variant={EmptyStateVariant.sm}>
-                        <EmptyStateBody>
-                            {this.props.empty_text}
-                        </EmptyStateBody>
-                    </EmptyState>
-                }
-            </OptionalPanel>
+            <Card>
+                <CardHeader actions={{ actions: this.props.actions }}>
+                    <CardTitle component="h2">{this.props.title}</CardTitle>
+                </CardHeader>
+                <CardBody className="contains-list">
+                    <ListingTable emptyCaption={this.props.empty_text}
+                                  onRowClick={onRowClick}
+                                  columns={[_("ID"), _("Device"), _("Detail"), ""]}
+                                  showHeader={false}
+                                  rows={children} />
+                </CardBody>
+            </Card>
         );
-    }
-}
-
-class SidePanelRow extends React.Component {
-    render() {
-        const { client, job_path } = this.props;
-
-        const go = (event) => {
-            if (!event)
-                return;
-
-            // only consider primary mouse button for clicks
-            if (event.type === 'click' && event.button !== 0)
-                return;
-
-            // only consider enter button for keyboard events
-            if (event.type === 'KeyDown' && event.key !== "Enter")
-                return;
-
-            return this.props.go();
-        };
-
-        const eat_event = (event) => {
-            // Stop events from disabled actions. Otherwise they would
-            // reach the <tr> element and cause spurious navigation.
-            event.stopPropagation();
-        };
-
-        let decoration = null;
-        if (this.props.actions)
-            decoration = (
-                <div role="presentation"
-                     onClick={eat_event}
-                     onKeyDown={eat_event}>
-                    {this.props.actions}
-                </div>);
-        else if (client.path_jobs[job_path])
-            decoration = <Spinner size="md" />;
-        else if (client.path_warnings[job_path])
-            decoration = warnings_icon(client.path_warnings[job_path]);
-
-        return (
-            <FlexItem data-testkey={this.props.testkey}
-                      className={"sidepanel-row " + (this.props.className || "")}
-                      role="link" tabIndex="0"
-                      onKeyDown={this.props.go ? go : null}
-                      onClick={this.props.go ? go : null}>
-                <Flex flexWrap={{ default: 'nowrap' }}>
-                    <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-name pf-v5-u-text-break-word">{this.props.name}</FlexItem>
-                    <FlexItem>{decoration}</FlexItem>
-                </Flex>
-                <Flex className="sidepanel-row-info">
-                    <FlexItem grow={{ default: 'grow' }} className="sidepanel-row-detail">{this.props.detail}</FlexItem>
-                    <FlexItem className="sidepanel-row-devname pf-v5-u-text-break-word">{this.props.devname}</FlexItem>
-                </Flex>
-            </FlexItem>
-        );
-    }
-}
-
-class SidePanelBlockRow extends React.Component {
-    render() {
-        const { client, block, detail, actions } = this.props;
-
-        const parts = get_block_link_parts(client, block.path);
-        const name = cockpit.format(parts.format, parts.link);
-        const backing = client.blocks[block.CryptoBackingDevice];
-
-        return <SidePanelRow client={client}
-                             name={name}
-                             devname={block_name(backing || block)}
-                             detail={detail}
-                             go={() => { cockpit.location.go(parts.location) }}
-                             actions={actions}
-                             className={this.props.className}
-        />;
     }
 }

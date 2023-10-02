@@ -37,9 +37,13 @@ function mdraid_row(client, path) {
         name: mdraid_name(mdraid),
         devname: block && block_name(block),
         detail: fmt_size(mdraid.Size) + " " + _("RAID device"),
+        type: _("RAID device"),
+        size: mdraid.Size,
         job_path: path,
         key: path,
-        go: () => cockpit.location.go(["mdraid", mdraid.UUID])
+        go: () => cockpit.location.go(["mdraid", mdraid.UUID]),
+        block,
+        mdraid
     };
 }
 

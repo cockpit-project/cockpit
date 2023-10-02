@@ -27,6 +27,8 @@ import { create_vgroup, vgroup_rows } from "./vgroups-panel.jsx";
 import { vdo_rows } from "./vdos-panel.jsx";
 import { StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import { stratis_feature, create_stratis_pool, stratis_rows } from "./stratis-panel.jsx";
+import { nfs_feature } from "./nfs-panel.jsx";
+import { nfs_fstab_dialog } from "./nfs-details.jsx";
 import { dialog_open } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -73,7 +75,8 @@ export function thing_menu_items(client, options) {
     const menu_items = [
         menu_item(null, _("Create RAID device"), () => create_mdraid(client)),
         menu_item(lvm2_feature, _("Create LVM2 volume group"), () => create_vgroup(client)),
-        menu_item(stratis_feature(client), _("Create Stratis pool"), () => create_stratis_pool(client))
+        menu_item(stratis_feature(client), _("Create Stratis pool"), () => create_stratis_pool(client)),
+        options.unified ? menu_item(nfs_feature(client), _("New NFS mount"), () => nfs_fstab_dialog(client, null)) : null,
     ].filter(item => item !== null);
 
     return menu_items;

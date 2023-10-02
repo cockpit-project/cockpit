@@ -27,7 +27,7 @@ import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel } from "./side-panel.jsx";
 import { Block } from "./content-views.jsx";
-import { StorageButton } from "./storage-controls.jsx";
+import { StorageButton, StorageMenuItem } from "./storage-controls.jsx";
 import {
     dialog_open, SelectSpaces, BlockingMessage, TeardownMessage,
     init_active_usage_processes
@@ -247,6 +247,26 @@ function mdraid_delete(client, mdraid) {
             init_active_usage_processes(client, usage)
         ]
     });
+}
+
+export function mdraid_menu_items(client, mdraid, options) {
+    /* Older versions of Udisks/storaged don't have a Running property */
+    let running = mdraid.Running;
+    if (running === undefined)
+        running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
+
+    return [
+        (running
+            ? <StorageMenuItem key="mdraid-stop" onClick={() => mdraid_stop(client, mdraid)}>
+                {_("Stop RAID device")}
+            </StorageMenuItem>
+            : <StorageMenuItem key="mdraid-start" onClick={() => mdraid_start(client, mdraid)}>
+                {_("Start RAID device")}
+            </StorageMenuItem>),
+        <StorageMenuItem key="mdraid-delete" danger onClick={() => mdraid_delete(client, mdraid)}>
+            {_("Delete RAID device")}
+        </StorageMenuItem>,
+    ];
 }
 
 export class MDRaidDetails extends React.Component {

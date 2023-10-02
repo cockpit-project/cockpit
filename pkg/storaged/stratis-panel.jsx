@@ -59,8 +59,11 @@ function stratis_pool_row(client, path) {
         key: path,
         devname: "/dev/stratis/" + pool.Name + "/",
         detail: cockpit.format(_("$0 Stratis pool"), fmt_size(pool.TotalPhysicalSize)),
+        size: pool.TotalPhysicalSize,
+        type: _("Stratis pool"),
         go: () => cockpit.location.go(["pool", pool.Uuid]),
-        job_path: path
+        job_path: path,
+        pool,
     };
 }
 

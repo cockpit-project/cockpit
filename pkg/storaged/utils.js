@@ -339,11 +339,14 @@ export function get_block_link_parts(client, path) {
             location = ["vdo", vdo.name];
             link = cockpit.format(_("VDO device $0"), vdo.name);
         } else {
-            location = [block_name(block).replace(/^\/dev\//, "")];
-            if (client.drives[block.Drive])
-                link = drive_name(client.drives[block.Drive]);
-            else
+            if (client.drives[block.Drive]) {
+                const drive = client.drives[block.Drive];
+                location = ["drive", block_name(client.drives_block[drive.path]).replace(/^\/dev\//, "")];
+                link = drive_name(drive);
+            } else {
+                location = [block_name(block).replace(/^\/dev\//, "")];
                 link = block_name(block);
+            }
         }
     }
 

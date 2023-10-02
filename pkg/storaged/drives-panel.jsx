@@ -26,7 +26,7 @@ import { fmt_size, drive_name, decode_filename, block_name } from "./utils.js";
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
 
-export function drive_rows(client) {
+export function drive_rows(client, options) {
     function cmp_drive(path_a, path_b) {
         return client.drives[path_a].SortKey.localeCompare(client.drives[path_b].SortKey);
     }
@@ -87,7 +87,7 @@ export function drive_rows(client) {
             size: drive.Size,
             type,
             detail: desc,
-            go: () => cockpit.location.go([dev]),
+            go: () => cockpit.location.go(["drive", dev]),
             block: drive && client.drives_block[path],
             job_path: path,
             key: path

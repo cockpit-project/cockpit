@@ -38,7 +38,10 @@ function vgroup_row(client, path) {
         job_path: path,
         devname: "/dev/" + vgroup.Name + "/",
         detail: fmt_size(vgroup.Size) + " " + _("LVM2 volume group"),
-        go: () => cockpit.location.go(["vg", vgroup.Name])
+        size: vgroup.Size,
+        type: _("LVM2 volume group"),
+        go: () => cockpit.location.go(["vg", vgroup.Name]),
+        vgroup,
     };
 }
 

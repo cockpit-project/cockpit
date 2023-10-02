@@ -28,7 +28,7 @@ import {
 } from "./dialog.jsx";
 
 import { StdDetailsLayout } from "./details.jsx";
-import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
+import { StorageButton, StorageUsageBar, StorageMenuItem } from "./storage-controls.jsx";
 import { parse_options, unparse_options, extract_option } from "./utils.js";
 
 const _ = cockpit.gettext;
@@ -271,6 +271,16 @@ function remove(client, entry) {
                                             });
                                 });
             });
+}
+
+export function nfs_content_menu_items(client, entry) {
+    return [
+        entry.mounted
+            ? <StorageMenuItem key="nfs-unmount" onClick={() => unmount(client, entry)}>{_("Unmount")}</StorageMenuItem>
+            : <StorageMenuItem key="nfs-mount" onClick={() => mount(client, entry)}>{_("Mount")}</StorageMenuItem>,
+        <StorageMenuItem key="nfs-edit" onClick={() => edit(client, entry)}>{_("Edit")}</StorageMenuItem>,
+        <StorageMenuItem key="nfs-remove" danger onClick={() => remove(client, entry)}>{_("Remove")}</StorageMenuItem>,
+    ];
 }
 
 export class NFSDetails extends React.Component {

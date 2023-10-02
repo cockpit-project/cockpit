@@ -24,18 +24,20 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { PlusIcon, MinusIcon } from "@patternfly/react-icons";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
 import * as utils from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel } from "./side-panel.jsx";
-import { VGroup } from "./content-views.jsx";
+import { VGroup, create_tabs, ThinPoolContent } from "./content-views.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import {
     dialog_open, TextInput, SelectSpaces,
     BlockingMessage, TeardownMessage,
     init_active_usage_processes
 } from "./dialog.jsx";
+import { BlockDetails } from "./block-details.jsx";
 
 const _ = cockpit.gettext;
 
@@ -323,3 +325,117 @@ export class VGroupDetails extends React.Component {
         content={ content } />;
     }
 }
+
+const ThinPoolDetails = ({ client, lvol }) => {
+    // XXX - mostly a copy of BlockDetails
+    const tabs = create_tabs(client, lvol, {});
+
+    const actions = tabs.actions;
+    tabs.menu_actions.forEach(a => {
+        if (!a.only_narrow)
+            actions.push(<StorageButton onClick={a.func}>{a.title}</StorageButton>);
+    });
+    tabs.menu_danger_actions.forEach(a => {
+        if (!a.only_narrow)
+            actions.push(<StorageButton kind="danger" onClick={a.func}>{a.title}</StorageButton>);
+    });
+
+    function is_container(r) {
+        return r.name == _("Logical volume") || r.name == _("Partition");
+    }
+
+    const content_renderers = tabs.renderers.filter(r => !is_container(r));
+    const vgroup = client.vgroups[lvol.VolumeGroup];
+
+    const header = (
+        <Card>
+            <CardHeader actions={{ actions }}>
+                <CardTitle component="h2">
+                    {_("Pool for thinly provisioned logical volumes")}
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <DescriptionList className="pf-m-horizontal-on-sm">
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Stored on")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <Button variant="link"
+                                    isInline
+                                    role="link"
+                                    onClick={() => cockpit.location.go(["vg", vgroup.Name])}>
+                                {vgroup.Name}
+                            </Button>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
+                { content_renderers.map(t => <React.Fragment key={t.name}><br /><t.renderer {...t.data} /></React.Fragment>) }
+            </CardBody>
+        </Card>
+    );
+
+    const content = <ThinPoolContent client={client} pool={lvol} />;
+
+    return <StdDetailsLayout client={client} header={header} content={content} />;
+};
+
+const InactiveVolumeDetails = ({ client, lvol }) => {
+    // XXX - mostly a copy of BlockDetails
+    const tabs = create_tabs(client, lvol, {});
+
+    const actions = tabs.actions;
+    tabs.menu_actions.forEach(a => {
+        if (!a.only_narrow)
+            actions.push(<StorageButton onClick={a.func}>{a.title}</StorageButton>);
+    });
+    tabs.menu_danger_actions.forEach(a => {
+        if (!a.only_narrow)
+            actions.push(<StorageButton kind="danger" onClick={a.func}>{a.title}</StorageButton>);
+    });
+
+    function is_container(r) {
+        return r.name == _("Logical volume") || r.name == _("Partition");
+    }
+
+    const content_renderers = tabs.renderers.filter(r => !is_container(r));
+    const vgroup = client.vgroups[lvol.VolumeGroup];
+
+    const header = (
+        <Card>
+            <CardHeader actions={{ actions }}>
+                <CardTitle component="h2">
+                    {_("Inactive (or unsupported) logical volume")}
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <DescriptionList className="pf-m-horizontal-on-sm">
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Stored on")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <Button variant="link"
+                                    isInline
+                                    role="link"
+                                    onClick={() => cockpit.location.go(["vg", vgroup.Name])}>
+                                {vgroup.Name}
+                            </Button>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
+                { content_renderers.map(t => <React.Fragment key={t.name}><br /><t.renderer {...t.data} /></React.Fragment>) }
+            </CardBody>
+        </Card>
+    );
+
+    return <StdDetailsLayout client={client} header={header} content={null} />;
+};
+
+export const LVolDetails = ({ client, lvol }) => {
+    const block = client.lvols_block[lvol.path];
+
+    if (lvol.Type == "pool") {
+        return <ThinPoolDetails client={client} lvol={lvol} />;
+    } else if (block) {
+        return <BlockDetails client={client} block={block} />;
+    } else {
+        return <InactiveVolumeDetails client={client} lvol={lvol} />;
+    }
+};

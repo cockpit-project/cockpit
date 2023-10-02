@@ -47,7 +47,8 @@ import {
     encode_filename, decode_filename,
     get_active_usage, teardown_active_usage,
     get_available_spaces, prepare_available_spaces,
-    reload_systemd, for_each_async
+    reload_systemd, for_each_async,
+    block_name
 } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { mount_explanation } from "./format-dialog.jsx";
@@ -447,8 +448,12 @@ export function stratis_content_rows(client, pool, options) {
         const menuitems = [];
 
         if (!fs_is_mounted) {
-            actions.push(<StorageButton onlyWide key="mount" onClick={mount}>{_("Mount")}</StorageButton>);
-            menuitems.push(<StorageMenuItem onlyNarrow key="mount" onClick={mount}>{_("Mount")}</StorageMenuItem>);
+            if (options.unified) {
+                menuitems.push(<StorageMenuItem key="mount" onClick={mount}>{_("Mount")}</StorageMenuItem>);
+            } else {
+                actions.push(<StorageButton onlyWide key="mount" onClick={mount}>{_("Mount")}</StorageButton>);
+                menuitems.push(<StorageMenuItem onlyNarrow key="mount" onClick={mount}>{_("Mount")}</StorageMenuItem>);
+            }
         }
 
         if (fs_is_mounted)
@@ -483,10 +488,16 @@ export function stratis_content_rows(client, pool, options) {
             }
         ];
 
+        if (options.unified) {
+            // insert "Type" column
+            cols.splice(1, 0, { title: _("Stratis filesystem") });
+        }
+
         return {
-            props: { key: fsys.Name },
+            props: { key: fsys.Name, className: "content-level-" + (options.level || 0) },
             columns: cols,
-            expandedContent: <ListingPanel tabRenderers={tabs} />
+            expandedContent: options.unified ? null : <ListingPanel tabRenderers={tabs} />,
+            go: () => cockpit.location.go([block_name(block).replace(/^\/dev\//, "")])
         };
     }
 
@@ -500,7 +511,7 @@ function create_fs(client, pool) {
     const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
 
     dialog_open({
-        Title: _("Create filesystem"),
+        Title: cockpit.format(_("Create filesystem in $0"), pool.Name),
         Fields: [
             TextInput("name", _("Name"),
                       {
@@ -625,6 +636,24 @@ function rename_pool(client, pool) {
             }
         }
     });
+}
+
+export function pool_menu_items(client, pool, options) {
+    return [
+        <StorageMenuItem key="stratis-create"
+                         onClick={() => create_fs(client, pool)}>
+            {_("Create filesystem")}
+        </StorageMenuItem>,
+        <StorageMenuItem key="stratis-rename"
+                         onClick={() => rename_pool(client, pool)}>
+            {_("Rename pool")}
+        </StorageMenuItem>,
+        <StorageMenuItem key="stratis-delete"
+                         danger
+                         onClick={() => delete_pool(client, pool)}>
+            {_("Delete pool")}
+        </StorageMenuItem>,
+    ];
 }
 
 export const StratisPoolDetails = ({ client, pool }) => {
@@ -886,7 +915,20 @@ export const StratisPoolDetails = ({ client, pool }) => {
     );
 
     const sidebar = <StratisPoolSidebar client={client} pool={pool} />;
-    const rows = stratis_content_rows(client, pool, {});
+    const rows = stratis_content_rows(client, pool, { unified: true });
+
+    function onRowClick(event, row) {
+        if (!event || event.button !== 0)
+            return;
+
+        // StorageBarMenu sets this to tell us not to navigate when
+        // the kebabs are opened.
+        if (event.defaultPrevented)
+            return;
+
+        if (row.go)
+            row.go();
+    }
 
     const content = (
         <Card>
@@ -902,7 +944,13 @@ export const StratisPoolDetails = ({ client, pool }) => {
             <CardBody className="contains-list">
                 <ListingTable emptyCaption={_("No filesystems")}
                               aria-label={_("Filesystems")}
-                              columns={[_("Name"), _("Used for"), _("Size")]}
+                              onRowClick={onRowClick}
+                              columns={[
+                                  { title: _("ID") },
+                                  { title: _("Type") },
+                                  { title: _("Location") },
+                                  { title: _("Size") },
+                              ]}
                               showHeader={false}
                               rows={rows.filter(row => !!row)} />
             </CardBody>

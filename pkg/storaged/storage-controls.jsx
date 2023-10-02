@@ -241,7 +241,10 @@ export const StorageBarMenu = ({ label, isKebab, onlyNarrow, menuItems }) => {
         return null;
 
     function onToggle(event, isOpen) {
-        event.stopPropagation();
+        // Tell Overview that we handled this event.  We can't use
+        // stopPrevention() since the Toggles depend on seeing other
+        // Togglers events at the top level to close themselves.
+        event.preventDefault();
         setIsOpen(isOpen);
     }
 

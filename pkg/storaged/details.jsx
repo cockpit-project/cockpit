@@ -23,13 +23,12 @@ import React from "react";
 import { Card } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
-import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 
 import * as utils from "./utils.js";
-import { BlockDetails } from "./block-details.jsx";
+import { BlockDetails, block_nav_parents } from "./block-details.jsx";
 import { DriveDetails } from "./drive-details.jsx";
-import { VGroupDetails } from "./vgroup-details.jsx";
+import { VGroupDetails, LVolDetails } from "./vgroup-details.jsx";
 import { MDRaidDetails } from "./mdraid-details.jsx";
 import { VDODetails } from "./vdo-details.jsx";
 import { NFSDetails } from "./nfs-details.jsx";
@@ -46,37 +45,21 @@ export const StdDetailsLayout = ({ client, alerts, header, content, sidebar }) =
         </StackItem>
     </>;
 
-    if (sidebar) {
-        return (
-            <>
-                { top }
-                <Flex direction={{ default: 'column', xl: 'row', "2xl": 'row' }}>
-                    <FlexItem flex={{ default: 'flex_3' }}>
-                        <div id="detail-content">
-                            { content }
-                            <JobsPanel client={client} />
-                        </div>
-                    </FlexItem>
-                    <FlexItem id="detail-sidebar"
-                              flex={{ default: 'flex_1' }}>
-                        { sidebar }
-                    </FlexItem>
-                </Flex>
-            </>
-        );
-    } else {
-        return (
-            <>
-                { top }
-                <StackItem>
-                    <div id="detail-content">
-                        { content }
-                    </div>
-                    <JobsPanel client={client} />
-                </StackItem>
-            </>
-        );
-    }
+    return (
+        <>
+            { top }
+            { sidebar
+                ? <StackItem>{ sidebar }</StackItem>
+                : null
+            }
+            <StackItem>
+                <div id="detail-content">
+                    { content }
+                </div>
+                <JobsPanel client={client} />
+            </StackItem>
+        </>
+    );
 };
 
 export class Details extends React.Component {
@@ -85,22 +68,34 @@ export class Details extends React.Component {
 
         let body = null;
         let name = this.props.name;
-        if (this.props.type == "block") {
+        let crumbs = [];
+        if (this.props.type == "drive") {
             const block = client.slashdevs_block["/dev/" + this.props.name];
             const drive = block && client.drives[block.Drive];
-
             if (drive) {
                 name = utils.drive_name(drive);
                 body = <DriveDetails client={client} drive={drive} />;
-            } else if (block) {
+                // XXX- crumbs for drives in iscsi sessions
+            }
+        } else if (this.props.type == "block") {
+            const block = client.slashdevs_block["/dev/" + this.props.name];
+            if (block) {
                 name = utils.block_name(block);
                 body = <BlockDetails client={client} block={block} />;
+                crumbs = block_nav_parents(client, block);
             }
         } else if (this.props.type == "vg") {
             const vgroup = client.vgnames_vgroup[this.props.name];
             if (vgroup) {
-                name = vgroup.Name;
-                body = <VGroupDetails client={client} vgroup={vgroup} />;
+                const lvol = client.vgroups_lvols[vgroup.path].find(lv => lv.Name == this.props.name2);
+                if (lvol) {
+                    name = lvol.Name;
+                    body = <LVolDetails client={client} vgroup={vgroup} lvol={lvol} />;
+                    crumbs = [{ title: vgroup.Name, location: ["vg", vgroup.Name] }];
+                } else {
+                    name = vgroup.Name;
+                    body = <VGroupDetails client={client} vgroup={vgroup} />;
+                }
             }
         } else if (this.props.type == "mdraid") {
             const mdraid = client.uuids_mdraid[this.props.name];
@@ -137,6 +132,12 @@ export class Details extends React.Component {
                 <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
                     <Breadcrumb>
                         <BreadcrumbItem to="#/">{_("Storage")}</BreadcrumbItem>
+                        { crumbs.map(c => (
+                            <BreadcrumbItem key={c.title}
+                                            to={"#" + cockpit.location.encode(c.location)}>
+                                {c.title}
+                            </BreadcrumbItem>))
+                        }
                         <BreadcrumbItem isActive>{name}</BreadcrumbItem>
                     </Breadcrumb>
                 </PageBreadcrumb>

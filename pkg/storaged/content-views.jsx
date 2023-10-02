@@ -45,10 +45,12 @@ import { FilesystemTab, is_mounted, mounting_dialog, get_fstab_config } from "./
 import { CryptoTab } from "./crypto-tab.jsx";
 import { get_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { BlockVolTab, PoolVolTab, VDOPoolTab } from "./lvol-tabs.jsx";
+import { PVolTab, MDRaidMemberTab, VDOBackingTab, StratisBlockdevTab } from "./pvol-tabs.jsx";
 import { PartitionTab } from "./part-tab.jsx";
 import { SwapTab } from "./swap-tab.jsx";
 import { UnrecognizedTab } from "./unrecognized-tab.jsx";
 import { warnings_icon } from "./warnings.jsx";
+import { vgroup_rename, vgroup_delete } from "./vgroup-details.jsx";
 
 const _ = cockpit.gettext;
 
@@ -83,7 +85,7 @@ export function pvs_to_spaces(client, pvs) {
     });
 }
 
-function create_tabs(client, target, options) {
+export function create_tabs(client, target, options) {
     function endsWith(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
@@ -94,6 +96,7 @@ function create_tabs(client, target, options) {
 
     const block_fsys = content_block && client.blocks_fsys[content_block.path];
     const block_lvm2 = block && client.blocks_lvm2[block.path];
+    const block_pvol = content_block && client.blocks_pvol[content_block.path];
     const block_swap = content_block && client.blocks_swap[content_block.path];
 
     const block_stratis_blockdev = block && client.blocks_stratis_blockdev[block.path];
@@ -108,6 +111,8 @@ function create_tabs(client, target, options) {
                         (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) ||
                         block_stratis_stopped_pool);
 
+    const target_name = lvol ? utils.lvol_name(lvol) : block ? utils.block_name(block) : null;
+
     // Adjust for encryption leaking out of Stratis
     if (is_crypto && is_stratis)
         is_crypto = false;
@@ -119,24 +124,35 @@ function create_tabs(client, target, options) {
         warnings = warnings.concat(client.path_warnings[lvol.path] || []);
 
     const tab_actions = [];
+    const tab_hints = [];
     const tab_menu_actions = [];
     const tab_menu_danger_actions = [];
 
-    function add_action(title, func) {
-        if (tab_actions.length == 0) {
-            tab_actions.push(<StorageButton onlyWide key={title} onClick={func}>{title}</StorageButton>);
-            tab_menu_actions.push({ title, func, only_narrow: true });
+    function add_action(title, func, unified_hint) {
+        if (options.unified) {
+            tab_menu_actions.push({ title, func });
+            if (unified_hint)
+                tab_hints.push(unified_hint);
         } else {
-            add_menu_action(title, func);
+            if (tab_actions.length == 0) {
+                tab_actions.push(<StorageButton onlyWide key={title} onClick={func}>{title}</StorageButton>);
+                tab_menu_actions.push({ title, func, only_narrow: true });
+            } else {
+                add_menu_action(title, func);
+            }
         }
     }
 
     function add_danger_action(title, func) {
-        if (tab_actions.length == 0) {
-            tab_actions.push(<StorageButton onlyWide key={title} onClick={func}>{title}</StorageButton>);
-            tab_menu_danger_actions.push({ title, func, only_narrow: true });
+        if (options.unified) {
+            tab_menu_danger_actions.push({ title, func });
         } else {
-            add_menu_danger_action(title, func);
+            if (tab_actions.length == 0) {
+                tab_actions.push(<StorageButton onlyWide key={title} onClick={func}>{title}</StorageButton>);
+                tab_menu_danger_actions.push({ title, func, only_narrow: true });
+            } else {
+                add_menu_danger_action(title, func);
+            }
         }
     }
 
@@ -151,6 +167,11 @@ function create_tabs(client, target, options) {
     const tabs = [];
 
     function add_tab(name, renderer, for_content, associated_warnings) {
+        // No tabs on the unified overview
+        // XXX - what about warnings?
+        if (options.unified)
+            return;
+
         let tab_warnings = [];
         if (associated_warnings)
             tab_warnings = warnings.filter(w => associated_warnings.indexOf(w.warning) >= 0);
@@ -165,6 +186,7 @@ function create_tabs(client, target, options) {
                     block: for_content ? content_block : block,
                     lvol,
                     warnings: tab_warnings,
+                    options
                 }
             });
     }
@@ -175,7 +197,7 @@ function create_tabs(client, target, options) {
             return;
 
         dialog_open({
-            Title: _("Create thin volume"),
+            Title: cockpit.format(_("Create thin volume in $0/$1"), vgroup.Name, lvol.Name),
             Fields: [
                 TextInput("name", _("Name"),
                           {
@@ -204,14 +226,14 @@ function create_tabs(client, target, options) {
             add_tab(_("Pool"), PoolVolTab);
             add_action(_("Create thin volume"), create_thin);
         } else {
-            add_tab(_("Volume"), BlockVolTab, false, ["unused-space", "partial-lvol"]);
+            add_tab(_("Logical volume"), BlockVolTab, false, ["unused-space", "partial-lvol"]);
 
             if (client.vdo_vols[lvol.path])
                 add_tab(_("VDO pool"), VDOPoolTab);
         }
     }
 
-    if (options.is_partition) {
+    if (block && client.blocks_part[block.path]) {
         add_tab(_("Partition"), PartitionTab, false, ["unused-space"]);
     }
 
@@ -219,6 +241,16 @@ function create_tabs(client, target, options) {
 
     if (is_filesystem) {
         add_tab(_("Filesystem"), FilesystemTab, true, ["mismounted-fsys"]);
+    } else if ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
+               (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {
+        add_tab(_("LVM2 physical volume"), PVolTab, true);
+    } else if (is_stratis) {
+        add_tab(_("Stratis pool"), StratisBlockdevTab, false);
+    } else if ((content_block && content_block.IdUsage == "raid") ||
+               (content_block && client.mdraids[content_block.MDRaidMember])) {
+        add_tab(_("RAID member"), MDRaidMemberTab, true);
+    } else if (content_block && client.legacy_vdo_overlay.find_by_backing_block(content_block)) {
+        add_tab(_("VDO backing"), VDOBackingTab, true);
     } else if (content_block && (content_block.IdUsage == "raid" ||
                                  client.legacy_vdo_overlay.find_by_backing_block(content_block))) {
         // no tab for these
@@ -262,7 +294,7 @@ function create_tabs(client, target, options) {
             return;
 
         dialog_open({
-            Title: _("Unlock"),
+            Title: _("Unlock $0", target_name),
             Fields: [
                 PassInput("passphrase", _("Passphrase"), {})
             ],
@@ -283,9 +315,9 @@ function create_tabs(client, target, options) {
         } else {
             const config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
             if (config && !content_block)
-                add_action(_("Mount"), () => mounting_dialog(client, block, "mount"));
+                add_action(_("Mount"), () => mounting_dialog(client, block, "mount"), _("not mounted"));
             else
-                add_action(_("Unlock"), unlock);
+                add_action(_("Unlock"), unlock, _("locked"));
         }
     }
 
@@ -298,8 +330,12 @@ function create_tabs(client, target, options) {
     }
 
     function create_snapshot() {
+        const vgroup = lvol && client.vgroups[lvol.VolumeGroup];
+        if (!vgroup)
+            return;
+
         dialog_open({
-            Title: _("Create snapshot"),
+            Title: cockpit.format(_("Create snapshot of $0/$1"), vgroup.Name, lvol.Name),
             Fields: [
                 TextInput("name", _("Name"),
                           { validate: utils.validate_lvm2_name }),
@@ -374,7 +410,7 @@ function create_tabs(client, target, options) {
             if (lvol.Active) {
                 add_menu_action(_("Deactivate"), deactivate);
             } else {
-                add_action(_("Activate"), activate);
+                add_action(_("Activate"), activate, _("not active"));
             }
         }
         if (client.lvols[lvol.ThinPool]) {
@@ -406,29 +442,27 @@ function create_tabs(client, target, options) {
         if (block)
             block_part = client.blocks_part[block.path];
 
-        let name, danger;
+        let danger;
 
         if (lvol) {
-            name = utils.lvol_name(lvol);
             danger = _("Deleting a logical volume will delete all data in it.");
         } else if (block_part) {
-            name = utils.block_name(block);
             danger = _("Deleting a partition will delete all data in it.");
         }
 
-        if (name) {
+        if (target_name) {
             const usage = utils.get_active_usage(client, target.path, _("delete"));
 
             if (usage.Blocking) {
                 dialog_open({
-                    Title: cockpit.format(_("$0 is in use"), name),
+                    Title: cockpit.format(_("$0 is in use"), target_name),
                     Body: BlockingMessage(usage)
                 });
                 return;
             }
 
             dialog_open({
-                Title: cockpit.format(_("Permanently delete $0?"), name),
+                Title: cockpit.format(_("Permanently delete $0?"), target_name),
                 Teardown: TeardownMessage(usage),
                 Action: {
                     Danger: danger,
@@ -466,19 +500,20 @@ function create_tabs(client, target, options) {
         if (is_mounted(client, content_block))
             add_menu_action(_("Unmount"), () => mounting_dialog(client, content_block, "unmount"));
         else
-            add_action(_("Mount"), () => mounting_dialog(client, content_block, "mount"));
+            add_action(_("Mount"), () => mounting_dialog(client, content_block, "mount"), _("not mounted"));
     }
 
     return {
         renderers: tabs,
         actions: tab_actions,
+        hints: tab_hints,
         menu_actions: tab_menu_actions,
         menu_danger_actions: tab_menu_danger_actions,
         warnings
     };
 }
 
-function block_description(client, block, options) {
+export function block_description(client, block, options) {
     let type, used_for, link, size, critical_size;
     const block_stratis_blockdev = client.blocks_stratis_blockdev[block.path];
     const block_stratis_stopped_pool = client.blocks_stratis_stopped_pool[block.path];
@@ -498,7 +533,7 @@ function block_description(client, block, options) {
             type = C_("storage-id-desc", "Filesystem (encrypted)");
             used_for = mount_point;
         } else if (block_stratis_stopped_pool) {
-            type = _("Stratis member");
+            type = _("Stratis block device");
             used_for = block_stratis_stopped_pool;
             link = ["pool", used_for];
             omit_encrypted_label = true;
@@ -513,7 +548,7 @@ function block_description(client, block, options) {
     } else if (block.IdUsage == "raid") {
         if (block_pvol && client.vgroups[block_pvol.VolumeGroup]) {
             const vgroup = client.vgroups[block_pvol.VolumeGroup];
-            type = _("LVM2 member");
+            type = _("LVM2 physical volume");
             used_for = vgroup.Name;
             link = ["vg", used_for];
             size = [block_pvol.Size - block_pvol.FreeSize, block_pvol.Size];
@@ -525,14 +560,14 @@ function block_description(client, block, options) {
             link = ["mdraid", mdraid.UUID];
         } else if (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) {
             const pool = client.stratis_pools[block_stratis_blockdev.Pool];
-            type = _("Stratis member");
+            type = _("Stratis block device");
             used_for = pool.Name;
             link = ["pool", pool.Uuid];
             omit_encrypted_label = true;
         } else if (block.IdType == "LVM2_member") {
-            type = _("LVM2 member");
+            type = _("LVM2 physical volume");
         } else if (block.IdType == "stratis") {
-            type = _("Stratis member");
+            type = _("Stratis block device");
             omit_encrypted_label = true;
         } else {
             type = _("RAID member");
@@ -555,6 +590,9 @@ function block_description(client, block, options) {
 
     if (cleartext && !omit_encrypted_label)
         type = cockpit.format(_("$0 (encrypted)"), type);
+
+    if (options.unified)
+        link = null;
 
     return {
         type,
@@ -601,6 +639,15 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object, opti
     if (info)
         info = <>{"\n"}{info}</>;
 
+    let location = desc.used_for;
+    if (tabs.hints.length > 0) {
+        const hints = "(" + tabs.hints.join(", ") + ")";
+        if (location)
+            location += " " + hints;
+        else
+            location = hints;
+    }
+
     const cols = [
         {
             title: (
@@ -610,7 +657,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object, opti
                 </span>)
         },
         { title: desc.type },
-        { title: desc.link ? <Button isInline variant="link" onClick={() => cockpit.location.go(desc.link)}>{desc.used_for}</Button> : desc.used_for },
+        { title: desc.link ? <Button isInline variant="link" onClick={() => cockpit.location.go(desc.link)}>{desc.used_for}</Button> : location },
         {
             title: desc.size.length
                 ? <StorageUsageBar stats={desc.size} critical={desc.critical_size || 0.95} block={name} />
@@ -623,7 +670,8 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object, opti
     rows.push({
         props: { key, className: "content-level-" + level },
         columns: cols,
-        expandedContent: tabs.renderers.length > 0 ? <ListingPanel tabRenderers={tabs.renderers} /> : null
+        expandedContent: tabs.renderers.length > 0 ? <ListingPanel tabRenderers={tabs.renderers} /> : null,
+        go: options.go
     });
 }
 
@@ -631,7 +679,8 @@ function append_non_partitioned_block(client, rows, level, block, options) {
     const tabs = create_tabs(client, block, options);
     const desc = block_description(client, block, options);
 
-    append_row(client, rows, level, block.path, utils.block_name(block), desc, tabs, block.path, options);
+    append_row(client, rows, level, block.path, utils.block_name(block), desc, tabs, block.path,
+               { ...options, go: () => cockpit.location.go([utils.block_name(block).replace(/^\/dev\//, "")]) });
 }
 
 function append_partitions(client, rows, level, block, options) {
@@ -645,20 +694,29 @@ function append_partitions(client, rows, level, block, options) {
             format_dialog(client, block.path, start, size, is_dos_partitioned && level <= device_level);
         }
 
-        const btn = (
-            <StorageButton onlyWide onClick={create_partition}>
-                {_("Create partition")}
-            </StorageButton>
-        );
+        let btn, item, menu;
 
-        const item = (
-            <StorageMenuItem key="create"
-                             onlyNarrow
-                             onClick={create_partition}>
-                {_("Create partition")}
-            </StorageMenuItem>);
-
-        const menu = <StorageBarMenu onlyNarrow menuItems={[item]} isKebab />;
+        if (options.unified) {
+            btn = null;
+            item = (
+                <StorageMenuItem key="create"
+                                 onClick={create_partition}>
+                    {_("Create partition")}
+                </StorageMenuItem>);
+            menu = <StorageBarMenu menuItems={[item]} isKebab />;
+        } else {
+            btn = (
+                <StorageButton onlyWide onClick={create_partition}>
+                    {_("Create partition")}
+                </StorageButton>);
+            item = (
+                <StorageMenuItem key="create"
+                                 onlyNarrow
+                                 onClick={create_partition}>
+                    {_("Create partition")}
+                </StorageMenuItem>);
+            menu = <StorageBarMenu onlyNarrow menuItems={[item]} isKebab />;
+        }
 
         const cols = [
             _("Free space"),
@@ -670,7 +728,11 @@ function append_partitions(client, rows, level, block, options) {
 
         rows.push({
             columns: cols,
-            props: { key: "free-space-" + rows.length.toString(), className: "content-level-" + level }
+            props: {
+                key: "free-space-" + rows.length.toString(),
+                className: "content-level-" + level,
+            },
+            go: options.go,
         });
     }
 
@@ -710,7 +772,8 @@ function append_device(client, rows, level, block, options) {
 
 export function block_content_rows(client, block, options) {
     const rows = [];
-    append_device(client, rows, 0, block, options);
+    append_device(client, rows, options.level || 0, block,
+                  { go: () => utils.go_to_block(client, block.path), ...options });
     return rows;
 }
 
@@ -771,6 +834,20 @@ function format_disk(client, block) {
     });
 }
 
+export function block_menu_items(client, block, options) {
+    function onClick() {
+        if (block.ReadOnly)
+            return Promise.reject(_("Device is read-only"));
+        format_disk(client, block);
+    }
+
+    return [
+        <StorageMenuItem danger key="disk-format" onClick={onClick}>
+            {_("Create partition table")}
+        </StorageMenuItem>
+    ];
+}
+
 const BlockContent = ({ client, block, allow_partitions }) => {
     if (!block)
         return null;
@@ -793,14 +870,66 @@ const BlockContent = ({ client, block, allow_partitions }) => {
     else
         title = _("Content");
 
+    function onRowClick(event, row) {
+        if (!event || event.button !== 0)
+            return;
+
+        // StorageBarMenu sets this to tell us not to navigate when
+        // the kebabs are opened.
+        if (event.defaultPrevented)
+            return;
+
+        if (row.go)
+            row.go();
+    }
+
     return (
         <Card>
             <CardHeader actions={{ actions: format_disk_btn }}>
                 <CardTitle component="h2">{title}</CardTitle>
             </CardHeader>
             <CardBody className="contains-list">
-                <ListingTable rows={ block_content_rows(client, block, {}) }
+                <ListingTable rows={ block_content_rows(client, block, { unified: true }) }
+                              variant="compact"
                               aria-label={_("Content")}
+                              onRowClick={onRowClick}
+                              columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
+                              showHeader={false} />
+            </CardBody>
+        </Card>
+    );
+};
+
+export const ThinPoolContent = ({ client, pool }) => {
+    const create_volume = (
+        <StorageButton onClick={null}>
+            {_("Create thin volume")}
+        </StorageButton>
+    );
+
+    function onRowClick(event, row) {
+        if (!event || event.button !== 0)
+            return;
+
+        // StorageBarMenu sets this to tell us not to navigate when
+        // the kebabs are opened.
+        if (event.defaultPrevented)
+            return;
+
+        if (row.go)
+            row.go();
+    }
+
+    return (
+        <Card>
+            <CardHeader actions={{ actions: create_volume }}>
+                <CardTitle component="h2">{_("Thin volumes in pool")}</CardTitle>
+            </CardHeader>
+            <CardBody className="contains-list">
+                <ListingTable rows={ thin_pool_content_rows(client, pool, { unified: true }) }
+                              variant="compact"
+                              aria-label={_("Content")}
+                              onRowClick={onRowClick}
                               columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
                               showHeader={false} />
             </CardBody>
@@ -826,11 +955,20 @@ function append_logical_volume_block(client, rows, level, block, lvol, options) 
         }
         : block_description(client, block, options);
     const tabs = create_tabs(client, block, options);
-    append_row(client, rows, level, block.path, lvol.Name, desc, tabs, block.path, options);
+    const vgroup = client.vgroups[lvol.VolumeGroup];
+    append_row(client, rows, level, block.path, lvol.Name, desc, tabs, block.path,
+               { ...options, go: () => cockpit.location.go(["vg", vgroup.Name, lvol.Name]) });
+}
+
+function append_thin_pool_volumes(client, rows, level, pool, options) {
+    client.lvols_pool_members[pool.path].forEach(function (member_lvol) {
+        append_logical_volume(client, rows, level + 1, member_lvol, options);
+    });
 }
 
 function append_logical_volume(client, rows, level, lvol, options) {
     let tabs, desc, block;
+    const vgroup = client.vgroups[lvol.VolumeGroup];
 
     if (lvol.Type == "pool") {
         desc = {
@@ -838,15 +976,14 @@ function append_logical_volume(client, rows, level, lvol, options) {
             type: _("Pool for thin volumes")
         };
         tabs = create_tabs(client, lvol, options);
-        append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false, options);
-        client.lvols_pool_members[lvol.path].forEach(function (member_lvol) {
-            append_logical_volume(client, rows, level + 1, member_lvol, options);
-        });
+        append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false,
+                   { ...options, go: () => cockpit.location.go(["vg", vgroup.Name, lvol.Name]) });
+        append_thin_pool_volumes(client, rows, level, lvol, options);
     } else {
         block = client.lvols_block[lvol.path];
-        if (block)
+        if (block) {
             append_logical_volume_block(client, rows, level, block, lvol, options);
-        else {
+        } else {
             // If we can't find the block for a active
             // volume, Storaged or something below is
             // probably misbehaving, and we show it as
@@ -857,9 +994,16 @@ function append_logical_volume(client, rows, level, lvol, options) {
                 type: lvol.Active ? _("Unsupported volume") : _("Inactive volume")
             };
             tabs = create_tabs(client, lvol, options);
-            append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false, options);
+            append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false,
+                       { ...options, go: () => cockpit.location.go(["vg", vgroup.Name, lvol.Name]) });
         }
     }
+}
+
+export function thin_pool_content_rows(client, pool, options) {
+    const rows = [];
+    append_thin_pool_volumes(client, rows, options.level || 0, pool, options);
+    return rows;
 }
 
 export function vgroup_content_rows(client, vgroup, options) {
@@ -870,7 +1014,7 @@ export function vgroup_content_rows(client, vgroup, options) {
     (client.vgroups_lvols[vgroup.path] || []).forEach(lvol => {
         // Don't display VDO pool volumes as separate entities; they are an internal implementation detail and have no actions
         if (lvol.ThinPool == "/" && lvol.Origin == "/" && !isVDOPool(lvol))
-            append_logical_volume(client, rows, 0, lvol, options);
+            append_logical_volume(client, rows, options.level || 0, lvol, options);
     });
     return rows;
 }
@@ -1005,7 +1149,7 @@ function create_logical_volume(client, vgroup) {
     }
 
     dialog_open({
-        Title: _("Create logical volume"),
+        Title: cockpit.format(_("Create logical volume in $0"), vgroup.Name),
         Fields: [
             TextInput("name", _("Name"),
                       {
@@ -1142,6 +1286,26 @@ function create_logical_volume(client, vgroup) {
     });
 }
 
+export function vgroup_menu_items(client, vgroup, options) {
+    function onClick() {
+        if (vgroup.FreeSize == 0)
+            return Promise.reject(_("No free space"));
+        create_logical_volume(client, vgroup);
+    }
+
+    return [
+        <StorageMenuItem key="vgroup-create" onClick={onClick}>
+            {_("Create logical volume")}
+        </StorageMenuItem>,
+        <StorageMenuItem key="vgroup-rename" onClick={() => vgroup_rename(client, vgroup)}>
+            {_("Rename volume group")}
+        </StorageMenuItem>,
+        <StorageMenuItem key="vgroup-rename" danger onClick={() => vgroup_delete(client, vgroup)}>
+            {_("Delete volume group")}
+        </StorageMenuItem>,
+    ];
+}
+
 export class VGroup extends React.Component {
     constructor () {
         super();
@@ -1173,6 +1337,19 @@ export class VGroup extends React.Component {
             </StorageButton>
         );
 
+        function onRowClick(event, row) {
+            if (!event || event.button !== 0)
+                return;
+
+            // StorageBarMenu sets this to tell us not to navigate when
+            // the kebabs are opened.
+            if (event.defaultPrevented)
+                return;
+
+            if (row.go)
+                row.go();
+        }
+
         return (
             <Card>
                 <CardHeader actions={{ actions: new_volume_link }}>
@@ -1180,10 +1357,12 @@ export class VGroup extends React.Component {
                 </CardHeader>
                 <CardBody className="contains-list">
                     <ListingTable emptyCaption={_("No logical volumes")}
+                                  variant="compact"
                                   aria-label={_("Logical volumes")}
+                                  onRowClick={onRowClick}
                                   columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
                                   showHeader={false}
-                                  rows={vgroup_content_rows(client, vgroup, {})} />
+                                  rows={vgroup_content_rows(client, vgroup, { unified: true })} />
                 </CardBody>
             </Card>
         );

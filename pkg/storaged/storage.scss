@@ -197,19 +197,13 @@ tr[class*="content-level-"] {
   --multiplier: 0;
   --offset: calc(var(--pf-v5-global--spacer--lg) * var(--multiplier));
 
-  // Move the button over
-  > .pf-v5-c-table__toggle > button {
+  > td:first-child {
     position: relative;
     inset-inline-start: var(--offset);
   }
-
-  // Add space for the button and offset
-  > .pf-v5-c-table__toggle + td {
-    padding-inline-start: calc(var(--offset) + var(--pf-v5-c-table--cell--PaddingLeft));
-  }
 }
 
-@for $i from 1 through 10 {
+@for $i from 0 through 10 {
   tr.content-level-#{$i} {
     --multiplier: #{$i};
   }

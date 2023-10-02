@@ -3698,6 +3698,40 @@ function factory() {
         return self;
     };
 
+    cockpit.fslist = function (path, attrs) {
+        const self = {
+            members: { },
+        };
+
+        event_mixin(self, { });
+
+        self.on_message = function (_event, payload) {
+            const msg = JSON.parse(payload);
+            const { path, event } = msg;
+            delete msg.path;
+            delete msg.event;
+
+            if (event.deleted) {
+                delete self.members[path];
+            } else {
+                self.members[path] = msg;
+            }
+
+            self.dispatchEvent("changed");
+        };
+
+        self.channel = cockpit.channel({
+            path,
+            attrs,
+            payload: 'fslist1',
+            superuser: 'try',
+            watch: true,
+        });
+
+        self.channel.addEventListener("message", self.on_message);
+        return self;
+    };
+
     /* ---------------------------------------------------------------------
      * Localization
      */

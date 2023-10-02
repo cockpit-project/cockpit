@@ -92,6 +92,28 @@ class StorageHelpers:
         self.addCleanup(self.machine.execute, "umount {0} || true; rm $(losetup -n -O BACK-FILE -l {0}); until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
         return dev
 
+    def add_targetd_loopback_disk(self, index, size=50):
+        """Add per-test loopback device that can be forcefully removed.
+        """
+
+        m = self.machine
+        model = f"disk{index}"
+        wwn = f"naa.5000{index:012x}"
+
+        m.execute(f"rm -f /var/tmp/targetd.{model}")
+        m.execute(f"targetcli /backstores/fileio create name={model} size={size}M file_or_dev=/var/tmp/targetd.{model}")
+        m.execute(f"targetcli /loopback create {wwn}")
+        m.execute(f"targetcli /loopback/{wwn}/luns create /backstores/fileio/{model}")
+
+        self.addCleanup(m.execute, f"targetcli /loopback delete {wwn}")
+        self.addCleanup(m.execute, f"targetcli /backstores/fileio delete {model}")
+        self.addCleanup(m.execute, f"rm -f /var/tmp/targetd.{model}")
+
+        dev = m.execute(f'for dev in /sys/block/*; do if [ -f $dev/device/model ] && [ "$(cat $dev/device/model | tr -d [:space:])" == "{model}" ]; then echo /dev/$(basename $dev); fi; done').strip()
+        if dev == "":
+            raise Error("Device not found")
+        return dev
+
     def force_remove_disk(self, device):
         """Act like the given device gets physically removed.
 

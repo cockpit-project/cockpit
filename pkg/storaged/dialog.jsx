@@ -507,6 +507,14 @@ export const dialog_open = (def) => {
             update();
         },
 
+        get_options: (tag) => {
+            for (const f of fields) {
+                if (f.tag == tag) {
+                    return f.options;
+                }
+            }
+        },
+
         set_options: (tag, new_options) => {
             fields.forEach(f => {
                 if (f.tag == tag) {
@@ -722,8 +730,9 @@ export const SelectSpaces = (tag, title, options) => {
         tag,
         title,
         options,
-        initial_value: [],
+        initial_value: options.value || [],
         hasNoPaddingTop: options.spaces.length == 0,
+
         render: (val, change) => {
             if (options.spaces.length === 0)
                 return <span className="text-danger">{options.empty_warning}</span>;
@@ -748,6 +757,8 @@ export const SelectSpaces = (tag, title, options) => {
                             <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
                                 <DataListItemRow>
                                     <DataListCheck id={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
+                                                   isDisabled={options.min_selected &&
+                                                               selected && val.length <= options.min_selected}
                                                    isChecked={selected} onChange={on_change} />
                                     <label htmlFor={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
                                            className='data-list-row-checkbox-label'>

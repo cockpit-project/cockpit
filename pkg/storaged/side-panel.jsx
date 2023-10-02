@@ -27,7 +27,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { EmptyState, EmptyStateBody, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+import { warnings_icon } from "./warnings.jsx";
 
 const _ = cockpit.gettext;
 
@@ -136,7 +136,7 @@ class SidePanelRow extends React.Component {
         else if (client.path_jobs[job_path])
             decoration = <Spinner size="md" />;
         else if (client.path_warnings[job_path])
-            decoration = <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />;
+            decoration = warnings_icon(client.path_warnings[job_path]);
 
         return (
             <FlexItem data-testkey={this.props.testkey}

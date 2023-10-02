@@ -78,9 +78,6 @@ class TestStorageResize(storagelib.StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
             self.content_tab_wait_in_info(1, 1, "Size", "398 MB")
-            if grow_needs_unmount:
-                self.content_row_action(fsys_row, "Mount")
-                self.confirm()
             with b.wait_timeout(30):
                 self.wait_mounted(fsys_row, fsys_tab)
             size = int(m.execute("df -k --output=size /run/foo | tail -1").strip())
@@ -100,10 +97,7 @@ class TestStorageResize(storagelib.StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
             self.content_tab_wait_in_info(1, 1, "Size", "201 MB")
-            if shrink_needs_unmount:
-                self.content_row_action(fsys_row, "Mount")
-                self.confirm()
-                self.wait_mounted(fsys_row, fsys_tab)
+            self.wait_mounted(fsys_row, fsys_tab)
             size = int(m.execute("df -k --output=size /run/foo | tail -1").strip())
             self.assertLess(size, 300000)
         else:

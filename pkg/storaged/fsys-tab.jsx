@@ -24,7 +24,7 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
-import { parse_options, unparse_options, extract_option, set_crypto_options, set_crypto_auto_option } from "./utils.js";
+import { parse_options, unparse_options, extract_option, set_crypto_options, set_crypto_auto_option, get_fstab_config_with_client } from "./utils.js";
 
 import {
     dialog_open, TextInput, PassInput, CheckBoxes, SelectOne,
@@ -52,27 +52,7 @@ export function is_mounted(client, block) {
 }
 
 export function get_fstab_config(block, also_child_config) {
-    let config = block.Configuration.find(c => c[0] == "fstab");
-
-    if (!config && also_child_config && client.blocks_crypto[block.path])
-        config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
-
-    if (config && utils.decode_filename(config[1].type.v) != "swap") {
-        const mnt_opts = utils.get_block_mntopts(config[1]).split(",");
-        let dir = utils.decode_filename(config[1].dir.v);
-        let opts = mnt_opts
-                .filter(function (s) { return s.indexOf("x-parent") !== 0 })
-                .join(",");
-        const parents = mnt_opts
-                .filter(function (s) { return s.indexOf("x-parent") === 0 })
-                .join(",");
-        if (dir[0] != "/")
-            dir = "/" + dir;
-        if (opts == "defaults")
-            opts = "";
-        return [config, dir, opts, parents];
-    } else
-        return [];
+    return get_fstab_config_with_client(client, block, also_child_config);
 }
 
 function find_blocks_for_mount_point(client, mount_point, self) {

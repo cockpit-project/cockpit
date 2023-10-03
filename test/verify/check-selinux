@@ -228,8 +228,9 @@ class TestSelinux(testlib.MachineCase):
         b.wait_visible(".pf-v5-c-data-list__cell:contains(Allow zebra)")
         b.wait_visible(".pf-v5-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
         b.click("button:contains('View automation script')")
-        shell_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
-        ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(3) textarea"
+        ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
+        shell_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(3) textarea"
+        b.click("button:contains('Shell')")
         b.wait_in_text(shell_script_sel, "boolean -D")
         b.wait_in_text(shell_script_sel, "fcontext -D")
         b.wait_in_text(shell_script_sel, "boolean -m -1 zebra_write_config")
@@ -264,7 +265,6 @@ class TestSelinux(testlib.MachineCase):
         with b.wait_timeout(30):
             b.wait_visible(".pf-v5-c-data-list__cell:contains(Disallow zebra)")
         b.click("button:contains('View automation script')")
-        b.click("button:contains('Ansible')")
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
         se_before = se_after
         ansible_m.execute("ansible -m include_role -a name=selinux localhost")

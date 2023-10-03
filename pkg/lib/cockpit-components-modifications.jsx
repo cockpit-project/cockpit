@@ -38,7 +38,7 @@ const _ = cockpit.gettext;
  *
  */
 const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => {
-    const [active_tab, setActiveTab] = React.useState("shell");
+    const [active_tab, setActiveTab] = React.useState("ansible");
     const [copied, setCopied] = React.useState(false);
     const [timeoutId, setTimeoutId] = React.useState(null);
 
@@ -85,9 +85,6 @@ const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => {
                footer={footer}
                title={_("Automation script") }>
             <Tabs activeKey={active_tab} onSelect={handleSelect}>
-                <Tab eventKey="shell" title={_("Shell script")}>
-                    <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={shell.trim()} />
-                </Tab>
                 <Tab eventKey="ansible" title={_("Ansible")}>
                     <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={ansible.trim()} />
                     <div className="ansible-docs-link">
@@ -99,6 +96,9 @@ const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => {
                             { _("Ansible roles documentation") }
                         </Button>
                     </div>
+                </Tab>
+                <Tab eventKey="shell" title={_("Shell script")}>
+                    <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={shell.trim()} />
                 </Tab>
             </Tabs>
         </Modal>

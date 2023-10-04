@@ -36,7 +36,7 @@ def wait_unit_state(machine, unit, state):
 
 
 def get_active_rules(machine):
-    active_zones = machine.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split()
+    active_zones = machine.execute("firewall-cmd --get-active-zones | grep -o '^[[:alnum:]]*'").split()
     active_rules = []
     for zone in active_zones:
         active_rules += machine.execute(f"firewall-cmd --zone '{zone}' --list-services").split()

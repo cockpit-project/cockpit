@@ -219,7 +219,13 @@ class _Transport(asyncio.Transport):
         self._protocol.pause_writing()
 
     def write(self, data: bytes) -> None:
-        assert not self._closing
+        # this is a race condition with subprocesses: if we get and process the the "exited"
+        # event before seeing BrokenPipeError, we'll try to write to a closed pipe.
+        # Do what the standard library does and ignore, instead of assert
+        if self._closing:
+            logger.debug('ignoring write() to closing transport fd %i', self._out_fd)
+            return
+
         assert not self._eof
 
         if self._queue is not None:

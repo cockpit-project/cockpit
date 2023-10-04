@@ -28,7 +28,7 @@ import { parse_options, unparse_options, extract_option, set_crypto_options, set
 
 import {
     dialog_open, TextInput, PassInput, CheckBoxes, SelectOne,
-    StopProcessesMessage, stop_processes_danger_message
+    TeardownMessage, init_active_usage_processes
 } from "./dialog.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { initial_tab_options, mount_explanation } from "./format-dialog.jsx";
@@ -96,7 +96,7 @@ function nice_block_name(block) {
     return utils.block_name(client.blocks[block.CryptoBackingDevice] || block);
 }
 
-export function is_valid_mount_point(client, block, val) {
+export async function is_valid_mount_point(client, block, val, ignore_overmounting) {
     if (val === "")
         return _("Mount point cannot be empty");
 
@@ -104,6 +104,16 @@ export function is_valid_mount_point(client, block, val) {
     if (other_blocks.length > 0)
         return cockpit.format(_("Mount point is already used for $0"),
                               other_blocks.map(nice_block_name).join(", "));
+
+    if (!ignore_overmounting) {
+        const children = utils.find_children_for_mount_point(client, val, block);
+        if (Object.keys(children).length > 0)
+            return <>
+                {_("Filesystems are already mounted below this mountpoint.")}
+                {Object.keys(children).map(m => <div key={m}>{cockpit.format("• $0 on $1", nice_block_name(children[m]), m)}</div>)}
+                {_("Please unmount them first.")}
+            </>;
+    }
 }
 
 export function get_cryptobacking_noauto(client, block) {
@@ -179,7 +189,6 @@ export function mounting_dialog(client, block, mode, forced_options) {
     const extra_options = unparse_options(split_options);
 
     const is_filesystem_mounted = is_mounted(client, block);
-    let mount_point_users = null;
 
     function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type) {
         let new_config = null;
@@ -215,13 +224,6 @@ export function mounting_dialog(client, block, mode, forced_options) {
             else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts)) {
                 return block.UpdateConfigurationItem(new_config, old_config, {});
             }
-        }
-
-        function maybe_unmount() {
-            if (block_fsys && block_fsys.MountPoints.indexOf(utils.encode_filename(old_dir)) >= 0)
-                return client.unmount_at(old_dir, mount_point_users);
-            else
-                return Promise.resolve();
         }
 
         function get_block_fsys() {
@@ -293,7 +295,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
         // backs.
 
         return (utils.reload_systemd()
-                .then(maybe_unmount)
+                .then(() => utils.teardown_active_usage(client, usage))
                 .then(maybe_unlock)
                 .then(() => {
                     if (!old_config && new_config)
@@ -327,7 +329,8 @@ export function mounting_dialog(client, block, mode, forced_options) {
             TextInput("mount_point", _("Mount point"),
                       {
                           value: old_dir,
-                          validate: val => is_valid_mount_point(client, block, val)
+                          validate: val => is_valid_mount_point(client, block, val,
+                                                                mode == "update" && !is_filesystem_mounted)
                       }),
             CheckBoxes("mount_options", _("Mount options"),
                        {
@@ -375,17 +378,6 @@ export function mounting_dialog(client, block, mode, forced_options) {
             ]);
     }
 
-    let teardown = null;
-    if (!is_filesystem_mounted && block_fsys && block_fsys.MountPoints.length > 0)
-        teardown = (
-            <>
-                {teardown}
-                <div className="modal-footer-teardown">
-                    <p>{cockpit.format(_("The filesystem is already mounted at $0. Proceeding will unmount it."),
-                                       utils.decode_filename(block_fsys.MountPoints[0]))}</p>
-                </div>
-            </>);
-
     const mode_title = {
         mount: _("Mount filesystem"),
         unmount: _("Unmount filesystem $0"),
@@ -428,10 +420,12 @@ export function mounting_dialog(client, block, mode, forced_options) {
             return Promise.resolve();
     }
 
+    const usage = utils.get_active_usage(client, block.path);
+
     const dlg = dialog_open({
         Title: cockpit.format(mode_title[mode], old_dir),
         Fields: fields,
-        Teardown: teardown,
+        Teardown: TeardownMessage(usage, old_dir),
         update: function (dlg, vals, trigger) {
             if (trigger == "at_boot")
                 dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
@@ -467,19 +461,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
             }
         },
         Inits: [
-            {
-                title: _("Checking related processes"),
-                func: dlg => {
-                    return client.find_mount_users(old_dir, is_filesystem_mounted)
-                            .then(users => {
-                                mount_point_users = users;
-                                if (users.length > 0) {
-                                    dlg.set_attribute("Teardown", <StopProcessesMessage mount_point={old_dir} users={users} />);
-                                    dlg.add_danger(stop_processes_danger_message(users));
-                                }
-                            });
-                }
-            },
+            init_active_usage_processes(client, usage, old_dir),
             (block.IdUsage == "crypto" && mode == "mount")
                 ? init_existing_passphrase(block, true, type => { passphrase_type = type })
                 : null

@@ -524,6 +524,101 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         b.click(fsys_tab + " button:contains(Do not mount automatically)")
         b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically)")
 
+    def testOverMounting(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and make two partitions on it, one on /run/foo
+        # and one on /run/foo/bar
+
+        disk = self.add_ram_disk(100)
+        b.click(f'#drives .sidepanel-row:contains("{disk}")')
+        b.wait_visible("#storage-detail")
+
+        b.click('button:contains(Create partition table)')
+        self.dialog({"type": "gpt"})
+        self.content_row_wait_in_col(1, 0, "Free space")
+
+        self.content_row_action(1, "Create partition")
+        self.dialog({"type": "ext4",
+                     "size": 50,
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "mount_point": "/run/foo"},
+                    secondary=True)
+        self.content_row_wait_in_col(1, 3, "/run/foo")
+
+        self.content_row_action(2, "Create partition", isExpandable=False)
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "mount_point": "/run/foo/bar"},
+                    secondary=True)
+        self.content_row_wait_in_col(2, 3, "/run/foo/bar")
+
+        # Mount /run/foo/bar first and check that mounting /run/foo is
+        # rejected
+
+        self.content_row_action(2, "Mount")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.wait_mounted(2, 2)
+
+        self.content_row_action(1, "Mount")
+        self.dialog_wait_open()
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_error("mount_point", "Filesystems are already mounted below this mountpoint.")
+        b.assert_pixels("#dialog", "overmounting-rejection")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Unmount /run/foo/bar, mount /run/foo, mount /run/foo/bar
+        # again and then check that unmounting /run/foo will also
+        # unmount /run/foo/bar.
+
+        self.content_dropdown_action(2, "Unmount")
+        self.confirm()
+
+        self.content_row_action(1, "Mount")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.wait_mounted(1, 2)
+
+        self.content_row_action(2, "Mount")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.wait_mounted(2, 2)
+
+        self.content_dropdown_action(1, "Unmount")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog tr:contains('/run/foo/bar')", "unmount")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # Now /run/foo/bar should be noauto.
+        self.assert_in_configuration(disk + "2", "crypttab", "options", "noauto")
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /run/foo/bar"))
+
+        # Mount them again and check that initializing the disk will
+        # unmount /run/foo/bar first.
+
+        self.content_row_action(1, "Mount")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.wait_mounted(1, 2)
+
+        self.content_row_action(2, "Mount")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.wait_mounted(2, 2)
+
+        b.click('button:contains(Create partition table)')
+        self.dialog_wait_open()
+        b.wait_text("#dialog tr:nth-child(1) td[data-label=Location]", "/run/foo/bar")
+        b.wait_text("#dialog tr:nth-child(2) td[data-label=Location]", "/run/foo")
+        self.dialog_apply()
+        self.content_row_wait_in_col(1, 0, "Free space")
+
 
 if __name__ == '__main__':
     testlib.test_main()

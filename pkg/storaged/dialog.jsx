@@ -1140,9 +1140,17 @@ const UsersPopover = ({ users }) => {
         </Popover>);
 };
 
-export const TeardownMessage = (usage) => {
+function is_expected_unmount(usage, expect_single_unmount) {
+    return (expect_single_unmount && usage.length == 1 &&
+            usage[0].usage == "mounted" && usage[0].location == expect_single_unmount);
+}
+
+export const TeardownMessage = (usage, expect_single_unmount) => {
     if (usage.length == 0)
         return null;
+
+    if (is_expected_unmount(usage, expect_single_unmount))
+        return <StopProcessesMessage mount_point={expect_single_unmount} users={usage[0].users} />;
 
     const rows = [];
     usage.forEach((use, index) => {
@@ -1178,7 +1186,24 @@ export const TeardownMessage = (usage) => {
         </div>);
 };
 
-export function init_active_usage_processes(client, usage) {
+export function teardown_danger_message(usage, expect_single_unmount) {
+    if (is_expected_unmount(usage, expect_single_unmount))
+        return stop_processes_danger_message(usage[0].users);
+
+    const usage_with_users = usage.filter(u => u.users);
+    const n_processes = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.pid).length, 0);
+    const n_services = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.unit).length, 0);
+    if (n_processes > 0 && n_services > 0)
+        return _("Related processes and services will be forcefully stopped.");
+    else if (n_processes > 0)
+        return _("Related processes will be forcefully stopped.");
+    else if (n_services > 0)
+        return _("Related services will be forcefully stopped.");
+    else
+        return null;
+}
+
+export function init_active_usage_processes(client, usage, expect_single_unmount) {
     return {
         title: _("Checking related processes"),
         func: dlg => {
@@ -1191,22 +1216,19 @@ export function init_active_usage_processes(client, usage) {
                 } else
                     return Promise.resolve();
             }).then(() => {
-                dlg.set_attribute("Teardown", TeardownMessage(usage));
-                const usage_with_users = usage.filter(u => u.users);
-                const n_processes = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.pid).length, 0);
-                const n_services = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.unit).length, 0);
-                if (n_processes > 0 && n_services > 0)
-                    dlg.add_danger(_("Related processes and services will be forcefully stopped."));
-                else if (n_processes > 0)
-                    dlg.add_danger(_("Related processes will be forcefully stopped."));
-                else if (n_services > 0)
-                    dlg.add_danger(_("Related services will be forcefully stopped."));
+                dlg.set_attribute("Teardown", TeardownMessage(usage, expect_single_unmount));
+                const msg = teardown_danger_message(usage, expect_single_unmount);
+                if (msg)
+                    dlg.add_danger(msg);
             });
         }
     };
 }
 
 export const StopProcessesMessage = ({ mount_point, users }) => {
+    if (!users || users.length == 0)
+        return null;
+
     const process_rows = users.filter(u => u.pid).map(u => {
         return {
             columns: [

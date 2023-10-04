@@ -195,6 +195,22 @@ class TestKdump(KdumpHelpers):
         self.login_and_go("/kdump")
         b.wait_visible("#app")
 
+        # Check defaults
+        current = m.execute("grep '^core_collector' /etc/kdump.conf").strip()
+        m.execute("sed -i /^core_collector/d /etc/kdump.conf")
+        # Drop the custom path so we can make sure our changes are synced to JavaScript
+        m.execute("sed -i 's#^path /var/crash#path /var/tmp#' /etc/kdump.conf")
+        last_modified = m.execute("stat /etc/kdump.conf")
+        b.wait_text("#kdump-change-target", "locally in /var/tmp")
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_input_text("#kdump-settings-local-directory", "/var/crash")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        new = m.execute("grep '^core_collector' /etc/kdump.conf").strip()
+        self.assertEqual(current, new)
+        self.assertNotEqual(last_modified, m.execute("stat /etc/kdump.conf"))
+
         # Check remote ssh location
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")

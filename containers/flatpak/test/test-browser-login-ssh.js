@@ -12,9 +12,9 @@ async function test() {
         document.getElementById("server-field").value = "%HOST%";
         ph_mouse("#login-button", "click");
 
-        // unknown host key
-        await assert_conversation("authenticity of host");
-        document.getElementById("conversation-input").value = "yes";
+        // accept unknown host key
+        await ph_wait_present("#hostkey-message-1");
+        await ph_wait_in_text("#hostkey-message-1", "%HOST%");
         ph_mouse("#login-button", "click");
 
         await ph_wait_present("#conversation-prompt");

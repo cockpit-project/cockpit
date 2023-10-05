@@ -969,17 +969,17 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
 """, append=True)
         m.start_cockpit()
 
-        def try_login(user, password, server=None):
+        def try_login(user, password, server=None, expect_hostkey=False):
             b.open("/")
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
             b.click("#show-other-login-options")
             b.set_val("#server-field", server or my_ip)
             b.click("#login-button")
-            # ack unknown host key; FIXME: this should be a proper authorize message, not a prompt
-            b.wait_in_text("#conversation-prompt", "authenticity of host")
-            b.set_val("#conversation-input", "yes")
-            b.click("#login-button")
+            if expect_hostkey:
+                b.wait_in_text("#hostkey-message-1", my_ip)
+                b.wait_in_text("#hostkey-fingerprint", "SHA256:")
+                b.click("#login-button")
 
         def check_no_processes():
             m.execute(f"while pgrep -af '[s]sh .* {my_ip}' >&2; do sleep 1; done")
@@ -995,7 +995,7 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
             check_no_processes()
 
         # successful login through SSH
-        try_login("admin", "foobar")
+        try_login("admin", "foobar", expect_hostkey=True)
         check_session()
 
         # wrong password

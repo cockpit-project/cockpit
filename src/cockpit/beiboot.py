@@ -21,6 +21,7 @@ import base64
 import importlib.resources
 import logging
 import os
+import re
 import shlex
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Sequence
@@ -165,12 +166,27 @@ class AuthorizeResponder(ferny.AskpassHandler):
             # Let's avoid all of that by just showing nothing.
             return None
 
+        # FIXME: is this a host key prompt? This should be handled more elegantly,
+        # see https://github.com/cockpit-project/cockpit/pull/19668
+        fp_match = re.search(r'\n(\w+) key fingerprint is ([^.]+)\.', prompt)
+        # let ssh resolve aliases, don't use our original "destination"
+        host_match = re.search(r"authenticity of host '([^ ]+) ", prompt)
+        args = {}
+        if fp_match and host_match:
+            # login.js do_hostkey_verification() expects host-key to be "hostname keytype key"
+            # we don't have acces to the full key, but the fingerprint is good enough
+            args['host-key'] = f'{host_match.group(1)} {fp_match.group(1)} {fp_match.group(2)}'
+            # very oddly named, login.js do_hostkey_verification() expects the fingerprint here
+            args['default'] = fp_match.group(2)
+
         challenge = 'X-Conversation - ' + base64.b64encode(prompt.encode()).decode()
         response = await self.router.request_authorization(challenge,
+                                                           timeout=None,
                                                            messages=messages,
                                                            prompt=prompt,
                                                            hint=hint,
-                                                           echo=False)
+                                                           echo=False,
+                                                           **args)
 
         b64 = response.removeprefix('X-Conversation -').strip()
         response = base64.b64decode(b64.encode()).decode()

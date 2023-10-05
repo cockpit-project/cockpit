@@ -490,11 +490,13 @@ class Browser:
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
     def _key_press_firefox(self, keys: str, modifiers: int = 0, use_ord: bool = False):
-        # https://github.com/GoogleChrome/puppeteer/blob/master/lib/USKeyboardLayout.js
+        # https://python-reference.readthedocs.io/en/latest/docs/str/ASCII.html
+        # Both line feed and carriage return are normalized to Enter (https://html.spec.whatwg.org/multipage/form-elements.html)
         keyMap = {
             8: "Backspace",   # Backspace key
             9: "Tab",         # Tab key
-            13: "Enter",      # Enter key
+            10: "Enter",      # Enter key (normalized from line feed)
+            13: "Enter",      # Enter key (normalized from carriage return)
             27: "Escape",     # Escape key
             37: "ArrowLeft",  # Arrow key left
             40: "ArrowDown",  # Arrow key down

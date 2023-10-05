@@ -971,17 +971,17 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
 """, append=True)
         m.start_cockpit()
 
-        def try_login(user, password, server=None):
+        def try_login(user, password, server=None, expect_hostkey=False):
             b.open("/")
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
             b.click("#show-other-login-options")
             b.set_val("#server-field", server or my_ip)
             b.click("#login-button")
-            # ack unknown host key; FIXME: this should be a proper authorize message, not a prompt
-            b.wait_in_text("#conversation-prompt", "authenticity of host")
-            b.set_val("#conversation-input", "yes")
-            b.click("#login-button")
+            if expect_hostkey:
+                b.wait_in_text("#hostkey-message-1", server or my_ip)
+                b.wait_in_text("#hostkey-fingerprint", "SHA256:")
+                b.click("#login-button")
 
         def check_no_processes():
             m.execute(f"while pgrep -af '[s]sh .* {my_ip}' >&2; do sleep 1; done")
@@ -996,13 +996,25 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
             b.logout()
             check_no_processes()
 
-        # successful login through SSH
-        try_login("admin", "foobar")
-        check_session()
+        def check_store_hostkey(expected: str) -> None:
+            db_hostkey = b.eval_js(f'JSON.parse(window.localStorage.getItem("known_hosts"))["{my_ip}"]')
+            if m.image.startswith('debian') or m.image.startswith('ubuntu'):
+                # these OSes encrypt host keys, so don't compare them
+                db_hostkey = ' '.join(db_hostkey.split()[1:])
+                expected = ' '.join(expected.split()[1:])
+            self.assertEqual(db_hostkey, expected)
 
-        # wrong password
+        # successful login through SSH
+        try_login("admin", "foobar", expect_hostkey=True)
+        check_session()
+        # wrote full host key into session storage
+        # some OpenSSH versions add a comment here, filter that out
+        real_hostkey = m.execute(f"ssh-keyscan -t ssh-ed25519 {my_ip} | grep -v ^#")
+        check_store_hostkey(real_hostkey)
+
+        # host key is now known, but wrong password
         try_login("admin", "wrong")
-        b.wait_in_text("#login-error-message", "Authentication failed")
+        b.wait_text("#login-error-message", "Wrong user name or password")
         check_no_processes()
         # goes back to normal login form
         b.wait_visible('#login-user-input')
@@ -1013,7 +1025,7 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
         check_session()
 
         # IPv6
-        try_login("admin", "foobar", server="::1")
+        try_login("admin", "foobar", server="::1", expect_hostkey=True)
         check_session(server="::1")
         try_login("admin", "foobar", server="[::1]:22")
         check_session(server="::1")
@@ -1030,6 +1042,35 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
             # HACK: PermitEmptyPasswords somehow breaks regular password auth
             m.execute("rm /etc/ssh/sshd_config.d/01-empty-password.conf")
             m.execute(self.restart_sshd)
+
+        # non-matching host key
+        bad_key = "172.27.0.15 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINKEIUL5s7ebg5Y6JdYNq4+mAaaaaaP1VRBDUiVdHT3R"
+        b.eval_js(f"""window.localStorage.setItem('known_hosts', '{{"{my_ip}": "{bad_key}"}}')""")
+
+        # first try with wrong credentials
+        try_login("admin", "wrong")
+        b.wait_text("#hostkey-title", f"{my_ip} key changed")
+        b.wait_in_text("#hostkey-fingerprint", "SHA256:")
+        b.click("#login-button.pf-m-danger")
+        b.wait_text("#login-error-message", "Authentication failed")
+        check_no_processes()
+        # new host key is accepted and updated in db
+        # confirmation replaces (not amends) known key
+        check_store_hostkey(real_hostkey)
+
+        # now with correct credentials, does not ask for host key any more
+        try_login("admin", "foobar")
+        check_session()
+        check_store_hostkey(real_hostkey)
+
+        # good credentials with bad key
+        b.eval_js(f"""window.localStorage.setItem('known_hosts', '{{"{my_ip}": "{bad_key}"}}')""")
+        try_login("admin", "foobar")
+        b.wait_text("#hostkey-title", f"{my_ip} key changed")
+        b.wait_in_text("#hostkey-fingerprint", "SHA256:")
+        b.click("#login-button.pf-m-danger")
+        check_session()
+        check_store_hostkey(real_hostkey)
 
 
 if __name__ == '__main__':

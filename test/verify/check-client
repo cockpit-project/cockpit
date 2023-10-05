@@ -118,8 +118,9 @@ exec "$@"
         b.wait_not_visible("#recent-hosts-list")
         b.set_val("#server-field", "10.111.113.2")
         b.click("#login-button")
-        b.wait_in_text("#conversation-group", "authenticity of host '10.111.113.2")
-        b.set_val("#conversation-input", "yes")
+        # accept unknown host key
+        b.wait_in_text("#hostkey-message-1", "10.111.113.2")
+        b.wait_in_text("#hostkey-fingerprint", "SHA256:")
         b.click("#login-button")
         b.wait_text("#conversation-prompt", "admin@10.111.113.2's password: ")
         b.set_val("#conversation-input", "foobar")

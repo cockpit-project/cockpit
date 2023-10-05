@@ -21,6 +21,7 @@ import base64
 import importlib.resources
 import logging
 import os
+import re
 import shlex
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Sequence
@@ -165,12 +166,21 @@ class AuthorizeResponder(ferny.AskpassHandler):
             # Let's avoid all of that by just showing nothing.
             return None
 
+        # is this a host key prompt?
+        fp_match = re.search(r'\n(\w+) key fingerprint is ([^.]+)\.', prompt)
+        args = {}
+        if fp_match:
+            args['host-key'] = f'{fp_match.group(2)} {fp_match.group(1)}'
+            args['default'] = fp_match.group(2)
+
         challenge = 'X-Conversation - ' + base64.b64encode(prompt.encode()).decode()
         response = await self.router.request_authorization(challenge,
+                                                           timeout=None,
                                                            messages=messages,
                                                            prompt=prompt,
                                                            hint=hint,
-                                                           echo=False)
+                                                           echo=False,
+                                                           **args)
 
         b64 = response.removeprefix('X-Conversation -').strip()
         response = base64.b64decode(b64.encode()).decode()

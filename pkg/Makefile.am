@@ -19,9 +19,6 @@ EXTRA_DIST += \
 pcpmanifestdir = $(datadir)/cockpit/pcp
 dist_pcpmanifest_DATA = pkg/pcp/manifest.json
 
-sshmanifestdir = $(datadir)/cockpit/ssh
-dist_sshmanifest_DATA = pkg/ssh/manifest.json
-
 # one built file in dist/ which we use as dependency
 DIST_STAMP = $(srcdir)/dist/static/manifest.json
 

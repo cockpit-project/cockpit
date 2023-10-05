@@ -94,6 +94,15 @@ function debug(...args) {
         return document.getElementById(name);
     }
 
+    // strip off "user@", "*:port", and IPv6 brackets from login target (but keep two :: intact for IPv6)
+    function parseHostname(ssh_target) {
+        return ssh_target
+                .replace(/^.*@/, '')
+                .replace(/(?<!:):[0-9]+$/, '')
+                .replace(/^\[/, '')
+                .replace(/\]$/, '');
+    }
+
     // Hide an element (or set of elements) based on a boolean
     // true: element is hidden, false: element is shown
     function hideToggle(elements, toggle) {
@@ -596,10 +605,18 @@ function debug(...args) {
 
     // value of #server-field at the time of clicking "Login"
     let login_machine = null;
+    /* set by do_hostkey_verification() for a confirmed unknown host fingerprint;
+     * setup_localstorage() will then write the received full known_hosts entry to the known_hosts
+     * database for this host */
+    let login_data_host = null;
+    /* set if our known_host database has a non-matching host key, and we re-attempt the login
+     * with asking the user for confirmation */
+    let ssh_host_key_change_host = null;
 
     function call_login() {
         login_failure(null);
         login_machine = id("server-field").value;
+        login_data_host = null;
         const user = trim(id("login-user-input").value);
         if (user === "" && !environment.is_cockpit_client) {
             login_failure(_("User name cannot be empty"));
@@ -631,8 +648,27 @@ function debug(...args) {
             /* Keep information if login page was used */
             localStorage.setItem('standard-login', true);
 
+            let known_hosts = '';
+            if (login_machine) {
+                if (ssh_host_key_change_host == login_machine) {
+                    /* We came here because logging in ran into invalid-hostkey; so try the next
+                     * round without sending the key. do_hostkey_verification() will notice the
+                       change and show the correct dialog. */
+                    debug("call_login(): previous login attempt into", login_machine, "failed due to changed key");
+                } else {
+                    // If we have a known host key, send it to ssh
+                    const keys = get_hostkeys(login_machine);
+                    if (keys) {
+                        debug("call_login(): sending known_host key", keys, "for logging into", login_machine);
+                        known_hosts = keys;
+                    } else {
+                        debug("call_login(): no known_hosts entry for logging into", login_machine);
+                    }
+                }
+            }
+
             const headers = {
-                Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),
+                Authorization: "Basic " + window.btoa(utf8(user + ":" + password + '\0' + known_hosts)),
                 "X-Superuser": superuser,
             };
             // allow unknown remote hosts with interactive logins with "Connect to:"
@@ -767,13 +803,13 @@ function debug(...args) {
     }
 
     function get_hostkeys(host) {
-        return get_known_hosts_db()[host];
+        return get_known_hosts_db()[parseHostname(host)];
     }
 
     function set_hostkeys(host, keys) {
         try {
             const db = get_known_hosts_db();
-            db[host] = keys;
+            db[parseHostname(host)] = keys;
             localStorage.setItem("known_hosts", JSON.stringify(db));
         } catch (ex) {
             console.warn("Can't write known_hosts database to localStorage", ex);
@@ -786,6 +822,7 @@ function debug(...args) {
         const key_type = key.split(" ")[1];
         const db_keys = get_hostkeys(key_host);
 
+        // code path for old C cockpit-ssh, which doesn't set a known_hosts file in advance (like beiboot)
         if (db_keys == key) {
             debug("do_hostkey_verification: received key matches known_hosts database, auto-accepting fingerprint", data.default);
             converse(data.id, data.default);
@@ -824,7 +861,16 @@ function debug(...args) {
         function call_converse() {
             id("login-button").removeEventListener("click", call_converse);
             login_failure(null, "hostkey");
-            set_hostkeys(key_host, key);
+            if (key.endsWith(" login-data")) {
+                // cockpit-beiboot sends only a placeholder, defer to login-data in setup_localstorage()
+                login_data_host = key_host;
+                debug("call_converse(): got placeholder host key (beiboot code path) for", login_data_host,
+                      ", deferring db update");
+            } else {
+                // cockpit-ssh already sends the actual key here
+                set_hostkeys(key_host, key);
+                debug("call_converse(): got real host key (cockpit-ssh code path) for", login_data_host);
+            }
             converse(data.id, data.default);
         }
 
@@ -950,6 +996,22 @@ function debug(...args) {
                 } else {
                     if (window.console)
                         console.log(xhr.statusText);
+                    /* did the user confirm a changed SSH host key? If so, update database */
+                    if (ssh_host_key_change_host) {
+                        try {
+                            const keys = JSON.parse(xhr.responseText)["known-hosts"];
+                            if (keys) {
+                                debug("send_login_request(): got updated known-hosts for changed host keys of", ssh_host_key_change_host, ":", keys);
+                                set_hostkeys(ssh_host_key_change_host, keys);
+                                ssh_host_key_change_host = null;
+                            } else {
+                                debug("send_login_request():", ssh_host_key_change_host, "changed key, but did not get an updated key from response");
+                            }
+                        } catch (ex) {
+                            console.error("Failed to parse response text as JSON:", xhr.responseText, ":", JSON.stringify(ex));
+                        }
+                    }
+
                     if (xhr.statusText.startsWith("captured-stderr:")) {
                         show_captured_stderr(decodeURIComponent(xhr.statusText.replace(/^captured-stderr:/, '')));
                     } else if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
@@ -964,7 +1026,17 @@ function debug(...args) {
                     } else if (xhr.statusText.indexOf("unknown-host") > -1) {
                         host_failure(_("Refusing to connect. Host is unknown"));
                     } else if (xhr.statusText.indexOf("invalid-hostkey") > -1) {
-                        host_failure(_("Refusing to connect. Hostkey does not match"));
+                        /* ssh/ferny/beiboot immediately fail in this case, it's not a conversation;
+                         * ask the user for confirmation and try again */
+                        if (ssh_host_key_change_host === null) {
+                            debug("send_login_request(): invalid-hostkey, trying again to let the user confirm");
+                            ssh_host_key_change_host = login_machine;
+                            call_login();
+                        } else {
+                            // but only once, to avoid loops; this is also the code path for cockpit-ssh
+                            debug("send_login_request(): invalid-hostkey, and already retried, giving up");
+                            host_failure(_("Refusing to connect. Hostkey does not match"));
+                        }
                     } else if (is_conversation) {
                         login_failure(_("Authentication failed"));
                     } else {
@@ -1043,6 +1115,18 @@ function debug(...args) {
             localStorage.setItem(application + 'login-data', str);
             /* Backwards compatibility for packages that aren't application prefixed */
             localStorage.setItem('login-data', str);
+
+            /* When confirming a host key with cockpit-beiboot, login-data contains the known_hosts pubkey;
+             * update our database */
+            if (login_data_host) {
+                const hostkey = response["login-data"]["known-hosts"];
+                if (hostkey) {
+                    console.debug("setup_localstorage(): updating known_hosts database for deferred host key for", login_data_host, ":", hostkey);
+                    set_hostkeys(login_data_host, hostkey);
+                } else {
+                    console.error("login.js internal error: setup_localstorage() received a pending login-data host, but login-data does not contain known-hosts");
+                }
+            }
         }
 
         /* URL Root is set by cockpit ws and shouldn't be prefixed

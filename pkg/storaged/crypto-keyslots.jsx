@@ -228,7 +228,7 @@ export function get_existing_passphrase(block, just_type) {
 
 export function request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block) {
     return function (error) {
-        if (vals.passphrase === undefined) {
+        if (vals.passphrase === undefined && block) {
             return (passphrase_test(block, recovered_passphrase)
                     .then(good => {
                         if (!good)

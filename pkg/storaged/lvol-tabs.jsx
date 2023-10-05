@@ -134,6 +134,9 @@ function perc(ratio) {
 export class PoolVolTab extends React.Component {
     render() {
         const self = this;
+        const client = self.props.client;
+        const lvol = self.props.lvol;
+        const vgroup = client.vgroups[lvol.VolumeGroup];
 
         function rename() {
             lvol_rename(self.props.lvol);
@@ -141,6 +144,17 @@ export class PoolVolTab extends React.Component {
 
         function grow() {
             grow_dialog(self.props.client, self.props.lvol, { });
+        }
+
+        let grow_excuse = null;
+        if (vgroup.FreeSize == 0) {
+            grow_excuse = (
+                <div>
+                    {_("Not enough space to grow.")}
+                    <br />
+                    {_("Free up space in this group: Shrink or delete other logical volumes or add another physical volume.")}
+                </div>
+            );
         }
 
         return (
@@ -160,7 +174,7 @@ export class PoolVolTab extends React.Component {
                     <DescriptionListDescription>
                         {utils.fmt_size(this.props.lvol.Size)}
                         <DescriptionListDescription className="tab-row-actions">
-                            <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
+                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
                         </DescriptionListDescription>
                     </DescriptionListDescription>
                 </DescriptionListGroup>

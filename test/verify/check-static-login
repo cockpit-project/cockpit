@@ -961,10 +961,6 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # this matches our bots test VMs
         my_ip = "172.27.0.15"
 
-        m.write("/etc/cockpit/cockpit.conf", """
-[Ssh-Login]
-Command = /usr/bin/env python3 -m cockpit.beiboot
-""", append=True)
         m.start_cockpit()
 
         def try_login(user, password, server=None, expect_hostkey=False):

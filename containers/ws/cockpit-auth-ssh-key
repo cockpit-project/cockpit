@@ -20,8 +20,8 @@
 # by cockpit-ws. It asks for authentication from cockpit-ws and expects
 # to receive a basic auth header in response. If COCKPIT_SSH_KEY_PATH is set
 # we will try to decrypt the key with the given password. If successful
-# we send the decrypted key to cockpit-ws for use with cockpit-ssh.
-# Once finished we exec cockpit-ssh to actually establish the ssh connection.
+# we send the decrypted key to cockpit-ws for use with ssh.
+# Once finished we exec cockpit.beiboot to actually establish the ssh connection.
 # All communication with cockpit-ws happens on stdin and stdout using the
 # cockpit protocol
 # (https://github.com/cockpit-project/cockpit/blob/main/doc/protocol.md)
@@ -32,8 +32,6 @@ import os
 import subprocess
 import sys
 import time
-
-COCKPIT_SSH_COMMAND = "/usr/libexec/cockpit-ssh"
 
 
 def usage():
@@ -189,7 +187,7 @@ def main(args):
                               {"password": "denied"})
             return
 
-    os.execlpe(COCKPIT_SSH_COMMAND, COCKPIT_SSH_COMMAND, host, os.environ)
+    os.execlpe("python3", "python3", "-m", "cockpit.beiboot", host, os.environ)
 
 
 if __name__ == '__main__':

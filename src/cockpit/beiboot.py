@@ -159,9 +159,9 @@ class AuthorizeResponder(ferny.AskpassHandler):
                                                            echo=False)
 
         b64 = response.removeprefix('X-Conversation -').strip()
-        passwd = base64.b64decode(b64.encode()).decode()
-        logger.debug('Returning a %d chars password', len(passwd))
-        return passwd
+        response = base64.b64decode(b64.encode()).decode()
+        logger.debug('Returning a %d chars response', len(response))
+        return response
 
     async def do_custom_command(self, command: str, args: tuple, fds: list[int], stderr: str) -> None:
         logger.debug('Got ferny command %s %s %s', command, args, stderr)

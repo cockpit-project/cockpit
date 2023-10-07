@@ -35,10 +35,19 @@ export function BootInfo() {
                         setSummary(summaryElem.textContent);
                         summaryElem.remove();
                     }
-                    const legend = doc.querySelectorAll("g")[1];
+                    const [plot, legend] = doc.querySelectorAll("g");
                     legend.remove();
-                    const svg_html = doc.documentElement.outerHTML;
-                    setSvg(svg_html);
+                    [...plot.querySelectorAll("text.left"), ...plot.querySelectorAll("text.right")].forEach((text) => {
+                        let match = text.innerHTML.match(/^(?<service>.+\.[a-z._-]+)(\s+\((?<time>\d+(\.\d+)?)\w+\))?$/);
+                        if (match !== null) {
+                            const service = match.groups.service;
+                            const time = match.groups.time;
+                            text.setAttribute("data-service", service);
+                            text.setAttribute("data-time", time);
+                            text.classList.add("clickable-service");
+                        }
+                    });
+                    setSvg(doc.documentElement);
                 })
                 .catch((e) => {
                     setSvg(null);
@@ -76,6 +85,14 @@ export function BootInfo() {
         );
     }
 
+    const plotClicked = (event) => {
+        const service = event.target.getAttribute("data-service");
+        const time = event.target.getAttribute("data-time");
+        if (service !== null) {
+            cockpit.jump(`/system/services#/${service}`, cockpit.transport.host);
+        }
+    };
+
     return (
         <div className="pf-v5-c-page__main-section">
             <Card>
@@ -111,7 +128,7 @@ export function BootInfo() {
                         </ListItem>
                     </List>
                     <div className="chart-container">
-                        <div className="chart" dangerouslySetInnerHTML={{ __html: svg }} />
+                        <div className="chart" onClick={plotClicked} dangerouslySetInnerHTML={{ __html: svg.outerHTML }} />
                     </div>
                 </CardBody>
             </Card>

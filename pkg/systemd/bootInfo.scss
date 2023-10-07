@@ -1,0 +1,172 @@
+rect {
+  stroke-width: 1;
+  stroke-opacity: 0;
+}
+
+rect.background {
+  fill: rgb(255 255 255);
+}
+
+.activating {
+  fill: rgb(255 0 0);
+
+ &.legendColor {
+    background-color: rgb(255 0 0);
+  }
+  fill-opacity: 0.7;
+}
+
+.active {
+  fill: rgb(200 150 150);
+
+ &.legendColor {
+    background-color: rgb(200 150 150);
+  }
+  fill-opacity: 0.7;
+}
+
+.deactivating {
+  fill: rgb(150 100 100);
+
+ &.legendColor {
+    background-color: rgb(150 100 100);
+  }
+  fill-opacity: 0.7;
+}
+
+.kernel {
+  fill: rgb(150 150 150);
+
+ &.legendColor {
+    background-color: rgb(150 150 150);
+  }
+  fill-opacity: 0.7;
+}
+
+.initrd {
+  fill: rgb(150 150 150);
+
+ &.legendColor {
+    background-color: rgb(150 150 150);
+  }
+  fill-opacity: 0.7;
+}
+
+.firmware {
+  fill: rgb(150 150 150);
+
+ &.legendColor {
+    background-color: rgb(150 150 150);
+  }
+  fill-opacity: 0.7;
+}
+
+.loader {
+  fill: rgb(150 150 150);
+
+ &.legendColor {
+    background-color: rgb(150 150 150);
+  }
+  fill-opacity: 0.7;
+}
+
+.userspace {
+  fill: rgb(150 150 150);
+
+ &.legendColor {
+    background-color: rgb(150 150 150);
+  }
+  fill-opacity: 0.7;
+}
+
+.security {
+  fill: rgb(144 238 144);
+
+ &.legendColor {
+    background-color: rgb(144 238 144);
+  }
+  fill-opacity: 0.7;
+}
+
+.generators {
+  fill: rgb(102 204 255);
+
+ &.legendColor {
+    background-color: rgb(102 204 255);
+  }
+  fill-opacity: 0.7;
+}
+
+.unitsload {
+  fill: rgb(82 184 255);
+
+ &.legendColor {
+    background-color: rgb(82 184 255);
+  }
+  fill-opacity: 0.7;
+}
+
+rect.box {
+  fill: rgb(240 240 240);
+  stroke: rgb(192 192 192);
+}
+
+line {
+  stroke: rgb(64 64 64);
+  stroke-width: 1;
+}
+
+line.sec5 {
+  stroke-width: 2;
+}
+
+line.sec01 {
+  stroke: rgb(224 224 224);
+  stroke-width: 1;
+}
+
+text {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+text.left {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+  text-anchor: start;
+}
+
+text.right {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+  text-anchor: end;
+}
+
+text.sec {
+  font-size: 10px;
+}
+
+.legendColor {
+    block-size: 1em;
+    inline-size: 1em;
+    margin-inline-end: 0.5em;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.legend {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+}
+
+.chart-container {
+    max-inline-size: 100%;
+    margin-inline: 1em;
+    max-block-size: 80vh;
+    overflow: scroll;
+}
+
+.chart {
+    // Crop top where text was removed
+    margin-block-start: -4em;
+}

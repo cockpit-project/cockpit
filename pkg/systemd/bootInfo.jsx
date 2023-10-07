@@ -38,7 +38,7 @@ export function BootInfo() {
                     const [plot, legend] = doc.querySelectorAll("g");
                     legend.remove();
                     [...plot.querySelectorAll("text.left"), ...plot.querySelectorAll("text.right")].forEach((text) => {
-                        let match = text.innerHTML.match(/^(?<service>.+\.[a-z._-]+)(\s+\((?<time>\d+(\.\d+)?)\w+\))?$/);
+                        const match = text.innerHTML.match(/^(?<service>.+\.[a-z._-]+)(\s+\((?<time>\d+(\.\d+)?)\w+\))?$/);
                         if (match !== null) {
                             const service = match.groups.service;
                             const time = match.groups.time;
@@ -87,7 +87,6 @@ export function BootInfo() {
 
     const plotClicked = (event) => {
         const service = event.target.getAttribute("data-service");
-        const time = event.target.getAttribute("data-time");
         if (service !== null) {
             cockpit.jump(`/system/services#/${service}`, cockpit.transport.host);
         }
@@ -128,7 +127,7 @@ export function BootInfo() {
                         </ListItem>
                     </List>
                     <div className="chart-container">
-                        <div className="chart" onClick={plotClicked} dangerouslySetInnerHTML={{ __html: svg.outerHTML }} />
+                        <div className="chart" role="presentation" onClick={plotClicked} onKeyDown={(_) => null} dangerouslySetInnerHTML={{ __html: svg.outerHTML }} />
                     </div>
                 </CardBody>
             </Card>

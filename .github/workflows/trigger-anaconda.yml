@@ -1,0 +1,53 @@
+# Anaconda's tests are "special" (require booting boot.iso, can't run in
+# tmt/Testing Farm), so we need to run them in Cockpit's CI. But we still want
+# to re-use the packit COPR, which is much easier to consume by Anaconda's
+# tests than building cockpit in Anaconda.
+# This workflow checks if the PR affects Anaconda (changes to the bridge or
+# Storage page), polls the packit COPR until it has the current PR version
+# available, and then test-triggers a "cockpit PR" scenario.
+
+name: anaconda
+on:
+  pull_request_target:
+    # only bridge and Storage page affect anaconda
+    paths:
+      - src/cockpit/**
+      - pkg/storaged/**
+jobs:
+  trigger:
+    runs-on: ubuntu-22.04
+    # the default workflow token cannot read our org membership, for deciding who is allowed to trigger tests
+    environment: gh-cockpituous
+    container: registry.fedoraproject.org/fedora:rawhide
+    # this polls for a COPR build, which can take long
+    timeout-minutes: 120
+
+    steps:
+      - name: Install dependencies
+        run: |
+          dnf install -y git-core dnf-plugins-core || {
+            sleep 60
+            dnf install -y git-core dnf-plugins-core
+          }
+
+      - name: Wait for packit COPR build
+        run: |
+          set -ex
+          COPR_NAME="${{ github.event.pull_request.base.user.login }}-${{ github.event.pull_request.base.repo.name }}-${{ github.event.number }}"
+          SHA=$(echo "${{ github.event.pull_request.head.sha }}" | cut -c 1-8)
+          for _ in $(seq 60); do
+              sleep 60;
+              if dnf copr enable -y packit/$COPR_NAME &&
+                 out=$(dnf info --refresh --repo='copr:*cockpit*' cockpit-bridge) &&
+                 echo "$out" | grep -q "Release.*\.g$SHA" ; then
+                  exit 0
+              fi
+          done
+          exit 1
+
+      - name: Trigger anaconda run
+        run: |
+          git clone --depth=1 https://github.com/cockpit-project/bots
+          mkdir -p ~/.config/cockpit-dev
+          echo '${{ secrets.COCKPITUOUS_TOKEN }}' > ~/.config/cockpit-dev/github-token
+          bots/tests-trigger --repo ${{ github.repository }} ${{ github.event.number }} fedora-rawhide-boot/cockpit-pr-${{ github.event.number }}@rhinstaller/anaconda

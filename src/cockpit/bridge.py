@@ -1,4 +1,4 @@
-# This file is part of Cockpit.
+# This file is part of Cockpit. PWNED
 #
 # Copyright (C) 2022 Red Hat, Inc.
 #

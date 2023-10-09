@@ -61,5 +61,5 @@ jobs:
         run: |
           test/common/make-bots
           mkdir -p ~/.config/cockpit-dev
-          echo ${{ secrets.COCKPITUOUS_TOKEN }} >> ~/.config/cockpit-dev/github-token
+          echo '${{ secrets.COCKPITUOUS_TOKEN }}' > ~/.config/cockpit-dev/github-token
           bots/tests-trigger ${{ github.event.number }} fedora-rawhide-boot/cockpit-pr-${{ github.event.number }}@rhinstaller/anaconda

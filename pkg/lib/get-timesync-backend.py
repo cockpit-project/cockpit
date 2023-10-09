@@ -4,7 +4,7 @@ import subprocess
 # get-timesync-backend - determine which NTP backend unit timedatectl
 #                        will likely enable.
 
-roots = ["/etc", "/run", "/usr/local", "/usr/lib"]
+roots = ["/etc", "/run", "/usr/local", "/usr/lib", "/lib"]
 
 
 def gather_files(name, suffix):

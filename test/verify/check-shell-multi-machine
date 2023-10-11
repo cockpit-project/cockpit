@@ -27,21 +27,14 @@ def break_hostkey(m, address):
     filename = "/home/admin/.ssh/known_hosts"
 
     m.execute(f'su admin -c "mkdir -p -m 700 `dirname {filename}`"')
-    m.execute(f'su admin -c "touch {filename}"')
-
-    line = f"{address} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T"
-    m.execute(f"echo '{line}'> {filename}")
+    key = f"{address} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T"
+    m.write(filename, key, owner="admin:admin")
 
 
 def fix_hostkey(m, key=None):
     filename = "/home/admin/.ssh/known_hosts"
-
-    if not key:
-        key = ''
-
     m.execute(f'su admin -c "mkdir -p -m 700 `dirname {filename}`"')
-    m.execute(f'su admin -c "touch {filename}"')
-    m.execute(f"echo '{key}' > {filename}")
+    m.write(filename, key or '', owner="admin:admin")
 
 
 def break_bridge(m):
@@ -238,8 +231,8 @@ class TestMultiMachineAdd(testlib.MachineCase):
         m3 = self.machine3
 
         change_ssh_port(m3, "10.111.113.3", 2222)
-        m.execute("echo -e 'Host m2\n\tHostName 10.111.113.2\n' >> /etc/ssh/ssh_config")
-        m.execute("echo -e 'Host m3\n\tHostName 10.111.113.3\n\tPort 2222\n' >> /etc/ssh/ssh_config")
+        m.write("/etc/ssh/ssh_config", "Host m2\n\tHostName 10.111.113.2\n", append=True)
+        m.write("/etc/ssh/ssh_config", "Host m3\n\tHostName 10.111.113.3\n\tPort 2222\n", append=True)
 
         self.login_and_go(None)
         add_machine(b, "m2", password=None)
@@ -314,7 +307,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.logout()
 
         # Bad host key
-        m.execute("echo '10.111.113.2 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW' > /etc/ssh/ssh_known_hosts")
+        m.write("/etc/ssh/ssh_known_hosts", "10.111.113.2 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW")
         b.open(f"{root}=10.111.113.2")
         b.wait_visible("#login")
         b.set_input_text("#login-user-input", "admin")
@@ -330,7 +323,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         # Clear bad host key in /etc and set bad host key in
         # localStorage.
-        m.execute("echo '' > /etc/ssh/ssh_known_hosts")
+        m.write("/etc/ssh/ssh_known_hosts", "")
         b.eval_js("""window.localStorage.setItem("known_hosts", '{"10.111.113.2":"BAD"}')""")
         b.set_input_text("#login-user-input", "admin")
         b.set_input_text("#login-password-input", "alt-password")

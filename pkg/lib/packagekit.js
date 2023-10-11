@@ -343,6 +343,8 @@ export function watchRedHatSubscription(callback) {
  * - missing_names:     Packages that were requested, are currently not installed,
  *                      and can be installed.
  *
+ * - missing_ids:       The full PackageKit IDs corresponding to missing_names
+ *
  * - unavailable_names: Packages that were requested, are currently not installed,
  *                      but can't be found in any repository.
  *
@@ -359,6 +361,7 @@ export function watchRedHatSubscription(callback) {
 
 export function check_missing_packages(names, progress_cb) {
     const data = {
+        missing_ids: [],
         missing_names: [],
         unavailable_names: [],
     };
@@ -371,8 +374,6 @@ export function check_missing_packages(names, progress_cb) {
     }
 
     function resolve() {
-        data.missing_ids = [];
-
         const installed_names = { };
 
         return cancellableTransaction("Resolve",

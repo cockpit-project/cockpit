@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import subprocess
 import time
 
 import testlib
@@ -297,15 +296,10 @@ class TestMultiMachine(testlib.MachineCase):
             match = re.match(r'\((?:ssh-)?([^-]*).*\)', b.text("#hostkey-type"))
             self.assertIsNotNone(match)
             algo = match.groups()[0]
-            try:
-                # This assumes that all fingerprints use SHA256.
-                line = m2.execute("ssh-keygen -l -E SHA256 -f /etc/ssh/ssh_host_%s_key.pub" %
-                                  (algo.lower()), quiet=True)
-                fp = line.split(" ")[1]
-                self.assertEqual(b.text('#hostkey-fingerprint'), fp)
-            except subprocess.CalledProcessError:
-                # ssh-keygen doesn't support -E, just make sure we have a fp
-                self.assertTrue(b.val('#hostkey-fingerprint'))
+            # This assumes that all fingerprints use SHA256.
+            line = m2.execute(f"ssh-keygen -l -E SHA256 -f /etc/ssh/ssh_host_{algo.lower()}_key.pub", quiet=True)
+            fp = line.split(" ")[1]
+            self.assertEqual(b.text('#hostkey-fingerprint'), fp)
             b.click('#login-button')
 
         b.enter_page("/system")

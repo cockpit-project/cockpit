@@ -85,7 +85,7 @@ class TestKdump(KdumpHelpers):
         def assertActive(active):
             b.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
-        if m.image in ["fedora-38", "fedora-testing"]:
+        if m.image in ["fedora-38"]:
             # crashkernel command line not set
             b.wait_visible(".pf-v5-c-switch__input:disabled")
             # right now we have no memory reserved

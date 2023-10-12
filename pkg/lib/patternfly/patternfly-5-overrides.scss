@@ -105,18 +105,8 @@ select.pf-v5-c-form-control {
   // https://github.com/patternfly/patternfly/issues/3959
   --pf-v5-c-card__header-toggle--MarginTop: 0;
 
-  .pf-v5-c-card__header:not(.ct-card-expandable-header),
-  .pf-v5-c-card__header:not(.ct-card-expandable-header) .pf-v5-c-card__header-main {
-    // upstream fix (pending): https://github.com/patternfly/patternfly/pull/3714
-    display: flex;
-    flex-wrap: wrap;
-    row-gap: var(--pf-v5-global--spacer--sm);
-    justify-content: space-between;
-  }
-
   .pf-v5-c-card__header:not(.ct-card-expandable-header) {
     > .pf-v5-c-card__actions {
-      flex-wrap: wrap;
       row-gap: var(--pf-v5-global--spacer--sm);
 
       // PF4 CardActions act up when using buttons while the title is large of font

@@ -25,7 +25,6 @@ class KdumpHelpers(testlib.MachineCase):
     def setUp(self):
         super().setUp()
         self.allow_restart_journal_messages()
-        self.machine.execute("mkdir -p /var/crash")
 
     def enableKdump(self):
         # all current Fedora/CentOS/RHEL images use BootLoaderSpec
@@ -424,8 +423,10 @@ class TestKdumpNFS(KdumpHelpers):
         self.machines["nfs"].write("/etc/exports", "/srv/kdump 10.111.113.0/24(rw,no_root_squash)\n")
         self.machines["nfs"].execute("mkdir -p /srv/kdump/var/crash; firewall-cmd --add-service nfs; systemctl restart nfs-server")
 
-        # ensure there is no local /var/crash, should not break kdump
-        m.execute("rmdir /var/crash")
+        # there shouldn't be any crash reports in the target directory
+        self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
+
+        # set up client machine
         self.login_and_go("/kdump")
         self.enableKdump()
 

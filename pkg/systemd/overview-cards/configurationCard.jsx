@@ -58,7 +58,7 @@ export const ConfigurationCard = ({ hostname }) => {
 
     return (
         <>
-            <Card className="system-configuration">
+            <Card className="pf-m-wrap system-configuration">
                 <CardTitle>{_("Configuration")}</CardTitle>
                 <CardBody>
                     <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">

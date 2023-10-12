@@ -198,7 +198,7 @@ export class JobsPanel extends React.Component {
         jobs = jobs.sort(cmp_job);
 
         return (
-            <Card className="detail-jobs">
+            <Card className="pf-m-wrap detail-jobs">
                 <CardTitle component="h2">{_("Jobs")}</CardTitle>
                 <CardBody className="contains-list">
                     <DataList isCompact aria-label={_("Jobs")}>

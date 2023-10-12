@@ -875,7 +875,7 @@ export class CryptoKeyslots extends React.Component {
         const remaining = max_slots - keys.length;
 
         return (
-            <Card className="key-slot-panel">
+            <Card className="pf-m-wrap key-slot-panel">
                 <CardHeader actions={{
                     actions: <>
                         <span className="key-slot-panel-remaining">

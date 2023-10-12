@@ -34,7 +34,7 @@ const _ = cockpit.gettext;
 export class HealthCard extends React.Component {
     render() {
         return (
-            <Card className="system-health">
+            <Card className="pf-m-wrap system-health">
                 <CardTitle>{_("Health")}</CardTitle>
                 <CardBody>
                     <ul className="system-health-events">

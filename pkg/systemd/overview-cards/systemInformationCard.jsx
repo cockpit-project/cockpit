@@ -102,7 +102,7 @@ export class SystemInformationCard extends React.Component {
 
     render() {
         return (
-            <Card className="system-information">
+            <Card className="pf-m-wrap system-information">
                 <CardTitle>{_("System information")}</CardTitle>
                 <CardBody>
                     <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">

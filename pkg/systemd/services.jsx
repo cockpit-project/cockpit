@@ -705,7 +705,7 @@ class ServicesPageBody extends React.Component {
 
         return (
             <PageSection>
-                <Card isCompact>
+                <Card className="pf-m-wrap" isCompact>
                     <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
                                          fileStateDropdownOptions={fileStateDropdownOptions}
                                          filtersRef={this.filtersRef}

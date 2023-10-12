@@ -337,7 +337,7 @@ class HardwareInfo extends React.Component {
                                                 : undefined } />
                             </CardBody>
                         </Card>
-                        <Card id="pci-listing">
+                        <Card className="pf-m-wrap" id="pci-listing">
                             <CardHeader>
                                 <CardTitle component="h2">{_("PCI")}</CardTitle>
                             </CardHeader>
@@ -345,7 +345,7 @@ class HardwareInfo extends React.Component {
                                 { pci }
                             </CardBody>
                         </Card>
-                        <Card id="memory-listing">
+                        <Card className="pf-m-wrap" id="memory-listing">
                             <CardHeader>
                                 <CardTitle component="h2">{_("Memory")}</CardTitle>
                             </CardHeader>

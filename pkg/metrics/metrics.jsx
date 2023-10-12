@@ -814,7 +814,7 @@ class CurrentMetrics extends React.Component {
 
         return (
             <Gallery className="current-metrics" hasGutter>
-                <Card id="current-metrics-card-cpu">
+                <Card className="pf-m-wrap" id="current-metrics-card-cpu">
                     <CardHeader className='align-baseline'>
                         <CardTitle>{ _("CPU") }</CardTitle>
                         { this.cpuTemperature !== null &&
@@ -913,7 +913,7 @@ class CurrentMetrics extends React.Component {
                     </CardBody>
                 </Card>
 
-                <Card id="current-metrics-card-disks">
+                <Card className="pf-m-wrap" id="current-metrics-card-disks">
                     <CardTitle>{ _("Disks") }</CardTitle>
                     <CardBody>
                         <DescriptionList isHorizontal columnModifier={{ default: '2Col' }}>
@@ -974,7 +974,7 @@ class CurrentMetrics extends React.Component {
                     </CardBody>
                 </Card>
 
-                <Card className="current-metrics-network">
+                <Card className="pf-m-wrap current-metrics-network">
                     <CardTitle>{ _("Network") }</CardTitle>
                     <CardBody>
                         <Table
@@ -1955,7 +1955,7 @@ class MetricsHistory extends React.Component {
                 <PageSection className="metrics-history-section" variant={PageSectionVariants.light}>
                     <>
                         { this.state.hours.length > 0 &&
-                        <Card isPlain>
+                        <Card className="pf-m-wrap" isPlain>
                             <CardBody className="metrics-history">
                                 { this.state.hours.map((time, i) => {
                                     const showHeader = i == 0 || timeformat.date(time) != timeformat.date(this.state.hours[i - 1]);

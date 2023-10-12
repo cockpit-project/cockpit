@@ -123,7 +123,7 @@ export class UsageCard extends React.Component {
         const cores_str = cockpit.format(cockpit.ngettext("of $0 CPU", "of $0 CPUs", this.state.numCpu), this.state.numCpu);
 
         return (
-            <Card className="system-usage">
+            <Card className="pf-m-wrap system-usage">
                 <CardTitle>{_("Usage")}</CardTitle>
                 <CardBody>
                     <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">

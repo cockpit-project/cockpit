@@ -485,7 +485,7 @@ const SOSBody = () => {
 
     return (
         <PageSection>
-            <Card className="ct-card">
+            <Card className="pf-m-wrap ct-card">
                 <CardHeader actions={{
                     actions: <Button id="create-button" variant="primary" onClick={run_report}>
                         {_("Run report")}

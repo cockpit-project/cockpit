@@ -192,7 +192,7 @@ export const NetworkInterfaceMembers = ({
     );
 
     return (
-        <Card id="network-interface-members" className="network-interface-members">
+        <Card id="network-interface-members" className="pf-m-wrap network-interface-members">
             <CardHeader actions={{ actions: add_btn }}>
                 <CardTitle component="h2">{_("Interface members")}</CardTitle>
             </CardHeader>

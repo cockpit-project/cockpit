@@ -153,7 +153,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
             </PageSection>
             <PageSection>
                 <Gallery hasGutter>
-                    {firewall.installed && <Card id="networking-firewall-summary">
+                    {firewall.installed && <Card className="pf-m-wrap" id="networking-firewall-summary">
                         <CardHeader actions={{
                             actions: <Button variant="secondary" id="networking-firewall-link"
                                         component="a"
@@ -175,7 +175,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                             </Button>
                         </CardBody>
                     </Card>}
-                    <Card id="networking-interfaces">
+                    <Card className="pf-m-wrap" id="networking-interfaces">
                         <CardHeader actions={{ actions }}>
                             <CardTitle component="h2">{_("Interfaces")}</CardTitle>
                         </CardHeader>
@@ -190,7 +190,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                                       rows={managed} />
                     </Card>
                     {unmanaged.length > 0 &&
-                    <Card id="networking-unmanaged-interfaces">
+                    <Card className="pf-m-wrap" id="networking-unmanaged-interfaces">
                         <CardHeader>
                             <CardTitle component="h2">{_("Unmanaged interfaces")}</CardTitle>
                         </CardHeader>

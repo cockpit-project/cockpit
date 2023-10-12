@@ -709,7 +709,7 @@ export const NetworkInterfacePage = ({
             </PageSection>
             <PageSection>
                 <Gallery hasGutter>
-                    <Card className="network-interface-details">
+                    <Card className="pf-m-wrap network-interface-details">
                         <CardHeader actions={{
                             actions: (
                                 <>

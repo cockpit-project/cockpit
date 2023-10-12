@@ -160,7 +160,7 @@ export class Modifications extends React.Component {
         return (
             <>
                 <ModificationsExportDialog show={this.state.showDialog} shell={this.props.shell} ansible={this.props.ansible} onClose={ () => this.setState({ showDialog: false }) } />
-                <Card className="modifications-table">
+                <Card className="pf-m-wrap modifications-table">
                     <CardHeader>
                         <CardTitle component="h2">{this.props.title}</CardTitle>
                         { !emptyRow &&

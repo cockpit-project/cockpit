@@ -189,8 +189,10 @@ async def test_spawn_broken_pipe(bridge):
         async def do_connect_transport(self) -> None:
             transport = await self.spawn(['sh', '-c', 'exit 9'], ())
             assert isinstance(transport, SubprocessTransport)
-            time.sleep(0.1)  # sync! increase chance for process to end already
-            transport.write(b'abcdefg\n')
+            # The process will exit soon — try writing to it until a write fails.
+            while not transport.is_closing():
+                transport.write(b'x')
+                time.sleep(0.1)
             while transport.get_returncode() is None:
                 await asyncio.sleep(0.1)
             if self.specific_error:

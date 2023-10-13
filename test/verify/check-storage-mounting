@@ -629,7 +629,8 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
         self.wait_mounted(2, 2)
 
-        m.execute("udevadm settle")
+        import time
+        time.sleep(10)
 
         b.click('button:contains(Create partition table)')
         self.dialog_wait_open()

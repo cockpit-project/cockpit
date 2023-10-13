@@ -580,52 +580,32 @@ function init_model(callback) {
     }
 
     function query_fsys_info() {
-        const info = {
-            xfs: {
-                can_format: true,
-                can_shrink: false,
-                can_grow: true,
-                grow_needs_unmount: false
-            },
-
-            ext4: {
-                can_format: true,
-                can_shrink: true,
-                shrink_needs_unmount: true,
-                can_grow: true,
-                grow_needs_unmount: false
-            },
-        };
-
-        if (client.manager.SupportedFilesystems && client.manager.CanResize) {
-            return Promise.all(client.manager.SupportedFilesystems.map(fs =>
-                client.manager.CanFormat(fs).then(canformat_result => {
-                    info[fs] = {
-                        can_format: canformat_result[0],
-                        can_shrink: false,
-                        can_grow: false
-                    };
-                    return client.manager.CanResize(fs)
-                            .then(canresize_result => {
-                                // We assume that all filesystems support
-                                // offline shrinking/growing if they
-                                // support shrinking or growing at all.
-                                // The actual resizing utility will
-                                // temporarily mount the fs if necessary,
-                                if (canresize_result[0]) {
-                                    info[fs].can_shrink = !!(canresize_result[1] & 2);
-                                    info[fs].shrink_needs_unmount = !(canresize_result[1] & 8);
-                                    info[fs].can_grow = !!(canresize_result[1] & 4);
-                                    info[fs].grow_needs_unmount = !(canresize_result[1] & 16);
-                                }
-                            })
-                            // ignore unsupported filesystems
-                            .catch(() => {});
-                }))
-            ).then(() => info);
-        } else {
-            return Promise.resolve(info);
-        }
+        const info = {};
+        return Promise.all(client.manager.SupportedFilesystems.map(fs =>
+            client.manager.CanFormat(fs).then(canformat_result => {
+                info[fs] = {
+                    can_format: canformat_result[0],
+                    can_shrink: false,
+                    can_grow: false
+                };
+                return client.manager.CanResize(fs)
+                        .then(canresize_result => {
+                            // We assume that all filesystems support
+                            // offline shrinking/growing if they
+                            // support shrinking or growing at all.
+                            // The actual resizing utility will
+                            // temporarily mount the fs if necessary,
+                            if (canresize_result[0]) {
+                                info[fs].can_shrink = !!(canresize_result[1] & 2);
+                                info[fs].shrink_needs_unmount = !(canresize_result[1] & 8);
+                                info[fs].can_grow = !!(canresize_result[1] & 4);
+                                info[fs].grow_needs_unmount = !(canresize_result[1] & 16);
+                            }
+                        })
+                        // ignore unsupported filesystems
+                        .catch(() => {});
+            }))
+        ).then(() => info);
     }
 
     pull_time().then(() => {

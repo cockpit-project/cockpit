@@ -536,6 +536,11 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
+        self.write_file("/etc/systemd/system/udisks2.service.d/debug.conf",
+                        "[Service]\nExecStart=\nExecStart=/usr/libexec/udisks2/udisksd --debug\n",
+                        post_restore_action="systemctl daemon-reload")
+        m.execute("systemctl daemon-reload; systemctl try-restart udisks2")
+
         self.login_and_go("/storage")
 
         # Add a disk and make two partitions on it, one on /run/foo
@@ -609,6 +614,10 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.assert_in_configuration(disk + "2", "crypttab", "options", "noauto")
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /run/foo/bar"))
 
+        # b.eval_js('window.debugging = "dbus"')
+        b.cdp.trace = True
+        m.verbose = True
+
         # Mount them again and check that initializing the disk will
         # unmount /run/foo/bar first.
 
@@ -626,6 +635,39 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         b.wait_text("#dialog tr:nth-child(2) td[data-label=Location]", "/run/foo")
         self.dialog_apply()
         self.content_row_wait_in_col(1, 0, "Free space")
+
+    def testOverMounting2(self):
+        self.testOverMounting()
+
+    def testOverMounting3(self):
+        self.testOverMounting()
+
+    def testOverMounting4(self):
+        self.testOverMounting()
+
+    def testOverMounting5(self):
+        self.testOverMounting()
+
+    def testOverMounting6(self):
+        self.testOverMounting()
+
+    def testOverMounting7(self):
+        self.testOverMounting()
+
+    def testOverMounting8(self):
+        self.testOverMounting()
+
+    def testOverMounting9(self):
+        self.testOverMounting()
+
+    def testOverMounting10(self):
+        self.testOverMounting()
+
+    def testOverMounting11(self):
+        self.testOverMounting()
+
+    def testOverMounting12(self):
+        self.testOverMounting()
 
 
 if __name__ == '__main__':

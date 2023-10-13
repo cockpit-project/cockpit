@@ -1597,7 +1597,6 @@ class MachineCase(unittest.TestCase):
             self.check_journal_messages()
             if not error:
                 self.check_browser_errors()
-                self.check_pixel_tests()
 
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 

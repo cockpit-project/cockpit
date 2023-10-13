@@ -126,7 +126,7 @@ class DefaultRoutingRule(RoutingRule):
         self.peer.close()
 
 
-class AuthorizeResponder(ferny.InteractionResponder):
+class AuthorizeResponder(ferny.AskpassHandler):
     commands = ('ferny.askpass', 'cockpit.report-exists')
     router: Router
 
@@ -184,8 +184,7 @@ class SshPeer(Peer):
     async def do_connect_transport(self) -> None:
         beiboot_helper = BridgeBeibootHelper(self)
 
-        agent = ferny.InteractionAgent(AuthorizeResponder(self.router))
-        agent.add_handler(beiboot_helper)
+        agent = ferny.InteractionAgent([AuthorizeResponder(self.router), beiboot_helper])
 
         # We want to run a python interpreter somewhere...
         cmd: Sequence[str] = ('python3', '-ic', '# cockpit-bridge')

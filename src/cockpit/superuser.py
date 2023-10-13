@@ -40,9 +40,9 @@ logger = logging.getLogger(__name__)
 
 
 class SuperuserPeer(ConfiguredPeer):
-    responder: ferny.InteractionResponder
+    responder: ferny.AskpassHandler
 
-    def __init__(self, router: Router, config: BridgeConfig, responder: ferny.InteractionResponder):
+    def __init__(self, router: Router, config: BridgeConfig, responder: ferny.AskpassHandler):
         super().__init__(router, config)
         self.responder = responder
 
@@ -54,7 +54,17 @@ class SuperuserPeer(ConfiguredPeer):
             else:
                 logger.debug('connecting non-polkit superuser peer transport %r', self.args)
 
-            agent = ferny.InteractionAgent(self.responder)
+            responders: 'list[ferny.InteractionHandler]' = [self.responder]
+
+            if '# cockpit-bridge' in self.args:
+                logger.debug('going to beiboot superuser bridge %r', self.args)
+                helper = BridgeBeibootHelper(self, ['--privileged'])
+                responders.append(helper)
+                stage1 = make_bootloader(helper.steps, gadgets=ferny.BEIBOOT_GADGETS).encode()
+            else:
+                stage1 = None
+
+            agent = ferny.InteractionAgent(responders)
 
             if 'SUDO_ASKPASS=ferny-askpass' in self.env:
                 tmpdir = context.enter_context(TemporaryDirectory())
@@ -65,11 +75,8 @@ class SuperuserPeer(ConfiguredPeer):
 
             transport = await self.spawn(self.args, env, stderr=agent, start_new_session=True)
 
-            if '# cockpit-bridge' in self.args:
-                logger.debug('going to beiboot superuser bridge %r', self.args)
-                helper = BridgeBeibootHelper(self, ['--privileged'])
-                agent.add_handler(helper)
-                transport.write(make_bootloader(helper.steps, gadgets=ferny.BEIBOOT_GADGETS).encode())
+            if stage1 is not None:
+                transport.write(stage1)
 
             try:
                 await agent.communicate()
@@ -77,7 +84,7 @@ class SuperuserPeer(ConfiguredPeer):
                 raise PeerError('authentication-failed', message=str(exc)) from exc
 
 
-class CockpitResponder(ferny.InteractionResponder):
+class CockpitResponder(ferny.AskpassHandler):
     commands = ('ferny.askpass', 'cockpit.send-stderr')
 
     async def do_custom_command(self, command: str, args: Tuple, fds: List[int], stderr: str) -> None:
@@ -125,7 +132,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             # superuser requested, but not active?  That's an error.
             raise RoutingError('access-denied')
 
-    # ferny.InteractionResponder
+    # ferny.AskpassHandler
     async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
         assert self.pending_prompt is None
         echo = hint == "confirm"
@@ -153,7 +160,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         self.current = 'none'
         self.peer = None
 
-    async def go(self, name: str, responder: ferny.InteractionResponder) -> None:
+    async def go(self, name: str, responder: ferny.AskpassHandler) -> None:
         if self.current != 'none':
             raise bus.BusError('cockpit.Superuser.Error', 'Superuser bridge already running')
 

@@ -30,7 +30,7 @@ from .router import Router, RoutingRule
 logger = logging.getLogger(__name__)
 
 
-class PasswordResponder(ferny.InteractionResponder):
+class PasswordResponder(ferny.AskpassHandler):
     PASSPHRASE_RE = re.compile(r"Enter passphrase for key '(.*)': ")
 
     password: Optional[str]
@@ -104,7 +104,7 @@ class SshPeer(Peer):
             logger.debug('connecting to host %s failed: %s', host, exc)
             raise PeerError('no-host', error='no-host', message=str(exc)) from exc
 
-        except ferny.HostKeyError as exc:
+        except ferny.SshHostKeyError as exc:
             if responder.hostkeys_seen:
                 # If we saw a hostkey then we can issue a detailed error message
                 # containing the key that would need to be accepted.  That will
@@ -114,7 +114,7 @@ class SshPeer(Peer):
             else:
                 error_args = {}
 
-            if isinstance(exc, ferny.ChangedHostKeyError):
+            if isinstance(exc, ferny.SshChangedHostKeyError):
                 error = 'invalid-hostkey'
             elif self.private:
                 error = 'unknown-hostkey'
@@ -126,7 +126,7 @@ class SshPeer(Peer):
                          type(exc), exc, self.private, responder.hostkeys_seen, error, error_args)
             raise PeerError(error, error=error, auth_method_results={}, **error_args) from exc
 
-        except ferny.AuthenticationError as exc:
+        except ferny.SshAuthenticationError as exc:
             logger.debug('authentication to host %s failed: %s', host, exc)
 
             results = {method: 'not-provided' for method in exc.methods}

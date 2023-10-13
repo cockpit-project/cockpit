@@ -12,7 +12,7 @@ from cockpit.router import Router
 class BeibootPeer(Peer):
     async def do_connect_transport(self) -> None:
         helper = BridgeBeibootHelper(self)
-        agent = ferny.InteractionAgent(helper)
+        agent = ferny.InteractionAgent([helper])
         transport = await self.spawn([sys.executable, '-iq'], env=[], stderr=agent)
         transport.write(bootloader.make_bootloader(helper.steps, gadgets=ferny.BEIBOOT_GADGETS).encode())
         await agent.communicate()

@@ -22,7 +22,7 @@ import os
 import pwd
 from typing import Dict, List, Sequence, Tuple
 
-from cockpit._vendor.ferny import InteractionResponder
+from cockpit._vendor.ferny import AskpassHandler
 from cockpit._vendor.systemd_ctypes import Variant, bus
 
 # that path is valid on at least Debian, Fedora/RHEL, and Arch
@@ -43,7 +43,7 @@ Identity = Tuple[str, Dict[str, Variant]]
 # mapping, but that method is not available for Python 3.6 yet.
 
 class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
-    def __init__(self, responder: InteractionResponder):
+    def __init__(self, responder: AskpassHandler):
         super().__init__()
         self.responder = responder
 
@@ -125,7 +125,7 @@ class PolkitAgent:
 
     Use this as a context manager to ensure that the agent gets unregistered again.
     """
-    def __init__(self, responder: InteractionResponder):
+    def __init__(self, responder: AskpassHandler):
         self.responder = responder
         self.agent_slot = None
 

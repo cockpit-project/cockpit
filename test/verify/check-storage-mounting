@@ -629,6 +629,8 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
         self.wait_mounted(2, 2)
 
+        m.execute("udevadm settle")
+
         b.click('button:contains(Create partition table)')
         self.dialog_wait_open()
         b.wait_text("#dialog tr:nth-child(1) td[data-label=Location]", "/run/foo/bar")

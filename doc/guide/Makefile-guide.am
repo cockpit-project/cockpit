@@ -97,7 +97,7 @@ clean-guide:
 
 CHECK_LOCAL_TARGETS += check-guide
 check-guide:
-	if grep -n -r 'name=\"id' doc/guide/html >&2; then \
+	if grep -n -r 'name="id' doc/guide/html >&2; then \
 		echo "Unexpected generated id in the documentation" >&2; \
 		exit 1; \
 	fi

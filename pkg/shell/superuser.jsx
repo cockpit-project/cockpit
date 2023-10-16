@@ -303,7 +303,7 @@ const SuperuserDialogs = ({ superuser_proxy, host, create_trigger }) => {
         return;
 
     const show = (superuser_proxy.Current != "root" && superuser_proxy.Current != "init" &&
-                  superuser_proxy.Bridges.length > 0);
+                  (superuser_proxy.Bridges?.length ?? 0) > 0);
     const unlocked = superuser_proxy.Current != "none";
 
     function unlock() {

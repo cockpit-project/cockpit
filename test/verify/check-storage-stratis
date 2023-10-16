@@ -21,23 +21,27 @@ import packagelib
 import storagelib
 import testlib
 
+PV_SIZE = 4000  # 4 GB in MB
+
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+@testlib.nondestructive
 class TestStorageStratis(storagelib.StorageCase):
-    # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
-    provision = {
-        "0": {"memory_mb": 1536}
-    }
-
     def setUp(self):
         super().setUp()
+        exe = self.machine.execute
 
-        if self.image == "arch":
-            # Arch Linux does not enable systemd units by default
-            self.machine.execute("systemctl enable --now stratisd")
-            self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
+        exe("systemctl start stratisd")
+        self.addCleanup(exe, "systemctl stop stratisd")
 
-        self.stratis_v2 = self.image.startswith("rhel-8-9") or self.image == "centos-8-stream"
+        self.stratis_v2 = self.image.startswith("rhel-8") or self.image == "centos-8-stream"
+
+        self.addCleanup(exe,
+                        "stratis report | jq -r '.pools[] | .name' |"
+                        "xargs -n1 --no-run-if-empty stratis pool destroy")
+        self.addCleanup(exe,
+                        "stratis report | jq -r '.pools[] | .name' |"
+                        "xargs -n1 --no-run-if-empty stratis pool stop")
 
     def testBasic(self):
         m = self.machine
@@ -45,27 +49,18 @@ class TestStorageStratis(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        SIZE_4GB = 4 * 1000000000
-
-        dev_1 = "/dev/sda"
-        m.add_disk(SIZE_4GB, serial="DISK1")
-        b.wait_in_text("#drives", dev_1)
-
-        dev_2 = "/dev/sdb"
-        m.add_disk(SIZE_4GB, serial="DISK2")
-        b.wait_in_text("#drives", dev_2)
-
-        dev_3 = "/dev/sdc"
-        m.add_disk(SIZE_4GB, serial="DISK3")
-        b.wait_in_text("#drives", dev_3)
-
-        dev_4 = "/dev/sdd"
-        m.add_disk(SIZE_4GB, serial="DISK4")
-        b.wait_in_text("#drives", dev_4)
-
-        dev_5 = "/dev/sde"
-        m.add_disk(SIZE_4GB, serial="DISK5")
-        b.wait_in_text("#drives", dev_5)
+        # use fixed names, to avoid grabbing loop1 and loop12 (which losetup sometimes likes to do)
+        # as that clashes with :contains(loop1) below; also, fix names for pixel test
+        dev_1 = self.add_loopback_disk(PV_SIZE, name="loop10")
+        dev_2 = self.add_loopback_disk(PV_SIZE, name="loop11")
+        dev_3 = self.add_loopback_disk(PV_SIZE, name="loop12")
+        dev_4 = self.add_loopback_disk(PV_SIZE, name="loop13")
+        dev_5 = self.add_loopback_disk(PV_SIZE, name="loop14")
+        b.wait_in_text("#others", dev_1)
+        b.wait_in_text("#others", dev_2)
+        b.wait_in_text("#others", dev_3)
+        b.wait_in_text("#others", dev_4)
+        b.wait_in_text("#others", dev_5)
 
         # Create a pool
         self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
@@ -114,6 +109,7 @@ class TestStorageStratis(storagelib.StorageCase):
         b.assert_pixels("#dialog", "create-fsys")
         self.dialog_apply()
         self.dialog_wait_close()
+        self.addCleanup(m.execute, "umount /run/fsys1 || true")
 
         b.wait_in_text("#detail-content", "fsys1")
         b.assert_pixels("#detail-content", "fsys-row")
@@ -124,6 +120,7 @@ class TestStorageStratis(storagelib.StorageCase):
         b.click("button:contains(Create new filesystem)")
         self.dialog({'name': 'fsys2',
                      'mount_point': '/run/fsys2'})
+        self.addCleanup(m.execute, "umount /run/fsys2 || true")
         b.wait_in_text("#detail-content", "fsys2")
         b.assert_pixels("#detail-content", "fsys-rows")
         self.assertEqual(self.inode(m.execute("findmnt -n -o SOURCE /run/fsys2").strip()),
@@ -270,6 +267,131 @@ class TestStorageStratis(storagelib.StorageCase):
         # After the stratis pool is deleted we can't check this, so use the value from earlier.
         self.assertFalse(udisk_contains_stratis_private)
 
+    @testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+    def testAlerts(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev_1 = self.add_loopback_disk(PV_SIZE)
+        dev_2 = self.add_loopback_disk(PV_SIZE)
+        b.wait_in_text("#others", dev_1)
+        b.wait_in_text("#others", dev_2)
+
+        # Create an encrypted pool with two block devices
+        self.devices_dropdown("Create Stratis pool")
+        self.dialog_wait_open()
+        self.dialog_set_val("encrypt_pass.on", val=True)
+        self.dialog_set_val("passphrase", "foodeeboodeebar")
+        self.dialog_set_val("passphrase2", "foodeeboodeebar")
+        self.dialog_set_val("disks", {dev_1: True})
+        self.dialog_set_val("disks", {dev_2: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_in_text("#devices", "pool0")
+        b.wait_not_present('.sidepanel-row:contains(pool0) .ct-icon-exclamation-triangle')
+
+        # Check that there is no alert on the details page
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
+        b.wait_not_present('.pf-v5-c-alert')
+
+        m.execute(f"""
+JSON=$(sudo cryptsetup token export --token-id=1 {dev_1} \
+       | jq '.key_description = "stratis-1-key-no-other-is-the-same"')
+sudo cryptsetup token remove --token-id=1 {dev_1}
+echo $JSON | sudo cryptsetup token import --token-id=1 {dev_1}
+systemctl restart stratisd
+        """)
+
+        b.go('#/')
+        b.wait_visible('.sidepanel-row:contains(pool0) .ct-icon-exclamation-triangle')
+
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_visible('.pf-v5-c-alert:contains("This pool is in a degraded state")')
+
+        b.click("button:contains(Create new filesystem)")
+        self.dialog_wait_open()
+        self.dialog_set_val("name", "fsys1")
+        self.dialog_set_val("mount_point", "/run/fsys1")
+        self.dialog_apply()
+        self.dialog_wait_alert("Pool is in state NoRequests where this action cannot be performed until the issue is resolved manually")
+
+    @testlib.nondestructive
+    def testCli(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev_1 = self.add_loopback_disk(PV_SIZE)
+        dev_2 = self.add_loopback_disk(PV_SIZE)
+
+        # Create a pool outside of Cockpit
+        m.execute(f"stratis pool create TEST1 {dev_1} {dev_2}")
+        b.wait_in_text("#devices", "TEST1")
+        b.wait_in_text("#devices", "/dev/stratis/TEST1/")
+        b.click('.sidepanel-row:contains("TEST1")')
+        b.wait_visible("#storage-detail")
+        b.wait_in_text("#detail-sidebar", dev_1)
+        b.wait_in_text("#detail-sidebar", dev_2)
+
+        # Create two filesystems outside of Cockpit
+        m.execute("stratis filesystem create TEST1 fsys1")
+        b.wait_in_text("#detail-content", "fsys1")
+        m.execute("stratis filesystem create TEST1 fsys2")
+        b.wait_in_text("#detail-content", "fsys2")
+
+        mount = f"{self.vm_tmpdir}/fsys1"
+
+        # Mount externally, adjust fstab with Cockpit
+        m.execute(f"mkdir {mount}; mount /dev/stratis/TEST1/fsys1 {mount}")
+        fsys_tab = self.content_tab_expand(1, 1)
+        b.click(fsys_tab + f" button:contains(Mount automatically on {mount} on boot)")
+        b.wait_not_present(fsys_tab + f" button:contains(Mount automatically on {mount} on boot)")
+        self.assertIn("stratis-fstab-setup", m.execute(f"grep {mount} /etc/fstab"))
+
+        # Unmount externally, adjust fstab with Cockpit
+        m.execute(f"umount {mount}")
+        b.click(fsys_tab + " button:contains(Do not mount automatically on boot)")
+        b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically on boot)")
+        self.assertIn("noauto", m.execute(f"grep {mount} /etc/fstab"))
+
+        # Destroy them outside of Cockpit
+        m.execute("stratis filesystem destroy TEST1 fsys1")
+        b.wait_not_in_text("#detail-content", "fsys1")
+        m.execute("stratis filesystem destroy TEST1 fsys2")
+        b.wait_not_in_text("#detail-content", "fsys2")
+
+        # Destroy the pool outside of Cockpit
+        m.execute("stratis pool destroy TEST1")
+        b.wait_in_text("#storage-detail", "Not found")
+
+        b.go("#/")
+        b.wait_visible('#storage')
+        b.wait_not_in_text("#devices", "TEST1")
+
+
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+class TestStorageStratisReboot(storagelib.StorageCase):
+    # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
+    provision = {
+        "0": {"memory_mb": 1536}
+    }
+
+    def setUp(self):
+        super().setUp()
+        exe = self.machine.execute
+
+        if self.image == "arch":
+            # Arch Linux does not enable systemd units by default
+            exe("systemctl enable --now stratisd")
+            self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
+
+        self.stratis_v2 = self.image.startswith("rhel-8") or self.image == "centos-8-stream"
+
     def testEncrypted(self):
         m = self.machine
         b = self.browser
@@ -409,117 +531,6 @@ class TestStorageStratis(storagelib.StorageCase):
 
         # Check that the entry has disappeared from fstab
         self.assertEqual(m.execute("grep /run/fsys1 /etc/fstab || true"), "")
-
-    @testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
-    def testAlerts(self):
-        m = self.machine
-        b = self.browser
-
-        self.login_and_go("/storage")
-
-        dev_1 = "/dev/sda"
-        m.add_disk("4G", serial="DISK1")
-        b.wait_in_text("#drives", dev_1)
-
-        dev_2 = "/dev/sdb"
-        m.add_disk("4G", serial="DISK2")
-        b.wait_in_text("#drives", dev_2)
-
-        # Create an encrypted pool with two block devices
-        self.devices_dropdown("Create Stratis pool")
-        self.dialog_wait_open()
-        self.dialog_set_val("encrypt_pass.on", val=True)
-        self.dialog_set_val("passphrase", "foodeeboodeebar")
-        self.dialog_set_val("passphrase2", "foodeeboodeebar")
-        self.dialog_set_val("disks", {dev_1: True})
-        self.dialog_set_val("disks", {dev_2: True})
-        self.dialog_apply()
-        self.dialog_wait_close()
-
-        b.wait_in_text("#devices", "pool0")
-        b.wait_not_present('.sidepanel-row:contains(pool0) .ct-icon-exclamation-triangle')
-
-        # Check that there is no alert on the details page
-        b.click('.sidepanel-row:contains("pool0")')
-        b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
-        b.wait_not_present('.pf-v5-c-alert')
-
-        m.execute("""
-JSON=$(sudo cryptsetup token export --token-id=1 /dev/sda \
-       | jq '.key_description = "stratis-1-key-no-other-is-the-same"')
-sudo cryptsetup token remove --token-id=1 /dev/sda
-echo $JSON | sudo cryptsetup token import --token-id=1 /dev/sda
-systemctl restart stratisd
-        """)
-
-        b.go('#/')
-        b.wait_visible('.sidepanel-row:contains(pool0) .ct-icon-exclamation-triangle')
-
-        b.click('.sidepanel-row:contains("pool0")')
-        b.wait_visible('.pf-v5-c-alert:contains("This pool is in a degraded state")')
-
-        b.click("button:contains(Create new filesystem)")
-        self.dialog_wait_open()
-        self.dialog_set_val("name", "fsys1")
-        self.dialog_set_val("mount_point", "/run/fsys1")
-        self.dialog_apply()
-        self.dialog_wait_alert("Pool is in state NoRequests where this action cannot be performed until the issue is resolved manually")
-
-    def testCli(self):
-        m = self.machine
-        b = self.browser
-
-        self.login_and_go("/storage")
-
-        dev_1 = "/dev/sda"
-        m.add_disk("4G", serial="DISK1")
-        b.wait_in_text("#drives", dev_1)
-
-        dev_2 = "/dev/sdb"
-        m.add_disk("4G", serial="DISK2")
-        b.wait_in_text("#drives", dev_2)
-
-        # Create a pool outside of Cockpit
-        m.execute(f"stratis pool create TEST1 {dev_1} {dev_2}")
-        b.wait_in_text("#devices", "TEST1")
-        b.wait_in_text("#devices", "/dev/stratis/TEST1/")
-        b.click('.sidepanel-row:contains("TEST1")')
-        b.wait_visible("#storage-detail")
-        b.wait_in_text("#detail-sidebar", dev_1)
-        b.wait_in_text("#detail-sidebar", dev_2)
-
-        # Create two filesystems outside of Cockpit
-        m.execute("stratis filesystem create TEST1 fsys1")
-        b.wait_in_text("#detail-content", "fsys1")
-        m.execute("stratis filesystem create TEST1 fsys2")
-        b.wait_in_text("#detail-content", "fsys2")
-
-        # Mount externally, adjust fstab with Cockpit
-        m.execute("mkdir /run/fsys1; mount /dev/stratis/TEST1/fsys1 /run/fsys1")
-        fsys_tab = self.content_tab_expand(1, 1)
-        b.click(fsys_tab + " button:contains(Mount automatically on /run/fsys1 on boot)")
-        b.wait_not_present(fsys_tab + " button:contains(Mount automatically on /run/fsys1 on boot)")
-        self.assertIn("stratis-fstab-setup", m.execute("grep /run/fsys1 /etc/fstab"))
-
-        # Unmount externally, adjust fstab with Cockpit
-        m.execute("umount /run/fsys1")
-        b.click(fsys_tab + " button:contains(Do not mount automatically on boot)")
-        b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically on boot)")
-        self.assertIn("noauto", m.execute("grep /run/fsys1 /etc/fstab"))
-
-        # Destroy them outside of Cockpit
-        m.execute("stratis filesystem destroy TEST1 fsys1")
-        b.wait_not_in_text("#detail-content", "fsys1")
-        m.execute("stratis filesystem destroy TEST1 fsys2")
-        b.wait_not_in_text("#detail-content", "fsys2")
-
-        # Destroy the pool outside of Cockpit
-        m.execute("stratis pool destroy TEST1")
-        b.wait_in_text("#storage-detail", "Not found")
-
-        b.go("#/")
-        b.wait_visible('#storage')
-        b.wait_not_in_text("#devices", "TEST1")
 
     def testReboot(self):
         m = self.machine

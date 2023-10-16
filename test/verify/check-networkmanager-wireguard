@@ -43,15 +43,18 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         m2_port = 51820
         m2_ip4 = "10.0.0.2"
         m2_ip6 = "2001::2"
+        b2 = self.new_browser(m2)
+        m2.start_cockpit()
         if not m2.ostree_image:
             m2.execute(f"firewall-cmd --add-port={m2_port}/udp")
-        m2.execute("wg genkey > private")
-        m2_pubkey = m2.execute("wg pubkey < private").strip()
-        m2.execute("ip link add dev wg0 type wireguard")
-        m2.execute(f"ip addr add {m2_ip4}/24 dev wg0")
-        m2.execute("wg set wg0 private-key ./private")
-        m2.execute(f"wg set wg0 listen-port {m2_port}")
-        m2.execute("ip link set wg0 up")
+        b2.login_and_go("/network")
+        b2.click("button:contains('Add VPN')")
+        b2.wait_visible("#network-wireguard-settings-dialog")
+        m2_iface_name = b2.val("#network-wireguard-settings-interface-name-input")
+        b2.wait_not_val("#network-wireguard-settings-public-key input", "")
+        m2_pubkey = b2.val("#network-wireguard-settings-public-key input")
+        b2.set_input_text("#network-wireguard-settings-addresses-input", f"{m2_ip4}/24")
+        b2.set_input_text("#network-wireguard-settings-listen-port-input", str(m2_port))
 
         # Validate each field, enter the right value, and then proceed to the next field
         #
@@ -142,7 +145,12 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         m1.execute("until ip route | grep -q '10.0.0.0/24 dev wg0 proto kernel scope link src 10.0.0.1 metric 50'; do sleep 1; done")
 
         # endpoint and port is not necessary for a peer if that peer estalishes the connectio first (i.e. the client)
-        m2.execute(f"wg set wg0 peer {m1_pubkey} allowed-ips {m1_ip4}/32")
+        b2.click("button:contains('Add peer')")
+        b2.set_input_text("#network-wireguard-settings-publickey-peer-0", m1_pubkey)
+        b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_ip4}/32")
+        b2.click("#network-wireguard-settings-save")
+        b2.wait_not_present("#network-wireguard-settings-dialog")
+        b2.wait_in_text(f"#networking-interfaces th:contains('{m2_iface_name}') + td", f"{m2_ip4}/24")
 
         # check connection over ipv4
         try:
@@ -155,8 +163,27 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
             raise
 
         # check connection over ipv6
-        m2.execute(f"ip addr add {m2_ip6}/64 dev wg0")
-        m2.execute(f"wg set wg0 peer {m1_pubkey} allowed-ips {m1_ip4}/32,{m1_ip6}")
+        b2.click(f"#networking-interfaces button:contains('{m2_iface_name}')")
+
+        b2.click("#networking-edit-wg")
+        b2.wait_visible("#network-wireguard-settings-dialog")
+        b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_ip4}/32,{m1_ip6}")
+        b2.click("#network-wireguard-settings-save")
+        b2.wait_not_present("#network-wireguard-settings-dialog")
+
+        m2.execute("until wg show wg0 | grep -q 'allowed ips.*2001::1/128'; do sleep 1; done")
+
+        b2.click("#networking-edit-ipv6")
+        b2.wait_visible("#network-ip-settings-dialog")
+        b2.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b2.set_input_text("#network-ip-settings-address-0", m2_ip6)
+        b2.set_input_text("#network-ip-settings-netmask-0", "64")
+        b2.set_input_text("#network-ip-settings-gateway-0", "::")
+        b2.click("#network-ip-settings-save")
+        b2.wait_not_present("#network-ip-settings-dialog")
+        b2.wait_in_text("dt:contains('IPv6') + dd", "Address 2001:0:0:0:0:0:0:2/64")
+
+        m2.execute(f"until ip a show dev {m2_iface_name} | grep -q 'inet6 {m2_ip6}/64 scope global'; do sleep 0.3; done", timeout=10)
 
         b.click("#networking-edit-wg")
         b.wait_visible("#network-wireguard-settings-dialog")

@@ -2255,7 +2255,7 @@ def no_retry_when_changed(testEntity):
     return testEntity
 
 
-def todo(reason=''):
+def todo(reason: str = ''):
     """Tests decorated with @todo are expected to fail.
 
     An optional reason can be given, and will appear in the TAP output if run
@@ -2267,7 +2267,7 @@ def todo(reason=''):
     return wrapper
 
 
-def todoPybridge(reason=None):
+def todoPybridge(reason: Optional[str] = None):
     if not reason:
         reason = 'still fails with python bridge'
 
@@ -2292,13 +2292,13 @@ def todoPybridge(reason=None):
     return wrap
 
 
-def todoPybridgeRHEL8(reason=None):
+def todoPybridgeRHEL8(reason: Optional[str] = None):
     if testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8'):
         return todoPybridge(reason or 'known fail on el8 with python bridge')
     return lambda testEntity: testEntity
 
 
-def timeout(seconds: str):
+def timeout(seconds: int):
     """Change default test timeout of 600s, for long running tests
 
     Can be applied to an individual test method or the entire class. This only

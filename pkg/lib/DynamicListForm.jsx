@@ -41,12 +41,12 @@ export class DynamicListForm extends React.Component {
     }
 
     removeItem(idx) {
-        this.setState(state => {
-            const validationFailedDelta = this.props.validationFailed ? [...this.props.validationFailed] : [];
-            // We also need to remove any error messages which the item (row) may have contained
-            validationFailedDelta.splice(idx, 1);
-            this.props.onValidationChange?.(validationFailedDelta);
+        const validationFailedDelta = this.props.validationFailed ? [...this.props.validationFailed] : [];
+        // We also need to remove any error messages which the item (row) may have contained
+        validationFailedDelta.splice(idx, 1);
+        this.props.onValidationChange?.(validationFailedDelta);
 
+        this.setState(state => {
             const items = state.list.concat();
             items.splice(idx, 1);
 

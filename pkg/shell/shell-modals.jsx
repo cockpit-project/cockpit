@@ -27,6 +27,7 @@ import { Menu, MenuContent, MenuSearch, MenuSearchInput, MenuItem, MenuList } fr
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { SearchIcon } from '@patternfly/react-icons';
 
 import { useInit } from "hooks";
 import { useDialogs } from "dialogs.jsx";
@@ -131,7 +132,7 @@ export const LangModal = () => {
                             <TextInput
                                 value={searchInput}
                                 aria-label={_("Filter menu items")}
-                                iconVariant="search"
+                                customIcon={<SearchIcon />}
                                 type="search"
                                 onChange={(_event, value) => setSearchInput(value)}
                             />

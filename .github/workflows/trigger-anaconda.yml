@@ -30,16 +30,22 @@ jobs:
             dnf install -y git-core dnf-plugins-core
           }
 
+      # Naïvely this should wait for github.event.pull_request.head.sha, but
+      # that breaks on non-current branches, which packit merges to main with
+      # an unpredictable SHA; so instead, wait until COPR has a build which is
+      # newer than the PR push time. This assumes that this workflow always runs earlier
+      # than the COPR srpm build finishes.
       - name: Wait for packit COPR build
         run: |
           set -ex
+          PUSH_TIME=$(date --utc +%Y%m%d%H%M%S -d '${{ github.event.pull_request.head.repo.pushed_at }}')
           COPR_NAME="${{ github.event.pull_request.base.user.login }}-${{ github.event.pull_request.base.repo.name }}-${{ github.event.number }}"
-          SHA=$(echo "${{ github.event.pull_request.head.sha }}" | cut -c 1-8)
           for _ in $(seq 60); do
               sleep 60;
               if dnf copr enable -y packit/$COPR_NAME &&
                  out=$(dnf info --refresh --repo='copr:*cockpit*' cockpit-bridge) &&
-                 echo "$out" | grep -q "Release.*\.g$SHA" ; then
+                 stamp=$(echo "$out" | awk '/^Release/ { split($3, v, "."); print substr(v[2], 0, 14)}') &&
+                 [ "$stamp" -gt "$PUSH_TIME" ]; then
                   exit 0
               fi
           done

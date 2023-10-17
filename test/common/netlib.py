@@ -40,13 +40,13 @@ class NetworkHelpers:
             udevadm trigger --subsystem-match=net
             udevadm settle
             """ % {"name": name})
-        self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-{0}-test.rules; ip link del dev {0}".format(name))
+        self.addCleanup(self.machine.execute, f"rm /run/udev/rules.d/99-nm-veth-{name}-test.rules; ip link del dev {name}")
         if dhcp_cidr:
             # up the remote end, give it an IP, and start DHCP server
             self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")
             server = self.machine.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
-                                        "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{0} --no-resolv "
-                                        "--bind-interfaces --except-interface=lo --interface=v_{0} --dhcp-range={1},{2},4h".format(name, dhcp_range[0], dhcp_range[1]),
+                                        f"--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{name} --no-resolv "
+                                        f"--bind-interfaces --except-interface=lo --interface=v_{name} --dhcp-range={dhcp_range[0]},{dhcp_range[1]},4h",
                                         f"dhcp-{name}.log")
             self.addCleanup(self.machine.execute, "kill %i" % server)
             self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")

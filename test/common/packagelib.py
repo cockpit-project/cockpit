@@ -158,8 +158,7 @@ Server = file://{empty_repo_dir}
             arch = self.primary_arch
         deb = f"{self.repo_dir}/{name}_{version}_{arch}.deb"
         if postinst:
-            postinstcode = "printf '#!/bin/sh\n{0}' > /tmp/b/DEBIAN/postinst; chmod 755 /tmp/b/DEBIAN/postinst".format(
-                postinst)
+            postinstcode = f"printf '#!/bin/sh\n{postinst}' > /tmp/b/DEBIAN/postinst; chmod 755 /tmp/b/DEBIAN/postinst"
         else:
             postinstcode = ''
         if content is not None:
@@ -358,17 +357,14 @@ post_upgrade() {{
         for ((pkg, ver, rel), info) in self.updateInfo.items():
             refs = ""
             for b in info.get("bugs", []):
-                refs += '      <reference href="https://bugs.example.com?bug={0}" id="{0}" title="Bug#{0} Description" type="bugzilla"/>\n'.format(
-                    b)
+                refs += f'      <reference href="https://bugs.example.com?bug={b}" id="{b}" title="Bug#{b} Description" type="bugzilla"/>\n'
             for c in info.get("cves", []):
-                refs += '      <reference href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={0}" id="{0}" title="{0}" type="cve"/>\n'.format(
-                    c)
+                refs += f'      <reference href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={c}" id="{c}" title="{c}" type="cve"/>\n'
             if info.get("securitySeverity"):
                 refs += '      <reference href="https://access.redhat.com/security/updates/classification/#{0}" id="" title="" type="other"/>\n'.format(info[
                                                                                                                                                         "securitySeverity"])
             for e in info.get("errata", []):
-                refs += '      <reference href="https://access.redhat.com/errata/{0}" id="{0}" title="{0}" type="self"/>\n'.format(
-                    e)
+                refs += f'      <reference href="https://access.redhat.com/errata/{e}" id="{e}" title="{e}" type="self"/>\n'
 
             xml += """  <update from="test@example.com" status="stable" type="{severity}" version="2.0">
     <id>UPDATE-{pkg}-{ver}-{rel}</id>
@@ -398,12 +394,12 @@ post_upgrade() {{
     def enableRepo(self):
         if self.backend == "apt":
             self.createAptChangelogs()
-            self.machine.execute("""echo 'deb [trusted=yes] file://{0} /' > /etc/apt/sources.list.d/test.list
-                                    cd {0}; apt-ftparchive packages . > Packages
+            self.machine.execute(f"""echo 'deb [trusted=yes] file://{self.repo_dir} /' > /etc/apt/sources.list.d/test.list
+                                    cd {self.repo_dir}; apt-ftparchive packages . > Packages
                                     xz -c Packages > Packages.xz
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
-                                    """.format(self.repo_dir))
+                                    """)
             pid = self.machine.spawn(f"cd {self.repo_dir}; exec python3 -m http.server 12345", "changelog")
             # pid will not be present for rebooting tests
             self.addCleanup(self.machine.execute, "kill %i || true" % pid)

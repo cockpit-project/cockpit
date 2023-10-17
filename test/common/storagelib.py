@@ -89,7 +89,7 @@ class StorageHelpers:
         # them.
         self.machine.execute("partprobe '%s'" % dev)
         # right after unmounting the device is often still busy, so retry a few times
-        self.addCleanup(self.machine.execute, "umount {0} || true; rm $(losetup -n -O BACK-FILE -l {0}); until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
+        self.addCleanup(self.machine.execute, f"umount {dev} || true; rm $(losetup -n -O BACK-FILE -l {dev}); until losetup -d {dev}; do sleep 1; done", timeout=10)
         return dev
 
     def force_remove_disk(self, device):

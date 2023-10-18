@@ -1704,7 +1704,6 @@ class MachineCase(unittest.TestCase):
     default_allowed_console_errors = [
         # HACK: Fix these ASAP, these are major bugs
         "Warning: validateDOMNesting.*cannot appear as a",
-        "Warning: Encountered two children with the same key",
         "Warning: Failed.*type.*prop Invalid prop",
         "Warning: Failed.*type:.*is marked as required in.*but its value is `null`",
         "Warning: Failed.*type:.*is marked as required in.*but its value is `undefined`",

@@ -173,7 +173,7 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
 };
 
 Modifications.propTypes = {
-    failed: PropTypes.string.isRequired,
+    failed: PropTypes.string,
     title: PropTypes.string.isRequired,
     permitted: PropTypes.bool.isRequired,
     entries: PropTypes.arrayOf(PropTypes.string),

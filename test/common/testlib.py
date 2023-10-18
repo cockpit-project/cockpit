@@ -1705,7 +1705,6 @@ class MachineCase(unittest.TestCase):
         # HACK: Fix these ASAP, these are major bugs
         "Warning: validateDOMNesting.*cannot appear as a",
         "Warning: Failed.*type.*prop Invalid prop",
-        "Warning: Failed.*type:.*is marked as required in.*but its value is `null`",
         "Warning: Failed.*type:.*is marked as required in.*but its value is `undefined`",
         "Warning: React does not recognize the.*prop on a DOM element",
         "Warning: .*prop on .* should not be null",

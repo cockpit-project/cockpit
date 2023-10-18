@@ -1707,8 +1707,6 @@ class MachineCase(unittest.TestCase):
         "Warning: Failed.*type.*prop Invalid prop",
         "Warning: React does not recognize the.*prop on a DOM element",
         "Warning: .*prop on .* should not be null",
-        # HACK: this should be fixed, it's completely expected on OSes without tracer
-        "Tracer failed:.*",
         # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
         "Warning: .* setState.*on an unmounted component",
         "Warning: Can't perform a React state update on an unmounted component",

@@ -1721,7 +1721,6 @@ class MachineCase(unittest.TestCase):
         "aria-label",
         # messages from our own pages
         "CPU temperature metric closed.*",
-        "failed to call cockpit.Machines.Update().*",
         "Getting properties for problem.*",
         "Channel for reportd D-Bus client closed.*",
     ]

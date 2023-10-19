@@ -235,8 +235,7 @@ class Dialog extends React.Component {
             </Popover>;
 
         const error = this.props.error || this.props.static_error;
-        const error_alert = error &&
-            <Alert variant='danger' isInline title={React.isValidElement(error) ? error : error.toString() }>{error.details}</Alert>;
+        const error_alert = error && <Alert variant='danger' isInline title={error} />;
 
         return (
             <Modal position="top" variant={this.props.variant || "medium"}
@@ -262,9 +261,9 @@ Dialog.propTypes = {
     title: PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
     body: PropTypes.element, // is effectively required, see above
     static_error: PropTypes.string,
+    error: PropTypes.string,
     footer: PropTypes.element, // is effectively required, see above
     id: PropTypes.string,
-    error: PropTypes.object,
     showClose: PropTypes.bool,
 };
 

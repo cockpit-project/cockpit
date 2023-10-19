@@ -1719,10 +1719,6 @@ class MachineCase(unittest.TestCase):
         # FIXME: PatternFly complains about these, but https://www.a11y-collective.com/blog/the-first-rule-for-using-aria/
         # and https://www.accessibility-developer-guide.com/knowledge/aria/bad-practices/
         "aria-label",
-        # messages from our own pages
-        "CPU temperature metric closed.*",
-        "Getting properties for problem.*",
-        "Channel for reportd D-Bus client closed.*",
     ]
 
     env_allow = os.environ.get("TEST_ALLOW_BROWSER_ERRORS")

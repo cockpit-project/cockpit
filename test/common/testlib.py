@@ -1276,8 +1276,9 @@ class MachineCase(unittest.TestCase):
     def label(self):
         return self.__class__.__name__ + '-' + self._testMethodName
 
-    def new_machine(self, image=None, forward=None, restrict=True, cleanup=True, **kwargs):
-        machine_class = self.machine_class
+    def new_machine(self, image=None, forward=None, restrict=True, cleanup=True, inherit_machine_class=True, **kwargs):
+        machine_class = inherit_machine_class and self.machine_class or testvm.VirtMachine
+
         if opts.address:
             if forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
@@ -1289,8 +1290,6 @@ class MachineCase(unittest.TestCase):
                 image = os.path.join(TEST_DIR, "images", self.image)
                 if not os.path.exists(image):
                     raise FileNotFoundError("Can't run tests without a prepared image; use test/image-prepare")
-            if not machine_class:
-                machine_class = testvm.VirtMachine
             if not self.network:
                 network = testvm.VirtNetwork(image=image)
                 if cleanup:

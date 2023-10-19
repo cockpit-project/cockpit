@@ -721,6 +721,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.select_PF4("#firewalld-request-pmproxy", "comeandgo")
         m.execute("firewall-cmd --permanent --delete-zone comeandgo; firewall-cmd  --reload")
         b.click(".pf-v5-c-alert button.pf-m-primary")
+        self.allow_browser_errors("Failed to enable pmproxy in firewalld:.*INVALID_ZONE: comeandgo.*")
         b.wait_in_text(".pf-v5-c-alert.pf-m-warning", "Failed to enable pmproxy in firewalld")
         b.wait_in_text(".pf-v5-c-alert.pf-m-warning", "INVALID_ZONE: comeandgo")
         # close warning

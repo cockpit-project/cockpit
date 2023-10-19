@@ -1148,6 +1148,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # case 1: disable PackageKit
         m.execute("systemctl mask packagekit; systemctl stop packagekit.service || true")
+        self.allow_browser_errors('checkRealm failed.*"problem":"not-found"')
         self.login_and_go("/system")
         b.wait_text(self.domain_sel, "Join domain")
         b.wait_visible(self.domain_sel + "[disabled]")

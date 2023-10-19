@@ -1722,10 +1722,8 @@ class MachineCase(unittest.TestCase):
         # messages from our own pages
         "CPU temperature metric closed.*",
         "failed to call cockpit.Machines.Update().*",
-        "Failed to enable pmproxy in firewalld.*",
         "Getting properties for problem.*",
         "Channel for reportd D-Bus client closed.*",
-        "checkRealm failed.*",
     ]
 
     env_allow = os.environ.get("TEST_ALLOW_BROWSER_ERRORS")

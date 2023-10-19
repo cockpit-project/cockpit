@@ -354,12 +354,10 @@ export const dialog_open = (def) => {
     };
 
     const props = () => {
-        const title = (def.Action && (def.Action.Danger || def.Action.DangerButton)
-            ? <><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {def.Title}</>
-            : def.Title);
         return {
             id: "dialog",
-            title,
+            title: def.Title,
+            titleIconVariant: (def.Action && (def.Action.Danger || def.Action.DangerButton)) ? "warning" : null,
             body: <Body body={def.Body}
                         teardown={def.Teardown}
                         fields={nested_fields}

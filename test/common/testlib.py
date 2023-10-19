@@ -1705,7 +1705,6 @@ class MachineCase(unittest.TestCase):
         # HACK: Fix these ASAP, these are major bugs
         "Warning: validateDOMNesting.*cannot appear as a",
         "Warning: React does not recognize the.*prop on a DOM element",
-        "Warning: .*prop on .* should not be null",
         # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
         "Warning: .* setState.*on an unmounted component",
         "Warning: Can't perform a React state update on an unmounted component",

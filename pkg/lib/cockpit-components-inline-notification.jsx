@@ -90,7 +90,7 @@ InlineNotification.propTypes = {
 export const ModalError = ({ dialogError, dialogErrorDetail, id, isExpandable }) => {
     return (
         <Alert id={id} variant='danger' isInline title={dialogError} isExpandable={!!isExpandable}>
-            { dialogErrorDetail && <p> {dialogErrorDetail} </p> }
+            { typeof dialogErrorDetail === 'string' ? <p>{dialogErrorDetail}</p> : dialogErrorDetail }
         </Alert>
     );
 };

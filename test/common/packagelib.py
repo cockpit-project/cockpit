@@ -121,6 +121,9 @@ Server = file://{empty_repo_dir}
 
         self.updateInfo = {}
 
+        # HACK: kpatch check sometimes complains that we don't set up repomd.xml
+        self.allow_browser_errors("Could not determine kpatch packages:.*repodata updates was not complete.*repomd.xml")
+
     #
     # Helper functions for creating packages/repository
     #

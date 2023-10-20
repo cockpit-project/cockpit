@@ -26,10 +26,10 @@
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 

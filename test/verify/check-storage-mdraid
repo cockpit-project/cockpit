@@ -208,7 +208,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.content_row_wait_in_col(1, 1, part_prefix + "1")
 
         # Create second partition
-        self.content_row_action(2, "Create partition", isExpandable=False)
+        self.content_row_action(2, "Create partition")
         self.dialog({"type": "ext4",
                      "mount_point": "/foo2",
                      "name": "Two"})

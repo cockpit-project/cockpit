@@ -113,11 +113,11 @@ class TestKeys(testlib.MachineCase):
 
         # Add invalid key directly
         m.write("/home/user/.ssh/authorized_keys", "\nbad\n", append=True)
-        b.wait_in_text("#account-authorized-keys-list tr:last-child", "Invalid key")
+        b.wait_in_text("#account-authorized-keys-list tbody:last-child", "Invalid key")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 2)
 
         # Removing the key
-        b.click("#account-authorized-keys-list tr:last-child button")
+        b.click("#account-authorized-keys-list tbody:last-child button")
         b.wait_not_in_text("#account-authorized-keys", "Invalid key")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
         data = m.execute("cat /home/user/.ssh/authorized_keys")
@@ -128,9 +128,9 @@ class TestKeys(testlib.MachineCase):
 
         # User can still see their keys
         login("user")
-        b.wait_in_text("#account-authorized-keys-list tr:first-child", "test-name")
+        b.wait_in_text("#account-authorized-keys-list tbody:first-child", "test-name")
 
-        b.click("#account-authorized-keys-list tr:first-child button")
+        b.click("#account-authorized-keys-list tbody:first-child button")
         b.wait_in_text("#account-authorized-keys", "no authorized public keys")
 
         self.allow_journal_messages('authorized_keys is not a public key file.')

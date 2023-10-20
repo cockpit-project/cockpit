@@ -345,17 +345,16 @@ WantedBy=default.target
         # returns index of first unit that isn't failed
         b.inject_js("""
                     function firstWorkingUnitPos() {
-                        const arr = document.getElementById('services-list').firstChild;
-                        for (var i = 0; i < arr.childElementCount; i++) {
-                            const child = arr.children[i];
-                            if (!child.classList.contains('service-unit-failed')) {
-                                return i + 1;
-                            }
+                        const services = document.getElementById('services-list');
+                        for (let i = 0; i < services.childElementCount; i++) {
+                            const tbody = services.children[i];
+                            if (!tbody.firstChild.classList.contains('service-unit-failed'))
+                                return i;
                         }
                     }
                   """)
         pos = b.eval_js('firstWorkingUnitPos();')
-        b.wait_text(f'#services-list > tbody > tr:nth-child({pos}) > th > div > div > a', 'test')
+        b.wait_text(f'#services-list > tbody:nth-child({pos + 1}) > tr > th > div > div > a', 'test')
         b.is_present('#test.service > svg.service-thumbtack-icon-color')
 
         # Unpin unit

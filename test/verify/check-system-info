@@ -519,17 +519,17 @@ class TestSystemInfo(packagelib.PackageCase):
         # PCI
         b.wait_in_text(pci_selector + heading_selector, "PCI")
 
-        b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
+        b.wait_in_text(pci_selector + ' tbody:first-of-type td[data-label=Slot]', "0000:00:00.0")
 
         # sorted by device class by default; this makes some assumptions about QEMU devices
-        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Class]', "Bridge")
-        b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Class]', "Unclassified")
+        b.wait_in_text(pci_selector + ' tbody:first-of-type td[data-label=Class]', "Bridge")
+        b.wait_in_text(pci_selector + ' tbody:last-of-type td[data-label=Class]', "Unclassified")
 
         # sort by model
         b.click(pci_selector + ' thead th:nth-child(2) button')
-        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440")
-        b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
-        b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
+        b.wait_in_text(pci_selector + ' tbody:first-of-type td[data-label=Model]', "440")
+        b.wait_in_text(pci_selector + ' tbody:last-of-type td[data-label=Model]', "Virtio SCSI")
+        b.wait_not_in_text(pci_selector + ' tbody:last-of-type td[data-label=Model]', "Unclassified")
 
         # go back to system page
         b.click('.pf-v5-c-breadcrumb li:first-of-type')
@@ -557,7 +557,7 @@ class TestSystemInfo(packagelib.PackageCase):
 
         # PCI should be shown
         b.wait_in_text(pci_selector + heading_selector, "PCI")
-        b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
+        b.wait_in_text(pci_selector + ' tbody:first-of-type td[data-label=Slot]', "0000:00:00.0")
 
         # Check also variants when only some fields are present
         m.write("/sys/class/dmi/id/chassis_type", "10")
@@ -688,27 +688,27 @@ machine         : 8561
         distros_without_systemd_memory_dmi = ['rhel-8-7', 'rhel-8-8', 'rhel-8-9', 'centos-8-stream']
 
         # Test more specific memory data with a fake dmidecode
-        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
-        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR4")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Type]', "DDR4")
         if m.image in distros_without_systemd_memory_dmi:
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GB")
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GB")
         else:
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GiB")
-        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
-        b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory technology"]', "Unknown")
-        b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Single rank")
-        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "2400 MT/s")
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GiB")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=State]', "Present")
+        b.wait_text('#memory-listing tbody:nth-of-type(1) td[data-label="Memory technology"]', "Unknown")
+        b.wait_text('#memory-listing tbody:nth-of-type(1) td[data-label=Rank]', "Single rank")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Speed]', "2400 MT/s")
 
-        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "BANK 2: ChannelB-DIMM0")
-        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=Type]', "DDR4")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=ID]', "BANK 2: ChannelB-DIMM0")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=Type]', "DDR4")
         if m.image in distros_without_systemd_memory_dmi:
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GB")
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GB")
         else:
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GiB")
-        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=State]', "Present")
-        b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory technology"]', "Unknown")
-        b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single rank")
-        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=Speed]', "2400 MT/s")
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GiB")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=State]', "Present")
+        b.wait_text('#memory-listing tbody:nth-of-type(2) td[data-label="Memory technology"]', "Unknown")
+        b.wait_text('#memory-listing tbody:nth-of-type(2) td[data-label=Rank]', "Single rank")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=Speed]', "2400 MT/s")
 
     @ testlib.nondestructive
     def testCPUSecurityMitigationsDetect(self):

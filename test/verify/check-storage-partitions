@@ -133,7 +133,7 @@ class TestStoragePartitions(storagelib.StorageCase):
                      "mount_point": "/foo1",
                      "size": 80 + nudge},
                     secondary=True)
-        self.content_row_action(2, "Create partition", isExpandable=False)
+        self.content_row_action(2, "Create partition")
         self.dialog({"type": "ext4",
                      "mount_point": "/foo2",
                      "size": 23},

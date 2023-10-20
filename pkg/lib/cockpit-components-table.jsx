@@ -250,10 +250,7 @@ export const ListingTable = ({
             </React.Fragment>
         );
 
-        if (row.expandedContent)
-            return <Tbody key={rowKey} isExpanded={isExpanded}>{rowPair}</Tbody>;
-        else
-            return rowPair;
+        return <Tbody key={rowKey} isExpanded={row.expandedContent && isExpanded}>{rowPair}</Tbody>;
     });
 
     return (
@@ -293,7 +290,7 @@ export const ListingTable = ({
                         })}
                     </Tr>
                 </Thead>}
-                {!isExpandable ? <Tbody>{rowsComponents}</Tbody> : rowsComponents}
+                {rowsComponents}
             </Table>
         </>
     );

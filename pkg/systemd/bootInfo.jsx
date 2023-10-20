@@ -13,6 +13,8 @@ import {
 import "./bootInfo.scss";
 import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState";
 
+const _ = cockpit.gettext;
+
 export function BootInfo() {
     const [svg, setSvg] = useState(undefined);
     const [summary, setSummary] = useState(null);
@@ -59,7 +61,7 @@ export function BootInfo() {
         return (
             <div className="pf-v5-c-page__main-section">
                 <EmptyState variant={EmptyStateVariant.xs}>
-                    <EmptyStateHeader titleText="Loading" headingLevel="h4" />
+                    <EmptyStateHeader titleText={_("Loading")} headingLevel="h4" />
                     <EmptyStateBody>
                         <Spinner size="xl" />
                     </EmptyStateBody>
@@ -72,10 +74,10 @@ export function BootInfo() {
         return (
             <div className="pf-v5-c-page__main-section">
                 <EmptyState variant={EmptyStateVariant.xs}>
-                    <EmptyStateHeader titleText="Failure" headingLevel="h4" />
+                    <EmptyStateHeader titleText={_("Failure")} headingLevel="h4" />
                     <EmptyStateBody>
-                        Are you sure systemd-analyze is available?
-                        systemd-analyze failed to load boot info and returned the following error:
+                        {_("Are you sure systemd-analyze is available?")}
+                        {_("systemd-analyze failed to load boot info and returned the following error:")}
                         <CodeBlock>
                             <CodeBlockCode id="code-content">{summary.toString()}</CodeBlockCode>
                         </CodeBlock>
@@ -95,7 +97,7 @@ export function BootInfo() {
     return (
         <div className="pf-v5-c-page__main-section">
             <Card>
-                <CardTitle>Boot Info</CardTitle>
+                <CardTitle>{ _("Boot Info") }</CardTitle>
                 <CardBody>
                     <p>
                         {summary}
@@ -103,27 +105,27 @@ export function BootInfo() {
                     <List className="legend" isPlain variant={ListVariant.inline}>
                         <ListItem>
                             <div className="legendColor activating" />
-                            Activating
+                            { _("Activating") }
                         </ListItem>
                         <ListItem>
                             <div className="legendColor active" />
-                            Active
+                            { _("Active") }
                         </ListItem>
                         <ListItem>
                             <div className="legendColor deactivating" />
-                            Deactivating
+                            { _("Deactivating") }
                         </ListItem>
                         <ListItem>
                             <div className="legendColor security" />
-                            Setting up security module
+                            { _("Setting up security module") }
                         </ListItem>
                         <ListItem>
                             <div className="legendColor generators" />
-                            Generators
+                            { _("Generators") }
                         </ListItem>
                         <ListItem>
                             <div className="legendColor unitsload" />
-                            Loading unit files
+                            { _("Loading unit files") }
                         </ListItem>
                     </List>
                     <div className="chart-container">

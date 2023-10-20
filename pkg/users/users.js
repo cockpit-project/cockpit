@@ -151,7 +151,7 @@ function get_locked(name, shadow) {
 }
 
 async function getLogins(shadow) {
-    let lastlog = [];
+    let lastlog = "";
     try {
         lastlog = await cockpit.spawn(["lastlog"], { environ: ["LC_ALL=C"] });
     } catch (err) {

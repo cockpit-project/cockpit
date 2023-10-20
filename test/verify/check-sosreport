@@ -174,9 +174,6 @@ only-plugins=release,date,host,cgroups,networking
         m.execute("while pgrep -a -x sos; do sleep 1; done", timeout=10)
         self.assertEqual(m.execute("ls /var/tmp/sosreport* 2>/dev/null || true"), "")
 
-        # HACK: Fix this in the code, this is useless
-        self.allow_browser_errors('error: Failed to call sos report: {"problem":"cancelled","exit_status":null')
-
     def testAppStream(self):
         b = self.browser
         m = self.machine

@@ -178,7 +178,8 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
 
     task.catch(error => {
         // easier investigation of failures, errors in pty mode may be hard to see
-        console.error("Failed to call sos report:", JSON.stringify(error));
+        if (error.problem !== 'cancelled')
+            console.error("Failed to call sos report:", JSON.stringify(error));
         setError(error.toString() || _("sos report failed"));
         setErrorDetail(output);
     });

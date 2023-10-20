@@ -39,6 +39,7 @@ import { get_other_devices } from "../utils.js"; // XXX
 
 import { new_page, PageChildrenCard } from "../pages.jsx";
 import { make_drive_page } from "./drive.jsx";
+import { make_btrfs_volume_page } from "./btrfs.jsx";
 import { make_lvm2_volume_group_page } from "./lvm2-volume-group.jsx";
 import { make_mdraid_page } from "./mdraid.jsx";
 import { make_stratis_pool_page } from "./stratis-pool.jsx";
@@ -66,6 +67,15 @@ export function make_overview_page() {
     Object.keys(client.mdraids).forEach(p => make_mdraid_page(overview_page, client.mdraids[p]));
     Object.keys(client.stratis_pools).map(p => make_stratis_pool_page(overview_page, client.stratis_pools[p]));
     Object.keys(client.stratis_manager.StoppedPools).map(uuid => make_stratis_stopped_pool_page(overview_page, uuid));
+    // TODO: this needs to poll? What does udisks do for us?
+    const btrfs_uuids = new Set();
+    Object.keys(client.blocks_fsys_btrfs).forEach(p => {
+        const bfs = client.blocks_fsys_btrfs[p];
+        btrfs_uuids.add(bfs.data.uuid);
+    });
+    for (const uuid of btrfs_uuids) {
+        make_btrfs_volume_page(overview_page, uuid);
+    }
     client.nfs.entries.forEach(e => make_nfs_page(overview_page, e));
     get_other_devices(client).map(p => make_other_page(overview_page, client.blocks[p]));
     client.legacy_vdo_overlay.volumes.forEach(vdo => make_legacy_vdo_page(overview_page, vdo));

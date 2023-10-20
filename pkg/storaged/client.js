@@ -176,6 +176,7 @@ function init_proxies () {
     client.blocks_swap = proxies("Swapspace");
     client.iscsi_sessions = proxies("ISCSI.Session");
     client.vdo_vols = proxies("VDOVolume");
+    client.blocks_fsys_btrfs = proxies("Filesystem.BTRFS");
     client.jobs = proxies("Job");
 
     return client.storaged_client.watch({ path_namespace: "/org/freedesktop/UDisks2" });
@@ -544,6 +545,18 @@ function update_indices() {
         };
     }
 
+    // UDisks API does provide a btrfs volume abstraction so we keep track of
+    // volume's by uuid in an object. uuid => [org.freedesktop.UDisks2.Filesystem.BTRFS]
+    client.uuids_btrfs_blocks = { };
+    for (const p in client.blocks_fsys_btrfs) {
+        const bfs = client.blocks_fsys_btrfs[p];
+        const uuid = bfs.data.uuid;
+        if (!client.uuids_btrfs_blocks[uuid])
+            client.uuids_btrfs_blocks[uuid] = [];
+        client.uuids_btrfs_blocks[uuid].push(client.blocks[p]);
+    }
+    console.log("uuids_btrfs_blocks", client.uuids_btrfs_blocks);
+
     client.blocks_cleartext = { };
     for (path in client.blocks) {
         block = client.blocks[path];
@@ -637,11 +650,13 @@ function init_model(callback) {
             function() {
                 client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
                 client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
-                return Promise.allSettled([client.manager_lvm2.wait(), client.manager_iscsi.wait()])
+                client.manager_btrfs = proxy("Manager.BTRFS", "Manager");
+                return Promise.allSettled([client.manager_lvm2.wait(), client.manager_iscsi.wait(), client.manager_btrfs.wait()])
                         .then(() => {
                             client.features.lvm2 = client.manager_lvm2.valid;
                             client.features.iscsi = (client.manager_iscsi.valid &&
                                                             client.manager_iscsi.SessionsSupported !== false);
+                            client.features.btrfs = client.manager_btrfs.valid;
                         });
             }, function(error) {
                 console.warn("Can't enable storaged modules", error.toString());

@@ -1102,7 +1102,8 @@ export const BlockingMessage = (usage) => {
         pvol: _("physical volume of LVM2 volume group"),
         "mdraid-member": _("member of RAID device"),
         vdo: _("backing device for VDO device"),
-        "stratis-pool-member": _("member of Stratis pool")
+        "stratis-pool-member": _("member of Stratis pool"),
+        "btrfs-member": _("member of BTRFS volume")
     };
 
     console.log("U", usage);

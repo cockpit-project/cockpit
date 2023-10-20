@@ -175,6 +175,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
+    add_fsys("btrfs", { value: "btrfs", title: "BTRFS" });
     add_fsys(true, { value: "empty", title: _("No filesystem") });
     if (create_partition && enable_dos_extended)
         add_fsys(true, { value: "dos-extended", title: _("Extended partition") });

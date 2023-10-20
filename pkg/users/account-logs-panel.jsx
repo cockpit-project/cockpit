@@ -65,9 +65,7 @@ export function AccountLogs({ name }) {
                     logins = logins.slice(0, 15);
                     setLogins(logins);
                 })
-                .catch((ex) => {
-                    console.error(ex);
-                });
+                .catch(ex => console.error("Failed to call last:", ex)); // not-covered: OS error
     }, [name]);
 
     return (

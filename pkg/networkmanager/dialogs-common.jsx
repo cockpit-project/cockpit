@@ -248,9 +248,9 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
             dlg = <IpSettingsDialog topic="ipv6" {...properties} />;
 
         if (dlg)
-            resolveDeps(type).then(() => {
-                Dialogs.show(dlg);
-            }).catch(console.error); // not-covered: OS error
+            resolveDeps(type)
+                    .then(() => Dialogs.show(dlg))
+                    .catch(err => console.error("NetworkAction Dialog failed:", err)); // not-covered: OS error
     }
 
     return (

@@ -89,11 +89,19 @@ function clearExceptions() {
     return Promise.resolve();
 }
 
+function stringifyConsoleArg(arg) {
+    if (arg.type === 'string')
+        return arg.value;
+    if (arg.type === 'object')
+        return JSON.stringify(arg.value);
+    return JSON.stringify(arg);
+}
+
 function setupLogging(client) {
     client.Runtime.enable();
 
     client.Runtime.consoleAPICalled(info => {
-        const msg = info.args.map(v => (v.value || "").toString()).join(" ");
+        const msg = info.args.map(stringifyConsoleArg).join(" ");
         messages.push([info.type, msg]);
         process.stderr.write("> " + info.type + ": " + msg + "\n");
 

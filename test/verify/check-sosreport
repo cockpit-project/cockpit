@@ -121,8 +121,7 @@ exit 1""", perm="755")
         b.wait_not_present("#sos-dialog")
 
         self.allow_journal_messages('.*comm="sosreport".*')
-        # HACK: Fix this in the code, this is useless
-        self.allow_browser_errors('error: {"problem":null,"exit_status":1,"exit_signal":null')
+        self.allow_browser_errors('error: Failed to call sos report: {"problem":null,"exit_status":1,"exit_signal":null')
 
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
@@ -176,7 +175,7 @@ only-plugins=release,date,host,cgroups,networking
         self.assertEqual(m.execute("ls /var/tmp/sosreport* 2>/dev/null || true"), "")
 
         # HACK: Fix this in the code, this is useless
-        self.allow_browser_errors('error: {"problem":"cancelled","exit_status":null')
+        self.allow_browser_errors('error: Failed to call sos report: {"problem":"cancelled","exit_status":null')
 
     def testAppStream(self):
         b = self.browser

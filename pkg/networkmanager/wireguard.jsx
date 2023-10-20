@@ -117,7 +117,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
                 const key = await cockpit.spawn(["wg", "pubkey"], { err: 'message' }).input(privateKey.trim());
                 setPublicKey(key.trim());
             } catch (e) {
-                console.error(e.message);
+                console.error("Failed to call wg pubkey:", e.message);
                 setPublicKey('');
             }
         }

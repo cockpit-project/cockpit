@@ -107,7 +107,7 @@ class StorageHelpers:
     # Content
 
     def content_row_tbody(self, index):
-        return "#detail-content > .pf-v5-c-card > div > table > tbody:nth-of-type(%d)" % index
+        return f"#detail-content > .pf-v5-c-card > div > table > tbody:nth-of-type({index})"
 
     def content_row_expand(self, index):
         b = self.browser
@@ -117,29 +117,20 @@ class StorageHelpers:
             b.click(tbody + " tr td.pf-v5-c-table__toggle button")
             b.wait_visible(tbody + ".pf-m-expanded")
 
-    def content_row_action(self, index, title, isExpandable=True):
-        if isExpandable:
-            btn = self.content_row_tbody(index) + f" tr:first-child td button:contains({title})"
-        else:
-            btn = "#detail-content > .pf-v5-c-card > div > table > :nth-child(%d)" % index + f" td button:contains({title})"
+    def content_row_action(self, index, title):
+        btn = self.content_row_tbody(index) + f" tr:first-child td button:contains({title})"
         self.browser.click(btn)
 
     # The row might come and go a couple of times until it has the
     # expected content.  However, wait_in_text can not deal with a
     # temporarily disappearing element, so we use self.retry.
 
-    def content_row_wait_in_col(self, row_index, col_index, val, isExpandable=True, alternate_val=None):
-        if isExpandable:
-            col = self.content_row_tbody(row_index) + " tr:first-child > :nth-child(%d)" % (col_index + 1)
-        else:
-            col = "#detail-content > .pf-v5-c-card > div > table > :nth-child(%d)" % row_index + " > :nth-child(%d)" % (col_index + 1)
+    def content_row_wait_in_col(self, row_index, col_index, val, alternate_val=None):
+        col = self.content_row_tbody(row_index) + f" tr:first-child > :nth-child({col_index + 1}"
         wait(lambda: self.browser.is_present(col) and (val in self.browser.text(col) or (alternate_val and alternate_val in self.browser.text(col))))
 
-    def content_dropdown_action(self, index, title, isExpandable=True):
-        if isExpandable:
-            dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-v5-c-dropdown"
-        else:
-            dropdown = "#detail-content > .pf-v5-c-card > div > table > :nth-child(%d)" % index + " td:last-child .pf-v5-c-dropdown"
+    def content_dropdown_action(self, index, title):
+        dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-v5-c-dropdown"
         self.browser.click(dropdown + " button.pf-v5-c-dropdown__toggle")
         self.browser.click(dropdown + f" a:contains('{title}')")
 

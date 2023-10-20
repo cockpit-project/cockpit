@@ -86,7 +86,7 @@ ExecStart=/usr/bin/sleep infinity
 
         b.click('button:contains(Create partition table)')
         self.dialog_wait_open()
-        b.wait_visible("#dialog tr:first-child button:contains(Currently in use)")
+        b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
         b.assert_pixels('#dialog', "format-disk")
         self.dialog_apply()
         self.dialog_wait_close()

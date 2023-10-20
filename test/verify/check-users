@@ -325,15 +325,15 @@ class TestAccounts(testlib.MachineCase):
 
         # test filters
         b.set_input_text("#accounts-filter input", "root")
-        b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='Username']", "root")
+        b.wait_in_text("#accounts-list tbody:first-of-type td[data-label='Username']", "root")
         b.set_input_text("#accounts-filter input", "rOBeRt")
-        b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='Username']", "robert")
+        b.wait_in_text("#accounts-list tbody:first-of-type td[data-label='Username']", "robert")
 
         uid = "1000"
         if "debian" in m.image or "ubuntu" in m.image:
             uid = "1001"
         b.set_input_text("#accounts-filter input", uid)
-        b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='ID']", uid)
+        b.wait_in_text("#accounts-list tbody:first-of-type td[data-label='ID']", uid)
         b.set_input_text("#accounts-filter input", "spooky")
         b.wait_visible("#accounts div.pf-v5-c-empty-state")
 
@@ -346,7 +346,7 @@ class TestAccounts(testlib.MachineCase):
 
         def check_column_sort(query_selector, invert=False):
             # current account is always in the first row
-            b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='Username']", "admin")
+            b.wait_in_text("#accounts-list tbody:first-of-type td[data-label='Username']", "admin")
             values = b.eval_js(f"getTextColumn(\"{query_selector}\")")
             for i in range(2, len(values)):
                 if values[i].isnumeric():
@@ -521,7 +521,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_js_cond('document.querySelector("#current-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
 
         # The current account is the first in the list
-        b.wait_visible("#accounts-list > tbody :first-child #current-account-badge")
+        b.wait_visible("#accounts-list > tbody:first-of-type #current-account-badge")
 
         # Use [x] button on the group label to remove the account from group
         b.go("#/jussi")

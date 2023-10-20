@@ -37,6 +37,7 @@ import { StorageButton, StorageLink, StorageUsageBar, StorageSize } from "../sto
 import {
     ParentPageLink, PageContainerStackItems,
     new_page, block_location, ActionButtons, page_type,
+    register_crossref,
 } from "../pages.jsx";
 import { format_dialog } from "../format-dialog.jsx";
 import { is_mounted, mounting_dialog, get_cryptobacking_noauto } from "../fsys-tab.jsx"; // XXX
@@ -137,7 +138,7 @@ export function make_filesystem_page(parent, backing_block, content_block, fstab
     else
         mp_text = _("(not mounted)");
 
-    new_page({
+    const filesystem_page = new_page({
         location: [block_location(backing_block)],
         parent,
         container,
@@ -156,6 +157,13 @@ export function make_filesystem_page(parent, backing_block, content_block, fstab
                 : { title: _("Mount"), action: () => mounting_dialog(client, content_block || backing_block, "mount") },
             { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
         ]
+    });
+
+    register_crossref({
+        key: backing_block,
+        page: filesystem_page,
+        size: fmt_size(backing_block.data.Size),
+        actions: [],
     });
 }
 

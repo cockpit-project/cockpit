@@ -1701,8 +1701,6 @@ class MachineCase(unittest.TestCase):
 
     # List of allowed console.error() messages during tests; these match substrings
     default_allowed_console_errors = [
-        # HACK: Fix these ASAP, these are major bugs
-        "Warning: validateDOMNesting.*cannot appear as a",
         # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
         "Warning: .* setState.*on an unmounted component",
         "Warning: Can't perform a React state update on an unmounted component",

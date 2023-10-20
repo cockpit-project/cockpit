@@ -251,6 +251,9 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_not_in_text("#devices", "vgroup1")
         self.assertEqual(m.execute(f"grep {mount_point_thin} /etc/fstab || true"), "")
 
+        # FIXME: Grow/Shrink buttons are in a dd > div > dd without dl wrapper
+        self.allow_browser_errors("validateDOMNesting.*cannot appear as a descendant.*<dd> dd")
+
     def testUnpartitionedSpace(self):
         m = self.machine
         b = self.browser
@@ -333,6 +336,9 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         self.content_row_wait_in_col(1, 1, "lvol0")
         b.wait_not_in_text("#storage-detail", "snap0")
+
+        # FIXME: Grow/Shrink buttons are in a dd > div > dd without dl wrapper
+        self.allow_browser_errors("validateDOMNesting.*cannot appear as a descendant.*<dd> dd")
 
 
 if __name__ == '__main__':

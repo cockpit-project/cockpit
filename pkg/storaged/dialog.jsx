@@ -943,7 +943,7 @@ class SizeSliderElement extends React.Component {
         const { unit } = this.state;
 
         const change_slider = (_event, f) => {
-            onChange(Math.max(min, size_slider_round(f * max / 100, round)));
+            onChange(Math.max(min, size_slider_round(f, round)));
         };
 
         const change_text = (value) => {
@@ -972,7 +972,8 @@ class SizeSliderElement extends React.Component {
         return (
             <Grid hasGutter className="size-slider">
                 <GridItem span={12} sm={8}>
-                    <Slider showBoundaries={false} value={(slider_val / max) * 100} onChange={change_slider} />
+                    <Slider showBoundaries={false} min={min} max={max} step={(max - min) / 500}
+                            value={slider_val} onChange={change_slider} />
                 </GridItem>
                 <GridItem span={6} sm={2}>
                     <TextInputPF4 className="size-text" value={text_val} onChange={(_event, value) => change_text(value)} />

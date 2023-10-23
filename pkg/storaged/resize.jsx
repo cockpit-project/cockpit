@@ -70,6 +70,12 @@ function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passp
 
     function fsys_resize() {
         if (fsys) {
+            // When growing a filesystem, always grow it to fill its
+            // block device. This is always the right thing to do in
+            // Cockpit.
+            //
+            const resize_size = (size > orig_size) ? 0 : size - crypto_overhead;
+
             // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1934567
             //
             // block_fsys.MountedAt might be out of synch with reality
@@ -87,9 +93,9 @@ function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passp
                         // When doing an offline resize, we need to first repair the filesystem.
                         if (!is_mounted) {
                             return (fsys.Repair({ })
-                                    .then(function () { return fsys.Resize(size - crypto_overhead, { }) }));
+                                    .then(() => fsys.Resize(resize_size, { })));
                         } else {
-                            return fsys.Resize(size - crypto_overhead, { });
+                            return fsys.Resize(resize_size, { });
                         }
                     }));
         } else if (vdo) {
@@ -119,11 +125,17 @@ function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passp
     }
 
     function crypto_resize() {
+        // When growing a LUKS device, always grow it to fill its
+        // block device. This is always the right thing to do in
+        // Cockpit.
+        //
+        const resize_size = (size > orig_size) ? 0 : size - crypto_overhead;
+
         if (crypto) {
             const opts = { };
             if (passphrase)
                 opts.passphrase = { t: "s", v: passphrase };
-            return crypto.Resize(size - crypto_overhead, opts);
+            return crypto.Resize(resize_size, opts);
         } else {
             return Promise.resolve();
         }

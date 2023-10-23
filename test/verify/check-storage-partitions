@@ -85,22 +85,27 @@ class TestStoragePartitions(storagelib.StorageCase):
         about_half_way = width / 2 + 1
 
         b.mouse(slider, "click", about_half_way, 0)
-        self.dialog_wait_val("size", 27.3)
+        self.dialog_wait_val("size", 27.4)
         b.focus(slider + " + .pf-v5-c-slider__thumb")
         b.key_press(chr(37), use_ord=True)  # arrow left
-        self.dialog_wait_val("size", 26.7)
+        b.key_press(chr(37), use_ord=True)
+        b.key_press(chr(37), use_ord=True)
+        self.dialog_wait_val("size", 27.1)
 
         # Check that changing units affects the text input
         unit = "1000000000"
         b.select_from_dropdown(".size-unit > select", unit)
-        self.dialog_wait_val("size", "0.0267", unit)
+        self.dialog_wait_val("size", "0.0271", unit)
 
         self.dialog_apply()
         self.dialog_wait_close()
 
-        # With old Udisks2 versions, the partition will end up being
-        # 25.1M while newer versions give us 26M or 25M.
-        testlib.wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() in ["25M", "25.1M", "26M"])
+        # 27.1 MB is about 25.84 MiB. Some versions of
+        # UDisks2/libblockdev/libparted/... round this up to 26 MiB
+        # when creating the partition, some (newer ones) round it down
+        # to 25 MiB.
+        #
+        testlib.wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() in ["26M", "25M"])
 
     def testResize(self):
         m = self.machine

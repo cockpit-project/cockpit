@@ -1257,7 +1257,8 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
     return (
         <div className="modal-footer-teardown">
             { process_rows.length > 0
-                ? <p>{fmt_to_fragments(_("The mount point $0 is in use by these processes:"), <b>{mount_point}</b>)}
+                ? <>
+                    <p>{fmt_to_fragments(_("The mount point $0 is in use by these processes:"), <b>{mount_point}</b>)}</p>
                     <ListingTable variant='compact'
                                   columns={
                                       [
@@ -1268,7 +1269,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                                       ]
                                   }
                                       rows={process_rows} />
-                </p>
+                </>
                 : null
             }
             { process_rows.length > 0 && service_rows.length > 0
@@ -1276,7 +1277,8 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                 : null
             }
             { service_rows.length > 0
-                ? <p>{fmt_to_fragments(_("The mount point $0 is in use by these services:"), <b>{mount_point}</b>)}
+                ? <>
+                    <p>{fmt_to_fragments(_("The mount point $0 is in use by these services:"), <b>{mount_point}</b>)}</p>
                     <ListingTable variant='compact'
                                   columns={
                                       [
@@ -1287,7 +1289,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                                       ]
                                   }
                                   rows={service_rows} />
-                </p>
+                </>
                 : null
             }
         </div>);

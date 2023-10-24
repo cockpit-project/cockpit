@@ -26,7 +26,7 @@ import { FormGroup, FormFieldGroup, FormFieldGroupHeader, FormHelperText } from 
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Grid } from '@patternfly/react-core/dist/esm/layouts/Grid/index.js';
 import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText/index';
-import { InputGroup } from '@patternfly/react-core/dist/esm/components/InputGroup/index.js';
+import { InputGroup, InputGroupItem, InputGroupText } from '@patternfly/react-core/dist/esm/components/InputGroup/index.js';
 import { Popover } from '@patternfly/react-core/dist/esm/components/Popover/index.js';
 import { Radio } from '@patternfly/react-core/dist/esm/components/Radio/index.js';
 import { Text } from "@patternfly/react-core/dist/esm/components/Text/index.js";
@@ -73,7 +73,12 @@ export function WireGuardDialog({ settings, connection, dev }) {
     const [listenPort, setListenPort] = useState(settings.wireguard.listen_port);
     const [addresses, setAddresses] = useState(addressesToString(settings.ipv4.addresses));
     const [dialogError, setDialogError] = useState("");
-    const [peers, setPeers] = useState(settings.wireguard.peers.map(peer => ({ ...peer, allowedIps: peer.allowedIps?.join(",") ?? '' })));
+    const [peers, setPeers] = useState(settings.wireguard.peers.map(peer => ({
+        ...peer,
+        allowedIps: peer.allowedIps?.join(",") ?? '',
+        persistentKeepalive: peer.persistentKeepalive?.toString() ?? '',
+        presharedKey: peer.presharedKey ?? ''
+    })));
 
     // Additional check for `wg` after install_dialog for non-packagekit and el8 environments
     useEffect(() => {
@@ -98,6 +103,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
             const objpath = connection[" priv"].path;
             const [result] = await model.client.call(objpath, "org.freedesktop.NetworkManager.Settings.Connection", "GetSecrets", ["wireguard"]);
             setGeneratedPrivateKey(result.wireguard["private-key"].v);
+            setPeers(oldPeers => oldPeers.map((oldPeer, index) => ({ ...oldPeer, presharedKey: result.wireguard.peers?.v[index]["preshared-key"]?.v ?? '' })));
         }
 
         if (connection?.[" priv"].path) {
@@ -160,7 +166,11 @@ export function WireGuardDialog({ settings, connection, dev }) {
                         throw cockpit.format(_("Peer #$0 has invalid endpoint port. Port must be a number."), index + 1);
                     }
                 }
-                return ({ ...peer, allowedIps: peer.allowedIps.trim().split(',') });
+                if (peer.persistentKeepalive.trim()) {
+                    if (isNaN(Number(peer.persistentKeepalive)))
+                        throw cockpit.format(_("Peer #$0 has invalid persistent keepalive. It must be a number."), index + 1);
+                }
+                return ({ ...peer, allowedIps: peer.allowedIps.trim().split(','), persistentKeepalive: Number(peer.persistentKeepalive) });
             });
         } catch (e) {
             setDialogError(typeof e === 'string' ? e : e.message);
@@ -285,7 +295,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
                         actions={
                             <Button
                                 variant='secondary'
-                                onClick={() => setPeers(peers => [...peers, { publicKey: '', endpoint: '', allowedIps: '' }])}
+                                onClick={() => setPeers(peers => [...peers, { publicKey: '', endpoint: '', allowedIps: '', persistentKeepalive: '', presharedKey: '' }])}
                             >
                                 {_("Add peer")}
                             </Button>
@@ -315,13 +325,43 @@ export function WireGuardDialog({ settings, connection, dev }) {
                                     id={idPrefix + '-endpoint-peer-' + i}
                                 />
                             </FormGroup>
-                            <FormGroup className='pf-m-3-col-on-md' label={_("Allowed IPs")} fieldId={idPrefix + '-allowedips-peer-' + i}>
+                            <FormGroup className='pf-m-3-col-on-md' label={_("Keepalive")} fieldId={idPrefix + '-keepalive-peer-' + i}>
+                                <InputGroup>
+                                    <InputGroupItem isFill>
+                                        <TextInput
+                                            value={peer.persistentKeepalive}
+                                            onChange={(_, val) => {
+                                                setPeers(peers => peers.map((peer, index) => i === index ? { ...peer, persistentKeepalive: val } : peer));
+                                            }}
+                                            id={idPrefix + '-keepalive-peer-' + i}
+                                        />
+                                    </InputGroupItem>
+                                    <InputGroupText className='pf-v5-u-text-nowrap'>{_("seconds")}</InputGroupText>
+                                </InputGroup>
+                            </FormGroup>
+                            <FormGroup className='pf-m-6-col-on-md' label={_("Allowed IPs")} fieldId={idPrefix + '-allowedips-peer-' + i}>
                                 <TextInput
                                     value={peer.allowedIps}
                                     onChange={(_, val) => {
                                         setPeers(peers => peers.map((peer, index) => i === index ? { ...peer, allowedIps: val } : peer));
                                     }}
                                     id={idPrefix + '-allowedips-peer-' + i}
+                                />
+                            </FormGroup>
+                            <FormGroup className='pf-m-6-col-on-md' label={_("Pre-shared key")} fieldId={idPrefix + '-presharedkey-peer-' + i} labelIcon={
+                                <Popover
+                                    bodyContent={_("A base64 encoded string of 32 random bytes.")}
+                                >
+                                    <Button variant='link' isInline><HelpIcon /></Button>
+                                </Popover>
+                            }>
+                                <TextInput
+                                    value={peer.presharedKey}
+                                    onChange={(_, val) => {
+                                        setPeers(peers => peers.map((peer, index) => i === index ? { ...peer, presharedKey: val } : peer));
+                                    }}
+                                    placeholder={_("optional")}
+                                    id={idPrefix + '-presharedkey-peer-' + i}
                                 />
                             </FormGroup>
                             <FormGroup className='pf-m-1-col-on-md remove-button-group'>

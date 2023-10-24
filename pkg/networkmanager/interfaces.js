@@ -591,7 +591,8 @@ export function NetworkManagerModel() {
                 peers: get("wireguard", "peers", []).map(peer => ({
                     publicKey: peer['public-key'].v,
                     endpoint: peer.endpoint?.v, // enpoint of a peer is optional
-                    allowedIps: peer['allowed-ips']?.v
+                    allowedIps: peer['allowed-ips']?.v,
+                    persistentKeepalive: peer['persistent-keepalive']?.v,
                 })),
             };
         }
@@ -730,7 +731,27 @@ export function NetworkManagerModel() {
                     "allowed-ips": {
                         t: "as",
                         v: peer.allowedIps
-                    }
+                    },
+                    ...peer.persistentKeepalive
+                        ? {
+                            "persistent-keepalive": {
+                                t: "u",
+                                v: peer.persistentKeepalive
+                            }
+                        }
+                        : {},
+                    ...peer.presharedKey
+                        ? {
+                            "preshared-key": {
+                                t: "s",
+                                v: peer.presharedKey
+                            },
+                            'preshared-key-flags': {
+                                t: "u",
+                                v: 0
+                            }
+                        }
+                        : {}
                 };
             }));
         } else {

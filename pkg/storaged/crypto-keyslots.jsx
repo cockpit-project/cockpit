@@ -622,15 +622,13 @@ export const TangKeyVerification = ({ url, adv }) => {
             <Text component={TextVariants.p}>{_("Check the key hash with the Tang server.")}</Text>
 
             <Text component={TextVariants.h3}>{_("How to check")}</Text>
-            <Text component={TextVariants.p}>
-                {_("In a terminal, run: ")}
-                <ClipboardCopy hoverTip={_("Copy to clipboard")}
-                               clickTip={_("Successfully copied to clipboard!")}
-                               variant="inline-compact"
-                               isCode>
-                    {cmd}
-                </ClipboardCopy>
-            </Text>
+            <span>{_("In a terminal, run: ")}</span>
+            <ClipboardCopy hoverTip={_("Copy to clipboard")}
+                            clickTip={_("Successfully copied to clipboard!")}
+                            variant="inline-compact"
+                            isCode>
+                {cmd}
+            </ClipboardCopy>
             <Text component={TextVariants.p}>
                 {_("Check that the SHA-256 or SHA-1 hash from the command matches this dialog.")}
             </Text>

@@ -1107,13 +1107,13 @@ const UsersPopover = ({ users }) => {
             bodyContent={
                 <>
                     { services.length > 0
-                        ? <p>
-                            <b>{_("Services using the location")}</b>
+                        ? <>
+                            <p><b>{_("Services using the location")}</b></p>
                             <List>
                                 { services.slice(0, max).map((u, i) => <ListItem key={i}>{u.unit.replace(/\.service$/, "")}</ListItem>) }
                                 { services.length > max ? <ListItem key={max}>...</ListItem> : null }
                             </List>
-                        </p>
+                        </>
                         : null
                     }
                     { services.length > 0 && processes.length > 0
@@ -1121,13 +1121,13 @@ const UsersPopover = ({ users }) => {
                         : null
                     }
                     { processes.length > 0
-                        ? <p>
-                            <b>{_("Processes using the location")}</b>
+                        ? <>
+                            <p><b>{_("Processes using the location")}</b></p>
                             <List>
                                 { processes.slice(0, max).map((u, i) => <ListItem key={i}>{u.comm} (user: {u.user}, pid: {u.pid})</ListItem>) }
                                 { processes.length > max ? <ListItem key={max}>...</ListItem> : null }
                             </List>
-                        </p>
+                        </>
                         : null
                     }
                 </>}>

@@ -411,7 +411,7 @@ class TestKdump(KdumpHelpers):
 @testlib.skipDistroPackage()
 class TestKdumpNFS(KdumpHelpers):
     provision = {
-        "0": {"address": "10.111.113.1/24", "memory_mb": 1024},
+        "0": {"address": "10.111.113.1/24", "memory_mb": 1024, "capture_console": True},
         "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512}
     }
 
@@ -454,11 +454,15 @@ class TestKdumpNFS(KdumpHelpers):
         self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
         self.assertNotIn("\npath", conf)
 
-        self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/var/crash")
+        try:
+            self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/var/crash")
 
-        # dump is done during boot, so should exist now
-        self.assertIn("Kdump compressed dump",
-                      self.machines["nfs"].execute("file /srv/kdump/var/crash/10.111.113.1*/vmcore"))
+            # dump is done during boot, so should exist now
+            self.assertIn("Kdump compressed dump",
+                          self.machines["nfs"].execute("file /srv/kdump/var/crash/10.111.113.1*/vmcore"))
+        except (testlib.Error, AssertionError):
+            self.machine.print_console_log()
+            raise
 
         # set custom path
         self.login_and_go("/kdump")
@@ -483,9 +487,13 @@ class TestKdumpNFS(KdumpHelpers):
 
         b.wait_visible(".pf-v5-c-switch__input:checked")
 
-        self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/dumps")
-        self.assertIn("Kdump compressed dump",
-                      self.machines["nfs"].execute("file /srv/kdump/dumps/10.111.113.1*/vmcore"))
+        try:
+            self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/dumps")
+            self.assertIn("Kdump compressed dump",
+                          self.machines["nfs"].execute("file /srv/kdump/dumps/10.111.113.1*/vmcore"))
+        except (testlib.Error, AssertionError):
+            self.machine.print_console_log()
+            raise
 
 
 if __name__ == '__main__':

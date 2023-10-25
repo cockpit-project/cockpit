@@ -27,14 +27,9 @@ class KdumpHelpers(testlib.MachineCase):
         self.allow_restart_journal_messages()
 
     def enableKdump(self):
-        # all current Fedora/CentOS/RHEL images use BootLoaderSpec
-        if self.machine.image == "fedora-38":
-            self.machine.execute("grubby --args=crashkernel=192M --update-kernel=ALL")
+        if self.machine.image.startswith("fedora"):
+            self.machine.execute("systemctl enable kdump; kdumpctl reset-crashkernel")
             self.machine.reboot()
-
-            self.machine.start_cockpit()
-            self.browser.switch_to_top()
-            self.browser.relogin("/kdump")
 
     def crashKernel(self, message, cancel=False):
         b = self.browser
@@ -72,11 +67,6 @@ class TestKdump(KdumpHelpers):
         m = self.machine
 
         b.wait_timeout(120)
-        if m.image.startswith("fedora"):
-            m.execute("systemctl enable --now kdump")
-        else:
-            m.execute("until systemctl is-active kdump; do sleep 1; done")
-
         self.login_and_go("/kdump")
 
         b.wait_visible("#app")
@@ -84,8 +74,8 @@ class TestKdump(KdumpHelpers):
         def assertActive(active):
             b.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
-        if m.image in ["fedora-38"]:
-            # crashkernel command line not set
+        if m.image.startswith("fedora"):
+            # crashkernel command line not set, needs to be explicitly enabled in Fedora
             b.wait_visible(".pf-v5-c-switch__input:disabled")
             # right now we have no memory reserved
             b.mouse("span + div > .popover-ct-kdump", "mouseenter")
@@ -107,15 +97,19 @@ class TestKdump(KdumpHelpers):
             b.mouse("button:contains(Test configuration)", "mouseenter")
             b.wait_in_text(".pf-v5-c-tooltip", "kdump service")
             b.mouse("button:contains(Test configuration)", "mouseleave")
+
+            # enable it
+            self.enableKdump()
+            self.login_and_go("/kdump")
         else:
-            # most OSes have a default crashkernel=
+            # enabled by default in RHEL
+            m.execute("until systemctl is-active kdump; do sleep 1; done")
             b.wait_in_text("#app", "Service is running")
             assertActive(active=True)
 
         # there shouldn't be any crash reports in the target directory
         self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
 
-        self.enableKdump()
         b.wait_visible("#app")
         self.enableLocalSsh()
 
@@ -157,7 +151,6 @@ class TestKdump(KdumpHelpers):
         # we should have the amount of memory reserved that crashkernel=auto defaults to for our VM RAM size
         b.wait_in_text("#app", "192 MiB")
         # service should start up properly and the button should be on
-        b.wait_in_text("#app", "Service is running")
         assertActive(active=True)
         b.wait_in_text("#app", "Service is running")
         b.wait_text("#kdump-change-target", "Remote over SSH")
@@ -427,8 +420,10 @@ class TestKdumpNFS(KdumpHelpers):
         self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
 
         # set up client machine
-        self.login_and_go("/kdump")
         self.enableKdump()
+        self.login_and_go("/kdump")
+        with b.wait_timeout(120):  # needs to rebuild initrd
+            b.wait_in_text("#app", "Service is running")
 
         # switch to NFS
         b.click("#kdump-change-target")
@@ -440,14 +435,6 @@ class TestKdumpNFS(KdumpHelpers):
         # rebuilding initrd might take a while on busy CI machines
         with b.wait_timeout(300):
             b.wait_not_present("#kdump-settings-dialog")
-
-        # enable service, regenerates initrd and tests NFS settings
-        if m.image.startswith("fedora"):
-            b.wait_visible(".pf-v5-c-switch__input:not(:checked)")
-            b.click(".pf-v5-c-switch__input")
-            with b.wait_timeout(300):
-                b.wait_visible(".pf-v5-c-switch__input:checked")
-        b.wait_in_text("#app", "Service is running")
 
         # explicit nfs option, unset path
         conf = m.execute("cat /etc/kdump.conf")

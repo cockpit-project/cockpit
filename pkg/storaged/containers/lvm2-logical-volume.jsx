@@ -96,9 +96,23 @@ function repair(lvol) {
 
 export function make_lvm2_logical_volume_container(parent, vgroup, lvol, block) {
     const unused_space_warning = check_unused_space(block.path);
+    const unused_space = !!unused_space_warning;
     const status_code = client.lvols_status[lvol.path];
-    let repair_action = null;
+    const pool = client.lvols[lvol.ThinPool];
 
+    let { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, unused_space);
+
+    if (!unused_space && !grow_excuse && !pool && vgroup.FreeSize == 0) {
+        grow_excuse = (
+            <div>
+                {_("Not enough space to grow.")}
+                <br />
+                {_("Free up space in this group: Shrink or delete other logical volumes or add another physical volume.")}
+            </div>
+        );
+    }
+
+    let repair_action = null;
     if (status_code == "degraded" || status_code == "degraded-maybe-partial")
         repair_action = { title: _("Repair"), action: () => repair(lvol) };
 
@@ -112,6 +126,18 @@ export function make_lvm2_logical_volume_container(parent, vgroup, lvol, block) 
         component: LVM2LogicalVolumeContainer,
         props: { vgroup, lvol, block, unused_space_warning },
         actions: [
+            (!unused_space &&
+             {
+                 title: _("Shrink"),
+                 action: () => shrink_dialog(client, lvol, info),
+                 excuse: shrink_excuse,
+             }),
+            (!unused_space &&
+             {
+                 title: _("Grow"),
+                 action: () => grow_dialog(client, lvol, info),
+                 excuse: grow_excuse,
+             }),
             { title: _("Deactivate"), action: () => lvol.Deactivate({}) },
             lvm2_create_snapshot_action(lvol),
             repair_action,
@@ -121,21 +147,8 @@ export function make_lvm2_logical_volume_container(parent, vgroup, lvol, block) 
     return cont;
 }
 
-const LVM2LogicalVolumeContainer = ({ container, vgroup, lvol, block, unused_space_warning }) => {
-    const pool = client.lvols[lvol.ThinPool];
+const LVM2LogicalVolumeContainer = ({ container, vgroup, lvol, block, unused_space_warning, resize_info }) => {
     const unused_space = !!unused_space_warning;
-
-    let { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, unused_space);
-
-    if (!unused_space && !grow_excuse && !pool && vgroup.FreeSize == 0) {
-        grow_excuse = (
-            <div>
-                {_("Not enough space to grow.")}
-                <br />
-                {_("Free up space in this group: Shrink or delete other logical volumes or add another physical volume.")}
-            </div>
-        );
-    }
 
     function rename() {
         dialog_open({
@@ -154,12 +167,12 @@ const LVM2LogicalVolumeContainer = ({ container, vgroup, lvol, block, unused_spa
         });
     }
 
-    function shrink() {
-        return shrink_dialog(client, lvol, info, unused_space);
+    function shrink_to_fit() {
+        return shrink_dialog(client, lvol, resize_info, true);
     }
 
-    function grow() {
-        return grow_dialog(client, lvol, info, unused_space);
+    function grow_to_fit() {
+        return grow_dialog(client, lvol, resize_info, true);
     }
 
     const layout_desc = {
@@ -192,13 +205,7 @@ const LVM2LogicalVolumeContainer = ({ container, vgroup, lvol, block, unused_spa
                     }
                     <StructureDescription client={client} lvol={lvol} />
                     { !unused_space &&
-                    <SDesc title={_("Size")}>
-                        {fmt_size(lvol.Size)}
-                        <div className="tab-row-actions">
-                            <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
-                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
-                        </div>
-                    </SDesc>
+                    <SDesc title={_("Size")} value={fmt_size(lvol.Size)} />
                     }
                 </DescriptionList>
                 { unused_space &&
@@ -211,8 +218,8 @@ const LVM2LogicalVolumeContainer = ({ container, vgroup, lvol, block, unused_spa
                                         fmt_size(unused_space_warning.volume_size),
                                         fmt_size(unused_space_warning.content_size))}
                         <div className='storage_alert_action_buttons'>
-                            <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink volume")}</StorageButton>
-                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow content")}</StorageButton>
+                            <StorageButton onClick={shrink_to_fit}>{_("Shrink volume")}</StorageButton>
+                            <StorageButton onClick={grow_to_fit}>{_("Grow content")}</StorageButton>
                         </div>
                     </Alert>
                 </>

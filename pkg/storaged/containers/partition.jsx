@@ -68,36 +68,53 @@ export function delete_partition(block, page) {
 }
 
 export function make_partition_container(parent, block) {
+    const block_part = client.blocks_part[block.path];
     const unused_space_warning = check_unused_space(block.path);
+    const unused_space = !!unused_space_warning;
+    let { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, unused_space);
+
+    if (!unused_space_warning && !grow_excuse && free_space_after_part(client, block_part) == 0) {
+        grow_excuse = _("No free space after this partition");
+    }
 
     const cont = new_container({
         stored_on_format: _("Partition of $0"),
         has_warning: !!unused_space_warning,
         component: PartitionContainer,
-        props: { block, unused_space_warning },
+        props: { block, unused_space_warning, resize_info: info },
         actions: [
-            { title: _("Delete"), action: () => delete_partition(block, cont.page), danger: true },
+            (!unused_space &&
+             {
+                 title: _("Shrink"),
+                 action: () => shrink_dialog(client, block_part, info),
+                 excuse: shrink_excuse,
+             }),
+            (!unused_space &&
+             {
+                 title: _("Grow"),
+                 action: () => grow_dialog(client, block_part, info),
+                 excuse: grow_excuse,
+             }),
+            {
+                title: _("Delete"),
+                action: () => delete_partition(block, cont.page),
+                danger: true
+            },
         ],
     });
     return cont;
 }
 
-const PartitionContainer = ({ container, block, unused_space_warning }) => {
+const PartitionContainer = ({ container, block, unused_space_warning, resize_info }) => {
     const block_part = client.blocks_part[block.path];
     const unused_space = !!unused_space_warning;
 
-    let { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, unused_space);
-
-    if (!unused_space && !grow_excuse && free_space_after_part(client, block_part) == 0) {
-        grow_excuse = _("No free space after this partition");
+    function shrink_to_fit() {
+        return shrink_dialog(client, block_part, resize_info, true);
     }
 
-    function shrink() {
-        return shrink_dialog(client, block_part, info, unused_space);
-    }
-
-    function grow() {
-        return grow_dialog(client, block_part, info, unused_space);
+    function grow_to_fit() {
+        return grow_dialog(client, block_part, resize_info, true);
     }
 
     return (
@@ -106,17 +123,7 @@ const PartitionContainer = ({ container, block, unused_space_warning }) => {
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     <SDesc title={_("Name")} value={block_part.Name || "-"} />
                     { !unused_space &&
-                    <SDesc title={_("Size")}>
-                        {fmt_size(block_part.Size)}
-                        <div className="tab-row-actions">
-                            <StorageButton excuse={shrink_excuse} onClick={shrink}>
-                                {_("Shrink")}
-                            </StorageButton>
-                            <StorageButton excuse={grow_excuse} onClick={grow}>
-                                {_("Grow")}
-                            </StorageButton>
-                        </div>
-                    </SDesc>
+                    <SDesc title={_("Size")} value={fmt_size(block_part.Size)} />
                     }
                     <SDesc title={_("UUID")} value={block_part.UUID} />
                     <SDesc title={_("Type")} value={block_part.Type} />
@@ -131,10 +138,10 @@ const PartitionContainer = ({ container, block, unused_space_warning }) => {
                                         fmt_size(unused_space_warning.volume_size),
                                         fmt_size(unused_space_warning.content_size))}
                         <div className='storage_alert_action_buttons'>
-                            <StorageButton excuse={shrink_excuse} onClick={shrink}>
+                            <StorageButton onClick={shrink_to_fit}>
                                 {_("Shrink partition")}
                             </StorageButton>
-                            <StorageButton excuse={grow_excuse} onClick={grow}>
+                            <StorageButton onClick={grow_to_fit}>
                                 {_("Grow content")}
                             </StorageButton>
                         </div>

@@ -24,7 +24,6 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 import { StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { ListingTable } from "cockpit-components-table.jsx";
-import { DropdownSeparator } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { ExclamationTriangleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { SCard } from "./utils/card.jsx";
@@ -175,10 +174,10 @@ function make_page_kebab(page) {
     function add_actions(actions) {
         if (!actions)
             return;
-        if (items.length > 0)
-            items.push(<DropdownSeparator key={items.length} />);
-        for (const a of actions)
-            items.push(make_menu_item(a));
+        for (const a of actions) {
+            if (!a.danger && !a.excuse)
+                items.push(make_menu_item(a));
+        }
     }
 
     add_actions(page.actions);
@@ -201,15 +200,17 @@ function make_actions_kebab(actions) {
     return <StorageBarMenu menuItems={actions.map(make_menu_item)} isKebab />;
 }
 
-export const ActionButtons = ({ page, container }) => {
+export const ActionButtons = ({ page, container, tag }) => {
     const actions = page ? page.actions : container.actions;
     if (!actions)
         return null;
 
-    return actions.map(a =>
-        <StorageButton key={a.title} onClick={a.action} kind={a.danger ? "danger" : null} excuse={a.excuse}>
-            {a.title}
-        </StorageButton>);
+    return actions
+            .filter(a => !tag || a.tag == tag)
+            .map(a =>
+                <StorageButton key={a.title} onClick={a.action} kind={a.danger ? "danger" : null} excuse={a.excuse}>
+                    {a.title}
+                </StorageButton>);
 };
 
 export function page_type(page) {

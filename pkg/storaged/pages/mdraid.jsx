@@ -146,14 +146,56 @@ function start_stop_action(mdraid) {
         running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
 
     if (running)
-        return { title: _("Stop"), action: () => mdraid_stop(mdraid) };
+        return { title: _("Stop"), action: () => mdraid_stop(mdraid), tag: "device" };
     else
-        return { title: _("Start"), action: () => mdraid_start(mdraid) };
+        return { title: _("Start"), action: () => mdraid_start(mdraid), tag: "device" };
+}
+
+function add_disk(mdraid) {
+    function filter_inside_mdraid(spc) {
+        let block = spc.block;
+        if (client.blocks_part[block.path])
+            block = client.blocks[client.blocks_part[block.path].Table];
+        return block && block.MDRaid != mdraid.path;
+    }
+
+    function rescan(path) {
+        // mdraid often forgets to trigger udev, let's do it explicitly
+        return client.wait_for(() => client.blocks[path]).then(block => block.Rescan({ }));
+    }
+
+    dialog_open({
+        Title: _("Add disks"),
+        Fields: [
+            SelectSpaces("disks", _("Disks"),
+                         {
+                             empty_warning: _("No disks are available."),
+                             validate: function (disks) {
+                                 if (disks.length === 0)
+                                     return _("At least one disk is needed.");
+                             },
+                             spaces: get_available_spaces(client).filter(filter_inside_mdraid)
+                         })
+        ],
+        Action: {
+            Title: _("Add"),
+            action: function(vals) {
+                return prepare_available_spaces(client, vals.disks).then(paths =>
+                    Promise.all(paths.map(p => mdraid.AddDevice(p, {}).then(() => rescan(p)))));
+            }
+        }
+    });
 }
 
 export function make_mdraid_page(parent, mdraid) {
     const block = client.mdraids_block[mdraid.path];
 
+    /* Older versions of Udisks/storaged don't have a Running property */
+    let running = mdraid.Running;
+    if (running === undefined)
+        running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
+
+    // XXX - set has_warning appropriately
     const p = new_page({
         location: ["mdraid", mdraid.UUID],
         parent,
@@ -164,10 +206,29 @@ export function make_mdraid_page(parent, mdraid) {
             fmt_size(mdraid.Size),
         ],
         component: MDRaidPage,
-        props: { mdraid, block },
+        props: { mdraid, block, running },
         actions: [
+            (mdraid.Level != "raid0" &&
+             {
+                 title: _("Add disk"),
+                 action: () => add_disk(mdraid),
+                 excuse: !running && _("The RAID device must be running in order to add spare disks."),
+                 tag: "disks",
+             }),
+            (block &&
+             {
+                 title: _("Create partition table"),
+                 action: () => format_disk(client, block),
+                 excuse: block.ReadOnly ? _("Device is read-only") : null,
+                 tag: "content",
+             }),
             start_stop_action(mdraid),
-            { title: _("Delete"), action: () => mdraid_delete(mdraid, block), danger: true },
+            {
+                title: _("Delete"),
+                action: () => mdraid_delete(mdraid, block),
+                danger: true,
+                tag: "device",
+            },
         ],
     });
 
@@ -175,7 +236,7 @@ export function make_mdraid_page(parent, mdraid) {
         make_block_pages(p, block);
 }
 
-const MDRaidPage = ({ page, mdraid, block }) => {
+const MDRaidPage = ({ page, mdraid, block, running }) => {
     function format_level(str) {
         return {
             raid0: _("RAID 0"),
@@ -228,80 +289,12 @@ const MDRaidPage = ({ page, mdraid, block }) => {
         );
     }
 
-    /* Older versions of Udisks/storaged don't have a Running property */
-    let running = mdraid.Running;
-    if (running === undefined)
-        running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
-
-    let content = null;
-    if (block) {
-        const is_partitioned = !!client.blocks_ptable[block.path];
-        const actions = (
-            <StorageButton onClick={() => format_disk(client, block)}
-                           excuse={block.ReadOnly ? _("Device is read-only") : null}>
-                {_("Create partition table")}
-            </StorageButton>);
-
-        content = (
-            <StackItem>
-                <PageChildrenCard title={is_partitioned ? _("Partitions") : _("Content")}
-                                  actions={actions} page={page} />
-            </StackItem>);
-    }
-
-    function filter_inside_mdraid(spc) {
-        let block = spc.block;
-        if (client.blocks_part[block.path])
-            block = client.blocks[client.blocks_part[block.path].Table];
-        return block && block.MDRaid != mdraid.path;
-    }
-
-    function rescan(path) {
-        // mdraid often forgets to trigger udev, let's do it explicitly
-        return client.wait_for(() => client.blocks[path]).then(block => block.Rescan({ }));
-    }
-
-    function add_disk() {
-        dialog_open({
-            Title: _("Add disks"),
-            Fields: [
-                SelectSpaces("disks", _("Disks"),
-                             {
-                                 empty_warning: _("No disks are available."),
-                                 validate: function (disks) {
-                                     if (disks.length === 0)
-                                         return _("At least one disk is needed.");
-                                 },
-                                 spaces: get_available_spaces(client).filter(filter_inside_mdraid)
-                             })
-            ],
-            Action: {
-                Title: _("Add"),
-                action: function(vals) {
-                    return prepare_available_spaces(client, vals.disks).then(paths =>
-                        Promise.all(paths.map(p => mdraid.AddDevice(p, {}).then(() => rescan(p)))));
-                }
-            }
-        });
-    }
-
-    let add_excuse = false;
-    if (!running)
-        add_excuse = _("The RAID device must be running in order to add spare disks.");
-
-    let add_action = null;
-    if (mdraid.Level != "raid0")
-        add_action = (
-            <StorageButton ariaLabel={_("Add")} onClick={add_disk} excuse={add_excuse}>
-                {_("Add disk")}
-            </StorageButton>);
-
     return (
         <Stack hasGutter>
             {bitmap_message}
             {degraded_message}
             <StackItem>
-                <SCard title={page_type(page)} actions={<ActionButtons page={page} />}>
+                <SCard title={page_type(page)} actions={<ActionButtons page={page} tag="device" />}>
                     <CardBody>
                         <DescriptionList className="pf-m-horizontal-on-sm">
                             <SDesc title={_("Device")} value={block ? decode_filename(block.PreferredDevice) : "-"} />
@@ -315,9 +308,16 @@ const MDRaidPage = ({ page, mdraid, block }) => {
             </StackItem>
             <StackItem>
                 <PageCrossrefCard title={_("Disks")}
-                                  actions={add_action} crossrefs={get_crossrefs(mdraid)} />
+                                  actions={<ActionButtons page={page} tag="disks" />}
+                                  crossrefs={get_crossrefs(mdraid)} />
             </StackItem>
-            { content }
+            { block &&
+            <StackItem>
+                <PageChildrenCard title={client.blocks_ptable[block.path] ? _("Partitions") : _("Content")}
+                                    actions={<ActionButtons page={page} tag="content" />}
+                                    page={page} />
+            </StackItem>
+            }
         </Stack>
     );
 };

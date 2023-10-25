@@ -27,8 +27,7 @@ import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/
 
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
-import { StorageButton } from "../storage-controls.jsx";
-import { PageChildrenCard, new_page, page_type, block_location } from "../pages.jsx";
+import { PageChildrenCard, ActionButtons, new_page, page_type, block_location } from "../pages.jsx";
 import { block_name, fmt_size } from "../utils.js";
 import { format_disk } from "../content-views.jsx"; // XXX
 
@@ -46,6 +45,13 @@ export function make_other_page(parent, block) {
             block_name(block),
             fmt_size(block.Size)
         ],
+        actions: [
+            {
+                title: _("Create partition table"),
+                action: () => format_disk(client, block),
+                excuse: block.ReadOnly ? _("Device is read-only") : null,
+            },
+        ],
         component: OtherPage,
         props: { block }
     });
@@ -54,14 +60,6 @@ export function make_other_page(parent, block) {
 }
 
 const OtherPage = ({ page, block }) => {
-    const is_partitioned = !!client.blocks_ptable[block.path];
-
-    const actions =
-        <StorageButton onClick={() => format_disk(client, block)}
-                       excuse={block.ReadOnly ? _("Device is read-only") : null}>
-            {_("Create partition table")}
-        </StorageButton>;
-
     return (
         <Stack hasGutter>
             <StackItem>
@@ -76,8 +74,9 @@ const OtherPage = ({ page, block }) => {
                 </SCard>
             </StackItem>
             <StackItem>
-                <PageChildrenCard title={is_partitioned ? _("Partitions") : _("Content")}
-                                  actions={actions} page={page} />
+                <PageChildrenCard title={client.blocks_ptable[block.path] ? _("Partitions") : _("Content")}
+                                  actions={<ActionButtons page={page} />}
+                                  page={page} />
             </StackItem>
         </Stack>
     );

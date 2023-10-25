@@ -24,7 +24,6 @@ import client from "../client";
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
-import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
 import {
     ParentPageLink, PageChildrenCard,
@@ -36,7 +35,6 @@ import {
 } from "../dialog.jsx";
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
-import { StorageLink, StorageButton } from "../storage-controls.jsx";
 import { grow_dialog } from "../resize.jsx";
 import { next_default_logical_volume_name } from "../content-views.jsx"; // XXX
 import { lvol_rename } from "../lvol-tabs.jsx"; // XXX
@@ -71,6 +69,17 @@ export function make_lvm2_thin_pool_logical_volume_page(parent, vgroup, lvol) {
         });
     }
 
+    let grow_excuse = null;
+    if (vgroup.FreeSize == 0) {
+        grow_excuse = (
+            <div>
+                {_("Not enough space to grow.")}
+                <br />
+                {_("Free up space in this group: Shrink or delete other logical volumes or add another physical volume.")}
+            </div>
+        );
+    }
+
     const p = new_page({
         location: ["vg", vgroup.Name, lvol.Name],
         parent,
@@ -83,8 +92,28 @@ export function make_lvm2_thin_pool_logical_volume_page(parent, vgroup, lvol) {
         component: LVM2ThinPoolLogicalVolumePage,
         props: { vgroup, lvol },
         actions: [
-            { title: _("Create thinly provisioned logical volume"), action: create_thin },
-            { title: _("Delete"), action: () => lvm2_delete_logical_volume_dialog(lvol, p), danger: true },
+            {
+                title: _("Create thinly provisioned logical volume"),
+                action: create_thin,
+                tag: "volumes",
+            },
+            {
+                title: _("Grow"),
+                action: () => grow_dialog(client, lvol, { }),
+                excuse: grow_excuse,
+                tag: "pool",
+            },
+            {
+                title: _("Rename"),
+                action: () => lvol_rename(lvol),
+                tag: "pool",
+            },
+            {
+                title: _("Delete"),
+                action: () => lvm2_delete_logical_volume_dialog(lvol, p),
+                danger: true,
+                tag: "pool",
+            },
         ]
     });
 
@@ -98,48 +127,17 @@ function perc(ratio) {
 }
 
 export const LVM2ThinPoolLogicalVolumePage = ({ page, vgroup, lvol }) => {
-    function grow() {
-        grow_dialog(client, lvol, { });
-    }
-
-    let grow_excuse = null;
-    if (vgroup.FreeSize == 0) {
-        grow_excuse = (
-            <div>
-                {_("Not enough space to grow.")}
-                <br />
-                {_("Free up space in this group: Shrink or delete other logical volumes or add another physical volume.")}
-            </div>
-        );
-    }
-
     return (
         <Stack hasGutter>
             <StackItem>
-                <SCard title={page_type(page)} actions={<ActionButtons page={page} />}>
+                <SCard title={page_type(page)} actions={<ActionButtons page={page} tag="pool" />}>
                     <CardBody>
                         <DescriptionList className="pf-m-horizontal-on-sm">
                             <SDesc title={_("Stored on")}>
                                 <ParentPageLink page={page} />
                             </SDesc>
-                            <SDesc title={_("Name")}>
-                                <Flex>
-                                    <FlexItem>{lvol.Name}</FlexItem>
-                                    <FlexItem>
-                                        <StorageLink onClick={() => lvol_rename(lvol)}>
-                                            {_("edit")}
-                                        </StorageLink>
-                                    </FlexItem>
-                                </Flex>
-                            </SDesc>
-                            <SDesc title={_("Size")}>
-                                {fmt_size(lvol.Size)}
-                                <div className="tab-row-actions">
-                                    <StorageButton onClick={grow} excuse={grow_excuse}>
-                                        {_("Grow")}
-                                    </StorageButton>
-                                </div>
-                            </SDesc>
+                            <SDesc title={_("Name")} value={lvol.Name} />
+                            <SDesc title={_("Size")} value={fmt_size(lvol.Size)} />
                             <SDesc title={_("Data used")} value={perc(lvol.DataAllocatedRatio)} />
                             <SDesc title={_("Metadata used")} value={perc(lvol.MetadataAllocatedRatio)} />
                         </DescriptionList>
@@ -149,7 +147,8 @@ export const LVM2ThinPoolLogicalVolumePage = ({ page, vgroup, lvol }) => {
             <StackItem>
                 <PageChildrenCard title={_("Thinly provisioned logical volumes")}
                                   emptyCaption={_("No logical volumes")}
-                                  actions={null} page={page} />
+                                  actions={<ActionButtons page={page} tag="volumes" />}
+                                  page={page} />
             </StackItem>
         </Stack>);
 };

@@ -28,8 +28,7 @@ import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
-import { StorageButton } from "../storage-controls.jsx";
-import { PageChildrenCard, ParentPageLink, new_page, page_type, block_location } from "../pages.jsx";
+import { PageChildrenCard, ParentPageLink, ActionButtons, new_page, page_type, block_location } from "../pages.jsx";
 import { block_name, drive_name, format_temperature, fmt_size, fmt_size_long } from "../utils.js";
 import { format_disk } from "../content-views.jsx"; // XXX
 
@@ -59,6 +58,17 @@ export function make_drive_page(parent, drive) {
             _("Drive"),
             block_name(block),
             block.Size > 0 ? fmt_size(block.Size) : null
+        ],
+        actions: [
+            (block.Size > 0
+                ? {
+                    title: _("Create partition table"),
+                    action: () => format_disk(client, block),
+                    danger: false, // XXX - mark as dangerous when not "unrecognized data"
+                    excuse: block.ReadOnly ? _("Device is read-only") : null,
+                    tag: "content"
+                }
+                : null)
         ],
         component: DrivePage,
         props: { drive }
@@ -90,12 +100,6 @@ const DrivePage = ({ page, drive }) => {
                 </Flex>
             </SDesc>);
     }
-
-    const actions =
-        <StorageButton onClick={() => format_disk(client, block)}
-                       excuse={block && block.ReadOnly ? _("Device is read-only") : null}>
-            {_("Create partition table")}
-        </StorageButton>;
 
     return (
         <Stack hasGutter>
@@ -132,7 +136,8 @@ const DrivePage = ({ page, drive }) => {
             { block && block.Size > 0
                 ? (<StackItem>
                     <PageChildrenCard title={is_partitioned ? _("Partitions") : _("Content")}
-                                       actions={actions} page={page} />
+                                      actions={<ActionButtons page={page} tag="content" />}
+                                      page={page} />
                 </StackItem>)
                 : null
             }

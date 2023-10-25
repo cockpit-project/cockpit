@@ -163,8 +163,49 @@ function make_logical_volume_pages(parent, vgroup) {
     });
 }
 
+function add_disk(vgroup) {
+    function filter_inside_vgroup(spc) {
+        let block = spc.block;
+        if (client.blocks_part[block.path])
+            block = client.blocks[client.blocks_part[block.path].Table];
+        const lvol = (block &&
+                      client.blocks_lvm2[block.path] &&
+                      client.lvols[client.blocks_lvm2[block.path].LogicalVolume]);
+        return !lvol || lvol.VolumeGroup != vgroup.path;
+    }
+
+    dialog_open({
+        Title: _("Add disks"),
+        Fields: [
+            SelectSpaces("disks", _("Disks"),
+                         {
+                             empty_warning: _("No disks are available."),
+                             validate: function(disks) {
+                                 if (disks.length === 0)
+                                     return _("At least one disk is needed.");
+                             },
+                             spaces: get_available_spaces(client).filter(filter_inside_vgroup)
+                         })
+        ],
+        Action: {
+            Title: _("Add"),
+            action: function(vals) {
+                return prepare_available_spaces(client, vals.disks).then(paths =>
+                    Promise.all(paths.map(p => vgroup.AddDevice(p, {}))));
+            }
+        }
+    });
+}
+
 export function make_lvm2_volume_group_page(parent, vgroup) {
     const has_missing_pvs = vgroup.MissingPhysicalVolumes && vgroup.MissingPhysicalVolumes.length > 0;
+
+    let lvol_excuse = null;
+    if (has_missing_pvs)
+        lvol_excuse = _("New logical volumes can not be created while a volume group is missing physical volumes.");
+    else if (vgroup.FreeSize == 0)
+        lvol_excuse = _("No free space");
+
     const vgroup_page = new_page({
         location: ["vg", vgroup.Name],
         parent,
@@ -179,11 +220,28 @@ export function make_lvm2_volume_group_page(parent, vgroup) {
         props: { vgroup },
         actions: [
             {
+                title: _("Add physical volume"),
+                action: () => add_disk(vgroup),
+                tag: "pvols",
+            },
+            {
+                title: _("Create new logical volume"),
+                action: () => create_logical_volume(client, vgroup),
+                excuse: lvol_excuse,
+                tag: "lvols",
+            },
+            {
                 title: _("Rename"),
                 action: () => vgroup_rename(client, vgroup),
-                excuse: has_missing_pvs && _("A volume group with missing physical volumes can not be renamed.")
+                excuse: has_missing_pvs && _("A volume group with missing physical volumes can not be renamed."),
+                tag: "group",
             },
-            { title: _("Delete"), action: () => vgroup_delete(client, vgroup, parent), danger: true },
+            {
+                title: _("Delete"),
+                action: () => vgroup_delete(client, vgroup, parent),
+                danger: true,
+                tag: "group",
+            },
         ],
     });
 
@@ -278,62 +336,11 @@ const LVM2VolumeGroupPage = ({ page, vgroup }) => {
                 </Alert>
             </StackItem>);
 
-    function filter_inside_vgroup(spc) {
-        let block = spc.block;
-        if (client.blocks_part[block.path])
-            block = client.blocks[client.blocks_part[block.path].Table];
-        const lvol = (block &&
-                      client.blocks_lvm2[block.path] &&
-                      client.lvols[client.blocks_lvm2[block.path].LogicalVolume]);
-        return !lvol || lvol.VolumeGroup != vgroup.path;
-    }
-
-    function add_disk() {
-        dialog_open({
-            Title: _("Add disks"),
-            Fields: [
-                SelectSpaces("disks", _("Disks"),
-                             {
-                                 empty_warning: _("No disks are available."),
-                                 validate: function(disks) {
-                                     if (disks.length === 0)
-                                         return _("At least one disk is needed.");
-                                 },
-                                 spaces: get_available_spaces(client).filter(filter_inside_vgroup)
-                             })
-            ],
-            Action: {
-                Title: _("Add"),
-                action: function(vals) {
-                    return prepare_available_spaces(client, vals.disks).then(paths =>
-                        Promise.all(paths.map(p => vgroup.AddDevice(p, {}))));
-                }
-            }
-        });
-    }
-
-    const pvol_actions = (
-        <StorageButton onClick={add_disk}>
-            {_("Add physical volume")}
-        </StorageButton>);
-
-    let lvol_excuse = null;
-    if (vgroup.MissingPhysicalVolumes && vgroup.MissingPhysicalVolumes.length > 0)
-        lvol_excuse = _("New logical volumes can not be created while a volume group is missing physical volumes.");
-    else if (vgroup.FreeSize == 0)
-        lvol_excuse = _("No free space");
-
-    const lvol_actions = (
-        <StorageButton onClick={() => create_logical_volume(client, vgroup)}
-                       excuse={lvol_excuse}>
-            {_("Create new logical volume")}
-        </StorageButton>);
-
     return (
         <Stack hasGutter>
             {alert}
             <StackItem>
-                <SCard title={page_type(page)} actions={<ActionButtons page={page} />}>
+                <SCard title={page_type(page)} actions={<ActionButtons page={page} tag="group" />}>
                     <CardBody>
                         <DescriptionList className="pf-m-horizontal-on-sm">
                             <SDesc title={_("Name")} value={vgroup.Name} />
@@ -345,12 +352,14 @@ const LVM2VolumeGroupPage = ({ page, vgroup }) => {
             </StackItem>
             <StackItem>
                 <PageCrossrefCard title={_("Physical volumes")}
-                                  actions={pvol_actions} crossrefs={get_crossrefs(vgroup)} />
+                                  actions={<ActionButtons page={page} tag="pvols" />}
+                                  crossrefs={get_crossrefs(vgroup)} />
             </StackItem>
             <StackItem>
                 <PageChildrenCard title={_("Logical volumes")}
                                   emptyCaption={_("No logical volumes")}
-                                  actions={lvol_actions} page={page} />
+                                  actions={<ActionButtons page={page} tag="lvols" />}
+                                  page={page} />
             </StackItem>
         </Stack>
     );

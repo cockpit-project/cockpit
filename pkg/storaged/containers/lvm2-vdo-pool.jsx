@@ -23,7 +23,7 @@ import client from "../client";
 
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { StorageButton, StorageOnOff } from "../storage-controls.jsx";
+import { StorageOnOff } from "../storage-controls.jsx";
 
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
@@ -46,16 +46,16 @@ export function make_lvm2_vdo_pool_container(parent, vgroup, lvol) {
         component: LVM2VDOPoolContainer,
         props: { vgroup, lvol, vdo_iface, vdo_pool_vol },
         actions: [
+            {
+                title: _("Grow"),
+                action: () => grow_dialog(client, vdo_pool_vol, { }),
+            }
         ],
     });
     return cont;
 }
 
 const LVM2VDOPoolContainer = ({ container, vgroup, lvol, vdo_iface, vdo_pool_vol }) => {
-    function grow() {
-        grow_dialog(client, vdo_pool_vol, { });
-    }
-
     function toggle_compression() {
         const new_state = !vdo_iface.Compression;
         return vdo_iface.EnableCompression(new_state, {})
@@ -79,12 +79,7 @@ const LVM2VDOPoolContainer = ({ container, vgroup, lvol, vdo_iface, vdo_pool_vol
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     <SDesc title={_("Name")} value={vdo_pool_vol.Name} />
-                    <SDesc title={_("Size")}>
-                        {fmt_size(vdo_pool_vol.Size)}
-                        <div className="tab-row-actions">
-                            <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
-                        </div>
-                    </SDesc>
+                    <SDesc title={_("Size")} value={fmt_size(vdo_pool_vol.Size)} />
                     <SDesc title={_("Data used")}>
                         {fmt_size(vdo_iface.UsedSize)} ({used_pct})
                     </SDesc>

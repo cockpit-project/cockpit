@@ -284,6 +284,69 @@ function rename_pool(pool) {
     });
 }
 
+function add_disks(pool) {
+    const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
+
+    with_keydesc(client, pool, (keydesc, keydesc_set) => {
+        const ask_passphrase = keydesc && !keydesc_set;
+
+        dialog_open({
+            Title: _("Add block devices"),
+            Fields: [
+                SelectOne("tier", _("Tier"),
+                          {
+                              choices: [
+                                  { value: "data", title: _("Data") },
+                                  {
+                                      value: "cache",
+                                      title: _("Cache"),
+                                      disabled: pool.Encrypted && !client.features.stratis_encrypted_caches
+                                  }
+                              ]
+                          }),
+                PassInput("passphrase", _("Passphrase"),
+                          {
+                              visible: () => ask_passphrase,
+                              validate: val => !val.length && _("Passphrase cannot be empty"),
+                          }),
+                SelectSpaces("disks", _("Block devices"),
+                             {
+                                 empty_warning: _("No disks are available."),
+                                 validate: function(disks) {
+                                     if (disks.length === 0)
+                                         return _("At least one disk is needed.");
+                                 },
+                                 spaces: get_available_spaces(client)
+                             })
+            ],
+            Action: {
+                Title: _("Add"),
+                action: function(vals) {
+                    return prepare_available_spaces(client, vals.disks)
+                            .then(paths => {
+                                const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
+
+                                function add() {
+                                    if (vals.tier == "data") {
+                                        return pool.AddDataDevs(devs).then(std_reply);
+                                    } else if (vals.tier == "cache") {
+                                        const has_cache = blockdevs.some(bd => bd.Tier == 1);
+                                        const method = has_cache ? "AddCacheDevs" : "InitCache";
+                                        return pool[method](devs).then(std_reply);
+                                    }
+                                }
+
+                                if (ask_passphrase) {
+                                    return with_stored_passphrase(client, keydesc, vals.passphrase, add);
+                                } else
+                                    return add();
+                            });
+                }
+            }
+        });
+    });
+}
+
 function make_stratis_filesystem_pages(parent, pool) {
     const filesystems = client.stratis_pool_filesystems[pool.path];
     const stats = client.stratis_pool_stats[pool.path];
@@ -302,6 +365,8 @@ export function make_stratis_pool_page(parent, pool) {
     const can_grow =
           (client.features.stratis_grow_blockdevs &&
            blockdevs.some(bd => bd.NewPhysicalSize[0] && Number(bd.NewPhysicalSize[1]) > Number(bd.TotalPhysicalSize)));
+    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
+    const stats = client.stratis_pool_stats[pool.path];
 
     const p = new_page({
         location: ["pool", pool.Uuid],
@@ -314,17 +379,39 @@ export function make_stratis_pool_page(parent, pool) {
         ],
         has_warning: degraded_ops || can_grow,
         component: StratisPoolPage,
-        props: { pool, degraded_ops, can_grow },
+        props: { pool, degraded_ops, can_grow, managed_fsys_sizes, stats },
         actions: [
-            { title: _("Rename"), action: () => rename_pool(pool), },
-            { title: _("Delete"), action: () => delete_pool(pool), danger: true },
+            {
+                title: _("Add block devices"),
+                action: () => add_disks(pool),
+                tag: "blockdevs",
+            },
+            {
+                title: _("Create new filesystem"),
+                action: () => create_fs(pool),
+                excuse: (managed_fsys_sizes && stats.pool_free < fsys_min_size
+                    ? _("Not enough space for new filesystems")
+                    : null),
+                tag: "fsys"
+            },
+            {
+                title: _("Rename"),
+                action: () => rename_pool(pool),
+                tag: "pool",
+            },
+            {
+                title: _("Delete"),
+                action: () => delete_pool(pool),
+                danger: true,
+                tag: "pool",
+            },
         ],
     });
 
     make_stratis_filesystem_pages(p, pool);
 }
 
-const StratisPoolPage = ({ page, pool, degraded_ops, can_grow }) => {
+const StratisPoolPage = ({ page, pool, degraded_ops, can_grow, managed_fsys_sizes, stats }) => {
     const key_desc = (pool.Encrypted &&
                       pool.KeyDescription[0] &&
                       pool.KeyDescription[1][1]);
@@ -334,8 +421,6 @@ const StratisPoolPage = ({ page, pool, degraded_ops, can_grow }) => {
                       (!pool.ClevisInfo[1][0] || pool.ClevisInfo[1][1][0] == "tang")); // not bound or bound to "tang"
     const tang_url = can_tang && pool.ClevisInfo[1][0] ? JSON.parse(pool.ClevisInfo[1][1][1]).url : null;
     const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
-    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
-    const stats = client.stratis_pool_stats[pool.path];
 
     function grow_blockdevs() {
         return for_each_async(blockdevs, bd => pool.GrowPhysicalDevice(bd.Uuid));
@@ -508,85 +593,11 @@ const StratisPoolPage = ({ page, pool, degraded_ops, can_grow }) => {
 
     const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
 
-    const fsys_actions = (
-        <StorageButton onClick={() => create_fs(pool)}
-                       excuse={managed_fsys_sizes && stats.pool_free < fsys_min_size
-                           ? _("Not enough space for new filesystems")
-                           : null}>
-            {_("Create new filesystem")}
-        </StorageButton>);
-
-    function add_disks() {
-        with_keydesc(client, pool, (keydesc, keydesc_set) => {
-            const ask_passphrase = keydesc && !keydesc_set;
-
-            dialog_open({
-                Title: _("Add block devices"),
-                Fields: [
-                    SelectOne("tier", _("Tier"),
-                              {
-                                  choices: [
-                                      { value: "data", title: _("Data") },
-                                      {
-                                          value: "cache",
-                                          title: _("Cache"),
-                                          disabled: pool.Encrypted && !client.features.stratis_encrypted_caches
-                                      }
-                                  ]
-                              }),
-                    PassInput("passphrase", _("Passphrase"),
-                              {
-                                  visible: () => ask_passphrase,
-                                  validate: val => !val.length && _("Passphrase cannot be empty"),
-                              }),
-                    SelectSpaces("disks", _("Block devices"),
-                                 {
-                                     empty_warning: _("No disks are available."),
-                                     validate: function(disks) {
-                                         if (disks.length === 0)
-                                             return _("At least one disk is needed.");
-                                     },
-                                     spaces: get_available_spaces(client)
-                                 })
-                ],
-                Action: {
-                    Title: _("Add"),
-                    action: function(vals) {
-                        return prepare_available_spaces(client, vals.disks)
-                                .then(paths => {
-                                    const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
-
-                                    function add() {
-                                        if (vals.tier == "data") {
-                                            return pool.AddDataDevs(devs).then(std_reply);
-                                        } else if (vals.tier == "cache") {
-                                            const has_cache = blockdevs.some(bd => bd.Tier == 1);
-                                            const method = has_cache ? "AddCacheDevs" : "InitCache";
-                                            return pool[method](devs).then(std_reply);
-                                        }
-                                    }
-
-                                    if (ask_passphrase) {
-                                        return with_stored_passphrase(client, keydesc, vals.passphrase, add);
-                                    } else
-                                        return add();
-                                });
-                    }
-                }
-            });
-        });
-    }
-
-    const blockdev_actions = (
-        <StorageButton onClick={add_disks}>
-            {_("Add block devices")}
-        </StorageButton>);
-
     return (
         <Stack hasGutter>
             {alerts}
             <StackItem>
-                <SCard title={page_type(page)} actions={<ActionButtons page={page} />}>
+                <SCard title={page_type(page)} actions={<ActionButtons page={page} tag="pool" />}>
                     <CardBody>
                         <DescriptionList className="pf-m-horizontal-on-sm">
                             <SDesc title={_("Name")} value={pool.Name} />
@@ -638,12 +649,14 @@ const StratisPoolPage = ({ page, pool, degraded_ops, can_grow }) => {
             </StackItem>
             <StackItem>
                 <PageCrossrefCard title={_("Block devices")}
-                                  actions={blockdev_actions} crossrefs={get_crossrefs(pool)} />
+                                  actions={<ActionButtons page={page} tag="blockdevs" />}
+                                  crossrefs={get_crossrefs(pool)} />
             </StackItem>
             <StackItem>
                 <PageChildrenCard title={_("Filesystems")}
                                   emptyCaption={_("No filesystems")}
-                                  actions={fsys_actions} page={page} />
+                                  actions={<ActionButtons page={page} tag="fsys" />}
+                                  page={page} />
             </StackItem>
         </Stack>
     );

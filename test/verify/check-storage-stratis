@@ -36,12 +36,18 @@ class TestStorageStratis(storagelib.StorageCase):
 
         self.stratis_v2 = self.image.startswith("rhel-8") or self.image == "centos-8-stream"
 
+        # the CLI changed in an incompatible way in Fedora 40
+        if '--name' in exe("stratis pool stop --help"):
+            self.stop_type_opt = "--name"
+        else:
+            self.stop_type_opt = ""
+
         self.addCleanup(exe,
                         "stratis report | jq -r '.pools[] | .name' |"
                         "xargs -n1 --no-run-if-empty stratis pool destroy")
         self.addCleanup(exe,
                         "stratis report | jq -r '.pools[] | .name' |"
-                        "xargs -n1 --no-run-if-empty stratis pool stop")
+                        f"xargs -n1 --no-run-if-empty stratis pool stop {self.stop_type_opt}")
 
     def testBasic(self):
         m = self.machine
@@ -87,7 +93,7 @@ class TestStorageStratis(storagelib.StorageCase):
         if not self.stratis_v2:
             # Stop the pool (only works with Stratis 3)
             pool_uuid = m.execute("stratis --unhyphenated-uuids pool list --name pool0 | grep ^UUID | cut -d' ' -f2").strip()
-            m.execute("stratis pool stop pool0")
+            m.execute(f"stratis pool stop {self.stop_type_opt} pool0")
             b.wait_in_text(f'.sidepanel-row:contains("{pool_uuid}")', "Stopped Stratis pool")
 
             # Start it
@@ -860,7 +866,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
 
         # Stop the pool and start it again.  This should not ask
         # for the passphrase (since there isn't any)
-        m.execute("stratis pool stop pool0")
+        m.execute(f"stratis pool stop {self.stop_type_opt} pool0")
         b.wait_in_text('#detail-header', "Stopped Stratis pool")
         tang_m.execute("systemctl stop tangd.socket")
         b.click('#detail-header button:contains(Start)')
@@ -882,7 +888,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         self.dialog({'passphrase': "foodeeboodeebar",
                      'passphrase2': "foodeeboodeebar"})
         b.wait_visible('#detail-header .pf-v5-c-description-list__group:contains(Keyserver) button:contains(Remove):not([aria-disabled=true])')
-        m.execute("stratis pool stop pool0")
+        m.execute(f"stratis pool stop {self.stop_type_opt} pool0")
         tang_m.execute("systemctl stop tangd.socket")
         b.click('#detail-header button:contains(Start)')
         self.dialog_wait_open()

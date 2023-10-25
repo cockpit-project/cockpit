@@ -62,28 +62,55 @@ from .jsonutil import (
 logger = logging.getLogger(__name__)
 
 
-def parse_accept_language(headers: JsonObject) -> List[str]:
+# In practice, this is going to get called over and over again with exactly the
+# same list.  Let's try to cache the result.
+@functools.lru_cache()
+def parse_accept_language(accept_language: str) -> Sequence[str]:
     """Parse the Accept-Language header, if it exists.
 
-    Returns an ordered list of languages.
+    Returns an ordered list of languages, with fallbacks inserted, and
+    truncated to the position where 'en' would have otherwise appeared, if
+    applicable.
 
     https://tools.ietf.org/html/rfc7231#section-5.3.5
+    https://datatracker.ietf.org/doc/html/rfc4647#section-3.4
     """
 
-    locales = []
-    for language in get_str(headers, 'Accept-Language', '').split(','):
-        language = language.strip()
-        locale, _, weightstr = language.partition(';q=')
-        weight = float(weightstr or 1)
+    logger.debug('parse_accept_language(%r)', accept_language)
+    locales_with_q = []
+    for entry in accept_language.split(','):
+        entry = entry.strip().lower()
+        logger.debug('  entry %r', entry)
+        locale, _, qstr = entry.partition(';q=')
+        try:
+            q = float(qstr or 1.0)
+        except ValueError:
+            continue  # ignore malformed entry
 
-        # Skip possible empty locales
-        if not locale:
-            continue
+        while locale:
+            logger.debug('    adding %r q=%r', locale, q)
+            locales_with_q.append((locale, q))
+            # strip off '-detail' suffixes until there's nothing left
+            locale, _, _region = locale.rpartition('-')
 
-        # Locales are case-insensitive and we store our list in lowercase
-        locales.append((locale.lower(), weight))
+    # Sort the list by highest q value.  Otherwise, this is a stable sort.
+    locales_with_q.sort(key=lambda pair: pair[1], reverse=True)
+    logger.debug('  sorted list is %r', locales_with_q)
 
-    return [locale for locale, _ in sorted(locales, key=lambda k: k[1], reverse=True)]
+    # If we have 'en' anywhere in our list, ignore it and all items after it.
+    # This will result in us getting an untranslated (ie: English) version if
+    # none of the more-preferred languages are found, which is what we want.
+    # We also take the chance to drop duplicate items.  Note: both of these
+    # things need to happen after sorting.
+    results = []
+    for locale, _q in locales_with_q:
+        if locale == 'en':
+            break
+        if locale not in results:
+            results.append(locale)
+
+    logger.debug('  results list is %r', results)
+    return tuple(results)
 
 
 def sortify_version(version: str) -> str:
@@ -243,21 +270,14 @@ class Package:
 
         return Document(path.open('rb'), content_type, content_encoding, content_security_policy)
 
-    def load_translation(self, path: str, locales: List[str]) -> Document:
+    def load_translation(self, path: str, locales: Sequence[str]) -> Document:
         self.ensure_scanned()
         assert self.translations is not None
 
-        # First check the locales that the user sent
+        # First match wins
         for locale in locales:
             with contextlib.suppress(KeyError):
                 return self.load_file(self.translations[path][locale])
-
-        # Next, check the language-only versions of variant-specified locales
-        for locale in locales:
-            language, _, region = locale.partition('-')
-            if region:
-                with contextlib.suppress(KeyError):
-                    return self.load_file(self.translations[path][language])
 
         # We prefer to return an empty document than 404 in order to avoid
         # errors in the console when a translation can't be found
@@ -269,7 +289,7 @@ class Package:
         assert self.translations is not None
 
         if path in self.translations:
-            locales = parse_accept_language(headers)
+            locales = parse_accept_language(get_str(headers, 'Accept-Language', ''))
             return self.load_translation(path, locales)
         else:
             return self.load_file(self.files[path])
@@ -499,7 +519,7 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         chunks: List[bytes] = []
 
         # Send the translations required for the manifest files, from each package
-        locales = parse_accept_language(headers)
+        locales = parse_accept_language(get_str(headers, 'Accept-Language', ''))
         for name, package in self.packages.items():
             if name in ['static', 'base1']:
                 continue

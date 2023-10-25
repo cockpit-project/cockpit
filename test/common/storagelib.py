@@ -151,7 +151,7 @@ class StorageHelpers:
         col = self.content_row_tbody(row_index) + f" tr:first-child > :nth-child({col_index + 1}"
         wait(lambda: self.browser.is_present(col) and (val in self.browser.text(col) or (alternate_val and alternate_val in self.browser.text(col))))
 
-    def content_dropdown_action(self, index, title):
+    def content_dropdown_action(self, index, title, isExpandable=True):
         dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-v5-c-dropdown"
         btn = dropdown + f" a:contains('{title}')"
 

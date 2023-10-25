@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-from typing import List
 
 import pytest
 
@@ -24,12 +23,26 @@ from cockpit.packages import Packages, parse_accept_language
 
 
 @pytest.mark.parametrize(("test_input", "expected"), [
-    ('de-at, zh-CH, en,', ['de-at', 'zh-ch', 'en']),
-    ('es-es, nl;q=0.8, fr;q=0.9', ['es-es', 'fr', 'nl']),
-    ('fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5', ['fr-ch', 'fr', 'en', 'de', '*'])
+    # correct handles empty values
+    ('', ()),
+    ('  ', ()),
+    (' , ', ()),
+    (' , ,xx', ('xx',)),
+    # english → empty list
+    ('en', ()),
+    ('   , en', ()),
+    # invalid q values get ignored
+    ('aa;q===,bb;q=abc,cc;q=.,zz', ('zz',)),
+    # variant-peeling works
+    ('aa-bb-cc-dd,ee-ff-gg-hh', ('aa-bb-cc-dd', 'aa-bb-cc', 'aa-bb', 'aa', 'ee-ff-gg-hh', 'ee-ff-gg', 'ee-ff', 'ee')),
+    # sorting and english-truncation are working
+    ('fr-ch;q=0.8,es-mx;q=1.0,en-ca;q=0.9', ('es-mx', 'es', 'en-ca')),
+    ('de-at, zh-CN, en,', ('de-at', 'de', 'zh-cn', 'zh')),
+    ('es-es, nl;q=0.8, fr;q=0.9', ('es-es', 'es', 'fr', 'nl')),
+    ('fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5', ('fr-ch', 'fr'))
 ])
-def test_parse_accept_language(test_input: str, expected: List[str]) -> None:
-    assert parse_accept_language({'Accept-Language': test_input}) == expected
+def test_parse_accept_language(test_input: str, expected: 'tuple[str]') -> None:
+    assert parse_accept_language(test_input) == expected
 
 
 @pytest.fixture
@@ -158,6 +171,44 @@ def test_condition_hides_priority(pkgdir):
     assert packages.packages['basic'].manifest['description'] == 'standard package'
     assert packages.packages['basic'].manifest['requires'] == {'cockpit': "42"}
     assert packages.packages['basic'].priority == 1
+
+
+def test_english_translation(pkgdir):
+    make_package(pkgdir, 'one')
+    (pkgdir / 'one' / 'po.de.js').write_text('eins')
+
+    packages = Packages()
+
+    # make sure we get German
+    document = packages.load_path('/one/po.js', {'Accept-Language': 'de'})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b'eins'
+
+    # make sure we get German here (higher q-value) even with English first
+    document = packages.load_path('/one/po.js', {'Accept-Language': 'en;q=0.9, de-ch'})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b'eins'
+
+    # make sure we get the empty ("English") translation, and not German
+    document = packages.load_path('/one/po.js', {'Accept-Language': 'en, de'})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b''
+
+    document = packages.load_path('/one/po.js', {'Accept-Language': 'de;q=0.9, fr;q=0.7, en'})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b''
+
+    document = packages.load_path('/one/po.js', {'Accept-Language': 'de;q=0.9, fr, en-ca'})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b''
+
+    document = packages.load_path('/one/po.js', {'Accept-Language': ''})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b''
+
+    document = packages.load_path('/one/po.js', {})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b''
 
 
 def test_translation(pkgdir):

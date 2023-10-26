@@ -43,9 +43,7 @@ import {
     init_active_usage_processes
 } from "../dialog.jsx";
 
-import { make_block_pages } from "../create-pages.jsx";
-
-import { format_disk } from "../content-views.jsx"; // XXX
+import { partitionable_block_actions, make_partitionable_block_pages } from "./drive.jsx";
 
 const _ = cockpit.gettext;
 
@@ -207,33 +205,27 @@ export function make_mdraid_page(parent, mdraid) {
         ],
         component: MDRaidPage,
         props: { mdraid, block, running },
-        actions: [
-            (mdraid.Level != "raid0" &&
-             {
-                 title: _("Add disk"),
-                 action: () => add_disk(mdraid),
-                 excuse: !running && _("The RAID device must be running in order to add spare disks."),
-                 tag: "disks",
-             }),
-            (block &&
-             {
-                 title: _("Create partition table"),
-                 action: () => format_disk(client, block),
-                 excuse: block.ReadOnly ? _("Device is read-only") : null,
-                 tag: "content",
-             }),
-            start_stop_action(mdraid),
-            {
-                title: _("Delete"),
-                action: () => mdraid_delete(mdraid, block),
-                danger: true,
-                tag: "device",
-            },
-        ],
+        actions: (block ? partitionable_block_actions(block, "content") : [])
+                .concat([
+                    (mdraid.Level != "raid0" &&
+                 {
+                     title: _("Add disk"),
+                     action: () => add_disk(mdraid),
+                     excuse: !running && _("The RAID device must be running in order to add spare disks."),
+                     tag: "disks",
+                 }),
+                    start_stop_action(mdraid),
+                    {
+                        title: _("Delete"),
+                        action: () => mdraid_delete(mdraid, block),
+                        danger: true,
+                        tag: "device",
+                    },
+                ]),
     });
 
     if (block)
-        make_block_pages(p, block);
+        make_partitionable_block_pages(p, block);
 }
 
 const MDRaidPage = ({ page, mdraid, block, running }) => {
@@ -314,8 +306,9 @@ const MDRaidPage = ({ page, mdraid, block, running }) => {
             { block &&
             <StackItem>
                 <PageChildrenCard title={client.blocks_ptable[block.path] ? _("Partitions") : _("Content")}
-                                    actions={<ActionButtons page={page} tag="content" />}
-                                    page={page} />
+                                  actions={<ActionButtons page={page} tag="content" />}
+                                  emptyCaption={_("Device is not formatted")}
+                                  page={page} />
             </StackItem>
             }
         </Stack>

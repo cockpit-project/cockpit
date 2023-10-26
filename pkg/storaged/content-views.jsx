@@ -719,16 +719,16 @@ export function format_disk(client, block) {
         Title: cockpit.format(_("Create partition table on disk $0"), utils.block_name(block)),
         Fields: [
             SelectOneRadioVertical("type", _("Partitioning"),
-                      {
-                          value: "gpt",
-                          choices: [
-                              { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                              {
-                                  value: "gpt",
-                                  title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                              },
-                          ]
-                      }),
+                                   {
+                                       value: "gpt",
+                                       choices: [
+                                           { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
+                                           {
+                                               value: "gpt",
+                                               title: _("Compatible with modern system and hard disks > 2TB (GPT)")
+                                           },
+                                       ]
+                                   }),
         ],
         Action: {
             Title: _("Create"),

@@ -29,9 +29,7 @@ import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
 import { PageChildrenCard, ActionButtons, new_page, page_type, block_location } from "../pages.jsx";
 import { block_name, fmt_size } from "../utils.js";
-import { format_disk } from "../content-views.jsx"; // XXX
-
-import { make_block_pages } from "../create-pages.jsx";
+import { partitionable_block_actions, make_partitionable_block_pages } from "./drive.jsx";
 
 const _ = cockpit.gettext;
 
@@ -45,18 +43,12 @@ export function make_other_page(parent, block) {
             block_name(block),
             fmt_size(block.Size)
         ],
-        actions: [
-            {
-                title: _("Create partition table"),
-                action: () => format_disk(client, block),
-                excuse: block.ReadOnly ? _("Device is read-only") : null,
-            },
-        ],
+        actions: partitionable_block_actions(block),
         component: OtherPage,
         props: { block }
     });
 
-    make_block_pages(p, block, null);
+    make_partitionable_block_pages(p, block);
 }
 
 const OtherPage = ({ page, block }) => {
@@ -76,6 +68,7 @@ const OtherPage = ({ page, block }) => {
             <StackItem>
                 <PageChildrenCard title={client.blocks_ptable[block.path] ? _("Partitions") : _("Content")}
                                   actions={<ActionButtons page={page} />}
+                                  emptyCaption={_("Block device is not formatted")}
                                   page={page} />
             </StackItem>
         </Stack>

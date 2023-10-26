@@ -37,6 +37,46 @@ import { make_block_pages } from "../create-pages.jsx";
 
 const _ = cockpit.gettext;
 
+export function partitionable_block_actions(block, tag) {
+    const is_formatted = !client.blocks_available[block.path];
+    const excuse = block.ReadOnly ? _("Device is read-only") : null;
+
+    return [
+        (is_formatted && block.Size > 0
+            ? {
+                title: _("Erase"),
+                action: () => erase_disk(client, block),
+                danger: true,
+                excuse,
+                tag,
+            }
+            : null),
+        (!is_formatted && block.Size > 0
+            ? {
+                title: _("Format as filesystem"),
+                action: () => format_dialog(client, block.path),
+                excuse,
+                tag
+            }
+            : null),
+        (!is_formatted && block.Size > 0
+            ? {
+                title: _("Create partition table"),
+                action: () => format_disk(client, block),
+                excuse,
+                tag
+            }
+            : null)
+    ];
+}
+
+export function make_partitionable_block_pages(parent, block) {
+    const is_formatted = !client.blocks_available[block.path];
+
+    if (is_formatted)
+        make_block_pages(parent, block, null);
+}
+
 export function make_drive_page(parent, drive) {
     let block = client.drives_block[drive.path];
 
@@ -51,8 +91,6 @@ export function make_drive_page(parent, drive) {
     if (!block)
         return;
 
-    const is_formatted = !client.blocks_available[block.path];
-
     const drive_page = new_page({
         location: ["drive", block_location(block)],
         parent,
@@ -62,39 +100,13 @@ export function make_drive_page(parent, drive) {
             block_name(block),
             block.Size > 0 ? fmt_size(block.Size) : null
         ],
-        actions: [
-            (is_formatted  && block.Size > 0
-             ? {
-                 title: _("Erase"),
-                 action: () => erase_disk(client, block),
-                 danger: true,
-                 excuse: block.ReadOnly ? _("Device is read-only") : null,
-                 tag: "content",
-             }
-             : null),
-            (!is_formatted && block.Size > 0
-             ? {
-                 title: _("Format as filesystem"),
-                 action: () => format_dialog(client, block.path),
-                 excuse: block.ReadOnly ? _("Device is read-only") : null,
-                 tag: "content"
-             }
-             : null),
-            (!is_formatted && block.Size > 0
-             ? {
-                 title: _("Create partition table"),
-                 action: () => format_disk(client, block),
-                 excuse: block.ReadOnly ? _("Device is read-only") : null,
-                    tag: "content"
-             }
-             : null)
-        ],
+        actions: partitionable_block_actions(block, "content"),
         component: DrivePage,
         props: { drive }
     });
 
-    if (is_formatted && block.Size > 0)
-        make_block_pages(drive_page, block, null);
+    if (block.Size > 0)
+        make_partitionable_block_pages(drive_page, block);
 }
 
 const DrivePage = ({ page, drive }) => {

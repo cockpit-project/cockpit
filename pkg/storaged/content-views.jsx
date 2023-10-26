@@ -715,7 +715,37 @@ export function block_content_rows(client, block, options) {
 }
 
 export function format_disk(client, block) {
-    const usage = utils.get_active_usage(client, block.path, _("initialize"), _("delete"));
+    dialog_open({
+        Title: cockpit.format(_("Create partition table on disk $0"), utils.block_name(block)),
+        Fields: [
+            SelectOneRadioVertical("type", _("Partitioning"),
+                      {
+                          value: "gpt",
+                          choices: [
+                              { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
+                              {
+                                  value: "gpt",
+                                  title: _("Compatible with modern system and hard disks > 2TB (GPT)")
+                              },
+                          ]
+                      }),
+        ],
+        Action: {
+            Title: _("Create"),
+            wrapper: job_progress_wrapper(client, block.path),
+            action: async function (vals) {
+                const options = {
+                    'tear-down': { t: 'b', v: true }
+                };
+                await block.Format(vals.type, options);
+                await utils.reload_systemd();
+            }
+        }
+    });
+}
+
+export function erase_disk(client, block) {
+    const usage = utils.get_active_usage(client, block.path, _("erase"), _("delete"));
 
     if (usage.Blocking) {
         dialog_open({
@@ -726,21 +756,9 @@ export function format_disk(client, block) {
     }
 
     dialog_open({
-        Title: cockpit.format(_("Initialize disk $0"), utils.block_name(block)),
+        Title: cockpit.format(_("Erase disk $0"), utils.block_name(block)),
         Teardown: TeardownMessage(usage),
         Fields: [
-            SelectOne("type", _("Partitioning"),
-                      {
-                          value: "gpt",
-                          choices: [
-                              { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                              {
-                                  value: "gpt",
-                                  title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                              },
-                              { value: "empty", title: _("No partitioning") }
-                          ]
-                      }),
             CheckBoxes("erase", _("Overwrite"),
                        {
                            fields: [
@@ -749,8 +767,8 @@ export function format_disk(client, block) {
                        }),
         ],
         Action: {
-            Title: _("Initialize"),
-            Danger: _("Initializing erases all data on a disk."),
+            Title: _("Erase"),
+            Danger: _("This erases all data on a disk."),
             wrapper: job_progress_wrapper(client, block.path),
             action: function (vals) {
                 const options = {
@@ -760,7 +778,7 @@ export function format_disk(client, block) {
                     options.erase = { t: 's', v: "zero" };
                 return utils.teardown_active_usage(client, usage)
                         .then(function () {
-                            return block.Format(vals.type, options);
+                            return block.Format("empty", options);
                         })
                         .then(utils.reload_systemd);
             }

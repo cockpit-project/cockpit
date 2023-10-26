@@ -20,7 +20,8 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { PlusIcon, MinusIcon } from "@patternfly/react-icons";
 
@@ -94,7 +95,9 @@ class VGroupSidebar extends React.Component {
                         }));
             }
 
-            if (pvols.length === 1) {
+            if (vgroup.MissingPhysicalVolumes && vgroup.MissingPhysicalVolumes.length > 0) {
+                remove_excuse = _("Physical volumes can not be removed while a volume group is missing physical volumes.");
+            } else if (pvols.length === 1) {
                 remove_excuse = _("The last physical volume of a volume group cannot be removed.");
             } else if (pvol.FreeSize < pvol.Size) {
                 if (pvol.Size <= vgroup.FreeSize)
@@ -218,7 +221,10 @@ export class VGroupDetails extends React.Component {
                 <CardHeader actions={{
                     actions: (
                         <>
-                            <StorageButton onClick={() => vgroup_rename(client, vgroup)}>{_("Rename")}</StorageButton>
+                            <StorageButton excuse={ vgroup.MissingPhysicalVolumes && vgroup.MissingPhysicalVolumes.length > 0
+                                ? _("A volume group with missing physical volumes can not be renamed.")
+                                : null }
+                                           onClick={() => vgroup_rename(client, vgroup)}>{_("Rename")}</StorageButton>
                             { "\n" }
                             <StorageButton kind="danger" onClick={() => vgroup_delete(client, vgroup)}>{_("Delete")}</StorageButton>
                         </>
@@ -242,10 +248,78 @@ export class VGroupDetails extends React.Component {
             </Card>
         );
 
+        function is_partial_linear_lvol(block) {
+            const lvm2 = client.blocks_lvm2[block.path];
+            const lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
+            return lvol && lvol.Layout == "linear" && client.lvols_status[lvol.path] == "partial";
+        }
+
+        function remove_missing() {
+            /* Calling vgroup.RemoveMissingPhysicalVolumes will
+               implicitly delete all partial, linear logical volumes.
+               Instead of allowing this, we explicitly delete these
+               volumes before calling RemoveMissingPhysicalVolumes.
+               This allows us to kill processes that keep them busy
+               and remove their fstab entries.
+
+               RemoveMissingPhysicalVolumes leaves non-linear volumes
+               alone, even if they can't be repaired anymore.  This is
+               a bit inconsistent, but *shrug*.
+            */
+
+            let usage = utils.get_active_usage(client, vgroup.path, _("delete"));
+            usage = usage.filter(u => u.block && is_partial_linear_lvol(u.block));
+
+            if (usage.Blocking) {
+                dialog_open({
+                    Title: cockpit.format(_("$0 is in use"),
+                                          vgroup.Name),
+                    Body: BlockingMessage(usage)
+                });
+                return;
+            }
+
+            dialog_open({
+                Title: _("Remove missing physical volumes?"),
+                Teardown: TeardownMessage(usage),
+                Action: {
+                    Title: _("Remove"),
+                    action: function () {
+                        return utils.teardown_active_usage(client, usage)
+                                .then(function () {
+                                    return utils.for_each_async(usage,
+                                                                u => {
+                                                                    const lvm2 = client.blocks_lvm2[u.block.path];
+                                                                    const lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
+                                                                    return lvol.Delete({ 'tear-down': { t: 'b', v: true } });
+                                                                })
+                                            .then(() => vgroup.RemoveMissingPhysicalVolumes({}));
+                                });
+                    }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
+            });
+        }
+
+        let alert = null;
+        if (vgroup.MissingPhysicalVolumes && vgroup.MissingPhysicalVolumes.length > 0)
+            alert = (
+                <Alert variant='warning' isInline
+                       actionClose={<StorageButton onClick={remove_missing}>{_("Dismiss")}</StorageButton>}
+                       title={_("This volume group is missing some physical volumes.")}>
+                    {vgroup.MissingPhysicalVolumes.map(uuid => <div key={uuid}>{uuid}</div>)}
+                </Alert>);
+
         const sidebar = <VGroupSidebar client={this.props.client} vgroup={vgroup} />;
 
         const content = <VGroup client={this.props.client} vgroup={vgroup} />;
 
-        return <StdDetailsLayout client={this.props.client} header={ header } sidebar={ sidebar } content={ content } />;
+        return <StdDetailsLayout client={this.props.client}
+                                 header={ header }
+                                 alerts={[alert]}
+                                 sidebar={ sidebar }
+        content={ content } />;
     }
 }

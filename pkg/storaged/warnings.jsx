@@ -17,9 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import React from "react";
+import { ExclamationTriangleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
+
 import { get_parent } from "./utils.js";
 import { check_mismounted_fsys } from "./fsys-tab.jsx";
 import { check_stratis_warnings } from "./stratis-details.jsx";
+import { check_partial_lvols } from "./lvol-tabs.jsx";
 
 export function find_warnings(client) {
     const path_warnings = { };
@@ -116,5 +120,16 @@ export function find_warnings(client) {
 
     check_stratis_warnings(client, enter_warning);
 
+    for (const path in client.lvols) {
+        check_partial_lvols(client, path, enter_warning);
+    }
+
     return path_warnings;
+}
+
+export function warnings_icon(warnings) {
+    if (warnings.some(w => w.danger))
+        return <ExclamationCircleIcon className="ct-icon-times-circle" />;
+    else
+        return <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />;
 }

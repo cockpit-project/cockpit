@@ -331,6 +331,93 @@ function update_indices() {
         client.lvols_pool_members[path].sort(function (a, b) { return a.Name.localeCompare(b.Name) });
     }
 
+    function summarize_stripe(lv_size, segments) {
+        const pvs = { };
+        let total_size = 0;
+        for (const [, size, pv] of segments) {
+            if (!pvs[pv])
+                pvs[pv] = 0;
+            pvs[pv] += size;
+            total_size += size;
+        }
+        if (total_size < lv_size)
+            pvs["/"] = lv_size - total_size;
+        return pvs;
+    }
+
+    client.lvols_stripe_summary = { };
+    client.lvols_status = { };
+    for (path in client.lvols) {
+        const struct = client.lvols[path].Structure;
+        const lvol = client.lvols[path];
+
+        let summary;
+        let status = "";
+        if (lvol.Layout != "thin" && struct && struct.segments) {
+            summary = summarize_stripe(struct.size.v, struct.segments.v);
+            if (summary["/"])
+                status = "partial";
+        } else if (struct && struct.data && struct.metadata &&
+                   (struct.data.v.length == struct.metadata.v.length || struct.metadata.v.length == 0)) {
+            summary = [];
+            const n_total = struct.data.v.length;
+            let n_missing = 0;
+            for (let i = 0; i < n_total; i++) {
+                const data_lv = struct.data.v[i];
+                const metadata_lv = struct.metadata.v[i] || { size: { v: 0 }, segments: { v: [] } };
+
+                if (!data_lv.segments || (metadata_lv && !metadata_lv.segments)) {
+                    summary = undefined;
+                    break;
+                }
+
+                const s = summarize_stripe(data_lv.size.v + metadata_lv.size.v,
+                                           data_lv.segments.v.concat(metadata_lv.segments.v));
+                if (s["/"])
+                    n_missing += 1;
+
+                summary.push(s);
+            }
+            if (n_missing > 0) {
+                status = "partial";
+                if (lvol.Layout == "raid1") {
+                    if (n_total - n_missing >= 1)
+                        status = "degraded";
+                }
+                if (lvol.Layout == "raid10") {
+                    // This is correct for two-way mirroring, which is
+                    // the only setup supported by lvm2.
+                    if (n_missing > n_total / 2) {
+                        // More than half of the PVs are gone -> at
+                        // least one mirror has definitely lost both
+                        // halves.
+                        status = "partial";
+                    } else if (n_missing > 1) {
+                        // Two or more PVs are lost -> one mirror
+                        // might have lost both halves
+                        status = "degraded-maybe-partial";
+                    } else {
+                        // Only one PV is missing -> no mirror has
+                        // lost both halves.
+                        status = "degraded";
+                    }
+                }
+                if (lvol.Layout == "raid4" || lvol.Layout == "raid5") {
+                    if (n_missing <= 1)
+                        status = "degraded";
+                }
+                if (lvol.Layout == "raid6") {
+                    if (n_missing <= 2)
+                        status = "degraded";
+                }
+            }
+        }
+        if (summary) {
+            client.lvols_stripe_summary[path] = summary;
+            client.lvols_status[path] = status;
+        }
+    }
+
     client.stratis_poolnames_pool = { };
     for (path in client.stratis_pools) {
         pool = client.stratis_pools[path];

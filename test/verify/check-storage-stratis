@@ -17,11 +17,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import subprocess
+
 import packagelib
 import storagelib
 import testlib
 
 PV_SIZE = 4000  # 4 GB in MB
+
+
+def get_stratis_stop_type_opt(execute):
+    """Get `stratis stop pool` required option for a pool name
+
+    The CLI changed in an incompatible way in Fedora 40, it needs an extra --name option
+    which cannot be provided in earlier versions.
+    """
+    try:
+        if '--name' in execute("stratis pool stop --help"):
+            return "--name"
+    except subprocess.CalledProcessError:
+        # on RHEL 8 this fails with "error: invalid choice"
+        pass
+    return ""
 
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
@@ -35,12 +52,7 @@ class TestStorageStratis(storagelib.StorageCase):
         self.addCleanup(exe, "systemctl stop stratisd")
 
         self.stratis_v2 = self.image.startswith("rhel-8") or self.image == "centos-8-stream"
-
-        # the CLI changed in an incompatible way in Fedora 40
-        if '--name' in exe("stratis pool stop --help"):
-            self.stop_type_opt = "--name"
-        else:
-            self.stop_type_opt = ""
+        self.stop_type_opt = get_stratis_stop_type_opt(exe)
 
         self.addCleanup(exe,
                         "stratis report | jq -r '.pools[] | .name' |"
@@ -811,6 +823,8 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
             # Arch Linux does not enable systemd units by default
             self.machine.execute("systemctl enable --now stratisd")
             self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
+
+        self.stop_type_opt = get_stratis_stop_type_opt(self.machine.execute)
 
     def testBasic(self):
         m = self.machine

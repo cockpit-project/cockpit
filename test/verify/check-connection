@@ -605,7 +605,7 @@ class TestConnection(testlib.MachineCase):
 
         def checkMotdContent(string, expected=True):
             # Needs https://github.com/linux-pam/linux-pam/pull/292 (or PAM 1.5.0)
-            old_pam = (m.image in ['centos-8-stream', 'ubuntu-2204', 'rhel-8-7', 'rhel-8-8', 'rhel-8-9'])
+            old_pam = m.image.startswith('rhel-8-') or m.image in ['centos-8-stream', 'ubuntu-2204']
 
             # check issue (should be exactly the same as motd)
             assertInOrNot(string, m.execute("cat /etc/issue.d/cockpit.issue"), expected)

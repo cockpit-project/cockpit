@@ -647,7 +647,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         self.goto_service("mem-hog.service")
         b.wait_not_present("#memory")
         # In some distros systemctl is showing memory current as [Not Set] for user units
-        if not user or m.image not in ["rhel-8-7", "rhel-8-8", "rhel-8-9", "centos-8-stream"]:
+        if not user or (m.image != "centos-8-stream" and not m.image.startswith("rhel-8-")):
             self.run_systemctl(user, "start mem-hog.service")
             # If the test fails before we stop mem-hog, the next test run will not get the correct memory usage here
             self.addCleanup(self.run_systemctl, user, "stop mem-hog.service || true")

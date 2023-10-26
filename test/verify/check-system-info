@@ -685,12 +685,12 @@ machine         : 8561
 
         b.reload()
         b.enter_page('/system/hwinfo')
-        distros_without_systemd_memory_dmi = ['rhel-8-7', 'rhel-8-8', 'rhel-8-9', 'centos-8-stream']
+        distro_without_systemd_memory_dmi = m.image == 'centos-8-stream' or m.image.startswith('rhel-8-')
 
         # Test more specific memory data with a fake dmidecode
         b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
         b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Type]', "DDR4")
-        if m.image in distros_without_systemd_memory_dmi:
+        if distro_without_systemd_memory_dmi:
             b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GB")
         else:
             b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GiB")
@@ -701,7 +701,7 @@ machine         : 8561
 
         b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=ID]', "BANK 2: ChannelB-DIMM0")
         b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=Type]', "DDR4")
-        if m.image in distros_without_systemd_memory_dmi:
+        if distro_without_systemd_memory_dmi:
             b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GB")
         else:
             b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GiB")

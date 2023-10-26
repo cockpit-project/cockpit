@@ -456,7 +456,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # Journal was recorded on Fedora 33 and when trying to use it with older systemd it fails with:
         # `Journal file /var/log/journal/*/journal.journal uses an unsupported feature, ignoring file.`
 
-        if self.machine.image in ["centos-8-stream", "rhel-8-7", "rhel-8-8", "rhel-8-9"]:
+        if self.machine.image == "centos-8-stream" or self.machine.image.startswith("rhel-8-"):
             return
 
         m.upload(["verify/files/metrics-archives/journal.journal.gz"], "/tmp")
@@ -988,7 +988,7 @@ class TestCurrentMetrics(testlib.MachineCase):
 
         # Test link to user services
         # older releases don't have CPU accounting enabled for user services
-        if m.image not in ["rhel-8-7", "rhel-8-8", "rhel-8-9", "centos-8-stream"]:
+        if self.machine.image != "centos-8-stream" and not self.machine.image.startswith("rhel-8-"):
             m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest -p CPUQuota=60% --unit cpu-userhog dd if=/dev/urandom of=/dev/null'")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
             b.wait_in_text("table[aria-label='Top 5 CPU services'] tbody", "cpu-userhog")
@@ -1105,7 +1105,7 @@ BEGIN {{
 
         # Test link to user services
         # older releases don't have memory accounting enabled for user services
-        if m.image not in ["rhel-8-7", "rhel-8-8", "rhel-8-9", "centos-8-stream"]:
+        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
             m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest --unit mem-userhog memhog.sh'")
             m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2

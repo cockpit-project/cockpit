@@ -46,6 +46,7 @@ import { make_stratis_stopped_pool_page } from "./stratis-stopped-pool.jsx";
 import { make_nfs_page, nfs_fstab_dialog } from "./nfs.jsx";
 import { make_iscsi_session_page } from "./iscsi-session.jsx";
 import { make_other_page } from "./other.jsx";
+import { make_legacy_vdo_page } from "./legacy-vdo.jsx";
 
 const _ = cockpit.gettext;
 
@@ -67,6 +68,7 @@ export function make_overview_page() {
     Object.keys(client.stratis_manager.StoppedPools).map(uuid => make_stratis_stopped_pool_page(overview_page, uuid));
     client.nfs.entries.forEach(e => make_nfs_page(overview_page, e));
     get_other_devices(client).map(p => make_other_page(overview_page, client.blocks[p]));
+    client.legacy_vdo_overlay.volumes.forEach(vdo => make_legacy_vdo_page(overview_page, vdo));
 }
 
 const OverviewPage = ({ page, plot_state }) => {

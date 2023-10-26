@@ -186,21 +186,18 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        b.wait_visible("#devices")
-
         # Make a logical volume for use as the backing device.
         m.add_disk(SIZE_10G, serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
+        b.wait_visible(self.card_row("Storage", location="/dev/sda"))
         m.execute("vgcreate vdo_vgroup /dev/sda; lvcreate -n lvol -L 5G vdo_vgroup")
         # Create VDO; this is not supported any more, thus no UI for it
         m.execute("vdo create --device /dev/vdo_vgroup/lvol --name vdo0 --vdoLogicalSize 5G", timeout=300)
 
-        b.wait_in_text("#devices", "vdo0")
-        b.click("#devices .sidepanel-row:contains(vdo0)")
-        b.wait_visible("#storage-detail")
+        b.click(self.card_row("Storage", name="vdo0"))
 
         def detail(index):
-            return f'#detail-header .pf-v5-c-description-list__group:nth-of-type({index}) > dd'
+            card = self.card("VDO device vdo0")
+            return f'{card} .pf-v5-c-description-list__group:nth-of-type({index}) > dd'
 
         b.wait_text(detail(1), "/dev/mapper/vdo0")
         b.wait_in_text(detail(2), "vdo_vgroup")
@@ -212,17 +209,19 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
 
         # Make a filesystem on it
 
-        self.content_row_wait_in_col(1, 2, "Unrecognized data")
-        self.content_row_action(1, "Format")
+        b.wait_text(self.card_row_col("Content", 1, 2), "Unformatted data")
+        b.clicks(self.dropdown_action(self.card_row("Content", 1), "Format"))
         self.dialog({"type": "xfs",
                      "name": "FILESYSTEM",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 2, "xfs filesystem")
+        b.wait_text(self.card_row_col("Content", 1, 2), "xfs filesystem")
         # _netdev etc should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
-        self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.device-timeout=0")
-        self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.requires=vdo.service")
-        self.content_row_wait_in_col(1, 4, "/ 5.4 GB")
+        b.click(self.card_row("Content", 1))
+        b.wait_in_text(self.card_desc("xfs filesystem", "Mount point"), "after network")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Mount point"), "x-systemd.device-timeout=0")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Mount point"), "x-systemd.requires=vdo.service")
+        b.click(self.card_desc("xfs filesystem", "Stored on") + " button")
+        b.wait_in_text(self.card_row_col("Content", 1, 4), "/ 5.4 GB")
 
         # Grow physical
 
@@ -237,25 +236,25 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
         b.click(detail(4) + " button:contains(Grow)")
         self.dialog({"lsize": 10000})
         b.wait_in_text(detail(4), "used of 10.0 GB")
-        self.content_row_wait_in_col(1, 4, "/ 10 GB")
+        b.wait_in_text(self.card_row_col("Content", 1, 4), "/ 10 GB")
 
         # Stop
 
-        b.wait_visible('#detail-content table')
+        b.wait_visible(self.card("Content"))
         b.click('.pf-v5-c-card__header:contains("VDO") button:contains("Stop")')
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "unmount, stop")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_not_present('#detail-content table')
+        b.wait_not_present(self.card("Content"))
 
         # Delete
 
         b.click('.pf-v5-c-card__header:contains("VDO") button:contains("Delete")')
         self.dialog_wait_open()
         self.dialog_apply_with_retry(expected_errors=["Device or resource busy"])
-        b.wait_visible("#storage")
-        b.wait_not_in_text("#devices", "vdo0")
+        b.wait_visible(self.card("Storage"))
+        b.wait_not_present(self.card_row("Storage", name="vdo0"))
 
     def testBrokenVdo(self):
         m = self.machine
@@ -263,10 +262,8 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        b.wait_visible("#devices")
-
         m.add_disk(SIZE_10G, serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
+        b.wait_visible(self.card_row("Storage", location="/dev/sda"))
 
         # Install a valid configuration file that describes a broken VDO
         m.write("/etc/vdoconf.yml", """
@@ -302,20 +299,19 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#devices", "vdo0")
-        b.click("#devices .sidepanel-row:contains(vdo0)")
-
-        b.click("#storage-detail .pf-m-danger button:contains('Remove device')")
-        b.wait_visible("#storage")
-        b.wait_not_in_text("#devices", "vdo0")
+        b.click(self.card_row("Storage", name="vdo0"))
+        testlib.sit()
+        b.click(".pf-m-danger button:contains('Remove device')")
+        b.wait_visible(self.card("Storage"))
+        b.wait_not_present(self.card_row("Storage", name="vdo0"))
 
     def testBrokenVdoConfig(self):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/storage")
+        m.upload(["/home/mvo/work/cockpit/dist/storaged"], "/usr/share/cockpit")
 
-        b.wait_visible("#devices")
+        self.login_and_go("/storage")
 
         # Install a valid configuration file
         m.write("/etc/vdoconf.yml", """
@@ -351,7 +347,7 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#devices", "vdo0")
+        b.wait_visible(self.card_row("Storage", name="vdo0"))
 
         # Install a broken configuration file
         m.write("/etc/vdoconf.yml", """
@@ -361,7 +357,7 @@ config: !Configuration
       blah: 12
 """)
 
-        b.wait_not_in_text("#devices", "vdo0")
+        b.wait_not_present(self.card_row("Storage", name="vdo0"))
 
         # Install a valid configuration file again
         m.write("/etc/vdoconf.yml", """
@@ -397,7 +393,7 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#devices", "vdo1")
+        b.wait_visible(self.card_row("Storage", name="vdo1"))
 
 
 @testlib.onlyImage("VDO API only supported on RHEL", "rhel-*", "centos-*")

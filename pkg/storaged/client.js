@@ -583,6 +583,13 @@ function update_indices() {
         }
     }
 
+    client.blocks_available = { };
+    for (path in client.blocks) {
+        block = client.blocks[path];
+        if (utils.is_available_block(client, block))
+            client.blocks_available[path] = true;
+    }
+
     client.path_jobs = { };
     function enter_job(job) {
         if (!job.Objects || !job.Objects.length)

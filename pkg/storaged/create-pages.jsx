@@ -27,6 +27,7 @@ import { format_dialog } from "./format-dialog.jsx";
 
 import { make_overview_page } from "./pages/overview.jsx";
 import { make_unrecognized_data_page } from "./pages/unrecognized-data.jsx";
+import { make_unformatted_data_page } from "./pages/unformatted-data.jsx";
 import { make_locked_encrypted_data_page } from "./pages/locked-encrypted-data.jsx";
 import { make_filesystem_page } from "./pages/filesystem.jsx";
 import { make_lvm2_physical_volume_page } from "./pages/lvm2-physical-volume.jsx";
@@ -157,6 +158,8 @@ export function make_block_page(parent, block, container) {
         make_mdraid_disk_page(parent, block, content_block, container);
     } else if (block_swap || (content_block && content_block.IdUsage == "other" && content_block.IdType == "swap")) {
         make_swap_page(parent, block, content_block, container);
+    } else if (client.blocks_available[content_block.path]) {
+        make_unformatted_data_page(parent, block, content_block, container);
     } else {
         make_unrecognized_data_page(parent, block, content_block, container);
     }

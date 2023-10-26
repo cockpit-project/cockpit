@@ -98,7 +98,7 @@ export function make_partition_container(parent, block) {
             {
                 title: _("Delete"),
                 action: () => delete_partition(block, cont.page),
-                danger: true
+                danger: !client.blocks_available[block.path],
             },
         ],
     });

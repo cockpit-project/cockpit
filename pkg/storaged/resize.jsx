@@ -187,6 +187,9 @@ function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passp
                 return Promise.reject(_("Stratis blockdevs can not be made smaller")); // not-covered: safety check
             else
                 return Promise.resolve();
+        } else if (client.blocks_available[block.path]) {
+            // Growing or shrinking unformatted data, nothing to do
+            return Promise.resolve();
         } else if (size < orig_size) {
             // This shouldn't happen. But if it does, continuing is harmful, so we throw an error.
             return Promise.reject(_("Unrecognized data can not be made smaller here.")); // not-covered: safety check
@@ -276,6 +279,13 @@ export function get_resize_info(client, block, to_fit) {
                 grow_needs_unmount: false
             };
             shrink_excuse = _("VDO backing devices can not be made smaller");
+        } else if (client.blocks_available[block.path]) {
+            info = {
+                can_shrink: true,
+                can_grow: true,
+                shrink_needs_unmount: false,
+                grow_needs_unmount: false,
+            };
         } else {
             info = {
                 can_shrink: false,

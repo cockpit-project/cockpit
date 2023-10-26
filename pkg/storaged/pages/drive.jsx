@@ -64,7 +64,7 @@ export function make_drive_page(parent, drive) {
                 ? {
                     title: _("Create partition table"),
                     action: () => format_disk(client, block),
-                    danger: false, // XXX - mark as dangerous when not "unrecognized data"
+                    danger: !client.blocks_available[block.path],
                     excuse: block.ReadOnly ? _("Device is read-only") : null,
                     tag: "content"
                 }

@@ -31,10 +31,11 @@ import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
 import { check_unused_space, get_resize_info, grow_dialog, shrink_dialog } from "../resize.jsx";
 import { new_container, navigate_to_new_page_location, ActionButtons } from "../pages.jsx";
-import { fmt_size } from "../utils.js";
+import { fmt_size, get_active_usage, teardown_active_usage, reload_systemd } from "../utils.js";
 import { lvm2_delete_logical_volume_dialog, lvm2_create_snapshot_action } from "../pages/lvm2-volume-group.jsx";
 import {
-    dialog_open, TextInput, SelectSpaces,
+    dialog_open, TextInput, SelectSpaces, BlockingMessage, TeardownMessage,
+    init_active_usage_processes
 } from "../dialog.jsx";
 
 import { StructureDescription } from "../lvol-tabs.jsx"; // XXX
@@ -94,6 +95,35 @@ function repair(lvol) {
     });
 }
 
+function deactivate(lvol, block) {
+    const vgroup = client.vgroups[lvol.VolumeGroup];
+    const usage = get_active_usage(client, block.path, _("deactivate"));
+
+    if (usage.Blocking) {
+        dialog_open({
+            Title: cockpit.format(_("$0 is in use"), lvol.Name),
+            Body: BlockingMessage(usage)
+        });
+        return;
+    }
+
+    dialog_open({
+        Title: cockpit.format(_("Deactivate logical volume $0/$1?"), vgroup.Name, lvol.Name),
+        Teardown: TeardownMessage(usage),
+        Action: {
+            Title: _("Deactivate"),
+            action: async function () {
+                await teardown_active_usage(client, usage);
+                await lvol.Deactivate({ });
+                await reload_systemd();
+            }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage)
+        ]
+    });
+}
+
 export function make_lvm2_logical_volume_container(parent, vgroup, lvol, block) {
     const unused_space_warning = check_unused_space(block.path);
     const unused_space = !!unused_space_warning;
@@ -138,10 +168,17 @@ export function make_lvm2_logical_volume_container(parent, vgroup, lvol, block) 
                  action: () => grow_dialog(client, lvol, info),
                  excuse: grow_excuse,
              }),
-            { title: _("Deactivate"), action: () => lvol.Deactivate({}) },
+            {
+                title: _("Deactivate"),
+                action: () => deactivate(lvol, block),
+            },
             lvm2_create_snapshot_action(lvol),
             repair_action,
-            { title: _("Delete"), action: () => lvm2_delete_logical_volume_dialog(lvol, cont.page), danger: true },
+            {
+                title: _("Delete"),
+                action: () => lvm2_delete_logical_volume_dialog(lvol, cont.page),
+                danger: !client.blocks_available[block.path],
+            },
         ],
     });
     return cont;

@@ -17,12 +17,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import math
+import os
+import unittest
+
 import storagelib
 import testlib
 
 
+# We use basename a lot, let's reduce the noise
+def bn(path):
+    return os.path.basename(path)
+
+
 @testlib.nondestructive
 class TestStorageLvm2(storagelib.StorageCase):
+
+    def can_do_layouts(self):
+        return self.storaged_version >= [2, 10]
+
+    def skip_if_no_layouts(self):
+        if not self.can_do_layouts():
+            raise unittest.SkipTest("raid layouts not supported")
 
     def testLvm(self):
         m = self.machine
@@ -142,6 +158,10 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_wait_open()
         self.dialog({"name": "lvol1"})
         self.content_row_wait_in_col(1, 1, "lvol1")
+
+        if self.can_do_layouts():
+            # check that it is stored on dev_2
+            self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(dev_2))
 
         # grow it
         self.content_tab_action(1, 1, "Grow")
@@ -339,6 +359,530 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # FIXME: Grow/Shrink buttons are in a dd > div > dd without dl wrapper
         self.allow_browser_errors("validateDOMNesting.*cannot appear as a descendant.*<dd> dd")
+
+    def testRaid(self):
+        m = self.machine
+        b = self.browser
+
+        self.skip_if_no_layouts()
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_ram_disk()
+        disk2 = self.add_loopback_disk(name="loop10")
+        disk3 = self.add_loopback_disk(name="loop11")
+        disk4 = self.add_loopback_disk(name="loop12")
+
+        # Make a volume group with four physical volumes
+
+        with b.wait_timeout(60):
+            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+                                   expect=lambda: (self.dialog_is_present('disks', disk1) and
+                                                   self.dialog_is_present('disks', disk2) and
+                                                   self.dialog_is_present('disks', disk3) and
+                                                   self.dialog_is_present('disks', disk4) and
+                                                   self.dialog_check({"name": "vgroup0"})),
+                                   values={"disks": {disk1: True,
+                                                     disk2: True,
+                                                     disk3: True,
+                                                     disk4: True}})
+
+        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        b.wait_in_text("#devices", "vgroup0")
+
+        # Make a raid5 on three PVs, using about half of each
+
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+        b.click("button:contains(Create new logical volume)")
+        self.dialog_wait_open()
+        self.dialog_wait_val("name", "lvol0")
+        self.dialog_set_val("purpose", "block")
+        self.dialog_set_val("layout", "raid5")
+        self.dialog_set_val("pvs", {disk1: False})
+        self.dialog_set_val("size", 40)
+        b.assert_pixels("#dialog", "create-raid5")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.content_row_wait_in_col(1, 1, "lvol0")
+
+        self.content_tab_wait_in_info(1, 1, "Layout", "Distributed parity (RAID 5)")
+        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk2))
+        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk3))
+        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk4))
+
+        tab = self.content_tab_expand(1, 1)
+        b.assert_pixels(tab, "raid5-tab")
+
+        # Make linear volume to fully use second PV
+
+        b.click("button:contains(Create new logical volume)")
+        self.dialog(expect={"name": "lvol1"},
+                    values={"purpose": "block",
+                            "layout": "linear",
+                            "pvs": {disk1: False, disk3: False, disk4: False}})
+        self.content_row_wait_in_col(2, 1, "lvol1")
+        self.content_tab_wait_in_info(2, 1, "Physical volumes", bn(disk2))
+
+        # Grow raid5 to about maximum
+        self.content_tab_action(1, 1, "Grow")
+        self.dialog_wait_open()
+        self.dialog_set_val("size", 80)
+        b.assert_pixels("#dialog", "grow-raid5")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk1))
+
+        # Check that each PV is used exactly once.
+        tab = self.content_tab_expand(1, 1)
+        b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
+        b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
+        b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
+        b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+        b.assert_pixels(tab, "raid5-tab2")
+
+    def testRaidRepair(self):
+        m = self.machine
+        b = self.browser
+
+        self.skip_if_no_layouts()
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_ram_disk()
+        disk2 = self.add_loopback_disk(name="loop10")
+        disk3 = self.add_loopback_disk(name="loop11")
+        disk4 = self.add_loopback_disk(name="loop12")
+
+        # Make a volume group with three physical volumes
+
+        with b.wait_timeout(60):
+            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+                                   expect=lambda: (self.dialog_is_present('disks', disk1) and
+                                                   self.dialog_is_present('disks', disk2) and
+                                                   self.dialog_is_present('disks', disk3) and
+                                                   self.dialog_check({"name": "vgroup0"})),
+                                   values={"disks": {disk1: True,
+                                                     disk2: True,
+                                                     disk3: True}})
+
+        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        b.wait_in_text("#devices", "vgroup0")
+
+        # Make a raid5 on the three PVs
+
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+        b.click("button:contains(Create new logical volume)")
+        self.dialog(expect={"name": "lvol0"},
+                    values={"purpose": "block",
+                            "layout": "raid5"})
+        self.content_row_wait_in_col(1, 1, "lvol0")
+
+        self.content_tab_wait_in_info(1, 1, "Layout", "Distributed parity (RAID 5)")
+        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk1))
+        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk2))
+        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk3))
+
+        # Kill one PV
+
+        self.force_remove_disk(disk1)
+
+        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
+        b.wait_visible("button:contains(Rename):disabled")
+
+        self.content_tab_wait_in_info(1, 1, "Stripes", "This logical volume has lost some of its physical volumes but has not lost any data yet.")
+        self.content_tab_wait_in_info(1, 1, "Stripes", cond=lambda sel: bn(disk1) not in b.text(sel))
+
+        # Repair with fourth
+
+        self.content_row_action(1, "Repair")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "There is not enough space available")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.click('#detail-sidebar .pf-v5-c-card__header button')
+        self.dialog_wait_open()
+        self.dialog_set_val('disks', {disk4: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text("#detail-sidebar", disk4)
+
+        self.content_row_action(1, "Repair")
+        self.dialog_wait_open()
+        self.dialog_apply()
+        self.dialog_wait_error("pvs", "An additional 46.1 MB must be selected")
+        self.dialog_set_val("pvs", {disk4: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.content_tab_wait_in_info(1, 1, "Stripes",
+                                      cond=lambda sel: "This logical volume has lost some" not in b.text(sel))
+        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk4))
+
+        # Dismiss alert
+
+        b.click(".pf-v5-c-alert button:contains(Dismiss)")
+        self.dialog({})
+        b.wait_not_present(".pf-v5-c-alert")
+
+    def testBrokenLinear(self):
+        m = self.machine
+        b = self.browser
+
+        self.skip_if_no_layouts()
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_ram_disk()
+        disk2 = self.add_loopback_disk()
+        disk3 = self.add_loopback_disk()
+
+        # Make a volume group with three physical volumes
+
+        with b.wait_timeout(60):
+            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+                                   expect=lambda: (self.dialog_is_present('disks', disk1) and
+                                                   self.dialog_is_present('disks', disk2) and
+                                                   self.dialog_is_present('disks', disk3) and
+                                                   self.dialog_check({"name": "vgroup0"})),
+                                   values={"disks": {disk1: True,
+                                                     disk2: True,
+                                                     disk3: True}})
+
+        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        b.wait_in_text("#devices", "vgroup0")
+
+        # Make a linear volume on two of them
+
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+        b.click("button:contains(Create new logical volume)")
+        self.dialog(expect={"name": "lvol0"},
+                    values={"purpose": "block",
+                            "layout": "linear",
+                            "pvs": {disk2: False}})
+        self.content_row_wait_in_col(1, 1, "lvol0")
+
+        self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(disk1))
+        self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(disk3))
+
+        # Kill one PV
+
+        self.force_remove_disk(disk1)
+        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
+        b.wait_visible("button:contains(Rename):disabled")
+
+        self.content_tab_wait_in_info(1, 1, "Physical volumes", "This logical volume has lost some of its physical volumes and can no longer be used.")
+        self.content_tab_wait_in_info(1, 1, "Physical volumes", cond=lambda sel: bn(disk1) not in b.text(sel))
+
+        # Dismiss alert, this will delete the volume
+
+        b.click(".pf-v5-c-alert button:contains(Dismiss)")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "/dev/vgroup0/lvol0")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_not_present(".pf-v5-c-alert")
+        b.wait_in_text("#detail-content", "No logical volumes")
+
+    def testMaxLayoutSizes(self):
+        b = self.browser
+
+        self.skip_if_no_layouts()
+
+        # Make sure that Cockpit gets the computation of the maximum
+        # size right.
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_loopback_disk(name="loop10")
+        disk2 = self.add_loopback_disk(name="loop11")
+        disk3 = self.add_loopback_disk(name="loop12")
+        disk4 = self.add_loopback_disk(name="loop13")
+        disk5 = self.add_loopback_disk(name="loop14")
+        disk6 = self.add_loopback_disk(name="loop15")
+
+        with b.wait_timeout(60):
+            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+                                   expect=lambda: (self.dialog_is_present('disks', disk1) and
+                                                   self.dialog_is_present('disks', disk2) and
+                                                   self.dialog_is_present('disks', disk3) and
+                                                   self.dialog_is_present('disks', disk4) and
+                                                   self.dialog_is_present('disks', disk5) and
+                                                   self.dialog_is_present('disks', disk6) and
+                                                   self.dialog_check({"name": "vgroup0"})),
+                                   values={"disks": {disk1: True,
+                                                     disk2: True,
+                                                     disk3: True,
+                                                     disk4: True,
+                                                     disk5: True,
+                                                     disk6: True}})
+        self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
+
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+
+        def mb(size):
+            if size < 100e6:
+                return str(round(size / 1e6, 1)) + " MB"
+            else:
+                return str(round(size / 1e6)) + " MB"
+
+        def test(layout, expected_size):
+            b.click("button:contains(Create new logical volume)")
+            self.dialog_wait_open()
+            self.dialog_wait_val("name", "lvol0")
+            self.dialog_set_val("purpose", "block")
+            self.dialog_set_val("layout", layout)
+            if layout == "raid10":
+                self.dialog_set_val("pvs", {disk6: False})
+                self.dialog_apply()
+                self.dialog_wait_error("pvs", "an even number")
+                self.dialog_set_val("pvs", {disk6: True})
+            self.dialog_apply()
+            self.dialog_wait_close()
+
+            self.content_row_wait_in_col(1, 1, "lvol0")
+
+            field = "Physical volumes" if layout.startswith("linear") else "Stripes"
+
+            self.content_tab_wait_in_info(1, 1, field, bn(disk1))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk2))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk3))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk4))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk5))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk6))
+
+            self.content_tab_wait_in_info(1, 1, "Size", mb(expected_size))
+
+            self.content_dropdown_action(1, "Delete")
+            self.confirm()
+            b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
+
+        ext_size = 4 * 1024 * 1024
+        pv_size = math.floor(50e6 / ext_size) * ext_size
+        n_pvs = 6
+
+        test("linear", n_pvs * pv_size)
+        test("raid0", n_pvs * pv_size)
+        test("raid1", pv_size - ext_size)
+        test("raid10", (n_pvs / 2) * (pv_size - ext_size))
+        test("raid5", (n_pvs - 1) * (pv_size - ext_size))
+        test("raid6", (n_pvs - 2) * (pv_size - ext_size))
+
+    def testMaxLayoutGrowth(self):
+        b = self.browser
+
+        self.skip_if_no_layouts()
+
+        # Make sure that Cockpit gets the computation of the maximum
+        # size right when growing a logical volume.
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_loopback_disk(name="loop10")
+        disk2 = self.add_loopback_disk(name="loop11")
+        disk3 = self.add_loopback_disk(name="loop12")
+        disk4 = self.add_loopback_disk(name="loop13")
+        disk5 = self.add_loopback_disk(name="loop14")
+        disk6 = self.add_loopback_disk(name="loop15")
+
+        with b.wait_timeout(60):
+            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+                                   expect=lambda: (self.dialog_is_present('disks', disk1) and
+                                                   self.dialog_is_present('disks', disk2) and
+                                                   self.dialog_is_present('disks', disk3) and
+                                                   self.dialog_is_present('disks', disk4) and
+                                                   self.dialog_is_present('disks', disk5) and
+                                                   self.dialog_is_present('disks', disk6) and
+                                                   self.dialog_check({"name": "vgroup0"})),
+                                   values={"disks": {disk1: True,
+                                                     disk2: True,
+                                                     disk3: True,
+                                                     disk4: True,
+                                                     disk5: True,
+                                                     disk6: True}})
+        self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
+
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+
+        def mb(size):
+            if size < 100e6:
+                return str(round(size / 1e6, 1)) + " MB"
+            else:
+                return str(round(size / 1e6)) + " MB"
+
+        def test(layout, expected_size):
+            b.click("button:contains(Create new logical volume)")
+            self.dialog(expect={"name": "lvol0"},
+                        values={"purpose": "block",
+                                "layout": layout,
+                                "size": round(expected_size / 2e6)})
+
+            self.content_row_wait_in_col(1, 1, "lvol0")
+
+            field = "Stripes"
+
+            self.content_tab_wait_in_info(1, 1, field, bn(disk1))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk2))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk3))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk4))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk5))
+            self.content_tab_wait_in_info(1, 1, field, bn(disk6))
+
+            # Grow to max with default pvs
+            self.content_tab_action(1, 1, "Grow")
+            self.dialog_wait_open()
+            slider = self.dialog_field("size") + " .pf-v5-c-slider .pf-v5-c-slider__rail"
+            width = b.call_js_func('(function (sel) { return ph_find(sel).offsetWidth; })', slider)
+            b.mouse(slider, "click", width, 0)
+            self.dialog_apply()
+            self.dialog_wait_close()
+
+            tab = self.content_tab_expand(1, 1)
+            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
+            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
+            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
+            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk5)}')", 1)
+            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk6)}')", 1)
+
+            self.content_tab_wait_in_info(1, 1, "Size", mb(expected_size))
+
+            self.content_dropdown_action(1, "Delete")
+            self.confirm()
+            b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
+
+        ext_size = 4 * 1024 * 1024
+        pv_size = math.floor(50e6 / ext_size) * ext_size
+        n_pvs = 6
+
+        test("raid0", n_pvs * pv_size)
+        test("raid1", pv_size - ext_size)
+        test("raid10", (n_pvs / 2) * (pv_size - ext_size))
+        test("raid5", (n_pvs - 1) * (pv_size - ext_size))
+        test("raid6", (n_pvs - 2) * (pv_size - ext_size))
+
+    @testlib.skipImage("No targetd in Arch Linux", "arch")
+    def testDegradation(self):
+        b = self.browser
+
+        self.skip_if_no_layouts()
+
+        # Make one (very small) logical volume for each RAID type and
+        # then break them.
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_targetd_loopback_disk(index=1, size=100)
+        disk2 = self.add_targetd_loopback_disk(index=2, size=100)
+        disk3 = self.add_targetd_loopback_disk(index=3, size=100)
+        disk4 = self.add_targetd_loopback_disk(index=4, size=100)
+        disk5 = self.add_targetd_loopback_disk(index=5, size=100)
+
+        with b.wait_timeout(60):
+            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+                                   expect=lambda: (self.dialog_is_present('disks', disk1) and
+                                                   self.dialog_is_present('disks', disk2) and
+                                                   self.dialog_is_present('disks', disk3) and
+                                                   self.dialog_is_present('disks', disk4) and
+                                                   self.dialog_is_present('disks', disk5) and
+                                                   self.dialog_check({"name": "vgroup0"})),
+                                   values={"disks": {disk1: True,
+                                                     disk2: True,
+                                                     disk3: True,
+                                                     disk4: True,
+                                                     disk5: True}})
+        self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
+
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+
+        def create(row, layout, expected_name):
+            b.click("button:contains(Create new logical volume)")
+            self.dialog_wait_open()
+            self.dialog_wait_val("name", expected_name)
+            self.dialog_set_val("layout", layout)
+            if layout == "raid10":
+                self.dialog_set_val("pvs", {disk5: False})
+            elif layout == "linear":
+                self.dialog_set_val("pvs", {disk2: False, disk3: False, disk4: False, disk5: False})
+            self.dialog_set_val("size", 10)
+            self.dialog_apply()
+            self.dialog_wait_close()
+            self.content_row_wait_in_col(row, 1, expected_name)
+
+        create(1, "linear", "lvol0")
+        create(2, "raid0", "lvol1")
+        create(3, "raid1", "lvol2")
+        create(4, "raid10", "lvol3")
+        create(5, "raid5", "lvol4")
+        create(6, "raid6", "lvol5")
+
+        def wait_msg(row, msg):
+            self.content_tab_wait_in_info(row, 1, "Physical volumes" if row == 1 else "Stripes", msg)
+
+        def wait_partial(row):
+            wait_msg(row, "This logical volume has lost some of its physical volumes and can no longer be used.")
+
+        def wait_degraded(row):
+            wait_msg(row, "This logical volume has lost some of its physical volumes but has not lost any data yet.")
+
+        def wait_maybe_partial(row):
+            wait_msg(row, "This logical volume has lost some of its physical volumes but might not have lost any data yet.")
+
+        self.force_remove_disk(disk1)
+
+        wait_partial(1)         # linear is broken now
+        wait_partial(2)         # striped as well
+        wait_degraded(3)        # mirror is fine
+        wait_degraded(4)        # striped mirror as well
+        wait_degraded(5)        # raid5 and ...
+        wait_degraded(6)        # ... raid6 are doing their job
+
+        self.force_remove_disk(disk2)
+
+        wait_degraded(3)        # mirror is still fine
+        wait_maybe_partial(4)   # striped mirror is not sure anymore
+        wait_partial(5)         # raid5 is now toast
+        wait_degraded(6)        # but raid6 still hangs on
+
+        self.force_remove_disk(disk3)
+
+        wait_degraded(3)        # mirror is _still_ fine
+        wait_partial(4)         # striped mirror has lost more than half and is kaputt
+        wait_partial(6)         # raid6 is finally toast as well
+
+    def testLvmOnLuks(self):
+        b = self.browser
+        m = self.machine
+
+        self.skip_if_no_layouts()
+
+        # Make sure that Cockpit gets the layout description right for
+        # encrypted physical volumes
+
+        self.login_and_go("/storage")
+
+        disk = self.add_loopback_disk()
+        b.wait_in_text("#others", disk)
+        m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}")
+        m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk} dm-test")
+        self.addCleanup(m.execute, "cryptsetup close dm-test || true")
+        m.execute("vgcreate vgroup0 /dev/mapper/dm-test")
+        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        m.execute("lvcreate vgroup0 -n lvol0 -l100%FREE")
+
+        b.wait_in_text("#devices", "vgroup0")
+        b.click('#devices .sidepanel-row:contains("vgroup0")')
+
+        self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(disk))
 
 
 if __name__ == '__main__':

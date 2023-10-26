@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import React from "react";
 import cockpit from "cockpit";
 import {
     block_name, get_active_usage, teardown_active_usage,
@@ -27,14 +28,15 @@ import {
     request_passphrase_on_error_handler
 } from "./crypto-keyslots.jsx";
 import {
-    dialog_open, SizeSlider, BlockingMessage, TeardownMessage,
+    dialog_open, SizeSlider, BlockingMessage, TeardownMessage, SelectSpaces,
     init_active_usage_processes
 } from "./dialog.jsx";
 import { std_reply } from "./stratis-utils.js";
+import { pvs_to_spaces } from "./content-views.jsx";
 
 const _ = cockpit.gettext;
 
-function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passphrase) {
+function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passphrase, pvs) {
     let fsys;
     let crypto_overhead;
     let vdo;
@@ -145,7 +147,7 @@ function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passp
         if (size != orig_size) {
             // Both LogicalVolume and Partition have a Resize method
             // with the same signature, so this will work on both.
-            return lvol_or_part.Resize(size, { });
+            return lvol_or_part.Resize(size, { pvs: pvs ? { t: 'ao', v: pvs } : undefined });
         } else
             return Promise.resolve();
     }
@@ -245,19 +247,74 @@ export function free_space_after_part(client, part) {
 
 export function grow_dialog(client, lvol_or_part, info, to_fit) {
     let title, block, name, orig_size, max_size, allow_infinite, round_size;
+    let has_subvols, subvols, pvs_as_spaces, initial_pvs;
+
+    function compute_max_size(spaces) {
+        const layout = lvol_or_part.Layout;
+        const pvs = spaces.map(s => s.pvol);
+        const n_pvs = pvs.length;
+        const sum = pvs.reduce((sum, pv) => sum + pv.FreeSize, 0);
+        const min = Math.min.apply(null, pvs.map(pv => pv.FreeSize));
+
+        if (!has_subvols) {
+            return sum;
+        } else if (layout == "raid0") {
+            return n_pvs * min;
+        } else if (layout == "raid1") {
+            return min;
+        } else if (layout == "raid10") {
+            return (n_pvs / 2) * min;
+        } else if ((layout == "raid4" || layout == "raid5")) {
+            return (n_pvs - 1) * min;
+        } else if (layout == "raid6") {
+            return (n_pvs - 2) * min;
+        } else
+            return 0; // not-covered: internal error
+    }
 
     if (lvol_or_part.iface == "org.freedesktop.UDisks2.LogicalVolume") {
         const vgroup = client.vgroups[lvol_or_part.VolumeGroup];
         const pool = client.lvols[lvol_or_part.ThinPool];
 
+        pvs_as_spaces = pvs_to_spaces(client, client.vgroups_pvols[vgroup.path].filter(pvol => pvol.FreeSize > 0));
+        subvols = client.lvols_stripe_summary[lvol_or_part.path];
+        has_subvols = subvols && (lvol_or_part.Layout == "mirror" || lvol_or_part.Layout.indexOf("raid") == 0);
+
+        if (!has_subvols)
+            initial_pvs = pvs_as_spaces;
+        else {
+            initial_pvs = [];
+
+            // Step 1: Find the spaces that are already used for a
+            // subvolume.  If a subvolume uses more than one, prefer the
+            // one with more available space.
+            for (const sv of subvols) {
+                let sel = null;
+                for (const p in sv) {
+                    for (const spc of pvs_as_spaces)
+                        if (spc.block.path == p && (!sel || sel.size < spc.size))
+                            sel = spc;
+                }
+                if (sel)
+                    initial_pvs.push(sel);
+            }
+
+            // Step 2: Select missing one randomly.
+            for (const pv of pvs_as_spaces) {
+                if (initial_pvs.indexOf(pv) == -1 && initial_pvs.length < subvols.length)
+                    initial_pvs.push(pv);
+            }
+        }
+
         title = _("Grow logical volume");
         block = client.lvols_block[lvol_or_part.path];
         name = lvol_or_part.Name;
         orig_size = lvol_or_part.Size;
-        max_size = pool ? pool.Size * 3 : lvol_or_part.Size + vgroup.FreeSize;
+        max_size = pool ? pool.Size * 3 : lvol_or_part.Size + compute_max_size(initial_pvs);
         allow_infinite = !!pool;
         round_size = vgroup.ExtentSize;
     } else {
+        has_subvols = false;
         title = _("Grow partition");
         block = client.blocks[lvol_or_part.path];
         name = block_name(block);
@@ -281,9 +338,22 @@ export function grow_dialog(client, lvol_or_part, info, to_fit) {
     }
 
     let grow_size;
-    let size_fields = [];
+    const size_fields = [];
     if (!to_fit) {
-        size_fields = [
+        if ((has_subvols || lvol_or_part.Layout == "linear") && pvs_as_spaces.length > 1)
+            size_fields.push(
+                SelectSpaces("pvs", _("Physical Volumes"),
+                             {
+                                 spaces: pvs_as_spaces,
+                                 value: initial_pvs,
+                                 min_selected: subvols.length,
+                                 validate: val => {
+                                     if (has_subvols && subvols.length != val.length)
+                                         return cockpit.format(_("Exactly $0 physical volumes must be selected"),
+                                                               subvols.length);
+                                 }
+                             }));
+        size_fields.push(
             SizeSlider("size", _("Size"),
                        {
                            value: orig_size,
@@ -291,8 +361,7 @@ export function grow_dialog(client, lvol_or_part, info, to_fit) {
                            max: max_size,
                            allow_infinite,
                            round: round_size,
-                       })
-        ];
+                       }));
     } else {
         grow_size = block.Size;
     }
@@ -302,14 +371,61 @@ export function grow_dialog(client, lvol_or_part, info, to_fit) {
     if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
         passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
 
+    function prepare_pvs(pvs) {
+        if (!pvs)
+            return pvs;
+
+        pvs = pvs.map(spc => spc.block.path);
+
+        if (!has_subvols)
+            return pvs;
+
+        const subvol_pvs = [];
+
+        // Step 1: Find PVs that are already used by a subvolume
+        subvols.forEach((sv, idx) => {
+            subvol_pvs[idx] = null;
+            for (const pv in sv) {
+                if (pvs.indexOf(pv) >= 0 && subvol_pvs.indexOf(pv) == -1) {
+                    subvol_pvs[idx] = pv;
+                    break;
+                }
+            }
+        });
+
+        // Step 2: Use the rest for the leftover subvolumes
+        subvols.forEach((sv, idx) => {
+            if (!subvol_pvs[idx]) {
+                for (const pv of pvs) {
+                    if (subvol_pvs.indexOf(pv) == -1) {
+                        subvol_pvs[idx] = pv;
+                        break;
+                    }
+                }
+            }
+        });
+
+        return subvol_pvs;
+    }
+
     if (!usage.Teardown && size_fields.length + passphrase_fields.length === 0) {
-        return lvol_or_part_and_fsys_resize(client, lvol_or_part, grow_size, info.grow_needs_unmount, null);
+        return lvol_or_part_and_fsys_resize(client, lvol_or_part, grow_size, info.grow_needs_unmount,
+                                            null, prepare_pvs(initial_pvs));
     }
 
     const dlg = dialog_open({
         Title: title,
         Teardown: TeardownMessage(usage),
+        Body: has_subvols && <div><p>{cockpit.format(_("Exactly $0 physical volumes need to be selected, one for each stripe of the logical volume."), subvols.length)}</p><br /></div>,
         Fields: size_fields.concat(passphrase_fields),
+        update: (dlg, vals, trigger) => {
+            if (vals.pvs) {
+                const max = lvol_or_part.Size + compute_max_size(vals.pvs);
+                if (vals.size > max)
+                    dlg.set_values({ size: max });
+                dlg.set_options("size", { max });
+            }
+        },
         Action: {
             Title: _("Grow"),
             action: function (vals) {
@@ -318,7 +434,8 @@ export function grow_dialog(client, lvol_or_part, info, to_fit) {
                             return (lvol_or_part_and_fsys_resize(client, lvol_or_part,
                                                                  to_fit ? grow_size : vals.size,
                                                                  info.grow_needs_unmount,
-                                                                 vals.passphrase || recovered_passphrase)
+                                                                 vals.passphrase || recovered_passphrase,
+                                                                 prepare_pvs(vals.pvs))
                                     .then(() => undo_temporary_teardown(client, usage))
                                     .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });

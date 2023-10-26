@@ -24,11 +24,22 @@ import React from "react";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { ExclamationTriangleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { StorageButton, StorageLink, StorageOnOff } from "./storage-controls.jsx";
 import { dialog_open, TextInput } from "./dialog.jsx";
 import { get_resize_info, grow_dialog, shrink_dialog } from "./resize.jsx";
+import { fmt_size } from "./utils.js";
 
 const _ = cockpit.gettext;
+
+export function check_partial_lvols(client, path, enter_warning) {
+    if (client.lvols_status[path] && client.lvols_status[path] != "") {
+        enter_warning(path, {
+            warning: "partial-lvol",
+            danger: client.lvols_status[path] != "degraded"
+        });
+    }
+}
 
 function lvol_rename(lvol) {
     dialog_open({
@@ -45,6 +56,122 @@ function lvol_rename(lvol) {
         }
     });
 }
+
+const StructureDescription = ({ client, lvol }) => {
+    const vgroup = client.vgroups[lvol.VolumeGroup];
+    const pvs = (vgroup && client.vgroups_pvols[vgroup.path]) || [];
+
+    if (!lvol.Structure || pvs.length <= 1)
+        return null;
+
+    let status = null;
+    const status_code = client.lvols_status[lvol.path];
+    if (status_code == "partial") {
+        status = _("This logical volume has lost some of its physical volumes and can no longer be used. You need to delete it and create a new one to take its place.");
+    } else if (status_code == "degraded") {
+        status = _("This logical volume has lost some of its physical volumes but has not lost any data yet. You should repair it to restore its original redundancy.");
+    } else if (status_code == "degraded-maybe-partial") {
+        status = _("This logical volume has lost some of its physical volumes but might not have lost any data yet. You might be able to repair it.");
+    }
+
+    function nice_block_name(block) {
+        return utils.block_name(client.blocks[block.CryptoBackingDevice] || block);
+    }
+
+    function pvs_box(used, block_path) {
+        if (block_path != "/") {
+            const block = client.blocks[block_path];
+            return <div key={block_path} className="storage-pvs-pv-box">
+                <div className="storage-stripe-pv-box-dev">
+                    {block ? nice_block_name(block).replace("/dev/", "") : "???"}
+                </div>
+                <div>{fmt_size(used)}</div>
+            </div>;
+        } else {
+            return <div key={block_path} className="storage-pvs-pv-box">
+                <div className="storage-pvs-pv-box-dev">
+                    { status_code == "degraded"
+                        ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
+                        : <ExclamationCircleIcon className="ct-icon-times-circle" />
+                    }
+                </div>
+                <div>{fmt_size(used)}</div>
+            </div>;
+        }
+    }
+
+    if (lvol.Layout == "linear") {
+        const pvs = client.lvols_stripe_summary[lvol.path];
+        if (!pvs)
+            return null;
+
+        const stripe = Object.keys(pvs).map((path, i) =>
+            <FlexItem key={i} className="storage-pvs-box">
+                {pvs_box(pvs[path], path)}
+            </FlexItem>);
+
+        return (
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Physical volumes")}</DescriptionListTerm>
+                <DescriptionListDescription>
+                    <Flex spaceItems={{ default: "spaceItemsNone" }}
+                          alignItems={{ default: "alignItemsStretch" }}>
+                        {stripe}
+                    </Flex>
+                    {status}
+                </DescriptionListDescription>
+            </DescriptionListGroup>);
+    }
+
+    function stripe_box(used, block_path) {
+        if (block_path != "/") {
+            const block = client.blocks[block_path];
+            return <div key={block_path} className="storage-stripe-pv-box">
+                <div className="storage-stripe-pv-box-dev">
+                    {block ? nice_block_name(block).replace("/dev/", "") : "???"}
+                </div>
+                <div>{fmt_size(used)}</div>
+            </div>;
+        } else {
+            return <div key={block_path} className="storage-stripe-pv-box">
+                <div className="storage-stripe-pv-box-dev">
+                    { status_code == "degraded"
+                        ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
+                        : <ExclamationCircleIcon className="ct-icon-times-circle" />
+                    }
+                </div>
+                <div>{fmt_size(used)}</div>
+            </div>;
+        }
+    }
+
+    if (lvol.Layout == "mirror" || lvol.Layout.indexOf("raid") == 0) {
+        const summary = client.lvols_stripe_summary[lvol.path];
+        if (!summary)
+            return null;
+
+        const stripes = summary.map((pvs, i) =>
+            <FlexItem key={i} className="storage-stripe-box">
+                {Object.keys(pvs).map(path => stripe_box(pvs[path], path))}
+            </FlexItem>);
+
+        return (
+            <>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Stripes")}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        <Flex alignItems={{ default: "alignItemsStretch" }}>{stripes}</Flex>
+                        {status}
+                        {lvol.SyncRatio != 1.0
+                            ? <div>{cockpit.format(_("$0 synchronized"), lvol.SyncRatio * 100 + "%")}</div>
+                            : null}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+            </>);
+    }
+
+    return null;
+};
 
 export class BlockVolTab extends React.Component {
     render() {
@@ -81,6 +208,17 @@ export class BlockVolTab extends React.Component {
             return grow_dialog(client, lvol, info, unused_space);
         }
 
+        const layout_desc = {
+            raid0: _("Striped (RAID 0)"),
+            raid1: _("Mirrored (RAID 1)"),
+            raid10: _("Striped and mirrored (RAID 10)"),
+            raid4: _("Dedicated parity (RAID 4)"),
+            raid5: _("Distributed parity (RAID 5)"),
+            raid6: _("Double distributed parity (RAID 6)")
+        };
+
+        const layout = this.props.lvol.Layout;
+
         return (
             <div>
                 <DescriptionList className="pf-m-horizontal-on-sm">
@@ -93,6 +231,17 @@ export class BlockVolTab extends React.Component {
                             </Flex>
                         </DescriptionListDescription>
                     </DescriptionListGroup>
+                    { (layout && layout != "linear") &&
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Layout")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <Flex>
+                                <FlexItem>{layout_desc[layout] || layout}</FlexItem>
+                            </Flex>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    }
+                    <StructureDescription client={client} lvol={this.props.lvol} />
                     { !unused_space &&
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Size")}</DescriptionListTerm>

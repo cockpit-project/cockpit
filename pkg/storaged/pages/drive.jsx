@@ -31,6 +31,7 @@ import { SDesc } from "../utils/desc.jsx";
 import { PageChildrenCard, ParentPageLink, ActionButtons, new_page, page_type, block_location } from "../pages.jsx";
 import { block_name, drive_name, format_temperature, fmt_size, fmt_size_long } from "../utils.js";
 import { format_disk } from "../content-views.jsx"; // XXX
+import { format_dialog } from "../format-dialog.jsx";
 
 import { make_block_pages } from "../create-pages.jsx";
 
@@ -50,6 +51,8 @@ export function make_drive_page(parent, drive) {
     if (!block)
         return;
 
+    const is_formatted = !client.blocks_available[block.path];
+
     const drive_page = new_page({
         location: ["drive", block_location(block)],
         parent,
@@ -60,11 +63,18 @@ export function make_drive_page(parent, drive) {
             block.Size > 0 ? fmt_size(block.Size) : null
         ],
         actions: [
+            (!is_formatted
+             ? {
+                 title: _("Format as filesystem"),
+                 action: () => format_dialog(client, block.path),
+                 tag: "content"
+             }
+             : null),
             (block.Size > 0
                 ? {
                     title: _("Create partition table"),
                     action: () => format_disk(client, block),
-                    danger: !client.blocks_available[block.path],
+                    danger: is_formatted,
                     excuse: block.ReadOnly ? _("Device is read-only") : null,
                     tag: "content"
                 }
@@ -74,7 +84,7 @@ export function make_drive_page(parent, drive) {
         props: { drive }
     });
 
-    if (block.Size > 0)
+    if (is_formatted && block.Size > 0)
         make_block_pages(drive_page, block, null);
 }
 
@@ -137,6 +147,7 @@ const DrivePage = ({ page, drive }) => {
                 ? (<StackItem>
                     <PageChildrenCard title={is_partitioned ? _("Partitions") : _("Content")}
                                       actions={<ActionButtons page={page} tag="content" />}
+                                      emptyCaption={_("Drive is not formatted")}
                                       page={page} />
                 </StackItem>)
                 : null

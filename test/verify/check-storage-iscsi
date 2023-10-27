@@ -101,14 +101,15 @@ class TestStorageISCSI(storagelib.StorageCase):
         b.wait_text(self.card_desc("iSCSI portal", "Address"), "127.0.0.1")
         b.wait_text(self.card_desc("iSCSI portal", "Target"), target_iqn)
         b.wait_in_text(self.card_row_col("Drives", 1, 1), "LIO-ORG test")
-        b.wait_in_text(self.card_row_col("Drives", 2, 2), "Unformatted data")
 
         # Make a filesystem on it to prove that the disk really works.
 
-        b.clicks(self.dropdown_action(self.card_row("Drives", 2), "Format"))
+        b.click(self.card_row("Drives", 1))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "name": "FILESYSTEM",
                      "mount_point": "/data"})
+        b.click(self.card_desc("Drive", "Part of") + " button")
         b.wait_in_text(self.card_row_col("Drives", 2, 2), "ext4 filesystem")
         # _netdev should have been prefilled
         b.click(self.card_row_col("Drives", 2, 2))

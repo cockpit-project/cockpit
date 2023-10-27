@@ -194,13 +194,14 @@ class TestStorageLuks(storagelib.StorageCase):
 
         # Add a disk and format it with luks, but without filesystem
         disk = self.add_ram_disk()
-        b.click(self.card_row("Storage", name=disk))
+        b.click(self.card_row("Storage", location=disk))
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "empty",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        b.click(self.card_row("Content", 1))
         b.wait_visible(self.card("Unformatted data (encrypted)"))
 
         # Lock it
@@ -230,14 +231,15 @@ class TestStorageLuks(storagelib.StorageCase):
         # Add a disk and format it with luks and a filesystem
 
         disk = self.add_ram_disk()
-        b.click(self.card_row("Storage", name=disk))
+        b.click(self.card_row("Storage", location=disk))
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_point": "/run/foo"})
+        b.click(self.card_row("Content", 1))
         b.wait_visible(self.card("ext4 filesystem (encrypted)"))
 
         # Format it again but keep the keys
@@ -290,9 +292,9 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
 
         m.add_disk("50M", serial="MYDISK")
         dev = "/dev/sda"
-        b.click(self.card_row("Storage", name=dev))
+        b.click(self.card_row("Storage", location=dev))
         # create volume and passphrase
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "crypto": "luks1",
                      "name": "ENCRYPTED",
@@ -300,6 +302,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"},
                     secondary=True)
+        b.click(self.card_row("Content", 1))
         self.wait_not_mounted("Filesystem (encrypted)")
         b.wait_text(self.card_desc("Encryption", "Encryption type"), "LUKS1")
         b.wait_in_text(self.card_desc("Encryption", "Options"), "nofail")

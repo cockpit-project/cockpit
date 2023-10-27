@@ -62,7 +62,8 @@ ExecStart=/usr/bin/sleep infinity
         b.click(self.card_row("Storage", location=disk))
         b.wait_visible(self.card("Drive"))
 
-        b.clicks(self.dropdown_action(self.card_row("Partitions", 1), "Format"))
+        b.click(self.card_row("Partitions", 1))
+        b.click(self.card_button("ext2 filesystem (encrypted)", "Format"))
         self.dialog_wait_open()
         b.click("#dialog button:contains(Currently in use)")
         b.wait_in_text(".pf-v5-c-popover", str(sleep_pid))
@@ -75,25 +76,26 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.clicks(self.dropdown_action(self.card_row("Partitions", 1), "Delete"))
+        b.click(self.card_button("Partition", "Delete"))
         self.dialog_wait_open()
         b.wait_visible("#dialog button:contains(Currently in use)")
         b.assert_pixels('#dialog', "delete")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        # No go ahead and let the automatic teardown take care of the mount
+        # Now go ahead and let the automatic teardown take care of the mount
 
-        b.click(self.card_button("Partitions", "Create partition table"))
+        b.click(self.card_desc("ext2 filesystem (encrypted)", "Stored on") + " button")
+        b.click(self.card_button("Partitions", "Erase"))
         self.dialog_wait_open()
         b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
-        b.assert_pixels('#dialog', "format-disk")
+        b.assert_pixels('#dialog', "erase-disk")
         self.dialog_apply()
         self.dialog_wait_close()
 
         m.execute("! systemctl --quiet is-active keep-mnt-busy")
 
-        b.wait_text(self.card_row_col("Partitions", 1, 1), "Free space")
+        b.wait_in_text(self.card("Content"), "Drive is not formatted")
 
     def testUsedAsPV(self):
         m = self.machine
@@ -115,8 +117,8 @@ ExecStart=/usr/bin/sleep infinity
         # group.
 
         b.click(self.card_row("Storage", location=dev_1))
-        b.click(self.card_button("Content", "Create partition table"))
-        b.wait_in_text('#dialog', "remove from LVM2, initialize")
+        b.click(self.card_button("Content", "Erase"))
+        b.wait_in_text('#dialog', "remove from LVM2, erase")
         self.dialog_apply()
         self.dialog_wait_close()
         self.assertEqual(int(m.execute("vgs TEST1 -o pv_count --noheadings")), 1)
@@ -126,8 +128,8 @@ ExecStart=/usr/bin/sleep infinity
 
         b.go("#/")
         b.click(self.card_row("Storage", location=dev_2))
-        b.click(self.card_button("Content", "Create partition table"))
-        b.wait_in_text('#dialog', "remove from LVM2, initialize")
+        b.click(self.card_button("Content", "Erase"))
+        b.wait_in_text('#dialog', "remove from LVM2, erase")
         self.dialog_apply()
         self.dialog_wait_close()
 

@@ -29,6 +29,7 @@ import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patter
 import { TextInput as TextInputPF } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { EditIcon, MinusIcon, PlusIcon } from "@patternfly/react-icons";
+import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 
 import sha1 from "js-sha1";
 import sha256 from "js-sha256";
@@ -794,7 +795,7 @@ export class CryptoKeyslots extends React.Component {
 
         const keys = slots ? slots.map(decode_clevis_slot).filter(k => !!k) : [];
 
-        let rows;
+        let table;
         if (keys.length == 0) {
             let text;
             if (slot_error) {
@@ -805,9 +806,13 @@ export class CryptoKeyslots extends React.Component {
             } else {
                 text = _("No keys added");
             }
-            rows = <tr><td className="text-center">{text}</td></tr>;
+            table = <EmptyState>
+                <EmptyStateBody>
+                    {text}
+                </EmptyStateBody>
+            </EmptyState>;
         } else {
-            rows = [];
+            const rows = [];
 
             const add_row = (slot, type, desc, edit, edit_excuse, remove) => {
                 rows.push(
@@ -864,6 +869,10 @@ export class CryptoKeyslots extends React.Component {
                             () => remove_clevis_dialog(client, block, key));
                 }
             });
+
+            table = <DataList isCompact className="crypto-keyslots-list" aria-label={_("Keys")}>
+                {rows}
+            </DataList>;
         }
 
         const remaining = max_slots - keys.length;
@@ -887,9 +896,7 @@ export class CryptoKeyslots extends React.Component {
                     <CardTitle component="h2">{_("Keys")}</CardTitle>
                 </CardHeader>
                 <CardBody id="encryption-keys" className="contains-list">
-                    <DataList isCompact className="crypto-keyslots-list" aria-label={_("Keys")}>
-                        {rows}
-                    </DataList>
+                    {table}
                 </CardBody>
             </>
         );

@@ -34,7 +34,7 @@ class TestStorageFormat(storagelib.StorageCase):
         disk = self.add_ram_disk(size=5)
         b.click(self.card_row("Storage", name=disk))
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog_wait_open()
         self.dialog_set_val("type", "xfs")
         self.dialog_set_val("mount_point", "/foo")
@@ -112,7 +112,7 @@ class TestStorageFormat(storagelib.StorageCase):
         sigoff = (blocks - 1) * 512
         m.execute(f"echo hello | dd if=/dev/stdin of=/dev/mapper/superslow bs=1 count=5 seek={sigoff}")
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog_wait_open()
         self.dialog_set_val("erase.on", val=True)
         self.dialog_set_val("mount_point", "/foo")
@@ -136,7 +136,7 @@ class TestStorageFormat(storagelib.StorageCase):
         b.click(self.card_row("Storage", name=disk))
 
         def format_partition(expected_at_boot, at_boot, keep, first=False):
-            b.click(self.card_button("Unrecognized data" if first else "ext4 filesystem (encrypted)", "Format"))
+            b.click(self.card_button("Unformatted data" if first else "ext4 filesystem (encrypted)", "Format"))
             self.dialog_wait_open()
             self.dialog_wait_val("at_boot", expected_at_boot)
             self.dialog_set_val("type", "ext4")

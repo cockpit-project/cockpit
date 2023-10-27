@@ -33,7 +33,7 @@ class TestStorageswap(storagelib.StorageCase):
         disk = self.add_ram_disk()
         b.click(self.card_row("Storage", name=disk))
 
-        b.wait_visible(self.card("Unrecognized data"))
+        b.wait_visible(self.card("Unformatted data"))
         m.execute(f"mkswap {disk}")
         b.wait_visible(self.card("Swap"))
         b.wait_text(self.card_desc("Swap", "Used"), "-")

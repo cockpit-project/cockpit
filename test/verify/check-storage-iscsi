@@ -101,7 +101,7 @@ class TestStorageISCSI(storagelib.StorageCase):
         b.wait_text(self.card_desc("iSCSI portal", "Address"), "127.0.0.1")
         b.wait_text(self.card_desc("iSCSI portal", "Target"), target_iqn)
         b.wait_in_text(self.card_row_col("Drives", 1, 1), "LIO-ORG test")
-        b.wait_in_text(self.card_row_col("Drives", 2, 2), "Unrecognized data")
+        b.wait_in_text(self.card_row_col("Drives", 2, 2), "Unformatted data")
 
         # Make a filesystem on it to prove that the disk really works.
 

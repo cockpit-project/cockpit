@@ -196,15 +196,15 @@ class TestStorageLuks(storagelib.StorageCase):
         disk = self.add_ram_disk()
         b.click(self.card_row("Storage", name=disk))
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "empty",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
-        b.wait_visible(self.card("Unrecognized data (encrypted)"))
+        b.wait_visible(self.card("Unformatted data (encrypted)"))
 
         # Lock it
-        b.click(self.card_button("Unrecognized data (encrypted)", "Lock"))
+        b.click(self.card_button("Unformatted data (encrypted)", "Lock"))
         b.wait_visible(self.card("Locked encrypted data"))
 
         # Make it readonly
@@ -217,7 +217,7 @@ class TestStorageLuks(storagelib.StorageCase):
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
 
         # Try to format it, just for kicks
-        b.click(self.card_button("Unrecognized data (encrypted)", "Format"))
+        b.click(self.card_button("Unformatted data (encrypted)", "Format"))
         self.dialog({"type": "ext4",
                      "mount_point": "/run/foo"})
         b.wait_visible(self.card("ext4 filesystem (encrypted)"))
@@ -232,7 +232,7 @@ class TestStorageLuks(storagelib.StorageCase):
         disk = self.add_ram_disk()
         b.click(self.card_row("Storage", name=disk))
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
@@ -292,7 +292,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         dev = "/dev/sda"
         b.click(self.card_row("Storage", name=dev))
         # create volume and passphrase
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "crypto": "luks1",
                      "name": "ENCRYPTED",
@@ -432,7 +432,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         m.add_disk("50M", serial="MYDISK")
         b.click(self.card_row("Storage", name=dev))
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
@@ -479,7 +479,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         m.add_disk("50M", serial="MYDISK")
         b.click(self.card_row("Storage", name=dev))
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "name": "ENCRYPTED",

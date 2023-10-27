@@ -51,7 +51,7 @@ class TestStorageBasic(storagelib.StorageCase):
 
         m.execute(f'parted -s {disk} mktable gpt')
         m.execute(f'parted -s {disk} mkpart primary ext2 1M 8M')
-        b.wait_text(self.card_row_col("Partitions", 1, 2), "Unrecognized data")
+        b.wait_text(self.card_row_col("Partitions", 1, 2), "Unformatted data")
 
         # create filesystem on the first partition
         # HACK - the block device might disappear briefly when udevd does its BLKRRPART.

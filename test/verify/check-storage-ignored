@@ -33,7 +33,7 @@ class TestStorageIgnored(storagelib.StorageCase):
         b.click(self.card_row("Storage", location=disk))
         b.wait_visible(self.card("Block device"))
         b.click(self.card_row("Content", 1))
-        b.wait_visible(self.card("Unrecognized data"))
+        b.wait_visible(self.card("Unformatted data"))
 
         m.execute(f"yes | mke2fs -q -L TESTLABEL {disk}")
         with b.wait_timeout(30):

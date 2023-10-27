@@ -141,7 +141,7 @@ ExecStart=/usr/bin/sleep infinity
 
         # Format it
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
@@ -231,7 +231,7 @@ ExecStart=/usr/bin/sleep infinity
         disk = self.add_ram_disk()
         b.click(self.card_row("Storage", name=disk))
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "mount_point": "/run/foo"},
                     secondary=True)
@@ -286,7 +286,7 @@ ExecStart=/usr/bin/sleep infinity
         disk = self.add_ram_disk()
         b.click(self.card_row("Storage", name=disk))
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "mount_point": "/foo",
                      "at_boot": "local",
@@ -347,7 +347,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
 
         # Format it with encryption
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
@@ -473,7 +473,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         disk = self.add_ram_disk()
         b.click(self.card_row("Storage", name=disk))
 
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",

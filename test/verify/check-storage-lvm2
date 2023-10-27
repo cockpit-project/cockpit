@@ -170,7 +170,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog({"size": 30})
 
         # format and mount it
-        b.click(self.card_button("Unrecognized data", "Format"))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
         self.wait_mounted("ext4 filesystem")
@@ -411,7 +411,7 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Make linear volume to fully use second PV
 
-        b.click(self.card_desc("Unrecognized data", "Stored on") + " button")
+        b.click(self.card_desc("Unformatted data", "Stored on") + " button")
         b.click(self.card_button("Logical volumes", "Create new logical volume"))
         self.dialog(expect={"name": "lvol1"},
                     values={"purpose": "block",
@@ -421,7 +421,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.click(self.card_row("Logical volumes", 2))
         b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk2))
 
-        b.click(self.card_desc("Unrecognized data", "Stored on") + " button")
+        b.click(self.card_desc("Unformatted data", "Stored on") + " button")
         b.click(self.card_row("Logical volumes", 1))
 
         # Grow raid5 to about maximum
@@ -492,7 +492,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                        "This logical volume has lost some of its physical volumes but has not lost any data yet.")
         b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
 
-        b.click(self.card_desc("Unrecognized data", "Stored on") + " button")
+        b.click(self.card_desc("Unformatted data", "Stored on") + " button")
         b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
         b.wait_visible("button:contains(Rename):disabled")
         b.wait_visible(self.card_row("Logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
@@ -506,7 +506,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.click(self.card_desc("Unrecognized data", "Stored on") + " button")
+        b.click(self.card_desc("Unformatted data", "Stored on") + " button")
         b.click(self.card_button("Physical volumes", "Add physical volume"))
         self.dialog_wait_open()
         self.dialog_set_val('disks', {disk4: True})
@@ -529,7 +529,7 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Dismiss alert
 
-        b.click(self.card_desc("Unrecognized data", "Stored on") + " button")
+        b.click(self.card_desc("Unformatted data", "Stored on") + " button")
         b.wait_visible(self.card_row("Logical volumes", name="lvol0"))
         b.wait_not_present(self.card_row("Logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
 
@@ -584,7 +584,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                        "This logical volume has lost some of its physical volumes and can no longer be used.")
         b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk1))
 
-        b.click(self.card_desc("Unrecognized data", "Stored on") + " button")
+        b.click(self.card_desc("Unformatted data", "Stored on") + " button")
         b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
         b.wait_visible("button:contains(Rename):disabled")
         b.wait_visible(self.card_row("Logical volumes", name="lvol0") + ' .ct-icon-times-circle')
@@ -837,7 +837,7 @@ class TestStorageLvm2(storagelib.StorageCase):
             b.click(self.card_row("Logical volumes", row))
             b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes" if row == 1 else "Stripes"),
                            msg)
-            b.click(self.card_desc("Unrecognized data", "Stored on") + " button")
+            b.click(self.card_desc("Unformatted data", "Stored on") + " button")
 
         def wait_partial(row):
             wait_msg(row, "This logical volume has lost some of its physical volumes and can no longer be used.")

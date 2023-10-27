@@ -35,6 +35,8 @@ import vdo_monitor_py from "./vdo-monitor.py";
 import stratis2_set_key_py from "./stratis2-set-key.py";
 import stratis3_set_key_py from "./stratis3-set-key.py";
 
+import { create_pages } from "./create-pages.jsx";
+
 /* STORAGED CLIENT
  */
 
@@ -562,6 +564,25 @@ function update_indices() {
         client.blocks_partitions[path].sort(function (a, b) { return a.Offset - b.Offset });
     }
 
+    client.iscsi_sessions_drives = { };
+    client.drives_iscsi_session = { };
+    for (path in client.drives) {
+        const block = client.drives_block[path];
+        if (!block)
+            continue;
+        for (const session_path in client.iscsi_sessions) {
+            const session = client.iscsi_sessions[session_path];
+            for (i = 0; i < block.Symlinks.length; i++) {
+                if (utils.decode_filename(block.Symlinks[i]).includes(session.data.target_name)) {
+                    client.drives_iscsi_session[path] = session;
+                    if (!client.iscsi_sessions_drives[session_path])
+                        client.iscsi_sessions_drives[session_path] = [];
+                    client.iscsi_sessions_drives[session_path].push(client.drives[path]);
+                }
+            }
+        }
+    }
+
     client.path_jobs = { };
     function enter_job(job) {
         if (!job.Objects || !job.Objects.length)
@@ -581,10 +602,15 @@ function update_indices() {
     }
 }
 
-client.update = () => {
-    update_indices();
-    client.path_warnings = find_warnings(client);
-    client.dispatchEvent("changed");
+client.update = (first_time) => {
+    if (first_time)
+        client.ready = true;
+    if (client.ready) {
+        update_indices();
+        client.path_warnings = find_warnings(client);
+        create_pages();
+        client.dispatchEvent("changed");
+    }
 };
 
 function init_model(callback) {
@@ -723,7 +749,7 @@ function init_model(callback) {
 
                     client.storaged_client.addEventListener('notify', () => client.update());
 
-                    client.update();
+                    client.update(true);
                     callback();
                 });
             });
@@ -819,7 +845,7 @@ function nfs_mounts() {
                     if (lines.length >= 2) {
                         self.entries = JSON.parse(lines[lines.length - 2]);
                         self.fsys_sizes = { };
-                        client.dispatchEvent('changed');
+                        client.update();
                     }
                 })
                 .catch(function (error) {
@@ -842,11 +868,11 @@ function nfs_mounts() {
                 .then(function (output) {
                     const data = JSON.parse(output);
                     self.fsys_sizes[path] = [(data[2] - data[1]) * data[0], data[2] * data[0]];
-                    client.dispatchEvent('changed');
+                    client.update();
                 })
                 .catch(function () {
                     self.fsys_sizes[path] = [0, 0];
-                    client.dispatchEvent('changed');
+                    client.update();
                 });
 
         return null;

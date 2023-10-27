@@ -854,7 +854,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                 usage: 'mdraid-member',
                 block,
                 mdraid,
-                location: mdraid_name(mdraid.Name),
+                location: mdraid_name(mdraid),
                 actions: get_actions(_("remove from RAID")),
                 blocking: !(active_state && active_state[1] < 0)
             });

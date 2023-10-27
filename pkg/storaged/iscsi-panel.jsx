@@ -30,7 +30,7 @@ import { dialog_open, TextInput, PassInput, SelectRow } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
-function iscsi_discover(client) {
+export function iscsi_discover(client) {
     dialog_open({
         Title: _("Add iSCSI portal"),
         Fields: [
@@ -164,7 +164,7 @@ function iscsi_add_with_creds(client, discover_vals, login_vals) {
     });
 }
 
-function iscsi_change_name(client) {
+export function iscsi_change_name(client) {
     return client.manager_iscsi.call('GetInitiatorName')
             .then(function (results) {
                 const name = results[0];

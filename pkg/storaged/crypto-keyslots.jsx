@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
+import { CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -869,7 +869,7 @@ export class CryptoKeyslots extends React.Component {
         const remaining = max_slots - keys.length;
 
         return (
-            <Card className="key-slot-panel">
+            <>
                 <CardHeader actions={{
                     actions: <>
                         <span className="key-slot-panel-remaining">
@@ -886,12 +886,12 @@ export class CryptoKeyslots extends React.Component {
                 }}>
                     <CardTitle component="h2">{_("Keys")}</CardTitle>
                 </CardHeader>
-                <CardBody className="contains-list">
+                <CardBody id="encryption-keys" className="contains-list">
                     <DataList isCompact className="crypto-keyslots-list" aria-label={_("Keys")}>
                         {rows}
                     </DataList>
                 </CardBody>
-            </Card>
+            </>
         );
     }
 }

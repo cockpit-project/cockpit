@@ -1,0 +1,650 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2023 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import cockpit from "cockpit";
+import React from "react";
+import client from "../client";
+
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+
+import { SCard } from "../utils/card.jsx";
+import { SDesc } from "../utils/desc.jsx";
+import { StorageButton, StorageUsageBar, StorageLink } from "../storage-controls.jsx";
+import { PageChildrenCard, PageCrossrefCard, ActionButtons, new_page, page_type, get_crossrefs } from "../pages.jsx";
+import {
+    fmt_size, get_active_usage, teardown_active_usage, for_each_async,
+    get_available_spaces, prepare_available_spaces,
+    reload_systemd, encode_filename, decode_filename,
+} from "../utils.js";
+import { fmt_to_fragments } from "utils.jsx";
+
+import {
+    dialog_open, SelectSpaces, TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
+    BlockingMessage, TeardownMessage,
+    init_active_usage_processes
+} from "../dialog.jsx";
+
+import { validate_url, get_tang_adv } from "../crypto-keyslots.jsx"; // XXX
+import { is_valid_mount_point } from "../fsys-tab.jsx"; // XXX
+import { std_reply, with_keydesc, with_stored_passphrase, confirm_tang_trust, get_unused_keydesc } from "../stratis-utils.js";
+import { mount_explanation } from "../format-dialog.jsx";
+
+import { make_stratis_filesystem_page } from "./stratis-filesystem.jsx";
+
+const _ = cockpit.gettext;
+
+const fsys_min_size = 512 * 1024 * 1024;
+
+function teardown_block(block) {
+    return for_each_async(block.Configuration, c => block.RemoveConfigurationItem(c, {}));
+}
+
+export function destroy_filesystem(fsys) {
+    const block = client.slashdevs_block[fsys.Devnode];
+    const pool = client.stratis_pools[fsys.Pool];
+
+    return teardown_block(block).then(() => pool.DestroyFilesystems([fsys.path]).then(std_reply));
+}
+
+function destroy_pool(pool) {
+    return for_each_async(client.stratis_pool_filesystems[pool.path], fsys => destroy_filesystem(fsys))
+            .then(() => client.stratis_manager.DestroyPool(pool.path).then(std_reply));
+}
+
+export function validate_fs_name(fsys, name, filesystems) {
+    if (name == "")
+        return _("Name can not be empty.");
+    if (!fsys || name != fsys.Name) {
+        for (const fs of filesystems) {
+            if (fs.Name == name)
+                return _("A filesystem with this name exists already in this pool.");
+        }
+    }
+}
+
+export function validate_pool_name(pool, name) {
+    if (name == "")
+        return _("Name can not be empty.");
+    if ((!pool || name != pool.Name) && client.stratis_poolnames_pool[name])
+        return _("A pool with this name exists already.");
+}
+
+export function set_mount_options(path, vals, forced_options) {
+    let mount_options = [];
+
+    if (vals.variant == "nomount" || vals.at_boot == "never")
+        mount_options.push("noauto");
+    if (vals.mount_options.ro)
+        mount_options.push("ro");
+    if (vals.at_boot == "never")
+        mount_options.push("x-cockpit-never-auto");
+    if (vals.at_boot == "nofail")
+        mount_options.push("nofail");
+    if (vals.at_boot == "netdev")
+        mount_options.push("_netdev");
+    if (vals.mount_options.extra)
+        mount_options.push(vals.mount_options.extra);
+
+    mount_options = mount_options.concat(forced_options);
+
+    let mount_point = vals.mount_point;
+    if (mount_point == "")
+        return Promise.resolve();
+    if (mount_point[0] != "/")
+        mount_point = "/" + mount_point;
+
+    const config =
+          ["fstab",
+              {
+                  dir: { t: 'ay', v: encode_filename(mount_point) },
+                  type: { t: 'ay', v: encode_filename("auto") },
+                  opts: { t: 'ay', v: encode_filename(mount_options.join(",") || "defaults") },
+                  freq: { t: 'i', v: 0 },
+                  passno: { t: 'i', v: 0 },
+              }
+          ];
+
+    function udisks_block_for_stratis_fsys() {
+        const fsys = client.stratis_filesystems[path];
+        return fsys && client.slashdevs_block[fsys.Devnode];
+    }
+
+    return client.wait_for(udisks_block_for_stratis_fsys)
+            .then(block => {
+            // HACK - need a explicit "change" event
+                return block.Rescan({})
+                        .then(() => {
+                            return client.wait_for(() => client.blocks_fsys[block.path])
+                                    .then(fsys => {
+                                        return block.AddConfigurationItem(config, {})
+                                                .then(reload_systemd)
+                                                .then(() => {
+                                                    if (vals.variant != "nomount")
+                                                        return client.mount_at(block, mount_point);
+                                                    else
+                                                        return Promise.resolve();
+                                                });
+                                    });
+                        });
+            });
+}
+
+function create_fs(pool) {
+    const filesystems = client.stratis_pool_filesystems[pool.path];
+    const stats = client.stratis_pool_stats[pool.path];
+    const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
+    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
+
+    dialog_open({
+        Title: _("Create filesystem"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      {
+                          validate: name => validate_fs_name(null, name, filesystems)
+                      }),
+            SizeSlider("size", _("Size"),
+                       {
+                           visible: () => managed_fsys_sizes,
+                           min: fsys_min_size,
+                           max: stats.pool_free,
+                           round: 512
+                       }),
+            TextInput("mount_point", _("Mount point"),
+                      {
+                          validate: (val, values, variant) => {
+                              return is_valid_mount_point(client, null, val, variant == "nomount");
+                          }
+                      }),
+            CheckBoxes("mount_options", _("Mount options"),
+                       {
+                           value: {
+                               ro: false,
+                               extra: false
+                           },
+                           fields: [
+                               { title: _("Mount read only"), tag: "ro" },
+                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                           ]
+                       }),
+            SelectOne("at_boot", _("At boot"),
+                      {
+                          value: "nofail",
+                          explanation: mount_explanation.nofail,
+                          choices: [
+                              {
+                                  value: "local",
+                                  title: _("Mount before services start"),
+                              },
+                              {
+                                  value: "nofail",
+                                  title: _("Mount without waiting, ignore failure"),
+                              },
+                              {
+                                  value: "netdev",
+                                  title: _("Mount after network becomes available, ignore failure"),
+                              },
+                              {
+                                  value: "never",
+                                  title: _("Do not mount"),
+                              },
+                          ]
+                      }),
+        ],
+        update: function (dlg, vals, trigger) {
+            if (trigger == "at_boot")
+                dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
+        },
+        Action: {
+            Title: _("Create and mount"),
+            Variants: [{ tag: "nomount", Title: _("Create only") }],
+            action: function (vals) {
+                return client.stratis_create_filesystem(pool, vals.name, vals.size)
+                        .then(std_reply)
+                        .then(result => {
+                            if (result[0])
+                                return set_mount_options(result[1][0][0], vals, forced_options);
+                            else
+                                return Promise.resolve();
+                        });
+            }
+        }
+    });
+}
+
+function delete_pool(pool) {
+    const location = cockpit.location;
+    const usage = get_active_usage(client, pool.path, _("delete"));
+
+    if (usage.Blocking) {
+        dialog_open({
+            Title: cockpit.format(_("$0 is in use"),
+                                  pool.Name),
+            Body: BlockingMessage(usage)
+        });
+        return;
+    }
+
+    dialog_open({
+        Title: cockpit.format(_("Permanently delete $0?"), pool.Name),
+        Teardown: TeardownMessage(usage),
+        Action: {
+            Danger: _("Deleting a Stratis pool will erase all data it contains."),
+            Title: _("Delete"),
+            action: function () {
+                return teardown_active_usage(client, usage)
+                        .then(() => destroy_pool(pool))
+                        .then(() => {
+                            location.go('/');
+                        });
+            }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage)
+        ]
+    });
+}
+
+function rename_pool(pool) {
+    dialog_open({
+        Title: _("Rename Stratis pool"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      {
+                          value: pool.Name,
+                          validate: name => validate_pool_name(pool, name)
+                      })
+        ],
+        Action: {
+            Title: _("Rename"),
+            action: function (vals) {
+                return pool.SetName(vals.name).then(std_reply);
+            }
+        }
+    });
+}
+
+function make_stratis_filesystem_pages(parent, pool) {
+    const filesystems = client.stratis_pool_filesystems[pool.path];
+    const stats = client.stratis_pool_stats[pool.path];
+    const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
+    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
+
+    filesystems.forEach((fs, i) => make_stratis_filesystem_page(parent, pool, fs,
+                                                                stats.fsys_offsets[i],
+                                                                forced_options,
+                                                                managed_fsys_sizes));
+}
+
+export function make_stratis_pool_page(parent, pool) {
+    const degraded_ops = pool.AvailableActions && pool.AvailableActions !== "fully_operational";
+    const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
+    const can_grow =
+          (client.features.stratis_grow_blockdevs &&
+           blockdevs.some(bd => bd.NewPhysicalSize[0] && Number(bd.NewPhysicalSize[1]) > Number(bd.TotalPhysicalSize)));
+
+    const p = new_page({
+        location: ["pool", pool.Uuid],
+        parent,
+        name: pool.Name,
+        columns: [
+            pool.Encrypted ? _("Encrypted Stratis pool") : _("Stratis pool"),
+            "/dev/stratis/" + pool.Name + "/",
+            fmt_size(pool.TotalPhysicalSize),
+        ],
+        has_warning: degraded_ops || can_grow,
+        component: StratisPoolPage,
+        props: { pool, degraded_ops, can_grow },
+        actions: [
+            { title: _("Rename"), action: () => rename_pool(pool), },
+            { title: _("Delete"), action: () => delete_pool(pool), danger: true },
+        ],
+    });
+
+    make_stratis_filesystem_pages(p, pool);
+}
+
+const StratisPoolPage = ({ page, pool, degraded_ops, can_grow }) => {
+    const key_desc = (pool.Encrypted &&
+                      pool.KeyDescription[0] &&
+                      pool.KeyDescription[1][1]);
+    const can_tang = (client.features.stratis_crypto_binding &&
+                      pool.Encrypted &&
+                      pool.ClevisInfo[0] && // pool has consistent clevis config
+                      (!pool.ClevisInfo[1][0] || pool.ClevisInfo[1][1][0] == "tang")); // not bound or bound to "tang"
+    const tang_url = can_tang && pool.ClevisInfo[1][0] ? JSON.parse(pool.ClevisInfo[1][1][1]).url : null;
+    const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
+    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
+    const stats = client.stratis_pool_stats[pool.path];
+
+    function grow_blockdevs() {
+        return for_each_async(blockdevs, bd => pool.GrowPhysicalDevice(bd.Uuid));
+    }
+
+    const alerts = [];
+    if (can_grow) {
+        alerts.push(<StackItem key="unused-space">
+            <Alert isInline
+                               variant="warning"
+                               title={_("This pool does not use all the space on its block devices.")}>
+                {_("Some block devices of this pool have grown in size after the pool was created. The pool can be safely grown to use the newly available space.")}
+                <div className="storage_alert_action_buttons">
+                    <StorageButton onClick={grow_blockdevs}>
+                        {_("Grow the pool to take all space")}
+                    </StorageButton>
+                </div>
+            </Alert>
+        </StackItem>);
+    }
+
+    if (degraded_ops) {
+        const goToStratisLogs = () => cockpit.jump("/system/logs/#/?prio=warn&_SYSTEMD_UNIT=stratisd.service");
+        alerts.push(<StackItem key="degraded">
+            <Alert isInline
+                               variant="warning"
+                               title={_("This pool is in a degraded state.")}>
+                <div className="storage_alert_action_buttons">
+                    <Button variant="link" isInline onClick={goToStratisLogs}>
+                        {_("View logs")}
+                    </Button>
+                </div>
+            </Alert>
+        </StackItem>);
+    }
+
+    function add_passphrase() {
+        dialog_open({
+            Title: _("Add passphrase"),
+            Fields: [
+                PassInput("passphrase", _("Passphrase"),
+                          { validate: val => !val.length && _("Passphrase cannot be empty") }),
+                PassInput("passphrase2", _("Confirm"),
+                          { validate: (val, vals) => vals.passphrase.length && vals.passphrase != val && _("Passphrases do not match") })
+            ],
+            Action: {
+                Title: _("Save"),
+                action: vals => {
+                    return get_unused_keydesc(client, pool.Name)
+                            .then(keydesc => {
+                                return with_stored_passphrase(client, keydesc, vals.passphrase,
+                                                              () => pool.BindKeyring(keydesc))
+                                        .then(std_reply);
+                            });
+                }
+            }
+        });
+    }
+
+    function change_passphrase() {
+        with_keydesc(client, pool, (keydesc, keydesc_set) => {
+            dialog_open({
+                Title: _("Change passphrase"),
+                Fields: [
+                    PassInput("old_passphrase", _("Old passphrase"),
+                              {
+                                  visible: vals => !keydesc_set,
+                                  validate: val => !val.length && _("Passphrase cannot be empty")
+                              }),
+                    PassInput("new_passphrase", _("New passphrase"),
+                              { validate: val => !val.length && _("Passphrase cannot be empty") }),
+                    PassInput("new_passphrase2", _("Confirm"),
+                              { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match") })
+                ],
+                Action: {
+                    Title: _("Save"),
+                    action: vals => {
+                        function rebind() {
+                            return get_unused_keydesc(client, pool.Name)
+                                    .then(new_keydesc => {
+                                        return with_stored_passphrase(client, new_keydesc, vals.new_passphrase,
+                                                                      () => pool.RebindKeyring(new_keydesc))
+                                                .then(std_reply);
+                                    });
+                        }
+
+                        if (vals.old_passphrase) {
+                            return with_stored_passphrase(client, keydesc, vals.old_passphrase, rebind);
+                        } else {
+                            return rebind();
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    function remove_passphrase() {
+        dialog_open({
+            Title: _("Remove passphrase?"),
+            Body: <div>
+                <p className="slot-warning">{ fmt_to_fragments(_("Passphrase removal may prevent unlocking $0."), <b>{pool.Name}</b>) }</p>
+            </div>,
+            Action: {
+                DangerButton: true,
+                Title: _("Remove"),
+                action: function (vals) {
+                    return pool.UnbindKeyring().then(std_reply);
+                }
+            }
+        });
+    }
+
+    function add_tang() {
+        return with_keydesc(client, pool, (keydesc, keydesc_set) => {
+            dialog_open({
+                Title: _("Add Tang keyserver"),
+                Fields: [
+                    TextInput("tang_url", _("Keyserver address"),
+                              {
+                                  validate: validate_url
+                              }),
+                    PassInput("passphrase", _("Pool passphrase"),
+                              {
+                                  visible: () => !keydesc_set,
+                                  validate: val => !val.length && _("Passphrase cannot be empty"),
+                                  explanation: _("Adding a keyserver requires unlocking the pool. Please provide the existing pool passphrase.")
+                              })
+                ],
+                Action: {
+                    Title: _("Save"),
+                    action: function (vals, progress) {
+                        return get_tang_adv(vals.tang_url)
+                                .then(adv => {
+                                    function bind() {
+                                        return pool.BindClevis("tang", JSON.stringify({ url: vals.tang_url, adv }))
+                                                .then(std_reply);
+                                    }
+                                    confirm_tang_trust(vals.tang_url, adv,
+                                                       () => {
+                                                           if (vals.passphrase)
+                                                               return with_stored_passphrase(client, keydesc,
+                                                                                             vals.passphrase, bind);
+                                                           else
+                                                               return bind();
+                                                       });
+                                });
+                    }
+                }
+            });
+        });
+    }
+
+    function remove_tang() {
+        dialog_open({
+            Title: _("Remove Tang keyserver?"),
+            Body: <div>
+                <p>{ fmt_to_fragments(_("Remove $0?"), <b>{tang_url}</b>) }</p>
+                <p className="slot-warning">{ fmt_to_fragments(_("Keyserver removal may prevent unlocking $0."), <b>{pool.Name}</b>) }</p>
+            </div>,
+            Action: {
+                DangerButton: true,
+                Title: _("Remove"),
+                action: function (vals) {
+                    return pool.UnbindClevis().then(std_reply);
+                }
+            }
+        });
+    }
+
+    const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
+
+    const fsys_actions = (
+        <StorageButton onClick={() => create_fs(pool)}
+                       excuse={managed_fsys_sizes && stats.pool_free < fsys_min_size
+                           ? _("Not enough space for new filesystems")
+                           : null}>
+            {_("Create new filesystem")}
+        </StorageButton>);
+
+    function add_disks() {
+        with_keydesc(client, pool, (keydesc, keydesc_set) => {
+            const ask_passphrase = keydesc && !keydesc_set;
+
+            dialog_open({
+                Title: _("Add block devices"),
+                Fields: [
+                    SelectOne("tier", _("Tier"),
+                              {
+                                  choices: [
+                                      { value: "data", title: _("Data") },
+                                      {
+                                          value: "cache",
+                                          title: _("Cache"),
+                                          disabled: pool.Encrypted && !client.features.stratis_encrypted_caches
+                                      }
+                                  ]
+                              }),
+                    PassInput("passphrase", _("Passphrase"),
+                              {
+                                  visible: () => ask_passphrase,
+                                  validate: val => !val.length && _("Passphrase cannot be empty"),
+                              }),
+                    SelectSpaces("disks", _("Block devices"),
+                                 {
+                                     empty_warning: _("No disks are available."),
+                                     validate: function(disks) {
+                                         if (disks.length === 0)
+                                             return _("At least one disk is needed.");
+                                     },
+                                     spaces: get_available_spaces(client)
+                                 })
+                ],
+                Action: {
+                    Title: _("Add"),
+                    action: function(vals) {
+                        return prepare_available_spaces(client, vals.disks)
+                                .then(paths => {
+                                    const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
+
+                                    function add() {
+                                        if (vals.tier == "data") {
+                                            return pool.AddDataDevs(devs).then(std_reply);
+                                        } else if (vals.tier == "cache") {
+                                            const has_cache = blockdevs.some(bd => bd.Tier == 1);
+                                            const method = has_cache ? "AddCacheDevs" : "InitCache";
+                                            return pool[method](devs).then(std_reply);
+                                        }
+                                    }
+
+                                    if (ask_passphrase) {
+                                        return with_stored_passphrase(client, keydesc, vals.passphrase, add);
+                                    } else
+                                        return add();
+                                });
+                    }
+                }
+            });
+        });
+    }
+
+    const blockdev_actions = (
+        <StorageButton onClick={add_disks}>
+            {_("Add block devices")}
+        </StorageButton>);
+
+    return (
+        <Stack hasGutter>
+            {alerts}
+            <StackItem>
+                <SCard title={page_type(page)} actions={<ActionButtons page={page} />}>
+                    <CardBody>
+                        <DescriptionList className="pf-m-horizontal-on-sm">
+                            <SDesc title={_("Name")} value={pool.Name} />
+                            <SDesc title={_("UUID")} value={pool.Uuid} />
+                            { !managed_fsys_sizes && use &&
+                            <SDesc title={_("Usage")}>
+                                <StorageUsageBar stats={use} critical={0.95} />
+                            </SDesc>
+                            }
+                            { pool.Encrypted && client.features.stratis_crypto_binding &&
+                            <SDesc title={_("Passphrase")}>
+                                <Flex>
+                                    { !key_desc
+                                        ? <FlexItem><StorageLink onClick={add_passphrase}>{_("Add passphrase")}</StorageLink></FlexItem>
+                                        : <>
+                                            <FlexItem><StorageLink onClick={change_passphrase}>{_("Change")}</StorageLink></FlexItem>
+                                            <FlexItem>
+                                                <StorageLink onClick={remove_passphrase}
+                                                               excuse={!tang_url ? _("This passphrase is the only way to unlock the pool and can not be removed.") : null}>
+                                                    {_("Remove")}
+                                                </StorageLink>
+                                            </FlexItem>
+                                        </>
+                                    }
+                                </Flex>
+                            </SDesc>
+                            }
+                            { can_tang &&
+                            <SDesc title={_("Keyserver")}>
+                                <Flex>
+                                    { tang_url == null
+                                        ? <FlexItem><StorageLink onClick={add_tang}>{_("Add keyserver")}</StorageLink></FlexItem>
+                                        : <>
+                                            <FlexItem>{ tang_url }</FlexItem>
+                                            <FlexItem>
+                                                <StorageLink onClick={remove_tang}
+                                                               excuse={!key_desc ? _("This keyserver is the only way to unlock the pool and can not be removed.") : null}>
+                                                    {_("Remove")}
+                                                </StorageLink>
+                                            </FlexItem>
+                                        </>
+                                    }
+                                </Flex>
+                            </SDesc>
+                            }
+                        </DescriptionList>
+                    </CardBody>
+                </SCard>
+            </StackItem>
+            <StackItem>
+                <PageCrossrefCard title={_("Block devices")}
+                                  actions={blockdev_actions} crossrefs={get_crossrefs(pool)} />
+            </StackItem>
+            <StackItem>
+                <PageChildrenCard title={_("Filesystems")}
+                                  emptyCaption={_("No filesystems")}
+                                  actions={fsys_actions} page={page} />
+            </StackItem>
+        </Stack>
+    );
+};

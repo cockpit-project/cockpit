@@ -54,7 +54,7 @@ const _ = cockpit.gettext;
 
 const C_ = cockpit.gettext;
 
-function next_default_logical_volume_name(client, vgroup, prefix) {
+export function next_default_logical_volume_name(client, vgroup, prefix) {
     function find_lvol(name) {
         const lvols = client.vgroups_lvols[vgroup.path];
         for (let i = 0; i < lvols.length; i++) {
@@ -714,7 +714,7 @@ export function block_content_rows(client, block, options) {
     return rows;
 }
 
-function format_disk(client, block) {
+export function format_disk(client, block) {
     const usage = utils.get_active_usage(client, block.path, _("initialize"), _("delete"));
 
     if (usage.Blocking) {
@@ -890,7 +890,7 @@ function install_package(name, progress) {
             });
 }
 
-function create_logical_volume(client, vgroup) {
+export function create_logical_volume(client, vgroup) {
     if (vgroup.FreeSize == 0)
         return;
 

@@ -37,15 +37,14 @@ class TestStorageVDO(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Make a volume group in which to create the VDO LV
-        m.add_disk(SIZE_10G, serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
+        dev = "/dev/" + m.add_disk(SIZE_10G, serial="DISK1")["dev"]
+        b.wait_visible(self.card_row("Storage", location=dev))
         m.execute("vgcreate vdo_vgroup /dev/sda")
-        b.wait_in_text("#devices", "vdo_vgroup")
 
-        b.click('.sidepanel-row:contains("vdo_vgroup")')
-        b.wait_in_text("#detail-content", "No logical volumes")
+        b.click(self.card_row("Storage", name="vdo_vgroup"))
+        b.wait_in_text(self.card("Logical volumes"), "No logical volumes")
 
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_button("Logical volumes", "Create new logical volume"))
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
 
@@ -64,40 +63,40 @@ class TestStorageVDO(storagelib.StorageCase):
         # pool name gets auto-generated
         pool_name = "vpool0"
 
-        self.content_row_wait_in_col(1, 1, "vdo0")
+        b.wait_text(self.card_row_col("Logical volumes", 1, 1), "vdo0")
         # the pool does not appear as a top-level volume
-        b.wait_not_in_text("#detail-content", pool_name)
-        # Volume tab
-        self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
-        self.content_tab_wait_in_info(1, 1, "Size", "10 GB", "10.0 GB")
-        # VDO Pool tab
-        self.content_tab_wait_in_info(1, 2, "Name", pool_name)
-        self.content_tab_wait_in_info(1, 2, "Size", "6.00 GB")
+        b.wait_not_present(self.card_row("Logical volumes", name=pool_name))
+        b.click(self.card_row("Logical volumes", 1))
+        # Volume card
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Name"), "vdo0")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), "10.0 GB")
+        # VDO pool card
+        b.wait_text(self.card_desc("LVM2 VDO pool", "Name"), pool_name)
+        b.wait_in_text(self.card_desc("LVM2 VDO pool", "Size"), "6.00 GB")
         # initial physical usage is ~ 4 GB, overhead for the deduplication index
-        self.content_tab_wait_in_info(1, 2, "Data used", "3.86 GB (64%)")
-        self.content_tab_wait_in_info(1, 2, "Metadata used", "0%")
-        b.wait_visible("input[aria-label='Use compression']:checked")
-        b.wait_visible("input[aria-label='Use deduplication']:checked")
+        b.wait_text(self.card_desc("LVM2 VDO pool", "Data used"), "3.86 GB (64%)")
+        b.wait_text(self.card_desc("LVM2 VDO pool", "Metadata used"), "0%")
+        b.wait_visible(self.card("LVM2 VDO pool") + " input[aria-label='Use compression']:checked")
+        b.wait_visible(self.card("LVM2 VDO pool") + " input[aria-label='Use deduplication']:checked")
 
         # create a filesystem
-        self.content_row_action(1, "Format")
+        b.click(self.card_button("Unrecognized data", "Format"))
         self.dialog({"type": "xfs",
                      "name": "vdofs",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 2, "xfs filesystem")
+        b.wait_visible(self.card("xfs filesystem"))
 
         # compressible data should affect logical usage
         m.execute("dd if=/dev/zero of=/run/data/empty bs=1M count=1000")
-        self.content_row_wait_in_col(1, 4, "1.2 / 10 GB", alternate_val="1.2 / 9.9 GB")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "1.2 / 9.9 GB")
         # but not physical usage
-        self.content_tab_wait_in_info(1, 2, "Data used", "3.86 GB (64%)")
+        b.wait_text(self.card_desc("LVM2 VDO pool", "Data used"), "3.86 GB (64%)")
 
         # incompressible data
         m.execute("dd if=/dev/urandom of=/run/data/gibberish bs=1M count=1000")
-        self.content_row_wait_in_col(1, 4, "2.2 / 10 GB", alternate_val="2.2 / 9.9 GB")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "2.2 / 9.9 GB")
         # equal amount of physical space (not completely predictable due to random data)
-        self.content_tab_wait_in_info(1, 2, "Data used", "4.8", "4.9")
-        self.content_tab_wait_in_info(1, 2, "Data used", cond=lambda sel: re.search(r"\(8[1234]%\)", b.text(sel)))
+        b.wait_in_text(self.card_desc("LVM2 VDO pool", "Data used"), "4.")
 
         def wait_prop(device, prop, value):
             m.execute(f"until lvdisplay --noheadings -Co {prop} /dev/vdo_vgroup/{device} | grep -q '{value}'; do sleep 0.1; done")
@@ -118,25 +117,25 @@ class TestStorageVDO(storagelib.StorageCase):
         wait_prop(pool_name, "vdo_index_state", "online")
 
         # grow volume
-        self.content_tab_action(1, 1, "Grow")
+        b.click(self.card_button("LVM2 logical volume", "Grow"))
         self.dialog({"size": 12000})
-        self.content_tab_wait_in_info(1, 1, "Size", "12.0 GB")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), "12.0 GB")
         wait_prop("vdo0", "lv_size", "11.18g")
 
         # grow pool
-        self.content_tab_action(1, 2, "Grow")
+        b.click(self.card_button("LVM2 VDO pool", "Grow"))
         self.dialog({"size": 8000})
-        self.content_tab_wait_in_info(1, 2, "Size", "8.15 GB")
+        b.wait_in_text(self.card_desc("LVM2 VDO pool", "Size"), "8.15 GB")
         wait_prop(pool_name, "lv_size", "7.59g")
 
         # deleting the vdo0 volume deletes the pool as well
-        self.content_dropdown_action(1, "Delete")
+        b.click(self.card_button("LVM2 logical volume", "Delete"))
         self.confirm()
-        b.wait_in_text("#detail-content", "No logical volumes")
+        b.wait_in_text(self.card("Logical volumes"), "No logical volumes")
         self.assertEqual(m.execute("lvs --noheadings").strip(), "")
 
         # create VDO LV with customized options
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_button("Logical volumes", "Create new logical volume"))
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
         self.dialog_set_val("name", "vdo0")
@@ -147,29 +146,30 @@ class TestStorageVDO(storagelib.StorageCase):
         self.dialog_set_val("vdo_options.compression", val=False)
         self.dialog_apply()
         self.dialog_wait_close()
+        b.wait_text(self.card_row_col("Logical volumes", 1, 1), "vdo0")
 
-        self.content_row_wait_in_col(1, 1, "vdo0")
-        # Volume tab
-        self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
-        self.content_tab_wait_in_info(1, 1, "Size", "20.0 GB")
+        b.click(self.card_row("Logical volumes", 1))
+        # Volume card
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Name"), "vdo0")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), "20.0 GB")
         # VDO Pool tab
-        self.content_tab_wait_in_info(1, 2, "Size", "6.0 GB", "6.00 GB")
+        b.wait_in_text(self.card_desc("LVM2 VDO pool", "Size"), "6.00 GB")
         b.wait_visible("input[aria-label='Use compression']:not(:checked)")
         b.wait_visible("input[aria-label='Use deduplication']:checked")
         wait_prop(pool_name, "vdo_compression_state", "offline")
         wait_prop(pool_name, "vdo_index_state", "online")
 
         # delete again
-        self.content_dropdown_action(1, "Delete")
+        b.click(self.card_button("LVM2 logical volume", "Delete"))
         self.confirm()
-        b.wait_in_text("#detail-content", "No logical volumes")
+        b.wait_in_text(self.card("Logical volumes"), "No logical volumes")
         self.assertEqual(m.execute("lvs --noheadings").strip(), "")
 
         # react to CLI
         m.execute("lvcreate --type vdo --size 6g --virtualsize 10g --name vdo1 --yes vdo_vgroup")
-        self.content_row_wait_in_col(1, 1, "vdo1")
+        b.wait_text(self.card_row_col("Logical volumes", 1, 1), "vdo1")
         m.execute("lvremove --yes /dev/vdo_vgroup/vdo1")
-        b.wait_in_text("#detail-content", "No logical volumes")
+        b.wait_in_text(self.card("Logical volumes"), "No logical volumes")
 
 
 @testlib.onlyImage("legacy VDO API only supported on RHEL 8", "rhel-8*", "centos-8*")

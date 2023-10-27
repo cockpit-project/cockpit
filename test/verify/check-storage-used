@@ -31,7 +31,7 @@ class TestStorageUsed(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk()
-        b.wait_in_text("#drives", disk)
+        b.wait_visible(self.card_row("Storage", location=disk))
         m.execute(f"parted -s {disk} mktable msdos")
         m.execute(f"parted -s {disk} mkpart primary ext2 1M 25")
         m.execute("udevadm settle")
@@ -59,10 +59,10 @@ ExecStart=/usr/bin/sleep infinity
         # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda
         # should be 'in use' but Cockpit can clean them all up anyway.
 
-        b.click(f'.sidepanel-row:contains("{disk}")')
-        b.wait_visible("#storage-detail")
+        b.click(self.card_row("Storage", location=disk))
+        b.wait_visible(self.card("Drive"))
 
-        self.content_dropdown_action(1, "Format")
+        b.clicks(self.dropdown_action(self.card_row("Partitions", 1), "Format"))
         self.dialog_wait_open()
         b.click("#dialog button:contains(Currently in use)")
         b.wait_in_text(".pf-v5-c-popover", str(sleep_pid))
@@ -75,7 +75,7 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        self.content_dropdown_action(1, "Delete")
+        b.clicks(self.dropdown_action(self.card_row("Partitions", 1), "Delete"))
         self.dialog_wait_open()
         b.wait_visible("#dialog button:contains(Currently in use)")
         b.assert_pixels('#dialog', "delete")
@@ -84,7 +84,7 @@ ExecStart=/usr/bin/sleep infinity
 
         # No go ahead and let the automatic teardown take care of the mount
 
-        b.click('button:contains(Create partition table)')
+        b.click(self.card_button("Partitions", "Create partition table"))
         self.dialog_wait_open()
         b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
         b.assert_pixels('#dialog', "format-disk")
@@ -93,7 +93,7 @@ ExecStart=/usr/bin/sleep infinity
 
         m.execute("! systemctl --quiet is-active keep-mnt-busy")
 
-        self.content_row_wait_in_col(1, 0, "Free space")
+        b.wait_text(self.card_row_col("Partitions", 1, 1), "Free space")
 
     def testUsedAsPV(self):
         m = self.machine
@@ -103,19 +103,19 @@ ExecStart=/usr/bin/sleep infinity
 
         dev_1 = self.add_ram_disk()
         dev_2 = self.add_loopback_disk()
-        b.wait_in_text("#drives", dev_1)
-        b.wait_in_text("#others", dev_2)
+        b.wait_visible(self.card_row("Storage", location=dev_1))
+        b.wait_visible(self.card_row("Storage", location=dev_2))
 
         # Create a volume group out of two disks
         m.execute(f"vgcreate TEST1 {dev_1} {dev_2}")
         self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
-        b.wait_in_text("#devices", "TEST1")
+        b.wait_visible(self.card_row("Storage", name="TEST1"))
 
         # Formatting dev_1 should cleanly remove it from the volume
         # group.
 
-        b.click(f'.sidepanel-row:contains("{dev_1}")')
-        b.click('button:contains("Create partition table")')
+        b.click(self.card_row("Storage", location=dev_1))
+        b.click(self.card_button("Content", "Create partition table"))
         b.wait_in_text('#dialog', "remove from LVM2, initialize")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -125,8 +125,8 @@ ExecStart=/usr/bin/sleep infinity
         # group.
 
         b.go("#/")
-        b.click(f'.sidepanel-row:contains("{dev_2}")')
-        b.click('button:contains("Create partition table")')
+        b.click(self.card_row("Storage", location=dev_2))
+        b.click(self.card_button("Content", "Create partition table"))
         b.wait_in_text('#dialog', "remove from LVM2, initialize")
         self.dialog_apply()
         self.dialog_wait_close()

@@ -122,10 +122,6 @@ class StorageHelpers:
         """
         self.machine.execute(f'echo 1 > /sys/block/{os.path.basename(device)}/device/delete')
 
-    def devices_dropdown(self, title):
-        self.browser.click("#devices .pf-v5-c-dropdown button.pf-v5-c-dropdown__toggle")
-        self.browser.click(f"#devices .pf-v5-c-dropdown a:contains('{title}')")
-
     # Content
 
     def content_row_tbody(self, index):
@@ -487,16 +483,6 @@ class StorageHelpers:
     def assert_in_lvol_child_configuration(self, lvol, tab, field, text):
         self.assertIn(text, self.lvol_child_configuration_field(lvol, tab, field))
 
-    def wait_mounted(self, row, col):
-        with self.browser.wait_timeout(30):
-            self.content_tab_wait_in_info(row, col, "Mount point",
-                                          cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))
-
-    def wait_not_mounted(self, row, col):
-        with self.browser.wait_timeout(30):
-            self.content_tab_wait_in_info(row, col, "Mount point",
-                                          cond=lambda cell: "The filesystem is not mounted" in self.browser.text(cell))
-
     def setup_systemd_password_agent(self, password):
         # This sets up a systemd password agent that replies to all
         # queries with the given password.
@@ -626,6 +612,55 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
         m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
         m.wait_reboot(300)
         self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), "/dev/mapper/root-root")
+
+    # THE NEW STUFF
+
+    def card(self, title):
+        return f"[data-test-card-title='{title}']"
+
+    def card_header(self, title):
+        return self.card(title) + " .pf-v5-c-card__header"
+
+    def card_row(self, title, index=None, name=None, location=None):
+        if index is not None:
+            return self.card(title) + f" tr:nth-child({index})"
+        elif name is not None:
+            return self.card(title) + f" [data-test-row-name='{name}']"
+        else:
+            return self.card(title) + f" [data-test-row-location='{location}']"
+
+    def card_row_col(self, title, row_index, col_index):
+        return self.card_row(title, row_index) + f" td:nth-child({col_index})"
+
+    def card_desc(self, card_title, desc_title):
+        return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] dd"
+
+    def dropdown_action(self, parent, title):
+        return [
+            parent + " .pf-v5-c-dropdown button.pf-v5-c-dropdown__toggle",
+            parent + f" .pf-v5-c-dropdown a:contains('{title}')"
+        ]
+
+    def card_button(self, card_title, button_title):
+        # XXX - make a data-test-button-title attribute?
+        return self.card(card_title) + f" button:contains('{button_title}')"
+
+    def devices_dropdown(self, title):
+        self.browser.clicks(self.dropdown_action(self.card_header("Storage"), title))
+
+    def wait_mounted(self, card_title):
+        with self.browser.wait_timeout(30):
+            self.browser.wait_not_in_text(self.card_desc(card_title, "Mount point"),
+                                          "The filesystem is not mounted.")
+
+    def wait_not_mounted(self, card_title):
+        with self.browser.wait_timeout(30):
+            self.browser.wait_in_text(self.card_desc(card_title, "Mount point"),
+                                      "The filesystem is not mounted.")
+
+    def wait_card_button_disabled(self, card_title, button_title):
+        with self.browser.wait_timeout(30):
+            self.browser.wait_visible(self.card_button(card_title, button_title) + ":disabled")
 
 
 class StorageCase(MachineCase, StorageHelpers):

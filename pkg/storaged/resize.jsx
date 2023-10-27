@@ -19,6 +19,8 @@
 
 import React from "react";
 import cockpit from "cockpit";
+import client from "./client.js";
+
 import {
     block_name, get_active_usage, teardown_active_usage,
     undo_temporary_teardown, is_mounted_synch, get_partitions
@@ -35,6 +37,74 @@ import { std_reply } from "./stratis-utils.js";
 import { pvs_to_spaces } from "./content-views.jsx";
 
 const _ = cockpit.gettext;
+
+export function check_unused_space(path) {
+    const block = client.blocks[path];
+    const lvm2 = client.blocks_lvm2[path];
+    const lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
+    const part = client.blocks_part[path];
+
+    let size, min_change;
+
+    if (lvol) {
+        size = lvol.Size;
+        min_change = client.vgroups[lvol.VolumeGroup].ExtentSize;
+    } else if (part) {
+        size = part.Size;
+        min_change = 1024 * 1024;
+    } else {
+        return null;
+    }
+
+    if (size != block.Size) {
+        // Let's ignore inconsistent lvol,part/block combinations.
+        // These happen during a resize and the inconsistency will
+        // eventually go away.
+        return null;
+    }
+
+    let content_path = null;
+    let crypto_overhead = 0;
+
+    const crypto = client.blocks_crypto[block.path];
+    const cleartext = client.blocks_cleartext[block.path];
+    if (crypto) {
+        if (crypto.MetadataSize !== undefined && cleartext) {
+            content_path = cleartext.path;
+            crypto_overhead = crypto.MetadataSize;
+        }
+    } else {
+        content_path = path;
+    }
+
+    const fsys = client.blocks_fsys[content_path];
+    const content_block = client.blocks[content_path];
+    const vdo = content_block ? client.legacy_vdo_overlay.find_by_backing_block(content_block) : null;
+    const stratis_bdev = client.blocks_stratis_blockdev[content_path];
+
+    if (fsys && fsys.Size && (size - fsys.Size - crypto_overhead) > min_change && fsys.Resize) {
+        return {
+            volume_size: size - crypto_overhead,
+            content_size: fsys.Size
+        };
+    }
+
+    if (vdo && (size - vdo.physical_size - crypto_overhead) > min_change) {
+        return {
+            volume_size: size - crypto_overhead,
+            content_size: vdo.physical_size
+        };
+    }
+
+    if (stratis_bdev && (size - Number(stratis_bdev.TotalPhysicalSize) - crypto_overhead) > min_change) {
+        return {
+            volume_size: size - crypto_overhead,
+            content_size: Number(stratis_bdev.TotalPhysicalSize)
+        };
+    }
+
+    return null;
+}
 
 function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passphrase, pvs) {
     let fsys;

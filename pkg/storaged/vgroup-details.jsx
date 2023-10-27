@@ -154,7 +154,7 @@ export function vgroup_rename(client, vgroup) {
     });
 }
 
-export function vgroup_delete(client, vgroup) {
+export function vgroup_delete(client, vgroup, parent_page) {
     const location = cockpit.location;
     const usage = utils.get_active_usage(client, vgroup.path, _("delete"));
 
@@ -180,7 +180,7 @@ export function vgroup_delete(client, vgroup) {
                                                  { 'tear-down': { t: 'b', v: true } })
                                     .then(utils.reload_systemd)
                                     .then(function () {
-                                        location.go('/');
+                                        location.go(parent_page.location);
                                     });
                         });
             }

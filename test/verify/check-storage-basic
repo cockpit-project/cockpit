@@ -20,7 +20,6 @@
 import storagelib
 import testlib
 
-
 @testlib.nondestructive
 class TestStorageBasic(storagelib.StorageCase):
 
@@ -30,46 +29,46 @@ class TestStorageBasic(storagelib.StorageCase):
 
         self.login_and_go("/storage", superuser=False)
 
-        b.wait_visible("#devices")
-        b.wait_not_present("#devices .pf-v5-c-dropdown button")
+        create_dropdown = self.card("Storage") + " .pf-v5-c-card__header .pf-v5-c-dropdown"
+
+        b.wait_visible(self.card("Storage"))
+        b.wait_not_present(create_dropdown)
 
         b.relogin('/storage', superuser=True)
 
-        b.wait_visible("#devices .pf-v5-c-dropdown button:not([disabled])")
+        b.wait_visible(create_dropdown)
 
         # Add a disk, partition it, format it, and finally remove it.
         disk = self.add_ram_disk()
 
-        b.click(f'.sidepanel-row:contains("{disk}")')
-        b.wait_visible('#storage-detail')
-        self.content_row_wait_in_col(1, 2, "Unrecognized data")
+        b.click(self.card_row("Storage", location=disk))
+        b.wait_visible(self.card("Drive"))
 
-        def info_field_value(name):
-            return b.text(f'#detail-header dt:contains("{name}") + dd')
+        b.wait_text(self.card_desc("Drive", "Model"), "scsi_debug")
+        b.wait_in_text(self.card_desc("Drive", "Capacity"), "50 MiB")
 
-        self.assertEqual(self.inode(info_field_value("Device file")), self.inode(disk))
+        self.assertEqual(self.inode(b.text(self.card_desc("Drive", "Device file"))), self.inode(disk))
 
         m.execute(f'parted -s {disk} mktable gpt')
         m.execute(f'parted -s {disk} mkpart primary ext2 1M 8M')
-        self.content_row_wait_in_col(1, 2, "Unrecognized data")
-        self.content_tab_wait_in_info(1, 1, "Name", "primary")
+        b.wait_text(self.card_row_col("Partitions", 1, 2), "Unrecognized data")
 
         # create filesystem on the first partition
         # HACK - the block device might disappear briefly when udevd does its BLKRRPART.
         testlib.wait(lambda: m.execute(f'mke2fs {disk}1'), delay=1, tries=5)
-        self.content_row_wait_in_col(1, 2, "ext2 filesystem")
+        b.wait_text(self.card_row_col("Partitions", 1, 2), "ext2 filesystem")
 
-        self.content_tab_expand(1, 1)
-        b.assert_pixels("#detail-content", "partition",
+        b.click(self.card_row("Partitions", 1))
+        b.wait_text(self.card_desc("Partition", "Name"), "primary")
+        b.assert_pixels(self.card("Partition"), "partition",
                         mock={"dt:contains(UUID) + dd": "a12978a1-5d6e-f24f-93de-11789977acde"})
-        self.content_tab_expand(1, 2)
-        b.assert_pixels("#detail-content", "filesystem")
+        b.assert_pixels(self.card("ext2 filesystem"), "filesystem")
 
         b.go("#/")
-        b.wait_visible('#storage')
-        b.wait_in_text("#drives", disk)
+        b.wait_visible(self.card("Storage"))
+        b.wait_visible(self.card_row("Storage", location=disk))
         self.force_remove_disk(disk)
-        b.wait_not_in_text("#drives", disk)
+        b.wait_not_present(self.card_row("Storage", location=disk))
 
 
 if __name__ == '__main__':

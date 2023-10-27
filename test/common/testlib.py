@@ -384,6 +384,14 @@ class Browser:
         """
         self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "click", 0, 0, 0)
 
+    def clicks(self, selectors):
+        """Click on a couple of ui elements
+
+        :param selectors: the selectors to click on
+        """
+        for sel in selectors:
+            self.click(sel)
+
     def val(self, selector: str):
         """Get the value attribute of a selector.
 

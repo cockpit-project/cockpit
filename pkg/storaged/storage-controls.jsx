@@ -68,7 +68,7 @@ class StorageControl extends React.Component {
     }
 }
 
-function checked(callback, setSpinning) {
+function checked(callback, setSpinning, excuse) {
     return function (event) {
         if (!event)
             return;
@@ -80,6 +80,16 @@ function checked(callback, setSpinning) {
         // only consider enter button for keyboard events
         if (event.type === 'KeyDown' && event.key !== "Enter")
             return;
+
+        event.stopPropagation();
+
+        if (excuse) {
+            dialog_open({
+                Title: _("Sorry"),
+                Body: excuse
+            });
+            return;
+        }
 
         const promise = client.run(callback);
         if (promise) {
@@ -97,7 +107,6 @@ function checked(callback, setSpinning) {
                 });
             });
         }
-        event.stopPropagation();
     };
 }
 
@@ -226,10 +235,10 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, small }
         </div>);
 };
 
-export const StorageMenuItem = ({ onClick, onlyNarrow, danger, children }) => (
+export const StorageMenuItem = ({ onClick, onlyNarrow, danger, excuse, children }) => (
     <DropdownItem className={(onlyNarrow ? "show-only-when-narrow" : "") + (danger ? " delete-resource-red" : "")}
-                  onKeyDown={checked(onClick)}
-                  onClick={checked(onClick)}>
+                  onKeyDown={checked(onClick, null, excuse)}
+                  onClick={checked(onClick, null, excuse)}>
         {children}
     </DropdownItem>
 );
@@ -240,12 +249,20 @@ export const StorageBarMenu = ({ label, isKebab, onlyNarrow, menuItems }) => {
     if (!client.superuser.allowed)
         return null;
 
+    function onToggle(event, isOpen) {
+        // Tell Overview that we handled this event.  We can't use
+        // stopPropagation() since the Toggles depend on seeing other
+        // Togglers events at the top level to close themselves.
+        event.preventDefault();
+        setIsOpen(isOpen);
+    }
+
     let toggle;
     if (isKebab)
-        toggle = <KebabToggle onToggle={(_, isOpen) => setIsOpen(isOpen)} />;
+        toggle = <KebabToggle onToggle={onToggle} />;
     else
         toggle = <DropdownToggle className="pf-m-primary" toggleIndicator={null}
-                                 onToggle={(_, isOpen) => setIsOpen(isOpen)} aria-label={label}>
+                                 onToggle={onToggle} aria-label={label}>
             <BarsIcon color="white" />
         </DropdownToggle>;
 

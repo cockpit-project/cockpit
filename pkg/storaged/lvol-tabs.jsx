@@ -25,6 +25,7 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ExclamationTriangleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
+import { SDesc } from "./utils/desc.jsx";
 import { StorageButton, StorageLink, StorageOnOff } from "./storage-controls.jsx";
 import { dialog_open, TextInput } from "./dialog.jsx";
 import { get_resize_info, grow_dialog, shrink_dialog } from "./resize.jsx";
@@ -41,7 +42,7 @@ export function check_partial_lvols(client, path, enter_warning) {
     }
 }
 
-function lvol_rename(lvol) {
+export function lvol_rename(lvol) {
     dialog_open({
         Title: _("Rename logical volume"),
         Fields: [
@@ -57,7 +58,7 @@ function lvol_rename(lvol) {
     });
 }
 
-const StructureDescription = ({ client, lvol }) => {
+export const StructureDescription = ({ client, lvol }) => {
     const vgroup = client.vgroups[lvol.VolumeGroup];
     const pvs = (vgroup && client.vgroups_pvols[vgroup.path]) || [];
 
@@ -111,16 +112,13 @@ const StructureDescription = ({ client, lvol }) => {
             </FlexItem>);
 
         return (
-            <DescriptionListGroup>
-                <DescriptionListTerm>{_("Physical volumes")}</DescriptionListTerm>
-                <DescriptionListDescription>
-                    <Flex spaceItems={{ default: "spaceItemsNone" }}
-                          alignItems={{ default: "alignItemsStretch" }}>
-                        {stripe}
-                    </Flex>
-                    {status}
-                </DescriptionListDescription>
-            </DescriptionListGroup>);
+            <SDesc title={_("Physical volumes")}>
+                <Flex spaceItems={{ default: "spaceItemsNone" }}
+                      alignItems={{ default: "alignItemsStretch" }}>
+                    {stripe}
+                </Flex>
+                {status}
+            </SDesc>);
     }
 
     function stripe_box(used, block_path) {
@@ -157,16 +155,13 @@ const StructureDescription = ({ client, lvol }) => {
 
         return (
             <>
-                <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Stripes")}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                        <Flex alignItems={{ default: "alignItemsStretch" }}>{stripes}</Flex>
-                        {status}
-                        {lvol.SyncRatio != 1.0
-                            ? <div>{cockpit.format(_("$0 synchronized"), lvol.SyncRatio * 100 + "%")}</div>
-                            : null}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>
+                <SDesc title={_("Stripes")}>
+                    <Flex alignItems={{ default: "alignItemsStretch" }}>{stripes}</Flex>
+                    {status}
+                    {lvol.SyncRatio != 1.0
+                        ? <div>{cockpit.format(_("$0 synchronized"), lvol.SyncRatio * 100 + "%")}</div>
+                        : null}
+                </SDesc>
             </>);
     }
 

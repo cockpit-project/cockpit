@@ -22,7 +22,7 @@ import React from "react";
 import client from "../client";
 
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
-import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
+import { Card, CardBody } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 
@@ -33,9 +33,7 @@ import {
 import { StorageButton, StorageOnOff, StorageBlockNavLink } from "../storage-controls.jsx";
 
 import { SCard } from "../utils/card.jsx";
-import { PageChildrenCard, new_page, page_type, block_location } from "../pages.jsx";
-import { format_disk, erase_disk } from "../content-views.jsx"; // XXX
-import { format_dialog } from "../format-dialog.jsx";
+import { PageChildrenCard, new_page } from "../pages.jsx";
 
 import { make_block_pages } from "../create-pages.jsx";
 
@@ -134,8 +132,8 @@ class VDODetails extends React.Component {
                             <Alert variant='danger' isInline
                                    title={_("The creation of this VDO device did not finish and the device can't be used.")}
                                    actionClose={<StorageButton onClick={force_delete}>
-                                                    {_("Remove device")}
-                                                </StorageButton>} />
+                                       {_("Remove device")}
+                                   </StorageButton>} />
                         </Card>
                     </StackItem>
                 </Stack>
@@ -295,13 +293,13 @@ class VDODetails extends React.Component {
                 <StackItem>
                     <SCard title={cockpit.format(_("VDO device $0"), vdo.name)}
                            actions={<>
-                                        { block
-                                          ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
-                                          : <StorageButton onClick={vdo.start}>{_("Start")}</StorageButton>
-                                        }
-                                        { "\n" }
-                                        <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
-                                    </>}>
+                               { block
+                                   ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
+                                   : <StorageButton onClick={vdo.start}>{_("Start")}</StorageButton>
+                               }
+                               { "\n" }
+                               <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
+                           </>}>
                         <CardBody>
                             <DescriptionList className="pf-m-horizontal-on-sm">
                                 <DescriptionListGroup>
@@ -313,8 +311,8 @@ class VDODetails extends React.Component {
                                     <DescriptionListTerm>{_("Backing device")}</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         { backing_block
-                                          ? <StorageBlockNavLink client={client} block={backing_block} />
-                                          : vdo.backing_dev
+                                            ? <StorageBlockNavLink client={client} block={backing_block} />
+                                            : vdo.backing_dev
                                         }
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
@@ -323,12 +321,12 @@ class VDODetails extends React.Component {
                                     <DescriptionListTerm>{_("Physical")}</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         { stats
-                                          ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
-                                                           fmt_size(stats.dataBlocksUsed * stats.blockSize),
-                                                           fmt_size(stats.overheadBlocksUsed * stats.blockSize),
-                                                           fmt_size(vdo.physical_size),
-                                                           fmt_perc(stats.usedPercent))
-                                          : fmt_size(vdo.physical_size)
+                                            ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
+                                                             fmt_size(stats.dataBlocksUsed * stats.blockSize),
+                                                             fmt_size(stats.overheadBlocksUsed * stats.blockSize),
+                                                             fmt_size(vdo.physical_size),
+                                                             fmt_perc(stats.usedPercent))
+                                            : fmt_size(vdo.physical_size)
                                         }
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
@@ -337,11 +335,11 @@ class VDODetails extends React.Component {
                                     <DescriptionListTerm>{_("Logical")}</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         { stats
-                                          ? cockpit.format(_("$0 used of $1 ($2 saved)"),
-                                                           fmt_size(stats.logicalBlocksUsed * stats.blockSize),
-                                                           fmt_size(vdo.logical_size),
-                                                           fmt_perc(stats.savingPercent))
-                                          : fmt_size(vdo.logical_size)
+                                            ? cockpit.format(_("$0 used of $1 ($2 saved)"),
+                                                             fmt_size(stats.logicalBlocksUsed * stats.blockSize),
+                                                             fmt_size(vdo.logical_size),
+                                                             fmt_perc(stats.savingPercent))
+                                            : fmt_size(vdo.logical_size)
                                         }
                                         &nbsp; <StorageButton onClick={grow_logical}>{_("Grow")}</StorageButton>
                                     </DescriptionListDescription>
@@ -374,10 +372,10 @@ class VDODetails extends React.Component {
                     </SCard>
                 </StackItem>
                 { block
-                  ? (<StackItem>
-                         <PageChildrenCard title={_("Content")} page={this.props.page} />
-                     </StackItem>)
-                  : null
+                    ? (<StackItem>
+                        <PageChildrenCard title={_("Content")} page={this.props.page} />
+                    </StackItem>)
+                    : null
                 }
             </Stack>
         );

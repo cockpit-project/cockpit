@@ -86,7 +86,7 @@ function make_partition_pages(parent, block) {
                 fmt_size(partition.size),
             ],
             actions: [
-                { title: _("Delete"), action: () => delete_partition(partition.block, page) },
+                { title: _("Delete"), action: () => delete_partition(partition.block, page), danger: true },
             ]
         });
         process_partitions(page, partition.partitions, false);

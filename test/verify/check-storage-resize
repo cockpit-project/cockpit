@@ -145,6 +145,8 @@ class TestStorageResize(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
+        m.upload(["/home/mvo/work/cockpit/dist/storaged"], "/usr/share/cockpit")
+
         if self.storaged_version < [2, 7, 6]:
             # No Filesystem.Size property
             raise unittest.SkipTest("UDisks2 too old")
@@ -319,8 +321,7 @@ class TestStorageResize(storagelib.StorageCase):
                         "rm /run/udev/rules.d/99-fake-fstype.rules; udevadm control --reload; udevadm trigger")
 
         def check_btn(title, excuse):
-            card_actions = self.card("LVM2 logical volume") + " .tab-row-actions"
-            btn = card_actions + f" button:disabled:contains({title})"
+            btn = self.card_button("LVM2 logical volume", title)
             b.wait_visible(btn)
             b.mouse(btn, "mouseenter", 0, 0, 0)
             b.wait_in_text("#tip-storage", excuse)

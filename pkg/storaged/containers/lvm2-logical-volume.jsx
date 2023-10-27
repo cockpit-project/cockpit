@@ -154,7 +154,7 @@ export function make_lvm2_logical_volume_container(parent, vgroup, lvol, block) 
         has_warning: !!unused_space_warning || !!repair_action,
         has_danger: status_code == "partial",
         component: LVM2LogicalVolumeContainer,
-        props: { vgroup, lvol, block, unused_space_warning },
+        props: { vgroup, lvol, block, unused_space_warning, resize_info: info },
         actions: [
             (!unused_space &&
              {

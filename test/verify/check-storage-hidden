@@ -18,8 +18,10 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
+
 import storagelib
 import testlib
+
 
 @testlib.nondestructive
 class TestStorageHiddenLuks(storagelib.StorageCase):
@@ -69,6 +71,7 @@ class TestStorageHiddenLuks(storagelib.StorageCase):
         # Now the filesystem is hidden because the LUKS device is
         # locked.  Doubly hide it by deactivating /dev/TEST/lvol
         b.clicks(self.dropdown_action(self.card_row("Logical volumes", 1), "Deactivate"))
+        self.confirm()
         b.wait_text(self.card_row_col("Logical volumes", 1, 2), "Inactive logical volume")
 
         # Deleting the volume group should still remove the fstab entry
@@ -105,7 +108,7 @@ class TestStorageHidden(storagelib.StorageCase):
 
         b.click(self.card_row("Storage", name="ARR"))
         b.wait_visible(self.card("RAID device"))
-        b.clicks(self.dropdown_action(self.card_row("Content", 1), "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "name": "FS2",
                      "mount_point": mount_point_2})

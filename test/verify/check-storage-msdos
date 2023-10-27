@@ -46,14 +46,15 @@ class TestStorageMsDOS(storagelib.StorageCase):
                      "name": "FIRST"},
                     secondary=True)
         b.wait_text(self.card_row_col("Partitions", 1, 2), "ext4 filesystem")
-        # XXX self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
 
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
-        b.clicks(self.dropdown_action(self.card_row("Partitions", 1), "Format"))
+        b.click(self.card_row("Partitions", 1))
+        b.click(self.card_button("ext4 filesystem", "Format"))
         self.dialog_wait_open()
         b.wait_not_present("select option[value='dos-extended']")
         self.dialog_cancel()
         self.dialog_wait_close()
+        b.click(self.card_desc("ext4 filesystem", "Stored on") + " button")
 
         # Create a extended partition to fill the rest of the disk
         b.clicks(self.dropdown_action(self.card_row("Partitions", 2), "Create partition"))

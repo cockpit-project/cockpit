@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import re
-
 import packagelib
 import storagelib
 import testlib
@@ -308,8 +306,6 @@ config: !Configuration
     def testBrokenVdoConfig(self):
         m = self.machine
         b = self.browser
-
-        m.upload(["/home/mvo/work/cockpit/dist/storaged"], "/usr/share/cockpit")
 
         self.login_and_go("/storage")
 

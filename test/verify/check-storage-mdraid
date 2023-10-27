@@ -23,10 +23,6 @@ import storagelib
 import testlib
 
 
-def info_field(name):
-    return f'#detail-header dt:contains("{name}") + dd'
-
-
 class TestStorageMdRaid(storagelib.StorageCase):
 
     def wait_states(self, states):
@@ -235,7 +231,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         # Remove it by formatting DISK2
         b.click(self.card_row("Disks", name=disk2))
         b.click(self.card_desc("RAID disk", "Stored on") + " button")
-        b.click(self.card_button("Content", "Create partition table"))
+        b.click(self.card_button("Content", "Erase"))
         b.wait_in_text('#dialog', "remove from RAID, initialize")
         self.dialog_apply()
         self.dialog_wait_close()

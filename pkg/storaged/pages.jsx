@@ -176,7 +176,16 @@ function make_page_kebab(page) {
         if (!actions)
             return;
         for (const a of actions) {
-            if (!a.danger && !a.excuse)
+            // Dangerous and impossible actions are omitted from the
+            // kebab menus. The user needs to go to the page itself to
+            // fo dangerous stuff, and see the reason for why
+            // something is impossible.
+            //
+            // Pages that don't really exist ("Free space" and
+            // "Extended partition") get all their actions in the
+            // menu, because there is no other place.
+            //
+            if (!page.location || (!a.danger && !a.excuse))
                 items.push(make_menu_item(a));
         }
     }
@@ -319,10 +328,10 @@ const PageTable = ({ emptyCaption, aria_label, pages, crossrefs }) => {
 
     if (rows.length == 0) {
         return <EmptyState>
-                   <EmptyStateBody>
-                       {emptyCaption}
-                   </EmptyStateBody>
-               </EmptyState>;
+            <EmptyStateBody>
+                {emptyCaption}
+            </EmptyStateBody>
+        </EmptyState>;
     }
 
     return (

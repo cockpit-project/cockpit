@@ -154,11 +154,13 @@ class TestStorageStratis(storagelib.StorageCase):
         b.wait_text(self.card_row_col("Filesystems", 1, 1), "fsys1-renamed")
 
         # Destroy one filesystem
-        b.clicks(self.dropdown_action(self.card_row("Filesystems", 1), "Delete"))
+        b.click(self.card_row("Filesystems", 1))
+        b.click(self.card_button("Stratis filesystem", "Delete"))
         self.dialog_wait_open()
         b.assert_pixels("#dialog", "delete-fsys")
         self.dialog_apply()
         self.dialog_wait_close()
+        b.wait_visible(self.card("Filesystems"))
         b.wait_not_present(self.card_row("Filesystems", name="fsys1-renamed"))
 
         # Unmount and remount the other filesystem
@@ -184,8 +186,10 @@ class TestStorageStratis(storagelib.StorageCase):
         self.assertEqual("Hello Stratis!", m.execute("cat /run/fsys2-copy/FILE"))
 
         # Delete the copy
-        b.clicks(self.dropdown_action(self.card_row("Filesystems", 2), "Delete"))
+        b.click(self.card_row("Filesystems", 2))
+        b.click(self.card_button("Stratis filesystem", "Delete"))
         self.confirm()
+        b.wait_visible(self.card("Filesystems"))
         b.wait_not_present(self.card_row("Filesystems", name="fsys2-copy"))
 
         # Make an unmounted copy of the filesystem
@@ -199,8 +203,10 @@ class TestStorageStratis(storagelib.StorageCase):
         b.wait_text(self.card_row_col("Filesystems", 2, 3), "(not mounted)")
 
         # Delete the copy
-        b.clicks(self.dropdown_action(self.card_row("Filesystems", 2), "Delete"))
+        b.click(self.card_row("Filesystems", 2))
+        b.click(self.card_button("Stratis filesystem", "Delete"))
         self.confirm()
+        b.wait_visible(self.card("Filesystems"))
         b.wait_not_present(self.card_row("Filesystems", name="fsys2-copy"))
 
         # Create an unmounted filesystem
@@ -214,8 +220,10 @@ class TestStorageStratis(storagelib.StorageCase):
         b.wait_text(self.card_row_col("Filesystems", 2, 3), "(not mounted)")
 
         # Delete the unmounted filesystem
-        b.clicks(self.dropdown_action(self.card_row("Filesystems", 2), "Delete"))
+        b.click(self.card_row("Filesystems", 2))
+        b.click(self.card_button("Stratis filesystem", "Delete"))
         self.confirm()
+        b.wait_visible(self.card("Filesystems"))
         b.wait_not_present(self.card_row("Filesystems", name="fsys-unmounted"))
 
         # Add a data blockdev
@@ -306,7 +314,6 @@ class TestStorageStratis(storagelib.StorageCase):
 
         b.wait_visible(self.card_row("Storage", name="pool0"))
         b.wait_not_present(self.card_row("Storage", name="pool0") + " .ct-icon-exclamation-triangle")
-
 
         # Check that there is no alert on the details page
         b.click(self.card_row("Storage", name="pool0"))
@@ -607,9 +614,11 @@ class TestStorageStratisReboot(storagelib.StorageCase):
             b.wait_text(self.card_row_col("Filesystems", 1, 3), "/foo")
 
         def destroy():
-            b.clicks(self.dropdown_action(self.card_row("Filesystems", 1), "Delete"))
+            b.click(self.card_row("Filesystems", 1))
+            b.click(self.card_button("Stratis filesystem", "Delete"))
             self.dialog_wait_open()
             self.dialog_apply_with_retry("Device or resource busy")
+            b.wait_visible(self.card("Filesystems"))
             b.wait_not_present(self.card_row("Filesystems", name="fsys1"))
 
         create("local")
@@ -682,7 +691,8 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.dialog_wait_close()
 
         # Delete a filesystem, and make another snapshot
-        b.clicks(self.dropdown_action(self.card_row("Filesystems", 1), "Delete"))
+        b.click(self.card_row("Filesystems", 1))
+        b.click(self.card_button("Stratis filesystem", "Delete"))
         self.confirm()
         b.wait_visible(self.card_button("Filesystems", "Create new filesystem") + ":not(:disabled)")
         b.clicks(self.dropdown_action(self.card_row("Filesystems", 2), "Snapshot"))
@@ -785,7 +795,7 @@ class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase)
         else:
             # XXX - explain this or make it more explicit
             raid_clicks = self.dropdown_action(self.card_header("Storage"), "Create RAID device")
-            stratic_clicks = self.dropdown_action(self.card_header("Storage"), "Create Stratis pool")
+            stratis_clicks = self.dropdown_action(self.card_header("Storage"), "Create Stratis pool")
             b.click(raid_clicks[0])
             b.wait_visible(raid_clicks[1])
             b.wait_not_present(stratis_clicks[1])
@@ -950,9 +960,9 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
-        b.wait_visible(self.card("Encrypted Stratis pool")) # should be started after boot
+        b.wait_visible(self.card("Encrypted Stratis pool"))  # should be started after boot
         b.wait_text(self.card_row_col("Filesystems", 1, 1), "fsys1")
-        b.wait_text(self.card_row_col("Filesystems", 1, 3), "/run/fsys1") # should be mounted after boot
+        b.wait_text(self.card_row_col("Filesystems", 1, 3), "/run/fsys1")  # should be mounted after boot
 
 
 if __name__ == '__main__':

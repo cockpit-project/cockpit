@@ -35,6 +35,7 @@ import { StorageUsageBar } from "../storage-controls.jsx";
 import {
     ParentPageLink, PageContainerStackItems,
     new_page, ActionButtons, page_type,
+    navigate_away_from_page,
 } from "../pages.jsx";
 import { is_valid_mount_point, is_mounted, mounting_dialog, get_fstab_config } from "../fsys-tab.jsx"; // XXX
 import { fmt_size, get_active_usage, teardown_active_usage } from "../utils.js";
@@ -168,6 +169,8 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
     }
 
     function delete_fsys() {
+        console.log("DELETE");
+
         const usage = get_active_usage(client, block.path, _("delete"));
 
         if (usage.Blocking) {
@@ -185,9 +188,11 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
             Action: {
                 Danger: _("Deleting a filesystem will delete all data in it."),
                 Title: _("Delete"),
-                action: function () {
-                    return teardown_active_usage(client, usage)
-                            .then(() => destroy_filesystem(fsys));
+                action: async function () {
+                    await teardown_active_usage(client, usage);
+                    await destroy_filesystem(fsys);
+                    console.log("NAVIGATING");
+                    navigate_away_from_page(page);
                 }
             },
             Inits: [
@@ -204,7 +209,7 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
     else
         mp_text = _("(not mounted)");
 
-    new_page({
+    const page = new_page({
         location: ["pool", pool.Name, fsys.Name],
         parent,
         name: fsys.Name,

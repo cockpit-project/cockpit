@@ -23,7 +23,8 @@ import React from "react";
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { ListingTable } from "cockpit-components-table.jsx";
+import { Table, Tbody, Tr, Td } from '@patternfly/react-table';
+import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { ExclamationTriangleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { SCard } from "./utils/card.jsx";
@@ -264,36 +265,38 @@ const PageTable = ({ emptyCaption, aria_label, pages, crossrefs }) => {
             info = <>{"\n"}<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /></>;
         const type_colspan = page.columns[1] ? 1 : 2;
         const cols = [
-            { title: <span>{page.name}{info}</span> },
-            {
-                title: crossref ? page_stored_on(page) : page_type(page),
-                props: { colSpan: type_colspan },
-            },
+            <Td key="1"><span>{page.name}{info}</span></Td>,
+            <Td key="2" colSpan={type_colspan}>{crossref ? page_stored_on(page) : page_type(page)}</Td>,
         ];
         if (type_colspan == 1)
-            cols.push({ title: crossref ? null : page.columns[1] });
-        cols.push({
-            title: crossref ? crossref.size : page.columns[2],
-            props: { className: "pf-v5-u-text-align-right" }
-        });
-        cols.push({
-            title: crossref ? make_actions_kebab(crossref.actions) : make_page_kebab(page),
-            props: { className: "pf-v5-c-table__action content-action" }
-        });
+            cols.push(<Td key="3">{crossref ? null : page.columns[1]}</Td>);
+        cols.push(
+            <Td key="4" className="pf-v5-u-text-align-right">
+                {crossref ? crossref.size : page.columns[2]}
+            </Td>);
+        cols.push(
+            <Td key="5" className="pf-v5-c-table__action content-action">
+                {crossref ? make_actions_kebab(crossref.actions) : make_page_kebab(page)}
+            </Td>);
 
-        return {
-            props: {
-                key,
-                className: "content-level-" + level,
-                "data-test-row-name": page.name,
-                "data-test-row-location": page.columns[1],
-            },
-            columns: cols,
-            go: () => {
-                if (page.location)
-                    cockpit.location.go(page.location);
-            }
-        };
+        function onRowClick(event) {
+            if (!event || event.button !== 0)
+                return;
+
+            // StorageBarMenu sets this to tell us not to navigate when
+            // the kebabs are opened.
+            if (event.defaultPrevented)
+                return;
+
+            if (page.location)
+                cockpit.location.go(page.location);
+        }
+
+        return <Tr key={key} className={"content-level-" + level}
+                   data-test-row-name={page.name} data-test-row-location={page.columns[1]}
+                   isClickable={!!page.location} onRowClick={onRowClick}>
+            {cols}
+        </Tr>;
     }
 
     function make_page_rows(pages, level) {
@@ -314,26 +317,21 @@ const PageTable = ({ emptyCaption, aria_label, pages, crossrefs }) => {
     else if (crossrefs)
         make_crossref_rows(crossrefs);
 
-    function onRowClick(event, row) {
-        if (!event || event.button !== 0)
-            return;
-
-        // StorageBarMenu sets this to tell us not to navigate when
-        // the kebabs are opened.
-        if (event.defaultPrevented)
-            return;
-
-        if (row.go)
-            row.go();
+    if (rows.length == 0) {
+        return <EmptyState>
+                   <EmptyStateBody>
+                       {emptyCaption}
+                   </EmptyStateBody>
+               </EmptyState>;
     }
 
-    return <ListingTable emptyCaption={emptyCaption}
-                         aria-label={aria_label}
-                         variant="compact"
-                         onRowClick={onRowClick}
-                         columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
-                         showHeader={false}
-                         rows={rows} />;
+    return (
+        <Table aria-label={aria_label}
+               variant="compact">
+            <Tbody>
+                {rows}
+            </Tbody>
+        </Table>);
 };
 
 export const PageChildrenCard = ({ title, page, emptyCaption, actions }) => {

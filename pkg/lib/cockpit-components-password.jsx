@@ -99,7 +99,7 @@ export const PasswordFormFields = ({
                            <Popover bodyContent={password_label_info}>
                                <button onClick={e => e.preventDefault()}
                                        className="pf-v5-c-form__group-label-help">
-                                   <HelpIcon noVerticalAlign />
+                                   <HelpIcon />
                                </button>
                            </Popover>
                        }

@@ -31,7 +31,7 @@ import {
     dialog_open, TextInput, CheckBoxes, SelectOne, BlockingMessage, TeardownMessage,
     init_active_usage_processes,
 } from "../dialog.jsx";
-import { StorageUsageBar } from "../storage-controls.jsx";
+import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
 import {
     ParentPageLink, PageContainerStackItems,
     new_page, ActionButtons, page_type,
@@ -67,25 +67,6 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
 
     function unmount() {
         return mounting_dialog(client, block, "unmount", forced_options);
-    }
-
-    function rename_fsys() {
-        dialog_open({
-            Title: _("Rename filesystem"),
-            Fields: [
-                TextInput("name", _("Name"),
-                          {
-                              value: fsys.Name,
-                              validate: name => validate_fs_name(fsys, name, filesystems)
-                          })
-            ],
-            Action: {
-                Title: _("Rename"),
-                action: function (vals) {
-                    return fsys.SetName(vals.name).then(std_reply);
-                }
-            }
-        });
     }
 
     function snapshot_fsys() {
@@ -229,7 +210,6 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
             (fs_is_mounted
                 ? { title: _("Unmount"), action: unmount }
                 : { title: _("Mount"), action: mount }),
-            { title: _("Rename"), action: rename_fsys },
             { title: _("Snapshot"), action: snapshot_fsys },
             { title: _("Delete"), action: delete_fsys, danger: true },
         ]
@@ -239,7 +219,27 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
 const StratisFilesystemPage = ({
     page, pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning,
 }) => {
+    const filesystems = client.stratis_pool_filesystems[pool.path];
     const block = client.slashdevs_block[fsys.Devnode];
+
+    function rename_fsys() {
+        dialog_open({
+            Title: _("Rename filesystem"),
+            Fields: [
+                TextInput("name", _("Name"),
+                          {
+                              value: fsys.Name,
+                              validate: name => validate_fs_name(fsys, name, filesystems)
+                          })
+            ],
+            Action: {
+                Title: _("Rename"),
+                action: function (vals) {
+                    return fsys.SetName(vals.name).then(std_reply);
+                }
+            }
+        });
+    }
 
     return (
         <Stack hasGutter>
@@ -250,7 +250,11 @@ const StratisFilesystemPage = ({
                             <SDesc title={_("Stored on")}>
                                 <ParentPageLink page={page} />
                             </SDesc>
-                            <SDesc title={_("Name")} value={fsys.Name} />
+                            <SDesc title={_("Name")}
+                                   value={fsys.Name}
+                                   action={<StorageLink onClick={rename_fsys}>
+                                       {_("edit")}
+                                   </StorageLink>} />
                             <SDesc title={_("Mount point")}>
                                 <MountPoint fstab_config={fstab_config} forced_options={forced_options}
                                             backing_block={block} content_block={block} />

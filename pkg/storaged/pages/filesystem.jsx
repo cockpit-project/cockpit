@@ -411,17 +411,12 @@ export const FilesystemPage = ({
                             <SDesc title={_("Stored on")}>
                                 <ParentPageLink page={page} />
                             </SDesc>
-                            <SDesc title={_("Name")}>
-                                <Flex>
-                                    <FlexItem>{content_block?.IdLabel || "-"}</FlexItem>
-                                    <FlexItem>
-                                        <StorageLink onClick={rename_dialog}
-                                                     excuse={!content_block ? _("Filesystem is locked") : null}>
-                                            {_("edit")}
-                                        </StorageLink>
-                                    </FlexItem>
-                                </Flex>
-                            </SDesc>
+                            <SDesc title={_("Name")}
+                                   value={content_block?.IdLabel || "-"}
+                                   action={<StorageLink onClick={rename_dialog}
+                                                        excuse={!content_block ? _("Filesystem is locked") : null}>
+                                       {_("edit")}
+                                   </StorageLink>} />
                             <SDesc title={_("Mount point")}>
                                 <MountPoint fstab_config={fstab_config}
                                             backing_block={backing_block} content_block={content_block} />

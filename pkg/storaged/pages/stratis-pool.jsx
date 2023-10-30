@@ -395,11 +395,6 @@ export function make_stratis_pool_page(parent, pool) {
                 tag: "fsys"
             },
             {
-                title: _("Rename"),
-                action: () => rename_pool(pool),
-                tag: "pool",
-            },
-            {
                 title: _("Delete"),
                 action: () => delete_pool(pool),
                 danger: true,
@@ -600,7 +595,11 @@ const StratisPoolPage = ({ page, pool, degraded_ops, can_grow, managed_fsys_size
                 <SCard title={page_type(page)} actions={<ActionButtons page={page} tag="pool" />}>
                     <CardBody>
                         <DescriptionList className="pf-m-horizontal-on-sm">
-                            <SDesc title={_("Name")} value={pool.Name} />
+                            <SDesc title={_("Name")}
+                                   value={pool.Name}
+                                   action={<StorageLink onClick={() => rename_pool(pool)}>
+                                       {_("edit")}
+                                   </StorageLink>} />
                             <SDesc title={_("UUID")} value={pool.Uuid} />
                             { !managed_fsys_sizes && use &&
                             <SDesc title={_("Usage")}>

@@ -20,14 +20,26 @@
 import React from "react";
 
 import { DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
-export const SDesc = ({ title, value, children }) => {
-    if (!value && !children)
+export const SDesc = ({ title, value, action, children }) => {
+    if (!value && !action && !children)
         return null;
+
+    let content;
+    if (action && value) {
+        content = (
+            <Flex>
+                <FlexItem>{value}</FlexItem>
+                <FlexItem>{action}</FlexItem>
+            </Flex>);
+    } else {
+        content = value || action;
+    }
 
     return (
         <DescriptionListGroup data-test-desc-title={title}>
             <DescriptionListTerm>{title}</DescriptionListTerm>
-            <DescriptionListDescription>{value}{children}</DescriptionListDescription>
+            <DescriptionListDescription>{content}{children}</DescriptionListDescription>
         </DescriptionListGroup>);
 };

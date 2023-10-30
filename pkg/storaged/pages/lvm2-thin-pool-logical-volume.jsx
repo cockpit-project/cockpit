@@ -33,6 +33,7 @@ import { fmt_size, validate_lvm2_name } from "../utils.js";
 import {
     dialog_open, TextInput, SizeSlider,
 } from "../dialog.jsx";
+import { StorageLink } from "../storage-controls.jsx";
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
 import { grow_dialog } from "../resize.jsx";
@@ -104,11 +105,6 @@ export function make_lvm2_thin_pool_logical_volume_page(parent, vgroup, lvol) {
                 tag: "pool",
             },
             {
-                title: _("Rename"),
-                action: () => lvol_rename(lvol),
-                tag: "pool",
-            },
-            {
                 title: _("Delete"),
                 action: () => lvm2_delete_logical_volume_dialog(lvol, p),
                 danger: true,
@@ -136,7 +132,11 @@ export const LVM2ThinPoolLogicalVolumePage = ({ page, vgroup, lvol }) => {
                             <SDesc title={_("Stored on")}>
                                 <ParentPageLink page={page} />
                             </SDesc>
-                            <SDesc title={_("Name")} value={lvol.Name} />
+                            <SDesc title={_("Name")}
+                                   value={lvol.Name}
+                                   action={<StorageLink onClick={() => lvol_rename(lvol)}>
+                                       {_("edit")}
+                                   </StorageLink>} />
                             <SDesc title={_("Size")} value={fmt_size(lvol.Size)} />
                             <SDesc title={_("Data used")} value={perc(lvol.DataAllocatedRatio)} />
                             <SDesc title={_("Metadata used")} value={perc(lvol.MetadataAllocatedRatio)} />

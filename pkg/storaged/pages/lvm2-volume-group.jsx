@@ -29,7 +29,7 @@ import { useObject } from "hooks";
 
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
-import { StorageButton } from "../storage-controls.jsx";
+import { StorageButton, StorageLink } from "../storage-controls.jsx";
 import {
     PageChildrenCard, PageCrossrefCard, ActionButtons, new_page, page_type, get_crossrefs, navigate_away_from_page
 } from "../pages.jsx";
@@ -231,12 +231,6 @@ export function make_lvm2_volume_group_page(parent, vgroup) {
                 tag: "lvols",
             },
             {
-                title: _("Rename"),
-                action: () => vgroup_rename(client, vgroup),
-                excuse: has_missing_pvs && _("A volume group with missing physical volumes can not be renamed."),
-                tag: "group",
-            },
-            {
                 title: _("Delete"),
                 action: () => vgroup_delete(client, vgroup, parent),
                 danger: true,
@@ -266,6 +260,8 @@ function vgroup_poller(vgroup) {
 }
 
 const LVM2VolumeGroupPage = ({ page, vgroup }) => {
+    const has_missing_pvs = vgroup.MissingPhysicalVolumes && vgroup.MissingPhysicalVolumes.length > 0;
+
     useObject(() => vgroup_poller(vgroup),
               poller => poller.stop(),
               [vgroup]);
@@ -326,7 +322,7 @@ const LVM2VolumeGroupPage = ({ page, vgroup }) => {
     }
 
     let alert = null;
-    if (vgroup.MissingPhysicalVolumes && vgroup.MissingPhysicalVolumes.length > 0)
+    if (has_missing_pvs)
         alert = (
             <StackItem>
                 <Alert variant='warning' isInline
@@ -343,7 +339,12 @@ const LVM2VolumeGroupPage = ({ page, vgroup }) => {
                 <SCard title={page_type(page)} actions={<ActionButtons page={page} tag="group" />}>
                     <CardBody>
                         <DescriptionList className="pf-m-horizontal-on-sm">
-                            <SDesc title={_("Name")} value={vgroup.Name} />
+                            <SDesc title={_("Name")}
+                                   value={vgroup.Name}
+                                   action={<StorageLink onClick={() => vgroup_rename(client, vgroup)}
+                                                        excuse={has_missing_pvs && _("A volume group with missing physical volumes can not be renamed.")}>
+                                       {_("edit")}
+                                   </StorageLink>} />
                             <SDesc title={_("UUID")} value={vgroup.UUID} />
                             <SDesc title={_("Capacity")} value={fmt_size_long(vgroup.Size)} />
                         </DescriptionList>

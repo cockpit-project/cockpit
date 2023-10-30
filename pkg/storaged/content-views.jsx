@@ -722,10 +722,13 @@ export function format_disk(client, block) {
                                    {
                                        value: "gpt",
                                        choices: [
-                                           { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
                                            {
                                                value: "gpt",
-                                               title: _("Compatible with modern system and hard disks > 2TB (GPT)")
+                                               title: _("Compatible with modern systems and hard disks > 2TB (GPT)")
+                                           },
+                                           {
+                                               value: "dos",
+                                               title: _("Compatible with all systems and devices (MBR)")
                                            },
                                        ]
                                    }),

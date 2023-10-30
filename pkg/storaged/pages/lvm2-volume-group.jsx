@@ -61,7 +61,7 @@ const _ = cockpit.gettext;
 export function lvm2_delete_logical_volume_dialog(lvol, page) {
     const vgroup = client.vgroups[lvol.VolumeGroup];
     const block = client.lvols_block[lvol.path];
-    const usage = get_active_usage(client, block ? block.path : null, _("delete"));
+    const usage = get_active_usage(client, block ? block.path : lvol.path, _("delete"));
 
     if (usage.Blocking) {
         dialog_open({

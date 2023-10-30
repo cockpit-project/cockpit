@@ -31,10 +31,11 @@ class TestStorageswap(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk()
-        b.click(self.card_row("Storage", name=disk))
+        b.click(self.card_row("Storage", location=disk))
 
-        b.wait_visible(self.card("Unformatted data"))
+        b.wait_in_text(self.card("Content"), "Drive is not formatted")
         m.execute(f"mkswap {disk}")
+        b.click(self.card_row("Content", 1))
         b.wait_visible(self.card("Swap"))
         b.wait_text(self.card_desc("Swap", "Used"), "-")
 

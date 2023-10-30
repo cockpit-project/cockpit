@@ -882,7 +882,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_loopback_disk()
-        b.wait_in_text("#others", disk)
+        b.wait_visible(self.card_row("Storage", location=disk))
         m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}")
         m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk} dm-test")
         self.addCleanup(m.execute, "cryptsetup close dm-test || true")
@@ -890,10 +890,8 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
         m.execute("lvcreate vgroup0 -n lvol0 -l100%FREE")
 
-        b.wait_in_text("#devices", "vgroup0")
-        b.click('#devices .sidepanel-row:contains("vgroup0")')
-
-        self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(disk))
+        b.click(self.card_row("Storage", name="lvol0"))
+        b.wait_in_text(self.card_desc("Logical volume", "Physical volumes"), bn(disk))
 
 
 if __name__ == '__main__':

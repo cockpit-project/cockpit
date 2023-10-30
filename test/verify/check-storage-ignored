@@ -30,15 +30,12 @@ class TestStorageIgnored(storagelib.StorageCase):
 
         self.login_and_go("/storage")
         disk = self.add_loopback_disk()
-        b.wait_visible(self.card_row("Storage", location=disk))
         b.click(self.card_row("Storage", location=disk))
         b.wait_visible(self.card("Block device"))
-        b.click(self.card_row("Content", 1))
-        b.wait_visible(self.card("Unformatted data"))
-
         m.execute(f"yes | mke2fs -q -L TESTLABEL {disk}")
         with b.wait_timeout(30):
-            b.wait_in_text(self.card_desc("ext2 filesystem", "Name"), "TESTLABEL")
+            b.click(self.card_row("Content", 1))
+        b.wait_in_text(self.card_desc("ext2 filesystem", "Name"), "TESTLABEL")
 
         # Hide it via a udev rule.
         m.write("/run/udev/rules.d/99-ignore.rules",

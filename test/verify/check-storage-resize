@@ -145,8 +145,6 @@ class TestStorageResize(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
-        m.upload(["/home/mvo/work/cockpit/dist/storaged"], "/usr/share/cockpit")
-
         if self.storaged_version < [2, 7, 6]:
             # No Filesystem.Size property
             raise unittest.SkipTest("UDisks2 too old")

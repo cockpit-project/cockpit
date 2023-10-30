@@ -39,7 +39,7 @@ class TestStorageMounting(storagelib.StorageCase):
 
         # Format it
 
-        b.clicks(self.dropdown_action(self.card_row("Content", 1), "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
@@ -137,17 +137,18 @@ ExecStart=/usr/bin/sleep infinity
 
         # Add a disk
         disk = self.add_ram_disk()
-        b.click(self.card_row("Storage", name=disk))
+        b.click(self.card_row("Storage", location=disk))
 
         # Format it
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
         self.dialog_set_val("mount_point", "/run/foo")
         self.dialog_apply()
         self.dialog_wait_close()
+        b.click(self.card_row("Content", 1))
         b.wait_in_text(self.card_desc("ext4 filesystem", "Name"), "FILESYSTEM")
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "/run/foo")
 
@@ -229,12 +230,13 @@ ExecStart=/usr/bin/sleep infinity
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk()
-        b.click(self.card_row("Storage", name=disk))
+        b.click(self.card_row("Storage", location=disk))
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "mount_point": "/run/foo"},
                     secondary=True)
+        b.click(self.card_row("Content", 1))
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "The filesystem is not mounted")
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
 
@@ -284,9 +286,9 @@ ExecStart=/usr/bin/sleep infinity
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk()
-        b.click(self.card_row("Storage", name=disk))
+        b.click(self.card_row("Storage", location=disk))
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "mount_point": "/foo",
                      "at_boot": "local",
@@ -294,6 +296,7 @@ ExecStart=/usr/bin/sleep infinity
                      "passphrase": "foobarfoo",
                      "passphrase2": "foobarfoo"},
                     secondary=True)
+        b.click(self.card_row("Content", 1))
         b.wait_in_text(self.card_desc("Filesystem (encrypted)", "Mount point"), "The filesystem is not mounted")
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "noauto")
@@ -343,11 +346,11 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
 
         # Add a disk
         disk = self.add_ram_disk()
-        b.click(self.card_row("Storage", name=disk))
+        b.click(self.card_row("Storage", location=disk))
 
         # Format it with encryption
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
@@ -359,6 +362,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.dialog_set_val("at_boot", "netdev")
         self.dialog_apply()
         self.dialog_wait_close()
+        b.click(self.card_row("Content", 1))
         b.wait_in_text(self.card_desc("ext4 filesystem (encrypted)", "Name"), "FILESYSTEM")
         b.wait_in_text(self.card_desc("ext4 filesystem (encrypted)", "Mount point"), "/run/foo")
 
@@ -426,24 +430,27 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
 
         # Quickly make two logical volumes
         disk = self.add_ram_disk()
-        b.wait_visible(self.card_row("Storage", name=disk))
+        b.wait_visible(self.card_row("Storage", location=disk))
         m.execute(f"vgcreate test {disk}; lvcreate test -n one -L 20M; lvcreate test -n two -L 20M")
         b.click(self.card_row("Storage", name="test"))
         b.wait_text(self.card_row_col("Logical volumes", 1, 1), "one")
         b.wait_text(self.card_row_col("Logical volumes", 2, 1), "two")
 
         # Encrypt and format the first and give it /run/data as the mount point
-        b.clicks(self.dropdown_action(self.card_row("Logical volumes", 1), "Format"))
+        b.click(self.card_row("Logical volumes", 1))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_point": "/run/data"})
+        b.click(self.card_desc("ext4 filesystem (encrypted)", "Stored on") + " button")
         b.wait_text(self.card_row_col("Logical volumes", 1, 2), "ext4 filesystem (encrypted)")
         b.wait_text(self.card_row_col("Logical volumes", 1, 3), "/run/data")
 
         # Format the second and also try to use /run/data as the mount point
-        b.clicks(self.dropdown_action(self.card_row("Logical volumes", 2), "Format"))
+        b.click(self.card_row("Logical volumes", 2))
+        b.click(self.card_button("Unformatted data", "Format"))
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("mount_point", "/run/data")
@@ -454,12 +461,15 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.dialog_wait_error("mount_point", "Mount point is already used for /dev/test/one")
         self.dialog_cancel()
         self.dialog_wait_close()
+        b.click(self.card_desc("Unformatted data", "Stored on") + " button")
 
         # Format the first and re-use /run/data as the mount point.
         # This should be allowed.
-        b.clicks(self.dropdown_action(self.card_row("Logical volumes", 1), "Format"))
+        b.click(self.card_row("Logical volumes", 1))
+        b.click(self.card_button("ext4 filesystem (encrypted)", "Format"))
         self.dialog({"type": "ext4",
                      "mount_point": "/run/data"})
+        b.click(self.card_desc("ext4 filesystem (encrypted)", "Stored on") + " button")
         b.wait_text(self.card_row_col("Logical volumes", 1, 2), "ext4 filesystem (encrypted)")
         b.wait_text(self.card_row_col("Logical volumes", 1, 3), "/run/data")
 
@@ -471,15 +481,16 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
 
         # Add a disk and format it with luks and a filesystem, but with "Never unlock at boot"
         disk = self.add_ram_disk()
-        b.click(self.card_row("Storage", name=disk))
+        b.click(self.card_row("Storage", location=disk))
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "at_boot": "never",
                      "mount_point": "/run/foo"})
+        b.click(self.card_row("Content", 1))
         b.wait_in_text(self.card_desc("ext4 filesystem (encrypted)", "Mount point"), "never mount at boot")
 
         # The filesystem should be mounted but have the "noauto"
@@ -607,11 +618,13 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
         b.wait_text(self.card_row_col("Partitions", 2, 3), "/run/foo/bar")
 
-        b.click(self.card_button("Partitions", "Create partition table"))
+        b.click(self.card_button("Partitions", "Erase"))
         self.dialog_wait_open()
         b.wait_text("#dialog tbody:nth-of-type(1) td[data-label=Location]", "/run/foo/bar")
         b.wait_text("#dialog tbody:nth-of-type(2) td[data-label=Location]", "/run/foo")
         self.dialog_apply()
+        b.click(self.card_button("Content", "Create partition table"))
+        self.confirm()
         b.wait_text(self.card_row_col("Partitions", 1, 1), "Free space")
 
 

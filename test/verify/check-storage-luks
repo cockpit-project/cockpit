@@ -433,14 +433,15 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
 
         dev = "/dev/sda"
         m.add_disk("50M", serial="MYDISK")
-        b.click(self.card_row("Storage", name=dev))
+        b.click(self.card_row("Storage", location=dev))
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_point": "/run/foo"})
+        b.click(self.card_row("Content", 1))
         self.wait_mounted("ext4 filesystem (encrypted)")
 
         self.setup_systemd_password_agent("vainu-reku-toma-rolle-kaja")
@@ -480,9 +481,9 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         # Add a disk and format it with luks
         dev = "/dev/sda"
         m.add_disk("50M", serial="MYDISK")
-        b.click(self.card_row("Storage", name=dev))
+        b.click(self.card_row("Storage", location=dev))
 
-        b.click(self.card_button("Unformatted data", "Format"))
+        b.click(self.card_button("Content", "Format as filesystem"))
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "name": "ENCRYPTED",
@@ -490,6 +491,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"},
                     secondary=True)
+        b.click(self.card_row("Content", 1))
         self.wait_not_mounted("Filesystem (encrypted)")
 
         b.wait_in_text(self.card_desc("Encryption", "Options"), "nofail")

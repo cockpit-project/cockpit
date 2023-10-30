@@ -232,7 +232,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         b.click(self.card_row("Disks", name=disk2))
         b.click(self.card_desc("RAID disk", "Stored on") + " button")
         b.click(self.card_button("Content", "Erase"))
-        b.wait_in_text('#dialog', "remove from RAID, initialize")
+        b.wait_in_text('#dialog', "remove from RAID, erase")
         self.dialog_apply()
         self.dialog_wait_close()
 

@@ -55,7 +55,7 @@ def prctl(*args):
         raise Exception('prctl() failed')
 
 
-prctl.SET_PDEATHSIG = 1
+SET_PDEATHSIG = 1
 
 
 @Gtk.Template(filename=f'{libexecdir}/cockpit-client.ui')
@@ -304,7 +304,7 @@ class InternalCockpitWs:
 
     def preexec_fn(self):
         os.environ['XDG_CONFIG_DIRS'] = self.config_dir.name
-        prctl(prctl.SET_PDEATHSIG, signal.SIGKILL)
+        prctl(SET_PDEATHSIG, signal.SIGKILL)
 
     def stop(self):
         self.ws.kill()

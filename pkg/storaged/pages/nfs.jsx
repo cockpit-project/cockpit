@@ -279,9 +279,10 @@ function remove(client, entry) {
             });
 }
 
-const NfsEntryUsageBar = ({ entry, not_mounted_text }) => {
+const NfsEntryUsageBar = ({ entry, not_mounted_text, short }) => {
     if (entry.mounted)
-        return <StorageUsageBar stats={client.nfs.get_fsys_size(entry)} critical={0.95} block={entry.fields[1]} />;
+        return <StorageUsageBar stats={client.nfs.get_fsys_size(entry)} critical={0.95} block={entry.fields[1]}
+                                short={short} />;
     else
         return not_mounted_text;
 };
@@ -300,7 +301,7 @@ export function make_nfs_page(parent, entry) {
         columns: [
             _("NFS mount"),
             mount_point,
-            <NfsEntryUsageBar key="size" entry={entry} not_mounted_text={null} />,
+            <NfsEntryUsageBar key="size" entry={entry} not_mounted_text={null} short />,
         ],
         component: NfsPage,
         props: { entry },

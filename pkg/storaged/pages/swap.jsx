@@ -35,6 +35,7 @@ import { SDesc } from "../utils/desc.jsx";
 import { format_dialog } from "../format-dialog.jsx";
 import { block_name, fmt_size, decode_filename } from "../utils.js";
 import { std_lock_action } from "../actions.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -49,7 +50,7 @@ export function make_swap_page(parent, backing_block, content_block, container) 
         columns: [
             _("Swap"),
             null,
-            fmt_size(backing_block.Size)
+            <StorageSize key="s" size={backing_block.Size} />,
         ],
         component: SwapPage,
         props: { block: content_block, block_swap },

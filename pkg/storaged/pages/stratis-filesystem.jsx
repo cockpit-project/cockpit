@@ -199,13 +199,13 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
             mp_text,
             (!managed_fsys_sizes
                 ? <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
-                                critical={1} total={stats.fsys_total_used} offset={offset} />
+                                critical={1} total={stats.fsys_total_used} offset={offset} short />
                 : <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), Number(fsys.Size)]}
-                                critical={0.95} />)
+                                critical={0.95} short />)
         ],
         has_warning: !!mismount_warning,
         component: StratisFilesystemPage,
-        props: { pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning },
+        props: { pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning, offset },
         actions: [
             (fs_is_mounted
                 ? { title: _("Unmount"), action: unmount }
@@ -217,9 +217,10 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
 }
 
 const StratisFilesystemPage = ({
-    page, pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning,
+    page, pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning, offset,
 }) => {
     const filesystems = client.stratis_pool_filesystems[pool.path];
+    const stats = client.stratis_pool_stats[pool.path];
     const block = client.slashdevs_block[fsys.Devnode];
 
     function rename_fsys() {
@@ -258,6 +259,14 @@ const StratisFilesystemPage = ({
                             <SDesc title={_("Mount point")}>
                                 <MountPoint fstab_config={fstab_config} forced_options={forced_options}
                                             backing_block={block} content_block={block} />
+                            </SDesc>
+                            <SDesc title={_("Usage")}>
+                                {(!managed_fsys_sizes
+                                    ? <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
+                                                     critical={1} total={stats.fsys_total_used} offset={offset} />
+                                    : <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), Number(fsys.Size)]}
+                                                     critical={0.95} />)
+                                }
                             </SDesc>
                         </DescriptionList>
                     </CardBody>

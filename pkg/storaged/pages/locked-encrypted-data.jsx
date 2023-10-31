@@ -29,8 +29,9 @@ import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
 import { ParentPageLink, PageContainerStackItems, new_page, block_location, ActionButtons } from "../pages.jsx";
 import { format_dialog } from "../format-dialog.jsx";
-import { block_name, fmt_size } from "../utils.js";
+import { block_name } from "../utils.js";
 import { unlock } from "../actions.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -43,7 +44,7 @@ export function make_locked_encrypted_data_page(parent, block, container) {
         columns: [
             _("Locked encrypted data"),
             null,
-            fmt_size(block.Size)
+            <StorageSize key="s" size={(block.Size)} />,
         ],
         component: LockedEncryptedDataPage,
         props: { block },

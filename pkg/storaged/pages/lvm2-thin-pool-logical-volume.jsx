@@ -33,7 +33,7 @@ import { fmt_size, validate_lvm2_name } from "../utils.js";
 import {
     dialog_open, TextInput, SizeSlider,
 } from "../dialog.jsx";
-import { StorageLink } from "../storage-controls.jsx";
+import { StorageLink, StorageSize } from "../storage-controls.jsx";
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
 import { grow_dialog } from "../resize.jsx";
@@ -88,7 +88,7 @@ export function make_lvm2_thin_pool_logical_volume_page(parent, vgroup, lvol) {
         columns: [
             _("Pool for thinly provisioned logical volumes"),
             null,
-            fmt_size(lvol.Size)
+            <StorageSize key="s" size={lvol.Size} />,
         ],
         component: LVM2ThinPoolLogicalVolumePage,
         props: { vgroup, lvol },

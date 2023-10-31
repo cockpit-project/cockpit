@@ -28,8 +28,9 @@ import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
 import { PageChildrenCard, ActionButtons, new_page, page_type, block_location } from "../pages.jsx";
-import { block_name, fmt_size } from "../utils.js";
+import { block_name } from "../utils.js";
 import { partitionable_block_actions, make_partitionable_block_pages } from "./drive.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -41,7 +42,7 @@ export function make_other_page(parent, block) {
         columns: [
             _("Block device"),
             block_name(block),
-            fmt_size(block.Size)
+            <StorageSize key="s" size={block.Size} />,
         ],
         actions: partitionable_block_actions(block),
         component: OtherPage,

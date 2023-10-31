@@ -33,7 +33,7 @@ import { SDesc } from "../utils/desc.jsx";
 import {
     dialog_open, TextInput,
 } from "../dialog.jsx";
-import { StorageButton, StorageLink, StorageUsageBar } from "../storage-controls.jsx";
+import { StorageButton, StorageLink, StorageUsageBar, StorageSize } from "../storage-controls.jsx";
 import {
     ParentPageLink, PageContainerStackItems,
     new_page, block_location, ActionButtons, page_type,
@@ -112,11 +112,13 @@ export function check_mismounted_fsys(backing_block, content_block, fstab_config
         return { warning: "mismounted-fsys", type, other: other_mounts[0] };
 }
 
-const MountPointUsageBar = ({ mount_point, block }) => {
+const MountPointUsageBar = ({ mount_point, block, short }) => {
     useEvent(client.fsys_sizes, "changed");
     const stats = client.fsys_sizes.data[mount_point];
     if (stats)
-        return <StorageUsageBar stats={stats} critical={0.95} block={block_name(block)} />;
+        return <StorageUsageBar stats={stats} critical={0.95} block={block_name(block)} short={short} />;
+    else if (short)
+        return <StorageSize key="s" size={block.Size} />;
     else
         return fmt_size(block.Size);
 };
@@ -143,7 +145,7 @@ export function make_filesystem_page(parent, backing_block, content_block, fstab
         columns: [
             content_block ? cockpit.format(_("$0 filesystem"), content_block.IdType) : _("Filesystem"),
             mp_text,
-            <MountPointUsageBar key="size" mount_point={mount_point} block={backing_block} />,
+            <MountPointUsageBar key="size" mount_point={mount_point} block={backing_block} short />,
         ],
         has_warning: !!mismount_warning,
         component: FilesystemPage,

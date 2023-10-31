@@ -34,8 +34,9 @@ import {
     register_crossref,
 } from "../pages.jsx";
 import { format_dialog } from "../format-dialog.jsx";
-import { block_name, mdraid_name, fmt_size } from "../utils.js";
+import { block_name, mdraid_name } from "../utils.js";
 import { std_lock_action } from "../actions.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -50,7 +51,7 @@ export function make_mdraid_disk_page(parent, backing_block, content_block, cont
         columns: [
             _("RAID disk"),
             mdraid ? mdraid_name(mdraid) : null,
-            fmt_size(backing_block.Size)
+            <StorageSize key="s" size={backing_block.Size} />,
         ],
         component: MDRaidDiskPage,
         props: { backing_block, content_block, mdraid },

@@ -32,8 +32,9 @@ import {
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
 import { format_dialog } from "../format-dialog.jsx";
-import { block_name, fmt_size } from "../utils.js";
+import { block_name } from "../utils.js";
 import { std_lock_action } from "../actions.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -46,7 +47,7 @@ export function make_unformatted_data_page(parent, backing_block, content_block,
         columns: [
             _("Unformatted data"),
             null,
-            fmt_size(backing_block.Size)
+            <StorageSize key="s" size={backing_block.Size} />,
         ],
         component: UnformattedDataPage,
         props: { backing_block, content_block },

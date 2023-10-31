@@ -34,6 +34,7 @@ import {
 import { format_dialog } from "../format-dialog.jsx";
 import { block_name, fmt_size } from "../utils.js";
 import { std_lock_action } from "../actions.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -52,7 +53,7 @@ export function make_lvm2_physical_volume_page(parent, backing_block, content_bl
         columns: [
             _("LVM2 physical volume"),
             vgroup ? vgroup.Name : null,
-            fmt_size(backing_block.Size)
+            <StorageSize key="s" size={backing_block.Size} />,
         ],
         component: LVM2PhysicalVolumePage,
         props: { backing_block, content_block },

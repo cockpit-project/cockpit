@@ -34,6 +34,7 @@ import {
 import { format_dialog } from "../format-dialog.jsx";
 import { block_name, fmt_size } from "../utils.js";
 import { std_lock_action } from "../actions.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -50,7 +51,7 @@ export function make_stratis_blockdev_page(parent, backing_block, content_block,
         columns: [
             _("Stratis block device"),
             pool ? pool.Name : stopped_pool,
-            fmt_size(backing_block.Size)
+            <StorageSize key="s" size={backing_block.Size} />,
         ],
         component: StratisBlockdevPage,
         props: { backing_block, content_block, pool, stopped_pool },

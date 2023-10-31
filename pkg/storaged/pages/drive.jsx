@@ -29,9 +29,10 @@ import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
 import { PageChildrenCard, ParentPageLink, ActionButtons, new_page, page_type, block_location } from "../pages.jsx";
-import { block_name, drive_name, format_temperature, fmt_size, fmt_size_long } from "../utils.js";
+import { block_name, drive_name, format_temperature, fmt_size_long } from "../utils.js";
 import { format_disk, erase_disk } from "../content-views.jsx"; // XXX
 import { format_dialog } from "../format-dialog.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 import { make_block_pages } from "../create-pages.jsx";
 
@@ -98,7 +99,7 @@ export function make_drive_page(parent, drive) {
         columns: [
             _("Drive"),
             block_name(block),
-            block.Size > 0 ? fmt_size(block.Size) : null
+            block.Size > 0 ? <StorageSize key="s" size={block.Size} /> : null
         ],
         actions: partitionable_block_actions(block, "content"),
         component: DrivePage,

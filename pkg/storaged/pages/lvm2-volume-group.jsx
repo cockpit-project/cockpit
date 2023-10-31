@@ -29,12 +29,12 @@ import { useObject } from "hooks";
 
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
-import { StorageButton, StorageLink } from "../storage-controls.jsx";
+import { StorageButton, StorageLink, StorageSize } from "../storage-controls.jsx";
 import {
     PageChildrenCard, PageCrossrefCard, ActionButtons, new_page, page_type, get_crossrefs, navigate_away_from_page
 } from "../pages.jsx";
 import {
-    fmt_size, fmt_size_long, get_active_usage, teardown_active_usage, for_each_async,
+    fmt_size_long, get_active_usage, teardown_active_usage, for_each_async,
     validate_lvm2_name,
     get_available_spaces, prepare_available_spaces,
     reload_systemd,
@@ -213,7 +213,7 @@ export function make_lvm2_volume_group_page(parent, vgroup) {
         columns: [
             _("LVM2 volume group"),
             "/dev/" + vgroup.Name + "/",
-            fmt_size(vgroup.Size),
+            <StorageSize key="s" size={vgroup.Size} />,
         ],
         has_warning: has_missing_pvs,
         component: LVM2VolumeGroupPage,

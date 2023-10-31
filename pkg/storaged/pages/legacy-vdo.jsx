@@ -30,7 +30,7 @@ import { block_name, get_active_usage, teardown_active_usage, fmt_size, decode_f
 import {
     dialog_open, SizeSlider, BlockingMessage, TeardownMessage, init_active_usage_processes
 } from "../dialog.jsx";
-import { StorageButton, StorageOnOff, StorageBlockNavLink } from "../storage-controls.jsx";
+import { StorageButton, StorageOnOff, StorageBlockNavLink, StorageSize } from "../storage-controls.jsx";
 
 import { SCard } from "../utils/card.jsx";
 import { PageChildrenCard, new_page } from "../pages.jsx";
@@ -52,7 +52,7 @@ export function make_legacy_vdo_page(parent, vdo) {
         columns: [
             _("VDO device"),
             block ? block_name(block) : "",
-            fmt_size(vdo.logical_size)
+            <StorageSize key="s" size={vdo.logical_size} />,
         ],
         component: VDODetails,
         props: { client, vdo }

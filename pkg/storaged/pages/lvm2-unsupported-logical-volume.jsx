@@ -27,8 +27,8 @@ import {
     ParentPageLink,
     new_page, ActionButtons, page_type,
 } from "../pages.jsx";
-import { fmt_size } from "../utils.js";
 import { lvm2_delete_logical_volume_dialog } from "./lvm2-volume-group.jsx";
+import { StorageSize } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -41,7 +41,7 @@ export function make_lvm2_unsupported_logical_volume_page(parent, vgroup, lvol, 
         columns: [
             _("Unsupported logical volume"),
             null,
-            fmt_size(lvol.Size)
+            <StorageSize key="s" size={lvol.Size} />,
         ],
         component: LVM2UnsupportedLogicalVolumePage,
         props: { vgroup, lvol },

@@ -30,10 +30,10 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
-import { StorageButton, StorageUsageBar, StorageLink } from "../storage-controls.jsx";
+import { StorageButton, StorageUsageBar, StorageLink, StorageSize } from "../storage-controls.jsx";
 import { PageChildrenCard, PageCrossrefCard, ActionButtons, new_page, page_type, get_crossrefs } from "../pages.jsx";
 import {
-    fmt_size, get_active_usage, teardown_active_usage, for_each_async,
+    get_active_usage, teardown_active_usage, for_each_async,
     get_available_spaces, prepare_available_spaces,
     reload_systemd, encode_filename, decode_filename,
 } from "../utils.js";
@@ -375,7 +375,7 @@ export function make_stratis_pool_page(parent, pool) {
         columns: [
             pool.Encrypted ? _("Encrypted Stratis pool") : _("Stratis pool"),
             "/dev/stratis/" + pool.Name + "/",
-            fmt_size(pool.TotalPhysicalSize),
+            <StorageSize key="s" size={pool.TotalPhysicalSize} />,
         ],
         has_warning: degraded_ops || can_grow,
         component: StratisPoolPage,

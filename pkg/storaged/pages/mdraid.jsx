@@ -28,7 +28,7 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 
 import { SCard } from "../utils/card.jsx";
 import { SDesc } from "../utils/desc.jsx";
-import { StorageButton } from "../storage-controls.jsx";
+import { StorageButton, StorageSize } from "../storage-controls.jsx";
 import { PageChildrenCard, PageCrossrefCard, ActionButtons, new_page, get_crossrefs, page_type } from "../pages.jsx";
 import {
     block_name, mdraid_name, encode_filename, decode_filename,
@@ -201,7 +201,7 @@ export function make_mdraid_page(parent, mdraid) {
         columns: [
             _("RAID device"),
             block ? block_name(block) : null,
-            fmt_size(mdraid.Size),
+            <StorageSize key="s" size={mdraid.Size} />,
         ],
         component: MDRaidPage,
         props: { mdraid, block, running },

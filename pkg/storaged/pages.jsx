@@ -23,7 +23,7 @@ import React from "react";
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Table, Tbody, Tr, Td } from '@patternfly/react-table';
+import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { ExclamationTriangleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 
@@ -266,7 +266,8 @@ const PageTable = ({ emptyCaption, aria_label, pages, crossrefs }) => {
             return false;
     }
 
-    function make_row(page, crossref, level, key) {
+    function make_row(page, crossref, level, key, border) {
+        console.log("P", page.name, border);
         let info = null;
         if (page.has_danger || container_has_danger(page.container))
             info = <>{"\n"}<ExclamationCircleIcon className="ct-icon-times-circle" /></>;
@@ -301,28 +302,29 @@ const PageTable = ({ emptyCaption, aria_label, pages, crossrefs }) => {
                 cockpit.location.go(page.location);
         }
 
-        return <Tr key={key} className={"content-level-" + level}
+        return <Tr key={key} className={"content-level-" + level + (border ? "" : " ct-no-border")}
                    data-test-row-name={page.name} data-test-row-location={page.columns[1]}
                    isClickable={!!page.location} onRowClick={onRowClick}>
             {cols}
         </Tr>;
     }
 
-    function make_page_rows(pages, level) {
+    function make_page_rows(pages, level, last_has_border) {
         for (const p of pages) {
-            rows.push(make_row(p, null, level, rows.length));
-            make_page_rows(p.children, level + 1);
+            const is_last = (level == 0 || p == pages[pages.length - 1]);
+            rows.push(make_row(p, null, level, rows.length, is_last && p.children.length == 0 && last_has_border));
+            make_page_rows(p.children, level + 1, is_last && last_has_border);
         }
     }
 
     function make_crossref_rows(crossrefs) {
         for (const c of crossrefs) {
-            rows.push(make_row(c.page, c, 0, rows.length));
+            rows.push(make_row(c.page, c, 0, rows.length, true));
         }
     }
 
     if (pages)
-        make_page_rows(pages, 0);
+        make_page_rows(pages, 0, true);
     else if (crossrefs)
         make_crossref_rows(crossrefs);
 
@@ -337,6 +339,14 @@ const PageTable = ({ emptyCaption, aria_label, pages, crossrefs }) => {
     return (
         <Table aria-label={aria_label}
                variant="compact">
+            <Thead>
+                <Tr>
+                    <Th>{_("ID")}</Th>
+                    <Th>{_("Type")}</Th>
+                    <Th>{_("Location")}</Th>
+                    <Th>{_("Size")}</Th>
+                </Tr>
+            </Thead>
             <Tbody>
                 {rows}
             </Tbody>

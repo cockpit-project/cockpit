@@ -7,8 +7,9 @@ build-backend = 'build_backend'
 mypy_path = 'src:test/common'
 exclude = '_vendor'
 [[tool.mypy.overrides]]
-module = ["cockpit._vendor.*"]
+module = ["cockpit._vendor.*", "dbus", "gi.*", "task", "vdo.*"]
 follow_imports = 'silent'
+ignore_missing_imports = true
 
 [tool.pylint]
 max-line-length = 118

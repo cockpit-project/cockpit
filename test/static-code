@@ -24,7 +24,7 @@ find_scripts() {
     (
         # Any non-binary file which contains a given shebang
         git grep --cached -lIz '^#!.*'"$1"
-        # Any file ending in the provided regex
+        # Any file matching the provided glob
         git ls-files -z "$2"
     ) | sort -z | uniq -z
 }
@@ -50,6 +50,9 @@ if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
             test -e "src/cockpit/_vendor/${pkg}/__init__.py" || skip "no ${pkg}"
         done
         mypy --no-error-summary src/cockpit test/pytest
+        # test scripts individually, to avoid clashing on `__main__`
+        # also skip integration tests, they are too big and not annotated
+        find_scripts 'python3' "*.none" | grep -zv 'test/' | xargs -r -0 -n1 mypy --no-error-summary
     }
 
     test_vulture() {

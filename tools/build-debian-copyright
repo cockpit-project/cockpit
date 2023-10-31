@@ -9,6 +9,7 @@ import os
 import re
 import sys
 import time
+from typing import Dict, Set
 
 BASE_DIR = os.path.realpath(f'{__file__}/../..')
 TEMPLATE_FILE = f'{BASE_DIR}/tools/debian/copyright.template'
@@ -76,8 +77,8 @@ license_ids = template_licenses(template)
 
 # scan dist/ bundles for third-party copyrights and licenses
 
-dist_copyrights = {}  # Files: dirglob → set(copyrights)
-dist_licenses = {}  # Files: dirglob → set(licenses)
+dist_copyrights: Dict[str, Set[str]] = {}  # Files: dirglob → set(copyrights)
+dist_licenses: Dict[str, Set[str]] = {}  # Files: dirglob → set(licenses)
 
 for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
     for file in files:
@@ -129,11 +130,11 @@ for pattern in set.union(set(license_patterns), set(copyright_patterns)):
         sys.exit(f'build-debian-copyright: Unused pattern: {pattern}')
 
 paragraphs = []
-for files in sorted(dist_copyrights):
+for dirglob in sorted(dist_copyrights):
     paragraphs.append("Files: {0}\nCopyright: {1}\nLicense: {2}".format(
-        files,
-        '\n '.join(sorted(dist_copyrights[files])),
-        ' and '.join(sorted(dist_licenses[files]))))
+        dirglob,
+        '\n '.join(sorted(dist_copyrights[dirglob])),
+        ' and '.join(sorted(dist_licenses[dirglob]))))
 
 # force UTF-8 output, even when running in C locale
 for line in template.splitlines():

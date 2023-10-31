@@ -1714,6 +1714,9 @@ class MachineCase(unittest.TestCase):
         # FIXME: PatternFly complains about these, but https://www.a11y-collective.com/blog/the-first-rule-for-using-aria/
         # and https://www.accessibility-developer-guide.com/knowledge/aria/bad-practices/
         "aria-label",
+
+        # PackageKit crashes a lot; let that not be the sole reason for failing a test
+        "error: Could not determine kpatch packages:.*PackageKit crashed",
     ]
 
     env_allow = os.environ.get("TEST_ALLOW_BROWSER_ERRORS")

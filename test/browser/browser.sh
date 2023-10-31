@@ -48,13 +48,13 @@ if grep -q 'ID=.*rhel' /etc/os-release; then
     dnf install -y kpatch kpatch-dnf
 fi
 
-# HACK: TF prioritizes Fedora tag repo over all others, in particular our daily COPR for revdep tests
-# This is bad -- let the highest version win instead!
-# https://gitlab.com/testing-farm/infrastructure/-/blob/testing-farm/ranch/public/citool-config/guest-setup/pre-artifact-installation/templates/tag.repo.j2?ref_type=heads
-for f in $(grep -l -r 'testing-farm-tag-repository' /etc/yum.repos.d); do
-    sed -i '/priority/d' "$f"
-done
-dnf update -y 'cockpit*'
+# if we run during cross-project testing against our main-builds COPR, then let that win
+# even if Fedora has a newer revision
+main_builds_repo="$(ls /etc/yum.repos.d/*cockpit:main-builds* 2>/dev/null || true)"
+if [ -n "$main_builds_repo" ]; then
+    echo 'priority=0' >> "$main_builds_repo"
+    dnf distro-sync -y 'cockpit*'
+fi
 
 # RHEL 8 does not build cockpit-tests; when dropping RHEL 8 support, move to test/browser/main.fmf
 if [ "$PLAN" = basic ] && ! grep -q el8 /etc/os-release; then

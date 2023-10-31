@@ -41,6 +41,11 @@ def get_stratis_stop_type_opt(execute):
     return ""
 
 
+def create_pool_key(machine, keyname, passphrase):
+    # this is a bit complicated, see https://bugzilla.redhat.com/show_bug.cgi?id=2246923
+    machine.execute(f"echo -n '{passphrase}' | stratis key set --keyfile-path /dev/stdin {keyname}")
+
+
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
 @testlib.nondestructive
 class TestStorageStratis(storagelib.StorageCase):
@@ -434,7 +439,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         # it.  Cockpit will chose a key description for the pool and
         # we occupy its first choice in order to force Cockpit to use
         # something else.
-        m.execute("echo not-the-passphrase | stratis key set --capture-key pool0")
+        create_pool_key(m, "pool0", "not-the-passphrase")
         self.dialog_open_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
                                     expect=lambda: (self.dialog_is_present('disks', dev_1) and
                                                     self.dialog_check({"name": "pool0"})))
@@ -484,7 +489,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
                          'new_passphrase': "boodeefoodeebar",
                          'new_passphrase2': "boodeefoodeebar"})
             # do it again, with the old passphrase in the keyring
-            m.execute("echo boodeefoodeebar | stratis key set pool0 --capture-key")
+            create_pool_key(m, "pool0", "boodeefoodeebar")
             b.click('#detail-header .pf-v5-c-description-list__group:contains(Passphrase) button:contains(Change)')
             self.dialog({'new_passphrase': passphrase,
                          'new_passphrase2': passphrase})
@@ -944,7 +949,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         b.click('#detail-header .pf-v5-c-description-list__group:contains(Keyserver) button:contains(Remove)')
         self.confirm()
 
-        m.execute("echo foobar | stratis key set pool0 --capture-key")
+        create_pool_key(m, "pool0", "foobar")
         b.click('#detail-header button:contains(Add keyserver)')
         self.dialog_wait_open()
         self.dialog_set_val("tang_url", "10.111.112.5")
@@ -955,7 +960,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         with b.wait_timeout(60):
             b.wait_in_text('#dialog', "Command failed")
         m.execute("stratis key unset pool0")
-        m.execute("echo foodeeboodeebar | stratis key set pool0 --capture-key")
+        create_pool_key(m, "pool0", "foodeeboodeebar")
         self.dialog_apply()
         with b.wait_timeout(60):
             self.dialog_wait_close()

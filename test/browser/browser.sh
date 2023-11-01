@@ -50,7 +50,7 @@ fi
 
 # if we run during cross-project testing against our main-builds COPR, then let that win
 # even if Fedora has a newer revision
-main_builds_repo="$(ls /etc/yum.repos.d/*cockpit:main-builds* 2>/dev/null || true)"
+main_builds_repo="$(ls /etc/yum.repos.d/*cockpit*main-builds* 2>/dev/null || true)"
 if [ -n "$main_builds_repo" ]; then
     echo 'priority=0' >> "$main_builds_repo"
     dnf distro-sync -y 'cockpit*'

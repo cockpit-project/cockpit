@@ -511,5 +511,5 @@ class DBusChannel(Channel):
     def do_close(self):
         for slot in self.matches:
             slot.cancel()
-        self.matches = None  # error out
+        self.matches = []
         self.close()

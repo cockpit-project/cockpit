@@ -55,7 +55,7 @@ def ssh_reconnect(machine, timeout_sec=120):
 
 
 @testlib.skipDistroPackage()
-class TestSystemInfo(packagelib.PackageCase):
+class TestSystemInfo(testlib.MachineCase):
     def setUp(self):
         super().setUp()
 
@@ -201,250 +201,6 @@ class TestSystemInfo(packagelib.PackageCase):
         self.allow_journal_messages("error loading contents of os-release: .*",  # C bridge
                                     ".* Neither /etc/os-release nor /usr/lib/os-release exists",  # py bridge
                                     "sudo: unable to resolve host host1.cockpit.lan: .*")
-
-    def set_change_time_dialog_mode(self, mode):
-        b = self.browser
-        b.click("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button")
-        b.click(f"#change_systime button:contains('{mode}')")
-        b.wait_in_text("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button", mode)
-
-    def testTime(self):
-        m = self.machine
-        b = self.browser
-
-        def ntp_enabled():
-            return 'true' in m.execute(
-                'busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP')
-
-        # make sure system is on expected timezone EEST
-        m.execute("timedatectl set-timezone Europe/Helsinki")
-
-        # Something gets confused when systemd-timesyncd isn't
-        # available.  This is harmless.
-        #
-        self.allow_journal_messages(
-            "org.freedesktop.systemd1: couldn't get property org.freedesktop.systemd1.Service ExecMain "
-            "at /org/freedesktop/systemd1/unit/systemd_2dtimedated_2eservice: "
-            "GDBus.Error:org.freedesktop.DBus.Error.UnknownProperty.*")
-        # journal gets confused with time jumps
-        self.allow_journal_messages(r"Journal file .*\.journal corrupted, ignoring file.*")
-
-        self.login_and_go("/system", superuser=False)
-        b.wait_text_not("#system_information_systime_button", "")
-        b.wait_visible('#system_information_systime_button[disabled]')
-
-        # Gain admin access
-        b.click(".pf-v5-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
-        b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")
-        b.wait_not_present(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
-
-        # Change the date
-        b.click("#system_information_systime_button")
-        b.wait_visible("#system_information_change_systime")
-        self.set_change_time_dialog_mode("Manually")
-        b.set_input_text("#systime-date-input input", "2037-01-24")
-        # invalid time
-        b.set_input_text("#systime-time-input-input", "25:61")
-        b.click("#system_information_change_systime .apply")
-        b.wait_text("#systime-manual-row .dialog-error", "Invalid time format")
-        # valid time
-        b.set_input_text("#systime-time-input-input", "08:03")
-        # wait until icon settles down
-        b.wait_visible("#systime-time-input-input[aria-invalid='false']")
-        b.wait_not_present("#systime-manual-row .dialog-error")
-        b.assert_pixels("#system_information_change_systime", "systime-manual-time")
-        b.click("#system_information_change_systime .apply")
-        with b.wait_timeout(60):
-            b.wait_not_present("#system_information_change_systime")
-
-        b.wait_text("#system_information_systime_button", "Jan 24, 2037, 8:03 AM")
-
-        self.assertFalse(ntp_enabled())
-        self.assertIn("Sat Jan 24 08:03:", m.execute("date"))
-        self.assertIn("EET 2037\n", m.execute("date"))
-
-        # Set to NTP
-        b.click("#system_information_systime_button")
-        b.wait_visible("#system_information_change_systime")
-        self.set_change_time_dialog_mode("Automatically using NTP")
-        b.click("#system_information_change_systime .apply")
-        with b.wait_timeout(60):
-            b.wait_not_present("#system_information_change_systime")
-
-        testlib.wait(ntp_enabled)
-
-        # Change the date
-        b.click("#system_information_systime_button")
-        b.wait_visible("#system_information_change_systime")
-        self.set_change_time_dialog_mode("Manually")
-        b.set_input_text("#systime-date-input input", "2018-06-04")
-        b.set_input_text("#systime-time-input-input", "06:34")
-        b.click("#system_information_change_systime .apply")
-        with b.wait_timeout(120):  # Changing time on Arch can be slow
-            b.wait_not_present("#system_information_change_systime")
-
-        self.assertFalse(ntp_enabled())
-        self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
-        self.assertIn("EEST 2018\n", m.execute("date"))
-
-    @testlib.skipImage("timesyncd not available", "rhel*", "centos-*")
-    def testTimeServersTimesyncd(self):
-        m = self.machine
-        b = self.browser
-
-        if m.image.startswith("debian") or m.image.startswith("ubuntu") or m.image == "arch":
-            if m.execute("type chronyc || true").strip() != "":
-                # chronyd is default, install timesyncd
-                self.addPackageSet("timesyncd")
-                self.enableRepo()
-                m.execute("apt-get update; apt-get install -y systemd-timesyncd")
-                m.execute("systemctl restart systemd-timedated; timedatectl set-ntp off; timedatectl set-ntp on")
-            else:
-                # timesyncd is default
-                pass
-        else:
-            # chronyd is default, give priority to timesyncd
-            self.write_file("/etc/systemd/ntp-units.d/10-test.list", "systemd-timesyncd.service")
-
-        conf = "/etc/systemd/timesyncd.conf.d/50-cockpit.conf"
-
-        self.login_and_go("/system")
-
-        # Wait until everything is ready to go...
-        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
-
-        b.click("#system_information_systime_button")
-        b.wait_visible("#system_information_change_systime")
-
-        def get_timesyncd_start():
-            return int(m.execute("systemctl show -p ExecMainStartTimestampMonotonic --value systemd-timesyncd").strip())
-
-        prev_timesyncd_start = get_timesyncd_start()
-
-        # Add two NTP servers.
-        self.set_change_time_dialog_mode("Automatically using specific NTP servers")
-        b.set_input_text("#systime-ntp-servers div:nth-child(1) input", "0.pool.ntp.org")
-        b.click('#systime-ntp-servers div:nth-child(1) button')
-        b.set_input_text("#systime-ntp-servers div:nth-child(2) input", "1.pool.ntp.org")
-        b.click("#system_information_change_systime .apply")
-        with b.wait_timeout(120):  # Changing time on Arch can be slow
-            b.wait_not_present("#system_information_change_systime")
-
-        self.assertIn("0.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
-        self.assertIn("1.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
-
-        # restarts timesyncd to pick up the new config
-        testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
-        prev_timesyncd_start = get_timesyncd_start()
-
-        # Set conf from the outside, check that we pick that up, and
-        # switch to default servers.
-        m.write(conf, "[Time]\nNTP=2.pool.ntp.org\n")
-        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
-        b.click("#system_information_systime_button")
-        b.wait_visible("#system_information_change_systime")
-        b.wait_val("#systime-ntp-servers div:nth-child(1) input", "2.pool.ntp.org")
-        self.set_change_time_dialog_mode("Automatically using NTP")
-        b.wait_not_present("#systime-ntp-servers")
-        b.click("#system_information_change_systime .apply")
-        with b.wait_timeout(120):  # Changing time on Arch can be slow
-            b.wait_not_present("#system_information_change_systime")
-
-        self.assertIn("2.pool.ntp.org", m.execute(f"grep '^#NTP=' {conf}"))
-
-        # restarts timesyncd to pick up the new config
-        testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
-
-    @testlib.skipImage("chronyd not available", "arch")
-    def testTimeServersChronyd(self):
-        m = self.machine
-        b = self.browser
-
-        enabled_conf = "/etc/chrony/sources.d/cockpit.sources"
-        disabled_conf = "/etc/chrony/sources.d/cockpit.disabled"
-
-        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
-            # timesyncd is default, install chronyd
-            self.addPackageSet("chronyd")
-            self.enableRepo()
-            m.execute("apt-get update; apt-get install -y chrony")
-            m.execute("systemctl restart systemd-timedated; timedatectl set-ntp off; timedatectl set-ntp on")
-        else:
-            # chronyd is default
-            pass
-
-        self.login_and_go("/system")
-
-        # Wait until everything is ready to go...
-        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
-
-        b.click("#system_information_systime_button")
-        b.wait_visible("#system_information_change_systime")
-
-        def get_chronyd_start():
-            return int(m.execute("systemctl show -p ExecMainStartTimestampMonotonic --value chronyd").strip())
-
-        prev_chronyd_start = get_chronyd_start()
-
-        # Add two NTP servers.
-        self.set_change_time_dialog_mode("Automatically using additional NTP servers")
-        b.set_input_text("#systime-ntp-servers div:nth-child(1) input", "0.pool.ntp.org")
-        b.click('#systime-ntp-servers div:nth-child(1) button')
-        b.set_input_text("#systime-ntp-servers div:nth-child(2) input", "1.pool.ntp.org")
-        b.click("#system_information_change_systime .apply")
-        with b.wait_timeout(60):
-            b.wait_not_present("#system_information_change_systime")
-
-        m.execute(f"grep 0.pool.ntp.org {enabled_conf}")
-        m.execute(f"grep 1.pool.ntp.org {enabled_conf}")
-        m.execute(f"! test -f {disabled_conf}")
-
-        # restarts chronyd to pick up the new config
-        testlib.wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)
-        prev_chronyd_start = get_chronyd_start()
-
-        # Set conf from the outside, check that we pick that up, and
-        # switch to default servers.
-        m.write(enabled_conf, "server 2.pool.ntp.org\n")
-        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
-        b.click("#system_information_systime_button")
-        b.wait_visible("#system_information_change_systime")
-        b.wait_val("#systime-ntp-servers div:nth-child(1) input", "2.pool.ntp.org")
-        self.set_change_time_dialog_mode("Automatically using NTP")
-        b.wait_not_present("#systime-ntp-servers")
-        b.click("#system_information_change_systime .apply")
-        with b.wait_timeout(60):
-            b.wait_not_present("#system_information_change_systime")
-
-        m.execute(f"! test -f {enabled_conf}")
-        m.execute(f"grep 2.pool.ntp.org {disabled_conf}")
-
-        # restarts timesyncd to pick up the new config
-        testlib.wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)
-
-    def testTimeServersUnsupported(self):
-        m = self.machine
-        b = self.browser
-
-        m.execute("! systemctl is-active chronyd || systemctl stop chronyd")
-        m.execute("! systemctl is-active systemd-timesyncd || systemctl stop systemd-timesyncd")
-        m.execute("systemctl mask chronyd.service || systemctl mask chrony.service")
-        m.execute("systemctl mask systemd-timesyncd.service")
-
-        self.login_and_go("/system")
-
-        # Wait until everything is ready to go...
-        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
-
-        b.click("#system_information_systime_button")
-        b.wait_visible("#system_information_change_systime")
-        b.click("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button")
-        b.wait_visible("#change_systime button:contains('Automatically using NTP')")
-        b.wait_not_present("#change_systime button:contains('Automatically using specific NTP servers')")
-        b.wait_not_present("#change_systime button:contains('Automatically using additional NTP servers')")
 
     @testlib.nondestructive
     def testMotd(self):
@@ -1103,6 +859,253 @@ password=foobar
         self.login_and_go("/system")
         b.wait_text("#crypto-policy-button", "Default")
         self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "0")
+
+
+@testlib.skipDistroPackage()
+class TestSystemInfoTime(packagelib.PackageCase):
+    def set_change_time_dialog_mode(self, mode):
+        b = self.browser
+        b.click("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button")
+        b.click(f"#change_systime button:contains('{mode}')")
+        b.wait_in_text("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button", mode)
+
+    def testTime(self):
+        m = self.machine
+        b = self.browser
+
+        def ntp_enabled():
+            return 'true' in m.execute(
+                'busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP')
+
+        # make sure system is on expected timezone EEST
+        m.execute("timedatectl set-timezone Europe/Helsinki")
+
+        # Something gets confused when systemd-timesyncd isn't
+        # available.  This is harmless.
+        #
+        self.allow_journal_messages(
+            "org.freedesktop.systemd1: couldn't get property org.freedesktop.systemd1.Service ExecMain "
+            "at /org/freedesktop/systemd1/unit/systemd_2dtimedated_2eservice: "
+            "GDBus.Error:org.freedesktop.DBus.Error.UnknownProperty.*")
+        # journal gets confused with time jumps
+        self.allow_journal_messages(r"Journal file .*\.journal corrupted, ignoring file.*")
+
+        self.login_and_go("/system", superuser=False)
+        b.wait_text_not("#system_information_systime_button", "")
+        b.wait_visible('#system_information_systime_button[disabled]')
+
+        # Gain admin access
+        b.click(".pf-v5-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")
+        b.wait_not_present(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
+
+        # Change the date
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Manually")
+        b.set_input_text("#systime-date-input input", "2037-01-24")
+        # invalid time
+        b.set_input_text("#systime-time-input-input", "25:61")
+        b.click("#system_information_change_systime .apply")
+        b.wait_text("#systime-manual-row .dialog-error", "Invalid time format")
+        # valid time
+        b.set_input_text("#systime-time-input-input", "08:03")
+        # wait until icon settles down
+        b.wait_visible("#systime-time-input-input[aria-invalid='false']")
+        b.wait_not_present("#systime-manual-row .dialog-error")
+        b.assert_pixels("#system_information_change_systime", "systime-manual-time")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(60):
+            b.wait_not_present("#system_information_change_systime")
+
+        b.wait_text("#system_information_systime_button", "Jan 24, 2037, 8:03 AM")
+
+        self.assertFalse(ntp_enabled())
+        self.assertIn("Sat Jan 24 08:03:", m.execute("date"))
+        self.assertIn("EET 2037\n", m.execute("date"))
+
+        # Set to NTP
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(60):
+            b.wait_not_present("#system_information_change_systime")
+
+        testlib.wait(ntp_enabled)
+
+        # Change the date
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Manually")
+        b.set_input_text("#systime-date-input input", "2018-06-04")
+        b.set_input_text("#systime-time-input-input", "06:34")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(120):  # Changing time on Arch can be slow
+            b.wait_not_present("#system_information_change_systime")
+
+        self.assertFalse(ntp_enabled())
+        self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
+        self.assertIn("EEST 2018\n", m.execute("date"))
+
+    @testlib.skipImage("timesyncd not available", "rhel*", "centos-*")
+    def testTimeServersTimesyncd(self):
+        m = self.machine
+        b = self.browser
+
+        if m.image.startswith("debian") or m.image.startswith("ubuntu") or m.image == "arch":
+            if m.execute("type chronyc || true").strip() != "":
+                # chronyd is default, install timesyncd
+                self.addPackageSet("timesyncd")
+                self.enableRepo()
+                m.execute("apt-get update; apt-get install -y systemd-timesyncd")
+                m.execute("systemctl restart systemd-timedated; timedatectl set-ntp off; timedatectl set-ntp on")
+            else:
+                # timesyncd is default
+                pass
+        else:
+            # chronyd is default, give priority to timesyncd
+            self.write_file("/etc/systemd/ntp-units.d/10-test.list", "systemd-timesyncd.service")
+
+        conf = "/etc/systemd/timesyncd.conf.d/50-cockpit.conf"
+
+        self.login_and_go("/system")
+
+        # Wait until everything is ready to go...
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+
+        def get_timesyncd_start():
+            return int(m.execute("systemctl show -p ExecMainStartTimestampMonotonic --value systemd-timesyncd").strip())
+
+        prev_timesyncd_start = get_timesyncd_start()
+
+        # Add two NTP servers.
+        self.set_change_time_dialog_mode("Automatically using specific NTP servers")
+        b.set_input_text("#systime-ntp-servers div:nth-child(1) input", "0.pool.ntp.org")
+        b.click('#systime-ntp-servers div:nth-child(1) button')
+        b.set_input_text("#systime-ntp-servers div:nth-child(2) input", "1.pool.ntp.org")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(120):  # Changing time on Arch can be slow
+            b.wait_not_present("#system_information_change_systime")
+
+        self.assertIn("0.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
+        self.assertIn("1.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
+
+        # restarts timesyncd to pick up the new config
+        testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
+        prev_timesyncd_start = get_timesyncd_start()
+
+        # Set conf from the outside, check that we pick that up, and
+        # switch to default servers.
+        m.write(conf, "[Time]\nNTP=2.pool.ntp.org\n")
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        b.wait_val("#systime-ntp-servers div:nth-child(1) input", "2.pool.ntp.org")
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        b.wait_not_present("#systime-ntp-servers")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(120):  # Changing time on Arch can be slow
+            b.wait_not_present("#system_information_change_systime")
+
+        self.assertIn("2.pool.ntp.org", m.execute(f"grep '^#NTP=' {conf}"))
+
+        # restarts timesyncd to pick up the new config
+        testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
+
+    @testlib.skipImage("chronyd not available", "arch")
+    def testTimeServersChronyd(self):
+        m = self.machine
+        b = self.browser
+
+        enabled_conf = "/etc/chrony/sources.d/cockpit.sources"
+        disabled_conf = "/etc/chrony/sources.d/cockpit.disabled"
+
+        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            # timesyncd is default, install chronyd
+            self.addPackageSet("chronyd")
+            self.enableRepo()
+            m.execute("apt-get update; apt-get install -y chrony")
+            m.execute("systemctl restart systemd-timedated; timedatectl set-ntp off; timedatectl set-ntp on")
+        else:
+            # chronyd is default
+            pass
+
+        self.login_and_go("/system")
+
+        # Wait until everything is ready to go...
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+
+        def get_chronyd_start():
+            return int(m.execute("systemctl show -p ExecMainStartTimestampMonotonic --value chronyd").strip())
+
+        prev_chronyd_start = get_chronyd_start()
+
+        # Add two NTP servers.
+        self.set_change_time_dialog_mode("Automatically using additional NTP servers")
+        b.set_input_text("#systime-ntp-servers div:nth-child(1) input", "0.pool.ntp.org")
+        b.click('#systime-ntp-servers div:nth-child(1) button')
+        b.set_input_text("#systime-ntp-servers div:nth-child(2) input", "1.pool.ntp.org")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(60):
+            b.wait_not_present("#system_information_change_systime")
+
+        m.execute(f"grep 0.pool.ntp.org {enabled_conf}")
+        m.execute(f"grep 1.pool.ntp.org {enabled_conf}")
+        m.execute(f"! test -f {disabled_conf}")
+
+        # restarts chronyd to pick up the new config
+        testlib.wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)
+        prev_chronyd_start = get_chronyd_start()
+
+        # Set conf from the outside, check that we pick that up, and
+        # switch to default servers.
+        m.write(enabled_conf, "server 2.pool.ntp.org\n")
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        b.wait_val("#systime-ntp-servers div:nth-child(1) input", "2.pool.ntp.org")
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        b.wait_not_present("#systime-ntp-servers")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(60):
+            b.wait_not_present("#system_information_change_systime")
+
+        m.execute(f"! test -f {enabled_conf}")
+        m.execute(f"grep 2.pool.ntp.org {disabled_conf}")
+
+        # restarts timesyncd to pick up the new config
+        testlib.wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)
+
+    def testTimeServersUnsupported(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("! systemctl is-active chronyd || systemctl stop chronyd")
+        m.execute("! systemctl is-active systemd-timesyncd || systemctl stop systemd-timesyncd")
+        m.execute("systemctl mask chronyd.service || systemctl mask chrony.service")
+        m.execute("systemctl mask systemd-timesyncd.service")
+
+        self.login_and_go("/system")
+
+        # Wait until everything is ready to go...
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        b.click("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button")
+        b.wait_visible("#change_systime button:contains('Automatically using NTP')")
+        b.wait_not_present("#change_systime button:contains('Automatically using specific NTP servers')")
+        b.wait_not_present("#change_systime button:contains('Automatically using additional NTP servers')")
 
 
 if __name__ == '__main__':

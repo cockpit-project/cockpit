@@ -204,7 +204,7 @@ class Channel(Endpoint):
         return self._close_args is not None
 
     def _close_now(self):
-        self.send_control('close', **self._close_args)
+        self.shutdown_endpoint(**self._close_args)
 
     def _task_done(self, task):
         # Strictly speaking, we should read the result and check for exceptions but:

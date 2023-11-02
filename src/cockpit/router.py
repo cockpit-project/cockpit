@@ -61,6 +61,7 @@ class Endpoint:
     __endpoint_frozen_queue: Optional[ExecutionQueue] = None
 
     def __init__(self, router: 'Router'):
+        router.endpoints[self] = set()
         self.router = router
 
     def freeze_endpoint(self):
@@ -94,6 +95,7 @@ class Endpoint:
     def send_channel_control(self, channel, command, **kwargs: JsonDocument) -> None:
         self.router.write_control(channel=channel, command=command, **kwargs)
         if command == 'close':
+            self.router.endpoints[self].remove(channel)
             self.router.drop_channel(channel)
 
     def shutdown_endpoint(self, **kwargs: JsonDocument) -> None:
@@ -130,6 +132,7 @@ class RoutingRule:
 class Router(CockpitProtocolServer):
     routing_rules: List[RoutingRule]
     open_channels: Dict[str, Endpoint]
+    endpoints: 'dict[Endpoint, set[str]]'
     _eof: bool = False
 
     def __init__(self, routing_rules: List[RoutingRule]):
@@ -137,6 +140,7 @@ class Router(CockpitProtocolServer):
             rule.router = self
         self.routing_rules = routing_rules
         self.open_channels = {}
+        self.endpoints = {}
 
     def check_rules(self, options: JsonObject) -> Endpoint:
         for rule in self.routing_rules:
@@ -161,14 +165,14 @@ class Router(CockpitProtocolServer):
             self.transport.close()
 
     def shutdown_endpoint(self, endpoint: Endpoint, **kwargs) -> None:
-        channels = {key for key, value in self.open_channels.items() if value == endpoint}
+        channels = self.endpoints.pop(endpoint)
         logger.debug('shutdown_endpoint(%s, %s) will close %s', endpoint, kwargs, channels)
         for channel in channels:
             self.write_control(command='close', channel=channel, **kwargs)
             self.drop_channel(channel)
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
-        endpoints = set(self.open_channels.values())
+        endpoints = set(self.endpoints)
         logger.debug('do_kill(%s, %s).  Considering %d endpoints.', host, group, len(endpoints))
         for endpoint in endpoints:
             endpoint.do_kill(host, group)
@@ -189,6 +193,7 @@ class Router(CockpitProtocolServer):
                 return
 
             self.open_channels[channel] = endpoint
+            self.endpoints[endpoint].add(channel)
         else:
             try:
                 endpoint = self.open_channels[channel]

@@ -229,6 +229,9 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         assert self.init_future is None
         self.write_control(command='kill', host=host, group=group)
 
+    def do_close(self) -> None:
+        self.close()
+
 
 class ConfiguredPeer(Peer):
     config: BridgeConfig

@@ -76,6 +76,9 @@ class Endpoint:
         self.__endpoint_frozen_queue = None
 
     # interface for receiving messages
+    def do_close(self):
+        raise NotImplementedError
+
     def do_channel_control(self, channel: str, command: str, message: JsonObject) -> None:
         raise NotImplementedError
 
@@ -160,16 +163,19 @@ class Router(CockpitProtocolServer):
         except KeyError:
             logger.error('trying to drop non-existent channel %s from %s', channel, self.open_channels)
 
-        # were we waiting to exit?
-        if not self.open_channels and self._eof and self.transport:
-            self.transport.close()
-
     def shutdown_endpoint(self, endpoint: Endpoint, **kwargs) -> None:
         channels = self.endpoints.pop(endpoint)
         logger.debug('shutdown_endpoint(%s, %s) will close %s', endpoint, kwargs, channels)
         for channel in channels:
             self.write_control(command='close', channel=channel, **kwargs)
             self.drop_channel(channel)
+
+        # were we waiting to exit?
+        if self._eof:
+            logger.debug('  %d endpoints remaining', len(self.endpoints))
+            if not self.endpoints and self.transport:
+                logger.debug('  close transport')
+                self.transport.close()
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
         endpoints = set(self.endpoints)
@@ -213,12 +219,15 @@ class Router(CockpitProtocolServer):
         endpoint.do_channel_data(channel, data)
 
     def eof_received(self) -> bool:
+        logger.debug('eof_received(%r)', self)
+
+        endpoints = set(self.endpoints)
+        for endpoint in endpoints:
+            endpoint.do_close()
+
         self._eof = True
-
-        for channel, endpoint in list(self.open_channels.items()):
-            endpoint.do_channel_control(channel, 'close', {'command': 'close', 'channel': channel})
-
-        return bool(self.open_channels)
+        logger.debug('  endpoints remaining: %r', self.endpoints)
+        return bool(self.endpoints)
 
     def do_closed(self, exc: Optional[Exception]) -> None:
         for rule in self.routing_rules:

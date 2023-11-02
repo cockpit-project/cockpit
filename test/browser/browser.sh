@@ -43,6 +43,11 @@ if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "basic" ]; then
     dnf install -y abrt abrt-addon-ccpp reportd libreport-plugin-bugzilla libreport-fedora
 fi
 
+# dnf installs "missing" weak dependencies, but we don't want them for plans other than "optional"
+if [ "$PLAN" != "optional" ] && rpm -q cockpit-packagekit; then
+    dnf remove -y cockpit-packagekit
+fi
+
 if grep -q 'ID=.*rhel' /etc/os-release; then
     # required by TestUpdates.testKpatch, but kpatch is only in RHEL
     dnf install -y kpatch kpatch-dnf

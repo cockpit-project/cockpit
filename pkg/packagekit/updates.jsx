@@ -1081,6 +1081,8 @@ class OsUpdates extends React.Component {
                         !exception.message?.includes("UnsupportedDistribution") &&
                         // or polkit does not allow it
                         exception.problem !== "access-denied" &&
+                        // or unprivileged session
+                        exception.problem !== "authentication-failed" &&
                         // or the session goes away while checking
                         exception.problem !== "terminated")
                         console.error(`Tracer failed: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);

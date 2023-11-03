@@ -890,7 +890,10 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         tang_m.execute("systemctl stop tangd.socket")
         b.click('#detail-header button:contains(Start)')
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "Error communicating")
+        # stratis' error message for unreachable tang server is very poor:
+        # https://bugzilla.redhat.com/show_bug.cgi?id=2246920 Version < 3.6.0 said
+        # "Error communicating with server 10.111.112.5", check this again after fixing
+        b.wait_in_text("#dialog", "Error")
         self.dialog_cancel()
         self.dialog_wait_close()
 

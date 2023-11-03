@@ -65,6 +65,8 @@ class TestStorageStratis(storagelib.StorageCase):
         self.addCleanup(exe,
                         "stratis report | jq -r '.pools[] | .name' |"
                         f"xargs -n1 --no-run-if-empty stratis pool stop {self.stop_type_opt}")
+        self.addCleanup(exe,
+                        "mount | grep mapper/stratis | awk '{print $1}' | xargs --no-run-if-empty umount")
 
     def testBasic(self):
         m = self.machine

@@ -76,8 +76,8 @@ class Printer:
              done: bool = True,
              channel: Optional[str] = None,
              **kwargs: Any) -> None:
-        """Open a http1-stream channel.  Sends a 'done' as well, unless done=False."""
-        self.open('http-stream1', path=path, method=method, channel=channel, **kwargs)
+        """Open a http-stream2 channel.  Sends a 'done' as well, unless done=False."""
+        self.open('http-stream2', path=path, method=method, channel=channel, **kwargs)
         if done:
             self.done()
 

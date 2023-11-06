@@ -89,7 +89,21 @@ ExecStart=/usr/bin/sleep infinity
         b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
         b.assert_pixels('#dialog', "format-disk")
         self.dialog_apply()
-        self.dialog_wait_close()
+        try:
+            self.dialog_wait_close()
+        except testlib.Error:
+            if "Timed out waiting for object" in b.text("#dialog"):
+                # Sometimes /dev/sda1 is still held open by something
+                # immediately after locking it. This prevents the
+                # kernel from reading the new partition table. Let's
+                # just try again.
+                print("WARNING: Retrying partition table creation")
+                self.dialog_cancel()
+                self.dialog_wait_close()
+                b.click('button:contains(Create partition table)')
+                self.confirm()
+            else:
+                raise
 
         m.execute("! systemctl --quiet is-active keep-mnt-busy")
 

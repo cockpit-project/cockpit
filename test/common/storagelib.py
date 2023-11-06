@@ -121,6 +121,8 @@ class StorageHelpers:
         the cleanup after a forceful removal.
         """
         self.machine.execute(f'echo 1 > /sys/block/{os.path.basename(device)}/device/delete')
+        # the removal trips up PCP and our usage graphs
+        self.allow_browser_errors("direct: instance name lookup failed.*")
 
     def devices_dropdown(self, title):
         self.browser.click("#devices .pf-v5-c-dropdown button.pf-v5-c-dropdown__toggle")

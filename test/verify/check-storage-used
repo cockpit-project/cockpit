@@ -24,7 +24,7 @@ import testlib
 @testlib.nondestructive
 class TestStorageUsed(storagelib.StorageCase):
 
-    def testUsed(self):
+    def checkUsed(self):
         m = self.machine
         b = self.browser
 
@@ -89,11 +89,44 @@ ExecStart=/usr/bin/sleep infinity
         b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
         b.assert_pixels('#dialog', "format-disk")
         self.dialog_apply()
-        self.dialog_wait_close()
+        try:
+            self.dialog_wait_close()
+        except testlib.Error:
+            if "Timed out waiting for object" in b.text("#dialog"):
+                # Sometimes /dev/sda1 is still held open by something
+                # immediately after locking it. the prevents the
+                # kernel from reading the new partition table. Let's
+                # just try again.
+                print("WARNING: Retrying partition table creation")
+                self.dialog_apply()
+                self.dialog_wait_close()
+            else:
+                raise
 
         m.execute("! systemctl --quiet is-active keep-mnt-busy")
 
         self.content_row_wait_in_col(1, 0, "Free space")
+
+    def testUsed1(self):
+        self.checkUsed()
+
+    def testUsed2(self):
+        self.checkUsed()
+
+    def testUsed3(self):
+        self.checkUsed()
+
+    def testUsed4(self):
+        self.checkUsed()
+
+    def testUsed5(self):
+        self.checkUsed()
+
+    def testUsed6(self):
+        self.checkUsed()
+
+    def testUsed7(self):
+        self.checkUsed()
 
     def testUsedAsPV(self):
         m = self.machine

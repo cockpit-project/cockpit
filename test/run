@@ -52,7 +52,7 @@ case "${TEST_SCENARIO:=}" in
         PREPARE_OPTS="$PREPARE_OPTS --quick"
         ;;&
     *storage*)
-        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_STORAGE")"
+        RUN_OPTS="$RUN_OPTS TestStorageUsed"
         PREPARE_OPTS="$PREPARE_OPTS --quick"
         ;;&
     *expensive*)

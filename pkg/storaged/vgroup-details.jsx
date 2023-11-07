@@ -173,6 +173,7 @@ export function vgroup_delete(client, vgroup) {
         Action: {
             Danger: _("Deleting erases all data on a volume group."),
             Title: _("Delete"),
+            disable_on_error: usage.Teardown,
             action: function () {
                 return utils.teardown_active_usage(client, usage)
                         .then(function () {
@@ -284,6 +285,7 @@ export class VGroupDetails extends React.Component {
                 Teardown: TeardownMessage(usage),
                 Action: {
                     Title: _("Remove"),
+                    disable_on_error: usage.Teardown,
                     action: function () {
                         return utils.teardown_active_usage(client, usage)
                                 .then(function () {

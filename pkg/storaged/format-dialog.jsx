@@ -396,6 +396,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             Danger: (create_partition ? null : _("Formatting erases all data on a storage device.")),
             Variants: [action_variant],
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
+            disable_on_error: usage.Teardown,
             action: function (vals) {
                 const mount_now = vals.variant != "nomount";
 

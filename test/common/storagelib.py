@@ -317,6 +317,9 @@ class StorageHelpers:
     def dialog_wait_apply_enabled(self):
         self.browser.wait_attr('#dialog button.apply:nth-of-type(1)', "disabled", None)
 
+    def dialog_wait_apply_disabled(self):
+        self.browser.wait_visible('#dialog button.apply:nth-of-type(1)[disabled]')
+
     def dialog_apply(self):
         self.browser.click('#dialog button.apply:nth-of-type(1)')
 

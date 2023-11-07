@@ -428,6 +428,7 @@ export function grow_dialog(client, lvol_or_part, info, to_fit) {
         },
         Action: {
             Title: _("Grow"),
+            disable_on_error: usage.Teardown,
             action: function (vals) {
                 return teardown_active_usage(client, usage)
                         .then(function () {
@@ -541,6 +542,7 @@ export function shrink_dialog(client, lvol_or_part, info, to_fit) {
         Fields: size_fields.concat(passphrase_fields),
         Action: {
             Title: _("Shrink"),
+            disable_on_error: usage.Teardown,
             action: function (vals) {
                 return teardown_active_usage(client, usage)
                         .then(function () {

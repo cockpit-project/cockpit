@@ -147,6 +147,48 @@ ExecStart=/usr/bin/sleep infinity
 
         self.assertEqual(m.execute("vgs TEST1 || echo GONE").strip(), "GONE")
 
+    def testTeardownRetry(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        disk = self.add_ram_disk()
+        b.wait_in_text("#drives", disk)
+        m.execute(f"mke2fs -q -L TEST {disk}")
+        m.execute(f"mount {disk} /mnt")
+
+        b.click(f'.sidepanel-row:contains("{disk}")')
+        b.wait_visible("#storage-detail")
+        self.retry_in_content_tab(1, 1, lambda tab: b.wait_in_text(tab, "The filesystem is currently mounted on /mnt"))
+
+        # Start formatting, and while the dialog is open, make the
+        # filesystem unmountable.
+        #
+        # We have two processes that keep the filesystem busy: one
+        # that is supposed to be picked up by the dialog, and one that
+        # is not. The first is only used to figure out when the dialog
+        # is done initializing.
+
+        m.spawn("cd /mnt; sleep infinity; true", "sleep")
+
+        b.click('button:contains(Create partition table)')
+        self.dialog_wait_open()
+        b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
+        self.dialog_wait_apply_enabled()
+        m.spawn("cd /mnt; sleep infinity; true", "sleep")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "umount: /mnt: target is busy")
+        self.dialog_wait_apply_disabled()
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.click('button:contains(Create partition table)')
+        self.dialog_wait_open()
+        b.wait_visible("#dialog button:contains(Currently in use)")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
 
 if __name__ == '__main__':
     testlib.test_main()

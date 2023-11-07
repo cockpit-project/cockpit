@@ -138,6 +138,7 @@ export class VDODetails extends React.Component {
                     Teardown: TeardownMessage(usage),
                     Action: {
                         Title: _("Stop"),
+                        disable_on_error: usage.Teardown,
                         action: function () {
                             return teardown_active_usage(client, usage)
                                     .then(function () {
@@ -199,6 +200,7 @@ export class VDODetails extends React.Component {
                 Action: {
                     Title: _("Delete"),
                     Danger: _("Deleting erases all data on a VDO device."),
+                    disable_on_error: usage.Teardown,
                     action: function () {
                         return (teardown_active_usage(client, usage)
                                 .then(teardown_configs)

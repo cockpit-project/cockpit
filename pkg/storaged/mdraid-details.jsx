@@ -180,6 +180,7 @@ function mdraid_stop(client, mdraid) {
             Teardown: TeardownMessage(usage),
             Action: {
                 Title: _("Stop device"),
+                disable_on_error: true,
                 action: function () {
                     return utils.teardown_active_usage(client, usage)
                             .then(function () {
@@ -235,6 +236,7 @@ function mdraid_delete(client, mdraid) {
         Action: {
             Title: _("Delete"),
             Danger: _("Deleting erases all data on a RAID device."),
+            disable_on_error: usage.Teardown,
             action: function () {
                 return utils.teardown_active_usage(client, usage)
                         .then(delete_)

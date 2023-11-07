@@ -408,6 +408,7 @@ export function stratis_content_rows(client, pool, options) {
                 Action: {
                     Danger: _("Deleting a filesystem will delete all data in it."),
                     Title: _("Delete"),
+                    disable_on_error: usage.Teardown,
                     action: function () {
                         return teardown_active_usage(client, usage)
                                 .then(() => destroy_filesystem(client, fsys));
@@ -594,6 +595,7 @@ function delete_pool(client, pool) {
         Action: {
             Danger: _("Deleting a Stratis pool will erase all data it contains."),
             Title: _("Delete"),
+            disable_on_error: usage.Teardown,
             action: function () {
                 return teardown_active_usage(client, usage)
                         .then(() => destroy_pool(client, pool))

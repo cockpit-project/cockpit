@@ -414,6 +414,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
         },
         Action: {
             Title: mode_action[mode],
+            disable_on_error: usage.Teardown,
             action: function (vals) {
                 if (mode == "unmount") {
                     return do_unmount();

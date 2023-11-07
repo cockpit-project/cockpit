@@ -99,6 +99,7 @@ function AuthorizedKeys (user_name, home_dir) {
     }
 
     self.add_key = function(key) {
+        console.log("adding key", key);
         return parse_pubkeys(key)
                 .then(keys => {
                     const obj = keys[0];
@@ -109,6 +110,8 @@ function AuthorizedKeys (user_name, home_dir) {
                                 // eslint-disable-next-line prefer-promise-reject-errors
                                 .catch(ex => Promise.reject(_("Error saving authorized keys: ") + ex)); // not-covered: OS error
                     } else {
+                        console.log("objects", keys);
+                        console.log("key", key);
                         return Promise.reject(_("The key you provided was not valid."));
                     }
                 });

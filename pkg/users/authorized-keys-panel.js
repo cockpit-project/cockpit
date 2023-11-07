@@ -68,6 +68,7 @@ function add_authorized_key_dialog(keys) {
                     caption: _("Add"),
                     style: "primary",
                     clicked: () => {
+                        console.log("adding key", state.text);
                         return keys.add_key(state.text);
                     }
                 }

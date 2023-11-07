@@ -26,6 +26,910 @@ KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEAkRTvQCSEZNPXpA5bP82ilQn3TMeQ6z2NO3
 @testlib.skipDistroPackage()
 @testlib.nondestructive
 class TestKeys(testlib.MachineCase):
+
+    def testAuthorizedKeys11(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys12(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys13(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys14(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys15(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys16(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys17(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys18(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys19(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys20(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys30(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys40(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys9(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys8(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys7(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys6(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys5(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys4(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys3(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys2(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
+    def testAuthorizedKeys1(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_sh256, comment):
+            print(key, fp_sh256, comment)
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            self.assertIn(fp_sh256, text)
+
+        # no keys
+        login("user")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
     def testAuthorizedKeys(self):
         m = self.machine
         b = self.browser
@@ -39,6 +943,7 @@ class TestKeys(testlib.MachineCase):
             b.wait_text("#account-user-name", user)
 
         def add_key(key, fp_sh256, comment):
+            print("add_key", key, fp_sh256, comment)
             b.click('#authorized-key-add')
             b.wait_visible("#add-authorized-key-dialog")
             b.wait_val("#authorized-keys-text", "")

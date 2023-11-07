@@ -25,7 +25,7 @@ PREPARE_OPTS=""
 RUN_OPTS=""
 ALL_TESTS="$(test/common/run-tests --test-dir test/verify -l)"
 
-RE_NETWORKING='Networking|Bonding|TestBridge|WireGuard|Firewall|Team|IPA|AD'
+RE_NETWORKING='IPA|AD'
 RE_STORAGE='Storage'
 RE_EXPENSIVE='HostSwitching|MultiMachine|Updates|Superuser|Kdump|Pages'
 
@@ -71,4 +71,4 @@ if [ -n "$TEST_SCENARIO" ] && [ -z "$RUN_OPTS" ]; then
 fi
 
 test/image-prepare --verbose ${PREPARE_OPTS} "$TEST_OS"
-test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties ${RUN_OPTS}
+test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties -vt ${RUN_OPTS}

@@ -84,8 +84,8 @@ function stringifyConsoleArg(arg) {
             return JSON.stringify(obj);
         }
         return JSON.stringify(arg);
-    } catch {
-        return "???";
+    } catch (error) {
+        return "[error stringifying argument: " + error.toString() + "]";
     }
 }
 

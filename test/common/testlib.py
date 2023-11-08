@@ -235,6 +235,7 @@ class Browser:
 
         self.switch_to_top()
         self.cdp.invoke("Page.navigate", url=href)
+        self.cdp.invoke("waitPageLoad")
 
     def set_user_agent(self, ua: str):
         """Set the user agent of the browser

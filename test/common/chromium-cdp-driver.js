@@ -69,16 +69,26 @@ function clearExceptions() {
 }
 
 function stringifyConsoleArg(arg) {
-    if (arg.type === 'string')
-        return arg.value;
-    if (arg.type === 'object') {
-        const obj = {};
-        arg.preview.properties.forEach(prop => {
-            obj[prop.name] = prop.value.toString();
-        });
-        return JSON.stringify(obj);
+    try {
+        if (arg.type === 'string')
+            return arg.value;
+        if (arg.type === 'number')
+            return arg.value;
+        if (arg.type === 'undefined')
+            return "undefined";
+        if (arg.value === null)
+            return "null";
+        if (arg.type === 'object' && arg.preview?.properties) {
+            const obj = {};
+            arg.preview.properties.forEach(prop => {
+                obj[prop.name] = prop.value.toString();
+            });
+            return JSON.stringify(obj);
+        }
+        return JSON.stringify(arg);
+    } catch (error) {
+        return "[error stringifying argument: " + error.toString() + "]";
     }
-    return JSON.stringify(arg);
 }
 
 function setupLogging(client) {

@@ -18,6 +18,7 @@
  */
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
+import { debounce } from 'throttle-debounce';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
 import { FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { InputGroup, InputGroupItem } from '@patternfly/react-core/dist/esm/components/InputGroup/index.js';
@@ -54,6 +55,10 @@ export function password_quality(password, force) {
     });
 }
 
+const debounced_password_quality = debounce(300, (value, callback) => {
+    password_quality(value).catch(() => ({ value: 0 })).then(callback);
+});
+
 export const PasswordFormFields = ({
     password_label, password_confirm_label,
     password_label_info,
@@ -73,14 +78,10 @@ export const PasswordFormFields = ({
         change("password", value);
 
         if (value) {
-            password_quality(value)
-                    .catch(() => {
-                        return { value: 0 };
-                    })
-                    .then(strength => {
-                        setPasswordStrength(strength.value);
-                        setPasswordMessage(strength.message);
-                    });
+            debounced_password_quality(value, strength => {
+                setPasswordStrength(strength.value);
+                setPasswordMessage(strength.message);
+            });
         } else {
             setPasswordStrength();
             setPasswordMessage("");

@@ -234,7 +234,15 @@ class Browser:
             self.cdp.invoke("Network.setCookie", **cookie)
 
         self.switch_to_top()
-        self.cdp.invoke("Page.navigate", url=href)
+        opts = {}
+        if self.cdp.browser.name == "firefox":
+            # by default, Firefox optimizes this away if the current and the given href URL
+            # are the same (Like in TestKeys.testAuthorizedKeys).
+            # Force a reload in this case, to make tests and the waitPageLoad below predictable
+            # But that option has the inverse effect with Chromium (argh)
+            opts["transitionType"] = "reload"
+        self.cdp.invoke("Page.navigate", url=href, **opts)
+        self.cdp.invoke("waitPageLoad")
 
     def set_user_agent(self, ua: str):
         """Set the user agent of the browser

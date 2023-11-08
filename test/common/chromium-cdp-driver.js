@@ -199,8 +199,10 @@ function setupFrameTracking(client) {
     });
 
     client.Page.loadEventFired(() => {
-        if (pageLoadHandler)
+        if (pageLoadHandler) {
+            debug("loadEventFired, resolving pageLoadHandler");
             pageLoadHandler();
+        }
     });
 
     // track execution contexts so that we can map between context and frame IDs
@@ -221,12 +223,22 @@ function setupFrameTracking(client) {
 }
 
 function setupLocalFunctions(client) {
-    client.reloadPageAndWait = (args) => {
-        return new Promise((resolve, reject) => {
-            pageLoadHandler = () => { pageLoadHandler = null; resolve({}) };
-            client.Page.reload(args);
-        });
-    };
+    client.waitPageLoad = (args) => new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            pageLoadHandler = null;
+            reject("Timeout waiting for page load"); // eslint-disable-line prefer-promise-reject-errors
+        }, 15000);
+        pageLoadHandler = () => {
+            clearTimeout(timeout);
+            pageLoadHandler = null;
+            resolve({});
+        };
+    });
+
+    client.reloadPageAndWait = (args) => new Promise((resolve, reject) => {
+        pageLoadHandler = () => { pageLoadHandler = null; resolve({}) };
+        client.Page.reload(args);
+    });
 
     async function setCSS({ text, frame }) {
         await client.DOM.enable();

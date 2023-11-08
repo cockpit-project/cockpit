@@ -72,6 +72,10 @@ function stringifyConsoleArg(arg) {
     try {
         if (arg.type === 'string')
             return arg.value;
+        if (arg.type === 'undefined')
+            return "undefined";
+        if (arg.value === null)
+            return "null";
         if (arg.type === 'object') {
             const obj = {};
             arg.preview.properties.forEach(prop => {

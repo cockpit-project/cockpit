@@ -242,7 +242,7 @@ class Browser:
             # But that option has the inverse effect with Chromium (argh)
             opts["transitionType"] = "reload"
         self.cdp.invoke("Page.navigate", url=href, **opts)
-        self.cdp.invoke("waitPageLoad")
+        self.cdp.invoke("waitPageLoad", timeout=self.cdp.timeout)
 
     def set_user_agent(self, ua: str):
         """Set the user agent of the browser

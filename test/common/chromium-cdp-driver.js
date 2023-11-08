@@ -72,6 +72,8 @@ function stringifyConsoleArg(arg) {
     try {
         if (arg.type === 'string')
             return arg.value;
+        if (arg.type === 'number')
+            return arg.value;
         if (arg.type === 'undefined')
             return "undefined";
         if (arg.value === null)

@@ -820,8 +820,8 @@ ipa-advise enable-admins-sudo | sh -ex
         # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
         # and there is no ccache; so, emulate what cockpit-ssh could eventually do and check that *if* the
         # session had the ticket forwarded, it *could* do sudo. See https://issues.redhat.com/browse/COCKPIT-643
-        b.open("/@x0.cockpit.lan/system/terminal")
         with b.wait_timeout(60):
+            b.open("/@x0.cockpit.lan/system/terminal")
             b.enter_page("/system/terminal", host="x0.cockpit.lan")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
         b.key_press(f"{ccache_env} sudo whoami\r")

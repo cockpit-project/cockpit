@@ -76,7 +76,7 @@ function stringifyConsoleArg(arg) {
             return "undefined";
         if (arg.value === null)
             return "null";
-        if (arg.type === 'object') {
+        if (arg.type === 'object' && arg.preview?.properties) {
             const obj = {};
             arg.preview.properties.forEach(prop => {
                 obj[prop.name] = prop.value.toString();

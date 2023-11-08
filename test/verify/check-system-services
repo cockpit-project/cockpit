@@ -162,10 +162,11 @@ trap "echo STOP" 0
 
 if [ $(id -u) -eq 0 ]; then
     journalctl --sync
-else
-    # increase the chance for journal to catch up
-    sleep 5
 fi
+
+# increase the chance for journal to catch up
+sleep 5
+
 echo START
 while true; do
   sleep 5

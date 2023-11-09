@@ -106,7 +106,14 @@ export const WithDialogs = ({ children }) => {
     const [dialog, setDialog] = useState(null);
 
     const Dialogs = {
-        show: setDialog,
+        show: component => {
+            if (component && dialog !== null)
+                console.error("Dialogs.show() called for",
+                              JSON.stringify(component),
+                              "while a dialog is already open:",
+                              JSON.stringify(dialog));
+            setDialog(component);
+        },
         close: () => setDialog(null),
         isActive: () => dialog !== null
     };

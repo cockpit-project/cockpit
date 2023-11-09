@@ -94,10 +94,8 @@ class CommonTests:
 
         # Test that we reconnect on privileges change
         self.login_and_go("/system", superuser=False)
-        b.click("button:contains('Turn on administrative access')")
-        b.set_input_text("#switch-to-admin-access-password", "foobar")
-        b.click("button:contains('Authenticate')")
-        b.wait_not_present("#switch-to-admin-access-password")
+        b.wait_visible(f"{self.domain_sel}:disabled")
+        b.become_superuser()
 
         def wait_number_domains(n):
             if n == 0:

@@ -142,7 +142,7 @@ export class FileAutoComplete extends React.Component {
         }
 
         if (error || !this.state.value)
-            this.props.onChange('');
+            this.props.onChange('', error);
 
         if (!error)
             this.setState({ displayFiles: listItems, directory });
@@ -162,7 +162,7 @@ export class FileAutoComplete extends React.Component {
             value: null,
             isOpen: false
         });
-        this.props.onChange('');
+        this.props.onChange('', null);
     }
 
     render() {
@@ -184,7 +184,7 @@ export class FileAutoComplete extends React.Component {
                 onSelect={(_, value) => {
                     this.setState({ value, isOpen: false });
                     this.debouncedChange(value);
-                    this.props.onChange(value || '');
+                    this.props.onChange(value || '', null);
                 }}
                 onToggle={this.onToggle}
                 onClear={this.clearSelection}

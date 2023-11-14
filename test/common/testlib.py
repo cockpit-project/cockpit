@@ -1694,9 +1694,9 @@ class MachineCase(unittest.TestCase):
         "For security reasons, the password you type will not be visible",
 
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
-        "pcp-archive: no such metric: .*: Unknown metric name",
-        "pcp-archive: instance name lookup failed:.*",
-        "pcp-archive: couldn't create pcp archive context for.*",
+        "(direct|pcp-archive): no such metric: .*: Unknown metric name",
+        "(direct|pcp-archive): instance name lookup failed:.*",
+        "(direct|pcp-archive): couldn't create pcp archive context for.*",
 
         # timedatex.service shuts down after timeout, runs into race condition with property watching
         ".*org.freedesktop.timedate1: couldn't get all properties.*Error:org.freedesktop.DBus.Error.NoReply.*",

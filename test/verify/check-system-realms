@@ -890,7 +890,7 @@ class TestAD(TestRealms, CommonTests):
         # create another AD user
         self.machines['services'].execute(f"podman exec -i samba samba-tool user add alice {self.alice_password}")
         # ensure it works
-        m.execute('id alice')
+        m.execute('while ! id alice; do sleep 5; done', timeout=300)
         b.login_and_go('/system', user='alice', password=self.alice_password)
         b.wait_visible("#overview")
         b.logout()

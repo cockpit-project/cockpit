@@ -511,6 +511,7 @@ machine         : 8561
         spoof_threads(2, expect_link_present=True, expect_smt_state=self.expect_smt_default, cmdline=None)
 
     @testlib.skipImage("TODO: add Arch Linux grub entry support", "arch")
+    @testlib.timeout(1200)
     def testCPUSecurityMitigationsEnable(self):
         b = self.browser
         m = self.machine

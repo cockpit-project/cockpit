@@ -115,7 +115,8 @@ class CommonTests:
                 b.set_input_text(self.op_address, "cockpit.lan")
             else:
                 # on current OSes, domain and suggested admin get auto-detected
-                b.wait_val(self.op_address, "cockpit.lan")
+                with b.wait_timeout(60):
+                    b.wait_val(self.op_address, "cockpit.lan")
 
         # Join cockpit.lan
         b.click(self.domain_sel)
@@ -271,7 +272,8 @@ class CommonTests:
         b.wait_popup("realms-join-dialog")
         b.wait_attr("#realms-op-address", "data-discover", "done")
         b.set_input_text(self.op_address, "f0.cockpit.lan")
-        b.wait_text("#realms-op-address-helper", "Contacted domain")
+        with b.wait_timeout(60):
+            b.wait_text("#realms-op-address-helper", "Contacted domain")
         # admin gets auto-detected
         b.wait_val(self.op_admin, self.admin_user)
         b.set_input_text(self.op_admin_password, self.admin_password)

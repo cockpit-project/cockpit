@@ -106,22 +106,14 @@ class CommonTests:
 
         wait_number_domains(0)
 
-        def set_address():
-            # old realmd/IPA don't support realmd auto-detection yet
-            if m.image == "rhel-8-7":
-                b.wait_attr("#realms-op-address", "data-discover", "done")
-                b.wait_val(self.op_address, "")
-                b.wait_not_present("#realms-op-address-helper")
-                b.set_input_text(self.op_address, "cockpit.lan")
-            else:
-                # on current OSes, domain and suggested admin get auto-detected
-                with b.wait_timeout(60):
-                    b.wait_val(self.op_address, "cockpit.lan")
+        def wait_domain_detected():
+            with b.wait_timeout(60):
+                b.wait_val(self.op_address, "cockpit.lan")
 
         # Join cockpit.lan
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
-        set_address()
+        wait_domain_detected()
         b.wait_text("#realms-op-address-helper", "Contacted domain")
         # admin gets auto-detected
         b.wait_val(self.op_admin, self.admin_user)
@@ -223,7 +215,7 @@ class CommonTests:
             # Send a wrong password
             b.click(self.domain_sel)
             b.wait_popup("realms-join-dialog")
-            set_address()
+            wait_domain_detected()
             b.wait_val(self.op_admin, self.admin_user)
             b.set_input_text(self.op_admin_password, "foo")
             b.click(f"#realms-join-dialog button{self.primary_btn_class}")
@@ -259,7 +251,7 @@ class CommonTests:
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
         # wait for auto-detection
-        set_address()
+        wait_domain_detected()
         b.set_input_text(self.op_address, "NOPE")
         with b.wait_timeout(30):
             b.wait_text("#realms-op-address-helper", "Domain could not be contacted")

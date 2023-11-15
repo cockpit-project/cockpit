@@ -149,12 +149,12 @@ class CommonTests:
         m.execute("! su -c klist " + self.admin_user)
         b.logout()
 
-        # change existing local "admin" home dir to domain "admin" user
-        m.execute(f"chown -R {self.admin_user}@cockpit.lan /home/admin")
-
         # wait until IPA user works
         m.execute('while ! su - -c "echo %s | sudo -S true" %s@cockpit.lan; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done' % (
                   self.admin_password, self.admin_user), timeout=300)
+
+        # change existing local "admin" home dir to domain "admin" user
+        m.execute(f"chown -R {self.admin_user}@cockpit.lan /home/admin")
 
         # log in as domain admin and check that we can do privileged operations
         b.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)

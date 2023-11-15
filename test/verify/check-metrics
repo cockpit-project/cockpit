@@ -1486,15 +1486,6 @@ class TestGrafanaClient(testlib.MachineCase):
             bg.click("button:contains('Log in')")
             bg.wait_in_text("body", "Add your first data source")
 
-            # HACK Unsigned plugin needs to be enabled manually
-            # See https://github.com/performancecopilot/grafana-pcp/issues/94
-            bg.open("/plugins/performancecopilot-pcp-app")
-            with bg.wait_timeout(30):
-                bg.wait_visible(".gf-form-button-row button")
-                if bg.text(".gf-form-button-row button") == "Enable":
-                    bg.click(".gf-form-button-row button")
-                    bg.wait_text(".gf-form-button-row button", "Disable")
-
             # Add the PCP redis data source for our client machine
             # Cog (Configuration) menu → Data Sources → Add
             # Select PCP redis, HTTP URL http://10.111.112.1:44322
@@ -1505,6 +1496,17 @@ class TestGrafanaClient(testlib.MachineCase):
             bg.set_input_text("input[placeholder='http://localhost:44322']", redis_url)
             bg.click("button:contains('Save &')")  # Save & [tT]est
             bg.wait_in_text("body", "Data source is working")
+
+            # HACK: There is no way to disable the plugin update check; it happens in the background
+            # and kills a random CDP wait with this RuntimeError; `check_for_plugin_updates = false`
+            # is supposed to avoid that, but it doesn't work; so wait for that error to happen and
+            # ignore it
+            try:
+                with bg.wait_timeout(60):
+                    bg.wait_js_cond("false")
+            except RuntimeError as e:
+                if "Failed to fetch plugins from catalog" not in str(e):
+                    raise
 
             # Grafana auto-discovers "host" variable for incoming metrics; it takes a while to receive the first
             # measurement; that event is not observable directly in Grafana, and the dashboard does not auto-update to
@@ -1523,7 +1525,7 @@ class TestGrafanaClient(testlib.MachineCase):
             # .. and the dashboard name becomes clickable
             bg.click("a:contains('PCP Redis: Host Overview')")
 
-            bg.wait_in_text(".submenu-controls", "grafana-client")
+            bg.wait_in_text("#var-host", "grafana-client")
 
             # expect a "Load average" panel with a sensible number
             max_load = bg.text("div:contains('Load average') .graph-legend-series:contains('1 minute') .max")

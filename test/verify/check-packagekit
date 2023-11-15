@@ -26,7 +26,7 @@ import testlib
 
 WAIT_SCRIPT = """
 for x in $(seq 1 200); do
-    if curl --insecure -s https://%(addr)s:8443/candlepin; then
+    if curl --fail --insecure --silent --show-error https://%(addr)s:8443/candlepin/status; then
         break
     else
         sleep 1

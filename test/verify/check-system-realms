@@ -906,15 +906,19 @@ class TestAD(TestRealms, CommonTests):
             alice_cert = f.read().strip()
         # mangle into form palatable for LDAP
         alice_cert = ''.join([line for line in alice_cert.splitlines() if not line.startswith("----")])
-        # set up an AD user and import their TLS certificate; avoid using the common "userCertificate;binary",
-        # as that does not work with Samba
-        services_machine.execute(r"""podman exec -i samba sh -exc '
-samba-tool user add alice %(alice_pass)s
-printf "version: 1\ndn: cn=alice,cn=users,dc=cockpit,dc=lan\nchangetype: modify\nadd: userCertificate\nuserCertificate: %(alice_cert)s\n" | \
-        ldapmodify -v -U Administrator -w '%(admin_pass)s'
+        # set up an AD user and import their TLS certificate
+        services_machine.write("/tmp/alice_edit", f'''#!/bin/sh -eu
+sed -i "/^$/d" "$1"
+echo "userCertificate: {alice_cert}" >> "$1"
+''', perm="755")
+        services_machine.execute(f"""
+podman cp /tmp/alice_edit samba:/tmp/
+podman exec -i samba sh -exc '
+samba-tool user add alice {self.alice_password}
+samba-tool user edit --editor=/tmp/alice_edit alice
 # for debugging:
-ldapsearch -v -U Administrator -w '%(admin_pass)s' -b 'cn=alice,cn=users,dc=cockpit,dc=lan'
-' """ % {"alice_pass": self.alice_password, "admin_pass": self.admin_password, "alice_cert": alice_cert})
+samba-tool user show alice
+' """, stdout=None)
 
         # set up sssd for certificate mapping to AD
         # see sssd.conf(5) "CERTIFICATE MAPPING SECTION" and sss-certmap(5)

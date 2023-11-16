@@ -84,6 +84,15 @@ ExecStart=/bin/true
 
 @testlib.skipDistroPackage()
 class CommonTests:
+
+    def wait_discover(self):
+        with self.browser.wait_timeout(60):
+            self.browser.wait_attr("#realms-op-address", "data-discover", "done")
+
+    def wait_address_helper(self, expected=None):
+        with self.browser.wait_timeout(60):
+            self.browser.wait_text("#realms-op-address-helper", expected or "Contacted domain")
+
     @testlib.timeout(900)
     def testQualifiedUsers(self):
         m = self.machine
@@ -114,7 +123,7 @@ class CommonTests:
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
         wait_domain_detected()
-        b.wait_text("#realms-op-address-helper", "Contacted domain")
+        self.wait_address_helper()
         # admin gets auto-detected
         b.wait_val(self.op_admin, self.admin_user)
         b.set_input_text(self.op_admin_password, self.admin_password)
@@ -253,8 +262,7 @@ class CommonTests:
         # wait for auto-detection
         wait_domain_detected()
         b.set_input_text(self.op_address, "NOPE")
-        with b.wait_timeout(30):
-            b.wait_text("#realms-op-address-helper", "Domain could not be contacted")
+        self.wait_address_helper("Domain could not be contacted")
         b.wait_visible(f"#realms-join-dialog button{self.primary_btn_class}:disabled")
         b.click("#realms-join-dialog button.pf-m-link")
         b.wait_not_present("#realms-join-dialog")
@@ -262,10 +270,9 @@ class CommonTests:
         # Join a domain with the server as address (input differs from domain name)
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
-        b.wait_attr("#realms-op-address", "data-discover", "done")
+        self.wait_discover()
         b.set_input_text(self.op_address, "f0.cockpit.lan")
-        with b.wait_timeout(60):
-            b.wait_text("#realms-op-address-helper", "Contacted domain")
+        self.wait_address_helper()
         # admin gets auto-detected
         b.wait_val(self.op_admin, self.admin_user)
         b.set_input_text(self.op_admin_password, self.admin_password)
@@ -353,9 +360,10 @@ class CommonTests:
         self.login_and_go("/system")
         b.click("#system_information_domain_button")
         b.wait_popup("realms-join-dialog")
-        b.wait_attr("#realms-op-address", "data-discover", "done")
+        self.wait_discover()
+
         b.set_input_text("#realms-op-address", "cockpit.lan")
-        b.wait_text("#realms-op-address-helper", "Contacted domain")
+        self.wait_address_helper()
         b.set_input_text("#realms-op-admin", self.admin_user)
         b.set_input_text("#realms-op-admin-password", self.admin_password)
         b.click(f"#realms-join-dialog button{self.primary_btn_class}")
@@ -673,9 +681,9 @@ class TestIPA(TestRealms, CommonTests):
         # Join cockpit.lan
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
-        b.wait_attr("#realms-op-address", "data-discover", "done")
+        self.wait_discover()
         b.set_input_text(self.op_address, "cockpit.lan")
-        b.wait_in_text("#realms-op-address-helper", "Domain is not supported")
+        self.wait_address_helper("Domain is not supported")
         # no admin name auto-detection for unsupported domains
         b.wait_val(self.op_admin, "")
         b.set_input_text(self.op_admin, self.admin_user)
@@ -1213,7 +1221,8 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_visible("#realms-join-dialog")
 
         # no auto-detected domain/admin
-        b.wait_attr("#realms-op-address", "data-discover", "done")
+        with b.wait_timeout(60):
+            b.wait_attr("#realms-op-address", "data-discover", "done")
         self.assertEqual(b.val("#realms-op-address"), "")
         self.assertEqual(b.val("#realms-op-admin"), "")
 

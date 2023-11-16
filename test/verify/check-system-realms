@@ -151,8 +151,9 @@ class CommonTests:
         b.logout()
 
         # wait until IPA user works
-        m.execute('while ! su - -c "echo %s | sudo -S true" %s@cockpit.lan; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done' % (
-                  self.admin_password, self.admin_user), timeout=300)
+        m.execute(f'while ! su - -c "echo {self.admin_password} | sudo -S true" {self.admin_user}@cockpit.lan; do '
+                  '    sleep 5; sss_cache -E || true; systemctl reset-failed sssd; systemctl try-restart sssd; done',
+                  timeout=300)
 
         # change existing local "admin" home dir to domain "admin" user
         m.execute(f"chown -R {self.admin_user}@cockpit.lan /home/admin")
@@ -370,7 +371,7 @@ class CommonTests:
         with b.wait_timeout(300):
             b.wait_not_present("#realms-join-dialog")
         b.logout()
-        m.execute('while ! id alice; do sleep 5; systemctl restart sssd; done', timeout=300)
+        m.execute('while ! id alice; do sleep 5; systemctl reset-failed sssd; systemctl restart sssd; done', timeout=300)
 
         # alice's certificate was written by testClientCertAuthentication()
         alice_cert_key = ['--cert', "/var/tmp/alice.pem", '--key', "/var/tmp/alice.key"]

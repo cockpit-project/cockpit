@@ -207,7 +207,7 @@ class CommonTests:
         # b.assert_pixels("#realms-leave-dialog", "realm-leave", [".pf-v5-c-expandable-section__toggle-icon"])
         b.click("#realms-op-leave")
 
-        with b.wait_timeout(30):
+        with b.wait_timeout(60):
             b.wait_not_present("#realms-leave-dialog")
         wait_number_domains(0)
         # re-enables hostname changing

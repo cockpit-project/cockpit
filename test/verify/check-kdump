@@ -66,7 +66,6 @@ class TestKdump(KdumpHelpers):
         b = self.browser
         m = self.machine
 
-        b.wait_timeout(120)
         self.login_and_go("/kdump")
 
         b.wait_visible("#app")
@@ -132,7 +131,8 @@ class TestKdump(KdumpHelpers):
         b.click("#kdump-settings-compression")
         pathInput = "#kdump-settings-local-directory"
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_not_present(pathInput)
+        with b.wait_timeout(120):  # needs to rebuild initrd
+            b.wait_not_present(pathInput)
         m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
 
         # generate a valid kdump config with ssh target
@@ -145,7 +145,9 @@ class TestKdump(KdumpHelpers):
         b.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
         b.set_input_text(pathInput, "/var/crash")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_not_present(pathInput)
+        # rebuilding initrd might take a while on busy CI machines
+        with b.wait_timeout(120):
+            b.wait_not_present(pathInput)
         self.crashKernel("copied through SSH to root@localhost:/var/crash as vmcore", cancel=True)
 
         # we should have the amount of memory reserved that crashkernel=auto defaults to for our VM RAM size
@@ -170,7 +172,8 @@ class TestKdump(KdumpHelpers):
         # create the directory and try again
         m.execute(f"mkdir -p {customPath}")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_not_present(pathInput)
+        with b.wait_timeout(120):
+            b.wait_not_present(pathInput)
         b.wait_text("#kdump-change-target", f"locally in {customPath}")
 
         # service has to restart after changing the config, wait for it to be running

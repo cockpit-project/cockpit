@@ -152,6 +152,7 @@ export function get_page_from_location(location) {
 
 export function navigate_away_from_page(page) {
     const loc = cockpit.location;
+    console.log('navigate away');
     if (page.parent && JSON.stringify(loc.path) == JSON.stringify(page.location))
         loc.go(page.parent.location);
 }

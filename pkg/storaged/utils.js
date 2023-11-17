@@ -766,8 +766,27 @@ export function find_children_for_mount_point(client, mount_point, self) {
     return children;
 }
 
-export function get_fstab_config_with_client(client, block, also_child_config) {
-    let config = block.Configuration.find(c => c[0] == "fstab");
+export function get_fstab_config_with_client(client, block, also_child_config, subvol) {
+    function match(c) {
+        const default_subvol = "/"; // XXX - get this from btrfs
+
+        if (c[0] != "fstab")
+            return false;
+        if (subvol !== undefined) {
+            const opts = decode_filename(c[1].opts.v).split(",");
+            if (opts.indexOf("subvolid=" + subvol.id) >= 0)
+                return true;
+            if (opts.indexOf("subvol=" + subvol.pathname) >= 0)
+                return true;
+            if (subvol.pathname == default_subvol &&
+                !opts.find(o => o.indexOf("subvol=") >= 0 || o.indexOf("subvolid=") >= 0))
+                return true;
+            return false;
+        }
+        return true;
+    }
+
+    let config = block.Configuration.find(match);
 
     if (!config && also_child_config && client.blocks_crypto[block.path])
         config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");

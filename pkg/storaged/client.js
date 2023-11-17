@@ -208,6 +208,50 @@ function is_multipath_master(block) {
     return false;
 }
 
+export function btrfs_poll() {
+    if (!client.uuids_btrfs_subvols)
+        client.uuids_btrfs_subvols = { };
+    if (!client.uuids_btrfs_volume)
+        return;
+
+    const uuids_subvols = { };
+    return Promise.all(Object.keys(client.uuids_btrfs_volume).map(uuid => {
+        const block = client.uuids_btrfs_blocks[uuid][0];
+        const block_fsys = client.blocks_fsys[block.path];
+        const mp = block_fsys.MountPoints[0];
+        if (mp) {
+            return cockpit.spawn(["btrfs", "subvolume", "list", "-ap", utils.decode_filename(mp)],
+                                 { superuser: true, err: "message" })
+                    .then(output => {
+                        const subvols = [{ pathname: "/", id: 5 }];
+                        for (const line of output.split("\n")) {
+                            const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
+                            if (m)
+                                subvols.push({ pathname: m[4], id: Number(m[1]) });
+                        }
+                        uuids_subvols[uuid] = subvols;
+                    });
+        } else {
+            uuids_subvols[uuid] = null;
+            return Promise.resolve();
+        }
+    }))
+            .then(() => {
+                // deep-equal?
+                if (JSON.stringify(client.uuids_btrfs_subvols) != JSON.stringify(uuids_subvols)) {
+                    console.log("SUBVOLS", uuids_subvols);
+                    client.uuids_btrfs_subvols = uuids_subvols;
+                    client.update();
+                }
+            });
+}
+
+function btrfs_start_polling() {
+    window.setInterval(btrfs_poll, 5000);
+    client.uuids_btrfs_subvols = { };
+    btrfs_poll();
+}
+
 function update_indices() {
     let path, block, mdraid, vgroup, pvol, lvol, pool, blockdev, fsys, part, i;
 
@@ -547,15 +591,31 @@ function update_indices() {
 
     // UDisks API does provide a btrfs volume abstraction so we keep track of
     // volume's by uuid in an object. uuid => [org.freedesktop.UDisks2.Filesystem.BTRFS]
+    const old_uuids = client.uuids_btrfs_volume;
+    let need_poll = false;
+    client.uuids_btrfs_volume = { };
     client.uuids_btrfs_blocks = { };
     for (const p in client.blocks_fsys_btrfs) {
         const bfs = client.blocks_fsys_btrfs[p];
         const uuid = bfs.data.uuid;
+        const block_fsys = client.blocks_fsys[p];
+        if ((block_fsys && block_fsys.MountPoints.length > 0) || !client.uuids_btrfs_volume[uuid]) {
+            client.uuids_btrfs_volume[uuid] = bfs;
+            if (!old_uuids || !old_uuids[uuid])
+                need_poll = true;
+        }
         if (!client.uuids_btrfs_blocks[uuid])
             client.uuids_btrfs_blocks[uuid] = [];
         client.uuids_btrfs_blocks[uuid].push(client.blocks[p]);
     }
+
+    if (need_poll) {
+        console.log('polling btrfs');
+        btrfs_poll();
+    }
+
     console.log("uuids_btrfs_blocks", client.uuids_btrfs_blocks);
+    console.log("uuids_btrfs_subvolumes", client.uuids_btrfs_volumes);
 
     client.blocks_cleartext = { };
     for (path in client.blocks) {
@@ -628,6 +688,7 @@ client.update = (first_time) => {
     if (client.ready) {
         update_indices();
         client.path_warnings = find_warnings(client);
+        console.log('create pages');
         create_pages();
         client.dispatchEvent("changed");
     }
@@ -657,6 +718,8 @@ function init_model(callback) {
                             client.features.iscsi = (client.manager_iscsi.valid &&
                                                             client.manager_iscsi.SessionsSupported !== false);
                             client.features.btrfs = client.manager_btrfs.valid;
+                            if (client.features.btrfs)
+                                btrfs_start_polling();
                         });
             }, function(error) {
                 console.warn("Can't enable storaged modules", error.toString());

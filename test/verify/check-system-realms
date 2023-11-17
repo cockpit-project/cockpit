@@ -844,8 +844,6 @@ class TestAD(TestRealms, CommonTests):
         self.admin_password = "foobarFoo123"
         self.alice_password = 'WonderLand123'
         self.expected_server_software = "active-directory"
-        # necessary to run ldapmodify; FIXME: change this on the services image itself
-        self.machines['services'].execute("sed -i 's/-e/-e INSECURELDAP=true &/' /root/run-samba-domain")
         self.machines['services'].execute("/root/run-samba-domain")
 
         m = self.machine

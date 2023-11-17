@@ -371,7 +371,7 @@ class CommonTests:
         with b.wait_timeout(300):
             b.wait_not_present("#realms-join-dialog")
         b.logout()
-        m.execute('while ! id alice; do sleep 5; systemctl reset-failed sssd; systemctl restart sssd; done', timeout=300)
+        m.execute('while ! id alice; do sleep 5; done', timeout=300)
 
         # alice's certificate was written by testClientCertAuthentication()
         alice_cert_key = ['--cert', "/var/tmp/alice.pem", '--key', "/var/tmp/alice.key"]

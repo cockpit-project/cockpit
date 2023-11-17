@@ -859,9 +859,6 @@ class TestAD(TestRealms, CommonTests):
         # similar to "ipa-advise enable-admins-sudo"?
         m.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) ALL")
 
-        # HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1839805
-        m.write("/etc/sssd/conf.d/rhbz1839805.conf", "[domain/cockpit.lan]\nad_gpo_access_control=disabled\n", perm="0600")
-
         # HACK: Figure out why this happens
         self.allow_journal_messages(""".*didn't receive expected "authorize" message""",
                                     'cockpit-session:$')

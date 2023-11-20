@@ -1104,7 +1104,7 @@ export const SizeSlider = (tag, title, options) => {
 export const BlockingMessage = (usage) => {
     const usage_desc = {
         pvol: _("physical volume of LVM2 volume group"),
-        mdraid: _("member of RAID device"),
+        "mdraid-member": _("member of MDRAID device"),
         vdo: _("backing device for VDO device"),
         "stratis-pool-member": _("member of Stratis pool")
     };

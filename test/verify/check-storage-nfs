@@ -40,13 +40,10 @@ class TestStorageNfs(storagelib.StorageCase):
         # otherwise nfs is confused and we can't umount the share.
         self.addCleanup(m.execute, "if [ -e /mnt/test ]; then umount /mnt/test 2>/dev/null || true; rm -r /mnt/test; fi")
 
-        # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .pf-v5-c-empty-state")
-
         orig_fstab = m.execute("cat /etc/fstab")
 
         # Add /home/foo
-        b.click("#nfs-mounts button[aria-label='Add']")
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/foo")
@@ -54,16 +51,16 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
-        b.wait_visible("#nfs-mounts td:contains(/mnt/test)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mnt/test) .pf-v5-c-progress__status", "")
+        b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
+        b.wait_visible(self.card_row("Storage", location="/mnt/test"))
+        b.wait_visible(self.card_row("Storage", location="/mnt/test") + " .usage-bar")
 
         # Should be saved to fstab
         self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
                          "127.0.0.1:/home/foo /mnt/test nfs defaults\n")
 
         # Try to add some non-exported directory
-        b.click("#nfs-mounts button[aria-label='Add']")
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         b.set_input_text(self.dialog_field("remote") + " input", "/usr/share")
@@ -75,7 +72,7 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_wait_close()
 
         # Add /home/bar
-        b.click("#nfs-mounts button[aria-label='Add']")
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/bar")
@@ -83,32 +80,31 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_visible("#nfs-mounts td:contains(/home/bar)")
-        b.wait_visible("#nfs-mounts td:contains(/mounts/bar)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .pf-v5-c-progress__status", "")
+        b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/bar"))
+        b.wait_visible(self.card_row("Storage", location="/mounts/bar"))
+        b.wait_visible(self.card_row("Storage", location="/mounts/bar") + " .usage-bar")
         m.execute("test -d /mounts/bar")
 
         # Go to details of /home/bar
-        b.click("#nfs-mounts tr:contains(/home/bar)")
-        b.wait_visible('#storage-detail')
-        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/bar")
-        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/bar")
+        self.click_card_row("Storage", name="127.0.0.1:/home/bar")
+        b.wait_text(self.card_desc("NFS mount", "Server"), "127.0.0.1:/home/bar")
+        b.wait_text(self.card_desc("NFS mount", "Mount point"), "/mounts/bar")
 
         # Change mount point of /home/bar
-        b.click('#detail-header button:contains("Edit")')
+        b.click(self.card_button("NFS mount", "Edit"))
         self.dialog_wait_open()
         self.dialog_set_val("dir", "/mounts/barbar")
         self.dialog_apply()
         self.dialog_wait_close()
         self.addCleanup(m.execute, "umount /mounts/barbar; rmdir /mounts/barbar")
 
-        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/barbar")
+        b.wait_text(self.card_desc("NFS mount", "Mount point"), "/mounts/barbar")
         m.execute("! test -e /mounts/bar")
         m.execute("test -d /mounts/barbar")
         self.assertEqual(m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "defaults")
 
         # Set options for /home/bar
-        b.click('#detail-header button:contains("Edit")')
+        b.click(self.card_button("NFS mount", "Edit"))
 
         def wait_checked(field):
             b.wait_visible(self.dialog_field(field) + ":checked")
@@ -134,22 +130,19 @@ class TestStorageNfs(storagelib.StorageCase):
 
         # Go to details of /home/foo
         b.go("#/")
-        b.wait_visible("#storage")
-        b.click("#nfs-mounts tr:contains(/home/foo)")
-        b.wait_visible('#storage-detail')
-        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
-        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mnt/test")
+        self.click_card_row("Storage", name="127.0.0.1:/home/foo")
+        b.wait_text(self.card_desc("NFS mount", "Server"), "127.0.0.1:/home/foo")
+        b.wait_text(self.card_desc("NFS mount", "Mount point"), "/mnt/test")
 
         # Unmount and remount /home/foo
-        b.click("#detail-header button:contains(Unmount)")
-        b.click("#detail-header button:contains(Mount)")
-        b.wait_visible("#detail-header button:contains(Unmount)")
+        b.click(self.card_button("NFS mount", "Unmount"))
+        b.click(self.card_button("NFS mount", "Mount"))
+        b.wait_visible(self.card_button("NFS mount", "Unmount"))
 
         # Remove /home/foo
-        b.click("#detail-header button:contains(Remove)")
-        b.wait_not_present('#storage-detail')
-        b.wait_visible("#storage")
-        b.wait_not_present("#nfs-mounts td:contains(/home/foo)")
+        self.click_card_dropdown("NFS mount", "Remove")
+        b.wait_visible(self.card("Storage"))
+        b.wait_not_present(self.card_row("Storage", name="127.0.0.1:/home/foo"))
         m.execute("! test -e /mnt/test")
         # Should be removed from fstab, too
         self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
@@ -157,17 +150,16 @@ class TestStorageNfs(storagelib.StorageCase):
 
         # Picks up mounts in fstab
         m.execute("echo '1.2.3.4:/something /somewhere nfs defaults 0 0' >> /etc/fstab")
-        b.wait_visible("#nfs-mounts td:contains(1.2.3.4 /something)")
-        b.wait_visible("#nfs-mounts td:contains(/somewhere)")
-        b.wait_visible("#nfs-mounts td:contains(Not mounted)")
+        b.wait_visible(self.card_row("Storage", name="1.2.3.4:/something"))
+        b.wait_visible(self.card_row("Storage", location="/somewhere (not mounted)"))
 
         # Ignores non-FS mounts which look similar
         m.execute("echo '2.3.4.5:/marmalade /dunno rfs defaults 0 0' >> /etc/fstab")
         # But recognizes variants like "nfs4"
         m.execute("echo '5.6.7.8:/stuff /four nfs4 defaults 0 0' >> /etc/fstab")
-        b.wait_visible("#nfs-mounts td:contains(5.6.7.8)")
-        b.wait_visible("#nfs-mounts td:contains(/four)")
-        self.assertFalse(b.is_present("#nfs-mounts td:contains(marmalade)"))
+        b.wait_visible(self.card_row("Storage", name="5.6.7.8:/stuff"))
+        b.wait_visible(self.card_row("Storage", location="/four (not mounted)"))
+        b.wait_not_present(self.card_row("Storage", name="2.3.4.5:/marmalade"))
 
     def testNfsListExports(self):
         m = self.machine
@@ -180,7 +172,7 @@ class TestStorageNfs(storagelib.StorageCase):
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")
 
-        b.click("#nfs-mounts [aria-label='Add']")
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
 
@@ -212,7 +204,7 @@ class TestStorageNfs(storagelib.StorageCase):
         self.restore_file("/usr/sbin/showmount")
         m.execute("chmod a-x /usr/sbin/showmount")
 
-        b.click("#nfs-mounts [aria-label='Add']")
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         # Manually add a remote location to the select
@@ -223,9 +215,9 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_wait_close()
         self.addCleanup(m.execute, "umount /mnt")
 
-        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
-        b.wait_visible("#nfs-mounts td:contains(/mnt)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .pf-v5-c-progress__status", "")
+        b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
+        b.wait_visible(self.card_row("Storage", location="/mnt"))
+        b.wait_visible(self.card_row("Storage", location="/mnt") + " .usage-bar")
 
     def testNfsBusy(self):
         m = self.machine
@@ -239,11 +231,8 @@ class TestStorageNfs(storagelib.StorageCase):
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")
 
-        # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .pf-v5-c-empty-state")
-
         # Add /home/foo
-        b.click("#nfs-mounts [aria-label='Add']")
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         self.dialog_set_val("remote", "/home/foo")
@@ -251,27 +240,24 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
-        b.wait_visible("#nfs-mounts td:contains(/mounts/foo)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .pf-v5-c-progress__status", "")
+        b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
+        b.wait_visible(self.card_row("Storage", location="/mounts/foo"))
+        b.wait_visible(self.card_row("Storage", location="/mounts/foo") + " .usage-bar")
 
         # Go to details of /home/foo
-        b.go("#/")
-        b.wait_visible("#storage")
-        b.click("#nfs-mounts tr:contains(/home/foo)")
-        b.wait_visible('#storage-detail')
-        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
-        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/foo")
+        self.click_card_row("Storage", name="127.0.0.1:/home/foo")
+        b.wait_text(self.card_desc("NFS mount", "Server"), "127.0.0.1:/home/foo")
+        b.wait_text(self.card_desc("NFS mount", "Mount point"), "/mounts/foo")
 
         sleep_pid = m.spawn("cd /mounts/foo; sleep infinity", "busy")
-        b.click('#detail-header button:contains("Edit")')
+        b.click(self.card_button("NFS mount", "Edit"))
 
         self.dialog_wait_open()
         self.dialog_wait_alert("This NFS mount is in use")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.click("#detail-header button:contains(Unmount)")
+        b.click(self.card_button("NFS mount", "Unmount"))
         self.dialog_wait_open()
         b.wait_in_text("#dialog", str(sleep_pid))
         b.wait_in_text("#dialog", "sleep infinity")
@@ -282,11 +268,11 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.click("#detail-header button:contains(Mount)")
-        b.wait_visible("#detail-header button:contains(Unmount)")
+        b.click(self.card_button("NFS mount", "Mount"))
+        b.wait_visible(self.card_button("NFS mount", "Unmount"))
 
         sleep_pid = m.spawn("cd /mounts/foo; sleep infinity", "busy")
-        b.click("#detail-header button:contains(Remove)")
+        self.click_card_dropdown("NFS mount", "Remove")
         b.wait_in_text("#dialog", str(sleep_pid))
         b.wait_in_text("#dialog", "sleep infinity")
         b.wait_in_text("#dialog", "The listed processes will be forcefully stopped.")
@@ -295,7 +281,9 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_wait_close()
 
         # We are back on the Overview with nothing there
-        b.wait_visible("#nfs-mounts .pf-v5-c-empty-state")
+        b.wait_visible(self.card("Storage"))
+        b.wait_not_present(self.card_row("Storage", name="127.0.0.1:/home/foo"))
+        b.wait_not_present(self.card_row("Storage", location="/mounts/foo"))
 
 
 # Re-use allowed journal messages from StorageCase
@@ -306,6 +294,8 @@ class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase, sto
     def testNfsMissingPackages(self):
         m = self.machine
         b = self.browser
+
+        m.execute("systemctl restart nfs-server")
 
         # Override configuration so that we don't have to remove the
         # real package.
@@ -321,8 +311,7 @@ class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase, sto
 
         # The fake-nfs-utils package is not available yet
 
-        b.click("button:contains('Install NFS support')")
-
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "fake-nfs-utils is not available from any repository.")
         self.dialog_cancel()
@@ -351,16 +340,21 @@ class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase, sto
             m.execute("systemctl restart packagekit")
             m.execute("pkcon refresh force; pkcon install -y dummy")
 
-        b.reload()
-        b.enter_page("/storage")
-        b.click("button:contains('Install NFS support')")
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "fake-nfs-utils will be installed")
         b.wait_in_text("#dialog", "fake-libnfs")
         self.dialog_apply()
+        self.dialog_set_val("server", "127.0.0.1")
+        self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.wait_visible("#nfs-mounts button[aria-label='Add']")
+        # Now we should go straight to the main dialog
+        self.click_dropdown(self.card_header("Storage"), "New NFS mount")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        self.dialog_cancel()
+        self.dialog_wait_close()
 
 
 if __name__ == '__main__':

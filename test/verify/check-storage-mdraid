@@ -23,43 +23,26 @@ import storagelib
 import testlib
 
 
-def info_field(name):
-    return f'#detail-header dt:contains("{name}") + dd'
-
-
 class TestStorageMdRaid(storagelib.StorageCase):
 
     def wait_states(self, states):
-        self.browser.wait_js_func("""(function(states) {
-          var found = { };
-          var rows = ph_select('#detail-sidebar .sidepanel-row');
-          for (i = 0; i < rows.length; ++i) {
-            var name = rows[i].querySelector('.sidepanel-row-name').textContent;
-            var state = rows[i].querySelector('.sidepanel-row-detail').textContent;
-            found[name] = state;
-          };
-          for (s in states) {
-            if (!found[s] || found[s].indexOf(states[s]) < 0)
-              return false;
-          }
-          return true;
-        })""", states)
+        for s in states.keys():
+            self.browser.wait_in_text(self.card_row("MDRAID device", name=s), states[s])
 
     def raid_add_disk(self, name):
-        self.dialog_open_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .pf-v5-c-card__header button'),
+        self.dialog_open_with_retry(trigger=lambda: self.browser.click(self.card_button("MDRAID device", "Add disk")),
                                     expect=lambda: self.dialog_is_present('disks', name))
         self.dialog_set_val("disks", {name: True})
         self.dialog_apply_with_retry()
 
     def raid_remove_disk(self, name):
-        self.browser.click(f'#detail-sidebar .sidepanel-row:contains("{name}") button.pf-m-secondary')
+        self.click_dropdown(self.card_row("MDRAID device", name=name), "Remove")
 
     def raid_action(self, action):
-        self.browser.click(f'.pf-v5-c-card__header:contains("RAID device") button:contains({action})')
+        self.browser.click(self.card_button("MDRAID device", action))
 
     def raid_default_action_start(self, action):
-        self.browser.wait_visible(f'.pf-v5-c-card__header:contains("RAID device") button:contains({action})')
-        self.browser.click(f'.pf-v5-c-card__header:contains("RAID device") button:contains({action})')
+        self.raid_action(action)
 
     def raid_default_action_finish(self, action):
         if action == "Stop":
@@ -71,7 +54,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
             for _ in range(3):
                 try:
                     sleep(10)
-                    self.browser.wait_in_text(info_field("State"), "Not running")
+                    self.browser.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
                     break
                 except testlib.Error as ex:
                     if not ex.msg.startswith('timeout'):
@@ -96,25 +79,25 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add four disks and make a RAID out of three of them
-        m.add_disk("50M", serial="DISK1")
-        m.add_disk("50M", serial="DISK2")
-        m.add_disk("50M", serial="DISK3")
-        m.add_disk("50M", serial="DISK4")
-        b.wait_in_text("#drives", "DISK1")
-        b.wait_in_text("#drives", "DISK2")
-        b.wait_in_text("#drives", "DISK3")
-        b.wait_in_text("#drives", "DISK4")
+        disk1 = "/dev/" + m.add_disk("50M", serial="DISK1")["dev"]
+        disk2 = "/dev/" + m.add_disk("50M", serial="DISK2")["dev"]
+        disk3 = "/dev/" + m.add_disk("50M", serial="DISK3")["dev"]
+        disk4 = "/dev/" + m.add_disk("50M", serial="DISK4")["dev"]
+        b.wait_visible(self.card_row("Storage", name=disk1))
+        b.wait_visible(self.card_row("Storage", name=disk2))
+        b.wait_visible(self.card_row("Storage", name=disk3))
+        b.wait_visible(self.card_row("Storage", name=disk4))
 
-        self.devices_dropdown('Create RAID device')
+        self.click_devices_dropdown('Create MDRAID device')
         self.dialog_wait_open()
         self.dialog_wait_val("name", "raid0")
         self.dialog_wait_val("level", "raid5")
         self.dialog_apply()
         self.dialog_wait_error("disks", "At least 2 disks are needed")
-        self.dialog_set_val("disks", {"DISK1": True})
+        self.dialog_set_val("disks", {disk1: True})
         self.dialog_apply()
         self.dialog_wait_error("disks", "At least 2 disks are needed")
-        self.dialog_set_val("disks", {"DISK2": True, "DISK3": True})
+        self.dialog_set_val("disks", {disk2: True, disk3: True})
         self.dialog_set_val("level", "raid6")
         self.dialog_apply()
         self.dialog_wait_error("disks", "At least 4 disks are needed")
@@ -125,25 +108,24 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.dialog_set_val("name", "raid0")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#devices", "raid0")
+        b.wait_visible(self.card_row("Storage", name="/dev/md/raid0"))
 
         # Check that Cockpit suggest name that does not yet exists
-        self.devices_dropdown('Create RAID device')
+        self.click_devices_dropdown('Create MDRAID device')
         b.wait(lambda: self.dialog_val("name") == "raid1")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.click('#devices .sidepanel-row:contains("raid0")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="/dev/md/raid0")
 
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
-                          "QEMU QEMU HARDDISK (DISK2)": "In sync",
-                          "QEMU QEMU HARDDISK (DISK3)": "In sync"})
+        self.wait_states({disk1: "In sync",
+                          disk2: "In sync",
+                          disk3: "In sync"})
 
         def wait_degraded_state(is_degraded):
             degraded_selector = ".pf-v5-c-alert h4"
             if is_degraded:
-                b.wait_in_text(degraded_selector, 'The RAID array is in a degraded state')
+                b.wait_in_text(degraded_selector, 'The MDRAID device is in a degraded state')
             else:
                 b.wait_not_present(degraded_selector)
 
@@ -152,81 +134,77 @@ class TestStorageMdRaid(storagelib.StorageCase):
         #
         # See https://bugzilla.redhat.com/show_bug.cgi?id=1397320
         #
-        dev = b.text(info_field("Device"))
+        dev = b.text(self.card_desc("MDRAID device", "Device"))
 
         # Degrade and repair it
 
         m.execute(f"mdadm --quiet {dev} --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1; udevadm trigger")
         wait_degraded_state(is_degraded=True)
 
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})
-        self.raid_remove_disk("DISK1")
-        b.wait_not_in_text('#detail-sidebar', "DISK1")
+        self.wait_states({disk1: "Failed"})
+        self.raid_remove_disk(disk1)
+        b.wait_not_present(self.card_row("Disks", name=disk1))
 
-        self.raid_add_disk("DISK1")
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
-                          "QEMU QEMU HARDDISK (DISK2)": "In sync",
-                          "QEMU QEMU HARDDISK (DISK3)": "In sync"})
+        self.raid_add_disk(disk1)
+        self.wait_states({disk1: "In sync",
+                          disk2: "In sync",
+                          disk3: "In sync"})
 
         wait_degraded_state(is_degraded=False)
 
         # Turn it off and on again
         with b.wait_timeout(30):
             self.raid_default_action("Stop")
-            b.wait_in_text(info_field("State"), "Not running")
+            b.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
             self.raid_default_action("Start")
-            b.wait_in_text(info_field("State"), "Running")
+            b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
 
-        # Stopping and starting the array will create the expected
-        # symlink in /dev/md/.
+        # Stopping and starting the array should not change the device.
         #
-        b.wait_text(info_field("Device"), "/dev/md/raid0")
+        b.wait_text(self.card_desc("MDRAID device", "Device"), "/dev/md/raid0")
 
         # Partitions also get symlinks in /dev/md/, so they should
         # have names like "/dev/md/raid0p1".
-        if self.storaged_version >= [2, 6, 3]:
-            part_prefix = "/dev/md/raid0p"
-        else:
-            # Older storaged versions don't pick them up as the preferred
-            # device, however, so we will see "/dev/md127p1", for example.
-            # (https://github.com/storaged-project/storaged/issues/98)
-            part_prefix = dev + "p"
+        #
+        part_prefix = "md/raid0p"
 
         # Create Partition Table
-        b.click('button:contains(Create partition table)')
+        self.click_card_dropdown("MDRAID device", "Create partition table")
         self.dialog({"type": "gpt"})
-        self.content_row_wait_in_col(1, 0, "Free space")
+        b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
 
         # Create first partition
-        self.content_row_action(1, "Create partition")
+        self.click_dropdown(self.card_row("GPT partitions", 1), "Create partition")
         self.dialog({"size": 20,
                      "type": "ext4",
                      "mount_point": "/foo1",
                      "name": "One"},
                     secondary=True)
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
-        self.content_row_wait_in_col(1, 1, part_prefix + "1")
+        b.wait_text(self.card_row_col("GPT partitions", 1, 2), "ext4 filesystem")
+        b.wait_text(self.card_row_col("GPT partitions", 1, 1), part_prefix + "1")
 
         # Create second partition
-        self.content_row_action(2, "Create partition")
+        self.click_dropdown(self.card_row("GPT partitions", 2), "Create partition")
         self.dialog({"type": "ext4",
                      "mount_point": "/foo2",
                      "name": "Two"})
+        b.wait_text(self.card_row_col("GPT partitions", 2, 2), "ext4 filesystem")
+        b.wait_text(self.card_row_col("GPT partitions", 2, 1), part_prefix + "2")
+        b.wait_not_present(self.card_row("GPT partitions", name="Free space"))
 
-        self.content_row_wait_in_col(2, 2, "ext4 filesystem")
-        self.content_row_wait_in_col(2, 1, part_prefix + "2")
-        b.wait_not_in_text("#detail-content", "Free space")
+        b.assert_pixels('body', "page",
+                        ignore=[self.card_desc("MDRAID device", "UUID")])
 
         # Replace a disk by adding a spare and then removing a "In sync" disk
 
         # Add a spare
-        self.raid_add_disk("DISK4")
-        self.wait_states({"QEMU QEMU HARDDISK (DISK4)": "Spare"})
+        self.raid_add_disk(disk4)
+        self.wait_states({disk4: "Spare"})
 
         # Remove DISK1.  The spare takes over.
-        self.raid_remove_disk("DISK1")
-        b.wait_not_in_text('#detail-sidebar', "DISK1")
-        self.wait_states({"QEMU QEMU HARDDISK (DISK4)": "In sync"})
+        self.raid_remove_disk(disk1)
+        b.wait_not_present(self.card_row("MDRAID device", name=disk1))
+        self.wait_states({disk4: "In sync"})
 
         # Stop the array, destroy a disk, and start the array
         self.raid_default_action_start("Stop")
@@ -236,41 +214,41 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         self.raid_default_action_finish("Stop")
-        b.wait_in_text(info_field("State"), "Not running")
+        b.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
         m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
-        b.wait_not_in_text('#detail-sidebar', "DISK2")
+        b.wait_not_present(self.card_row("MDRAID device", name=disk2))
         self.raid_default_action("Start")
-        b.wait_in_text(info_field("State"), "Running")
+        b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
         wait_degraded_state(is_degraded=True)
 
         # Add DISK1.  The array recovers.
-        self.raid_add_disk("DISK1")
-        b.wait_in_text('#detail-sidebar', "DISK1")
+        self.raid_add_disk(disk1)
+        self.wait_states({disk1: "In sync"})
         wait_degraded_state(is_degraded=False)
 
         # Add DISK2 again, as a spare
-        self.raid_add_disk("DISK2")
-        self.wait_states({"QEMU QEMU HARDDISK (DISK2)": "Spare"})
+        self.raid_add_disk(disk2)
+        self.wait_states({disk2: "Spare"})
 
         # Remove it by formatting DISK2
-        b.go("#/")
-        b.click('.sidepanel-row:contains("DISK2")')
-        b.click('button:contains("Create partition table")')
-        b.wait_in_text('#dialog', "remove from RAID, initialize")
+        self.click_card_row("MDRAID device", name=disk2)
+        self.click_card_dropdown("Hard Disk Drive", "Create partition table")
+        b.wait_in_text('#dialog', "remove from MDRAID, initialize")
+        self.dialog_set_val("type", "empty")
         self.dialog_apply()
         self.dialog_wait_close()
 
         b.go("#/")
-        b.click('#devices .sidepanel-row:contains("raid0")')
-        b.wait_visible('#storage-detail')
-        b.wait_not_in_text('#detail-sidebar', "DISK2")
+        self.click_card_row("Storage", name="/dev/md/raid0")
+        b.wait_visible(self.card("MDRAID device"))
+        b.wait_not_present(self.card_row("MDRAID device", name=disk2))
 
         # Delete the array.  We are back on the storage page.
-        self.raid_action("Delete")
+        self.click_card_dropdown("MDRAID device", "Delete")
         self.confirm()
         with b.wait_timeout(120):
-            b.wait_visible("#storage")
-            b.wait_not_in_text("#devices", "raid0")
+            b.wait_visible(self.card("Storage"))
+            b.wait_not_present(self.card_row("Storage", name="/dev/md/raid0"))
 
     def testNotRemovingDisks(self):
         m = self.machine
@@ -278,70 +256,76 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        m.add_disk("50M", serial="DISK1")
-        m.add_disk("50M", serial="DISK2")
-        m.add_disk("50M", serial="DISK3")
-        b.wait_in_text("#drives", "DISK1")
-        b.wait_in_text("#drives", "DISK2")
-        b.wait_in_text("#drives", "DISK3")
+        disk1 = "/dev/" + m.add_disk("50M", serial="DISK1")["dev"]
+        disk2 = "/dev/" + m.add_disk("50M", serial="DISK2")["dev"]
+        disk3 = "/dev/" + m.add_disk("50M", serial="DISK3")["dev"]
+        b.wait_visible(self.card_row("Storage", name=disk1))
+        b.wait_visible(self.card_row("Storage", name=disk2))
+        b.wait_visible(self.card_row("Storage", name=disk3))
 
-        self.devices_dropdown('Create RAID device')
+        self.click_devices_dropdown('Create MDRAID device')
         self.dialog_wait_open()
         self.dialog_set_val("level", "raid5")
-        self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})
+        self.dialog_set_val("disks", {disk1: True, disk2: True})
         self.dialog_set_val("name", "ARR")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#devices", "ARR")
 
-        b.click('#devices .sidepanel-row:contains("ARR")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="/dev/md/ARR")
 
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
-                          "QEMU QEMU HARDDISK (DISK2)": "In sync"})
-
-        # event processing is a bit slow for these
-        b.wait_timeout(60)
+        self.wait_states({disk1: "In sync",
+                          disk2: "In sync"})
 
         # All buttons should be disabled when the array is stopped
 
         self.raid_default_action("Stop")
-        b.wait_in_text(info_field("State"), "Not running")
+        b.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
 
-        b.wait_visible('#detail-sidebar .pf-v5-c-card__header button:disabled')
-        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
-        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
+        b.wait_visible(self.card_button("MDRAID device", "Add disk") + ":disabled")
+        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk1)))
+        b.wait_visible(self.dropdown_action(self.card_row("MDRAID device", name=disk1), "Remove") + "[disabled]")
+        b.wait_text(self.dropdown_description(self.card_row("MDRAID device", name=disk1), "Remove"),
+                    "The MDRAID device must be running")
+        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk1)))
 
         self.raid_default_action("Start")
-        b.wait_in_text(info_field("State"), "Running")
+        b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
-        b.wait_not_present('#detail-sidebar .pf-v5-c-card__header button:disabled')
-        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
-        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
+        b.wait_not_present(self.card_button("MDRAID device", "Add disk") + ":disabled")
+        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk1)))
+        b.wait_visible(self.dropdown_action(self.card_row("MDRAID device", name=disk1), "Remove") + "[disabled]")
+        b.wait_text(self.dropdown_description(self.card_row("MDRAID device", name=disk1), "Remove"),
+                    "Need a spare disk")
+        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk1)))
 
         # Adding a spare will allow removal of the "in-sync" disks.
-        self.raid_add_disk("DISK3")
-        self.wait_states({"QEMU QEMU HARDDISK (DISK3)": "Spare"})
-        b.wait_not_present('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
-        b.wait_not_present('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
+        self.raid_add_disk(disk3)
+        self.wait_states({disk3: "Spare"})
+        self.raid_remove_disk(disk1)
+        self.wait_states({disk3: "In sync",
+                          disk2: "In sync"})
 
-        # Removing the spare will make them un-removable again
-        self.raid_remove_disk("DISK3")
-        b.wait_not_in_text('#detail-sidebar', "DISK3")
-        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
-        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
+        # Removing the disk will make the rest un-removable again
+        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk3)))
+        b.wait_visible(self.dropdown_action(self.card_row("MDRAID device", name=disk3), "Remove") + "[disabled]")
+        b.wait_text(self.dropdown_description(self.card_row("MDRAID device", name=disk3), "Remove"),
+                    "Need a spare disk")
+        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk3)))
 
         # A failed disk can be removed
-        dev = b.text(info_field("Device"))
-        m.execute(f"mdadm --quiet {dev} --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
-        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})
-        b.wait_not_present('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
-        self.raid_remove_disk("DISK1")
-        b.wait_not_in_text('#detail-sidebar', "DISK1")
+        dev = b.text(self.card_desc("MDRAID device", "Device"))
+        m.execute(f"mdadm --quiet {dev} --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK3")
+        self.wait_states({disk3: "Failed"})
+        self.raid_remove_disk(disk3)
+        b.wait_not_present(self.card_row("MDRAID device", name=disk3))
 
         # The last disk can not be removed
-        b.wait_visible('#detail-sidebar .sidepanel-row:contains(DISK2) button:disabled')
+        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk2)))
+        b.wait_visible(self.dropdown_action(self.card_row("MDRAID device", name=disk2), "Remove") + "[disabled]")
+        b.wait_text(self.dropdown_description(self.card_row("MDRAID device", name=disk2), "Remove"),
+                    "Need a spare disk")
+        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk2)))
 
     def testBitmap(self):
         m = self.machine
@@ -364,22 +348,20 @@ class TestStorageMdRaid(storagelib.StorageCase):
         m.execute(f"mdadm --create md0 --level=1 --assume-clean --run --raid-devices=2 {dev1} {dev2}")
         m.execute("udevadm trigger")
 
-        b.wait_in_text("#devices", "md0")
-        b.click('#devices .sidepanel-row:contains("md")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="/dev/md/md0")
 
         self.wait_states({dev1: "In sync",
                           dev2: "In sync"})
 
-        b.wait_not_present('.pf-v5-c-alert:contains("This RAID array has no write-intent bitmap")')
+        b.wait_not_present('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
 
         # Remove the bitmap, Cockpit should complain and let us put it back.
 
         m.execute("mdadm --grow --bitmap=none /dev/md/md0; udevadm trigger /dev/md/md0")
 
-        b.wait_visible('.pf-v5-c-alert:contains("This RAID array has no write-intent bitmap")')
+        b.wait_visible('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
         b.click('button:contains("Add a bitmap")')
-        b.wait_not_present('.pf-v5-c-alert:contains("This RAID array has no write-intent bitmap")')
+        b.wait_not_present('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
 
 
 if __name__ == '__main__':

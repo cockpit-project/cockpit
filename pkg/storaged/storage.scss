@@ -31,101 +31,46 @@
   @extend .ct-card;
 }
 
-#storage .pf-v5-l-gallery {
-  --pf-v5-l-gallery--GridTemplateColumns: 1fr;
+.ct-card.pf-v5-c-card .pf-v5-c-card__title-text.ct-card-small-title {
+  font-size: var(--pf-v5-global--FontSize--xl);
 }
 
-#storage-detail .pf-v5-c-page__main-section,
-#storage-detail .pf-v5-c-page__main-nav {
-  overflow: auto;
-}
-
-#storage .create-storage {
-  margin-block-end: 10px;
-}
-
-@media (max-width: 1560px) {
-  #storage .create-storage .col-lg-6 {
-    inline-size: 100%;
-  }
-}
-
-#storage .create-storage button {
-  margin-block-end: 5px;
-  inline-size: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#storage .storage-sidebar {
-  flex-grow: 1;
-}
-
-#storage .storage-sidebar table {
-  table-layout: fixed;
-}
-
-#storage .ct-table th {
-  font-weight: var(--pf-v5-global--FontWeight--bold);
-}
-
-#storage .storage-sidebar table td {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: top;
-}
-
-#storage .storage-sidebar .pf-v5-c-dropdown__toggle {
-  padding-inline: var(--pf-v5-global--spacer--md);
-}
-
+// Only used in iSCSI dialog
 .dialog-select-row-table {
   inline-size: 100%;
-}
 
-.dialog-select-row-table td,
-.dialog-select-row-table td:first-child {
-  text-align: start;
-  padding-block: 0.75em;
-  padding-inline: 0;
-  vertical-align: top;
-  white-space: default;
-  color: black;
-  inline-size: auto;
-  block-size: auto;
-  border-block-start: 1px solid #d1d1d1;
-  border-block-end: 1px solid #d1d1d1;
-}
+  td {
+    text-align: start;
+    padding-block: 0.75em;
+    padding-inline: 0;
+    vertical-align: top;
+    border: 1px solid #d1d1d1;
 
-.dialog-select-row-table td:first-child {
-  padding-inline-start: 0.75em;
-  border-inline-start: 1px solid #d1d1d1;
-}
+    &:first-child {
+      border-inline-end-width: 0;
+    }
 
-.dialog-select-row-table td:last-child {
-  padding-inline-end: 0.75em;
-  border-inline-end: 1px solid #d1d1d1;
-}
+    &:last-child {
+      border-inline-start-width: 0;
+    }
+  }
 
-.dialog-select-row-table th {
-  font-weight: bold;
-  text-align: start;
-  color: var(--pf-v5-global--palette--black-800);
-  padding: 0;
-  padding-block: 0.75em;
-  padding-inline: 0;
-}
+  th {font-weight: bold;
+    text-align: start;
+    color: var(--pf-v5-global--palette--black-800);
+    padding-block: 0.75em;
+    padding-inline: 0;
+  }
 
-.dialog-select-row-table th:first-child {
-  padding-inline-start: 0.75em;
-}
+  td, th {
+    &:first-child {
+      padding-inline-start: 0.75em;
+    }
 
-.dialog-select-row-table th:last-child {
-  padding-inline-end: 0.75em;
-}
-
-td.storage-icon {
-  inline-size: 48px;
+    &:last-child {
+      padding-inline-end: 0.75em;
+    }
+  }
 }
 
 div.progress {
@@ -133,46 +78,16 @@ div.progress {
   block-size: var(--pf-v5-global--FontSize-xs);
 }
 
-#detail-header div.progress {
-  min-inline-size: 250px;
-}
-
-#storage-detail .ct-table {
-  border-block-start: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--BorderColor--100);
-}
-
-td.usage-text {
-  text-align: end;
-}
-
 td.job-description {
   inline-size: 50%;
-}
-
-td.job-status {
-  inline-size: 15%;
-  text-align: end;
 }
 
 td.job-action {
   text-align: end;
 }
 
-.detail-jobs {
-  margin-block-start: 20px;
-}
-
 .storage-graph {
   block-size: 180px;
-}
-
-.content-nav-item-warning:first-child {
-  padding-inline-end: var(--pf-v5-global--spacer--sm);
-}
-
-.content-action {
-  text-align: end;
-  white-space: nowrap !important;
 }
 
 .dialog-item-tooltip {
@@ -193,19 +108,13 @@ td.job-action {
   padding-block-start: var(--pf-v5-global--spacer--xl);
 }
 
+// FIXME: This is visual only; it needs to be fixed for a11y reasons, likely at the JSX level
 tr[class*="content-level-"] {
   --multiplier: 0;
-  --offset: calc(var(--pf-v5-global--spacer--lg) * var(--multiplier));
+  --offset: calc(var(--pf-v5-global--spacer--md) * var(--multiplier));
 
-  // Move the button over
-  > .pf-v5-c-table__toggle > button {
-    position: relative;
-    inset-inline-start: var(--offset);
-  }
-
-  // Add space for the button and offset
-  > .pf-v5-c-table__toggle + td {
-    padding-inline-start: calc(var(--offset) + var(--pf-v5-c-table--cell--PaddingLeft));
+  > td:nth-child(2) > span {
+    padding-inline-start: var(--offset);
   }
 }
 
@@ -215,81 +124,16 @@ tr[class*="content-level-"] {
   }
 }
 
-.tab-actions {
-  float: inline-end;
-  margin-block-start: -15px;
-}
-
-.tab-actions button {
-  margin-inline-start: 0.3em;
-}
-
+// FIXME: Is this used?
 a.disabled {
   color: var(--pf-v5-global--palette--light-blue-200);
   text-decoration: none;
   cursor: not-allowed;
 }
 
-.tab-row-actions {
-  display: inline-block;
-  margin-inline-start: 2em;
-}
-
-/* Make tooltips inside tables visible.
- */
-
-td.storage-action {
-  overflow: visible !important;
-}
-
-.network-keys-table td {
-  vertical-align: baseline;
-  padding-inline-end: 10px;
-}
-
-.combobox-container .input-group {
-  inline-size: 100%;
-}
-
-/* Prevent long names from sticking out of dialog titles
- */
-
-.modal-title {
-  word-break: break-all;
-}
-
-.just-installed {
-  margin-inline-end: 1em;
-}
-
-.faded {
-  transition: opacity 1s, visibility 1s;
-  opacity: 0;
-  visibility: hidden;
-}
-
 .widest-title {
   visibility: hidden;
   block-size: 0;
-}
-
-.radio-horizontal input[type="radio"] {
-  margin-block-start: 5px;
-}
-
-.radio-horizontal label {
-  margin-inline-end: 1em;
-}
-
-.key-slot-panel-remaining {
-  margin-inline-end: 1em;
-}
-
-.sigkey-heading {
-  color: var(--pf-v5-global--Color--dark-100);
-  font-size: var(--pf-v5-global--FontSize--sm);
-  margin-block: var(--pf-v5-global--spacer--md) 0;
-  margin-inline: 0;
 }
 
 .sigkey-hash {
@@ -302,33 +146,7 @@ td.storage-action {
   line-height: 24px;
 }
 
-.progressive-disclosure .form-group {
-  padding-inline-start: 20px;
-}
-
-.progressive-disclosure .form-group > :first-child {
-  margin-inline-start: -20px;
-}
-
-.progressive-disclosure .form-group > :not(:first-child) {
-  margin-block-start: 0.5em;
-  animation: showRemovalDisclosure ease-in-out 200ms;
-}
-
-@keyframes showRemovalDisclosure {
-  0% {
-    opacity: 0;
-    transform: scaleY(0);
-    transform-origin: top left;
-  }
-
-  100% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-}
-
-.delete-resource-red {
+.delete-resource-dangerous {
   color: var(--pf-v5-global--danger-color--200);
 }
 
@@ -336,52 +154,21 @@ td.storage-action {
   color: var(--pf-v5-global--danger-color--200);
 }
 
-.pf-v5-c-modal-box .key-source .radio-horizontal {
-  margin-block-end: 2ex;
-}
-
-// This is needs to avoid showing scrollbar in dialog
+// This is needed to avoid showing scrollbar in dialog
 .size-slider {
   padding-block-end: var(--pf-v5-global--spacer--xs);
-}
-
-/* Overview side panels */
-
-.sidepanel-row {
-  padding-block: var(--pf-v5-global--spacer--sm);
-  padding-inline: var(--pf-v5-global--spacer--lg);
-  border-block-start: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--BorderColor--100);
-}
-
-.sidepanel-row.pf-v5-c-empty-state {
-  .pf-v5-c-empty-state__body {
-    margin-block-start: 0;
-  }
-}
-
-.sidepanel-row:not(.pf-v5-c-empty-state):hover {
-  color: var(--ct-color-list-hover-text);
-  cursor: pointer;
-}
-
-.sidepanel-row-name {
-  font-size: var(--pf-v5-global--FontSize--sm);
-}
-
-.sidepanel-row-info {
-  font-size: var(--pf-v5-global--FontSize--xs);
-  max-inline-size: 50ch;
 }
 
 .panel-heading {
   position: static;
 }
 
-.storage_alert_action_buttons button {
+.storage-alert-actions button {
   margin-block: 0.5rem 0.2rem;
   margin-inline: 0 0.2rem;
 }
 
+// FIXME: There's probably a better way to do this.
 // We wrap the data list row with a label to make checkboxes clickable from the whole row
 // we need this HACK in order to make alignRight property take effect
 .data-list-row-checkbox-label {
@@ -395,7 +182,7 @@ td.storage-action {
 }
 
 // So that "Stored passphrase" fits
-.pf-v5-c-description-list.ct-wide-labels {
+.pf-v5-c-description-list.wide-label {
   --pf-v5-c-description-list--m-horizontal__term--width: minmax(0, 18ch);
 }
 
@@ -403,37 +190,69 @@ td.storage-action {
   max-inline-size: 30ch;
 }
 
-#mounts .pf-v5-c-progress__measure, #nfs-mounts .pf-v5-c-progress__measure, #detail-content .pf-v5-c-progress__measure {
-  min-inline-size: 7rem;
-}
+.usage-bar {
+  --bg-color: var(--pf-v5-global--primary-color--100);
+  display: inline-block;
+  inline-size: 20em;
+  block-size: 1rem;
+  margin-inline-start: 1em;
+  position: relative;
+  inset-block-start: 0.15rem; // XXX - center it
+  inset-inline-start: 0;
 
-// Hatched effect for progressbars that are parts of a group, but not the main
-.ct-progress-other {
-  // Use the page's default background color
-  --bg-light: var(--pf-v5-global--BackgroundColor--100);
-  // Alternate with the used color of the progress bar
-  --bg-dark: var(--pf-v5-c-progress__indicator--BackgroundColor);
-  // Repeat a gradient with hard stops, a perfect slant, and a consistency
-  // with all "other" hatched backgrounds (fixed, so they repeat the same)
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--bg-light),
-    var(--bg-light) 25%,
-    var(--bg-dark) 25%,
-    var(--bg-dark) 50%,
-    var(--bg-light) 50%
-  ) top left fixed;
-  background-size: var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--sm);
-  // Overlay at 1/3  to mix the light and dark against the trough color
-  opacity: 0.333;
-}
+  &-short {
+    inline-size: 3.5em;
+  }
 
-.ct-warning-text {
-  color: var(--pf-v5-global--warning-color--200);
-}
+  &-danger {
+    --bg-color: var(--pf-v5-global--danger-color--100);
+  }
 
-td button.pf-m-link {
-  padding: 0;
+  &-empty {
+    --bg-color: none;
+  }
+
+  &-indicator {
+    display: inline-block;
+    background: var(--bg-color);
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    block-size: 100%;
+  }
+
+  // Hatched effect for progressbars that are parts of a group, but not the main
+  &-other {
+    // Use the page's default background color
+    --bg-light: var(--pf-v5-global--BackgroundColor--100);
+    // Alternate with the used color of the progress bar
+    --bg-dark: var(--bg-color);
+    // Repeat a gradient with hard stops, a perfect slant, and a consistency
+    // with all "other" hatched backgrounds
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--bg-light),
+      var(--bg-light) 25%,
+      var(--bg-dark) 25%,
+      var(--bg-dark) 50%,
+      var(--bg-light) 50%
+    ) top left;
+    background-size: var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--sm);
+    // Overlay at 1/3  to mix the light and dark against the trough color
+    opacity: 0.333;
+  }
+
+  &::before {
+    display: inline-block;
+    content: "";
+    background: var(--bg-color);
+    opacity: 0.2;
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
 }
 
 @media (max-width: $pf-v5-global--breakpoint--md - 1) {
@@ -451,23 +270,23 @@ td button.pf-m-link {
 .storage-pvs-box {
   border: 1px solid var(--pf-v5-global--palette--purple-400);
   background: var(--pf-v5-global--palette--purple-100);
-}
 
-.pf-v5-theme-dark .storage-pvs-box {
-  border: 1px solid var(--pf-v5-global--palette--purple-300);
-  background: var(--pf-v5-global--palette--purple-500);
+  .pf-v5-theme-dark & {
+    border-color: var(--pf-v5-global--palette--purple-300);
+    background: var(--pf-v5-global--palette--purple-500);
+  }
 }
 
 .storage-pvs-pv-box {
   padding: 0.3em;
-}
 
-.storage-pvs-pv-box:not(:last-child) {
-  border-inline-end: 1px solid var(--pf-v5-global--palette--purple-400);
-}
+  &:not(:last-child) {
+    border-inline-end: 1px solid var(--pf-v5-global--palette--purple-400);
+  }
 
-.pf-v5-theme-dark .storage-pvs-pv-box:not(:last-child) {
-  border-inline-end: 1px solid var(--pf-v5-global--palette--purple-300);
+  .pf-v5-theme-dark & {
+    border-color: var(--pf-v5-global--palette--purple-300);
+  }
 }
 
 .storage-pvs-pv-box-dev {
@@ -478,11 +297,11 @@ td button.pf-m-link {
 .storage-stripe-box {
   border: 1px solid var(--pf-v5-global--palette--purple-400);
   background: var(--pf-v5-global--palette--purple-100);
-}
 
-.pf-v5-theme-dark .storage-stripe-box {
-  border: 1px solid var(--pf-v5-global--palette--purple-300);
-  background: var(--pf-v5-global--palette--purple-500);
+  .pf-v5-theme-dark & {
+    border-color: var(--pf-v5-global--palette--purple-300);
+    background: var(--pf-v5-global--palette--purple-500);
+  }
 }
 
 .storage-stripe-pv-box {
@@ -491,13 +310,66 @@ td button.pf-m-link {
 
 .storage-stripe-pv-box:not(:last-child) {
   border-block-end: 1px solid var(--pf-v5-global--palette--purple-400);
-}
 
-.pf-v5-theme-dark .storage-stripe-pv-box:not(:last-child) {
-  border-block-end: 1px solid var(--pf-v5-global--palette--purple-300);
+  .pf-v5-theme-dark & {
+    border-color: var(--pf-v5-global--palette--purple-300);
+  }
 }
 
 .storage-stripe-pv-box-dev {
+  // FIXME: Font size should be a PF size, not a relative percentage
   font-size: 120%;
   font-weight: bold;
+}
+
+.remove-border {
+  border-block-end: 0 !important;
+}
+
+.ct-small-table-card {
+    border-block-start: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--BorderColor--100);
+}
+
+.ct-clickable-card:hover {
+    background: var(--pf-v5-global--palette--black-150);
+    box-shadow: var(--pf-v5-global--BoxShadow--md);
+    cursor: pointer;
+}
+
+.storage-menu-title {
+    text-align: start;
+    white-space: nowrap !important;
+}
+
+.pf-v5-c-table__tbody .storage-device-icon {
+  --icon-size: 18px;
+  // Ensure the icon's cell size is as minimal as the icon allows
+  // (WebKit needs a size; 0 doesn't work for it)
+  inline-size: 1px;
+  // Remove unnecessary padding
+  padding-inline-end: 0;
+
+  > svg {
+    // Bump the icon down to align with text, based on the difference between icon and text size, just for the top
+    inset-block-start: calc((var(--pf-v5-global--spacer--md) * var(--pf-v5-global--LineHeight--md) - var(--icon-size)) / 2);
+    position: relative;
+
+    path {
+      fill: var(--pf-v5-global--Color--200);
+    }
+  }
+}
+
+.storage-size-column {
+    text-align: end;
+    white-space: nowrap !important;
+}
+
+.storage-size-column-header {
+    text-align: end;
+    // Align the "Size" header with the text of the usage bars.
+    // var(--pf-v5-global--spacer--sm): padding of compat td cells
+    // 3.5em: width of short progress bars
+    // 1em: margin between text and progress bar
+    padding-inline-end: calc(var(--pf-v5-global--spacer--sm) + 3.5em + 1em) !important;
 }

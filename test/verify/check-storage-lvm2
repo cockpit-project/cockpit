@@ -51,45 +51,41 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         dev_1 = self.add_ram_disk()
         dev_2 = self.add_loopback_disk()
-        b.wait_in_text("#drives", dev_1)
-        b.wait_in_text("#others", dev_2)
+        b.wait_visible(self.card_row("Storage", name=dev_1))
+        b.wait_visible(self.card_row("Storage", name=dev_2))
 
         # Create a volume group out of two disks
         m.execute(f"vgcreate TEST1 {dev_1} {dev_2}")
         # just in case the test fails
         self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
-        b.wait_in_text("#devices", "TEST1")
-        b.wait_in_text("#devices", "/dev/TEST1/")
-        b.click('.sidepanel-row:contains("TEST1")')
-        b.wait_visible("#storage-detail")
-        b.wait_in_text("#detail-sidebar", "scsi_debug")
-        b.wait_in_text("#detail-sidebar", dev_2)
-
-        # Both of them should be empty and removable
-        b.wait_not_present('#detail-sidebar tr:nth-child(1) button.disabled')
-        b.wait_not_present('#detail-sidebar tr:nth-child(2) button.disabled')
+        self.click_card_row("Storage", name="TEST1")
+        b.wait_visible(self.card_row("LVM2 volume group", name=dev_1))
+        b.wait_visible(self.card_row("LVM2 volume group", name=dev_2))
 
         # Create two logical volumes
         m.execute("lvcreate TEST1 -n one -L 20m")
-        self.content_row_wait_in_col(1, 1, "one")
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="one"))
         m.execute("lvcreate TEST1 -n two -L 20m")
-        self.content_row_wait_in_col(2, 1, "two")
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="two"))
 
         # Deactivate one
         m.execute("lvchange TEST1/one -a n")
-        self.content_row_wait_in_col(1, 2, "Inactive volume")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "Inactive logical volume")
 
         # and remove it
         m.execute("until lvremove -f TEST1/one; do sleep 5; done")
-        b.wait_not_in_text("#detail-content", "one")
+        b.wait_not_present(self.card_row("LVM2 logical volumes", name="one"))
 
         # remove a disk from the volume group
         m.execute(f"pvmove {dev_2} &>/dev/null || true")
         m.execute(f"vgreduce TEST1 {dev_2}")
-        b.wait_not_in_text("#detail-sidebar", dev_2)
+        b.wait_not_present(self.card_row("LVM2 volume group", name=dev_2))
 
         # The remaining lone disk is not removable
-        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(1) button:disabled')
+        b.click(self.dropdown_toggle(self.card_row("LVM2 volume group", name=dev_1)))
+        b.wait_visible(self.dropdown_action(self.card_row("LVM2 volume group", name=dev_1), "Remove") + "[disabled]")
+        b.wait_text(self.dropdown_description(self.card_row("LVM2 volume group", name=dev_1), "Remove"),
+                    "Last cannot be removed")
 
         # Wipe the disk and make sure lvmetad forgets about it.  This
         # might help with reusing it in the second half of this test.
@@ -102,23 +98,26 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Thin volumes
         m.execute("lvcreate TEST1 --thinpool pool -L 20m")
-        self.content_row_wait_in_col(1, 1, "pool")
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="pool"))
         m.execute("lvcreate -T TEST1/pool -n thin -V 100m")
-        self.content_row_wait_in_col(2, 1, "thin")
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="thin"))
+        self.click_card_row("LVM2 logical volumes", name="pool")
+        b.wait_visible(self.card_row("Thinly provisioned LVM2 logical volumes", name="thin"))
+
         m.execute("dd if=/dev/urandom of=/dev/mapper/TEST1-thin bs=1M count=10 status=none")
-        self.content_tab_wait_in_info(1, 1, "Data used", "50%")
+        b.wait_text(self.card_desc("Pool for thinly provisioned LVM2 logical volumes", "Data used"), "50%")
         m.execute("until lvremove -f TEST1/thin; do sleep 5; done")
-        self.content_tab_wait_in_info(1, 1, "Data used", "0%")
+        b.wait_text(self.card_desc("Pool for thinly provisioned LVM2 logical volumes", "Data used"), "0%")
 
         # remove the volume group
         b.go("#/")
-        b.wait_visible("#storage")
         m.execute("vgremove -f TEST1")
-        b.wait_not_in_text("#devices", "TEST1")
+        b.wait_visible(self.card("Storage"))
+        b.wait_not_present(self.card_row("Storage", name="TEST1"))
 
         # create volume group in the UI
 
-        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+        self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
                                expect=lambda: (self.dialog_is_present('disks', dev_1) and
                                                self.dialog_is_present('disks', dev_2) and
                                                self.dialog_check({"name": "vgroup0"})),
@@ -127,152 +126,158 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # just in case the test fails
         self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
-        b.wait_in_text("#devices", "vgroup0")
+        b.wait_visible(self.card_row("Storage", name="vgroup0"))
 
         # Check that the next name is "vgroup1"
-        self.devices_dropdown("Create LVM2 volume group")
+        self.click_devices_dropdown("Create LVM2 volume group")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "vgroup1")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.click('.sidepanel-row:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="vgroup0")
 
         # create a logical volume
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog(expect={"name": "lvol0"},
                     values={"purpose": "block",
                             "size": 20})
-        self.content_row_wait_in_col(1, 1, "lvol0")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
 
         # check that the next default name is "lvol1"
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog_wait_open()
         self.dialog_wait_val("name", "lvol1")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        # rename the lvol0
-        self.content_tab_action(1, 1, "edit")
+        # rename lvol0
+        self.click_card_row("LVM2 logical volumes", 1)
+        b.click(self.card_desc_action("LVM2 logical volume", "Name"))
         self.dialog_wait_open()
         self.dialog({"name": "lvol1"})
-        self.content_row_wait_in_col(1, 1, "lvol1")
+        b.wait_text(self.card_desc("LVM2 logical volume", "Name"), "lvol1")
 
         if self.can_do_layouts():
             # check that it is stored on dev_2
-            self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(dev_2))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(dev_2))
 
         # grow it
-        self.content_tab_action(1, 1, "Grow")
+        b.click(self.card_button("LVM2 logical volume", "Grow"))
         self.dialog({"size": 30})
 
         # format and mount it
-        self.content_row_action(1, "Format")
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_mounted("ext4 filesystem")
         self.assert_in_configuration("/dev/vgroup0/lvol1", "fstab", "dir", mount_point_one)
-        self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), mount_point_one)
 
         # unmount it
-        self.content_dropdown_action(1, "Unmount")
+        b.click(self.card_button("ext4 filesystem", "Unmount"))
         self.confirm()
-        self.content_tab_wait_in_info(1, 2, "Mount point", "The filesystem is not mounted.")
+        self.wait_not_mounted("ext4 filesystem")
 
         # shrink it, this time with a filesystem.
-        self.content_tab_action(1, 1, "Shrink")
+        b.click(self.card_button("LVM2 logical volume", "Shrink"))
         self.dialog({"size": 10})
 
         # delete it
-        self.content_dropdown_action(1, "Delete")
+        self.click_card_dropdown("LVM2 logical volume", "Delete")
         self.confirm()
-        b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol1")
+        b.wait_visible(self.card("LVM2 logical volumes"))
+        b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol1"))
         self.assertEqual(m.execute(f"grep {mount_point_one} /etc/fstab || true"), "")
 
         # remove disk2
-        b.click(f'#detail-sidebar .sidepanel-row:contains({dev_2}) button.pf-m-secondary')
-        b.wait_not_in_text("#detail-sidebar", dev_2)
-        b.wait_in_text("#detail-header dt:contains(Capacity) + dd", "50.3 MB")
+        self.click_dropdown(self.card_row("LVM2 volume group", name=dev_2), "Remove")
+        b.wait_not_present(self.card_row("LVM2 volume group", name=dev_2))
+        b.wait_in_text(self.card_desc("LVM2 volume group", "Capacity"), "50.3 MB")
 
         # create thin pool and volume
         # the pool will be maximum size, 50.3 MB
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog(expect={"size": 50.3},
                     values={"purpose": "pool",
                             "name": "pool",
                             "size": 38})
-        self.content_row_wait_in_col(1, 1, "pool")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "pool")
 
-        self.content_row_action(1, "Create thin volume")
+        self.click_dropdown(self.card_row("LVM2 logical volumes", 1),
+                            "Create new thinly provisioned logical volume")
         self.dialog(expect={"name": "lvol0"},
                     values={"name": "thin",
                             "size": 50})
-        self.content_row_wait_in_col(2, 1, "thin")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 2, 1), "thin")
 
         # add a disk and resize the pool
-        b.click('#detail-sidebar .pf-v5-c-card__header button')
+        b.click(self.card_button("LVM2 volume group", "Add physical volume"))
         self.dialog_wait_open()
         self.dialog_set_val('disks', {dev_2: True})
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#detail-sidebar", dev_2)
+        b.wait_visible(self.card_row("LVM2 volume group", name=dev_2))
         # this is sometimes 96, sometimes 100 MB
-        b.wait_js_cond("Number(ph_text('#detail-header dt:contains(Capacity) + dd').split(' ')[0]) >= 96")
-        b.wait_js_cond("Number(ph_text('#detail-header dt:contains(Capacity) + dd').split(' ')[0]) <= 101")
+        cap = self.card_desc("LVM2 volume group", "Capacity")
+        b.wait_js_func("(sel => { const c = Number(ph_text(sel).split(' ')[0]); return c >= 96 && c <= 101 })", cap)
 
-        self.content_tab_action(1, 1, "Grow")
+        self.click_card_row("LVM2 logical volumes", name="pool")
+        b.click(self.card_button("Pool for thinly provisioned LVM2 logical volumes", "Grow"))
         self.dialog({"size": 70})
 
-        # There is not enough free space to remove any of the disks.
-        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(1) button:disabled')
-        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(2) button:disabled')
-
         # use almost all of the pool by erasing the thin volume
-        self.content_row_action(2, "Format")
+        self.click_card_row("Thinly provisioned LVM2 logical volumes", 1)
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"erase.on": True,
                      "type": "ext4",
                      "mount_point": mount_point_thin})
         self.assert_in_configuration("/dev/vgroup0/thin", "fstab", "dir", mount_point_thin)
-        self.content_row_wait_in_col(2, 2, "ext4 filesystem")
+        b.click(self.card_parent_link())
+        b.wait_text(self.card_row_col("Thinly provisioned LVM2 logical volumes", 1, 3), mount_point_thin)
+
+        b.assert_pixels('body', "pool-page")
 
         # remove pool
-        self.content_dropdown_action(1, "Delete")
+        self.click_card_dropdown("Pool for thinly provisioned LVM2 logical volumes", "Delete")
         self.confirm()
-        b.wait_not_in_text("#detail-content", "pool")
+        b.wait_visible(self.card("LVM2 logical volumes"))
+        b.wait_not_present(self.card_row("LVM2 logical volumes", name="pool"))
         self.assertEqual(m.execute(f"grep {mount_point_thin} /etc/fstab || true"), "")
 
         # make another logical volume and format it, just so that we
         # can see whether deleting the volume group will clean it all
         # up.
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog(expect={"name": "lvol0"},
                     values={"purpose": "block"})
-        self.content_row_wait_in_col(1, 1, "lvol0")
-        self.content_row_action(1, "Format")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+        self.click_card_row("LVM2 logical volumes", 1)
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
         self.assert_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
-        self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
+        b.click(self.card_parent_link())
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "ext4 filesystem")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 3), mount_point_one)
+
+        b.wait_visible(self.card_row_col("LVM2 logical volumes", 1, 4) + " .usage-bar")
+        b.assert_pixels('body', "page",
+                        mock={self.card_desc("LVM2 volume group", "UUID"): "a12978a1-5d6e-f24f-93de-11789977acde"})
 
         # rename volume group
-        b.click('.pf-v5-c-card__header:contains("LVM2 volume group") button:contains("Rename")')
+        b.click(self.card_desc_action("LVM2 volume group", "Name"))
         self.dialog_wait_open()
         self.dialog_set_val("name", "vgroup1")
         self.dialog_apply()
         self.dialog_wait_close()
 
         # remove volume group
-        b.click('.pf-v5-c-card__header:contains("LVM2 volume group vgroup1")')
-        b.click('.pf-v5-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
+        self.click_card_dropdown("LVM2 volume group", "Delete")
         self.confirm()
-        b.wait_visible("#storage")
-        b.wait_not_in_text("#devices", "vgroup1")
+        b.wait_visible(self.card("Storage"))
+        b.wait_not_present(self.card_row("Storage", name="vgroup1"))
         self.assertEqual(m.execute(f"grep {mount_point_thin} /etc/fstab || true"), "")
-
-        # FIXME: Grow/Shrink buttons are in a dd > div > dd without dl wrapper
-        self.allow_browser_errors("validateDOMNesting.*cannot appear as a descendant.*<dd> dd")
 
     def testUnpartitionedSpace(self):
         m = self.machine
@@ -282,32 +287,31 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         disk1 = self.add_ram_disk()
         disk2 = self.add_loopback_disk()
-        b.wait_in_text("#drives", disk1)
-        b.wait_in_text("#others", disk2)
+        b.wait_visible(self.card_row("Storage", name=disk1))
+        b.wait_visible(self.card_row("Storage", name=disk2))
 
         # Put a partition table on disk1 and disk2
         m.execute(f'parted -s {disk1} mktable gpt')
         m.execute(f'parted -s {disk2} mktable gpt')
 
         # Create a volume group out of disk1
-        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create LVM2 volume group'),
+        self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown('Create LVM2 volume group'),
                                expect=lambda: self.dialog_is_present('disks', disk1) and
                                self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
                                values={"disks": {disk1: True}})
 
-        b.wait_in_text("#devices", "vgroup0")
-        b.click('.sidepanel-row:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="vgroup0")
 
         # Check the we are really using a partition on disk1 now
-        b.wait_in_text("#detail-sidebar", "Partition of Linux scsi_debug")
+        b.wait_in_text(self.card_row_col("LVM2 volume group", 1, 2), "Partition - Linux scsi_debug")
 
         # Add the unused space of disk2
-        self.dialog_with_retry(trigger=lambda: b.click('#detail-sidebar .pf-v5-c-card__header button'),
+        self.dialog_with_retry(trigger=lambda: b.click(self.card_button("LVM2 volume group",
+                                                                        "Add physical volume")),
                                expect=lambda: self.dialog_is_present(
                                    'disks', "unpartitioned space on " + disk2),
                                values={"disks": {disk2: True}})
-        b.wait_in_text("#detail-sidebar", "Partition of " + disk2)
+        b.wait_in_text(self.card_row_col("LVM2 volume group", 1, 2), "Partition - Block device")
 
     def testSnapshots(self):
         m = self.machine
@@ -316,20 +320,18 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk(100)
-        b.wait_in_text("#drives", disk)
+        b.wait_visible(self.card_row("Storage", name=disk))
 
         m.execute(f"vgcreate TEST {disk}")
 
         self.addCleanup(m.execute, "vgremove --force TEST")
-        b.wait_in_text("#devices", "TEST")
-        b.click('.sidepanel-row:contains("TEST")')
-        b.wait_visible("#storage-detail")
+        self.click_card_row("Storage", name="TEST")
 
         # Create a thinpool and a thin volume in it
 
         m.execute("lvcreate TEST --thinpool pool -L 10m")
         m.execute("lvcreate -T TEST/pool -n thin -V 30m")
-        self.content_row_wait_in_col(2, 1, "thin")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 2, 1), "thin")
 
         # Create a logical volume and take a snapshot of it.  We will
         # later check that the snapshot isn't shown.
@@ -339,26 +341,23 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # the above lvol0 will be the new first entry in the table, so
         # TEST/thin moves to he third row
-        self.content_row_wait_in_col(1, 1, "lvol0")
-        self.content_row_wait_in_col(2, 1, "pool")
-        self.content_row_wait_in_col(3, 1, "thin")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 2, 1), "pool")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 3, 1), "thin")
 
         # Take a snapshot of the thin volume and check that it appears
 
-        self.content_dropdown_action(3, "Create snapshot")
+        self.click_dropdown(self.card_row("LVM2 logical volumes", 3), "Create snapshot")
         self.dialog({"name": "mysnapshot"})
-        self.content_row_wait_in_col(3, 1, "mysnapshot")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 3, 1), "mysnapshot")
 
         # Now check that the traditional snapshot is not shown.  We do
         # this here to be sure that Cockpit is fully caught up and has
         # actually ignored it instead of just not having gotten around
         # to showing it.
 
-        self.content_row_wait_in_col(1, 1, "lvol0")
-        b.wait_not_in_text("#storage-detail", "snap0")
-
-        # FIXME: Grow/Shrink buttons are in a dd > div > dd without dl wrapper
-        self.allow_browser_errors("validateDOMNesting.*cannot appear as a descendant.*<dd> dd")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+        b.wait_not_present(self.card_row("LVM2 logical volumes", name="snap0"))
 
     def testRaid(self):
         m = self.machine
@@ -376,7 +375,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         # Make a volume group with four physical volumes
 
         with b.wait_timeout(60):
-            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+            self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
                                    expect=lambda: (self.dialog_is_present('disks', disk1) and
                                                    self.dialog_is_present('disks', disk2) and
                                                    self.dialog_is_present('disks', disk3) and
@@ -388,13 +387,11 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk4: True}})
 
         self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
-        b.wait_in_text("#devices", "vgroup0")
 
         # Make a raid5 on three PVs, using about half of each
 
-        b.click('.sidepanel-row:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
-        b.click("button:contains(Create new logical volume)")
+        self.click_card_row("Storage", name="vgroup0")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog_wait_open()
         self.dialog_wait_val("name", "lvol0")
         self.dialog_set_val("purpose", "block")
@@ -405,43 +402,48 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.content_row_wait_in_col(1, 1, "lvol0")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+        self.click_card_row("LVM2 logical volumes", 1)
 
-        self.content_tab_wait_in_info(1, 1, "Layout", "Distributed parity (RAID 5)")
-        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk2))
-        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk3))
-        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk4))
+        b.wait_text(self.card_desc("LVM2 logical volume", "Layout"), "Distributed parity (RAID 5)")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk2))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk3))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk4))
 
-        tab = self.content_tab_expand(1, 1)
-        b.assert_pixels(tab, "raid5-tab")
+        b.assert_pixels(self.card("LVM2 logical volume"), "raid5-card")
 
         # Make linear volume to fully use second PV
 
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_parent_link())
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog(expect={"name": "lvol1"},
                     values={"purpose": "block",
                             "layout": "linear",
                             "pvs": {disk1: False, disk3: False, disk4: False}})
-        self.content_row_wait_in_col(2, 1, "lvol1")
-        self.content_tab_wait_in_info(2, 1, "Physical volumes", bn(disk2))
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 2, 1), "lvol1")
+        self.click_card_row("LVM2 logical volumes", 2)
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk2))
+
+        b.click(self.card_parent_link())
+        self.click_card_row("LVM2 logical volumes", 1)
 
         # Grow raid5 to about maximum
-        self.content_tab_action(1, 1, "Grow")
+        b.click(self.card_button("LVM2 logical volume", "Grow"))
         self.dialog_wait_open()
         self.dialog_set_val("size", 80)
         b.assert_pixels("#dialog", "grow-raid5")
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk1))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
 
         # Check that each PV is used exactly once.
-        tab = self.content_tab_expand(1, 1)
-        b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
-        b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
-        b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
-        b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
-        b.assert_pixels(tab, "raid5-tab2")
+        card = self.card("LVM2 logical volume")
+        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
+        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
+        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
+        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+        b.assert_pixels(card, "raid5-card2")
 
     def testRaidRepair(self):
         m = self.machine
@@ -459,7 +461,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         # Make a volume group with three physical volumes
 
         with b.wait_timeout(60):
-            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+            self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
                                    expect=lambda: (self.dialog_is_present('disks', disk1) and
                                                    self.dialog_is_present('disks', disk2) and
                                                    self.dialog_is_present('disks', disk3) and
@@ -469,49 +471,54 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk3: True}})
 
         self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
-        b.wait_in_text("#devices", "vgroup0")
 
         # Make a raid5 on the three PVs
 
-        b.click('.sidepanel-row:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
-        b.click("button:contains(Create new logical volume)")
+        self.click_card_row("Storage", name="vgroup0")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog(expect={"name": "lvol0"},
                     values={"purpose": "block",
                             "layout": "raid5"})
-        self.content_row_wait_in_col(1, 1, "lvol0")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+        self.click_card_row("LVM2 logical volumes", 1)
 
-        self.content_tab_wait_in_info(1, 1, "Layout", "Distributed parity (RAID 5)")
-        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk1))
-        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk2))
-        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk3))
+        b.wait_text(self.card_desc("LVM2 logical volume", "Layout"), "Distributed parity (RAID 5)")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk2))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk3))
 
         # Kill one PV
 
         self.force_remove_disk(disk1)
 
-        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
-        b.wait_visible("button:contains(Rename):disabled")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"),
+                       "This logical volume has lost some of its physical volumes but has not lost any data yet.")
+        b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
 
-        self.content_tab_wait_in_info(1, 1, "Stripes", "This logical volume has lost some of its physical volumes but has not lost any data yet.")
-        self.content_tab_wait_in_info(1, 1, "Stripes", cond=lambda sel: bn(disk1) not in b.text(sel))
+        b.click(self.card_parent_link())
+        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
+        b.wait_visible(self.card_desc_action("LVM2 volume group", "Name") + ":disabled")
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
 
         # Repair with fourth
 
-        self.content_row_action(1, "Repair")
+        self.click_card_row("LVM2 logical volumes", 1)
+        b.click(self.card_button("LVM2 logical volume", "Repair"))
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "There is not enough space available")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.click('#detail-sidebar .pf-v5-c-card__header button')
+        b.click(self.card_parent_link())
+        b.click(self.card_button("LVM2 volume group", "Add physical volume"))
         self.dialog_wait_open()
         self.dialog_set_val('disks', {disk4: True})
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#detail-sidebar", disk4)
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk4))
+        self.click_card_row("LVM2 logical volumes", 1)
 
-        self.content_row_action(1, "Repair")
+        b.click(self.card_button("LVM2 logical volume", "Repair"))
         self.dialog_wait_open()
         self.dialog_apply()
         self.dialog_wait_error("pvs", "An additional 46.1 MB must be selected")
@@ -519,11 +526,15 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.content_tab_wait_in_info(1, 1, "Stripes",
-                                      cond=lambda sel: "This logical volume has lost some" not in b.text(sel))
-        self.content_tab_wait_in_info(1, 1, "Stripes", bn(disk4))
+        b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"),
+                           "This logical volume has lost some")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk4))
 
         # Dismiss alert
+
+        b.click(self.card_parent_link())
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0"))
+        b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
 
         b.click(".pf-v5-c-alert button:contains(Dismiss)")
         self.dialog({})
@@ -544,7 +555,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         # Make a volume group with three physical volumes
 
         with b.wait_timeout(60):
-            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+            self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
                                    expect=lambda: (self.dialog_is_present('disks', disk1) and
                                                    self.dialog_is_present('disks', disk2) and
                                                    self.dialog_is_present('disks', disk3) and
@@ -554,30 +565,32 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk3: True}})
 
         self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
-        b.wait_in_text("#devices", "vgroup0")
 
         # Make a linear volume on two of them
 
-        b.click('.sidepanel-row:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
-        b.click("button:contains(Create new logical volume)")
+        self.click_card_row("Storage", name="vgroup0")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog(expect={"name": "lvol0"},
                     values={"purpose": "block",
                             "layout": "linear",
                             "pvs": {disk2: False}})
-        self.content_row_wait_in_col(1, 1, "lvol0")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+        self.click_card_row("LVM2 logical volumes", 1)
 
-        self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(disk1))
-        self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(disk3))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk1))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk3))
 
         # Kill one PV
 
         self.force_remove_disk(disk1)
-        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
-        b.wait_visible("button:contains(Rename):disabled")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"),
+                       "This logical volume has lost some of its physical volumes and can no longer be used.")
+        b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk1))
 
-        self.content_tab_wait_in_info(1, 1, "Physical volumes", "This logical volume has lost some of its physical volumes and can no longer be used.")
-        self.content_tab_wait_in_info(1, 1, "Physical volumes", cond=lambda sel: bn(disk1) not in b.text(sel))
+        b.click(self.card_parent_link())
+        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
+        b.wait_visible(self.card_desc_action("LVM2 volume group", "Name") + ":disabled")
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-times-circle')
 
         # Dismiss alert, this will delete the volume
 
@@ -588,7 +601,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_wait_close()
 
         b.wait_not_present(".pf-v5-c-alert")
-        b.wait_in_text("#detail-content", "No logical volumes")
+        b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0"))
 
     def testMaxLayoutSizes(self):
         b = self.browser
@@ -608,7 +621,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         disk6 = self.add_loopback_disk(name="loop15")
 
         with b.wait_timeout(60):
-            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+            self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
                                    expect=lambda: (self.dialog_is_present('disks', disk1) and
                                                    self.dialog_is_present('disks', disk2) and
                                                    self.dialog_is_present('disks', disk3) and
@@ -623,9 +636,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk5: True,
                                                      disk6: True}})
         self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
-
-        b.click('.sidepanel-row:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="vgroup0")
 
         def mb(size):
             if size < 100e6:
@@ -634,7 +645,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                 return str(round(size / 1e6)) + " MB"
 
         def test(layout, expected_size):
-            b.click("button:contains(Create new logical volume)")
+            b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
             self.dialog_wait_open()
             self.dialog_wait_val("name", "lvol0")
             self.dialog_set_val("purpose", "block")
@@ -647,22 +658,24 @@ class TestStorageLvm2(storagelib.StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-            self.content_row_wait_in_col(1, 1, "lvol0")
+            b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+            self.click_card_row("LVM2 logical volumes", 1)
 
             field = "Physical volumes" if layout.startswith("linear") else "Stripes"
 
-            self.content_tab_wait_in_info(1, 1, field, bn(disk1))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk2))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk3))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk4))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk5))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk6))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk1))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk2))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk3))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk4))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk5))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk6))
 
-            self.content_tab_wait_in_info(1, 1, "Size", mb(expected_size))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), mb(expected_size))
 
-            self.content_dropdown_action(1, "Delete")
+            self.click_card_dropdown("LVM2 logical volume", "Delete")
             self.confirm()
-            b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
+            b.wait_visible(self.card("LVM2 logical volumes"))
+            b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0"))
 
         ext_size = 4 * 1024 * 1024
         pv_size = math.floor(50e6 / ext_size) * ext_size
@@ -693,7 +706,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         disk6 = self.add_loopback_disk(name="loop15")
 
         with b.wait_timeout(60):
-            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+            self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
                                    expect=lambda: (self.dialog_is_present('disks', disk1) and
                                                    self.dialog_is_present('disks', disk2) and
                                                    self.dialog_is_present('disks', disk3) and
@@ -708,9 +721,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk5: True,
                                                      disk6: True}})
         self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
-
-        b.click('.sidepanel-row:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="vgroup0")
 
         def mb(size):
             if size < 100e6:
@@ -719,25 +730,26 @@ class TestStorageLvm2(storagelib.StorageCase):
                 return str(round(size / 1e6)) + " MB"
 
         def test(layout, expected_size):
-            b.click("button:contains(Create new logical volume)")
+            b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
             self.dialog(expect={"name": "lvol0"},
                         values={"purpose": "block",
                                 "layout": layout,
                                 "size": round(expected_size / 2e6)})
 
-            self.content_row_wait_in_col(1, 1, "lvol0")
+            b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+            self.click_card_row("LVM2 logical volumes", 1)
 
             field = "Stripes"
 
-            self.content_tab_wait_in_info(1, 1, field, bn(disk1))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk2))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk3))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk4))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk5))
-            self.content_tab_wait_in_info(1, 1, field, bn(disk6))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk1))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk2))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk3))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk4))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk5))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", field), bn(disk6))
 
             # Grow to max with default pvs
-            self.content_tab_action(1, 1, "Grow")
+            b.click(self.card_button("LVM2 logical volume", "Grow"))
             self.dialog_wait_open()
             slider = self.dialog_field("size") + " .pf-v5-c-slider .pf-v5-c-slider__rail"
             width = b.call_js_func('(function (sel) { return ph_find(sel).offsetWidth; })', slider)
@@ -745,19 +757,20 @@ class TestStorageLvm2(storagelib.StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-            tab = self.content_tab_expand(1, 1)
-            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
-            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
-            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
-            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
-            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk5)}')", 1)
-            b.wait_js_func("ph_count_check", tab + f" .storage-stripe-pv-box-dev:contains('{bn(disk6)}')", 1)
+            card = self.card("LVM2 logical volume")
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk5)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk6)}')", 1)
 
-            self.content_tab_wait_in_info(1, 1, "Size", mb(expected_size))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), mb(expected_size))
 
-            self.content_dropdown_action(1, "Delete")
+            self.click_card_dropdown("LVM2 logical volume", "Delete")
             self.confirm()
-            b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
+            b.wait_visible(self.card("LVM2 logical volumes"))
+            b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0"))
 
         ext_size = 4 * 1024 * 1024
         pv_size = math.floor(50e6 / ext_size) * ext_size
@@ -787,7 +800,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         disk5 = self.add_targetd_loopback_disk(index=5, size=100)
 
         with b.wait_timeout(60):
-            self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+            self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
                                    expect=lambda: (self.dialog_is_present('disks', disk1) and
                                                    self.dialog_is_present('disks', disk2) and
                                                    self.dialog_is_present('disks', disk3) and
@@ -800,12 +813,10 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk4: True,
                                                      disk5: True}})
         self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
-
-        b.click('.sidepanel-row:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="vgroup0")
 
         def create(row, layout, expected_name):
-            b.click("button:contains(Create new logical volume)")
+            b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
             self.dialog_wait_open()
             self.dialog_wait_val("name", expected_name)
             self.dialog_set_val("layout", layout)
@@ -816,7 +827,7 @@ class TestStorageLvm2(storagelib.StorageCase):
             self.dialog_set_val("size", 10)
             self.dialog_apply()
             self.dialog_wait_close()
-            self.content_row_wait_in_col(row, 1, expected_name)
+            b.wait_text(self.card_row_col("LVM2 logical volumes", row, 1), expected_name)
 
         create(1, "linear", "lvol0")
         create(2, "raid0", "lvol1")
@@ -826,7 +837,10 @@ class TestStorageLvm2(storagelib.StorageCase):
         create(6, "raid6", "lvol5")
 
         def wait_msg(row, msg):
-            self.content_tab_wait_in_info(row, 1, "Physical volumes" if row == 1 else "Stripes", msg)
+            self.click_card_row("LVM2 logical volumes", row)
+            b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes" if row == 1 else "Stripes"),
+                           msg)
+            b.click(self.card_parent_link())
 
         def wait_partial(row):
             wait_msg(row, "This logical volume has lost some of its physical volumes and can no longer be used.")
@@ -871,7 +885,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_loopback_disk()
-        b.wait_in_text("#others", disk)
+        b.wait_visible(self.card_row("Storage", name=disk))
         m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}")
         m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk} dm-test")
         self.addCleanup(m.execute, "cryptsetup close dm-test || true")
@@ -879,10 +893,8 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
         m.execute("lvcreate vgroup0 -n lvol0 -l100%FREE")
 
-        b.wait_in_text("#devices", "vgroup0")
-        b.click('#devices .sidepanel-row:contains("vgroup0")')
-
-        self.content_tab_wait_in_info(1, 1, "Physical volumes", bn(disk))
+        self.click_card_row("Storage", name="lvol0")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk))
 
 
 if __name__ == '__main__':

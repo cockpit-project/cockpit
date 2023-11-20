@@ -21,31 +21,20 @@ import storagelib
 import testlib
 
 
-@testlib.skipImage("UDisks doesn't have support for multipath", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("No support for multipath", "debian-*", "ubuntu-*", "arch")
 class TestStorageMultipath(storagelib.StorageCase):
 
     def testBasic(self):
         m = self.machine
         b = self.browser
 
-        def detail_row_name(index):
-            return f'#detail-header .pf-v5-c-description-list__group:nth-of-type({index}) > dt'
-
-        def detail_row_value(index):
-            return f'#detail-header .pf-v5-c-description-list__group:nth-of-type({index}) > dd'
-
-        def wait_detail_row(index, name):
-            b.wait_visible(detail_row_name(index))
-            b.wait_text(detail_row_name(index), name)
-
         def check_free_block_devices(expected):
-            blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .checkbox')")
-            if len(blocks) != len(expected):
-                return False
+            allowed = ["/dev/vda4"]
+            blocks = list(filter(lambda b: b not in allowed,
+                                 b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .select-space-details')")))
+            self.assertEqual(len(blocks), len(expected))
             for i in range(len(expected)):
-                if expected[i] not in blocks[i]:
-                    return False
-            return True
+                self.assertIn(expected[i], blocks[i])
 
         # At least on Fedora 27, multipath only looks at SCSI_IDENT_
         # and ID_WWN properties, so we install a custom udev rule to
@@ -63,13 +52,11 @@ class TestStorageMultipath(storagelib.StorageCase):
           }""")
 
         # Add a disk
-        m.add_disk("10M", serial="MYSERIAL")
+        info1 = m.add_disk("10M", serial="MYSERIAL")
+        dev1 = "/dev/" + info1["dev"]
 
-        b.wait_in_text("#drives", "MYSERIAL")
-        b.click('.sidepanel-row:contains("MYSERIAL")')
-        b.wait_visible('#storage-detail')
-        wait_detail_row(5, "Device file")
-        b.wait_in_text(detail_row_value(5), "/dev/sda")
+        self.click_card_row("Storage", name=dev1)
+        b.wait_text(self.card_desc("Hard Disk Drive", "Device file"), dev1)
 
         # Add another disk with the same serial, which fools
         # multipathd into treating it as another path to the first
@@ -77,33 +64,30 @@ class TestStorageMultipath(storagelib.StorageCase):
 
         # The primary device file should disappear and multipathed
         # devices should be listed.
-        m.add_disk("10M", serial="MYSERIAL")
-        b.wait_text_not(detail_row_value(5), "/dev/sda")
-        wait_detail_row(6, "Multipathed devices")
-        b.wait_in_text(detail_row_value(6), "/dev/sda")
-        b.wait_in_text(detail_row_value(6), "/dev/sdb")
+        info2 = m.add_disk("10M", serial="MYSERIAL")
+        dev2 = "/dev/" + info2["dev"]
+
+        b.wait_text(self.card_desc("Hard Disk Drive", "Device file"), "-")
+        b.wait_in_text(self.card_desc("Hard Disk Drive", "Multipathed devices"), dev1)
+        b.wait_in_text(self.card_desc("Hard Disk Drive", "Multipathed devices"), dev2)
 
         # Check that neither is offered as a free block device
         b.go("#/")
-        self.devices_dropdown('Create LVM2 volume group')
+        self.click_dropdown(self.card_header("Storage"), "Create LVM2 volume group")
         self.dialog_wait_open()
         check_free_block_devices([])
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.go("#/sda")
-        b.wait_visible('#storage-detail')
-
         # Switch on multipathd.  A primary device should appear.
 
         b.wait_visible('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
         b.click('button:contains(Start multipath)')
-        b.wait_in_text(detail_row_value(5), "/dev/mapper/mpatha")
         b.wait_not_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
+        b.wait_visible(self.card_row("Storage", name="/dev/mapper/mpatha"))
 
         # Check that (exactly) the primary device is offered as free
-        b.go("#/")
-        self.devices_dropdown('Create LVM2 volume group')
+        self.click_dropdown(self.card_header("Storage"), "Create LVM2 volume group")
         self.dialog_wait_open()
         check_free_block_devices(["/dev/mapper/mpatha"])
         self.dialog_cancel()

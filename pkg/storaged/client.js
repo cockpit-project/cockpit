@@ -26,14 +26,15 @@ import * as utils from './utils.js';
 import * as python from "python.js";
 import { read_os_release } from "os-release.js";
 
-import { find_warnings } from "./warnings.jsx";
-
 import inotify_py from "inotify.py";
 import mount_users_py from "./mount-users.py";
-import nfs_mounts_py from "./nfs-mounts.py";
-import vdo_monitor_py from "./vdo-monitor.py";
-import stratis2_set_key_py from "./stratis2-set-key.py";
-import stratis3_set_key_py from "./stratis3-set-key.py";
+import nfs_mounts_py from "./nfs/nfs-mounts.py";
+import vdo_monitor_py from "./legacy-vdo/vdo-monitor.py";
+import stratis2_set_key_py from "./stratis/stratis2-set-key.py";
+import stratis3_set_key_py from "./stratis/stratis3-set-key.py";
+
+import { reset_pages } from "./pages.jsx";
+import { make_overview_page } from "./overview/overview.jsx";
 
 /* STORAGED CLIENT
  */
@@ -562,18 +563,40 @@ function update_indices() {
         client.blocks_partitions[path].sort(function (a, b) { return a.Offset - b.Offset });
     }
 
+    client.iscsi_sessions_drives = { };
+    client.drives_iscsi_session = { };
+    for (path in client.drives) {
+        const block = client.drives_block[path];
+        if (!block)
+            continue;
+        for (const session_path in client.iscsi_sessions) {
+            const session = client.iscsi_sessions[session_path];
+            for (i = 0; i < block.Symlinks.length; i++) {
+                if (utils.decode_filename(block.Symlinks[i]).includes(session.data.target_name)) {
+                    client.drives_iscsi_session[path] = session;
+                    if (!client.iscsi_sessions_drives[session_path])
+                        client.iscsi_sessions_drives[session_path] = [];
+                    client.iscsi_sessions_drives[session_path].push(client.drives[path]);
+                }
+            }
+        }
+    }
+
+    client.blocks_available = { };
+    for (path in client.blocks) {
+        block = client.blocks[path];
+        if (utils.is_available_block(client, block))
+            client.blocks_available[path] = true;
+    }
+
     client.path_jobs = { };
     function enter_job(job) {
         if (!job.Objects || !job.Objects.length)
             return;
-        job.Objects.forEach(function (path) {
-            client.path_jobs[path] = job;
-            let parent = utils.get_parent(client, path);
-            while (parent) {
-                path = parent;
-                parent = utils.get_parent(client, path);
-            }
-            client.path_jobs[path] = job;
+        job.Objects.forEach(p => {
+            if (!client.path_jobs[p])
+                client.path_jobs[p] = [];
+            client.path_jobs[p].push(job);
         });
     }
     for (path in client.jobs) {
@@ -581,10 +604,15 @@ function update_indices() {
     }
 }
 
-client.update = () => {
-    update_indices();
-    client.path_warnings = find_warnings(client);
-    client.dispatchEvent("changed");
+client.update = (first_time) => {
+    if (first_time)
+        client.ready = true;
+    if (client.ready) {
+        update_indices();
+        reset_pages();
+        make_overview_page();
+        client.dispatchEvent("changed");
+    }
 };
 
 function init_model(callback) {
@@ -723,7 +751,7 @@ function init_model(callback) {
 
                     client.storaged_client.addEventListener('notify', () => client.update());
 
-                    client.update();
+                    client.update(true);
                     callback();
                 });
             });
@@ -819,7 +847,7 @@ function nfs_mounts() {
                     if (lines.length >= 2) {
                         self.entries = JSON.parse(lines[lines.length - 2]);
                         self.fsys_sizes = { };
-                        client.dispatchEvent('changed');
+                        client.update();
                     }
                 })
                 .catch(function (error) {
@@ -842,11 +870,11 @@ function nfs_mounts() {
                 .then(function (output) {
                     const data = JSON.parse(output);
                     self.fsys_sizes[path] = [(data[2] - data[1]) * data[0], data[2] * data[0]];
-                    client.dispatchEvent('changed');
+                    client.update();
                 })
                 .catch(function () {
                     self.fsys_sizes[path] = [0, 0];
-                    client.dispatchEvent('changed');
+                    client.update();
                 });
 
         return null;

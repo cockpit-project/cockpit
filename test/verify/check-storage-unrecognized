@@ -1,0 +1,61 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2023 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import storagelib
+import testlib
+
+
+@testlib.nondestructive
+class TestStorageUnrecognized(storagelib.StorageCase):
+    def test(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        disk = self.add_ram_disk()
+
+        # Initially, new disks should have zeroes in their superblock
+        # and be recognized as "unformatted" by Cockpit.
+
+        self.click_card_row("Storage", name=disk)
+        b.wait_visible(self.card("Unformatted data"))
+
+        # This is the superblock of a legacy VDO device. Cockpit does
+        # not recognize it.
+
+        data = """
+ZG12ZG8wMDEFAAAABAAAAAAAAABdAAAAAAAAAJQJAgCGsH0mrQgGAC4WnB4G50Fzu20jY6J1rfwA
+AAAAAQAAAAAAAAABAAAA2FwKAAAAAAAA////AAAAAAA7tw9zAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+"""
+        m.execute(f"base64 -d >{disk}", input=data)
+
+        b.wait_text(self.card_desc("Unrecognized data", "Usage"), "other")
+        b.wait_text(self.card_desc("Unrecognized data", "Type"), "vdo")
+
+
+if __name__ == '__main__':
+    testlib.test_main()

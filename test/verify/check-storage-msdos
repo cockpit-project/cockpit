@@ -31,33 +31,33 @@ class TestStorageMsDOS(storagelib.StorageCase):
 
         # Add a disk
         disk = self.add_ram_disk()
-        b.click(f'#drives .sidepanel-row:contains("{disk}")')
-        b.wait_visible("#storage-detail")
+        self.click_card_row("Storage", name=disk)
 
         # Format it with a DOS partition table
-        b.click('button:contains(Create partition table)')
+        self.click_card_dropdown("Solid State Drive", "Create partition table")
         self.dialog({"type": "dos"})
-        self.content_row_wait_in_col(1, 0, "Free space")
+        b.wait_text(self.card_row_col("DOS partitions", 1, 1), "Free space")
 
         # Create a primary partition
-        self.content_row_action(1, "Create partition")
+        self.click_dropdown(self.card_row("DOS partitions", 1), "Create partition")
         self.dialog({"size": 10,
                      "type": "ext4",
                      "mount_point": "/foo",
                      "name": "FIRST"},
                     secondary=True)
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
-        self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
+        b.wait_text(self.card_row_col("DOS partitions", 1, 2), "ext4 filesystem")
 
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
-        self.content_dropdown_action(1, "Format")
+        self.click_card_row("DOS partitions", 1)
+        self.click_card_dropdown("ext4 filesystem", "Format")
         self.dialog_wait_open()
         b.wait_not_present("select option[value='dos-extended']")
         self.dialog_cancel()
         self.dialog_wait_close()
+        b.click(self.card_parent_link())
 
         # Create a extended partition to fill the rest of the disk
-        self.content_row_action(2, "Create partition")
+        self.click_dropdown(self.card_row("DOS partitions", 2), "Create partition")
         self.dialog_wait_open()
         self.dialog_set_val("type", "dos-extended")
         self.dialog_wait_not_present("name")
@@ -65,12 +65,12 @@ class TestStorageMsDOS(storagelib.StorageCase):
         self.dialog_wait_not_present("mount_options")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(2, 2, "Extended partition")
-        self.content_row_wait_in_col(3, 1, "Free space")
+        b.wait_text(self.card_row_col("DOS partitions", 2, 1), "Extended partition")
+        b.wait_text(self.card_row_col("DOS partitions", 3, 1), "Free space")
 
         # Create logical partitions and check that "dos-extended" is
         # not offered.
-        self.content_row_action(3, "Create partition")
+        self.click_dropdown(self.card_row("DOS partitions", 3), "Create partition")
         self.dialog_wait_open()
         b.wait_not_present("select option[value='dos-extended']")
         self.dialog_cancel()
@@ -78,10 +78,10 @@ class TestStorageMsDOS(storagelib.StorageCase):
 
         # Delete it
 
-        self.content_dropdown_action(2, "Delete")
+        self.click_dropdown(self.card_row("DOS partitions", 2), "Delete")
         self.confirm()
 
-        self.content_row_wait_in_col(2, 1, "Free space")
+        b.wait_text(self.card_row_col("DOS partitions", 2, 1), "Free space")
 
 
 if __name__ == '__main__':

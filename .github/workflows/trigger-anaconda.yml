@@ -16,8 +16,9 @@ on:
 jobs:
   trigger:
     runs-on: ubuntu-22.04
-    # the default workflow token cannot read our org membership, for deciding who is allowed to trigger tests
-    environment: gh-cockpituous
+    permissions:
+      contents: read
+      statuses: write
     container: registry.fedoraproject.org/fedora:rawhide
     # this polls for a COPR build, which can take long
     timeout-minutes: 120
@@ -55,5 +56,5 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/cockpit-project/bots
           mkdir -p ~/.config/cockpit-dev
-          echo '${{ secrets.COCKPITUOUS_TOKEN }}' > ~/.config/cockpit-dev/github-token
+          echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/cockpit-dev/github-token
           bots/tests-trigger --repo ${{ github.repository }} ${{ github.event.number }} fedora-rawhide-boot/cockpit-pr-${{ github.event.number }}@rhinstaller/anaconda

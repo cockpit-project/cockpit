@@ -241,6 +241,11 @@ class Browser:
             # Force a reload in this case, to make tests and the waitPageLoad below predictable
             # But that option has the inverse effect with Chromium (argh)
             opts["transitionType"] = "reload"
+        elif self.cdp.browser.name == 'chromium':
+            # Chromium also optimizes this away, but doesn't have a knob to force loading
+            # so load the blank page first
+            self.cdp.invoke("Page.navigate", url="about:blank")
+            self.cdp.invoke("waitPageLoad", timeout=5)
         self.cdp.invoke("Page.navigate", url=href, **opts)
         self.cdp.invoke("waitPageLoad", timeout=self.cdp.timeout)
 

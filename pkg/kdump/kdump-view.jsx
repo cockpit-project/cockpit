@@ -48,6 +48,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 
 const _ = cockpit.gettext;
+const DEFAULT_KDUMP_PATH = "/var/crash";
 
 const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
     const Dialogs = useDialogs();
@@ -60,7 +61,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
     const [storageLocation, setStorageLocation] = useState(Object.keys(settings.targets)[0]);
     // common options
     const [compressionEnabled, setCompressionEnabled] = useState(settings.compression?.enabled);
-    const [directory, setDirectory] = useState(initialTarget.path || "/var/crash");
+    const [directory, setDirectory] = useState(initialTarget.path || DEFAULT_KDUMP_PATH);
     // nfs and ssh
     const [server, setServer] = useState(settings.targets.nfs?.server || settings.targets.ssh?.server);
     // nfs
@@ -77,7 +78,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
 
     const changeStorageLocation = target => {
         setError(null);
-        setDirectory("/var/crash");
+        setDirectory(DEFAULT_KDUMP_PATH);
         setServer("");
         setStorageLocation(target);
     };
@@ -104,7 +105,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                     type: storageLocation,
                     // HACK: to not needlessly write a path /var/crash as this is the default,
                     // set an empty string.
-                    path: directory === "/var/crash" ? "" : directory,
+                    path: directory === DEFAULT_KDUMP_PATH ? "" : directory,
                 }
             },
             _internal: {
@@ -178,7 +179,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                 {storageLocation === "local" &&
                     <FormGroup fieldId="kdump-settings-local-directory" label={_("Directory")} isRequired>
                         <TextInput id="kdump-settings-local-directory" key="directory"
-                                   placeholder="/var/crash" value={directory}
+                                   placeholder={DEFAULT_KDUMP_PATH} value={directory}
                                    data-stored={directory}
                                    onChange={(_event, value) => setDirectory(value)}
                                    isRequired />
@@ -199,7 +200,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                         </FormGroup>
                         <FormGroup fieldId="kdump-settings-nfs-directory" label={_("Directory")} isRequired>
                             <TextInput id="kdump-settings-nfs-directory" key="directory"
-                                    placeholder="/var/crash" value={directory}
+                                    placeholder={DEFAULT_KDUMP_PATH} value={directory}
                                     data-stored={directory}
                                     onChange={(_event, value) => setDirectory(value)}
                                     isRequired />
@@ -225,7 +226,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
 
                         <FormGroup fieldId="kdump-settings-ssh-directory" label={_("Directory")} isRequired>
                             <TextInput id="kdump-settings-ssh-directory" key="directory"
-                                       placeholder="/var/crash" value={directory}
+                                       placeholder={DEFAULT_KDUMP_PATH} value={directory}
                                        data-stored={directory}
                                        onChange={(_event, value) => setDirectory(value)}
                                        isRequired />
@@ -270,7 +271,7 @@ export class KdumpPage extends React.Component {
         const target = this.props.kdumpStatus.target;
         let verifyMessage;
         if (!target.multipleTargets) {
-            let path = target.path || "/var/crash";
+            let path = target.path || DEFAULT_KDUMP_PATH;
             if (target.type === "local") {
                 verifyMessage = fmt_to_fragments(
                     ' ' + _("Results of the crash will be stored in $0 as $1, if kdump is properly configured."),
@@ -342,7 +343,7 @@ export class KdumpPage extends React.Component {
                     if (target.path)
                         kdumpLocation = cockpit.format(_("locally in $0"), target.path);
                     else
-                        kdumpLocation = cockpit.format(_("locally in $0"), "/var/crash");
+                        kdumpLocation = cockpit.format(_("locally in $0"), DEFAULT_KDUMP_PATH);
                     targetCanChange = true;
                 } else if (target.type == "ssh") {
                     kdumpLocation = _("Remote over SSH");

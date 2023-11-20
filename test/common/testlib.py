@@ -1730,8 +1730,8 @@ class MachineCase(unittest.TestCase):
     ]
 
     if testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8'):
-        # old occasional bug in tracer, does not happen in newer versions any more
-        default_allowed_console_errors.append('Tracer failed:.*bus.*_pid.*IndexError')
+        # old occasional bugs in tracer, don't happen in newer versions any more
+        default_allowed_console_errors.append('Tracer failed:.*Traceback')
 
     env_allow = os.environ.get("TEST_ALLOW_BROWSER_ERRORS")
     if env_allow:

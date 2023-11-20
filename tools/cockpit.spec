@@ -86,6 +86,14 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 %define disallow_root 1
 %endif
 
+# pcp stopped building on ix86
+%define build_pcp 1
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+%ifarch %ix86
+%define build_pcp 0
+%endif
+%endif
+
 # Ship custom SELinux policy (but not for cockpit-appstream)
 %if "%{name}" == "cockpit"
 %define selinuxtype targeted
@@ -124,15 +132,19 @@ BuildRequires: glib2-devel >= 2.50.0
 BuildRequires: systemd-devel >= 235
 %if 0%{?suse_version}
 BuildRequires: distribution-release
+%if %{build_pcp}
 BuildRequires: libpcp-devel
 BuildRequires: pcp-devel
 BuildRequires: libpcp3
 BuildRequires: libpcp_import1
+%endif
 BuildRequires: openssh
 BuildRequires: distribution-logos
 BuildRequires: wallpaper-branding
 %else
+%if %{build_pcp}
 BuildRequires: pcp-libs-devel
+%endif
 BuildRequires: openssh-clients
 BuildRequires: docbook-style-xsl
 %endif
@@ -199,6 +211,9 @@ BuildRequires:  python3-tox-current-env
 %if 0%{?build_basic} == 0
     --disable-ssh \
 %endif
+%if %{build_pcp} == 0
+    --disable-pcp \
+%endif
 
 %make_build
 
@@ -230,8 +245,10 @@ find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 %endif
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
 
+%if %{build_pcp}
 echo '%dir %{_datadir}/cockpit/pcp' > pcp.list
 find %{buildroot}%{_datadir}/cockpit/pcp -type f >> pcp.list
+%endif
 
 echo '%dir %{_datadir}/cockpit/shell' >> system.list
 find %{buildroot}%{_datadir}/cockpit/shell -type f >> system.list
@@ -673,6 +690,8 @@ These files are not required for running Cockpit.
 %{_unitdir}/cockpit-session.socket
 %{_unitdir}/cockpit-session@.service
 
+%if %{build_pcp}
+
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration
 Requires: cockpit-bridge >= %{required_base}
@@ -687,6 +706,8 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 
 %post -n cockpit-pcp
 systemctl reload-or-try-restart pmlogger
+
+%endif
 
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages

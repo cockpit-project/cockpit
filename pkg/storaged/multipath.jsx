@@ -19,8 +19,9 @@
 
 import cockpit from "cockpit";
 import React from "react";
+
+import { StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Alert, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
-import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 
 import { get_multipathd_service } from "./utils.js";
 import { dialog_open } from "./dialog.jsx";
@@ -64,14 +65,12 @@ export class MultipathAlert extends React.Component {
 
         if (multipath_broken && !multipathd_running)
             return (
-                <Page>
-                    <PageSection>
-                        <Alert isInline variant='danger'
-                            actionClose={<AlertActionLink variant='secondary' onClick={activate}>{_("Start multipath")}</AlertActionLink>}
-                            title={_("There are devices with multiple paths on the system, but the multipath service is not running.")}
-                        />
-                    </PageSection>
-                </Page>
+                <StackItem>
+                    <Alert isInline variant='danger'
+                           actionClose={<AlertActionLink variant='secondary' onClick={activate}>{_("Start multipath")}</AlertActionLink>}
+                           title={_("There are devices with multiple paths on the system, but the multipath service is not running.")}
+                    />
+                </StackItem>
             );
         return null;
     }

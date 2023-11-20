@@ -20,17 +20,17 @@
 import React, { useState } from 'react';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Dropdown, DropdownItem, DropdownToggle, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { Dropdown, DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
+import { MenuToggle } from '@patternfly/react-core/dist/esm/components/MenuToggle/index.js';
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
-import { BarsIcon } from '@patternfly/react-icons';
+import { BarsIcon, EllipsisVIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 import client from "./client.js";
 
 import { dialog_open } from "./dialog.jsx";
-import { fmt_to_fragments } from "utils.jsx";
 
 const _ = cockpit.gettext;
 
@@ -68,7 +68,7 @@ class StorageControl extends React.Component {
     }
 }
 
-function checked(callback, setSpinning) {
+function checked(callback, setSpinning, excuse) {
     return function (event) {
         if (!event)
             return;
@@ -80,6 +80,16 @@ function checked(callback, setSpinning) {
         // only consider enter button for keyboard events
         if (event.type === 'KeyDown' && event.key !== "Enter")
             return;
+
+        event.stopPropagation();
+
+        if (excuse) {
+            dialog_open({
+                Title: _("Sorry"),
+                Body: excuse
+            });
+            return;
+        }
 
         const promise = client.run(callback);
         if (promise) {
@@ -97,7 +107,6 @@ function checked(callback, setSpinning) {
                 });
             });
         }
-        event.stopPropagation();
     };
 }
 
@@ -131,30 +140,6 @@ export const StorageLink = ({ id, excuse, onClick, children }) => (
                         </Button>
                     )} />
 );
-
-/* StorageBlockNavLink - describe a given block device concisely and
-                         allow navigating to its details.
-
-   Properties:
-
-   - client
-   - block
- */
-
-export const StorageBlockNavLink = ({ client, block }) => {
-    if (!block)
-        return null;
-
-    const parts = utils.get_block_link_parts(client, block.path);
-
-    const link = (
-        <Button isInline variant="link" onClick={() => { cockpit.location.go(parts.location) }}>
-            {parts.link}
-        </Button>
-    );
-
-    return <span>{fmt_to_fragments(parts.format, link)}</span>;
-};
 
 // StorageOnOff - OnOff switch for asynchronous actions.
 //
@@ -202,34 +187,50 @@ export class StorageOnOff extends React.Component {
  * in a dangerous color.
  */
 
-export const StorageUsageBar = ({ stats, critical, block, offset, total, small }) => {
+export const StorageUsageBar = ({ stats, critical, block, offset, total, short }) => {
     if (!stats)
         return null;
 
     const fraction = stats[0] / stats[1];
     const off_fraction = offset / stats[1];
     const total_fraction = total / stats[1];
-    const labelText = small ? cockpit.format_bytes(stats[0]) : utils.format_fsys_usage(stats[0], stats[1]);
+    const labelText = utils.format_fsys_usage(stats[0], stats[1]);
 
     return (
-        <div className={"pf-v5-c-progress pf-m-outside pf-m-singleline" + (fraction > critical ? " pf-m-danger" : "") + (small ? " pf-m-sm" : "")}>
-            <div className="pf-v5-c-progress__status" aria-hidden="true">
-                <span className="pf-v5-c-progress__measure">{labelText}</span>
-            </div>
-            <div className="pf-v5-c-progress__bar ct-thin-progress" role="progressbar"
+        <div>
+            <span className="pf-v5-u-text-nowrap">
+                {labelText}
+            </span>
+            <div className={"usage-bar" + (fraction > critical ? " usage-bar-danger" : "") + (short ? " usage-bar-short" : "")}
+                 role="progressbar"
                  aria-valuemin="0" aria-valuemax={stats[1]} aria-valuenow={stats[0]}
                  aria-label={cockpit.format(_("Usage of $0"), block)}
                  aria-valuetext={labelText}>
-                <div className="pf-v5-c-progress__indicator ct-progress-other" aria-hidden="true" style={{ width: total_fraction * 100 + "%" }} />
-                <div className="pf-v5-c-progress__indicator" style={{ insetInlineStart: off_fraction * 100 + "%", width: fraction * 100 + "%" }} />
+                <div className="usage-bar-indicator usage-bar-other" aria-hidden="true" style={{ width: total_fraction * 100 + "%" }} />
+                <div className="usage-bar-indicator" style={{ insetInlineStart: off_fraction * 100 + "%", width: fraction * 100 + "%" }} />
             </div>
         </div>);
 };
 
-export const StorageMenuItem = ({ onClick, onlyNarrow, danger, children }) => (
-    <DropdownItem className={(onlyNarrow ? "show-only-when-narrow" : "") + (danger ? " delete-resource-red" : "")}
-                  onKeyDown={checked(onClick)}
-                  onClick={checked(onClick)}>
+/* Render a static size that goes well with a short StorageusageBar in
+   the same table column.
+*/
+
+export const StorageSize = ({ size }) => {
+    return (
+        <div>
+            <span className="pf-v5-u-text-nowrap">
+                {utils.fmt_size(size)}
+            </span>
+            <div className="usage-bar usage-bar-short usage-bar-empty" />
+        </div>);
+};
+
+export const StorageMenuItem = ({ onClick, onlyNarrow, danger, excuse, children }) => (
+    <DropdownItem className={(onlyNarrow ? "show-only-when-narrow" : "") + (danger ? " delete-resource-dangerous" : "")}
+                  description={excuse}
+                  isDisabled={!!excuse}
+                  onClick={checked(onClick, null, excuse)}>
         {children}
     </DropdownItem>
 );
@@ -240,22 +241,31 @@ export const StorageBarMenu = ({ label, isKebab, onlyNarrow, menuItems }) => {
     if (!client.superuser.allowed)
         return null;
 
-    let toggle;
-    if (isKebab)
-        toggle = <KebabToggle onToggle={(_, isOpen) => setIsOpen(isOpen)} />;
-    else
-        toggle = <DropdownToggle className="pf-m-primary" toggleIndicator={null}
-                                 onToggle={(_, isOpen) => setIsOpen(isOpen)} aria-label={label}>
-            <BarsIcon color="white" />
-        </DropdownToggle>;
+    const onToggleClick = (event) => {
+        setIsOpen(!isOpen);
+    };
+
+    const onSelect = (event) => {
+        setIsOpen(false);
+    };
+
+    const toggle = ref => <MenuToggle ref={ref}
+                                      variant="plain"
+                                      className={isKebab ? "" : "pf-m-primary"}
+                                      onClick={onToggleClick}
+                                      isExpanded={isOpen}
+                                      aria-label={label}>
+        {isKebab ? <EllipsisVIcon /> : <BarsIcon color="white" />}
+    </MenuToggle>;
 
     return (
         <Dropdown className={onlyNarrow ? "show-only-when-narrow" : null}
-                  onSelect={() => setIsOpen(!isOpen)}
-                  toggle={toggle}
                   isOpen={isOpen}
-                  isPlain={isKebab}
-                  position="right"
-                  dropdownItems={menuItems} />
-    );
+                  onSelect={onSelect}
+                  onOpenChange={isOpen => setIsOpen(isOpen)}
+                  toggle={toggle}
+                  popperProps={{ position: "right" }}
+                  shouldFocusToggleOnSelect>
+            {menuItems}
+        </Dropdown>);
 };

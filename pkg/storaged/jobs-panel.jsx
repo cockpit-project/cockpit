@@ -20,8 +20,9 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 
 import { StorageButton } from "./storage-controls.jsx";
 import { block_name, mdraid_name, lvol_name, format_delay } from "./utils.js";
@@ -59,15 +60,15 @@ const descriptions = {
     cleanup: _("Cleaning up for $target"),
     'ata-secure-erase': _("Securely erasing $target"),
     'ata-enhanced-secure-erase': _("Very securely erasing $target"),
-    'md-raid-stop': _("Stopping RAID device $target"),
-    'md-raid-start': _("Starting RAID device $target"),
+    'md-raid-stop': _("Stopping MDRAID device $target"),
+    'md-raid-start': _("Starting MDRAID device $target"),
     'md-raid-fault-device': _("Marking $target as faulty"),
-    'md-raid-remove-device': _("Removing $target from RAID device"),
-    'md-raid-create': _("Creating RAID device $target"),
-    'mdraid-check-job': _("Checking RAID device $target"),
-    'mdraid-repair-job': _("Checking and repairing RAID device $target"),
-    'mdraid-recover-job': _("Recovering RAID device $target"),
-    'mdraid-sync-job': _("Synchronizing RAID device $target"),
+    'md-raid-remove-device': _("Removing $target from MDRAID device"),
+    'md-raid-create': _("Creating MDRAID device $target"),
+    'mdraid-check-job': _("Checking MDRAID device $target"),
+    'mdraid-repair-job': _("Checking and repairing MDRAID device $target"),
+    'mdraid-recover-job': _("Recovering MDRAID device $target"),
+    'mdraid-sync-job': _("Synchronizing MDRAID device $target"),
     'lvm-lvol-delete': _("Deleting $target"),
     'lvm-lvol-activate': _("Activating $target"),
     'lvm-lvol-deactivate': _("Deactivating $target"),
@@ -123,13 +124,16 @@ class JobRow extends React.Component {
                 <DataListItemRow>
                     <DataListItemCells
                         dataListCells={[
+                            <DataListCell key="spinner" isFilled={false}>
+                                <Spinner size="lg" />
+                            </DataListCell>,
                             <DataListCell key="desc" className="job-description" isFilled={false}>
                                 {make_description(this.props.client, job)}
                             </DataListCell>,
                             <DataListCell key="progress" isFilled={false}>
                                 {job.ProgressValid && (job.Progress * 100).toFixed() + "%"}
                             </DataListCell>,
-                            <DataListCell key="remaining">
+                            <DataListCell key="remaining" isFilled={false}>
                                 {remaining}
                             </DataListCell>,
                             <DataListCell key="job-action" isFilled={false} alignRight>
@@ -158,20 +162,19 @@ export class JobsPanel extends React.Component {
 
     render() {
         const client = this.props.client;
+        const path_jobs = client.path_jobs[this.props.path] || [];
         const server_now = new Date().getTime() + client.time_offset;
 
-        function cmp_job(path_a, path_b) {
-            return client.jobs[path_a].StartTime - client.jobs[path_b].StartTime;
+        function cmp_job(job_a, job_b) {
+            return job_a.StartTime - job_b.StartTime;
         }
 
-        function job_is_stable(path) {
-            const j = client.jobs[path];
-
-            const age_ms = server_now - j.StartTime / 1000;
+        function job_is_stable(job) {
+            const age_ms = server_now - job.StartTime / 1000;
             if (age_ms >= 2000)
                 return true;
 
-            if (j.ExpectedEndTime > 0 && (j.ExpectedEndTime / 1000 - server_now) >= 2000)
+            if (job.ExpectedEndTime > 0 && (job.ExpectedEndTime / 1000 - server_now) >= 2000)
                 return true;
 
             return false;
@@ -179,9 +182,9 @@ export class JobsPanel extends React.Component {
 
         let jobs = [];
         let have_reminder = false;
-        for (const p in client.jobs) {
-            if (job_is_stable(p)) {
-                jobs.push(p);
+        for (const j of path_jobs) {
+            if (job_is_stable(j)) {
+                jobs.push(j);
             } else if (!have_reminder) {
                 // If there is a unstable job, we have to check again in a bit since being
                 // stable or not depends on the current time.
@@ -198,14 +201,11 @@ export class JobsPanel extends React.Component {
         jobs = jobs.sort(cmp_job);
 
         return (
-            <Card className="detail-jobs">
-                <CardTitle component="h2">{_("Jobs")}</CardTitle>
-                <CardBody className="contains-list">
-                    <DataList isCompact aria-label={_("Jobs")}>
-                        { jobs.map((p) => <JobRow key={p} client={client} job={client.jobs[p]} now={server_now} />) }
-                    </DataList>
-                </CardBody>
-            </Card>
+            <CardBody className="contains-list">
+                <DataList isCompact aria-label={_("Jobs")}>
+                    { jobs.map(j => <JobRow key={j.path} client={client} job={j} now={server_now} />) }
+                </DataList>
+            </CardBody>
         );
     }
 }
@@ -213,8 +213,9 @@ export class JobsPanel extends React.Component {
 export function job_progress_wrapper(client, path1, path2) {
     return function (vals, progress_callback, action_function) {
         function client_changed() {
-            const job = client.path_jobs[path1] || client.path_jobs[path2];
-            if (job) {
+            const jobs = client.path_jobs[path1] || client.path_jobs[path2];
+            if (jobs && jobs.length > 0) {
+                const job = jobs[0];
                 let desc = make_description(client, job);
                 if (job.ProgressValid)
                     desc += cockpit.format(" ($0%)", (job.Progress * 100).toFixed());

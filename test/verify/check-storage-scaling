@@ -27,13 +27,18 @@ class TestStorageScaling(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
-        m.execute("modprobe scsi_debug num_tgts=200")
-
         self.login_and_go("/storage")
+
+        def count_rows():
+            return b.call_js_func('ph_count', self.card("Storage") + " tbody tr")
+
+        b.wait_visible(self.card_row("Storage", name="/dev/vda"))
+        n_rows = count_rows()
+
+        m.execute("modprobe scsi_debug num_tgts=200")
         with b.wait_timeout(60):
-            b.click("#drives button:contains(Show all 202 drives)")
-            b.wait_not_in_text("#drives", "Show all")
-            b.wait_js_cond('ph_select("#drives .sidepanel-row").length == 202')
+            b.click(self.card_button("Storage", f"Show all {n_rows + 200} rows"))
+            b.wait(lambda: count_rows() == n_rows + 200)
 
 
 if __name__ == '__main__':

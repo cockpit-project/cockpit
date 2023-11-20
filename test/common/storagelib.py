@@ -124,109 +124,6 @@ class StorageHelpers:
         # the removal trips up PCP and our usage graphs
         self.allow_browser_errors("direct: instance name lookup failed.*")
 
-    def devices_dropdown(self, title):
-        self.browser.click("#devices .pf-v5-c-dropdown button.pf-v5-c-dropdown__toggle")
-        self.browser.click(f"#devices .pf-v5-c-dropdown a:contains('{title}')")
-
-    # Content
-
-    def content_row_tbody(self, index):
-        return f"#detail-content > .pf-v5-c-card > div > table > tbody:nth-of-type({index})"
-
-    def content_row_expand(self, index):
-        b = self.browser
-        tbody = self.content_row_tbody(index)
-        b.wait_visible(tbody)
-        if "pf-m-expanded" not in (b.attr(tbody, "class") or ""):
-            b.click(tbody + " tr td.pf-v5-c-table__toggle button")
-            b.wait_visible(tbody + ".pf-m-expanded")
-
-    def content_row_action(self, index, title):
-        btn = self.content_row_tbody(index) + f" tr:first-child td button:contains({title})"
-        self.browser.click(btn)
-
-    # The row might come and go a couple of times until it has the
-    # expected content.  However, wait_in_text can not deal with a
-    # temporarily disappearing element, so we use self.retry.
-
-    def content_row_wait_in_col(self, row_index, col_index, val, alternate_val=None):
-        col = self.content_row_tbody(row_index) + f" tr:first-child > :nth-child({col_index + 1}"
-        wait(lambda: self.browser.is_present(col) and (val in self.browser.text(col) or (alternate_val and alternate_val in self.browser.text(col))))
-
-    def content_dropdown_action(self, index, title):
-        dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-v5-c-dropdown"
-        btn = dropdown + f" a:contains('{title}')"
-
-        def step():
-            try:
-                if not self.browser.is_present(btn):
-                    self.browser.click(dropdown + " button.pf-v5-c-dropdown__toggle")
-                    self.browser.wait_visible(btn)
-                self.browser.click(btn)
-                return True
-            except Error:
-                return False
-
-        self.browser.wait(step)
-
-    def content_tab_expand(self, row_index, tab_index):
-        tab_btn = self.content_row_tbody(row_index) + " .pf-v5-c-tabs ul li:nth-child(%d) button" % tab_index
-        tab = self.content_row_tbody(row_index) + " .ct-listing-panel-body[data-key='%d']" % (tab_index - 1)
-        self.content_row_expand(row_index)
-        self.browser.click(tab_btn)
-        self.browser.wait_visible(tab)
-        return tab
-
-    def retry_in_content_tab(self, row_index, tab_index, func):
-        def step():
-            try:
-                # We want anything in FUNC to fail really
-                # fast. Otherwise we have to wait really long for
-                # actual failures.
-                with self.browser.wait_timeout(0):
-                    tab = self.content_tab_expand(row_index, tab_index)
-                    func(tab)
-                    return True
-            except Error:
-                return False
-        self.browser.wait(step)
-
-    def content_tab_action(self, row_index, tab_index, title):
-        def func(tab):
-            btn = tab + f" button:contains({title})"
-            self.browser.wait_attr(btn, "disabled", None)
-            self.browser.click(btn)
-        self.retry_in_content_tab(row_index, tab_index, func)
-
-    def wait_content_tab_action_disabled(self, row_index, tab_index, title):
-        def func(tab):
-            btn = tab + f" button:disabled:contains({title})"
-            self.browser.wait_visible(btn)
-        self.retry_in_content_tab(row_index, tab_index, func)
-
-    def content_tab_wait_in_info(self, row_index, tab_index, title, val=None, alternate_val=None, cond=None):
-        def func(tab):
-            cell = tab + f" dt:contains({title}) + *"
-            if val is not None and val in self.browser.text(cell):
-                return True
-            if alternate_val is not None and alternate_val in self.browser.text(cell):
-                return True
-            if cond is not None and cond(cell):
-                return True
-            raise Error("Info not found")
-        self.retry_in_content_tab(row_index, tab_index, func)
-
-    def content_tab_info_label(self, row_index, tab_index, title):
-        tab = self.content_tab_expand(row_index, tab_index)
-        return tab + f" dt:contains({title})"
-
-    def content_tab_info_action(self, row_index, tab_index, title):
-        def func(tab):
-            label = tab + f" dt:contains({title})"
-            link = label + " + dd button.pf-m-link"
-            self.browser.click(link)
-        self.retry_in_content_tab(row_index, tab_index, func)
-
     # Dialogs
 
     def dialog_wait_open(self):
@@ -429,6 +326,35 @@ class StorageHelpers:
             self.dialog_cancel()
         self.dialog_wait_close()
 
+    def dialog_with_error_retry(self, trigger, errors, values=None, first_setup=None, retry_setup=None, setup=None):
+        def doit():
+            nonlocal first_setup
+            trigger()
+            self.dialog_wait_open()
+            if values:
+                self.dialog_set_vals(values)
+            if first_setup:
+                first_setup()
+                first_setup = None
+            elif retry_setup:
+                retry_setup()
+            elif setup:
+                setup()
+            self.dialog_apply()
+            try:
+                self.dialog_wait_close()
+                return True
+            except Exception:
+                dialog_text = self.browser.text('#dialog .pf-v5-c-alert__title')
+                for err in errors:
+                    if err in dialog_text:
+                        print("WARNING: retrying dialog")
+                        self.dialog_cancel()
+                        self.dialog_wait_close()
+                        return False
+                raise
+        self.browser.wait(doit)
+
     def udisks_objects(self):
         return json.loads(self.machine.execute(["python3", "-c", textwrap.dedent("""
             import dbus, json
@@ -491,16 +417,6 @@ class StorageHelpers:
 
     def assert_in_lvol_child_configuration(self, lvol, tab, field, text):
         self.assertIn(text, self.lvol_child_configuration_field(lvol, tab, field))
-
-    def wait_mounted(self, row, col):
-        with self.browser.wait_timeout(30):
-            self.content_tab_wait_in_info(row, col, "Mount point",
-                                          cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))
-
-    def wait_not_mounted(self, row, col):
-        with self.browser.wait_timeout(30):
-            self.content_tab_wait_in_info(row, col, "Mount point",
-                                          cond=lambda cell: "The filesystem is not mounted" in self.browser.text(cell))
 
     def setup_systemd_password_agent(self, password):
         # This sets up a systemd password agent that replies to all
@@ -631,6 +547,75 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
         m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
         m.wait_reboot(300)
         self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), "/dev/mapper/root-root")
+
+    # Cards and tables
+
+    def card(self, title):
+        return f"[data-test-card-title='{title}']"
+
+    def card_parent_link(self):
+        return ".pf-v5-c-breadcrumb__item:nth-last-child(2) > a"
+
+    def card_header(self, title):
+        return self.card(title) + " .pf-v5-c-card__header"
+
+    def card_row(self, title, index=None, name=None, location=None):
+        if index is not None:
+            return self.card(title) + f" tbody tr:nth-child({index})"
+        elif name is not None:
+            name = name.replace("/dev/", "")
+            return self.card(title) + f" tbody [data-test-row-name='{name}']"
+        else:
+            return self.card(title) + f" tbody [data-test-row-location='{location}']"
+
+    def click_card_row(self, title, index=None, name=None, location=None):
+        # We need to click on a <td> element since that's where the handlers are...
+        self.browser.click(self.card_row(title, index, name, location) + " td:nth-child(1)")
+
+    def card_row_col(self, title, row_index, col_index):
+        return self.card_row(title, row_index) + f" td:nth-child({col_index})"
+
+    def card_desc(self, card_title, desc_title):
+        return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] [data-test-value=true]"
+
+    def card_desc_action(self, card_title, desc_title):
+        return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] [data-test-action=true] button"
+
+    def card_button(self, card_title, button_title):
+        return self.card(card_title) + f" button:contains('{button_title}')"
+
+    def dropdown_toggle(self, parent):
+        return parent + " .pf-v5-c-menu-toggle"
+
+    def dropdown_action(self, parent, title):
+        return parent + f" .pf-v5-c-menu button:contains('{title}')"
+
+    def dropdown_description(self, parent, title):
+        return parent + f" .pf-v5-c-menu button:contains('{title}') .pf-v5-c-menu__item-description"
+
+    def click_dropdown(self, parent, title):
+        self.browser.click(self.dropdown_toggle(parent))
+        self.browser.click(self.dropdown_action(parent, title))
+
+    def click_card_dropdown(self, card_title, button_title):
+        self.click_dropdown(self.card_header(card_title), button_title)
+
+    def click_devices_dropdown(self, title):
+        self.click_card_dropdown("Storage", title)
+
+    def wait_mounted(self, card_title):
+        with self.browser.wait_timeout(30):
+            self.browser.wait_not_in_text(self.card_desc(card_title, "Mount point"),
+                                          "The filesystem is not mounted.")
+
+    def wait_not_mounted(self, card_title):
+        with self.browser.wait_timeout(30):
+            self.browser.wait_in_text(self.card_desc(card_title, "Mount point"),
+                                      "The filesystem is not mounted.")
+
+    def wait_card_button_disabled(self, card_title, button_title):
+        with self.browser.wait_timeout(30):
+            self.browser.wait_visible(self.card_button(card_title, button_title) + ":disabled")
 
 
 class StorageCase(MachineCase, StorageHelpers):

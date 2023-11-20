@@ -1213,7 +1213,7 @@ BEGIN {{
             b.enter_page("/storage")
             # weird -- storage page does not show transient mount points, only permanent ones; so check for the device
             dev = m.execute("findmnt --noheadings -o SOURCE /var/cockpittest").strip()
-            b.wait_in_text("#mounts", dev)
+            b.wait_in_text('[data-test-card-title="Storage"]', dev.replace("/dev/", ""))
 
             b.go("/metrics")
             b.enter_page("/metrics")

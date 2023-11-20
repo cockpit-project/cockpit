@@ -245,6 +245,10 @@ export function block_name(block) {
     return decode_filename(block.PreferredDevice);
 }
 
+export function block_short_name(block) {
+    return block_name(block).replace(/^\/dev\//, "");
+}
+
 export function mdraid_name(mdraid) {
     if (!mdraid.Name)
         return "";
@@ -326,7 +330,7 @@ export function get_block_link_parts(client, path) {
     let location, link;
     if (client.mdraids[block.MDRaid]) {
         location = ["mdraid", client.mdraids[block.MDRaid].UUID];
-        link = cockpit.format(_("RAID device $0"), mdraid_name(client.mdraids[block.MDRaid]));
+        link = cockpit.format(_("MDRAID device $0"), mdraid_name(client.mdraids[block.MDRaid]));
     } else if (client.blocks_lvm2[path] &&
                client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
                client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
@@ -339,7 +343,7 @@ export function get_block_link_parts(client, path) {
             location = ["vdo", vdo.name];
             link = cockpit.format(_("VDO device $0"), vdo.name);
         } else {
-            location = [block_name(block).replace(/^\/dev\//, "")];
+            location = [block_short_name(block)];
             if (client.drives[block.Drive])
                 link = drive_name(client.drives[block.Drive]);
             else
@@ -451,56 +455,55 @@ export function get_partitions(client, block) {
     return process_level(0, 0, block.Size);
 }
 
-export function get_available_spaces(client) {
-    function is_free(path) {
-        const block = client.blocks[path];
-        const block_ptable = client.blocks_ptable[path];
-        const block_part = client.blocks_part[path];
-        const block_pvol = client.blocks_pvol[path];
+export function is_available_block(client, block, honor_ignore_hint) {
+    const block_ptable = client.blocks_ptable[block.path];
+    const block_part = client.blocks_part[block.path];
+    const block_pvol = client.blocks_pvol[block.path];
 
-        function has_fs_label() {
-            if (!block.IdUsage)
-                return false;
-            // Devices with a LVM2_member label need to actually be
-            // associated with a volume group.
-            if (block.IdType == 'LVM2_member' && (!block_pvol || !client.vgroups[block_pvol.VolumeGroup]))
-                return false;
-            return true;
-        }
-
-        function is_mpath_member() {
-            if (!client.drives[block.Drive])
-                return false;
-            if (!client.drives_block[block.Drive]) {
-                // Broken multipath drive
-                return true;
-            }
-            const members = client.drives_multipath_blocks[block.Drive];
-            for (let i = 0; i < members.length; i++) {
-                if (members[i] == block)
-                    return true;
-            }
+    function has_fs_label() {
+        if (!block.IdUsage)
             return false;
-        }
-
-        function is_vdo_backing_dev() {
-            return !!client.legacy_vdo_overlay.find_by_backing_block(block);
-        }
-
-        function is_swap() {
-            return !!block && client.blocks_swap[path];
-        }
-
-        return (!block.HintIgnore &&
-                block.Size > 0 &&
-                !has_fs_label() &&
-                !is_mpath_member() &&
-                !is_vdo_backing_dev() &&
-                !is_swap() &&
-                !block_ptable &&
-                !(block_part && block_part.IsContainer));
+        // Devices with a LVM2_member label need to actually be
+        // associated with a volume group.
+        if (block.IdType == 'LVM2_member' && (!block_pvol || !client.vgroups[block_pvol.VolumeGroup]))
+            return false;
+        return true;
     }
 
+    function is_mpath_member() {
+        if (!client.drives[block.Drive])
+            return false;
+        if (!client.drives_block[block.Drive]) {
+            // Broken multipath drive
+            return true;
+        }
+        const members = client.drives_multipath_blocks[block.Drive];
+        for (let i = 0; i < members.length; i++) {
+            if (members[i] == block)
+                return true;
+        }
+        return false;
+    }
+
+    function is_vdo_backing_dev() {
+        return !!client.legacy_vdo_overlay.find_by_backing_block(block);
+    }
+
+    function is_swap() {
+        return !!block && client.blocks_swap[block.path];
+    }
+
+    return (!(block.HintIgnore && honor_ignore_hint) &&
+            block.Size > 0 &&
+            !has_fs_label() &&
+            !is_mpath_member() &&
+            !is_vdo_backing_dev() &&
+            !is_swap() &&
+            !block_ptable &&
+            !(block_part && block_part.IsContainer));
+}
+
+export function get_available_spaces(client) {
     function make(path) {
         const block = client.blocks[path];
         const parts = get_block_link_parts(client, path);
@@ -508,7 +511,7 @@ export function get_available_spaces(client) {
         return { type: 'block', block, size: block.Size, desc: text };
     }
 
-    const spaces = Object.keys(client.blocks).filter(is_free)
+    const spaces = Object.keys(client.blocks).filter(p => is_available_block(client, client.blocks[p], true))
             .sort(make_block_path_cmp(client))
             .map(make);
 
@@ -854,8 +857,8 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                 usage: 'mdraid-member',
                 block,
                 mdraid,
-                location: mdraid_name(mdraid.Name),
-                actions: get_actions(_("remove from RAID")),
+                location: mdraid_name(mdraid),
+                actions: get_actions(_("remove from MDRAID")),
                 blocking: !(active_state && active_state[1] < 0)
             });
         } else if (vgroup) {

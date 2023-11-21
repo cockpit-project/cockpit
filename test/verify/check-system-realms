@@ -371,7 +371,19 @@ class CommonTests:
         with b.wait_timeout(300):
             b.wait_not_present("#realms-join-dialog")
         b.logout()
-        m.execute('while ! id alice; do sleep 5; done', timeout=300)
+        try:
+            m.execute('while ! id alice; do sleep 5; done', timeout=300)
+        except RuntimeError as e:
+            # HACK: https://github.com/samba-in-kubernetes/samba-container/issues/160
+            # if this fails to set up, try again ; we can just join with the CLI, cockpit doesn't
+            # do anything extra for AD
+            print("AD setup failed, retrying:", e)
+            if self.__class__ == TestAD:
+                m.execute("realm leave")
+                m.execute(f"echo {self.admin_password}| realm join -vU {self.admin_user} cockpit.lan")
+                m.execute('while ! id alice; do sleep 5; done', timeout=300)
+            else:
+                raise
 
         # alice's certificate was written by testClientCertAuthentication()
         alice_cert_key = ['--cert', "/var/tmp/alice.pem", '--key', "/var/tmp/alice.key"]

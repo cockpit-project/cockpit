@@ -774,6 +774,18 @@ export const SelectSpaces = (tag, title, options) => {
                                 change(val.filter(v => (v != spc)));
                         };
 
+                        const datalistcells = (
+                            <DataListItemCells
+                                            dataListCells={[
+                                                <DataListCell key="select-space-name" className="select-space-name">
+                                                    {format_size_and_text(spc.size, desc)}
+                                                </DataListCell>,
+                                                <DataListCell alignRight isFilled={false} key="select-space-details" className="select-space-details">
+                                                    {block}
+                                                </DataListCell>,
+                                            ]}
+                            />);
+
                         return (
                             <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
                                 <DataListItemRow>
@@ -783,16 +795,7 @@ export const SelectSpaces = (tag, title, options) => {
                                                    isChecked={selected} onChange={on_change} />
                                     <label htmlFor={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
                                            className='data-list-row-checkbox-label'>
-                                        <DataListItemCells
-                                            dataListCells={[
-                                                <DataListCell key="select-space-name" className="select-space-name">
-                                                    {format_size_and_text(spc.size, desc)}
-                                                </DataListCell>,
-                                                <DataListCell alignRight isFilled={false} key="select-space-details" className="select-space-details">
-                                                    {block}
-                                                </DataListCell>,
-                                            ]}
-                                        />
+                                        {datalistcells}
                                     </label>
                                 </DataListItemRow>
                             </DataListItem>

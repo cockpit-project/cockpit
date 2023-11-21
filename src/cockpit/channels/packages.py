@@ -35,7 +35,7 @@ class PackagesChannel(AsyncChannel):
 
     def http_error(self, status: int, message: str) -> None:
         template = read_cockpit_data_file('fail.html')
-        self.send_message(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
+        self.send_json(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
         self.send_data(template.replace(b'@@message@@', message.encode('utf-8')))
         self.done()
         self.close()
@@ -58,7 +58,7 @@ class PackagesChannel(AsyncChannel):
             # Note: we can't cache documents right now.  See
             # https://github.com/cockpit-project/cockpit/issues/19071
             # for future plans.
-            out_headers = {
+            out_headers: JsonObject = {
                 'Cache-Control': 'no-cache, no-store',
                 'Content-Type': document.content_type,
             }
@@ -97,5 +97,5 @@ class PackagesChannel(AsyncChannel):
             self.http_error(500, f'Internal error: {exc!s}')
 
         else:
-            self.send_message(status=200, reason='OK', headers=out_headers)
+            self.send_json(status=200, reason='OK', headers=out_headers)
             await self.sendfile(document.data)

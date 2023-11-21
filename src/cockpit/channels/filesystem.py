@@ -61,7 +61,7 @@ class FsListChannel(Channel):
         else:
             mode = 'special'
 
-        self.send_message(event=event, path=entry.name, type=mode)
+        self.send_json(event=event, path=entry.name, type=mode)
 
     def do_open(self, options):
         path = options.get('path')
@@ -239,20 +239,20 @@ class FsWatchChannel(Channel):
             # file inside watched directory changed
             path = os.path.join(self._path, name.decode())
             tag = tag_from_path(path)
-            self.send_message(event=event, path=path, tag=tag, type=type_)
+            self.send_json(event=event, path=path, tag=tag, type=type_)
         else:
             # the watched path itself changed; filter out duplicate events
             tag = tag_from_path(self._path)
             if tag == self._tag:
                 return
             self._tag = tag
-            self.send_message(event=event, path=self._path, tag=self._tag, type=type_)
+            self.send_json(event=event, path=self._path, tag=self._tag, type=type_)
 
     def do_identity_changed(self, fd, err):
         logger.debug("do_identity_changed(%s): fd %s, err %s", self._path, str(fd), err)
         self._tag = tag_from_fd(fd) if fd else '-'
         if self._active:
-            self.send_message(event='created' if fd else 'deleted', path=self._path, tag=self._tag)
+            self.send_json(event='created' if fd else 'deleted', path=self._path, tag=self._tag)
 
     def do_open(self, options):
         self._path = options['path']

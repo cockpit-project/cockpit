@@ -222,7 +222,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         self._init_task = asyncio.create_task(self.go(name, responder))
         self._init_task.add_done_callback(self._init_done)
 
-    def _init_done(self, task):
+    def _init_done(self, task: 'asyncio.Task[None]') -> None:
         logger.debug('superuser init done! %s', task.exception())
         self.router.write_control(command='superuser-init-done')
         del self._init_task

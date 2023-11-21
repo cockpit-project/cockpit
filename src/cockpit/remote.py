@@ -110,7 +110,7 @@ class SshPeer(Peer):
                 # containing the key that would need to be accepted.  That will
                 # cause the front-end to present a dialog.
                 _reason, host, algorithm, key, fingerprint = responder.hostkeys_seen[0]
-                error_args = {'host_key': f'{host} {algorithm} {key}', 'host_fingerprint': fingerprint}
+                error_args: JsonObject = {'host-key': f'{host} {algorithm} {key}', 'host-fingerprint': fingerprint}
             else:
                 error_args = {}
 
@@ -124,12 +124,12 @@ class SshPeer(Peer):
 
             logger.debug('SshPeer got a %s %s; private %s, seen hostkeys %r; raising %s with extra args %r',
                          type(exc), exc, self.private, responder.hostkeys_seen, error, error_args)
-            raise PeerError(error, error=error, auth_method_results={}, **error_args) from exc
+            raise PeerError(error, error_args, error=error, auth_method_results={}) from exc
 
         except ferny.SshAuthenticationError as exc:
             logger.debug('authentication to host %s failed: %s', host, exc)
 
-            results = {method: 'not-provided' for method in exc.methods}
+            results: JsonObject = {method: 'not-provided' for method in exc.methods}
             if 'password' in results and self.password is not None:
                 if responder.password_attempts == 0:
                     results['password'] = 'not-tried'

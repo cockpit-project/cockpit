@@ -16,10 +16,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
+import json
 import logging
 from typing import BinaryIO, ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
 
-from .jsonutil import JsonError, JsonObject, get_bool, get_str
+from .jsonutil import JsonDocument, JsonError, JsonObject, create_object, get_bool, get_str
 from .router import Endpoint, Router, RoutingRule
 
 logger = logging.getLogger(__name__)
@@ -276,14 +277,17 @@ class Channel(Endpoint):
         """Called to indicate that the channel may start sending again."""
         # change to `raise NotImplementedError` after everyone implements it
 
-    def send_message(self, **kwargs):
-        self.send_channel_message(self.channel, **kwargs)
+    json_encoder: ClassVar[json.JSONEncoder] = json.JSONEncoder(indent=2)
 
-    def send_control(self, command, **kwargs):
-        self.send_channel_control(self.channel, command=command, **kwargs)
+    def send_json(self, **kwargs: JsonDocument) -> bool:
+        pretty = self.json_encoder.encode(create_object(None, kwargs)) + '\n'
+        return self.send_data(pretty.encode())
 
-    def send_pong(self, message):
-        self.send_channel_control(**dict(message, command='pong'))
+    def send_control(self, command: str, **kwargs: JsonDocument) -> None:
+        self.send_channel_control(self.channel, command, None, **kwargs)
+
+    def send_pong(self, message: JsonObject) -> None:
+        self.send_channel_control(self.channel, 'pong', message)
 
 
 class ProtocolChannel(Channel, asyncio.Protocol):

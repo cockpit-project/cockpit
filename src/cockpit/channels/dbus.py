@@ -41,6 +41,7 @@ import logging
 import traceback
 import xml.etree.ElementTree as ET
 
+from cockpit._vendor import systemd_ctypes
 from cockpit._vendor.systemd_ctypes import Bus, BusError, introspection
 
 from ..channel import Channel, ChannelError
@@ -166,6 +167,7 @@ def notify_update(notify, path, interface_name, props):
 
 
 class DBusChannel(Channel):
+    json_encoder = systemd_ctypes.JSONEncoder(indent=2)
     payload = 'dbus-json3'
 
     matches = None
@@ -179,7 +181,7 @@ class DBusChannel(Channel):
             # notifications. cockpit.js relies on that.
             if self.owner != owner:
                 self.owner = owner
-                self.send_message(owner=owner)
+                self.send_json(owner=owner)
 
         def handler(message):
             name, old, new = message.get_body()
@@ -207,7 +209,7 @@ class DBusChannel(Channel):
                                                      "StartServiceByName", "su", self.name, 0)
                 except BusError as start_error:
                     logger.debug("Failed to start service '%s': %s", self.name, start_error.message)
-                    self.send_message(owner=None)
+                    self.send_json(owner=None)
             else:
                 logger.debug("Failed to get owner of service '%s': %s", self.name, error.message)
         else:
@@ -325,15 +327,17 @@ class DBusChannel(Channel):
                 logger.debug('Doing introspection request for %s %s', iface, method)
                 signature = await self.cache.get_signature(iface, method, self.bus, self.name, path)
             except BusError as error:
-                self.send_message(error=[error.name, [f'Introspection: {error.message}']], id=cookie)
+                self.send_json(error=[error.name, [f'Introspection: {error.message}']], id=cookie)
                 return
             except KeyError:
-                self.send_message(error=["org.freedesktop.DBus.Error.UnknownMethod",
-                                         [f"Introspection data for method {iface} {method} not available"]],
-                                  id=cookie)
+                self.send_json(
+                    error=[
+                        "org.freedesktop.DBus.Error.UnknownMethod",
+                        [f"Introspection data for method {iface} {method} not available"]],
+                    id=cookie)
                 return
             except Exception as exc:
-                self.send_message(error=['python.error', [f'Introspection: {exc!s}']], id=cookie)
+                self.send_json(error=['python.error', [f'Introspection: {exc!s}']], id=cookie)
                 return
 
         try:
@@ -343,15 +347,16 @@ class DBusChannel(Channel):
             # watch processing, wait for that to be done.
             async with self.watch_processing_lock:
                 # TODO: stop hard-coding the endian flag here.
-                self.send_message(reply=[reply.get_body()], id=cookie,
-                                  flags="<" if flags is not None else None,
-                                  type=reply.get_signature(True))  # noqa: FBT003
+                self.send_json(
+                    reply=[reply.get_body()], id=cookie,
+                    flags="<" if flags is not None else None,
+                    type=reply.get_signature(True))  # noqa: FBT003
         except BusError as error:
             # actually, should send the fields from the message body
-            self.send_message(error=[error.name, [error.message]], id=cookie)
+            self.send_json(error=[error.name, [error.message]], id=cookie)
         except Exception:
             logger.exception("do_call(%s): generic exception", message)
-            self.send_message(error=['python.error', [traceback.format_exc()]], id=cookie)
+            self.send_json(error=['python.error', [traceback.format_exc()]], id=cookie)
 
     async def do_add_match(self, message):
         add_match = message['add-match']
@@ -360,7 +365,7 @@ class DBusChannel(Channel):
         async def match_hit(message):
             logger.debug('got match')
             async with self.watch_processing_lock:
-                self.send_message(signal=[
+                self.send_json(signal=[
                     message.get_path(),
                     message.get_interface(),
                     message.get_member(),
@@ -388,14 +393,14 @@ class DBusChannel(Channel):
                             if mm:
                                 meta.update({name: mm})
                             notify_update(notify, path, name, props)
-                    self.send_message(meta=meta)
-                    self.send_message(notify=notify)
+                    self.send_json(meta=meta)
+                    self.send_json(notify=notify)
             elif member == "InterfacesRemoved":
                 (path, interfaces) = message.get_body()
                 logger.debug('interfaces removed %s %s', path, interfaces)
                 async with self.watch_processing_lock:
                     notify = {path: {name: None for name in interfaces}}
-                    self.send_message(notify=notify)
+                    self.send_json(notify=notify)
 
         self.add_async_signal_handler(handler,
                                       path=path,
@@ -432,7 +437,7 @@ class DBusChannel(Channel):
                     props[inv] = reply
                 notify = {}
                 notify_update(notify, path, name, props)
-                self.send_message(notify=notify)
+                self.send_json(notify=notify)
 
         this_meta = await self.cache.introspect_path(self.bus, self.name, path)
         if interface_name is not None:
@@ -471,8 +476,8 @@ class DBusChannel(Channel):
 
         if path is None or cookie is None:
             logger.debug('ignored incomplete watch request %s', message)
-            self.send_message(error=['x.y.z', ['Not Implemented']], id=cookie)
-            self.send_message(reply=[], id=cookie)
+            self.send_json(error=['x.y.z', ['Not Implemented']], id=cookie)
+            self.send_json(reply=[], id=cookie)
             return
 
         try:
@@ -482,12 +487,12 @@ class DBusChannel(Channel):
                 await self.setup_path_watch(path, interface_name, recursive, meta, notify)
                 if recursive:
                     await self.setup_objectmanager_watch(path, interface_name, meta, notify)
-                self.send_message(meta=meta)
-                self.send_message(notify=notify)
-                self.send_message(reply=[], id=message['id'])
+                self.send_json(meta=meta)
+                self.send_json(notify=notify)
+                self.send_json(reply=[], id=message['id'])
         except BusError as error:
             logger.debug("do_watch(%s) caught D-Bus error: %s", message, error.message)
-            self.send_message(error=[error.name, [error.message]], id=cookie)
+            self.send_json(error=[error.name, [error.message]], id=cookie)
 
     async def do_meta(self, message):
         self.cache.inject(message['meta'])

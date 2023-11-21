@@ -118,7 +118,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         if init_host is not None:
             logger.debug('  sending init message back, host %s', init_host)
             # Send "init" back
-            self.write_control(command='init', version=1, host=init_host, **kwargs)
+            self.write_control(None, command='init', version=1, host=init_host, **kwargs)
 
             # Thaw the queued messages
             self.thaw_endpoint()
@@ -182,7 +182,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
             else:
                 self.shutdown_endpoint(problem='terminated', message=f'Peer exited with status {exc.exit_code}')
         elif isinstance(exc, CockpitProblem):
-            self.shutdown_endpoint(problem=exc.problem, **exc.kwargs)
+            self.shutdown_endpoint(exc.attrs)
         else:
             self.shutdown_endpoint(problem='internal-error',
                                    message=f"[{exc.__class__.__name__}] {exc!s}")
@@ -209,7 +209,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
     def channel_control_received(self, channel: str, command: str, message: JsonObject) -> None:
         if self.init_future is not None:
             raise CockpitProtocolError('Received unexpected channel control message before init')
-        self.send_channel_control(**message)
+        self.send_channel_control(channel, command, message)
 
     def channel_data_received(self, channel: str, data: bytes) -> None:
         if self.init_future is not None:
@@ -219,7 +219,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
     # Forwarding data: from the router to the peer
     def do_channel_control(self, channel: str, command: str, message: JsonObject) -> None:
         assert self.init_future is None
-        self.write_control(**message)
+        self.write_control(message)
 
     def do_channel_data(self, channel: str, data: bytes) -> None:
         assert self.init_future is None

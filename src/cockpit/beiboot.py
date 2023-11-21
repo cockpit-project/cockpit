@@ -281,7 +281,7 @@ class SshBridge(Router):
         if isinstance(message.get('superuser'), dict):
             self.write_control(command='superuser-init-done')
         message['superuser'] = False
-        self.ssh_peer.write_control(**message)
+        self.ssh_peer.write_control(message)
 
 
 async def run(args) -> None:
@@ -306,12 +306,12 @@ async def run(args) -> None:
         if bridge.packages:
             message['packages'] = {p: None for p in bridge.packages.packages}
 
-        bridge.write_control(**message)
+        bridge.write_control(message)
         bridge.ssh_peer.thaw_endpoint()
     except ferny.InteractionError as exc:
         sys.exit(str(exc))
     except CockpitProblem as exc:
-        bridge.write_control(command='init', problem=exc.problem, **exc.kwargs)
+        bridge.write_control(exc.attrs, command='init')
         return
 
     logger.debug('Startup done.  Looping until connection closes.')

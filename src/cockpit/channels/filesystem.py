@@ -198,7 +198,7 @@ class FsReplaceChannel(Channel):
             self._tempfile = None
 
         self.done()
-        self.close(tag=tag_from_path(self._path))
+        self.close({'tag': tag_from_path(self._path)})
 
     def do_close(self):
         if self._tempfile is not None:

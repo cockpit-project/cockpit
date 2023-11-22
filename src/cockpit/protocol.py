@@ -38,10 +38,11 @@ class CockpitProblem(Exception):
     It is usually thrown in response to some violation of expected protocol
     when parsing messages, connecting to a peer, or opening a channel.
     """
+    attrs: JsonObject
+
     def __init__(self, problem: str, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
         self.attrs = create_object(_msg, kwargs)
         self.attrs['problem'] = problem
-        self.problem = problem
         super().__init__(get_str(self.attrs, 'message', problem))
 
 

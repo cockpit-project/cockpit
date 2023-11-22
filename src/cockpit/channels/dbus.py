@@ -261,7 +261,7 @@ class DBusChannel(Channel):
                     if self.owner:
                         self.ready(unique_name=self.owner)
                     else:
-                        self.close(problem="not-found")
+                        self.close({'problem': 'not-found'})
             self.create_task(get_ready())
         else:
             self.ready()

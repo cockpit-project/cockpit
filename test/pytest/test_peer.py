@@ -210,5 +210,5 @@ async def test_spawn_broken_pipe(bridge):
     peer = BrokenPipePeer(specific_error=True)
     with pytest.raises(ChannelError) as raises:
         await peer.start()
-    assert raises.value.kwargs == {'message': 'kaputt', 'problem': 'not-supported'}
+    assert raises.value.attrs == {'message': 'kaputt', 'problem': 'not-supported'}
     peer.close()

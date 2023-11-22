@@ -21,6 +21,7 @@ import logging
 from typing import BinaryIO, ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
 
 from .jsonutil import JsonDocument, JsonError, JsonObject, create_object, get_bool, get_str
+from .protocol import CockpitProblem
 from .router import Endpoint, Router, RoutingRule
 
 logger = logging.getLogger(__name__)
@@ -77,10 +78,8 @@ class ChannelRoutingRule(RoutingRule):
         pass  # we don't hold any state
 
 
-class ChannelError(Exception):
-    def __init__(self, problem, **kwargs):
-        super().__init__(f'ChannelError {problem}')
-        self.kwargs = dict(kwargs, problem=problem)
+class ChannelError(CockpitProblem):
+    pass
 
 
 class Channel(Endpoint):
@@ -131,19 +130,19 @@ class Channel(Endpoint):
         elif command == 'options':
             self.do_options(message)
 
-    def do_channel_control(self, channel, command, message):
+    def do_channel_control(self, channel: str, command: str, message: JsonObject) -> None:
         # Already closing?  Ignore.
         if self._close_args is not None:
             return
 
         # Catch errors and turn them into close messages
         try:
-            self.do_control(command, message)
+            try:
+                self.do_control(command, message)
+            except JsonError as exc:
+                raise ChannelError('protocol-error', message=str(exc)) from exc
         except ChannelError as exc:
-            self.close(**exc.kwargs)
-        except JsonError as exc:
-            logger.warning("%s %s %s: %s", self, channel, command, exc)
-            self.close(problem='protocol-error', message=str(exc))
+            self.close(exc.attrs)
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
         # Already closing?  Ignore.
@@ -157,27 +156,27 @@ class Channel(Endpoint):
         self.do_close()
 
     # At least this one really ought to be implemented...
-    def do_open(self, options):
+    def do_open(self, options: JsonObject) -> None:
         raise NotImplementedError
 
     # ... but many subclasses may reasonably want to ignore some of these.
-    def do_ready(self):
+    def do_ready(self) -> None:
         pass
 
-    def do_done(self):
+    def do_done(self) -> None:
         pass
 
-    def do_close(self):
+    def do_close(self) -> None:
         self.close()
 
-    def do_options(self, message):
+    def do_options(self, message: JsonObject) -> None:
         raise ChannelError('not-supported', message='This channel does not implement "options"')
 
     # 'reasonable' default, overridden in other channels for receive-side flow control
-    def do_ping(self, message):
+    def do_ping(self, message: JsonObject) -> None:
         self.send_pong(message)
 
-    def do_channel_data(self, channel, data):
+    def do_channel_data(self, channel: str, data: bytes) -> None:
         # Already closing?  Ignore.
         if self._close_args is not None:
             return
@@ -186,26 +185,26 @@ class Channel(Endpoint):
         try:
             self.do_data(data)
         except ChannelError as exc:
-            self.close(**exc.kwargs)
+            self.close(exc.attrs)
 
-    def do_data(self, _data):
+    def do_data(self, _data: bytes) -> None:
         # By default, channels can't receive data.
         self.close()
 
     # output
-    def ready(self, **kwargs):
+    def ready(self, **kwargs: JsonDocument) -> None:
         self.thaw_endpoint()
         self.send_control(command='ready', **kwargs)
 
-    def done(self):
+    def done(self) -> None:
         self.send_control(command='done')
 
     # tasks and close management
     def is_closing(self) -> bool:
         return self._close_args is not None
 
-    def _close_now(self):
-        self.shutdown_endpoint(**self._close_args)
+    def _close_now(self) -> None:
+        self.shutdown_endpoint(self._close_args)
 
     def _task_done(self, task):
         # Strictly speaking, we should read the result and check for exceptions but:
@@ -228,7 +227,7 @@ class Channel(Endpoint):
         task.add_done_callback(self._task_done)
         return task
 
-    def close(self, **kwargs):
+    def close(self, close_args: 'JsonObject | None' = None) -> None:
         """Requests the channel to be closed.
 
         After you call this method, you won't get anymore `.do_*()` calls.
@@ -239,7 +238,7 @@ class Channel(Endpoint):
         if self._close_args is not None:
             # close already requested
             return
-        self._close_args = kwargs
+        self._close_args = close_args or {}
         if not self._tasks:
             self._close_now()
 
@@ -323,24 +322,24 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         """
         raise NotImplementedError
 
-    def do_open(self, options):
+    def do_open(self, options: JsonObject) -> None:
         loop = asyncio.get_running_loop()
         self._create_transport_task = asyncio.create_task(self.create_transport(loop, options))
         self._create_transport_task.add_done_callback(self.create_transport_done)
 
-    def create_transport_done(self, task):
+    def create_transport_done(self, task: 'asyncio.Task[asyncio.Transport]') -> None:
         assert task is self._create_transport_task
         self._create_transport_task = None
         try:
             transport = task.result()
         except ChannelError as exc:
-            self.close(**exc.kwargs)
+            self.close(exc.attrs)
             return
 
         self.connection_made(transport)
         self.ready()
 
-    def connection_made(self, transport: asyncio.BaseTransport):
+    def connection_made(self, transport: asyncio.BaseTransport) -> None:
         assert isinstance(transport, asyncio.Transport)
         self._transport = transport
 
@@ -348,7 +347,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         return {}
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
-        self.close(**self._get_close_args())
+        self.close(self._get_close_args())
 
     def do_data(self, data: bytes) -> None:
         assert self._transport is not None
@@ -449,7 +448,7 @@ class AsyncChannel(Channel):
             await self.run(options)
             self.close()
         except ChannelError as exc:
-            self.close(**exc.kwargs)
+            self.close(exc.attrs)
 
     async def read(self):
         while True:
@@ -525,4 +524,4 @@ class GeneratorChannel(Channel):
                 pass
         except StopIteration as stop:
             self.done()
-            self.close(**stop.value or {})
+            self.close(stop.value)

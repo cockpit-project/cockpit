@@ -20,7 +20,7 @@ import logging
 from typing import Dict, List, Optional
 
 from .jsonutil import JsonDocument, JsonObject
-from .protocol import CockpitProtocolError, CockpitProtocolServer
+from .protocol import CockpitProblem, CockpitProtocolError, CockpitProtocolServer
 
 logger = logging.getLogger(__name__)
 
@@ -104,10 +104,8 @@ class Endpoint:
         self.router.shutdown_endpoint(self, _msg, **kwargs)
 
 
-class RoutingError(Exception):
-    def __init__(self, problem, **kwargs):
-        self.problem = problem
-        self.kwargs = kwargs
+class RoutingError(CockpitProblem):
+    pass
 
 
 class RoutingRule:
@@ -194,7 +192,7 @@ class Router(CockpitProtocolServer):
                 logger.debug('Trying to find endpoint for new channel %s payload=%s', channel, message.get('payload'))
                 endpoint = self.check_rules(message)
             except RoutingError as exc:
-                self.write_control(command='close', channel=channel, problem=exc.problem, **exc.kwargs)
+                self.write_control(exc.attrs, command='close', channel=channel)
                 return
 
             self.open_channels[channel] = endpoint

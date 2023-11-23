@@ -323,7 +323,7 @@ export class KpatchSettings extends React.Component {
 }
 
 KpatchSettings.propTypes = {
-    privileged: PropTypes.bool.isRequired,
+    privileged: PropTypes.bool,
 };
 
 export class KpatchStatus extends React.Component {

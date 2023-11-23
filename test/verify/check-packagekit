@@ -1421,6 +1421,7 @@ class TestAutoUpdates(NoSubManCase):
         # not implemented for yum and apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]
         if self.backend == 'dnf':
+            self.restore_file("/etc/dnf/automatic.conf")
             self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic-install.timer 2>/dev/null; rm -rf /etc/systemd/system/dnf-automatic-*")
 
     def closeSettings(self, browser):
@@ -1461,7 +1462,15 @@ class TestAutoUpdates(NoSubManCase):
             # automatic reboots should be enabled whenever timer is enabled
             out = m.execute("systemctl cat dnf-automatic-install.service")
             if hour:
-                self.assertRegex(out, "ExecStartPost=/.*shutdown")
+                if m.image.startswith("rhel-8") or m.image == "centos-8-stream":
+                    # for RHEL 8, dnf-automatic does not support reboot; we have a unit drop-in hack
+                    self.assertRegex(out, "ExecStartPost=/.*shutdown")
+                    # validate our assumption
+                    self.assertNotIn("reboot", m.execute("cat /etc/dnf/automatic.conf"))
+                else:
+                    # newer dnf supports that natively
+                    self.assertNotIn("ExecStartPost", out)
+                    self.assertIn("reboot = when-needed", m.execute("cat /etc/dnf/automatic.conf"))
             else:
                 self.assertNotIn("ExecStartPost", out)
 
@@ -1605,8 +1614,9 @@ class TestAutoUpdates(NoSubManCase):
         b = self.browser
         m = self.machine
 
-        self.createPackage("vanilla", "1.0", "1", install=True)
-        self.createPackage("vanilla", "1.0", "2")
+        # use a package which dnf recognizes as "needs reboot"
+        self.createPackage("kernel-rt", "1.0", "1", install=True)
+        self.createPackage("kernel-rt", "1.0", "2")
         self.enableRepo()
 
         m.start_cockpit()
@@ -1631,24 +1641,24 @@ class TestAutoUpdates(NoSubManCase):
             self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
             # then manually start the upgrade job like the timer would
             m.execute("systemctl start dnf-automatic-install.service")
-            # new vanilla package got installed, and triggered reboot; cancel that
-            m.execute("test -f /stamp-vanilla-1.0-2")
+            # new kernel-rt package got installed, and triggered reboot; cancel that
+            m.execute("test -f /stamp-kernel-rt-1.0-2")
             m.execute("until test -f /run/nologin; do sleep 1; done")
             m.execute("shutdown -c; test ! -f /run/nologin")
-            # service should show vanilla upgrade and scheduling shutdown
+            # service should show kernel-rt upgrade and scheduling shutdown
             out = m.execute(
-                "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
-            self.assertIn("vanilla", out)
+                "if systemctl status --lines=50 dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
+            self.assertIn("kernel-rt", out)
             # systemd 245.7 correctly says "reboot", older version say "shutdown"
             self.assertRegex(out, "(Shutdown|Reboot) scheduled")
 
             # run it again, now there are no available updates → no reboot
             m.execute("systemctl start dnf-automatic-install.service")
-            m.execute("test -f /stamp-vanilla-1.0-2; test ! -f /run/nologin")
+            m.execute("test -f /stamp-kernel-rt-1.0-2; test ! -f /run/nologin")
             # service should not do much
             out = m.execute(
                 "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
-            self.assertNotIn("vanilla", out)
+            self.assertNotIn("kernel-rt", out)
             self.assertNotIn("Shutdown", out)
         else:
             raise NotImplementedError(self.backend)

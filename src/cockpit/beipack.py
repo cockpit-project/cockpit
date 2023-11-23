@@ -17,15 +17,18 @@
 
 import logging
 import lzma
-from typing import List, Sequence, Tuple
+from typing import TYPE_CHECKING, List, Sequence, Tuple
 
 from cockpit._vendor import ferny
-from cockpit._vendor.bei import beipack
+from cockpit._vendor.bei import beipack, bootloader
 
 from .data import read_cockpit_data_file
-from .peer import Peer, PeerError
+from .protocol import CockpitProblem
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from .peer import Peer
 
 
 def get_bridge_beipack_xz() -> Tuple[str, bytes]:
@@ -33,7 +36,7 @@ def get_bridge_beipack_xz() -> Tuple[str, bytes]:
         bridge_beipack_xz = read_cockpit_data_file('cockpit-bridge.beipack.xz')
         logger.debug('Got pre-built cockpit-bridge.beipack.xz')
     except FileNotFoundError:
-        logger.debug('Pre-built cockpit-bridge.beipack.xz; building our own.')
+        logger.debug('No pre-built cockpit-bridge.beipack.xz; building our own.')
         # beipack ourselves
         cockpit_contents = beipack.collect_module('cockpit', recursive=True)
         bridge_beipack = beipack.pack(cockpit_contents, entrypoint='cockpit.bridge:main', args='beipack=True')
@@ -47,16 +50,19 @@ class BridgeBeibootHelper(ferny.InteractionHandler):
     # ferny.InteractionHandler ClassVar
     commands = ['beiboot.provide', 'beiboot.exc']
 
-    peer: Peer
+    peer: 'Peer'
     payload: bytes
     steps: Sequence[Tuple[str, Sequence[object]]]
 
-    def __init__(self, peer: Peer, args: Sequence[str] = ()) -> None:
+    def __init__(self, peer: 'Peer', args: Sequence[str] = ()) -> None:
         filename, payload = get_bridge_beipack_xz()
 
         self.peer = peer
         self.payload = payload
         self.steps = (('boot_xz', (filename, len(payload), tuple(args))),)
+
+    def get_stage1(self) -> str:
+        return bootloader.make_bootloader(self.steps, gadgets=ferny.BEIBOOT_GADGETS)
 
     async def run_command(self, command: str, args: Tuple, fds: List[int], stderr: str) -> None:
         logger.debug('Got ferny request %s %s %s %s', command, args, fds, stderr)
@@ -65,12 +71,12 @@ class BridgeBeibootHelper(ferny.InteractionHandler):
                 size, = args
                 assert size == len(self.payload)
             except (AssertionError, ValueError) as exc:
-                raise PeerError('internal-error', message=f'ferny interaction error {exc!s}') from exc
+                raise CockpitProblem('internal-error', message=f'ferny interaction error {exc!s}') from exc
 
             assert self.peer.transport is not None
             logger.debug('Writing %d bytes of payload', len(self.payload))
             self.peer.transport.write(self.payload)
         elif command == 'beiboot.exc':
-            raise PeerError('internal-error', message=f'Remote exception: {args[0]}')
+            raise CockpitProblem('internal-error', message=f'Remote exception: {args[0]}')
         else:
-            raise PeerError('internal-error', message=f'Unexpected ferny interaction command {command}')
+            raise CockpitProblem('internal-error', message=f'Unexpected ferny interaction command {command}')

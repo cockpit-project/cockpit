@@ -4,10 +4,10 @@ backend-path = ['src']
 build-backend = 'build_backend'
 
 [tool.mypy]
-mypy_path = 'src:test/common'
+mypy_path = 'src:test/common:bots:bots/machine'
 exclude = '_vendor'
 [[tool.mypy.overrides]]
-module = ["cockpit._vendor.*", "dbus", "gi.*", "task", "vdo.*"]
+module = ["cockpit._vendor.*", "dbus", "gi.*", "task", "vdo.*", "libvirt", "libvirt_qemu"]
 follow_imports = 'silent'
 ignore_missing_imports = true
 

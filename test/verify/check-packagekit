@@ -1412,7 +1412,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         b.wait_in_text("#status", "System is up to date")
 
 
-@testlib.skipOstree
+@testlib.skipOstree("Image uses OSTree")
 @testlib.nondestructive
 class TestAutoUpdates(NoSubManCase):
 

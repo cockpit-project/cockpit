@@ -1627,7 +1627,29 @@ class TestAutoUpdates(NoSubManCase):
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
 
         if self.backend == 'dnf':
-            self.checkUpgradeRebootDnf()
+            # dial down the random sleep to avoid the test having to wait 5 mins
+            self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
+            # then manually start the upgrade job like the timer would
+            m.execute("systemctl start dnf-automatic-install.service")
+            # new vanilla package got installed, and triggered reboot; cancel that
+            m.execute("test -f /stamp-vanilla-1.0-2")
+            m.execute("until test -f /run/nologin; do sleep 1; done")
+            m.execute("shutdown -c; test ! -f /run/nologin")
+            # service should show vanilla upgrade and scheduling shutdown
+            out = m.execute(
+                "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
+            self.assertIn("vanilla", out)
+            # systemd 245.7 correctly says "reboot", older version say "shutdown"
+            self.assertRegex(out, "(Shutdown|Reboot) scheduled")
+
+            # run it again, now there are no available updates → no reboot
+            m.execute("systemctl start dnf-automatic-install.service")
+            m.execute("test -f /stamp-vanilla-1.0-2; test ! -f /run/nologin")
+            # service should not do much
+            out = m.execute(
+                "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
+            self.assertNotIn("vanilla", out)
+            self.assertNotIn("Shutdown", out)
         else:
             raise NotImplementedError(self.backend)
 
@@ -1660,35 +1682,6 @@ class TestAutoUpdates(NoSubManCase):
         b.drop_superuser()
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
         b.wait_visible("#autoupdates-settings button:disabled")
-
-    def checkUpgradeRebootDnf(self):
-        """part of testWithAvailableUpdates() for dnf backend"""
-
-        m = self.machine
-
-        # dial down the random sleep to avoid the test having to wait 5 mins
-        self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
-        # then manually start the upgrade job like the timer would
-        m.execute("systemctl start dnf-automatic-install.service")
-        # new vanilla package got installed, and triggered reboot; cancel that
-        m.execute("test -f /stamp-vanilla-1.0-2")
-        m.execute("until test -f /run/nologin; do sleep 1; done")
-        m.execute("shutdown -c; test ! -f /run/nologin")
-        # service should show vanilla upgrade and scheduling shutdown
-        out = m.execute(
-            "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
-        self.assertIn("vanilla", out)
-        # systemd 245.7 correctly says "reboot", older version say "shutdown"
-        self.assertRegex(out, "(Shutdown|Reboot) scheduled")
-
-        # run it again, now there are no available updates → no reboot
-        m.execute("systemctl start dnf-automatic-install.service")
-        m.execute("test -f /stamp-vanilla-1.0-2; test ! -f /run/nologin")
-        # service should not do much
-        out = m.execute(
-            "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
-        self.assertNotIn("vanilla", out)
-        self.assertNotIn("Shutdown", out)
 
 
 @testlib.skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")

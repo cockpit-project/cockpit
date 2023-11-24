@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import packagelib
 import testlib
 from lib.constants import TEST_OS_DEFAULT
 
@@ -27,54 +26,59 @@ class KdumpHelpers(testlib.MachineCase):
         super().setUp()
         self.allow_restart_journal_messages()
 
-    def enableLocalSsh(self):
-        self.machine.execute("[ -f /root/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa")
-        self.machine.execute("cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys")
-        self.machine.execute("ssh-keyscan -H localhost >> /root/.ssh/known_hosts")
-        self.machine.execute("cat /root/.ssh/id_rsa.pub >> /home/admin/.ssh/authorized_keys; chown admin: /home/admin/.ssh/authorized_keys")
+    def enableLocalSsh(self, machine=None):
+        machine = machine or self.machine
+        machine.execute("[ -f /root/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa")
+        machine.execute("cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys")
+        machine.execute("ssh-keyscan -H localhost >> /root/.ssh/known_hosts")
+        machine.execute("cat /root/.ssh/id_rsa.pub >> /home/admin/.ssh/authorized_keys; chown admin: /home/admin/.ssh/authorized_keys")
 
-    def assertActive(self, active):
-        self.browser.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
+    def assertActive(self, active, browser=None):
+        browser = browser or self.browser
+        browser.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
     def enableKdump(self):
         if self.machine.image.startswith("fedora"):
             self.machine.execute("systemctl enable kdump; kdumpctl reset-crashkernel")
             self.machine.reboot()
 
-    def crashKernel(self, message, cancel=False):
-        b = self.browser
-        b.click("button:contains('Test configuration')")
-        self.browser.wait_in_text(".pf-v5-c-modal-box__body", message)
+    def crashKernel(self, message, cancel=False, machine=None, browser=None):
+        browser = browser or self.browser
+        machine = machine or self.machine
+
+        browser.click("button:contains('Test configuration')")
+        browser.wait_in_text(".pf-v5-c-modal-box__body", message)
         if cancel:
-            b.click(".pf-v5-c-modal-box button:contains('Cancel')")
+            browser.click(".pf-v5-c-modal-box button:contains('Cancel')")
         else:
             # we should get a warning dialog, confirm
-            b.click(f"button{self.danger_btn_class}")
+            browser.click(f"button{self.danger_btn_class}")
             # wait until we've actually triggered a crash
-            b.wait_visible(".apply.pf-m-in-progress")
+            browser.wait_visible(".apply.pf-m-in-progress")
 
             # wait for disconnect and then try connecting again
-            b.switch_to_top()
-            with b.wait_timeout(120):
-                b.wait_in_text("div.curtains-ct h1", "Disconnected")
-            self.machine.disconnect()
-            self.machine.wait_boot(timeout_sec=300)
+            browser.switch_to_top()
+            with browser.wait_timeout(120):
+                browser.wait_in_text("div.curtains-ct h1", "Disconnected")
+            machine.disconnect()
+            machine.wait_boot(timeout_sec=300)
 
-    def enableNFSServer(self):
+    def enableNFSServer(self, machine=None):
+        machine = machine or self.machine
         # set up NFS server
         self.machines["nfs"].write("/etc/exports", "/srv/kdump 10.111.113.0/24(rw,no_root_squash)\n")
         self.machines["nfs"].execute("mkdir -p /srv/kdump/var/crash; firewall-cmd --add-service nfs; systemctl restart nfs-server")
 
         # there shouldn't be any crash reports in the target directory
-        self.assertEqual(self.machine.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
+        self.assertEqual(machine.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
 
-    def run_ansible_playbook(self, browser, allow_failure=False):
+    def run_ansible_playbook(self, browser, machine, allow_failure=False):
         browser.click("#kdump-automation-script")
         ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
-        self.machine.execute("mkdir -p roles/kdump/tasks")
-        self.machine.write("roles/kdump/tasks/main.yml", browser.text(ansible_script_sel))
+        machine.execute("mkdir -p roles/kdump/tasks")
+        machine.write("roles/kdump/tasks/main.yml", browser.text(ansible_script_sel))
         # Redirect to stderr as this can fail, if so we want logs
-        self.machine.execute("ansible -m include_role -a name=kdump localhost", check=not allow_failure, stdout=None)
+        machine.execute("ansible -m include_role -a name=kdump localhost", check=not allow_failure, stdout=None)
         browser.click(".pf-v5-c-modal-box__footer button:contains('Close')")
         browser.wait_not_present(".automation-script-modal")
 
@@ -518,59 +522,51 @@ class TestKdumpNFS(KdumpHelpers):
 @testlib.skipOstree("kexec-tools not installed")
 @testlib.onlyImage("Only Fedora has ansible on the image", "fedora-*")
 @testlib.timeout(900)
-class TestKdumpNFSAnsible(KdumpHelpers, packagelib.PackageCase):
+class TestKdumpNFSAnsible(KdumpHelpers):
     provision = {
-        "ansible_machine": {"address": "10.111.113.1/24", "memory_mb": 1024, "capture_console": True},
-        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512},
         "cockpit": {"memory_mb": 512},
+        "kdump_ansible_machine": {"address": "10.111.113.1/24", "memory_mb": 1024, "capture_console": True},
+        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512},
     }
 
     def testBasic(self):
-        m = self.machine
         b = self.browser
+        kdump_machine = self.machines["kdump_ansible_machine"]
 
-        self.enableNFSServer()
+        # Drop rpm repos as otherwise dnf will hang when we run the ansible role
+        kdump_machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/* /var/cache/dnf/*")
 
-        m2 = self.machines["cockpit"]
-        m2.start_cockpit()
-
-        b2 = self.new_browser(m2)
-        b2.login_and_go("/kdump")
-
-        # Create a fake repo so dnf does not hang trying to refresh the metadata cache
-        # which requires internet access.
-        self.createPackage("kexec-tools", "1", "1", content={"/kexec-tools": ""})
-        self.enableRepo()
-
-        self.login_and_go("/kdump")
-        self.assertActive(active=False)
+        self.enableNFSServer(kdump_machine)
 
         # switch to NFS
-        b2.click("#kdump-change-target")
-        b2.wait_visible("#kdump-settings-dialog")
-        b2.set_val("#kdump-settings-location", "nfs")
-        b2.set_input_text("#kdump-settings-nfs-server", "10.111.113.2")
-        b2.set_input_text("#kdump-settings-nfs-export", "/srv/kdump")
-        b2.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b2.wait_not_present("#kdump-settings-dialog")
+        self.login_and_go("/kdump")
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "nfs")
+        b.set_input_text("#kdump-settings-nfs-server", "10.111.113.2")
+        b.set_input_text("#kdump-settings-nfs-export", "/srv/kdump")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_not_present("#kdump-settings-dialog")
 
         # This requires a reboot
-        self.run_ansible_playbook(b2, allow_failure=True)
-        conf = m.execute("cat /etc/kdump.conf")
+        self.run_ansible_playbook(browser=b, machine=kdump_machine, allow_failure=True)
+        conf = kdump_machine.execute("cat /etc/kdump.conf")
         self.assertIn("\n# Ansible managed\n", conf)
         self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
 
-        m.reboot()
-        self.login_and_go("/kdump")
+        kdump_machine.reboot()
+        kdump_machine.start_cockpit()
+        kdump_browser = self.new_browser(kdump_machine)
 
         # Verify that kdump runs and crashkernel is configured
-        m.execute("until systemctl is-active kdump; do sleep 1; done")
-        b.wait_in_text("#app", "Service is running")
-        b.wait_in_text("#app", "192 MiB")
-        self.assertActive(active=True)
+        kdump_machine.execute("until systemctl is-active kdump; do sleep 1; done")
+        kdump_browser.login_and_go("/kdump")
+        kdump_browser.wait_in_text("#app", "Service is running")
+        kdump_browser.wait_in_text("#app", "192 MiB")
+        self.assertActive(active=True, browser=kdump_browser)
 
         try:
-            self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/var/crash")
+            self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/var/crash", machine=kdump_machine, browser=kdump_browser)
 
             # dump is done during boot, so should exist now
             self.assertIn("Kdump compressed dump",
@@ -583,113 +579,108 @@ class TestKdumpNFSAnsible(KdumpHelpers, packagelib.PackageCase):
 @testlib.skipOstree("kexec-tools not installed")
 @testlib.onlyImage("Only Fedora has ansible on the image", "fedora-*")
 @testlib.timeout(900)
-class TestKdumpAnsible(KdumpHelpers, packagelib.PackageCase):
+class TestKdumpAnsible(KdumpHelpers):
     provision = {
-        "ansible_machine": {"memory_mb": 900},
         "cockpit": {"memory_mb": 512},
+        "kdump_ansible_machine": {"memory_mb": 900},
     }
 
     def testBasic(self):
-        """
-        Test the automation script generated by the kdump page on a fresh
-        machine. The first machine is the pristine machine where we run ansible
-        as we need some helpers only available to self.
-        """
-
-        b = self.browser
         m = self.machine
+        b = self.browser
 
-        m_cockpit = self.machines['cockpit']
-        m_cockpit.start_cockpit()
-        b_cockpit = self.new_browser(m_cockpit)
+        kdump_machine = self.machines['kdump_ansible_machine']
 
-        b_cockpit.login_and_go("/kdump")
-        customPath = "/var/crash2"
-
-        m_cockpit.execute(f"mkdir -p {customPath}")
-        b_cockpit.click("#kdump-change-target")
-        b_cockpit.set_val("#kdump-settings-location", "local")
-        pathInput = "#kdump-settings-local-directory"
-        b_cockpit.set_input_text(pathInput, customPath)
-        b_cockpit.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b_cockpit.wait_text("#kdump-change-target", f"locally in {customPath}")
-
-        # Create a fake repo so dnf does not hang trying to refresh the metadata cache
-        # which requires internet access.
-        self.createPackage("kexec-tools", "1", "1", content={"/kexec-tools": ""})
-        self.enableRepo()
-
-        # HACK: workaround ansible role not creating /var/crash2 https://github.com/linux-system-roles/kdump/issues/8
-        m.execute(f"mkdir -p {customPath}")
-
-        # This requires a reboot
-        self.run_ansible_playbook(b_cockpit, allow_failure=True)
-        m.reboot()
+        # Drop rpm repos as otherwise dnf will hang when we run the ansible role
+        kdump_machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/* /var/cache/dnf/*")
 
         self.login_and_go("/kdump")
-        m.execute("until systemctl is-active kdump; do sleep 1; done")
+        customPath = "/var/crash2"
+
+        m.execute(f"mkdir -p {customPath}")
+        b.click("#kdump-change-target")
+        b.set_val("#kdump-settings-location", "local")
+        pathInput = "#kdump-settings-local-directory"
+        b.set_input_text(pathInput, customPath)
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_text("#kdump-change-target", f"locally in {customPath}")
+
+        # HACK: workaround ansible role not creating /var/crash2 https://github.com/linux-system-roles/kdump/issues/8
+        kdump_machine.execute(f"mkdir -p {customPath}")
+
+        # This requires a reboot
+        self.run_ansible_playbook(browser=b, machine=kdump_machine, allow_failure=True)
+        kdump_machine.reboot()
+
+        kdump_machine.start_cockpit()
+        kdump_browser = self.new_browser(kdump_machine)
+
+        kdump_machine.execute("until systemctl is-active kdump; do sleep 1; done")
+        kdump_browser.login_and_go("/kdump")
 
         # Verify that kdump runs and crashkernel is configured
-        b.wait_in_text("#app", "Service is running")
-        b.wait_in_text("#app", "192 MiB")
-        self.assertActive(active=True)
+        kdump_browser.wait_in_text("#app", "Service is running")
+        kdump_browser.wait_in_text("#app", "192 MiB")
+        self.assertActive(active=True, browser=kdump_browser)
 
         # Second run should be succeed as crashkernel is now set in the kernel cmdline
-        self.run_ansible_playbook(b)
+        self.run_ansible_playbook(browser=b, machine=kdump_machine)
 
-        conf = m.execute("cat /etc/kdump.conf")
+        conf = kdump_machine.execute("cat /etc/kdump.conf")
         self.assertIn("\n# Ansible managed\n", conf)
         self.assertIn("\npath /var/crash2\n", conf)
 
-        self.crashKernel("stored in /var/crash2 as vmcore")
-        m.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done", timeout=180)
-        self.assertIn("Kdump compressed dump", m.execute(f"file {customPath}/127.0.0.1*/vmcore"))
+        self.crashKernel("stored in /var/crash2 as vmcore", machine=kdump_machine, browser=kdump_browser)
+        kdump_machine.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done", timeout=180)
+        self.assertIn("Kdump compressed dump", kdump_machine.execute(f"file {customPath}/127.0.0.1*/vmcore"))
 
         # Test SSH without a username, for this we first need to first change
         # to local not run into a race to detect that the generated kdump.conf
         # was changed. As the #kdump-change-target does not show the remote ssh user/server.
-        b_cockpit.click("#kdump-change-target")
-        b_cockpit.set_val("#kdump-settings-location", "local")
-        b_cockpit.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b_cockpit.wait_not_present("#kdump-settings-dialog")
-        b_cockpit.wait_text("#kdump-change-target", "locally in /var/crash")
+        b.click("#kdump-change-target")
+        b.set_val("#kdump-settings-location", "local")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_not_present("#kdump-settings-dialog")
+        b.wait_text("#kdump-change-target", "locally in /var/crash")
 
-        b_cockpit.click("#kdump-change-target")
-        b_cockpit.set_val("#kdump-settings-location", "ssh")
+        b.click("#kdump-change-target")
+        b.set_val("#kdump-settings-location", "ssh")
         sshInput = "#kdump-settings-ssh-server"
-        b_cockpit.set_input_text(sshInput, "admin@localhost")
+        b.set_input_text(sshInput, "admin@localhost")
         sshKeyInput = "#kdump-settings-ssh-key"
         pathInput = "#kdump-settings-ssh-directory"
-        b_cockpit.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
-        b_cockpit.set_input_text(pathInput, "/var/crash")
-        b_cockpit.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b_cockpit.wait_not_present(pathInput)
-        b_cockpit.wait_text("#kdump-change-target", "Remote over SSH")
+        b.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
+        b.set_input_text(pathInput, "/var/crash")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_not_present(pathInput)
+        b.wait_text("#kdump-change-target", "Remote over SSH")
 
         self.enableLocalSsh()
         # running the role starts kdump.service which verifies if /var/crash is readable for the admin
-        m.execute("chown admin: /var/crash")
-        self.run_ansible_playbook(b_cockpit)
-        conf = m.execute("cat /etc/kdump.conf")
+        kdump_machine.start_cockpit()
+        kdump_machine.execute("chown admin: /var/crash")
+        self.run_ansible_playbook(browser=b, machine=kdump_machine)
+        conf = kdump_machine.execute("cat /etc/kdump.conf")
         self.assertIn("\n# Ansible managed\n", conf)
         self.assertIn("\nssh admin@localhost\n", conf)
         self.assertIn("\nsshkey /root/.ssh/id_rsa\n", conf)
         self.assertIn("\npath /var/crash\n", conf)
 
-        self.login_and_go("/kdump")
-        b.wait_text("#kdump-change-target", "Remote over SSH")
-        self.crashKernel("copied through SSH to admin@localhost:/var/crash as vmcore", cancel=True)
+        kdump_browser.login_and_go("/kdump")
+        kdump_browser.wait_text("#kdump-change-target", "Remote over SSH")
+        self.crashKernel("copied through SSH to admin@localhost:/var/crash as vmcore", cancel=True,
+                         browser=kdump_browser, machine=kdump_machine)
 
-        b_cockpit.click("#kdump-change-target")
+        b.click("#kdump-change-target")
         sshInput = "#kdump-settings-ssh-server"
-        b_cockpit.set_input_text(sshInput, "localhost")
-        b_cockpit.set_input_text(pathInput, "/var/crash2")
-        b_cockpit.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b_cockpit.wait_not_present(sshInput)
-        b_cockpit.wait_text("#kdump-change-target", "Remote over SSH")
+        b.set_input_text(sshInput, "localhost")
+        b.set_input_text(pathInput, "/var/crash2")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_not_present(sshInput)
+        b.wait_text("#kdump-change-target", "Remote over SSH")
 
-        self.run_ansible_playbook(b_cockpit)
-        conf = m.execute("cat /etc/kdump.conf")
+        self.run_ansible_playbook(browser=b, machine=kdump_machine)
+        conf = kdump_machine.execute("cat /etc/kdump.conf")
         self.assertIn("\nssh root@localhost\n", conf)
         self.assertIn("\npath /var/crash2\n", conf)
 

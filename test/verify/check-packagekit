@@ -24,16 +24,6 @@ import time
 import packagelib
 import testlib
 
-WAIT_SCRIPT = """
-for x in $(seq 1 200); do
-    if curl --fail --insecure --silent --show-error https://%(addr)s:8443/candlepin/status; then
-        break
-    else
-        sleep 1
-    fi
-done
-"""
-
 OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos", "rhel4edge"]
 OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "rhel4edge", "centos-*"]
 
@@ -1275,7 +1265,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
     def register(self):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
-            "LC_ALL=C.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
+            "LC_ALL=C.UTF-8 subscription-manager register --serverurl https://services.cockpit.lan:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
         self.machine.execute("LC_ALL=C.UTF-8 subscription-manager attach --auto")
 
     def setUp(self):
@@ -1297,11 +1287,15 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         m.execute("mkdir -p /etc/pki/product")
         m.upload([product_file], "/etc/pki/product")
 
-        # make sure that rhsm skips certificate checks for the server
-        self.sed_file("s/insecure = 0/insecure = 1/g", "/etc/rhsm/rhsm.conf")
+        # set up CA
+        ca = self.candlepin.execute("cat /home/admin/candlepin/certs/candlepin-ca.crt")
+        m.write("/etc/pki/ca-trust/source/anchors/candlepin-ca.crt", ca)
+        m.write("/etc/hosts", "10.111.112.100 services.cockpit.lan\n", append=True)
+        m.execute("cp /etc/pki/ca-trust/source/anchors/candlepin-ca.crt /etc/rhsm/ca/candlepin-ca.pem")
+        m.execute("update-ca-trust")
 
         # Wait for the web service to be accessible
-        m.execute(WAIT_SCRIPT % {"addr": "10.111.112.100"}, timeout=360)
+        m.execute("until curl --fail --silent --show-error https://services.cockpit.lan:8443/candlepin/status; do sleep 1; done")
         self.update_icon = "#page_status_notification_updates svg"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"

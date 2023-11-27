@@ -26,6 +26,13 @@ class KdumpHelpers(testlib.MachineCase):
     def setUp(self):
         super().setUp()
         self.allow_restart_journal_messages()
+        # selinux debugging
+        self.machine.write("/etc/audit/audit.rules", "-D\n-w /etc/shadow -p w\n")
+        self.machine.execute("""
+mkdir -p /var/log/audit
+restorecon -r /var/log/audit
+systemctl enable --now auditd
+        """)
 
     def enableLocalSsh(self):
         self.machine.execute("[ -f /root/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa")
@@ -85,6 +92,12 @@ class KdumpHelpers(testlib.MachineCase):
 @testlib.skipDistroPackage()
 class TestKdump(KdumpHelpers):
 
+    def checkSelinux(self):
+        print("XXXXX selinux checkpoint")
+        self.machine.execute("journalctl -b | grep denied || true", stdout=None)
+        self.machine.execute("ausearch -i -m avc,user_avc,selinux_err,user_selinux_err -ts today || true", stdout=None)
+        print("XXXXX selinux checkpoint done")
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -129,6 +142,10 @@ class TestKdump(KdumpHelpers):
         # there shouldn't be any crash reports in the target directory
         self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
 
+        b.cdp.trace = True
+        m.verbose = True
+        self.checkSelinux()
+
         b.wait_visible("#app")
         self.enableLocalSsh()
 
@@ -146,6 +163,8 @@ class TestKdump(KdumpHelpers):
         b.click("#kdump-settings-dialog button.cancel")
         b.wait_not_present("#kdump-settings-dialog")
 
+        self.checkSelinux()
+
         # test compression
         b.click("#kdump-change-target")
         b.click("#kdump-settings-compression")
@@ -154,6 +173,8 @@ class TestKdump(KdumpHelpers):
         with b.wait_timeout(120):  # needs to rebuild initrd
             b.wait_not_present(pathInput)
         m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
+
+        self.checkSelinux()
 
         # generate a valid kdump config with ssh target
         b.click("#kdump-change-target")
@@ -168,7 +189,11 @@ class TestKdump(KdumpHelpers):
         # rebuilding initrd might take a while on busy CI machines
         with b.wait_timeout(120):
             b.wait_not_present(pathInput)
+
+        self.checkSelinux()
         self.crashKernel("copied through SSH to root@localhost:/var/crash as vmcore", cancel=True)
+
+        self.checkSelinux()
 
         # we should have the amount of memory reserved that crashkernel=auto defaults to for our VM RAM size
         b.wait_in_text("#app", "192 MiB")
@@ -176,6 +201,8 @@ class TestKdump(KdumpHelpers):
         self.assertActive(active=True)
         b.wait_in_text("#app", "Service is running")
         b.wait_text("#kdump-change-target", "Remote over SSH")
+
+        self.checkSelinux()
 
         # try to change the path to a directory that doesn't exist
         customPath = "/var/crash2"
@@ -195,6 +222,8 @@ class TestKdump(KdumpHelpers):
         with b.wait_timeout(120):
             b.wait_not_present(pathInput)
         b.wait_text("#kdump-change-target", f"locally in {customPath}")
+
+        self.checkSelinux()
 
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled
@@ -219,6 +248,21 @@ class TestKdump(KdumpHelpers):
         b.click(".pf-v5-c-modal-box__footer button:contains('Close')")
         b.wait_not_present(".automation-script-modal")
         m.execute("diff /etc/kdump.conf /etc/kdump.conf.orig", stdout=None)
+
+    def testBasic2(self):
+        self.testBasic()
+
+    def testBasic3(self):
+        self.testBasic()
+
+    def testBasic4(self):
+        self.testBasic()
+
+    def testBasic5(self):
+        self.testBasic()
+
+    def testBasic6(self):
+        self.testBasic()
 
     @testlib.nondestructive
     def testConfiguration(self):

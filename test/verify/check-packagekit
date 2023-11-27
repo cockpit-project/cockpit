@@ -1265,7 +1265,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
     def register(self):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
-            "LC_ALL=C.UTF-8 subscription-manager register --serverurl https://services.cockpit.lan:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
+            "LC_ALL=C.UTF-8 subscription-manager register --serverurl https://candlepin.local:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
         self.machine.execute("LC_ALL=C.UTF-8 subscription-manager attach --auto")
 
     def setUp(self):
@@ -1290,12 +1290,12 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         # set up CA
         ca = self.candlepin.execute("cat /home/admin/candlepin/certs/candlepin-ca.crt")
         m.write("/etc/pki/ca-trust/source/anchors/candlepin-ca.crt", ca)
-        m.write("/etc/hosts", "10.111.112.100 services.cockpit.lan\n", append=True)
+        m.write("/etc/hosts", "10.111.112.100 candlepin.local\n", append=True)
         m.execute("cp /etc/pki/ca-trust/source/anchors/candlepin-ca.crt /etc/rhsm/ca/candlepin-ca.pem")
         m.execute("update-ca-trust")
 
         # Wait for the web service to be accessible
-        m.execute("until curl --fail --silent --show-error https://services.cockpit.lan:8443/candlepin/status; do sleep 1; done")
+        m.execute("until curl --fail --silent --show-error https://candlepin.local:8443/candlepin/status; do sleep 1; done")
         self.update_icon = "#page_status_notification_updates svg"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"

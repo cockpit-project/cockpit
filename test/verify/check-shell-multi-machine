@@ -146,17 +146,6 @@ class TestMultiMachineAdd(testlib.MachineCase):
         "machine3": {"address": "10.111.113.3/20", "memory_mb": 660},
     }
 
-    def setup_ssh_auth(self):
-        self.machine.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
-        self.machine.execute("test -f /home/admin/.ssh/id_rsa || ssh-keygen -f /home/admin/.ssh/id_rsa -t rsa -N ''")
-        self.machine.execute("chown admin:admin /home/admin/.ssh/id_rsa*")
-        pubkey = self.machine.execute("cat /home/admin/.ssh/id_rsa.pub")
-
-        for m in self.machines:
-            self.machines[m].execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
-            self.machines[m].write("/home/admin/.ssh/authorized_keys", pubkey)
-            self.machines[m].execute("chown admin:admin /home/admin/.ssh/authorized_keys")
-
     def setUp(self):
         super().setUp()
         self.machine2 = self.machines['machine2']

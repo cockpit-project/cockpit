@@ -2160,6 +2160,23 @@ class MachineCase(unittest.TestCase):
             if disable_preload:
                 self.disable_preload("packagekit", "playground", "systemd", machine=m)
 
+    def authorize_pubkey(self, machine, account, pubkey):
+        machine.execute(f"a={account} d=/home/$a/.ssh; mkdir -p $d; chown $a:$a $d; chmod 700 $d")
+        machine.write(f"/home/{account}/.ssh/authorized_keys", pubkey)
+        machine.execute(f"a={account}; chown $a:$a /home/$a/.ssh/authorized_keys")
+
+    def get_pubkey(self, machine, account):
+        return machine.execute(f"cat /home/{account}/.ssh/id_rsa.pub")
+
+    def setup_ssh_auth(self):
+        self.machine.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+        self.machine.execute("test -f /home/admin/.ssh/id_rsa || ssh-keygen -f /home/admin/.ssh/id_rsa -t rsa -N ''")
+        self.machine.execute("chown admin:admin /home/admin/.ssh/id_rsa*")
+        pubkey = self.get_pubkey(self.machine, "admin")
+
+        for m in self.machines:
+            self.authorize_pubkey(self.machines[m], "admin", pubkey)
+
 
 ###########################
 # Global helper functions

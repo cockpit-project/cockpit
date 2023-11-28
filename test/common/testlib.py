@@ -1625,6 +1625,33 @@ class MachineCase(unittest.TestCase):
         with self.browser.wait_timeout(30):
             self.browser.login_and_go(path, user=user, host=host, superuser=superuser, urlroot=urlroot, tls=tls)
 
+    def start_machine_troubleshoot(self, new=False, known_host=False, password=None, expect_closed_dialog=True, browser=None):
+        b = browser or self.browser
+
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+
+        b.wait_visible('#hosts_setup_server_dialog')
+        if new:
+            b.click('#hosts_setup_server_dialog button:contains(Add)')
+            if not known_host:
+                b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
+                b.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
+                b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
+        if password:
+            b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+            b.set_input_text('#login-custom-password', password)
+            b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        if expect_closed_dialog:
+            b.wait_not_present('#hosts_setup_server_dialog')
+
+    def add_machine(self, address, known_host=False, password="foobar", browser=None):
+        b = browser or self.browser
+        b.switch_to_top()
+        b.go(f"/@{address}")
+        self.start_machine_troubleshoot(new=True, known_host=known_host, password=password, browser=browser)
+        b.enter_page("/system", host=address)
+
     # List of allowed journal messages during tests; these need to match the *entire* message
     default_allowed_messages = [
         # This is a failed login, which happens every time

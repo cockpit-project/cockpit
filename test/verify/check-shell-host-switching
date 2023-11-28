@@ -61,7 +61,7 @@ class HostSwitcherHelpers:
           return true;
         })""", address)
 
-    def add_machine(self, b, address, known_host=False, pixel_label=None):
+    def add_new_machine(self, b, address, known_host=False, pixel_label=None):
         b.click("button:contains('Add new host')")
         b.wait_visible('#hosts_setup_server_dialog')
         b.set_input_text('#add-machine-address', address)
@@ -139,7 +139,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_in_text("#nav-hosts .nav-item a", "mydhcpname")
         m1.execute("hostnamectl set-hostname 'localhost'")
 
-        self.add_machine(b, "10.111.113.2", pixel_label="host-add-dialog")
+        self.add_new_machine(b, "10.111.113.2", pixel_label="host-add-dialog")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2")
 
@@ -156,7 +156,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
-        self.add_machine(b, "10.111.113.3")
+        self.add_new_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.3")
 
@@ -173,7 +173,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b, ["10.111.113.2", "10.111.113.3"])
 
         # Add one back, check addresses on both browsers
-        self.add_machine(b, "10.111.113.2", known_host=True)
+        self.add_new_machine(b, "10.111.113.2", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2")
         self.check_discovered_addresses(b, ["10.111.113.3"])
@@ -181,7 +181,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         # And the second one, check addresses
-        self.add_machine(b, "10.111.113.3", known_host=True)
+        self.add_new_machine(b, "10.111.113.3", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.connect_and_wait(b, "10.111.113.3")
         self.check_discovered_addresses(b, [])
@@ -260,7 +260,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b2.click("#hosts-sel button")
         self.wait_host_addresses(b2, ["localhost"])
 
-        self.add_machine(b, "10.111.113.2")
+        self.add_new_machine(b, "10.111.113.2")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2")
@@ -278,7 +278,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
-        self.add_machine(b, "10.111.113.3")
+        self.add_new_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.3", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.3")
@@ -299,7 +299,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b2, ["10.111.113.2", "10.111.113.3"])
 
         # Add one back, check addresses on both browsers
-        self.add_machine(b, "10.111.113.2", known_host=True)
+        self.add_new_machine(b, "10.111.113.2", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2")
@@ -309,7 +309,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         # And the second one, check addresses on both browsers
-        self.add_machine(b, "10.111.113.3", known_host=True)
+        self.add_new_machine(b, "10.111.113.3", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.connect_and_wait(b, "10.111.113.3")
@@ -338,7 +338,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.login_and_go(superuser=False)
 
         b.click("#hosts-sel button")
-        self.add_machine(b, "10.111.113.3")
+        self.add_new_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
         self.connect_and_wait(b, "10.111.113.3")
 
@@ -433,7 +433,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # And and connect to a second machine
         b.click("#hosts-sel button")
-        self.add_machine(b, "10.111.113.2")
+        self.add_new_machine(b, "10.111.113.2")
         b.click("a[href='/@10.111.113.2']")
         b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
         self.assertIn("admin", m2.execute("loginctl"))

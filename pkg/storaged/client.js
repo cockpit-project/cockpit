@@ -41,6 +41,11 @@ import deep_equal from "deep-equal";
 /* STORAGED CLIENT
  */
 
+function debug() {
+    if (window.debugging == "all" || window.debugging?.includes("storaged")) // not-covered: debugging
+        console.debug.apply(console, arguments); // not-covered: debugging
+}
+
 const client = {
     busy: 0
 };
@@ -251,7 +256,7 @@ export function btrfs_poll() {
     }))
             .then(() => {
                 if (!deep_equal(client.uuids_btrfs_subvols, uuids_subvols)) {
-                    console.log("SUBVOLS", uuids_subvols);
+                    debug("btrfs_pol new subvols:", uuids_subvols);
                     client.uuids_btrfs_subvols = uuids_subvols;
                     client.update();
                 }

@@ -62,34 +62,10 @@ def check_failed_state(b, expected_title):
     b.wait_not_present('#hosts_setup_server_dialog')
 
 
-def start_machine_troubleshoot(b, new=False, known_host=False, password=None):
-    b.wait_visible("#machine-troubleshoot")
-    b.click('#machine-troubleshoot')
-    b.wait_visible('#hosts_setup_server_dialog')
-    if new:
-        b.click('#hosts_setup_server_dialog button:contains(Add)')
-        if not known_host:
-            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
-            b.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
-            b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
-    if password:
-        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
-        b.set_input_text('#login-custom-password', password)
-        b.click('#hosts_setup_server_dialog button:contains(Log in)')
-
-
 def fail_login(b):
     b.click('#hosts_setup_server_dialog button:contains(Log in)')
     b.wait_visible('#hosts_setup_server_dialog button:contains(Log in):not([disabled])')
     b.wait_in_text("#hosts_setup_server_dialog .pf-v5-c-alert", "Login failed")
-
-
-def add_machine(b, address, known_host=False, password="foobar"):
-    b.switch_to_top()
-    b.go(f"/@{address}")
-    start_machine_troubleshoot(b, new=True, known_host=known_host, password=password)
-    b.wait_not_present('#hosts_setup_server_dialog')
-    b.enter_page("/system", host=address)
 
 
 def kill_user_admin(machine):
@@ -167,8 +143,8 @@ class TestMultiMachineAdd(testlib.MachineCase):
         hostname_selector = "#system_information_hostname_text"
 
         self.login_and_go(None)
-        add_machine(b, "10.111.113.2", password=None)
-        add_machine(b, m3_host, password=None)
+        self.add_machine("10.111.113.2", password=None)
+        self.add_machine(m3_host, password=None)
 
         b.switch_to_top()
         b.click("#hosts-sel button")
@@ -224,8 +200,8 @@ class TestMultiMachineAdd(testlib.MachineCase):
         m.write("/etc/ssh/ssh_config", "Host m3\n\tHostName 10.111.113.3\n\tPort 2222\n", append=True)
 
         self.login_and_go(None)
-        add_machine(b, "m2", password=None)
-        add_machine(b, "m3", password=None)
+        self.add_machine("m2", password=None)
+        self.add_machine("m3", password=None)
 
         b.switch_to_top()
         b.click("#hosts-sel button")
@@ -385,7 +361,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
 
         # Test 2nd machine
-        add_machine(b, "10.111.113.2")
+        self.add_machine("10.111.113.2")
         b.enter_page("/system", host="10.111.113.2")
         b.wait_text(hostname_selector, "machine2")
         b.switch_to_top()
@@ -438,7 +414,7 @@ class TestMultiMachine(testlib.MachineCase):
                 mount -o bind /tmp/"$(basename $FILENAME)" $FILENAME""")
 
         self.login_and_go("/system")
-        add_machine(b, "10.111.113.2")
+        self.add_machine("10.111.113.2")
 
         b.leave_page()
         b.go("/@10.111.113.2/system/terminal")
@@ -461,7 +437,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         # Add a machine
         self.login_and_go(None)
-        add_machine(b, "10.111.113.2")
+        self.add_machine("10.111.113.2")
 
         # Go to the path, remove the image
         b.go(m2_path)
@@ -505,12 +481,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.go(m2_path)
         with b.wait_timeout(30):
             b.wait_text(".curtains-ct h1", "Not connected to host")
-        b.click("#machine-troubleshoot")
-        b.wait_visible('#hosts_setup_server_dialog')
-        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
-        b.set_input_text('#login-custom-password', "foobar")
-        b.click('#hosts_setup_server_dialog button:contains(Log in)')
-        b.wait_not_present('#hosts_setup_server_dialog')
+        self.start_machine_troubleshoot(password="foobar")
 
         b.enter_page("/playground/test", "10.111.113.2", reconnect=True)
         # image is back because it page was reloaded after disconnection
@@ -547,7 +518,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         # Add a machine
         self.login_and_go(None)
-        add_machine(b, "10.111.113.2")
+        self.add_machine("10.111.113.2")
 
         b.switch_to_top()
         b.go(m2_path)
@@ -599,7 +570,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         # Bad hostkey
         break_hostkey(m1, "10.111.113.2")
-        start_machine_troubleshoot(b, new=True, known_host=True)
+        self.start_machine_troubleshoot(new=True, known_host=True, expect_closed_dialog=False)
         b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
         b.click("#hosts_setup_server_dialog button:contains(Cancel)")
         b.wait_not_present('#hosts_setup_server_dialog')
@@ -609,21 +580,21 @@ class TestMultiMachine(testlib.MachineCase):
         m1.execute("mkdir -p /home/admin/.ssh/")
         break_hostkey(m1, "10.111.113.2")
 
-        start_machine_troubleshoot(b, new=True, known_host=True)
+        self.start_machine_troubleshoot(new=True, known_host=True, expect_closed_dialog=False)
         b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
         b.click("#hosts_setup_server_dialog button:contains(Cancel)")
         fix_hostkey(m1)
 
         # Bad cockpit
         break_bridge(m2)
-        start_machine_troubleshoot(b, new=True, password="foobar")
+        self.start_machine_troubleshoot(new=True, password="foobar", expect_closed_dialog=False)
         check_failed_state(b, "Cockpit is not installed")
         fix_bridge(m2)
 
         # Troubleshoot existing
         # Properly add machine
         fix_hostkey(m1)
-        add_machine(b, "10.111.113.2")
+        self.add_machine("10.111.113.2")
         b.logout()
         b.wait_visible("#login")
 
@@ -632,7 +603,7 @@ class TestMultiMachine(testlib.MachineCase):
         self.login_and_go(None)
         b.go(machine_path)
         with b.wait_timeout(240):
-            start_machine_troubleshoot(b, password="foobar")
+            self.start_machine_troubleshoot(password="foobar", expect_closed_dialog=False)
 
         check_failed_state(b, "Cockpit is not installed")
         b.wait_visible("#machine-troubleshoot")
@@ -640,7 +611,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         # Clear host key
         fix_hostkey(m1)
-        start_machine_troubleshoot(b)
+        self.start_machine_troubleshoot(expect_closed_dialog=False)
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
 
         # show fingerprint validation
@@ -676,7 +647,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         with b.wait_timeout(120):
             b.wait_visible("#machine-troubleshoot")
-        start_machine_troubleshoot(b)
+        self.start_machine_troubleshoot(expect_closed_dialog=False)
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b.set_input_text('#login-custom-password', "")
         fail_login(b)
@@ -701,7 +672,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.go(machine_path)
         with b.wait_timeout(120):
             b.wait_visible("#machine-troubleshoot")
-        start_machine_troubleshoot(b)
+        self.start_machine_troubleshoot(expect_closed_dialog=False)
         b.wait_in_text('#hosts_setup_server_dialog h1', "Could not contact")
         b.set_input_text("#edit-machine-port", "2222")
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
@@ -747,6 +718,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         self.login_and_go(None)
         b.go("/@10.111.113.2")
+        self.start_machine_troubleshoot(expect_closed_dialog=False)
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')

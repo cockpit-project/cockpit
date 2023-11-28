@@ -69,21 +69,7 @@ class TestShutdownRestart(testlib.MachineCase):
         b2.login_and_go("/system")
 
         # Add machine with static IP to m2
-        b2.switch_to_top()
-        b2.go("/@10.111.113.1")
-        with b2.wait_timeout(30):
-            b2.wait_visible("#machine-troubleshoot")
-        b2.click('#machine-troubleshoot')
-        b2.wait_visible('#hosts_setup_server_dialog')
-        b2.wait_text(f'#hosts_setup_server_dialog {self.primary_btn_class}', "Add")
-        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
-        b2.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.1 for the first time.")
-        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
-        b2.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
-        b2.set_input_text("#login-custom-password", "foobar")
-        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
-        b2.wait_not_present('#hosts_setup_server_dialog')
-        b2.enter_page("/system", host="10.111.113.1")
+        self.add_machine("10.111.113.1", browser=b2)
         b2.wait_text("#system_information_hostname_text", "machine1")
 
         # Check auto reconnect on reboot
@@ -105,12 +91,7 @@ class TestShutdownRestart(testlib.MachineCase):
 
         with b2.wait_timeout(30):
             b2.wait_visible("#machine-troubleshoot")
-        b2.click('#machine-troubleshoot')
-        b2.wait_visible('#hosts_setup_server_dialog')
-        b2.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
-        b2.set_input_text("#login-custom-password", "foobar")
-        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
-        b2.wait_not_present('#hosts_setup_server_dialog')
+        self.start_machine_troubleshoot(password="foobar", browser=b2)
 
         b2.enter_page("/system", host="10.111.113.1", reconnect=False)
 

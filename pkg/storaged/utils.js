@@ -227,6 +227,7 @@ export function validate_fsys_label(label, type) {
         ext4: 16,
         vfat: 11,
         ntfs: 128,
+        btrfs: 256,
     };
 
     const limit = fs_label_max[type.replace("luks+", "")];

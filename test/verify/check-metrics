@@ -1497,21 +1497,6 @@ class TestGrafanaClient(testlib.MachineCase):
             bg.click("button:contains('Save &')")  # Save & [tT]est
             bg.wait_in_text("body", "Data source is working")
 
-            # HACK: There is no way to disable the plugin update check; it happens in the background
-            # and kills a random CDP wait with this RuntimeError; `check_for_plugin_updates = false`
-            # is supposed to avoid that, but it doesn't work; so wait for that error to happen and
-            # ignore it
-            try:
-                with bg.wait_timeout(60):
-                    bg.wait_js_cond("false")
-            except RuntimeError as e:
-                if "Failed to fetch plugins from catalog" not in str(e):
-                    raise
-            except testlib.Error as e:
-                if not e.msg.startswith("timeout"):
-                    raise
-                # no plugin check error? great!
-
             # Grafana auto-discovers "host" variable for incoming metrics; it takes a while to receive the first
             # measurement; that event is not observable directly in Grafana, and the dashboard does not auto-update to
             # new variables; so probe the API until it appears

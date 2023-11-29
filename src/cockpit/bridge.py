@@ -157,11 +157,6 @@ class Bridge(Router, PackagesListener):
             self.peers_rule.set_configs(bridge_configs)
             self.bridge_configs = bridge_configs
 
-    def eof_received(self) -> bool:
-        # HACK: Make sure there's no outstanding sudo prompts blocking our shutdown
-        self.superuser_rule.cancel_prompt()
-        return super().eof_received()
-
 
 async def run(args) -> None:
     logger.debug("Hi. How are you today?")

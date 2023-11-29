@@ -1525,6 +1525,10 @@ class TestGrafanaClient(testlib.MachineCase):
             except RuntimeError as e:
                 if "Failed to fetch plugins from catalog" not in str(e):
                     raise
+            except testlib.Error as e:
+                if not e.msg.startswith("timeout"):
+                    raise
+                # no plugin check error? great!
 
             # Grafana auto-discovers "host" variable for incoming metrics; it takes a while to receive the first
             # measurement; that event is not observable directly in Grafana, and the dashboard does not auto-update to

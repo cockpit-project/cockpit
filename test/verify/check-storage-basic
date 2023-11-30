@@ -29,6 +29,7 @@ class TestStorageBasic(storagelib.StorageCase):
         b = self.browser
 
         self.login_and_go("/storage", superuser=False)
+        self.allow_browser_errors("error: findmnt.*")
 
         create_dropdown = self.dropdown_toggle(self.card_header("Storage"))
 

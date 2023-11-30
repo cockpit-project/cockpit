@@ -24,9 +24,9 @@ import client from "../client.js";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 
 import {
-    decode_filename, encode_filename,
+    encode_filename,
     parse_options, unparse_options, extract_option, reload_systemd,
-    set_crypto_auto_option,
+    set_crypto_auto_option, get_mount_points,
 } from "../utils.js";
 import { StorageButton } from "../storage-controls.jsx";
 
@@ -35,14 +35,14 @@ import { get_cryptobacking_noauto } from "./utils.jsx";
 
 const _ = cockpit.gettext;
 
-export function check_mismounted_fsys(backing_block, content_block, fstab_config) {
+export function check_mismounted_fsys(backing_block, content_block, fstab_config, subvol) {
     const block_fsys = content_block && client.blocks_fsys[content_block.path];
     const [, dir, opts] = fstab_config;
 
     if (!(block_fsys || dir))
         return;
 
-    const mounted_at = block_fsys ? block_fsys.MountPoints.map(decode_filename) : [];
+    const mounted_at = get_mount_points(client, block_fsys, subvol);
     const split_options = parse_options(opts);
     const opt_noauto = extract_option(split_options, "noauto");
     const opt_noauto_intent = extract_option(split_options, "x-cockpit-never-auto");
@@ -75,7 +75,7 @@ export function check_mismounted_fsys(backing_block, content_block, fstab_config
         return { warning: "mismounted-fsys", type, other: other_mounts[0] };
 }
 
-export const MismountAlert = ({ warning, fstab_config, forced_options, backing_block, content_block }) => {
+export const MismountAlert = ({ warning, fstab_config, forced_options, backing_block, content_block, subvol }) => {
     if (!warning)
         return null;
 
@@ -105,6 +105,9 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
             opts.push("nofail");
         if (opt_netdev)
             opts.push("_netdev");
+        if (subvol) {
+            opts.push(`subvol=${subvol.pathname}`);
+        }
 
         // Add the forced options, but only to new entries.  We
         // don't want to modify existing entries beyond what we

@@ -33,6 +33,7 @@ import { make_mdraid_disk_card } from "../mdraid/mdraid-disk.jsx";
 import { make_stratis_blockdev_card } from "../stratis/blockdev.jsx";
 import { make_swap_card } from "../swap/swap.jsx";
 import { make_encryption_card } from "../crypto/encryption.jsx";
+import { make_btrfs_device_card } from "../btrfs/device.jsx";
 
 import { new_page } from "../pages.jsx";
 
@@ -51,6 +52,9 @@ export function make_block_page(parent, block, card) {
     const is_stratis = ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "stratis") ||
                         (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) ||
                         block_stratis_stopped_pool);
+
+    const is_btrfs = (fstab_config.length > 0 &&
+                      (fstab_config[2].indexOf("subvol=") >= 0 || fstab_config[2].indexOf("subvolid=") >= 0));
 
     if (client.blocks_ptable[block.path]) {
         make_partition_table_page(parent, block, card);
@@ -76,7 +80,7 @@ export function make_block_page(parent, block, card) {
             // can not happen unless there is a bug in the code above.
             console.error("Assertion failure: is_crypto == false");
         }
-        if (fstab_config.length > 0) {
+        if (fstab_config.length > 0 && !is_btrfs) {
             card = make_filesystem_card(card, block, null, fstab_config);
         } else {
             card = make_locked_encrypted_data_card(card, block);
@@ -85,8 +89,11 @@ export function make_block_page(parent, block, card) {
         const is_filesystem = content_block.IdUsage == 'filesystem';
         const block_pvol = client.blocks_pvol[content_block.path];
         const block_swap = client.blocks_swap[content_block.path];
+        const block_btrfs_blockdev = client.blocks_fsys_btrfs[content_block.path];
 
-        if (is_filesystem) {
+        if (block_btrfs_blockdev) {
+            card = make_btrfs_device_card(card, block, content_block, block_btrfs_blockdev);
+        } else if (is_filesystem) {
             card = make_filesystem_card(card, block, content_block, fstab_config);
         } else if ((content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
                    (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {

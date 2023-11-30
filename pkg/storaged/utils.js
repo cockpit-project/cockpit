@@ -790,8 +790,32 @@ export function find_children_for_mount_point(client, mount_point, self) {
     return children;
 }
 
-export function get_fstab_config_with_client(client, block, also_child_config) {
-    let config = block.Configuration.find(c => c[0] == "fstab");
+export function get_fstab_config_with_client(client, block, also_child_config, subvol) {
+    function match(c) {
+        if (c[0] != "fstab")
+            return false;
+        if (subvol !== undefined) {
+            if (!c[1].opts)
+                return false;
+
+            const opts = decode_filename(c[1].opts.v).split(",");
+            if (opts.indexOf("subvolid=" + subvol.id) >= 0)
+                return true;
+            if (opts.indexOf("subvol=" + subvol.pathname) >= 0)
+                return true;
+
+            // btrfs mounted without subvol argument.
+            const btrfs_volume = client.blocks_fsys_btrfs[block.path];
+            const default_subvolid = client.uuids_btrfs_default_subvol[btrfs_volume.data.uuid];
+            if (default_subvolid === subvol.id && !opts.find(o => o.indexOf("subvol=") >= 0 || o.indexOf("subvolid=") >= 0))
+                return true;
+
+            return false;
+        }
+        return true;
+    }
+
+    let config = block.Configuration.find(match);
 
     if (!config && also_child_config && client.blocks_crypto[block.path])
         config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
@@ -814,7 +838,7 @@ export function get_fstab_config_with_client(client, block, also_child_config) {
         return [];
 }
 
-export function get_active_usage(client, path, top_action, child_action, is_temporary) {
+export function get_active_usage(client, path, top_action, child_action, is_temporary, subvol) {
     function get_usage(usage, path, level) {
         const block = client.blocks[path];
         const fsys = client.blocks_fsys[path];
@@ -824,6 +848,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
         const vdo = block && client.legacy_vdo_overlay.find_by_backing_block(block);
         const stratis_blockdev = block && client.blocks_stratis_blockdev[path];
         const stratis_pool = stratis_blockdev && client.stratis_pools[stratis_blockdev.Pool];
+        const btrfs_volume = client.blocks_fsys_btrfs[path];
 
         get_children_for_teardown(client, path).map(p => get_usage(usage, p, level + 1));
 
@@ -862,13 +887,28 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
             });
         }
 
-        if (fsys && fsys.MountPoints.length > 0) {
-            fsys.MountPoints.forEach(mp => {
-                const mpd = decode_filename(mp);
-                const children = find_children_for_mount_point(client, mpd, null);
+        // HACK: get_active_usage is used for mounting and formatting so we use the absence of the subvol argument
+        // to figure out that we want to format this device.
+        // This is separate from the if's below as we also always have to umount the filesystem.
+        if (btrfs_volume && !subvol) {
+            usage.push({
+                level,
+                usage: 'btrfs-device',
+                block,
+                btrfs_volume,
+                location: btrfs_volume.data.label || btrfs_volume.data.uuid,
+                actions: get_actions(_("remove from btrfs volume")),
+                blocking: true
+            });
+        }
+
+        const mount_points = get_mount_points(client, fsys, subvol);
+        if (mount_points.length > 0) {
+            mount_points.forEach(mp => {
+                const children = find_children_for_mount_point(client, mp, null);
                 for (const c in children)
                     enter_unmount(children[c], c, false);
-                enter_unmount(block, mpd, true);
+                enter_unmount(block, mp, true);
             });
         } else if (mdraid) {
             const active_state = mdraid.ActiveDevices.find(as => as[0] == block.path);
@@ -1049,4 +1089,32 @@ export function is_mounted_synch(block) {
 
 export function for_each_async(arr, func) {
     return arr.reduce((promise, elt) => promise.then(() => func(elt)), Promise.resolve());
+}
+
+/*
+ * Get mount points for a given org.freedesktop.UDisks2.Filesystem object
+ *
+ * This generalises getting the given MountPoints of a Filesystem for btrfs and
+ * other filesystems, for btrfs we want to know if a subvolume is mounted
+ * anywhere. UDisks is currently not aware of subvolumes and it's Filesystem
+ * object gives us the MountPoints for all subvolumes while we want it per
+ * subvolume.
+ *
+ * @param {Object} block_fsys
+ * @param {Object|null} subvol
+ * @returns {Array} an array of MountPoints
+ */
+export function get_mount_points(client, block_fsys, subvol) {
+    let mounted_at = [];
+
+    if (subvol && block_fsys) {
+        const btrfs_volume = client.blocks_fsys_btrfs[block_fsys.path];
+        const volume_mounts = client.btrfs_mounts[btrfs_volume.data.uuid];
+        if (volume_mounts)
+            mounted_at = subvol.id in volume_mounts ? volume_mounts[subvol.id].mount_points : [];
+    } else {
+        mounted_at = block_fsys ? block_fsys.MountPoints.map(decode_filename) : [];
+    }
+
+    return mounted_at;
 }

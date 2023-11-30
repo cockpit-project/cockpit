@@ -28,62 +28,97 @@ import {
     parse_options, extract_option,
     get_fstab_config_with_client,
     find_children_for_mount_point,
+    get_mount_points,
 } from "../utils.js";
+import { parse_subvol_from_options } from "../btrfs/utils.jsx";
 import { StorageLink } from "../storage-controls.jsx";
 
 import { mounting_dialog } from "./mounting-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-export function is_mounted(client, block) {
+/* is mounted with an entry in fstab */
+export function is_mounted(client, block, subvol) {
     const block_fsys = client.blocks_fsys[block.path];
-    const mounted_at = block_fsys ? block_fsys.MountPoints : [];
-    const config = block.Configuration.find(c => c[0] == "fstab");
-    if (config && config[1].dir.v) {
-        let dir = decode_filename(config[1].dir.v);
-        if (dir[0] != "/")
-            dir = "/" + dir;
-        return mounted_at.map(decode_filename).indexOf(dir) >= 0;
+    const mounted_at = get_mount_points(client, block_fsys, subvol);
+    const [, dir] = get_fstab_config(block, false, subvol);
+    if (dir) {
+        return mounted_at.indexOf(dir) >= 0;
     } else
         return null;
 }
 
-export function get_fstab_config(block, also_child_config) {
-    return get_fstab_config_with_client(client, block, also_child_config);
-}
-
-function find_blocks_for_mount_point(client, mount_point, self) {
-    const blocks = [];
-
-    function is_self(b) {
-        return self && (b == self || client.blocks[b.CryptoBackingDevice] == self);
-    }
-
-    for (const p in client.blocks) {
-        const b = client.blocks[p];
-        const [, dir] = get_fstab_config(b);
-        if (dir == mount_point && !is_self(b))
-            blocks.push(b);
-    }
-
-    return blocks;
+export function get_fstab_config(block, also_child_config, subvol) {
+    return get_fstab_config_with_client(client, block, also_child_config, subvol);
 }
 
 function nice_block_name(block) {
     return block_name(client.blocks[block.CryptoBackingDevice] || block);
 }
 
-export function is_valid_mount_point(client, block, val, format_only, for_fstab) {
+function find_blocks_for_mount_point(client, mount_point, self_block, self_subvol) {
+    function same_btrfs_volume(a, b) {
+        return (client.blocks_fsys_btrfs[a.path] &&
+                client.blocks_fsys_btrfs[b.path] &&
+                client.blocks_fsys_btrfs[a.path].data.uuid == client.blocks_fsys_btrfs[b.path].data.uuid);
+    }
+
+    function same_btrfs_subvol(a, b) {
+        return (a && b &&
+                ((a.pathname && a.pathname == b.pathname) ||
+                 (a.id && a.id == b.id)));
+    }
+
+    function is_self(b, subvol) {
+        if (self_subvol)
+            return same_btrfs_volume(b, self_block) && same_btrfs_subvol(subvol, self_subvol);
+        else
+            return self_block && (b == self_block || client.blocks[b.CryptoBackingDevice] == self_block);
+    }
+
+    function fmt_block_and_subvol(block, subvol) {
+        if (subvol)
+            return cockpit.format(_("btrfs subvolume $0 of $1"),
+                                  subvol.pathname || subvol.id,
+                                  block.IdLabel || block.IdUUID);
+        else
+            return nice_block_name(block);
+    }
+
+    const blocks = [];
+    const seen_uuids = {};
+
+    for (const p in client.blocks) {
+        const b = client.blocks[p];
+        for (const c of b.Configuration) {
+            if (c[0] == "fstab") {
+                let dir = decode_filename(c[1].dir.v);
+                if (dir[0] != "/")
+                    dir = "/" + dir;
+                const subvol = parse_subvol_from_options(decode_filename(c[1].opts.v));
+                if (dir == mount_point && !is_self(b, subvol)) {
+                    if (!seen_uuids[b.IdUUID]) {
+                        seen_uuids[b.IdUUID] = true;
+                        blocks.push(fmt_block_and_subvol(b, subvol));
+                    }
+                }
+            }
+        }
+    }
+
+    return blocks;
+}
+
+export function is_valid_mount_point(client, block, val, format_only, for_fstab, subvol) {
     if (val === "") {
         if (!format_only || for_fstab)
             return _("Mount point cannot be empty");
         return null;
     }
 
-    const other_blocks = find_blocks_for_mount_point(client, val, block);
+    const other_blocks = find_blocks_for_mount_point(client, val, block, subvol);
     if (other_blocks.length > 0)
-        return cockpit.format(_("Mount point is already used for $0"),
-                              other_blocks.map(nice_block_name).join(", "));
+        return cockpit.format(_("Mount point is already used for $0"), other_blocks.join(", "));
 
     if (!format_only) {
         const children = find_children_for_mount_point(client, val, block);
@@ -113,8 +148,8 @@ export function get_cryptobacking_noauto(client, block) {
     return crypto_options.indexOf("noauto") >= 0;
 }
 
-export const MountPoint = ({ fstab_config, forced_options, backing_block, content_block }) => {
-    const is_filesystem_mounted = content_block && is_mounted(client, content_block);
+export const MountPoint = ({ fstab_config, forced_options, backing_block, content_block, subvol }) => {
+    const is_filesystem_mounted = content_block && is_mounted(client, content_block, subvol);
     const [, old_dir, old_opts] = fstab_config;
     const split_options = parse_options(old_opts);
     extract_option(split_options, "noauto");
@@ -180,7 +215,7 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
                     <StorageLink onClick={() => mounting_dialog(client,
                                                                 content_block || backing_block,
                                                                 "update",
-                                                                forced_options)}>
+                                                                forced_options, subvol)}>
                         {_("edit")}
                     </StorageLink>
                 </FlexItem>

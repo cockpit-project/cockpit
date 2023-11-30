@@ -1112,6 +1112,7 @@ export const BlockingMessage = (usage) => {
         vdo: _("backing device for VDO device"),
         "stratis-pool-member": _("member of Stratis pool"),
         mounted: _("Filesystem outside the target"),
+        "btrfs-device": _("device of btrfs volume"),
     };
 
     const rows = [];

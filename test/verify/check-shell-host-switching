@@ -61,6 +61,9 @@ class HostSwitcherHelpers:
           return true;
         })""", address)
 
+        # HACK: Dropping the machine does not terminate SSH connection; https://github.com/cockpit-project/cockpit/issues/19672
+        self.machine.execute(f"pkill -f [s]sh.*{address}; while pgrep -f [s]sh.*{address}; do sleep 1; done")
+
     def add_new_machine(self, b, address, known_host=False, pixel_label=None):
         b.click("button:contains('Add new host')")
         b.wait_visible('#hosts_setup_server_dialog')

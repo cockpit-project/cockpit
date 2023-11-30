@@ -258,7 +258,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     if (old_dir === false)
         return Promise.reject(_("This device can not be used for the installation target."));
 
-    const split_options = parse_options(old_opts);
+    // Strip out btrfs subvolume mount options
+    const split_options = parse_options(old_opts).filter(opt => !(opt.startsWith('subvol=') || opt.startsWith('subvolid=')));
     extract_option(split_options, "noauto");
     const opt_ro = extract_option(split_options, "ro");
     const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");

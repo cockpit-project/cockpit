@@ -42,9 +42,9 @@ import {
 
 const _ = cockpit.gettext;
 
-export function mounting_dialog(client, block, mode, forced_options) {
+export function mounting_dialog(client, block, mode, forced_options, subvol) {
     const block_fsys = client.blocks_fsys[block.path];
-    const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
+    const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true, subvol);
     const options = old_config ? old_opts : initial_tab_options(client, block, true);
 
     const old_dir_for_display = client.strip_mount_point_prefix(old_dir);
@@ -62,7 +62,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
             extract_option(split_options, opt);
     const extra_options = unparse_options(split_options);
 
-    const is_filesystem_mounted = is_mounted(client, block);
+    const is_filesystem_mounted = is_mounted(client, block, subvol);
 
     function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type) {
         let new_config = null;
@@ -152,7 +152,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
         }
 
         function maybe_lock() {
-            if (mode == "unmount") {
+            if (mode == "unmount" && !subvol) {
                 const crypto_backing = client.blocks[block.CryptoBackingDevice];
                 const crypto_backing_crypto = crypto_backing && client.blocks_crypto[crypto_backing.path];
                 if (crypto_backing_crypto) {
@@ -207,7 +207,8 @@ export function mounting_dialog(client, block, mode, forced_options) {
                                                                 block,
                                                                 client.add_mount_point_prefix(val),
                                                                 mode == "update" && !is_filesystem_mounted,
-                                                                true)
+                                                                true,
+                                                                subvol)
                       }),
             CheckBoxes("mount_options", _("Mount options"),
                        {
@@ -297,7 +298,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
             return Promise.resolve();
     }
 
-    const usage = get_active_usage(client, block.path);
+    const usage = get_active_usage(client, block.path, null, null, false, subvol);
 
     const dlg = dialog_open({
         Title: cockpit.format(mode_title[mode], old_dir_for_display),

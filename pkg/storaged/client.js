@@ -214,59 +214,204 @@ function is_multipath_master(block) {
     return false;
 }
 
-export function btrfs_poll() {
+export async function btrfs_poll() {
+    const usage_regex = /used\s+(?<used>\d+)\s+path\s+(?<device>[\w/]+)/;
     if (!client.uuids_btrfs_subvols)
         client.uuids_btrfs_subvols = { };
+    if (!client.uuids_btrfs_usage)
+        client.uuids_btrfs_usage = { };
+    if (!client.uuids_btrfs_default_subvol)
+        client.uuids_btrfs_default_subvol = { };
     if (!client.uuids_btrfs_volume)
         return;
 
+    if (!client.superuser.allowed) {
+        return;
+    }
+
     const uuids_subvols = { };
-    return Promise.all(Object.keys(client.uuids_btrfs_volume).map(uuid => {
-        const block = client.uuids_btrfs_blocks[uuid][0];
-        const block_fsys = client.blocks_fsys[block.path];
-        const mp = block_fsys.MountPoints[0];
+    const uuids_usage = { };
+    const btrfs_default_subvol = { };
+    for (const uuid of Object.keys(client.uuids_btrfs_volume)) {
+        const blocks = client.uuids_btrfs_blocks[uuid];
+        if (!blocks)
+            continue;
+
+        // In multi device setups MountPoints can be on either of the block devices, so try them all.
+        const MountPoints = blocks.map(block => {
+            return client.blocks_fsys[block.path];
+        }).map(block_fsys => block_fsys.MountPoints).reduce((accum, current) => accum.concat(current));
+        const mp = MountPoints[0];
         if (mp) {
-            // HACK: UDisks GetSubvolumes method uses `subvolume list -p` which
-            // does not show the full subvolume path which we want to show in the UI
-            //
-            // $ btrfs subvolume list -p /run/butter
-            // ID 256 gen 7 parent 5 top level 5 path one
-            // ID 257 gen 7 parent 256 top level 256 path two
-            // ID 258 gen 7 parent 257 top level 257 path two/three/four
-            //
-            // $ btrfs subvolume list -ap /run/butter
-            // ID 256 gen 7 parent 5 top level 5 path <FS_TREE>/one
-            // ID 257 gen 7 parent 256 top level 256 path one/two
-            // ID 258 gen 7 parent 257 top level 257 path <FS_TREE>/one/two/three/four
-            return cockpit.spawn(["btrfs", "subvolume", "list", "-ap", utils.decode_filename(mp)],
-                                 { superuser: true, err: "message" })
-                    .then(output => {
-                        const subvols = [{ pathname: "/", id: 5 }];
-                        for (const line of output.split("\n")) {
-                            const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
-                            if (m)
-                                subvols.push({ pathname: m[4], id: Number(m[1]) });
-                        }
-                        uuids_subvols[uuid] = subvols;
-                    });
+            let output;
+            const mount_point = utils.decode_filename(mp);
+            try {
+                // HACK: UDisks GetSubvolumes method uses `subvolume list -p` which
+                // does not show the full subvolume path which we want to show in the UI
+                //
+                // $ btrfs subvolume list -p /run/butter
+                // ID 256 gen 7 parent 5 top level 5 path one
+                // ID 257 gen 7 parent 256 top level 256 path two
+                // ID 258 gen 7 parent 257 top level 257 path two/three/four
+                //
+                // $ btrfs subvolume list -ap /run/butter
+                // ID 256 gen 7 parent 5 top level 5 path <FS_TREE>/one
+                // ID 257 gen 7 parent 256 top level 256 path one/two
+                // ID 258 gen 7 parent 257 top level 257 path <FS_TREE>/one/two/three/four
+                output = await cockpit.spawn(["btrfs", "subvolume", "list", "-ap", mount_point], { superuser: true, err: "message" });
+            } catch (err) {
+                console.error(`unable to obtain subvolumes for mount point ${mount_point}`, err);
+                return;
+            }
+            const subvols = [{ pathname: "/", id: 5 }];
+            for (const line of output.split("\n")) {
+                const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
+                if (m)
+                    subvols.push({ pathname: m[4], id: Number(m[1]) });
+            }
+            uuids_subvols[uuid] = subvols;
+
+            // HACK: Obtain the default subvolume, required for mounts in which do not specify a subvol and subvolid.
+            // In the future can be obtained via UDisks, it requires the btrfs partition to be mounted somewhere.
+            // https://github.com/storaged-project/udisks/commit/b6966b7076cd837f9d307eef64beedf01bc863ae
+            try {
+                output = await cockpit.spawn(["btrfs", "subvolume", "get-default", mount_point], { superuser: true, err: "message" });
+                const id_match = output.match(/ID (\d+).*/);
+                if (id_match)
+                    btrfs_default_subvol[uuid] = Number(id_match[1]);
+            } catch (err) {
+                console.error(`unable to obtain default subvolume for mount point ${mount_point}`, err);
+            }
+
+            // HACK: UDisks should expose a better btrfs API with btrfs device information
+            // https://github.com/storaged-project/udisks/issues/1232
+            // TODO: optimise into just parsing one `btrfs filesystem show`?
+            const usages = {};
+            let usage_output;
+            try {
+                usage_output = await cockpit.spawn(["btrfs", "filesystem", "show", "--raw", uuid], { superuser: true, err: "message" });
+            } catch (err) {
+                console.error(`btrfs filesystem show ${uuid}`, err);
+                return;
+            }
+            for (const line of usage_output.split("\n")) {
+                const match = usage_regex.exec(line);
+                if (match) {
+                    const { used, device } = match.groups;
+                    usages[device] = used;
+                }
+            }
+            uuids_usage[uuid] = usages;
         } else {
             uuids_subvols[uuid] = null;
-            return Promise.resolve();
+            uuids_usage[uuid] = null;
         }
-    }))
-            .then(() => {
-                if (!deep_equal(client.uuids_btrfs_subvols, uuids_subvols)) {
-                    debug("btrfs_pol new subvols:", uuids_subvols);
-                    client.uuids_btrfs_subvols = uuids_subvols;
-                    client.update();
+    }
+
+    if (!deep_equal(client.uuids_btrfs_subvols, uuids_subvols) || !deep_equal(client.uuids_btrfs_usage, uuids_usage) ||
+        !deep_equal(client.uuids_btrfs_default_subvol, btrfs_default_subvol)) {
+        debug("btrfs_pol new subvols:", uuids_subvols);
+        client.uuids_btrfs_subvols = uuids_subvols;
+        client.uuids_btrfs_usage = uuids_usage;
+        debug("btrfs_pol usage:", uuids_usage);
+        client.uuids_btrfs_default_subvol = btrfs_default_subvol;
+        debug("btrfs_pol default subvolumes:", btrfs_default_subvol);
+        client.update();
+    }
+}
+
+function btrfs_findmnt_poll() {
+    if (!client.btrfs_mounts)
+        client.btrfs_mounts = { };
+
+    const update_btrfs_mounts = output => {
+        const btrfs_mounts = {};
+        try {
+            // Extract the data into a { uuid: { subvolid: { subvol, target } } }
+            const mounts = JSON.parse(output);
+            if ("filesystems" in mounts) {
+                for (const fs of mounts.filesystems) {
+                    const subvolid_match = fs.options.match(/subvolid=(?<subvolid>\d+)/);
+                    const subvol_match = fs.options.match(/subvol=(?<subvol>[\w\\/]+)/);
+                    if (!subvolid_match && !subvol_match) {
+                        console.warn("findmnt entry without subvol and subvolid", fs);
+                        break;
+                    }
+
+                    const { subvolid } = subvolid_match.groups;
+                    const { subvol } = subvol_match.groups;
+                    const subvolume = {
+                        pathname: subvol,
+                        id: subvolid,
+                        mount_points: [fs.target],
+                    };
+
+                    if (!(fs.uuid in btrfs_mounts)) {
+                        btrfs_mounts[fs.uuid] = { };
+                    }
+
+                    // We need to handle multiple mounts, they are listed seperate.
+                    if (subvolid in btrfs_mounts[fs.uuid]) {
+                        btrfs_mounts[fs.uuid][subvolid].mount_points.push(fs.target);
+                    } else {
+                        btrfs_mounts[fs.uuid][subvolid] = subvolume;
+                    }
+                }
+            }
+        } catch (exc) {
+            if (exc.message)
+                console.error("unable to parse findmnt JSON output", exc);
+        }
+
+        // Update client state
+        if (!deep_equal(client.btrfs_mounts, btrfs_mounts)) {
+            client.btrfs_mounts = btrfs_mounts;
+            debug("btrfs_findmnt_poll mounts:", client.btrfs_mounts);
+            client.update();
+        }
+    };
+
+    const findmnt_poll = () => {
+        return cockpit.spawn(["findmnt", "--type", "btrfs", "--mtab", "--poll"], { superuser: "try", err: "message" }).stream(() => {
+            cockpit.spawn(["findmnt", "--type", "btrfs", "--mtab", "-o", "UUID,OPTIONS,TARGET", "--json"],
+                          { superuser: "try", err: "message" }).then(output => update_btrfs_mounts(output)).catch(err => {
+                // When there are no btrfs filesystems left this can fail and thus we need to manually reset the mount info.
+                client.btrfs_mounts = {};
+                client.update();
+                if (err.message) {
+                    console.error("findmnt exited with an error", err);
                 }
             });
+        }).catch(err => {
+            console.error("findmnt --poll exited with an error", err);
+            throw new Error("findmnt --poll stopped working");
+        });
+    };
+
+    // This fails when no btrfs filesystem is found with the --mtab option and exits with 1, so that is kinda useless, however without --mtab
+    // we don't get a nice flat structure. So we ignore the errors
+    cockpit.spawn(["findmnt", "--type", "btrfs", "--mtab", "-o", "UUID,OPTIONS,SOURCE,TARGET", "--json"],
+                  { superuser: "try", err: "message" }).then(output => {
+        update_btrfs_mounts(output);
+        findmnt_poll();
+    }).catch(err => {
+        // only log error when there is a real issue.
+        if (client.superuser.allowed && err.message) {
+            console.error(`unable to run findmnt ${err}`);
+        }
+        findmnt_poll();
+    });
 }
 
 function btrfs_start_polling() {
+    debug("starting polling for btrfs subvolumes");
     window.setInterval(btrfs_poll, 5000);
     client.uuids_btrfs_subvols = { };
+    client.uuids_btrfs_usage = { };
+    client.uuids_btrfs_default_subvol = { };
+    client.btrfs_mounts = { };
     btrfs_poll();
+    btrfs_findmnt_poll();
 }
 
 function update_indices() {

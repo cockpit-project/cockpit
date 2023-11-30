@@ -47,6 +47,7 @@ import { make_stratis_stopped_pool_page } from "../stratis/stopped-pool.jsx";
 import { make_nfs_page, nfs_fstab_dialog } from "../nfs/nfs.jsx";
 import { make_iscsi_session_page } from "../iscsi/session.jsx";
 import { make_other_page } from "../block/other.jsx";
+import { make_btrfs_volume_page } from "../btrfs/volume.jsx";
 
 const _ = cockpit.gettext;
 
@@ -71,6 +72,7 @@ export function make_overview_page() {
     Object.keys(client.stratis_manager.StoppedPools).map(uuid => make_stratis_stopped_pool_page(overview_page, uuid));
     client.nfs.entries.forEach(e => make_nfs_page(overview_page, e));
     get_other_devices(client).map(p => make_other_page(overview_page, client.blocks[p]));
+    Object.keys(client.uuids_btrfs_volume).forEach(uuid => make_btrfs_volume_page(overview_page, uuid));
 }
 
 const OverviewCard = ({ card, plot_state }) => {

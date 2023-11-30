@@ -176,18 +176,14 @@ class AddMachine extends React.Component {
     }
 
     onAddHost() {
-        this.props.setAddress(this.state.address);
+        const parts = this.props.machines_ins.split_connection_string(this.state.address);
+        // user in "User name:" field wins over user in connection string
+        const address = this.props.machines_ins.generate_connection_string(this.state.user || parts.user, parts.port, parts.address);
 
         if (this.onAddressChange())
             return;
 
-        let address = this.state.address;
-
-        if (this.state.user) {
-            const parts = this.props.machines_ins.split_connection_string(this.state.address);
-            address = this.props.machines_ins.generate_connection_string(this.state.user, parts.port, parts.address);
-            this.props.setAddress(address);
-        }
+        this.props.setAddress(address);
 
         if (this.state.old_machine && address === this.state.old_machine.connection_string) {
             this.props.setError(null);
@@ -204,12 +200,9 @@ class AddMachine extends React.Component {
         this.setState({ inProgress: true });
 
         this.props.setGoal(() => {
-            let address = this.state.address;
-
-            if (this.state.user) {
-                const parts = this.props.machines_ins.split_connection_string(this.state.address);
-                address = this.props.machines_ins.generate_connection_string(this.state.user, parts.port, parts.address);
-            }
+            const parts = this.props.machines_ins.split_connection_string(this.state.address);
+            // user in "User name:" field wins over user in connection string
+            const address = this.props.machines_ins.generate_connection_string(this.state.user || parts.user, parts.port, parts.address);
 
             return new Promise((resolve, reject) => {
                 this.props.machines_ins.add(address, this.state.color)

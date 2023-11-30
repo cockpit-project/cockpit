@@ -64,23 +64,31 @@ class HostSwitcherHelpers:
         # HACK: Dropping the machine does not terminate SSH connection; https://github.com/cockpit-project/cockpit/issues/19672
         self.machine.execute(f"pkill -f [s]sh.*{address}; while pgrep -f [s]sh.*{address}; do sleep 1; done")
 
-    def add_new_machine(self, b, address, known_host=False, pixel_label=None):
+    def add_new_machine(self, b, address, known_host=False, pixel_label=None, user=None, expect_password_auth=False):
         b.click("button:contains('Add new host')")
         b.wait_visible('#hosts_setup_server_dialog')
         b.set_input_text('#add-machine-address', address)
+        if user:
+            b.set_input_text('#add-machine-user', user)
         if pixel_label:
             b.assert_pixels("#hosts_setup_server_dialog", pixel_label)
         b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
         if not known_host:
             b.wait_in_text('#hosts_setup_server_dialog', f"You are connecting to {address} for the first time")
             b.click('#hosts_setup_server_dialog .pf-m-primary')
+        if expect_password_auth:
+            b.wait_in_text("#hosts_setup_server_dialog", "Unable to log in to")
+            b.set_input_text('#login-custom-password', "foobar")
+            b.click('#hosts_setup_server_dialog button:contains("Log in")')
         with b.wait_timeout(30):
             b.wait_not_present('#hosts_setup_server_dialog')
 
-    def connect_and_wait(self, b, address):
+    def connect_and_wait(self, b, address, expected_user=None):
         b.click(f"a[href='/@{address}']")
         b.click("#hosts-sel button")
         b.wait_visible(f".connected a[href='/@{address}']")
+        if expected_user:
+            b.wait_text("#current-username", expected_user)
         # Switch back to localhost, since the rest of the test expects that
         b.click("a[href='/@localhost']")
         b.click("#hosts-sel button")
@@ -144,7 +152,8 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         self.add_new_machine(b, "10.111.113.2", pixel_label="host-add-dialog")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2")
+        # defaults to current host user name "admin"
+        self.connect_and_wait(b, "10.111.113.2", "admin")
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
@@ -161,7 +170,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         self.add_new_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.3")
+        self.connect_and_wait(b, "10.111.113.3", "admin")
 
         b.assert_pixels("#nav-hosts", "nav-hosts-2-remotes")
 
@@ -236,7 +245,33 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-danger")
         b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/network']")
         b.wait_js_cond('window.location.pathname == "/system"')
+
         b.enter_page("/system", "localhost")
+
+        # remove machine2 as well, to return to a blank slate
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
+        self.wait_host_addresses(b, ["localhost"])
+
+        #
+        # check various connection string formats and user names
+        # the tests above only covers implied "admin" user
+        #
+
+        self.machines["machine2"].execute("useradd --create-home someone; echo someone:foobar | chpasswd")
+
+        # plain address and separate "User name:" field
+        self.add_new_machine(b, "10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
+
+        # address with user and different "User name:" field, latter wins
+        self.add_new_machine(b, "admin@10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 

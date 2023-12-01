@@ -618,9 +618,12 @@ class TestConnection(testlib.MachineCase):
         m.stop_cockpit()
         checkMotdContent('systemctl')
         checkMotdContent(':9090/', expected=False)
-        m.start_cockpit()
 
-        checkMotdContent(':9090/')
+        hostname = m.execute("hostname").strip()
+        ip = m.execute("ip route show default | grep -o 'src [^ ]*' | cut -f2- -d' '").strip()
+
+        m.start_cockpit()
+        checkMotdContent(f"Web console: https://{hostname}:9090/ or https://{ip}:9090/")
         checkMotdContent('systemctl', expected=False)
         m.execute("systemctl stop cockpit.socket")
 
@@ -633,11 +636,11 @@ class TestConnection(testlib.MachineCase):
         checkMotdContent('systemctl')
         checkMotdContent(':9090/', expected=False)
         checkMotdContent(':443/', expected=False)
-        m.start_cockpit(tls=True)
 
+        m.start_cockpit(tls=True)
         checkMotdContent('systemctl', expected=False)
         checkMotdContent(':9090/', expected=False)
-        checkMotdContent(':443/')
+        checkMotdContent(f"Web console: https://{hostname}:443/ or https://{ip}:443/")
 
         output = m.execute('curl -k https://localhost 2>&1 || true')
         self.assertIn('Loading...', output)

@@ -21,15 +21,6 @@ case $TEST_SCENARIO in
         test/image-prepare --verbose $TEST_OS
         test/avocado/run-tests --quick --selenium-tests --browser ${TEST_SCENARIO#*-}
         ;;
-    container-kubernetes)
-        test/image-prepare --containers --verbose $TEST_OS
-        test/image-prepare --containers --verbose --install-only openshift
-        test/containers/run-tests --container kubernetes
-        ;;
-    container-*)
-        test/image-prepare --containers --verbose $TEST_OS
-        test/containers/run-tests --container ${TEST_SCENARIO#*-}
-        ;;
     *)
         echo "Unknown test scenario: $TEST_SCENARIO"
         exit 1

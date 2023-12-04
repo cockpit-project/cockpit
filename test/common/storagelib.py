@@ -499,7 +499,7 @@ MakeDirectory=yes
         # Before the reboot, we destroy the original disk to make
         # really sure that it wont be used anymore.
 
-        info = m.add_disk("4G", serial="NEWROOT", boot_disk=True)
+        info = m.add_disk("6G", serial="NEWROOT", boot_disk=True)
         dev = "/dev/" + info["dev"]
         wait(lambda: m.execute(f"test -b {dev} && echo present").strip() == "present")
         m.execute(f"""

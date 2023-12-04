@@ -198,7 +198,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, short }
 
     return (
         <div>
-            <span className="pf-v5-u-text-nowrap">
+            <span className="usage-text pf-v5-u-text-nowrap">
                 {labelText}
             </span>
             <div className={"usage-bar" + (fraction > critical ? " usage-bar-danger" : "") + (short ? " usage-bar-short" : "")}
@@ -213,13 +213,13 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, short }
 };
 
 /* Render a static size that goes well with a short StorageusageBar in
-   the same table column.
+   the same table column, and also works well with the tests.
 */
 
 export const StorageSize = ({ size }) => {
     return (
         <div>
-            <span className="pf-v5-u-text-nowrap">
+            <span className="usage-text pf-v5-u-text-nowrap">
                 {utils.fmt_size(size)}
             </span>
             <div className="usage-bar usage-bar-short usage-bar-empty" />

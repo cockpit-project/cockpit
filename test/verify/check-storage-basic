@@ -69,8 +69,12 @@ class TestStorageBasic(storagelib.StorageCase):
         b.wait_visible(self.card("Storage"))
         b.wait_visible(self.card_row("Storage", name=disk))
         b.assert_pixels(self.card("Storage"), "overview",
-                        # Usage numbers for the root filesystem are not stable
-                        ignore=["[data-test-row-location='/']"])
+                        # Usage numbers are not stable and also cause
+                        # the table columns to shift. The usage bars
+                        # are not stable but are always the same size,
+                        # so it is good enough to ignore them.
+                        mock={".usage-text": "---"},
+                        ignore=[".usage-bar"])
         self.force_remove_disk(disk)
         b.wait_not_present(self.card_row("Storage", name=disk))
 

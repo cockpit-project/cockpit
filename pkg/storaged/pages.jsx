@@ -501,7 +501,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
 
         if (typeof size === "number") {
             if (narrow)
-                size = fmt_size(size);
+                size = <span className="usage-text">{fmt_size(size)}</span>;
             else
                 size = <StorageSize size={size} />;
         }

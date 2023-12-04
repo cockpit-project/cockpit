@@ -263,7 +263,13 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         b.wait_visible(self.card_row_col("LVM2 logical volumes", 1, 4) + " .usage-bar")
         b.assert_pixels('body', "page",
-                        mock={self.card_desc("LVM2 volume group", "UUID"): "a12978a1-5d6e-f24f-93de-11789977acde"})
+                        # Usage numbers are not stable and also cause
+                        # the table columns to shift. The usage bars
+                        # are not stable but are always the same size,
+                        # so it is good enough to ignore them.
+                        mock={self.card_desc("LVM2 volume group", "UUID"): "a12978a1-5d6e-f24f-93de-11789977acde",
+                              ".usage-text": "---"},
+                        ignore=[".usage-bar"])
 
         # rename volume group
         b.click(self.card_desc_action("LVM2 volume group", "Name"))

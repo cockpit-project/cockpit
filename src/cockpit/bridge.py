@@ -24,6 +24,7 @@ import os
 import pwd
 import shlex
 import socket
+import stat
 import subprocess
 from typing import Iterable, List, Optional, Sequence, Tuple, Type
 
@@ -202,11 +203,33 @@ def try_to_receive_stderr():
             os.close(fd)
 
 
-def setup_logging(*, debug: bool):
+def setup_journald() -> bool:
+    # If stderr is a socket, prefer systemd-journal logging.  This covers the
+    # case we're already connected to the journal but also the case where we're
+    # talking to the ferny agent, while leaving logging to file or terminal
+    # unaffected.
+    if not stat.S_ISSOCK(os.fstat(2).st_mode):
+        # not a socket?  Don't redirect.
+        return False
+
+    try:
+        import systemd.journal  # type: ignore[import]
+    except ImportError:
+        # No python3-systemd?  Don't redirect.
+        return False
+
+    logging.root.addHandler(systemd.journal.JournalHandler())
+    return True
+
+
+def setup_logging(*, debug: bool) -> None:
     """Setup our logger with optional filtering of modules if COCKPIT_DEBUG env is set"""
 
     modules = os.getenv('COCKPIT_DEBUG', '')
-    logging.basicConfig(format='%(name)s-%(levelname)s: %(message)s')
+
+    # Either setup logging via journal or via formatted messages to stderr
+    if not setup_journald():
+        logging.basicConfig(format='%(name)s-%(levelname)s: %(message)s')
 
     if debug or modules == 'all':
         logging.getLogger().setLevel(level=logging.DEBUG)

@@ -1548,6 +1548,7 @@ class MachineCase(unittest.TestCase):
                         "    done; "
                         "    while fuser --mount /dev/$dev --kill; do sleep 0.1; done; "
                         "    umount /dev/$dev || true; "
+                        "    swapon --show=NAME --noheadings | grep $dev | xargs -r swapoff; "
                         "done; until rmmod scsi_debug; do sleep 0.2; done", stdout=None)
 
         def terminate_sessions():

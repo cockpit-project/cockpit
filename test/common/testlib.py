@@ -1013,11 +1013,6 @@ class Browser:
         if not (Image and self.pixels_label):
             return
 
-        if mock is not None:
-            self.set_mock(mock, base=selector)
-            if sit_after_mock:
-                sit()
-
         self._adjust_window_for_fixed_content_size()
         self.call_js_func('ph_scrollIntoViewIfNeeded', scroll_into_view or selector)
         self.call_js_func('ph_blur_active')
@@ -1045,6 +1040,11 @@ class Browser:
         if wait_animations:
             time.sleep(wait_delay)
             self.wait_js_cond('ph_count_animations(%s) == 0' % jsquote(selector))
+
+        if mock is not None:
+            self.set_mock(mock, base=selector)
+            if sit_after_mock:
+                sit()
 
         rect = self.call_js_func('ph_element_clip', selector)
 

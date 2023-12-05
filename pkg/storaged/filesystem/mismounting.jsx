@@ -165,8 +165,8 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
                 return client.mount_at(content_block, old_dir);
         }
 
-        function do_unmount() {
-            return client.unmount_at(old_dir)
+        function do_unmount(dir) {
+            return client.unmount_at(dir)
                     .then(() => {
                         if (backing_block != content_block)
                             return crypto_backing_crypto.Lock({});
@@ -178,9 +178,9 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
         else if (type == "mount-on-boot")
             return do_mount();
         else if (type == "no-mount-on-boot")
-            return do_unmount();
+            return do_unmount(old_dir);
         else if (type == "mounted-no-config")
-            return do_unmount();
+            return do_unmount(other);
         else if (type == "locked-on-boot-mount") {
             if (backing_block != content_block)
                 return set_crypto_auto_option(backing_block, true);

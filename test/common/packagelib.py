@@ -100,7 +100,7 @@ Server = file://{empty_repo_dir}
         else:
             self.restore_dir("/etc/yum.repos.d", reboot_safe=True)
             self.restore_dir("/var/cache/dnf", reboot_safe=True)
-            self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/* /var/cache/dnf/*")
+            self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/dnf/*")
 
         # have PackageKit start from a clean slate
         self.machine.execute("systemctl stop packagekit")
@@ -425,4 +425,4 @@ Server = file://{self.repo_dir}
                                     echo '{1}' > /tmp/updateinfo.xml
                                     createrepo_c {0}
                                     modifyrepo_c /tmp/updateinfo.xml {0}/repodata
-                                    $(which dnf 2>/dev/null|| which yum) clean all""".format(self.repo_dir, self.createYumUpdateInfo()))
+                                    dnf clean all""".format(self.repo_dir, self.createYumUpdateInfo()))

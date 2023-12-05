@@ -34,7 +34,7 @@ class NoSubManCase(packagelib.PackageCase):
         super().setUp()
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
-        # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
+        # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in dnf, so it should not get in the way there
         if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos"):
             self.machine.execute("systemctl stop rhsm.service; systemctl mask rhsm.service")
             self.addCleanup(self.machine.execute, "systemctl unmask rhsm.service")
@@ -52,7 +52,7 @@ class TestUpdates(NoSubManCase):
 
         pkcon_version = self.machine.execute("pkcon --version").strip()
 
-        # only the yum and PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) backends
+        # only the PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) backends
         # properly recognize "enhancement" severity; apt does not have that metadata
         self.supports_severity = not (self.backend == "apt" or pkcon_version < "1.2.4")
 
@@ -719,23 +719,6 @@ ExecStart=/usr/local/bin/{packageName}
                               cves=["CVE-2014-54321", "CVE-2017-9999"])
         sel = self.check_nth_update(3, "sevcritical", "5-2", "security", 1,
                                     desc_matches=["More broken stuff"])
-
-        if self.backend == 'yum':
-            # sevcritical has a severity and errata
-            details = b.text(sel + " .pf-m-expanded")
-            self.assertIn("Severity", details)
-            self.assertIn("critical", details)
-            self.assertIn("Errata", details)
-            self.assertIn("RHSA-2000:0001", details)
-            self.assertIn("RHSA-2000:0002", details)
-            # icon has critical class
-            self.assertIn("severity-critical", b.attr(sel + " .severity-icon", "class"))
-            b.mouse(sel + " .severity-icon", "mouseenter")
-            b.wait_text(".pf-v5-c-tooltip", "critical")
-            b.mouse(sel + " .severity-icon", "mouseleave")
-            b.wait_not_present(".pf-v5-c-tooltip")
-            # details has link to severity definition
-            self.assertIn("access.redhat.com", b.attr(sel + " .pf-m-expanded dd.severity a:first-of-type", "href"))
 
         # buggy: bug refs, no security
         sel = self.check_nth_update(4, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])
@@ -1412,7 +1395,7 @@ class TestAutoUpdates(NoSubManCase):
 
     def setUp(self):
         super().setUp()
-        # not implemented for yum and apt yet, only dnf
+        # not implemented for apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]
         if self.backend == 'dnf':
             self.restore_file("/etc/dnf/automatic.conf")

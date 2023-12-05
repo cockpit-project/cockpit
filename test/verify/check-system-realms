@@ -1144,7 +1144,7 @@ class TestPackageInstall(packagelib.PackageCase):
         m = self.machine
         b = self.browser
 
-        m.execute("dpkg --purge realmd 2>/dev/null || rpm --erase realmd || yum remove -y realmd")
+        m.execute("dpkg --purge realmd 2>/dev/null || rpm --erase realmd || dnf remove -y realmd")
 
         # case 1: disable PackageKit
         m.execute("systemctl mask packagekit; systemctl stop packagekit.service || true")

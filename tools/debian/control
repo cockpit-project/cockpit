@@ -123,7 +123,8 @@ Depends: ${misc:Depends},
          cockpit-bridge (>= ${source:Version}),
          python3,
          python3-dbus
-Suggests: udisks2-lvm2,
+Suggests: udisks2-btrfs,
+          udisks2-lvm2, 
           mdadm,
 Description: Cockpit user interface for storage
  The Cockpit components for interacting with storage.

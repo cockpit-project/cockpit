@@ -657,6 +657,9 @@ Requires: cockpit-shell >= %{required_base}
 Requires: udisks2 >= 2.9
 Recommends: udisks2-lvm2 >= 2.9
 Recommends: udisks2-iscsi >= 2.9
+%if ! 0%{?rhel}
+Recommends: udisks2-btrfs >= 2.9
+%endif
 Recommends: device-mapper-multipath
 Recommends: clevis-luks
 Requires: %{__python3}

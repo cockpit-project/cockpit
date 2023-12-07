@@ -60,7 +60,6 @@ class CockpitProtocol(asyncio.Protocol):
     transport: Optional[asyncio.Transport] = None
     buffer = b''
     _closed: bool = False
-    _communication_done: Optional[asyncio.Future] = None
 
     def do_ready(self) -> None:
         pass
@@ -173,12 +172,6 @@ class CockpitProtocol(asyncio.Protocol):
 
         self.do_closed(exc)
 
-        if self._communication_done is not None:
-            if exc is None:
-                self._communication_done.set_result(None)
-            else:
-                self._communication_done.set_exception(exc)
-
     def write_channel_data(self, channel, payload):
         """Send a given payload (bytes) on channel (string)"""
         # Channel is certainly ascii (as enforced by .encode() below)
@@ -209,13 +202,6 @@ class CockpitProtocol(asyncio.Protocol):
 
     def eof_received(self) -> Optional[bool]:
         return False
-
-    async def communicate(self) -> None:
-        """Wait until communication is complete on this protocol."""
-        assert self._communication_done is None
-        self._communication_done = asyncio.get_running_loop().create_future()
-        await self._communication_done
-        self._communication_done = None
 
 
 # Helpful functionality for "server"-side protocol implementations

@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import re
 import time
 
 import packagelib
@@ -1166,9 +1165,7 @@ class TestWsUpdate(NoSubManCase):
 
         b.wait_in_text("#app div.progress-description", "slow 1-2")
         # progress bar has some reasonable value
-        b.wait_attr_contains(".progress-main-view .pf-v5-c-progress__indicator", "style", "width:")
-        rm = re.search(r"width: (\d+)%;", b.attr(".progress-main-view .pf-v5-c-progress__indicator", "style"))
-        progress = int(rm.group(1))
+        progress = b.get_pf_progress_value(".progress-main-view")
         self.assertGreater(progress, 20)
         self.assertLess(progress, 80)
 

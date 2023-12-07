@@ -912,6 +912,15 @@ class Browser:
             # strip off parameters after hash
             self.enter_page(path.split('#')[0].rstrip('/'))
 
+    def get_pf_progress_value(self, progress_bar_sel):
+        """Get numeric value of a PatternFly <ProgressBar> component"""
+        sel = progress_bar_sel + " .pf-v5-c-progress__indicator"
+        self.wait_visible(sel)
+        self.wait_attr_contains(sel, "style", "width:")
+        style = self.attr(sel, "style")
+        m = re.search(r"width: (\d+)%;", style)
+        return int(m.group(1))
+
     def ignore_ssl_certificate_errors(self, ignore: bool):
         action = ignore and "continue" or "cancel"
         if opts.trace:

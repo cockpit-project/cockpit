@@ -37,15 +37,6 @@ def getCompressedMinuteValue(test, g_type, saturation, hour, minute):
     return float(m.group(1))
 
 
-def progressValue(test, progress_bar_sel):
-    sel = progress_bar_sel + " .pf-v5-c-progress__indicator"
-    test.browser.wait_visible(sel)
-    test.browser.wait_attr_contains(sel, "style", "width:")
-    style = test.browser.attr(sel, "style")
-    m = re.search(r"width: (\d+)%;", style)
-    return int(m.group(1))
-
-
 def topServiceValue(test, aria_label, col_label, row):
     sel = "table[aria-label='%s'] tbody tr:nth-of-type(%d) td[data-label='%s']" % (aria_label, row, col_label)
     # split off unit, like "12 MB"
@@ -789,10 +780,10 @@ class TestCurrentMetrics(testlib.MachineCase):
             b.wait_visible("#current-top-cpu-usage")
 
         # wait until system settles down
-        b.wait(lambda: progressValue(self, "#current-cpu-usage") < 20)
+        b.wait(lambda: b.get_pf_progress_value("#current-cpu-usage") < 20)
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
-        b.wait(lambda: progressValue(self, "#current-cpu-usage") > 75)
+        b.wait(lambda: b.get_pf_progress_value("#current-cpu-usage") > 75)
         # no other process in the test VM should take > 30% CPU, by the "settles down" assertion above
         b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(1) td[data-label='Service']", "cpu-hog")
         b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(2) td[data-label='Service']", "cpu-piglet")
@@ -810,7 +801,7 @@ class TestCurrentMetrics(testlib.MachineCase):
 
         m.execute("systemctl stop cpu-hog cpu-piglet")
         # should go back to idle usage
-        b.wait(lambda: progressValue(self, "#current-cpu-usage") < 20)
+        b.wait(lambda: b.get_pf_progress_value("#current-cpu-usage") < 20)
         # it could be that the table disappears completely if no service has a noticeable CPU usage;
         # so don't assume the table exists
         b.wait_not_in_text("#current-metrics-card-cpu", "cpu-hog")
@@ -1002,10 +993,10 @@ class TestCurrentMetrics(testlib.MachineCase):
         # only some images have swap
         have_swap = m.execute("swapon --show").strip()
         # wait until RAM usage is initialized
-        b.wait(lambda: progressValue(self, "#current-memory-usage") > 10)
+        b.wait(lambda: b.get_pf_progress_value("#current-memory-usage") > 10)
 
         # our test machines should use a reasonable chunk of available memory
-        initial_usage = progressValue(self, "#current-memory-usage")
+        initial_usage = b.get_pf_progress_value("#current-memory-usage")
         self.assertGreater(initial_usage, 10)
         self.assertLess(initial_usage, 80)
         # allocate a chunk of memory; this may cause other stuff to get unmapped,
@@ -1021,7 +1012,7 @@ BEGIN {{
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 3s
         time.sleep(8)
-        hog_usage = progressValue(self, "#current-memory-usage")
+        hog_usage = b.get_pf_progress_value("#current-memory-usage")
         self.assertGreater(hog_usage, initial_usage + 8)
 
         b.wait_text("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service']", "mem-hog")
@@ -1044,18 +1035,18 @@ BEGIN {{
         b.wait_visible("table[aria-label='Top 5 memory services']")
 
         if have_swap:
-            usage_hog1 = progressValue(self, "#current-memory-usage")
+            usage_hog1 = b.get_pf_progress_value("#current-memory-usage")
 
             # use even more memory to trigger swap
             m.execute("systemd-run --collect --slice cockpittest --unit mem-hog2 awk "
                       """'BEGIN { x = sprintf("%700000000s",""); system("sleep infinity") }'""")
-            b.wait(lambda: progressValue(self, "#current-swap-usage") > 0)
+            b.wait(lambda: b.get_pf_progress_value("#current-swap-usage") > 0)
 
             m.execute("systemctl stop mem-hog mem-hog2")
 
             # after stopping both hogs, usage should go down
-            b.wait(lambda: progressValue(self, "#current-memory-usage") < usage_hog1)
-            self.assertGreater(progressValue(self, "#current-memory-usage"), 10)
+            b.wait(lambda: b.get_pf_progress_value("#current-memory-usage") < usage_hog1)
+            self.assertGreater(b.get_pf_progress_value("#current-memory-usage"), 10)
             b.wait_not_in_text("table[aria-label='Top 5 memory services'] tbody", "mem-hog")
 
             # total swap is shown as tooltip
@@ -1190,7 +1181,7 @@ BEGIN {{
             rm $F""")
         self.addCleanup(m.execute, "umount /var/cockpittest /var/cockpit-ro-test")
 
-        self.assertLess(progressValue(self, ".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
+        self.assertLess(b.get_pf_progress_value(".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest']"), 5)
         progress_sel = ".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest'] .pf-v5-c-progress__status"
         # free size is anything between 40 and 50 MB
         self.assertRegex(b.text(progress_sel), r"^4\d\.\d MB free$")
@@ -1204,7 +1195,7 @@ BEGIN {{
         self.assertFalse(b.is_present(".pf-v5-c-progress[data-disk-usage-target='/var/cockpit-ro-test']"))
 
         m.execute("dd if=/dev/zero of=/var/cockpittest/blob bs=1M count=40")
-        b.wait(lambda: progressValue(self, ".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)
+        b.wait(lambda: b.get_pf_progress_value(".pf-v5-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)
 
         # clicking on progress leads to the storage page
         if not m.ostree_image:
@@ -1422,7 +1413,7 @@ class TestMultiCPU(testlib.MachineCase):
 
         # Test current usage of cores
         b.wait_text("#current-cpu-usage-description", "2 CPUs")
-        b.wait(lambda: progressValue(self, "#current-cpu-usage") < 20)
+        b.wait(lambda: b.get_pf_progress_value("#current-cpu-usage") < 20)
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=50% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=20% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
         # View all CPUs
@@ -1433,9 +1424,9 @@ class TestMultiCPU(testlib.MachineCase):
         b.wait_not_present(".pf-v5-c-popover")
 
         # the top CPU core runs cpu-hog
-        b.wait(lambda: progressValue(self, "#current-top-cpu-usage") >= 38)
+        b.wait(lambda: b.get_pf_progress_value("#current-top-cpu-usage") >= 38)
         # the hoglet gets scheduled between core 1 and 2
-        b.wait(lambda: progressValue(self, "#current-top-cpu-usage") <= 80)
+        b.wait(lambda: b.get_pf_progress_value("#current-top-cpu-usage") <= 80)
         # looks like "average: 45% max: 60%"
         b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) >= 38)
         b.wait(lambda: int(b.text("#current-cpu-usage .pf-v5-c-progress__status").split()[-1].rstrip('%')) <= 80)

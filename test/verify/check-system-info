@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import re
 import time
 
 import packagelib
@@ -690,12 +689,7 @@ password=foobar
         m.execute("systemctl mask packagekit")
 
         def progressValue(number):
-            sel = ".system-usage tr:nth-child(%i) .pf-v5-c-progress__indicator" % number
-            b.wait_visible(sel)
-            b.wait_attr_contains(sel, "style", "width:")
-            style = b.attr(sel, "style")
-            m = re.search(r"width: (\d+)%;", style)
-            return int(m.group(1))
+            return b.get_pf_progress_value(f".system-usage tr:nth-child({number})")
 
         self.login_and_go("/system")
 

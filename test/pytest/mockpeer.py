@@ -3,11 +3,11 @@ import os
 import sys
 
 from cockpit._vendor import systemd_ctypes
-from cockpit.protocol import CockpitProtocolServer
+from cockpit.router import Router
 from cockpit.transports import StdioTransport
 
 
-class MockPeer(CockpitProtocolServer):
+class MockPeer(Router):
     def do_send_init(self):
         init_type = os.environ.get('INIT_TYPE', None)
         if init_type == 'wrong-command':
@@ -37,7 +37,7 @@ class MockPeer(CockpitProtocolServer):
 
 
 async def run():
-    protocol = MockPeer()
+    protocol = MockPeer([])
     StdioTransport(asyncio.get_running_loop(), protocol)
     await protocol.communicate()
 

@@ -221,7 +221,7 @@ def print_file_coverage(path, line_hits, out):
     for i in range(len(line_hits)):
         if line_hits[i] is not None:
             lines_found += 1
-            out.write(f"DA:{i+1},{line_hits[i]}\n")
+            out.write(f"DA:{i + 1},{line_hits[i]}\n")
             if line_hits[i] > 0:
                 lines_hit += 1
     out.write(f"LH:{lines_hit}\n")

@@ -648,7 +648,7 @@ OnCalendar=daily
         b.click("div#demo-file-ac-preselected input")
         paths = ["/home/admin/newdir", "/home/admin/newdir/dir1", "/home/admin/newdir/dir2", "/home/admin/newdir/file1", "/home/admin/newdir/file2"]
         for i in range(5):
-            b.wait_in_text(f"#file-autocomplete-widget-preselected li:nth-of-type({i+1}) button", paths[i])
+            b.wait_in_text(f"#file-autocomplete-widget-preselected li:nth-of-type({i + 1}) button", paths[i])
 
     @testlib.skipOstree("No PCP available")
     def testPlots(self):

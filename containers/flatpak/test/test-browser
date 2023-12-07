@@ -59,7 +59,7 @@ class BrowserTest(unittest.TestCase):
 
     def tearDown(self):
         if shutil.which("import"):
-            subprocess.call(["import", "-window", "root", f"test-browser-{ self.id().split('.')[-1] }.png"])
+            subprocess.call(["import", "-window", "root", f"test-browser-{self.id().split('.')[-1]}.png"])
         self.app_actions.activate_action("quit")
         self.assertEqual(self.p_client.wait(), 0)
 

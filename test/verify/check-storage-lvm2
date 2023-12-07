@@ -261,7 +261,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "ext4 filesystem")
         b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 3), mount_point_one)
 
-        b.wait_visible(self.card_row_col("LVM2 logical volumes", 1, 4) + " .usage-bar")
+        b.wait_visible(self.card_row_col("LVM2 logical volumes", 1, 4) + " .usage-bar[role=progressbar]")
         b.assert_pixels('body', "page",
                         # Usage numbers are not stable and also cause
                         # the table columns to shift. The usage bars

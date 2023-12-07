@@ -255,21 +255,15 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.click_card_row("LVM2 logical volumes", 1)
         self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"type": "ext4",
-                     "mount_point": mount_point_one})
+                     "mount_point": mount_point_one},
+                    secondary=True)
         self.assert_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
         b.click(self.card_parent_link())
         b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "ext4 filesystem")
-        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 3), mount_point_one)
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 3), mount_point_one + " (not mounted)")
 
-        b.wait_visible(self.card_row_col("LVM2 logical volumes", 1, 4) + " .usage-bar")
         b.assert_pixels('body', "page",
-                        # Usage numbers are not stable and also cause
-                        # the table columns to shift. The usage bars
-                        # are not stable but are always the same size,
-                        # so it is good enough to ignore them.
-                        mock={self.card_desc("LVM2 volume group", "UUID"): "a12978a1-5d6e-f24f-93de-11789977acde",
-                              ".usage-text": "---"},
-                        ignore=[".usage-bar"])
+                        mock={self.card_desc("LVM2 volume group", "UUID"): "a12978a1-5d6e-f24f-93de-11789977acde"})
 
         # rename volume group
         b.click(self.card_desc_action("LVM2 volume group", "Name"))

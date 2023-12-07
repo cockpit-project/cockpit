@@ -53,7 +53,7 @@ class TestStorageNfs(storagelib.StorageCase):
 
         b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
         b.wait_visible(self.card_row("Storage", location="/mnt/test"))
-        b.wait_visible(self.card_row("Storage", location="/mnt/test") + " .usage-bar")
+        b.wait_visible(self.card_row("Storage", location="/mnt/test") + " .usage-bar[role=progressbar]")
 
         # Should be saved to fstab
         self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
@@ -82,7 +82,7 @@ class TestStorageNfs(storagelib.StorageCase):
 
         b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/bar"))
         b.wait_visible(self.card_row("Storage", location="/mounts/bar"))
-        b.wait_visible(self.card_row("Storage", location="/mounts/bar") + " .usage-bar")
+        b.wait_visible(self.card_row("Storage", location="/mounts/bar") + " .usage-bar[role=progressbar]")
         m.execute("test -d /mounts/bar")
 
         # Go to details of /home/bar
@@ -217,7 +217,7 @@ class TestStorageNfs(storagelib.StorageCase):
 
         b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
         b.wait_visible(self.card_row("Storage", location="/mnt"))
-        b.wait_visible(self.card_row("Storage", location="/mnt") + " .usage-bar")
+        b.wait_visible(self.card_row("Storage", location="/mnt") + " .usage-bar[role=progressbar]")
 
     def testNfsBusy(self):
         m = self.machine
@@ -242,7 +242,7 @@ class TestStorageNfs(storagelib.StorageCase):
 
         b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
         b.wait_visible(self.card_row("Storage", location="/mounts/foo"))
-        b.wait_visible(self.card_row("Storage", location="/mounts/foo") + " .usage-bar")
+        b.wait_visible(self.card_row("Storage", location="/mounts/foo") + " .usage-bar[role=progressbar]")
 
         # Go to details of /home/foo
         self.click_card_row("Storage", name="127.0.0.1:/home/foo")

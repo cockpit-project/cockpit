@@ -96,6 +96,9 @@ class TestSystemInfo(testlib.MachineCase):
         b.wait_not_present("#page_status_notification_system_services")
 
         # ensure general page/card layout without the changing specifics
+        # need to wait until CPU usage settles down, to avoid a layout-shifting error/warning icon
+        b.wait_not_present("#system-usage-cpu-progress + td .pf-v5-c-progress__status-icon")
+        testlib.wait(lambda: b.get_pf_progress_value("#system-usage-cpu-progress + td") < 30)
         b.assert_pixels("#overview", "overview", ignore=[
             ".system-health .pf-v5-c-card__body",
             "#system_machine_id",

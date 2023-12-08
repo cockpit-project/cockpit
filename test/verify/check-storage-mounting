@@ -134,6 +134,7 @@ ExecStart=/usr/bin/sleep infinity
         # Add a disk
         disk = self.add_ram_disk()
         self.click_card_row("Storage", name=disk)
+        filesystem = "ext4 filesystem"
 
         # Format it
 
@@ -144,65 +145,65 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_set_val("mount_point", "/run/foo")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_text(self.card_desc("ext4 filesystem", "Name"), "FILESYSTEM")
-        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "/run/foo")
+        b.wait_text(self.card_desc(filesystem, "Name"), "FILESYSTEM")
+        b.wait_in_text(self.card_desc(filesystem, "Mount point"), "/run/foo")
 
         # Unmount externally, remount with Cockpit
 
         m.execute("umount /run/foo")
-        b.click(self.card_button("ext4 filesystem", "Mount now"))
-        b.wait_not_present(self.card_button("ext4 filesystem", "Mount now"))
-        b.wait_not_in_text(self.card_desc("ext4 filesystem", "Mount point"), "The filesystem is not mounted")
+        b.click(self.card_button(filesystem, "Mount now"))
+        b.wait_not_present(self.card_button(filesystem, "Mount now"))
+        b.wait_not_in_text(self.card_desc(filesystem, "Mount point"), "The filesystem is not mounted")
 
         # Unmount externally, adjust fstab with Cockpit
 
         m.execute("umount /run/foo")
-        b.click(self.card_button("ext4 filesystem", "Do not mount automatically on boot"))
-        b.wait_not_present(self.card_button("ext4 filesystem", "Do not mount automatically on boot"))
+        b.click(self.card_button(filesystem, "Do not mount automatically on boot"))
+        b.wait_not_present(self.card_button(filesystem, "Do not mount automatically on boot"))
 
         # Mount somewhere else externally while "noauto", unmount with Cockpit
 
         m.execute(f"mkdir -p /run/bar; mount {disk} /run/bar")
-        b.click(self.card_button("ext4 filesystem", "Unmount now"))
-        b.wait_not_present(self.card_button("ext4 filesystem", "Unmount now"))
+        b.click(self.card_button(filesystem, "Unmount now"))
+        b.wait_not_present(self.card_button(filesystem, "Unmount now"))
 
         # Mount externally, unmount with Cockpit
 
         m.execute("mount /run/foo")
-        b.click(self.card_button("ext4 filesystem", "Unmount now"))
-        b.wait_not_present(self.card_button("ext4 filesystem", "Unmount now"))
+        b.click(self.card_button(filesystem, "Unmount now"))
+        b.wait_not_present(self.card_button(filesystem, "Unmount now"))
 
         # Mount externally, adjust fstab with Cockpit
 
         m.execute("mount /run/foo")
-        b.click(self.card_button("ext4 filesystem", "Mount also automatically on boot"))
-        b.wait_not_present(self.card_button("ext4 filesystem", "Mount also automatically on boot"))
+        b.click(self.card_button(filesystem, "Mount also automatically on boot"))
+        b.wait_not_present(self.card_button(filesystem, "Mount also automatically on boot"))
 
         # Move mount point externally, move back with Cockpit
 
         m.execute("umount /run/foo")
         m.execute(f"mkdir -p /run/bar; mount {disk} /run/bar")
-        b.click(self.card_button("ext4 filesystem", "Mount on /run/foo now"))
-        b.wait_not_present(self.card_button("ext4 filesystem", "Mount on /run/foo now"))
+        b.click(self.card_button(filesystem, "Mount on /run/foo now"))
+        b.wait_not_present(self.card_button(filesystem, "Mount on /run/foo now"))
 
         # Move mount point externally, adjust fstab with Cockpit
 
         m.execute("umount /run/foo")
         m.execute(f"mkdir -p /run/bar; mount {disk} /run/bar")
-        b.click(self.card_button("ext4 filesystem", "Mount automatically on /run/bar on boot"))
-        b.wait_not_present(self.card_button("ext4 filesystem", "Mount automatically on /run/bar on boot"))
+        b.click(self.card_button(filesystem, "Mount automatically on /run/bar on boot"))
+        b.wait_not_present(self.card_button(filesystem, "Mount automatically on /run/bar on boot"))
 
         # Using noauto,x-systemd.automount should not show a warning
         m.execute("sed -i -e 's/auto nofail/auto nofail,noauto/' /etc/fstab")
-        b.wait_visible(self.card_button("ext4 filesystem", "Mount also automatically on boot"))
+        b.wait_visible(self.card_button(filesystem, "Mount also automatically on boot"))
         m.execute("sed -i -e 's/noauto/noauto,x-systemd.automount/' /etc/fstab")
-        b.wait_not_present(self.card_button("ext4 filesystem", "Mount also automatically on boot"))
+        b.wait_not_present(self.card_button(filesystem, "Mount also automatically on boot"))
 
         # Without fstab entry, mount and try to unmount
         m.execute("sed -i '/run\\/bar/d' /etc/fstab")
-        b.wait_visible(self.card_button("ext4 filesystem", "Mount automatically on /run/bar on boot"))
-        b.click(self.card_button("ext4 filesystem", "Unmount now"))
-        b.wait_not_present(self.card_button("ext4 filesystem", "Mount automatically on /run/bar on boot"))
+        b.wait_visible(self.card_button(filesystem, "Mount automatically on /run/bar on boot"))
+        b.click(self.card_button(filesystem, "Unmount now"))
+        b.wait_not_present(self.card_button(filesystem, "Mount automatically on /run/bar on boot"))
 
     def testFstabOptions(self):
         m = self.machine

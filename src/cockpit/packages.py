@@ -266,10 +266,21 @@ class Package:
                 # Accept-Language is case-insensitive and uses '-' to separate variants
                 lower_locale = locale.lower().replace('_', '-')
 
+                logger.debug('Adding translation %r %r -> %r', basename, lower_locale, name)
                 self.translations[f'{basename}.js'][lower_locale] = name
             else:
-                basename = name[:-3] if name.endswith('.gz') else name
+                # strip out trailing '.gz' components
+                basename = re.sub('.gz$', '', name)
+                logger.debug('Adding content %r -> %r', basename, name)
                 self.files[basename] = name
+
+                # If we see a filename like `x.min.js` we want to also offer it
+                # at `x.js`, but only if `x.js(.gz)` itself is not present.
+                # Note: this works for both the case where we found the `x.js`
+                # first (it's already in the map) and also if we find it second
+                # (it will be replaced in the map by the line just above).
+                # See https://github.com/cockpit-project/cockpit/pull/19716
+                self.files.setdefault(basename.replace('.min.', '.'), name)
 
         # support old cockpit-po-plugin which didn't write po.manifest.??.js
         if not self.translations['po.manifest.js']:

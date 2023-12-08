@@ -239,3 +239,49 @@ def test_translation(pkgdir):
     assert b'eins\n' in contents
     assert b'zwo\n' in contents
     assert b'zwei\n' not in contents
+
+
+def test_filename_mangling(pkgdir):
+    make_package(pkgdir, 'one')
+
+    # test various filename variations
+    (pkgdir / 'one' / 'one.js').write_text('this is one.js')
+    (pkgdir / 'one' / 'two.js.gz').write_text('this is two.js')
+    (pkgdir / 'one' / 'three.min.js.gz').write_text('this is three.js')
+    (pkgdir / 'one' / 'four.min.js').write_text('this is four.js')
+
+    packages = Packages()
+    encodings = set()
+
+    for name in ['one', 'two', 'three', 'four']:
+        document = packages.load_path(f'/one/{name}.js', {})
+        assert document.data.read().decode() == f'this is {name}.js'
+        assert '/javascript' in document.content_type
+        encodings.add(document.content_encoding)
+
+    assert encodings == {None, 'gzip'}  # make sure we saw both compressed and uncompressed
+
+
+def test_overlapping_minified(pkgdir):
+    make_package(pkgdir, 'one')
+    (pkgdir / 'one' / 'one.min.js').write_text('min')
+    (pkgdir / 'one' / 'one.js').write_text('max')
+
+    # try the other way around in hope of listing the files in reverse order
+    (pkgdir / 'one' / 'two.js').write_text('max')
+    (pkgdir / 'one' / 'two.min.js').write_text('min')
+
+    packages = Packages()
+
+    # if both files are present, we should find the original one
+    document = packages.load_path('/one/one.js', {})
+    assert document.data.read().decode() == 'max'
+    document = packages.load_path('/one/two.js', {})
+    assert document.data.read().decode() == 'max'
+
+    # but requesting .min. explicitly will load it
+    document = packages.load_path('/one/one.min.js', {})
+    assert document.data.read().decode() == 'min'
+    document = packages.load_path('/one/two.min.js', {})
+    assert document.data.read().decode() == 'min'
+

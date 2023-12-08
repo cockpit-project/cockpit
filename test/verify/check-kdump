@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 import testlib
 from lib.constants import TEST_OS_DEFAULT
 
@@ -460,6 +462,12 @@ class TestKdumpNFS(KdumpHelpers):
         self.login_and_go("/kdump")
         with b.wait_timeout(120):  # needs to rebuild initrd
             b.wait_in_text("#app", "Service is running")
+
+        # Wait a few seconds so that the newly written kdump.conf is
+        # guaranteed to look older to kdump.service than the just
+        # created initrd.
+        #
+        time.sleep(5)
 
         # switch to NFS
         b.click("#kdump-change-target")

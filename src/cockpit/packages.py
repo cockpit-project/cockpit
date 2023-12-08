@@ -20,6 +20,7 @@ import contextlib
 import functools
 import gzip
 import io
+import itertools
 import json
 import logging
 import mimetypes
@@ -490,8 +491,13 @@ class Packages(bus.Object, interface='cockpit.Packages'):
     def show(self):
         for name in sorted(self.packages):
             package = self.packages[name]
-            menuitems = ''
-            print(f'{name:20} {menuitems:40} {package.path}')
+            menuitems = []
+            for entry in itertools.chain(
+                    package.manifest.get('menu', {}).values(),
+                    package.manifest.get('tools', {}).values()):
+                with contextlib.suppress(KeyError):
+                    menuitems.append(entry['label'])
+            print(f'{name:20} {", ".join(menuitems):40} {package.path}')
 
     def get_bridge_configs(self) -> Sequence[BridgeConfig]:
         def yield_configs():

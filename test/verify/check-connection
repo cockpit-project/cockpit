@@ -1204,7 +1204,8 @@ UnixPath=/run/cockpit/session
 
         packages = m.execute("cockpit-bridge --packages")
         self.assertRegex(packages, r"(^|\n)base1\s+.*/usr/share/cockpit/base1")
-        self.assertRegex(packages, r"(^|\n)system\s+.*/usr/share/cockpit/systemd")
+        # also includes menu and tools entries
+        self.assertRegex(packages, r"(^|\n)system\s.*Services.*Terminal.*\s/usr/share/cockpit/systemd")
 
         if self.is_pybridge():
             bridges = json.loads(m.execute("cockpit-bridge --bridges").strip())

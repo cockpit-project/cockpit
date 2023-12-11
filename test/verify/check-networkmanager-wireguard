@@ -128,16 +128,24 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.wait_in_text(f"#networking-interfaces th:contains('{iface_name}') + td", f"1.2.3.4/32, {m1_ip4}/24")
 
         # if some wg properties are not valid, for example, if it was changed by some external tool, don't crash
-        m1.execute("sed -i '/allowed-ips/d' /etc/NetworkManager/system-connections/con-wg0.nmconnection")
-        m1.execute("systemctl restart NetworkManager")
-        b.reload()
-        b.enter_page("/network")
-        b.wait_visible("#networking")
+        # this doesn't work on Ubuntu as the config is done through netplan; but this is just testing
+        # handling of internal errors, so it's ok to skip it
+        invalid_props_test = not m1.image.startswith("ubuntu")
+        if invalid_props_test:
+            m1.execute("sed -i '/allowed-ips/d' /etc/NetworkManager/system-connections/con-wg0.nmconnection")
+            m1.execute("systemctl restart NetworkManager")
+            b.reload()
+            b.enter_page("/network")
+            b.wait_visible("#networking")
+
         b.click(f"#networking-interfaces button:contains('{iface_name}')")
         b.wait_visible("#network-interface")
         b.click("#networking-edit-wg")
-        b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v5-c-alert:contains('has invalid allowed-ips')")
+
+        if invalid_props_test:
+            b.click("#network-wireguard-settings-save")
+            b.wait_visible(".pf-v5-c-alert:contains('has invalid allowed-ips')")
+
         b.set_input_text("#network-wireguard-settings-allowedips-peer-0", m2_ip4)
         b.click("#network-wireguard-settings-save")
         b.wait_not_present("#network-wireguard-settings-dialog")

@@ -59,6 +59,12 @@ apt-get update
 apt-get install -y --no-install-recommends eatmydata
 DEBIAN_FRONTEND=noninteractive eatmydata apt-get install -y --no-install-recommends ${dependencies}
 
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1057968
+echo "deb http://deb.debian.org/debian unstable main" > /etc/apt/sources.list.d/unstable.list
+apt-get update
+apt-get install -y --no-install-recommends python3-flake8
+rm /etc/apt/sources.list.d/unstable.list
+
 adduser --gecos "Builder" builder
 
 if [ "$(uname -m)" = "x86_64" ] ; then

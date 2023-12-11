@@ -117,6 +117,7 @@ const FAFWorkflowRow = ({ problem }) => {
     const onCancelButtonClick = _event => process.close("canceled");
 
     const onReportButtonClick = _event => {
+        setMessage(_("Waiting to start…"));
         setProblemState(ProblemState.UNREPORTABLE);
         const process = cockpit.spawn(["reporter-ureport", "-d", problem.ID],
                                       {
@@ -396,10 +397,12 @@ const WorkflowRow = ({ message, problemState, reportLinks, label, onReportButton
     return (
         <Split hasGutter>
             <SplitItem>{label}</SplitItem>
-            <SplitItem isFilled>
-                {problemState === ProblemState.REPORTING && <Spinner size="md" /> }
-                {status}
-            </SplitItem>
+            {problemState === ProblemState.REPORTING && (
+                <SplitItem>
+                    <Spinner size="md" />
+                </SplitItem>
+            )}
+            <SplitItem isFilled>{status}</SplitItem>
             <SplitItem>{button}</SplitItem>
         </Split>
     );

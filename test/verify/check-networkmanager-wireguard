@@ -142,8 +142,8 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.click("#network-wireguard-settings-save")
         b.wait_not_present("#network-wireguard-settings-dialog")
 
-        m1.execute("until wg show wg0 | grep -q 'allowed ips.*10.0.0.2/32'; do sleep 1; done")
-        m1.execute("until ip route | grep -q '10.0.0.0/24 dev wg0 proto kernel scope link src 10.0.0.1 metric 50'; do sleep 1; done")
+        m1.execute(f"until wg show wg0 | grep -q 'allowed ips.*{m2_ip4}/32'; do sleep 1; done")
+        m1.execute(f"until ip route | grep -q '10.0.0.0/24 dev wg0 proto kernel scope link src {m1_ip4} metric 50'; do sleep 1; done")
 
         # endpoint and port is not necessary for a peer if that peer estalishes the connectio first (i.e. the client)
         b2.click("button:contains('Add peer')")
@@ -172,7 +172,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b2.click("#network-wireguard-settings-save")
         b2.wait_not_present("#network-wireguard-settings-dialog")
 
-        m2.execute("until wg show wg0 | grep -q 'allowed ips.*2001::1/128'; do sleep 1; done")
+        m2.execute(f"until wg show wg0 | grep -q 'allowed ips.*{m1_ip6}/128'; do sleep 1; done")
 
         b2.click("#networking-edit-ipv6")
         b2.wait_visible("#network-ip-settings-dialog")
@@ -192,7 +192,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.click("#network-wireguard-settings-save")
         b.wait_not_present("#network-wireguard-settings-dialog")
 
-        m1.execute("until wg show wg0 | grep -q 'allowed ips.*2001::2/128'; do sleep 1; done")
+        m1.execute(f"until wg show wg0 | grep -q 'allowed ips.*{m2_ip6}/128'; do sleep 1; done")
 
         b.click("#networking-edit-ipv6")
         b.wait_visible("#network-ip-settings-dialog")

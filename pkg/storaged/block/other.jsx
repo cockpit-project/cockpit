@@ -26,6 +26,7 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 import { StorageCard, StorageDescription, new_card } from "../pages.jsx";
 import { block_name } from "../utils.js";
 import { partitionable_block_actions } from "../partitions/actions.jsx";
+import { OtherIcon } from "../icons/gnome-icons.jsx";
 
 import { make_block_page } from "../block/create-pages.jsx";
 
@@ -36,6 +37,7 @@ export function make_other_page(parent, block) {
         title: _("Block device"),
         next: null,
         page_block: block,
+        page_icon: OtherIcon,
         for_summary: true,
         job_path: block.path,
         component: OtherCard,

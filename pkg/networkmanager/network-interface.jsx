@@ -27,6 +27,8 @@ import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.j
 import { Page, PageBreadcrumb, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 
+import { Privileged } from "cockpit-components-privileged.jsx";
+
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { NetworkAction } from './dialogs-common.jsx';
@@ -214,7 +216,7 @@ export const NetworkInterfacePage = ({
             mac = iface.MainConnection.Settings.ethernet.assigned_mac_address;
         }
 
-        const can_edit_mac = (iface && iface.MainConnection &&
+        const can_edit_mac = (privileged && iface && iface.MainConnection &&
                               (connection_settings(iface.MainConnection).type == "802-3-ethernet" ||
                                connection_settings(iface.MainConnection).type == "bond"));
 
@@ -673,10 +675,15 @@ export const NetworkInterfacePage = ({
     let onoff;
     if (isManaged) {
         onoff = (
-            <Switch isChecked={!!(dev && dev.ActiveConnection)}
-                    isDisabled={!iface || (dev && dev.State == 20)}
-                    onChange={(_event, enable) => enable ? connect() : disconnect()}
-                    aria-label={_("Enable or disable the device")} />
+            <Privileged allowed={privileged}
+                        tooltipId="interface-switch"
+                        excuse={ _("Not permitted to configure network devices") }>
+                <Switch id="interface-switch"
+                        isChecked={!!(dev && dev.ActiveConnection)}
+                        isDisabled={!iface || (dev && dev.State == 20) || !privileged}
+                        onChange={(_event, enable) => enable ? connect() : disconnect()}
+                        aria-label={_("Enable or disable the device")} />
+            </Privileged>
         );
     }
 

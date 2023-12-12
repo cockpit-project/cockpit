@@ -285,6 +285,48 @@ class TestNetworkingBasic(netlib.NetworkCase):
         # Killing NM affects realmd as well
         self.allow_journal_messages(".*org.freedesktop.realmd.Service.*")
 
+    def testUnprivileged(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network", superuser=False)
+        b.wait_visible("#networking")
+
+        iface = 'cockpit1'
+        self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
+        self.nm_activate_eth(iface)
+        self.wait_for_iface(iface)
+        con_id = testlib.wait(lambda: self.iface_con_id(iface))
+        mac = m.execute(f"cat /sys/class/net/{iface}/address").strip()
+
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+        # On/Off button is disabled, but shows the correct value
+        b.wait_visible(f".pf-v5-c-card__header:contains('{iface}') .pf-v5-c-switch input:disabled")
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=True)
+
+        # not editable
+        b.wait_visible('#autoreconnect:disabled')
+        b.wait_not_present("#networking-edit-ipv4")
+        b.wait_not_present("#networking-edit-mac")
+        b.wait_text("#network-interface-mac", mac.upper())
+
+        # unpriv UI reacts to system change
+        m.execute(f"nmcli device disconnect {iface}")
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=False)
+        m.execute(f"nmcli connection up '{con_id}'")
+        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=True)
+
+        # UI becomes editable when gaining privileges
+        b.become_superuser()
+        b.wait_visible('#autoreconnect:not(disabled)')
+        b.wait_visible("#networking-edit-ipv4")
+        b.wait_visible("#networking-edit-mac")
+        b.wait_visible(f".pf-v5-c-card__header:contains('{iface}') .pf-v5-c-switch input:not(disabled)")
+
+        # FIXME: if pcp is running, cockpit-pcp throws this warning
+        self.allow_journal_messages('received invalid "host" field in kill command')
+
 
 if __name__ == '__main__':
     testlib.test_main()

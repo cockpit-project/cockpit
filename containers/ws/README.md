@@ -38,6 +38,17 @@ to the host operating system.
    podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws
    ```
 
+   You can append additional [cockpit-ws CLI options](https://cockpit-project.org/guide/latest/cockpit-ws.8.html),
+   most commonly to change the port:
+   ```
+   podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws -- -p 80
+   ```
+
+   Run this to show the "RUN" label command if you want to run the container with different arguments:
+   ```
+   podman container runlabel --display RUN quay.io/cockpit/ws
+   ```
+
 3. Make Cockpit start on boot:
    ```
    podman container runlabel INSTALL quay.io/cockpit/ws
@@ -45,11 +56,6 @@ to the host operating system.
    ```
 
 Afterward, use a web browser to log into port `9090` on your host IP address as usual.
-
-Run this to show the "RUN" label command if you want to run the container with different arguments:
-```
-podman container runlabel --display RUN quay.io/cockpit/ws
-```
 
 ## Unprivileged bastion container
 

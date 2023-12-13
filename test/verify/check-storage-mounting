@@ -427,10 +427,10 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
+        self.addCleanupVG("test")
         self.addCleanup(m.execute,
                         "umount /run/data || true;"
-                        "cryptsetup close $(lsblk -lno NAME /dev/test/one | tail -1) || true;"
-                        "vgremove --force test 2>/dev/null || true")
+                        "cryptsetup close $(lsblk -lno NAME /dev/test/one | tail -1) || true")
 
         # Quickly make two logical volumes
         disk = self.add_ram_disk()

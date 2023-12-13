@@ -57,7 +57,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         # Create a volume group out of two disks
         m.execute(f"vgcreate TEST1 {dev_1} {dev_2}")
         # just in case the test fails
-        self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
+        self.addCleanupVG("TEST1")
         self.click_card_row("Storage", name="TEST1")
         b.wait_visible(self.card_row("LVM2 volume group", name=dev_1))
         b.wait_visible(self.card_row("LVM2 volume group", name=dev_2))
@@ -125,7 +125,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                  dev_2: True}})
 
         # just in case the test fails
-        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        self.addCleanupVG("vgroup0")
         b.wait_visible(self.card_row("Storage", name="vgroup0"))
 
         # Check that the next name is "vgroup1"
@@ -330,7 +330,7 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         m.execute(f"vgcreate TEST {disk}")
 
-        self.addCleanup(m.execute, "vgremove --force TEST")
+        self.addCleanupVG("TEST")
         self.click_card_row("Storage", name="TEST")
 
         # Create a thinpool and a thin volume in it
@@ -366,7 +366,6 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_not_present(self.card_row("LVM2 logical volumes", name="snap0"))
 
     def testRaid(self):
-        m = self.machine
         b = self.browser
 
         self.skip_if_no_layouts()
@@ -392,7 +391,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk3: True,
                                                      disk4: True}})
 
-        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        self.addCleanupVG("vgroup0")
 
         # Make a raid5 on three PVs, using about half of each
 
@@ -452,7 +451,6 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.assert_pixels(card, "raid5-card2")
 
     def testRaidRepair(self):
-        m = self.machine
         b = self.browser
 
         self.skip_if_no_layouts()
@@ -476,7 +474,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk2: True,
                                                      disk3: True}})
 
-        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        self.addCleanupVG("vgroup0")
 
         # Make a raid5 on the three PVs
 
@@ -547,7 +545,6 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_not_present(".pf-v5-c-alert")
 
     def testBrokenLinear(self):
-        m = self.machine
         b = self.browser
 
         self.skip_if_no_layouts()
@@ -570,7 +567,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk2: True,
                                                      disk3: True}})
 
-        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        self.addCleanupVG("vgroup0")
 
         # Make a linear volume on two of them
 
@@ -641,7 +638,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk4: True,
                                                      disk5: True,
                                                      disk6: True}})
-        self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        self.addCleanupVG("vgroup0")
         self.click_card_row("Storage", name="vgroup0")
 
         def mb(size):
@@ -726,7 +723,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk4: True,
                                                      disk5: True,
                                                      disk6: True}})
-        self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        self.addCleanupVG("vgroup0")
         self.click_card_row("Storage", name="vgroup0")
 
         def mb(size):
@@ -818,7 +815,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk3: True,
                                                      disk4: True,
                                                      disk5: True}})
-        self.addCleanup(self.machine.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        self.addCleanupVG("vgroup0")
         self.click_card_row("Storage", name="vgroup0")
 
         def create(row, layout, expected_name):
@@ -896,7 +893,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk} dm-test")
         self.addCleanup(m.execute, "cryptsetup close dm-test || true")
         m.execute("vgcreate vgroup0 /dev/mapper/dm-test")
-        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        self.addCleanupVG("vgroup0")
         m.execute("lvcreate vgroup0 -n lvol0 -l100%FREE")
 
         self.click_card_row("Storage", name="lvol0")

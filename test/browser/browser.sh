@@ -41,6 +41,8 @@ if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "basic" ]; then
     dnf install -y tcsh
     # required by TestJournal.testAbrt*
     dnf install -y abrt abrt-addon-ccpp reportd libreport-plugin-bugzilla libreport-fedora
+    # required by TestStorageBtrfs*
+    dnf install -y udisks2-btrfs
 fi
 
 # dnf installs "missing" weak dependencies, but we don't want them for plans other than "optional"

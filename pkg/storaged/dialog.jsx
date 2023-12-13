@@ -415,7 +415,8 @@ export const dialog_open = (def) => {
                     caption: def.Action.Title,
                     style: "primary",
                     danger: def.Action.Danger || def.Action.DangerButton,
-                    disabled: running_promise != null || (def.Action.disable_on_error && errors),
+                    disabled: running_promise != null || (def.Action.disable_on_error &&
+                                                          errors && errors.toString() != "[object Object]"),
                     clicked: progress_callback => run_action(progress_callback, null),
                 }
             ];

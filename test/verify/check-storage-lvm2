@@ -544,6 +544,21 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog({})
         b.wait_not_present(".pf-v5-c-alert")
 
+    def testRaidRepair2(self):
+        self.testRaidRepair()
+
+    def testRaidRepair3(self):
+        self.testRaidRepair()
+
+    def testRaidRepair4(self):
+        self.testRaidRepair()
+
+    def testRaidRepair5(self):
+        self.testRaidRepair()
+
+    def testRaidRepair6(self):
+        self.testRaidRepair()
+
     def testBrokenLinear(self):
         b = self.browser
 

@@ -842,6 +842,7 @@ client.update = (first_time) => {
         client.ready = true;
     if (client.ready) {
         update_indices();
+        client.export_mount_point_mapping();
         reset_pages();
         make_overview_page();
         client.dispatchEvent("changed");
@@ -1764,6 +1765,22 @@ client.should_ignore_device = (devname) => {
 
 client.should_ignore_block = (block) => {
     return client.should_ignore_device(utils.decode_filename(block.PreferredDevice));
+};
+
+client.export_mount_point_mapping = () => {
+    const mpm = { };
+    for (const p in client.blocks) {
+        const b = client.blocks[p];
+        for (const c of b.Configuration) {
+            if (c[0] == "fstab") {
+                const dir = client.strip_mount_point_prefix(utils.decode_filename(c[1].dir.v));
+                if (dir)
+                    mpm[dir] = utils.decode_filename(b.PreferredDevice);
+            }
+        }
+    }
+
+    window.localStorage.setItem("cockpit_mount_points", JSON.stringify(mpm));
 };
 
 export default client;

@@ -124,6 +124,11 @@ class StorageHelpers:
         # the removal trips up PCP and our usage graphs
         self.allow_browser_errors("direct: instance name lookup failed.*")
 
+    def addCleanupVG(self, vgname):
+        """Ensure the given VG is removed after the test"""
+
+        self.addCleanup(self.machine.execute, f"if [ -d /dev/{vgname} ]; then vgremove --force {vgname}; fi")
+
     # Dialogs
 
     def dialog_wait_open(self):

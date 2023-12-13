@@ -148,6 +148,7 @@ export function set_mount_options(path, vals, forced_options) {
         return Promise.resolve();
     if (mount_point[0] != "/")
         mount_point = "/" + mount_point;
+    mount_point = client.add_mount_point_prefix(mount_point);
 
     const config =
           ["fstab",

@@ -37,7 +37,7 @@ import {
     block_short_name, mdraid_name, encode_filename, decode_filename,
     fmt_size, fmt_size_long, get_active_usage, teardown_active_usage,
     get_available_spaces, prepare_available_spaces,
-    reload_systemd,
+    reload_systemd, should_ignore,
 } from "../utils.js";
 
 import {
@@ -194,6 +194,12 @@ function missing_bitmap(mdraid) {
 
 export function make_mdraid_page(parent, mdraid) {
     const block = client.mdraids_block[mdraid.path];
+
+    if (block && should_ignore(client, block.path))
+        return;
+
+    if (!block && client.in_anaconda_mode())
+        return;
 
     let add_excuse = false;
     if (!block)

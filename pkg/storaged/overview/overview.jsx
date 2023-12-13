@@ -143,13 +143,13 @@ const OverviewCard = ({ card, plot_state }) => {
         menu_item(null, _("Create MDRAID device"), () => create_mdraid()),
         menu_item(lvm2_feature, _("Create LVM2 volume group"), () => create_vgroup()),
         menu_item(stratis_feature, _("Create Stratis pool"), () => create_stratis_pool()),
-    ].filter(item => item !== null);
+    ].filter(item => !!item);
 
     const net_menu_items = [
-        menu_item(nfs_feature, _("New NFS mount"), () => nfs_fstab_dialog(null, null)),
+        !client.in_anaconda_mode() && menu_item(nfs_feature, _("New NFS mount"), () => nfs_fstab_dialog(null, null)),
         menu_item(iscsi_feature, _("Change iSCSI initiater name"), () => iscsi_change_name()),
         menu_item(iscsi_feature, _("Add iSCSI portal"), () => iscsi_discover()),
-    ].filter(item => item !== null);
+    ].filter(item => !!item);
 
     const groups = [];
 
@@ -173,6 +173,7 @@ const OverviewCard = ({ card, plot_state }) => {
 
     return (
         <Stack hasGutter>
+            { !client.in_anaconda_mode() &&
             <StackItem>
                 <Card>
                     <CardBody>
@@ -180,6 +181,7 @@ const OverviewCard = ({ card, plot_state }) => {
                     </CardBody>
                 </Card>
             </StackItem>
+            }
             <StackItem>
                 <StorageCard card={card} actions={actions}>
                     <CardBody className="contains-list">
@@ -190,8 +192,10 @@ const OverviewCard = ({ card, plot_state }) => {
                     </CardBody>
                 </StorageCard>
             </StackItem>
+            { !client.in_anaconda_mode() &&
             <StackItem>
                 <StorageLogsPanel />
             </StackItem>
+            }
         </Stack>);
 };

@@ -47,14 +47,19 @@ const _ = cockpit.gettext;
 export function initial_tab_options(client, block, for_fstab) {
     const options = { };
 
-    get_parent_blocks(client, block.path).forEach(p => {
-        // "nofail" is the default for new filesystems with Cockpit so
-        // that a failure to mount one of them will not prevent
-        // Cockpit from starting.  This allows people to debug and fix
-        // these failures with Cockpit itself.
-        //
+    // "nofail" is the default for new filesystems with Cockpit so
+    // that a failure to mount one of them will not prevent
+    // Cockpit from starting.  This allows people to debug and fix
+    // these failures with Cockpit itself.
+    //
+    // In Anaconda mode however, we don't make "nofail" the
+    // default since people will be creating the core filesystems
+    // like "/", "/var", etc.
+
+    if (!client.in_anaconda_mode())
         options.nofail = true;
 
+    get_parent_blocks(client, block.path).forEach(p => {
         if (is_netdev(client, p)) {
             options._netdev = true;
         }
@@ -142,10 +147,10 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                     return false;
                 })
                 .then(version => {
-                    format_dialog_internal(client, path, start, size, enable_dos_extended, version);
+                    return format_dialog_internal(client, path, start, size, enable_dos_extended, version);
                 });
     } else {
-        format_dialog_internal(client, path, start, size, enable_dos_extended);
+        return format_dialog_internal(client, path, start, size, enable_dos_extended);
     }
 }
 
@@ -242,6 +247,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     if (old_opts == undefined)
         old_opts = initial_mount_options(client, block);
 
+    old_dir = client.strip_mount_point_prefix(old_dir);
+    if (old_dir === false)
+        return Promise.reject(_("This device can not be used for the installation target."));
+
     const split_options = parse_options(old_opts);
     extract_option(split_options, "noauto");
     const opt_ro = extract_option(split_options, "ro");
@@ -279,7 +288,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                           visible: is_filesystem,
                           value: old_dir || "",
                           validate: (val, values, variant) => {
-                              return is_valid_mount_point(client, block, val, variant == "nomount");
+                              return is_valid_mount_point(client,
+                                                          block,
+                                                          client.add_mount_point_prefix(val),
+                                                          variant == "nomount");
                           }
                       }),
             SelectOne("type", _("Type"),
@@ -474,6 +486,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     if (mount_point != "") {
                         if (mount_point[0] != "/")
                             mount_point = "/" + mount_point;
+                        mount_point = client.add_mount_point_prefix(mount_point);
 
                         config_items.push(["fstab", {
                             dir: { t: 'ay', v: encode_filename(mount_point) },

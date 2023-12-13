@@ -19,12 +19,13 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import client from "../client.js";
 
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 
 import { StorageCard, StorageDescription, new_card } from "../pages.jsx";
-import { block_name } from "../utils.js";
+import { block_name, should_ignore } from "../utils.js";
 import { partitionable_block_actions } from "../partitions/actions.jsx";
 import { OtherIcon } from "../icons/gnome-icons.jsx";
 
@@ -33,6 +34,9 @@ import { make_block_page } from "../block/create-pages.jsx";
 const _ = cockpit.gettext;
 
 export function make_other_page(parent, block) {
+    if (should_ignore(client, block.path))
+        return;
+
     const other_card = new_card({
         title: _("Block device"),
         next: null,

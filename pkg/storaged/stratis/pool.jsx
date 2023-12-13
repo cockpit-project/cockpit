@@ -39,7 +39,7 @@ import {
 import {
     get_active_usage, teardown_active_usage, for_each_async,
     get_available_spaces, prepare_available_spaces,
-    decode_filename,
+    decode_filename, should_ignore,
 } from "../utils.js";
 
 import {
@@ -91,7 +91,10 @@ function create_fs(pool) {
             TextInput("mount_point", _("Mount point"),
                       {
                           validate: (val, values, variant) => {
-                              return is_valid_mount_point(client, null, val, variant == "nomount");
+                              return is_valid_mount_point(client,
+                                                          null,
+                                                          client.add_mount_point_prefix(val),
+                                                          variant == "nomount");
                           }
                       }),
             CheckBoxes("mount_options", _("Mount options"),
@@ -107,7 +110,7 @@ function create_fs(pool) {
                        }),
             SelectOne("at_boot", _("At boot"),
                       {
-                          value: "nofail",
+                          value: client.in_anaconda_mode() ? "local" : "nofail",
                           explanation: mount_explanation.nofail,
                           choices: [
                               {
@@ -284,6 +287,9 @@ export function make_stratis_pool_page(parent, pool) {
     const stats = client.stratis_pool_stats[pool.path];
 
     const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
+
+    if (should_ignore(client, pool.path))
+        return;
 
     const pool_card = new_card({
         title: pool.Encrypted ? _("Encrypted Stratis pool") : _("Stratis pool"),

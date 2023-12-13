@@ -38,7 +38,7 @@ import {
     fmt_size_long, get_active_usage, teardown_active_usage, for_each_async,
     validate_lvm2_name,
     get_available_spaces, prepare_available_spaces,
-    reload_systemd,
+    reload_systemd, should_ignore,
 } from "../utils.js";
 
 import {
@@ -223,6 +223,9 @@ export function make_lvm2_volume_group_page(parent, vgroup) {
         lvol_excuse = _("Volume group is missing physical volumes");
     else if (vgroup.FreeSize == 0)
         lvol_excuse = _("No free space");
+
+    if (should_ignore(client, vgroup.path))
+        return;
 
     const vgroup_card = new_card({
         title: _("LVM2 volume group"),

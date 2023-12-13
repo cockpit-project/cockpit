@@ -86,6 +86,8 @@ class NetworkCase(MachineCase, NetworkHelpers):
             self.orig_devs = devs()
             self.restore_dir("/etc/NetworkManager", restart_unit="NetworkManager")
             self.restore_dir("/etc/sysconfig/network-scripts")
+            self.restore_dir("/etc/netplan")
+            self.restore_dir("/run/NetworkManager/system-connections")
             self.addCleanup(cleanupDevs)
 
         m.execute("systemctl start NetworkManager")

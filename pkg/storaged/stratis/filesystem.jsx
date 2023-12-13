@@ -91,7 +91,10 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
                 TextInput("mount_point", _("Mount point"),
                           {
                               validate: (val, values, variant) => {
-                                  return is_valid_mount_point(client, null, val, variant == "nomount");
+                                  return is_valid_mount_point(client,
+                                                              null,
+                                                              client.add_mount_point_prefix(val),
+                                                              variant == "nomount");
                               }
                           }),
                 CheckBoxes("mount_options", _("Mount options"),
@@ -181,11 +184,13 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
     }
 
     let mp_text;
-    if (mount_point && fs_is_mounted)
-        mp_text = mount_point;
-    else if (mount_point && !fs_is_mounted)
-        mp_text = mount_point + " " + _("(not mounted)");
-    else
+    if (mount_point) {
+        mp_text = client.strip_mount_point_prefix(mount_point);
+        if (mp_text == false)
+            return;
+        if (!fs_is_mounted)
+            mp_text = mp_text + " " + _("(not mounted)");
+    } else
         mp_text = _("(not mounted)");
 
     const fsys_card = new_card({

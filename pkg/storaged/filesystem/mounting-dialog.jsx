@@ -47,6 +47,10 @@ export function mounting_dialog(client, block, mode, forced_options) {
     const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
     const options = old_config ? old_opts : initial_tab_options(client, block, true);
 
+    const old_dir_for_display = client.strip_mount_point_prefix(old_dir);
+    if (old_dir_for_display === false)
+        return Promise.reject(_("This device can not be used for the installation target."));
+
     const split_options = parse_options(options);
     extract_option(split_options, "noauto");
     const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
@@ -198,8 +202,12 @@ export function mounting_dialog(client, block, mode, forced_options) {
         fields = [
             TextInput("mount_point", _("Mount point"),
                       {
-                          value: old_dir,
-                          validate: val => is_valid_mount_point(client, block, val, mode == "update" && !is_filesystem_mounted, true)
+                          value: old_dir_for_display,
+                          validate: val => is_valid_mount_point(client,
+                                                                block,
+                                                                client.add_mount_point_prefix(val),
+                                                                mode == "update" && !is_filesystem_mounted,
+                                                                true)
                       }),
             CheckBoxes("mount_options", _("Mount options"),
                        {
@@ -292,7 +300,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
     const usage = get_active_usage(client, block.path);
 
     const dlg = dialog_open({
-        Title: cockpit.format(mode_title[mode], old_dir),
+        Title: cockpit.format(mode_title[mode], old_dir_for_display),
         Fields: fields,
         Teardown: TeardownMessage(usage, old_dir),
         update: function (dlg, vals, trigger) {
@@ -321,8 +329,10 @@ export function mounting_dialog(client, block, mode, forced_options) {
                         opts = opts.concat(forced_options);
                     if (vals.mount_options.extra !== false)
                         opts = opts.concat(parse_options(vals.mount_options.extra));
-                    return (maybe_update_config(vals.mount_point, unparse_options(opts),
-                                                vals.passphrase, passphrase_type)
+                    return (maybe_update_config(client.add_mount_point_prefix(vals.mount_point),
+                                                unparse_options(opts),
+                                                vals.passphrase,
+                                                passphrase_type)
                             .then(() => maybe_set_crypto_options(vals.mount_options.ro,
                                                                  opts.indexOf("noauto") == -1,
                                                                  vals.at_boot == "nofail",

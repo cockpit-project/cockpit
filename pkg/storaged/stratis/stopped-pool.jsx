@@ -91,6 +91,9 @@ function start_pool(uuid, show_devs) {
 }
 
 export function make_stratis_stopped_pool_page(parent, uuid) {
+    if (client.in_anaconda_mode())
+        return;
+
     const pool_card = new_card({
         title: _("Stratis pool"),
         type_extra: _("stopped"),

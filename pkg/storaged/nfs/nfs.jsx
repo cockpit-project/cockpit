@@ -284,6 +284,9 @@ const NfsEntryUsageBar = ({ entry, not_mounted_text, short }) => {
 };
 
 export function make_nfs_page(parent, entry) {
+    if (client.in_anaconda_mode())
+        return;
+
     const remote = entry.fields[0];
     const local = entry.fields[1];
     let mount_point = local;

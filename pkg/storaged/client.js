@@ -741,6 +741,15 @@ function init_model(callback) {
         ).then(() => info);
     }
 
+    try {
+        client.anaconda = JSON.parse(window.localStorage.getItem("cockpit_anaconda"));
+    } catch {
+        console.warn("Can't parse cockpit_anaconda configuration as JSON");
+        client.anaconda = null;
+    }
+
+    console.log("ANACONDA", client.anaconda);
+
     pull_time().then(() => {
         read_os_release().then(os_release => {
             client.os_release = os_release;
@@ -1482,6 +1491,42 @@ client.get_config = (name, def) => {
     } else {
         return def;
     }
+};
+
+client.in_anaconda_mode = () => !!client.anaconda;
+
+client.strip_mount_point_prefix = (dir) => {
+    const mpp = client.anaconda?.mount_point_prefix;
+
+    if (dir && mpp) {
+        if (dir.indexOf(mpp) != 0)
+            return false;
+
+        dir = dir.substr(mpp.length);
+        if (dir == "")
+            dir = "/";
+    }
+
+    return dir;
+};
+
+client.add_mount_point_prefix = (dir) => {
+    const mpp = client.anaconda?.mount_point_prefix;
+    if (mpp && dir != "") {
+        if (dir == "/")
+            dir = mpp;
+        else
+            dir = mpp + dir;
+    }
+    return dir;
+};
+
+client.should_ignore_device = (devname) => {
+    return client.anaconda?.available_devices && client.anaconda.available_devices.indexOf(devname) == -1;
+};
+
+client.should_ignore_block = (block) => {
+    return client.should_ignore_device(utils.decode_filename(block.PreferredDevice));
 };
 
 export default client;

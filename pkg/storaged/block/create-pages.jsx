@@ -106,5 +106,6 @@ export function make_block_page(parent, block, card) {
         }
     }
 
-    new_page(parent, card);
+    if (card)
+        new_page(parent, card);
 }

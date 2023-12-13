@@ -27,7 +27,7 @@ import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
 import { HDDIcon, SSDIcon, MediaDriveIcon } from "../icons/gnome-icons.jsx";
 import { StorageCard, StorageDescription, new_card, new_page } from "../pages.jsx";
-import { block_name, drive_name, format_temperature, fmt_size_long } from "../utils.js";
+import { block_name, drive_name, format_temperature, fmt_size_long, should_ignore } from "../utils.js";
 import { make_block_page } from "../block/create-pages.jsx";
 import { partitionable_block_actions } from "../partitions/actions.jsx";
 
@@ -45,6 +45,9 @@ export function make_drive_page(parent, drive) {
     }
 
     if (!block)
+        return;
+
+    if (should_ignore(client, block.path))
         return;
 
     let cls;

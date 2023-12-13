@@ -1,0 +1,208 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2023 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import json
+
+import storagelib
+import testlib
+
+
+@testlib.nondestructive
+class TestStorageAnaconda(storagelib.StorageCase):
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        disk = self.add_ram_disk()
+
+        anaconda_config = {
+            "mount_point_prefix": "/sysroot",
+            "available_devices": [disk],
+        }
+
+        self.login_and_go("/storage")
+        b.call_js_func("window.localStorage.setItem", "cockpit_anaconda", json.dumps(anaconda_config))
+        b.reload()
+        b.enter_page("/storage")
+
+        # There should be only one row, for our disk
+        b.wait(lambda: b.call_js_func('ph_count', self.card("Storage") + " tbody tr") == 1)
+        b.wait_text(self.card_row_col("Storage", 1, 3), "Unformatted data")
+        b.wait_not_present(self.card_row("Storage", location="/"))
+
+        # Create a volume group with a logical volume
+        self.click_devices_dropdown("Create LVM2 volume group")
+        self.dialog_wait_open()
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog .select-space-name") == 1)
+        self.dialog_set_val("disks", {disk: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.click_dropdown(self.card_row("Storage", name="vgroup0"), "Create new logical volume")
+        self.dialog({})
+
+        # Create an encrypted filesystem
+        self.click_dropdown(self.card_row("Storage", name="lvol0"), "Format")
+        self.dialog_wait_open()
+        self.dialog_wait_val("at_boot", "local")
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("crypto", self.default_crypto_type)
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
+        # Empty mount point should be failure
+        self.dialog_set_val("mount_point", "")
+        self.dialog_apply()
+        self.dialog_wait_error("mount_point", "Mount point cannot be empty")
+        self.dialog_set_val("mount_point", "/")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+        self.assertNotIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
+        b.wait_visible(self.card_row_col("Storage", 3, 5) + " .usage-bar[role=progressbar]")
+        b.assert_pixels("body", "page")
+
+        # Unount/mount the filesystem, edit mount options
+        self.click_card_row("Storage", location="/")
+        b.wait_visible(self.card("Encryption"))
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "/ (stop boot on failure)")
+        b.click(self.card_desc("ext4 filesystem", "Mount point") + " button")
+        self.dialog_wait_open()
+        self.dialog_wait_val("mount_point", "/")
+        self.dialog_set_val("mount_options.ro", val=True)
+        # Empty mount point should be failure
+        self.dialog_set_val("mount_point", "")
+        self.dialog_apply()
+        self.dialog_wait_error("mount_point", "Mount point cannot be empty")
+        self.dialog_set_val("mount_point", "/")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.assertIn("ro", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+        b.click(self.card_button("ext4 filesystem", "Unmount"))
+        self.dialog_wait_open()
+        b.wait_text("#dialog .pf-v5-c-modal-box__title-text", "Unmount filesystem /")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.wait_not_mounted("Filesystem")
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+        b.click(self.card_button("Filesystem", "Mount"))
+        self.dialog_wait_open()
+        self.dialog_wait_val("mount_point", "/")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.wait_mounted("ext4 filesystem")
+        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
+        # Check and delete volume group
+        b.click(self.card_parent_link())
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk))
+        self.click_card_dropdown("LVM2 volume group", "Delete group")
+        self.dialog_wait_open()
+        b.wait_text("#dialog td[data-label='Location']", "/")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        m.execute("! findmnt --fstab -n /sysroot")
+
+        # Back to the beginning
+        b.wait_visible(self.card("Storage"))
+        b.wait(lambda: b.call_js_func('ph_count', self.card("Storage") + " tbody tr") == 1)
+        b.wait_not_present(self.card_row("Storage", location="/"))
+
+    @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+    def testStratis(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("systemctl start stratisd")
+        self.addCleanup(m.execute, "systemctl stop stratisd")
+
+        PV_SIZE = 4000  # 4 GB in MB
+
+        disk = self.add_loopback_disk(PV_SIZE, name="loop10")
+
+        anaconda_config = {
+            "mount_point_prefix": "/sysroot",
+            "available_devices": [disk],
+        }
+
+        self.login_and_go("/storage")
+        b.call_js_func("window.localStorage.setItem", "cockpit_anaconda", json.dumps(anaconda_config))
+        b.reload()
+        b.enter_page("/storage")
+
+        # Create a Stratis pool
+        self.click_devices_dropdown("Create Stratis pool")
+        self.dialog_wait_open()
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog .select-space-name") == 1)
+        self.dialog_set_val("disks", {disk: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.click_dropdown(self.card_row("Storage", name="pool0"), "Create new filesystem")
+        self.dialog_wait_open()
+        self.dialog_wait_val("at_boot", "local")
+        self.dialog_set_val("name", "root")
+        self.dialog_set_val("mount_point", "/")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+        self.assertNotIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
+        b.wait_visible(self.card_row_col("Storage", 3, 5) + " .usage-bar[role=progressbar]")
+
+        # Unount/mount the filesystem, edit mount options
+        self.click_card_row("Storage", location="/")
+        b.wait_in_text(self.card_desc("Stratis filesystem", "Mount point"), "/ (stop boot on failure)")
+        b.click(self.card_desc("Stratis filesystem", "Mount point") + " button")
+        self.dialog_wait_open()
+        self.dialog_wait_val("mount_point", "/")
+        self.dialog_set_val("mount_options.ro", val=True)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.assertIn("ro", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+        b.click(self.card_button("Stratis filesystem", "Unmount"))
+        self.dialog_wait_open()
+        b.wait_text("#dialog .pf-v5-c-modal-box__title-text", "Unmount filesystem /")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.wait_not_mounted("Stratis filesystem")
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+        b.click(self.card_button("Stratis filesystem", "Mount"))
+        self.dialog_wait_open()
+        self.dialog_wait_val("mount_point", "/")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.wait_mounted("Stratis filesystem")
+        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
+        # Check and delete pool
+        b.click(self.card_parent_link())
+        b.wait_visible(self.card_row("Stratis pool", name=disk))
+        self.click_card_dropdown("Stratis pool", "Delete")
+        self.dialog_wait_open()
+        b.wait_text("#dialog td[data-label='Location']", "/")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        m.execute("! findmnt --fstab -n /sysroot")
+
+
+if __name__ == '__main__':
+    testlib.test_main()

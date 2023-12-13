@@ -84,11 +84,13 @@ export function make_filesystem_card(next, backing_block, content_block, fstab_c
     const mounted = content_block && is_mounted(client, content_block);
 
     let mp_text;
-    if (mount_point && mounted)
-        mp_text = mount_point;
-    else if (mount_point && !mounted)
-        mp_text = mount_point + " " + _("(not mounted)");
-    else
+    if (mount_point) {
+        mp_text = client.strip_mount_point_prefix(mount_point);
+        if (mp_text == false)
+            return null;
+        if (!mounted)
+            mp_text = mp_text + " " + _("(not mounted)");
+    } else
         mp_text = _("(not mounted)");
 
     return new_card({

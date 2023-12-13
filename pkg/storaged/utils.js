@@ -501,7 +501,8 @@ export function is_available_block(client, block, honor_ignore_hint) {
             !is_vdo_backing_dev() &&
             !is_swap() &&
             !block_ptable &&
-            !(block_part && block_part.IsContainer));
+            !(block_part && block_part.IsContainer) &&
+            !should_ignore(client, block.path));
 }
 
 export function get_available_spaces(client) {
@@ -574,7 +575,8 @@ export function get_other_devices(client) {
                 block.Size > 0 &&
                 !client.legacy_vdo_overlay.find_by_block(block) &&
                 !client.blocks_stratis_fsys[block.path] &&
-                !is_snap(client, block));
+                !is_snap(client, block) &&
+                !should_ignore(client, block.path));
     });
 }
 
@@ -608,7 +610,7 @@ export function get_multipathd_service () {
     return multipathd_service;
 }
 
-export function get_parent(client, path) {
+function get_parent(client, path) {
     if (client.blocks_part[path] && client.blocks[client.blocks_part[path].Table])
         return client.blocks_part[path].Table;
     if (client.blocks[path] && client.blocks[client.blocks[path].CryptoBackingDevice])
@@ -623,9 +625,13 @@ export function get_parent(client, path) {
         return client.lvols[path].VolumeGroup;
     if (client.blocks_stratis_fsys[path])
         return client.blocks_stratis_fsys[path].Pool;
+    if (client.vgroups[path])
+        return path;
+    if (client.stratis_pools[path])
+        return path;
 }
 
-export function get_direct_parent_blocks(client, path) {
+function get_direct_parent_blocks(client, path) {
     let parent = get_parent(client, path);
     if (!parent)
         return [];
@@ -658,6 +664,19 @@ export function is_netdev(client, path) {
     if (block && block.Major == 43) // NBD
         return true;
     return false;
+}
+
+export function should_ignore(client, path) {
+    if (!client.in_anaconda_mode())
+        return false;
+
+    const parents = get_direct_parent_blocks(client, path);
+    if (parents.length == 0) {
+        const b = client.blocks[path];
+        return b && client.should_ignore_block(b);
+    } else {
+        return parents.some(p => should_ignore(client, p));
+    }
 }
 
 /* GET_CHILDREN gets the direct children of the storage object at
@@ -839,7 +858,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                 has_fstab_entry,
                 set_noauto: !is_top && !is_temporary,
                 actions: (is_top ? get_actions(_("unmount")) : [_("unmount")]).concat(has_fstab_entry ? [_("mount")] : []),
-                blocking: false
+                blocking: client.strip_mount_point_prefix(location) === false,
             });
         }
 

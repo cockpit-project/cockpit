@@ -90,7 +90,10 @@ export function is_valid_mount_point(client, block, val, format_only, for_fstab)
         if (Object.keys(children).length > 0)
             return <>
                 {_("Filesystems are already mounted below this mountpoint.")}
-                {Object.keys(children).map(m => <div key={m}>{cockpit.format("• $0 on $1", nice_block_name(children[m]), m)}</div>)}
+                {Object.keys(children).map(m => <div key={m}>
+                    {cockpit.format("• $0 on $1", nice_block_name(children[m]),
+                                    client.strip_mount_point_prefix(m))}
+                </div>)}
                 {_("Please unmount them first.")}
             </>;
     }
@@ -125,6 +128,7 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
 
     let mount_point_text = null;
     if (old_dir) {
+        mount_point_text = client.strip_mount_point_prefix(old_dir);
         let opt_texts = [];
         if (opt_ro)
             opt_texts.push(_("read only"));
@@ -138,9 +142,7 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
             opt_texts.push(_("stop boot on failure"));
         opt_texts = opt_texts.concat(split_options);
         if (opt_texts.length) {
-            mount_point_text = cockpit.format("$0 ($1)", old_dir, opt_texts.join(", "));
-        } else {
-            mount_point_text = old_dir;
+            mount_point_text = cockpit.format("$0 ($1)", mount_point_text, opt_texts.join(", "));
         }
     }
 

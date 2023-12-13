@@ -173,6 +173,17 @@ def attach(filename: str, move: bool = False):
             shutil.copy(filename, dest)
 
 
+def unique_filename(base, ext):
+    for i in range(20):
+        if i == 0:
+            f = f"{base}.{ext}"
+        else:
+            f = f"{base}-{i}.{ext}"
+        if not os.path.exists(f):
+            return f
+    return f"{base}.{ext}"
+
+
 class Browser:
     def __init__(self, address, label, machine, pixels_label=None, coverage_label=None, port=None):
         if ":" in address:
@@ -943,7 +954,7 @@ class Browser:
         if self.cdp and self.cdp.valid:
             self.cdp.command("clearExceptions()")
 
-            filename = f"{label or self.label}-{title}.png"
+            filename = unique_filename(f"{label or self.label}-{title}", "png")
             if self.body_clip:
                 ret = self.cdp.invoke("Page.captureScreenshot", clip=self.body_clip, no_trace=True)
             else:
@@ -956,7 +967,7 @@ class Browser:
             else:
                 print("Screenshot not available")
 
-            filename = f"{label or self.label}-{title}.html"
+            filename = unique_filename(f"{label or self.label}-{title}", "html")
             html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",
                                    no_trace=True)["result"]["value"]
             with open(filename, 'wb') as f:
@@ -1237,7 +1248,7 @@ class Browser:
 
         logs = list(self.get_js_log())
         if logs:
-            filename = f"{label or self.label}-{title}.js.log"
+            filename = unique_filename(f"{label or self.label}-{title}", "js.log")
             with open(filename, 'wb') as f:
                 f.write('\n'.join(logs).encode('UTF-8'))
             attach(filename, move=True)
@@ -1967,7 +1978,7 @@ class MachineCase(unittest.TestCase):
         # write the report
         if suffix:
             suffix = "-" + suffix
-        filename = f"{label or self.label()}{suffix}-axe.json.gz"
+        filename = unique_filename(f"{label or self.label()}{suffix}-axe", "json.gz")
         with gzip.open(filename, "wb") as f:
             f.write(json.dumps(report).encode('UTF-8'))
         print("Wrote accessibility report to " + filename)
@@ -2002,7 +2013,7 @@ class MachineCase(unittest.TestCase):
     def copy_journal(self, title: str, label: Optional[str] = None):
         for _, m in self.machines.items():
             if m.ssh_reachable:
-                log = "%s-%s-%s.log.gz" % (label or self.label(), m.label, title)
+                log = unique_filename("%s-%s-%s" % (label or self.label(), m.label, title), "log.gz")
                 with open(log, "w") as fp:
                     m.execute("journalctl|gzip", stdout=fp)
                     print("Journal extracted to %s" % (log))

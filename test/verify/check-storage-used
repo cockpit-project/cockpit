@@ -123,7 +123,7 @@ ExecStart=/usr/bin/sleep infinity
 
         # Create a volume group out of two disks
         m.execute(f"vgcreate TEST1 {dev_1} {dev_2}")
-        self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
+        self.addCleanupVG("TEST1")
         b.wait_visible(self.card_row("Storage", name="TEST1"))
 
         # Formatting dev_1 should cleanly remove it from the volume

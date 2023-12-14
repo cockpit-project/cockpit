@@ -1,0 +1,7 @@
+#! /bin/bash
+
+logger -- RUN: $0 "$@"
+( exec -a "$0" /usr/sbin/lvm.orig "$@" )
+res=$?
+logger -- DONE: $0 "$@" == $res
+exit $res

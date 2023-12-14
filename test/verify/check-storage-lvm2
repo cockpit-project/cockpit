@@ -453,6 +453,11 @@ class TestStorageLvm2(storagelib.StorageCase):
     def testRaidRepair(self):
         b = self.browser
 
+        m = self.machine
+        m.execute("mv /usr/sbin/lvm /usr/sbin/lvm.orig")
+        m.upload(["../lvm-debug"], "/usr/sbin/lvm")
+        m.execute("chmod a+x /usr/sbin/lvm")
+
         self.skip_if_no_layouts()
 
         self.login_and_go("/storage")

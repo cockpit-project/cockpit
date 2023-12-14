@@ -25,7 +25,12 @@ import { CardHeader, CardBody } from "@patternfly/react-core/dist/esm/components
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 
-import { StorageCard, StorageDescription, PageTable, new_page, new_card, get_crossrefs } from "../pages.jsx";
+import { VolumeIcon } from "../icons/gnome-icons.jsx";
+import {
+    StorageCard, StorageDescription, PageTable,
+    new_page, new_card, PAGE_CATEGORY_VIRTUAL,
+    get_crossrefs
+} from "../pages.jsx";
 import { dialog_open, PassInput } from "../dialog.jsx";
 import { std_reply, with_stored_passphrase } from "./utils.jsx";
 
@@ -92,6 +97,8 @@ export function make_stratis_stopped_pool_page(parent, uuid) {
         next: null,
         page_location: ["pool", uuid],
         page_name: uuid,
+        page_icon: VolumeIcon,
+        page_category: PAGE_CATEGORY_VIRTUAL,
         component: StoppedStratisPoolCard,
         props: { uuid },
         actions: [

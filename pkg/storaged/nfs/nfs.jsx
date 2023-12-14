@@ -32,7 +32,11 @@ import {
 } from "../dialog.jsx";
 
 import { StorageUsageBar } from "../storage-controls.jsx";
-import { StorageCard, StorageDescription, new_page, new_card, navigate_to_new_card_location, navigate_away_from_card } from "../pages.jsx";
+import {
+    StorageCard, StorageDescription,
+    new_page, new_card, PAGE_CATEGORY_NETWORK,
+    navigate_to_new_card_location, navigate_away_from_card
+} from "../pages.jsx";
 import { parse_options, unparse_options, extract_option } from "../utils.js";
 
 const _ = cockpit.gettext;
@@ -293,6 +297,7 @@ export function make_nfs_page(parent, entry) {
         page_location: ["nfs", remote, local],
         page_name: remote,
         page_icon: NetworkIcon,
+        page_category: PAGE_CATEGORY_NETWORK,
         page_size: <NfsEntryUsageBar key="size" entry={entry} not_mounted_text={null} short />,
         component: NfsCard,
         props: { entry },

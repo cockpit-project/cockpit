@@ -25,7 +25,10 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import { NetworkIcon } from "../icons/gnome-icons.jsx";
-import { StorageDescription, new_page, new_card, ChildrenTable, StorageCard } from "../pages.jsx";
+import {
+    new_page, new_card, PAGE_CATEGORY_NETWORK,
+    StorageDescription, ChildrenTable, StorageCard
+} from "../pages.jsx";
 
 import { make_drive_page } from "../drive/drive.jsx";
 
@@ -44,6 +47,7 @@ export function make_iscsi_session_page(parent, session) {
         page_location: ["iscsi", session.data.target_name],
         page_name: session.data.target_name,
         page_icon: NetworkIcon,
+        page_categroy: PAGE_CATEGORY_NETWORK,
         component: ISCSISessionCard,
         props: { session },
         actions: [

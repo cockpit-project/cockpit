@@ -27,7 +27,11 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 
 import { VolumeIcon } from "../icons/gnome-icons.jsx";
 import { StorageButton, StorageLink } from "../storage-controls.jsx";
-import { StorageCard, StorageDescription, PageTable, new_page, new_card, get_crossrefs, navigate_away_from_card } from "../pages.jsx";
+import {
+    StorageCard, StorageDescription, PageTable,
+    new_page, new_card, PAGE_CATEGORY_VIRTUAL,
+    get_crossrefs, navigate_away_from_card
+} from "../pages.jsx";
 import { make_block_page } from "../block/create-pages.jsx";
 import {
     block_short_name, mdraid_name, encode_filename, decode_filename,
@@ -201,6 +205,7 @@ export function make_mdraid_page(parent, mdraid) {
         page_location: ["mdraid", mdraid.UUID],
         page_name: block ? block_short_name(block) : mdraid_name(mdraid),
         page_icon: VolumeIcon,
+        page_category: PAGE_CATEGORY_VIRTUAL,
         page_size: mdraid.Size,
         type_extra: !block && _("stopped"),
         id_extra: block && _("MDRAID device"),

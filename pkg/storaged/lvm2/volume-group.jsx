@@ -30,7 +30,8 @@ import { useObject } from "hooks";
 import { VolumeIcon } from "../icons/gnome-icons.jsx";
 import { StorageButton, StorageLink } from "../storage-controls.jsx";
 import {
-    StorageCard, StorageDescription, ChildrenTable, PageTable, new_page, new_card, get_crossrefs,
+    StorageCard, StorageDescription, ChildrenTable, PageTable,
+    new_page, new_card, get_crossrefs, PAGE_CATEGORY_VIRTUAL,
     navigate_to_new_card_location, navigate_away_from_card
 } from "../pages.jsx";
 import {
@@ -229,6 +230,7 @@ export function make_lvm2_volume_group_page(parent, vgroup) {
         page_location: ["vg", vgroup.Name],
         page_name: vgroup.Name,
         page_icon: VolumeIcon,
+        page_category: PAGE_CATEGORY_VIRTUAL,
         page_size: vgroup.Size,
         job_path: vgroup.path,
         component: LVM2VolumeGroupCard,

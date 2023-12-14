@@ -33,7 +33,8 @@ import { fmt_to_fragments } from "utils.jsx";
 import { StorageButton, StorageUsageBar, StorageLink } from "../storage-controls.jsx";
 import {
     StorageCard, StorageDescription, ChildrenTable, PageTable,
-    new_page, new_card, get_crossrefs, navigate_away_from_card
+    new_page, new_card, PAGE_CATEGORY_VIRTUAL,
+    get_crossrefs, navigate_away_from_card
 } from "../pages.jsx";
 import {
     get_active_usage, teardown_active_usage, for_each_async,
@@ -290,6 +291,7 @@ export function make_stratis_pool_page(parent, pool) {
         page_location: ["pool", pool.Uuid],
         page_name: pool.Name,
         page_icon: VolumeIcon,
+        page_category: PAGE_CATEGORY_VIRTUAL,
         page_size: ((!managed_fsys_sizes && use)
             ? <StorageUsageBar key="s" stats={use} short />
             : Number(pool.TotalPhysicalSize)),

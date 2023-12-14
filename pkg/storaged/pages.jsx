@@ -133,6 +133,10 @@ const _ = cockpit.gettext;
 let pages = null;
 let crossrefs = null;
 
+export const PAGE_CATEGORY_PHYSICAL = 1;
+export const PAGE_CATEGORY_VIRTUAL = 2;
+export const PAGE_CATEGORY_NETWORK = 3;
+
 export function reset_pages() {
     pages = new Map();
     crossrefs = new Map();
@@ -148,6 +152,12 @@ function icon_from_card(card) {
     if (!card)
         return null;
     return icon_from_card(card.next) || card.page_icon;
+}
+
+function category_from_card(card) {
+    if (!card)
+        return null;
+    return category_from_card(card.next) || card.page_category;
 }
 
 function key_from_card(card) {
@@ -175,6 +185,7 @@ export function new_page(parent, card, options) {
         location: location_from_card(card),
         name: name_from_card(card),
         icon: icon_from_card(card),
+        category: category_from_card(card),
         key: key_from_card(card),
         parent,
         children: [],
@@ -207,7 +218,7 @@ export function new_page(parent, card, options) {
 export function new_card({
     title, location, next,
     type_extra, id_extra,
-    page_name, page_icon, page_key, page_location, page_size,
+    page_name, page_icon, page_category, page_key, page_location, page_size,
     page_block,
     for_summary,
     has_warning, has_danger, job_path,
@@ -227,6 +238,7 @@ export function new_card({
         type_extra,
         page_name,
         page_icon,
+        page_category: page_category || PAGE_CATEGORY_PHYSICAL,
         page_key,
         page_location,
         page_size,
@@ -612,14 +624,23 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
         }
     }
 
+    function page_compare(a, b) {
+        if (a.category < b.category)
+            return -1;
+        else if (a.category > b.category)
+            return 1;
+        else
+            return a.name.localeCompare(b.name);
+    }
+
     function sort(things, accessor, sorted) {
         if (sorted === false)
             return things;
-        return things.toSorted((a, b) => accessor(a).localeCompare(accessor(b)));
+        return things.toSorted((a, b) => page_compare(accessor(a), accessor(b)));
     }
 
     function make_page_rows(pages, level, last_has_border, key, sorted) {
-        for (const p of sort(pages, p => p.name, sorted)) {
+        for (const p of sort(pages, p => p, sorted)) {
             const is_last = (level == 0 || p == pages[pages.length - 1]);
             const p_key = key + ":" + (p.key || p.name);
             make_row(p, null, level, is_last && p.children.length == 0 && last_has_border, p_key);
@@ -628,7 +649,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
     }
 
     function make_crossref_rows(crossrefs) {
-        for (const c of sort(crossrefs, c => c.card.page.name, sorted))
+        for (const c of sort(crossrefs, c => c.card.page, sorted))
             make_row(c.card.page, c, 0, true, c.card.page.name);
     }
 

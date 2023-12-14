@@ -1,7 +1,16 @@
 #! /bin/bash
 
+set -o pipefail
+
 logger -- RUN: $0 "$@"
-( exec -a "$0" /usr/sbin/lvm.orig "$@" )
-res=$?
+if [ "$1" == "lvconvert" ]; then
+    shift;
+    # ( strace --argv0 "$0" -o "|logger" -s 1000 -f -- /usr/sbin/lvm.orig lvconvert -vvvv "$@" 2>&1 ) | logger
+    ( exec -a "$0" /usr/sbin/lvm.orig lvconvert -vvvv "$@" 2>&1 ) | logger
+    res=$?
+else
+    ( exec -a "$0" /usr/sbin/lvm.orig "$@" )
+    res=$?
+fi
 logger -- DONE: $0 "$@" == $res
 exit $res

@@ -190,12 +190,10 @@ export function useFileWithError(path, options, hook_options) {
         const handle = cockpit.file(path, memo_options);
         handle.watch((data, tag, error) => {
             setContentAndError([data || false, error || false]);
-            if (!data && memo_hook_options && memo_hook_options.log_errors)
+            if (!data && memo_hook_options?.log_errors)
                 console.warn("Can't read " + path + ": " + (error ? error.toString() : "not found"));
         });
-        return function () {
-            handle.close();
-        };
+        return handle.close;
     }, [path, memo_options, memo_hook_options]);
 
     return content_and_error;

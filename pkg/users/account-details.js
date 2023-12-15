@@ -153,7 +153,6 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                this is a workaround for different ways of handling a locked account
                                https://github.com/cockpit-project/cockpit/issues/1216
                                https://bugzilla.redhat.com/show_bug.cgi?id=853153
-                               This seems to be fixed in fedora 23 (usermod catches the different locking behavior)
                             */
                                 if (locked != value && !dont_retry_if_stuck) {
                                     console.log("Account locked state doesn't match desired value, trying again.");

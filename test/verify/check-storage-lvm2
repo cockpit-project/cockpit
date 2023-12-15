@@ -464,10 +464,10 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk1 = self.add_ram_disk(size=200)
-        disk2 = self.add_loopback_disk(name="loop10", size=200)
-        disk3 = self.add_loopback_disk(name="loop11", size=200)
-        disk4 = self.add_loopback_disk(name="loop12", size=200)
+        disk1 = self.add_ram_disk()
+        disk2 = self.add_loopback_disk(name="loop10")
+        disk3 = self.add_loopback_disk(name="loop11")
+        disk4 = self.add_loopback_disk(name="loop12")
 
         # Make a volume group with three physical volumes
 
@@ -526,6 +526,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_set_val('disks', {disk4: True})
         self.dialog_apply()
         self.dialog_wait_close()
+
         b.wait_visible(self.card_row("LVM2 volume group", name=disk4))
         self.click_card_row("LVM2 logical volumes", 1)
 
@@ -535,7 +536,12 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_wait_error("pvs", "An additional 46.1 MB must be selected")
         self.dialog_set_val("pvs", {disk4: True})
         self.dialog_apply()
-        self.dialog_wait_close()
+        try:
+            self.dialog_wait_close()
+        except:
+            print("HANGING")
+            print(m.execute("for p in $(pgrep lvm); do (echo $p; cat /proc/$p/stack) | logger; done"))
+            raise
 
         b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"),
                            "This logical volume has lost some")

@@ -48,18 +48,9 @@ import { account_shell_dialog } from "./shell-dialog.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
+import { get_locked } from "./utils.js";
 
 const _ = cockpit.gettext;
-
-function get_locked(name) {
-    return cockpit.spawn(["passwd", "-S", name], { environ: ["LC_ALL=C"], superuser: "require" })
-            .catch(() => "")
-            .then(content => {
-                const status = content.split(" ")[1];
-                // libuser uses "LK", shadow-utils use "L".
-                return status && (status == "LK" || status == "L");
-            });
-}
 
 function get_expire(name) {
     function parse_expire(data) {

@@ -29,6 +29,7 @@ import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "pam_user_parser.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
+import { get_locked } from "./utils.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 
@@ -54,7 +55,6 @@ function AccountsPage() {
     const [isGroupsExpanded, setIsGroupsExpanded] = useState(false);
     const { path } = usePageLocation();
     const accounts = useFile("/etc/passwd", { syntax: etc_passwd_syntax });
-    const shadow = useFile("/etc/shadow", { superuser: true });
     const groups = useFile("/etc/group", { syntax: etc_group_syntax });
     const shells = useFile("/etc/shells", { syntax: etc_shells_syntax });
     const current_user_info = useLoggedInUser();
@@ -87,15 +87,18 @@ function AccountsPage() {
 
     const [details, setDetails] = useState(null);
     useInit(() => {
-        getLogins(shadow).then(setDetails);
+        getLogins().then(setDetails);
 
         // Watch `/var/run/utmp` to register when user logs in or out
-        const handle = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
-        handle.watch(() => {
-            getLogins(shadow).then(setDetails);
-        });
-        return handle;
-    }, [shadow], null, handle => handle.close());
+        const handleUtmp = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
+        handleUtmp.watch(() => getLogins().then(setDetails), { read: false });
+
+        // Watch /etc/shadow to register lock/unlock/expire changes; but avoid reading it, it's sensitive data
+        const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
+        handleShadow.watch(() => getLogins().then(setDetails), { read: false });
+
+        return [handleUtmp, handleShadow];
+    }, [], null, handles => handles.forEach(handle => handle.close()));
 
     // lastlog uses same sorting as /etc/passwd therefore arrays can be combined based on index
     const accountsInfo = useMemo(() => {
@@ -147,11 +150,7 @@ function AccountsPage() {
     } else return null;
 }
 
-function get_locked(name, shadow) {
-    return Boolean((shadow || '').split('\n').find(line => line.startsWith(name + ':!')));
-}
-
-async function getLogins(shadow) {
+async function getLogins() {
     let lastlog = "";
     try {
         lastlog = await cockpit.spawn(["lastlog"], { environ: ["LC_ALL=C"] });
@@ -168,21 +167,21 @@ async function getLogins(shadow) {
     }
 
     // drop header and last empty line with slice
-    const promises = lastlog.split('\n').slice(1, -1).map(line => {
+    const promises = lastlog.split('\n').slice(1, -1).map(async line => {
         const splitLine = line.split(/ +/);
         const name = splitLine[0];
-        const isLocked = get_locked(name, shadow);
+        const isLocked = await get_locked(name);
 
         if (line.indexOf('**Never logged in**') > -1) {
-            return Promise.resolve({ name, loggedIn: false, lastLogin: null, isLocked });
+            return { name, loggedIn: false, lastLogin: null, isLocked };
         }
+
+        const loggedIn = currentLogins.includes(name);
 
         const date_fields = splitLine.slice(-5);
         // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
         return cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')], { environ: ["LC_ALL=C"], err: "out" })
-                .then(out => {
-                    return { name, loggedIn: currentLogins.includes(name), lastLogin: parseInt(out) * 1000, isLocked };
-                })
+                .then(out => ({ name, loggedIn, lastLogin: parseInt(out) * 1000, isLocked }))
                 .catch(e => console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`));
     });
 

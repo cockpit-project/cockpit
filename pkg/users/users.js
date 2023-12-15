@@ -20,16 +20,17 @@ import '../lib/patternfly/patternfly-5-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
-import cockpit from 'cockpit';
 import React, { useMemo, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { superuser } from "superuser";
 
+import cockpit from 'cockpit';
+import { superuser } from "superuser";
 import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "pam_user_parser.js";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 import "./users.scss";
 

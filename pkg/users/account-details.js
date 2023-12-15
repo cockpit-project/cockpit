@@ -17,10 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from 'cockpit';
 import React, { useState, useEffect, useRef } from 'react';
-import { superuser } from "superuser";
-import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -38,6 +35,12 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { ExclamationCircleIcon, HelpIcon, UndoIcon } from '@patternfly/react-icons';
+
+import cockpit from 'cockpit';
+import { superuser } from "superuser";
+import * as timeformat from "timeformat.js";
+import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
+
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
@@ -45,7 +48,6 @@ import { account_shell_dialog } from "./shell-dialog.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
-import * as timeformat from "timeformat.js";
 
 const _ = cockpit.gettext;
 

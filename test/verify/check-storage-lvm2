@@ -513,9 +513,6 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Repair with fourth
 
-        b.eval_js('window.debugging = "dbus"')
-        b.cdp.trace = True
-
         self.click_card_row("LVM2 logical volumes", 1)
         b.click(self.card_button("LVM2 logical volume", "Repair"))
         self.dialog_wait_open()
@@ -539,8 +536,6 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.dialog_set_val("pvs", {disk4: True})
         self.dialog_apply()
         self.dialog_wait_close()
-
-        b.eval_js('window.debugging = null')
 
         b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"),
                            "This logical volume has lost some")

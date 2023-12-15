@@ -103,7 +103,7 @@ function get_expire(name) {
             .then(parse_expire);
 }
 
-export function AccountDetails({ accounts, groups, shadow, current_user, user, shells }) {
+export function AccountDetails({ accounts, groups, current_user, user, shells }) {
     const [expiration, setExpiration] = useState(null);
     useEffect(() => {
         get_expire(user).then(setExpiration);
@@ -114,7 +114,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user, s
             get_expire(user).then(setExpiration);
         });
         return handle.close;
-    }, [user, accounts, shadow]);
+    }, [user, accounts]);
 
     const [edited_real_name, set_edited_real_name] = useState(null);
     const [committing_real_name, set_committing_real_name] = useState(false);

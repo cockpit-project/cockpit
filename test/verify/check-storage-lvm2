@@ -458,6 +458,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         m.upload(["../lvm-debug"], "/usr/sbin/lvm")
         m.execute("chmod a+x /usr/sbin/lvm")
         self.addCleanup(m.execute, "rm /usr/sbin/lvm; mv /usr/sbin/lvm.orig /usr/sbin/lvm")
+        m.spawn("udevadm monitor | logger", "umon")
 
         self.skip_if_no_layouts()
 
@@ -554,6 +555,8 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.click(".pf-v5-c-alert button:contains(Dismiss)")
         self.dialog({})
         b.wait_not_present(".pf-v5-c-alert")
+
+        self.copy_journal("DEBUG")
 
     def testRaidRepair2(self):
         self.testRaidRepair()

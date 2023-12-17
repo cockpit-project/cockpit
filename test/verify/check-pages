@@ -317,6 +317,9 @@ OnCalendar=daily
             })""", language)
             b.wait_attr(".index-page", "lang", language)
 
+        # the quick iteration starts/stops tracer in quick succession, before it can finish
+        self.allow_browser_errors("Tracer failed:.*internal-error")
+
     def testPtBRLocale(self):
         m = self.machine
         b = self.browser

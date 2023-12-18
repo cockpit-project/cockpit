@@ -1578,9 +1578,6 @@ class MachineCase(unittest.TestCase):
                 # Don't insist that terminating works, the session might be gone by now.
                 self.machine.execute(f"loginctl kill-session {s} || true; loginctl terminate-session {s} || true")
 
-            # Restart logind to mop up empty "closing" sessions
-            self.machine.execute("systemctl restart systemd-logind")
-
             # Wait for sessions to be gone
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
@@ -1593,6 +1590,10 @@ class MachineCase(unittest.TestCase):
 
             # terminate all systemd user services for users who are not logged in
             self.machine.execute("systemctl stop user@*.service")
+
+            # Restart logind to mop up empty "closing" sessions, and clean user id cache for non-system users
+            self.machine.execute("systemctl stop systemd-logind; cd /run/systemd/users/; "
+                                 "for f in *; do [ $f -le 500 ] || rm $f; done")
 
         self.addCleanup(terminate_sessions)
 

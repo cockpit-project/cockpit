@@ -28,9 +28,8 @@ good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
 def getUserAddDetails(machine):
     useradd_defaults = {}
     for line in machine.execute("useradd -D").splitlines():
-        if line:
-            key, value = line.split("=")
-            useradd_defaults[key] = value
+        key, value = line.split("=")
+        useradd_defaults[key] = value
 
     return useradd_defaults
 

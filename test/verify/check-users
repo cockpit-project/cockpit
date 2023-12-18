@@ -406,6 +406,9 @@ class TestAccounts(testlib.MachineCase):
         b = self.browser
         m = self.machine
 
+        # Clean out the relevant logfiles
+        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /var/run/utmp")
+
         self.login_and_go("/users")
         # Create a locked user with weak password
         self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd')

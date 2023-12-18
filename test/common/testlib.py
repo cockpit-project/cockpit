@@ -1505,6 +1505,7 @@ class MachineCase(unittest.TestCase):
 
         # test inspector init
         self.test_inspector = RunChecks(external_executor=m.execute)
+        self.test_inspector.init()
         # core dumps get copied per-test, don't clobber subsequent tests with them
         self.addCleanup(m.execute, "find /var/lib/systemd/coredump -type f -delete")
 

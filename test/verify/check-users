@@ -25,20 +25,12 @@ import testlib
 good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
 
 
-useradd_defaults = {}
-
-
 def getUserAddDetails(machine):
-    global useradd_defaults
-
-    if not useradd_defaults:  # dictionary is empty
-        useradd_defaults_str = machine.execute("useradd -D")
-        lines = useradd_defaults_str.split("\n")
-
-        for line in lines:
-            if line:
-                key, value = line.split("=")
-                useradd_defaults[key] = value
+    useradd_defaults = {}
+    for line in machine.execute("useradd -D").splitlines():
+        if line:
+            key, value = line.split("=")
+            useradd_defaults[key] = value
 
     return useradd_defaults
 

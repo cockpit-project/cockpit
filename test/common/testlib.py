@@ -43,6 +43,7 @@ import cdp
 import testvm
 from lcov import write_lcov
 from lib.constants import OSTREE_IMAGES
+from testinsp import RunChecks
 
 try:
     from PIL import Image
@@ -1502,6 +1503,8 @@ class MachineCase(unittest.TestCase):
         m.execute("logger -p user.info 'COCKPITTEST: start %s'" % name)
         self.addCleanup(m.execute, "logger -p user.info 'COCKPITTEST: end %s'" % name)
 
+        # test inspector init
+        self.test_inspector = RunChecks(external_executor=m.execute)
         # core dumps get copied per-test, don't clobber subsequent tests with them
         self.addCleanup(m.execute, "find /var/lib/systemd/coredump -type f -delete")
 
@@ -1598,6 +1601,11 @@ class MachineCase(unittest.TestCase):
 
     def tearDown(self):
         error = self.getError()
+        # print output of test Inspector to stdout
+        if self.is_nondestructive():
+            print("TEST INSPECTOR RESULTS")
+            print(self.test_inspector.check())
+            print("END OF TEST INSPECTOR RESULTS")
 
         if error:
             print(error, file=sys.stderr)

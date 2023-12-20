@@ -10,7 +10,7 @@ COCKPIT_RUNTIME_DIR="/run/cockpit"
 
 install_cert() {
     local destination="${COCKPIT_WS_CERTS_D}/$1"
-    mv -Z "$1" "${destination}"
+    mv -Z "$1" "${destination}" || mv "$1" "${destination}"
 
     # The certificate should be world-readable
     chmod a+r "${destination}"
@@ -18,7 +18,7 @@ install_cert() {
 
 install_key() {
     local destination="${COCKPIT_WS_CERTS_D}/$1"
-    mv -Z "$1" "${destination}"
+    mv -Z "$1" "${destination}" || mv "$1" "${destination}"
 }
 
 selfsign_sscg() {

@@ -89,7 +89,7 @@ function sosLister() {
     }
 
     function update_reports() {
-        cockpit.script('find /var/tmp -maxdepth 1 -name \'*sosreport-*.tar.*\' -print0 | xargs -0 -r stat --printf="%n\\r%W\\n"', { superuser: true, err: "message" })
+        cockpit.script('printf \"\$(stat -c \'%n\\r%Y\\n\' /var/tmp/*sosreport-*.tar.*)\"', { superuser: true, err: "message" })
                 .then(output => {
                     const reports = { };
                     const lines = output.split("\n");

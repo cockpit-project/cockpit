@@ -94,6 +94,7 @@ class TestInspector:
 
     def _store(self):
         with open(self.storage_file, "w") as fd:
+            data = ""
             if self.store_type == JSON:
                 data = dumps(self.data)
             elif self.store_type == YAML:

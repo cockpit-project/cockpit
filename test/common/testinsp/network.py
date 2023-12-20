@@ -20,10 +20,10 @@ class NetworkInterfaces(TestInspector):
             interface = item["ifname"]
             adresses = list()
             addrinfo_list = ["local", "prefixlen", "family", "label", "scope"]
-            for item in item["addr_info"]:
+            for item_inner in item["addr_info"]:
                 new_item = dict()
                 for key in addrinfo_list:
-                    new_item[key] = item.get(key)
+                    new_item[key] = item_inner.get(key)
                 adresses.append(new_item)
             state = item.get("operstate")
             data[interface] = {

@@ -100,7 +100,7 @@ class Comparator:
 
     def _compare_string(self, old_data, new_data):
         if "\n" in old_data or "\n" in new_data:
-            return self.compare_multiline(old_data, new_data)
+            self.compare_multiline(old_data, new_data)
         if old_data != new_data and not (
             self._exclude_pattern_matching(old_data)
             or self._exclude_pattern_matching(new_data)
@@ -130,7 +130,6 @@ class Comparator:
                 self.log(ADD, line)
             elif item.startswith("-"):
                 self.log(REM, line)
-        return self.differences
 
     def __compare_files(self, file_path, name_to_store="", old_data=None):
         file = Path(file_path)
@@ -178,7 +177,7 @@ class Comparator:
         removed = old_data - new_data
         added = old_data - new_data
         for item in removed:
-            self.log("REMOVED FILE", item)
+            self.log(ADD, "FILE", item)
         for item in added:
-            self.log("ADDED FILE", item)
+            self.log(REM, "FILE", item)
         return self.differences

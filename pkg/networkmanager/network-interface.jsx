@@ -27,6 +27,8 @@ import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.j
 import { Page, PageBreadcrumb, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 
+import { Privileged } from "cockpit-components-privileged.jsx";
+
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { NetworkAction } from './dialogs-common.jsx';
@@ -53,9 +55,8 @@ import {
 import {
     bond_mode_choices,
 } from './bond.jsx';
-import {
-    ipv4_method_choices, ipv6_method_choices,
-} from './ip-settings.jsx';
+
+import { get_ip_method_choices } from './ip-settings.jsx';
 
 const _ = cockpit.gettext;
 
@@ -215,7 +216,7 @@ export const NetworkInterfacePage = ({
             mac = iface.MainConnection.Settings.ethernet.assigned_mac_address;
         }
 
-        const can_edit_mac = (iface && iface.MainConnection &&
+        const can_edit_mac = (privileged && iface && iface.MainConnection &&
                               (connection_settings(iface.MainConnection).type == "802-3-ethernet" ||
                                connection_settings(iface.MainConnection).type == "bond"));
 
@@ -283,8 +284,7 @@ export const NetworkInterfacePage = ({
             const parts = [];
 
             if (params.method != "manual")
-                parts.push(choice_title((topic == "ipv4") ? ipv4_method_choices : ipv6_method_choices,
-                                        params.method, _("Unknown configuration")));
+                parts.push(choice_title(get_ip_method_choices(topic), params.method, _("Unknown configuration")));
 
             const addr_is_extra = (params.method != "manual");
             const addrs = [];
@@ -675,10 +675,15 @@ export const NetworkInterfacePage = ({
     let onoff;
     if (isManaged) {
         onoff = (
-            <Switch isChecked={!!(dev && dev.ActiveConnection)}
-                    isDisabled={!iface || (dev && dev.State == 20)}
-                    onChange={(_event, enable) => enable ? connect() : disconnect()}
-                    aria-label={_("Enable or disable the device")} />
+            <Privileged allowed={privileged}
+                        tooltipId="interface-switch"
+                        excuse={ _("Not permitted to configure network devices") }>
+                <Switch id="interface-switch"
+                        isChecked={!!(dev && dev.ActiveConnection)}
+                        isDisabled={!iface || (dev && dev.State == 20) || !privileged}
+                        onChange={(_event, enable) => enable ? connect() : disconnect()}
+                        aria-label={_("Enable or disable the device")} />
+            </Privileged>
         );
     }
 

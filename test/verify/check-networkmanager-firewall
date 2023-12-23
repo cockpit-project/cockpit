@@ -69,7 +69,7 @@ class TestFirewall(netlib.NetworkCase):
         m = self.machine
 
         def get_num_zones():
-            return len(m.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split())
+            return int(m.execute("firewall-cmd --get-active-zones | grep --count '^[a-zA-Z]'").strip())
 
         active_zones = get_num_zones()
 

@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import re
-
 import packagelib
 import storagelib
 import testlib
@@ -37,15 +35,14 @@ class TestStorageVDO(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Make a volume group in which to create the VDO LV
-        m.add_disk(SIZE_10G, serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
+        dev = "/dev/" + m.add_disk(SIZE_10G, serial="DISK1")["dev"]
+        b.wait_visible(self.card_row("Storage", name=dev))
         m.execute("vgcreate vdo_vgroup /dev/sda")
-        b.wait_in_text("#devices", "vdo_vgroup")
 
-        b.click('.sidepanel-row:contains("vdo_vgroup")')
-        b.wait_in_text("#detail-content", "No logical volumes")
+        self.click_card_row("Storage", name="vdo_vgroup")
+        b.wait_in_text(self.card("LVM2 logical volumes"), "No logical volumes")
 
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
 
@@ -64,40 +61,40 @@ class TestStorageVDO(storagelib.StorageCase):
         # pool name gets auto-generated
         pool_name = "vpool0"
 
-        self.content_row_wait_in_col(1, 1, "vdo0")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "vdo0")
         # the pool does not appear as a top-level volume
-        b.wait_not_in_text("#detail-content", pool_name)
-        # Volume tab
-        self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
-        self.content_tab_wait_in_info(1, 1, "Size", "10 GB", "10.0 GB")
-        # VDO Pool tab
-        self.content_tab_wait_in_info(1, 2, "Name", pool_name)
-        self.content_tab_wait_in_info(1, 2, "Size", "6.00 GB")
+        b.wait_not_present(self.card_row("LVM2 logical volumes", name=pool_name))
+        self.click_card_row("LVM2 logical volumes", 1)
+        # Volume card
+        b.wait_text(self.card_desc("LVM2 logical volume", "Name"), "vdo0")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), "10.0 GB")
+        # VDO pool card
+        b.wait_text(self.card_desc("LVM2 VDO pool", "Name"), pool_name)
+        b.wait_in_text(self.card_desc("LVM2 VDO pool", "Size"), "6.00 GB")
         # initial physical usage is ~ 4 GB, overhead for the deduplication index
-        self.content_tab_wait_in_info(1, 2, "Data used", "3.86 GB (64%)")
-        self.content_tab_wait_in_info(1, 2, "Metadata used", "0%")
-        b.wait_visible("input[aria-label='Use compression']:checked")
-        b.wait_visible("input[aria-label='Use deduplication']:checked")
+        b.wait_text(self.card_desc("LVM2 VDO pool", "Data used"), "3.86 GB (64%)")
+        b.wait_text(self.card_desc("LVM2 VDO pool", "Metadata used"), "0%")
+        b.wait_visible(self.card("LVM2 VDO pool") + " input[aria-label='Use compression']:checked")
+        b.wait_visible(self.card("LVM2 VDO pool") + " input[aria-label='Use deduplication']:checked")
 
         # create a filesystem
-        self.content_row_action(1, "Format")
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"type": "xfs",
                      "name": "vdofs",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 2, "xfs filesystem")
+        b.wait_visible(self.card("xfs filesystem"))
 
         # compressible data should affect logical usage
         m.execute("dd if=/dev/zero of=/run/data/empty bs=1M count=1000")
-        self.content_row_wait_in_col(1, 4, "1.2 / 10 GB", alternate_val="1.2 / 9.9 GB")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "1.2 / ")
         # but not physical usage
-        self.content_tab_wait_in_info(1, 2, "Data used", "3.86 GB (64%)")
+        b.wait_text(self.card_desc("LVM2 VDO pool", "Data used"), "3.86 GB (64%)")
 
         # incompressible data
         m.execute("dd if=/dev/urandom of=/run/data/gibberish bs=1M count=1000")
-        self.content_row_wait_in_col(1, 4, "2.2 / 10 GB", alternate_val="2.2 / 9.9 GB")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "2.2 / ")
         # equal amount of physical space (not completely predictable due to random data)
-        self.content_tab_wait_in_info(1, 2, "Data used", "4.8", "4.9")
-        self.content_tab_wait_in_info(1, 2, "Data used", cond=lambda sel: re.search(r"\(8[1234]%\)", b.text(sel)))
+        b.wait_in_text(self.card_desc("LVM2 VDO pool", "Data used"), "4.")
 
         def wait_prop(device, prop, value):
             m.execute(f"until lvdisplay --noheadings -Co {prop} /dev/vdo_vgroup/{device} | grep -q '{value}'; do sleep 0.1; done")
@@ -118,25 +115,25 @@ class TestStorageVDO(storagelib.StorageCase):
         wait_prop(pool_name, "vdo_index_state", "online")
 
         # grow volume
-        self.content_tab_action(1, 1, "Grow")
+        b.click(self.card_button("LVM2 logical volume", "Grow"))
         self.dialog({"size": 12000})
-        self.content_tab_wait_in_info(1, 1, "Size", "12.0 GB")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), "12.0 GB")
         wait_prop("vdo0", "lv_size", "11.18g")
 
         # grow pool
-        self.content_tab_action(1, 2, "Grow")
+        b.click(self.card_button("LVM2 VDO pool", "Grow"))
         self.dialog({"size": 8000})
-        self.content_tab_wait_in_info(1, 2, "Size", "8.15 GB")
+        b.wait_in_text(self.card_desc("LVM2 VDO pool", "Size"), "8.15 GB")
         wait_prop(pool_name, "lv_size", "7.59g")
 
         # deleting the vdo0 volume deletes the pool as well
-        self.content_dropdown_action(1, "Delete")
+        self.click_card_dropdown("LVM2 logical volume", "Delete")
         self.confirm()
-        b.wait_in_text("#detail-content", "No logical volumes")
+        b.wait_in_text(self.card("LVM2 logical volumes"), "No logical volumes")
         self.assertEqual(m.execute("lvs --noheadings").strip(), "")
 
         # create VDO LV with customized options
-        b.click("button:contains(Create new logical volume)")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
         self.dialog_set_val("name", "vdo0")
@@ -147,29 +144,30 @@ class TestStorageVDO(storagelib.StorageCase):
         self.dialog_set_val("vdo_options.compression", val=False)
         self.dialog_apply()
         self.dialog_wait_close()
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "vdo0")
 
-        self.content_row_wait_in_col(1, 1, "vdo0")
-        # Volume tab
-        self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
-        self.content_tab_wait_in_info(1, 1, "Size", "20.0 GB")
+        self.click_card_row("LVM2 logical volumes", 1)
+        # Volume card
+        b.wait_text(self.card_desc("LVM2 logical volume", "Name"), "vdo0")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), "20.0 GB")
         # VDO Pool tab
-        self.content_tab_wait_in_info(1, 2, "Size", "6.0 GB", "6.00 GB")
+        b.wait_in_text(self.card_desc("LVM2 VDO pool", "Size"), "6.00 GB")
         b.wait_visible("input[aria-label='Use compression']:not(:checked)")
         b.wait_visible("input[aria-label='Use deduplication']:checked")
         wait_prop(pool_name, "vdo_compression_state", "offline")
         wait_prop(pool_name, "vdo_index_state", "online")
 
         # delete again
-        self.content_dropdown_action(1, "Delete")
+        self.click_card_dropdown("LVM2 logical volume", "Delete")
         self.confirm()
-        b.wait_in_text("#detail-content", "No logical volumes")
+        b.wait_in_text(self.card("LVM2 logical volumes"), "No logical volumes")
         self.assertEqual(m.execute("lvs --noheadings").strip(), "")
 
         # react to CLI
         m.execute("lvcreate --type vdo --size 6g --virtualsize 10g --name vdo1 --yes vdo_vgroup")
-        self.content_row_wait_in_col(1, 1, "vdo1")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "vdo1")
         m.execute("lvremove --yes /dev/vdo_vgroup/vdo1")
-        b.wait_in_text("#detail-content", "No logical volumes")
+        b.wait_in_text(self.card("LVM2 logical volumes"), "No logical volumes")
 
 
 @testlib.onlyImage("legacy VDO API only supported on RHEL 8", "rhel-8*", "centos-8*")
@@ -186,43 +184,36 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        b.wait_visible("#devices")
-
         # Make a logical volume for use as the backing device.
         m.add_disk(SIZE_10G, serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
+        b.wait_visible(self.card_row("Storage", name="/dev/sda"))
         m.execute("vgcreate vdo_vgroup /dev/sda; lvcreate -n lvol -L 5G vdo_vgroup")
         # Create VDO; this is not supported any more, thus no UI for it
         m.execute("vdo create --device /dev/vdo_vgroup/lvol --name vdo0 --vdoLogicalSize 5G", timeout=300)
 
-        b.wait_in_text("#devices", "vdo0")
-        b.click("#devices .sidepanel-row:contains(vdo0)")
-        b.wait_visible("#storage-detail")
+        self.click_card_row("Storage", name="lvol")
 
         def detail(index):
-            return f'#detail-header .pf-v5-c-description-list__group:nth-of-type({index}) > dd'
+            card = self.card("VDO device vdo0")
+            return f'{card} .pf-v5-c-description-list__group:nth-of-type({index}) > dd'
 
         b.wait_text(detail(1), "/dev/mapper/vdo0")
-        b.wait_in_text(detail(2), "vdo_vgroup")
+        b.wait_in_text(detail(2), "used of 5.37 GB")
         b.wait_in_text(detail(3), "used of 5.37 GB")
-        b.wait_in_text(detail(4), "used of 5.37 GB")
-        b.wait_text(detail(5), "268 MB")
+        b.wait_text(detail(4), "268 MB")
+        b.wait_visible(detail(5) + " input:checked")
         b.wait_visible(detail(6) + " input:checked")
-        b.wait_visible(detail(7) + " input:checked")
 
         # Make a filesystem on it
 
-        self.content_row_wait_in_col(1, 2, "Unrecognized data")
-        self.content_row_action(1, "Format")
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"type": "xfs",
                      "name": "FILESYSTEM",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 2, "xfs filesystem")
-        # _netdev etc should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
-        self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.device-timeout=0")
-        self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.requires=vdo.service")
-        self.content_row_wait_in_col(1, 4, "/ 5.4 GB")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Mount point"), "after network")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Mount point"), "x-systemd.device-timeout=0")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Mount point"), "x-systemd.requires=vdo.service")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "/ 5.4 GB")
 
         # Grow physical
 
@@ -230,32 +221,33 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
         b.wait_in_text(".pf-v5-c-alert__description", 'Only 5.37 GB of 9')
         b.click("button:contains('Grow to take all space')")
         b.wait_not_present(".pf-v5-c-alert")
-        b.wait_in_text(detail(3), "used of 9.66 GB")
+        b.wait_in_text(detail(2), "used of 9.66 GB")
 
         # Grow logical
 
-        b.click(detail(4) + " button:contains(Grow)")
+        b.click(detail(3) + " button:contains(Grow)")
         self.dialog({"lsize": 10000})
-        b.wait_in_text(detail(4), "used of 10.0 GB")
-        self.content_row_wait_in_col(1, 4, "/ 10 GB")
+        b.wait_in_text(detail(3), "used of 10.0 GB")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "/ 10 GB")
 
         # Stop
 
-        b.wait_visible('#detail-content table')
-        b.click('.pf-v5-c-card__header:contains("VDO") button:contains("Stop")')
+        b.wait_visible(self.card("xfs filesystem"))
+        b.click(self.card_button("VDO device vdo0", "Stop"))
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "unmount, stop")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_not_present('#detail-content table')
+        b.wait_not_present(self.card("xfs filesystem"))
 
         # Delete
 
-        b.click('.pf-v5-c-card__header:contains("VDO") button:contains("Delete")')
+        self.click_card_dropdown("VDO device vdo0", "Delete")
         self.dialog_wait_open()
         self.dialog_apply_with_retry(expected_errors=["Device or resource busy"])
-        b.wait_visible("#storage")
-        b.wait_not_in_text("#devices", "vdo0")
+        b.wait_not_present(self.card("VDO device vdo0"))
+        b.wait_visible(self.card("Unformatted data"))
+        b.wait_visible(self.card("LVM2 logical volume"))
 
     def testBrokenVdo(self):
         m = self.machine
@@ -263,10 +255,8 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        b.wait_visible("#devices")
-
         m.add_disk(SIZE_10G, serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
+        b.wait_visible(self.card_row("Storage", name="/dev/sda"))
 
         # Install a valid configuration file that describes a broken VDO
         m.write("/etc/vdoconf.yml", """
@@ -302,12 +292,9 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#devices", "vdo0")
-        b.click("#devices .sidepanel-row:contains(vdo0)")
-
-        b.click("#storage-detail .pf-m-danger button:contains('Remove device')")
-        b.wait_visible("#storage")
-        b.wait_not_in_text("#devices", "vdo0")
+        self.click_card_row("Storage", name="/dev/sda")
+        b.click(".pf-m-danger button:contains('Remove device')")
+        b.wait_visible(self.card("Unformatted data"))
 
     def testBrokenVdoConfig(self):
         m = self.machine
@@ -315,7 +302,8 @@ config: !Configuration
 
         self.login_and_go("/storage")
 
-        b.wait_visible("#devices")
+        m.add_disk(SIZE_10G, serial="DISK1")
+        b.wait_visible(self.card_row("Storage", name="/dev/sda"))
 
         # Install a valid configuration file
         m.write("/etc/vdoconf.yml", """
@@ -351,7 +339,7 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#devices", "vdo0")
+        b.wait_in_text(self.card_row("Storage", name="/dev/sda"), "VDO device")
 
         # Install a broken configuration file
         m.write("/etc/vdoconf.yml", """
@@ -360,8 +348,9 @@ config: !Configuration
     vdo0: !VDOService
       blah: 12
 """)
+        testlib.sit()
 
-        b.wait_not_in_text("#devices", "vdo0")
+        b.wait_in_text(self.card_row("Storage", name="/dev/sda"), "Unformatted data")
 
         # Install a valid configuration file again
         m.write("/etc/vdoconf.yml", """
@@ -397,7 +386,7 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#devices", "vdo1")
+        b.wait_in_text(self.card_row("Storage", name="/dev/sda"), "VDO device")
 
 
 @testlib.onlyImage("VDO API only supported on RHEL", "rhel-*", "centos-*")
@@ -414,11 +403,10 @@ class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
 
         self.login_and_go("/storage")
         m.add_disk(SIZE_10G, serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
+        b.wait_visible(self.card_row("Storage", name="/dev/sda"))
         m.execute("vgcreate vdo_vgroup /dev/sda")
-        b.wait_in_text("#devices", "vdo_vgroup")
 
-        b.click('.sidepanel-row:contains("vdo_vgroup")')
+        self.click_card_row("Storage", name="vdo_vgroup")
         b.click("button:contains(Create new logical volume)")
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")

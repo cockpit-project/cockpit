@@ -187,10 +187,14 @@ async def test_spawn_broken_pipe(bridge):
             self.specific_error = specific_error
 
         async def do_connect_transport(self) -> None:
-            transport = await self.spawn(['sh', '-c', 'exit 9'], ())
+            transport = await self.spawn(['sh', '-c', 'read a; exit 9'], ())
             assert isinstance(transport, SubprocessTransport)
-            time.sleep(0.1)  # sync! increase chance for process to end already
-            transport.write(b'abcdefg\n')
+            # Make the process exit by writing a newline (causing `read` to finish)
+            transport.write(b'\n')
+            # The process will exit soon — try writing to it until a write fails.
+            while not transport.is_closing():
+                transport.write(b'x')
+                time.sleep(0.1)
             while transport.get_returncode() is None:
                 await asyncio.sleep(0.1)
             if self.specific_error:
@@ -206,5 +210,5 @@ async def test_spawn_broken_pipe(bridge):
     peer = BrokenPipePeer(specific_error=True)
     with pytest.raises(ChannelError) as raises:
         await peer.start()
-    assert raises.value.kwargs == {'message': 'kaputt', 'problem': 'not-supported'}
+    assert raises.value.attrs == {'message': 'kaputt', 'problem': 'not-supported'}
     peer.close()

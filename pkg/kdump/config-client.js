@@ -24,6 +24,8 @@ const knownKeys = [
     "raw", "nfs", "ssh", "sshkey", "path", "core_collector", "kdump_post", "kdump_pre", "extra_bins", "extra_modules",
     "default", "force_rebuild", "override_resettable", "dracut_args", "fence_kdump_args", "fence_kdump_nodes"
 ];
+// man kdump.conf suggests this as default configuration
+const defaultCoreCollector = "makedumpfile -l --message-level 7 -d 31";
 
 /* Parse an ini-style config file
  * and monitor it for changes
@@ -201,6 +203,8 @@ export class ConfigFile {
             this.settings._internal.core_collector.value &&
             (this.settings._internal.core_collector.value.split(" ").indexOf("-c") != -1)
         );
+
+        this.settings.core_collector = this.settings._internal?.core_collector?.value ?? defaultCoreCollector;
     }
 
     /* update single _internal setting to given value
@@ -264,6 +268,11 @@ export class ConfigFile {
                                 .split(" ")
                                 .filter(e => e != "-F")
                                 .join(" ");
+            } else {
+                settings._internal.core_collector = { value: defaultCoreCollector };
+                if (target.type === "ssh") {
+                    settings._internal.core_collector.value += " -F";
+                }
             }
         }
         // compression
@@ -273,7 +282,7 @@ export class ConfigFile {
                 if ("core_collector" in settings._internal)
                     settings._internal.core_collector.value = settings._internal.core_collector.value + " -c";
                 else
-                    settings._internal.core_collector = { value: "makedumpfile -c" };
+                    settings._internal.core_collector = { value: defaultCoreCollector };
             } else {
                 // disable compression
                 if ("core_collector" in this.settings._internal) {
@@ -295,7 +304,7 @@ export class ConfigFile {
 
     /* generate the config file from raw text and settings
      */
-    _generateConfig(settings) {
+    generateConfig(settings) {
         settings = this._persistSettings(settings);
 
         const lines = this._lines.slice(0);
@@ -343,7 +352,7 @@ export class ConfigFile {
     write(settings) {
         return this._fileHandle.modify((oldContent) => {
             this._parseText(oldContent, true);
-            return this._generateConfig(settings);
+            return this.generateConfig(settings);
         });
     }
 }

@@ -228,8 +228,12 @@ class DiskSampler(Sampler):
                 num_sectors_read = fields[5]
                 num_sectors_written = fields[9]
 
-                # ignore device-mapper and md
-                if dev_major in ['9', '253']:
+                # ignore mdraid
+                if dev_major == '9':
+                    continue
+
+                # ignore device-mapper
+                if dev_name.startswith('dm-'):
                     continue
 
                 # Skip partitions

@@ -220,15 +220,15 @@ function Machines() {
         }
 
         // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
-        const bridge = cockpit.dbus(null, { bus: "internal", superuser: "try" });
+        const bridge = cockpit.dbus(null, { bus: "internal", superuser: "require" });
         const mod =
             bridge.call("/machines", "cockpit.Machines", "Update", ["99-webui.json", host, values_variant])
-                    .catch(function(error) {
-                        console.error("failed to call cockpit.Machines.Update(): ", error);
+                    .catch(error => {
+                        // avoid make noise when we are not superuser
+                        if (error.problem !== "access-denied")
+                            console.error("failed to call cockpit.Machines.Update(): ", JSON.stringify(error));
                     })
-                    .then(() => {
-                        self.overlay(host, values);
-                    });
+                    .then(() => self.overlay(host, values));
 
         return mod;
     }
@@ -379,6 +379,8 @@ function Machines() {
         let port_spot = -1;
 
         if (conn_to) {
+            if (conn_to.substring(0, 6) === "ssh://")
+                conn_to = conn_to.substring(6);
             user_spot = conn_to.lastIndexOf('@');
             port_spot = conn_to.lastIndexOf(':');
         }

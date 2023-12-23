@@ -33,11 +33,11 @@ class TestStorageRaid1(storagelib.StorageCase):
         # Create two disks and make a RAID out of them
         disk1 = self.add_loopback_disk()
         disk2 = self.add_loopback_disk()
-        b.wait_in_text("#others", disk1)
-        b.wait_in_text("#others", disk2)
+        b.wait_visible(self.card_row("Storage", name=disk1))
+        b.wait_visible(self.card_row("Storage", name=disk2))
 
         self.addCleanup(m.execute, "mdadm --manage --stop /dev/md/SOMERAID")
-        self.devices_dropdown('Create RAID device')
+        self.click_dropdown(self.card_header("Storage"), "Create MDRAID device")
         self.dialog_wait_open()
         # No swap block devices should show up
         b.wait_not_in_text("#dialog .pf-v5-c-data-list", "zram")
@@ -47,7 +47,7 @@ class TestStorageRaid1(storagelib.StorageCase):
         # The dialog should make sure that the Chunk size is ignored (has to be 0 for RAID 1)
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#devices", "SOMERAID")
+        b.wait_visible(self.card_row("Storage", name="/dev/md/SOMERAID"))
 
 
 if __name__ == '__main__':

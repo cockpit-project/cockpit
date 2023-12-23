@@ -68,7 +68,7 @@ class TestStorageISCSI(storagelib.StorageCase):
 
         # Set initiator IQN
         orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-        b.click('#edit-iscsi')
+        self.click_dropdown(self.card_header("Storage"), "Change iSCSI initiater name")
         self.dialog(expect={"name": orig_iqn},
                     values={"name": initiator_iqn})
         new_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
@@ -76,7 +76,7 @@ class TestStorageISCSI(storagelib.StorageCase):
 
         # Access the target
 
-        b.click('#add-iscsi-portal')
+        self.click_dropdown(self.card_header("Storage"), "Add iSCSI portal")
 
         self.dialog_wait_open()
         self.dialog_set_val("address", "127.0.0.1")
@@ -97,57 +97,29 @@ class TestStorageISCSI(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_in_text('#iscsi-sessions', target_iqn)
-        b.wait_in_text('#drives', "LIO-ORG test")
+        self.click_card_row("Storage", name=target_iqn)
+        b.wait_text(self.card_desc("iSCSI portal", "Address"), "127.0.0.1")
+        b.wait_text(self.card_desc("iSCSI portal", "Target"), target_iqn)
+        b.wait_in_text(self.card_row_col("iSCSI drives", 1, 1), "LIO-ORG test")
 
         # Make a filesystem on it to prove that the disk really works.
 
-        b.click('#drives .sidepanel-row:contains("LIO-ORG test")')
-        b.wait_visible('#storage-detail')
-        self.content_row_wait_in_col(1, 2, "Unrecognized data")
-        self.content_row_action(1, "Format")
+        self.click_card_row("iSCSI drives", 1)
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"type": "ext4",
                      "name": "FILESYSTEM",
                      "mount_point": "/data"})
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         # _netdev should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "after network")
+        b.click(self.card_parent_link())
+        b.wait_in_text(self.card_row_col("iSCSI drives", 1, 2), "ext4 filesystem")
 
-        # Add the target a second time, just to check that the sorting function works
-        b.click('#storage-detail a.pf-v5-c-breadcrumb__link')
-        b.wait_visible('#storage')
-        b.click('#add-iscsi-portal')
-        self.dialog_wait_open()
-        self.dialog_set_val("address", "172.27.0.15")
-        self.dialog_set_val("username", "admin")
-        self.dialog_set_val("password", "foobar")
-        self.dialog_apply()
-        # The dialog closes and a new dialog opens but we can't get
-        # between that, so we just wait for the new fields to
-        # appear.
-        b.wait_visible(self.dialog_field("target"))
-        b.wait_in_text(self.dialog_field("target"), target_iqn)
-        self.dialog_apply()
-        # Login will fail and a new dialog opens
-        b.wait_visible(self.dialog_field("username"))
-        self.dialog_wait_val("username", "admin")
-        self.dialog_wait_val("password", "foobar")
-        self.dialog_set_val("password", "barfoo")
-        self.dialog_apply()
-        self.dialog_wait_close()
-
-        b.wait_in_text('#iscsi-sessions', "172.27.0.15")
-
-        b.click('#iscsi-sessions .toggle-armed')
-        b.click('#iscsi-sessions .sidepanel-row:contains(127.0.0.1) button.pf-m-danger')
+        self.click_card_dropdown("iSCSI portal", "Disconnect")
         with b.wait_timeout(120):
-            b.wait_not_present('#iscsi-sessions .sidepanel-row:contains(127.0.0.1)')
+            b.wait_visible(self.card("Storage"))
+            b.wait_not_present(self.card_row("Storage", name=target_iqn))
 
-        b.click('#iscsi-sessions .toggle-armed')
-        b.click('#iscsi-sessions .sidepanel-row:contains(172.27.0.15) button.pf-m-danger')
-        b.wait_not_present('#iscsi-sessions .sidepanel-row:contains(172.27.0.15)')
-
-        b.wait_not_in_text('#drives', "LIO-ORG test")
+        b.wait_not_in_text(self.card("Storage"), "LIO-ORG test")
 
 
 if __name__ == '__main__':

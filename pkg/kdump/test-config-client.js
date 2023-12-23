@@ -40,6 +40,7 @@ const changedConfig = [
     "",
     "#key value #comment",
     "hooray value",
+    "core_collector makedumpfile -l --message-level 7 -d 31",
     ""
 ].join("\n");
 

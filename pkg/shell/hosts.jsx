@@ -142,7 +142,7 @@ export class CockpitHosts extends React.Component {
         return null;
     }
 
-    // HACK: using HTMl rather than Select PF4 component as:
+    // HACK: using HTML rather than Select PF4 component as:
     // 1. It does not change the arrow when opened/closed
     // 2. It closes the dropdown even when trying to search... and cannot tell it not to
     render() {
@@ -197,7 +197,15 @@ export class CockpitHosts extends React.Component {
                     { this.state.opened &&
                     <HostsSelector>
                         <PageSidebar isSidebarOpen={this.props.opened} theme="dark" className={"sidebar-hosts" + (this.state.editing ? " edit-hosts" : "")}>
-                            <CockpitNav selector={this.props.selector} groups={groups} item_render={render} sorting={(a, b) => true} filtering={this.filterHosts} current={label} />
+                            <CockpitNav
+                                selector={this.props.selector}
+                                groups={groups}
+                                item_render={render}
+                                sorting={(a, b) => true}
+                                filtering={this.filterHosts}
+                                current={label}
+                                jump={() => console.error("internal error: jump not supported in hosts selector")}
+                            />
                             <div className="nav-hosts-actions">
                                 {this.props.machines.list.length > 1 && <Button variant="secondary" onClick={this.onEditHosts}>{this.state.editing ? _("Stop editing hosts") : _("Edit hosts")}</Button>}
                                 <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>

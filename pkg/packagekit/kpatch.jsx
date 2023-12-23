@@ -150,7 +150,7 @@ export class KpatchSettings extends React.Component {
                                 })
                             );
                 })
-                .catch(console.error);
+                .catch(err => console.error("Could not determine kpatch packages:", err)); // not-covered: OS error
 
         return Promise.allSettled([kpatch_promise, uname_promise]);
     }
@@ -323,7 +323,7 @@ export class KpatchSettings extends React.Component {
 }
 
 KpatchSettings.propTypes = {
-    privileged: PropTypes.bool.isRequired,
+    privileged: PropTypes.bool,
 };
 
 export class KpatchStatus extends React.Component {

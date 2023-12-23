@@ -173,6 +173,17 @@ def attach(filename: str, move: bool = False):
             shutil.copy(filename, dest)
 
 
+def unique_filename(base, ext):
+    for i in range(20):
+        if i == 0:
+            f = f"{base}.{ext}"
+        else:
+            f = f"{base}-{i}.{ext}"
+        if not os.path.exists(f):
+            return f
+    return f"{base}.{ext}"
+
+
 class Browser:
     def __init__(self, address, label, machine, pixels_label=None, coverage_label=None, port=None):
         if ":" in address:
@@ -234,7 +245,20 @@ class Browser:
             self.cdp.invoke("Network.setCookie", **cookie)
 
         self.switch_to_top()
-        self.cdp.invoke("Page.navigate", url=href)
+        opts = {}
+        if self.cdp.browser.name == "firefox":
+            # by default, Firefox optimizes this away if the current and the given href URL
+            # are the same (Like in TestKeys.testAuthorizedKeys).
+            # Force a reload in this case, to make tests and the waitPageLoad below predictable
+            # But that option has the inverse effect with Chromium (argh)
+            opts["transitionType"] = "reload"
+        elif self.cdp.browser.name == 'chromium':
+            # Chromium also optimizes this away, but doesn't have a knob to force loading
+            # so load the blank page first
+            self.cdp.invoke("Page.navigate", url="about:blank")
+            self.cdp.invoke("waitPageLoad", timeout=5)
+        self.cdp.invoke("Page.navigate", url=href, **opts)
+        self.cdp.invoke("waitPageLoad", timeout=self.cdp.timeout)
 
     def set_user_agent(self, ua: str):
         """Set the user agent of the browser
@@ -899,6 +923,15 @@ class Browser:
             # strip off parameters after hash
             self.enter_page(path.split('#')[0].rstrip('/'))
 
+    def get_pf_progress_value(self, progress_bar_sel):
+        """Get numeric value of a PatternFly <ProgressBar> component"""
+        sel = progress_bar_sel + " .pf-v5-c-progress__indicator"
+        self.wait_visible(sel)
+        self.wait_attr_contains(sel, "style", "width:")
+        style = self.attr(sel, "style")
+        m = re.search(r"width: (\d+)%;", style)
+        return int(m.group(1))
+
     def ignore_ssl_certificate_errors(self, ignore: bool):
         action = ignore and "continue" or "cancel"
         if opts.trace:
@@ -921,7 +954,7 @@ class Browser:
         if self.cdp and self.cdp.valid:
             self.cdp.command("clearExceptions()")
 
-            filename = f"{label or self.label}-{title}.png"
+            filename = unique_filename(f"{label or self.label}-{title}", "png")
             if self.body_clip:
                 ret = self.cdp.invoke("Page.captureScreenshot", clip=self.body_clip, no_trace=True)
             else:
@@ -934,7 +967,7 @@ class Browser:
             else:
                 print("Screenshot not available")
 
-            filename = f"{label or self.label}-{title}.html"
+            filename = unique_filename(f"{label or self.label}-{title}", "html")
             html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",
                                    no_trace=True)["result"]["value"]
             with open(filename, 'wb') as f:
@@ -1000,11 +1033,6 @@ class Browser:
         if not (Image and self.pixels_label):
             return
 
-        if mock is not None:
-            self.set_mock(mock, base=selector)
-            if sit_after_mock:
-                sit()
-
         self._adjust_window_for_fixed_content_size()
         self.call_js_func('ph_scrollIntoViewIfNeeded', scroll_into_view or selector)
         self.call_js_func('ph_blur_active')
@@ -1032,6 +1060,11 @@ class Browser:
         if wait_animations:
             time.sleep(wait_delay)
             self.wait_js_cond('ph_count_animations(%s) == 0' % jsquote(selector))
+
+        if mock is not None:
+            self.set_mock(mock, base=selector)
+            if sit_after_mock:
+                sit()
 
         rect = self.call_js_func('ph_element_clip', selector)
 
@@ -1215,7 +1248,7 @@ class Browser:
 
         logs = list(self.get_js_log())
         if logs:
-            filename = f"{label or self.label}-{title}.js.log"
+            filename = unique_filename(f"{label or self.label}-{title}", "js.log")
             with open(filename, 'wb') as f:
                 f.write('\n'.join(logs).encode('UTF-8'))
             attach(filename, move=True)
@@ -1276,8 +1309,9 @@ class MachineCase(unittest.TestCase):
     def label(self):
         return self.__class__.__name__ + '-' + self._testMethodName
 
-    def new_machine(self, image=None, forward=None, restrict=True, cleanup=True, **kwargs):
-        machine_class = self.machine_class
+    def new_machine(self, image=None, forward=None, restrict=True, cleanup=True, inherit_machine_class=True, **kwargs):
+        machine_class = inherit_machine_class and self.machine_class or testvm.VirtMachine
+
         if opts.address:
             if forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
@@ -1289,8 +1323,6 @@ class MachineCase(unittest.TestCase):
                 image = os.path.join(TEST_DIR, "images", self.image)
                 if not os.path.exists(image):
                     raise FileNotFoundError("Can't run tests without a prepared image; use test/image-prepare")
-            if not machine_class:
-                machine_class = testvm.VirtMachine
             if not self.network:
                 network = testvm.VirtNetwork(image=image)
                 if cleanup:
@@ -1531,10 +1563,13 @@ class MachineCase(unittest.TestCase):
                         "for dev in $(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block); do "
                         "    for s in /sys/block/*/slaves/${dev}*; do [ -e $s ] || break; "
                         "        d=/dev/$(dirname $(dirname ${s#/sys/block/})); "
+                        "        while fuser --mount $d --kill; do sleep 0.1; done; "
                         "        umount $d || true; dmsetup remove --force $d || true; "
                         "    done; "
-                        "    umount /dev/$dev 2>/dev/null || true; "
-                        "done; until rmmod scsi_debug; do sleep 0.2; done")
+                        "    while fuser --mount /dev/$dev --kill; do sleep 0.1; done; "
+                        "    umount /dev/$dev || true; "
+                        "    swapon --show=NAME --noheadings | grep $dev | xargs -r swapoff; "
+                        "done; until rmmod scsi_debug; do sleep 0.2; done", stdout=None)
 
         def terminate_sessions():
             # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH; but also, some tests start
@@ -1554,9 +1589,6 @@ class MachineCase(unittest.TestCase):
                 # Don't insist that terminating works, the session might be gone by now.
                 self.machine.execute(f"loginctl kill-session {s} || true; loginctl terminate-session {s} || true")
 
-            # Restart logind to mop up empty "closing" sessions
-            self.machine.execute("systemctl restart systemd-logind")
-
             # Wait for sessions to be gone
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
@@ -1569,6 +1601,10 @@ class MachineCase(unittest.TestCase):
 
             # terminate all systemd user services for users who are not logged in
             self.machine.execute("systemctl stop user@*.service")
+
+            # Restart logind to mop up empty "closing" sessions, and clean user id cache for non-system users
+            self.machine.execute("systemctl stop systemd-logind; cd /run/systemd/users/; "
+                                 "for f in *; do [ $f -le 500 ] || rm $f; done")
 
         self.addCleanup(terminate_sessions)
 
@@ -1610,6 +1646,33 @@ class MachineCase(unittest.TestCase):
         # first load after starting cockpit tends to take longer, due to on-demand service start
         with self.browser.wait_timeout(30):
             self.browser.login_and_go(path, user=user, host=host, superuser=superuser, urlroot=urlroot, tls=tls)
+
+    def start_machine_troubleshoot(self, new=False, known_host=False, password=None, expect_closed_dialog=True, browser=None):
+        b = browser or self.browser
+
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+
+        b.wait_visible('#hosts_setup_server_dialog')
+        if new:
+            b.click('#hosts_setup_server_dialog button:contains(Add)')
+            if not known_host:
+                b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
+                b.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
+                b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
+        if password:
+            b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+            b.set_input_text('#login-custom-password', password)
+            b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        if expect_closed_dialog:
+            b.wait_not_present('#hosts_setup_server_dialog')
+
+    def add_machine(self, address, known_host=False, password="foobar", browser=None):
+        b = browser or self.browser
+        b.switch_to_top()
+        b.go(f"/@{address}")
+        self.start_machine_troubleshoot(new=True, known_host=known_host, password=password, browser=browser)
+        b.enter_page("/system", host=address)
 
     # List of allowed journal messages during tests; these need to match the *entire* message
     default_allowed_messages = [
@@ -1687,9 +1750,9 @@ class MachineCase(unittest.TestCase):
         "For security reasons, the password you type will not be visible",
 
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
-        "pcp-archive: no such metric: .*: Unknown metric name",
-        "pcp-archive: instance name lookup failed:.*",
-        "pcp-archive: couldn't create pcp archive context for.*",
+        "(direct|pcp-archive): no such metric: .*: Unknown metric name",
+        "(direct|pcp-archive): instance name lookup failed:.*",
+        "(direct|pcp-archive): couldn't create pcp archive context for.*",
 
         # timedatex.service shuts down after timeout, runs into race condition with property watching
         ".*org.freedesktop.timedate1: couldn't get all properties.*Error:org.freedesktop.DBus.Error.NoReply.*",
@@ -1704,10 +1767,29 @@ class MachineCase(unittest.TestCase):
     default_allowed_console_errors = [
         # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
         "Warning: .* setState.*on an unmounted component",
-        "Warning: Can't perform a React state update on an unmounted component."
+        "Warning: Can't perform a React state update on an unmounted component",
+        "Warning: Cannot update a component.*while rendering a different component",
+        "Warning: A component is changing an uncontrolled input to be controlled",
+        "Warning: A component is changing a controlled input to be uncontrolled",
+        "Warning: Can't call.*on a component that is not yet mounted. This is a no-op",
+        "Warning: Cannot update during an existing state transition",
+        r"Warning: You are calling ReactDOMClient.createRoot\(\) on a container that has already been passed to createRoot",
+
+        # FIXME: PatternFly complains about these, but https://www.a11y-collective.com/blog/the-first-rule-for-using-aria/
+        # and https://www.accessibility-developer-guide.com/knowledge/aria/bad-practices/
+        "aria-label",
+
+        # PackageKit crashes a lot; let that not be the sole reason for failing a test
+        "error: Could not determine kpatch packages:.*PackageKit crashed",
     ]
 
-    default_allowed_console_errors += os.environ.get("TEST_ALLOW_BROWSER_ERRORS", "").split(",")
+    if testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8'):
+        # old occasional bugs in tracer, don't happen in newer versions any more
+        default_allowed_console_errors.append('Tracer failed:.*Traceback')
+
+    env_allow = os.environ.get("TEST_ALLOW_BROWSER_ERRORS")
+    if env_allow:
+        default_allowed_console_errors += env_allow.split(",")
 
     def allow_journal_messages(self, *patterns: str):
         """Don't fail if the journal contains a entry completely matching the given regexp"""
@@ -1779,31 +1861,6 @@ class MachineCase(unittest.TestCase):
             # can happen on shutdown when /run/systemd/coredump is gone already
             self.allowed_messages.append("Failed to connect to coredump service: No such file or directory")
             self.allowed_messages.append("Failed to connect to coredump service: Connection refused")
-
-        #
-        # HACK: pybridge bugs
-        #
-        # https://github.com/cockpit-project/cockpit/issues/18386
-        self.allowed_messages += [
-            "asyncio-ERROR: Task was destroyed but it is pending!",
-            "task:.*Task pending.*cockpit/channels/dbus.py.*"]
-        # happens fairly reliably with TestKeys.testAuthorizedKeys, TestConnection.testTls and TestHistoryMetrics.testEvents
-        self.allowed_messages.append('cockpit.router-ERROR: trying to drop non-existent channel .* from .*')
-
-        # https://github.com/cockpit-project/cockpit/issues/18355
-        self.allowed_messages += [
-            "[eE]xception ignored in:.*DBusChannel.setup_path_watch.*",
-            "Traceback .*most recent call last.*",
-            "File .*",
-            "async with self.watch_processing_lock:",
-            "self.send_message.*",
-            "self.release.*",
-            "self._wake_up_first.*",
-            "fut.set_result.*",
-            "self._check_closed.*",
-            "raise RuntimeError.*",
-            "RuntimeError: Event loop is closed",
-        ]
 
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
@@ -1921,7 +1978,7 @@ class MachineCase(unittest.TestCase):
         # write the report
         if suffix:
             suffix = "-" + suffix
-        filename = f"{label or self.label()}{suffix}-axe.json.gz"
+        filename = unique_filename(f"{label or self.label()}{suffix}-axe", "json.gz")
         with gzip.open(filename, "wb") as f:
             f.write(json.dumps(report).encode('UTF-8'))
         print("Wrote accessibility report to " + filename)
@@ -1956,7 +2013,7 @@ class MachineCase(unittest.TestCase):
     def copy_journal(self, title: str, label: Optional[str] = None):
         for _, m in self.machines.items():
             if m.ssh_reachable:
-                log = "%s-%s-%s.log.gz" % (label or self.label(), m.label, title)
+                log = unique_filename("%s-%s-%s" % (label or self.label(), m.label, title), "log.gz")
                 with open(log, "w") as fp:
                     m.execute("journalctl|gzip", stdout=fp)
                     print("Journal extracted to %s" % (log))
@@ -2127,6 +2184,23 @@ class MachineCase(unittest.TestCase):
             if disable_preload:
                 self.disable_preload("packagekit", "playground", "systemd", machine=m)
 
+    def authorize_pubkey(self, machine, account, pubkey):
+        machine.execute(f"a={account} d=/home/$a/.ssh; mkdir -p $d; chown $a:$a $d; chmod 700 $d")
+        machine.write(f"/home/{account}/.ssh/authorized_keys", pubkey)
+        machine.execute(f"a={account}; chown $a:$a /home/$a/.ssh/authorized_keys")
+
+    def get_pubkey(self, machine, account):
+        return machine.execute(f"cat /home/{account}/.ssh/id_rsa.pub")
+
+    def setup_ssh_auth(self):
+        self.machine.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+        self.machine.execute("test -f /home/admin/.ssh/id_rsa || ssh-keygen -f /home/admin/.ssh/id_rsa -t rsa -N ''")
+        self.machine.execute("chown admin:admin /home/admin/.ssh/id_rsa*")
+        pubkey = self.get_pubkey(self.machine, "admin")
+
+        for m in self.machines:
+            self.authorize_pubkey(self.machines[m], "admin", pubkey)
+
 
 ###########################
 # Global helper functions
@@ -2255,7 +2329,7 @@ def no_retry_when_changed(testEntity):
     return testEntity
 
 
-def todo(reason=''):
+def todo(reason: str = ''):
     """Tests decorated with @todo are expected to fail.
 
     An optional reason can be given, and will appear in the TAP output if run
@@ -2267,7 +2341,7 @@ def todo(reason=''):
     return wrapper
 
 
-def todoPybridge(reason=None):
+def todoPybridge(reason: Optional[str] = None):
     if not reason:
         reason = 'still fails with python bridge'
 
@@ -2292,13 +2366,13 @@ def todoPybridge(reason=None):
     return wrap
 
 
-def todoPybridgeRHEL8(reason=None):
+def todoPybridgeRHEL8(reason: Optional[str] = None):
     if testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8'):
         return todoPybridge(reason or 'known fail on el8 with python bridge')
     return lambda testEntity: testEntity
 
 
-def timeout(seconds: str):
+def timeout(seconds: int):
     """Change default test timeout of 600s, for long running tests
 
     Can be applied to an individual test method or the entire class. This only

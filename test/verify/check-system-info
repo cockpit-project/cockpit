@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import re
 import time
 
 import packagelib
@@ -55,7 +54,7 @@ def ssh_reconnect(machine, timeout_sec=120):
 
 
 @testlib.skipDistroPackage()
-class TestSystemInfo(packagelib.PackageCase):
+class TestSystemInfo(testlib.MachineCase):
     def setUp(self):
         super().setUp()
 
@@ -97,6 +96,9 @@ class TestSystemInfo(packagelib.PackageCase):
         b.wait_not_present("#page_status_notification_system_services")
 
         # ensure general page/card layout without the changing specifics
+        # need to wait until CPU usage settles down, to avoid a layout-shifting error/warning icon
+        b.wait_not_present("#system-usage-cpu-progress + td .pf-v5-c-progress__status-icon")
+        testlib.wait(lambda: b.get_pf_progress_value("#system-usage-cpu-progress + td") < 30)
         b.assert_pixels("#overview", "overview", ignore=[
             ".system-health .pf-v5-c-card__body",
             "#system_machine_id",
@@ -202,6 +204,665 @@ class TestSystemInfo(packagelib.PackageCase):
                                     ".* Neither /etc/os-release nor /usr/lib/os-release exists",  # py bridge
                                     "sudo: unable to resolve host host1.cockpit.lan: .*")
 
+    @testlib.nondestructive
+    def testMotd(self):
+        m = self.machine
+        b = self.browser
+
+        self.restore_file("/etc/motd")
+        m.execute("rm -f /etc/motd")
+
+        self.login_and_go("/system")
+        b.wait_not_present('#motd-box')
+
+        m.execute(r"printf '\n  \n  Hello\n  World\n\n' >/etc/motd")
+        b.wait_visible('#motd-box')
+        # strips empty lines, but not leading spaces
+        b.wait_text('#motd', "  Hello\n  World")
+
+        # For some reason, switching to RTL takes a long time
+        # here. Let's increase the delay.
+        b.assert_pixels("#motd-box", "motd", wait_delay=2.0)
+
+        b.click('#motd-box button:not(#motd-box-edit)')
+        b.wait_not_present('#motd-box')
+
+        # motd should stay dismissed after a reload
+        b.reload()
+        b.enter_page("/system")
+        b.wait_not_present('#motd-box')
+
+        m.execute("echo Hello again >/etc/motd")
+        b.wait_visible('#motd-box')
+        b.wait_text('#motd', "Hello again")
+
+        # Cancel button
+        b.click("#motd-box-edit")
+        b.click("#motd-box-edit-modal button.pf-m-link")
+        b.wait_not_present("motd-box-edit-modal")
+
+        b.click("#motd-box-edit")
+        b.set_input_text("#motd-box-edit-modal textarea", "Hello cockpit team")
+        b.click("#motd-box-edit-modal button.pf-m-primary")
+        b.wait_not_present("motd-box-edit-modal")
+        b.wait_text('#motd', "Hello cockpit team")
+        self.assertEqual("Hello cockpit team", self.machine.execute("cat /etc/motd").rstrip())
+
+    @testlib.nondestructive
+    def testHardwareInfo(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/system")
+        b.wait_in_text('#system_information_hardware_text', "QEMU")
+
+        hardware_page_link = '.system-information a'
+        b.click(hardware_page_link)
+        b.enter_page("/system/hwinfo")
+
+        # system info
+        b.wait_in_text('#hwinfo-system-info-list', "CPU")
+        # QEMU VM type
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(1) dd', "Other")
+        # Name
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "Standard PC")
+        # BIOS
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "SeaBIOS")
+        # BIOS date gets parsed
+        parsed_bios_date = m.execute("date --date $(cat /sys/class/dmi/id/bios_date) '+%B %-d, %Y'").strip()
+        b.wait_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(3) dd', parsed_bios_date)
+
+        pci_selector = '#hwinfo #pci-listing'
+        heading_selector = ' .pf-v5-c-card__title'
+        # PCI
+        b.wait_in_text(pci_selector + heading_selector, "PCI")
+
+        b.wait_in_text(pci_selector + ' tbody:first-of-type td[data-label=Slot]', "0000:00:00.0")
+
+        # sorted by device class by default; this makes some assumptions about QEMU devices
+        b.wait_in_text(pci_selector + ' tbody:first-of-type td[data-label=Class]', "Bridge")
+        b.wait_in_text(pci_selector + ' tbody:last-of-type td[data-label=Class]', "Unclassified")
+
+        # sort by model
+        b.click(pci_selector + ' thead th:nth-child(2) button')
+        b.wait_in_text(pci_selector + ' tbody:first-of-type td[data-label=Model]', "440")
+        b.wait_in_text(pci_selector + ' tbody:last-of-type td[data-label=Model]', "Virtio SCSI")
+        b.wait_not_in_text(pci_selector + ' tbody:last-of-type td[data-label=Model]', "Unclassified")
+
+        # go back to system page
+        b.click('.pf-v5-c-breadcrumb li:first-of-type')
+
+        b.enter_page("/system")
+
+        # now pretend this is a system without DMI
+        b.logout()
+        m.execute("mount -t tmpfs none /sys/class/dmi/id")
+        # check if it's mounted as the memory tests umount it.
+        self.addCleanup(m.execute, "! mountpoint -q /sys/class/dmi/id || umount /sys/class/dmi/id")
+        self.login_and_go("/system")
+        # asset tag should be hidden
+        b.wait_not_present('#system_information_asset_tag_text')
+
+        # Hardware should be hidden
+        b.wait_not_present('#system_information_hardware_text')
+        b.click(hardware_page_link)
+        b.enter_page("/system/hwinfo")
+
+        # CPU should still be shown, but not the DMI fields
+        b.wait_in_text('#hwinfo-system-info-list', "CPU")
+        self.assertNotIn('Type', b.text('#hwinfo-system-info-list'))
+        self.assertNotIn('BIOS', b.text('#hwinfo-system-info-list'))
+
+        # PCI should be shown
+        b.wait_in_text(pci_selector + heading_selector, "PCI")
+        b.wait_in_text(pci_selector + ' tbody:first-of-type td[data-label=Slot]', "0000:00:00.0")
+
+        # Check also variants when only some fields are present
+        m.write("/sys/class/dmi/id/chassis_type", "10")
+        b.go("/system")
+        b.enter_page('/system')
+        b.wait_not_present('#system_information_hardware_text')
+
+        m.write("/sys/class/dmi/id/board_vendor", "VENDOR")
+        m.write("/sys/class/dmi/id/board_name", "NAME")
+        b.reload()
+        b.enter_page('/system')
+        b.wait_in_text('#system_information_hardware_text', "VENDOR NAME")
+        b.click(hardware_page_link)
+        b.enter_page("/system/hwinfo")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "NAME")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(3) dd', "VENDOR")
+
+        # Clean up after lazy OEMs, falls back to board vendor/name
+        m.write("/sys/class/dmi/id/sys_vendor", "To Be Filled By O.E.M.")
+        m.write("/sys/class/dmi/id/product_name", "To Be Filled By O.E.M.")
+        m.write("/sys/class/dmi/id/product_serial", "PL1234")
+        m.write("/sys/class/dmi/id/board_vendor", "brdven")
+        m.write("/sys/class/dmi/id/board_name", "brdnam")
+        b.reload()
+        b.go("/system")
+        b.enter_page('/system')
+        b.wait_in_text('#system_information_hardware_text', "brdven brdnam")
+        if m.execute("uname -m").strip() == "x86_64":
+            b.wait_in_text('#system_information_asset_tag_text', "PL1234")
+        else:
+            b.wait_not_present('#system_information_asset_tag_text')
+        b.click(hardware_page_link)
+        b.enter_page("/system/hwinfo")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "brdnam")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(3) dd', "brdven")
+
+        # /proc/cpuinfo on x86; very incomplete, just what pkg/lib/machine-info.js looks at
+        m.write("/tmp/cpuinfo", """processor\t: 0
+vendor_id\t: GenuineIntel
+model\t\t: 42
+model name\t: Professor NumberCrunch
+
+processor\t: 1
+vendor_id\t: GenuineIntel
+model\t\t: 42
+model name\t: Professor NumberCrunch
+""")
+        m.execute("mount -o bind /tmp/cpuinfo /proc/cpuinfo")
+        self.addCleanup(m.execute, "umount /proc/cpuinfo")
+
+        b.reload()
+        b.enter_page('/system/hwinfo')
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x Professor NumberCrunch")
+
+        # /proc/cpuinfo on PowerPC; complete info
+        m.write("/tmp/cpuinfo", """processor\t: 0
+cpu\t\t: POWER9 (architected), altivec supported
+clock\t\t: 3000.000000MHz
+revision\t: 2.3 (pvr 004e 1203)
+
+processor\t: 1
+cpu\t\t: POWER9 (architected), altivec supported
+clock\t\t: 3000.000000MHz
+revision\t: 2.3 (pvr 004e 1203)
+""")
+
+        b.reload()
+        b.enter_page('/system/hwinfo')
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x POWER9 (architected), altivec supported")
+
+        # correct CPU count on overview
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text("#system-usage-cpu-progress + td", "of 2 CPUs")
+
+        # /proc/cpuinfo on s390x (reduced)
+        m.write("/tmp/cpuinfo", """vendor_id       : IBM/S390
+# processors    : 2
+bogomips per cpu: 3241.00
+max thread id   : 0
+features	: esan3 zarch stfle msa ldisp eimm dfp edat etf3eh highgprs te vx vxd vxe gs vxe2 vxp sort dflt sie
+processor 0: version = FF,  identification = 2EB428,  machine = 8561
+processor 1: version = FF,  identification = 2EB428,  machine = 8561
+
+cpu number      : 0
+cpu cores       : 1
+version         : FF
+identification  : 2EB428
+machine         : 8561
+
+cpu number      : 1
+cpu cores       : 1
+version         : FF
+identification  : 2EB428
+machine         : 8561
+""")
+
+        b.reload()
+        b.enter_page("/system")
+        b.wait_in_text("#system-usage-cpu-progress + td", "of 2 CPUs")
+
+        b.go('/system/hwinfo')
+        b.enter_page('/system/hwinfo')
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x IBM/S390")
+
+        # umount mocked /sys/class/dmi/id
+        m.execute("umount /sys/class/dmi/id")
+        m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")
+        b.reload()
+        b.go("/system/hwinfo")
+        b.enter_page('/system/hwinfo')
+
+        # Memory details should be shown from our mocked DMI information from systemd's test files.
+        b.wait_in_text('#hwinfo #memory-listing' + heading_selector, "Memory")
+        b.wait_in_text('#hwinfo #memory-listing table', "DIMM")
+        b.wait_in_text('#hwinfo #memory-listing table', "RAM")
+
+        tmp_dmi_tables = "/tmp/dmi_tables"
+        m.execute(f"mkdir {tmp_dmi_tables}")
+        self.addCleanup(m.execute, f"rm -rf {tmp_dmi_tables}")
+        m.upload(["verify/files/dmi/smbios_entry_point", "verify/files/dmi/DMI"], tmp_dmi_tables)
+        m.execute(f"mount -o bind {tmp_dmi_tables} /sys/firmware/dmi/tables")
+        self.addCleanup(m.execute, "umount /sys/firmware/dmi/tables")
+        m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")
+
+        b.reload()
+        b.enter_page('/system/hwinfo')
+        distro_without_systemd_memory_dmi = m.image == 'centos-8-stream' or m.image.startswith('rhel-8-')
+
+        # Test more specific memory data with a fake dmidecode
+        b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Type]', "DDR4")
+        if distro_without_systemd_memory_dmi:
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GB")
+        else:
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GiB")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=State]', "Present")
+        b.wait_text('#memory-listing tbody:nth-of-type(1) td[data-label="Memory technology"]', "Unknown")
+        b.wait_text('#memory-listing tbody:nth-of-type(1) td[data-label=Rank]', "Single rank")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Speed]', "2400 MT/s")
+
+        b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=ID]', "BANK 2: ChannelB-DIMM0")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=Type]', "DDR4")
+        if distro_without_systemd_memory_dmi:
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GB")
+        else:
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=Size]', "4 GiB")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=State]', "Present")
+        b.wait_text('#memory-listing tbody:nth-of-type(2) td[data-label="Memory technology"]', "Unknown")
+        b.wait_text('#memory-listing tbody:nth-of-type(2) td[data-label=Rank]', "Single rank")
+        b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=Speed]', "2400 MT/s")
+
+    @ testlib.nondestructive
+    def testCPUSecurityMitigationsDetect(self):
+        b = self.browser
+        m = self.machine
+
+        self.restore_dir("/usr/local/bin")
+        m.start_cockpit()
+
+        def spoof_threads(threads_per_core, expect_link_present, expect_smt_state=None, cmdline=None):
+            m.write('/usr/local/bin/lscpu', lscpu.format(threads_per_core))
+            m.execute('chmod +x /usr/local/bin/lscpu')
+            if cmdline:
+                m.write('/run/cmdline', cmdline)
+                m.execute('if selinuxenabled 2>/dev/null; then chcon --reference /proc/cmdline /run/cmdline; fi')
+                m.execute('mount --bind /run/cmdline /proc/cmdline; rm /run/cmdline')
+
+            try:
+                b.login_and_go('/system/hwinfo')
+
+                if not expect_link_present:
+                    b.wait_in_text('#hwinfo-system-info-list', "CPU")
+                    b.wait_not_in_text('#hwinfo-system-info-list', "CPU security")
+                else:
+                    b.click('#hwinfo button:contains(Mitigations)')
+
+                if expect_smt_state is not None:
+                    b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+                    b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
+                                   (expect_smt_state and ":checked" or ":not(:checked)"))
+
+                b.logout()
+            finally:
+                if cmdline:
+                    m.execute('while ! umount /proc/cmdline; do sleep 1; done')
+
+        spoof_threads(1, expect_link_present=False)
+        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 param2 nosmt param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 param2 nosmt=force param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 mitigations=auto,nosmt param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 mitigations=nosmt,something param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=False, cmdline='param1 mitigations=something param3=value3')
+        spoof_threads(2, expect_link_present=False, cmdline='param1 nosmt=someunknown param3=value3')
+        spoof_threads(2, expect_link_present=True, expect_smt_state=self.expect_smt_default, cmdline=None)
+
+    @testlib.skipImage("TODO: add Arch Linux grub entry support", "arch")
+    @testlib.timeout(1200)
+    def testCPUSecurityMitigationsEnable(self):
+        b = self.browser
+        m = self.machine
+
+        # spoof SMT
+        m.write('/usr/local/bin/lscpu', lscpu.format(2))
+        m.execute('chmod +x /usr/local/bin/lscpu')
+
+        # Switch nosmt option
+        self.login_and_go('/system/hwinfo')
+        b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#cpu-mitigations-dialog #nosmt-switch input')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
+                       (self.expect_smt_default and ':not(:checked)' or ':checked'))
+        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+
+        m.wait_reboot()
+        if self.expect_smt_default:
+            self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
+        else:
+            self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
+
+        # Ensure that future kernel upgrades also retain the option
+        # - Debian: no BLS, options go into /etc/default/grub and grub.cfg
+        # - BLS, options go directly into entries, or entries use $kernelopt (defined in grubenv)
+        if not m.ostree_image:
+            m.execute(r"""
+echo dummy > /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
+if type update-grub >/dev/null 2>&1; then
+    update-grub  # Debian/Ubuntu
+    grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg
+else
+    cp -a /boot/grub2/grubenv /boot/grub2/grubenv.prev
+    kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null
+    grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
+    ( grub2-editenv list | grep -q kernelopts.*nosmt &&
+      grep -q '^options.*$kernelopts' /boot/loader/entries/*42.0.0*.conf )
+fi
+""")
+            # clean up so that next reboot works
+            m.execute(r"""
+rm /boot/vmlinuz-42.0.0
+if type update-grub >/dev/null 2>&1; then
+    update-grub  # Debian/Ubuntu
+else
+    kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0
+    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=2078359 and https://bugzilla.redhat.com/show_bug.cgi?id=2078379
+    mv /boot/grub2/grubenv.prev /boot/grub2/grubenv
+fi
+""")
+
+        # Switch back nosmt option
+        self.login_and_go('/system/hwinfo')
+        b.click('#hwinfo button:contains(Mitigations)')
+        b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
+                       (self.expect_smt_default and ':not(:checked)' or ':checked'))
+        b.click('#cpu-mitigations-dialog #nosmt-switch input')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
+                       (self.expect_smt_default and ':checked' or ':not(:checked)'))
+        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        m.wait_reboot()
+        if self.expect_smt_default:
+            self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
+        else:
+            self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
+
+        # updates mitigations=nosmt when that is present
+        m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
+        m.execute("/tmp/kernelopt.sh remove nosmt; /tmp/kernelopt.sh set mitigations=auto,nosmt")
+        m.reboot()
+        self.login_and_go('/system/hwinfo')
+        b.click('#hwinfo button:contains(Mitigations)')
+        b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
+        b.click('#cpu-mitigations-dialog #nosmt-switch input')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
+        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        m.wait_reboot()
+        self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
+        self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
+
+        # Behaviour for non-admins
+        self.login_and_go('/system/hwinfo', superuser=False)
+        b.wait_visible('#cpu_mitigations[disabled]')
+        b.mouse('#tip-cpu-security', 'mouseenter')
+        b.wait_text('.pf-v5-c-tooltip', 'The user admin is not permitted to change cpu security mitigations')
+        b.mouse('#tip-cpu-security', 'mouseleave')
+        b.wait_not_present("div.pf-v5-c-tooltip")
+
+        # Behaviour if grub update tools are missing
+        b.logout()
+        m.execute('mv /etc/default/grub /etc/default/grub.bak || true')
+        m.write('/tmp/grubby', '#!/bin/sh\necho 0')
+        m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
+        m.execute('systemctl stop rpm-ostreed.service || true; systemctl mask rpm-ostreed.service')
+        self.login_and_go('/system/hwinfo')
+        b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#cpu-mitigations-dialog #nosmt-switch input')
+        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
+        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        b.wait_visible('#cpu-mitigations-dialog .pf-v5-c-alert__title:contains(No supported grub update mechanism found)')
+
+        self.allow_journal_messages('Sourcing file `/etc/default/grub.*',
+                                    'Generating grub configuration file.*',
+                                    'Found linux image.*',
+                                    'Found initrd image.*',
+                                    '.*warning: setlocale: LC_ALL: cannot change locale.*',
+                                    'done')
+
+    @testlib.onlyImage("insights-client is only on RHEL", "rhel*")
+    @testlib.nondestructive
+    def testInsightsStatus(self):
+        m = self.machine
+        b = self.browser
+
+        # insights-client might get started during boot and might then
+        # run concurrently with our explicit "insights-client
+        # --register" below.  insights-client is not designed to be
+        # run concurrently and there is no protection against it,
+        # apparently.  So let's prevent that.
+        m.execute("systemctl disable --now insights-client")
+
+        self.restore_dir("/etc/insights-client")
+        self.restore_dir("/etc/yum")
+        self.restore_dir("/var/lib/insights")
+
+        # Pretend that the Subscriptions page can do Insights stuff
+        self.write_file("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
+
+        # Run a mock version of the Insights API locally and configure
+        # insights-client to access it. That requires a good enough
+        # TLS mock insights server certificate
+        m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], self.vm_tmpdir)
+        pid = m.spawn(f"{self.vm_tmpdir}/mock-insights", "mock-insights")
+        self.addCleanup(m.execute, f"kill {pid}")
+        m.execute("while ! ss -tulpn | grep 8443; do sleep 1; done")
+
+        hostname = m.execute("hostname").rstrip()
+        self.write_file("/etc/insights-client/insights-client.conf", f"""
+[insights-client]
+auto_config=False
+auto_update=False
+base_url={hostname}:8443/r/insights
+cert_verify=/var/lib/insights/mock-certs/ca.crt
+username=admin
+password=foobar
+""")
+
+        # Initially we are not registered
+        self.login_and_go('/system')
+        b.wait_text(".system-health-insights a", "Not connected to Insights")
+
+        # Enable insights, results should appear automatically
+        m.execute("insights-client --register", timeout=180)
+        self.addCleanup(m.execute, "insights-client --unregister")
+        with b.wait_timeout(60):
+            b.wait_in_text(".system-health-insights a", "3 hits, including important")
+        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
+
+        # Switch to limited access, insights status will disappear completely
+        b.drop_superuser()
+        b.wait_not_present(".system-health-insights")
+
+        # Switch to admin access, insights status will re-appear
+        b.become_superuser()
+        b.wait_in_text(".system-health-insights a", "3 hits, including important")
+        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
+        b.logout()
+
+    def testOverview(self):
+        m = self.machine
+        b = self.browser
+
+        # packagekit often eats a lot of CPU; silence it to not screw up the "system is idle" test
+        m.execute("systemctl mask packagekit")
+
+        def progressValue(number):
+            return b.get_pf_progress_value(f".system-usage tr:nth-child({number})")
+
+        self.login_and_go("/system")
+
+        # CPU
+        # first wait until system settles down
+        testlib.wait(lambda: progressValue(1) < 20)
+        m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done", "cpu_hog.log")
+        testlib.wait(lambda: progressValue(1) > 75)
+        m.execute("pkill -e -f [c]at.*urandom")
+        # should go back to idle usage
+        # HACK: work around pmie CPU usage https://bugzilla.redhat.com/show_bug.cgi?id=2140572
+        testlib.wait(lambda: progressValue(1) < 20, tries=200)
+
+        # memory: our test machines should use a reasonable chunk of available memory; MiB or GiB
+        b.wait_in_text(".system-usage tr:nth-child(2)", "iB")
+        initial_usage = progressValue(2)
+        self.assertGreater(initial_usage, 10)
+        self.assertLess(initial_usage, 80)
+        # allocate an extra 200 MB; this may cause other stuff to get unmapped,
+        # thus not exact addition, but usage should go up
+        #
+        # The "true" after "sleep" is there to prevent bash from
+        # replacing it's own process with the sleep (as a "tail call
+        # optimization") and thereby dropping the memory blob too early.
+        #
+        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=200 iflag=fullblock); touch /tmp/hogged; sleep infinity; true", "mem_hog.log")
+        m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
+        # bars update every 5s
+        time.sleep(8)
+        hog_usage = progressValue(2)
+        self.assertGreater(hog_usage, initial_usage + 10)
+
+        m.execute("kill %d" % mem_hog)
+        # Should go back to initial_usage, but it doesn't always, for example on fedora.
+        # So let's be happy if the usage drops significantly
+        testlib.wait(lambda: progressValue(2) <= hog_usage - 15)
+        self.assertGreater(progressValue(2), 10)
+
+    @testlib.nondestructive
+    def testShutdownStatus(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/system")
+        b.wait_not_present("#system-health-shutdown-status")
+
+        # Schedule a reboot
+        m.execute("shutdown --reboot +10")
+        self.addCleanup(m.execute, "shutdown -c")
+
+        b.wait_in_text('#system-health-shutdown-status-text', "Scheduled reboot")
+
+        # Check that reloading still shows the reboot text
+        b.reload()
+        b.enter_page("/system")
+        b.wait_in_text('#system-health-shutdown-status-text', "Scheduled reboot")
+
+        # Cancel
+        b.click("#system-health-shutdown-status-cancel-btn")
+        b.wait_not_present('#system-health-shutdown-status')
+
+        # Schedule a poweroff
+        m.execute("shutdown --poweroff +10")
+        b.wait_in_text('#system-health-shutdown-status-text', "Scheduled poweroff")
+
+        # Cancel
+        b.click("#system-health-shutdown-status-cancel-btn")
+        b.wait_not_present('#system-health-shutdown-status')
+        dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
+        self.assertIn('(st) "" ', m.execute(dbus_call).strip())
+
+    @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipOstree("crypto-policies not available")
+    def testCryptoPolicies(self):
+        m = self.machine
+        b = self.browser
+        self.allow_restart_journal_messages()
+
+        def shown_profile_text(profile):
+            return "Default" if profile == "DEFAULT" else profile
+
+        def change_profile(profile, new_profile):
+            b.click("#crypto-policy-button")
+            b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
+            profile_button_name = shown_profile_text(new_profile)
+            b.click(f"#crypto-policy-dialog .pf-v5-c-menu__list-item[data-value='{profile_button_name}'] button")
+            b.click("#crypto-policy-save-reboot")
+            # Initramfs re-generation takes a while
+            m.wait_reboot(timeout_sec=600)
+            m.start_cockpit()
+            self.login_and_go("/system")
+            b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
+
+        cmd = "update-crypto-policies"
+
+        self.login_and_go("/system")
+
+        profile = m.execute(cmd + " --show").strip()
+        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
+
+        # RHEL 8 has no SHA1 policy, so do not show it.
+        b.click("#crypto-policy-button")
+        func = b.wait_not_present if m.image.startswith('rhel-8') or m.image.startswith('centos-8') else b.wait_visible
+        func(".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('DEFAULT:SHA1')")
+        b.click("#crypto-policy-dialog button:contains('Cancel')")
+        b.wait_not_present("#crypto-policy-dialog")
+
+        # Test if a new subpolicy can be set
+        new_profile = "LEGACY:AD-SUPPORT"
+        change_profile(profile, new_profile)
+
+        profile = m.execute(cmd + " --show").strip()
+        self.assertEqual(profile, new_profile)
+        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
+        new_profile = "FIPS"
+        change_profile(profile, new_profile)
+
+        # Select a custom policy (non-selectable option)
+        profile = "EMPTY"
+        m.execute(cmd + f" --set {profile}")
+        b.enter_page("/system")
+        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
+        b.click("#crypto-policy-button")
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", "Custom cryptographic policy")
+        b.click("#crypto-policy-dialog button.pf-v5-c-button.pf-m-link")
+
+    @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipOstree("crypto-policies not available")
+    def testInconsistentCryptoPolicy(self):
+        m = self.machine
+        b = self.browser
+        self.allow_restart_journal_messages()
+        cmd = "update-crypto-policies"
+
+        # Admin sets FIPS crypto policy in terminal, but FIPS mode is disabled
+        m.execute(cmd + " --set FIPS")
+        self.login_and_go("/system")
+        b.wait_text("#inconsistent_crypto_policy", "FIPS is not properly enabled")
+        b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
+        b.click("#crypto-policy-save-reboot")
+        # Initramfs re-generation takes a while
+        m.wait_reboot(timeout_sec=600)
+        m.start_cockpit()
+        self.login_and_go("/system")
+        b.wait_text("#crypto-policy-button", "FIPS")
+        self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "1")
+
+        m.execute(cmd + " --set DEFAULT")
+        b.wait_text("#inconsistent_crypto_policy", "Cryptographic policy is inconsistent")
+        m.execute(cmd + " --set FIPS:OSPP")
+        b.wait_text("#crypto-policy-button", "FIPS:OSPP")
+        b.wait_not_present("#inconsistent_crypto_policy")
+
+        # Setting via dialog
+        m.execute(cmd + " --set DEFAULT")
+        b.wait_text("#inconsistent_crypto_policy", "Cryptographic policy is inconsistent")
+        b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
+        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
+        b.click("#crypto-policy-save-reboot")
+        m.wait_reboot()
+        m.start_cockpit()
+        self.login_and_go("/system")
+        b.wait_text("#crypto-policy-button", "Default")
+        self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "0")
+
+
+@testlib.skipDistroPackage()
+class TestSystemInfoTime(packagelib.PackageCase):
     def set_change_time_dialog_mode(self, mode):
         b = self.browser
         b.click("#system_information_change_systime .pf-v5-c-form__group-label:contains('Set time') + div > .pf-v5-c-select > button")
@@ -445,664 +1106,6 @@ class TestSystemInfo(packagelib.PackageCase):
         b.wait_visible("#change_systime button:contains('Automatically using NTP')")
         b.wait_not_present("#change_systime button:contains('Automatically using specific NTP servers')")
         b.wait_not_present("#change_systime button:contains('Automatically using additional NTP servers')")
-
-    @testlib.nondestructive
-    def testMotd(self):
-        m = self.machine
-        b = self.browser
-
-        self.restore_file("/etc/motd")
-        m.execute("rm -f /etc/motd")
-
-        self.login_and_go("/system")
-        b.wait_not_present('#motd-box')
-
-        m.execute(r"printf '\n  \n  Hello\n  World\n\n' >/etc/motd")
-        b.wait_visible('#motd-box')
-        # strips empty lines, but not leading spaces
-        b.wait_text('#motd', "  Hello\n  World")
-
-        # For some reason, switching to RTL takes a long time
-        # here. Let's increase the delay.
-        b.assert_pixels("#motd-box", "motd", wait_delay=2.0)
-
-        b.click('#motd-box button:not(#motd-box-edit)')
-        b.wait_not_present('#motd-box')
-
-        # motd should stay dismissed after a reload
-        b.reload()
-        b.enter_page("/system")
-        b.wait_not_present('#motd-box')
-
-        m.execute("echo Hello again >/etc/motd")
-        b.wait_visible('#motd-box')
-        b.wait_text('#motd', "Hello again")
-
-        # Cancel button
-        b.click("#motd-box-edit")
-        b.click("#motd-box-edit-modal button.pf-m-link")
-        b.wait_not_present("motd-box-edit-modal")
-
-        b.click("#motd-box-edit")
-        b.set_input_text("#motd-box-edit-modal textarea", "Hello cockpit team")
-        b.click("#motd-box-edit-modal button.pf-m-primary")
-        b.wait_not_present("motd-box-edit-modal")
-        b.wait_text('#motd', "Hello cockpit team")
-        self.assertEqual("Hello cockpit team", self.machine.execute("cat /etc/motd").rstrip())
-
-    @testlib.nondestructive
-    def testHardwareInfo(self):
-        b = self.browser
-        m = self.machine
-
-        self.login_and_go("/system")
-        b.wait_in_text('#system_information_hardware_text', "QEMU")
-
-        hardware_page_link = '.system-information a'
-        b.click(hardware_page_link)
-        b.enter_page("/system/hwinfo")
-
-        # system info
-        b.wait_in_text('#hwinfo-system-info-list', "CPU")
-        # QEMU VM type
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(1) dd', "Other")
-        # Name
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "Standard PC")
-        # BIOS
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "SeaBIOS")
-        # BIOS date gets parsed
-        parsed_bios_date = m.execute("date --date $(cat /sys/class/dmi/id/bios_date) '+%B %-d, %Y'").strip()
-        b.wait_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(3) dd', parsed_bios_date)
-
-        pci_selector = '#hwinfo #pci-listing'
-        heading_selector = ' .pf-v5-c-card__title'
-        # PCI
-        b.wait_in_text(pci_selector + heading_selector, "PCI")
-
-        b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
-
-        # sorted by device class by default; this makes some assumptions about QEMU devices
-        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Class]', "Bridge")
-        b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Class]', "Unclassified")
-
-        # sort by model
-        b.click(pci_selector + ' thead th:nth-child(2) button')
-        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440")
-        b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
-        b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
-
-        # go back to system page
-        b.click('.pf-v5-c-breadcrumb li:first-of-type')
-
-        b.enter_page("/system")
-
-        # now pretend this is a system without DMI
-        b.logout()
-        m.execute("mount -t tmpfs none /sys/class/dmi/id")
-        # check if it's mounted as the memory tests umount it.
-        self.addCleanup(m.execute, "! mountpoint -q /sys/class/dmi/id || umount /sys/class/dmi/id")
-        self.login_and_go("/system")
-        # asset tag should be hidden
-        b.wait_not_present('#system_information_asset_tag_text')
-
-        # Hardware should be hidden
-        b.wait_not_present('#system_information_hardware_text')
-        b.click(hardware_page_link)
-        b.enter_page("/system/hwinfo")
-
-        # CPU should still be shown, but not the DMI fields
-        b.wait_in_text('#hwinfo-system-info-list', "CPU")
-        self.assertNotIn('Type', b.text('#hwinfo-system-info-list'))
-        self.assertNotIn('BIOS', b.text('#hwinfo-system-info-list'))
-
-        # PCI should be shown
-        b.wait_in_text(pci_selector + heading_selector, "PCI")
-        b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
-
-        # Check also variants when only some fields are present
-        m.write("/sys/class/dmi/id/chassis_type", "10")
-        b.go("/system")
-        b.enter_page('/system')
-        b.wait_not_present('#system_information_hardware_text')
-
-        m.write("/sys/class/dmi/id/board_vendor", "VENDOR")
-        m.write("/sys/class/dmi/id/board_name", "NAME")
-        b.reload()
-        b.enter_page('/system')
-        b.wait_in_text('#system_information_hardware_text', "VENDOR NAME")
-        b.click(hardware_page_link)
-        b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "NAME")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(3) dd', "VENDOR")
-
-        # Clean up after lazy OEMs, falls back to board vendor/name
-        m.write("/sys/class/dmi/id/sys_vendor", "To Be Filled By O.E.M.")
-        m.write("/sys/class/dmi/id/product_name", "To Be Filled By O.E.M.")
-        m.write("/sys/class/dmi/id/product_serial", "PL1234")
-        m.write("/sys/class/dmi/id/board_vendor", "brdven")
-        m.write("/sys/class/dmi/id/board_name", "brdnam")
-        b.reload()
-        b.go("/system")
-        b.enter_page('/system')
-        b.wait_in_text('#system_information_hardware_text', "brdven brdnam")
-        if m.execute("uname -m").strip() == "x86_64":
-            b.wait_in_text('#system_information_asset_tag_text', "PL1234")
-        else:
-            b.wait_not_present('#system_information_asset_tag_text')
-        b.click(hardware_page_link)
-        b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "brdnam")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(3) dd', "brdven")
-
-        # /proc/cpuinfo on x86; very incomplete, just what pkg/lib/machine-info.js looks at
-        m.write("/tmp/cpuinfo", """processor\t: 0
-vendor_id\t: GenuineIntel
-model\t\t: 42
-model name\t: Professor NumberCrunch
-
-processor\t: 1
-vendor_id\t: GenuineIntel
-model\t\t: 42
-model name\t: Professor NumberCrunch
-""")
-        m.execute("mount -o bind /tmp/cpuinfo /proc/cpuinfo")
-        self.addCleanup(m.execute, "umount /proc/cpuinfo")
-
-        b.reload()
-        b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x Professor NumberCrunch")
-
-        # /proc/cpuinfo on PowerPC; complete info
-        m.write("/tmp/cpuinfo", """processor\t: 0
-cpu\t\t: POWER9 (architected), altivec supported
-clock\t\t: 3000.000000MHz
-revision\t: 2.3 (pvr 004e 1203)
-
-processor\t: 1
-cpu\t\t: POWER9 (architected), altivec supported
-clock\t\t: 3000.000000MHz
-revision\t: 2.3 (pvr 004e 1203)
-""")
-
-        b.reload()
-        b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x POWER9 (architected), altivec supported")
-
-        # correct CPU count on overview
-        b.go("/system")
-        b.enter_page("/system")
-        b.wait_in_text("#system-usage-cpu-progress + td", "of 2 CPUs")
-
-        # /proc/cpuinfo on s390x (reduced)
-        m.write("/tmp/cpuinfo", """vendor_id       : IBM/S390
-# processors    : 2
-bogomips per cpu: 3241.00
-max thread id   : 0
-features	: esan3 zarch stfle msa ldisp eimm dfp edat etf3eh highgprs te vx vxd vxe gs vxe2 vxp sort dflt sie
-processor 0: version = FF,  identification = 2EB428,  machine = 8561
-processor 1: version = FF,  identification = 2EB428,  machine = 8561
-
-cpu number      : 0
-cpu cores       : 1
-version         : FF
-identification  : 2EB428
-machine         : 8561
-
-cpu number      : 1
-cpu cores       : 1
-version         : FF
-identification  : 2EB428
-machine         : 8561
-""")
-
-        b.reload()
-        b.enter_page("/system")
-        b.wait_in_text("#system-usage-cpu-progress + td", "of 2 CPUs")
-
-        b.go('/system/hwinfo')
-        b.enter_page('/system/hwinfo')
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(1) dd', "2x IBM/S390")
-
-        # umount mocked /sys/class/dmi/id
-        m.execute("umount /sys/class/dmi/id")
-        m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")
-        b.reload()
-        b.go("/system/hwinfo")
-        b.enter_page('/system/hwinfo')
-
-        # Memory details should be shown from our mocked DMI information from systemd's test files.
-        b.wait_in_text('#hwinfo #memory-listing' + heading_selector, "Memory")
-        b.wait_in_text('#hwinfo #memory-listing table', "DIMM")
-        b.wait_in_text('#hwinfo #memory-listing table', "RAM")
-
-        tmp_dmi_tables = "/tmp/dmi_tables"
-        m.execute(f"mkdir {tmp_dmi_tables}")
-        self.addCleanup(m.execute, f"rm -rf {tmp_dmi_tables}")
-        m.upload(["verify/files/dmi/smbios_entry_point", "verify/files/dmi/DMI"], tmp_dmi_tables)
-        m.execute(f"mount -o bind {tmp_dmi_tables} /sys/firmware/dmi/tables")
-        self.addCleanup(m.execute, "umount /sys/firmware/dmi/tables")
-        m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")
-
-        b.reload()
-        b.enter_page('/system/hwinfo')
-        distros_without_systemd_memory_dmi = ['rhel-8-7', 'rhel-8-8', 'rhel-8-9', 'centos-8-stream']
-
-        # Test more specific memory data with a fake dmidecode
-        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
-        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR4")
-        if m.image in distros_without_systemd_memory_dmi:
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GB")
-        else:
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GiB")
-        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
-        b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory technology"]', "Unknown")
-        b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Single rank")
-        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "2400 MT/s")
-
-        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "BANK 2: ChannelB-DIMM0")
-        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=Type]', "DDR4")
-        if m.image in distros_without_systemd_memory_dmi:
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GB")
-        else:
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GiB")
-        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=State]', "Present")
-        b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory technology"]', "Unknown")
-        b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single rank")
-        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=Speed]', "2400 MT/s")
-
-    @ testlib.nondestructive
-    def testCPUSecurityMitigationsDetect(self):
-        b = self.browser
-        m = self.machine
-
-        self.restore_dir("/usr/local/bin")
-        m.start_cockpit()
-
-        def spoof_threads(threads_per_core, expect_link_present, expect_smt_state=None, cmdline=None):
-            m.write('/usr/local/bin/lscpu', lscpu.format(threads_per_core))
-            m.execute('chmod +x /usr/local/bin/lscpu')
-            if cmdline:
-                m.write('/run/cmdline', cmdline)
-                m.execute('if selinuxenabled 2>/dev/null; then chcon --reference /proc/cmdline /run/cmdline; fi')
-                m.execute('mount --bind /run/cmdline /proc/cmdline; rm /run/cmdline')
-
-            try:
-                b.login_and_go('/system/hwinfo')
-
-                if not expect_link_present:
-                    b.wait_in_text('#hwinfo-system-info-list', "CPU")
-                    b.wait_not_in_text('#hwinfo-system-info-list', "CPU security")
-                else:
-                    b.click('#hwinfo button:contains(Mitigations)')
-
-                if expect_smt_state is not None:
-                    b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
-                    b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                                   (expect_smt_state and ":checked" or ":not(:checked)"))
-
-                b.logout()
-            finally:
-                if cmdline:
-                    m.execute('while ! umount /proc/cmdline; do sleep 1; done')
-
-        spoof_threads(1, expect_link_present=False)
-        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 param2 nosmt param3=value3')
-        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 param2 nosmt=force param3=value3')
-        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 mitigations=auto,nosmt param3=value3')
-        spoof_threads(2, expect_link_present=True, expect_smt_state=True, cmdline='param1 mitigations=nosmt,something param3=value3')
-        spoof_threads(2, expect_link_present=True, expect_smt_state=False, cmdline='param1 mitigations=something param3=value3')
-        spoof_threads(2, expect_link_present=False, cmdline='param1 nosmt=someunknown param3=value3')
-        spoof_threads(2, expect_link_present=True, expect_smt_state=self.expect_smt_default, cmdline=None)
-
-    @testlib.skipImage("TODO: add Arch Linux grub entry support", "arch")
-    def testCPUSecurityMitigationsEnable(self):
-        b = self.browser
-        m = self.machine
-
-        # spoof SMT
-        m.write('/usr/local/bin/lscpu', lscpu.format(2))
-        m.execute('chmod +x /usr/local/bin/lscpu')
-
-        # Switch nosmt option
-        self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo button:contains(Mitigations)')
-        b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (self.expect_smt_default and ':not(:checked)' or ':checked'))
-        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-
-        m.wait_reboot()
-        if self.expect_smt_default:
-            self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
-        else:
-            self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
-
-        # Ensure that future kernel upgrades also retain the option
-        # - Debian: no BLS, options go into /etc/default/grub and grub.cfg
-        # - BLS, options go directly into entries, or entries use $kernelopt (defined in grubenv)
-        if not m.ostree_image:
-            m.execute(r"""
-echo dummy > /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
-if type update-grub >/dev/null 2>&1; then
-    update-grub  # Debian/Ubuntu
-    grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg
-else
-    cp -a /boot/grub2/grubenv /boot/grub2/grubenv.prev
-    kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null
-    grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
-    ( grub2-editenv list | grep -q kernelopts.*nosmt &&
-      grep -q '^options.*$kernelopts' /boot/loader/entries/*42.0.0*.conf )
-fi
-""")
-            # clean up so that next reboot works
-            m.execute(r"""
-rm /boot/vmlinuz-42.0.0
-if type update-grub >/dev/null 2>&1; then
-    update-grub  # Debian/Ubuntu
-else
-    kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0
-    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=2078359 and https://bugzilla.redhat.com/show_bug.cgi?id=2078379
-    mv /boot/grub2/grubenv.prev /boot/grub2/grubenv
-fi
-""")
-
-        # Switch back nosmt option
-        self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo button:contains(Mitigations)')
-        b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
-        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (self.expect_smt_default and ':not(:checked)' or ':checked'))
-        b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (self.expect_smt_default and ':checked' or ':not(:checked)'))
-        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        m.wait_reboot()
-        if self.expect_smt_default:
-            self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
-        else:
-            self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
-
-        # updates mitigations=nosmt when that is present
-        m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
-        m.execute("/tmp/kernelopt.sh remove nosmt; /tmp/kernelopt.sh set mitigations=auto,nosmt")
-        m.reboot()
-        self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo button:contains(Mitigations)')
-        b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
-        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
-        b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
-        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        m.wait_reboot()
-        self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
-        self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
-
-        # Behaviour for non-admins
-        self.login_and_go('/system/hwinfo', superuser=False)
-        b.wait_visible('#cpu_mitigations[disabled]')
-        b.mouse('#tip-cpu-security', 'mouseenter')
-        b.wait_text('.pf-v5-c-tooltip', 'The user admin is not permitted to change cpu security mitigations')
-        b.mouse('#tip-cpu-security', 'mouseleave')
-        b.wait_not_present("div.pf-v5-c-tooltip")
-
-        # Behaviour if grub update tools are missing
-        b.logout()
-        m.execute('mv /etc/default/grub /etc/default/grub.bak || true')
-        m.write('/tmp/grubby', '#!/bin/sh\necho 0')
-        m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
-        m.execute('systemctl stop rpm-ostreed.service || true; systemctl mask rpm-ostreed.service')
-        self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo button:contains(Mitigations)')
-        b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
-        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        b.wait_visible('#cpu-mitigations-dialog .pf-v5-c-alert__title:contains(No supported grub update mechanism found)')
-
-        self.allow_journal_messages('Sourcing file `/etc/default/grub.*',
-                                    'Generating grub configuration file.*',
-                                    'Found linux image.*',
-                                    'Found initrd image.*',
-                                    '.*warning: setlocale: LC_ALL: cannot change locale.*',
-                                    'done')
-
-    @testlib.onlyImage("insights-client is only on RHEL", "rhel*")
-    @testlib.nondestructive
-    def testInsightsStatus(self):
-        m = self.machine
-        b = self.browser
-
-        # insights-client might get started during boot and might then
-        # run concurrently with our explicit "insights-client
-        # --register" below.  insights-client is not designed to be
-        # run concurrently and there is no protection against it,
-        # apparently.  So let's prevent that.
-        m.execute("systemctl disable --now insights-client")
-
-        self.restore_dir("/etc/insights-client")
-        self.restore_dir("/etc/yum")
-        self.restore_dir("/var/lib/insights")
-
-        # Pretend that the Subscriptions page can do Insights stuff
-        self.write_file("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
-
-        # Run a mock version of the Insights API locally and configure
-        # insights-client to access it. That requires a good enough
-        # TLS mock insights server certificate
-        m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], self.vm_tmpdir)
-        pid = m.spawn(f"{self.vm_tmpdir}/mock-insights", "mock-insights")
-        self.addCleanup(m.execute, f"kill {pid}")
-        m.execute("while ! ss -tulpn | grep 8443; do sleep 1; done")
-
-        hostname = m.execute("hostname").rstrip()
-        self.write_file("/etc/insights-client/insights-client.conf", f"""
-[insights-client]
-auto_config=False
-auto_update=False
-base_url={hostname}:8443/r/insights
-cert_verify=/var/lib/insights/mock-certs/ca.crt
-username=admin
-password=foobar
-""")
-
-        # Initially we are not registered
-        self.login_and_go('/system')
-        b.wait_text(".system-health-insights a", "Not connected to Insights")
-
-        # Enable insights, results should appear automatically
-        m.execute("insights-client --register", timeout=180)
-        self.addCleanup(m.execute, "insights-client --unregister")
-        with b.wait_timeout(60):
-            b.wait_in_text(".system-health-insights a", "3 hits, including important")
-        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
-
-        # Switch to limited access, insights status will disappear completely
-        b.drop_superuser()
-        b.wait_not_present(".system-health-insights")
-
-        # Switch to admin access, insights status will re-appear
-        b.become_superuser()
-        b.wait_in_text(".system-health-insights a", "3 hits, including important")
-        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
-        b.logout()
-
-    def testOverview(self):
-        m = self.machine
-        b = self.browser
-
-        # packagekit often eats a lot of CPU; silence it to not screw up the "system is idle" test
-        m.execute("systemctl mask packagekit")
-
-        def progressValue(number):
-            sel = ".system-usage tr:nth-child(%i) .pf-v5-c-progress__indicator" % number
-            b.wait_visible(sel)
-            b.wait_attr_contains(sel, "style", "width:")
-            style = b.attr(sel, "style")
-            m = re.search(r"width: (\d+)%;", style)
-            return int(m.group(1))
-
-        self.login_and_go("/system")
-
-        # CPU
-        # first wait until system settles down
-        testlib.wait(lambda: progressValue(1) < 20)
-        m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done", "cpu_hog.log")
-        testlib.wait(lambda: progressValue(1) > 75)
-        m.execute("pkill -e -f [c]at.*urandom")
-        # should go back to idle usage
-        # HACK: work around pmie CPU usage https://bugzilla.redhat.com/show_bug.cgi?id=2140572
-        testlib.wait(lambda: progressValue(1) < 20, tries=200)
-
-        # memory: our test machines should use a reasonable chunk of available memory; MiB or GiB
-        b.wait_in_text(".system-usage tr:nth-child(2)", "iB")
-        initial_usage = progressValue(2)
-        self.assertGreater(initial_usage, 10)
-        self.assertLess(initial_usage, 80)
-        # allocate an extra 200 MB; this may cause other stuff to get unmapped,
-        # thus not exact addition, but usage should go up
-        #
-        # The "true" after "sleep" is there to prevent bash from
-        # replacing it's own process with the sleep (as a "tail call
-        # optimization") and thereby dropping the memory blob too early.
-        #
-        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=200 iflag=fullblock); touch /tmp/hogged; sleep infinity; true", "mem_hog.log")
-        m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
-        # bars update every 5s
-        time.sleep(8)
-        hog_usage = progressValue(2)
-        self.assertGreater(hog_usage, initial_usage + 10)
-
-        m.execute("kill %d" % mem_hog)
-        # Should go back to initial_usage, but it doesn't always, for example on fedora.
-        # So let's be happy if the usage drops significantly
-        testlib.wait(lambda: progressValue(2) <= hog_usage - 15)
-        self.assertGreater(progressValue(2), 10)
-
-    @testlib.nondestructive
-    def testShutdownStatus(self):
-        m = self.machine
-        b = self.browser
-
-        self.login_and_go("/system")
-        b.wait_not_present("#system-health-shutdown-status")
-
-        # Schedule a reboot
-        m.execute("shutdown --reboot +10")
-        self.addCleanup(m.execute, "shutdown -c")
-
-        b.wait_in_text('#system-health-shutdown-status-text', "Scheduled reboot")
-
-        # Check that reloading still shows the reboot text
-        b.reload()
-        b.enter_page("/system")
-        b.wait_in_text('#system-health-shutdown-status-text', "Scheduled reboot")
-
-        # Cancel
-        b.click("#system-health-shutdown-status-cancel-btn")
-        b.wait_not_present('#system-health-shutdown-status')
-
-        # Schedule a poweroff
-        m.execute("shutdown --poweroff +10")
-        b.wait_in_text('#system-health-shutdown-status-text', "Scheduled poweroff")
-
-        # Cancel
-        b.click("#system-health-shutdown-status-cancel-btn")
-        b.wait_not_present('#system-health-shutdown-status')
-        dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
-        self.assertIn('(st) "" ', m.execute(dbus_call).strip())
-
-    @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
-    @testlib.skipOstree("crypto-policies not available")
-    def testCryptoPolicies(self):
-        m = self.machine
-        b = self.browser
-        self.allow_restart_journal_messages()
-
-        def shown_profile_text(profile):
-            return "Default" if profile == "DEFAULT" else profile
-
-        def change_profile(profile, new_profile):
-            b.click("#crypto-policy-button")
-            b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
-            profile_button_name = shown_profile_text(new_profile)
-            b.click(f"#crypto-policy-dialog .pf-v5-c-menu__list-item[data-value='{profile_button_name}'] button")
-            b.click("#crypto-policy-save-reboot")
-            # Initramfs re-generation takes a while
-            m.wait_reboot(timeout_sec=600)
-            m.start_cockpit()
-            self.login_and_go("/system")
-            b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
-
-        cmd = "update-crypto-policies"
-
-        self.login_and_go("/system")
-
-        profile = m.execute(cmd + " --show").strip()
-        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
-
-        # RHEL 8 has no SHA1 policy, so do not show it.
-        b.click("#crypto-policy-button")
-        func = b.wait_not_present if m.image.startswith('rhel-8') or m.image.startswith('centos-8') else b.wait_visible
-        func(".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('DEFAULT:SHA1')")
-
-        # Test if a new subpolicy can be set
-        new_profile = "LEGACY:AD-SUPPORT"
-        change_profile(profile, new_profile)
-
-        profile = m.execute(cmd + " --show").strip()
-        self.assertEqual(profile, new_profile)
-        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
-        new_profile = "FIPS"
-        change_profile(profile, new_profile)
-
-        # Select a custom policy (non-selectable option)
-        profile = "EMPTY"
-        m.execute(cmd + f" --set {profile}")
-        b.enter_page("/system")
-        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
-        b.click("#crypto-policy-button")
-        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
-        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", "Custom cryptographic policy")
-        b.click("#crypto-policy-dialog button.pf-v5-c-button.pf-m-link")
-
-    @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
-    @testlib.skipOstree("crypto-policies not available")
-    def testInconsistentCryptoPolicy(self):
-        m = self.machine
-        b = self.browser
-        self.allow_restart_journal_messages()
-        cmd = "update-crypto-policies"
-
-        # Admin sets FIPS crypto policy in terminal, but FIPS mode is disabled
-        m.execute(cmd + " --set FIPS")
-        self.login_and_go("/system")
-        b.wait_text("#inconsistent_crypto_policy", "FIPS is not properly enabled")
-        b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
-        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
-        b.click("#crypto-policy-save-reboot")
-        # Initramfs re-generation takes a while
-        m.wait_reboot(timeout_sec=600)
-        m.start_cockpit()
-        self.login_and_go("/system")
-        b.wait_text("#crypto-policy-button", "FIPS")
-        self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "1")
-
-        m.execute(cmd + " --set DEFAULT")
-        b.wait_text("#inconsistent_crypto_policy", "Cryptographic policy is inconsistent")
-        m.execute(cmd + " --set FIPS:OSPP")
-        b.wait_text("#crypto-policy-button", "FIPS:OSPP")
-        b.wait_not_present("#inconsistent_crypto_policy")
-
-        # Setting via dialog
-        m.execute(cmd + " --set DEFAULT")
-        b.wait_text("#inconsistent_crypto_policy", "Cryptographic policy is inconsistent")
-        b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
-        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
-        b.click("#crypto-policy-save-reboot")
-        m.wait_reboot()
-        m.start_cockpit()
-        self.login_and_go("/system")
-        b.wait_text("#crypto-policy-button", "Default")
-        self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "0")
 
 
 if __name__ == '__main__':

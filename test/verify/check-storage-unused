@@ -42,8 +42,8 @@ class TestStorageUnused(storagelib.StorageCase):
 
         disk1 = self.add_ram_disk()
         disk2 = self.add_loopback_disk()
-        b.wait_in_text("#drives", disk1)
-        b.wait_in_text("#others", disk2)
+        b.wait_visible(self.card_row("Storage", name=disk1))
+        b.wait_visible(self.card_row("Storage", name=disk2))
         script = """mktable msdos \
 mkpart extended 1 50 \
 mkpart logical ext2 2 24 \
@@ -73,7 +73,8 @@ mkpart logical ext2 24 48"""
             # Require these two to be present
             return f"{disk1}6" in blocks and disk2 in blocks
 
-        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID device'),
+        self.dialog_with_retry(trigger=lambda: self.click_dropdown(self.card_header("Storage"),
+                                                                   "Create MDRAID device"),
                                expect=check_free_block_devices,
                                values=None)
 

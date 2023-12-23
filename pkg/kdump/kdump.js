@@ -46,6 +46,9 @@ const initStore = function(rootElement) {
         dataStore.kdumpClient.validateSettings(settings)
                 .then(() => dataStore.kdumpClient.writeSettings(settings));
 
+    dataStore.exportConfig = settings =>
+        dataStore.kdumpClient.exportConfig(settings);
+
     // whether we're actively trying to change the state
     dataStore.stateChanging = false;
     function setServiceState(_event, desiredState) {
@@ -71,6 +74,7 @@ const initStore = function(rootElement) {
             kdumpCmdlineEnabled: dataStore.crashkernel || false,
             onSaveSettings: dataStore.saveSettings,
             onCrashKernel: dataStore.kdumpClient.crashKernel,
+            exportConfig: dataStore.exportConfig,
         })}</WithDialogs>);
     };
     dataStore.render = render;

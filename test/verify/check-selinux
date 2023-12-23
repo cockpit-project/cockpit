@@ -22,14 +22,6 @@ import time
 import testlib
 from lib.constants import TEST_OS_DEFAULT
 
-FIX_AUDITD = """
-set -e
-mkdir -p /var/log/audit
-touch /var/log/audit.log
-restorecon -r /var/log/audit
-systemctl start auditd
-"""
-
 # simulate httpd accessing user ~/public_html without httpd_enable_homedirs
 SELINUX_SEBOOL_ALERT_SCRIPT = """
 set -e
@@ -69,9 +61,6 @@ class TestSelinux(testlib.MachineCase):
     def testTroubleshootAlerts(self):
         b = self.browser
         m = self.machine
-
-        # fix audit events first
-        self.machine.execute(FIX_AUDITD)
 
         # Do some local modifications
         m.execute("semanage fcontext --add -t samba_share_t /var/tmp/")

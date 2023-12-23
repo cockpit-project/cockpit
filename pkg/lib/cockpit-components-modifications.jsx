@@ -37,7 +37,7 @@ const _ = cockpit.gettext;
  * Enables showing shell and ansible script. Shell one is mandatory and ansible one can be omitted.
  *
  */
-const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => {
+export const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => {
     const [active_tab, setActiveTab] = React.useState("ansible");
     const [copied, setCopied] = React.useState(false);
     const [timeoutId, setTimeoutId] = React.useState(null);
@@ -173,7 +173,7 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
 };
 
 Modifications.propTypes = {
-    failed: PropTypes.string.isRequired,
+    failed: PropTypes.string,
     title: PropTypes.string.isRequired,
     permitted: PropTypes.bool.isRequired,
     entries: PropTypes.arrayOf(PropTypes.string),

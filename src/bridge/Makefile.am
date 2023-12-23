@@ -12,6 +12,7 @@ libcockpit_metrics_a_CPPFLAGS = \
 libcockpit_metrics_a_LIBS = \
 	libcockpit-metrics.a \
 	$(libcockpit_common_a_LIBS) \
+	$(fts_LIBS) \
 	-lm \
 	$(NULL)
 

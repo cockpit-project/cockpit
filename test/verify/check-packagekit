@@ -18,21 +18,10 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import re
 import time
 
 import packagelib
 import testlib
-
-WAIT_SCRIPT = """
-for x in $(seq 1 200); do
-    if curl --insecure -s https://%(addr)s:8443/candlepin; then
-        break
-    else
-        sleep 1
-    fi
-done
-"""
 
 OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos", "rhel4edge"]
 OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "rhel4edge", "centos-*"]
@@ -44,7 +33,7 @@ class NoSubManCase(packagelib.PackageCase):
         super().setUp()
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
-        # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
+        # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in dnf, so it should not get in the way there
         if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos"):
             self.machine.execute("systemctl stop rhsm.service; systemctl mask rhsm.service")
             self.addCleanup(self.machine.execute, "systemctl unmask rhsm.service")
@@ -62,7 +51,7 @@ class TestUpdates(NoSubManCase):
 
         pkcon_version = self.machine.execute("pkcon --version").strip()
 
-        # only the yum and PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) backends
+        # only the PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) backends
         # properly recognize "enhancement" severity; apt does not have that metadata
         self.supports_severity = not (self.backend == "apt" or pkcon_version < "1.2.4")
 
@@ -730,23 +719,6 @@ ExecStart=/usr/local/bin/{packageName}
         sel = self.check_nth_update(3, "sevcritical", "5-2", "security", 1,
                                     desc_matches=["More broken stuff"])
 
-        if self.backend == 'yum':
-            # sevcritical has a severity and errata
-            details = b.text(sel + " .pf-m-expanded")
-            self.assertIn("Severity", details)
-            self.assertIn("critical", details)
-            self.assertIn("Errata", details)
-            self.assertIn("RHSA-2000:0001", details)
-            self.assertIn("RHSA-2000:0002", details)
-            # icon has critical class
-            self.assertIn("severity-critical", b.attr(sel + " .severity-icon", "class"))
-            b.mouse(sel + " .severity-icon", "mouseenter")
-            b.wait_text(".pf-v5-c-tooltip", "critical")
-            b.mouse(sel + " .severity-icon", "mouseleave")
-            b.wait_not_present(".pf-v5-c-tooltip")
-            # details has link to severity definition
-            self.assertIn("access.redhat.com", b.attr(sel + " .pf-m-expanded dd.severity a:first-of-type", "href"))
-
         # buggy: bug refs, no security
         sel = self.check_nth_update(4, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])
         # should filter out enumeration in overview
@@ -1082,13 +1054,13 @@ ExecStart=/usr/local/bin/{packageName}
 
         m.execute("systemctl stop packagekit")
         system_service = m.execute("systemctl show -p FragmentPath packagekit.service | cut -f2 -d=").strip()
-        m.execute("""mv {0} {0}.disabled
+        m.execute(f"""mv {system_service} {system_service}.disabled
                      mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled
-                     systemctl daemon-reload""".format(system_service))
+                     systemctl daemon-reload""")
         self.addCleanup(m.execute,
-                        """mv {0}.disabled {0}
+                        f"""mv {system_service}.disabled {system_service}
                            mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
-                           systemctl daemon-reload""".format(system_service))
+                           systemctl daemon-reload""")
 
         m.start_cockpit()
         if not self.is_pybridge():
@@ -1193,9 +1165,7 @@ class TestWsUpdate(NoSubManCase):
 
         b.wait_in_text("#app div.progress-description", "slow 1-2")
         # progress bar has some reasonable value
-        b.wait_attr_contains(".progress-main-view .pf-v5-c-progress__indicator", "style", "width:")
-        rm = re.search(r"width: (\d+)%;", b.attr(".progress-main-view .pf-v5-c-progress__indicator", "style"))
-        progress = int(rm.group(1))
+        progress = b.get_pf_progress_value(".progress-main-view")
         self.assertGreater(progress, 20)
         self.assertLess(progress, 80)
 
@@ -1275,7 +1245,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
     def register(self):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
-            "LC_ALL=C.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
+            "LC_ALL=C.UTF-8 subscription-manager register --serverurl https://services.cockpit.lan:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
         self.machine.execute("LC_ALL=C.UTF-8 subscription-manager attach --auto")
 
     def setUp(self):
@@ -1297,11 +1267,15 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         m.execute("mkdir -p /etc/pki/product")
         m.upload([product_file], "/etc/pki/product")
 
-        # make sure that rhsm skips certificate checks for the server
-        self.sed_file("s/insecure = 0/insecure = 1/g", "/etc/rhsm/rhsm.conf")
+        # set up CA
+        ca = self.candlepin.execute("cat /home/admin/candlepin/certs/candlepin-ca.crt")
+        m.write("/etc/pki/ca-trust/source/anchors/candlepin-ca.crt", ca)
+        m.write("/etc/hosts", "10.111.112.100 services.cockpit.lan\n", append=True)
+        m.execute("cp /etc/pki/ca-trust/source/anchors/candlepin-ca.crt /etc/rhsm/ca/candlepin-ca.pem")
+        m.execute("update-ca-trust")
 
         # Wait for the web service to be accessible
-        m.execute(WAIT_SCRIPT % {"addr": "10.111.112.100"}, timeout=360)
+        m.execute("until curl --fail --silent --show-error https://services.cockpit.lan:8443/candlepin/status; do sleep 1; done")
         self.update_icon = "#page_status_notification_updates svg"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
@@ -1412,15 +1386,16 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         b.wait_in_text("#status", "System is up to date")
 
 
-@testlib.skipOstree
+@testlib.skipOstree("Image uses OSTree")
 @testlib.nondestructive
 class TestAutoUpdates(NoSubManCase):
 
     def setUp(self):
         super().setUp()
-        # not implemented for yum and apt yet, only dnf
+        # not implemented for apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]
         if self.backend == 'dnf':
+            self.restore_file("/etc/dnf/automatic.conf")
             self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic-install.timer 2>/dev/null; rm -rf /etc/systemd/system/dnf-automatic-*")
 
     def closeSettings(self, browser):
@@ -1461,7 +1436,15 @@ class TestAutoUpdates(NoSubManCase):
             # automatic reboots should be enabled whenever timer is enabled
             out = m.execute("systemctl cat dnf-automatic-install.service")
             if hour:
-                self.assertRegex(out, "ExecStartPost=/.*shutdown")
+                if m.image.startswith("rhel-8") or m.image == "centos-8-stream":
+                    # for RHEL 8, dnf-automatic does not support reboot; we have a unit drop-in hack
+                    self.assertRegex(out, "ExecStartPost=/.*shutdown")
+                    # validate our assumption
+                    self.assertNotIn("reboot", m.execute("cat /etc/dnf/automatic.conf"))
+                else:
+                    # newer dnf supports that natively
+                    self.assertNotIn("ExecStartPost", out)
+                    self.assertIn("reboot = when-needed", m.execute("cat /etc/dnf/automatic.conf"))
             else:
                 self.assertNotIn("ExecStartPost", out)
 
@@ -1605,8 +1588,9 @@ class TestAutoUpdates(NoSubManCase):
         b = self.browser
         m = self.machine
 
-        self.createPackage("vanilla", "1.0", "1", install=True)
-        self.createPackage("vanilla", "1.0", "2")
+        # use a package which dnf recognizes as "needs reboot"
+        self.createPackage("kernel-rt", "1.0", "1", install=True)
+        self.createPackage("kernel-rt", "1.0", "2")
         self.enableRepo()
 
         m.start_cockpit()
@@ -1627,7 +1611,29 @@ class TestAutoUpdates(NoSubManCase):
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
 
         if self.backend == 'dnf':
-            self.checkUpgradeRebootDnf()
+            # dial down the random sleep to avoid the test having to wait 5 mins
+            self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
+            # then manually start the upgrade job like the timer would
+            m.execute("systemctl start dnf-automatic-install.service")
+            # new kernel-rt package got installed, and triggered reboot; cancel that
+            m.execute("test -f /stamp-kernel-rt-1.0-2")
+            m.execute("until test -f /run/nologin; do sleep 1; done")
+            m.execute("shutdown -c; test ! -f /run/nologin")
+            # service should show kernel-rt upgrade and scheduling shutdown
+            out = m.execute(
+                "if systemctl status --lines=50 dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
+            self.assertIn("kernel-rt", out)
+            # systemd 245.7 correctly says "reboot", older version say "shutdown"
+            self.assertRegex(out, "(Shutdown|Reboot) scheduled")
+
+            # run it again, now there are no available updates → no reboot
+            m.execute("systemctl start dnf-automatic-install.service")
+            m.execute("test -f /stamp-kernel-rt-1.0-2; test ! -f /run/nologin")
+            # service should not do much
+            out = m.execute(
+                "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
+            self.assertNotIn("kernel-rt", out)
+            self.assertNotIn("Shutdown", out)
         else:
             raise NotImplementedError(self.backend)
 
@@ -1660,35 +1666,6 @@ class TestAutoUpdates(NoSubManCase):
         b.drop_superuser()
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
         b.wait_visible("#autoupdates-settings button:disabled")
-
-    def checkUpgradeRebootDnf(self):
-        """part of testWithAvailableUpdates() for dnf backend"""
-
-        m = self.machine
-
-        # dial down the random sleep to avoid the test having to wait 5 mins
-        self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
-        # then manually start the upgrade job like the timer would
-        m.execute("systemctl start dnf-automatic-install.service")
-        # new vanilla package got installed, and triggered reboot; cancel that
-        m.execute("test -f /stamp-vanilla-1.0-2")
-        m.execute("until test -f /run/nologin; do sleep 1; done")
-        m.execute("shutdown -c; test ! -f /run/nologin")
-        # service should show vanilla upgrade and scheduling shutdown
-        out = m.execute(
-            "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
-        self.assertIn("vanilla", out)
-        # systemd 245.7 correctly says "reboot", older version say "shutdown"
-        self.assertRegex(out, "(Shutdown|Reboot) scheduled")
-
-        # run it again, now there are no available updates → no reboot
-        m.execute("systemctl start dnf-automatic-install.service")
-        m.execute("test -f /stamp-vanilla-1.0-2; test ! -f /run/nologin")
-        # service should not do much
-        out = m.execute(
-            "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
-        self.assertNotIn("vanilla", out)
-        self.assertNotIn("Shutdown", out)
 
 
 @testlib.skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")

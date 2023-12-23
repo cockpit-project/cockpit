@@ -150,7 +150,7 @@ const getGroupRow = (group, accounts, isUserCreatedGroup) => {
         );
     }
 
-    return { columns, props: { key: group.gid } };
+    return { columns, props: { key: group.name } };
 };
 
 const getAccountRow = (account, current, groups) => {
@@ -215,7 +215,7 @@ const getAccountRow = (account, current, groups) => {
         },
     ];
 
-    return { columns, props: { key: account.uid } };
+    return { columns, props: { key: account.name } };
 };
 
 const mapGroupsToAccount = (accounts, groups) => {

@@ -22,22 +22,29 @@ import testlib
 
 
 @testlib.nondestructive
-@testlib.onlyImage("No zram by default", "fedora-*")
 class TestStorageswap(storagelib.StorageCase):
 
-    def testZram(self):
+    def test(self):
         m = self.machine
         b = self.browser
 
-        self.assertEqual(m.execute("lsblk -n -o MOUNTPOINTS /dev/zram0").strip(), "[SWAP]")
-
-        # Cockpit should recognize that zram0 is used as swap
-        # eventhough it does not have a swap header on it.
         self.login_and_go("/storage")
-        b.go("#/zram0")
-        b.wait_visible('#storage-detail')
-        self.content_row_wait_in_col(1, 2, "Swap space")
-        self.content_tab_wait_in_info(1, 1, "Used", "")
+
+        disk = self.add_ram_disk()
+        self.click_card_row("Storage", name=disk)
+
+        b.wait_visible(self.card("Unformatted data"))
+        m.execute(f"mkswap {disk}")
+        b.wait_visible(self.card("Swap"))
+        b.wait_text(self.card_desc("Swap", "Used"), "-")
+
+        b.click(self.card_button("Swap", "Start"))
+        b.wait_text(self.card_desc("Swap", "Used"), "0")
+
+        self.assertEqual(m.execute(f"lsblk -n -o MOUNTPOINT {disk}").strip(), "[SWAP]")
+
+        b.click(self.card_button("Swap", "Stop"))
+        b.wait_text(self.card_desc("Swap", "Used"), "-")
 
 
 if __name__ == '__main__':

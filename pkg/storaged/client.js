@@ -26,14 +26,15 @@ import * as utils from './utils.js';
 import * as python from "python.js";
 import { read_os_release } from "os-release.js";
 
-import { find_warnings } from "./warnings.jsx";
-
 import inotify_py from "inotify.py";
 import mount_users_py from "./mount-users.py";
-import nfs_mounts_py from "./nfs-mounts.py";
-import vdo_monitor_py from "./vdo-monitor.py";
-import stratis2_set_key_py from "./stratis2-set-key.py";
-import stratis3_set_key_py from "./stratis3-set-key.py";
+import nfs_mounts_py from "./nfs/nfs-mounts.py";
+import vdo_monitor_py from "./legacy-vdo/vdo-monitor.py";
+import stratis2_set_key_py from "./stratis/stratis2-set-key.py";
+import stratis3_set_key_py from "./stratis/stratis3-set-key.py";
+
+import { reset_pages } from "./pages.jsx";
+import { make_overview_page } from "./overview/overview.jsx";
 
 /* STORAGED CLIENT
  */
@@ -283,14 +284,24 @@ function update_indices() {
         client.vgnames_vgroup[vgroup.Name] = vgroup;
     }
 
+    const vgroups_with_dm_pvs = { };
+
     client.vgroups_pvols = { };
     for (path in client.vgroups) {
         client.vgroups_pvols[path] = [];
     }
     for (path in client.blocks_pvol) {
         pvol = client.blocks_pvol[path];
-        if (client.vgroups_pvols[pvol.VolumeGroup] !== undefined)
+        if (client.vgroups_pvols[pvol.VolumeGroup] !== undefined) {
             client.vgroups_pvols[pvol.VolumeGroup].push(pvol);
+            {
+                // HACK - this is needed below to deal with a UDisks2 bug.
+                // https://github.com/storaged-project/udisks/pull/1206
+                const block = client.blocks[path];
+                if (block && utils.decode_filename(block.Device).indexOf("/dev/dm-") == 0)
+                    vgroups_with_dm_pvs[pvol.VolumeGroup] = true;
+            }
+        }
     }
     function cmp_pvols(a, b) {
         return utils.block_cmp(client.blocks[a.path], client.blocks[b.path]);
@@ -329,6 +340,101 @@ function update_indices() {
     }
     for (path in client.lvols_pool_members) {
         client.lvols_pool_members[path].sort(function (a, b) { return a.Name.localeCompare(b.Name) });
+    }
+
+    function summarize_stripe(lv_size, segments) {
+        const pvs = { };
+        let total_size = 0;
+        for (const [, size, pv] of segments) {
+            if (!pvs[pv])
+                pvs[pv] = 0;
+            pvs[pv] += size;
+            total_size += size;
+        }
+        if (total_size < lv_size)
+            pvs["/"] = lv_size - total_size;
+        return pvs;
+    }
+
+    client.lvols_stripe_summary = { };
+    client.lvols_status = { };
+    for (path in client.lvols) {
+        const struct = client.lvols[path].Structure;
+        const lvol = client.lvols[path];
+
+        // HACK - UDisks2 can't find the PVs of a segment when they
+        //        are on a device mapper device.
+        //
+        // https://github.com/storaged-project/udisks/pull/1206
+
+        if (vgroups_with_dm_pvs[lvol.VolumeGroup])
+            continue;
+
+        let summary;
+        let status = "";
+        if (lvol.Layout != "thin" && struct && struct.segments) {
+            summary = summarize_stripe(struct.size.v, struct.segments.v);
+            if (summary["/"])
+                status = "partial";
+        } else if (struct && struct.data && struct.metadata &&
+                   (struct.data.v.length == struct.metadata.v.length || struct.metadata.v.length == 0)) {
+            summary = [];
+            const n_total = struct.data.v.length;
+            let n_missing = 0;
+            for (let i = 0; i < n_total; i++) {
+                const data_lv = struct.data.v[i];
+                const metadata_lv = struct.metadata.v[i] || { size: { v: 0 }, segments: { v: [] } };
+
+                if (!data_lv.segments || (metadata_lv && !metadata_lv.segments)) {
+                    summary = undefined;
+                    break;
+                }
+
+                const s = summarize_stripe(data_lv.size.v + metadata_lv.size.v,
+                                           data_lv.segments.v.concat(metadata_lv.segments.v));
+                if (s["/"])
+                    n_missing += 1;
+
+                summary.push(s);
+            }
+            if (n_missing > 0) {
+                status = "partial";
+                if (lvol.Layout == "raid1") {
+                    if (n_total - n_missing >= 1)
+                        status = "degraded";
+                }
+                if (lvol.Layout == "raid10") {
+                    // This is correct for two-way mirroring, which is
+                    // the only setup supported by lvm2.
+                    if (n_missing > n_total / 2) {
+                        // More than half of the PVs are gone -> at
+                        // least one mirror has definitely lost both
+                        // halves.
+                        status = "partial";
+                    } else if (n_missing > 1) {
+                        // Two or more PVs are lost -> one mirror
+                        // might have lost both halves
+                        status = "degraded-maybe-partial";
+                    } else {
+                        // Only one PV is missing -> no mirror has
+                        // lost both halves.
+                        status = "degraded";
+                    }
+                }
+                if (lvol.Layout == "raid4" || lvol.Layout == "raid5") {
+                    if (n_missing <= 1)
+                        status = "degraded";
+                }
+                if (lvol.Layout == "raid6") {
+                    if (n_missing <= 2)
+                        status = "degraded";
+                }
+            }
+        }
+        if (summary) {
+            client.lvols_stripe_summary[path] = summary;
+            client.lvols_status[path] = status;
+        }
     }
 
     client.stratis_poolnames_pool = { };
@@ -457,18 +563,40 @@ function update_indices() {
         client.blocks_partitions[path].sort(function (a, b) { return a.Offset - b.Offset });
     }
 
+    client.iscsi_sessions_drives = { };
+    client.drives_iscsi_session = { };
+    for (path in client.drives) {
+        const block = client.drives_block[path];
+        if (!block)
+            continue;
+        for (const session_path in client.iscsi_sessions) {
+            const session = client.iscsi_sessions[session_path];
+            for (i = 0; i < block.Symlinks.length; i++) {
+                if (utils.decode_filename(block.Symlinks[i]).includes(session.data.target_name)) {
+                    client.drives_iscsi_session[path] = session;
+                    if (!client.iscsi_sessions_drives[session_path])
+                        client.iscsi_sessions_drives[session_path] = [];
+                    client.iscsi_sessions_drives[session_path].push(client.drives[path]);
+                }
+            }
+        }
+    }
+
+    client.blocks_available = { };
+    for (path in client.blocks) {
+        block = client.blocks[path];
+        if (utils.is_available_block(client, block))
+            client.blocks_available[path] = true;
+    }
+
     client.path_jobs = { };
     function enter_job(job) {
         if (!job.Objects || !job.Objects.length)
             return;
-        job.Objects.forEach(function (path) {
-            client.path_jobs[path] = job;
-            let parent = utils.get_parent(client, path);
-            while (parent) {
-                path = parent;
-                parent = utils.get_parent(client, path);
-            }
-            client.path_jobs[path] = job;
+        job.Objects.forEach(p => {
+            if (!client.path_jobs[p])
+                client.path_jobs[p] = [];
+            client.path_jobs[p].push(job);
         });
     }
     for (path in client.jobs) {
@@ -476,10 +604,15 @@ function update_indices() {
     }
 }
 
-client.update = () => {
-    update_indices();
-    client.path_warnings = find_warnings(client);
-    client.dispatchEvent("changed");
+client.update = (first_time) => {
+    if (first_time)
+        client.ready = true;
+    if (client.ready) {
+        update_indices();
+        reset_pages();
+        make_overview_page();
+        client.dispatchEvent("changed");
+    }
 };
 
 function init_model(callback) {
@@ -580,52 +713,32 @@ function init_model(callback) {
     }
 
     function query_fsys_info() {
-        const info = {
-            xfs: {
-                can_format: true,
-                can_shrink: false,
-                can_grow: true,
-                grow_needs_unmount: false
-            },
-
-            ext4: {
-                can_format: true,
-                can_shrink: true,
-                shrink_needs_unmount: true,
-                can_grow: true,
-                grow_needs_unmount: false
-            },
-        };
-
-        if (client.manager.SupportedFilesystems && client.manager.CanResize) {
-            return Promise.all(client.manager.SupportedFilesystems.map(fs =>
-                client.manager.CanFormat(fs).then(canformat_result => {
-                    info[fs] = {
-                        can_format: canformat_result[0],
-                        can_shrink: false,
-                        can_grow: false
-                    };
-                    return client.manager.CanResize(fs)
-                            .then(canresize_result => {
-                                // We assume that all filesystems support
-                                // offline shrinking/growing if they
-                                // support shrinking or growing at all.
-                                // The actual resizing utility will
-                                // temporarily mount the fs if necessary,
-                                if (canresize_result[0]) {
-                                    info[fs].can_shrink = !!(canresize_result[1] & 2);
-                                    info[fs].shrink_needs_unmount = !(canresize_result[1] & 8);
-                                    info[fs].can_grow = !!(canresize_result[1] & 4);
-                                    info[fs].grow_needs_unmount = !(canresize_result[1] & 16);
-                                }
-                            })
-                            // ignore unsupported filesystems
-                            .catch(() => {});
-                }))
-            ).then(() => info);
-        } else {
-            return Promise.resolve(info);
-        }
+        const info = {};
+        return Promise.all(client.manager.SupportedFilesystems.map(fs =>
+            client.manager.CanFormat(fs).then(canformat_result => {
+                info[fs] = {
+                    can_format: canformat_result[0],
+                    can_shrink: false,
+                    can_grow: false
+                };
+                return client.manager.CanResize(fs)
+                        .then(canresize_result => {
+                            // We assume that all filesystems support
+                            // offline shrinking/growing if they
+                            // support shrinking or growing at all.
+                            // The actual resizing utility will
+                            // temporarily mount the fs if necessary,
+                            if (canresize_result[0]) {
+                                info[fs].can_shrink = !!(canresize_result[1] & 2);
+                                info[fs].shrink_needs_unmount = !(canresize_result[1] & 8);
+                                info[fs].can_grow = !!(canresize_result[1] & 4);
+                                info[fs].grow_needs_unmount = !(canresize_result[1] & 16);
+                            }
+                        })
+                        // ignore unsupported filesystems
+                        .catch(() => {});
+            }))
+        ).then(() => info);
     }
 
     pull_time().then(() => {
@@ -638,7 +751,7 @@ function init_model(callback) {
 
                     client.storaged_client.addEventListener('notify', () => client.update());
 
-                    client.update();
+                    client.update(true);
                     callback();
                 });
             });
@@ -734,7 +847,7 @@ function nfs_mounts() {
                     if (lines.length >= 2) {
                         self.entries = JSON.parse(lines[lines.length - 2]);
                         self.fsys_sizes = { };
-                        client.dispatchEvent('changed');
+                        client.update();
                     }
                 })
                 .catch(function (error) {
@@ -757,11 +870,11 @@ function nfs_mounts() {
                 .then(function (output) {
                     const data = JSON.parse(output);
                     self.fsys_sizes[path] = [(data[2] - data[1]) * data[0], data[2] * data[0]];
-                    client.dispatchEvent('changed');
+                    client.update();
                 })
                 .catch(function () {
                     self.fsys_sizes[path] = [0, 0];
-                    client.dispatchEvent('changed');
+                    client.update();
                 });
 
         return null;

@@ -193,7 +193,7 @@ export function ServerTime() {
                             .catch(e => {
                                 ntp_waiting_resolve();
                                 ntp_waiting_resolve = null;
-                                console.error(e.message);
+                                console.error("Failed to call SetNTP:", e.message); // not-covered: OS error
                             });
                 });
         return promise;

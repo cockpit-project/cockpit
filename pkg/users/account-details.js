@@ -17,10 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from 'cockpit';
 import React, { useState, useEffect, useRef } from 'react';
-import { superuser } from "superuser";
-import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -38,6 +35,12 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { ExclamationCircleIcon, HelpIcon, UndoIcon } from '@patternfly/react-icons';
+
+import cockpit from 'cockpit';
+import { superuser } from "superuser";
+import * as timeformat from "timeformat.js";
+import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
+
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
@@ -45,19 +48,9 @@ import { account_shell_dialog } from "./shell-dialog.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
-import * as timeformat from "timeformat.js";
+import { get_locked } from "./utils.js";
 
 const _ = cockpit.gettext;
-
-function get_locked(name) {
-    return cockpit.spawn(["passwd", "-S", name], { environ: ["LC_ALL=C"], superuser: "require" })
-            .catch(() => "")
-            .then(content => {
-                const status = content.split(" ")[1];
-                // libuser uses "LK", shadow-utils use "L".
-                return status && (status == "LK" || status == "L");
-            });
-}
 
 function get_expire(name) {
     function parse_expire(data) {
@@ -103,7 +96,7 @@ function get_expire(name) {
             .then(parse_expire);
 }
 
-export function AccountDetails({ accounts, groups, shadow, current_user, user, shells }) {
+export function AccountDetails({ accounts, groups, current_user, user, shells }) {
     const [expiration, setExpiration] = useState(null);
     useEffect(() => {
         get_expire(user).then(setExpiration);
@@ -114,7 +107,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user, s
             get_expire(user).then(setExpiration);
         });
         return handle.close;
-    }, [user, accounts, shadow]);
+    }, [user, accounts]);
 
     const [edited_real_name, set_edited_real_name] = useState(null);
     const [committing_real_name, set_committing_real_name] = useState(false);
@@ -153,7 +146,6 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user, s
                                this is a workaround for different ways of handling a locked account
                                https://github.com/cockpit-project/cockpit/issues/1216
                                https://bugzilla.redhat.com/show_bug.cgi?id=853153
-                               This seems to be fixed in fedora 23 (usermod catches the different locking behavior)
                             */
                                 if (locked != value && !dont_retry_if_stuck) {
                                     console.log("Account locked state doesn't match desired value, trying again.");

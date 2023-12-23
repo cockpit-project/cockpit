@@ -18,7 +18,7 @@ chmod a+w "$LOGS"
 # show some system info
 nproc
 free -h
-rpm -q cockpit-system
+rpm -qa | grep cockpit
 
 # install firefox (available everywhere in Fedora and RHEL)
 # we don't need the H.264 codec, and it is sometimes not available (rhbz#2005760)
@@ -43,9 +43,22 @@ if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "basic" ]; then
     dnf install -y abrt abrt-addon-ccpp reportd libreport-plugin-bugzilla libreport-fedora
 fi
 
+# dnf installs "missing" weak dependencies, but we don't want them for plans other than "optional"
+if [ "$PLAN" != "optional" ] && rpm -q cockpit-packagekit; then
+    dnf remove -y cockpit-packagekit
+fi
+
 if grep -q 'ID=.*rhel' /etc/os-release; then
     # required by TestUpdates.testKpatch, but kpatch is only in RHEL
     dnf install -y kpatch kpatch-dnf
+fi
+
+# if we run during cross-project testing against our main-builds COPR, then let that win
+# even if Fedora has a newer revision
+main_builds_repo="$(ls /etc/yum.repos.d/*cockpit*main-builds* 2>/dev/null || true)"
+if [ -n "$main_builds_repo" ]; then
+    echo 'priority=0' >> "$main_builds_repo"
+    dnf distro-sync -y 'cockpit*'
 fi
 
 # RHEL 8 does not build cockpit-tests; when dropping RHEL 8 support, move to test/browser/main.fmf

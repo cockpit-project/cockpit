@@ -20,6 +20,7 @@ import contextlib
 import functools
 import gzip
 import io
+import itertools
 import json
 import logging
 import mimetypes
@@ -62,28 +63,55 @@ from .jsonutil import (
 logger = logging.getLogger(__name__)
 
 
-def parse_accept_language(headers: JsonObject) -> List[str]:
+# In practice, this is going to get called over and over again with exactly the
+# same list.  Let's try to cache the result.
+@functools.lru_cache()
+def parse_accept_language(accept_language: str) -> Sequence[str]:
     """Parse the Accept-Language header, if it exists.
 
-    Returns an ordered list of languages.
+    Returns an ordered list of languages, with fallbacks inserted, and
+    truncated to the position where 'en' would have otherwise appeared, if
+    applicable.
 
     https://tools.ietf.org/html/rfc7231#section-5.3.5
+    https://datatracker.ietf.org/doc/html/rfc4647#section-3.4
     """
 
-    locales = []
-    for language in get_str(headers, 'Accept-Language', '').split(','):
-        language = language.strip()
-        locale, _, weightstr = language.partition(';q=')
-        weight = float(weightstr or 1)
+    logger.debug('parse_accept_language(%r)', accept_language)
+    locales_with_q = []
+    for entry in accept_language.split(','):
+        entry = entry.strip().lower()
+        logger.debug('  entry %r', entry)
+        locale, _, qstr = entry.partition(';q=')
+        try:
+            q = float(qstr or 1.0)
+        except ValueError:
+            continue  # ignore malformed entry
 
-        # Skip possible empty locales
-        if not locale:
-            continue
+        while locale:
+            logger.debug('    adding %r q=%r', locale, q)
+            locales_with_q.append((locale, q))
+            # strip off '-detail' suffixes until there's nothing left
+            locale, _, _region = locale.rpartition('-')
 
-        # Locales are case-insensitive and we store our list in lowercase
-        locales.append((locale.lower(), weight))
+    # Sort the list by highest q value.  Otherwise, this is a stable sort.
+    locales_with_q.sort(key=lambda pair: pair[1], reverse=True)
+    logger.debug('  sorted list is %r', locales_with_q)
 
-    return [locale for locale, _ in sorted(locales, key=lambda k: k[1], reverse=True)]
+    # If we have 'en' anywhere in our list, ignore it and all items after it.
+    # This will result in us getting an untranslated (ie: English) version if
+    # none of the more-preferred languages are found, which is what we want.
+    # We also take the chance to drop duplicate items.  Note: both of these
+    # things need to happen after sorting.
+    results = []
+    for locale, _q in locales_with_q:
+        if locale == 'en':
+            break
+        if locale not in results:
+            results.append(locale)
+
+    logger.debug('  results list is %r', results)
+    return tuple(results)
 
 
 def sortify_version(version: str) -> str:
@@ -238,10 +266,21 @@ class Package:
                 # Accept-Language is case-insensitive and uses '-' to separate variants
                 lower_locale = locale.lower().replace('_', '-')
 
+                logger.debug('Adding translation %r %r -> %r', basename, lower_locale, name)
                 self.translations[f'{basename}.js'][lower_locale] = name
             else:
-                basename = name[:-3] if name.endswith('.gz') else name
+                # strip out trailing '.gz' components
+                basename = re.sub('.gz$', '', name)
+                logger.debug('Adding content %r -> %r', basename, name)
                 self.files[basename] = name
+
+                # If we see a filename like `x.min.js` we want to also offer it
+                # at `x.js`, but only if `x.js(.gz)` itself is not present.
+                # Note: this works for both the case where we found the `x.js`
+                # first (it's already in the map) and also if we find it second
+                # (it will be replaced in the map by the line just above).
+                # See https://github.com/cockpit-project/cockpit/pull/19716
+                self.files.setdefault(basename.replace('.min.', '.'), name)
 
         # support old cockpit-po-plugin which didn't write po.manifest.??.js
         if not self.translations['po.manifest.js']:
@@ -280,21 +319,14 @@ class Package:
 
         return Document(path.open('rb'), content_type, content_encoding, content_security_policy)
 
-    def load_translation(self, path: str, locales: List[str]) -> Document:
+    def load_translation(self, path: str, locales: Sequence[str]) -> Document:
         self.ensure_scanned()
         assert self.translations is not None
 
-        # First check the locales that the user sent
+        # First match wins
         for locale in locales:
             with contextlib.suppress(KeyError):
                 return self.load_file(self.translations[path][locale])
-
-        # Next, check the language-only versions of variant-specified locales
-        for locale in locales:
-            language, _, region = locale.partition('-')
-            if region:
-                with contextlib.suppress(KeyError):
-                    return self.load_file(self.translations[path][language])
 
         # We prefer to return an empty document than 404 in order to avoid
         # errors in the console when a translation can't be found
@@ -306,7 +338,7 @@ class Package:
         assert self.translations is not None
 
         if path in self.translations:
-            locales = parse_accept_language(headers)
+            locales = parse_accept_language(get_str(headers, 'Accept-Language', ''))
             return self.load_translation(path, locales)
         else:
             return self.load_file(self.files[path])
@@ -470,8 +502,13 @@ class Packages(bus.Object, interface='cockpit.Packages'):
     def show(self):
         for name in sorted(self.packages):
             package = self.packages[name]
-            menuitems = ''
-            print(f'{name:20} {menuitems:40} {package.path}')
+            menuitems = []
+            for entry in itertools.chain(
+                    package.manifest.get('menu', {}).values(),
+                    package.manifest.get('tools', {}).values()):
+                with contextlib.suppress(KeyError):
+                    menuitems.append(entry['label'])
+            print(f'{name:20} {", ".join(menuitems):40} {package.path}')
 
     def get_bridge_configs(self) -> Sequence[BridgeConfig]:
         def yield_configs():
@@ -500,7 +537,7 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         chunks: List[bytes] = []
 
         # Send the translations required for the manifest files, from each package
-        locales = parse_accept_language(headers)
+        locales = parse_accept_language(get_str(headers, 'Accept-Language', ''))
         for name, package in self.packages.items():
             if name in ['static', 'base1']:
                 continue

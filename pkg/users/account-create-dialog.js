@@ -271,12 +271,12 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
         confirm_weak: false,
         change_passw_force: false,
         base_home_dir: null,
-        shell: null,
+        shell: "",
         uid,
         uid_exists: false,
         min_uid,
         max_uid,
-        home_dir: null,
+        home_dir: "",
         home_dir_dirty: false,
     };
     let errors = { };
@@ -288,7 +288,7 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
         return cockpit.spawn(["useradd", "-D"], { superuser: "require", err: "message" })
                 .catch(e => console.warn("Could not get useradd defaults: ", e.message))
                 .then(defaults => {
-                    let shell = null;
+                    let shell = "";
                     let base_home_dir = null;
                     defaults.split("\n").forEach(item => {
                         if (item.indexOf("SHELL=") === 0) {

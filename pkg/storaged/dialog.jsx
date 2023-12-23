@@ -354,12 +354,10 @@ export const dialog_open = (def) => {
     };
 
     const props = () => {
-        const title = (def.Action && (def.Action.Danger || def.Action.DangerButton)
-            ? <><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {def.Title}</>
-            : def.Title);
         return {
             id: "dialog",
-            title,
+            title: def.Title,
+            titleIconVariant: (def.Action && (def.Action.Danger || def.Action.DangerButton)) ? "warning" : null,
             body: <Body body={def.Body}
                         teardown={def.Teardown}
                         fields={nested_fields}
@@ -402,6 +400,7 @@ export const dialog_open = (def) => {
                         }
                         errors = errs;
                         update();
+                        update_footer();
                         return Promise.reject();
                     });
         };
@@ -416,7 +415,7 @@ export const dialog_open = (def) => {
                     caption: def.Action.Title,
                     style: "primary",
                     danger: def.Action.Danger || def.Action.DangerButton,
-                    disabled: running_promise != null,
+                    disabled: running_promise != null || (def.Action.disable_on_error && errors),
                     clicked: progress_callback => run_action(progress_callback, null),
                 }
             ];
@@ -505,6 +504,14 @@ export const dialog_open = (def) => {
             Object.assign(updated, new_vals);
             values[key] = updated;
             update();
+        },
+
+        get_options: (tag) => {
+            for (const f of fields) {
+                if (f.tag == tag) {
+                    return f.options;
+                }
+            }
         },
 
         set_options: (tag, new_options) => {
@@ -682,6 +689,28 @@ export const SelectOneRadio = (tag, title, options) => {
     };
 };
 
+export const SelectOneRadioVertical = (tag, title, options) => {
+    return {
+        tag,
+        title,
+        options,
+        initial_value: options.value || options.choices[0].value,
+        hasNoPaddingTop: true,
+
+        render: (val, change) => {
+            return (
+                <div data-field={tag} data-field-type="select-radio">
+                    { options.choices.map(c => (
+                        <Radio key={c.value} isChecked={val == c.value} data-data={c.value}
+                            id={tag + '.' + c.value}
+                            onChange={() => change(c.value)} label={c.title} />))
+                    }
+                </div>
+            );
+        }
+    };
+};
+
 export const SelectRow = (tag, headers, options) => {
     return {
         tag,
@@ -722,8 +751,9 @@ export const SelectSpaces = (tag, title, options) => {
         tag,
         title,
         options,
-        initial_value: [],
+        initial_value: options.value || [],
         hasNoPaddingTop: options.spaces.length == 0,
+
         render: (val, change) => {
             if (options.spaces.length === 0)
                 return <span className="text-danger">{options.empty_warning}</span>;
@@ -737,20 +767,15 @@ export const SelectSpaces = (tag, title, options) => {
                         const desc = block === spc.desc ? "" : spc.desc;
 
                         const on_change = (_event, checked) => {
+                            // Be careful to keep "val" in the same order as "options.spaces".
                             if (checked && !selected)
-                                change(val.concat(spc));
+                                change(options.spaces.filter(v => val.indexOf(v) >= 0 || v == spc));
                             else if (!checked && selected)
                                 change(val.filter(v => (v != spc)));
                         };
 
-                        return (
-                            <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
-                                <DataListItemRow>
-                                    <DataListCheck id={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
-                                                   isChecked={selected} onChange={on_change} />
-                                    <label htmlFor={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
-                                           className='data-list-row-checkbox-label'>
-                                        <DataListItemCells
+                        const datalistcells = (
+                            <DataListItemCells
                                             dataListCells={[
                                                 <DataListCell key="select-space-name" className="select-space-name">
                                                     {format_size_and_text(spc.size, desc)}
@@ -759,7 +784,18 @@ export const SelectSpaces = (tag, title, options) => {
                                                     {block}
                                                 </DataListCell>,
                                             ]}
-                                        />
+                            />);
+
+                        return (
+                            <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
+                                <DataListItemRow>
+                                    <DataListCheck id={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
+                                                   isDisabled={options.min_selected &&
+                                                               selected && val.length <= options.min_selected}
+                                                   isChecked={selected} onChange={on_change} />
+                                    <label htmlFor={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
+                                           className='data-list-row-checkbox-label'>
+                                        {datalistcells}
                                     </label>
                                 </DataListItemRow>
                             </DataListItem>
@@ -945,7 +981,7 @@ class SizeSliderElement extends React.Component {
         const { unit } = this.state;
 
         const change_slider = (_event, f) => {
-            onChange(Math.max(min, size_slider_round(f * max / 100, round)));
+            onChange(Math.max(min, size_slider_round(f, round)));
         };
 
         const change_text = (value) => {
@@ -974,7 +1010,8 @@ class SizeSliderElement extends React.Component {
         return (
             <Grid hasGutter className="size-slider">
                 <GridItem span={12} sm={8}>
-                    <Slider showBoundaries={false} value={(slider_val / max) * 100} onChange={change_slider} />
+                    <Slider showBoundaries={false} min={min} max={max} step={(max - min) / 500}
+                            value={slider_val} onChange={change_slider} />
                 </GridItem>
                 <GridItem span={6} sm={2}>
                     <TextInputPF4 className="size-text" value={text_val} onChange={(_event, value) => change_text(value)} />
@@ -1067,7 +1104,7 @@ export const SizeSlider = (tag, title, options) => {
 export const BlockingMessage = (usage) => {
     const usage_desc = {
         pvol: _("physical volume of LVM2 volume group"),
-        mdraid: _("member of RAID device"),
+        "mdraid-member": _("member of MDRAID device"),
         vdo: _("backing device for VDO device"),
         "stratis-pool-member": _("member of Stratis pool")
     };
@@ -1109,13 +1146,13 @@ const UsersPopover = ({ users }) => {
             bodyContent={
                 <>
                     { services.length > 0
-                        ? <p>
-                            <b>{_("Services using the location")}</b>
+                        ? <>
+                            <p><b>{_("Services using the location")}</b></p>
                             <List>
                                 { services.slice(0, max).map((u, i) => <ListItem key={i}>{u.unit.replace(/\.service$/, "")}</ListItem>) }
                                 { services.length > max ? <ListItem key={max}>...</ListItem> : null }
                             </List>
-                        </p>
+                        </>
                         : null
                     }
                     { services.length > 0 && processes.length > 0
@@ -1123,13 +1160,13 @@ const UsersPopover = ({ users }) => {
                         : null
                     }
                     { processes.length > 0
-                        ? <p>
-                            <b>{_("Processes using the location")}</b>
+                        ? <>
+                            <p><b>{_("Processes using the location")}</b></p>
                             <List>
                                 { processes.slice(0, max).map((u, i) => <ListItem key={i}>{u.comm} (user: {u.user}, pid: {u.pid})</ListItem>) }
                                 { processes.length > max ? <ListItem key={max}>...</ListItem> : null }
                             </List>
-                        </p>
+                        </>
                         : null
                     }
                 </>}>
@@ -1259,7 +1296,8 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
     return (
         <div className="modal-footer-teardown">
             { process_rows.length > 0
-                ? <p>{fmt_to_fragments(_("The mount point $0 is in use by these processes:"), <b>{mount_point}</b>)}
+                ? <>
+                    <p>{fmt_to_fragments(_("The mount point $0 is in use by these processes:"), <b>{mount_point}</b>)}</p>
                     <ListingTable variant='compact'
                                   columns={
                                       [
@@ -1270,7 +1308,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                                       ]
                                   }
                                       rows={process_rows} />
-                </p>
+                </>
                 : null
             }
             { process_rows.length > 0 && service_rows.length > 0
@@ -1278,7 +1316,8 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                 : null
             }
             { service_rows.length > 0
-                ? <p>{fmt_to_fragments(_("The mount point $0 is in use by these services:"), <b>{mount_point}</b>)}
+                ? <>
+                    <p>{fmt_to_fragments(_("The mount point $0 is in use by these services:"), <b>{mount_point}</b>)}</p>
                     <ListingTable variant='compact'
                                   columns={
                                       [
@@ -1289,7 +1328,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                                       ]
                                   }
                                   rows={service_rows} />
-                </p>
+                </>
                 : null
             }
         </div>);

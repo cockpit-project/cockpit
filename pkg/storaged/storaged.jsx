@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+
 import '../lib/patternfly/patternfly-5-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
@@ -29,38 +30,35 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { PlotState } from "plot.js";
 
 import client from "./client";
-import { MultipathAlert } from "./multipath.jsx";
-import { Overview } from "./overview.jsx";
-import { Details } from "./details.jsx";
 import { update_plot_state } from "./plot.jsx";
+import { StoragePage } from "./pages.jsx";
 
 import "./storage.scss";
 
 const _ = cockpit.gettext;
 
-class StoragePage extends React.Component {
+class Application extends React.Component {
     constructor() {
         super();
         this.state = { inited: false, slow_init: false, path: cockpit.location.path };
         this.plot_state = new PlotState();
-        this.on_client_changed = () => { if (!this.props.client.busy) this.setState({}); };
+        this.on_client_changed = () => { if (!client.busy) this.setState({}); };
         this.on_navigate = () => { this.setState({ path: cockpit.location.path }) };
     }
 
     componentDidMount() {
-        this.props.client.addEventListener("changed", this.on_client_changed);
+        client.addEventListener("changed", this.on_client_changed);
         cockpit.addEventListener("locationchanged", this.on_navigate);
         client.init(() => { this.setState({ inited: true }) });
         window.setTimeout(() => { if (!this.state.inited) this.setState({ slow_init: true }); }, 1000);
     }
 
     componentWillUnmount() {
-        this.props.client.removeEventListener("changed", this.on_client_changed);
+        client.removeEventListener("changed", this.on_client_changed);
         cockpit.removeEventListener("locationchanged", this.on_navigate);
     }
 
     render() {
-        const { client } = this.props;
         const { inited, slow_init, path } = this.state;
 
         if (!inited) {
@@ -77,26 +75,13 @@ class StoragePage extends React.Component {
         // alive no matter what page is shown.
         update_plot_state(this.plot_state, client);
 
-        let detail;
-        if (path.length === 0)
-            detail = null;
-        else if (path.length == 1)
-            detail = <Details client={client} type="block" name={path[0]} />;
-        else
-            detail = <Details client={client} type={path[0]} name={path[1]} name2={path[2]} />;
-
-        return (
-            <>
-                <MultipathAlert client={client} />
-                {detail || <Overview client={client} plot_state={this.plot_state} />}
-            </>
-        );
+        return <StoragePage location={path} plot_state={this.plot_state} />;
     }
 }
 
 function init() {
     const root = createRoot(document.getElementById('storage'));
-    root.render(<StoragePage client={client} />);
+    root.render(<Application />);
     document.body.removeAttribute("hidden");
 
     window.addEventListener('beforeunload', event => {

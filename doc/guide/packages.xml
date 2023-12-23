@@ -338,28 +338,12 @@ $ cockpit-bridge --packages
   <section id="package-minified">
     <title>Content Negotiation</title>
 
-    <para>In order to support language specific files, gzipped and/or minified data, the
-      files in a package are loaded using content negotiation logic.</para>
-
-    <para>If a file does not exist at the expected path, Cockpit tries to insert
-      <code>.min</code> before its extension. It also tries adding a <code>.gz</code>
-      to both of those file names. If the file is still not found, and the request path has
-      more than one extension, the second to the last extension is popped off, and the above
-      process repeats.</para>
-
-    <para>This means that for the file <code>test.de.js</code> in the package named
-      <code>mypackage</code> the following files would be tried in this order:</para>
-
-<programlisting>
-mypackage/test.de.js
-mypackage/test.de.min.js
-mypackage/test.de.js.gz
-mypackage/test.de.min.js.gz
-mypackage/test.js
-mypackage/test.min.js
-mypackage/test.js.gz
-mypackage/test.min.js.gz
-</programlisting>
+    <para>In order to support gzipped and/or minified data, the files in a package are
+      loaded using content negotiation logic. A HTTP request for the file <code>test.js</code>
+      in the package named <code>mypackage</code> will return <code>mypackage/test.js</code>
+      or <code>mypackage/test.js.gz</code> (in undefined preference). If neither exists,
+      then it returns <code>mypackage/test.js.min</code> or <code>mypackage/test.js.min.gz</code>
+      (again in undefined preference).</para>
 
     <para>When packages are loaded from a system directory, Cockpit optimizes the file
       system lookups above, by pre-listing the files. This is one of the reasons that

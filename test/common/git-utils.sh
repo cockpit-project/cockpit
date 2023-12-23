@@ -84,8 +84,15 @@ fetch_to_cache() {
     #  - we should always do the fetch because it might have changed. but
     #  - we might be able to skip updating in case we already have it
     if [ -z "${OFFLINE-}" ]; then
-        message FETCH "${SUBDIR}  ${1+[ref: $*]}"
-        git_cache fetch --prune ${quiet} origin "$@"
+        for retry in $(seq 3); do
+            message FETCH "${SUBDIR}  ${1+[ref: $*]}"
+            if git_cache fetch --prune ${quiet} origin "$@"; then
+                return
+            fi
+            sleep $((retry * retry * 5))
+        done
+        echo "repeated git fetch failure, giving up" >&2
+        exit 1
     fi
 }
 

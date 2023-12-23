@@ -89,11 +89,19 @@ function clearExceptions() {
     return Promise.resolve();
 }
 
+function stringifyConsoleArg(arg) {
+    if (arg.type === 'string')
+        return arg.value;
+    if (arg.type === 'object')
+        return JSON.stringify(arg.value);
+    return JSON.stringify(arg);
+}
+
 function setupLogging(client) {
     client.Runtime.enable();
 
     client.Runtime.consoleAPICalled(info => {
-        const msg = info.args.map(v => (v.value || "").toString()).join(" ");
+        const msg = info.args.map(stringifyConsoleArg).join(" ");
         messages.push([info.type, msg]);
         process.stderr.write("> " + info.type + ": " + msg + "\n");
 
@@ -215,8 +223,10 @@ function setupFrameTracking(client) {
     });
 
     client.Page.loadEventFired(() => {
-        if (pageLoadHandler)
+        if (pageLoadHandler) {
+            debug("loadEventFired, resolving pageLoadHandler");
             pageLoadHandler();
+        }
     });
 
     // track execution contexts so that we can map between context and frame IDs
@@ -267,12 +277,22 @@ function setupFrameTracking(client) {
 }
 
 function setupLocalFunctions(client) {
-    client.reloadPageAndWait = (args) => {
-        return new Promise((resolve, reject) => {
-            pageLoadHandler = () => { pageLoadHandler = null; resolve({}) };
-            client.Page.reload(args);
-        });
-    };
+    client.waitPageLoad = (args) => new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            pageLoadHandler = null;
+            reject("Timeout waiting for page load"); // eslint-disable-line prefer-promise-reject-errors
+        }, 15000);
+        pageLoadHandler = () => {
+            clearTimeout(timeout);
+            pageLoadHandler = null;
+            resolve({});
+        };
+    });
+
+    client.reloadPageAndWait = (args) => new Promise((resolve, reject) => {
+        pageLoadHandler = () => { pageLoadHandler = null; resolve({}) };
+        client.Page.reload(args);
+    });
 }
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python
@@ -363,20 +383,7 @@ CDP(options)
                             }
                         }, err => {
                             currentExecId = null;
-                            // HACK: Runtime.evaluate() fails with "Debugger: expected Debugger.Object, got Proxy"
-                            // translate that into a proper timeout exception
-                            // https://bugzilla.mozilla.org/show_bug.cgi?id=1702860
-                            if (err.response && err.response.data && err.response.data.indexOf("setTimeout handler*ph_wait_cond") > 0) {
-                                success(seq, {
-                                    exceptionDetails: {
-                                        exception: {
-                                            type: "string",
-                                            value: "timeout",
-                                        }
-                                    }
-                                });
-                            } else
-                                fail(seq, err);
+                            fail(seq, err);
                         });
                     })
                     .on('close', () => process.exit(0));

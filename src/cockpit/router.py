@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import collections
 import logging
 from typing import Dict, List, Optional
 
 from .jsonutil import JsonDocument, JsonObject
-from .protocol import CockpitProtocolError, CockpitProtocolServer
+from .protocol import CockpitProblem, CockpitProtocolError, CockpitProtocolServer
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,7 @@ class Endpoint:
     __endpoint_frozen_queue: Optional[ExecutionQueue] = None
 
     def __init__(self, router: 'Router'):
+        router.add_endpoint(self)
         self.router = router
 
     def freeze_endpoint(self):
@@ -75,6 +77,9 @@ class Endpoint:
         self.__endpoint_frozen_queue = None
 
     # interface for receiving messages
+    def do_close(self):
+        raise NotImplementedError
+
     def do_channel_control(self, channel: str, command: str, message: JsonObject) -> None:
         raise NotImplementedError
 
@@ -88,22 +93,20 @@ class Endpoint:
     def send_channel_data(self, channel: str, data: bytes) -> None:
         self.router.write_channel_data(channel, data)
 
-    def send_channel_message(self, channel: str, **kwargs: JsonDocument) -> None:
-        self.router.write_message(channel, **kwargs)
-
-    def send_channel_control(self, channel, command, **kwargs: JsonDocument) -> None:
-        self.router.write_control(channel=channel, command=command, **kwargs)
+    def send_channel_control(
+        self, channel: str, command: str, _msg: 'JsonObject | None', **kwargs: JsonDocument
+    ) -> None:
+        self.router.write_control(_msg, channel=channel, command=command, **kwargs)
         if command == 'close':
+            self.router.endpoints[self].remove(channel)
             self.router.drop_channel(channel)
 
-    def shutdown_endpoint(self, **kwargs: JsonDocument) -> None:
-        self.router.shutdown_endpoint(self, **kwargs)
+    def shutdown_endpoint(self, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
+        self.router.shutdown_endpoint(self, _msg, **kwargs)
 
 
-class RoutingError(Exception):
-    def __init__(self, problem, **kwargs):
-        self.problem = problem
-        self.kwargs = kwargs
+class RoutingError(CockpitProblem):
+    pass
 
 
 class RoutingRule:
@@ -130,6 +133,8 @@ class RoutingRule:
 class Router(CockpitProtocolServer):
     routing_rules: List[RoutingRule]
     open_channels: Dict[str, Endpoint]
+    endpoints: 'dict[Endpoint, set[str]]'
+    no_endpoints: asyncio.Event  # set if endpoints dict is empty
     _eof: bool = False
 
     def __init__(self, routing_rules: List[RoutingRule]):
@@ -137,6 +142,9 @@ class Router(CockpitProtocolServer):
             rule.router = self
         self.routing_rules = routing_rules
         self.open_channels = {}
+        self.endpoints = {}
+        self.no_endpoints = asyncio.Event()
+        self.no_endpoints.set()  # at first there are no endpoints
 
     def check_rules(self, options: JsonObject) -> Endpoint:
         for rule in self.routing_rules:
@@ -156,19 +164,29 @@ class Router(CockpitProtocolServer):
         except KeyError:
             logger.error('trying to drop non-existent channel %s from %s', channel, self.open_channels)
 
-        # were we waiting to exit?
-        if not self.open_channels and self._eof and self.transport:
-            self.transport.close()
+    def add_endpoint(self, endpoint: Endpoint) -> None:
+        self.endpoints[endpoint] = set()
+        self.no_endpoints.clear()
 
-    def shutdown_endpoint(self, endpoint: Endpoint, **kwargs) -> None:
-        channels = {key for key, value in self.open_channels.items() if value == endpoint}
+    def shutdown_endpoint(self, endpoint: Endpoint, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
+        channels = self.endpoints.pop(endpoint)
         logger.debug('shutdown_endpoint(%s, %s) will close %s', endpoint, kwargs, channels)
         for channel in channels:
-            self.write_control(command='close', channel=channel, **kwargs)
+            self.write_control(_msg, command='close', channel=channel, **kwargs)
             self.drop_channel(channel)
 
+        if not self.endpoints:
+            self.no_endpoints.set()
+
+        # were we waiting to exit?
+        if self._eof:
+            logger.debug('  endpoints remaining: %r', self.endpoints)
+            if not self.endpoints and self.transport:
+                logger.debug('  close transport')
+                self.transport.close()
+
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
-        endpoints = set(self.open_channels.values())
+        endpoints = set(self.endpoints)
         logger.debug('do_kill(%s, %s).  Considering %d endpoints.', host, group, len(endpoints))
         for endpoint in endpoints:
             endpoint.do_kill(host, group)
@@ -185,10 +203,11 @@ class Router(CockpitProtocolServer):
                 logger.debug('Trying to find endpoint for new channel %s payload=%s', channel, message.get('payload'))
                 endpoint = self.check_rules(message)
             except RoutingError as exc:
-                self.write_control(command='close', channel=channel, problem=exc.problem, **exc.kwargs)
+                self.write_control(exc.attrs, command='close', channel=channel)
                 return
 
             self.open_channels[channel] = endpoint
+            self.endpoints[endpoint].add(channel)
         else:
             try:
                 endpoint = self.open_channels[channel]
@@ -208,13 +227,40 @@ class Router(CockpitProtocolServer):
         endpoint.do_channel_data(channel, data)
 
     def eof_received(self) -> bool:
+        logger.debug('eof_received(%r)', self)
+
+        endpoints = set(self.endpoints)
+        for endpoint in endpoints:
+            endpoint.do_close()
+
         self._eof = True
+        logger.debug('  endpoints remaining: %r', self.endpoints)
+        return bool(self.endpoints)
 
-        for channel, endpoint in list(self.open_channels.items()):
-            endpoint.do_channel_control(channel, 'close', {'command': 'close', 'channel': channel})
-
-        return bool(self.open_channels)
+    _communication_done: Optional[asyncio.Future] = None
 
     def do_closed(self, exc: Optional[Exception]) -> None:
-        for rule in self.routing_rules:
-            rule.shutdown()
+        # If we didn't send EOF yet, do it now.
+        if not self._eof:
+            self.eof_received()
+
+        if self._communication_done is not None:
+            if exc is None:
+                self._communication_done.set_result(None)
+            else:
+                self._communication_done.set_exception(exc)
+
+    async def communicate(self) -> None:
+        """Wait until communication is complete on the router and all endpoints are done."""
+        assert self._communication_done is None
+        self._communication_done = asyncio.get_running_loop().create_future()
+        try:
+            await self._communication_done
+        except (BrokenPipeError, ConnectionResetError):
+            pass  # these are normal occurrences when closed from the other side
+        finally:
+            self._communication_done = None
+
+            # In an orderly exit, this is already done, but in case it wasn't
+            # orderly, we need to make sure the endpoints shut down anyway...
+            await self.no_endpoints.wait()

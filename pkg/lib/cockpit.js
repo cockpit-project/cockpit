@@ -2741,6 +2741,8 @@ function factory() {
         if (options !== undefined)
             Object.assign(args, options);
 
+        spawn_debug("process spawn:", JSON.stringify(args.spawn));
+
         const name = args.spawn[0] || "process";
         const channel = cockpit.channel(args);
 

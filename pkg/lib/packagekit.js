@@ -343,6 +343,8 @@ export function watchRedHatSubscription(callback) {
  * - missing_names:     Packages that were requested, are currently not installed,
  *                      and can be installed.
  *
+ * - missing_ids:       The full PackageKit IDs corresponding to missing_names
+ *
  * - unavailable_names: Packages that were requested, are currently not installed,
  *                      but can't be found in any repository.
  *
@@ -359,6 +361,7 @@ export function watchRedHatSubscription(callback) {
 
 export function check_missing_packages(names, progress_cb) {
     const data = {
+        missing_ids: [],
         missing_names: [],
         unavailable_names: [],
     };
@@ -371,8 +374,6 @@ export function check_missing_packages(names, progress_cb) {
     }
 
     function resolve() {
-        data.missing_ids = [];
-
         const installed_names = { };
 
         return cancellableTransaction("Resolve",
@@ -455,6 +456,30 @@ export function check_missing_packages(names, progress_cb) {
     return refresh().then(resolve)
             .then(simulate)
             .then(get_details);
+}
+
+/* Check a list of packages whether they are installed.
+ *
+ * This is a lightweight version of check_missing_packages() which does not
+ * refresh, simulates, or retrieves details. It just checks which of the given package
+ * names are already installed, and returns a Set of the missing ones.
+ */
+export function check_uninstalled_packages(names) {
+    const uninstalled = new Set(names);
+
+    if (names.length === 0)
+        return Promise.resolve(uninstalled);
+
+    return cancellableTransaction("Resolve",
+                                  [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, names],
+                                  null, // don't need progress, this is fast
+                                  {
+                                      Package: (info, package_id) => {
+                                          const parts = package_id.split(";");
+                                          uninstalled.delete(parts[0]);
+                                      },
+                                  })
+            .then(() => uninstalled);
 }
 
 /* Carry out what check_missing_packages has planned.

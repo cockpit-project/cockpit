@@ -19,11 +19,9 @@ import asyncio
 import json
 import logging
 import uuid
-from typing import ClassVar, Dict, Optional
+from typing import Dict, Optional
 
-from cockpit._vendor import systemd_ctypes
-
-from .jsonutil import JsonError, JsonObject, get_str, typechecked
+from .jsonutil import JsonDocument, JsonError, JsonObject, create_object, get_str, typechecked
 
 logger = logging.getLogger(__name__)
 
@@ -40,10 +38,12 @@ class CockpitProblem(Exception):
     It is usually thrown in response to some violation of expected protocol
     when parsing messages, connecting to a peer, or opening a channel.
     """
-    def __init__(self, problem: str, **kwargs):
-        super().__init__(kwargs.get('message') or problem)
-        self.problem = problem
-        self.kwargs = kwargs
+    attrs: JsonObject
+
+    def __init__(self, problem: str, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
+        self.attrs = create_object(_msg, kwargs)
+        self.attrs['problem'] = problem
+        super().__init__(get_str(self.attrs, 'message', problem))
 
 
 class CockpitProtocolError(CockpitProblem):
@@ -57,11 +57,9 @@ class CockpitProtocol(asyncio.Protocol):
     We need to use this because Python's SelectorEventLoop doesn't supported
     buffered protocols.
     """
-    json_encoder: ClassVar[json.JSONEncoder] = systemd_ctypes.JSONEncoder(indent=2)
     transport: Optional[asyncio.Transport] = None
     buffer = b''
     _closed: bool = False
-    _communication_done: Optional[asyncio.Future] = None
 
     def do_ready(self) -> None:
         pass
@@ -174,12 +172,6 @@ class CockpitProtocol(asyncio.Protocol):
 
         self.do_closed(exc)
 
-        if self._communication_done is not None:
-            if exc is None:
-                self._communication_done.set_result(None)
-            else:
-                self._communication_done.set_exception(exc)
-
     def write_channel_data(self, channel, payload):
         """Send a given payload (bytes) on channel (string)"""
         # Channel is certainly ascii (as enforced by .encode() below)
@@ -191,21 +183,11 @@ class CockpitProtocol(asyncio.Protocol):
         else:
             logger.debug('cannot write to closed transport')
 
-    def write_message(self, _channel, **kwargs):
-        """Format kwargs as a JSON blob and send as a message
-           Any kwargs with '_' in their names will be converted to '-'
-        """
-        for name in list(kwargs):
-            if '_' in name:
-                kwargs[name.replace('_', '-')] = kwargs[name]
-                del kwargs[name]
-
-        logger.debug('sending message %s %s', _channel, kwargs)
-        pretty = CockpitProtocol.json_encoder.encode(kwargs) + '\n'
-        self.write_channel_data(_channel, pretty.encode('utf-8'))
-
-    def write_control(self, **kwargs):
-        self.write_message('', **kwargs)
+    def write_control(self, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
+        """Write a control message.  See jsonutil.create_object() for details."""
+        logger.debug('sending control message %r %r', _msg, kwargs)
+        pretty = json.dumps(create_object(_msg, kwargs), indent=2) + '\n'
+        self.write_channel_data('', pretty.encode())
 
     def data_received(self, data):
         try:
@@ -220,13 +202,6 @@ class CockpitProtocol(asyncio.Protocol):
 
     def eof_received(self) -> Optional[bool]:
         return False
-
-    async def communicate(self) -> None:
-        """Wait until communication is complete on this protocol."""
-        assert self._communication_done is None
-        self._communication_done = asyncio.get_running_loop().create_future()
-        await self._communication_done
-        self._communication_done = None
 
 
 # Helpful functionality for "server"-side protocol implementations
@@ -269,14 +244,16 @@ class CockpitProtocolServer(CockpitProtocol):
         self.do_send_init()
 
     # authorize request/response API
-    async def request_authorization(self, challenge: str, timeout: Optional[int] = None, **kwargs: object) -> str:
+    async def request_authorization(
+        self, challenge: str, timeout: 'int | None' = None, **kwargs: JsonDocument
+    ) -> str:
         if self.authorizations is None:
             self.authorizations = {}
         cookie = str(uuid.uuid4())
         future = asyncio.get_running_loop().create_future()
         try:
             self.authorizations[cookie] = future
-            self.write_control(command='authorize', challenge=challenge, cookie=cookie, **kwargs)
+            self.write_control(None, command='authorize', challenge=challenge, cookie=cookie, **kwargs)
             return await asyncio.wait_for(future, timeout)
         finally:
             self.authorizations.pop(cookie)

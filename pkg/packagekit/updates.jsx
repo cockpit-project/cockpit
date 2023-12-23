@@ -1075,7 +1075,17 @@ class OsUpdates extends React.Component {
                     this.setState(nextState);
                 })
                 .catch((exception, data) => {
-                    console.error(`Tracer failed: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+                    // common cases: this platform does not have tracer installed
+                    if (!exception.message?.includes("ModuleNotFoundError") &&
+                        // or supported (like on Arch)
+                        !exception.message?.includes("UnsupportedDistribution") &&
+                        // or polkit does not allow it
+                        exception.problem !== "access-denied" &&
+                        // or unprivileged session
+                        exception.problem !== "authentication-failed" &&
+                        // or the session goes away while checking
+                        exception.problem !== "terminated")
+                        console.error(`Tracer failed: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
                     // When tracer fails, act like it's not available (demand reboot after every update)
                     const nextState = { tracerAvailable: false, tracerRunning: false, tracerPackages: { reboot: [], daemons: [], manual: [] } };
                     if (state)

@@ -32,28 +32,27 @@ class TestStorageHiddenLuks(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk()
-        b.wait_in_text("#drives", disk)
+        b.wait_visible(self.card_row("Storage", name=disk))
 
         # Create a volume group with a logical volume with a encrypted
         # filesystem.
 
-        self.devices_dropdown('Create LVM2 volume group')
+        self.click_dropdown(self.card_header("Storage"), "Create LVM2 volume group")
         self.dialog_wait_open()
         self.dialog_set_val('name', "TEST")
         self.dialog_set_val('disks', {disk: True})
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text('#devices', "TEST")
 
-        b.click('#devices .sidepanel-row:contains("TEST")')
-        b.wait_visible('#storage-detail')
-        b.click("button:contains(Create new logical volume)")
+        self.click_card_row("Storage", name="TEST")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
         self.dialog({'purpose': "block",
                      'name': "lvol",
                      'size': 48})
-        self.content_row_wait_in_col(1, 1, "lvol")
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol")
 
-        self.content_row_action(1, "Format")
+        self.click_card_row("LVM2 logical volumes", 1)
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"type": "ext4",
                      "crypto": self.default_crypto_type,
                      "name": "FS",
@@ -66,17 +65,19 @@ class TestStorageHiddenLuks(storagelib.StorageCase):
         self.assert_in_child_configuration("/dev/TEST/lvol", "fstab", "dir", mount_point_1)
         self.assert_in_lvol_child_configuration("lvol", "crypttab", "options", "my-crypto-tag")
         self.assert_in_lvol_child_configuration("lvol", "fstab", "dir", mount_point_1)
-        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
+        b.click(self.card_parent_link())
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "Filesystem (encrypted)")
 
         # Now the filesystem is hidden because the LUKS device is
         # locked.  Doubly hide it by deactivating /dev/TEST/lvol
-        self.content_dropdown_action(1, "Deactivate")
-        self.content_row_wait_in_col(1, 2, "Inactive volume")
+        self.click_dropdown(self.card_row("LVM2 logical volumes", 1), "Deactivate")
+        self.confirm()
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "Inactive logical volume")
 
         # Deleting the volume group should still remove the fstab entry
-        b.click('.pf-v5-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
+        self.click_card_dropdown("LVM2 volume group", "Delete")
         self.confirm()
-        b.wait_visible("#storage")
+        b.wait_visible(self.card("Storage"))
         self.assertEqual(m.execute(f"grep {mount_point_1} /etc/fstab || true"), "")
         self.assertEqual(m.execute(f"grep {'my-crypto-tag'} /etc/crypttab || true"), "")
 
@@ -94,34 +95,32 @@ class TestStorageHidden(storagelib.StorageCase):
 
         disk1 = self.add_loopback_disk()
         disk2 = self.add_loopback_disk()
-        b.wait_in_text("#others", disk1)
-        b.wait_in_text("#others", disk2)
+        b.wait_visible(self.card_row("Storage", name=disk1))
+        b.wait_visible(self.card_row("Storage", name=disk2))
 
-        # Now do the same with a MDRAID
-
-        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID device'),
+        self.dialog_with_retry(trigger=lambda: self.click_dropdown(self.card_header("Storage"),
+                                                                   "Create MDRAID device"),
                                expect=lambda: (self.dialog_is_present('disks', disk1) and
                                                self.dialog_is_present('disks', disk2)),
                                values={"name": "ARR",
                                        "disks": {disk1: True,
                                                  disk2: True}})
-        b.wait_in_text('#devices', "ARR")
 
-        b.click('#devices .sidepanel-row:contains("ARR")')
-        b.wait_visible('#storage-detail')
-        self.content_row_action(1, "Format")
+        self.click_card_row("Storage", name="/dev/md/ARR")
+        b.wait_visible(self.card("MDRAID device"))
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog({"type": "ext4",
                      "name": "FS2",
                      "mount_point": mount_point_2})
         self.assert_in_configuration("/dev/md127", "fstab", "dir", mount_point_2)
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        b.wait_visible(self.card("ext4 filesystem"))
 
         # we need to wait for mdadm --monitor to stop using the device before delete
         m.execute("while fuser -s /dev/md127; do sleep 0.2; done", timeout=20)
 
-        self.browser.click('.pf-v5-c-card__header:contains("RAID device") button:contains("Delete")')
+        self.click_card_dropdown("MDRAID device", "Delete")
         self.confirm()
-        b.wait_visible("#storage")
+        b.wait_visible(self.card("Storage"))
         self.assertEqual(m.execute(f"grep {mount_point_2} /etc/fstab || true"), "")
 
     @testlib.onlyImage("Only test snaps on Ubuntu", "ubuntu*")
@@ -145,10 +144,9 @@ class TestStorageHidden(storagelib.StorageCase):
 
         # Now we wait until the regular loopback device is shown.  The
         # snaps should not be shown.
-        b.wait_in_text("#others", dev)
+        b.wait_visible(self.card_row("Storage", name=dev))
         for sl in snap_loops:
-            b.wait_not_in_text("#others", sl)
-            b.wait_not_in_text("#mounts", sl)
+            b.wait_not_present(self.card_row("Storage", name=sl))
 
 
 if __name__ == '__main__':

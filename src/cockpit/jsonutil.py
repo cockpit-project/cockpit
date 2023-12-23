@@ -104,3 +104,28 @@ def get_objv(obj: JsonObject, key: str, constructor: Callable[[JsonObject], T]) 
     def as_objv(value: JsonDocument) -> Sequence[T]:
         return tuple(constructor(typechecked(item, dict)) for item in typechecked(value, list))
     return _get(obj, as_objv, key, ())
+
+
+def create_object(message: 'JsonObject | None', kwargs: JsonObject) -> JsonObject:
+    """Constructs a JSON object based on message and kwargs.
+
+    If only message is given, it is returned, unmodified.  If message is None,
+    it is equivalent to an empty dictionary.  A copy is always made.
+
+    If kwargs are present, then any underscore ('_') present in a key name is
+    rewritten to a dash ('-').  This is intended to bridge between the required
+    Python syntax when providing kwargs and idiomatic JSON (which uses '-' for
+    attributes).  These values override values in message.
+
+    The idea is that `message` should be used for passing data along, and
+    kwargs used for data originating at a given call site, possibly including
+    modifications to an original message.
+    """
+    result = dict(message or {})
+
+    for key, value in kwargs.items():
+        # rewrite '_' (necessary in Python syntax kwargs list) to '-' (idiomatic JSON)
+        json_key = key.replace('_', '-')
+        result[json_key] = value
+
+    return result

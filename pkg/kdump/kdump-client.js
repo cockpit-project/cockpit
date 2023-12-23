@@ -161,6 +161,10 @@ export class KdumpClient {
                 });
     }
 
+    exportConfig(settings) {
+        return this.configClient.generateConfig(settings).trim();
+    }
+
     targetFromSettings(settings) {
         const target = {
             type: "unknown",

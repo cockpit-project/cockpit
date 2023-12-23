@@ -180,14 +180,22 @@ class DnfImpl extends ImplBase {
             script += "systemctl " + (enabled ? "enable" : "disable") + " --now dnf-automatic-install.timer; ";
 
             if (enabled) {
-                // HACK: enable automatic reboots after updating; dnf-automatic does not leave a log file behind for
-                // deciding whether it actually installed anything, so resort to grepping the journal for the last run
-                // (https://bugzilla.redhat.com/show_bug.cgi?id=1491190)
-                script += "mkdir -p /etc/systemd/system/dnf-automatic-install.service.d; ";
-                script += "printf '[Service]\\nExecStartPost=/bin/sh -ec \"" +
+                /* dnf 4.15+ supports automatic reboots; check if the config option exists, and if so, change the
+                   default to "when-needed"; but be strict about the format, to avoid changing a customized setting */
+                script += "if grep '^[[:space:]]*reboot\\b' /etc/dnf/automatic.conf; then ";
+                script += "  sed -i 's/^reboot = never$/reboot = when-needed/' /etc/dnf/automatic.conf; ";
+                // and drop the previous hack on upgrades */
+                script += "  rm -f " + rebootConf + "; ";
+                /* HACK for older dnf: enable automatic reboots after updating; dnf-automatic does not leave a log
+                   file behind for deciding whether it actually installed anything, so resort to grepping the journal
+                   for the last run (https://bugzilla.redhat.com/show_bug.cgi?id=1491190) */
+                script += "else ";
+                script += "  mkdir -p /etc/systemd/system/dnf-automatic-install.service.d; ";
+                script += "  printf '[Service]\\nExecStartPost=/bin/sh -ec \"" +
                           "if systemctl status --no-pager --lines=100 dnf-automatic-install.service| grep -q ===========$$; then " +
                           "shutdown -r +5 rebooting after applying package updates; fi\"\\n' > " + rebootConf + "; ";
-                script += "systemctl daemon-reload; ";
+                script += "  systemctl daemon-reload; ";
+                script += "fi";
             } else {
                 // also make sure that the legacy unit name is disabled; this can fail if the unit does not exist
                 script += "systemctl disable --now dnf-automatic.timer 2>/dev/null || true; ";

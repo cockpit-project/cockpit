@@ -32,10 +32,9 @@ class TestStorageFormat(storagelib.StorageCase):
         # Try to format a disk that is too small for XFS.
 
         disk = self.add_ram_disk(size=5)
-        b.click(f'#drives .sidepanel-row:contains("{disk}")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name=disk)
 
-        self.content_row_action(1, "Format")
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "xfs")
         self.dialog_set_val("mount_point", "/foo")
@@ -51,14 +50,10 @@ class TestStorageFormat(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk(size=320)  # xfs minimum size is ~300MB
-        b.click(f'#drives .sidepanel-row:contains("{disk}")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name=disk)
 
-        def check_type(fstype, label_limit, head_action=False):
-            if head_action:
-                self.content_row_action(1, "Format")
-            else:
-                self.content_dropdown_action(1, "Format")
+        def check_type(fstype, label_limit):
+            self.click_card_dropdown("Unformatted data", "Format")
             self.dialog_wait_open()
             self.dialog_set_val("type", fstype)
             self.dialog_set_val("mount_point", "/foo")
@@ -68,16 +63,19 @@ class TestStorageFormat(storagelib.StorageCase):
             self.dialog_set_val("name", "X" * label_limit)
             self.dialog_apply_secondary()
             self.dialog_wait_close()
-            self.content_row_wait_in_col(1, 2, fstype + " filesystem")
+            b.wait_visible(self.card(fstype + " filesystem"))
+            self.click_card_dropdown(fstype + " filesystem", "Format")
+            self.dialog({"type": "empty"})
+            b.wait_visible(self.card("Unformatted data"))
 
         def check_unsupported_type(fstype):
-            self.content_dropdown_action(1, "Format")
+            self.click_card_dropdown("Unformatted data", "Format")
             self.dialog_wait_open()
             b.wait_not_present(f'#dialog li[value={fstype}]')
             self.dialog_cancel()
             self.dialog_wait_close()
 
-        check_type("xfs", 12, head_action=True)
+        check_type("xfs", 12)
         check_type("ext4", 16)
         check_type("vfat", 11)
 
@@ -87,13 +85,13 @@ class TestStorageFormat(storagelib.StorageCase):
             check_type("ntfs", 128)
 
         # Format without mount point
-        self.content_dropdown_action(1, "Format")
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog_wait_open()
         self.dialog_apply_secondary()
         self.dialog_wait_close()
 
         # Verify button text is 'Format' when no filesystem is selected
-        self.content_dropdown_action(1, "Format")
+        self.click_card_dropdown("xfs filesystem", "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "empty")
         b.wait_text("#dialog .apply", "Format")
@@ -103,7 +101,6 @@ class TestStorageFormat(storagelib.StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-        b.wait_in_text("#drives", "VirtIO")
 
         # Make a super slow block device so that we have enough
         # chances to cancel the operation
@@ -112,14 +109,13 @@ class TestStorageFormat(storagelib.StorageCase):
         blocks = int(m.execute(f"blockdev --getsz {disk}"))
 
         m.execute(f"echo '0 {blocks} delay {disk} 0 500' | dmsetup create superslow")
-        b.click("#others .sidepanel-row:contains('/dev/mapper/superslow')")
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name="/dev/mapper/superslow")
 
         # Put a signature near the end
         sigoff = (blocks - 1) * 512
         m.execute(f"echo hello | dd if=/dev/stdin of=/dev/mapper/superslow bs=1 count=5 seek={sigoff}")
 
-        self.content_row_action(1, "Format")
+        self.click_card_dropdown("Unformatted data", "Format")
         self.dialog_wait_open()
         self.dialog_set_val("erase.on", val=True)
         self.dialog_set_val("mount_point", "/foo")
@@ -140,14 +136,10 @@ class TestStorageFormat(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk()
-        b.click(f'#drives .sidepanel-row:contains("{disk}")')
-        b.wait_visible('#storage-detail')
+        self.click_card_row("Storage", name=disk)
 
-        def format_partition(expected_at_boot, at_boot, keep, row_action=False):
-            if row_action:
-                self.content_row_action(1, "Format")
-            else:
-                self.content_dropdown_action(1, "Format")
+        def format_partition(expected_at_boot, at_boot, keep, first=False):
+            self.click_card_dropdown("Unformatted data" if first else "ext4 filesystem", "Format")
             self.dialog_wait_open()
             self.dialog_wait_val("at_boot", expected_at_boot)
             self.dialog_set_val("type", "ext4")
@@ -162,36 +154,37 @@ class TestStorageFormat(storagelib.StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-        format_partition("nofail", "local", keep=False, row_action=True)
+        format_partition("nofail", "local", keep=False, first=True)
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "stop boot on failure")
         self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
 
         format_partition("local", "nofail", keep=True)
-        self.content_tab_wait_in_info(1, 1, "Mount point", "ignore failure")
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "ignore failure")
         self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "nofail")
 
         format_partition("nofail", "netdev", keep=True)
-        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "after network")
         self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "_netdev")
 
         format_partition("netdev", "never", keep=True)
-        self.content_tab_wait_in_info(1, 1, "Mount point", "never mount")
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "never mount")
         self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "noauto")
 
         format_partition("never", "nofail", keep=False)
-        self.content_tab_wait_in_info(1, 1, "Mount point", "ignore failure")
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "ignore failure")
         self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "nofail")
 
         format_partition("nofail", "netdev", keep=False)
-        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "after network")
         self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "_netdev")
 
         format_partition("netdev", "never", keep=False)
-        self.content_tab_wait_in_info(1, 1, "Mount point", "never mount")
+        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "never mount")
         self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "noauto")
 

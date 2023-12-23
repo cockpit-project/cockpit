@@ -84,6 +84,15 @@ ExecStart=/bin/true
 
 @testlib.skipDistroPackage()
 class CommonTests:
+
+    def wait_discover(self):
+        with self.browser.wait_timeout(60):
+            self.browser.wait_attr("#realms-op-address", "data-discover", "done")
+
+    def wait_address_helper(self, expected=None):
+        with self.browser.wait_timeout(60):
+            self.browser.wait_text("#realms-op-address-helper", expected or "Contacted domain")
+
     @testlib.timeout(900)
     def testQualifiedUsers(self):
         m = self.machine
@@ -94,10 +103,8 @@ class CommonTests:
 
         # Test that we reconnect on privileges change
         self.login_and_go("/system", superuser=False)
-        b.click("button:contains('Turn on administrative access')")
-        b.set_input_text("#switch-to-admin-access-password", "foobar")
-        b.click("button:contains('Authenticate')")
-        b.wait_not_present("#switch-to-admin-access-password")
+        b.wait_visible(f"{self.domain_sel}:disabled")
+        b.become_superuser()
 
         def wait_number_domains(n):
             if n == 0:
@@ -108,22 +115,15 @@ class CommonTests:
 
         wait_number_domains(0)
 
-        def set_address():
-            # old realmd/IPA don't support realmd auto-detection yet
-            if m.image == "rhel-8-7":
-                b.wait_attr("#realms-op-address", "data-discover", "done")
-                b.wait_val(self.op_address, "")
-                b.wait_not_present("#realms-op-address-helper")
-                b.set_input_text(self.op_address, "cockpit.lan")
-            else:
-                # on current OSes, domain and suggested admin get auto-detected
+        def wait_domain_detected():
+            with b.wait_timeout(60):
                 b.wait_val(self.op_address, "cockpit.lan")
 
         # Join cockpit.lan
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
-        set_address()
-        b.wait_text("#realms-op-address-helper", "Contacted domain")
+        wait_domain_detected()
+        self.wait_address_helper()
         # admin gets auto-detected
         b.wait_val(self.op_admin, self.admin_user)
         b.set_input_text(self.op_admin_password, self.admin_password)
@@ -150,12 +150,13 @@ class CommonTests:
         m.execute("! su -c klist " + self.admin_user)
         b.logout()
 
+        # wait until IPA user works
+        m.execute(f'while ! su - -c "echo {self.admin_password} | sudo -S true" {self.admin_user}@cockpit.lan; do '
+                  '    sleep 5; sss_cache -E || true; systemctl reset-failed sssd; systemctl try-restart sssd; done',
+                  timeout=300)
+
         # change existing local "admin" home dir to domain "admin" user
         m.execute(f"chown -R {self.admin_user}@cockpit.lan /home/admin")
-
-        # wait until IPA user works
-        m.execute('while ! su - -c "echo %s | sudo -S true" %s@cockpit.lan; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done' % (
-                  self.admin_password, self.admin_user), timeout=300)
 
         # log in as domain admin and check that we can do privileged operations
         b.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
@@ -206,7 +207,7 @@ class CommonTests:
         # b.assert_pixels("#realms-leave-dialog", "realm-leave", [".pf-v5-c-expandable-section__toggle-icon"])
         b.click("#realms-op-leave")
 
-        with b.wait_timeout(30):
+        with b.wait_timeout(60):
             b.wait_not_present("#realms-leave-dialog")
         wait_number_domains(0)
         # re-enables hostname changing
@@ -224,7 +225,7 @@ class CommonTests:
             # Send a wrong password
             b.click(self.domain_sel)
             b.wait_popup("realms-join-dialog")
-            set_address()
+            wait_domain_detected()
             b.wait_val(self.op_admin, self.admin_user)
             b.set_input_text(self.op_admin_password, "foo")
             b.click(f"#realms-join-dialog button{self.primary_btn_class}")
@@ -260,10 +261,9 @@ class CommonTests:
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
         # wait for auto-detection
-        set_address()
+        wait_domain_detected()
         b.set_input_text(self.op_address, "NOPE")
-        with b.wait_timeout(30):
-            b.wait_text("#realms-op-address-helper", "Domain could not be contacted")
+        self.wait_address_helper("Domain could not be contacted")
         b.wait_visible(f"#realms-join-dialog button{self.primary_btn_class}:disabled")
         b.click("#realms-join-dialog button.pf-m-link")
         b.wait_not_present("#realms-join-dialog")
@@ -271,9 +271,9 @@ class CommonTests:
         # Join a domain with the server as address (input differs from domain name)
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
-        b.wait_attr("#realms-op-address", "data-discover", "done")
+        self.wait_discover()
         b.set_input_text(self.op_address, "f0.cockpit.lan")
-        b.wait_text("#realms-op-address-helper", "Contacted domain")
+        self.wait_address_helper()
         # admin gets auto-detected
         b.wait_val(self.op_admin, self.admin_user)
         b.set_input_text(self.op_admin_password, self.admin_password)
@@ -361,16 +361,17 @@ class CommonTests:
         self.login_and_go("/system")
         b.click("#system_information_domain_button")
         b.wait_popup("realms-join-dialog")
-        b.wait_attr("#realms-op-address", "data-discover", "done")
+        self.wait_discover()
+
         b.set_input_text("#realms-op-address", "cockpit.lan")
-        b.wait_text("#realms-op-address-helper", "Contacted domain")
+        self.wait_address_helper()
         b.set_input_text("#realms-op-admin", self.admin_user)
         b.set_input_text("#realms-op-admin-password", self.admin_password)
         b.click(f"#realms-join-dialog button{self.primary_btn_class}")
         with b.wait_timeout(300):
             b.wait_not_present("#realms-join-dialog")
         b.logout()
-        m.execute('while ! id alice; do sleep 5; systemctl restart sssd; done', timeout=300)
+        m.execute('while ! id alice; do sleep 5; done', timeout=300)
 
         # alice's certificate was written by testClientCertAuthentication()
         alice_cert_key = ['--cert', "/var/tmp/alice.pem", '--key', "/var/tmp/alice.key"]
@@ -394,13 +395,21 @@ class CommonTests:
         # certificates; it just rejects cert requests. For interactive tests, grab src/tls/ca/alice.p12 and import
         # it into the browser.
 
-        def do_test(authopts, expected, not_expected=None, session_leader=None):
+        def do_test(authopts, expected, not_expected=None, session_leader=None, retry=False):
             m.start_cockpit(tls=True)
-            output = m.execute(['curl', '-ksS', '-D-', *authopts, 'https://localhost:9090/cockpit/login'])
-            for s in expected:
-                self.assertIn(s, output)
-            for s in (not_expected or []):
-                self.assertNotIn(s, output)
+
+            def try_auth():
+                output = m.execute(['curl', '-ksS', '-D-', *authopts, 'https://localhost:9090/cockpit/login'])
+                for s in expected:
+                    self.assertIn(s, output)
+                for s in (not_expected or []):
+                    self.assertNotIn(s, output)
+                return True
+
+            if retry:
+                testlib.wait(try_auth, delay=5, tries=10)
+            else:
+                try_auth()
 
             # sessions/users often hang around in State=closing for a long time, ignore these
             if session_leader:
@@ -426,11 +435,13 @@ class CommonTests:
 
         # from sssd
         self.allow_journal_messages("alice is not allowed to run sudo on x0.  This incident will be reported.")
+        # occasional intermediate error during password auth
+        self.allow_journal_messages("cockpit-session: user account access failed: 4 alice: System error")
 
         # cert auth should not be enabled by default
         do_test(alice_cert_key, ["HTTP/1.1 401 Authentication required", '"authorize"'])
-        # password auth should work
-        do_test(alice_user_pass, ['HTTP/1.1 200 OK', '"csrf-token"'], session_leader='cockpit-session')
+        # password auth should work (but might need to be retried)
+        do_test(alice_user_pass, ['HTTP/1.1 200 OK', '"csrf-token"'], session_leader='cockpit-session', retry=True)
 
         # enable cert based auth
         m.write("/etc/cockpit/cockpit.conf", '[WebService]\nClientCertAuthentication = true\n', append=True)
@@ -681,9 +692,9 @@ class TestIPA(TestRealms, CommonTests):
         # Join cockpit.lan
         b.click(self.domain_sel)
         b.wait_popup("realms-join-dialog")
-        b.wait_attr("#realms-op-address", "data-discover", "done")
+        self.wait_discover()
         b.set_input_text(self.op_address, "cockpit.lan")
-        b.wait_in_text("#realms-op-address-helper", "Domain is not supported")
+        self.wait_address_helper("Domain is not supported")
         # no admin name auto-detection for unsupported domains
         b.wait_val(self.op_admin, "")
         b.set_input_text(self.op_admin, self.admin_user)
@@ -820,8 +831,8 @@ ipa-advise enable-admins-sudo | sh -ex
         # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
         # and there is no ccache; so, emulate what cockpit-ssh could eventually do and check that *if* the
         # session had the ticket forwarded, it *could* do sudo. See https://issues.redhat.com/browse/COCKPIT-643
-        b.open("/@x0.cockpit.lan/system/terminal")
         with b.wait_timeout(60):
+            b.open("/@x0.cockpit.lan/system/terminal")
             b.enter_page("/system/terminal", host="x0.cockpit.lan")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
         b.key_press(f"{ccache_env} sudo whoami\r")
@@ -843,8 +854,6 @@ class TestAD(TestRealms, CommonTests):
         self.admin_password = "foobarFoo123"
         self.alice_password = 'WonderLand123'
         self.expected_server_software = "active-directory"
-        # necessary to run ldapmodify; FIXME: change this on the services image itself
-        self.machines['services'].execute("sed -i 's/-e/-e INSECURELDAP=true &/' /root/run-samba-domain")
         self.machines['services'].execute("/root/run-samba-domain")
 
         m = self.machine
@@ -859,9 +868,6 @@ class TestAD(TestRealms, CommonTests):
         # allow sudo access to domain admins; FIXME: Is there a server-side setting for this,
         # similar to "ipa-advise enable-admins-sudo"?
         m.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) ALL")
-
-        # HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1839805
-        m.write("/etc/sssd/conf.d/rhbz1839805.conf", "[domain/cockpit.lan]\nad_gpo_access_control=disabled\n", perm="0600")
 
         # HACK: Figure out why this happens
         self.allow_journal_messages(""".*didn't receive expected "authorize" message""",
@@ -886,7 +892,7 @@ class TestAD(TestRealms, CommonTests):
         # create another AD user
         self.machines['services'].execute(f"podman exec -i samba samba-tool user add alice {self.alice_password}")
         # ensure it works
-        m.execute('id alice')
+        m.execute('while ! id alice; do sleep 5; done', timeout=300)
         b.login_and_go('/system', user='alice', password=self.alice_password)
         b.wait_visible("#overview")
         b.logout()
@@ -902,15 +908,19 @@ class TestAD(TestRealms, CommonTests):
             alice_cert = f.read().strip()
         # mangle into form palatable for LDAP
         alice_cert = ''.join([line for line in alice_cert.splitlines() if not line.startswith("----")])
-        # set up an AD user and import their TLS certificate; avoid using the common "userCertificate;binary",
-        # as that does not work with Samba
-        services_machine.execute(r"""podman exec -i samba sh -exc '
-samba-tool user add alice %(alice_pass)s
-printf "version: 1\ndn: cn=alice,cn=users,dc=cockpit,dc=lan\nchangetype: modify\nadd: userCertificate\nuserCertificate: %(alice_cert)s\n" | \
-        ldapmodify -v -U Administrator -w '%(admin_pass)s'
+        # set up an AD user and import their TLS certificate
+        services_machine.write("/tmp/alice_edit", f'''#!/bin/sh -eu
+sed -i "/^$/d" "$1"
+echo "userCertificate: {alice_cert}" >> "$1"
+''', perm="755")
+        services_machine.execute(f"""
+podman cp /tmp/alice_edit samba:/tmp/
+podman exec -i samba sh -exc '
+samba-tool user add alice {self.alice_password}
+samba-tool user edit --editor=/tmp/alice_edit alice
 # for debugging:
-ldapsearch -v -U Administrator -w '%(admin_pass)s' -b 'cn=alice,cn=users,dc=cockpit,dc=lan'
-' """ % {"alice_pass": self.alice_password, "admin_pass": self.admin_password, "alice_cert": alice_cert})
+samba-tool user show alice
+' """, stdout=None)
 
         # set up sssd for certificate mapping to AD
         # see sssd.conf(5) "CERTIFICATE MAPPING SECTION" and sss-certmap(5)
@@ -1144,10 +1154,11 @@ class TestPackageInstall(packagelib.PackageCase):
         m = self.machine
         b = self.browser
 
-        m.execute("dpkg --purge realmd 2>/dev/null || rpm --erase realmd || yum remove -y realmd")
+        m.execute("dpkg --purge realmd 2>/dev/null || rpm --erase realmd || dnf remove -y realmd")
 
         # case 1: disable PackageKit
         m.execute("systemctl mask packagekit; systemctl stop packagekit.service || true")
+        self.allow_browser_errors('checkRealm failed.*"problem":"not-found"')
         self.login_and_go("/system")
         b.wait_text(self.domain_sel, "Join domain")
         b.wait_visible(self.domain_sel + "[disabled]")
@@ -1213,7 +1224,8 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_visible("#realms-join-dialog")
 
         # no auto-detected domain/admin
-        b.wait_attr("#realms-op-address", "data-discover", "done")
+        with b.wait_timeout(60):
+            b.wait_attr("#realms-op-address", "data-discover", "done")
         self.assertEqual(b.val("#realms-op-address"), "")
         self.assertEqual(b.val("#realms-op-admin"), "")
 

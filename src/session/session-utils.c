@@ -26,6 +26,7 @@
 #include "common/cockpithacks.h"
 
 #include <fcntl.h>
+#include <paths.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <sys/param.h>

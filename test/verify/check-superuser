@@ -65,9 +65,12 @@ class TestSuperuser(testlib.MachineCase):
         b.drop_superuser()
 
         # We want to be lectured again
-        self.restore_file("/var/db/sudo/lectured/admin")
-        self.restore_file("/var/lib/sudo/lectured/admin")
+        self.restore_dir("/var/db/sudo/lectured")
+
         m.execute("rm -rf /var/{db,lib}/sudo/lectured/admin")
+        # Sudo since 1.9.15 uses a UID not a username https://www.sudo.ws/releases/stable/#1.9.15
+        uid = m.execute("id -u admin").strip()
+        m.execute(f"rm -rf /var/{{db,lib}}/sudo/lectured/{uid}")
 
         # Get the privileges back, this time in the mobile layout
         b.set_layout("mobile")
@@ -571,7 +574,7 @@ class TestSuperuserDashboard(testlib.MachineCase):
         b.wait_visible('#hosts_setup_server_dialog button:contains("Add")')
         b.click('#hosts_setup_server_dialog button:contains("Add")')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#hosts_setup_server_dialog button:contains("Accept key and connect")')
+        b.click('#hosts_setup_server_dialog button.pf-m-primary')
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b.set_input_text("#login-custom-password", "foobar")
         b.click('#hosts_setup_server_dialog button:contains("Log in")')
@@ -733,7 +736,7 @@ class TestSuperuserDashboardOldMachine(testlib.MachineCase):
         b.wait_visible('#hosts_setup_server_dialog')
         b.click('#hosts_setup_server_dialog button:contains("Add")')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#hosts_setup_server_dialog button:contains("Accept key and connect")')
+        b.click('#hosts_setup_server_dialog button.pf-m-primary')
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b.set_input_text("#login-custom-password", "foobar")
         b.click('#hosts_setup_server_dialog button:contains("Log in")')

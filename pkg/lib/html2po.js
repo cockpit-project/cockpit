@@ -171,7 +171,14 @@ function extract(children) {
             str.push(node.data);
     });
 
-    return str.join("");
+    const msgid = str.join("");
+
+    if (msgid != msgid.trim()) {
+        console.error("FATAL: string contains leading or trailing whitespace:", msgid);
+        process.exit(1);
+    }
+
+    return msgid;
 }
 
 /* Escape a string for inclusion in po file */

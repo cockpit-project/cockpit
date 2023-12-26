@@ -19,10 +19,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-17 02:47+0000\n"
-"PO-Revision-Date: 2023-12-10 09:43+0000\n"
-"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
-"memory@weblate.org>\n"
+"POT-Creation-Date: 2023-12-25 02:47+0000\n"
+"PO-Revision-Date: 2023-12-21 06:37+0000\n"
+"Last-Translator: Jingge Chen <mariocanfly@hotmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
 "projects/cockpit/main/zh_CN/>\n"
 "Language: zh_CN\n"
@@ -30,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 5.2.1\n"
+"X-Generator: Weblate 5.3\n"
 
 #: pkg/static/login.html:61
 msgid "            Bypass browser check          "
@@ -609,11 +608,11 @@ msgstr "可行的密码"
 msgid "Account expiration"
 msgstr "账号使用期限设置"
 
-#: pkg/users/account-details.js:195
+#: pkg/users/account-details.js:187
 msgid "Account not available or cannot be edited."
 msgstr "此帐户不可用或不可编辑。"
 
-#: pkg/users/account-details.js:244 pkg/users/accounts-list.js:241
+#: pkg/users/account-details.js:236 pkg/users/accounts-list.js:241
 #: pkg/users/accounts-list.js:455 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "用户账户"
@@ -1211,7 +1210,7 @@ msgstr "BIOS 日期"
 msgid "BIOS version"
 msgstr "BIOS 版本"
 
-#: pkg/users/account-details.js:199
+#: pkg/users/account-details.js:191
 msgid "Back to accounts"
 msgstr "返回账号"
 
@@ -2042,10 +2041,8 @@ msgid "Create snapshot only"
 msgstr "仅创建快照"
 
 #: pkg/storaged/overview/overview.jsx:172
-#, fuzzy
-#| msgid "Create storage volume"
 msgid "Create storage device"
-msgstr "创建存储卷"
+msgstr "创建存储设备"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:42
 msgid "Create thin volume"
@@ -2068,10 +2065,8 @@ msgid "Creating LVM2 volume group $target"
 msgstr "创建 LVM2 卷组 $target"
 
 #: pkg/storaged/jobs-panel.jsx:67
-#, fuzzy
-#| msgid "Creating RAID device $target"
 msgid "Creating MDRAID device $target"
-msgstr "创建 RAID 设备 $target"
+msgstr "创建 MDRAID 设备 $target"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:284
 msgid "Creating VDO device"
@@ -2205,18 +2200,22 @@ msgid ""
 "selected physical volumes, to improve both reliability and performance. At "
 "least four volumes need to be selected."
 msgstr ""
+"数据将存储为两份副本，并交替存储在选定的物理卷上，以提高可靠性和性能。至少需"
+"要选择四个卷。"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:142
 msgid ""
 "Data will be stored as two or more copies on the selected physical volumes, "
 "to improve reliability. At least two volumes need to be selected."
 msgstr ""
+"数据将以两个或多个副本的形式存储在所选物理卷上，以提高可靠性。至少需要选择两"
+"个卷。"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:141
 msgid ""
 "Data will be stored on the selected physical volumes in an alternating "
 "fashion to improve performance. At least two volumes need to be selected."
-msgstr ""
+msgstr "数据将交替存储在选定的物理卷上以提高性能。至少需要选择两个卷。"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:144
 msgid ""
@@ -2224,6 +2223,8 @@ msgid ""
 "be lost without affecting the data. At least three volumes need to be "
 "selected."
 msgstr ""
+"数据将存储在选定的物理卷上，这样其中一个卷丢失也不会影响数据。至少需要选择三"
+"个卷。"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:145
 msgid ""
@@ -2313,7 +2314,7 @@ msgstr "延迟必须是一个数字"
 #: pkg/networkmanager/network-interface.jsx:725
 #: pkg/networkmanager/firewall.jsx:121 pkg/networkmanager/firewall.jsx:182
 #: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:358
-#: pkg/sosreport/sosreport.jsx:470 pkg/users/account-details.js:235
+#: pkg/sosreport/sosreport.jsx:470 pkg/users/account-details.js:227
 #: pkg/users/delete-account-dialog.js:60 pkg/users/delete-group-dialog.js:51
 #: pkg/systemd/service-details.jsx:150 pkg/systemd/service-details.jsx:719
 #: pkg/systemd/abrtLog.jsx:290 pkg/storaged/partitions/partition.jsx:54
@@ -2484,7 +2485,7 @@ msgstr "禁用 tuned"
 msgid "Disabled"
 msgstr "禁用"
 
-#: pkg/users/account-details.js:284
+#: pkg/users/account-details.js:276
 msgid "Disallow interactive password"
 msgstr "禁用交互式密码"
 
@@ -2949,7 +2950,7 @@ msgstr "扩展机箱"
 msgid "Expire account on"
 msgstr "过期账号于"
 
-#: pkg/users/account-details.js:85
+#: pkg/users/account-details.js:78
 msgid "Expire account on $0"
 msgstr "过期帐号于 $0"
 
@@ -3147,7 +3148,7 @@ msgstr "字体大小"
 msgid "Forbidden from running"
 msgstr "禁止运行"
 
-#: pkg/users/account-details.js:316
+#: pkg/users/account-details.js:308
 msgid "Force change"
 msgstr "强制变更"
 
@@ -3209,7 +3210,7 @@ msgstr "周五"
 msgid "From"
 msgstr "自"
 
-#: pkg/users/account-create-dialog.js:68 pkg/users/account-details.js:256
+#: pkg/users/account-create-dialog.js:68 pkg/users/account-details.js:248
 #: pkg/users/accounts-list.js:389
 msgid "Full name"
 msgstr "全名"
@@ -3255,7 +3256,7 @@ msgstr "组"
 msgid "Group name"
 msgstr "用户组名称"
 
-#: pkg/users/account-details.js:451 pkg/users/accounts-list.js:322
+#: pkg/users/account-details.js:443 pkg/users/accounts-list.js:322
 #: pkg/users/accounts-list.js:326
 msgid "Groups"
 msgstr "用户组"
@@ -3355,7 +3356,7 @@ msgstr "更高的互操作性会增加被安全攻击的面积。"
 msgid "History package count"
 msgstr "历史软件包数量"
 
-#: pkg/users/account-create-dialog.js:84 pkg/users/account-details.js:334
+#: pkg/users/account-create-dialog.js:84 pkg/users/account-details.js:326
 msgid "Home directory"
 msgstr "家目录"
 
@@ -3919,7 +3920,7 @@ msgstr "最后检查于： $0"
 msgid "Last disk can not be removed"
 msgstr "无法删除最后一个密钥槽"
 
-#: pkg/users/account-details.js:274
+#: pkg/users/account-details.js:266
 msgid "Last login"
 msgstr "最近登陆"
 
@@ -4090,7 +4091,7 @@ msgstr "加载系统改变..."
 msgid "Loading unit failed"
 msgstr "加载单元失败"
 
-#: pkg/users/account-details.js:184 pkg/users/accounts-list.js:327
+#: pkg/users/account-details.js:176 pkg/users/accounts-list.js:327
 #: pkg/users/accounts-list.js:348 pkg/users/accounts-list.js:461
 #: pkg/kdump/kdump-view.jsx:426 pkg/systemd/logDetails.jsx:173
 #: pkg/systemd/logsJournal.jsx:268 pkg/systemd/service.jsx:132
@@ -4170,7 +4171,7 @@ msgstr "注销"
 msgid "Log user out"
 msgstr "注销用户"
 
-#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:170
+#: pkg/users/account-details.js:212 pkg/users/accounts-list.js:170
 msgid "Logged in"
 msgstr "登录"
 
@@ -4787,15 +4788,15 @@ msgstr "网络使用率"
 msgid "Networking"
 msgstr "网络"
 
-#: pkg/users/account-details.js:222
+#: pkg/users/account-details.js:214
 msgid "Never"
 msgstr "从不"
 
-#: pkg/users/expiration-dialogs.js:42 pkg/users/account-details.js:82
+#: pkg/users/expiration-dialogs.js:42 pkg/users/account-details.js:75
 msgid "Never expire account"
 msgstr "账号从不过期"
 
-#: pkg/users/expiration-dialogs.js:154 pkg/users/account-details.js:74
+#: pkg/users/expiration-dialogs.js:154 pkg/users/account-details.js:67
 msgid "Never expire password"
 msgstr "密码从不过期"
 
@@ -5253,7 +5254,7 @@ msgid "Operation '$operation' on $target"
 msgstr "$target 上的操作 '$operation'"
 
 #: pkg/networkmanager/bridge.jsx:104 pkg/sosreport/sosreport.jsx:319
-#: pkg/users/account-details.js:277 pkg/storaged/crypto/encryption.jsx:234
+#: pkg/users/account-details.js:269 pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
 #: pkg/storaged/stratis/create-dialog.jsx:64
 msgid "Options"
@@ -5267,7 +5268,7 @@ msgstr "或者使用捆绑的浏览器"
 msgid "Other"
 msgstr "其他"
 
-#: pkg/users/account-create-dialog.js:131 pkg/users/account-details.js:287
+#: pkg/users/account-create-dialog.js:131 pkg/users/account-details.js:279
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -5420,7 +5421,7 @@ msgstr "密码不匹配"
 #: pkg/shell/hosts_dialog.jsx:854 pkg/shell/credentials.jsx:119
 #: pkg/shell/credentials.jsx:262 pkg/shell/credentials.jsx:318
 #: pkg/shell/superuser.jsx:144 pkg/users/account-create-dialog.js:139
-#: pkg/users/account-details.js:304 pkg/storaged/iscsi/create-dialog.jsx:34
+#: pkg/users/account-details.js:296 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
 msgid "Password"
 msgstr "密码"
@@ -5445,7 +5446,7 @@ msgstr "不接受该密码"
 msgid "Password is too weak"
 msgstr "密码太弱"
 
-#: pkg/users/account-details.js:76
+#: pkg/users/account-details.js:69
 msgid "Password must be changed"
 msgstr "密码必须被修改"
 
@@ -6290,7 +6291,7 @@ msgstr "报告："
 msgid "Require password change every $0 days"
 msgstr "要求每 $0 天修改密码"
 
-#: pkg/users/account-details.js:78
+#: pkg/users/account-details.js:71
 msgid "Require password change on $0"
 msgstr "要求于 $0 修改密码"
 
@@ -6737,7 +6738,7 @@ msgstr "设置"
 msgid "Set hostname"
 msgstr "设置主机名"
 
-#: pkg/users/account-details.js:309 pkg/users/password-dialogs.js:226
+#: pkg/users/account-details.js:301 pkg/users/password-dialogs.js:226
 #: pkg/users/password-dialogs.js:233
 msgid "Set password"
 msgstr "设置密码"
@@ -6783,7 +6784,7 @@ msgstr "严重性"
 msgid "Shared"
 msgstr "共享"
 
-#: pkg/users/account-create-dialog.js:93 pkg/users/account-details.js:337
+#: pkg/users/account-create-dialog.js:93 pkg/users/account-details.js:329
 msgid "Shell"
 msgstr "Shell"
 
@@ -7369,7 +7370,7 @@ msgstr "组端口设置"
 msgid "Terminal"
 msgstr "终端"
 
-#: pkg/users/account-details.js:230
+#: pkg/users/account-details.js:222
 msgid "Terminate session"
 msgstr "终止会话"
 
@@ -7677,7 +7678,7 @@ msgstr "用户 $0 不允许修改加密策略"
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "用户 $0 不允许修改系统时间"
 
-#: pkg/users/account-details.js:477
+#: pkg/users/account-details.js:469
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8238,7 +8239,7 @@ msgstr "不可用"
 msgid "Unavailable packages"
 msgstr "不可用的软件包"
 
-#: pkg/users/account-details.js:478
+#: pkg/users/account-details.js:470
 msgid "Undo"
 msgstr "撤消"
 
@@ -8524,7 +8525,7 @@ msgid "User ID must not be lower than $0"
 msgstr "用户 ID 不得小于 $0"
 
 #: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:264
-#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:270
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:262
 msgid "User name"
 msgstr "用户名"
 
@@ -9019,7 +9020,7 @@ msgstr "缓存"
 msgid "cgroups"
 msgstr "用户组"
 
-#: pkg/users/account-details.js:345
+#: pkg/users/account-details.js:337
 msgid "change"
 msgstr "变更"
 
@@ -9110,8 +9111,8 @@ msgid "drive"
 msgstr "驱动"
 
 #: pkg/networkmanager/network-interface.jsx:349
-#: pkg/networkmanager/dialogs-common.jsx:262 pkg/users/account-details.js:299
-#: pkg/users/account-details.js:329
+#: pkg/networkmanager/dialogs-common.jsx:262 pkg/users/account-details.js:291
+#: pkg/users/account-details.js:321
 #: pkg/systemd/overview-cards/configurationCard.jsx:55
 #: pkg/storaged/crypto/encryption.jsx:233
 #: pkg/storaged/crypto/encryption.jsx:236

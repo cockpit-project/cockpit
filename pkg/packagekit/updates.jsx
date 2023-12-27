@@ -122,7 +122,7 @@ function parseCVEs(text) {
     const cves = text.match(/CVE-\d{4}-\d+/g);
     if (!cves)
         return [];
-    return cves.map(n => "https://cve.mitre.org/cgi-bin/cvename.cgi?name=" + n);
+    return cves.map(n => "https://www.cve.org/CVERecord?id=" + n);
 }
 
 function deduplicate(list) {

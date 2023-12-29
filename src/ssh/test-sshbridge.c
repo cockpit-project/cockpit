@@ -323,7 +323,7 @@ setup (TestCase *tc,
       if (!fixture->knownhosts_home)
           g_assert_cmpint (mkdir (tc->home_ssh_dir, 0700), ==, 0);
 
-      g_string_append (content, "Host some_host\n");
+      g_string_append (content, "Host somehost\n");
       g_string_append_printf (content, "\tHostname %s\n", hostname);
 
       if (fixture->ssh_config_port == PORT_VALID)
@@ -346,7 +346,7 @@ setup (TestCase *tc,
       if (fixture->ssh_config_user == USER_INVALID_HOST_PRIORITY)
         g_string_append_printf (new_host, "%s@", g_get_user_name ());
       /* Host in the ssh config file */
-      g_string_append (new_host, "some_host");
+      g_string_append (new_host, "somehost");
       /* The port in host should take priority over the port in ssh config */
       if (fixture->ssh_config_port == PORT_INVALID_HOST_PRIORITY)
         g_string_append_printf (new_host, ":%hu", tc->ssh_port);

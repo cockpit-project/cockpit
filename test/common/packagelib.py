@@ -362,7 +362,7 @@ post_upgrade() {{
             for b in info.get("bugs", []):
                 refs += f'      <reference href="https://bugs.example.com?bug={b}" id="{b}" title="Bug#{b} Description" type="bugzilla"/>\n'
             for c in info.get("cves", []):
-                refs += f'      <reference href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={c}" id="{c}" title="{c}" type="cve"/>\n'
+                refs += f'      <reference href="https://www.cve.org/CVERecord?id={c}" id="{c}" title="{c}" type="cve"/>\n'
             if info.get("securitySeverity"):
                 refs += '      <reference href="https://access.redhat.com/security/updates/classification/#{0}" id="" title="" type="other"/>\n'.format(info[
                                                                                                                                                         "securitySeverity"])

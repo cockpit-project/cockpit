@@ -608,6 +608,9 @@ class Browser:
                                          expression="ph_wait_cond(() => %s, %i, %s)" % (cond, timeout * 1000, error_description),
                                          silent=False, awaitPromise=True, trace="wait: " + cond)
                 if "exceptionDetails" in result:
+                    if self.cdp.browser.name == "firefox" and count < 20 and "ph_wait_cond is not defined" in result["exceptionDetails"].get("text", ""):
+                        time.sleep(0.1)
+                        continue
                     trailer = "\n".join(self.cdp.get_js_log())
                     self.raise_cdp_exception("timeout\nwait_js_cond", cond, result["exceptionDetails"], trailer)
                 if timeout > 0:

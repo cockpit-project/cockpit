@@ -297,15 +297,12 @@ function setupLocalFunctions(client) {
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python
 function getFrameExecId(frame) { // eslint-disable-line no-unused-vars
-    if (frame === null)
-        frame = "cockpit1";
-    const frameId = frameNameToFrameId[frame];
-    if (!frameId)
-        return -1;
+    const frameId = frameNameToFrameId[frame || "cockpit1"];
     const execId = frameIdToContextId[frameId];
-    if (!execId)
-        return -1;
-    currentExecId = execId;
+    if (execId !== undefined)
+        currentExecId = execId;
+    else
+        debug(`WARNING: getFrameExecId: frame ${frame} ID ${frameId} has no known execution context`);
     return execId;
 }
 

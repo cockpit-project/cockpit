@@ -254,17 +254,9 @@ function setupLocalFunctions(client) {
 }
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python
-function getFrameExecId(frame) { // eslint-disable-line no-unused-vars
-    if (frame === null)
-        frame = "cockpit1";
-    const frameId = frameNameToFrameId[frame];
-    if (!frameId)
-        return -1;
-    const execId = frameIdToContextId[frameId];
-    if (!execId)
-        return -1;
-    return execId;
-}
+
+// eslint-disable-next-line no-unused-vars
+const getFrameExecId = frame => frameIdToContextId[frameNameToFrameId[frame ?? "cockpit1"]];
 
 /**
  * SSL handling

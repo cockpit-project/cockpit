@@ -285,8 +285,8 @@ class TestSelinux(testlib.MachineCase):
         b.enter_page("/selinux")
         with b.wait_timeout(30):
             if m.image.startswith("rhel"):
-                # insights-client sets itself as permissive on RHEL, and `semanage permissive -D` gets OOM-killed
-                b.wait_text_matches("ul[aria-label='System modifications']", "No system modifications|permissive -a insights_client_t")
+                # HACK: rhc sets itself as permissive on RHEL; https://issues.redhat.com/browse/RHEL-20352
+                b.wait_text_matches("ul[aria-label='System modifications']", "No system modifications|permissive -a rhcd_t")
             else:
                 b.wait_text("ul[aria-label='System modifications']", "No system modifications")
         b.relogin("/selinux", "admin", superuser=False)

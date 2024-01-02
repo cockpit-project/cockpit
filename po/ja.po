@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-25 02:47+0000\n"
+"POT-Creation-Date: 2024-01-01 02:48+0000\n"
 "PO-Revision-Date: 2023-09-07 03:20+0000\n"
 "Last-Translator: Mie Yamamoto <myamamot@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -23,10 +23,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "X-Generator: Weblate 4.18.2\n"
-
-#: pkg/static/login.html:61
-msgid "            Bypass browser check          "
-msgstr "            ブラウザーチェックの回避          "
 
 #: pkg/users/accounts-list.js:240
 msgid "# of users"
@@ -1378,6 +1374,12 @@ msgstr ""
 "動的にキーが使えるようになります。これで、パスワードなしで $3 にログインでき"
 "るようになります。"
 
+#: pkg/static/login.html:61
+#, fuzzy
+#| msgid "            Bypass browser check          "
+msgid "Bypass browser check"
+msgstr "            ブラウザーチェックの回避          "
+
 #: pkg/systemd/hwinfo.jsx:114 pkg/systemd/overview-cards/usageCard.jsx:132
 #: pkg/metrics/metrics.jsx:109 pkg/metrics/metrics.jsx:820
 #: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1949
@@ -1417,7 +1419,7 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "現在のフィルターの組み合わせを使用して、ログを見つけることができません。"
 
-#: pkg/playground/translate.html:39 pkg/static/login.html:143
+#: pkg/playground/translate.html:39 pkg/static/login.html:141
 #: pkg/networkmanager/dialogs-common.jsx:163
 #: pkg/networkmanager/firewall.jsx:617 pkg/networkmanager/firewall.jsx:818
 #: pkg/networkmanager/firewall.jsx:917 pkg/shell/shell-modals.jsx:118
@@ -1539,7 +1541,7 @@ msgstr "$0 のパスワードを変更します"
 msgid "Change the settings"
 msgstr "設定の変更"
 
-#: pkg/static/login.html:83 pkg/shell/hosts_dialog.jsx:473
+#: pkg/static/login.html:81 pkg/shell/hosts_dialog.jsx:473
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1877,7 +1879,7 @@ msgstr "競合"
 msgid "Connect automatically"
 msgstr "自動的に接続"
 
-#: pkg/static/login.html:129
+#: pkg/static/login.html:127
 msgid "Connect to"
 msgstr "接続先"
 
@@ -3531,7 +3533,7 @@ msgstr ""
 "空白のままの場合、関連付けられたポートサービスおよびポート番号に基づいて ID "
 "が生成されます"
 
-#: pkg/static/login.html:92
+#: pkg/static/login.html:90
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -4242,7 +4244,7 @@ msgstr "ロック"
 msgid "Locking $target"
 msgstr "$target のロック中"
 
-#: pkg/static/login.html:141 pkg/shell/hosts_dialog.jsx:764
+#: pkg/static/login.html:139 pkg/shell/hosts_dialog.jsx:764
 #: pkg/shell/failures.jsx:75 pkg/static/login.js:668
 msgid "Log in"
 msgstr "ログイン"
@@ -5381,7 +5383,7 @@ msgid ""
 msgstr ""
 "対話式パスワード認証が許可されない場合でも、他の認証方法を利用できます。"
 
-#: pkg/static/login.html:123
+#: pkg/static/login.html:121
 msgid "Other options"
 msgstr "他のオプション"
 
@@ -5524,7 +5526,7 @@ msgstr "パスフレーズの削除で、$0 のロック解除ができない可
 msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
-#: pkg/static/login.html:101 pkg/shell/hosts_dialog.jsx:845
+#: pkg/static/login.html:99 pkg/shell/hosts_dialog.jsx:845
 #: pkg/shell/hosts_dialog.jsx:854 pkg/shell/credentials.jsx:119
 #: pkg/shell/credentials.jsx:262 pkg/shell/credentials.jsx:318
 #: pkg/shell/superuser.jsx:144 pkg/users/account-create-dialog.js:139
@@ -6078,7 +6080,7 @@ msgstr "システムの再起動..."
 msgid "Receiving"
 msgstr "受信中"
 
-#: pkg/static/login.html:167
+#: pkg/static/login.html:165
 msgid "Recent hosts"
 msgstr "直近のホスト"
 
@@ -6778,7 +6780,7 @@ msgstr "送信中"
 msgid "Serial number"
 msgstr "シリアルナンバー"
 
-#: pkg/static/login.html:161 pkg/networkmanager/ip-settings.jsx:262
+#: pkg/static/login.html:159 pkg/networkmanager/ip-settings.jsx:262
 #: pkg/kdump/kdump-view.jsx:254 pkg/kdump/kdump-view.jsx:276
 #: pkg/storaged/nfs/nfs.jsx:325
 msgid "Server"
@@ -7782,7 +7784,7 @@ msgstr "パスワードが一致しません"
 msgid "The passwords do not match."
 msgstr "パスワードが一致しません。"
 
-#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:479
+#: pkg/static/login.html:89 pkg/shell/hosts_dialog.jsx:479
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -8177,7 +8179,7 @@ msgstr ""
 "ヒント: 他のシステムに対して自動的に認証する場合は、鍵のパスワードをログイン"
 "パスワードに一致させます。"
 
-#: pkg/static/login.html:86 pkg/shell/hosts_dialog.jsx:474
+#: pkg/static/login.html:84 pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -8289,7 +8291,7 @@ msgstr "キーを信頼します"
 msgid "Trust level"
 msgstr "信頼レベル"
 
-#: pkg/static/login.html:155
+#: pkg/static/login.html:153
 msgid "Try again"
 msgstr "再試行します"
 
@@ -8723,7 +8725,7 @@ msgstr "ユーザー ID は $0 よりも大きくすることはできません"
 msgid "User ID must not be lower than $0"
 msgstr "ユーザー ID は $0 よりも小さくすることはできません"
 
-#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:264
+#: pkg/static/login.html:94 pkg/shell/hosts_dialog.jsx:264
 #: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:262
 msgid "User name"
 msgstr "ユーザー名"
@@ -8771,7 +8773,7 @@ msgstr "VLAN ID"
 msgid "Validating address"
 msgstr "アドレスの検証"
 
-#: pkg/static/login.html:149
+#: pkg/static/login.html:147
 msgid "Validating authentication token"
 msgstr "認証トークンの検証"
 

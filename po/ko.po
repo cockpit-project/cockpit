@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-25 02:47+0000\n"
-"PO-Revision-Date: 2023-12-17 06:35+0000\n"
+"POT-Creation-Date: 2024-01-01 02:48+0000\n"
+"PO-Revision-Date: 2023-12-31 14:36+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -21,11 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 5.3\n"
-
-#: pkg/static/login.html:61
-msgid "            Bypass browser check          "
-msgstr "            웹 탐색기 점검을 우회합니다          "
+"X-Generator: Weblate 5.3.1\n"
 
 #: pkg/users/accounts-list.js:240
 msgid "# of users"
@@ -1331,6 +1327,10 @@ msgstr ""
 "SSH 키 $0의 비밀번호를 $1의 ($2에서) 로그인 비밀번호로 변경하면, 키가 자동으"
 "로 제공되며 추후 비밀번호 없이 $3에 로그인 할 수 있습니다."
 
+#: pkg/static/login.html:61
+msgid "Bypass browser check"
+msgstr "웹 탐색기 점검을 우회합니다"
+
 #: pkg/systemd/hwinfo.jsx:114 pkg/systemd/overview-cards/usageCard.jsx:132
 #: pkg/metrics/metrics.jsx:109 pkg/metrics/metrics.jsx:820
 #: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1949
@@ -1369,7 +1369,7 @@ msgstr "호스트 이름, IP 주소, 별칭 이름 또는 ssh:// URI일 수 있�
 msgid "Can not find any logs using the current combination of filters."
 msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 
-#: pkg/playground/translate.html:39 pkg/static/login.html:143
+#: pkg/playground/translate.html:39 pkg/static/login.html:141
 #: pkg/networkmanager/dialogs-common.jsx:163
 #: pkg/networkmanager/firewall.jsx:617 pkg/networkmanager/firewall.jsx:818
 #: pkg/networkmanager/firewall.jsx:917 pkg/shell/shell-modals.jsx:118
@@ -1489,7 +1489,7 @@ msgstr "$0의 비밀번호 변경"
 msgid "Change the settings"
 msgstr "설정 변경"
 
-#: pkg/static/login.html:83 pkg/shell/hosts_dialog.jsx:473
+#: pkg/static/login.html:81 pkg/shell/hosts_dialog.jsx:473
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1818,7 +1818,7 @@ msgstr "충돌"
 msgid "Connect automatically"
 msgstr "자동으로 연결"
 
-#: pkg/static/login.html:129
+#: pkg/static/login.html:127
 msgid "Connect to"
 msgstr "연결 대상"
 
@@ -3449,7 +3449,7 @@ msgid ""
 msgstr ""
 "만약 비워져 있으면, ID는 연관된 포트 서비스와 포트 번호를 기반으로 발생합니다"
 
-#: pkg/static/login.html:92
+#: pkg/static/login.html:90
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -4137,7 +4137,7 @@ msgstr "잠김 자료"
 msgid "Locking $target"
 msgstr "$target 잠금 중"
 
-#: pkg/static/login.html:141 pkg/shell/hosts_dialog.jsx:764
+#: pkg/static/login.html:139 pkg/shell/hosts_dialog.jsx:764
 #: pkg/shell/failures.jsx:75 pkg/static/login.js:668
 msgid "Log in"
 msgstr "로그인"
@@ -5233,7 +5233,7 @@ msgstr ""
 "다른 인증 방식은 대화형 비밀번호 인증이 허용되지 않을 때에 여전히 사용 할 수 "
 "있습니다."
 
-#: pkg/static/login.html:123
+#: pkg/static/login.html:121
 msgid "Other options"
 msgstr "기타 옵션"
 
@@ -5380,7 +5380,7 @@ msgstr "암호문 제거에서 $0 잠금 해제가 되지 않을 수 있습니�
 msgid "Passphrases do not match"
 msgstr "암호문이 일치하지 않습니다"
 
-#: pkg/static/login.html:101 pkg/shell/hosts_dialog.jsx:845
+#: pkg/static/login.html:99 pkg/shell/hosts_dialog.jsx:845
 #: pkg/shell/hosts_dialog.jsx:854 pkg/shell/credentials.jsx:119
 #: pkg/shell/credentials.jsx:262 pkg/shell/credentials.jsx:318
 #: pkg/shell/superuser.jsx:144 pkg/users/account-create-dialog.js:139
@@ -5929,7 +5929,7 @@ msgstr "시스템 재시작..."
 msgid "Receiving"
 msgstr "수신중"
 
-#: pkg/static/login.html:167
+#: pkg/static/login.html:165
 msgid "Recent hosts"
 msgstr "최근 호스트"
 
@@ -6621,7 +6621,7 @@ msgstr "일련 번호"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/static/login.html:161 pkg/networkmanager/ip-settings.jsx:262
+#: pkg/static/login.html:159 pkg/networkmanager/ip-settings.jsx:262
 #: pkg/kdump/kdump-view.jsx:254 pkg/kdump/kdump-view.jsx:276
 #: pkg/storaged/nfs/nfs.jsx:325
 msgid "Server"
@@ -7584,7 +7584,7 @@ msgstr "비밀번호가 일치하지 않습니다"
 msgid "The passwords do not match."
 msgstr "비밀번호가 일치하지 않습니다."
 
-#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:479
+#: pkg/static/login.html:89 pkg/shell/hosts_dialog.jsx:479
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7969,7 +7969,7 @@ msgstr ""
 "도움말: 다른 시스템에 자동으로 인증하려면 키 비밀번호가 로그인 비밀번호와 일"
 "치해야 합니다."
 
-#: pkg/static/login.html:86 pkg/shell/hosts_dialog.jsx:474
+#: pkg/static/login.html:84 pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -8078,7 +8078,7 @@ msgstr "신뢰 키"
 msgid "Trust level"
 msgstr "신뢰 단계"
 
-#: pkg/static/login.html:155
+#: pkg/static/login.html:153
 msgid "Try again"
 msgstr "다시 시도"
 
@@ -8508,7 +8508,7 @@ msgstr "사용자 ID는 $0보다 크지 않아야만 합니다"
 msgid "User ID must not be lower than $0"
 msgstr "사용자 ID는 $0보다 작지 안아야만 합니다"
 
-#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:264
+#: pkg/static/login.html:94 pkg/shell/hosts_dialog.jsx:264
 #: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:262
 msgid "User name"
 msgstr "사용자 이름"
@@ -8556,7 +8556,7 @@ msgstr "VLAN ID"
 msgid "Validating address"
 msgstr "주소 확인"
 
-#: pkg/static/login.html:149
+#: pkg/static/login.html:147
 msgid "Validating authentication token"
 msgstr "인증 토큰 확인"
 

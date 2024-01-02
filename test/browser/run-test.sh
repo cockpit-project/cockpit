@@ -80,11 +80,6 @@ if [ "$PLAN" = "optional" ]; then
     # FIXME: creation dialog hangs forever
     EXCLUDES="$EXCLUDES TestStorageISCSI.testISCSI"
 
-    # FIXME: started to fail in rawhide and mess up the VM; see https://github.com/fedora-selinux/selinux-policy/pull/1962
-    if [ "$TEST_OS" = "fedora-40" ]; then
-        EXCLUDES="$EXCLUDES TestStorageLvm2.testRaidRepair"
-    fi
-
     # These don't test more external APIs
     EXCLUDES="$EXCLUDES
               TestAutoUpdates.testBasic

@@ -421,7 +421,10 @@ class CommonTests:
                     if "State: active" in out:  # skip closing sessions
                         self.assertIn(session_leader, out)
                         self.assertIn('cockpit-bridge', out)
-                        self.assertIn('cockpit; type web', out)
+                        # systemd < 255: "Service: cockpit; type web; class user"
+                        # systemd ≥ 255: "Service: cockpit\n   Type: web\n Class: user"
+                        self.assertRegex(out, r"Service:\s+cockpit")
+                        self.assertRegex(out, "[tT]ype.*web")
                         break
                 else:
                     self.fail("no active session for active user")

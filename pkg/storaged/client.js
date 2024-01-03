@@ -743,12 +743,12 @@ function init_model(callback) {
 
     try {
         client.anaconda = JSON.parse(window.localStorage.getItem("cockpit_anaconda"));
+        if (client.anaconda)
+            console.log("ANACONDA", client.anaconda);
     } catch {
         console.warn("Can't parse cockpit_anaconda configuration as JSON");
         client.anaconda = null;
     }
-
-    console.log("ANACONDA", client.anaconda);
 
     pull_time().then(() => {
         read_os_release().then(os_release => {

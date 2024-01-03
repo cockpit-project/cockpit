@@ -408,29 +408,32 @@ export const dialog_open = (def) => {
     }
 
     const footer_props = (running_title, running_promise) => {
-        let actions = [];
-        if (def.Action) {
-            actions = [
-                {
-                    caption: def.Action.Title,
-                    style: "primary",
-                    danger: def.Action.Danger || def.Action.DangerButton,
-                    disabled: running_promise != null || (def.Action.disable_on_error &&
-                                                          errors && errors.toString() != "[object Object]"),
-                    clicked: progress_callback => run_action(progress_callback, null),
-                }
-            ];
+        const actions = [];
 
-            if (def.Action.Variants)
+        function add_action(variant) {
+            actions.push({
+                caption: variant.Title,
+                style: actions.length == 0 ? "primary" : "secondary",
+                danger: def.Action.Danger || def.Action.DangerButton,
+                disabled: running_promise != null || (def.Action.disable_on_error &&
+                                                      errors && errors.toString() != "[object Object]"),
+                clicked: progress_callback => run_action(progress_callback, variant.tag),
+            });
+        }
+
+        if (def.Action) {
+            if (def.Action.Title) {
+                add_action({
+                    Title: def.Action.Title,
+                    tag: null,
+                });
+            }
+
+            if (def.Action.Variants) {
                 for (const v of def.Action.Variants) {
-                    actions.push({
-                        caption: v.Title,
-                        style: "secondary",
-                        danger: def.Action.Danger || def.Action.DangerButton,
-                        disabled: running_promise != null,
-                        clicked: progress_callback => run_action(progress_callback, v.tag),
-                    });
+                    add_action(v);
                 }
+            }
         }
 
         const extra = (

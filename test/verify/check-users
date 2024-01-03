@@ -130,6 +130,7 @@ class TestAccounts(testlib.MachineCase):
 
         # Set a real name
         b.go("#/anton")
+        b.wait_visible("#account-locked:not([disabled])")
         b.assert_pixels("#users-page", "user-detail-page")
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")

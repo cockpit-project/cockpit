@@ -218,6 +218,10 @@ function setupFrameTracking(client) {
 
     // map frame names to frame IDs; root frame has no name, no need to track that
     client.Page.frameNavigated(info => {
+        if (info.frame?.url?.startsWith("about:")) {
+            debug("frameNavigated: ignoring about: frame " + JSON.stringify(info));
+            return;
+        }
         debug("frameNavigated " + JSON.stringify(info));
         frameNameToFrameId[info.frame.name || "cockpit1"] = info.frame.id;
     });

@@ -1604,7 +1604,7 @@ class MachineCase(unittest.TestCase):
 
             # Restart logind to mop up empty "closing" sessions, and clean user id cache for non-system users
             self.machine.execute("systemctl stop systemd-logind; cd /run/systemd/users/; "
-                                 "for f in *; do [ $f -le 500 ] || rm $f; done")
+                                 "for f in $(ls); do [ $f -le 500 ] || rm $f; done")
 
         self.addCleanup(terminate_sessions)
 

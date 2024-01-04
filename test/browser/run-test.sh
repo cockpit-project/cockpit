@@ -80,6 +80,11 @@ if [ "$PLAN" = "optional" ]; then
     # FIXME: creation dialog hangs forever
     EXCLUDES="$EXCLUDES TestStorageISCSI.testISCSI"
 
+    # HACK: started to fail in rawhide and mess up the VM; https://bugzilla.redhat.com/show_bug.cgi?id=2256433
+    if [ "$TEST_OS" = "fedora-40" ]; then
+        EXCLUDES="$EXCLUDES TestStorageLvm2.testRaidRepair"
+    fi
+
     # These don't test more external APIs
     EXCLUDES="$EXCLUDES
               TestAutoUpdates.testBasic

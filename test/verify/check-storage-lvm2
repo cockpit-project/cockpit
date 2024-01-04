@@ -457,10 +457,10 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk1 = self.add_ram_disk(size=200)
-        disk2 = self.add_loopback_disk(name="loop10", size=400)
-        disk3 = self.add_loopback_disk(name="loop11", size=400)
-        disk4 = self.add_loopback_disk(name="loop12", size=400)
+        disk1 = self.add_ram_disk()
+        disk2 = self.add_loopback_disk(name="loop10")
+        disk3 = self.add_loopback_disk(name="loop11")
+        disk4 = self.add_loopback_disk(name="loop12")
 
         # Make a volume group with three physical volumes
 
@@ -525,7 +525,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.click(self.card_button("LVM2 logical volume", "Repair"))
         self.dialog_wait_open()
         self.dialog_apply()
-        self.dialog_wait_error("pvs", "An additional 206 MB must be selected")
+        self.dialog_wait_error("pvs", "An additional 46.1 MB must be selected")
         self.dialog_set_val("pvs", {disk4: True})
         self.dialog_apply()
         self.dialog_wait_close()

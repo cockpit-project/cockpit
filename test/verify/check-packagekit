@@ -1615,16 +1615,21 @@ class TestAutoUpdates(NoSubManCase):
             self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
             # then manually start the upgrade job like the timer would
             m.execute("systemctl start dnf-automatic-install.service")
-            # new kernel-rt package got installed, and triggered reboot; cancel that
-            m.execute("test -f /stamp-kernel-rt-1.0-2")
-            m.execute("until test -f /run/nologin; do sleep 1; done")
-            m.execute("shutdown -c; test ! -f /run/nologin")
-            # service should show kernel-rt upgrade and scheduling shutdown
+            try:
+                # new kernel-rt package got installed
+                m.execute("test -f /stamp-kernel-rt-1.0-2")
+                # triggered reboot
+                m.execute("until test -f /run/nologin; do sleep 1; done")
+                # old distros don't have that yet; rely on /run/nologin to indicate scheduled shutdown
+                if not m.image.startswith("rhel-8") and not m.image.startswith("centos-8"):
+                    self.assertIn("scheduled for", m.execute("shutdown --show 2>&1"))
+            finally:
+                # always cancel the scheduled reboot
+                m.execute("shutdown -c; test ! -f /run/nologin")
+            # service should show kernel-rt upgrade
             out = m.execute(
                 "if systemctl status --lines=50 dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
             self.assertIn("kernel-rt", out)
-            # systemd 245.7 correctly says "reboot", older version say "shutdown"
-            self.assertRegex(out, "(Shutdown|Reboot) scheduled")
 
             # run it again, now there are no available updates → no reboot
             m.execute("systemctl start dnf-automatic-install.service")
@@ -1633,7 +1638,6 @@ class TestAutoUpdates(NoSubManCase):
             out = m.execute(
                 "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
             self.assertNotIn("kernel-rt", out)
-            self.assertNotIn("Shutdown", out)
         else:
             raise NotImplementedError(self.backend)
 

@@ -258,6 +258,14 @@ $desktop: $phone + 1px;
       display: block;
     }
   }
+  .pf-v5-c-select__toggle-arrow {
+    font-size: 1.3rem;
+    transition-duration: 0.3s;
+  }
+
+  .clicked {
+    transform: rotate(180deg);
+  }
 }
 
 /* Mobile navigation */
@@ -320,9 +328,14 @@ $desktop: $phone + 1px;
     }
 
     .pf-v5-c-select__toggle-arrow {
-      transform: rotate(180deg) scale(1.5);
+      transform: scale(1.5);
       margin: unset;
       margin-block-start: 4px;
+      transition-duration: 0.3s;
+    }
+
+    .clicked {
+      transform : rotate(180deg) scale(1.5);
     }
 
     > button {

@@ -4,14 +4,12 @@ import {
     Card,
     CardBody,
     CardTitle, CodeBlock, CodeBlockCode,
-    EmptyStateHeader,
     EmptyStateVariant,
     List,
     ListItem,
     ListVariant, Spinner
 } from "@patternfly/react-core";
 import "./bootInfo.scss";
-import { EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState";
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
 
 const _ = cockpit.gettext;
@@ -57,31 +55,30 @@ export function BootInfo({ user }) {
     }, [userMode]);
 
     if (svg === undefined) {
+        const paragraph = (
+            <Spinner size="xl" />
+        );
         return (
             <div className="pf-v5-c-page__main-section">
-                <EmptyStatePanel variant={EmptyStateVariant.xs}>
-                    <EmptyStateHeader titleText={_("Loading")} headingLevel="h4" />
-                    <EmptyStateBody>
-                        <Spinner size="xl" />
-                    </EmptyStateBody>
-                </EmptyStatePanel>
+                <EmptyStatePanel variant={EmptyStateVariant.xs} title={_("Loading")} headingLevel="h4" paragraph={paragraph} />
             </div>
         );
     }
 
     if (svg === null) {
+        const paragraph = (
+            <>
+                {_("systemd-analyze failed to load boot info and returned the following error:")}
+            </>
+        );
+        const secondary = (
+            <CodeBlock>
+                <CodeBlockCode id="code-content">{summary.toString()}</CodeBlockCode>
+            </CodeBlock>
+        );
         return (
             <div className="pf-v5-c-page__main-section">
-                <EmptyStatePanel variant={EmptyStateVariant.xs}>
-                    <EmptyStateHeader titleText={_("Failure")} headingLevel="h4" />
-                    <EmptyStateBody>
-                        {_("Are you sure systemd-analyze is available?")}
-                        {_("systemd-analyze failed to load boot info and returned the following error:")}
-                        <CodeBlock>
-                            <CodeBlockCode id="code-content">{summary.toString()}</CodeBlockCode>
-                        </CodeBlock>
-                    </EmptyStateBody>
-                </EmptyStatePanel>
+                <EmptyStatePanel variant={EmptyStateVariant.xs} title={_("Failure")} headingLevel="h4" paragraph={paragraph} secondary={secondary} />
             </div>
         );
     }

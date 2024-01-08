@@ -35,7 +35,7 @@ import { StorageLink, StorageUsageBar, StorageSize } from "../storage-controls.j
 import { StorageCard, StorageDescription, new_card, useIsNarrow } from "../pages.jsx";
 
 import { format_dialog } from "../block/format-dialog.jsx";
-import { is_mounted, MountPoint } from "./utils.jsx";
+import { is_mounted, MountPoint, mount_point_text } from "./utils.jsx";
 import { mounting_dialog } from "./mounting-dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "./mismounting.jsx";
 
@@ -83,15 +83,9 @@ export function make_filesystem_card(next, backing_block, content_block, fstab_c
     const mismount_warning = check_mismounted_fsys(backing_block, content_block, fstab_config);
     const mounted = content_block && is_mounted(client, content_block);
 
-    let mp_text;
-    if (mount_point) {
-        mp_text = client.strip_mount_point_prefix(mount_point);
-        if (mp_text == false)
-            return null;
-        if (!mounted)
-            mp_text = mp_text + " " + _("(not mounted)");
-    } else
-        mp_text = _("(not mounted)");
+    const mp_text = mount_point_text(mount_point, mounted);
+    if (mp_text == null)
+        return null;
 
     return new_card({
         title: content_block ? cockpit.format(_("$0 filesystem"), content_block.IdType) : _("Filesystem"),

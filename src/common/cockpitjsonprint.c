@@ -183,7 +183,14 @@ FILE *
 cockpit_json_print_open_memfd (const char *name,
                                int         version)
 {
-  int fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING | MFD_CLOEXEC);
+  int fd;
+  /* current kernels moan about not specifying exec mode */
+#ifdef MFD_NOEXEC_SEAL
+  fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING | MFD_CLOEXEC | MFD_NOEXEC_SEAL);
+  /* fallback for older kernels */
+  if (fd == -1 && errno == EINVAL)
+#endif
+    fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING | MFD_CLOEXEC);
   assert (fd != -1);
 
   FILE *stream = fdopen (fd, "w");

@@ -11,7 +11,8 @@ import {
     ListVariant, Spinner
 } from "@patternfly/react-core";
 import "./bootInfo.scss";
-import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState";
+import { EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState";
+import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
 
 const _ = cockpit.gettext;
 
@@ -21,14 +22,10 @@ export function BootInfo({ user }) {
     const userMode = user !== "system";
 
     useEffect(() => {
-        let string = "";
         const cmd = userMode ? ["systemd-analyze", "--user", "plot"] : ["systemd-analyze", "plot"];
         cockpit.spawn(cmd)
-                .stream((svg_part) => {
-                    string += svg_part;
-                })
-                .then(() => {
-                    const doc = new DOMParser().parseFromString(string, "text/xml");
+                .then(svg_xml => {
+                    const doc = new DOMParser().parseFromString(svg_xml, "text/xml");
                     doc.querySelector("rect.background")?.remove();
                     doc.querySelector("text[y='30']")?.remove();
                     const svgElem = doc.querySelector("svg");
@@ -62,12 +59,12 @@ export function BootInfo({ user }) {
     if (svg === undefined) {
         return (
             <div className="pf-v5-c-page__main-section">
-                <EmptyState variant={EmptyStateVariant.xs}>
+                <EmptyStatePanel variant={EmptyStateVariant.xs}>
                     <EmptyStateHeader titleText={_("Loading")} headingLevel="h4" />
                     <EmptyStateBody>
                         <Spinner size="xl" />
                     </EmptyStateBody>
-                </EmptyState>
+                </EmptyStatePanel>
             </div>
         );
     }
@@ -75,7 +72,7 @@ export function BootInfo({ user }) {
     if (svg === null) {
         return (
             <div className="pf-v5-c-page__main-section">
-                <EmptyState variant={EmptyStateVariant.xs}>
+                <EmptyStatePanel variant={EmptyStateVariant.xs}>
                     <EmptyStateHeader titleText={_("Failure")} headingLevel="h4" />
                     <EmptyStateBody>
                         {_("Are you sure systemd-analyze is available?")}
@@ -84,7 +81,7 @@ export function BootInfo({ user }) {
                             <CodeBlockCode id="code-content">{summary.toString()}</CodeBlockCode>
                         </CodeBlock>
                     </EmptyStateBody>
-                </EmptyState>
+                </EmptyStatePanel>
             </div>
         );
     }

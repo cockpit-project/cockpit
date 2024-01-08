@@ -48,7 +48,8 @@ export class DynamicListForm extends React.Component {
 
         this.setState(state => {
             const items = [...state.list];
-            items.splice(idx, 1);
+            // keep the list structure, otherwise all the indexes shift and the ID/key mapping gets broken
+            delete items[idx];
 
             return { list: items };
         }, () => this.props.onChange(this.state.list));
@@ -79,9 +80,12 @@ export class DynamicListForm extends React.Component {
                 />
             } className={"dynamic-form-group " + formclass}>
                 {
-                    dialogValues.list.length
+                    dialogValues.list.some(item => item !== undefined)
                         ? <>
                             {dialogValues.list.map((item, idx) => {
+                                if (item === undefined)
+                                    return null;
+
                                 return React.cloneElement(this.props.itemcomponent, {
                                     idx,
                                     item,
@@ -91,7 +95,6 @@ export class DynamicListForm extends React.Component {
                                     removeitem: this.removeItem,
                                     additem: this.addItem,
                                     options: this.props.options,
-                                    itemCount: Object.keys(dialogValues.list).length,
                                     validationFailed: validationFailed && validationFailed[idx],
                                     onValidationChange: value => {
                                         // Dynamic list consists of multiple rows. Therefore validationFailed object is presented as an array where each item represents a row

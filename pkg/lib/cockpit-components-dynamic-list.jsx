@@ -47,25 +47,25 @@ export class DynamicListForm extends React.Component {
         this.props.onValidationChange?.(validationFailedDelta);
 
         this.setState(state => {
-            const items = state.list.concat();
+            const items = [...state.list];
             items.splice(idx, 1);
 
             return { list: items };
-        }, () => this.props.onChange(this.state.list.concat()));
+        }, () => this.props.onChange(this.state.list));
     }
 
     addItem() {
         this.setState(state => {
-            return { list: [...state.list, Object.assign({ key: this.keyCounter++ }, this.props.default)] };
-        }, () => this.props.onChange(this.state.list.concat()));
+            return { list: [...state.list, {key: this.keyCounter++, ...this.props.default}] };
+        }, () => this.props.onChange(this.state.list));
     }
 
     onItemChange(idx, field, value) {
         this.setState(state => {
-            const items = state.list.concat();
+            const items = [...state.list];
             items[idx][field] = value || null;
             return { list: items };
-        }, () => this.props.onChange(this.state.list.concat()));
+        }, () => this.props.onChange(this.state.list));
     }
 
     render () {

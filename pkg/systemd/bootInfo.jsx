@@ -15,13 +15,15 @@ import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/comp
 
 const _ = cockpit.gettext;
 
-export function BootInfo() {
+export function BootInfo({ user }) {
     const [svg, setSvg] = useState(undefined);
     const [summary, setSummary] = useState(null);
+    const userMode = user !== "system";
 
     useEffect(() => {
         let string = "";
-        cockpit.spawn(["systemd-analyze", "plot"])
+        const cmd = userMode ? ["systemd-analyze", "--user", "plot"] : ["systemd-analyze", "plot"];
+        cockpit.spawn(cmd)
                 .stream((svg_part) => {
                     string += svg_part;
                 })
@@ -55,7 +57,7 @@ export function BootInfo() {
                     setSvg(null);
                     setSummary(e);
                 });
-    }, []);
+    }, [userMode]);
 
     if (svg === undefined) {
         return (

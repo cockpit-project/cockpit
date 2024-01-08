@@ -923,7 +923,7 @@ const ServicesPage = () => {
                     </Flex>
                 </PageSection>}
                 { activeTab == "boot"
-                    ? <BootInfo />
+                    ? <BootInfo user={owner} />
                     : <ServicesPageBody
                     key={owner}
                     activeTab={activeTab}

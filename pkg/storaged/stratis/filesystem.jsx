@@ -37,7 +37,7 @@ import {
 import {
     MountPoint,
     is_valid_mount_point, is_mounted,
-    get_fstab_config
+    get_fstab_config, mount_point_text,
 } from "../filesystem/utils.jsx";
 import { MismountAlert, check_mismounted_fsys } from "../filesystem/mismounting.jsx";
 import { mounting_dialog } from "../filesystem/mounting-dialog.jsx";
@@ -183,15 +183,9 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
         });
     }
 
-    let mp_text;
-    if (mount_point) {
-        mp_text = client.strip_mount_point_prefix(mount_point);
-        if (mp_text == false)
-            return;
-        if (!fs_is_mounted)
-            mp_text = mp_text + " " + _("(not mounted)");
-    } else
-        mp_text = _("(not mounted)");
+    const mp_text = mount_point_text(mount_point, fs_is_mounted);
+    if (mp_text == null)
+        return null;
 
     const fsys_card = new_card({
         title: _("Stratis filesystem"),

@@ -5,7 +5,7 @@ import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/comp
 import { FormFieldGroup, FormFieldGroupHeader } from "@patternfly/react-core/dist/esm/components/Form";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText";
 
-import './DynamicListForm.scss';
+import './cockpit-components-dynamic-list.scss';
 
 /* Dynamic list with a variable number of rows. Each row is a custom component, usually an input field(s).
  *

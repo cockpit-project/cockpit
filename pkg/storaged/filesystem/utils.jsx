@@ -178,3 +178,16 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
             { extra_text }
         </>);
 };
+
+export const mount_point_text = (mount_point, mounted) => {
+    let mp_text;
+    if (mount_point) {
+        mp_text = client.strip_mount_point_prefix(mount_point);
+        if (mp_text == false)
+            return null;
+        if (!mounted)
+            mp_text = mp_text + " " + _("(not mounted)");
+    } else
+        mp_text = _("(not mounted)");
+    return mp_text;
+};

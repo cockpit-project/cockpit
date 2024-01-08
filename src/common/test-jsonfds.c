@@ -52,6 +52,20 @@ typedef struct
   char *inaccessible;
 } TestFixture;
 
+static int
+memfd_create_noexec (const char *name,
+                     unsigned int flags)
+{
+  /* current kernels moan about not specifying exec mode */
+#ifdef MFD_NOEXEC_SEAL
+  int fd = memfd_create (name, flags | MFD_NOEXEC_SEAL);
+  /* fallback for older kernels */
+  if (fd != -1 || errno != EINVAL)
+    return fd;
+#endif
+  return memfd_create (name, flags);
+}
+
 static void
 test_fixture_setup (TestFixture   *fixture,
                     gconstpointer  user_data)
@@ -428,7 +442,7 @@ test_memfd_error_cases (void)
 
 
   /* memfd is not properly sealed */
-  fd = memfd_create ("xyz", MFD_CLOEXEC);
+  fd = memfd_create_noexec ("xyz", MFD_CLOEXEC);
 
   content = cockpit_memfd_read (fd, &error);
   cockpit_assert_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "*incorrect seals set*");
@@ -437,7 +451,7 @@ test_memfd_error_cases (void)
   close (fd);
 
   /* memfd is empty */
-  fd = memfd_create ("xyz", MFD_ALLOW_SEALING | MFD_CLOEXEC);
+  fd = memfd_create_noexec ("xyz", MFD_ALLOW_SEALING | MFD_CLOEXEC);
   r = fcntl (fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
   g_assert (r == 0);
 
@@ -533,7 +547,7 @@ test_memfd_json_error_cases (void)
   gint r;
 
   /* invalid json */
-  fd = memfd_create ("xyz", MFD_CLOEXEC | MFD_ALLOW_SEALING);
+  fd = memfd_create_noexec ("xyz", MFD_CLOEXEC | MFD_ALLOW_SEALING);
   g_assert_cmpint (write (fd, "beh", 3), ==, 3);
   r = fcntl (fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
   g_assert (r == 0);
@@ -544,7 +558,7 @@ test_memfd_json_error_cases (void)
   close (fd);
 
   /* valid json, but not an object */
-  fd = memfd_create ("xyz", MFD_CLOEXEC | MFD_ALLOW_SEALING);
+  fd = memfd_create_noexec ("xyz", MFD_CLOEXEC | MFD_ALLOW_SEALING);
   g_assert_cmpint (write (fd, "[]", 2), ==, 2);
   r = fcntl (fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
   g_assert (r == 0);

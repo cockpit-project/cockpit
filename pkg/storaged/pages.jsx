@@ -814,12 +814,14 @@ export const StoragePage = ({ location, plot_state }) => {
 
     return (
         <Page id="storage">
+            { parent_crumbs.length > 0 &&
             <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     { parent_crumbs }
                     <BreadcrumbItem isActive>{page_display_name(page)}</BreadcrumbItem>
                 </Breadcrumb>
             </PageBreadcrumb>
+            }
             <PageSection isFilled={false}>
                 <Stack hasGutter>
                     <MultipathAlert client={client} />

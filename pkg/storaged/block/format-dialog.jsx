@@ -156,7 +156,8 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
 
 function format_dialog_internal(client, path, start, size, enable_dos_extended, old_luks_version) {
     const block = client.blocks[path];
-    const block_ptable = client.blocks_ptable[path];
+    const block_part = client.blocks_part[path];
+    const block_ptable = client.blocks_ptable[path] || client.blocks_ptable[block_part?.Table];
 
     const offer_keep_keys = block.IdUsage == "crypto";
     const unlock_before_format = offer_keep_keys && !client.blocks_cleartext[path];
@@ -170,7 +171,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         title = cockpit.format(_("Format $0"), block_name(block));
 
     function is_filesystem(vals) {
-        return vals.type != "empty" && vals.type != "dos-extended";
+        return vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot";
     }
 
     function add_fsys(storaged_name, entry) {
@@ -185,6 +186,12 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
+    if (client.in_anaconda_mode()) {
+        if (block_ptable && block_ptable.Type == "gpt" && !client.anaconda.efi)
+            add_fsys(true, { value: "biosboot", title: "BIOS boot partition" });
+        if (block_ptable && client.anaconda.efi)
+            add_fsys(true, { value: "efi", title: "EFI system partition" });
+    }
     add_fsys(true, { value: "empty", title: _("No filesystem") });
     if (create_partition && enable_dos_extended)
         add_fsys(true, { value: "dos-extended", title: _("Extended partition") });
@@ -314,7 +321,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                       {
                           choices: crypto_types,
                           value: offer_keep_keys ? " keep" : "none",
-                          visible: vals => vals.type != "dos-extended",
+                          visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi",
                           nested_fields: [
                               PassInput("passphrase", _("Passphrase"),
                                         {
@@ -406,6 +413,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 } else {
                     dlg.update_actions({ Variants: [action_variant], Title: action_title });
                 }
+                if (vals.type == "efi" && !vals.mount_point)
+                    dlg.set_values({ mount_point: "/boot/efi" });
             }
         },
         Action: {
@@ -416,6 +425,18 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             disable_on_error: usage.Teardown,
             action: function (vals) {
                 const mount_now = vals.variant != "nomount";
+                let type = vals.type;
+                let partition_type = "";
+
+                if (type == "efi") {
+                    type = "vfat";
+                    partition_type = block_ptable.Type == "dos" ? "0xEF" : "c12a7328-f81f-11d2-ba4b-00a0c93ec93b";
+                }
+
+                if (type == "biosboot") {
+                    type = "empty";
+                    partition_type = "21686148-6449-6e6f-744e-656564454649";
+                }
 
                 const options = {
                     'tear-down': { t: 'b', v: true }
@@ -517,13 +538,13 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
                 function format() {
                     if (create_partition) {
-                        if (vals.type == "dos-extended")
+                        if (type == "dos-extended")
                             return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
-                        else if (vals.type == "empty")
-                            return block_ptable.CreatePartition(start, vals.size, "", "", { });
+                        else if (type == "empty")
+                            return block_ptable.CreatePartition(start, vals.size, partition_type, "", { });
                         else
-                            return block_ptable.CreatePartitionAndFormat(start, vals.size, "", "", { },
-                                                                         vals.type, options);
+                            return block_ptable.CreatePartitionAndFormat(start, vals.size, partition_type, "", { },
+                                                                         type, options);
                     } else if (keep_keys) {
                         return (edit_crypto_config(block,
                                                    (config, commit) => {
@@ -532,10 +553,14 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                                    })
                                 .then(() => maybe_unlock())
                                 .then(content_block => {
-                                    return content_block.Format(vals.type, options);
+                                    return content_block.Format(type, options);
                                 }));
                     } else {
-                        return block.Format(vals.type, options);
+                        return block.Format(type, options)
+                                .then(() => {
+                                    if (partition_type != "" && block_part)
+                                        return block_part.SetType(partition_type, {});
+                                });
                     }
                 }
 

@@ -72,3 +72,18 @@ configuration into the real /etc/fstab (_not_
 Anaconda is not expected to read it.
 
 If and how Cockpit communicates back to Anaconda is still open.
+
+BIOS or EFI
+-----------
+
+Anaconda needs to tell Cockpit whether a BIOS or a EFI system is being
+installed. This controls which kind of special partitions can be
+created easily.
+
+This is done by setting the "efi" flag to true or false:
+
+```
+{
+  "efi": true
+}
+```

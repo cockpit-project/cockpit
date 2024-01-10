@@ -214,6 +214,32 @@ class TestKdump(KdumpHelpers):
         b.wait_not_present(".automation-script-modal")
         m.execute("diff /etc/kdump.conf /etc/kdump.conf.orig", stdout=None)
 
+        # service errors
+
+        m.execute("systemctl disable --now kdump.service")
+        self.assertActive(active=False)
+        b.wait_not_present(".pf-v5-c-alert__title")
+
+        # service is absent (not installed)
+        m.execute("mv /usr/lib/systemd/system/kdump.service /usr/lib/systemd/system/kdump.service.disabled")
+        m.execute("systemctl daemon-reload")
+        b.wait_in_text(".pf-v5-c-alert__title", "Kdump service is not installed")
+
+        # put it back, but cause error on startup
+        m.execute("mv /usr/lib/systemd/system/kdump.service.disabled /usr/lib/systemd/system/kdump.service")
+        m.write("/etc/systemd/system/kdump.service.d/break.conf",
+                "[Service]\nExecStart=\nExecStart=/bin/false\n")
+        m.execute("systemctl daemon-reload")
+        b.wait_not_present(".pf-v5-c-alert__title")
+        b.click(".pf-v5-c-switch__input")
+        b.wait_in_text(".pf-v5-c-alert__title", "Service has an error")
+        self.assertActive(active=False)
+        # "more details" leads to services page
+        b.click(".pf-v5-c-alert__title button")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname === "/system/services"')
+        b.wait_js_cond('window.location.hash === "#/kdump.service"')
+
     @testlib.nondestructive
     def testConfiguration(self):
         b = self.browser

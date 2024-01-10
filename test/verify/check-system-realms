@@ -472,7 +472,7 @@ class CommonTests:
         do_test(alice_user_pass, ['HTTP/1.1 401 Authentication disabled', '<h1>Authentication disabled</h1>'],
                 not_expected=["crsf-token"])
 
-        # valid user certificate which fails CA validation; this requires sssd ≥ 2.6.1
+        # valid user certificate which fails CA validation
         m.execute("mv /etc/sssd/pki/sssd_auth_ca_db.pem /etc/sssd/pki/sssd_auth_ca_db.pem.valid")
         self.allow_journal_messages("cockpit-session: Failed to map certificate to user: .* Certificate authority file not found")
         with open("src/tls/ca/alice-expired.pem") as f:

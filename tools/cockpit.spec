@@ -459,7 +459,7 @@ Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
-Suggests: sssd-dbus
+Suggests: sssd-dbus >= 2.6.2
 # for cockpit-desktop
 Suggests: python3
 

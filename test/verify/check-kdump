@@ -54,7 +54,7 @@ class KdumpHelpers(testlib.MachineCase):
             browser.click(".pf-v5-c-modal-box button:contains('Cancel')")
         else:
             # we should get a warning dialog, confirm
-            browser.click(f"button{self.danger_btn_class}")
+            browser.click(f".pf-v5-c-modal-box button{self.danger_btn_class}")
             # wait until we've actually triggered a crash
             browser.wait_visible(".apply.pf-m-in-progress")
 

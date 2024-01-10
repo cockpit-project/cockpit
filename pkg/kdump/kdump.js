@@ -59,10 +59,12 @@ const initStore = function(rootElement) {
         const promise = desiredState ? dataStore.kdumpClient.ensureOn() : dataStore.kdumpClient.ensureOff();
         dataStore.stateChanging = true;
         dataStore.render();
-        promise.finally(function() {
-            dataStore.stateChanging = false;
-            dataStore.render();
-        });
+        promise
+                .catch(error => console.warn("Failed to change kdump state:", error))
+                .finally(() => {
+                    dataStore.stateChanging = false;
+                    dataStore.render();
+                });
     }
     const render = function() {
         root.render(<WithDialogs>{React.createElement(KdumpPage, {

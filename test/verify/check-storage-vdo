@@ -348,7 +348,6 @@ config: !Configuration
     vdo0: !VDOService
       blah: 12
 """)
-        testlib.sit()
 
         b.wait_in_text(self.card_row("Storage", name="/dev/sda"), "Unformatted data")
 

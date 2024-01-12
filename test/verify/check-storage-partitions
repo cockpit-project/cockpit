@@ -173,6 +173,68 @@ class TestStoragePartitions(storagelib.StorageCase):
         b.wait_visible(self.card_button("Partition", "Grow") + ":disabled")
         b.wait_in_text(self.card_desc("Partition", "Size"), "103 MB")
 
+    def testType(self):
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        disk = self.add_ram_disk(100)
+        self.click_card_row("Storage", name=disk)
+
+        # GPT
+
+        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.dialog({"type": "gpt"})
+        b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
+
+        self.click_dropdown(self.card_row("GPT partitions", 1), "Create partition")
+        self.dialog({"type": "empty"})
+
+        self.click_card_row("GPT partitions", 1)
+        b.wait_text(self.card_desc("Partition", "Type"), "Linux filesystem data")
+        b.click(self.card_desc_action("Partition", "Type"))
+        self.dialog({"type": "c12a7328-f81f-11d2-ba4b-00a0c93ec93b"})
+        b.wait_text(self.card_desc("Partition", "Type"), "EFI system partition")
+        b.click(self.card_desc_action("Partition", "Type"))
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "custom")
+        self.dialog_set_val("custom", "bla bla")
+        self.dialog_apply()
+        self.dialog_wait_error("custom", "Type can only contain the characters 0 to 9, A to F, and \"-\".")
+        self.dialog_set_val("custom", "7D0359A3-02B3-4F0A865C-654403E70625")
+        self.dialog_apply()
+        self.dialog_wait_error("custom", "Type must be of the form NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN.")
+        self.dialog_set_val("custom", "7D0359A3-02B3-4F0A-865C-654403E70625")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_text(self.card_desc("Partition", "Type"), "7d0359a3-02b3-4f0a-865c-654403e70625")
+
+        # DOS
+
+        b.click(self.card_parent_link())
+        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.dialog({"type": "dos"})
+        b.wait_text(self.card_row_col("DOS partitions", 1, 1), "Free space")
+
+        self.click_dropdown(self.card_row("DOS partitions", 1), "Create partition")
+        self.dialog({"size": 100, "type": "empty"})
+
+        self.click_card_row("DOS partitions", 1)
+        b.wait_text(self.card_desc("Partition", "Type"), "Linux filesystem data")
+        b.click(self.card_desc_action("Partition", "Type"))
+        self.dialog({"type": "ef"})
+        b.wait_text(self.card_desc("Partition", "Type"), "EFI system partition")
+        b.click(self.card_desc_action("Partition", "Type"))
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "custom")
+        self.dialog_set_val("custom", "bla bla")
+        self.dialog_apply()
+        self.dialog_wait_error("custom", "Type must contain exactly two hexadecimal characters (0 to 9, A to F).")
+        self.dialog_set_val("custom", "C8")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_text(self.card_desc("Partition", "Type"), "c8")
+
 
 if __name__ == '__main__':
     testlib.test_main()

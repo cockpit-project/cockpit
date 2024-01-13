@@ -43,6 +43,7 @@ import { StorageButton, StorageBarMenu, StorageMenuItem, StorageSize } from "./s
 import { MultipathAlert } from "./multipath.jsx";
 import { AnacondaAdvice } from "./anaconda.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
+import { Truncate } from "../lib/cockpit-components-truncate.jsx";
 
 const _ = cockpit.gettext;
 
@@ -591,7 +592,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                     <CardBody>
                         <Split hasGutter>
                             { icon && <SplitItem>{icon}</SplitItem> }
-                            <SplitItem isFilled><strong>{name}</strong>{info}</SplitItem>
+                            <SplitItem isFilled><strong><Truncate content={name} position="middle" /></strong>{info}</SplitItem>
                             <SplitItem>{actions}</SplitItem>
                         </Split>
                         <Split hasGutter isWrappable>
@@ -603,7 +604,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 </Card>);
         } else {
             const cols = [
-                <Td key="1" onClick={onClick}><span>{name}{info}</span></Td>,
+                <Td key="1" onClick={onClick}><Truncate content={name} position="middle" />{info}</Td>,
                 <Td key="2" onClick={onClick}>{type}</Td>,
                 <Td key="3" onClick={onClick}>{location}</Td>,
                 <Td key="4" onClick={onClick} className="storage-size-column">{size}</Td>,

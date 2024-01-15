@@ -87,7 +87,8 @@ class StorageHelpers:
         # machine, they might come back for unknown reasons, in a
         # non-functional state. Running partprobe will get rid of
         # them.
-        self.machine.execute("partprobe '%s'" % dev)
+        # See https://github.com/cockpit-project/bots/pull/5793 for why `|| true`
+        self.machine.execute("partprobe '%s' || true" % dev)
         # right after unmounting the device is often still busy, so retry a few times
         self.addCleanup(self.machine.execute, f"umount {dev} || true; rm $(losetup -n -O BACK-FILE -l {dev}); until losetup -d {dev}; do sleep 1; done", timeout=10)
         return dev

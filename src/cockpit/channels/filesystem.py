@@ -15,15 +15,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
+import contextlib
+import errno
+import fnmatch
+import functools
+import grp
 import logging
 import os
+import pwd
 import random
+import stat
+from typing import Callable, Sequence
 
-from cockpit._vendor.systemd_ctypes import PathWatch
+from cockpit._vendor.systemd_ctypes import Handle, PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
 
 from ..channel import Channel, ChannelError, GeneratorChannel
-from ..jsonutil import JsonObject, get_int, get_str
+from ..jsonutil import (
+    JsonDict,
+    JsonDocument,
+    JsonError,
+    JsonObject,
+    get_bool,
+    get_int,
+    get_str,
+    get_strv,
+    json_merge_and_filter_patch,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -268,3 +287,229 @@ class FsWatchChannel(Channel):
         self._watch.close()
         self._watch = None
         self.close()
+
+
+class FsInfoChannel(Channel):
+    payload = 'fsinfo'
+
+    # Options (all get set in `do_open()`)
+    path: str
+    attrs: 'set[str]'
+    fnmatch: str
+    follow: bool
+    watch: bool
+
+    # State
+    current_value: JsonDict
+    effective_fnmatch: str = ''
+    fd: 'Handle | None' = None
+    pending: 'set[str] | None' = None
+    path_watch: 'PathWatch | None' = None
+    getattrs: 'Callable[[int, str], JsonDocument]'
+
+    @staticmethod
+    def make_getattrs(attrs: Sequence[str]) -> 'Callable[[int, str], JsonDocument | None]':
+        # Cached for the duration of the closure we're creating
+        @functools.lru_cache()
+        def get_user(uid: int) -> 'str | int':
+            try:
+                return pwd.getpwuid(uid).pw_name
+            except KeyError:
+                return uid
+
+        @functools.lru_cache()
+        def get_group(gid: int) -> 'str | int':
+            try:
+                return grp.getgrgid(gid).gr_name
+            except KeyError:
+                return gid
+
+        stat_types = {stat.S_IFREG: 'reg', stat.S_IFDIR: 'dir', stat.S_IFLNK: 'lnk', stat.S_IFCHR: 'chr',
+                      stat.S_IFBLK: 'blk', stat.S_IFIFO: 'fifo', stat.S_IFSOCK: 'sock'}
+        available_stat_getters = {
+            'type': lambda buf: stat_types.get(stat.S_IFMT(buf.st_mode)),
+            'tag': tag_from_stat,
+            'mode': lambda buf: stat.S_IMODE(buf.st_mode),
+            'size': lambda buf: buf.st_size,
+            'uid': lambda buf: buf.st_uid,
+            'gid': lambda buf: buf.st_gid,
+            'mtime': lambda buf: buf.st_mtime,
+            'user': lambda buf: get_user(buf.st_uid),
+            'group': lambda buf: get_group(buf.st_gid),
+        }
+        stat_getters = tuple((key, available_stat_getters.get(key, lambda _: None)) for key in attrs)
+
+        def get_attrs(fd: int, name: str) -> 'JsonDict | None':
+            try:
+                buf = os.lstat(name, dir_fd=fd) if name else os.fstat(fd)
+            except FileNotFoundError:
+                return None
+            except OSError:
+                return {name: None for name, func in stat_getters}
+
+            result = {key: func(buf) for key, func in stat_getters}
+
+            if 'target' in result and stat.S_IFMT(buf.st_mode) == stat.S_IFLNK:
+                with contextlib.suppress(OSError):
+                    result['target'] = os.readlink(name, dir_fd=fd)
+
+            return result
+
+        return get_attrs
+
+    def send_update(self, updates: JsonDict, *, reset: bool = False) -> None:
+        if reset:
+            if set(self.current_value) & set(updates):
+                # if we have an overlap, we need to do a proper reset
+                self.send_json({name: None for name in self.current_value}, partial=True)
+                self.current_value = {'partial': True}
+                updates.update(partial=None)
+            else:
+                # otherwise there's no overlap: we can just remove the old keys
+                updates.update({key: None for key in self.current_value})
+
+        json_merge_and_filter_patch(self.current_value, updates)
+        if updates:
+            self.send_json(updates)
+
+    def process_update(self, updates: 'set[str]', *, reset: bool = False) -> None:
+        assert self.fd is not None
+
+        entries: JsonDict = {name: self.getattrs(self.fd, name) for name in updates}
+        info = entries.pop('', {})
+        assert isinstance(info, dict)  # fstat() will never fail with FileNotFoundError
+
+        if self.effective_fnmatch:
+            info['entries'] = entries
+
+        self.send_update({'info': info}, reset=reset)
+
+    def process_pending_updates(self) -> None:
+        assert self.pending is not None
+        if self.pending:
+            self.process_update(self.pending)
+        self.pending = None
+
+    def interesting(self, name: str) -> bool:
+        if name == '':
+            return True
+        else:
+            # only report updates on entry filenames if we match them
+            return fnmatch.fnmatch(name, self.effective_fnmatch)
+
+    def schedule_update(self, name: str) -> None:
+        if not self.interesting(name):
+            return
+
+        if self.pending is None:
+            asyncio.get_running_loop().call_later(0.1, self.process_pending_updates)
+            self.pending = set()
+
+        self.pending.add(name)
+
+    def report_error(self, err: int) -> None:
+        if err == errno.ENOENT:
+            problem = 'not-found'
+        elif err in (errno.EPERM, errno.EACCES):
+            problem = 'access-denied'
+        elif err == errno.ENOTDIR:
+            problem = 'not-directory'
+        else:
+            problem = 'internal-error'
+
+        self.send_update({'error': {
+            'problem': problem, 'message': os.strerror(err), 'errno': errno.errorcode[err]
+        }}, reset=True)
+
+    def flag_onlydir_error(self, fd: Handle) -> bool:
+        # If our requested path ended with '/' then make sure we got a
+        # directory, or else it's an error.  open() will have already flagged
+        # that for us, but systemd_ctypes doesn't do that (yet).
+        if not self.watch or not self.path.endswith('/'):
+            return False
+
+        buf = os.fstat(fd)  # this should never fail
+        if stat.S_IFMT(buf.st_mode) != stat.S_IFDIR:
+            self.report_error(errno.ENOTDIR)
+            return True
+
+        return False
+
+    def report_initial_state(self, fd: Handle) -> None:
+        if self.flag_onlydir_error(fd):
+            return
+
+        self.fd = fd
+
+        entries = {''}
+        if self.fnmatch:
+            try:
+                entries.update(os.listdir(f'/proc/self/fd/{self.fd}'))
+                self.effective_fnmatch = self.fnmatch
+            except OSError:
+                # If we failed to get an initial list, then report nothing from now on
+                self.effective_fnmatch = ''
+
+        self.process_update({e for e in entries if self.interesting(e)}, reset=True)
+
+    def do_inotify_event(self, mask: InotifyEvent, cookie: int, rawname: 'bytes | None') -> None:
+        logger.debug('do_inotify_event(%r, %r, %r)', mask, cookie, rawname)
+        name = (rawname or b'').decode(errors='surrogateescape')
+
+        self.schedule_update(name)
+
+        if name and mask | (InotifyEvent.CREATE | InotifyEvent.DELETE |
+                            InotifyEvent.MOVED_TO | InotifyEvent.MOVED_FROM):
+            # These events change the mtime of the directory
+            self.schedule_update('')
+
+    def do_identity_changed(self, fd: 'Handle | None', err: 'int | None') -> None:
+        logger.debug('do_identity_changed(%r, %r)', fd, err)
+        # If there were previously pending changes, they are now irrelevant.
+        if self.pending is not None:
+            # Note: don't set to None, since the handler is still pending
+            self.pending.clear()
+
+        if err is None:
+            assert fd is not None
+            self.report_initial_state(fd)
+        else:
+            self.report_error(err)
+
+    def do_close(self) -> None:
+        if self.path_watch is not None:
+            self.path_watch.close()
+        self.close()
+
+    def do_open(self, options: JsonObject) -> None:
+        self.path = get_str(options, 'path')
+        if not os.path.isabs(self.path):
+            raise JsonError(options, '"path" must be an absolute path')
+
+        self.getattrs = self.make_getattrs(get_strv(options, 'attrs'))
+        self.fnmatch = get_str(options, 'fnmatch', '')
+        self.follow = get_bool(options, 'follow', default=True)
+        self.watch = get_bool(options, 'watch', default=False)
+        if self.watch and not self.follow:
+            raise JsonError(options, '"watch: true" and "follow: false" are (currently) incompatible')
+
+        self.current_value = {}
+        self.ready()
+
+        if not self.watch:
+            try:
+                fd = Handle.open(self.path, os.O_PATH if self.follow else os.O_PATH | os.O_NOFOLLOW)
+            except OSError as exc:
+                self.report_error(exc.errno)
+            else:
+                self.report_initial_state(fd)
+                fd.close()
+
+            self.done()
+            self.close()
+
+        else:
+            # PathWatch will call do_identity_changed(), which does the same as
+            # above: calls either report_initial_state() or report_error(),
+            # depending on if it was provided with an fd or an error code.
+            self.path_watch = PathWatch(self.path, self)

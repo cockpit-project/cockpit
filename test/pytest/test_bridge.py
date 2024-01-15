@@ -1,5 +1,7 @@
 import argparse
 import asyncio
+import contextlib
+import errno
 import json
 import os
 import sys
@@ -7,7 +9,7 @@ import tempfile
 import unittest.mock
 from collections import deque
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Sequence
 
 import pytest
 
@@ -15,6 +17,7 @@ from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
 from cockpit.channel import Channel
 from cockpit.channels import CHANNEL_TYPES
+from cockpit.jsonutil import JsonObject, JsonValue, get_bool, json_merge_patch
 from cockpit.packages import BridgeConfig
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
@@ -468,7 +471,9 @@ async def test_channel(bridge, transport, channeltype, tmp_path):
     srv = str(tmp_path / 'sock')
     await asyncio.start_unix_server(serve_page, srv)
 
-    if payload == 'fslist1':
+    if payload == 'fsinfo':
+        args = {'path': '/', 'attrs': []}
+    elif payload == 'fslist1':
         args = {'path': '/', 'watch': False}
     elif payload == 'fsread1':
         args = {'path': '/etc/passwd'}
@@ -630,3 +635,282 @@ async def test_large_upload(event_loop, transport, tmp_path):
     # and now our done and close messages should come
     await transport.assert_msg('', command='done', channel=sender)
     await transport.assert_msg('', command='close', channel=sender)
+
+
+class FsInfoClient:
+    def __init__(self, transport: MockTransport, channel: str):
+        self.transport = transport
+        self.channel = channel
+        self.state: JsonObject = {}
+
+    @classmethod
+    async def open(
+            cls,
+            transport: MockTransport,
+            path: 'str | Path',
+            attrs: Sequence[str] = ('type', 'target'),
+            fnmatch: str = '*.txt',
+            **kwargs: JsonValue
+    ) -> 'FsInfoClient':
+        channel = await transport.check_open('fsinfo', path=str(path), attrs=attrs,
+                                             fnmatch=fnmatch, reply_keys=None, **kwargs)
+        return cls(transport, channel)
+
+    async def next_state(self) -> JsonObject:
+        while True:
+            patch = await self.transport.next_msg(self.channel)
+            self.state = json_merge_patch(self.state, patch)
+            if not get_bool(self.state, 'partial', None):
+                break
+        return self.state
+
+    async def wait(self) -> JsonObject:
+        state = await self.next_state()
+        await self.transport.assert_msg('', command='done', channel=self.channel)
+        await self.transport.assert_msg('', command='close', channel=self.channel)
+        return state
+
+    async def close(self):
+        await self.transport.check_close(self.channel)
+
+
+def fsinfo_err(err: int) -> JsonObject:
+    problems = {
+        errno.ENOENT: 'not-found',
+        errno.EPERM: 'access-denied',
+        errno.EACCES: 'access-denied',
+        errno.ENOTDIR: 'not-directory'
+    }
+    return {
+        'error': {
+            'problem': problems.get(err, 'internal-error'),
+            'message': os.strerror(err),
+            'errno': errno.errorcode[err],
+        }
+    }
+
+
+@pytest.fixture
+def fsinfo_test_cases(tmp_path: Path) -> 'dict[Path, JsonObject]':
+    # a normal directory
+    normal_dir = tmp_path / 'dir'
+    normal_dir.mkdir()
+    (normal_dir / 'dir-file.txt').write_text('dir file')
+    (normal_dir / 'dir-file.xtx').write_text('do not read this')
+
+    # a directory without +x (search)
+    no_x_dir = tmp_path / 'no-x-dir'
+    no_x_dir.mkdir()
+    (no_x_dir / 'no-x-dir-file.txt').write_text('file')
+    no_x_dir.chmod(0o644)
+
+    # a directory without +r (read)
+    no_r_dir = tmp_path / 'no-r-dir'
+    no_r_dir.mkdir()
+    (no_r_dir / 'no-r-dir-file.txt').write_text('file')
+    no_r_dir.chmod(0o311)
+
+    # a normal file
+    file = tmp_path / 'file'
+    file.write_text('normal file')
+
+    # a non-readable file
+    no_r_file = tmp_path / 'no-r-file'
+    no_r_file.write_text('inaccessible file')
+    no_r_file.chmod(0)
+
+    # a device
+    dev = tmp_path / 'dev'
+    dev.symlink_to('/dev/null')
+
+    # a dangling symlink
+    dangling = tmp_path / 'dangling'
+    dangling.symlink_to('does-not-exist')
+
+    # a symlink pointing to itself
+    loopy = tmp_path / 'loopy'
+    loopy.symlink_to(loopy)
+
+    expected_state: 'dict[Path, JsonObject]' = {
+        normal_dir: {"info": {"type": "dir", "entries": {'dir-file.txt': {"type": "reg"}}}},
+
+        # can't stat() the file
+        no_x_dir: {"info": {"type": "dir", "entries": {"no-x-dir-file.txt": {}}}},
+
+        # can't read the directory, so no entries
+        no_r_dir: {"info": {"type": "dir"}},
+
+        # normal file, can read its contents
+        file: {"info": {"type": "reg"}},
+
+        # can't read file, so no contents
+        no_r_file: {"info": {"type": "reg"}},
+
+        # a device
+        dev: {"info": {"type": "chr"}},
+
+        # a dangling symlink
+        dangling: fsinfo_err(errno.ENOENT),
+
+        # a link pointing at itself
+        loopy: fsinfo_err(errno.ELOOP),
+    }
+
+    if os.getuid() == 0:
+        # we can't do the permissions-dependent tests as root
+        del expected_state[no_x_dir]
+        del expected_state[no_r_dir]
+        del expected_state[no_r_file]
+
+    return expected_state
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_relative(transport: MockTransport) -> None:
+    await transport.check_open('fsinfo', path='rel', problem='protocol-error')
+    await transport.check_open('fsinfo', path='.', problem='protocol-error')
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_nofollow_watch(transport: MockTransport) -> None:
+    await transport.check_open('fsinfo', path='/', attrs=[], watch=True, follow=False, problem='protocol-error')
+
+
+@pytest.mark.asyncio
+async def test_fsinfo(transport: MockTransport, fsinfo_test_cases: 'dict[Path, JsonObject]') -> None:
+    for path, expected_state in fsinfo_test_cases.items():
+        client = await FsInfoClient.open(transport, path)
+        assert await client.wait() == expected_state
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_nofollow(transport: MockTransport, fsinfo_test_cases: 'dict[Path, JsonObject]') -> None:
+    for path, expected_state in fsinfo_test_cases.items():
+        if path.name == 'loopy':
+            # with nofollow, this won't fail — we'll see the link itself
+            expected_state = {"info": {"type": "lnk", "target": str(path)}}
+        elif path.name == 'dev':
+            expected_state = {"info": {"type": "lnk", "target": "/dev/null"}}
+        elif path.name == 'dangling':
+            expected_state = {"info": {"type": "lnk", "target": "does-not-exist"}}
+
+        client = await FsInfoClient.open(transport, path, follow=False)
+        assert await client.wait() == expected_state
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_onlydir(transport: MockTransport, fsinfo_test_cases: 'dict[Path, JsonObject]') -> None:
+    for path, expected_state in fsinfo_test_cases.items():
+        if 'dir' not in path.name and 'error' not in expected_state:
+            expected_state = fsinfo_err(errno.ENOTDIR)
+
+        # with '/' appended, this should only open dirs
+        client = await FsInfoClient.open(transport, str(path) + '/')
+        assert await client.wait() == expected_state
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_onlydir_watch(transport: MockTransport, fsinfo_test_cases: 'dict[Path, JsonObject]') -> None:
+    for path, expected_state in fsinfo_test_cases.items():
+        # note the order here: because our check for notdir is implemented
+        # inside of the bridge, we try inotify first and check for notdir
+        # second.  if systemd_ctypes supports this some day, it may change.
+        if path.name.startswith('no-r'):
+            # we need this one because we can't inotify files without +r
+            expected_state = fsinfo_err(errno.EACCES)
+        elif 'dir' not in path.name and 'error' not in expected_state:
+            # and this one to deal with not-dir
+            expected_state = fsinfo_err(errno.ENOTDIR)
+
+        # with '/' appended, this should only open dirs
+        client = await FsInfoClient.open(transport, str(path) + '/', watch=True)
+        assert await client.next_state() == expected_state
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_watch_identity_changes(
+        transport: MockTransport, tmp_path: Path, fsinfo_test_cases: 'dict[Path, JsonObject]'
+) -> None:
+    # we will now point a symlink to the various possibilities to make sure the
+    # transitions are correctly handled
+    link = tmp_path / 'link'
+    client = await FsInfoClient.open(transport, link, watch=True)
+
+    # we didn't make a link yet, so...
+    assert (await client.next_state()) == fsinfo_err(errno.ENOENT)
+
+    # in watch mode we report errors a bit more sensitively: we also report
+    # them if we can't inotify the inode in question, which requires +r
+    # permission.  as such, we need to modify our 'no-r' tests:
+    for path in list(fsinfo_test_cases):
+        if path.name.startswith('no-r'):
+            fsinfo_test_cases[path] = fsinfo_err(errno.EACCES)
+        if path.name == 'dangling':
+            # this breaks our logic below because we transition from ENOENT to ENOENT
+            del fsinfo_test_cases[path]
+
+    possibilities = tuple(fsinfo_test_cases)
+    for from_file in possibilities:
+        for to_file in possibilities:
+            if from_file is to_file:
+                continue
+
+            # link to the original file and check state
+            link.symlink_to(from_file)
+            assert await client.next_state() == fsinfo_test_cases[from_file]
+
+            # Try to generate some events immediately before we switch the link
+            # to ensure the event is suppressed.  Any one of these could fail
+            # due to not being a directory or not having permissions.
+            with contextlib.suppress(OSError):
+                from_file.touch()
+            with contextlib.suppress(OSError):
+                (from_file / 'a.txt').touch()
+            with contextlib.suppress(OSError):
+                (from_file / 'a.txt').unlink()
+
+            # atomic replace, check state
+            (tmp_path / 'tmp').symlink_to(to_file)
+            (tmp_path / 'tmp').rename(link)
+            assert await client.next_state() == fsinfo_test_cases[to_file]
+
+            if to_file.name == 'dir':
+                # copied from fsinfo_test_cases fixture
+                dir_entries = {'dir-file.txt': {"type": "reg"}}
+                expected_state = {"info": {"type": "dir", "entries": dir_entries}}
+
+                (to_file / 'a.txt').write_text('a file')
+                dir_entries['a.txt'] = {"type": "reg"}
+                (to_file / 'b.txt').write_text('b file')
+                dir_entries['b.txt'] = {"type": "reg"}
+                (to_file / 'a.xtx').write_text('b file')
+                (to_file / 'b.xtx').write_text('b file')
+                assert await client.next_state() == expected_state
+
+                (to_file / 'a.xtx').unlink()
+                (to_file / 'b.xtx').unlink()
+                (to_file / 'dir.txt').mkdir()
+                dir_entries['dir.txt'] = {"type": "dir"}
+                (to_file / 'sym.txt').symlink_to('/x')
+                dir_entries['sym.txt'] = {"type": "lnk", "target": "/x"}
+                assert await client.next_state() == expected_state
+
+                (to_file / 'sym.txt').unlink()
+                del dir_entries['sym.txt']
+                assert await client.next_state() == expected_state
+
+                # we intentionally try not to receive these events — we want
+                # them to get lost when the identity changes, below
+                (to_file / 'dir.txt').rmdir()
+                (to_file / 'a.txt').unlink()
+                (to_file / 'b.txt').unlink()
+
+            # delete link to start over
+            link.unlink()
+            assert (await client.next_state()) == fsinfo_err(errno.ENOENT)
+
+        # let the pending event handler occasionally run to find nothing to process
+        await asyncio.sleep(0.15)
+
+    await client.close()

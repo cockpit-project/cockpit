@@ -278,8 +278,20 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     else
         at_boot = "local";
 
-    const action_title = create_partition ? _("Create and mount") : _("Format and mount");
-    const action_variant = { tag: "nomount", Title: create_partition ? _("Create only") : _("Format only") };
+    let action_variants = [
+        { tag: null, Title: create_partition ? _("Create and mount") : _("Format and mount") },
+        { tag: "nomount", Title: create_partition ? _("Create only") : _("Format only") }
+    ];
+
+    const action_variants_for_empty = [
+        { tag: null, Title: create_partition ? _("Create") : _("Format") }
+    ];
+
+    if (client.in_anaconda_mode()) {
+        action_variants = [
+            { tag: "nomount", Title: create_partition ? _("Create") : _("Format") }
+        ];
+    }
 
     const dlg = dialog_open({
         Title: title,
@@ -409,18 +421,17 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
             else if (trigger == "type") {
                 if (dlg.get_value("type") == "empty") {
-                    dlg.update_actions({ Variants: null, Title: _("Format") });
+                    dlg.update_actions({ Variants: action_variants_for_empty });
                 } else {
-                    dlg.update_actions({ Variants: [action_variant], Title: action_title });
+                    dlg.update_actions({ Variants: action_variants });
                 }
                 if (vals.type == "efi" && !vals.mount_point)
                     dlg.set_values({ mount_point: "/boot/efi" });
             }
         },
         Action: {
-            Title: action_title,
+            Variants: action_variants,
             Danger: (create_partition ? null : _("Formatting erases all data on a storage device.")),
-            Variants: [action_variant],
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             disable_on_error: usage.Teardown,
             action: function (vals) {

@@ -26,6 +26,12 @@ import testlib
 @testlib.nondestructive
 class TestStorageAnaconda(storagelib.StorageCase):
 
+    def enterAnacondaMode(self, config):
+        b = self.browser
+        b.call_js_func("window.localStorage.setItem", "cockpit_anaconda", json.dumps(config))
+        b.reload()
+        b.enter_page("/storage")
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -38,9 +44,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         }
 
         self.login_and_go("/storage")
-        b.call_js_func("window.localStorage.setItem", "cockpit_anaconda", json.dumps(anaconda_config))
-        b.reload()
-        b.enter_page("/storage")
+        self.enterAnacondaMode(anaconda_config)
 
         # There should be only one row, for our disk
         b.wait(lambda: b.call_js_func('ph_count', self.card("Storage") + " tbody tr") == 1)
@@ -62,28 +66,23 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_wait_open()
         self.dialog_wait_val("at_boot", "local")
         self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("mount_point", "/")
         self.dialog_set_val("crypto", self.default_crypto_type)
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
-        # Empty mount point should be failure
-        self.dialog_set_val("mount_point", "")
-        self.dialog_apply()
-        self.dialog_wait_error("mount_point", "Mount point cannot be empty")
-        self.dialog_set_val("mount_point", "/")
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
         self.assertNotIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
 
-        b.wait_visible(self.card_row_col("Storage", 3, 5) + " .usage-bar[role=progressbar]")
         b.assert_pixels("body", "page")
 
-        # Unount/mount the filesystem, edit mount options
+        # Mount/Unmount the filesystem, edit mount options
         self.click_card_row("Storage", location="/")
         b.wait_visible(self.card("Encryption"))
-        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "/ (stop boot on failure)")
-        b.click(self.card_desc("ext4 filesystem", "Mount point") + " button")
+        b.wait_in_text(self.card_desc("Filesystem", "Mount point"), "/ (stop boot on failure)")
+        b.click(self.card_desc("Filesystem", "Mount point") + " button")
         self.dialog_wait_open()
         self.dialog_wait_val("mount_point", "/")
         self.dialog_set_val("mount_options.ro", val=True)
@@ -95,21 +94,28 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         self.assertIn("ro", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
-        b.click(self.card_button("ext4 filesystem", "Unmount"))
-        self.dialog_wait_open()
-        b.wait_text("#dialog .pf-v5-c-modal-box__title-text", "Unmount filesystem /")
-        self.dialog_apply()
-        self.dialog_wait_close()
-        self.wait_not_mounted("Filesystem")
-        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
         b.click(self.card_button("Filesystem", "Mount"))
         self.dialog_wait_open()
         self.dialog_wait_val("mount_point", "/")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.wait_mounted("ext4 filesystem")
         self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
+        b.click(self.card_button("ext4 filesystem", "Unmount"))
+        self.dialog_wait_open()
+        b.wait_text("#dialog .pf-v5-c-modal-box__title-text", "Unmount filesystem /")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
+        # Mount again, to check location in tear down information
+        b.click(self.card_button("Filesystem", "Mount"))
+        self.dialog_wait_open()
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_close()
 
         # Check and delete volume group
         b.click(self.card_parent_link())
@@ -144,9 +150,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         }
 
         self.login_and_go("/storage")
-        b.call_js_func("window.localStorage.setItem", "cockpit_anaconda", json.dumps(anaconda_config))
-        b.reload()
-        b.enter_page("/storage")
+        self.enterAnacondaMode(anaconda_config)
 
         # Create a Stratis pool
         self.click_devices_dropdown("Create Stratis pool")
@@ -163,12 +167,12 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
         self.assertNotIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
 
         b.wait_visible(self.card_row_col("Storage", 3, 5) + " .usage-bar[role=progressbar]")
 
-        # Unount/mount the filesystem, edit mount options
+        # Mount/Unmount the filesystem, edit mount options
         self.click_card_row("Storage", location="/")
         b.wait_in_text(self.card_desc("Stratis filesystem", "Mount point"), "/ (stop boot on failure)")
         b.click(self.card_desc("Stratis filesystem", "Mount point") + " button")
@@ -178,19 +182,24 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         self.assertIn("ro", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
-        b.click(self.card_button("Stratis filesystem", "Unmount"))
-        self.dialog_wait_open()
-        b.wait_text("#dialog .pf-v5-c-modal-box__title-text", "Unmount filesystem /")
-        self.dialog_apply()
-        self.dialog_wait_close()
-        self.wait_not_mounted("Stratis filesystem")
-        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
         b.click(self.card_button("Stratis filesystem", "Mount"))
         self.dialog_wait_open()
         self.dialog_wait_val("mount_point", "/")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.wait_mounted("Stratis filesystem")
+        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
+        b.click(self.card_button("Stratis filesystem", "Unmount"))
+        self.dialog_wait_open()
+        b.wait_text("#dialog .pf-v5-c-modal-box__title-text", "Unmount filesystem /")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
+
+        # Mount again, to check location in tear down information
+        b.click(self.card_button("Stratis filesystem", "Mount"))
+        self.confirm()
         self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot"))
 
         # Check and delete pool
@@ -215,9 +224,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         }
 
         self.login_and_go("/storage")
-        b.call_js_func("window.localStorage.setItem", "cockpit_anaconda", json.dumps(anaconda_config))
-        b.reload()
-        b.enter_page("/storage")
+        self.enterAnacondaMode(anaconda_config)
 
         # Create a biosboot partition on GPT
         b.wait_text(self.card_row_col("Storage", 1, 3), "Unformatted data")
@@ -252,9 +259,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         }
 
         self.login_and_go("/storage")
-        b.call_js_func("window.localStorage.setItem", "cockpit_anaconda", json.dumps(anaconda_config))
-        b.reload()
-        b.enter_page("/storage")
+        self.enterAnacondaMode(anaconda_config)
 
         # Create a EFI system partition on GPT
         b.wait_text(self.card_row_col("Storage", 1, 3), "Unformatted data")
@@ -262,11 +267,11 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.confirm()
         b.wait_text(self.card_row_col("Storage", 2, 2), "Free space")
         self.click_dropdown(self.card_row("Storage", 2), "Create partition")
-        self.dialog({"type": "efi"}, secondary=True)
+        self.dialog({"type": "efi"})
 
         # Check the type and set it to something else
         b.wait_text(self.card_row_col("Storage", 2, 3), "vfat filesystem")
-        b.wait_text(self.card_row_col("Storage", 2, 4), "/boot/efi (not mounted)")
+        b.wait_text(self.card_row_col("Storage", 2, 4), "/boot/efi")
         self.click_card_row("Storage", 2)
         b.wait_visible(self.card("vfat filesystem"))
         b.wait_text(self.card_desc("Partition", "Type"), "EFI system partition")
@@ -276,8 +281,54 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
         # Correct it by reformatting as "efi"
         self.click_card_dropdown("vfat filesystem", "Format")
-        self.dialog({"type": "efi"}, secondary=True)
+        self.dialog({"type": "efi"})
         b.wait_text(self.card_desc("Partition", "Type"), "EFI system partition")
+
+    def testNoMounting(self):
+        m = self.machine
+        b = self.browser
+
+        disk = self.add_ram_disk()
+
+        anaconda_config = {
+            "mount_point_prefix": "/sysroot",
+            "available_devices": [disk],
+        }
+
+        self.login_and_go("/storage")
+        self.enterAnacondaMode(anaconda_config)
+
+        # Create a partition, there should be no "Create and mount" button
+        b.wait_text(self.card_row_col("Storage", 1, 3), "Unformatted data")
+        self.click_dropdown(self.card_row("Storage", 1), "Create partition table")
+        self.confirm()
+        b.wait_text(self.card_row_col("Storage", 2, 2), "Free space")
+
+        # Only one apply button in the Create Partition dialog
+        self.click_dropdown(self.card_row("Storage", 2), "Create partition")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "ext4")
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog button.apply") == 1)
+        b.wait_text("#dialog button.apply", "Create")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # Page talks about assigned mount points instead of "not mounted".
+        b.wait_text(self.card_row_col("Storage", 2, 4), "(no assigned mount point)")
+
+        # Only one apply button in the Format dialog
+        self.click_dropdown(self.card_row("Storage", 2), "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("mount_point", "/boot")
+        self.dialog_set_val("type", "ext4")
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog button.apply") == 1)
+        b.wait_text("#dialog button.apply", "Format")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # Filesystem is not mounted but page doesn't mention "not mounted".
+        m.execute(f"! findmnt {disk}")
+        b.wait_text(self.card_row_col("Storage", 2, 4), "/boot")
 
 
 if __name__ == '__main__':

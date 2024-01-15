@@ -147,24 +147,35 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
     }
 
     let extra_text = null;
-    if (!is_filesystem_mounted) {
+    if (client.in_anaconda_mode()) {
         if (!old_dir)
-            extra_text = _("The filesystem has no permanent mount point.");
-        else
-            extra_text = _("The filesystem is not mounted.");
-    } else if (backing_block != content_block) {
-        if (!opt_never_auto)
-            extra_text = _("The filesystem will be unlocked and mounted on the next boot. This might require inputting a passphrase.");
+            extra_text = _("The filesystem has no assigned mount point.");
+    } else {
+        if (!is_filesystem_mounted) {
+            if (!old_dir)
+                extra_text = _("The filesystem has no permanent mount point.");
+            else
+                extra_text = _("The filesystem is not mounted.");
+        } else if (backing_block != content_block) {
+            if (!opt_never_auto)
+                extra_text = _("The filesystem will be unlocked and mounted on the next boot. This might require inputting a passphrase.");
+        }
     }
 
-    if (extra_text && mount_point_text)
+    if (!mount_point_text) {
+        mount_point_text = extra_text;
+        extra_text = null;
+    }
+
+    if (extra_text)
         extra_text = <><br />{extra_text}</>;
 
     return (
         <>
-            { mount_point_text &&
             <Flex>
+                { mount_point_text &&
                 <FlexItem>{ mount_point_text }</FlexItem>
+                }
                 <FlexItem>
                     <StorageLink onClick={() => mounting_dialog(client,
                                                                 content_block || backing_block,
@@ -174,7 +185,6 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
                     </StorageLink>
                 </FlexItem>
             </Flex>
-            }
             { extra_text }
         </>);
 };
@@ -185,9 +195,13 @@ export const mount_point_text = (mount_point, mounted) => {
         mp_text = client.strip_mount_point_prefix(mount_point);
         if (mp_text == false)
             return null;
-        if (!mounted)
+        if (!mounted && !client.in_anaconda_mode())
             mp_text = mp_text + " " + _("(not mounted)");
-    } else
-        mp_text = _("(not mounted)");
+    } else {
+        if (client.in_anaconda_mode())
+            mp_text = _("(no assigned mount point)");
+        else
+            mp_text = _("(not mounted)");
+    }
     return mp_text;
 };

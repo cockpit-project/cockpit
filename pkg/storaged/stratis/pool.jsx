@@ -74,6 +74,18 @@ function create_fs(pool) {
     const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
     const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
 
+    let action_variants;
+    if (!client.in_anaconda_mode()) {
+        action_variants = [
+            { tag: null, Title: _("Create and mount") },
+            { tag: "nomount", Title: _("Create only") },
+        ];
+    } else {
+        action_variants = [
+            { tag: "nomount", Title: _("Create") },
+        ];
+    }
+
     dialog_open({
         Title: _("Create filesystem"),
         Fields: [
@@ -137,8 +149,7 @@ function create_fs(pool) {
                 dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
         },
         Action: {
-            Title: _("Create and mount"),
-            Variants: [{ tag: "nomount", Title: _("Create only") }],
+            Variants: action_variants,
             action: function (vals) {
                 return client.stratis_create_filesystem(pool, vals.name, vals.size)
                         .then(std_reply)

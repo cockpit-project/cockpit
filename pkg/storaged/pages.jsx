@@ -641,8 +641,9 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
     }
 
     function make_page_rows(pages, level, last_has_border, key, sorted) {
-        for (const p of sort(pages, p => p, sorted)) {
-            const is_last = (level == 0 || p == pages[pages.length - 1]);
+        const sorted_pages = sort(pages, p => p, sorted);
+        for (const p of sorted_pages) {
+            const is_last = (level == 0 || p == sorted_pages[pages.length - 1]);
             const p_key = key + ":" + (p.key || p.name);
             make_row(p, null, level, is_last && p.children.length == 0 && last_has_border, p_key);
             make_page_rows(p.children, level + 1, is_last && last_has_border, p_key, p.options.sorted);

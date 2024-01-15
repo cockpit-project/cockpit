@@ -87,11 +87,11 @@ export function usePageLocation() {
  */
 
 const cockpit_user_promise = cockpit.user();
-let cockpit_user = null;
+let cockpit_user: cockpit.UserInfo | null = null;
 cockpit_user_promise.then(user => { cockpit_user = user });
 
 export function useLoggedInUser() {
-    const [user, setUser] = useState(cockpit_user);
+    const [user, setUser] = useState<cockpit.UserInfo | null>(cockpit_user);
     useEffect(() => { if (!cockpit_user) cockpit_user_promise.then(setUser); }, []);
     return user;
 }
@@ -138,7 +138,7 @@ export function useLoggedInUser() {
  * again, which will cause a new event, ...).
  */
 
-export function useDeepEqualMemo(value) {
+export function useDeepEqualMemo<T>(value: T): T {
     const ref = useRef(value);
     if (!deep_equal(ref.current, value))
         ref.current = value;
@@ -181,14 +181,18 @@ export function useDeepEqualMemo(value) {
  * return false.
  */
 
-export function useFileWithError(path, options, hook_options) {
-    const [content_and_error, setContentAndError] = useState([null, null]);
+type UseFileWithErrorOptions = {
+    log_errors?: boolean;
+};
+
+export function useFileWithError(path: string, options: cockpit.JsonObject, hook_options: UseFileWithErrorOptions) {
+    const [content_and_error, setContentAndError] = useState<[string | false | null, cockpit.BasicError | false | null]>([null, null]);
     const memo_options = useDeepEqualMemo(options);
     const memo_hook_options = useDeepEqualMemo(hook_options);
 
     useEffect(() => {
         const handle = cockpit.file(path, memo_options);
-        handle.watch((data, tag, error) => {
+        handle.watch((data, _tag, error) => {
             setContentAndError([data || false, error || false]);
             if (!data && memo_hook_options?.log_errors)
                 console.warn("Can't read " + path + ": " + (error ? error.toString() : "not found"));
@@ -199,7 +203,7 @@ export function useFileWithError(path, options, hook_options) {
     return content_and_error;
 }
 
-export function useFile(path, options) {
+export function useFile(path: string, options: cockpit.JsonObject) {
     const [content] = useFileWithError(path, options, { log_errors: true });
     return content;
 }
@@ -243,15 +247,15 @@ export function useFile(path, options) {
  * are compared with the function at the same index in "comparators".
  */
 
-function deps_changed(old_deps, new_deps, comps) {
+function deps_changed(old_deps: Array<any>, new_deps: Array<any>, comps: Array<any>): boolean {
     return (!old_deps || old_deps.length != new_deps.length ||
             old_deps.findIndex((o, i) => !(comps[i] || Object.is)(o, new_deps[i])) >= 0);
 }
 
-export function useObject(create, destroy, deps, comps) {
-    const ref = useRef(null);
-    const deps_ref = useRef(null);
-    const destroy_ref = useRef(null);
+export function useObject<T>(create: () => T, destroy: ((value: T) => void) | null, deps: Array<any>, comps?: Array<any>): T {
+    const ref = useRef<T | null>(null);
+    const deps_ref = useRef<any>(null);
+    const destroy_ref = useRef<((value: T) => void) | null>(destroy);
 
     if (deps_changed(deps_ref.current, deps, comps || [])) {
         if (ref.current && destroy)
@@ -262,10 +266,10 @@ export function useObject(create, destroy, deps, comps) {
 
     destroy_ref.current = destroy;
     useEffect(() => {
-        return () => destroy_ref.current?.(ref.current);
+        return () => { destroy_ref.current?.(ref.current!) };
     }, []);
 
-    return ref.current;
+    return ref.current!;
 }
 
 /* - useEvent(obj, event, handler)
@@ -283,7 +287,7 @@ export function useObject(create, destroy, deps, comps) {
  * arguments of the event.
  */
 
-export function useEvent(obj, event, handler) {
+export function useEvent(obj: cockpit.EventMixin, event: string, handler?: any) {
     // We increase a (otherwise unused) state variable whenever the event
     // happens.  That reliably triggers a re-render.
 
@@ -321,6 +325,6 @@ export function useEvent(obj, event, handler) {
  * "useInit" and default to "[]".
  */
 
-export function useInit(func, deps, comps, destroy = null) {
+export function useInit<T>(func: () => T, deps: Array<any>, comps?: Array<any>, destroy: ((value: T) => void) | null = null): T {
     return useObject(func, destroy, deps || [], comps);
 }

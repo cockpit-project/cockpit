@@ -74,6 +74,11 @@ if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
         test -x node_modules/.bin/eslint -a -x /usr/bin/node || skip 'no eslint'
         find_scripts 'node' '*.js' '*.js?' | xargs -0 node_modules/.bin/eslint
     }
+
+    test_typescript() {
+        test -x node_modules/.bin/tsc -a -x /usr/bin/node || skip 'no tsc'
+        node_modules/.bin/tsc --checkJs false
+    }
 fi
 
 test_no_translatable_attr() {
@@ -94,9 +99,9 @@ test_unsafe_security_policy() {
 }
 
 test_json_verify() {
-    # Check all JSON files for validity
+    # Check (almost) all JSON files for validity
 
-    git ls-files -z '*.json' | while read -d '' filename; do
+    git ls-files -z '*.json' | grep -zv ^tsconfig | while read -d '' filename; do
         python3 -m json.tool "${filename}" /dev/null 2>&1 | sed "s@^@${filename}: @"
     done
 }

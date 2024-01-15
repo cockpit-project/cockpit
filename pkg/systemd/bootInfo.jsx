@@ -23,36 +23,41 @@ export function BootInfo({ user }) {
         const cmd = userMode ? ["systemd-analyze", "--user", "plot"] : ["systemd-analyze", "plot"];
         cockpit.spawn(cmd)
                 .then(svg_xml => {
-                    const doc = new DOMParser().parseFromString(svg_xml, "text/xml");
+                    try {
+                        const doc = new DOMParser().parseFromString(svg_xml, "text/xml");
 
-                    const topLevelText = doc.querySelectorAll("*:not(g) > text");
-                    const topLevelTextContent = [...topLevelText].map(e => {
-                        const content = e.textContent;
-                        e.remove();
-                        return content;
-                    });
-                    setText(topLevelTextContent);
+                        const topLevelText = doc.querySelectorAll("*:not(g) > text");
+                        const topLevelTextContent = [...topLevelText].map(e => {
+                            const content = e.textContent;
+                            e.remove();
+                            return content;
+                        });
+                        setText(topLevelTextContent);
 
-                    doc.querySelector("rect.background")?.remove();
-                    const svgElem = doc.querySelector("svg");
-                    svgElem.style.scale = "0.5";
-                    const [plot, legend] = doc.querySelectorAll("g");
-                    legend.remove();
-                    [...plot.querySelectorAll("text.left"), ...plot.querySelectorAll("text.right")].forEach((text) => {
-                        const match = text.innerHTML.match(/^(?<service>.+\.[a-z._-]+)(\s+\((?<time>\d+(\.\d+)?)\w+\))?$/);
-                        if (match !== null) {
-                            const service = match.groups.service;
-                            const time = match.groups.time;
-                            text.setAttribute("data-service", service);
-                            text.setAttribute("data-time", time);
-                            text.classList.add("clickable-service");
-                        }
-                    });
-                    setSvg(doc.documentElement);
+                        doc.querySelector("rect.background")?.remove();
+                        const svgElem = doc.querySelector("svg");
+                        svgElem.style.scale = "0.5";
+                        const [plot, legend] = doc.querySelectorAll("g");
+                        legend.remove();
+                        [...plot.querySelectorAll("text.left"), ...plot.querySelectorAll("text.right")].forEach((text) => {
+                            const match = text.innerHTML.match(/^(?<service>.+\.[a-z._-]+)(\s+\((?<time>\d+(\.\d+)?)\w+\))?$/);
+                            if (match !== null) {
+                                const service = match.groups.service;
+                                const time = match.groups.time;
+                                text.setAttribute("data-service", service);
+                                text.setAttribute("data-time", time);
+                                text.classList.add("clickable-service");
+                            }
+                        });
+                        setSvg(doc.documentElement);
+                    } catch (e) {
+                        setSvg(null);
+                        setText(_("There was an error parsing the output of systemd-analyze"));
+                    }
                 })
                 .catch((e) => {
                     setSvg(null);
-                    setText(e);
+                    setText(_("There was an error reading the output of systemd-analyze"));
                 });
     }, [userMode]);
 

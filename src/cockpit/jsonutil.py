@@ -155,3 +155,26 @@ def json_merge_patch(current: JsonObject, patch: JsonObject) -> JsonObject:
             result.pop(key)
 
     return result
+
+
+def json_merge_and_filter_patch(current: JsonDict, patch: JsonDict) -> None:
+    """Perform a JSON merge patch (RFC 7396) modifying 'current' with 'patch'.
+    Also modifies 'patch' to remove redundant operations.
+    """
+    for key, patch_value in tuple(patch.items()):
+        current_value = current.get(key, None)
+
+        if isinstance(patch_value, dict):
+            if not isinstance(current_value, dict):
+                current[key] = current_value = {}
+                json_merge_and_filter_patch(current_value, patch_value)
+            else:
+                json_merge_and_filter_patch(current_value, patch_value)
+                if not patch_value:
+                    del patch[key]
+        elif current_value == patch_value:
+            del patch[key]
+        elif patch_value is not None:
+            current[key] = patch_value
+        else:
+            del current[key]

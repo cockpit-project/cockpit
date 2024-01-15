@@ -16,7 +16,7 @@ const _ = cockpit.gettext;
 
 export function BootInfo({ user }) {
     const [svg, setSvg] = useState(undefined);
-    const [summary, setSummary] = useState(null);
+    const [text, setText] = useState(null);
     const userMode = user !== "system";
 
     useEffect(() => {
@@ -24,16 +24,18 @@ export function BootInfo({ user }) {
         cockpit.spawn(cmd)
                 .then(svg_xml => {
                     const doc = new DOMParser().parseFromString(svg_xml, "text/xml");
+
+                    const topLevelText = doc.querySelectorAll("*:not(g) > text");
+                    const topLevelTextContent = [...topLevelText].map(e => {
+                        const content = e.textContent;
+                        e.remove();
+                        return content;
+                    });
+                    setText(topLevelTextContent);
+
                     doc.querySelector("rect.background")?.remove();
-                    doc.querySelector("text[y='30']")?.remove();
                     const svgElem = doc.querySelector("svg");
                     svgElem.style.scale = "0.5";
-                    const summaryElem = doc.querySelector("text[y='50']");
-                    // Grabs summary from SVG and puts it in the card body instead
-                    if (summaryElem !== null) {
-                        setSummary(summaryElem.textContent);
-                        summaryElem.remove();
-                    }
                     const [plot, legend] = doc.querySelectorAll("g");
                     legend.remove();
                     [...plot.querySelectorAll("text.left"), ...plot.querySelectorAll("text.right")].forEach((text) => {
@@ -50,7 +52,7 @@ export function BootInfo({ user }) {
                 })
                 .catch((e) => {
                     setSvg(null);
-                    setSummary(e);
+                    setText(e);
                 });
     }, [userMode]);
 
@@ -73,7 +75,7 @@ export function BootInfo({ user }) {
         );
         const secondary = (
             <CodeBlock>
-                <CodeBlockCode id="code-content">{summary.toString()}</CodeBlockCode>
+                <CodeBlockCode id="code-content">{text.toString()}</CodeBlockCode>
             </CodeBlock>
         );
         return (
@@ -95,9 +97,11 @@ export function BootInfo({ user }) {
             <Card>
                 <CardTitle>{ _("Boot Info") }</CardTitle>
                 <CardBody>
-                    <p>
-                        {summary}
-                    </p>
+                    <>
+                        {text.map(t => {
+                            return <p key={t}>{t}</p>;
+                        })}
+                    </>
                     <List className="legend" isPlain variant={ListVariant.inline}>
                         <ListItem>
                             <div className="legendColor activating" />

@@ -34,12 +34,12 @@ export function BootInfo({ user }) {
                         });
                         setText(topLevelTextContent);
 
-                        doc.querySelector("rect.background")?.remove();
                         const svgElem = doc.querySelector("svg");
                         svgElem.style.scale = "0.5";
                         const [plot, legend] = doc.querySelectorAll("g");
                         legend.remove();
                         [...plot.querySelectorAll("text.left"), ...plot.querySelectorAll("text.right")].forEach((text) => {
+                            // Sets up attributes to make it possible jump to the page of a specific service
                             const match = text.innerHTML.match(/^(?<service>.+\.[a-z._-]+)(\s+\((?<time>\d+(\.\d+)?)\w+\))?$/);
                             if (match !== null) {
                                 const service = match.groups.service;

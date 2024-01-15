@@ -50,7 +50,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         dev_1 = self.add_ram_disk()
-        dev_2 = self.add_loopback_disk()
+        dev_2 = self.add_loopback_disk(name="loop10")
         b.wait_visible(self.card_row("Storage", name=dev_1))
         b.wait_visible(self.card_row("Storage", name=dev_2))
 

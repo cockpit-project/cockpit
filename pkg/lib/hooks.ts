@@ -87,11 +87,11 @@ export function usePageLocation() {
  */
 
 const cockpit_user_promise = cockpit.user();
-let cockpit_user = null;
+let cockpit_user: cockpit.UserInfo | null = null;
 cockpit_user_promise.then(user => { cockpit_user = user }).catch(err => console.log(err));
 
 export function useLoggedInUser() {
-    const [user, setUser] = useState(cockpit_user);
+    const [user, setUser] = useState<cockpit.UserInfo | null>(cockpit_user);
     useEffect(() => { if (!cockpit_user) cockpit_user_promise.then(setUser); }, []);
     return user;
 }
@@ -138,7 +138,7 @@ export function useLoggedInUser() {
  * again, which will cause a new event, ...).
  */
 
-export function useDeepEqualMemo(value) {
+export function useDeepEqualMemo<T>(value: T): T {
     const ref = useRef(value);
     if (!deep_equal(ref.current, value))
         ref.current = value;
@@ -181,14 +181,18 @@ export function useDeepEqualMemo(value) {
  * return false.
  */
 
-export function useFileWithError(path, options, hook_options) {
-    const [content_and_error, setContentAndError] = useState([null, null]);
+type UseFileWithErrorOptions = {
+    log_errors?: boolean;
+};
+
+export function useFileWithError(path: string, options: cockpit.JsonObject, hook_options: UseFileWithErrorOptions) {
+    const [content_and_error, setContentAndError] = useState<[string | false | null, cockpit.BasicError | false | null]>([null, null]);
     const memo_options = useDeepEqualMemo(options);
     const memo_hook_options = useDeepEqualMemo(hook_options);
 
     useEffect(() => {
         const handle = cockpit.file(path, memo_options);
-        handle.watch((data, tag, error) => {
+        handle.watch((data, _tag, error) => {
             setContentAndError([data || false, error || false]);
             if (!data && memo_hook_options?.log_errors)
                 console.warn("Can't read " + path + ": " + (error ? error.toString() : "not found"));
@@ -199,7 +203,7 @@ export function useFileWithError(path, options, hook_options) {
     return content_and_error;
 }
 
-export function useFile(path, options) {
+export function useFile(path: string, options: cockpit.JsonObject) {
     const [content] = useFileWithError(path, options, { log_errors: true });
     return content;
 }
@@ -209,7 +213,7 @@ export function useFile(path, options) {
  * function Component(param) {
  *   const obj = useObject(() => create_object(param),
  *                         obj => obj.close(),
- *                         [param], [deep_equal])
+ *                         [param] as const, [deep_equal])
  *
  *   ...
  * }
@@ -243,17 +247,24 @@ export function useFile(path, options) {
  * are compared with the function at the same index in "comparators".
  */
 
-function deps_changed(old_deps, new_deps, comps) {
+type Tuple = readonly [...unknown[]];
+type Comparator<T> = (a: T, b: T) => boolean;
+type Comparators<T extends Tuple> = {[ t in keyof T ]?: Comparator<T[t]>};
+
+function deps_changed<T extends Tuple>(old_deps: T | null, new_deps: T, comps: Comparators<T>): boolean {
     return (!old_deps || old_deps.length != new_deps.length ||
             old_deps.findIndex((o, i) => !(comps[i] || Object.is)(o, new_deps[i])) >= 0);
 }
 
-export function useObject(create, destroy, deps, comps) {
-    const ref = useRef(null);
-    const deps_ref = useRef(null);
-    const destroy_ref = useRef(null);
+export function useObject<T, D extends Tuple>(create: () => T, destroy: ((value: T) => void) | null, deps: D, comps?: Comparators<D>): T {
+    const ref = useRef<T | null>(null);
+    const deps_ref = useRef<D | null>(null);
+    const destroy_ref = useRef<((value: T) => void) | null>(destroy);
 
-    if (deps_changed(deps_ref.current, deps, comps || [])) {
+    /* Since each item in Comparators<> is optional, `[]` should be valid here
+     * but for some reason it doesn't work — but `{}` does.
+     */
+    if (deps_changed(deps_ref.current, deps, comps || {})) {
         if (ref.current && destroy)
             destroy(ref.current);
         ref.current = create();
@@ -262,10 +273,10 @@ export function useObject(create, destroy, deps, comps) {
 
     destroy_ref.current = destroy;
     useEffect(() => {
-        return () => destroy_ref.current?.(ref.current);
+        return () => { destroy_ref.current?.(ref.current!) };
     }, []);
 
-    return ref.current;
+    return ref.current!;
 }
 
 /* - useEvent(obj, event, handler)
@@ -283,16 +294,16 @@ export function useObject(create, destroy, deps, comps) {
  * arguments of the event.
  */
 
-export function useEvent(obj, event, handler) {
+export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: cockpit.EventSource<EM>, event: E, handler?: cockpit.EventListener<EM[E]>) {
     // We increase a (otherwise unused) state variable whenever the event
     // happens.  That reliably triggers a re-render.
 
     const [, forceUpdate] = useReducer(x => x + 1, 0);
 
     useEffect(() => {
-        function update() {
+        function update(...args: Parameters<cockpit.EventListener<EM[E]>>) {
             if (handler)
-                handler.apply(null, arguments);
+                handler(...args);
             forceUpdate();
         }
 
@@ -321,6 +332,6 @@ export function useEvent(obj, event, handler) {
  * "useInit" and default to "[]".
  */
 
-export function useInit(func, deps, comps, destroy = null) {
+export function useInit<T, D extends Tuple>(func: () => T, deps: D, comps?: Comparators<D>, destroy: ((value: T) => void) | null = null): T {
     return useObject(func, destroy, deps || [], comps);
 }

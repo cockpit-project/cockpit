@@ -284,6 +284,12 @@ export function get_resize_info(client, block, to_fit) {
                 grow_needs_unmount: false
             };
             shrink_excuse = _("VDO backing devices can not be made smaller");
+        } else if (client.blocks_swap[block.path]) {
+            info = {
+                can_shrink: false,
+                can_grow: false,
+            };
+            shrink_excuse = grow_excuse = _("Swap can not be resized here");
         } else if (client.blocks_available[block.path]) {
             info = {
                 can_shrink: true,

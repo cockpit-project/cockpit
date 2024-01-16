@@ -171,7 +171,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         title = cockpit.format(_("Format $0"), block_name(block));
 
     function is_filesystem(vals) {
-        return vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot";
+        return vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "swap";
     }
 
     function add_fsys(storaged_name, entry) {
@@ -186,6 +186,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
+    add_fsys("swap", { value: "swap", title: "Swap" });
     if (client.in_anaconda_mode()) {
         if (block_ptable && block_ptable.Type == "gpt" && !client.anaconda.efi)
             add_fsys(true, { value: "biosboot", title: "BIOS boot partition" });
@@ -288,8 +289,13 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         { tag: null, Title: create_partition ? _("Create") : _("Format") }
     ];
 
+    let action_variants_for_swap = [
+        { tag: null, Title: create_partition ? _("Create and start") : _("Format and start") },
+        { tag: "nomount", Title: create_partition ? _("Create only") : _("Format only") }
+    ];
+
     if (client.in_anaconda_mode()) {
-        action_variants = [
+        action_variants = action_variants_for_swap = [
             { tag: "nomount", Title: create_partition ? _("Create") : _("Format") }
         ];
     }
@@ -423,6 +429,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             else if (trigger == "type") {
                 if (dlg.get_value("type") == "empty") {
                     dlg.update_actions({ Variants: action_variants_for_empty });
+                } else if (dlg.get_value("type") == "swap") {
+                    dlg.update_actions({ Variants: action_variants_for_swap });
                 } else {
                     dlg.update_actions({ Variants: action_variants });
                 }
@@ -448,6 +456,12 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 if (type == "biosboot") {
                     type = "empty";
                     partition_type = "21686148-6449-6e6f-744e-656564454649";
+                }
+
+                if (type == "swap") {
+                    partition_type = (block_ptable && block_ptable.Type == "dos"
+                        ? "0x82"
+                        : "0657fd6d-a4ab-43c4-84e5-0933c84b4f4f");
                 }
 
                 const options = {
@@ -532,6 +546,17 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     }
                 }
 
+                if (type == "swap") {
+                    config_items.push(["fstab", {
+                        dir: { t: 'ay', v: encode_filename("none") },
+                        type: { t: 'ay', v: encode_filename("swap") },
+                        opts: { t: 'ay', v: encode_filename(mount_now ? "defaults" : "noauto") },
+                        freq: { t: 'i', v: 0 },
+                        passno: { t: 'i', v: 0 },
+                        "track-parents": { t: 'b', v: true }
+                    }]);
+                }
+
                 if (config_items.length > 0)
                     options["config-items"] = { t: 'a(sa{sv})', v: config_items };
 
@@ -587,6 +612,17 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         return client.blocks_fsys[path];
                 }
 
+                function block_swap_for_block(path) {
+                    if (keep_keys) {
+                        const content_block = client.blocks_cleartext[path];
+                        return client.blocks_swap[content_block.path];
+                    } else if (is_encrypted(vals))
+                        return (client.blocks_cleartext[path] &&
+                                client.blocks_swap[client.blocks_cleartext[path].path]);
+                    else
+                        return client.blocks_swap[path];
+                }
+
                 function block_crypto_for_block(path) {
                     return client.blocks_crypto[path];
                 }
@@ -597,7 +633,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         return (client.wait_for(() => block_fsys_for_block(path))
                                 .then(block_fsys => client.mount_at(client.blocks[block_fsys.path],
                                                                     mount_point)));
-                    if (is_encrypted(vals) && is_filesystem(vals) && !mount_now)
+                    if (type == "swap" && mount_now)
+                        return (client.wait_for(() => block_swap_for_block(path))
+                                .then(block_swap => block_swap.Start({})));
+                    if (is_encrypted(vals) && (is_filesystem(vals) || type == "swap") && !mount_now)
                         return (client.wait_for(() => block_crypto_for_block(path))
                                 .then(block_crypto => block_crypto.Lock({ })));
                 }

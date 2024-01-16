@@ -41,6 +41,7 @@ import {
 import { get_fstab_config, is_valid_mount_point } from "../filesystem/utils.jsx";
 import { init_existing_passphrase, unlock_with_type } from "../crypto/keyslots.jsx";
 import { job_progress_wrapper } from "../jobs-panel.jsx";
+import { at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -386,42 +387,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                         })
                           ]
                       }),
-            SelectOne("at_boot", _("At boot"),
-                      {
-                          visible: is_filesystem,
-                          value: at_boot,
-                          explanation: mount_explanation[at_boot],
-                          choices: [
-                              {
-                                  value: "local",
-                                  title: _("Mount before services start"),
-                              },
-                              {
-                                  value: "nofail",
-                                  title: _("Mount without waiting, ignore failure"),
-                              },
-                              {
-                                  value: "netdev",
-                                  title: _("Mount after network becomes available, ignore failure"),
-                              },
-                              {
-                                  value: "never",
-                                  title: _("Do not mount"),
-                              },
-                          ]
-                      }),
-            CheckBoxes("mount_options", _("Mount options"),
-                       {
-                           visible: is_filesystem,
-                           value: {
-                               ro: opt_ro,
-                               extra: extra_options || false
-                           },
-                           fields: [
-                               { title: _("Mount read only"), tag: "ro" },
-                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                           ]
-                       }),
+            at_boot_input(at_boot, is_filesystem),
+            mount_options(opt_ro, extra_options, is_filesystem),
         ],
         update: function (dlg, vals, trigger) {
             if (trigger == "at_boot")

@@ -842,6 +842,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
     function get_usage(usage, path, level) {
         const block = client.blocks[path];
         const fsys = client.blocks_fsys[path];
+        const swap = client.blocks_swap[path];
         const mdraid = block && client.mdraids[block.MDRaidMember];
         const pvol = client.blocks_pvol[path];
         const vgroup = pvol && client.vgroups[pvol.VolumeGroup];
@@ -910,6 +911,15 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                     enter_unmount(children[c], c, false);
                 enter_unmount(block, mp, true);
             });
+        } else if (swap) {
+            if (swap.Active) {
+                usage.push({
+                    level,
+                    usage: 'swap',
+                    block,
+                    actions: get_actions(_("stop")),
+                });
+            }
         } else if (mdraid) {
             const active_state = mdraid.ActiveDevices.find(as => as[0] == block.path);
             usage.push({
@@ -1024,6 +1034,12 @@ export function teardown_active_usage(client, usage) {
         }
     }
 
+    async function stop_swap(swaps) {
+        for (const s of swaps) {
+            await client.blocks_swap[s.block.path].Stop({});
+        }
+    }
+
     function mdraid_remove(members) {
         return Promise.all(members.map(m => m.mdraid.RemoveDevice(m.block.path, { wipe: { t: 'b', v: true } })));
     }
@@ -1053,6 +1069,7 @@ export function teardown_active_usage(client, usage) {
 
     return Promise.all(Array.prototype.concat(
         unmount(usage.filter(function(use) { return use.usage == "mounted" })),
+        stop_swap(usage.filter(function(use) { return use.usage == "swap" })),
         mdraid_remove(usage.filter(function(use) { return use.usage == "mdraid-member" })),
         pvol_remove(usage.filter(function(use) { return use.usage == "pvol" }))
     ));

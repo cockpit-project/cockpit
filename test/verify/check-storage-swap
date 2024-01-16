@@ -24,27 +24,95 @@ import testlib
 @testlib.nondestructive
 class TestStorageswap(storagelib.StorageCase):
 
-    def test(self):
-        m = self.machine
+    def testBasic(self):
         b = self.browser
+        m = self.machine
+
+        disk = self.add_ram_disk()
+        self.addCleanup(m.execute, f"swapoff {disk} || true; swapoff {disk}1 || true")
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk()
+        # Create a swap partition on GPT
         self.click_card_row("Storage", name=disk)
+        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.confirm()
+        b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
+        self.click_dropdown(self.card_row("GPT partitions", 1), "Create partition")
+        self.dialog({"type": "swap"})
+        b.wait_text(self.card_row_col("GPT partitions", 1, 2), "Swap")
 
-        b.wait_visible(self.card("Unformatted data"))
-        m.execute(f"mkswap {disk}")
-        b.wait_visible(self.card("Swap"))
-        b.wait_text(self.card_desc("Swap", "Used"), "-")
-
-        b.click(self.card_button("Swap", "Start"))
+        # It should have been started and have a fstab entry
+        self.click_card_row("GPT partitions", 1)
         b.wait_text(self.card_desc("Swap", "Used"), "0")
+        self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
 
-        self.assertEqual(m.execute(f"lsblk -n -o MOUNTPOINT {disk}").strip(), "[SWAP]")
-
+        # Stopping should set it to noauto
         b.click(self.card_button("Swap", "Stop"))
         b.wait_text(self.card_desc("Swap", "Used"), "-")
+        self.assertIn("noauto", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
+
+        # Start it again to test teardown below
+        b.click(self.card_button("Swap", "Start"))
+        b.wait_text(self.card_desc("Swap", "Used"), "0")
+        self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
+
+        # It should have the right partition type
+        b.wait_visible(self.card("Swap"))
+        b.wait_text(self.card_desc("Partition", "Type"), "Linux swap space")
+
+        # Set it to something else
+        b.click(self.card_desc_action("Partition", "Type"))
+        self.dialog({"type": "0fc63daf-8483-4772-8e79-3d69d8477de4"})
+        b.wait_text(self.card_desc("Partition", "Type"), "Linux filesystem data")
+
+        # Correct it by reformatting
+        self.click_card_dropdown("Swap", "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "swap")
+        b.wait_in_text("#dialog .modal-footer-teardown", f"{disk}1")
+        b.wait_in_text("#dialog .modal-footer-teardown", "stop, format")
+        self.dialog_apply_secondary()
+        self.dialog_wait_close()
+        b.wait_text(self.card_desc("Partition", "Type"), "Linux swap space")
+
+        # Delete the partition, the fstab entry should disappear
+        self.click_card_dropdown("Partition", "Delete")
+        self.confirm()
+        b.wait_visible(self.card("Solid State Drive"))
+        m.execute(f"! findmnt --fstab -n -o OPTIONS {disk}1")
+
+        # Format as swap on the command line, starting it should add
+        # fstab entry
+        m.execute(f"mkswap -f {disk}")
+        b.click(self.card_button("Swap", "Start"))
+        b.wait_text(self.card_desc("Swap", "Used"), "0")
+        testlib.wait(lambda: "defaults" in m.execute(f"findmnt --fstab -n -o OPTIONS {disk}"))
+
+    def testEncrypted(self):
+        b = self.browser
+        m = self.machine
+
+        disk = self.add_ram_disk()
+
+        self.login_and_go("/storage")
+
+        # Create a encrypted swap partition directly on a disk
+        self.click_dropdown(self.card_row("Storage", name=disk), "Format")
+        with b.wait_timeout(60):
+            self.dialog({
+                "type": "swap",
+                "crypto": "luks2",
+                "passphrase": "foobar",
+                "passphrase2": "foobar",
+            })
+        b.wait_in_text(self.card_row("Storage", name=disk), "Swap (encrypted)")
+
+        # It should have been started and have a fstab entry
+        self.click_card_row("Storage", name=disk)
+        b.wait_text(self.card_desc("Swap", "Used"), "0")
+        dev = b.text(self.card_desc("Encryption", "Cleartext device"))
+        testlib.wait(lambda: "defaults" in m.execute(f"findmnt --fstab -n -o OPTIONS {dev}"))
 
 
 if __name__ == '__main__':

@@ -42,6 +42,48 @@ import {
 
 const _ = cockpit.gettext;
 
+export const mount_options = (opt_ro, extra_options, is_filesystem) => {
+    return CheckBoxes("mount_options", _("Mount options"),
+                      {
+                          visible: is_filesystem,
+                          value: {
+                              ro: opt_ro,
+                              extra: extra_options || false
+                          },
+                          fields: [
+                              { title: _("Mount read only"), tag: "ro" },
+                              { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                          ]
+                      });
+};
+
+export const at_boot_input = (at_boot, is_filesystem) => {
+    return SelectOne("at_boot", _("At boot"),
+                     {
+                         visible: is_filesystem,
+                         value: at_boot,
+                         explanation: mount_explanation[at_boot],
+                         choices: [
+                             {
+                                 value: "local",
+                                 title: _("Mount before services start"),
+                             },
+                             {
+                                 value: "nofail",
+                                 title: _("Mount without waiting, ignore failure"),
+                             },
+                             {
+                                 value: "netdev",
+                                 title: _("Mount after network becomes available, ignore failure"),
+                             },
+                             {
+                                 value: "never",
+                                 title: _("Do not mount"),
+                             },
+                         ]
+                     });
+};
+
 export function mounting_dialog(client, block, mode, forced_options, subvol) {
     const block_fsys = client.blocks_fsys[block.path];
     const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true, subvol);
@@ -210,40 +252,8 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                                                                 true,
                                                                 subvol)
                       }),
-            CheckBoxes("mount_options", _("Mount options"),
-                       {
-                           value: {
-                               ro: opt_ro,
-                               extra: extra_options || false
-                           },
-                           fields: [
-                               { title: _("Mount read only"), tag: "ro" },
-                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                           ]
-                       }),
-            SelectOne("at_boot", _("At boot"),
-                      {
-                          value: at_boot,
-                          explanation: mount_explanation[at_boot],
-                          choices: [
-                              {
-                                  value: "local",
-                                  title: _("Mount before services start"),
-                              },
-                              {
-                                  value: "nofail",
-                                  title: _("Mount without waiting, ignore failure"),
-                              },
-                              {
-                                  value: "netdev",
-                                  title: _("Mount after network becomes available, ignore failure"),
-                              },
-                              {
-                                  value: "never",
-                                  title: _("Do not mount"),
-                              },
-                          ]
-                      }),
+            mount_options(opt_ro, extra_options),
+            at_boot_input(at_boot),
         ];
 
         if (block.IdUsage == "crypto" && mode == "mount")

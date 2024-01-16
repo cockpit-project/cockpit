@@ -43,7 +43,7 @@ import {
 } from "../utils.js";
 
 import {
-    dialog_open, SelectSpaces, TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
+    dialog_open, SelectSpaces, TextInput, PassInput, SelectOne, SizeSlider,
     BlockingMessage, TeardownMessage,
     init_active_usage_processes
 } from "../dialog.jsx";
@@ -51,6 +51,7 @@ import {
 import { validate_url, get_tang_adv } from "../crypto/tang.jsx";
 import { is_valid_mount_point } from "../filesystem/utils.jsx";
 import { mount_explanation } from "../block/format-dialog.jsx";
+import { at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 
 import {
     validate_pool_name, std_reply, with_keydesc, with_stored_passphrase,
@@ -109,40 +110,8 @@ function create_fs(pool) {
                                                           variant == "nomount");
                           }
                       }),
-            CheckBoxes("mount_options", _("Mount options"),
-                       {
-                           value: {
-                               ro: false,
-                               extra: false
-                           },
-                           fields: [
-                               { title: _("Mount read only"), tag: "ro" },
-                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                           ]
-                       }),
-            SelectOne("at_boot", _("At boot"),
-                      {
-                          value: client.in_anaconda_mode() ? "local" : "nofail",
-                          explanation: mount_explanation.nofail,
-                          choices: [
-                              {
-                                  value: "local",
-                                  title: _("Mount before services start"),
-                              },
-                              {
-                                  value: "nofail",
-                                  title: _("Mount without waiting, ignore failure"),
-                              },
-                              {
-                                  value: "netdev",
-                                  title: _("Mount after network becomes available, ignore failure"),
-                              },
-                              {
-                                  value: "never",
-                                  title: _("Do not mount"),
-                              },
-                          ]
-                      }),
+            mount_options(false, false),
+            at_boot_input(client.in_anaconda_mode() ? "local" : "nofail"),
         ],
         update: function (dlg, vals, trigger) {
             if (trigger == "at_boot")

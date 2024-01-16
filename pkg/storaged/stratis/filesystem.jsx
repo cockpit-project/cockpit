@@ -25,7 +25,7 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import {
-    dialog_open, TextInput, CheckBoxes, SelectOne, BlockingMessage, TeardownMessage,
+    dialog_open, TextInput, BlockingMessage, TeardownMessage,
     init_active_usage_processes,
 } from "../dialog.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
@@ -40,7 +40,7 @@ import {
     get_fstab_config, mount_point_text,
 } from "../filesystem/utils.jsx";
 import { MismountAlert, check_mismounted_fsys } from "../filesystem/mismounting.jsx";
-import { mounting_dialog } from "../filesystem/mounting-dialog.jsx";
+import { mounting_dialog, at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 import { fmt_size, get_active_usage, teardown_active_usage } from "../utils.js";
 import { std_reply, validate_fs_name, set_mount_options, destroy_filesystem } from "./utils.jsx";
 import { mount_explanation } from "../block/format-dialog.jsx";
@@ -97,40 +97,8 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
                                                               variant == "nomount");
                               }
                           }),
-                CheckBoxes("mount_options", _("Mount options"),
-                           {
-                               value: {
-                                   ro: false,
-                                   extra: false
-                               },
-                               fields: [
-                                   { title: _("Mount read only"), tag: "ro" },
-                                   { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                               ]
-                           }),
-                SelectOne("at_boot", _("At boot"),
-                          {
-                              value: "nofail",
-                              explanation: mount_explanation.nofail,
-                              choices: [
-                                  {
-                                      value: "local",
-                                      title: _("Mount before services start"),
-                                  },
-                                  {
-                                      value: "nofail",
-                                      title: _("Mount without waiting, ignore failure"),
-                                  },
-                                  {
-                                      value: "netdev",
-                                      title: _("Mount after network becomes available, ignore failure"),
-                                  },
-                                  {
-                                      value: "never",
-                                      title: _("Do not mount"),
-                                  },
-                              ]
-                          }),
+                mount_options(false, false),
+                at_boot_input("nofail"),
             ],
             update: function (dlg, vals, trigger) {
                 if (trigger == "at_boot")

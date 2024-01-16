@@ -262,7 +262,7 @@ export async function btrfs_poll() {
                 for (const line of output.split("\n")) {
                     const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
                     if (m)
-                        subvols.push({ pathname: m[4], id: Number(m[1]) });
+                        subvols.push({ pathname: m[4], id: Number(m[1]), parent: Number(m[2]) });
                 }
                 uuids_subvols[uuid] = subvols;
             } catch (err) {

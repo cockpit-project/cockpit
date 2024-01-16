@@ -25,12 +25,15 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 
 import { StorageCard, StorageDescription, new_card, new_page } from "../pages.jsx";
 import { StorageUsageBar } from "../storage-controls.jsx";
-import { get_fstab_config_with_client } from "../utils.js";
-import { btrfs_usage } from "./utils.jsx";
-import { mounting_dialog } from "../filesystem/mounting-dialog.jsx";
+import { encode_filename, get_fstab_config_with_client, reload_systemd, extract_option, parse_options } from "../utils.js";
+import { btrfs_usage, validate_subvolume_name } from "./utils.jsx";
+import { at_boot_input, mounting_dialog, mount_options } from "../filesystem/mounting-dialog.jsx";
+import {
+    dialog_open, TextInput,
+} from "../dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "../filesystem/mismounting.jsx";
-import { is_mounted, mount_point_text, MountPoint } from "../filesystem/utils.jsx";
-import client from "../client.js";
+import { is_mounted, is_valid_mount_point, mount_point_text, MountPoint } from "../filesystem/utils.jsx";
+import client, { btrfs_poll } from "../client.js";
 
 const _ = cockpit.gettext;
 
@@ -44,19 +47,136 @@ function subvolume_mount(volume, subvol, forced_options) {
     mounting_dialog(client, block, "mount", forced_options, subvol);
 }
 
+function get_mount_point_in_parent(volume, subvol) {
+    const block = client.blocks[volume.path];
+    const subvols = client.uuids_btrfs_subvols[volume.data.uuid];
+    if (!subvols)
+        return null;
+
+    for (const p of subvols) {
+        const has_parent_subvol = (p.pathname == "/" && subvol.pathname !== "/") ||
+                                  (subvol.pathname.substring(0, p.pathname.length) == p.pathname &&
+                                   subvol.pathname[p.pathname.length] == "/");
+        if (has_parent_subvol && is_mounted(client, block, p)) {
+            const [, pmp, opts] = get_fstab_config_with_client(client, block, false, p);
+            const opt_ro = extract_option(parse_options(opts), "ro");
+            if (!opt_ro) {
+                if (p.pathname == "/")
+                    return pmp + "/" + subvol.pathname;
+                else
+                    return pmp + subvol.pathname.substring(p.pathname.length);
+            }
+        }
+    }
+    return null;
+}
+
+function set_mount_options(subvol, block, vals) {
+    const mount_options = [];
+    const mount_now = vals.variant != "nomount";
+
+    if (!mount_now || vals.at_boot == "never") {
+        mount_options.push("noauto");
+    }
+    if (vals.mount_options.ro)
+        mount_options.push("ro");
+    if (vals.at_boot == "never")
+        mount_options.push("x-cockpit-never-auto");
+    if (vals.at_boot == "nofail")
+        mount_options.push("nofail");
+    if (vals.at_boot == "netdev")
+        mount_options.push("_netdev");
+
+    const name = (subvol.pathname == "/" ? vals.name : subvol.pathname + "/" + vals.name);
+    mount_options.push("subvol=" + name);
+    if (vals.mount_options.extra)
+        mount_options.push(vals.mount_options.extra);
+
+    let mount_point = vals.mount_point;
+    if (mount_point[0] != "/")
+        mount_point = "/" + mount_point;
+    mount_point = client.add_mount_point_prefix(mount_point);
+
+    const config =
+                  ["fstab",
+                      {
+                          dir: { t: 'ay', v: encode_filename(mount_point) },
+                          type: { t: 'ay', v: encode_filename("btrfs") },
+                          opts: { t: 'ay', v: encode_filename(mount_options.join(",") || "defaults") },
+                          freq: { t: 'i', v: 0 },
+                          passno: { t: 'i', v: 0 },
+                          "track-parents": { t: 'b', v: true }
+                      }
+                  ];
+
+    return block.AddConfigurationItem(config, {})
+            .then(reload_systemd)
+            .then(() => {
+                if (mount_now) {
+                    return client.mount_at(block, mount_point);
+                } else
+                    return Promise.resolve();
+            });
+}
+
+function subvolume_create(volume, subvol, parent_dir) {
+    const block = client.blocks[volume.path];
+
+    const action_variants = [
+        { tag: null, Title: _("Create and mount") },
+        { tag: "nomount", Title: _("Create only") }
+    ];
+
+    dialog_open({
+        Title: _("Create subvolume"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      {
+                          validate: name => validate_subvolume_name(name)
+                      }),
+            TextInput("mount_point", _("Mount Point"),
+                      {
+                          validate: (val, _values, variant) => {
+                              return is_valid_mount_point(client,
+                                                          block,
+                                                          client.add_mount_point_prefix(val),
+                                                          variant == "nomount");
+                          }
+                      }),
+            mount_options(false, false),
+            at_boot_input("local"),
+        ],
+        Action: {
+            Variants: action_variants,
+            action: async function (vals) {
+                // HACK: cannot use block_btrfs.CreateSubvolume as it always creates a subvolume relative to MountPoints[0] which
+                // makes it impossible to handle a situation where we have multiple subvolumes mounted.
+                // https://github.com/storaged-project/udisks/issues/1242
+                await cockpit.spawn(["btrfs", "subvolume", "create", `${parent_dir}/${vals.name}`], { superuser: "require", err: "message" });
+                await btrfs_poll();
+                if (vals.mount_point !== "") {
+                    await set_mount_options(subvol, block, vals);
+                }
+            }
+        }
+    });
+}
+
 export function make_btrfs_subvolume_page(parent, volume, subvol) {
     const actions = [];
 
     const use = btrfs_usage(client, volume);
     const block = client.blocks[volume.path];
     const fstab_config = get_fstab_config_with_client(client, block, false, subvol);
-    const [, mount_point] = fstab_config;
+    const [, mount_point, opts] = fstab_config;
+    const opt_ro = extract_option(parse_options(opts), "ro");
     const mismount_warning = check_mismounted_fsys(block, block, fstab_config, subvol);
     const mounted = is_mounted(client, block, subvol);
     const mp_text = mount_point_text(mount_point, mounted);
     if (mp_text == null)
         return null;
     const forced_options = [`subvol=${subvol.pathname}`];
+    const mount_point_in_parent = get_mount_point_in_parent(volume, subvol);
 
     if (mounted) {
         actions.push({
@@ -69,6 +189,22 @@ export function make_btrfs_subvolume_page(parent, volume, subvol) {
             action: () => subvolume_mount(volume, subvol, forced_options),
         });
     }
+
+    // If the current subvolume is mounted rw with an fstab entry or any parent
+    // subvolume is mounted rw with an fstab entry allow subvolume creation.
+    let create_excuse = "";
+    if (!mount_point_in_parent) {
+        if (!mounted)
+            create_excuse = _("Subvolume needs to be mounted");
+        else if (opt_ro)
+            create_excuse = _("Subvolume needs to be mounted writable");
+    }
+
+    actions.push({
+        title: _("Create subvolume"),
+        excuse: create_excuse,
+        action: () => subvolume_create(volume, subvol, (mounted && !opt_ro) ? mount_point : mount_point_in_parent),
+    });
 
     const card = new_card({
         title: _("btrfs subvolume"),

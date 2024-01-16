@@ -16,7 +16,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import cockpit from "cockpit";
+
 import { decode_filename } from "../utils.js";
+
+const _ = cockpit.gettext;
 
 /*
  * Calculate the usage based on the data from `btrfs filesystem show` which has
@@ -74,4 +78,13 @@ export function parse_subvol_from_options(options) {
         return subvol;
     else
         return null;
+}
+
+export function validate_subvolume_name(name) {
+    if (name === "")
+        return _("Name cannot be empty.");
+    if (name.length > 255)
+        return _("Name cannot be longer than 255 characters.");
+    if (name.includes('/'))
+        return cockpit.format(_("Name cannot contain the character '/'."));
 }

@@ -122,6 +122,145 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
+    def testCreateSubvolume(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_ram_disk(size=140)
+        label = "test_subvol"
+        mount_point = "/run/butter"
+        subvol = "cake"
+
+        m.execute(f"mkfs.btrfs -L {label} {disk1}")
+        self.login_and_go("/storage")
+
+        # creation of btrfs partition can take a while on TF.
+        with b.wait_timeout(30):
+            b.wait_visible(self.card_row("Storage", name=label))
+
+        root_sel = self.card_row("Storage", name=label) + " + tr"
+        b.click(self.dropdown_toggle(root_sel))
+        b.wait_visible(self.dropdown_action(root_sel, "Create subvolume") + "[disabled]")
+        b.wait_text(self.dropdown_description(root_sel, "Create subvolume"),
+                    "Subvolume needs to be mounted")
+        b.click(self.dropdown_toggle(root_sel))
+
+        self.click_dropdown(self.card_row("Storage", name=label) + " + tr", "Mount")
+        self.dialog({"mount_point": mount_point})
+        self.addCleanup(self.machine.execute, f"umount {mount_point} || true")
+        b.wait_in_text(self.card_row("Storage", location=mount_point), "btrfs subvolume")
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+
+        # Validation
+        self.dialog_wait_open()
+        self.dialog_apply_secondary()
+        self.dialog_wait_error("name", "Name cannot be empty")
+        self.dialog_set_val("name", "foo/bar")
+        self.dialog_apply_secondary()
+        self.dialog_wait_error("name", "Name cannot contain the character '/'.")
+        self.dialog_set_val("name", "a" * 256)
+        self.dialog_apply_secondary()
+        self.dialog_wait_error("name", "Name cannot be longer than 255 characters.")
+
+        # Without mount point
+        self.dialog_set_val("name", subvol)
+        self.dialog_apply_secondary()
+        self.dialog_wait_close()
+        b.wait_visible(self.card_row("Storage", name=subvol))
+        # no fstab entry
+        m.execute(f"! findmnt --fstab -n | grep subvol={subvol}")
+
+        subvol_mount = "quiche"
+        subvol_mount_point = "/run/oven"
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+
+        # With mount point
+        self.dialog_wait_open()
+        self.dialog_set_val("name", subvol_mount)
+        self.dialog_apply()
+        self.dialog_wait_error("mount_point", "Mount point cannot be empty")
+        self.dialog_set_val("mount_point", subvol_mount_point)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.addCleanup(self.machine.execute, f"umount {subvol_mount_point} || true")
+        b.wait_in_text(self.card_row("Storage", location=subvol_mount_point), "btrfs subvolume")
+
+        # Finding the correct subvolume parent from a non-mounted subvolume
+        m.execute(f"btrfs subvolume create {subvol_mount_point}/pizza")
+        self.click_dropdown(self.card_row("Storage", name=f"{subvol_mount}/pizza"), "Create subvolume")
+        self.dialog({"name": "pineapple"}, secondary=True)
+        b.wait_in_text(self.card_row("Storage", name=f"{subvol_mount}/pizza/pineapple"), "btrfs subvolume")
+
+        left_subvol_mount = "/run/left"
+        right_subvol_mount = "/run/right"
+
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog({"name": os.path.basename(left_subvol_mount), "mount_point": left_subvol_mount})
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog({"name": os.path.basename(right_subvol_mount), "mount_point": right_subvol_mount})
+        self.addCleanup(self.machine.execute, f"umount {left_subvol_mount} || true")
+        self.addCleanup(self.machine.execute, f"umount {right_subvol_mount} || true")
+
+        b.wait_in_text(self.card_row("Storage", location=left_subvol_mount), "btrfs subvolume")
+        b.wait_in_text(self.card_row("Storage", location=right_subvol_mount), "btrfs subvolume")
+
+        self.click_dropdown(self.card_row("Storage", location=left_subvol_mount), "Create subvolume")
+        self.dialog({"name": "links"}, secondary=True)
+        b.wait_in_text(self.card_row("Storage", name="left/links"), "btrfs subvolume")
+
+        self.click_dropdown(self.card_row("Storage", location=right_subvol_mount), "Create subvolume")
+        self.dialog({"name": "rechts"}, secondary=True)
+        b.wait_in_text(self.card_row("Storage", name="right/rechts"), "btrfs subvolume")
+
+        # Read only mount, cannot create subvolumes once /run/butter
+        # is unmounted.
+
+        ro_subvol = "/run/ro"
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog_wait_open()
+        self.dialog_set_val("name", os.path.basename(ro_subvol))
+        self.dialog_set_val("mount_point", ro_subvol)
+        self.dialog_set_val("mount_options.ro", val=True)
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # Since /run/butter is still mounted read-write, we can create
+        # subvolumes of "ro" using that.
+
+        self.click_dropdown(self.card_row("Storage", location=ro_subvol), "Create subvolume")
+        self.dialog_wait_open()
+        self.dialog_set_val("name", "bot")
+        self.dialog_apply_secondary()
+        self.dialog_wait_close()
+        b.wait_visible(self.card_row("Storage", name="ro/bot"))
+
+        # But once /run/butter has been unmounted, we can't create
+        # subvolumes of "ro" anymore.
+
+        self.click_dropdown(self.card_row("Storage", location="/run/butter"), "Unmount")
+        self.confirm()
+
+        b.click(self.dropdown_toggle(self.card_row("Storage", location=ro_subvol)))
+        b.wait_visible(self.dropdown_action(self.card_row("Storage", location=ro_subvol), "Create subvolume") + "[disabled]")
+        b.wait_text(self.dropdown_description(self.card_row("Storage", location=ro_subvol), "Create subvolume"),
+                    "Subvolume needs to be mounted writable")
+        b.click(self.dropdown_toggle(self.card_row("Storage", location=ro_subvol)))
+        # remount as rw, create subvolume and remount as ro to see parents are also checked
+        m.execute(f"""
+            mount -o remount,rw /dev/sda {ro_subvol}
+            btrfs subvolume create {ro_subvol}/readonly
+            mount -o remount,ro /dev/sda {ro_subvol}
+        """)
+
+        subvol_loc = f"{os.path.basename(ro_subvol)}/readonly"
+        b.click(self.dropdown_toggle(self.card_row("Storage", name=subvol_loc)))
+        b.wait_visible(self.dropdown_action(self.card_row("Storage", name=subvol_loc), "Create subvolume") + "[disabled]")
+        b.wait_text(self.dropdown_description(self.card_row("Storage", name=subvol_loc), "Create subvolume"),
+                    "Subvolume needs to be mounted")
+        b.click(self.dropdown_toggle(self.card_row("Storage", name=subvol_loc)))
+
     def testMultiDevice(self):
         m = self.machine
         b = self.browser

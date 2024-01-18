@@ -249,6 +249,143 @@ class TestStorageBtrfs(storagelib.StorageCase):
         subvol_loc = f"{os.path.basename(ro_subvol)}/readonly"
         self.check_dropdown_action_disabled(self.card_row("Storage", name=subvol_loc), "Create subvolume", "Subvolume needs to be mounted")
 
+    def testDeleteSubvolume(self):
+        m = self.machine
+        b = self.browser
+
+        def checkTeardownAction(row, label, text):
+            b.wait_in_text(f".modal-footer-teardown tbody:nth-of-type({row}) td[data-label='{label}']", text)
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_ram_disk(size=140)
+        label = "test_subvol"
+        mount_point = "/run/butter"
+        m.execute(f"mkfs.btrfs -L {label} {disk1}")
+        self.login_and_go("/storage")
+
+        # creation of btrfs partition can take a while on TF.
+        with b.wait_timeout(30):
+            b.wait_visible(self.card_row("Storage", name=label))
+
+        self.click_dropdown(self.card_row("Storage", name=label) + " + tr", "Mount")
+        self.dialog({"mount_point": mount_point})
+        self.addCleanup(self.machine.execute, f"umount {mount_point} || true")
+
+        # No Delete button for the root subvolume
+        root_sel = self.card_row("Storage", name=label) + " + tr"
+        b.click(self.dropdown_toggle(root_sel))
+        b.wait_not_present(self.dropdown_action(root_sel, "Delete"))
+        b.click(self.dropdown_toggle(root_sel))
+
+        # Delete subvolume
+        subvol = "subvol"
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog({"name": subvol}, secondary=True)
+        b.wait_visible(self.card_row("Storage", name=subvol))
+
+        self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
+        checkTeardownAction(1, "Device", subvol)
+        checkTeardownAction(1, "Action", "delete")
+        self.confirm()
+        b.wait_not_present(self.card_row("Storage", name=subvol))
+
+        # Delete with subvolume with children
+        child_subvol = "child-subvol"
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog({"name": subvol}, secondary=True)
+        b.wait_visible(self.card_row("Storage", name=subvol))
+
+        self.click_dropdown(self.card_row("Storage", name=subvol), "Create subvolume")
+        self.dialog({"name": child_subvol}, secondary=True)
+        b.wait_visible(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
+
+        self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
+        checkTeardownAction(1, "Device", f"{subvol}/{child_subvol}")
+        checkTeardownAction(1, "Action", "delete")
+        checkTeardownAction(2, "Device", subvol)
+        checkTeardownAction(2, "Action", "delete")
+        self.confirm()
+
+        b.wait_not_present(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
+        b.wait_not_present(self.card_row("Storage", name=subvol))
+
+        # Delete with subvolume with children and self mounted
+        child_subvol = "child-subvol"
+        subvol_mount_point = "/run/delete"
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog({"name": subvol, "mount_point": subvol_mount_point})
+        b.wait_visible(self.card_row("Storage", location=subvol_mount_point))
+
+        self.click_dropdown(self.card_row("Storage", name=subvol), "Create subvolume")
+        self.dialog({"name": child_subvol}, secondary=True)
+        b.wait_visible(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
+
+        self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
+        checkTeardownAction(1, "Device", f"{subvol}/{child_subvol}")
+        checkTeardownAction(1, "Action", "delete")
+        checkTeardownAction(1, "Device", subvol)
+        checkTeardownAction(2, "Location", subvol_mount_point)
+        checkTeardownAction(2, "Action", "unmount, delete")
+        self.confirm()
+
+        b.wait_not_present(self.card_row("Storage", location=subvol_mount_point))
+        b.wait_not_present(self.card_row("Storage", name=subvol))
+
+        # Delete with subvolume which is mounted and busy
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog({"name": subvol, "mount_point": subvol_mount_point})
+        b.wait_visible(self.card_row("Storage", location=subvol_mount_point))
+        sleep_pid = m.spawn(f"cd {subvol_mount_point}; sleep infinity", "sleep")
+
+        self.click_dropdown(self.card_row("Storage", location=subvol_mount_point), "Delete")
+        checkTeardownAction(1, "Location", subvol_mount_point)
+        checkTeardownAction(1, "Action", "unmount, delete")
+        b.wait_in_text(".modal-footer-teardown tbody:nth-of-type(1)", "Currently in use")
+        b.click(".modal-footer-teardown tbody:nth-of-type(1) button")
+        b.wait_in_text(".pf-v5-c-popover", str(sleep_pid))
+
+        self.confirm()
+        b.wait_not_present(self.card_row("Storage", location=subvol_mount_point))
+
+        # Cannot delete subvolume when no parent is mounted
+        subvol = "new-subvol"
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog({"name": subvol, "mount_point": subvol_mount_point})
+        self.click_dropdown(self.card_row("Storage", name=label) + " + tr", "Unmount")
+        self.confirm()
+
+        self.check_dropdown_action_disabled(self.card_row("Storage", location=subvol_mount_point), "Delete", "At least one parent needs to be mounted writable")
+        self.click_dropdown(self.card_row("Storage", name=label) + " + tr", "Mount")
+        self.confirm()
+        b.wait_visible(self.card_row("Storage", location=mount_point))
+
+        self.click_dropdown(self.card_row("Storage", location=subvol_mount_point), "Delete")
+        self.confirm()
+
+        # Cannot delete read only mounted subvolume children and itself
+        child_subvol = "child-subvol"
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
+        self.dialog({"name": subvol, "mount_point": subvol_mount_point, "mount_options.ro": True})
+        b.wait_visible(self.card_row("Storage", location=subvol_mount_point))
+        self.assertIn("ro", m.execute(f"findmnt -s -n -o OPTIONS {subvol_mount_point}"))
+
+        self.click_dropdown(self.card_row("Storage", name=subvol), "Create subvolume")
+        self.dialog({"name": child_subvol}, secondary=True)
+        b.wait_visible(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
+
+        # Allowed as root is mounted
+        self.click_dropdown(self.card_row("Storage", name=f"{subvol}/{child_subvol}"), "Delete")
+        self.dialog_wait_open()
+        self.dialog_cancel()
+
+        # Unmount root as we can otherwise delete via root
+        self.click_dropdown(self.card_row("Storage", location=mount_point), "Unmount")
+        self.confirm()
+        b.wait_visible(self.card_row("Storage", location=f"{mount_point} (not mounted)"))
+
+        self.check_dropdown_action_disabled(self.card_row("Storage", name=f"{subvol}/{child_subvol}"), "Delete", "At least one parent needs to be mounted writable")
+
     def testMultiDevice(self):
         m = self.machine
         b = self.browser

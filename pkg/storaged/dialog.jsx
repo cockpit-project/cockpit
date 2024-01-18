@@ -1118,10 +1118,7 @@ export const BlockingMessage = (usage) => {
     const rows = [];
     usage.forEach(use => {
         if (use.blocking && use.block) {
-            const fsys = client.blocks_stratis_fsys[use.block.path];
-            const name = (fsys
-                ? fsys.Devnode
-                : block_name(client.blocks[use.block.CryptoBackingDevice] || use.block));
+            const name = teardown_block_name(use);
             rows.push({
                 columns: [name, use.location || "-", usage_desc[use.usage] || "-"]
             });
@@ -1188,6 +1185,21 @@ function is_expected_unmount(usage, expect_single_unmount) {
             usage[0].usage == "mounted" && usage[0].location == expect_single_unmount);
 }
 
+const teardown_block_name = use => {
+    const block_stratis = client.blocks_stratis_fsys[use.block.path];
+    const block_btrfs = client.blocks_fsys_btrfs[use.block.path];
+    let name;
+    if (block_stratis) {
+        name = block_stratis.Devnode;
+    } else if (block_btrfs && use.name) {
+        name = use.name;
+    } else {
+        name = block_name(client.blocks[use.block.CryptoBackingDevice] || use.block);
+    }
+
+    return name;
+};
+
 export const TeardownMessage = (usage, expect_single_unmount) => {
     if (usage.length == 0)
         return null;
@@ -1198,10 +1210,7 @@ export const TeardownMessage = (usage, expect_single_unmount) => {
     const rows = [];
     usage.forEach((use, index) => {
         if (use.block) {
-            const fsys = client.blocks_stratis_fsys[use.block.path];
-            const name = (fsys
-                ? fsys.Devnode
-                : block_name(client.blocks[use.block.CryptoBackingDevice] || use.block));
+            const name = teardown_block_name(use);
             let location = use.location;
             if (use.usage == "mounted") {
                 location = client.strip_mount_point_prefix(location);

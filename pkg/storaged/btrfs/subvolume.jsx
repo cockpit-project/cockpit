@@ -25,11 +25,15 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 
 import { StorageCard, StorageDescription, new_card, new_page } from "../pages.jsx";
 import { StorageUsageBar } from "../storage-controls.jsx";
-import { encode_filename, get_fstab_config_with_client, reload_systemd, extract_option, parse_options } from "../utils.js";
+import {
+    encode_filename, get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
+    flatten, teardown_active_usage,
+} from "../utils.js";
 import { btrfs_usage, validate_subvolume_name } from "./utils.jsx";
 import { at_boot_input, mounting_dialog, mount_options } from "../filesystem/mounting-dialog.jsx";
 import {
     dialog_open, TextInput,
+    TeardownMessage, init_active_usage_processes,
 } from "../dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "../filesystem/mismounting.jsx";
 import { is_mounted, is_valid_mount_point, mount_point_text, MountPoint } from "../filesystem/utils.jsx";
@@ -162,6 +166,73 @@ function subvolume_create(volume, subvol, parent_dir) {
     });
 }
 
+function subvolume_delete(volume, subvol, mount_point_in_parent) {
+    const block = client.blocks[volume.path];
+    const subvols = client.uuids_btrfs_subvols[volume.data.uuid];
+
+    function get_direct_subvol_children(subvol) {
+        function is_direct_parent(sv) {
+            return (sv.pathname.length > subvol.pathname.length &&
+                        sv.pathname.substring(0, subvol.pathname.length) == subvol.pathname &&
+                        sv.pathname[subvol.pathname.length] == "/" &&
+                        sv.pathname.substring(subvol.pathname.length + 1).indexOf("/") == -1);
+        }
+
+        return subvols.filter(is_direct_parent);
+    }
+
+    function get_subvol_children(subvol) {
+        // The deepest nested children must come first
+        const direct_children = get_direct_subvol_children(subvol);
+        return flatten(direct_children.map(get_subvol_children)).concat(direct_children);
+    }
+
+    const all_subvols = get_subvol_children(subvol).concat([subvol]);
+    const configs_to_remove = [];
+    const paths_to_delete = [];
+    const usage = [];
+
+    for (const sv of all_subvols) {
+        const [config, mount_point] = get_fstab_config_with_client(client, block, false, sv);
+        const fs_is_mounted = is_mounted(client, block, sv);
+
+        usage.push({
+            level: 0,
+            usage: fs_is_mounted ? 'mounted' : 'none',
+            block,
+            name: sv.pathname,
+            location: mount_point,
+            actions: fs_is_mounted ? [_("unmount"), _("delete")] : [_("delete")],
+            blocking: false,
+        });
+
+        if (config)
+            configs_to_remove.push(config);
+
+        paths_to_delete.push(mount_point_in_parent + sv.pathname.substring(subvol.pathname.length));
+    }
+
+    dialog_open({
+        Title: cockpit.format(_("Permanently delete subvolume $0?"), subvol.pathname),
+        Teardown: TeardownMessage(usage),
+        Action: {
+            Title: _("Delete"),
+            Danger: _("Deleting erases all data on this subvolume and all it's children."),
+            action: async function () {
+                await teardown_active_usage(client, usage);
+                for (const c of configs_to_remove)
+                    await block.RemoveConfigurationItem(c, {});
+                await cockpit.spawn(["btrfs", "subvolume", "delete"].concat(paths_to_delete),
+                                    { superuser: true, err: "message" });
+                await btrfs_poll();
+            }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage)
+        ]
+    });
+}
+
 export function make_btrfs_subvolume_page(parent, volume, subvol) {
     const actions = [];
 
@@ -205,6 +276,20 @@ export function make_btrfs_subvolume_page(parent, volume, subvol) {
         excuse: create_excuse,
         action: () => subvolume_create(volume, subvol, (mounted && !opt_ro) ? mount_point : mount_point_in_parent),
     });
+
+    let delete_excuse = "";
+    if (!mount_point_in_parent) {
+        delete_excuse = _("At least one parent needs to be mounted writable");
+    }
+
+    // Don't show deletion for the root subvolume as it can never be deleted.
+    if (subvol.id !== 5)
+        actions.push({
+            danger: true,
+            title: _("Delete"),
+            excuse: delete_excuse,
+            action: () => subvolume_delete(volume, subvol, mount_point_in_parent),
+        });
 
     const card = new_card({
         title: _("btrfs subvolume"),

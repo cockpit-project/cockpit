@@ -243,7 +243,6 @@ export async function btrfs_poll() {
         }).map(block_fsys => block_fsys.MountPoints).reduce((accum, current) => accum.concat(current));
         const mp = MountPoints[0];
         if (mp) {
-            let output;
             const mount_point = utils.decode_filename(mp);
             try {
                 // HACK: UDisks GetSubvolumes method uses `subvolume list -p` which
@@ -258,50 +257,47 @@ export async function btrfs_poll() {
                 // ID 256 gen 7 parent 5 top level 5 path <FS_TREE>/one
                 // ID 257 gen 7 parent 256 top level 256 path one/two
                 // ID 258 gen 7 parent 257 top level 257 path <FS_TREE>/one/two/three/four
-                output = await cockpit.spawn(["btrfs", "subvolume", "list", "-ap", mount_point], { superuser: true, err: "message" });
+                const output = await cockpit.spawn(["btrfs", "subvolume", "list", "-ap", mount_point], { superuser: true, err: "message" });
+                const subvols = [{ pathname: "/", id: 5 }];
+                for (const line of output.split("\n")) {
+                    const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
+                    if (m)
+                        subvols.push({ pathname: m[4], id: Number(m[1]) });
+                }
+                uuids_subvols[uuid] = subvols;
             } catch (err) {
-                console.error(`unable to obtain subvolumes for mount point ${mount_point}`, err);
-                return;
+                console.warn(`unable to obtain subvolumes for mount point ${mount_point}`, err);
             }
-            const subvols = [{ pathname: "/", id: 5 }];
-            for (const line of output.split("\n")) {
-                const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
-                if (m)
-                    subvols.push({ pathname: m[4], id: Number(m[1]) });
-            }
-            uuids_subvols[uuid] = subvols;
 
             // HACK: Obtain the default subvolume, required for mounts in which do not specify a subvol and subvolid.
             // In the future can be obtained via UDisks, it requires the btrfs partition to be mounted somewhere.
             // https://github.com/storaged-project/udisks/commit/b6966b7076cd837f9d307eef64beedf01bc863ae
             try {
-                output = await cockpit.spawn(["btrfs", "subvolume", "get-default", mount_point], { superuser: true, err: "message" });
+                const output = await cockpit.spawn(["btrfs", "subvolume", "get-default", mount_point], { superuser: true, err: "message" });
                 const id_match = output.match(/ID (\d+).*/);
                 if (id_match)
                     btrfs_default_subvol[uuid] = Number(id_match[1]);
             } catch (err) {
-                console.error(`unable to obtain default subvolume for mount point ${mount_point}`, err);
+                console.warn(`unable to obtain default subvolume for mount point ${mount_point}`, err);
             }
 
             // HACK: UDisks should expose a better btrfs API with btrfs device information
             // https://github.com/storaged-project/udisks/issues/1232
             // TODO: optimise into just parsing one `btrfs filesystem show`?
-            const usages = {};
-            let usage_output;
             try {
-                usage_output = await cockpit.spawn(["btrfs", "filesystem", "show", "--raw", uuid], { superuser: true, err: "message" });
-            } catch (err) {
-                console.error(`btrfs filesystem show ${uuid}`, err);
-                return;
-            }
-            for (const line of usage_output.split("\n")) {
-                const match = usage_regex.exec(line);
-                if (match) {
-                    const { used, device } = match.groups;
-                    usages[device] = used;
+                const usage_output = await cockpit.spawn(["btrfs", "filesystem", "show", "--raw", uuid], { superuser: true, err: "message" });
+                const usages = {};
+                for (const line of usage_output.split("\n")) {
+                    const match = usage_regex.exec(line);
+                    if (match) {
+                        const { used, device } = match.groups;
+                        usages[device] = used;
+                    }
                 }
+                uuids_usage[uuid] = usages;
+            } catch (err) {
+                console.warn(`btrfs filesystem show ${uuid}`, err);
             }
-            uuids_usage[uuid] = usages;
         } else {
             uuids_subvols[uuid] = null;
             uuids_usage[uuid] = null;

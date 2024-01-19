@@ -167,22 +167,11 @@ function make_btrfs_subvolume_pages(parent, volume) {
         let has_root = false;
         for (const config of block.Configuration) {
             if (config[0] == "fstab") {
-                const fstab_subvol = {};
-                let opts = config[1].opts;
+                const opts = config[1].opts;
                 if (!opts)
                     continue;
 
-                opts = decode_filename(opts.v).split(",");
-                for (const opt of opts) {
-                    const fstab_subvol = parse_subvol_from_options(opt);
-
-                    if (!fstab_subvol)
-                        continue;
-
-                    if (fstab_subvol.id && fstab_subvol.pathname) {
-                        break;
-                    }
-                }
+                const fstab_subvol = parse_subvol_from_options(decode_filename(opts.v));
 
                 if (fstab_subvol && fstab_subvol.pathname === "/") {
                     has_root = true;

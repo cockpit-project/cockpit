@@ -580,8 +580,8 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
         # We need to click on a <td> element since that's where the handlers are...
         self.browser.click(self.card_row(title, index, name, location) + " td:nth-child(1)")
 
-    def card_row_col(self, title, row_index, col_index):
-        return self.card_row(title, row_index) + f" td:nth-child({col_index})"
+    def card_row_col(self, title, row_index=None, col_index=None, row_name=None, row_location=None):
+        return self.card_row(title, row_index, row_name, row_location) + f" td:nth-child({col_index})"
 
     def card_desc(self, card_title, desc_title):
         return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] [data-test-value=true]"

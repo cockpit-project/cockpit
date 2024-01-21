@@ -20,7 +20,7 @@ import collections
 import logging
 from typing import Dict, List, Optional
 
-from .jsonutil import JsonDocument, JsonObject
+from .jsonutil import JsonObject, JsonValue
 from .protocol import CockpitProblem, CockpitProtocolError, CockpitProtocolServer
 
 logger = logging.getLogger(__name__)
@@ -94,14 +94,14 @@ class Endpoint:
         self.router.write_channel_data(channel, data)
 
     def send_channel_control(
-        self, channel: str, command: str, _msg: 'JsonObject | None', **kwargs: JsonDocument
+        self, channel: str, command: str, _msg: 'JsonObject | None', **kwargs: JsonValue
     ) -> None:
         self.router.write_control(_msg, channel=channel, command=command, **kwargs)
         if command == 'close':
             self.router.endpoints[self].remove(channel)
             self.router.drop_channel(channel)
 
-    def shutdown_endpoint(self, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
+    def shutdown_endpoint(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
         self.router.shutdown_endpoint(self, _msg, **kwargs)
 
 
@@ -168,7 +168,7 @@ class Router(CockpitProtocolServer):
         self.endpoints[endpoint] = set()
         self.no_endpoints.clear()
 
-    def shutdown_endpoint(self, endpoint: Endpoint, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
+    def shutdown_endpoint(self, endpoint: Endpoint, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
         channels = self.endpoints.pop(endpoint)
         logger.debug('shutdown_endpoint(%s, %s) will close %s', endpoint, kwargs, channels)
         for channel in channels:

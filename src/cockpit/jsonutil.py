@@ -16,12 +16,18 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from enum import Enum
-from typing import Callable, Dict, List, Optional, Sequence, Type, TypeVar, Union
+from typing import Callable, Dict, List, Mapping, Optional, Sequence, Type, TypeVar, Union
 
-JsonList = List['JsonDocument']
-JsonObject = Dict[str, 'JsonDocument']
 JsonLiteral = Union[str, float, bool, None]
-JsonDocument = Union[JsonObject, JsonList, JsonLiteral]
+
+# immutable
+JsonValue = Union['JsonObject', Sequence['JsonValue'], JsonLiteral]
+JsonObject = Mapping[str, JsonValue]
+
+# mutable
+JsonDocument = Union['JsonDict', 'JsonList', JsonLiteral]
+JsonDict = Dict[str, JsonDocument]
+JsonList = List[JsonDocument]
 
 
 DT = TypeVar('DT')
@@ -36,7 +42,7 @@ class JsonError(Exception):
         self.value = value
 
 
-def typechecked(value: JsonDocument, expected_type: Type[T]) -> T:
+def typechecked(value: JsonValue, expected_type: Type[T]) -> T:
     """Ensure a JSON value has the expected type, returning it if so."""
     if not isinstance(value, expected_type):
         raise JsonError(value, f'must have type {expected_type.__name__}')
@@ -53,7 +59,7 @@ class _Empty(Enum):
 _empty = _Empty.TOKEN
 
 
-def _get(obj: JsonObject, cast: Callable[[JsonDocument], T], key: str, default: Union[DT, _Empty]) -> Union[T, DT]:
+def _get(obj: JsonObject, cast: Callable[[JsonValue], T], key: str, default: Union[DT, _Empty]) -> Union[T, DT]:
     try:
         return cast(obj[key])
     except KeyError:
@@ -95,13 +101,13 @@ def get_object(
 
 
 def get_strv(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> Union[DT, Sequence[str]]:
-    def as_strv(value: JsonDocument) -> Sequence[str]:
+    def as_strv(value: JsonValue) -> Sequence[str]:
         return tuple(typechecked(item, str) for item in typechecked(value, list))
     return _get(obj, as_strv, key, default)
 
 
 def get_objv(obj: JsonObject, key: str, constructor: Callable[[JsonObject], T]) -> Union[DT, Sequence[T]]:
-    def as_objv(value: JsonDocument) -> Sequence[T]:
+    def as_objv(value: JsonValue) -> Sequence[T]:
         return tuple(constructor(typechecked(item, dict)) for item in typechecked(value, list))
     return _get(obj, as_objv, key, ())
 

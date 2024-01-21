@@ -20,7 +20,7 @@ import json
 import logging
 from typing import BinaryIO, ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
 
-from .jsonutil import JsonDocument, JsonError, JsonObject, create_object, get_bool, get_str
+from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_bool, get_str
 from .protocol import CockpitProblem
 from .router import Endpoint, Router, RoutingRule
 
@@ -192,7 +192,7 @@ class Channel(Endpoint):
         self.close()
 
     # output
-    def ready(self, **kwargs: JsonDocument) -> None:
+    def ready(self, **kwargs: JsonValue) -> None:
         self.thaw_endpoint()
         self.send_control(command='ready', **kwargs)
 
@@ -278,11 +278,11 @@ class Channel(Endpoint):
 
     json_encoder: ClassVar[json.JSONEncoder] = json.JSONEncoder(indent=2)
 
-    def send_json(self, **kwargs: JsonDocument) -> bool:
+    def send_json(self, **kwargs: JsonValue) -> bool:
         pretty = self.json_encoder.encode(create_object(None, kwargs)) + '\n'
         return self.send_data(pretty.encode())
 
-    def send_control(self, command: str, **kwargs: JsonDocument) -> None:
+    def send_control(self, command: str, **kwargs: JsonValue) -> None:
         self.send_channel_control(self.channel, command, None, **kwargs)
 
     def send_pong(self, message: JsonObject) -> None:

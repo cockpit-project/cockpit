@@ -22,7 +22,7 @@ import subprocess
 from typing import Dict
 
 from ..channel import ChannelError, ProtocolChannel
-from ..jsonutil import JsonObject, get_bool, get_int, get_object, get_str, get_strv
+from ..jsonutil import JsonDict, JsonObject, get_bool, get_int, get_object, get_str, get_strv
 from ..transports import SubprocessProtocol, SubprocessTransport, WindowSize
 
 logger = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
 
     def _get_close_args(self) -> JsonObject:
         assert isinstance(self._transport, SubprocessTransport)
-        args: JsonObject = {'exit-status': self._transport.get_returncode()}
+        args: JsonDict = {'exit-status': self._transport.get_returncode()}
         stderr = self._transport.get_stderr()
         if stderr is not None:
             args['message'] = stderr

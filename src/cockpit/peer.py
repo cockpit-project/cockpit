@@ -20,7 +20,7 @@ import logging
 import os
 from typing import Callable, List, Optional, Sequence
 
-from .jsonutil import JsonDocument, JsonObject
+from .jsonutil import JsonObject, JsonValue
 from .packages import BridgeConfig
 from .protocol import CockpitProblem, CockpitProtocol, CockpitProtocolError
 from .router import Endpoint, Router, RoutingRule
@@ -61,7 +61,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         user_env = dict(e.split('=', 1) for e in env)
         return SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
 
-    async def start(self, init_host: Optional[str] = None, **kwargs: JsonDocument) -> JsonObject:
+    async def start(self, init_host: Optional[str] = None, **kwargs: JsonValue) -> JsonObject:
         """Request that the Peer is started and connected to the router.
 
         Creates the transport, connects it to the protocol, and participates in
@@ -126,7 +126,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         return init_message
 
     # Background initialization
-    def start_in_background(self, init_host: Optional[str] = None, **kwargs: JsonDocument) -> None:
+    def start_in_background(self, init_host: Optional[str] = None, **kwargs: JsonValue) -> None:
         def _start_task_done(task: asyncio.Task) -> None:
             assert task is start_task
 

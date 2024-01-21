@@ -135,3 +135,23 @@ def create_object(message: 'JsonObject | None', kwargs: JsonObject) -> JsonObjec
         result[json_key] = value
 
     return result
+
+
+def json_merge_patch(current: JsonObject, patch: JsonObject) -> JsonObject:
+    """Perform a JSON merge patch (RFC 7396) using 'current' and 'patch'.
+    Neither of the original dictionaries is modified — the result is returned.
+    """
+    # Always take a copy ('result') — we never modify the input ('current')
+    result = dict(current)
+    for key, patch_value in patch.items():
+        if isinstance(patch_value, Mapping):
+            current_value = current.get(key, None)
+            if not isinstance(current_value, Mapping):
+                current_value = {}
+            result[key] = json_merge_patch(current_value, patch_value)
+        elif patch_value is not None:
+            result[key] = patch_value
+        else:
+            result.pop(key)
+
+    return result

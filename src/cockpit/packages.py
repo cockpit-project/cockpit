@@ -57,6 +57,7 @@ from .jsonutil import (
     get_objv,
     get_str,
     get_strv,
+    json_merge_patch,
     typechecked,
 )
 
@@ -362,22 +363,6 @@ class PackagesLoader:
         except KeyError:
             yield from ('/usr/local/share', '/usr/share')
 
-    # https://www.rfc-editor.org/rfc/rfc7386
-    @classmethod
-    def merge_patch(cls, target: JsonValue, patch: J) -> J:
-        # Loosely based on example code from the RFC
-        if not isinstance(patch, dict):
-            return patch
-
-        # Always take a copy ('result') — we never modify the input ('target')
-        result = dict(target if isinstance(target, dict) else {})
-        for name, value in patch.items():
-            if value is not None:
-                result[name] = cls.merge_patch(result.get(name), value)
-            else:
-                result.pop(name)
-        return result
-
     @classmethod
     def patch_manifest(cls, manifest: JsonObject, parent: Path) -> JsonObject:
         override_files = [
@@ -399,7 +384,7 @@ class PackagesLoader:
                 logger.warning('%s: override file is not a dictionary', override_file)
                 continue
 
-            manifest = cls.merge_patch(manifest, override)
+            manifest = json_merge_patch(manifest, override)
 
         return patch_libexecdir(manifest)
 

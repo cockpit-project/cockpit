@@ -291,7 +291,7 @@ async def run(args) -> None:
     StdioTransport(asyncio.get_running_loop(), bridge)
 
     try:
-        message = await bridge.ssh_peer.start()
+        message = dict(await bridge.ssh_peer.start())
 
         # See comment in do_init() above: we tell cockpit-ws that we support
         # this and then handle it ourselves when we get the init message.

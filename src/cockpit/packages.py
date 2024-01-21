@@ -48,9 +48,9 @@ from cockpit._vendor.systemd_ctypes import bus
 from . import config
 from ._version import __version__
 from .jsonutil import (
-    JsonDocument,
     JsonError,
     JsonObject,
+    JsonValue,
     get_bool,
     get_dict,
     get_int,
@@ -138,7 +138,7 @@ def get_libexecdir() -> str:
 # HACK: Type narrowing over Union types is not supported in the general case,
 # but this works for the case we care about: knowing that when we pass in an
 # JsonObject, we'll get an JsonObject back.
-J = TypeVar('J', JsonObject, JsonDocument)
+J = TypeVar('J', JsonObject, JsonValue)
 
 
 def patch_libexecdir(obj: J) -> J:
@@ -171,14 +171,14 @@ class PackagesListener:
         """Called when the packages have been reloaded"""
 
 
-class BridgeConfig(JsonObject):
+class BridgeConfig(dict, JsonObject):
     def __init__(self, value: JsonObject):
         super().__init__(value)
 
         self.label = get_str(self, 'label', None)
 
         self.privileged = get_bool(self, 'privileged', default=False)
-        self.match: JsonObject = get_dict(self, 'match', {})
+        self.match = get_dict(self, 'match', {})
         if not self.privileged and not self.match:
             raise JsonError(value, 'must have match rules or be privileged')
 
@@ -198,7 +198,7 @@ class Condition:
             raise JsonError(value, 'must contain exactly one key/value pair') from exc
 
 
-class Manifest(JsonObject):
+class Manifest(dict, JsonObject):
     # Skip version check when running out of the git checkout (__version__ is None)
     COCKPIT_VERSION = __version__ and sortify_version(__version__)
 
@@ -213,7 +213,7 @@ class Manifest(JsonObject):
 
         # Skip version check when running out of the git checkout (COCKPIT_VERSION is None)
         if self.COCKPIT_VERSION is not None:
-            requires: JsonObject = get_dict(self, 'requires', {})
+            requires = get_dict(self, 'requires', {})
             for name, version in requires.items():
                 if name != 'cockpit':
                     raise JsonError(name, 'non-cockpit requirement listed')
@@ -364,7 +364,7 @@ class PackagesLoader:
 
     # https://www.rfc-editor.org/rfc/rfc7386
     @classmethod
-    def merge_patch(cls, target: JsonDocument, patch: J) -> J:
+    def merge_patch(cls, target: JsonValue, patch: J) -> J:
         # Loosely based on example code from the RFC
         if not isinstance(patch, dict):
             return patch
@@ -388,7 +388,7 @@ class PackagesLoader:
 
         for override_file in override_files:
             try:
-                override: JsonDocument = json.loads(override_file.read_bytes())
+                override: JsonValue = json.loads(override_file.read_bytes())
             except FileNotFoundError:
                 continue
             except json.JSONDecodeError as exc:

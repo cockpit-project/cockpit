@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import Any, Dict, Iterable, Optional, Tuple
 
-from cockpit.jsonutil import JsonDocument, JsonObject
+from cockpit.jsonutil import JsonObject, JsonValue
 from cockpit.router import Router
 
 MOCK_HOSTNAME = 'mockbox'
@@ -120,7 +120,7 @@ class MockTransport(asyncio.Transport):
         assert channel == expected_channel
         assert data == expected_data
 
-    async def assert_msg(self, expected_channel: str, **kwargs: JsonDocument) -> JsonObject:
+    async def assert_msg(self, expected_channel: str, **kwargs: JsonValue) -> JsonObject:
         msg = await self.next_msg(expected_channel)
         assert msg == dict(msg, **{k.replace('_', '-'): v for k, v in kwargs.items()}), msg
         return msg

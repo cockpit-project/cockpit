@@ -58,7 +58,7 @@ class PackagesChannel(AsyncChannel):
             # Note: we can't cache documents right now.  See
             # https://github.com/cockpit-project/cockpit/issues/19071
             # for future plans.
-            out_headers: JsonObject = {
+            out_headers = {
                 'Cache-Control': 'no-cache, no-store',
                 'Content-Type': document.content_type,
             }

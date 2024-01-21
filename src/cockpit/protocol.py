@@ -21,7 +21,7 @@ import logging
 import uuid
 from typing import Dict, Optional
 
-from .jsonutil import JsonDocument, JsonError, JsonObject, create_object, get_str, typechecked
+from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_str, typechecked
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +40,9 @@ class CockpitProblem(Exception):
     """
     attrs: JsonObject
 
-    def __init__(self, problem: str, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
+    def __init__(self, problem: str, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
+        kwargs['problem'] = problem
         self.attrs = create_object(_msg, kwargs)
-        self.attrs['problem'] = problem
         super().__init__(get_str(self.attrs, 'message', problem))
 
 
@@ -183,7 +183,7 @@ class CockpitProtocol(asyncio.Protocol):
         else:
             logger.debug('cannot write to closed transport')
 
-    def write_control(self, _msg: 'JsonObject | None' = None, **kwargs: JsonDocument) -> None:
+    def write_control(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
         """Write a control message.  See jsonutil.create_object() for details."""
         logger.debug('sending control message %r %r', _msg, kwargs)
         pretty = json.dumps(create_object(_msg, kwargs), indent=2) + '\n'
@@ -245,7 +245,7 @@ class CockpitProtocolServer(CockpitProtocol):
 
     # authorize request/response API
     async def request_authorization(
-        self, challenge: str, timeout: 'int | None' = None, **kwargs: JsonDocument
+        self, challenge: str, timeout: 'int | None' = None, **kwargs: JsonValue
     ) -> str:
         if self.authorizations is None:
             self.authorizations = {}

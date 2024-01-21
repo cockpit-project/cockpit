@@ -23,7 +23,7 @@ from typing import Dict, List, Optional, Tuple
 
 from cockpit._vendor import ferny
 
-from .jsonutil import JsonDocument, JsonObject, get_str, get_str_or_none
+from .jsonutil import JsonObject, JsonValue, get_str, get_str_or_none
 from .peer import Peer, PeerError
 from .router import Router, RoutingRule
 
@@ -110,7 +110,7 @@ class SshPeer(Peer):
                 # containing the key that would need to be accepted.  That will
                 # cause the front-end to present a dialog.
                 _reason, host, algorithm, key, fingerprint = responder.hostkeys_seen[0]
-                error_args: JsonObject = {'host-key': f'{host} {algorithm} {key}', 'host-fingerprint': fingerprint}
+                error_args = {'host-key': f'{host} {algorithm} {key}', 'host-fingerprint': fingerprint}
             else:
                 error_args = {}
 
@@ -129,7 +129,7 @@ class SshPeer(Peer):
         except ferny.SshAuthenticationError as exc:
             logger.debug('authentication to host %s failed: %s', host, exc)
 
-            results: JsonObject = {method: 'not-provided' for method in exc.methods}
+            results = {method: 'not-provided' for method in exc.methods}
             if 'password' in results and self.password is not None:
                 if responder.password_attempts == 0:
                     results['password'] = 'not-tried'
@@ -171,7 +171,7 @@ class SshPeer(Peer):
 
         self.session = ferny.Session()
 
-        superuser: JsonDocument
+        superuser: JsonValue
         init_superuser = get_str_or_none(options, 'init-superuser', None)
         if init_superuser in (None, 'none'):
             superuser = False

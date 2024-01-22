@@ -110,6 +110,9 @@ class Printer:
     def packages_reload(self, channel: Optional[str] = None) -> None:
         self.dbus_call('/packages', 'cockpit.Packages', 'Reload', [], channel=channel)
 
+    def fsinfo(self, path: str, *attrs: str, watch: bool = True, **kwargs: Any) -> None:
+        self.open('fsinfo', path=path, attrs=attrs, watch=watch, **kwargs)
+
     def help(self) -> None:
         """Show help"""
         sys.stderr.write("""
@@ -228,7 +231,7 @@ def main() -> None:
             try:
                 value = ast.literal_eval(param)
             except (SyntaxError, ValueError):
-                if any(c in param for c in '\'":;<>,|\\(){}[]`~!@#$%^&*='):
+                if any(c in param for c in '\'":;<>,|\\(){}[]`~!@#$%^&='):
                     raise
                 else:
                     value = param

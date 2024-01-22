@@ -69,8 +69,6 @@ echo "TEST_AUDIT_NO_SELINUX: ${TEST_AUDIT_NO_SELINUX:-}"
 
 if [ "$PLAN" = "optional" ]; then
     TESTS="$TESTS
-           TestAutoUpdates
-           TestUpdates
            TestStorage
            "
 

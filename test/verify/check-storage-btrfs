@@ -219,21 +219,13 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         ro_subvol = "/run/ro"
         self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
-        self.dialog_wait_open()
-        self.dialog_set_val("name", os.path.basename(ro_subvol))
-        self.dialog_set_val("mount_point", ro_subvol)
-        self.dialog_set_val("mount_options.ro", val=True)
-        self.dialog_apply()
-        self.dialog_wait_close()
+        self.dialog({"name": os.path.basename(ro_subvol), "mount_point": ro_subvol, "mount_options.ro": True})
 
         # Since /run/butter is still mounted read-write, we can create
         # subvolumes of "ro" using that.
 
         self.click_dropdown(self.card_row("Storage", location=ro_subvol), "Create subvolume")
-        self.dialog_wait_open()
-        self.dialog_set_val("name", "bot")
-        self.dialog_apply_secondary()
-        self.dialog_wait_close()
+        self.dialog({"name": "bot"}, secondary=True)
         b.wait_visible(self.card_row("Storage", name="ro/bot"))
 
         # But once /run/butter has been unmounted, we can't create

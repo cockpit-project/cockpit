@@ -278,8 +278,8 @@ class Channel(Endpoint):
 
     json_encoder: ClassVar[json.JSONEncoder] = json.JSONEncoder(indent=2)
 
-    def send_json(self, **kwargs: JsonValue) -> bool:
-        pretty = self.json_encoder.encode(create_object(None, kwargs)) + '\n'
+    def send_json(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> bool:
+        pretty = self.json_encoder.encode(create_object(_msg, kwargs)) + '\n'
         return self.send_data(pretty.encode())
 
     def send_control(self, command: str, **kwargs: JsonValue) -> None:

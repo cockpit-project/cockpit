@@ -10,6 +10,7 @@ User.shell
 
 # getattr()
 Printer.dbus_call
+Printer.fsinfo
 Printer.help
 Printer.packages_reload
 Printer.wait

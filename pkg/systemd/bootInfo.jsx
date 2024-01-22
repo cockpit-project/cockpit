@@ -40,12 +40,12 @@ export function BootInfo({ user }) {
                         legend.remove();
                         [...plot.querySelectorAll("text.left"), ...plot.querySelectorAll("text.right")].forEach((text) => {
                             // Sets up attributes to make it possible jump to the page of a specific service
-                            const match = text.innerHTML.match(/^(?<service>.+\.[a-z._-]+)(\s+\((?<time>\d+(\.\d+)?)\w+\))?$/);
+                            const match = text.innerHTML.match(/^(?<service>.+\.[a-z._-]+)(\s+\((?<time>\d+(\.\d+)?)(?<time_unit>\w+)\))?$/);
+                            // Regex example: "initrd-parse-etc.service (52ms)" -> service: "initrd-parse-etc.service", time: "52", time_unit: "ms"
                             if (match !== null) {
-                                const service = match.groups.service;
-                                const time = match.groups.time;
-                                text.setAttribute("data-service", service);
-                                text.setAttribute("data-time", time);
+                                text.setAttribute("data-service", match.groups.service);
+                                text.setAttribute("data-time", match.groups.time);
+                                text.setAttribute("data-time-unit", match.groups.time_unit);
                                 text.classList.add("clickable-service");
                             }
                         });

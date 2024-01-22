@@ -603,6 +603,25 @@ ExecStart=/usr/bin/sleep infinity
         self.confirm()
         b.wait_in_text(self.card_row("Storage", location=mount_point), "btrfs subvolume")
 
+    def testNoSubvolMount(self):
+        m = self.machine
+        b = self.browser
+
+        disk = self.add_ram_disk(size=128)
+        mount_point = "/run/butter"
+
+        m.execute(f"""
+            mkfs.btrfs -L butter {disk}
+            mkdir -p {mount_point}
+            mount {disk} {mount_point}
+            echo '{disk} {mount_point} auto defaults 0 0' >> /etc/fstab
+        """)
+
+        self.login_and_go("/storage")
+
+        self.click_card_row("Storage", name="butter")
+        b.wait_visible(self.card_row("btrfs subvolumes", name="/"))
+
     def testNothingMounted(self):
         m = self.machine
         b = self.browser

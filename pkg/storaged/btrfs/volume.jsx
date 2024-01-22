@@ -173,13 +173,14 @@ function make_btrfs_subvolume_pages(parent, volume) {
 
                 const fstab_subvol = parse_subvol_from_options(decode_filename(opts.v));
 
-                if (fstab_subvol && fstab_subvol.pathname === "/") {
-                    has_root = true;
-                }
+                if (fstab_subvol === null)
+                    continue;
 
-                if (fstab_subvol.pathname) {
+                if (fstab_subvol.pathname === "/")
+                    has_root = true;
+
+                if (fstab_subvol.pathname)
                     make_btrfs_subvolume_page(parent, volume, fstab_subvol);
-                }
             }
         }
 

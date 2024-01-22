@@ -94,6 +94,7 @@ class TestStorageswap(storagelib.StorageCase):
         m = self.machine
 
         disk = self.add_ram_disk()
+        self.addCleanup(m.execute, f"swapoff $(lsblk -plno NAME {disk} | tail -1) || true")
 
         self.login_and_go("/storage")
 

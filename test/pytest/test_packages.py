@@ -80,7 +80,7 @@ def test_basic(pkgdir):
 
 
 def test_override_etc(pkgdir, confdir):
-    (confdir / 'basic.override.json').write_text('{"description": "overridden package", "priority": 5}')
+    (confdir / 'basic.override.json').write_text('{"description": null, "priority": 5, "does-not-exist": null}')
 
     packages = Packages()
     assert len(packages.packages) == 1
@@ -88,12 +88,11 @@ def test_override_etc(pkgdir, confdir):
     assert packages.packages['basic'].name == 'basic'
     assert packages.packages['basic'].manifest['requires'] == {'cockpit': '42'}
     # overridden attributes
-    assert packages.packages['basic'].manifest['description'] == 'overridden package'
+    assert 'description' not in packages.packages['basic'].manifest
     assert packages.packages['basic'].priority == 5
 
     assert json.loads(packages.manifests) == {
         'basic': {
-            'description': 'overridden package',
             'requires': {'cockpit': '42'},
             'priority': 5,
         }

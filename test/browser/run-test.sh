@@ -69,7 +69,7 @@ echo "TEST_AUDIT_NO_SELINUX: ${TEST_AUDIT_NO_SELINUX:-}"
 
 if [ "$PLAN" = "optional" ]; then
     TESTS="$TESTS
-           TestStorage
+           TestStorageStratis.testCli
            "
 
     # Testing Farm machines often have pending restarts/reboot

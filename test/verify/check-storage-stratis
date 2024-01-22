@@ -408,6 +408,26 @@ systemctl restart stratisd
         b.wait_visible(self.card("Storage"))
         b.wait_not_present(self.card_row("Storage", name="TEST1"))
 
+    @testlib.nondestructive
+    def testCli2(self):
+        self.testCli()
+
+    @testlib.nondestructive
+    def testCli3(self):
+        self.testCli()
+
+    @testlib.nondestructive
+    def testCli4(self):
+        self.testCli()
+
+    @testlib.nondestructive
+    def testCli5(self):
+        self.testCli()
+
+    @testlib.nondestructive
+    def testCli6(self):
+        self.testCli()
+
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
 class TestStorageStratisReboot(storagelib.StorageCase):

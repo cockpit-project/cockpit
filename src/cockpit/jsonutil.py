@@ -152,7 +152,7 @@ def json_merge_patch(current: JsonObject, patch: JsonObject) -> JsonObject:
         elif patch_value is not None:
             result[key] = patch_value
         else:
-            result.pop(key)
+            result.pop(key, None)
 
     return result
 

@@ -90,6 +90,8 @@ if [ "$PLAN" = "optional" ]; then
               TestAutoUpdates.testBasic
               TestAutoUpdates.testPrivilegeChange
 
+              TestStorageBtrfs.testNothingMounted
+
               TestStorageFormat.testAtBoot
               TestStorageFormat.testFormatCancel
               TestStorageFormat.testFormatTooSmall

@@ -282,22 +282,14 @@ class TestStorageMdRaid(storagelib.StorageCase):
         b.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
 
         b.wait_visible(self.card_button("MDRAID device", "Add disk") + ":disabled")
-        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk1)))
-        b.wait_visible(self.dropdown_action(self.card_row("MDRAID device", name=disk1), "Remove") + "[disabled]")
-        b.wait_text(self.dropdown_description(self.card_row("MDRAID device", name=disk1), "Remove"),
-                    "The MDRAID device must be running")
-        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk1)))
+        self.check_dropdown_action_disabled(self.card_row("MDRAID device", name=disk1), "Remove", "The MDRAID device must be running")
 
         self.raid_default_action("Start")
         b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
         b.wait_not_present(self.card_button("MDRAID device", "Add disk") + ":disabled")
-        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk1)))
-        b.wait_visible(self.dropdown_action(self.card_row("MDRAID device", name=disk1), "Remove") + "[disabled]")
-        b.wait_text(self.dropdown_description(self.card_row("MDRAID device", name=disk1), "Remove"),
-                    "Need a spare disk")
-        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk1)))
+        self.check_dropdown_action_disabled(self.card_row("MDRAID device", name=disk1), "Remove", "Need a spare disk")
 
         # Adding a spare will allow removal of the "in-sync" disks.
         self.raid_add_disk(disk3)
@@ -307,11 +299,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
                           disk2: "In sync"})
 
         # Removing the disk will make the rest un-removable again
-        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk3)))
-        b.wait_visible(self.dropdown_action(self.card_row("MDRAID device", name=disk3), "Remove") + "[disabled]")
-        b.wait_text(self.dropdown_description(self.card_row("MDRAID device", name=disk3), "Remove"),
-                    "Need a spare disk")
-        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk3)))
+        self.check_dropdown_action_disabled(self.card_row("MDRAID device", name=disk3), "Remove", "Need a spare disk")
 
         # A failed disk can be removed
         dev = b.text(self.card_desc("MDRAID device", "Device"))
@@ -321,11 +309,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         b.wait_not_present(self.card_row("MDRAID device", name=disk3))
 
         # The last disk can not be removed
-        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk2)))
-        b.wait_visible(self.dropdown_action(self.card_row("MDRAID device", name=disk2), "Remove") + "[disabled]")
-        b.wait_text(self.dropdown_description(self.card_row("MDRAID device", name=disk2), "Remove"),
-                    "Need a spare disk")
-        b.click(self.dropdown_toggle(self.card_row("MDRAID device", name=disk2)))
+        self.check_dropdown_action_disabled(self.card_row("MDRAID device", name=disk2), "Remove", "Need a spare disk")
 
     def testBitmap(self):
         m = self.machine

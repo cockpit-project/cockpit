@@ -611,6 +611,12 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
     def click_devices_dropdown(self, title):
         self.click_card_dropdown("Storage", title)
 
+    def check_dropdown_action_disabled(self, parent, title, expected_text):
+        self.browser.click(self.dropdown_toggle(parent))
+        self.browser.wait_visible(self.dropdown_action(parent, title) + "[disabled]")
+        self.browser.wait_text(self.dropdown_description(parent, title), expected_text)
+        self.browser.click(self.dropdown_toggle(parent))
+
     def wait_mounted(self, card_title):
         with self.browser.wait_timeout(30):
             self.browser.wait_not_in_text(self.card_desc(card_title, "Mount point"),

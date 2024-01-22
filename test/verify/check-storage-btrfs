@@ -247,11 +247,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         """)
 
         subvol_loc = f"{os.path.basename(ro_subvol)}/readonly"
-        b.click(self.dropdown_toggle(self.card_row("Storage", name=subvol_loc)))
-        b.wait_visible(self.dropdown_action(self.card_row("Storage", name=subvol_loc), "Create subvolume") + "[disabled]")
-        b.wait_text(self.dropdown_description(self.card_row("Storage", name=subvol_loc), "Create subvolume"),
-                    "Subvolume needs to be mounted")
-        b.click(self.dropdown_toggle(self.card_row("Storage", name=subvol_loc)))
+        self.check_dropdown_action_disabled(self.card_row("Storage", name=subvol_loc), "Create subvolume", "Subvolume needs to be mounted")
 
     def testMultiDevice(self):
         m = self.machine

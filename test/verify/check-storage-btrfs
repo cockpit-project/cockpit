@@ -621,10 +621,10 @@ ExecStart=/usr/bin/sleep infinity
         # Add some fstab entries. Cockpit should pick up the
         # subvolumes mentioned in them and show them.
 
-        m.execute(f"echo >>/etc/fstab '{disk} /home auto noauto,subvol=home 0 0'")
+        m.execute(f"echo >>/etc/fstab '{disk} /mnt/home auto noauto,subvol=home 0 0'")
         m.execute(f"echo >>/etc/fstab '{disk} /mnt/backups auto noauto,subvol=backups 0 0'")
 
-        b.wait_text(self.card_row_col("btrfs subvolumes", row_name="home", col_index=3), "/home (not mounted)")
+        b.wait_text(self.card_row_col("btrfs subvolumes", row_name="home", col_index=3), "/mnt/home (not mounted)")
         b.wait_text(self.card_row_col("btrfs subvolumes", row_name="backups", col_index=3), "/mnt/backups (not mounted)")
 
 

@@ -3021,8 +3021,10 @@ function factory() {
         function waited(ex) {
             if (valid)
                 waits.resolve();
-            else
+            else {
+                console.warn("WAITED fail", path, JSON.stringify(ex));
                 waits.reject(ex);
+            }
         }
 
         /* If watching then do a proper watch, otherwise object is done */
@@ -3352,12 +3354,15 @@ function factory() {
             const msg = JSON.stringify({ watch: match, id });
             if (send(msg))
                 calls[id] = dfd;
-            else
+            else {
+                console.warn("WATCH fail closed", path, closed);
                 dfd.reject(new DBusError(closed));
+            }
 
             const ret = dfd.promise;
             ret.remove = function remove() {
                 if (id in calls) {
+                    console.warn("WATCH fail cancelled", path);
                     dfd.reject(new DBusError("cancelled"));
                     delete calls[id];
                 }

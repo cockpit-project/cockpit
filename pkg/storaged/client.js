@@ -846,6 +846,8 @@ client.update = (first_time) => {
 };
 
 function init_model(callback) {
+    console.log("INIT MODEL");
+
     function pull_time() {
         return cockpit.spawn(["date", "+%s"])
                 .then(function (now) {
@@ -1671,6 +1673,8 @@ function stratis2_fixup_pool_notifications(data) {
 function init_client(manager, callback) {
     if (client.manager)
         return;
+
+    console.log("INIT CLIENT");
 
     client.storaged_client = manager.client;
     client.manager = manager;

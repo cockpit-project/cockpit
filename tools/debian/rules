@@ -10,6 +10,8 @@ ifneq ($(SLOW_ARCHES),)
 endif
 
 export deb_systemdsystemunitdir = $(shell pkgconf --variable=systemdsystemunitdir systemd | sed s,^/,,)
+# pam.pc doesn't yet have a libdir on older releases
+export deb_pamlibdir = $(shell { pkgconf --variable=libdir pam || echo /lib/$(DEB_HOST_MULTIARCH); } | sed s,^/,,)
 
 %:
 	dh $@ --buildsystem=autoconf --with=python3
@@ -18,7 +20,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		--with-cockpit-user=cockpit-ws \
 		--with-cockpit-ws-instance-user=cockpit-wsinstance \
-		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
+		--with-pamdir=/$(deb_pamlibdir)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 
 # HACK: Debian's pip breaks --prefix: https://bugs.debian.org/1035546 with

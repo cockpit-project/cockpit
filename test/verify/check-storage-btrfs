@@ -41,19 +41,31 @@ class TestStorageBtrfs(storagelib.StorageCase):
         mount_point = "/run/butter"
         # btrfs requires a 128 MB
         dev_1 = self.add_ram_disk(size=128)
-        uuid = "a32d61d6-9d75-4327-9bb9-3fa3627300ae"
-        m.execute(f"mkfs.btrfs -U {uuid} {dev_1}")
 
         self.login_and_go("/storage")
-        # creation of btrfs partition can take a while on TF.
-        with b.wait_timeout(30):
-            b.wait_visible(self.card_row("Storage", name=uuid))
-        b.wait_in_text(self.card_row("Storage", name="sda"), "btrfs device")
-        self.click_card_row("Storage", name=uuid)
+        self.click_dropdown(self.card_row("Storage", name=dev_1), "Format")
+        self.dialog({"name": "butter", "type": "btrfs", "mount_point": mount_point})
 
-        b.wait_text(self.card_desc("btrfs volume", "UUID"), uuid)
         # disk(s) are part of the volume card
+        b.wait_visible(self.card_row("Storage", location=mount_point))
+        self.click_card_row("Storage", name="butter")
+
+        # Test device link
+        b.wait_text(self.card_desc("btrfs volume", "Label"), "butter")
         b.wait_visible(self.card_row("btrfs volume", name=dev_1))
+
+        self.click_card_row("btrfs volume", name=dev_1)
+        b.wait_text(self.card_desc("btrfs device", "btrfs volume"), "butter")
+        b.click(self.card_desc("btrfs device", "btrfs volume") + " button")
+        b.wait_text(self.card_desc("btrfs volume", "Label"), "butter")
+
+        # UDisks does not allow us to change the label of a mounted FS
+        b.wait_visible(self.card_desc_action("btrfs volume", "Label") + ":disabled")
+
+        # Unmount to change label
+        self.click_dropdown(self.card_row("btrfs subvolumes", name="/"), "Unmount")
+        self.confirm()
+        b.wait_visible(self.card_row("btrfs subvolumes", location=f"{mount_point} (not mounted)"))
 
         label = "butter"
         b.click(self.card_desc_action("btrfs volume", "Label"))
@@ -61,10 +73,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_text(self.card_desc("btrfs volume", "Label"), label)
 
         self.click_dropdown(self.card_row("btrfs subvolumes", name="/"), "Mount")
-        self.dialog({"mount_point": mount_point})
-        b.wait_visible(self.card_row("btrfs subvolumes", location=mount_point))
-        # UDisks does not allow us to change the label of a mounted FS
-        b.wait_visible(self.card_desc_action("btrfs volume", "Label") + ":disabled")
+        self.confirm()
+        b.wait_visible(self.card_row("btrfs subvolumes", location=f"{mount_point}"))
 
         # detect new subvolume
         subvol = "/run/butter/cake"

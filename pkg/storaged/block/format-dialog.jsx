@@ -198,6 +198,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     const filesystem_options = [];
     add_fsys("xfs", { value: "xfs", title: "XFS" });
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
+    add_fsys("btrfs", { value: "btrfs", title: "BTRFS" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
     add_fsys("swap", { value: "swap", title: "Swap" });
@@ -529,6 +530,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         mount_options.push("_netdev");
                     if (vals.mount_options.extra)
                         mount_options.push(vals.mount_options.extra);
+                    if (type == "btrfs")
+                        mount_options.push("subvol=/");
 
                     mount_point = vals.mount_point;
                     if (mount_point != "") {

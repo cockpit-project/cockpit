@@ -87,3 +87,18 @@ This is done by setting the "efi" flag to true or false:
   "efi": true
 }
 ```
+
+Default filesystem type
+-----------------------
+
+Cockpit tries to be smart about which filesystem type to select by
+default when formatting something.  In normal operation, it will fall
+back to the type of the filesystem mounted as "/". When in Anaconda
+mode, there might not be anything assigned to "/" yet, and in this
+case, Cockpit will use the type from "default_fsys_type".
+
+```
+{
+  "default_fsys_type": "xfs"
+}
+```

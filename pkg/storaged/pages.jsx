@@ -763,9 +763,33 @@ export function block_location(block) {
     return decode_filename(block.PreferredDevice).replace(/^\/dev\//, "");
 }
 
+const StorageBreadcrumb = ({ page }) => {
+    const parent_crumbs = [];
+    let pp = page.parent;
+    while (pp) {
+        parent_crumbs.unshift(
+            <BreadcrumbItem key={pp.name} to={"#" + cockpit.location.encode(pp.location)}>
+                {page_display_name(pp)}
+            </BreadcrumbItem>
+        );
+        pp = pp.parent;
+    }
+
+    return (
+        <Breadcrumb>
+            { parent_crumbs }
+            <BreadcrumbItem isActive>{page_display_name(page)}</BreadcrumbItem>
+        </Breadcrumb>);
+};
+
 export const StorageCard = ({ card, alert, alerts, actions, children }) => {
     return (
         <Card data-test-card-title={card.title}>
+            { (client.in_anaconda_mode() && card.page.parent && !card.next) &&
+            <CardBody>
+                <StorageBreadcrumb page={card.page} />
+            </CardBody>
+            }
             <CardHeader actions={{ actions: actions || <ActionButtons card={card} /> }}>
                 <CardTitle>{card.title}</CardTitle>
             </CardHeader>
@@ -802,28 +826,14 @@ export const StorageDescription = ({ title, value, action, children }) => {
 export const StoragePage = ({ location, plot_state }) => {
     const page = get_page_from_location(location);
 
-    const parent_crumbs = [];
-    let pp = page.parent;
-    while (pp) {
-        parent_crumbs.unshift(
-            <BreadcrumbItem key={pp.name} to={"#" + cockpit.location.encode(pp.location)}>
-                {page_display_name(pp)}
-            </BreadcrumbItem>
-        );
-        pp = pp.parent;
-    }
-
     return (
         <Page id="storage">
-            { parent_crumbs.length > 0 &&
+            { (!client.in_anaconda_mode() && page.parent) &&
             <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
-                <Breadcrumb>
-                    { parent_crumbs }
-                    <BreadcrumbItem isActive>{page_display_name(page)}</BreadcrumbItem>
-                </Breadcrumb>
+                <StorageBreadcrumb page={page} />
             </PageBreadcrumb>
             }
-            <PageSection isFilled={false}>
+            <PageSection isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
                 <Stack hasGutter>
                     <MultipathAlert client={client} />
                     <AnacondaAdvice />

@@ -87,6 +87,7 @@ class TestStorageFormat(storagelib.StorageCase):
         # Format without mount point
         self.click_card_dropdown("Unformatted data", "Format")
         self.dialog_wait_open()
+        self.dialog_set_val("type", "xfs")
         self.dialog_apply_secondary()
         self.dialog_wait_close()
 

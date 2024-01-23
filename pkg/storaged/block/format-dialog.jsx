@@ -18,6 +18,8 @@
  */
 
 import cockpit from "cockpit";
+import client from "../client.js";
+
 import {
     edit_crypto_config, parse_options, unparse_options, extract_option,
     get_parent_blocks, is_netdev,
@@ -155,6 +157,17 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     }
 }
 
+function find_root_fsys_block() {
+    const root = client.anaconda?.mount_point_prefix || "/";
+    for (const p in client.blocks) {
+        if (client.blocks_fsys[p] && client.blocks_fsys[p].MountPoints.map(decode_filename).indexOf(root) >= 0)
+            return client.blocks[p];
+        if (client.blocks[p].Configuration.find(c => c[0] == "fstab" && decode_filename(c[1].dir.v) == root))
+            return client.blocks[p];
+    }
+    return null;
+}
+
 function format_dialog_internal(client, path, start, size, enable_dos_extended, old_luks_version) {
     const block = client.blocks[path];
     const block_part = client.blocks_part[path];
@@ -183,7 +196,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     }
 
     const filesystem_options = [];
-    add_fsys("xfs", { value: "xfs", title: "XFS " + _("(recommended)") });
+    add_fsys("xfs", { value: "xfs", title: "XFS" });
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
@@ -197,6 +210,24 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     add_fsys(true, { value: "empty", title: _("No filesystem") });
     if (create_partition && enable_dos_extended)
         add_fsys(true, { value: "dos-extended", title: _("Extended partition") });
+
+    function is_supported(type) {
+        return filesystem_options.find(o => o.value == type);
+    }
+
+    let default_type = null;
+    if (block.IdUsage == "filesystem" && is_supported(block.IdType))
+        default_type = block.IdType;
+    else {
+        const root_block = find_root_fsys_block();
+        if (root_block && is_supported(root_block.IdType)) {
+            default_type = root_block.IdType;
+        } else if (client.anaconda?.default_fsys_type && is_supported(client.anaconda.default_fsys_type)) {
+            default_type = client.anaconda.default_fsys_type;
+        } else {
+            default_type = "ext4";
+        }
+    }
 
     function is_encrypted(vals) {
         return vals.crypto && vals.crypto !== "none";
@@ -322,7 +353,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                           }
                       }),
             SelectOne("type", _("Type"),
-                      { choices: filesystem_options }),
+                      {
+                          value: default_type,
+                          choices: filesystem_options
+                      }),
             SizeSlider("size", _("Size"),
                        {
                            value: size,

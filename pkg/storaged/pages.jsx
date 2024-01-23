@@ -255,6 +255,7 @@ export function new_card({
 }
 
 export function register_crossref(crossref) {
+    console.log('register_crossref', crossref);
     const val = crossrefs.get(crossref.key) || [];
     crossref.actions = crossref.actions ? crossref.actions.filter(a => !!a) : null;
     val.push(crossref);
@@ -262,6 +263,7 @@ export function register_crossref(crossref) {
 }
 
 export function get_crossrefs(key) {
+    console.log('get_crossrefs', key, crossrefs.get(key));
     return crossrefs.get(key);
 }
 
@@ -468,6 +470,7 @@ export const useIsNarrow = (onChange) => {
 };
 
 export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, show_icons }) => {
+    console.log('PageTable', pages, crossrefs);
     const [collapsed, setCollapsed] = useState(true);
     const firstKeys = useRef(false);
     const narrow = useIsNarrow(() => { firstKeys.current = false });
@@ -637,6 +640,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
     function sort(things, accessor, sorted) {
         if (sorted === false)
             return things;
+        console.log("sort", things, accessor, sorted);
         return things.toSorted((a, b) => page_compare(accessor(a), accessor(b)));
     }
 

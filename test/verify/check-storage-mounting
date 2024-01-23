@@ -24,7 +24,23 @@ import testlib
 @testlib.nondestructive
 class TestStorageMounting(storagelib.StorageCase):
 
+    def _navigate_root_subvolume(self, label):
+        b = self.browser
+
+        b.wait_visible(self.card("btrfs device"))
+        b.click(self.card_button("btrfs device", label))
+        b.wait_visible(self.card("btrfs volume"))
+        self.click_card_row("btrfs subvolumes", name="/")
+        b.wait_visible(self.card("btrfs subvolume"))
+
     def testMounting(self):
+        self._testMounting()
+
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    def testMountingBtrfs(self):
+        self._testMounting("btrfs", "btrfs subvolume")
+
+    def _testMounting(self, fstype="ext4", filesystem="ext4 filesystem"):
         m = self.machine
         b = self.browser
 
@@ -34,14 +50,15 @@ class TestStorageMounting(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add a disk
-        disk = self.add_ram_disk()
+        disk_size = 128
+        disk = self.add_ram_disk(size=disk_size)
         self.click_card_row("Storage", name=disk)
 
         # Format it
 
         self.click_card_dropdown("Unformatted data", "Format")
         self.dialog_wait_open()
-        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("type", fstype)
         self.dialog_set_val("name", "FILESYSTEM")
         self.dialog_set_val("mount_point", "")
         self.dialog_apply()
@@ -50,8 +67,12 @@ class TestStorageMounting(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         self.assert_in_configuration("/dev/sda", "fstab", "dir", mount_point_foo)
-        b.wait_text(self.card_desc("ext4 filesystem", "Name"), "FILESYSTEM")
-        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), mount_point_foo)
+        if fstype == "btrfs":
+            self._navigate_root_subvolume("FILESYSTEM")
+        else:
+            b.wait_text(self.card_desc(filesystem, "Name"), "FILESYSTEM")
+
+        b.wait_in_text(self.card_desc(filesystem, "Mount point"), mount_point_foo)
 
         # Keep the mount point busy
         sleep_pid = m.spawn(f"cd {mount_point_foo}; sleep infinity", "sleep")
@@ -66,42 +87,47 @@ ExecStart=/usr/bin/sleep infinity
 """)
         m.execute("systemctl start keep-mnt-busy")
 
-        b.click(self.card_button("ext4 filesystem", "Unmount"))
+        b.click(self.card_button(filesystem, "Unmount"))
         b.wait_in_text("#dialog", str(sleep_pid))
         b.wait_in_text("#dialog", "sleep infinity")
         b.wait_in_text("#dialog", "keep-mnt-busy")
         b.wait_in_text("#dialog", "Test Service")
         b.wait_in_text("#dialog", "/usr/bin/sleep infinity")
         b.wait_in_text("#dialog", "The listed processes and services will be forcefully stopped.")
-        b.assert_pixels("#dialog", "busy-unmount", mock={"td[data-label='PID']": "1234",
-                                                         "td[data-label='Runtime']": "a little while"})
+        if fstype != "btrfs":
+            b.assert_pixels("#dialog", "busy-unmount", mock={"td[data-label='PID']": "1234",
+                                                             "td[data-label='Runtime']": "a little while"})
         self.confirm()
-        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "The filesystem is not mounted")
+        b.wait_in_text(self.card_desc(filesystem, "Mount point"), "The filesystem is not mounted")
 
         m.execute("! systemctl --quiet is-active keep-mnt-busy")
 
-        b.click(self.card_desc_action("ext4 filesystem", "Name"))
-        self.dialog({"name": "filesystem"})
-        b.wait_text(self.card_desc("ext4 filesystem", "Name"), "filesystem")
+        if fstype != "btrfs":  # tested in test-storage-btrfs
+            b.click(self.card_desc_action(filesystem, "Name"))
+            self.dialog({"name": "filesystem"})
+            b.wait_text(self.card_desc(filesystem, "Name"), "filesystem")
 
-        b.click(self.card_desc("ext4 filesystem", "Mount point") + " button")
+        b.click(self.card_desc(filesystem, "Mount point") + " button")
         self.dialog(expect={"mount_point": mount_point_foo},
                     values={"mount_point": mount_point_bar})
         self.assert_in_configuration("/dev/sda", "fstab", "dir", mount_point_bar)
-        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), mount_point_bar)
+        b.wait_in_text(self.card_desc(filesystem, "Mount point"), mount_point_bar)
 
-        b.click(self.card_button("ext4 filesystem", "Mount"))
+        b.click(self.card_button(filesystem, "Mount"))
         self.confirm()
-        b.wait_not_in_text(self.card_desc("ext4 filesystem", "Mount point"), "The filesystem is not mounted")
+        b.wait_not_in_text(self.card_desc(filesystem, "Mount point"), "The filesystem is not mounted")
 
         # Set the "Never unlock at boot option"
-        b.click(self.card_desc("ext4 filesystem", "Mount point") + " button")
+        b.click(self.card_desc(filesystem, "Mount point") + " button")
         self.dialog({"at_boot": "never"})
         self.assertIn("noauto", m.execute(f"findmnt -s -n -o OPTIONS {mount_point_bar}"))
         self.assertIn("x-cockpit-never-auto", m.execute(f"findmnt -s -n -o OPTIONS {mount_point_bar}"))
 
         # Go to overview page and check that the filesystem usage is
         # displayed correctly.
+
+        if fstype == "btrfs":  # TODO: Cockpit/UDisks reports the wrong usage for btrfs subvolumes
+            return
 
         def wait_ratio_in_range(sel, low, high):
             b.wait_js_func("""(function (sel, low, high) {
@@ -117,7 +143,8 @@ ExecStart=/usr/bin/sleep infinity
         b.wait_visible(self.card_row("Storage", location=mount_point_bar))
         bar_selector = self.card_row("Storage", location=mount_point_bar) + " td:nth-child(5)"
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
-        m.execute(f"dd if=/dev/zero of={mount_point_bar}/zero bs=1M count=30 status=none")
+        dd_count = disk_size // 2 + 10
+        m.execute(f"dd if=/dev/zero of={mount_point_bar}/zero bs=1M count={dd_count} status=none")
         wait_ratio_in_range(bar_selector, 0.5, 1.0)
         m.execute(f"rm {mount_point_bar}/zero")
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
@@ -125,28 +152,39 @@ ExecStart=/usr/bin/sleep infinity
         self.click_card_row("Storage", location=mount_point_bar)
         b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), "8000")  # scsi_debug serial
 
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    def testMountingHelpBtrfs(self):
+        self._testMountingHelp("btrfs", "btrfs subvolume")
+
     def testMountingHelp(self):
+        self._testMountingHelp()
+
+    def _testMountingHelp(self, fstype="ext4", filesystem="ext4 filesystem"):
         m = self.machine
         b = self.browser
 
         self.login_and_go("/storage")
 
         # Add a disk
-        disk = self.add_ram_disk()
+        disk = self.add_ram_disk(size=128)
         self.click_card_row("Storage", name=disk)
-        filesystem = "ext4 filesystem"
 
         # Format it
 
         self.click_card_dropdown("Unformatted data", "Format")
         self.dialog_wait_open()
-        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("type", fstype)
         self.dialog_set_val("name", "FILESYSTEM")
         self.dialog_set_val("mount_point", "/run/foo")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_text(self.card_desc(filesystem, "Name"), "FILESYSTEM")
-        b.wait_in_text(self.card_desc(filesystem, "Mount point"), "/run/foo")
+        if fstype == "btrfs":
+            self._navigate_root_subvolume("FILESYSTEM")
+            b.wait_in_text(self.card_desc("btrfs subvolume", "Mount point"), "/run/foo")
+            self.addCleanup(m.execute, "umount /run/foo || true")
+        else:
+            b.wait_text(self.card_desc(filesystem, "Name"), "FILESYSTEM")
+            b.wait_in_text(self.card_desc(filesystem, "Mount point"), "/run/foo")
 
         # Unmount externally, remount with Cockpit
 
@@ -206,29 +244,42 @@ ExecStart=/usr/bin/sleep infinity
         b.wait_not_present(self.card_button(filesystem, "Mount automatically on /run/bar on boot"))
 
     def testFstabOptions(self):
+        self._testFstabOptions()
+
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    def testFsabOptionsBtrfs(self):
+        self._testFstabOptions("btrfs", "btrfs subvolume")
+
+    def _testFstabOptions(self, filesystem="ext4", desc="ext4 filesystem"):
         m = self.machine
         b = self.browser
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk()
+        disk = self.add_ram_disk(size=128)
         self.click_card_row("Storage", name=disk)
 
-        m.execute(f"mkfs.ext4 {disk}")
-        b.wait_visible(self.card("ext4 filesystem"))
+        m.execute(f"mkfs.{filesystem} -L testfs {disk}")
+        if filesystem == "btrfs":
+            self._navigate_root_subvolume("testfs")
+        else:
+            b.wait_visible(self.card(desc))
 
         m.execute("! grep /run/data /etc/fstab")
-        b.click(self.card_button("ext4 filesystem", "Mount"))
+        b.click(self.card_button(desc, "Mount"))
         self.dialog({"mount_point": "/run/data",
                      "mount_options.extra": "x-foo"})
         m.execute("grep /run/data /etc/fstab")
         m.execute("grep 'x-foo' /etc/fstab")
 
-        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "/run/data (ignore failure, x-foo)")
+        b.wait_in_text(self.card_desc(desc, "Mount point"), "/run/data (ignore failure, x-foo)")
 
         # absent mntopts and fsck columns implies "defaults"
-        m.execute(r"sed -i '/run\/data/ s/auto.*$/auto/' /etc/fstab")
-        b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "/run/data (stop boot on failure)")
+        if filesystem == "btrfs":
+            m.execute(r"sed -i '/run\/data/ s/auto.*$/auto subvol=\//' /etc/fstab")
+        else:
+            m.execute(r"sed -i '/run\/data/ s/auto.*$/auto/' /etc/fstab")
+        b.wait_in_text(self.card_desc(desc, "Mount point"), "/run/data (stop boot on failure)")
 
     def testBadOption(self):
         m = self.machine

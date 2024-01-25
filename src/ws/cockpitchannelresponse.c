@@ -408,6 +408,15 @@ cockpit_channel_response_control (CockpitChannel *channel,
         }
     }
 
+  if (g_str_equal (command, "ready"))
+    {
+      gint64 content_length;
+      if (cockpit_json_get_int (options, "size-hint", -1, &content_length) && content_length != -1)
+        ensure_headers (self, 200, "OK", content_length);
+
+      return TRUE;
+    }
+
   if (g_str_equal (command, "done"))
     {
       ensure_headers (self, 200, "OK", 0);

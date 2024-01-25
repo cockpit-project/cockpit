@@ -26,6 +26,38 @@ QUnit.test("external get", function (assert) {
     req.send();
 });
 
+QUnit.test("external fsread1", async assert => {
+    const done = assert.async();
+    assert.expect(5);
+    const resp = await cockpit.spawn(["bash", "-c", "size=$(stat --format '%s' /usr/lib/os-release); echo $size"]);
+    const filesize = resp.replace(/\n$/, "");
+
+    /* The query string used to open the channel */
+    const query = window.btoa(JSON.stringify({
+        payload: "fsread1",
+        path: '/usr/lib/os-release',
+        binary: "raw",
+        external: {
+            "content-disposition": 'attachment; filename="foo"',
+            "content-type": "application/octet-stream",
+        }
+    }));
+
+    const req = new XMLHttpRequest();
+    req.open("GET", "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query);
+    req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+            assert.equal(req.status, 200, "got right status");
+            assert.equal(req.statusText, "OK", "got right reason");
+            assert.equal(req.getResponseHeader("Content-Type"), "application/octet-stream", "default type");
+            assert.equal(req.getResponseHeader("Content-Disposition"), 'attachment; filename="foo"', "default type");
+            assert.equal(req.getResponseHeader("Content-Length"), parseInt(filesize), "expected file size");
+            done();
+        }
+    };
+    req.send();
+});
+
 QUnit.test("external headers", function (assert) {
     const done = assert.async();
     assert.expect(3);

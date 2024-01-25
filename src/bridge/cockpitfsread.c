@@ -282,7 +282,16 @@ cockpit_fsread_prepare (CockpitChannel *channel)
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
 
-  cockpit_channel_ready (channel, NULL);
+  const gchar *binary;
+  if (S_ISREG(statbuf.st_mode) && cockpit_json_get_string (options, "binary", "", &binary) && g_str_equal (binary, "raw"))
+    {
+      g_autoptr(JsonObject) message = json_object_new ();
+      json_object_set_int_member (message, "size-hint", statbuf.st_size);
+      cockpit_channel_ready (channel, message);
+    } else {
+      cockpit_channel_ready (channel, NULL);
+    }
+
 
 out:
   if (fd >= 0)
@@ -338,6 +347,7 @@ cockpit_fsread_class_init (CockpitFsreadClass *klass)
  * @transport: the transport to send/receive messages on
  * @channel_id: the channel id
  * @path: the path name of the file to read
+ * @binary: set binary to "raw"
  *
  * This function is mainly used by tests. The usual way
  * to get a #CockpitFsread is via cockpit_channel_open()
@@ -347,7 +357,8 @@ cockpit_fsread_class_init (CockpitFsreadClass *klass)
 CockpitChannel *
 cockpit_fsread_open (CockpitTransport *transport,
                      const gchar *channel_id,
-                     const gchar *path)
+                     const gchar *path,
+                     gboolean binary)
 {
   CockpitChannel *channel;
   JsonObject *options;
@@ -357,6 +368,8 @@ cockpit_fsread_open (CockpitTransport *transport,
   options = json_object_new ();
   json_object_set_string_member (options, "path", path);
   json_object_set_string_member (options, "payload", "fsread1");
+  if (binary)
+    json_object_set_string_member (options, "binary", "raw");
 
   channel = g_object_new (COCKPIT_TYPE_FSREAD,
                           "transport", transport,

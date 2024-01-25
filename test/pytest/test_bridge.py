@@ -420,6 +420,29 @@ async def test_fsread1_errors(transport):
 
 
 @pytest.mark.asyncio
+async def test_fsread1_size_hint(transport):
+    data = None
+    stat = os.stat('/usr/lib/os-release')
+    with open('/usr/lib/os-release', 'rb') as fp:
+        data = fp.read()
+    ch = await transport.check_open('fsread1', path='/usr/lib/os-release', binary='raw',
+                                    reply_keys={'size-hint': stat.st_size})
+    await transport.assert_data(ch, data)
+
+
+@pytest.mark.asyncio
+async def test_fsread1_size_hint_absent(transport):
+    # non-binary fsread1 has no size-hint
+    await transport.check_open('fsread1', path='/etc/passwd', absent_keys=['size-hint'])
+
+
+@pytest.mark.asyncio
+async def test_fsread1_size_hint_absent_char_device(transport):
+    # character device fsread1 has no size-hint
+    await transport.check_open('fsread1', path='/dev/null', binary='raw', absent_keys=['size-hint'])
+
+
+@pytest.mark.asyncio
 async def test_fslist1_no_watch(transport):
     tempdir = tempfile.TemporaryDirectory()
     dir_path = Path(tempdir.name)
@@ -658,7 +681,8 @@ class FsInfoClient:
             **kwargs: JsonValue
     ) -> 'FsInfoClient':
         channel = await transport.check_open('fsinfo', path=str(path), attrs=attrs,
-                                             fnmatch=fnmatch, reply_keys=None, **kwargs)
+                                             fnmatch=fnmatch, reply_keys=None,
+                                             absent_keys=(), **kwargs)
         return cls(transport, channel)
 
     async def next_state(self) -> JsonObject:

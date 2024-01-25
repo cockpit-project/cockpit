@@ -90,9 +90,9 @@ setup (TestCase *tc,
 
 static void
 setup_fsread_channel (TestCase *tc,
-                      const gchar *path)
+                      const gchar *path, gboolean binary)
 {
-  tc->channel = cockpit_fsread_open (COCKPIT_TRANSPORT (tc->transport), "1234", path);
+  tc->channel = cockpit_fsread_open (COCKPIT_TRANSPORT (tc->transport), "1234", path, binary);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
   cockpit_channel_prepare (tc->channel);
@@ -282,7 +282,7 @@ test_read_simple (TestCase *tc,
   set_contents (tc->test_path, "Hello!");
   tag = cockpit_get_file_tag (tc->test_path);
 
-  setup_fsread_channel (tc, tc->test_path);
+  setup_fsread_channel (tc, tc->test_path, FALSE);
   wait_channel_closed (tc);
 
   assert_received (tc, "Hello!");
@@ -295,8 +295,28 @@ test_read_simple (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   g_assert (json_object_get_member (control, "problem") == NULL);
+  /* binary only option */
+  g_assert (json_object_get_member (control, "size-hint") == NULL);
   g_assert_cmpstr (json_object_get_string_member (control, "tag"), ==, tag);
   g_free (tag);
+}
+
+static void
+test_read_binary_size_hint (TestCase *tc,
+                            gconstpointer unused)
+{
+  JsonObject *control;
+  struct stat statbuf;
+
+  set_contents (tc->test_path, "Hello!");
+  stat (tc->test_path, &statbuf);
+
+  setup_fsread_channel (tc, tc->test_path, TRUE);
+  wait_channel_closed (tc);
+
+  control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
+  g_assert_cmpint (json_object_get_int_member (control, "size-hint"), ==, statbuf.st_size);
 }
 
 static void
@@ -305,7 +325,7 @@ test_read_non_existent (TestCase *tc,
 {
   JsonObject *control;
 
-  setup_fsread_channel (tc, "/non/existent");
+  setup_fsread_channel (tc, "/non/existent", FALSE);
   wait_channel_closed (tc);
 
   assert_received (tc, "");
@@ -330,7 +350,7 @@ test_read_denied (TestCase *tc,
   set_contents (tc->test_path, "Hello!");
   g_assert (chmod (tc->test_path, 0) >= 0);
 
-  setup_fsread_channel (tc, tc->test_path);
+  setup_fsread_channel (tc, tc->test_path, FALSE);
   wait_channel_closed (tc);
 
   control = mock_transport_pop_control (tc->transport);
@@ -344,7 +364,7 @@ test_read_changed (TestCase *tc,
   JsonObject *control;
 
   set_contents (tc->test_path, "Hello!");
-  setup_fsread_channel (tc, tc->test_path);
+  setup_fsread_channel (tc, tc->test_path, FALSE);
 
   {
     sleep(1);
@@ -376,7 +396,7 @@ test_read_replaced (TestCase *tc,
   set_contents (tc->test_path, "Hello!");
   tag = cockpit_get_file_tag (tc->test_path);
 
-  setup_fsread_channel (tc, tc->test_path);
+  setup_fsread_channel (tc, tc->test_path, FALSE);
 
   {
     FILE *f = fopen (tc->test_path_2, "w");
@@ -412,7 +432,7 @@ test_read_removed (TestCase *tc,
   set_contents (tc->test_path, "Hello!");
   tag = cockpit_get_file_tag (tc->test_path);
 
-  setup_fsread_channel (tc, tc->test_path);
+  setup_fsread_channel (tc, tc->test_path, FALSE);
 
   {
     g_assert (unlink (tc->test_path) >= 0);
@@ -449,7 +469,7 @@ test_read_non_mmappable (TestCase *tc,
       return;
     }
 
-  setup_fsread_channel (tc, path);
+  setup_fsread_channel (tc, path, FALSE);
   wait_channel_closed (tc);
 
   control = mock_transport_pop_control (tc->transport);
@@ -997,6 +1017,8 @@ main (int argc,
 
   g_test_add ("/fsread/simple", TestCase, NULL,
               setup, test_read_simple, teardown);
+  g_test_add ("/fsread/binary", TestCase, NULL,
+              setup, test_read_binary_size_hint, teardown);
   g_test_add ("/fsread/non-existent", TestCase, NULL,
               setup, test_read_non_existent, teardown);
   g_test_add ("/fsread/denied", TestCase, NULL,

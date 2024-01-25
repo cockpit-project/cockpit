@@ -2,8 +2,13 @@ import argparse
 import asyncio
 import contextlib
 import errno
+import getpass
+import grp
 import json
 import os
+import pwd
+import shlex
+import subprocess
 import sys
 import tempfile
 import unittest.mock
@@ -17,7 +22,7 @@ from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
 from cockpit.channel import Channel
 from cockpit.channels import CHANNEL_TYPES
-from cockpit.jsonutil import JsonObject, JsonValue, get_bool, json_merge_patch
+from cockpit.jsonutil import JsonObject, JsonValue, get_bool, get_dict, get_int, json_merge_patch
 from cockpit.packages import BridgeConfig
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
@@ -914,3 +919,50 @@ async def test_fsinfo_watch_identity_changes(
         await asyncio.sleep(0.15)
 
     await client.close()
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_self_owner(transport: MockTransport, tmp_path: Path) -> None:
+    client = await FsInfoClient.open(transport, tmp_path, ['user', 'uid', 'group', 'gid'])
+    state = await client.wait()
+    info = get_dict(state, 'info')
+
+    assert get_int(info, 'uid') == os.getuid()
+    assert get_int(info, 'gid') == os.getgid()
+    assert info.get('user') == getpass.getuser()
+    assert info.get('group') == grp.getgrgid(os.getgid()).gr_name  # hopefully true...
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_other_owner(transport: MockTransport, tmp_path: Path) -> None:
+    tmpfile = tmp_path / 'x'
+    tmpfile.touch()
+
+    # try to get root to own this thing using a couple of tricks that may work
+    # inside or outside of toolbox or containers
+    quoted = shlex.quote(str(tmpfile))
+    subprocess.run(fr'''
+        podman unshare chown 888:888 {quoted} || SUDO_ASKPASS=true sudo -A chown 0:0 '{quoted}'
+    ''', shell=True, check=False)
+
+    # verify that we ended up with a uid/gid with no user
+    buf = tmpfile.stat()
+    try:
+        pwd.getpwuid(buf.st_uid)
+        pytest.skip('Failed to find unmapped uid')
+    except KeyError:
+        pass  # good!
+    try:
+        grp.getgrgid(buf.st_gid)
+        pytest.skip('Failed to find unmapped gid')
+    except KeyError:
+        pass  # good!
+
+    client = await FsInfoClient.open(transport, tmpfile, ['user', 'uid', 'group', 'gid'])
+    state = await client.wait()
+    info = get_dict(state, 'info')
+
+    assert get_int(info, 'uid') == buf.st_uid
+    assert get_int(info, 'gid') == buf.st_gid
+    assert info.get('user') == buf.st_uid  # numeric fallback
+    assert info.get('group') == buf.st_gid  # numeric fallback

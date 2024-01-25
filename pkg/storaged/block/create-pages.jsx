@@ -87,7 +87,6 @@ export function make_block_page(parent, block, card) {
             card = make_filesystem_card(card, block, null, fstab_config);
         } else {
             card = make_encryption_card(card, block, false);
-            card = make_locked_encrypted_data_card(card, block);
         }
     } else {
         const is_filesystem = content_block.IdUsage == 'filesystem';
@@ -116,7 +115,7 @@ export function make_block_page(parent, block, card) {
                    (content_block.IdUsage == "other" && content_block.IdType == "swap")) {
             card = make_swap_card(card, block, content_block);
         } else if (client.blocks_available[content_block.path]) {
-            card = make_unformatted_data_card(card, block, content_block);
+            // No card for unformatted data
         } else {
             card = make_unrecognized_data_card(card, block, content_block);
         }

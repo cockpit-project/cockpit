@@ -1026,6 +1026,9 @@ The following options can be specified in the "open" control message:
 
  * "path": The path name of the file to read.
 
+The ready message contains a "size-hint" when the channel is opened
+with the "binary" option set to "raw".
+
 The channel will return the content of the file in one or more
 messages.  As with "stream", the boundaries of the messages are
 arbitrary.

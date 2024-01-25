@@ -54,15 +54,17 @@ class MockTransport(asyncio.Transport):
         channel=None,
         problem=None,
         reply_keys: Optional[JsonObject] = None,
+        absent_keys: 'Iterable[str]' = (),
         **kwargs,
     ):
         assert isinstance(self.protocol, Router)
         ch = self.send_open(payload, channel, **kwargs)
         if problem is None:
-            await self.assert_msg('', command='ready', channel=ch, **(reply_keys or {}))
+            await self.assert_msg('', command='ready', channel=ch, absent_keys=absent_keys, **(reply_keys or {}))
             # it's possible that the channel already closed
         else:
-            await self.assert_msg('', command='close', channel=ch, problem=problem, **(reply_keys or {}))
+            await self.assert_msg('', command='close', channel=ch, problem=problem, absent_keys=absent_keys,
+                                  **(reply_keys or {}))
             assert ch not in self.protocol.open_channels
         return ch
 
@@ -120,9 +122,12 @@ class MockTransport(asyncio.Transport):
         assert channel == expected_channel
         assert data == expected_data
 
-    async def assert_msg(self, expected_channel: str, **kwargs: JsonValue) -> JsonObject:
+    async def assert_msg(self, expected_channel: str, absent_keys: 'Iterable[str]' = (),
+                         **kwargs: JsonValue) -> JsonObject:
         msg = await self.next_msg(expected_channel)
         assert msg == dict(msg, **{k.replace('_', '-'): v for k, v in kwargs.items()}), msg
+        for absent_key in absent_keys:
+            assert absent_key not in msg
         return msg
 
     # D-Bus helpers

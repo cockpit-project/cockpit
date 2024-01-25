@@ -126,7 +126,10 @@ class FsReadChannel(GeneratorChannel):
                 if max_read_size is not None and buf.st_size > max_read_size:
                     raise ChannelError('too-large')
 
-                self.ready()
+                if binary and stat.S_ISREG(buf.st_mode):
+                    self.ready(size_hint=buf.st_size)
+                else:
+                    self.ready()
 
                 while True:
                     data = filep.read1(Channel.BLOCK_SIZE)

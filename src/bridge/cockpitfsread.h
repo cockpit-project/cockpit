@@ -32,7 +32,8 @@ GType              cockpit_fsread_get_type     (void) G_GNUC_CONST;
 
 CockpitChannel *   cockpit_fsread_open         (CockpitTransport *transport,
                                                 const gchar *channel_id,
-                                                const gchar *path);
+                                                const gchar *path,
+						gboolean binary);
 
 gchar *            cockpit_get_file_tag         (const gchar *path);
 

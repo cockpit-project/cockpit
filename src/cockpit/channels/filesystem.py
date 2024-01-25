@@ -17,6 +17,7 @@
 
 import asyncio
 import contextlib
+import enum
 import errno
 import fnmatch
 import functools
@@ -289,6 +290,11 @@ class FsWatchChannel(Channel):
         self.close()
 
 
+class Follow(enum.Enum):
+    NO = False
+    YES = True
+
+
 class FsInfoChannel(Channel):
     payload = 'fsinfo'
 
@@ -296,6 +302,7 @@ class FsInfoChannel(Channel):
     path: str
     attrs: 'set[str]'
     fnmatch: str
+    targets: bool
     follow: bool
     watch: bool
 
@@ -305,10 +312,10 @@ class FsInfoChannel(Channel):
     fd: 'Handle | None' = None
     pending: 'set[str] | None' = None
     path_watch: 'PathWatch | None' = None
-    getattrs: 'Callable[[int, str], JsonDocument]'
+    getattrs: 'Callable[[int, str, Follow], JsonDocument]'
 
     @staticmethod
-    def make_getattrs(attrs: Sequence[str]) -> 'Callable[[int, str], JsonDocument | None]':
+    def make_getattrs(attrs: Sequence[str]) -> 'Callable[[int, str, Follow], JsonDocument | None]':
         # Cached for the duration of the closure we're creating
         @functools.lru_cache()
         def get_user(uid: int) -> 'str | int':
@@ -339,9 +346,9 @@ class FsInfoChannel(Channel):
         }
         stat_getters = tuple((key, available_stat_getters.get(key, lambda _: None)) for key in attrs)
 
-        def get_attrs(fd: int, name: str) -> 'JsonDict | None':
+        def get_attrs(fd: int, name: str, follow: Follow) -> 'JsonDict | None':
             try:
-                buf = os.lstat(name, dir_fd=fd) if name else os.fstat(fd)
+                buf = os.stat(name, follow_symlinks=follow.value, dir_fd=fd) if name else os.fstat(fd)
             except FileNotFoundError:
                 return None
             except OSError:
@@ -375,12 +382,21 @@ class FsInfoChannel(Channel):
     def process_update(self, updates: 'set[str]', *, reset: bool = False) -> None:
         assert self.fd is not None
 
-        entries: JsonDict = {name: self.getattrs(self.fd, name) for name in updates}
+        entries: JsonDict = {name: self.getattrs(self.fd, name, Follow.NO) for name in updates}
+
         info = entries.pop('', {})
         assert isinstance(info, dict)  # fstat() will never fail with FileNotFoundError
 
         if self.effective_fnmatch:
             info['entries'] = entries
+
+        if self.targets:
+            info['targets'] = targets = {}
+            for name in {e.get('target') for e in entries.values() if isinstance(e, dict)}:
+                if isinstance(name, str) and ('/' in name or not self.interesting(name)):
+                    # if this target is a string that we wouldn't otherwise
+                    # report, then report it via our "targets" attribute.
+                    targets[name] = self.getattrs(self.fd, name, Follow.YES)
 
         self.send_update({'info': info}, reset=reset)
 
@@ -488,10 +504,13 @@ class FsInfoChannel(Channel):
 
         self.getattrs = self.make_getattrs(get_strv(options, 'attrs'))
         self.fnmatch = get_str(options, 'fnmatch', '')
+        self.targets = get_str(options, 'targets', '') == 'stat'
         self.follow = get_bool(options, 'follow', default=True)
         self.watch = get_bool(options, 'watch', default=False)
         if self.watch and not self.follow:
             raise JsonError(options, '"watch: true" and "follow: false" are (currently) incompatible')
+        if self.targets and not self.follow:
+            raise JsonError(options, '`targets: "stat"` and `follow: false` are (currently) incompatible')
 
         self.current_value = {}
         self.ready()

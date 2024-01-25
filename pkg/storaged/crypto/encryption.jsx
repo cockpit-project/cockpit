@@ -44,7 +44,7 @@ export function make_encryption_card(next, block, is_filesystem) {
     return new_card({
         title: _("Encryption"),
         next,
-        type_extra: _("encrypted"),
+        type_extra: content_block ? _("encrypted") : _("locked"),
         component: EncryptionCard,
         props: { block },
         actions: [

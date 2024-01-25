@@ -771,6 +771,16 @@ def fsinfo_test_cases(tmp_path: Path) -> 'dict[Path, JsonObject]':
 
 
 @pytest.mark.asyncio
+async def test_fsinfo_nopath(transport: MockTransport) -> None:
+    await transport.check_open('fsinfo', attrs=['type'], problem='protocol-error')
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_noattrs(transport: MockTransport) -> None:
+    await transport.check_open('fsinfo', path='/', problem='protocol-error')
+
+
+@pytest.mark.asyncio
 async def test_fsinfo_relative(transport: MockTransport) -> None:
     await transport.check_open('fsinfo', path='rel', problem='protocol-error')
     await transport.check_open('fsinfo', path='.', problem='protocol-error')
@@ -779,6 +789,22 @@ async def test_fsinfo_relative(transport: MockTransport) -> None:
 @pytest.mark.asyncio
 async def test_fsinfo_nofollow_watch(transport: MockTransport) -> None:
     await transport.check_open('fsinfo', path='/', attrs=[], watch=True, follow=False, problem='protocol-error')
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_nofollow_targets(transport: MockTransport) -> None:
+    await transport.check_open('fsinfo', path='/', attrs=[], targets='stat', follow=False, problem='protocol-error')
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_empty_update(transport: MockTransport, tmp_path: Path) -> None:
+    # test an empty update — make sure nothing lands on the wire
+    ch = await transport.check_open('fsinfo', path=str(tmp_path), attrs=['type'], watch=True)
+    assert await transport.next_msg(ch) == {'info': {"type": "dir"}}
+    tmp_path.touch()
+    await asyncio.sleep(0.1)  # fsinfo waits 0.1 before dispatching updates
+    await transport.assert_empty()  # this waits another 0.1
+    await transport.check_close(ch)
 
 
 @pytest.mark.asyncio

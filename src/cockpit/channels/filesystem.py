@@ -493,8 +493,9 @@ class FsInfoChannel(Channel):
             self.report_error(err)
 
     def do_close(self) -> None:
-        if self.path_watch is not None:
-            self.path_watch.close()
+        # non-watch channels close immediately — if we get this, we're watching
+        assert self.path_watch is not None
+        self.path_watch.close()
         self.close()
 
     def do_open(self, options: JsonObject) -> None:

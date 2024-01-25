@@ -850,6 +850,8 @@ this payload type:
    refers to a readable directory, an `entries` attribute will be reported
    (described below).  Use `*` to report all files.  Can also be used to
    implement search (`searc*`) or hide temporary files (`[!.]*`).
+ * `targets` (optional string): if set to 'stat' then report information about
+   symlink targets under the `targets` attribute.  See below.
  * `watch` (optional, default: false): if the channel should watch for changes
  * `follow` (default: true): if the trailing component of `path` is a symbolic
    link, whether we should follow it.  `follow: false` mode is not supported
@@ -910,6 +912,20 @@ refers to a readable directory.  It is an object where each key is the name of
 a file in the directory, and each value is an object describing that file,
 using the same attributes as above.  `entries` is not reported on entries (ie:
 no recursive listing).
+
+The `targets` attribute is reported iff the `targets` option is `"stat"`.  It
+contains information that was true at some point in time about the targets of
+symbolic links that were found in the current directory.  An entry is added
+here only in case the entry wouldn't be found in the main `entries` dictionary.
+For example, if `path` is `/usr/lib` and `fnmatch` is `*.so` and the directory
+contains the links `a.so → a-impl.so`, `b.so → b.so.0` and `c.so -> ../x/c.so`
+then the `targets` dictionary would include `b.so.0` (which isn't reported in
+entries because it doesn't match `fnmatch`) and `../x/c.so` (which isn't
+reported because it's in a different directory).  Monitoring these entries for
+changes would be expensive, so it's simply not done.  Clients are expected to
+use this information to flesh out details about directory entries, answering
+questions like "`/bin` links to `usr/bin`, but what type of file is that?".
+`targets` is incompatible with `follow: false`.
 
 If the provided `path` is a symbolic link, it is followed, unless
 `follow: false` is specified.  If symbolic links are present in the directory,

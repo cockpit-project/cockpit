@@ -22,7 +22,7 @@ from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
 from cockpit.channel import Channel
 from cockpit.channels import CHANNEL_TYPES
-from cockpit.jsonutil import JsonObject, JsonValue, get_bool, get_dict, get_int, json_merge_patch
+from cockpit.jsonutil import JsonDict, JsonObject, JsonValue, get_bool, get_dict, get_int, json_merge_patch
 from cockpit.packages import BridgeConfig
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
@@ -966,3 +966,67 @@ async def test_fsinfo_other_owner(transport: MockTransport, tmp_path: Path) -> N
     assert get_int(info, 'gid') == buf.st_gid
     assert info.get('user') == buf.st_uid  # numeric fallback
     assert info.get('group') == buf.st_gid  # numeric fallback
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_targets(transport: MockTransport, tmp_path: Path) -> None:
+    # we are only interested in the things that start with 'l'
+    watch = await FsInfoClient.open(transport, tmp_path, ['type', 'target'],
+                                    fnmatch='l*', targets='stat', watch=True)
+
+    entries: JsonDict = {}
+    targets: JsonDict = {}
+    state = {"info": {"type": "dir", "entries": entries, "targets": targets}}
+    assert await watch.next_state() == state
+
+    # none of those will show up in entries (not 'l*')
+    (tmp_path / 'dir').mkdir()
+    (tmp_path / 'dir' / 'file').write_text('abc')
+    (tmp_path / 'dir' / 'lonely').write_text('abc')
+    (tmp_path / 'dir' / 'dir').mkdir()
+    (tmp_path / 'file').write_text('abc')
+    (tmp_path / 'Lonely').write_text('abc')
+
+    # this one will show up in entries because it matches 'l*'
+    (tmp_path / 'loved').write_text('abc')
+    entries['loved'] = {'type': 'reg'}
+
+    # a link that won't show up anywhere (no fnmatch)
+    (tmp_path / 'LonelyLink').symlink_to('dir/lonely')
+
+    # link to things that will land in targets because they're not in fnmatch
+    (tmp_path / 'lfile').symlink_to('file')
+    entries['lfile'] = {'type': 'lnk', 'target': 'file'}
+    targets['file'] = {'type': 'reg'}
+    (tmp_path / 'ldir').symlink_to('dir')
+    entries['ldir'] = {'type': 'lnk', 'target': 'dir'}
+    targets['dir'] = {'type': 'dir'}
+
+    # link to things that will land in targets because they're in another dir
+    (tmp_path / 'ldirfile').symlink_to('dir/file')
+    entries['ldirfile'] = {'type': 'lnk', 'target': 'dir/file'}
+    targets['dir/file'] = {'type': 'reg'}
+    (tmp_path / 'ldirdir').symlink_to('dir/dir')
+    entries['ldirdir'] = {'type': 'lnk', 'target': 'dir/dir'}
+    targets['dir/dir'] = {'type': 'dir'}
+    (tmp_path / 'lnull').symlink_to('/dev/null')
+    entries['lnull'] = {'type': 'lnk', 'target': '/dev/null'}
+    targets['/dev/null'] = {'type': 'chr'}
+    (tmp_path / 'lroot').symlink_to('/')
+    entries['lroot'] = {'type': 'lnk', 'target': '/'}
+    targets['/'] = {'type': 'dir'}
+
+    # link to things that won't land in targets because they're in entries
+    (tmp_path / 'llfile').symlink_to('lfile')
+    entries['llfile'] = {'type': 'lnk', 'target': 'lfile'}
+    (tmp_path / 'lldir').symlink_to('ldir')
+    entries['lldir'] = {'type': 'lnk', 'target': 'ldir'}
+    (tmp_path / 'lloved').symlink_to('loved')
+    entries['lloved'] = {'type': 'lnk', 'target': 'loved'}
+
+    # make sure the watch managed to pick that all up
+    assert await watch.next_state() == state
+
+    # double-check with the non-watch variant
+    client = await FsInfoClient.open(transport, tmp_path, ['type', 'target'], fnmatch='l*', targets='stat')
+    assert await client.wait() == state

@@ -1765,10 +1765,22 @@ client.should_ignore_block = (block) => {
 
 client.export_mount_point_mapping = () => {
     const mpm = { };
+
     for (const p in client.blocks) {
         const b = client.blocks[p];
+
         for (const c of b.Configuration) {
-            if (c[0] == "fstab") {
+            if (c[0] == "crypttab") {
+                const cryptoDevicePath = Object.keys(client.blocks_crypto).find(cb => client.blocks_crypto[cb].path === b.path);
+                const cryptoDeviceObject = client.blocks_crypto[cryptoDevicePath];
+                const deviceObject = client.blocks[cryptoDevicePath];
+                const device = utils.decode_filename(b.PreferredDevice);
+                const dirEncrypted = cryptoDeviceObject.ChildConfiguration?.[0]?.[1].dir.v;
+                const dir = dirEncrypted && client.strip_mount_point_prefix(utils.decode_filename(dirEncrypted));
+                const type = deviceObject.IdType;
+
+                mpm[device] = { dir, type, passphrase: "fillme" };
+            } else if (c[0] == "fstab") {
                 const dir = client.strip_mount_point_prefix(utils.decode_filename(c[1].dir.v));
                 const device = utils.decode_filename(b.PreferredDevice);
                 const type = utils.decode_filename(c[1].type.v);

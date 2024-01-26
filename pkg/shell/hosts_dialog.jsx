@@ -33,11 +33,13 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
-import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Form, FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
@@ -398,6 +400,7 @@ class HostKey extends React.Component {
 
         this.state = {
             inProgress: false,
+            fpValidated: undefined,
             verifyExpanded: false,
             error_options: props.error_options,
         };
@@ -475,7 +478,24 @@ class HostKey extends React.Component {
                 <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
                 <p className="hostkey-type">({key_type})</p>
                 <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), this.props.host)}</p>
-                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{`ssh-keyscan -t ${key_type} localhost | ssh-keygen -lf -`}</ClipboardCopy>
+                <p>{_("Optionally, paste the result below to compare fingerprint")}</p>
+                <Form>
+                    <FormGroup>
+                        <TextArea id="command-ssh-keyscan-result-paste" spellCheck="false" placeholder="# localhost:22 SSH-..."
+                                    validated={this.state.fpValidated}
+                                    onChange={(_ev, remote_fp) => { this.setState({ fpValidated: remote_fp ? remote_fp.match(fp) ? "success" : "error" : undefined }) } } />
+                        {this.state.fpValidated && (
+                            <FormHelperText>
+                                <HelperText>
+                                    <HelperTextItem variant={this.state.fpValidated}>
+                                        {this.state.fpValidated == 'success' ? 'Fingerprint matched' : 'Fingerprint not present'}
+                                    </HelperTextItem>
+                                </HelperText>
+                            </FormHelperText>
+                        )}
+                    </FormGroup>
+                </Form>
                 <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
                 <p>{_("If the fingerprint matches, click 'Trust and add host'. Otherwise, do not connect and contact your administrator.")}</p>
             </>;
@@ -490,9 +510,26 @@ class HostKey extends React.Component {
                                    isExpanded={this.state.verifyExpanded}
                                    onToggle={(_ev, verifyExpanded) => this.setState({ verifyExpanded }) }>
                     <div>{_("Run this command over a trusted network or physically on the remote machine:")}</div>
-                    <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
+                    <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{`ssh-keyscan -t ${key_type} localhost | ssh-keygen -lf -`}</ClipboardCopy>
                     <div>{_("The fingerprint should match:")} {fingerprint_help}</div>
                     <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
+                    <div>{_("Optionally, paste the result below to compare fingerprint")}</div>
+                    <Form>
+                        <FormGroup>
+                            <TextArea id="command-ssh-keyscan-result-paste" spellCheck="false" placeholder="# localhost:22 SSH-..."
+                                        validated={this.state.fpValidated}
+                                        onChange={(_ev, remote_fp) => { this.setState({ fpValidated: remote_fp ? remote_fp.match(fp) ? "success" : "error" : undefined }) } } />
+                            {this.state.fpValidated && (
+                                <FormHelperText>
+                                    <HelperText>
+                                        <HelperTextItem variant={this.state.fpValidated}>
+                                            {this.state.fpValidated == 'success' ? 'Fingerprint matched' : 'Fingerprint not present'}
+                                        </HelperTextItem>
+                                    </HelperText>
+                                </FormHelperText>
+                            )}
+                        </FormGroup>
+                    </Form>
                 </ExpandableSection>
                 <Alert variant='warning' isInline isPlain title={_("Malicious pages on a remote machine may affect other connected hosts")} />
             </>;

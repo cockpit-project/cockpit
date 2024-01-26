@@ -223,6 +223,11 @@ class Browser:
             self.layouts = [layout for layout in self.layouts if layout["theme"] != "dark"]
         self.current_layout = None
 
+    def allow_download(self) -> None:
+        """Allow browser downloads"""
+        if self.cdp.browser.name == "chromium":
+            self.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=self.cdp.download_dir)
+
     def open(self, href: str, cookie: Optional[Dict[str, str]] = None, tls: bool = False):
         """Load a page into the browser.
 

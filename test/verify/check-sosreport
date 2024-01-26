@@ -73,8 +73,7 @@ only-plugins=release,date,host,cgroups,networking
             b.wait_not_present("#sos-dialog")
 
         b.wait_visible("tr:contains(mylabel) button:contains(Download)")
-        if b.cdp.browser.name == "chromium":
-            b.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=b.cdp.download_dir)
+        b.allow_download()
 
         def downloaded_sosreports():
             return glob.glob(os.path.join(b.cdp.download_dir, "*sosreport-*.xz.gpg"))

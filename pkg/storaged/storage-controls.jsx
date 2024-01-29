@@ -226,8 +226,8 @@ export const StorageSize = ({ size }) => {
         </div>);
 };
 
-export const StorageMenuItem = ({ onClick, onlyNarrow, danger, excuse, children }) => (
-    <DropdownItem className={(onlyNarrow ? "show-only-when-narrow" : "") + (danger && !excuse ? " delete-resource-dangerous" : "")}
+export const StorageMenuItem = ({ onClick, danger, excuse, children }) => (
+    <DropdownItem className={danger && !excuse ? " delete-resource-dangerous" : ""}
                   description={excuse}
                   isDisabled={!!excuse}
                   onClick={checked(onClick, null, excuse)}>
@@ -235,7 +235,7 @@ export const StorageMenuItem = ({ onClick, onlyNarrow, danger, excuse, children 
     </DropdownItem>
 );
 
-export const StorageBarMenu = ({ label, isKebab, onlyNarrow, menuItems }) => {
+export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     if (!client.superuser.allowed)
@@ -259,8 +259,7 @@ export const StorageBarMenu = ({ label, isKebab, onlyNarrow, menuItems }) => {
     </MenuToggle>;
 
     return (
-        <Dropdown className={onlyNarrow ? "show-only-when-narrow" : null}
-                  isOpen={isOpen}
+        <Dropdown isOpen={isOpen}
                   onSelect={onSelect}
                   onOpenChange={isOpen => setIsOpen(isOpen)}
                   toggle={toggle}

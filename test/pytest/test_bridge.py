@@ -793,7 +793,7 @@ async def test_fsinfo_nofollow_watch(transport: MockTransport) -> None:
 
 @pytest.mark.asyncio
 async def test_fsinfo_nofollow_targets(transport: MockTransport) -> None:
-    await transport.check_open('fsinfo', path='/', attrs=[], targets='stat', follow=False, problem='protocol-error')
+    await transport.check_open('fsinfo', path='/', attrs=['targets'], follow=False, problem='protocol-error')
 
 
 @pytest.mark.asyncio
@@ -997,8 +997,7 @@ async def test_fsinfo_other_owner(transport: MockTransport, tmp_path: Path) -> N
 @pytest.mark.asyncio
 async def test_fsinfo_targets(transport: MockTransport, tmp_path: Path) -> None:
     # we are only interested in the things that start with 'l'
-    watch = await FsInfoClient.open(transport, tmp_path, ['type', 'target'],
-                                    fnmatch='l*', targets='stat', watch=True)
+    watch = await FsInfoClient.open(transport, tmp_path, ['type', 'target', 'targets'], fnmatch='l*', watch=True)
 
     entries: JsonDict = {}
     targets: JsonDict = {}
@@ -1054,5 +1053,5 @@ async def test_fsinfo_targets(transport: MockTransport, tmp_path: Path) -> None:
     assert await watch.next_state() == state
 
     # double-check with the non-watch variant
-    client = await FsInfoClient.open(transport, tmp_path, ['type', 'target'], fnmatch='l*', targets='stat')
+    client = await FsInfoClient.open(transport, tmp_path, ['type', 'target', 'targets'], fnmatch='l*')
     assert await client.wait() == state

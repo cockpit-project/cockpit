@@ -850,8 +850,6 @@ this payload type:
    refers to a readable directory, an `entries` attribute will be reported
    (described below).  Use `*` to report all files.  Can also be used to
    implement search (`searc*`) or hide temporary files (`[!.]*`).
- * `targets` (optional string): if set to 'stat' then report information about
-   symlink targets under the `targets` attribute.  See below.
  * `watch` (optional, default: false): if the channel should watch for changes
  * `follow` (default: true): if the trailing component of `path` is a symbolic
    link, whether we should follow it.  `follow: false` mode is not supported
@@ -906,14 +904,17 @@ is simply not reported.
    and `fsreplace1`.
  * `entries`: for directories: the contents of the directory (see below)
  * `target`: for symbolic links: the target of the link (a string)
+ * `targets`: for directories: extra information about symlink targets for
+   symlinks found in the directory (see below)
 
 The `entries` attribute is reported iff `fnmatch` is non-empty, and `path`
 refers to a readable directory.  It is an object where each key is the name of
 a file in the directory, and each value is an object describing that file,
 using the same attributes as above.  `entries` is not reported on entries (ie:
-no recursive listing).
+no recursive listing).  Listing `entries` in `attrs` is equivalent to
+`fnmatch='*'`.
 
-The `targets` attribute is reported iff the `targets` option is `"stat"`.  It
+The `targets` attribute is reported iff `targets` is listed in `attrs`.  It
 contains information that was true at some point in time about the targets of
 symbolic links that were found in the current directory.  An entry is added
 here only in case the entry wouldn't be found in the main `entries` dictionary.

@@ -27,7 +27,7 @@ import os
 import pwd
 import random
 import stat
-from typing import Callable, Sequence
+from typing import Callable, Iterable
 
 from cockpit._vendor.systemd_ctypes import Handle, PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
@@ -315,7 +315,7 @@ class FsInfoChannel(Channel):
     getattrs: 'Callable[[int, str, Follow], JsonDocument]'
 
     @staticmethod
-    def make_getattrs(attrs: Sequence[str]) -> 'Callable[[int, str, Follow], JsonDocument | None]':
+    def make_getattrs(attrs: Iterable[str]) -> 'Callable[[int, str, Follow], JsonDocument | None]':
         # Cached for the duration of the closure we're creating
         @functools.lru_cache()
         def get_user(uid: int) -> 'str | int':
@@ -503,9 +503,10 @@ class FsInfoChannel(Channel):
         if not os.path.isabs(self.path):
             raise JsonError(options, '"path" must be an absolute path')
 
-        self.getattrs = self.make_getattrs(get_strv(options, 'attrs'))
-        self.fnmatch = get_str(options, 'fnmatch', '')
-        self.targets = get_str(options, 'targets', '') == 'stat'
+        attrs = set(get_strv(options, 'attrs'))
+        self.getattrs = self.make_getattrs(attrs - {'targets', 'entries'})
+        self.fnmatch = get_str(options, 'fnmatch', '*' if 'entries' in attrs else '')
+        self.targets = 'targets' in attrs
         self.follow = get_bool(options, 'follow', default=True)
         self.watch = get_bool(options, 'watch', default=False)
         if self.watch and not self.follow:

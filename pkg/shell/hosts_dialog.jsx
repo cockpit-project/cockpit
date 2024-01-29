@@ -33,8 +33,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
-import { Form, FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
@@ -479,21 +478,12 @@ class HostKey extends React.Component {
                 <p className="hostkey-type">({key_type})</p>
                 <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), this.props.host)}</p>
                 <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{`ssh-keyscan -t ${key_type} localhost | ssh-keygen -lf -`}</ClipboardCopy>
-                <p>{_("Optionally, paste the result below to compare fingerprint")}</p>
+                <p>{_("Optionally, paste the result below to compare fingerprints")}</p>
                 <Form>
                     <FormGroup>
-                        <TextArea id="command-ssh-keyscan-result-paste" spellCheck="false" placeholder="# localhost:22 SSH-..."
-                                    validated={this.state.fpValidated}
-                                    onChange={(_ev, remote_fp) => { this.setState({ fpValidated: remote_fp ? remote_fp.match(fp) ? "success" : "error" : undefined }) } } />
-                        {this.state.fpValidated && (
-                            <FormHelperText>
-                                <HelperText>
-                                    <HelperTextItem variant={this.state.fpValidated}>
-                                        {this.state.fpValidated == 'success' ? 'Fingerprint matched' : 'Fingerprint not present'}
-                                    </HelperTextItem>
-                                </HelperText>
-                            </FormHelperText>
-                        )}
+                        <TextArea id="command-ssh-keyscan-result-paste" spellCheck="false" validated={this.state.fpValidated}
+                                  onChange={(_ev, remote_fp) => { this.setState({ fpValidated: remote_fp ? (remote_fp.match(fp) ? "success" : "error") : undefined }) } } />
+                        {this.state.fpValidated && <FormHelper helperText={_("Fingerprint matches")} helperTextInvalid={_("Fingerprint does not match")} variant={this.state.fpValidated} />}
                     </FormGroup>
                 </Form>
                 <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
@@ -513,21 +503,12 @@ class HostKey extends React.Component {
                     <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{`ssh-keyscan -t ${key_type} localhost | ssh-keygen -lf -`}</ClipboardCopy>
                     <div>{_("The fingerprint should match:")} {fingerprint_help}</div>
                     <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
-                    <div>{_("Optionally, paste the result below to compare fingerprint")}</div>
+                    <div>{_("Optionally, paste the result below to compare fingerprints")}</div>
                     <Form>
                         <FormGroup>
-                            <TextArea id="command-ssh-keyscan-result-paste" spellCheck="false" placeholder="# localhost:22 SSH-..."
-                                        validated={this.state.fpValidated}
-                                        onChange={(_ev, remote_fp) => { this.setState({ fpValidated: remote_fp ? remote_fp.match(fp) ? "success" : "error" : undefined }) } } />
-                            {this.state.fpValidated && (
-                                <FormHelperText>
-                                    <HelperText>
-                                        <HelperTextItem variant={this.state.fpValidated}>
-                                            {this.state.fpValidated == 'success' ? 'Fingerprint matched' : 'Fingerprint not present'}
-                                        </HelperTextItem>
-                                    </HelperText>
-                                </FormHelperText>
-                            )}
+                            <TextArea id="command-ssh-keyscan-result-paste" spellCheck="false" validated={this.state.fpValidated}
+                                      onChange={(_ev, remote_fp) => { this.setState({ fpValidated: remote_fp ? (remote_fp.match(fp) ? "success" : "error") : undefined }) } } />
+                            {this.state.fpValidated && <FormHelper helperText={_("Fingerprint matches")} helperTextInvalid={_("Fingerprint does not match")} variant={this.state.fpValidated} />}
                         </FormGroup>
                     </Form>
                 </ExpandableSection>

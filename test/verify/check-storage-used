@@ -65,6 +65,7 @@ ExecStart=/usr/bin/sleep infinity
         self.click_card_row("DOS partitions", 1)
         self.click_card_dropdown("ext2 filesystem", "Format")
         self.dialog_wait_open()
+        self.dialog_set_val("type", "ext4")
         b.click("#dialog button:contains(Currently in use)")
         b.wait_in_text(".pf-v5-c-popover", str(sleep_pid))
         b.wait_in_text(".pf-v5-c-popover", "keep-mnt-busy")

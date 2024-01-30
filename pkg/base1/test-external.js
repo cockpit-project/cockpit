@@ -29,7 +29,7 @@ QUnit.test("external get", function (assert) {
 QUnit.test("external fsread1", async assert => {
     const done = assert.async();
     assert.expect(5);
-    const resp = await cockpit.spawn(["bash", "-c", "size=$(stat --format '%s' /usr/lib/os-release); echo $size"]);
+    const resp = await cockpit.spawn(["stat", "--format", "%s", "/usr/lib/os-release"]);
     const filesize = resp.replace(/\n$/, "");
 
     /* The query string used to open the channel */

@@ -1773,10 +1773,7 @@ client.export_mount_point_mapping = () => {
                 const device = utils.decode_filename(b.PreferredDevice);
                 const type = utils.decode_filename(c[1].type.v);
 
-                if (dir)
-                    mpm[dir] = device;
-                if (type === "swap")
-                    mpm[type] = device;
+                mpm[device] = { dir, type };
             }
         }
     }

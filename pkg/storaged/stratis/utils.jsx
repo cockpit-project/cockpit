@@ -130,7 +130,7 @@ export function set_mount_options(path, vals, forced_options) {
 
     if (vals.variant == "nomount" || vals.at_boot == "never")
         mount_options.push("noauto");
-    if (vals.mount_options.ro)
+    if (vals.mount_options?.ro)
         mount_options.push("ro");
     if (vals.at_boot == "never")
         mount_options.push("x-cockpit-never-auto");
@@ -138,7 +138,7 @@ export function set_mount_options(path, vals, forced_options) {
         mount_options.push("nofail");
     if (vals.at_boot == "netdev")
         mount_options.push("_netdev");
-    if (vals.mount_options.extra)
+    if (vals.mount_options?.extra)
         mount_options.push(vals.mount_options.extra);
 
     mount_options = mount_options.concat(forced_options);

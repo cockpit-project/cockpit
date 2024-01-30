@@ -176,7 +176,7 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
         else
             opt_texts.push(_("stop boot on failure"));
         opt_texts = opt_texts.concat(split_options);
-        if (opt_texts.length) {
+        if (opt_texts.length && !client.in_anaconda_mode()) {
             mount_point_text = cockpit.format("$0 ($1)", mount_point_text, opt_texts.join(", "));
         }
     }

@@ -80,16 +80,18 @@ class StorageHelpers:
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1969408
         # It would be nicer to remove $F immediately after the call to
         # losetup, but that will break some versions of lvm2.
-        dev = self.machine.execute("F=$(mktemp /var/tmp/loop.XXXX); "
-                                   "truncate --size=%sMB $F; "
-                                   "losetup --show %s $F" % (size, name if name else "--find")).strip()
+        backf = self.machine.execute("mktemp /var/tmp/loop.XXXX").strip()
+        dev = self.machine.execute(f"truncate --size={size}MB {backf}; "
+                                   f"losetup --show {name if name else '--find'} {backf}").strip()
         # If this device had partions in its last incarnation on this
         # machine, they might come back for unknown reasons, in a
         # non-functional state. Running partprobe will get rid of
         # them.
         self.machine.execute("partprobe '%s'" % dev)
         # right after unmounting the device is often still busy, so retry a few times
-        self.addCleanup(self.machine.execute, f"umount {dev} || true; rm $(losetup -n -O BACK-FILE -l {dev}); until losetup -d {dev}; do sleep 1; done", timeout=10)
+        self.addCleanup(self.machine.execute, f"until losetup -d {dev}; do sleep 1; done; rm {backf}", timeout=10)
+        self.addCleanup(self.machine.execute, f"findmnt -n -o TARGET {dev} | xargs --no-run-if-empty umount;")
+
         return dev
 
     def add_targetd_loopback_disk(self, index, size=50):

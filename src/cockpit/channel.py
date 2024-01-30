@@ -144,7 +144,7 @@ class Channel(Endpoint):
         except ChannelError as exc:
             self.close(exc.attrs)
 
-    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+    def do_kill(self, host: 'str | None', group: 'str | None', _message: JsonObject) -> None:
         # Already closing?  Ignore.
         if self._close_args is not None:
             return

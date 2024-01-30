@@ -203,7 +203,7 @@ class CockpitProtocolServer(CockpitProtocol):
     def do_init(self, message: JsonObject) -> None:
         pass
 
-    def do_kill(self, host: 'str | None', group: 'str | None') -> None:
+    def do_kill(self, host: 'str | None', group: 'str | None', message: JsonObject) -> None:
         raise NotImplementedError
 
     def transport_control_received(self, command, message):
@@ -222,7 +222,7 @@ class CockpitProtocolServer(CockpitProtocol):
                 raise CockpitProtocolError('missing host field', 'protocol-error') from exc
             self.do_init(message)
         elif command == 'kill':
-            self.do_kill(message.get('host'), message.get('group'))
+            self.do_kill(message.get('host'), message.get('group'), message)
         elif command == 'authorize':
             self.do_authorize(message)
         else:

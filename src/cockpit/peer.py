@@ -225,9 +225,9 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         assert self.init_future is None
         self.write_channel_data(channel, data)
 
-    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+    def do_kill(self, host: 'str | None', group: 'str | None', message: JsonObject) -> None:
         assert self.init_future is None
-        self.write_control(command='kill', host=host, group=group)
+        self.write_control(message)
 
     def do_close(self) -> None:
         self.close()

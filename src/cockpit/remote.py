@@ -147,11 +147,11 @@ class SshPeer(Peer):
         args = self.session.wrap_subprocess_args(['cockpit-bridge'])
         await self.spawn(args, [])
 
-    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+    def do_kill(self, host: 'str | None', group: 'str | None', message: JsonObject) -> None:
         if host == self.host:
             self.close()
         elif host is None:
-            super().do_kill(None, group)
+            super().do_kill(host, group, message)
 
     def do_authorize(self, message: JsonObject) -> None:
         if get_str(message, 'challenge').startswith('plain1:'):

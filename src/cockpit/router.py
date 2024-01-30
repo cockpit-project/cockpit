@@ -86,7 +86,7 @@ class Endpoint:
     def do_channel_data(self, channel: str, data: bytes) -> None:
         raise NotImplementedError
 
-    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+    def do_kill(self, host: 'str | None', group: 'str | None', message: JsonObject) -> None:
         raise NotImplementedError
 
     # interface for sending messages
@@ -185,11 +185,11 @@ class Router(CockpitProtocolServer):
                 logger.debug('  close transport')
                 self.transport.close()
 
-    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+    def do_kill(self, host: 'str | None', group: 'str | None', message: JsonObject) -> None:
         endpoints = set(self.endpoints)
         logger.debug('do_kill(%s, %s).  Considering %d endpoints.', host, group, len(endpoints))
         for endpoint in endpoints:
-            endpoint.do_kill(host, group)
+            endpoint.do_kill(host, group, message)
 
     def channel_control_received(self, channel: str, command: str, message: JsonObject) -> None:
         # If this is an open message then we need to apply the routing rules to

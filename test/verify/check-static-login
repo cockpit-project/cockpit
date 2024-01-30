@@ -773,12 +773,20 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         alice_cert_key = ['--cert', alice_cert, '--key', alice_key]
 
         # set up local (NIS) sssd provider and certificate mapping
-        self.write_file("/etc/sssd/sssd.conf", """
+        # newer sssd drops "file" provider, but the "proxy" provider cannot do this yet in old versions
+        if m.image in ["debian-stable", "ubuntu-2204", "ubuntu-stable"]:
+            id_provider = "id_provider = files"
+        else:
+            id_provider = """id_provider = proxy
+                             local_auth_policy = only
+                             proxy_lib_name = files"""
+
+        self.write_file("/etc/sssd/sssd.conf", f"""
 [sssd]
 domains = local
 
 [domain/local]
-id_provider = files
+{id_provider}
 
 [certmap/local/alice]
 # Requires sssd >= 2.6.1 and installing sssd_auth_ca_db.pem; with earlier sssd this is completely unsafe

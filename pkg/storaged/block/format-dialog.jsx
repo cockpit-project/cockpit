@@ -519,7 +519,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     if (!mount_now || vals.at_boot == "never") {
                         mount_options.push("noauto");
                     }
-                    if (vals.mount_options.ro)
+                    if (vals.mount_options?.ro)
                         mount_options.push("ro");
                     if (vals.at_boot == "never")
                         mount_options.push("x-cockpit-never-auto");
@@ -527,7 +527,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         mount_options.push("nofail");
                     if (vals.at_boot == "netdev")
                         mount_options.push("_netdev");
-                    if (vals.mount_options.extra)
+                    if (vals.mount_options?.extra)
                         mount_options.push(vals.mount_options.extra);
 
                     mount_point = vals.mount_point;

@@ -18,6 +18,7 @@
  */
 
 import cockpit from "cockpit";
+import client from "../client.js";
 
 import {
     encode_filename,
@@ -42,10 +43,10 @@ import {
 
 const _ = cockpit.gettext;
 
-export const mount_options = (opt_ro, extra_options, is_filesystem) => {
+export const mount_options = (opt_ro, extra_options, is_visible) => {
     return CheckBoxes("mount_options", _("Mount options"),
                       {
-                          visible: is_filesystem,
+                          visible: vals => !client.in_anaconda_mode() && (!is_visible || is_visible(vals)),
                           value: {
                               ro: opt_ro,
                               extra: extra_options || false
@@ -57,10 +58,10 @@ export const mount_options = (opt_ro, extra_options, is_filesystem) => {
                       });
 };
 
-export const at_boot_input = (at_boot, is_filesystem) => {
+export const at_boot_input = (at_boot, is_visible) => {
     return SelectOne("at_boot", _("At boot"),
                      {
-                         visible: is_filesystem,
+                         visible: vals => !client.in_anaconda_mode() && (!is_visible || is_visible(vals)),
                          value: at_boot,
                          explanation: mount_explanation[at_boot],
                          choices: [
@@ -328,7 +329,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                     let opts = [];
                     if ((mode == "update" && !is_filesystem_mounted) || vals.at_boot == "never")
                         opts.push("noauto");
-                    if (vals.mount_options.ro)
+                    if (vals.mount_options?.ro)
                         opts.push("ro");
                     if (vals.at_boot == "never")
                         opts.push("x-cockpit-never-auto");
@@ -338,13 +339,13 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                         opts.push("_netdev");
                     if (forced_options)
                         opts = opts.concat(forced_options);
-                    if (vals.mount_options.extra !== false)
+                    if (vals.mount_options?.extra)
                         opts = opts.concat(parse_options(vals.mount_options.extra));
                     return (maybe_update_config(client.add_mount_point_prefix(vals.mount_point),
                                                 unparse_options(opts),
                                                 vals.passphrase,
                                                 passphrase_type)
-                            .then(() => maybe_set_crypto_options(vals.mount_options.ro,
+                            .then(() => maybe_set_crypto_options(vals.mount_options?.ro,
                                                                  opts.indexOf("noauto") == -1,
                                                                  vals.at_boot == "nofail",
                                                                  vals.at_boot == "netdev")));

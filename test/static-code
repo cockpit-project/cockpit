@@ -44,6 +44,11 @@ test_ruff() {
 }
 
 if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
+    mypy_strict_files='
+        src/cockpit/__init__.py
+        src/cockpit/_version.py
+        src/cockpit/jsonutil.py
+    '
     test_mypy() {
         command -v mypy >/dev/null || skip 'no mypy'
         for pkg in systemd_ctypes ferny bei; do
@@ -53,6 +58,7 @@ if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
         # test scripts individually, to avoid clashing on `__main__`
         # also skip integration tests, they are too big and not annotated
         find_scripts 'python3' "*.none" | grep -zv 'test/' | xargs -r -0 -n1 mypy --no-error-summary
+        mypy --no-error-summary --strict $mypy_strict_files
     }
 
     test_vulture() {

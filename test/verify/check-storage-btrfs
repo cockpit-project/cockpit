@@ -34,6 +34,9 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.allow_browser_errors("error: unable to run findmnt.*")
         self.allow_browser_errors("error: findmnt.*")
 
+    def checkTeardownAction(self, row, label, text):
+        self.browser.wait_in_text(f".modal-footer-teardown tbody:nth-of-type({row}) td[data-label='{label}']", text)
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -110,28 +113,35 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.click(self.card_button("btrfs device", label))
         b.wait_text(self.card_desc("btrfs volume", "Label"), label)
 
+        # mount outside of fstab, should be cleaned up when re-formatting
+        m.execute(f"""
+            btrfs subvolume create {mount_point}/nonfstab
+            mkdir -p /run/basement
+            mount -o subvol=nonfstab {dev_1} /run/basement
+        """)
+
         # Format the btrfs device
         b.go("#/")
         b.wait_visible(self.card("Storage"))
         self.click_dropdown(self.card_row("Storage", name="sda"), "Format")
         self.dialog_wait_open()
-        self.dialog_wait_title(f"{dev_1} is in use")
-        self.dialog_cancel()
-        self.dialog_wait_close()
+        self.checkTeardownAction(1, "Device", dev_1)
+        self.checkTeardownAction(1, "Location", "/run/basement")
+        self.checkTeardownAction(1, "Action", "unmount, format")
+        self.checkTeardownAction(2, "Location", mount_point)
+        self.checkTeardownAction(2, "Action", "unmount, format")
+        self.checkTeardownAction(3, "Location", subvol_mount_point)
+        self.checkTeardownAction(3, "Action", "unmount, format")
+        self.dialog_set_val("type", "empty")
+        self.dialog_apply()
 
-        self.click_dropdown(self.card_row("Storage", location=subvol_mount_point), "Unmount")
-        self.confirm()
+        # device is gone
+        b.wait_not_present(self.card_row("Storage", location="butter"))
+        # volume is gone
+        b.wait_not_present(self.card_row("Storage", name="butter"))
 
-        self.click_dropdown(self.card_row("Storage", location=mount_point), "Unmount")
-        self.confirm()
-        b.wait_visible(self.card_row("Storage", location=f"{mount_point} (not mounted)"))
-
-        # Also when not mounted
-        self.click_dropdown(self.card_row("Storage", name="sda"), "Format")
-        self.dialog_wait_open()
-        self.dialog_wait_title(f"{dev_1} is in use")
-        self.dialog_cancel()
-        self.dialog_wait_close()
+        # All mounts should be gone
+        m.execute(f"! findmnt -n | grep {dev_1}")
 
     def testCreateSubvolume(self):
         m = self.machine
@@ -264,9 +274,6 @@ class TestStorageBtrfs(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
-        def checkTeardownAction(row, label, text):
-            b.wait_in_text(f".modal-footer-teardown tbody:nth-of-type({row}) td[data-label='{label}']", text)
-
         self.login_and_go("/storage")
 
         disk1 = self.add_ram_disk(size=140)
@@ -296,8 +303,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_visible(self.card_row("Storage", name=subvol))
 
         self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
-        checkTeardownAction(1, "Device", subvol)
-        checkTeardownAction(1, "Action", "delete")
+        self.checkTeardownAction(1, "Device", subvol)
+        self.checkTeardownAction(1, "Action", "delete")
         self.confirm()
         b.wait_not_present(self.card_row("Storage", name=subvol))
 
@@ -312,10 +319,10 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_visible(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
 
         self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
-        checkTeardownAction(1, "Device", f"{subvol}/{child_subvol}")
-        checkTeardownAction(1, "Action", "delete")
-        checkTeardownAction(2, "Device", subvol)
-        checkTeardownAction(2, "Action", "delete")
+        self.checkTeardownAction(1, "Device", f"{subvol}/{child_subvol}")
+        self.checkTeardownAction(1, "Action", "delete")
+        self.checkTeardownAction(2, "Device", subvol)
+        self.checkTeardownAction(2, "Action", "delete")
         self.confirm()
 
         b.wait_not_present(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
@@ -333,11 +340,11 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_visible(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
 
         self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
-        checkTeardownAction(1, "Device", f"{subvol}/{child_subvol}")
-        checkTeardownAction(1, "Action", "delete")
-        checkTeardownAction(1, "Device", subvol)
-        checkTeardownAction(2, "Location", subvol_mount_point)
-        checkTeardownAction(2, "Action", "unmount, delete")
+        self.checkTeardownAction(1, "Device", f"{subvol}/{child_subvol}")
+        self.checkTeardownAction(1, "Action", "delete")
+        self.checkTeardownAction(1, "Device", subvol)
+        self.checkTeardownAction(2, "Location", subvol_mount_point)
+        self.checkTeardownAction(2, "Action", "unmount, delete")
         self.confirm()
 
         b.wait_not_present(self.card_row("Storage", location=subvol_mount_point))
@@ -350,8 +357,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
         sleep_pid = m.spawn(f"cd {subvol_mount_point}; sleep infinity", "sleep")
 
         self.click_dropdown(self.card_row("Storage", location=subvol_mount_point), "Delete")
-        checkTeardownAction(1, "Location", subvol_mount_point)
-        checkTeardownAction(1, "Action", "unmount, delete")
+        self.checkTeardownAction(1, "Location", subvol_mount_point)
+        self.checkTeardownAction(1, "Action", "unmount, delete")
         b.wait_in_text(".modal-footer-teardown tbody:nth-of-type(1)", "Currently in use")
         b.click(".modal-footer-teardown tbody:nth-of-type(1) button")
         b.wait_in_text(".pf-v5-c-popover", str(sleep_pid))

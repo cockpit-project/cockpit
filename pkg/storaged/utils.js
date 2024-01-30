@@ -891,7 +891,10 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
         // HACK: get_active_usage is used for mounting and formatting so we use the absence of the subvol argument
         // to figure out that we want to format this device.
         // This is separate from the if's below as we also always have to umount the filesystem.
-        if (btrfs_volume && !subvol) {
+
+        // We allow a btrfs volume with one device to be formatted as this
+        // looks the most like a normal filesystem use case.
+        if (btrfs_volume && btrfs_volume.data.num_devices !== 1 && !subvol) {
             usage.push({
                 level,
                 usage: 'btrfs-device',
@@ -899,7 +902,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                 btrfs_volume,
                 location: btrfs_volume.data.label || btrfs_volume.data.uuid,
                 actions: get_actions(_("remove from btrfs volume")),
-                blocking: true
+                blocking: true,
             });
         }
 

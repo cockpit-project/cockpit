@@ -47,7 +47,9 @@ class TestApps(packagelib.PackageCase):
             f"/usr/share/pixmaps/{name}.png": {"path": "/var/tmp/test.png"}}, install=install)
         self.appstream_collection.add(name)
 
-    def createAppStreamRepoPackage(self):
+    def createAppStreamRepoPackage(self, subdir=None):
+        if subdir is None:
+            subdir = "swcatalog/xml"
         body = ""
         for p in self.appstream_collection:
             body += f"""
@@ -65,14 +67,14 @@ class TestApps(packagelib.PackageCase):
     <pkgname>{p}</pkgname>
   </component>
 """
-        self.machine.execute("mkdir -p /usr/share/app-info/xmls")
+        self.machine.execute(f"mkdir -p /usr/share/{subdir}")
         self.createPackage("appstream-data-test", "1.0", "1", content={
-            "/usr/share/app-info/xmls/test.xml": f"""
+            f"/usr/share/{subdir}/test.xml": f"""
 <components origin="test">
 {body}
 </components>
             """,
-            "/usr/share/app-info/icons/test/64x64/test.png": {"path": "/var/tmp/test.png"}})
+            f"/usr/share/{subdir.split('/')[0]}/icons/test/64x64/test.png": {"path": "/var/tmp/test.png"}})
         self.enableRepo()
         self.machine.execute("systemctl stop packagekit; pkcon refresh force")
         # ignore the corresponding journal entry
@@ -85,12 +87,13 @@ class TestApps(packagelib.PackageCase):
         self.allow_journal_messages("can't remove watch: Invalid argument")
 
         self.restore_dir("/usr/share/metainfo", reboot_safe=True)
+        self.restore_dir("/usr/share/swcatalog", reboot_safe=True)
         self.restore_dir("/usr/share/app-info", reboot_safe=True)
         self.restore_dir("/var/cache/app-info", reboot_safe=True)
 
         # Make sure none of the appstream directories exist.  They
         # will be created later and we need to cope with that.
-        m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
+        m.execute("rm -rf /usr/share/metainfo /usr/share/swcatalog /usr/share/app-info /var/cache/app-info")
 
         # instead of the actual distro packages, use our own fake repo data package
         self.write_file("/etc/cockpit/apps.override.json",
@@ -146,12 +149,13 @@ class TestApps(packagelib.PackageCase):
         self.allow_journal_messages("can't remove watch: Invalid argument")
 
         self.restore_dir("/usr/share/metainfo", reboot_safe=True)
+        self.restore_dir("/usr/share/swcatalog", reboot_safe=True)
         self.restore_dir("/usr/share/app-info", reboot_safe=True)
         self.restore_dir("/var/cache/app-info", reboot_safe=True)
 
         # Make sure none of the appstream directories exist.  They
         # will be created later and we need to cope with that.
-        m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
+        m.execute("rm -rf /usr/share/metainfo /usr/share/swcatalog /usr/share/app-info /var/cache/app-info")
 
         # use a fake distro map
         self.write_file("/etc/cockpit/apps.override.json",
@@ -161,7 +165,8 @@ class TestApps(packagelib.PackageCase):
                         '  }}')
 
         self.createAppStreamPackage("app-1", "1.0", "1")
-        self.createAppStreamRepoPackage()
+        # old subdir until Fedora 39
+        self.createAppStreamRepoPackage(subdir="app-info/xmls")
 
         self.login_and_go("/apps")
         b.wait_visible(".pf-v5-c-empty-state")

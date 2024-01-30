@@ -357,6 +357,7 @@ def watch_db():
         process_file(path, lambda path, xml: db.notice_available(path, xml))
 
     watcher.watch_directory('/usr/share/metainfo', installed_callback)
+    watcher.watch_directory('/usr/share/swcatalog/xml', available_callback)
     watcher.watch_directory('/usr/share/app-info/xmls', available_callback)
     watcher.watch_directory('/var/cache/app-info/xmls', available_callback)
     db.start_dumping()

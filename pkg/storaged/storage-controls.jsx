@@ -110,7 +110,7 @@ function checked(callback, setSpinning, excuse) {
     };
 }
 
-export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, onlyWide, spinner }) => {
+export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, spinner }) => {
     const [spinning, setSpinning] = useState(false);
 
     return <StorageControl excuse={excuse}
@@ -120,7 +120,6 @@ export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, 
                                        onClick={checked(onClick, setSpinning)}
                                        variant={kind || "secondary"}
                                        isDisabled={!!excuse || (spinner && spinning)}
-                                       className={onlyWide ? "show-only-when-wide" : null}
                                        style={excuse ? { pointerEvents: 'none' } : null}
                                        isLoading={spinner ? spinning : undefined}>
                                    {children}

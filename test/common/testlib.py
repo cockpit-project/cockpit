@@ -38,11 +38,13 @@ import traceback
 import unittest
 from time import sleep
 from typing import Any, Callable, Dict, List, Optional, Union
+from pprint import pprint
 
 import cdp
 import testvm
 from lcov import write_lcov
 from lib.constants import OSTREE_IMAGES
+from testinsp import RunChecks
 
 try:
     from PIL import Image
@@ -1515,6 +1517,29 @@ class MachineCase(unittest.TestCase):
         """generic setUp/tearDown for @nondestructive tests"""
 
         m = self.machine
+
+        # run TestInspector as last cleanup action
+        def test_inspector_check():
+            print(" ---------- RESULTS OF TEST INSPECTOR ---------- ")
+            inspected_data = self.test_inspecor.check()
+            for k, v in inspected_data.items():
+                if v:
+                    pprint(f">> Test Inspector FAIL - ({k}):")
+                    pprint(v)
+            print(" ---------- END OF TEST INSPECTOR ---------- ")
+        exclude_dict=dict()
+        exclude_dict["ListEtcDir"] = ["/etc/systemd/system/cockpit.service.d/notls.conf"]
+        exclude_dict["ServiceInfo"] = ["cockpit",
+                                       "user@",
+                                       "packagekit",
+                                       "rhsm",
+                                       "realmd",
+                                       "systemd-timedated",
+                                       "systemd-hostnamed",
+                                       "systemd-logind.service"]
+        self.test_inspecor = RunChecks(external_executor=m.execute, exclude_dict=exclude_dict)
+        self.test_inspecor.init()
+        self.addCleanup(test_inspector_check)
 
         # helps with mapping journal output to particular tests
         name = "%s.%s" % (self.__class__.__name__, self._testMethodName)

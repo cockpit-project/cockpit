@@ -19,9 +19,11 @@ top_srcdir="${realpath%/*}/../.."
 
 # Check out the bots if required
 test -d "${top_srcdir}/bots" || "${top_srcdir}/test/common/make-bots"
+# Check out the test inspector if required
+test -d "$(dirname $realpath)/testinsp" || "$(dirname $realpath)/make-testinsp"
 
 # Prepend the path
-PYTHONPATH="${top_srcdir}/test/common:${top_srcdir}/bots:${top_srcdir}/bots/machine${PYTHONPATH:+:${PYTHONPATH}}"
+PYTHONPATH="${top_srcdir}/test/common/testinsp:${top_srcdir}/test/common:${top_srcdir}/bots:${top_srcdir}/bots/machine${PYTHONPATH:+:${PYTHONPATH}}"
 export PYTHONPATH
 
 # Run the script

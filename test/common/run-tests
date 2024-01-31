@@ -183,7 +183,18 @@ class Test:
             for line in lines[:-1]:
                 if line.startswith(b"WARNING:"):
                     write_line(line)
+            # print test inspector log
+            ti_start = False
+            for line in lines:
+                if b"RESULTS OF TEST INSPECTOR" in line:
+                    ti_start = True
+                    continue
+                if b"END OF TEST INSPECTOR" in line:
+                    break
+                if ti_start:
+                    write_line(b"WARNING: TI -> " + line)
             write_line(lines[-1])
+
         else:
             for line in lines:
                 write_line(line)

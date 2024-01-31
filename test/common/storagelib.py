@@ -137,6 +137,9 @@ class StorageHelpers:
     def dialog_wait_alert(self, text):
         self.browser.wait_in_text('#dialog .pf-v5-c-alert__title', text)
 
+    def dialog_wait_title(self, text):
+        self.browser.wait_in_text('#dialog .pf-v5-c-modal-box__title', text)
+
     def dialog_field(self, field):
         return f'#dialog [data-field="{field}"]'
 

@@ -429,6 +429,13 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_in_text(self.card_row("Storage", name=os.path.basename(disk1)), "btrfs device")
         b.wait_in_text(self.card_row("Storage", name=os.path.basename(disk2)), "btrfs device")
 
+        # We don't allow formatting of multi device btrfs filesystems
+        self.click_dropdown(self.card_row("Storage", name=os.path.basename(disk1)), "Format")
+        self.dialog_wait_open()
+        self.dialog_wait_title(f"{disk1} is in use")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
         # mount /
         self.click_dropdown(self.card_row("Storage", name=label) + " + tr", "Mount")
         self.dialog({"mount_point": mount_point})

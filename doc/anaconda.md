@@ -102,3 +102,67 @@ case, Cockpit will use the type from "default_fsys_type".
   "default_fsys_type": "xfs"
 }
 ```
+
+Exported information
+--------------------
+
+Cockpit maintains some information in local browser storage that can
+be used by Anaconda to learn things that it doesn't get from
+blivet. This is mostly information from fstab and crypttab.
+
+The "cockpit_mount_points" entry in local storage will have a JSON
+encoded object, for example:
+
+```
+{
+  "/dev/sda": {
+    "type": "filesystem",
+    "dir": "/",
+  },
+  "/dev/sdb": {
+    "type": "swap"
+  },
+  "/dev/sdc": {
+    "type": "crypto",
+    "content": {
+      "type": "filesystem",
+      "subvolumes": {
+        "home": "/home"
+      }
+    }
+  }
+}
+```
+
+The keys are pathnames of device nodes in /dev, they are never
+symlinks to device nodes.
+
+Each value is an object with a "type" field. The type determines which
+other fields might be present, and what they mean.  The following
+types might appear:
+
+ - "filesystem"
+
+ A filesystem with an entry in fstab. A filesystem without subvolumes
+ has a "dir" field that is its mount point. A filesystem with
+ subvolumes has a "subvolumes" field that is a map from subvolume
+ names to mount points.
+
+ There might also be both a "dir" and a "subvolumes" field. The "dir"
+ field then has the mount point for the default subvolume of the
+ filesystem. This is hopefully rare.
+
+ - "swap"
+
+ A swap device. No other fields are present.
+
+ - "crypto"
+
+ An encrypted device. It has a "content" field with a value that is
+ structured like a value for "cockpit_mount_points", i.e., a object
+ with a "type" field and maybe a "dir" field if "type" is
+ "filesystem". This is also present when the crypto device is closed.
+
+ It might also have a "cleartext_device" field if the encrpyted device
+ is currently open. (Although this is something that blivet should be
+ able to tell.)

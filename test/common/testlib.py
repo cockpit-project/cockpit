@@ -1527,7 +1527,7 @@ class MachineCase(unittest.TestCase):
                     pprint(f">> Test Inspector FAIL - ({k}):")
                     pprint(v)
             print(" ---------- END OF TEST INSPECTOR ---------- ")
-        exclude_dict=dict()
+        exclude_dict = {}
         exclude_dict["ListEtcDir"] = ["/etc/systemd/system/cockpit.service.d/notls.conf"]
         exclude_dict["ServiceInfo"] = ["cockpit",
                                        "user@",

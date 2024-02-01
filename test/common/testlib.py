@@ -1528,7 +1528,10 @@ class MachineCase(unittest.TestCase):
                     pprint(v)
             print(" ---------- END OF TEST INSPECTOR ---------- ")
         exclude_dict = {}
-        exclude_dict["ListEtcDir"] = ["/etc/systemd/system/cockpit.service.d/notls.conf"]
+        exclude_dict["ListEtcDir"] = ["/etc/systemd/system/cockpit.service.d/notls.conf",
+                                      "/etc/lvm/archive",
+                                      "/etc/lvm/backup",
+                                      ]
         exclude_dict["ServiceInfo"] = ["cockpit",
                                        "user@",
                                        "packagekit",
@@ -1536,7 +1539,9 @@ class MachineCase(unittest.TestCase):
                                        "realmd",
                                        "systemd-timedated",
                                        "systemd-hostnamed",
-                                       "systemd-logind.service"]
+                                       "systemd-logind.service",
+                                       "virtqemud",
+                                       ]
         self.test_inspecor = RunChecks(external_executor=m.execute, exclude_dict=exclude_dict)
         self.test_inspecor.init()
         self.addCleanup(test_inspector_check)

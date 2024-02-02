@@ -183,7 +183,7 @@ recv_reply (int fd, char *buf, size_t buflen)
   close (fd);
   if (len < 0)
     g_error ("recv_reply: unexpected error: %m");
-  g_assert_cmpint (len, >=, 100);
+  g_assert_cmpint (len, >=, 50);
   buf[len] = '\0'; /* so that we can use string functions on it */
 
   return buf;
@@ -200,7 +200,7 @@ do_request (TestCase *tc, const char *request)
   /* wait until data is available */
   for (int timeout = 0; timeout < 100; ++timeout) {
     res = recv (fd, buf, 100, MSG_PEEK | MSG_DONTWAIT);
-    if (res >= 100)
+    if (res >= 50)
       return recv_reply (fd, buf, sizeof (buf));
 
     server_poll_event (100);

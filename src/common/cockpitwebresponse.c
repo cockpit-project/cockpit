@@ -267,6 +267,7 @@ cockpit_web_response_set_method (CockpitWebResponse *response,
                                  const gchar *method)
 {
   g_return_if_fail (g_strcmp0 (method, "GET") == 0 || g_strcmp0 (method, "HEAD") == 0);
+  g_free (response->method);
   response->method = g_strdup (method);
 }
 

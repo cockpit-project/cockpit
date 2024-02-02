@@ -31,6 +31,7 @@ from typing import Callable, Iterable
 
 from cockpit._vendor.systemd_ctypes import Handle, PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
+from cockpit._vendor.systemd_ctypes.pathwatch import Listener as PathWatchListener
 
 from ..channel import Channel, ChannelError, GeneratorChannel
 from ..jsonutil import (
@@ -298,7 +299,7 @@ class Follow(enum.Enum):
     YES = True
 
 
-class FsInfoChannel(Channel):
+class FsInfoChannel(Channel, PathWatchListener):
     payload = 'fsinfo'
 
     # Options (all get set in `do_open()`)

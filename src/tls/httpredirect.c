@@ -113,9 +113,7 @@ http_redirect (FILE *input,
   fprintf (output, "HTTP/1.1 301 Moved Permanently\r\n"
                    "Content-Type: text/html\r\n"
                    "Location: https://%s%s\r\n"
-                   "\r\n"
-                   "<html><head><title>Moved</title></head>"
-                   "<body>Please use TLS</body></html>\r\n", host, path);
+                   "\r\n", host, path);
 
   return true;
 }

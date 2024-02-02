@@ -834,6 +834,8 @@ cockpit_web_request_process (CockpitWebRequest *self,
         }
     }
 
+  self->method = method;
+
   if (self->delayed_reply)
     {
       cockpit_web_request_process_delayed_reply (self, path, headers);
@@ -844,7 +846,6 @@ cockpit_web_request_process (CockpitWebRequest *self,
 
   self->original_path = path_copy;
   self->path = path_copy + self->web_server->url_root->len;
-  self->method = method;
   self->headers = headers;
   self->host = host;
 

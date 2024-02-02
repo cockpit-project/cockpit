@@ -47,7 +47,7 @@ export function export_mount_point_mapping() {
                         if (sv.pathname) {
                             if (!subvols)
                                 subvols = { };
-                            subvols[sv.pathname] = d;
+                            subvols[sv.pathname] = { dir: d };
                         }
                     } else if (!dir) {
                         dir = d;
@@ -83,13 +83,14 @@ export function export_mount_point_mapping() {
                     content_info = fstab_info(block_crypto.ChildConfiguration);
             }
 
-            return {
-                type: "crypto",
-                cleartext_device: cleartext_block && decode_filename(cleartext_block.Device),
-                content: content_info,
-            };
-        } else
-            return undefined;
+            if (content_info) {
+                return {
+                    type: "crypto",
+                    cleartext_device: cleartext_block && decode_filename(cleartext_block.Device),
+                    content: content_info,
+                };
+            }
+        }
     }
 
     const mpm = { };

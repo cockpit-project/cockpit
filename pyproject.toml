@@ -26,6 +26,15 @@ disable = [
 ]
 
 [tool.ruff]
+exclude = [
+    ".git/",
+    "modules/",
+    "node_modules/",
+]
+line-length = 118
+src = []
+
+[tool.ruff.lint]
 select = [
     "A",       # flake8-builtins
     "B",       # flake8-bugbear
@@ -52,11 +61,6 @@ select = [
     "W",       # warnings (mostly whitespace)
     "YTT",     # flake8-2020
 ]
-exclude = [
-    ".git/",
-    "modules/",
-    "node_modules/",
-]
 ignore = [
     "A003",  # Class attribute is shadowing a python builtin
     "B011",  # Do not `assert False` (`python -O` removes these calls), raise `AssertionError()`
@@ -66,14 +70,12 @@ ignore = [
     "TCH001", # Move application import into a type-checking block
     "TCH002", # Move third-party import `..packages.Packages` into a type-checking block
 ]
-line-length = 118
-src = []
 
-[tool.ruff.flake8-pytest-style]
+[tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["cockpit"]
 
 [tool.pytest.ini_options]

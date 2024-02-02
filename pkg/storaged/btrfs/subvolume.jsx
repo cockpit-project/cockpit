@@ -82,7 +82,7 @@ function set_mount_options(subvol, block, vals) {
     if (!mount_now || vals.at_boot == "never") {
         mount_options.push("noauto");
     }
-    if (vals.mount_options.ro)
+    if (vals.mount_options?.ro)
         mount_options.push("ro");
     if (vals.at_boot == "never")
         mount_options.push("x-cockpit-never-auto");
@@ -93,7 +93,7 @@ function set_mount_options(subvol, block, vals) {
 
     const name = (subvol.pathname == "/" ? vals.name : subvol.pathname + "/" + vals.name);
     mount_options.push("subvol=" + name);
-    if (vals.mount_options.extra)
+    if (vals.mount_options?.extra)
         mount_options.push(vals.mount_options.extra);
 
     let mount_point = vals.mount_point;
@@ -126,10 +126,16 @@ function set_mount_options(subvol, block, vals) {
 function subvolume_create(volume, subvol, parent_dir) {
     const block = client.blocks[volume.path];
 
-    const action_variants = [
+    let action_variants = [
         { tag: null, Title: _("Create and mount") },
         { tag: "nomount", Title: _("Create only") }
     ];
+
+    if (client.in_anaconda_mode()) {
+        action_variants = [
+            { tag: "nomount", Title: _("Create") }
+        ];
+    }
 
     dialog_open({
         Title: _("Create subvolume"),

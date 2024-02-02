@@ -88,10 +88,14 @@ class TestStoragePartitions(storagelib.StorageCase):
         b.key_press(chr(37), use_ord=True)
         self.dialog_wait_val("size", 27.1)
 
-        # Check that changing units affects the text input
+        # Check that changing units doesn't affect the text input
         unit = "1000000000"
         b.select_from_dropdown(".size-unit > select", unit)
-        self.dialog_wait_val("size", "0.0271", unit)
+        self.dialog_wait_val("size", 27.1, unit)
+
+        # Change unit back to MB
+        unit = "1000000"
+        b.select_from_dropdown(".size-unit > select", unit)
 
         self.dialog_apply()
         self.dialog_wait_close()

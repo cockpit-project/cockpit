@@ -54,6 +54,7 @@ CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
                                                           const gchar *original_path,
                                                           const gchar *path,
                                                           GHashTable *in_headers,
+                                                          const gchar *method,
                                                           const gchar *protocol);
 void                  cockpit_web_response_set_method    (CockpitWebResponse *response,
                                                           const gchar *method);

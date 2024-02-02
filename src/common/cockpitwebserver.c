@@ -1289,7 +1289,7 @@ CockpitWebResponse *
 cockpit_web_request_respond (CockpitWebRequest *self)
 {
   return cockpit_web_response_new (self->io, self->original_path, self->path, self->headers,
-                                   cockpit_web_request_get_protocol (self));
+                                   self->method, cockpit_web_request_get_protocol (self));
 }
 
 const gchar *

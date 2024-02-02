@@ -203,6 +203,7 @@ cockpit_web_response_new (GIOStream *io,
                           const gchar *original_path,
                           const gchar *path,
                           GHashTable *in_headers,
+                          const gchar *method,
                           const gchar *protocol)
 {
   CockpitWebResponse *self;
@@ -233,6 +234,7 @@ cockpit_web_response_new (GIOStream *io,
   self->url_root = NULL;
   self->full_path = g_strdup (path);
   self->path = self->full_path;
+  cockpit_web_response_set_method (self, method);
 
   if (path && original_path)
     {

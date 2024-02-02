@@ -183,7 +183,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible("#account-locked:not(:checked)")
         # check home directory and shell for root
         b.wait_text("#account-home-dir", "/root")
-        b.wait_text("#account-shell", "/bin/bash")
+        b.wait_in_text("#account-shell", "/bin/bash")  # can be /usr/bin/bash or /bin/bash
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
         # now lock account

@@ -127,7 +127,7 @@ encoded object, for example:
     "content": {
       "type": "filesystem",
       "subvolumes": {
-        "home": "/home"
+        "home": { dir: "/home" }
       }
     }
   }

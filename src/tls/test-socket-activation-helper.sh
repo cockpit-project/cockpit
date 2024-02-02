@@ -16,7 +16,7 @@ trap "kill $HELPER_PID; rm -r '$SOCKET_DIR'" EXIT INT QUIT PIPE
 
 # wait until it is ready
 for timeout in `seq 50`; do
-    curl --silent --head --unix "$SOCKET_DIR/http.sock" http://dummy/cockpit/login >/dev/null && break
+    curl --silent --head --unix-socket "$SOCKET_DIR/http.sock" http://dummy/cockpit/login >/dev/null && break
     sleep 0.2
 done
 
@@ -26,7 +26,7 @@ REDIRECT="HTTP/1.1 301"
 
 # args: <socketname> <expected output>
 expect_curl() {
-    OUT=$(curl --silent --show-error --head --unix "$SOCKET_DIR/$1" http://dummy/cockpit/login)
+    OUT=$(curl --silent --show-error --head --unix-socket "$SOCKET_DIR/$1" http://dummy/cockpit/login)
     if ! echo "$OUT" | grep -q "$2"; then
         echo "FAIL: output does not contain $2" >&2
         echo "$OUT" >&2

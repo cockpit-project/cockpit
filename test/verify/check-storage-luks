@@ -201,10 +201,6 @@ class TestStorageLuks(storagelib.StorageCase):
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
-        b.wait_visible(self.card("Unformatted data"))
-
-        # Lock it
-        b.click(self.card_button("Unformatted data", "Lock"))
         b.wait_visible(self.card("Locked data"))
 
         # Make it readonly
@@ -228,6 +224,21 @@ class TestStorageLuks(storagelib.StorageCase):
         self.dialog({"type": "ext4",
                      "mount_point": "/run/foo"})
         b.wait_visible(self.card("ext4 filesystem"))
+        self.wait_mounted("ext4 filesystem")
+
+        # Now create a empty, encrypted partition
+        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.dialog({"type": "gpt"})
+        b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
+        self.click_dropdown(self.card_row("GPT partitions", 1), "Create partition")
+        self.dialog({"type": "empty",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        b.wait_text(self.card_row_col("GPT partitions", 1, 2), "Locked data (encrypted)")
+        self.click_dropdown(self.card_row("GPT partitions", 1), "Unlock")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        b.wait_text(self.card_row_col("GPT partitions", 1, 2), "Unformatted data (encrypted)")
 
     def testKeepKeys(self):
         b = self.browser

@@ -319,7 +319,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     ];
 
     const action_variants_for_empty = [
-        { tag: null, Title: create_partition ? _("Create") : _("Format") }
+        { tag: "nomount", Title: create_partition ? _("Create") : _("Format") }
     ];
 
     let action_variants_for_swap = [
@@ -581,8 +581,6 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     if (create_partition) {
                         if (type == "dos-extended")
                             return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
-                        else if (type == "empty")
-                            return block_ptable.CreatePartition(start, vals.size, partition_type, "", { });
                         else
                             return block_ptable.CreatePartitionAndFormat(start, vals.size, partition_type, "", { },
                                                                          type, options);
@@ -640,7 +638,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     if (type == "swap" && mount_now)
                         return (client.wait_for(() => block_swap_for_block(path))
                                 .then(block_swap => block_swap.Start({})));
-                    if (is_encrypted(vals) && (is_filesystem(vals) || type == "swap") && !mount_now)
+                    if (is_encrypted(vals) && !mount_now)
                         return (client.wait_for(() => block_crypto_for_block(path))
                                 .then(block_crypto => block_crypto.Lock({ })));
                 }

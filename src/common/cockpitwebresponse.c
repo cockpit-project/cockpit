@@ -1168,15 +1168,18 @@ cockpit_web_response_error (CockpitWebResponse *self,
       cockpit_web_response_headers (self, code, message, -1, "Content-Type", "text/html; charset=utf8", NULL);
     }
 
-  extern const char *cockpit_webresponse_fail_html_text;
-  g_autoptr(GBytes) input = g_bytes_new_static (cockpit_webresponse_fail_html_text, strlen (cockpit_webresponse_fail_html_text));
-  g_autolist(GBytes) output = cockpit_template_expand (input, "@@", "@@", substitute_message, (gpointer) message);
-
-  for (GList *l = output; l != NULL; l = g_list_next (l))
+  if (g_str_equal (self->method, "GET"))
     {
-      if (!cockpit_web_response_queue (self, l->data))
-        /* error: early exit */
-        return;
+      extern const char *cockpit_webresponse_fail_html_text;
+      g_autoptr(GBytes) input = g_bytes_new_static (cockpit_webresponse_fail_html_text, strlen (cockpit_webresponse_fail_html_text));
+      g_autolist(GBytes) output = cockpit_template_expand (input, "@@", "@@", substitute_message, (gpointer) message);
+
+      for (GList *l = output; l != NULL; l = g_list_next (l))
+        {
+          if (!cockpit_web_response_queue (self, l->data))
+            /* error: early exit */
+            return;
+        }
     }
 
   cockpit_web_response_complete (self);

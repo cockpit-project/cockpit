@@ -94,8 +94,8 @@ pkg/lib/), you can also build all pages:
 
     ./build.js -w
 
-Note that this enables eslint and stylelint by default -- if you want to
-disable them, run it with `-e`/`--no-eslint` and/or `-s`/`--no-stylelint`.
+Note that this enables eslint by default -- if you want to disable it, run it
+with `-e`/`--no-eslint`.
 
 Reload cockpit in your browser after page is built. Press `Ctrl`-`C` to
 stop watch mode once you are done with changing the code.
@@ -254,11 +254,14 @@ unused identifiers, and other JavaScript-related issues.
 Cockpit uses [Stylelint](https://stylelint.io/) to automatically check CSS code
 style in `.css` and `.scss` files.
 
-The linter is executed on every build.
+The linter is executed as part of `test/static-code`.
 
 For developer convenience, the Stylelint can be started explicitly by:
 
     npm run stylelint
+
+But note that this only covers files in `pkg/`. `test/static-code` covers
+*all* (S)CSS files tracked in git.
 
 Some rule violations can be automatically fixed by running:
 

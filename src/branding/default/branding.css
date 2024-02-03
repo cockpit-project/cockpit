@@ -11,15 +11,15 @@ body.login-pf {
 }
 
 #badge {
-    width: 73px;
-    height: 69px;
+    inline-size: 73px;
+    block-size: 69px;
     background-image: url("logo.png");
     background-repeat: no-repeat;
 }
 
 #brand {
-    min-width: 121px;
-    min-height: 18px;
+    min-inline-size: 121px;
+    min-block-size: 18px;
     background-image: url("brand-large.png");
     background-repeat: no-repeat;
 }
@@ -28,6 +28,6 @@ body.login-pf {
     font-weight: bold;
 }
 
-#index-brand:before {
+#index-brand::before {
     content: "Cockpit";
 }

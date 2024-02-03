@@ -1,7 +1,7 @@
 /* Red Hat Branding */
 
 :root {
-    --ct-color-host-accent: #cc0000 !important;
+    --ct-color-host-accent: #c00 !important;
 }
 
 body.login-pf {
@@ -11,8 +11,8 @@ body.login-pf {
 }
 
 #badge {
-    width: 225px;
-    height: 80px;
+    inline-size: 225px;
+    block-size: 80px;
     background-image: url("logo.png");
     background-size: contain;
     background-repeat: no-repeat;
@@ -23,7 +23,7 @@ body.login-pf {
     text-transform: uppercase;
 }
 
-#brand:before {
+#brand::before {
     content: "${NAME}";
 }
 
@@ -31,6 +31,6 @@ body.login-pf {
     font-weight: bold;
 }
 
-#index-brand:before {
+#index-brand::before {
     content: "${NAME}";
 }

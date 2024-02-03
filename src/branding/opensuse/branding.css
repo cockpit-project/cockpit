@@ -9,8 +9,8 @@ body.login-pf {
 }
 
 #badge {
-    width: 5em;
-    height: 5em;
+    inline-size: 5em;
+    block-size: 5em;
     background-image: url("square-hicolor.svg");
     background-size: contain;
     background-repeat: no-repeat;
@@ -21,10 +21,10 @@ body.login-pf {
     text-transform: uppercase;
 }
 
-#brand:before {
+#brand::before {
     content: "${NAME}";
 }
 
-#index-brand:before {
+#index-brand::before {
     content: "${NAME}";
 }

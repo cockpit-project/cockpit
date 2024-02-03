@@ -186,6 +186,7 @@ select.pf-v5-c-form-control {
 // Override default spacing from lg -> md
 .pf-v5-l-flex {
   gap: var(--pf-v5-l-flex--spacer-base);
+
   &:not([class*="pf-m-space-items-"]) {
     > * {
       --pf-v5-l-flex--spacer--column: 0;
@@ -226,7 +227,7 @@ select.pf-v5-c-form-control {
   &__input {
     margin-block: auto;
     align-self: unset;
-    -moz-transform: unset;
+    transform: unset;
   }
 
   // Slightly shift the radio and check widgets
@@ -234,9 +235,9 @@ select.pf-v5-c-form-control {
     // Shift up the checks/radios for (most) browsers
     transform: translateY(-1px);
     // Mozilla doesn't need the translation, so undo it
-    -moz-transform: none;
+    -moz-transform: none;  // stylelint-disable property-no-vendor-prefix
     // If the size is not specified, browsers may size it between 12px - 16px; so let's set it to the font size (which winds up 16px)
-    height: var(--pf-v5-global--FontSize--md);
+    block-size: var(--pf-v5-global--FontSize--md);
     // Use the height for width too
     aspect-ratio: 1;
   }

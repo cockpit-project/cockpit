@@ -450,100 +450,6 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
         b.assert_pixels(card, "raid5-card2")
 
-    def testRaidRepair(self):
-        b = self.browser
-
-        self.skip_if_no_layouts()
-
-        self.login_and_go("/storage")
-
-        disk1 = self.add_ram_disk()
-        disk2 = self.add_loopback_disk(name="loop10")
-        disk3 = self.add_loopback_disk(name="loop11")
-        disk4 = self.add_loopback_disk(name="loop12")
-
-        # Make a volume group with three physical volumes
-
-        with b.wait_timeout(60):
-            self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
-                                   expect=lambda: (self.dialog_is_present('disks', disk1) and
-                                                   self.dialog_is_present('disks', disk2) and
-                                                   self.dialog_is_present('disks', disk3) and
-                                                   self.dialog_check({"name": "vgroup0"})),
-                                   values={"disks": {disk1: True,
-                                                     disk2: True,
-                                                     disk3: True}})
-
-        self.addCleanupVG("vgroup0")
-
-        # Make a raid5 on the three PVs
-
-        self.click_card_row("Storage", name="vgroup0")
-        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
-        self.dialog(expect={"name": "lvol0"},
-                    values={"purpose": "block",
-                            "layout": "raid5"})
-        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
-        self.click_card_row("LVM2 logical volumes", 1)
-
-        b.wait_text(self.card_desc("LVM2 logical volume", "Layout"), "Distributed parity (RAID 5)")
-        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
-        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk2))
-        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk3))
-
-        # Kill one PV
-
-        self.force_remove_disk(disk1)
-
-        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"),
-                       "This logical volume has lost some of its physical volumes but has not lost any data yet.")
-        b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
-
-        b.click(self.card_parent_link())
-        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
-        b.wait_visible(self.card_desc_action("LVM2 volume group", "Name") + ":disabled")
-        b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
-
-        # Repair with fourth
-
-        self.click_card_row("LVM2 logical volumes", 1)
-        b.click(self.card_button("LVM2 logical volume", "Repair"))
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "There is not enough space available")
-        self.dialog_cancel()
-        self.dialog_wait_close()
-
-        b.click(self.card_parent_link())
-        b.click(self.card_button("LVM2 volume group", "Add physical volume"))
-        self.dialog_wait_open()
-        self.dialog_set_val('disks', {disk4: True})
-        self.dialog_apply()
-        self.dialog_wait_close()
-        b.wait_visible(self.card_row("LVM2 volume group", name=disk4))
-        self.click_card_row("LVM2 logical volumes", 1)
-
-        b.click(self.card_button("LVM2 logical volume", "Repair"))
-        self.dialog_wait_open()
-        self.dialog_apply()
-        self.dialog_wait_error("pvs", "An additional 46.1 MB must be selected")
-        self.dialog_set_val("pvs", {disk4: True})
-        self.dialog_apply()
-        self.dialog_wait_close()
-
-        b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"),
-                           "This logical volume has lost some")
-        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk4))
-
-        # Dismiss alert
-
-        b.click(self.card_parent_link())
-        b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0"))
-        b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
-
-        b.click(".pf-v5-c-alert button:contains(Dismiss)")
-        self.dialog({})
-        b.wait_not_present(".pf-v5-c-alert")
-
     def testBrokenLinear(self):
         b = self.browser
 
@@ -898,6 +804,122 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         self.click_card_row("Storage", name="lvol0")
         b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk))
+
+
+class TestStorageLvm2Destructive(storagelib.StorageCase):
+
+    def can_do_layouts(self):
+        return self.storaged_version >= [2, 10]
+
+    def skip_if_no_layouts(self):
+        if not self.can_do_layouts():
+            raise unittest.SkipTest("raid layouts not supported")
+
+    # This is only "destructive" because of
+    #
+    #     https://bugzilla.redhat.com/show_bug.cgi?id=2256432
+    #
+    # We can't revocer the machine after that bug has hit us.
+
+    def testRaidRepair(self):
+        b = self.browser
+        m = self.machine
+
+        self.skip_if_no_layouts()
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_ram_disk()
+        disk2 = self.add_loopback_disk(name="loop10")
+        disk3 = self.add_loopback_disk(name="loop11")
+        disk4 = self.add_loopback_disk(name="loop12")
+
+        # Make a volume group with three physical volumes
+
+        with b.wait_timeout(60):
+            self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create LVM2 volume group"),
+                                   expect=lambda: (self.dialog_is_present('disks', disk1) and
+                                                   self.dialog_is_present('disks', disk2) and
+                                                   self.dialog_is_present('disks', disk3) and
+                                                   self.dialog_check({"name": "vgroup0"})),
+                                   values={"disks": {disk1: True,
+                                                     disk2: True,
+                                                     disk3: True}})
+
+        self.addCleanupVG("vgroup0")
+
+        # Make a raid5 on the three PVs
+
+        self.click_card_row("Storage", name="vgroup0")
+        b.click(self.card_button("LVM2 logical volumes", "Create new logical volume"))
+        self.dialog(expect={"name": "lvol0"},
+                    values={"purpose": "block",
+                            "layout": "raid5"})
+        b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
+        self.click_card_row("LVM2 logical volumes", 1)
+
+        b.wait_text(self.card_desc("LVM2 logical volume", "Layout"), "Distributed parity (RAID 5)")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk2))
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk3))
+
+        # Kill one PV
+
+        self.force_remove_disk(disk1)
+
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"),
+                       "This logical volume has lost some of its physical volumes but has not lost any data yet.")
+        b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
+
+        b.click(self.card_parent_link())
+        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
+        b.wait_visible(self.card_desc_action("LVM2 volume group", "Name") + ":disabled")
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
+
+        # Repair with fourth
+
+        self.click_card_row("LVM2 logical volumes", 1)
+        b.click(self.card_button("LVM2 logical volume", "Repair"))
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "There is not enough space available")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.click(self.card_parent_link())
+        b.click(self.card_button("LVM2 volume group", "Add physical volume"))
+        self.dialog_wait_open()
+        self.dialog_set_val('disks', {disk4: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk4))
+        self.click_card_row("LVM2 logical volumes", 1)
+
+        b.click(self.card_button("LVM2 logical volume", "Repair"))
+        self.dialog_wait_open()
+        self.dialog_apply()
+        self.dialog_wait_error("pvs", "An additional 46.1 MB must be selected")
+        self.dialog_set_val("pvs", {disk4: True})
+        self.dialog_apply()
+        try:
+            self.dialog_wait_close()  # wait for repair to finish
+        except testlib.Error:
+            # Produce evidence of lvconvert hanging, so that our maughties can match on it
+            print(m.execute("for p in $(pgrep lvm); do cat /proc/$p/stack; done"))
+            raise
+
+        b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"),
+                           "This logical volume has lost some")
+        b.wait_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk4))
+
+        # Dismiss alert
+
+        b.click(self.card_parent_link())
+        b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0"))
+        b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
+
+        b.click(".pf-v5-c-alert button:contains(Dismiss)")
+        self.dialog({})
+        b.wait_not_present(".pf-v5-c-alert")
 
 
 if __name__ == '__main__':

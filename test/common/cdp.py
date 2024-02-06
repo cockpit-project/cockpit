@@ -94,7 +94,7 @@ class Chromium(Browser):
         exe = self.path(show_browser)
 
         return [exe, "--headless" if not show_browser else "",
-                "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
+                "--no-sandbox", "--disable-setuid-sandbox",
                 "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                 "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                 "--font-render-hinting=none",

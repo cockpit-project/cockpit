@@ -13,6 +13,8 @@
 /var/lib/cockpit(/.*)?      gen_context(system_u:object_r:cockpit_var_lib_t,s0)
 
 /var/run/cockpit(/.*)?   gen_context(system_u:object_r:cockpit_var_run_t,s0)
+/run/cockpit(/.*)?   gen_context(system_u:object_r:cockpit_var_run_t,s0)
 /var/run/cockpit-ws(/.*)?   gen_context(system_u:object_r:cockpit_var_run_t,s0)
+/run/cockpit-ws(/.*)?   gen_context(system_u:object_r:cockpit_var_run_t,s0)
 
 /etc/cockpit/ws-certs\.d(/.*)?   gen_context(system_u:object_r:cert_t,s0)

@@ -637,7 +637,9 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
     function sort(things, accessor, sorted) {
         if (sorted === false)
             return things;
-        return things.toSorted((a, b) => page_compare(accessor(a), accessor(b)));
+        // HACK: Use toSorted() once enough users upgrade to at least Firefox ESR 115
+        // See: https://github.com/cockpit-project/cockpit/issues/19848
+        return things.slice().sort((a, b) => page_compare(accessor(a), accessor(b)));
     }
 
     function make_page_rows(pages, level, last_has_border, key, sorted) {

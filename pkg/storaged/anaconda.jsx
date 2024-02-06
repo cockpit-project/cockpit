@@ -67,7 +67,7 @@ export function export_mount_point_mapping() {
     function block_info(block) {
         if (block.IdUsage == "filesystem") {
             return fstab_info(block.Configuration);
-        } else if (block.IdUsage == "swap") {
+        } else if (block.IdUsage == "other" && block.IdType == "swap") {
             return {
                 type: "swap",
             };

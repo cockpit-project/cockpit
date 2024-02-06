@@ -36,6 +36,11 @@ class TestStorageAnaconda(storagelib.StorageCase):
         mpm = json.loads(self.browser.call_js_func("window.localStorage.getItem", "cockpit_mount_points"))
         self.assertIn(expected, mpm.values())
 
+    def expectExportedDevice(self, device, value):
+        mpm = json.loads(self.browser.call_js_func("window.localStorage.getItem", "cockpit_mount_points"))
+        self.assertIn(device, mpm)
+        self.assertEqual(mpm[device], value)
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -444,6 +449,25 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_wait_val("type", "ext4")
         self.dialog_apply()
         self.dialog_wait_close()
+
+    def testSwap(self):
+        b = self.browser
+
+        disk = self.add_ram_disk()
+
+        anaconda_config = {
+            "mount_point_prefix": "/sysroot",
+            "available_devices": [disk],
+        }
+
+        self.login_and_go("/storage")
+        self.enterAnacondaMode(anaconda_config)
+
+        b.wait_text(self.card_row_col("Storage", 1, 3), "Unformatted data")
+        self.click_dropdown(self.card_row("Storage", 1), "Format")
+        self.dialog({"type": "swap"})
+
+        self.expectExportedDevice(disk, {"type": "swap"})
 
 
 if __name__ == '__main__':

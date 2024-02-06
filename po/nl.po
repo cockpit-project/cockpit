@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-30 02:47+0000\n"
+"POT-Creation-Date: 2024-02-05 02:47+0000\n"
 "PO-Revision-Date: 2023-11-13 13:37+0000\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
@@ -155,7 +155,7 @@ msgstr[1] "$0 treffers, inclusief de belangrijke"
 msgid "$0 is an existing file"
 msgstr "$0 is een bestaand bestand"
 
-#: pkg/storaged/block/format-dialog.jsx:263 pkg/storaged/block/resize.jsx:425
+#: pkg/storaged/block/format-dialog.jsx:264 pkg/storaged/block/resize.jsx:425
 #: pkg/storaged/block/resize.jsx:571 pkg/storaged/legacy-vdo/legacy-vdo.jsx:50
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:84 pkg/storaged/mdraid/mdraid.jsx:63
 #: pkg/storaged/mdraid/mdraid.jsx:116
@@ -310,7 +310,7 @@ msgstr "$0: crash op $1"
 msgid "$name (from $host)"
 msgstr "$name (van $host)"
 
-#: pkg/storaged/dialog.jsx:1209
+#: pkg/storaged/dialog.jsx:1218
 #, fuzzy
 #| msgid "Creating partition $target"
 msgid "(Not part of target)"
@@ -329,7 +329,7 @@ msgstr "Lokale aankoppelpunten"
 msgid "(not mounted)"
 msgstr "Niet aangekoppeld"
 
-#: pkg/storaged/block/format-dialog.jsx:241
+#: pkg/storaged/block/format-dialog.jsx:242
 msgid "(recommended)"
 msgstr "(aanbevolen)"
 
@@ -663,7 +663,7 @@ msgstr "Account niet beschikbaar of kan niet worden bewerkt."
 msgid "Accounts"
 msgstr "Accounts"
 
-#: pkg/storaged/dialog.jsx:1231
+#: pkg/storaged/dialog.jsx:1240
 msgid "Action"
 msgstr "Actie"
 
@@ -1132,7 +1132,7 @@ msgstr "Beoordeling"
 msgid "Asset tag"
 msgstr "Asset-tag"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:61
+#: pkg/storaged/filesystem/mounting-dialog.jsx:62
 msgid "At boot"
 msgstr "Bij opstarten"
 
@@ -1150,6 +1150,10 @@ msgstr "Minimaal één blokapparaat is noodzakelijk."
 #: pkg/storaged/lvm2/create-dialog.jsx:57 pkg/storaged/stratis/pool.jsx:215
 msgid "At least one disk is needed."
 msgstr "Minimaal een schijf is noodzakelijk."
+
+#: pkg/storaged/btrfs/subvolume.jsx:282
+msgid "At least one parent needs to be mounted writable"
+msgstr ""
 
 #: pkg/systemd/timer-dialog.jsx:262
 msgid "At minute"
@@ -1453,7 +1457,7 @@ msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 #: pkg/metrics/metrics.jsx:1481 pkg/apps/utils.jsx:69
 #: pkg/packagekit/updates.jsx:542 pkg/packagekit/updates.jsx:580
 #: pkg/packagekit/autoupdates.jsx:274 pkg/packagekit/kpatch.jsx:312
-#: pkg/systemd/timer-dialog.jsx:151 pkg/systemd/reporting.jsx:382
+#: pkg/systemd/timer-dialog.jsx:151 pkg/systemd/reporting.jsx:383
 #: pkg/systemd/overview-cards/configurationCard.jsx:284
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
 #: pkg/systemd/overview-cards/motdCard.jsx:65
@@ -1655,7 +1659,7 @@ msgstr "Controleren op pakketvernieuwingen..."
 msgid "Checking installed software"
 msgstr "Controleren op geïnstalleerde software"
 
-#: pkg/storaged/dialog.jsx:1258
+#: pkg/storaged/dialog.jsx:1267
 msgid "Checking related processes"
 msgstr "Controleren op gerelateerde processen"
 
@@ -1803,8 +1807,8 @@ msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr ""
 "Door komma's gescheiden poorten, bereiken en services worden geaccepteerd"
 
-#: pkg/systemd/timer-dialog.jsx:174 pkg/storaged/dialog.jsx:1317
-#: pkg/storaged/dialog.jsx:1337
+#: pkg/systemd/timer-dialog.jsx:174 pkg/storaged/dialog.jsx:1326
+#: pkg/storaged/dialog.jsx:1346
 msgid "Command"
 msgstr "Commando"
 
@@ -1870,7 +1874,7 @@ msgstr "kdump configureren"
 msgid "Configuring system settings"
 msgstr "Systeeminstellingen configureren"
 
-#: pkg/storaged/block/format-dialog.jsx:389 pkg/storaged/stratis/pool.jsx:384
+#: pkg/storaged/block/format-dialog.jsx:390 pkg/storaged/stratis/pool.jsx:384
 #: pkg/storaged/stratis/pool.jsx:413 pkg/storaged/stratis/create-dialog.jsx:84
 msgid "Confirm"
 msgstr "Bevestigen"
@@ -2022,7 +2026,7 @@ msgstr "Kon geen contact opnemen met $0"
 msgid "Crash dump location"
 msgstr "Crashdump locatie"
 
-#: pkg/systemd/reporting.jsx:428
+#: pkg/systemd/reporting.jsx:431
 msgid "Crash reporting"
 msgstr "Crashrapportage"
 
@@ -2030,8 +2034,8 @@ msgstr "Crashrapportage"
 msgid "Crash system"
 msgstr "Crash systeem"
 
-#: pkg/storaged/block/format-dialog.jsx:321
-#: pkg/storaged/block/format-dialog.jsx:331
+#: pkg/storaged/block/format-dialog.jsx:322
+#: pkg/storaged/block/format-dialog.jsx:332
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/lvm2/volume-group.jsx:120
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:58
@@ -2082,12 +2086,12 @@ msgstr "Account aanmaken met zwak wachtwoord"
 msgid "Create and change ownership of home directory"
 msgstr "Maak een thuismap aan en wijzig het eigendom"
 
-#: pkg/storaged/block/format-dialog.jsx:316
-#: pkg/storaged/btrfs/subvolume.jsx:126 pkg/storaged/stratis/pool.jsx:81
+#: pkg/storaged/block/format-dialog.jsx:317
+#: pkg/storaged/btrfs/subvolume.jsx:130 pkg/storaged/stratis/pool.jsx:81
 msgid "Create and mount"
 msgstr "Aanmaken en aankoppelen"
 
-#: pkg/storaged/block/format-dialog.jsx:325
+#: pkg/storaged/block/format-dialog.jsx:326
 #, fuzzy
 #| msgid "Create and mount"
 msgid "Create and start"
@@ -2131,9 +2135,9 @@ msgstr "Maak nieuw taakbestand aan met deze inhoud."
 msgid "Create new thinly provisioned logical volume"
 msgstr "Maak nieuwe logische volume aan"
 
-#: pkg/storaged/block/format-dialog.jsx:317
-#: pkg/storaged/block/format-dialog.jsx:326
-#: pkg/storaged/btrfs/subvolume.jsx:127 pkg/storaged/stratis/pool.jsx:82
+#: pkg/storaged/block/format-dialog.jsx:318
+#: pkg/storaged/block/format-dialog.jsx:327
+#: pkg/storaged/btrfs/subvolume.jsx:131 pkg/storaged/stratis/pool.jsx:82
 msgid "Create only"
 msgstr "Alleen aanmaken"
 
@@ -2168,7 +2172,7 @@ msgstr "Maak alleen een snapshot"
 msgid "Create storage device"
 msgstr "Maak opslagvolume aan"
 
-#: pkg/storaged/btrfs/subvolume.jsx:131 pkg/storaged/btrfs/subvolume.jsx:204
+#: pkg/storaged/btrfs/subvolume.jsx:135 pkg/storaged/btrfs/subvolume.jsx:275
 #, fuzzy
 #| msgid "Create volume"
 msgid "Create subvolume"
@@ -2266,7 +2270,7 @@ msgstr "Huidige opstartprocedure"
 msgid "Current top CPU usage"
 msgstr "Huidig top CPU-gebruik"
 
-#: pkg/storaged/dialog.jsx:1181
+#: pkg/storaged/dialog.jsx:1178
 msgid "Currently in use"
 msgstr "Momenteel in gebruik"
 
@@ -2286,7 +2290,7 @@ msgstr "aangepast"
 msgid "Custom cryptographic policy"
 msgstr "Aangepast cryptografisch beleid"
 
-#: pkg/storaged/nfs/nfs.jsx:173 pkg/storaged/filesystem/mounting-dialog.jsx:55
+#: pkg/storaged/nfs/nfs.jsx:173 pkg/storaged/filesystem/mounting-dialog.jsx:56
 msgid "Custom mount options"
 msgstr "Aangepaste aankoppelopties"
 
@@ -2481,6 +2485,7 @@ msgstr "Vertraging moet een getal zijn"
 #: pkg/systemd/service-details.jsx:719
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:122
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:152
+#: pkg/storaged/btrfs/subvolume.jsx:219 pkg/storaged/btrfs/subvolume.jsx:289
 #: pkg/storaged/mdraid/mdraid.jsx:126 pkg/storaged/mdraid/mdraid.jsx:236
 #: pkg/storaged/lvm2/block-logical-volume.jsx:79
 #: pkg/storaged/lvm2/block-logical-volume.jsx:222
@@ -2574,11 +2579,17 @@ msgstr "Verwijderen vernietigt alle data op een VDO-apparaat."
 msgid "Deleting erases all data on a volume group."
 msgstr "Verwijderen vernietigt alle data op een volumegroep."
 
+#: pkg/storaged/btrfs/subvolume.jsx:220
+#, fuzzy
+#| msgid "Deleting erases all data on a volume group."
+msgid "Deleting erases all data on this subvolume and all it's children."
+msgstr "Verwijderen vernietigt alle data op een volumegroep."
+
 #: pkg/systemd/service-details.jsx:616
 msgid "Deletion will remove the following files:"
 msgstr "Bij verwijderen worden de volgende bestanden verwijderd:"
 
-#: pkg/systemd/timer-dialog.jsx:166 pkg/storaged/dialog.jsx:1338
+#: pkg/systemd/timer-dialog.jsx:166 pkg/storaged/dialog.jsx:1347
 #: pkg/networkmanager/firewall.jsx:706 pkg/networkmanager/firewall.jsx:850
 msgid "Description"
 msgstr "Beschrijving"
@@ -2600,8 +2611,8 @@ msgstr "Details"
 msgid "Development"
 msgstr "Ontwikkeling"
 
-#: pkg/metrics/metrics.jsx:785 pkg/storaged/dialog.jsx:1136
-#: pkg/storaged/dialog.jsx:1229 pkg/storaged/mdraid/mdraid.jsx:305
+#: pkg/metrics/metrics.jsx:785 pkg/storaged/dialog.jsx:1133
+#: pkg/storaged/dialog.jsx:1238 pkg/storaged/mdraid/mdraid.jsx:305
 msgid "Device"
 msgstr "Apparaat"
 
@@ -2725,7 +2736,7 @@ msgstr "Schermtaal"
 msgid "Distributed parity (RAID 5)"
 msgstr "Gedistribueerde pariteit (RAID 5)"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:81
+#: pkg/storaged/filesystem/mounting-dialog.jsx:82
 msgid "Do not mount"
 msgstr "Koppel niet aan"
 
@@ -2978,12 +2989,12 @@ msgstr "Versleutelde logische volume van $0"
 msgid "Encrypted partition of $0"
 msgstr "Versleutelde partitie van $0"
 
-#: pkg/storaged/block/format-dialog.jsx:374
+#: pkg/storaged/block/format-dialog.jsx:375
 #: pkg/storaged/crypto/encryption.jsx:42
 msgid "Encryption"
 msgstr "Versleuteling"
 
-#: pkg/storaged/block/format-dialog.jsx:417
+#: pkg/storaged/block/format-dialog.jsx:418
 #: pkg/storaged/crypto/encryption.jsx:189
 msgid "Encryption options"
 msgstr "Versleutelingsopties"
@@ -3043,7 +3054,7 @@ msgstr "Errata"
 #: pkg/apps/utils.jsx:81 pkg/systemd/service-details.jsx:280
 #: pkg/systemd/services.jsx:224 pkg/storaged/multipath.jsx:60
 #: pkg/storaged/overview/overview.jsx:94 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:161 pkg/sosreport/sosreport.jsx:381
+#: pkg/storaged/storage-controls.jsx:160 pkg/sosreport/sosreport.jsx:381
 msgid "Error"
 msgstr "Fout"
 
@@ -3137,7 +3148,7 @@ msgstr "Exporteer naar netwerk"
 msgid "Extended information"
 msgstr "Uitgebreide informatie"
 
-#: pkg/storaged/block/format-dialog.jsx:212
+#: pkg/storaged/block/format-dialog.jsx:213
 #: pkg/storaged/partitions/partition-table.jsx:58
 msgid "Extended partition"
 msgstr "Uitgebreide partitie"
@@ -3336,8 +3347,8 @@ msgstr "Forceer verwijderen"
 msgid "Force password change"
 msgstr "Forceer wachtwoordverandering"
 
-#: pkg/storaged/swap/swap.jsx:100 pkg/storaged/block/format-dialog.jsx:321
-#: pkg/storaged/block/format-dialog.jsx:331
+#: pkg/storaged/swap/swap.jsx:100 pkg/storaged/block/format-dialog.jsx:322
+#: pkg/storaged/block/format-dialog.jsx:332
 #: pkg/storaged/block/unformatted-data.jsx:36
 #: pkg/storaged/block/unrecognized-data.jsx:41
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:38
@@ -3352,22 +3363,22 @@ msgstr "Formatteren"
 msgid "Format $0"
 msgstr "$0 formatteren"
 
-#: pkg/storaged/block/format-dialog.jsx:316
+#: pkg/storaged/block/format-dialog.jsx:317
 msgid "Format and mount"
 msgstr "Formatteren en aankoppelen"
 
-#: pkg/storaged/block/format-dialog.jsx:325
+#: pkg/storaged/block/format-dialog.jsx:326
 #, fuzzy
 #| msgid "Format and mount"
 msgid "Format and start"
 msgstr "Formatteren en aankoppelen"
 
-#: pkg/storaged/block/format-dialog.jsx:317
-#: pkg/storaged/block/format-dialog.jsx:326
+#: pkg/storaged/block/format-dialog.jsx:318
+#: pkg/storaged/block/format-dialog.jsx:327
 msgid "Format only"
 msgstr "Alleen formatteren"
 
-#: pkg/storaged/block/format-dialog.jsx:444
+#: pkg/storaged/block/format-dialog.jsx:445
 msgid "Formatting erases all data on a storage device."
 msgstr "Formatteren verwijdert alle data op een opslagapparaat."
 
@@ -3566,7 +3577,7 @@ msgstr "Uren"
 msgid "How to check"
 msgstr "Hoe te controleren"
 
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:233
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:318
 #: pkg/storaged/pages.jsx:703 pkg/networkmanager/firewall.jsx:700
 #: pkg/users/accounts-list.js:239 pkg/users/accounts-list.js:390
 #: pkg/users/group-create-dialog.js:47
@@ -4337,7 +4348,7 @@ msgstr "Geen opslag"
 msgid "Local, $0"
 msgstr "lokaal in $0"
 
-#: pkg/storaged/dialog.jsx:1137 pkg/storaged/dialog.jsx:1230
+#: pkg/storaged/dialog.jsx:1134 pkg/storaged/dialog.jsx:1239
 #: pkg/storaged/pages.jsx:705 pkg/kdump/kdump-view.jsx:243
 msgid "Location"
 msgstr "Locatie"
@@ -4772,18 +4783,18 @@ msgstr "Maandelijks"
 msgid "More info..."
 msgstr "Meer info..."
 
-#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:188
+#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:259
 #: pkg/storaged/stratis/filesystem.jsx:175
 #: pkg/storaged/filesystem/filesystem.jsx:101
-#: pkg/storaged/filesystem/mounting-dialog.jsx:276
+#: pkg/storaged/filesystem/mounting-dialog.jsx:277
 msgid "Mount"
 msgstr "Aankoppelen"
 
-#: pkg/storaged/btrfs/subvolume.jsx:137
+#: pkg/storaged/btrfs/subvolume.jsx:141
 msgid "Mount Point"
 msgstr "Aankoppelpunt"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:77
+#: pkg/storaged/filesystem/mounting-dialog.jsx:78
 msgid "Mount after network becomes available, ignore failure"
 msgstr "Aankoppelen nadat het netwerk beschikbaar is, negeer de fout"
 
@@ -4800,15 +4811,15 @@ msgstr "Koppel aan tijdens het opstarten"
 msgid "Mount automatically on $0 on boot"
 msgstr "Koppel automatisch aan op $0 tijdens het opstarten"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:69
+#: pkg/storaged/filesystem/mounting-dialog.jsx:70
 msgid "Mount before services start"
 msgstr "Aankoppelen voordat de services starten"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:272
+#: pkg/storaged/filesystem/mounting-dialog.jsx:273
 msgid "Mount configuration"
 msgstr "Aankoppelconfiguratie"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:270
+#: pkg/storaged/filesystem/mounting-dialog.jsx:271
 msgid "Mount filesystem"
 msgstr "Bestandssysteem aankoppelen"
 
@@ -4820,16 +4831,16 @@ msgstr "Koppel nu aan"
 msgid "Mount on $0 now"
 msgstr "Koppel nu aan op $0"
 
-#: pkg/storaged/nfs/nfs.jsx:168 pkg/storaged/filesystem/mounting-dialog.jsx:46
+#: pkg/storaged/nfs/nfs.jsx:168 pkg/storaged/filesystem/mounting-dialog.jsx:47
 msgid "Mount options"
 msgstr "Aankoppelopties"
 
-#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/block/format-dialog.jsx:344
-#: pkg/storaged/btrfs/subvolume.jsx:234 pkg/storaged/stratis/pool.jsx:104
+#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/block/format-dialog.jsx:345
+#: pkg/storaged/btrfs/subvolume.jsx:319 pkg/storaged/stratis/pool.jsx:104
 #: pkg/storaged/stratis/filesystem.jsx:91
 #: pkg/storaged/stratis/filesystem.jsx:224
 #: pkg/storaged/filesystem/filesystem.jsx:145
-#: pkg/storaged/filesystem/mounting-dialog.jsx:245
+#: pkg/storaged/filesystem/mounting-dialog.jsx:246
 msgid "Mount point"
 msgstr "Aankoppelpunt"
 
@@ -4849,11 +4860,11 @@ msgstr "Aankoppelpunt wordt al gebruikt voor $0"
 msgid "Mount point must start with \"/\"."
 msgstr "Aankoppelpunt moet beginnen met \"/\"."
 
-#: pkg/storaged/nfs/nfs.jsx:172 pkg/storaged/filesystem/mounting-dialog.jsx:54
+#: pkg/storaged/nfs/nfs.jsx:172 pkg/storaged/filesystem/mounting-dialog.jsx:55
 msgid "Mount read only"
 msgstr "Koppel alleen-lezen aan"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:73
+#: pkg/storaged/filesystem/mounting-dialog.jsx:74
 msgid "Mount without waiting, ignore failure"
 msgstr "Aankoppelen zonder te wachten, negeer mislukken"
 
@@ -4905,9 +4916,9 @@ msgid "NTP server"
 msgstr "NTP-server"
 
 #: pkg/packagekit/updates.jsx:448 pkg/systemd/timer-dialog.jsx:157
-#: pkg/systemd/hwinfo.jsx:86 pkg/storaged/block/format-dialog.jsx:339
-#: pkg/storaged/btrfs/volume.jsx:99 pkg/storaged/btrfs/subvolume.jsx:133
-#: pkg/storaged/btrfs/subvolume.jsx:232 pkg/storaged/mdraid/mdraid.jsx:298
+#: pkg/systemd/hwinfo.jsx:86 pkg/storaged/block/format-dialog.jsx:340
+#: pkg/storaged/btrfs/volume.jsx:99 pkg/storaged/btrfs/subvolume.jsx:137
+#: pkg/storaged/btrfs/subvolume.jsx:317 pkg/storaged/mdraid/mdraid.jsx:298
 #: pkg/storaged/mdraid/create-dialog.jsx:47
 #: pkg/storaged/lvm2/block-logical-volume.jsx:49
 #: pkg/storaged/lvm2/block-logical-volume.jsx:238
@@ -5082,7 +5093,7 @@ msgstr "Nieuw wachtwoord is niet geaccepteerd"
 msgid "Next"
 msgstr "Volgende"
 
-#: pkg/systemd/reporting.jsx:289 pkg/networkmanager/network-interface.jsx:241
+#: pkg/systemd/reporting.jsx:290 pkg/networkmanager/network-interface.jsx:241
 msgid "No"
 msgstr "Nee"
 
@@ -5164,7 +5175,7 @@ msgstr "Geen logs gevonden"
 msgid "No drives found"
 msgstr "Geen resultaten gevonden"
 
-#: pkg/storaged/block/format-dialog.jsx:246
+#: pkg/storaged/block/format-dialog.jsx:247
 msgid "No encryption"
 msgstr "Geen versleuteling"
 
@@ -5172,7 +5183,7 @@ msgstr "Geen versleuteling"
 msgid "No events"
 msgstr "Geen evenementen"
 
-#: pkg/storaged/block/format-dialog.jsx:210
+#: pkg/storaged/block/format-dialog.jsx:211
 msgid "No filesystem"
 msgstr "Geen bestandssysteem"
 
@@ -5532,12 +5543,12 @@ msgstr "Uit"
 msgid "Overview"
 msgstr "Overzicht"
 
-#: pkg/storaged/block/format-dialog.jsx:368
+#: pkg/storaged/block/format-dialog.jsx:369
 #: pkg/storaged/partitions/format-disk-dialog.jsx:61
 msgid "Overwrite"
 msgstr "Overschrijven"
 
-#: pkg/storaged/block/format-dialog.jsx:371
+#: pkg/storaged/block/format-dialog.jsx:372
 #: pkg/storaged/partitions/format-disk-dialog.jsx:64
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "Bestaande data overschrijven met nullen (langzamer)"
@@ -5546,7 +5557,7 @@ msgstr "Bestaande data overschrijven met nullen (langzamer)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/storaged/dialog.jsx:1316
+#: pkg/storaged/dialog.jsx:1325
 msgid "PID"
 msgstr "PID"
 
@@ -5619,15 +5630,15 @@ msgstr "Partities"
 msgid "Passive"
 msgstr "Passief"
 
-#: pkg/storaged/block/format-dialog.jsx:380
-#: pkg/storaged/block/format-dialog.jsx:408
+#: pkg/storaged/block/format-dialog.jsx:381
+#: pkg/storaged/block/format-dialog.jsx:409
 #: pkg/storaged/crypto/keyslots.jsx:428 pkg/storaged/crypto/keyslots.jsx:748
 #: pkg/storaged/crypto/actions.jsx:42 pkg/storaged/stratis/pool.jsx:205
 #: pkg/storaged/stratis/pool.jsx:382 pkg/storaged/stratis/pool.jsx:530
 #: pkg/storaged/stratis/create-dialog.jsx:75
 #: pkg/storaged/stratis/stopped-pool.jsx:58
 #: pkg/storaged/stratis/stopped-pool.jsx:129
-#: pkg/storaged/filesystem/mounting-dialog.jsx:261
+#: pkg/storaged/filesystem/mounting-dialog.jsx:262
 msgid "Passphrase"
 msgstr "Wachtzin"
 
@@ -5635,14 +5646,14 @@ msgstr "Wachtzin"
 msgid "Passphrase can not be empty"
 msgstr "Wachtzin mag niet leeg zijn"
 
-#: pkg/storaged/block/format-dialog.jsx:384
-#: pkg/storaged/block/format-dialog.jsx:412
+#: pkg/storaged/block/format-dialog.jsx:385
+#: pkg/storaged/block/format-dialog.jsx:413
 #: pkg/storaged/crypto/keyslots.jsx:143 pkg/storaged/crypto/keyslots.jsx:436
 #: pkg/storaged/crypto/keyslots.jsx:481 pkg/storaged/crypto/keyslots.jsx:485
 #: pkg/storaged/stratis/pool.jsx:208 pkg/storaged/stratis/pool.jsx:383
 #: pkg/storaged/stratis/pool.jsx:409 pkg/storaged/stratis/pool.jsx:412
 #: pkg/storaged/stratis/pool.jsx:467 pkg/storaged/stratis/create-dialog.jsx:79
-#: pkg/storaged/filesystem/mounting-dialog.jsx:264
+#: pkg/storaged/filesystem/mounting-dialog.jsx:265
 msgid "Passphrase cannot be empty"
 msgstr "Wachtzin mag niet leeg zijn"
 
@@ -5654,7 +5665,7 @@ msgstr "Wachtzin van een ander sleutelslot"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Verwijdering van wachtzin kan voorkomen dat $0 wordt ontgrendeld."
 
-#: pkg/storaged/block/format-dialog.jsx:393
+#: pkg/storaged/block/format-dialog.jsx:394
 #: pkg/storaged/crypto/keyslots.jsx:445 pkg/storaged/crypto/keyslots.jsx:490
 #: pkg/storaged/stratis/pool.jsx:385 pkg/storaged/stratis/pool.jsx:414
 #: pkg/storaged/stratis/create-dialog.jsx:88
@@ -5817,6 +5828,12 @@ msgstr "$0 permanent verwijderen?"
 #, fuzzy
 #| msgid "Permanently delete $0?"
 msgid "Permanently delete logical volume $0/$1?"
+msgstr "$0 permanent verwijderen?"
+
+#: pkg/storaged/btrfs/subvolume.jsx:216
+#, fuzzy
+#| msgid "Permanently delete $0?"
+msgid "Permanently delete subvolume $0?"
 msgstr "$0 permanent verwijderen?"
 
 #: pkg/static/login.js:933
@@ -5999,7 +6016,7 @@ msgstr "Probleemdetails"
 msgid "Problem info"
 msgstr "Probleem info"
 
-#: pkg/storaged/dialog.jsx:1170
+#: pkg/storaged/dialog.jsx:1167
 msgid "Processes using the location"
 msgstr "Processen die de locatie gebruiken"
 
@@ -6272,15 +6289,15 @@ msgstr "initrd opnieuw genereren"
 msgid "Register…"
 msgstr "Registreren…"
 
-#: pkg/storaged/dialog.jsx:1246
+#: pkg/storaged/dialog.jsx:1255
 msgid "Related processes and services will be forcefully stopped."
 msgstr "Gerelateerde processen en services worden met kracht gestopt."
 
-#: pkg/storaged/dialog.jsx:1248
+#: pkg/storaged/dialog.jsx:1257
 msgid "Related processes will be forcefully stopped."
 msgstr "Gerelateerde processen worden met kracht gestopt."
 
-#: pkg/storaged/dialog.jsx:1250
+#: pkg/storaged/dialog.jsx:1259
 msgid "Related services will be forcefully stopped."
 msgstr "Gerelateerde services worden met kracht gestopt."
 
@@ -6522,7 +6539,7 @@ msgstr "Herhaal wachtzin"
 msgid "Repeat weekly"
 msgstr "Wekelijks herhalen"
 
-#: pkg/systemd/reporting.jsx:391 pkg/sosreport/sosreport.jsx:501
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:501
 msgid "Report"
 msgstr "Rapport"
 
@@ -6530,19 +6547,19 @@ msgstr "Rapport"
 msgid "Report label"
 msgstr "Rapporteer label"
 
-#: pkg/systemd/reporting.jsx:141
+#: pkg/systemd/reporting.jsx:142
 msgid "Report to ABRT Analytics"
 msgstr "Rapporteer aan ABRT Analytics"
 
-#: pkg/systemd/reporting.jsx:372
+#: pkg/systemd/reporting.jsx:373
 msgid "Reported; no links available"
 msgstr "Gerapporteerd; geen links beschikbaar"
 
-#: pkg/systemd/reporting.jsx:323
+#: pkg/systemd/reporting.jsx:324
 msgid "Reporting failed"
 msgstr "Rapportage mislukte"
 
-#: pkg/systemd/reporting.jsx:224
+#: pkg/systemd/reporting.jsx:225
 msgid "Reporting was canceled"
 msgstr "Rapportage is geannuleerd"
 
@@ -6550,7 +6567,7 @@ msgstr "Rapportage is geannuleerd"
 msgid "Reports"
 msgstr "Rapporten"
 
-#: pkg/systemd/reporting.jsx:370
+#: pkg/systemd/reporting.jsx:371
 msgid "Reports:"
 msgstr "Rapporten:"
 
@@ -6662,11 +6679,11 @@ msgstr ""
 msgid "Resume"
 msgstr "Samenvatten"
 
-#: pkg/storaged/block/format-dialog.jsx:254
+#: pkg/storaged/block/format-dialog.jsx:255
 msgid "Reuse existing encryption"
 msgstr "Bestaande versleuteling hergebruiken"
 
-#: pkg/storaged/block/format-dialog.jsx:251
+#: pkg/storaged/block/format-dialog.jsx:252
 msgid "Reuse existing encryption ($0)"
 msgstr "Hergebruiken van bestaande versleuteling ($0)"
 
@@ -6719,7 +6736,7 @@ msgstr "Uitvoerder"
 msgid "Running"
 msgstr "Uitvoeren"
 
-#: pkg/storaged/dialog.jsx:1319 pkg/storaged/dialog.jsx:1339
+#: pkg/storaged/dialog.jsx:1328 pkg/storaged/dialog.jsx:1348
 msgid "Runtime"
 msgstr "Runtime"
 
@@ -6819,7 +6836,7 @@ msgstr "zaterdagen"
 #: pkg/storaged/partitions/partition.jsx:189 pkg/storaged/stratis/pool.jsx:388
 #: pkg/storaged/stratis/pool.jsx:417 pkg/storaged/stratis/pool.jsx:472
 #: pkg/storaged/filesystem/filesystem.jsx:124
-#: pkg/storaged/filesystem/mounting-dialog.jsx:278
+#: pkg/storaged/filesystem/mounting-dialog.jsx:279
 #: pkg/networkmanager/dialogs-common.jsx:160
 msgid "Save"
 msgstr "Opslaan"
@@ -6930,7 +6947,7 @@ msgstr ""
 "Selecteer de fysieke volumes die moeten worden gebruikt om het logische "
 "volume te repareren. Er zijn minimaal $0 nodig."
 
-#: pkg/systemd/reporting.jsx:264
+#: pkg/systemd/reporting.jsx:265
 msgid "Send"
 msgstr "Zenden"
 
@@ -6976,7 +6993,7 @@ msgstr "Server software"
 #: pkg/metrics/metrics.jsx:812 pkg/metrics/metrics.jsx:813
 #: pkg/metrics/metrics.jsx:868 pkg/metrics/metrics.jsx:906
 #: pkg/metrics/metrics.jsx:966 pkg/metrics/metrics.jsx:972
-#: pkg/storaged/dialog.jsx:1336 pkg/networkmanager/firewall.jsx:211
+#: pkg/storaged/dialog.jsx:1345 pkg/networkmanager/firewall.jsx:211
 msgid "Service"
 msgstr "Service"
 
@@ -6994,7 +7011,7 @@ msgstr "Servicelogboeken"
 msgid "Services"
 msgstr "Services"
 
-#: pkg/storaged/dialog.jsx:1156
+#: pkg/storaged/dialog.jsx:1153
 msgid "Services using the location"
 msgstr "Services die gebruik maken van de locatie"
 
@@ -7158,7 +7175,7 @@ msgid "Single rank"
 msgstr "Enkele rang"
 
 #: pkg/systemd/hwinfo.jsx:291 pkg/storaged/nfs/nfs.jsx:330
-#: pkg/storaged/block/format-dialog.jsx:360 pkg/storaged/block/resize.jsx:448
+#: pkg/storaged/block/format-dialog.jsx:361 pkg/storaged/block/resize.jsx:448
 #: pkg/storaged/block/resize.jsx:581
 #: pkg/storaged/lvm2/block-logical-volume.jsx:291
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
@@ -7424,7 +7441,7 @@ msgstr "Opslag kan op dit systeem niet beheerd worden."
 msgid "Storage logs"
 msgstr "Opslaglogboeken"
 
-#: pkg/storaged/block/format-dialog.jsx:405
+#: pkg/storaged/block/format-dialog.jsx:406
 msgid "Store passphrase"
 msgstr "Sla wachtzin op"
 
@@ -7511,13 +7528,13 @@ msgstr "Sub-notebook"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "Abonneren op systemd-signalen is mislukt: $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:198
+#: pkg/storaged/btrfs/subvolume.jsx:269
 #, fuzzy
 #| msgid "Volume failed to be created"
 msgid "Subvolume needs to be mounted"
 msgstr "Volume kan niet aangemaakt worden"
 
-#: pkg/storaged/btrfs/subvolume.jsx:200
+#: pkg/storaged/btrfs/subvolume.jsx:271
 msgid "Subvolume needs to be mounted writable"
 msgstr ""
 
@@ -7798,7 +7815,7 @@ msgid ""
 msgstr ""
 "De momenteel ingelogde gebruiker mag geen informatie over sleutels zien."
 
-#: pkg/storaged/block/format-dialog.jsx:415
+#: pkg/storaged/block/format-dialog.jsx:416
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
@@ -7926,15 +7943,15 @@ msgstr "De sleutel die je hebt opgegeven, is niet geldig."
 msgid "The last key slot can not be removed"
 msgstr "De laatste sleutelslot kan niet verwijderd worden"
 
-#: pkg/storaged/dialog.jsx:1354
+#: pkg/storaged/dialog.jsx:1363
 msgid "The listed processes and services will be forcefully stopped."
 msgstr "De vermelde processen en services worden met kracht gestopt."
 
-#: pkg/storaged/dialog.jsx:1356
+#: pkg/storaged/dialog.jsx:1365
 msgid "The listed processes will be forcefully stopped."
 msgstr "De vermelde processen worden met kracht gestopt."
 
-#: pkg/storaged/dialog.jsx:1358
+#: pkg/storaged/dialog.jsx:1367
 msgid "The listed services will be forcefully stopped."
 msgstr "De vermelde services worden met kracht gestopt."
 
@@ -7946,11 +7963,11 @@ msgstr "De ingelogde gebruiker mag geen systeemwijzigingen bekijken"
 msgid "The machine is rebooting"
 msgstr "De machine wordt opnieuw opgestart"
 
-#: pkg/storaged/dialog.jsx:1312
+#: pkg/storaged/dialog.jsx:1321
 msgid "The mount point $0 is in use by these processes:"
 msgstr "Het aankoppelpunt $0 is in gebruik bij deze processen:"
 
-#: pkg/storaged/dialog.jsx:1332
+#: pkg/storaged/dialog.jsx:1341
 msgid "The mount point $0 is in use by these services:"
 msgstr "Het aankoppelpunt $0 is in gebruik bij deze services:"
 
@@ -8101,7 +8118,7 @@ msgstr ""
 msgid "These additional steps are necessary:"
 msgstr "Deze extra stappen zijn nodig:"
 
-#: pkg/storaged/dialog.jsx:1226
+#: pkg/storaged/dialog.jsx:1235
 msgid "These changes will be made:"
 msgstr "Deze veranderingen zullen worden gemaakt:"
 
@@ -8137,8 +8154,8 @@ msgstr ""
 msgid "This VDO device does not use all of its backing device."
 msgstr "Dit VDO-apparaat gebruikt niet al zijn achtergrondapparatuur."
 
-#: pkg/storaged/block/format-dialog.jsx:292
-#: pkg/storaged/filesystem/mounting-dialog.jsx:94
+#: pkg/storaged/block/format-dialog.jsx:293
+#: pkg/storaged/filesystem/mounting-dialog.jsx:95
 #, fuzzy
 #| msgid "This device cannot be managed here."
 msgid "This device can not be used for the installation target."
@@ -8148,7 +8165,7 @@ msgstr "Dit apparaat kan hier niet beheerd worden."
 msgid "This device cannot be managed here."
 msgstr "Dit apparaat kan hier niet beheerd worden."
 
-#: pkg/storaged/dialog.jsx:1133
+#: pkg/storaged/dialog.jsx:1130
 msgid "This device is currently in use."
 msgstr "Dit apparaat is momenteel in gebruik."
 
@@ -8541,7 +8558,7 @@ msgid "Turn on administrative access"
 msgstr "Schakel beheerderstoegang in"
 
 #: pkg/packagekit/autoupdates.jsx:279 pkg/systemd/hwinfo.jsx:81
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/block/format-dialog.jsx:355
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/block/format-dialog.jsx:356
 #: pkg/storaged/block/unrecognized-data.jsx:52
 #: pkg/storaged/partitions/partition.jsx:175
 #: pkg/storaged/partitions/partition.jsx:221 pkg/storaged/pages.jsx:704
@@ -8761,14 +8778,14 @@ msgstr "Schijf ontgrendelen"
 msgid "Unmanaged interfaces"
 msgstr "Onbeheerde interfaces"
 
-#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:183
+#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:254
 #: pkg/storaged/stratis/filesystem.jsx:174
 #: pkg/storaged/filesystem/filesystem.jsx:100
-#: pkg/storaged/filesystem/mounting-dialog.jsx:277
+#: pkg/storaged/filesystem/mounting-dialog.jsx:278
 msgid "Unmount"
 msgstr "Afkoppelen"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:271
+#: pkg/storaged/filesystem/mounting-dialog.jsx:272
 msgid "Unmount filesystem $0"
 msgstr "Bestandssysteem $0 afkoppelen"
 
@@ -8881,11 +8898,11 @@ msgstr "Uptime"
 msgid "Usage"
 msgstr "Gebruik"
 
-#: pkg/storaged/storage-controls.jsx:207
+#: pkg/storaged/storage-controls.jsx:206
 msgid "Usage of $0"
 msgstr "Gebruik van $0"
 
-#: pkg/storaged/dialog.jsx:624 pkg/storaged/dialog.jsx:1138
+#: pkg/storaged/dialog.jsx:624 pkg/storaged/dialog.jsx:1135
 #: pkg/networkmanager/dialogs-common.jsx:103
 msgid "Use"
 msgstr "Gebruik"
@@ -8926,7 +8943,7 @@ msgstr ""
 "Handig voor aankoppelingen die optioneel zijn of interactie nodig hebben "
 "(zoals wachtwoordzinnen)"
 
-#: pkg/systemd/services.jsx:917 pkg/storaged/dialog.jsx:1318
+#: pkg/systemd/services.jsx:917 pkg/storaged/dialog.jsx:1327
 msgid "User"
 msgstr "Gebruiker"
 
@@ -9079,7 +9096,7 @@ msgstr "Bekijk doorvoer per schijf"
 msgid "View project website"
 msgstr "Bekijk projectwebsite"
 
-#: pkg/systemd/reporting.jsx:360
+#: pkg/systemd/reporting.jsx:361
 msgid "View report"
 msgstr "Bekijk rapport"
 
@@ -9120,7 +9137,7 @@ msgstr "Aan het wachten"
 msgid "Waiting for details..."
 msgstr "Wachten op details..."
 
-#: pkg/systemd/reporting.jsx:239
+#: pkg/systemd/reporting.jsx:240
 msgid "Waiting for input…"
 msgstr "Wachten op input…"
 
@@ -9136,7 +9153,7 @@ msgstr ""
 msgid "Waiting for other software management operations to finish"
 msgstr "Wachten tot andere softwarebeheerhandelingen voltooid zijn"
 
-#: pkg/systemd/reporting.jsx:330
+#: pkg/systemd/reporting.jsx:120 pkg/systemd/reporting.jsx:331
 msgid "Waiting to start…"
 msgstr "Wachten om te beginnen…"
 
@@ -9271,7 +9288,7 @@ msgstr "XOR"
 msgid "Yearly"
 msgstr "Jaarlijks"
 
-#: pkg/systemd/reporting.jsx:280 pkg/networkmanager/network-interface.jsx:241
+#: pkg/systemd/reporting.jsx:281 pkg/networkmanager/network-interface.jsx:241
 msgid "Yes"
 msgstr "Ja"
 
@@ -9451,7 +9468,7 @@ msgstr "Andere apparaten"
 msgid "btrfs devices"
 msgstr "Andere apparaten"
 
-#: pkg/storaged/btrfs/subvolume.jsx:210
+#: pkg/storaged/btrfs/subvolume.jsx:295
 #, fuzzy
 #| msgid "Storage volume"
 msgid "btrfs subvolume"
@@ -9540,8 +9557,9 @@ msgstr "Deactiveren"
 msgid "debug"
 msgstr "debug"
 
-#: pkg/storaged/block/format-dialog.jsx:259
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80 pkg/storaged/mdraid/mdraid.jsx:112
+#: pkg/storaged/block/format-dialog.jsx:260
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80
+#: pkg/storaged/btrfs/subvolume.jsx:205 pkg/storaged/mdraid/mdraid.jsx:112
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
 #: pkg/storaged/lvm2/volume-group.jsx:81 pkg/storaged/lvm2/volume-group.jsx:331
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
@@ -9680,7 +9698,7 @@ msgstr "voor huidige en toekomstige kernels"
 msgid "for current kernel only"
 msgstr "alleen voor huidige kernel"
 
-#: pkg/storaged/block/format-dialog.jsx:259 pkg/storaged/manifest.json:0
+#: pkg/storaged/block/format-dialog.jsx:260 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "formatteren"
 
@@ -10009,17 +10027,17 @@ msgstr "alleen-lezen"
 msgid "recommended"
 msgstr "aanbevolen"
 
-#: pkg/storaged/utils.js:942
+#: pkg/storaged/utils.js:945
 msgid "remove from LVM2"
 msgstr "verwijderen uit LVM2"
 
-#: pkg/storaged/utils.js:931
+#: pkg/storaged/utils.js:934
 #, fuzzy
 #| msgid "remove from RAID"
 msgid "remove from MDRAID"
 msgstr "verwijderen uit RAID"
 
-#: pkg/storaged/utils.js:901
+#: pkg/storaged/utils.js:904
 #, fuzzy
 #| msgid "remove from LVM2"
 msgid "remove from btrfs volume"
@@ -10111,7 +10129,7 @@ msgstr "ssh-sleutel is geen pad"
 msgid "ssh server is empty"
 msgstr "ssh-server is leeg"
 
-#: pkg/storaged/utils.js:920 pkg/storaged/legacy-vdo/legacy-vdo.jsx:46
+#: pkg/storaged/utils.js:923 pkg/storaged/legacy-vdo/legacy-vdo.jsx:46
 #: pkg/storaged/mdraid/mdraid.jsx:59
 msgid "stop"
 msgstr "stop"
@@ -10188,7 +10206,7 @@ msgid "unmask"
 msgstr "ontmaskeren"
 
 #: pkg/storaged/utils.js:873 pkg/storaged/utils.js:886
-#: pkg/storaged/manifest.json:0
+#: pkg/storaged/btrfs/subvolume.jsx:205 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "afkoppelen"
 

@@ -1,71 +1,71 @@
-@import url("gtk-doc.css");
+@import "gtk-doc.css";
 
 /* keep this in sync with node_modules/@redhat/redhat-font/webfonts/red-hat-font.css */
 @font-face {
-  font-family: "RedHatText";
+  font-family: RedHatText;
   src: url("./RedHatText-Regular.woff2") format("woff2");
   /* Modern Browsers */
   font-style: normal;
   font-weight: 400;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizelegibility;
 }
 
 @font-face {
-  font-family: "RedHatText";
+  font-family: RedHatText;
   src: url("./RedHatText-Medium.woff2") format("woff2");
   /* Modern Browsers */
   font-style: normal;
   font-weight: 700;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizelegibility;
 }
 
-H1.guides {
+h1.guides {
 	background-color: #238b49;
 	color: white;
 	font-family: Georgia, "Times New Roman", Times, serif;
 	font-size: 30pt;
-	padding: 5px 0px 5px 20px;
+	padding-block: 5px;
+	padding-inline: 20px 0;
 }
 
-H2.guides {
-    margin-left: 20px;
+h2.guides {
+    margin-inline-start: 20px;
 }
 
-DIV.guides {
-	margin-left: 20px;
-	margin-right: 20px;
-	font-family: 'RedHatText', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+div.guides {
+	margin-inline: 20px;
+	font-family: RedHatText, Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
 	font-size: 11pt;
 }
 
-DIV.guides > p {
-    margin-left: 20px;
+div.guides > p {
+    margin-inline-start: 20px;
 }
 
-DIV.guides > A {
-	margin-left: 40px;
-	margin-right: 20px;
+div.guides > a {
+	margin-inline: 40px 20px;
 	font-size: 12px;
 	line-height: 200%;
         display: block;
 }
 
-TABLE.navigation {
+table.navigation {
 	background-color: #238b49 !important;
 	border-width: 0 !important;
 	color: white;
 	font-family: Georgia, "Times New Roman", Times, serif;
 }
 
-TABLE.navigation TH {
+table.navigation th {
 	font-size: 30pt !important;
 	font-weight: normal;
-	text-align: left !important;
-	padding-left: 10pt;
+	text-align: start !important;
+	padding-inline-start: 10pt;
 }
 
-TABLE.navigation TH:first-child {
-	padding: 5px 0px 5px 20px;
+table.navigation th:first-child {
+	padding-block: 5px;
+	padding-inline: 20px 0;
 }
 
 .shortcuts {
@@ -74,157 +74,154 @@ TABLE.navigation TH:first-child {
 
 .shortcuts a {
 	color: white !important;
-	font-family: 'RedHatText', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+	font-family: RedHatText, Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
 }
 
-P.title {
+p.title {
 	font-size: 30pt !important;
 }
 
-DIV.warning {
+div.warning {
     padding: 15px;
 }
+
 .warning .title {
 	font-weight: bold !important;
-	left: 0px;
+	inset-inline-start: 0;
 }
 
-BODY {
-	padding-top: 5.5em !important;
-	margin: 0px;
+body {
+	padding-block-start: 5.5em !important;
+	margin: 0;
 }
 
 
 /* Target all Firefox, since firefox has bug wrt TABLE + position: fixed */
 @-moz-document url-prefix() {
-	TABLE.navigation { position: static !important; }
-	BODY { padding-top: 0 !important; }
+	table.navigation { position: static !important; }
+	body { padding-block-start: 0 !important; }
 }
 
-P.releaseinfo {
+p.releaseinfo {
 	margin: 1em;
 }
 
-DIV.toc {
+div.toc {
 	margin: 1em;
 }
 
-DIV.book,
-DIV.refentry,
-DIV.chapter,
-DIV.article,
-DIV.reference,
-DIV.index,
-DIV.footer,
-DIV.section,
-DIV.part {
-	font-family: 'RedHatText', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+div.book,
+div.refentry,
+div.chapter,
+div.article,
+div.reference,
+div.index,
+div.footer,
+div.section,
+div.part {
+	font-family: RedHatText, Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
 	font-size: 11pt;
 	line-height: 160%;
 }
 
-CODE {
+code {
     font-size: 10.5pt;
 }
 
-BODY > DIV.footer,
-BODY > DIV.part {
-	margin-left: 1em;
-	margin-right: 1em;
+body > div.footer,
+body > div.part {
+	margin-inline: 1em;
 }
 
-BODY > DIV.refentry,
-BODY > DIV.chapter,
-BODY > DIV.article,
-BODY > DIV.reference,
-BODY > DIV.index,
-BODY > DIV.section,
-BODY > DIV.part,
-BODY > DIV.book > DIV.toc {
-    padding-top: 50px;
-    max-width: 800px;
-    padding-left: 40px;
-    padding-right: 20px;
-    margin-left: auto;
-    margin-right: auto;
+body > div.refentry,
+body > div.chapter,
+body > div.article,
+body > div.reference,
+body > div.index,
+body > div.section,
+body > div.part,
+body > div.book > div.toc {
+    padding-block-start: 50px;
+    max-inline-size: 800px;
+    padding-inline: 40px 20px;
+    margin-inline: auto;
     /*
 	margin-left: 3em;
 	margin-right: 1em;
         */
 }
 
-BODY > DIV.book > DIV.toc {
-    padding-top: 20px;
+body > div.book > div.toc {
+    padding-block-start: 20px;
 }
 
-DIV.section {
-	margin-top: 3em;
+div.section {
+	margin-block-start: 3em;
 }
 
-PRE.programlisting {
+pre.programlisting {
     font-size: 9.5pt;
     line-height: 130%;
-    padding-left: 10px;
+    padding-inline-start: 10px;
 }
 
-DIV.variablelist TABLE {
+div.variablelist table {
 	font-size: 13pt;
 	line-height: 150%;
-        margin-left: 0px;
+        margin-inline-start: 0;
 }
 
-DIV.variablelist TABLE SPAN.term {
-	padding-right: 1em;
+div.variablelist table span.term {
+	padding-inline-end: 1em;
 }
 
-DIV.variablelist {
-    margin-left: 0px;
+div.variablelist {
+    margin-inline-start: 0;
 }
 
-DIV.refsect1,
-DIV.refsect2,
-DIV.refsection,
-DIV.refnamediv,
-DIV.refsynopsisdiv {
-	margin-bottom: 2em !important;
+div.refsect1,
+div.refsect2,
+div.refsection,
+div.refnamediv,
+div.refsynopsisdiv {
+	margin-block-end: 2em !important;
 }
 
-DIV.refsection > H3 {
-	margin-top: 1.5em !important;
+div.refsection > h3 {
+	margin-block-start: 1.5em !important;
 }
 
-DIV.abstract > .title {
+div.abstract > .title {
 	margin: 0.3em;
 	visibility: hidden;
 }
 
-H1 {
+h1 {
 	font-weight: normal !important;
 }
 
-H2 {
+h2 {
 	position: relative;
-	left: -1em;
+	inset-inline-start: -1em;
 	font-weight: normal !important;
 }
 
-H3 {
+h3 {
 	position: relative;
-	left: -1em;
+	inset-inline-start: -1em;
 	font-weight: normal !important;
 }
 
-DD > DL {
-	margin-top: 0.3em;
-	margin-bottom: 0.3em;
+dd > dl {
+	margin-block: 0.3em;
 }
 
-PRE.screen {
+pre.screen {
 	border: solid 1px #729fcf;
 	padding: 0.5em;
 	background: #e6f3ff;
 }
 
-CODE.option {
+code.option {
 	white-space: nowrap;
 }

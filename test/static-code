@@ -86,8 +86,7 @@ fi
 
 test_stylelint() {
     test -x node_modules/.bin/stylelint -a -x /usr/bin/node || skip 'no stylelint'
-    # HACK: Fix doc/guide CSS
-    git ls-files -z '*.css' '*.scss' | grep -z -v '^doc/guide' | xargs -r -0 node_modules/.bin/stylelint
+    git ls-files -z '*.css' '*.scss' | xargs -r -0 node_modules/.bin/stylelint
 }
 
 test_no_translatable_attr() {

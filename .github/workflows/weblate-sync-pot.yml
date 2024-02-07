@@ -21,7 +21,7 @@ jobs:
         run: git config --global --add safe.directory /__w/
 
       - name: Clone source repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: src
           fetch-depth: 0
@@ -33,7 +33,7 @@ jobs:
           make po/cockpit.pot
 
       - name: Clone weblate repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: weblate
           repository: ${{ github.repository }}-weblate

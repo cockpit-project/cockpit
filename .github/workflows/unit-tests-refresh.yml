@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # need this to also fetch tags
           fetch-depth: 0

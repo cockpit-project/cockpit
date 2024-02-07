@@ -21,13 +21,13 @@ jobs:
           sudo apt install -y --no-install-recommends gettext
 
       - name: Clone source repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
           path: src
 
       - name: Clone weblate repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}-weblate
           path: weblate

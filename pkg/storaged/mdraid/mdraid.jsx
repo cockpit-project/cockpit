@@ -181,9 +181,6 @@ function missing_bitmap(mdraid) {
 
 export function make_mdraid_page(parent, mdraid) {
     const block = client.mdraids_block[mdraid.path];
-    let running = mdraid.Running;
-    if (running === undefined)
-        running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
 
     if (block && should_ignore(client, block.path))
         return;
@@ -209,9 +206,9 @@ export function make_mdraid_page(parent, mdraid) {
         has_warning: mdraid.Degraded > 0 || missing_bitmap(mdraid),
         job_path: mdraid.path,
         component: MDRaidCard,
-        props: { mdraid, block, running },
+        props: { mdraid, block },
         actions: [
-            (!running &&
+            (!block &&
              {
                  title: _("Start"),
                  action: () => mdraid_start(mdraid),
@@ -239,7 +236,7 @@ export function make_mdraid_page(parent, mdraid) {
         make_block_page(parent, block, mdraid_card);
 }
 
-const MDRaidCard = ({ card, mdraid, block, running }) => {
+const MDRaidCard = ({ card, mdraid, block }) => {
     function format_level(str) {
         return {
             raid0: _("RAID 0"),
@@ -290,8 +287,8 @@ const MDRaidCard = ({ card, mdraid, block, running }) => {
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     <StorageDescription title={_("Name")} value={mdraid_name(mdraid)} />
                     <StorageDescription title={_("RAID level")} value={level} />
-                    <StorageDescription title={_("State")} value={running ? _("Running") : _("Not running")}
-                                        action={running && <StorageLink onClick={() => mdraid_stop(mdraid)}>
+                    <StorageDescription title={_("State")} value={block ? _("Running") : _("Not running")}
+                                        action={block && <StorageLink onClick={() => mdraid_stop(mdraid)}>
                                             {_("Stop")}
                                         </StorageLink>} />
                     <StorageDescription title={_("UUID")} value={mdraid.UUID} />

@@ -109,17 +109,16 @@ td.job-action {
 }
 
 // FIXME: This is visual only; it needs to be fixed for a11y reasons, likely at the JSX level
-tr[class*="content-level-"] {
+div[class*="content-level-"] {
   --multiplier: 0;
   --offset: calc(var(--pf-v5-global--spacer--md) * var(--multiplier));
 
-  > td:nth-child(2) > span {
-    padding-inline-start: var(--offset);
-  }
+  padding-inline-start: var(--offset);
+  white-space: nowrap;
 }
 
 @for $i from 1 through 10 {
-  tr.content-level-#{$i} {
+  div.content-level-#{$i} {
     --multiplier: #{$i};
   }
 }
@@ -356,7 +355,7 @@ a.disabled {
 .storage-size-column-header {
     text-align: end;
     // Align the "Size" header with the text of the usage bars.
-    // var(--pf-v5-global--spacer--sm): padding of compat td cells
+    // var(--pf-v5-global--spacer--sm): padding of compact td cells
     // 3.5em: width of short progress bars
     // 1em: margin between text and progress bar
     padding-inline-end: calc(var(--pf-v5-global--spacer--sm) + 3.5em + 1em) !important;

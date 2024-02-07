@@ -69,6 +69,15 @@ class TestStorageBasic(storagelib.StorageCase):
         b.go("#/")
         b.wait_visible(self.card("Storage"))
         b.wait_visible(self.card_row("Storage", name=disk))
+
+        # Create a subvolume with a really long name to show
+        # truncation in the pixel test.
+
+        if b.pixels_label:
+            long = "really-" * 15 + "long-name-that-will-be-truncated"
+            m.execute(f"btrfs subvol create /{long}")
+            self.addCleanup(m.execute, f"btrfs subvol delete /{long}")
+            b.wait_visible(self.card_row("Storage", name=f"root/{long}"))
         b.assert_pixels(self.card("Storage"), "overview",
                         # Usage numbers are not stable and also cause
                         # the table columns to shift. The usage bars

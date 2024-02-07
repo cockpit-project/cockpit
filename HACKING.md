@@ -378,13 +378,17 @@ A local cache is maintained in `~/.cache/cockpit-dev`.
 Make a pull request on github.com with your change. All changes get reviewed,
 tested, and iterated on before getting into Cockpit. The general workflow is
 described in the [wiki](https://github.com/cockpit-project/cockpit/wiki/Workflow).
-Don't feel bad if there's multiple steps back and forth asking for changes or
-tweaks before your change gets in.
 
 You need to be familiar with git to contribute a change. Do your changes
 on a branch. Your change should be one or more git commits that each contain one
 single logical simple reviewable change, without modifications that are
 unrelated to the commit message.
+
+Don't feel bad if there's multiple steps back and forth asking for changes or
+tweaks before your change gets in. If you fix your commits after getting a
+review, just force-push to your branch -- this will update the pull request
+automatically. Do *not* close it and open a new one; that would destroy the
+conversation and reviews.
 
 Cockpit is a designed project. Anything that the user will see should have
 design done first. This is done on the wiki and mailing list.

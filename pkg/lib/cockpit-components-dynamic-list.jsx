@@ -57,7 +57,7 @@ export class DynamicListForm extends React.Component {
 
     addItem() {
         this.setState(state => {
-            return { list: [...state.list, {key: this.keyCounter++, ...this.props.default}] };
+            return { list: [...state.list, { key: this.keyCounter++, ...this.props.default }] };
         }, () => this.props.onChange(this.state.list));
     }
 

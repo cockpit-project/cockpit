@@ -17,25 +17,21 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from "cockpit";
 import React from "react";
 import PropTypes from "prop-types";
 
-import { Menu, MenuContent, MenuList, MenuItem } from "@patternfly/react-core/dist/esm/components/Menu";
+import { Menu, MenuContent } from "@patternfly/react-core/dist/esm/components/Menu";
 
 import "context-menu.scss";
 
-const _ = cockpit.gettext;
-
 /*
- * A context menu component that contains copy and paste fields.
+ * A context menu component
  *
- * It requires three properties:
- *  - getText, method which is called when copy is clicked
- *  - setText, method which is called when paste is clicked
- *  - parentId, area in which it listens to left button clicks
+ * It requires two properties:
+ *  - parentId, area in which it listens to left button click
+ *  - children, a MenuList to be rendered in the context menu
  */
-export const ContextMenu = ({ parentId, getText, setText }) => {
+export const ContextMenu = ({ parentId, children }) => {
     const [visible, setVisible] = React.useState(false);
     const [event, setEvent] = React.useState(null);
     const root = React.useRef(null);
@@ -103,22 +99,12 @@ export const ContextMenu = ({ parentId, getText, setText }) => {
     return visible &&
         <Menu ref={root} className="contextMenu">
             <MenuContent ref={root}>
-                <MenuList>
-                    <MenuItem className="contextMenuOption" onClick={getText}>
-                        <div className="contextMenuName"> { _("Copy") } </div>
-                        <div className="contextMenuShortcut">{ _("Ctrl+Insert") }</div>
-                    </MenuItem>
-                    <MenuItem className="contextMenuOption" onClick={setText}>
-                        <div className="contextMenuName"> { _("Paste") } </div>
-                        <div className="contextMenuShortcut">{ _("Shift+Insert") }</div>
-                    </MenuItem>
-                </MenuList>
+                {children}
             </MenuContent>
         </Menu>;
 };
 
 ContextMenu.propTypes = {
-    getText: PropTypes.func.isRequired,
-    setText: PropTypes.func.isRequired,
-    parentId: PropTypes.string.isRequired
+    parentId: PropTypes.string.isRequired,
+    children: PropTypes.any
 };

@@ -167,7 +167,7 @@ class TestStoragePartitions(storagelib.StorageCase):
         self.click_card_row("GPT partitions", 2)
         self.click_card_dropdown("Partition", "Delete")
         self.confirm()
-        self.click_card_row("GPT partitions", 1)
+        self.click_card_row("GPT partitions", location="/foo1 (not mounted)")
         b.click(self.card_button("Partition", "Grow"))
         self.dialog({"size": 103})
         b.wait_visible(self.card_button("Partition", "Grow") + ":disabled")

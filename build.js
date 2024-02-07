@@ -50,7 +50,6 @@ const qunitOptions = {
 const parser = (await import('argparse')).default.ArgumentParser();
 parser.add_argument('-r', '--rsync', { help: "rsync bundles to ssh target after build", metavar: "HOST" });
 parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable watch mode" });
-parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting", default: production });
 parser.add_argument('onlydir', { nargs: '?', help: "The pkg/<DIRECTORY> to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
 const args = parser.parse_args();
 
@@ -111,7 +110,6 @@ async function build() {
     const cockpitPoEsbuildPlugin = (await import('./pkg/lib/cockpit-po-plugin.js')).cockpitPoEsbuildPlugin;
     const cockpitRsyncEsbuildPlugin = (await import('./pkg/lib/cockpit-rsync-plugin.js')).cockpitRsyncEsbuildPlugin;
     const cockpitTestHtmlPlugin = (await import('./pkg/lib/esbuild-test-html-plugin.js')).cockpitTestHtmlPlugin;
-    const eslintPlugin = (await import('./pkg/lib/esbuild-eslint-plugin.js')).eslintPlugin;
 
     const esbuildStylesPlugins = (await import('./pkg/lib/esbuild-common.js')).esbuildStylesPlugins;
 
@@ -124,7 +122,6 @@ async function build() {
     ];
 
     const pkgPlugins = [
-        ...args.no_eslint ? [] : [eslintPlugin({ filter: /pkg\/.*\.(jsx?|js?)$/ })],
         cockpitJSResolvePlugin,
         ...esbuildStylesPlugins
     ];
@@ -181,7 +178,6 @@ async function build() {
             ...qunitOptions,
             entryPoints: testEntryPoints,
             plugins: [
-                ...args.no_eslint ? [] : [eslintPlugin({ filter: /pkg\/.*\.(jsx?|js?)$/ })],
                 cockpitTestHtmlPlugin({ testFiles: tests }),
             ],
         });
@@ -200,7 +196,6 @@ async function build() {
             ...qunitOptions,
             entryPoints: testEntryPoints,
             plugins: [
-                ...args.no_eslint ? [] : [eslintPlugin({ filter: /pkg\/.*\.(jsx?|js?)$/ })],
                 cockpitTestHtmlPlugin({ testFiles: tests }),
             ],
         });

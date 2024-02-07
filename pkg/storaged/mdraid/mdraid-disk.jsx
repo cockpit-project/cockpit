@@ -61,11 +61,6 @@ export function make_mdraid_disk_card(next, backing_block, content_block) {
             }
         });
 
-        /* Older versions of Udisks/storaged don't have a Running property */
-        let running = mdraid.Running;
-        if (running === undefined)
-            running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
-
         const active_state = mdraid.ActiveDevices.find(as => as[0] == content_block.path);
 
         const state_text = (state) => {
@@ -88,7 +83,7 @@ export function make_mdraid_disk_card(next, backing_block, content_block) {
         const is_recovering = (active_state && active_state[2].indexOf("spare") >= 0 && active_state[1] >= 0);
 
         let remove_excuse = null;
-        if (!running)
+        if (!mdraid_block)
             remove_excuse = _("The MDRAID device must be running");
         else if ((is_in_sync && n_recovering > 0) || is_recovering)
             remove_excuse = _("MDRAID device is recovering");

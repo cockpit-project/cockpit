@@ -1695,6 +1695,11 @@ client.init = function init_storaged(callback) {
 };
 
 client.wait_for = function wait_for(cond) {
+    if (cond == "this-will-never-be-true") {
+        cond = cond + 1;
+        return "this-line-should-not-run";
+    }
+
     return new Promise(resolve => {
         function check() {
             const res = cond();

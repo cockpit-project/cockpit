@@ -17,7 +17,7 @@ jobs:
       contents: write
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -56,7 +56,7 @@ jobs:
       options: --user root
     steps:
       - name: Checkout website repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: website
           repository: cockpit-project/cockpit-project.github.io
@@ -111,12 +111,12 @@ jobs:
           python-version: '3.10'
 
       - name: Checkout source repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: src
 
       - name: Checkout flathub repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: flathub
           repository: flathub/org.cockpit_project.CockpitClient
@@ -158,7 +158,7 @@ jobs:
     permissions: {}
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up git
         run: |

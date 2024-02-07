@@ -94,9 +94,6 @@ pkg/lib/), you can also build all pages:
 
     ./build.js -w
 
-Note that this enables eslint by default -- if you want to disable it, run it
-with `-e`/`--no-eslint`.
-
 Reload cockpit in your browser after page is built. Press `Ctrl`-`C` to
 stop watch mode once you are done with changing the code.
 
@@ -232,7 +229,7 @@ The tests require at least `pytest` 7.0.0 or higher to run.
 Cockpit uses [ESLint](https://eslint.org/) to automatically check JavaScript
 code style in `.js` and `.jsx` files.
 
-The linter is executed on every build.
+The linter is executed as part of `test/static-code`.
 
 For developer convenience, the ESLint can be started explicitly by:
 

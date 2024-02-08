@@ -41,7 +41,6 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { decode_filename, block_short_name, fmt_size } from "./utils.js";
 import { StorageButton, StorageBarMenu, StorageMenuItem, StorageSize } from "./storage-controls.jsx";
 import { MultipathAlert } from "./multipath.jsx";
-import { AnacondaAdvice } from "./anaconda.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
 import { Truncate } from "../lib/cockpit-components-truncate.jsx";
 
@@ -843,7 +842,6 @@ export const StoragePage = ({ location, plot_state }) => {
             <PageSection isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
                 <Stack hasGutter>
                     <MultipathAlert client={client} />
-                    <AnacondaAdvice />
                     <PageCardStackItems page={page} plot_state={plot_state} noarrow />
                 </Stack>
             </PageSection>

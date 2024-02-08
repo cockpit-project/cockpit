@@ -105,7 +105,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
         const handle = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
         handle.watch(() => {
             get_expire(user).then(setExpiration);
-        });
+        }, { read: false });
         return handle.close;
     }, [user, accounts]);
 

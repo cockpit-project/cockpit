@@ -20,7 +20,7 @@ import '../lib/patternfly/patternfly-5-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import cockpit from 'cockpit';
@@ -59,33 +59,14 @@ function AccountsPage() {
     const shells = useFile("/etc/shells", { syntax: etc_shells_syntax });
     const current_user_info = useLoggedInUser();
 
-    const logindef = useFile("/etc/login.defs", { superuser: true });
-    //  Handle also the case where logindef == null, i.e. the file does not exist.
-    //  While that's unusual, "empty /etc" is a goal, and it shouldn't crash the page.
+    // Handle the case where logindef == null, i.e. the file does not exist.
+    // While that's unusual, "empty /etc" is a goal, and it shouldn't crash the page.
     const [min_gid, setMinGid] = useState(500);
     const [max_gid, setMaxGid] = useState(60000);
     const [min_uid, setMinUid] = useState(500);
     const [max_uid, setMaxUid] = useState(60000);
-    useEffect(() => {
-        if (!logindef)
-            return;
-
-        const minGid = parseInt(logindef.match(/^GID_MIN\s+(\d+)/m)[1]);
-        const maxGid = parseInt(logindef.match(/^GID_MAX\s+(\d+)/m)[1]);
-        const minUid = parseInt(logindef.match(/^UID_MIN\s+(\d+)/m)[1]);
-        const maxUid = parseInt(logindef.match(/^UID_MAX\s+(\d+)/m)[1]);
-
-        if (minGid)
-            setMinGid(minGid);
-        if (maxGid)
-            setMaxGid(maxGid);
-        if (minUid)
-            setMinUid(minUid);
-        if (maxUid)
-            setMaxUid(maxUid);
-    }, [logindef]);
-
     const [details, setDetails] = useState(null);
+
     useInit(() => {
         // Watch `/var/run/utmp` to register when user logs in or out
         const handleUtmp = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
@@ -95,7 +76,27 @@ function AccountsPage() {
         const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
         handleShadow.watch(() => getLogins().then(setDetails), { read: false });
 
-        return [handleUtmp, handleShadow];
+        const handleLogindef = cockpit.file("/etc/login.defs", { superuser: true });
+        handleLogindef.watch((logindef) => {
+            if (logindef === null)
+                return;
+
+            const minGid = parseInt(logindef.match(/^GID_MIN\s+(\d+)/m)[1]);
+            const maxGid = parseInt(logindef.match(/^GID_MAX\s+(\d+)/m)[1]);
+            const minUid = parseInt(logindef.match(/^UID_MIN\s+(\d+)/m)[1]);
+            const maxUid = parseInt(logindef.match(/^UID_MAX\s+(\d+)/m)[1]);
+
+            if (minGid)
+                setMinGid(minGid);
+            if (maxGid)
+                setMaxGid(maxGid);
+            if (minUid)
+                setMinUid(minUid);
+            if (maxUid)
+                setMaxUid(maxUid);
+        });
+
+        return [handleUtmp, handleShadow, handleLogindef];
     }, [], null, handles => handles.forEach(handle => handle.close()));
 
     // lastlog uses same sorting as /etc/passwd therefore arrays can be combined based on index

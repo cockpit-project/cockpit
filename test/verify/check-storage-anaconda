@@ -88,11 +88,8 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
         b.assert_pixels("body", "page")
 
-        # Mount/Unmount the filesystem, edit mount point
-        self.click_card_row("Storage", location="/")
-        b.wait_visible(self.card("Encryption"))
-        b.wait_in_text(self.card_desc("Filesystem", "Mount point"), "/")
-        b.click(self.card_desc("Filesystem", "Mount point") + " button")
+        # Edit mount point
+        self.click_dropdown(self.card_row("Storage", name="lvol0"), "Edit mount point")
         self.dialog_wait_open()
         self.dialog_wait_val("mount_point", "/")
         # Empty mount point should be failure
@@ -103,6 +100,11 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot/var"))
+
+        # Mount/Unmount the filesystem
+        self.click_card_row("Storage", location="/var")
+        b.wait_visible(self.card("Encryption"))
+        b.wait_in_text(self.card_desc("Filesystem", "Mount point"), "/var")
 
         b.click(self.card_button("Filesystem", "Mount"))
         self.dialog_wait_open()
@@ -192,10 +194,8 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
         b.wait_visible(self.card_row_col("Storage", 3, 5) + " .usage-bar[role=progressbar]")
 
-        # Mount/Unmount the filesystem, edit mount point
-        self.click_card_row("Storage", location="/")
-        b.wait_in_text(self.card_desc("Stratis filesystem", "Mount point"), "/")
-        b.click(self.card_desc("Stratis filesystem", "Mount point") + " button")
+        # Edit mount point
+        self.click_dropdown(self.card_row("Storage", name="root"), "Edit mount point")
         self.dialog_wait_open()
         self.dialog_wait_val("mount_point", "/")
         self.dialog_set_val("mount_point", "/var")
@@ -203,6 +203,9 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_wait_close()
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot/var"))
 
+        # Mount/Unmount the filesystem
+        self.click_card_row("Storage", location="/var")
+        b.wait_in_text(self.card_desc("Stratis filesystem", "Mount point"), "/var")
         b.click(self.card_button("Stratis filesystem", "Mount"))
         self.dialog_wait_open()
         self.dialog_wait_val("mount_point", "/var")

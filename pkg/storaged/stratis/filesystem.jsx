@@ -35,7 +35,7 @@ import {
     navigate_away_from_card, navigate_to_new_card_location,
 } from "../pages.jsx";
 import {
-    MountPoint,
+    MountPoint, edit_mount_point,
     is_valid_mount_point, is_mounted,
     get_fstab_config, mount_point_text,
 } from "../filesystem/utils.jsx";
@@ -170,6 +170,8 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
         component: StratisFilesystemCard,
         props: { pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning, offset },
         actions: [
+            client.in_anaconda_mode() &&
+                { title: _("Edit mount point"), action: () => edit_mount_point(block, forced_options) },
             (fs_is_mounted
                 ? { title: _("Unmount"), action: unmount }
                 : { title: _("Mount"), action: mount }),

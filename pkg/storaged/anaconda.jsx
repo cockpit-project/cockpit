@@ -22,14 +22,6 @@ import client from "./client.js";
 import { decode_filename } from "./utils.js";
 import { parse_subvol_from_options } from "./btrfs/utils.jsx";
 
-export const AnacondaAdvice = () => {
-    if (!client.in_anaconda_mode())
-        return null;
-
-    // Nothing yet.
-    return null;
-};
-
 export function export_mount_point_mapping() {
     if (!client.in_anaconda_mode())
         return;

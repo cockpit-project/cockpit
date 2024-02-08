@@ -36,7 +36,9 @@ import {
     TeardownMessage, init_active_usage_processes,
 } from "../dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "../filesystem/mismounting.jsx";
-import { is_mounted, is_valid_mount_point, mount_point_text, MountPoint } from "../filesystem/utils.jsx";
+import {
+    is_mounted, is_valid_mount_point, mount_point_text, MountPoint, edit_mount_point
+} from "../filesystem/utils.jsx";
 import client, { btrfs_poll } from "../client.js";
 
 const _ = cockpit.gettext;
@@ -255,6 +257,13 @@ export function make_btrfs_subvolume_page(parent, volume, subvol) {
         return null;
     const forced_options = [`subvol=${subvol.pathname}`];
     const mount_point_in_parent = get_mount_point_in_parent(volume, subvol);
+
+    if (client.in_anaconda_mode()) {
+        actions.push({
+            title: _("Edit mount point"),
+            action: () => edit_mount_point(block, forced_options, subvol),
+        });
+    }
 
     if (mounted) {
         actions.push({

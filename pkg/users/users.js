@@ -167,7 +167,7 @@ async function getLogins() {
 
     // drop header and last empty line with slice
     const promises = lastlog.split('\n').slice(1, -1).map(async line => {
-        const splitLine = line.split(/ +/);
+        const splitLine = line.split(/[ \t]+/);
         const name = splitLine[0];
         const isLocked = await get_locked(name);
 

@@ -165,11 +165,31 @@ async function getLogins() {
         console.warn("Unexpected error when getting logged in accounts", err);
     }
 
+    // shadow-utils passwd supports an --all flag which is lacking on RHEL and
+    // stable Fedora releases. Available at least on Fedora since
+    // shadow-utils-4.14.0-5.fc40 (currently known as rawhide).
+    const locked_users_map = {};
+    try {
+        const locked_statuses = await cockpit.spawn(["passwd", "-S", "--all"], { superuser: "require", err: "message", environ: ["LC_ALL=C"] });
+        // Slice off the last empty line
+        for (const line of locked_statuses.trim().split('\n')) {
+            const username = line.split(" ")[0];
+            const status = line.split(" ")[1];
+            locked_users_map[username] = status == "L";
+        }
+    } catch (err) {
+        // Only warn when it is unrelated to --all.
+        if (err.message && !err.message.includes("bad argument --all")) {
+            console.warn("Unexpected error when getting locked account information", err);
+        }
+    }
+
     // drop header and last empty line with slice
     const promises = lastlog.split('\n').slice(1, -1).map(async line => {
         const splitLine = line.split(/[ \t]+/);
         const name = splitLine[0];
-        const isLocked = await get_locked(name);
+        // Fallback on passwd -S for Fedora and RHEL
+        const isLocked = locked_users_map[name] ?? await get_locked(name);
 
         if (line.indexOf('**Never logged in**') > -1) {
             return { name, loggedIn: false, lastLogin: null, isLocked };

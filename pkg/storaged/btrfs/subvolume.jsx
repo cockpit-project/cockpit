@@ -23,7 +23,7 @@ import React from "react";
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
-import { StorageCard, StorageDescription, new_card, new_page } from "../pages.jsx";
+import { StorageCard, StorageDescription, new_card, new_page, navigate_away_from_card } from "../pages.jsx";
 import { StorageUsageBar } from "../storage-controls.jsx";
 import {
     encode_filename, get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
@@ -172,7 +172,7 @@ function subvolume_create(volume, subvol, parent_dir) {
     });
 }
 
-function subvolume_delete(volume, subvol, mount_point_in_parent) {
+function subvolume_delete(volume, subvol, mount_point_in_parent, card) {
     const block = client.blocks[volume.path];
     const subvols = client.uuids_btrfs_subvols[volume.data.uuid];
 
@@ -231,6 +231,7 @@ function subvolume_delete(volume, subvol, mount_point_in_parent) {
                 await cockpit.spawn(["btrfs", "subvolume", "delete"].concat(paths_to_delete),
                                     { superuser: true, err: "message" });
                 await btrfs_poll();
+                navigate_away_from_card(card);
             }
         },
         Inits: [
@@ -294,7 +295,7 @@ export function make_btrfs_subvolume_page(parent, volume, subvol) {
             danger: true,
             title: _("Delete"),
             excuse: delete_excuse,
-            action: () => subvolume_delete(volume, subvol, mount_point_in_parent),
+            action: () => subvolume_delete(volume, subvol, mount_point_in_parent, card),
         });
 
     const card = new_card({

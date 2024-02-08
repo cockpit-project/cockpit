@@ -36,6 +36,9 @@ import { get_cryptobacking_noauto } from "./utils.jsx";
 const _ = cockpit.gettext;
 
 export function check_mismounted_fsys(backing_block, content_block, fstab_config, subvol) {
+    if (client.in_anaconda_mode())
+        return;
+
     const block_fsys = content_block && client.blocks_fsys[content_block.path];
     const [, dir, opts] = fstab_config;
 

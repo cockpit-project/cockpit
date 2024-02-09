@@ -3673,7 +3673,10 @@ function factory() {
             ensure_watch_channel(options);
 
             watch_tag = null;
-            read();
+            if (options && options.read !== undefined && !options.read)
+                fire_watch_callbacks(null, null);
+            else
+                read();
 
             return {
                 remove: function () {

@@ -981,6 +981,8 @@ fields:
  * "type": If the event was created this contains the type of the new file.
    Will be one of: file, directory, link, special or unknown.
 
+* "tag": Blah blah blah
+
 In case of an error, the channel will be closed.  In addition to the
 usual "problem" field, the "close" control message sent by the server
 might have the following additional fields:

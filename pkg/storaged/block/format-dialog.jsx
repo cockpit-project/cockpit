@@ -173,9 +173,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     const block = client.blocks[path];
     const block_part = client.blocks_part[path];
     const block_ptable = client.blocks_ptable[path] || client.blocks_ptable[block_part?.Table];
+    const content_block = block.IdUsage == "crypto" ? client.blocks_cleartext[path] : block;
 
     const offer_keep_keys = block.IdUsage == "crypto";
-    const unlock_before_format = offer_keep_keys && !client.blocks_cleartext[path];
+    const unlock_before_format = offer_keep_keys && !content_block;
 
     const create_partition = (start !== undefined);
 
@@ -219,8 +220,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     }
 
     let default_type = null;
-    if (block.IdUsage == "filesystem" && is_supported(block.IdType))
-        default_type = block.IdType;
+    if (content_block?.IdUsage == "filesystem" && is_supported(content_block.IdType))
+        default_type = content_block.IdType;
     else {
         const root_block = find_root_fsys_block();
         if (root_block && is_supported(root_block.IdType)) {
@@ -286,7 +287,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     extract_option(crypto_split_options, "_netdev");
     const crypto_extra_options = unparse_options(crypto_split_options);
 
-    let [, old_dir, old_opts] = get_fstab_config(block, true);
+    let [, old_dir, old_opts] = get_fstab_config(block, true,
+                                                 content_block?.IdType == "btrfs"
+                                                     ? { pathname: "/", id: 5 }
+                                                     : null);
     if (old_opts == undefined)
         old_opts = initial_mount_options(client, block);
 
@@ -341,6 +345,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         Fields: [
             TextInput("name", _("Name"),
                       {
+                          value: content_block?.IdLabel,
                           validate: (name, vals) => validate_fsys_label(name, vals.type),
                           visible: is_filesystem
                       }),

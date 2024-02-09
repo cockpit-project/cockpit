@@ -15,21 +15,9 @@ Entering Anaconda mode
 ----------------------
 
 The "storaged" page is put into Anaconda mode by storing a
-"cockpit_anaconda" item in its `window.localStorage`.  The value
+"cockpit_anaconda" item in its `window.sessionStorage`.  The value
 should be a JSON encoded object, the details of which are explained
 below.
-
-Since both Anaconda and the storaged page are served from the same
-origin, Anaconda can just execute something like this:
-
-```
-    window.localStorage.setItem("cockpit_anaconda",
-                                JSON.stringify({
-                                    "mount_point_prefix": "/sysroot",
-                                    "available_devices": [ "/dev/sda" ]
-                                }));
-    window.open("/cockpit/@localhost/storage/index.html", "storage-tab");
-```
 
 Ignoring storage devices
 ------------------------
@@ -71,8 +59,6 @@ configuration into the real /etc/fstab (_not_
 /sysroot/etc/fstab). This is done for the convenience of Cockpit, and
 Anaconda is not expected to read it.
 
-If and how Cockpit communicates back to Anaconda is still open.
-
 BIOS or EFI
 -----------
 
@@ -106,9 +92,9 @@ case, Cockpit will use the type from "default_fsys_type".
 Exported information
 --------------------
 
-Cockpit maintains some information in local browser storage that can
-be used by Anaconda to learn things that it doesn't get from
-blivet. This is mostly information from fstab and crypttab.
+Cockpit maintains some information in the session storage that can be
+used by Anaconda to learn things that it doesn't get from blivet. This
+is mostly information from fstab.
 
 The "cockpit_mount_points" entry in local storage will have a JSON
 encoded object, for example:
@@ -160,7 +146,8 @@ types might appear:
  An encrypted device. It has a "content" field with a value that is
  structured like a value for "cockpit_mount_points", i.e., a object
  with a "type" field and maybe a "dir" field if "type" is
- "filesystem". This is also present when the crypto device is closed.
+ "filesystem". This might also be present when the crypto device is
+ closed.
 
  It might also have a "cleartext_device" field if the encrpyted device
  is currently open.
@@ -168,3 +155,10 @@ types might appear:
 Cockpit does some magic (via the "x-parent" options in fstab and
 crypttab) to produce information also for locked LUKS devices, and
 inactive logical volumes.
+
+Cockpit also remembers and exports encryption passphrases in session
+storage, in the "cockpit_passphrases" entry. This is a map from device
+names to cleartext passphrases. This is only done when Cockpit runs in
+a "secure context", see
+
+    https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts

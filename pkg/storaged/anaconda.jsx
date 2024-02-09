@@ -34,15 +34,31 @@ function uuid_equal(a, b) {
     return a.replace("-", "").toUpperCase() == b.replace("-", "").toUpperCase();
 }
 
-export function export_mount_point_mapping() {
+function device_name(block) {
+    // Prefer symlinks in /dev/stratis/.
+    return (block.Symlinks.map(decode_filename).find(n => n.indexOf("/dev/stratis/") == 0) ||
+            decode_filename(block.PreferredDevice));
+}
+
+export function remember_passphrase(block, passphrase) {
     if (!client.in_anaconda_mode())
         return;
 
-    function device_name(block) {
-        // Prefer symlinks in /dev/stratis/.
-        return (block.Symlinks.map(decode_filename).find(n => n.indexOf("/dev/stratis/") == 0) ||
-                decode_filename(block.PreferredDevice));
+    if (!window.isSecureContext)
+        return;
+
+    try {
+        const passphrases = JSON.parse(window.sessionStorage.getItem("cockpit_passphrases")) || { };
+        passphrases[device_name(block)] = passphrase;
+        window.sessionStorage.setItem("cockpit_passphrases", JSON.stringify(passphrases));
+    } catch {
+        console.warn("Can't record passphrases");
     }
+}
+
+export function export_mount_point_mapping() {
+    if (!client.in_anaconda_mode())
+        return;
 
     function tab_info(config, for_parent) {
         let dir;
@@ -146,5 +162,5 @@ export function export_mount_point_mapping() {
         }
     }
 
-    window.localStorage.setItem("cockpit_mount_points", JSON.stringify(mpm));
+    window.sessionStorage.setItem("cockpit_mount_points", JSON.stringify(mpm));
 }

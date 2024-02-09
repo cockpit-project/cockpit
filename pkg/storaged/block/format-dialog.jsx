@@ -44,6 +44,7 @@ import { get_fstab_config, is_valid_mount_point } from "../filesystem/utils.jsx"
 import { init_existing_passphrase, unlock_with_type } from "../crypto/keyslots.jsx";
 import { job_progress_wrapper } from "../jobs-panel.jsx";
 import { at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
+import { remember_passphrase } from "../anaconda.jsx";
 
 const _ = cockpit.gettext;
 
@@ -629,18 +630,25 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     return client.blocks_crypto[path];
                 }
 
-                function maybe_mount(new_path) {
+                async function maybe_mount(new_path) {
                     const path = new_path || block.path;
-                    if (is_filesystem(vals) && mount_now)
-                        return (client.wait_for(() => block_fsys_for_block(path))
-                                .then(block_fsys => client.mount_at(client.blocks[block_fsys.path],
-                                                                    mount_point)));
-                    if (type == "swap" && mount_now)
-                        return (client.wait_for(() => block_swap_for_block(path))
-                                .then(block_swap => block_swap.Start({})));
-                    if (is_encrypted(vals) && !mount_now)
-                        return (client.wait_for(() => block_crypto_for_block(path))
-                                .then(block_crypto => block_crypto.Lock({ })));
+                    const new_block = await client.wait_for(() => client.blocks[path]);
+
+                    if (is_encrypted(vals))
+                        remember_passphrase(new_block, vals.passphrase);
+
+                    if (is_filesystem(vals) && mount_now) {
+                        const block_fsys = await client.wait_for(() => block_fsys_for_block(path));
+                        await client.mount_at(client.blocks[block_fsys.path], mount_point);
+                    }
+                    if (type == "swap" && mount_now) {
+                        const block_swap = await client.wait_for(() => block_swap_for_block(path));
+                        await block_swap.Start({});
+                    }
+                    if (is_encrypted(vals) && !mount_now) {
+                        const block_crypto = await client.wait_for(() => block_crypto_for_block(path));
+                        await block_crypto.Lock({ });
+                    }
                 }
 
                 return teardown_active_usage(client, usage)

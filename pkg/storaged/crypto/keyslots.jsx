@@ -32,6 +32,7 @@ import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/comp
 
 import { check_missing_packages, install_missing_packages, Enum as PkEnum } from "packagekit";
 import { fmt_to_fragments } from "utils.jsx";
+import { remember_passphrase } from "../anaconda.jsx";
 
 import {
     dialog_open,
@@ -78,17 +79,18 @@ function clevis_unlock(block) {
                          { superuser: true });
 }
 
-export function unlock_with_type(client, block, passphrase, passphrase_type) {
+export async function unlock_with_type(client, block, passphrase, passphrase_type) {
     const crypto = client.blocks_crypto[block.path];
-    if (passphrase)
-        return crypto.Unlock(passphrase, {});
-    else if (passphrase_type == "stored")
-        return crypto.Unlock("", {});
-    else if (passphrase_type == "clevis")
-        return clevis_unlock(block);
-    else {
+    if (passphrase) {
+        await crypto.Unlock(passphrase, {});
+        remember_passphrase(block, passphrase);
+    } else if (passphrase_type == "stored") {
+        await crypto.Unlock("", {});
+    } else if (passphrase_type == "clevis") {
+        await clevis_unlock(block);
+    } else {
         // This should always be caught and should never show up in the UI
-        return Promise.reject(new Error("No passphrase"));
+        throw new Error("No passphrase");
     }
 }
 

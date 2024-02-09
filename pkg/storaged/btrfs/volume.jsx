@@ -34,6 +34,7 @@ import { fmt_size_long, validate_fsys_label, decode_filename, should_ignore } fr
 import { btrfs_usage, btrfs_is_volume_mounted, parse_subvol_from_options } from "./utils.jsx";
 import { dialog_open, TextInput } from "../dialog.jsx";
 import { make_btrfs_subvolume_page } from "./subvolume.jsx";
+import { btrfs_device_actions } from "./device.jsx";
 
 const _ = cockpit.gettext;
 
@@ -57,6 +58,11 @@ export function make_btrfs_volume_page(parent, uuid) {
     if (block_devices.some(blk => should_ignore(client, blk.path)))
         return;
 
+    // Single-device btrfs volumes are shown directly on the page of
+    // their device; they don't get a standalone "btrfs volume" page.
+    if (block_btrfs.data.num_devices === 1)
+        return;
+
     const name = block_btrfs.data.label || uuid;
     const btrfs_volume_card = new_card({
         title: _("btrfs volume"),
@@ -70,15 +76,29 @@ export function make_btrfs_volume_page(parent, uuid) {
         props: { block_devices, uuid, use },
     });
 
-    const subvolumes_card = new_card({
-        title: _("btrfs subvolumes"),
-        next: btrfs_volume_card,
-        component: BtrfsSubVolumesCard,
-        props: { volume },
-    });
+    const subvolumes_card = make_btrfs_subvolumes_card(btrfs_volume_card, null, null);
 
     const subvolumes_page = new_page(parent, subvolumes_card);
     make_btrfs_subvolume_pages(subvolumes_page, volume);
+}
+
+export function rename_dialog(block_btrfs, label) {
+    dialog_open({
+        Title: _("Change label"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      {
+                          validate: name => validate_fsys_label(name, "btrfs"),
+                          value: label
+                      })
+        ],
+        Action: {
+            Title: _("Save"),
+            action: function (vals) {
+                return block_btrfs.SetLabel(vals.name, {});
+            }
+        }
+    });
 }
 
 const BtrfsVolumeCard = ({ card, block_devices, uuid, use }) => {
@@ -92,25 +112,6 @@ const BtrfsVolumeCard = ({ card, block_devices, uuid, use }) => {
     // https://github.com/storaged-project/libblockdev/issues/966
     const is_mounted = btrfs_is_volume_mounted(client, block_devices);
 
-    function rename_dialog() {
-        dialog_open({
-            Title: _("Change label"),
-            Fields: [
-                TextInput("name", _("Name"),
-                          {
-                              validate: name => validate_fsys_label(name, "btrfs"),
-                              value: label
-                          })
-            ],
-            Action: {
-                Title: _("Save"),
-                action: function (vals) {
-                    return block_btrfs.SetLabel(vals.name, {});
-                }
-            }
-        });
-    }
-
     return (
         <StorageCard card={card}>
             <CardBody>
@@ -118,7 +119,7 @@ const BtrfsVolumeCard = ({ card, block_devices, uuid, use }) => {
                     <StorageDescription title={_("Label")}
                                                 value={label}
                                                 action={
-                                                    <StorageLink onClick={rename_dialog}
+                                                    <StorageLink onClick={() => rename_dialog(block_btrfs, label)}
                                                                excuse={is_mounted ? _("Btrfs volume is mounted") : null}>
                                                         {_("edit")}
                                                     </StorageLink>}
@@ -140,7 +141,16 @@ const BtrfsVolumeCard = ({ card, block_devices, uuid, use }) => {
     );
 };
 
-const BtrfsSubVolumesCard = ({ card, volume }) => {
+export function make_btrfs_subvolumes_card(next, block, backing_block) {
+    return new_card({
+        title: _("btrfs subvolumes"),
+        next,
+        actions: btrfs_device_actions(block, backing_block),
+        component: BtrfsSubVolumesCard,
+    });
+}
+
+const BtrfsSubVolumesCard = ({ card }) => {
     return (
         <StorageCard card={card}>
             <CardBody className="contains-list">
@@ -152,7 +162,7 @@ const BtrfsSubVolumesCard = ({ card, volume }) => {
     );
 };
 
-function make_btrfs_subvolume_pages(parent, volume) {
+export function make_btrfs_subvolume_pages(parent, volume) {
     const subvols = client.uuids_btrfs_subvols[volume.data.uuid];
     if (subvols) {
         for (const subvol of subvols) {

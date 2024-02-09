@@ -34,6 +34,8 @@ import { make_stratis_blockdev_card } from "../stratis/blockdev.jsx";
 import { make_swap_card } from "../swap/swap.jsx";
 import { make_encryption_card } from "../crypto/encryption.jsx";
 import { make_btrfs_device_card } from "../btrfs/device.jsx";
+import { make_btrfs_filesystem_card } from "../btrfs/filesystem.jsx";
+import { make_btrfs_subvolume_pages } from "../btrfs/volume.jsx";
 
 import { new_page } from "../pages.jsx";
 
@@ -55,6 +57,9 @@ export function make_block_page(parent, block, card) {
 
     const is_btrfs = (fstab_config.length > 0 &&
                       (fstab_config[2].indexOf("subvol=") >= 0 || fstab_config[2].indexOf("subvolid=") >= 0));
+
+    const block_btrfs_blockdev = content_block && client.blocks_fsys_btrfs[content_block.path];
+    const single_device_volume = block_btrfs_blockdev && block_btrfs_blockdev.data.num_devices === 1;
 
     if (client.blocks_ptable[block.path]) {
         make_partition_table_page(parent, block, card);
@@ -89,10 +94,12 @@ export function make_block_page(parent, block, card) {
         const is_filesystem = content_block.IdUsage == 'filesystem';
         const block_pvol = client.blocks_pvol[content_block.path];
         const block_swap = client.blocks_swap[content_block.path];
-        const block_btrfs_blockdev = client.blocks_fsys_btrfs[content_block.path];
 
         if (block_btrfs_blockdev) {
-            card = make_btrfs_device_card(card, block, content_block, block_btrfs_blockdev);
+            if (single_device_volume)
+                card = make_btrfs_filesystem_card(card, block, content_block);
+            else
+                card = make_btrfs_device_card(card, block, content_block, block_btrfs_blockdev);
         } else if (is_filesystem) {
             card = make_filesystem_card(card, block, content_block, fstab_config);
         } else if ((content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
@@ -113,6 +120,10 @@ export function make_block_page(parent, block, card) {
         }
     }
 
-    if (card)
-        new_page(parent, card);
+    if (card) {
+        const page = new_page(parent, card);
+        if (block_btrfs_blockdev && single_device_volume)
+            make_btrfs_subvolume_pages(page, block_btrfs_blockdev);
+        return page;
+    }
 }

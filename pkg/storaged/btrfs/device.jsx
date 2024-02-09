@@ -44,10 +44,7 @@ export function make_btrfs_device_card(next, backing_block, content_block, block
         next,
         component: BtrfsDeviceCard,
         props: { backing_block, content_block },
-        actions: [
-            std_lock_action(backing_block, content_block),
-            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
-        ],
+        actions: btrfs_device_actions(backing_block, content_block),
     });
 
     register_crossref({
@@ -88,3 +85,13 @@ export const BtrfsDeviceCard = ({ card, backing_block, content_block }) => {
             </CardBody>
         </StorageCard>);
 };
+
+export function btrfs_device_actions(backing_block, content_block) {
+    if (backing_block && content_block)
+        return [
+            std_lock_action(backing_block, content_block),
+            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
+        ];
+    else
+        return [];
+}

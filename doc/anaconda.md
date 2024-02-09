@@ -134,8 +134,7 @@ encoded object, for example:
 }
 ```
 
-The keys are pathnames of device nodes in /dev, they are never
-symlinks to device nodes.
+The keys are pathnames of device nodes in /dev.
 
 Each value is an object with a "type" field. The type determines which
 other fields might be present, and what they mean.  The following
@@ -164,5 +163,8 @@ types might appear:
  "filesystem". This is also present when the crypto device is closed.
 
  It might also have a "cleartext_device" field if the encrpyted device
- is currently open. (Although this is something that blivet should be
- able to tell.)
+ is currently open.
+
+Cockpit does some magic (via the "x-parent" options in fstab and
+crypttab) to produce information also for locked LUKS devices, and
+inactive logical volumes.

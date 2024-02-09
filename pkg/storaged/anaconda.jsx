@@ -22,19 +22,41 @@ import client from "./client.js";
 import { decode_filename } from "./utils.js";
 import { parse_subvol_from_options } from "./btrfs/utils.jsx";
 
+function parse_parent_from_options(options) {
+    const parent_match = options.match(/x-parent=(?<parent>[\w\\-]+)/);
+    if (parent_match) {
+        return parent_match.groups.parent;
+    } else
+        return null;
+}
+
+function uuid_equal(a, b) {
+    return a.replace("-", "").toUpperCase() == b.replace("-", "").toUpperCase();
+}
+
 export function export_mount_point_mapping() {
     if (!client.in_anaconda_mode())
         return;
 
-    function fstab_info(config) {
+    function device_name(block) {
+        // Prefer symlinks in /dev/stratis/.
+        return (block.Symlinks.map(decode_filename).find(n => n.indexOf("/dev/stratis/") == 0) ||
+                decode_filename(block.PreferredDevice));
+    }
+
+    function tab_info(config, for_parent) {
         let dir;
         let subvols;
 
         for (const c of config) {
             if (c[0] == "fstab") {
+                const o = decode_filename(c[1].opts.v);
+                if (for_parent && !uuid_equal(parse_parent_from_options(o), for_parent))
+                    continue;
+
                 const d = client.strip_mount_point_prefix(decode_filename(c[1].dir.v));
                 if (d) {
-                    const sv = parse_subvol_from_options(decode_filename(c[1].opts.v));
+                    const sv = parse_subvol_from_options(o);
                     if (sv) {
                         if (sv.pathname) {
                             if (!subvols)
@@ -54,11 +76,30 @@ export function export_mount_point_mapping() {
                 dir,
                 subvolumes: subvols
             };
+
+        for (const c of config) {
+            if (c[0] == "crypttab") {
+                const o = decode_filename(c[1].options.v);
+                if (for_parent && !uuid_equal(parse_parent_from_options(o), for_parent))
+                    continue;
+
+                const device = decode_filename(c[1].device.v);
+                let content_info;
+                if (device.startsWith("UUID=")) {
+                    content_info = tab_info(config, device.substr(5));
+                }
+
+                return {
+                    type: "crypto",
+                    content: content_info,
+                };
+            }
+        }
     }
 
     function block_info(block) {
         if (block.IdUsage == "filesystem") {
-            return fstab_info(block.Configuration);
+            return tab_info(block.Configuration);
         } else if (block.IdUsage == "other" && block.IdType == "swap") {
             return {
                 type: "swap",
@@ -72,13 +113,13 @@ export function export_mount_point_mapping() {
             else {
                 const block_crypto = client.blocks_crypto[block.path];
                 if (block_crypto)
-                    content_info = fstab_info(block_crypto.ChildConfiguration);
+                    content_info = tab_info(block_crypto.ChildConfiguration, block.IdUUID);
             }
 
             if (content_info) {
                 return {
                     type: "crypto",
-                    cleartext_device: cleartext_block && decode_filename(cleartext_block.Device),
+                    cleartext_device: cleartext_block && device_name(cleartext_block),
                     content: content_info,
                 };
             }
@@ -88,7 +129,21 @@ export function export_mount_point_mapping() {
     const mpm = { };
     for (const p in client.blocks) {
         const b = client.blocks[p];
-        mpm[decode_filename(b.Device)] = block_info(b);
+        mpm[device_name(b)] = block_info(b);
+    }
+
+    // Add inactive logical volumes
+    for (const vg_p in client.vgroups) {
+        const vg = client.vgroups[vg_p];
+        for (const lv of client.vgroups_lvols[vg_p] || []) {
+            const b = client.lvols_block[lv.path];
+            const dev_name = "/dev/" + vg.Name + "/" + lv.Name;
+            if (!b && !mpm[dev_name]) {
+                const info = tab_info(lv.ChildConfiguration, lv.UUID);
+                if (info)
+                    mpm[dev_name] = info;
+            }
+        }
     }
 
     window.localStorage.setItem("cockpit_mount_points", JSON.stringify(mpm));

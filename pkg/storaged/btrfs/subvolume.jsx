@@ -299,7 +299,7 @@ export function make_btrfs_subvolume_page(parent, volume, subvol) {
     }
 
     // Don't show deletion for the root subvolume as it can never be deleted.
-    if (subvol.id !== 5)
+    if (subvol.id !== 5 && subvol.pathname !== "/")
         actions.push({
             danger: true,
             title: _("Delete"),

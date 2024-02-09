@@ -977,7 +977,7 @@ function init_model(callback) {
     }
 
     try {
-        client.anaconda = JSON.parse(window.localStorage.getItem("cockpit_anaconda"));
+        client.anaconda = JSON.parse(window.sessionStorage.getItem("cockpit_anaconda"));
         if (client.anaconda)
             console.log("ANACONDA", client.anaconda);
     } catch {

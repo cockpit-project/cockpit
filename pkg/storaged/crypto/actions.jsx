@@ -23,6 +23,7 @@ import client from "../client";
 import { get_existing_passphrase, unlock_with_type } from "./keyslots.jsx";
 import { set_crypto_auto_option } from "../utils.js";
 import { dialog_open, PassInput } from "../dialog.jsx";
+import { remember_passphrase } from "../anaconda.jsx";
 
 const _ = cockpit.gettext;
 
@@ -43,9 +44,10 @@ export function unlock(block) {
             ],
             Action: {
                 Title: _("Unlock"),
-                action: function (vals) {
-                    return (crypto.Unlock(vals.passphrase, {})
-                            .then(() => set_crypto_auto_option(block, true)));
+                action: async function (vals) {
+                    await crypto.Unlock(vals.passphrase, {});
+                    remember_passphrase(block, vals.passphrase);
+                    await set_crypto_auto_option(block, true);
                 }
             }
         });

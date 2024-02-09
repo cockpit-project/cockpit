@@ -28,14 +28,19 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
     def enterAnacondaMode(self, config):
         b = self.browser
-        b.call_js_func("window.localStorage.setItem", "cockpit_anaconda", json.dumps(config))
+        b.call_js_func("window.sessionStorage.setItem", "cockpit_anaconda", json.dumps(config))
         b.reload()
         b.enter_page("/storage")
 
     def expectExportedDevice(self, device, value):
-        mpm = json.loads(self.browser.call_js_func("window.localStorage.getItem", "cockpit_mount_points"))
+        mpm = json.loads(self.browser.call_js_func("window.sessionStorage.getItem", "cockpit_mount_points"))
         self.assertIn(device, mpm)
         self.assertEqual(mpm[device], value)
+
+    def expectExportedDevicePassphrase(self, device, value):
+        pp = json.loads(self.browser.call_js_func("window.sessionStorage.getItem", "cockpit_passphrases"))
+        self.assertIn(device, pp)
+        self.assertEqual(pp[device], value)
 
     def testBasic(self):
         m = self.machine
@@ -122,7 +127,8 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.confirm()
         testlib.wait(lambda: m.execute("if ! test -e /dev/vgroup0/lvol0; then echo gone; fi").strip() == "gone")
 
-        # Check exported mount point information.
+        # Check exported information.
+        self.expectExportedDevicePassphrase("/dev/vgroup0/lvol0", "vainu-reku-toma-rolle-kaja")
         self.expectExportedDevice("/dev/vgroup0/lvol0",
                                   {
                                       "type": "crypto",

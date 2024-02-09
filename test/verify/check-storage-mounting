@@ -24,13 +24,11 @@ import testlib
 @testlib.nondestructive
 class TestStorageMounting(storagelib.StorageCase):
 
-    def _navigate_root_subvolume(self, label):
+    def _navigate_root_subvolume(self):
         b = self.browser
 
-        b.wait_visible(self.card("btrfs device"))
-        b.click(self.card_button("btrfs device", label))
-        b.wait_visible(self.card("btrfs volume"))
-        self.click_card_row("btrfs subvolumes", name="/")
+        b.wait_visible(self.card("btrfs filesystem"))
+        self.click_card_row("btrfs filesystem", name="/")
         b.wait_visible(self.card("btrfs subvolume"))
 
     def testMounting(self):
@@ -68,7 +66,7 @@ class TestStorageMounting(storagelib.StorageCase):
         self.dialog_wait_close()
         self.assert_in_configuration("/dev/sda", "fstab", "dir", mount_point_foo)
         if fstype == "btrfs":
-            self._navigate_root_subvolume("FILESYSTEM")
+            self._navigate_root_subvolume()
         else:
             b.wait_text(self.card_desc(filesystem, "Name"), "FILESYSTEM")
 
@@ -179,7 +177,7 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_apply()
         self.dialog_wait_close()
         if fstype == "btrfs":
-            self._navigate_root_subvolume("FILESYSTEM")
+            self._navigate_root_subvolume()
             b.wait_in_text(self.card_desc("btrfs subvolume", "Mount point"), "/run/foo")
             self.addCleanup(m.execute, "umount /run/foo || true")
         else:
@@ -261,7 +259,7 @@ ExecStart=/usr/bin/sleep infinity
 
         m.execute(f"mkfs.{filesystem} -L testfs {disk}")
         if filesystem == "btrfs":
-            self._navigate_root_subvolume("testfs")
+            self._navigate_root_subvolume()
         else:
             b.wait_visible(self.card(desc))
 

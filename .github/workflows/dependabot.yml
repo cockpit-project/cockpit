@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Clear node_modules label
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             try {
@@ -56,7 +56,7 @@ jobs:
 
       - name: Clear [no-test] prefix from PR title
         if: ${{ contains(github.event.pull_request.title, '[no-test]') }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           TITLE: '${{ github.event.pull_request.title }}'
         with:

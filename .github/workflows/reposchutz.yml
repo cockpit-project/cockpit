@@ -27,7 +27,7 @@ jobs:
 
       - name: Clear .github-changes label
         if: ${{ !endsWith(github.event.action, 'labeled') }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             try {

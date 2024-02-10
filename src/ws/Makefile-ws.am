@@ -132,8 +132,6 @@ test_kerberos_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_kerberos_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS) $(krb5_LIBS)
 test_kerberos_SOURCES = src/ws/test-kerberos.c
 
-if WITH_OLD_BRIDGE
-
 # These are -ws tests but they involve invoking ./cockpit-bridge.
 
 TEST_PROGRAM += test-channelresponse
@@ -158,7 +156,6 @@ test_authssh_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_authssh_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
 test_authssh_SOURCES = src/ws/test-authssh.c
 
-endif
 endif
 
 noinst_PROGRAMS += mock-pam-conv-mod.so

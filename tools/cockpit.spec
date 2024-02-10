@@ -53,11 +53,6 @@ Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
-# Don't change the bridge in the RHEL 8; the old SSH breaks some features, see @todoPybridgeRHEL8
-%if 0%{?rhel} == 8 && !%{defined enable_old_bridge}
-%define enable_old_bridge 1
-%endif
-
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{pcp})
 # This split does not apply to EPEL/COPR nor packit c8s builds, only to our own
@@ -179,20 +174,6 @@ Suggests: cockpit-selinux
 Requires: subscription-manager-cockpit
 %endif
 
-%if 0%{?enable_old_bridge} == 0
-BuildRequires:  python3-devel
-BuildRequires:  python3-pip
-%if 0%{?rhel} == 0
-# All of these are only required for running pytest (which we only do on Fedora)
-BuildRequires:  procps-ng
-BuildRequires:  pyproject-rpm-macros
-BuildRequires:  python3-pytest-asyncio
-BuildRequires:  python3-pytest-cov
-BuildRequires:  python3-pytest-timeout
-BuildRequires:  python3-tox-current-env
-%endif
-%endif
-
 %prep
 %setup -q -n cockpit-%{version}
 
@@ -205,9 +186,6 @@ BuildRequires:  python3-tox-current-env
     --docdir=%_defaultdocdir/%{name} \
 %endif
     --with-pamdir='%{pamdir}' \
-%if 0%{?enable_old_bridge}
-    --enable-old-bridge \
-%endif
 %if 0%{?build_basic} == 0
     --disable-ssh \
 %endif
@@ -219,10 +197,6 @@ BuildRequires:  python3-tox-current-env
 
 %check
 make -j$(nproc) check
-
-%if 0%{?enable_old_bridge} == 0 && 0%{?rhel} == 0
-%tox
-%endif
 
 %install
 %make_install
@@ -239,7 +213,7 @@ echo '%dir %{_datadir}/cockpit/base1' >> base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f -o -type l >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
-%if 0%{?enable_old_bridge} && 0%{?build_basic}
+%if 0%{?build_basic}
 echo '%dir %{_datadir}/cockpit/ssh' >> base.list
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 %endif
@@ -390,9 +364,6 @@ system on behalf of the web based user interface.
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %{_libexecdir}/cockpit-askpass
-%if 0%{?enable_old_bridge} == 0
-%{python3_sitelib}/%{name}*
-%endif
 
 %package doc
 Summary: Cockpit deployment and developer guide

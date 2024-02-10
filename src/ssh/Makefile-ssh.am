@@ -36,10 +36,8 @@ cockpit_ssh_SOURCES = src/ssh/ssh.c
 # -----------------------------------------------------------------------------
 # C bridge config; Python bridge handles it internally
 
-if WITH_OLD_BRIDGE
 sshmanifestdir = $(datadir)/cockpit/ssh
 dist_sshmanifest_DATA = src/ssh/manifest.json
-endif
 
 # -----------------------------------------------------------------------------
 # mock-ssh

@@ -9,14 +9,10 @@ jobs:
         startarg:
           # avoid check-memory on i386, it has literally thousands of uninteresting/wrong errors
           - { make: 'check-memory', cc: 'gcc', tag: 'latest' }
-          # with default Python bridge
           - { make: 'distcheck', cc: 'clang', tag: 'latest' }
           - { make: 'distcheck', cc: 'gcc', tag: 'i386' }
-          # with old C bridge
-          - { make: 'distcheck', cc: 'gcc', distcheck_flags: '--enable-old-bridge', tag: 'latest' }
           # this runs static code checks, unlike distcheck
           - { make: 'check', cc: 'gcc', tag: 'latest' }
-          - { make: 'pytest-cov', cc: 'gcc', tag: 'latest' }
       fail-fast: false
     timeout-minutes: 60
     steps:

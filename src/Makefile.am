@@ -5,44 +5,6 @@ libexec_SCRIPTS =
 sbin_PROGRAMS =
 
 # -----------------------------------------------------------------------------
-#  Python
-
-# Will only be honoured if pytest-timeout plugin is installed
-export PYTEST_TIMEOUT = 120
-
-.PHONY: pytest
-pytest: $(BUILT_SOURCES) $(DIST_STAMP) $(MANIFESTS)
-	$(MAKE) test-server
-	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest
-
-.PHONY: pytest-cov
-pytest-cov: $(BUILT_SOURCES) $(DIST_STAMP) $(MANIFESTS)
-	$(MAKE) test-server
-	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest --cov
-
-if !WITH_OLD_BRIDGE
-INSTALL_DATA_LOCAL_TARGETS += install-python
-install-python:
-	@# wheel-based installation with .dist-info.
-	@# This needs to work on RHEL8 up through modern Fedora, offline, with
-	@# system packages available to the build.
-	python3 -m pip install --no-index --force-reinstall --root='$(DESTDIR)/' --prefix='$(prefix)' \
-		"$$(python3 '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
-	mkdir -p $(DESTDIR)$(libexecdir)
-	mv -t $(DESTDIR)$(libexecdir) $(DESTDIR)$(bindir)/cockpit-askpass
-
-UNINSTALL_LOCAL_TARGETS += uninstall-python
-uninstall-python:
-	rm -rf tmp/wheel
-	rm -f $(DESTDIR)$(libexecdir)/cockpit-askpass
-	rm -f $(DESTDIR)$(bindir)/cockpit-bridge
-	@# HACK: pip uninstall does not know about --root and --prefix
-	rm -r $(DESTDIR)$(prefix)/lib/python*/*-packages/cockpit \
-	      $(DESTDIR)$(prefix)/lib/python*/*-packages/cockpit-*.dist-info
-endif
-
-
-# -----------------------------------------------------------------------------
 #  C
 
 AM_CPPFLAGS = \

@@ -179,51 +179,6 @@ git submodules:
 Refer to the [testing README](test/README.md) for details on running the Cockpit
 integration tests locally.
 
-## Python bridge
-
-Most distro releases now ship a replacement for the C bridge written in Python.
-It resides in `src/cockpit` with most of its rules in `src/Makefile.am`.  This
-directory was chosen because it matches the standard so-called "src layout"
-convention for Python packages, where each package (`cockpit`) is a
-subdirectory of the `src` directory.
-
-### Running the bridge
-
-The Python bridge can be used interactively on a local machine:
-
-    PYTHONPATH=src python3 -m cockpit.bridge
-
-To make it easy to test out channels without having to write out messages
-manually, `cockpit.misc.print` can be used:
-
-    PYTHONPATH=src python3 -m cockpit.misc.print open fslist1 path=/etc watch=False | PYTHONPATH=src python3 -m cockpit.bridge
-
-These shell aliases might be useful when experimenting with the protocol:
-
-    alias cpy='PYTHONPATH=src python3 -m cockpit.bridge'
-    alias cpf='PYTHONPATH=src python3 -m cockpit.misc.print'
-
-When working with the Python bridge on test images, note that `RHEL/CentOS 8`,
-`debian-stable`, and `ubuntu-2204` still use the C bridge. So if you want to
-explicitly have the Python bridge on those images use:
-
-    ./test/image-prepare --python
-
-To enable debug logging in journal on a test image, you can pass `--debug` to
-`image-prepare`. This will set `COCKPIT_DEBUG=all` to `/etc/environment`, if
-you are only interested channel debug messages change `all` to
-`cockpit.channel`.
-
-### Testing the Python bridge
-
-There are a growing number of Python `unittest` tests being written to test
-parts of the new bridge code.  You can run these with `make pytest` or
-`make pytest-cov`.  Those are both just rules to make sure that the
-`systemd_ctypes` submodule is checked out before running `pytest` from the
-source directory.
-
-The tests require at least `pytest` 7.0.0 or higher to run.
-
 ## Running eslint
 
 Cockpit uses [ESLint](https://eslint.org/) to automatically check JavaScript

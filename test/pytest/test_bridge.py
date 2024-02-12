@@ -10,7 +10,6 @@ import pwd
 import shlex
 import subprocess
 import sys
-import tempfile
 import unittest.mock
 from collections import deque
 from pathlib import Path
@@ -444,20 +443,17 @@ async def test_fsread1_size_hint_absent_char_device(transport: MockTransport) ->
 
 
 @pytest.mark.asyncio
-async def test_fslist1_no_watch(transport: MockTransport) -> None:
-    tempdir = tempfile.TemporaryDirectory()
-    dir_path = Path(tempdir.name)
-
+async def test_fslist1_no_watch(transport: MockTransport, tmp_path: Path) -> None:
     # empty
-    ch = await transport.check_open('fslist1', path=str(dir_path), watch=False)
+    ch = await transport.check_open('fslist1', path=str(tmp_path), watch=False)
     await transport.assert_msg('', command='done', channel=ch)
     await transport.check_close(channel=ch)
 
     # create a file and a directory in some_dir
-    Path(dir_path, 'somefile').touch()
-    Path(dir_path, 'somedir').mkdir()
+    (tmp_path / 'somefile').touch()
+    (tmp_path / 'somedir').mkdir()
 
-    ch = await transport.check_open('fslist1', path=str(dir_path), watch=False)
+    ch = await transport.check_open('fslist1', path=str(tmp_path), watch=False)
     # don't assume any ordering
     msg1 = await transport.next_msg(ch)
     msg2 = await transport.next_msg(ch)

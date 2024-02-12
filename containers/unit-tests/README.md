@@ -15,9 +15,7 @@ or root.
 
 ## Building
 
-The `build` script will build the `cockpit/unit-tests` and
-`cockpit/unit-tests:i386` containers. Call it with an architecture to only
-build one variant, e.g. `build i386`.
+The `build` script will build the `cockpit/unit-tests` container.
 
 ## Running tests
 
@@ -33,7 +31,6 @@ to modify its behaviour:
  - `--env CC=othercc` to set the `CC` environment variable inside the container (ie:
    to build with a different compiler)
  - `--image-tag` to specify a different tag to use for the `cockpit/unit-tests` image
-   (eg: `--image-tag=i386`)
 
 Additionally, a testing scenario can be provided with specifying a `make` target.
 Supported scenarios are:
@@ -47,8 +44,6 @@ Some examples:
     $ ./start --make check-memory                 # run the valgrind tests on amd64
 
     $ ./start --env=CC=clang --make check-memory  # run the valgrind tests, compiled with clang
-
-    $ ./start --image-tag=i386 distcheck          # run the distcheck tests on i386
 
 ## Debugging tests
 

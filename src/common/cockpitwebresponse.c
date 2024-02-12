@@ -234,7 +234,9 @@ cockpit_web_response_new (GIOStream *io,
   self->url_root = NULL;
   self->full_path = g_strdup (path);
   self->path = self->full_path;
-  cockpit_web_response_set_method (self, method);
+
+  g_assert (method != NULL);
+  self->method = g_strdup (method);
 
   if (path && original_path)
     {
@@ -262,15 +264,6 @@ cockpit_web_response_new (GIOStream *io,
     self->origin = g_strdup_printf ("%s://%s", self->protocol, host);
 
   return self;
-}
-
-void
-cockpit_web_response_set_method (CockpitWebResponse *response,
-                                 const gchar *method)
-{
-  g_return_if_fail (g_strcmp0 (method, "GET") == 0 || g_strcmp0 (method, "HEAD") == 0);
-  g_free (response->method);
-  response->method = g_strdup (method);
 }
 
 /**
@@ -586,7 +579,7 @@ cockpit_web_response_queue (CockpitWebResponse *self,
       return FALSE;
     }
 
-  if (g_strcmp0 (self->method, "HEAD") == 0)
+  if (g_str_equal (self->method, "HEAD"))
     {
       g_debug ("%s: ignoring queued block for method HEAD", self->logname);
       return TRUE;
@@ -1168,7 +1161,7 @@ cockpit_web_response_error (CockpitWebResponse *self,
       cockpit_web_response_headers (self, code, message, -1, "Content-Type", "text/html; charset=utf8", NULL);
     }
 
-  if (g_str_equal (self->method, "GET"))
+  if (!g_str_equal (self->method, "HEAD"))
     {
       extern const char *cockpit_webresponse_fail_html_text;
       g_autoptr(GBytes) input = g_bytes_new_static (cockpit_webresponse_fail_html_text, strlen (cockpit_webresponse_fail_html_text));

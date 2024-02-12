@@ -760,6 +760,15 @@ class TestConnection(testlib.MachineCase):
         # Large requests are processed correctly with TLS
         self.assertIn('A Custom Title', m.curl('-k', 'https://localhost:9000/', headers=large_headers))
 
+        # unsupported HTTP method
+        self.assertIn("HTTP/1.1 405 Method Not Allowed",
+                      m.execute('curl -k --verbose -X PATCH https://localhost:9000/ 2>&1'))
+
+        # no body with HEAD request
+        out = m.execute('curl -k --head https://localhost:9000/')
+        self.assertIn("HTTP/1.1 200", out)
+        self.assertNotIn("<html>", out)
+
     @testlib.nondestructive
     def testHeadRequest(self):
         m = self.machine

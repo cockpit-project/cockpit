@@ -181,6 +181,9 @@ class FsReplaceChannel(Channel):
                     continue
                 except PermissionError as exc:
                     raise ChannelError('access-denied') from exc
+                except FileNotFoundError as exc:
+                    # directory of path does not exist
+                    raise ChannelError('not-found') from exc
                 except OSError as exc:
                     raise ChannelError('internal-error', message=str(exc)) from exc
             else:
@@ -212,10 +215,18 @@ class FsReplaceChannel(Channel):
 
             try:
                 os.rename(self._temppath, self._path)
-            except OSError:
-                # ensure to not leave the temp file behind
+            # ensure to not leave the temp file behind
+            except FileNotFoundError as exc:
                 self.unlink_temppath()
-                raise
+                raise ChannelError('not-found', message=str(exc)) from exc
+            except IsADirectoryError as exc:
+                self.unlink_temppath()
+                # not ideal, but the closest code we have
+                raise ChannelError('access-denied', message=str(exc)) from exc
+            except OSError as exc:
+                self.unlink_temppath()
+                raise ChannelError('internal-error', message=str(exc)) from exc
+
             self._tempfile.close()
             self._tempfile = None
 

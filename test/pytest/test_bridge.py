@@ -514,6 +514,21 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
 
 
 @pytest.mark.asyncio
+async def test_fsreplace1_error(transport: MockTransport, tmp_path: Path) -> None:
+    # trying to write a directory
+    ch = await transport.check_open('fsreplace1', path=str(tmp_path))
+    transport.send_data(ch, b'not me')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='close', channel=ch, problem='access-denied')
+
+    # nonexisting directory
+    ch = await transport.check_open('fsreplace1', path='/non/existing/file')
+    transport.send_data(ch, b'not me')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='close', channel=ch, problem='not-found')
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize('channeltype', CHANNEL_TYPES)
 async def test_channel(bridge: Bridge, transport: MockTransport, channeltype, tmp_path: Path) -> None:
     payload = channeltype.payload

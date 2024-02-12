@@ -131,7 +131,7 @@ class TestKeys(testlib.MachineCase):
         b.wait_not_in_text("#account-authorized-keys", "Invalid key")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
         data = m.execute("cat /home/user/.ssh/authorized_keys")
-        self.assertEqual(data, KEY + "\n\n")
+        self.assertEqual(data, KEY + "\n")
         # Permissions are still ok
         check_perms()
         b.logout()

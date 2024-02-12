@@ -167,8 +167,6 @@ test_return_error (TestCase *tc,
 {
   const gchar *resp;
 
-  cockpit_expect_message ("Returning error-response 500*");
-
   cockpit_web_response_error (tc->response, 500, NULL, "Reason here: %s", "booyah");
 
   resp = output_as_string (tc);
@@ -192,8 +190,6 @@ test_return_error_headers (TestCase *tc,
   const gchar *resp;
   GHashTable *headers;
 
-  cockpit_expect_message ("Returning error-response 500*");
-
   headers = cockpit_web_server_new_table ();
   g_hash_table_insert (headers, g_strdup ("Header1"), g_strdup ("value1"));
 
@@ -214,8 +210,6 @@ test_return_gerror_headers (TestCase *tc,
   const gchar *resp;
   GHashTable *headers;
   GError *error;
-
-  cockpit_expect_message ("Returning error-response 500*");
 
   headers = cockpit_web_server_new_table ();
   g_hash_table_insert (headers, g_strdup ("Header1"), g_strdup ("value1"));

@@ -191,8 +191,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                        "if [ -e .profile.bak ]; then mv .profile.bak .profile; else rm .profile; fi")
             b.login_and_go()
 
-        self.allow_journal_messages("Returning error-response ... with reason .*",
-                                    r"pam_unix\(cockpit:auth\): authentication failure; .*",
+        self.allow_journal_messages(r"pam_unix\(cockpit:auth\): authentication failure; .*",
                                     r"pam_unix\(cockpit:auth\): check pass; user unknown",
                                     r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
                                     "noise-rc-.*")

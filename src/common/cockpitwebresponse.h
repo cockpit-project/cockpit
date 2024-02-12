@@ -56,8 +56,6 @@ CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
                                                           GHashTable *in_headers,
                                                           const gchar *method,
                                                           const gchar *protocol);
-void                  cockpit_web_response_set_method    (CockpitWebResponse *response,
-                                                          const gchar *method);
 
 
 const gchar *         cockpit_web_response_get_path      (CockpitWebResponse *self);

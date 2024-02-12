@@ -475,6 +475,45 @@ async def test_fslist1_notexist(transport: MockTransport) -> None:
 
 
 @pytest.mark.asyncio
+async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
+    # create non-existing file
+    myfile = tmp_path / 'newfile'
+    ch = await transport.check_open('fsreplace1', path=str(myfile))
+    transport.send_data(ch, b'some stuff')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert myfile.read_bytes() == b'some stuff'
+    # no leftover files
+    assert os.listdir(tmp_path) == ['newfile']
+
+    # now update its contents
+    ch = await transport.check_open('fsreplace1', path=str(myfile))
+    transport.send_data(ch, b'new new new!')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert myfile.read_bytes() == b'new new new!'
+    # no leftover files
+    assert os.listdir(tmp_path) == ['newfile']
+
+    # write empty file
+    ch = await transport.check_open('fsreplace1', path=str(myfile))
+    transport.send_data(ch, b'')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert myfile.read_bytes() == b''
+
+    # delete file
+    ch = await transport.check_open('fsreplace1', path=str(myfile))
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert not myfile.exists()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize('channeltype', CHANNEL_TYPES)
 async def test_channel(bridge: Bridge, transport: MockTransport, channeltype, tmp_path: Path) -> None:
     payload = channeltype.payload

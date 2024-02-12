@@ -148,7 +148,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                                           variant='link'
                                           isInline
                                           icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
-                                          href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-bonds-using-the-web-console_system-management-using-the-rhel-8-web-console">
+                                          href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/configuring-network-bonds-using-the-web-console_system-management-using-the-rhel-9-web-console">
                                       {_("Learn more")}
                                   </Button>
                               }

@@ -498,6 +498,10 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     # no leftover files
     assert os.listdir(tmp_path) == ['newfile']
 
+    # set funny permissions to check that they are preserved
+    perms = 0o625
+    myfile.chmod(perms)
+
     # get the current tag
     ch = await transport.check_open('fsread1', path=str(myfile))
     transport.send_done(ch)
@@ -515,6 +519,9 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     await transport.assert_msg('', command='done', channel=ch)
     await transport.check_close(channel=ch)
     assert myfile.read_bytes() == b'even newer'
+
+    # preserves existing permissions when giving expected tag
+    assert stat.S_IMODE(myfile.stat().st_mode) == perms
 
     # write empty file
     ch = await transport.check_open('fsreplace1', path=str(myfile))

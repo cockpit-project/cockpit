@@ -1081,6 +1081,10 @@ content will be replaced with a "rename" syscall when the channel is
 closed without problem code.  If the channel is closed with a problem
 code (by either client or server), the file will be left untouched.
 
+If `tag` is given, file owner and mode are preserved (copied from the
+original file). Other attributes (like ACLs or locally modified SELinux
+context) are never copied.
+
 In addition to the usual "problem" field, the "close" control message
 sent by the server might have the following additional fields:
 

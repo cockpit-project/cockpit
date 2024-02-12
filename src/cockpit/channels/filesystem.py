@@ -170,12 +170,27 @@ class FsReplaceChannel(Channel):
 
     def do_data(self, data):
         if self._tempfile is None:
+            # if the file exists already and we have an expected tag, check it
+            stat = None
+            if self._tag is not None:
+                try:
+                    stat = os.stat(self._path)
+                    current_tag = tag_from_stat(stat)
+                except FileNotFoundError:
+                    current_tag = '-'
+                if self._tag != current_tag:
+                    raise ChannelError('change-conflict')
+
             # keep this bounded, in case anything unexpected goes wrong
             for _ in range(10):
                 suffix = ''.join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789_", k=6))
                 self._temppath = f'{self._path}.cockpit-tmp.{suffix}'
                 try:
                     fd = os.open(self._temppath, os.O_CREAT | os.O_WRONLY | os.O_EXCL, 0o666)
+                    if stat is not None:
+                        # copy permissions from existing file
+                        os.fchmod(fd, stat.st_mode)
+                        os.fchown(fd, stat.st_uid, stat.st_gid)
                     break
                 except FileExistsError:
                     continue

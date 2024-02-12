@@ -1684,9 +1684,6 @@ class MachineCase(unittest.TestCase):
 
     # List of allowed journal messages during tests; these need to match the *entire* message
     default_allowed_messages = [
-        # This is a failed login, which happens every time
-        "Returning error-response 401 with reason `Sorry'",
-
         # Reauth stuff
         '.*Reauthorizing unix-user:.*',
         '.*user .* was reauthorized.*',

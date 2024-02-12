@@ -101,6 +101,11 @@ select.pf-v5-c-form-control {
   }
 }
 
+// don't hide long dialog titles
+.pf-v5-c-modal-box__title-text {
+    white-space: normal;
+}
+
 .pf-v5-c-card {
   // https://github.com/patternfly/patternfly/issues/3959
   --pf-v5-c-card__header-toggle--MarginTop: 0;

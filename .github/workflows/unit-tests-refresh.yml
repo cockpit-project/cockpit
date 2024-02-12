@@ -32,10 +32,6 @@ jobs:
         timeout-minutes: 15
         run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=latest --make distcheck
 
-      - name: Run i386 gcc distcheck test
-        timeout-minutes: 15
-        run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=i386 --make distcheck
-
       - name: Run amd64 gcc check test
         timeout-minutes: 15
         run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make check
@@ -50,4 +46,3 @@ jobs:
       - name: Push containers to registry
         run: |
           podman push ghcr.io/cockpit-project/unit-tests:latest
-          podman push ghcr.io/cockpit-project/unit-tests:i386

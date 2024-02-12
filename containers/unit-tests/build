@@ -3,10 +3,4 @@ set -eu
 
 dir=$(dirname "$0")
 
-if [ -z "${1:-}" ] || [ "${1:-}" = amd64 ]; then
-    podman build --build-arg debian_arch=amd64 --build-arg personality=linux64 -t ghcr.io/cockpit-project/unit-tests ${dir}
-fi
-
-if [ -z "${1:-}" ] || [ "${1:-}" = i386 ]; then
-    podman build --build-arg debian_arch=i386 --build-arg personality=linux32 -t ghcr.io/cockpit-project/unit-tests:i386 ${dir}
-fi
+podman build --build-arg debian_arch=amd64 --build-arg personality=linux64 -t ghcr.io/cockpit-project/unit-tests ${dir}

@@ -7,10 +7,8 @@ jobs:
     strategy:
       matrix:
         startarg:
-          # avoid check-memory on i386, it has literally thousands of uninteresting/wrong errors
           - { make: 'check-memory', cc: 'gcc', tag: 'latest' }
           - { make: 'distcheck', cc: 'clang', tag: 'latest' }
-          - { make: 'distcheck', cc: 'gcc', tag: 'i386' }
           # this runs static code checks, unlike distcheck
           - { make: 'check', cc: 'gcc', tag: 'latest' }
           - { make: 'pytest-cov', cc: 'gcc', tag: 'latest' }
@@ -27,11 +25,7 @@ jobs:
         run: |
           changes=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}..HEAD -- containers/unit-tests/)
           if [ -n "${changes}" ]; then
-            case '${{ matrix.startarg.tag }}' in
-              i386) arch=i386;;
-              latest) arch=amd64;;
-            esac
-            containers/unit-tests/build $arch
+            containers/unit-tests/build
           fi
 
       - name: Run unit-tests container

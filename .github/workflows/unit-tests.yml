@@ -4,37 +4,33 @@ jobs:
   unit-tests:
     runs-on: ubuntu-22.04
     permissions: {}
+    container:
+      image: quay.io/cockpit/tasks:latest
+      options: --user 1001
     strategy:
       matrix:
-        startarg:
-          - { make: 'check-memory', tag: 'latest' }
-          - { make: 'distcheck', tag: 'latest' }
+        target:
+          - check-memory
+          - distcheck
           # this runs static code checks, unlike distcheck
-          - { make: 'check', tag: 'latest' }
-          - { make: 'pytest-cov', tag: 'latest' }
+          - check
+          - pytest-cov
       fail-fast: false
     timeout-minutes: 60
+    env:
+      FORCE_COLOR: 1
+      TEST_BROWSER: firefox
+      CFLAGS: '-O2'
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
         with:
           # need this to also fetch tags
           fetch-depth: 0
+          submodules: true
 
-      - name: Build unit test container if it changed
-        run: |
-          changes=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}..HEAD -- containers/unit-tests/)
-          if [ -n "${changes}" ]; then
-            containers/unit-tests/build
-          fi
-
-      - name: Run unit-tests container
+      - name: Run unit test
         timeout-minutes: 30
         run: |
-          containers/unit-tests/start \
-              --verbose \
-              --env=FORCE_COLOR=1 \
-              --env=CFLAGS='-O2' \
-              --env=EXTRA_DISTCHECK_CONFIGURE_FLAGS='${{ matrix.startarg.distcheck_flags }}' \
-              --image-tag='${{ matrix.startarg.tag }}' \
-              --make '${{ matrix.startarg.make }}'
+            ./autogen.sh
+            make -j$(nproc) '${{ matrix.target }}'

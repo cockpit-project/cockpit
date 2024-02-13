@@ -173,7 +173,11 @@ QUnit.test("pty", async assert => {
 });
 
 QUnit.test("pty window size", async assert => {
-    const proc = cockpit.spawn(['tput', 'lines', 'cols'], { pty: true, window: { rows: 77, cols: 88 } });
+    const proc = cockpit.spawn(['tput', 'lines', 'cols'], {
+        pty: true,
+        environ: ["TERM=vt100"],
+        window: { rows: 77, cols: 88 }
+    });
     assert.equal(await proc, '77\r\n88\r\n', 'Correct rows and columns');
 });
 

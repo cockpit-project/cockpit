@@ -81,17 +81,19 @@ class TestStoragePartitions(storagelib.StorageCase):
         about_half_way = width / 2 + 1
 
         b.mouse(slider, "click", about_half_way, 0)
-        self.dialog_wait_val("size", 27.4)
+        self.dialog_wait_val("size", 27.3)
         b.focus(slider + " + .pf-v5-c-slider__thumb")
         b.key_press(chr(37), use_ord=True)  # arrow left
         b.key_press(chr(37), use_ord=True)
         b.key_press(chr(37), use_ord=True)
-        self.dialog_wait_val("size", 27.1)
+        b.key_press(chr(37), use_ord=True)
+        b.key_press(chr(37), use_ord=True)
+        self.dialog_wait_val("size", 26.2)
 
         # Check that changing units doesn't affect the text input
         unit = "1000000000"
         b.select_from_dropdown(".size-unit > select", unit)
-        self.dialog_wait_val("size", 27.1, unit)
+        self.dialog_wait_val("size", 26.2, unit)
 
         # Change unit back to MB
         unit = "1000000"
@@ -100,26 +102,11 @@ class TestStoragePartitions(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        # 27.1 MB is about 25.84 MiB. Some versions of
-        # UDisks2/libblockdev/libparted/... round this up to 26 MiB
-        # when creating the partition, some (newer ones) round it down
-        # to 25 MiB.
-        #
-        testlib.wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() in ["26M", "25M"])
+        testlib.wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() == "25M")
 
     def testResize(self):
         m = self.machine
         b = self.browser
-
-        # Different versions of UDisks2 round partition sizes
-        # differently during creation, urks.  We nudge the input sizes
-        # a bit in the right places to end up with the same partition
-        # sizes on all platforms.
-
-        if self.storaged_version >= [2, 10]:
-            nudge = 1
-        else:
-            nudge = 0
 
         self.login_and_go("/storage")
 
@@ -135,7 +122,7 @@ class TestStoragePartitions(storagelib.StorageCase):
         self.click_dropdown(self.card_row("GPT partitions", 1), "Create partition")
         self.dialog({"type": "ext4",
                      "mount_point": "/foo1",
-                     "size": 80 + nudge},
+                     "size": 80},
                     secondary=True)
         self.click_dropdown(self.card_row("GPT partitions", 2), "Create partition")
         self.dialog({"type": "ext4",
@@ -143,8 +130,8 @@ class TestStoragePartitions(storagelib.StorageCase):
                      "size": 23},
                     secondary=True)
 
-        b.wait_text(self.card_row_col("GPT partitions", 1, 4), "80.7 MB")
-        b.wait_text(self.card_row_col("GPT partitions", 2, 4), "22.0 MB")
+        b.wait_text(self.card_row_col("GPT partitions", 1, 4), "79.7 MB")
+        b.wait_text(self.card_row_col("GPT partitions", 2, 4), "23.1 MB")
 
         # Shrink the first
         self.click_card_row("GPT partitions", 1)
@@ -154,15 +141,15 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         # Grow it back externally, Cockpit should complain.  Shrink it
         # again with Cockpit.
-        m.execute(f"parted -s {disk} resizepart 1 81.7MB")
+        m.execute(f"parted -s {disk} resizepart 1 80.7MB")
         b.click(self.card_button("Partition", "Shrink partition"))
         b.wait_in_text(self.card_desc("Partition", "Size"), "50.3 MB")
 
         # Grow it back externally again. Grow the filesystem with
         # Cockpit.
-        m.execute(f"parted -s {disk} resizepart 1 81.7MB")
+        m.execute(f"parted -s {disk} resizepart 1 80.7MB")
         b.click(self.card_button("Partition", "Grow content"))
-        b.wait_in_text(self.card_desc("Partition", "Size"), "80.7 MB")
+        b.wait_in_text(self.card_desc("Partition", "Size"), "79.7 MB")
         b.wait_visible(self.card_button("Partition", "Grow") + ":disabled")
 
         # Delete second partition and grow the first to take all the

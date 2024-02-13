@@ -44,7 +44,8 @@ import cdp
 import testvm
 from lcov import write_lcov
 from lib.constants import OSTREE_IMAGES
-from testinsp import RunChecks
+from testinsp import RunChecksInParallel
+from testinsp.utils import FirstRunError
 
 try:
     from PIL import Image
@@ -1521,7 +1522,9 @@ class MachineCase(unittest.TestCase):
         # run TestInspector as last cleanup action
         def test_inspector_check():
             print(" ---------- RESULTS OF TEST INSPECTOR ---------- ")
-            inspected_data = self.test_inspecor.check()
+            inspected_data = self.test_inspecor.check(init_after_check=True)
+            # use persistent store to increase speed
+            self.test_inspecor.store()
             for k, v in inspected_data.items():
                 if v:
                     pprint(f">> Test Inspector FAIL - ({k}):")
@@ -1531,6 +1534,7 @@ class MachineCase(unittest.TestCase):
         exclude_dict["ListEtcDir"] = ["/etc/systemd/system/cockpit.service.d/notls.conf",
                                       "/etc/lvm/archive",
                                       "/etc/lvm/backup",
+                                      "/etc/libvirt/qemu/",
                                       ]
         exclude_dict["ServiceInfo"] = ["cockpit",
                                        "user@",
@@ -1541,9 +1545,21 @@ class MachineCase(unittest.TestCase):
                                        "systemd-hostnamed",
                                        "systemd-logind.service",
                                        "virtqemud",
+                                       "virtnetworkd",
+                                       "setroubleshootd",
+                                       ".*SetroubleshootPrivileged.*",
+                                       "pmcd",
+                                       "pmproxy",
+                                       "pmlogger_farm",
+                                       "reportd",
+                                       ".*freedesktop.problems.*",
+                                       "sssd-kcm",
                                        ]
-        self.test_inspecor = RunChecks(external_executor=m.execute, exclude_dict=exclude_dict)
-        self.test_inspecor.init()
+        self.test_inspecor = RunChecksInParallel(external_executor=m.execute, exclude_dict=exclude_dict)
+        try:
+            self.test_inspecor.load()
+        except FirstRunError:
+            self.test_inspecor.init()
         self.addCleanup(test_inspector_check)
 
         # helps with mapping journal output to particular tests

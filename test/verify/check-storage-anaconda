@@ -355,7 +355,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog({"type": "biosboot"})
 
         # Check the type and set it to something else
-        b.wait_text(self.card_row_col("Storage", 2, 3), "Unformatted data")
+        b.wait_text(self.card_row_col("Storage", 2, 3), "Unformatted data (BIOS boot partition)")
         self.click_card_row("Storage", 2)
         b.wait_text(self.card_desc("Partition", "Type"), "BIOS boot partition")
         b.click(self.card_desc_action("Partition", "Type"))
@@ -390,7 +390,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog({"type": "efi"})
 
         # Check the type and set it to something else
-        b.wait_text(self.card_row_col("Storage", 2, 3), "vfat filesystem")
+        b.wait_text(self.card_row_col("Storage", 2, 3), "vfat filesystem (EFI system partition)")
         b.wait_text(self.card_row_col("Storage", 2, 4), "/boot/efi")
         self.click_card_row("Storage", 2)
         b.wait_visible(self.card("vfat filesystem"))

@@ -175,7 +175,7 @@ export class KdumpClient {
             return target;
 
         // copy first target
-        cockpit.extend(target, Object.values(settings.targets)[0]);
+        Object.assign(target, Object.values(settings.targets)[0]);
         target.multipleTargets = Object.keys(settings.targets).length > 1;
         return target;
     }

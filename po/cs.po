@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-08 02:46+0000\n"
+"POT-Creation-Date: 2024-02-12 02:47+0000\n"
 "PO-Revision-Date: 2023-12-31 14:36+0000\n"
 "Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
 "memory@weblate.org>\n"
@@ -347,13 +347,13 @@ msgstr "$name (z $host)"
 msgid "(Not part of target)"
 msgstr "Vytváří se oddíl $target"
 
-#: pkg/storaged/filesystem/utils.jsx:237
+#: pkg/storaged/filesystem/utils.jsx:239
 #, fuzzy
 #| msgid "Local mount point"
 msgid "(no assigned mount point)"
 msgstr "Místní přípojný bod"
 
-#: pkg/storaged/filesystem/utils.jsx:234 pkg/storaged/filesystem/utils.jsx:239
+#: pkg/storaged/filesystem/utils.jsx:236 pkg/storaged/filesystem/utils.jsx:241
 #: pkg/storaged/nfs/nfs.jsx:294
 #, fuzzy
 #| msgid "Not mounted"
@@ -1188,7 +1188,7 @@ msgstr "Je vyžadováno alespoň jedno blokové zařízení."
 msgid "At least one disk is needed."
 msgstr "Je vyžadován alespoň jeden disk."
 
-#: pkg/storaged/btrfs/subvolume.jsx:288
+#: pkg/storaged/btrfs/subvolume.jsx:298
 msgid "At least one parent needs to be mounted writable"
 msgstr ""
 
@@ -2116,7 +2116,7 @@ msgstr "Zhavarovat systém"
 #: pkg/storaged/block/format-dialog.jsx:332
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/stratis/create-dialog.jsx:122 pkg/storaged/stratis/pool.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:138
 msgid "Create"
 msgstr "Vytvořit"
 
@@ -2160,7 +2160,7 @@ msgid "Create and change ownership of home directory"
 msgstr "Vytvořit a změnit vlastnictví domovské složky"
 
 #: pkg/storaged/block/format-dialog.jsx:317 pkg/storaged/stratis/pool.jsx:81
-#: pkg/storaged/btrfs/subvolume.jsx:130
+#: pkg/storaged/btrfs/subvolume.jsx:132
 msgid "Create and mount"
 msgstr "Vytvořit a připojit"
 
@@ -2212,7 +2212,7 @@ msgstr "Vytvořit nový logický svazek"
 
 #: pkg/storaged/block/format-dialog.jsx:318
 #: pkg/storaged/block/format-dialog.jsx:327 pkg/storaged/stratis/pool.jsx:82
-#: pkg/storaged/btrfs/subvolume.jsx:131
+#: pkg/storaged/btrfs/subvolume.jsx:133
 msgid "Create only"
 msgstr "Pouze vytvořit"
 
@@ -2249,7 +2249,7 @@ msgstr "Pouze pořídit zachycený stav"
 msgid "Create storage device"
 msgstr "Vytvořit svazek úložiště"
 
-#: pkg/storaged/btrfs/subvolume.jsx:141 pkg/storaged/btrfs/subvolume.jsx:281
+#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:291
 #, fuzzy
 #| msgid "Create volume"
 msgid "Create subvolume"
@@ -2575,8 +2575,8 @@ msgstr "Je třeba, aby prodleva byla číslo"
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:152
 #: pkg/storaged/mdraid/mdraid.jsx:126 pkg/storaged/mdraid/mdraid.jsx:226
 #: pkg/storaged/stratis/filesystem.jsx:141
-#: pkg/storaged/stratis/filesystem.jsx:177 pkg/storaged/stratis/pool.jsx:153
-#: pkg/storaged/btrfs/subvolume.jsx:225 pkg/storaged/btrfs/subvolume.jsx:295
+#: pkg/storaged/stratis/filesystem.jsx:179 pkg/storaged/stratis/pool.jsx:153
+#: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/partitions/partition.jsx:58
 #: pkg/storaged/partitions/partition.jsx:104
@@ -2658,7 +2658,7 @@ msgstr "Smazání vymaže veškerá data na VDO zařízení."
 msgid "Deleting erases all data on a volume group."
 msgstr "Smazání vymaže veškerá data ve skupině svazků."
 
-#: pkg/storaged/btrfs/subvolume.jsx:226
+#: pkg/storaged/btrfs/subvolume.jsx:228
 #, fuzzy
 #| msgid "Deleting erases all data on a volume group."
 msgid "Deleting erases all data on this subvolume and all it's children."
@@ -2837,8 +2837,8 @@ msgstr "Distribuovaná parita (RAID 5)"
 msgid "Do not mount"
 msgstr "Nepřipojovat"
 
-#: pkg/storaged/filesystem/mismounting.jsx:203
-#: pkg/storaged/filesystem/mismounting.jsx:215
+#: pkg/storaged/filesystem/mismounting.jsx:206
+#: pkg/storaged/filesystem/mismounting.jsx:218
 msgid "Do not mount automatically on boot"
 msgstr "Nepřipojovat automaticky při startu systému"
 
@@ -2989,6 +2989,15 @@ msgstr "Upravit hostitele"
 #: pkg/systemd/overview-cards/motdCard.jsx:113
 msgid "Edit motd"
 msgstr "Upravit motd"
+
+# auto translated by TM merge from project: anaconda, version: rhel6-branch,
+# DocId: anaconda
+#: pkg/storaged/filesystem/filesystem.jsx:100
+#: pkg/storaged/stratis/filesystem.jsx:174 pkg/storaged/btrfs/subvolume.jsx:263
+#, fuzzy
+#| msgid "Mount point"
+msgid "Edit mount point"
+msgstr "Přípojný bod"
 
 #: pkg/networkmanager/network-main.jsx:161
 msgid "Edit rules and zones"
@@ -3397,11 +3406,11 @@ msgstr "Souborový systém"
 
 # auto translated by TM merge from project: comps, version: master, DocId:
 # comps
-#: pkg/storaged/filesystem/filesystem.jsx:142
+#: pkg/storaged/filesystem/filesystem.jsx:144
 msgid "Filesystem is locked"
 msgstr "Souborový systém je uzamčen"
 
-#: pkg/storaged/filesystem/filesystem.jsx:115
+#: pkg/storaged/filesystem/filesystem.jsx:117
 msgid "Filesystem name"
 msgstr "Název souborového systému"
 
@@ -3482,7 +3491,7 @@ msgstr "Vynutit změnu hesla"
 # auto translated by TM merge from project: blivet-gui, version: f23-branch,
 # DocId: blivet-gui
 #: pkg/storaged/swap/swap.jsx:100 pkg/storaged/lvm2/physical-volume.jsx:50
-#: pkg/storaged/filesystem/filesystem.jsx:102
+#: pkg/storaged/filesystem/filesystem.jsx:104
 #: pkg/storaged/block/unrecognized-data.jsx:41
 #: pkg/storaged/block/format-dialog.jsx:322
 #: pkg/storaged/block/format-dialog.jsx:332
@@ -3738,8 +3747,8 @@ msgstr "Jak zkontrolovat"
 
 #: pkg/users/accounts-list.js:239 pkg/users/accounts-list.js:390
 #: pkg/users/group-create-dialog.js:47 pkg/networkmanager/firewall.jsx:700
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/pages.jsx:710
-#: pkg/storaged/btrfs/subvolume.jsx:324
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/pages.jsx:709
+#: pkg/storaged/btrfs/subvolume.jsx:334
 msgid "ID"
 msgstr "Identif."
 
@@ -3876,7 +3885,7 @@ msgid ""
 msgstr ""
 "Ve výchozím stavu jsou příchozí požadavky blokovány. Ty odchozí nejsou."
 
-#: pkg/storaged/filesystem/mismounting.jsx:221
+#: pkg/storaged/filesystem/mismounting.jsx:224
 msgid "Inconsistent filesystem mount"
 msgstr "Nekonzistentní připojení souborového systému"
 
@@ -4552,7 +4561,7 @@ msgstr "místně v $0"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:712
+#: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:711
 #: pkg/storaged/dialog.jsx:1134 pkg/storaged/dialog.jsx:1239
 msgid "Location"
 msgstr "Umístění"
@@ -5019,15 +5028,15 @@ msgstr "Každý měsíc"
 msgid "More info..."
 msgstr "Více informací…"
 
-#: pkg/storaged/filesystem/filesystem.jsx:101
+#: pkg/storaged/filesystem/filesystem.jsx:103
 #: pkg/storaged/filesystem/mounting-dialog.jsx:277 pkg/storaged/nfs/nfs.jsx:310
-#: pkg/storaged/stratis/filesystem.jsx:175 pkg/storaged/btrfs/subvolume.jsx:265
+#: pkg/storaged/stratis/filesystem.jsx:177 pkg/storaged/btrfs/subvolume.jsx:275
 msgid "Mount"
 msgstr "Připojit (mount)"
 
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
-#: pkg/storaged/btrfs/subvolume.jsx:147
+#: pkg/storaged/btrfs/subvolume.jsx:149
 #, fuzzy
 #| msgid "Mount point"
 msgid "Mount Point"
@@ -5037,7 +5046,7 @@ msgstr "Přípojný bod"
 msgid "Mount after network becomes available, ignore failure"
 msgstr "Připojit až bude síť k dispozici, ignorovat nezdar"
 
-#: pkg/storaged/filesystem/mismounting.jsx:207
+#: pkg/storaged/filesystem/mismounting.jsx:210
 msgid "Mount also automatically on boot"
 msgstr "Připojovat také automaticky při startu systému"
 
@@ -5045,8 +5054,8 @@ msgstr "Připojovat také automaticky při startu systému"
 msgid "Mount at boot"
 msgstr "Připojit při startu"
 
-#: pkg/storaged/filesystem/mismounting.jsx:199
-#: pkg/storaged/filesystem/mismounting.jsx:211
+#: pkg/storaged/filesystem/mismounting.jsx:202
+#: pkg/storaged/filesystem/mismounting.jsx:214
 msgid "Mount automatically on $0 on boot"
 msgstr "Při startu systému automaticky připojit do $0"
 
@@ -5062,11 +5071,11 @@ msgstr "Nastavení připojení (mount)"
 msgid "Mount filesystem"
 msgstr "Připojit souborový systém"
 
-#: pkg/storaged/filesystem/mismounting.jsx:204
+#: pkg/storaged/filesystem/mismounting.jsx:207
 msgid "Mount now"
 msgstr "Připojit nyní"
 
-#: pkg/storaged/filesystem/mismounting.jsx:200
+#: pkg/storaged/filesystem/mismounting.jsx:203
 msgid "Mount on $0 now"
 msgstr "Připojit na $0 nyní"
 
@@ -5076,12 +5085,12 @@ msgstr "Předvolby připojení"
 
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
-#: pkg/storaged/filesystem/filesystem.jsx:145
+#: pkg/storaged/filesystem/filesystem.jsx:147
 #: pkg/storaged/filesystem/mounting-dialog.jsx:246
 #: pkg/storaged/block/format-dialog.jsx:345 pkg/storaged/nfs/nfs.jsx:329
 #: pkg/storaged/stratis/filesystem.jsx:91
-#: pkg/storaged/stratis/filesystem.jsx:224 pkg/storaged/stratis/pool.jsx:104
-#: pkg/storaged/btrfs/subvolume.jsx:325
+#: pkg/storaged/stratis/filesystem.jsx:226 pkg/storaged/stratis/pool.jsx:104
+#: pkg/storaged/btrfs/subvolume.jsx:335
 msgid "Mount point"
 msgstr "Přípojný bod"
 
@@ -5171,16 +5180,16 @@ msgstr "NTP server"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:138
-#: pkg/storaged/filesystem/filesystem.jsx:117
-#: pkg/storaged/filesystem/filesystem.jsx:139
+#: pkg/storaged/filesystem/filesystem.jsx:119
+#: pkg/storaged/filesystem/filesystem.jsx:141
 #: pkg/storaged/block/format-dialog.jsx:340
 #: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
 #: pkg/storaged/stratis/create-dialog.jsx:50
 #: pkg/storaged/stratis/filesystem.jsx:86
-#: pkg/storaged/stratis/filesystem.jsx:195
-#: pkg/storaged/stratis/filesystem.jsx:219 pkg/storaged/stratis/pool.jsx:93
+#: pkg/storaged/stratis/filesystem.jsx:197
+#: pkg/storaged/stratis/filesystem.jsx:221 pkg/storaged/stratis/pool.jsx:93
 #: pkg/storaged/stratis/pool.jsx:170 pkg/storaged/stratis/pool.jsx:518
-#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:323
+#: pkg/storaged/btrfs/subvolume.jsx:145 pkg/storaged/btrfs/subvolume.jsx:333
 #: pkg/storaged/btrfs/volume.jsx:99 pkg/storaged/partitions/partition.jsx:219
 #: pkg/shell/credentials.jsx:101
 msgid "Name"
@@ -5624,8 +5633,8 @@ msgstr "Pro zvětšení není k dispozici dostatek prostoru."
 
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
-#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:276
-#: pkg/storaged/pages.jsx:279
+#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:275
+#: pkg/storaged/pages.jsx:278
 msgid "Not found"
 msgstr "Nenalezeno"
 
@@ -6134,7 +6143,7 @@ msgstr "Nenávratně smazat $0?"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "Nenávratně smazat $0?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:222
+#: pkg/storaged/btrfs/subvolume.jsx:224
 #, fuzzy
 #| msgid "Permanently delete $0?"
 msgid "Permanently delete subvolume $0?"
@@ -6797,7 +6806,7 @@ msgstr "Odebrání zóny odebere také všechny služby, které obsahuje."
 #: pkg/storaged/lvm2/block-logical-volume.jsx:53
 #: pkg/storaged/lvm2/block-logical-volume.jsx:242
 #: pkg/storaged/lvm2/volume-group.jsx:71
-#: pkg/storaged/stratis/filesystem.jsx:202 pkg/storaged/stratis/pool.jsx:177
+#: pkg/storaged/stratis/filesystem.jsx:204 pkg/storaged/stratis/pool.jsx:177
 msgid "Rename"
 msgstr "Přejmenovat"
 
@@ -6807,7 +6816,7 @@ msgstr "Přejmenovat Stratis fond"
 
 # auto translated by TM merge from project: usermode, version: default, DocId:
 # usermode
-#: pkg/storaged/stratis/filesystem.jsx:193
+#: pkg/storaged/stratis/filesystem.jsx:195
 msgid "Rename filesystem"
 msgstr "Přejmenovat souborový systém"
 
@@ -7163,7 +7172,7 @@ msgstr "Soboty"
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
 #: pkg/networkmanager/dialogs-common.jsx:160 pkg/systemd/timer-dialog.jsx:148
-#: pkg/packagekit/kpatch.jsx:307 pkg/storaged/filesystem/filesystem.jsx:124
+#: pkg/packagekit/kpatch.jsx:307 pkg/storaged/filesystem/filesystem.jsx:126
 #: pkg/storaged/filesystem/mounting-dialog.jsx:279 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/stratis/pool.jsx:388 pkg/storaged/stratis/pool.jsx:417
 #: pkg/storaged/stratis/pool.jsx:472 pkg/storaged/btrfs/volume.jsx:106
@@ -7441,7 +7450,7 @@ msgstr "Shellový skript"
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
-#: pkg/storaged/pages.jsx:694
+#: pkg/storaged/pages.jsx:693
 #, fuzzy
 #| msgid "Show all threads"
 msgid "Show all $0 rows"
@@ -7529,7 +7538,7 @@ msgstr "Single rank"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:206
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:143
-#: pkg/storaged/pages.jsx:713 pkg/storaged/block/format-dialog.jsx:361
+#: pkg/storaged/pages.jsx:712 pkg/storaged/block/format-dialog.jsx:361
 #: pkg/storaged/block/resize.jsx:448 pkg/storaged/block/resize.jsx:581
 #: pkg/storaged/nfs/nfs.jsx:330 pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/partitions/partition.jsx:227
@@ -7572,7 +7581,7 @@ msgstr "Slot"
 msgid "Slot $0"
 msgstr "Slot $0"
 
-#: pkg/storaged/stratis/filesystem.jsx:176
+#: pkg/storaged/stratis/filesystem.jsx:178
 msgid "Snapshot"
 msgstr "Zachycený stav"
 
@@ -7887,13 +7896,13 @@ msgstr "Zmenšený notebook"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "Přihlášení se k odběru systemd signálů se nezdařilo: $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:275
+#: pkg/storaged/btrfs/subvolume.jsx:285
 #, fuzzy
 #| msgid "Volume failed to be created"
 msgid "Subvolume needs to be mounted"
 msgstr "Svazek se nepodařilo vytvořit"
 
-#: pkg/storaged/btrfs/subvolume.jsx:277
+#: pkg/storaged/btrfs/subvolume.jsx:287
 msgid "Subvolume needs to be mounted writable"
 msgstr ""
 
@@ -8187,17 +8196,17 @@ msgstr ""
 msgid "The file $0 will be deleted."
 msgstr "Soubor $0 bude smazán."
 
-#: pkg/storaged/filesystem/utils.jsx:187
+#: pkg/storaged/filesystem/utils.jsx:191
 #, fuzzy
 #| msgid "The filesystem has no permanent mount point."
 msgid "The filesystem has no assigned mount point."
 msgstr "Souborový systém nemá trvalý přípojný bod."
 
-#: pkg/storaged/filesystem/utils.jsx:191
+#: pkg/storaged/filesystem/utils.jsx:195
 msgid "The filesystem has no permanent mount point."
 msgstr "Souborový systém nemá trvalý přípojný bod."
 
-#: pkg/storaged/filesystem/mismounting.jsx:214
+#: pkg/storaged/filesystem/mismounting.jsx:217
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
@@ -8206,14 +8215,14 @@ msgstr ""
 "systému, ale šifrovaný kontejner, ve kterém se nachází, nebude v tu dobu "
 "odemčený."
 
-#: pkg/storaged/filesystem/mismounting.jsx:206
+#: pkg/storaged/filesystem/mismounting.jsx:209
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
 msgstr ""
 "Souborový systém je nyní připojený, ale po příštím startu systému už nebude."
 
-#: pkg/storaged/filesystem/mismounting.jsx:198
+#: pkg/storaged/filesystem/mismounting.jsx:201
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
@@ -8221,7 +8230,7 @@ msgstr ""
 "Souborový systém je nyní připojený v $0, ale po příštím startu systému bude "
 "připojený v $1."
 
-#: pkg/storaged/filesystem/mismounting.jsx:210
+#: pkg/storaged/filesystem/mismounting.jsx:213
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
@@ -8229,17 +8238,17 @@ msgstr ""
 "Souborový systém je nyní připojený v $0, ale po příštím startu systému už "
 "nebude připojený vůbec."
 
-#: pkg/storaged/filesystem/mismounting.jsx:202
+#: pkg/storaged/filesystem/mismounting.jsx:205
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr ""
 "Souborový systém nyní není připojený, ale po příštím startu systému už bude."
 
-#: pkg/storaged/filesystem/utils.jsx:193
+#: pkg/storaged/filesystem/utils.jsx:197
 msgid "The filesystem is not mounted."
 msgstr "Souborový systém není připojený."
 
-#: pkg/storaged/filesystem/utils.jsx:196
+#: pkg/storaged/filesystem/utils.jsx:200
 msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
@@ -8910,7 +8919,7 @@ msgstr "Zapnout přístup na úrovni správce"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
-#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/pages.jsx:711
+#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/pages.jsx:710
 #: pkg/storaged/block/unrecognized-data.jsx:52
 #: pkg/storaged/block/format-dialog.jsx:356
 #: pkg/storaged/partitions/partition.jsx:175
@@ -9110,7 +9119,7 @@ msgstr "Neznámý typ"
 msgid "Unlock"
 msgstr "Odemknout"
 
-#: pkg/storaged/filesystem/mismounting.jsx:216
+#: pkg/storaged/filesystem/mismounting.jsx:219
 msgid "Unlock automatically on boot"
 msgstr "Automaticky odemknout při startu systému"
 
@@ -9141,9 +9150,9 @@ msgstr "Nespravovaná rozhraní"
 
 # auto translated by TM merge from project: blivet-gui, version: f23-branch,
 # DocId: blivet-gui
-#: pkg/storaged/filesystem/filesystem.jsx:100
+#: pkg/storaged/filesystem/filesystem.jsx:102
 #: pkg/storaged/filesystem/mounting-dialog.jsx:278 pkg/storaged/nfs/nfs.jsx:309
-#: pkg/storaged/stratis/filesystem.jsx:174 pkg/storaged/btrfs/subvolume.jsx:260
+#: pkg/storaged/stratis/filesystem.jsx:176 pkg/storaged/btrfs/subvolume.jsx:270
 msgid "Unmount"
 msgstr "Odpojit"
 
@@ -9151,8 +9160,8 @@ msgstr "Odpojit"
 msgid "Unmount filesystem $0"
 msgstr "Odpojit souborový systém $0"
 
-#: pkg/storaged/filesystem/mismounting.jsx:208
-#: pkg/storaged/filesystem/mismounting.jsx:212
+#: pkg/storaged/filesystem/mismounting.jsx:211
+#: pkg/storaged/filesystem/mismounting.jsx:215
 msgid "Unmount now"
 msgstr "Odpojit nyní"
 
@@ -9256,9 +9265,9 @@ msgstr "Doba chodu od spuštění"
 # DocId: audit-viewer
 #: pkg/systemd/overview-cards/usageCard.jsx:127
 #: pkg/storaged/lvm2/physical-volume.jsx:119
-#: pkg/storaged/filesystem/filesystem.jsx:150
+#: pkg/storaged/filesystem/filesystem.jsx:152
 #: pkg/storaged/block/unrecognized-data.jsx:51
-#: pkg/storaged/stratis/filesystem.jsx:228 pkg/storaged/stratis/pool.jsx:525
+#: pkg/storaged/stratis/filesystem.jsx:230 pkg/storaged/stratis/pool.jsx:525
 #: pkg/storaged/btrfs/device.jsx:83 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
 #: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
@@ -9799,7 +9808,7 @@ msgstr "doplněk"
 msgid "addon"
 msgstr "doplněk"
 
-#: pkg/storaged/filesystem/utils.jsx:173
+#: pkg/storaged/filesystem/utils.jsx:177
 msgid "after network"
 msgstr "po síti"
 
@@ -9865,7 +9874,7 @@ msgstr "Ostatní zařízení"
 msgid "btrfs devices"
 msgstr "Ostatní zařízení"
 
-#: pkg/storaged/btrfs/subvolume.jsx:301
+#: pkg/storaged/btrfs/subvolume.jsx:311
 #, fuzzy
 #| msgid "Storage volume"
 msgid "btrfs subvolume"
@@ -9963,7 +9972,7 @@ msgstr "ladění"
 #: pkg/storaged/block/format-dialog.jsx:260
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80 pkg/storaged/mdraid/mdraid.jsx:112
 #: pkg/storaged/stratis/filesystem.jsx:125 pkg/storaged/stratis/pool.jsx:137
-#: pkg/storaged/btrfs/subvolume.jsx:211
+#: pkg/storaged/btrfs/subvolume.jsx:213
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
 #: pkg/storaged/partitions/partition.jsx:43
 msgid "delete"
@@ -10008,9 +10017,9 @@ msgstr "jednotka"
 #: pkg/storaged/lvm2/block-logical-volume.jsx:288
 #: pkg/storaged/lvm2/volume-group.jsx:384
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:141
-#: pkg/storaged/filesystem/utils.jsx:219
-#: pkg/storaged/filesystem/filesystem.jsx:143
-#: pkg/storaged/stratis/filesystem.jsx:222 pkg/storaged/stratis/pool.jsx:521
+#: pkg/storaged/filesystem/utils.jsx:221
+#: pkg/storaged/filesystem/filesystem.jsx:145
+#: pkg/storaged/stratis/filesystem.jsx:224 pkg/storaged/stratis/pool.jsx:521
 #: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/crypto/encryption.jsx:233
 #: pkg/storaged/crypto/encryption.jsx:236
 #: pkg/storaged/partitions/partition.jsx:224
@@ -10159,7 +10168,7 @@ msgstr "iSCSI cíle"
 msgid "iSCSI portal"
 msgstr "Přidat iSCSI portál"
 
-#: pkg/storaged/filesystem/utils.jsx:175
+#: pkg/storaged/filesystem/utils.jsx:179
 msgid "ignore failure"
 msgstr "ignorovat nezdar"
 
@@ -10293,7 +10302,7 @@ msgstr "nbde"
 msgid "network"
 msgstr "síť"
 
-#: pkg/storaged/filesystem/utils.jsx:171
+#: pkg/storaged/filesystem/utils.jsx:175
 msgid "never mount at boot"
 msgstr "nikdy nepřipojovat při startu systému"
 
@@ -10431,7 +10440,7 @@ msgstr "raid"
 msgid "ram"
 msgstr "operační paměť"
 
-#: pkg/storaged/filesystem/utils.jsx:169
+#: pkg/storaged/filesystem/utils.jsx:173
 msgid "read only"
 msgstr "pouze pro čtení"
 
@@ -10548,7 +10557,7 @@ msgstr "není vyplněná kolonka ssh server"
 msgid "stop"
 msgstr "zastavit"
 
-#: pkg/storaged/filesystem/utils.jsx:177
+#: pkg/storaged/filesystem/utils.jsx:181
 msgid "stop boot on failure"
 msgstr "při nezdaru zastavit start systému"
 
@@ -10625,7 +10634,7 @@ msgstr "neznámý cíl"
 msgid "unmask"
 msgstr "zrušit maskování"
 
-#: pkg/storaged/btrfs/subvolume.jsx:211 pkg/storaged/utils.js:873
+#: pkg/storaged/btrfs/subvolume.jsx:213 pkg/storaged/utils.js:873
 #: pkg/storaged/utils.js:886 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "odpojit (unmount)"

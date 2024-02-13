@@ -52,7 +52,7 @@ jobs:
     permissions: {}
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cockpit-project/unit-tests
+      image: quay.io/cockpit/tasks:latest
       options: --user root
     steps:
       - name: Checkout website repository

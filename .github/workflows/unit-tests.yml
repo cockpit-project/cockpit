@@ -4,14 +4,15 @@ jobs:
   unit-tests:
     runs-on: ubuntu-22.04
     permissions: {}
+    container: quay.io/cockpit/tasks:latest
     strategy:
       matrix:
-        startarg:
-          - { make: 'check-memory', cc: 'gcc', tag: 'latest' }
-          - { make: 'distcheck', cc: 'clang', tag: 'latest' }
+        scenario:
+          - { make: 'check-memory', cc: 'gcc' }
+          - { make: 'distcheck', cc: 'clang' }
           # this runs static code checks, unlike distcheck
-          - { make: 'check', cc: 'gcc', tag: 'latest' }
-          - { make: 'pytest-cov', cc: 'gcc', tag: 'latest' }
+          - { make: 'check', cc: 'gcc' }
+          - { make: 'pytest-cov', cc: 'gcc' }
       fail-fast: false
     timeout-minutes: 60
     steps:
@@ -21,22 +22,11 @@ jobs:
           # need this to also fetch tags
           fetch-depth: 0
 
-      - name: Build unit test container if it changed
-        run: |
-          changes=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}..HEAD -- containers/unit-tests/)
-          if [ -n "${changes}" ]; then
-            containers/unit-tests/build
-          fi
-
-      - name: Run unit-tests container
+      - name: Run unit test
         timeout-minutes: 30
         # HACK: -gdwarf-4 is for clang: https://bugs.kde.org/show_bug.cgi?id=452758
         run: |
-          containers/unit-tests/start \
-              --verbose \
-              --env=FORCE_COLOR=1 \
-              --env=CC='${{ matrix.startarg.cc }}' \
-              --env=CFLAGS='-O2 -gdwarf-4' \
-              --env=EXTRA_DISTCHECK_CONFIGURE_FLAGS='${{ matrix.startarg.distcheck_flags }}' \
-              --image-tag='${{ matrix.startarg.tag }}' \
-              --make '${{ matrix.startarg.make }}'
+            env FORCE_COLOR=1 \
+            CC='${{ matrix.scenario.cc }}' \
+            CFLAGS='-O2 -gdwarf-4' \
+            make '${{ matrix.scenario.make }}'

@@ -44,7 +44,7 @@ import cdp
 import testvm
 from lcov import write_lcov
 from lib.constants import OSTREE_IMAGES
-from testinsp import RunChecksInParallel
+from testinsp import RunChecks
 from testinsp.utils import FirstRunError
 
 try:
@@ -1555,7 +1555,7 @@ class MachineCase(unittest.TestCase):
                                        ".*freedesktop.problems.*",
                                        "sssd-kcm",
                                        ]
-        self.test_inspecor = RunChecksInParallel(external_executor=m.execute, exclude_dict=exclude_dict)
+        self.test_inspecor = RunChecks(external_executor=m.execute, exclude_dict=exclude_dict)
         try:
             self.test_inspecor.load()
         except FirstRunError:

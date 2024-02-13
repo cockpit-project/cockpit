@@ -93,14 +93,12 @@ class FsListChannel(Channel):
 
         try:
             scan_dir = os.scandir(path)
+        except FileNotFoundError as error:
+            raise ChannelError('not-found', message=str(error)) from error
+        except PermissionError as error:
+            raise ChannelError('access-denied', message=str(error)) from error
         except OSError as error:
-            if isinstance(error, FileNotFoundError):
-                problem = 'not-found'
-            elif isinstance(error, PermissionError):
-                problem = 'access-denied'
-            else:
-                problem = 'internal-error'
-            raise ChannelError(problem, message=str(error)) from error
+            raise ChannelError('internal-error', message=str(error)) from error
 
         self.ready()
         for entry in scan_dir:

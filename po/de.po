@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-08 02:46+0000\n"
+"POT-Creation-Date: 2024-02-12 02:47+0000\n"
 "PO-Revision-Date: 2023-10-10 10:23+0000\n"
 "Last-Translator: N B <nb476823@gmail.com>\n"
 "Language-Team: German <https://translate.fedoraproject.org/projects/cockpit/"
@@ -332,13 +332,13 @@ msgstr "$name (von $host)"
 msgid "(Not part of target)"
 msgstr "Erzeuge Partition $target"
 
-#: pkg/storaged/filesystem/utils.jsx:237
+#: pkg/storaged/filesystem/utils.jsx:239
 #, fuzzy
 #| msgid "Local mount point"
 msgid "(no assigned mount point)"
 msgstr "Lokaler Einhängepunkt"
 
-#: pkg/storaged/filesystem/utils.jsx:234 pkg/storaged/filesystem/utils.jsx:239
+#: pkg/storaged/filesystem/utils.jsx:236 pkg/storaged/filesystem/utils.jsx:241
 #: pkg/storaged/nfs/nfs.jsx:294
 #, fuzzy
 #| msgid "Not mounted"
@@ -1189,7 +1189,7 @@ msgstr "Mindestens ein blockorientiertes Gerät ist erforderlich."
 msgid "At least one disk is needed."
 msgstr "Mindestens ein Datenträger ist nötig."
 
-#: pkg/storaged/btrfs/subvolume.jsx:288
+#: pkg/storaged/btrfs/subvolume.jsx:298
 msgid "At least one parent needs to be mounted writable"
 msgstr ""
 
@@ -2098,7 +2098,7 @@ msgstr "Crash-System"
 #: pkg/storaged/block/format-dialog.jsx:332
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/stratis/create-dialog.jsx:122 pkg/storaged/stratis/pool.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:138
 msgid "Create"
 msgstr "Erstellen"
 
@@ -2142,7 +2142,7 @@ msgid "Create and change ownership of home directory"
 msgstr "Erstellen und Ändern des Besitzes des Home-Verzeichnisses"
 
 #: pkg/storaged/block/format-dialog.jsx:317 pkg/storaged/stratis/pool.jsx:81
-#: pkg/storaged/btrfs/subvolume.jsx:130
+#: pkg/storaged/btrfs/subvolume.jsx:132
 msgid "Create and mount"
 msgstr "Anlegen und Einhängen"
 
@@ -2192,7 +2192,7 @@ msgstr "Logischen Datenträger erstellen"
 
 #: pkg/storaged/block/format-dialog.jsx:318
 #: pkg/storaged/block/format-dialog.jsx:327 pkg/storaged/stratis/pool.jsx:82
-#: pkg/storaged/btrfs/subvolume.jsx:131
+#: pkg/storaged/btrfs/subvolume.jsx:133
 msgid "Create only"
 msgstr "Nur anlegen"
 
@@ -2227,7 +2227,7 @@ msgstr "Nur Snapshot erzeugen"
 msgid "Create storage device"
 msgstr "Datenträger erstellen"
 
-#: pkg/storaged/btrfs/subvolume.jsx:141 pkg/storaged/btrfs/subvolume.jsx:281
+#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:291
 #, fuzzy
 #| msgid "Create volume"
 msgid "Create subvolume"
@@ -2532,8 +2532,8 @@ msgstr "Verzögerung muss eine Zahl sein"
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:152
 #: pkg/storaged/mdraid/mdraid.jsx:126 pkg/storaged/mdraid/mdraid.jsx:226
 #: pkg/storaged/stratis/filesystem.jsx:141
-#: pkg/storaged/stratis/filesystem.jsx:177 pkg/storaged/stratis/pool.jsx:153
-#: pkg/storaged/btrfs/subvolume.jsx:225 pkg/storaged/btrfs/subvolume.jsx:295
+#: pkg/storaged/stratis/filesystem.jsx:179 pkg/storaged/stratis/pool.jsx:153
+#: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/partitions/partition.jsx:58
 #: pkg/storaged/partitions/partition.jsx:104
@@ -2618,7 +2618,7 @@ msgstr "Beim Löschen werden alle Daten auf einem VDO-Gerät gelöscht."
 msgid "Deleting erases all data on a volume group."
 msgstr "Beim Löschen werden alle Daten auf einer Volumengruppe gelöscht."
 
-#: pkg/storaged/btrfs/subvolume.jsx:226
+#: pkg/storaged/btrfs/subvolume.jsx:228
 #, fuzzy
 #| msgid "Deleting erases all data on a volume group."
 msgid "Deleting erases all data on this subvolume and all it's children."
@@ -2785,8 +2785,8 @@ msgstr "RAID 5 (verteilte Daten & verteilte Parität)"
 msgid "Do not mount"
 msgstr "Nicht einhängen"
 
-#: pkg/storaged/filesystem/mismounting.jsx:203
-#: pkg/storaged/filesystem/mismounting.jsx:215
+#: pkg/storaged/filesystem/mismounting.jsx:206
+#: pkg/storaged/filesystem/mismounting.jsx:218
 msgid "Do not mount automatically on boot"
 msgstr "Nicht beim Systemstart automatisch einhängen"
 
@@ -2929,6 +2929,13 @@ msgstr "Hosts bearbeiten"
 #: pkg/systemd/overview-cards/motdCard.jsx:113
 msgid "Edit motd"
 msgstr "motd bearbeiten"
+
+#: pkg/storaged/filesystem/filesystem.jsx:100
+#: pkg/storaged/stratis/filesystem.jsx:174 pkg/storaged/btrfs/subvolume.jsx:263
+#, fuzzy
+#| msgid "Mount point"
+msgid "Edit mount point"
+msgstr "Einhängepunkt"
 
 #: pkg/networkmanager/network-main.jsx:161
 msgid "Edit rules and zones"
@@ -3324,11 +3331,11 @@ msgstr "Dateistatus"
 msgid "Filesystem"
 msgstr "Dateisystem"
 
-#: pkg/storaged/filesystem/filesystem.jsx:142
+#: pkg/storaged/filesystem/filesystem.jsx:144
 msgid "Filesystem is locked"
 msgstr "Dateisystem ist gesperrt"
 
-#: pkg/storaged/filesystem/filesystem.jsx:115
+#: pkg/storaged/filesystem/filesystem.jsx:117
 msgid "Filesystem name"
 msgstr "Dateisystemname"
 
@@ -3403,7 +3410,7 @@ msgid "Force password change"
 msgstr "Passwortänderung erzwingen"
 
 #: pkg/storaged/swap/swap.jsx:100 pkg/storaged/lvm2/physical-volume.jsx:50
-#: pkg/storaged/filesystem/filesystem.jsx:102
+#: pkg/storaged/filesystem/filesystem.jsx:104
 #: pkg/storaged/block/unrecognized-data.jsx:41
 #: pkg/storaged/block/format-dialog.jsx:322
 #: pkg/storaged/block/format-dialog.jsx:332
@@ -3642,8 +3649,8 @@ msgstr "Wie zu überprüfen"
 
 #: pkg/users/accounts-list.js:239 pkg/users/accounts-list.js:390
 #: pkg/users/group-create-dialog.js:47 pkg/networkmanager/firewall.jsx:700
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/pages.jsx:710
-#: pkg/storaged/btrfs/subvolume.jsx:324
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/pages.jsx:709
+#: pkg/storaged/btrfs/subvolume.jsx:334
 msgid "ID"
 msgstr "ID"
 
@@ -3773,7 +3780,7 @@ msgstr ""
 "Eingehende Anfragen werden standardmäßig blockiert. Ausgehende Anfragen "
 "werden nicht blockiert."
 
-#: pkg/storaged/filesystem/mismounting.jsx:221
+#: pkg/storaged/filesystem/mismounting.jsx:224
 msgid "Inconsistent filesystem mount"
 msgstr "Inkonsistenter Dateisystem-Einhängepunkt"
 
@@ -4430,7 +4437,7 @@ msgstr "Kein Speicher"
 msgid "Local, $0"
 msgstr "lokal in $0"
 
-#: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:712
+#: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:711
 #: pkg/storaged/dialog.jsx:1134 pkg/storaged/dialog.jsx:1239
 msgid "Location"
 msgstr "Ort"
@@ -4864,13 +4871,13 @@ msgstr "Monatlich"
 msgid "More info..."
 msgstr "Weitere Informationen..."
 
-#: pkg/storaged/filesystem/filesystem.jsx:101
+#: pkg/storaged/filesystem/filesystem.jsx:103
 #: pkg/storaged/filesystem/mounting-dialog.jsx:277 pkg/storaged/nfs/nfs.jsx:310
-#: pkg/storaged/stratis/filesystem.jsx:175 pkg/storaged/btrfs/subvolume.jsx:265
+#: pkg/storaged/stratis/filesystem.jsx:177 pkg/storaged/btrfs/subvolume.jsx:275
 msgid "Mount"
 msgstr "Einhängen"
 
-#: pkg/storaged/btrfs/subvolume.jsx:147
+#: pkg/storaged/btrfs/subvolume.jsx:149
 msgid "Mount Point"
 msgstr "Einhängepunkt"
 
@@ -4880,7 +4887,7 @@ msgstr ""
 "Einhängen nachdem das Netzwerk wieder zur Verfügung steht, Fehlermeldung "
 "ignorieren"
 
-#: pkg/storaged/filesystem/mismounting.jsx:207
+#: pkg/storaged/filesystem/mismounting.jsx:210
 msgid "Mount also automatically on boot"
 msgstr "Automatisch bei Start einhängen"
 
@@ -4888,8 +4895,8 @@ msgstr "Automatisch bei Start einhängen"
 msgid "Mount at boot"
 msgstr "beim Start einhängen"
 
-#: pkg/storaged/filesystem/mismounting.jsx:199
-#: pkg/storaged/filesystem/mismounting.jsx:211
+#: pkg/storaged/filesystem/mismounting.jsx:202
+#: pkg/storaged/filesystem/mismounting.jsx:214
 msgid "Mount automatically on $0 on boot"
 msgstr "Automatisch bei Start unter $0 einhängen"
 
@@ -4905,11 +4912,11 @@ msgstr "Einhängekonfiguration"
 msgid "Mount filesystem"
 msgstr "Dateisystem einhängen"
 
-#: pkg/storaged/filesystem/mismounting.jsx:204
+#: pkg/storaged/filesystem/mismounting.jsx:207
 msgid "Mount now"
 msgstr "Jetzt einbinden"
 
-#: pkg/storaged/filesystem/mismounting.jsx:200
+#: pkg/storaged/filesystem/mismounting.jsx:203
 msgid "Mount on $0 now"
 msgstr "Jetzt unter $0 einhängen"
 
@@ -4917,12 +4924,12 @@ msgstr "Jetzt unter $0 einhängen"
 msgid "Mount options"
 msgstr "Einhängoptionen"
 
-#: pkg/storaged/filesystem/filesystem.jsx:145
+#: pkg/storaged/filesystem/filesystem.jsx:147
 #: pkg/storaged/filesystem/mounting-dialog.jsx:246
 #: pkg/storaged/block/format-dialog.jsx:345 pkg/storaged/nfs/nfs.jsx:329
 #: pkg/storaged/stratis/filesystem.jsx:91
-#: pkg/storaged/stratis/filesystem.jsx:224 pkg/storaged/stratis/pool.jsx:104
-#: pkg/storaged/btrfs/subvolume.jsx:325
+#: pkg/storaged/stratis/filesystem.jsx:226 pkg/storaged/stratis/pool.jsx:104
+#: pkg/storaged/btrfs/subvolume.jsx:335
 msgid "Mount point"
 msgstr "Einhängepunkt"
 
@@ -5014,16 +5021,16 @@ msgstr "NTP-Server"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:138
-#: pkg/storaged/filesystem/filesystem.jsx:117
-#: pkg/storaged/filesystem/filesystem.jsx:139
+#: pkg/storaged/filesystem/filesystem.jsx:119
+#: pkg/storaged/filesystem/filesystem.jsx:141
 #: pkg/storaged/block/format-dialog.jsx:340
 #: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
 #: pkg/storaged/stratis/create-dialog.jsx:50
 #: pkg/storaged/stratis/filesystem.jsx:86
-#: pkg/storaged/stratis/filesystem.jsx:195
-#: pkg/storaged/stratis/filesystem.jsx:219 pkg/storaged/stratis/pool.jsx:93
+#: pkg/storaged/stratis/filesystem.jsx:197
+#: pkg/storaged/stratis/filesystem.jsx:221 pkg/storaged/stratis/pool.jsx:93
 #: pkg/storaged/stratis/pool.jsx:170 pkg/storaged/stratis/pool.jsx:518
-#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:323
+#: pkg/storaged/btrfs/subvolume.jsx:145 pkg/storaged/btrfs/subvolume.jsx:333
 #: pkg/storaged/btrfs/volume.jsx:99 pkg/storaged/partitions/partition.jsx:219
 #: pkg/shell/credentials.jsx:101
 msgid "Name"
@@ -5453,8 +5460,8 @@ msgstr "Nicht genügend Platz"
 msgid "Not enough space to grow"
 msgstr "Nicht genug Platz für Vergrößerung"
 
-#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:276
-#: pkg/storaged/pages.jsx:279
+#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:275
+#: pkg/storaged/pages.jsx:278
 msgid "Not found"
 msgstr "Nicht gefunden"
 
@@ -5922,7 +5929,7 @@ msgstr "$0 dauerhaft löschen?"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "$0 dauerhaft löschen?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:222
+#: pkg/storaged/btrfs/subvolume.jsx:224
 #, fuzzy
 #| msgid "Permanently delete $0?"
 msgid "Permanently delete subvolume $0?"
@@ -6570,7 +6577,7 @@ msgstr "Das entfernen der Zone wird alle Service in ihr entfernen."
 #: pkg/storaged/lvm2/block-logical-volume.jsx:53
 #: pkg/storaged/lvm2/block-logical-volume.jsx:242
 #: pkg/storaged/lvm2/volume-group.jsx:71
-#: pkg/storaged/stratis/filesystem.jsx:202 pkg/storaged/stratis/pool.jsx:177
+#: pkg/storaged/stratis/filesystem.jsx:204 pkg/storaged/stratis/pool.jsx:177
 msgid "Rename"
 msgstr "Umbenennen"
 
@@ -6578,7 +6585,7 @@ msgstr "Umbenennen"
 msgid "Rename Stratis pool"
 msgstr "Stratis Pool umbenennen"
 
-#: pkg/storaged/stratis/filesystem.jsx:193
+#: pkg/storaged/stratis/filesystem.jsx:195
 msgid "Rename filesystem"
 msgstr "Dateisystem umbenennen"
 
@@ -6928,7 +6935,7 @@ msgid "Saturdays"
 msgstr "Samstags"
 
 #: pkg/networkmanager/dialogs-common.jsx:160 pkg/systemd/timer-dialog.jsx:148
-#: pkg/packagekit/kpatch.jsx:307 pkg/storaged/filesystem/filesystem.jsx:124
+#: pkg/packagekit/kpatch.jsx:307 pkg/storaged/filesystem/filesystem.jsx:126
 #: pkg/storaged/filesystem/mounting-dialog.jsx:279 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/stratis/pool.jsx:388 pkg/storaged/stratis/pool.jsx:417
 #: pkg/storaged/stratis/pool.jsx:472 pkg/storaged/btrfs/volume.jsx:106
@@ -7198,7 +7205,7 @@ msgstr "Shell script"
 msgid "Shift+Insert"
 msgstr "Shift+Einfügen"
 
-#: pkg/storaged/pages.jsx:694
+#: pkg/storaged/pages.jsx:693
 #, fuzzy
 #| msgid "Show all threads"
 msgid "Show all $0 rows"
@@ -7284,7 +7291,7 @@ msgstr "Einzelner Rang"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:206
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:143
-#: pkg/storaged/pages.jsx:713 pkg/storaged/block/format-dialog.jsx:361
+#: pkg/storaged/pages.jsx:712 pkg/storaged/block/format-dialog.jsx:361
 #: pkg/storaged/block/resize.jsx:448 pkg/storaged/block/resize.jsx:581
 #: pkg/storaged/nfs/nfs.jsx:330 pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/partitions/partition.jsx:227
@@ -7327,7 +7334,7 @@ msgstr "Slot"
 msgid "Slot $0"
 msgstr "Slot $0"
 
-#: pkg/storaged/stratis/filesystem.jsx:176
+#: pkg/storaged/stratis/filesystem.jsx:178
 msgid "Snapshot"
 msgstr "Schnappschuss"
 
@@ -7638,11 +7645,11 @@ msgstr "Sub-Notebook"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "Das Abonnieren von systemd-Signalen ist fehlgeschlagen: $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:275
+#: pkg/storaged/btrfs/subvolume.jsx:285
 msgid "Subvolume needs to be mounted"
 msgstr ""
 
-#: pkg/storaged/btrfs/subvolume.jsx:277
+#: pkg/storaged/btrfs/subvolume.jsx:287
 msgid "Subvolume needs to be mounted writable"
 msgstr ""
 
@@ -7938,17 +7945,17 @@ msgstr ""
 msgid "The file $0 will be deleted."
 msgstr "Die Datei $0 wird gelöscht."
 
-#: pkg/storaged/filesystem/utils.jsx:187
+#: pkg/storaged/filesystem/utils.jsx:191
 #, fuzzy
 #| msgid "The filesystem has no permanent mount point."
 msgid "The filesystem has no assigned mount point."
 msgstr "Das Dateisystem hat keinen permanenten Einhängepunkt"
 
-#: pkg/storaged/filesystem/utils.jsx:191
+#: pkg/storaged/filesystem/utils.jsx:195
 msgid "The filesystem has no permanent mount point."
 msgstr "Das Dateisystem hat keinen permanenten Einhängepunkt"
 
-#: pkg/storaged/filesystem/mismounting.jsx:214
+#: pkg/storaged/filesystem/mismounting.jsx:217
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
@@ -7957,7 +7964,7 @@ msgstr ""
 "eingehängt wird, aber sein Verschlüsselungscontainer wird zu diesem "
 "Zeitpunkt nicht entsperrt."
 
-#: pkg/storaged/filesystem/mismounting.jsx:206
+#: pkg/storaged/filesystem/mismounting.jsx:209
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
@@ -7965,7 +7972,7 @@ msgstr ""
 "Das Dateisystem ist momentan eingehangen, wird aber bei nächsten Systemstart "
 "nicht eingehangen."
 
-#: pkg/storaged/filesystem/mismounting.jsx:198
+#: pkg/storaged/filesystem/mismounting.jsx:201
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
@@ -7973,7 +7980,7 @@ msgstr ""
 "Das Dateisystem ist momentan als $0 eingehangen und wird beim nächsten "
 "Systemstart als $1 eingehangen."
 
-#: pkg/storaged/filesystem/mismounting.jsx:210
+#: pkg/storaged/filesystem/mismounting.jsx:213
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
@@ -7981,18 +7988,18 @@ msgstr ""
 "Das Dateisystem ist momentan als $0 eingehangen und wird beim nächsten "
 "Systemstart nicht eingehangen."
 
-#: pkg/storaged/filesystem/mismounting.jsx:202
+#: pkg/storaged/filesystem/mismounting.jsx:205
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr ""
 "Das Dateisystem ist momentan als nicht eingehangen und wird beim nächsten "
 "Systemstart eingehangen."
 
-#: pkg/storaged/filesystem/utils.jsx:193
+#: pkg/storaged/filesystem/utils.jsx:197
 msgid "The filesystem is not mounted."
 msgstr "Das Dateisystem ist nicht eingehängt."
 
-#: pkg/storaged/filesystem/utils.jsx:196
+#: pkg/storaged/filesystem/utils.jsx:200
 msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
@@ -8668,7 +8675,7 @@ msgid "Turn on administrative access"
 msgstr "Administrator-Zugriff aktivieren"
 
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
-#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/pages.jsx:711
+#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/pages.jsx:710
 #: pkg/storaged/block/unrecognized-data.jsx:52
 #: pkg/storaged/block/format-dialog.jsx:356
 #: pkg/storaged/partitions/partition.jsx:175
@@ -8864,7 +8871,7 @@ msgstr "Unbekannter Typ"
 msgid "Unlock"
 msgstr "Öffnen"
 
-#: pkg/storaged/filesystem/mismounting.jsx:216
+#: pkg/storaged/filesystem/mismounting.jsx:219
 msgid "Unlock automatically on boot"
 msgstr "Beim Booten automatisch entsperren"
 
@@ -8893,9 +8900,9 @@ msgstr "Festplatte wird entsperrt"
 msgid "Unmanaged interfaces"
 msgstr "Unverwaltete Schnittstellen"
 
-#: pkg/storaged/filesystem/filesystem.jsx:100
+#: pkg/storaged/filesystem/filesystem.jsx:102
 #: pkg/storaged/filesystem/mounting-dialog.jsx:278 pkg/storaged/nfs/nfs.jsx:309
-#: pkg/storaged/stratis/filesystem.jsx:174 pkg/storaged/btrfs/subvolume.jsx:260
+#: pkg/storaged/stratis/filesystem.jsx:176 pkg/storaged/btrfs/subvolume.jsx:270
 msgid "Unmount"
 msgstr "Aushängen"
 
@@ -8903,8 +8910,8 @@ msgstr "Aushängen"
 msgid "Unmount filesystem $0"
 msgstr "Dateisystem $0 aushängen"
 
-#: pkg/storaged/filesystem/mismounting.jsx:208
-#: pkg/storaged/filesystem/mismounting.jsx:212
+#: pkg/storaged/filesystem/mismounting.jsx:211
+#: pkg/storaged/filesystem/mismounting.jsx:215
 msgid "Unmount now"
 msgstr "Jetzt aushängen"
 
@@ -9007,9 +9014,9 @@ msgstr "Betriebszeit"
 # document keys
 #: pkg/systemd/overview-cards/usageCard.jsx:127
 #: pkg/storaged/lvm2/physical-volume.jsx:119
-#: pkg/storaged/filesystem/filesystem.jsx:150
+#: pkg/storaged/filesystem/filesystem.jsx:152
 #: pkg/storaged/block/unrecognized-data.jsx:51
-#: pkg/storaged/stratis/filesystem.jsx:228 pkg/storaged/stratis/pool.jsx:525
+#: pkg/storaged/stratis/filesystem.jsx:230 pkg/storaged/stratis/pool.jsx:525
 #: pkg/storaged/btrfs/device.jsx:83 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
 #: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
@@ -9532,7 +9539,7 @@ msgstr "Add-on"
 msgid "addon"
 msgstr "AddOn"
 
-#: pkg/storaged/filesystem/utils.jsx:173
+#: pkg/storaged/filesystem/utils.jsx:177
 #, fuzzy
 #| msgid "Isolated network"
 msgid "after network"
@@ -9601,7 +9608,7 @@ msgstr "Andere Geräte"
 msgid "btrfs devices"
 msgstr "Andere Geräte"
 
-#: pkg/storaged/btrfs/subvolume.jsx:301
+#: pkg/storaged/btrfs/subvolume.jsx:311
 #, fuzzy
 #| msgid "Storage volumes"
 msgid "btrfs subvolume"
@@ -9695,7 +9702,7 @@ msgstr "Debug"
 #: pkg/storaged/block/format-dialog.jsx:260
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80 pkg/storaged/mdraid/mdraid.jsx:112
 #: pkg/storaged/stratis/filesystem.jsx:125 pkg/storaged/stratis/pool.jsx:137
-#: pkg/storaged/btrfs/subvolume.jsx:211
+#: pkg/storaged/btrfs/subvolume.jsx:213
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
 #: pkg/storaged/partitions/partition.jsx:43
 msgid "delete"
@@ -9740,9 +9747,9 @@ msgstr "Speichergerät"
 #: pkg/storaged/lvm2/block-logical-volume.jsx:288
 #: pkg/storaged/lvm2/volume-group.jsx:384
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:141
-#: pkg/storaged/filesystem/utils.jsx:219
-#: pkg/storaged/filesystem/filesystem.jsx:143
-#: pkg/storaged/stratis/filesystem.jsx:222 pkg/storaged/stratis/pool.jsx:521
+#: pkg/storaged/filesystem/utils.jsx:221
+#: pkg/storaged/filesystem/filesystem.jsx:145
+#: pkg/storaged/stratis/filesystem.jsx:224 pkg/storaged/stratis/pool.jsx:521
 #: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/crypto/encryption.jsx:233
 #: pkg/storaged/crypto/encryption.jsx:236
 #: pkg/storaged/partitions/partition.jsx:224
@@ -9889,7 +9896,7 @@ msgstr "iSCSI targets"
 msgid "iSCSI portal"
 msgstr "iSCSI-Portal hinzufügen"
 
-#: pkg/storaged/filesystem/utils.jsx:175
+#: pkg/storaged/filesystem/utils.jsx:179
 msgid "ignore failure"
 msgstr "Ausfall ignorieren"
 
@@ -10019,7 +10026,7 @@ msgstr "nbde"
 msgid "network"
 msgstr "Netzwerk"
 
-#: pkg/storaged/filesystem/utils.jsx:171
+#: pkg/storaged/filesystem/utils.jsx:175
 msgid "never mount at boot"
 msgstr "beim Booten nie einhängen"
 
@@ -10154,7 +10161,7 @@ msgstr "RAID"
 msgid "ram"
 msgstr "Arbeitsspeicher"
 
-#: pkg/storaged/filesystem/utils.jsx:169
+#: pkg/storaged/filesystem/utils.jsx:173
 msgid "read only"
 msgstr "nur lesbar"
 
@@ -10271,7 +10278,7 @@ msgstr "SSH-Server ist leer"
 msgid "stop"
 msgstr "Stopp"
 
-#: pkg/storaged/filesystem/utils.jsx:177
+#: pkg/storaged/filesystem/utils.jsx:181
 #, fuzzy
 #| msgid "On failure"
 msgid "stop boot on failure"
@@ -10344,7 +10351,7 @@ msgstr "Unbekanntes Ziel"
 msgid "unmask"
 msgstr "Freigeben"
 
-#: pkg/storaged/btrfs/subvolume.jsx:211 pkg/storaged/utils.js:873
+#: pkg/storaged/btrfs/subvolume.jsx:213 pkg/storaged/utils.js:873
 #: pkg/storaged/utils.js:886 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "Aushängen"

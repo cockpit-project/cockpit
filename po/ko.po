@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-08 02:46+0000\n"
-"PO-Revision-Date: 2024-02-05 13:36+0000\n"
+"POT-Creation-Date: 2024-02-12 02:47+0000\n"
+"PO-Revision-Date: 2024-02-12 16:45+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -280,11 +280,11 @@ msgstr "$name ($host에서)"
 msgid "(Not part of target)"
 msgstr "(대상에 포함되지 않음)"
 
-#: pkg/storaged/filesystem/utils.jsx:237
+#: pkg/storaged/filesystem/utils.jsx:239
 msgid "(no assigned mount point)"
 msgstr "(할당된 적재 지점이 없음)"
 
-#: pkg/storaged/filesystem/utils.jsx:234 pkg/storaged/filesystem/utils.jsx:239
+#: pkg/storaged/filesystem/utils.jsx:236 pkg/storaged/filesystem/utils.jsx:241
 #: pkg/storaged/nfs/nfs.jsx:294
 msgid "(not mounted)"
 msgstr "(적재 되지 않음)"
@@ -1090,7 +1090,7 @@ msgstr "최소 1개의 블록 장치가 필요합니다."
 msgid "At least one disk is needed."
 msgstr "최소 1개의 디스크가 필요합니다."
 
-#: pkg/storaged/btrfs/subvolume.jsx:288
+#: pkg/storaged/btrfs/subvolume.jsx:298
 msgid "At least one parent needs to be mounted writable"
 msgstr "적어도 하나 이상의 상위 부분이 쓸 수 있도록 적재되어야 합니다"
 
@@ -1963,7 +1963,7 @@ msgstr "충돌 시스템"
 #: pkg/storaged/block/format-dialog.jsx:332
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/stratis/create-dialog.jsx:122 pkg/storaged/stratis/pool.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:138
 msgid "Create"
 msgstr "생성"
 
@@ -2005,7 +2005,7 @@ msgid "Create and change ownership of home directory"
 msgstr "홈 디렉토리의 소유권 생성 및 변경"
 
 #: pkg/storaged/block/format-dialog.jsx:317 pkg/storaged/stratis/pool.jsx:81
-#: pkg/storaged/btrfs/subvolume.jsx:130
+#: pkg/storaged/btrfs/subvolume.jsx:132
 msgid "Create and mount"
 msgstr "생성과 적재"
 
@@ -2051,7 +2051,7 @@ msgstr "신규 씬 프로비젼닝 논리 볼륨 만들기"
 
 #: pkg/storaged/block/format-dialog.jsx:318
 #: pkg/storaged/block/format-dialog.jsx:327 pkg/storaged/stratis/pool.jsx:82
-#: pkg/storaged/btrfs/subvolume.jsx:131
+#: pkg/storaged/btrfs/subvolume.jsx:133
 msgid "Create only"
 msgstr "읽기 전용"
 
@@ -2084,7 +2084,7 @@ msgstr "순간찍기 전용 생성"
 msgid "Create storage device"
 msgstr "저장소 장치 만들기"
 
-#: pkg/storaged/btrfs/subvolume.jsx:141 pkg/storaged/btrfs/subvolume.jsx:281
+#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:291
 msgid "Create subvolume"
 msgstr "하위볼륨 만들기"
 
@@ -2391,8 +2391,8 @@ msgstr "지연은 숫자여야 합니다"
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:152
 #: pkg/storaged/mdraid/mdraid.jsx:126 pkg/storaged/mdraid/mdraid.jsx:226
 #: pkg/storaged/stratis/filesystem.jsx:141
-#: pkg/storaged/stratis/filesystem.jsx:177 pkg/storaged/stratis/pool.jsx:153
-#: pkg/storaged/btrfs/subvolume.jsx:225 pkg/storaged/btrfs/subvolume.jsx:295
+#: pkg/storaged/stratis/filesystem.jsx:179 pkg/storaged/stratis/pool.jsx:153
+#: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/partitions/partition.jsx:58
 #: pkg/storaged/partitions/partition.jsx:104
@@ -2467,7 +2467,7 @@ msgstr "삭제하면 VDO 장치에서 모든 자료를 삭제합니다."
 msgid "Deleting erases all data on a volume group."
 msgstr "삭제하면 볼륨 그룹에서 모든 자료가 제거됩니다."
 
-#: pkg/storaged/btrfs/subvolume.jsx:226
+#: pkg/storaged/btrfs/subvolume.jsx:228
 msgid "Deleting erases all data on this subvolume and all it's children."
 msgstr ""
 "삭제하면 이와 같은 하위볼륨에서의 모든 자료와 모든 하위 볼륨이 제거됩니다."
@@ -2629,8 +2629,8 @@ msgstr "분산 패리티 (레이드 5)"
 msgid "Do not mount"
 msgstr "적재하지 않습니다"
 
-#: pkg/storaged/filesystem/mismounting.jsx:203
-#: pkg/storaged/filesystem/mismounting.jsx:215
+#: pkg/storaged/filesystem/mismounting.jsx:206
+#: pkg/storaged/filesystem/mismounting.jsx:218
 msgid "Do not mount automatically on boot"
 msgstr "부팅시 자동으로 적재하지 마세요"
 
@@ -2767,6 +2767,11 @@ msgstr "호스트 편집"
 #: pkg/systemd/overview-cards/motdCard.jsx:113
 msgid "Edit motd"
 msgstr "motd 편집"
+
+#: pkg/storaged/filesystem/filesystem.jsx:100
+#: pkg/storaged/stratis/filesystem.jsx:174 pkg/storaged/btrfs/subvolume.jsx:263
+msgid "Edit mount point"
+msgstr "적재 지점 편집"
 
 #: pkg/networkmanager/network-main.jsx:161
 msgid "Edit rules and zones"
@@ -3154,11 +3159,11 @@ msgstr "파일 상태"
 msgid "Filesystem"
 msgstr "파일 시스템"
 
-#: pkg/storaged/filesystem/filesystem.jsx:142
+#: pkg/storaged/filesystem/filesystem.jsx:144
 msgid "Filesystem is locked"
 msgstr "파일 시스템이 잠겨 있습니다"
 
-#: pkg/storaged/filesystem/filesystem.jsx:115
+#: pkg/storaged/filesystem/filesystem.jsx:117
 msgid "Filesystem name"
 msgstr "파일시스템 이름"
 
@@ -3228,7 +3233,7 @@ msgid "Force password change"
 msgstr "강제 비밀번호 변경"
 
 #: pkg/storaged/swap/swap.jsx:100 pkg/storaged/lvm2/physical-volume.jsx:50
-#: pkg/storaged/filesystem/filesystem.jsx:102
+#: pkg/storaged/filesystem/filesystem.jsx:104
 #: pkg/storaged/block/unrecognized-data.jsx:41
 #: pkg/storaged/block/format-dialog.jsx:322
 #: pkg/storaged/block/format-dialog.jsx:332
@@ -3458,8 +3463,8 @@ msgstr "점검하는 방법"
 
 #: pkg/users/accounts-list.js:239 pkg/users/accounts-list.js:390
 #: pkg/users/group-create-dialog.js:47 pkg/networkmanager/firewall.jsx:700
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/pages.jsx:710
-#: pkg/storaged/btrfs/subvolume.jsx:324
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/pages.jsx:709
+#: pkg/storaged/btrfs/subvolume.jsx:334
 msgid "ID"
 msgstr "ID"
 
@@ -3582,7 +3587,7 @@ msgstr ""
 "기본적으로 들어오는 요청은 차단됩니다. 외부로 나가는 요청은 차단되지 않습니"
 "다."
 
-#: pkg/storaged/filesystem/mismounting.jsx:221
+#: pkg/storaged/filesystem/mismounting.jsx:224
 msgid "Inconsistent filesystem mount"
 msgstr "일관되지 않은 파일 시스템 적재"
 
@@ -4206,7 +4211,7 @@ msgstr "로컬 저장소"
 msgid "Local, $0"
 msgstr "로컬, $0"
 
-#: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:712
+#: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:711
 #: pkg/storaged/dialog.jsx:1134 pkg/storaged/dialog.jsx:1239
 msgid "Location"
 msgstr "위치"
@@ -4624,13 +4629,13 @@ msgstr "월간"
 msgid "More info..."
 msgstr "자세한 정보..."
 
-#: pkg/storaged/filesystem/filesystem.jsx:101
+#: pkg/storaged/filesystem/filesystem.jsx:103
 #: pkg/storaged/filesystem/mounting-dialog.jsx:277 pkg/storaged/nfs/nfs.jsx:310
-#: pkg/storaged/stratis/filesystem.jsx:175 pkg/storaged/btrfs/subvolume.jsx:265
+#: pkg/storaged/stratis/filesystem.jsx:177 pkg/storaged/btrfs/subvolume.jsx:275
 msgid "Mount"
 msgstr "적재"
 
-#: pkg/storaged/btrfs/subvolume.jsx:147
+#: pkg/storaged/btrfs/subvolume.jsx:149
 msgid "Mount Point"
 msgstr "적재 지점"
 
@@ -4638,7 +4643,7 @@ msgstr "적재 지점"
 msgid "Mount after network becomes available, ignore failure"
 msgstr "네트워크를 사용 할 수 있게 된 후 적재, 실패를 무시합니다"
 
-#: pkg/storaged/filesystem/mismounting.jsx:207
+#: pkg/storaged/filesystem/mismounting.jsx:210
 msgid "Mount also automatically on boot"
 msgstr "부팅시 자동으로 적재"
 
@@ -4646,8 +4651,8 @@ msgstr "부팅시 자동으로 적재"
 msgid "Mount at boot"
 msgstr "재시작 시 적재"
 
-#: pkg/storaged/filesystem/mismounting.jsx:199
-#: pkg/storaged/filesystem/mismounting.jsx:211
+#: pkg/storaged/filesystem/mismounting.jsx:202
+#: pkg/storaged/filesystem/mismounting.jsx:214
 msgid "Mount automatically on $0 on boot"
 msgstr "부팅시 $0에서 자동으로 적재"
 
@@ -4663,11 +4668,11 @@ msgstr "적재 구성"
 msgid "Mount filesystem"
 msgstr "파일 시스템 적재"
 
-#: pkg/storaged/filesystem/mismounting.jsx:204
+#: pkg/storaged/filesystem/mismounting.jsx:207
 msgid "Mount now"
 msgstr "지금 적재"
 
-#: pkg/storaged/filesystem/mismounting.jsx:200
+#: pkg/storaged/filesystem/mismounting.jsx:203
 msgid "Mount on $0 now"
 msgstr "지금 $0에서 적재"
 
@@ -4675,12 +4680,12 @@ msgstr "지금 $0에서 적재"
 msgid "Mount options"
 msgstr "적재 옵션"
 
-#: pkg/storaged/filesystem/filesystem.jsx:145
+#: pkg/storaged/filesystem/filesystem.jsx:147
 #: pkg/storaged/filesystem/mounting-dialog.jsx:246
 #: pkg/storaged/block/format-dialog.jsx:345 pkg/storaged/nfs/nfs.jsx:329
 #: pkg/storaged/stratis/filesystem.jsx:91
-#: pkg/storaged/stratis/filesystem.jsx:224 pkg/storaged/stratis/pool.jsx:104
-#: pkg/storaged/btrfs/subvolume.jsx:325
+#: pkg/storaged/stratis/filesystem.jsx:226 pkg/storaged/stratis/pool.jsx:104
+#: pkg/storaged/btrfs/subvolume.jsx:335
 msgid "Mount point"
 msgstr "적재 지점"
 
@@ -4765,16 +4770,16 @@ msgstr "NTP 서버"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:138
-#: pkg/storaged/filesystem/filesystem.jsx:117
-#: pkg/storaged/filesystem/filesystem.jsx:139
+#: pkg/storaged/filesystem/filesystem.jsx:119
+#: pkg/storaged/filesystem/filesystem.jsx:141
 #: pkg/storaged/block/format-dialog.jsx:340
 #: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
 #: pkg/storaged/stratis/create-dialog.jsx:50
 #: pkg/storaged/stratis/filesystem.jsx:86
-#: pkg/storaged/stratis/filesystem.jsx:195
-#: pkg/storaged/stratis/filesystem.jsx:219 pkg/storaged/stratis/pool.jsx:93
+#: pkg/storaged/stratis/filesystem.jsx:197
+#: pkg/storaged/stratis/filesystem.jsx:221 pkg/storaged/stratis/pool.jsx:93
 #: pkg/storaged/stratis/pool.jsx:170 pkg/storaged/stratis/pool.jsx:518
-#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:323
+#: pkg/storaged/btrfs/subvolume.jsx:145 pkg/storaged/btrfs/subvolume.jsx:333
 #: pkg/storaged/btrfs/volume.jsx:99 pkg/storaged/partitions/partition.jsx:219
 #: pkg/shell/credentials.jsx:101
 msgid "Name"
@@ -5176,8 +5181,8 @@ msgstr "공간이 부족합니다"
 msgid "Not enough space to grow"
 msgstr "확장 공간이 부족합니다"
 
-#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:276
-#: pkg/storaged/pages.jsx:279
+#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:275
+#: pkg/storaged/pages.jsx:278
 msgid "Not found"
 msgstr "찾을 수 없습니다"
 
@@ -5643,7 +5648,7 @@ msgstr "영구적으로 $0를 삭제 할까요?"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "영구적으로 논리 볼륨 $0/$1를 삭제할까요?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:222
+#: pkg/storaged/btrfs/subvolume.jsx:224
 msgid "Permanently delete subvolume $0?"
 msgstr "영구적으로 하위볼륨 $0를 삭제 할까요?"
 
@@ -5859,7 +5864,7 @@ msgstr ""
 
 #: pkg/storaged/stratis/stopped-pool.jsx:53
 msgid "Provide the passphrase for the pool on these block devices:"
-msgstr "이들 블록 장치에서 풀을 위한 암호를 제공합니다:"
+msgstr "이들 블록 장치에서 풀을 위한 암호문를 제공합니다:"
 
 #: pkg/networkmanager/wireguard.jsx:237 pkg/networkmanager/wireguard.jsx:300
 #: pkg/shell/credentials.jsx:114
@@ -6264,7 +6269,7 @@ msgstr "영역을 제거하면 영역 내의 모든 서비스가 제거됩니다
 #: pkg/storaged/lvm2/block-logical-volume.jsx:53
 #: pkg/storaged/lvm2/block-logical-volume.jsx:242
 #: pkg/storaged/lvm2/volume-group.jsx:71
-#: pkg/storaged/stratis/filesystem.jsx:202 pkg/storaged/stratis/pool.jsx:177
+#: pkg/storaged/stratis/filesystem.jsx:204 pkg/storaged/stratis/pool.jsx:177
 msgid "Rename"
 msgstr "이름변경"
 
@@ -6272,7 +6277,7 @@ msgstr "이름변경"
 msgid "Rename Stratis pool"
 msgstr "스트라티스 풀 이름 재지정"
 
-#: pkg/storaged/stratis/filesystem.jsx:193
+#: pkg/storaged/stratis/filesystem.jsx:195
 msgid "Rename filesystem"
 msgstr "파일 시스템 이름 변경"
 
@@ -6619,7 +6624,7 @@ msgid "Saturdays"
 msgstr "토요일"
 
 #: pkg/networkmanager/dialogs-common.jsx:160 pkg/systemd/timer-dialog.jsx:148
-#: pkg/packagekit/kpatch.jsx:307 pkg/storaged/filesystem/filesystem.jsx:124
+#: pkg/packagekit/kpatch.jsx:307 pkg/storaged/filesystem/filesystem.jsx:126
 #: pkg/storaged/filesystem/mounting-dialog.jsx:279 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/stratis/pool.jsx:388 pkg/storaged/stratis/pool.jsx:417
 #: pkg/storaged/stratis/pool.jsx:472 pkg/storaged/btrfs/volume.jsx:106
@@ -6653,8 +6658,8 @@ msgid ""
 "Saving a new passphrase requires unlocking the disk. Please provide a "
 "current disk passphrase."
 msgstr ""
-"신규 암호를 저장하려면 디스크 잠금 해제가 필요합니다. 현재 디스크의 암호문을 "
-"제공하십시오."
+"신규 암호문를 저장하려면 디스크 잠금 해제가 필요합니다. 현재 디스크의 암호문"
+"을 제공하십시오."
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:89
 msgid "Scheduled poweroff at $0"
@@ -6884,7 +6889,7 @@ msgstr "쉘 스크립트"
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
-#: pkg/storaged/pages.jsx:694
+#: pkg/storaged/pages.jsx:693
 msgid "Show all $0 rows"
 msgstr "모든 $0 행 표시"
 
@@ -6966,7 +6971,7 @@ msgstr "단일 등급"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:206
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:143
-#: pkg/storaged/pages.jsx:713 pkg/storaged/block/format-dialog.jsx:361
+#: pkg/storaged/pages.jsx:712 pkg/storaged/block/format-dialog.jsx:361
 #: pkg/storaged/block/resize.jsx:448 pkg/storaged/block/resize.jsx:581
 #: pkg/storaged/nfs/nfs.jsx:330 pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/partitions/partition.jsx:227
@@ -7009,7 +7014,7 @@ msgstr "슬롯"
 msgid "Slot $0"
 msgstr "슬롯 $0"
 
-#: pkg/storaged/stratis/filesystem.jsx:176
+#: pkg/storaged/stratis/filesystem.jsx:178
 msgid "Snapshot"
 msgstr "순간찍기"
 
@@ -7295,11 +7300,11 @@ msgstr "서브 노트북"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "systemd 신호 구독에 실패했습니다. $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:275
+#: pkg/storaged/btrfs/subvolume.jsx:285
 msgid "Subvolume needs to be mounted"
 msgstr "하위볼륨은 적재가 필요합니다"
 
-#: pkg/storaged/btrfs/subvolume.jsx:277
+#: pkg/storaged/btrfs/subvolume.jsx:287
 msgid "Subvolume needs to be mounted writable"
 msgstr "하위볼륨은 쓸 수 있도록 적재되어야 합니다"
 
@@ -7564,22 +7569,22 @@ msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
 msgstr ""
-"디스크는 초기화 하기 전에 잠금이 해제된 상태이어야 합니다.  기존 암호를 입력"
-"하세요."
+"디스크는 초기화 하기 전에 잠금이 해제된 상태이어야 합니다.  기존 암호문를 입"
+"력하세요."
 
 #: pkg/sosreport/sosreport.jsx:368
 msgid "The file $0 will be deleted."
 msgstr "파일 $0가 삭제됩니다."
 
-#: pkg/storaged/filesystem/utils.jsx:187
+#: pkg/storaged/filesystem/utils.jsx:191
 msgid "The filesystem has no assigned mount point."
 msgstr "파일시스템은 할당된 적재 지점이 없습니다."
 
-#: pkg/storaged/filesystem/utils.jsx:191
+#: pkg/storaged/filesystem/utils.jsx:195
 msgid "The filesystem has no permanent mount point."
 msgstr "파일 시스템에 영구 적재 지점이 없습니다."
 
-#: pkg/storaged/filesystem/mismounting.jsx:214
+#: pkg/storaged/filesystem/mismounting.jsx:217
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
@@ -7587,42 +7592,42 @@ msgstr ""
 "파일 시스템이 부팅 시 자동으로 적재되도록 구성되어 있지만 이 암호화된 컨테이"
 "너는 그 때에 잠금이 해제되지 않습니다."
 
-#: pkg/storaged/filesystem/mismounting.jsx:206
+#: pkg/storaged/filesystem/mismounting.jsx:209
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
 msgstr "파일 시스템이 현재 적재되어 있지만 다음 부팅 후에는 적재되지 않습니다."
 
-#: pkg/storaged/filesystem/mismounting.jsx:198
+#: pkg/storaged/filesystem/mismounting.jsx:201
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
 msgstr ""
 "파일 시스템이 현재 $0에 적재되어 있지만 다음 부팅 후에는 $1에 적재됩니다."
 
-#: pkg/storaged/filesystem/mismounting.jsx:210
+#: pkg/storaged/filesystem/mismounting.jsx:213
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
 msgstr ""
 "파일 시스템이 현재 $0에 적재되어 있지만 다음 부팅 후에는 적재되지 않습니다."
 
-#: pkg/storaged/filesystem/mismounting.jsx:202
+#: pkg/storaged/filesystem/mismounting.jsx:205
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr "파일 시스템이 현재 적재되어 있지 않지만 다음 부팅시에 적재됩니다."
 
-#: pkg/storaged/filesystem/utils.jsx:193
+#: pkg/storaged/filesystem/utils.jsx:197
 msgid "The filesystem is not mounted."
 msgstr "파일 시스템이 적재되어 있지 않습니다."
 
-#: pkg/storaged/filesystem/utils.jsx:196
+#: pkg/storaged/filesystem/utils.jsx:200
 msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
 msgstr ""
 "파일 시스템은 잠금 해제되어 있어야 하고 다음 부팅시에는 적재됩니다. 이는 암호"
-"를 입력해야 할 수 있습니다."
+"문를 입력해야 할 수 있습니다."
 
 #: pkg/shell/hosts_dialog.jsx:494
 msgid "The fingerprint should match:"
@@ -8256,7 +8261,7 @@ msgid "Turn on administrative access"
 msgstr "관리자 접근 설정"
 
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
-#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/pages.jsx:711
+#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/pages.jsx:710
 #: pkg/storaged/block/unrecognized-data.jsx:52
 #: pkg/storaged/block/format-dialog.jsx:356
 #: pkg/storaged/partitions/partition.jsx:175
@@ -8447,7 +8452,7 @@ msgstr "알 수 없는 유형"
 msgid "Unlock"
 msgstr "잠금 해제"
 
-#: pkg/storaged/filesystem/mismounting.jsx:216
+#: pkg/storaged/filesystem/mismounting.jsx:219
 msgid "Unlock automatically on boot"
 msgstr "부팅 시 자동으로 잠금 해제"
 
@@ -8476,9 +8481,9 @@ msgstr "디스크 잠금 해제 중"
 msgid "Unmanaged interfaces"
 msgstr "관리하지 않는 연결장치"
 
-#: pkg/storaged/filesystem/filesystem.jsx:100
+#: pkg/storaged/filesystem/filesystem.jsx:102
 #: pkg/storaged/filesystem/mounting-dialog.jsx:278 pkg/storaged/nfs/nfs.jsx:309
-#: pkg/storaged/stratis/filesystem.jsx:174 pkg/storaged/btrfs/subvolume.jsx:260
+#: pkg/storaged/stratis/filesystem.jsx:176 pkg/storaged/btrfs/subvolume.jsx:270
 msgid "Unmount"
 msgstr "적재 해제"
 
@@ -8486,8 +8491,8 @@ msgstr "적재 해제"
 msgid "Unmount filesystem $0"
 msgstr "$0 파일 시스템 적재 해제"
 
-#: pkg/storaged/filesystem/mismounting.jsx:208
-#: pkg/storaged/filesystem/mismounting.jsx:212
+#: pkg/storaged/filesystem/mismounting.jsx:211
+#: pkg/storaged/filesystem/mismounting.jsx:215
 msgid "Unmount now"
 msgstr "지금 적재 해제"
 
@@ -8585,9 +8590,9 @@ msgstr "가동 시간"
 # document keys
 #: pkg/systemd/overview-cards/usageCard.jsx:127
 #: pkg/storaged/lvm2/physical-volume.jsx:119
-#: pkg/storaged/filesystem/filesystem.jsx:150
+#: pkg/storaged/filesystem/filesystem.jsx:152
 #: pkg/storaged/block/unrecognized-data.jsx:51
-#: pkg/storaged/stratis/filesystem.jsx:228 pkg/storaged/stratis/pool.jsx:525
+#: pkg/storaged/stratis/filesystem.jsx:230 pkg/storaged/stratis/pool.jsx:525
 #: pkg/storaged/btrfs/device.jsx:83 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
 #: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
@@ -9085,7 +9090,7 @@ msgstr "add-on"
 msgid "addon"
 msgstr "부가 기능"
 
-#: pkg/storaged/filesystem/utils.jsx:173
+#: pkg/storaged/filesystem/utils.jsx:177
 msgid "after network"
 msgstr "네트워크 이후에"
 
@@ -9148,7 +9153,7 @@ msgstr "btrfs 장치"
 msgid "btrfs devices"
 msgstr "btrfs 장치"
 
-#: pkg/storaged/btrfs/subvolume.jsx:301
+#: pkg/storaged/btrfs/subvolume.jsx:311
 msgid "btrfs subvolume"
 msgstr "btrfs 하위볼륨"
 
@@ -9230,7 +9235,7 @@ msgstr "디버그"
 #: pkg/storaged/block/format-dialog.jsx:260
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80 pkg/storaged/mdraid/mdraid.jsx:112
 #: pkg/storaged/stratis/filesystem.jsx:125 pkg/storaged/stratis/pool.jsx:137
-#: pkg/storaged/btrfs/subvolume.jsx:211
+#: pkg/storaged/btrfs/subvolume.jsx:213
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
 #: pkg/storaged/partitions/partition.jsx:43
 msgid "delete"
@@ -9275,9 +9280,9 @@ msgstr "드라이브"
 #: pkg/storaged/lvm2/block-logical-volume.jsx:288
 #: pkg/storaged/lvm2/volume-group.jsx:384
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:141
-#: pkg/storaged/filesystem/utils.jsx:219
-#: pkg/storaged/filesystem/filesystem.jsx:143
-#: pkg/storaged/stratis/filesystem.jsx:222 pkg/storaged/stratis/pool.jsx:521
+#: pkg/storaged/filesystem/utils.jsx:221
+#: pkg/storaged/filesystem/filesystem.jsx:145
+#: pkg/storaged/stratis/filesystem.jsx:224 pkg/storaged/stratis/pool.jsx:521
 #: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/crypto/encryption.jsx:233
 #: pkg/storaged/crypto/encryption.jsx:236
 #: pkg/storaged/partitions/partition.jsx:224
@@ -9414,7 +9419,7 @@ msgstr "iSCSI 드라이브"
 msgid "iSCSI portal"
 msgstr "iSCSI 포털"
 
-#: pkg/storaged/filesystem/utils.jsx:175
+#: pkg/storaged/filesystem/utils.jsx:179
 msgid "ignore failure"
 msgstr "실패를 무시"
 
@@ -9544,7 +9549,7 @@ msgstr "nbde"
 msgid "network"
 msgstr "네트워크"
 
-#: pkg/storaged/filesystem/utils.jsx:171
+#: pkg/storaged/filesystem/utils.jsx:175
 msgid "never mount at boot"
 msgstr "부팅시에 적재하지 않습니다"
 
@@ -9678,7 +9683,7 @@ msgstr "레이드"
 msgid "ram"
 msgstr "램"
 
-#: pkg/storaged/filesystem/utils.jsx:169
+#: pkg/storaged/filesystem/utils.jsx:173
 msgid "read only"
 msgstr "읽기 전용"
 
@@ -9789,7 +9794,7 @@ msgstr "ssh 서버가 비어 있습니다"
 msgid "stop"
 msgstr "중지"
 
-#: pkg/storaged/filesystem/utils.jsx:177
+#: pkg/storaged/filesystem/utils.jsx:181
 msgid "stop boot on failure"
 msgstr "실패한 경우에 부트 중지"
 
@@ -9858,7 +9863,7 @@ msgstr "알 수 없는 대상"
 msgid "unmask"
 msgstr "마스크 해제"
 
-#: pkg/storaged/btrfs/subvolume.jsx:211 pkg/storaged/utils.js:873
+#: pkg/storaged/btrfs/subvolume.jsx:213 pkg/storaged/utils.js:873
 #: pkg/storaged/utils.js:886 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "적재 해제"

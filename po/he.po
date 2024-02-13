@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-08 02:46+0000\n"
+"POT-Creation-Date: 2024-02-12 02:47+0000\n"
 "PO-Revision-Date: 2023-11-22 21:01+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -381,13 +381,13 @@ msgstr "$name (מ־$host)"
 msgid "(Not part of target)"
 msgstr "נוצרת מחיצה $target"
 
-#: pkg/storaged/filesystem/utils.jsx:237
+#: pkg/storaged/filesystem/utils.jsx:239
 #, fuzzy
 #| msgid "Local mount point"
 msgid "(no assigned mount point)"
 msgstr "נקודת עגינה מקומית"
 
-#: pkg/storaged/filesystem/utils.jsx:234 pkg/storaged/filesystem/utils.jsx:239
+#: pkg/storaged/filesystem/utils.jsx:236 pkg/storaged/filesystem/utils.jsx:241
 #: pkg/storaged/nfs/nfs.jsx:294
 #, fuzzy
 #| msgid "Not mounted"
@@ -1213,7 +1213,7 @@ msgstr "נדרש התקן בלוק אחד לפחות."
 msgid "At least one disk is needed."
 msgstr "נדרש כונן אחד לפחות."
 
-#: pkg/storaged/btrfs/subvolume.jsx:288
+#: pkg/storaged/btrfs/subvolume.jsx:298
 msgid "At least one parent needs to be mounted writable"
 msgstr ""
 
@@ -2094,7 +2094,7 @@ msgstr "הקרסת המערכת"
 #: pkg/storaged/block/format-dialog.jsx:332
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/stratis/create-dialog.jsx:122 pkg/storaged/stratis/pool.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:138
 msgid "Create"
 msgstr "יצירה"
 
@@ -2138,7 +2138,7 @@ msgid "Create and change ownership of home directory"
 msgstr "יצירה ושינוי בעלות על תיקיית הבית"
 
 #: pkg/storaged/block/format-dialog.jsx:317 pkg/storaged/stratis/pool.jsx:81
-#: pkg/storaged/btrfs/subvolume.jsx:130
+#: pkg/storaged/btrfs/subvolume.jsx:132
 msgid "Create and mount"
 msgstr "יצירה ועיגון"
 
@@ -2188,7 +2188,7 @@ msgstr "יצירת כרך לוגי חדש"
 
 #: pkg/storaged/block/format-dialog.jsx:318
 #: pkg/storaged/block/format-dialog.jsx:327 pkg/storaged/stratis/pool.jsx:82
-#: pkg/storaged/btrfs/subvolume.jsx:131
+#: pkg/storaged/btrfs/subvolume.jsx:133
 msgid "Create only"
 msgstr "יצירה בלבד"
 
@@ -2223,7 +2223,7 @@ msgstr "יצירת תמונת מצב בלבד"
 msgid "Create storage device"
 msgstr "יצירת כרך אחסון"
 
-#: pkg/storaged/btrfs/subvolume.jsx:141 pkg/storaged/btrfs/subvolume.jsx:281
+#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:291
 #, fuzzy
 #| msgid "Create volume"
 msgid "Create subvolume"
@@ -2531,8 +2531,8 @@ msgstr "השהיה חייבת להיות מספר"
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:152
 #: pkg/storaged/mdraid/mdraid.jsx:126 pkg/storaged/mdraid/mdraid.jsx:226
 #: pkg/storaged/stratis/filesystem.jsx:141
-#: pkg/storaged/stratis/filesystem.jsx:177 pkg/storaged/stratis/pool.jsx:153
-#: pkg/storaged/btrfs/subvolume.jsx:225 pkg/storaged/btrfs/subvolume.jsx:295
+#: pkg/storaged/stratis/filesystem.jsx:179 pkg/storaged/stratis/pool.jsx:153
+#: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/partitions/partition.jsx:58
 #: pkg/storaged/partitions/partition.jsx:104
@@ -2610,7 +2610,7 @@ msgstr "מחיקה תמחק את כל הנתונים של התקן ה־VDO."
 msgid "Deleting erases all data on a volume group."
 msgstr "מחיקה מוחקת את כל הנתונים בקבוצת כרכים."
 
-#: pkg/storaged/btrfs/subvolume.jsx:226
+#: pkg/storaged/btrfs/subvolume.jsx:228
 #, fuzzy
 #| msgid "Deleting erases all data on a volume group."
 msgid "Deleting erases all data on this subvolume and all it's children."
@@ -2774,8 +2774,8 @@ msgstr "פיזור+זוגיות מפוזרת (RAID 5)"
 msgid "Do not mount"
 msgstr "לא לעגן"
 
-#: pkg/storaged/filesystem/mismounting.jsx:203
-#: pkg/storaged/filesystem/mismounting.jsx:215
+#: pkg/storaged/filesystem/mismounting.jsx:206
+#: pkg/storaged/filesystem/mismounting.jsx:218
 msgid "Do not mount automatically on boot"
 msgstr "לא לעגן אוטומטית עם העלייה"
 
@@ -2912,6 +2912,13 @@ msgstr "עריכת מארחים"
 #: pkg/systemd/overview-cards/motdCard.jsx:113
 msgid "Edit motd"
 msgstr "עריכת ההודעה היומית"
+
+#: pkg/storaged/filesystem/filesystem.jsx:100
+#: pkg/storaged/stratis/filesystem.jsx:174 pkg/storaged/btrfs/subvolume.jsx:263
+#, fuzzy
+#| msgid "Mount point"
+msgid "Edit mount point"
+msgstr "נקודת עיגון"
 
 #: pkg/networkmanager/network-main.jsx:161
 msgid "Edit rules and zones"
@@ -3299,11 +3306,11 @@ msgstr "מצב הקובץ"
 msgid "Filesystem"
 msgstr "מערכת קבצים"
 
-#: pkg/storaged/filesystem/filesystem.jsx:142
+#: pkg/storaged/filesystem/filesystem.jsx:144
 msgid "Filesystem is locked"
 msgstr "מערכת הקבצים נעולה"
 
-#: pkg/storaged/filesystem/filesystem.jsx:115
+#: pkg/storaged/filesystem/filesystem.jsx:117
 msgid "Filesystem name"
 msgstr "שם מערכת קבצים"
 
@@ -3378,7 +3385,7 @@ msgid "Force password change"
 msgstr "לאלץ החלפת סיסמה"
 
 #: pkg/storaged/swap/swap.jsx:100 pkg/storaged/lvm2/physical-volume.jsx:50
-#: pkg/storaged/filesystem/filesystem.jsx:102
+#: pkg/storaged/filesystem/filesystem.jsx:104
 #: pkg/storaged/block/unrecognized-data.jsx:41
 #: pkg/storaged/block/format-dialog.jsx:322
 #: pkg/storaged/block/format-dialog.jsx:332
@@ -3608,8 +3615,8 @@ msgstr "איך לבדוק"
 
 #: pkg/users/accounts-list.js:239 pkg/users/accounts-list.js:390
 #: pkg/users/group-create-dialog.js:47 pkg/networkmanager/firewall.jsx:700
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/pages.jsx:710
-#: pkg/storaged/btrfs/subvolume.jsx:324
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/pages.jsx:709
+#: pkg/storaged/btrfs/subvolume.jsx:334
 msgid "ID"
 msgstr "מזהה"
 
@@ -3731,7 +3738,7 @@ msgid ""
 "Incoming requests are blocked by default. Outgoing requests are not blocked."
 msgstr "בקשות נכנסות נחסמות כברירת מחדל. בקשות יוצאות לא נחסמות."
 
-#: pkg/storaged/filesystem/mismounting.jsx:221
+#: pkg/storaged/filesystem/mismounting.jsx:224
 msgid "Inconsistent filesystem mount"
 msgstr "עיגון בלתי אחיד של מערכת קבצים"
 
@@ -4379,7 +4386,7 @@ msgstr "אין אחסון"
 msgid "Local, $0"
 msgstr "מקומית ב־$0"
 
-#: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:712
+#: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:711
 #: pkg/storaged/dialog.jsx:1134 pkg/storaged/dialog.jsx:1239
 msgid "Location"
 msgstr "מיקום"
@@ -4814,13 +4821,13 @@ msgstr "חודשי"
 msgid "More info..."
 msgstr "מידע נוסף…"
 
-#: pkg/storaged/filesystem/filesystem.jsx:101
+#: pkg/storaged/filesystem/filesystem.jsx:103
 #: pkg/storaged/filesystem/mounting-dialog.jsx:277 pkg/storaged/nfs/nfs.jsx:310
-#: pkg/storaged/stratis/filesystem.jsx:175 pkg/storaged/btrfs/subvolume.jsx:265
+#: pkg/storaged/stratis/filesystem.jsx:177 pkg/storaged/btrfs/subvolume.jsx:275
 msgid "Mount"
 msgstr "עיגון"
 
-#: pkg/storaged/btrfs/subvolume.jsx:147
+#: pkg/storaged/btrfs/subvolume.jsx:149
 #, fuzzy
 #| msgid "Mount point"
 msgid "Mount Point"
@@ -4830,7 +4837,7 @@ msgstr "נקודת עיגון"
 msgid "Mount after network becomes available, ignore failure"
 msgstr "לעגן לאחר שהרשת זמינה, להתעלם מכשל"
 
-#: pkg/storaged/filesystem/mismounting.jsx:207
+#: pkg/storaged/filesystem/mismounting.jsx:210
 msgid "Mount also automatically on boot"
 msgstr "לעגן אוטומטית גם עם העלייה"
 
@@ -4838,8 +4845,8 @@ msgstr "לעגן אוטומטית גם עם העלייה"
 msgid "Mount at boot"
 msgstr "לעגן בעלייה"
 
-#: pkg/storaged/filesystem/mismounting.jsx:199
-#: pkg/storaged/filesystem/mismounting.jsx:211
+#: pkg/storaged/filesystem/mismounting.jsx:202
+#: pkg/storaged/filesystem/mismounting.jsx:214
 msgid "Mount automatically on $0 on boot"
 msgstr "לעגן אוטומטית אל $0 בזמן העלייה"
 
@@ -4855,11 +4862,11 @@ msgstr "הגדרות עיגון"
 msgid "Mount filesystem"
 msgstr "עיגון מערכת קבצים"
 
-#: pkg/storaged/filesystem/mismounting.jsx:204
+#: pkg/storaged/filesystem/mismounting.jsx:207
 msgid "Mount now"
 msgstr "לעגן כעת"
 
-#: pkg/storaged/filesystem/mismounting.jsx:200
+#: pkg/storaged/filesystem/mismounting.jsx:203
 msgid "Mount on $0 now"
 msgstr "לעגן אל $0 כעת"
 
@@ -4867,12 +4874,12 @@ msgstr "לעגן אל $0 כעת"
 msgid "Mount options"
 msgstr "אפשרויות עיגון"
 
-#: pkg/storaged/filesystem/filesystem.jsx:145
+#: pkg/storaged/filesystem/filesystem.jsx:147
 #: pkg/storaged/filesystem/mounting-dialog.jsx:246
 #: pkg/storaged/block/format-dialog.jsx:345 pkg/storaged/nfs/nfs.jsx:329
 #: pkg/storaged/stratis/filesystem.jsx:91
-#: pkg/storaged/stratis/filesystem.jsx:224 pkg/storaged/stratis/pool.jsx:104
-#: pkg/storaged/btrfs/subvolume.jsx:325
+#: pkg/storaged/stratis/filesystem.jsx:226 pkg/storaged/stratis/pool.jsx:104
+#: pkg/storaged/btrfs/subvolume.jsx:335
 msgid "Mount point"
 msgstr "נקודת עיגון"
 
@@ -4960,16 +4967,16 @@ msgstr "שרת NTP"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:138
-#: pkg/storaged/filesystem/filesystem.jsx:117
-#: pkg/storaged/filesystem/filesystem.jsx:139
+#: pkg/storaged/filesystem/filesystem.jsx:119
+#: pkg/storaged/filesystem/filesystem.jsx:141
 #: pkg/storaged/block/format-dialog.jsx:340
 #: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
 #: pkg/storaged/stratis/create-dialog.jsx:50
 #: pkg/storaged/stratis/filesystem.jsx:86
-#: pkg/storaged/stratis/filesystem.jsx:195
-#: pkg/storaged/stratis/filesystem.jsx:219 pkg/storaged/stratis/pool.jsx:93
+#: pkg/storaged/stratis/filesystem.jsx:197
+#: pkg/storaged/stratis/filesystem.jsx:221 pkg/storaged/stratis/pool.jsx:93
 #: pkg/storaged/stratis/pool.jsx:170 pkg/storaged/stratis/pool.jsx:518
-#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:323
+#: pkg/storaged/btrfs/subvolume.jsx:145 pkg/storaged/btrfs/subvolume.jsx:333
 #: pkg/storaged/btrfs/volume.jsx:99 pkg/storaged/partitions/partition.jsx:219
 #: pkg/shell/credentials.jsx:101
 msgid "Name"
@@ -5399,8 +5406,8 @@ msgstr "אין מספיק מקום"
 msgid "Not enough space to grow"
 msgstr "אין מספיק מקום כדי לגדול."
 
-#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:276
-#: pkg/storaged/pages.jsx:279
+#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:275
+#: pkg/storaged/pages.jsx:278
 msgid "Not found"
 msgstr "לא נמצא"
 
@@ -5860,7 +5867,7 @@ msgstr "למחוק את $0 לצמיתות?"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "למחוק את $0 לצמיתות?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:222
+#: pkg/storaged/btrfs/subvolume.jsx:224
 #, fuzzy
 #| msgid "Permanently delete $0?"
 msgid "Permanently delete subvolume $0?"
@@ -6495,7 +6502,7 @@ msgstr "הסרת האזור תסיר את כל השירותים שבו."
 #: pkg/storaged/lvm2/block-logical-volume.jsx:53
 #: pkg/storaged/lvm2/block-logical-volume.jsx:242
 #: pkg/storaged/lvm2/volume-group.jsx:71
-#: pkg/storaged/stratis/filesystem.jsx:202 pkg/storaged/stratis/pool.jsx:177
+#: pkg/storaged/stratis/filesystem.jsx:204 pkg/storaged/stratis/pool.jsx:177
 msgid "Rename"
 msgstr "שינוי שם"
 
@@ -6503,7 +6510,7 @@ msgstr "שינוי שם"
 msgid "Rename Stratis pool"
 msgstr "שינוי שם למאגר Stratis"
 
-#: pkg/storaged/stratis/filesystem.jsx:193
+#: pkg/storaged/stratis/filesystem.jsx:195
 msgid "Rename filesystem"
 msgstr "שינוי שם מערכת קבצים"
 
@@ -6847,7 +6854,7 @@ msgid "Saturdays"
 msgstr "שבתות"
 
 #: pkg/networkmanager/dialogs-common.jsx:160 pkg/systemd/timer-dialog.jsx:148
-#: pkg/packagekit/kpatch.jsx:307 pkg/storaged/filesystem/filesystem.jsx:124
+#: pkg/packagekit/kpatch.jsx:307 pkg/storaged/filesystem/filesystem.jsx:126
 #: pkg/storaged/filesystem/mounting-dialog.jsx:279 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/stratis/pool.jsx:388 pkg/storaged/stratis/pool.jsx:417
 #: pkg/storaged/stratis/pool.jsx:472 pkg/storaged/btrfs/volume.jsx:106
@@ -7110,7 +7117,7 @@ msgstr "סקריפט מעטפת"
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
-#: pkg/storaged/pages.jsx:694
+#: pkg/storaged/pages.jsx:693
 #, fuzzy
 #| msgid "Show all threads"
 msgid "Show all $0 rows"
@@ -7196,7 +7203,7 @@ msgstr "שורה אחת"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:206
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:143
-#: pkg/storaged/pages.jsx:713 pkg/storaged/block/format-dialog.jsx:361
+#: pkg/storaged/pages.jsx:712 pkg/storaged/block/format-dialog.jsx:361
 #: pkg/storaged/block/resize.jsx:448 pkg/storaged/block/resize.jsx:581
 #: pkg/storaged/nfs/nfs.jsx:330 pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/partitions/partition.jsx:227
@@ -7239,7 +7246,7 @@ msgstr "משבצת"
 msgid "Slot $0"
 msgstr "משבצת $0"
 
-#: pkg/storaged/stratis/filesystem.jsx:176
+#: pkg/storaged/stratis/filesystem.jsx:178
 msgid "Snapshot"
 msgstr "תמונת מצב"
 
@@ -7538,13 +7545,13 @@ msgstr "תת מחברת"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "הרישום ל־signals (אותות) של systemd נכשל: $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:275
+#: pkg/storaged/btrfs/subvolume.jsx:285
 #, fuzzy
 #| msgid "Volume failed to be created"
 msgid "Subvolume needs to be mounted"
 msgstr "יצירת הכרך נכשלה"
 
-#: pkg/storaged/btrfs/subvolume.jsx:277
+#: pkg/storaged/btrfs/subvolume.jsx:287
 msgid "Subvolume needs to be mounted writable"
 msgstr ""
 
@@ -7823,17 +7830,17 @@ msgstr "יש לשחרר את הכונן בטרם פרמוטו. נא לספק מ�
 msgid "The file $0 will be deleted."
 msgstr "לא ניתן למחוק את הקובץ $0."
 
-#: pkg/storaged/filesystem/utils.jsx:187
+#: pkg/storaged/filesystem/utils.jsx:191
 #, fuzzy
 #| msgid "The filesystem has no permanent mount point."
 msgid "The filesystem has no assigned mount point."
 msgstr "למערכת הקבצים אין נקודת עגינה קבועה."
 
-#: pkg/storaged/filesystem/utils.jsx:191
+#: pkg/storaged/filesystem/utils.jsx:195
 msgid "The filesystem has no permanent mount point."
 msgstr "למערכת הקבצים אין נקודת עגינה קבועה."
 
-#: pkg/storaged/filesystem/mismounting.jsx:214
+#: pkg/storaged/filesystem/mismounting.jsx:217
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
@@ -7841,35 +7848,35 @@ msgstr ""
 "מערכת הקבצים מוגדרת להתעגן אוטומטית עם הפעלת המערכת אבל מכולת ההצפנה שלה לא "
 "תשוחרר באותו הזמן."
 
-#: pkg/storaged/filesystem/mismounting.jsx:206
+#: pkg/storaged/filesystem/mismounting.jsx:209
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
 msgstr "מערכת הקבצים מעוגנת כעת אך העיגון ינותק לאחר העלייה הבאה של המערכת."
 
-#: pkg/storaged/filesystem/mismounting.jsx:198
+#: pkg/storaged/filesystem/mismounting.jsx:201
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
 msgstr ""
 "מערכת הקבצים מעוגנת למיקום $0 אך תעוגן למיקום $1 עם העלייה הבאה של המערכת."
 
-#: pkg/storaged/filesystem/mismounting.jsx:210
+#: pkg/storaged/filesystem/mismounting.jsx:213
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
 msgstr "מערכת הקבצים מעוגנת למיקום $0 אך לא תעוגן עם העלייה הבאה של המערכת."
 
-#: pkg/storaged/filesystem/mismounting.jsx:202
+#: pkg/storaged/filesystem/mismounting.jsx:205
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr "מערכת הקבצים אינה מעוגנת כעת אך היא תעוגן עם ההפעלה הבאה של המערכת."
 
-#: pkg/storaged/filesystem/utils.jsx:193
+#: pkg/storaged/filesystem/utils.jsx:197
 msgid "The filesystem is not mounted."
 msgstr "מערכת הקבצים אינה מעוגנת."
 
-#: pkg/storaged/filesystem/utils.jsx:196
+#: pkg/storaged/filesystem/utils.jsx:200
 msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
@@ -8491,7 +8498,7 @@ msgid "Turn on administrative access"
 msgstr "הפעלת גישה ניהולית"
 
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
-#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/pages.jsx:711
+#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/pages.jsx:710
 #: pkg/storaged/block/unrecognized-data.jsx:52
 #: pkg/storaged/block/format-dialog.jsx:356
 #: pkg/storaged/partitions/partition.jsx:175
@@ -8685,7 +8692,7 @@ msgstr "סוג לא ידוע"
 msgid "Unlock"
 msgstr "שחרור"
 
-#: pkg/storaged/filesystem/mismounting.jsx:216
+#: pkg/storaged/filesystem/mismounting.jsx:219
 msgid "Unlock automatically on boot"
 msgstr "לשחרר אוטומטית עם העלייה"
 
@@ -8714,9 +8721,9 @@ msgstr "הכונן משוחרר"
 msgid "Unmanaged interfaces"
 msgstr "מנשקים לא מנוהלים"
 
-#: pkg/storaged/filesystem/filesystem.jsx:100
+#: pkg/storaged/filesystem/filesystem.jsx:102
 #: pkg/storaged/filesystem/mounting-dialog.jsx:278 pkg/storaged/nfs/nfs.jsx:309
-#: pkg/storaged/stratis/filesystem.jsx:174 pkg/storaged/btrfs/subvolume.jsx:260
+#: pkg/storaged/stratis/filesystem.jsx:176 pkg/storaged/btrfs/subvolume.jsx:270
 msgid "Unmount"
 msgstr "ניתוק"
 
@@ -8724,8 +8731,8 @@ msgstr "ניתוק"
 msgid "Unmount filesystem $0"
 msgstr "ניתוק מערכת הקבצים $0"
 
-#: pkg/storaged/filesystem/mismounting.jsx:208
-#: pkg/storaged/filesystem/mismounting.jsx:212
+#: pkg/storaged/filesystem/mismounting.jsx:211
+#: pkg/storaged/filesystem/mismounting.jsx:215
 msgid "Unmount now"
 msgstr "לנתק כעת"
 
@@ -8823,9 +8830,9 @@ msgstr "זמן פעילות"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:127
 #: pkg/storaged/lvm2/physical-volume.jsx:119
-#: pkg/storaged/filesystem/filesystem.jsx:150
+#: pkg/storaged/filesystem/filesystem.jsx:152
 #: pkg/storaged/block/unrecognized-data.jsx:51
-#: pkg/storaged/stratis/filesystem.jsx:228 pkg/storaged/stratis/pool.jsx:525
+#: pkg/storaged/stratis/filesystem.jsx:230 pkg/storaged/stratis/pool.jsx:525
 #: pkg/storaged/btrfs/device.jsx:83 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
 #: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
@@ -9323,7 +9330,7 @@ msgstr "תוספת"
 msgid "addon"
 msgstr "תוספת"
 
-#: pkg/storaged/filesystem/utils.jsx:173
+#: pkg/storaged/filesystem/utils.jsx:177
 msgid "after network"
 msgstr "לאחר הרשת"
 
@@ -9387,7 +9394,7 @@ msgstr "התקנים אחרים"
 msgid "btrfs devices"
 msgstr "התקנים אחרים"
 
-#: pkg/storaged/btrfs/subvolume.jsx:301
+#: pkg/storaged/btrfs/subvolume.jsx:311
 #, fuzzy
 #| msgid "Storage volume"
 msgid "btrfs subvolume"
@@ -9481,7 +9488,7 @@ msgstr "ניפוי שגיאות"
 #: pkg/storaged/block/format-dialog.jsx:260
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80 pkg/storaged/mdraid/mdraid.jsx:112
 #: pkg/storaged/stratis/filesystem.jsx:125 pkg/storaged/stratis/pool.jsx:137
-#: pkg/storaged/btrfs/subvolume.jsx:211
+#: pkg/storaged/btrfs/subvolume.jsx:213
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
 #: pkg/storaged/partitions/partition.jsx:43
 msgid "delete"
@@ -9526,9 +9533,9 @@ msgstr "כונן"
 #: pkg/storaged/lvm2/block-logical-volume.jsx:288
 #: pkg/storaged/lvm2/volume-group.jsx:384
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:141
-#: pkg/storaged/filesystem/utils.jsx:219
-#: pkg/storaged/filesystem/filesystem.jsx:143
-#: pkg/storaged/stratis/filesystem.jsx:222 pkg/storaged/stratis/pool.jsx:521
+#: pkg/storaged/filesystem/utils.jsx:221
+#: pkg/storaged/filesystem/filesystem.jsx:145
+#: pkg/storaged/stratis/filesystem.jsx:224 pkg/storaged/stratis/pool.jsx:521
 #: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/crypto/encryption.jsx:233
 #: pkg/storaged/crypto/encryption.jsx:236
 #: pkg/storaged/partitions/partition.jsx:224
@@ -9673,7 +9680,7 @@ msgstr "יעדי iSCSI"
 msgid "iSCSI portal"
 msgstr "הוספת שער גישה ל־iSCSI"
 
-#: pkg/storaged/filesystem/utils.jsx:175
+#: pkg/storaged/filesystem/utils.jsx:179
 msgid "ignore failure"
 msgstr "התעלמות מכשל"
 
@@ -9803,7 +9810,7 @@ msgstr "nbde"
 msgid "network"
 msgstr "רשת"
 
-#: pkg/storaged/filesystem/utils.jsx:171
+#: pkg/storaged/filesystem/utils.jsx:175
 msgid "never mount at boot"
 msgstr "לעולם לא לעגן בעלייה"
 
@@ -9940,7 +9947,7 @@ msgstr "raid"
 msgid "ram"
 msgstr "זיכרון"
 
-#: pkg/storaged/filesystem/utils.jsx:169
+#: pkg/storaged/filesystem/utils.jsx:173
 msgid "read only"
 msgstr "קריאה בלבד"
 
@@ -10057,7 +10064,7 @@ msgstr "שרת ה־ssh ריק"
 msgid "stop"
 msgstr "עצירה"
 
-#: pkg/storaged/filesystem/utils.jsx:177
+#: pkg/storaged/filesystem/utils.jsx:181
 msgid "stop boot on failure"
 msgstr "עצירת העלייה בעת כשל"
 
@@ -10128,7 +10135,7 @@ msgstr "יעד לא ידוע"
 msgid "unmask"
 msgstr "הסרת מיסוך"
 
-#: pkg/storaged/btrfs/subvolume.jsx:211 pkg/storaged/utils.js:873
+#: pkg/storaged/btrfs/subvolume.jsx:213 pkg/storaged/utils.js:873
 #: pkg/storaged/utils.js:886 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "ניתוק"

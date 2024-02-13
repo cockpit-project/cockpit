@@ -363,6 +363,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                        {
                            value: size,
                            max: size,
+                           round: 1024 * 1024,
                            visible: function () {
                                return create_partition;
                            }

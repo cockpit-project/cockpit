@@ -79,8 +79,16 @@ export function make_partition_card(next, block) {
         grow_excuse = _("No free space after this partition");
     }
 
+    const type = block_part.Type.replace(/^0x/, "").toLowerCase();
+    let type_extra;
+    if (type == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" || type == "ef")
+        type_extra = _("EFI system partition");
+    else if (type == "21686148-6449-6e6f-744e-656564454649")
+        type_extra = _("BIOS boot partition");
+
     const card = new_card({
         title: _("Partition"),
+        type_extra,
         next,
         page_block: block,
         for_summary: true,

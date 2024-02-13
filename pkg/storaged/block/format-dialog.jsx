@@ -652,7 +652,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         const block_swap = await client.wait_for(() => block_swap_for_block(path));
                         await block_swap.Start({});
                     }
-                    if (is_encrypted(vals) && !mount_now) {
+                    if (is_encrypted(vals) && vals.type != "empty" && !mount_now) {
                         const block_crypto = await client.wait_for(() => block_crypto_for_block(path));
                         await block_crypto.Lock({ });
                     }

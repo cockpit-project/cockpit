@@ -143,7 +143,7 @@ These should finish very quickly. It is a good practice to do this often.
 For debugging individual tests, there are compiled binaries in the build
 directory. For QUnit tests (JavaScript), you can run
 
-    ./test-server
+    ./test-server python3 -m cockpit.bridge
 
 which will output a URL to connect to with a browser, such as
 <http://localhost:8765/qunit/base1/test-dbus.html>. Adjust the path for different

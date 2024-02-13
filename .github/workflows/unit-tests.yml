@@ -7,10 +7,10 @@ jobs:
     strategy:
       matrix:
         startarg:
-          - { make: 'check-memory', cc: 'gcc', tag: 'latest' }
-          - { make: 'distcheck', cc: 'clang', tag: 'latest' }
+          - { make: 'check-memory', tag: 'latest' }
+          - { make: 'distcheck', tag: 'latest' }
           # this runs static code checks, unlike distcheck
-          - { make: 'check', cc: 'gcc', tag: 'latest' }
+          - { make: 'check', tag: 'latest' }
       fail-fast: false
     timeout-minutes: 60
     steps:
@@ -29,13 +29,11 @@ jobs:
 
       - name: Run unit-tests container
         timeout-minutes: 30
-        # HACK: -gdwarf-4 is for clang: https://bugs.kde.org/show_bug.cgi?id=452758
         run: |
           containers/unit-tests/start \
               --verbose \
               --env=FORCE_COLOR=1 \
-              --env=CC='${{ matrix.startarg.cc }}' \
-              --env=CFLAGS='-O2 -gdwarf-4' \
+              --env=CFLAGS='-O2' \
               --env=EXTRA_DISTCHECK_CONFIGURE_FLAGS='${{ matrix.startarg.distcheck_flags }}' \
               --image-tag='${{ matrix.startarg.tag }}' \
               --make '${{ matrix.startarg.make }}'

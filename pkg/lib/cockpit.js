@@ -19,6 +19,8 @@
 
 /* eslint-disable indent,no-empty */
 
+import { fsinfo } from "./cockpit-fsinfo";
+
 let url_root;
 
 const meta_url_root = document.head.querySelector("meta[name='url-root']");
@@ -3618,24 +3620,23 @@ function factory() {
                 if (watch_channel)
                     return;
 
-                const opts = {
-                    payload: "fswatch1",
-                    path,
-                    superuser: base_channel_options.superuser,
-                };
-                watch_channel = cockpit.channel(opts);
-                watch_channel.addEventListener("message", function (event, message_string) {
-                    let message;
-                    try {
-                        message = JSON.parse(message_string);
-                    } catch (e) {
-                        message = null;
-                    }
-                    if (message && message.path == path && message.tag && message.tag != watch_tag) {
-                        if (options && options.read !== undefined && !options.read)
-                            fire_watch_callbacks(null, message.tag);
-                        else
-                            read();
+                watch_channel = fsinfo(path, ["tag"], { superuser: base_channel_options.superuser });
+                watch_channel.effect(state => {
+                    if (state.error || state.info) {
+                        // Behave like fsread1, not-found is not a fatal error
+                        if (state.error && state.error?.problem !== "not-found") {
+                            const error = new BasicError(state.error.problem, state.error.message);
+                            fire_watch_callbacks(null, "-", error);
+                        } else {
+                            const tag = state?.info?.tag || "-";
+                            if (tag !== watch_tag) {
+                                if (tag === "-" || options?.read === false) {
+                                    fire_watch_callbacks(null, tag);
+                              } else {
+                                    read();
+                              }
+                            }
+                        }
                     }
                 });
             } else {
@@ -3658,7 +3659,6 @@ function factory() {
             ensure_watch_channel(options);
 
             watch_tag = null;
-            read();
 
             return {
                 remove: function () {
@@ -3679,7 +3679,7 @@ function factory() {
             if (replace_channel)
                 replace_channel.close("cancelled");
             if (watch_channel)
-                watch_channel.close("cancelled");
+                watch_channel.close();
         }
 
         return self;

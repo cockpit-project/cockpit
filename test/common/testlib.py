@@ -23,7 +23,6 @@ import errno
 import fnmatch
 import functools
 import glob
-import gzip
 import io
 import json
 import os
@@ -75,7 +74,6 @@ __all__ = (
     'todo',
     'todoPybridge',
     'todoPybridgeRHEL8',
-    'enableAxe',
     'timeout',
     'Error',
 
@@ -1935,63 +1933,6 @@ class MachineCase(unittest.TestCase):
             if self.browser.failed_pixel_tests > 0:
                 raise Error(PIXEL_TEST_MESSAGE)
 
-    def check_axe(self, label=None, suffix=""):
-        """Run aXe check on the currently active frame
-
-        The report gets written into an attachment
-        "<label>-axe-{violations,incomplete}.json". If you specify a suffix, it
-        will be appended to the file name, which is useful if you call this
-        more than once within one test.
-        """
-
-        # Only test Axe on chromium browsers
-        if self.browser.cdp.browser.name != "chromium":
-            return
-
-        if not checkRunAxe():
-            return
-
-        report = self.browser.eval_js("axe.run()", no_trace=True)
-
-        # trim the report
-        def delkeys(dictionary, *keys):
-            for key in keys:
-                try:
-                    del dictionary[key]
-                except KeyError:
-                    pass
-        delkeys(report, "passes", "inapplicable", "timestamp")
-
-        for outcome in ["violations", "incomplete"]:
-            for test in report[outcome]:
-                delkeys(test, "tags", "help", "impact")
-
-                # failureSummary in nodes is highly repetitive and long, so summarize it on violation level
-                summaries = set()
-                for result in test["nodes"]:
-                    if "failureSummary" in result:
-                        summaries.add(result["failureSummary"])
-                    delkeys(result, "all", "any", "none", "impact", "failureSummary")
-
-                    # trim containing iframes from targets
-                    if result.get("target", []):
-                        result["target"] = result["target"][-1]
-
-                if summaries:
-                    test["failureSummaries"] = list(summaries)
-
-        # write the report
-        if suffix:
-            suffix = "-" + suffix
-        filename = unique_filename(f"{label or self.label()}{suffix}-axe", "json.gz")
-        with gzip.open(filename, "wb") as f:
-            f.write(json.dumps(report).encode('UTF-8'))
-        print("Wrote accessibility report to " + filename)
-        attach(filename, move=True)
-
-        # aXe triggers that *shrug*
-        self.allow_journal_messages("received invalid message without channel prefix")
-
     def snapshot(self, title: str, label: Optional[str] = None):
         """Take a snapshot of the current screen and save it as a PNG.
 
@@ -2214,35 +2155,6 @@ class MachineCase(unittest.TestCase):
 
 def jsquote(js: str) -> str:
     return json.dumps(js)
-
-
-def checkRunAxe():
-    # only run this on the default OS test, that's enough
-    if os.getenv("TEST_OS") not in [None, testvm.TEST_OS_DEFAULT]:
-        return False
-
-    # when running from release tarballs, module is not available
-    if not os.path.exists(f'{BASE_DIR}/node_modules/axe-core/axe.js'):
-        sys.stderr.write('# enableAxe: axe is not installed, skipping\n')
-        return False
-
-    return True
-
-
-def enableAxe(method):
-    """Enable aXe accessibility test code injection for this test case"""
-
-    if not checkRunAxe():
-        return method
-
-    def wrapper(*args):
-        with open(f'{BASE_DIR}/node_modules/axe-core/axe.js') as f:
-            script = f.read()
-        # first method argument is "self", a MachineCase instance
-        args[0].browser.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source=script, no_trace=True)
-        return method(*args)
-
-    return wrapper
 
 
 def get_decorator(method, _class, name, default=None):

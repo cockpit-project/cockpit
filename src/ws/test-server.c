@@ -941,13 +941,16 @@ main (int argc,
   argv++;
 
   /* Null terminate the bridge command line */
-  bridge_argv = g_new0 (char *, argc + 2);
+  bridge_argv = g_new0 (char *, argc + 4);
   for (i = 0; i < argc; i++)
     bridge_argv[i] = argv[i];
 
   /* Default case */
-  if (i == 0)
-    bridge_argv[i] = BUILDDIR "/cockpit-bridge";
+  if (i == 0) {
+    bridge_argv[i++] = "python3";
+    bridge_argv[i++] = "-m";
+    bridge_argv[i++] = "cockpit.bridge";
+  }
 
   // Use a local ssh session command
   cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";

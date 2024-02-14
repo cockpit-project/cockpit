@@ -34,6 +34,10 @@ jobs:
       - centos-stream-8-x86_64
       - centos-stream-9-x86_64
       - centos-stream-9-aarch64
+    require:
+      label:
+        absent:
+          - no-test
 
   # current Fedora runs reverse dependency testing against https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/
   - job: tests

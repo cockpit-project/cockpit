@@ -32,7 +32,9 @@ details_out_of_date ()
 
 tries=0
 while [ $tries -lt 20 ] && details_out_of_date; do
-    insights-client --check-results
+    # We let insights-client write to /dev/null so that it doesn't
+    # crash should our stdout be closed.
+    insights-client --check-results >/dev/null
     if [ $tries -lt 5 ]; then
         sleep 10
     else

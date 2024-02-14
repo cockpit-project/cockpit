@@ -48,9 +48,17 @@ KNOWN_REDIRECTS = [
 def main():
     parser = argparse.ArgumentParser(description=TASK_NAME)
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+    parser.add_argument('-n', '--dry-run', action="store_true",
+                        help="Only show urls")
     opts = parser.parse_args()
 
     task.verbose = opts.verbose
+
+    if opts.dry_run:
+        (success, err) = check_urls(opts.verbose)
+        if err:
+            print(err)
+        sys.exit(1 if err else 0)
 
     since = time.time() - (DAYS * 86400)
 

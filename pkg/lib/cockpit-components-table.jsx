@@ -29,7 +29,7 @@ import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm
 import './cockpit-components-table.scss';
 
 /* This is a wrapper around PF Table component
- * See https://www.patternfly.org/v4/components/table/
+ * See https://www.patternfly.org/components/table/
  * Properties (all optional unless specified otherwise):
  * - caption
  * - id: optional identifier

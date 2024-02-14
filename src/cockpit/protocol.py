@@ -18,6 +18,7 @@
 import asyncio
 import json
 import logging
+import traceback
 import uuid
 
 from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_int, get_str, get_str_or_none, typechecked
@@ -43,6 +44,14 @@ class CockpitProblem(Exception):
         kwargs['problem'] = problem
         self.attrs = create_object(_msg, kwargs)
         super().__init__(get_str(self.attrs, 'message', problem))
+
+    def get_attrs(self) -> JsonObject:
+        if self.attrs['problem'] == 'internal-error' and self.__cause__ is not None:
+            return dict(self.attrs, cause=traceback.format_exception(
+                self.__cause__.__class__, self.__cause__, self.__cause__.__traceback__
+            ))
+        else:
+            return self.attrs
 
 
 class CockpitProtocolError(CockpitProblem):

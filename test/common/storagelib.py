@@ -82,7 +82,7 @@ class StorageHelpers:
         # losetup, but that will break some versions of lvm2.
         backf = self.machine.execute("mktemp /var/tmp/loop.XXXX").strip()
         dev = self.machine.execute(f"truncate --size={size}MB {backf}; "
-                                   f"losetup --show {name if name else '--find'} {backf}").strip()
+                                   f"losetup -P --show {name if name else '--find'} {backf}").strip()
         # If this device had partions in its last incarnation on this
         # machine, they might come back for unknown reasons, in a
         # non-functional state. Running partprobe will get rid of

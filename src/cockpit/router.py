@@ -203,7 +203,7 @@ class Router(CockpitProtocolServer):
                 logger.debug('Trying to find endpoint for new channel %s payload=%s', channel, message.get('payload'))
                 endpoint = self.check_rules(message)
             except RoutingError as exc:
-                self.write_control(exc.attrs, command='close', channel=channel)
+                self.write_control(exc.get_attrs(), command='close', channel=channel)
                 return
 
             self.open_channels[channel] = endpoint

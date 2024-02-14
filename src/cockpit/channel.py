@@ -143,7 +143,7 @@ class Channel(Endpoint):
             except JsonError as exc:
                 raise ChannelError('protocol-error', message=str(exc)) from exc
         except ChannelError as exc:
-            self.close(exc.attrs)
+            self.close(exc.get_attrs())
 
     def do_kill(self, host: 'str | None', group: 'str | None', _message: JsonObject) -> None:
         # Already closing?  Ignore.
@@ -186,7 +186,7 @@ class Channel(Endpoint):
         try:
             self.do_data(data)
         except ChannelError as exc:
-            self.close(exc.attrs)
+            self.close(exc.get_attrs())
 
     def do_data(self, _data: bytes) -> None:
         # By default, channels can't receive data.
@@ -334,7 +334,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         try:
             transport = task.result()
         except ChannelError as exc:
-            self.close(exc.attrs)
+            self.close(exc.get_attrs())
             return
 
         self.connection_made(transport)
@@ -450,7 +450,7 @@ class AsyncChannel(Channel):
         except asyncio.CancelledError:  # user requested close
             self.close()
         except ChannelError as exc:
-            self.close(exc.attrs)
+            self.close(exc.get_attrs())
         except BaseException:
             self.close({'problem': 'internal-error', 'cause': traceback.format_exc()})
             raise

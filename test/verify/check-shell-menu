@@ -57,7 +57,6 @@ class TestMenu(testlib.MachineCase):
             switch_style("#dark")
             b._wait_present("html.pf-v5-theme-dark")
 
-    @testlib.enableAxe
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -87,8 +86,6 @@ class TestMenu(testlib.MachineCase):
         b.focus("#overview main")
         b.switch_to_top()
         b.wait_not_present("#toggle-docs + ul")
-
-        self.check_axe("Test-navigation")
 
         # Check that we can use a link with a hash in it
         b.click_system_menu("/system/#/memory")

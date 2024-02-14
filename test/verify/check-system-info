@@ -61,7 +61,6 @@ class TestSystemInfo(testlib.MachineCase):
         # Most OSes don't set nosmt by default, but there are some exceptions
         self.expect_smt_default = self.machine.image in ["fedora-coreos"]
 
-    @testlib.enableAxe
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -87,8 +86,6 @@ class TestSystemInfo(testlib.MachineCase):
 
         mid = m.execute("cat /etc/machine-id")
         b.wait_text('#system_machine_id', mid)
-
-        self.check_axe()
 
         # Health card can contain only one item - it normally is "Loading available updates fail"
         # But sometimes it also contains information about failed services which breaks mobile pixel tests

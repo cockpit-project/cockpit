@@ -95,7 +95,7 @@ package_cockpit-pcp() {
   make DESTDIR="$pkgdir"/tmp install
 
   cd "$pkgdir"/tmp
-  bsdtar -cf - usr/share/cockpit/pcp usr/lib/cockpit/cockpit-pcp var/lib/pcp \
+  bsdtar -cf - usr/share/cockpit/pcp usr/lib/cockpit/cockpit-pcp \
     | bsdtar -xf - -C "$pkgdir"
   rm -rf "$pkgdir"/tmp
 }

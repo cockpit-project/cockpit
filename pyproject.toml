@@ -31,6 +31,10 @@ module = [
     "libvirt_qemu",
     "pika",
 
+    # run without pcp module types
+    "pcp",
+    "cpmapi",
+
     # run without gobject-introspection (used from cockpit-client for Gtk)
     "gi.*",
 
@@ -158,6 +162,7 @@ ignore_names = [
    "do_*",
    "pytest_*",
    "test[A-Z0-9]*",
+   "pytestmark",
 ]
 ignore_decorators = [
    "@*.getter",
@@ -200,6 +205,8 @@ wheel_build_env = pkg
 # All other environments (names like py311-lint, py36-pytest, etc) are isolated
 # from the system and get their packages from PyPI, according to the specific
 # test environment being requested.  We build the wheel in a common environment.
+# These tests will not run the PCP tests as there is no wheel available.
+# https://github.com/performancecopilot/pcp/issues/2076
 [testenv]
 package = wheel
 wheel_build_env = venv-pkg

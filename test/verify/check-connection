@@ -1221,10 +1221,6 @@ UnixPath=/run/cockpit/session
         self.assertGreater(len(bridges), 0)
         self.assertIn('sudo', bridge_names)
 
-        # OStree has no PCP bridge; it's temporarily gone from Debian testing as well
-        if not m.ostree_image and m.image != "debian-testing":
-            self.assertIn(f'{self.libexecdir}/cockpit-pcp', bridge_names)
-
 
 class TestReverseProxy(testlib.MachineCase):
 

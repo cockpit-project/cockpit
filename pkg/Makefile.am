@@ -32,7 +32,7 @@ V_BUNDLE = $(V_BUNDLE_$(V))
 V_BUNDLE_ = $(V_BUNDLE_$(AM_DEFAULT_VERBOSITY))
 V_BUNDLE_0 = @echo "  BUNDLE   dist";
 
-# delete the stamp first; neither webpack nor esbuild touch it if the contents didn't change,
+# delete the stamp first; esbuild does not touch it if the contents didn't change,
 # but this is just a representative for all of dist/*
 $(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
 	@rm -f $(DIST_STAMP)

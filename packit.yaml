@@ -23,6 +23,11 @@ srpm_build_deps:
 # use the nicely formatted release NEWS from our upstream release, instead of git shortlog
 copy_upstream_release_description: true
 jobs:
+  - job: copr_build
+    trigger: pull_request
+    targets:
+      - centos-stream-8-x86_64
+
   - job: tests
     identifier: self
     trigger: pull_request

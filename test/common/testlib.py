@@ -2016,6 +2016,9 @@ class MachineCase(unittest.TestCase):
         "(direct|pcp-archive): instance name lookup failed:.*",
         "(direct|pcp-archive): couldn't create pcp archive context for.*",
 
+        # PCP Python bridge
+        "cockpit.channels.pcp-ERROR: no such metric: .*",
+
         # timedatex.service shuts down after timeout, runs into race condition with property watching
         ".*org.freedesktop.timedate1: couldn't get all properties.*Error:org.freedesktop.DBus.Error.NoReply.*",
     ]

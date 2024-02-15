@@ -1282,7 +1282,14 @@ class TestMetricsPackages(packagelib.PackageCase):
             return
 
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):
-            m.execute("dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp redis redis-server")
+            # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
+            m.execute("""
+                if dpkg -l python3-pcp; then
+                    dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge python3-pcp cockpit-pcp pcp redis redis-server
+                else
+                    dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp redis redis-server
+                fi
+            """)
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:

@@ -44,7 +44,7 @@ function get_plural_expr(statement) {
     return expr;
 }
 
-function buildFile(po_file, subdir, webpack_module, webpack_compilation, filename, filter) {
+function buildFile(po_file, subdir, filename, filter) {
     return new Promise((resolve, reject) => {
         // Read the PO file, remove fuzzy/disabled lines to avoid tripping up the validator
         const po_data = fs.readFileSync(po_file, 'utf8')
@@ -96,10 +96,7 @@ function buildFile(po_file, subdir, webpack_module, webpack_compilation, filenam
         const output = wrapper.replace('PO_DATA', chunks.join('')) + '\n';
 
         const out_path = path.join(subdir ? (subdir + '/') : '', filename);
-        if (webpack_compilation)
-            webpack_compilation.emitAsset(out_path, new webpack_module.sources.RawSource(output));
-        else
-            fs.writeFileSync(path.resolve(config.outdir, out_path), output);
+        fs.writeFileSync(path.resolve(config.outdir, out_path), output);
         return resolve();
     });
 }
@@ -112,19 +109,15 @@ function init(options) {
     config.outdir = options.outdir || './dist';
 }
 
-function run(webpack_module, webpack_compilation) {
+function run() {
     const promises = [];
     for (const subdir of config.subdirs) {
         for (const po_file of get_po_files()) {
-            if (webpack_compilation)
-                webpack_compilation.fileDependencies.add(po_file);
             const lang = path.basename(po_file).slice(0, -3);
             promises.push(Promise.all([
                 // Separate translations for the manifest.json file and normal pages
-                buildFile(po_file, subdir, webpack_module, webpack_compilation,
-                          `po.${lang}.js`, str => !str.includes('manifest.json')),
-                buildFile(po_file, subdir, webpack_module, webpack_compilation,
-                          `po.manifest.${lang}.js`, str => str.includes('manifest.json'))
+                buildFile(po_file, subdir, `po.${lang}.js`, str => !str.includes('manifest.json')),
+                buildFile(po_file, subdir, `po.manifest.${lang}.js`, str => str.includes('manifest.json'))
             ]));
         }
     }
@@ -138,22 +131,3 @@ export const cockpitPoEsbuildPlugin = options => ({
         build.onEnd(async result => { result.errors.length === 0 && await run() });
     },
 });
-
-export class CockpitPoWebpackPlugin {
-    constructor(options) {
-        init(options || {});
-    }
-
-    apply(compiler) {
-        compiler.hooks.thisCompilation.tap('CockpitPoWebpackPlugin', async compilation => {
-            const webpack = (await import('webpack')).default;
-            compilation.hooks.processAssets.tapPromise(
-                {
-                    name: 'CockpitPoWebpackPlugin',
-                    stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
-                },
-                () => run(webpack, compilation)
-            );
-        });
-    }
-}

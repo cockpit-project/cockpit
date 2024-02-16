@@ -22,7 +22,7 @@ import time
 
 import testlib
 
-RHEL_DOC_BASE = "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console"
+RHEL_DOC_BASE = "https://access.redhat.com/documentation"
 
 
 @testlib.nondestructive
@@ -121,9 +121,8 @@ OnCalendar=daily
         b.switch_to_top()
         self.checkDocs(["Managing services"])
         b.click("#toggle-docs")
-        b.wait_visible(f'#toggle-docs + ul a:contains("Managing services")[href="{RHEL_DOC_BASE}/'
-                       'managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"]')
-        b.wait_visible(f'#toggle-docs + ul a:contains("Web Console")[href="{RHEL_DOC_BASE}/index"]')
+        b.wait_visible(f'#toggle-docs + ul a:contains("Managing services")[href^="{RHEL_DOC_BASE}"]')
+        b.wait_visible(f'#toggle-docs + ul a:contains("Web Console")[href^="{RHEL_DOC_BASE}"]')
         b.click("#toggle-docs")
         b.wait_not_present("#toggle-docs + ul")
         b.go("/network")

@@ -213,9 +213,18 @@ DialogFooter.propTypes = {
  */
 class Dialog extends React.Component {
     componentDidMount() {
+        // For the scenario that cockpit-storage is used inside anaconda Web UI
+        // We need to know if there is an open dialog in order to create the backdrop effect
+        // on the parent window
+        window.sessionStorage.setItem("cockpit_has_modal", true);
+
         // if we used a button to open this, make sure it's not focused anymore
         if (document.activeElement)
             document.activeElement.blur();
+    }
+
+    componentWillUnmount() {
+        window.sessionStorage.setItem("cockpit_has_modal", false);
     }
 
     render() {

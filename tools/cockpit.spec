@@ -53,39 +53,6 @@ Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
-# Don't change the bridge in the RHEL 8; the old SSH breaks some features, see @todoPybridgeRHEL8
-%if 0%{?rhel} == 8 && !%{defined enable_old_bridge}
-%define enable_old_bridge 1
-%endif
-
-# in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
-# and cockpit-appstream (building optional packages like cockpit-{pcp})
-# This split does not apply to EPEL/COPR nor packit c8s builds, only to our own
-# image-prepare rhel-8-Y builds (which will disable build_all).
-# In Fedora ELN/RHEL 9+ there is just one source package, which ships rpms in both BaseOS and AppStream
-%define build_all 1
-%if 0%{?rhel} == 8 && 0%{?epel} == 0 && !0%{?build_all}
-
-%if "%{name}" == "cockpit"
-%define build_basic 1
-%define build_optional 0
-%else
-%define build_basic 0
-%define build_optional 1
-%endif
-
-%else
-%define build_basic 1
-%define build_optional 1
-%endif
-
-# Allow root login in Cockpit on RHEL 8 and lower as it also allows password login over SSH.
-%if 0%{?rhel} && 0%{?rhel} <= 8
-%define disallow_root 0
-%else
-%define disallow_root 1
-%endif
-
 # pcp stopped building on ix86
 %define build_pcp 1
 %if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
@@ -94,11 +61,9 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 %endif
 %endif
 
-# Ship custom SELinux policy (but not for cockpit-appstream)
-%if "%{name}" == "cockpit"
+# Ship custom SELinux policy
 %define selinuxtype targeted
 %define selinux_configure_arg --enable-selinux-policy=%{selinuxtype}
-%endif
 
 BuildRequires: gcc
 BuildRequires: pkgconfig(gio-unix-2.0)
@@ -109,16 +74,8 @@ BuildRequires: pam-devel
 BuildRequires: autoconf automake
 BuildRequires: make
 BuildRequires: python3-devel
-%if 0%{?rhel} && 0%{?rhel} <= 8
-# RHEL 8's gettext does not yet have metainfo.its
-BuildRequires: gettext >= 0.19.7
-BuildRequires: libappstream-glib-devel
-%else
 BuildRequires: gettext >= 0.21
-%endif
-%if 0%{?build_basic}
 BuildRequires: libssh-devel >= 0.8.5
-%endif
 BuildRequires: openssl-devel
 BuildRequires: gnutls-devel >= 3.4.3
 BuildRequires: zlib-devel
@@ -179,7 +136,6 @@ Suggests: cockpit-selinux
 Requires: subscription-manager-cockpit
 %endif
 
-%if 0%{?enable_old_bridge} == 0
 BuildRequires:  python3-devel
 BuildRequires:  python3-pip
 %if 0%{?rhel} == 0
@@ -190,7 +146,6 @@ BuildRequires:  python3-pytest-asyncio
 BuildRequires:  python3-pytest-cov
 BuildRequires:  python3-pytest-timeout
 BuildRequires:  python3-tox-current-env
-%endif
 %endif
 
 %prep
@@ -205,12 +160,6 @@ BuildRequires:  python3-tox-current-env
     --docdir=%_defaultdocdir/%{name} \
 %endif
     --with-pamdir='%{pamdir}' \
-%if 0%{?enable_old_bridge}
-    --enable-old-bridge \
-%endif
-%if 0%{?build_basic} == 0
-    --disable-ssh \
-%endif
 %if %{build_pcp} == 0
     --disable-pcp \
 %endif
@@ -220,7 +169,7 @@ BuildRequires:  python3-tox-current-env
 %check
 make -j$(nproc) check
 
-%if 0%{?enable_old_bridge} == 0 && 0%{?rhel} == 0
+%if 0%{?rhel} == 0
 %tox
 %endif
 
@@ -239,10 +188,6 @@ echo '%dir %{_datadir}/cockpit/base1' >> base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f -o -type l >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
-%if 0%{?enable_old_bridge} && 0%{?build_basic}
-echo '%dir %{_datadir}/cockpit/ssh' >> base.list
-find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
-%endif
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
 
 %if %{build_pcp}
@@ -290,43 +235,6 @@ echo '%dir %{_datadir}/cockpit/static' > static.list
 echo '%dir %{_datadir}/cockpit/static/fonts' >> static.list
 find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
 
-# when not building basic packages, remove their files
-%if 0%{?build_basic} == 0
-for pkg in base1 branding motd kdump networkmanager selinux shell sosreport static systemd users metrics; do
-    rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
-    rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
-done
-for data in doc man pixmaps polkit-1; do
-    rm -r %{buildroot}/%{_datadir}/$data
-done
-rm -r %{buildroot}/%{_prefix}/%{__lib}/tmpfiles.d
-find %{buildroot}/%{_unitdir}/ -type f ! -name 'cockpit-session*' -delete
-for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
-    rm -f %{buildroot}/%{_libexecdir}/$libexec
-done
-rm -r %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
-rm -f %{buildroot}/%{_libdir}/security/pam_*
-rm -f %{buildroot}/usr/bin/cockpit-bridge
-rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
-rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
-rm -rf %{buildroot}%{python3_sitelib}/cockpit*
-%endif
-
-# when not building optional packages, remove their files
-%if 0%{?build_optional} == 0
-for pkg in apps packagekit pcp playground storaged; do
-    rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
-done
-# files from -tests
-rm -f %{buildroot}/%{pamdir}/mock-pam-conv-mod.so
-rm -f %{buildroot}/%{_unitdir}/cockpit-session.socket
-rm -f %{buildroot}/%{_unitdir}/cockpit-session@.service
-# files from -pcp
-rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
-# files from -storaged
-rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
-%endif
-
 sed -i "s|%{buildroot}||" *.list
 
 %if ! 0%{?suse_version}
@@ -350,9 +258,7 @@ rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %endif
 
 # -------------------------------------------------------------------------------
-# Basic Sub-packages
-
-%if 0%{?build_basic}
+# Sub-packages
 
 %description
 The Cockpit Web Console enables users to administer GNU/Linux servers using a
@@ -390,9 +296,7 @@ system on behalf of the web based user interface.
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %{_libexecdir}/cockpit-askpass
-%if 0%{?enable_old_bridge} == 0
 %{python3_sitelib}/%{name}*
-%endif
 
 %package doc
 Summary: Cockpit deployment and developer guide
@@ -539,9 +443,7 @@ if [ "$1" = 1 ]; then
     ln -s ../../run/cockpit/motd /etc/motd.d/cockpit
     ln -s ../../run/cockpit/motd /etc/issue.d/cockpit.issue
     printf "# List of users which are not allowed to login to Cockpit\n" > /etc/cockpit/disallowed-users
-%if 0%{?disallow_root}
     printf "root\n" >> /etc/cockpit/disallowed-users
-%endif
     chmod 644 /etc/cockpit/disallowed-users
 fi
 
@@ -636,21 +538,6 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %endif
 
-#/ build basic packages
-%else
-
-# RPM requires this
-%description
-Dummy package from building optional packages only; never install or publish me.
-
-#/ build basic packages
-%endif
-
-# -------------------------------------------------------------------------------
-# Sub-packages that are optional extensions
-
-%if 0%{?build_optional}
-
 %package -n cockpit-storaged
 Summary: Cockpit user interface for storage, using udisks
 Requires: cockpit-shell >= %{required_base}
@@ -725,9 +612,6 @@ The Cockpit components for installing OS updates and Cockpit add-ons,
 via PackageKit.
 
 %files -n cockpit-packagekit -f packagekit.list
-
-#/ build optional extension packages
-%endif
 
 # The changelog is automatically generated and merged
 %changelog

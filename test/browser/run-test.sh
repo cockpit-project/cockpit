@@ -7,24 +7,6 @@ cd "$SOURCE"
 
 . /etc/os-release
 
-# on Fedora we always test all packages;
-# on RHEL/CentOS 8 we have a split package, only test basic bits for "cockpit" and optional bits for "c-appstream"
-if [ "$PLATFORM_ID" = "platform:el8" ]; then
-    if ls ../cockpit-appstream* 1> /dev/null 2>&1; then
-        if [ "$PLAN" = "basic" ] || [ "$PLAN" = "network" ]; then
-            echo "SKIP: not running basic/network tests for cockpit-appstream"
-            echo 0 > "$LOGS/exitcode"
-            exit 0
-        fi
-    else
-        if [ "$PLAN" = "optional" ]; then
-            echo "SKIP: not running optional tests for split RHEL 8 cockpit"
-            echo 0 > "$LOGS/exitcode"
-            exit 0
-        fi
-    fi
-fi
-
 # tests need cockpit's bots/ libraries
 git clone --depth=1 https://github.com/cockpit-project/bots
 

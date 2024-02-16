@@ -77,36 +77,6 @@ def applySettings(browser, dialog_selector):
         browser.wait_not_present(dialog_selector)
 
 
-def login(self):
-    # HACK: Ubuntu and Debian need some time until metrics channel is available
-    # Really no idea what it needs to wait for, so let's just try channel until it succeeds
-    if self.machine.image.startswith("ubuntu") or self.machine.image.startswith("debian"):
-        self.login_and_go("/system")
-        self.browser.wait(lambda: self.browser.call_js_func("""(function() {
-            return new Promise((resolve, reject) => {
-                cockpit.spawn(["date", "+%s"])
-                    .then(out => {
-                        const now = parseInt(out.trim()) * 1000;
-                        const current_hour = Math.floor(now / 3600000) * 3600000;
-                        const metrics_channel = cockpit.channel({ payload: "metrics1", source: "pcp-archive",
-                            interval: 5000, metrics: [{ name: "kernel.all.cpu.nice", derive: "rate" }],
-                            timestamp: current_hour, limit: 10 });
-                        metrics_channel.addEventListener("close", (ev, error) => {
-                            if (error.problem) {
-                                console.log("Channel is not ready:", error.problem);
-                                resolve(0);
-                            } else
-                                resolve(1);
-                        });
-                    });
-                });
-            })"""))
-        self.browser.click("a:contains('View metrics and history')")
-        self.browser.enter_page("/metrics")
-    else:
-        self.login_and_go("/metrics")
-
-
 @testlib.skipDistroPackage()
 class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
@@ -157,7 +127,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # clean slate, to avoid seeing the data from preparing the VM
         m.execute("rm -rf /var/log/pcp/pmlogger/*; systemctl start pmlogger")
 
-        login(self)
+        self.login_and_go("/metrics")
         # eventually finishes data loading and shows heading
         b.wait_in_text(".metrics-heading", "CPU")
 
@@ -235,7 +205,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         prepareArchive(m, "disk.tar.gz", 1597672800)
 
-        login(self)
+        self.login_and_go("/metrics")
         # eventually finishes data loading and shows heading
         b.wait_in_text(".metrics-heading", "CPU")
 
@@ -292,7 +262,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         prepareArchive(m, "cpu_network.tar.gz", 1598918400)
 
-        login(self)
+        self.login_and_go("/metrics")
         # eventually finishes data loading and shows heading
         b.wait_in_text(".metrics-heading", "CPU")
 
@@ -349,7 +319,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         have_swap = m.execute("swapon --show").strip()
 
         prepareArchive(m, "memory.tar.gz", 1600248000)
-        login(self)
+        self.login_and_go("/metrics")
         b.wait_in_text(".metrics-heading", "CPU")
 
         # basic RAM consumption after boot; it's still a network spike, thus event+SVG
@@ -393,7 +363,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         #
 
         m.execute("timedatectl set-time @1600550674")
-        login(self)
+        self.login_and_go("/metrics")
         # self.waitStream(3) # FIXME: wait for new data - pcp does not handle time change greatly
         b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Today")
 
@@ -419,7 +389,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         if self.machine.image == TEST_OS_DEFAULT:  # Debian/Ubuntu is unhappy about this archive, one Fedora test is enough though
             prepareArchive(m, "double_events.zip", 1602345600, "m1.cockpit.lan")
-            login(self)
+            self.login_and_go("/metrics")
             b.wait_in_text(".metrics-heading", "CPU")
             b.wait_in_text("#metrics-hour-1602334800000", "CPU")
             self.assertTrue(self.browser.call_js_func("""(function () {
@@ -438,7 +408,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         prepareArchive(m, "with_journal.tar.gz", 1615200500, "m1.cockpit.lan")
         # first check the "no logs found" case
-        login(self)
+        self.login_and_go("/metrics")
         b.wait_in_text(".metrics-heading", "CPU")
         b.click("#metrics-hour-1615197600000 button.metrics-events-expander")
         b.wait_in_text("#metrics-hour-1615197600000 div.metrics-minute[data-minute='39'] .metrics-events span.spikes_info", "Load")
@@ -1405,7 +1375,7 @@ class TestMultiCPU(testlib.MachineCase):
         m = self.machine
 
         prepareArchive(m, "2corescpu.tar.gz", 1598971635)
-        login(self)
+        self.login_and_go("/metrics")
 
         # one core is busy, the other idle -- that should be 50% total usage
         self.assertGreaterEqual(getCompressedMinuteValue(test=self, g_type="cpu", saturation=False, hour=1598968800000, minute=44), 0.2)

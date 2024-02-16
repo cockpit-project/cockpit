@@ -155,7 +155,7 @@ to push pixel tests.
 You can set these environment variables to configure the test suite:
 
     TEST_OS    The OS to run the tests in.  Currently supported values:
-                  "centos-8-stream"
+                  "centos-9-stream"
                   "debian-stable"
                   "debian-testing"
                   "fedora-38"
@@ -164,7 +164,7 @@ You can set these environment variables to configure the test suite:
                   "fedora-testing"
                   "rhel-8-10"
                   "rhel-8-10-distropkg"
-                  "rhel-9-3"
+                  "rhel-9-4"
                   "rhel4edge",
                   "ubuntu-2204"
                   "ubuntu-stable"

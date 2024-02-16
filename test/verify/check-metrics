@@ -761,7 +761,7 @@ class TestCurrentMetrics(testlib.MachineCase):
                                               "systemctl --user stop cockpittest.slice 2>/dev/null || true'")
 
         self.busybox_image = self.machine.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
-        login(self)
+        self.login_and_go("/metrics")
 
     def testCPU(self):
         b = self.browser
@@ -1108,7 +1108,6 @@ BEGIN {{
     def testDiskIO(self):
         b = self.browser
         m = self.machine
-        login(self)
 
         b.wait_timeout(60)
 
@@ -1218,7 +1217,7 @@ BEGIN {{
                 self.allow_journal_messages(".*/storaged/manifest.json: Expecting value: line 1 column 1.*")
             else:
                 self.allow_journal_messages("storaged: couldn't read manifest.json: JSON data was empty")
-            login(self)
+            self.login_and_go("/metrics")
         b.wait_visible(progress_sel)
         self.assertFalse(b.is_present("#current-disks-usage button"))
 

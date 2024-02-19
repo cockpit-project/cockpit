@@ -290,7 +290,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     let [, old_dir, old_opts] = get_fstab_config(block, true,
                                                  content_block?.IdType == "btrfs"
                                                      ? { pathname: "/", id: 5 }
-                                                     : null);
+                                                     : undefined);
     if (old_opts == undefined)
         old_opts = initial_mount_options(client, block);
 

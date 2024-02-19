@@ -109,8 +109,9 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_visible(self.card_row("Storage", name="nonfstab"))
 
         # Format the btrfs device
-        self.click_dropdown(self.card_row("Storage", name="sda"), "Format")
-        self.dialog_wait_open()
+        # The mount of /run/basement might take some time to be recognized by Cockpit
+        self.dialog_open_with_retry(lambda: self.click_dropdown(self.card_row("Storage", name="sda"), "Format"),
+                                    lambda: "/run/basement" in b.text("#dialog"))
         self.checkTeardownAction(1, "Device", dev_1)
         self.checkTeardownAction(1, "Location", "/run/basement")
         self.checkTeardownAction(1, "Action", "unmount, format")

@@ -23,7 +23,9 @@ import React from "react";
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
-import { StorageCard, StorageDescription, new_card, new_page, navigate_away_from_card } from "../pages.jsx";
+import {
+    StorageCard, StorageDescription, new_card, new_page, navigate_away_from_card, announce_new_page
+} from "../pages.jsx";
 import { StorageUsageBar } from "../storage-controls.jsx";
 import {
     encode_filename, get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
@@ -169,6 +171,9 @@ function subvolume_create(volume, subvol, parent_dir) {
                 if (vals.mount_point !== "") {
                     await set_mount_options(subvol, block, vals);
                 }
+                const new_name = subvol.pathname == "/" ? vals.name : subvol.pathname + "/" + vals.name;
+                announce_new_page(cockpit.format(_("Subvolume $0 has been created."), new_name),
+                                  ["btrfs", volume.data.uuid, new_name]);
             }
         }
     });

@@ -254,6 +254,60 @@ class TestStorageBtrfs(storagelib.StorageCase):
         subvol_loc = f"{os.path.basename(ro_subvol)}/readonly"
         self.check_dropdown_action_disabled(self.card_row("Storage", name=subvol_loc), "Create subvolume", "Subvolume needs to be mounted")
 
+    def testCreationAlert(self):
+        m = self.machine
+        b = self.browser
+
+        disk1 = self.add_ram_disk(size=140)
+        label = "test_subvol"
+        mount_point = "/run/butter"
+
+        m.execute(f"mkfs.btrfs -L {label} {disk1}")
+        self.login_and_go("/storage")
+
+        # creation of btrfs filesystems can take a while on TF.
+        with b.wait_timeout(30):
+            b.wait_visible(self.card_row("Storage", name=disk1))
+
+        # Create a new subvolume while only the "/" subvolume is
+        # visible. This should cause an alert to pop up.
+
+        self.click_card_row("Storage", name=disk1)
+        self.click_card_row("btrfs filesystem", name="/")
+        b.click(self.card_button("btrfs subvolume", "Mount"))
+        self.dialog({"mount_point": mount_point})
+
+        b.click(self.card_button("btrfs subvolume", "Create subvolume"))
+        self.dialog({"name": "cake"}, secondary=True)
+        b.wait_in_text(".pf-v5-c-alert.pf-m-success", "Subvolume cake has been created")
+
+        # Dismiss alert explicitly
+        b.click(".pf-v5-c-alert.pf-m-success .pf-v5-c-alert__action button")
+        b.wait_not_present(".pf-v5-c-alert.pf-m-success")
+
+        b.click(self.card_button("btrfs subvolume", "Create subvolume"))
+        self.dialog({"name": "cake2"}, secondary=True)
+        b.wait_in_text(".pf-v5-c-alert.pf-m-success", "Subvolume cake2 has been created")
+
+        # Follow link, alert should be dismissed automatically
+        b.click(".pf-v5-c-alert.pf-m-success button:contains(Show)")
+        b.wait_text(self.card_desc("btrfs subvolume", "Name"), "cake2")
+        b.wait_not_present(".pf-v5-c-alert.pf-m-success")
+
+        # Back to root subvolume, and once more
+        b.click(self.card_parent_link())
+        self.click_card_row("btrfs filesystem", name="/")
+
+        b.click(self.card_button("btrfs subvolume", "Create subvolume"))
+        self.dialog({"name": "cake3"}, secondary=True)
+        b.wait_in_text(".pf-v5-c-alert.pf-m-success", "Subvolume cake3 has been created")
+
+        # Navigate to page with list of all subvolumes, alert should
+        # be dismissed automatically.
+        b.click(self.card_parent_link())
+        b.wait_visible(self.card("btrfs filesystem"))
+        b.wait_not_present(".pf-v5-c-alert.pf-m-success")
+
     def testDeleteSubvolume(self):
         m = self.machine
         b = self.browser

@@ -31,7 +31,7 @@ import { PlotState } from "plot.js";
 
 import client from "./client";
 import { update_plot_state } from "./plot.jsx";
-import { StoragePage } from "./pages.jsx";
+import { StoragePage, cleanup_new_page_alerts } from "./pages.jsx";
 
 import "./storage.scss";
 
@@ -43,7 +43,10 @@ class Application extends React.Component {
         this.state = { inited: false, slow_init: false, path: cockpit.location.path };
         this.plot_state = new PlotState();
         this.on_client_changed = () => { if (!client.busy) this.setState({}); };
-        this.on_navigate = () => { this.setState({ path: cockpit.location.path }) };
+        this.on_navigate = () => {
+            cleanup_new_page_alerts(cockpit.location.path);
+            this.setState({ path: cockpit.location.path });
+        };
     }
 
     componentDidMount() {

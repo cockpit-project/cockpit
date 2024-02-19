@@ -43,6 +43,7 @@ import { StorageButton, StorageBarMenu, StorageMenuItem, StorageSize } from "./s
 import { MultipathAlert } from "./multipath.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
 import { Truncate } from "../lib/cockpit-components-truncate.jsx";
+import { global_alerts, GlobalAlertGroup } from "./alerts.jsx";
 
 const _ = cockpit.gettext;
 
@@ -302,6 +303,35 @@ export function navigate_to_new_card_location(card, location) {
     const page = card.page;
     if (JSON.stringify(loc.path) == JSON.stringify(page.location))
         loc.go(location);
+}
+
+function need_new_page_alert(cur_page, location) {
+    let p = get_page_from_location(location);
+    while (p) {
+        if (p == cur_page) {
+            return false;
+        }
+        p = p.parent;
+    }
+    return true;
+}
+
+export function cleanup_new_page_alerts(cur_location) {
+    const cur_page = get_page_from_location(cur_location);
+    global_alerts.filter_alerts(a => {
+        return !a.location || need_new_page_alert(cur_page, a.location);
+    });
+}
+
+export function announce_new_page(title, location) {
+    const cur_page = get_page_from_location(cockpit.location.path);
+    if (need_new_page_alert(cur_page, location))
+        global_alerts.add_alert({
+            title,
+            variant: "success",
+            body: <p><Button variant="link" onClick={() => cockpit.location.go(location)}>{_("Show")}</Button></p>,
+            location
+        });
 }
 
 function make_menu_item(action) {
@@ -834,6 +864,7 @@ export const StoragePage = ({ location, plot_state }) => {
 
     return (
         <Page id="storage">
+            <GlobalAlertGroup />
             { (!client.in_anaconda_mode() && page.parent) &&
             <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
                 <StorageBreadcrumb page={page} />

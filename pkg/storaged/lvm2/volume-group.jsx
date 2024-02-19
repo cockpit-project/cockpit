@@ -32,7 +32,7 @@ import { StorageButton, StorageLink } from "../storage-controls.jsx";
 import {
     StorageCard, StorageDescription, ChildrenTable, PageTable,
     new_page, new_card, get_crossrefs, PAGE_CATEGORY_VIRTUAL,
-    navigate_to_new_card_location, navigate_away_from_card
+    navigate_to_new_card_location, navigate_away_from_card, announce_new_page,
 } from "../pages.jsx";
 import {
     fmt_size_long, get_active_usage, teardown_active_usage, for_each_async,
@@ -110,6 +110,8 @@ function vgroup_delete(client, vgroup, card) {
 }
 
 function create_snapshot(lvol) {
+    const vgroup = lvol && client.vgroups[lvol.VolumeGroup];
+
     dialog_open({
         Title: _("Create snapshot"),
         Fields: [
@@ -118,8 +120,9 @@ function create_snapshot(lvol) {
         ],
         Action: {
             Title: _("Create"),
-            action: function (vals) {
-                return lvol.CreateSnapshot(vals.name, vals.size || 0, { });
+            action: async function (vals) {
+                await lvol.CreateSnapshot(vals.name, vals.size || 0, { });
+                announce_new_page(_("Snapshot has been created"), ["vg", vgroup.Name, vals.name]);
             }
         }
     });

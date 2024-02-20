@@ -98,10 +98,6 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.click_dropdown(self.card_row("Storage", name="lvol0"), "Edit mount point")
         self.dialog_wait_open()
         self.dialog_wait_val("mount_point", "/")
-        # Empty mount point should be failure
-        self.dialog_set_val("mount_point", "")
-        self.dialog_apply()
-        self.dialog_wait_error("mount_point", "Mount point cannot be empty")
         self.dialog_set_val("mount_point", "/var")
         self.dialog_apply()
         self.dialog_wait_close()

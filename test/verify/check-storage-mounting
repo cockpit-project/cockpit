@@ -112,7 +112,14 @@ ExecStart=/usr/bin/sleep infinity
         b.wait_in_text(self.card_desc(filesystem, "Mount point"), mount_point_bar)
 
         b.click(self.card_button(filesystem, "Mount"))
-        self.confirm()
+        self.dialog_wait_open()
+        self.dialog_wait_val("mount_point", mount_point_bar)
+        self.dialog_set_val("mount_point", "")
+        self.dialog_apply()
+        self.dialog_wait_error("mount_point", "Mount point cannot be empty")
+        self.dialog_set_val("mount_point", mount_point_bar)
+        self.dialog_apply()
+        self.dialog_wait_close()
         b.wait_not_in_text(self.card_desc(filesystem, "Mount point"), "The filesystem is not mounted")
 
         # Set the "Never unlock at boot option"
@@ -149,6 +156,14 @@ ExecStart=/usr/bin/sleep infinity
 
         self.click_card_row("Storage", location=mount_point_bar)
         b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), "8000")  # scsi_debug serial
+
+        # Remove fstab entry
+
+        b.click(self.card_desc(filesystem, "Mount point") + " button")
+        self.dialog(expect={"mount_point": mount_point_bar},
+                    values={"mount_point": ""})
+        self.assertEqual(self.configuration_field("/dev/sda", "fstab", "dir"), "")
+        b.wait_in_text(self.card_desc(filesystem, "Mount point"), "The filesystem has no permanent mount point.")
 
     @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
     def testMountingHelpBtrfs(self):

@@ -109,9 +109,9 @@ function find_blocks_for_mount_point(client, mount_point, self_block, self_subvo
     return blocks;
 }
 
-export function is_valid_mount_point(client, block, val, format_only, for_fstab, subvol) {
+export function is_valid_mount_point(client, block, val, will_not_mount, allow_empty, subvol) {
     if (val === "") {
-        if (!format_only || for_fstab)
+        if (!will_not_mount && !allow_empty)
             return _("Mount point cannot be empty");
         return null;
     }
@@ -120,7 +120,7 @@ export function is_valid_mount_point(client, block, val, format_only, for_fstab,
     if (other_blocks.length > 0)
         return cockpit.format(_("Mount point is already used for $0"), other_blocks.join(", "));
 
-    if (!format_only) {
+    if (!will_not_mount) {
         const children = find_children_for_mount_point(client, val, block);
         if (Object.keys(children).length > 0)
             return <>

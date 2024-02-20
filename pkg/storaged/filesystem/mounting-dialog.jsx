@@ -250,7 +250,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                                                                 block,
                                                                 client.add_mount_point_prefix(val),
                                                                 mode == "update" && !is_filesystem_mounted,
-                                                                true,
+                                                                mode == "update",
                                                                 subvol)
                       }),
             mount_options(opt_ro, extra_options),

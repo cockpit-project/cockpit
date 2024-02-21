@@ -240,7 +240,7 @@ class PcpMetricsChannel(AsyncChannel):
         # if self.omit_instances and self.instances:
         #     raise ChannelError('protocol-error', message='')
 
-    def sample(self, archive):
+    def sample(self, archive, total_fetched):
         context = archive.context
 
         # HACK: this is some utter sillyness, maybe we can construct our own pcp.pmapi.c_uint_Array_1
@@ -253,10 +253,16 @@ class PcpMetricsChannel(AsyncChannel):
             fetched = []
             try:
                 for _ in range(self.archive_batch):
+                    if total_fetched == self.limit:
+                        self.send_updates(archive, fetched)
+                        logger.debug('Reached limit, stopping')
+                        return total_fetched
+                    # Consider using the fetchGroup API https://pcp.readthedocs.io/en/latest/PG/PMAPI.html#fetchgroup-operation
                     # HACK: This is some pcp weirdness where it only accepts a PCP type list and not a Python list
                     # PMIDS <pcp.pmapi.c_uint_Array_1 object at 0x7ab92eaddb50>
                     results = context.pmFetch(pmids)
                     fetched.append(self.parse_fetched_results(context, results, descs))
+                    total_fetched += 1
 
                 self.send_updates(archive, fetched)
                 fetched.clear()
@@ -269,6 +275,8 @@ class PcpMetricsChannel(AsyncChannel):
                     self.send_updates(archive, fetched)
 
                 break
+
+        return total_fetched
 
     def parse_fetched_results(self, context: 'pmapi.pmContext', results: Any, descs: Any) -> Sample:
         metrics = list(self.metrics)
@@ -414,6 +422,7 @@ class PcpMetricsChannel(AsyncChannel):
         self.send_data(json.dumps(data).encode())
 
     def sample_archives(self, archives):
+        total_fetched = 0
         for i, archive in enumerate(archives):
             timestamp = self.start_timestamp
 
@@ -435,7 +444,9 @@ class PcpMetricsChannel(AsyncChannel):
             except pmapi.pmErr as exc:
                 raise ChannelError('internal-error', message=str(exc)) from None
 
-            self.sample(archive)
+            total_fetched = self.sample(archive, total_fetched)
+            if total_fetched == self.limit:
+                return True
         else:
             return True
 
@@ -474,6 +485,8 @@ class PcpMetricsChannel(AsyncChannel):
         self.ready()
 
         self.sample_archives(archives)
+
+        self.done()
 
         # while True:
         #

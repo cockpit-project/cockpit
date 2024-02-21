@@ -52,6 +52,21 @@ def test_broken_archive(tmpdir_factory):
 
 
 @pytest.fixture
+def big_archive(tmpdir_factory):
+    pcp_dir = tmpdir_factory.mktemp('big-archive')
+    archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
+    archive_1.pmiAddMetric("mock.value", PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
+                           PM_SEM_INSTANT, archive_1.pmiUnits(0, 0, 0, 0, 0, 0))
+    for i in range(1000):
+        archive_1.pmiPutValue("mock.value", None, str(i))
+        archive_1.pmiWrite(i, 0)
+
+    archive_1.pmiEnd()
+
+    return pcp_dir
+
+
+@pytest.fixture
 def test_archive(tmpdir_factory):
     pcp_dir = tmpdir_factory.mktemp('mock-archives')
     archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
@@ -102,8 +117,8 @@ async def test_pcp_open_error(transport, test_archive):
 
 @pytest.mark.asyncio
 async def test_pcp_open(transport, test_archive):
-    _ = await transport.check_open('metrics1', source=str(test_archive),
-                                   metrics=[{"name": "mock.value"}])
+    ch = await transport.check_open('metrics1', source=str(test_archive),
+                                    metrics=[{"name": "mock.value"}])
 
     _, data = await transport.next_frame()
     # first message is always the meta message
@@ -135,6 +150,55 @@ async def test_pcp_open(transport, test_archive):
     _, data = await transport.next_frame()
     data = json.loads(data)
     assert data == [[13], [14], [15]]
+
+    transport.check_close(channel=ch)
+
+
+@pytest.mark.asyncio
+async def test_pcp_big_archive(transport, big_archive):
+    _ = await transport.check_open('metrics1', source=str(big_archive),
+                                   metrics=[{"name": "mock.value"}])
+
+    _, data = await transport.next_frame()
+    # first message is always the meta message
+    meta = json.loads(data)
+
+    # TODO: assert helper function?
+    assert meta['timestamp'] == 0
+    assert meta['interval'] == 1000  # default interval
+    assert meta['source'] == str(big_archive)
+
+    metrics = meta['metrics']
+    assert len(metrics) == 1
+
+    metric = metrics[0]
+    assert metric['name'] == 'mock.value'
+    assert 'derive' not in metric
+    assert metric['semantic'] == 'instant'
+
+    _, data = await transport.next_frame()
+    data = json.loads(data)
+    # archives batch size is hardcoded to 60
+    # TODO import?
+    assert data == [[i] for i in range(60)]
+
+
+@pytest.mark.asyncio
+async def test_pcp_limit_archive(transport, big_archive):
+
+    ch = await transport.check_open('metrics1', source=str(big_archive),
+                                    limit=30,
+                                    metrics=[{"name": "mock.value"}])
+
+    # first message is always the meta message
+    _, data = await transport.next_frame()
+    # TODO: verify
+
+    _, data = await transport.next_frame()
+    data = json.loads(data)
+    assert data == [[i] for i in range(30)]
+
+    transport.check_close(channel=ch)
 
 
 @pytest.mark.asyncio

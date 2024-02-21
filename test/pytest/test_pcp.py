@@ -103,7 +103,7 @@ async def test_pcp_open_error(transport, test_archive):
 @pytest.mark.asyncio
 async def test_pcp_open(transport, test_archive):
     _ = await transport.check_open('metrics1', source=str(test_archive),
-                                   metrics=[{"name": "mock.value", "derive": "rate"}])
+                                   metrics=[{"name": "mock.value"}])
 
     _, data = await transport.next_frame()
     # first message is always the meta message
@@ -121,8 +121,20 @@ async def test_pcp_open(transport, test_archive):
 
     metric = metrics[0]
     assert metric['name'] == 'mock.value'
-    assert metric['derive'] == 'rate'
+    assert 'derive' not in metric
     assert metric['semantic'] == 'instant'
+
+    # assert_sample (tc, "[[10],[11],[12]]");
+    _, data = await transport.next_frame()
+    data = json.loads(data)
+    assert data == [[10], [11], [12]]
+
+    # C bridge sends a META message per archive
+
+    # assert_sample (tc, "[[13],[14],[15]]");
+    _, data = await transport.next_frame()
+    data = json.loads(data)
+    assert data == [[13], [14], [15]]
 
 
 @pytest.mark.asyncio

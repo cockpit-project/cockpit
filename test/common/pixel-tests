@@ -133,7 +133,7 @@ cmd_fetch() {
     fi
     cmd_update
     for url in ${urls}; do
-        url=${url/log.html/}
+        url=${url/\/log.html/}
         echo "Fetching new pixel test references from $url"
         pixels=$(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq)
         for f in ${pixels}; do

@@ -27,7 +27,6 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 
 import { StorageCard, StorageDescription, new_card, register_crossref } from "../pages.jsx";
 import { fmt_size } from "../utils.js";
-import { std_lock_action } from "../crypto/actions.jsx";
 
 const _ = cockpit.gettext;
 
@@ -42,9 +41,6 @@ export function make_stratis_blockdev_card(next, backing_block, content_block) {
         next,
         component: StratisBlockdevCard,
         props: { backing_block, content_block, pool, stopped_pool },
-        actions: [
-            std_lock_action(backing_block, content_block),
-        ]
     });
 
     if (pool || stopped_pool) {

@@ -30,7 +30,6 @@ import {
     fmt_size, decode_filename, encode_filename,
     parse_options, unparse_options, extract_option,
 } from "../utils.js";
-import { std_lock_action } from "../crypto/actions.jsx";
 
 const _ = cockpit.gettext;
 
@@ -89,7 +88,6 @@ export function make_swap_card(next, backing_block, content_block) {
         component: SwapCard,
         props: { block: content_block, block_swap },
         actions: [
-            std_lock_action(backing_block, content_block),
             (block_swap && block_swap.Active
                 ? { title: _("Stop"), action: stop }
                 : null),

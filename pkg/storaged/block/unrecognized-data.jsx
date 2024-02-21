@@ -24,7 +24,6 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import { StorageCard, StorageDescription, new_card } from "../pages.jsx";
-import { std_lock_action } from "../crypto/actions.jsx";
 
 const _ = cockpit.gettext;
 
@@ -34,9 +33,6 @@ export function make_unrecognized_data_card(next, backing_block, content_block) 
         next,
         component: UnrecognizedDataCard,
         props: { backing_block, content_block },
-        actions: [
-            std_lock_action(backing_block, content_block),
-        ]
     });
 }
 

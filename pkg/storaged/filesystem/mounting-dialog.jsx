@@ -195,7 +195,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         }
 
         function maybe_lock() {
-            if (mode == "unmount" && !subvol) {
+            if (mode == "unmount" && !subvol && !client.in_anaconda_mode()) {
                 const crypto_backing = client.blocks[block.CryptoBackingDevice];
                 const crypto_backing_crypto = crypto_backing && client.blocks_crypto[crypto_backing.path];
                 if (crypto_backing_crypto) {

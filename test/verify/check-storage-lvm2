@@ -236,7 +236,9 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.click(self.card_parent_link())
         b.wait_text(self.card_row_col("Thinly provisioned LVM2 logical volumes", 1, 3), mount_point_thin)
 
-        b.assert_pixels('body', "pool-page")
+        # prevent unstable usage numbers from failing the pixel test
+        b.assert_pixels('body', "pool-page", mock={".usage-text": "1 / 100 MB"},
+                        ignore=[".usage-bar"])
 
         # remove pool
         self.click_card_dropdown("Pool for thinly provisioned LVM2 logical volumes", "Delete")

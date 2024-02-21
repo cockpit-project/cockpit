@@ -33,6 +33,7 @@ import {
 } from "../dialog.jsx";
 import { block_name, fmt_size, get_active_usage, teardown_active_usage, reload_systemd } from "../utils.js";
 import { check_unused_space, get_resize_info, free_space_after_part, grow_dialog, shrink_dialog } from "../block/resize.jsx";
+import { block_actions } from "../block/actions.jsx";
 import { StorageCard, StorageDescription, new_card, navigate_away_from_card } from "../pages.jsx";
 
 const _ = cockpit.gettext;
@@ -108,6 +109,7 @@ export function make_partition_card(next, block) {
                  action: () => grow_dialog(client, block_part, info),
                  excuse: grow_excuse,
              }),
+            ...block_actions(block),
             {
                 title: _("Delete"),
                 action: () => delete_partition(block, card),

@@ -18,10 +18,8 @@
  */
 
 import cockpit from "cockpit";
-import client from "../client";
 
 import { StorageCard, new_card } from "../pages.jsx";
-import { format_dialog } from "./format-dialog.jsx";
 import { std_lock_action } from "../crypto/actions.jsx";
 
 const _ = cockpit.gettext;
@@ -33,7 +31,6 @@ export function make_unformatted_data_card(next, backing_block, content_block) {
         component: StorageCard,
         actions: [
             std_lock_action(backing_block, content_block),
-            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
         ]
     });
 }

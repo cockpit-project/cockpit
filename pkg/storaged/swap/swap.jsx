@@ -26,7 +26,6 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 import { useEvent } from "hooks";
 
 import { StorageCard, StorageDescription, new_card } from "../pages.jsx";
-import { format_dialog } from "../block/format-dialog.jsx";
 import {
     fmt_size, decode_filename, encode_filename,
     parse_options, unparse_options, extract_option,
@@ -97,7 +96,6 @@ export function make_swap_card(next, backing_block, content_block) {
             (block_swap && !block_swap.Active
                 ? { title: _("Start"), action: start }
                 : null),
-            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
         ]
     });
 }

@@ -269,6 +269,8 @@ class TestApps(packagelib.PackageCase):
         m.execute("for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info /usr/share/swcatalog; do mkdir -p $d; mount -t tmpfs tmpfs $d; done")
         self.addCleanup(m.execute, "for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info /usr/share/swcatalog; do umount $d; done")
 
+        appstream_folder = "/usr/share/app-info/xmls"
+
         self.login_and_go("/apps")
         b.wait_visible(".pf-v5-c-empty-state")
 
@@ -276,7 +278,7 @@ class TestApps(packagelib.PackageCase):
                                     ".*xml.etree.ElementTree.ParseError.*")
 
         def reset():
-            m.write("/usr/share/app-info/xmls/test.xml", """
+            m.write(f"{appstream_folder}/test.xml", """
 <components origin="test">
   <component type="addon">
     <extends>org.cockpit_project.cockpit</extends>
@@ -297,21 +299,21 @@ class TestApps(packagelib.PackageCase):
         reset()
 
         # Unparsable
-        m.write("/usr/share/app-info/xmls/test.xml", """
+        m.write(f"{appstream_folder}/test.xml", """
 This <is <not XML.
 """)
         b.wait_visible(".pf-v5-c-empty-state")
         reset()
 
         # Not really AppStream
-        m.write("/usr/share/app-info/xmls/test.xml", """
+        m.write(f"{appstream_folder}/test.xml", """
 <foo></foo>
 """)
         b.wait_visible(".pf-v5-c-empty-state")
         reset()
 
         # No origin
-        m.write("/usr/share/app-info/xmls/test.xml", """
+        m.write(f"{appstream_folder}/test.xml", """
 <components>
   <component type="addon">
     <extends>org.cockpit_project.cockpit</extends>
@@ -329,7 +331,7 @@ This <is <not XML.
         reset()
 
         # No package
-        m.write("/usr/share/app-info/xmls/test.xml", """
+        m.write(f"{appstream_folder}/test.xml", """
 <components origin="test">
   <component type="addon">
     <extends>org.cockpit_project.cockpit</extends>
@@ -346,7 +348,7 @@ This <is <not XML.
         reset()
 
         # No id
-        m.write("/usr/share/app-info/xmls/test.xml", """
+        m.write(f"{appstream_folder}/test.xml", """
 <components origin="test">
   <component type="addon">
     <extends>org.cockpit_project.cockpit</extends>
@@ -360,7 +362,7 @@ This <is <not XML.
         reset()
 
         # Error (launchable without type) in earlier entry, shouldn't affect the later entry
-        m.write("/usr/share/app-info/xmls/test.xml", """
+        m.write(f"{appstream_folder}/test.xml", """
 <components origin="test">
   <component type="addon">
     <extends>org.cockpit_project.cockpit</extends>

@@ -182,10 +182,7 @@ function missing_bitmap(mdraid) {
 export function make_mdraid_page(parent, mdraid) {
     const block = client.mdraids_block[mdraid.path];
 
-    if (block && should_ignore(client, block.path))
-        return;
-
-    if (!block && client.in_anaconda_mode())
+    if (should_ignore(client, mdraid.path))
         return;
 
     let add_excuse = false;

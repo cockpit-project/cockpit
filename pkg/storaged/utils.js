@@ -632,19 +632,20 @@ function get_parent(client, path) {
 }
 
 function get_direct_parent_blocks(client, path) {
-    let parent = get_parent(client, path);
-    if (!parent)
+    if (client.blocks[path])
+        path = get_parent(client, path);
+    if (!path)
         return [];
-    if (client.blocks[parent])
-        return [parent];
-    if (client.mdraids[parent])
-        return client.mdraids_members[parent].map(function (m) { return m.path });
-    if (client.lvols[parent])
-        parent = client.lvols[parent].VolumeGroup;
-    if (client.vgroups[parent])
-        return client.vgroups_pvols[parent].map(function (pv) { return pv.path });
-    if (client.stratis_pools[parent])
-        return client.stratis_pool_blockdevs[parent].map(bd => client.slashdevs_block[bd.Devnode].path);
+    if (client.blocks[path])
+        return [path];
+    if (client.mdraids[path])
+        return client.mdraids_members[path].map(function (m) { return m.path });
+    if (client.lvols[path])
+        path = client.lvols[path].VolumeGroup;
+    if (client.vgroups[path])
+        return client.vgroups_pvols[path].map(function (pv) { return pv.path });
+    if (client.stratis_pools[path])
+        return client.stratis_pool_blockdevs[path].map(bd => client.slashdevs_block[bd.Devnode].path);
     return [];
 }
 

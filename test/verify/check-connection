@@ -433,8 +433,8 @@ class TestConnection(testlib.MachineCase):
             m.restart_cockpit()
             output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
             self.assertIn("DONE", output)
-            self.assertRegex(output, f"s:/?CN *= {hostname}")
-            self.assertRegex(output, "i:/?CN *= Local Signing Authority.*")
+            self.assertRegex(output, f"CN.*=.*{hostname}")
+            self.assertRegex(output, "i:/?CN.*=.*Local Signing Authority.*")
 
         # login handler: correct password
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(

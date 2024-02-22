@@ -165,22 +165,39 @@ async function getLogins() {
         console.warn("Unexpected error when getting logged in accounts", err);
     }
 
-    // shadow-utils passwd supports an --all flag which is lacking on RHEL and
-    // stable Fedora releases. Available at least on Fedora since
-    // shadow-utils-4.14.0-5.fc40 (currently known as rawhide).
-    const locked_users_map = {};
-    try {
-        const locked_statuses = await cockpit.spawn(["passwd", "-S", "--all"], { superuser: "require", err: "message", environ: ["LC_ALL=C"] });
+    const parse_locked_status = (locked_statuses) => {
         // Slice off the last empty line
         for (const line of locked_statuses.trim().split('\n')) {
             const username = line.split(" ")[0];
             const status = line.split(" ")[1];
             locked_users_map[username] = status == "L";
         }
+    };
+
+    // shadow-utils passwd supports an --all flag which is lacking on RHEL and
+    // stable Fedora releases. Available at least on Fedora since
+    // shadow-utils-4.14.0-5.fc40 (currently known as rawhide).
+    const locked_users_map = {};
+    try {
+        const locked_statuses = await cockpit.spawn(["passwd", "-S", "--all"], { superuser: "require", err: "message", environ: ["LC_ALL=C"] });
+        parse_locked_status(locked_statuses);
     } catch (err) {
         // Only warn when it is unrelated to --all.
         if (err.message && !err.message.includes("bad argument --all")) {
             console.warn("Unexpected error when getting locked account information", err);
+        } else {
+            const command = lastlog.split('\n').slice(1, -1).map(line => {
+                const splitLine = line.split(/[ \t]+/);
+                const name = splitLine[0];
+                return `passwd -S ${name};`;
+            })
+                    .join(" ");
+            try {
+                const locked_statuses = await cockpit.spawn(["bash", "-c", command], { superuser: "require", err: "message", environ: ["LC_ALL=C"] });
+                parse_locked_status(locked_statuses);
+            } catch (err) {
+                console.warn("Unexpected erro when getting account information through bash", err);
+            }
         }
     }
 

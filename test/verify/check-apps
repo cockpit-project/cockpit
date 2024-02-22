@@ -266,8 +266,8 @@ class TestApps(packagelib.PackageCase):
         m = self.machine
 
         # Reset everything
-        m.execute("for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info; do mkdir -p $d; mount -t tmpfs tmpfs $d; done")
-        self.addCleanup(m.execute, "for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info; do umount $d; done")
+        m.execute("for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info /usr/share/swcatalog; do mkdir -p $d; mount -t tmpfs tmpfs $d; done")
+        self.addCleanup(m.execute, "for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info /usr/share/swcatalog; do umount $d; done")
 
         self.login_and_go("/apps")
         b.wait_visible(".pf-v5-c-empty-state")

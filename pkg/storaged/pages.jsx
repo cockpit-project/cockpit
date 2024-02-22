@@ -272,7 +272,12 @@ export function get_crossrefs(key) {
  */
 
 const NotFoundCard = ({ card }) => {
-    return <span>{_("Not found")}</span>;
+    return (
+        <StorageCard card={card}>
+            <CardBody>
+                {_("Not found")}
+            </CardBody>
+        </StorageCard>);
 };
 
 const not_found_page = new_page(null, new_card({ page_name: _("Not found"), component: NotFoundCard }));

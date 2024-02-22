@@ -23,6 +23,8 @@ import 'cockpit-dark-theme'; // once per page
 import React, { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { debounce } from 'throttle-debounce';
+
 import cockpit from 'cockpit';
 import { superuser } from "superuser";
 import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
@@ -68,13 +70,17 @@ function AccountsPage() {
     const [details, setDetails] = useState(null);
 
     useInit(() => {
+        const debouncedGetLogins = debounce(100, () => {
+            getLogins().then(setDetails);
+        });
+
         // Watch `/var/run/utmp` to register when user logs in or out
         const handleUtmp = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
-        handleUtmp.watch(() => getLogins().then(setDetails), { read: false });
+        handleUtmp.watch(() => debouncedGetLogins(), { read: false });
 
         // Watch /etc/shadow to register lock/unlock/expire changes; but avoid reading it, it's sensitive data
         const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
-        handleShadow.watch(() => getLogins().then(setDetails), { read: false });
+        handleShadow.watch(() => debouncedGetLogins(), { read: false });
 
         const handleLogindef = cockpit.file("/etc/login.defs", { superuser: true });
         handleLogindef.watch((logindef) => {

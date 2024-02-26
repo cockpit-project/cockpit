@@ -506,8 +506,9 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # there is a transient "No data available" state, but sometimes it's very short, so don't assert that
 
-        # page auto-updates every minute and starts to receive data
-        with self.browser.wait_timeout(90):
+        # page auto-updates every minute and starts to receive data,
+        # On ubuntu at least, we need to wait for two samples.
+        with self.browser.wait_timeout(180):
             self.browser.wait_js_cond("ph_count('.metrics-data-cpu.valid-data') >= 1")
         b.wait_not_present(".pf-v5-c-empty-state")
 

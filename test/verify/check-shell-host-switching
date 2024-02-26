@@ -315,6 +315,12 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 
+        # Sometimes, adding and removing machines seems to happen so
+        # fast that something goes wrong with serving files,
+        # especially when those files are large in the "devel"
+        # scenario.
+        self.allow_journal_messages(".*: failure while serving external channel: internal-error")
+
     def testBasicAsAdmin(self):
         b = self.browser
 

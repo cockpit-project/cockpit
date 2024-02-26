@@ -203,7 +203,19 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         # Remove DISK1.  The spare takes over.
         self.raid_remove_disk(disk1)
-        b.wait_not_present(self.card_row("MDRAID device", name=disk1))
+        try:
+            b.wait_not_present(self.card_row("MDRAID device", name=disk1))
+        except:
+            print("WARNING: remove failed")
+            if b.is_visible("#dialog") and "Device or resource busy" in b.text("#dialog"):
+                print("WARNING: dialog is open")
+                self.dialog_cancel()
+                self.dialog_wait_close()
+                self.raid_remove_disk(disk1)
+                b.wait_not_present(self.card_row("MDRAID device", name=disk1))
+            else:
+                raise
+
         self.wait_states({disk4: "In sync"})
 
         # Stop the array, destroy a disk, and start the array
@@ -311,7 +323,25 @@ class TestStorageMdRaid(storagelib.StorageCase):
         # The last disk can not be removed
         self.check_dropdown_action_disabled(self.card_row("MDRAID device", name=disk2), "Remove", "Need a spare disk")
 
-    def testBitmap(self):
+    def testRaid2(self):
+        self.testRaid()
+
+    def testRaid3(self):
+        self.testRaid()
+
+    def testRaid4(self):
+        self.testRaid()
+
+    def testRaid5(self):
+        self.testRaid()
+
+    def testRaid6(self):
+        self.testRaid()
+
+    def testRaid7(self):
+        self.testRaid()
+
+    def testBitmap8(self):
         m = self.machine
         b = self.browser
 

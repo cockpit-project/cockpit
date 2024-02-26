@@ -189,7 +189,7 @@ async function getLogins() {
 
     // drop header and last empty line with slice
     const promises = lastlog.split('\n').slice(1, -1).map(async line => {
-        const splitLine = line.split(/[ \t]+/);
+        const splitLine = line.trim().split(/[ \t]+/);
         const name = splitLine[0];
         // Fallback on passwd -S for Fedora and RHEL
         const isLocked = locked_users_map[name] ?? await get_locked(name);

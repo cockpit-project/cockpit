@@ -575,7 +575,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         disk = self.add_ram_disk(size=128)
 
-        m.execute(f"mkfs.btrfs -L butter {disk}; mount {disk} /mnt; btrfs subvolume create /mnt/home; btrfs subvolume create /mnt/backups; umount /mnt")
+        m.execute(f"mkfs.btrfs -L butter {disk}; mount {disk} /mnt; btrfs subvolume create /mnt/home; btrfs subvolume create /mnt/backups")
+        m.execute("while mountpoint -q /mnt && ! umount /mnt; do sleep 0.2; done;")
 
         self.login_and_go("/storage")
 

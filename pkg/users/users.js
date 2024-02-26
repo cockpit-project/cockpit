@@ -99,11 +99,14 @@ function AccountsPage() {
         return [handleUtmp, handleShadow, handleLogindef];
     }, [], null, handles => handles.forEach(handle => handle.close()));
 
-    // lastlog uses same sorting as /etc/passwd therefore arrays can be combined based on index
     const accountsInfo = useMemo(() => {
         if (accounts && details)
-            return accounts.map((account, i) => {
-                return Object.assign({}, account, details[i]);
+            return accounts.map((account) => {
+                const detail = details.find(detail => detail.name === account.name);
+                if (detail)
+                    return Object.assign({}, account, detail);
+
+                return account;
             });
         else
             return [];

@@ -27,10 +27,17 @@ class TestStorageMultipath(storagelib.StorageCase):
     def testBasic(self):
         m = self.machine
         b = self.browser
+        allowed_blockdevices = []
+
+        # Fedora's default server install has a PowerPC boot partition which UDisks does not recognize and shows as
+        # unformatted data. We don't want fail on it being offered as empty formattable device in the volume group creation
+        # dialog.
+        if m.image.startswith("fedora"):
+            powerpc_boot_blockdevice = m.execute("lsblk -o PARTTYPENAME,PATH | awk '/^PowerPC PReP boot/ { print $4 }'").strip()
+            allowed_blockdevices.append(powerpc_boot_blockdevice)
 
         def check_free_block_devices(expected):
-            allowed = ["/dev/vda4"]
-            blocks = list(filter(lambda b: b not in allowed,
+            blocks = list(filter(lambda b: b not in allowed_blockdevices,
                                  b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .select-space-details')")))
             self.assertEqual(len(blocks), len(expected))
             for i in range(len(expected)):

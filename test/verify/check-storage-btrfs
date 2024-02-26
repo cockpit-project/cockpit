@@ -494,7 +494,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
             mount {disk1} {mount_point}
             btrfs subvolume create {subvol_path}
             btrfs subvolume set-default {subvol_path}
-            umount {mount_point}
+            while mountpoint -q {mount_point} && ! umount {mount_point}; do sleep 0.2; done;
             mount {disk1} {mount_point}
         """)
 

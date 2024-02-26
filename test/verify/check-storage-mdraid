@@ -80,12 +80,12 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         # Add four disks and make a RAID out of three of them
         disk1 = "/dev/" + m.add_disk("50M", serial="DISK1")["dev"]
-        disk2 = "/dev/" + m.add_disk("50M", serial="DISK2")["dev"]
-        disk3 = "/dev/" + m.add_disk("50M", serial="DISK3")["dev"]
-        disk4 = "/dev/" + m.add_disk("50M", serial="DISK4")["dev"]
         b.wait_visible(self.card_row("Storage", name=disk1))
+        disk2 = "/dev/" + m.add_disk("50M", serial="DISK2")["dev"]
         b.wait_visible(self.card_row("Storage", name=disk2))
+        disk3 = "/dev/" + m.add_disk("50M", serial="DISK3")["dev"]
         b.wait_visible(self.card_row("Storage", name=disk3))
+        disk4 = "/dev/" + m.add_disk("50M", serial="DISK4")["dev"]
         b.wait_visible(self.card_row("Storage", name=disk4))
 
         self.click_devices_dropdown('Create MDRAID device')
@@ -257,10 +257,10 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         disk1 = "/dev/" + m.add_disk("50M", serial="DISK1")["dev"]
-        disk2 = "/dev/" + m.add_disk("50M", serial="DISK2")["dev"]
-        disk3 = "/dev/" + m.add_disk("50M", serial="DISK3")["dev"]
         b.wait_visible(self.card_row("Storage", name=disk1))
+        disk2 = "/dev/" + m.add_disk("50M", serial="DISK2")["dev"]
         b.wait_visible(self.card_row("Storage", name=disk2))
+        disk3 = "/dev/" + m.add_disk("50M", serial="DISK3")["dev"]
         b.wait_visible(self.card_row("Storage", name=disk3))
 
         self.click_devices_dropdown('Create MDRAID device')

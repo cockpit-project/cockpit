@@ -18,7 +18,6 @@
  */
 
 import '../lib/patternfly/patternfly-5-cockpit.scss';
-import './sosreport.scss';
 import "polyfills";
 import 'cockpit-dark-theme'; // once per page
 
@@ -52,6 +51,8 @@ import { fmt_to_fragments } from "utils.jsx";
 import * as timeformat from "timeformat";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
+
+import './sosreport.scss';
 
 const _ = cockpit.gettext;
 

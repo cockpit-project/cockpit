@@ -11,16 +11,6 @@ execute:
 environment:
     TEST_AUDIT_NO_SELINUX: 1
 
-/basic:
-    summary: Run tests for basic packages
-    discover+:
-        test: /test/browser/basic
-
-/network:
-    summary: Run tests for cockpit-networkmanager
-    discover+:
-        test: /test/browser/network
-
 /optional:
     summary: Run tests for optional packages
     discover+:

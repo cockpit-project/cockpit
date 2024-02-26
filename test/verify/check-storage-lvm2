@@ -666,7 +666,12 @@ class TestStorageLvm2(storagelib.StorageCase):
             width = b.call_js_func('(function (sel) { return ph_find(sel).offsetWidth; })', slider)
             b.mouse(slider, "click", width, 0)
             self.dialog_apply()
-            self.dialog_wait_close()
+            try:
+                self.dialog_wait_close()  # wait for grow to finish
+            except testlib.Error:
+                # Produce evidence of lvm2 hanging, so that our maughties can match on it
+                print(m.execute("for p in $(pgrep lvm); do cat /proc/$p/stack; done"))
+                raise
 
             card = self.card("LVM2 logical volume")
             b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
@@ -692,6 +697,18 @@ class TestStorageLvm2(storagelib.StorageCase):
         test("raid10", (n_pvs / 2) * (pv_size - ext_size))
         test("raid5", (n_pvs - 1) * (pv_size - ext_size))
         test("raid6", (n_pvs - 2) * (pv_size - ext_size))
+
+    def testMaxLayoutGrowth2(self):
+        self.testMaxLayoutGrowth()
+
+    def testMaxLayoutGrowth3(self):
+        self.testMaxLayoutGrowth()
+
+    def testMaxLayoutGrowth4(self):
+        self.testMaxLayoutGrowth()
+
+    def testMaxLayoutGrowth5(self):
+        self.testMaxLayoutGrowth()
 
     @testlib.skipImage("No targetd in Arch Linux", "arch")
     def testDegradation(self):

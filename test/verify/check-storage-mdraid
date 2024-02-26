@@ -203,7 +203,18 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         # Remove DISK1.  The spare takes over.
         self.raid_remove_disk(disk1)
-        b.wait_not_present(self.card_row("MDRAID device", name=disk1))
+        try:
+            b.wait_not_present(self.card_row("MDRAID device", name=disk1))
+        except testlib.Error:
+            # Sometimes disk1 is busy. Try again in that case
+            if b.is_visible("#dialog") and "Device or resource busy" in b.text("#dialog"):
+                self.dialog_cancel()
+                self.dialog_wait_close()
+                self.raid_remove_disk(disk1)
+                b.wait_not_present(self.card_row("MDRAID device", name=disk1))
+            else:
+                raise
+
         self.wait_states({disk4: "In sync"})
 
         # Stop the array, destroy a disk, and start the array

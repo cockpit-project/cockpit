@@ -584,7 +584,8 @@ class TestStorageLvm2(storagelib.StorageCase):
             b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), mb(expected_size))
 
             self.click_card_dropdown("LVM2 logical volume", "Delete")
-            self.confirm()
+            with b.wait_timeout(60):
+                self.confirm()
             b.wait_visible(self.card("LVM2 logical volumes"))
             b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0"))
 
@@ -679,7 +680,8 @@ class TestStorageLvm2(storagelib.StorageCase):
             b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), mb(expected_size))
 
             self.click_card_dropdown("LVM2 logical volume", "Delete")
-            self.confirm()
+            with b.wait_timeout(60):
+                self.confirm()
             b.wait_visible(self.card("LVM2 logical volumes"))
             b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0"))
 

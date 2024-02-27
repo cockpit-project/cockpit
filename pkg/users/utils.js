@@ -7,4 +7,8 @@ export const get_locked = name =>
                 // libuser uses "LK", shadow-utils use "L".
                 return status == "LK" || status == "L";
             })
-            .catch(() => null);
+            .catch(exc => {
+                if (exc.problem !== "access-denied") {
+                    console.warn(`Failed to obtain account lock information for ${name}`, exc);
+                }
+            });

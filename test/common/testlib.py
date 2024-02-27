@@ -1602,7 +1602,7 @@ class MachineCase(unittest.TestCase):
                     m.execute(f"while loginctl show-session {s}; do sleep 0.2; done", timeout=30)
                 except RuntimeError:
                     # show the status in debug logs, to see what's wrong
-                    m.execute(f"loginctl session-status {s} >&2")
+                    m.execute(f"loginctl session-status {s}; systemd-cgls", stdout=None)
                     raise
 
             # terminate all systemd user services for users who are not logged in

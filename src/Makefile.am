@@ -26,7 +26,8 @@ install-python:
 	@# wheel-based installation with .dist-info.
 	@# This needs to work on RHEL8 up through modern Fedora, offline, with
 	@# system packages available to the build.
-	python3 -m pip install --no-index --force-reinstall --root='$(DESTDIR)/' --prefix='$(prefix)' \
+	@# See https://github.com/pypa/pip/issues/3063 for --ignore-installed
+	python3 -m pip install --no-index --force-reinstall --ignore-installed --root='$(DESTDIR)/' --prefix='$(prefix)' \
 		"$$(python3 '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
 	mkdir -p $(DESTDIR)$(libexecdir)
 	mv -t $(DESTDIR)$(libexecdir) $(DESTDIR)$(bindir)/cockpit-askpass

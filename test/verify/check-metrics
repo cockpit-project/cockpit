@@ -658,6 +658,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # pmproxy already running; 44322 queries hang without redis and until restart
         m.execute(f"systemctl disable --now {redis}; systemctl start pmproxy")
+        m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
         checkEnable(firewalld_alert=True)
 
         # without firewalld

@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-14 02:47+0000\n"
+"POT-Creation-Date: 2024-02-27 02:47+0000\n"
 "PO-Revision-Date: 2023-12-31 14:36+0000\n"
 "Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
 "memory@weblate.org>\n"
@@ -172,7 +172,7 @@ msgstr "$0 je existující soubor"
 #: pkg/storaged/mdraid/mdraid.jsx:63 pkg/storaged/mdraid/mdraid.jsx:116
 #: pkg/storaged/partitions/partition.jsx:47
 #: pkg/storaged/partitions/format-disk-dialog.jsx:39
-#: pkg/storaged/block/format-dialog.jsx:265 pkg/storaged/block/resize.jsx:425
+#: pkg/storaged/block/format-dialog.jsx:267 pkg/storaged/block/resize.jsx:425
 #: pkg/storaged/block/resize.jsx:571 pkg/storaged/stratis/pool.jsx:141
 #: pkg/storaged/stratis/filesystem.jsx:129
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:50
@@ -361,7 +361,7 @@ msgstr "Místní přípojný bod"
 msgid "(not mounted)"
 msgstr "Nepřipojeno"
 
-#: pkg/storaged/block/format-dialog.jsx:243
+#: pkg/storaged/block/format-dialog.jsx:245
 msgid "(recommended)"
 msgstr "(doporučeno)"
 
@@ -1006,11 +1006,11 @@ msgstr "Správa pomocí webové konzole Cockpit"
 msgid "Administrative access"
 msgstr "Přístup na úrovni správce"
 
-#: pkg/sosreport/sosreport.jsx:426
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access is required to create and access reports."
 msgstr "Abyste mohli vytvářet výkazy, je třeba mít oprávnění na úrovni správy."
 
-#: pkg/sosreport/sosreport.jsx:425
+#: pkg/sosreport/sosreport.jsx:426
 msgid "Administrative access required"
 msgstr "Je vyžadován přístup na úrovni správce"
 
@@ -1204,7 +1204,7 @@ msgstr "V sekundě"
 msgid "At specific time"
 msgstr "V uvedený čas"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Attributes"
 msgstr "Atributy"
 
@@ -1310,7 +1310,8 @@ msgstr "Dostupné aktualizace"
 msgid "BIOS"
 msgstr "BIOS"
 
-#: pkg/storaged/partitions/partition.jsx:114
+#: pkg/storaged/partitions/partition.jsx:87
+#: pkg/storaged/partitions/partition.jsx:122
 #, fuzzy
 #| msgid "Grow partition"
 msgid "BIOS boot partition"
@@ -1432,7 +1433,7 @@ msgstr "Vysílání"
 msgid "Broken configuration"
 msgstr "Chybné nastavení"
 
-#: pkg/storaged/btrfs/volume.jsx:122
+#: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/btrfs/filesystem.jsx:73
 msgid "Btrfs volume is mounted"
 msgstr ""
 
@@ -1525,8 +1526,8 @@ msgstr ""
 #: pkg/shell/hosts_dialog.jsx:514 pkg/shell/hosts_dialog.jsx:891
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/sosreport/sosreport.jsx:279
-#: pkg/sosreport/sosreport.jsx:364 pkg/storaged/jobs-panel.jsx:140
+#: pkg/shell/active-pages-modal.jsx:100 pkg/sosreport/sosreport.jsx:280
+#: pkg/sosreport/sosreport.jsx:365 pkg/storaged/jobs-panel.jsx:140
 #: pkg/kdump/kdump-view.jsx:235
 msgid "Cancel"
 msgstr "Storno"
@@ -1562,7 +1563,7 @@ msgstr "Nelze naplánovat událost v minulosti"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:127
+#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/storaged/drive/drive.jsx:125 pkg/storaged/lvm2/volume-group.jsx:387
 msgid "Capacity"
 msgstr "Kapacita"
@@ -1597,7 +1598,7 @@ msgstr "Změnit název iSCSI iniciátoru"
 msgid "Change iSCSI initiator name"
 msgstr "Změnit název iSCSI iniciátoru"
 
-#: pkg/storaged/btrfs/volume.jsx:97
+#: pkg/storaged/btrfs/volume.jsx:87
 #, fuzzy
 #| msgid "Change shell"
 msgid "Change label"
@@ -1645,7 +1646,7 @@ msgstr ""
 "neočekávaná změna může značit pokus třetí strany o vložení se do vaší "
 "komunikace."
 
-#: pkg/storaged/partitions/partition.jsx:188
+#: pkg/storaged/partitions/partition.jsx:196
 msgid "Changing partition types might prevent the system from booting."
 msgstr ""
 
@@ -1946,7 +1947,7 @@ msgstr "Probíhá nastavení systému"
 
 # auto translated by TM merge from project: ibus-input-pad, version: head,
 # DocId: ibus-input-pad
-#: pkg/storaged/block/format-dialog.jsx:391
+#: pkg/storaged/block/format-dialog.jsx:398
 #: pkg/storaged/stratis/create-dialog.jsx:84 pkg/storaged/stratis/pool.jsx:384
 #: pkg/storaged/stratis/pool.jsx:413
 msgid "Confirm"
@@ -2111,8 +2112,8 @@ msgstr "Zhavarovat systém"
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:193
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/btrfs/subvolume.jsx:138
-#: pkg/storaged/block/format-dialog.jsx:323
-#: pkg/storaged/block/format-dialog.jsx:333
+#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:338
 #: pkg/storaged/stratis/create-dialog.jsx:122 pkg/storaged/stratis/pool.jsx:86
 #: pkg/storaged/lvm2/create-dialog.jsx:63
 #: pkg/storaged/lvm2/volume-group.jsx:120
@@ -2161,11 +2162,11 @@ msgid "Create and change ownership of home directory"
 msgstr "Vytvořit a změnit vlastnictví domovské složky"
 
 #: pkg/storaged/btrfs/subvolume.jsx:132
-#: pkg/storaged/block/format-dialog.jsx:318 pkg/storaged/stratis/pool.jsx:81
+#: pkg/storaged/block/format-dialog.jsx:323 pkg/storaged/stratis/pool.jsx:81
 msgid "Create and mount"
 msgstr "Vytvořit a připojit"
 
-#: pkg/storaged/block/format-dialog.jsx:327
+#: pkg/storaged/block/format-dialog.jsx:332
 #, fuzzy
 #| msgid "Create and mount"
 msgid "Create and start"
@@ -2212,8 +2213,8 @@ msgid "Create new thinly provisioned logical volume"
 msgstr "Vytvořit nový logický svazek"
 
 #: pkg/storaged/btrfs/subvolume.jsx:133
-#: pkg/storaged/block/format-dialog.jsx:319
-#: pkg/storaged/block/format-dialog.jsx:328 pkg/storaged/stratis/pool.jsx:82
+#: pkg/storaged/block/format-dialog.jsx:324
+#: pkg/storaged/block/format-dialog.jsx:333 pkg/storaged/stratis/pool.jsx:82
 msgid "Create only"
 msgstr "Pouze vytvořit"
 
@@ -2223,7 +2224,7 @@ msgstr "Pouze vytvořit"
 msgid "Create partition"
 msgstr "Vytvořit oddíl"
 
-#: pkg/storaged/block/format-dialog.jsx:184
+#: pkg/storaged/block/format-dialog.jsx:185
 msgid "Create partition on $0"
 msgstr "Vytvořit oddíl na $0"
 
@@ -2268,7 +2269,7 @@ msgstr "Vytvořit časovač"
 msgid "Create volume group"
 msgstr "Vytvořit skupinu svazků"
 
-#: pkg/sosreport/sosreport.jsx:502
+#: pkg/sosreport/sosreport.jsx:503
 msgid "Created"
 msgstr "Vytvořeno"
 
@@ -2358,7 +2359,7 @@ msgstr "Nyní využito"
 msgid "Currently not supported"
 msgstr "Nyní využito"
 
-#: pkg/storaged/partitions/partition.jsx:146
+#: pkg/storaged/partitions/partition.jsx:154
 #, fuzzy
 #| msgid "custom"
 msgid "Custom"
@@ -2376,7 +2377,7 @@ msgstr "Uživatelsky určené předvolby připojení"
 msgid "Custom ports"
 msgstr "Uživatelsky určené porty"
 
-#: pkg/storaged/partitions/partition.jsx:180
+#: pkg/storaged/partitions/partition.jsx:188
 #, fuzzy
 #| msgid "Custom ports"
 msgid "Custom type"
@@ -2564,10 +2565,10 @@ msgstr "Je třeba, aby prodleva byla číslo"
 #: pkg/systemd/service-details.jsx:719 pkg/systemd/abrtLog.jsx:290
 #: pkg/networkmanager/network-interface.jsx:725
 #: pkg/networkmanager/firewall.jsx:121 pkg/networkmanager/firewall.jsx:182
-#: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:358
-#: pkg/sosreport/sosreport.jsx:470 pkg/storaged/mdraid/mdraid.jsx:126
+#: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:359
+#: pkg/sosreport/sosreport.jsx:471 pkg/storaged/mdraid/mdraid.jsx:126
 #: pkg/storaged/mdraid/mdraid.jsx:226 pkg/storaged/partitions/partition.jsx:58
-#: pkg/storaged/partitions/partition.jsx:104
+#: pkg/storaged/partitions/partition.jsx:112
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
 #: pkg/storaged/stratis/pool.jsx:153 pkg/storaged/stratis/filesystem.jsx:141
@@ -2608,7 +2609,7 @@ msgstr "Smazat skupinu"
 msgid "Delete pool"
 msgstr "Smazat"
 
-#: pkg/sosreport/sosreport.jsx:350
+#: pkg/sosreport/sosreport.jsx:351
 msgid "Delete report permanently?"
 msgstr "Smazat výkaz bez možnosti obnovení?"
 
@@ -2894,7 +2895,7 @@ msgstr "Dvojitá distribuovaná parita (RAID 6)"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/sosreport/sosreport.jsx:460 pkg/sosreport/sosreport.jsx:466
+#: pkg/sosreport/sosreport.jsx:461 pkg/sosreport/sosreport.jsx:467
 msgid "Download"
 msgstr "Stáhnout"
 
@@ -2927,8 +2928,9 @@ msgstr "Jednotka"
 msgid "Dual rank"
 msgstr "Dual rank"
 
-#: pkg/storaged/partitions/partition.jsx:115
+#: pkg/storaged/partitions/partition.jsx:85
 #: pkg/storaged/partitions/partition.jsx:123
+#: pkg/storaged/partitions/partition.jsx:131
 #, fuzzy
 #| msgid "Extended partition"
 msgid "EFI system partition"
@@ -3092,7 +3094,7 @@ msgstr "Šifrovat data pomocí Tang serveru s klíči"
 msgid "Encrypt data with a passphrase"
 msgstr "Šifrovat data pomocí heslové fráze"
 
-#: pkg/sosreport/sosreport.jsx:450
+#: pkg/sosreport/sosreport.jsx:451
 msgid "Encrypted"
 msgstr "Šifrováno"
 
@@ -3117,18 +3119,18 @@ msgstr "Šifrovaný oddíl na $0"
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
 #: pkg/storaged/crypto/encryption.jsx:42
-#: pkg/storaged/block/format-dialog.jsx:376
+#: pkg/storaged/block/format-dialog.jsx:383
 msgid "Encryption"
 msgstr "Šifrování"
 
 #: pkg/storaged/crypto/encryption.jsx:189
-#: pkg/storaged/block/format-dialog.jsx:419
+#: pkg/storaged/block/format-dialog.jsx:426
 msgid "Encryption options"
 msgstr "Volby šifrování"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/sosreport/sosreport.jsx:309
+#: pkg/sosreport/sosreport.jsx:310
 msgid "Encryption passphrase"
 msgstr "Šifrovací heslová fráze"
 
@@ -3183,7 +3185,7 @@ msgid "Errata"
 msgstr "Errata"
 
 #: pkg/apps/utils.jsx:81 pkg/systemd/service-details.jsx:280
-#: pkg/systemd/services.jsx:224 pkg/sosreport/sosreport.jsx:381
+#: pkg/systemd/services.jsx:224 pkg/sosreport/sosreport.jsx:382
 #: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:160
 #: pkg/storaged/overview/overview.jsx:94 pkg/storaged/multipath.jsx:60
 msgid "Error"
@@ -3279,7 +3281,7 @@ msgid "Extended information"
 msgstr "Rozšířené informace"
 
 #: pkg/storaged/partitions/partition-table.jsx:58
-#: pkg/storaged/block/format-dialog.jsx:214
+#: pkg/storaged/block/format-dialog.jsx:216
 msgid "Extended partition"
 msgstr "Rozšířený oddíl"
 
@@ -3491,9 +3493,9 @@ msgstr "Vynutit změnu hesla"
 # DocId: blivet-gui
 #: pkg/storaged/mdraid/mdraid-disk.jsx:47
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:38
-#: pkg/storaged/swap/swap.jsx:100 pkg/storaged/btrfs/device.jsx:49
-#: pkg/storaged/block/format-dialog.jsx:323
-#: pkg/storaged/block/format-dialog.jsx:333
+#: pkg/storaged/swap/swap.jsx:100 pkg/storaged/btrfs/device.jsx:93
+#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:338
 #: pkg/storaged/block/unrecognized-data.jsx:41
 #: pkg/storaged/block/unformatted-data.jsx:36
 #: pkg/storaged/stratis/blockdev.jsx:48
@@ -3502,15 +3504,15 @@ msgstr "Vynutit změnu hesla"
 msgid "Format"
 msgstr "Formát"
 
-#: pkg/storaged/block/format-dialog.jsx:186
+#: pkg/storaged/block/format-dialog.jsx:187
 msgid "Format $0"
 msgstr "Naformátovat $0"
 
-#: pkg/storaged/block/format-dialog.jsx:318
+#: pkg/storaged/block/format-dialog.jsx:323
 msgid "Format and mount"
 msgstr "Naformátovat a připojit"
 
-#: pkg/storaged/block/format-dialog.jsx:327
+#: pkg/storaged/block/format-dialog.jsx:332
 #, fuzzy
 #| msgid "Format and mount"
 msgid "Format and start"
@@ -3518,12 +3520,12 @@ msgstr "Naformátovat a připojit"
 
 # auto translated by TM merge from project: blivet-gui, version: f23-branch,
 # DocId: blivet-gui
-#: pkg/storaged/block/format-dialog.jsx:319
-#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:324
+#: pkg/storaged/block/format-dialog.jsx:333
 msgid "Format only"
 msgstr "Pouze naformátovat"
 
-#: pkg/storaged/block/format-dialog.jsx:446
+#: pkg/storaged/block/format-dialog.jsx:453
 msgid "Formatting erases all data on a storage device."
 msgstr "Formátování vymaže všechna data na úložném zařízení."
 
@@ -3612,7 +3614,7 @@ msgstr "Název skupiny"
 msgid "Groups"
 msgstr "Skupiny"
 
-#: pkg/storaged/partitions/partition.jsx:99 pkg/storaged/block/resize.jsx:521
+#: pkg/storaged/partitions/partition.jsx:107 pkg/storaged/block/resize.jsx:521
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:259
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:315
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:104
@@ -3621,7 +3623,7 @@ msgstr "Skupiny"
 msgid "Grow"
 msgstr "Zvětšit"
 
-#: pkg/storaged/partitions/partition.jsx:213
+#: pkg/storaged/partitions/partition.jsx:221
 #: pkg/storaged/lvm2/block-logical-volume.jsx:281
 msgid "Grow content"
 msgstr "Zvětšit obsah"
@@ -4305,7 +4307,7 @@ msgstr "LVM2 skupina svazků"
 msgid "LVM2 volume group $0"
 msgstr "LVM2 skupina svazků $0"
 
-#: pkg/storaged/btrfs/volume.jsx:118
+#: pkg/storaged/btrfs/volume.jsx:119 pkg/storaged/btrfs/filesystem.jsx:69
 msgid "Label"
 msgstr ""
 
@@ -4363,8 +4365,8 @@ msgstr "Rozvržení"
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:291
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
-#: pkg/lib/cockpit-components-dialog.jsx:225
-#: pkg/lib/cockpit-components-dialog.jsx:232 pkg/networkmanager/bond.jsx:152
+#: pkg/lib/cockpit-components-dialog.jsx:234
+#: pkg/lib/cockpit-components-dialog.jsx:241 pkg/networkmanager/bond.jsx:152
 msgid "Learn more"
 msgstr "Další informace naleznete"
 
@@ -4378,7 +4380,7 @@ msgstr "Opustit $0"
 msgid "Leave domain"
 msgstr "Opustit doménu"
 
-#: pkg/sosreport/sosreport.jsx:317
+#: pkg/sosreport/sosreport.jsx:318
 msgid "Leave empty to skip encryption"
 msgstr "Pokud nechcete šifrovat, nevyplňujte"
 
@@ -4438,15 +4440,15 @@ msgstr "Hlídání linky"
 msgid "Linked"
 msgstr "Odkazováno"
 
-#: pkg/storaged/partitions/partition.jsx:118
-#: pkg/storaged/partitions/partition.jsx:125
+#: pkg/storaged/partitions/partition.jsx:126
+#: pkg/storaged/partitions/partition.jsx:133
 #, fuzzy
 #| msgid "Unmount filesystem $0"
 msgid "Linux filesystem data"
 msgstr "Odpojit souborový systém $0"
 
-#: pkg/storaged/partitions/partition.jsx:117
-#: pkg/storaged/partitions/partition.jsx:124
+#: pkg/storaged/partitions/partition.jsx:125
+#: pkg/storaged/partitions/partition.jsx:132
 #, fuzzy
 #| msgctxt "storage-id-desc"
 #| msgid "Swap space"
@@ -4634,8 +4636,8 @@ msgstr "Přihlášeni"
 msgid "Logical"
 msgstr "Logický"
 
-#: pkg/storaged/partitions/partition.jsx:119
-#: pkg/storaged/partitions/partition.jsx:126
+#: pkg/storaged/partitions/partition.jsx:127
+#: pkg/storaged/partitions/partition.jsx:134
 #, fuzzy
 #| msgid "Logical volume (snapshot)"
 msgid "Logical Volume Manager partition"
@@ -5086,7 +5088,7 @@ msgstr "Předvolby připojení"
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
 #: pkg/storaged/btrfs/subvolume.jsx:335
-#: pkg/storaged/block/format-dialog.jsx:346 pkg/storaged/stratis/pool.jsx:104
+#: pkg/storaged/block/format-dialog.jsx:352 pkg/storaged/stratis/pool.jsx:104
 #: pkg/storaged/stratis/filesystem.jsx:91
 #: pkg/storaged/stratis/filesystem.jsx:226
 #: pkg/storaged/filesystem/mounting-dialog.jsx:246
@@ -5172,9 +5174,9 @@ msgstr "NTP server"
 #: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
 #: pkg/storaged/iscsi/create-dialog.jsx:111
 #: pkg/storaged/iscsi/create-dialog.jsx:168
-#: pkg/storaged/partitions/partition.jsx:219 pkg/storaged/btrfs/volume.jsx:99
+#: pkg/storaged/partitions/partition.jsx:227 pkg/storaged/btrfs/volume.jsx:89
 #: pkg/storaged/btrfs/subvolume.jsx:145 pkg/storaged/btrfs/subvolume.jsx:333
-#: pkg/storaged/block/format-dialog.jsx:341
+#: pkg/storaged/block/format-dialog.jsx:346
 #: pkg/storaged/stratis/create-dialog.jsx:50 pkg/storaged/stratis/pool.jsx:93
 #: pkg/storaged/stratis/pool.jsx:170 pkg/storaged/stratis/pool.jsx:518
 #: pkg/storaged/stratis/filesystem.jsx:86
@@ -5410,7 +5412,7 @@ msgstr "Není k dispozici žádný popis"
 msgid "No description provided."
 msgstr "Není poskytnut žádný popis."
 
-#: pkg/storaged/btrfs/volume.jsx:135
+#: pkg/storaged/btrfs/volume.jsx:136
 #, fuzzy
 #| msgid "No boot device found"
 msgid "No devices found"
@@ -5434,7 +5436,7 @@ msgstr "Nenalezeny žádné záznamy událostí"
 msgid "No drives found"
 msgstr "Nenalezeny žádné výsledky"
 
-#: pkg/storaged/block/format-dialog.jsx:248
+#: pkg/storaged/block/format-dialog.jsx:250
 msgid "No encryption"
 msgstr "Bez šifrování"
 
@@ -5442,7 +5444,7 @@ msgstr "Bez šifrování"
 msgid "No events"
 msgstr "Žádné události"
 
-#: pkg/storaged/block/format-dialog.jsx:212
+#: pkg/storaged/block/format-dialog.jsx:214
 msgid "No filesystem"
 msgstr "Žádný souborový systém"
 
@@ -5553,7 +5555,7 @@ msgstr "Žádné zásahy pravidla"
 msgid "No storage found"
 msgstr "Žádné úložiště"
 
-#: pkg/storaged/btrfs/volume.jsx:147
+#: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
 #, fuzzy
 #| msgid "No logical volumes"
 msgid "No subvolumes"
@@ -5568,7 +5570,7 @@ msgstr "Žádný takový soubor nebo složka"
 msgid "No system modifications"
 msgstr "Žádné modifikace systému"
 
-#: pkg/sosreport/sosreport.jsx:499
+#: pkg/sosreport/sosreport.jsx:500
 msgid "No system reports."
 msgstr "Žádné výkazy o systému."
 
@@ -5693,11 +5695,11 @@ msgstr "Notebook"
 msgid "Notice and above"
 msgstr "Oznámení a závažnější"
 
-#: pkg/sosreport/sosreport.jsx:320
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "Znečitelnit síťové adresy, názvy strojů a uživatelská jména"
 
-#: pkg/sosreport/sosreport.jsx:454
+#: pkg/sosreport/sosreport.jsx:455
 msgid "Obfuscated"
 msgstr "Znečitelněno"
 
@@ -5782,7 +5784,7 @@ msgstr "Operace „$operation“ na $target"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/users/account-details.js:269 pkg/networkmanager/bridge.jsx:104
-#: pkg/sosreport/sosreport.jsx:319 pkg/storaged/crypto/encryption.jsx:234
+#: pkg/sosreport/sosreport.jsx:320 pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
 msgid "Options"
@@ -5822,12 +5824,12 @@ msgstr "Přehled"
 # auto translated by TM merge from project: Fedora Release Notes, version:
 # f23, DocId: pot/Overview
 #: pkg/storaged/partitions/format-disk-dialog.jsx:61
-#: pkg/storaged/block/format-dialog.jsx:370
+#: pkg/storaged/block/format-dialog.jsx:377
 msgid "Overwrite"
 msgstr "Přepsat"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:64
-#: pkg/storaged/block/format-dialog.jsx:373
+#: pkg/storaged/block/format-dialog.jsx:380
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "Přepsat existující data nulami (pomalejší)"
 
@@ -5893,7 +5895,7 @@ msgstr "Součástí $0"
 
 # auto translated by TM merge from project: blivet-gui, version: f23-branch,
 # DocId: blivet-gui
-#: pkg/storaged/partitions/partition.jsx:83
+#: pkg/storaged/partitions/partition.jsx:90
 msgid "Partition"
 msgstr "Oddíl"
 
@@ -5901,7 +5903,7 @@ msgstr "Oddíl"
 msgid "Partition of $0"
 msgstr "Oddíl na $0"
 
-#: pkg/storaged/partitions/partition.jsx:205
+#: pkg/storaged/partitions/partition.jsx:213
 msgid "Partition size is $0. Content size is $1."
 msgstr "Velikost oddílu je $0. Velikost obsahu na něm je $1."
 
@@ -5926,8 +5928,8 @@ msgstr "Pasivní"
 # DocId: anaconda
 #: pkg/storaged/crypto/actions.jsx:43 pkg/storaged/crypto/keyslots.jsx:430
 #: pkg/storaged/crypto/keyslots.jsx:750
-#: pkg/storaged/block/format-dialog.jsx:382
-#: pkg/storaged/block/format-dialog.jsx:410
+#: pkg/storaged/block/format-dialog.jsx:389
+#: pkg/storaged/block/format-dialog.jsx:417
 #: pkg/storaged/stratis/create-dialog.jsx:75 pkg/storaged/stratis/pool.jsx:205
 #: pkg/storaged/stratis/pool.jsx:382 pkg/storaged/stratis/pool.jsx:530
 #: pkg/storaged/stratis/stopped-pool.jsx:58
@@ -5942,8 +5944,8 @@ msgstr "Heslovou frázi je třeba vyplnit"
 
 #: pkg/storaged/crypto/keyslots.jsx:145 pkg/storaged/crypto/keyslots.jsx:438
 #: pkg/storaged/crypto/keyslots.jsx:483 pkg/storaged/crypto/keyslots.jsx:487
-#: pkg/storaged/block/format-dialog.jsx:386
-#: pkg/storaged/block/format-dialog.jsx:414
+#: pkg/storaged/block/format-dialog.jsx:393
+#: pkg/storaged/block/format-dialog.jsx:421
 #: pkg/storaged/stratis/create-dialog.jsx:79 pkg/storaged/stratis/pool.jsx:208
 #: pkg/storaged/stratis/pool.jsx:383 pkg/storaged/stratis/pool.jsx:409
 #: pkg/storaged/stratis/pool.jsx:412 pkg/storaged/stratis/pool.jsx:467
@@ -5960,7 +5962,7 @@ msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Odebrání heslové fráze může bránit odemknutí $0."
 
 #: pkg/storaged/crypto/keyslots.jsx:447 pkg/storaged/crypto/keyslots.jsx:492
-#: pkg/storaged/block/format-dialog.jsx:395
+#: pkg/storaged/block/format-dialog.jsx:402
 #: pkg/storaged/stratis/create-dialog.jsx:88 pkg/storaged/stratis/pool.jsx:385
 #: pkg/storaged/stratis/pool.jsx:414
 msgid "Passphrases do not match"
@@ -6269,7 +6271,7 @@ msgstr "Porty"
 
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
-#: pkg/storaged/partitions/partition.jsx:116
+#: pkg/storaged/partitions/partition.jsx:124
 #, fuzzy
 #| msgid "Create partition"
 msgid "PowerPC PReP boot partition"
@@ -6347,7 +6349,7 @@ msgstr "Informace o problému"
 msgid "Processes using the location"
 msgstr "Procesy využívající toto umístění"
 
-#: pkg/sosreport/sosreport.jsx:290
+#: pkg/sosreport/sosreport.jsx:291
 msgid "Progress: $0"
 msgstr "Stav postupu: $0"
 
@@ -6873,12 +6875,12 @@ msgid "Repeat weekly"
 msgstr "Opakovat každý týden"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:501
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:502
 msgid "Report"
 msgstr "Nahlásit"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/sosreport/sosreport.jsx:306
+#: pkg/sosreport/sosreport.jsx:307
 msgid "Report label"
 msgstr "Štítek výkazu"
 
@@ -6898,7 +6900,7 @@ msgstr "Nahlašování se nezdařilo"
 msgid "Reporting was canceled"
 msgstr "Nahlašování bylo zrušeno"
 
-#: pkg/sosreport/sosreport.jsx:496
+#: pkg/sosreport/sosreport.jsx:497
 msgid "Reports"
 msgstr "Výkazy"
 
@@ -7014,11 +7016,11 @@ msgstr "Pokud je správně nastavený kdump, budou výsledky uloženy v $0 jako 
 msgid "Resume"
 msgstr "Obnovit chod"
 
-#: pkg/storaged/block/format-dialog.jsx:256
+#: pkg/storaged/block/format-dialog.jsx:258
 msgid "Reuse existing encryption"
 msgstr "Použít stávající šifrování"
 
-#: pkg/storaged/block/format-dialog.jsx:253
+#: pkg/storaged/block/format-dialog.jsx:255
 msgid "Reuse existing encryption ($0)"
 msgstr "Použít stávající šifrování ($0)"
 
@@ -7042,7 +7044,7 @@ msgstr "Trasy"
 msgid "Run at"
 msgstr "Spustit v"
 
-#: pkg/sosreport/sosreport.jsx:293
+#: pkg/sosreport/sosreport.jsx:294
 msgid "Run new report"
 msgstr "Vytvořit nový výkaz"
 
@@ -7051,7 +7053,7 @@ msgid "Run on"
 msgstr "Spustit na"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/sosreport/sosreport.jsx:271 pkg/sosreport/sosreport.jsx:493
+#: pkg/sosreport/sosreport.jsx:272 pkg/sosreport/sosreport.jsx:494
 msgid "Run report"
 msgstr "Vytvořit výkaz"
 
@@ -7119,7 +7121,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "SMART samotest $target"
 
-#: pkg/sosreport/sosreport.jsx:302
+#: pkg/sosreport/sosreport.jsx:303
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
@@ -7173,7 +7175,7 @@ msgstr "Soboty"
 #: pkg/storaged/crypto/encryption.jsx:168
 #: pkg/storaged/crypto/encryption.jsx:195 pkg/storaged/crypto/keyslots.jsx:497
 #: pkg/storaged/crypto/keyslots.jsx:516
-#: pkg/storaged/partitions/partition.jsx:189 pkg/storaged/btrfs/volume.jsx:106
+#: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/btrfs/volume.jsx:96
 #: pkg/storaged/stratis/pool.jsx:388 pkg/storaged/stratis/pool.jsx:417
 #: pkg/storaged/stratis/pool.jsx:472
 #: pkg/storaged/filesystem/mounting-dialog.jsx:279
@@ -7379,7 +7381,7 @@ msgstr "Nastavit"
 msgid "Set hostname"
 msgstr "Nastavit název stroje"
 
-#: pkg/storaged/partitions/partition.jsx:173
+#: pkg/storaged/partitions/partition.jsx:181
 #, fuzzy
 #| msgid "Create partition on $0"
 msgid "Set partition type of $0"
@@ -7492,7 +7494,7 @@ msgstr "Zobrazit vztahy"
 
 # auto translated by TM merge from project: anaconda, version: master, DocId:
 # main
-#: pkg/storaged/partitions/partition.jsx:93 pkg/storaged/block/resize.jsx:635
+#: pkg/storaged/partitions/partition.jsx:101 pkg/storaged/block/resize.jsx:635
 #: pkg/storaged/lvm2/block-logical-volume.jsx:205
 msgid "Shrink"
 msgstr "Zmenšit"
@@ -7501,7 +7503,7 @@ msgstr "Zmenšit"
 msgid "Shrink logical volume"
 msgstr "Zmenšit logický svazek"
 
-#: pkg/storaged/partitions/partition.jsx:210 pkg/storaged/block/resize.jsx:557
+#: pkg/storaged/partitions/partition.jsx:218 pkg/storaged/block/resize.jsx:557
 msgid "Shrink partition"
 msgstr "Zmenšit oddíl"
 
@@ -7530,8 +7532,8 @@ msgstr "Single rank"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/partitions/partition.jsx:227
-#: pkg/storaged/block/format-dialog.jsx:362 pkg/storaged/block/resize.jsx:448
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/partitions/partition.jsx:235
+#: pkg/storaged/block/format-dialog.jsx:368 pkg/storaged/block/resize.jsx:448
 #: pkg/storaged/block/resize.jsx:581 pkg/storaged/pages.jsx:712
 #: pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
@@ -7770,7 +7772,7 @@ msgstr "Zastavit zařízení"
 msgid "Stop editing hosts"
 msgstr "Zastavit upravování hostitelů"
 
-#: pkg/sosreport/sosreport.jsx:275
+#: pkg/sosreport/sosreport.jsx:276
 msgid "Stop report"
 msgstr "Zastavit výkaz"
 
@@ -7801,7 +7803,7 @@ msgstr "Úložiště není na tomto systému možné spravovat."
 msgid "Storage logs"
 msgstr "Záznamy událostí úložiště"
 
-#: pkg/storaged/block/format-dialog.jsx:407
+#: pkg/storaged/block/format-dialog.jsx:414
 msgid "Store passphrase"
 msgstr "Uložit heslovou frázi"
 
@@ -7997,7 +7999,7 @@ msgstr "Synchronizuje se RAID zařízení $target"
 msgid "System"
 msgstr "Systém"
 
-#: pkg/sosreport/sosreport.jsx:520
+#: pkg/sosreport/sosreport.jsx:521
 msgid "System diagnostics"
 msgstr "Diagnostika systému"
 
@@ -8182,7 +8184,7 @@ msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "Stávající uživatel není oprávněn zobrazovat informace o klíčích."
 
-#: pkg/storaged/block/format-dialog.jsx:417
+#: pkg/storaged/block/format-dialog.jsx:424
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
@@ -8190,7 +8192,7 @@ msgstr ""
 "Aby ho bylo možné naformátovat, disk je třeba odemknout. Zadejte stávající "
 "heslovou frázi."
 
-#: pkg/sosreport/sosreport.jsx:368
+#: pkg/sosreport/sosreport.jsx:369
 msgid "The file $0 will be deleted."
 msgstr "Soubor $0 bude smazán."
 
@@ -8512,7 +8514,7 @@ msgstr "Toto NFS připojení je používáno a měnit je možné jen jeho volby.
 msgid "This VDO device does not use all of its backing device."
 msgstr "Toto VDO zařízení nepoužívá ze svého podkladového zařízení vše."
 
-#: pkg/storaged/block/format-dialog.jsx:294
+#: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:95
 #, fuzzy
 #| msgid "This device cannot be managed here."
@@ -8540,7 +8542,7 @@ msgstr "Tato skupina je primární skupinou pro následující uživatele:"
 msgid "This host will reboot after updates are installed."
 msgstr "Tento hostitel se po instalaci aktualizací restartuje."
 
-#: pkg/sosreport/sosreport.jsx:303
+#: pkg/sosreport/sosreport.jsx:304
 msgid "This information is stored only on the system."
 msgstr "Tato informace je uložena pouze lokálně na systému."
 
@@ -8589,7 +8591,7 @@ msgstr "Tento stroj už byl přidán."
 msgid "This may take a while"
 msgstr "Toto může chvíli trvat"
 
-#: pkg/storaged/partitions/partition.jsx:204
+#: pkg/storaged/partitions/partition.jsx:212
 msgid "This partition is not completely used by its content."
 msgstr "Tento oddíl není zcela využíván obsahem, který se na něm nachází."
 
@@ -8917,24 +8919,24 @@ msgstr "Zapnout přístup na úrovni správce"
 # po/ipa
 #: pkg/packagekit/autoupdates.jsx:279 pkg/systemd/hwinfo.jsx:81
 #: pkg/systemd/hwinfo.jsx:291 pkg/shell/credentials.jsx:199
-#: pkg/storaged/partitions/partition.jsx:175
-#: pkg/storaged/partitions/partition.jsx:221
-#: pkg/storaged/block/format-dialog.jsx:357
+#: pkg/storaged/partitions/partition.jsx:183
+#: pkg/storaged/partitions/partition.jsx:229
+#: pkg/storaged/block/format-dialog.jsx:363
 #: pkg/storaged/block/unrecognized-data.jsx:52 pkg/storaged/pages.jsx:710
 msgid "Type"
 msgstr "Typ"
 
-#: pkg/storaged/partitions/partition.jsx:165
+#: pkg/storaged/partitions/partition.jsx:173
 #, fuzzy
 #| msgid "Name cannot contain the character '$0'."
 msgid "Type can only contain the characters 0 to 9, A to F, and \"-\"."
 msgstr "Název nemůže obsahovat znak „$0“."
 
-#: pkg/storaged/partitions/partition.jsx:168
+#: pkg/storaged/partitions/partition.jsx:176
 msgid "Type must be of the form NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
 msgstr ""
 
-#: pkg/storaged/partitions/partition.jsx:152
+#: pkg/storaged/partitions/partition.jsx:160
 msgid "Type must contain exactly two hexadecimal characters (0 to 9, A to F)."
 msgstr ""
 
@@ -8948,9 +8950,10 @@ msgstr "UDP"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/storaged/mdraid/mdraid.jsx:294 pkg/storaged/partitions/partition.jsx:220
-#: pkg/storaged/btrfs/volume.jsx:126 pkg/storaged/btrfs/device.jsx:81
-#: pkg/storaged/stratis/pool.jsx:523 pkg/storaged/stratis/stopped-pool.jsx:127
+#: pkg/storaged/mdraid/mdraid.jsx:294 pkg/storaged/partitions/partition.jsx:228
+#: pkg/storaged/btrfs/volume.jsx:127 pkg/storaged/btrfs/device.jsx:78
+#: pkg/storaged/btrfs/filesystem.jsx:77 pkg/storaged/stratis/pool.jsx:523
+#: pkg/storaged/stratis/stopped-pool.jsx:127
 #: pkg/storaged/lvm2/volume-group.jsx:386
 #: pkg/storaged/lvm2/physical-volume.jsx:117
 msgid "UUID"
@@ -9263,7 +9266,8 @@ msgstr "Doba chodu od spuštění"
 #: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
 #: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
 #: pkg/systemd/overview-cards/usageCard.jsx:127
-#: pkg/storaged/btrfs/volume.jsx:128 pkg/storaged/btrfs/device.jsx:83
+#: pkg/storaged/btrfs/volume.jsx:129 pkg/storaged/btrfs/device.jsx:80
+#: pkg/storaged/btrfs/filesystem.jsx:79
 #: pkg/storaged/block/unrecognized-data.jsx:51
 #: pkg/storaged/stratis/pool.jsx:525 pkg/storaged/stratis/filesystem.jsx:230
 #: pkg/storaged/filesystem/filesystem.jsx:152
@@ -9300,7 +9304,7 @@ msgstr "Použít heslo"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Pro ověřování vůči ostatním systémům použít následující klíče"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:323
 msgid "Use verbose logging"
 msgstr "Zaznamenávat podrobněji"
 
@@ -9859,17 +9863,25 @@ msgstr "boot"
 msgid "bridge"
 msgstr "most"
 
-#: pkg/storaged/btrfs/volume.jsx:136 pkg/storaged/btrfs/device.jsx:42
+#: pkg/storaged/btrfs/volume.jsx:137 pkg/storaged/btrfs/device.jsx:42
 #, fuzzy
 #| msgid "Other devices"
 msgid "btrfs device"
 msgstr "Ostatní zařízení"
 
-#: pkg/storaged/btrfs/volume.jsx:133
+#: pkg/storaged/btrfs/volume.jsx:134
 #, fuzzy
 #| msgid "Other devices"
 msgid "btrfs devices"
 msgstr "Ostatní zařízení"
+
+# auto translated by TM merge from project: usermode, version: default, DocId:
+# usermode
+#: pkg/storaged/btrfs/filesystem.jsx:44
+#, fuzzy
+#| msgid "Create filesystem"
+msgid "btrfs filesystem"
+msgstr "Vytvořit souborový systém"
 
 #: pkg/storaged/btrfs/subvolume.jsx:311
 #, fuzzy
@@ -9881,13 +9893,14 @@ msgstr "Svazek úložiště"
 msgid "btrfs subvolume $0 of $1"
 msgstr ""
 
-#: pkg/storaged/btrfs/volume.jsx:74 pkg/storaged/btrfs/volume.jsx:148
+#: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
+#: pkg/storaged/btrfs/filesystem.jsx:87
 #, fuzzy
 #| msgid "Storage volumes"
 msgid "btrfs subvolumes"
 msgstr "Úložné svazky"
 
-#: pkg/storaged/btrfs/volume.jsx:62 pkg/storaged/btrfs/device.jsx:72
+#: pkg/storaged/btrfs/volume.jsx:68 pkg/storaged/btrfs/device.jsx:69
 #, fuzzy
 #| msgid "Storage volume"
 msgid "btrfs volume"
@@ -9967,7 +9980,7 @@ msgstr "ladění"
 #: pkg/storaged/mdraid/mdraid.jsx:112 pkg/storaged/partitions/partition.jsx:43
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
 #: pkg/storaged/btrfs/subvolume.jsx:213
-#: pkg/storaged/block/format-dialog.jsx:261 pkg/storaged/stratis/pool.jsx:137
+#: pkg/storaged/block/format-dialog.jsx:263 pkg/storaged/stratis/pool.jsx:137
 #: pkg/storaged/stratis/filesystem.jsx:125
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80
 #: pkg/storaged/lvm2/volume-group.jsx:81 pkg/storaged/lvm2/volume-group.jsx:331
@@ -10013,8 +10026,9 @@ msgstr "jednotka"
 #: pkg/networkmanager/network-interface.jsx:349
 #: pkg/storaged/crypto/encryption.jsx:233
 #: pkg/storaged/crypto/encryption.jsx:236
-#: pkg/storaged/partitions/partition.jsx:224 pkg/storaged/btrfs/volume.jsx:123
-#: pkg/storaged/stratis/pool.jsx:521 pkg/storaged/stratis/filesystem.jsx:224
+#: pkg/storaged/partitions/partition.jsx:232 pkg/storaged/btrfs/volume.jsx:124
+#: pkg/storaged/btrfs/filesystem.jsx:74 pkg/storaged/stratis/pool.jsx:521
+#: pkg/storaged/stratis/filesystem.jsx:224
 #: pkg/storaged/filesystem/utils.jsx:221
 #: pkg/storaged/filesystem/filesystem.jsx:145
 #: pkg/storaged/lvm2/volume-group.jsx:384
@@ -10109,7 +10123,7 @@ msgstr "pro stávající a budoucí jádra systému"
 msgid "for current kernel only"
 msgstr "pouze pro stávající jádro systému"
 
-#: pkg/storaged/block/format-dialog.jsx:261 pkg/storaged/manifest.json:0
+#: pkg/storaged/block/format-dialog.jsx:263 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "formátovat"
 
@@ -10533,7 +10547,7 @@ msgstr "podrobnosti řešení"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:183
+#: pkg/sosreport/sosreport.jsx:184
 msgid "sos report failed"
 msgstr "Nahlašování problému se nezdařilo"
 

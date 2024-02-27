@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-14 02:47+0000\n"
+"POT-Creation-Date: 2024-02-27 02:47+0000\n"
 "PO-Revision-Date: 2023-10-10 10:23+0000\n"
 "Last-Translator: N B <nb476823@gmail.com>\n"
 "Language-Team: German <https://translate.fedoraproject.org/projects/cockpit/"
@@ -172,7 +172,7 @@ msgstr "$0 ist eine existierende Datei"
 #: pkg/storaged/mdraid/mdraid.jsx:63 pkg/storaged/mdraid/mdraid.jsx:116
 #: pkg/storaged/partitions/partition.jsx:47
 #: pkg/storaged/partitions/format-disk-dialog.jsx:39
-#: pkg/storaged/block/format-dialog.jsx:265 pkg/storaged/block/resize.jsx:425
+#: pkg/storaged/block/format-dialog.jsx:267 pkg/storaged/block/resize.jsx:425
 #: pkg/storaged/block/resize.jsx:571 pkg/storaged/stratis/pool.jsx:141
 #: pkg/storaged/stratis/filesystem.jsx:129
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:50
@@ -346,7 +346,7 @@ msgstr "Lokaler Einhängepunkt"
 msgid "(not mounted)"
 msgstr "Nicht eingehängt"
 
-#: pkg/storaged/block/format-dialog.jsx:243
+#: pkg/storaged/block/format-dialog.jsx:245
 msgid "(recommended)"
 msgstr "(empfohlen)"
 
@@ -1006,13 +1006,13 @@ msgstr "Mit der Cockpit Web Konsole administrieren"
 msgid "Administrative access"
 msgstr "Administrativer Zugang"
 
-#: pkg/sosreport/sosreport.jsx:426
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access is required to create and access reports."
 msgstr ""
 "Zum Erstellen und Abrufen von Berichten ist ein administrativer Zugang "
 "erforderlich."
 
-#: pkg/sosreport/sosreport.jsx:425
+#: pkg/sosreport/sosreport.jsx:426
 msgid "Administrative access required"
 msgstr "Administrativer Zugang erforderlich"
 
@@ -1205,7 +1205,7 @@ msgstr "Bei Sekunde"
 msgid "At specific time"
 msgstr "Zu einer bestimmten Zeit"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Attributes"
 msgstr "Attribute"
 
@@ -1307,7 +1307,8 @@ msgstr "Verfügbare Updates"
 msgid "BIOS"
 msgstr "BIOS"
 
-#: pkg/storaged/partitions/partition.jsx:114
+#: pkg/storaged/partitions/partition.jsx:87
+#: pkg/storaged/partitions/partition.jsx:122
 #, fuzzy
 #| msgid "Grow partition"
 msgid "BIOS boot partition"
@@ -1427,7 +1428,7 @@ msgstr "Broadcast"
 msgid "Broken configuration"
 msgstr "Fehlerhafte Konfiguration"
 
-#: pkg/storaged/btrfs/volume.jsx:122
+#: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/btrfs/filesystem.jsx:73
 msgid "Btrfs volume is mounted"
 msgstr ""
 
@@ -1522,8 +1523,8 @@ msgstr ""
 #: pkg/shell/hosts_dialog.jsx:514 pkg/shell/hosts_dialog.jsx:891
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/sosreport/sosreport.jsx:279
-#: pkg/sosreport/sosreport.jsx:364 pkg/storaged/jobs-panel.jsx:140
+#: pkg/shell/active-pages-modal.jsx:100 pkg/sosreport/sosreport.jsx:280
+#: pkg/sosreport/sosreport.jsx:365 pkg/storaged/jobs-panel.jsx:140
 #: pkg/kdump/kdump-view.jsx:235
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -1559,7 +1560,7 @@ msgstr ""
 msgid "Cannot schedule event in the past"
 msgstr "Vorgang kann nicht für die Vergangenheit geplant werden"
 
-#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:127
+#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/storaged/drive/drive.jsx:125 pkg/storaged/lvm2/volume-group.jsx:387
 msgid "Capacity"
 msgstr "Kapazität"
@@ -1594,7 +1595,7 @@ msgstr "Ändern Sie den Namen des iSCSI-Initiators"
 msgid "Change iSCSI initiator name"
 msgstr "Ändern Sie den Namen des iSCSI-Initiators"
 
-#: pkg/storaged/btrfs/volume.jsx:97
+#: pkg/storaged/btrfs/volume.jsx:87
 #, fuzzy
 #| msgid "Change passphrase"
 msgid "Change label"
@@ -1644,7 +1645,7 @@ msgstr ""
 "Betriebssystems. Allerdings kann eine unerwartete Änderung auf einen Versuch "
 "eines Dritten hinweisen, Ihre Verbindung auszuspähen."
 
-#: pkg/storaged/partitions/partition.jsx:188
+#: pkg/storaged/partitions/partition.jsx:196
 msgid "Changing partition types might prevent the system from booting."
 msgstr ""
 
@@ -1928,7 +1929,7 @@ msgstr "Konfiguriere kdump"
 msgid "Configuring system settings"
 msgstr "Konfiguriere System-Einstellungen"
 
-#: pkg/storaged/block/format-dialog.jsx:391
+#: pkg/storaged/block/format-dialog.jsx:398
 #: pkg/storaged/stratis/create-dialog.jsx:84 pkg/storaged/stratis/pool.jsx:384
 #: pkg/storaged/stratis/pool.jsx:413
 msgid "Confirm"
@@ -2093,8 +2094,8 @@ msgstr "Crash-System"
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:193
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/btrfs/subvolume.jsx:138
-#: pkg/storaged/block/format-dialog.jsx:323
-#: pkg/storaged/block/format-dialog.jsx:333
+#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:338
 #: pkg/storaged/stratis/create-dialog.jsx:122 pkg/storaged/stratis/pool.jsx:86
 #: pkg/storaged/lvm2/create-dialog.jsx:63
 #: pkg/storaged/lvm2/volume-group.jsx:120
@@ -2143,11 +2144,11 @@ msgid "Create and change ownership of home directory"
 msgstr "Erstellen und Ändern des Besitzes des Home-Verzeichnisses"
 
 #: pkg/storaged/btrfs/subvolume.jsx:132
-#: pkg/storaged/block/format-dialog.jsx:318 pkg/storaged/stratis/pool.jsx:81
+#: pkg/storaged/block/format-dialog.jsx:323 pkg/storaged/stratis/pool.jsx:81
 msgid "Create and mount"
 msgstr "Anlegen und Einhängen"
 
-#: pkg/storaged/block/format-dialog.jsx:327
+#: pkg/storaged/block/format-dialog.jsx:332
 #, fuzzy
 #| msgid "Create and mount"
 msgid "Create and start"
@@ -2192,8 +2193,8 @@ msgid "Create new thinly provisioned logical volume"
 msgstr "Logischen Datenträger erstellen"
 
 #: pkg/storaged/btrfs/subvolume.jsx:133
-#: pkg/storaged/block/format-dialog.jsx:319
-#: pkg/storaged/block/format-dialog.jsx:328 pkg/storaged/stratis/pool.jsx:82
+#: pkg/storaged/block/format-dialog.jsx:324
+#: pkg/storaged/block/format-dialog.jsx:333 pkg/storaged/stratis/pool.jsx:82
 msgid "Create only"
 msgstr "Nur anlegen"
 
@@ -2201,7 +2202,7 @@ msgstr "Nur anlegen"
 msgid "Create partition"
 msgstr "Partition erzeugen"
 
-#: pkg/storaged/block/format-dialog.jsx:184
+#: pkg/storaged/block/format-dialog.jsx:185
 msgid "Create partition on $0"
 msgstr "Partition auf $0 anlegen"
 
@@ -2246,7 +2247,7 @@ msgstr "Timer erstellen"
 msgid "Create volume group"
 msgstr "Datenträgerverbund erstellen"
 
-#: pkg/sosreport/sosreport.jsx:502
+#: pkg/sosreport/sosreport.jsx:503
 msgid "Created"
 msgstr "Erstellt"
 
@@ -2336,7 +2337,7 @@ msgstr "Aktuell verwendet"
 msgid "Currently not supported"
 msgstr "Aktuell verwendet"
 
-#: pkg/storaged/partitions/partition.jsx:146
+#: pkg/storaged/partitions/partition.jsx:154
 #, fuzzy
 #| msgid "custom"
 msgid "Custom"
@@ -2354,7 +2355,7 @@ msgstr "Benutzerdefinierte Einhängeoptionen"
 msgid "Custom ports"
 msgstr "Eigene Ports"
 
-#: pkg/storaged/partitions/partition.jsx:180
+#: pkg/storaged/partitions/partition.jsx:188
 #, fuzzy
 #| msgid "Custom ports"
 msgid "Custom type"
@@ -2521,10 +2522,10 @@ msgstr "Verzögerung muss eine Zahl sein"
 #: pkg/systemd/service-details.jsx:719 pkg/systemd/abrtLog.jsx:290
 #: pkg/networkmanager/network-interface.jsx:725
 #: pkg/networkmanager/firewall.jsx:121 pkg/networkmanager/firewall.jsx:182
-#: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:358
-#: pkg/sosreport/sosreport.jsx:470 pkg/storaged/mdraid/mdraid.jsx:126
+#: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:359
+#: pkg/sosreport/sosreport.jsx:471 pkg/storaged/mdraid/mdraid.jsx:126
 #: pkg/storaged/mdraid/mdraid.jsx:226 pkg/storaged/partitions/partition.jsx:58
-#: pkg/storaged/partitions/partition.jsx:104
+#: pkg/storaged/partitions/partition.jsx:112
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
 #: pkg/storaged/stratis/pool.jsx:153 pkg/storaged/stratis/filesystem.jsx:141
@@ -2563,7 +2564,7 @@ msgstr "Gruppe löschen"
 msgid "Delete pool"
 msgstr "Löschen"
 
-#: pkg/sosreport/sosreport.jsx:350
+#: pkg/sosreport/sosreport.jsx:351
 msgid "Delete report permanently?"
 msgstr "Bericht dauerhaft löschen?"
 
@@ -2842,7 +2843,7 @@ msgstr "Nicht wiederholen"
 msgid "Double distributed parity (RAID 6)"
 msgstr "RAID 6 (verteilte Daten & doppelt verteilte Parität)"
 
-#: pkg/sosreport/sosreport.jsx:460 pkg/sosreport/sosreport.jsx:466
+#: pkg/sosreport/sosreport.jsx:461 pkg/sosreport/sosreport.jsx:467
 msgid "Download"
 msgstr "Herunterladen"
 
@@ -2875,8 +2876,9 @@ msgstr "Speichergerät"
 msgid "Dual rank"
 msgstr "Doppelter Rang"
 
-#: pkg/storaged/partitions/partition.jsx:115
+#: pkg/storaged/partitions/partition.jsx:85
 #: pkg/storaged/partitions/partition.jsx:123
+#: pkg/storaged/partitions/partition.jsx:131
 #, fuzzy
 #| msgid "Extended partition"
 msgid "EFI system partition"
@@ -3024,7 +3026,7 @@ msgstr "Daten mit einem Tang-Schlüsselserver verschlüsseln"
 msgid "Encrypt data with a passphrase"
 msgstr "Verschlüsseln von Daten mit einer Passphrase"
 
-#: pkg/sosreport/sosreport.jsx:450
+#: pkg/sosreport/sosreport.jsx:451
 msgid "Encrypted"
 msgstr "Verschlüsselt"
 
@@ -3047,16 +3049,16 @@ msgid "Encrypted partition of $0"
 msgstr "Verschlüsselte Partition von $0"
 
 #: pkg/storaged/crypto/encryption.jsx:42
-#: pkg/storaged/block/format-dialog.jsx:376
+#: pkg/storaged/block/format-dialog.jsx:383
 msgid "Encryption"
 msgstr "Verschlüsselung"
 
 #: pkg/storaged/crypto/encryption.jsx:189
-#: pkg/storaged/block/format-dialog.jsx:419
+#: pkg/storaged/block/format-dialog.jsx:426
 msgid "Encryption options"
 msgstr "Verschlüsselungsoptionen"
 
-#: pkg/sosreport/sosreport.jsx:309
+#: pkg/sosreport/sosreport.jsx:310
 msgid "Encryption passphrase"
 msgstr "Verschlüsselungs-Passphrase"
 
@@ -3112,7 +3114,7 @@ msgid "Errata"
 msgstr "Errata"
 
 #: pkg/apps/utils.jsx:81 pkg/systemd/service-details.jsx:280
-#: pkg/systemd/services.jsx:224 pkg/sosreport/sosreport.jsx:381
+#: pkg/systemd/services.jsx:224 pkg/sosreport/sosreport.jsx:382
 #: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:160
 #: pkg/storaged/overview/overview.jsx:94 pkg/storaged/multipath.jsx:60
 msgid "Error"
@@ -3210,7 +3212,7 @@ msgid "Extended information"
 msgstr "Erweiterte Informationen"
 
 #: pkg/storaged/partitions/partition-table.jsx:58
-#: pkg/storaged/block/format-dialog.jsx:214
+#: pkg/storaged/block/format-dialog.jsx:216
 msgid "Extended partition"
 msgstr "Erweiterte Partition"
 
@@ -3410,9 +3412,9 @@ msgstr "Passwortänderung erzwingen"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:47
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:38
-#: pkg/storaged/swap/swap.jsx:100 pkg/storaged/btrfs/device.jsx:49
-#: pkg/storaged/block/format-dialog.jsx:323
-#: pkg/storaged/block/format-dialog.jsx:333
+#: pkg/storaged/swap/swap.jsx:100 pkg/storaged/btrfs/device.jsx:93
+#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:338
 #: pkg/storaged/block/unrecognized-data.jsx:41
 #: pkg/storaged/block/unformatted-data.jsx:36
 #: pkg/storaged/stratis/blockdev.jsx:48
@@ -3421,26 +3423,26 @@ msgstr "Passwortänderung erzwingen"
 msgid "Format"
 msgstr "Formatieren"
 
-#: pkg/storaged/block/format-dialog.jsx:186
+#: pkg/storaged/block/format-dialog.jsx:187
 msgid "Format $0"
 msgstr "$0 formatieren"
 
-#: pkg/storaged/block/format-dialog.jsx:318
+#: pkg/storaged/block/format-dialog.jsx:323
 msgid "Format and mount"
 msgstr "Formatieren und einhängen"
 
-#: pkg/storaged/block/format-dialog.jsx:327
+#: pkg/storaged/block/format-dialog.jsx:332
 #, fuzzy
 #| msgid "Format and mount"
 msgid "Format and start"
 msgstr "Formatieren und einhängen"
 
-#: pkg/storaged/block/format-dialog.jsx:319
-#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:324
+#: pkg/storaged/block/format-dialog.jsx:333
 msgid "Format only"
 msgstr "Nur Formatieren"
 
-#: pkg/storaged/block/format-dialog.jsx:446
+#: pkg/storaged/block/format-dialog.jsx:453
 msgid "Formatting erases all data on a storage device."
 msgstr "Beim Formatieren werden alle Daten auf einem Speichergerät gelöscht."
 
@@ -3521,7 +3523,7 @@ msgstr "Gruppenname"
 msgid "Groups"
 msgstr "Gruppen"
 
-#: pkg/storaged/partitions/partition.jsx:99 pkg/storaged/block/resize.jsx:521
+#: pkg/storaged/partitions/partition.jsx:107 pkg/storaged/block/resize.jsx:521
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:259
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:315
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:104
@@ -3530,7 +3532,7 @@ msgstr "Gruppen"
 msgid "Grow"
 msgstr "Wachsen"
 
-#: pkg/storaged/partitions/partition.jsx:213
+#: pkg/storaged/partitions/partition.jsx:221
 #: pkg/storaged/lvm2/block-logical-volume.jsx:281
 msgid "Grow content"
 msgstr "Inhalte erweitern"
@@ -4183,7 +4185,7 @@ msgstr "LVM2-Volumengruppe"
 msgid "LVM2 volume group $0"
 msgstr "LVM2-Volumengruppe $0"
 
-#: pkg/storaged/btrfs/volume.jsx:118
+#: pkg/storaged/btrfs/volume.jsx:119 pkg/storaged/btrfs/filesystem.jsx:69
 msgid "Label"
 msgstr ""
 
@@ -4239,8 +4241,8 @@ msgstr ""
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:291
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
-#: pkg/lib/cockpit-components-dialog.jsx:225
-#: pkg/lib/cockpit-components-dialog.jsx:232 pkg/networkmanager/bond.jsx:152
+#: pkg/lib/cockpit-components-dialog.jsx:234
+#: pkg/lib/cockpit-components-dialog.jsx:241 pkg/networkmanager/bond.jsx:152
 msgid "Learn more"
 msgstr "Mehr erfahren"
 
@@ -4254,7 +4256,7 @@ msgstr "$0 verlassen"
 msgid "Leave domain"
 msgstr "Domäne verlassen"
 
-#: pkg/sosreport/sosreport.jsx:317
+#: pkg/sosreport/sosreport.jsx:318
 msgid "Leave empty to skip encryption"
 msgstr "Leer lassen, um die Verschlüsselung zu überspringen"
 
@@ -4314,15 +4316,15 @@ msgstr "Link beobachten"
 msgid "Linked"
 msgstr "Verbunden"
 
-#: pkg/storaged/partitions/partition.jsx:118
-#: pkg/storaged/partitions/partition.jsx:125
+#: pkg/storaged/partitions/partition.jsx:126
+#: pkg/storaged/partitions/partition.jsx:133
 #, fuzzy
 #| msgid "Unmount filesystem $0"
 msgid "Linux filesystem data"
 msgstr "Dateisystem $0 aushängen"
 
-#: pkg/storaged/partitions/partition.jsx:117
-#: pkg/storaged/partitions/partition.jsx:124
+#: pkg/storaged/partitions/partition.jsx:125
+#: pkg/storaged/partitions/partition.jsx:132
 #, fuzzy
 #| msgctxt "storage-id-desc"
 #| msgid "Swap space"
@@ -4498,8 +4500,8 @@ msgstr "Angemeldet"
 msgid "Logical"
 msgstr "Logisch"
 
-#: pkg/storaged/partitions/partition.jsx:119
-#: pkg/storaged/partitions/partition.jsx:126
+#: pkg/storaged/partitions/partition.jsx:127
+#: pkg/storaged/partitions/partition.jsx:134
 #, fuzzy
 #| msgid "Logical volume (snapshot)"
 msgid "Logical Volume Manager partition"
@@ -4925,7 +4927,7 @@ msgid "Mount options"
 msgstr "Einhängoptionen"
 
 #: pkg/storaged/btrfs/subvolume.jsx:335
-#: pkg/storaged/block/format-dialog.jsx:346 pkg/storaged/stratis/pool.jsx:104
+#: pkg/storaged/block/format-dialog.jsx:352 pkg/storaged/stratis/pool.jsx:104
 #: pkg/storaged/stratis/filesystem.jsx:91
 #: pkg/storaged/stratis/filesystem.jsx:226
 #: pkg/storaged/filesystem/mounting-dialog.jsx:246
@@ -5013,9 +5015,9 @@ msgstr "NTP-Server"
 #: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
 #: pkg/storaged/iscsi/create-dialog.jsx:111
 #: pkg/storaged/iscsi/create-dialog.jsx:168
-#: pkg/storaged/partitions/partition.jsx:219 pkg/storaged/btrfs/volume.jsx:99
+#: pkg/storaged/partitions/partition.jsx:227 pkg/storaged/btrfs/volume.jsx:89
 #: pkg/storaged/btrfs/subvolume.jsx:145 pkg/storaged/btrfs/subvolume.jsx:333
-#: pkg/storaged/block/format-dialog.jsx:341
+#: pkg/storaged/block/format-dialog.jsx:346
 #: pkg/storaged/stratis/create-dialog.jsx:50 pkg/storaged/stratis/pool.jsx:93
 #: pkg/storaged/stratis/pool.jsx:170 pkg/storaged/stratis/pool.jsx:518
 #: pkg/storaged/stratis/filesystem.jsx:86
@@ -5243,7 +5245,7 @@ msgstr "Keine Beschreibung verfügbar"
 msgid "No description provided."
 msgstr "Keine Beschreibung angegeben."
 
-#: pkg/storaged/btrfs/volume.jsx:135
+#: pkg/storaged/btrfs/volume.jsx:136
 #, fuzzy
 #| msgid "No boot device found"
 msgid "No devices found"
@@ -5267,7 +5269,7 @@ msgstr "Keine Protokolle gefunden"
 msgid "No drives found"
 msgstr "Keine Ergebnisse gefunden"
 
-#: pkg/storaged/block/format-dialog.jsx:248
+#: pkg/storaged/block/format-dialog.jsx:250
 msgid "No encryption"
 msgstr "Keine Verschlüsselung"
 
@@ -5275,7 +5277,7 @@ msgstr "Keine Verschlüsselung"
 msgid "No events"
 msgstr "Keine Ereignisse"
 
-#: pkg/storaged/block/format-dialog.jsx:212
+#: pkg/storaged/block/format-dialog.jsx:214
 msgid "No filesystem"
 msgstr "Kein Dateisystem"
 
@@ -5382,7 +5384,7 @@ msgstr "Keine Treffer in Regelwerk"
 msgid "No storage found"
 msgstr "Kein Speicher"
 
-#: pkg/storaged/btrfs/volume.jsx:147
+#: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
 #, fuzzy
 #| msgid "No logical volumes"
 msgid "No subvolumes"
@@ -5397,7 +5399,7 @@ msgstr "Datei oder Verzeichnis nicht vorhanden"
 msgid "No system modifications"
 msgstr "Keine Systemänderungen"
 
-#: pkg/sosreport/sosreport.jsx:499
+#: pkg/sosreport/sosreport.jsx:500
 msgid "No system reports."
 msgstr "Keine Systemberichte."
 
@@ -5518,11 +5520,11 @@ msgstr "Notizbuch"
 msgid "Notice and above"
 msgstr "Hinweis und höher"
 
-#: pkg/sosreport/sosreport.jsx:320
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "Netzwerkadressen, Hostnamen und Benutzernamen obfuskieren"
 
-#: pkg/sosreport/sosreport.jsx:454
+#: pkg/sosreport/sosreport.jsx:455
 msgid "Obfuscated"
 msgstr "Obfuskiert"
 
@@ -5602,7 +5604,7 @@ msgid "Operation '$operation' on $target"
 msgstr "Operation '$operation' auf $target"
 
 #: pkg/users/account-details.js:269 pkg/networkmanager/bridge.jsx:104
-#: pkg/sosreport/sosreport.jsx:319 pkg/storaged/crypto/encryption.jsx:234
+#: pkg/sosreport/sosreport.jsx:320 pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
 msgid "Options"
@@ -5638,12 +5640,12 @@ msgid "Overview"
 msgstr "Überblick"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:61
-#: pkg/storaged/block/format-dialog.jsx:370
+#: pkg/storaged/block/format-dialog.jsx:377
 msgid "Overwrite"
 msgstr "Überschreiben"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:64
-#: pkg/storaged/block/format-dialog.jsx:373
+#: pkg/storaged/block/format-dialog.jsx:380
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "Vorhandene Daten mit Nullen überschreiben (langsamer)"
 
@@ -5699,7 +5701,7 @@ msgstr "Teil von"
 msgid "Part of $0"
 msgstr "Teil von $0"
 
-#: pkg/storaged/partitions/partition.jsx:83
+#: pkg/storaged/partitions/partition.jsx:90
 msgid "Partition"
 msgstr "Partition"
 
@@ -5707,7 +5709,7 @@ msgstr "Partition"
 msgid "Partition of $0"
 msgstr "Partition von $0"
 
-#: pkg/storaged/partitions/partition.jsx:205
+#: pkg/storaged/partitions/partition.jsx:213
 msgid "Partition size is $0. Content size is $1."
 msgstr "Die Größe der Partition beträgt $0. Die Größe des Inhalts beträgt $1."
 
@@ -5726,8 +5728,8 @@ msgstr "Passiv"
 
 #: pkg/storaged/crypto/actions.jsx:43 pkg/storaged/crypto/keyslots.jsx:430
 #: pkg/storaged/crypto/keyslots.jsx:750
-#: pkg/storaged/block/format-dialog.jsx:382
-#: pkg/storaged/block/format-dialog.jsx:410
+#: pkg/storaged/block/format-dialog.jsx:389
+#: pkg/storaged/block/format-dialog.jsx:417
 #: pkg/storaged/stratis/create-dialog.jsx:75 pkg/storaged/stratis/pool.jsx:205
 #: pkg/storaged/stratis/pool.jsx:382 pkg/storaged/stratis/pool.jsx:530
 #: pkg/storaged/stratis/stopped-pool.jsx:58
@@ -5742,8 +5744,8 @@ msgstr "Passphrase darf nicht leer sein"
 
 #: pkg/storaged/crypto/keyslots.jsx:145 pkg/storaged/crypto/keyslots.jsx:438
 #: pkg/storaged/crypto/keyslots.jsx:483 pkg/storaged/crypto/keyslots.jsx:487
-#: pkg/storaged/block/format-dialog.jsx:386
-#: pkg/storaged/block/format-dialog.jsx:414
+#: pkg/storaged/block/format-dialog.jsx:393
+#: pkg/storaged/block/format-dialog.jsx:421
 #: pkg/storaged/stratis/create-dialog.jsx:79 pkg/storaged/stratis/pool.jsx:208
 #: pkg/storaged/stratis/pool.jsx:383 pkg/storaged/stratis/pool.jsx:409
 #: pkg/storaged/stratis/pool.jsx:412 pkg/storaged/stratis/pool.jsx:467
@@ -5761,7 +5763,7 @@ msgstr ""
 "Das Entfernen der Passphrase verhindert möglicherweise das Entsperren $0."
 
 #: pkg/storaged/crypto/keyslots.jsx:447 pkg/storaged/crypto/keyslots.jsx:492
-#: pkg/storaged/block/format-dialog.jsx:395
+#: pkg/storaged/block/format-dialog.jsx:402
 #: pkg/storaged/stratis/create-dialog.jsx:88 pkg/storaged/stratis/pool.jsx:385
 #: pkg/storaged/stratis/pool.jsx:414
 msgid "Passphrases do not match"
@@ -6052,7 +6054,7 @@ msgstr "tragbar"
 msgid "Ports"
 msgstr "Ports"
 
-#: pkg/storaged/partitions/partition.jsx:116
+#: pkg/storaged/partitions/partition.jsx:124
 #, fuzzy
 #| msgid "Create partition"
 msgid "PowerPC PReP boot partition"
@@ -6121,7 +6123,7 @@ msgstr "Problem Info"
 msgid "Processes using the location"
 msgstr "Prozesse, die den Ort nutzen"
 
-#: pkg/sosreport/sosreport.jsx:290
+#: pkg/sosreport/sosreport.jsx:291
 msgid "Progress: $0"
 msgstr "Fortschritt: $0"
 
@@ -6643,11 +6645,11 @@ msgstr "Passphrase wiederholen"
 msgid "Repeat weekly"
 msgstr "Wöchentlich wiederholen"
 
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:501
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:502
 msgid "Report"
 msgstr "Melden"
 
-#: pkg/sosreport/sosreport.jsx:306
+#: pkg/sosreport/sosreport.jsx:307
 msgid "Report label"
 msgstr "Report Bezeichnung"
 
@@ -6667,7 +6669,7 @@ msgstr "Meldung fehlgeschlagen"
 msgid "Reporting was canceled"
 msgstr "Meldung wurde abgebrochen"
 
-#: pkg/sosreport/sosreport.jsx:496
+#: pkg/sosreport/sosreport.jsx:497
 msgid "Reports"
 msgstr "Berichte"
 
@@ -6786,11 +6788,11 @@ msgstr ""
 msgid "Resume"
 msgstr "Fortfahren"
 
-#: pkg/storaged/block/format-dialog.jsx:256
+#: pkg/storaged/block/format-dialog.jsx:258
 msgid "Reuse existing encryption"
 msgstr "Vorhandene Verschlüsselung wiederverwenden"
 
-#: pkg/storaged/block/format-dialog.jsx:253
+#: pkg/storaged/block/format-dialog.jsx:255
 msgid "Reuse existing encryption ($0)"
 msgstr "Vorhandene Verschlüsselung wiederverwenden ($0)"
 
@@ -6814,7 +6816,7 @@ msgstr "Routen"
 msgid "Run at"
 msgstr "Ausführen um"
 
-#: pkg/sosreport/sosreport.jsx:293
+#: pkg/sosreport/sosreport.jsx:294
 msgid "Run new report"
 msgstr "Neuen Bericht ausführen"
 
@@ -6822,7 +6824,7 @@ msgstr "Neuen Bericht ausführen"
 msgid "Run on"
 msgstr "Ausführen auf"
 
-#: pkg/sosreport/sosreport.jsx:271 pkg/sosreport/sosreport.jsx:493
+#: pkg/sosreport/sosreport.jsx:272 pkg/sosreport/sosreport.jsx:494
 msgid "Run report"
 msgstr "Bericht ausführen"
 
@@ -6886,7 +6888,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "SMART-Selbsttest von $target"
 
-#: pkg/sosreport/sosreport.jsx:302
+#: pkg/sosreport/sosreport.jsx:303
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
@@ -6936,7 +6938,7 @@ msgstr "Samstags"
 #: pkg/storaged/crypto/encryption.jsx:168
 #: pkg/storaged/crypto/encryption.jsx:195 pkg/storaged/crypto/keyslots.jsx:497
 #: pkg/storaged/crypto/keyslots.jsx:516
-#: pkg/storaged/partitions/partition.jsx:189 pkg/storaged/btrfs/volume.jsx:106
+#: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/btrfs/volume.jsx:96
 #: pkg/storaged/stratis/pool.jsx:388 pkg/storaged/stratis/pool.jsx:417
 #: pkg/storaged/stratis/pool.jsx:472
 #: pkg/storaged/filesystem/mounting-dialog.jsx:279
@@ -7137,7 +7139,7 @@ msgstr "Einstellen"
 msgid "Set hostname"
 msgstr "Hostname setzen"
 
-#: pkg/storaged/partitions/partition.jsx:173
+#: pkg/storaged/partitions/partition.jsx:181
 #, fuzzy
 #| msgid "Create partition on $0"
 msgid "Set partition type of $0"
@@ -7249,7 +7251,7 @@ msgstr "Neues Passwort"
 msgid "Show relationships"
 msgstr "Beziehungen anzeigen"
 
-#: pkg/storaged/partitions/partition.jsx:93 pkg/storaged/block/resize.jsx:635
+#: pkg/storaged/partitions/partition.jsx:101 pkg/storaged/block/resize.jsx:635
 #: pkg/storaged/lvm2/block-logical-volume.jsx:205
 msgid "Shrink"
 msgstr "Verkleinern"
@@ -7258,7 +7260,7 @@ msgstr "Verkleinern"
 msgid "Shrink logical volume"
 msgstr "Logisches Volumen verkleinern"
 
-#: pkg/storaged/partitions/partition.jsx:210 pkg/storaged/block/resize.jsx:557
+#: pkg/storaged/partitions/partition.jsx:218 pkg/storaged/block/resize.jsx:557
 msgid "Shrink partition"
 msgstr "Partition verkleinern"
 
@@ -7283,8 +7285,8 @@ msgstr "Seit"
 msgid "Single rank"
 msgstr "Einzelner Rang"
 
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/partitions/partition.jsx:227
-#: pkg/storaged/block/format-dialog.jsx:362 pkg/storaged/block/resize.jsx:448
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/partitions/partition.jsx:235
+#: pkg/storaged/block/format-dialog.jsx:368 pkg/storaged/block/resize.jsx:448
 #: pkg/storaged/block/resize.jsx:581 pkg/storaged/pages.jsx:712
 #: pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
@@ -7523,7 +7525,7 @@ msgstr "Gerät anhalten"
 msgid "Stop editing hosts"
 msgstr "Bearbeitung von Hosts beenden"
 
-#: pkg/sosreport/sosreport.jsx:275
+#: pkg/sosreport/sosreport.jsx:276
 msgid "Stop report"
 msgstr "Bericht stoppen"
 
@@ -7552,7 +7554,7 @@ msgstr "Der Speicher kann auf diesem System nicht verwaltet werden."
 msgid "Storage logs"
 msgstr "Speicherprotokolle"
 
-#: pkg/storaged/block/format-dialog.jsx:407
+#: pkg/storaged/block/format-dialog.jsx:414
 msgid "Store passphrase"
 msgstr "Passphrase speichern"
 
@@ -7740,7 +7742,7 @@ msgstr "Synchronisiere RAID-Gerät $target"
 msgid "System"
 msgstr "System"
 
-#: pkg/sosreport/sosreport.jsx:520
+#: pkg/sosreport/sosreport.jsx:521
 msgid "System diagnostics"
 msgstr "Systemdiagnose"
 
@@ -7931,7 +7933,7 @@ msgstr ""
 "Der aktuell angemeldete Benutzer kann keine Informationen zu Schlüsseln "
 "anzeigen."
 
-#: pkg/storaged/block/format-dialog.jsx:417
+#: pkg/storaged/block/format-dialog.jsx:424
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
@@ -7939,7 +7941,7 @@ msgstr ""
 "Die Festplatte muss vor dem Formatieren entsperrt werden. Bitte geben Sie "
 "eine bestehende Passphrase an."
 
-#: pkg/sosreport/sosreport.jsx:368
+#: pkg/sosreport/sosreport.jsx:369
 msgid "The file $0 will be deleted."
 msgstr "Die Datei $0 wird gelöscht."
 
@@ -8271,7 +8273,7 @@ msgstr ""
 msgid "This VDO device does not use all of its backing device."
 msgstr "Dieses VDO-Gerät verwendet nicht alle seine Hintergrundgeräte."
 
-#: pkg/storaged/block/format-dialog.jsx:294
+#: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:95
 #, fuzzy
 #| msgid "This device cannot be managed here."
@@ -8300,7 +8302,7 @@ msgid "This host will reboot after updates are installed."
 msgstr ""
 "Dieser Host wird nach der Installation der Aktualisierungen neu gestartet."
 
-#: pkg/sosreport/sosreport.jsx:303
+#: pkg/sosreport/sosreport.jsx:304
 msgid "This information is stored only on the system."
 msgstr "Diese Informationen werden nur auf dem System gespeichert."
 
@@ -8342,7 +8344,7 @@ msgstr "Diese Maschine wurde bereits hinzugefügt"
 msgid "This may take a while"
 msgstr "Dies kann eine Weile dauern"
 
-#: pkg/storaged/partitions/partition.jsx:204
+#: pkg/storaged/partitions/partition.jsx:212
 msgid "This partition is not completely used by its content."
 msgstr "Diese Partition ist nicht vollständig durch seinen Inhalt belegt."
 
@@ -8673,24 +8675,24 @@ msgstr "Administrator-Zugriff aktivieren"
 
 #: pkg/packagekit/autoupdates.jsx:279 pkg/systemd/hwinfo.jsx:81
 #: pkg/systemd/hwinfo.jsx:291 pkg/shell/credentials.jsx:199
-#: pkg/storaged/partitions/partition.jsx:175
-#: pkg/storaged/partitions/partition.jsx:221
-#: pkg/storaged/block/format-dialog.jsx:357
+#: pkg/storaged/partitions/partition.jsx:183
+#: pkg/storaged/partitions/partition.jsx:229
+#: pkg/storaged/block/format-dialog.jsx:363
 #: pkg/storaged/block/unrecognized-data.jsx:52 pkg/storaged/pages.jsx:710
 msgid "Type"
 msgstr "Typ"
 
-#: pkg/storaged/partitions/partition.jsx:165
+#: pkg/storaged/partitions/partition.jsx:173
 #, fuzzy
 #| msgid "Name cannot contain the character '$0'."
 msgid "Type can only contain the characters 0 to 9, A to F, and \"-\"."
 msgstr "Name darf nicht das Zeichen '$0' enthalten."
 
-#: pkg/storaged/partitions/partition.jsx:168
+#: pkg/storaged/partitions/partition.jsx:176
 msgid "Type must be of the form NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
 msgstr ""
 
-#: pkg/storaged/partitions/partition.jsx:152
+#: pkg/storaged/partitions/partition.jsx:160
 msgid "Type must contain exactly two hexadecimal characters (0 to 9, A to F)."
 msgstr ""
 
@@ -8702,9 +8704,10 @@ msgstr "Zum Filtern tippen"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/storaged/mdraid/mdraid.jsx:294 pkg/storaged/partitions/partition.jsx:220
-#: pkg/storaged/btrfs/volume.jsx:126 pkg/storaged/btrfs/device.jsx:81
-#: pkg/storaged/stratis/pool.jsx:523 pkg/storaged/stratis/stopped-pool.jsx:127
+#: pkg/storaged/mdraid/mdraid.jsx:294 pkg/storaged/partitions/partition.jsx:228
+#: pkg/storaged/btrfs/volume.jsx:127 pkg/storaged/btrfs/device.jsx:78
+#: pkg/storaged/btrfs/filesystem.jsx:77 pkg/storaged/stratis/pool.jsx:523
+#: pkg/storaged/stratis/stopped-pool.jsx:127
 #: pkg/storaged/lvm2/volume-group.jsx:386
 #: pkg/storaged/lvm2/physical-volume.jsx:117
 msgid "UUID"
@@ -9012,7 +9015,8 @@ msgstr "Betriebszeit"
 #: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
 #: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
 #: pkg/systemd/overview-cards/usageCard.jsx:127
-#: pkg/storaged/btrfs/volume.jsx:128 pkg/storaged/btrfs/device.jsx:83
+#: pkg/storaged/btrfs/volume.jsx:129 pkg/storaged/btrfs/device.jsx:80
+#: pkg/storaged/btrfs/filesystem.jsx:79
 #: pkg/storaged/block/unrecognized-data.jsx:51
 #: pkg/storaged/stratis/pool.jsx:525 pkg/storaged/stratis/filesystem.jsx:230
 #: pkg/storaged/filesystem/filesystem.jsx:152
@@ -9050,7 +9054,7 @@ msgid "Use the following keys to authenticate against other systems"
 msgstr ""
 "Benutze die folgenen Schlüssel zur Authentifizierung an anderen Systemen"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:323
 msgid "Use verbose logging"
 msgstr "Ausführliche Protokollierung verwenden"
 
@@ -9593,17 +9597,23 @@ msgstr "Starten"
 msgid "bridge"
 msgstr "Brücke"
 
-#: pkg/storaged/btrfs/volume.jsx:136 pkg/storaged/btrfs/device.jsx:42
+#: pkg/storaged/btrfs/volume.jsx:137 pkg/storaged/btrfs/device.jsx:42
 #, fuzzy
 #| msgid "Other devices"
 msgid "btrfs device"
 msgstr "Andere Geräte"
 
-#: pkg/storaged/btrfs/volume.jsx:133
+#: pkg/storaged/btrfs/volume.jsx:134
 #, fuzzy
 #| msgid "Other devices"
 msgid "btrfs devices"
 msgstr "Andere Geräte"
+
+#: pkg/storaged/btrfs/filesystem.jsx:44
+#, fuzzy
+#| msgid "Create filesystem"
+msgid "btrfs filesystem"
+msgstr "Dateisystem erstellen"
 
 #: pkg/storaged/btrfs/subvolume.jsx:311
 #, fuzzy
@@ -9615,13 +9625,14 @@ msgstr "Speichervolumen"
 msgid "btrfs subvolume $0 of $1"
 msgstr ""
 
-#: pkg/storaged/btrfs/volume.jsx:74 pkg/storaged/btrfs/volume.jsx:148
+#: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
+#: pkg/storaged/btrfs/filesystem.jsx:87
 #, fuzzy
 #| msgid "Storage volumes"
 msgid "btrfs subvolumes"
 msgstr "Speichervolumen"
 
-#: pkg/storaged/btrfs/volume.jsx:62 pkg/storaged/btrfs/device.jsx:72
+#: pkg/storaged/btrfs/volume.jsx:68 pkg/storaged/btrfs/device.jsx:69
 #, fuzzy
 #| msgid "Storage volumes"
 msgid "btrfs volume"
@@ -9697,7 +9708,7 @@ msgstr "Debug"
 #: pkg/storaged/mdraid/mdraid.jsx:112 pkg/storaged/partitions/partition.jsx:43
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
 #: pkg/storaged/btrfs/subvolume.jsx:213
-#: pkg/storaged/block/format-dialog.jsx:261 pkg/storaged/stratis/pool.jsx:137
+#: pkg/storaged/block/format-dialog.jsx:263 pkg/storaged/stratis/pool.jsx:137
 #: pkg/storaged/stratis/filesystem.jsx:125
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80
 #: pkg/storaged/lvm2/volume-group.jsx:81 pkg/storaged/lvm2/volume-group.jsx:331
@@ -9743,8 +9754,9 @@ msgstr "Speichergerät"
 #: pkg/networkmanager/network-interface.jsx:349
 #: pkg/storaged/crypto/encryption.jsx:233
 #: pkg/storaged/crypto/encryption.jsx:236
-#: pkg/storaged/partitions/partition.jsx:224 pkg/storaged/btrfs/volume.jsx:123
-#: pkg/storaged/stratis/pool.jsx:521 pkg/storaged/stratis/filesystem.jsx:224
+#: pkg/storaged/partitions/partition.jsx:232 pkg/storaged/btrfs/volume.jsx:124
+#: pkg/storaged/btrfs/filesystem.jsx:74 pkg/storaged/stratis/pool.jsx:521
+#: pkg/storaged/stratis/filesystem.jsx:224
 #: pkg/storaged/filesystem/utils.jsx:221
 #: pkg/storaged/filesystem/filesystem.jsx:145
 #: pkg/storaged/lvm2/volume-group.jsx:384
@@ -9835,7 +9847,7 @@ msgstr "für aktuelle und zukünftige Kernel"
 msgid "for current kernel only"
 msgstr "nur für den aktuellen Kernel"
 
-#: pkg/storaged/block/format-dialog.jsx:261 pkg/storaged/manifest.json:0
+#: pkg/storaged/block/format-dialog.jsx:263 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "Formatieren"
 
@@ -10252,7 +10264,7 @@ msgstr "Lösungsdetails"
 msgid "sos"
 msgstr "Sos"
 
-#: pkg/sosreport/sosreport.jsx:183
+#: pkg/sosreport/sosreport.jsx:184
 #, fuzzy
 #| msgid "Reporting failed"
 msgid "sos report failed"

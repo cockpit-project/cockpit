@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-14 02:47+0000\n"
+"POT-Creation-Date: 2024-02-27 02:47+0000\n"
 "PO-Revision-Date: 2024-02-08 07:49+0000\n"
 "Last-Translator: Tony Fu <tfu@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -149,7 +149,7 @@ msgstr "$0 是一个已存在的文件"
 #: pkg/storaged/mdraid/mdraid.jsx:63 pkg/storaged/mdraid/mdraid.jsx:116
 #: pkg/storaged/partitions/partition.jsx:47
 #: pkg/storaged/partitions/format-disk-dialog.jsx:39
-#: pkg/storaged/block/format-dialog.jsx:265 pkg/storaged/block/resize.jsx:425
+#: pkg/storaged/block/format-dialog.jsx:267 pkg/storaged/block/resize.jsx:425
 #: pkg/storaged/block/resize.jsx:571 pkg/storaged/stratis/pool.jsx:141
 #: pkg/storaged/stratis/filesystem.jsx:129
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:50
@@ -298,7 +298,7 @@ msgstr "（没有分配的挂载点）"
 msgid "(not mounted)"
 msgstr "（未挂载）"
 
-#: pkg/storaged/block/format-dialog.jsx:243
+#: pkg/storaged/block/format-dialog.jsx:245
 msgid "(recommended)"
 msgstr "（推荐）"
 
@@ -917,11 +917,11 @@ msgstr "使用 Cockpit 网页控制台管理系统"
 msgid "Administrative access"
 msgstr "管理员模式"
 
-#: pkg/sosreport/sosreport.jsx:426
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access is required to create and access reports."
 msgstr "创建和查阅报告需要管理员权限。"
 
-#: pkg/sosreport/sosreport.jsx:425
+#: pkg/sosreport/sosreport.jsx:426
 msgid "Administrative access required"
 msgstr "需要管理员权限"
 
@@ -1106,7 +1106,7 @@ msgstr "在秒"
 msgid "At specific time"
 msgstr "在指定时间"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Attributes"
 msgstr "属性"
 
@@ -1204,7 +1204,8 @@ msgstr "可用的更新"
 msgid "BIOS"
 msgstr "BIOS"
 
-#: pkg/storaged/partitions/partition.jsx:114
+#: pkg/storaged/partitions/partition.jsx:87
+#: pkg/storaged/partitions/partition.jsx:122
 msgid "BIOS boot partition"
 msgstr "BIOS 引导分区"
 
@@ -1315,7 +1316,7 @@ msgstr "广播"
 msgid "Broken configuration"
 msgstr "错误的配置"
 
-#: pkg/storaged/btrfs/volume.jsx:122
+#: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/btrfs/filesystem.jsx:73
 msgid "Btrfs volume is mounted"
 msgstr "Btrfs 卷已被挂载"
 
@@ -1403,8 +1404,8 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/shell/hosts_dialog.jsx:514 pkg/shell/hosts_dialog.jsx:891
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/sosreport/sosreport.jsx:279
-#: pkg/sosreport/sosreport.jsx:364 pkg/storaged/jobs-panel.jsx:140
+#: pkg/shell/active-pages-modal.jsx:100 pkg/sosreport/sosreport.jsx:280
+#: pkg/sosreport/sosreport.jsx:365 pkg/storaged/jobs-panel.jsx:140
 #: pkg/kdump/kdump-view.jsx:235
 msgid "Cancel"
 msgstr "取消"
@@ -1438,7 +1439,7 @@ msgstr "无法加入域，因为 realmd 在此系统上不可用"
 msgid "Cannot schedule event in the past"
 msgstr "无法调度以前的事件"
 
-#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:127
+#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/storaged/drive/drive.jsx:125 pkg/storaged/lvm2/volume-group.jsx:387
 msgid "Capacity"
 msgstr "容量"
@@ -1471,7 +1472,7 @@ msgstr "变更 iSCSI Initiater 名称"
 msgid "Change iSCSI initiator name"
 msgstr "变更 iSCSI Initiator 名称"
 
-#: pkg/storaged/btrfs/volume.jsx:97
+#: pkg/storaged/btrfs/volume.jsx:87
 msgid "Change label"
 msgstr "更改标签"
 
@@ -1516,7 +1517,7 @@ msgstr ""
 "密钥的变化通常是操作系统重新安装的结果。但是，意料外的变化可能代表有第三方尝"
 "试截获您的连接。"
 
-#: pkg/storaged/partitions/partition.jsx:188
+#: pkg/storaged/partitions/partition.jsx:196
 msgid "Changing partition types might prevent the system from booting."
 msgstr "更改分区类型可能会阻止系统引导。"
 
@@ -1787,7 +1788,7 @@ msgstr "配置 kdump"
 msgid "Configuring system settings"
 msgstr "配置系统设置"
 
-#: pkg/storaged/block/format-dialog.jsx:391
+#: pkg/storaged/block/format-dialog.jsx:398
 #: pkg/storaged/stratis/create-dialog.jsx:84 pkg/storaged/stratis/pool.jsx:384
 #: pkg/storaged/stratis/pool.jsx:413
 msgid "Confirm"
@@ -1952,8 +1953,8 @@ msgstr "导致系统崩溃"
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:193
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/btrfs/subvolume.jsx:138
-#: pkg/storaged/block/format-dialog.jsx:323
-#: pkg/storaged/block/format-dialog.jsx:333
+#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:338
 #: pkg/storaged/stratis/create-dialog.jsx:122 pkg/storaged/stratis/pool.jsx:86
 #: pkg/storaged/lvm2/create-dialog.jsx:63
 #: pkg/storaged/lvm2/volume-group.jsx:120
@@ -2000,11 +2001,11 @@ msgid "Create and change ownership of home directory"
 msgstr "创建并更改主目录的所有权"
 
 #: pkg/storaged/btrfs/subvolume.jsx:132
-#: pkg/storaged/block/format-dialog.jsx:318 pkg/storaged/stratis/pool.jsx:81
+#: pkg/storaged/block/format-dialog.jsx:323 pkg/storaged/stratis/pool.jsx:81
 msgid "Create and mount"
 msgstr "创建并挂载"
 
-#: pkg/storaged/block/format-dialog.jsx:327
+#: pkg/storaged/block/format-dialog.jsx:332
 msgid "Create and start"
 msgstr "创建并启动"
 
@@ -2045,8 +2046,8 @@ msgid "Create new thinly provisioned logical volume"
 msgstr "创建新的精简配置逻辑卷"
 
 #: pkg/storaged/btrfs/subvolume.jsx:133
-#: pkg/storaged/block/format-dialog.jsx:319
-#: pkg/storaged/block/format-dialog.jsx:328 pkg/storaged/stratis/pool.jsx:82
+#: pkg/storaged/block/format-dialog.jsx:324
+#: pkg/storaged/block/format-dialog.jsx:333 pkg/storaged/stratis/pool.jsx:82
 msgid "Create only"
 msgstr "仅创建"
 
@@ -2054,7 +2055,7 @@ msgstr "仅创建"
 msgid "Create partition"
 msgstr "创建分区"
 
-#: pkg/storaged/block/format-dialog.jsx:184
+#: pkg/storaged/block/format-dialog.jsx:185
 msgid "Create partition on $0"
 msgstr "在$0上创建分区"
 
@@ -2095,7 +2096,7 @@ msgstr "创建定时器"
 msgid "Create volume group"
 msgstr "创建卷组"
 
-#: pkg/sosreport/sosreport.jsx:502
+#: pkg/sosreport/sosreport.jsx:503
 msgid "Created"
 msgstr "创建于"
 
@@ -2178,7 +2179,7 @@ msgstr "当前在用"
 msgid "Currently not supported"
 msgstr "目前不支持"
 
-#: pkg/storaged/partitions/partition.jsx:146
+#: pkg/storaged/partitions/partition.jsx:154
 msgid "Custom"
 msgstr "自定义"
 
@@ -2194,7 +2195,7 @@ msgstr "自定义挂载选项"
 msgid "Custom ports"
 msgstr "自定义端口"
 
-#: pkg/storaged/partitions/partition.jsx:180
+#: pkg/storaged/partitions/partition.jsx:188
 msgid "Custom type"
 msgstr "自定义类型"
 
@@ -2364,10 +2365,10 @@ msgstr "延迟必须是一个数字"
 #: pkg/systemd/service-details.jsx:719 pkg/systemd/abrtLog.jsx:290
 #: pkg/networkmanager/network-interface.jsx:725
 #: pkg/networkmanager/firewall.jsx:121 pkg/networkmanager/firewall.jsx:182
-#: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:358
-#: pkg/sosreport/sosreport.jsx:470 pkg/storaged/mdraid/mdraid.jsx:126
+#: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:359
+#: pkg/sosreport/sosreport.jsx:471 pkg/storaged/mdraid/mdraid.jsx:126
 #: pkg/storaged/mdraid/mdraid.jsx:226 pkg/storaged/partitions/partition.jsx:58
-#: pkg/storaged/partitions/partition.jsx:104
+#: pkg/storaged/partitions/partition.jsx:112
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
 #: pkg/storaged/stratis/pool.jsx:153 pkg/storaged/stratis/filesystem.jsx:141
@@ -2404,7 +2405,7 @@ msgstr "删除用户组"
 msgid "Delete pool"
 msgstr "删除池"
 
-#: pkg/sosreport/sosreport.jsx:350
+#: pkg/sosreport/sosreport.jsx:351
 msgid "Delete report permanently?"
 msgstr "永久删除报告？"
 
@@ -2662,7 +2663,7 @@ msgstr "不要重复"
 msgid "Double distributed parity (RAID 6)"
 msgstr "双重分布式奇偶校验 (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:460 pkg/sosreport/sosreport.jsx:466
+#: pkg/sosreport/sosreport.jsx:461 pkg/sosreport/sosreport.jsx:467
 msgid "Download"
 msgstr "下载"
 
@@ -2691,8 +2692,9 @@ msgstr "驱动"
 msgid "Dual rank"
 msgstr "双通道"
 
-#: pkg/storaged/partitions/partition.jsx:115
+#: pkg/storaged/partitions/partition.jsx:85
 #: pkg/storaged/partitions/partition.jsx:123
+#: pkg/storaged/partitions/partition.jsx:131
 msgid "EFI system partition"
 msgstr "EFI 系统分区"
 
@@ -2838,7 +2840,7 @@ msgstr "使用 Tang 密钥服务器加密数据"
 msgid "Encrypt data with a passphrase"
 msgstr "使用密码加密数据"
 
-#: pkg/sosreport/sosreport.jsx:450
+#: pkg/sosreport/sosreport.jsx:451
 msgid "Encrypted"
 msgstr "已加密"
 
@@ -2859,16 +2861,16 @@ msgid "Encrypted partition of $0"
 msgstr "$0 的已加密分区"
 
 #: pkg/storaged/crypto/encryption.jsx:42
-#: pkg/storaged/block/format-dialog.jsx:376
+#: pkg/storaged/block/format-dialog.jsx:383
 msgid "Encryption"
 msgstr "加密"
 
 #: pkg/storaged/crypto/encryption.jsx:189
-#: pkg/storaged/block/format-dialog.jsx:419
+#: pkg/storaged/block/format-dialog.jsx:426
 msgid "Encryption options"
 msgstr "加密选项"
 
-#: pkg/sosreport/sosreport.jsx:309
+#: pkg/sosreport/sosreport.jsx:310
 msgid "Encryption passphrase"
 msgstr "加密密码短语"
 
@@ -2919,7 +2921,7 @@ msgid "Errata"
 msgstr "勘误"
 
 #: pkg/apps/utils.jsx:81 pkg/systemd/service-details.jsx:280
-#: pkg/systemd/services.jsx:224 pkg/sosreport/sosreport.jsx:381
+#: pkg/systemd/services.jsx:224 pkg/sosreport/sosreport.jsx:382
 #: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:160
 #: pkg/storaged/overview/overview.jsx:94 pkg/storaged/multipath.jsx:60
 msgid "Error"
@@ -3013,7 +3015,7 @@ msgid "Extended information"
 msgstr "扩展的信息"
 
 #: pkg/storaged/partitions/partition-table.jsx:58
-#: pkg/storaged/block/format-dialog.jsx:214
+#: pkg/storaged/block/format-dialog.jsx:216
 msgid "Extended partition"
 msgstr "扩展分区"
 
@@ -3207,9 +3209,9 @@ msgstr "强制密码变更"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:47
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:38
-#: pkg/storaged/swap/swap.jsx:100 pkg/storaged/btrfs/device.jsx:49
-#: pkg/storaged/block/format-dialog.jsx:323
-#: pkg/storaged/block/format-dialog.jsx:333
+#: pkg/storaged/swap/swap.jsx:100 pkg/storaged/btrfs/device.jsx:93
+#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:338
 #: pkg/storaged/block/unrecognized-data.jsx:41
 #: pkg/storaged/block/unformatted-data.jsx:36
 #: pkg/storaged/stratis/blockdev.jsx:48
@@ -3218,24 +3220,24 @@ msgstr "强制密码变更"
 msgid "Format"
 msgstr "格式化"
 
-#: pkg/storaged/block/format-dialog.jsx:186
+#: pkg/storaged/block/format-dialog.jsx:187
 msgid "Format $0"
 msgstr "格式化 $0"
 
-#: pkg/storaged/block/format-dialog.jsx:318
+#: pkg/storaged/block/format-dialog.jsx:323
 msgid "Format and mount"
 msgstr "格式和挂载"
 
-#: pkg/storaged/block/format-dialog.jsx:327
+#: pkg/storaged/block/format-dialog.jsx:332
 msgid "Format and start"
 msgstr "格式和启动"
 
-#: pkg/storaged/block/format-dialog.jsx:319
-#: pkg/storaged/block/format-dialog.jsx:328
+#: pkg/storaged/block/format-dialog.jsx:324
+#: pkg/storaged/block/format-dialog.jsx:333
 msgid "Format only"
 msgstr "仅格式"
 
-#: pkg/storaged/block/format-dialog.jsx:446
+#: pkg/storaged/block/format-dialog.jsx:453
 msgid "Formatting erases all data on a storage device."
 msgstr "格式化会擦除存储设备上的所有数据。"
 
@@ -3314,7 +3316,7 @@ msgstr "用户组名称"
 msgid "Groups"
 msgstr "用户组"
 
-#: pkg/storaged/partitions/partition.jsx:99 pkg/storaged/block/resize.jsx:521
+#: pkg/storaged/partitions/partition.jsx:107 pkg/storaged/block/resize.jsx:521
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:259
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:315
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:104
@@ -3323,7 +3325,7 @@ msgstr "用户组"
 msgid "Grow"
 msgstr "增长"
 
-#: pkg/storaged/partitions/partition.jsx:213
+#: pkg/storaged/partitions/partition.jsx:221
 #: pkg/storaged/lvm2/block-logical-volume.jsx:281
 msgid "Grow content"
 msgstr "增长内容"
@@ -3928,7 +3930,7 @@ msgstr "LVM2 卷组"
 msgid "LVM2 volume group $0"
 msgstr "LVM2 卷组 $0"
 
-#: pkg/storaged/btrfs/volume.jsx:118
+#: pkg/storaged/btrfs/volume.jsx:119 pkg/storaged/btrfs/filesystem.jsx:69
 msgid "Label"
 msgstr "标签"
 
@@ -3980,8 +3982,8 @@ msgstr "布局"
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:291
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
-#: pkg/lib/cockpit-components-dialog.jsx:225
-#: pkg/lib/cockpit-components-dialog.jsx:232 pkg/networkmanager/bond.jsx:152
+#: pkg/lib/cockpit-components-dialog.jsx:234
+#: pkg/lib/cockpit-components-dialog.jsx:241 pkg/networkmanager/bond.jsx:152
 msgid "Learn more"
 msgstr "了解更多"
 
@@ -3995,7 +3997,7 @@ msgstr "离开 $0"
 msgid "Leave domain"
 msgstr "离开域"
 
-#: pkg/sosreport/sosreport.jsx:317
+#: pkg/sosreport/sosreport.jsx:318
 msgid "Leave empty to skip encryption"
 msgstr "留空以跳过加密"
 
@@ -4053,13 +4055,13 @@ msgstr "侦测连接状态"
 msgid "Linked"
 msgstr "连接"
 
-#: pkg/storaged/partitions/partition.jsx:118
-#: pkg/storaged/partitions/partition.jsx:125
+#: pkg/storaged/partitions/partition.jsx:126
+#: pkg/storaged/partitions/partition.jsx:133
 msgid "Linux filesystem data"
 msgstr "Linux 文件系统数据"
 
-#: pkg/storaged/partitions/partition.jsx:117
-#: pkg/storaged/partitions/partition.jsx:124
+#: pkg/storaged/partitions/partition.jsx:125
+#: pkg/storaged/partitions/partition.jsx:132
 msgid "Linux swap space"
 msgstr "Linux 交换空间"
 
@@ -4224,8 +4226,8 @@ msgstr "登录"
 msgid "Logical"
 msgstr "逻辑"
 
-#: pkg/storaged/partitions/partition.jsx:119
-#: pkg/storaged/partitions/partition.jsx:126
+#: pkg/storaged/partitions/partition.jsx:127
+#: pkg/storaged/partitions/partition.jsx:134
 msgid "Logical Volume Manager partition"
 msgstr "逻辑卷管理器分区"
 
@@ -4629,7 +4631,7 @@ msgid "Mount options"
 msgstr "挂载选项"
 
 #: pkg/storaged/btrfs/subvolume.jsx:335
-#: pkg/storaged/block/format-dialog.jsx:346 pkg/storaged/stratis/pool.jsx:104
+#: pkg/storaged/block/format-dialog.jsx:352 pkg/storaged/stratis/pool.jsx:104
 #: pkg/storaged/stratis/filesystem.jsx:91
 #: pkg/storaged/stratis/filesystem.jsx:226
 #: pkg/storaged/filesystem/mounting-dialog.jsx:246
@@ -4710,9 +4712,9 @@ msgstr "NTP 服务器"
 #: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
 #: pkg/storaged/iscsi/create-dialog.jsx:111
 #: pkg/storaged/iscsi/create-dialog.jsx:168
-#: pkg/storaged/partitions/partition.jsx:219 pkg/storaged/btrfs/volume.jsx:99
+#: pkg/storaged/partitions/partition.jsx:227 pkg/storaged/btrfs/volume.jsx:89
 #: pkg/storaged/btrfs/subvolume.jsx:145 pkg/storaged/btrfs/subvolume.jsx:333
-#: pkg/storaged/block/format-dialog.jsx:341
+#: pkg/storaged/block/format-dialog.jsx:346
 #: pkg/storaged/stratis/create-dialog.jsx:50 pkg/storaged/stratis/pool.jsx:93
 #: pkg/storaged/stratis/pool.jsx:170 pkg/storaged/stratis/pool.jsx:518
 #: pkg/storaged/stratis/filesystem.jsx:86
@@ -4930,7 +4932,7 @@ msgstr "没有可用描述"
 msgid "No description provided."
 msgstr "没有提供说明。"
 
-#: pkg/storaged/btrfs/volume.jsx:135
+#: pkg/storaged/btrfs/volume.jsx:136
 msgid "No devices found"
 msgstr "没有找到设备"
 
@@ -4948,7 +4950,7 @@ msgstr "没有找到磁盘"
 msgid "No drives found"
 msgstr "没有找到驱动器"
 
-#: pkg/storaged/block/format-dialog.jsx:248
+#: pkg/storaged/block/format-dialog.jsx:250
 msgid "No encryption"
 msgstr "无加密"
 
@@ -4956,7 +4958,7 @@ msgstr "无加密"
 msgid "No events"
 msgstr "没有事件"
 
-#: pkg/storaged/block/format-dialog.jsx:212
+#: pkg/storaged/block/format-dialog.jsx:214
 msgid "No filesystem"
 msgstr "无文件系统"
 
@@ -5055,7 +5057,7 @@ msgstr "无规则命中"
 msgid "No storage found"
 msgstr "没有找到存储"
 
-#: pkg/storaged/btrfs/volume.jsx:147
+#: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
 msgid "No subvolumes"
 msgstr "没有子卷"
 
@@ -5068,7 +5070,7 @@ msgstr "没有该文件或目录"
 msgid "No system modifications"
 msgstr "没有系统改变"
 
-#: pkg/sosreport/sosreport.jsx:499
+#: pkg/sosreport/sosreport.jsx:500
 msgid "No system reports."
 msgstr "没有系统报告。"
 
@@ -5181,11 +5183,11 @@ msgstr "笔记本"
 msgid "Notice and above"
 msgstr "Notice 及更高级别"
 
-#: pkg/sosreport/sosreport.jsx:320
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "模糊处理网络地址、主机名和用户名"
 
-#: pkg/sosreport/sosreport.jsx:454
+#: pkg/sosreport/sosreport.jsx:455
 msgid "Obfuscated"
 msgstr "模糊处理"
 
@@ -5262,7 +5264,7 @@ msgid "Operation '$operation' on $target"
 msgstr "$target 上的操作 '$operation'"
 
 #: pkg/users/account-details.js:269 pkg/networkmanager/bridge.jsx:104
-#: pkg/sosreport/sosreport.jsx:319 pkg/storaged/crypto/encryption.jsx:234
+#: pkg/sosreport/sosreport.jsx:320 pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
 msgid "Options"
@@ -5296,12 +5298,12 @@ msgid "Overview"
 msgstr "概览"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:61
-#: pkg/storaged/block/format-dialog.jsx:370
+#: pkg/storaged/block/format-dialog.jsx:377
 msgid "Overwrite"
 msgstr "覆盖"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:64
-#: pkg/storaged/block/format-dialog.jsx:373
+#: pkg/storaged/block/format-dialog.jsx:380
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "用 0 覆盖现有数据（较慢）"
 
@@ -5357,7 +5359,7 @@ msgstr "部分"
 msgid "Part of $0"
 msgstr "$0 的部分"
 
-#: pkg/storaged/partitions/partition.jsx:83
+#: pkg/storaged/partitions/partition.jsx:90
 msgid "Partition"
 msgstr "分区"
 
@@ -5365,7 +5367,7 @@ msgstr "分区"
 msgid "Partition of $0"
 msgstr "$0 的分区"
 
-#: pkg/storaged/partitions/partition.jsx:205
+#: pkg/storaged/partitions/partition.jsx:213
 msgid "Partition size is $0. Content size is $1."
 msgstr "分区大小是 $0。内容大小为 $1。"
 
@@ -5384,8 +5386,8 @@ msgstr "被动"
 
 #: pkg/storaged/crypto/actions.jsx:43 pkg/storaged/crypto/keyslots.jsx:430
 #: pkg/storaged/crypto/keyslots.jsx:750
-#: pkg/storaged/block/format-dialog.jsx:382
-#: pkg/storaged/block/format-dialog.jsx:410
+#: pkg/storaged/block/format-dialog.jsx:389
+#: pkg/storaged/block/format-dialog.jsx:417
 #: pkg/storaged/stratis/create-dialog.jsx:75 pkg/storaged/stratis/pool.jsx:205
 #: pkg/storaged/stratis/pool.jsx:382 pkg/storaged/stratis/pool.jsx:530
 #: pkg/storaged/stratis/stopped-pool.jsx:58
@@ -5400,8 +5402,8 @@ msgstr "密码不能为空"
 
 #: pkg/storaged/crypto/keyslots.jsx:145 pkg/storaged/crypto/keyslots.jsx:438
 #: pkg/storaged/crypto/keyslots.jsx:483 pkg/storaged/crypto/keyslots.jsx:487
-#: pkg/storaged/block/format-dialog.jsx:386
-#: pkg/storaged/block/format-dialog.jsx:414
+#: pkg/storaged/block/format-dialog.jsx:393
+#: pkg/storaged/block/format-dialog.jsx:421
 #: pkg/storaged/stratis/create-dialog.jsx:79 pkg/storaged/stratis/pool.jsx:208
 #: pkg/storaged/stratis/pool.jsx:383 pkg/storaged/stratis/pool.jsx:409
 #: pkg/storaged/stratis/pool.jsx:412 pkg/storaged/stratis/pool.jsx:467
@@ -5418,7 +5420,7 @@ msgid "Passphrase removal may prevent unlocking $0."
 msgstr "删除密码可能会阻止解锁 $0。"
 
 #: pkg/storaged/crypto/keyslots.jsx:447 pkg/storaged/crypto/keyslots.jsx:492
-#: pkg/storaged/block/format-dialog.jsx:395
+#: pkg/storaged/block/format-dialog.jsx:402
 #: pkg/storaged/stratis/create-dialog.jsx:88 pkg/storaged/stratis/pool.jsx:385
 #: pkg/storaged/stratis/pool.jsx:414
 msgid "Passphrases do not match"
@@ -5690,7 +5692,7 @@ msgstr "手提"
 msgid "Ports"
 msgstr "端口"
 
-#: pkg/storaged/partitions/partition.jsx:116
+#: pkg/storaged/partitions/partition.jsx:124
 msgid "PowerPC PReP boot partition"
 msgstr "PowerPC PReP 引导分区"
 
@@ -5757,7 +5759,7 @@ msgstr "问题信息"
 msgid "Processes using the location"
 msgstr "使用位置的进程"
 
-#: pkg/sosreport/sosreport.jsx:290
+#: pkg/sosreport/sosreport.jsx:291
 msgid "Progress: $0"
 msgstr "进度：$0"
 
@@ -6257,11 +6259,11 @@ msgstr "重复密码"
 msgid "Repeat weekly"
 msgstr "每周重复"
 
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:501
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:502
 msgid "Report"
 msgstr "报告"
 
-#: pkg/sosreport/sosreport.jsx:306
+#: pkg/sosreport/sosreport.jsx:307
 msgid "Report label"
 msgstr "报告标签"
 
@@ -6281,7 +6283,7 @@ msgstr "报告失败"
 msgid "Reporting was canceled"
 msgstr "报告已取消"
 
-#: pkg/sosreport/sosreport.jsx:496
+#: pkg/sosreport/sosreport.jsx:497
 msgid "Reports"
 msgstr "报告"
 
@@ -6393,11 +6395,11 @@ msgstr "如果 kdump 配置正确，崩溃的结果将作为 $1 存储在 $0 中
 msgid "Resume"
 msgstr "恢复"
 
-#: pkg/storaged/block/format-dialog.jsx:256
+#: pkg/storaged/block/format-dialog.jsx:258
 msgid "Reuse existing encryption"
 msgstr "重用现有的加密"
 
-#: pkg/storaged/block/format-dialog.jsx:253
+#: pkg/storaged/block/format-dialog.jsx:255
 msgid "Reuse existing encryption ($0)"
 msgstr "重用现有的加密($0)"
 
@@ -6421,7 +6423,7 @@ msgstr "路由"
 msgid "Run at"
 msgstr "运行于"
 
-#: pkg/sosreport/sosreport.jsx:293
+#: pkg/sosreport/sosreport.jsx:294
 msgid "Run new report"
 msgstr "运行新报告"
 
@@ -6429,7 +6431,7 @@ msgstr "运行新报告"
 msgid "Run on"
 msgstr "运行于"
 
-#: pkg/sosreport/sosreport.jsx:271 pkg/sosreport/sosreport.jsx:493
+#: pkg/sosreport/sosreport.jsx:272 pkg/sosreport/sosreport.jsx:494
 msgid "Run report"
 msgstr "运行报告"
 
@@ -6493,7 +6495,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "$target SMART 自检"
 
-#: pkg/sosreport/sosreport.jsx:302
+#: pkg/sosreport/sosreport.jsx:303
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "SOS 报告会收集系统信息，以帮助诊断问题。"
@@ -6541,7 +6543,7 @@ msgstr "周六"
 #: pkg/storaged/crypto/encryption.jsx:168
 #: pkg/storaged/crypto/encryption.jsx:195 pkg/storaged/crypto/keyslots.jsx:497
 #: pkg/storaged/crypto/keyslots.jsx:516
-#: pkg/storaged/partitions/partition.jsx:189 pkg/storaged/btrfs/volume.jsx:106
+#: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/btrfs/volume.jsx:96
 #: pkg/storaged/stratis/pool.jsx:388 pkg/storaged/stratis/pool.jsx:417
 #: pkg/storaged/stratis/pool.jsx:472
 #: pkg/storaged/filesystem/mounting-dialog.jsx:279
@@ -6732,7 +6734,7 @@ msgstr "设置"
 msgid "Set hostname"
 msgstr "设置主机名"
 
-#: pkg/storaged/partitions/partition.jsx:173
+#: pkg/storaged/partitions/partition.jsx:181
 msgid "Set partition type of $0"
 msgstr "设置分区类型 $0"
 
@@ -6834,7 +6836,7 @@ msgstr "显示密码"
 msgid "Show relationships"
 msgstr "显示关系"
 
-#: pkg/storaged/partitions/partition.jsx:93 pkg/storaged/block/resize.jsx:635
+#: pkg/storaged/partitions/partition.jsx:101 pkg/storaged/block/resize.jsx:635
 #: pkg/storaged/lvm2/block-logical-volume.jsx:205
 msgid "Shrink"
 msgstr "缩小"
@@ -6843,7 +6845,7 @@ msgstr "缩小"
 msgid "Shrink logical volume"
 msgstr "缩小逻辑卷"
 
-#: pkg/storaged/partitions/partition.jsx:210 pkg/storaged/block/resize.jsx:557
+#: pkg/storaged/partitions/partition.jsx:218 pkg/storaged/block/resize.jsx:557
 msgid "Shrink partition"
 msgstr "缩小分区"
 
@@ -6868,8 +6870,8 @@ msgstr "自从"
 msgid "Single rank"
 msgstr "单 rank"
 
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/partitions/partition.jsx:227
-#: pkg/storaged/block/format-dialog.jsx:362 pkg/storaged/block/resize.jsx:448
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/partitions/partition.jsx:235
+#: pkg/storaged/block/format-dialog.jsx:368 pkg/storaged/block/resize.jsx:448
 #: pkg/storaged/block/resize.jsx:581 pkg/storaged/pages.jsx:712
 #: pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
@@ -7095,7 +7097,7 @@ msgstr "停止设备"
 msgid "Stop editing hosts"
 msgstr "停止编辑主机"
 
-#: pkg/sosreport/sosreport.jsx:275
+#: pkg/sosreport/sosreport.jsx:276
 msgid "Stop report"
 msgstr "停止报告"
 
@@ -7122,7 +7124,7 @@ msgstr "存储不能在这个系统上管理。"
 msgid "Storage logs"
 msgstr "存储日志"
 
-#: pkg/storaged/block/format-dialog.jsx:407
+#: pkg/storaged/block/format-dialog.jsx:414
 msgid "Store passphrase"
 msgstr "存储密码"
 
@@ -7288,7 +7290,7 @@ msgstr "同步 MDRAID 设备 $target"
 msgid "System"
 msgstr "系统"
 
-#: pkg/sosreport/sosreport.jsx:520
+#: pkg/sosreport/sosreport.jsx:521
 msgid "System diagnostics"
 msgstr "系统诊断"
 
@@ -7457,13 +7459,13 @@ msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "当前登录的用户不允许查看有关密钥的信息。"
 
-#: pkg/storaged/block/format-dialog.jsx:417
+#: pkg/storaged/block/format-dialog.jsx:424
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
 msgstr "在格式化之前需要解锁磁盘。请提供现有的密码短语。"
 
-#: pkg/sosreport/sosreport.jsx:368
+#: pkg/sosreport/sosreport.jsx:369
 msgid "The file $0 will be deleted."
 msgstr "文件 $0 将被删除。"
 
@@ -7743,7 +7745,7 @@ msgstr "此 NFS 挂载正在使用中，只能更改其选项。"
 msgid "This VDO device does not use all of its backing device."
 msgstr "此 VDO 设备不使用其所有后台设备。"
 
-#: pkg/storaged/block/format-dialog.jsx:294
+#: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:95
 msgid "This device can not be used for the installation target."
 msgstr "这个设备不能用于安装目标。"
@@ -7769,7 +7771,7 @@ msgstr "这个组是以下用户的主组："
 msgid "This host will reboot after updates are installed."
 msgstr "安装更新后此主机将重启。"
 
-#: pkg/sosreport/sosreport.jsx:303
+#: pkg/sosreport/sosreport.jsx:304
 msgid "This information is stored only on the system."
 msgstr "这些信息只保存在系统中。"
 
@@ -7813,7 +7815,7 @@ msgstr "该主机已经被添加。"
 msgid "This may take a while"
 msgstr "这可能需要一些时间"
 
-#: pkg/storaged/partitions/partition.jsx:204
+#: pkg/storaged/partitions/partition.jsx:212
 msgid "This partition is not completely used by its content."
 msgstr "此分区不会被其内容完全使用。"
 
@@ -8114,22 +8116,22 @@ msgstr "开启管理员权限"
 
 #: pkg/packagekit/autoupdates.jsx:279 pkg/systemd/hwinfo.jsx:81
 #: pkg/systemd/hwinfo.jsx:291 pkg/shell/credentials.jsx:199
-#: pkg/storaged/partitions/partition.jsx:175
-#: pkg/storaged/partitions/partition.jsx:221
-#: pkg/storaged/block/format-dialog.jsx:357
+#: pkg/storaged/partitions/partition.jsx:183
+#: pkg/storaged/partitions/partition.jsx:229
+#: pkg/storaged/block/format-dialog.jsx:363
 #: pkg/storaged/block/unrecognized-data.jsx:52 pkg/storaged/pages.jsx:710
 msgid "Type"
 msgstr "类型"
 
-#: pkg/storaged/partitions/partition.jsx:165
+#: pkg/storaged/partitions/partition.jsx:173
 msgid "Type can only contain the characters 0 to 9, A to F, and \"-\"."
 msgstr "类型只能包含字符 0 到 9，A 到 F，和 \"-\"。"
 
-#: pkg/storaged/partitions/partition.jsx:168
+#: pkg/storaged/partitions/partition.jsx:176
 msgid "Type must be of the form NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
 msgstr "类型的格式为 NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN。"
 
-#: pkg/storaged/partitions/partition.jsx:152
+#: pkg/storaged/partitions/partition.jsx:160
 msgid "Type must contain exactly two hexadecimal characters (0 to 9, A to F)."
 msgstr "类型必须正好包含两个十六进制字符 (0 到 9，A 到 F)。"
 
@@ -8141,9 +8143,10 @@ msgstr "输入内容来过滤"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/storaged/mdraid/mdraid.jsx:294 pkg/storaged/partitions/partition.jsx:220
-#: pkg/storaged/btrfs/volume.jsx:126 pkg/storaged/btrfs/device.jsx:81
-#: pkg/storaged/stratis/pool.jsx:523 pkg/storaged/stratis/stopped-pool.jsx:127
+#: pkg/storaged/mdraid/mdraid.jsx:294 pkg/storaged/partitions/partition.jsx:228
+#: pkg/storaged/btrfs/volume.jsx:127 pkg/storaged/btrfs/device.jsx:78
+#: pkg/storaged/btrfs/filesystem.jsx:77 pkg/storaged/stratis/pool.jsx:523
+#: pkg/storaged/stratis/stopped-pool.jsx:127
 #: pkg/storaged/lvm2/volume-group.jsx:386
 #: pkg/storaged/lvm2/physical-volume.jsx:117
 msgid "UUID"
@@ -8434,7 +8437,8 @@ msgstr "运行时间"
 #: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
 #: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
 #: pkg/systemd/overview-cards/usageCard.jsx:127
-#: pkg/storaged/btrfs/volume.jsx:128 pkg/storaged/btrfs/device.jsx:83
+#: pkg/storaged/btrfs/volume.jsx:129 pkg/storaged/btrfs/device.jsx:80
+#: pkg/storaged/btrfs/filesystem.jsx:79
 #: pkg/storaged/block/unrecognized-data.jsx:51
 #: pkg/storaged/stratis/pool.jsx:525 pkg/storaged/stratis/filesystem.jsx:230
 #: pkg/storaged/filesystem/filesystem.jsx:152
@@ -8471,7 +8475,7 @@ msgstr "使用密码"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "使用以下密钥来验证其他系统"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:323
 msgid "Use verbose logging"
 msgstr "使用详细日志记录"
 
@@ -8977,13 +8981,19 @@ msgstr "引导"
 msgid "bridge"
 msgstr "网桥"
 
-#: pkg/storaged/btrfs/volume.jsx:136 pkg/storaged/btrfs/device.jsx:42
+#: pkg/storaged/btrfs/volume.jsx:137 pkg/storaged/btrfs/device.jsx:42
 msgid "btrfs device"
 msgstr "btrfs 设备"
 
-#: pkg/storaged/btrfs/volume.jsx:133
+#: pkg/storaged/btrfs/volume.jsx:134
 msgid "btrfs devices"
 msgstr "btrfs 设备"
+
+#: pkg/storaged/btrfs/filesystem.jsx:44
+#, fuzzy
+#| msgid "Stratis filesystem"
+msgid "btrfs filesystem"
+msgstr "Stratis 文件系统"
 
 #: pkg/storaged/btrfs/subvolume.jsx:311
 msgid "btrfs subvolume"
@@ -8993,11 +9003,12 @@ msgstr "btrfs 子卷"
 msgid "btrfs subvolume $0 of $1"
 msgstr "btrfs 子卷 $0（共 $1）"
 
-#: pkg/storaged/btrfs/volume.jsx:74 pkg/storaged/btrfs/volume.jsx:148
+#: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
+#: pkg/storaged/btrfs/filesystem.jsx:87
 msgid "btrfs subvolumes"
 msgstr "btrfs 子卷"
 
-#: pkg/storaged/btrfs/volume.jsx:62 pkg/storaged/btrfs/device.jsx:72
+#: pkg/storaged/btrfs/volume.jsx:68 pkg/storaged/btrfs/device.jsx:69
 msgid "btrfs volume"
 msgstr "btrfs 卷"
 
@@ -9065,7 +9076,7 @@ msgstr "故障调试"
 #: pkg/storaged/mdraid/mdraid.jsx:112 pkg/storaged/partitions/partition.jsx:43
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
 #: pkg/storaged/btrfs/subvolume.jsx:213
-#: pkg/storaged/block/format-dialog.jsx:261 pkg/storaged/stratis/pool.jsx:137
+#: pkg/storaged/block/format-dialog.jsx:263 pkg/storaged/stratis/pool.jsx:137
 #: pkg/storaged/stratis/filesystem.jsx:125
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80
 #: pkg/storaged/lvm2/volume-group.jsx:81 pkg/storaged/lvm2/volume-group.jsx:331
@@ -9111,8 +9122,9 @@ msgstr "驱动"
 #: pkg/networkmanager/network-interface.jsx:349
 #: pkg/storaged/crypto/encryption.jsx:233
 #: pkg/storaged/crypto/encryption.jsx:236
-#: pkg/storaged/partitions/partition.jsx:224 pkg/storaged/btrfs/volume.jsx:123
-#: pkg/storaged/stratis/pool.jsx:521 pkg/storaged/stratis/filesystem.jsx:224
+#: pkg/storaged/partitions/partition.jsx:232 pkg/storaged/btrfs/volume.jsx:124
+#: pkg/storaged/btrfs/filesystem.jsx:74 pkg/storaged/stratis/pool.jsx:521
+#: pkg/storaged/stratis/filesystem.jsx:224
 #: pkg/storaged/filesystem/utils.jsx:221
 #: pkg/storaged/filesystem/filesystem.jsx:145
 #: pkg/storaged/lvm2/volume-group.jsx:384
@@ -9201,7 +9213,7 @@ msgstr "对于当前和将来的内核"
 msgid "for current kernel only"
 msgstr "只对于当前的内核"
 
-#: pkg/storaged/block/format-dialog.jsx:261 pkg/storaged/manifest.json:0
+#: pkg/storaged/block/format-dialog.jsx:263 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "格式"
 
@@ -9603,7 +9615,7 @@ msgstr "方案详情"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:183
+#: pkg/sosreport/sosreport.jsx:184
 msgid "sos report failed"
 msgstr "sos 报告失败"
 

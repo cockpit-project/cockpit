@@ -18,13 +18,6 @@ export const esbuildStylesPlugins = [
             '1450px': '1100px',
         }
     }),
-    replace({
-        include: /DataList.js$/,
-        values: {
-            'import stylesGrid': "// HACK: revert when https://github.com/patternfly/patternfly-react/pull/8864 is released",
-            stylesGrid: 'styles',
-        }
-    }),
     sassPlugin({
         loadPaths: [...nodePaths, 'node_modules'],
         quietDeps: true,

@@ -49,11 +49,8 @@ class TestUpdates(NoSubManCase):
     def setUp(self):
         super().setUp()
 
-        pkcon_version = self.machine.execute("pkcon --version").strip()
-
-        # only the PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) backends
-        # properly recognize "enhancement" severity; apt does not have that metadata
-        self.supports_severity = not (self.backend == "apt" or pkcon_version < "1.2.4")
+        # apt does not support severity enhancement metadata
+        self.supports_severity = self.backend != "apt"
 
         if self.supports_severity:
             self.enhancement_severity = "enhancement"

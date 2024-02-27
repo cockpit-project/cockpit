@@ -22,7 +22,7 @@ You first need to build cockpit, and install it into a VM:
 
     test/image-prepare
 
-This uses the default OS image, which is currently Fedora 38. See `$TEST_OS`
+This uses the default OS image, which is currently Fedora 39. See `$TEST_OS`
 below how to select a different one.
 
 In most cases you want to run an individual test in a suite, for example:
@@ -158,10 +158,9 @@ You can set these environment variables to configure the test suite:
                   "centos-9-stream"
                   "debian-stable"
                   "debian-testing"
-                  "fedora-38"
                   "fedora-39"
+                  "fedora-40"
                   "fedora-coreos"
-                  "fedora-testing"
                   "rhel-8-10"
                   "rhel-8-10-distropkg"
                   "rhel-9-4"

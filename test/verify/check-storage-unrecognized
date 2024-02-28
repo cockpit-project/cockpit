@@ -52,6 +52,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 """
         m.execute(f"base64 -d >{disk}", input=data)
+        # Wait for udev to settle and re-trigger, udisks sometimes misses udev events on ubuntu 2204.
+        m.execute("udevadm settle; udevadm trigger /dev/sda")
 
         b.wait_text(self.card_desc("Unrecognized data", "Usage"), "other")
         b.wait_text(self.card_desc("Unrecognized data", "Type"), "vdo")

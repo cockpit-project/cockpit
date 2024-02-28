@@ -201,14 +201,14 @@ ExecStart=/usr/bin/sleep infinity
 
         # Unmount externally, remount with Cockpit
 
-        m.execute("umount /run/foo")
+        m.execute("while mountpoint -q /run/foo && ! umount /run/foo; do sleep 0.2; done;")
         b.click(self.card_button(filesystem, "Mount now"))
         b.wait_not_present(self.card_button(filesystem, "Mount now"))
         b.wait_not_in_text(self.card_desc(filesystem, "Mount point"), "The filesystem is not mounted")
 
         # Unmount externally, adjust fstab with Cockpit
 
-        m.execute("umount /run/foo")
+        m.execute("while mountpoint -q /run/foo && ! umount /run/foo; do sleep 0.2; done;")
         b.click(self.card_button(filesystem, "Do not mount automatically on boot"))
         b.wait_not_present(self.card_button(filesystem, "Do not mount automatically on boot"))
 
@@ -232,14 +232,14 @@ ExecStart=/usr/bin/sleep infinity
 
         # Move mount point externally, move back with Cockpit
 
-        m.execute("umount /run/foo")
+        m.execute("while mountpoint -q /run/foo && ! umount /run/foo; do sleep 0.2; done;")
         m.execute(f"mkdir -p /run/bar; mount {disk} /run/bar")
         b.click(self.card_button(filesystem, "Mount on /run/foo now"))
         b.wait_not_present(self.card_button(filesystem, "Mount on /run/foo now"))
 
         # Move mount point externally, adjust fstab with Cockpit
 
-        m.execute("umount /run/foo")
+        m.execute("while mountpoint -q /run/foo && ! umount /run/foo; do sleep 0.2; done;")
         m.execute(f"mkdir -p /run/bar; mount {disk} /run/bar")
         b.click(self.card_button(filesystem, "Mount automatically on /run/bar on boot"))
         b.wait_not_present(self.card_button(filesystem, "Mount automatically on /run/bar on boot"))
@@ -436,7 +436,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
 
         # Unmount and lock externally, unlock and remount with Cockpit
 
-        m.execute("umount /run/foo")
+        m.execute("while mountpoint -q /run/foo && ! umount /run/foo; do sleep 0.2; done;")
         m.execute(f"udisksctl lock -b {disk}")
         # wait until the UI updated to the locking
         b.wait_text(self.card_desc("Encryption", "Cleartext device"), "-")
@@ -448,7 +448,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
 
         # Unmount and lock externally, adjust fstab with Cockpit
 
-        m.execute("umount /run/foo")
+        m.execute("while mountpoint -q /run/foo && ! umount /run/foo; do sleep 0.2; done;")
         m.execute(f"udisksctl lock -b {disk}")
         # wait until the UI updated to the locking
         b.wait_text(self.card_desc("Encryption", "Cleartext device"), "-")

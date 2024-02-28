@@ -144,7 +144,7 @@ const getGroupRow = (group, accounts, isUserCreatedGroup) => {
     if (superuser.allowed) {
         columns.push(
             {
-                title: <GroupActions group={group} accounts={accounts} isUserCreatedGroup={isUserCreatedGroup} />,
+                title: <GroupActions group={group} />,
                 props: { className: "pf-v5-c-table__action" }
             }
         );

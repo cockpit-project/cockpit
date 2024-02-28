@@ -71,11 +71,16 @@ def redisService(image):
     return "redis"
 
 
-def applySettings(browser, dialog_selector):
+def applySettings(browser, machine, dialog_selector):
+    machine.execute("logger APPLY")
+    print("APPLY")
     browser.click(f"{dialog_selector} button.pf-m-primary")
     with browser.wait_timeout(60):
-        browser.wait_not_present(dialog_selector)
-
+        try:
+            browser.wait_not_present(dialog_selector)
+        except testlib.Error:
+            print(machine.execute("logger TIMEOUT; top -b -n1 -w400; systemctl status pmproxy; systemctl status cockpit"))
+            raise
 
 def login(self):
     # HACK: Ubuntu and Debian need some time until metrics channel is available
@@ -500,7 +505,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        applySettings(b, self.pcp_dialog_selector)
+        applySettings(b, m, self.pcp_dialog_selector)
 
         m.execute("until systemctl is-active pmlogger; do sleep 1; done")
 
@@ -558,7 +563,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_visible("#switch-pmlogger:checked")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:not(:checked)")
-        applySettings(b, self.pcp_dialog_selector)
+        applySettings(b, m, self.pcp_dialog_selector)
 
         self.assertEqual(m.execute("systemctl is-active pmlogger || true").strip(), "inactive")
         self.assertEqual(m.execute("systemctl is-enabled pmlogger || true").strip(), "disabled")
@@ -569,7 +574,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        applySettings(b, self.pcp_dialog_selector)
+        applySettings(b, m, self.pcp_dialog_selector)
 
         m.execute("until systemctl is-active pmlogger; do sleep 1; done")
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
@@ -643,7 +648,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             b.wait_visible("#switch-pmproxy:not(:checked)")
             b.click('#switch-pmproxy')
             b.wait_visible('#switch-pmproxy:checked')
-            applySettings(b, self.pcp_dialog_selector)
+            applySettings(b, m, self.pcp_dialog_selector)
             if firewalld_alert:
                 b.wait_visible(".pf-v5-c-alert:contains(pmproxy)")
             else:
@@ -661,7 +666,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             b.wait_visible('#switch-pmproxy:checked')
             b.click('#switch-pmproxy')
             b.wait_visible("#switch-pmproxy:not(:checked)")
-            applySettings(b, self.pcp_dialog_selector)
+            applySettings(b, m, self.pcp_dialog_selector)
             # always clears the firewalld alert
             b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
             self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
@@ -688,7 +693,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # enable pmlogger
         b.click('#switch-pmlogger')
         b.wait_visible('#switch-pmlogger:checked')
-        applySettings(b, self.pcp_dialog_selector)
+        applySettings(b, m, self.pcp_dialog_selector)
         m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
         self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
         b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")

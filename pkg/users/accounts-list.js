@@ -25,7 +25,8 @@ import { admins } from './users.js';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Card, CardExpandableContent, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { Divider } from '@patternfly/react-core/dist/esm/components/Divider/index.js';
+import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
@@ -47,12 +48,11 @@ import { logoutAccountDialog } from "./logout-account-dialog.js";
 import { GroupActions } from "./group-actions.jsx";
 
 import { usePageLocation } from "hooks";
+import { KebabDropdown } from "cockpit-components-dropdown";
 
 const _ = cockpit.gettext;
 
 const UserActions = ({ account }) => {
-    const [isKebabOpen, setKebabOpen] = useState(false);
-
     const actions = [
         <DropdownItem key="edit-user"
                       onClick={ev => { ev.preventDefault(); cockpit.location.go(account.name) }}>
@@ -61,36 +61,27 @@ const UserActions = ({ account }) => {
     ];
 
     superuser.allowed && actions.push(
-        <DropdownSeparator key="separator-0" />,
+        <Divider key="separator-0" />,
         <DropdownItem key="log-user-out"
                       isDisabled={account.uid === 0 || !account.loggedIn}
-                      onClick={() => { setKebabOpen(false); logoutAccountDialog(account) }}>
+                      onClick={() => logoutAccountDialog(account) }>
             {_("Log user out")}
         </DropdownItem>,
-        <DropdownSeparator key="separator-1" />,
+        <Divider key="separator-1" />,
         <DropdownItem key="lock-account"
                       isDisabled={account.isLocked}
-                      onClick={() => { setKebabOpen(false); lockAccountDialog(account) }}>
+                      onClick={() => lockAccountDialog(account) }>
             {_("Lock account")}
         </DropdownItem>,
         <DropdownItem key="delete-account"
                       isDisabled={account.uid === 0}
                       className={account.uid === 0 ? "" : "delete-resource-red"}
-                      onClick={() => { setKebabOpen(false); delete_account_dialog(account) }}>
+                      onClick={() => delete_account_dialog(account) }>
             {_("Delete account")}
         </DropdownItem>,
     );
 
-    const kebab = (
-        <Dropdown toggle={<KebabToggle onToggle={(_, isOpen) => setKebabOpen(isOpen)} />}
-                isPlain
-                isOpen={isKebabOpen}
-                position="right"
-                id="accounts-actions"
-                menuAppendTo={document.body}
-                dropdownItems={actions} />
-    );
-    return kebab;
+    return <KebabDropdown id="accounts-actions" dropdownItems={actions} />;
 };
 
 const getGroupRow = (group, accounts) => {

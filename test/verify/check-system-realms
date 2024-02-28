@@ -161,8 +161,8 @@ class CommonTests:
         # log in as domain admin and check that we can do privileged operations
         b.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
         b.wait_in_text("#statuses", "Running")
-        b.click(".service-top-panel .pf-v5-c-dropdown button")
-        b.click(".service-top-panel .pf-v5-c-dropdown__menu a:contains('Stop')")
+        b.click(".service-top-panel button.pf-v5-c-menu-toggle")
+        b.click(".service-top-panel button.pf-v5-c-menu__item:contains('Stop')")
         b.wait_in_text("#statuses", "Not running")
         # stopping the unit may interrupt the D-Bus proxy inspection of that unit
         self.allow_journal_messages(".*systemd1:.*systemd_2dtmpfiles_2dclean_2etimer: Timeout was reached")
@@ -174,8 +174,8 @@ class CommonTests:
         b.go('/system/services#/systemd-tmpfiles-clean.timer')
         b.enter_page('/system/services')
         b.wait_in_text("#statuses", "Not running")
-        b.click(".service-top-panel .pf-v5-c-dropdown button")
-        b.click(".service-top-panel .pf-v5-c-dropdown__menu a:contains('Start')")
+        b.click(".service-top-panel button.pf-v5-c-menu-toggle")
+        b.click(".service-top-panel button.pf-v5-c-menu__item:contains('Start')")
         b.wait_in_text("#statuses", "Running")
         b.logout()
 
@@ -323,8 +323,8 @@ class CommonTests:
         b.enter_page('/system/services')
 
         b.wait_in_text("#statuses", "Running")
-        b.click(".service-top-panel .pf-v5-c-dropdown button")
-        b.click(".service-top-panel .pf-v5-c-dropdown__menu a:contains('Stop')")
+        b.click(".service-top-panel button.pf-v5-c-menu-toggle")
+        b.click(".service-top-panel button.pf-v5-c-menu__item:contains('Stop')")
         b.wait_in_text("#statuses", "Not running")
 
         b.go('/system')

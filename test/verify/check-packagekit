@@ -559,7 +559,8 @@ ExecStart=/usr/local/bin/{self.packageName}
 
                 # check no services/processes need reboot or service restart
                 # tracer returns non-zero exit code if any services/processes are affected
-                m.execute("tracer --all --root")
+                # tracer logs it's output to stdout
+                m.execute("tracer --all --root 2>&1")
 
             def cleanup(self):
                 if not self.rebootRequired:

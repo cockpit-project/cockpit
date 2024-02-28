@@ -93,7 +93,7 @@ const UserActions = ({ account }) => {
     return kebab;
 };
 
-const getGroupRow = (group, accounts, isUserCreatedGroup) => {
+const getGroupRow = (group, accounts) => {
     let groupColorClass;
     if (group.isAdmin)
         groupColorClass = "group-gold";

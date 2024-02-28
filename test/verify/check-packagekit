@@ -415,9 +415,54 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
+    def testTracer11(self):
+        self._testTracer()
+
+    def testTracer222(self):
+        self._testTracer()
+
+    def testTracer333(self):
+        self._testTracer()
+
+    def testTracer444(self):
+        self._testTracer()
+
+    def testTracer55(self):
+        self._testTracer()
+
+    def testTracer7(self):
+        self._testTracer()
+
+    def testTracer8(self):
+        self._testTracer()
+
+    def testTracer9(self):
+        self._testTracer()
+
+    def testTracer888888888888888888888888888(self):
+        self._testTracer()
+
+    def testTracer33(self):
+        self._testTracer()
+
+    def testTracer88(self):
+        self._testTracer()
+
+    def testTracer8888(self):
+        self._testTracer()
+
+    def testTracer22(self):
+        self._testTracer()
+
+    def testTracer22332(self):
+        self._testTracer()
+
+    def testTracer22222(self):
+        self._testTracer()
+
     @testlib.skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
     @testlib.skipImage("tracer not available", *OSesWithoutTracer)
-    def testTracer(self):
+    def _testTracer(self):
         b = self.browser
         m = self.machine
 

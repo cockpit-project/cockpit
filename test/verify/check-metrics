@@ -79,7 +79,8 @@ def applySettings(browser, machine, dialog_selector):
         try:
             browser.wait_not_present(dialog_selector)
         except testlib.Error:
-            print(machine.execute("logger TIMEOUT; top -b -n1 -w400; systemctl status pmproxy; systemctl status cockpit"))
+            machine.execute("logger TIMEOUT")
+            print(machine.execute("loginctl user-status admin"))
             raise
 
 def login(self):

@@ -322,6 +322,7 @@ export function proxy(name, kind) {
     }
 
     function enable() {
+        console.log("ENABLING", name);
         return call_manager_with_reload("EnableUnitFiles", [[name], false, false]);
     }
 

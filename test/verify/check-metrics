@@ -685,6 +685,8 @@ class TestHistoryMetrics(testlib.MachineCase):
         m.execute("firewall-cmd --remove-service pmproxy; firewall-cmd --permanent --remove-service pmproxy")
         self.login_and_go("/metrics")
 
+        b.eval_js("window.debugging = 'dbus'")
+
         # pmproxy can't be enabled without pmlogger
         b.click("#metrics-header-section button.pf-m-secondary")
         b.wait_visible(self.pcp_dialog_selector)

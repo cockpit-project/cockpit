@@ -1429,11 +1429,12 @@ const PCPConfigDialog = ({
                         if (dialogProxyValue === true) {
                         // pmproxy.service needs to (re)start *after* redis to recognize it
                             action = action
-                                    .then(() => real_redis.start())
-                                    .then(() => s_pmproxy.restart())
+                                    .then(() => { console.log("REDIS start"); return real_redis.start() })
+                                    .then(() => { console.log("PROXY start"); return s_pmproxy.restart() })
                             // turn redis into a dependency, as the metrics API requires it
-                                    .then(() => cockpit.script(redis_enable_cmd, { superuser: "require", err: "message" }))
-                                    .then(() => s_pmproxy.enable());
+                                    .then(() => { console.log("REDIS depenable"); return cockpit.script(redis_enable_cmd, { superuser: "require", err: "message" }) })
+                                    .then(() => { console.log("PROXY enable"); return s_pmproxy.enable() })
+                                    .then(() => { console.log("DONE") });
                         } else {
                         // don't stop redis here -- it's a shared service, other things may be using it
                             action = action

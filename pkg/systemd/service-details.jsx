@@ -21,7 +21,8 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
+import { Divider } from '@patternfly/react-core/dist/esm/components/Divider/index.js';
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
@@ -47,6 +48,7 @@ import { useDialogs, DialogsContext } from "dialogs.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import './service-details.scss';
+import { KebabDropdown } from "cockpit-components-dropdown";
 
 const _ = cockpit.gettext;
 const METRICS_POLL_DELAY = 30000; // 30s
@@ -116,7 +118,6 @@ const ServiceConfirmDialog = ({ id, title, message, confirmText, confirmAction }
  */
 const ServiceActions = ({ masked, active, failed, canReload, actionCallback, deleteActionCallback, fileActionCallback, disabled, isPinned, pinUnitCallback }) => {
     const Dialogs = useDialogs();
-    const [isActionOpen, setIsActionOpen] = useState(false);
 
     const actions = [];
 
@@ -145,7 +146,7 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, del
         }
 
         if (deleteActionCallback) {
-            actions.push(<DropdownSeparator key="delete-divider" />);
+            actions.push(<Divider key="delete-divider" />);
             actions.push(
                 <DropdownItem key="delete" className="pf-m-danger" onClick={() => deleteActionCallback()}>{ _("Delete") }</DropdownItem>
             );
@@ -153,7 +154,7 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, del
 
         if (actions.length > 0) {
             actions.push(
-                <DropdownSeparator key="divider" />
+                <Divider key="divider" />
             );
         }
 
@@ -179,21 +180,14 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, del
             <DropdownItem key="mask" onClick={confirm}>{ _("Disallow running (mask)") }</DropdownItem>
         );
 
-        actions.push(<DropdownSeparator key="pin-divider" />);
+        actions.push(<Divider key="pin-divider" />);
         actions.push(
             <DropdownItem key="pin" onClick={() => pinUnitCallback() }>{isPinned ? _("Unpin unit") : _("Pin unit")}</DropdownItem>
         );
     }
 
     return (
-        <Dropdown id="service-actions" title={ _("Additional actions") }
-                  toggle={<KebabToggle isDisabled={disabled}
-                                       onToggle={(_, isOpen) => setIsActionOpen(isOpen)} />}
-                  isOpen={isActionOpen}
-                  isPlain
-                  onSelect={() => setIsActionOpen(!isActionOpen)}
-                  position='right'
-                  dropdownItems={actions} />
+        <KebabDropdown id="service-actions" dropdownItems={actions} isDisabled={disabled} title={ _("Additional actions") } />
     );
 };
 

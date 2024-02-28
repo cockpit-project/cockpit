@@ -313,4 +313,13 @@ th {
   padding-block-start: 0;
 }
 
+// HACK: MenuToggle has inline-block by default which makes it not appear under
+// the entry above
+@media screen and (max-width: $pf-v5-global--breakpoint--sm) {
+  .pf-v5-c-table__td .pf-v5-c-menu-toggle.pf-m-plain {
+    display: inline-flex;
+    align-items: flex-start;
+  }
+}
+
 /* End Firewall specific CSS */

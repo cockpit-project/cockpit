@@ -97,8 +97,8 @@ only-plugins=release,date,host,cgroups,networking
             topdir = names[0].split("/")[0]
             tar.getmember(os.path.join(topdir, "etc/os-release"))
 
-        b.click("tr:contains(mylabel) button.pf-v5-c-dropdown__toggle")
-        b.click("tr:contains(mylabel) li:contains(Delete)")
+        b.click("tr:contains(mylabel) button.pf-v5-c-menu-toggle")
+        b.click("tr:contains(mylabel) .pf-v5-c-menu__list-item:contains(Delete) button")
         b.click("#sos-remove-dialog button:contains(Delete)")
         testlib.wait(lambda: m.execute(f"! test -f /var/tmp/{base_report_gpg} && echo yes"))
 

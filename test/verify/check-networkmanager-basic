@@ -257,8 +257,8 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.click("#networking-nm-crashed a")
         b.enter_page("/system/services")
         b.wait_text(".service-name", "Network Manager")
-        b.click(".service-top-panel .pf-v5-c-dropdown button")
-        b.click(".service-top-panel .pf-v5-c-dropdown__menu a:contains('Start')")
+        b.click(".service-top-panel button.pf-v5-c-menu-toggle")
+        b.click(".service-top-panel .pf-v5-c-menu__list-item:contains('Start') button")
         b.wait_in_text("#statuses", "Running")
 
         # networking page should notice start from Services page

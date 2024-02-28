@@ -20,7 +20,7 @@
 import '../lib/patternfly/patternfly-5-cockpit.scss';
 import 'cockpit-dark-theme'; // once per page
 import cockpit from "cockpit";
-import React, { useState } from 'react';
+import React from 'react';
 import { createRoot } from "react-dom/client";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
@@ -28,7 +28,7 @@ import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/comp
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
-import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
@@ -50,6 +50,8 @@ import { FirewallSwitch } from "./firewall-switch.jsx";
 import { superuser } from "superuser";
 import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
+import { KebabDropdown } from "cockpit-components-dropdown";
+
 import "./networking.scss";
 
 const _ = cockpit.gettext;
@@ -58,9 +60,7 @@ superuser.reload_page_on_change();
 
 const upperCaseFirstLetter = text => text[0].toUpperCase() + text.slice(1);
 
-const DeleteDropdown = ({ items, id }) => {
-    const [isActionsKebabOpen, setActionsKebabOpen] = useState(false);
-
+const DeleteDropdown = ({ items }) => {
     const dropdown_items = items.map(item => <DropdownItem key={item.text}
                                                            className={item.danger ? "pf-m-danger" : ""}
                                                            aria-label={item.ariaLabel}
@@ -68,11 +68,7 @@ const DeleteDropdown = ({ items, id }) => {
         {item.text}
     </DropdownItem>);
 
-    return (<Dropdown toggle={<KebabToggle onToggle={(_event, isOpen) => setActionsKebabOpen(isOpen)} id={id || null} />}
-                      isOpen={isActionsKebabOpen}
-                      isPlain
-                      position="right"
-                      dropdownItems={dropdown_items} />);
+    return <KebabDropdown dropdownItems={dropdown_items} />;
 };
 
 function serviceRow(props) {
@@ -121,7 +117,7 @@ function serviceRow(props) {
         items.push({ text: _("Delete"), danger: true, ariaLabel: cockpit.format(_("Remove service $0"), props.service.id), handleClick: onRemoveService });
 
         columns.push({
-            title: <DeleteDropdown items={items} id={props.service.key} />
+            title: <DeleteDropdown items={items} />
         });
     }
 

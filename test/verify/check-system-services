@@ -60,8 +60,8 @@ class TestServices(testlib.MachineCase):
         self.browser.click(".service-top-panel .pf-v5-c-switch__input")
 
     def do_action(self, action):
-        self.browser.click(".service-top-panel .pf-v5-c-dropdown button")
-        self.browser.click(f".service-top-panel .pf-v5-c-dropdown__menu a:contains('{action}')")
+        self.browser.click(".service-top-panel button.pf-v5-c-menu-toggle")
+        self.browser.click(f".service-top-panel .pf-v5-c-menu__list-item:contains('{action}') button")
 
     def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
         with self.browser.wait_timeout(60):
@@ -72,12 +72,12 @@ class TestServices(testlib.MachineCase):
             self.browser.wait_not_present(".service-top-panel .pf-v5-c-switch")
 
         if kebab:
-            self.browser.click(".service-top-panel .pf-v5-c-dropdown button")
-            self.browser.wait_text(".service-top-panel .pf-v5-c-dropdown__menu", "".join(actions))
-            # Click away to close the pf-v5-c-dropdown__menu
-            self.browser.click(".service-top-panel .pf-v5-c-dropdown button")
+            self.browser.click(".service-top-panel button.pf-v5-c-menu-toggle")
+            self.browser.wait_text(".service-top-panel .pf-v5-c-menu__list", "".join(actions))
+            # Click away to close the pf-v5-c-menu__list
+            self.browser.click(".service-top-panel button.pf-v5-c-menu-toggle")
         else:
-            self.browser.wait_not_present(".service-top-panel .pf-v5-c-dropdown")
+            self.browser.wait_not_present(".service-top-panel .pf-v5-c-menu__list")
 
     def check_service_on(self, expect_reload=True):
         self.check_service_details(
@@ -612,9 +612,24 @@ WantedBy=default.target
 
             # system timers are not allowed to be deleted
             self.goto_service("cockpit-system.timer")
-            b.click(".service-top-panel .pf-v5-c-dropdown button")
-            b.wait_in_text(".service-top-panel .pf-v5-c-dropdown__menu", "Disallow running")
-            b.wait_not_in_text(".service-top-panel .pf-v5-c-dropdown__menu", "Delete")
+            # Check our custom kebab menu in RTL layout separately as the tests switch to RTL layout by editing
+            # html directly while in a real life scenario we would reload the page. This circumvents the PF dropdown
+            # from rendering in the wrong place when making a pixel test.
+            b.set_layout("rtl")
+            # wait for layout to settle
+            time.sleep(1)
+            b.click(".service-top-panel button.pf-v5-c-menu-toggle")
+            b.wait_in_text(".service-top-panel .pf-v5-c-menu__list", "Disallow running")
+            b.assert_pixels_in_current_layout("#service-details-unit", "services-kebabdropdown-rtl")
+            # Close menu
+            b.click(".service-top-panel button.pf-v5-c-menu-toggle")
+            b.wait_not_present(".pf-v5-c-menu__list")
+            b.set_layout("desktop")
+            b.click(".service-top-panel button.pf-v5-c-menu-toggle")
+            b.wait_in_text(".service-top-panel .pf-v5-c-menu__list", "Disallow running")
+            # check if our custom kebab menu renders properly
+            b.assert_pixels("#service-details-unit", "services-kebabdropdown", skip_layouts=['rtl'])
+            b.wait_not_in_text(".service-top-panel .pf-v5-c-menu__list", "Delete")
             b.click(".pf-v5-c-breadcrumb a:contains('Services')")
 
     def testServiceMetrics(self):

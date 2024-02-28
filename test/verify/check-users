@@ -35,10 +35,15 @@ def getUserAddDetails(machine):
 
 
 def performUserAction(browser, user, action):
-    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) .pf-v5-c-dropdown button")
-    browser.click(f"#accounts-list tbody tr:contains({user}) .pf-v5-c-dropdown button")
-    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) .pf-v5-c-dropdown button[aria-expanded=true]")
-    browser.click(f".pf-v5-c-dropdown__menu-item:contains({action})")
+    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) button.pf-v5-c-menu-toggle")
+    browser.click(f"#accounts-list tbody tr:contains({user}) button.pf-v5-c-menu-toggle")
+    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) button.pf-v5-c-menu-toggle[aria-expanded=true]")
+    browser.click(f".pf-v5-c-menu__list-item:contains({action}) button")
+
+
+def performGroupAction(browser, group, action):
+    browser.click(f"#groups-list tbody tr:contains({group}) button.pf-v5-c-menu-toggle")
+    browser.click(f"#groups-list tbody tr:contains({group}) .pf-v5-c-menu__list-item:contains({action}) button")
 
 
 def createUser(
@@ -278,9 +283,9 @@ class TestAccounts(testlib.MachineCase):
         performUserAction(b, 'robert', 'Lock account')
         b.click("#account-confirm-lock-dialog footer .pf-m-danger.apply")
         # lock option is now disabled
-        b.click("#accounts-list tbody tr:contains(robert) .pf-v5-c-dropdown button")
-        b.wait_in_text(".pf-v5-c-dropdown__menu li:contains('Lock account') .pf-m-disabled", 'Lock account')
-        b.click("#accounts-list tbody tr:contains(robert) .pf-v5-c-dropdown button")
+        b.click("#accounts-list tbody tr:contains(robert) button.pf-v5-c-menu-toggle")
+        b.wait_in_text(".pf-v5-c-menu__list-item:contains('Lock account').pf-m-disabled", 'Lock account')
+        b.click("#accounts-list tbody tr:contains(robert) button.pf-v5-c-menu-toggle")
         # change is visible on details page
         performUserAction(b, 'robert', 'Edit user')
         b.wait_in_text('#account-title', 'Robert Robertson')
@@ -1090,10 +1095,6 @@ class TestAccounts(testlib.MachineCase):
         b = self.browser
         m = self.machine
 
-        def performGroupAction(browser, group, action):
-            browser.click(f"#groups-list tbody tr:contains({group}) .pf-v5-c-dropdown button")
-            browser.click(f"#groups-list tbody tr:contains({group}) .pf-v5-c-dropdown__menu li:contains({action})")
-
         def selectGroupFromMenu(group, enabled):
             if enabled:
                 testlib.wait(lambda: "testgroup0" not in m.execute("groups admin"))
@@ -1251,8 +1252,7 @@ class TestAccounts(testlib.MachineCase):
         self.login_and_go("/users")
         b.click("button:contains('more...')")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("titan")')
-        b.click("#groups-list tbody tr:contains(titan) .pf-v5-c-dropdown button")
-        b.click("#groups-list tbody tr:contains(titan) .pf-v5-c-dropdown__menu li:contains('Rename group')")
+        performGroupAction(b, "titan", "Rename group")
 
         b.set_input_text("#group-confirm-rename-dialog #group-name", "phoebe")
         b.click("#group-confirm-rename-dialog .apply")
@@ -1261,7 +1261,7 @@ class TestAccounts(testlib.MachineCase):
         self.assertNotIn("titan", m.execute("getent group"))
 
         # Rename and delete actions are available only for user created groups
-        b.wait_not_present(f"#groups-list tbody tr:contains({m.get_admin_group()}) .pf-v5-c-dropdown button")
+        b.wait_not_present(f"#groups-list tbody tr:contains({m.get_admin_group()}) button.pf-v5-c-menu-toggle")
 
     def testChangeShell(self):
         b = self.browser

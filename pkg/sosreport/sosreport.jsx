@@ -31,7 +31,7 @@ import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/di
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Label, LabelGroup } from "@patternfly/react-core/dist/esm/components/Label/index.js";
-import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
@@ -51,6 +51,7 @@ import { fmt_to_fragments } from "utils.jsx";
 import * as timeformat from "timeformat";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
+import { KebabDropdown } from "cockpit-components-dropdown";
 
 import './sosreport.scss';
 
@@ -384,19 +385,6 @@ const SOSErrorDialog = ({ error }) => {
         </Modal>);
 };
 
-const Menu = ({ items }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <Dropdown onSelect={() => setIsOpen(!isOpen)}
-                  toggle={<KebabToggle onToggle={(_, isOpen) => setIsOpen(isOpen)} />}
-                  isOpen={isOpen}
-                  isPlain
-                  position="right"
-                  dropdownItems={items} />
-    );
-};
-
 const MenuItem = ({ onClick, onlyNarrow, children }) => (
     <DropdownItem className={onlyNarrow ? "show-only-when-narrow" : null}
                   onKeyDown={onClick}
@@ -460,7 +448,7 @@ const SOSBody = () => {
                     onClick={download}>
                 {_("Download")}
             </Button>);
-        const menu = <Menu items={[
+        const menu = <KebabDropdown dropdownItems={[
             <MenuItem key="download"
                       onlyNarrow
                       onClick={download}>

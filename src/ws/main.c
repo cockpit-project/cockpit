@@ -125,6 +125,8 @@ main (int argc,
   CockpitWebServerFlags server_flags = COCKPIT_WEB_SERVER_NONE;
   CockpitHandlerData data;
 
+  cockpit_setenv_check ("G_MESSAGES_DEBUG", "all", TRUE);
+
   signal (SIGPIPE, SIG_IGN);
   cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
   cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);

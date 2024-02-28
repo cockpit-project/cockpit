@@ -27,7 +27,7 @@ import { rename_group_dialog } from "./rename-group-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-export const GroupActions = ({ group, accounts }) => {
+export const GroupActions = ({ group }) => {
     const [isKebabOpen, setKebabOpen] = useState(false);
 
     if (!group.isUserCreatedGroup)

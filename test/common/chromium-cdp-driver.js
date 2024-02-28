@@ -119,16 +119,6 @@ function setupLogging(client) {
     client.Log.enable();
     client.Log.entryAdded(entry => {
         const msg = entry.entry;
-        /* Ignore unsafe-inline messages from PatternFly's usage of Emotion
-         * (https://github.com/patternfly/patternfly-react/issues/2919) */
-        if ((msg.text || "").indexOf("Refused to apply inline style") >= 0) {
-            /* when building with --enable-debug, we have proper symbols and can reliably identify the source */
-            if (msg.stackTrace && msg.stackTrace.callFrames && msg.stackTrace.callFrames[0].functionName === "makeStyleTag")
-                return;
-            /* further trim the output by dropping the stackTrace if it's minified */
-            if (msg.stackTrace && msg.stackTrace.callFrames && msg.stackTrace.callFrames[0].functionName.length == 1)
-                msg.stackTrace = "(minified)";
-        }
 
         messages.push(["cdp", msg]);
         /* Ignore authentication failure log lines that don't denote failures */

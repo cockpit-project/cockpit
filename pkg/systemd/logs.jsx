@@ -145,7 +145,7 @@ export const LogsPage = () => {
     };
 
     const onJournalPrioChange = (value) => {
-        setUpdateIdentifiersList(false);
+        setUpdateIdentifiersList(true);
 
         updateUrl(Object.assign(options, { priority: value }));
     };

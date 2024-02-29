@@ -222,6 +222,12 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_log_present("JUST ERROR")
         wait_log_present("THE SERVICE")
 
+        # test: reload journals page to update identifiers
+        # Workaround the issue that identifiers are not updated when changing the priority log level in the logs page.
+        # See https://github.com/cockpit-project/cockpit/issues/20123
+        b.reload()
+        b.enter_page("/system/logs")
+
         self.browser.select_PF4("#journal-prio-menu", "Error and above")
         wait_log_not_present("THE SERVICE")
         wait_log_present("JUST ERROR")

@@ -47,7 +47,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, isAct
 
 EmptyStatePanel.propTypes = {
     loading: PropTypes.bool,
-    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.func]),
     title: PropTypes.string,
     paragraph: PropTypes.node,
     action: PropTypes.node,

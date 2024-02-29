@@ -115,7 +115,12 @@ function with_systemd_manager(done) {
     wait_valid(systemd_manager, done);
 }
 
+let proxy_id = 0;
+
 export function proxy(name, kind) {
+    const id = proxy_id++;
+    console.log("NEW", id, name, kind);
+
     const self = {
         exists: null,
         state: null,
@@ -212,6 +217,8 @@ export function proxy(name, kind) {
                     .catch(error => console.log(error));
         }
 
+        console.log("REFRESH", id, name);
+
         return Promise.allSettled([
             refresh_interface(unit.path, "org.freedesktop.systemd1.Unit"),
             refresh_interface(details.path, "org.freedesktop.systemd1." + kind),
@@ -219,8 +226,10 @@ export function proxy(name, kind) {
     }
 
     function on_job_new_removed_refresh(event, number, path, unit_id, result) {
-        if (unit_id == name)
+        if (unit_id == name) {
+            console.log("JOB", id, path, unit_id, result);
             refresh();
+        }
     }
 
     /* HACK - https://bugs.freedesktop.org/show_bug.cgi?id=69575
@@ -246,8 +255,10 @@ export function proxy(name, kind) {
 
     // This is what we have to do:
     systemd_manager.addEventListener("Reloading", (event, reloading) => {
-        if (!reloading)
+        if (!reloading) {
+            console.log("RELOADED", id, name);
             refresh();
+        }
     });
 
     systemd_manager.addEventListener("JobNew", on_job_new_removed_refresh);
@@ -279,6 +290,7 @@ export function proxy(name, kind) {
                     if (path == pending_job_path) {
                         subscription.remove();
                         dbus.close();
+                        console.log("WITH JOB", id, name, method);
                         refresh().then(() => {
                             if (result === "done")
                                 resolve();
@@ -306,10 +318,12 @@ export function proxy(name, kind) {
     }
 
     function start() {
+        console.log("STARTING", id, name);
         return call_manager_with_job("StartUnit", [name, "replace"]);
     }
 
     function stop() {
+        console.log("STOPPING", id, name);
         return call_manager_with_job("StopUnit", [name, "replace"]);
     }
 
@@ -322,11 +336,12 @@ export function proxy(name, kind) {
     }
 
     function enable() {
-        console.log("ENABLING", name);
+        console.log("ENABLING", id, name);
         return call_manager_with_reload("EnableUnitFiles", [[name], false, false]);
     }
 
     function disable() {
+        console.log("DISABLING", id, name);
         return call_manager_with_reload("DisableUnitFiles", [[name], false]);
     }
 

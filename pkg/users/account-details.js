@@ -354,6 +354,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
     const [selected, setSelected] = useState();
     const [primaryGroupName, setPrimaryGroupName] = useState();
     const [loading, setLoading] = useState(true);
+    const [modifyingGroup, setModifyingGroup] = useState(false);
     const [history, setHistory] = useState([]);
     const previousValue = useRef(null);
 
@@ -384,10 +385,11 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
         if (!isUndo)
             setHistory([...history, { type: 'removed', name: group }]);
 
-        setLoading(true);
+        setModifyingGroup(true);
         return cockpit.spawn(["gpasswd", "-d", name, group], { superuser: "require", err: "message" })
                 .then(() => {
                     setIsOpenGroup(false);
+                    setModifyingGroup(false);
                 }, show_unexpected_error);
     };
 
@@ -395,10 +397,11 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
         if (!isUndo)
             setHistory([...history, { type: 'added', name: group }]);
 
-        setLoading(true);
+        setModifyingGroup(true);
         return cockpit.spawn(["gpasswd", "-a", name, group], { superuser: "require", err: "message" })
                 .then(() => {
                     setIsOpenGroup(false);
+                    setModifyingGroup(false);
                 }, show_unexpected_error);
     };
 
@@ -446,7 +449,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
             {superuser.allowed
                 ? <Select
                    chipGroupComponent={chipGroupComponent()}
-                   isDisabled={!superuser.allowed || loading}
+                   isDisabled={!superuser.allowed || loading || modifyingGroup}
                    isOpen={isOpenGroup}
                    onSelect={onSelectGroup}
                    onToggle={(_, isOpen) => setIsOpenGroup(isOpen)}

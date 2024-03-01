@@ -349,7 +349,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
     );
 }
 
-export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
+export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
     const [isOpenGroup, setIsOpenGroup] = useState(false);
     const [selected, setSelected] = useState();
     const [primaryGroupName, setPrimaryGroupName] = useState();

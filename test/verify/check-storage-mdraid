@@ -192,6 +192,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         b.wait_text(self.card_row_col("GPT partitions", 2, 1), part_prefix + "2")
         b.wait_not_present(self.card_row("GPT partitions", name="Free space"))
 
+        b.wait_visible(self.card_row("GPT partitions", location="/foo2") + " .usage-bar[role=progressbar]")
         b.assert_pixels('body', "page",
                         ignore=[self.card_desc("MDRAID device", "UUID")])
 

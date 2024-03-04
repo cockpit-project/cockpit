@@ -270,7 +270,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                                         <FlexItem spacer={{ default: 'spacerNone' }}>
                                             <Checkbox id="account-locked"
-                                                        isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
+                                                        isDisabled={!superuser.allowed || edited_locked != null || user == current_user || account.isLocked == null}
                                                         isChecked={edited_locked != null ? edited_locked : account.isLocked}
                                                         onChange={(_event, checked) => change_locked(checked)}
                                                         label={_("Disallow interactive password")} />

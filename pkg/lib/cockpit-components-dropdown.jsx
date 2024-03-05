@@ -33,7 +33,7 @@ import { EllipsisVIcon } from '@patternfly/react-icons';
  * require a separator between DropdownItem's use PatternFly's Divivder
  * component.
  */
-export const KebabDropdown = ({ dropdownItems, position, isDisabled, props }) => {
+export const KebabDropdown = ({ dropdownItems, position, isDisabled, toggleButtonId, props }) => {
     const [isKebabOpen, setKebabOpen] = useState(false);
 
     return (
@@ -43,6 +43,7 @@ export const KebabDropdown = ({ dropdownItems, position, isDisabled, props }) =>
             onSelect={() => setKebabOpen(!isKebabOpen)}
             toggle={(toggleRef) => (
                 <MenuToggle
+                    id={toggleButtonId}
                     isDisabled={isDisabled}
                     ref={toggleRef}
                     variant="plain"
@@ -65,6 +66,7 @@ export const KebabDropdown = ({ dropdownItems, position, isDisabled, props }) =>
 KebabDropdown.propTypes = {
     dropdownItems: PropTypes.array.isRequired,
     isDisabled: PropTypes.bool,
+    toggleButtonId: PropTypes.string,
     position: PropTypes.oneOf(['right', 'left', 'center', 'start', 'end']),
 };
 

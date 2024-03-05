@@ -1002,6 +1002,11 @@ class Browser:
     def set_layout(self, name: str):
         layout = next(lo for lo in self.layouts if lo["name"] == name)
         if layout != self.current_layout:
+            if layout["name"] == "rtl":
+                self._set_direction("rtl")
+            elif layout["name"] != "rtl" and self.current_layout and self.current_layout["name"] == "rtl":
+                self._set_direction("ltr")
+
             self.current_layout = layout
             size = layout["shell_size"]
             self._set_window_size(size[0], size[1])
@@ -1216,8 +1221,6 @@ class Browser:
             for layout in self.layouts:
                 if layout["name"] not in skip_layouts:
                     self.set_layout(layout["name"])
-                    if "rtl" in self.current_layout["name"]:
-                        self._set_direction("rtl")
                     if wait_after_layout_change:
                         time.sleep(wait_delay)
                     self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
@@ -1226,8 +1229,6 @@ class Browser:
                                                          wait_animations=wait_animations,
                                                          wait_delay=wait_delay)
 
-                    if "rtl" in self.current_layout["name"]:
-                        self._set_direction("ltr")
             self.set_layout(previous_layout)
 
     def assert_no_unused_pixel_test_references(self):

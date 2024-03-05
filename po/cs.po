@@ -12,10 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-27 02:47+0000\n"
-"PO-Revision-Date: 2023-12-31 14:36+0000\n"
-"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
-"memory@weblate.org>\n"
+"POT-Creation-Date: 2024-03-01 02:46+0000\n"
+"PO-Revision-Date: 2024-03-01 22:35+0000\n"
+"Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
 "main/cs/>\n"
 "Language: cs\n"
@@ -23,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
-"X-Generator: Weblate 5.3.1\n"
+"X-Generator: Weblate 5.4\n"
 
 #: pkg/users/accounts-list.js:240
 msgid "# of users"
@@ -52,30 +51,22 @@ msgid "$0 available"
 msgstr "$0 k dispozici"
 
 #: pkg/storaged/block/resize.jsx:266
-#, fuzzy
-#| msgid "$0 filesystems can not be made larger."
 msgid "$0 can not be made larger"
-msgstr "$0 souborových systémů nelze zvětšit."
+msgstr "$0 není možné zvětšit"
 
 #: pkg/storaged/block/resize.jsx:263
-#, fuzzy
-#| msgid "$0 filesystems can not be made smaller."
 msgid "$0 can not be made smaller"
-msgstr "$0 souborových systémů nelze zmenšit."
+msgstr "$0 není možné zmenšit"
 
 #: pkg/storaged/block/resize.jsx:259
-#, fuzzy
-#| msgid "$0 filesystems can not be resized here."
 msgid "$0 can not be resized"
-msgstr "$0 souborovým systémům zde nelze změnit velikost."
+msgstr "$0 není možné změnit velikost"
 
 #: pkg/storaged/block/resize.jsx:255
-#, fuzzy
-#| msgid "$0 filesystems can not be resized here."
 msgid "$0 can not be resized here"
-msgstr "$0 souborovým systémům zde nelze změnit velikost."
+msgstr "$0 zde není možné změnit velikost"
 
-#: pkg/storaged/mdraid/mdraid.jsx:255
+#: pkg/storaged/mdraid/mdraid.jsx:252
 msgid "$0 chunk size"
 msgstr "$0 velikost bloku dat"
 
@@ -98,7 +89,7 @@ msgstr[1] "$0 dny"
 msgstr[2] "$0 dnů"
 
 #: pkg/playground/translate.js:26 pkg/playground/translate.js:29
-#: pkg/storaged/mdraid/mdraid.jsx:260
+#: pkg/storaged/mdraid/mdraid.jsx:257
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 disk chybí"
@@ -113,7 +104,7 @@ msgstr[0] "$0 disk chybí"
 msgstr[1] "$0 disky chybí"
 msgstr[2] "$0 disků chybí"
 
-#: pkg/storaged/mdraid/mdraid.jsx:253
+#: pkg/storaged/mdraid/mdraid.jsx:250
 msgid "$0 disks"
 msgstr "$0 disky"
 
@@ -141,9 +132,6 @@ msgstr[1] "$0 nepodařené pokusy o přihlášení"
 msgstr[2] "$0 nepodařených pokusů o přihlášení"
 
 #: pkg/storaged/filesystem/filesystem.jsx:91
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "$0 filesystem"
 msgid "$0 filesystem"
 msgstr "$0 souborový systém"
 
@@ -250,10 +238,8 @@ msgstr[1] "$0 stránky"
 msgstr[2] "$0 stránek"
 
 #: pkg/storaged/partitions/partition-table.jsx:92
-#, fuzzy
-#| msgid "partition"
 msgid "$0 partitions"
-msgstr "oddíl"
+msgstr "$0 oddíl"
 
 #: pkg/packagekit/updates.jsx:790
 msgid "$0 security fix available"
@@ -343,23 +329,17 @@ msgid "$name (from $host)"
 msgstr "$name (z $host)"
 
 #: pkg/storaged/dialog.jsx:1222
-#, fuzzy
-#| msgid "Creating partition $target"
 msgid "(Not part of target)"
-msgstr "Vytváří se oddíl $target"
+msgstr "(Není součástí cíle)"
 
 #: pkg/storaged/filesystem/utils.jsx:239
-#, fuzzy
-#| msgid "Local mount point"
 msgid "(no assigned mount point)"
-msgstr "Místní přípojný bod"
+msgstr "(nepřiřazen žádný přípojný bod)"
 
 #: pkg/storaged/filesystem/utils.jsx:236 pkg/storaged/filesystem/utils.jsx:241
 #: pkg/storaged/nfs/nfs.jsx:294
-#, fuzzy
-#| msgid "Not mounted"
 msgid "(not mounted)"
-msgstr "Nepřipojeno"
+msgstr "(nepřipojeno)"
 
 #: pkg/storaged/block/format-dialog.jsx:245
 msgid "(recommended)"
@@ -783,7 +763,7 @@ msgstr "Přidat VPN"
 msgid "Add WireGuard VPN"
 msgstr "Přidat WireGuard VPN"
 
-#: pkg/storaged/mdraid/mdraid.jsx:279
+#: pkg/storaged/mdraid/mdraid.jsx:276
 msgid "Add a bitmap"
 msgstr "Přidat bitovou mapu"
 
@@ -810,7 +790,7 @@ msgstr "Přidat sloučení linek"
 msgid "Add bridge"
 msgstr "Přidat síťový most"
 
-#: pkg/storaged/mdraid/mdraid.jsx:219
+#: pkg/storaged/mdraid/mdraid.jsx:216
 msgid "Add disk"
 msgstr "Přidat disk"
 
@@ -853,10 +833,8 @@ msgid "Add peer"
 msgstr "Přidat protějšek"
 
 #: pkg/storaged/lvm2/volume-group.jsx:243
-#, fuzzy
-#| msgid "Physical volume"
 msgid "Add physical volume"
-msgstr "Fyzický svazek"
+msgstr "Přidat fyzický svazek"
 
 #: pkg/networkmanager/firewall.jsx:598
 msgid "Add ports"
@@ -1157,9 +1135,6 @@ msgid "Apps"
 msgstr "Aplikace"
 
 #: pkg/storaged/drive/drive.jsx:102
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "Assessment"
 msgid "Assessment"
 msgstr "Posouzení"
 
@@ -1190,7 +1165,7 @@ msgstr "Je vyžadován alespoň jeden disk."
 
 #: pkg/storaged/btrfs/subvolume.jsx:298
 msgid "At least one parent needs to be mounted writable"
-msgstr ""
+msgstr "Je třeba, aby alespoň jeden nadřazený byl připojen pro zápis"
 
 #: pkg/systemd/timer-dialog.jsx:262
 msgid "At minute"
@@ -1312,10 +1287,8 @@ msgstr "BIOS"
 
 #: pkg/storaged/partitions/partition.jsx:87
 #: pkg/storaged/partitions/partition.jsx:122
-#, fuzzy
-#| msgid "Grow partition"
 msgid "BIOS boot partition"
-msgstr "Zvětšit oddíl"
+msgstr "Oddíl BIOS zavádění"
 
 #: pkg/systemd/hwinfo.jsx:108
 msgid "BIOS date"
@@ -1435,7 +1408,7 @@ msgstr "Chybné nastavení"
 
 #: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/btrfs/filesystem.jsx:73
 msgid "Btrfs volume is mounted"
-msgstr ""
+msgstr "Btrfs svazek je připojen"
 
 #: pkg/packagekit/updates.jsx:1437
 msgid "Bug fix updates available"
@@ -1459,10 +1432,8 @@ msgstr ""
 "klíč automaticky zpřístupněn a na $3 se příště přihlásíte už bez hesla."
 
 #: pkg/static/login.html:61
-#, fuzzy
-#| msgid "            Bypass browser check          "
 msgid "Bypass browser check"
-msgstr "            Obejít kontrolu prohlížeče          "
+msgstr "Obejít kontrolu prohlížeče"
 
 #: pkg/metrics/metrics.jsx:109 pkg/metrics/metrics.jsx:820
 #: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1949
@@ -1563,7 +1534,7 @@ msgstr "Nelze naplánovat událost v minulosti"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:128
+#: pkg/storaged/mdraid/mdraid.jsx:293 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/storaged/drive/drive.jsx:125 pkg/storaged/lvm2/volume-group.jsx:387
 msgid "Capacity"
 msgstr "Kapacita"
@@ -1589,8 +1560,6 @@ msgid "Change host name"
 msgstr "Změnit název stroje"
 
 #: pkg/storaged/overview/overview.jsx:152
-#, fuzzy
-#| msgid "Change iSCSI initiator name"
 msgid "Change iSCSI initiater name"
 msgstr "Změnit název iSCSI iniciátoru"
 
@@ -1599,10 +1568,8 @@ msgid "Change iSCSI initiator name"
 msgstr "Změnit název iSCSI iniciátoru"
 
 #: pkg/storaged/btrfs/volume.jsx:87
-#, fuzzy
-#| msgid "Change shell"
 msgid "Change label"
-msgstr "Změnit shell"
+msgstr "Změnit štítek"
 
 #: pkg/storaged/crypto/keyslots.jsx:480 pkg/storaged/stratis/pool.jsx:404
 msgid "Change passphrase"
@@ -1648,7 +1615,7 @@ msgstr ""
 
 #: pkg/storaged/partitions/partition.jsx:196
 msgid "Changing partition types might prevent the system from booting."
-msgstr ""
+msgstr "Změna typů oddílů může bránit nastartování systému."
 
 #: pkg/networkmanager/interfaces.js:1655
 msgid ""
@@ -1682,16 +1649,12 @@ msgid "Checking IP"
 msgstr "Kontroluje se IP adresa"
 
 #: pkg/storaged/jobs-panel.jsx:68
-#, fuzzy
-#| msgid "Checking RAID device $target"
 msgid "Checking MDRAID device $target"
 msgstr "Kontroluje se RAID zařízení $target"
 
 #: pkg/storaged/jobs-panel.jsx:69
-#, fuzzy
-#| msgid "Checking and repairing RAID device $target"
 msgid "Checking and repairing MDRAID device $target"
-msgstr "Kontroluje a opravuje se RAID zařízení $target"
+msgstr "Kontroluje a opravuje se MDRAID zařízení $target"
 
 #: pkg/storaged/crypto/keyslots.jsx:231
 msgid "Checking for $0 package"
@@ -2127,10 +2090,8 @@ msgid "Create LVM2 volume group"
 msgstr "Vytvořit LVM2 skupinu svazků"
 
 #: pkg/storaged/overview/overview.jsx:145
-#, fuzzy
-#| msgid "Create RAID device"
 msgid "Create MDRAID device"
-msgstr "Vytvořit RAID zařízení"
+msgstr "Vytvořit MDRAID zařízení"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:45
 msgid "Create RAID device"
@@ -2167,10 +2128,8 @@ msgid "Create and mount"
 msgstr "Vytvořit a připojit"
 
 #: pkg/storaged/block/format-dialog.jsx:332
-#, fuzzy
-#| msgid "Create and mount"
 msgid "Create and start"
-msgstr "Vytvořit a připojit"
+msgstr "Vytvořit a spustit"
 
 # auto translated by TM merge from project: usermode, version: default, DocId:
 # usermode
@@ -2207,10 +2166,8 @@ msgid "Create new task file with this content."
 msgstr "Vytvořit nový soubor s úlohou s tímto obsahem."
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:78
-#, fuzzy
-#| msgid "Create new logical volume"
 msgid "Create new thinly provisioned logical volume"
-msgstr "Vytvořit nový logický svazek"
+msgstr "Vytvořit nový tence (thin) poskytovaný logický svazek"
 
 #: pkg/storaged/btrfs/subvolume.jsx:133
 #: pkg/storaged/block/format-dialog.jsx:324
@@ -2246,16 +2203,12 @@ msgid "Create snapshot only"
 msgstr "Pouze pořídit zachycený stav"
 
 #: pkg/storaged/overview/overview.jsx:174
-#, fuzzy
-#| msgid "Create storage volume"
 msgid "Create storage device"
-msgstr "Vytvořit svazek úložiště"
+msgstr "Vytvořit zařízení úložiště"
 
 #: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:291
-#, fuzzy
-#| msgid "Create volume"
 msgid "Create subvolume"
-msgstr "Vytvořit svazek"
+msgstr "Vytvořit dílčí svazek"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:42
 msgid "Create thin volume"
@@ -2278,10 +2231,8 @@ msgid "Creating LVM2 volume group $target"
 msgstr "Vytváří se LVM2 skupina svazků $target"
 
 #: pkg/storaged/jobs-panel.jsx:67
-#, fuzzy
-#| msgid "Creating RAID device $target"
 msgid "Creating MDRAID device $target"
-msgstr "Vytváří se RAID zařízení $target"
+msgstr "Vytváří se MDRAID zařízení $target"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:284
 msgid "Creating VDO device"
@@ -2354,16 +2305,12 @@ msgid "Currently in use"
 msgstr "Nyní využito"
 
 #: pkg/kdump/kdump-view.jsx:535
-#, fuzzy
-#| msgid "Currently in use"
 msgid "Currently not supported"
-msgstr "Nyní využito"
+msgstr "Zatím nepodporováno"
 
 #: pkg/storaged/partitions/partition.jsx:154
-#, fuzzy
-#| msgid "custom"
 msgid "Custom"
-msgstr "uživatelsky určené"
+msgstr "Uživatelsky určené"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:142
 msgid "Custom cryptographic policy"
@@ -2378,10 +2325,8 @@ msgid "Custom ports"
 msgstr "Uživatelsky určené porty"
 
 #: pkg/storaged/partitions/partition.jsx:188
-#, fuzzy
-#| msgid "Custom ports"
 msgid "Custom type"
-msgstr "Uživatelsky určené porty"
+msgstr "Uživatelsky určený typ"
 
 #: pkg/networkmanager/firewall.jsx:839
 msgid "Custom zones"
@@ -2513,10 +2458,8 @@ msgid "Deactivate"
 msgstr "Deaktivovat"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:158
-#, fuzzy
-#| msgid "Repair logical volume $0"
 msgid "Deactivate logical volume $0/$1?"
-msgstr "Opravit logický svazek $0"
+msgstr "Deaktivovat logický svazek $0/$1?"
 
 #: pkg/networkmanager/interfaces.js:809
 msgid "Deactivating"
@@ -2567,7 +2510,7 @@ msgstr "Je třeba, aby prodleva byla číslo"
 #: pkg/networkmanager/firewall.jsx:121 pkg/networkmanager/firewall.jsx:182
 #: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:359
 #: pkg/sosreport/sosreport.jsx:471 pkg/storaged/mdraid/mdraid.jsx:126
-#: pkg/storaged/mdraid/mdraid.jsx:226 pkg/storaged/partitions/partition.jsx:58
+#: pkg/storaged/mdraid/mdraid.jsx:223 pkg/storaged/partitions/partition.jsx:58
 #: pkg/storaged/partitions/partition.jsx:112
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
@@ -2604,10 +2547,8 @@ msgstr "Smazat skupinu"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/storaged/stratis/pool.jsx:292
-#, fuzzy
-#| msgid "Delete"
 msgid "Delete pool"
-msgstr "Smazat"
+msgstr "Smazat fond"
 
 #: pkg/sosreport/sosreport.jsx:351
 msgid "Delete report permanently?"
@@ -2646,10 +2587,8 @@ msgid "Deleting a partition will delete all data in it."
 msgstr "Smazání oddílu vymaže veškerá data v něm."
 
 #: pkg/storaged/mdraid/mdraid.jsx:127
-#, fuzzy
-#| msgid "Deleting erases all data on a RAID device."
 msgid "Deleting erases all data on a MDRAID device."
-msgstr "Smazání vymaže veškerá data na RAID zařízení."
+msgstr "Smazání vymaže veškerá data na MDRAID zařízení."
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:123
 msgid "Deleting erases all data on a VDO device."
@@ -2660,10 +2599,9 @@ msgid "Deleting erases all data on a volume group."
 msgstr "Smazání vymaže veškerá data ve skupině svazků."
 
 #: pkg/storaged/btrfs/subvolume.jsx:228
-#, fuzzy
-#| msgid "Deleting erases all data on a volume group."
 msgid "Deleting erases all data on this subvolume and all it's children."
-msgstr "Smazání vymaže veškerá data ve skupině svazků."
+msgstr ""
+"Smazání vymaže veškerá data na tomto dílčím svazku a všech jemu podřízeným."
 
 #: pkg/systemd/service-details.jsx:616
 msgid "Deletion will remove the following files:"
@@ -2699,7 +2637,7 @@ msgstr "Vývoj"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/metrics/metrics.jsx:785 pkg/storaged/mdraid/mdraid.jsx:295
+#: pkg/metrics/metrics.jsx:785 pkg/storaged/mdraid/mdraid.jsx:292
 #: pkg/storaged/dialog.jsx:1137 pkg/storaged/dialog.jsx:1242
 msgid "Device"
 msgstr "Zařízení"
@@ -2714,10 +2652,8 @@ msgid "Device is read-only"
 msgstr "Zařízení je pouze pro čtení"
 
 #: pkg/storaged/block/other.jsx:60
-#, fuzzy
-#| msgid "Service name"
 msgid "Device number"
-msgstr "Název služby"
+msgstr "Číslo zařízení"
 
 #: pkg/sosreport/index.html:22 pkg/sosreport/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-sosreport.metainfo.xml.in:5
@@ -2797,7 +2733,7 @@ msgstr "Heslová fráze k disku"
 # auto translated by TM merge from project: blivet-gui, version: master,
 # DocId: po/blivet-gui
 #: pkg/metrics/metrics.jsx:918 pkg/storaged/mdraid/create-dialog.jsx:99
-#: pkg/storaged/mdraid/mdraid.jsx:156 pkg/storaged/mdraid/mdraid.jsx:299
+#: pkg/storaged/mdraid/mdraid.jsx:156 pkg/storaged/mdraid/mdraid.jsx:296
 #: pkg/storaged/lvm2/create-dialog.jsx:52
 #: pkg/storaged/lvm2/volume-group.jsx:198
 msgid "Disks"
@@ -2931,10 +2867,8 @@ msgstr "Dual rank"
 #: pkg/storaged/partitions/partition.jsx:85
 #: pkg/storaged/partitions/partition.jsx:123
 #: pkg/storaged/partitions/partition.jsx:131
-#, fuzzy
-#| msgid "Extended partition"
 msgid "EFI system partition"
-msgstr "Rozšířený oddíl"
+msgstr "Systémový oddíl EFI"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
@@ -2995,10 +2929,8 @@ msgstr "Upravit motd"
 # DocId: anaconda
 #: pkg/storaged/btrfs/subvolume.jsx:263 pkg/storaged/stratis/filesystem.jsx:174
 #: pkg/storaged/filesystem/filesystem.jsx:100
-#, fuzzy
-#| msgid "Mount point"
 msgid "Edit mount point"
-msgstr "Přípojný bod"
+msgstr "Upravit přípojný bod"
 
 #: pkg/networkmanager/network-main.jsx:161
 msgid "Edit rules and zones"
@@ -3103,10 +3035,8 @@ msgid "Encrypted $0"
 msgstr "Šifrované $0"
 
 #: pkg/storaged/stratis/pool.jsx:275
-#, fuzzy
-#| msgid "Encrypted Stratis pool $0"
 msgid "Encrypted Stratis pool"
-msgstr "Šifrovaný Stratis fond na $0"
+msgstr "Šifrovaný Stratis fond"
 
 #: pkg/storaged/utils.js:358
 msgid "Encrypted logical volume of $0"
@@ -3416,10 +3346,8 @@ msgid "Filesystem name"
 msgstr "Název souborového systému"
 
 #: pkg/storaged/dialog.jsx:1118
-#, fuzzy
-#| msgid "Creating filesystem on $target"
 msgid "Filesystem outside the target"
-msgstr "Vytváří se souborový systém na $target"
+msgstr "Souborový systém vně cíle"
 
 #: pkg/storaged/filesystem/utils.jsx:127
 msgid "Filesystems are already mounted below this mountpoint."
@@ -3459,9 +3387,6 @@ msgstr "Brána firewall není k dispozici"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/storaged/drive/drive.jsx:122
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "Firmware version"
 msgid "Firmware version"
 msgstr "Verze firmware"
 
@@ -3513,10 +3438,8 @@ msgid "Format and mount"
 msgstr "Naformátovat a připojit"
 
 #: pkg/storaged/block/format-dialog.jsx:332
-#, fuzzy
-#| msgid "Format and mount"
 msgid "Format and start"
-msgstr "Naformátovat a připojit"
+msgstr "Naformátovat a spustit"
 
 # auto translated by TM merge from project: blivet-gui, version: f23-branch,
 # DocId: blivet-gui
@@ -3663,10 +3586,8 @@ msgstr "Pro držení v rukou"
 # auto translated by TM merge from project: udisks, version: udisks, DocId:
 # udisks2
 #: pkg/storaged/drive/drive.jsx:64
-#, fuzzy
-#| msgid "Hard Disk"
 msgid "Hard Disk Drive"
-msgstr "Pevný disk"
+msgstr "Jednotka pevného disku"
 
 #: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:308
 msgid "Hardware information"
@@ -3750,7 +3671,7 @@ msgstr "Jak zkontrolovat"
 #: pkg/users/accounts-list.js:239 pkg/users/accounts-list.js:390
 #: pkg/users/group-create-dialog.js:47 pkg/systemd/hwinfo.jsx:291
 #: pkg/networkmanager/firewall.jsx:700 pkg/storaged/btrfs/subvolume.jsx:334
-#: pkg/storaged/pages.jsx:709
+#: pkg/storaged/pages.jsx:714
 msgid "ID"
 msgstr "Identif."
 
@@ -3872,10 +3793,8 @@ msgid "Inactive"
 msgstr "Neaktivní"
 
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:33
-#, fuzzy
-#| msgid "Create logical volume"
 msgid "Inactive logical volume"
-msgstr "Vytvořit logický svazek"
+msgstr "Neaktivní logický svazek"
 
 #: pkg/networkmanager/firewall.jsx:856
 msgid "Included services"
@@ -3979,10 +3898,8 @@ msgid "Install software"
 msgstr "Nainstalovat software"
 
 #: pkg/kdump/kdump-view.jsx:571
-#, fuzzy
-#| msgid "Please install the $0 package"
 msgid "Install the $0 package."
-msgstr "Nainstalujte balíček $0"
+msgstr "Nainstalujte balíček $0."
 
 #: pkg/metrics/metrics.jsx:1817
 msgid "Installation not supported without installed cockpit package"
@@ -4184,16 +4101,12 @@ msgid "Jump to"
 msgstr "Přeskočit na"
 
 #: pkg/kdump/kdump-view.jsx:569
-#, fuzzy
-#| msgid "Cockpit is not installed"
 msgid "Kdump service is not installed."
-msgstr "Cockpit není nainstalován"
+msgstr "Služba kdump není nainstalována."
 
 #: pkg/kdump/kdump-view.jsx:604
-#, fuzzy
-#| msgid "Test kdump settings"
 msgid "Kdump settings"
-msgstr "Vyzkoušet nastavení kdump"
+msgstr "Nastavení pro kdump"
 
 #: pkg/networkmanager/interfaces.js:69
 msgid "Keep connection"
@@ -4205,7 +4118,7 @@ msgstr "Výpis pádu jádra systému"
 
 #: pkg/kdump/kdump-view.jsx:550
 msgid "Kernel did not boot with the $0 setting"
-msgstr ""
+msgstr "Jádro s nastavením $0 nenastartovalo"
 
 #: pkg/kdump/index.html:23 pkg/kdump/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-kdump.metainfo.xml.in:5
@@ -4269,35 +4182,25 @@ msgstr "PŮVODNÍ s interoperabilitou s Active Directory."
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
 #: pkg/storaged/lvm2/vdo-pool.jsx:42
-#, fuzzy
-#| msgid "VDO pool"
 msgid "LVM2 VDO pool"
-msgstr "VDO fond"
+msgstr "LVM2 VDO fond"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:191
-#, fuzzy
-#| msgid "Logical volume"
 msgid "LVM2 logical volume"
-msgstr "Logický svazek"
+msgstr "LVM2 logický svazek"
 
 #: pkg/storaged/lvm2/volume-group.jsx:257
 #: pkg/storaged/lvm2/volume-group.jsx:298
-#, fuzzy
-#| msgid "Logical volumes"
 msgid "LVM2 logical volumes"
-msgstr "Logické svazky"
+msgstr "LVM2 logické oddíly"
 
 #: pkg/storaged/lvm2/physical-volume.jsx:40
-#, fuzzy
-#| msgid "Physical volume"
 msgid "LVM2 physical volume"
-msgstr "Fyzický svazek"
+msgstr "LVM2 fyzický svazek"
 
 #: pkg/storaged/lvm2/volume-group.jsx:393
-#, fuzzy
-#| msgid "Physical volume"
 msgid "LVM2 physical volumes"
-msgstr "Fyzický svazek"
+msgstr "LVM2 fyzické svazky"
 
 #: pkg/storaged/lvm2/volume-group.jsx:231
 msgid "LVM2 volume group"
@@ -4309,7 +4212,7 @@ msgstr "LVM2 skupina svazků $0"
 
 #: pkg/storaged/btrfs/volume.jsx:119 pkg/storaged/btrfs/filesystem.jsx:69
 msgid "Label"
-msgstr ""
+msgstr "Štítek"
 
 #: pkg/lib/machine-info.js:68
 msgid "Laptop"
@@ -4330,20 +4233,16 @@ msgid "Last active"
 msgstr "Naposledy aktivní"
 
 #: pkg/storaged/lvm2/physical-volume.jsx:73
-#, fuzzy
-#| msgid "The last key slot can not be removed"
 msgid "Last cannot be removed"
-msgstr "Poslední zbývající slot klíče není možné odebrat"
+msgstr "Poslední zbývající není možné odebrat"
 
 #: pkg/packagekit/updates.jsx:785
 msgid "Last checked: $0"
 msgstr "Naposledy zkontrolováno: $0"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:93
-#, fuzzy
-#| msgid "The last key slot can not be removed"
 msgid "Last disk can not be removed"
-msgstr "Poslední zbývající slot klíče není možné odebrat"
+msgstr "Poslední zbývající disk není možné odebrat"
 
 #: pkg/users/account-details.js:266
 msgid "Last login"
@@ -4442,18 +4341,13 @@ msgstr "Odkazováno"
 
 #: pkg/storaged/partitions/partition.jsx:126
 #: pkg/storaged/partitions/partition.jsx:133
-#, fuzzy
-#| msgid "Unmount filesystem $0"
 msgid "Linux filesystem data"
-msgstr "Odpojit souborový systém $0"
+msgstr "Data linuxového souborového systému"
 
 #: pkg/storaged/partitions/partition.jsx:125
 #: pkg/storaged/partitions/partition.jsx:132
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Swap space"
 msgid "Linux swap space"
-msgstr "Odkládací prostor"
+msgstr "Odkládací prostor Linux"
 
 #: pkg/systemd/service-details.jsx:670
 msgid "Listen"
@@ -4550,20 +4444,16 @@ msgid "Local mount point"
 msgstr "Místní přípojný bod"
 
 #: pkg/storaged/overview/overview.jsx:160
-#, fuzzy
-#| msgid "No storage"
 msgid "Local storage"
-msgstr "Žádné úložiště"
+msgstr "Lokální úložiště"
 
 #: pkg/kdump/kdump-view.jsx:450
-#, fuzzy
-#| msgid "locally in $0"
 msgid "Local, $0"
-msgstr "místně v $0"
+msgstr "Lokální, $0"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/storaged/pages.jsx:711 pkg/storaged/dialog.jsx:1138
+#: pkg/storaged/pages.jsx:716 pkg/storaged/dialog.jsx:1138
 #: pkg/storaged/dialog.jsx:1243 pkg/kdump/kdump-view.jsx:243
 msgid "Location"
 msgstr "Umístění"
@@ -4585,10 +4475,8 @@ msgid "Lock account"
 msgstr "Uzamknout účet"
 
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:31
-#, fuzzy
-#| msgid "Locked"
 msgid "Locked data"
-msgstr "Uzamčeno"
+msgstr "Uzamčená data"
 
 #: pkg/storaged/jobs-panel.jsx:43
 msgid "Locking $target"
@@ -4638,10 +4526,8 @@ msgstr "Logický"
 
 #: pkg/storaged/partitions/partition.jsx:127
 #: pkg/storaged/partitions/partition.jsx:134
-#, fuzzy
-#| msgid "Logical volume (snapshot)"
 msgid "Logical Volume Manager partition"
-msgstr "Logický svazek (zachycený stav)"
+msgstr "Oddíl správy logických svazků"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:249
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:213
@@ -4710,44 +4596,32 @@ msgstr "MAC"
 
 # auto translated by TM merge from project: anaconda, version: master, DocId:
 # main
-#: pkg/storaged/mdraid/mdraid.jsx:196 pkg/storaged/mdraid/mdraid.jsx:204
+#: pkg/storaged/mdraid/mdraid.jsx:193 pkg/storaged/mdraid/mdraid.jsx:201
 #: pkg/storaged/mdraid/mdraid-disk.jsx:122
-#, fuzzy
-#| msgid "RAID device"
 msgid "MDRAID device"
-msgstr "RAID zařízení"
+msgstr "MDRAID zařízení"
 
 #: pkg/storaged/utils.js:334
-#, fuzzy
-#| msgid "RAID device $0"
 msgid "MDRAID device $0"
-msgstr "RAID zařízení $0"
+msgstr "MDRAID zařízení $0"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:89
-#, fuzzy
-#| msgid "Device is read-only"
 msgid "MDRAID device is recovering"
-msgstr "Zařízení je pouze pro čtení"
+msgstr "Zařízení je pouze se zotavuje"
 
-#: pkg/storaged/mdraid/mdraid.jsx:193
-#, fuzzy
-#| msgid "Service is running"
+#: pkg/storaged/mdraid/mdraid.jsx:190
 msgid "MDRAID device must be running"
-msgstr "Služba je spuštěná"
+msgstr "Je třeba, aby MDRAID zařízení bylo spuštěné"
 
 # auto translated by TM merge from project: anaconda, version: master, DocId:
 # main
 #: pkg/storaged/mdraid/mdraid-disk.jsx:40
-#, fuzzy
-#| msgid "RAID device"
 msgid "MDRAID disk"
-msgstr "RAID zařízení"
+msgstr "MDRAID disk"
 
-#: pkg/storaged/mdraid/mdraid.jsx:302
-#, fuzzy
-#| msgid "Add disks"
+#: pkg/storaged/mdraid/mdraid.jsx:299
 msgid "MDRAID disks"
-msgstr "Přidat disky"
+msgstr "MDRAID disky"
 
 #: pkg/networkmanager/bond.jsx:54
 msgid "MII (recommended)"
@@ -4896,11 +4770,8 @@ msgid "Maximum message age $max_age"
 msgstr "Maximální stáří zpráv $max_age"
 
 #: pkg/storaged/drive/drive.jsx:62
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "Optical drive"
 msgid "Media drive"
-msgstr "Mechanika optických disků"
+msgstr "Jednotka média"
 
 # auto translated by TM merge from project: virt-manager, version: master,
 # DocId: virt-manager
@@ -5039,8 +4910,6 @@ msgstr "Připojit (mount)"
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
 #: pkg/storaged/btrfs/subvolume.jsx:149
-#, fuzzy
-#| msgid "Mount point"
 msgid "Mount Point"
 msgstr "Přípojný bod"
 
@@ -5141,9 +5010,6 @@ msgid "Multi-system chassis"
 msgstr "Skříň pro více systémů"
 
 #: pkg/storaged/drive/drive.jsx:135
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "Multipathed devices"
 msgid "Multipathed devices"
 msgstr "Zařízení s vícero cestami (multipath)"
 
@@ -5171,7 +5037,7 @@ msgstr "NTP server"
 #: pkg/systemd/hwinfo.jsx:86 pkg/networkmanager/network-main.jsx:185
 #: pkg/networkmanager/network-main.jsx:200
 #: pkg/networkmanager/dialogs-common.jsx:142 pkg/shell/credentials.jsx:101
-#: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
+#: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:285
 #: pkg/storaged/iscsi/create-dialog.jsx:111
 #: pkg/storaged/iscsi/create-dialog.jsx:168
 #: pkg/storaged/partitions/partition.jsx:227 pkg/storaged/btrfs/volume.jsx:89
@@ -5218,20 +5084,16 @@ msgid "Name cannot be longer than 127 characters."
 msgstr "Název nemůže být delší než 127 znaků."
 
 #: pkg/storaged/btrfs/utils.jsx:87
-#, fuzzy
-#| msgid "Name cannot be longer than 127 characters."
 msgid "Name cannot be longer than 255 characters."
-msgstr "Název nemůže být delší než 127 znaků."
+msgstr "Název nemůže být delší než 255 znaků."
 
 #: pkg/storaged/utils.js:218
 msgid "Name cannot contain the character '$0'."
 msgstr "Název nemůže obsahovat znak „$0“."
 
 #: pkg/storaged/btrfs/utils.jsx:89
-#, fuzzy
-#| msgid "Name cannot contain the character '$0'."
 msgid "Name cannot contain the character '/'."
-msgstr "Název nemůže obsahovat znak „$0“."
+msgstr "Název nemůže obsahovat znak „/“."
 
 #: pkg/storaged/utils.js:220
 msgid "Name cannot contain whitespace."
@@ -5285,10 +5147,8 @@ msgid "NetworkManager is not running"
 msgstr "NetworkManager není spuštěný"
 
 #: pkg/storaged/overview/overview.jsx:168
-#, fuzzy
-#| msgid "Network usage"
 msgid "Networked storage"
-msgstr "Využití sítě"
+msgstr "Síťové úložiště"
 
 # auto translated by TM merge from project: Fedora Release Notes, version:
 # f24, DocId: pot/Networking
@@ -5379,10 +5239,8 @@ msgid "No block devices are available."
 msgstr "Nejsou k dispozici žádná bloková zařízení."
 
 #: pkg/storaged/stratis/pool.jsx:569 pkg/storaged/stratis/stopped-pool.jsx:140
-#, fuzzy
-#| msgid "No boot device found"
 msgid "No block devices found"
-msgstr "Nenalezeno žádné zařízení pro zavádění"
+msgstr "Nenalezena žádná bloková zařízení"
 
 #: pkg/networkmanager/interfaces.js:1356
 msgid "No carrier"
@@ -5413,10 +5271,8 @@ msgid "No description provided."
 msgstr "Není poskytnut žádný popis."
 
 #: pkg/storaged/btrfs/volume.jsx:136
-#, fuzzy
-#| msgid "No boot device found"
 msgid "No devices found"
-msgstr "Nenalezeno žádné zařízení pro zavádění"
+msgstr "Nenalezena žádná zařízení"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:101 pkg/storaged/mdraid/mdraid.jsx:158
 #: pkg/storaged/stratis/pool.jsx:212 pkg/storaged/lvm2/create-dialog.jsx:54
@@ -5424,17 +5280,13 @@ msgstr "Nenalezeno žádné zařízení pro zavádění"
 msgid "No disks are available."
 msgstr "Nejsou k dispozici žádné disky."
 
-#: pkg/storaged/mdraid/mdraid.jsx:301
-#, fuzzy
-#| msgid "No logs found"
+#: pkg/storaged/mdraid/mdraid.jsx:298
 msgid "No disks found"
-msgstr "Nenalezeny žádné záznamy událostí"
+msgstr "Nenalezeny žádné disky"
 
 #: pkg/storaged/iscsi/session.jsx:79
-#, fuzzy
-#| msgid "No results found"
 msgid "No drives found"
-msgstr "Nenalezeny žádné výsledky"
+msgstr "Nenalezeny žádné jednotky"
 
 #: pkg/storaged/block/format-dialog.jsx:250
 msgid "No encryption"
@@ -5515,20 +5367,16 @@ msgid "No partitioning"
 msgstr "Žádný oddíl"
 
 #: pkg/storaged/partitions/partition-table.jsx:107
-#, fuzzy
-#| msgid "No partitioning"
 msgid "No partitions found"
-msgstr "Žádný oddíl"
+msgstr "Nenalezeny žádné oddíly"
 
 #: pkg/networkmanager/wireguard.jsx:341
 msgid "No peers added."
 msgstr "Nepřidány žádné protějšky."
 
 #: pkg/storaged/lvm2/volume-group.jsx:392
-#, fuzzy
-#| msgid "Physical volumes"
 msgid "No physical volumes found"
-msgstr "Fyzické svazky"
+msgstr "Nenalezeny žádné fyzické svazky"
 
 #: pkg/users/account-create-dialog.js:168
 msgid "No real name specified"
@@ -5550,16 +5398,12 @@ msgid "No rule hits"
 msgstr "Žádné zásahy pravidla"
 
 #: pkg/storaged/overview/overview.jsx:190
-#, fuzzy
-#| msgid "No storage"
 msgid "No storage found"
-msgstr "Žádné úložiště"
+msgstr "Nenalezeno žádné úložiště"
 
 #: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
-#, fuzzy
-#| msgid "No logical volumes"
 msgid "No subvolumes"
-msgstr "Žádné logické svazky"
+msgstr "Žádné dílčí svazky"
 
 #: pkg/lib/credentials.js:191
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:182
@@ -5616,10 +5460,8 @@ msgid "Not connected to host"
 msgstr "Nepřipojeno k hostiteli"
 
 #: pkg/storaged/lvm2/physical-volume.jsx:78
-#, fuzzy
-#| msgid "Not enough space"
 msgid "Not enough free space"
-msgstr "Nedostatek prostoru"
+msgstr "Nedostatek volného prostoru"
 
 #: pkg/storaged/stratis/pool.jsx:310 pkg/storaged/stratis/filesystem.jsx:76
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:95
@@ -5627,15 +5469,13 @@ msgid "Not enough space"
 msgstr "Nedostatek prostoru"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:183
-#, fuzzy
-#| msgid "Not enough space to grow."
 msgid "Not enough space to grow"
-msgstr "Pro zvětšení není k dispozici dostatek prostoru."
+msgstr "Pro zvětšení není k dispozici dostatek prostoru"
 
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
-#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:275
-#: pkg/storaged/pages.jsx:278
+#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:278
+#: pkg/storaged/pages.jsx:283
 msgid "Not found"
 msgstr "Nenalezeno"
 
@@ -5646,10 +5486,8 @@ msgid "Not installed"
 msgstr "Nenainstalováno"
 
 #: pkg/networkmanager/network-interface.jsx:680
-#, fuzzy
-#| msgid "Not permitted to configure realms"
 msgid "Not permitted to configure network devices"
-msgstr "Nemáte oprávnění nastavovat realmy"
+msgstr "Nemáte oprávnění nastavovat síťová zařízení"
 
 #: pkg/systemd/overview-cards/realmd.jsx:462
 msgid "Not permitted to configure realms"
@@ -5669,7 +5507,7 @@ msgstr "Nezaregistrováno"
 
 #: pkg/systemd/service-details.jsx:472 pkg/systemd/services.jsx:234
 #: pkg/systemd/services.jsx:237 pkg/systemd/services.jsx:697
-#: pkg/storaged/mdraid/mdraid.jsx:290
+#: pkg/storaged/mdraid/mdraid.jsx:287
 msgid "Not running"
 msgstr "Není spuštěné"
 
@@ -6137,16 +5975,12 @@ msgid "Permanently delete $0?"
 msgstr "Nenávratně smazat $0?"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:75
-#, fuzzy
-#| msgid "Permanently delete $0?"
 msgid "Permanently delete logical volume $0/$1?"
-msgstr "Nenávratně smazat $0?"
+msgstr "Nenávratně smazat logický svazek $0/&1?"
 
 #: pkg/storaged/btrfs/subvolume.jsx:224
-#, fuzzy
-#| msgid "Permanently delete $0?"
 msgid "Permanently delete subvolume $0?"
-msgstr "Nenávratně smazat $0?"
+msgstr "Nenávratně smazat dílčí svazek $0?"
 
 # auto translated by TM merge from project: Linux PAM, version: master, DocId:
 # po/Linux-PAM
@@ -6174,10 +6008,8 @@ msgid "Physical volumes"
 msgstr "Fyzické svazky"
 
 #: pkg/storaged/block/resize.jsx:279
-#, fuzzy
-#| msgid "Physical volumes can not be resized here."
 msgid "Physical volumes can not be resized here"
-msgstr "Zde není možné měnit velikost fyzických svazků."
+msgstr "Zde není možné měnit velikost fyzických svazků"
 
 #: pkg/users/expiration-dialogs.js:48 pkg/systemd/timer-dialog.jsx:347
 #: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:599
@@ -6237,10 +6069,8 @@ msgid "Pool for thin logical volumes"
 msgstr "Fond pro thin logické svazky"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:98
-#, fuzzy
-#| msgid "Pool for thinly provisioned volumes"
 msgid "Pool for thinly provisioned LVM2 logical volumes"
-msgstr "Fond pro tence poskytované svazky"
+msgstr "Fond pro tence poskytované LVM2 logické svazky"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:58
 msgid "Pool for thinly provisioned volumes"
@@ -6272,10 +6102,8 @@ msgstr "Porty"
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
 #: pkg/storaged/partitions/partition.jsx:124
-#, fuzzy
-#| msgid "Create partition"
 msgid "PowerPC PReP boot partition"
-msgstr "Vytvořit oddíl"
+msgstr "Zaváděcí oddíl PReP architektury PowerPC"
 
 #: pkg/networkmanager/ip-settings.jsx:194
 msgid "Prefix length"
@@ -6398,11 +6226,11 @@ msgstr "Veřejný klíč bude vytvořen v okamžiku zadání platného soukromé
 msgid "Purpose"
 msgstr "Účel"
 
-#: pkg/storaged/mdraid/mdraid.jsx:248
+#: pkg/storaged/mdraid/mdraid.jsx:245
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:242
+#: pkg/storaged/mdraid/mdraid.jsx:239
 msgid "RAID 0"
 msgstr "RAID 0"
 
@@ -6410,7 +6238,7 @@ msgstr "RAID 0"
 msgid "RAID 0 (stripe)"
 msgstr "RAID 0 (proužkování)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:243
+#: pkg/storaged/mdraid/mdraid.jsx:240
 msgid "RAID 1"
 msgstr "RAID 1"
 
@@ -6418,7 +6246,7 @@ msgstr "RAID 1"
 msgid "RAID 1 (mirror)"
 msgstr "RAID 1 (zrcadlení)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:247
+#: pkg/storaged/mdraid/mdraid.jsx:244
 msgid "RAID 10"
 msgstr "RAID 10"
 
@@ -6426,7 +6254,7 @@ msgstr "RAID 10"
 msgid "RAID 10 (stripe of mirrors)"
 msgstr "RAID 10 (proužkování zrcadel)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:244
+#: pkg/storaged/mdraid/mdraid.jsx:241
 msgid "RAID 4"
 msgstr "RAID 4"
 
@@ -6434,7 +6262,7 @@ msgstr "RAID 4"
 msgid "RAID 4 (dedicated parity)"
 msgstr "RAID 4 (vyhrazená parita)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:245
+#: pkg/storaged/mdraid/mdraid.jsx:242
 msgid "RAID 5"
 msgstr "RAID 5"
 
@@ -6442,7 +6270,7 @@ msgstr "RAID 5"
 msgid "RAID 5 (distributed parity)"
 msgstr "RAID 5 (distribuovaná parita)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:246
+#: pkg/storaged/mdraid/mdraid.jsx:243
 msgid "RAID 6"
 msgstr "RAID 6"
 
@@ -6454,7 +6282,7 @@ msgstr "RAID 6 (dvojitá distribuovaná parita)"
 msgid "RAID chassis"
 msgstr "RAID skříň"
 
-#: pkg/storaged/mdraid/create-dialog.jsx:51 pkg/storaged/mdraid/mdraid.jsx:289
+#: pkg/storaged/mdraid/create-dialog.jsx:51 pkg/storaged/mdraid/mdraid.jsx:286
 msgid "RAID level"
 msgstr "RAID úroveň"
 
@@ -6586,10 +6414,8 @@ msgid "Recovering"
 msgstr "Zotavování"
 
 #: pkg/storaged/jobs-panel.jsx:70
-#, fuzzy
-#| msgid "Recovering RAID device $target"
 msgid "Recovering MDRAID device $target"
-msgstr "Zotavování RAID zařízení $target"
+msgstr "Zotavování MDRAID zařízení $target"
 
 #: pkg/packagekit/updates.jsx:98
 msgid "Refreshing package information"
@@ -6662,10 +6488,8 @@ msgid "Remote over NFS"
 msgstr "Vzdálené přes NFS"
 
 #: pkg/kdump/kdump-view.jsx:456
-#, fuzzy
-#| msgid "Remote over NFS"
 msgid "Remote over NFS, $0"
-msgstr "Vzdálené přes NFS"
+msgstr "Vzdálené přes NFS, $0"
 
 #: pkg/kdump/kdump-view.jsx:467
 msgid "Remote over SFTP"
@@ -6676,10 +6500,8 @@ msgid "Remote over SSH"
 msgstr "Vzdálené přes SSH"
 
 #: pkg/kdump/kdump-view.jsx:453
-#, fuzzy
-#| msgid "Remote over SSH"
 msgid "Remote over SSH, $0"
-msgstr "Vzdálené přes SSH"
+msgstr "Vzdálené přes SSH, $0"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:90
 msgid "Removals:"
@@ -6769,10 +6591,8 @@ msgstr ""
 "správu."
 
 #: pkg/storaged/jobs-panel.jsx:66
-#, fuzzy
-#| msgid "Removing $target from RAID device"
 msgid "Removing $target from MDRAID device"
-msgstr "Odebírání $target z RAID zařízení"
+msgstr "Odebírání $target z MDRAID zařízení"
 
 #: pkg/storaged/crypto/keyslots.jsx:593
 msgid ""
@@ -6950,6 +6770,9 @@ msgid ""
 "line. For example, append '$1' to $2  in $3 or use your distribution's "
 "kernel argument editor."
 msgstr ""
+"Vyhraďte paměť v okamžiku zavádění systému nastavením volby „$0“ příkazového "
+"řádku jádra systému. Například, připojte „$1“ k $2 v $3 nebo použijte editor "
+"argumentů jádra systému, poskytovaný vámi využívanou distribucí."
 
 #: pkg/kdump/kdump-view.jsx:610
 msgid "Reserved memory"
@@ -7072,7 +6895,7 @@ msgstr "Spouštěč"
 # po/dnf
 #: pkg/systemd/service-details.jsx:464 pkg/systemd/services.jsx:232
 #: pkg/systemd/services.jsx:236 pkg/systemd/services.jsx:696
-#: pkg/storaged/mdraid/mdraid.jsx:290
+#: pkg/storaged/mdraid/mdraid.jsx:287
 msgid "Running"
 msgstr "Spuštěné"
 
@@ -7300,9 +7123,6 @@ msgid "Sending"
 msgstr "Odchozí"
 
 #: pkg/storaged/drive/drive.jsx:123
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "Serial number"
 msgid "Serial number"
 msgstr "Sériové číslo"
 
@@ -7382,10 +7202,8 @@ msgid "Set hostname"
 msgstr "Nastavit název stroje"
 
 #: pkg/storaged/partitions/partition.jsx:181
-#, fuzzy
-#| msgid "Create partition on $0"
 msgid "Set partition type of $0"
-msgstr "Vytvořit oddíl na $0"
+msgstr "Nastavit typ oddílu na $0"
 
 #: pkg/users/account-details.js:301 pkg/users/password-dialogs.js:226
 #: pkg/users/password-dialogs.js:233
@@ -7450,11 +7268,9 @@ msgstr "Shellový skript"
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
-#: pkg/storaged/pages.jsx:693
-#, fuzzy
-#| msgid "Show all threads"
+#: pkg/storaged/pages.jsx:698
 msgid "Show all $0 rows"
-msgstr "Zobrazit všechna vlákna"
+msgstr "Zobrazit všech $0 řádků"
 
 #: pkg/systemd/abrtLog.jsx:264
 msgid "Show all threads"
@@ -7534,7 +7350,7 @@ msgstr "Single rank"
 # po/ipa
 #: pkg/systemd/hwinfo.jsx:291 pkg/storaged/partitions/partition.jsx:235
 #: pkg/storaged/block/format-dialog.jsx:368 pkg/storaged/block/resize.jsx:448
-#: pkg/storaged/block/resize.jsx:581 pkg/storaged/pages.jsx:712
+#: pkg/storaged/block/resize.jsx:581 pkg/storaged/pages.jsx:717
 #: pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:143
@@ -7605,8 +7421,6 @@ msgstr ""
 "nebezpeční."
 
 #: pkg/storaged/drive/drive.jsx:63
-#, fuzzy
-#| msgid "Solid-State Disk"
 msgid "Solid State Drive"
 msgstr "Jednotka bez pohyblivých částí"
 
@@ -7643,7 +7457,7 @@ msgstr "Některý software je třeba restartovat ručně"
 
 #: pkg/storaged/storage-controls.jsx:88
 msgid "Sorry"
-msgstr "Promiňte!"
+msgstr "Promiňte"
 
 #: pkg/networkmanager/firewall.jsx:829
 msgid "Sorted from least to most trusted"
@@ -7677,7 +7491,7 @@ msgstr "Rychlost"
 msgid "Stable"
 msgstr "Stabilní"
 
-#: pkg/systemd/service-details.jsx:143 pkg/storaged/mdraid/mdraid.jsx:213
+#: pkg/systemd/service-details.jsx:143 pkg/storaged/mdraid/mdraid.jsx:210
 #: pkg/storaged/swap/swap.jsx:98 pkg/storaged/stratis/stopped-pool.jsx:108
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:150
 msgid "Start"
@@ -7708,10 +7522,8 @@ msgid "Started"
 msgstr "Spuštěno"
 
 #: pkg/storaged/jobs-panel.jsx:64
-#, fuzzy
-#| msgid "Starting RAID device $target"
 msgid "Starting MDRAID device $target"
-msgstr "Spouštění RAID zařízení $target"
+msgstr "Spouštění MDRAID zařízení $target"
 
 #: pkg/storaged/jobs-panel.jsx:46
 msgid "Starting swapspace $target"
@@ -7720,7 +7532,7 @@ msgstr "Spouštění odkládacího prostoru $target"
 # auto translated by TM merge from project: selinux (policycoreutils),
 # version: master, DocId: policycoreutils
 #: pkg/systemd/hwinfo.jsx:291 pkg/systemd/services-list.jsx:40
-#: pkg/systemd/services-list.jsx:46 pkg/storaged/mdraid/mdraid.jsx:290
+#: pkg/systemd/services-list.jsx:46 pkg/storaged/mdraid/mdraid.jsx:287
 msgid "State"
 msgstr "Stav"
 
@@ -7746,7 +7558,7 @@ msgstr "Lepkavé"
 
 # auto translated by TM merge from project: Fedora Media Writer, version:
 # master, DocId: mediawriter
-#: pkg/systemd/service-details.jsx:139 pkg/storaged/mdraid/mdraid.jsx:292
+#: pkg/systemd/service-details.jsx:139 pkg/storaged/mdraid/mdraid.jsx:289
 #: pkg/storaged/swap/swap.jsx:95 pkg/storaged/legacy-vdo/legacy-vdo.jsx:62
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:149
 msgid "Stop"
@@ -7777,10 +7589,8 @@ msgid "Stop report"
 msgstr "Zastavit výkaz"
 
 #: pkg/storaged/jobs-panel.jsx:63
-#, fuzzy
-#| msgid "Stopping RAID device $target"
 msgid "Stopping MDRAID device $target"
-msgstr "Zastavování RAID zařízení $target"
+msgstr "Zastavování MDRAID zařízení $target"
 
 #: pkg/storaged/jobs-panel.jsx:47
 msgid "Stopping swapspace $target"
@@ -7814,16 +7624,12 @@ msgid "Stored passphrase"
 msgstr "Uložená heslová fráze"
 
 #: pkg/storaged/stratis/blockdev.jsx:41
-#, fuzzy
-#| msgid "$0 block device"
 msgid "Stratis block device"
-msgstr "$0 blokové zařízení"
+msgstr "Stratis blokové zařízení"
 
 #: pkg/storaged/stratis/pool.jsx:570 pkg/storaged/stratis/stopped-pool.jsx:141
-#, fuzzy
-#| msgid "Add block devices"
 msgid "Stratis block devices"
-msgstr "Přidat blokové zařízení"
+msgstr "Stratis bloková zařízení"
 
 #: pkg/storaged/block/resize.jsx:187 pkg/storaged/block/resize.jsx:276
 msgid "Stratis blockdevs can not be made smaller"
@@ -7832,26 +7638,20 @@ msgstr "Bloková zařízení Stratis není možné zmenšovat"
 # auto translated by TM merge from project: usermode, version: default, DocId:
 # usermode
 #: pkg/storaged/stratis/filesystem.jsx:159
-#, fuzzy
-#| msgid "Create filesystem"
 msgid "Stratis filesystem"
-msgstr "Vytvořit souborový systém"
+msgstr "Stratis souborový systém"
 
 # auto translated by TM merge from project: usermode, version: default, DocId:
 # usermode
 #: pkg/storaged/stratis/pool.jsx:300
-#, fuzzy
-#| msgid "Create filesystem"
 msgid "Stratis filesystems"
-msgstr "Vytvořit souborový systém"
+msgstr "Stratis souborové systémy"
 
 # auto translated by TM merge from project: usermode, version: default, DocId:
 # usermode
 #: pkg/storaged/stratis/pool.jsx:361
-#, fuzzy
-#| msgid "Create filesystem"
 msgid "Stratis filesystems pool"
-msgstr "Vytvořit souborový systém"
+msgstr "Fond Stratis souborových systémů"
 
 #: pkg/storaged/stratis/blockdev.jsx:81 pkg/storaged/stratis/pool.jsx:275
 #: pkg/storaged/stratis/stopped-pool.jsx:98
@@ -7897,14 +7697,12 @@ msgid "Subscribing to systemd signals failed: $0"
 msgstr "Přihlášení se k odběru systemd signálů se nezdařilo: $0"
 
 #: pkg/storaged/btrfs/subvolume.jsx:285
-#, fuzzy
-#| msgid "Volume failed to be created"
 msgid "Subvolume needs to be mounted"
-msgstr "Svazek se nepodařilo vytvořit"
+msgstr "Je třeba, aby dílčí svazek byl připojený"
 
 #: pkg/storaged/btrfs/subvolume.jsx:287
 msgid "Subvolume needs to be mounted writable"
-msgstr ""
+msgstr "Je třeba, aby dílčí svazek byl připojen pro zápis"
 
 #: pkg/systemd/logs.jsx:414
 msgid "Successfully copied to clipboard"
@@ -7926,10 +7724,8 @@ msgid "Swap"
 msgstr "Odkládací oddíl"
 
 #: pkg/storaged/block/resize.jsx:292
-#, fuzzy
-#| msgid "$0 filesystems can not be resized here."
 msgid "Swap can not be resized here"
-msgstr "$0 souborovým systémům zde nelze změnit velikost."
+msgstr "Velikost odkládacího prostoru nelze změnit zde"
 
 #: pkg/metrics/metrics.jsx:129
 msgid "Swap out"
@@ -7988,10 +7784,8 @@ msgid "Synchronizing"
 msgstr "Synchronizuje se"
 
 #: pkg/storaged/jobs-panel.jsx:71
-#, fuzzy
-#| msgid "Synchronizing RAID device $target"
 msgid "Synchronizing MDRAID device $target"
-msgstr "Synchronizuje se RAID zařízení $target"
+msgstr "Synchronizuje se MDRAID zařízení $target"
 
 # auto translated by TM merge from project: selinux (policycoreutils),
 # version: master, DocId: policycoreutils
@@ -8119,18 +7913,13 @@ msgstr "Pro vytváření VDO zařízení bude nainstalován balíček $0."
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP adresa nebo název stroje nemůže obsahovat prázdný znak."
 
-#: pkg/storaged/mdraid/mdraid.jsx:265
-#, fuzzy
-#| msgid "The RAID array is in a degraded state"
+#: pkg/storaged/mdraid/mdraid.jsx:262
 msgid "The MDRAID device is in a degraded state"
-msgstr "RAID pole je v degradovaném stavu"
+msgstr "MDRAID zařízení je v degradovaném stavu"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:87
-#, fuzzy
-#| msgid "The RAID device must be running in order to remove disks."
 msgid "The MDRAID device must be running"
-msgstr ""
-"Aby bylo možné odebírat disky je třeba, aby RAID zařízení bylo spuštěné."
+msgstr "Je třeba, aby MDRAID zařízení bylo spuštěné"
 
 #: pkg/shell/hosts_dialog.jsx:828
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
@@ -8197,10 +7986,8 @@ msgid "The file $0 will be deleted."
 msgstr "Soubor $0 bude smazán."
 
 #: pkg/storaged/filesystem/utils.jsx:191
-#, fuzzy
-#| msgid "The filesystem has no permanent mount point."
 msgid "The filesystem has no assigned mount point."
-msgstr "Souborový systém nemá trvalý přípojný bod."
+msgstr "Souborový systém nemá přiřazen přípojný bod."
 
 #: pkg/storaged/filesystem/utils.jsx:195
 msgid "The filesystem has no permanent mount point."
@@ -8489,22 +8276,16 @@ msgstr "Tenký logický svazek"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:69
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:127
-#, fuzzy
-#| msgid "Pool for thinly provisioned volumes"
 msgid "Thinly provisioned LVM2 logical volumes"
-msgstr "Fond pro tence poskytované svazky"
+msgstr "Tence poskytované LVM2 logické svazky"
 
-#: pkg/storaged/mdraid/mdraid.jsx:277
-#, fuzzy
-#| msgid ""
-#| "This RAID array has no write-intent bitmap. Such a bitmap can reduce "
-#| "sychronization times significantly."
+#: pkg/storaged/mdraid/mdraid.jsx:274
 msgid ""
 "This MDRAID device has no write-intent bitmap. Such a bitmap can reduce "
 "sychronization times significantly."
 msgstr ""
-"Toto RAID pole nemá bitovou mapu pro write-intent. Taková mapa významně "
-"zkrátit časy potřebné k synchronizaci."
+"Toto MDRAID zařízení nemá bitovou mapu pro write-intent. Taková mapa může "
+"významně zkrátit časy potřebné k synchronizaci."
 
 #: pkg/storaged/nfs/nfs.jsx:111
 msgid "This NFS mount is in use and only its options can be changed."
@@ -8516,10 +8297,8 @@ msgstr "Toto VDO zařízení nepoužívá ze svého podkladového zařízení v�
 
 #: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:95
-#, fuzzy
-#| msgid "This device cannot be managed here."
 msgid "This device can not be used for the installation target."
-msgstr "Toto zařízení zde nelze spravovat."
+msgstr "Toto zařízení nelze využít pro cíl instalace."
 
 #: pkg/networkmanager/network-interface.jsx:746
 msgid "This device cannot be managed here."
@@ -8922,23 +8701,23 @@ msgstr "Zapnout přístup na úrovni správce"
 #: pkg/storaged/partitions/partition.jsx:183
 #: pkg/storaged/partitions/partition.jsx:229
 #: pkg/storaged/block/format-dialog.jsx:363
-#: pkg/storaged/block/unrecognized-data.jsx:52 pkg/storaged/pages.jsx:710
+#: pkg/storaged/block/unrecognized-data.jsx:52 pkg/storaged/pages.jsx:715
 msgid "Type"
 msgstr "Typ"
 
 #: pkg/storaged/partitions/partition.jsx:173
-#, fuzzy
-#| msgid "Name cannot contain the character '$0'."
 msgid "Type can only contain the characters 0 to 9, A to F, and \"-\"."
-msgstr "Název nemůže obsahovat znak „$0“."
+msgstr ""
+"Typ může obsahovat pouze znaky 0 až 9, A až F, a „-“ (mínus, spojovník)."
 
 #: pkg/storaged/partitions/partition.jsx:176
 msgid "Type must be of the form NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
-msgstr ""
+msgstr "Je třeba, aby typ měl podobu NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
 
 #: pkg/storaged/partitions/partition.jsx:160
 msgid "Type must contain exactly two hexadecimal characters (0 to 9, A to F)."
 msgstr ""
+"Je třeba, aby typ obsahoval právě dva šestnáctkové znaky (0 až 9, A až F)."
 
 #: pkg/systemd/logs.jsx:402
 msgid "Type to filter"
@@ -8950,7 +8729,7 @@ msgstr "UDP"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/storaged/mdraid/mdraid.jsx:294 pkg/storaged/partitions/partition.jsx:228
+#: pkg/storaged/mdraid/mdraid.jsx:291 pkg/storaged/partitions/partition.jsx:228
 #: pkg/storaged/btrfs/volume.jsx:127 pkg/storaged/btrfs/device.jsx:78
 #: pkg/storaged/btrfs/filesystem.jsx:77 pkg/storaged/stratis/pool.jsx:523
 #: pkg/storaged/stratis/stopped-pool.jsx:127
@@ -9058,10 +8837,8 @@ msgid "Unexpected error"
 msgstr "Neočekávaná chyba"
 
 #: pkg/storaged/block/unformatted-data.jsx:31
-#, fuzzy
-#| msgid "Unrecognized data"
 msgid "Unformatted data"
-msgstr "Nerozpoznaná data"
+msgstr "Neformátovaná data"
 
 #: pkg/systemd/services-list.jsx:39 pkg/systemd/services-list.jsx:44
 #: pkg/systemd/logs.jsx:367
@@ -9182,20 +8959,16 @@ msgid "Unrecognized data"
 msgstr "Nerozpoznaná data"
 
 #: pkg/storaged/block/resize.jsx:306
-#, fuzzy
-#| msgid "Unrecognized data can not be made smaller here."
 msgid "Unrecognized data can not be made smaller here"
-msgstr "Nerozpoznaná data zde nelze zmenšit."
+msgstr "Nerozpoznaná data zde nelze zmenšit"
 
 #: pkg/storaged/block/resize.jsx:195
 msgid "Unrecognized data can not be made smaller here."
 msgstr "Nerozpoznaná data zde nelze zmenšit."
 
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:35
-#, fuzzy
-#| msgid "Unsupported volume"
 msgid "Unsupported logical volume"
-msgstr "Nepodporovaný svazek"
+msgstr "Nepodporovaný logický svazek"
 
 #: pkg/systemd/logs.jsx:345
 msgid "Until"
@@ -9521,10 +9294,8 @@ msgstr "Skupina oddílů"
 
 #: pkg/storaged/lvm2/volume-group.jsx:223
 #: pkg/storaged/lvm2/physical-volume.jsx:71
-#, fuzzy
-#| msgid "This volume group is missing some physical volumes."
 msgid "Volume group is missing physical volumes"
-msgstr "Této skupině svazků chybí některé fyzické svazky."
+msgstr "Skupině svazků chybí fyzické svazky"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:276
 msgid "Volume size is $0. Content size is $1."
@@ -9657,9 +9428,6 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 #: pkg/storaged/drive/drive.jsx:124
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "World wide name"
 msgid "World wide name"
 msgstr "World wide name"
 
@@ -9864,47 +9632,35 @@ msgid "bridge"
 msgstr "most"
 
 #: pkg/storaged/btrfs/volume.jsx:137 pkg/storaged/btrfs/device.jsx:42
-#, fuzzy
-#| msgid "Other devices"
 msgid "btrfs device"
-msgstr "Ostatní zařízení"
+msgstr "btrfs zařízení"
 
 #: pkg/storaged/btrfs/volume.jsx:134
-#, fuzzy
-#| msgid "Other devices"
 msgid "btrfs devices"
-msgstr "Ostatní zařízení"
+msgstr "btrfs zařízení"
 
 # auto translated by TM merge from project: usermode, version: default, DocId:
 # usermode
 #: pkg/storaged/btrfs/filesystem.jsx:44
-#, fuzzy
-#| msgid "Create filesystem"
 msgid "btrfs filesystem"
-msgstr "Vytvořit souborový systém"
+msgstr "souborový systém btrfs"
 
 #: pkg/storaged/btrfs/subvolume.jsx:311
-#, fuzzy
-#| msgid "Storage volume"
 msgid "btrfs subvolume"
-msgstr "Svazek úložiště"
+msgstr "btrfs dílčí svazek"
 
 #: pkg/storaged/filesystem/utils.jsx:81
 msgid "btrfs subvolume $0 of $1"
-msgstr ""
+msgstr "btrfs dílčí svazke $0 z $1"
 
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
 #: pkg/storaged/btrfs/filesystem.jsx:87
-#, fuzzy
-#| msgid "Storage volumes"
 msgid "btrfs subvolumes"
-msgstr "Úložné svazky"
+msgstr "btrfs dílčí svazky"
 
 #: pkg/storaged/btrfs/volume.jsx:68 pkg/storaged/btrfs/device.jsx:69
-#, fuzzy
-#| msgid "Storage volume"
 msgid "btrfs volume"
-msgstr "Svazek úložiště"
+msgstr "btrfs svazek"
 
 #: pkg/packagekit/updates.jsx:215 pkg/packagekit/updates.jsx:319
 msgid "bug fix"
@@ -9918,10 +9674,8 @@ msgid "bytes"
 msgstr "bajtů"
 
 #: pkg/storaged/stratis/blockdev.jsx:57
-#, fuzzy
-#| msgid "Cache"
 msgid "cache"
-msgstr "Mezipaměť"
+msgstr "mezipaměť"
 
 #: pkg/systemd/manifest.json:0
 msgid "cgroups"
@@ -9956,20 +9710,16 @@ msgid "crash"
 msgstr "pád"
 
 #: pkg/storaged/stratis/blockdev.jsx:55
-#, fuzzy
-#| msgid "$0 data"
 msgid "data"
-msgstr "$0 data"
+msgstr "data"
 
 #: pkg/systemd/manifest.json:0
 msgid "date"
 msgstr "datum"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:147
-#, fuzzy
-#| msgid "Deactivate"
 msgid "deactivate"
-msgstr "Deaktivovat"
+msgstr "deaktivovat"
 
 #: pkg/systemd/manifest.json:0
 msgid "debug"
@@ -9990,7 +9740,7 @@ msgstr "smazat"
 
 #: pkg/storaged/dialog.jsx:1119
 msgid "device of btrfs volume"
-msgstr ""
+msgstr "zařízení btrfs svazku"
 
 #: pkg/systemd/manifest.json:0
 msgid "dimm"
@@ -10042,10 +9792,8 @@ msgid "enable"
 msgstr "zapnout"
 
 #: pkg/storaged/crypto/encryption.jsx:44
-#, fuzzy
-#| msgid "Encrypted"
 msgid "encrypted"
-msgstr "Šifrováno"
+msgstr "šifrováno"
 
 #: pkg/storaged/manifest.json:0
 msgid "encryption"
@@ -10162,22 +9910,16 @@ msgid "host"
 msgstr "stroj"
 
 #: pkg/storaged/drive/drive.jsx:65
-#, fuzzy
-#| msgid "iSCSI target"
 msgid "iSCSI Drive"
-msgstr "iSCSI cíl"
+msgstr "iSCSI jednotka"
 
 #: pkg/storaged/iscsi/session.jsx:63 pkg/storaged/iscsi/session.jsx:80
-#, fuzzy
-#| msgid "iSCSI targets"
 msgid "iSCSI drives"
-msgstr "iSCSI cíle"
+msgstr "iSCSI jednotky"
 
 #: pkg/storaged/iscsi/session.jsx:45
-#, fuzzy
-#| msgid "Add iSCSI portal"
 msgid "iSCSI portal"
-msgstr "Přidat iSCSI portál"
+msgstr "iSCSI portál"
 
 #: pkg/storaged/filesystem/utils.jsx:179
 msgid "ignore failure"
@@ -10270,10 +10012,8 @@ msgid "max: $0%"
 msgstr "max: $0%"
 
 #: pkg/storaged/dialog.jsx:1115
-#, fuzzy
-#| msgid "member of RAID device"
 msgid "member of MDRAID device"
-msgstr "člen RAID zařízení"
+msgstr "člen MDRAID zařízení"
 
 #: pkg/storaged/dialog.jsx:1117
 msgid "member of Stratis pool"
@@ -10301,7 +10041,7 @@ msgstr "mkfs"
 msgid "more details"
 msgstr "další podrobnosti"
 
-#: pkg/storaged/utils.js:886 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:887 pkg/storaged/manifest.json:0
 msgid "mount"
 msgstr "mount"
 
@@ -10459,21 +10199,17 @@ msgstr "pouze pro čtení"
 msgid "recommended"
 msgstr "doporučeno"
 
-#: pkg/storaged/utils.js:945
+#: pkg/storaged/utils.js:946
 msgid "remove from LVM2"
 msgstr "odebrat z LVM2"
 
-#: pkg/storaged/utils.js:934
-#, fuzzy
-#| msgid "remove from RAID"
+#: pkg/storaged/utils.js:935
 msgid "remove from MDRAID"
-msgstr "odebrat z RAID"
+msgstr "odebrat z MDRAID"
 
-#: pkg/storaged/utils.js:904
-#, fuzzy
-#| msgid "remove from LVM2"
+#: pkg/storaged/utils.js:905
 msgid "remove from btrfs volume"
-msgstr "odebrat z LVM2"
+msgstr "odebrat z btrfs svazku"
 
 #: pkg/systemd/manifest.json:0
 msgid "restart"
@@ -10563,7 +10299,7 @@ msgstr "v kolonce ssh klíč není vyplněné jeho umístění"
 msgid "ssh server is empty"
 msgstr "není vyplněná kolonka ssh server"
 
-#: pkg/storaged/mdraid/mdraid.jsx:59 pkg/storaged/utils.js:923
+#: pkg/storaged/mdraid/mdraid.jsx:59 pkg/storaged/utils.js:924
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:46
 msgid "stop"
 msgstr "zastavit"
@@ -10574,11 +10310,9 @@ msgstr "při nezdaru zastavit start systému"
 
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
-#: pkg/storaged/mdraid/mdraid.jsx:203 pkg/storaged/stratis/stopped-pool.jsx:99
-#, fuzzy
-#| msgid "Stopped"
+#: pkg/storaged/mdraid/mdraid.jsx:200 pkg/storaged/stratis/stopped-pool.jsx:99
 msgid "stopped"
-msgstr "Zastaveno"
+msgstr "zastaveno"
 
 #: pkg/metrics/metrics.jsx:112
 msgid "sys"
@@ -10645,7 +10379,7 @@ msgstr "neznámý cíl"
 msgid "unmask"
 msgstr "zrušit maskování"
 
-#: pkg/storaged/utils.js:873 pkg/storaged/utils.js:886
+#: pkg/storaged/utils.js:874 pkg/storaged/utils.js:887
 #: pkg/storaged/btrfs/subvolume.jsx:213 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "odpojit (unmount)"

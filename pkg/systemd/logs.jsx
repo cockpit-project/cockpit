@@ -274,6 +274,7 @@ export const LogsPage = () => {
                          id="journal-box">
                 <JournalBox dataFollowing={dataFollowing}
                             defaultSince={timeFilter ? timeFilter.value : getTimeFilterOption({}).value}
+                            currentIdentifiers={currentIdentifiers}
                             setCurrentIdentifiers={setCurrentIdentifiers}
                             setFilteredQuery={setFilteredQuery}
                             updateIdentifiersList={updateIdentifiersList}
@@ -293,7 +294,7 @@ const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, curre
             <Divider component="li" key="divider" />
         ];
         identifiersArray = identifiersArray.concat(
-            Array.from(currentIdentifiers)
+            currentIdentifiers
                     .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
                     .map(unit => <SelectOption key={unit} value={unit} />)
         );

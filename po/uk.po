@@ -9,10 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-27 02:47+0000\n"
-"PO-Revision-Date: 2023-12-25 13:35+0000\n"
-"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
-"memory@weblate.org>\n"
+"POT-Creation-Date: 2024-03-01 02:46+0000\n"
+"PO-Revision-Date: 2024-02-28 09:35+0000\n"
+"Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/uk/>\n"
 "Language: uk\n"
@@ -21,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.3\n"
+"X-Generator: Weblate 5.4\n"
 
 #: pkg/users/accounts-list.js:240
 msgid "# of users"
@@ -65,7 +64,7 @@ msgstr "Розмір $0 не можна змінювати"
 msgid "$0 can not be resized here"
 msgstr "Тут не можна змінювати розмір $0"
 
-#: pkg/storaged/mdraid/mdraid.jsx:255
+#: pkg/storaged/mdraid/mdraid.jsx:252
 msgid "$0 chunk size"
 msgstr "Розмір фрагмента $0"
 
@@ -88,7 +87,7 @@ msgstr[1] "$0 дні"
 msgstr[2] "$0 днів"
 
 #: pkg/playground/translate.js:26 pkg/playground/translate.js:29
-#: pkg/storaged/mdraid/mdraid.jsx:260
+#: pkg/storaged/mdraid/mdraid.jsx:257
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "Не вистачає $0 диска"
@@ -103,7 +102,7 @@ msgstr[0] "Не вистачає $0 диска"
 msgstr[1] "Не вистачає $0 дисків"
 msgstr[2] "Не вистачає $0 дисків"
 
-#: pkg/storaged/mdraid/mdraid.jsx:253
+#: pkg/storaged/mdraid/mdraid.jsx:250
 msgid "$0 disks"
 msgstr "Диски $0"
 
@@ -326,16 +325,12 @@ msgid "$name (from $host)"
 msgstr "$name (з $host)"
 
 #: pkg/storaged/dialog.jsx:1222
-#, fuzzy
-#| msgid "Creating partition $target"
 msgid "(Not part of target)"
-msgstr "Створюємо розділ $target"
+msgstr "(Не є частиною цілі)"
 
 #: pkg/storaged/filesystem/utils.jsx:239
-#, fuzzy
-#| msgid "Local mount point"
 msgid "(no assigned mount point)"
-msgstr "Локальна точка монтування"
+msgstr "(немає пов'язаної точки монтування)"
 
 #: pkg/storaged/filesystem/utils.jsx:236 pkg/storaged/filesystem/utils.jsx:241
 #: pkg/storaged/nfs/nfs.jsx:294
@@ -763,7 +758,7 @@ msgstr "Додати VPN"
 msgid "Add WireGuard VPN"
 msgstr "Додати WireGuard VPN"
 
-#: pkg/storaged/mdraid/mdraid.jsx:279
+#: pkg/storaged/mdraid/mdraid.jsx:276
 msgid "Add a bitmap"
 msgstr "Додати бітову карту"
 
@@ -788,7 +783,7 @@ msgstr "Додати зв’язок"
 msgid "Add bridge"
 msgstr "Додати місток"
 
-#: pkg/storaged/mdraid/mdraid.jsx:219
+#: pkg/storaged/mdraid/mdraid.jsx:216
 msgid "Add disk"
 msgstr "Додати диск"
 
@@ -1160,7 +1155,7 @@ msgstr "Потрібен принаймні один диск."
 
 #: pkg/storaged/btrfs/subvolume.jsx:298
 msgid "At least one parent needs to be mounted writable"
-msgstr ""
+msgstr "Принаймні один батьківський лемент має бути змонтовано для запису"
 
 #: pkg/systemd/timer-dialog.jsx:262
 msgid "At minute"
@@ -1276,10 +1271,8 @@ msgstr "BIOS"
 
 #: pkg/storaged/partitions/partition.jsx:87
 #: pkg/storaged/partitions/partition.jsx:122
-#, fuzzy
-#| msgid "Grow partition"
 msgid "BIOS boot partition"
-msgstr "Збільшити розділ"
+msgstr "Розділ завантаження BIOS"
 
 #: pkg/systemd/hwinfo.jsx:108
 msgid "BIOS date"
@@ -1392,7 +1385,7 @@ msgstr "Помилки у налаштуваннях"
 
 #: pkg/storaged/btrfs/volume.jsx:123 pkg/storaged/btrfs/filesystem.jsx:73
 msgid "Btrfs volume is mounted"
-msgstr ""
+msgstr "Змонтовано том BTRFS"
 
 #: pkg/packagekit/updates.jsx:1437
 msgid "Bug fix updates available"
@@ -1417,10 +1410,8 @@ msgstr ""
 "без пароля."
 
 #: pkg/static/login.html:61
-#, fuzzy
-#| msgid "            Bypass browser check          "
 msgid "Bypass browser check"
-msgstr "            Обійти перевірку браузера          "
+msgstr "Обійти перевірку браузера"
 
 #: pkg/metrics/metrics.jsx:109 pkg/metrics/metrics.jsx:820
 #: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1949
@@ -1517,7 +1508,7 @@ msgstr "Неможливо долучитися до домену, оскіль�
 msgid "Cannot schedule event in the past"
 msgstr "Не можна планувати подію на минуле"
 
-#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:128
+#: pkg/storaged/mdraid/mdraid.jsx:293 pkg/storaged/btrfs/volume.jsx:128
 #: pkg/storaged/drive/drive.jsx:125 pkg/storaged/lvm2/volume-group.jsx:387
 msgid "Capacity"
 msgstr "Місткість"
@@ -1551,10 +1542,8 @@ msgid "Change iSCSI initiator name"
 msgstr "Змінити назву ініціатора iSCSI"
 
 #: pkg/storaged/btrfs/volume.jsx:87
-#, fuzzy
-#| msgid "Change shell"
 msgid "Change label"
-msgstr "Змінити оболонку"
+msgstr "Змінити мітку"
 
 #: pkg/storaged/crypto/keyslots.jsx:480 pkg/storaged/stratis/pool.jsx:404
 msgid "Change passphrase"
@@ -1600,7 +1589,7 @@ msgstr ""
 
 #: pkg/storaged/partitions/partition.jsx:196
 msgid "Changing partition types might prevent the system from booting."
-msgstr ""
+msgstr "Зміна типів розділів може завадити нормальному завантаженню системи."
 
 #: pkg/networkmanager/interfaces.js:1655
 msgid ""
@@ -2097,10 +2086,8 @@ msgid "Create and mount"
 msgstr "Створити і змонтувати"
 
 #: pkg/storaged/block/format-dialog.jsx:332
-#, fuzzy
-#| msgid "Create and mount"
 msgid "Create and start"
-msgstr "Створити і змонтувати"
+msgstr "Створити і запустити"
 
 #: pkg/storaged/stratis/pool.jsx:91
 msgid "Create filesystem"
@@ -2174,10 +2161,8 @@ msgid "Create storage device"
 msgstr "Створити пристрій зберігання даних"
 
 #: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:291
-#, fuzzy
-#| msgid "Create volume"
 msgid "Create subvolume"
-msgstr "Створити том"
+msgstr "Створити підтом"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:42
 msgid "Create thin volume"
@@ -2274,16 +2259,12 @@ msgid "Currently in use"
 msgstr "Зараз використовується"
 
 #: pkg/kdump/kdump-view.jsx:535
-#, fuzzy
-#| msgid "Currently in use"
 msgid "Currently not supported"
-msgstr "Зараз використовується"
+msgstr "У поточній версії підтримки не передбачено"
 
 #: pkg/storaged/partitions/partition.jsx:154
-#, fuzzy
-#| msgid "custom"
 msgid "Custom"
-msgstr "нетиповий"
+msgstr "Нетиповий"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:142
 msgid "Custom cryptographic policy"
@@ -2298,10 +2279,8 @@ msgid "Custom ports"
 msgstr "Нетипові порти"
 
 #: pkg/storaged/partitions/partition.jsx:188
-#, fuzzy
-#| msgid "Custom path"
 msgid "Custom type"
-msgstr "Нетиповий шлях"
+msgstr "Нестандартний тип"
 
 #: pkg/networkmanager/firewall.jsx:839
 msgid "Custom zones"
@@ -2479,7 +2458,7 @@ msgstr "Значенням затримки має бути число"
 #: pkg/networkmanager/firewall.jsx:121 pkg/networkmanager/firewall.jsx:182
 #: pkg/networkmanager/firewall.jsx:914 pkg/sosreport/sosreport.jsx:359
 #: pkg/sosreport/sosreport.jsx:471 pkg/storaged/mdraid/mdraid.jsx:126
-#: pkg/storaged/mdraid/mdraid.jsx:226 pkg/storaged/partitions/partition.jsx:58
+#: pkg/storaged/mdraid/mdraid.jsx:223 pkg/storaged/partitions/partition.jsx:58
 #: pkg/storaged/partitions/partition.jsx:112
 #: pkg/storaged/partitions/partition-table.jsx:61
 #: pkg/storaged/btrfs/subvolume.jsx:227 pkg/storaged/btrfs/subvolume.jsx:305
@@ -2573,10 +2552,10 @@ msgid "Deleting erases all data on a volume group."
 msgstr "Вилучення призведе до витирання усіх даних на групі томів."
 
 #: pkg/storaged/btrfs/subvolume.jsx:228
-#, fuzzy
-#| msgid "Deleting erases all data on a volume group."
 msgid "Deleting erases all data on this subvolume and all it's children."
-msgstr "Вилучення призведе до витирання усіх даних на групі томів."
+msgstr ""
+"Вилучення призведе до витирання усіх даних на підтомі та його дочірніх "
+"об'єктах."
 
 #: pkg/systemd/service-details.jsx:616
 msgid "Deletion will remove the following files:"
@@ -2604,7 +2583,7 @@ msgstr "Подробиці"
 msgid "Development"
 msgstr "Розробка"
 
-#: pkg/metrics/metrics.jsx:785 pkg/storaged/mdraid/mdraid.jsx:295
+#: pkg/metrics/metrics.jsx:785 pkg/storaged/mdraid/mdraid.jsx:292
 #: pkg/storaged/dialog.jsx:1137 pkg/storaged/dialog.jsx:1242
 msgid "Device"
 msgstr "Пристрій"
@@ -2694,7 +2673,7 @@ msgid "Disk passphrase"
 msgstr "Пароль до диска"
 
 #: pkg/metrics/metrics.jsx:918 pkg/storaged/mdraid/create-dialog.jsx:99
-#: pkg/storaged/mdraid/mdraid.jsx:156 pkg/storaged/mdraid/mdraid.jsx:299
+#: pkg/storaged/mdraid/mdraid.jsx:156 pkg/storaged/mdraid/mdraid.jsx:296
 #: pkg/storaged/lvm2/create-dialog.jsx:52
 #: pkg/storaged/lvm2/volume-group.jsx:198
 msgid "Disks"
@@ -2820,10 +2799,8 @@ msgstr "Подвійний ранг"
 #: pkg/storaged/partitions/partition.jsx:85
 #: pkg/storaged/partitions/partition.jsx:123
 #: pkg/storaged/partitions/partition.jsx:131
-#, fuzzy
-#| msgid "Extended partition"
 msgid "EFI system partition"
-msgstr "Розширений розділ"
+msgstr "Системний розділ EFI"
 
 #: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:231
 #: pkg/networkmanager/firewall.jsx:119 pkg/shell/indexes.jsx:352
@@ -2874,10 +2851,8 @@ msgstr "Редагувати motd"
 
 #: pkg/storaged/btrfs/subvolume.jsx:263 pkg/storaged/stratis/filesystem.jsx:174
 #: pkg/storaged/filesystem/filesystem.jsx:100
-#, fuzzy
-#| msgid "Mount point"
 msgid "Edit mount point"
-msgstr "Точка монтування"
+msgstr "Редагувати точку монтування"
 
 #: pkg/networkmanager/network-main.jsx:161
 msgid "Edit rules and zones"
@@ -3275,10 +3250,8 @@ msgid "Filesystem name"
 msgstr "Назва файлової системи"
 
 #: pkg/storaged/dialog.jsx:1118
-#, fuzzy
-#| msgid "Creating filesystem on $target"
 msgid "Filesystem outside the target"
-msgstr "Створюємо файлову систему на $target"
+msgstr "Файлова система поза ціллю"
 
 #: pkg/storaged/filesystem/utils.jsx:127
 msgid "Filesystems are already mounted below this mountpoint."
@@ -3363,10 +3336,8 @@ msgid "Format and mount"
 msgstr "Форматувати і змонтувати"
 
 #: pkg/storaged/block/format-dialog.jsx:332
-#, fuzzy
-#| msgid "Format and mount"
 msgid "Format and start"
-msgstr "Форматувати і змонтувати"
+msgstr "Форматувати і запустити"
 
 #: pkg/storaged/block/format-dialog.jsx:324
 #: pkg/storaged/block/format-dialog.jsx:333
@@ -3577,7 +3548,7 @@ msgstr "Як перевірити"
 #: pkg/users/accounts-list.js:239 pkg/users/accounts-list.js:390
 #: pkg/users/group-create-dialog.js:47 pkg/systemd/hwinfo.jsx:291
 #: pkg/networkmanager/firewall.jsx:700 pkg/storaged/btrfs/subvolume.jsx:334
-#: pkg/storaged/pages.jsx:709
+#: pkg/storaged/pages.jsx:714
 msgid "ID"
 msgstr "Ід."
 
@@ -3795,10 +3766,8 @@ msgid "Install software"
 msgstr "Встановити програмне забезпечення"
 
 #: pkg/kdump/kdump-view.jsx:571
-#, fuzzy
-#| msgid "Please install the $0 package"
 msgid "Install the $0 package."
-msgstr "Будь ласка, встановіть пакунок $0"
+msgstr "Встановіть пакунок $0."
 
 #: pkg/metrics/metrics.jsx:1817
 msgid "Installation not supported without installed cockpit package"
@@ -3977,16 +3946,12 @@ msgid "Jump to"
 msgstr "Перейти"
 
 #: pkg/kdump/kdump-view.jsx:569
-#, fuzzy
-#| msgid "Cockpit is not installed"
 msgid "Kdump service is not installed."
-msgstr "Cockpit не встановлено"
+msgstr "Службу kdump не встановлено."
 
 #: pkg/kdump/kdump-view.jsx:604
-#, fuzzy
-#| msgid "Test kdump settings"
 msgid "Kdump settings"
-msgstr "Перевірити параметри kdump"
+msgstr "Параметри kdump"
 
 #: pkg/networkmanager/interfaces.js:69
 msgid "Keep connection"
@@ -3998,7 +3963,7 @@ msgstr "Дамп аварії ядра"
 
 #: pkg/kdump/kdump-view.jsx:550
 msgid "Kernel did not boot with the $0 setting"
-msgstr ""
+msgstr "Ядро не завантажено з параметром $0"
 
 #: pkg/kdump/index.html:23 pkg/kdump/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-kdump.metainfo.xml.in:5
@@ -4090,7 +4055,7 @@ msgstr "Група томів LVM2 $0"
 
 #: pkg/storaged/btrfs/volume.jsx:119 pkg/storaged/btrfs/filesystem.jsx:69
 msgid "Label"
-msgstr ""
+msgstr "Мітка"
 
 #: pkg/lib/machine-info.js:68
 msgid "Laptop"
@@ -4217,18 +4182,13 @@ msgstr "Пов'язаний"
 
 #: pkg/storaged/partitions/partition.jsx:126
 #: pkg/storaged/partitions/partition.jsx:133
-#, fuzzy
-#| msgid "Unmount filesystem $0"
 msgid "Linux filesystem data"
-msgstr "Демонтувати файлову систему $0"
+msgstr "Дані файлової системи Linux"
 
 #: pkg/storaged/partitions/partition.jsx:125
 #: pkg/storaged/partitions/partition.jsx:132
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Swap space"
 msgid "Linux swap space"
-msgstr "Резервна пам’ять"
+msgstr "Резервна пам’ять Linux"
 
 #: pkg/systemd/service-details.jsx:670
 msgid "Listen"
@@ -4329,12 +4289,10 @@ msgid "Local storage"
 msgstr "Локальне сховище даних"
 
 #: pkg/kdump/kdump-view.jsx:450
-#, fuzzy
-#| msgid "locally in $0"
 msgid "Local, $0"
-msgstr "локально у $0"
+msgstr "Локальний, $0"
 
-#: pkg/storaged/pages.jsx:711 pkg/storaged/dialog.jsx:1138
+#: pkg/storaged/pages.jsx:716 pkg/storaged/dialog.jsx:1138
 #: pkg/storaged/dialog.jsx:1243 pkg/kdump/kdump-view.jsx:243
 msgid "Location"
 msgstr "Розташування"
@@ -4395,10 +4353,8 @@ msgstr "Логічний"
 
 #: pkg/storaged/partitions/partition.jsx:127
 #: pkg/storaged/partitions/partition.jsx:134
-#, fuzzy
-#| msgid "Logical volume (snapshot)"
 msgid "Logical Volume Manager partition"
-msgstr "Логічний том (знімок)"
+msgstr "Розділ засобу керування логічними томами (LVM)"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:249
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:213
@@ -4465,7 +4421,7 @@ msgstr "Пусковий комп'ютер"
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/storaged/mdraid/mdraid.jsx:196 pkg/storaged/mdraid/mdraid.jsx:204
+#: pkg/storaged/mdraid/mdraid.jsx:193 pkg/storaged/mdraid/mdraid.jsx:201
 #: pkg/storaged/mdraid/mdraid-disk.jsx:122
 msgid "MDRAID device"
 msgstr "пристрій MDRAID"
@@ -4478,7 +4434,7 @@ msgstr "Пристій MDRAID $0"
 msgid "MDRAID device is recovering"
 msgstr "Пристрій MDRAID відновлюється"
 
-#: pkg/storaged/mdraid/mdraid.jsx:193
+#: pkg/storaged/mdraid/mdraid.jsx:190
 msgid "MDRAID device must be running"
 msgstr "Пристрій MDRAID має бути запущено"
 
@@ -4486,7 +4442,7 @@ msgstr "Пристрій MDRAID має бути запущено"
 msgid "MDRAID disk"
 msgstr "Диск MDRAID"
 
-#: pkg/storaged/mdraid/mdraid.jsx:302
+#: pkg/storaged/mdraid/mdraid.jsx:299
 msgid "MDRAID disks"
 msgstr "Диски MDRAID"
 
@@ -4882,7 +4838,7 @@ msgstr "Сервер NTP"
 #: pkg/systemd/hwinfo.jsx:86 pkg/networkmanager/network-main.jsx:185
 #: pkg/networkmanager/network-main.jsx:200
 #: pkg/networkmanager/dialogs-common.jsx:142 pkg/shell/credentials.jsx:101
-#: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:288
+#: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:285
 #: pkg/storaged/iscsi/create-dialog.jsx:111
 #: pkg/storaged/iscsi/create-dialog.jsx:168
 #: pkg/storaged/partitions/partition.jsx:227 pkg/storaged/btrfs/volume.jsx:89
@@ -4929,20 +4885,16 @@ msgid "Name cannot be longer than 127 characters."
 msgstr "Назва не повинна бути довшою за 127 символів."
 
 #: pkg/storaged/btrfs/utils.jsx:87
-#, fuzzy
-#| msgid "Name cannot be longer than 127 characters."
 msgid "Name cannot be longer than 255 characters."
-msgstr "Назва не повинна бути довшою за 127 символів."
+msgstr "Назва не повинна бути довшою за 255 символів."
 
 #: pkg/storaged/utils.js:218
 msgid "Name cannot contain the character '$0'."
 msgstr "Назва не повинна містити символу «$0»."
 
 #: pkg/storaged/btrfs/utils.jsx:89
-#, fuzzy
-#| msgid "Name cannot contain the character '$0'."
 msgid "Name cannot contain the character '/'."
-msgstr "Назва не повинна містити символу «$0»."
+msgstr "Назва не повинна містити символу «/»."
 
 #: pkg/storaged/utils.js:220
 msgid "Name cannot contain whitespace."
@@ -5112,10 +5064,8 @@ msgid "No description provided."
 msgstr "Опису не надано."
 
 #: pkg/storaged/btrfs/volume.jsx:136
-#, fuzzy
-#| msgid "No block devices found"
 msgid "No devices found"
-msgstr "Не знайдено блокових пристроїв"
+msgstr "Не знайдено пристроїв"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:101 pkg/storaged/mdraid/mdraid.jsx:158
 #: pkg/storaged/stratis/pool.jsx:212 pkg/storaged/lvm2/create-dialog.jsx:54
@@ -5123,7 +5073,7 @@ msgstr "Не знайдено блокових пристроїв"
 msgid "No disks are available."
 msgstr "Немає доступних дисків."
 
-#: pkg/storaged/mdraid/mdraid.jsx:301
+#: pkg/storaged/mdraid/mdraid.jsx:298
 msgid "No disks found"
 msgstr "Дисків не знайдено"
 
@@ -5241,10 +5191,8 @@ msgid "No storage found"
 msgstr "Не знайдено сховища даних"
 
 #: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
-#, fuzzy
-#| msgid "No logical volumes"
 msgid "No subvolumes"
-msgstr "Немає логічних томів"
+msgstr "Немає підтомів"
 
 #: pkg/lib/credentials.js:191
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:182
@@ -5313,8 +5261,8 @@ msgstr "Недостатньо місця"
 msgid "Not enough space to grow"
 msgstr "Недостатньо місця для збільшення"
 
-#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:275
-#: pkg/storaged/pages.jsx:278
+#: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:278
+#: pkg/storaged/pages.jsx:283
 msgid "Not found"
 msgstr "Не знайдено"
 
@@ -5344,7 +5292,7 @@ msgstr "Не зареєстровано"
 
 #: pkg/systemd/service-details.jsx:472 pkg/systemd/services.jsx:234
 #: pkg/systemd/services.jsx:237 pkg/systemd/services.jsx:697
-#: pkg/storaged/mdraid/mdraid.jsx:290
+#: pkg/storaged/mdraid/mdraid.jsx:287
 msgid "Not running"
 msgstr "Зупинено"
 
@@ -5774,10 +5722,8 @@ msgid "Permanently delete logical volume $0/$1?"
 msgstr "Остаточно вилучити логічний том $0/$1?"
 
 #: pkg/storaged/btrfs/subvolume.jsx:224
-#, fuzzy
-#| msgid "Permanently delete $0?"
 msgid "Permanently delete subvolume $0?"
-msgstr "Остаточно вилучити $0?"
+msgstr "Остаточно вилучити підтом $0?"
 
 #: pkg/static/login.js:933
 msgid "Permission denied"
@@ -5891,10 +5837,8 @@ msgid "Ports"
 msgstr "Порти"
 
 #: pkg/storaged/partitions/partition.jsx:124
-#, fuzzy
-#| msgid "Create partition"
 msgid "PowerPC PReP boot partition"
-msgstr "Створити розділ"
+msgstr "Розділ завантаження PowerPC PReP"
 
 #: pkg/networkmanager/ip-settings.jsx:194
 msgid "Prefix length"
@@ -6009,11 +5953,11 @@ msgstr ""
 msgid "Purpose"
 msgstr "Призначення"
 
-#: pkg/storaged/mdraid/mdraid.jsx:248
+#: pkg/storaged/mdraid/mdraid.jsx:245
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:242
+#: pkg/storaged/mdraid/mdraid.jsx:239
 msgid "RAID 0"
 msgstr "RAID 0"
 
@@ -6021,7 +5965,7 @@ msgstr "RAID 0"
 msgid "RAID 0 (stripe)"
 msgstr "RAID 0 (Стрічка)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:243
+#: pkg/storaged/mdraid/mdraid.jsx:240
 msgid "RAID 1"
 msgstr "RAID 1"
 
@@ -6029,7 +5973,7 @@ msgstr "RAID 1"
 msgid "RAID 1 (mirror)"
 msgstr "RAID 1 (Дзеркало)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:247
+#: pkg/storaged/mdraid/mdraid.jsx:244
 msgid "RAID 10"
 msgstr "RAID 10"
 
@@ -6037,7 +5981,7 @@ msgstr "RAID 10"
 msgid "RAID 10 (stripe of mirrors)"
 msgstr "RAID 10 (Стрічка дзеркал)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:244
+#: pkg/storaged/mdraid/mdraid.jsx:241
 msgid "RAID 4"
 msgstr "RAID 4"
 
@@ -6045,7 +5989,7 @@ msgstr "RAID 4"
 msgid "RAID 4 (dedicated parity)"
 msgstr "RAID 4 (Пов’язана парність)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:245
+#: pkg/storaged/mdraid/mdraid.jsx:242
 msgid "RAID 5"
 msgstr "RAID 5"
 
@@ -6053,7 +5997,7 @@ msgstr "RAID 5"
 msgid "RAID 5 (distributed parity)"
 msgstr "RAID 5 (Розподілена парність)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:246
+#: pkg/storaged/mdraid/mdraid.jsx:243
 msgid "RAID 6"
 msgstr "RAID 6"
 
@@ -6065,7 +6009,7 @@ msgstr "RAID 6 (Подвійна розподілена парність)"
 msgid "RAID chassis"
 msgstr "Апаратний блок RAID"
 
-#: pkg/storaged/mdraid/create-dialog.jsx:51 pkg/storaged/mdraid/mdraid.jsx:289
+#: pkg/storaged/mdraid/create-dialog.jsx:51 pkg/storaged/mdraid/mdraid.jsx:286
 msgid "RAID level"
 msgstr "Рівень RAID"
 
@@ -6267,10 +6211,8 @@ msgid "Remote over NFS"
 msgstr "Віддалене на основі NFS"
 
 #: pkg/kdump/kdump-view.jsx:456
-#, fuzzy
-#| msgid "Remote over NFS"
 msgid "Remote over NFS, $0"
-msgstr "Віддалене на основі NFS"
+msgstr "Віддалене на основі NFS, $0"
 
 #: pkg/kdump/kdump-view.jsx:467
 msgid "Remote over SFTP"
@@ -6281,10 +6223,8 @@ msgid "Remote over SSH"
 msgstr "Віддалене на основі SSH"
 
 #: pkg/kdump/kdump-view.jsx:453
-#, fuzzy
-#| msgid "Remote over SSH"
 msgid "Remote over SSH, $0"
-msgstr "Віддалене на основі SSH"
+msgstr "Віддалене на основі SSH, $0"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:90
 msgid "Removals:"
@@ -6546,6 +6486,9 @@ msgid ""
 "line. For example, append '$1' to $2  in $3 or use your distribution's "
 "kernel argument editor."
 msgstr ""
+"Зарезервуйте пам'ять на час завантаження встановленням параметра «$0» у "
+"командному рядку ядра. Наприклад, допишіть «$1» до $2 у $3 або скористайтеся "
+"редактором аргументів ядра вашого дистрибутиву."
 
 #: pkg/kdump/kdump-view.jsx:610
 msgid "Reserved memory"
@@ -6664,7 +6607,7 @@ msgstr "Засіб для запуску"
 
 #: pkg/systemd/service-details.jsx:464 pkg/systemd/services.jsx:232
 #: pkg/systemd/services.jsx:236 pkg/systemd/services.jsx:696
-#: pkg/storaged/mdraid/mdraid.jsx:290
+#: pkg/storaged/mdraid/mdraid.jsx:287
 msgid "Running"
 msgstr "Працює"
 
@@ -6961,10 +6904,8 @@ msgid "Set hostname"
 msgstr "Встановити назву вузла"
 
 #: pkg/storaged/partitions/partition.jsx:181
-#, fuzzy
-#| msgid "Create partition on $0"
 msgid "Set partition type of $0"
-msgstr "Створити розділ на $0"
+msgstr "Встановити тип розділу $0"
 
 #: pkg/users/account-details.js:301 pkg/users/password-dialogs.js:226
 #: pkg/users/password-dialogs.js:233
@@ -7026,7 +6967,7 @@ msgstr "Скрипт оболонки"
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
-#: pkg/storaged/pages.jsx:693
+#: pkg/storaged/pages.jsx:698
 msgid "Show all $0 rows"
 msgstr "Показати усі $0 рядків"
 
@@ -7102,7 +7043,7 @@ msgstr "Єдиний ранг"
 
 #: pkg/systemd/hwinfo.jsx:291 pkg/storaged/partitions/partition.jsx:235
 #: pkg/storaged/block/format-dialog.jsx:368 pkg/storaged/block/resize.jsx:448
-#: pkg/storaged/block/resize.jsx:581 pkg/storaged/pages.jsx:712
+#: pkg/storaged/block/resize.jsx:581 pkg/storaged/pages.jsx:717
 #: pkg/storaged/stratis/pool.jsx:97
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:49
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:143
@@ -7244,7 +7185,7 @@ msgstr "Швидкість"
 msgid "Stable"
 msgstr "Стабільний"
 
-#: pkg/systemd/service-details.jsx:143 pkg/storaged/mdraid/mdraid.jsx:213
+#: pkg/systemd/service-details.jsx:143 pkg/storaged/mdraid/mdraid.jsx:210
 #: pkg/storaged/swap/swap.jsx:98 pkg/storaged/stratis/stopped-pool.jsx:108
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:150
 msgid "Start"
@@ -7284,7 +7225,7 @@ msgid "Starting swapspace $target"
 msgstr "Запускаємо резервну область пам’яті $target"
 
 #: pkg/systemd/hwinfo.jsx:291 pkg/systemd/services-list.jsx:40
-#: pkg/systemd/services-list.jsx:46 pkg/storaged/mdraid/mdraid.jsx:290
+#: pkg/systemd/services-list.jsx:46 pkg/storaged/mdraid/mdraid.jsx:287
 msgid "State"
 msgstr "Стан"
 
@@ -7306,7 +7247,7 @@ msgstr "Паличковий ПК"
 msgid "Sticky"
 msgstr "Липкий"
 
-#: pkg/systemd/service-details.jsx:139 pkg/storaged/mdraid/mdraid.jsx:292
+#: pkg/systemd/service-details.jsx:139 pkg/storaged/mdraid/mdraid.jsx:289
 #: pkg/storaged/swap/swap.jsx:95 pkg/storaged/legacy-vdo/legacy-vdo.jsx:62
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:149
 msgid "Stop"
@@ -7437,14 +7378,12 @@ msgid "Subscribing to systemd signals failed: $0"
 msgstr "Не вдалося підписатися на сигнали systemd: $0"
 
 #: pkg/storaged/btrfs/subvolume.jsx:285
-#, fuzzy
-#| msgid "Volume failed to be created"
 msgid "Subvolume needs to be mounted"
-msgstr "Не вдалося створити том"
+msgstr "Підтом має бути змонтовано"
 
 #: pkg/storaged/btrfs/subvolume.jsx:287
 msgid "Subvolume needs to be mounted writable"
-msgstr ""
+msgstr "Підтом має бути змонтовано для запису"
 
 #: pkg/systemd/logs.jsx:414
 msgid "Successfully copied to clipboard"
@@ -7464,10 +7403,8 @@ msgid "Swap"
 msgstr "Свопінґ"
 
 #: pkg/storaged/block/resize.jsx:292
-#, fuzzy
-#| msgid "$0 can not be resized here"
 msgid "Swap can not be resized here"
-msgstr "Тут не можна змінювати розмір $0"
+msgstr "Тут не можна змінювати розмір резервної пам'яті"
 
 #: pkg/metrics/metrics.jsx:129
 msgid "Swap out"
@@ -7647,7 +7584,7 @@ msgstr "Для створення пристроїв VDO буде встанов
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "У IP-адресі або назві вузла не повинно бути пробілів."
 
-#: pkg/storaged/mdraid/mdraid.jsx:265
+#: pkg/storaged/mdraid/mdraid.jsx:262
 msgid "The MDRAID device is in a degraded state"
 msgstr "Пристрій MDRAID перебуває у стані із погіршеними властивостями"
 
@@ -7724,10 +7661,8 @@ msgid "The file $0 will be deleted."
 msgstr "Файл $0 буде вилучено."
 
 #: pkg/storaged/filesystem/utils.jsx:191
-#, fuzzy
-#| msgid "The filesystem has no permanent mount point."
 msgid "The filesystem has no assigned mount point."
-msgstr "У файлової системи немає сталої точки монтування."
+msgstr "У файлової системи немає пов'язаної точки монтування."
 
 #: pkg/storaged/filesystem/utils.jsx:195
 msgid "The filesystem has no permanent mount point."
@@ -8031,7 +7966,7 @@ msgstr "Тонкий логічний том"
 msgid "Thinly provisioned LVM2 logical volumes"
 msgstr "Тонкі резервовані логічні томи LVM2"
 
-#: pkg/storaged/mdraid/mdraid.jsx:277
+#: pkg/storaged/mdraid/mdraid.jsx:274
 msgid ""
 "This MDRAID device has no write-intent bitmap. Such a bitmap can reduce "
 "sychronization times significantly."
@@ -8050,10 +7985,8 @@ msgstr "Цей пристрій VDO не використовує увесь о�
 
 #: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:95
-#, fuzzy
-#| msgid "This device cannot be managed here."
 msgid "This device can not be used for the installation target."
-msgstr "Тут не можна керувати цим пристроєм."
+msgstr "Цей пристрій не можна використовувати для цілі встановлення."
 
 #: pkg/networkmanager/network-interface.jsx:746
 msgid "This device cannot be managed here."
@@ -8456,23 +8389,22 @@ msgstr "Увімкнути адміністративний доступ"
 #: pkg/storaged/partitions/partition.jsx:183
 #: pkg/storaged/partitions/partition.jsx:229
 #: pkg/storaged/block/format-dialog.jsx:363
-#: pkg/storaged/block/unrecognized-data.jsx:52 pkg/storaged/pages.jsx:710
+#: pkg/storaged/block/unrecognized-data.jsx:52 pkg/storaged/pages.jsx:715
 msgid "Type"
 msgstr "Тип"
 
 #: pkg/storaged/partitions/partition.jsx:173
-#, fuzzy
-#| msgid "Name cannot contain the character '$0'."
 msgid "Type can only contain the characters 0 to 9, A to F, and \"-\"."
-msgstr "Назва не повинна містити символу «$0»."
+msgstr "Назва типу може містити лише символи від 0 до 9, від A до F і «-»."
 
 #: pkg/storaged/partitions/partition.jsx:176
 msgid "Type must be of the form NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
-msgstr ""
+msgstr "Тип слід вказувати у формі NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
 
 #: pkg/storaged/partitions/partition.jsx:160
 msgid "Type must contain exactly two hexadecimal characters (0 to 9, A to F)."
 msgstr ""
+"Тип має містити точно дві шістнадцяткові цифри (від 0 до 9 або від A до F)."
 
 #: pkg/systemd/logs.jsx:402
 msgid "Type to filter"
@@ -8482,7 +8414,7 @@ msgstr "Введіть щось для фільтрування"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/storaged/mdraid/mdraid.jsx:294 pkg/storaged/partitions/partition.jsx:228
+#: pkg/storaged/mdraid/mdraid.jsx:291 pkg/storaged/partitions/partition.jsx:228
 #: pkg/storaged/btrfs/volume.jsx:127 pkg/storaged/btrfs/device.jsx:78
 #: pkg/storaged/btrfs/filesystem.jsx:77 pkg/storaged/stratis/pool.jsx:523
 #: pkg/storaged/stratis/stopped-pool.jsx:127
@@ -9344,45 +9276,33 @@ msgid "bridge"
 msgstr "місток"
 
 #: pkg/storaged/btrfs/volume.jsx:137 pkg/storaged/btrfs/device.jsx:42
-#, fuzzy
-#| msgid "Other devices"
 msgid "btrfs device"
-msgstr "Інші пристрої"
+msgstr "Пристрій BTRFS"
 
 #: pkg/storaged/btrfs/volume.jsx:134
-#, fuzzy
-#| msgid "Other devices"
 msgid "btrfs devices"
-msgstr "Інші пристрої"
+msgstr "Пристрої BTRFS"
 
 #: pkg/storaged/btrfs/filesystem.jsx:44
-#, fuzzy
-#| msgid "Stratis filesystem"
 msgid "btrfs filesystem"
-msgstr "Файлова система Stratis"
+msgstr "Файлова система BTRFS"
 
 #: pkg/storaged/btrfs/subvolume.jsx:311
-#, fuzzy
-#| msgid "Storage volume"
 msgid "btrfs subvolume"
-msgstr "Том сховища даних"
+msgstr "Підтом btrfs"
 
 #: pkg/storaged/filesystem/utils.jsx:81
 msgid "btrfs subvolume $0 of $1"
-msgstr ""
+msgstr "Підтом BTRFS $0 з $1"
 
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
 #: pkg/storaged/btrfs/filesystem.jsx:87
-#, fuzzy
-#| msgid "Storage volumes"
 msgid "btrfs subvolumes"
-msgstr "Томи даних"
+msgstr "Підтоми BTRFS"
 
 #: pkg/storaged/btrfs/volume.jsx:68 pkg/storaged/btrfs/device.jsx:69
-#, fuzzy
-#| msgid "Storage volume"
 msgid "btrfs volume"
-msgstr "Том сховища даних"
+msgstr "Том BTRFS"
 
 #: pkg/packagekit/updates.jsx:215 pkg/packagekit/updates.jsx:319
 msgid "bug fix"
@@ -9458,7 +9378,7 @@ msgstr "вилучити"
 
 #: pkg/storaged/dialog.jsx:1119
 msgid "device of btrfs volume"
-msgstr ""
+msgstr "пристрій тому BTRFS"
 
 #: pkg/systemd/manifest.json:0
 msgid "dimm"
@@ -9751,7 +9671,7 @@ msgstr "mkfs"
 msgid "more details"
 msgstr "докладніше"
 
-#: pkg/storaged/utils.js:886 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:887 pkg/storaged/manifest.json:0
 msgid "mount"
 msgstr "монтування"
 
@@ -9907,19 +9827,17 @@ msgstr "лише читання"
 msgid "recommended"
 msgstr "найліпший"
 
-#: pkg/storaged/utils.js:945
+#: pkg/storaged/utils.js:946
 msgid "remove from LVM2"
 msgstr "вилучити з LVM2"
 
-#: pkg/storaged/utils.js:934
+#: pkg/storaged/utils.js:935
 msgid "remove from MDRAID"
 msgstr "вилучити з MDRAID"
 
-#: pkg/storaged/utils.js:904
-#, fuzzy
-#| msgid "remove from LVM2"
+#: pkg/storaged/utils.js:905
 msgid "remove from btrfs volume"
-msgstr "вилучити з LVM2"
+msgstr "вилучити з тому BTRFS"
 
 #: pkg/systemd/manifest.json:0
 msgid "restart"
@@ -10007,7 +9925,7 @@ msgstr "ключ ssh не вказано у форматі шляху"
 msgid "ssh server is empty"
 msgstr "запис сервера ssh є порожнім"
 
-#: pkg/storaged/mdraid/mdraid.jsx:59 pkg/storaged/utils.js:923
+#: pkg/storaged/mdraid/mdraid.jsx:59 pkg/storaged/utils.js:924
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:46
 msgid "stop"
 msgstr "зупинити"
@@ -10016,7 +9934,7 @@ msgstr "зупинити"
 msgid "stop boot on failure"
 msgstr "припинити завантаження при помилці"
 
-#: pkg/storaged/mdraid/mdraid.jsx:203 pkg/storaged/stratis/stopped-pool.jsx:99
+#: pkg/storaged/mdraid/mdraid.jsx:200 pkg/storaged/stratis/stopped-pool.jsx:99
 msgid "stopped"
 msgstr "зупинено"
 
@@ -10081,7 +9999,7 @@ msgstr "невідоме призначення"
 msgid "unmask"
 msgstr "unmask"
 
-#: pkg/storaged/utils.js:873 pkg/storaged/utils.js:886
+#: pkg/storaged/utils.js:874 pkg/storaged/utils.js:887
 #: pkg/storaged/btrfs/subvolume.jsx:213 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "демонтувати"

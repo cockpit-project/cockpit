@@ -34,7 +34,6 @@ import {
 import { StorageLink, StorageUsageBar, StorageSize } from "../storage-controls.jsx";
 import { StorageCard, StorageDescription, new_card, useIsNarrow } from "../pages.jsx";
 
-import { format_dialog } from "../block/format-dialog.jsx";
 import { is_mounted, MountPoint, mount_point_text, edit_mount_point } from "./utils.jsx";
 import { mounting_dialog } from "./mounting-dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "./mismounting.jsx";
@@ -98,10 +97,16 @@ export function make_filesystem_card(next, backing_block, content_block, fstab_c
         actions: [
             client.in_anaconda_mode() &&
                 { title: _("Edit mount point"), action: () => edit_mount_point(content_block || backing_block) },
-            content_block && mounted
-                ? { title: _("Unmount"), action: () => mounting_dialog(client, content_block, "unmount") }
-                : { title: _("Mount"), action: () => mounting_dialog(client, content_block || backing_block, "mount") },
-            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
+            (content_block && mounted)
+                ? {
+                    title: _("Unmount"),
+                    action: () => mounting_dialog(client, content_block, "unmount"),
+                }
+                : {
+                    title: _("Mount"),
+                    primary: true,
+                    action: () => mounting_dialog(client, content_block || backing_block, "mount"),
+                },
         ]
     });
 }

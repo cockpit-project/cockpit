@@ -262,6 +262,7 @@ export function make_lvm2_volume_group_page(parent, vgroup) {
         actions: [
             {
                 title: _("Create new logical volume"),
+                primary: true,
                 action: () => create_logical_volume(client, vgroup),
                 excuse: lvol_excuse,
                 tag: "group",

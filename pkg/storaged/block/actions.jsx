@@ -18,23 +18,38 @@
  */
 
 import cockpit from "cockpit";
+import client from "../client.js";
 
 import { format_disk } from "./format-disk-dialog.jsx";
+import { format_dialog } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-export function partitionable_block_actions(block, tag) {
-    const excuse = block.ReadOnly ? _("Device is read-only") : null;
+export function block_actions(block, partitionable) {
+    if (!block || block.Size === 0)
+        return [];
 
-    return [
-        (block.Size > 0
-            ? {
-                title: _("Create partition table"),
-                action: () => format_disk(block),
-                danger: true,
-                excuse,
-                tag
-            }
-            : null)
-    ];
+    const excuse = block.ReadOnly ? _("Device is read-only") : null;
+    const actions = [];
+
+    if (partitionable)
+        actions.push({
+            title: _("Create partition table"),
+            action: () => format_disk(block),
+            danger: true,
+            excuse,
+        });
+
+    actions.push({
+        title: _("Format"),
+        action: () => format_dialog(client, block.path),
+        danger: true,
+        excuse,
+    });
+
+    return actions;
+}
+
+export function partitionable_block_actions(block) {
+    return block_actions(block, true);
 }

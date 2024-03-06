@@ -359,17 +359,17 @@ const ActionButtons = ({ card }) => {
 
     function for_menu(action) {
         // Determine whether a action should get a button or be in the
-        // menu
+        // menu.
 
         // In a narrow layout, everything goes to the menu
         if (narrow)
             return true;
 
-        // Everything that is dangerous goes to the menu
-        if (action.danger)
-            return true;
+        // Only primary actions are buttons (even dangerous ones)
+        if (action.primary)
+            return false;
 
-        return false;
+        return true;
     }
 
     const buttons = [];
@@ -384,7 +384,7 @@ const ActionButtons = ({ card }) => {
         else
             buttons.push(
                 <StorageButton key={a.title} onClick={() => a.action(false)}
-                               kind={a.danger ? "danger" : null} excuse={a.excuse}>
+                               kind={a.danger ? "danger" : a.primary ? "primary" : null} excuse={a.excuse}>
                     {a.title}
                 </StorageButton>);
     }

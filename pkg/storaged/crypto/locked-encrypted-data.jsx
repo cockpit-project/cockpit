@@ -18,11 +18,8 @@
  */
 
 import cockpit from "cockpit";
-import client from "../client";
 
 import { StorageCard, new_card } from "../pages.jsx";
-import { format_dialog } from "../block/format-dialog.jsx";
-import { unlock } from "./actions.jsx";
 
 const _ = cockpit.gettext;
 
@@ -33,9 +30,5 @@ export function make_locked_encrypted_data_card(next, block) {
         page_block: block,
         component: StorageCard,
         props: { block },
-        actions: [
-            { title: _("Unlock"), action: () => unlock(block) },
-            { title: _("Format"), action: () => format_dialog(client, block.path), danger: true },
-        ]
     });
 }

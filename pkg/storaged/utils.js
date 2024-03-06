@@ -102,6 +102,7 @@ export function set_crypto_options(block, readonly, auto, nofail, netdev) {
         const opts = config.options ? parse_options(decode_filename(config.options.v)) : [];
         if (readonly !== null) {
             extract_option(opts, "readonly");
+            extract_option(opts, "read-only");
             if (readonly)
                 opts.push("readonly");
         }

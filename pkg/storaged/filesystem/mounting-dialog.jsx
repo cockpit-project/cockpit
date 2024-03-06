@@ -243,16 +243,18 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                 return Promise.resolve();
         }
 
-        function maybe_unlock() {
+        async function maybe_unlock() {
             const crypto = client.blocks_crypto[block.path];
             if (mode == "mount" && crypto) {
-                return (unlock_with_type(client, block, passphrase, passphrase_type)
-                        .catch(error => {
-                            dlg.set_values({ needs_explicit_passphrase: true });
-                            return Promise.reject(error);
-                        }));
+                try {
+                    await unlock_with_type(client, block, passphrase, passphrase_type);
+                    return await client.wait_for(() => client.blocks_cleartext[block.path]);
+                } catch (error) {
+                    dlg.set_values({ needs_explicit_passphrase: true });
+                    throw error;
+                }
             } else
-                return Promise.resolve();
+                return block;
         }
 
         function maybe_lock() {
@@ -275,14 +277,14 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         return (reload_systemd()
                 .then(() => teardown_active_usage(client, usage))
                 .then(maybe_unlock)
-                .then(() => {
+                .then(content_block => {
                     if (!old_config && new_config)
-                        return (block.AddConfigurationItem(new_config, {})
+                        return (content_block.AddConfigurationItem(new_config, {})
                                 .then(maybe_mount));
                     else if (old_config && !new_config)
-                        return block.RemoveConfigurationItem(old_config, {});
+                        return content_block.RemoveConfigurationItem(old_config, {});
                     else if (old_config && new_config)
-                        return (block.UpdateConfigurationItem(old_config, new_config, {})
+                        return (content_block.UpdateConfigurationItem(old_config, new_config, {})
                                 .then(maybe_mount));
                     else if (new_config && !is_mounted(client, block))
                         return maybe_mount();

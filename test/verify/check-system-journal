@@ -329,6 +329,39 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.allow_journal_messages(".*Data from the specified boot .* is not available: No such boot ID in journal.*")
 
+    def testIdentifierReloading(self):
+        """
+        Test verifies https://github.com/cockpit-project/cockpit/issues/20123
+        Updating Identifiers when changing priorities
+        """
+        b = self.browser
+        m = self.machine
+        tag_error = "check-error-inside"
+        tag_info = "check-info-inside"
+        m.execute(f"logger -p user.err --tag {tag_error} {tag_error.upper()}")
+        m.execute(f"logger -p 5 --tag {tag_info} {tag_info.upper()}")
+        self.login_and_go("/system/logs")
+
+        b.go("#/?priority=err")
+        b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
+        b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
+        b.wait_not_present(f"#journal-identifier-menu + ul button:contains('{tag_info}')")
+
+        self.browser.select_PF4("#journal-prio-menu", "Debug and above")
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
+        b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
+        b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_info)
+
+        self.browser.select_PF4("#journal-prio-menu", "Error and above")
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
+        b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
+        b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
+        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
+        b.wait_not_present(f"#journal-identifier-menu + ul button:contains('{tag_info}')")
+
     def testRebootAndTime(self):
         b = self.browser
         m = self.machine

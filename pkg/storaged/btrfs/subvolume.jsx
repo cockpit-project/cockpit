@@ -23,13 +23,16 @@ import React from "react";
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
-import { StorageCard, StorageDescription, new_card, new_page, navigate_away_from_card } from "../pages.jsx";
+import {
+    StorageCard, StorageDescription, ChildrenTable, new_card, new_page, navigate_away_from_card
+} from "../pages.jsx";
 import { StorageUsageBar } from "../storage-controls.jsx";
 import {
-    encode_filename, get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
+    encode_filename, decode_filename,
+    get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
     flatten, teardown_active_usage,
 } from "../utils.js";
-import { btrfs_usage, validate_subvolume_name } from "./utils.jsx";
+import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options } from "./utils.jsx";
 import { at_boot_input, mounting_dialog, mount_options } from "../filesystem/mounting-dialog.jsx";
 import {
     dialog_open, TextInput,
@@ -242,7 +245,71 @@ function subvolume_delete(volume, subvol, mount_point_in_parent, card) {
     });
 }
 
-export function make_btrfs_subvolume_page(parent, volume, subvol) {
+function dirname(path) {
+    const i = path.lastIndexOf("/");
+    if (i < 0)
+        return null;
+    else
+        return path.substr(0, i);
+}
+
+export function make_btrfs_subvolume_pages(parent, volume) {
+    let subvols = client.uuids_btrfs_subvols[volume.data.uuid];
+    if (!subvols) {
+        const block = client.blocks[volume.path];
+        /*
+         * Try to show subvolumes based on fstab entries. We collect
+         * all subvolumes that are mentioned in fstab entries so that
+         * the user can at least mount those.
+         *
+         * The real subvolume data structure has "id" fields and
+         * "parent" fields that refer to the ids to form a tree.  We
+         * want to do the same here, and we give fake ids to our fake
+         * subvolumes for this reason.  We don't store these fake ids
+         * in the "id" field since we don't want them to be taken
+         * seriously by the rest of the code.
+         */
+        let fake_id = 5;
+        subvols = [{ pathname: "/", id: 5, fake_id: fake_id++ }];
+        const subvols_by_pathname = { };
+        for (const config of block.Configuration) {
+            if (config[0] == "fstab") {
+                const opts = config[1].opts;
+                if (!opts)
+                    continue;
+
+                const fstab_subvol = parse_subvol_from_options(decode_filename(opts.v));
+
+                if (fstab_subvol && fstab_subvol.pathname && fstab_subvol.pathname !== "/") {
+                    fstab_subvol.fake_id = fake_id++;
+                    subvols_by_pathname[fstab_subvol.pathname] = fstab_subvol;
+                    subvols.push(fstab_subvol);
+                }
+            }
+        }
+
+        // Find parents
+        for (const pn in subvols_by_pathname) {
+            let dn = pn;
+            while (true) {
+                dn = dirname(dn);
+                if (!dn) {
+                    subvols_by_pathname[pn].parent = 5;
+                    break;
+                } else if (subvols_by_pathname[dn]) {
+                    subvols_by_pathname[pn].parent = subvols_by_pathname[dn].fake_id;
+                    break;
+                }
+            }
+        }
+    }
+
+    const root = subvols.find(s => s.id == 5);
+    if (root)
+        make_btrfs_subvolume_page(parent, volume, root, "", subvols);
+}
+
+function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols) {
     const actions = [];
 
     const use = btrfs_usage(client, volume);
@@ -307,11 +374,18 @@ export function make_btrfs_subvolume_page(parent, volume, subvol) {
             action: () => subvolume_delete(volume, subvol, mount_point_in_parent, card),
         });
 
+    function strip_prefix(str, prefix) {
+        if (str.startsWith(prefix))
+            return str.slice(prefix.length);
+        else
+            return str;
+    }
+
     const card = new_card({
         title: _("btrfs subvolume"),
         next: null,
         page_location: ["btrfs", volume.data.uuid, subvol.pathname],
-        page_name: subvol.pathname,
+        page_name: strip_prefix(subvol.pathname, path_prefix),
         page_size: is_mounted && <StorageUsageBar stats={use} short />,
         location: mp_text,
         component: BtrfsSubvolumeCard,
@@ -319,7 +393,12 @@ export function make_btrfs_subvolume_page(parent, volume, subvol) {
         props: { subvol, mount_point, mismount_warning, block, fstab_config, forced_options },
         actions,
     });
-    new_page(parent, card);
+    const page = new_page(parent, card);
+    for (const sv of subvols) {
+        if (sv.parent && (sv.parent === subvol.id || sv.parent === subvol.fake_id)) {
+            make_btrfs_subvolume_page(page, volume, sv, subvol.pathname + "/", subvols);
+        }
+    }
 }
 
 const BtrfsSubvolumeCard = ({ card, subvol, mismount_warning, block, fstab_config, forced_options }) => {
@@ -338,6 +417,11 @@ const BtrfsSubvolumeCard = ({ card, subvol, mismount_warning, block, fstab_confi
                                     forced_options={forced_options} subvol={subvol} />
                     </StorageDescription>
                 </DescriptionList>
+            </CardBody>
+            <CardBody className="contains-list">
+                <ChildrenTable emptyCaption={_("No subvolumes")}
+                               aria-label={_("btrfs subvolumes")}
+                               page={card.page} />
             </CardBody>
         </StorageCard>);
 };

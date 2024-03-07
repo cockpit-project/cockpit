@@ -30,10 +30,10 @@ import {
     get_crossrefs, ChildrenTable, PageTable, StorageCard, StorageDescription
 } from "../pages.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
-import { fmt_size_long, validate_fsys_label, decode_filename, should_ignore } from "../utils.js";
-import { btrfs_usage, btrfs_is_volume_mounted, parse_subvol_from_options } from "./utils.jsx";
+import { fmt_size_long, validate_fsys_label, should_ignore } from "../utils.js";
+import { btrfs_usage, btrfs_is_volume_mounted } from "./utils.jsx";
 import { dialog_open, TextInput } from "../dialog.jsx";
-import { make_btrfs_subvolume_page } from "./subvolume.jsx";
+import { make_btrfs_subvolume_pages } from "./subvolume.jsx";
 import { btrfs_device_actions } from "./device.jsx";
 
 const _ = cockpit.gettext;
@@ -161,42 +161,3 @@ const BtrfsSubVolumesCard = ({ card }) => {
         </StorageCard>
     );
 };
-
-export function make_btrfs_subvolume_pages(parent, volume) {
-    const subvols = client.uuids_btrfs_subvols[volume.data.uuid];
-    if (subvols) {
-        for (const subvol of subvols) {
-            make_btrfs_subvolume_page(parent, volume, subvol);
-        }
-    } else {
-        const block = client.blocks[volume.path];
-        /*
-         * Try to show subvolumes based on fstab entries, this is a bit tricky
-         * as mounts where subvolid cannot be shown userfriendly.
-         */
-        let has_root = false;
-        for (const config of block.Configuration) {
-            if (config[0] == "fstab") {
-                const opts = config[1].opts;
-                if (!opts)
-                    continue;
-
-                const fstab_subvol = parse_subvol_from_options(decode_filename(opts.v));
-
-                if (fstab_subvol === null)
-                    continue;
-
-                if (fstab_subvol.pathname === "/")
-                    has_root = true;
-
-                if (fstab_subvol.pathname)
-                    make_btrfs_subvolume_page(parent, volume, fstab_subvol);
-            }
-        }
-
-        if (!has_root) {
-            // Always show the root subvolume even when the volume is not mounted.
-            make_btrfs_subvolume_page(parent, volume, { pathname: "/", id: 5 });
-        }
-    }
-}

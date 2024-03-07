@@ -259,7 +259,7 @@ export async function btrfs_poll() {
                 // ID 257 gen 7 parent 256 top level 256 path one/two
                 // ID 258 gen 7 parent 257 top level 257 path <FS_TREE>/one/two/three/four
                 const output = await cockpit.spawn(["btrfs", "subvolume", "list", "-ap", mount_point], { superuser: true, err: "message" });
-                const subvols = [{ pathname: "/", id: 5 }];
+                const subvols = [{ pathname: "/", id: 5, parent: null }];
                 for (const line of output.split("\n")) {
                     const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
                     if (m)

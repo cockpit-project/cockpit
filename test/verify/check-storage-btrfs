@@ -195,9 +195,9 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         # Finding the correct subvolume parent from a non-mounted subvolume
         m.execute(f"btrfs subvolume create {subvol_mount_point}/pizza")
-        self.click_dropdown(self.card_row("Storage", name=f"{subvol_mount}/pizza"), "Create subvolume")
+        self.click_dropdown(self.card_row("Storage", name="pizza"), "Create subvolume")
         self.dialog({"name": "pineapple"}, secondary=True)
-        b.wait_in_text(self.card_row("Storage", name=f"{subvol_mount}/pizza/pineapple"), "btrfs subvolume")
+        b.wait_in_text(self.card_row("Storage", name="pineapple"), "btrfs subvolume")
 
         left_subvol_mount = "/run/left"
         right_subvol_mount = "/run/right"
@@ -214,11 +214,11 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         self.click_dropdown(self.card_row("Storage", location=left_subvol_mount), "Create subvolume")
         self.dialog({"name": "links"}, secondary=True)
-        b.wait_in_text(self.card_row("Storage", name="left/links"), "btrfs subvolume")
+        b.wait_in_text(self.card_row("Storage", name="links"), "btrfs subvolume")
 
         self.click_dropdown(self.card_row("Storage", location=right_subvol_mount), "Create subvolume")
         self.dialog({"name": "rechts"}, secondary=True)
-        b.wait_in_text(self.card_row("Storage", name="right/rechts"), "btrfs subvolume")
+        b.wait_in_text(self.card_row("Storage", name="rechts"), "btrfs subvolume")
 
         # Read only mount, cannot create subvolumes once /run/butter
         # is unmounted.
@@ -232,7 +232,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         self.click_dropdown(self.card_row("Storage", location=ro_subvol), "Create subvolume")
         self.dialog({"name": "bot"}, secondary=True)
-        b.wait_visible(self.card_row("Storage", name="ro/bot"))
+        b.wait_visible(self.card_row("Storage", name="bot"))
 
         # But once /run/butter has been unmounted, we can't create
         # subvolumes of "ro" anymore.
@@ -252,8 +252,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
             mount -o remount,ro /dev/sda {ro_subvol}
         """)
 
-        subvol_loc = f"{os.path.basename(ro_subvol)}/readonly"
-        self.check_dropdown_action_disabled(self.card_row("Storage", name=subvol_loc), "Create subvolume", "Subvolume needs to be mounted")
+        self.check_dropdown_action_disabled(self.card_row("Storage", name="readonly"), "Create subvolume", "Subvolume needs to be mounted")
 
     def testDeleteSubvolume(self):
         m = self.machine
@@ -301,16 +300,16 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         self.click_dropdown(self.card_row("Storage", name=subvol), "Create subvolume")
         self.dialog({"name": child_subvol}, secondary=True)
-        b.wait_visible(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
+        b.wait_visible(self.card_row("Storage", name=child_subvol))
 
         self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
-        self.checkTeardownAction(1, "Device", f"{subvol}/{child_subvol}")
+        self.checkTeardownAction(1, "Device", child_subvol)
         self.checkTeardownAction(1, "Action", "delete")
         self.checkTeardownAction(2, "Device", subvol)
         self.checkTeardownAction(2, "Action", "delete")
         self.confirm()
 
-        b.wait_not_present(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
+        b.wait_not_present(self.card_row("Storage", name=child_subvol))
         b.wait_not_present(self.card_row("Storage", name=subvol))
 
         # Delete with subvolume with children and self mounted
@@ -322,10 +321,10 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         self.click_dropdown(self.card_row("Storage", name=subvol), "Create subvolume")
         self.dialog({"name": child_subvol}, secondary=True)
-        b.wait_visible(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
+        b.wait_visible(self.card_row("Storage", name=child_subvol))
 
         self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
-        self.checkTeardownAction(1, "Device", f"{subvol}/{child_subvol}")
+        self.checkTeardownAction(1, "Device", child_subvol)
         self.checkTeardownAction(1, "Action", "delete")
         self.checkTeardownAction(1, "Device", subvol)
         self.checkTeardownAction(2, "Location", subvol_mount_point)
@@ -375,10 +374,10 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         self.click_dropdown(self.card_row("Storage", name=subvol), "Create subvolume")
         self.dialog({"name": child_subvol}, secondary=True)
-        b.wait_visible(self.card_row("Storage", name=f"{subvol}/{child_subvol}"))
+        b.wait_visible(self.card_row("Storage", name=child_subvol))
 
         # Allowed as root is mounted
-        self.click_dropdown(self.card_row("Storage", name=f"{subvol}/{child_subvol}"), "Delete")
+        self.click_dropdown(self.card_row("Storage", name=child_subvol), "Delete")
         self.dialog_wait_open()
         self.dialog_cancel()
 
@@ -387,7 +386,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.confirm()
         b.wait_visible(self.card_row("Storage", location=f"{mount_point} (not mounted)"))
 
-        self.check_dropdown_action_disabled(self.card_row("Storage", name=f"{subvol}/{child_subvol}"), "Delete", "At least one parent needs to be mounted writable")
+        self.check_dropdown_action_disabled(self.card_row("Storage", name=child_subvol), "Delete", "At least one parent needs to be mounted writable")
 
     def testMultiDevice(self):
         m = self.machine
@@ -575,7 +574,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         disk = self.add_ram_disk(size=128)
 
-        m.execute(f"mkfs.btrfs -L butter {disk}; mount {disk} /mnt; btrfs subvolume create /mnt/home; btrfs subvolume create /mnt/backups")
+        m.execute(f"mkfs.btrfs -L butter {disk}; mount {disk} /mnt; btrfs subvolume create /mnt/home; btrfs subvolume create /mnt/home/backups")
         m.execute("while mountpoint -q /mnt && ! umount /mnt; do sleep 0.2; done;")
 
         self.login_and_go("/storage")
@@ -588,7 +587,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         # subvolumes mentioned in them and show them.
 
         m.execute(f"echo >>/etc/fstab '{disk} /mnt/home auto noauto,subvol=home 0 0'")
-        m.execute(f"echo >>/etc/fstab '{disk} /mnt/backups auto noauto,subvol=backups 0 0'")
+        m.execute(f"echo >>/etc/fstab '{disk} /mnt/backups auto noauto,subvol=home/backups 0 0'")
 
         b.wait_text(self.card_row_col("btrfs filesystem", row_name="home", col_index=3), "/mnt/home (not mounted)")
         b.wait_text(self.card_row_col("btrfs filesystem", row_name="backups", col_index=3), "/mnt/backups (not mounted)")

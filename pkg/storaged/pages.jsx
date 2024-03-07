@@ -609,7 +609,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
         } else {
             const cols = [
                 <Td key="1" onClick={onClick}>
-                    <div className={"content-level-" + level}>
+                    <div className="indent" style={ { "--level": level } }>
                         <Truncate content={name} />
                         {info}
                     </div>

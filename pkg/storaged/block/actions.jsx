@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -18,21 +18,19 @@
  */
 
 import cockpit from "cockpit";
+import client from "../client";
 
-import { StorageCard, new_card } from "../pages.jsx";
-import { std_format_action } from "./actions.jsx";
-import { std_lock_action } from "../crypto/actions.jsx";
+import { format_dialog } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-export function make_unformatted_data_card(next, backing_block, content_block) {
-    return new_card({
-        title: _("Unformatted data"),
-        next,
-        component: StorageCard,
-        actions: [
-            std_lock_action(backing_block, content_block),
-            std_format_action(backing_block, content_block),
-        ]
-    });
+export function std_format_action(backing_block, content_block) {
+    const excuse = backing_block.ReadOnly ? _("Device is read-only") : null;
+
+    return {
+        title: _("Format"),
+        action: () => format_dialog(client, backing_block.path),
+        excuse,
+        danger: true
+    };
 }

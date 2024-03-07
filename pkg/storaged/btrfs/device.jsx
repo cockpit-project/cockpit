@@ -28,7 +28,7 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 import { StorageCard, StorageDescription, new_card, register_crossref } from "../pages.jsx";
 import { StorageUsageBar } from "../storage-controls.jsx";
 import { std_lock_action } from "../crypto/actions.jsx";
-import { format_dialog } from "../block/format-dialog.jsx";
+import { std_format_action } from "../block/actions.jsx";
 import { btrfs_device_usage } from "./utils.jsx";
 
 const _ = cockpit.gettext;
@@ -90,7 +90,7 @@ export function btrfs_device_actions(backing_block, content_block) {
     if (backing_block && content_block)
         return [
             std_lock_action(backing_block, content_block),
-            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
+            std_format_action(backing_block, content_block),
         ];
     else
         return [];

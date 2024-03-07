@@ -161,8 +161,6 @@ You can set these environment variables to configure the test suite:
                   "fedora-39"
                   "fedora-40"
                   "fedora-coreos"
-                  "rhel-8-10"
-                  "rhel-8-10-distropkg"
                   "rhel-9-4"
                   "rhel4edge",
                   "ubuntu-2204"

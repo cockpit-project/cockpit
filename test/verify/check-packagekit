@@ -454,7 +454,8 @@ ExecStart=/usr/local/bin/{self.packageName}
 """
                 self.testObj.createPackage(self.packageName, "1", "1", install=True, changes="initial package with service and run script",
                                            content={f"/usr/local/bin/{self.packageName}": scriptContent, f"/etc/systemd/system/{self.packageName}.service": unitContent},
-                                           postinst="chmod a+x /usr/local/bin/{0}; systemctl daemon-reload; systemctl start {0}.service".format(self.packageName))
+                                           postinst=(f"chmod a+x /usr/local/bin/{self.packageName};"
+                                                     f"systemctl daemon-reload; systemctl start {self.packageName}.service"))
                 self.testObj.createPackage(self.packageName, "1", "2",
                                            content={f"/usr/local/bin/{self.packageName}": scriptContent, f"/etc/systemd/system/{self.packageName}.service": unitContent},
                                            postinst=f"chmod a+x /usr/local/bin/{self.packageName}")
@@ -1146,7 +1147,8 @@ class TestWsUpdate(NoSubManCase):
         # updating this package takes longer than a cockpit start and building the page
         self.createPackage("slow", "1", "1", install=True)
         self.createPackage(
-            "slow", "1", "2", postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
+            "slow", "1", "2",
+            postinst=f"while [ ! -e {install_lockfile} ]; do sleep 1; done; rm -f {install_lockfile}")
         self.enableRepo()
         m.execute("pkcon refresh")
 

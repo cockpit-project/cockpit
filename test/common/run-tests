@@ -129,12 +129,12 @@ class Test:
 
                 if proc.returncode == 77:
                     self.returncode = proc.returncode
-                    self._print_test(skip_reason="# SKIP {0}".format(reason.decode("utf-8")))
+                    self._print_test(skip_reason=f"# SKIP {reason.decode()}")
                     return None, 0
 
                 if proc.returncode == 78:
                     self.returncode = proc.returncode
-                    self._print_test(skip_reason="# NOTE {0}".format(reason.decode("utf-8")))
+                    self._print_test(skip_reason=f"# NOTE {reason.decode()}")
                     return None, 1
 
                 if proc.returncode == 1:

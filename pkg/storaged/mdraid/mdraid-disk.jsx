@@ -26,7 +26,7 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import { StorageCard, StorageDescription, new_card, register_crossref } from "../pages.jsx";
-import { format_dialog } from "../block/format-dialog.jsx";
+import { std_format_action } from "../block/actions.jsx";
 import { block_short_name, fmt_size, mdraid_name } from "../utils.js";
 import { std_lock_action } from "../crypto/actions.jsx";
 
@@ -44,7 +44,7 @@ export function make_mdraid_disk_card(next, backing_block, content_block) {
         props: { backing_block, content_block, mdraid },
         actions: [
             std_lock_action(backing_block, content_block),
-            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
+            std_format_action(backing_block, content_block),
         ]
     });
 

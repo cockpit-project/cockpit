@@ -19,13 +19,12 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import client from "../client";
 
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import { StorageCard, StorageDescription, new_card } from "../pages.jsx";
-import { format_dialog } from "./format-dialog.jsx";
+import { std_format_action } from "./actions.jsx";
 import { std_lock_action } from "../crypto/actions.jsx";
 
 const _ = cockpit.gettext;
@@ -38,7 +37,7 @@ export function make_unrecognized_data_card(next, backing_block, content_block) 
         props: { backing_block, content_block },
         actions: [
             std_lock_action(backing_block, content_block),
-            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
+            std_format_action(backing_block, content_block),
         ]
     });
 }

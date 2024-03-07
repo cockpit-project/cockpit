@@ -109,18 +109,9 @@ td.job-action {
 }
 
 // FIXME: This is visual only; it needs to be fixed for a11y reasons, likely at the JSX level
-div[class*="content-level-"] {
-  --multiplier: 0;
-  --offset: calc(var(--pf-v5-global--spacer--md) * var(--multiplier));
-
-  padding-inline-start: var(--offset);
+.indent {
+  padding-inline-start: calc(var(--pf-v5-global--spacer--md) * min(var(--level, 0), 10));
   white-space: nowrap;
-}
-
-@for $i from 1 through 10 {
-  div.content-level-#{$i} {
-    --multiplier: #{$i};
-  }
 }
 
 // FIXME: Is this used?

@@ -53,7 +53,7 @@ BASE_DIR = os.path.realpath(f'{__file__}/../../..')
 TEST_DIR = f'{BASE_DIR}/test'
 BOTS_DIR = f'{BASE_DIR}/bots'
 
-os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST_DIR)
+os.environ["PATH"] = f"{os.environ.get('PATH')}:{BOTS_DIR}:{TEST_DIR}"
 
 # Be careful when changing this string, check in cockpit-project/bots where it is being used
 UNEXPECTED_MESSAGE = "FAIL: Test completed, but found unexpected "
@@ -1525,7 +1525,11 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(m.execute, "find /var/lib/systemd/coredump -type f -delete")
 
         # temporary directory in the VM
-        self.addCleanup(m.execute, "if [ -d {0} ]; then findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount; rm -r {0}; fi".format(self.vm_tmpdir))
+        self.addCleanup(m.execute, f"""
+            if [ -d {self.vm_tmpdir} ]; then
+                findmnt --list --noheadings --output TARGET | grep ^{self.vm_tmpdir} | xargs -r umount
+                rm -r {self.vm_tmpdir}
+            fi""")
 
         # users/groups/home dirs
         self.restore_file("/etc/passwd")
@@ -2456,13 +2460,16 @@ class TapRunner:
 
         # Return 77 if all tests were skipped
         if len(skips) == test_count:
-            sys.stdout.write("# SKIP {0}\n".format(", ".join([f"{s[0]!s} {s[1]}" for s in skips])))
+            skips = ", ".join([f"{s[0]!s} {s[1]}" for s in skips])
+            sys.stdout.write(f"# SKIP {skips}\n")
             return 77
         if failures:
-            sys.stdout.write("# {0} TEST{1} FAILED {2}\n".format(failures, "S" if failures > 1 else "", details))
+            plural = "S" if failures > 1 else ""
+            sys.stdout.write(f"# {failures} TEST{plural} FAILED {details}\n")
             return 1
         else:
-            sys.stdout.write("# {0} TEST{1} PASSED {2}\n".format(test_count, "S" if test_count > 1 else "", details))
+            plural = "S" if test_count > 1 else ""
+            sys.stdout.write(f"# {test_count} TEST{plural} PASSED {details}\n")
             return 0
 
 

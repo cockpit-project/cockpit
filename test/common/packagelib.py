@@ -421,8 +421,8 @@ Server = file://{self.repo_dir}
                 self.machine.write("/etc/pacman.conf", config, append=True)
 
         else:
-            self.machine.execute("""printf '[updates]\nname=cockpittest\nbaseurl=file://{0}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
-                                    echo '{1}' > /tmp/updateinfo.xml
-                                    createrepo_c {0}
-                                    modifyrepo_c /tmp/updateinfo.xml {0}/repodata
-                                    dnf clean all""".format(self.repo_dir, self.createYumUpdateInfo()))
+            self.machine.execute(f"""printf '[updates]\nname=cockpittest\nbaseurl=file://{self.repo_dir}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
+                                     echo '{self.createYumUpdateInfo()}' > /tmp/updateinfo.xml
+                                     createrepo_c {self.repo_dir}
+                                     modifyrepo_c /tmp/updateinfo.xml {self.repo_dir}/repodata
+                                     dnf clean all""")

@@ -35,7 +35,7 @@ import { make_swap_card } from "../swap/swap.jsx";
 import { make_encryption_card } from "../crypto/encryption.jsx";
 import { make_btrfs_device_card } from "../btrfs/device.jsx";
 import { make_btrfs_filesystem_card } from "../btrfs/filesystem.jsx";
-import { make_btrfs_subvolume_pages } from "../btrfs/volume.jsx";
+import { make_btrfs_subvolume_pages } from "../btrfs/subvolume.jsx";
 
 import { new_page } from "../pages.jsx";
 

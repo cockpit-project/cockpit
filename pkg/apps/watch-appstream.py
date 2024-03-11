@@ -356,10 +356,15 @@ def watch_db():
     def available_callback(path):
         process_file(path, lambda path, xml: db.notice_available(path, xml))
 
-    watcher.watch_directory('/usr/share/metainfo', installed_callback)
+    # https://www.freedesktop.org/software/appstream/docs/chap-CatalogData.html
     watcher.watch_directory('/usr/share/swcatalog/xml', available_callback)
+    watcher.watch_directory('/var/cache/swcatalog/xml', available_callback)
+    watcher.watch_directory('/var/lib/swcatalog/xml', available_callback)
+    # legacy paths
     watcher.watch_directory('/usr/share/app-info/xmls', available_callback)
     watcher.watch_directory('/var/cache/app-info/xmls', available_callback)
+    # installed packages
+    watcher.watch_directory('/usr/share/metainfo', installed_callback)
     db.start_dumping()
     watcher.run()
 

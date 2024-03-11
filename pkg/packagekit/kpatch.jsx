@@ -128,6 +128,9 @@ export class KpatchSettings extends React.Component {
         const uname_promise = cockpit.spawn(["uname", "-r"])
                 .then(data => {
                     const fields = data.split("-");
+                    // if there's no release field, we don't have an official kernel
+                    if (!fields[1])
+                        return;
                     const kpp_kernel_version = fields[0].replaceAll(".", "_");
                     let release = fields[1].split(".");
                     release = release.slice(0, release.length - 2); // remove el8.x86_64

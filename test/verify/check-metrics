@@ -751,17 +751,18 @@ class TestHistoryMetrics(testlib.MachineCase):
 class TestCurrentMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
+        m = self.machine
         # packagekit/dnf often eats a lot of CPU; silence it to have better control over CPU usage
-        packagekitd = "/usr/lib/packagekitd" if self.machine.image == "arch" else "/usr/libexec/packagekitd"
-        self.machine.execute(f"systemctl mask packagekit && killall -9 {packagekitd} && killall -9 dnf || true")
+        packagekitd = "/usr/lib/packagekitd" if m.image == "arch" else "/usr/libexec/packagekitd"
+        m.execute(f"systemctl mask packagekit && killall -9 {packagekitd} && killall -9 dnf || true")
 
-        self.addCleanup(self.machine.execute, "systemctl unmask packagekit")
+        self.addCleanup(m.execute, "systemctl unmask packagekit")
         # make sure to clean up our test resource consumers on failures
-        self.addCleanup(self.machine.execute, "systemctl stop cockpittest.slice 2>/dev/null || true")
-        self.addCleanup(self.machine.execute, "su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) "
-                                              "systemctl --user stop cockpittest.slice 2>/dev/null || true'")
+        self.addCleanup(m.execute, "systemctl stop cockpittest.slice 2>/dev/null || true")
+        self.addCleanup(m.execute, "su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) "
+                                   "systemctl --user stop cockpittest.slice 2>/dev/null || true'")
 
-        self.busybox_image = self.machine.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
+        self.busybox_image = m.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
         self.login_and_go("/metrics")
 
     def testCPU(self):

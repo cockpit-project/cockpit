@@ -982,6 +982,10 @@ ExecStart=/usr/local/bin/{packageName}
         b = self.browser
         m = self.machine
 
+        # pretend running custom kernel without distro release for kpatch detection robustness
+        self.write_file("/usr/local/bin/uname", """#!/bin/sh
+            if [ "$1" = "-r" ]; then echo 1.2; else exec /usr/bin/uname "$@"; fi""", perm="755")
+
         self.createPackage("vapor", "1", "1", install=True)
         self.createPackage("vapor", "1", "2")
 
@@ -996,6 +1000,7 @@ ExecStart=/usr/local/bin/{packageName}
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
         b.wait_in_text("#status", "1 update available")
+        b.wait_not_present("#kpatch-setup")
 
         b.click("#available-updates button#install-all")
 

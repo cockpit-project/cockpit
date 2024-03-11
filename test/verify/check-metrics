@@ -765,6 +765,11 @@ class TestCurrentMetrics(testlib.MachineCase):
         self.busybox_image = m.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
         self.login_and_go("/metrics")
 
+        # hack around https://github.com/containers/podman/issues/21896 for our offline test VMs
+        if not m.execute("ip route show default").strip() and "5.0" in m.execute("podman version"):
+            m.execute("nmcli con add type dummy con-name fake ifname fake0 ip4 1.2.3.4/24 gw4 1.2.3.1")
+            self.addCleanup(m.execute, "nmcli con delete fake")
+
     def testCPU(self):
         b = self.browser
         m = self.machine

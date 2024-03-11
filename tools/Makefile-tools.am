@@ -22,4 +22,7 @@ coverage:
 	@echo "file://$(abs_top_builddir)/tools/coverage/index.html"
 endif
 
-EXTRA_DIST += pkg/apps/content-security-policy.override
+EXTRA_DIST += \
+	pkg/apps/content-security-policy.override \
+	tools/apparmor.d/cockpit-desktop \
+	$(NULL)

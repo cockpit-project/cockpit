@@ -1,0 +1,10 @@
+abi <abi/4.0>,
+
+include <tunables/global>
+
+profile cockpit-desktop /usr/lib/cockpit/cockpit-desktop flags=(unconfined) {
+  userns,
+
+  # Site-specific additions and overrides. See local/README for details.
+  include if exists <local/cockpit-desktop>
+}

@@ -21,6 +21,11 @@ if [ -d /run/systemd/system ] && [ -n "$2" ]; then
     deb-systemd-invoke try-restart cockpit.service >/dev/null || true
 fi
 
+# update AppArmor profile
+if [ "$1" = "configure" ] && aa-enabled --quiet 2>/dev/null; then
+    apparmor_parser -r -T -W /etc/apparmor.d/cockpit-desktop || true
+fi
+
 # set up dynamic motd/issue symlinks on first-time install or upgrades from < 244 (which moved them out of the .deb)
 if [ "$1" = "configure" ] && dpkg --compare-versions "$2" lt 244; then
     mkdir -p /etc/motd.d /etc/issue.d

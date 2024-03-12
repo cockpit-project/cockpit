@@ -23,3 +23,9 @@ flatpak run \
         "$@" \
         --force-clean \
         --install flatpak-build-dir "${MANIFEST}"
+
+flatpak run \
+    --command=flatpak-builder-lint \
+    org.flatpak.Builder \
+        --exceptions \
+        builddir flatpak-build-dir

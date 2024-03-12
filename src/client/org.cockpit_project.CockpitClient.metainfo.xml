@@ -3,7 +3,10 @@
   <id>org.cockpit_project.CockpitClient</id>
 
   <name>Cockpit Client</name>
-  <summary>Connect via ssh to servers with Cockpit</summary>
+  <summary>Web-based server interface via ssh</summary>
+  <developer id='org.cockpit-project'>
+    <name>Cockpit Project</name>
+  </developer>
 
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>LGPL-2.1-or-later</project_license>
@@ -48,10 +51,13 @@
   </provides>
 
   <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+
+  <recommends>
     <control>keyboard</control>
     <control>pointing</control>
-    <display_length compare="ge">medium</display_length>
-  </requires>
+  </recommends>
 
   <content_rating type="oars-1.0"/>
 

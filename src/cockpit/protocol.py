@@ -20,7 +20,7 @@ import json
 import logging
 import uuid
 
-from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_int, get_str, typechecked
+from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_int, get_str, get_str_or_none, typechecked
 
 logger = logging.getLogger(__name__)
 
@@ -213,7 +213,7 @@ class CockpitProtocolServer(CockpitProtocol):
             self.init_host = get_str(message, 'host')
             self.do_init(message)
         elif command == 'kill':
-            self.do_kill(get_str(message, 'host', None), get_str(message, 'group', None), message)
+            self.do_kill(get_str_or_none(message, 'host', None), get_str_or_none(message, 'group', None), message)
         elif command == 'authorize':
             self.do_authorize(message)
         else:

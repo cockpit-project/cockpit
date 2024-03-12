@@ -292,10 +292,15 @@ class Browser:
         """
         self.cdp.set_frame(None)
 
-    def upload_file(self, selector: str, file: str):
+    def upload_files(self, selector: str, files: 'list[str]') -> None:
+        """Upload a local file to the browser
+
+        The selector should select the <input type="file"/> element.
+        Files is a list of absolute paths to files which should be uploaded.
+        """
         r = self.cdp.invoke("Runtime.evaluate", expression='document.querySelector(%s)' % jsquote(selector))
         objectId = r["result"]["objectId"]
-        self.cdp.invoke("DOM.setFileInputFiles", files=[file], objectId=objectId)
+        self.cdp.invoke("DOM.setFileInputFiles", files=files, objectId=objectId)
 
     def raise_cdp_exception(self, func, arg, details, trailer=None):
         # unwrap a typical error string

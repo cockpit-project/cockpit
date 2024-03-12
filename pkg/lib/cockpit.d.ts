@@ -77,6 +77,7 @@ declare module 'cockpit' {
         id: string | null;
         binary: boolean;
         options: JsonObject;
+        ready: boolean;
         valid: boolean;
         send(data: T): void;
         control(options: ControlMessage): void;
@@ -191,6 +192,8 @@ declare module 'cockpit' {
     export function user(): Promise<UserInfo>;
 
     /* === String helpers ======================== */
+
+    function message(problem: string | JsonObject): string;
 
     function gettext(message: string): string;
     function gettext(context: string, message?: string): string;

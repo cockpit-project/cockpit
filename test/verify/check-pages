@@ -18,9 +18,13 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import subprocess
+import tempfile
 import time
+from pathlib import Path
 
 import testlib
+from lib.constants import TEST_OS_DEFAULT
 
 RHEL_DOC_BASE = "https://access.redhat.com/documentation"
 
@@ -861,6 +865,96 @@ OnCalendar=daily
 
         # logging out too fast, some D-Bus services get disconnected
         self.allow_restart_journal_messages()
+
+    @testlib.skipBrowser(".upload_files() doesn't work on Firefox", "firefox")
+    def testUpload(self) -> None:
+        b = self.browser
+        m = self.machine
+
+        self.restore_dir("/home/admin")
+        self.login_and_go("/playground/react-patterns")  # , debugging="upload")
+        files_dir = Path(testlib.TEST_DIR) / "verify" / "files" / "metrics-archives"
+        test_upload_file = str(files_dir / "double_events.zip")
+        dest_file = "/home/admin/double_events.zip"
+
+        filehash = subprocess.check_output(["sha512sum", test_upload_file]).strip().decode().split(' ')[0]
+        filesize = subprocess.check_output(["stat", "--format", "%s", test_upload_file]).strip().decode()
+
+        b.upload_files("#demo-upload input[type='file']", [test_upload_file])
+
+        testlib.wait(lambda: m.execute(f"test -f {dest_file} && echo {dest_file} || echo 'no'").strip() == dest_file)
+        self.assertEqual(m.execute(f"stat --format '%s' {dest_file}").strip(), filesize)
+        self.assertEqual(m.execute(f"sha512sum {dest_file} | awk '{{ print $1 }}'").strip(), filehash)
+        b.wait_visible("#upload-file-btn:not(:disabled)")
+
+        # Various cases of big file upload
+        with tempfile.TemporaryDirectory() as tmpdir:
+            big_file = str(Path(tmpdir) / "bigfile.img")
+            # the VM has a total of 1.5G memory, so this would fill it
+            # use SI sizes to make sure we test the last incomplete block
+            subprocess.check_call(["truncate", "-s", "1500MB", big_file])
+
+            # Uploaded to completion.  It's slow, so only do it on default OS.
+            # We do this to make sure the file is spooled to disk, not memory.
+            if self.machine.image == TEST_OS_DEFAULT:
+                b.upload_files("#demo-upload input[type='file']", [big_file])
+                b.wait(lambda: b.get_pf_progress_value(".upload-progress-0") >= 2)
+                with b.wait_timeout(120):
+                    b.wait_visible("#upload-file-btn:not(:disabled)")
+                self.assertEqual(int(m.execute('stat -c%s /home/admin/bigfile.img')), 1500 * 1000 * 1000)
+                m.execute('rm /home/admin/bigfile.img')
+
+            # Cancelled
+            b.upload_files("#demo-upload input[type='file']", [big_file])
+            b.wait(lambda: b.get_pf_progress_value(".upload-progress-0") >= 2)
+            b.click(".cancel-button-0")
+            b.wait_visible("#upload-file-btn:not(:disabled)")
+            b.wait_in_text(".pf-v5-c-alert", "Aborted")
+            m.execute('! test -f /home/admin/bigfile.img')
+
+            # Early ENOSPC error (before we would block on 'ack')
+            m.execute("mkdir -p /mnt/upload; mount -t tmpfs -o size=1M none /mnt/upload;")
+            self.addCleanup(m.execute, "umount /mnt/upload; rmdir /mnt/upload;")
+            b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/")
+            b.upload_files("#demo-upload input[type='file']", [big_file])
+            b.wait_visible("#upload-file-btn:not(:disabled)")
+            b.wait_in_text(".pf-v5-c-alert", "No space left on device")
+            self.assertEqual(m.execute('ls -A /mnt/upload'), '')  # nothing left behind
+
+            # Later ENOSPC error (after we've blocked)
+            m.execute("umount /mnt/upload; mount -t tmpfs -o size=10M none /mnt/upload;")
+            b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/")
+            b.upload_files("#demo-upload input[type='file']", [big_file])
+            b.wait_visible("#upload-file-btn:not(:disabled)")
+            b.wait_in_text(".pf-v5-c-alert", "No space left on device")
+            self.assertEqual(m.execute('ls -A /mnt/upload'), '')
+
+        # Upload permission error
+        b.set_file_autocomplete_val("#demo-upload", "/root/")
+        b.drop_superuser()
+        b.upload_files("#demo-upload input[type='file']", [test_upload_file])
+        b.wait_in_text(".pf-v5-c-alert", "Not permitted to perform this action")
+
+    @testlib.skipBrowser(".upload_files() doesn't work on Firefox", "firefox")
+    def testUploadMultiple(self) -> None:
+        b = self.browser
+        m = self.machine
+
+        self.restore_dir("/home/admin")
+        dest_dir = "/home/admin/keys/"
+        m.execute(['runuser', '-u', 'admin', 'mkdir', dest_dir])
+        files_dir = Path(testlib.TEST_DIR) / "verify" / "files" / "ssh"
+        files = [str(files_dir / f) for f in os.listdir(files_dir)]
+        print("to be uploaded files", files)
+
+        self.login_and_go("/playground/react-patterns")  # , debugging="upload")
+        b.wait_visible("#demo-upload")
+        b.set_file_autocomplete_val("#demo-upload", dest_dir)
+        b.upload_files("#demo-upload input[type='file']", files)
+
+        with b.wait_timeout(30):
+            b.wait(lambda: int(m.execute(f"ls {dest_dir} | wc -l").strip()) == len(files))
+        b.wait_visible("#upload-file-btn:not(:disabled)")
 
 
 if __name__ == '__main__':

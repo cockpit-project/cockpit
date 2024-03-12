@@ -153,6 +153,7 @@ class FsReplaceChannel(Channel):
     payload = 'fsreplace1'
 
     _path = None
+    _send_acks = None
     _tag = None
     _tempfile = None
     _temppath = None
@@ -166,7 +167,15 @@ class FsReplaceChannel(Channel):
     def do_open(self, options):
         self._path = options.get('path')
         self._tag = options.get('tag')
-        self.ready()
+        self._send_acks = get_str(options, 'send-acks', None)
+
+        if self._send_acks is not None and self._send_acks != 'frames':
+            raise ChannelError('protocol-error', message=f"invalid value '{self._send_acks}' provided for send-acks")
+
+        if self._send_acks:
+            self.ready(send_acks=self._send_acks)
+        else:
+            self.ready()
 
     def do_data(self, data):
         if self._tempfile is None:
@@ -199,6 +208,8 @@ class FsReplaceChannel(Channel):
                 raise
 
         self._tempfile.write(data)
+        if self._send_acks:
+            self.send_control(command="send-acks", frames=1)
 
     def do_done(self):
         if self._tempfile is None:

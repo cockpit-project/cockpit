@@ -1,0 +1,108 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2024 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import subprocess
+import tempfile
+from pathlib import Path
+
+import testlib
+from lib.constants import TEST_OS_DEFAULT
+
+
+@testlib.skipBrowser("Firefox CDP does not support setFileInputFiles", "firefox")
+class TestUploadComponent(testlib.MachineCase):
+
+    # Test upload component
+    # - Upload progress, slow down network to 3G and test
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/playground/react-patterns")
+        files_dir = Path(testlib.TEST_DIR) / "verify" / "files" / "metrics-archives"
+        test_upload_file = str(files_dir / "double_events.zip")
+        dest_file = "/home/admin/double_events.zip"
+
+        filehash = subprocess.check_output(["md5sum", test_upload_file]).strip().decode().split(' ')[0]
+        filesize = subprocess.check_output(["stat", "--format", "%s", test_upload_file]).strip().decode()
+
+        b.upload_files("#demo-upload input[type='file']", [test_upload_file])
+
+        with b.wait_timeout(30):
+            b.wait(lambda: m.execute(f"test -f {dest_file} && echo {dest_file} || echo 'no'").strip() == dest_file)
+        self.assertEqual(m.execute(f"stat --format '%s' {dest_file}").strip(), filesize)
+        self.assertEqual(m.execute(f"md5sum {dest_file} | awk '{{ print $1 }}'").strip(), filehash)
+        b.wait_visible("#upload-file-btn:not(:disabled)")
+
+        # big file upload
+        with tempfile.TemporaryDirectory() as tmpdir:
+            big_file = str(Path(tmpdir) / "bigfile.img")
+            subprocess.check_call(["truncate", "-s", "100M", big_file])
+            b.upload_files("#demo-upload input[type='file']", [big_file])
+
+            b.wait(lambda: b.get_pf_progress_value(".upload-progress-0") >= 2)
+            b.click(".cancel-button-0")
+            b.wait_visible("#upload-file-btn:not(:disabled)")
+
+            # Succesful
+            if self.machine.image == TEST_OS_DEFAULT:
+                subprocess.check_call(["truncate", "-s", "1000M", big_file])
+                b.upload_files("#demo-upload input[type='file']", [big_file])
+                dest_file = "/home/admin/bigfile.img"
+                with b.wait_timeout(120):
+                    b.wait(lambda: m.execute(f"test -f {dest_file} && echo {dest_file} || echo 'no'").strip() == dest_file)
+                b.wait_visible("#upload-file-btn:not(:disabled)")
+
+            # Enospace
+            # TODO: no error send back
+            # m.execute("""
+            #     mkdir /mnt/upload
+            #     mount -t tmpfs -o size=1M none /mnt/upload
+            # """)
+            # b.upload_files("#demo-upload input[type='file']", [big_file])
+            # b.wait_visible("#upload-file-btn:not(:disabled)")
+
+        # Upload permission error
+        b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/")
+        b.drop_superuser()
+        b.upload_files("#demo-upload input[type='file']", [test_upload_file])
+
+    def testMulti(self):
+        b = self.browser
+        m = self.machine
+
+        dest_dir = "/home/admin/keys/"
+        m.execute(f"mkdir {dest_dir}; chown -R admin: {dest_dir}")
+        files_dir = Path(testlib.TEST_DIR) / "verify" / "files" / "ssh"
+        files = [str(files_dir / f) for f in os.listdir(files_dir)]
+        print("to be uploaded files", files)
+
+        self.login_and_go("/playground/react-patterns")
+        b.wait_visible("#demo-upload")
+        b.set_file_autocomplete_val("#demo-upload", dest_dir)
+        b.upload_files("#demo-upload input[type='file']", files)
+
+        with b.wait_timeout(30):
+            b.wait(lambda: int(m.execute(f"ls {dest_dir} | wc -l").strip()) == len(files))
+        b.wait_visible("#upload-file-btn:not(:disabled)")
+
+
+if __name__ == '__main__':
+    testlib.test_main()

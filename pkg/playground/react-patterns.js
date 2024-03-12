@@ -27,6 +27,7 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { PatternDialogBody } from "./react-demo-dialog.jsx";
 import { showCardsDemo } from "./react-demo-cards.jsx";
+import { showUploadDemo } from "./react-demo-file-upload.jsx";
 import { showFileAcDemo, showFileAcDemoPreselected } from "./react-demo-file-autocomplete.jsx";
 
 /* -----------------------------------------------------------------------------
@@ -126,4 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Cards
     showCardsDemo(document.getElementById('demo-cards'));
+
+    // Upload
+    showUploadDemo(document.getElementById('demo-upload'));
 });

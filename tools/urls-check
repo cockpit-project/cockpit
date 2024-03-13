@@ -123,9 +123,9 @@ def check_urls(verbose):
             if resp.geturl() != url and not any(fnmatch.fnmatch(url, pattern) for pattern in KNOWN_REDIRECTS):
                 redirects.append(url)
             if resp.getcode() >= 400:
-                failed.append(url)
-        except urllib.error.URLError:
-            failed.append(url)
+                failed.append(f"{url} : {resp.getcode()} {resp.reason}")
+        except urllib.error.URLError as e:
+            failed.append(f"{url} : {e.code} {e.reason}")
 
     err = ""
     success = ""

@@ -3,7 +3,7 @@ auth       required     pam_sepermit.so
 auth       substack     common-auth
 auth       optional     pam_ssh_add.so
 # List of users to deny access to Cockpit, by default root is included.
-auth       required     pam_listfile.so item=user sense=deny file=/etc/cockpit/disallowed-users onerr=succeed
+account    required     pam_listfile.so item=user sense=deny file=/etc/cockpit/disallowed-users onerr=succeed
 account    required     pam_nologin.so
 account    include      common-account
 password   include      common-password

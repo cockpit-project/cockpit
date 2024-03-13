@@ -1,7 +1,7 @@
 #%PAM-1.0
 auth      include   system-remote-login
-# List of users to deny access to Cockpit, by default root is included.
-auth       required     pam_listfile.so item=user sense=deny file=/etc/cockpit/disallowed-users onerr=succeed
 account   include   system-remote-login
+# List of users to deny access to Cockpit, by default root is included.
+account   required  pam_listfile.so item=user sense=deny file=/etc/cockpit/disallowed-users onerr=succeed
 password  include   system-remote-login
 session   include   system-remote-login

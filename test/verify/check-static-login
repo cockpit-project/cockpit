@@ -739,7 +739,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # root login is disabled by default via /etc/cockpit/disallowed-users on everything except RHEL 8
         if not m.image.startswith("rhel-8") and not m.image.startswith("centos-8"):
             b.try_login("root", "foobar")
-            b.wait_in_text("#login-error-message", "Wrong user name or password")
+            b.wait_in_text("#login-error-message", "Permission denied")
 
         # disable root login with pam_access
         self.enable_root_login()

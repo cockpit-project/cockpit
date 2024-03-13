@@ -568,7 +568,6 @@ class TestSuperuserDashboard(testlib.MachineCase):
 
         self.login_and_go()
         b.go("/@10.111.113.2")
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_visible('#hosts_setup_server_dialog button:contains("Add")')
@@ -601,7 +600,6 @@ class TestSuperuserDashboard(testlib.MachineCase):
         # Logging out and logging back in should give us immediate
         # superuser on m2 (once we have logged in there).
         b.relogin()
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
         b.set_input_text("#login-custom-password", "foobar")
@@ -661,7 +659,6 @@ class TestSuperuserOldDashboard(testlib.MachineCase):
         b.wait_visible('#content')
 
         b.go("/@10.111.113.2")
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
         b.click('#troubleshoot-dialog button:contains("Add")')
@@ -731,7 +728,6 @@ class TestSuperuserDashboardOldMachine(testlib.MachineCase):
         self.setup_provisioned_hosts()
         self.login_and_go()
         b.go("/@10.111.113.2")
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
         b.click('#hosts_setup_server_dialog button:contains("Add")')

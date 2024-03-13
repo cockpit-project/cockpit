@@ -4,9 +4,6 @@ jobs:
   unit-tests:
     runs-on: ubuntu-22.04
     permissions: {}
-    container:
-      image: quay.io/cockpit/tasks:latest
-      options: --user 1001
     strategy:
       matrix:
         target:
@@ -17,20 +14,24 @@ jobs:
           - pytest-cov
       fail-fast: false
     timeout-minutes: 60
-    env:
-      FORCE_COLOR: 1
-      TEST_BROWSER: firefox
-      CFLAGS: '-O2'
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with:
-          # need this to also fetch tags
-          fetch-depth: 0
-          submodules: true
-
       - name: Run unit test
         timeout-minutes: 30
         run: |
+          set -eux
+
+          IMAGE="$(curl --fail https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/.cockpit-ci/container)"
+          podman run --network=host --rm --interactive "${IMAGE}" sh -eux <<EOF
+            export FORCE_COLOR=1
+            export TEST_BROWSER=firefox
+            export CFLAGS=-O2
+
+            git clone https://github.com/${GITHUB_REPOSITORY} make-checkout-workdir
+            cd make-checkout-workdir
+            git fetch origin ${GITHUB_SHA}
+            git reset --hard ${GITHUB_SHA}
+
+            vendor/checkout
             ./autogen.sh
             make -j$(nproc) '${{ matrix.target }}'
+          EOF

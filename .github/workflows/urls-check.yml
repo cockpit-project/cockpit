@@ -7,7 +7,8 @@ on:
 jobs:
   urls-check:
     runs-on: ubuntu-latest
-    permissions: {}
+    permissions:
+      issues: write
     steps:
       - name: Set up configuration and secrets
         run: |

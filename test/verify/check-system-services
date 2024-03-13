@@ -1448,7 +1448,6 @@ class TestTimers(testlib.MachineCase):
         wait_systemctl_timer("2037-01-01 01:22")
         self.assertIn("2037-01-01 01:22", m.execute("systemctl list-timers"))
         # creates a new monthly timer that runs on 6th at 14:12 and 8th at 21:12 of every month
-        b.wait_visible("#create-timer")
         b.click('#create-timer')
         b.wait_visible("#timer-dialog")
         b.set_input_text("#servicename", "monthly_timer")
@@ -1482,7 +1481,6 @@ class TestTimers(testlib.MachineCase):
         wait_systemctl_timer("2036-03-08 21:12")
         self.assertIn("2036-03-08 21:12", m.execute("systemctl list-timers"))
         # creates a new weekly timer that runs on Fri at 12:45 and Sun at 20:12 every week
-        b.wait_visible("#create-timer")
         b.click('#create-timer')
         b.wait_visible("#timer-dialog")
         b.set_input_text("#servicename", "weekly_timer")
@@ -1516,7 +1514,6 @@ class TestTimers(testlib.MachineCase):
         wait_systemctl_timer("Fri 2036-03-21 12:45")
         self.assertIn("Fri 2036-03-21 12:45", m.execute("systemctl list-timers"))
         # creates a new daily timer that runs at 2:40 and at 21:15 every day
-        b.wait_visible("#create-timer")
         b.click('#create-timer')
         b.wait_visible("#timer-dialog")
         b.set_input_text("#servicename", "daily_timer")
@@ -1547,7 +1544,6 @@ class TestTimers(testlib.MachineCase):
         wait_systemctl_timer("2036-04-10 21:15")
         self.assertIn("2036-04-10 21:15", m.execute("systemctl list-timers"))
         # creates a new houry timer that runs at *:05 and at *:26
-        b.wait_visible("#create-timer")
         b.click('#create-timer')
         b.wait_visible("#timer-dialog")
         b.set_input_text("#servicename", "hourly_timer")
@@ -1602,7 +1598,6 @@ class TestTimers(testlib.MachineCase):
         self.assertIn("2036-04-10 04:16:05", m.execute("systemctl list-timers | grep minutely_timer.timer"))
 
         # creates a new timer that runs at today at 23:59
-        b.wait_visible("#create-timer")
         b.click('#create-timer')
         b.wait_visible("#timer-dialog")
         b.set_input_text("#servicename", "no_repeat_timer")
@@ -1621,7 +1616,6 @@ class TestTimers(testlib.MachineCase):
         self.assertIn("2036-04-10 23:59", m.execute("systemctl list-timers"))
 
         # creates a boot timer that runs after 10 sec from boot
-        b.wait_visible("#create-timer")
         b.click('#create-timer')
         b.wait_visible("#timer-dialog")
         b.set_input_text("#servicename", "boot_timer")

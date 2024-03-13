@@ -1664,7 +1664,6 @@ class MachineCase(unittest.TestCase):
     def start_machine_troubleshoot(self, new=False, known_host=False, password=None, expect_closed_dialog=True, browser=None):
         b = browser or self.browser
 
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
 
         b.wait_visible('#hosts_setup_server_dialog')

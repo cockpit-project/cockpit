@@ -35,7 +35,6 @@ def getUserAddDetails(machine):
 
 
 def performUserAction(browser, user, action):
-    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) button.pf-v5-c-menu-toggle")
     browser.click(f"#accounts-list tbody tr:contains({user}) button.pf-v5-c-menu-toggle")
     browser.wait_visible(f"#accounts-list tbody tr:contains({user}) button.pf-v5-c-menu-toggle[aria-expanded=true]")
     browser.click(f".pf-v5-c-menu__list-item:contains({action}) button")
@@ -64,7 +63,6 @@ def createUser(
 ):
     if default_shell is None:
         default_shell = getUserAddDetails(machine)["SHELL"] or "/bin/bash"
-    browser.wait_visible('#accounts-create')
     browser.click('#accounts-create')
     browser.wait_visible('#accounts-create-dialog')
     if run_assert_pixels:

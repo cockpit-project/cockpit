@@ -719,7 +719,6 @@ class TestMultiMachine(testlib.MachineCase):
         self.login_and_go(None)
         b.go("/@10.111.113.2")
         self.start_machine_troubleshoot(expect_closed_dialog=False)
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_in_text('#hosts_setup_server_dialog', "new host")
@@ -757,7 +756,6 @@ class TestMultiMachine(testlib.MachineCase):
         # De-authorize key and relogin, then re-authorize.
         m2.execute("rm /home/fred/.ssh/authorized_keys")
         b.relogin(None, wait_remote_session_machine=m1)
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
@@ -774,7 +772,6 @@ class TestMultiMachine(testlib.MachineCase):
         # change the passphrase back to the login password
         m1.execute("ssh-keygen -q -f /home/admin/.ssh/id_rsa -p -P foobar -N foobarfoo")
         b.relogin(None, wait_remote_session_machine=m1)
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_in_text('#hosts_setup_server_dialog', "The SSH key for logging in")
@@ -821,7 +818,6 @@ class TestMultiMachine(testlib.MachineCase):
 
         self.login_and_go(None)
         b.go("/@10.111.113.2")
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
         b.click('#hosts_setup_server_dialog button:contains(Add)')

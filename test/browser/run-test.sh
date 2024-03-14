@@ -7,6 +7,11 @@ cd "$SOURCE"
 
 . /etc/os-release
 
+# make sure we use the right Python version for this script
+if [ -d /bots-path ]; then
+    PATH="/bots-path:$PATH"
+fi
+
 # tests need cockpit's bots/ libraries
 git clone --depth=1 https://github.com/cockpit-project/bots
 

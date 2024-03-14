@@ -29,6 +29,14 @@ if grep -q platform:el8 /etc/os-release; then
     dnf module switch-to -y nodejs:16
 fi
 
+# python3.6 is too old for the Cockpit bots
+if grep -q platform:el8 /etc/os-release; then
+    dnf install python3.12-devel python3.12-pip pkg-config gcc libvirt-devel
+    python3.12 -m pip install libvirt-devel
+    mkdir -p /bots-path
+    ln -sf ../usr/bin/python3.12 /bots-path/python3
+fi
+
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
 # and is hard to disable as it does not use systemd
 if rpm -q setroubleshoot-server; then

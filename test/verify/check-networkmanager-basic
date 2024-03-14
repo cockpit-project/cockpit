@@ -216,7 +216,6 @@ class TestNetworkingBasic(netlib.NetworkCase):
             b.wait_not_present("#networking-nm-crashed")
             b.wait_not_present("#networking-nm-disabled")
             b.wait_visible("#networking-graphs")
-            b.wait_visible("#networking-interfaces")
             b.wait_in_text("#networking-interfaces", iface)
 
         def assert_stopped(enabled):

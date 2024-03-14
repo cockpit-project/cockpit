@@ -7,6 +7,11 @@ cd "$SOURCE"
 
 . /etc/os-release
 
+# make sure we use the right Python version for this script
+if [ -d /bots-path ]; then
+    PATH="/bots-path:$PATH"
+fi
+
 # on Fedora we always test all packages;
 # on RHEL/CentOS 8 we have a split package, only test basic bits for "cockpit" and optional bits for "c-appstream"
 if [ "$PLATFORM_ID" = "platform:el8" ]; then

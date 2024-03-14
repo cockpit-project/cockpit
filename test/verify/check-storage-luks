@@ -422,7 +422,6 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
             self.assertIn(b.text("h4.pf-v5-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
             self.dialog_cancel()
             # change one of the passphrases
-            b.wait_visible(slots_list + "li:last-child [aria-label='Edit']")
             b.click(slots_list + "li:last-child [aria-label='Edit']")
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
@@ -510,7 +509,6 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
         b.wait_in_text(self.card_desc("Encryption", "Options"), "nofail")
         panel = "#encryption-keys "
-        b.wait_visible(panel)
         b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
 
         # Add a key
@@ -534,7 +532,6 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
             self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_apply()
             self.dialog_wait_close()
-        b.wait_visible(panel + "ul li:nth-child(2)")
         b.wait_in_text(panel + "ul li:nth-child(2)", "10.111.112.5")
 
         # Adding the key should add "_netdev" options
@@ -619,7 +616,6 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
             self.dialog_wait_close()
 
-        b.wait_visible(panel + "ul li:nth-child(3)")
         b.wait_in_text(panel + "ul li:nth-child(3)", "http://10.111.112.5")
 
         # This should bring the options back.
@@ -674,7 +670,6 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         self.click_card_row("Storage", location="root")
 
         panel = "#encryption-keys "
-        b.wait_visible(panel)
         b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
 
         with b.wait_timeout(360):

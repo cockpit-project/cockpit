@@ -471,7 +471,6 @@ ExecStart=/usr/local/bin/{self.packageName}
                 b.wait_in_text("#available-updates table", self.packageName)
 
                 # install updates
-                b.wait_visible("#install-all")
                 b.wait_in_text("#install-all", "Install all updates")
                 b.click("#install-all")
                 with b.wait_timeout(60):
@@ -487,7 +486,6 @@ ExecStart=/usr/local/bin/{self.packageName}
 
                 b.wait_visible(f"{rowId}")
                 b.click(f"{rowId} button")
-                b.wait_visible(f"{rowId} + tr")
                 b.wait_in_text(f"{rowId} + tr", self.packageName)
 
                 # test the tracer functionality works also in the Status Card
@@ -639,7 +637,6 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_in_text("#available-updates table", packageName)
 
         # install updates
-        b.wait_visible("#install-all")
         b.wait_in_text("#install-all", "Install all updates")
         b.click("#install-all")
         with b.wait_timeout(60):
@@ -650,7 +647,6 @@ ExecStart=/usr/local/bin/{packageName}
 
         b.wait_visible("#service-row")
         b.click("#service-row button")
-        b.wait_visible("#service-row + tr")
         b.wait_in_text("#service-row + tr", packageName)
 
         # update required a service restart

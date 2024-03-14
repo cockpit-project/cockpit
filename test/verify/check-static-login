@@ -203,12 +203,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         def assert_messages(has_last, n_fail):
             if has_last:
-                b.wait_visible('#system_last_login')
                 b.wait_in_text('#system_last_login', "Last successful login")
                 b.wait_in_text('#system_last_login_from', "from")  # only present if IP was logged
 
             if n_fail:
-                b.wait_visible('#system_last_login')
                 b.wait_in_text('#system_last_login', f'{n_fail} failed login')
                 b.wait_in_text('#system_last_login_from', "from")
                 b.wait_in_text('#system_last_login_success', "Last successful login")

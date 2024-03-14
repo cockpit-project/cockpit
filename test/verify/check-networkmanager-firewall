@@ -376,7 +376,6 @@ class TestFirewall(netlib.NetworkCase):
             print(identifier)
             # expand-togglefreeipa-4
             line_sel = f".zone-section[data-id='public'] tr[data-row-id='{identifier}']"
-            b.wait_visible(line_sel)
             b.wait_in_text(line_sel, "".join([identifier, tcp, udp]))
             if desc:
                 # Click expand button

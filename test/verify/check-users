@@ -1132,7 +1132,6 @@ class TestAccounts(testlib.MachineCase):
         b.wait_text("#group-confirm-delete-dialog footer .pf-v5-c-button.apply", "Delete")
         b.click("#group-confirm-delete-dialog footer .pf-v5-c-button.apply")
         b.wait_not_present('#group-confirm-delete-dialog')
-        b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "testgroup0")
 
         # Add testgroup0 back
@@ -1145,7 +1144,6 @@ class TestAccounts(testlib.MachineCase):
         b.click("#group-confirm-delete-dialog footer .pf-v5-c-button.apply")
         b.wait_not_present('#account-confirm-delete-dialog')
         b.wait(lambda: "#/" == b.eval_js('window.location.hash'))
-        b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "anton")
 
         b.click('#accounts-list td[data-label="Username"] a[href="#/admin"]')

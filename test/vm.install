@@ -3,7 +3,7 @@
 # The cockpit packages will be installed separately
 set -eu
 
-if type firewall-cmd >/dev/null 2>&1; then
+if systemctl is-active -q firewalld.service; then
     firewall-cmd --add-service=cockpit --permanent
 fi
 

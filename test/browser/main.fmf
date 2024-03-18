@@ -9,11 +9,7 @@
     # FIXME: add this after dropping RHEL8 support
     # - cockpit-tests
     # build/test infra dependencies
-    - git
-    - make
-    - nodejs
-    - python3
-    - libvirt-python3
+    - podman
     # required by tests
     - dnf-automatic
     - glibc-all-langpacks
@@ -34,11 +30,7 @@
     - cockpit
     - cockpit-networkmanager
     # build/test infra dependencies
-    - git
-    - make
-    - nodejs
-    - python3
-    - libvirt-python3
+    - podman
     # required by tests
     - NetworkManager-team
     - firewalld
@@ -56,11 +48,7 @@
     # for at least swap metrics on storage page
     - cockpit-pcp
     # build/test infra dependencies
-    - git
-    - make
-    - nodejs
-    - python3
-    - libvirt-python3
+    - podman
     # required by tests
     - createrepo_c
     - cryptsetup

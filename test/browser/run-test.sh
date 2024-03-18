@@ -1,11 +1,10 @@
-#!/bin/sh
+# shellcheck shell=sh
+
 set -eux
 
 PLAN="$1"
 
-cd "$SOURCE"
-
-. /etc/os-release
+cd "${SOURCE}"
 
 # tests need cockpit's bots/ libraries
 git clone --depth=1 https://github.com/cockpit-project/bots
@@ -15,6 +14,7 @@ if [ -d .git ]; then
     ./tools/node-modules checkout
 fi
 
+. /run/host/usr/lib/os-release
 export TEST_OS="${ID}-${VERSION_ID/./-}"
 
 if [ "${TEST_OS#centos-}" != "$TEST_OS" ]; then
@@ -37,6 +37,9 @@ if [ "$ID" = "fedora" ]; then
 fi
 
 export TEST_ALLOW_JOURNAL_MESSAGES
+
+# Chromium sometimes gets OOM killed on testing farm
+export TEST_BROWSER=firefox
 
 # We only have one VM and tests should take at most one hour. So run those tests which exercise external API
 # (and thus are useful for reverse dependency testing and gating), and exclude those which test cockpit-internal
@@ -213,11 +216,16 @@ for t in $EXCLUDES; do
     exclude_options="$exclude_options --exclude $t"
 done
 
-# execute run-tests
-test/common/run-tests --test-dir test/verify --nondestructive $exclude_options \
-    --machine localhost:22 --browser localhost:9090 $TESTS || RC=$?
+GATEWAY="$(python3 -c 'import socket; print(socket.gethostbyname("_gateway"))')"
+./test/common/run-tests \
+    --test-dir test/verify \
+    --nondestructive \
+    --machine "${GATEWAY}":22 \
+    --browser "${GATEWAY}":9090 \
+    $exclude_options \
+    $TESTS \
+|| RC=$?
 
 echo $RC > "$LOGS/exitcode"
 cp --verbose Test* "$LOGS" || true
-# deliver test result via exitcode file
-exit 0
+exit $RC

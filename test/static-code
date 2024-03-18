@@ -41,7 +41,7 @@ test_flake8() {
 
 test_ruff() {
     command -v ruff >/dev/null || skip 'no ruff'
-    find_python_files | xargs -r -0 ruff check --no-cache
+    find_python_files | xargs -r -0 ruff check --quiet --no-cache
 }
 
 test_js_translatable_strings() {

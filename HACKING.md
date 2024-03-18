@@ -38,7 +38,7 @@ recommended to do that:
 
 2. Create a development toolbox for Cockpit
 
-       toolbox create --image quay.io/cockpit/tasks -c cockpit
+       toolbox create --image ghcr.io/cockpit-project/tasks -c cockpit
 
 3. Enter the toolbox:
 
@@ -52,7 +52,7 @@ toolbox container. If desired, you can install additional packages with
 The Cockpit team occasionally refreshes the `tasks` container image.
 To re-create your development container from the latest image, run:
 
-    podman pull quay.io/cockpit/tasks
+    podman pull ghcr.io/cockpit-project/tasks
     toolbox rm cockpit
 
 ...and then repeat steps 2 and 3 from above.

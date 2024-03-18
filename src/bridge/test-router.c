@@ -525,24 +525,24 @@ test_sharable_processing (TestCase *tc,
   control = NULL;
 
   /* Test user is private */
-  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"user\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"the.user\"}");
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"user\", \"session\": \"private\"}");
+  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"the.user\", \"session\": \"private\"}");
   control = NULL;
 
   /* Test user with temp-session false is not private */
-  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"user\", \"temp-session\": false}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"the.user\", \"temp-session\": false}");
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"user\"}");
+  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"the.user\"}");
   control = NULL;
 
   /* Test user with shareable is not touched */
-  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"user\", \"session\": \"other\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"the.user\", \"session\": \"other\"}");
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"user\", \"session\": \"other\"}");
+  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"the.user\", \"session\": \"other\"}");
   control = NULL;
 
   g_object_unref (router);

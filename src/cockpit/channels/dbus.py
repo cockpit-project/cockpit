@@ -38,6 +38,7 @@ import asyncio
 import errno
 import json
 import logging
+import sys
 import traceback
 import xml.etree.ElementTree as ET
 
@@ -47,6 +48,8 @@ from cockpit._vendor.systemd_ctypes import Bus, BusError, introspection
 from ..channel import Channel, ChannelError
 
 logger = logging.getLogger(__name__)
+
+IS_LITTLE_ENDIAN_MACHINE = sys.byteorder == 'little'
 
 # The dbusjson3 payload
 #
@@ -174,6 +177,7 @@ class DBusChannel(Channel):
     name = None
     bus = None
     owner = None
+    endianness = "<" if IS_LITTLE_ENDIAN_MACHINE else ">"
 
     async def setup_name_owner_tracking(self):
         def send_owner(owner):
@@ -346,10 +350,9 @@ class DBusChannel(Channel):
             # If the method call has kicked off any signals related to
             # watch processing, wait for that to be done.
             async with self.watch_processing_lock:
-                # TODO: stop hard-coding the endian flag here.
                 self.send_json(
                     reply=[reply.get_body()], id=cookie,
-                    flags="<" if flags is not None else None,
+                    flags=self.endianness if flags is not None else None,
                     type=reply.get_signature(True))  # noqa: FBT003
         except BusError as error:
             # actually, should send the fields from the message body

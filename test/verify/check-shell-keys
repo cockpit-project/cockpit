@@ -68,6 +68,16 @@ class TestKeys(testlib.MachineCase):
         # add good
         add_key(KEY, FP_SHA256, "test-name")
 
+        # remove key on mobile, on mobile we show a kebab menu
+        b.set_layout("mobile")
+        b.click("#account-authorized-keys button.pf-v5-c-menu-toggle")
+        b.click("button.pf-v5-c-menu__item")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
+        b.set_layout("desktop")
+
+        # add good
+        add_key(KEY, FP_SHA256, "test-name")
+
         # Try see admin
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")

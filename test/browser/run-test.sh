@@ -67,6 +67,8 @@ if [ "$PLAN" = "optional" ]; then
               TestAutoUpdates.testBasic
               TestAutoUpdates.testPrivilegeChange
 
+              TestStorageAnaconda.testBasic
+
               TestStorageBtrfs.testNothingMounted
 
               TestStorageFormat.testAtBoot

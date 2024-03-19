@@ -556,6 +556,11 @@ class Browser:
         else:
             self.wait_text(f"{selector} .pf-v5-c-select__toggle-text", value)
 
+    def select_PF5(self, selector_button: str, selector: str, value):
+        self.click(f"{selector_button}:not([disabled]):not([aria-disabled=true])")
+        select_entry = f"{selector} ul button:contains('{value}')"
+        self.click(select_entry)
+
     def set_input_text(self, selector: str, val: str, append: bool = False, value_check: bool = True, blur: bool = True):
         self.focus(selector)
         if not append:

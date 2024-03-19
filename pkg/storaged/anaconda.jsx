@@ -41,19 +41,23 @@ function device_name(block) {
 }
 
 export function remember_passphrase(block, passphrase) {
-    if (!client.in_anaconda_mode())
-        return;
+    // Let's put this code back once we know that we really need
+    // it. For the time being, commenting it out prevents code
+    // scanning alerts.
 
-    if (!window.isSecureContext)
-        return;
-
-    try {
-        const passphrases = JSON.parse(window.sessionStorage.getItem("cockpit_passphrases")) || { };
-        passphrases[device_name(block)] = passphrase;
-        window.sessionStorage.setItem("cockpit_passphrases", JSON.stringify(passphrases));
-    } catch {
-        console.warn("Can't record passphrases");
-    }
+    // if (!client.in_anaconda_mode())
+    //     return;
+    //
+    // if (!window.isSecureContext)
+    //     return;
+    //
+    // try {
+    //     const passphrases = JSON.parse(window.sessionStorage.getItem("cockpit_passphrases")) || { };
+    //     passphrases[device_name(block)] = passphrase;
+    //     window.sessionStorage.setItem("cockpit_passphrases", JSON.stringify(passphrases));
+    // } catch {
+    //     console.warn("Can't record passphrases");
+    // }
 }
 
 export function export_mount_point_mapping() {

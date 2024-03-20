@@ -2645,13 +2645,10 @@ function factory() {
      */
 
     (function() {
-        let hiddenProp;
         let hiddenHint = false;
 
         function visibility_change() {
-            let value = document[hiddenProp];
-            if (!hiddenProp || typeof value === "undefined")
-                value = false;
+            let value = document.hidden;
             if (value === false)
                 value = hiddenHint;
             if (cockpit.hidden !== value) {
@@ -2660,19 +2657,7 @@ function factory() {
             }
         }
 
-        if (typeof document.hidden !== "undefined") {
-            hiddenProp = "hidden";
-            document.addEventListener("visibilitychange", visibility_change);
-        } else if (typeof document.mozHidden !== "undefined") {
-            hiddenProp = "mozHidden";
-            document.addEventListener("mozvisibilitychange", visibility_change);
-        } else if (typeof document.msHidden !== "undefined") {
-            hiddenProp = "msHidden";
-            document.addEventListener("msvisibilitychange", visibility_change);
-        } else if (typeof document.webkitHidden !== "undefined") {
-            hiddenProp = "webkitHidden";
-            document.addEventListener("webkitvisibilitychange", visibility_change);
-        }
+        document.addEventListener("visibilitychange", visibility_change);
 
         /*
          * Wait for changes in visibility of just our iframe. These are delivered

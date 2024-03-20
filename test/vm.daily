@@ -1,0 +1,9 @@
+#!/bin/sh
+# Prepare VM for "daily" scenario: Run tests against various upstream COPRs
+set -eux
+# image-customize hides stdout by default
+exec >&2
+dnf -y copr enable rpmsoftwaremanagement/dnf-nightly
+dnf -y copr enable @storage/udisks-daily
+dnf -y --setopt=install_weak_deps=False update
+/var/lib/download-package-sets.sh

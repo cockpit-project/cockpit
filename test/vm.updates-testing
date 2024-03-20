@@ -1,0 +1,8 @@
+#!/bin/sh
+# Prepare VM for "updates-testing" scenario
+set -eux
+# image-customize hides stdout by default
+exec >&2
+dnf config-manager --enable updates-testing
+dnf -y update --setopt=install_weak_deps=False
+/var/lib/download-package-sets.sh

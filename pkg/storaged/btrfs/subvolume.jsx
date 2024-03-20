@@ -386,7 +386,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
         next: null,
         page_location: ["btrfs", volume.data.uuid, subvol.pathname],
         page_name: strip_prefix(subvol.pathname, path_prefix),
-        page_size: is_mounted && <StorageUsageBar stats={use} short />,
+        page_size: mounted && <StorageUsageBar stats={use} short />,
         location: mp_text,
         component: BtrfsSubvolumeCard,
         has_warning: !!mismount_warning,

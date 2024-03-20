@@ -36,12 +36,12 @@ case "${TEST_SCENARIO:=}" in
     *firefox*) RUN_OPTS="$RUN_OPTS "; export TEST_BROWSER=firefox ;;&
 
     *daily*)
-        bots/image-customize --fresh -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y copr enable @storage/udisks-daily && dnf -y --setopt=install_weak_deps=False update >&2' "$TEST_OS"
+        bots/image-customize --fresh -v --script test/vm.daily "$TEST_OS"
         RUN_OPTS="$RUN_OPTS "
         PREPARE_OPTS="$PREPARE_OPTS --overlay"
         ;;&
    *updates-testing*)
-        bots/image-customize --fresh -v --run-command 'dnf -y update --enablerepo=updates-testing --setopt=install_weak_deps=False >&2' "$TEST_OS"
+        bots/image-customize --fresh -v --script test/vm.updates-testing "$TEST_OS"
         RUN_OPTS="$RUN_OPTS "
         PREPARE_OPTS="$PREPARE_OPTS --overlay"
         ;;&

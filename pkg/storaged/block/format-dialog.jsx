@@ -28,11 +28,6 @@ import {
     validate_fsys_label,
 } from "../utils.js";
 
-import React from "react";
-import { FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { HelperText, HelperTextItem, } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
-import { ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
-
 import {
     dialog_open,
     TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
@@ -43,7 +38,7 @@ import {
 import { get_fstab_config, is_valid_mount_point } from "../filesystem/utils.jsx";
 import { init_existing_passphrase, unlock_with_type } from "../crypto/keyslots.jsx";
 import { job_progress_wrapper } from "../jobs-panel.jsx";
-import { at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
+import { at_boot_input, update_at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 import { remember_passphrase } from "../anaconda.jsx";
 
 const _ = cockpit.gettext;
@@ -86,56 +81,6 @@ export function initial_crypto_options(client, block) {
 export function initial_mount_options(client, block) {
     return initial_tab_options(client, block, true);
 }
-
-export const mount_explanation = {
-    local:
-    <FormHelperText>
-        <HelperText>
-            <HelperTextItem hasIcon>
-                {_("Mounts before services start")}
-            </HelperTextItem>
-            <HelperTextItem hasIcon>
-                {_("Appropriate for critical mounts, such as /var")}
-            </HelperTextItem>
-            <HelperTextItem hasIcon icon={<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />}>
-                {_("Boot fails if filesystem does not mount, preventing remote access")}
-            </HelperTextItem>
-        </HelperText>
-    </FormHelperText>,
-    nofail:
-    <FormHelperText>
-        <HelperText>
-            <HelperTextItem hasIcon>
-                {_("Mounts in parallel with services")}
-            </HelperTextItem>
-            <HelperTextItem hasIcon icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
-                {_("Boot still succeeds when filesystem does not mount")}
-            </HelperTextItem>
-        </HelperText>
-    </FormHelperText>,
-    netdev:
-    <FormHelperText>
-        <HelperText>
-            <HelperTextItem hasIcon>
-                {_("Mounts in parallel with services, but after network is available")}
-            </HelperTextItem>
-            <HelperTextItem hasIcon icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
-                {_("Boot still succeeds when filesystem does not mount")}
-            </HelperTextItem>
-        </HelperText>
-    </FormHelperText>,
-    never:
-    <FormHelperText>
-        <HelperText>
-            <HelperTextItem hasIcon>
-                {_("Does not mount during boot")}
-            </HelperTextItem>
-            <HelperTextItem hasIcon>
-                {_("Useful for mounts that are optional or need interaction (such as passphrases)")}
-            </HelperTextItem>
-        </HelperText>
-    </FormHelperText>,
-};
 
 export function format_dialog(client, path, start, size, enable_dos_extended) {
     const block = client.blocks[path];
@@ -434,9 +379,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             mount_options(opt_ro, extra_options, is_filesystem),
         ],
         update: function (dlg, vals, trigger) {
-            if (trigger == "at_boot")
-                dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
-            else if (trigger == "type") {
+            update_at_boot_input(dlg, vals, trigger);
+            if (trigger == "type") {
                 if (dlg.get_value("type") == "empty") {
                     dlg.update_actions({ Variants: action_variants_for_empty });
                 } else if (dlg.get_value("type") == "swap") {

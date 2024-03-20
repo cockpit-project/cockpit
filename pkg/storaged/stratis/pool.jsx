@@ -50,8 +50,7 @@ import {
 
 import { validate_url, get_tang_adv } from "../crypto/tang.jsx";
 import { is_valid_mount_point } from "../filesystem/utils.jsx";
-import { mount_explanation } from "../block/format-dialog.jsx";
-import { at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
+import { at_boot_input, update_at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 
 import {
     validate_pool_name, std_reply, with_keydesc, with_stored_passphrase,
@@ -111,12 +110,9 @@ function create_fs(pool) {
                           }
                       }),
             mount_options(false, false),
-            at_boot_input(client.in_anaconda_mode() ? "local" : "nofail"),
+            at_boot_input(),
         ],
-        update: function (dlg, vals, trigger) {
-            if (trigger == "at_boot")
-                dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
-        },
+        update: update_at_boot_input,
         Action: {
             Variants: action_variants,
             action: function (vals) {

@@ -35,7 +35,7 @@ class TestStorageScaling(storagelib.StorageCase):
         b.wait_visible(self.card_row("Storage", name="/dev/vda"))
         # Wait on btrfs subvolumes on OS'es with the install on btrfs
         if m.image.startswith('fedora') or m.image == "arch":
-            b.wait_in_text(self.card("Storage"), "var/lib/machines")
+            b.wait_in_text(self.card("Storage"), "lib/machines")
         n_rows = count_rows()
 
         m.execute("modprobe scsi_debug num_tgts=200")

@@ -533,6 +533,12 @@ mount {dev}1 /new-root/boot
 tar --selinux --one-file-system -cf - --exclude /boot --exclude='/var/tmp/*' --exclude='/var/cache/*' \
     --exclude='/var/lib/mock/*' --exclude='/var/lib/containers/*' --exclude='/new-root/*' \
     / | tar --selinux -C /new-root -xf -
+# latest Fedora have /var on a separate subvolume
+if mountpoint /var; then
+    tar -C /var --selinux --one-file-system -cf - --exclude='tmp/*' --exclude='cache/*' \
+        --exclude='lib/mock/*' --exclude='lib/containers/*' \
+        . | tar --selinux -C /new-root/var -xf -
+fi
 tar --one-file-system -C /boot -cf - . | tar -C /new-root/boot -xf -
 umount /new-root/boot
 mount {dev}1 /boot

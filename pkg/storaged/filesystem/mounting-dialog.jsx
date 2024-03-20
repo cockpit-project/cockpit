@@ -20,6 +20,11 @@
 import cockpit from "cockpit";
 import client from "../client.js";
 
+import React from "react";
+import { FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { HelperText, HelperTextItem, } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
+import { ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
+
 import {
     encode_filename,
     parse_options, unparse_options, extract_option, reload_systemd,
@@ -34,7 +39,7 @@ import {
     init_active_usage_processes
 } from "../dialog.jsx";
 import { init_existing_passphrase, unlock_with_type } from "../crypto/keyslots.jsx";
-import { initial_tab_options, mount_explanation } from "../block/format-dialog.jsx";
+import { initial_tab_options } from "../block/format-dialog.jsx";
 
 import {
     is_mounted, get_fstab_config,
@@ -58,12 +63,63 @@ export const mount_options = (opt_ro, extra_options, is_visible) => {
                       });
 };
 
+export const mount_explanation = {
+    local:
+    <FormHelperText>
+        <HelperText>
+            <HelperTextItem hasIcon>
+                {_("Mounts before services start")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon>
+                {_("Appropriate for critical mounts, such as /var")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon icon={<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />}>
+                {_("Boot fails if filesystem does not mount, preventing remote access")}
+            </HelperTextItem>
+        </HelperText>
+    </FormHelperText>,
+    nofail:
+    <FormHelperText>
+        <HelperText>
+            <HelperTextItem hasIcon>
+                {_("Mounts in parallel with services")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
+                {_("Boot still succeeds when filesystem does not mount")}
+            </HelperTextItem>
+        </HelperText>
+    </FormHelperText>,
+    netdev:
+    <FormHelperText>
+        <HelperText>
+            <HelperTextItem hasIcon>
+                {_("Mounts in parallel with services, but after network is available")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
+                {_("Boot still succeeds when filesystem does not mount")}
+            </HelperTextItem>
+        </HelperText>
+    </FormHelperText>,
+    never:
+    <FormHelperText>
+        <HelperText>
+            <HelperTextItem hasIcon>
+                {_("Does not mount during boot")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon>
+                {_("Useful for mounts that are optional or need interaction (such as passphrases)")}
+            </HelperTextItem>
+        </HelperText>
+    </FormHelperText>,
+};
+
 export const at_boot_input = (at_boot, is_visible) => {
+    const init = at_boot || (client.in_anaconda_mode() ? "local" : "nofail");
     return SelectOne("at_boot", _("At boot"),
                      {
                          visible: vals => !client.in_anaconda_mode() && (!is_visible || is_visible(vals)),
-                         value: at_boot,
-                         explanation: mount_explanation[at_boot],
+                         value: init,
+                         explanation: mount_explanation[init],
                          choices: [
                              {
                                  value: "local",
@@ -84,6 +140,11 @@ export const at_boot_input = (at_boot, is_visible) => {
                          ]
                      });
 };
+
+export function update_at_boot_input(dlg, vals, trigger) {
+    if (trigger == "at_boot")
+        dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
+}
 
 export function mounting_dialog(client, block, mode, forced_options, subvol) {
     const block_fsys = client.blocks_fsys[block.path];
@@ -315,10 +376,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         Title: cockpit.format(mode_title[mode], old_dir_for_display),
         Fields: fields,
         Teardown: TeardownMessage(usage, old_dir),
-        update: function (dlg, vals, trigger) {
-            if (trigger == "at_boot")
-                dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
-        },
+        update: update_at_boot_input,
         Action: {
             Title: mode_action[mode],
             disable_on_error: usage.Teardown,

@@ -40,10 +40,9 @@ import {
     get_fstab_config, mount_point_text,
 } from "../filesystem/utils.jsx";
 import { MismountAlert, check_mismounted_fsys } from "../filesystem/mismounting.jsx";
-import { mounting_dialog, at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
+import { mounting_dialog, at_boot_input, update_at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 import { fmt_size, get_active_usage, teardown_active_usage } from "../utils.js";
 import { std_reply, validate_fs_name, set_mount_options, destroy_filesystem } from "./utils.jsx";
-import { mount_explanation } from "../block/format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -98,12 +97,9 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
                               }
                           }),
                 mount_options(false, false),
-                at_boot_input("nofail"),
+                at_boot_input(),
             ],
-            update: function (dlg, vals, trigger) {
-                if (trigger == "at_boot")
-                    dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
-            },
+            update: update_at_boot_input,
             Action: {
                 Title: _("Create snapshot and mount"),
                 Variants: [{ tag: "nomount", Title: _("Create snapshot only") }],

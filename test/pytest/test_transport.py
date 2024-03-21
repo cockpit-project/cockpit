@@ -390,3 +390,86 @@ class TestSubprocessTransport:
             await asyncio.sleep(0.1)
 
         transport.close()
+
+    @pytest.mark.asyncio
+    async def test_simple_close(self) -> None:
+        protocol, transport = self.subprocess(['cat'])
+        protocol.output = []
+
+        protocol.write(b'abcd')
+        assert protocol.transport
+        assert protocol.transport.get_write_buffer_size() == 0
+        protocol.transport.close()
+        assert protocol.transport is None  # make sure it closed immediately
+        # we have another ref on the transport
+        transport.close()  # should be idempotent
+
+    @pytest.mark.asyncio
+    async def test_flow_control(self) -> None:
+        protocol, transport = self.subprocess(['cat'])
+        protocol.output = []
+
+        protocol.write(b'abcd')
+        assert protocol.transport is not None
+        transport.pause_reading()
+        await asyncio.sleep(0.1)
+        transport.resume_reading()
+        while protocol.received < 4:
+            await asyncio.sleep(0.1)
+        assert protocol.transport is not None
+        transport.write_eof()
+        protocol.close_on_eof = False
+        while not protocol.eof:
+            await asyncio.sleep(0.1)
+        assert not transport.is_reading()
+        transport.pause_reading()  # no-op
+        assert not transport.is_reading()
+        transport.resume_reading()  # no-op
+        assert not transport.is_reading()
+
+    @pytest.mark.asyncio
+    async def test_write_backlog_eof(self) -> None:
+        protocol, transport = self.subprocess(['cat'])
+        protocol.output = []
+        protocol.write_a_lot()
+
+        assert transport.can_write_eof()
+        transport.write_eof()
+        assert not transport.is_closing()
+        while protocol.transport is not None:
+            await asyncio.sleep(0.1)
+        assert protocol.transport is None
+
+    @pytest.mark.asyncio
+    async def test_write_backlog_close(self) -> None:
+        protocol, transport = self.subprocess(['cat'])
+        protocol.output = []
+        protocol.write_a_lot()
+
+        assert transport
+        transport.close()
+        assert transport.is_closing()
+        # FIXME: closing the channel should kill the process, like asyncio's SubprocessTransport
+        # See https://github.com/cockpit-project/cockpit/pull/18340
+        transport.kill()
+        while protocol.transport is not None:
+            await asyncio.sleep(0.1)
+        assert protocol.transport is None
+
+    @pytest.mark.asyncio
+    async def test_write_backlog_eof_and_close(self) -> None:
+        protocol, transport = self.subprocess(['cat'])
+        protocol.output = []
+        protocol.write_a_lot()
+
+        assert transport
+        transport.write_eof()
+        transport.close()
+        assert protocol.transport
+        assert protocol.transport.is_closing()
+        # FIXME: closing the channel should kill the process, like asyncio's SubprocessTransport
+        # See https://github.com/cockpit-project/cockpit/pull/18340
+        transport.kill()
+        while protocol.transport is not None:
+            await asyncio.sleep(0.1)
+        assert protocol.transport is None

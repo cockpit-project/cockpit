@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# prepare testinspector
+
+SUBDIR='testinsp'
+COMMON=$(dirname $0)
+V="${V-0}" # default to friendly messages
+
+set -eu
+cd $COMMON
+
+if [ ! -e "$COMMON/$SUBDIR" ]; then
+    git clone https://github.com/jscotka/${SUBDIR}.git $SUBDIR
+else
+    echo "$SUBDIR/ already exists, skipping"
+fi

@@ -207,12 +207,14 @@ class TestSystemInfo(testlib.MachineCase):
         b = self.browser
 
         self.restore_file("/etc/motd")
+        # run this test with a tight umask to check preserving file permissions
+        self.sed_file(r"/^UMASK/ s/0../077/", "/etc/login.defs")
         m.execute("rm -f /etc/motd")
 
         self.login_and_go("/system")
         b.wait_not_present('#motd-box')
 
-        m.execute(r"printf '\n  \n  Hello\n  World\n\n' >/etc/motd")
+        m.execute(r"printf '\n  \n  Hello\n  World\n\n' >/etc/motd; chmod 644 /etc/motd")
         b.wait_visible('#motd-box')
         # strips empty lines, but not leading spaces
         b.wait_text('#motd', "  Hello\n  World")

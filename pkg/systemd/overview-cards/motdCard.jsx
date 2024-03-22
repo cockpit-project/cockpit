@@ -36,7 +36,7 @@ import './motdCard.scss';
 
 const _ = cockpit.gettext;
 
-const MotdEditDialog = ({ text }) => {
+const MotdEditDialog = ({ text, expectedTag }) => {
     const Dialogs = useDialogs();
     const [value, setValue] = useState(text);
     const [error, setError] = useState(null);
@@ -52,7 +52,7 @@ const MotdEditDialog = ({ text }) => {
                    <>
                        <Button variant='primary'
                                onClick={() => cockpit.file("/etc/motd", { superuser: "try", err: "message" })
-                                       .replace(value)
+                                       .replace(value, expectedTag)
                                        .then(Dialogs.close)
                                        .catch(exc => {
                                            setError(_("Failed to save changes in /etc/motd"));
@@ -81,15 +81,17 @@ const MotdEditDialog = ({ text }) => {
 export const MotdCard = () => {
     const Dialogs = useDialogs();
     const [motdText, setMotdText] = useState("");
+    const [motdTag, setMotdTag] = useState(null);
     const [motdVisible, setMotdVisible] = useState(false);
 
     useInit(() => {
-        cockpit.file("/etc/motd").watch(content => {
+        cockpit.file("/etc/motd").watch((content, tag) => {
             /* trim initial empty lines and trailing space, but keep initial spaces to not break ASCII art */
             if (content)
                 content = content.trimRight().replace(/^\s*\n/, '');
             if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
                 setMotdText(content);
+                setMotdTag(tag);
                 setMotdVisible(true);
             } else {
                 setMotdVisible(false);
@@ -109,7 +111,7 @@ export const MotdCard = () => {
         {superuser.allowed &&
         <Button variant="plain"
                 id="motd-box-edit"
-                onClick={() => Dialogs.show(<MotdEditDialog text={motdText} />)}
+                onClick={() => Dialogs.show(<MotdEditDialog text={motdText} expectedTag={motdTag} />)}
                 aria-label={_("Edit motd")}>
             <EditIcon />
         </Button>}

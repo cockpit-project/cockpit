@@ -176,8 +176,7 @@ def main():
     if args.quick:
         customize.append("--quick")
 
-    makevars = ['HACK_SPEC_FOR_PYTHON=1'] if args.python else []
-    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist', *makevars], text=True).strip()
+    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
 
     if args.image in ["fedora-coreos", "rhel4edge"]:
         customize += build_install_ostree(dist_tar, args.image, args.verbose, args.quick)

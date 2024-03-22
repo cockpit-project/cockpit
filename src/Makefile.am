@@ -20,7 +20,6 @@ pytest-cov: $(BUILT_SOURCES) $(DIST_STAMP) $(MANIFESTS)
 	$(MAKE) test-server
 	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest --cov
 
-if !WITH_OLD_BRIDGE
 INSTALL_DATA_LOCAL_TARGETS += install-python
 install-python:
 	@# wheel-based installation with .dist-info.
@@ -40,7 +39,6 @@ uninstall-python:
 	@# HACK: pip uninstall does not know about --root and --prefix
 	rm -r $(DESTDIR)$(prefix)/lib/python*/*-packages/cockpit \
 	      $(DESTDIR)$(prefix)/lib/python*/*-packages/cockpit-*.dist-info
-endif
 
 
 # -----------------------------------------------------------------------------

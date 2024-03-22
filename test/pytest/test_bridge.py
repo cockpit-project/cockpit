@@ -497,6 +497,24 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     # no leftover files
     assert os.listdir(tmp_path) == ['newfile']
 
+    # get the current tag
+    ch = await transport.check_open('fsread1', path=str(myfile))
+    transport.send_done(ch)
+    await transport.assert_data(ch, b'new new new!')
+    await transport.assert_msg('', command='done', channel=ch)
+    transport.send_close(ch)
+    close_msg = await transport.next_msg('')
+    assert close_msg['command'] == 'close'
+    tag = close_msg['tag']
+
+    # update contents with expected tag
+    ch = await transport.check_open('fsreplace1', path=str(myfile), tag=tag)
+    transport.send_data(ch, b'even newer')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert myfile.read_bytes() == b'even newer'
+
     # write empty file
     ch = await transport.check_open('fsreplace1', path=str(myfile))
     transport.send_data(ch, b'')
@@ -511,6 +529,37 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     await transport.assert_msg('', command='done', channel=ch)
     await transport.check_close(channel=ch)
     assert not myfile.exists()
+
+
+@pytest.mark.asyncio
+async def test_fsreplace1_change_conflict(transport: MockTransport, tmp_path: Path) -> None:
+    myfile = tmp_path / 'data'
+    myfile.write_text('hello')
+
+    # get current tag from fsread1
+    ch = await transport.check_open('fsread1', path=str(myfile))
+    transport.send_done(ch)
+    await transport.assert_data(ch, b'hello')
+    await transport.assert_msg('', command='done', channel=ch)
+    transport.send_close(ch)
+    close_msg = await transport.next_msg('')
+    assert close_msg['command'] == 'close'
+    tag = close_msg['tag']
+
+    # modify the file in between read and replace operations
+    # we have to wait a bit, assuming that file systems we run tests on have at least centisecond mtime resolution
+    await asyncio.sleep(0.2)
+    myfile.write_text('goodbye')
+
+    # try to replace it, expecting the old contents (via tag)
+    ch = await transport.check_open('fsreplace1', path=str(myfile), tag=tag)
+    transport.send_data(ch, b'newcontent')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='close', channel=ch, problem='change-conflict')
+    transport.send_close(ch)
+
+    # file was not touched by fsreplace1 due to conflict
+    assert myfile.read_text() == 'goodbye'
 
 
 @pytest.mark.asyncio

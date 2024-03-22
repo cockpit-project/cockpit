@@ -299,6 +299,7 @@ pkgdesc="dummy {name}"
 pkgrel={release}
 arch=({arch})
 depends=({requires})
+options=(!debug)
 {sources}
 
 {installcmds}

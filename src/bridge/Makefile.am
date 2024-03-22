@@ -39,6 +39,7 @@ libcockpit_metrics_a_SOURCES = \
 	src/bridge/cockpitsamples.h \
 	$(NULL)
 
+# TODO: remove all of the below
 if WITH_OLD_BRIDGE
 
 # -----------------------------------------------------------------------------

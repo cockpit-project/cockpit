@@ -74,21 +74,6 @@ class PackageCase(MachineCase):
 
             self.machine.execute("rm /etc/pacman.conf /etc/pacman.d/mirrorlist /var/lib/pacman/sync/* /usr/share/libalpm/hooks/90-packagekit-refresh.hook")
             self.machine.execute("test -d /var/lib/PackageKit/alpm && rm -r /var/lib/PackageKit/alpm || true")  # Drop alpm state directory as it interferes with running offline
-            # Initial config for installation
-            empty_repo_dir = '/var/lib/cockpittest/empty'
-            config = f"""
-[options]
-Architecture = auto
-HoldPkg     = pacman glibc
-
-[empty]
-SigLevel = Never
-Server = file://{empty_repo_dir}
-"""
-            # HACK: Setup empty repo for packagekit
-            self.machine.execute(f"mkdir -p {empty_repo_dir} || true")
-            self.machine.execute(f"repo-add {empty_repo_dir}/empty.db.tar.gz")
-            self.machine.write("/etc/pacman.conf", config)
             # Clean up possible leftover lockfile
             self.machine.execute("""
                 if [ -f /var/lib/pacman/db.lck ]; then
@@ -96,7 +81,21 @@ Server = file://{empty_repo_dir}
                     rm /var/lib/pacman/db.lck;
                 fi
             """)
-            self.machine.execute("pacman -Sy")
+
+            # Initial config for installation
+
+            # HACK: pacman does not like no repositories, and also
+            # doesn't like empty repositories. So we enable our test
+            # repo already here, with one bogus package in it.
+
+            self.createPackage("you-are-not-alone-pacman", "1.0", "1")
+            self.enableRepo()
+
+            # Let's also remove the package archive so that subsequent
+            # runs of repo-add don't complain that they have already
+            # seen it.
+            self.machine.execute(f"rm {self.repo_dir}/you-are-not-alone-pacman*")
+
         else:
             self.restore_dir("/etc/yum.repos.d", reboot_safe=True)
             self.restore_dir("/var/cache/dnf", reboot_safe=True)
@@ -413,12 +412,16 @@ post_upgrade() {{
                     """)
 
             config = f"""
+[options]
+Architecture = auto
+HoldPkg     = pacman glibc
+
 [testrepo]
 SigLevel = Never
 Server = file://{self.repo_dir}
             """
-            if 'testrepo' not in self.machine.execute('grep testrepo /etc/pacman.conf || true'):
-                self.machine.write("/etc/pacman.conf", config, append=True)
+            self.machine.write("/etc/pacman.conf", config)
+            self.machine.execute("pacman -Sy")
 
         else:
             self.machine.execute(f"""printf '[updates]\nname=cockpittest\nbaseurl=file://{self.repo_dir}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo

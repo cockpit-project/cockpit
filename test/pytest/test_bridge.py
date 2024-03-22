@@ -8,6 +8,7 @@ import json
 import os
 import pwd
 import shlex
+import stat
 import subprocess
 import sys
 import unittest.mock
@@ -560,6 +561,38 @@ async def test_fsreplace1_change_conflict(transport: MockTransport, tmp_path: Pa
 
     # file was not touched by fsreplace1 due to conflict
     assert myfile.read_text() == 'goodbye'
+
+
+@pytest.mark.asyncio
+async def test_fsreplace1_change_conflict_mode(transport: MockTransport, tmp_path: Path) -> None:
+    myfile = tmp_path / 'data'
+    myfile.write_text('hello')
+
+    # get current tag
+    ch = await transport.check_open('fsread1', path=str(myfile))
+    transport.send_done(ch)
+    await transport.assert_data(ch, b'hello')
+    await transport.assert_msg('', command='done', channel=ch)
+    transport.send_close(ch)
+    close_msg = await transport.next_msg('')
+    assert close_msg['command'] == 'close'
+    tag = close_msg['tag']
+
+    # modify the stat metadata in between read and replace operations
+    new_mode = 0o741
+    assert stat.S_IMODE(myfile.stat().st_mode) != new_mode
+    myfile.chmod(new_mode)
+
+    # try to replace it, expecting the old mode (via tag)
+    ch = await transport.check_open('fsreplace1', path=str(myfile), tag=tag)
+    transport.send_data(ch, b'newcontent')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='close', channel=ch, problem='change-conflict')
+    transport.send_close(ch)
+
+    # file was not touched by fsreplace1 due to conflict
+    assert stat.S_IMODE(myfile.stat().st_mode) == new_mode
+    assert myfile.read_text() == 'hello'
 
 
 @pytest.mark.asyncio

@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 
 
 def tag_from_stat(buf):
-    return f'1:{buf.st_ino}-{buf.st_mtime}'
+    return f'1:{buf.st_ino}-{buf.st_mtime}-{buf.st_mode:o}-{buf.st_uid}-{buf.st_gid}'
 
 
 def tag_from_path(path):

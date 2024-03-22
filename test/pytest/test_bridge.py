@@ -689,7 +689,8 @@ async def test_flow_control(transport: MockTransport, tmp_path: Path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_large_upload(event_loop: asyncio.AbstractEventLoop, transport: MockTransport, tmp_path: Path) -> None:
+async def test_large_upload(transport: MockTransport, tmp_path: Path) -> None:
+    event_loop = asyncio.get_running_loop()
     fifo = str(tmp_path / 'pipe')
     os.mkfifo(fifo)
 

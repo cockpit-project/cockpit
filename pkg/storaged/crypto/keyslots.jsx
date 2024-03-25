@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import client from "../client.js";
 
 import { CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -38,7 +39,10 @@ import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "../dialog.jsx";
-import { decode_filename, encode_filename, get_block_mntopts, block_name, for_each_async, get_children, parse_options, unparse_options, edit_crypto_config } from "../utils.js";
+import {
+    decode_filename, encode_filename, get_block_mntopts, block_name, for_each_async, get_children,
+    parse_options, extract_option, unparse_options, edit_crypto_config
+} from "../utils.js";
 import { StorageButton } from "../storage-controls.jsx";
 
 import clevis_luks_passphrase_sh from "./clevis-luks-passphrase.sh";
@@ -72,22 +76,51 @@ export function clevis_recover_passphrase(block, just_type) {
             .then(output => output.trim());
 }
 
-function clevis_unlock(block) {
+async function clevis_unlock(client, block, luksname, readonly) {
     const dev = decode_filename(block.Device);
-    const clear_dev = "luks-" + block.IdUUID;
-    return cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
-                         { superuser: true });
+    const clear_dev = luksname || "luks-" + block.IdUUID;
+
+    if (readonly) {
+        // HACK - clevis-luks-unlock can not unlock things readonly.
+        // But see https://github.com/latchset/clevis/pull/317 (merged
+        // Feb 2023, unreleased as of Feb 2024).
+        const passphrase = await clevis_recover_passphrase(block, false);
+        const crypto = client.blocks_crypto[block.path];
+        const unlock_options = { "read-only": { t: "b", v: readonly } };
+        await crypto.Unlock(passphrase, unlock_options);
+        return;
+    }
+
+    await cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
+                        { superuser: true });
 }
 
-export async function unlock_with_type(client, block, passphrase, passphrase_type) {
+export async function unlock_with_type(client, block, passphrase, passphrase_type, override_readonly) {
     const crypto = client.blocks_crypto[block.path];
+    let readonly = false;
+    let luksname = null;
+
+    for (const c of block.Configuration) {
+        if (c[0] == "crypttab") {
+            const options = parse_options(decode_filename(c[1].options.v));
+            readonly = extract_option(options, "readonly") || extract_option(options, "read-only");
+            luksname = decode_filename(c[1].name.v);
+            break;
+        }
+    }
+
+    if (override_readonly !== null && override_readonly !== undefined)
+        readonly = override_readonly;
+
+    const unlock_options = { "read-only": { t: "b", v: readonly } };
+
     if (passphrase) {
-        await crypto.Unlock(passphrase, {});
+        await crypto.Unlock(passphrase, unlock_options);
         remember_passphrase(block, passphrase);
     } else if (passphrase_type == "stored") {
-        await crypto.Unlock("", {});
+        await crypto.Unlock("", unlock_options);
     } else if (passphrase_type == "clevis") {
-        await clevis_unlock(block);
+        await clevis_unlock(client, block, luksname, readonly);
     } else {
         // This should always be caught and should never show up in the UI
         throw new Error("No passphrase");
@@ -187,7 +220,8 @@ export function init_existing_passphrase(block, just_type, callback) {
     return {
         title: _("Unlocking disk"),
         func: dlg => {
-            return get_existing_passphrase(block, just_type).then(passphrase => {
+            const backing = client.blocks[block.CryptoBackingDevice];
+            return get_existing_passphrase(backing || block, just_type).then(passphrase => {
                 if (!passphrase)
                     dlg.set_values({ needs_explicit_passphrase: true });
                 if (callback)

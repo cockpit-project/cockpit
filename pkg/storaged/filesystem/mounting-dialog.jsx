@@ -57,7 +57,10 @@ export const mount_options = (opt_ro, extra_options, is_visible) => {
                               extra: extra_options || false
                           },
                           fields: [
-                              { title: _("Mount read only"), tag: "ro" },
+                              {
+                                  title: _("Mount read only"),
+                                  tag: "ro",
+                              },
                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
                           ]
                       });
@@ -168,7 +171,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
 
     const is_filesystem_mounted = is_mounted(client, block, subvol);
 
-    function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type) {
+    function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type, crypto_unlock_readonly) {
         let new_config = null;
         let all_new_opts;
 
@@ -244,17 +247,31 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         }
 
         async function maybe_unlock() {
-            const crypto = client.blocks_crypto[block.path];
-            if (mode == "mount" && crypto) {
-                try {
-                    await unlock_with_type(client, block, passphrase, passphrase_type);
-                    return await client.wait_for(() => client.blocks_cleartext[block.path]);
-                } catch (error) {
-                    dlg.set_values({ needs_explicit_passphrase: true });
-                    throw error;
+            if (mode == "mount" || (mode == "update" && is_filesystem_mounted)) {
+                let crypto = client.blocks_crypto[block.path];
+                const backing = client.blocks[block.CryptoBackingDevice];
+
+                if (backing && block.ReadOnly != crypto_unlock_readonly) {
+                    // We are working on a open crypto device, but it
+                    // has the wrong readonly-ness. Close it so that we can reopen it below.
+                    crypto = client.blocks_crypto[backing.path];
+                    await crypto.Lock({});
                 }
-            } else
-                return block;
+
+                if (crypto) {
+                    try {
+                        await unlock_with_type(client, client.blocks[crypto.path],
+                                               passphrase, passphrase_type, crypto_unlock_readonly);
+                        return await client.wait_for(() => client.blocks_cleartext[crypto.path]);
+                    } catch (error) {
+                        passphrase_type = null;
+                        dlg.set_values({ needs_explicit_passphrase: true });
+                        throw error;
+                    }
+                }
+            }
+
+            return block;
         }
 
         function maybe_lock() {
@@ -316,18 +333,17 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                                                                 mode == "update",
                                                                 subvol)
                       }),
-            mount_options(opt_ro, extra_options),
+            mount_options(opt_ro, extra_options, null),
             at_boot_input(at_boot),
         ];
 
-        if (block.IdUsage == "crypto" && mode == "mount")
-            fields = fields.concat([
-                PassInput("passphrase", _("Passphrase"),
-                          {
-                              visible: vals => vals.needs_explicit_passphrase,
-                              validate: val => !val.length && _("Passphrase cannot be empty"),
-                          })
-            ]);
+        fields = fields.concat([
+            PassInput("passphrase", _("Passphrase"),
+                      {
+                          visible: vals => vals.needs_explicit_passphrase,
+                          validate: val => !val.length && _("Passphrase cannot be empty"),
+                      })
+        ]);
     }
 
     const mode_title = {
@@ -374,11 +390,26 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
 
     const usage = get_active_usage(client, block.path, null, null, false, subvol);
 
+    function update_explicit_passphrase(vals_ro) {
+        const backing = client.blocks[block.CryptoBackingDevice];
+        let need_passphrase = (block.IdUsage == "crypto" && mode == "mount");
+        if (backing) {
+            // XXX - take subvols into account.
+            if (block.ReadOnly != vals_ro)
+                need_passphrase = true;
+        }
+        dlg.set_values({ needs_explicit_passphrase: need_passphrase && !passphrase_type });
+    }
+
     const dlg = dialog_open({
         Title: cockpit.format(mode_title[mode], old_dir_for_display),
         Fields: fields,
         Teardown: TeardownMessage(usage, old_dir),
-        update: update_at_boot_input,
+        update: function (dlg, vals, trigger) {
+            update_at_boot_input(dlg, vals, trigger);
+            if (trigger == "mount_options")
+                update_explicit_passphrase(vals.mount_options.ro);
+        },
         Action: {
             Title: mode_action[mode],
             disable_on_error: usage.Teardown,
@@ -401,10 +432,13 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                         opts = opts.concat(forced_options);
                     if (vals.mount_options?.extra)
                         opts = opts.concat(parse_options(vals.mount_options.extra));
+                    // XXX - take subvols into account.
+                    const crypto_unlock_readonly = vals.mount_options?.ro ?? opt_ro;
                     return (maybe_update_config(client.add_mount_point_prefix(vals.mount_point),
                                                 unparse_options(opts),
                                                 vals.passphrase,
-                                                passphrase_type)
+                                                passphrase_type,
+                                                crypto_unlock_readonly)
                             .then(() => maybe_set_crypto_options(vals.mount_options?.ro,
                                                                  opts.indexOf("noauto") == -1,
                                                                  vals.at_boot == "nofail",
@@ -414,9 +448,10 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         },
         Inits: [
             init_active_usage_processes(client, usage, old_dir),
-            (block.IdUsage == "crypto" && mode == "mount")
-                ? init_existing_passphrase(block, true, type => { passphrase_type = type })
-                : null
+            init_existing_passphrase(block, true, type => {
+                passphrase_type = type;
+                update_explicit_passphrase(dlg.get_value("mount_options")?.ro ?? opt_ro);
+            }),
         ]
     });
 }

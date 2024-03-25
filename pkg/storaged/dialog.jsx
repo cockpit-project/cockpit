@@ -863,11 +863,12 @@ export const SelectSpace = (tag, title, options) => {
     };
 };
 
-const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
+const CheckBoxComponent = ({ tag, val, title, tooltip, disabled, update_function }) => {
     return (
         <Checkbox data-field={tag} data-field-type="checkbox"
                   id={tag}
                   isChecked={val}
+                  isDisabled={disabled}
                   label={
                       <>
                           {title}
@@ -905,6 +906,7 @@ export const CheckBoxes = (tag, title, options) => {
                                               tag={ftag}
                                               val={fval}
                                               title={field.title}
+                                              disabled={field.disabled}
                                               tooltip={field.tooltip}
                                               options={options}
                                               update_function={fchange} />;

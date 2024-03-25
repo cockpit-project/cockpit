@@ -230,11 +230,6 @@ $desktop: $phone + 1px;
       /* AAA contrast: simulate #a1a1a1 on #151515 */
       opacity: 0.6;
     }
-
-    .pf-v5-c-dropdown__menu {
-      // Correct the offset
-      margin-block-start: -4px;
-    }
   }
 
   .pf-v5-theme-dark {
@@ -621,12 +616,12 @@ $desktop: $phone + 1px;
 
 // Rework navigation toggles in desktop and (especially) mobile modes
 .super-user-indicator > button,
-.ct-nav-toggle:not(.pf-v5-c-dropdown) {
+.ct-nav-toggle:not(.pf-v5-c-menu) {
   color: var(--pf-v5-global--Color--light-100) !important;
   background: transparent;
 }
 
-.ct-nav-toggle:not(.pf-v5-c-dropdown) {
+.ct-nav-toggle:not(.pf-v5-c-menu) {
   &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
     text-decoration: none;
     // approximate --pf-v5-global--BackgroundColor--dark-400, but with opacity
@@ -652,7 +647,7 @@ $desktop: $phone + 1px;
 // This can go away once we move the host selector inside the Masthead
 // https://github.com/patternfly/patternfly/issues/4524
 @media (max-width: $phone) {
-  .ct-nav-toggle.pf-v5-c-dropdown {
+  .ct-nav-toggle {
     &:hover, &:active, &.active, &.interact, &[aria-expanded="true"], &.pf-m-expanded {
       text-decoration: none;
       // approximate --pf-v5-global--BackgroundColor--dark-400, but with opacity
@@ -670,7 +665,7 @@ $desktop: $phone + 1px;
   }
 
   // Hide border from navigation items for mobile
-  .ct-header-item:not(:hover) button:not(:hover)::before {
+  .pf-v5-c-menu-toggle::before {
     border: none;
   }
 }
@@ -719,7 +714,7 @@ $desktop: $phone + 1px;
 @media (max-width: $phone) {
   #host-toggle,
   #nav-system-item,
-  .ct-nav-toggle > button {
+  button.ct-nav-toggle {
     // Stretch to navbar
     block-size: 100%;
     // Don't stretch to fill content; make optimal width same as height
@@ -735,34 +730,32 @@ $desktop: $phone + 1px;
     padding-inline: var(--pf-v5-global--spacer--xs);
     align-items: center;
 
-    > .pf-v5-c-select__toggle-wrapper {
-      flex: none;
-      max-inline-size: 100%;
-    }
-
     // Remove the toggled outline
-    .pf-v5-c-select__toggle::before {
+    .pf-v5-c-menu-toggle::before {
       display: none !important;
     }
-    // Don't show dropdown icon
-    .pf-v5-c-dropdown__toggle-icon {
-      display: none;
+
+    // Don't show toggle icon
+    .pf-v5-c-menu-toggle__icon {
+      margin-inline-end: 0;
     }
 
-    .pf-v5-c-dropdown__toggle-image {
+    .pf-v5-c-menu-toggle__image {
       align-self: center;
       margin: 0 !important;
     }
 
+    // #host-sel specific
     .pf-v5-c-select__toggle-arrow {
       // This is here because Chrome is weird sometimes...
       padding-block: 2px 5px;
       padding-inline: 0;
     }
-  }
 
-  .ct-nav-toggle .pf-v5-c-dropdown__menu {
-    inset-block: auto 100%;
+    > .pf-v5-c-select__toggle-wrapper {
+      flex: none;
+      max-inline-size: 100%;
+    }
   }
 }
 

@@ -854,29 +854,38 @@ function init_model(callback) {
                 });
     }
 
-    function enable_udisks_features() {
+    async function enable_udisks_features() {
         if (!client.manager.valid)
-            return Promise.resolve();
-        if (!client.manager.EnableModules)
-            return Promise.resolve();
-        return client.manager.EnableModules(true).then(
-            function() {
-                client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
-                client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
-                client.manager_btrfs = proxy("Manager.BTRFS", "Manager");
-                return Promise.allSettled([client.manager_lvm2.wait(), client.manager_iscsi.wait(), client.manager_btrfs.wait()])
-                        .then(() => {
-                            client.features.lvm2 = client.manager_lvm2.valid;
-                            client.features.iscsi = (client.manager_iscsi.valid &&
-                                                            client.manager_iscsi.SessionsSupported !== false);
-                            client.features.btrfs = client.manager_btrfs.valid;
-                            if (client.features.btrfs)
-                                btrfs_start_polling();
-                        });
-            }, function(error) {
-                console.warn("Can't enable storaged modules", error.toString());
-                return Promise.resolve();
-            });
+            return;
+
+        try {
+            await client.manager.EnableModule("btrfs", true);
+            client.manager_btrfs = proxy("Manager.BTRFS", "Manager");
+            await client.manager_btrfs.wait();
+            client.features.btrfs = client.manager_btrfs.valid;
+            if (client.features.btrfs)
+                btrfs_start_polling();
+        } catch (error) {
+            console.warn("Can't enable storaged btrfs module", error.toString());
+        }
+
+        try {
+            await client.manager.EnableModule("iscsi", true);
+            client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
+            await client.manager_iscsi.wait();
+            client.features.iscsi = (client.manager_iscsi.valid && client.manager_iscsi.SessionsSupported !== false);
+        } catch (error) {
+            console.warn("Can't enable storaged iscsi module", error.toString());
+        }
+
+        try {
+            await client.manager.EnableModule("lvm2", true);
+            client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
+            await client.manager_lvm2.wait();
+            client.features.lvm2 = client.manager_lvm2.valid;
+        } catch (error) {
+            console.warn("Can't enable storaged lvm2 module", error.toString());
+        }
     }
 
     function enable_lvm_create_vdo_feature() {

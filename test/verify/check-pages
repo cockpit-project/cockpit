@@ -33,7 +33,7 @@ class TestPages(testlib.MachineCase):
         b = self.browser
 
         b.click("#toggle-docs")
-        b.wait_visible("#toggle-docs + ul")
+        b.wait_visible("#toggle-docs-menu")
         expected = "Web Console"
         expected += "".join(items)
         expected += "About Web Console"
@@ -45,9 +45,9 @@ class TestPages(testlib.MachineCase):
         elif m.image == "arch":
             expected = "Arch Linux documentation" + expected
 
-        b.wait_collected_text("#toggle-docs + ul", expected)
+        b.wait_collected_text("#toggle-docs-menu", expected)
         b.click("#toggle-docs")
-        b.wait_not_present("#toggle-docs + ul")
+        b.wait_not_present("#toggle-docs-menu")
 
     def check_system_menu(self, label, present):
         b = self.browser
@@ -60,7 +60,7 @@ class TestPages(testlib.MachineCase):
         self.browser.switch_to_top()
         self.browser.open_session_menu()
 
-        self.browser.click(".display-language-menu")
+        self.browser.click("button.display-language-menu")
         self.browser.wait_visible('#display-language-modal')
 
     def testBasic(self):
@@ -121,10 +121,10 @@ OnCalendar=daily
         b.switch_to_top()
         self.checkDocs(["Managing services"])
         b.click("#toggle-docs")
-        b.wait_visible(f'#toggle-docs + ul a:contains("Managing services")[href^="{RHEL_DOC_BASE}"]')
-        b.wait_visible(f'#toggle-docs + ul a:contains("Web Console")[href^="{RHEL_DOC_BASE}"]')
+        b.wait_visible(f'#toggle-docs-menu a:contains("Managing services")[href^="{RHEL_DOC_BASE}"]')
+        b.wait_visible(f'#toggle-docs-menu a:contains("Web Console")[href^="{RHEL_DOC_BASE}"]')
         b.click("#toggle-docs")
-        b.wait_not_present("#toggle-docs + ul")
+        b.wait_not_present("#toggle-docs-menu")
         b.go("/network")
         self.checkDocs(["Managing networking bonds", "Managing networking teams",
                         "Managing networking bridges", "Managing VLANs", "Managing firewall"])

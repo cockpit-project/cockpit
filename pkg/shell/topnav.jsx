@@ -20,7 +20,9 @@
 import cockpit from "cockpit";
 import React from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Dropdown, DropdownGroup, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { Dropdown, DropdownGroup, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
+import { MenuToggle } from "@patternfly/react-core/dist/esm/components/MenuToggle";
+import { Divider } from "@patternfly/react-core/dist/esm/components/Divider";
 import { Masthead, MastheadContent } from "@patternfly/react-core/dist/esm/components/Masthead/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/components/ToggleGroup/index.js";
@@ -148,27 +150,27 @@ export class TopNav extends React.Component {
         const docItems = [];
 
         if (this.state.osRelease.DOCUMENTATION_URL)
-            docItems.push(<DropdownItem key="os-doc" href={this.state.osRelease.DOCUMENTATION_URL} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
+            docItems.push(<DropdownItem key="os-doc" to={this.state.osRelease.DOCUMENTATION_URL} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
                 {cockpit.format(_("$0 documentation"), this.state.osRelease.NAME)}
             </DropdownItem>);
 
         // global documentation for cockpit as a whole
         (cockpit.manifests.shell?.docs ?? []).forEach(doc => {
-            docItems.push(<DropdownItem key={doc.label} href={doc.url} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
+            docItems.push(<DropdownItem key={doc.label} to={doc.url} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
                 {doc.label}
             </DropdownItem>);
         });
 
         if (docs.length > 0)
-            docItems.push(<DropdownSeparator key="separator" />);
+            docItems.push(<Divider key="separator" />);
 
         docs.forEach(e => {
-            docItems.push(<DropdownItem key={e.label} href={e.url} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
+            docItems.push(<DropdownItem key={e.label} to={e.url} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
                 {_(e.label)}
             </DropdownItem>);
         });
 
-        docItems.push(<DropdownSeparator key="separator1" />);
+        docItems.push(<Divider key="separator1" />);
         docItems.push(<DropdownItem key="about" component="button"
                                     onClick={() => Dialogs.show(<AboutCockpitModal />)}>
             {_("About Web Console")}
@@ -176,31 +178,40 @@ export class TopNav extends React.Component {
 
         const manifest = cockpit.manifests.shell || { };
 
+        // HACK: This should be a DropdownItem so the normal onSelect closing behaviour works, but we can't embed a button in a button
         const main_menu = [
-            <div id="super-user-indicator-mobile" className="mobile_v" key="superusermobile">
+            <div // eslint-disable-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
+              id="super-user-indicator-mobile"
+              className="mobile_v"
+              key="superusermobile"
+              onClick={() => {
+                  this.setState(prevState => { return { menuOpened: !prevState.menuOpened } });
+              }}>
                 <SuperuserIndicator proxy={this.superuser} host={this.props.machine.connection_string} />
             </div>,
-            <DropdownSeparator key="separator2" className="mobile_v" />,
+            <Divider key="separator2" className="mobile_v" />,
             <DropdownGroup label={_("Style")} key="dark-switcher">
-                <DropdownItem key="dark-switcher-menu" component="div" isPlainText>
-                    <ToggleGroup key="dark-switcher-togglegroup">
-                        <ToggleGroupItem key="dark-switcher-auto" buttonId="auto" text={_("Default")}
+                <DropdownList>
+                    <DropdownItem key="dark-switcher-menu" component="div">
+                        <ToggleGroup key="dark-switcher-togglegroup">
+                            <ToggleGroupItem key="dark-switcher-auto" buttonId="auto" text={_("Default")}
                                 isSelected={this.state.theme === "auto"}
                                 onChange={this.handleModeClick} />
-                        <ToggleGroupItem key="dark-switcher-light" buttonId="light" text={_("Light")}
+                            <ToggleGroupItem key="dark-switcher-light" buttonId="light" text={_("Light")}
                                 isSelected={this.state.theme === "light"}
                                 onChange={this.handleModeClick} />
-                        <ToggleGroupItem key="dark-switcher-dark" buttonId="dark" text={_("Dark")}
+                            <ToggleGroupItem key="dark-switcher-dark" buttonId="dark" text={_("Dark")}
                                 isSelected={this.state.theme === "dark"}
                                 onChange={this.handleModeClick} />
-                    </ToggleGroup>
-                </DropdownItem>
+                        </ToggleGroup>
+                    </DropdownItem>
+                </DropdownList>
             </DropdownGroup>,
-            <DropdownSeparator key="separatorDark" />,
+            <Divider key="separatorDark" />,
         ];
 
         if (manifest.locales)
-            main_menu.push(<DropdownItem key="languages" className="display-language-menu" component="button"
+            main_menu.push(<DropdownItem key="languages" className="display-language-menu"
                                          onClick={() => Dialogs.show(<LangModal />)}>
                 {_("Display language")}
             </DropdownItem>);
@@ -217,7 +228,7 @@ export class TopNav extends React.Component {
                           onClick={() => Dialogs.show(<CredentialsModal />)}>
                 {_("SSH keys")}
             </DropdownItem>,
-            <DropdownSeparator key="separator3" />,
+            <Divider key="separator3" />,
             <DropdownItem key="logout" id="logout" component="button" onClick={cockpit.logout}>
                 {_("Log out")}
             </DropdownItem>,
@@ -246,21 +257,30 @@ export class TopNav extends React.Component {
                             }
                             <ToolbarItem>
                                 <Dropdown
+                                    id="toggle-docs-menu"
                                     onSelect={() => {
                                         this.setState(prevState => { return { docsOpened: !prevState.docsOpened } });
                                         document.getElementById("toggle-docs").focus();
                                     }}
-                                    toggle={
-                                        <DropdownToggle id="toggle-docs" icon={<HelpIcon className="toggle-docs-icon pf-v5-c-icon pf-m-lg" />} onToggle={(_event, isOpen) => { this.setState({ docsOpened: isOpen }) }}>
+                                    toggle={(toggleRef) => (
+                                        <MenuToggle
+                                          ref={toggleRef}
+                                          id="toggle-docs"
+                                          className="ct-nav-toggle"
+                                          icon={<HelpIcon className="toggle-docs-icon pf-v5-c-icon pf-m-lg" />}
+                                          isExpanded={this.state.docsOpened}
+                                          isFullHeight
+                                          onClick={() => { this.setState(prevState => ({ docsOpened: !prevState.docsOpened, menuOpened: false })) }}>
                                             {_("Help")}
-                                        </DropdownToggle>
-                                    }
+                                        </MenuToggle>
+                                    )}
                                     isOpen={this.state.docsOpened}
-                                    dropdownItems={docItems}
-                                    position={DropdownPosition.right}
-                                    isFullHeight
-                                    className="ct-header-item ct-nav-toggle"
-                                />
+                                    popperProps={{ position: "right" }}
+                                >
+                                    <DropdownList>
+                                        {docItems}
+                                    </DropdownList>
+                                </Dropdown>
                             </ToolbarItem>
                             <ToolbarItem>
                                 <Dropdown
@@ -268,17 +288,28 @@ export class TopNav extends React.Component {
                                         this.setState(prevState => { return { menuOpened: !prevState.menuOpened } });
                                         document.getElementById("toggle-menu").focus();
                                     }}
-                                    toggle={
-                                        <DropdownToggle id="toggle-menu" icon={<CogIcon className="pf-v5-c-icon pf-m-lg" />} onToggle={(_event, isOpen) => this.setState({ menuOpened: isOpen, showActivePages: _event.altKey }) }>
+                                    toggle={(toggleRef) => (
+                                        <MenuToggle
+                                          ref={toggleRef}
+                                          id="toggle-menu"
+                                          className="ct-nav-toggle"
+                                          icon={<CogIcon className="pf-v5-c-icon pf-m-lg" />}
+                                          isExpanded={this.state.menuOpened}
+                                          isFullHeight
+                                          onClick={(event) => {
+                                              this.setState(prevState => ({ menuOpened: !prevState.menuOpened, docsOpened: false, showActivePages: event.altKey }));
+                                          }}
+                                        >
                                             {_("Session")}
-                                        </DropdownToggle>
-                                    }
+                                        </MenuToggle>
+                                    )}
                                     isOpen={this.state.menuOpened}
-                                    dropdownItems={main_menu}
-                                    position={DropdownPosition.right}
-                                    isFullHeight
-                                    className="ct-header-item ct-nav-toggle"
-                                />
+                                    popperProps={{ position: "right" }}
+                                >
+                                    <DropdownList>
+                                        {main_menu}
+                                    </DropdownList>
+                                </Dropdown>
                             </ToolbarItem>
                         </ToolbarContent>
                     </Toolbar>

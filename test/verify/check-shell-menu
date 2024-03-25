@@ -81,11 +81,11 @@ class TestMenu(testlib.MachineCase):
 
         # Clicking inside the iframed pages should close the docs menu
         b.click("#toggle-docs")
-        b.wait_visible("#toggle-docs + ul")
+        b.wait_visible("#toggle-docs-menu")
         b.enter_page("/system")
         b.focus("#overview main")
         b.switch_to_top()
-        b.wait_not_present("#toggle-docs + ul")
+        b.wait_not_present("#toggle-docs-menu")
 
         # Check that we can use a link with a hash in it
         b.click_system_menu("/system/#/memory")

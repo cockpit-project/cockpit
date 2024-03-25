@@ -243,7 +243,7 @@ class TestApps(packagelib.PackageCase):
         def set_lang(lang):
             b.switch_to_top()
             b.open_session_menu()
-            b.click(".display-language-menu")
+            b.click("button.display-language-menu")
             b.wait_visible('#display-language-modal')
             b.click(f'#display-language-modal li[data-value={lang}] button')
             b.click("#display-language-modal footer button.pf-m-primary")

@@ -26,7 +26,8 @@ import React from 'react';
 import { createRoot } from "react-dom/client";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle, DropdownToggleAction } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
+import { MenuToggle, MenuToggleAction } from "@patternfly/react-core/dist/esm/components/MenuToggle";
 
 import { superuser } from "superuser";
 
@@ -119,25 +120,34 @@ class OverviewPage extends React.Component {
         if (this.state.privileged)
             headerActions = (
                 <Dropdown onSelect={() => this.setState({ actionIsOpen: true })}
-                    toggle={
-                        <DropdownToggle
-                            splitButtonItems={[
-                                <DropdownToggleAction id='reboot-button'
-                                    key='reboot-button'
-                                    onClick={() => Dialogs.show(<ShutdownModal />)}>
-                                    {_("Reboot")}
-                                </DropdownToggleAction>
-                            ]}
-                            toggleVariant="secondary"
-                            splitButtonVariant="action"
-                            onToggle={(_event, isOpen) => this.setState({ actionIsOpen: isOpen })}
+                    toggle={(toggleRef) => (
+                        <MenuToggle
+                            ref={toggleRef}
+                            variant="secondary"
+                            splitButtonOptions={{
+                                variant: "action",
+                                items: [
+                                    <MenuToggleAction
+                                        id='reboot-button'
+                                        key='reboot-button'
+                                        onClick={() => Dialogs.show(<ShutdownModal />)}
+                                    >
+                                        {_("Reboot")}
+                                    </MenuToggleAction>
+                                ],
+                            }}
+                            onClick={() => this.setState({ actionIsOpen: !actionIsOpen })}
                             id="shutdown-group"
                         />
-                    }
+                    )}
                     isOpen={actionIsOpen}
-                    position={DropdownPosition.right}
-                    dropdownItems={dropdownItems}
-                />);
+                    popperProps={{ position: "right" }}
+                >
+                    <DropdownList>
+                        {dropdownItems}
+                    </DropdownList>
+                </Dropdown>
+            );
 
         const show_superuser = (
             cockpit.transport.host && cockpit.transport.host != "localhost" &&

@@ -226,7 +226,7 @@ export async function btrfs_poll() {
     if (!client.uuids_btrfs_volume)
         return;
 
-    if (!client.superuser.allowed) {
+    if (!client.superuser.allowed || !client.features.btrfs) {
         return;
     }
 
@@ -1004,8 +1004,11 @@ function init_model(callback) {
 
                     client.storaged_client.addEventListener('notify', () => client.update());
 
-                    client.update(true);
-                    callback();
+                    update_indices();
+                    btrfs_poll().then(() => {
+                        client.update(true);
+                        callback();
+                    });
                 });
             });
         });

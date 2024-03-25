@@ -317,7 +317,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         # fast that something goes wrong with serving files,
         # especially when those files are large in the "devel"
         # scenario.
-        self.allow_journal_messages(".*: failure while serving external channel: internal-error")
+        self.allow_journal_messages(".*: external channel failed: internal-error")
 
     def testBasicAsAdmin(self):
         b = self.browser

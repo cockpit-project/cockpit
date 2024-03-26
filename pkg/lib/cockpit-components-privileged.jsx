@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
@@ -24,7 +24,7 @@ import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/compon
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { useEvent } from "hooks";
+import { useEvent, useLoggedInUser } from "hooks";
 
 /**
  * UI element wrapper for something that requires privilege. When access is not
@@ -51,9 +51,8 @@ export function Privileged({ excuse, allowed, placement, tooltipId, children }) 
  * Convenience element for a Privilege wrapped Button
  */
 export const PrivilegedButton = ({ tooltipId, placement, excuse, buttonId, onClick, ariaLabel, variant, isDanger, children }) => {
-    const [user, setUser] = useState(null);
+    const user = useLoggedInUser();
     useEvent(superuser, "changed");
-    useEffect(() => cockpit.user().then(user => setUser(user)));
 
     return (
         <Privileged allowed={ superuser.allowed } tooltipId={ tooltipId } placement={ placement }

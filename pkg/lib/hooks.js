@@ -88,7 +88,7 @@ export function usePageLocation() {
 
 const cockpit_user_promise = cockpit.user();
 let cockpit_user = null;
-cockpit_user_promise.then(user => { cockpit_user = user });
+cockpit_user_promise.then(user => { cockpit_user = user }).catch(err => console.log(err));
 
 export function useLoggedInUser() {
     const [user, setUser] = useState(cockpit_user);

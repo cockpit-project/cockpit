@@ -70,7 +70,7 @@ export class CockpitHosts extends React.Component {
     componentDidMount() {
         cockpit.user().then(user => {
             this.setState({ current_user: user.name || "" });
-        });
+        }).catch(exc => console.log(exc));
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {

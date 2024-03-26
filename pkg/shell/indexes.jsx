@@ -97,7 +97,7 @@ function MachinesIndex(index_options, machines, loader) {
     let current_user = "";
     cockpit.user().then(user => {
         current_user = user.name || "";
-    });
+    }).catch(exc => console.log(exc));
 
     /* Navigation */
     let ready = false;

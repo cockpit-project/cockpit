@@ -85,7 +85,7 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
                     }});
             }}
         """)
-        self.browser.eval_js("cockpit.user().done(load)")
+        self.browser.eval_js("cockpit.user().then(load)")
         self.browser.wait_js_cond('loaded === true')
 
     def check_keys(self, keys_md5, keys):

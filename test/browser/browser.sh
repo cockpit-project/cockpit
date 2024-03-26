@@ -29,6 +29,9 @@ if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "basic" ]; then
     dnf install -y tcsh
     # required by TestJournal.testAbrt*
     dnf install -y abrt abrt-addon-ccpp reportd libreport-plugin-bugzilla libreport-fedora
+fi
+
+if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "optional" ]; then
     # required by TestStorageBtrfs*
     dnf install -y udisks2-btrfs
 fi

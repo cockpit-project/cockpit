@@ -295,7 +295,11 @@ const useLayoutSize = (init_width, init_height) => {
     useLayoutEffect(() => {
         if (ref.current) {
             const rect = ref.current.getBoundingClientRect();
-            if (rect.width != size.width || rect.height != size.height)
+            // Some browsers, such as Bromite, add noise to the result
+            // of getBoundingClientRect in order to deter
+            // fingerprinting. Let's allow for that by only reacting
+            // to significant changes.
+            if (Math.abs(rect.width - size.width) > 2 || Math.abs(rect.height - size.height) > 2)
                 setSize({ width: rect.width, height: rect.height });
         }
     });

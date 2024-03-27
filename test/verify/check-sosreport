@@ -89,8 +89,9 @@ only-plugins=release,date,host,cgroups,networking
         # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done
         wait(lambda: len(downloaded_sosreports()) > 0)
         report_gpg = downloaded_sosreports()[0]
+        report = report_gpg.removesuffix(".gpg")
         base_report_gpg = os.path.basename(report_gpg)
-        report = report_gpg.replace(".gpg", "")
+        base_report = base_report_gpg.removesuffix(".gpg")
 
         m.execute(f"test -f /var/tmp/{base_report_gpg}")
 
@@ -113,7 +114,8 @@ only-plugins=release,date,host,cgroups,networking
         b.click("tr:contains(mylabel) button.pf-c-dropdown__toggle")
         b.click("tr:contains(mylabel) li:contains(Delete)")
         b.click("#sos-remove-dialog button:contains(Delete)")
-        wait(lambda: m.execute(f"! test -f /var/tmp/{base_report_gpg} && echo yes"))
+        # ensure it removes the report itself, and auxiliary files like .gpg
+        m.execute(f"while ls /var/tmp/{base_report}*; do sleep 1; done", stdout=None, timeout=10)
 
         self.allow_journal_messages('.*comm="sosreport".*')
 

@@ -220,7 +220,16 @@ function sosDownload(path) {
 }
 
 function sosRemove(path) {
-    return cockpit.script(cockpit.format("rm -f '$0' '$0'.*", path), { superuser: true, err: "message" });
+    // there are various potential extra files; not all of them are expected to exist,
+    // the file API tolerates removing nonexisting files
+    const paths = [
+        path,
+        path + ".asc",
+        path + ".gpg",
+        path + ".md5",
+        path + ".sha256",
+    ];
+    return Promise.all(paths.map(p => cockpit.file(p, { superuser: true }).replace(null)));
 }
 
 const SOSDialog = () => {

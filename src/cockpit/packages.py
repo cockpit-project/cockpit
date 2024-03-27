@@ -175,7 +175,6 @@ class PackagesListener:
 class BridgeConfig(dict, JsonObject):
     def __init__(self, value: JsonObject):
         super().__init__(value)
-
         self.label = get_str(self, 'label', None)
 
         self.privileged = get_bool(self, 'privileged', default=False)

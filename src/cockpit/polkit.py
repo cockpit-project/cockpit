@@ -22,8 +22,9 @@ import os
 import pwd
 from typing import Dict, List, Sequence, Tuple
 
-from cockpit._vendor.ferny import AskpassHandler
 from cockpit._vendor.systemd_ctypes import Variant, bus
+
+from .superuser import SuperuserRoutingRule
 
 # that path is valid on at least Debian, Fedora/RHEL, and Arch
 HELPER_PATH = '/usr/lib/polkit-1/polkit-agent-helper-1'
@@ -43,9 +44,9 @@ Identity = Tuple[str, Dict[str, Variant]]
 # mapping, but that method is not available for Python 3.6 yet.
 
 class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
-    def __init__(self, responder: AskpassHandler):
+    def __init__(self, superuser_rule: SuperuserRoutingRule):
         super().__init__()
-        self.responder = responder
+        self.superuser_rule = superuser_rule
 
     # confusingly named: this actually does the whole authentication dialog, see docs
     @bus.Interface.Method('', ['s', 's', 's', 'a{ss}', 's', 'a(sa{sv})'])
@@ -94,12 +95,19 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
                 if value.startswith('Password'):
                     value = ''
 
-                # flush out accumulated info/error messages
-                passwd = await self.responder.do_askpass('\n'.join(messages), value, '')
-                messages.clear()
+                if self.superuser_rule.peer is None:
+                    logger.debug('got PAM_PROMPT %s, but no active superuser peer')
+                    raise asyncio.CancelledError('no active superuser peer')
+
+                passwd = await self.superuser_rule.peer.askpass_handler.do_askpass('\n'.join(messages), value, '')
+
                 if passwd is None:
                     logger.debug('got PAM_PROMPT %s, but do_askpass returned None', value)
                     raise asyncio.CancelledError('no password given')
+
+                # flush out accumulated info/error messages
+                messages.clear()
+
                 logger.debug('got PAM_PROMPT %s, do_askpass returned a password', value)
                 process.stdin.write(passwd.encode())
                 process.stdin.write(b'\n')
@@ -125,41 +133,46 @@ class PolkitAgent:
 
     Use this as a context manager to ensure that the agent gets unregistered again.
     """
-    def __init__(self, responder: AskpassHandler):
-        self.responder = responder
-        self.agent_slot = None
+    def __init__(self, superuser_rule: SuperuserRoutingRule) -> None:
+        self.superuser_rule = superuser_rule
+        self.agent_slot: bus.Slot | None = None
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> None:
         try:
             self.system_bus = bus.Bus.default_system()
         except OSError as e:
             logger.warning('cannot connect to system bus, not registering polkit agent: %s', e)
-            return self
+            return
 
         try:
             # may refine that with a D-Bus call to logind
             self.subject = ('unix-session', {'session-id': Variant(os.environ['XDG_SESSION_ID'], 's')})
         except KeyError:
             logger.debug('XDG_SESSION_ID not set, not registering polkit agent')
-            return self
+            return
 
-        agent_object = org_freedesktop_PolicyKit1_AuthenticationAgent(self.responder)
-        self.agent_slot = self.system_bus.add_object(AGENT_DBUS_PATH, agent_object)
+        agent_object = org_freedesktop_PolicyKit1_AuthenticationAgent(self.superuser_rule)
+        agent_slot = self.system_bus.add_object(AGENT_DBUS_PATH, agent_object)
 
         # register agent
         locale_name = locale.setlocale(locale.LC_MESSAGES, None)
-        await self.system_bus.call_method_async(
-            'org.freedesktop.PolicyKit1',
-            '/org/freedesktop/PolicyKit1/Authority',
-            'org.freedesktop.PolicyKit1.Authority',
-            'RegisterAuthenticationAgent',
-            '(sa{sv})ss',
-            self.subject, locale_name, AGENT_DBUS_PATH)
-        logger.debug('Registered agent for %r and locale %s', self.subject, locale_name)
-        return self
+        try:
+            await self.system_bus.call_method_async(
+                'org.freedesktop.PolicyKit1',
+                '/org/freedesktop/PolicyKit1/Authority',
+                'org.freedesktop.PolicyKit1.Authority',
+                'RegisterAuthenticationAgent',
+                '(sa{sv})ss',
+                self.subject, locale_name, AGENT_DBUS_PATH)
+            logger.debug('Registered agent for %r and locale %s', self.subject, locale_name)
+        except bus.BusError as exc:
+            logger.warning('Failed to register polkit agent: %s', exc)
+            agent_slot.cancel()
+        else:
+            self.agent_slot = agent_slot
 
-    async def __aexit__(self, _exc_type, _exc_value, _traceback):
-        if self.agent_slot:
+    async def __aexit__(self, _exc_type, _exc_value, _traceback) -> None:
+        if self.agent_slot is not None:
             await self.system_bus.call_method_async(
                 'org.freedesktop.PolicyKit1',
                 '/org/freedesktop/PolicyKit1/Authority',

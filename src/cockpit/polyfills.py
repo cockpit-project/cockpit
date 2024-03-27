@@ -42,16 +42,24 @@ def install():
     if not hasattr(contextlib, 'AsyncExitStack'):
         class AsyncExitStack:
             async def __aenter__(self):
+                self.acms = []
                 self.cms = []
                 return self
 
             async def enter_async_context(self, cm):
                 result = await cm.__aenter__()
+                self.acms.append(cm)
+                return result
+
+            def enter_context(self, cm):
+                result = cm.__enter__()
                 self.cms.append(cm)
                 return result
 
             async def __aexit__(self, exc_type, exc_value, traceback):
+                for acm in self.acms:
+                    acm.__aexit__(exc_type, exc_value, traceback)
                 for cm in self.cms:
-                    cm.__aexit__(exc_type, exc_value, traceback)
+                    cm.__exit__(exc_type, exc_value, traceback)
 
         contextlib.AsyncExitStack = AsyncExitStack

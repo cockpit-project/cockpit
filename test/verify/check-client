@@ -48,7 +48,7 @@ X-For-CockpitClient = true
 LoginTo = true
 
 [Ssh-Login]
-Command = /usr/bin/env python3 -m cockpit.beiboot
+Command = /usr/bin/env python3 -m cockpit.beiboot --interactive
 """)
 
     def check_login(self, expected_user):
@@ -206,7 +206,7 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
         # unreachable host
         b.set_val("#server-field", "unknownhost")
         b.click("#login-button")
-        b.wait_in_text("#login-error-message", "Host is unknown")
+        b.wait_in_text("#login-error-message", "Unable to connect to that address")
         b.wait_val("#server-field", "unknownhost")
         # does not appear in recent hosts
         b.wait_in_text("#recent-hosts-list", "10.111.113.2")
@@ -215,7 +215,7 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
         # wrong port
         b.set_val("#server-field", "10.111.113.2:222")
         b.click("#login-button")
-        b.wait_in_text("#login-error-message", "Host is unknown")
+        b.wait_in_text("#login-error-message", "Unable to connect to that address")
 
         # unencrypted SSH key login
         self.m_client.execute("runuser -u admin -- ssh-keygen -t rsa -N '' -f ~admin/.ssh/id_rsa")

@@ -235,7 +235,6 @@ endif
 # -----------------------------------------------------------------------------
 # polkit
 
-# make sure this ends up in the tarball, even with --disable-ssh
 polkit_in_files  = src/bridge/org.cockpit-project.cockpit-bridge.policy.in
 EXTRA_DIST += $(polkit_in_files)
 

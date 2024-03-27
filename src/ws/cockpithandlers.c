@@ -262,9 +262,24 @@ add_page_to_environment (JsonObject *object,
 
   if (page_login_to < 0)
     {
-      page_login_to = cockpit_conf_bool ("WebService", "LoginTo",
-                                         g_file_test (cockpit_ws_ssh_program,
-                                                      G_FILE_TEST_IS_EXECUTABLE));
+      gboolean have_ssh;
+      /* cockpit.beiboot is part of cockpit-bridge package */
+      gint status;
+      GError *error = NULL;
+      if (g_spawn_sync (NULL,
+                        (gchar * []){ "type", "cockpit-bridge", NULL },
+                        NULL,
+                        G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
+                        NULL, NULL, NULL, NULL, &status, &error))
+        {
+          have_ssh = status == 0;
+        }
+      else
+        {
+          g_warning ("Failed to check for cockpit-bridge, disabling remote logins: %s", error->message);
+          have_ssh = FALSE;
+        }
+      page_login_to = cockpit_conf_bool ("WebService", "LoginTo", have_ssh);
     }
 
   require_host = is_cockpit_client || cockpit_conf_bool ("WebService", "RequireHost", FALSE);

@@ -176,7 +176,7 @@ class TestWsBastionContainer(testlib.MachineCase):
                   "-v /root/known_hosts:/etc/ssh/ssh_known_hosts:ro,Z "
                   "-v /root/id_bastion:/id_bastion:ro,Z "
                   "-e COCKPIT_SSH_KEY_PATH=/id_bastion "
-                  "-e G_MESSAGES_DEBUG=cockpit-ssh "
+                  "-e COCKPIT_DEBUG=cockpit.beiboot "
                   "localhost/cockpit/ws")
         m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
 

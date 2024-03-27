@@ -82,8 +82,9 @@ only-plugins=release,date,host,cgroups,networking
         # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done
         testlib.wait(lambda: len(downloaded_sosreports()) > 0)
         report_gpg = downloaded_sosreports()[0]
+        report = report_gpg.removesuffix(".gpg")
         base_report_gpg = os.path.basename(report_gpg)
-        report = report_gpg.replace(".gpg", "")
+        base_report = base_report_gpg.removesuffix(".gpg")
 
         m.execute(f"test -f /var/tmp/{base_report_gpg}")
 
@@ -100,7 +101,8 @@ only-plugins=release,date,host,cgroups,networking
         b.click("tr:contains(mylabel) button.pf-v5-c-menu-toggle")
         b.click("tr:contains(mylabel) .pf-v5-c-menu__list-item:contains(Delete) button")
         b.click("#sos-remove-dialog button:contains(Delete)")
-        testlib.wait(lambda: m.execute(f"! test -f /var/tmp/{base_report_gpg} && echo yes"))
+        # ensure it removes the report itself, and auxiliary files like .gpg
+        m.execute(f"while ls /var/tmp/{base_report}*; do sleep 1; done", stdout=None, timeout=10)
 
         # error reporting
         self.write_file("/usr/sbin/sos", """#!/bin/sh

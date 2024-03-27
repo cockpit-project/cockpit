@@ -326,6 +326,22 @@ QUnit.test("watching without reading", assert => {
     }, { read: false });
 });
 
+QUnit.test("watching without reading pre-created", async assert => {
+    const done = assert.async();
+    assert.expect(3);
+
+    // Pre-create fsinfo test file
+    const file = cockpit.file(dir + "/fsinfo");
+    await file.replace("1234");
+    const watch = file.watch((content, tag) => {
+        assert.equal(content, null, "non-existant because read is false");
+        assert.notEqual(tag, null, "non empty tag");
+        assert.equal(tag.startsWith("1:"), true, "tag always stars with 1:");
+        watch.remove();
+        done();
+    }, { read: false });
+});
+
 QUnit.test("watching directory", assert => {
     const done = assert.async();
     assert.expect(20);

@@ -592,6 +592,39 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_text(self.card_row_col("btrfs filesystem", row_name="home", col_index=3), "/mnt/home (not mounted)")
         b.wait_text(self.card_row_col("btrfs filesystem", row_name="backups", col_index=3), "/mnt/backups (not mounted)")
 
+    def testSnapshot(self):
+        m = self.machine
+        b = self.browser
+
+        disk = self.add_ram_disk(size=128)
+        mount_point = "/run/butter"
+
+        snapshot_dir = f"{mount_point}/snapshots"
+        subdir = f"{mount_point}/subdir"
+
+        m.execute(f"""
+            mkfs.btrfs -L butter {disk}
+            mkdir -p {mount_point}
+            mount {disk} {mount_point}
+            echo '{disk} {mount_point} auto defaults 0 0' >> /etc/fstab
+            # Debian-testing/ubuntu-2204 btrfs-progrs version does not support creating multiple subvolumes at once
+            btrfs subvolume create {subdir}
+            btrfs subvolume create {snapshot_dir}
+            btrfs subvolume create {subdir}/foo
+            btrfs subvolume snapshot {subdir} {snapshot_dir}/snap-1
+            btrfs subvolume snapshot {mount_point} {snapshot_dir}/snap-2
+        """)
+
+        self.login_and_go("/storage")
+
+        self.click_card_row("Storage", name=os.path.basename(subdir))
+        b.wait_text(self.card_desc("btrfs subvolume", "Name"), "subdir")
+        b.wait_visible(self.card_row("Snapshots", name="snap-1"))
+
+        # Normal subvolume does not show under snapshots
+        b.wait_visible(self.card_row("btrfs subvolume", name="foo"))
+        b.wait_not_present(self.card_row("Snapshots", name="foo"))
+
 
 if __name__ == '__main__':
     testlib.test_main()

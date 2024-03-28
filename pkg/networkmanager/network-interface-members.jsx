@@ -20,7 +20,8 @@ import cockpit from "cockpit";
 import React, { useState, useContext } from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
+import { MenuToggle } from "@patternfly/react-core/dist/esm/components/MenuToggle";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { MinusIcon } from '@patternfly/react-icons';
 
@@ -181,14 +182,18 @@ export const NetworkInterfaceMembers = ({
 
     const add_btn = (
         <Dropdown onSelect={() => setIsOpen(false)}
-                  toggle={
-                      <DropdownToggle id="add-member" onToggle={(_, isOpen) => setIsOpen(isOpen)}>
+                  toggle={(toggleRef) => (
+                      <MenuToggle id="add-member" ref={toggleRef} onClick={() => setIsOpen(!isOpen)}>
                           {_("Add member")}
-                      </DropdownToggle>
-                  }
+                      </MenuToggle>
+                  )}
                   isOpen={isOpen}
-                  position="right"
-                  dropdownItems={dropdownItems} />
+                  popperProps={{ position: "right" }}
+        >
+            <DropdownList>
+                {dropdownItems}
+            </DropdownList>
+        </Dropdown>
     );
 
     return (

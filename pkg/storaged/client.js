@@ -243,12 +243,18 @@ export async function btrfs_poll() {
                 // ID 256 gen 7 parent 5 top level 5 path <FS_TREE>/one
                 // ID 257 gen 7 parent 256 top level 256 path one/two
                 // ID 258 gen 7 parent 257 top level 257 path <FS_TREE>/one/two/three/four
-                const output = await cockpit.spawn(["btrfs", "subvolume", "list", "-ap", mount_point], { superuser: "require", err: "message" });
+                const output = await cockpit.spawn(["btrfs", "subvolume", "list", "-apuq", mount_point], { superuser: "require", err: "message" });
                 const subvols = [{ pathname: "/", id: 5, parent: null }];
                 for (const line of output.split("\n")) {
-                    const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
-                    if (m)
-                        subvols.push({ pathname: m[4], id: Number(m[1]), parent: Number(m[2]) });
+                    const m = line.match(/ID (\d+).*parent (\d+).*parent_uuid (.*)uuid (.*) path (<FS_TREE>\/)?(.*)/);
+                    if (m) {
+                        // The parent uuid is the uuid of which this subvolume is a snapshot.
+                        // https://github.com/torvalds/linux/blob/8d025e2092e29bfd13e56c78e22af25fac83c8ec/include/uapi/linux/btrfs.h#L885
+                        let parent_uuid = m[3].trim();
+                        // BTRFS_UUID_SIZE is 16
+                        parent_uuid = parent_uuid.length < 16 ? null : parent_uuid;
+                        subvols.push({ pathname: m[6], id: Number(m[1]), parent: Number(m[2]), uuid: m[4], parent_uuid });
+                    }
                 }
                 uuids_subvols[uuid] = subvols;
             } catch (err) {

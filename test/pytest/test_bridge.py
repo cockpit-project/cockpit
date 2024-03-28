@@ -538,6 +538,17 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     await transport.check_close(channel=ch)
     assert not myfile.exists()
 
+    # acks
+    ch = await transport.check_open('fsreplace1', path=str(myfile), send_acks='frames',
+                                    reply_keys={'send-acks': 'frames'})
+    transport.send_data(ch, b'some stuff')
+    await transport.assert_msg('', command='send-acks', frames=1, channel=ch)
+    transport.send_data(ch, b'some more stuff')
+    await transport.assert_msg('', command='send-acks', frames=1, channel=ch)
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+
 
 @pytest.mark.asyncio
 async def test_fsreplace1_change_conflict(transport: MockTransport, tmp_path: Path) -> None:
@@ -615,6 +626,11 @@ async def test_fsreplace1_error(transport: MockTransport, tmp_path: Path) -> Non
     transport.send_data(ch, b'not me')
     transport.send_done(ch)
     await transport.assert_msg('', command='close', channel=ch, problem='not-found')
+
+    # invalid send-acks option
+    await transport.check_open('fsreplace1', path=str(tmp_path), send_acks='not-valid',
+                               problem='protocol-error',
+                               reply_keys={'message': "invalid value 'not-valid' provided for send-acks"})
 
 
 @pytest.mark.asyncio

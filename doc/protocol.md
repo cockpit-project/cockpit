@@ -1066,6 +1066,11 @@ The following options can be specified in the "open" control message:
    you don't set this field, the actual tag will not be checked.  To
    express that you expect the file to not exist, use "-" as the tag.
 
+* "send-acks": (optional, default '') When set to "frames" the channel
+   sends an acknowledgement after write(s) succeeded.  In the ready
+   message the bridge replies with an identical "send-acks" option if
+   it is supported.
+
 You should write the new content to the channel as one or more
 messages.  To indicate the end of the content, send a "done" message.
 

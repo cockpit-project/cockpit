@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from "cockpit";
+import client from "../client.js";
 
 import { decode_filename } from "../utils.js";
 
@@ -87,4 +88,37 @@ export function validate_subvolume_name(name) {
         return _("Name cannot be longer than 255 characters.");
     if (name.includes('/'))
         return cockpit.format(_("Name cannot contain the character '/'."));
+}
+
+// Determine whether BLOCK is a multi-device btrfs volume. This works
+// also when the volume is stored on LUKS devices, and some of them
+// are locked.
+
+export function is_multi_device_btrfs_volume(block) {
+    // Check the direct case.
+    const block_btrfs = client.blocks_fsys_btrfs[block.path];
+    if (block_btrfs) {
+        return block_btrfs.data.num_devices > 1;
+    }
+
+    // Might be a locked LUKS device. Try to figure out the uuid from
+    // its child fstab entries.
+    const block_crypto = client.blocks_crypto[block.path];
+    if (!block_crypto || client.blocks_cleartext[block.path]) {
+        return false;
+    }
+
+    for (const c of block_crypto.ChildConfiguration) {
+        if (c[0] == "fstab") {
+            const fsname = decode_filename(c[1].fsname.v);
+            const uuid_match = fsname.match(/^UUID=(?<uuid>[A-Fa-f0-9-]+)/);
+            if (uuid_match) {
+                const btrfs = client.uuids_btrfs_volume[uuid_match.groups.uuid];
+                if (btrfs && btrfs.data.num_devices > 1)
+                    return true;
+            }
+        }
+    }
+
+    return false;
 }

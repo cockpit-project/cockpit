@@ -20,11 +20,12 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import {
-    StorageCard, StorageDescription, ChildrenTable, new_card, new_page, navigate_away_from_card
+    PageTable, StorageCard, StorageDescription, ChildrenTable,
+    new_card, new_page, navigate_away_from_card, register_crossref, get_crossrefs,
 } from "../pages.jsx";
 import { StorageUsageBar } from "../storage-controls.jsx";
 import {
@@ -395,6 +396,14 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
         props: { subvol, mount_point, mismount_warning, block, fstab_config, forced_options },
         actions,
     });
+
+    if (subvol.id !== 5 && subvol.parent_uuid !== null)
+        register_crossref({
+            key: subvol.parent_uuid,
+            card,
+            size: mounted && <StorageUsageBar stats={use} short />,
+        });
+
     const page = new_page(parent, card);
     for (const sv of subvols) {
         if (sv.parent && (sv.parent === subvol.id || sv.parent === subvol.fake_id)) {
@@ -404,6 +413,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
 }
 
 const BtrfsSubvolumeCard = ({ card, subvol, mismount_warning, block, fstab_config, forced_options }) => {
+    const crossrefs = get_crossrefs(subvol.uuid);
     return (
         <StorageCard card={card} alert={mismount_warning &&
         <MismountAlert warning={mismount_warning}
@@ -425,5 +435,17 @@ const BtrfsSubvolumeCard = ({ card, subvol, mismount_warning, block, fstab_confi
                                aria-label={_("btrfs subvolumes")}
                                page={card.page} />
             </CardBody>
+            {crossrefs &&
+            <Card data-test-card-title="Snapshots">
+                <CardHeader>
+                    <CardTitle component="h2">{_("Snapshots")}</CardTitle>
+                </CardHeader>
+                <CardBody className="contains-list">
+                    <PageTable emptyCaption={_("No snapshots found")}
+                                       aria-label={_("snapshot")}
+                                       crossrefs={crossrefs} />
+                </CardBody>
+            </Card>
+            }
         </StorageCard>);
 };

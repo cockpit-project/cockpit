@@ -396,7 +396,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
     });
     const page = new_page(parent, card);
     for (const sv of subvols) {
-        if (sv.parent && (sv.parent === subvol.id || sv.parent === subvol.fake_id)) {
+        if (sv.parent && (sv.parent === subvol.id || sv.parent === subvol.fake_id) && sv.parent_uuid === null) {
             make_btrfs_subvolume_page(page, volume, sv, subvol.pathname + "/", subvols);
         }
     }

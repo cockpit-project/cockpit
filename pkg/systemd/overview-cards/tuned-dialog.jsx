@@ -287,7 +287,7 @@ const TunedDialog = ({
                         variant='link'
                         isInline
                         icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
-                        href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/managing_systems_using_the_rhel_8_web_console/index#optimizing-the-system-performance-using-the-web-console_system-management-using-the-RHEL-8-web-console">
+                        href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/managing_systems_using_the_rhel_9_web_console/index#performance-tuning-options-in-the-web-console_optimizing-the-system-performance-using-the-web-console">
                     {_("Learn more")}
                 </Button>
             }

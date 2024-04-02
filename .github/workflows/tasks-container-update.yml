@@ -12,7 +12,7 @@ jobs:
       pull-requests: write
       statuses: write
     container:
-      image: quay.io/cockpit/tasks
+      image: ghcr.io/cockpit-project/tasks
       options: --user root
     steps:
       - name: Set up configuration and secrets

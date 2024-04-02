@@ -95,7 +95,7 @@ Pixel tests make a screenshot of a selector and compare it to a known good
 reference image. if there is a difference, the test fails and a pixel
 difference is shown.
 
-This works as our tests run in the [cockpit/tasks container](https://quay.io/repository/cockpit/tasks)
+This works as our tests run in the [cockpit/tasks container](https://ghcr.io/cockpit-project/tasks)
 which pins the browser and font rendering so repeated runs provide the same
 pixels. To generate new pixels, this tasks container must be used; your own
 browser and font rendering software might generate different results. For more

@@ -17,7 +17,7 @@ remote, for example with
 
 ## Setting up development container
 
-The cockpit team maintains a [cockpit/tasks container](https://quay.io/repository/cockpit/tasks)
+The cockpit team maintains a [cockpit/tasks container](https://ghcr.io/cockpit-project/tasks)
 for both local development and CI. If you can install [toolbx](https://containertoolbx.org/) or
 [distrobox](https://distrobox.privatedns.org/) on your system, it is highly
 recommended to do that:

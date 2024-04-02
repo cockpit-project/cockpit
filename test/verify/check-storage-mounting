@@ -314,7 +314,7 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_wait_open()
         self.dialog_set_val("mount_options.extra", "hurr")
         self.dialog_apply()
-        self.dialog_wait_alert("bad option")
+        self.dialog_wait_alert("Unknown parameter 'hurr'", "bad option")
         self.dialog_cancel()
         self.dialog_wait_close()
 
@@ -342,7 +342,7 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_wait_open()
         self.dialog_set_val("mount_options.extra", "hurr")
         self.dialog_apply()
-        self.dialog_wait_alert("bad option")
+        self.dialog_wait_alert("Unknown parameter 'hurr'", "bad option")
         self.dialog_cancel()
         self.dialog_wait_close()
 

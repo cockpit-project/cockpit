@@ -254,14 +254,12 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
     }
 
     return (
-        <>
-            <Button id={"networking-" + (!iface ? "add-" : "edit-") + type}
-                    isInline={!!iface}
-                    onClick={syn_click(model, show)}
-                    variant={!iface ? "secondary" : "link"}>
-                {buttonText || _("edit")}
-            </Button>
-        </>
+        <Button id={"networking-" + (!iface ? "add-" : "edit-") + type}
+                isInline={!!iface}
+                onClick={syn_click(model, show)}
+                variant={!iface ? "secondary" : "link"}>
+            {buttonText || _("edit")}
+        </Button>
     );
 };
 

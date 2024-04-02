@@ -9,9 +9,6 @@ on:
 jobs:
   source:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/cockpit-project/tasks:latest
-      options: --user root
     permissions:
       # create GitHub release
       contents: write
@@ -21,18 +18,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      # https://github.blog/2022-04-12-git-security-vulnerability-announced/
-      - name: Pacify git's permission check
-        run: git config --global --add safe.directory /__w/cockpit/cockpit
-
       - name: Workaround for https://github.com/actions/checkout/pull/697
         run: git fetch --force origin $(git describe --tags):refs/tags/$(git describe --tags)
 
-      - name: Bootstrap automake
-        run: ./autogen.sh
-
       - name: Build release
-        run: make dist -j$(nproc) VERSION='${{ github.ref_name }}'
+        run: tools/release '${{ github.server_url }}/${{ github.repository }}' '${{ github.ref_name }}'
 
       - id: publish
         name: Publish GitHub release

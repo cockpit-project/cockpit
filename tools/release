@@ -1,0 +1,95 @@
+#!/bin/sh
+
+set -eux
+
+# Produce a Cockpit release tarball.
+#
+# This is the script used to create the official releases.
+#
+# It takes two mandatory arguments:
+#
+#   - the URL to clone the repository from,
+#     eg. 'https://github.com/cockpit-project/cockpit'.
+#
+#   - the version to release, which is also the tag name, eg. '215'.
+#
+# The release tarball contains a number of files that are not directly in
+# version control:
+#   - the usual automake stuff
+#   - several submodules
+#   - pre-compiled HTML and JS code
+#
+# This script shallow-clones the specified version of Cockpit from the
+# specified URL, and downloads the version of the tasks container specified in
+# that version. It then does an offline build of the release tarball, which is
+# deterministic.
+#
+# You can use this script to verify the integrity of a particular Cockpit
+# release tarball, or even use it to create the tarball for yourself, as an
+# alternative to downloading it.
+#
+# The result of running `./autogen.sh && make dist VERSION=...` on any system
+# ought to be the same, so long as the same versions of the autotools are
+# present.  Everything else present in the tarball is definitively pinned down
+# in one way or another by the contents of the git repository.  This script is
+# a bit overkill, but it's written in hopes that someone reading it can
+# reasonably convince themselves about the origin of absolutely everything in a
+# Cockpit source release.
+#
+# If this script produces a tarball with a different checksum than the
+# officially-released one, then please report a bug.
+
+URL="$1"
+VERSION="$2"
+
+# We collect the sources into a temporary directory, then use tar to pipe them
+# into a container with no network or filesystem access, where the actual build
+# takes place. The container pipes the built source release back to us.
+
+SOURCE="$(mktemp -dt 'cockpit-build-XXXXXX')"
+trap 'rm -rf "${SOURCE}"' EXIT
+
+# Clone the release and selected submodules into the temporary directory.
+git clone \
+    --depth=1 \
+    --recurse-submodules=node_modules \
+    --recurse-submodules=vendor \
+    -b "${VERSION}" \
+    "${URL}" \
+    "${SOURCE}"
+
+# Show exactly what we're building.
+git -C "${SOURCE}" show --no-patch "${VERSION}"
+
+# Download the tasks container image used for this release.
+IMAGE="$(cat "${SOURCE}"/.cockpit-ci/container)"
+podman pull "${IMAGE}"
+
+# Build the checked out sources into the release tarball, offline.
+tar -C "${SOURCE}" -c . | \
+    podman \
+        run \
+            --rm \
+            --pull=never \
+            --network=none \
+            --log-driver=none \
+            --interactive \
+            --env=VERSION="${VERSION}" \
+            "${IMAGE}" \
+            sh -euxc '
+                (
+                    mkdir work
+                    cd work
+                    rpm -q autoconf automake
+                    automake --version
+                    autoconf --version
+                    tar x
+                    ./autogen.sh
+                    make dist VERSION="${VERSION}"
+                ) >&2
+                cat work/cockpit-"${VERSION}".tar.xz
+            ' \
+    > cockpit-"${VERSION}".tar.xz
+
+# Show the result.
+sha256sum cockpit-"${VERSION}".tar.xz

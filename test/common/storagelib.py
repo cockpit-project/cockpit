@@ -136,8 +136,11 @@ class StorageHelpers:
     def dialog_wait_open(self):
         self.browser.wait_visible('#dialog')
 
-    def dialog_wait_alert(self, text):
-        self.browser.wait_in_text('#dialog .pf-v5-c-alert__title', text)
+    def dialog_wait_alert(self, text1, text2=None):
+        def has_alert_title():
+            t = self.browser.text('#dialog .pf-v5-c-alert__title')
+            return text1 in t or (text2 is not None and text2 in t)
+        self.browser.wait(has_alert_title)
 
     def dialog_wait_title(self, text):
         self.browser.wait_in_text('#dialog .pf-v5-c-modal-box__title', text)

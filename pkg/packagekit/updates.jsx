@@ -307,14 +307,13 @@ function updateItem(remarkable, info, pkgNames, key) {
         if (secSeverityURL)
             secSeverityURL = <a rel="noopener noreferrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
         type = (
-            <>
-                <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
-                    <span>
-                        {icon}
-                        { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
-                    </span>
-                </Tooltip>
-            </>);
+            <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
+                <span>
+                    {icon}
+                    { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
+                </span>
+            </Tooltip>
+        );
     } else {
         const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
         type = (
@@ -1462,7 +1461,8 @@ class OsUpdates extends React.Component {
                         </Gallery>
                     </PageSection>
                     { this.state.showRestartServicesDialog &&
-                        <RestartServices tracerPackages={this.state.tracerPackages}
+                        <RestartServices
+                            tracerPackages={this.state.tracerPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
                             callTracer={(state) => this.callTracer(state)}
@@ -1587,24 +1587,22 @@ class OsUpdates extends React.Component {
             });
 
             return (
-                <>
-                    <PageSection>
-                        <Gallery className='ct-cards-grid' hasGutter>
-                            <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
-                        </Gallery>
-                        { this.state.showRestartServicesDialog &&
-                            <RestartServices tracerPackages={this.state.tracerPackages}
+                <PageSection>
+                    <Gallery className='ct-cards-grid' hasGutter>
+                        <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
+                    </Gallery>
+                    { this.state.showRestartServicesDialog &&
+                    <RestartServices tracerPackages={this.state.tracerPackages}
                                 close={() => this.setState({ showRestartServicesDialog: false })}
                                 state={this.state.state}
                                 callTracer={(state) => this.callTracer(state)}
                                 onValueChanged={delta => this.setState(delta)}
                                 loadUpdates={this.loadUpdates} />
-                        }
-                        { this.state.showRebootSystemDialog &&
-                            <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />
-                        }
-                    </PageSection>
-                </>
+                    }
+                    { this.state.showRebootSystemDialog &&
+                    <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />
+                    }
+                </PageSection>
             );
         }
 

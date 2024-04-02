@@ -294,7 +294,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                        }}
                                                        validated={submitted && validationFailedSecond ? "error" : "default"} />
                                         }
-                                        {repeat == "hourly" && <>
+                                        {repeat == "hourly" &&
                                             <TextInput className='delay-number'
                                                        value={repeatPatterns[idx].minute}
                                                        onChange={(_event, minute) => {
@@ -303,7 +303,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                            setRepeatPatterns(arr);
                                                        }}
                                                        validated={submitted && validationFailedMinute ? "error" : "default"} />
-                                        </>}
+                                        }
                                         {repeat == "daily" && timePicker(idx)}
                                         {repeat == "weekly" && <>
                                             <FormSelect value={repeatPatterns[idx].day}

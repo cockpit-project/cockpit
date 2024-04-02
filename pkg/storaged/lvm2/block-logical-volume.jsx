@@ -395,15 +395,13 @@ export const StructureDescription = ({ client, lvol }) => {
             </FlexItem>);
 
         return (
-            <>
-                <StorageDescription title={_("Stripes")}>
-                    <Flex alignItems={{ default: "alignItemsStretch" }}>{stripes}</Flex>
-                    {status}
-                    {lvol.SyncRatio != 1.0
-                        ? <div>{cockpit.format(_("$0 synchronized"), lvol.SyncRatio * 100 + "%")}</div>
-                        : null}
-                </StorageDescription>
-            </>);
+            <StorageDescription title={_("Stripes")}>
+                <Flex alignItems={{ default: "alignItemsStretch" }}>{stripes}</Flex>
+                {status}
+                {lvol.SyncRatio != 1.0
+                    ? <div>{cockpit.format(_("$0 synchronized"), lvol.SyncRatio * 100 + "%")}</div>
+                    : null}
+            </StorageDescription>);
     }
 
     return null;

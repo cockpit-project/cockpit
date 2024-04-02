@@ -811,7 +811,7 @@ const ServicesPageFilters = ({
         filtersRef.current = onClearAllFilters;
     }, [filtersRef, onClearAllFilters]);
 
-    const toolbarItems = <>
+    const toolbarItems =
         <ToolbarToggleGroup toggleIcon={<><span className="pf-v5-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
                             variant="filter-group" alignment={{ default: 'alignLeft' }}>
             <ToolbarItem variant="search-filter">
@@ -854,8 +854,7 @@ const ServicesPageFilters = ({
                                                                           value={option.label} />)}
                 </Select>
             </ToolbarFilter>
-        </ToolbarToggleGroup>
-    </>;
+        </ToolbarToggleGroup>;
 
     return (
         <Toolbar data-loading={loadingUnits}

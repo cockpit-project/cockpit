@@ -287,7 +287,7 @@ export class AbrtLogDetails extends React.Component {
                 </GalleryItem>
                 <GalleryItem id="abrt-details">
                     <Card>
-                        <CardHeader actions={{ actions: <><Button variant="danger" onClick={this.onDelete}>{_("Delete")}</Button></> }}>
+                        <CardHeader actions={{ actions: <Button variant="danger" onClick={this.onDelete}>{_("Delete")}</Button> }}>
 
                             <CardTitle component="h2">{_("Extended information")}</CardTitle>
                         </CardHeader>

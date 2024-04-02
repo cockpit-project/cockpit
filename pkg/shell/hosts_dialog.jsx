@@ -87,11 +87,11 @@ class NotSupported extends React.Component {
                    position="top" variant="medium"
                    onClose={this.props.onClose}
                    title={_("Cockpit is not installed")}
-                   footer={<>
+                   footer={
                        <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
                            { _("Close") }
                        </Button>
-                   </>}
+                   }
             >
                 <Stack hasGutter>
                     { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}

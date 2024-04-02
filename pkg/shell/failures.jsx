@@ -37,17 +37,15 @@ export const EarlyFailure = ({ ca_cert_url }) => {
                 <EmptyStatePanel icon={ExclamationCircleIcon}
                                  title={ _("Connection failed") }
                                  paragraph={
-                                     <>
-                                         <Stack hasGutter>
-                                             <div>{_("There was an unexpected error while connecting to the machine.")}</div>
-                                             <div>{_("Messages related to the failure might be found in the journal:")}</div>
-                                             <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")}>journalctl -u cockpit</ClipboardCopy>
-                                             {ca_cert_url && <div id="safari-cert-help">
-                                                 <div>{_("Safari users need to import and trust the certificate of the self-signing CA:")}</div>
-                                                 <Button variant="link" component="a" id="safari-cert" href={ca_cert_url} download>ca.cer</Button>
-                                             </div>}
-                                         </Stack>
-                                     </>
+                                     <Stack hasGutter>
+                                         <div>{_("There was an unexpected error while connecting to the machine.")}</div>
+                                         <div>{_("Messages related to the failure might be found in the journal:")}</div>
+                                         <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")}>journalctl -u cockpit</ClipboardCopy>
+                                         {ca_cert_url && <div id="safari-cert-help">
+                                             <div>{_("Safari users need to import and trust the certificate of the self-signing CA:")}</div>
+                                             <Button variant="link" component="a" id="safari-cert" href={ca_cert_url} download>ca.cer</Button>
+                                         </div>}
+                                     </Stack>
                                  } />
             </PageSection>
         </Page>

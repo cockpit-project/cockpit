@@ -69,7 +69,7 @@ const _ = cockpit.gettext;
    other pages. For example, each row in the table in the overview
    page represents another page, and clicking on it will navigate to
    that page. (In fact, the overview table shows the whole tree. Other
-   apges show subsets of the tree in their tables.)
+   pages show subsets of the tree in their tables.)
 
    Most of the complications with pages and cards are there to support
    putting pages into tables. Without having to do that, we wouldn't

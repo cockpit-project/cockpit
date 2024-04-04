@@ -1510,10 +1510,23 @@ class MachineCase(unittest.TestCase):
         if self.is_devel_build():
             self.disable_preload("packagekit", "systemd")
 
-        if self.machine.image.startswith('debian') or self.machine.image.startswith('ubuntu') or self.machine.image == 'arch':
+        image = self.machine.image
+
+        if image.startswith(('debian', 'ubuntu')) or image == 'arch':
             self.libexecdir = '/usr/lib/cockpit'
         else:
             self.libexecdir = '/usr/libexec'
+
+        if image.startswith(('debian', 'ubuntu')):
+            self.sshd_service = 'ssh.service'
+            self.sshd_socket = 'ssh.socket'
+        else:
+            self.sshd_service = 'sshd.service'
+            if image == 'arch':
+                self.sshd_socket = None
+            else:
+                self.sshd_socket = 'sshd.socket'
+        self.restart_sshd = f'systemctl try-restart {self.sshd_service}'
 
     def nonDestructiveSetup(self):
         """generic setUp/tearDown for @nondestructive tests"""

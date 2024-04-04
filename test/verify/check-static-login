@@ -259,9 +259,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # On OSTree this happens over ssh
         if m.ostree_image:
-            self.restore_dir("/etc/ssh", restart_unit="sshd")
+            self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
-            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+            m.execute(self.restart_sshd)
 
         # test steps below assume a pam_pwquality config with retry > 1; on some images authselect drops that setting
         if not m.image.startswith('debian') and not m.image.startswith('ubuntu') and not m.image.startswith("arch"):
@@ -358,9 +358,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         conf = "/etc/pam.d/cockpit"
         if m.ostree_image:
             conf = "/etc/pam.d/sshd"
-            self.restore_dir("/etc/ssh", restart_unit="sshd")
+            self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
-            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+            m.execute(self.restart_sshd)
 
         # On Arch Linux the ordering matters due to an auth include for system-remote-login
         if self.machine.image == "arch":

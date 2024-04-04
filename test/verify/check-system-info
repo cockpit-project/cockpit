@@ -132,8 +132,7 @@ class TestSystemInfo(testlib.MachineCase):
 
         # Change ssh config and restart
         self.sed_file(r"s,.*HostKey *,#,; $ a HostKey /etc/ssh/weirdname", "/etc/ssh/sshd_config",
-                      # Restart sshd but stop socket so we can make sure we are restarted
-                      "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+                      self.restart_sshd)
         ssh_reconnect(m)
 
         b.click("#system-ssh-keys-link")

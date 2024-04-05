@@ -35,6 +35,7 @@ import { is_mounted } from "../filesystem/utils.jsx";
 import { StorageLink } from "../storage-controls.jsx";
 import { CryptoKeyslots } from "./keyslots.jsx";
 import { lock, unlock } from "./actions.jsx";
+import { encrypted_block_actions } from "../block/actions.jsx";
 
 const _ = cockpit.gettext;
 
@@ -48,17 +49,18 @@ export function make_encryption_card(next, block, is_filesystem) {
         component: EncryptionCard,
         props: { block },
         actions: [
-            (content_block && !is_filesystem) &&
+            content_block &&
                 {
                     title: _("Lock"),
                     action: () => lock(block),
                 },
-            (!content_block && !is_filesystem) &&
+            !content_block &&
                 {
                     title: _("Unlock"),
                     primary: !is_filesystem,
                     action: () => unlock(block),
                 },
+            ...(content_block ? encrypted_block_actions(content_block) : []),
         ]
     });
 }

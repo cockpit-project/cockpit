@@ -108,6 +108,10 @@ export function add_encryption_dialog(client, block) {
     return format_dialog_internal(client, block.path, { add_encryption: true });
 }
 
+export function encrypted_format_dialog(client, block) {
+    return format_dialog_internal(client, block.path, { is_encrypted: true });
+}
+
 function find_root_fsys_block() {
     const root = client.anaconda?.mount_point_prefix || "/";
     for (const p in client.blocks) {
@@ -121,6 +125,7 @@ function find_root_fsys_block() {
 
 function format_dialog_internal(client, path, options) {
     const { start, size, enable_dos_extended, old_luks_version, add_encryption } = options;
+    const is_already_encrypted = options.is_encrypted;
     const block = client.blocks[path];
     const block_part = client.blocks_part[path];
     const block_ptable = client.blocks_ptable[path] || client.blocks_ptable[block_part?.Table];
@@ -355,7 +360,7 @@ function format_dialog_internal(client, path, options) {
                       {
                           choices: crypto_types,
                           value: default_crypto_type,
-                          visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi",
+                          visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi" && !is_already_encrypted,
                           nested_fields: [
                               PassInput("passphrase", _("Passphrase"),
                                         {

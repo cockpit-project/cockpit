@@ -21,25 +21,25 @@ import cockpit from "cockpit";
 import client from "../client";
 
 import { format_disk } from "./format-disk-dialog.jsx";
-import { format_dialog, add_encryption_dialog } from "./format-dialog.jsx";
+import { format_dialog, add_encryption_dialog, encrypted_format_dialog } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-export function block_actions(block, partitionable) {
+export function block_actions(block, kind) {
     if (!block || block.Size === 0)
         return [];
 
     const excuse = block.ReadOnly ? _("Device is read-only") : null;
     const actions = [];
 
-    if (client.blocks_available[block.path])
+    if (client.blocks_available[block.path] && kind != "crypto")
         actions.push({
             title: _("Add encryption"),
             action: () => add_encryption_dialog(client, block),
             excuse,
         });
 
-    if (partitionable)
+    if (kind == "part")
         actions.push({
             title: _("Create partition table"),
             action: () => format_disk(block),
@@ -47,16 +47,28 @@ export function block_actions(block, partitionable) {
             excuse,
         });
 
-    actions.push({
-        title: _("Format"),
-        action: () => format_dialog(client, block.path),
-        danger: true,
-        excuse,
-    });
+    if (kind == "crypto")
+        actions.push({
+            title: _("Format cleartext device"),
+            action: () => encrypted_format_dialog(client, block),
+            danger: true,
+            excuse,
+        });
+    else
+        actions.push({
+            title: _("Format"),
+            action: () => format_dialog(client, block.path),
+            danger: true,
+            excuse,
+        });
 
     return actions;
 }
 
 export function partitionable_block_actions(block) {
-    return block_actions(block, true);
+    return block_actions(block, "part");
+}
+
+export function encrypted_block_actions(block) {
+    return block_actions(block, "crypto");
 }

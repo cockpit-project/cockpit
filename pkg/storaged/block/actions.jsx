@@ -22,6 +22,7 @@ import client from "../client";
 
 import { format_disk } from "./format-disk-dialog.jsx";
 import { format_dialog } from "./format-dialog.jsx";
+import { format_swap_dialog } from "../swap/format-dialog.jsx";
 import { erase_dialog } from "./erase-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -34,14 +35,6 @@ export function block_actions(block, kind) {
     const actions = [];
 
     if (client.blocks_available[block.path]) {
-        if (kind != "crypto") {
-            actions.push({
-                title: _("Add encryption"),
-                action: () => format_dialog(block, { add_encryption: true }),
-                excuse,
-            });
-        }
-
         if (kind == "part") {
             actions.push({
                 title: _("Create partitions"),
@@ -62,7 +55,16 @@ export function block_actions(block, kind) {
             actions.push({
                 title: _("Format as filesystem"),
                 action: () => format_dialog(block),
-                primary: true,
+                excuse,
+            });
+            actions.push({
+                title: _("Format as swap"),
+                action: () => format_swap_dialog(block),
+                excuse,
+            });
+            actions.push({
+                title: _("Add encryption"),
+                action: () => format_dialog(block, { add_encryption: true }),
                 excuse,
             });
         }

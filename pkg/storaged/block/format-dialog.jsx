@@ -94,7 +94,7 @@ function find_root_fsys_block() {
 
 export function format_dialog(block, options) {
     const { free_spaces, enable_dos_extended, add_encryption } = options || { };
-    const is_already_encrypted = options.is_encrypted;
+    const is_already_encrypted = options?.is_encrypted;
     const block_part = client.blocks_part[block.path];
     const block_ptable = client.blocks_ptable[block.path] || client.blocks_ptable[block_part?.Table];
     const content_block = block.IdUsage == "crypto" ? client.blocks_cleartext[block.path] : block;
@@ -110,7 +110,7 @@ export function format_dialog(block, options) {
         title = cockpit.format(_("Format $0 as filesystem"), block_name(block));
 
     function is_filesystem(vals) {
-        return !add_encryption && vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "swap";
+        return !add_encryption && vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot";
     }
 
     function add_fsys(storaged_name, entry) {
@@ -129,7 +129,6 @@ export function format_dialog(block, options) {
         add_fsys("btrfs", { value: "btrfs", title: "BTRFS" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
-    add_fsys("swap", { value: "swap", title: "Swap" });
     if (client.in_anaconda_mode()) {
         if (block_ptable && block_ptable.Type == "gpt" && !client.anaconda.efi)
             add_fsys(true, { value: "biosboot", title: "BIOS boot partition" });
@@ -357,8 +356,6 @@ export function format_dialog(block, options) {
             if (trigger == "type") {
                 if (dlg.get_value("type") == "empty") {
                     dlg.update_actions({ Variants: action_variants_for_empty });
-                } else if (dlg.get_value("type") == "swap") {
-                    dlg.update_actions({ Variants: action_variants_for_swap });
                 } else {
                     dlg.update_actions({ Variants: action_variants });
                 }
@@ -383,12 +380,6 @@ export function format_dialog(block, options) {
                 if (type == "biosboot") {
                     type = "empty";
                     partition_type = "21686148-6449-6e6f-744e-656564454649";
-                }
-
-                if (type == "swap") {
-                    partition_type = (block_ptable && block_ptable.Type == "dos"
-                        ? "0x82"
-                        : "0657fd6d-a4ab-43c4-84e5-0933c84b4f4f");
                 }
 
                 const options = {
@@ -471,17 +462,6 @@ export function format_dialog(block, options) {
                     }
                 }
 
-                if (type == "swap") {
-                    config_items.push(["fstab", {
-                        dir: { t: 'ay', v: encode_filename("none") },
-                        type: { t: 'ay', v: encode_filename("swap") },
-                        opts: { t: 'ay', v: encode_filename(mount_now ? "defaults" : "noauto") },
-                        freq: { t: 'i', v: 0 },
-                        passno: { t: 'i', v: 0 },
-                        "track-parents": { t: 'b', v: true }
-                    }]);
-                }
-
                 if (config_items.length > 0)
                     options["config-items"] = { t: 'a(sa{sv})', v: config_items };
 
@@ -544,10 +524,6 @@ export function format_dialog(block, options) {
                     if (is_filesystem(vals) && mount_now) {
                         const block_fsys = await client.wait_for(() => block_fsys_for_block(path));
                         await client.mount_at(client.blocks[block_fsys.path], mount_point);
-                    }
-                    if (type == "swap" && mount_now) {
-                        const block_swap = await client.wait_for(() => block_swap_for_block(path));
-                        await block_swap.Start({});
                     }
                     if (is_encrypted(vals) && vals.type != "empty" && !mount_now && !client.in_anaconda_mode()) {
                         const block_crypto = await client.wait_for(() => block_crypto_for_block(path));

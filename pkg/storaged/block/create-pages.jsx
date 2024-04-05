@@ -77,23 +77,25 @@ export function make_block_page(parent, block, card) {
         content_block = block;
     }
 
-    if (is_crypto)
-        card = make_encryption_card(card, block);
-
     if (!content_block) {
         if (!is_crypto) {
             // can not happen unless there is a bug in the code above.
             console.error("Assertion failure: is_crypto == false");
         }
         if (fstab_config.length > 0 && !is_btrfs) {
+            card = make_encryption_card(card, block, true);
             card = make_filesystem_card(card, block, null, fstab_config);
         } else {
+            card = make_encryption_card(card, block, false);
             card = make_locked_encrypted_data_card(card, block);
         }
     } else {
         const is_filesystem = content_block.IdUsage == 'filesystem';
         const block_pvol = client.blocks_pvol[content_block.path];
         const block_swap = client.blocks_swap[content_block.path];
+
+        if (is_crypto)
+            card = make_encryption_card(card, block, is_filesystem);
 
         if (block_btrfs_blockdev) {
             if (single_device_volume)

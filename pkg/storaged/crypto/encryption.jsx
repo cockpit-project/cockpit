@@ -34,16 +34,32 @@ import luksmeta_monitor_hack_py from "./luksmeta-monitor-hack.py";
 import { is_mounted } from "../filesystem/utils.jsx";
 import { StorageLink } from "../storage-controls.jsx";
 import { CryptoKeyslots } from "./keyslots.jsx";
+import { lock, unlock } from "./actions.jsx";
 
 const _ = cockpit.gettext;
 
-export function make_encryption_card(next, block) {
+export function make_encryption_card(next, block, is_filesystem) {
+    const content_block = client.blocks_cleartext[block.path];
+
     return new_card({
         title: _("Encryption"),
         next,
         type_extra: _("encrypted"),
         component: EncryptionCard,
         props: { block },
+        actions: [
+            (content_block && !is_filesystem) &&
+                {
+                    title: _("Lock"),
+                    action: () => lock(block),
+                },
+            !content_block &&
+                {
+                    title: _("Unlock"),
+                    primary: !is_filesystem,
+                    action: () => unlock(block),
+                },
+        ]
     });
 }
 

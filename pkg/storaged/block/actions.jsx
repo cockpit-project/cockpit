@@ -22,6 +22,7 @@ import client from "../client";
 
 import { format_disk } from "./format-disk-dialog.jsx";
 import { format_dialog, add_encryption_dialog, encrypted_format_dialog } from "./format-dialog.jsx";
+import { erase_dialog } from "./erase-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -32,35 +33,47 @@ export function block_actions(block, kind) {
     const excuse = block.ReadOnly ? _("Device is read-only") : null;
     const actions = [];
 
-    if (client.blocks_available[block.path] && kind != "crypto")
-        actions.push({
-            title: _("Add encryption"),
-            action: () => add_encryption_dialog(client, block),
-            excuse,
-        });
+    if (client.blocks_available[block.path]) {
+        if (kind != "crypto") {
+            actions.push({
+                title: _("Add encryption"),
+                action: () => add_encryption_dialog(client, block),
+                excuse,
+            });
+        }
 
-    if (kind == "part")
-        actions.push({
-            title: _("Create partition table"),
-            action: () => format_disk(block),
-            danger: true,
-            excuse,
-        });
+        if (kind == "part") {
+            actions.push({
+                title: _("Create partitions"),
+                action: () => format_disk(block),
+                primary: true,
+                excuse,
+            });
+        }
 
-    if (kind == "crypto")
+        if (kind == "crypto") {
+            actions.push({
+                title: _("Format cleartext device"),
+                action: () => encrypted_format_dialog(client, block),
+                primary: true,
+                excuse,
+            });
+        } else {
+            actions.push({
+                title: _("Format as filesystem"),
+                action: () => format_dialog(client, block.path),
+                primary: true,
+                excuse,
+            });
+        }
+    } else {
         actions.push({
-            title: _("Format cleartext device"),
-            action: () => encrypted_format_dialog(client, block),
+            title: kind == "crypto" ? _("Erase cleartext device") : _("Erase"),
+            action: () => erase_dialog(block),
             danger: true,
             excuse,
         });
-    else
-        actions.push({
-            title: _("Format"),
-            action: () => format_dialog(client, block.path),
-            danger: true,
-            excuse,
-        });
+    }
 
     return actions;
 }

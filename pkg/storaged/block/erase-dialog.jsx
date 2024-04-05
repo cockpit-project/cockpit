@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -18,62 +18,63 @@
  */
 
 import cockpit from "cockpit";
-import client from "../client";
+import client from "../client.js";
+
+import {
+    block_name, get_active_usage, teardown_active_usage,
+} from "../utils.js";
 
 import {
     dialog_open,
-    SelectOne,
+    CheckBoxes,
     BlockingMessage, TeardownMessage,
-    init_teardown_usage
+    init_active_usage_processes
 } from "../dialog.jsx";
-import { get_active_usage, block_name, teardown_active_usage, reload_systemd } from "../utils.js";
+
 import { job_progress_wrapper } from "../jobs-panel.jsx";
 
 const _ = cockpit.gettext;
 
-export function format_disk(block) {
-    const usage = get_active_usage(client, block.path, _("initialize"), _("delete"));
+export function erase_dialog(block) {
+    const usage = get_active_usage(client, block.path, _("erase"), _("delete"));
 
     if (usage.Blocking) {
         dialog_open({
             Title: cockpit.format(_("$0 is in use"), block_name(block)),
-            Body: BlockingMessage(usage),
+            Body: BlockingMessage(usage)
         });
         return;
     }
 
     dialog_open({
-        Title: cockpit.format(_("Create partitions on $0"), block_name(block)),
+        Title: cockpit.format(_("Erase $0"), block_name(block)),
         Teardown: TeardownMessage(usage),
         Fields: [
-            SelectOne("type", _("Type"),
-                      {
-                          value: "gpt",
-                          choices: [
-                              { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                              {
-                                  value: "gpt",
-                                  title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                              },
-                          ]
-                      }),
+            CheckBoxes("erase", _("Overwrite"),
+                       {
+                           fields: [
+                               { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
+                           ],
+                       }),
         ],
         Action: {
-            Title: _("Create partition table"),
+            Title: _("Erase"),
+            Danger: _("This will erase all data on the storage device."),
             wrapper: job_progress_wrapper(client, block.path),
             disable_on_error: usage.Teardown,
             action: async function (vals) {
                 const options = {
                     'tear-down': { t: 'b', v: true }
                 };
+                if (vals.erase.on)
+                    options.erase = { t: 's', v: "zero" };
 
                 await teardown_active_usage(client, usage);
-                await block.Format(vals.type, options);
-                await reload_systemd();
+                await block.Format("empty", options);
             }
         },
         Inits: [
-            init_teardown_usage(client, usage)
+            init_active_usage_processes(client, usage),
         ]
     });
 }

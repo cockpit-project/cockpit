@@ -119,7 +119,7 @@ function format_dialog_internal(client, block, options) {
     else if (create_partition)
         title = cockpit.format(_("Create partition on $0"), block_name(block));
     else
-        title = cockpit.format(_("Format $0"), block_name(block));
+        title = cockpit.format(_("Format $0 as filesystem"), block_name(block));
 
     function is_filesystem(vals) {
         return !add_encryption && vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "swap";
@@ -133,6 +133,8 @@ function format_dialog_internal(client, block, options) {
     }
 
     const filesystem_options = [];
+    if (create_partition)
+        add_fsys(true, { value: "empty", title: _("Empty") });
     add_fsys("xfs", { value: "xfs", title: "XFS" });
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     if (client.features.btrfs)
@@ -146,7 +148,6 @@ function format_dialog_internal(client, block, options) {
         if (block_ptable && client.anaconda.efi)
             add_fsys(true, { value: "efi", title: "EFI system partition" });
     }
-    add_fsys(true, { value: "empty", title: _("No filesystem") });
     if (create_partition && enable_dos_extended)
         add_fsys(true, { value: "dos-extended", title: _("Extended partition") });
 
@@ -155,7 +156,9 @@ function format_dialog_internal(client, block, options) {
     }
 
     let default_type = null;
-    if (content_block?.IdUsage == "filesystem" && is_supported(content_block.IdType))
+    if (create_partition)
+        default_type = "empty";
+    else if (content_block?.IdUsage == "filesystem" && is_supported(content_block.IdType))
         default_type = content_block.IdType;
     else {
         const root_block = find_root_fsys_block();
@@ -283,6 +286,21 @@ function format_dialog_internal(client, block, options) {
         Title: title,
         Teardown: TeardownMessage(usage),
         Fields: [
+            SizeSlider("size", _("Size"),
+                       {
+                           value: size,
+                           max: size,
+                           round: 1024 * 1024,
+                           visible: function () {
+                               return create_partition;
+                           }
+                       }),
+            SelectOne("type", _("Type"),
+                      {
+                          value: default_type,
+                          choices: filesystem_options,
+                          visible: () => !add_encryption,
+                      }),
             TextInput("name", _("Name"),
                       {
                           value: content_block?.IdLabel,
@@ -300,32 +318,11 @@ function format_dialog_internal(client, block, options) {
                                                           variant == "nomount");
                           }
                       }),
-            SelectOne("type", _("Type"),
-                      {
-                          value: default_type,
-                          choices: filesystem_options,
-                          visible: () => !add_encryption,
-                      }),
-            SizeSlider("size", _("Size"),
-                       {
-                           value: size,
-                           max: size,
-                           round: 1024 * 1024,
-                           visible: function () {
-                               return create_partition;
-                           }
-                       }),
-            CheckBoxes("erase", _("Overwrite"),
-                       {
-                           fields: [
-                               { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
-                           ],
-                       }),
             SelectOne("crypto", _("Encryption"),
                       {
                           choices: crypto_types,
                           value: default_crypto_type,
-                          visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi" && !is_already_encrypted,
+                          visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi" && vals.type != "empty" && !is_already_encrypted,
                           nested_fields: [
                               PassInput("passphrase", _("Passphrase"),
                                         {
@@ -380,8 +377,7 @@ function format_dialog_internal(client, block, options) {
             }
         },
         Action: {
-            Variants: action_variants,
-            Danger: (create_partition || add_encryption) ? null : _("Formatting erases all data on a storage device."),
+            Variants: default_type == "empty" ? action_variants_for_empty : action_variants,
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             disable_on_error: usage.Teardown,
             action: function (vals) {
@@ -408,8 +404,6 @@ function format_dialog_internal(client, block, options) {
                 const options = {
                     'tear-down': { t: 'b', v: true }
                 };
-                if (vals.erase.on)
-                    options.erase = { t: 's', v: "zero" };
                 if (vals.name)
                     options.label = { t: 's', v: vals.name };
 

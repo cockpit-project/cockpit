@@ -20,7 +20,6 @@
 import cockpit from "cockpit";
 
 import { StorageCard, new_card } from "../pages.jsx";
-import { std_format_action } from "../block/actions.jsx";
 import { unlock } from "./actions.jsx";
 
 const _ = cockpit.gettext;
@@ -34,7 +33,6 @@ export function make_locked_encrypted_data_card(next, block) {
         props: { block },
         actions: [
             { title: _("Unlock"), action: () => unlock(block) },
-            std_format_action(block, null),
         ]
     });
 }

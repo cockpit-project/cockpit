@@ -34,7 +34,6 @@ import {
 import { StorageLink, StorageUsageBar, StorageSize } from "../storage-controls.jsx";
 import { StorageCard, StorageDescription, new_card, useIsNarrow } from "../pages.jsx";
 
-import { std_format_action } from "../block/actions.jsx";
 import { is_mounted, MountPoint, mount_point_text, edit_mount_point } from "./utils.jsx";
 import { mounting_dialog } from "./mounting-dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "./mismounting.jsx";
@@ -108,7 +107,6 @@ export function make_filesystem_card(next, backing_block, content_block, fstab_c
                     primary: true,
                     action: () => mounting_dialog(client, content_block || backing_block, "mount"),
                 },
-            std_format_action(backing_block, content_block),
         ]
     });
 }

@@ -46,7 +46,7 @@ import {
     init_teardown_usage
 } from "../dialog.jsx";
 
-import { partitionable_block_actions } from "../partitions/actions.jsx";
+import { partitionable_block_actions } from "../block/actions.jsx";
 
 const _ = cockpit.gettext;
 
@@ -228,7 +228,7 @@ export function make_mdraid_page(parent, mdraid) {
                  excuse: add_excuse,
                  tag: "disks",
              }),
-            ...(block ? partitionable_block_actions(block, "device") : []),
+            ...partitionable_block_actions(block),
             {
                 title: _("Delete"),
                 action: () => mdraid_delete(mdraid, block, mdraid_card),

@@ -48,7 +48,7 @@ class PackagesChannel(AsyncChannel):
                 raise ValueError(f'Unsupported HTTP method {options["method"]}')
 
             self.ready()
-            if await self.read() != b'':
+            if await self.read() is not None:
                 raise ValueError('Received unexpected data')
 
             path = get_str(options, 'path')

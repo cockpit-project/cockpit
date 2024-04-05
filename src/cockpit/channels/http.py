@@ -22,7 +22,7 @@ import socket
 import ssl
 
 from ..channel import AsyncChannel, ChannelError
-from ..jsonutil import JsonObject, get_dict, get_int, get_object, get_str, typechecked
+from ..jsonutil import JsonObject, get_dict, get_enum, get_int, get_object, get_str, typechecked
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +31,11 @@ class HttpChannel(AsyncChannel):
     payload = 'http-stream2'
 
     @staticmethod
-    def get_headers(response: http.client.HTTPResponse, binary: 'str | None') -> JsonObject:
+    def get_headers(response: http.client.HTTPResponse, *, binary: bool) -> JsonObject:
         # Never send these headers
         remove = {'Connection', 'Transfer-Encoding'}
 
-        if binary != 'raw':
+        if not binary:
             # Only send these headers for raw binary streams
             remove.update({'Content-Length', 'Range'})
 
@@ -98,7 +98,7 @@ class HttpChannel(AsyncChannel):
     async def run(self, options: JsonObject) -> None:
         logger.debug('open %s', options)
 
-        binary = get_str(options, 'binary', None)
+        binary = get_enum(options, 'binary', ['raw'], None) is not None
         method = get_str(options, 'method')
         path = get_str(options, 'path')
         headers = get_object(options, 'headers', lambda d: {k: typechecked(v, str) for k, v in d.items()}, None)
@@ -135,7 +135,7 @@ class HttpChannel(AsyncChannel):
         self.send_control(command='response',
                           status=response.status,
                           reason=response.reason,
-                          headers=self.get_headers(response, binary))
+                          headers=self.get_headers(response, binary=binary))
 
         # Receive the body and finish up
         try:

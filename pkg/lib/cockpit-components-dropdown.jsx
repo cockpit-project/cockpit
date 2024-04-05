@@ -29,12 +29,17 @@ import { EllipsisVIcon } from '@patternfly/react-icons';
  * A dropdown with a Kebab button, commonly used in Cockpit pages provided as
  * component so not all pages have to re-invent the wheel.
  *
+ * isOpen/setIsOpen are optional -- you need to handle the state externally if you render the KebabDropdown in an
+ * "unstable" environment such as a dynamic list. When not given, the dropdown will manage its own state.
+ *
  * This component expects a list of (non-deprecated!) DropdownItem's, if you
  * require a separator between DropdownItem's use PatternFly's Divivder
  * component.
  */
-export const KebabDropdown = ({ dropdownItems, position, isDisabled, toggleButtonId, props }) => {
-    const [isKebabOpen, setKebabOpen] = useState(false);
+export const KebabDropdown = ({ dropdownItems, position, isDisabled, toggleButtonId, isOpen, setIsOpen, props }) => {
+    const [isKebabOpenInternal, setKebabOpenInternal] = useState(false);
+    const isKebabOpen = isOpen ?? isKebabOpenInternal;
+    const setKebabOpen = setIsOpen ?? setKebabOpenInternal;
 
     return (
         <Dropdown
@@ -68,6 +73,8 @@ KebabDropdown.propTypes = {
     isDisabled: PropTypes.bool,
     toggleButtonId: PropTypes.string,
     position: PropTypes.oneOf(['right', 'left', 'center', 'start', 'end']),
+    isOpen: PropTypes.bool,
+    setIsOpen: PropTypes.func,
 };
 
 KebabDropdown.defaultProps = {

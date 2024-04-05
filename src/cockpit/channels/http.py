@@ -114,7 +114,7 @@ class HttpChannel(AsyncChannel):
         body = b''
         while True:
             data = await self.read()
-            if data == b'':
+            if data is None:
                 break
             body += data
 

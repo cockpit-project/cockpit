@@ -98,9 +98,16 @@ export function make_filesystem_card(next, backing_block, content_block, fstab_c
         actions: [
             client.in_anaconda_mode() &&
                 { title: _("Edit mount point"), action: () => edit_mount_point(content_block || backing_block) },
-            content_block && mounted
-                ? { title: _("Unmount"), action: () => mounting_dialog(client, content_block, "unmount") }
-                : { title: _("Mount"), action: () => mounting_dialog(client, content_block || backing_block, "mount") },
+            (content_block && mounted)
+                ? {
+                    title: _("Unmount"),
+                    action: () => mounting_dialog(client, content_block, "unmount"),
+                }
+                : {
+                    title: _("Mount"),
+                    primary: true,
+                    action: () => mounting_dialog(client, content_block || backing_block, "mount"),
+                },
             std_format_action(backing_block, content_block),
         ]
     });

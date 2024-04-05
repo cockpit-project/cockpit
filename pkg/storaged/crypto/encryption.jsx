@@ -53,7 +53,7 @@ export function make_encryption_card(next, block, is_filesystem) {
                     title: _("Lock"),
                     action: () => lock(block),
                 },
-            !content_block &&
+            (!content_block && !is_filesystem) &&
                 {
                     title: _("Unlock"),
                     primary: !is_filesystem,

@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import client from "../client";
 
 import { format_disk } from "./format-disk-dialog.jsx";
-import { format_dialog } from "./format-dialog.jsx";
+import { format_dialog, add_encryption_dialog } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -31,6 +31,13 @@ export function block_actions(block, partitionable) {
 
     const excuse = block.ReadOnly ? _("Device is read-only") : null;
     const actions = [];
+
+    if (client.blocks_available[block.path])
+        actions.push({
+            title: _("Add encryption"),
+            action: () => add_encryption_dialog(client, block),
+            excuse,
+        });
 
     if (partitionable)
         actions.push({

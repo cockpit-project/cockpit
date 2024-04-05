@@ -81,18 +81,6 @@ export function initial_mount_options(client, block) {
     return initial_tab_options(client, block, true);
 }
 
-export function format_dialog(client, path, start, size, enable_dos_extended) {
-    return format_dialog_internal(client, client.blocks[path], { start, size, enable_dos_extended });
-}
-
-export function add_encryption_dialog(client, block) {
-    return format_dialog_internal(client, block, { add_encryption: true });
-}
-
-export function encrypted_format_dialog(client, block) {
-    return format_dialog_internal(client, block, { is_encrypted: true });
-}
-
 function find_root_fsys_block() {
     const root = client.anaconda?.mount_point_prefix || "/";
     for (const p in client.blocks) {
@@ -104,14 +92,14 @@ function find_root_fsys_block() {
     return null;
 }
 
-function format_dialog_internal(client, block, options) {
-    const { start, size, enable_dos_extended, add_encryption } = options;
+export function format_dialog(block, options) {
+    const { free_spaces, enable_dos_extended, add_encryption } = options || { };
     const is_already_encrypted = options.is_encrypted;
     const block_part = client.blocks_part[block.path];
     const block_ptable = client.blocks_ptable[block.path] || client.blocks_ptable[block_part?.Table];
     const content_block = block.IdUsage == "crypto" ? client.blocks_cleartext[block.path] : block;
 
-    const create_partition = (start !== undefined);
+    const create_partition = (free_spaces !== undefined);
 
     let title;
     if (add_encryption)
@@ -282,18 +270,20 @@ function format_dialog_internal(client, block, options) {
         ];
     }
 
+    let max_size = 0;
+    if (create_partition)
+        max_size = Math.max(...free_spaces.map(f => f.size));
+
     dialog_open({
         Title: title,
         Teardown: TeardownMessage(usage),
         Fields: [
             SizeSlider("size", _("Size"),
                        {
-                           value: size,
-                           max: size,
+                           value: max_size,
+                           max: max_size,
                            round: 1024 * 1024,
-                           visible: function () {
-                               return create_partition;
-                           }
+                           visible: () => create_partition,
                        }),
             SelectOne("type", _("Type"),
                       {
@@ -497,6 +487,13 @@ function format_dialog_internal(client, block, options) {
 
                 function format() {
                     if (create_partition) {
+                        let start = free_spaces[0].start;
+                        for (const fs of free_spaces) {
+                            if (fs.size >= vals.size) {
+                                start = fs.start;
+                                break;
+                            }
+                        }
                         if (type == "dos-extended")
                             return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
                         else

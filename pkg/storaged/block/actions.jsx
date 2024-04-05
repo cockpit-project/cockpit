@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import client from "../client";
 
 import { format_disk } from "./format-disk-dialog.jsx";
-import { format_dialog, add_encryption_dialog, encrypted_format_dialog } from "./format-dialog.jsx";
+import { format_dialog } from "./format-dialog.jsx";
 import { erase_dialog } from "./erase-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -37,7 +37,7 @@ export function block_actions(block, kind) {
         if (kind != "crypto") {
             actions.push({
                 title: _("Add encryption"),
-                action: () => add_encryption_dialog(client, block),
+                action: () => format_dialog(block, { add_encryption: true }),
                 excuse,
             });
         }
@@ -54,14 +54,14 @@ export function block_actions(block, kind) {
         if (kind == "crypto") {
             actions.push({
                 title: _("Format cleartext device"),
-                action: () => encrypted_format_dialog(client, block),
+                action: () => format_dialog(block, { is_encrypted: true }),
                 primary: true,
                 excuse,
             });
         } else {
             actions.push({
                 title: _("Format as filesystem"),
-                action: () => format_dialog(client, block.path),
+                action: () => format_dialog(block),
                 primary: true,
                 excuse,
             });

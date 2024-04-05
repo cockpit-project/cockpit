@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from enum import Enum
-from typing import Callable, Dict, List, Mapping, Optional, Sequence, Type, TypeVar, Union
+from typing import Callable, Container, Dict, List, Mapping, Optional, Sequence, Type, TypeVar, Union
 
 JsonLiteral = Union[str, float, bool, None]
 
@@ -104,6 +104,18 @@ def get_strv(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> 
     def as_strv(value: JsonValue) -> Sequence[str]:
         return tuple(typechecked(item, str) for item in typechecked(value, list))
     return _get(obj, as_strv, key, default)
+
+
+def get_enum(
+    obj: JsonObject, key: str, choices: Container[str], default: Union[DT, _Empty] = _empty
+) -> Union[DT, str]:
+    def as_choice(value: JsonValue) -> str:
+        # mypy can't do `__eq__()`-based type narrowing...
+        # https://github.com/python/mypy/issues/17101
+        if isinstance(value, str) and value in choices:
+            return value
+        raise JsonError(value, f'invalid value "{value}" not in {choices}')
+    return _get(obj, as_choice, key, default)
 
 
 def get_objv(obj: JsonObject, key: str, constructor: Callable[[JsonObject], T]) -> Union[DT, Sequence[T]]:

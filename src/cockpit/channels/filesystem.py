@@ -40,6 +40,7 @@ from ..jsonutil import (
     JsonError,
     JsonObject,
     get_bool,
+    get_enum,
     get_int,
     get_str,
     get_strv,
@@ -114,7 +115,7 @@ class FsReadChannel(GeneratorChannel):
 
     def do_yield_data(self, options: JsonObject) -> GeneratorChannel.DataGenerator:
         path = get_str(options, 'path')
-        binary = get_str(options, 'binary', None)
+        binary = get_enum(options, 'binary', ['raw'], None) is not None
         max_read_size = get_int(options, 'max_read_size', None)
 
         logger.debug('Opening file "%s" for reading', path)

@@ -22,7 +22,7 @@ import subprocess
 from typing import Dict
 
 from ..channel import ChannelError, ProtocolChannel
-from ..jsonutil import JsonDict, JsonObject, get_bool, get_int, get_object, get_str, get_strv
+from ..jsonutil import JsonDict, JsonObject, get_bool, get_enum, get_int, get_object, get_str, get_strv
 from ..transports import SubprocessProtocol, SubprocessTransport, WindowSize
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
 
     async def create_transport(self, loop: asyncio.AbstractEventLoop, options: JsonObject) -> SubprocessTransport:
         args = get_strv(options, 'spawn')
-        err = get_str(options, 'err', 'msg')
+        err = get_enum(options, 'err', ['out', 'ignore', 'message'], 'message')
         cwd = get_str(options, 'directory', '.')
         pty = get_bool(options, 'pty', default=False)
         window = get_object(options, 'window', WindowSize, None)

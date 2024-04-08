@@ -145,8 +145,7 @@ class TestUpdates(NoSubManCase):
         self.restore_file("/etc/dnf/plugins/kpatch.conf")
         m.execute("systemctl disable --now kpatch")
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
 
         # Enable and install kpatch
         with b.wait_timeout(30):
@@ -288,8 +287,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # Refresh cache so cockpit does not try to reload page
         m.execute("pkcon refresh")
 
-        m.start_cockpit()
-        b.login_and_go("/system")
+        self.login_and_go("/system")
         # status on /system front page: no repos at all, thus no updates
         self.wait_checking_updates()
         b.wait_text(self.update_text, "System is up to date")
@@ -462,8 +460,7 @@ ExecStart=/usr/local/bin/{self.packageName}
                 self.testObj.enableRepo()
 
             def test_frontend(self):
-                m.start_cockpit()
-                b.login_and_go("/updates")
+                self.testObj.login_and_go("/updates")
 
                 # check update is present
                 with b.wait_timeout(30):
@@ -505,9 +502,7 @@ ExecStart=/usr/local/bin/{self.packageName}
 
                         # ensure that rebooting actually worked
                         m.wait_reboot()
-                        m.start_cockpit()
-                        b.reload()
-                        b.login_and_go("/updates")
+                        self.testObj.login_and_go("/updates")
                     else:
                         b.wait_in_text("#status", "1 service needs to be restarted")
                         b.click("#services-need-restart button")
@@ -532,9 +527,7 @@ ExecStart=/usr/local/bin/{self.packageName}
 
                         # ensure that rebooting actually worked
                         m.wait_reboot()
-                        m.start_cockpit()
-                        b.reload()
-                        b.login_and_go("/updates")
+                        self.testObj.login_and_go("/updates")
                     else:
                         # update required a service restart
                         b.wait_not_present("#reboot-system")
@@ -603,7 +596,6 @@ ExecStart=/usr/local/bin/{self.packageName}
     @testlib.nondestructive
     def testFailServiceRestart(self):
         b = self.browser
-        m = self.machine
 
         packageName = "apple"
         scriptContent = "#!/bin/sh\nsleep infinity"
@@ -628,8 +620,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         self.enableRepo()
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
 
         # check update is present
         with b.wait_timeout(30):
@@ -692,8 +683,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.enableRepo()
         m.execute("pkcon refresh")
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
         b.wait_in_text("#status", "6 updates available, including 3 security fixes")
@@ -815,9 +805,7 @@ ExecStart=/usr/local/bin/{packageName}
 
             # ensure that rebooting actually worked
             m.wait_reboot()
-            m.start_cockpit()
-            b.reload()
-            b.login_and_go("/updates")
+            self.login_and_go("/updates")
         else:
             b.click("#ignore")
 
@@ -846,8 +834,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.enableRepo()
         m.execute("pkcon refresh")
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
         b.wait_in_text("#status", "1 security fix available")
@@ -877,7 +864,6 @@ ExecStart=/usr/local/bin/{packageName}
     @testlib.nondestructive
     def testInfoTruncation(self):
         b = self.browser
-        m = self.machine
 
         # update with not too many binary packages
         for i in range(4):
@@ -898,8 +884,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         self.enableRepo()
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
 
         with b.wait_timeout(30):
             b.wait_in_text("table[aria-label='Available updates']", "Things change")
@@ -954,8 +939,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.enableRepo()
         m.execute("pkcon refresh")
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
         b.click("#available-updates button#install-all")
@@ -991,8 +975,7 @@ ExecStart=/usr/local/bin/{packageName}
         # break the upgrade by removing the generated packages from the repo
         m.execute(f"rm -f {self.repo_dir}/vapor*.deb {self.repo_dir}/vapor*.rpm {self.repo_dir}/vapor*.pkg*")
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
         b.wait_in_text("#status", "1 update available")
@@ -1030,8 +1013,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.enableRepo()
         m.execute("pkcon refresh")
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
 
         with b.wait_timeout(30):
             b.click("#available-updates button#install-all")
@@ -1061,12 +1043,11 @@ ExecStart=/usr/local/bin/{packageName}
                            mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
                            systemctl daemon-reload""")
 
-        m.start_cockpit()
         if not self.is_pybridge():
             # TODO: conditions not implemented on C bridge; once we drop it, drop this special case and
             # enable the manifest documentation for conditions in doc/guide/packages.xml
             self.assertIn("\nupdates", m.execute("cockpit-bridge --packages"))
-            b.login_and_go("/updates")
+            self.login_and_go("/updates")
 
             # error message present
             b.wait_in_text(".pf-v5-c-page__main-section .pf-v5-l-stack .pf-v5-c-code-block__content", "PackageKit is not installed")
@@ -1150,8 +1131,7 @@ class TestWsUpdate(NoSubManCase):
         self.enableRepo()
         m.execute("pkcon refresh")
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
 
         with b.wait_timeout(30):
             b.click("#available-updates button#install-all")
@@ -1204,8 +1184,7 @@ class TestKpatchInstall(NoSubManCase):
 
         m.execute("rpm --erase --verbose kpatch kpatch-dnf")
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#status")
         b.wait_in_text("#kpatch-settings", "Not available")
@@ -1281,12 +1260,10 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         self.update_text_action = "#page_status_notification_updates a"
 
     def testNoUpdates(self):
-        m = self.machine
         b = self.browser
 
         # fresh machine, no updates available; by default our rhel-* images are not registered
-        m.start_cockpit()
-        b.login_and_go("/system")
+        self.login_and_go("/system")
         # show unregistered status on system front page
         with b.wait_timeout(30):
             b.wait_in_text(self.update_text, "Not registered")
@@ -1319,7 +1296,6 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         b.wait_text(self.update_text, "System is up to date")
 
     def testAvailableUpdates(self):
-        m = self.machine
         b = self.browser
 
         # one available update
@@ -1327,9 +1303,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         self.createPackage("vanilla", "1.0", "2")
         self.enableRepo()
 
-        m.start_cockpit()
-
-        b.login_and_go("/system")
+        self.login_and_go("/system")
         # by default our rhel-* images are not registered; show warning on system page
         with b.wait_timeout(30):
             b.wait_in_text(self.update_text, "Not registered")
@@ -1375,8 +1349,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         self.enableRepo()
         m.execute("pkcon refresh")
 
-        m.start_cockpit()
-        b.login_and_go("/system")
+        self.login_and_go("/system")
         with b.wait_timeout(30):
             b.wait_text(self.update_text, "System is up to date")
 
@@ -1407,8 +1380,7 @@ class TestAutoUpdates(NoSubManCase):
         b = self.browser
         m = self.machine
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#status")
 
@@ -1593,8 +1565,7 @@ class TestAutoUpdates(NoSubManCase):
         self.createPackage("kernel-rt", "1.0", "2")
         self.enableRepo()
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
 
@@ -1685,8 +1656,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         self.createPackage("vanilla", "1.0", "2")
         self.enableRepo()
 
-        m.start_cockpit()
-        b.login_and_go("/updates")
+        self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
 
@@ -1734,8 +1704,7 @@ WantedBy=basic.target
         })
         self.enableRepo()
 
-        m.start_cockpit()
-        b.login_and_go('/updates')
+        self.login_and_go('/updates')
 
         # click through install dialog
         with b.wait_timeout(30):

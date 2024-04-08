@@ -154,6 +154,7 @@ class FsReplaceChannel(Channel):
     payload = 'fsreplace1'
 
     _path = None
+    _send_acks = None
     _tag = None
     _tempfile = None
     _temppath = None
@@ -169,7 +170,7 @@ class FsReplaceChannel(Channel):
         self._tag = options.get('tag')
         self.ready()
 
-    def do_data(self, data):
+    def do_data(self, data: bytes) -> None:
         if self._tempfile is None:
             # if the file exists already and we have an expected tag, check it
             stat = None

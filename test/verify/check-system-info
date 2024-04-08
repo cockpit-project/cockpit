@@ -80,12 +80,13 @@ class TestSystemInfo(testlib.MachineCase):
         m.write("/etc/os-release", os_release)
         m.execute("chattr +i /etc/os-release; (systemctl restart systemd-hostnamed || systemctl restart hostnamed)")
 
+        # set static machine ID, as they have different lengths which disturbs the pixel test
+        m.execute("mv /etc/machine-id /etc/machine-id.orig")
+        m.write("/etc/machine-id", "123456789abcdef123456789abcdef00")
+
         self.login_and_go("/system")
 
         b.wait_visible('#system_information_os_text')
-
-        mid = m.execute("cat /etc/machine-id")
-        b.wait_text('#system_machine_id', mid)
 
         # Health card can contain only one item - it normally is "Loading available updates fail"
         # But sometimes it also contains information about failed services which breaks mobile pixel tests
@@ -98,7 +99,6 @@ class TestSystemInfo(testlib.MachineCase):
         testlib.wait(lambda: b.get_pf_progress_value("#system-usage-cpu-progress + td") < 30)
         b.assert_pixels("#overview", "overview", ignore=[
             ".system-health .pf-v5-c-card__body",
-            "#system_machine_id",
             "#system_uptime",
             # #system_information_systime_button is not enough, need to grab the icon as well
             "tr:contains('System time') td",
@@ -107,6 +107,8 @@ class TestSystemInfo(testlib.MachineCase):
             "#system-usage-memory-progress + td",
             "#tuned-status-button",
         ])
+
+        m.execute("mv /etc/machine-id.orig /etc/machine-id")
 
         # Generate a new rsa key and change the config
         m.execute("ssh-keygen -f /etc/ssh/weirdname -t rsa -N ''")
@@ -181,6 +183,7 @@ class TestSystemInfo(testlib.MachineCase):
         m.execute("rm /usr/lib/os-release || true")
 
         self.login_and_go("/system")
+        mid = m.execute("cat /etc/machine-id")
         b.wait_text('#system_machine_id', mid)
 
         # uptime (introduced in PR #13885)

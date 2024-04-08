@@ -457,9 +457,9 @@ class AsyncChannel(Channel):
 
     async def read(self) -> 'bytes | None':
         # Three possibilities for what we'll find:
-        #  - None (EOF) → return b''
+        #  - None (EOF) → return None
         #  - a ping → send a pong
-        #  - bytes → return it
+        #  - bytes → return it (possibly empty)
         while True:
             item = await self.receive_queue.get()
             if item is None:

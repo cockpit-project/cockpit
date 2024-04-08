@@ -112,6 +112,8 @@ The following fields are defined:
  * "capabilities": Optional, array of capability strings required from the bridge
  * "session": Optional, set to "private" or "shared". Defaults to "shared"
  * "flow-control": Optional boolean whether the channel should throttle itself via flow control.
+ * "send-acks": Set to "bytes" to send "ack" messages after processing each data frame
+
 
 If "binary" is set to "raw" then this channel transfers binary messages.
 
@@ -162,7 +164,13 @@ channels in the "fence" group are closed before resuming.
 The "flow-control" option controls whether a channel should attempt to throttle
 itself via flow control when sending or receiving large amounts of data. The
 current default (when this option is not provided) is to not do flow control.
-However, this default will likely change in the future.
+However, this default will likely change in the future.  This only impacts data
+sent by the bridge to the browser.
+
+If "send-acks" is set to "bytes" then the bridge will send acknowledgement
+messages detailing the number of payload bytes that it has received and
+processed.  This mechanism is provided for senders (ie: in the browser) who
+wish to throttle the data that they're sending to the bridge.
 
 **Host values**
 

@@ -21,7 +21,7 @@ import logging
 import traceback
 from typing import BinaryIO, ClassVar, Dict, Generator, List, Mapping, Optional, Sequence, Set, Tuple, Type
 
-from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_bool, get_str
+from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_bool, get_enum, get_str
 from .protocol import CockpitProblem
 from .router import Endpoint, Router, RoutingRule
 
@@ -92,6 +92,7 @@ class Channel(Endpoint):
     _send_pings: bool = False
     _out_sequence: int = 0
     _out_window: int = SEND_WINDOW
+    _ack_bytes: bool
 
     # Task management
     _tasks: Set[asyncio.Task]
@@ -106,15 +107,16 @@ class Channel(Endpoint):
     group = ''
 
     # input
-    def do_control(self, command, message):
+    def do_control(self, command: str, message: JsonObject) -> None:
         # Break the various different kinds of control messages out into the
         # things that our subclass may be interested in handling.  We drop the
         # 'message' field for handlers that don't need it.
         if command == 'open':
             self._tasks = set()
-            self.channel = message['channel']
+            self.channel = get_str(message, 'channel')
             if get_bool(message, 'flow-control', default=False):
                 self._send_pings = True
+            self._ack_bytes = get_enum(message, 'send-acks', ['bytes'], None) is not None
             self.group = get_str(message, 'group', 'default')
             self.freeze_endpoint()
             self.do_open(message)
@@ -177,6 +179,10 @@ class Channel(Endpoint):
     def do_ping(self, message: JsonObject) -> None:
         self.send_pong(message)
 
+    def send_ack(self, data: bytes) -> None:
+        if self._ack_bytes:
+            self.send_control('ack', bytes=len(data))
+
     def do_channel_data(self, channel: str, data: bytes) -> None:
         # Already closing?  Ignore.
         if self._close_args is not None:
@@ -184,13 +190,21 @@ class Channel(Endpoint):
 
         # Catch errors and turn them into close messages
         try:
-            self.do_data(data)
+            if not self.do_data(data):
+                self.send_ack(data)
         except ChannelError as exc:
             self.close(exc.get_attrs())
 
-    def do_data(self, _data: bytes) -> None:
+    def do_data(self, data: bytes) -> 'bool | None':
+        """Handles incoming data to the channel.
+
+        Return value is True if the channel takes care of send acks on its own,
+        in which case it should call self.send_ack() on `data` at some point.
+        None or False means that the acknowledgement is sent automatically."""
         # By default, channels can't receive data.
+        del data
         self.close()
+        return True
 
     # output
     def ready(self, **kwargs: JsonValue) -> None:
@@ -459,7 +473,7 @@ class AsyncChannel(Channel):
         # Three possibilities for what we'll find:
         #  - None (EOF) → return None
         #  - a ping → send a pong
-        #  - bytes → return it (possibly empty)
+        #  - bytes (possibly empty) → ack the receipt, and return it
         while True:
             item = await self.receive_queue.get()
             if item is None:
@@ -467,6 +481,7 @@ class AsyncChannel(Channel):
             if isinstance(item, Mapping):
                 self.send_pong(item)
             else:
+                self.send_ack(item)
                 return item
 
     async def write(self, data: bytes) -> None:
@@ -504,13 +519,9 @@ class AsyncChannel(Channel):
     def do_ping(self, message: JsonObject) -> None:
         self.receive_queue.put_nowait(message)
 
-    def do_data(self, data: bytes) -> None:
-        if not isinstance(data, bytes):
-            # this will persist past this callback, so make sure we take our
-            # own copy, in case this was a memoryview into a bytearray.
-            data = bytes(data)
-
+    def do_data(self, data: bytes) -> bool:
         self.receive_queue.put_nowait(data)
+        return True  # we will send the 'ack' later (from read())
 
 
 class GeneratorChannel(Channel):

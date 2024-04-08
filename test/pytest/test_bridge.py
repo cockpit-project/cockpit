@@ -20,7 +20,7 @@ import pytest
 
 from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
-from cockpit.channel import Channel
+from cockpit.channel import AsyncChannel, Channel, ChannelRoutingRule
 from cockpit.channels import CHANNEL_TYPES
 from cockpit.jsonutil import JsonDict, JsonObject, JsonValue, get_bool, get_dict, get_int, json_merge_patch
 from cockpit.packages import BridgeConfig
@@ -538,6 +538,16 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     await transport.check_close(channel=ch)
     assert not myfile.exists()
 
+    # acks
+    ch = await transport.check_open('fsreplace1', path=str(myfile), send_acks='bytes')
+    transport.send_data(ch, b'some stuff')
+    await transport.assert_msg('', command='ack', bytes=10, channel=ch)
+    transport.send_data(ch, b'some more stuff')
+    await transport.assert_msg('', command='ack', bytes=15, channel=ch)
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+
 
 @pytest.mark.asyncio
 async def test_fsreplace1_change_conflict(transport: MockTransport, tmp_path: Path) -> None:
@@ -615,6 +625,13 @@ async def test_fsreplace1_error(transport: MockTransport, tmp_path: Path) -> Non
     transport.send_data(ch, b'not me')
     transport.send_done(ch)
     await transport.assert_msg('', command='close', channel=ch, problem='not-found')
+
+    # invalid send-acks option
+    await transport.check_open('fsreplace1', path=str(tmp_path), send_acks='not-valid',
+                               problem='protocol-error',
+                               reply_keys={
+                                   'message': """attribute 'send-acks': invalid value "not-valid" not in ['bytes']"""
+    })
 
 
 @pytest.mark.asyncio
@@ -733,6 +750,72 @@ async def test_channel(bridge: Bridge, transport: MockTransport, channeltype, tm
 def test_get_os_release(os_release: str, expected: str) -> None:
     with unittest.mock.patch('builtins.open', unittest.mock.mock_open(read_data=os_release)):
         assert Bridge.get_os_release() == expected
+
+
+class AckChannel(AsyncChannel):
+    payload = 'ack1'
+
+    async def run(self, options: JsonObject) -> None:
+        self.semaphore = asyncio.Semaphore(0)
+        self.ready()
+        while await self.read():
+            await self.semaphore.acquire()
+
+
+@pytest.mark.asyncio
+async def test_async_acks(bridge: Bridge, transport: MockTransport) -> None:
+    # Inject our mock channel type
+    for rule in bridge.routing_rules:
+        if isinstance(rule, ChannelRoutingRule):
+            rule.table['ack1'] = [AckChannel]
+
+    # invalid send-acks values
+    await transport.check_open('ack1', send_acks=True, problem='protocol-error')
+    await transport.check_open('ack1', send_acks='x', problem='protocol-error')
+
+    # open the channel with acks off
+    ch = await transport.check_open('ack1')
+    # send a bunch of data and get no acks
+    for _ in range(20):
+        transport.send_data(ch, b'x')
+    # this will assert that we receive only the close message (and no acks)
+    await transport.check_close(ch)
+
+    # open the channel with acks on
+    ch = await transport.check_open('ack1', send_acks='bytes')
+    # send a bunch of data
+    for _ in range(20):
+        transport.send_data(ch, b'x')
+    # we should get exactly one ack (from the first read) before things block
+    await transport.assert_msg('', channel=ch, command='ack', bytes=1)
+    # this will assert that we receive only the close message (and no additional acks)
+    await transport.check_close(ch)
+
+    # open the channel with acks on
+    ch = await transport.check_open('ack1', send_acks='bytes')
+    # fish the open channel out of the bridge
+    ack = bridge.open_channels[ch]
+    assert isinstance(ack, AckChannel)
+    # let's give ourselves a bit more headroom
+    for _ in range(5):
+        ack.semaphore.release()
+    # send a bunch of data and get some acks
+    for _ in range(10):
+        transport.send_data(ch, b'x')
+    for _ in range(6):
+        await transport.assert_msg('', channel=ch, command='ack', bytes=1)
+    # make sure that as we "consume" the data we get more acks:
+    for _ in range(4):
+        # no ack in the queue...
+        await transport.assert_empty()
+        ack.semaphore.release()
+        # ... but now there is.
+        await transport.assert_msg('', channel=ch, command='ack', bytes=1)
+    # make some more room (for data we didn't send)
+    for _ in range(5):
+        ack.semaphore.release()
+    # but we shouldn't have gotten any acks for those
+    await transport.check_close(ch)
 
 
 @pytest.mark.asyncio

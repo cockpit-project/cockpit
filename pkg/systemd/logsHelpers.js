@@ -55,14 +55,14 @@ export const getGrepFiltersFromOptions = ({ options }) => {
         options.service.split(",").forEach(s => {
             if (!s.endsWith(".service"))
                 s = s + ".service";
-            match.push(...['_SYSTEMD_UNIT=' + s, "+", "COREDUMP_UNIT=" + s, "+", "UNIT=" + s]);
+            match.push('_SYSTEMD_UNIT=' + s, "+", "COREDUMP_UNIT=" + s, "+", "UNIT=" + s);
         });
         full_grep += "service:" + options.service + " ";
     } else if (options["user-service"]) {
         options["user-service"].split(",").forEach(s => {
             if (!s.endsWith(".service"))
                 s = s + ".service";
-            match.push(...['_SYSTEMD_USER_UNIT=' + s, "+", "COREDUMP_USER_UNIT=" + s, "+", "USER_UNIT=" + s]);
+            match.push('_SYSTEMD_USER_UNIT=' + s, "+", "COREDUMP_USER_UNIT=" + s, "+", "USER_UNIT=" + s);
         });
         full_grep += "user-service:" + options["user-service"] + " ";
     }

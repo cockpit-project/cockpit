@@ -692,7 +692,7 @@ async def test_channel(bridge: Bridge, transport: MockTransport, channeltype, tm
     print('sending done')
     transport.send_done(ch)
 
-    if payload in ['dbus-json3', 'fswatch1', 'null']:
+    if payload in ['dbus-json3', 'fswatch1', 'metrics1', 'null']:
         transport.send_close(ch)
 
     while True:

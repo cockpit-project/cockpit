@@ -18,6 +18,7 @@
 import asyncio
 import json
 import logging
+import traceback
 from typing import BinaryIO, ClassVar, Dict, Generator, List, Mapping, Optional, Sequence, Set, Tuple, Type
 
 from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_bool, get_str
@@ -423,7 +424,7 @@ class AsyncChannel(Channel):
     entire contents of a binary-mode file-like object.
 
     The subclass must provide an async `run()` function, which will be spawned
-    as a task.
+    as a task.  The task is cancelled when the channel is closed.
 
     On the receiving side, the channel will respond to flow control pings to
     indicate that it has received the data, but only after it has been consumed
@@ -446,9 +447,15 @@ class AsyncChannel(Channel):
     async def run_wrapper(self, options: JsonObject) -> None:
         try:
             await self.run(options)
+        except asyncio.CancelledError:  # user requested close
             self.close()
         except ChannelError as exc:
             self.close(exc.attrs)
+        except BaseException:
+            self.close({'problem': 'internal-error', 'cause': traceback.format_exc()})
+            raise
+        else:
+            self.close()
 
     async def read(self) -> 'bytes | None':
         # Three possibilities for what we'll find:
@@ -487,14 +494,14 @@ class AsyncChannel(Channel):
 
     def do_open(self, options: JsonObject) -> None:
         self.receive_queue = asyncio.Queue()
-        self.create_task(self.run_wrapper(options), name=f'{self.__class__.__name__}.run_wrapper({options})')
+        self._run_task = self.create_task(self.run_wrapper(options),
+                                          name=f'{self.__class__.__name__}.run_wrapper({options})')
 
     def do_done(self) -> None:
         self.receive_queue.put_nowait(None)
 
     def do_close(self) -> None:
-        # we might have already sent EOF for done, but two EOFs won't hurt anyone
-        self.receive_queue.put_nowait(None)
+        self._run_task.cancel()
 
     def do_ping(self, message: JsonObject) -> None:
         self.receive_queue.put_nowait(message)

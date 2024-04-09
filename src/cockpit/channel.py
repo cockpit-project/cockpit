@@ -441,12 +441,12 @@ class AsyncChannel(Channel):
     # Send-side flow control
     write_waiter = None
 
-    async def run(self, options: JsonObject) -> None:
+    async def run(self, options: JsonObject) -> 'JsonObject | None':
         raise NotImplementedError
 
     async def run_wrapper(self, options: JsonObject) -> None:
         try:
-            await self.run(options)
+            self.close(await self.run(options))
         except asyncio.CancelledError:  # user requested close
             self.close()
         except ChannelError as exc:
@@ -454,8 +454,6 @@ class AsyncChannel(Channel):
         except BaseException:
             self.close({'problem': 'internal-error', 'cause': traceback.format_exc()})
             raise
-        else:
-            self.close()
 
     async def read(self) -> 'bytes | None':
         # Three possibilities for what we'll find:

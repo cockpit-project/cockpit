@@ -25,15 +25,17 @@ import grp
 import logging
 import os
 import pwd
-import random
+import re
 import stat
+import tempfile
+from pathlib import Path
 from typing import Callable, Iterable
 
 from cockpit._vendor.systemd_ctypes import Handle, PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
 from cockpit._vendor.systemd_ctypes.pathwatch import Listener as PathWatchListener
 
-from ..channel import Channel, ChannelError, GeneratorChannel
+from ..channel import AsyncChannel, Channel, ChannelError, GeneratorChannel
 from ..jsonutil import (
     JsonDict,
     JsonDocument,
@@ -48,6 +50,12 @@ from ..jsonutil import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@functools.lru_cache()
+def my_umask() -> int:
+    match = re.search(r'^Umask:\s*0([0-7]*)$', Path('/proc/self/status').read_text(), re.M)
+    return match and int(match.group(1), 8) or 0o077
 
 
 def tag_from_stat(buf):
@@ -150,110 +158,78 @@ class FsReadChannel(GeneratorChannel):
             raise ChannelError('internal-error', message=str(exc)) from exc
 
 
-class FsReplaceChannel(Channel):
+class FsReplaceChannel(AsyncChannel):
     payload = 'fsreplace1'
 
-    _path = None
-    _tag = None
-    _tempfile = None
-    _temppath = None
+    async def run(self, options: JsonObject) -> JsonObject:
+        path = get_str(options, 'path')
+        tag = get_str(options, 'tag', None)
+        dirname, basename = os.path.split(get_str(options, 'path'))
 
-    def unlink_temppath(self):
-        try:
-            os.unlink(self._temppath)
-        except OSError:
-            pass  # might have been removed from outside
-
-    def do_open(self, options):
-        self._path = options.get('path')
-        self._tag = options.get('tag')
         self.ready()
 
-    def do_data(self, data):
-        if self._tempfile is None:
-            # if the file exists already and we have an expected tag, check it
-            stat = None
-            if self._tag is not None:
-                try:
-                    stat = os.stat(self._path)
-                    current_tag = tag_from_stat(stat)
-                except FileNotFoundError:
-                    current_tag = '-'
-                if self._tag != current_tag:
+        try:
+            delete_on_exit = None
+            data = await self.read()
+            if data is None:
+                # if we get EOF right away, that's a request to delete
+                if tag is not None and tag != tag_from_path(path):
                     raise ChannelError('change-conflict')
-
-            # keep this bounded, in case anything unexpected goes wrong
-            for _ in range(10):
-                suffix = ''.join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789_", k=6))
-                self._temppath = f'{self._path}.cockpit-tmp.{suffix}'
-                try:
-                    fd = os.open(self._temppath, os.O_CREAT | os.O_WRONLY | os.O_EXCL, 0o666)
-                    if stat is not None:
-                        # copy permissions from existing file
-                        os.fchmod(fd, stat.st_mode)
-                        os.fchown(fd, stat.st_uid, stat.st_gid)
-                    break
-                except FileExistsError:
-                    continue
-                except PermissionError as exc:
-                    raise ChannelError('access-denied') from exc
-                except FileNotFoundError as exc:
-                    # directory of path does not exist
-                    raise ChannelError('not-found') from exc
-                except OSError as exc:
-                    raise ChannelError('internal-error', message=str(exc)) from exc
+                with contextlib.suppress(FileNotFoundError):  # delete is idempotent
+                    os.unlink(path)
             else:
-                raise ChannelError('internal-error',
-                                   message=f"Could not find unique file name for replacing {self._path}")
+                # otherwise, spool data into a temporary file until EOF then rename into place...
+                with tempfile.NamedTemporaryFile(dir=dirname, prefix=f'.{basename}-', delete=False) as tmp:
+                    delete_on_exit = tmp.name
+                    loop = asyncio.get_running_loop()
+                    while data is not None:
+                        await loop.run_in_executor(None, tmp.write, data)
+                        data = await self.read()
 
-            try:
-                self._tempfile = os.fdopen(fd, 'wb')
-            except OSError:
-                # Should Not Happen™, but let's be safe and avoid fd leak
-                os.close(fd)
-                self.unlink_temppath()
-                raise
+                    await loop.run_in_executor(None, os.fdatasync, tmp.fileno())
 
-        self._tempfile.write(data)
+                    if tag is None:
+                        # no preconditions about what currently exists or not
+                        # calculate the file mode from the umask
+                        os.fchmod(tmp.fileno(), 0o666 & ~my_umask())
+                        os.rename(tmp.name, path)
+                        delete_on_exit = None
 
-    def do_done(self):
-        if self._tempfile is None:
-            try:
-                os.unlink(self._path)
-            # crash on other errors, as they are unexpected
-            except FileNotFoundError:
-                pass
-        else:
-            self._tempfile.flush()
+                    elif tag == '-':
+                        # the file must not exist.  file mode from umask.
+                        os.fchmod(tmp.fileno(), 0o666 & ~my_umask())
+                        os.link(tmp.name, path)  # will fail if file exists
 
-            if self._tag and self._tag != tag_from_path(self._path):
-                raise ChannelError('change-conflict')
+                    else:
+                        # the file must exist with the given tag
+                        buf = os.stat(path)
+                        if tag != tag_from_stat(buf):
+                            raise ChannelError('change-conflict')
+                        # chown/chmod from the existing file permissions
+                        os.fchmod(tmp.fileno(), stat.S_IMODE(buf.st_mode))
+                        os.fchown(tmp.fileno(), buf.st_uid, buf.st_gid)
+                        os.rename(tmp.name, path)
+                        delete_on_exit = None
 
-            try:
-                os.rename(self._temppath, self._path)
-            # ensure to not leave the temp file behind
-            except FileNotFoundError as exc:
-                self.unlink_temppath()
-                raise ChannelError('not-found', message=str(exc)) from exc
-            except IsADirectoryError as exc:
-                self.unlink_temppath()
-                # not ideal, but the closest code we have
-                raise ChannelError('access-denied', message=str(exc)) from exc
-            except OSError as exc:
-                self.unlink_temppath()
-                raise ChannelError('internal-error', message=str(exc)) from exc
-
-            self._tempfile.close()
-            self._tempfile = None
+        except FileNotFoundError as exc:
+            raise ChannelError('not-found') from exc
+        except FileExistsError as exc:
+            # that's from link() noticing that the target file already exists
+            raise ChannelError('change-conflict') from exc
+        except PermissionError as exc:
+            raise ChannelError('access-denied') from exc
+        except IsADirectoryError as exc:
+            # not ideal, but the closest code we have
+            raise ChannelError('access-denied', message=str(exc)) from exc
+        except OSError as exc:
+            raise ChannelError('internal-error', message=str(exc)) from exc
+        finally:
+            if delete_on_exit is not None:
+                os.unlink(delete_on_exit)
 
         self.done()
-        self.close({'tag': tag_from_path(self._path)})
 
-    def do_close(self):
-        if self._tempfile is not None:
-            self._tempfile.close()
-            self.unlink_temppath()
-            self._tempfile = None
+        return {'tag': tag_from_path(path)}
 
 
 class FsWatchChannel(Channel):

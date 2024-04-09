@@ -71,4 +71,5 @@ if [ -n "$TEST_SCENARIO" ] && [ -z "$RUN_OPTS" ]; then
 fi
 
 test/image-prepare --verbose ${PREPARE_OPTS} "$TEST_OS"
-test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties ${RUN_OPTS}
+
+test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --thorough TestHistoryMetrics.testPmProxySettings

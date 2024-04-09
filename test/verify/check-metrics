@@ -83,6 +83,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         super().setUp()
         # start with a clean slate and avoid running into restart limits
         self.machine.execute("systemctl stop pmlogger pmproxy; systemctl reset-failed pmlogger pmproxy 2>/dev/null || true")
+        self.sed_file("s/PCP_ARCHIVE_VERSION=3/PCP_ARCHIVE_VERSION=2/", "/etc/pcp.conf")
         # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
         self.pcp_dialog_selector = "#pcp-settings-modal:first-child"
 

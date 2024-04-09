@@ -50,6 +50,8 @@ fi
 systemctl start cockpit
 systemctl stop cockpit
 
+sed -i 's/PCP_ARCHIVE_VERSION=3/PCP_ARCHIVE_VERSION=2/' /etc/pcp.conf
+
 # clean out the journal
 journalctl --flush
 journalctl --sync || killall systemd-journald

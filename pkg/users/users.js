@@ -208,9 +208,16 @@ async function getLogins() {
 
         const date_fields = splitLine.slice(-5);
         // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
-        return cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')], { environ: ["LC_ALL=C"], err: "out" })
-                .then(out => ({ name, loggedIn, lastLogin: parseInt(out) * 1000, isLocked }))
-                .catch(e => console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`));
+        let lastLogin = null;
+        try {
+            const out = await cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')],
+                                            { environ: ["LC_ALL=C"], err: "out" });
+            lastLogin = parseInt(out) * 1000;
+        } catch (e) {
+            console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`);
+        }
+
+        return { name, loggedIn, lastLogin, isLocked };
     });
 
     return Promise.all(promises);

@@ -20,6 +20,7 @@
 import cockpit from 'cockpit';
 import { useState, useEffect, useRef, useReducer } from 'react';
 import deep_equal from "deep-equal";
+import { superuser } from 'superuser';
 
 /* HOOKS
  *
@@ -323,4 +324,54 @@ export function useEvent(obj, event, handler) {
 
 export function useInit(func, deps, comps, destroy = null) {
     return useObject(func, destroy, deps || [], comps);
+}
+
+/* - usePolkitPermissions(actions)
+*
+ * function Component(arg) {
+ *   const permissions = usePolkitPermissions([
+ *     'org.freedesktop.NetworkManager.reload',
+ *     'org.freedesktop.NetworkManager.network-control'
+ *   ]);
+ *
+ *   ...
+ *  }
+ *
+ * The returned value from the hook is an object of string: boolean,
+ * mapped by action to whether the action is allowed or not.
+ * This also checks if 'superuser.allowed' is true and bypasses the
+ * pkcheck if so.
+ * ]);
+*/
+export function usePolkitPermissions(actions) {
+    useEvent(superuser, "changed");
+
+    const [permissions, setPermissions] = useState(() =>
+        actions.reduce((acc, action) => {
+            acc[action] = false;
+            return acc;
+        }, {})
+    );
+
+    useEffect(() => {
+        if (superuser.allowed) {
+            setPermissions(actions.reduce((acc, action) => {
+                acc[action] = true;
+                return acc;
+            }, {}));
+        }
+
+        Promise.allSettled(actions.map((action) =>
+            // pkcheck returns a 0 status code if the check passed
+            cockpit.spawn(['sh', '-c', `pkcheck --action-id ${action} --process $$ --allow-user-interaction 2>&1`], { superuser: 'try' })
+        )).then((results) => {
+            setPermissions(results.reduce((acc, result, index) => {
+                acc[actions[index]] = result.status === 'fulfilled';
+                return acc;
+            }, {}));
+        });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [JSON.stringify(actions), superuser.allowed]);
+
+    return permissions;
 }

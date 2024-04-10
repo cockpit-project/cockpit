@@ -1,0 +1,28 @@
+/*
+ * Config for `tsc` and `tsserver`, currently only used for typechecking.
+
+ * Our main build is via `esbuild` which can handle `.ts`, but doesn't do any
+ * checking on its own.  To typecheck, run `tsc`.
+ *
+ * Extended JSON — comments and trailing commas are good here.
+ */
+
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": true,
+        "baseUrl": "./pkg/lib",
+        "esModuleInterop": true,
+        "jsx": "react",
+        "lib": [
+            "dom",
+            "es2020"
+        ],
+        "noEmit": true,  // we only use `tsc` for type checking
+        "skipLibCheck": true,  // don't check node_modules
+	"strict": true,
+    },
+    "include": [
+        "pkg/**/*"
+    ],
+}

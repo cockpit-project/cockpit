@@ -81,7 +81,16 @@ test_js_translatable_strings() {
 if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
     test_eslint() {
         test -x node_modules/.bin/eslint -a -x /usr/bin/node || skip 'no eslint'
-        find_scripts 'node' '*.js' '*.jsx' | xargs -0 node_modules/.bin/eslint
+        find_scripts 'node' '*.[jt]s' '*.[jt]sx' | xargs -0 node_modules/.bin/eslint
+    }
+
+    test_typescript() {
+        test -x node_modules/.bin/tsc -a -x /usr/bin/node || skip 'no tsc'
+	# https://github.com/microsoft/TypeScript/issues/30511
+	# We can't tell tsc to ignore the .d.ts in node_modules/ and check our
+	# own cockpit.d.ts, so we do two separate invocations as a workaround:
+	node_modules/.bin/tsc --typeRoots /dev/null --strict pkg/lib/cockpit.d.ts
+	node_modules/.bin/tsc --checkJs false --skipLibCheck
     }
 fi
 
@@ -108,9 +117,9 @@ test_unsafe_security_policy() {
 }
 
 test_json_verify() {
-    # Check all JSON files for validity
+    # Check (almost) all JSON files for validity
 
-    git ls-files -z '*.json' | while read -d '' filename; do
+    git ls-files -z '*.json' | grep -zv ^tsconfig | while read -d '' filename; do
         python3 -m json.tool "${filename}" /dev/null 2>&1 | sed "s@^@${filename}: @"
     done
 }

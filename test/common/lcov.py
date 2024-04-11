@@ -91,7 +91,7 @@ def parse_sourcemap(f, line_starts, dir_name):
 
     our_sources = set()
     for s in sources:
-        if "node_modules" not in s and (s.endswith(('.js', '.jsx'))):
+        if "node_modules" not in s and (s.endswith(('.js', '.jsx', '.ts', '.tsx'))):
             our_sources.add(s)
 
     dst_col, src_id, src_line = 0, 0, 0

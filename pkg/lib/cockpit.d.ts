@@ -26,6 +26,8 @@ declare module 'cockpit' {
         toString(): string;
     }
 
+    function assert(predicate: unknown, message?: string): asserts predicate;
+
     /* === Events mix-in ========================= */
 
     interface EventMap {

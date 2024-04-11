@@ -4415,6 +4415,12 @@ function factory() {
         return false;
     };
 
+    cockpit.assert = (predicate, message) => {
+        if (!predicate) {
+            throw new Error(`Assertion failed: ${message}`);
+        }
+    };
+
     return cockpit;
 }
 

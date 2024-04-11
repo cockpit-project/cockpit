@@ -519,6 +519,8 @@ class TestAccounts(testlib.MachineCase):
         b.wait(is_admin)
         b.wait_not_present("#account-groups-helper")
 
+        b.cdp.trace = True
+
         # Login as jussi and change role admin for itself
         b.logout()
         b.login_and_go("/users", user="jussi", password="bar")
@@ -614,6 +616,7 @@ class TestAccounts(testlib.MachineCase):
             # Log in as "admin" and the open details in other browser should update
             b2 = self.new_browser(m)
             b2.login_and_go("/system")
+            b2.cdp.trace = True
             b.wait_text("#account-last-login", "Logged in")
             b.wait_visible("#account-logout:not(:disabled)")
 
@@ -673,6 +676,18 @@ class TestAccounts(testlib.MachineCase):
         b.set_val('#conversation-input', good_password_2)
         b.click('#login-button')
         b.wait_visible('#content')
+
+    def testUserPasswords2(self):
+        self.testUserPasswords()
+
+    def testUserPasswords3(self):
+        self.testUserPasswords()
+
+    def testUserPasswords4(self):
+        self.testUserPasswords()
+
+    def testUserPasswords5(self):
+        self.testUserPasswords()
 
     def testCustomUID(self):
         b = self.browser

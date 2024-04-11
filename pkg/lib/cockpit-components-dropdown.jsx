@@ -45,7 +45,7 @@ export const KebabDropdown = ({ dropdownItems, position, isDisabled, toggleButto
         <Dropdown
             {...props}
             onOpenChange={isOpen => setKebabOpen(isOpen)}
-            onSelect={() => setKebabOpen(!isKebabOpen)}
+            onSelect={() => setKebabOpen(false)}
             toggle={(toggleRef) => (
                 <MenuToggle
                     id={toggleButtonId}

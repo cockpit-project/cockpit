@@ -86,7 +86,7 @@ declare module 'cockpit' {
 
     interface ChannelOptions {
         payload: string;
-        superuser?: string;
+        superuser?: "try" | "require";
         [_: string]: JsonValue | undefined;
     }
 

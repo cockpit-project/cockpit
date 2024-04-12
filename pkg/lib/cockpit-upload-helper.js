@@ -51,6 +51,9 @@ export class UploadHelper {
 
         // Promise resolvers
         this.resolveHandler = null;
+        this.closeHandler = null;
+        this.closeReject = null;
+        this.close_message = null;
 
         options = options || {};
         this.channel = cockpit.channel({
@@ -61,6 +64,7 @@ export class UploadHelper {
             ...options,
         });
         this.channel.addEventListener("control", this.on_control.bind(this));
+        this.channel.addEventListener("close", this.on_close.bind(this));
     }
 
     // Private methods
@@ -77,13 +81,19 @@ export class UploadHelper {
         }
     }
 
-    read_chunk(blob) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (event) => resolve(event.target.result);
-            reader.onerror = reject;
-            reader.readAsArrayBuffer(blob);
-        });
+    on_close(event, message) {
+        // Resolve an potential inflight ack
+        if (this.resolveHandler)
+            this.resolveHandler();
+
+        // Keep track of a close message for exception handling
+        this.close_message = message;
+
+        if (message.problem) {
+            this.closeReject(message);
+        } else {
+            this.closeHandler();
+        }
     }
 
     write(chunk) {
@@ -100,20 +110,6 @@ export class UploadHelper {
         }
     }
 
-    close() {
-        const channel = this.channel;
-        return new Promise((resolve, reject) => {
-            channel.addEventListener("close", function(event, message) {
-                if (message.problem) {
-                    reject(message);
-                } else {
-                    resolve();
-                }
-            });
-            channel.control({ command: "done" });
-        });
-    }
-
     wait_ready() {
         const channel = this.channel;
         return new Promise((resolve, reject) => {
@@ -127,15 +123,11 @@ export class UploadHelper {
 
     // Flush is waiting on acks in flight
     async upload(file) {
-        let close_message = null;
-        this.channel.addEventListener("close", (event, message) => {
-            // If we are waiting on an "ack" and the disk is full
-            if (this.resolveHandler)
-                this.resolveHandler();
-            close_message = message;
-        });
-
         await this.wait_ready();
+        const closePromise = new Promise((resolve, reject) => {
+            this.closeHandler = resolve;
+            this.closeReject = reject;
+        });
 
         let chunk_start = 0;
         let send_chunks = 0;
@@ -144,7 +136,7 @@ export class UploadHelper {
             const chunk_next = chunk_start + BLOCK_SIZE;
             const blob = file.slice(chunk_start, chunk_next);
 
-            const chunk = await this.read_chunk(blob);
+            const chunk = new Uint8Array(await blob.arrayBuffer());
             await this.write(chunk);
 
             send_chunks += blob.size;
@@ -155,13 +147,14 @@ export class UploadHelper {
         }
 
         if (this.channel.valid) {
+            this.channel.control({command: 'done'});
             try {
-                await this.close();
+                await closePromise;
             } catch (exc) {
                 throw new Error(exc.toString());
             }
-        } else if (close_message.problem) {
-            throw new UploadError(cockpit.message(close_message.problem) || close_message.message, close_message.message);
+        } else if (this.close_message.problem) {
+            throw new UploadError(cockpit.message(this.close_message.problem) || this.close_message.message, this.close_message.message);
         }
     }
 

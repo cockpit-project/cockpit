@@ -249,6 +249,7 @@ class Browser:
 
         self.switch_to_top()
         self.cdp.invoke("Page.navigate", url=href)
+        wait(lambda: self.cdp.command("Promise.resolve(getFrameExecId(null) !== undefined)"), delay=0.2, tries=10)
 
     def set_user_agent(self, ua: str):
         """Set the user agent of the browser

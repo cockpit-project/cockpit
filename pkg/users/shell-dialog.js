@@ -80,7 +80,7 @@ export function account_shell_dialog(account, shells) {
                     clicked: () => {
                         if (validate()) {
                             return cockpit.spawn(["usermod", "--shell", state.shell, account.name],
-                                                 { superuser: true, err: "message" });
+                                                 { superuser: "require", err: "message" });
                         } else {
                             update();
                             return Promise.reject();

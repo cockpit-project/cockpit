@@ -82,7 +82,7 @@ function AccountsPage() {
         const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
         handleShadow.watch(() => debouncedGetLogins(), { read: false });
 
-        const handleLogindef = cockpit.file("/etc/login.defs", { superuser: true });
+        const handleLogindef = cockpit.file("/etc/login.defs", { superuser: "require" });
         handleLogindef.watch((logindef) => {
             if (logindef === null)
                 return;

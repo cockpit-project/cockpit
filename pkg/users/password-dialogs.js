@@ -279,7 +279,7 @@ export function reset_password_dialog(account) {
                 style: "primary",
                 clicked: () => {
                     return cockpit.spawn(["passwd", "-e", account.name],
-                                         { superuser: true, err: "message" });
+                                         { superuser: "require", err: "message" });
                 }
             }
         ]

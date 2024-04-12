@@ -846,6 +846,7 @@ class Browser:
         self.logout()
         if wait_remote_session_machine:
             wait_remote_session_machine.execute("while pgrep -a cockpit-ssh; do sleep 1; done")
+        self.open(path or "/")
         self.try_login(user, password=password, superuser=superuser)
         self._wait_present('#content')
         self.wait_visible('#content')

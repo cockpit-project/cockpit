@@ -397,6 +397,19 @@ class TestAccounts(testlib.MachineCase):
         b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
         check_column_sort("[data-label='ID']")
 
+    def testStress(self):
+        b = self.browser
+        self.login_and_go("/system")
+        b.cdp.trace = True
+        import time
+        time.sleep(3)
+
+        for _ in range(30):
+            print("XXXXX iter", _)
+            b.logout()
+            b.login_and_go("/system")
+            time.sleep(2)
+
     def testUserPasswords(self):
         b = self.browser
         m = self.machine

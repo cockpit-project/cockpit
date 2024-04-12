@@ -216,6 +216,8 @@ for t in $EXCLUDES; do
     exclude_options="$exclude_options --exclude $t"
 done
 
+TESTS="TestAccounts.testStress TestAccounts.testUserPasswords"
+
 GATEWAY="$(python3 -c 'import socket; print(socket.gethostbyname("_gateway"))')"
 ./test/common/run-tests \
     --test-dir test/verify \

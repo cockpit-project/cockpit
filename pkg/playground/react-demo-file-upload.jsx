@@ -68,8 +68,7 @@ export const UploadButton = () => {
                 const status = await helper.upload(file);
                 console.debug("upload status", status);
             } catch (exc) {
-                console.debug("upload exception", exc.toString());
-                setAlert({ variant: "danger", title: exc.toString() });
+                setAlert({ variant: "danger", title: exc.message, message: exc.detail });
             }
 
             setFiles(oldFiles => {
@@ -108,7 +107,9 @@ export const UploadButton = () => {
                    title={alert.title}
                    timeout={3000}
                    actionClose={<AlertActionCloseButton onClose={() => setAlert(null)} />}
-            />
+            >
+                <p>{alert.message}</p>
+            </Alert>
             }
             {Object.keys(files).map((key, index) => {
                 const file = files[key];

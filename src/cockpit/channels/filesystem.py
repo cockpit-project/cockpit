@@ -215,7 +215,11 @@ class FsReplaceChannel(Channel):
                 self.unlink_temppath()
                 raise
 
-        self._tempfile.write(data)
+        try:
+            self._tempfile.write(data)
+        except OSError as exc:
+            self.unlink_temppath()
+            raise ChannelError('internal-error', message=str(exc)) from exc
 
     def do_done(self):
         if self._tempfile is None:

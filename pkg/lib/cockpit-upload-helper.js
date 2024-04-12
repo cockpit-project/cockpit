@@ -20,6 +20,14 @@ import cockpit from "cockpit";
 
 const BLOCK_SIZE = 16 * 1024;
 const TOTAL_FRAME_WINDOW = 128;
+
+function UploadError(message = "", detail = "") {
+    this.name = "UploadError";
+    this.message = message;
+    this.detail = detail;
+}
+UploadError.prototype = Error.prototype;
+
 /*
  * Cockpit Upload helper - uploads a blob to the provided destination with an
  * optional progress callback using the fsreplace1 channel.
@@ -150,10 +158,10 @@ export class UploadHelper {
             try {
                 await this.close();
             } catch (exc) {
-                throw new Error(exc.problem);
+                throw new Error(exc.toString());
             }
         } else if (close_message.problem) {
-            throw new Error(close_message.problem);
+            throw new UploadError(cockpit.message(close_message.problem) || close_message.message, close_message.message);
         }
     }
 

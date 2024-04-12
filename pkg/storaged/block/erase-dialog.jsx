@@ -49,14 +49,6 @@ export function erase_dialog(block) {
     dialog_open({
         Title: cockpit.format(_("Erase $0"), block_name(block)),
         Teardown: TeardownMessage(usage),
-        Fields: [
-            CheckBoxes("erase", _("Overwrite"),
-                       {
-                           fields: [
-                               { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
-                           ],
-                       }),
-        ],
         Action: {
             Title: _("Erase"),
             Danger: _("This will erase all data on the storage device."),
@@ -66,8 +58,6 @@ export function erase_dialog(block) {
                 const options = {
                     'tear-down': { t: 'b', v: true }
                 };
-                if (vals.erase.on)
-                    options.erase = { t: 's', v: "zero" };
 
                 await teardown_active_usage(client, usage);
                 await block.Format("empty", options);

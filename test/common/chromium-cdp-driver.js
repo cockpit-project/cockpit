@@ -213,7 +213,7 @@ function setupLocalFunctions(client) {
         const timeout = setTimeout(() => {
             pageLoadHandler = null;
             reject("Timeout waiting for page load"); // eslint-disable-line prefer-promise-reject-errors
-        }, (args.timeout ?? 15) * 1000);
+        }, 15000);
         pageLoadHandler = () => {
             clearTimeout(timeout);
             pageLoadHandler = null;

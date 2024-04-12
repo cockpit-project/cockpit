@@ -838,6 +838,11 @@ class Browser:
                 if "Execution context was destroyed" not in str(e):
                     raise
         self.wait_visible('#login')
+        # avoid browser optimizations when the last URL and future open(URL) are the same (like in
+        # TestKeys.testAuthorizedKeys). Telling Page.navigate to "yes, *really* load the given URL"
+        # is hilariously difficult, so load the blank page here to clean the slate. This will also make
+        # it more obvious when a test tries to do something on the page after logout().
+        self.cdp.invoke("Page.navigate", url="about:blank")
 
         self.machine.allow_restart_journal_messages()
 

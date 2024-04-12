@@ -134,7 +134,16 @@ declare module 'cockpit' {
         close(): void;
     }
 
+    type VariantType = string | Uint8Array | number | boolean | VariantType[];
+    interface Variant {
+        t: string;
+        v: VariantType;
+    }
+
     function dbus(name: string | null, options?: DBusOptions): DBusClient;
+
+    function variant(type: string, value: VariantType): Variant;
+    function byte_array(string: string): string;
 
     /* === cockpit.file ========================== */
 

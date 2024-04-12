@@ -46,9 +46,13 @@ export function block_actions(block, kind) {
 
         if (kind == "crypto") {
             actions.push({
-                title: _("Format cleartext device"),
+                title: _("Format as encrypted filesystem"),
                 action: () => format_dialog(block, { is_encrypted: true }),
-                primary: true,
+                excuse,
+            });
+            actions.push({
+                title: _("Format as encrypted swap"),
+                action: () => format_swap_dialog(block),
                 excuse,
             });
         } else {
@@ -63,14 +67,14 @@ export function block_actions(block, kind) {
                 excuse,
             });
             actions.push({
-                title: _("Add encryption"),
+                title: _("Format with encryption only"),
                 action: () => format_dialog(block, { add_encryption: true }),
                 excuse,
             });
         }
     } else {
         actions.push({
-            title: kind == "crypto" ? _("Erase cleartext device") : _("Erase"),
+            title: kind == "crypto" ? _("Erase encrypted device") : _("Erase"),
             action: () => erase_dialog(block),
             danger: true,
             excuse,

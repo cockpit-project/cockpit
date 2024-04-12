@@ -30,7 +30,7 @@ import {
 
 import {
     dialog_open,
-    TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
+    TextInput, PassInput, CheckBoxes, SelectOne, SelectOneRadio, SizeSlider,
     BlockingMessage, TeardownMessage,
     init_teardown_usage
 } from "../dialog.jsx";
@@ -252,13 +252,8 @@ export function format_dialog(block, options) {
         { tag: "nomount", Title: create_partition ? _("Create") : _("Format") }
     ];
 
-    let action_variants_for_swap = [
-        { tag: null, Title: create_partition ? _("Create and start") : _("Format and start") },
-        { tag: "nomount", Title: create_partition ? _("Create only") : _("Format only") }
-    ];
-
     if (client.in_anaconda_mode()) {
-        action_variants = action_variants_for_swap = [
+        action_variants = [
             { tag: "nomount", Title: create_partition ? _("Create") : _("Format") }
         ];
     }
@@ -277,6 +272,12 @@ export function format_dialog(block, options) {
         Title: title,
         Teardown: TeardownMessage(usage),
         Fields: [
+            SelectOne("type", create_partition ? _("Format") : _("Type"),
+                      {
+                          value: default_type,
+                          choices: filesystem_options,
+                          visible: () => !add_encryption,
+                      }),
             SizeSlider("size", _("Size"),
                        {
                            value: max_size,
@@ -284,13 +285,7 @@ export function format_dialog(block, options) {
                            round: 1024 * 1024,
                            visible: () => create_partition,
                        }),
-            SelectOne("type", _("Type"),
-                      {
-                          value: default_type,
-                          choices: filesystem_options,
-                          visible: () => !add_encryption,
-                      }),
-            TextInput("name", _("Name"),
+            TextInput("name", _("Volume label"),
                       {
                           value: content_block?.IdLabel,
                           validate: (name, vals) => validate_fsys_label(name, vals.type),
@@ -307,47 +302,47 @@ export function format_dialog(block, options) {
                                                           variant == "nomount");
                           }
                       }),
-            SelectOne("crypto", _("Encryption"),
-                      {
-                          choices: crypto_types,
-                          value: default_crypto_type,
-                          visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi" && vals.type != "empty" && !is_already_encrypted,
-                          nested_fields: [
-                              PassInput("passphrase", _("Passphrase"),
-                                        {
-                                            validate: function (phrase, vals) {
-                                                if (phrase === "")
-                                                    return _("Passphrase cannot be empty");
-                                            },
-                                            visible: is_encrypted,
-                                            new_password: true
-                                        }),
-                              PassInput("passphrase2", _("Confirm"),
-                                        {
-                                            validate: function (phrase2, vals) {
-                                                if (phrase2 != vals.passphrase)
-                                                    return _("Passphrases do not match");
-                                            },
-                                            visible: is_encrypted,
-                                            new_password: true
-                                        }),
-                              CheckBoxes("store_passphrase", "",
-                                         {
-                                             visible: is_encrypted,
-                                             value: {
-                                                 on: false,
-                                             },
-                                             fields: [
-                                                 { title: _("Store passphrase"), tag: "on" }
-                                             ]
-                                         }),
-                              TextInput("crypto_options", _("Encryption options"),
-                                        {
-                                            visible: is_encrypted,
-                                            value: crypto_extra_options
-                                        })
-                          ]
-                      }),
+            SelectOneRadio("crypto", _("Encryption"),
+                           {
+                               choices: crypto_types,
+                               value: default_crypto_type,
+                               visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi" && vals.type != "empty" && !is_already_encrypted,
+                               nested_fields: [
+                                   PassInput("passphrase", _("Passphrase"),
+                                             {
+                                                 validate: function (phrase, vals) {
+                                                     if (phrase === "")
+                                                         return _("Passphrase cannot be empty");
+                                                 },
+                                                 visible: is_encrypted,
+                                                 new_password: true
+                                             }),
+                                   PassInput("passphrase2", _("Confirm"),
+                                             {
+                                                 validate: function (phrase2, vals) {
+                                                     if (phrase2 != vals.passphrase)
+                                                         return _("Passphrases do not match");
+                                                 },
+                                                 visible: is_encrypted,
+                                                 new_password: true
+                                             }),
+                                   CheckBoxes("store_passphrase", "",
+                                              {
+                                                  visible: is_encrypted,
+                                                  value: {
+                                                      on: false,
+                                                  },
+                                                  fields: [
+                                                      { title: _("Store passphrase"), tag: "on" }
+                                                  ]
+                                              }),
+                                   TextInput("crypto_options", _("Encryption options"),
+                                             {
+                                                 visible: is_encrypted,
+                                                 value: crypto_extra_options
+                                             })
+                               ]
+                           }),
             at_boot_input(at_boot, is_filesystem),
             mount_options(opt_ro, extra_options, is_filesystem),
         ],

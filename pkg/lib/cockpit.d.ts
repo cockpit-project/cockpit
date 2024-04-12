@@ -30,6 +30,25 @@ declare module 'cockpit' {
 
     export let language: string;
 
+    /* === jQuery compatible promise ============== */
+
+    interface DeferredPromise<T> extends Promise<T> {
+        /* jQuery Promise compatibility */
+        done(callback: (data: T) => void): DeferredPromise<T>
+        fail(callback: (exc: Error) => void): DeferredPromise<T>
+        always(callback: () => void): DeferredPromise<T>
+        progress(callback: (message: T, cancel: () => void) => void): DeferredPromise<T>
+    }
+
+    interface Deferred<T> {
+        resolve(): Deferred<T>;
+        reject(): Deferred<T>;
+        notify(): Deferred<T>;
+        promise: DeferredPromise<T>
+    }
+
+    function defer<T>(): Deferred<T>;
+
     /* === Events mix-in ========================= */
 
     interface EventMap {
@@ -95,6 +114,32 @@ declare module 'cockpit' {
 
     function channel(options: ChannelOptions & { binary?: false; }): Channel<string>;
     function channel(options: ChannelOptions & { binary: true; }): Channel<Uint8Array>;
+
+    /* === cockpit.spawn ============================= */
+
+    interface Spawn<T> extends DeferredPromise<T> {
+        input(message: T, stream?: boolean): DeferredPromise<T>;
+        stream(callback: (data: T) => void): DeferredPromise<T>;
+        close(): void;
+    }
+
+    interface SpawnOptions {
+        binary?: boolean,
+        directory?: string;
+        err?: "out" | "ignore" | "message";
+        environ?: string[];
+        pty?: boolean;
+        superuser?: "try" | "require";
+    }
+
+    function spawn(
+        args: string[],
+        options?: SpawnOptions & { binary?: false }
+    ): Spawn<string>;
+    function spawn(
+        args: string[],
+        options: SpawnOptions & { binary: true }
+    ): Spawn<Uint8Array>;
 
     /* === cockpit.location ========================== */
 

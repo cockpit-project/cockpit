@@ -63,7 +63,7 @@ const info = {
         "base1/test-metrics.js",
         "base1/test-no-jquery.js",
         "base1/test-permissions.js",
-        "base1/test-promise.js",
+        "base1/test-promise.ts",
         "base1/test-protocol.js",
         "base1/test-series.js",
         "base1/test-spawn-proc.js",

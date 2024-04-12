@@ -747,7 +747,7 @@ ipa-advise enable-admins-sudo | sh -ex
 
         # enable ssh GSSAPI authentication
         m.execute("sed -ri 's/#GSSAPIAuthentication.*/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
-        m.execute("systemctl restart sshd")
+        m.execute(self.restart_sshd)
 
         # avoid "unknown host" error in SSH
         m.execute("su -c 'mkdir -p ~/.ssh; ssh-keyscan localhost > ~/.ssh/known_hosts' alice")

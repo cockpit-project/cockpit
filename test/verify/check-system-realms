@@ -29,31 +29,22 @@ import testlib
 
 WAIT_KRB_SCRIPT = """
 set -ex
-# HACK: This needs to work, but may take a minute
-for x in $(seq 1 60); do
-    if getent passwd {0}; then
-        break
+# Configuring kerberos in sssd takes some time
+for _retry in $(seq 5); do
+    if getent passwd {0} &&
+       ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l {0} x0.cockpit.lan true; then
+        exit 0
     fi
     if systemctl --quiet is-failed sssd.service; then
         systemctl status --lines=100 sssd.service >&2
         exit 1
     fi
     sss_cache -E || true
+    systemctl reset-failed sssd.service
     systemctl restart sssd.service
-    sleep $x
+    sleep 10
 done
-# ensure this works now, if the above loop timed out
-getent passwd {0}
-
-# HACK: This needs to work but may take a minute
-for x in $(seq 1 60); do
-    if ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l {0} x0.cockpit.lan true; then
-        break
-    fi
-    sss_cache -E || true
-    systemctl restart sssd.service
-    sleep $x
-done
+exit 1
 """
 
 # https://en.wikipedia.org/wiki/HMAC-based_One-time_Password_algorithm

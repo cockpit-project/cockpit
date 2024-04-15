@@ -188,6 +188,8 @@ function setupFrameTracking(client) {
         if (pageLoadHandler) {
             debug("loadEventFired, resolving pageLoadHandler");
             pageLoadHandler();
+        } else {
+            debug("loadEventFired, but no pageLoadHandler");
         }
     });
 
@@ -209,22 +211,25 @@ function setupFrameTracking(client) {
 }
 
 function setupLocalFunctions(client) {
-    client.waitPageLoad = (args) => new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-            pageLoadHandler = null;
-            reject("Timeout waiting for page load"); // eslint-disable-line prefer-promise-reject-errors
-        }, (args.timeout ?? 15) * 1000);
-        pageLoadHandler = () => {
-            clearTimeout(timeout);
-            pageLoadHandler = null;
-            resolve({});
-        };
-    });
+    client.setupPageLoadHandler = timeout => {
+        if (pageLoadHandler !== null)
+            return Promise.reject("setupPageLoadHandler: already pending"); // eslint-disable-line prefer-promise-reject-errors
 
-    client.reloadPageAndWait = (args) => new Promise((resolve, reject) => {
-        pageLoadHandler = () => { pageLoadHandler = null; resolve({}) };
-        client.Page.reload(args);
-    });
+        client.pageLoadPromise = new Promise((resolve, reject) => {
+            const timeout_timer = setTimeout(() => {
+                pageLoadHandler = null;
+                reject("Timeout waiting for page load"); // eslint-disable-line prefer-promise-reject-errors
+            }, timeout * 1000);
+
+            pageLoadHandler = () => {
+                clearTimeout(timeout_timer);
+                pageLoadHandler = null;
+                resolve({});
+            };
+        });
+
+        return Promise.resolve({});
+    };
 
     async function setCSS({ text, frame }) {
         await client.DOM.enable();

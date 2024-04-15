@@ -196,8 +196,13 @@ class CDP:
         if fn == 'Runtime.evaluate':
             cmd = "%s, contextId: getFrameExecId(%s)%s" % (cmd[:-2], jsquote(self.cur_frame), cmd[-2:])
 
+        waitPageLoad = fn in ['Page.navigate', 'Page.reload']
+
         if trace:
-            print("-> " + kwargs.get('trace', cmd))
+            print("-> " + kwargs.get('trace', cmd) + (" (with waitPageLoad)" if waitPageLoad else ""))
+
+        if waitPageLoad:
+            self.command(f"client.setupPageLoadHandler({self.timeout})")
 
         # avoid having to write the "client." prefix everywhere
         cmd = "client." + cmd
@@ -207,6 +212,11 @@ class CDP:
                 print("<- " + repr(res["result"]))
             else:
                 print("<- " + repr(res))
+
+        if waitPageLoad:
+            res = self.command("client.pageLoadPromise")
+            if trace:
+                print("<- pageLoadPromise " + repr(res))
         return res
 
     def command(self, cmd):

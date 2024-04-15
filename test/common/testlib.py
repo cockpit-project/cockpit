@@ -248,20 +248,11 @@ class Browser:
             self.cdp.invoke("Network.setCookie", **cookie)
 
         self.switch_to_top()
-        opts = {}
-        if self.cdp.browser.name == "firefox":
-            # by default, Firefox optimizes this away if the current and the given href URL
-            # are the same (Like in TestKeys.testAuthorizedKeys).
-            # Force a reload in this case, to make tests and the waitPageLoad below predictable
-            # But that option has the inverse effect with Chromium (argh)
-            opts["transitionType"] = "reload"
-        elif self.cdp.browser.name == 'chromium':
-            # Chromium also optimizes this away, but doesn't have a knob to force loading
-            # so load the blank page first
-            self.cdp.invoke("Page.navigate", url="about:blank")
-            self.cdp.invoke("waitPageLoad", timeout=5)
-        self.cdp.invoke("Page.navigate", url=href, **opts)
-        self.cdp.invoke("waitPageLoad", timeout=self.cdp.timeout)
+        # Some browsers optimize this away if the current URL is already href
+        # (e.g. in TestKeys.testAuthorizedKeys). Load the blank page first to always
+        # force a load.
+        self.cdp.invoke("Page.navigate", url="about:blank")
+        self.cdp.invoke("Page.navigate", url=href)
 
     def set_user_agent(self, ua: str):
         """Set the user agent of the browser
@@ -280,7 +271,7 @@ class Browser:
 
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
-        self.cdp.invoke("reloadPageAndWait", ignoreCache=ignore_cache)
+        self.cdp.invoke("Page.reload", ignoreCache=ignore_cache)
 
         self.machine.allow_restart_journal_messages()
 

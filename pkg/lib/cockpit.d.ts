@@ -193,6 +193,17 @@ declare module 'cockpit' {
 
     /* === String helpers ======================== */
 
+    type FormatOptions = {
+        precision?: number;
+        separate?: boolean;
+    };
+
+    type ByteUnit = {
+        name: string | null;
+        factor: number;
+        selected?: boolean;
+    };
+
     function message(problem: string | JsonObject): string;
 
     function gettext(message: string): string;
@@ -200,6 +211,13 @@ declare module 'cockpit' {
     function ngettext(message1: string, messageN: string, n: number): string;
     function ngettext(context: string, message1: string, messageN: string, n: number): string;
 
-    function format_bytes(n: number): string;
     function format(format_string: string, ...args: unknown[]): string;
+    function format_number(n: number, precision?: number): string
+    function format_bytes(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
+    function format_bytes(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
+    function format_bytes_per_sec(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
+    function format_bytes_per_sec(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
+    function format_bits_per_sec(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
+    function format_bits_per_sec(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
+    function get_byte_units(guide_value: number, factor?: 1000 | 1024): ByteUnit[];
 }

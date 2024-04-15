@@ -1,18 +1,9 @@
 import importlib.machinery
 import importlib.util
-import os
-import sys
 from pathlib import Path
 from typing import List, Optional
 
 import pytest
-
-TOPDIR = os.path.realpath(__file__ + '../../../..')
-COMMON_PATH = [
-    f'{TOPDIR}/bots',
-    f'{TOPDIR}/bots/machine',
-    f'{TOPDIR}/test/common',
-]
 
 
 @pytest.hookimpl
@@ -30,13 +21,7 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Optional[p
         spec = importlib.util.spec_from_loader(loader.name, loader)
         assert spec is not None
         module = importlib.util.module_from_spec(spec)
-
-        old_path = sys.path
-        try:
-            sys.path = [*COMMON_PATH, *sys.path]
-            loader.exec_module(module)
-        finally:
-            sys.path = old_path
+        loader.exec_module(module)
 
         # Return the tree node with our module pre-loaded inside of it
         collector = pytest.Module.from_parent(parent, path=file_path)

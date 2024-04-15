@@ -525,7 +525,7 @@ For running tests, the following dependencies are required:
 
     sudo dnf install curl expect xz rpm-build chromium-headless dbus-daemon \
         libvirt-daemon-driver-storage-core libvirt-daemon-driver-qemu libvirt-client python3-libvirt \
-        python3-flake8 python3-pyyaml
+        python3-pyyaml
 
 For compiling the C parts, you will need the package build dependencies:
 

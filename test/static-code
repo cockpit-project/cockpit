@@ -1,9 +1,8 @@
 #!/bin/bash
-# run static code checks like eslint, flake8, mypy, ruff, vulture.
+# run static code checks like eslint, mypy, ruff, vulture.
 
 set -eu
 
-# requires: .flake8
 # requires: pyproject.toml
 # requires: containers/flatpak/test/ruff.toml
 # requires: pkg/ruff.toml
@@ -32,11 +31,6 @@ find_scripts() {
 
 find_python_files() {
     find_scripts 'python3' '*.py'
-}
-
-test_flake8() {
-    command -v flake8 >/dev/null || skip 'no flake8'
-    find_python_files | xargs -r -0 flake8
 }
 
 test_ruff() {

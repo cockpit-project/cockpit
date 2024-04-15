@@ -83,6 +83,7 @@ QUnit.module("kdump", hooks => {
                         config.write(config.settings)
                                 .then(() => {
                                     // Close watch channel
+                                    config.removeEventListener('kdumpConfigChanged', configChanged);
                                     config.close();
                                     dataWasChanged.then(done);
                                 });

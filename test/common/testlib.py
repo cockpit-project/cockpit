@@ -248,8 +248,20 @@ class Browser:
             self.cdp.invoke("Network.setCookie", **cookie)
 
         self.switch_to_top()
-        self.cdp.invoke("Page.navigate", url=href)
-        wait(lambda: self.cdp.command("Promise.resolve(getFrameExecId(null) !== undefined)"), delay=0.2, tries=10)
+        opts = {}
+        if self.cdp.browser.name == "firefox":
+            # by default, Firefox optimizes this away if the current and the given href URL
+            # are the same (Like in TestKeys.testAuthorizedKeys).
+            # Force a reload in this case, to make tests and the waitPageLoad below predictable
+            # But that option has the inverse effect with Chromium (argh)
+            opts["transitionType"] = "reload"
+        elif self.cdp.browser.name == 'chromium':
+            # Chromium also optimizes this away, but doesn't have a knob to force loading
+            # so load the blank page first
+            self.cdp.invoke("Page.navigate", url="about:blank")
+            self.cdp.invoke("waitPageLoad", timeout=5)
+        self.cdp.invoke("Page.navigate", url=href, **opts)
+        self.cdp.invoke("waitPageLoad", timeout=self.cdp.timeout)
 
     def set_user_agent(self, ua: str):
         """Set the user agent of the browser
@@ -839,11 +851,6 @@ class Browser:
                 if "Execution context was destroyed" not in str(e):
                     raise
         self.wait_visible('#login')
-        # avoid browser optimizations when the last URL and future open(URL) are the same (like in
-        # TestKeys.testAuthorizedKeys). Telling Page.navigate to "yes, *really* load the given URL"
-        # is hilariously difficult, so load the blank page here to clean the slate. This will also make
-        # it more obvious when a test tries to do something on the page after logout().
-        self.cdp.invoke("Page.navigate", url="about:blank")
 
         self.machine.allow_restart_journal_messages()
 
@@ -852,7 +859,6 @@ class Browser:
         self.logout()
         if wait_remote_session_machine:
             wait_remote_session_machine.execute("while pgrep -a cockpit-ssh; do sleep 1; done")
-        self.open(path or "/")
         self.try_login(user, password=password, superuser=superuser)
         self._wait_present('#content')
         self.wait_visible('#content')

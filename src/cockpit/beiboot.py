@@ -303,7 +303,7 @@ async def run(args) -> None:
 
         # only patch the packages line if we are in beiboot mode
         if bridge.packages:
-            message['packages'] = {p: None for p in bridge.packages.packages}
+            message['packages'] = dict.fromkeys(bridge.packages.packages)
 
         bridge.write_control(message)
         bridge.ssh_peer.thaw_endpoint()

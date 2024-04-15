@@ -283,4 +283,3 @@ def test_overlapping_minified(pkgdir):
     assert document.data.read().decode() == 'min'
     document = packages.load_path('/one/two.min.js', {})
     assert document.data.read().decode() == 'min'
-

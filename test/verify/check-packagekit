@@ -19,6 +19,7 @@
 
 import os
 import time
+from collections.abc import Collection
 
 import packagelib
 import testlib
@@ -68,8 +69,9 @@ class TestUpdates(NoSubManCase):
         # make sure we don't have any extra ones
         self.assertFalse(self.browser.is_present(selector.format(len(updates) + 1)))
 
-    def check_nth_update(self, index, pkgname, version, severity="bug",
-                         num_issues=None, desc_matches=None, cves=None, bugs=None, arch=None):
+    def check_nth_update(self, index: int, pkgname: str, version: str, severity: str = "bug",
+                         num_issues: 'int | None' = None, desc_matches: Collection[str] = (),
+                         cves: Collection[str] = (), bugs: Collection[str] = (), arch: 'str | None' = None) -> str:
         """Check the contents of the package update table row at index
 
         None properties will not be tested.
@@ -93,7 +95,7 @@ class TestUpdates(NoSubManCase):
         severity_to_aria = {"bug": "bug fix", "enhancement": "enhancement", "security": "security"}
         b.wait_visible(f"{row} [data-label=Severity] .severity-icon[aria-label='{severity_to_aria[severity]}']")
         self.assertEqual(b.text(row + "[data-label=Severity]").strip(),
-                         num_issues is not None and str(num_issues) or "")
+                         '' if num_issues is None else str(num_issues))
 
         # should not be expanded by default
         self.assertNotIn("pf-m-expanded", b.attr(row, "class"))
@@ -104,7 +106,7 @@ class TestUpdates(NoSubManCase):
         desc = b.text(row + "> tr.pf-m-expanded")
 
         # details should contain all description bits, CVEs and bug numbers
-        for m in (desc_matches or []) + (cves or []) + (bugs or []):
+        for m in (*desc_matches, *cves, *bugs):
             self.assertIn(m, desc)
 
         return row

@@ -145,7 +145,7 @@ class Bridge(Router, PackagesListener):
         }
 
         if self.packages is not None:
-            init_args['packages'] = {p: None for p in self.packages.packages}
+            init_args['packages'] = dict.fromkeys(self.packages.packages)
 
         self.write_control(init_args)
 

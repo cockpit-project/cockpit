@@ -184,7 +184,7 @@ class DBusChannel(Channel):
                 self.send_json(owner=owner)
 
         def handler(message):
-            name, old, new = message.get_body()
+            _name, _old, new = message.get_body()
             send_owner(owner=new if new != "" else None)
         self.add_signal_handler(handler,
                                 sender='org.freedesktop.DBus',
@@ -308,7 +308,7 @@ class DBusChannel(Channel):
 
         timeout = message.get('timeout')
         if timeout is not None:
-            # sd_bus timeout is µs, cockpit API timeout is ms
+            # sd_bus timeout is μs, cockpit API timeout is ms
             timeout *= 1000
         else:
             # sd_bus has no "indefinite" timeout, so use MAX_UINT64
@@ -399,7 +399,7 @@ class DBusChannel(Channel):
                 (path, interfaces) = message.get_body()
                 logger.debug('interfaces removed %s %s', path, interfaces)
                 async with self.watch_processing_lock:
-                    notify = {path: {name: None for name in interfaces}}
+                    notify = {path: dict.fromkeys(interfaces)}
                     self.send_json(notify=notify)
 
         self.add_async_signal_handler(handler,

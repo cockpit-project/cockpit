@@ -593,27 +593,27 @@ class TestConnection(testlib.MachineCase):
         self.sed_file('$ a\\\nPermitEmptyPasswords yes', '/etc/ssh/sshd_config',
                       self.restart_sshd)
 
-        def assertInOrNot(string, result, expected):
+        def assertInOrNot(string: str, result: str, *, expected: bool) -> None:
             if expected:
                 self.assertIn(string, result)
             else:
                 self.assertNotIn(string, result)
 
-        def checkMotdForUser(string, user, expected):
+        def checkMotdForUser(string: str, user: str, *, expected: bool) -> None:
             result = m.execute(f"ssh -o StrictHostKeyChecking=no -n {user}@localhost")
-            assertInOrNot(string, result, expected)
+            assertInOrNot(string, result, expected=expected)
 
-        def checkMotdContent(string, expected=True):
+        def checkMotdContent(string: str, *, expected: bool = True) -> None:
             # Needs https://github.com/linux-pam/linux-pam/pull/292 (or PAM 1.5.0)
             old_pam = m.image.startswith('rhel-8-') or m.image in ['centos-8-stream', 'ubuntu-2204']
 
             # check issue (should be exactly the same as motd)
-            assertInOrNot(string, m.execute("cat /etc/issue.d/cockpit.issue"), expected)
+            assertInOrNot(string, m.execute("cat /etc/issue.d/cockpit.issue"), expected=expected)
 
             # check motd as 'root' (via cat) and 'admin' and 'user' (via ssh)
-            assertInOrNot(string, m.execute("cat /etc/motd.d/cockpit"), expected)
+            assertInOrNot(string, m.execute("cat /etc/motd.d/cockpit"), expected=expected)
             checkMotdForUser(string, expected=expected, user='admin')
-            checkMotdForUser(string, expected=old_pam and expected or False, user='user')
+            checkMotdForUser(string, expected=old_pam and expected, user='user')
 
         m.stop_cockpit()
         checkMotdContent('systemctl')

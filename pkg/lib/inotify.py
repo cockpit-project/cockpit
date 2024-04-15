@@ -61,7 +61,7 @@ class Inotify:
         buf = os.read(self.fd, 4096)
         pos = 0
         while pos < len(buf):
-            (wd, mask, cookie, name_len) = struct.unpack('iIII', buf[pos:pos + 16])
+            (wd, mask, _cookie, name_len) = struct.unpack('iIII', buf[pos:pos + 16])
             pos += 16
             (name,) = struct.unpack('%ds' % name_len, buf[pos:pos + name_len])
             pos += name_len

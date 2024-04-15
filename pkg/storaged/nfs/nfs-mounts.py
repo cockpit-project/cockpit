@@ -141,7 +141,7 @@ def monitor():
     fstab_watcher = Watcher("/etc/fstab")
     mtab_file = open("/proc/self/mounts", "r")
     while True:
-        (r, w, x) = select.select([fstab_watcher.inotify.fd], [], [mtab_file])
+        r, _w, x = select.select([fstab_watcher.inotify.fd], [], [mtab_file])
         if mtab_file in x:
             process_mtab()
             report()

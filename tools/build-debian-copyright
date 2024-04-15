@@ -104,7 +104,7 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
                 raise SystemError('Can not determine licenses of:\n%s' % comment)
             for license_id in licenses:
                 if license_id.lower() not in license_ids:
-                    raise KeyError('License {license_id} not found in {TEMPLATE_FILE}')
+                    raise KeyError(f'License {license_id} not found in {TEMPLATE_FILE}')
 
             # All bundles also contain our own code
             licenses.add("LGPL-2.1-or-later")

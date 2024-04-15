@@ -212,7 +212,7 @@ class TestStdio:
     @pytest.mark.asyncio
     async def test_terminal_write_eof(self):
         # Make sure write_eof() fails
-        with self.create_terminal() as (ours, protocol, transport):
+        with self.create_terminal() as (ours, _protocol, transport):
             assert not transport.can_write_eof()
             with pytest.raises(RuntimeError):
                 transport.write_eof()
@@ -221,7 +221,7 @@ class TestStdio:
     @pytest.mark.asyncio
     async def test_terminal_disconnect(self):
         # Make sure disconnecting the session shows up as an EOF
-        with self.create_terminal() as (ours, protocol, transport):
+        with self.create_terminal() as (ours, protocol, _transport):
             os.close(ours)
             while not protocol.eof:
                 await asyncio.sleep(0.1)

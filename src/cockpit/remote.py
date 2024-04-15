@@ -129,7 +129,7 @@ class SshPeer(Peer):
         except ferny.SshAuthenticationError as exc:
             logger.debug('authentication to host %s failed: %s', host, exc)
 
-            results = {method: 'not-provided' for method in exc.methods}
+            results = dict.fromkeys(exc.methods, "not-provided")
             if 'password' in results and self.password is not None:
                 if responder.password_attempts == 0:
                     results['password'] = 'not-tried'

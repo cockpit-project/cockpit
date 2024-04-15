@@ -37,7 +37,7 @@ class KdumpHelpers(testlib.MachineCase):
 
     def assertActive(self, active, browser=None):
         browser = browser or self.browser
-        browser.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
+        browser.wait_visible(".pf-v5-c-switch__input" + (":checked" if active else ":not(:checked)"))
 
     def enableKdump(self):
         if self.machine.image.startswith("fedora"):

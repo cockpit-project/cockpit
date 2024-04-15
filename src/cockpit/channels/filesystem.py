@@ -373,12 +373,12 @@ class FsInfoChannel(Channel, PathWatchListener):
         if reset:
             if set(self.current_value) & set(updates):
                 # if we have an overlap, we need to do a proper reset
-                self.send_json({name: None for name in self.current_value}, partial=True)
+                self.send_json(dict.fromkeys(self.current_value), partial=True)
                 self.current_value = {'partial': True}
                 updates.update(partial=None)
             else:
                 # otherwise there's no overlap: we can just remove the old keys
-                updates.update({key: None for key in self.current_value})
+                updates.update(dict.fromkeys(self.current_value))
 
         json_merge_and_filter_patch(self.current_value, updates)
         if updates:

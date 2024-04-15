@@ -59,30 +59,28 @@ UNEXPECTED_MESSAGE = "FAIL: Test completed, but found unexpected "
 PIXEL_TEST_MESSAGE = "Some pixel tests have failed"
 
 __all__ = (
-    # Test definitions
-    'test_main',
-    'arg_parser',
+    'PIXEL_TEST_MESSAGE',
+    'TEST_DIR',
+    'UNEXPECTED_MESSAGE',
     'Browser',
+    'Error',
     'MachineCase',
-    'nondestructive',
+    'arg_parser',
     'no_retry_when_changed',
+    'nondestructive',
     'onlyImage',
-    'skipImage',
-    'skipDistroPackage',
-    'skipOstree',
+    'opts',
+    'sit',
     'skipBrowser',
+    'skipDistroPackage',
+    'skipImage',
+    'skipOstree',
+    'test_main',
+    'timeout',
     'todo',
     'todoPybridge',
     'todoPybridgeRHEL8',
-    'timeout',
-    'Error',
-
-    'sit',
     'wait',
-    'opts',
-    'TEST_DIR',
-    'UNEXPECTED_MESSAGE',
-    'PIXEL_TEST_MESSAGE'
 )
 
 # Command line options
@@ -237,7 +235,7 @@ class Browser:
           Error: When a timeout occurs waiting for the page to load.
         """
         if href.startswith("/"):
-            schema = tls and "https" or "http"
+            schema = "https" if tls else "http"
             href = "%s://%s:%s%s" % (schema, self.address, self.port, href)
 
         if not self.current_layout and os.environ.get("TEST_SHOW_BROWSER") in [None, "pixels"]:
@@ -940,7 +938,7 @@ class Browser:
         return int(m.group(1))
 
     def ignore_ssl_certificate_errors(self, ignore: bool):
-        action = ignore and "continue" or "cancel"
+        action = "continue" if ignore else "cancel"
         if opts.trace:
             print("-> Setting SSL certificate error policy to %s" % action)
         self.cdp.command(f"setSSLBadCertificateAction('{action}')")
@@ -1318,7 +1316,7 @@ class MachineCase(unittest.TestCase):
         return self.__class__.__name__ + '-' + self._testMethodName
 
     def new_machine(self, image=None, forward=None, restrict=True, cleanup=True, inherit_machine_class=True, **kwargs):
-        machine_class = inherit_machine_class and self.machine_class or testvm.VirtMachine
+        machine_class = (inherit_machine_class and self.machine_class) or testvm.VirtMachine
 
         if opts.address:
             if forward:
@@ -1860,7 +1858,7 @@ class MachineCase(unittest.TestCase):
         """Check for unexpected journal entries."""
         machine = machine or self.machine
         # on main machine, only consider journal entries since test case start
-        cursor = (machine == self.machine) and self.journal_start or None
+        cursor = self.journal_start if machine == self.machine else None
 
         # Journald does not always set trusted fields like
         # _SYSTEMD_UNIT or _EXE correctly for the last few messages of

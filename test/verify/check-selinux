@@ -311,7 +311,7 @@ class TestSelinuxEnforcing(testlib.MachineCase):
         def assertEnforce(active):
             # polled every 10s
             with b.wait_timeout(20):
-                b.wait_visible(".pf-v5-c-switch__input" + (active and ":checked" or ":not(:checked)"))
+                b.wait_visible(".pf-v5-c-switch__input" + (":checked" if active else ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(active=True)

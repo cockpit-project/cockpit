@@ -32,7 +32,7 @@ def getCompressedMinuteValue(test, g_type, saturation, hour, minute):
 
     polygon_class = ".polygon-sat" if saturation else ".polygon-use"
     sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute='{minute}'] div.metrics-data-{g_type} .compressed{polygon_class}"
-    m = re.search(r"--%s:\s*([0-9.]+);" % (saturation and "saturation" or "utilization"), test.browser.attr(sel, "style"))
+    m = re.search(r"--%s:\s*([0-9.]+);" % ("saturation" if saturation else "utilization"), test.browser.attr(sel, "style"))
     test.assertIsNotNone(m)
     return float(m.group(1))
 
@@ -696,7 +696,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             for _ in range(10):
                 b.click("#metrics-header-section button.pf-m-secondary")
                 b.wait_visible('#switch-pmproxy')
-                found = b.is_present("#switch-pmproxy" + (expected and ":checked" or ":not(:checked)"))
+                found = b.is_present("#switch-pmproxy" + (":checked" if expected else ":not(:checked)"))
                 b.click(f"{self.pcp_dialog_selector} button.btn-cancel")
                 b.wait_not_present(self.pcp_dialog_selector)
 

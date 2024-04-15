@@ -497,7 +497,7 @@ machine         : 8561
                 if expect_smt_state is not None:
                     b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
                     b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                                   (expect_smt_state and ":checked" or ":not(:checked)"))
+                                   (":checked" if expect_smt_state else ":not(:checked)"))
 
                 b.logout()
             finally:
@@ -528,7 +528,7 @@ machine         : 8561
         b.click('#hwinfo button:contains(Mitigations)')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (self.expect_smt_default and ':not(:checked)' or ':checked'))
+                       (':not(:checked)' if self.expect_smt_default else ':checked'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
 
         m.wait_reboot()
@@ -571,10 +571,10 @@ fi
         b.click('#hwinfo button:contains(Mitigations)')
         b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (self.expect_smt_default and ':not(:checked)' or ':checked'))
+                       (':not(:checked)' if self.expect_smt_default else ':checked'))
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (self.expect_smt_default and ':checked' or ':not(:checked)'))
+                       (':checked' if self.expect_smt_default else ':not(:checked)'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
         if self.expect_smt_default:

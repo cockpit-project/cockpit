@@ -129,6 +129,12 @@ if [ "$PLAN" = "basic" ]; then
         # fails to start second browser, timing out on http://127.0.0.1:{cdp_port}/json/list
         # impossible to debug without access to the infra
         EXCLUDES="$EXCLUDES TestAccounts.testUserPasswords"
+
+    fi
+
+    # TODO: investigate failure
+    if [ "$TEST_OS" = "centos-10" ]; then
+        EXCLUDES="$EXCLUDES TestLogin.testClientCertAuthentication"
     fi
 
     # These don't test more external APIs

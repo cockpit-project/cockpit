@@ -42,7 +42,7 @@ QUnit.test("format_number", function (assert) {
         [-123.01, "-123", "-123"],
         [null, "", ""],
         [undefined, "", ""],
-    ];
+    ] as const;
 
     const saved_language = cockpit.language;
 
@@ -101,7 +101,7 @@ QUnit.test("format_bytes", function (assert) {
         [0, "KB", "0 KB"],
         [undefined, "KB", ""],
         [null, "KB", ""],
-    ];
+    ] as const;
 
     assert.expect(checks.length * 2 + 2);
     for (let i = 0; i < checks.length; i++) {
@@ -128,8 +128,8 @@ QUnit.test("get_byte_units", function (assert) {
     const gib_unit = { factor: gib, name: "GiB" };
     const tib_unit = { factor: tib, name: "TiB" };
 
-    function selected(unit) {
-        return { factor: unit.factor, name: unit.name, selected: true };
+    function selected<T>(unit: T) {
+        return { ...unit, selected: true };
     }
 
     const checks = [
@@ -142,11 +142,11 @@ QUnit.test("get_byte_units", function (assert) {
         [200 * gib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
         [2000 * gib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
         [20000 * gib, 1024, [mib_unit, gib_unit, selected(tib_unit)]]
-    ];
+    ] as const;
 
     assert.expect(checks.length);
     for (let i = 0; i < checks.length; i++) {
-        assert.deepEqual(cockpit.get_byte_units(checks[i][0], checks[i][1]), checks[i][2],
+        assert.deepEqual(cockpit.get_byte_units(checks[i][0], checks[i][1]), checks[i][2] as unknown,
                          "get_byte_units(" + checks[i][0] + ", " + checks[i][1] + ") = " + JSON.stringify(checks[i][2]));
     }
 });
@@ -171,7 +171,7 @@ QUnit.test("format_bytes_per_sec", function (assert) {
         // significant integer digits exceed custom precision
         [25555000, "kB/s", { precision: 2 }, "25555 kB/s"],
         [25555678, "kB/s", { precision: 2 }, "25556 kB/s"],
-    ];
+    ] as const;
 
     assert.expect(checks.length + 2);
     for (let i = 0; i < checks.length; i++) {
@@ -195,7 +195,7 @@ QUnit.test("format_bits_per_sec", function (assert) {
         [2555, "2.56 Kbps"],
         [2000, "2 Kbps"],
         [2003, "2.00 Kbps"]
-    ];
+    ] as const;
 
     assert.expect(checks.length);
     for (let i = 0; i < checks.length; i++) {

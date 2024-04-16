@@ -28,6 +28,8 @@ declare module 'cockpit' {
 
     function assert(predicate: unknown, message?: string): asserts predicate;
 
+    export let language: string;
+
     /* === Events mix-in ========================= */
 
     interface EventMap {
@@ -199,7 +201,7 @@ declare module 'cockpit' {
     };
 
     type ByteUnit = {
-        name: string | null;
+        name: string;
         factor: number;
         selected?: boolean;
     };
@@ -212,12 +214,12 @@ declare module 'cockpit' {
     function ngettext(context: string, message1: string, messageN: string, n: number): string;
 
     function format(format_string: string, ...args: unknown[]): string;
-    function format_number(n: number, precision?: number): string
-    function format_bytes(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
-    function format_bytes(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
-    function format_bytes_per_sec(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
-    function format_bytes_per_sec(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
-    function format_bits_per_sec(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
-    function format_bits_per_sec(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
-    function get_byte_units(guide_value: number, factor?: 1000 | 1024): ByteUnit[];
+    function format_number(n: number | null | undefined, precision?: number): string
+    function format_bytes(n: number | null | undefined, factor?: 1000 | 1024 | string, options?: FormatOptions & { separate?: false } | false): string;
+    function format_bytes(n: number | null | undefined, factor: 1000 | 1024 | string | undefined, options: FormatOptions & { separate: true } | true): string[];
+    function format_bytes_per_sec(n: number, factor?: 1000 | 1024 | string, options?: FormatOptions & { separate?: false } | false): string;
+    function format_bytes_per_sec(n: number, factor: 1000 | 1024 | string | undefined, options: FormatOptions & { separate: true } | true): string[];
+    function format_bits_per_sec(n: number, factor?: 1000 | 1024 | string | undefined, options?: FormatOptions & { separate?: false } | false): string;
+    function format_bits_per_sec(n: number, factor: 1000 | 1024 | string | undefined, options: FormatOptions & { separate: true } | true): string[];
+    function get_byte_units(guide_value: number, factor?: 1000 | 1024): [ByteUnit, ByteUnit, ByteUnit];
 }

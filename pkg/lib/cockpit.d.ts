@@ -28,6 +28,8 @@ declare module 'cockpit' {
 
     function assert(predicate: unknown, message?: string): asserts predicate;
 
+    export let language: string;
+
     /* === Events mix-in ========================= */
 
     interface EventMap {

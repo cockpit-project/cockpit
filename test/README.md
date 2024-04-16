@@ -156,6 +156,7 @@ You can set these environment variables to configure the test suite:
 
     TEST_OS    The OS to run the tests in.  Currently supported values:
                   "centos-9-stream"
+                  "centos-10"
                   "debian-stable"
                   "debian-testing"
                   "fedora-39"

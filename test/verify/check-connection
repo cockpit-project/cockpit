@@ -1296,7 +1296,7 @@ ProtocolHeader = X-Forwarded-Proto
         b.logout()
         b.cdp.invoke("Browser.close")
 
-    @testlib.skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")
     @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
@@ -1375,7 +1375,7 @@ server {
         b.click('#login-button')
         b.wait_visible('.pf-v5-c-card.system-health')
 
-    @testlib.skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")
     @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):

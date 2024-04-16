@@ -66,7 +66,7 @@ class TestNetworkingCheckpoints(netlib.NetworkCase):
             b.wait_not_present("#confirm-breaking-change-popup")
 
     @testlib.skipImage("Main interface settings are read-only", "debian-*")
-    @testlib.skipImage("not using dhclient", "arch")
+    @testlib.skipImage("no dhclient on OS image", "arch", "centos-10*", "rhel-10*")
     @testlib.skipOstree("not using dhclient")
     def testCheckpointSlowRollback(self):
         b = self.browser

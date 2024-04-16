@@ -1,5 +1,5 @@
 import cockpit from "cockpit";
-import QUnit from "qunit-tests";
+import QUnit, { skipWithPybridge } from "qunit-tests";
 import { machines } from "./machines.js";
 
 const dbus = cockpit.dbus(null, { bus: "internal" });
@@ -54,9 +54,9 @@ QUnit.test("two definitions", async assert => machinesParseTest(
 
 QUnit.test("invalid json", async assert => machinesParseTest(assert, { "01.json": '{"green":' }, {}));
 
-QUnit.test.skipWithPybridge("invalid data types", async assert => machinesParseTest(assert, { "01.json": '{"green": []}' }, {}));
+skipWithPybridge("invalid data types", async assert => machinesParseTest(assert, { "01.json": '{"green": []}' }, {}));
 
-QUnit.test.skipWithPybridge("merge several JSON files", async assert => machinesParseTest(
+skipWithPybridge("merge several JSON files", async assert => machinesParseTest(
     assert,
     /* 99-webui.json changes a property in green, adds a
      * property to blue, and adds an entire new host yellow */
@@ -83,7 +83,7 @@ QUnit.test.skipWithPybridge("merge several JSON files", async assert => machines
     }
 ));
 
-QUnit.test.skipWithPybridge("merge JSON files with errors", async assert => machinesParseTest(
+skipWithPybridge("merge JSON files with errors", async assert => machinesParseTest(
     assert,
     {
         "01-valid.json": '{"green": {"visible": true, "address": "1.2.3.4"}}',

@@ -19,11 +19,11 @@
 
 "use strict";
 
-import QUnit from "qunit/qunit/qunit.js";
-import qunitTap from "qunit-tap/lib/qunit-tap.js";
+import QUnit from "qunit";
+import qunitTap from "qunit-tap";
 import "qunit/qunit/qunit.css";
 
-QUnit.mock_info = async key => {
+export const mock_info = async (key: string) => {
     const response = await fetch(`http://${window.location.hostname}:${window.location.port}/mock/info`);
     return (await response.json())[key];
 };
@@ -31,14 +31,14 @@ QUnit.mock_info = async key => {
 // Convenience for skipping tests that the python bridge can't yet
 // handle.
 
-let is_pybridge = null;
+let is_pybridge: boolean | null = null;
 
-QUnit.test.skipWithPybridge = async (name, callback) => {
+export const skipWithPybridge = async (name: string, callback: (assert: unknown) => void | Promise<void>) => {
     if (is_pybridge === null)
-        is_pybridge = await QUnit.mock_info("pybridge");
+        is_pybridge = await mock_info("pybridge");
 
     if (is_pybridge)
-        QUnit.test.skip(name, callback);
+        QUnit.skip(name, callback);
     else
         QUnit.test(name, callback);
 };
@@ -62,7 +62,7 @@ window.setTimeout(() => {
 /* QUnit-Tap writes the summary line right after this function returns.
 * Delay printing the end marker until after that summary is out.
 */
-QUnit.done(() => window.setTimeout(() => console.log("cockpittest-tap-done"), 0));
+QUnit.done(() => { window.setTimeout(() => console.log("cockpittest-tap-done"), 0) });
 
 /* Now initialize qunit-tap
  *
@@ -76,15 +76,15 @@ QUnit.done(() => window.setTimeout(() => console.log("cockpittest-tap-done"), 0)
  * We also want to insert the current test name into all tap lines.
  */
 const tap_regex = /^((not )?ok [0-9]+ (- )?)(.*)$/;
-qunitTap(QUnit, function() {
-    if (arguments.length == 1 && QUnit.config.current) {
-        const match = tap_regex.exec(arguments[0]);
+qunitTap(QUnit, function(message: string, ...args: unknown[]) {
+    if (args.length == 0 && QUnit.config.current) {
+        const match = tap_regex.exec(message);
         if (match) {
             console.log(match[1] + QUnit.config.current.testName + ": " + match[4]);
             return;
         }
     }
-    console.log.apply(console, arguments);
+    console.log(message, args);
 });
 
 export default QUnit;

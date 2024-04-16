@@ -1,5 +1,5 @@
 import cockpit from "cockpit";
-import QUnit from "qunit-tests";
+import QUnit, { mock_info } from "qunit-tests";
 
 const QS_REQUEST = "HEAD /mock/qs HTTP/1.0\nHOST: localhost\n\n";
 
@@ -12,7 +12,7 @@ QUnit.test("TCP stream port without a service", async assert => {
     const done = assert.async();
     assert.expect(2);
 
-    const is_pybridge = await QUnit.mock_info("pybridge");
+    const is_pybridge = await mock_info("pybridge");
 
     const channel = cockpit.channel({ payload: "stream", address: "127.0.0.99", port: 2222 });
 

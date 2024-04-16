@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import QUnit from "qunit-tests";
+import QUnit, { skipWithPybridge } from "qunit-tests";
 
 function deep_update(target, data) {
     for (const prop in data) {
@@ -104,7 +104,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         ], "round trip");
     });
 
-    QUnit.test.skipWithPybridge("integer bounds", async assert => {
+    skipWithPybridge("integer bounds", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
 
         async function testNumber(type, value, valid) {
@@ -163,7 +163,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         ], "round trip");
     });
 
-    QUnit.test.skipWithPybridge("variants", async assert => {
+    skipWithPybridge("variants", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         const reply = await dbus.call(
             "/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
@@ -179,7 +179,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         ], "round trip");
     });
 
-    QUnit.test.skipWithPybridge("bad variants", async assert => {
+    skipWithPybridge("bad variants", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call(
@@ -236,7 +236,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("call bad base64", async assert => {
+    skipWithPybridge("call bad base64", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call(
@@ -322,7 +322,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("empty base64", assert => {
+    skipWithPybridge("empty base64", assert => {
         const done = assert.async();
         assert.expect(3);
 
@@ -340,7 +340,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad object path", async assert => {
+    skipWithPybridge("bad object path", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("invalid/path", "borkety.Bork", "Echo", [1]);
@@ -351,7 +351,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("bad interface name", async assert => {
+    skipWithPybridge("bad interface name", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("/path", "!invalid!interface!", "Echo", [1]);
@@ -362,7 +362,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("bad method name", async assert => {
+    skipWithPybridge("bad method name", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("/path", "borkety.Bork", "!Invalid!Method!", [1]);
@@ -373,7 +373,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("bad flags", async assert => {
+    skipWithPybridge("bad flags", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("/path", "borkety.Bork", "Method", [1], { flags: 5 });
@@ -384,7 +384,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("bad types", async assert => {
+    skipWithPybridge("bad types", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("/bork", "borkety.Bork", "Echo", [1], { type: "!!%%" });
@@ -395,7 +395,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("bad type invalid", async assert => {
+    skipWithPybridge("bad type invalid", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("/bork", "borkety.Bork", "Echo", [1], { type: 5 }); // invalid
@@ -406,7 +406,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("bad dict type", async assert => {
+    skipWithPybridge("bad dict type", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "Nobody",
@@ -418,7 +418,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("bad object path", async assert => {
+    skipWithPybridge("bad object path", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "Nobody",
@@ -430,7 +430,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         }
     });
 
-    QUnit.test.skipWithPybridge("bad signature", async assert => {
+    skipWithPybridge("bad signature", async assert => {
         const dbus = cockpit.dbus(bus_name, channel_options);
         try {
             await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "Nobody", ["bad signature"], { type: "g" });
@@ -710,7 +710,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         dbus.removeEventListener("notify", onnotify);
     });
 
-    QUnit.test.skipWithPybridge("path loop", async assert => {
+    skipWithPybridge("path loop", async assert => {
         const name = "yo" + new Date().getTime();
         const cache = { };
 
@@ -733,7 +733,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         dbus.removeEventListener("notify", onnotify);
     });
 
-    QUnit.test.skipWithPybridge("path signal", async assert => {
+    skipWithPybridge("path signal", async assert => {
         const name = "yo" + new Date().getTime();
         const cache = { };
 
@@ -940,7 +940,7 @@ export function dbus_track_tests(channel_options, bus_name) {
         assert.equal(gone, false, "is not gone");
     });
 
-    QUnit.test.skipWithPybridge("receive readable fd", async assert => {
+    skipWithPybridge("receive readable fd", async assert => {
         const done = assert.async();
         assert.expect(3);
 
@@ -959,7 +959,7 @@ export function dbus_track_tests(channel_options, bus_name) {
         };
     });
 
-    QUnit.test.skipWithPybridge("receive readable fd and ensure opening more than once fails", async assert => {
+    skipWithPybridge("receive readable fd and ensure opening more than once fails", async assert => {
         const done = assert.async();
         assert.expect(6);
 
@@ -981,7 +981,7 @@ export function dbus_track_tests(channel_options, bus_name) {
         };
     });
 
-    QUnit.test.skipWithPybridge("receive readable fd and ensure writing fails", async assert => {
+    skipWithPybridge("receive readable fd and ensure writing fails", async assert => {
         const done = assert.async();
         assert.expect(5);
 
@@ -1002,7 +1002,7 @@ export function dbus_track_tests(channel_options, bus_name) {
         };
     });
 
-    QUnit.test.skipWithPybridge("receive writable fd", async assert => {
+    skipWithPybridge("receive writable fd", async assert => {
         const dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
         const [fd] = await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                                      "MakeTestFd", ["writable"]);

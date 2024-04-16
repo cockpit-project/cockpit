@@ -1,5 +1,5 @@
 import cockpit from "cockpit";
-import QUnit from "qunit-tests";
+import QUnit, { mock_info } from "qunit-tests";
 
 const EXPECT_MOCK_STREAM = "0 1 2 3 4 5 6 7 8 9 ";
 
@@ -257,7 +257,7 @@ QUnit.test("http keep alive", async assert => {
     assert.expect(1);
 
     // connection sharing is not implemented in the pybridge
-    if (await QUnit.mock_info("pybridge")) {
+    if (await mock_info("pybridge")) {
         assert.rejects(
             cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection"),
             ex => ex.problem == "protocol-error" && ex.status == undefined,
@@ -278,7 +278,7 @@ QUnit.test("http connection different", async assert => {
     assert.expect(1);
 
     // connection sharing is not implemented in the pybridge
-    if (await QUnit.mock_info("pybridge")) {
+    if (await mock_info("pybridge")) {
         assert.ok(true);
         return;
     }
@@ -296,7 +296,7 @@ QUnit.test("http connection without address", async assert => {
     assert.expect(1);
 
     // connection sharing is not implemented in the pybridge
-    if (await QUnit.mock_info("pybridge")) {
+    if (await mock_info("pybridge")) {
         assert.ok(true);
         return;
     }
@@ -363,7 +363,7 @@ QUnit.test("wrong options", async assert => {
         "rejects request with both port and unix option");
 
     // This is disallowed in the pybridge, but allowed in the C bridge
-    if (await QUnit.mock_info("pybridge")) {
+    if (await mock_info("pybridge")) {
         assert.rejects(
             cockpit.http({ unix: "/nonexisting/socket", tls: {} }).get("/"),
             ex => ex.problem == "protocol-error" && ex.status == undefined,
@@ -375,7 +375,7 @@ QUnit.test("wrong options", async assert => {
 
 QUnit.test("parallel stress test", async assert => {
     // This is way too slow under valgrind
-    if (await QUnit.mock_info("skip_slow_tests")) {
+    if (await mock_info("skip_slow_tests")) {
         assert.ok(true, "skipping on python bridge, not implemented");
         return;
     }

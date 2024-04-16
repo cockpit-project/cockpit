@@ -1,5 +1,5 @@
 import cockpit from "cockpit";
-import QUnit from "qunit-tests";
+import QUnit, { mock_info, skipWithPybridge } from "qunit-tests";
 
 import { common_dbus_tests, dbus_track_tests } from "./test-dbus-common.js";
 
@@ -142,7 +142,7 @@ QUnit.test("owned message for absent service", assert => {
     });
 });
 
-QUnit.test.skipWithPybridge("bad dbus address", function (assert) {
+skipWithPybridge("bad dbus address", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -153,7 +153,7 @@ QUnit.test.skipWithPybridge("bad dbus address", function (assert) {
     });
 });
 
-QUnit.test.skipWithPybridge("bad dbus bus", function (assert) {
+skipWithPybridge("bad dbus bus", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -194,7 +194,7 @@ QUnit.test("wait fail", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("no default name", function (assert) {
+skipWithPybridge("no default name", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -211,7 +211,7 @@ QUnit.test.skipWithPybridge("no default name", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("no default name bad", function (assert) {
+skipWithPybridge("no default name bad", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -229,7 +229,7 @@ QUnit.test.skipWithPybridge("no default name bad", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("no default name invalid", function (assert) {
+skipWithPybridge("no default name invalid", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -247,7 +247,7 @@ QUnit.test.skipWithPybridge("no default name invalid", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("no default name missing", function (assert) {
+skipWithPybridge("no default name missing", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -265,7 +265,7 @@ QUnit.test.skipWithPybridge("no default name missing", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("no default name second", function (assert) {
+skipWithPybridge("no default name second", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -290,7 +290,7 @@ QUnit.test.skipWithPybridge("no default name second", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("override default name", function (assert) {
+skipWithPybridge("override default name", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -314,7 +314,7 @@ QUnit.test.skipWithPybridge("override default name", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("watch no default name", function (assert) {
+skipWithPybridge("watch no default name", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -337,7 +337,7 @@ QUnit.test.skipWithPybridge("watch no default name", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("watch missing name", function (assert) {
+skipWithPybridge("watch missing name", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -355,7 +355,7 @@ QUnit.test.skipWithPybridge("watch missing name", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("shared client", function (assert) {
+skipWithPybridge("shared client", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -395,7 +395,7 @@ QUnit.test("not shared option", function (assert) {
     dbus2.close();
 });
 
-QUnit.test.skipWithPybridge("emit signal type", function (assert) {
+skipWithPybridge("emit signal type", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
@@ -425,7 +425,7 @@ QUnit.test.skipWithPybridge("emit signal type", function (assert) {
     });
 });
 
-QUnit.test.skipWithPybridge("emit signal no meta", function (assert) {
+skipWithPybridge("emit signal no meta", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -451,13 +451,13 @@ async function internal_test(assert, options) {
 
 QUnit.test("internal dbus", async assert => internal_test(assert, { bus: "internal" }));
 
-QUnit.test.skipWithPybridge("internal dbus bus none",
-                            async assert => internal_test(assert, { bus: "none" }));
+skipWithPybridge("internal dbus bus none",
+                 async assert => internal_test(assert, { bus: "none" }));
 
-QUnit.test.skipWithPybridge("internal dbus bus none with address",
-                            async assert => internal_test(assert, { bus: "none", address: "internal" }));
+skipWithPybridge("internal dbus bus none with address",
+                 async assert => internal_test(assert, { bus: "none", address: "internal" }));
 
-QUnit.test.skipWithPybridge("separate dbus connections for channel groups", function (assert) {
+skipWithPybridge("separate dbus connections for channel groups", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
@@ -533,7 +533,7 @@ QUnit.test("nonexisting address", async assert => {
         await dbus.call("/org/freedesktop/DBus", "org.freedesktop.DBus", "Hello", []);
         assert.ok(false, "should not be reached");
     } catch (ex) {
-        if (await QUnit.mock_info("pybridge")) {
+        if (await mock_info("pybridge")) {
             assert.equal(ex.problem, "protocol-error", "got right close code");
             assert.equal(ex.message, "failed to connect to none bus: [Errno 2] sd_bus_start: No such file or directory",
                          "error message");

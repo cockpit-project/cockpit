@@ -115,7 +115,7 @@ async function build() {
 
     const { entryPoints, assetFiles, redhat_fonts } = getFiles(args.onlydir);
     const tests = getTestFiles();
-    const testEntryPoints = tests.map(test => "pkg/" + test + ".js");
+    const testEntryPoints = tests.map(test => "pkg/" + test);
 
     const pkgFirstPlugins = [
         cleanPlugin({ subdir: args.onlydir }),

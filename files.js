@@ -53,7 +53,7 @@ const info = {
         "base1/test-events.js",
         "base1/test-external.js",
         "base1/test-file.js",
-        "base1/test-format.js",
+        "base1/test-format.ts",
         "base1/test-framed-cache.js",
         "base1/test-framed.js",
         "base1/test-http.js",

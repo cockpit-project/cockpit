@@ -42,7 +42,7 @@ QUnit.test("format_number", function (assert) {
         [-123.01, "-123", "-123"],
         [null, "", ""],
         [undefined, "", ""],
-    ];
+    ] as const;
 
     const saved_language = cockpit.language;
 
@@ -104,7 +104,7 @@ QUnit.test("format_bytes", function (assert) {
         [0, "KB", "0 KB"],
         [undefined, "KB", ""],
         [null, "KB", ""],
-    ];
+    ] as const;
 
     for (let i = 0; i < checks.length; i++) {
         if (typeof checks[i][1] === 'string') {
@@ -155,7 +155,7 @@ QUnit.test("format_bytes_per_sec", function (assert) {
         // significant integer digits exceed custom precision
         [25555000, "kB/s", { precision: 2 }, "25555 kB/s"],
         [25555678, "kB/s", { precision: 2 }, "25556 kB/s"],
-    ];
+    ] as const;
 
     for (let i = 0; i < checks.length; i++) {
         if (typeof checks[i][1] === 'string') {
@@ -189,7 +189,7 @@ QUnit.test("format_bits_per_sec", function (assert) {
         [2555, "2.56 Kbps"],
         [2000, "2 Kbps"],
         [2003, "2.00 Kbps"]
-    ];
+    ] as const;
 
     assert.expect(checks.length);
     for (let i = 0; i < checks.length; i++) {

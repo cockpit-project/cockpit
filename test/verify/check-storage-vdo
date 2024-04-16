@@ -24,6 +24,7 @@ import testlib
 SIZE_10G = "10000000000"
 
 
+@testlib.skipImage("vdo not currently available in RHEL 10", "rhel-10*", "centos-10*")
 class TestStorageVDO(storagelib.StorageCase):
 
     provision = {"0": {"memory_mb": 1800}}
@@ -389,6 +390,7 @@ config: !Configuration
 
 
 @testlib.onlyImage("VDO API only supported on RHEL", "rhel-*", "centos-*")
+@testlib.skipImage("vdo not currently available in RHEL 10", "rhel-10*", "centos-10*")
 class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
 
     provision = {"0": {"memory_mb": 1500}}

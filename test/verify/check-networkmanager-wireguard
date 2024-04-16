@@ -8,6 +8,7 @@ import packagelib
 import testlib
 
 
+@testlib.skipImage("wireguard not available", "centos-10*", "rhel-10*")
 class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
     provision = {
         "machine1": {"address": "192.168.100.11/24", "memory_mb": 768},

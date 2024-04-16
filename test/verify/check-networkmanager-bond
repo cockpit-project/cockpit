@@ -297,7 +297,7 @@ class TestBondingVirt(netlib.NetworkCase):
         b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
         b.wait_visible(f"#networking-interfaces tr[data-interface='{iface}']")
 
-    @testlib.skipImage("TODO: no dhclient on Arch image", "arch")
+    @testlib.skipImage("no dhclient on OS image", "arch", "centos-10*", "rhel-10*")
     @testlib.skipImage("Main interface can't be managed", "debian-*", "ubuntu-*")
     @testlib.skipOstree("not using dhclient")
     def testSlowly(self):

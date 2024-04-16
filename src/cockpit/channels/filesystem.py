@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 @functools.lru_cache()
 def my_umask() -> int:
     match = re.search(r'^Umask:\s*0([0-7]*)$', Path('/proc/self/status').read_text(), re.M)
-    return match and int(match.group(1), 8) or 0o077
+    return (match and int(match.group(1), 8)) or 0o077
 
 
 def tag_from_stat(buf):

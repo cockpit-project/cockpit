@@ -190,7 +190,6 @@ echo '%dir %{_datadir}/cockpit/base1' >> base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f -o -type l >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
-echo '%{_libexecdir}/cockpit-ssh' >> base.list
 
 %if %{build_pcp}
 echo '%dir %{_datadir}/cockpit/pcp' > pcp.list
@@ -281,7 +280,6 @@ troubleshooting, interactive command-line sessions, and more.
 %package bridge
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
-Provides: cockpit-ssh = %{version}-%{release}
 # 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)
 Conflicts: cockpit-dashboard < 233
 Conflicts: cockpit-networkmanager < 233

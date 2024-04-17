@@ -97,7 +97,7 @@ Remote machines
 
 Cockpit also supports logging directly into remote machines. The remote machine to
 connect to is provided by using a application name that begins with `cockpit+=`.
-The default command used for this is cockpit-ssh.
+The default command used for this is `python3 -m cockpit.ssh`.
 
 The section `SSH-Login` defines the options for all ssh commands. The section
 has the same options as the other authentication sections with the following additions.
@@ -108,10 +108,9 @@ has the same options as the other authentication sections with the following add
  `/etc/ssh/ssh_known_hosts`). Set this to `true` is to allow those connections
  to proceed.
 
-This uses the [cockpit-ssh](https://github.com/cockpit-project/cockpit/tree/main/src/ssh)
-bridge. After the user authentication with the `"*"` challenge, if the remote
-host is not already present in any local `known_hosts` file, this will send an
-`"x-host-key"` challenge:
+This uses the `cockpit.ssh` bridge. After the user authentication with the
+`"*"` challenge, if the remote host is not already present in any local
+`known_hosts` file, this will send an `"x-host-key"` challenge:
 
 ```
 {

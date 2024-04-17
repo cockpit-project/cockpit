@@ -70,12 +70,6 @@ if test "$enable_polkit" != 'no'; then
 fi
 AC_MSG_RESULT(${enable_polkit:=yes})
 
-# --disable-ssh
-AC_MSG_CHECKING([whether to build cockpit-ssh])
-AC_ARG_ENABLE(ssh, AS_HELP_STRING([--disable-ssh], [Disable cockpit-ssh build and libssh dependency]))
-AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" != "no")
-AC_MSG_RESULT(${enable_ssh:=yes})
-
 # --enable-old-bridge
 AC_MSG_CHECKING([whether to install the old C cockpit-bridge])
 AC_ARG_ENABLE(old_bridge, AS_HELP_STRING([--enable-old-bridge], [Install old C cockpit-bridge]))
@@ -110,14 +104,6 @@ PKG_CHECK_MODULES(gnutls, [gnutls >= 3.6.0])
 PKG_CHECK_MODULES(krb5, [krb5-gssapi >= 1.11 krb5 >= 1.11])
 if test "$enable_polkit" != "no"; then
   PKG_CHECK_MODULES(polkit, [polkit-agent-1 >= 0.105])
-fi
-if test "$enable_ssh" != "no"; then
-  PKG_CHECK_MODULES(libssh, [libssh >= 0.8.5])
-  old_CFLAGS=$CFLAGS; CFLAGS=$libssh_CFLAGS
-  old_LIBS=$LIBS; LIBS=$libssh_LIBS
-  AC_CHECK_FUNCS(ssh_userauth_publickey_auto_get_current_identity)
-  CFLAGS=$old_CFLAGS
-  LIBS=$old_LIBS
 fi
 
 # pam
@@ -434,8 +420,6 @@ echo "
         SELinux Policy:             ${enable_selinux_policy}
 
         cockpit-client:             ${enable_cockpit_client}
-        cockpit-ssh:                ${enable_ssh}
-
         ssh-add:                    ${SSH_ADD}
         ssh-agent:                  ${SSH_AGENT}
 

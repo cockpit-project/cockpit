@@ -1206,6 +1206,7 @@ UnixPath=/run/cockpit/session
         b.wait_visible("#nav-system li:contains(Hackices)")
         self.assertFalse(b.is_present("#nav-system li:contains(Services)"))
 
+    @testlib.nondestructive
     def testBridgeCLI(self):
         m = self.machine
 

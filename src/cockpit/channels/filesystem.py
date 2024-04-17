@@ -317,8 +317,9 @@ class FsWatchChannel(Channel):
         self.ready()
 
     def do_close(self):
-        self._watch.close()
-        self._watch = None
+        if self._watch is not None:
+            self._watch.close()
+            self._watch = None
         self.close()
 
 

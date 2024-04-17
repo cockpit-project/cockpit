@@ -51,7 +51,7 @@
 
 /* Some tunables that can be set from tests */
 const gchar *cockpit_ws_session_program = LIBEXECDIR "/cockpit-session";
-const gchar *cockpit_ws_ssh_program = LIBEXECDIR "/cockpit-ssh";
+const gchar *cockpit_ws_ssh_program = "/usr/bin/env python3 -m cockpit.beiboot";
 
 /* Timeout of authenticated session when no connections */
 guint cockpit_ws_service_idle = 15;

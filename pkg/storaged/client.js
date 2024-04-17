@@ -200,21 +200,6 @@ client.swap_sizes = instance_sampler([{ name: "swapdev.length" },
     { name: "swapdev.free" },
 ], "direct");
 
-/* Derived indices.
- */
-
-function is_multipath_master(block) {
-    // The master has "mpath" in its device mapper UUID.  In the
-    // future, storaged will hopefully provide this information
-    // directly.
-    if (block.Symlinks && block.Symlinks.length) {
-        for (let i = 0; i < block.Symlinks.length; i++)
-            if (utils.decode_filename(block.Symlinks[i]).indexOf("/dev/disk/by-id/dm-uuid-mpath-") === 0)
-                return true;
-    }
-    return false;
-}
-
 export async function btrfs_poll() {
     const usage_regex = /used\s+(?<used>\d+)\s+path\s+(?<device>[\w/]+)/;
     if (!client.uuids_btrfs_subvols)
@@ -411,6 +396,41 @@ function btrfs_start_polling() {
     btrfs_findmnt_poll();
 }
 
+/* Derived indices.
+ */
+
+function is_multipath_master(block) {
+    // The master has "mpath" in its device mapper UUID.  In the
+    // future, storaged will hopefully provide this information
+    // directly.
+    if (block.Symlinks && block.Symlinks.length) {
+        for (let i = 0; i < block.Symlinks.length; i++)
+            if (utils.decode_filename(block.Symlinks[i]).indexOf("/dev/disk/by-id/dm-uuid-mpath-") === 0)
+                return true;
+    }
+    return false;
+}
+
+function is_toplevel_drive(block) {
+    // We consider all Block objects that point to the same Drive
+    // objects to be multipath members for a single actual device.
+    //
+    // However, objects for partitions point to the same Drive object
+    // as the object for the partition table. We have to ignore them.
+
+    if (client.blocks_part[block.path])
+        return false;
+
+    // Also, eMMCs have special partition-like sub-devices that point
+    // to the main Drive. We identify them by their name, just like
+    // UDisks2.
+
+    if (utils.decode_filename(block.Device).match(/\/dev\/mmcblk[0-9]boot[0-9]$/))
+        return false;
+
+    return true;
+}
+
 function update_indices() {
     let path, block, mdraid, vgroup, pvol, lvol, pool, blockdev, fsys, part, i;
 
@@ -422,7 +442,7 @@ function update_indices() {
     }
     for (path in client.blocks) {
         block = client.blocks[path];
-        if (!client.blocks_part[path] && client.drives_multipath_blocks[block.Drive] !== undefined) {
+        if (client.drives_multipath_blocks[block.Drive] !== undefined && is_toplevel_drive(block)) {
             if (is_multipath_master(block))
                 client.drives_block[block.Drive] = block;
             else

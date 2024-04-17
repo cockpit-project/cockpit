@@ -52,12 +52,13 @@ class handler(BaseHTTPRequestHandler):
         m = self.match("/r/insights/v1/systems/([^/]+)")
         if m:
             machine_id = m[1]
+            if machine_id not in systems:
+                self.send_response(404)
+                self.end_headers()
+                return
             self.send_response(200)
             self.end_headers()
-            if machine_id in systems:
-                self.wfile.write(json.dumps(systems[machine_id]).encode() + b"\n")
-            else:
-                self.wfile.write(b"{ }\n")
+            self.wfile.write(json.dumps(systems[machine_id]).encode() + b"\n")
             return
 
         m = self.match("/r/insights/v1/branch_info")

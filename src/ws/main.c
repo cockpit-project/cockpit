@@ -48,6 +48,7 @@ static gboolean  opt_for_tls_proxy    = FALSE;
 static gboolean  opt_local_ssh    = FALSE;
 static gchar     *opt_local_session = NULL;
 static gboolean  opt_version      = FALSE;
+static gchar     *opt_datadir     = DATADIR;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
@@ -61,6 +62,7 @@ static GOptionEntry cmd_entries[] = {
       "Launch a bridge in the local session (path to cockpit-bridge or '-' for stdin/out); implies --no-tls",
       "BRIDGE" },
   {"version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Print version information", NULL },
+  {"datadir", 0, 0, G_OPTION_ARG_STRING, &opt_datadir, "Look for static web files in the given directory", NULL },
   {NULL}
 };
 
@@ -188,9 +190,9 @@ main (int argc,
   roots = setup_static_roots (data.os_release);
 
   data.branding_roots = (const gchar **)roots;
-  login_html = g_strdup (DATADIR "/cockpit/static/login.html");
+  login_html = g_strdup_printf ("%s/cockpit/static/login.html", opt_datadir);
   data.login_html = (const gchar *)login_html;
-  login_po_js = g_strdup (DATADIR "/cockpit/static/po.js");
+  login_po_js = g_strdup_printf ("%s/cockpit/static/po.js", opt_datadir);
   data.login_po_js = (const gchar *)login_po_js;
 
   if (opt_for_tls_proxy)

@@ -329,6 +329,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.allow_journal_messages(".*Data from the specified boot .* is not available: No such boot ID in journal.*")
 
+    @testlib.nondestructive
     def testIdentifierReloading(self):
         """
         Test verifies https://github.com/cockpit-project/cockpit/issues/20123
@@ -342,7 +343,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         m.execute(f"logger -p 5 --tag {tag_info} {tag_info.upper()}")
         self.login_and_go("/system/logs")
 
-        b.go("#/?priority=err")
+        b.go(f"#/?priority=err&since=@{self.test_start_time}")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
         b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)

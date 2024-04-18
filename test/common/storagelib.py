@@ -563,8 +563,9 @@ grub2-install {dev}
 grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid rd.lvm.lv=root/root"
 ! test -f /etc/kernel/cmdline || cp /etc/kernel/cmdline /new-root/etc/kernel/cmdline
 """, timeout=300)
-        m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
-        m.wait_reboot(300)
+        # destroy bootability of the current root partition, just to make sure
+        m.execute("rm -rf /etc/*")
+        m.reboot()
         self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), "/dev/mapper/root-root")
 
     # Cards and tables

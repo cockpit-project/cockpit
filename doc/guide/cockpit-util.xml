@@ -44,75 +44,44 @@ string = cockpit.format_number(number, [precision])
   <refsection id="cockpit-format-bytes">
     <title>cockpit.format_bytes()</title>
 <programlisting>
-string = cockpit.format_bytes(number, [factor])
-array = cockpit.format_bytes(number, [factor, options])
+string = cockpit.format_bytes(number, [options])
 </programlisting>
     <para>Formats <code>number</code> into a displayable <code>string</code> with a suffix, such as
-      <emphasis>KB</emphasis> or <emphasis>MB</emphasis>. Returns an <code>array</code> of the
-      formatted number and the suffix if <code>options.separate</code> is set to <code>true</code>.</para>
+      <emphasis>KB</emphasis> or <emphasis>MB</emphasis>.</para>
 
-    <para>If specifying 1000 or 1024 is specified as a <code>factor</code> then an appropriate suffix
-      will be chosen. By default the <code>factor</code> is 1000.  You can pass a string suffix as a
-      <code>factor</code> in which case the resulting number will be formatted with the same suffix.</para>
-
-    <para>If the <code>number</code> is less than the <code>factor</code> or an unknown factor
-      was passed in, then the formatted number is returned without a suffix. If <code>options.separate</code>
-      is true, returns an array of <code>[formatted_number, suffix]</code> or
-      <code>[formatted_number]</code> if returned without a suffix.</para>
+    <para>By default, SI units are used.  IEC units (1024-based) can be requested by including
+      <code>base2: true</code> in <code>options</code>.</para>
 
     <para>By default, non-integer numbers will be formatted with 3 digits of precision. This can be changed
       with <code>options.precision</code>.</para>
 
-    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or
-      an array without a suffix will be returned.</para>
+    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string will be
+      returned.</para>
   </refsection>
 
   <refsection id="cockpit-format-bytes-per-sec">
     <title>cockpit.format_bytes_per_sec()</title>
 <programlisting>
- string = cockpit.format_bytes_per_sec(number, [factor])
- array = cockpit.format_bytes_per_sec(number, [factor, options])
+string = cockpit.format_bytes_per_sec(number, [options])
 </programlisting>
     <para>Format <code>number</code> of bytes into a displayable speed <code>string</code>.</para>
 
-    <para>If specifying 1000 or 1024 is specified as a <code>factor</code> then an appropriate suffix
-      will be chosen. By default the <code>factor</code> is 1000.  You can pass a string suffix as a
-      <code>factor</code> in which case the resulting number will be formatted with the same suffix.</para>
-
-    <para>If the <code>number</code> is less than the <code>factor</code> or an unknown factor
-      was passed in, then the formatted number is returned without a suffix. If <code>options.separate</code>
-      is true, returns an array of <code>[formatted_number, suffix]</code> or
-      <code>[formatted_number]</code> if returned without a suffix.</para>
-
-    <para>By default, non-integer numbers will be formatted with 3 digits of precision. This can be changed
-      with <code>options.precision</code>.</para>
-
-    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or array
-      will be returned.</para>
+    <para>This function is mostly equivalent to <code>cockpit.format_bytes()</code> but the returned
+      value contains a unit like <emphasis>KB/s</emphasis> or <emphasis>MB/s</emphasis>.</para>
   </refsection>
 
   <refsection id="cockpit-format-bits-per-sec">
     <title>cockpit.format_bits_per_sec()</title>
 <programlisting>
-  string = cockpit.format_bits_per_sec(number, [factor])
- array = cockpit.format_bytes_per_sec(number, [factor, options])
+string = cockpit.format_bits_per_sec(number, [options])
 </programlisting>
     <para>Format <code>number</code> of bits into a displayable speed <code>string</code>.</para>
 
-    <para>If specifying 1000 or 1024 is specified as a <code>factor</code> then an appropriate suffix
-      will be chosen. By default the <code>factor</code> is 1000.  You can pass a string suffix as a
-      <code>factor</code> in which case the resulting number will be formatted with the same suffix.</para>
+    <para>This function is mostly equivalent to <code>cockpit.format_bytes()</code> but the returned 
+      value contains a unit like <emphasis>kbps</emphasis> or <emphasis>Mbps</emphasis>.</para>
 
-    <para>If the <code>number</code> is less than the <code>factor</code> or an unknown factor
-      was passed in, then the formatted number is returned without a suffix. If <code>options.separate</code>
-      is true, returns an array of <code>[formatted_number, suffix]</code> or
-      <code>[formatted_number]</code> if returned without a suffix.</para>
-
-    <para>By default, non-integer numbers will be formatted with 3 digits of precision. This can be changed
-      with <code>options.precision</code>.</para>
-
-    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or array
-      will be returned.</para>
+    <para>This function does not support IEC units.  <code>base2</code> may not be passed as part of
+      <code>options</code>.</para>
   </refsection>
 
   <refsection id="cockpit-info">

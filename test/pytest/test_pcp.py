@@ -153,6 +153,12 @@ def instances_archive(tmpdir_factory):
     return pcp_dir
 
 
+def assert_metrics_meta(meta, source, timestamp=0, interval=1000):
+    assert meta['timestamp'] == timestamp
+    assert meta['interval'] == interval
+    assert meta['source'] == source
+
+
 @pytest.mark.asyncio
 async def test_pcp_open_error(transport, archive):
     await transport.check_open('metrics1', source=str(archive), interval=-10, problem='protocol-error',
@@ -180,9 +186,7 @@ async def test_pcp_open(transport, archive):
     # {"timestamp":0,"now":1708092219642,"interval":1000,
     #  "metrics":[{"name":"mock.value","units":"","semantics":"instant"}]}
 
-    assert meta['timestamp'] == 0
-    assert meta['interval'] == 1000  # default interval
-    assert meta['source'] == str(archive)
+    assert_metrics_meta(meta, str(archive))
 
     metrics = meta['metrics']
     assert len(metrics) == 1
@@ -216,11 +220,7 @@ async def test_pcp_big_archive(transport, big_archive):
     # first message is always the meta message
     meta = json.loads(data)
 
-    # TODO: assert helper function?
-    assert meta['timestamp'] == 0
-    assert meta['interval'] == 1000  # default interval
-    assert meta['source'] == str(big_archive)
-
+    assert_metrics_meta(meta, str(big_archive))
     metrics = meta['metrics']
     assert len(metrics) == 1
 
@@ -249,10 +249,7 @@ async def test_pcp_instances(transport, instances_archive):
     meta = json.loads(data)
     print(meta)
 
-    # TODO: assert helper function?
-    assert meta['timestamp'] == 0
-    assert meta['interval'] == 1000  # default interval
-    assert meta['source'] == str(instances_archive)
+    assert_metrics_meta(meta, str(instances_archive))
 
     metrics = meta['metrics']
     assert len(metrics) == 1
@@ -270,10 +267,6 @@ async def test_pcp_instances(transport, instances_archive):
 
 @pytest.mark.asyncio
 async def test_pcp_timestamps(transport, timestamps_archive):
-    # {"timestamp":0,"now":1708527691229,"interval":1000,"metrics":[{"name":"kernel.all.load",
-    #  "instances":["15 minute","1 minute","5 minute"],"units":"","semantics":"instant"}]}
-    # [[[15,1,5]]]36
-
     timestamp = int(datetime.datetime.fromisoformat('2023-07-01').timestamp())
     timestamp *= 1000
     _ = await transport.check_open('metrics1', source=str(timestamps_archive),
@@ -284,10 +277,7 @@ async def test_pcp_timestamps(transport, timestamps_archive):
     # first message is always the meta message
     meta = json.loads(data)
 
-    # TODO: assert helper function?
-    assert meta['timestamp'] == timestamp
-    assert meta['interval'] == 1000  # default interval
-    assert meta['source'] == str(timestamps_archive)
+    assert_metrics_meta(meta, str(timestamps_archive), timestamp=timestamp)
 
     metrics = meta['metrics']
     assert len(metrics) == 1
@@ -312,7 +302,7 @@ async def test_pcp_limit_archive(transport, big_archive):
     _, data = await transport.next_frame()
     # first message is always the meta message
     meta = json.loads(data)
-    assert meta['interval'] == 1000  # default interval
+    assert_metrics_meta(meta, str(big_archive))
 
     _, data = await transport.next_frame()
     data = json.loads(data)

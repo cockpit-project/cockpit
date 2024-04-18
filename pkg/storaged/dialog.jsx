@@ -240,7 +240,7 @@ import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog
 import { ListingTable } from "cockpit-components-table.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 
-import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async } from "./utils.js";
+import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async, get_byte_units } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import client from "./client.js";
 
@@ -977,7 +977,7 @@ function size_slider_round(value, round) {
 class SizeSliderElement extends React.Component {
     constructor(props) {
         super();
-        this.units = cockpit.get_byte_units(props.value || props.max);
+        this.units = get_byte_units(props.value || props.max);
         this.state = { unit: this.units.find(u => u.selected).factor };
     }
 

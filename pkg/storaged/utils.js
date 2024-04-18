@@ -1140,3 +1140,28 @@ export function get_mount_points(client, block_fsys, subvol) {
 
     return mounted_at;
 }
+
+export function get_byte_units(guide_value) {
+    const byte_suffixes = [null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB"];
+
+    function unit(index) {
+        return {
+            name: byte_suffixes[index],
+            factor: Math.pow(1000, index)
+        };
+    }
+
+    const units = [unit(2), unit(3), unit(4)];
+
+    // The default unit is the largest one that gives us at least
+    // two decimal digits in front of the comma.
+
+    for (let i = units.length - 1; i >= 0; i--) {
+        if (i === 0 || (guide_value / units[i].factor) >= 10) {
+            units[i].selected = true;
+            break;
+        }
+    }
+
+    return units;
+}

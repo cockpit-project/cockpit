@@ -81,6 +81,38 @@ QUnit.test("mdraid_name_local_transient", function (assert) {
     utils.mock_hostnamed(null);
 });
 
+QUnit.test("get_byte_units", function (assert) {
+    const mb = 1000 * 1000;
+    const gb = mb * 1000;
+    const tb = gb * 1000;
+
+    const mb_unit = { factor: mb, name: "MB" };
+    const gb_unit = { factor: gb, name: "GB" };
+    const tb_unit = { factor: tb, name: "TB" };
+
+    function selected(unit) {
+        return { factor: unit.factor, name: unit.name, selected: true };
+    }
+
+    const checks = [
+        [0 * mb, [selected(mb_unit), gb_unit, tb_unit]],
+        [20 * mb, [selected(mb_unit), gb_unit, tb_unit]],
+        [200 * mb, [selected(mb_unit), gb_unit, tb_unit]],
+        [2000 * mb, [selected(mb_unit), gb_unit, tb_unit]],
+        [20000 * mb, [mb_unit, selected(gb_unit), tb_unit]],
+        [20 * gb, [mb_unit, selected(gb_unit), tb_unit]],
+        [200 * gb, [mb_unit, selected(gb_unit), tb_unit]],
+        [2000 * gb, [mb_unit, selected(gb_unit), tb_unit]],
+        [20000 * gb, [mb_unit, gb_unit, selected(tb_unit)]]
+    ];
+
+    assert.expect(checks.length);
+    for (let i = 0; i < checks.length; i++) {
+        assert.deepEqual(utils.get_byte_units(checks[i][0]), checks[i][1],
+                         "get_byte_units(" + checks[i][0] + ") = " + JSON.stringify(checks[i][1]));
+    }
+});
+
 /* Wait until the hostnamed dbus proxy is actually ready; otherwise the test
  * finishes and kills the bridge before it can respond to the dbus channel open
  * request for the hostnamed connection, which can cause hangs in

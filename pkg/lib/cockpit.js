@@ -1550,32 +1550,6 @@ function factory() {
         return format_units(number, byte_suffixes, factor, options);
     };
 
-    cockpit.get_byte_units = function get_byte_units(guide_value, factor) {
-        if (factor === undefined || !(factor in byte_suffixes))
-            factor = 1000;
-
-        function unit(index) {
-            return {
- name: byte_suffixes[factor][index],
-                     factor: Math.pow(factor, index)
-                   };
-        }
-
-        const units = [unit(2), unit(3), unit(4)];
-
-        // The default unit is the largest one that gives us at least
-        // two decimal digits in front of the comma.
-
-        for (let i = units.length - 1; i >= 0; i--) {
-            if (i === 0 || (guide_value / units[i].factor) >= 10) {
-                units[i].selected = true;
-                break;
-            }
-        }
-
-        return units;
-    };
-
     const byte_sec_suffixes = {
         1000: ["B/s", "kB/s", "MB/s", "GB/s", "TB/s", "PB/s", "EB/s", "ZB/s"],
         1024: ["B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s"]

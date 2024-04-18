@@ -18,7 +18,7 @@
  */
 
 import * as utils from "./utils.js";
-import QUnit from "qunit-tests";
+import QUnit, { f } from "qunit-tests";
 
 QUnit.test("format_delay", function (assert) {
     const checks = [
@@ -110,6 +110,47 @@ QUnit.test("get_byte_units", function (assert) {
     for (let i = 0; i < checks.length; i++) {
         assert.deepEqual(utils.get_byte_units(checks[i][0]), checks[i][1],
                          "get_byte_units(" + checks[i][0] + ") = " + JSON.stringify(checks[i][1]));
+    }
+});
+
+QUnit.test("format_fsys_usage", function (assert) {
+    const [k, M, G, T] = [1_000, 1_000_000, 1_000_000_000, 1_000_000_000_000];
+
+    const sizes = [5, 200, 5 * k, 200 * k, 5 * M, 200 * M, 5 * G, 200 * G, 5 * T, 200 * T];
+    /* For each "total" size, format all of the "used" sizes less than or equal to it.
+     * The results table lists the part that should come after and before the slash, respectively.
+     * For example: ["5 KB", ["0.01", "0.20", "5"]]
+     * means 5, 200 and 5k out of 5k are displayed as "0.01 / 5KB", "0.20 / 5KB" and "5 / 5KB"
+     */
+    const results = [
+        ["5", ["5"]],
+        ["200", ["5", "200"]],
+        ["5 KB", ["0.01", "0.20", "5"]],
+        ["200 KB", ["0.01", "0.20", "5", "200"]],
+        ["5 MB", ["0.01", "0.01", "0.01", "0.20", "5"]],
+        ["200 MB", ["0.01", "0.01", "0.01", "0.20", "5", "200"]],
+        ["5 GB", ["0.01", "0.01", "0.01", "0.01", "0.01", "0.20", "5"]],
+        ["200 GB", ["0.01", "0.01", "0.01", "0.01", "0.01", "0.20", "5", "200"]],
+        ["5 TB", ["0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.20", "5"]],
+        ["200 TB", ["0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.20", "5", "200"]],
+    ];
+
+    for (let total_i = 0; total_i < results.length; total_i++) {
+        const [total_string, used_strings] = results[total_i];
+        assert.strictEqual(used_strings.length, total_i + 1);
+        for (let used_i = 0; used_i < used_strings.length; used_i++) {
+            const used_string = used_strings[used_i];
+
+            const used = sizes[used_i];
+            const total = sizes[total_i];
+            const expected_string = used_string + " / " + total_string;
+
+            assert.strictEqual(
+                utils.format_fsys_usage(used, total),
+                expected_string,
+                f`format_fsys_usage(${used}, ${total})`
+            );
+        }
     }
 });
 

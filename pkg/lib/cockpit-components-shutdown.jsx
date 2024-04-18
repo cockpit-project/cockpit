@@ -154,7 +154,7 @@ export class ShutdownModal extends React.Component {
         if (!this.props.shutdown)
             cockpit.hint("restart");
 
-        cockpit.spawn(["shutdown", arg, this.state.when, this.state.message], { superuser: true, err: "message" })
+        cockpit.spawn(["shutdown", arg, this.state.when, this.state.message], { superuser: "require", err: "message" })
                 .then(this.props.onClose || Dialogs.close)
                 .catch(e => this.setState({ error: e }));
 

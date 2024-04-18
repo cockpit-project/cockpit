@@ -110,7 +110,7 @@ export function useLoggedInUser() {
  * }
  *
  * function ParentComponent() {
- *     const options = { superuser: true, host: "localhost" };
+ *     const options = { superuser: "require", host: "localhost" };
  *     return <Component options={options}/>
  * }
  *

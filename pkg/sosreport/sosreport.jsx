@@ -91,7 +91,7 @@ function sosLister() {
     }
 
     function update_reports() {
-        cockpit.script('find /var/tmp -maxdepth 1 -name \'*sosreport-*.tar.*\' -print0 | xargs -0 -r stat --printf="%n\\r%W\\n"', { superuser: true, err: "message" })
+        cockpit.script('find /var/tmp -maxdepth 1 -name \'*sosreport-*.tar.*\' -print0 | xargs -0 -r stat --printf="%n\\r%W\\n"', { superuser: "require", err: "message" })
                 .then(output => {
                     const reports = { };
                     const lines = output.split("\n");
@@ -126,7 +126,7 @@ function sosLister() {
         self.problem = null;
         watch = null;
 
-        watch = cockpit.channel({ payload: "fswatch1", path: "/var/tmp", superuser: true });
+        watch = cockpit.channel({ payload: "fswatch1", path: "/var/tmp", superuser: "require" });
         watch.addEventListener("message", (event, payload) => {
             const msg = JSON.parse(payload);
             if (msg.event != "present" && parse_report_name(msg.path))
@@ -150,7 +150,7 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
 
     // TODO - Use a real API instead of scraping stdout once such an API exists
     const task = cockpit.spawn(["sos", "report", "--batch"].concat(args),
-                               { superuser: true, err: "out", pty: true });
+                               { superuser: "require", err: "out", pty: true });
 
     task.stream(text => {
         let p = 0;
@@ -195,7 +195,7 @@ function sosDownload(path) {
         payload: "fsread1",
         binary: "raw",
         path,
-        superuser: true,
+        superuser: "require",
         max_read_size: 150 * 1024 * 1024,
         external: {
             "content-disposition": 'attachment; filename="' + basename + '"',
@@ -231,7 +231,7 @@ function sosRemove(path) {
         path + ".md5",
         path + ".sha256",
     ];
-    return Promise.all(paths.map(p => cockpit.file(p, { superuser: true }).replace(null)));
+    return Promise.all(paths.map(p => cockpit.file(p, { superuser: "require" }).replace(null)));
 }
 
 const SOSDialog = () => {

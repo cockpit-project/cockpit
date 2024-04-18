@@ -1,5 +1,5 @@
 import cockpit from "cockpit";
-import QUnit from "qunit-tests";
+import QUnit, { f } from "qunit-tests";
 
 QUnit.test("format", function (assert) {
     assert.equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),
@@ -51,19 +51,22 @@ QUnit.test("format_number", function (assert) {
     cockpit.language = 'en';
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][1],
-                           "format_number@en(" + checks[i][0] + ") = " + checks[i][1]);
+                           f`format_number@en(${checks[i][0]})`
+        );
     }
 
     cockpit.language = 'de';
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
-                           "format_number@de(" + checks[i][0] + ") = " + checks[i][2]);
+                           f`format_number@de(${checks[i][0]})`
+        );
     }
 
     cockpit.language = 'pt_BR';
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
-                           "format_number@pt_BR(" + checks[i][0] + ") = " + checks[i][2]);
+                           f`format_number@pt_BR(${checks[i][0]})`
+        );
     }
 
     /* restore this as not to break the other tests */
@@ -106,12 +109,14 @@ QUnit.test("format_bytes", function (assert) {
     assert.expect(checks.length * 2 + 2);
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
-                           "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
+                           f`format_bytes(${checks[i][0]}, ${checks[i][1]})`
+        );
     }
     for (let i = 0; i < checks.length; i++) {
         const split = checks[i][2].split(" ");
         assert.deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], { separate: true }), split,
-                         "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ", true) = " + split);
+                         f`format_bytes(${checks[i][0]}, ${checks[i][1]}, ${{ separate: true }})`
+        );
     }
 
     // backwards compatible API: format_bytes with a boolean options (used to be a single "separate" flag)
@@ -144,7 +149,7 @@ QUnit.test("format_bytes_per_sec", function (assert) {
     assert.expect(checks.length + 2);
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0], checks[i][1], checks[i][2]), checks[i][3],
-                           `format_bytes_per_sec(${checks[i][0]}, ${checks[i][1]}, ${checks[i][2]}) = ${checks[i][3]}`);
+                           f`format_bytes_per_sec(${checks[i][0]}, ${checks[i][1]}, ${checks[i][2]})`);
     }
 
     // separate unit
@@ -168,7 +173,7 @@ QUnit.test("format_bits_per_sec", function (assert) {
     assert.expect(checks.length);
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bits_per_sec(checks[i][0]), checks[i][1],
-                           "format_bits_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
+                           f`format_bits_per_sec(${checks[i][0]})`);
     }
 });
 

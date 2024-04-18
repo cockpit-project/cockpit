@@ -193,11 +193,6 @@ declare module 'cockpit' {
 
     /* === String helpers ======================== */
 
-    type FormatOptions = {
-        precision?: number;
-        separate?: boolean;
-    };
-
     function message(problem: string | JsonObject): string;
 
     function gettext(message: string): string;
@@ -206,11 +201,21 @@ declare module 'cockpit' {
     function ngettext(context: string, message1: string, messageN: string, n: number): string;
 
     function format(format_string: string, ...args: unknown[]): string;
-    function format_number(n: number, precision?: number): string
-    function format_bytes(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
-    function format_bytes(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
-    function format_bytes_per_sec(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
-    function format_bytes_per_sec(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
-    function format_bits_per_sec(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
-    function format_bits_per_sec(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
+
+    /* === Number formatting ===================== */
+
+    type FormatOptions = {
+        precision?: number;
+        base2?: boolean;
+    };
+    type MaybeNumber = number | null | undefined;
+
+    function format_number(n: MaybeNumber, precision?: number): string
+    function format_bytes(n: MaybeNumber, options?: FormatOptions): string;
+    function format_bytes_per_sec(n: MaybeNumber, options?: FormatOptions): string;
+    function format_bits_per_sec(n: MaybeNumber, options?: FormatOptions & { base2?: false }): string;
+
+    /** @deprecated */ function format_bytes(n: MaybeNumber, factor: unknown, options?: object | boolean): string | string[];
+    /** @deprecated */ function format_bytes_per_sec(n: MaybeNumber, factor: unknown, options?: object | boolean): string | string[];
+    /** @deprecated */ function format_bits_per_sec(n: MaybeNumber, factor: unknown, options?: object | boolean): string | string[];
 }

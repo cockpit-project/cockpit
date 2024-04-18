@@ -106,7 +106,18 @@ QUnit.test("format_bytes", function (assert) {
         [null, "KB", ""],
     ];
 
-    assert.expect(checks.length * 2 + 2);
+    for (let i = 0; i < checks.length; i++) {
+        if (typeof checks[i][1] === 'string') {
+            // these tests are for backwards compatibility only
+            continue;
+        }
+
+        const base2 = checks[i][1] == 1024;
+        assert.strictEqual(cockpit.format_bytes(checks[i][0], { base2 }), checks[i][2],
+                           f`format_bytes(${checks[i][0]}, ${{ base2 }})`);
+    }
+
+    // old API style (deprecated)
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
                            f`format_bytes(${checks[i][0]}, ${checks[i][1]})`
@@ -146,16 +157,26 @@ QUnit.test("format_bytes_per_sec", function (assert) {
         [25555678, "kB/s", { precision: 2 }, "25556 kB/s"],
     ];
 
-    assert.expect(checks.length + 2);
+    for (let i = 0; i < checks.length; i++) {
+        if (typeof checks[i][1] === 'string') {
+            // these tests are for backwards compatibility only
+            continue;
+        }
+
+        const base2 = checks[i][1] == 1024;
+        assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0], { base2, ...checks[i][2] }), checks[i][3],
+                           f`format_bytes_per_sec(${checks[i][0]}, ${{ base2, ...checks[i][2] }})`);
+    }
+
+    // old API style (deprecated)
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0], checks[i][1], checks[i][2]), checks[i][3],
                            f`format_bytes_per_sec(${checks[i][0]}, ${checks[i][1]}, ${checks[i][2]})`);
     }
-
-    // separate unit
+    // separate unit (very deprecated)
     assert.deepEqual(cockpit.format_bytes_per_sec(2555, 1024, { separate: true }),
                      ["2.50", "KiB/s"]);
-    // backwards compatible API for separate flag
+    // backwards compatible API for separate flag (oh so very deprecated)
     assert.deepEqual(cockpit.format_bytes_per_sec(2555, 1024, true),
                      ["2.50", "KiB/s"]);
 });

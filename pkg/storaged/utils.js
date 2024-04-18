@@ -1104,7 +1104,7 @@ export function reload_systemd() {
 
 export function is_mounted_synch(block) {
     return (cockpit.spawn(["findmnt", "-n", "-o", "TARGET", "-S", decode_filename(block.Device)],
-                          { superuser: true, err: "message" })
+                          { superuser: "require", err: "message" })
             .then(data => data.trim())
             .catch(() => false));
 }

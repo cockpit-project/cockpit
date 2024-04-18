@@ -235,7 +235,7 @@ function subvolume_delete(volume, subvol, mount_point_in_parent, card) {
                 for (const c of configs_to_remove)
                     await block.RemoveConfigurationItem(c, {});
                 await cockpit.spawn(["btrfs", "subvolume", "delete"].concat(paths_to_delete),
-                                    { superuser: true, err: "message" });
+                                    { superuser: "require", err: "message" });
                 await btrfs_poll();
                 navigate_away_from_card(card);
             }

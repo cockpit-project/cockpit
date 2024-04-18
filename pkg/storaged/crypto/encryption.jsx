@@ -60,7 +60,7 @@ function monitor_luks(block) {
     cockpit.event_target(self);
 
     const dev = decode_filename(block.Device);
-    const channel = python.spawn(luksmeta_monitor_hack_py, [dev], { superuser: true });
+    const channel = python.spawn(luksmeta_monitor_hack_py, [dev], { superuser: "require" });
     let buf = "";
 
     channel.stream(output => {
@@ -114,7 +114,7 @@ function monitor_mtime(path) {
 
     let file = null;
     if (path) {
-        file = cockpit.file(path, { superuser: true });
+        file = cockpit.file(path, { superuser: "require" });
         file.watch((_, tag) => { self.mtime = parse_tag_mtime(tag); self.dispatchEvent("changed") },
                    { read: false });
     }

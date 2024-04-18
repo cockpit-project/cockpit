@@ -85,7 +85,7 @@ export function initial_mount_options(client, block) {
 export function format_dialog(client, path, start, size, enable_dos_extended) {
     const block = client.blocks[path];
     if (block.IdUsage == "crypto") {
-        cockpit.spawn(["cryptsetup", "luksDump", decode_filename(block.Device)], { superuser: true })
+        cockpit.spawn(["cryptsetup", "luksDump", decode_filename(block.Device)], { superuser: "require" })
                 .then(output => {
                     if (output.indexOf("Keyslots:") >= 0) // This is what luksmeta-monitor-hack looks for
                         return 2;

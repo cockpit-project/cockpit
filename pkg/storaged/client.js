@@ -258,7 +258,7 @@ export async function btrfs_poll() {
                 // ID 256 gen 7 parent 5 top level 5 path <FS_TREE>/one
                 // ID 257 gen 7 parent 256 top level 256 path one/two
                 // ID 258 gen 7 parent 257 top level 257 path <FS_TREE>/one/two/three/four
-                const output = await cockpit.spawn(["btrfs", "subvolume", "list", "-ap", mount_point], { superuser: true, err: "message" });
+                const output = await cockpit.spawn(["btrfs", "subvolume", "list", "-ap", mount_point], { superuser: "require", err: "message" });
                 const subvols = [{ pathname: "/", id: 5, parent: null }];
                 for (const line of output.split("\n")) {
                     const m = line.match(/ID (\d+).*parent (\d+).*path (<FS_TREE>\/)?(.*)/);
@@ -274,7 +274,7 @@ export async function btrfs_poll() {
             // In the future can be obtained via UDisks, it requires the btrfs partition to be mounted somewhere.
             // https://github.com/storaged-project/udisks/commit/b6966b7076cd837f9d307eef64beedf01bc863ae
             try {
-                const output = await cockpit.spawn(["btrfs", "subvolume", "get-default", mount_point], { superuser: true, err: "message" });
+                const output = await cockpit.spawn(["btrfs", "subvolume", "get-default", mount_point], { superuser: "require", err: "message" });
                 const id_match = output.match(/ID (\d+).*/);
                 if (id_match)
                     btrfs_default_subvol[uuid] = Number(id_match[1]);
@@ -286,7 +286,7 @@ export async function btrfs_poll() {
             // https://github.com/storaged-project/udisks/issues/1232
             // TODO: optimise into just parsing one `btrfs filesystem show`?
             try {
-                const usage_output = await cockpit.spawn(["btrfs", "filesystem", "show", "--raw", uuid], { superuser: true, err: "message" });
+                const usage_output = await cockpit.spawn(["btrfs", "filesystem", "show", "--raw", uuid], { superuser: "require", err: "message" });
                 const usages = {};
                 for (const line of usage_output.split("\n")) {
                     const match = usage_regex.exec(line);
@@ -1052,7 +1052,7 @@ client.mount_at = (block, target) => {
     if (entry)
         return cockpit.script('set -e; mkdir -p "$2"; mount "$1" "$2" -o "$3"',
                               [utils.decode_filename(block.Device), target, utils.get_block_mntopts(entry[1])],
-                              { superuser: true, err: "message" });
+                              { superuser: "require", err: "message" });
     else
         return Promise.reject(cockpit.format("Internal error: No fstab entry for $0 and $1",
                                              utils.decode_filename(block.Device),
@@ -1061,7 +1061,7 @@ client.mount_at = (block, target) => {
 
 client.unmount_at = (target, users) => {
     return client.stop_mount_users(users).then(() => cockpit.spawn(["umount", target],
-                                                                   { superuser: true, err: "message" }));
+                                                                   { superuser: "require", err: "message" }));
 };
 
 /* NFS mounts
@@ -1201,7 +1201,7 @@ function legacy_vdo_overlay() {
     function cmd(args) {
         return cockpit.spawn(["vdo"].concat(args),
                              {
-                                 superuser: true,
+                                 superuser: "require",
                                  err: "message"
                              });
     }
@@ -1380,7 +1380,7 @@ function stratis3_start() {
     return client.stratis_manager.wait()
             .then(() => {
                 client.stratis_store_passphrase = (desc, passphrase) => {
-                    return python.spawn(stratis3_set_key_py, [desc], { superuser: true })
+                    return python.spawn(stratis3_set_key_py, [desc], { superuser: "require" })
                             .input(passphrase);
                 };
 
@@ -1460,7 +1460,7 @@ function stratis2_start() {
                     return Promise.reject(new Error("stratisd too old, need at least version 2.4"));
 
                 client.stratis_store_passphrase = (desc, passphrase) => {
-                    return python.spawn(stratis2_set_key_py, [desc], { superuser: true })
+                    return python.spawn(stratis2_set_key_py, [desc], { superuser: "require" })
                             .input(passphrase);
                 };
 

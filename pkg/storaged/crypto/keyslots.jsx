@@ -56,13 +56,13 @@ const _ = cockpit.gettext;
 function clevis_add(block, pin, cfg, passphrase) {
     const dev = decode_filename(block.Device);
     return cockpit.spawn(["clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, pin, JSON.stringify(cfg)],
-                         { superuser: true, err: "message" }).input(passphrase);
+                         { superuser: "require", err: "message" }).input(passphrase);
 }
 
 function clevis_remove(block, key) {
     // clevis-luks-unbind needs a tty on stdin for some reason.
     return cockpit.spawn(["clevis", "luks", "unbind", "-d", decode_filename(block.Device), "-s", key.slot, "-f"],
-                         { superuser: true, pty: true, err: "message" });
+                         { superuser: "require", pty: true, err: "message" });
 }
 
 export function clevis_recover_passphrase(block, just_type) {
@@ -72,7 +72,7 @@ export function clevis_recover_passphrase(block, just_type) {
         args.push("--type");
     args.push(dev);
     return cockpit.script(clevis_luks_passphrase_sh, args,
-                          { superuser: true, err: "message" })
+                          { superuser: "require", err: "message" })
             .then(output => output.trim());
 }
 
@@ -92,7 +92,7 @@ async function clevis_unlock(client, block, luksname, readonly) {
     }
 
     await cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
-                        { superuser: true });
+                        { superuser: "require" });
 }
 
 export async function unlock_with_type(client, block, passphrase, passphrase_type, override_readonly) {
@@ -133,18 +133,18 @@ export async function unlock_with_type(client, block, passphrase, passphrase_typ
 function passphrase_add(block, new_passphrase, old_passphrase) {
     const dev = decode_filename(block.Device);
     return cockpit.spawn(["cryptsetup", "luksAddKey", dev],
-                         { superuser: true, err: "message" }).input(old_passphrase + "\n" + new_passphrase);
+                         { superuser: "require", err: "message" }).input(old_passphrase + "\n" + new_passphrase);
 }
 
 function passphrase_change(block, key, new_passphrase, old_passphrase) {
     const dev = decode_filename(block.Device);
     return cockpit.spawn(["cryptsetup", "luksChangeKey", dev, "--key-slot", key.slot.toString()],
-                         { superuser: true, err: "message" }).input(old_passphrase + "\n" + new_passphrase + "\n");
+                         { superuser: "require", err: "message" }).input(old_passphrase + "\n" + new_passphrase + "\n");
 }
 
 function slot_remove(block, slot, passphrase) {
     const dev = decode_filename(block.Device);
-    const opts = { superuser: true, err: "message" };
+    const opts = { superuser: "require", err: "message" };
     const cmd = ["cryptsetup", "luksKillSlot", dev, slot.toString()];
     if (passphrase === false) {
         cmd.splice(2, 0, "-q");
@@ -161,7 +161,7 @@ function slot_remove(block, slot, passphrase) {
 function passphrase_test(block, passphrase) {
     const dev = decode_filename(block.Device);
     return (cockpit.spawn(["cryptsetup", "luksOpen", "--test-passphrase", dev],
-                          { superuser: true, err: "message" }).input(passphrase)
+                          { superuser: "require", err: "message" }).input(passphrase)
             .then(() => true)
             .catch(() => false));
 }
@@ -297,7 +297,7 @@ function ensure_package_installed(steps, progress, package_name) {
 }
 
 function ensure_initrd_clevis_support(steps, progress, package_name) {
-    const task = cockpit.spawn(["lsinitrd", "-m"], { superuser: true, err: "message" });
+    const task = cockpit.spawn(["lsinitrd", "-m"], { superuser: "require", err: "message" });
     progress(_("Checking for NBDE support in the initrd"), () => task.close());
     return task.then(data => {
         progress(null, null);
@@ -310,7 +310,7 @@ function ensure_initrd_clevis_support(steps, progress, package_name) {
                                 // dracut doesn't react to SIGINT, so let's not enable our Cancel button
                                 progress(_("Regenerating initrd"), null);
                                 return cockpit.spawn(["dracut", "--force", "--regenerate-all"],
-                                                     { superuser: true, err: "message" });
+                                                     { superuser: "require", err: "message" });
                             }
                         });
                     });
@@ -321,7 +321,7 @@ function ensure_initrd_clevis_support(steps, progress, package_name) {
 function ensure_root_nbde_support(steps, progress) {
     progress(_("Adding rd.neednet=1 to kernel command line"), null);
     return cockpit.spawn(["grubby", "--update-kernel=ALL", "--args=rd.neednet=1"],
-                         { superuser: true, err: "message" })
+                         { superuser: "require", err: "message" })
             .then(() => ensure_initrd_clevis_support(steps, progress, "clevis-dracut"));
 }
 
@@ -374,7 +374,7 @@ function ensure_systemd_unit_enabled(steps, progress, name, package_name) {
                     return ensure_package_installed(steps, progress, package_name);
                 } else
                     return cockpit.spawn(["systemctl", "enable", name],
-                                         { superuser: true, err: "message" });
+                                         { superuser: "require", err: "message" });
             });
 }
 

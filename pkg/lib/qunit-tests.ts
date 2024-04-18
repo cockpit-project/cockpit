@@ -87,4 +87,22 @@ qunitTap(QUnit, function(message: string, ...args: unknown[]) {
     console.log(message, args);
 });
 
+export function f(format: TemplateStringsArray, ...args: unknown[]) {
+    const strings = [...format].reverse();
+    args.reverse();
+
+    const parts = [strings.pop()];
+    if (strings.length !== args.length) {
+        throw new Error('unequal strings and args in f-string');
+    }
+
+    while (args.length !== 0) {
+        const arg = args.pop();
+        parts.push(JSON.stringify(arg) || String(arg));
+        parts.push(strings.pop());
+    }
+
+    return parts.join('');
+}
+
 export default QUnit;

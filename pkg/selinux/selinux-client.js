@@ -232,5 +232,5 @@ ${rules}
 // returns a promise of the command used to set enforcing mode
 export function setEnforcing(enforcingMode) {
     const command = ["setenforce", (enforcingMode ? "1" : "0")];
-    return cockpit.spawn(command, { superuser: true, err: "message" });
+    return cockpit.spawn(command, { superuser: "require", err: "message" });
 }

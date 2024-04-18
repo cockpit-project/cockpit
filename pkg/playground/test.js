@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelector(".super-channel .pf-v5-c-button").addEventListener("click", () => {
         document.querySelector(".super-channel span").textContent = "checking...";
-        cockpit.spawn(["id"], { superuser: true })
+        cockpit.spawn(["id"], { superuser: "require" })
                 .then(data => {
                     console.log("done");
                     document.querySelector(".super-channel span").textContent = "result: " + data;

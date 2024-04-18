@@ -488,6 +488,7 @@ class PcpMetricsChannel(AsyncChannel):
 
         self.done()
 
+        # This should be try to read the BATCH_SIZE, then wait on an interval and repeat until EOL
         # while True:
         #
         #     if all_read:

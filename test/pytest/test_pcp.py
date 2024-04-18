@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import datetime
 import json
 from typing import Iterable
 
@@ -231,8 +232,74 @@ async def test_pcp_big_archive(transport, big_archive):
     _, data = await transport.next_frame()
     data = json.loads(data)
     # archives batch size is hardcoded to 60
-    # TODO import?
+    # TODO import batch size?
     assert data == [[i] for i in range(60)]
+
+
+@pytest.mark.asyncio
+async def test_pcp_instances(transport, instances_archive):
+    # {"timestamp":0,"now":1708527691229,"interval":1000,"metrics":[{"name":"kernel.all.load",
+    #  "instances":["15 minute","1 minute","5 minute"],"units":"","semantics":"instant"}]}
+    # [[[15,1,5]]]36
+    _ = await transport.check_open('metrics1', source=str(instances_archive),
+                                   metrics=[{"name": "kernel.all.load"}])
+
+    _, data = await transport.next_frame()
+    # first message is always the meta message
+    meta = json.loads(data)
+    print(meta)
+
+    # TODO: assert helper function?
+    assert meta['timestamp'] == 0
+    assert meta['interval'] == 1000  # default interval
+    assert meta['source'] == str(instances_archive)
+
+    metrics = meta['metrics']
+    assert len(metrics) == 1
+
+    metric = metrics[0]
+    assert metric['name'] == 'kernel.all.load'
+    assert 'derive' not in metric
+    assert metric['semantic'] == 'instant'
+    assert metric['instances'] == ['15 minute', '1 minute', '5 minute']
+
+    _, data = await transport.next_frame()
+    data = json.loads(data)
+    print("data", data)
+
+
+@pytest.mark.asyncio
+async def test_pcp_timestamps(transport, timestamps_archive):
+    # {"timestamp":0,"now":1708527691229,"interval":1000,"metrics":[{"name":"kernel.all.load",
+    #  "instances":["15 minute","1 minute","5 minute"],"units":"","semantics":"instant"}]}
+    # [[[15,1,5]]]36
+
+    timestamp = int(datetime.datetime.fromisoformat('2023-07-01').timestamp())
+    timestamp *= 1000
+    _ = await transport.check_open('metrics1', source=str(timestamps_archive),
+                                   metrics=[{"name": "mock.value"}], limit=1,
+                                   timestamp=timestamp)
+
+    _, data = await transport.next_frame()
+    # first message is always the meta message
+    meta = json.loads(data)
+
+    # TODO: assert helper function?
+    assert meta['timestamp'] == timestamp
+    assert meta['interval'] == 1000  # default interval
+    assert meta['source'] == str(timestamps_archive)
+
+    metrics = meta['metrics']
+    assert len(metrics) == 1
+    print(metrics)
+
+    metric = metrics[0]
+    assert metric['name'] == 'mock.value'
+
+    # One exact sample at start timestamp
+    _, data = await transport.next_frame()
+    data = json.loads(data)
+    assert data == [[11.0]]
 
 
 @pytest.mark.asyncio

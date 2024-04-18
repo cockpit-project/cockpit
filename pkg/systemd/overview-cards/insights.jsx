@@ -113,7 +113,7 @@ export class InsightsStatus extends React.Component {
                 this.pollster = null;
             }
             if (data)
-                this.pollster = cockpit.script(insights_poll_hack_sh, [], { superuser: true });
+                this.pollster = cockpit.script(insights_poll_hack_sh, [], { superuser: "require" });
         });
     }
 

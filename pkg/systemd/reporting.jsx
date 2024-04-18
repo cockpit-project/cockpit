@@ -122,7 +122,7 @@ const FAFWorkflowRow = ({ problem }) => {
         const process = cockpit.spawn(["reporter-ureport", "-d", problem.ID],
                                       {
                                           err: "out",
-                                          superuser: "true",
+                                          superuser: "require",
                                       })
                 .stream((data) => setMessage(data))
                 .then(() => setProblemState(ProblemState.REPORTED))

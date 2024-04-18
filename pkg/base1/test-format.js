@@ -119,38 +119,6 @@ QUnit.test("format_bytes", function (assert) {
     assert.deepEqual(cockpit.format_bytes(2500000, 1000, true), ["2.50", "MB"]);
 });
 
-QUnit.test("get_byte_units", function (assert) {
-    const mib = 1024 * 1024;
-    const gib = mib * 1024;
-    const tib = gib * 1024;
-
-    const mib_unit = { factor: mib, name: "MiB" };
-    const gib_unit = { factor: gib, name: "GiB" };
-    const tib_unit = { factor: tib, name: "TiB" };
-
-    function selected(unit) {
-        return { factor: unit.factor, name: unit.name, selected: true };
-    }
-
-    const checks = [
-        [0 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
-        [20 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
-        [200 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
-        [2000 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
-        [20000 * mib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
-        [20 * gib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
-        [200 * gib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
-        [2000 * gib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
-        [20000 * gib, 1024, [mib_unit, gib_unit, selected(tib_unit)]]
-    ];
-
-    assert.expect(checks.length);
-    for (let i = 0; i < checks.length; i++) {
-        assert.deepEqual(cockpit.get_byte_units(checks[i][0], checks[i][1]), checks[i][2],
-                         "get_byte_units(" + checks[i][0] + ", " + checks[i][1] + ") = " + JSON.stringify(checks[i][2]));
-    }
-});
-
 QUnit.test("format_bytes_per_sec", function (assert) {
     const checks = [
         // default unit

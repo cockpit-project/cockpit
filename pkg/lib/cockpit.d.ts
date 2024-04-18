@@ -198,12 +198,6 @@ declare module 'cockpit' {
         separate?: boolean;
     };
 
-    type ByteUnit = {
-        name: string | null;
-        factor: number;
-        selected?: boolean;
-    };
-
     function message(problem: string | JsonObject): string;
 
     function gettext(message: string): string;
@@ -219,5 +213,4 @@ declare module 'cockpit' {
     function format_bytes_per_sec(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
     function format_bits_per_sec(n: number, factor?: 1000 | 1024, options?: FormatOptions & { separate?: false }): string;
     function format_bits_per_sec(n: number, factor: 1000 | 1024, options: FormatOptions & { separate: true }): string[];
-    function get_byte_units(guide_value: number, factor?: 1000 | 1024): ByteUnit[];
 }

@@ -1142,26 +1142,14 @@ export function get_mount_points(client, block_fsys, subvol) {
 }
 
 export function get_byte_units(guide_value) {
-    const byte_suffixes = [null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB"];
-
-    function unit(index) {
-        return {
-            name: byte_suffixes[index],
-            factor: Math.pow(1000, index)
-        };
-    }
-
-    const units = [unit(2), unit(3), unit(4)];
-
-    // The default unit is the largest one that gives us at least
-    // two decimal digits in front of the comma.
-
-    for (let i = units.length - 1; i >= 0; i--) {
-        if (i === 0 || (guide_value / units[i].factor) >= 10) {
-            units[i].selected = true;
-            break;
-        }
-    }
-
+    const units = [
+        { factor: 1000 ** 2, name: "MB" },
+        { factor: 1000 ** 3, name: "GB" },
+        { factor: 1000 ** 4, name: "TB" },
+    ];
+    // Find the biggest unit which gives two digits left of the decimal point (>= 10)
+    const unit = units.findLastIndex(unit => guide_value / unit.factor >= 10);
+    // Mark it selected.  If we couldn't find one (-1), then use MB.
+    units[Math.max(0, unit)].selected = true;
     return units;
 }

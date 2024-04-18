@@ -38,7 +38,7 @@ def transport(no_init_transport: MockTransport) -> MockTransport:
 
 
 @pytest.fixture
-def test_broken_archive(tmpdir_factory):
+def broken_archive(tmpdir_factory):
     pcp_dir = tmpdir_factory.mktemp('mock-archives')
 
     with open(pcp_dir / '0.index', 'w') as f:
@@ -67,7 +67,7 @@ def big_archive(tmpdir_factory):
 
 
 @pytest.fixture
-def test_archive(tmpdir_factory):
+def archive(tmpdir_factory):
     pcp_dir = tmpdir_factory.mktemp('mock-archives')
     archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
     archive_1.pmiAddMetric("mock.value", PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
@@ -100,24 +100,76 @@ def test_archive(tmpdir_factory):
     return pcp_dir
 
 
+@pytest.fixture
+def timestamps_archive(tmpdir_factory):
+    pcp_dir = tmpdir_factory.mktemp('timestamps-archives')
+    archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
+
+    archive_1.pmiAddMetric("mock.value", PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
+                           PM_SEM_INSTANT, archive_1.pmiUnits(0, 0, 0, 0, 0, 0))
+
+    timestamp = int(datetime.datetime.fromisoformat('2023-01-01').timestamp())
+    archive_1.pmiPutValue("mock.value", None, "10")
+    archive_1.pmiWrite(timestamp, 0)
+
+    timestamp = int(datetime.datetime.fromisoformat('2023-06-01').timestamp())
+    archive_1.pmiPutValue("mock.value", None, "11")
+    archive_1.pmiWrite(timestamp, 0)
+
+    timestamp = int(datetime.datetime.fromisoformat('2023-12-01').timestamp())
+    archive_1.pmiPutValue("mock.value", None, "12")
+    archive_1.pmiWrite(timestamp, 0)
+
+    archive_1.pmiEnd()
+
+    return pcp_dir
+
+
+@pytest.fixture
+def instances_archive(tmpdir_factory):
+    pcp_dir = tmpdir_factory.mktemp('instances-archives')
+    archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
+
+    domain = 60  # Linux kernel
+    pmid = archive_1.pmiID(domain, 2, 0)
+    indom = archive_1.pmiInDom(domain, 2)
+    units = archive_1.pmiUnits(0, 0, 0, 0, 0, 0)
+
+    archive_1.pmiAddMetric("kernel.all.load", pmid, PM_TYPE_U32, indom,
+                           PM_SEM_INSTANT, units)
+    archive_1.pmiAddInstance(indom, "1 minute", 1)
+    archive_1.pmiAddInstance(indom, "5 minute", 5)
+    archive_1.pmiAddInstance(indom, "15 minute", 15)
+
+    # create a record
+    archive_1.pmiPutValue("kernel.all.load", "1 minute", "1")
+    archive_1.pmiPutValue("kernel.all.load", "5 minute", "5")
+    archive_1.pmiPutValue("kernel.all.load", "15 minute", "15")
+    archive_1.pmiWrite(0, 0)
+
+    archive_1.pmiEnd()
+
+    return pcp_dir
+
+
 @pytest.mark.asyncio
-async def test_pcp_open_error(transport, test_archive):
-    await transport.check_open('metrics1', source=str(test_archive), interval=-10, problem='protocol-error',
+async def test_pcp_open_error(transport, archive):
+    await transport.check_open('metrics1', source=str(archive), interval=-10, problem='protocol-error',
                                reply_keys={'message': 'invalid "interval" value: -10'})
     await transport.check_open('metrics1', problem='protocol-error',
                                reply_keys={'message': 'no "source" option specified for metrics channel'})
     await transport.check_open('metrics1', source="bazinga", problem='not-supported',
                                reply_keys={'message': 'unsupported "source" option specified for metrics: bazinga'})
     await transport.check_open('metrics1', source="/non-existant", problem='not-found')
-    await transport.check_open('metrics1', source=str(test_archive),
+    await transport.check_open('metrics1', source=str(archive),
                                metrics=[{"name": "mock.blah", "derive": "rate"}],
                                problem='not-found',
                                reply_keys={'message': 'no such metric: mock.blah'})
 
 
 @pytest.mark.asyncio
-async def test_pcp_open(transport, test_archive):
-    ch = await transport.check_open('metrics1', source=str(test_archive),
+async def test_pcp_open(transport, archive):
+    ch = await transport.check_open('metrics1', source=str(archive),
                                     metrics=[{"name": "mock.value"}])
 
     _, data = await transport.next_frame()
@@ -129,7 +181,7 @@ async def test_pcp_open(transport, test_archive):
 
     assert meta['timestamp'] == 0
     assert meta['interval'] == 1000  # default interval
-    assert meta['source'] == str(test_archive)
+    assert meta['source'] == str(archive)
 
     metrics = meta['metrics']
     assert len(metrics) == 1
@@ -190,9 +242,10 @@ async def test_pcp_limit_archive(transport, big_archive):
                                     limit=30,
                                     metrics=[{"name": "mock.value"}])
 
-    # first message is always the meta message
     _, data = await transport.next_frame()
-    # TODO: verify
+    # first message is always the meta message
+    meta = json.loads(data)
+    assert meta['interval'] == 1000  # default interval
 
     _, data = await transport.next_frame()
     data = json.loads(data)
@@ -202,8 +255,8 @@ async def test_pcp_limit_archive(transport, big_archive):
 
 
 @pytest.mark.asyncio
-async def test_pcp_broken_archive(transport, test_broken_archive):
-    await transport.check_open('metrics1', source=str(test_broken_archive),
+async def test_pcp_broken_archive(transport, broken_archive):
+    await transport.check_open('metrics1', source=str(broken_archive),
                                metrics=[{"name": "mock.value", "derive": "rate"}],
                                problem='not-found',
-                               reply_keys={'message': f'could not read archive {test_broken_archive}/0.index'})
+                               reply_keys={'message': f'could not read archive {broken_archive}/0.index'})

@@ -330,7 +330,7 @@ Provides: cockpit-users = %{version}-%{release}
 Obsoletes: cockpit-dashboard < %{version}-%{release}
 %if 0%{?rhel}
 Requires: NetworkManager >= 1.6
-Requires: kexec-tools
+Requires: /usr/bin/kdumpctl
 Requires: sos
 Requires: sudo
 Recommends: PackageKit
@@ -479,7 +479,7 @@ fi
 Summary: Cockpit user interface for kernel crash dumping
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-Requires: kexec-tools
+Requires: /usr/bin/kdumpctl
 BuildArch: noarch
 
 %description kdump

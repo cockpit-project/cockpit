@@ -23,7 +23,7 @@ import re
 import subprocess
 import sys
 
-import cdp
+from cdp import CDP
 
 tap_line_re = re.compile(r'^(ok [0-9]+|not ok [0-9]+|bail out!|[0-9]+\.\.[0-9]+|# )', re.IGNORECASE)
 
@@ -54,7 +54,7 @@ opts.server = opts.server[:-1]
 if opts.strip and opts.test.startswith(opts.strip):
     opts.test = opts.test[len(opts.strip):]
 
-cdp = cdp.CDP("C.utf8")
+cdp = CDP("C.utf8")
 
 try:
     cdp.browser.path(cdp.show_browser)

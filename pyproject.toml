@@ -6,6 +6,7 @@ build-backend = 'build_backend'
 [tool.mypy]
 mypy_path = 'src:test/common'
 exclude = '_vendor'
+
 [[tool.mypy.overrides]]
 module = ["cockpit._vendor.*", "dbus", "gi.*", "task", "vdo.*"]
 follow_imports = 'silent'
@@ -90,7 +91,7 @@ required_plugins = ["pytest-asyncio"]
 paths = [
    "src",
    "test/pytest",
-   "tools/vulture-suppressions",
+   "tools/vulture_suppressions",
 ]
 ignore_names = [
    "do_*",

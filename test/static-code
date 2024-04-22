@@ -112,10 +112,20 @@ test_unsafe_security_policy() {
 
 test_json_verify() {
     # Check (almost) all JSON files for validity
+    git ls-files -z '*.json' | grep -zv ^tsconfig | xargs -r -0 python3 -c "
+import argparse
+import json
 
-    git ls-files -z '*.json' | grep -zv ^tsconfig | while read -d '' filename; do
-        python3 -m json.tool "${filename}" /dev/null 2>&1 | sed "s@^@${filename}: @"
-    done
+parser = argparse.ArgumentParser()
+parser.add_argument('files', nargs='+', type=argparse.FileType(encoding='utf-8'))
+args = parser.parse_args()
+
+for file in args.files:
+    try:
+        json.load(file)
+    except ValueError as exc:  # both JSONDecodeError and UnicodeError
+        print(f'{file.name}: {exc}')
+"
 }
 
 test_html_verify() {

@@ -33,6 +33,7 @@ import shutil
 import subprocess
 import sys
 from bisect import bisect_left
+from typing import Any, Mapping, Sequence
 
 from task import github
 
@@ -287,12 +288,12 @@ def print_diff_coverage(path, file_hits, out):
     out.write("end_of_record\n")
 
 
-def write_lcov(covdata, outlabel):
+def write_lcov(covdata: Sequence[Mapping[str, str]], outlabel: str) -> None:
 
     with open(f"{BASE_DIR}/package.json") as f:
         package = json.load(f)
     dist_map = get_dist_map(package)
-    file_hits = {}
+    file_hits: Any = {}
 
     def covranges(functions):
         for f in functions:
@@ -370,7 +371,7 @@ def write_lcov(covdata, outlabel):
         if distfile:
             ranges = sorted(covranges(script['functions']),
                             key=lambda r: r['endOffset'] - r['startOffset'], reverse=True)
-            hits = {}
+            hits: Any = {}
             for r in ranges:
                 record_range(hits, r, distfile)
             merge_hits(file_hits, hits)
@@ -459,7 +460,7 @@ def prepare_for_code_coverage():
         subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", branch], stdout=f)
 
 
-def create_coverage_report():
+def create_coverage_report() -> None:
     output = os.environ.get("TEST_ATTACHMENTS", BASE_DIR)
     lcov_files = glob.glob(f"{BASE_DIR}/lcov/*.info.gz")
     try:

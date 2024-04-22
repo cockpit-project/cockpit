@@ -48,7 +48,8 @@ def build_sdist(sdist_directory: str,
     sdist_filename = f'{PACKAGE}.tar.gz'
     # We do this manually to avoid adding timestamps.  See https://bugs.python.org/issue31526
     with gzip.GzipFile(f'{sdist_directory}/{sdist_filename}', mode='w', mtime=0) as gz:
-        with tarfile.open(fileobj=gz, mode='w|', dereference=True) as sdist:
+        # https://github.com/python/typeshed/issues/5491
+        with tarfile.open(fileobj=gz, mode='w|', dereference=True) as sdist:  # type: ignore[arg-type]
             for filename in find_sources(srcpkg=True):
                 sdist.add(filename, arcname=f'{PACKAGE}/{filename}', )
     return sdist_filename

@@ -24,7 +24,7 @@ import ssl
 import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-systems = {}
+systems: dict[str, object] = {}
 
 
 class handler(BaseHTTPRequestHandler):

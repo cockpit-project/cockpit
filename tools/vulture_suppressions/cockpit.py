@@ -1,12 +1,13 @@
-from cockpit.internal_endpoints import User
+from cockpit.internal_endpoints import cockpit_User
 from cockpit.misc.print import Printer
 
 # D-Bus properties
-User.full
-User.groups
-User.home
-User.id
-User.shell
+user = cockpit_User()
+user.full
+user.groups
+user.home
+user.id
+user.shell
 
 # getattr()
 Printer.dbus_call

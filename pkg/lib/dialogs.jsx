@@ -82,6 +82,36 @@
  *   }
  * }
  *
+ * If there is a situation where you want to wait until a Dialog is closed
+ * after opening, you can "await Dialogs.show(<My Dialog />)"
+ *
+ * class Example extends React.Component {
+ *   static contextType = DialogsContext;
+ *
+ *   async function handleClick() {
+ *     try {
+ *       const result = await Dialogs.show(<MyDialog />);
+ *       console.log(result);
+ *     catch (err) {
+ *     }
+ *
+ *   }
+ *
+ *   function render() {
+ *     const Dialogs = this.context;
+ *     return <Button onClick={() => this.handleClick}>Open dialog</Button>;
+ *   }
+ * }
+ *
+ * class MyDialog extends React.Component {
+ *   static contextType = DialogsContext;
+ *
+ *   render() {
+ *     <Button onClick={() => Dialogs.close("yes")}>Yes</Button>
+ *     <Button onClick={() => Dialogs.close("no")}>No</Button>
+ *   }
+ * }
+ *
  *
  * - Dialogs.show(component)
  *
@@ -89,12 +119,19 @@
  * child of the inner-most enclosing "WithDialogs" component.  The
  * component is of course intended to be a dialog, such as
  * Patternfly's "Modal".  There is only ever one of these; a second
- * call to "show" will remove the previously rendered component.
- * Passing "null" will remove the currently rendered componenet, if any.
+ * call to "show" is considered a bug and "Dialogs.close" should be called first.
+ * "Dialogs.show" returns a promise that is settled by either "Dialogs.close" or
+ * "Dialogs.reject".
  *
- * - Dialogs.close()
+ * - Dialogs.close([args])
  *
- * Same as "Dialogs.show(null)".
+ * Calling "Dialogs.close([args])" will close the currently open Dialog and
+ * optionally resolve the promise with the provided "args".
+ *
+ * - Dialogs.reject(err)
+  *
+ * Calling "Dialogs.reject(err)" will close the currently open Dialog
+ * and reject the promise with the provided Error.
  */
 
 import React, { useContext, useRef, useState } from "react";
@@ -104,6 +141,8 @@ export const useDialogs = () => useContext(DialogsContext);
 
 export const WithDialogs = ({ children }) => {
     const is_open = useRef(false); // synchronous
+    const resolveRef = useRef(null);
+    const rejectRef = useRef(null);
     const [dialog, setDialog] = useState(null);
 
     const Dialogs = {
@@ -115,10 +154,28 @@ export const WithDialogs = ({ children }) => {
                               JSON.stringify(dialog));
             is_open.current = !!component;
             setDialog(component);
+            return new Promise((resolve, reject) => {
+                resolveRef.current = resolve;
+                rejectRef.current = reject;
+            });
         },
-        close: () => {
+        close: (args) => {
             is_open.current = false;
             setDialog(null);
+            if (resolveRef.current !== null) {
+                resolveRef.current(args);
+                resolveRef.current = null;
+                rejectRef.current = null;
+            }
+        },
+        reject: (err) => {
+            is_open.current = false;
+            setDialog(null);
+            if (rejectRef.current !== null) {
+                rejectRef.current(err);
+                resolveRef.current = null;
+                rejectRef.current = null;
+            }
         },
         isActive: () => dialog !== null
     };

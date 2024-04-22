@@ -10,8 +10,9 @@ import subprocess
 import sys
 import tempfile
 import time
-import typing
 import urllib.request
+from collections.abc import Iterator, Mapping, Sequence
+from typing import IO, Any, ClassVar, Collection, override
 from urllib.error import URLError
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
@@ -21,15 +22,15 @@ class Browser(abc.ABC):
     # The name of the browser
     NAME: str
     # The executable names available for the browser
-    EXECUTABLES: typing.List[str]
+    EXECUTABLES: ClassVar[Collection[str]]
     # The filename of the cdp driver JS file
     CDP_DRIVER_FILENAME: str
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.NAME
 
-    def find_exe(self):
+    def find_exe(self) -> str | None:
         """Try to find the path of the browser, or None if not found."""
         for name in self.EXECUTABLES:
             exe = shutil.which(name)
@@ -38,14 +39,14 @@ class Browser(abc.ABC):
         return None
 
     @abc.abstractmethod
-    def _path(self, show_browser):
+    def _path(self, show_browser: bool) -> str | None:
         """Return the path of the browser if available, or None.
 
         Reimplement this in subclasses, so it is easier to return None
         than to raise the proper exception (done at once in path()).
         """
 
-    def path(self, show_browser):
+    def path(self, show_browser: bool) -> str:
         """Return the path of the browser, if available.
 
         In case it is not found, this raises SystemError.
@@ -56,7 +57,9 @@ class Browser(abc.ABC):
         raise SystemError(f"{self.name} is not installed")
 
     @abc.abstractmethod
-    def cmd(self, cdp_port, env, show_browser, browser_home, download_dir):
+    def cmd(
+        self, cdp_port: int, env: Mapping[str, str], show_browser: bool, browser_home: str, download_dir: str
+    ) -> Sequence[str]:
         pass
 
 
@@ -65,7 +68,8 @@ class Chromium(Browser):
     EXECUTABLES = ["chromium-browser", "chromium", "google-chrome", "chromium-freeworld"]
     CDP_DRIVER_FILENAME = f"{TEST_DIR}/common/chromium-cdp-driver.js"
 
-    def _path(self, show_browser):
+    @override
+    def _path(self, show_browser: bool) -> str | None:
         """Return path to chromium browser.
 
         Support the following locations:
@@ -90,7 +94,10 @@ class Chromium(Browser):
 
         return None
 
-    def cmd(self, cdp_port, env, show_browser, browser_home, download_dir):
+    @override
+    def cmd(
+        self, cdp_port: int, env: Mapping[str, str], show_browser: bool, browser_home: str, download_dir: str
+    ) -> Sequence[str]:
         exe = self.path(show_browser)
 
         return [exe, "--headless" if not show_browser else "",
@@ -106,11 +113,15 @@ class Firefox(Browser):
     EXECUTABLES = ["firefox-developer-edition", "firefox-nightly", "firefox"]
     CDP_DRIVER_FILENAME = f"{TEST_DIR}/common/firefox-cdp-driver.js"
 
-    def _path(self, show_browser):
+    @override
+    def _path(self, show_browser: bool) -> str | None:
         """Return path to Firefox browser."""
         return self.find_exe()
 
-    def cmd(self, cdp_port, env, show_browser, browser_home, download_dir):
+    @override
+    def cmd(
+        self, cdp_port: int, env: Mapping[str, str], show_browser: bool, browser_home: str, download_dir: str
+    ) -> Sequence[str]:
         exe = self.path(show_browser)
 
         subprocess.check_call([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env)
@@ -145,29 +156,42 @@ class Firefox(Browser):
         return cmd
 
 
-def get_browser(browser):
+def get_browser(browser: str) -> Browser:
     browser_classes = [
         Chromium,
         Firefox,
     ]
-    for klass in browser_classes:
-        if browser == klass.NAME:
-            return klass()
+    for cls in browser_classes:
+        if browser == cls.NAME:
+            return cls()
     raise SystemError(f"Unsupported browser: {browser}")
 
 
-def jsquote(obj):
+def jsquote(obj: object) -> str:
     return json.dumps(obj)
 
 
 class CDP:
-    def __init__(self, lang=None, verbose=False, trace=False, inject_helpers=None, start_profile=False):
+    _driver: subprocess.Popen[bytes] | None
+    _browser: subprocess.Popen[bytes] | None
+    _browser_home: str | None
+    _cdp_port_lockfile: IO[str] | None
+    cur_frame: str | None
+
+    def __init__(
+        self,
+        lang: str | None = None,
+        verbose: bool = False,
+        trace: bool = False,
+        inject_helpers: Sequence[str] = (),
+        start_profile: bool = False
+    ):
         self.lang = lang
         self.timeout = 15
         self.valid = False
         self.verbose = verbose
         self.trace = trace
-        self.inject_helpers = inject_helpers or []
+        self.inject_helpers = inject_helpers
         self.start_profile = start_profile
         self.browser = get_browser(os.environ.get("TEST_BROWSER", "chromium"))
         self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
@@ -177,7 +201,7 @@ class CDP:
         self._browser_home = None
         self._cdp_port_lockfile = None
 
-    def invoke(self, fn, **kwargs):
+    def invoke(self, fn: str, **kwargs: object) -> Any:
         """Call a particular CDP method such as Runtime.evaluate
 
         Use command() for arbitrary JS code.
@@ -199,7 +223,7 @@ class CDP:
         waitPageLoad = fn in ['Page.navigate', 'Page.reload']
 
         if trace:
-            print("-> " + kwargs.get('trace', cmd) + (" (with waitPageLoad)" if waitPageLoad else ""))
+            print(f"-> {kwargs.get('trace', cmd)}" + (" (with waitPageLoad)" if waitPageLoad else ""))
 
         if waitPageLoad:
             self.command(f"client.setupPageLoadHandler({self.timeout})")
@@ -219,9 +243,14 @@ class CDP:
                 print("<- pageLoadPromise " + repr(res))
         return res
 
-    def command(self, cmd):
+    def command(self, cmd: str) -> Any:
         if not self._driver:
             self.start()
+
+        assert self._driver is not None
+        assert self._driver.stdin is not None
+        assert self._driver.stdout is not None
+
         self._driver.stdin.write(cmd.encode("UTF-8"))
         self._driver.stdin.write(b"\n")
         self._driver.stdin.flush()
@@ -241,7 +270,7 @@ class CDP:
             raise RuntimeError(res["error"])
         return res["result"]
 
-    def claim_port(self, port):
+    def claim_port(self, port: int) -> bool:
         f = None
         try:
             f = open(os.path.join(tempfile.gettempdir(), ".cdp-%i.lock" % port), "w")
@@ -253,7 +282,7 @@ class CDP:
                 f.close()
             return False
 
-    def find_cdp_port(self):
+    def find_cdp_port(self) -> int:
         """Find an unused port and claim it through lock file"""
 
         for _ in range(100):
@@ -264,7 +293,7 @@ class CDP:
 
         raise RuntimeError("unable to find free port")
 
-    def start(self):
+    def start(self) -> None:
         environ = os.environ.copy()
         if self.lang:
             environ["LC_ALL"] = self.lang
@@ -339,10 +368,11 @@ class CDP:
             self.invoke("Profiler.enable")
             self.invoke("Profiler.startPreciseCoverage", callCount=False, detailed=True)
 
-    def kill(self):
+    def kill(self) -> None:
         self.valid = False
         self.cur_frame = None
         if self._driver:
+            assert self._driver.stdin is not None
             self._driver.stdin.close()
             self._driver.wait()
             self._driver = None
@@ -358,16 +388,18 @@ class CDP:
                 pass  # ignore if it crashed for some reason
             self._browser.wait()
             self._browser = None
+            assert self._browser_home is not None
             shutil.rmtree(self._browser_home, ignore_errors=True)
+            assert self._cdp_port_lockfile is not None
             os.remove(self._cdp_port_lockfile.name)
             self._cdp_port_lockfile.close()
 
-    def set_frame(self, frame):
+    def set_frame(self, frame: str | None) -> None:
         self.cur_frame = frame
         if self.trace:
             print("-> switch to frame %s" % frame)
 
-    def get_js_log(self):
+    def get_js_log(self) -> Sequence[str]:
         """Return the current javascript console log"""
 
         if self.valid:
@@ -376,16 +408,10 @@ class CDP:
             return ["%s: %s" % tuple(m) for m in messages]
         return []
 
-    def read_log(self):
+    def read_log(self) -> Iterator[tuple[str, Any]]:
         """Returns an iterator that produces log messages one by one.
 
         Blocks if there are no new messages right now."""
 
-        if not self.valid:
-            yield []
-            return
-
-        while True:
-            messages = self.command("waitLog()")
-            for m in messages:
-                yield m
+        while self.valid:
+            yield from self.command("waitLog()")

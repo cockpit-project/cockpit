@@ -82,7 +82,6 @@ success = True
 ignore_resource_errors = False
 
 for t, message in cdp.read_log():
-
     # fail on browser level errors
     if t == 'cdp':
         if message['level'] == "error":

@@ -38,7 +38,7 @@ class TestExample(testlib.MachineCase):
         if os.environ.get('TEST_FAILURES'):
             self.assertFalse(True)  # noqa: FBT003
 
-    @unittest.skip
+    @unittest.skip('not supported')
     def testSkip(self):
         self.login_and_go("/system")
         self.assertFalse(True)  # noqa: FBT003

@@ -21,7 +21,6 @@ import argparse
 import base64
 import errno
 import fnmatch
-import functools
 import glob
 import io
 import json
@@ -36,7 +35,7 @@ import time
 import traceback
 import unittest
 from time import sleep
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 
 import cdp
 from lcov import write_lcov
@@ -47,6 +46,8 @@ try:
     from PIL import Image
 except ImportError:
     Image = None
+
+_T = TypeVar('_T')
 
 BASE_DIR = os.path.realpath(f'{__file__}/../../..')
 TEST_DIR = f'{BASE_DIR}/test'
@@ -78,7 +79,6 @@ __all__ = (
     'test_main',
     'timeout',
     'todo',
-    'todoPybridge',
     'todoPybridgeRHEL8',
     'wait',
 )
@@ -2277,34 +2277,9 @@ def todo(reason: str = ''):
     return wrapper
 
 
-def todoPybridge(reason: Optional[str] = None):
-    if not reason:
-        reason = 'still fails with python bridge'
-
-    def wrap(test_method):
-        @functools.wraps(test_method)
-        def wrapped_test(self):
-            is_pybridge = self.is_pybridge()
-            try:
-                test_method(self)
-                if is_pybridge:
-                    return self.fail(reason)
-                return None
-            # only accept our testlib Errors, plus RuntimeError for TestSuperuserDashboardOldMachine
-            except (Error, RuntimeError):
-                if is_pybridge:
-                    traceback.print_exc()
-                    return self.skipTest(reason)
-                raise
-
-        return wrapped_test
-
-    return wrap
-
-
-def todoPybridgeRHEL8(reason: Optional[str] = None):
-    if testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8'):
-        return todoPybridge(reason or 'known fail on el8 with python bridge')
+def todoPybridgeRHEL8(reason: str | None = None) -> Callable[[_T], _T]:
+    # We don't currently test this scenario but we probably want to bring it
+    # back some day.  We'll implement this again when we do that.
     return lambda testEntity: testEntity
 
 

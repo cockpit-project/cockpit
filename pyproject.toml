@@ -4,13 +4,70 @@ backend-path = ['src']
 build-backend = 'build_backend'
 
 [tool.mypy]
-mypy_path = 'src:test/common'
-exclude = '_vendor'
+follow_imports = 'silent'  # https://github.com/python-lsp/pylsp-mypy/issues/81
+scripts_are_modules = true  # allow checking all scripts in one invocation
+explicit_package_bases = true
+mypy_path = 'src:test/common:bots'
+exclude = [
+    'tmp/',
+    'tools/vulture-suppressions/',
+    'vendor/',
+]
 
 [[tool.mypy.overrides]]
-module = ["cockpit._vendor.*", "dbus", "gi.*", "task", "vdo.*"]
-follow_imports = 'silent'
 ignore_missing_imports = true
+module = [
+    # run without submodules checked out
+    "cockpit._vendor.*",
+
+    # run without bots checked out
+    "lib.*",
+    "machine.*",
+    "task.*",
+    "testvm",
+    "PIL",
+
+    # run with bots checked out but its dependencies missing
+    "libvirt",
+    "libvirt_qemu",
+    "pika",
+
+    # run without gobject-introspection (used from cockpit-client for Gtk)
+    "gi.*",
+
+    # these are used from various scripts meant to run on the host
+    "dbus",
+    "tracer.query",
+    "vdo.*",
+]
+
+[[tool.mypy.overrides]]
+# https://github.com/python/mypy/issues/11401 prevents us from enabling strict
+# mode for a given set of files, so instead, we enable the corresponding set of
+# individual checks the files which are strictly typed.
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+no_implicit_reexport = true
+strict_concatenate = true
+strict_equality = true
+warn_unused_ignores = true
+module = [
+    # src
+    'cockpit',
+    'cockpit._version',
+    'cockpit.jsonutil',
+    'cockpit.protocol',
+    'cockpit.transports',
+
+    # test/common
+    'cdp',
+    'testlib',
+]
 
 [tool.pylint]
 max-line-length = 118

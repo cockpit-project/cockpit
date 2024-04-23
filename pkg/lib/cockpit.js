@@ -1554,8 +1554,8 @@ function factory() {
     }
 
     const byte_suffixes = {
-        1000: [null, "kB", "MB", "GB", "TB", "PB", "EB", "ZB"],
-        1024: [null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]
+        1000: ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB"],
+        1024: ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]
     };
 
     cockpit.format_bytes = function format_bytes(number, ...args) {

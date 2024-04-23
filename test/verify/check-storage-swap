@@ -44,7 +44,7 @@ class TestStorageswap(storagelib.StorageCase):
 
         # It should have been started and have a fstab entry
         self.click_card_row("GPT partitions", 1)
-        b.wait_text(self.card_desc("Swap", "Used"), "0")
+        b.wait_text(self.card_desc("Swap", "Used"), "0 B")
         self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
 
         # Stopping should set it to noauto
@@ -54,7 +54,7 @@ class TestStorageswap(storagelib.StorageCase):
 
         # Start it again to test teardown below
         b.click(self.card_button("Swap", "Start"))
-        b.wait_text(self.card_desc("Swap", "Used"), "0")
+        b.wait_text(self.card_desc("Swap", "Used"), "0 B")
         self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
 
         # It should have the right partition type
@@ -86,7 +86,7 @@ class TestStorageswap(storagelib.StorageCase):
         # fstab entry
         m.execute(f"mkswap -f {disk}")
         b.click(self.card_button("Swap", "Start"))
-        b.wait_text(self.card_desc("Swap", "Used"), "0")
+        b.wait_text(self.card_desc("Swap", "Used"), "0 B")
         testlib.wait(lambda: "defaults" in m.execute(f"findmnt --fstab -n -o OPTIONS {disk}"))
 
     def testEncrypted(self):
@@ -111,7 +111,7 @@ class TestStorageswap(storagelib.StorageCase):
 
         # It should have been started and have a fstab entry
         self.click_card_row("Storage", name=disk)
-        b.wait_text(self.card_desc("Swap", "Used"), "0")
+        b.wait_text(self.card_desc("Swap", "Used"), "0 B")
         dev = b.text(self.card_desc("Encryption", "Cleartext device"))
         testlib.wait(lambda: "defaults" in m.execute(f"findmnt --fstab -n -o OPTIONS {dev}"))
 

@@ -1554,7 +1554,7 @@ function factory() {
     }
 
     const byte_suffixes = {
-        1000: [null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB"],
+        1000: [null, "kB", "MB", "GB", "TB", "PB", "EB", "ZB"],
         1024: [null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]
     };
 

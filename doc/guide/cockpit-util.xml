@@ -47,7 +47,7 @@ string = cockpit.format_number(number, [precision])
 string = cockpit.format_bytes(number, [options])
 </programlisting>
     <para>Formats <code>number</code> into a displayable <code>string</code> with a suffix, such as
-      <emphasis>KB</emphasis> or <emphasis>MB</emphasis>.</para>
+      <emphasis>kB</emphasis> or <emphasis>MB</emphasis>.</para>
 
     <para>By default, SI units are used.  IEC units (1024-based) can be requested by including
       <code>base2: true</code> in <code>options</code>.</para>
@@ -67,7 +67,7 @@ string = cockpit.format_bytes_per_sec(number, [options])
     <para>Format <code>number</code> of bytes into a displayable speed <code>string</code>.</para>
 
     <para>This function is mostly equivalent to <code>cockpit.format_bytes()</code> but the returned
-      value contains a unit like <emphasis>KB/s</emphasis> or <emphasis>MB/s</emphasis>.</para>
+      value contains a unit like <emphasis>kB/s</emphasis> or <emphasis>MB/s</emphasis>.</para>
   </refsection>
 
   <refsection id="cockpit-format-bits-per-sec">
@@ -77,7 +77,7 @@ string = cockpit.format_bits_per_sec(number, [options])
 </programlisting>
     <para>Format <code>number</code> of bits into a displayable speed <code>string</code>.</para>
 
-    <para>This function is mostly equivalent to <code>cockpit.format_bytes()</code> but the returned 
+    <para>This function is mostly equivalent to <code>cockpit.format_bytes()</code> but the returned
       value contains a unit like <emphasis>kbps</emphasis> or <emphasis>Mbps</emphasis>.</para>
 
     <para>This function does not support IEC units.  <code>base2</code> may not be passed as part of

@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import cockpit from 'cockpit';
+
 import React, { useState, useEffect } from 'react';
 import {
     ExpandableRowContent,
@@ -27,6 +29,8 @@ import { EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateActions } from 
 import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import './cockpit-components-table.scss';
+
+const _ = cockpit.gettext;
 
 /* This is a wrapper around PF Table component
  * See https://www.patternfly.org/components/table/
@@ -259,9 +263,13 @@ export const ListingTable = ({
             <Table {...extraProps} {...tableProps}>
                 {showHeader && <Thead>
                     <Tr>
-                        {isExpandable && <Th />}
-                        {!onHeaderSelect && onSelect && <Th />}
-                        {onHeaderSelect && onSelect && <Th select={{
+                        {/* HACK - https://github.com/patternfly/patternfly/issues/6643
+                            We should probably be using screenReaderText instead of aria-label
+                            for the first two here, but that will change the table layout.
+                          */}
+                        {isExpandable && <Th aria-label={_("Row expansion")} />}
+                        {!onHeaderSelect && onSelect && <Th aria-label={_("Row select")} />}
+                        {onHeaderSelect && onSelect && <Th aria-label={_("Row select")} select={{
                             onSelect: onHeaderSelect,
                             isSelected: rows.every(r => r.selected)
                         }} />}

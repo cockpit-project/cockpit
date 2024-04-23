@@ -483,15 +483,15 @@ ${enableCrashKernel}
                     <span>{ _("Reading...") }</span>
                 </div>
             );
-        } else if (this.props.reservedMemory == 0) {
+        } else if (this.props.reservedMemory === 0) {
             // nothing reserved
             reservedMemory = <span>{_("None")} </span>;
-        } else if (this.props.reservedMemory == "error") {
-            // error while reading
-        } else {
-            // assume we have a proper value
+        } else if (Number.isInteger(this.props.reservedMemory)) {
             // TODO: hint at using debug_mem_level to identify actual memory required?
-            reservedMemory = <span>{this.props.reservedMemory}</span>;
+            reservedMemory = <span>{cockpit.format_bytes(this.props.reservedMemory, { base2: true })}</span>;
+        } else {
+            // error while reading
+            reservedMemory = null;
         }
 
         const serviceRunning = this.props.kdumpStatus &&

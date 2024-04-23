@@ -99,11 +99,11 @@ const initStore = function(rootElement) {
                 // https://access.redhat.com/solutions/59432 states limit to be 896MiB and the auto at 768MiB max
                 // default unit is MiB
                     if (value >= 1024 * 1024)
-                        dataStore.kdumpMemory = cockpit.format_bytes(value, 1024);
+                        dataStore.kdumpMemory = value;
                     else if (value >= 1024)
-                        dataStore.kdumpMemory = cockpit.format_bytes(value * 1024, 1024);
+                        dataStore.kdumpMemory = value * 1024;
                     else
-                        dataStore.kdumpMemory = cockpit.format_bytes(value * 1024 * 1024, 1024);
+                        dataStore.kdumpMemory = value * 1024 * 1024;
                 } else {
                     dataStore.kdumpMemory = content.trim();
                 }

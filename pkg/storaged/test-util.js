@@ -119,14 +119,14 @@ QUnit.test("format_fsys_usage", function (assert) {
     const sizes = [5, 200, 5 * k, 200 * k, 5 * M, 200 * M, 5 * G, 200 * G, 5 * T, 200 * T];
     /* For each "total" size, format all of the "used" sizes less than or equal to it.
      * The results table lists the part that should come after and before the slash, respectively.
-     * For example: ["5 KB", ["0.01", "0.20", "5"]]
-     * means 5, 200 and 5k out of 5k are displayed as "0.01 / 5KB", "0.20 / 5KB" and "5 / 5KB"
+     * For example: ["5 kB", ["0.01", "0.20", "5"]]
+     * means 5, 200 and 5k out of 5k are displayed as "0.01 / 5kB", "0.20 / 5kB" and "5 / 5kB"
      */
     const results = [
         ["5", ["5"]],
         ["200", ["5", "200"]],
-        ["5 KB", ["0.01", "0.20", "5"]],
-        ["200 KB", ["0.01", "0.20", "5", "200"]],
+        ["5 kB", ["0.01", "0.20", "5"]],
+        ["200 kB", ["0.01", "0.20", "5", "200"]],
         ["5 MB", ["0.01", "0.01", "0.01", "0.20", "5"]],
         ["200 MB", ["0.01", "0.01", "0.01", "0.20", "5", "200"]],
         ["5 GB", ["0.01", "0.01", "0.01", "0.01", "0.01", "0.20", "5"]],

@@ -87,6 +87,12 @@ select.pf-v5-c-form-control {
   margin-inline-end: 0;
 }
 
+// Fix menus cropping contents
+// https://github.com/patternfly/patternfly/issues/6565
+.pf-v5-c-menu__item-text {
+  overflow: visible;
+}
+
 // The default gap between the rows in horizontal lists is too large
 .pf-v5-c-description-list.pf-m-horizontal-on-sm,
 .pf-v5-c-description-list.pf-m-horizontal {

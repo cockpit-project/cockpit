@@ -170,8 +170,8 @@ export function fmt_size(bytes) {
 }
 
 export function fmt_size_long(bytes) {
-    const with_decimal_unit = cockpit.format_bytes(bytes, 1000);
-    const with_binary_unit = cockpit.format_bytes(bytes, 1024);
+    const with_decimal_unit = cockpit.format_bytes(bytes);
+    const with_binary_unit = cockpit.format_bytes(bytes, { base2: true });
     /* Translators: Used in "..." */
     return with_decimal_unit + ", " + with_binary_unit + ", " + bytes + " " + C_("format-bytes", "bytes");
 }
@@ -188,10 +188,11 @@ export function format_temperature(kelvin) {
 
 export function format_fsys_usage(used, total) {
     let text = "";
-    let parts = cockpit.format_bytes(total, undefined, { separate: true, precision: 2 });
+    let parts = cockpit.format_bytes(total, { separate: true, precision: 2 });
     text = " / " + parts.join(" ");
     const unit = parts[1];
 
+    // FIXME: passing explicit unit is deprecated, redesign this
     parts = cockpit.format_bytes(used, unit, { separate: true, precision: 2 });
     return parts[0] + text;
 }

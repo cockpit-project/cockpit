@@ -478,6 +478,20 @@ Cockpit log out, use something like:
 
     >> localStorage.debugging = "spawn"
 
+## Using React Developer Tools
+
+Cockpit uses React for the JavaScript frontend, [React Developer
+Tools](https://react.dev/learn/react-developer-tools) is a browser extension to
+inspect React components, edit props and state. Out of the box the developer
+tools do not work with Cockpit due to the pages being loaded in a separate
+iframe. A workaround is to load the page directly by embedding, for example for
+the system overview page:
+
+<http://localhost:9090/cockpit/@localhost/system/index.html>
+
+This loads the system overview as a standalone page allowing React Developer
+tools to inspect its state.
+
 ## Running Cockpit processes under a debugger
 
 You may want to run cockpit-ws under a debugger such as valgrind or gdb. You can

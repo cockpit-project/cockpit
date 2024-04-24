@@ -84,6 +84,9 @@ QUnit.test("format_number", function (assert) {
 
 QUnit.test("format_bytes", function (assert) {
     const checks = [
+        [0, undefined, "0 B"],
+        [0, 1000, "0 B"],
+        [0, 1024, "0 B"],
         [5, 1000, "5 B"],
         [5, 1024, "5 B"],
         [999, 1000, "999 B"],
@@ -142,12 +145,15 @@ QUnit.test("format_bytes", function (assert) {
 QUnit.test("format_bytes_per_sec", function (assert) {
     const checks = [
         // default unit
+        [0, undefined, undefined, "0 B/s"],
         [5, undefined, undefined, "5 B/s"],
         [2555, undefined, undefined, "2.56 kB/s"],
         [12345678, undefined, undefined, "12.3 MB/s"],
         // explicit base-2 unit
+        [0, 1024, undefined, "0 B/s"],
         [2555, 1024, undefined, "2.50 KiB/s"],
         // explicit base-10 unit
+        [0, 1000, undefined, "0 B/s"],
         [2555, 1000, undefined, "2.56 kB/s"],
         [12345678, 1000, undefined, "12.3 MB/s"],
         // explicit unit

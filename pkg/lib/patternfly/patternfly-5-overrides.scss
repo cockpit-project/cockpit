@@ -81,6 +81,12 @@ select.pf-v5-c-form-control {
   margin: 0;
 }
 
+// Fix the double-spacing issue for other dropdowns
+// https://github.com/patternfly/patternfly-react/issues/10302
+.pf-v5-c-menu-toggle__controls:last-child > .pf-v5-c-menu-toggle__toggle-icon {
+  margin-inline-end: 0;
+}
+
 // The default gap between the rows in horizontal lists is too large
 .pf-v5-c-description-list.pf-m-horizontal-on-sm,
 .pf-v5-c-description-list.pf-m-horizontal {

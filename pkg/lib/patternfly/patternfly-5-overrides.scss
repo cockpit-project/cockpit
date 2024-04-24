@@ -75,6 +75,12 @@ select.pf-v5-c-form-control {
   color: var(--pf-v5-c-form-control--Color);
 }
 
+// Fix the double-spacing issue in the non-deprecated split buttons
+// https://github.com/patternfly/patternfly-react/issues/10302
+.pf-m-split-button .pf-v5-c-menu-toggle__controls {
+  margin: 0;
+}
+
 // The default gap between the rows in horizontal lists is too large
 .pf-v5-c-description-list.pf-m-horizontal-on-sm,
 .pf-v5-c-description-list.pf-m-horizontal {

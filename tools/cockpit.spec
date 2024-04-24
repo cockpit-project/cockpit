@@ -402,7 +402,7 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit-wsinstance-https@.socket
 %{_unitdir}/cockpit-wsinstance-https@.service
 %{_unitdir}/system-cockpithttps.slice
-%{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
+%{_prefix}/%{__lib}/tmpfiles.d/cockpit-ws.conf
 %{pamdir}/pam_ssh_add.so
 %{pamdir}/pam_cockpit_cert.so
 %{_libexecdir}/cockpit-ws
@@ -447,7 +447,7 @@ if [ "$1" = 1 ]; then
     chmod 644 /etc/cockpit/disallowed-users
 fi
 
-%tmpfiles_create cockpit-tempfiles.conf
+%tmpfiles_create cockpit-ws.conf
 %systemd_post cockpit.socket cockpit.service
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true

@@ -66,7 +66,7 @@ package_cockpit() {
   install -Dm644 "$srcdir"/cockpit-ws.sysuser.conf "$pkgdir"/usr/lib/sysusers.d/cockpit-ws.conf
   install -Dm644 "$srcdir"/cockpit-wsinstance.sysuser.conf "$pkgdir"/usr/lib/sysusers.d/cockpit-wsinstance.conf
 
-  echo "z /usr/lib/cockpit/cockpit-session - - cockpit-wsinstance -" >> "$pkgdir"/usr/lib/tmpfiles.d/cockpit-tempfiles.conf
+  echo "z /usr/lib/cockpit/cockpit-session - - cockpit-wsinstance -" >> "$pkgdir"/usr/lib/tmpfiles.d/cockpit-ws.conf
 
   # remove unused plugins
   rm -rf "$pkgdir"/usr/share/cockpit/{selinux,playground,sosreport} \

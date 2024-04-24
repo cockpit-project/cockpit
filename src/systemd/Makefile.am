@@ -30,8 +30,8 @@ install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/issue.d
 	ln -sTfr $(DESTDIR)/run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
 
-tempconfdir = $(prefix)/lib/tmpfiles.d
-nodist_tempconf_DATA = src/systemd/cockpit-tempfiles.conf
+tmpfilesconfdir = $(prefix)/lib/tmpfiles.d
+nodist_tmpfilesconf_DATA = src/systemd/tmpfiles.d/cockpit-ws.conf
 
 # we can't generate these with config.status because,
 # eg. it does "@libexecdir@" -> "${exec_prefix}/libexec"
@@ -49,7 +49,7 @@ src/systemd/%: src/systemd/%.in
 
 systemdgenerated = \
 	$(nodist_systemdunit_DATA) \
-	$(nodist_tempconf_DATA) \
+	$(nodist_tmpfilesconf_DATA) \
 	$(NULL)
 systemdgenerated_in = $(patsubst %,%.in,$(systemdgenerated))
 

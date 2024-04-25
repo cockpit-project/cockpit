@@ -29,14 +29,17 @@ class TestMenu(testlib.MachineCase):
     def testDarkThemeSwitcher(self):
         b = self.browser
 
-        def switch_style(style_class, prevPage="system"):
+        def switch_style(style_class, prevPage="system", pixel_test=False):
             b.switch_to_top()
             b.click("#toggle-menu")
+            if pixel_test:
+                b.wait_visible("#toggle-menu-menu")
+                b.assert_pixels_in_current_layout("#toggle-menu-menu", "shell-toggle-menu")
             b.click(f"#topnav {style_class}")
             b.enter_page(f"/{prevPage}")
 
         self.login_and_go("/system")
-        switch_style("#dark")
+        switch_style("#dark", pixel_test=True)
         b._wait_present("html.pf-v5-theme-dark")
 
         switch_style("#light")
@@ -82,6 +85,7 @@ class TestMenu(testlib.MachineCase):
         # Clicking inside the iframed pages should close the docs menu
         b.click("#toggle-docs")
         b.wait_visible("#toggle-docs-menu")
+        b.assert_pixels("#toggle-docs-menu", "shell-docs-menu")
         b.enter_page("/system")
         b.focus("#overview main")
         b.switch_to_top()

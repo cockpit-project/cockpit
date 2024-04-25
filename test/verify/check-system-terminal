@@ -29,8 +29,6 @@ class TestTerminal(testlib.MachineCase):
     def setUp(self):
         super().setUp()
 
-        self.allow_journal_messages(".*external channel failed: terminated")
-
         # Make sure we get what we expect
         self.write_file("/home/admin/.bashrc", r"""
 PS1="\u@local \W]\$ "
@@ -223,6 +221,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         # Relogin on different page, as reloging on terminal prompts asking if you want to leave the site
         b.go("/system")
         b.relogin("/system")
+        self.allow_restart_journal_messages()
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
         b.wait_visible('.terminal')

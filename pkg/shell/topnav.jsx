@@ -284,6 +284,7 @@ export class TopNav extends React.Component {
                             </ToolbarItem>
                             <ToolbarItem>
                                 <Dropdown
+                                    id="toggle-menu-menu"
                                     onSelect={() => {
                                         this.setState(prevState => { return { menuOpened: !prevState.menuOpened } });
                                         document.getElementById("toggle-menu").focus();

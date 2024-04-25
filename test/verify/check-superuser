@@ -44,6 +44,7 @@ class TestSuperuser(testlib.MachineCase):
         b.assert_pixels("#topnav", "topnav-unprivileged")
 
         # Check they are still gone after logout
+        self.allow_restart_journal_messages()
         b.relogin()
         b.leave_page()
         b.check_superuser_indicator("Limited access")
@@ -444,6 +445,7 @@ class TestSuperuserDashboard(testlib.MachineCase):
 
         # Logging out and logging back in should give us immediate
         # superuser on m2 (once we have logged in there).
+        self.allow_restart_journal_messages()
         b.relogin()
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')

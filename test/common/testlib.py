@@ -1928,6 +1928,7 @@ class MachineCase(unittest.TestCase):
                                     "We are no longer a registered authentication agent.",
                                     ".*: failed to retrieve resource: terminated",
                                     ".*: external channel failed: (terminated|protocol-error)",
+                                    ".*: truncated data in external channel",
                                     'audit:.*denied.*comm="systemd-user-se".*nologin.*',
                                     ".*No session for cookie",
 

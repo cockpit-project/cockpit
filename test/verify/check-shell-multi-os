@@ -42,118 +42,6 @@ def add_machine(b, address, password):
     b.wait_not_present('#hosts_setup_server_dialog')
 
 
-def wait_stock_addresses(b, expected):
-    b.wait_js_func(
-        """(function(expected) {
-            var nodes = document.querySelectorAll('#dashboard-hosts .list-group-item');
-            var addresses = Array.prototype.map.call(nodes, function(e) {
-                return e.getAttribute("data-address");
-            });
-            return expected.sort().toString() == addresses.sort().toString();
-        })""", expected)
-
-
-def add_stock_machine(b, address, password):
-    b.click('#dashboard-add')
-    b.wait_popup('dashboard_setup_server_dialog')
-    b.set_input_text('#add-machine-address', address)
-
-    b.click('#dashboard_setup_server_dialog button:contains(Add)')
-    b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-    b.click('#dashboard_setup_server_dialog button:contains(Connect)')
-    if password:
-        b.wait_in_text('#dashboard_setup_server_dialog', "Unable to log in")
-        b.set_input_text('#login-custom-password', password)
-        b.click('#dashboard_setup_server_dialog button:contains(Log in)')
-    b.wait_popdown('dashboard_setup_server_dialog')
-
-
-@testlib.skipDistroPackage()
-class TestCentos7(testlib.MachineCase):
-    provision = {
-        "0": {"address": "10.111.113.1/20", "memory_mb": 512},
-        "centos-7": {"address": "10.111.113.5/20", "image": "centos-7", "memory_mb": 512}
-    }
-
-    def check_spawn(self, b, address):
-        # HACK: Firefox cannot do `cockpit.spawn` as it returns promise
-        # Firefox can wait for promise to resolve, but then cannot get value from it
-        if b.cdp.browser.name == "firefox":
-            return
-        result = b.call_js_func("""(function(address) {
-            return cockpit.spawn(['echo', 'hi'], { host: address });
-        })""", address)
-        self.assertEqual(result, "hi\n")
-
-    def check_dbus(self, b, address):
-        # HACK: Firefox cannot do `cockpit.dbus.proxy.call` as it returns promise
-        if b.cdp.browser.name == "firefox":
-            return
-        b.call_js_func("""(function(address) {
-            return cockpit.dbus("org.freedesktop.DBus", { host: address })
-                .proxy("org.freedesktop.DBus", "/").call("GetId");
-        })""", address)
-
-    @testlib.todoPybridgeRHEL8()
-    def test(self):
-        dev_m = self.machine
-        dev_b = self.browser
-
-        self.allow_hostkey_messages()
-
-        self.login_and_go()
-        dev_b.click("#hosts-sel button")
-        dev_addresses = ["localhost"]
-        wait_addresses(dev_b, dev_addresses)
-
-        stock_m = self.machines['centos-7']
-        stock_m.execute("firewall-cmd --add-service cockpit")
-        stock_m.start_cockpit()
-
-        # Wait for connectivity between the two
-        testlib.wait(lambda: stock_m.execute("ip addr >&2 && ping -q -w5 -c5 10.111.113.1"))
-        testlib.wait(lambda: dev_m.execute("ip addr  >&2 && ping -q -w5 -c5 10.111.113.5"))
-
-        stock_m.execute("hostnamectl set-hostname stock")
-        stock_b = self.new_browser(stock_m)
-
-        stock_b.login_and_go("/dashboard", legacy_authorized=True)
-        wait_stock_addresses(stock_b, ["localhost"])
-
-        add_stock_machine(stock_b, "10.111.113.1", password=None)
-        wait_stock_addresses(stock_b, ["localhost", "10.111.113.1"])
-
-        add_machine(dev_b, "10.111.113.5", password="foobar")
-        dev_addresses.append("10.111.113.5")
-        wait_addresses(dev_b, dev_addresses)
-
-        stock_b.switch_to_top()
-        self.check_dbus(stock_b, "10.111.113.1")
-        self.check_dbus(dev_b, "10.111.113.5")
-
-        self.check_spawn(stock_b, "10.111.113.1")
-        self.check_spawn(dev_b, "10.111.113.5")
-
-        dev_b.go("/@10.111.113.5/network")
-        dev_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.5/network'][src$='/network/index.html#/']")
-
-        dev_b.go("/@10.111.113.5/storage")
-        dev_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.5/storage'][src$='/storage/index.html#/']")
-
-        dev_b.switch_to_top()
-        dev_b.go("/@10.111.113.5/users")
-        dev_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.5/users'][src$='/users/index.html#/']")
-
-        stock_b.go("/@10.111.113.1/system")
-        stock_b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.1/system'][data-loaded]")
-        stock_b.switch_to_frame('cockpit1:10.111.113.1/system')
-        stock_b.wait_text_not("#system_information_hardware_text", "")
-
-        # Messages from previous versions of cockpit
-        self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
-        self.allow_restart_journal_messages()
-
-
 @testlib.skipDistroPackage()
 class TestRHEL8(testlib.MachineCase):
     provision = {
@@ -197,11 +85,11 @@ class TestRHEL8(testlib.MachineCase):
 class TestMultiOSDirect(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "memory_mb": 512},
-        "centos-7": {"address": "10.111.113.5/20", "image": "centos-7", "memory_mb": 512}
+        "stock": {"address": "10.111.113.5/20", "image": "centos-8-stream", "memory_mb": 512}
     }
 
     @testlib.todoPybridgeRHEL8()
-    def testCentos7Direct(self):
+    def testCentos8Direct(self):
         b = self.browser
 
         self.allow_hostkey_messages()
@@ -212,7 +100,7 @@ class TestMultiOSDirect(testlib.MachineCase):
         dev_addresses = ["localhost"]
         wait_addresses(b, dev_addresses)
 
-        stock_m = self.machines['centos-7']
+        stock_m = self.machines['stock']
         stock_m.execute("hostnamectl set-hostname stock")
 
         add_machine(b, "10.111.113.5", password="foobar")
@@ -222,12 +110,7 @@ class TestMultiOSDirect(testlib.MachineCase):
 
         # Access stock directly from dev
         b.open("/=10.111.113.5")
-        b.wait_visible("#login")
-        b.wait_not_visible("#badge")
-        b.wait_not_visible("#brand")
-        b.set_input_text("#login-user-input", "admin")
-        b.set_input_text("#login-password-input", "foobar")
-        b.click('#login-button')
+        b.try_login(superuser=False)
         b.wait_visible("#hostkey-group")
         b.wait_in_text("#hostkey-message-1", "You are connecting to 10.111.113.5 for the first time.")
         b.click('#login-button')
@@ -237,7 +120,7 @@ class TestMultiOSDirect(testlib.MachineCase):
         b.wait_visible("iframe.container-frame[name='cockpit1:localhost/system']")
         b.switch_to_frame("cockpit1:localhost/system")
         b.wait_visible("body")
-        b.wait_in_text('#system_information_hostname_button', "stock")
+        b.wait_in_text('#system_information_hostname_text', "stock")
         b.switch_to_top()
 
         b.wait_js_cond('window.location.pathname == "/=10.111.113.5/system"')

@@ -735,13 +735,6 @@ class Browser:
         """
         self.wait_visible('#' + elem_id)
 
-    def wait_popdown(self, elem_id: str) -> None:
-        """Wait for a popup to close.
-
-        :param id: the 'id' attribute of the popup.
-        """
-        self.wait_not_visible('#' + elem_id)
-
     def wait_language(self, lang: str) -> None:
         parts = lang.split("-")
         code_1 = parts[0]
@@ -1472,7 +1465,7 @@ class MachineCase(unittest.TestCase):
         return os.environ.get('NODE_ENV') == 'development'
 
     def is_pybridge(self) -> bool:
-        # some tests start e.g. centos-7 as first machine, bridge may not exist there
+        # some tests start e.g. centos-8 as first machine, bridge may not exist there
         return any('python' in m.execute('head -c 30 /usr/bin/cockpit-bridge || true') for m in self.machines.values())
 
     def disable_preload(self, *packages: str, machine: testvm.Machine | None = None) -> None:

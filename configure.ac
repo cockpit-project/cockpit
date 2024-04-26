@@ -230,62 +230,6 @@ fi
 AM_CONDITIONAL(WITH_ASAN, test "$enable_asan" = "yes")
 AC_MSG_RESULT($asan_status)
 
-# User and group for running cockpit web server (cockpit-tls or -ws in customized setups)
-
-AC_ARG_WITH(cockpit_user,
-	    AS_HELP_STRING([--with-cockpit-user=<user>],
-			   [User for running cockpit (root)]
-                          )
-           )
-AC_ARG_WITH(cockpit_group,
-	    AS_HELP_STRING([--with-cockpit-group=<group>],
-			   [Group for running cockpit]
-                          )
-           )
-if test -z "$with_cockpit_user"; then
-    COCKPIT_USER=root
-    COCKPIT_GROUP=
-else
-    COCKPIT_USER=$with_cockpit_user
-    if test -z "$with_cockpit_group"; then
-        COCKPIT_GROUP=$with_cockpit_user
-    else
-	COCKPIT_GROUP=$with_cockpit_group
-    fi
-fi
-
-AC_SUBST(COCKPIT_USER)
-AC_SUBST(COCKPIT_GROUP)
-
-# User for running cockpit-ws instances from cockpit-tls
-
-AC_ARG_WITH(cockpit_ws_instance_user,
-	    AS_HELP_STRING([--with-cockpit-ws-instance-user=<user>],
-			   [User for running cockpit-ws instances from cockpit-tls (root)]
-                          )
-           )
-AC_ARG_WITH(cockpit_ws_instance_group,
-	    AS_HELP_STRING([--with-cockpit-ws-instance-group=<group>],
-			   [Group for running cockpit-ws instances from cockpit-tls]
-                          )
-           )
-if test -z "$with_cockpit_ws_instance_user"; then
-    if test "$COCKPIT_USER" != "root"; then
-        AC_MSG_ERROR([--with-cockpit-ws-instance-user is required when setting --with-cockpit-user])
-    fi
-    COCKPIT_WSINSTANCE_USER=root
-else
-    COCKPIT_WSINSTANCE_USER=$with_cockpit_ws_instance_user
-    if test -z "$with_cockpit_ws_instance_group"; then
-        COCKPIT_WSINSTANCE_GROUP=$with_cockpit_ws_instance_user
-    else
-        COCKPIT_WSINSTANCE_GROUP=$with_cockpit_ws_instance_group
-    fi
-fi
-
-AC_SUBST(COCKPIT_WSINSTANCE_USER)
-AC_SUBST(COCKPIT_WSINSTANCE_GROUP)
-
 # admin users group
 AC_ARG_WITH([admin-group],
             [AS_HELP_STRING([--with-admin-group=GROUP],
@@ -477,10 +421,6 @@ echo "
         cflags:                     ${CFLAGS}
         cppflags:                   ${CPPFLAGS}
 
-        cockpit-ws user:            ${COCKPIT_USER}
-        cockpit-ws group:           ${COCKPIT_GROUP}
-        cockpit-ws instance user:   ${COCKPIT_WSINSTANCE_USER}
-        cockpit-ws instance group:  ${COCKPIT_WSINSTANCE_GROUP}
         admin group:                ${admin_group}
         cockpit-session PATH:       ${default_session_path}
 

@@ -6,7 +6,6 @@ nodist_systemdunit_DATA = \
 	src/systemd/cockpit.service \
 	src/systemd/cockpit.socket \
 	src/systemd/cockpit-session@.service \
-	src/systemd/cockpit-session.socket \
 	src/systemd/cockpit-wsinstance-http.service \
 	src/systemd/cockpit-wsinstance-http.socket \
 	src/systemd/cockpit-wsinstance-https-factory@.service \
@@ -16,6 +15,7 @@ nodist_systemdunit_DATA = \
 	$(NULL)
 
 dist_systemdunit_DATA = \
+	src/systemd/cockpit-session.socket \
 	src/systemd/system-cockpithttps.slice \
 	$(NULL)
 
@@ -40,11 +40,7 @@ src/systemd/%: src/systemd/%.in
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
 	-e 's,[@]admin_group[@],$(admin_group),g' \
 	-e 's,[@]datadir[@],$(datadir),g' \
-	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
 	-e 's,[@]libexecdir[@],$(libexecdir),g' \
-	-e 's,[@]user[@],$(COCKPIT_USER),g' \
-	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
-	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
 	$< > $@.tmp && mv -f $@.tmp $@
 
 systemdgenerated = \

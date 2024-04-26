@@ -11,8 +11,8 @@ RuntimeDirectory=cockpit/tls
 Environment=RUNTIME_DIRECTORY=/run/cockpit/tls
 ExecStartPre=+@libexecdir@/cockpit-certificate-ensure --for-cockpit-tls
 ExecStart=@libexecdir@/cockpit-tls
-User=@user@
-Group=@group@
+User=cockpit-ws
+Group=cockpit-ws
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true

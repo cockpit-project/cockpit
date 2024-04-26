@@ -21,8 +21,7 @@ cockpit_session_SOURCES = \
 	src/session/session.c \
 	$(NULL)
 
-# If running cockpit-ws as a non-standard user, we also set up
-# cockpit-session to be setuid root, but only runnable by cockpit-session
+# set up cockpit-session to be setuid root, but only runnable by cockpit-session
 install-exec-hook::
-	chown -f root:$(COCKPIT_WSINSTANCE_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session || true
-	test "$(COCKPIT_USER)" != "root" && chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true
+	chown -f root:cockpit-wsinstance $(DESTDIR)$(libexecdir)/cockpit-session || true
+	chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true

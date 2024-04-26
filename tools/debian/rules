@@ -18,8 +18,6 @@ export deb_pamlibdir = $(shell { pkgconf --variable=libdir pam || echo /lib/$(DE
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--with-cockpit-user=cockpit-ws \
-		--with-cockpit-ws-instance-user=cockpit-wsinstance \
 		--with-pamdir=/$(deb_pamlibdir)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 

@@ -450,6 +450,7 @@ class AsyncChannel(Channel):
     # to pings as we dequeue them.  EOF is None.  This is a buffer: since we
     # need to handle do_data() without blocking, we have no choice.
     receive_queue: 'asyncio.Queue[bytes | JsonObject | None]'
+    loop: asyncio.AbstractEventLoop
 
     # Send-side flow control
     write_waiter = None
@@ -459,6 +460,7 @@ class AsyncChannel(Channel):
 
     async def run_wrapper(self, options: JsonObject) -> None:
         try:
+            self.loop = asyncio.get_running_loop()
             self.close(await self.run(options))
         except asyncio.CancelledError:  # user requested close
             self.close()
@@ -485,14 +487,13 @@ class AsyncChannel(Channel):
 
     async def write(self, data: bytes) -> None:
         if not self.send_data(data):
-            self.write_waiter = asyncio.get_running_loop().create_future()
+            self.write_waiter = self.loop.create_future()
             await self.write_waiter
 
     async def sendfile(self, stream: BinaryIO) -> None:
-        loop = asyncio.get_running_loop()
         with stream:
             while True:
-                data = await loop.run_in_executor(None, stream.read, Channel.BLOCK_SIZE)
+                data = await self.loop.run_in_executor(None, stream.read, Channel.BLOCK_SIZE)
                 if data == b'':
                     break
                 await self.write(data)

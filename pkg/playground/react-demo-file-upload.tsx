@@ -60,7 +60,7 @@ export const UploadButton = () => {
             });
 
             try {
-                await upload(destination, file.stream(), (progress) => {
+                await upload(destination, file, (progress) => {
                     const now = performance.now();
                     if (now < next_progress)
                         return;

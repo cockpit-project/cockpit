@@ -181,12 +181,11 @@ class FsReplaceChannel(AsyncChannel):
                 # otherwise, spool data into a temporary file until EOF then rename into place...
                 with tempfile.NamedTemporaryFile(dir=dirname, prefix=f'.{basename}-', delete=False) as tmp:
                     delete_on_exit = tmp.name
-                    loop = asyncio.get_running_loop()
                     while data is not None:
-                        await loop.run_in_executor(None, tmp.write, data)
+                        await self.in_thread(tmp.write, data)
                         data = await self.read()
 
-                    await loop.run_in_executor(None, os.fdatasync, tmp.fileno())
+                    await self.in_thread(os.fdatasync, tmp.fileno())
 
                     if tag is None:
                         # no preconditions about what currently exists or not

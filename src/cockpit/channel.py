@@ -318,7 +318,6 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     for setting up the connection and ensuring that .connection_made() is called.
     """
     _transport: Optional[asyncio.Transport]
-    _loop: Optional[asyncio.AbstractEventLoop]
     _send_pongs: bool = True
     _last_ping: Optional[JsonObject] = None
     _create_transport_task = None

@@ -41,7 +41,7 @@ class Waiter {
 
 export async function upload(
     destination: string,
-    stream: ReadableStream,
+    contents: Blob,
     progress?: (bytes_sent: number) => void,
     signal?: AbortSignal,
     options?: cockpit.JsonObject
@@ -65,6 +65,7 @@ export async function upload(
         payload: 'fsreplace1',
         path: destination,
         binary: true,
+        size: contents.size,
         'send-acks': 'bytes',
         ...options,
     } as const;
@@ -91,8 +92,8 @@ export async function upload(
     });
 
     try {
-        debug('starting file send', stream);
-        const reader = stream.getReader({ mode: 'byob' }); // byob to choose the block size
+        debug('starting file send', contents);
+        const reader = contents.stream().getReader({ mode: 'byob' }); // byob to choose the block size
         let eof = false;
 
         // eslint-disable-next-line no-unmodified-loop-condition

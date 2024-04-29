@@ -169,7 +169,6 @@ class FsReplaceChannel(AsyncChannel):
         self.ready()
 
         try:
-            delete_on_exit = None
             data = await self.read()
             if data is None:
                 # if we get EOF right away, that's a request to delete
@@ -179,25 +178,25 @@ class FsReplaceChannel(AsyncChannel):
                     os.unlink(path)
             else:
                 # otherwise, spool data into a temporary file until EOF then rename into place...
-                with tempfile.NamedTemporaryFile(dir=dirname, prefix=f'.{basename}-', delete=False) as tmp:
-                    delete_on_exit = tmp.name
+                fd, tmpname = tempfile.mkstemp(dir=dirname, prefix=f'.{basename}-')
+                try:
                     while data is not None:
-                        await self.in_thread(tmp.write, data)
+                        await self.in_thread(os.write, fd, data)
                         data = await self.read()
 
-                    await self.in_thread(os.fdatasync, tmp.fileno())
+                    await self.in_thread(os.fdatasync, fd)
 
                     if tag is None:
                         # no preconditions about what currently exists or not
                         # calculate the file mode from the umask
-                        os.fchmod(tmp.fileno(), 0o666 & ~my_umask())
-                        os.rename(tmp.name, path)
-                        delete_on_exit = None
+                        os.fchmod(fd, 0o666 & ~my_umask())
+                        os.rename(tmpname, path)
+                        tmpname = ''
 
                     elif tag == '-':
                         # the file must not exist.  file mode from umask.
-                        os.fchmod(tmp.fileno(), 0o666 & ~my_umask())
-                        os.link(tmp.name, path)  # will fail if file exists
+                        os.fchmod(fd, 0o666 & ~my_umask())
+                        os.link(tmpname, path)  # will fail if file exists
 
                     else:
                         # the file must exist with the given tag
@@ -205,10 +204,15 @@ class FsReplaceChannel(AsyncChannel):
                         if tag != tag_from_stat(buf):
                             raise ChannelError('change-conflict')
                         # chown/chmod from the existing file permissions
-                        os.fchmod(tmp.fileno(), stat.S_IMODE(buf.st_mode))
-                        os.fchown(tmp.fileno(), buf.st_uid, buf.st_gid)
-                        os.rename(tmp.name, path)
-                        delete_on_exit = None
+                        os.fchmod(fd, stat.S_IMODE(buf.st_mode))
+                        os.fchown(fd, buf.st_uid, buf.st_gid)
+                        os.rename(tmpname, path)
+                        tmpname = ''
+
+                finally:
+                    os.close(fd)
+                    if tmpname:
+                        os.unlink(tmpname)
 
         except FileNotFoundError as exc:
             raise ChannelError('not-found') from exc
@@ -222,9 +226,6 @@ class FsReplaceChannel(AsyncChannel):
             raise ChannelError('access-denied', message=str(exc)) from exc
         except OSError as exc:
             raise ChannelError('internal-error', message=str(exc)) from exc
-        finally:
-            if delete_on_exit is not None:
-                os.unlink(delete_on_exit)
 
         self.done()
 

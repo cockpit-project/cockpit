@@ -29,7 +29,7 @@ import re
 import stat
 import tempfile
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Iterator
 
 from cockpit._vendor.systemd_ctypes import Handle, PathWatch
 from cockpit._vendor.systemd_ctypes.inotify import Event as InotifyEvent
@@ -121,7 +121,7 @@ class FsListChannel(Channel):
 class FsReadChannel(GeneratorChannel):
     payload = 'fsread1'
 
-    def do_yield_data(self, options: JsonObject) -> GeneratorChannel.DataGenerator:
+    def do_yield_data(self, options: JsonObject) -> Iterator[bytes]:
         path = get_str(options, 'path')
         binary = get_enum(options, 'binary', ['raw'], None) is not None
         max_read_size = get_int(options, 'max_read_size', None)

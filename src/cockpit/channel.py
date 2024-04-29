@@ -19,7 +19,7 @@ import asyncio
 import json
 import logging
 import traceback
-from typing import BinaryIO, ClassVar, Dict, Generator, List, Mapping, Optional, Sequence, Set, Tuple, Type
+from typing import BinaryIO, ClassVar, Collection, Iterator, Mapping, Sequence, Type
 
 from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_bool, get_enum, get_str
 from .protocol import CockpitProblem
@@ -29,9 +29,9 @@ logger = logging.getLogger(__name__)
 
 
 class ChannelRoutingRule(RoutingRule):
-    table: Dict[str, List[Type['Channel']]]
+    table: 'dict[str, list[Type[Channel]]]'
 
-    def __init__(self, router: Router, channel_types: List[Type['Channel']]):
+    def __init__(self, router: Router, channel_types: 'Collection[Type[Channel]]'):
         super().__init__(router)
         self.table = {}
 
@@ -45,7 +45,7 @@ class ChannelRoutingRule(RoutingRule):
         for entry in self.table.values():
             entry.sort(key=lambda cls: len(cls.restrictions), reverse=True)
 
-    def check_restrictions(self, restrictions: Sequence[Tuple[str, object]], options: JsonObject) -> bool:
+    def check_restrictions(self, restrictions: 'Collection[tuple[str, object]]', options: JsonObject) -> bool:
         for key, expected_value in restrictions:
             our_value = options.get(key)
 
@@ -62,7 +62,7 @@ class ChannelRoutingRule(RoutingRule):
         # Everything checked out
         return True
 
-    def apply_rule(self, options: JsonObject) -> Optional['Channel']:
+    def apply_rule(self, options: JsonObject) -> 'Channel | None':
         assert self.router is not None
 
         payload = options.get('payload')
@@ -95,12 +95,12 @@ class Channel(Endpoint):
     _ack_bytes: bool
 
     # Task management
-    _tasks: Set[asyncio.Task]
-    _close_args: Optional[JsonObject] = None
+    _tasks: 'set[asyncio.Task]'
+    _close_args: 'JsonObject | None' = None
 
     # Must be filled in by the channel implementation
-    payload: ClassVar[str]
-    restrictions: ClassVar[Sequence[Tuple[str, object]]] = ()
+    payload: 'ClassVar[str]'
+    restrictions: 'ClassVar[Sequence[tuple[str, object]]]' = ()
 
     # These get filled in from .do_open()
     channel = ''
@@ -291,7 +291,7 @@ class Channel(Endpoint):
         """Called to indicate that the channel may start sending again."""
         # change to `raise NotImplementedError` after everyone implements it
 
-    json_encoder: ClassVar[json.JSONEncoder] = json.JSONEncoder(indent=2)
+    json_encoder: 'ClassVar[json.JSONEncoder]' = json.JSONEncoder(indent=2)
 
     def send_json(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> bool:
         pretty = self.json_encoder.encode(create_object(_msg, kwargs)) + '\n'
@@ -317,10 +317,10 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     Otherwise, if the subclass implements .do_open() itself, it is responsible
     for setting up the connection and ensuring that .connection_made() is called.
     """
-    _transport: Optional[asyncio.Transport]
+    _transport: 'asyncio.Transport | None'
     _send_pongs: bool = True
-    _last_ping: Optional[JsonObject] = None
-    _create_transport_task = None
+    _last_ping: 'JsonObject | None' = None
+    _create_transport_task: 'asyncio.Task[asyncio.Transport] | None' = None
 
     # read-side EOF handling
     _close_on_eof: bool = False
@@ -360,7 +360,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     def _get_close_args(self) -> JsonObject:
         return {}
 
-    def connection_lost(self, exc: Optional[Exception]) -> None:
+    def connection_lost(self, exc: 'Exception | None') -> None:
         self.close(self._get_close_args())
 
     def do_data(self, data: bytes) -> None:
@@ -530,10 +530,9 @@ class GeneratorChannel(Channel):
     and sends the data which it yields.  If the generator returns a value it
     will be used for the close message.
     """
-    DataGenerator = Generator[bytes, None, Optional[JsonObject]]
-    __generator: DataGenerator
+    __generator: 'Iterator[bytes]'
 
-    def do_yield_data(self, options: JsonObject) -> 'DataGenerator':
+    def do_yield_data(self, options: JsonObject) -> 'Iterator[bytes]':
         raise NotImplementedError
 
     def do_open(self, options: JsonObject) -> None:

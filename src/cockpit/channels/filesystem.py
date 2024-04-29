@@ -168,13 +168,26 @@ class FsReplaceChannel(AsyncChannel):
             os.unlink(path)
         return '-'
 
-    async def set_contents(self, path: str, tag: 'str | None', data: 'bytes | None') -> str:
+    async def set_contents(self, path: str, tag: 'str | None', data: 'bytes | None', size: 'int | None') -> str:
         dirname, basename = os.path.split(path)
+        tmpname: str | None
         fd, tmpname = tempfile.mkstemp(dir=dirname, prefix=f'.{basename}-')
         try:
+            if size is not None:
+                logger.debug('fallocate(%s.tmp, %d)', path, size)
+                if size:  # posix_fallocate() of 0 bytes is EINVAL
+                    await self.in_thread(os.posix_fallocate, fd, 0, size)
+                self.ready()  # ...only after that worked
+
+            written = 0
             while data is not None:
                 await self.in_thread(os.write, fd, data)
+                written += len(data)
                 data = await self.read()
+
+            if size is not None and written < size:
+                logger.debug('ftruncate(%s.tmp, %d)', path, written)
+                await self.in_thread(os.ftruncate, fd, written)
 
             await self.in_thread(os.fdatasync, fd)
 
@@ -183,7 +196,7 @@ class FsReplaceChannel(AsyncChannel):
                 # calculate the file mode from the umask
                 os.fchmod(fd, 0o666 & ~my_umask())
                 os.rename(tmpname, path)
-                tmpname = ''
+                tmpname = None
 
             elif tag == '-':
                 # the file must not exist.  file mode from umask.
@@ -199,32 +212,37 @@ class FsReplaceChannel(AsyncChannel):
                 os.fchmod(fd, stat.S_IMODE(buf.st_mode))
                 os.fchown(fd, buf.st_uid, buf.st_gid)
                 os.rename(tmpname, path)
-                tmpname = ''
+                tmpname = None
 
         finally:
             os.close(fd)
-            if tmpname:
+            if tmpname is not None:
                 os.unlink(tmpname)
 
         return tag_from_path(path)
 
     async def run(self, options: JsonObject) -> JsonObject:
         path = get_str(options, 'path')
+        size = get_int(options, 'size', None)
         tag = get_str(options, 'tag', None)
 
-        self.ready()
-
         try:
-            data = await self.read()
-            if data is None:
-                # if we get EOF right away, that's a request to delete
-                tag = self.delete(path, tag)
+            # In the `size` case, .set_contents() sends the ready only after
+            # it knows that the allocate was successful.  In the case without
+            # `size`, we need to send the ready() up front in order to
+            # receive the first frame and decide if we're creating or deleting.
+            if size is not None:
+                tag = await self.set_contents(path, tag, b'', size)
             else:
-                # otherwise, spool data into a temporary file until EOF then rename into place...
-                tag = await self.set_contents(path, tag, data)
+                self.ready()
+                data = await self.read()
+                # if we get EOF right away, that's a request to delete
+                if data is None:
+                    tag = self.delete(path, tag)
+                else:
+                    tag = await self.set_contents(path, tag, data, None)
 
             self.done()
-
             return {'tag': tag}
 
         except FileNotFoundError as exc:

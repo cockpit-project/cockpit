@@ -52,7 +52,7 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 class TestSelinux(testlib.MachineCase):
     provision = {
         "0": {},
-        "ansible_machine": {"image": TEST_OS_DEFAULT, "memory_mb": 512}
+        "ansible_machine": {"image": TEST_OS_DEFAULT, "memory_mb": 650}
     }
 
     @testlib.skipImage("No setroubleshoot", "debian-*", "ubuntu-*", "arch")

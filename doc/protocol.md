@@ -1069,6 +1069,13 @@ The following options can be specified in the "open" control message:
 
  * "path": The path name of the file to replace.
 
+ * "size": The expected size of the file content.  If set, the file is
+   allocated immediately, and the channel "open" request will fail if
+   insufficient space is available.  If this option is set, it is not
+   possible to delete the file (ie: sending immediate EOF will result in
+   a 0 byte file) This option should always be provided if possible, to
+   avoid fragmentation, but is particularly important for large files.
+
  * "tag": The expected transaction tag of the file.  When the actual
    transaction tag of the file is different, the write will fail.  If
    you don't set this field, the actual tag will not be checked.  To
@@ -1077,9 +1084,15 @@ The following options can be specified in the "open" control message:
 You should write the new content to the channel as one or more
 messages.  To indicate the end of the content, send a "done" message.
 
-If you don't send any content messages before sending "done", the file
-will be removed.  To create an empty file, send at least one content
-message of length zero.
+If you don't send any content messages before sending "done", and no
+"size" was given, the file will be removed.  To create an empty file,
+send at least one content message of length zero, or set the "size" to
+0.
+
+If "size" is given, and less data is actually sent, then the file will
+be truncated down to the size of the data that was actually sent. If
+more data is sent, the file will grow (subject to additional
+fragmentation and potential ENOSPC errors).
 
 When the file does not have the expected tag, the channel will be
 closed with a "change-conflict" problem code.

@@ -22,7 +22,7 @@ from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
 from cockpit.channel import AsyncChannel, Channel, ChannelRoutingRule
 from cockpit.channels import CHANNEL_TYPES
-from cockpit.jsonutil import JsonDict, JsonObject, JsonValue, get_bool, get_dict, get_int, json_merge_patch
+from cockpit.jsonutil import JsonDict, JsonObject, JsonValue, get_bool, get_dict, get_int, get_str, json_merge_patch
 from cockpit.packages import BridgeConfig
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
@@ -632,6 +632,73 @@ async def test_fsreplace1_error(transport: MockTransport, tmp_path: Path) -> Non
                                reply_keys={
                                    'message': """attribute 'send-acks': invalid value "not-valid" not in ['bytes']"""
     })
+
+
+@pytest.mark.asyncio
+async def test_fsreplace1_size_hint(transport: MockTransport, tmp_path: Path) -> None:
+    myfile = tmp_path / 'myfile'
+
+    # create a file, no size hint
+    ch = await transport.check_open('fsreplace1', path=str(myfile))
+    assert list(tmp_path.iterdir()) == []  # no temp file should be created yet
+    transport.send_data(ch, b'content')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(ch)
+    assert list(tmp_path.iterdir()) == [myfile]  # no temp file left
+    assert myfile.read_bytes() == b'content'
+
+    # delete it again
+    ch = await transport.check_open('fsreplace1', path=str(myfile))
+    assert list(tmp_path.iterdir()) == [myfile]  # no temp file created
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(ch)
+    assert list(tmp_path.iterdir()) == []  # empty again
+
+    # enospc in advance: 1PB ought to be enough for anybody...
+    ch = transport.send_open('fsreplace1', path=str(myfile), size=1 << 50)  # 1PB
+    err = await transport.assert_msg('', command='close', channel=ch, problem='internal-error')
+    message = get_str(err, 'message')
+    assert 'No space left on device' in message or 'File too large' in message
+    assert list(tmp_path.iterdir()) == []  # still empty
+    assert not myfile.exists()
+
+    # ensure cancellation is always a no-op, even with size specified
+    ch = await transport.check_open('fsreplace1', path=str(myfile), size=1 << 20)  # 1MB
+    assert len(list(tmp_path.iterdir())) == 1  # observe the temp file created immediately
+    await transport.check_close(ch)
+    assert list(tmp_path.iterdir()) == []  # no temp file left
+    assert not myfile.exists()
+
+    # ...but even size=0 will result in the file being created without payload
+    ch = await transport.check_open('fsreplace1', path=str(myfile), size=0)
+    assert len(list(tmp_path.iterdir())) == 1  # observe the temp file created immediately
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(ch)
+    assert list(tmp_path.iterdir()) == [myfile]  # no temp file left
+    assert myfile.read_bytes() == b''
+
+    # check too little data written
+    ch = await transport.check_open('fsreplace1', path=str(myfile), size=1 << 20)  # 1 MB
+    assert len(list(tmp_path.iterdir())) == 2  # observe the temp file created immediately
+    transport.send_data(ch, b'too small')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(ch)
+    assert list(tmp_path.iterdir()) == [myfile]  # no temp file left
+    assert myfile.read_bytes() == b'too small'
+
+    # check too much data written
+    ch = await transport.check_open('fsreplace1', path=str(myfile), size=5)
+    assert len(list(tmp_path.iterdir())) == 2  # observe the temp file created immediately
+    transport.send_data(ch, b'too large')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(ch)
+    assert list(tmp_path.iterdir()) == [myfile]  # no temp file left
+    assert myfile.read_bytes() == b'too large'
 
 
 @pytest.mark.asyncio

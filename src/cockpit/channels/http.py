@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import asyncio
 import http.client
 import logging
 import socket
@@ -106,7 +105,6 @@ class HttpChannel(AsyncChannel):
         if 'connection' in options:
             raise ChannelError('protocol-error', message='connection sharing is not implemented on this bridge')
 
-        loop = asyncio.get_running_loop()
         connection = self.create_client(options)
 
         self.ready()
@@ -120,7 +118,7 @@ class HttpChannel(AsyncChannel):
 
         # Connect in a thread and handle errors
         try:
-            await loop.run_in_executor(None, self.connect, connection, get_str(options, 'unix', None))
+            await self.in_thread(self.connect, connection, get_str(options, 'unix', None))
         except ssl.SSLCertVerificationError as exc:
             raise ChannelError('unknown-hostkey', message=str(exc)) from exc
         except (OSError, IOError) as exc:
@@ -128,7 +126,7 @@ class HttpChannel(AsyncChannel):
 
         # Submit request in a thread and handle errors
         try:
-            response = await loop.run_in_executor(None, self.request, connection, method, path, headers or {}, body)
+            response = await self.in_thread(self.request, connection, method, path, headers or {}, body)
         except (http.client.HTTPException, OSError) as exc:
             raise ChannelError('terminated', message=str(exc)) from exc
 
@@ -140,7 +138,7 @@ class HttpChannel(AsyncChannel):
         # Receive the body and finish up
         try:
             while True:
-                block = await loop.run_in_executor(None, response.read1, self.BLOCK_SIZE)
+                block = await self.in_thread(response.read1, self.BLOCK_SIZE)
                 if not block:
                     break
                 await self.write(block)
@@ -151,7 +149,7 @@ class HttpChannel(AsyncChannel):
             block = response.read()
             assert block == b''
 
-            await loop.run_in_executor(None, connection.close)
+            await self.in_thread(connection.close)
         except (http.client.HTTPException, OSError) as exc:
             raise ChannelError('terminated', message=str(exc)) from exc
 

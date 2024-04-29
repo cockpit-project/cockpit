@@ -19,13 +19,19 @@ import asyncio
 import json
 import logging
 import traceback
-from typing import BinaryIO, ClassVar, Collection, Iterator, Mapping, Sequence, Type
+import typing
+from typing import BinaryIO, Callable, ClassVar, Collection, Iterator, Mapping, Sequence, Type
 
 from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_bool, get_enum, get_str
 from .protocol import CockpitProblem
 from .router import Endpoint, Router, RoutingRule
 
 logger = logging.getLogger(__name__)
+
+
+if typing.TYPE_CHECKING:
+    _T = typing.TypeVar('_T')
+    _P = typing.ParamSpec("_P")
 
 
 class ChannelRoutingRule(RoutingRule):
@@ -489,6 +495,9 @@ class AsyncChannel(Channel):
         if not self.send_data(data):
             self.write_waiter = self.loop.create_future()
             await self.write_waiter
+
+    async def in_thread(self, fn: 'Callable[_P, _T]', *args: '_P.args', **kwargs: '_P.kwargs') -> '_T':
+        return await self.loop.run_in_executor(None, fn, *args, **kwargs)
 
     async def sendfile(self, stream: BinaryIO) -> None:
         with stream:

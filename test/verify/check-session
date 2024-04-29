@@ -50,7 +50,8 @@ class TestSession(testlib.MachineCase):
 
         # Check session type
         if not m.ostree_image:
-            session_id = m.execute("loginctl list-sessions | awk '/admin/ {print $1}'").strip()
+            # Systemd 256 also shows a class=manager session for admin
+            session_id = m.execute("loginctl list-sessions | grep -v manager | awk '/admin/ {print $1}'").strip()
             self.assertEqual(m.execute(f"loginctl show-session -p Type {session_id}").strip(), "Type=web")
 
         # Logout

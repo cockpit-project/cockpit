@@ -830,6 +830,9 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
                 self.assertGreaterEqual(len(sessions), 1)
                 for session in sessions:
                     out = m.execute('loginctl session-status ' + session)
+                    # Skip manager session
+                    if "Class: manager" in out:
+                        continue
                     if "State: active" in out:  # skip closing sessions
                         self.assertIn(session_leader, out)
                         self.assertIn('cockpit-bridge', out)

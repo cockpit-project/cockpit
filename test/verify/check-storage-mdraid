@@ -329,14 +329,16 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        # Make two huge block devices, so that we can make a array
+        # Make three huge block devices, so that we can make an array
         # that is beyond the threshold where Cockpit and mdadm start
         # to worry about bitmaps.  The backing files are sparse, so
-        # this is okay as long nobody actually writes a lot to these
-        # devices.
+        # this is okay as long as nobody actually writes a lot to
+        # these devices. (The fourth is used for a journal.)
 
         dev1 = self.add_loopback_disk(110000)
         dev2 = self.add_loopback_disk(110000)
+        dev3 = self.add_loopback_disk(110000)
+        dev4 = self.add_loopback_disk(100)
 
         # We need to use "--assume-clean" so that mdraid doesn't try
         # to write 110GB to one of the devices during synchronization.
@@ -349,14 +351,41 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.wait_states({dev1: "In sync",
                           dev2: "In sync"})
 
+        # There should be a bitmap, and cockpit should not complain
+
+        self.assertIn("Consistency Policy : bitmap", m.execute("mdadm --misc -D /dev/md/md0"))
         b.wait_not_present('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
 
         # Remove the bitmap, Cockpit should complain and let us put it back.
 
         m.execute("mdadm --grow --bitmap=none /dev/md/md0; udevadm trigger /dev/md/md0")
+        self.assertNotIn("bitmap", m.execute("mdadm --misc -D /dev/md/md0"))
 
         b.wait_visible('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
         b.click('button:contains("Add a bitmap")')
+        b.wait_not_present('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
+        self.assertIn("Consistency Policy : bitmap", m.execute("mdadm --misc -D /dev/md/md0"))
+
+        # Delete the device and create a new one with a journal
+
+        self.click_card_dropdown("MDRAID device", "Delete")
+        self.confirm()
+        b.wait_visible(self.card("Storage"))
+        b.wait_not_present(self.card_row("Storage", name="/dev/md/raid0"))
+
+        m.execute(f"mdadm --create md1 --level=5 --assume-clean --run --raid-devices=3 {dev1} {dev2} {dev3} --write-journal {dev4}")
+        m.execute("udevadm trigger")
+
+        self.click_card_row("Storage", name="/dev/md/md1")
+
+        self.wait_states({dev1: "In sync",
+                          dev2: "In sync",
+                          dev3: "In sync",
+                          dev4: "Unknown (journal)"})
+
+        # There should be no bitmap, and cockpit should not complain
+
+        self.assertNotIn("bitmap", m.execute("mdadm --misc -D /dev/md/md1"))
         b.wait_not_present('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
 
 

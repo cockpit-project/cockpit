@@ -21,7 +21,7 @@ jobs:
           set -eux
 
           IMAGE="$(curl --fail https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/.cockpit-ci/container)"
-          podman run --network=host --rm --interactive "${IMAGE}" sh -eux <<EOF
+          podman run --security-opt=seccomp=unconfined --network=host --rm --interactive "${IMAGE}" sh -eux <<EOF
             export FORCE_COLOR=1
             export TEST_BROWSER=firefox
             export CFLAGS=-O2

@@ -402,7 +402,8 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
         super().__init__(loop, protocol, in_fd, out_fd)
 
-        self._get_watcher(loop).add_child_handler(self._process.pid, self._exited)
+        # https://github.com/python/typeshed/pull/11548
+        self._get_watcher(loop).add_child_handler(self._process.pid, self._exited)  # type: ignore[arg-type]
 
     def set_window_size(self, size: WindowSize) -> None:
         assert self._pty_fd is not None

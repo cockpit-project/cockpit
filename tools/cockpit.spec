@@ -402,6 +402,7 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit-wsinstance-https@.service
 %{_unitdir}/system-cockpithttps.slice
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-ws.conf
+%{_sysusersdir}/cockpit-wsinstance.conf
 %{pamdir}/pam_ssh_add.so
 %{pamdir}/pam_cockpit_cert.so
 %{_libexecdir}/cockpit-ws
@@ -420,6 +421,8 @@ authentication via sssd/FreeIPA.
 %ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
 
 %pre ws
+# HACK: old RPM and even Fedora's current RPM don't properly support sysusers
+# https://github.com/rpm-software-management/rpm/issues/3073
 getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
 getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
 

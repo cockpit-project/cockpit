@@ -67,3 +67,7 @@ else
 	pytest -vv -k 'not linter and not test_descriptions' -opythonpath=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages)
 endif
 endif
+
+# dh compat 14 does that automatically, remove when upgrading
+execute_before_dh_installtmpfiles:
+	dh_installsysusers

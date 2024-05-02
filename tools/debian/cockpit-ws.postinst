@@ -1,13 +1,11 @@
 #!/bin/sh
 set -e
 
-adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-wsinstance
+#DEBHELPER#
 
 if ! dpkg-statoverride --list /usr/lib/cockpit/cockpit-session >/dev/null; then
     dpkg-statoverride --update --add root cockpit-wsinstance 4750 /usr/lib/cockpit/cockpit-session
 fi
-
-#DEBHELPER#
 
 # restart cockpit.service on package upgrades, if it's already running
 if [ -d /run/systemd/system ] && [ -n "$2" ]; then

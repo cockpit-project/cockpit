@@ -34,6 +34,9 @@ install-exec-hook::
 tmpfilesconfdir = $(prefix)/lib/tmpfiles.d
 nodist_tmpfilesconf_DATA = src/systemd/tmpfiles.d/cockpit-ws.conf
 
+sysusersconfdir = $(prefix)/lib/sysusers.d
+dist_sysusersconf_DATA = src/systemd/sysusers.d/cockpit-wsinstance.conf
+
 # we can't generate these with config.status because,
 # eg. it does "@libexecdir@" -> "${exec_prefix}/libexec"
 src/systemd/%: src/systemd/%.in

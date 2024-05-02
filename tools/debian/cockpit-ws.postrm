@@ -8,4 +8,6 @@ if [ "$1" = purge ]; then
     [ -L /etc/motd.d/cockpit ] && rm /etc/motd.d/cockpit || true
     [ -L /etc/issue.d/cockpit.issue ] && rm /etc/issue.d/cockpit.issue || true
     rm -f /etc/cockpit/disallowed-users
+
+    dpkg-statoverride --remove /usr/lib/cockpit/cockpit-session
 fi

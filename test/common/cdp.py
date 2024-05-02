@@ -105,6 +105,8 @@ class Chromium(Browser):
                 "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                 "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                 "--font-render-hinting=none",
+                # HACK: For Cockpit-Files downloading uses `window.open` which is sometimes allowed depending on unpredictable and unknown heuristics
+                "--disable-popup-blocking",
                 "--v=0", f"--remote-debugging-port={cdp_port}", "about:blank"]
 
 

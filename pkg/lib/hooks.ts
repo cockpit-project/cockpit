@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from 'cockpit';
+import cockpit, { JsonObject, EventSource, EventListener, EventMap, BasicError, UserInfo } from 'cockpit';
 import { useState, useEffect, useRef, useReducer } from 'react';
 import deep_equal from "deep-equal";
 
@@ -87,11 +87,11 @@ export function usePageLocation() {
  */
 
 const cockpit_user_promise = cockpit.user();
-let cockpit_user: cockpit.UserInfo | null = null;
+let cockpit_user: UserInfo | null = null;
 cockpit_user_promise.then(user => { cockpit_user = user }).catch(err => console.log(err));
 
 export function useLoggedInUser() {
-    const [user, setUser] = useState<cockpit.UserInfo | null>(cockpit_user);
+    const [user, setUser] = useState<UserInfo | null>(cockpit_user);
     useEffect(() => { if (!cockpit_user) cockpit_user_promise.then(setUser); }, []);
     return user;
 }
@@ -185,8 +185,8 @@ type UseFileWithErrorOptions = {
     log_errors?: boolean;
 };
 
-export function useFileWithError(path: string, options: cockpit.JsonObject, hook_options: UseFileWithErrorOptions) {
-    const [content_and_error, setContentAndError] = useState<[string | false | null, cockpit.BasicError | false | null]>([null, null]);
+export function useFileWithError(path: string, options: JsonObject, hook_options: UseFileWithErrorOptions) {
+    const [content_and_error, setContentAndError] = useState<[string | false | null, BasicError | false | null]>([null, null]);
     const memo_options = useDeepEqualMemo(options);
     const memo_hook_options = useDeepEqualMemo(hook_options);
 
@@ -203,7 +203,7 @@ export function useFileWithError(path: string, options: cockpit.JsonObject, hook
     return content_and_error;
 }
 
-export function useFile(path: string, options: cockpit.JsonObject) {
+export function useFile(path: string, options: JsonObject) {
     const [content] = useFileWithError(path, options, { log_errors: true });
     return content;
 }
@@ -294,14 +294,14 @@ export function useObject<T, D extends Tuple>(create: () => T, destroy: ((value:
  * arguments of the event.
  */
 
-export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: cockpit.EventSource<EM>, event: E, handler?: cockpit.EventListener<EM[E]>) {
+export function useEvent<EM extends EventMap, E extends keyof EM>(obj: EventSource<EM>, event: E, handler?: EventListener<EM[E]>) {
     // We increase a (otherwise unused) state variable whenever the event
     // happens.  That reliably triggers a re-render.
 
     const [, forceUpdate] = useReducer(x => x + 1, 0);
 
     useEffect(() => {
-        function update(...args: Parameters<cockpit.EventListener<EM[E]>>) {
+        function update(...args: Parameters<EventListener<EM[E]>>) {
             if (handler)
                 handler(...args);
             forceUpdate();

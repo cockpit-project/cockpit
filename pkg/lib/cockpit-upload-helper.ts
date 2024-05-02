@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from 'cockpit';
+import cockpit, { JsonObject } from 'cockpit';
 
 // These are the same values used by the bridge (in channel.py)
 const BLOCK_SIZE = 16 << 10; // 16kiB
@@ -44,9 +44,9 @@ export async function upload(
     contents: Blob,
     progress?: (bytes_sent: number) => void,
     signal?: AbortSignal,
-    options?: cockpit.JsonObject
+    options?: JsonObject
 ) {
-    let close_message = null as (cockpit.JsonObject | null);
+    let close_message = null as (JsonObject | null);
     let outstanding = 0; // for flow control
     let delivered = 0; // for progress reporting
 

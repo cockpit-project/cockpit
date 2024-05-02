@@ -98,27 +98,32 @@ function get_expire(name) {
 
 export function AccountDetails({ accounts, groups, current_user, user, shells }) {
     const [expiration, setExpiration] = useState(null);
-    const [path, setPath] = useState("");
+    const [lastlogpath, setLastlogPath] = useState(null);
 
     useEffect(() => {
-        const lastlog_version = cockpit.spawn(["test", "-e", "/var/run/utmp"], { err: "ignore" });
-        lastlog_version.then(() => {
-            setPath("/var/run/utmp");
+        cockpit.spawn(["test", "-e", "/var/run/utmp"], { err: "ignore" }).then(() => {
+            setLastlogPath("/var/run/utmp");
         }).catch(() => {
-            setPath("/var/lib/lastlog/lastlog2.db");
+            cockpit.spawn(["test", "-e", "/var/lib/lastlog/lastlog2.db"], { err: "ignore" }).then(() => {
+                setLastlogPath("/var/lib/lastlog/lastlog2.db");
+            }).catch(() => {
+                setLastlogPath(null);
+            });
         });
     }, []);
 
     useEffect(() => {
-        get_expire(user).then(setExpiration);
-
-        // Watch lastlog log to register when user logs in or out
-        const handle = cockpit.file(path, { superuser: "try", binary: true });
-        handle.watch(() => {
+        if (lastlogpath !== null) {
             get_expire(user).then(setExpiration);
-        }, { read: false });
-        return handle.close;
-    }, [user, accounts, path]);
+
+            // Watch lastlog log to register when user logs in or out
+            const handle = cockpit.file(lastlogpath, { superuser: "try", binary: true });
+            handle.watch(() => {
+                get_expire(user).then(setExpiration);
+            }, { read: false });
+            return handle.close;
+        }
+    }, [user, accounts, lastlogpath]);
 
     const [edited_real_name, set_edited_real_name] = useState(null);
     const [committing_real_name, set_committing_real_name] = useState(false);

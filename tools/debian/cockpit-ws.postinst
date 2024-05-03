@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-ws
 adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-wsinstance
 
 # change group of cockpit-session on upgrades (changed in version 203)

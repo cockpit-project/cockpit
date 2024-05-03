@@ -1,0 +1,12 @@
+[Unit]
+Description=Dynamic user for cockpit-ws
+Documentation=man:cockpit-ws(8)
+BindsTo=cockpit.service
+
+[Service]
+DynamicUser=yes
+User=cockpit-ws
+Group=cockpit-ws
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes

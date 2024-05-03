@@ -2,6 +2,9 @@
 Description=Socket for Cockpit Web Service http instance
 Documentation=man:cockpit-ws(8)
 BindsTo=cockpit.service
+# ensure our DynamicUser exists
+Requires=cockpit-ws-user.service
+After=cockpit-ws-user.service
 
 [Socket]
 ListenStream=/run/cockpit/wsinstance/http.sock

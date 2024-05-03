@@ -393,6 +393,7 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit-motd.service
 %{_unitdir}/cockpit.socket
+%{_unitdir}/cockpit-ws-user.service
 %{_unitdir}/cockpit-wsinstance-http.socket
 %{_unitdir}/cockpit-wsinstance-http.service
 %{_unitdir}/cockpit-wsinstance-https-factory.socket
@@ -419,8 +420,6 @@ authentication via sssd/FreeIPA.
 %ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
 
 %pre ws
-getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
-getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit web service" cockpit-ws
 getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
 getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
 

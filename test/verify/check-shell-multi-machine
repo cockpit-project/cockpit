@@ -137,6 +137,7 @@ class TestMultiMachineAdd(testlib.MachineCase):
 
     def testBasic(self):
         b = self.browser
+        m = self.machine
         m2 = self.machine2
         m3 = self.machine3
         m3_host = "10.111.113.3:2222"
@@ -191,6 +192,26 @@ class TestMultiMachineAdd(testlib.MachineCase):
                                     ".*: error reading from ssh",
                                     ".*: bridge failed: .*",
                                     ".*: bridge program failed: Child process exited with code .*")
+
+        # in a remote Shell secondary session, ssh-connecting to other machines happpens from primary machine
+        kill_user_admin(m3)
+        with b.wait_timeout(30):
+            b.wait_visible("#machine3-error")
+
+        b.click("a[href='/@10.111.113.2']")
+        b.wait_js_cond('window.location.pathname == "/@10.111.113.2/system"')
+        m.execute("while pgrep -af [s]sh.*10.111.113.3; do sleep 1; done", stdout=None)
+
+        b.go("/@10.111.113.2/playground/remote")
+        b.enter_page("/playground/remote", host="10.111.113.2")
+        b.set_input_text("#host", m3_host)
+        b.click("button")
+        # this works without dialog, as the SSH key get auto-unlocked with the user password
+        b.wait_text("#output", "machine3")
+
+        # the SSH connection originates from machine1, not 2
+        m.execute("pgrep -af [s]sh.*10.111.113.3", stdout=None)
+        m2.execute("! pgrep -af [s]sh.*10.111.113.3", stdout=None)
 
     def testGlobalSSHConfig(self):
         b = self.browser
@@ -268,6 +289,27 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_js_cond(f'window.location.pathname == "{root}=10.111.113.2/system"')
 
         b.wait_in_text("#hosts-sel", "machine2")
+
+        # This is a primary session, we can also ssh onwards to other machines
+
+        b.go("/playground/remote")
+        b.enter_page("/playground/remote")
+        b.set_input_text("#host", "10.111.113.3")
+        b.click("button")
+        b.wait_text("#ssh-unknown-host-dialog .pf-v5-c-modal-box__title-text", "Unknown host: 10.111.113.3")
+        b.click("#ssh-unknown-host-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-unknown-host-dialog")
+
+        b.wait_text("#ssh-change-auth-dialog .pf-v5-c-modal-box__title-text", "Log in to 10.111.113.3")
+        b.set_input_text("#login-custom-password", "foobar")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+        b.wait_text("#output", "machine3")
+
+        # the SSH connection originates from machine2, not 1
+        m2.execute("pgrep -af [s]sh.*10.111.113.3", stdout=None)
+        m.execute("! pgrep -af [s]sh.*10.111.113.3", stdout=None)
+
         b.logout()
 
         # Bad host key

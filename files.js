@@ -25,6 +25,7 @@ const info = {
         "playground/preloaded.js",
         "playground/notifications-receiver.js",
         "playground/journal.jsx",
+        "playground/remote.tsx",
 
         "selinux/selinux.js",
         "shell/shell.js",
@@ -113,6 +114,7 @@ const info = {
         "playground/preloaded.html",
         "playground/notifications-receiver.html",
         "playground/journal.html",
+        "playground/remote.html",
 
         "selinux/index.html",
 

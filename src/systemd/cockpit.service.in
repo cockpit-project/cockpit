@@ -3,7 +3,8 @@ Description=Cockpit Web Service
 Documentation=man:cockpit-ws(8)
 Requires=cockpit.socket
 Requires=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
-After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
+# we need to start before the sockets so that the dynamic user exists
+Before=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
 
 [Service]
 RuntimeDirectory=cockpit/tls
@@ -11,6 +12,7 @@ RuntimeDirectory=cockpit/tls
 Environment=RUNTIME_DIRECTORY=/run/cockpit/tls
 ExecStartPre=+@libexecdir@/cockpit-certificate-ensure --for-cockpit-tls
 ExecStart=@libexecdir@/cockpit-tls
+DynamicUser=true
 User=cockpit-ws
 Group=cockpit-ws
 NoNewPrivileges=true

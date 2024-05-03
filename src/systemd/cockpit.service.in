@@ -3,6 +3,10 @@ Description=Cockpit Web Service
 Documentation=man:cockpit-ws(8)
 Requires=cockpit.socket
 Requires=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
+# ensure our DynamicUser exists
+Requires=cockpit-ws-user.service
+After=cockpit-ws-user.service
+# we need to start after the sockets so that we can instantly forward incoming requests
 After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
 
 [Service]

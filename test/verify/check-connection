@@ -262,6 +262,13 @@ class TestConnection(testlib.MachineCase):
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
         expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"])
 
+        # cleans up instances when killing the DynamicUser helper unit
+        m.start_cockpit(tls=False)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+        expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"])
+        m.execute("systemctl stop cockpit-ws-user.service")
+        expect_actives(ws_socket=True, instance_sockets=False, http_instances=[])
+
         # https mode
 
         m.start_cockpit(tls=True)

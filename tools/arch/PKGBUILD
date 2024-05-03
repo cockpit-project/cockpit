@@ -16,11 +16,9 @@ makedepends=(krb5 libssh accountsservice json-glib glib-networking
              python-build python-installer python-wheel)
 source=("cockpit-${pkgver}.tar.xz"
         "cockpit.pam"
-        "cockpit-ws.sysuser.conf"
         "cockpit-wsinstance.sysuser.conf")
 sha256sums=('SKIP'
             '079bb6751214e642673f9e1212df2a17fed1a3cc6cfdd6375af2b68ed6ddd340'
-            '1ad9dad75858264778bd94799b60c651f7cc1c7f7fa1c54622174303e639287a'
             '46ee8ecad7bc97ba588ab9471dde76e41c00daf40658902425626c3a1938b438')
 
 prepare() {
@@ -61,7 +59,6 @@ package_cockpit() {
   make DESTDIR="$pkgdir" install
   rm -rf "$pkgdir"/usr/{src,lib/firewalld}
   install -Dm644 "$srcdir"/cockpit.pam "$pkgdir"/etc/pam.d/cockpit
-  install -Dm644 "$srcdir"/cockpit-ws.sysuser.conf "$pkgdir"/usr/lib/sysusers.d/cockpit-ws.conf
   install -Dm644 "$srcdir"/cockpit-wsinstance.sysuser.conf "$pkgdir"/usr/lib/sysusers.d/cockpit-wsinstance.conf
 
   echo "z /usr/lib/cockpit/cockpit-session - - cockpit-wsinstance -" >> "$pkgdir"/usr/lib/tmpfiles.d/cockpit-ws.conf

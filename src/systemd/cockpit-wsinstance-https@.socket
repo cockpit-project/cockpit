@@ -6,6 +6,9 @@ BindsTo=cockpit.service
 # this also effectively prevents a DoS by starting arbitrarily many sockets, as
 # the services are resource-limited by system-cockpithttps.slice
 BindsTo=cockpit-wsinstance-https@%i.service
+# ensure our DynamicUser exists
+Requires=cockpit-ws-user.service
+After=cockpit-ws-user.service
 
 [Socket]
 ListenStream=/run/cockpit/wsinstance/https@%i.sock

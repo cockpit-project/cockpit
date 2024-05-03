@@ -583,7 +583,7 @@ fi
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
 
         # updates mitigations=nosmt when that is present
-        m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
+        m.upload(["../pkg/lib/kernelopt.sh"], "/tmp/")
         m.execute("/tmp/kernelopt.sh remove nosmt; /tmp/kernelopt.sh set mitigations=auto,nosmt")
         m.reboot()
         self.login_and_go('/system/hwinfo')

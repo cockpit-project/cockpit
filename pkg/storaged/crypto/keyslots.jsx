@@ -33,6 +33,8 @@ import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/comp
 
 import { check_missing_packages, install_missing_packages, Enum as PkEnum } from "packagekit";
 import { fmt_to_fragments } from "utils.jsx";
+import kernelopt_sh from "kernelopt.sh";
+
 import { remember_passphrase } from "../anaconda.jsx";
 
 import {
@@ -320,8 +322,8 @@ function ensure_initrd_clevis_support(steps, progress, package_name) {
 
 function ensure_root_nbde_support(steps, progress) {
     progress(_("Adding rd.neednet=1 to kernel command line"), null);
-    return cockpit.spawn(["grubby", "--update-kernel=ALL", "--args=rd.neednet=1"],
-                         { superuser: "require", err: "message" })
+    return cockpit.script(kernelopt_sh, ["set", "rd.neednet=1"],
+                          { superuser: "require", err: "message" })
             .then(() => ensure_initrd_clevis_support(steps, progress, "clevis-dracut"));
 }
 

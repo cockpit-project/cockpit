@@ -423,7 +423,6 @@ class TestConnection(testlib.MachineCase):
         if not m.ostree_image:
             m.execute("""cat /etc/cockpit/ws-certs.d/cert-chain.key >> /etc/cockpit/ws-certs.d/cert-chain.crt
                          chmod 640 /etc/cockpit/ws-certs.d/cert-chain.crt
-                         chown root:cockpit-ws /etc/cockpit/ws-certs.d/cert-chain.crt
                          rm /etc/cockpit/ws-certs.d/cert-chain.key""")
             check_cert_chain()
 

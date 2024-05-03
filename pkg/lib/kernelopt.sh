@@ -64,7 +64,7 @@ update_zipl() {
 # main
 #
 
-if [ -z "${2:-}" -o -n "${3:-}" ] || [ "$1" != "set" -a "$1" != "remove" ]; then
+if [ -z "${2:-}" ] || [ -n "${3:-}" ] || [ "$1" != "set" -a "$1" != "remove" ]; then
     error "Usage: '$0 set <option>[=<value>]' or '$0 remove <option>'"
 fi
 

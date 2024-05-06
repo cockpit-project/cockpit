@@ -328,11 +328,11 @@ Provides: cockpit-users = %{version}-%{release}
 Obsoletes: cockpit-dashboard < %{version}-%{release}
 %if 0%{?rhel}
 Requires: NetworkManager >= 1.6
-Requires: /usr/bin/kdumpctl
 Requires: sos
 Requires: sudo
 Recommends: PackageKit
 Recommends: setroubleshoot-server >= 3.3.3
+Recommends: /usr/bin/kdumpctl
 Suggests: NetworkManager-team
 Provides: cockpit-kdump = %{version}-%{release}
 Provides: cockpit-networkmanager = %{version}-%{release}

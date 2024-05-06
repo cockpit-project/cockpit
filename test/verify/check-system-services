@@ -1480,7 +1480,7 @@ class TestTimers(testlib.MachineCase):
         m.execute("timedatectl set-time '2036-03-07 00:00:00'")
         wait_systemctl_timer("2036-03-08 21:12")
         self.assertIn("2036-03-08 21:12", m.execute("systemctl list-timers"))
-        # creates a new weekly timer that runs on Fri at 12:45 and Sun at 20:12 every week
+        # creates a new weekly timer that runs on Fri at 12:30 and Sun at 20:12 every week
         b.click('#create-timer')
         b.wait_visible("#timer-dialog")
         b.set_input_text("#servicename", "weekly_timer")
@@ -1491,7 +1491,9 @@ class TestTimers(testlib.MachineCase):
         b.wait_visible("[data-index='0'] .week-days")
         b.click("[data-index='0'] [aria-label='Add']")
         b.select_from_dropdown("[data-index='0'] .week-days select", "fri")
-        b.set_input_text("[data-index='0'] .create-timer-time-picker input", "12:45")
+        # select time from dropdown with mouse
+        b.select_PF5("#timer-dialog [data-index='0'] .create-timer-time-picker input", ".pf-v5-c-menu", "12:30")
+        # type time with keyboard
         b.select_from_dropdown("[data-index='1'] .week-days select", "sun")
         b.set_input_text("[data-index='1'] .create-timer-time-picker input", "20:12")
         b.click("#timer-save-button")
@@ -1504,15 +1506,15 @@ class TestTimers(testlib.MachineCase):
         wait_systemctl_timer("Sun 2036-03-09 20:12")
         self.assertIn("Sun 2036-03-09 20:12", m.execute("systemctl list-timers"))
         m.execute("timedatectl set-time '2036-03-10 00:00:00'")
-        wait_systemctl_timer("Fri 2036-03-14 12:45")
-        self.assertIn("Fri 2036-03-14 12:45", m.execute("systemctl list-timers"))
+        wait_systemctl_timer("Fri 2036-03-14 12:30")
+        self.assertIn("Fri 2036-03-14 12:30", m.execute("systemctl list-timers"))
         # checks if timer runs on next week's Friday and Sunday
         m.execute("timedatectl set-time '2036-03-15 00:00:00'")
         wait_systemctl_timer("Sun 2036-03-16 20:12")
         self.assertIn("Sun 2036-03-16 20:12", m.execute("systemctl list-timers"))
         m.execute("timedatectl set-time '2036-03-17 00:00:00'")
-        wait_systemctl_timer("Fri 2036-03-21 12:45")
-        self.assertIn("Fri 2036-03-21 12:45", m.execute("systemctl list-timers"))
+        wait_systemctl_timer("Fri 2036-03-21 12:30")
+        self.assertIn("Fri 2036-03-21 12:30", m.execute("systemctl list-timers"))
         # creates a new daily timer that runs at 2:40 and at 21:15 every day
         b.click('#create-timer')
         b.wait_visible("#timer-dialog")

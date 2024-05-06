@@ -91,17 +91,17 @@ const CreateTimerDialogBody = ({ owner }) => {
                     time={repeatPatterns[idx].time || "00:00"}
                     is24Hour
                     isOpen={repeatPatterns[idx].isOpen || false}
-                    setIsOpen={isOpen => {
-                        const arr = JSON.parse(JSON.stringify(repeatPatterns));
+                    setIsOpen={isOpen => setRepeatPatterns(old => {
+                        const arr = [...old];
                         arr[idx].isOpen = isOpen;
-                        setRepeatPatterns(arr);
-                    }}
+                        return arr;
+                    })}
                     menuAppendTo={() => document.body}
-                    onChange={(_, time) => {
-                        const arr = JSON.parse(JSON.stringify(repeatPatterns));
+                    onChange={(_, time) => setRepeatPatterns(old => {
+                        const arr = [...old];
                         arr[idx].time = time;
-                        setRepeatPatterns(arr);
-                    }}
+                        return arr;
+                    })}
         />
     );
 
@@ -287,32 +287,32 @@ const CreateTimerDialogBody = ({ owner }) => {
                                             <TextInput className='delay-number'
                                                        id={repeat}
                                                        value={repeatPatterns[idx].second}
-                                                       onChange={(_event, second) => {
-                                                           const arr = [...repeatPatterns];
+                                                       onChange={(_event, second) => setRepeatPatterns(old => {
+                                                           const arr = [...old];
                                                            arr[idx].second = second;
-                                                           setRepeatPatterns(arr);
-                                                       }}
+                                                           return arr;
+                                                       })}
                                                        validated={submitted && validationFailedSecond ? "error" : "default"} />
                                         }
                                         {repeat == "hourly" &&
                                             <TextInput className='delay-number'
                                                        value={repeatPatterns[idx].minute}
-                                                       onChange={(_event, minute) => {
-                                                           const arr = [...repeatPatterns];
+                                                       onChange={(_event, minute) => setRepeatPatterns(old => {
+                                                           const arr = [...old];
                                                            arr[idx].minute = minute;
-                                                           setRepeatPatterns(arr);
-                                                       }}
+                                                           return arr;
+                                                       })}
                                                        validated={submitted && validationFailedMinute ? "error" : "default"} />
                                         }
                                         {repeat == "daily" && timePicker(idx)}
                                         {repeat == "weekly" && <>
                                             <FormSelect value={repeatPatterns[idx].day}
                                                         className="week-days"
-                                                        onChange={(_, day) => {
-                                                            const arr = [...repeatPatterns];
+                                                        onChange={(_, day) => setRepeatPatterns(old => {
+                                                            const arr = [...old];
                                                             arr[idx].day = day;
-                                                            setRepeatPatterns(arr);
-                                                        }}
+                                                            return arr;
+                                                        })}
                                                         aria-label={_("Repeat weekly")}>
                                                 <FormSelectOption value="mon" label={_("Mondays")} />
                                                 <FormSelectOption value="tue" label={_("Tuesdays")} />
@@ -327,11 +327,11 @@ const CreateTimerDialogBody = ({ owner }) => {
                                         {repeat == "monthly" && <>
                                             <FormSelect value={repeatPatterns[idx].day}
                                                         className="month-days"
-                                                        onChange={(_, day) => {
-                                                            const arr = [...repeatPatterns];
+                                                        onChange={(_, day) => setRepeatPatterns(old => {
+                                                            const arr = [...old];
                                                             arr[idx].day = day;
-                                                            setRepeatPatterns(arr);
-                                                        }}
+                                                            return arr;
+                                                        })}
                                                         aria-label={_("Repeat monthly")}>
                                                 {[_("1st"), _("2nd"), _("3rd"), _("4th"), _("5th"),
                                                     _("6th"), _("7th"), _("8th"), _("9th"), _("10th"),
@@ -348,11 +348,11 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                         buttonAriaLabel={_("Toggle date picker")}
                                                         locale={timeformat.dateFormatLang()}
                                                         weekStart={timeformat.firstDayOfWeek()}
-                                                        onChange={(_, str, data) => {
-                                                            const arr = [...repeatPatterns];
+                                                        onChange={(_, str, data) => setRepeatPatterns(old => {
+                                                            const arr = [...old];
                                                             arr[idx].date = str;
-                                                            setRepeatPatterns(arr);
-                                                        }}
+                                                            return arr;
+                                                        })}
                                                         appendTo={() => document.body} />
                                             {timePicker(idx)}
                                         </>}
@@ -361,24 +361,24 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                 <Button aria-label={_("Remove")}
                                                         variant="secondary"
                                                         isDisabled={repeatPatterns.length == 1}
-                                                        onClick={() => setRepeatPatterns(repeatPatterns.filter((item, item_idx) => idx != item_idx))}>
+                                                        onClick={() => setRepeatPatterns(old => old.filter((item, item_idx) => idx != item_idx))}>
                                                     <MinusIcon />
                                                 </Button>
                                                 <Button aria-label={_("Add")}
                                                         variant="secondary"
                                                         onClick={() => {
                                                             if (repeat == "minutely")
-                                                                setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, second: "0" }]);
+                                                                setRepeatPatterns(old => [...old, { key: repeatPatterns.length, second: "0" }]);
                                                             else if (repeat == "hourly")
-                                                                setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, minute: "0" }]);
+                                                                setRepeatPatterns(old => [...old, { key: repeatPatterns.length, minute: "0" }]);
                                                             else if (repeat == "daily")
-                                                                setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, time: "00:00" }]);
+                                                                setRepeatPatterns(old => [...old, { key: repeatPatterns.length, time: "00:00" }]);
                                                             else if (repeat == "weekly")
-                                                                setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, day: "mon", time: "00:00" }]);
+                                                                setRepeatPatterns(old => [...old, { key: repeatPatterns.length, day: "mon", time: "00:00" }]);
                                                             else if (repeat == "monthly")
-                                                                setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, day: 1, time: "00:00" }]);
+                                                                setRepeatPatterns(old => [...old, { key: repeatPatterns.length, day: 1, time: "00:00" }]);
                                                             else if (repeat == "yearly")
-                                                                setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, date: undefined, time: "00:00" }]);
+                                                                setRepeatPatterns(old => [...old, { key: repeatPatterns.length, date: undefined, time: "00:00" }]);
                                                         }}>
                                                     <PlusIcon />
                                                 </Button>

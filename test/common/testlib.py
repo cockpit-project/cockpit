@@ -1462,7 +1462,7 @@ class MachineCase(unittest.TestCase):
         return os.environ.get('NODE_ENV') == 'development'
 
     def is_pybridge(self) -> bool:
-        # some tests start e.g. centos-8 as first machine, bridge may not exist there
+        # some tests start some other OS as first machine, bridge may not exist there
         return any('python' in m.execute('head -c 30 /usr/bin/cockpit-bridge || true') for m in self.machines.values())
 
     def disable_preload(self, *packages: str, machine: testvm.Machine | None = None) -> None:
@@ -1891,7 +1891,7 @@ class MachineCase(unittest.TestCase):
         "error: Could not determine kpatch packages:.*PackageKit crashed",
     ]
 
-    if testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8'):
+    if testvm.DEFAULT_IMAGE.startswith('rhel-8'):
         # old occasional bugs in tracer, don't happen in newer versions any more
         default_allowed_console_errors.append('Tracer failed:.*Traceback')
 

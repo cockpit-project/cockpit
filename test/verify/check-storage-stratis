@@ -56,7 +56,7 @@ class TestStorageStratis(storagelib.StorageCase):
         exe("systemctl start stratisd")
         self.addCleanup(exe, "systemctl stop stratisd")
 
-        self.stratis_v2 = self.image.startswith("rhel-8") or self.image == "centos-8-stream"
+        self.stratis_v2 = self.image.startswith("rhel-8")
         self.stop_type_opt = get_stratis_stop_type_opt(exe)
 
         self.addCleanup(exe,
@@ -299,7 +299,7 @@ class TestStorageStratis(storagelib.StorageCase):
         # After the stratis pool is deleted we can't check this, so use the value from earlier.
         self.assertFalse(udisk_contains_stratis_private)
 
-    @testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+    @testlib.skipImage("Stratis too old", "rhel-8-*")
     def testAlerts(self):
         m = self.machine
         b = self.browser
@@ -425,7 +425,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
             exe("systemctl enable --now stratisd")
             self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
 
-        self.stratis_v2 = self.image.startswith("rhel-8") or self.image == "centos-8-stream"
+        self.stratis_v2 = self.image.startswith("rhel-8")
 
     def testEncrypted(self):
         m = self.machine
@@ -646,7 +646,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         destroy()
 
-    @testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+    @testlib.skipImage("Stratis too old", "rhel-8-*")
     def testManagedSizes(self):
         m = self.machine
         b = self.browser
@@ -711,7 +711,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         # And the pool should be full again
         b.wait_visible("button:contains(Create new filesystem):disabled")
 
-    @testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+    @testlib.skipImage("Stratis too old", "rhel-8-*")
     def testPoolResize(self):
         m = self.machine
         b = self.browser
@@ -810,7 +810,7 @@ class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase)
 
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
-@testlib.skipImage("Stratis too old", "rhel-8-*", "centos-8-*")
+@testlib.skipImage("Stratis too old", "rhel-8-*")
 class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "memory_mb": 2048},

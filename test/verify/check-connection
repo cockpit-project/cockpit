@@ -612,7 +612,7 @@ class TestConnection(testlib.MachineCase):
 
         def checkMotdContent(string: str, *, expected: bool = True) -> None:
             # Needs https://github.com/linux-pam/linux-pam/pull/292 (or PAM 1.5.0)
-            old_pam = m.image.startswith('rhel-8-') or m.image in ['centos-8-stream', 'ubuntu-2204']
+            old_pam = m.image.startswith('rhel-8-') or m.image in ['ubuntu-2204']
 
             # check issue (should be exactly the same as motd)
             assertInOrNot(string, m.execute("cat /etc/issue.d/cockpit.issue"), expected=expected)
@@ -661,7 +661,7 @@ class TestConnection(testlib.MachineCase):
         m = self.machine
 
         # On RHEL-8 SSH allows password root login by default, so Cockpit does too.
-        ROOT_LOGIN_ENABLED = ['rhel-8', 'centos-8']
+        ROOT_LOGIN_ENABLED = ['rhel-8']
         root_login_disallowed = not any(m.image.startswith(img) for img in ROOT_LOGIN_ENABLED)
 
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):
@@ -835,7 +835,7 @@ class TestConnection(testlib.MachineCase):
         self.assertLess(rss, 250000)
 
     @testlib.nondestructive
-    @testlib.skipImage("Broken with C bridge", "centos-8-stream", "rhel-8*")
+    @testlib.skipImage("Broken with C bridge", "rhel-8*")
     def testFlowControlUpload(self):
         m = self.machine
         b = self.browser

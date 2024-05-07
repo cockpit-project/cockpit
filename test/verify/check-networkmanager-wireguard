@@ -30,7 +30,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.wait_visible("#network-wireguard-settings-dialog")
         iface_name = b.val("#network-wireguard-settings-interface-name-input")
         b.wait_visible("#network-wireguard-settings-save:disabled")
-        if m1.image in ["rhel4edge", "centos-8-stream"] or m1.image.startswith("rhel-8"):
+        if m1.image in ["rhel4edge"] or m1.image.startswith("rhel-8"):
             b.wait_visible(".pf-v5-c-alert:contains('wireguard-tools package is not installed')")
             b.click("button:contains('Cancel')")
             b.wait_not_present("#network-ip-settings-dialog")

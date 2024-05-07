@@ -17,19 +17,10 @@ fi
 . /run/host/usr/lib/os-release
 export TEST_OS="${ID}-${VERSION_ID/./-}"
 
-if [ "${TEST_OS#centos-}" != "$TEST_OS" ]; then
-    TEST_OS="${TEST_OS}-stream"
-fi
-
 TEST_ALLOW_JOURNAL_MESSAGES=""
 
 # HACK: CI hits this selinux denial. Unrelated to our tests.
 TEST_ALLOW_JOURNAL_MESSAGES=".*Permission denied:.*/var/cache/app-info/xmls.*"
-
-# HACK: occasional failure, annoyingly hard to debug
-if [ "${TEST_OS#centos-8}" != "$TEST_OS" ]; then
-    TEST_ALLOW_JOURNAL_MESSAGES="${TEST_ALLOW_JOURNAL_MESSAGES},couldn't create runtime dir: /run/user/1001: Permission denied"
-fi
 
 # HACK: https://github.com/systemd/systemd/issues/24150
 if [ "$ID" = "fedora" ]; then
@@ -131,7 +122,7 @@ if [ "$PLAN" = "basic" ]; then
     # PCI devices list is not predictable
     EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"
 
-    if [ "${TEST_OS#rhel-8}" != "$TEST_OS" ] || [ "${TEST_OS#centos-8}" != "$TEST_OS" ]; then
+    if [ "${TEST_OS#rhel-8}" != "$TEST_OS" ]; then
         # no cockpit-tests package in RHEL 8
         EXCLUDES="$EXCLUDES TestLogin.testSELinuxRestrictedUser"
 

@@ -215,7 +215,7 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
                 const packagekitExits = await packagekit.detect();
                 const os_release = await read_os_release();
 
-                // RHEL/CentOS 8 does not have wireguard-tools
+                // RHEL 8 does not have wireguard-tools
                 if (packagekitExits && os_release.PLATFORM_ID !== "platform:el8")
                     await install_dialog("wireguard-tools");
             }

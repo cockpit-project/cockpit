@@ -68,7 +68,7 @@ getcert request -f /etc/cockpit/ws-certs.d/50-certmonger.cert \
                 -D myhostname.example.com \
                 [--ca=...]</programlisting>
 
-    <para>This will not work on Red Hat Enterprise Linux/CentOS 8 by default. Adjust the SELinux type of the certificate directory to <code>cert_t</code> to allow certmonger to write its certificates there:</para>
+    <para>This will not work on Red Hat Enterprise Linux 8 by default. Adjust the SELinux type of the certificate directory to <code>cert_t</code> to allow certmonger to write its certificates there:</para>
 
     <programlisting>
 semanage fcontext -a -t cert_t '/etc/cockpit/ws-certs\.d(/.*)?'

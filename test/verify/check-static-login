@@ -394,7 +394,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch", "centos-8-stream")
+    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("No tlog")
     def testSessionRecordingShell(self):
         m = self.machine
@@ -497,7 +497,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
 
-        if m.image.startswith("rhel-8") or m.image in ["centos-8-stream", "rhel-9-1"]:
+        if m.image.startswith("rhel-8"):
             # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
             self.assertIn('result: access-denied', b.text(".super-channel span"))
         else:
@@ -737,7 +737,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.open("/system")
 
         # root login is disabled by default via /etc/cockpit/disallowed-users on everything except RHEL 8
-        if not m.image.startswith("rhel-8") and not m.image.startswith("centos-8"):
+        if not m.image.startswith("rhel-8"):
             b.try_login("root", "foobar")
             b.wait_in_text("#login-error-message", "Permission denied")
 

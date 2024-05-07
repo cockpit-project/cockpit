@@ -203,9 +203,9 @@ These shell aliases might be useful when experimenting with the protocol:
     alias cpy='PYTHONPATH=src python3 -m cockpit.bridge'
     alias cpf='PYTHONPATH=src python3 -m cockpit.misc.print'
 
-When working with the Python bridge on test images, note that `RHEL/CentOS 8`,
-`debian-stable`, and `ubuntu-2204` still use the C bridge. So if you want to
-explicitly have the Python bridge on those images use:
+When working with the Python bridge on test images, note that `rhel-8*` still
+uses the C bridge. So if you want to explicitly have the Python bridge on those
+images use:
 
     ./test/image-prepare --python
 

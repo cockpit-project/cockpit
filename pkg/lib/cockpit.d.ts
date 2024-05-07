@@ -118,7 +118,7 @@ declare module 'cockpit' {
     /* === cockpit.spawn ============================= */
 
     interface Spawn<T> extends DeferredPromise<T> {
-        input(message: T, stream?: boolean): DeferredPromise<T>;
+        input(message?: T | null, stream?: boolean): DeferredPromise<T>;
         stream(callback: (data: T) => void): DeferredPromise<T>;
         close(): void;
     }

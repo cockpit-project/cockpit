@@ -29,7 +29,18 @@ class TestSession(testlib.MachineCase):
         b = self.browser
 
         def wait_session(should_exist):
-            testlib.wait(lambda: (should_exist == ("admin" in m.execute("loginctl list-sessions"))))
+            if should_exist:
+                m.execute("until loginctl list-sessions | grep admin; do sleep 1; done")
+            else:
+                # restart logind to mop up empty "closing" sessions, like in testlib terminate_sessions()
+                m.execute("""while true; do
+                                 OUT=$(loginctl list-sessions)
+                                 echo "$OUT" | grep admin || break
+                                 if echo "$OUT | grep closing"; then
+                                    systemctl stop systemd-logind
+                                 fi
+                                 sleep 3
+                             done""")
 
         wait_session(should_exist=False)
 

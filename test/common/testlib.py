@@ -1681,7 +1681,7 @@ class MachineCase(unittest.TestCase):
                 # Don't insist that terminating works, the session might be gone by now.
                 self.machine.execute(f"loginctl kill-session {s} || true; loginctl terminate-session {s} || true")
 
-            # Restart logind to mop up empty "closing" sessions
+            # Restart logind to mop up empty "closing" sessions; https://github.com/systemd/systemd/issues/26744
             self.machine.execute("systemctl stop systemd-logind")
 
             # Wait for sessions to be gone

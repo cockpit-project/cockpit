@@ -444,7 +444,7 @@ machine         : 8561
 
         b.reload()
         b.enter_page('/system/hwinfo')
-        distro_without_systemd_memory_dmi = m.image == 'centos-8-stream' or m.image.startswith('rhel-8-')
+        distro_without_systemd_memory_dmi = m.image.startswith('rhel-8-')
 
         # Test more specific memory data with a fake dmidecode
         b.wait_in_text('#memory-listing tbody:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
@@ -796,7 +796,7 @@ password=foobar
 
         # RHEL 8 has no SHA1 policy, so do not show it.
         b.click("#crypto-policy-button")
-        func = b.wait_not_present if m.image.startswith('rhel-8') or m.image.startswith('centos-8') else b.wait_visible
+        func = b.wait_not_present if m.image.startswith('rhel-8') else b.wait_visible
         func(".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('DEFAULT:SHA1')")
         b.click("#crypto-policy-dialog button:contains('Cancel')")
         b.wait_not_present("#crypto-policy-dialog")

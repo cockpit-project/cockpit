@@ -129,7 +129,7 @@ class TestNetworkingSettings(netlib.NetworkCase):
 
         # Check that IPv4/IPv6 settings dialogs only show the supported IP methods for wireguard
         # Skip images without the wireguard-tools package
-        if m.image not in ["rhel4edge", "centos-8-stream", "centos-10"] and not m.image.startswith("rhel-8"):
+        if m.image not in ["rhel4edge", "centos-10"] and not m.image.startswith("rhel-8"):
             b.go("/network")
             b.click("#networking-add-wg")
             b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4/24")

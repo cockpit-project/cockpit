@@ -1410,7 +1410,7 @@ class TestAutoUpdates(NoSubManCase):
             # automatic reboots should be enabled whenever timer is enabled
             out = m.execute("systemctl cat dnf-automatic-install.service")
             if hour:
-                if m.image.startswith("rhel-8") or m.image == "centos-8-stream":
+                if m.image.startswith("rhel-8"):
                     # for RHEL 8, dnf-automatic does not support reboot; we have a unit drop-in hack
                     self.assertRegex(out, "ExecStartPost=/.*shutdown")
                     # validate our assumption
@@ -1594,7 +1594,7 @@ class TestAutoUpdates(NoSubManCase):
                 # triggered reboot
                 m.execute("until test -f /run/nologin; do sleep 1; done")
                 # old distros don't have that yet; rely on /run/nologin to indicate scheduled shutdown
-                if not m.image.startswith("rhel-8") and not m.image.startswith("centos-8"):
+                if not m.image.startswith("rhel-8"):
                     self.assertIn("scheduled for", m.execute("shutdown --show 2>&1"))
             finally:
                 # always cancel the scheduled reboot

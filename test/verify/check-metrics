@@ -810,9 +810,9 @@ class TestCurrentMetrics(testlib.MachineCase):
 
         m.execute(f"podman stop -t 0 {container_name}")
 
-        # RHEL-8 / CentOS-8's podman user containers do not show up as
+        # RHEL-8's podman user containers do not show up as
         # libpod-$containerid but as podman-3679.scope.
-        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+        if not m.image.startswith("rhel-8"):
             # copy images for user podman tests; podman insists on user session
             m.execute(f"podman save {self.busybox_image} | sudo -i -u admin podman load")
 
@@ -957,7 +957,7 @@ class TestCurrentMetrics(testlib.MachineCase):
 
         # Test link to user services
         # older releases don't have CPU accounting enabled for user services
-        if self.machine.image != "centos-8-stream" and not self.machine.image.startswith("rhel-8-"):
+        if not self.machine.image.startswith("rhel-8-"):
             m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest -p CPUQuota=60% --unit cpu-userhog dd if=/dev/urandom of=/dev/null'")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
             b.wait_in_text("table[aria-label='Top 5 CPU services'] tbody", "cpu-userhog")
@@ -1049,9 +1049,9 @@ BEGIN {{
 
         m.execute(f"podman stop -t 0 {container_name}")
 
-        # RHEL-8 / CentOS-8's podman user containers do not show up as
+        # RHEL-8's podman user containers do not show up as
         # libpod-$containerid but as podman-3679.scope.
-        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+        if not m.image.startswith("rhel-8"):
             # copy images for user podman tests; podman insists on user session
             m.execute(f"podman save {self.busybox_image} | sudo -i -u admin podman load")
 
@@ -1074,7 +1074,7 @@ BEGIN {{
 
         # Test link to user services
         # older releases don't have memory accounting enabled for user services
-        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+        if not m.image.startswith("rhel-8"):
             m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest --unit mem-userhog memhog.sh'")
             m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
@@ -1103,8 +1103,8 @@ BEGIN {{
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Write']")))  # write should stay calm
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='sr0'] [data-label='Read']")))  # other disks should stay calm
         # top service should be disk-read-hog
-        # unsupported on rhel 8 and centos 8 as they use cgroupv1
-        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+        # unsupported on rhel 8 as it uses cgroupv1
+        if not m.image.startswith("rhel-8"):
             b.wait_text_matches("table[aria-label='Top 5 disk usage services'] tr:first-child td[data-label='Service']", "disk-read-hog")
             b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("table[aria-label='Top 5 disk usage services'] tr:first-child td[data-label='Read']")))
             b.wait(lambda: re.match(r'^0|([0-9.]+ (kB|B)/s)$', b.text("table[aria-label='Top 5 disk usage services'] tr:first-child td[data-label='Write']")))  # this should stay calm
@@ -1125,8 +1125,8 @@ BEGIN {{
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Read']")))  # read should stay calm
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='sr0'] [data-label='Write']")))  # other disks should stay calm
         # top service should be disk-write-hog
-        # unsupported on rhel 8 and centos 8 as they use cgroupv1
-        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+        # unsupported on rhel 8 as it uses cgroupv1
+        if not m.image.startswith("rhel-8"):
             b.wait_text_matches("table[aria-label='Top 5 disk usage services'] tr:first-child td[data-label='Service']", "disk-write-hog")
             b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("table[aria-label='Top 5 disk usage services'] tr:first-child td[data-label='Write']")))
             b.wait(lambda: re.match(r'^0|([0-9.]+ (kB|B)/s)$', b.text("table[aria-label='Top 5 disk usage services'] tr:first-child td[data-label='Read']")))  # this should stay calm
@@ -1276,7 +1276,7 @@ class TestMetricsPackages(packagelib.PackageCase):
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
             m.execute("rpm --erase --verbose cockpit-pcp pcp redis")
-        if "centos-8" in m.image or "rhel-8" in m.image:
+        if "rhel-8" in m.image:
             # RHEL 8 ships this in a module, make sure that doesn't hide our fake package
             m.execute("dnf module disable -y redis || true")
 

@@ -85,11 +85,11 @@ class TestRHEL8(testlib.MachineCase):
 class TestMultiOSDirect(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "memory_mb": 512},
-        "stock": {"address": "10.111.113.5/20", "image": "centos-8-stream", "memory_mb": 512}
+        "stock": {"address": "10.111.113.5/20", "image": "rhel-8-10", "memory_mb": 512}
     }
 
     @testlib.todoPybridgeRHEL8()
-    def testCentos8Direct(self):
+    def testRHEL8Direct(self):
         b = self.browser
 
         self.allow_hostkey_messages()

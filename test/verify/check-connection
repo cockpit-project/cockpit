@@ -223,6 +223,11 @@ class TestConnection(testlib.MachineCase):
                 out = m.execute(f"systemctl --no-legend -t {_type} list-units cockpit-wsinstance-https@*")
                 count = len(out.strip().splitlines())
                 self.assertEqual(count, https_instances, out)
+            # instance sockets get cleaned up when stopping cockpit.socket or the instances
+            if not ws_socket or not instance_sockets:
+                self.assertEqual(
+                    m.execute("test ! -e /run/cockpit/wsinstance/ || ls /run/cockpit/wsinstance/").strip(),
+                    "")
 
         # at the beginning, no cockpit related units are running
         m.execute("systemctl reset-failed")

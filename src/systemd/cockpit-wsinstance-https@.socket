@@ -1,11 +1,11 @@
 [Unit]
 Description=Socket for Cockpit Web Service https instance %I
+Documentation=man:cockpit-ws(8)
 BindsTo=cockpit.service
 # clean up the socket after the service exits, to prevent fd leak
 # this also effectively prevents a DoS by starting arbitrarily many sockets, as
 # the services are resource-limited by system-cockpithttps.slice
 BindsTo=cockpit-wsinstance-https@%i.service
-Documentation=man:cockpit-ws(8)
 
 [Socket]
 ListenStream=/run/cockpit/wsinstance/https@%i.sock

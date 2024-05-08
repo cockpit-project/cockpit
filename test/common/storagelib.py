@@ -554,8 +554,13 @@ grub2-install {dev}
 grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid rd.lvm.lv=root/root"
 ! test -f /etc/kernel/cmdline || cp /etc/kernel/cmdline /new-root/etc/kernel/cmdline
 """, timeout=300)
-        m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
-        m.wait_reboot(300)
+
+        # Destroy our current boot device.  This prevents the system from
+        # shutting down properly, so do it forcefully from outside.
+        m.execute("sync; dd if=/dev/zero of=/dev/vda bs=1M count=100; sync; sync; sync;")
+        m.kill()
+        m.start()
+        m.wait_boot()
         self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), "/dev/mapper/root-root")
 
     # Cards and tables

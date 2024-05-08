@@ -139,6 +139,24 @@ class TestApps(packagelib.PackageCase):
         b.wait_visible(f".app-list .pf-v5-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
+    def testBasic2(self):
+        self.testBasic()
+
+    def testBasic3(self):
+        self.testBasic()
+
+    def testBasic4(self):
+        self.testBasic()
+
+    def testBasic5(self):
+        self.testBasic()
+
+    def testBasic6(self):
+        self.testBasic()
+
+    def testBasic7(self):
+        self.testBasic()
+
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 

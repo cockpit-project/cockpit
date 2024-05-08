@@ -332,6 +332,6 @@ export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: c
  * "useInit" and default to "[]".
  */
 
-export function useInit<T, D extends Tuple>(func: () => T, deps: D, comps?: Comparators<D>, destroy: ((value: T) => void) | null = null): T {
+export function useInit<T, D extends Tuple>(func: () => T, deps?: D, comps?: Comparators<D>, destroy: ((value: T) => void) | null = null): T {
     return useObject(func, destroy, deps || [], comps);
 }

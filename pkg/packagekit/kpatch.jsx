@@ -153,7 +153,7 @@ export class KpatchSettings extends React.Component {
                                 })
                             );
                 })
-                .catch(err => console.error("Could not determine kpatch packages:", err)); // not-covered: OS error
+                .catch(err => console.error("Could not determine kpatch packages:", JSON.stringify(err))); // not-covered: OS error
 
         return Promise.allSettled([kpatch_promise, uname_promise]);
     }

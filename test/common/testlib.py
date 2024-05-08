@@ -1663,45 +1663,45 @@ class MachineCase(unittest.TestCase):
                         "    swapon --show=NAME --noheadings | grep $dev | xargs -r swapoff; "
                         "done; until rmmod scsi_debug; do sleep 0.2; done", stdout=None)
 
-        def terminate_sessions() -> None:
-            # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH; but also, some tests start
-            # admin sessions without Cockpit
-            self.machine.execute("""for u in $(loginctl --no-legend list-users  | awk '{ if ($2 != "root") print $1 }'); do
-                                        loginctl terminate-user $u 2>/dev/null || true
-                                        loginctl kill-user $u 2>/dev/null || true
-                                        pkill -9 -u $u || true
-                                        while pgrep -u $u; do sleep 0.2; done
-                                        while mountpoint -q /run/user/$u && ! umount /run/user/$u; do sleep 0.2; done
-                                        rm -rf /run/user/$u
-                                    done""")
+    def _terminate_sessions(self) -> None:
+        m = self.machine
 
-            # Terminate all other Cockpit sessions
-            sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
-            for s in sessions:
-                # Don't insist that terminating works, the session might be gone by now.
-                self.machine.execute(f"loginctl kill-session {s} || true; loginctl terminate-session {s} || true")
+        # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH; but also, some tests start
+        # admin sessions without Cockpit
+        m.execute("""for u in $(loginctl --no-legend list-users  | awk '{ if ($2 != "root") print $1 }'); do
+                         loginctl terminate-user $u 2>/dev/null || true
+                         loginctl kill-user $u 2>/dev/null || true
+                         pkill -9 -u $u || true
+                         while pgrep -u $u; do sleep 0.2; done
+                         while mountpoint -q /run/user/$u && ! umount /run/user/$u; do sleep 0.2; done
+                         rm -rf /run/user/$u
+                     done""")
 
-            # Restart logind to mop up empty "closing" sessions; https://github.com/systemd/systemd/issues/26744
-            self.machine.execute("systemctl stop systemd-logind")
+        # Terminate all other Cockpit sessions
+        sessions = m.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
+        for s in sessions:
+            # Don't insist that terminating works, the session might be gone by now.
+            m.execute(f"loginctl kill-session {s} || true; loginctl terminate-session {s} || true")
 
-            # Wait for sessions to be gone
-            sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
-            for s in sessions:
-                try:
-                    m.execute(f"while loginctl show-session {s}; do sleep 0.2; done", timeout=30)
-                except RuntimeError:
-                    # show the status in debug logs, to see what's wrong
-                    m.execute(f"loginctl session-status {s}; systemd-cgls", stdout=None)
-                    raise
+        # Restart logind to mop up empty "closing" sessions; https://github.com/systemd/systemd/issues/26744
+        m.execute("systemctl stop systemd-logind")
 
-            # terminate all systemd user services for users who are not logged in
-            self.machine.execute("systemctl stop user@*.service")
+        # Wait for sessions to be gone
+        sessions = m.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
+        for s in sessions:
+            try:
+                m.execute(f"while loginctl show-session {s}; do sleep 0.2; done", timeout=30)
+            except RuntimeError:
+                # show the status in debug logs, to see what's wrong
+                m.execute(f"loginctl session-status {s}; systemd-cgls", stdout=None)
+                raise
 
-            # Clean up "closing" sessions again, and clean user id cache for non-system users
-            self.machine.execute("systemctl stop systemd-logind; cd /run/systemd/users/; "
-                                 "for f in $(ls); do [ $f -le 500 ] || rm $f; done")
+        # terminate all systemd user services for users who are not logged in
+        m.execute("systemctl stop user@*.service")
 
-        self.addCleanup(terminate_sessions)
+        # Clean up "closing" sessions again, and clean user id cache for non-system users
+        m.execute("systemctl stop systemd-logind; cd /run/systemd/users/; "
+                  "for f in $(ls); do [ $f -le 500 ] || rm $f; done")
 
     def tearDown(self) -> None:
         error = self.getError()
@@ -1729,6 +1729,9 @@ class MachineCase(unittest.TestCase):
             if not error:
                 self.check_browser_errors()
                 self.check_pixel_tests()
+
+        if self.is_nondestructive():
+            self._terminate_sessions()
 
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 

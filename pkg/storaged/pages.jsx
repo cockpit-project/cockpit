@@ -710,12 +710,12 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                     { pages &&
                     <Thead>
                         <Tr>
-                            { show_icons && <Th /> }
+                            { show_icons && <Th aria-label={_("Category")} />}
                             <Th>{_("ID")}</Th>
                             <Th>{_("Type")}</Th>
                             <Th>{_("Location")}</Th>
                             <Th className="storage-size-column-header">{_("Size")}</Th>
-                            <Th />
+                            <Th aria-label={_("Actions")} />
                         </Tr>
                     </Thead>
                     }

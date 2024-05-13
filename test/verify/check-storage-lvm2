@@ -507,7 +507,7 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         b.click(".pf-v5-c-alert button:contains(Dismiss)")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "/dev/vgroup0/lvol0")
+        b.wait_in_text("#dialog", "vgroup0/lvol0")
         self.dialog_apply()
         self.dialog_wait_close()
 

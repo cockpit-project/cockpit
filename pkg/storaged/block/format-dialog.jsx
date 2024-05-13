@@ -32,7 +32,7 @@ import {
     dialog_open,
     TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
     BlockingMessage, TeardownMessage,
-    init_active_usage_processes
+    init_teardown_usage
 } from "../dialog.jsx";
 
 import { get_fstab_config, is_valid_mount_point } from "../filesystem/utils.jsx";
@@ -630,7 +630,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage),
+            init_teardown_usage(client, usage),
             unlock_before_format
                 ? init_existing_passphrase(block, true, type => { existing_passphrase_type = type })
                 : null

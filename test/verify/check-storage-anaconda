@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import os
 
 import storagelib
 import testlib
@@ -157,10 +158,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         b.click(self.card_parent_link())
         b.wait_visible(self.card_row("LVM2 volume group", name=disk))
         self.click_card_dropdown("LVM2 volume group", "Delete group")
-        self.dialog_wait_open()
-        b.wait_text("#dialog td[data-label='Location']", "/var")
-        self.dialog_apply()
-        self.dialog_wait_close()
+        self.confirm()
         m.execute("! findmnt --fstab -n /sysroot/var")
 
         # Back to the beginning
@@ -252,10 +250,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         b.click(self.card_parent_link())
         b.wait_visible(self.card_row("Stratis pool", name=disk))
         self.click_card_dropdown("Stratis pool", "Delete")
-        self.dialog_wait_open()
-        b.wait_text("#dialog td[data-label='Location']", "/var")
-        self.dialog_apply()
-        self.dialog_wait_close()
+        self.confirm()
         m.execute("! findmnt --fstab -n /sysroot/var")
 
     @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
@@ -548,6 +543,98 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.click_card_row("Storage", name=disk1)
         b.click(self.card_desc("MDRAID disk", "MDRAID device") + " button")
         b.wait_in_text("body", "Not found")
+
+    def testNonEmpty(self):
+        b = self.browser
+        m = self.machine
+
+        disk = self.add_loopback_disk(name="loop10")
+
+        anaconda_config = {
+            "mount_point_prefix": "/sysroot",
+            "available_devices": [disk],
+        }
+
+        # Create some content on the disk
+        m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}")
+        m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk} dm-test")
+        m.execute("mkfs.ext4 /dev/mapper/dm-test; mount /dev/mapper/dm-test /mnt; echo Hi >/mnt/hello; umount /mnt")
+        m.execute("cryptsetup close dm-test")
+
+        self.login_and_go("/storage")
+        self.enterAnacondaMode(anaconda_config)
+
+        # Attempt to wipe it. This requires a extra confirmation
+        # because it is locked.
+        b.wait_text(self.card_row_col("Storage", 1, 3), "Locked data (encrypted)")
+        self.click_dropdown(self.card_row("Storage", 1), "Create partition table")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "empty")
+        b.wait_in_text("#dialog", "Locked encrypted device might contain data")
+        self.dialog_wait_apply_disabled()
+        b.assert_pixels('#dialog', "wipe")
+        b.set_checked("#dialog-confirm", val=True)
+        self.dialog_wait_apply_enabled()
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Unlock and confirm the extra warning, and actually wipe it
+        self.click_dropdown(self.card_row("Storage", 1), "Unlock")
+        self.dialog({"passphrase": "einszweidrei"})
+        b.wait_text(self.card_row_col("Storage", 1, 3), "ext4 filesystem (encrypted)")
+        self.click_dropdown(self.card_row("Storage", 1), "Create partition table")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "empty")
+        b.wait_in_text("#dialog", "Important data might be deleted")
+        b.wait_in_text("#dialog", os.path.basename(disk))
+        b.wait_in_text("#dialog", "kB used")
+        b.wait_in_text("#dialog", "MB total")
+        b.set_checked("#dialog-confirm", val=True)
+        self.dialog_wait_apply_enabled()
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # Put some unrecognized data on it
+
+        # This is the superblock of a legacy VDO device. Cockpit does
+        # not recognize it.
+
+        data = """
+ZG12ZG8wMDEFAAAABAAAAAAAAABdAAAAAAAAAJQJAgCGsH0mrQgGAC4WnB4G50Fzu20jY6J1rfwA
+AAAAAQAAAAAAAAABAAAA2FwKAAAAAAAA////AAAAAAA7tw9zAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+"""
+        m.execute(f"base64 -d >{disk}", input=data)
+        # Wait for udev to settle and re-trigger, udisks sometimes misses udev events on ubuntu 2204.
+        m.execute(f"udevadm settle; udevadm trigger {disk}")
+
+        b.wait_text(self.card_row_col("Storage", 1, 3), "Unrecognized data")
+        self.click_dropdown(self.card_row("Storage", 1), "Create partition table")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "empty")
+        b.wait_in_text("#dialog", "Device contains unrecognized data")
+        b.set_checked("#dialog-confirm", val=True)
+        self.dialog_wait_apply_enabled()
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # A filesystem with just directories should not show the
+        # warning.
+
+        m.execute(f"mkfs.ext4 {disk}; mount {disk} /mnt; mkdir -p /mnt/dir/ect/ory; umount /mnt")
+
+        b.wait_text(self.card_row_col("Storage", 1, 3), "ext4 filesystem")
+        self.click_dropdown(self.card_row("Storage", 1), "Create partition table")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "empty")
+        self.dialog_apply()
+        self.dialog_wait_close()
 
 
 if __name__ == '__main__':

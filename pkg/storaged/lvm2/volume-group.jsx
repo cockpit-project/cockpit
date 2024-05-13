@@ -44,7 +44,7 @@ import {
 import {
     dialog_open, SelectSpaces, TextInput,
     BlockingMessage, TeardownMessage,
-    init_active_usage_processes
+    init_teardown_usage
 } from "../dialog.jsx";
 
 import { create_logical_volume } from "./create-logical-volume-dialog.jsx";
@@ -104,7 +104,7 @@ function vgroup_delete(client, vgroup, card) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage)
+            init_teardown_usage(client, usage)
         ]
     });
 }
@@ -328,8 +328,10 @@ const LVM2VolumeGroupCard = ({ card, vgroup }) => {
            a bit inconsistent, but *shrug*.
         */
 
-        let usage = get_active_usage(client, vgroup.path, _("delete"));
-        usage = usage.filter(u => u.block && is_partial_linear_lvol(u.block));
+        const all_usage = get_active_usage(client, vgroup.path, _("delete"));
+        const usage = all_usage.filter(u => u.block && is_partial_linear_lvol(u.block));
+        usage.Blocking = all_usage.Blocking;
+        usage.Teardown = all_usage.Teardown;
 
         if (usage.Blocking) {
             dialog_open({
@@ -359,7 +361,7 @@ const LVM2VolumeGroupCard = ({ card, vgroup }) => {
                 }
             },
             Inits: [
-                init_active_usage_processes(client, usage)
+                init_teardown_usage(client, usage)
             ]
         });
     }

@@ -45,7 +45,7 @@ import {
 import {
     dialog_open, SelectSpaces, TextInput, PassInput, SelectOne, SizeSlider,
     BlockingMessage, TeardownMessage,
-    init_active_usage_processes
+    init_teardown_usage
 } from "../dialog.jsx";
 
 import { validate_url, get_tang_adv } from "../crypto/tang.jsx";
@@ -154,7 +154,7 @@ function delete_pool(pool, card) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage)
+            init_teardown_usage(client, usage)
         ]
     });
 }

@@ -26,7 +26,7 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 
 import {
     dialog_open, TextInput, BlockingMessage, TeardownMessage,
-    init_active_usage_processes,
+    init_teardown_usage,
 } from "../dialog.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
 import {
@@ -142,7 +142,7 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
                 }
             },
             Inits: [
-                init_active_usage_processes(client, usage)
+                init_teardown_usage(client, usage)
             ]
         });
     }

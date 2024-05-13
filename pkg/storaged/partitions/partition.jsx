@@ -29,7 +29,7 @@ import { StorageButton, StorageLink } from "../storage-controls.jsx";
 import {
     dialog_open,
     SelectOne, TextInput,
-    init_active_usage_processes, BlockingMessage, TeardownMessage
+    init_teardown_usage, BlockingMessage, TeardownMessage
 } from "../dialog.jsx";
 import { block_name, fmt_size, get_active_usage, teardown_active_usage, reload_systemd } from "../utils.js";
 import { check_unused_space, get_resize_info, free_space_after_part, grow_dialog, shrink_dialog } from "../block/resize.jsx";
@@ -64,7 +64,7 @@ export function delete_partition(block, card) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage)
+            init_teardown_usage(client, usage)
         ]
     });
 }

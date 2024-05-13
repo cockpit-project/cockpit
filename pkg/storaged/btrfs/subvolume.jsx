@@ -36,7 +36,7 @@ import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options } from 
 import { at_boot_input, update_at_boot_input, mounting_dialog, mount_options } from "../filesystem/mounting-dialog.jsx";
 import {
     dialog_open, TextInput,
-    TeardownMessage, init_active_usage_processes,
+    TeardownMessage, init_teardown_usage,
 } from "../dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "../filesystem/mismounting.jsx";
 import {
@@ -204,6 +204,7 @@ function subvolume_delete(volume, subvol, mount_point_in_parent, card) {
     const paths_to_delete = [];
     const usage = [];
 
+    usage.Teardown = true;
     for (const sv of all_subvols) {
         const [config, mount_point] = get_fstab_config_with_client(client, block, false, sv);
         const fs_is_mounted = is_mounted(client, block, sv);
@@ -241,7 +242,7 @@ function subvolume_delete(volume, subvol, mount_point_in_parent, card) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage)
+            init_teardown_usage(client, usage)
         ]
     });
 }

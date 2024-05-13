@@ -691,7 +691,7 @@ export function should_ignore(client, path) {
    GET_CHILDREN_FOR_TEARDOWN is similar but doesn't consider things
    like volume groups to be children of their physical volumes.  This
    is appropriate for teardown processing, where tearing down a
-   physical volume does not imply tearing down the whole volume groups
+   physical volume does not imply tearing down the whole volume group
    with everything that it contains.
 */
 
@@ -979,14 +979,14 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
         return usage;
     }
 
-    let usage = [];
+    const usage = [];
     get_usage(usage, path, 0);
-
-    if (usage.length == 1 && usage[0].level == 0 && usage[0].usage == "none")
-        usage = [];
 
     usage.Blocking = usage.some(u => u.blocking);
     usage.Teardown = usage.some(u => !u.blocking);
+
+    if (usage.length == 1 && usage[0].level == 0 && usage[0].usage == "none")
+        usage.Teardown = false;
 
     return usage;
 }

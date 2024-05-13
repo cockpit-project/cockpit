@@ -27,7 +27,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 
 import { block_short_name, get_active_usage, teardown_active_usage, fmt_size, decode_filename, reload_systemd } from "../utils.js";
 import {
-    dialog_open, SizeSlider, BlockingMessage, TeardownMessage, init_active_usage_processes
+    dialog_open, SizeSlider, BlockingMessage, TeardownMessage, init_teardown_usage
 } from "../dialog.jsx";
 import { StorageButton, StorageOnOff } from "../storage-controls.jsx";
 
@@ -68,7 +68,7 @@ export function make_legacy_vdo_page(parent, vdo, backing_block, next_card) {
                     }
                 },
                 Inits: [
-                    init_active_usage_processes(client, usage)
+                    init_teardown_usage(client, usage)
                 ]
             });
         } else {
@@ -130,7 +130,7 @@ export function make_legacy_vdo_page(parent, vdo, backing_block, next_card) {
                 }
             },
             Inits: [
-                init_active_usage_processes(client, usage)
+                init_teardown_usage(client, usage)
             ]
         });
     }

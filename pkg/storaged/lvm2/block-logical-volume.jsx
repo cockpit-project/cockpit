@@ -34,7 +34,7 @@ import { StorageCard, StorageDescription, new_card, navigate_to_new_card_locatio
 import { block_name, fmt_size, get_active_usage, teardown_active_usage, reload_systemd } from "../utils.js";
 import {
     dialog_open, TextInput, SelectSpaces, BlockingMessage, TeardownMessage,
-    init_active_usage_processes
+    init_teardown_usage
 } from "../dialog.jsx";
 
 import { lvm2_create_snapshot_action } from "./volume-group.jsx";
@@ -85,7 +85,7 @@ export function lvol_delete(lvol, card) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage)
+            init_teardown_usage(client, usage)
         ]
     });
 }
@@ -156,7 +156,7 @@ function deactivate(lvol, block) {
 
     dialog_open({
         Title: cockpit.format(_("Deactivate logical volume $0/$1?"), vgroup.Name, lvol.Name),
-        Teardown: TeardownMessage(usage),
+        Teardown: TeardownMessage(usage, true),
         Action: {
             Title: _("Deactivate"),
             action: async function () {
@@ -166,7 +166,7 @@ function deactivate(lvol, block) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage)
+            init_teardown_usage(client, usage, true)
         ]
     });
 }

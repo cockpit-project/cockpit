@@ -43,7 +43,7 @@ import {
 import {
     dialog_open, SelectSpaces,
     BlockingMessage, TeardownMessage,
-    init_active_usage_processes
+    init_teardown_usage
 } from "../dialog.jsx";
 
 import { partitionable_block_actions } from "../partitions/actions.jsx";
@@ -81,7 +81,7 @@ function mdraid_stop(mdraid) {
                 }
             },
             Inits: [
-                init_active_usage_processes(client, usage)
+                init_teardown_usage(client, usage)
             ]
         });
         return;
@@ -132,7 +132,7 @@ function mdraid_delete(mdraid, block, card) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage)
+            init_teardown_usage(client, usage)
         ]
     });
 }

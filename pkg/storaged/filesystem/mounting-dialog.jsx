@@ -36,7 +36,7 @@ import {
     dialog_open,
     TextInput, PassInput, CheckBoxes, SelectOne,
     TeardownMessage,
-    init_active_usage_processes
+    init_teardown_usage
 } from "../dialog.jsx";
 import { init_existing_passphrase, unlock_with_type } from "../crypto/keyslots.jsx";
 import { initial_tab_options } from "../block/format-dialog.jsx";
@@ -404,7 +404,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
     const dlg = dialog_open({
         Title: cockpit.format(mode_title[mode], old_dir_for_display),
         Fields: fields,
-        Teardown: TeardownMessage(usage, old_dir),
+        Teardown: TeardownMessage(usage, old_dir || true),
         update: function (dlg, vals, trigger) {
             update_at_boot_input(dlg, vals, trigger);
             if (trigger == "mount_options")
@@ -447,7 +447,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage, old_dir),
+            init_teardown_usage(client, usage, old_dir || true),
             init_existing_passphrase(block, true, type => {
                 passphrase_type = type;
                 update_explicit_passphrase(dlg.get_value("mount_options")?.ro ?? opt_ro);

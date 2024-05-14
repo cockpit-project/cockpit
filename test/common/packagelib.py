@@ -114,9 +114,13 @@ class PackageCase(MachineCase):
 
         # reset automatic updates
         if self.backend == 'dnf':
-            self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install "
-                                 "dnf-automatic.service dnf-automatic-install.timer")
-            self.machine.execute("rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")
+            # DNF5 has a different automatic systemd unit
+            if self.machine.image == "fedora-41":
+                self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic.timer 2>/dev/null")
+            else:
+                self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install "
+                                     "dnf-automatic.service dnf-automatic-install.timer")
+                self.machine.execute("rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")
 
         self.updateInfo = {}
 

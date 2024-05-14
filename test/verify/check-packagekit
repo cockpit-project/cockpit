@@ -1371,7 +1371,11 @@ class TestAutoUpdates(NoSubManCase):
         self.supported_backend = self.backend in ["dnf"]
         if self.backend == 'dnf':
             self.restore_file("/etc/dnf/automatic.conf")
-            self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic-install.timer 2>/dev/null; rm -rf /etc/systemd/system/dnf-automatic-*")
+            # DNF5 has a different automatic systemd unit
+            if self.machine.image == "fedora-41":
+                self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic.timer 2>/dev/null")
+            else:
+                self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic-install.timer 2>/dev/null; rm -rf /etc/systemd/system/dnf-automatic-*")
 
     def closeSettings(self, browser):
         browser.click("#automatic-updates-dialog button:contains('Save changes')")

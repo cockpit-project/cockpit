@@ -608,19 +608,19 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 </Card>);
         } else {
             const cols = [
-                <Td key="1" onClick={onClick}>
+                <Th scope="row" key="1" onClick={onClick}>
                     <div className="indent" style={ { "--level": level } }>
                         <Truncate content={name} />
                         {info}
                     </div>
-                </Td>,
+                </Th>,
                 <Td key="2" onClick={onClick} modifier="nowrap">{type}</Td>,
                 <Td key="3" onClick={onClick} modifier="nowrap">{location}</Td>,
                 <Td key="4" onClick={onClick} className="storage-size-column">{size}</Td>,
                 <Td key="5" className="pf-v5-c-table__action">{actions || <div /> }</Td>,
             ];
             if (show_icons)
-                cols.unshift(<Td key="0" onClick={onClick} className="storage-device-icon">{icon}</Td>);
+                cols.unshift(<Td key="0" onClick={onClick} className="storage-device-icon" aria-hidden="true">{icon}</Td>);
 
             rows.push(
                 <Tr key={key}
@@ -710,12 +710,12 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                     { pages &&
                     <Thead>
                         <Tr>
-                            { show_icons && <Th aria-label={_("Category")} />}
-                            <Th>{_("ID")}</Th>
-                            <Th>{_("Type")}</Th>
-                            <Th>{_("Location")}</Th>
-                            <Th className="storage-size-column-header">{_("Size")}</Th>
-                            <Th aria-label={_("Actions")} />
+                            { show_icons && <Th aria-hidden="true" />}
+                            <Th scope="col">{_("ID")}</Th>
+                            <Th scope="col">{_("Type")}</Th>
+                            <Th scope="col">{_("Location")}</Th>
+                            <Th scope="col" className="storage-size-column-header">{_("Size")}</Th>
+                            <Th scope="col" aria-label={_("Actions")} />
                         </Tr>
                     </Thead>
                     }

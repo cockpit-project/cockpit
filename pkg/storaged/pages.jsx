@@ -710,7 +710,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                     { pages &&
                     <Thead>
                         <Tr>
-                            { show_icons && <Th aria-hidden="true" />}
+                            { show_icons && <Td aria-hidden="true" /> }
                             <Th scope="col">{_("ID")}</Th>
                             <Th scope="col">{_("Type")}</Th>
                             <Th scope="col">{_("Location")}</Th>

@@ -1697,7 +1697,9 @@ class MachineCase(unittest.TestCase):
                 raise
 
         # terminate all systemd user services for users who are not logged in
-        m.execute("systemctl stop user@*.service")
+        # since systemd 256 we stop user@*.service now also stops the root session (uid 0)
+        m.execute("cd /run/systemd/users/; "
+                  "for f in $(ls); do [ $f -le 500 ] || systemctl stop user@$f; done")
 
         # Clean up "closing" sessions again, and clean user id cache for non-system users
         m.execute("systemctl stop systemd-logind; cd /run/systemd/users/; "

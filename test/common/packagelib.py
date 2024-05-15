@@ -114,6 +114,8 @@ class PackageCase(MachineCase):
 
         # reset automatic updates
         if self.backend == 'dnf':
+            print(self.machine.execute("rpmquery dnf-automatic"))
+            print(self.machine.execute("rpmquery -l dnf-automatic"))
             self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install "
                                  "dnf-automatic.service dnf-automatic-install.timer")
             self.machine.execute("rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")

@@ -19,16 +19,16 @@ jobs:
     permissions:
       contents: read
       statuses: write
-    container: registry.fedoraproject.org/fedora:rawhide
+    container: registry.fedoraproject.org/fedora:40
     # this polls for a COPR build, which can take long
     timeout-minutes: 120
 
     steps:
       - name: Install dependencies
         run: |
-          dnf install -y git-core dnf5-plugins || {
+          dnf install -y git-core dnf-plugins-core || {
             sleep 60
-            dnf install -y git-core dnf5-plugins
+            dnf install -y git-core dnf-plugins-core
           }
 
       # Naïvely this should wait for github.event.pull_request.head.sha, but

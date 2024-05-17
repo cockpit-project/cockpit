@@ -79,7 +79,13 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Make sure we are started in home directory
         # Account for non-standard prompting
-        if "]" not in prompt:
+        # rhel4edge: there is issue inside terminal plugin, when used symlink for home dir.
+        #    admin has setup /home/admin as home dir, but /home is symlink to var/home,
+        #    directory is resolved to absolute path, causing terminal plugin will not show ~
+        #    previous versions of rhel4edge images had HOME defined directly into /var/home/admin.
+        if m.image.startswith("rhel4edge") and "admin]" in prompt:
+            self.assertIn("admin]$", prompt)
+        elif "]" not in prompt:
             self.assertIn(":~$", prompt)
         else:
             self.assertIn("~]$", prompt)

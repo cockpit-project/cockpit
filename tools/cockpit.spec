@@ -167,7 +167,7 @@ BuildRequires:  python3-tox-current-env
 %check
 make -j$(nproc) check
 
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 && !0%{?suse_version}
 %tox
 %endif
 

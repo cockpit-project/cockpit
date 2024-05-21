@@ -118,6 +118,7 @@ class PackageCase(MachineCase):
             if self.machine.image == "fedora-41":
                 self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic.timer 2>/dev/null")
             else:
+                self.restore_file("/etc/dnf/automatic.conf")
                 self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install "
                                      "dnf-automatic.service dnf-automatic-install.timer")
                 self.machine.execute("rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")

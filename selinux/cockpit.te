@@ -50,9 +50,7 @@ can_exec(cockpit_ws_t,cockpit_ws_exec_t)
 # systemd can execute cockpit-session
 can_exec(init_t,cockpit_session_exec_t)
 
-# cockpit-ws can execute cockpit-{ssh,session}
-can_exec(cockpit_ws_t,cockpit_session_exec_t)
-# ... and the real ssh (through beiboot/ferny)
+# cockpit-ws can execute cockpit-ssh and the real ssh (through beiboot/ferny)
 gen_require(`
     type ssh_exec_t;
 ')

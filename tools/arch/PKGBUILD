@@ -58,8 +58,6 @@ package_cockpit() {
   rm -rf "$pkgdir"/usr/{src,lib/firewalld}
   install -Dm644 "$srcdir"/cockpit.pam "$pkgdir"/etc/pam.d/cockpit
 
-  echo "z /usr/lib/cockpit/cockpit-session - - cockpit-wsinstance -" >> "$pkgdir"/usr/lib/tmpfiles.d/cockpit-ws.conf
-
   # remove unused plugins
   rm -rf "$pkgdir"/usr/share/cockpit/{selinux,playground,sosreport} \
          "$pkgdir"/usr/share/metainfo/org.cockpit-project.cockpit-{selinux,sosreport}.metainfo.xml

@@ -50,7 +50,7 @@
 #define LOCAL_SESSION "local-session"
 
 /* Some tunables that can be set from tests */
-const gchar *cockpit_ws_session_program = LIBEXECDIR "/cockpit-session";
+const gchar *cockpit_ws_session_program = NULL;
 const gchar *cockpit_ws_ssh_program = LIBEXECDIR "/cockpit-ssh";
 
 /* Timeout of authenticated session when no connections */
@@ -1093,7 +1093,12 @@ cockpit_session_launch (CockpitAuth *self,
            g_str_equal (type, "tls-cert"))
     {
       if (command == NULL && unix_path == NULL)
-        command = cockpit_ws_session_program;
+        {
+          if (cockpit_ws_session_program)
+            command = cockpit_ws_session_program;
+          else
+            unix_path = "/run/cockpit/session";
+        }
     }
 
   g_autoptr(CockpitPipe) pipe = NULL;

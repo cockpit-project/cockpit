@@ -2,6 +2,8 @@
 Description=Cockpit Web Service http instance
 Documentation=man:cockpit-ws(8)
 BindsTo=cockpit.service
+Requires=cockpit-session.socket
+After=cockpit-session.socket
 
 [Service]
 ExecStart=@libexecdir@/cockpit-ws --no-tls --port=0

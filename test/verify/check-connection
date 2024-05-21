@@ -1144,29 +1144,6 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         b.wait_visible("#login")
         b.assert_pixels("body", "login-screen")
 
-    @testlib.skipOstree("no cockpit-ws package")
-    @testlib.nondestructive
-    def testAuthUnixPath(self):
-        """test UnixPath for auth method in cockpit.conf"""
-        m = self.machine
-
-        m.execute(['systemctl', 'start', 'cockpit-session.socket'])
-        self.addCleanup(m.execute, 'systemctl stop cockpit-session.socket')
-        m.write('/etc/cockpit/cockpit.conf', """
-[Negotiate]
-Action=none
-
-[Basic]
-UnixPath=/run/cockpit/session
-""")
-
-        # make sure this isn't being run via spawning
-        m.execute(f'chmod 700 {self.libexecdir}/cockpit-session')
-        self.addCleanup(m.execute, f'chmod 4750 {self.libexecdir}/cockpit-session')
-
-        m.start_cockpit()
-        self.login_and_go("/system")
-
     @testlib.skipOstree("test assumes local install")
     @testlib.nondestructive
     def testXdgConfig(self):

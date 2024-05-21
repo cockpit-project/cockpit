@@ -744,15 +744,18 @@ function update_indices() {
         const fsys_offsets = [];
         let fsys_total_used = 0;
         let fsys_total_size = 0;
+        let fsys_total_limit = 0;
         filesystems.forEach(fs => {
             fsys_offsets.push(fsys_total_used);
             fsys_total_used += fs.Used[0] ? Number(fs.Used[1]) : 0;
             fsys_total_size += Number(fs.Size);
+            fsys_total_limit += (fs.SizeLimit && fs.SizeLimit[0]) ? Number(fs.SizeLimit[1]) : Number(fs.Size);
         });
 
         const overhead = pool.TotalPhysicalUsed[0] ? (Number(pool.TotalPhysicalUsed[1]) - fsys_total_used) : 0;
         const pool_total = Number(pool.TotalPhysicalSize) - overhead;
-        let pool_free = pool_total - fsys_total_size;
+        const sensible_limits = fsys_total_limit <= pool_total;
+        let pool_free = pool_total - (sensible_limits ? fsys_total_limit : fsys_total_size);
 
         // leave some margin since the above computation does not seem to
         // be exactly right when snapshots are involved.
@@ -762,8 +765,10 @@ function update_indices() {
             fsys_offsets,
             fsys_total_used,
             fsys_total_size,
+            fsys_total_limit,
             pool_total,
             pool_free,
+            sensible_limits,
         };
     }
 
@@ -1377,7 +1382,7 @@ client.stratis_start = () => {
 // not allowed.  If we need to bump it, it should be bumped here for all
 // of them at the same time.
 //
-const stratis3_interface_revision = "r5";
+const stratis3_interface_revision = "r6";
 
 function stratis3_start() {
     const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });
@@ -1398,17 +1403,13 @@ function stratis3_start() {
                             .input(passphrase);
                 };
 
-                client.stratis_set_overprovisioning = (pool, flag) => {
-                    // DBusProxy is smart enough to allow
-                    // "pool.Overprovisioning = flag" to just work,
-                    // but we want to catch any error ourselves, and
-                    // we want to wait for the method call to
-                    // complete.
-                    return stratis.call(pool.path, "org.freedesktop.DBus.Properties", "Set",
-                                        ["org.storage.stratis3.pool." + stratis3_interface_revision,
-                                            "Overprovisioning",
-                                            cockpit.variant("b", flag)
-                                        ]);
+                client.stratis_set_property = (proxy, prop, sig, value) => {
+                    // DBusProxy is smart enough to allow "proxy.Prop
+                    // = value" to just work, but we want to catch any
+                    // error ourselves, and we want to wait for the
+                    // method call to complete.
+                    return stratis.call(proxy.path, "org.freedesktop.DBus.Properties", "Set",
+                                        [proxy.iface, prop, cockpit.variant(sig, value)]);
                 };
 
                 client.features.stratis = true;

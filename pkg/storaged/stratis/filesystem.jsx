@@ -26,6 +26,7 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 
 import {
     dialog_open, TextInput, BlockingMessage, TeardownMessage,
+    SizeSlider,
     init_active_usage_processes,
 } from "../dialog.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
@@ -42,9 +43,20 @@ import {
 import { MismountAlert, check_mismounted_fsys } from "../filesystem/mismounting.jsx";
 import { mounting_dialog, at_boot_input, update_at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 import { fmt_size, get_active_usage, teardown_active_usage } from "../utils.js";
-import { std_reply, validate_fs_name, set_mount_options, destroy_filesystem } from "./utils.jsx";
+import { std_reply, validate_fs_name, set_mount_options, destroy_filesystem, fsys_size } from "./utils.jsx";
 
 const _ = cockpit.gettext;
+
+const StratisFilesystemUsage = ({ pool, fsys, offset, short }) => {
+    const stats = client.stratis_pool_stats[pool.path];
+    if (pool.Overprovisioning)
+        return <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
+                                critical={1} total={stats.fsys_total_used} offset={offset} short={short} />;
+
+    const size = fsys_size(pool, fsys);
+    return <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), size]}
+                            critical={0.95} short={short} />;
+};
 
 export function make_stratis_filesystem_page(parent, pool, fsys,
     offset, forced_options, managed_fsys_sizes) {
@@ -157,11 +169,7 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
         next: null,
         page_location: ["pool", pool.Name, fsys.Name],
         page_name: fsys.Name,
-        page_size: (!managed_fsys_sizes
-            ? <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
-                                       critical={1} total={stats.fsys_total_used} offset={offset} short />
-            : <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), Number(fsys.Size)]}
-                                       critical={0.95} short />),
+        page_size: <StratisFilesystemUsage pool={pool} fsys={fsys} offset={offset} short />,
         has_warning: !!mismount_warning,
         component: StratisFilesystemCard,
         props: { pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning, offset },
@@ -206,6 +214,28 @@ const StratisFilesystemCard = ({
         });
     }
 
+    function set_limit() {
+        const size = fsys_size(pool, fsys);
+        dialog_open({
+            Title: cockpit.format(_("Resize filesystem $0"), fsys.Name),
+            Fields: [
+                SizeSlider("limit", _("Size"),
+                           {
+                               value: size,
+                               min: Number(fsys.Size),
+                               max: Number(size) + stats.pool_free,
+                               round: 512,
+                           }),
+            ],
+            Action: {
+                Title: _("Resize"),
+                action: async function (vals) {
+                    await client.stratis_set_property(fsys, "SizeLimit", "(bs)", [true, vals.limit.toString()]);
+                }
+            }
+        });
+    }
+
     return (
         <StorageCard card={card}
                      alert={mismount_warning &&
@@ -223,14 +253,12 @@ const StratisFilesystemCard = ({
                         <MountPoint fstab_config={fstab_config} forced_options={forced_options}
                                     backing_block={block} content_block={block} />
                     </StorageDescription>
-                    <StorageDescription title={_("Usage")}>
-                        {(!managed_fsys_sizes
-                            ? <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
-                                             critical={1} total={stats.fsys_total_used} offset={offset} />
-                            : <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), Number(fsys.Size)]}
-                                             critical={0.95} />)
-                        }
-                    </StorageDescription>
+                    <StorageDescription title={_("Usage")}
+                                        value={<StratisFilesystemUsage pool={pool} fsys={fsys} offset={offset} />}
+                                        action={managed_fsys_sizes && stats.sensible_limits &&
+                                        <StorageLink onClick={set_limit}>
+                                            {_("resize")}
+                                        </StorageLink>} />
                 </DescriptionList>
             </CardBody>
         </StorageCard>

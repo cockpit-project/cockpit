@@ -109,7 +109,7 @@ export function create_stratis_pool() {
                                {
                                    tag: "on",
                                    title: _("Manage filesystem sizes"),
-                                   tooltip: _("When this option is checked, the new pool will not allow overprovisioning. You need to specify a maximum size for each filesystem that is created in the pool. Filesystems can not be made larger after creation. Snapshots are fully allocated on creation. The sum of all maximum sizes can not exceed the size of the pool. The advantage of this is that filesystems in this pool can not run out of space in a surprising way. The disadvantage is that you need to know the maximum size for each filesystem in advance and creation of snapshots is limited.")
+                                   tooltip: _("When this option is checked, the new pool will not allow overprovisioning. You need to specify a maximum size for each filesystem that is created in the pool. Filesystems can be made larger after creation but they can not always be made smaller. Snapshots are fully allocated on creation. The sum of all maximum sizes can not exceed the size of the pool. The advantage of this is that filesystems in this pool can not run out of space in a surprising way. The disadvantage is that you need to know the maximum size for each filesystem in advance and creation of snapshots is limited."),
                                }
                            ]
                        })
@@ -134,7 +134,9 @@ export function create_stratis_pool() {
                                         const path = result[1][0];
                                         return client.wait_for(() => client.stratis_pools[path])
                                                 .then(pool => {
-                                                    return client.stratis_set_overprovisioning(pool, false);
+                                                    return client.stratis_set_property(pool,
+                                                                                       "Overprovisioning",
+                                                                                       "b", false);
                                                 });
                                     }
                                 });

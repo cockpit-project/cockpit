@@ -115,15 +115,16 @@ function create_fs(pool) {
         update: update_at_boot_input,
         Action: {
             Variants: action_variants,
-            action: function (vals) {
-                return pool.CreateFilesystems([[vals.name, vals.size ? [true, vals.size.toString()] : [false, ""]]])
-                        .then(std_reply)
-                        .then(result => {
-                            if (result[0])
-                                return set_mount_options(result[1][0][0], vals, forced_options);
-                            else
-                                return Promise.resolve();
-                        });
+            action: async function (vals) {
+                let result;
+                let size_spec = [false, ""];
+
+                if (managed_fsys_sizes)
+                    size_spec = [true, vals.size.toString()];
+
+                result = await pool.CreateFilesystems([[vals.name, size_spec, [false, ""]]]).then(std_reply);
+                if (result[0])
+                    await set_mount_options(result[1][0][0], vals, forced_options);
             }
         }
     });
@@ -502,7 +503,24 @@ const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, managed_fsys_size
         });
     }
 
-    const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
+    let usage = null;
+    if (managed_fsys_sizes) {
+        usage = (
+            <StorageDescription title={_("Allocation")}>
+                <StorageUsageBar stats={[
+                    stats.sensible_limits ? stats.fsys_total_limit : stats.fsys_total_size,
+                    stats.pool_total
+                ]}
+                                 critical={1} />
+            </StorageDescription>);
+    } else {
+        const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
+        if (use)
+            usage = (
+                <StorageDescription title={_("Usage")}>
+                    <StorageUsageBar stats={use} critical={0.95} />
+                </StorageDescription>);
+    }
 
     return (
         <StorageCard card={card}>
@@ -514,11 +532,7 @@ const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, managed_fsys_size
                                {_("edit")}
                            </StorageLink>} />
                     <StorageDescription title={_("UUID")} value={pool.Uuid} />
-                    { !managed_fsys_sizes && use &&
-                    <StorageDescription title={_("Usage")}>
-                        <StorageUsageBar stats={use} critical={0.95} />
-                    </StorageDescription>
-                    }
+                    { usage }
                     { pool.Encrypted &&
                     <StorageDescription title={_("Passphrase")}>
                         <Flex>

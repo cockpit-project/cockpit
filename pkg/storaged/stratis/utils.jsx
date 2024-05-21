@@ -182,3 +182,12 @@ export function set_mount_options(path, vals, forced_options) {
                         });
             });
 }
+
+export function fsys_size(pool, fsys) {
+    const stats = client.stratis_pool_stats[pool.path];
+
+    if (stats.sensible_limits && fsys.SizeLimit[0])
+        return Number(fsys.SizeLimit[1]);
+    else
+        return Number(fsys.Size);
+}

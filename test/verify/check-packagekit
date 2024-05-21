@@ -1000,7 +1000,7 @@ ExecStart=/usr/local/bin/{packageName}
         m = self.machine
 
         # this tends to corrupt the rpm database, so do a backup/restore
-        if self.backend == 'dnf':
+        if 'dnf' in self.backend:
             # https://www.fedoraproject.org/wiki/Changes/RelocateRPMToUsr
             exists = self.machine.execute("if test -e %s; then echo yes; fi" % "/usr/lib/sysimage/rpm").strip() != ""
             if exists:
@@ -1368,7 +1368,7 @@ class TestAutoUpdates(NoSubManCase):
     def setUp(self):
         super().setUp()
         # not implemented for apt yet, only dnf
-        self.supported_backend = self.backend in ["dnf"]
+        self.supported_backend = "dnf" in self.backend
 
     def closeSettings(self, browser):
         browser.click("#automatic-updates-dialog button:contains('Save changes')")
@@ -1420,7 +1420,7 @@ class TestAutoUpdates(NoSubManCase):
                 self.assertNotIn("ExecStartPost", out)
 
         def assertTimer(hour, dow=None):
-            if self.backend == "dnf":
+            if "dnf" in self.backend:
                 assertTimerDnf(hour, dow)
             else:
                 raise NotImplementedError(self.backend)
@@ -1436,7 +1436,7 @@ class TestAutoUpdates(NoSubManCase):
             self.assertIn(match, m.execute("grep upgrade_type /etc/dnf/automatic.conf"))
 
         def assertType(_type):
-            if self.backend == "dnf":
+            if "dnf" in self.backend:
                 assertTypeDnf(_type)
             else:
                 raise NotImplementedError(self.backend)
@@ -1515,7 +1515,7 @@ class TestAutoUpdates(NoSubManCase):
         b.wait_in_text("#autoupdates-settings", "Disabled")
         assertTimer(None)
 
-        if self.backend == "dnf":
+        if "dnf" in self.backend:
             b.click("#autoupdates-settings button:contains('Edit')")
             b.wait_visible("#automatic-updates-dialog")
             b.click("#all-updates")
@@ -1581,7 +1581,7 @@ class TestAutoUpdates(NoSubManCase):
         self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
 
-        if self.backend == 'dnf':
+        if "dnf" in self.backend:
             # dial down the random sleep to avoid the test having to wait 5 mins
             self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
             # then manually start the upgrade job like the timer would
@@ -1667,7 +1667,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
             b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
         b.click("#ignore")
 
-        if self.backend == 'dnf':
+        if "dnf" in self.backend:
             b.wait_in_text("#autoupdates-settings", "Not set up")
             b.wait_not_present("#settings .pf-v5-c-alert")
             b.click("#autoupdates-settings button:contains('Enable')")

@@ -17,6 +17,7 @@
 
 import logging
 import os
+import re
 import textwrap
 
 from testlib import MachineCase
@@ -37,8 +38,12 @@ class PackageCase(MachineCase):
             self.backend = "apt"
             self.primary_arch = "all"
             self.secondary_arch = "amd64"
+        elif re.match(r"fedora-(39|40)|(centos|rhel)-(8|9|10).*", self.machine.image):
+            self.backend = "dnf4"
+            self.primary_arch = "noarch"
+            self.secondary_arch = "x86_64"
         elif self.machine.image.startswith("fedora") or self.machine.image.startswith("rhel-") or self.machine.image.startswith("centos-"):
-            self.backend = "dnf"
+            self.backend = "dnf5"
             self.primary_arch = "noarch"
             self.secondary_arch = "x86_64"
         elif self.machine.image == "arch":
@@ -113,15 +118,14 @@ class PackageCase(MachineCase):
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
 
         # reset automatic updates
-        if self.backend == 'dnf':
-            # DNF5 has a different automatic systemd unit
-            if self.machine.image in ["fedora-41", "fedora-rawhide"]:
-                self.addCleanup(self.machine.execute, "systemctl disable --now dnf5-automatic.timer 2>/dev/null")
-            else:
-                self.restore_file("/etc/dnf/automatic.conf")
-                self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install "
-                                     "dnf-automatic.service dnf-automatic-install.timer")
-                self.machine.execute("rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")
+        if self.backend == 'dnf4':
+            self.restore_file("/etc/dnf/automatic.conf")
+            self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install "
+                                 "dnf-automatic.service dnf-automatic-install.timer")
+            self.machine.execute("rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")
+
+        if self.backend == 'dnf5':
+            self.addCleanup(self.machine.execute, "systemctl disable --now dnf5-automatic.timer 2>/dev/null || true")
 
         self.updateInfo = {}
 

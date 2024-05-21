@@ -48,7 +48,7 @@ export function with_keydesc(client, pool, func) {
         return func(false);
     } else {
         const keydesc = pool.KeyDescription[1][1];
-        return client.stratis_list_keys()
+        return client.stratis_manager.ListKeys()
                 .catch(() => []) // not-covered: internal error
                 .then(keys => func(keydesc, keys.indexOf(keydesc) >= 0));
     }
@@ -65,7 +65,7 @@ export function with_stored_passphrase(client, keydesc, passphrase, func) {
 }
 
 export function get_unused_keydesc(client, desc_prefix) {
-    return client.stratis_list_keys()
+    return client.stratis_manager.ListKeys()
             .catch(() => []) // not-covered: internal error
             .then(keys => {
                 let desc;
@@ -90,9 +90,6 @@ export function confirm_tang_trust(url, adv, action) {
 }
 
 export function check_stratis_warnings(client, enter_warning) {
-    if (!client.features.stratis_grow_blockdevs)
-        return;
-
     for (const p in client.stratis_pools) {
         const blockdevs = client.stratis_pool_blockdevs[p] || [];
         const pool = client.stratis_pools[p];

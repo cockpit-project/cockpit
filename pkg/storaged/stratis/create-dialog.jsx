@@ -61,14 +61,12 @@ export function create_stratis_pool() {
                              },
                              spaces: get_available_spaces(client)
                          }),
-            CheckBoxes("encrypt_pass", client.features.stratis_crypto_binding ? _("Options") : "",
+            CheckBoxes("encrypt_pass", _("Options"),
                        {
                            fields: [
                                {
                                    tag: "on",
-                                   title: (client.features.stratis_crypto_binding
-                                       ? _("Encrypt data with a passphrase")
-                                       : _("Encrypt data"))
+                                   title: _("Encrypt data with a passphrase"),
                                }
                            ],
                            nested_fields: [
@@ -94,7 +92,6 @@ export function create_stratis_pool() {
                        }),
             CheckBoxes("encrypt_tang", "",
                        {
-                           visible: () => client.features.stratis_crypto_binding,
                            fields: [
                                { tag: "on", title: _("Encrypt data with a Tang keyserver") }
                            ],
@@ -108,7 +105,6 @@ export function create_stratis_pool() {
                        }),
             CheckBoxes("managed", "",
                        {
-                           visible: () => client.features.stratis_managed_fsys_sizes,
                            fields: [
                                {
                                    tag: "on",
@@ -128,7 +124,10 @@ export function create_stratis_pool() {
                         let clevis_info = null;
                         if (adv)
                             clevis_info = ["tang", JSON.stringify({ url: vals.tang_url, adv })];
-                        return client.stratis_create_pool(vals.name, devs, key_desc, clevis_info)
+                        return client.stratis_manager.CreatePool(vals.name,
+                                                                 devs,
+                                                                 key_desc ? [true, key_desc] : [false, ""],
+                                                                 clevis_info ? [true, clevis_info] : [false, ["", ""]])
                                 .then(std_reply)
                                 .then(result => {
                                     if (vals.managed && vals.managed.on && result[0]) {

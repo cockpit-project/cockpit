@@ -72,7 +72,7 @@ function create_fs(pool) {
     const filesystems = client.stratis_pool_filesystems[pool.path];
     const stats = client.stratis_pool_stats[pool.path];
     const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
-    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
+    const managed_fsys_sizes = !pool.Overprovisioning;
 
     let action_variants;
     if (!client.in_anaconda_mode()) {
@@ -116,7 +116,7 @@ function create_fs(pool) {
         Action: {
             Variants: action_variants,
             action: function (vals) {
-                return client.stratis_create_filesystem(pool, vals.name, vals.size)
+                return pool.CreateFilesystems([[vals.name, vals.size ? [true, vals.size.toString()] : [false, ""]]])
                         .then(std_reply)
                         .then(result => {
                             if (result[0])
@@ -194,7 +194,6 @@ function add_disks(pool) {
                                   {
                                       value: "cache",
                                       title: _("Cache"),
-                                      disabled: pool.Encrypted && !client.features.stratis_encrypted_caches
                                   }
                               ]
                           }),
@@ -245,7 +244,7 @@ function make_stratis_filesystem_pages(parent, pool) {
     const filesystems = client.stratis_pool_filesystems[pool.path];
     const stats = client.stratis_pool_stats[pool.path];
     const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
-    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
+    const managed_fsys_sizes = !pool.Overprovisioning;
 
     filesystems.forEach((fs, i) => make_stratis_filesystem_page(parent, pool, fs,
                                                                 stats.fsys_offsets[i],
@@ -256,10 +255,9 @@ function make_stratis_filesystem_pages(parent, pool) {
 export function make_stratis_pool_page(parent, pool) {
     const degraded_ops = pool.AvailableActions && pool.AvailableActions !== "fully_operational";
     const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
-    const can_grow =
-          (client.features.stratis_grow_blockdevs &&
-           blockdevs.some(bd => bd.NewPhysicalSize[0] && Number(bd.NewPhysicalSize[1]) > Number(bd.TotalPhysicalSize)));
-    const managed_fsys_sizes = client.features.stratis_managed_fsys_sizes && !pool.Overprovisioning;
+    const can_grow = blockdevs.some(bd => (bd.NewPhysicalSize[0] &&
+                                           Number(bd.NewPhysicalSize[1]) > Number(bd.TotalPhysicalSize)));
+    const managed_fsys_sizes = !pool.Overprovisioning;
     const stats = client.stratis_pool_stats[pool.path];
 
     const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
@@ -365,8 +363,7 @@ const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, managed_fsys_size
     const key_desc = (pool.Encrypted &&
                       pool.KeyDescription[0] &&
                       pool.KeyDescription[1][1]);
-    const can_tang = (client.features.stratis_crypto_binding &&
-                      pool.Encrypted &&
+    const can_tang = (pool.Encrypted &&
                       pool.ClevisInfo[0] && // pool has consistent clevis config
                       (!pool.ClevisInfo[1][0] || pool.ClevisInfo[1][1][0] == "tang")); // not bound or bound to "tang"
     const tang_url = can_tang && pool.ClevisInfo[1][0] ? JSON.parse(pool.ClevisInfo[1][1][1]).url : null;
@@ -522,7 +519,7 @@ const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, managed_fsys_size
                         <StorageUsageBar stats={use} critical={0.95} />
                     </StorageDescription>
                     }
-                    { pool.Encrypted && client.features.stratis_crypto_binding &&
+                    { pool.Encrypted &&
                     <StorageDescription title={_("Passphrase")}>
                         <Flex>
                             { !key_desc

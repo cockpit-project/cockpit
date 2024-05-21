@@ -267,7 +267,7 @@ export function get_resize_info(client, block, to_fit) {
                                                      block.IdType);
                 }
             }
-        } else if (client.blocks_stratis_blockdev[block.path] && client.features.stratis_grow_blockdevs) {
+        } else if (client.blocks_stratis_blockdev[block.path]) {
             info = {
                 can_shrink: false,
                 can_grow: true,

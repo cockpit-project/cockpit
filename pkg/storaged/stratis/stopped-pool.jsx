@@ -42,7 +42,7 @@ function start_pool(uuid, show_devs) {
     const clevis_info = client.stratis_stopped_pool_clevis_info[uuid];
 
     function start(unlock_method) {
-        return client.stratis_start_pool(uuid, unlock_method).then(std_reply);
+        return client.stratis_manager.StartPool(uuid, "uuid", [!!unlock_method, unlock_method || ""]).then(std_reply);
     }
 
     function unlock_with_keydesc(key_desc) {
@@ -68,7 +68,7 @@ function start_pool(uuid, show_devs) {
     }
 
     function unlock_with_keyring() {
-        return (client.stratis_list_keys()
+        return (client.stratis_manager.ListKeys()
                 .catch(() => [{ }])
                 .then(keys => {
                     if (keys.indexOf(key_desc) >= 0)
@@ -125,12 +125,12 @@ const StoppedStratisPoolCard = ({ card, uuid }) => {
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     <StorageDescription title={_("UUID")} value={uuid} />
-                    { encrypted && client.features.stratis_crypto_binding &&
+                    { encrypted &&
                     <StorageDescription title={_("Passphrase")}>
                         { key_desc ? cockpit.format(_("using key description $0"), key_desc) : _("none") }
                     </StorageDescription>
                     }
-                    { can_tang && client.features.stratis_crypto_binding &&
+                    { can_tang &&
                     <StorageDescription title={_("Keyserver")} value={ tang_url || _("none") } />
                     }
                 </DescriptionList>

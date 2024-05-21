@@ -56,7 +56,6 @@ class TestStorageStratis(storagelib.StorageCase):
         exe("systemctl start stratisd")
         self.addCleanup(exe, "systemctl stop stratisd")
 
-        self.stratis_v2 = self.image.startswith("rhel-8")
         self.stop_type_opt = get_stratis_stop_type_opt(exe)
 
         self.addCleanup(exe,
@@ -107,15 +106,14 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        if not self.stratis_v2:
-            # Stop the pool (only works with Stratis 3)
-            pool_uuid = m.execute("stratis --unhyphenated-uuids pool list --name pool0 | grep ^UUID | cut -d' ' -f2").strip()
-            m.execute(f"stratis pool stop {self.stop_type_opt} pool0")
-            b.wait_in_text(self.card_row("Storage", name=pool_uuid), "Stratis pool")
+        # Stop the pool
+        pool_uuid = m.execute("stratis --unhyphenated-uuids pool list --name pool0 | grep ^UUID | cut -d' ' -f2").strip()
+        m.execute(f"stratis pool stop {self.stop_type_opt} pool0")
+        b.wait_in_text(self.card_row("Storage", name=pool_uuid), "Stratis pool")
 
-            # Start it
-            self.click_dropdown(self.card_row("Storage", name=pool_uuid), "Start")
-            b.wait_visible(self.card_row("Storage", name="pool0"))
+        # Start it
+        self.click_dropdown(self.card_row("Storage", name=pool_uuid), "Start")
+        b.wait_visible(self.card_row("Storage", name="pool0"))
 
         self.click_card_row("Storage", name="pool0")
         b.wait_text(self.card_desc("Stratis pool", "Name"), "pool0")
@@ -425,8 +423,6 @@ class TestStorageStratisReboot(storagelib.StorageCase):
             exe("systemctl enable --now stratisd")
             self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
 
-        self.stratis_v2 = self.image.startswith("rhel-8")
-
     def testEncrypted(self):
         m = self.machine
         b = self.browser
@@ -491,30 +487,28 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.dialog_wait_close()
         b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_2), "data")
 
-        # Change the passphrase (if supported)
-        if not self.stratis_v2:
-            b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove):disabled")
-            b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
-            self.dialog({'old_passphrase': passphrase,
-                         'new_passphrase': "boodeefoodeebar",
-                         'new_passphrase2': "boodeefoodeebar"})
-            # do it again, with the old passphrase in the keyring
-            create_pool_key(m, "pool0", "boodeefoodeebar")
-            b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
-            self.dialog({'new_passphrase': passphrase,
-                         'new_passphrase2': passphrase})
-            m.execute("stratis key unset pool0")
+        # Change the passphrase
+        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove):disabled")
+        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
+        self.dialog({'old_passphrase': passphrase,
+                     'new_passphrase': "boodeefoodeebar",
+                     'new_passphrase2': "boodeefoodeebar"})
+        # do it again, with the old passphrase in the keyring
+        create_pool_key(m, "pool0", "boodeefoodeebar")
+        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
+        self.dialog({'new_passphrase': passphrase,
+                     'new_passphrase2': passphrase})
+        m.execute("stratis key unset pool0")
 
-        # Add a cache blockdev (if supported)
-        if not self.stratis_v2:
-            b.click(self.card_button("Encrypted Stratis pool", "Add block device"))
-            self.dialog_wait_open()
-            self.dialog_set_val('tier', "cache")
-            self.dialog_set_val('disks', {dev_3: True})
-            self.dialog_set_val('passphrase', passphrase)
-            self.dialog_apply()
-            self.dialog_wait_close()
-            b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_3), "cache")
+        # Add a cache blockdev
+        b.click(self.card_button("Encrypted Stratis pool", "Add block device"))
+        self.dialog_wait_open()
+        self.dialog_set_val('tier', "cache")
+        self.dialog_set_val('disks', {dev_3: True})
+        self.dialog_set_val('passphrase', passphrase)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_3), "cache")
 
         m.reboot()
         m.start_cockpit()

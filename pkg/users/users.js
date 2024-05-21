@@ -31,7 +31,7 @@ import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "pam_user_parser.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
-import { get_locked } from "./utils.js";
+import { get_locked, getUtmpPath } from "./utils.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 
@@ -69,15 +69,19 @@ function AccountsPage() {
     const [max_uid, setMaxUid] = useState(60000);
     const [details, setDetails] = useState(null);
 
-    useInit(() => {
+    useInit(async () => {
+        const utmppath = await getUtmpPath();
         const debouncedGetLogins = debounce(100, () => {
             getLogins().then(setDetails);
         });
 
-        // Watch `/var/run/utmp` to register when user logs in or out
-        const handleUtmp = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
-        handleUtmp.watch(() => debouncedGetLogins(), { read: false });
+        let handleUtmp;
 
+        if (utmppath !== null) {
+            // Watch `/var/run/utmp` or `/var/lib/wtmpdb/wtmp.db` to register when user logs in or out
+            handleUtmp = cockpit.file(utmppath, { superuser: "try", binary: true });
+            handleUtmp.watch(() => debouncedGetLogins(), { read: false });
+        }
         // Watch /etc/shadow to register lock/unlock/expire changes; but avoid reading it, it's sensitive data
         const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
         handleShadow.watch(() => debouncedGetLogins(), { read: false });
@@ -153,18 +157,21 @@ function AccountsPage() {
     } else if (path.length === 1) {
         return (
             <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo}
-                            current_user={current_user_info?.name} user={path[0]} shells={shells} />
+                current_user={current_user_info?.name} user={path[0]} shells={shells} />
         );
     } else return null;
 }
 
 async function getLogins() {
-    let lastlog = "";
+    let LastLogPath;
     try {
-        lastlog = await cockpit.spawn(["lastlog"], { environ: ["LC_ALL=C"] });
-    } catch (err) {
-        console.warn("Unexpected error when getting last login information", err);
+        await cockpit.spawn(["test", "-e", "/var/lib/lastlog/lastlog2.db"], { err: "ignore" });
+        LastLogPath = "lastlog2";
+    } catch (err1) {
+        LastLogPath = "lastlog";
     }
+
+    const lastlog = await cockpit.spawn([LastLogPath], { environ: ["LC_ALL=C"] });
 
     let currentLogins = [];
     try {

@@ -48,7 +48,8 @@ import { account_shell_dialog } from "./shell-dialog.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
-import { get_locked } from "./utils.js";
+import { get_locked, getUtmpPath } from "./utils.js";
+import { useInit } from 'hooks.js';
 
 const _ = cockpit.gettext;
 
@@ -98,32 +99,24 @@ function get_expire(name) {
 
 export function AccountDetails({ accounts, groups, current_user, user, shells }) {
     const [expiration, setExpiration] = useState(null);
-    const [lastlogpath, setLastlogPath] = useState(null);
+    const [utmppath, setUtmpPath] = useState(null);
+
+    useInit(async () => {
+        setUtmpPath(await getUtmpPath());
+    });
 
     useEffect(() => {
-        cockpit.spawn(["test", "-e", "/var/run/utmp"], { err: "ignore" }).then(() => {
-            setLastlogPath("/var/run/utmp");
-        }).catch(() => {
-            cockpit.spawn(["test", "-e", "/var/lib/lastlog/lastlog2.db"], { err: "ignore" }).then(() => {
-                setLastlogPath("/var/lib/lastlog/lastlog2.db");
-            }).catch(() => {
-                setLastlogPath(null);
-            });
-        });
-    }, []);
-
-    useEffect(() => {
-        if (lastlogpath !== null) {
+        if (utmppath !== null) {
             get_expire(user).then(setExpiration);
 
             // Watch lastlog log to register when user logs in or out
-            const handle = cockpit.file(lastlogpath, { superuser: "try", binary: true });
+            const handle = cockpit.file(utmppath, { superuser: "try", binary: true });
             handle.watch(() => {
                 get_expire(user).then(setExpiration);
             }, { read: false });
             return handle.close;
         }
-    }, [user, accounts, lastlogpath]);
+    }, [user, accounts, utmppath]);
 
     const [edited_real_name, set_edited_real_name] = useState(null);
     const [committing_real_name, set_committing_real_name] = useState(false);

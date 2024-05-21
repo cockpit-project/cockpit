@@ -57,63 +57,14 @@ class ImplBase {
     }
 
     // Init data members. Return a promise that resolves when done.
-    getConfig() {
+    async getConfig() {
         throw new Error("abstract method");
     }
 
     // Update configuration for given non-null values, and update member variables on success;
     // return a promise that resolves when done, or fails when configuration writing fails
-    setConfig(enabled, type, day, time) {
+    async setConfig(enabled, type, day, time) {
         throw new Error("abstract method", enabled, type, day, time);
-    }
-}
-
-class DnfImpl extends ImplBase {
-    getConfig() {
-        return new Promise((resolve, reject) => {
-            this.packageName = "dnf-automatic";
-
-            // - dnf has two ways to enable automatic updates: Either by enabling dnf-automatic-install.timer
-            //   or by setting "apply_updates = yes" in the config file and enabling dnf-automatic.timer
-            // - the config file determines whether to apply security updates only
-            // - by default this runs every day (OnUnitInactiveSec=1d), but the timer can be changed with a timer unit
-            //   drop-in, so get the last line
-            cockpit.script("set -e; if rpm -q " + this.packageName + " >/dev/null; then echo installed; fi; " +
-                           "if grep -q '^[ \\t]*upgrade_type[ \\t]*=[ \\t]*security' /etc/dnf/automatic.conf; then echo security; fi; " +
-                           "TIMER=dnf-automatic-install.timer; " +
-                           "if systemctl --quiet is-enabled dnf-automatic-install.timer 2>/dev/null; then echo enabled; " +
-                           "elif systemctl --quiet is-enabled dnf-automatic.timer 2>/dev/null && grep -q '^[ \t]*apply_updates[ \t]*=[ \t]*yes' " +
-                           "    /etc/dnf/automatic.conf; then echo enabled; TIMER=dnf-automatic.timer; " +
-                           "fi; " +
-                           'OUT=$(systemctl cat $TIMER 2>/dev/null || true); ' +
-                           'echo "$OUT" | grep "^OnUnitInactiveSec= *[^ ]" | tail -n1; ' +
-                           'echo "$OUT" | grep "^OnCalendar= *[^ ]" | tail -n1; ',
-                           [], { err: "message" })
-                    .then(output => {
-                        this.installed = (output.indexOf("installed\n") >= 0);
-                        this.enabled = (output.indexOf("enabled\n") >= 0);
-                        this.type = (output.indexOf("security\n") >= 0) ? "security" : "all";
-
-                        // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
-                        const calIdx = output.indexOf("OnCalendar=");
-                        if (calIdx >= 0) {
-                            this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
-                        } else {
-                            if (output.indexOf("InactiveSec=1d\n") >= 0)
-                                this.day = this.time = "";
-                            else if (this.installed)
-                                this.supported = false;
-                        }
-
-                        debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
-                        resolve();
-                    })
-                    .catch(error => {
-                        console.error("dnf getConfig failed:", error);
-                        this.supported = false;
-                        resolve();
-                    });
-        });
     }
 
     parseCalendar(spec) {
@@ -140,8 +91,54 @@ class DnfImpl extends ImplBase {
         else
             this.supported = false;
     }
+}
 
-    setConfig(enabled, type, day, time) {
+class DnfImpl extends ImplBase {
+    async getConfig() {
+        this.packageName = "dnf-automatic";
+
+        try {
+            // - dnf has two ways to enable automatic updates: Either by enabling dnf-automatic-install.timer
+            //   or by setting "apply_updates = yes" in the config file and enabling dnf-automatic.timer
+            // - the config file determines whether to apply security updates only
+            // - by default this runs every day (OnUnitInactiveSec=1d), but the timer can be changed with a timer unit
+            //   drop-in, so get the last line
+            const output = await cockpit.script(
+                "set -e; if rpm -q " + this.packageName + " >/dev/null; then echo installed; fi; " +
+                "if grep -q '^[ \\t]*upgrade_type[ \\t]*=[ \\t]*security' /etc/dnf/automatic.conf; then echo security; fi; " +
+                "TIMER=dnf-automatic-install.timer; " +
+                "if systemctl --quiet is-enabled dnf-automatic-install.timer 2>/dev/null; then echo enabled; " +
+                "elif systemctl --quiet is-enabled dnf-automatic.timer 2>/dev/null && grep -q '^[ \t]*apply_updates[ \t]*=[ \t]*yes' " +
+                "    /etc/dnf/automatic.conf; then echo enabled; TIMER=dnf-automatic.timer; " +
+                "fi; " +
+                'OUT=$(systemctl cat $TIMER 2>/dev/null || true); ' +
+                'echo "$OUT" | grep "^OnUnitInactiveSec= *[^ ]" | tail -n1; ' +
+                'echo "$OUT" | grep "^OnCalendar= *[^ ]" | tail -n1; ',
+                [], { err: "message" });
+
+            this.installed = (output.indexOf("installed\n") >= 0);
+            this.enabled = (output.indexOf("enabled\n") >= 0);
+            this.type = (output.indexOf("security\n") >= 0) ? "security" : "all";
+
+            // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
+            const calIdx = output.indexOf("OnCalendar=");
+            if (calIdx >= 0) {
+                this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
+            } else {
+                if (output.indexOf("InactiveSec=1d\n") >= 0)
+                    this.day = this.time = "";
+                else if (this.installed)
+                    this.supported = false;
+            }
+
+            debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
+        } catch (error) {
+            console.error("dnf getConfig failed:", error);
+            this.supported = false;
+        }
+    }
+
+    async setConfig(enabled, type, day, time) {
         const timerConf = "/etc/systemd/system/dnf-automatic-install.timer.d/time.conf";
         let script = "set -e; ";
 
@@ -205,19 +202,20 @@ class DnfImpl extends ImplBase {
 
         debug(`setConfig(${enabled}, "${type}", "${day}", "${time}"): script "${script}"`);
 
-        return cockpit.script(script, [], { superuser: "require" })
-                .then(() => {
-                    debug("dnf setConfig: configuration updated successfully");
-                    if (enabled !== null)
-                        this.enabled = enabled;
-                    if (type !== null)
-                        this.type = type;
-                    if (day !== null)
-                        this.day = day;
-                    if (time !== null)
-                        this.time = time;
-                })
-                .catch(error => console.error("dnf setConfig failed:", error.toString()));
+        try {
+            await cockpit.script(script, [], { superuser: "require" });
+            debug("dnf setConfig: configuration updated successfully");
+            if (enabled !== null)
+                this.enabled = enabled;
+            if (type !== null)
+                this.type = type;
+            if (day !== null)
+                this.day = day;
+            if (time !== null)
+                this.time = time;
+        } catch (error) {
+            console.error("dnf setConfig failed:", error.toString());
+        }
     }
 }
 

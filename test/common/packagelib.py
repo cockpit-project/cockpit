@@ -125,7 +125,9 @@ class PackageCase(MachineCase):
             self.machine.execute("rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")
 
         if self.backend == 'dnf5':
+            self.restore_file("/etc/dnf/dnf5-plugins/automatic.conf")
             self.addCleanup(self.machine.execute, "systemctl disable --now dnf5-automatic.timer 2>/dev/null || true")
+            self.addCleanup(self.machine.execute, "rm -r /etc/systemd/system/dnf5-automatic*.d && systemctl daemon-reload || true")
 
         self.updateInfo = {}
 

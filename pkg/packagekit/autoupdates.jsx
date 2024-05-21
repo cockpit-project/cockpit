@@ -93,12 +93,12 @@ class ImplBase {
     }
 }
 
-class DnfImpl extends ImplBase {
+class Dnf4Impl extends ImplBase {
     async getConfig() {
         this.packageName = "dnf-automatic";
 
         try {
-            // - dnf has two ways to enable automatic updates: Either by enabling dnf-automatic-install.timer
+            // - dnf 4 has two ways to enable automatic updates: Either by enabling dnf-automatic-install.timer
             //   or by setting "apply_updates = yes" in the config file and enabling dnf-automatic.timer
             // - the config file determines whether to apply security updates only
             // - by default this runs every day (OnUnitInactiveSec=1d), but the timer can be changed with a timer unit
@@ -131,9 +131,9 @@ class DnfImpl extends ImplBase {
                     this.supported = false;
             }
 
-            debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
+            debug(`dnf4 getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
         } catch (error) {
-            console.error("dnf getConfig failed:", error);
+            console.error("dnf4 getConfig failed:", error);
             this.supported = false;
         }
     }
@@ -200,11 +200,11 @@ class DnfImpl extends ImplBase {
             }
         }
 
-        debug(`setConfig(${enabled}, "${type}", "${day}", "${time}"): script "${script}"`);
+        debug(`dnf4 setConfig(${enabled}, "${type}", "${day}", "${time}"): script "${script}"`);
 
         try {
             await cockpit.script(script, [], { superuser: "require" });
-            debug("dnf setConfig: configuration updated successfully");
+            debug("dnf4 setConfig: configuration updated successfully");
             if (enabled !== null)
                 this.enabled = enabled;
             if (type !== null)
@@ -214,7 +214,126 @@ class DnfImpl extends ImplBase {
             if (time !== null)
                 this.time = time;
         } catch (error) {
-            console.error("dnf setConfig failed:", error.toString());
+            console.error("dnf4 setConfig failed:", error.toString());
+        }
+    }
+}
+
+class Dnf5Impl extends ImplBase {
+    async getConfig() {
+        this.packageName = "dnf5-plugin-automatic";
+        this.configFile = "/etc/dnf/dnf5-plugins/automatic.conf";
+
+        try {
+            await cockpit.spawn(["rpm", "-q", this.packageName], { err: "ignore" });
+            this.installed = true;
+        } catch (ex) {
+            this.installed = false;
+            debug("dnf5 getConfig: not installed:", ex);
+            return;
+        }
+
+        // - dnf 5 only has a single timer dnf5-automatic.timer and a config file with
+        //   "apply_updates" (yes/no) and "upgrade_type" (default/security)
+        // - by default this runs every day (OnCalendar)
+        try {
+            const output = await cockpit.script(
+                "set -eu;" +
+                "if grep -q '^[ \\t]*upgrade_type[ \\t]*=[ \\t]*security' " + this.configFile + "; then echo security; fi; " +
+                "if systemctl --quiet is-enabled dnf5-automatic.timer && " +
+                "  grep -q '^[ \t]*apply_updates[ \t]*=[ \t]*yes' " + this.configFile + "; then echo enabled; fi; " +
+                'OUT=$(systemctl cat dnf5-automatic.timer || true); ' +
+                'echo "$OUT" | grep "^OnUnitInactiveSec= *[^ ]" | tail -n1; ' +
+                'echo "$OUT" | grep "^OnCalendar= *[^ ]" | tail -n1; ',
+                [], { err: "message" });
+
+            this.enabled = (output.indexOf("enabled\n") >= 0);
+            this.type = (output.indexOf("security\n") >= 0) ? "security" : "all";
+
+            // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
+            const calIdx = output.indexOf("OnCalendar=");
+            if (calIdx >= 0) {
+                this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
+            } else {
+                if (output.indexOf("InactiveSec=1d\n") >= 0)
+                    this.day = this.time = "";
+                else if (this.installed)
+                    this.supported = false;
+            }
+
+            debug(`dnf5 getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
+        } catch (error) {
+            console.error("dnf5 getConfig failed:", error);
+            this.supported = false;
+        }
+    }
+
+    async setConfig(enabled, type, day, time) {
+        const timerConfD = "/etc/systemd/system/dnf5-automatic.timer.d";
+        const timerConf = timerConfD + "/time.conf";
+        let script = "set -e; ";
+
+        // there's no default config file, admins are supposed to put their own settings into a new file
+        const settings = [];
+
+        if (type !== null)
+            settings.push(["upgrade_type", (type == "security") ? "security" : "default"]);
+
+        if (time !== null || day !== null) {
+            if (day === "" && time === "") {
+                // restore defaults
+                script += "rm -f " + timerConf + "; ";
+            } else {
+                if (day == null)
+                    day = this.day;
+                if (time == null)
+                    time = this.time;
+                script += "mkdir -p " + timerConfD + "; ";
+                script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
+                script += "systemctl daemon-reload; ";
+            }
+        }
+
+        if (enabled !== null) {
+            script += "systemctl " + (enabled ? "enable" : "disable") + " --now dnf5-automatic.timer; ";
+
+            if (enabled) {
+                settings.push(["apply_updates", "yes"]);
+                settings.push(["reboot", "when-needed"]);
+            }
+        }
+
+        debug(`dnf5 setConfig(${enabled}, "${type}", "${day}", "${time}"): script "${script}", settings ${settings}`);
+
+        try {
+            if (settings.length > 0) {
+                // parse/update automatic.conf with the new settings; modify existing or append
+                await cockpit.file(this.configFile, { superuser: "require" }).modify(content => {
+                    const lines = content ? content.split('\n') : [];
+                    settings.forEach(([key, value]) => {
+                        const idx = lines.findIndex(line => line.startsWith(key));
+                        if (idx >= 0)
+                            lines[idx] = key + " = " + value;
+                        else
+                            // let's avoid context sensitive parsing/writing; multiple sections are ok
+                            lines.push(`[commands]\n${key} = ${value}`);
+                    });
+                    return lines.join('\n');
+                });
+            }
+
+            await cockpit.script(script, [], { superuser: "require" });
+            debug("dnf5 setConfig: configuration updated successfully");
+            if (enabled !== null)
+                this.enabled = enabled;
+            if (type !== null)
+                this.type = type;
+            if (day !== null)
+                this.day = day;
+            if (time !== null)
+                this.time = time;
+        } catch (error) {
+            console.error("dnf5 setConfig failed:", error.toString());
         }
     }
 }
@@ -225,12 +344,21 @@ export function getBackend(packagekit_backend, forceReinit) {
     if (!getBackend.promise || forceReinit) {
         debug("getBackend() called first time or forceReinit passed, initializing promise");
         getBackend.promise = new Promise((resolve, reject) => {
-            const backend = (packagekit_backend === "dnf") ? new DnfImpl() : undefined;
-            // TODO: apt backend
-            if (backend)
-                backend.getConfig().then(() => resolve(backend));
-            else
+            if (packagekit_backend === "dnf") {
+                // we need to do this runtime check -- you can e.g. install dnf5 on Fedora 40, but it's not the "main" dnf
+                cockpit.spawn(["dnf", "--version"], { err: "message" })
+                        .then(version => {
+                            const backend = version.includes("dnf5") ? new Dnf5Impl() : new Dnf4Impl();
+                            backend.getConfig().then(() => resolve(backend));
+                        })
+                        .catch(ex => {
+                            console.error("failed to run dnf --version:", ex);
+                            resolve(null);
+                        });
+            } else {
+                // TODO: apt backend
                 resolve(null);
+            }
         });
     }
     return getBackend.promise;

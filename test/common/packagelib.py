@@ -115,7 +115,7 @@ class PackageCase(MachineCase):
         # reset automatic updates
         if self.backend == 'dnf':
             # DNF5 has a different automatic systemd unit
-            if self.machine.image == "fedora-41":
+            if self.machine.image in ["fedora-41", "fedora-rawhide"]:
                 self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic.timer 2>/dev/null")
             else:
                 self.restore_file("/etc/dnf/automatic.conf")

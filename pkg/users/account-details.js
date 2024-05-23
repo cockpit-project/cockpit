@@ -48,8 +48,7 @@ import { account_shell_dialog } from "./shell-dialog.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
-import { get_locked, getUtmpPath } from "./utils.js";
-import { useInit } from 'hooks.js';
+import { get_locked } from "./utils.js";
 
 const _ = cockpit.gettext;
 
@@ -99,24 +98,10 @@ function get_expire(name) {
 
 export function AccountDetails({ accounts, groups, current_user, user, shells }) {
     const [expiration, setExpiration] = useState(null);
-    const [utmppath, setUtmpPath] = useState(null);
-
-    useInit(async () => {
-        setUtmpPath(await getUtmpPath());
-    });
 
     useEffect(() => {
-        if (utmppath !== null) {
-            get_expire(user).then(setExpiration);
-
-            // Watch lastlog log to register when user logs in or out
-            const handle = cockpit.file(utmppath, { superuser: "try", binary: true });
-            handle.watch(() => {
-                get_expire(user).then(setExpiration);
-            }, { read: false });
-            return handle.close;
-        }
-    }, [user, accounts, utmppath]);
+        get_expire(user).then(setExpiration);
+    }, [user, accounts]);
 
     const [edited_real_name, set_edited_real_name] = useState(null);
     const [committing_real_name, set_committing_real_name] = useState(false);

@@ -31,7 +31,7 @@ import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "pam_user_parser.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
-import { get_locked, getUtmpPath } from "./utils.js";
+import { get_locked } from "./utils.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 
@@ -70,18 +70,23 @@ function AccountsPage() {
     const [details, setDetails] = useState(null);
 
     useInit(async () => {
-        const utmppath = await getUtmpPath();
+        const logind_client = cockpit.dbus("org.freedesktop.login1");
+
         const debouncedGetLogins = debounce(100, () => {
-            getLogins().then(setDetails);
+            getLogins(logind_client).then(setDetails);
         });
+
+        /* We are mostly interested in UserNew/UserRemoved. But SessionRemoved happens immediately after logout,
+         * while UserRemoved lags behind due to the "State: closing" period when the user's systemd instance
+         * etc. are being cleaned up. Also, there's not that many signals and this is debounced, so just react to all
+         * of them. See https://www.freedesktop.org/wiki/Software/systemd/logind/ */
+        logind_client.subscribe({
+            interface: "org.freedesktop.login1.Manager",
+            path: "/org/freedesktop/login1",
+        }, debouncedGetLogins);
 
         let handleUtmp;
 
-        if (utmppath !== null) {
-            // Watch `/var/run/utmp` or `/var/lib/wtmpdb/wtmp.db` to register when user logs in or out
-            handleUtmp = cockpit.file(utmppath, { superuser: "try", binary: true });
-            handleUtmp.watch(() => debouncedGetLogins(), { read: false });
-        }
         // Watch /etc/shadow to register lock/unlock/expire changes; but avoid reading it, it's sensitive data
         const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
         handleShadow.watch(() => debouncedGetLogins(), { read: false });
@@ -106,7 +111,7 @@ function AccountsPage() {
                 setMaxUid(maxUid);
         });
 
-        return [handleUtmp, handleShadow, handleLogindef];
+        return [logind_client, handleUtmp, handleShadow, handleLogindef];
     }, [], null, handles => handles.forEach(handle => handle.close()));
 
     const accountsInfo = useMemo(() => {
@@ -162,7 +167,7 @@ function AccountsPage() {
     } else return null;
 }
 
-async function getLogins() {
+async function getLogins(logind_client) {
     let LastLogPath;
     try {
         await cockpit.spawn(["test", "-e", "/var/lib/lastlog/lastlog2.db"], { err: "ignore" });
@@ -173,16 +178,14 @@ async function getLogins() {
 
     const lastlog = await cockpit.spawn([LastLogPath], { environ: ["LC_ALL=C"] });
 
-    const logind = cockpit.dbus("org.freedesktop.login1");
     const currentLogins = [];
     try {
         // out args: uso (uid, name, logind object)
-        const [users] = await logind.call(
+        const [users] = await logind_client.call(
             "/org/freedesktop/login1", "org.freedesktop.login1.Manager", "ListUsers",
             null, { type: "", flags: "", timeout: 5000 });
-        // weed out "closing" users
         await Promise.all(users.map(async ([_, name, objpath]) => {
-            const [active] = await logind.call(
+            const [active] = await logind_client.call(
                 objpath, "org.freedesktop.DBus.Properties", "Get",
                 ["org.freedesktop.login1.User", "State"],
                 { type: "ss", flags: "", timeout: 5000 });
@@ -192,7 +195,6 @@ async function getLogins() {
     } catch (err) {
         console.warn("Unexpected error when getting logged in accounts", err);
     }
-    logind.close();
 
     // shadow-utils passwd supports an --all flag which is lacking on RHEL and
     // stable Fedora releases. Available at least on Fedora since

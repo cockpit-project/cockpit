@@ -15,8 +15,8 @@
       connection to HTTPS. There are some exceptions:</para>
 
     <itemizedlist>
-      <listitem><para>If an HTTP connection comes from <code>127.0.0.0/8</code>, then
-        Cockpit will allow communication without redirecting to HTTPS.</para></listitem>
+      <listitem><para>If an HTTP connection comes from <code>localhost</code> (<code>127.0.0.1</code> or
+        <code>::1</code>, then Cockpit will allow communication without redirecting to HTTPS.</para></listitem>
       <listitem><para>Certain URLs, like <code>/ping</code> are not required to use
         HTTPS.</para></listitem>
     </itemizedlist>

@@ -12,17 +12,3 @@ export const get_locked = name =>
                     console.warn(`Failed to obtain account lock information for ${name}`, exc);
                 }
             });
-
-export async function getUtmpPath() {
-    try {
-        await cockpit.spawn(["test", "-e", "/var/run/utmp"], { err: "ignore" });
-        return "/var/run/utmp";
-    } catch (err1) {
-        try {
-            await cockpit.spawn(["test", "-e", "/var/lib/wtmpdb/wtmp.db"], { err: "ignore" });
-            return "/var/lib/wtmpdb/wtmp.db";
-        } catch (err2) {
-            return null;
-        }
-    }
-}

@@ -3,9 +3,10 @@
   require:
     # ourself
     - cockpit
-    - cockpit-kdump
-    - cockpit-networkmanager
-    - cockpit-sosreport
+    # done in browser.sh, see https://issues.redhat.com/browse/TFT-2564
+    # - cockpit-kdump
+    # - cockpit-networkmanager
+    # - cockpit-sosreport
     # FIXME: add this after dropping RHEL8 support
     # - cockpit-tests
     # build/test infra dependencies
@@ -28,7 +29,8 @@
   require:
     # ourself
     - cockpit
-    - cockpit-networkmanager
+    # done in browser.sh, see https://issues.redhat.com/browse/TFT-2564
+    # - cockpit-networkmanager
     # build/test infra dependencies
     - podman
     # required by tests

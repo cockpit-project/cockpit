@@ -173,13 +173,26 @@ async function getLogins() {
 
     const lastlog = await cockpit.spawn([LastLogPath], { environ: ["LC_ALL=C"] });
 
-    let currentLogins = [];
+    const logind = cockpit.dbus("org.freedesktop.login1");
+    const currentLogins = [];
     try {
-        const w = await cockpit.spawn(["w", "-sh"], { environ: ["LC_ALL=C"] });
-        currentLogins = w.split('\n').slice(0, -1).map(line => line.split(/ +/)[0]);
+        // out args: uso (uid, name, logind object)
+        const [users] = await logind.call(
+            "/org/freedesktop/login1", "org.freedesktop.login1.Manager", "ListUsers",
+            null, { type: "", flags: "", timeout: 5000 });
+        // weed out "closing" users
+        await Promise.all(users.map(async ([_, name, objpath]) => {
+            const [active] = await logind.call(
+                objpath, "org.freedesktop.DBus.Properties", "Get",
+                ["org.freedesktop.login1.User", "State"],
+                { type: "ss", flags: "", timeout: 5000 });
+            if (active.v !== "closing")
+                currentLogins.push(name);
+        }));
     } catch (err) {
         console.warn("Unexpected error when getting logged in accounts", err);
     }
+    logind.close();
 
     // shadow-utils passwd supports an --all flag which is lacking on RHEL and
     // stable Fedora releases. Available at least on Fedora since

@@ -939,7 +939,7 @@ class CurrentMetrics extends React.Component {
                                         className="pf-m-sm"
                                         variant={info.use > 90 ? ProgressVariant.danger : info.use >= 80 ? ProgressVariant.warning : null}
                                         title={info.target}
-                                        label={ cockpit.format(_("$0 free"), cockpit.format_bytes(info.avail, 1000)) } />
+                                        label={ cockpit.format(_("$0 free"), cockpit.format_bytes(info.avail)) } />
                                 );
                                 if (cockpit.manifests?.storage)
                                     progress = <Button variant="link" isInline onClick={() => cockpit.jump("/storage") }>{progress}</Button>;
@@ -947,7 +947,7 @@ class CurrentMetrics extends React.Component {
                                 return (
                                     <Tooltip
                                         key={info.target}
-                                        content={ cockpit.format(_("$0 total"), cockpit.format_bytes(info.size, 1000)) }
+                                        content={ cockpit.format(_("$0 total"), cockpit.format_bytes(info.size)) }
                                         position="bottom">
                                         {progress}
                                     </Tooltip>

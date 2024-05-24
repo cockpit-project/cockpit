@@ -504,6 +504,7 @@ class TestRealms(testlib.MachineCase):
 
 @testlib.skipDistroPackage()
 @testlib.no_retry_when_changed
+@testlib.skipImage("freeipa not currently available", "debian-testing")
 class TestIPA(TestRealms, CommonTests):
     def setUp(self):
         super().setUp()
@@ -997,6 +998,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 @testlib.skipOstree("No realmd available")
 @testlib.skipImage("No realmd available", "arch")
+@testlib.skipImage("freeipa not currently available", "debian-*")
 @testlib.skipDistroPackage()
 @testlib.no_retry_when_changed
 class TestKerberos(testlib.MachineCase):

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import re
 import time
 
 import packagelib
@@ -794,9 +795,9 @@ password=foobar
         profile = m.execute(cmd + " --show").strip()
         b.wait_text("#crypto-policy-button", shown_profile_text(profile))
 
-        # RHEL 8 has no SHA1 policy, so do not show it.
+        # RHEL 10 has no SHA1 policy, so do not show it.
         b.click("#crypto-policy-button")
-        func = b.wait_not_present if m.image.startswith('rhel-8') else b.wait_visible
+        func = b.wait_not_present if re.match('(centos|rhel)-10.*', m.image) else b.wait_visible
         func(".pf-v5-c-menu__item-main .pf-v5-c-menu__item-text:contains('DEFAULT:SHA1')")
         b.click("#crypto-policy-dialog button:contains('Cancel')")
         b.wait_not_present("#crypto-policy-dialog")

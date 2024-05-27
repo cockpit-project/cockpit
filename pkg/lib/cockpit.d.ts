@@ -239,6 +239,7 @@ declare module 'cockpit' {
 
     type UserInfo = {
         id: number;
+        gid: number;
         name: string;
         full_name: string;
         groups: Array<string>;

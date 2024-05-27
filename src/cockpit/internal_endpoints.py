@@ -136,6 +136,7 @@ class cockpit_User(bus.Object):
     name = bus.Interface.Property('s', value='')
     full = bus.Interface.Property('s', value='')
     id = bus.Interface.Property('i', value=0)
+    gid = bus.Interface.Property('i', value=0)
     home = bus.Interface.Property('s', value='')
     shell = bus.Interface.Property('s', value='')
     groups = bus.Interface.Property('as', value=[])
@@ -145,6 +146,7 @@ class cockpit_User(bus.Object):
         self.name = user.pw_name
         self.full = user.pw_gecos
         self.id = user.pw_uid
+        self.gid = user.pw_gid
         self.home = user.pw_dir
         self.shell = user.pw_shell
         self.groups = [gr.gr_name for gr in grp.getgrall() if user.pw_name in gr.gr_mem]

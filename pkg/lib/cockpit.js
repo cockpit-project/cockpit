@@ -2380,6 +2380,7 @@ function factory() {
                     .then(([user]) => {
                         the_user = {
                             id: user.Id.v,
+                            gid: user.Gid.v,
                             name: user.Name.v,
                             full_name: user.Full.v,
                             groups: user.Groups.v,

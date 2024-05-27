@@ -286,7 +286,6 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
 
     function get_defaults() {
         return cockpit.spawn(["useradd", "-D"], { superuser: "require", err: "message" })
-                .catch(e => console.warn("Could not get useradd defaults: ", e.message))
                 .then(defaults => {
                     let shell = "";
                     let base_home_dir = null;
@@ -300,6 +299,7 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
                     change("shell", shell);
                     change("base_home_dir", base_home_dir);
                 })
+                .catch(e => console.warn("Could not get useradd defaults: ", e.message))
                 .finally(() => change("dialogLoading", false));
     }
 

@@ -54,7 +54,6 @@ def ssh_reconnect(machine, timeout_sec=120):
     raise error
 
 
-@testlib.skipDistroPackage()
 class TestSystemInfo(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -863,7 +862,6 @@ password=foobar
         self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "0")
 
 
-@testlib.skipDistroPackage()
 class TestSystemInfoTime(packagelib.PackageCase):
     def set_change_time_dialog_mode(self, mode):
         b = self.browser

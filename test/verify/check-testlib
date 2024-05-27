@@ -31,7 +31,6 @@ VERIFY_DIR = os.path.join(testlib.TEST_DIR, "verify")
 ROOT_DIR = os.path.dirname(testlib.TEST_DIR)
 
 
-@testlib.skipDistroPackage()
 class TestRunTestListing(unittest.TestCase):
 
     def testBasic(self):
@@ -70,7 +69,6 @@ class TestRunTestListing(unittest.TestCase):
 
 # This can't be @nondestructive, as we run our own @nondestructive test nested inside this test. This will already call the
 # cleanup handlers, and the outside cleanup would then fail to do that again.
-@testlib.skipDistroPackage()
 class TestRunTest(testlib.MachineCase):
     def testExistingMachine(self):
         env = os.environ.copy()
@@ -235,7 +233,6 @@ class TestSystemd(unittest.TestCase):
         self.assertEqual(process.returncode, 1)
 
 
-@testlib.skipDistroPackage()
 @testlib.nondestructive
 class TestTestlib(testlib.MachineCase):
     def testRestoreAPI(self):

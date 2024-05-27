@@ -26,7 +26,6 @@ sleep_crash_list_sel = "#journal-box .cockpit-logline .cockpit-log-message:conta
 NO_ABRT = ["debian-*", "ubuntu-*", "fedora-coreos", "rhel*", "centos-*", "arch"]
 
 
-@testlib.skipDistroPackage()
 class TestJournal(testlib.MachineCase):
     def setUp(self):
         super().setUp()

@@ -71,7 +71,6 @@ __all__ = (
     'opts',
     'sit',
     'skipBrowser',
-    'skipDistroPackage',
     'skipImage',
     'skipOstree',
     'test_main',
@@ -2338,17 +2337,6 @@ def skipOstree(reason: str) -> Callable[[_FT], _FT]:
     """
     if testvm.DEFAULT_IMAGE in OSTREE_IMAGES:
         return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
-    return lambda testEntity: testEntity
-
-
-def skipDistroPackage() -> Callable[[_FT], _FT]:
-    """For tests which apply to BaseOS packages
-
-    With that, tests can evolve with latest code, without constantly breaking them when
-    running against older package versions in the -distropkg tests.
-    """
-    if 'distropkg' in testvm.DEFAULT_IMAGE:
-        return unittest.skip(f"{testvm.DEFAULT_IMAGE}: Do not test BaseOS packages")
     return lambda testEntity: testEntity
 
 

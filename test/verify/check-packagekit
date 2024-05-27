@@ -1072,7 +1072,6 @@ ExecStart=/usr/local/bin/{packageName}
             b.wait_visible(".system-health")
             self.assertFalse(b.is_present(self.update_text))
 
-    @testlib.skipDistroPackage()
     @testlib.nondestructive
     def testUnprivileged(self):
         b = self.browser
@@ -1618,7 +1617,6 @@ class TestAutoUpdates(NoSubManCase):
         else:
             raise NotImplementedError(self.backend)
 
-    @testlib.skipDistroPackage()
     def testPrivilegeChange(self):
         b = self.browser
         m = self.machine

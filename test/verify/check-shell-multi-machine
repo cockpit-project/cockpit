@@ -116,7 +116,6 @@ def change_ssh_port(machine, address, sshd_socket, sshd_service, port=None, time
     raise error
 
 
-@testlib.skipDistroPackage()
 @testlib.todoPybridgeRHEL8()
 class TestMultiMachineAdd(testlib.MachineCase):
     provision = {
@@ -215,7 +214,6 @@ class TestMultiMachineAdd(testlib.MachineCase):
         self.allow_hostkey_messages()
 
 
-@testlib.skipDistroPackage()
 class TestMultiMachine(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},

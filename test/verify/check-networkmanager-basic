@@ -22,7 +22,6 @@ import testlib
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestNetworkingBasic(netlib.NetworkCase):
     def testBasic(self):
         b = self.browser

@@ -48,7 +48,6 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
 
 
-@testlib.skipDistroPackage()
 class TestSelinux(testlib.MachineCase):
     provision = {
         "0": {},
@@ -297,7 +296,6 @@ class TestSelinux(testlib.MachineCase):
         b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
 
 
-@testlib.skipDistroPackage()
 @testlib.skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch")
 @testlib.skipOstree("No cockpit-selinux")
 @testlib.nondestructive

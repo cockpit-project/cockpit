@@ -26,7 +26,6 @@ import testlib
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestLogin(testlib.MachineCase):
     def check_shell(self):
         b = self.browser

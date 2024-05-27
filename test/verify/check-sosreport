@@ -28,7 +28,6 @@ import testlib
 @testlib.skipOstree("No sosreport")
 @testlib.skipImage("No sosreport", "arch")
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestSOS(testlib.MachineCase):
 
     def testBasic(self, urlroot=""):

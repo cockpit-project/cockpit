@@ -22,7 +22,6 @@ import time
 import testlib
 
 
-@testlib.skipDistroPackage()
 class HostSwitcherHelpers:
 
     def check_discovered_addresses(self, b, addresses):
@@ -95,7 +94,6 @@ class HostSwitcherHelpers:
         b.click("#hosts-sel button")
 
 
-@testlib.skipDistroPackage()
 @testlib.todoPybridgeRHEL8()
 class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
     provision = {

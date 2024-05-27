@@ -24,7 +24,6 @@ from machine import testvm
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestServices(testlib.MachineCase):
 
     def setUp(self):
@@ -1354,7 +1353,6 @@ WantedBy=multi-user.target
         self.check_service_details(["Read-only", "Disabled"], [], enabled=False, onoff=False, kebab=False)
 
 
-@testlib.skipDistroPackage()
 class TestTimers(testlib.MachineCase):
     def svc_sel(self, service):
         return f'tr[data-goto-unit="{service}"]'

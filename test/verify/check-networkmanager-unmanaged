@@ -21,7 +21,6 @@ import netlib
 import testlib
 
 
-@testlib.skipDistroPackage()
 @testlib.nondestructive
 class TestNetworkingUnmanaged(netlib.NetworkCase):
     def testUnmanaged(self):

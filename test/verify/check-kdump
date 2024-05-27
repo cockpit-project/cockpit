@@ -89,7 +89,6 @@ class KdumpHelpers(testlib.MachineCase):
 @testlib.skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
 @testlib.skipImage("https://issues.redhat.com/browse/RHEL-35567", "centos-10", "rhel-10*")
 @testlib.timeout(900)
-@testlib.skipDistroPackage()
 class TestKdump(KdumpHelpers):
 
     def testBasic(self):
@@ -460,7 +459,6 @@ class TestKdump(KdumpHelpers):
 @testlib.skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
 @testlib.skipImage("https://issues.redhat.com/browse/RHEL-35567", "centos-10", "rhel-10*")
 @testlib.timeout(900)
-@testlib.skipDistroPackage()
 class TestKdumpNFS(KdumpHelpers):
     provision = {
         "0": {"address": "10.111.113.1/24", "memory_mb": 1024, "capture_console": True},

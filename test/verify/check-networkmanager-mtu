@@ -22,7 +22,6 @@ import testlib
 from lib.constants import TEST_OS_DEFAULT
 
 
-@testlib.skipDistroPackage()
 class TestNetworkingMTU(netlib.NetworkCase):
     provision = {
         "machine1": {"memory_mb": 512},

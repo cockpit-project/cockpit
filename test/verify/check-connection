@@ -26,7 +26,6 @@ import time
 import testlib
 
 
-@testlib.skipDistroPackage()
 class TestConnection(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -1246,7 +1245,6 @@ UnixPath=/run/cockpit/session
                 self.assertIn(f'{self.libexecdir}/cockpit-pcp', bridge_names)
 
 
-@testlib.skipDistroPackage()
 class TestReverseProxy(testlib.MachineCase):
 
     provision = {

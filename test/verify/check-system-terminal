@@ -24,7 +24,6 @@ def line_sel(i):
     return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
 
-@testlib.skipDistroPackage()
 class TestTerminal(testlib.MachineCase):
     def setUp(self):
         super().setUp()

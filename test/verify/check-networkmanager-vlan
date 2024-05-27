@@ -22,7 +22,6 @@ import testlib
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestNetworkingVLAN(netlib.NetworkCase):
     def testVlan(self):
         b = self.browser

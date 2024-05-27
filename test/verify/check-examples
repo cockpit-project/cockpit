@@ -8,7 +8,6 @@ EXAMPLES_DIR = os.path.join(os.path.dirname(testlib.TEST_DIR), "examples")
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestPinger(testlib.MachineCase):
 
     def setUp(self):
@@ -36,7 +35,6 @@ class TestPinger(testlib.MachineCase):
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestXHRProxy(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -80,7 +78,6 @@ class TestXHRProxy(testlib.MachineCase):
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestLongRunning(testlib.MachineCase):
 
     def setUp(self):

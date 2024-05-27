@@ -30,7 +30,6 @@ RHEL_DOC_BASE = "https://access.redhat.com/documentation"
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestPages(testlib.MachineCase):
     def checkDocs(self, items):
         m = self.machine

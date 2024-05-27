@@ -21,7 +21,6 @@ import testlib
 
 
 @testlib.skipOstree("OSTree always uses loopback")
-@testlib.skipDistroPackage()
 @testlib.nondestructive
 class TestLoopback(testlib.MachineCase):
 

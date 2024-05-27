@@ -30,7 +30,6 @@ from machine import testvm
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
-@testlib.skipDistroPackage()
 class TestImageCustomize(unittest.TestCase):
 
     def checkBoot(self, image):
@@ -127,7 +126,6 @@ class TestImageCustomize(unittest.TestCase):
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
-@testlib.skipDistroPackage()
 class TestBotsVM(unittest.TestCase):
 
     def testBasic(self):

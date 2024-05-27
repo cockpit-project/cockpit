@@ -23,7 +23,6 @@ from lib.constants import TEST_OS_DEFAULT
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestBonding(netlib.NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -260,7 +259,6 @@ class TestBonding(netlib.NetworkCase):
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
 
 
-@testlib.skipDistroPackage()
 class TestBondingVirt(netlib.NetworkCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},

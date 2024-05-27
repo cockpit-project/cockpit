@@ -22,7 +22,6 @@ import testlib
 
 
 @testlib.skipImage("No network checkpoint support", "ubuntu-*")
-@testlib.skipDistroPackage()
 class TestNetworkingCheckpoints(netlib.NetworkCase):
     def testCheckpoint(self):
         b = self.browser

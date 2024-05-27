@@ -23,7 +23,6 @@ import testlib
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestSuperuser(testlib.MachineCase):
     def testBasic(self):
         b = self.browser
@@ -400,7 +399,6 @@ session include system-auth
         b.wait_not_present(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
 
 
-@testlib.skipDistroPackage()
 class TestSuperuserDashboard(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},

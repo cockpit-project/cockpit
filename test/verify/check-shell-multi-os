@@ -42,7 +42,6 @@ def add_machine(b, address, password):
     b.wait_not_present('#hosts_setup_server_dialog')
 
 
-@testlib.skipDistroPackage()
 class TestRHEL8(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "memory_mb": 768},
@@ -81,7 +80,6 @@ class TestRHEL8(testlib.MachineCase):
         dev_b.wait_in_text(".ct-overview-header-hostname", "running Red Hat Enterprise Linux 8")
 
 
-@testlib.skipDistroPackage()
 class TestMultiOSDirect(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "memory_mb": 512},

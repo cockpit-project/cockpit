@@ -77,7 +77,6 @@ def applySettings(browser, dialog_selector):
         browser.wait_not_present(dialog_selector)
 
 
-@testlib.skipDistroPackage()
 class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -717,7 +716,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         checkEnabled(expected=True)
 
 
-@testlib.skipDistroPackage()
 @testlib.nondestructive
 class TestCurrentMetrics(testlib.MachineCase):
     def setUp(self):
@@ -1248,7 +1246,6 @@ BEGIN {{
 
 
 @testlib.skipImage("TODO: Arch Linux packagekit support", "arch")
-@testlib.skipDistroPackage()
 class TestMetricsPackages(packagelib.PackageCase):
     # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
     pcp_dialog_selector = "#pcp-settings-modal:first-child"
@@ -1363,7 +1360,6 @@ class TestMetricsPackages(packagelib.PackageCase):
         self.assertIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
 
 
-@testlib.skipDistroPackage()
 class TestMultiCPU(testlib.MachineCase):
 
     provision = {
@@ -1410,7 +1406,6 @@ class TestMultiCPU(testlib.MachineCase):
 
 
 @testlib.skipOstree("no PCP support")
-@testlib.skipDistroPackage()
 class TestGrafanaClient(testlib.MachineCase):
 
     provision = {

@@ -59,7 +59,6 @@ KEY_IDS_MD5 = [
 
 
 @testlib.skipImage("TODO: ssh key check fails on Arch Linux", "arch")
-@testlib.skipDistroPackage()
 class TestMultiMachineKeyAuth(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},

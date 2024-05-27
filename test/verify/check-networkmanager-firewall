@@ -48,7 +48,6 @@ def get_active_rules(machine):
 
 @testlib.skipOstree("no firewalld")
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestFirewall(netlib.NetworkCase):
     def setUp(self):
         super().setUp()

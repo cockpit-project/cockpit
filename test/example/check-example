@@ -25,7 +25,6 @@ import unittest
 import testlib
 
 
-@testlib.skipDistroPackage()
 class TestExample(testlib.MachineCase):
 
     @unittest.expectedFailure
@@ -55,7 +54,6 @@ class TestExample(testlib.MachineCase):
 
 
 @testlib.nondestructive
-@testlib.skipDistroPackage()
 class TestNondestructiveExample(testlib.MachineCase):
 
     def testOne(self):
@@ -65,7 +63,6 @@ class TestNondestructiveExample(testlib.MachineCase):
         self.assertIn("usr", self.machine.execute("ls -l /").strip())
 
 
-@testlib.skipDistroPackage()
 class TestSimple(unittest.TestCase):
 
     def testOne(self):
@@ -85,7 +82,6 @@ class TestSimple(unittest.TestCase):
         self.assertTrue(True)  # noqa: FBT003
 
 
-@testlib.skipDistroPackage()
 class TestTodo(unittest.TestCase):
     def setUp(self):
         if not os.environ.get('TEST_TODO'):

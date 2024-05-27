@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+import subprocess
 import os
 
 import testlib
@@ -27,9 +28,13 @@ good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
 
 def getUserAddDetails(machine):
     useradd_defaults = {}
-    for line in machine.execute("useradd -D").splitlines():
-        key, value = line.split("=")
-        useradd_defaults[key] = value
+    try:
+        for line in machine.execute("useradd -D").splitlines():
+            key, value = line.split("=")
+            useradd_defaults[key] = value
+    except subprocess.CalledProcessError as err:
+        print("WARNING: useradd -D failed, using default defaults")
+        useradd_defaults = { "HOME": "/home", "SHELL": "/bin/sh" }
 
     return useradd_defaults
 

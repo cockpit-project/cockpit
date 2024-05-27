@@ -22,7 +22,15 @@ import React from "react";
 import { FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText";
 
-export const FormHelper = ({ helperText, helperTextInvalid, variant, icon, fieldId }) => {
+export const FormHelper = ({ helperText, helperTextInvalid, variant, icon, fieldId } :
+  {
+      helperText?: string,
+      helperTextInvalid?: string,
+      variant?: "error" | "default" | "indeterminate" | "warning" | "success",
+      icon?: string,
+      fieldId?: string,
+  }
+) => {
     const formHelperVariant = variant || (helperTextInvalid ? "error" : "default");
 
     if (!(helperText || helperTextInvalid))

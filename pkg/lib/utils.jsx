@@ -19,6 +19,8 @@
 
 import React from "react";
 
+import cockpit from "cockpit";
+
 export function fmt_to_fragments(fmt) {
     const args = Array.prototype.slice.call(arguments, 1);
 
@@ -30,4 +32,40 @@ export function fmt_to_fragments(fmt) {
     }
 
     return React.createElement.apply(null, [React.Fragment, { }].concat(fmt.split(/(\$[0-9]+)/g).map(replace)));
+}
+
+function try_fields(dict, fields, def) {
+    for (let i = 0; i < fields.length; i++)
+        if (fields[i] && dict[fields[i]])
+            return dict[fields[i]];
+    return def;
+}
+
+/**
+ * Get an entry from a manifest's ".config[config_name]" field.
+ *
+ * This can either be a direct value, e.g.
+ *
+ *   "config": { "color": "yellow" }
+ *
+ * Or an object indexed by any value in "matches". Commonly these are fields
+ * from os-release(5) like PLATFORM_ID or ID; e.g.
+ *
+ *   "config": {
+ *      "fedora": { "color": "blue" },
+ *      "platform:el9": { "color": "red" }
+ *  }
+ */
+export function get_manifest_config_matchlist(manifest_name, config_name, default_value, matches) {
+    const config = cockpit.manifests[manifest_name]?.config;
+
+    if (config) {
+        const val = config[config_name];
+        if (typeof val === 'object' && val !== null && !Array.isArray(val))
+            return try_fields(val, matches, default_value);
+        else
+            return val !== undefined ? val : default_value;
+    } else {
+        return default_value;
+    }
 }

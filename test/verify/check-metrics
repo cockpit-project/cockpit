@@ -577,7 +577,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             self.assertEqual(m.execute("systemctl is-active pmproxy").strip(), "active")
             self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
             self.assertEqual(m.execute("systemctl is-enabled pmproxy").strip(), "enabled")
-            self.assertIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
+            self.assertIn(redis, m.execute("systemctl show -p Wants --value pmproxy").strip())
             testlib.wait(lambda: hostname in m.execute("curl --max-time 10 --silent --show-error 'http://localhost:44322/series/labels?names=hostname'"), delay=10, tries=30)
 
         def checkDisable():
@@ -594,7 +594,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             # keeps redis running, it's a shared service
             self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
             # but drops the pmproxy dependency
-            self.assertNotIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
+            self.assertNotIn(redis, m.execute("systemctl show -p Wants --value pmproxy").strip())
             m.execute("! curl --silent --show-error --max-time 10 'http://localhost:44322/series/labels?names=hostname' 2>&1")
 
         # start in a defined state; all test images have pcp and redis pre-installed
@@ -1254,6 +1254,8 @@ class TestMetricsPackages(packagelib.PackageCase):
         b = self.browser
         m = self.machine
 
+        redis_service = redisService(m.image)
+
         if m.ostree_image:
             self.login_and_go("/metrics")
             b.wait_in_text(".pf-v5-c-empty-state", "cockpit-pcp is missing")
@@ -1272,12 +1274,8 @@ class TestMetricsPackages(packagelib.PackageCase):
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
-            m.execute("rpm --erase --verbose cockpit-pcp pcp redis")
-        if "rhel-8" in m.image:
-            # RHEL 8 ships this in a module, make sure that doesn't hide our fake package
-            m.execute("dnf module disable -y redis || true")
+            m.execute(f"rpm --erase --verbose cockpit-pcp pcp {redis_service}")
 
-        redis_service = redisService(m.image)
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
 
         cpcp_content = {
@@ -1357,7 +1355,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         m.execute('until [ $(systemctl is-enabled pmproxy) = enabled ]; do sleep 1; done')
         m.execute('until [ $(systemctl is-active pmproxy) = active ]; do sleep 1; done')
         m.execute(f'until [ $(systemctl is-active {redis_service}) = active ]; do sleep 1; done')
-        self.assertIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
+        self.assertIn(redis_service, m.execute("systemctl show -p Wants --value pmproxy").strip())
 
 
 class TestMultiCPU(testlib.MachineCase):

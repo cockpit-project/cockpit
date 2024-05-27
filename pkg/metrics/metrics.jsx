@@ -1375,27 +1375,25 @@ const PCPConfigDialog = ({
 
     useInit(() => packagekit.detect().then(setPackagekitExists));
 
-    const handleInstall = () => {
+    const handleInstall = async () => {
     // when enabling services, install missing packages on demand
         const missing = [];
         if (dialogLoggerValue && !s_pmlogger.exists)
             missing.push("cockpit-pcp");
-        if (dialogProxyValue && !(s_redis.exists || s_redis_server.exists))
+        const redisExists = () => s_redis.exists || s_redis_server.exists;
+        if (dialogProxyValue && !redisExists())
             missing.push("redis");
         if (missing.length > 0) {
             debug("PCPConfig: missing packages", JSON.stringify(missing), ", offering install");
             Dialogs.close();
-            return install_dialog(missing)
-                    .then(() => {
-                        debug("PCPConfig: package installation successful");
-                        if (missing.indexOf("cockpit-pcp") >= 0)
-                            setNeedsLogout(true);
-                        return wait_cond(() => (s_pmlogger.exists &&
-                                                (!dialogProxyValue || (s_pmproxy.exists && (s_redis.exists || s_redis_server.exists)))),
-                                         [s_pmlogger, s_pmproxy, s_redis, s_redis_server]);
-                    });
-        } else
-            return Promise.resolve();
+            await install_dialog(missing);
+            debug("PCPConfig: package installation successful");
+            if (missing.indexOf("cockpit-pcp") >= 0)
+                setNeedsLogout(true);
+            await wait_cond(() => (s_pmlogger.exists &&
+                                   (!dialogProxyValue || (s_pmproxy.exists && redisExists()))),
+                            [s_pmlogger, s_pmproxy, s_redis, s_redis_server]);
+        }
     };
 
     const handleSave = () => {

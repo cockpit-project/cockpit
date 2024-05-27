@@ -68,6 +68,8 @@ def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
 def redisService(image):
     if image.startswith(("debian", "ubuntu")):
         return "redis-server"
+    if image.startswith("fedora"):
+        return "valkey"
     return "redis"
 
 
@@ -546,7 +548,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
     @testlib.nondestructive
     @testlib.skipOstree("no PCP support")
-    def testPmProxySettings(self):
+    def testPmProxySettings(self, customRedisService=None):
         b = self.browser
         m = self.machine
 
@@ -557,10 +559,10 @@ class TestHistoryMetrics(testlib.MachineCase):
             m.execute("firewall-cmd --zone=public --change-interface eth0 --permanent")
             m.execute("firewall-cmd --reload")
 
-        redis = redisService(m.image)
+        redis = customRedisService or redisService(m.image)
         hostname = m.execute("hostname").strip()
 
-        self.addCleanup(m.execute, f"systemctl stop {redis}")
+        self.addCleanup(m.execute, f"systemctl disable --now {redis}")
 
         def checkEnable(firewalld_alert):
             b.click("#metrics-header-section button.pf-m-secondary")
@@ -714,6 +716,14 @@ class TestHistoryMetrics(testlib.MachineCase):
         checkEnabled(expected=False)
         m.execute("systemctl start pmproxy")
         checkEnabled(expected=True)
+
+    @testlib.nondestructive
+    @testlib.skipOstree("no PCP support")
+    @testlib.onlyImage("valkey is the default only in Fedora", "fedora*")
+    def testPmProxySettingsRedis(self):
+        self.machine.execute("systemctl mask valkey")
+        self.addCleanup(self.machine.execute, "systemctl unmask valkey")
+        self.testPmProxySettings(customRedisService="redis")
 
 
 @testlib.nondestructive
@@ -1255,6 +1265,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         m = self.machine
 
         redis_service = redisService(m.image)
+        redis_package = "valkey" if redis_service == "valkey" else "redis"
 
         if m.ostree_image:
             self.login_and_go("/metrics")
@@ -1274,7 +1285,10 @@ class TestMetricsPackages(packagelib.PackageCase):
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
-            m.execute(f"rpm --erase --verbose cockpit-pcp pcp {redis_service}")
+            m.execute(f"rpm --erase --verbose cockpit-pcp pcp {redis_package}")
+        if m.image.startswith("fedora"):
+            # we removed valkey above, but also remove redis to trigger install dialog
+            m.execute("rpm --erase --verbose redis")
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
 
@@ -1293,7 +1307,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         self.createPackage("cockpit-pcp", "999", "1", content=cpcp_content, depends="pcp",
                            postinst="chmod +x /usr/libexec/cockpit-pcp")
         self.createPackage("pcp", "999", "1", content=pcp_content, postinst="systemctl daemon-reload")
-        self.createPackage("redis", "999", "1", content=redis_content, postinst="systemctl daemon-reload")
+        self.createPackage(redis_package, "999", "1", content=redis_content, postinst="systemctl daemon-reload")
         self.enableRepo()
         m.execute("pkcon refresh")
 

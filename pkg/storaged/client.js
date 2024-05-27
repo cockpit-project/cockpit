@@ -18,8 +18,9 @@
  */
 
 import cockpit from 'cockpit';
-import * as PK from 'packagekit.js';
+import * as PK from 'packagekit';
 import { superuser } from 'superuser';
+import { get_manifest_config_matchlist } from 'utils';
 
 import * as utils from './utils.js';
 
@@ -1473,24 +1474,8 @@ client.wait_for = function wait_for(cond) {
     });
 };
 
-function try_fields(dict, fields, def) {
-    for (let i = 0; i < fields.length; i++)
-        if (fields[i] && dict[fields[i]])
-            return dict[fields[i]];
-    return def;
-}
-
-client.get_config = (name, def) => {
-    if (cockpit.manifests.storage && cockpit.manifests.storage.config) {
-        const val = cockpit.manifests.storage.config[name];
-        if (typeof val === 'object' && val !== null)
-            return try_fields(val, [client.os_release.PLATFORM_ID, client.os_release.ID], def);
-        else
-            return val !== undefined ? val : def;
-    } else {
-        return def;
-    }
-};
+client.get_config = (name, def) =>
+    get_manifest_config_matchlist("storage", name, def, [client.os_release.PLATFORM_ID, client.os_release.ID]);
 
 client.in_anaconda_mode = () => !!client.anaconda;
 

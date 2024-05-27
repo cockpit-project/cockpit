@@ -29,13 +29,15 @@ import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/
 
 import { RebootingIcon } from "@patternfly/react-icons";
 
-import { check_uninstalled_packages } from "packagekit.js";
+import { check_uninstalled_packages } from "packagekit";
+import { get_manifest_config_matchlist } from "utils";
+import { read_os_release } from "os-release";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { useInit } from "hooks";
+
 import * as PackageKit from "./packagekit.js";
-import { read_os_release } from "os-release.js";
 import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 import { ActionButton } from "./application.jsx";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { useInit } from "../lib/hooks.js";
 
 const _ = cockpit.gettext;
 
@@ -103,25 +105,6 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         comps.push(metainfo_db.components[id]);
     comps.sort((a, b) => a.name.localeCompare(b.name));
 
-    function get_config(name, os_release, def) {
-        // ID is a single value, ID_LIKE is a list
-        const os_list = [os_release?.ID || "", ...(os_release?.ID_LIKE || "").split(/\s+/)];
-
-        if (cockpit.manifests.apps && cockpit.manifests.apps.config) {
-            const val = cockpit.manifests.apps.config[name];
-            if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
-                for (const os of os_list) {
-                    if (val[os])
-                        return val[os];
-                }
-                return def;
-            }
-            return val !== undefined ? val : def;
-        } else {
-            return def;
-        }
-    }
-
     async function check_missing_data(packages) {
         try {
             const missing = await check_uninstalled_packages(packages);
@@ -131,26 +114,33 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         }
     }
 
-    useInit(async () => {
+    async function get_packages() {
         const os_release = await read_os_release();
-        const configPackages = get_config('appstream_config_packages', os_release, []);
-        const dataPackages = get_config('appstream_data_packages', os_release, []);
-        await check_missing_data([...dataPackages, ...configPackages]);
+        // ID is a single value, ID_LIKE is a list
+        const os_list = [os_release?.ID, ...(os_release?.ID_LIKE || "").split(/\s+/)];
+        const configPackages = get_manifest_config_matchlist('apps', 'appstream_config_packages', [], os_list);
+        const dataPackages = get_manifest_config_matchlist('apps', 'appstream_data_packages', [], os_list);
+        return [configPackages, dataPackages];
+    }
+
+    useInit(async () => {
+        const [config, data] = await get_packages();
+        await check_missing_data([...config, ...data]);
     });
 
-    function refresh() {
-        read_os_release().then(os_release => {
-            const configPackages = get_config('appstream_config_packages', os_release, []);
-            const dataPackages = get_config('appstream_data_packages', os_release, []);
-            PackageKit.refresh(metainfo_db.origin_files,
-                               configPackages,
-                               dataPackages,
-                               setProgress)
-                    .finally(async () => {
-                        await check_missing_data([...dataPackages, ...configPackages]);
-                        setProgress(false);
-                    }).catch(show_error);
-        });
+    async function refresh() {
+        const [configPackages, dataPackages] = await get_packages();
+        try {
+            await PackageKit.refresh(metainfo_db.origin_files,
+                                     configPackages,
+                                     dataPackages,
+                                     setProgress);
+        } catch (e) {
+            show_error(e);
+        } finally {
+            await check_missing_data([...dataPackages, ...configPackages]);
+            setProgress(false);
+        }
     }
 
     let refresh_progress, refresh_button, tbody;

@@ -939,12 +939,16 @@ class Browser:
 
         self.open_superuser_dialog()
 
+        # In (open)SUSE images, superuser access always requires the root password
+        if user is None:
+            user = "root" if "suse" in self.machine.image else "admin"
+
         if passwordless:
             self.wait_in_text("div[role=dialog]:contains('Administrative access')", "You now have administrative access.")
             self.click("div[role=dialog] button:contains('Close')")
             self.wait_not_present("div[role=dialog]:contains('You now have administrative access.')")
         else:
-            self.wait_in_text("div[role=dialog]:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
+            self.wait_in_text("div[role=dialog]:contains('Switch to administrative access')", f"Password for {user}:")
             self.set_input_text("div[role=dialog]:contains('Switch to administrative access') input", password or "foobar")
             self.click("div[role=dialog] button:contains('Authenticate')")
             self.wait_not_present("div[role=dialog]:contains('Switch to administrative access')")

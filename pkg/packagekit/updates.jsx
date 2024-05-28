@@ -340,7 +340,7 @@ function updateItem(remarkable, info, pkgNames, key) {
     if (pkgNames.some(pkg => isKpatchPackage(pkg.name)))
         pkgsTruncated.push(
             <LabelGroup key={`${key}-kpatches-labelgroup`} className="kpatches-labelgroup">
-                {" "}<Badge color="blue" variant="filled">{_("patches")}</Badge>
+                {" "}<Badge color="blue">{_("patches")}</Badge>
             </LabelGroup>
         );
 

@@ -119,7 +119,7 @@ class OverviewPage extends React.Component {
         let headerActions = null;
         if (this.state.privileged)
             headerActions = (
-                <Dropdown onSelect={() => this.setState({ actionIsOpen: true })}
+                <Dropdown onSelect={() => this.setState({ actionIsOpen: false })}
                     toggle={(toggleRef) => (
                         <MenuToggle
                             ref={toggleRef}

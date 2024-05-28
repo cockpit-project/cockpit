@@ -582,7 +582,6 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
     if (actions.length === 0 && percentage === 0) {
         return <EmptyStatePanel title={ _("Initializing...") }
                                 headingLevel="h5"
-                                titleSize="4xl"
                                 secondary={cancelButton}
                                 loading
         />;

@@ -1490,7 +1490,7 @@ const PCPConfigDialog = ({
                                 isChecked={dialogLoggerValue}
                                 isDisabled={!s_pmlogger.exists && !packagekitExists}
                                 label={
-                                    <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
+                                    <Flex>
                                         <FlexItem>{ _("Collect metrics") }</FlexItem>
                                         <TextContent>
                                             <Text component={TextVariants.small}>(pmlogger.service)</Text>
@@ -1507,7 +1507,7 @@ const PCPConfigDialog = ({
                     <Switch id="switch-pmproxy"
                                 isChecked={dialogProxyValue}
                                 label={
-                                    <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
+                                    <Flex>
                                         <FlexItem>{ _("Export to network") }</FlexItem>
                                         <TextContent>
                                             <Text component={TextVariants.small}>(pmproxy.service)</Text>

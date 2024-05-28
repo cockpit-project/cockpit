@@ -11,17 +11,17 @@ execute:
 environment:
     TEST_AUDIT_NO_SELINUX: 1
 
-/basic:
-    summary: Run tests for basic packages
+/main:
+    summary: Non-storage tests
     discover+:
-        test: /test/browser/basic
+        test: /test/browser/main
 
-/network:
-    summary: Run tests for cockpit-networkmanager
+/storage-basic:
+    summary: Basic storage tests
     discover+:
-        test: /test/browser/network
+        test: /test/browser/storage-basic
 
-/optional:
-    summary: Run tests for optional packages
+/storage-extra:
+    summary: More expensive storage tests (LVM, LUKS, Anaconda)
     discover+:
-        test: /test/browser/optional
+        test: /test/browser/storage-extra

@@ -80,8 +80,9 @@ class StorageHelpers:
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1969408
         # It would be nicer to remove $F immediately after the call to
         # losetup, but that will break some versions of lvm2.
+        size_string = size if isinstance(size, str) else str(size) + "MB"
         backf = self.machine.execute("mktemp /var/tmp/loop.XXXX").strip()
-        dev = self.machine.execute(f"truncate --size={size}MB {backf}; "
+        dev = self.machine.execute(f"truncate --size={size_string} {backf}; "
                                    f"losetup -P --show {name if name else '--find'} {backf}").strip()
         # If this device had partions in its last incarnation on this
         # machine, they might come back for unknown reasons, in a

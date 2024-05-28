@@ -81,7 +81,7 @@ const UserActions = ({ account }) => {
         </DropdownItem>,
     );
 
-    return <KebabDropdown id="accounts-actions" dropdownItems={actions} />;
+    return <KebabDropdown toggleButtonId="accounts-actions" dropdownItems={actions} />;
 };
 
 const getGroupRow = (group, accounts) => {

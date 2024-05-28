@@ -62,10 +62,10 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk(size="50MiB")
         self.click_card_row("Storage", name=disk)
 
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.dialog({"type": "gpt"})
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
 
@@ -102,7 +102,7 @@ class TestStoragePartitions(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        testlib.wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() == "25M")
+        testlib.wait(lambda: m.execute(f"lsblk -no SIZE {disk}p1").strip() == "25M")
 
     def testResize(self):
         m = self.machine
@@ -110,10 +110,10 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk(100)
+        disk = self.add_loopback_disk("100MiB")
         self.click_card_row("Storage", name=disk)
 
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.dialog({"type": "gpt"})
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
 
@@ -169,12 +169,12 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk(100)
+        disk = self.add_loopback_disk("100MiB")
         self.click_card_row("Storage", name=disk)
 
         # GPT
 
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.dialog({"type": "gpt"})
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
 
@@ -203,7 +203,7 @@ class TestStoragePartitions(storagelib.StorageCase):
         # DOS
 
         b.click(self.card_parent_link())
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.dialog({"type": "dos"})
         b.wait_text(self.card_row_col("DOS partitions", 1, 1), "Free space")
 

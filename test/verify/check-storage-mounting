@@ -607,10 +607,10 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         # Add a disk and make two partitions on it, one on /run/foo
         # and one on /run/foo/bar
 
-        disk = self.add_ram_disk(100)
+        disk = self.add_loopback_disk(100, name="loop12")
         self.click_card_row("Storage", name=disk)
 
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.dialog({"type": "gpt"})
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
 
@@ -671,7 +671,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.dialog_wait_close()
 
         # Now /run/foo/bar should be noauto.
-        self.assert_in_configuration(disk + "2", "crypttab", "options", "noauto")
+        self.assert_in_configuration(disk + "p2", "crypttab", "options", "noauto")
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /run/foo/bar"))
 
         # Mount them again and check that initializing the disk will
@@ -694,7 +694,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
             b.wait_text("#dialog tbody:nth-of-type(1) td[data-label=Location]", "/run/foo/bar")
             b.wait_text("#dialog tbody:nth-of-type(2) td[data-label=Location]", "/run/foo")
 
-        self.dialog_with_error_retry(trigger=lambda: self.click_card_dropdown("Solid State Drive",
+        self.dialog_with_error_retry(trigger=lambda: self.click_card_dropdown("Block device",
                                                                               "Create partition table"),
                                      first_setup=first_setup,
                                      errors=["Timed out waiting for object"])

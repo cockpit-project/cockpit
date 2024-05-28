@@ -293,7 +293,7 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk1 = self.add_ram_disk()
+        disk1 = self.add_loopback_disk()
         disk2 = self.add_loopback_disk()
         b.wait_visible(self.card_row("Storage", name=disk1))
         b.wait_visible(self.card_row("Storage", name=disk2))
@@ -305,13 +305,13 @@ class TestStorageLvm2(storagelib.StorageCase):
         # Create a volume group out of disk1
         self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown('Create LVM2 volume group'),
                                expect=lambda: self.dialog_is_present('disks', disk1) and
-                               self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
+                               self.dialog_is_present('disks', "unpartitioned space on " + disk1),
                                values={"disks": {disk1: True}})
 
         self.click_card_row("Storage", name="vgroup0")
 
         # Check the we are really using a partition on disk1 now
-        b.wait_in_text(self.card_row_col("LVM2 volume group", 1, 2), "Partition - Linux scsi_debug")
+        b.wait_in_text(self.card_row_col("LVM2 volume group", 1, 2), "Partition - Block device")
 
         # Add the unused space of disk2
         self.dialog_with_retry(trigger=lambda: b.click(self.card_button("LVM2 volume group",
@@ -320,6 +320,7 @@ class TestStorageLvm2(storagelib.StorageCase):
                                    'disks', "unpartitioned space on " + disk2),
                                values={"disks": {disk2: True}})
         b.wait_in_text(self.card_row_col("LVM2 volume group", 1, 2), "Partition - Block device")
+        b.wait_in_text(self.card_row_col("LVM2 volume group", 2, 2), "Partition - Block device")
 
     def testSnapshots(self):
         m = self.machine

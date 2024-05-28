@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import storagelib
 import testlib
 
@@ -41,15 +42,15 @@ class TestStorageBasic(storagelib.StorageCase):
         b.wait_visible(create_dropdown)
 
         # Add a disk, partition it, format it, and finally remove it.
-        disk = self.add_ram_disk()
+        disk = self.add_targetd_loopback_disk(index=1)
 
         self.click_card_row("Storage", name=disk)
-        b.wait_visible(self.card("Solid State Drive"))
+        b.wait_visible(self.card("Hard Disk Drive"))
 
-        b.wait_text(self.card_desc("Solid State Drive", "Model"), "scsi_debug")
-        b.wait_in_text(self.card_desc("Solid State Drive", "Capacity"), "50 MiB")
+        b.wait_text(self.card_desc("Hard Disk Drive", "Model"), "disk1")
+        b.wait_in_text(self.card_desc("Hard Disk Drive", "Capacity"), "50 MiB")
 
-        self.assertEqual(self.inode(b.text(self.card_desc("Solid State Drive", "Device file"))), self.inode(disk))
+        self.assertEqual(self.inode(b.text(self.card_desc("Hard Disk Drive", "Device file"))), self.inode(disk))
 
         m.execute(f'parted -s {disk} mktable gpt')
         m.execute(f'parted -s {disk} mkpart primary ext2 1M 8M')
@@ -83,8 +84,9 @@ class TestStorageBasic(storagelib.StorageCase):
                         # the table columns to shift. The usage bars
                         # are not stable but are always the same size,
                         # so it is good enough to ignore them.
+                        # The targetd loopback disk has a UUID in its name.
                         mock={".usage-text": "---"},
-                        ignore=[".usage-bar"])
+                        ignore=[".usage-bar", f"tr[data-test-row-name={os.path.basename(disk)}] td:nth-child(2)"])
         self.force_remove_disk(disk)
         b.wait_not_present(self.card_row("Storage", name=disk))
 

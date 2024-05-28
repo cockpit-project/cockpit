@@ -30,11 +30,11 @@ class TestStorageMsDOS(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add a disk
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
         self.click_card_row("Storage", name=disk)
 
         # Format it with a DOS partition table
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.dialog({"type": "dos"})
         b.wait_text(self.card_row_col("DOS partitions", 1, 1), "Free space")
 

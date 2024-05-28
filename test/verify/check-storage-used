@@ -30,13 +30,13 @@ class TestStorageUsed(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
         b.wait_visible(self.card_row("Storage", name=disk))
         m.execute(f"parted -s {disk} mktable msdos")
         m.execute(f"parted -s {disk} mkpart primary ext2 1M 25")
         m.execute("udevadm settle")
-        m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}1")
-        m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk}1 dm-test")
+        m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}p1")
+        m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk}p1 dm-test")
         m.execute("udevadm settle")
         m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
         m.execute("mount /dev/mapper/dm-test /mnt")
@@ -60,7 +60,7 @@ ExecStart=/usr/bin/sleep infinity
         # should be 'in use' but Cockpit can clean them all up anyway.
 
         self.click_card_row("Storage", name=disk)
-        b.wait_visible(self.card("Solid State Drive"))
+        b.wait_visible(self.card("Block device"))
 
         self.click_card_row("DOS partitions", 1)
         self.click_card_dropdown("ext2 filesystem", "Format")
@@ -101,7 +101,7 @@ ExecStart=/usr/bin/sleep infinity
         def retry_setup():
             self.dialog_set_val("type", "empty")
 
-        self.dialog_with_error_retry(trigger=lambda: self.click_card_dropdown("Solid State Drive",
+        self.dialog_with_error_retry(trigger=lambda: self.click_card_dropdown("Block device",
                                                                               "Create partition table"),
                                      first_setup=first_setup,
                                      retry_setup=retry_setup,

@@ -96,9 +96,9 @@ export const ShutDownStatus = () => {
 
     return (
         <li id="system-health-shutdown-status">
-            <Flex spacer={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
+            <Flex flexWrap={{ default: 'nowrap' }}>
                 <FlexItem>{icon}</FlexItem>
-                <Flex id="system-health-shutdown-status-text" direction={{ default: 'column' }}>
+                <Flex id="system-health-shutdown-status-text" spaceItems={{ default: 'spaceItemsNone' }} direction={{ default: 'column' }}>
                     {cockpit.format(text, displayDate)}
                     <FlexItem>
                         <Button variant="link" isInline

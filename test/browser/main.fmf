@@ -1,5 +1,5 @@
-/basic:
-  summary: Run browser integration tests for basic Cockpit packages
+/main:
+  summary: Non-storage tests
   require:
     # ourself
     - cockpit
@@ -7,46 +7,60 @@
     # - cockpit-kdump
     # - cockpit-networkmanager
     # - cockpit-sosreport
-    # FIXME: add this after dropping RHEL8 support
-    # - cockpit-tests
+    - cockpit-packagekit
+    - cockpit-tests
     # build/test infra dependencies
     - podman
     # required by tests
+    - createrepo_c
     - dnf-automatic
-    - glibc-all-langpacks
     - firewalld
+    - glibc-all-langpacks
+    - libvirt-daemon-config-network
+    - firewalld
+    - NetworkManager-team
+    - rpm-build
     - sssd
     - sssd-dbus
     - subscription-manager
     - targetcli
     - tlog
     - tuned
-  test: ./browser.sh basic
+  test: ./browser.sh main
   duration: 1h
 
-/network:
-  summary: Run browser integration tests for cockpit-networkmanager
-  require:
-    # ourself
-    - cockpit
-    # done in browser.sh, see https://issues.redhat.com/browse/TFT-2564
-    # - cockpit-networkmanager
-    # build/test infra dependencies
-    - podman
-    # required by tests
-    - NetworkManager-team
-    - firewalld
-    - libvirt-daemon-config-network
-  test: ./browser.sh network
-  duration: 1h
-
-/optional:
-  summary: Run browser integration tests for optional Cockpit packages
+/storage-basic:
+  summary: Basic storage tests
   require:
     # ourself
     - cockpit
     - cockpit-storaged
-    - cockpit-packagekit
+    # for at least swap metrics on storage page
+    - cockpit-pcp
+    # build/test infra dependencies
+    - podman
+    # required by tests
+    - cryptsetup
+    - dnf-automatic
+    - firewalld
+    - lvm2
+    - nfs-utils
+    - python3-tracer
+    - stratis-cli
+    - stratisd
+    - subscription-manager
+    - targetcli
+    - udisks2-lvm2
+    - udisks2-iscsi
+  test: ./browser.sh storage-basic
+  duration: 1h
+
+/storage-extra:
+  summary: More expensive storage tests (LVM, LUKS, Anaconda)
+  require:
+    # ourself
+    - cockpit
+    - cockpit-storaged
     # for at least swap metrics on storage page
     - cockpit-pcp
     # build/test infra dependencies
@@ -66,5 +80,5 @@
     - targetcli
     - udisks2-lvm2
     - udisks2-iscsi
-  test: ./browser.sh optional
+  test: ./browser.sh storage-extra
   duration: 1h

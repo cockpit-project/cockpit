@@ -174,20 +174,24 @@ class TestStorageMdRaid(storagelib.StorageCase):
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
 
         # Create first partition
-        self.click_dropdown(self.card_row("GPT partitions", 1), "Create partition")
-        self.dialog({"size": 20,
-                     "type": "ext4",
-                     "mount_point": "/foo1",
-                     "name": "One"},
-                    secondary=True)
+        self.create_partition_with_retry("GPT partitions", 1,
+                                         {
+                                             "size": 20,
+                                             "type": "ext4",
+                                             "mount_point": "/foo1",
+                                             "name": "One"
+                                         },
+                                         secondary=True)
         b.wait_text(self.card_row_col("GPT partitions", 1, 2), "ext4 filesystem")
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), part_prefix + "1")
 
         # Create second partition
-        self.click_dropdown(self.card_row("GPT partitions", 2), "Create partition")
-        self.dialog({"type": "ext4",
-                     "mount_point": "/foo2",
-                     "name": "Two"})
+        self.create_partition_with_retry("GPT partitions", 2,
+                                         {
+                                             "type": "ext4",
+                                             "mount_point": "/foo2",
+                                             "name": "Two"
+                                         })
         b.wait_text(self.card_row_col("GPT partitions", 2, 2), "ext4 filesystem")
         b.wait_text(self.card_row_col("GPT partitions", 2, 1), part_prefix + "2")
         b.wait_not_present(self.card_row("GPT partitions", name="Free space"))

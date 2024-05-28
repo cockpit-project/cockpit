@@ -39,12 +39,14 @@ class TestStorageMsDOS(storagelib.StorageCase):
         b.wait_text(self.card_row_col("DOS partitions", 1, 1), "Free space")
 
         # Create a primary partition
-        self.click_dropdown(self.card_row("DOS partitions", 1), "Create partition")
-        self.dialog({"size": 10,
-                     "type": "ext4",
-                     "mount_point": "/foo",
-                     "name": "FIRST"},
-                    secondary=True)
+        self.create_partition_with_retry("DOS partitions", 1,
+                                         {
+                                             "size": 10,
+                                             "type": "ext4",
+                                             "mount_point": "/foo",
+                                             "name": "FIRST"
+                                         },
+                                         secondary=True)
         b.wait_text(self.card_row_col("DOS partitions", 1, 2), "ext4 filesystem")
 
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.

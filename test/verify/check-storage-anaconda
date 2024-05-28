@@ -356,8 +356,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.click_dropdown(self.card_row("Storage", 1), "Create partition table")
         self.confirm()
         b.wait_text(self.card_row_col("Storage", 2, 2), "Free space")
-        self.click_dropdown(self.card_row("Storage", 2), "Create partition")
-        self.dialog({"type": "biosboot"})
+        self.create_partition_with_retry("Storage", 2, {"type": "biosboot"})
 
         # Check the type and set it to something else
         b.wait_text(self.card_row_col("Storage", 2, 3), "Unformatted data (BIOS boot partition)")
@@ -391,8 +390,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.click_dropdown(self.card_row("Storage", 1), "Create partition table")
         self.confirm()
         b.wait_text(self.card_row_col("Storage", 2, 2), "Free space")
-        self.click_dropdown(self.card_row("Storage", 2), "Create partition")
-        self.dialog({"type": "efi"})
+        self.create_partition_with_retry("Storage", 2, {"type": "efi"})
 
         # Check the type and set it to something else
         b.wait_text(self.card_row_col("Storage", 2, 3), "vfat filesystem (EFI system partition)")
@@ -438,8 +436,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_set_val("size", "30")
         b.wait(lambda: b.call_js_func('ph_count', "#dialog button.apply") == 1)
         b.wait_text("#dialog button.apply", "Create")
-        self.dialog_apply()
-        self.dialog_wait_close()
+        self.apply_create_partition_with_retry("Storage", 2, {"type": "ext4"})
 
         # Page talks about assigned mount points instead of "not mounted".
         b.wait_text(self.card_row_col("Storage", 2, 4), "(no assigned mount point)")
@@ -465,8 +462,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.click_dropdown(self.card_row("Storage", 3), "Create partition")
         self.dialog_wait_open()
         self.dialog_wait_val("type", "ext4")
-        self.dialog_apply()
-        self.dialog_wait_close()
+        self.apply_create_partition_with_retry("Storage", 3, {})
 
     def testSwap(self):
         b = self.browser
@@ -515,8 +511,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.click_dropdown(self.card_row("Storage", name="md/raid0"), "Create partition table")
         self.confirm()
         b.wait_text(self.card_row_col("Storage", 4, 2), "Free space")
-        self.click_dropdown(self.card_row("Storage", 4), "Create partition")
-        self.dialog({})
+        self.create_partition_with_retry("Storage", 4, {})
 
         # Stop the MDRAID, it should still be shown
         self.click_card_row("Storage", name="md/raid0")

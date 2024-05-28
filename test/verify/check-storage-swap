@@ -38,8 +38,7 @@ class TestStorageswap(storagelib.StorageCase):
         self.click_card_dropdown("Solid State Drive", "Create partition table")
         self.confirm()
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
-        self.click_dropdown(self.card_row("GPT partitions", 1), "Create partition")
-        self.dialog({"type": "swap"})
+        self.create_partition_with_retry("GPT partitions", 1, {"type": "swap"})
         b.wait_text(self.card_row_col("GPT partitions", 1, 2), "Swap")
 
         # It should have been started and have a fstab entry

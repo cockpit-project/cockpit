@@ -19,6 +19,7 @@ import json
 import os.path
 import re
 import textwrap
+import time
 
 from testlib import Error, MachineCase, wait
 
@@ -367,6 +368,40 @@ class StorageHelpers:
                         return False
                 raise
         self.browser.wait(doit)
+
+    # Creating and formatting a partition sometimes fails with "Device
+    # or resource busy" when the storage stack trips over its own feet
+    # during the process.  Let's do what the user would do and
+    # complete the formatting explicitly.
+
+    def create_partition_with_retry(self, title, row, values, secondary=False):
+        self.click_dropdown(self.card_row(title, row), "Create partition")
+        self.dialog_wait_open()
+        self.dialog_set_vals(values)
+        self.apply_create_partition_with_retry(title, row, values, secondary)
+
+    def apply_create_partition_with_retry(self, title, row, values, secondary=False):
+        if secondary:
+            self.dialog_apply_secondary()
+        else:
+            self.dialog_apply()
+        try:
+            self.dialog_wait_close()
+        except Error:
+            if "Device or resource busy" in self.browser.text('#dialog'):
+                print("WARNING: Device busy while creating partition, formatting explicitly")
+                time.sleep(10)
+                self.dialog_cancel()
+                self.dialog_wait_close()
+                self.click_dropdown(self.card_row(title, row), "Format")
+                self.dialog_set_vals({k: v for k, v in values.items() if k != "size"})
+                if secondary:
+                    self.dialog_apply_secondary()
+                else:
+                    self.dialog_apply()
+                self.dialog_wait_close()
+            else:
+                raise
 
     def udisks_objects(self):
         return json.loads(self.machine.execute(["python3", "-c", textwrap.dedent("""

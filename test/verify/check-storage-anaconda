@@ -340,7 +340,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
     def testBiosboot(self):
         b = self.browser
 
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
 
         anaconda_config = {
             "mount_point_prefix": "/sysroot",
@@ -374,7 +374,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
     def testEfiSystemPartition(self):
         b = self.browser
 
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
 
         anaconda_config = {
             "mount_point_prefix": "/sysroot",
@@ -411,7 +411,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
 
         anaconda_config = {
             "mount_point_prefix": "/sysroot",

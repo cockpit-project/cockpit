@@ -64,7 +64,7 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
         self.click_card_row("Storage", name=disk)
 
         self.click_card_dropdown("Solid State Drive", "Create partition table")
@@ -111,7 +111,7 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk(100)
+        disk = self.add_loopback_disk(100)
         self.click_card_row("Storage", name=disk)
 
         self.click_card_dropdown("Solid State Drive", "Create partition table")
@@ -174,7 +174,7 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk(100)
+        disk = self.add_loopback_disk(100)
         self.click_card_row("Storage", name=disk)
 
         # GPT

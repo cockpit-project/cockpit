@@ -607,7 +607,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         # Add a disk and make two partitions on it, one on /run/foo
         # and one on /run/foo/bar
 
-        disk = self.add_ram_disk(100)
+        disk = self.add_loopback_disk(100)
         self.click_card_row("Storage", name=disk)
 
         self.click_card_dropdown("Solid State Drive", "Create partition table")

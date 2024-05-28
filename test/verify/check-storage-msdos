@@ -30,7 +30,7 @@ class TestStorageMsDOS(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add a disk
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
         self.click_card_row("Storage", name=disk)
 
         # Format it with a DOS partition table

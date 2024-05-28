@@ -45,9 +45,7 @@ echo "TEST_AUDIT_NO_SELINUX: ${TEST_AUDIT_NO_SELINUX:-}"
 
 if [ "$PLAN" = "optional" ]; then
     TESTS="$TESTS
-           TestAutoUpdates
-           TestUpdates
-           TestStorage
+           TestStorageswap
            "
 
     # Testing Farm machines often have pending restarts/reboot

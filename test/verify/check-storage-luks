@@ -44,9 +44,9 @@ class TestStorageLuks(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add a disk and partition it
-        disk = self.add_ram_disk(100)
+        disk = self.add_loopback_disk(100)
         self.click_card_row("Storage", name=disk)
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.dialog({"type": "gpt"})
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
 
@@ -258,7 +258,7 @@ class TestStorageLuks(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add a disk and format it with luks, but without filesystem
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
         self.click_card_row("Storage", name=disk)
 
         self.click_card_dropdown("Unformatted data", "Format")
@@ -294,7 +294,7 @@ class TestStorageLuks(storagelib.StorageCase):
         self.assertEqual(m.execute(f"lsblk -no RO {cleartext_dev}").strip(), "1")
 
         # Now create a empty, encrypted partition
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.dialog({"type": "gpt"})
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
         self.create_partition_with_retry("GPT partitions", 1,

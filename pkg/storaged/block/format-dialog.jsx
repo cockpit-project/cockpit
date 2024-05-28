@@ -545,9 +545,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         if (type == "dos-extended")
                             return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
                         else
-                            return (block_ptable.CreatePartitionAndFormat(start, vals.size, partition_type, "", { },
-                                                                          type, options)
-                                    .then(() => Promise.reject(new Error("Device or resource busy, my man"))));
+                            return block_ptable.CreatePartitionAndFormat(start, vals.size, partition_type, "", { },
+                                                                         type, options);
                     } else if (keep_keys) {
                         return (edit_crypto_config(block,
                                                    (config, commit) => {

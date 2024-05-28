@@ -28,14 +28,14 @@ class TestStorageswap(storagelib.StorageCase):
         b = self.browser
         m = self.machine
 
-        disk = self.add_ram_disk()
+        disk = self.add_loopback_disk()
         self.addCleanup(m.execute, f"swapoff {disk} || true; swapoff {disk}1 || true")
 
         self.login_and_go("/storage")
 
         # Create a swap partition on GPT
         self.click_card_row("Storage", name=disk)
-        self.click_card_dropdown("Solid State Drive", "Create partition table")
+        self.click_card_dropdown("Block device", "Create partition table")
         self.confirm()
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
         self.create_partition_with_retry("GPT partitions", 1, {"type": "swap"})
@@ -44,17 +44,17 @@ class TestStorageswap(storagelib.StorageCase):
         # It should have been started and have a fstab entry
         self.click_card_row("GPT partitions", 1)
         b.wait_text(self.card_desc("Swap", "Used"), "0 B")
-        self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
+        self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}p1"))
 
         # Stopping should set it to noauto
         b.click(self.card_button("Swap", "Stop"))
         b.wait_text(self.card_desc("Swap", "Used"), "-")
-        self.assertIn("noauto", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
+        self.assertIn("noauto", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}p1"))
 
         # Start it again to test teardown below
         b.click(self.card_button("Swap", "Start"))
         b.wait_text(self.card_desc("Swap", "Used"), "0 B")
-        self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
+        self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}p1"))
 
         # It should have the right partition type
         b.wait_visible(self.card("Swap"))
@@ -69,7 +69,7 @@ class TestStorageswap(storagelib.StorageCase):
         self.click_card_dropdown("Swap", "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "swap")
-        b.wait_in_text("#dialog .modal-footer-teardown", f"{disk}1")
+        b.wait_in_text("#dialog .modal-footer-teardown", f"{disk}p1")
         b.wait_in_text("#dialog .modal-footer-teardown", "stop, format")
         self.dialog_apply_secondary()
         self.dialog_wait_close()
@@ -78,8 +78,8 @@ class TestStorageswap(storagelib.StorageCase):
         # Delete the partition, the fstab entry should disappear
         self.click_card_dropdown("Partition", "Delete")
         self.confirm()
-        b.wait_visible(self.card("Solid State Drive"))
-        m.execute(f"! findmnt --fstab -n -o OPTIONS {disk}1")
+        b.wait_visible(self.card("Block device"))
+        m.execute(f"! findmnt --fstab -n -o OPTIONS {disk}p1")
 
         # Format as swap on the command line, starting it should add
         # fstab entry

@@ -223,7 +223,7 @@ export const CryptoPolicyStatus = () => {
     if (isInconsistentPolicy(currentCryptoPolicy, fipsEnabled)) {
         return (
             <li className="system-health-crypto-policies">
-                <Flex spacer={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
+                <Flex flexWrap={{ default: 'nowrap' }}>
                     <FlexItem><ExclamationTriangleIcon className="crypto-policies-health-card-icon" /></FlexItem>
                     <div>
                         <div id="inconsistent_crypto_policy">

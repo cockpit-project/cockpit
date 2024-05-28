@@ -59,6 +59,7 @@ class StorageHelpers:
         dev = self.machine.execute('while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
                                    '[ -n "$O" ] && break || sleep 0.1; done; echo "/dev/$O"').strip()
         # don't use addCleanup() here, this is often busy and needs to be cleaned up late; done in MachineCase.nonDestructiveSetup()
+        print("NEW RAMDISK\n", self.machine.execute(f"lsblk {dev}"))
 
         return dev
 
@@ -390,7 +391,10 @@ class StorageHelpers:
         except Error:
             if "Device or resource busy" in self.browser.text('#dialog'):
                 print("WARNING: Device busy while creating partition, formatting explicitly")
-                time.sleep(10)
+                print(self.machine.execute("lsblk"))
+                print(self.machine.execute("findmnt"))
+                print(self.machine.execute("cat /proc/swaps"))
+                print(self.machine.execute("uname -a"))
                 self.dialog_cancel()
                 self.dialog_wait_close()
                 self.click_dropdown(self.card_row(title, row), "Format")

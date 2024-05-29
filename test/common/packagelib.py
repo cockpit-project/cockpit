@@ -46,6 +46,10 @@ class PackageCase(MachineCase):
             self.backend = "dnf5"
             self.primary_arch = "noarch"
             self.secondary_arch = "x86_64"
+        elif "suse" in self.machine.image:
+            self.backend = "zypper"
+            self.primary_arch = "noarch"
+            self.secondary_arch = "x86_64"
         elif self.machine.image == "arch":
             self.backend = "alpm"
             self.primary_arch = "any"

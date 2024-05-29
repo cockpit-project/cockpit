@@ -23,6 +23,14 @@ if rpm -q setroubleshoot-server; then
     dnf remove -y --setopt=clean_requirements_on_remove=False setroubleshoot-server
 fi
 
+# HACK: this package creates bogus/broken sda → nvme symlinks; it's new in rawhide TF default instances, not required for
+# our tests, and only causes trouble; https://github.com/amazonlinux/amazon-ec2-utils/issues/37
+if rpm -q amazon-ec2-utils; then
+    rpm -e --verbose amazon-ec2-utils
+    # clean up the symlinks
+    udevadm trigger /dev/nvme*
+fi
+
 if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "main" ]; then
     # Fedora-only packages which are not available in CentOS/RHEL
     # required by TestLogin.testBasic

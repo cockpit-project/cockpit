@@ -149,7 +149,14 @@ class cockpit_User(bus.Object):
         self.gid = user.pw_gid
         self.home = user.pw_dir
         self.shell = user.pw_shell
-        self.groups = [gr.gr_name for gr in grp.getgrall() if user.pw_name in gr.gr_mem]
+
+        # We want the primary group first in the list, without duplicates.
+        # This is a bit awkward because `set()` is unordered...
+        groups = [grp.getgrgid(user.pw_gid).gr_name]
+        for gr in grp.getgrall():
+            if user.pw_name in gr.gr_mem and gr.gr_name not in groups:
+                groups.append(gr.gr_name)
+        self.groups = groups
 
 
 EXPORTS = [

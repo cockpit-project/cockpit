@@ -44,11 +44,13 @@ class NetworkHelpers:
         if dhcp_cidr:
             # up the remote end, give it an IP, and start DHCP server
             self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")
-            server = self.machine.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
-                                        f"--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{name} --no-resolv "
+
+            self.machine.execute("mkdir -p /run/dnsmasq")
+            server = self.machine.spawn(f"dnsmasq --keep-in-foreground --log-queries --log-facility=- "
+                                        f"--conf-file=/dev/null --dhcp-leasefile=/run/dnsmasq/leases.{name} --no-resolv "
                                         f"--bind-interfaces --except-interface=lo --interface=v_{name} --dhcp-range={dhcp_range[0]},{dhcp_range[1]},4h",
                                         f"dhcp-{name}.log")
-            self.addCleanup(self.machine.execute, "kill %i" % server)
+            self.addCleanup(self.machine.execute, f"kill {server}; rm -rf /run/dnsmasq")
             self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
 
     def nm_activate_eth(self, iface):

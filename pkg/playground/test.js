@@ -125,6 +125,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("hidden").textContent = cockpit.hidden ? "hidden" : "visible";
     }
 
+    cockpit.user().then(info => {
+        console.log(info);
+        document.getElementById("user-info").textContent = JSON.stringify(info);
+    });
+
     cockpit.addEventListener("visibilitychange", show_hidden);
     show_hidden();
 });

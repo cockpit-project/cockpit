@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import os
 import subprocess
 import tempfile
@@ -954,6 +955,25 @@ OnCalendar=daily
         with b.wait_timeout(30):
             b.wait(lambda: int(m.execute(f"ls {dest_dir} | wc -l").strip()) == len(files))
         b.wait_visible("#upload-file-btn:not(:disabled)")
+
+    def testUserInfo(self) -> None:
+        b = self.browser
+        m = self.machine
+
+        m.execute("""
+            groupadd test
+            gpasswd -a admin test
+        """)
+
+        self.login_and_go("/playground/test")
+        b.wait_visible("#user-info")
+        user_info = json.loads(b.text("#user-info"))
+        self.assertEqual(user_info["home"], "/var/home/admin" if m.ostree_image else "/home/admin")
+        # default group is first
+        self.assertEqual(user_info["groups"][0], m.execute("id -gn admin").strip())
+        self.assertIn("test", user_info["groups"])
+        self.assertEqual(str(user_info["id"]), m.execute("id -u admin").strip())
+        self.assertEqual(str(user_info["gid"]), m.execute("id -g admin").strip())
 
 
 if __name__ == '__main__':

@@ -91,7 +91,14 @@ function AccountsPage() {
         const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
         handleShadow.watch(() => debouncedGetLoginDetails(), { read: false });
 
-        const handleLogindef = cockpit.file("/etc/login.defs");
+        let handleLogindef;
+        try {
+            await cockpit.spawn(["test", "-e", "/etc/login.defs"], { err: "ignore" });
+            handleLogindef = cockpit.file("/etc/login.defs");
+        } catch (err1) {
+            handleLogindef = cockpit.file("/usr/etc/login.defs");
+        }
+
         handleLogindef.watch((logindef) => {
             if (logindef === null)
                 return;

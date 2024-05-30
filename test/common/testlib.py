@@ -2540,6 +2540,11 @@ def get_superuser(image: str) -> str:
     # In (open)SUSE images, superuser access always requires the root password
     return "root" if "suse" in image else "admin"
 
+
+def get_sshd_config_path(image: str) -> str:
+    # In (open)SUSE images, superuser access always requires the root password
+    return "/usr/etc/ssh/sshd_config" if "suse" in image else "/etc/ssh/sshd_config"
+
 ###########################
 # Test decorators
 #

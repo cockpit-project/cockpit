@@ -144,7 +144,8 @@ class TestSystemInfo(testlib.MachineCase):
         b.wait_not_present("#system_information_ssh_keys")
 
         # Change ssh config and restart
-        self.sed_file(r"s,.*HostKey *,#,; $ a HostKey /etc/ssh/weirdname", "/etc/ssh/sshd_config",
+        sshd_path = testlib.get_sshd_config_path(m.image)
+        self.sed_file(r"s,.*HostKey *,#,; $ a HostKey /etc/ssh/weirdname", sshd_path,
                       self.restart_sshd)
         ssh_reconnect(m)
 

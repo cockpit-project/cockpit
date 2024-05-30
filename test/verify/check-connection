@@ -634,7 +634,7 @@ class TestConnection(testlib.MachineCase):
         m.execute("passwd -d admin")
         m.execute("passwd -d bob")
 
-        self.sed_file('$ a\\\nPermitEmptyPasswords yes', '/etc/ssh/sshd_config',
+        self.sed_file('$ a\\\nPermitEmptyPasswords yes', testlib.get_sshd_config_path(m.image),
                       self.restart_sshd)
 
         def assertInOrNot(string: str, result: str, *, expected: bool) -> None:

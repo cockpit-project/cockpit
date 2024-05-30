@@ -558,6 +558,9 @@ echo dummy > /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
 if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
     grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg
+elif type update-bootloader >/dev/null 2>&1; then
+    update-bootloader  # suse
+    grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg
 else
     cp -a /boot/grub2/grubenv /boot/grub2/grubenv.prev
     kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null
@@ -571,6 +574,8 @@ fi
 rm /boot/vmlinuz-42.0.0
 if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
+elif type update-bootloader >/dev/null 2>&1; then
+    update-bootloader # suse
 else
     kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=2078359 and https://bugzilla.redhat.com/show_bug.cgi?id=2078379
@@ -624,6 +629,8 @@ fi
         m.execute('mv /etc/default/grub /etc/default/grub.bak || true')
         m.write('/tmp/grubby', '#!/bin/sh\necho 0')
         m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
+        m.write('/tmp/update-bootloader', '#!/bin/sh\necho 0')
+        m.execute('[ ! -f /usr/sbin/update-bootloader ] || mount --bind /tmp/update-bootloader /usr/sbin/update-bootloader')
         m.execute('systemctl stop rpm-ostreed.service || true; systemctl mask rpm-ostreed.service')
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')

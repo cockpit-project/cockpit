@@ -222,7 +222,10 @@ class TestSystemInfo(testlib.MachineCase):
 
         self.restore_file("/etc/motd")
         # run this test with a tight umask to check preserving file permissions
-        self.sed_file(r"/^UMASK/ s/0../077/", "/etc/login.defs")
+        if "suse" in m.image:
+            self.sed_file(r"/^UMASK/ s/0../077/", "/usr/etc/login.defs")
+        else:
+            self.sed_file(r"/^UMASK/ s/0../077/", "/etc/login.defs")
         m.execute("rm -f /etc/motd")
 
         self.login_and_go("/system")

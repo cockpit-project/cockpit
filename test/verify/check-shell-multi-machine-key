@@ -95,8 +95,9 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
         # Add user
         self.machine2.disconnect()
         self.machine2.execute("useradd user -c User", direct=True)
+        sshd_path = self.sshd_config_path
         self.machine2.execute(
-            "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)", direct=True)
+            f"sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' {sshd_path} $(ls {sshd_path}.d/* 2>/dev/null || true)", direct=True)
         self.machine2.execute(self.restart_sshd, direct=True)
         self.machine2.wait_execute()
 

@@ -756,7 +756,8 @@ ipa-advise enable-admins-sudo | sh -ex
         """)
 
         # enable ssh GSSAPI authentication
-        m.execute("sed -ri 's/#GSSAPIAuthentication.*/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
+        sshd_path = self.sshd_config_path
+        m.execute(f"sed -ri 's/#GSSAPIAuthentication.*/GSSAPIAuthentication yes/' {sshd_path}")
         m.execute(self.restart_sshd)
 
         # avoid "unknown host" error in SSH

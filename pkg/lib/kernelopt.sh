@@ -14,8 +14,8 @@ error() {
 grub() {
     key="${2%=*}"  # split off optional =value
 
-    # For the non-BLS case, or if someone overrides those with grub2-mkconfig
-    # or update-grub, change it in /etc/default/grub
+    # For the non-BLS case, or if someone overrides those with grub2-mkconfig,
+    # update-grub or update-bootloader, change it in /etc/default/grub
     if [ -e /etc/default/grub ]; then
         if [ "$1" = set ]; then
             # replace existing argument, otherwise append it
@@ -37,6 +37,11 @@ grub() {
     elif [ -e /etc/default/grub ] && type update-grub >/dev/null 2>&1; then
         update-grub
 
+    # on Suse platforms, use update-bootloader
+    # Since earlier we updated /etc/default/grub we can just run update-bootloader
+    elif type update-bootloader >/dev/null 2>&1; then
+        update-bootloader
+
     # on OSTree, the kernel config is inside the image
     elif cur=$(rpm-ostree kargs 2>&1); then
         if [ "$1" = set ]; then
@@ -50,7 +55,7 @@ grub() {
             rpm-ostree kargs --delete="$key"
         fi
     else
-        error "No supported grub update mechanism found (grubby, update-grub, or rpm-ostree)"
+        error "No supported grub update mechanism found (grubby, update-grub, update-bootloader or rpm-ostree)"
     fi
 }
 

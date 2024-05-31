@@ -21,7 +21,7 @@ po/cockpit.js.pot:
 		--keyword=ngettext:1,2,3t --keyword=ngettext:1c,2,3,4t \
 		--keyword=gettextCatalog.getString:1,3c --keyword=gettextCatalog.getPlural:2,3,4c \
 		--from-code=UTF-8 --directory=$(srcdir) \
-		$$( cd $(srcdir) && find pkg/ ! -name 'test-*' -name '*.js' -o -name '*.jsx') | \
+		$$( cd $(srcdir) && find pkg/ ! -name 'test-*' -name '*.[jt]s' -o -name '*.[jt]sx') | \
 		sed '/^#/ s/, c-format//' > $@
 
 po/cockpit.manifest.pot: $(srcdir)/package-lock.json

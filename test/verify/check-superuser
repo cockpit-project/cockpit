@@ -143,6 +143,14 @@ auth required mock-pam-conv-mod.so
 @include common-account
 @include common-session-noninteractive
 """)
+        elif "suse" in m.image:
+            self.write_file("/etc/pam.d/sudo", """
+auth required pam_unix.so
+auth required mock-pam-conv-mod.so
+account include common-account
+password include common-password
+session include common-session
+""")
         else:
             self.write_file("/etc/pam.d/sudo", """
 auth required pam_unix.so

@@ -166,7 +166,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         b.wait(lambda: b.call_js_func('ph_count', self.card("Storage") + " tbody tr") == 1)
         b.wait_not_present(self.card_row("Storage", location="/var"))
 
-    @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+    @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "*suse*")
     @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
     def testStratis(self):
         m = self.machine

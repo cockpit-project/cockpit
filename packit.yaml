@@ -54,8 +54,6 @@ jobs:
   - job: copr_build
     trigger: pull_request
     targets:
-      # 32 bit
-      - fedora-development-i386
       # big-endian
       - fedora-development-s390x
 

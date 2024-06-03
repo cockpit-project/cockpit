@@ -53,6 +53,10 @@ Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 10
+ExcludeArch: %{ix86}
+%endif
+
 # pcp stopped building on ix86
 %define build_pcp 1
 %if 0%{?fedora} >= 40 || 0%{?rhel} >= 10

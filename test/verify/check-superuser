@@ -201,6 +201,11 @@ session include system-auth
         if "ubuntu" in m.image:
             self.sed_file("/^%admin/d", "/etc/sudoers")
 
+        # The default in tumbleweed is to allow passworded sudo to root
+        # We need to remove this before we actually run this test
+        if "suse" in m.image:
+            self.sed_file("/^ALL/d", "/usr/etc/sudoers")
+
         m.execute(f"gpasswd -d admin {m.get_admin_group()}")
 
         self.login_and_go()

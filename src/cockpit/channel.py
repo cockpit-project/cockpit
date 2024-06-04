@@ -20,7 +20,7 @@ import json
 import logging
 import traceback
 import typing
-from typing import BinaryIO, Callable, ClassVar, Collection, Iterator, Mapping, Sequence, Type
+from typing import BinaryIO, Callable, ClassVar, Collection, Generator, Mapping, Sequence, Type
 
 from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_bool, get_enum, get_str
 from .protocol import CockpitProblem
@@ -540,9 +540,9 @@ class GeneratorChannel(Channel):
     and sends the data which it yields.  If the generator returns a value it
     will be used for the close message.
     """
-    __generator: 'Iterator[bytes]'
+    __generator: 'Generator[bytes, None, JsonObject]'
 
-    def do_yield_data(self, options: JsonObject) -> 'Iterator[bytes]':
+    def do_yield_data(self, options: JsonObject) -> 'Generator[bytes, None, JsonObject]':
         raise NotImplementedError
 
     def do_open(self, options: JsonObject) -> None:

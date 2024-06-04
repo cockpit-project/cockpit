@@ -45,6 +45,15 @@ if [ "$ID" = "debian" ]; then
     echo '* soft core unlimited' >> /etc/security/limits.conf
 fi
 
+if [ "$ID" = "opensuse-tumbleweed" ]; then
+    # Force allowing memory accounting and cgroup delegation in suse
+    # This is because by default suse images disable both of these
+    # so we can't run any tests that rely on checking memory usage
+    printf '[Manager]\nDefaultMemoryAccounting=yes\n' > /usr/lib/systemd/system.conf.d/80-memory-accounting.conf
+    mkdir -p /etc/systemd/system/user@.service.d
+    printf '[Service]\nDelegate=cpu io memory\n' > /etc/systemd/system/user@.service.d/80-cgroups-delegation.conf
+fi
+
 PLATFORM_ID="${PLATFORM_ID:-}"
 if [ "${PLATFORM_ID#platform:el}" != "$PLATFORM_ID" ]; then
     # allow /usr/local/bin/ in sudo shells, to use our installed tools like the Python bridge

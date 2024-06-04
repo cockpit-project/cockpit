@@ -476,7 +476,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 
-    @testlib.skipImage("No SELinux", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No SELinux", "debian-*", "ubuntu-*", "arch", "*suse*")
     @testlib.skipOstree("No semanage")
     def testSELinuxRestrictedUser(self):
         m = self.machine

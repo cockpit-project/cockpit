@@ -53,7 +53,7 @@ Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
-%if 0%{?fedora} >= 41 || 0%{?rhel} >= 10
+%if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
 %endif
 

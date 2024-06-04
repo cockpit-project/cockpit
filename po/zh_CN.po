@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-28 02:47+0000\n"
+"POT-Creation-Date: 2024-06-04 02:47+0000\n"
 "PO-Revision-Date: 2024-04-27 13:21+0000\n"
 "Last-Translator: Charles Lee <lchopn@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -35,7 +35,7 @@ msgstr ""
 msgid "# of users"
 msgstr "用户数"
 
-#: pkg/metrics/metrics.jsx:708
+#: pkg/metrics/metrics.jsx:710
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "$0 CPU"
@@ -49,7 +49,7 @@ msgid "$0 active zone"
 msgid_plural "$0 active zones"
 msgstr[0] "$0 个已启用的安全区域"
 
-#: pkg/metrics/metrics.jsx:730 pkg/metrics/metrics.jsx:893
+#: pkg/metrics/metrics.jsx:732 pkg/metrics/metrics.jsx:895
 msgid "$0 available"
 msgstr "$0 可用"
 
@@ -111,11 +111,11 @@ msgstr "$0 份文档"
 msgid "$0 error"
 msgstr "$0 个错误"
 
-#: pkg/lib/cockpit.js:2676
+#: pkg/lib/cockpit.js:2677
 msgid "$0 exited with code $1"
 msgstr "进程 $0 已退出，返回码为 $1"
 
-#: pkg/lib/cockpit.js:2678
+#: pkg/lib/cockpit.js:2679
 msgid "$0 failed"
 msgstr "进程 $0 运行时出错"
 
@@ -128,7 +128,7 @@ msgstr[0] "$0 次登录失败"
 msgid "$0 filesystem"
 msgstr "$0 文件系统"
 
-#: pkg/metrics/metrics.jsx:942
+#: pkg/metrics/metrics.jsx:944
 msgid "$0 free"
 msgstr "$0 可用"
 
@@ -150,7 +150,7 @@ msgstr "$0 是一个已存在的文件"
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:84
 #: pkg/storaged/partitions/partition.jsx:47
 #: pkg/storaged/partitions/format-disk-dialog.jsx:39
-#: pkg/storaged/lvm2/volume-group.jsx:85 pkg/storaged/lvm2/volume-group.jsx:336
+#: pkg/storaged/lvm2/volume-group.jsx:85 pkg/storaged/lvm2/volume-group.jsx:338
 #: pkg/storaged/lvm2/block-logical-volume.jsx:68
 #: pkg/storaged/lvm2/block-logical-volume.jsx:151
 #: pkg/storaged/stratis/filesystem.jsx:125 pkg/storaged/stratis/pool.jsx:137
@@ -169,7 +169,7 @@ msgstr "没有提供 $0 组件的仓库。"
 msgid "$0 key changed"
 msgstr "已更改 $0 个密钥"
 
-#: pkg/lib/cockpit.js:2674
+#: pkg/lib/cockpit.js:2675
 msgid "$0 killed with signal $1"
 msgstr "进程 $0 被信号 $1 终止"
 
@@ -202,12 +202,12 @@ msgid "$0 package"
 msgid_plural "$0 packages"
 msgstr[0] "$0 个软件包"
 
-#: pkg/packagekit/updates.jsx:702 pkg/packagekit/updates.jsx:817
+#: pkg/packagekit/updates.jsx:701 pkg/packagekit/updates.jsx:816
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 个软件包需要重启系统才能完成更新"
 
-#: pkg/metrics/metrics.jsx:134
+#: pkg/metrics/metrics.jsx:136
 msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "$0 个分页"
@@ -216,7 +216,7 @@ msgstr[0] "$0 个分页"
 msgid "$0 partitions"
 msgstr "$0 分区"
 
-#: pkg/packagekit/updates.jsx:789
+#: pkg/packagekit/updates.jsx:788
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "$0 个待安装的安全修复"
@@ -226,7 +226,7 @@ msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 个系统服务故障"
 
-#: pkg/packagekit/updates.jsx:719 pkg/packagekit/updates.jsx:829
+#: pkg/packagekit/updates.jsx:718 pkg/packagekit/updates.jsx:828
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 个系统服务需要重启"
@@ -236,7 +236,7 @@ msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 个剩余插槽"
 
-#: pkg/metrics/metrics.jsx:1333
+#: pkg/metrics/metrics.jsx:1335
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 高负载"
@@ -245,12 +245,12 @@ msgstr[0] "$0 高负载"
 msgid "$0 synchronized"
 msgstr "$0 同步"
 
-#: pkg/metrics/metrics.jsx:722 pkg/metrics/metrics.jsx:884
-#: pkg/metrics/metrics.jsx:950
+#: pkg/metrics/metrics.jsx:724 pkg/metrics/metrics.jsx:886
+#: pkg/metrics/metrics.jsx:952
 msgid "$0 total"
 msgstr "$0 总计"
 
-#: pkg/packagekit/updates.jsx:797
+#: pkg/packagekit/updates.jsx:796
 msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 个可用更新"
@@ -258,6 +258,12 @@ msgstr[0] "$0 个可用更新"
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:309
 msgid "$0 used of $1 ($2 saved)"
 msgstr "已使用 $0，共 $1（已保存 $2）"
+
+#: pkg/storaged/dialog.jsx:1360
+#, fuzzy
+#| msgid "$0 total"
+msgid "$0 used, $1 total"
+msgstr "$0 总计"
 
 #: pkg/lib/cockpit-components-plot.jsx:223
 msgid "$0 week"
@@ -285,7 +291,7 @@ msgstr "$0：于 $1 崩溃"
 msgid "$name (from $host)"
 msgstr "$name（位于 $host）"
 
-#: pkg/storaged/dialog.jsx:1225
+#: pkg/storaged/dialog.jsx:1265
 msgid "(Not part of target)"
 msgstr "（不是目标的一部分）"
 
@@ -302,7 +308,7 @@ msgstr "（未挂载）"
 msgid "(recommended)"
 msgstr "（推荐）"
 
-#: pkg/packagekit/updates.jsx:799
+#: pkg/packagekit/updates.jsx:798
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] "，包含 $1 个安全更新"
@@ -319,7 +325,7 @@ msgstr "1 天"
 msgid "1 hour"
 msgstr "1 小时"
 
-#: pkg/metrics/metrics.jsx:852
+#: pkg/metrics/metrics.jsx:854
 msgid "1 min"
 msgstr "1 分钟"
 
@@ -355,7 +361,7 @@ msgstr "13 日"
 msgid "14th"
 msgstr "14 日"
 
-#: pkg/metrics/metrics.jsx:854
+#: pkg/metrics/metrics.jsx:856
 msgid "15 min"
 msgstr "15 分钟"
 
@@ -467,7 +473,7 @@ msgstr "40 分钟"
 msgid "4th"
 msgstr "4 日"
 
-#: pkg/metrics/metrics.jsx:853
+#: pkg/metrics/metrics.jsx:855
 msgid "5 min"
 msgstr "5 分钟"
 
@@ -557,7 +563,7 @@ msgstr ""
 "将在 $2 上为 $1 在 $0 处创建一个新的 SSH 密钥，该密钥将被添加到 $5 上 $4 的"
 "$3 文件中。"
 
-#: pkg/packagekit/updates.jsx:1528
+#: pkg/packagekit/updates.jsx:1527
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
@@ -567,13 +573,13 @@ msgstr[0] "如下软件包更新需要重启系统才能生效："
 msgid "A pool with this name exists already."
 msgstr "已有重名存储池。"
 
-#: pkg/packagekit/updates.jsx:1532
+#: pkg/packagekit/updates.jsx:1531
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
 msgstr[0] "需要重启如下系统服务才能使更新生效："
 
-#: pkg/storaged/lvm2/volume-group.jsx:383
+#: pkg/storaged/lvm2/volume-group.jsx:385
 msgid "A volume group with missing physical volumes can not be renamed."
 msgstr "无法重命名物理卷丢失的卷组。"
 
@@ -618,11 +624,11 @@ msgstr "此帐户不可用或不可编辑。"
 msgid "Accounts"
 msgstr "用户账户"
 
-#: pkg/storaged/dialog.jsx:1247
+#: pkg/storaged/dialog.jsx:1287
 msgid "Action"
 msgstr "操作"
 
-#: pkg/storaged/pages.jsx:718 pkg/apps/application-list.jsx:90
+#: pkg/storaged/pages.jsx:718 pkg/apps/application-list.jsx:92
 msgid "Actions"
 msgstr "操作"
 
@@ -1014,16 +1020,16 @@ msgstr ""
 msgid "Appearance"
 msgstr "外观"
 
-#: pkg/apps/application-list.jsx:177
+#: pkg/apps/application-list.jsx:167
 msgid "Application information is missing"
 msgstr "缺少应用程序信息"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:184
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:174
 #: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "应用程序"
 
-#: pkg/apps/application-list.jsx:211
+#: pkg/apps/application-list.jsx:201
 msgid "Applications list"
 msgstr "应用程序列表"
 
@@ -1090,7 +1096,7 @@ msgstr "至少需要 1 个块设备。"
 msgid "At least one disk is needed."
 msgstr "至少需要 1 块磁盘。"
 
-#: pkg/storaged/btrfs/subvolume.jsx:366
+#: pkg/storaged/btrfs/subvolume.jsx:367
 msgid "At least one parent needs to be mounted writable"
 msgstr "最少有一个父设备需要以可写模式挂载"
 
@@ -1196,7 +1202,7 @@ msgstr "自动化脚本"
 msgid "Available targets on $0"
 msgstr "$0 上可用的目标"
 
-#: pkg/packagekit/updates.jsx:444 pkg/packagekit/updates.jsx:926
+#: pkg/packagekit/updates.jsx:444 pkg/packagekit/updates.jsx:925
 msgid "Available updates"
 msgstr "可用的更新"
 
@@ -1321,7 +1327,7 @@ msgstr "错误的配置"
 msgid "Btrfs volume is mounted"
 msgstr "Btrfs 卷已被挂载"
 
-#: pkg/packagekit/updates.jsx:1436
+#: pkg/packagekit/updates.jsx:1435
 msgid "Bug fix updates available"
 msgstr "错误修复的更新可以使用"
 
@@ -1346,8 +1352,8 @@ msgstr ""
 msgid "Bypass browser check"
 msgstr "禁用浏览器检查"
 
-#: pkg/metrics/metrics.jsx:109 pkg/metrics/metrics.jsx:820
-#: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1949
+#: pkg/metrics/metrics.jsx:111 pkg/metrics/metrics.jsx:822
+#: pkg/metrics/metrics.jsx:1586 pkg/metrics/metrics.jsx:1963
 #: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:114
 msgid "CPU"
 msgstr "CPU"
@@ -1360,11 +1366,11 @@ msgstr "CPU安全性"
 msgid "CPU security toggles"
 msgstr "CPU安全性开关"
 
-#: pkg/metrics/metrics.jsx:108
+#: pkg/metrics/metrics.jsx:110
 msgid "CPU usage"
 msgstr "CPU 使用率"
 
-#: pkg/metrics/metrics.jsx:1939
+#: pkg/metrics/metrics.jsx:1953
 msgid "CPU usage/load"
 msgstr "CPU 使用率/负载"
 
@@ -1394,7 +1400,7 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/shell/shell-modals.jsx:118 pkg/shell/hosts_dialog.jsx:285
 #: pkg/shell/hosts_dialog.jsx:382 pkg/shell/hosts_dialog.jsx:514
 #: pkg/shell/hosts_dialog.jsx:891 pkg/shell/credentials.jsx:313
-#: pkg/metrics/metrics.jsx:1481 pkg/systemd/overview-cards/tuned-dialog.jsx:314
+#: pkg/metrics/metrics.jsx:1489 pkg/systemd/overview-cards/tuned-dialog.jsx:314
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/motdCard.jsx:65
@@ -1425,7 +1431,7 @@ msgstr "无法被启用"
 msgid "Cannot connect to an unknown host"
 msgstr "不能连接至未知主机"
 
-#: pkg/lib/cockpit.js:3838
+#: pkg/lib/cockpit.js:3839
 msgid "Cannot forward login credentials"
 msgstr "无法转发登录凭证"
 
@@ -1438,7 +1444,7 @@ msgstr "无法加入域，因为 realmd 在此系统上不可用"
 msgid "Cannot schedule event in the past"
 msgstr "无法调度以前的事件"
 
-#: pkg/storaged/lvm2/volume-group.jsx:387 pkg/storaged/mdraid/mdraid.jsx:303
+#: pkg/storaged/lvm2/volume-group.jsx:389 pkg/storaged/mdraid/mdraid.jsx:303
 #: pkg/storaged/drive/drive.jsx:125 pkg/storaged/btrfs/volume.jsx:128
 msgid "Capacity"
 msgstr "容量"
@@ -1529,7 +1535,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr "修改设置将会中断与服务器的连接，并将导致管理界面不可用。"
 
-#: pkg/packagekit/updates.jsx:908
+#: pkg/packagekit/updates.jsx:907
 msgid "Check for updates"
 msgstr "检查更新"
 
@@ -1558,6 +1564,12 @@ msgstr "检查 MDRAID 设备 $target"
 msgid "Checking and repairing MDRAID device $target"
 msgstr "检查并修复 MDRAID 设备 $target"
 
+#: pkg/storaged/dialog.jsx:1344
+#, fuzzy
+#| msgid "Creating filesystem on $target"
+msgid "Checking filesystem usage"
+msgstr "在 $target 中创建文件系统"
+
 #: pkg/storaged/crypto/keyslots.jsx:267
 msgid "Checking for $0 package"
 msgstr "检查 $0 软件包"
@@ -1566,11 +1578,11 @@ msgstr "检查 $0 软件包"
 msgid "Checking for NBDE support in the initrd"
 msgstr "在 initrd 中检查 NBDE 支持"
 
-#: pkg/apps/application-list.jsx:158
+#: pkg/apps/application-list.jsx:148
 msgid "Checking for new applications"
 msgstr "检查新的应用"
 
-#: pkg/packagekit/updates.jsx:1388
+#: pkg/packagekit/updates.jsx:1387
 msgid "Checking for package updates..."
 msgstr "正在检查软件包更新..."
 
@@ -1579,11 +1591,7 @@ msgstr "正在检查软件包更新..."
 msgid "Checking installed software"
 msgstr "检查安装的软件"
 
-#: pkg/storaged/dialog.jsx:1274
-msgid "Checking related processes"
-msgstr "检查相关的进程"
-
-#: pkg/packagekit/updates.jsx:1398
+#: pkg/packagekit/updates.jsx:1397
 msgid "Checking software status"
 msgstr "检查软件状态"
 
@@ -1624,7 +1632,7 @@ msgid "Client software"
 msgstr "客户端软件"
 
 #: pkg/lib/cockpit-components-modifications.jsx:76
-#: pkg/lib/cockpit-components-terminal.jsx:230 pkg/storaged/dialog.jsx:456
+#: pkg/lib/cockpit-components-terminal.jsx:230 pkg/storaged/dialog.jsx:485
 #: pkg/apps/utils.jsx:87 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/shell-modals.jsx:192
 #: pkg/shell/hosts_dialog.jsx:92 pkg/shell/credentials.jsx:81
@@ -1651,7 +1659,7 @@ msgstr "Cockpit 验证的配置不正确。"
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "NetworkManager 的 Cockpit 配置和防火墙"
 
-#: pkg/lib/cockpit.js:3844
+#: pkg/lib/cockpit.js:3845
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit 无法联系指定的主机。"
 
@@ -1675,7 +1683,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit 是一个交互式 Linux 服务器管理接口。"
 
-#: pkg/lib/cockpit.js:3842
+#: pkg/lib/cockpit.js:3843
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit 与系统上的软件不兼容。"
 
@@ -1683,7 +1691,7 @@ msgstr "Cockpit 与系统上的软件不兼容。"
 msgid "Cockpit is not installed"
 msgstr "Cockpit 未安装"
 
-#: pkg/lib/cockpit.js:3836
+#: pkg/lib/cockpit.js:3837
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit 未安装在系统上。"
 
@@ -1711,7 +1719,7 @@ msgstr "收集并打包诊断和支持数据"
 msgid "Collect kernel crash dumps"
 msgstr "收集内核崩溃转储"
 
-#: pkg/metrics/metrics.jsx:1494
+#: pkg/metrics/metrics.jsx:1502
 msgid "Collect metrics"
 msgstr "收集指标"
 
@@ -1723,7 +1731,7 @@ msgstr "颜色"
 msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr "可以接受以逗号分割的端口、范围和服务"
 
-#: pkg/storaged/dialog.jsx:1333 pkg/storaged/dialog.jsx:1353
+#: pkg/storaged/dialog.jsx:1433 pkg/storaged/dialog.jsx:1453
 #: pkg/systemd/timer-dialog.jsx:174
 msgid "Command"
 msgstr "命令"
@@ -1867,7 +1875,7 @@ msgstr "连接错误"
 msgid "Connection failed"
 msgstr "连接失败"
 
-#: pkg/lib/cockpit.js:3834
+#: pkg/lib/cockpit.js:3835
 msgid "Connection has timed out."
 msgstr "连接超时。"
 
@@ -1887,7 +1895,7 @@ msgstr "联系的域"
 msgid "Contains:"
 msgstr "包含："
 
-#: pkg/packagekit/updates.jsx:763
+#: pkg/packagekit/updates.jsx:762
 msgid "Continue"
 msgstr "继续"
 
@@ -1930,7 +1938,7 @@ msgstr "复制"
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
-#: pkg/metrics/metrics.jsx:744
+#: pkg/metrics/metrics.jsx:746
 msgid "Core $0"
 msgstr "内核 $0"
 
@@ -2081,7 +2089,7 @@ msgstr "仅创建快照"
 msgid "Create storage device"
 msgstr "创建存储设备"
 
-#: pkg/storaged/btrfs/subvolume.jsx:146 pkg/storaged/btrfs/subvolume.jsx:359
+#: pkg/storaged/btrfs/subvolume.jsx:146 pkg/storaged/btrfs/subvolume.jsx:360
 msgid "Create subvolume"
 msgstr "创建子卷"
 
@@ -2168,11 +2176,11 @@ msgstr "Ctrl+Shift+I"
 msgid "Current boot"
 msgstr "当前启动"
 
-#: pkg/metrics/metrics.jsx:757
+#: pkg/metrics/metrics.jsx:759
 msgid "Current top CPU usage"
 msgstr "当前 top CPU 用量"
 
-#: pkg/storaged/dialog.jsx:1185
+#: pkg/storaged/dialog.jsx:1222
 msgid "Currently in use"
 msgstr "当前在用"
 
@@ -2228,7 +2236,7 @@ msgstr "DNS 搜索域 $val"
 msgid "Daily"
 msgstr "每日"
 
-#: pkg/packagekit/updates.jsx:933
+#: pkg/packagekit/updates.jsx:932
 msgid "Danger alert:"
 msgstr "危险警报："
 
@@ -2375,7 +2383,7 @@ msgstr "延迟必须是一个数字"
 #: pkg/storaged/stratis/filesystem.jsx:137
 #: pkg/storaged/stratis/filesystem.jsx:175 pkg/storaged/stratis/pool.jsx:149
 #: pkg/storaged/mdraid/mdraid.jsx:126 pkg/storaged/mdraid/mdraid.jsx:233
-#: pkg/storaged/btrfs/subvolume.jsx:231 pkg/storaged/btrfs/subvolume.jsx:373
+#: pkg/storaged/btrfs/subvolume.jsx:232 pkg/storaged/btrfs/subvolume.jsx:374
 #: pkg/sosreport/sosreport.jsx:369 pkg/sosreport/sosreport.jsx:468
 #: pkg/users/delete-group-dialog.js:51 pkg/users/delete-account-dialog.js:60
 #: pkg/users/account-details.js:221 pkg/systemd/abrtLog.jsx:290
@@ -2453,7 +2461,7 @@ msgstr "删除会擦除 VDO 设备上的所有数据."
 msgid "Deleting erases all data on a volume group."
 msgstr "删除会擦除卷组上的所有数据."
 
-#: pkg/storaged/btrfs/subvolume.jsx:232
+#: pkg/storaged/btrfs/subvolume.jsx:233
 msgid "Deleting erases all data on this subvolume and all it's children."
 msgstr "删除会擦除这个子卷组上的所有数据，以及它的子卷中的所有数据。"
 
@@ -2461,7 +2469,7 @@ msgstr "删除会擦除这个子卷组上的所有数据，以及它的子卷中
 msgid "Deletion will remove the following files:"
 msgstr "删除操作会删除以下文件："
 
-#: pkg/storaged/dialog.jsx:1354 pkg/systemd/timer-dialog.jsx:166
+#: pkg/storaged/dialog.jsx:1454 pkg/systemd/timer-dialog.jsx:166
 #: pkg/networkmanager/firewall.jsx:702 pkg/networkmanager/firewall.jsx:846
 msgid "Description"
 msgstr "描述"
@@ -2483,10 +2491,16 @@ msgstr "详情"
 msgid "Development"
 msgstr "开发"
 
-#: pkg/storaged/mdraid/mdraid.jsx:302 pkg/storaged/dialog.jsx:1140
-#: pkg/storaged/dialog.jsx:1245 pkg/metrics/metrics.jsx:785
+#: pkg/storaged/mdraid/mdraid.jsx:302 pkg/storaged/dialog.jsx:1177
+#: pkg/storaged/dialog.jsx:1285 pkg/metrics/metrics.jsx:787
 msgid "Device"
 msgstr "设备"
+
+#: pkg/storaged/dialog.jsx:1364 pkg/storaged/dialog.jsx:1372
+#, fuzzy
+#| msgid "Unrecognized data"
+msgid "Device contains unrecognized data"
+msgstr "无法识别的数据"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:287 pkg/storaged/drive/drive.jsx:132
 #: pkg/storaged/block/other.jsx:62
@@ -2555,9 +2569,9 @@ msgstr "断开"
 msgid "Disconnected"
 msgstr "已断开连接"
 
-#: pkg/metrics/metrics.jsx:137 pkg/metrics/metrics.jsx:138
-#: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1939
-#: pkg/metrics/metrics.jsx:1951
+#: pkg/metrics/metrics.jsx:139 pkg/metrics/metrics.jsx:140
+#: pkg/metrics/metrics.jsx:1586 pkg/metrics/metrics.jsx:1953
+#: pkg/metrics/metrics.jsx:1965
 msgid "Disk I/O"
 msgstr "磁盘 I/O"
 
@@ -2576,15 +2590,15 @@ msgstr "磁盘密码"
 #: pkg/storaged/lvm2/volume-group.jsx:198
 #: pkg/storaged/lvm2/create-dialog.jsx:52 pkg/storaged/mdraid/mdraid.jsx:156
 #: pkg/storaged/mdraid/mdraid.jsx:306 pkg/storaged/mdraid/create-dialog.jsx:99
-#: pkg/metrics/metrics.jsx:918
+#: pkg/metrics/metrics.jsx:920
 msgid "Disks"
 msgstr "磁盘"
 
-#: pkg/metrics/metrics.jsx:792
+#: pkg/metrics/metrics.jsx:794
 msgid "Disks usage"
 msgstr "磁盘使用"
 
-#: pkg/storaged/lvm2/volume-group.jsx:371
+#: pkg/storaged/lvm2/volume-group.jsx:373
 msgid "Dismiss"
 msgstr "清除"
 
@@ -2748,7 +2762,7 @@ msgstr "编辑多个主机"
 msgid "Edit motd"
 msgstr "编辑 motd"
 
-#: pkg/storaged/stratis/filesystem.jsx:170 pkg/storaged/btrfs/subvolume.jsx:331
+#: pkg/storaged/stratis/filesystem.jsx:170 pkg/storaged/btrfs/subvolume.jsx:332
 #: pkg/storaged/filesystem/filesystem.jsx:100
 msgid "Edit mount point"
 msgstr "编辑挂载点"
@@ -2893,7 +2907,7 @@ msgstr "作为 \"服务器\" 的端点需要指定为 host:port，或者也可�
 msgid "Enforcing"
 msgstr "强制"
 
-#: pkg/packagekit/updates.jsx:1438
+#: pkg/packagekit/updates.jsx:1437
 msgid "Enhancement updates available"
 msgstr "可用的功能增强更新"
 
@@ -2928,7 +2942,7 @@ msgstr "错误"
 msgid "Error and above"
 msgstr "Error 及更高级别"
 
-#: pkg/metrics/metrics.jsx:1850
+#: pkg/metrics/metrics.jsx:1864
 msgid "Error has occurred"
 msgstr "发生错误"
 
@@ -3003,7 +3017,7 @@ msgstr "过期帐号于 $0"
 msgid "Export"
 msgstr "导出"
 
-#: pkg/metrics/metrics.jsx:1511
+#: pkg/metrics/metrics.jsx:1519
 msgid "Export to network"
 msgstr "导出到网络"
 
@@ -3049,7 +3063,7 @@ msgstr "添加区域失败"
 msgid "Failed to change password"
 msgstr "修改密码失败"
 
-#: pkg/metrics/metrics.jsx:1487
+#: pkg/metrics/metrics.jsx:1495
 msgid "Failed to configure PCP"
 msgstr "配置 PCP 失败"
 
@@ -3139,7 +3153,7 @@ msgstr "文件系统被锁住"
 msgid "Filesystem name"
 msgstr "文件系统名称"
 
-#: pkg/storaged/dialog.jsx:1121
+#: pkg/storaged/dialog.jsx:1158
 msgid "Filesystem outside the target"
 msgstr "目标之外的文件系统"
 
@@ -3284,11 +3298,11 @@ msgstr "转到应用"
 msgid "Go to now"
 msgstr "转到现在"
 
-#: pkg/metrics/metrics.jsx:1933
+#: pkg/metrics/metrics.jsx:1947
 msgid "Graph visibility"
 msgstr "图形可见性"
 
-#: pkg/metrics/metrics.jsx:1921
+#: pkg/metrics/metrics.jsx:1935
 msgid "Graph visibility options menu"
 msgstr "图形可见性选项菜单"
 
@@ -3401,7 +3415,7 @@ msgstr "家目录"
 msgid "Host"
 msgstr "主机"
 
-#: pkg/lib/cockpit.js:3830
+#: pkg/lib/cockpit.js:3831
 msgid "Host key is incorrect"
 msgstr "主机密钥不正确"
 
@@ -3425,7 +3439,11 @@ msgstr "小时"
 msgid "How to check"
 msgstr "如何检查"
 
-#: pkg/storaged/pages.jsx:714 pkg/storaged/btrfs/subvolume.jsx:414
+#: pkg/storaged/dialog.jsx:1381
+msgid "I confirm I want to lose this data forever"
+msgstr ""
+
+#: pkg/storaged/pages.jsx:714 pkg/storaged/btrfs/subvolume.jsx:415
 #: pkg/users/accounts-list.js:230 pkg/users/accounts-list.js:381
 #: pkg/users/group-create-dialog.js:47 pkg/systemd/hwinfo.jsx:291
 #: pkg/networkmanager/firewall.jsx:696
@@ -3500,12 +3518,16 @@ msgid ""
 msgstr ""
 "如果指纹匹配，点 'Trust and add host'。否则，请不要连接并联系您的管理员。"
 
-#: pkg/packagekit/updates.jsx:685 pkg/packagekit/updates.jsx:762
+#: pkg/packagekit/updates.jsx:684 pkg/packagekit/updates.jsx:761
 #: pkg/networkmanager/ip-settings.jsx:44
 msgid "Ignore"
 msgstr "忽略"
 
-#: pkg/metrics/metrics.jsx:814
+#: pkg/storaged/dialog.jsx:1316
+msgid "Important data might be deleted:"
+msgstr ""
+
+#: pkg/metrics/metrics.jsx:816
 msgid "In"
 msgstr "入"
 
@@ -3561,7 +3583,7 @@ msgstr "索引内存"
 msgid "Indirect"
 msgstr "间接的"
 
-#: pkg/packagekit/updates.jsx:754
+#: pkg/packagekit/updates.jsx:753
 msgid "Info"
 msgstr "信息"
 
@@ -3590,7 +3612,7 @@ msgid "Insights: "
 msgstr "Insights: "
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:126
-#: pkg/apps/application-list.jsx:206 pkg/apps/application.jsx:52
+#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:52
 #: pkg/packagekit/kpatch.jsx:250
 msgid "Install"
 msgstr "安装"
@@ -3603,19 +3625,19 @@ msgstr "安装 NFS 支持"
 msgid "Install Stratis support"
 msgstr "安装 Stratis 支持"
 
-#: pkg/packagekit/updates.jsx:1415
+#: pkg/packagekit/updates.jsx:1414
 msgid "Install all updates"
 msgstr "安装所有更新"
 
-#: pkg/apps/application-list.jsx:200
+#: pkg/apps/application-list.jsx:190
 msgid "Install application information"
 msgstr "安装应用程序信息"
 
-#: pkg/metrics/metrics.jsx:1818
+#: pkg/metrics/metrics.jsx:1832
 msgid "Install cockpit-pcp"
 msgstr "安装 cockpit-pcp"
 
-#: pkg/packagekit/updates.jsx:1428
+#: pkg/packagekit/updates.jsx:1427
 msgid "Install kpatch updates"
 msgstr "安装 kpatch 更新"
 
@@ -3623,7 +3645,7 @@ msgstr "安装 kpatch 更新"
 msgid "Install realmd support"
 msgstr "安装 realmd 支持"
 
-#: pkg/packagekit/updates.jsx:1414 pkg/packagekit/updates.jsx:1421
+#: pkg/packagekit/updates.jsx:1413 pkg/packagekit/updates.jsx:1420
 msgid "Install security updates"
 msgstr "安装安全更新"
 
@@ -3639,7 +3661,7 @@ msgstr "安装软件"
 msgid "Install the $0 package."
 msgstr "安装 $0 软件包。"
 
-#: pkg/metrics/metrics.jsx:1817
+#: pkg/metrics/metrics.jsx:1831
 msgid "Installation not supported without installed cockpit package"
 msgstr "未安装 cockpit 软件包时不支持安装"
 
@@ -3665,7 +3687,7 @@ msgstr "安装 $0 将删除 $1 。"
 msgid "Installing packages"
 msgstr "安装软件包"
 
-#: pkg/metrics/metrics.jsx:814 pkg/networkmanager/firewall.jsx:196
+#: pkg/metrics/metrics.jsx:816 pkg/networkmanager/firewall.jsx:196
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "接口"
@@ -3681,7 +3703,7 @@ msgstr "接口成员"
 msgid "Interfaces"
 msgstr "接口"
 
-#: pkg/lib/cockpit.js:3832
+#: pkg/lib/cockpit.js:3833
 msgid "Internal error"
 msgstr "内部错误"
 
@@ -3808,7 +3830,7 @@ msgstr "日志条目"
 msgid "Journal entry not found"
 msgstr "未找到日志条目"
 
-#: pkg/metrics/metrics.jsx:1911
+#: pkg/metrics/metrics.jsx:1925
 msgid "Jump to"
 msgstr "跳到"
 
@@ -3908,7 +3930,7 @@ msgstr "LVM2 逻辑卷"
 msgid "LVM2 physical volume"
 msgstr "LVM2物理卷"
 
-#: pkg/storaged/lvm2/volume-group.jsx:393
+#: pkg/storaged/lvm2/volume-group.jsx:395
 msgid "LVM2 physical volumes"
 msgstr "LVM2 物理卷"
 
@@ -3944,7 +3966,7 @@ msgstr "最近活动"
 msgid "Last cannot be removed"
 msgstr "最后一个无法删除"
 
-#: pkg/packagekit/updates.jsx:784
+#: pkg/packagekit/updates.jsx:783
 msgid "Last checked: $0"
 msgstr "最后检查于： $0"
 
@@ -4076,8 +4098,8 @@ msgstr "列出单元"
 msgid "Listing units failed: $0"
 msgstr "列出单元失败：$0"
 
-#: pkg/metrics/metrics.jsx:115 pkg/metrics/metrics.jsx:116
-#: pkg/metrics/metrics.jsx:849 pkg/metrics/metrics.jsx:1949
+#: pkg/metrics/metrics.jsx:117 pkg/metrics/metrics.jsx:118
+#: pkg/metrics/metrics.jsx:851 pkg/metrics/metrics.jsx:1963
 msgid "Load"
 msgstr "负载"
 
@@ -4085,7 +4107,7 @@ msgstr "负载"
 msgid "Load balancing"
 msgstr "负载均衡"
 
-#: pkg/metrics/metrics.jsx:1979
+#: pkg/metrics/metrics.jsx:1993
 msgid "Load earlier data"
 msgstr "载入较早的数据"
 
@@ -4130,7 +4152,7 @@ msgid "Loading unit failed"
 msgstr "加载单元失败"
 
 #: pkg/kdump/kdump-view.jsx:438 pkg/storaged/storaged.jsx:66
-#: pkg/metrics/metrics.jsx:1978 pkg/users/accounts-list.js:318
+#: pkg/metrics/metrics.jsx:1992 pkg/users/accounts-list.js:318
 #: pkg/users/accounts-list.js:339 pkg/users/accounts-list.js:452
 #: pkg/users/account-details.js:170 pkg/systemd/services.jsx:683
 #: pkg/systemd/service.jsx:132 pkg/systemd/logsJournal.jsx:268
@@ -4159,7 +4181,7 @@ msgid "Local, $0"
 msgstr "本地，$0"
 
 #: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:716
-#: pkg/storaged/dialog.jsx:1141 pkg/storaged/dialog.jsx:1246
+#: pkg/storaged/dialog.jsx:1178 pkg/storaged/dialog.jsx:1286
 msgid "Location"
 msgstr "位置"
 
@@ -4178,6 +4200,13 @@ msgstr "锁定账户"
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:30
 msgid "Locked data"
 msgstr "锁定的数据"
+
+#: pkg/storaged/dialog.jsx:1368
+#, fuzzy
+#| msgctxt "storage-id-desc"
+#| msgid "Locked encrypted data"
+msgid "Locked encrypted device might contain data"
+msgstr "锁住加密的数据"
 
 #: pkg/storaged/jobs-panel.jsx:43
 msgid "Locking $target"
@@ -4200,7 +4229,7 @@ msgstr "使用您的服务器用户帐户登录。"
 msgid "Log messages"
 msgstr "日志消息"
 
-#: pkg/shell/topnav.jsx:233 pkg/metrics/metrics.jsx:1806
+#: pkg/shell/topnav.jsx:233 pkg/metrics/metrics.jsx:1820
 #: pkg/users/logout-account-dialog.js:36
 msgid "Log out"
 msgstr "注销"
@@ -4247,7 +4276,7 @@ msgstr "登录"
 msgid "Login again"
 msgstr "再次登录"
 
-#: pkg/lib/cockpit.js:3822
+#: pkg/lib/cockpit.js:3823
 msgid "Login failed"
 msgstr "登录失败"
 
@@ -4450,8 +4479,8 @@ msgstr "最大消息有效期 $max_age"
 msgid "Media drive"
 msgstr "介质驱动器"
 
-#: pkg/metrics/metrics.jsx:123 pkg/metrics/metrics.jsx:880
-#: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1950
+#: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:882
+#: pkg/metrics/metrics.jsx:1586 pkg/metrics/metrics.jsx:1964
 #: pkg/systemd/overview-cards/usageCard.jsx:145 pkg/systemd/hwinfo.jsx:290
 #: pkg/systemd/hwinfo.jsx:334 pkg/systemd/service-details.jsx:659
 msgid "Memory"
@@ -4461,11 +4490,11 @@ msgstr "内存"
 msgid "Memory technology"
 msgstr "内存拓扑"
 
-#: pkg/metrics/metrics.jsx:122
+#: pkg/metrics/metrics.jsx:124
 msgid "Memory usage"
 msgstr "内存使用率"
 
-#: pkg/metrics/metrics.jsx:1939
+#: pkg/metrics/metrics.jsx:1953
 msgid "Memory usage/swap"
 msgstr "内存使用率/swap"
 
@@ -4494,15 +4523,15 @@ msgstr "模式"
 msgid "Metric"
 msgstr "指标"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2000
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2014
 msgid "Metrics and history"
 msgstr "指标和历史数据"
 
-#: pkg/metrics/metrics.jsx:1841
+#: pkg/metrics/metrics.jsx:1855
 msgid "Metrics history could not be loaded"
 msgstr "无法加载指标历史记录"
 
-#: pkg/metrics/metrics.jsx:1463 pkg/metrics/metrics.jsx:1557
+#: pkg/metrics/metrics.jsx:1471 pkg/metrics/metrics.jsx:1571
 msgid "Metrics settings"
 msgstr "指标设置"
 
@@ -4566,11 +4595,11 @@ msgstr "监控目标"
 msgid "Monthly"
 msgstr "每月"
 
-#: pkg/packagekit/updates.jsx:940
+#: pkg/packagekit/updates.jsx:939
 msgid "More info..."
 msgstr "更多信息..."
 
-#: pkg/storaged/stratis/filesystem.jsx:173 pkg/storaged/btrfs/subvolume.jsx:343
+#: pkg/storaged/stratis/filesystem.jsx:173 pkg/storaged/btrfs/subvolume.jsx:344
 #: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/filesystem/mounting-dialog.jsx:356
 #: pkg/storaged/filesystem/filesystem.jsx:103
 msgid "Mount"
@@ -4624,7 +4653,7 @@ msgstr "挂载选项"
 #: pkg/storaged/stratis/filesystem.jsx:90
 #: pkg/storaged/stratis/filesystem.jsx:222 pkg/storaged/stratis/pool.jsx:103
 #: pkg/storaged/block/format-dialog.jsx:299
-#: pkg/storaged/btrfs/subvolume.jsx:415 pkg/storaged/nfs/nfs.jsx:329
+#: pkg/storaged/btrfs/subvolume.jsx:416 pkg/storaged/nfs/nfs.jsx:329
 #: pkg/storaged/filesystem/mounting-dialog.jsx:326
 #: pkg/storaged/filesystem/filesystem.jsx:147
 msgid "Mount point"
@@ -4697,7 +4726,7 @@ msgstr "NTP 服务器"
 
 #: pkg/storaged/partitions/partition.jsx:227
 #: pkg/storaged/lvm2/volume-group.jsx:64 pkg/storaged/lvm2/volume-group.jsx:116
-#: pkg/storaged/lvm2/volume-group.jsx:380
+#: pkg/storaged/lvm2/volume-group.jsx:382
 #: pkg/storaged/lvm2/block-logical-volume.jsx:49
 #: pkg/storaged/lvm2/block-logical-volume.jsx:238
 #: pkg/storaged/lvm2/block-logical-volume.jsx:286
@@ -4712,7 +4741,7 @@ msgstr "NTP 服务器"
 #: pkg/storaged/stratis/pool.jsx:166 pkg/storaged/stratis/pool.jsx:511
 #: pkg/storaged/mdraid/mdraid.jsx:295 pkg/storaged/mdraid/create-dialog.jsx:47
 #: pkg/storaged/block/format-dialog.jsx:293
-#: pkg/storaged/btrfs/subvolume.jsx:148 pkg/storaged/btrfs/subvolume.jsx:413
+#: pkg/storaged/btrfs/subvolume.jsx:148 pkg/storaged/btrfs/subvolume.jsx:414
 #: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/filesystem/filesystem.jsx:119
 #: pkg/storaged/filesystem/filesystem.jsx:141
 #: pkg/storaged/iscsi/create-dialog.jsx:111
@@ -4769,12 +4798,12 @@ msgstr "需要一个备用磁盘"
 msgid "Need at least one NTP server"
 msgstr "至少需要一个 NTP 服务器"
 
-#: pkg/metrics/metrics.jsx:979 pkg/metrics/metrics.jsx:1572
-#: pkg/metrics/metrics.jsx:1939 pkg/metrics/metrics.jsx:1952
+#: pkg/metrics/metrics.jsx:981 pkg/metrics/metrics.jsx:1586
+#: pkg/metrics/metrics.jsx:1953 pkg/metrics/metrics.jsx:1966
 msgid "Network"
 msgstr "网络"
 
-#: pkg/metrics/metrics.jsx:144 pkg/metrics/metrics.jsx:145
+#: pkg/metrics/metrics.jsx:146 pkg/metrics/metrics.jsx:147
 msgid "Network I/O"
 msgstr "网络 I/O"
 
@@ -4790,7 +4819,7 @@ msgstr "网络设备和图形需要 NetworkManager"
 msgid "Network logs"
 msgstr "网络日志"
 
-#: pkg/metrics/metrics.jsx:988
+#: pkg/metrics/metrics.jsx:990
 msgid "Network usage"
 msgstr "网络使用率"
 
@@ -4878,7 +4907,7 @@ msgstr "没有指定 ID"
 msgid "No SELinux alerts."
 msgstr "没有 SELinux 警告。"
 
-#: pkg/apps/application-list.jsx:198
+#: pkg/apps/application-list.jsx:188
 msgid "No applications installed or available."
 msgstr "应用未安装或不可用."
 
@@ -4902,11 +4931,11 @@ msgstr "无载体"
 msgid "No configuration found"
 msgstr "未找到配置"
 
-#: pkg/metrics/metrics.jsx:1869
+#: pkg/metrics/metrics.jsx:1883
 msgid "No data available"
 msgstr "没有可用数据"
 
-#: pkg/metrics/metrics.jsx:1865
+#: pkg/metrics/metrics.jsx:1879
 msgid "No data available between $0 and $1"
 msgstr "在 $0 和 $1 间没有可用数据"
 
@@ -4944,7 +4973,7 @@ msgstr "没有找到驱动器"
 msgid "No encryption"
 msgstr "无加密"
 
-#: pkg/metrics/metrics.jsx:1333
+#: pkg/metrics/metrics.jsx:1335
 msgid "No events"
 msgstr "没有事件"
 
@@ -4988,7 +5017,7 @@ msgstr "没有添加密钥"
 msgid "No languages match"
 msgstr "没有语言匹配"
 
-#: pkg/metrics/metrics.jsx:1149 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1151 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "无日志条目"
 
@@ -5022,7 +5051,7 @@ msgstr "没有找到分区"
 msgid "No peers added."
 msgstr "没有添加对等。"
 
-#: pkg/storaged/lvm2/volume-group.jsx:392
+#: pkg/storaged/lvm2/volume-group.jsx:394
 msgid "No physical volumes found"
 msgstr "没有找到物理卷"
 
@@ -5047,7 +5076,7 @@ msgstr "无规则命中"
 msgid "No storage found"
 msgstr "没有找到存储"
 
-#: pkg/storaged/btrfs/subvolume.jsx:423 pkg/storaged/btrfs/filesystem.jsx:86
+#: pkg/storaged/btrfs/subvolume.jsx:424 pkg/storaged/btrfs/filesystem.jsx:86
 #: pkg/storaged/btrfs/volume.jsx:157
 msgid "No subvolumes"
 msgstr "没有子卷"
@@ -5136,7 +5165,7 @@ msgstr "不允许配置网络设备"
 msgid "Not permitted to configure realms"
 msgstr "不允许配置域"
 
-#: pkg/lib/cockpit.js:3820
+#: pkg/lib/cockpit.js:3821
 msgid "Not permitted to perform this action."
 msgstr "不允许执行该操作。"
 
@@ -5144,7 +5173,7 @@ msgstr "不允许执行该操作。"
 msgid "Not ready"
 msgstr "未就绪"
 
-#: pkg/packagekit/updates.jsx:1365
+#: pkg/packagekit/updates.jsx:1364
 msgid "Not registered"
 msgstr "没有注册"
 
@@ -5246,7 +5275,7 @@ msgstr "仅在使用 FIPS 模式引导时才使用已批准和允许的算法。
 msgid "Ooops!"
 msgstr "糟糕！"
 
-#: pkg/metrics/metrics.jsx:1450
+#: pkg/metrics/metrics.jsx:1458
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "在防火墙中打开 pmproxy 服务以共享指标。"
 
@@ -5279,11 +5308,11 @@ msgstr "即使不允许交互式密码身份验证，仍可使用其他身份验
 msgid "Other options"
 msgstr "其他选项"
 
-#: pkg/metrics/metrics.jsx:814
+#: pkg/metrics/metrics.jsx:816
 msgid "Out"
 msgstr "出"
 
-#: pkg/metrics/metrics.jsx:1999 pkg/systemd/hwinfo.jsx:307
+#: pkg/metrics/metrics.jsx:2013 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "概览"
@@ -5302,15 +5331,15 @@ msgstr "用 0 覆盖现有数据（较慢）"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/storaged/dialog.jsx:1332
+#: pkg/storaged/dialog.jsx:1432
 msgid "PID"
 msgstr "PID"
 
-#: pkg/metrics/metrics.jsx:1814
+#: pkg/metrics/metrics.jsx:1828
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "指标历史记录缺少软件包 cockpit-pcp"
 
-#: pkg/packagekit/updates.jsx:689 pkg/packagekit/updates.jsx:768
+#: pkg/packagekit/updates.jsx:688 pkg/packagekit/updates.jsx:767
 msgid "Package information"
 msgstr "软件包信息"
 
@@ -5318,11 +5347,11 @@ msgstr "软件包信息"
 msgid "PackageKit crashed"
 msgstr "PackageKit 已崩溃"
 
-#: pkg/packagekit/updates.jsx:1103
+#: pkg/packagekit/updates.jsx:1102
 msgid "PackageKit is not installed"
 msgstr "PackageKit 未安装"
 
-#: pkg/packagekit/updates.jsx:1304
+#: pkg/packagekit/updates.jsx:1303
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit 已报告错误码 $0"
 
@@ -5537,7 +5566,7 @@ msgid ""
 msgstr ""
 "对等（peer）是与这个系统连接的其他机器。来自其他机器中的公钥将相互共享。"
 
-#: pkg/metrics/metrics.jsx:1466
+#: pkg/metrics/metrics.jsx:1474
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5570,7 +5599,7 @@ msgstr "永久删除 $0？"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "永久删除逻辑卷 $0/$1？"
 
-#: pkg/storaged/btrfs/subvolume.jsx:228
+#: pkg/storaged/btrfs/subvolume.jsx:229
 msgid "Permanently delete subvolume $0?"
 msgstr "永久删除子卷 $0？"
 
@@ -5592,7 +5621,7 @@ msgstr "物理"
 msgid "Physical Volumes"
 msgstr "物理卷"
 
-#: pkg/storaged/lvm2/volume-group.jsx:390
+#: pkg/storaged/lvm2/volume-group.jsx:392
 #: pkg/storaged/lvm2/block-logical-volume.jsx:356
 msgid "Physical volumes"
 msgstr "物理卷"
@@ -5638,7 +5667,7 @@ msgstr "请启用 JavaScript 来使用 Web 控制台。"
 msgid "Please install the $0 package"
 msgstr "请安装 $0 软件包"
 
-#: pkg/packagekit/updates.jsx:1492
+#: pkg/packagekit/updates.jsx:1491
 msgid "Please resolve the issue and reload this page."
 msgstr "请解决这个问题并重新载入此页面。"
 
@@ -5747,7 +5776,7 @@ msgstr "问题详情"
 msgid "Problem info"
 msgstr "问题信息"
 
-#: pkg/storaged/dialog.jsx:1174
+#: pkg/storaged/dialog.jsx:1211
 msgid "Processes using the location"
 msgstr "使用位置的进程"
 
@@ -5862,7 +5891,7 @@ msgstr "RAID 级别"
 msgid "RAID10 needs an even number of physical volumes"
 msgstr "RAID10 需要有偶数数量的物理卷"
 
-#: pkg/metrics/metrics.jsx:888
+#: pkg/metrics/metrics.jsx:890
 msgid "RAM"
 msgstr "RAM"
 
@@ -5890,12 +5919,12 @@ msgstr "Rank"
 msgid "Raw to a device"
 msgstr "格式化设备"
 
-#: pkg/metrics/metrics.jsx:785 pkg/metrics/metrics.jsx:922
-#: pkg/metrics/metrics.jsx:967 pkg/metrics/metrics.jsx:972
+#: pkg/metrics/metrics.jsx:787 pkg/metrics/metrics.jsx:924
+#: pkg/metrics/metrics.jsx:969 pkg/metrics/metrics.jsx:974
 msgid "Read"
 msgstr "读取"
 
-#: pkg/metrics/metrics.jsx:1472 pkg/systemd/hwinfo.jsx:206
+#: pkg/metrics/metrics.jsx:1480 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
 msgstr "了解更多..."
 
@@ -5945,16 +5974,16 @@ msgstr "重新应用并重启"
 msgid "Reboot"
 msgstr "重启"
 
-#: pkg/packagekit/updates.jsx:613
+#: pkg/packagekit/updates.jsx:612
 msgid "Reboot after completion"
 msgstr "完成后重启"
 
-#: pkg/packagekit/updates.jsx:1525
+#: pkg/packagekit/updates.jsx:1524
 msgid "Reboot recommended"
 msgstr "推荐重新引导"
 
-#: pkg/packagekit/updates.jsx:684 pkg/packagekit/updates.jsx:759
-#: pkg/packagekit/updates.jsx:823
+#: pkg/packagekit/updates.jsx:683 pkg/packagekit/updates.jsx:758
+#: pkg/packagekit/updates.jsx:822
 msgid "Reboot system..."
 msgstr "重新引导系统......"
 
@@ -6009,19 +6038,19 @@ msgstr "重新生成"
 msgid "Regenerating initrd"
 msgstr "重新生成 initrd"
 
-#: pkg/packagekit/updates.jsx:1377
+#: pkg/packagekit/updates.jsx:1376
 msgid "Register…"
 msgstr "注册…"
 
-#: pkg/storaged/dialog.jsx:1262
+#: pkg/storaged/dialog.jsx:1332
 msgid "Related processes and services will be forcefully stopped."
 msgstr "相关进程和服务将被强制停止。"
 
-#: pkg/storaged/dialog.jsx:1264
+#: pkg/storaged/dialog.jsx:1334
 msgid "Related processes will be forcefully stopped."
 msgstr "相关进程将被强制停止。"
 
-#: pkg/storaged/dialog.jsx:1266
+#: pkg/storaged/dialog.jsx:1336
 msgid "Related services will be forcefully stopped."
 msgstr "相关服务将被强制停止。"
 
@@ -6073,7 +6102,7 @@ msgstr "通过 SSH 的远程, $0"
 msgid "Removals:"
 msgstr "移除："
 
-#: pkg/storaged/lvm2/volume-group.jsx:347
+#: pkg/storaged/lvm2/volume-group.jsx:349
 #: pkg/storaged/lvm2/physical-volume.jsx:88
 #: pkg/storaged/crypto/keyslots.jsx:651 pkg/storaged/crypto/keyslots.jsx:686
 #: pkg/storaged/crypto/keyslots.jsx:771 pkg/storaged/stratis/pool.jsx:440
@@ -6116,7 +6145,7 @@ msgstr "删除主机"
 msgid "Remove item"
 msgstr "删除条目"
 
-#: pkg/storaged/lvm2/volume-group.jsx:344
+#: pkg/storaged/lvm2/volume-group.jsx:346
 msgid "Remove missing physical volumes?"
 msgstr "删除缺少的物理卷？"
 
@@ -6359,11 +6388,11 @@ msgstr "重启"
 msgid "Restart services"
 msgstr "重启服务"
 
-#: pkg/packagekit/updates.jsx:760 pkg/packagekit/updates.jsx:835
+#: pkg/packagekit/updates.jsx:759 pkg/packagekit/updates.jsx:834
 msgid "Restart services..."
 msgstr "重启服务......"
 
-#: pkg/packagekit/updates.jsx:1573
+#: pkg/packagekit/updates.jsx:1572
 msgid "Restarting"
 msgstr "正在重启"
 
@@ -6455,7 +6484,7 @@ msgstr "运行者"
 msgid "Running"
 msgstr "运行中"
 
-#: pkg/storaged/dialog.jsx:1335 pkg/storaged/dialog.jsx:1355
+#: pkg/storaged/dialog.jsx:1435 pkg/storaged/dialog.jsx:1455
 msgid "Runtime"
 msgstr "运行时"
 
@@ -6550,7 +6579,7 @@ msgstr "周六"
 #: pkg/storaged/stratis/pool.jsx:410 pkg/storaged/stratis/pool.jsx:465
 #: pkg/storaged/btrfs/volume.jsx:96 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/filesystem/mounting-dialog.jsx:358
-#: pkg/storaged/filesystem/filesystem.jsx:126 pkg/metrics/metrics.jsx:1478
+#: pkg/storaged/filesystem/filesystem.jsx:126 pkg/metrics/metrics.jsx:1486
 #: pkg/systemd/timer-dialog.jsx:148 pkg/packagekit/kpatch.jsx:310
 #: pkg/networkmanager/dialogs-common.jsx:160
 msgid "Save"
@@ -6628,7 +6657,7 @@ msgstr "安全擦除 $target"
 msgid "Security Enhanced Linux configuration and troubleshooting"
 msgstr "Security Enhanced Linux 配置和故障排除"
 
-#: pkg/packagekit/updates.jsx:1434
+#: pkg/packagekit/updates.jsx:1433
 msgid "Security updates available"
 msgstr "可用的错误修复更新"
 
@@ -6690,7 +6719,7 @@ msgstr "服务器地址不能为空。"
 msgid "Server cannot be empty."
 msgstr "名称不能为空。"
 
-#: pkg/lib/cockpit.js:3840
+#: pkg/lib/cockpit.js:3841
 msgid "Server has closed the connection."
 msgstr "服务器关闭了连接。"
 
@@ -6698,10 +6727,10 @@ msgstr "服务器关闭了连接。"
 msgid "Server software"
 msgstr "服务器软件"
 
-#: pkg/storaged/dialog.jsx:1352 pkg/metrics/metrics.jsx:812
-#: pkg/metrics/metrics.jsx:813 pkg/metrics/metrics.jsx:868
-#: pkg/metrics/metrics.jsx:906 pkg/metrics/metrics.jsx:966
-#: pkg/metrics/metrics.jsx:972 pkg/networkmanager/firewall.jsx:207
+#: pkg/storaged/dialog.jsx:1452 pkg/metrics/metrics.jsx:814
+#: pkg/metrics/metrics.jsx:815 pkg/metrics/metrics.jsx:870
+#: pkg/metrics/metrics.jsx:908 pkg/metrics/metrics.jsx:968
+#: pkg/metrics/metrics.jsx:974 pkg/networkmanager/firewall.jsx:207
 msgid "Service"
 msgstr "服务"
 
@@ -6719,7 +6748,7 @@ msgstr "服务日志"
 msgid "Services"
 msgstr "服务"
 
-#: pkg/storaged/dialog.jsx:1160
+#: pkg/storaged/dialog.jsx:1197
 msgid "Services using the location"
 msgstr "使用位置的服务"
 
@@ -6777,7 +6806,7 @@ msgstr "设置"
 msgid "Setting up loop device $target"
 msgstr "创建 loop 设备 $target"
 
-#: pkg/packagekit/updates.jsx:918
+#: pkg/packagekit/updates.jsx:917
 msgid "Settings"
 msgstr "设置"
 
@@ -6889,23 +6918,23 @@ msgstr "单 rank"
 msgid "Size"
 msgstr "大小"
 
-#: pkg/storaged/dialog.jsx:1077
+#: pkg/storaged/dialog.jsx:1114
 msgid "Size cannot be negative"
 msgstr "大小不能为负数"
 
-#: pkg/storaged/dialog.jsx:1075
+#: pkg/storaged/dialog.jsx:1112
 msgid "Size cannot be zero"
 msgstr "大小不能为零"
 
-#: pkg/storaged/dialog.jsx:1079
+#: pkg/storaged/dialog.jsx:1116
 msgid "Size is too large"
 msgstr "大小太大"
 
-#: pkg/storaged/dialog.jsx:1073
+#: pkg/storaged/dialog.jsx:1110
 msgid "Size must be a number"
 msgstr "大小必须是一个数字"
 
-#: pkg/storaged/dialog.jsx:1081
+#: pkg/storaged/dialog.jsx:1118
 msgid "Size must be at least $0"
 msgstr "大小必须最小为 $0"
 
@@ -6974,8 +7003,8 @@ msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr "某些其他程序正在使用软件包管理器，请等待..."
 
-#: pkg/packagekit/updates.jsx:736 pkg/packagekit/updates.jsx:843
-#: pkg/packagekit/updates.jsx:1536
+#: pkg/packagekit/updates.jsx:735 pkg/packagekit/updates.jsx:842
+#: pkg/packagekit/updates.jsx:1535
 msgid "Some software needs to be restarted manually"
 msgstr "有些软件需要手动重启"
 
@@ -7063,7 +7092,7 @@ msgstr "状态"
 msgid "Static"
 msgstr "静态"
 
-#: pkg/systemd/service-details.jsx:648 pkg/packagekit/updates.jsx:907
+#: pkg/systemd/service-details.jsx:648 pkg/packagekit/updates.jsx:906
 #: pkg/networkmanager/network-interface.jsx:265
 msgid "Status"
 msgstr "状态"
@@ -7207,11 +7236,11 @@ msgstr "子笔记本"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "订阅 systemd 信号失败：$0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:353
+#: pkg/storaged/btrfs/subvolume.jsx:354
 msgid "Subvolume needs to be mounted"
 msgstr "需要挂载的子卷"
 
-#: pkg/storaged/btrfs/subvolume.jsx:355
+#: pkg/storaged/btrfs/subvolume.jsx:356
 msgid "Subvolume needs to be mounted writable"
 msgstr "子卷需要挂载为可写模式"
 
@@ -7227,8 +7256,8 @@ msgstr "成功复制到剪贴板！"
 msgid "Sundays"
 msgstr "周日"
 
-#: pkg/storaged/swap/swap.jsx:88 pkg/metrics/metrics.jsx:130
-#: pkg/metrics/metrics.jsx:725 pkg/metrics/metrics.jsx:1950
+#: pkg/storaged/swap/swap.jsx:88 pkg/metrics/metrics.jsx:132
+#: pkg/metrics/metrics.jsx:727 pkg/metrics/metrics.jsx:1964
 msgid "Swap"
 msgstr "交换空间"
 
@@ -7236,7 +7265,7 @@ msgstr "交换空间"
 msgid "Swap can not be resized here"
 msgstr "无法在此处调整交换空间的大小"
 
-#: pkg/metrics/metrics.jsx:129
+#: pkg/metrics/metrics.jsx:131
 msgid "Swap out"
 msgstr "交换出"
 
@@ -7571,15 +7600,15 @@ msgstr "您提供的 key 是无效的."
 msgid "The last key slot can not be removed"
 msgstr "无法删除最后一个密钥槽"
 
-#: pkg/storaged/dialog.jsx:1370
+#: pkg/storaged/dialog.jsx:1470
 msgid "The listed processes and services will be forcefully stopped."
 msgstr "列出的进程和服务将被强制停止。"
 
-#: pkg/storaged/dialog.jsx:1372
+#: pkg/storaged/dialog.jsx:1472
 msgid "The listed processes will be forcefully stopped."
 msgstr "列出的进程将被强制停止。"
 
-#: pkg/storaged/dialog.jsx:1374
+#: pkg/storaged/dialog.jsx:1474
 msgid "The listed services will be forcefully stopped."
 msgstr "列出的服务将被强制重启。"
 
@@ -7591,11 +7620,11 @@ msgstr "登陆的用户没有权限查看系统改变"
 msgid "The machine is rebooting"
 msgstr "正在重启机器"
 
-#: pkg/storaged/dialog.jsx:1328
+#: pkg/storaged/dialog.jsx:1428
 msgid "The mount point $0 is in use by these processes:"
 msgstr "挂载点 $0 正在被这些进程使用："
 
-#: pkg/storaged/dialog.jsx:1348
+#: pkg/storaged/dialog.jsx:1448
 msgid "The mount point $0 is in use by these services:"
 msgstr "挂载点 $0 正在被这些服务使用："
 
@@ -7637,7 +7666,7 @@ msgid ""
 msgstr ""
 "服务器拒绝使用密码验证的方法来验证 '$0'，并且没有其他支持的验证途径可以使用。"
 
-#: pkg/lib/cockpit.js:3824
+#: pkg/lib/cockpit.js:3825
 msgid "The server refused to authenticate using any supported methods."
 msgstr "服务器拒绝使用任何支持的方式来验证。"
 
@@ -7724,7 +7753,7 @@ msgstr "连接到机器时发生意外错误。"
 msgid "These additional steps are necessary:"
 msgstr "这些额外步骤是必需的："
 
-#: pkg/storaged/dialog.jsx:1242
+#: pkg/storaged/dialog.jsx:1282
 msgid "These changes will be made:"
 msgstr "将做出这些更改："
 
@@ -7760,7 +7789,7 @@ msgstr "这个设备不能用于安装目标。"
 msgid "This device cannot be managed here."
 msgstr "该设备不能在这里被管理。"
 
-#: pkg/storaged/dialog.jsx:1137
+#: pkg/storaged/dialog.jsx:1174
 msgid "This device is currently in use."
 msgstr "该设备正在被使用。"
 
@@ -7838,7 +7867,7 @@ msgstr "该池不使用其块设备上的所有空间。"
 msgid "This pool is in a degraded state."
 msgstr "这个池处于降级状态。"
 
-#: pkg/packagekit/updates.jsx:1372
+#: pkg/packagekit/updates.jsx:1371
 msgid "This system is not registered"
 msgstr "该系统未注册"
 
@@ -7896,7 +7925,7 @@ msgstr "该单元没有设计为需要明确启用。"
 msgid "This user name already exists"
 msgstr "用户名已存在"
 
-#: pkg/storaged/lvm2/volume-group.jsx:372
+#: pkg/storaged/lvm2/volume-group.jsx:374
 msgid "This volume group is missing some physical volumes."
 msgstr "这个卷组缺少一些物理卷。"
 
@@ -7979,7 +8008,7 @@ msgid ""
 "party, please verify the host key fingerprint:"
 msgstr "要确保您的连接没有被恶意第三方截取，请验证主机密钥指纹："
 
-#: pkg/packagekit/updates.jsx:1375
+#: pkg/packagekit/updates.jsx:1374
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7994,7 +8023,7 @@ msgstr ""
 "要验证指纹，在 $0 上运行以下内容（在实际的物理机器上本地进行，或通过一个可信"
 "任的网络进行）："
 
-#: pkg/metrics/metrics.jsx:1875
+#: pkg/metrics/metrics.jsx:1889
 msgid "Today"
 msgstr "今天"
 
@@ -8011,7 +8040,7 @@ msgstr "切换日期选择器"
 msgid "Toggle filters"
 msgstr "切换过滤器"
 
-#: pkg/lib/cockpit.js:3846
+#: pkg/lib/cockpit.js:3847
 msgid "Too much data"
 msgstr "太多数据"
 
@@ -8019,15 +8048,15 @@ msgstr "太多数据"
 msgid "Tools"
 msgstr "工具"
 
-#: pkg/metrics/metrics.jsx:865
+#: pkg/metrics/metrics.jsx:867
 msgid "Top 5 CPU services"
 msgstr "最顶级的 5 个 CPU 服务"
 
-#: pkg/metrics/metrics.jsx:963
+#: pkg/metrics/metrics.jsx:965
 msgid "Top 5 disk usage services"
 msgstr "前 5 个磁盘使用率服务"
 
-#: pkg/metrics/metrics.jsx:903
+#: pkg/metrics/metrics.jsx:905
 msgid "Top 5 memory services"
 msgstr "最顶级的 5 个内存服务"
 
@@ -8059,7 +8088,7 @@ msgstr "触发于"
 msgid "Triggers"
 msgstr "触发器"
 
-#: pkg/metrics/metrics.jsx:1836
+#: pkg/metrics/metrics.jsx:1850
 msgid "Troubleshoot"
 msgstr "排错"
 
@@ -8150,7 +8179,7 @@ msgid "UDP"
 msgstr "UDP"
 
 #: pkg/storaged/partitions/partition.jsx:228
-#: pkg/storaged/lvm2/volume-group.jsx:386
+#: pkg/storaged/lvm2/volume-group.jsx:388
 #: pkg/storaged/lvm2/physical-volume.jsx:117
 #: pkg/storaged/stratis/stopped-pool.jsx:127 pkg/storaged/stratis/pool.jsx:516
 #: pkg/storaged/mdraid/mdraid.jsx:301 pkg/storaged/btrfs/filesystem.jsx:77
@@ -8336,7 +8365,7 @@ msgstr "解锁磁盘"
 msgid "Unmanaged interfaces"
 msgstr "未管理的接口"
 
-#: pkg/storaged/stratis/filesystem.jsx:172 pkg/storaged/btrfs/subvolume.jsx:338
+#: pkg/storaged/stratis/filesystem.jsx:172 pkg/storaged/btrfs/subvolume.jsx:339
 #: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/filesystem/mounting-dialog.jsx:357
 #: pkg/storaged/filesystem/filesystem.jsx:102
 msgid "Unmount"
@@ -8383,7 +8412,7 @@ msgstr "不支持的逻辑卷"
 msgid "Until"
 msgstr "直到"
 
-#: pkg/lib/cockpit.js:3826 pkg/lib/cockpit.js:3828
+#: pkg/lib/cockpit.js:3827 pkg/lib/cockpit.js:3829
 msgid "Untrusted host"
 msgstr "不可信的主机"
 
@@ -8391,19 +8420,19 @@ msgstr "不可信的主机"
 msgid "Update"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:753
+#: pkg/packagekit/updates.jsx:752
 msgid "Update Success Table"
 msgstr "更新成功表"
 
-#: pkg/packagekit/updates.jsx:956
+#: pkg/packagekit/updates.jsx:955
 msgid "Update history"
 msgstr "更新历史"
 
-#: pkg/apps/application-list.jsx:163
+#: pkg/apps/application-list.jsx:153
 msgid "Update package information"
 msgstr "更新软件包信息"
 
-#: pkg/packagekit/updates.jsx:678 pkg/packagekit/updates.jsx:748
+#: pkg/packagekit/updates.jsx:677 pkg/packagekit/updates.jsx:747
 msgid "Update was successful"
 msgstr "更新成功"
 
@@ -8411,11 +8440,11 @@ msgstr "更新成功"
 msgid "Updated"
 msgstr "已更新"
 
-#: pkg/packagekit/updates.jsx:681
+#: pkg/packagekit/updates.jsx:680
 msgid "Updated packages may require a reboot to take effect."
 msgstr "已更新的软件包可能需要重启生效。"
 
-#: pkg/packagekit/updates.jsx:1440
+#: pkg/packagekit/updates.jsx:1439
 msgid "Updates available"
 msgstr "可用的更新"
 
@@ -8435,6 +8464,12 @@ msgstr "更新"
 msgid "Updating status..."
 msgstr "更新状态 ..."
 
+#: pkg/playground/react-demo-file-upload.tsx:109
+#, fuzzy
+#| msgid "Reload"
+msgid "Upload"
+msgstr "重载"
+
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:129
 msgid "Uptime"
 msgstr "运行时间"
@@ -8444,8 +8479,8 @@ msgstr "运行时间"
 #: pkg/storaged/block/unrecognized-data.jsx:50
 #: pkg/storaged/btrfs/filesystem.jsx:79 pkg/storaged/btrfs/volume.jsx:129
 #: pkg/storaged/btrfs/device.jsx:80 pkg/storaged/filesystem/filesystem.jsx:152
-#: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
-#: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
+#: pkg/metrics/metrics.jsx:1963 pkg/metrics/metrics.jsx:1964
+#: pkg/metrics/metrics.jsx:1965 pkg/metrics/metrics.jsx:1966
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 msgid "Usage"
 msgstr "用法"
@@ -8454,7 +8489,7 @@ msgstr "用法"
 msgid "Usage of $0"
 msgstr "$0 的用法"
 
-#: pkg/storaged/dialog.jsx:624 pkg/storaged/dialog.jsx:1142
+#: pkg/storaged/dialog.jsx:661 pkg/storaged/dialog.jsx:1179
 #: pkg/networkmanager/dialogs-common.jsx:103
 msgid "Use"
 msgstr "使用"
@@ -8483,8 +8518,8 @@ msgstr "使用以下密钥来验证其他系统"
 msgid "Use verbose logging"
 msgstr "使用详细日志记录"
 
-#: pkg/storaged/swap/swap.jsx:125 pkg/metrics/metrics.jsx:813
-#: pkg/metrics/metrics.jsx:907
+#: pkg/storaged/swap/swap.jsx:125 pkg/metrics/metrics.jsx:815
+#: pkg/metrics/metrics.jsx:909
 msgid "Used"
 msgstr "已使用"
 
@@ -8493,7 +8528,7 @@ msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr "对于可选或需要交互的挂载（如密码短语）很有用"
 
-#: pkg/storaged/dialog.jsx:1334 pkg/systemd/services.jsx:916
+#: pkg/storaged/dialog.jsx:1434 pkg/systemd/services.jsx:916
 msgid "User"
 msgstr "用户"
 
@@ -8597,11 +8632,11 @@ msgstr "版本"
 msgid "Very securely erasing $target"
 msgstr "非常安全地擦除 $target"
 
-#: pkg/metrics/metrics.jsx:766 pkg/metrics/metrics.jsx:767
+#: pkg/metrics/metrics.jsx:768 pkg/metrics/metrics.jsx:769
 msgid "View all CPUs"
 msgstr "查看所有 CPU"
 
-#: pkg/metrics/metrics.jsx:803
+#: pkg/metrics/metrics.jsx:805
 msgid "View all disks"
 msgstr "查看所有磁盘"
 
@@ -8618,7 +8653,7 @@ msgstr "查看所有服务"
 msgid "View automation script"
 msgstr "查看自动化脚本"
 
-#: pkg/metrics/metrics.jsx:1147
+#: pkg/metrics/metrics.jsx:1149
 msgid "View detailed logs"
 msgstr "查看详细日志"
 
@@ -8638,7 +8673,7 @@ msgstr "查看日志"
 msgid "View metrics and history"
 msgstr "查看指标和历史记录"
 
-#: pkg/metrics/metrics.jsx:804
+#: pkg/metrics/metrics.jsx:806
 msgid "View per-disk throughput"
 msgstr "查看每个磁盘的吞吐量"
 
@@ -8650,7 +8685,7 @@ msgstr "查看项目网站"
 msgid "View report"
 msgstr "查看报告"
 
-#: pkg/packagekit/updates.jsx:618
+#: pkg/packagekit/updates.jsx:617
 msgid "View update log"
 msgstr "查看更新日志"
 
@@ -8727,7 +8762,7 @@ msgstr "Web 控制台"
 msgid "Web Console for Linux servers"
 msgstr "Linux 服务器的 Web 控制台"
 
-#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:934
+#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:933
 msgid "Web Console will restart"
 msgstr "Web 控制台将重启"
 
@@ -8759,7 +8794,7 @@ msgstr "当"
 msgid "When empty, connect with the current user"
 msgstr "如果为空，与当前用户关联"
 
-#: pkg/packagekit/updates.jsx:532 pkg/packagekit/updates.jsx:939
+#: pkg/packagekit/updates.jsx:532 pkg/packagekit/updates.jsx:938
 msgid ""
 "When the Web Console is restarted, you will no longer see progress "
 "information. However, the update process will continue in the background. "
@@ -8800,8 +8835,8 @@ msgstr "WireGuard"
 msgid "World wide name"
 msgstr "全局范围名称"
 
-#: pkg/metrics/metrics.jsx:785 pkg/metrics/metrics.jsx:926
-#: pkg/metrics/metrics.jsx:968 pkg/metrics/metrics.jsx:972
+#: pkg/metrics/metrics.jsx:787 pkg/metrics/metrics.jsx:928
+#: pkg/metrics/metrics.jsx:970 pkg/metrics/metrics.jsx:974
 msgid "Write"
 msgstr "写入"
 
@@ -8859,7 +8894,7 @@ msgstr "您可能需要更改自动登录的密钥密码。"
 msgid "You must wait longer to change your password"
 msgstr "您需要等待更长时间来修改您的密码"
 
-#: pkg/metrics/metrics.jsx:1805
+#: pkg/metrics/metrics.jsx:1819
 msgid "You need to relogin to be able to see metrics history"
 msgstr "您需要重新登录才能查看指标历史数据"
 
@@ -8885,17 +8920,17 @@ msgstr "您的浏览器不允许从上下文菜单中进行粘贴，您可以使
 msgid "Your browser will remember your access level across sessions."
 msgstr "您的浏览器将会在不同会话之间记住您的访问级别。"
 
-#: pkg/packagekit/updates.jsx:1576
+#: pkg/packagekit/updates.jsx:1575
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
 msgstr "您的服务器将要关闭连接。您可以在其重启后重新连接。"
 
-#: pkg/lib/cockpit.js:3816
+#: pkg/lib/cockpit.js:3817
 msgid "Your session has been terminated."
 msgstr "会话被终止。"
 
-#: pkg/lib/cockpit.js:3818
+#: pkg/lib/cockpit.js:3819
 msgid "Your session has expired. Please log in again."
 msgstr "会话超时。请重新登录。"
 
@@ -8957,11 +8992,11 @@ msgstr "在"
 msgid "avc"
 msgstr "avc"
 
-#: pkg/metrics/metrics.jsx:752
+#: pkg/metrics/metrics.jsx:754
 msgid "average: $0%"
 msgstr "平均：$0%"
 
-#: pkg/storaged/dialog.jsx:1119
+#: pkg/storaged/dialog.jsx:1156
 msgid "backing device for VDO device"
 msgstr "VDO 设备的备份设备"
 
@@ -8997,7 +9032,7 @@ msgstr "btrfs 设备"
 msgid "btrfs filesystem"
 msgstr "btrfs 文件系统"
 
-#: pkg/storaged/btrfs/subvolume.jsx:386
+#: pkg/storaged/btrfs/subvolume.jsx:387
 msgid "btrfs subvolume"
 msgstr "btrfs 子卷"
 
@@ -9005,7 +9040,7 @@ msgstr "btrfs 子卷"
 msgid "btrfs subvolume $0 of $1"
 msgstr "btrfs 子卷 $0（共 $1）"
 
-#: pkg/storaged/btrfs/subvolume.jsx:424 pkg/storaged/btrfs/filesystem.jsx:87
+#: pkg/storaged/btrfs/subvolume.jsx:425 pkg/storaged/btrfs/filesystem.jsx:87
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
 msgid "btrfs subvolumes"
 msgstr "btrfs 子卷"
@@ -9035,7 +9070,7 @@ msgstr "用户组"
 msgid "change"
 msgstr "变更"
 
-#: pkg/metrics/metrics.jsx:654
+#: pkg/metrics/metrics.jsx:656
 msgid "cockpit-podman is not installed"
 msgstr "没有安装 cockpit-podman"
 
@@ -9082,11 +9117,11 @@ msgstr "故障调试"
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
 #: pkg/storaged/stratis/filesystem.jsx:121 pkg/storaged/stratis/pool.jsx:133
 #: pkg/storaged/mdraid/mdraid.jsx:112 pkg/storaged/block/format-dialog.jsx:208
-#: pkg/storaged/btrfs/subvolume.jsx:217
+#: pkg/storaged/btrfs/subvolume.jsx:218
 msgid "delete"
 msgstr "删除"
 
-#: pkg/storaged/dialog.jsx:1122
+#: pkg/storaged/dialog.jsx:1159
 msgid "device of btrfs volume"
 msgstr "btrfs 卷的设备"
 
@@ -9119,7 +9154,7 @@ msgid "drive"
 msgstr "驱动"
 
 #: pkg/storaged/partitions/partition.jsx:232
-#: pkg/storaged/lvm2/volume-group.jsx:384
+#: pkg/storaged/lvm2/volume-group.jsx:386
 #: pkg/storaged/lvm2/block-logical-volume.jsx:288
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:141
 #: pkg/storaged/crypto/encryption.jsx:233
@@ -9349,15 +9384,15 @@ msgstr "机器"
 msgid "mask"
 msgstr "屏蔽"
 
-#: pkg/metrics/metrics.jsx:753
+#: pkg/metrics/metrics.jsx:755
 msgid "max: $0%"
 msgstr "最大：$0%"
 
-#: pkg/storaged/dialog.jsx:1118
+#: pkg/storaged/dialog.jsx:1155
 msgid "member of MDRAID device"
 msgstr "MDRAID 设备的成员"
 
-#: pkg/storaged/dialog.jsx:1120
+#: pkg/storaged/dialog.jsx:1157
 msgid "member of Stratis pool"
 msgstr "Stratis 池的成员"
 
@@ -9413,7 +9448,7 @@ msgstr "nfs 服务器为空"
 msgid "nfs server is not valid IPv6"
 msgstr "nfs 服务器不是有效的 IPv6"
 
-#: pkg/metrics/metrics.jsx:112
+#: pkg/metrics/metrics.jsx:114
 msgid "nice"
 msgstr "良好"
 
@@ -9487,7 +9522,7 @@ msgstr "pcp"
 msgid "performance"
 msgstr "性能"
 
-#: pkg/storaged/dialog.jsx:1117
+#: pkg/storaged/dialog.jsx:1154
 msgid "physical volume of LVM2 volume group"
 msgstr "LVM2 卷组的物理卷"
 
@@ -9495,19 +9530,19 @@ msgstr "LVM2 卷组的物理卷"
 msgid "plugin"
 msgstr "插件"
 
-#: pkg/metrics/metrics.jsx:1833
+#: pkg/metrics/metrics.jsx:1847
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service 失败"
 
-#: pkg/metrics/metrics.jsx:1835
+#: pkg/metrics/metrics.jsx:1849
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service 收集数据失败"
 
-#: pkg/metrics/metrics.jsx:1826
+#: pkg/metrics/metrics.jsx:1840
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service 没有运行"
 
-#: pkg/metrics/metrics.jsx:648
+#: pkg/metrics/metrics.jsx:650
 msgid "pod"
 msgstr "pod"
 
@@ -9646,7 +9681,7 @@ msgstr "在失败时停止引导"
 msgid "stopped"
 msgstr "停止"
 
-#: pkg/metrics/metrics.jsx:112
+#: pkg/metrics/metrics.jsx:114
 msgid "sys"
 msgstr "sys"
 
@@ -9708,7 +9743,7 @@ msgid "unmask"
 msgstr "取消屏蔽"
 
 #: pkg/storaged/utils.js:876 pkg/storaged/utils.js:889
-#: pkg/storaged/btrfs/subvolume.jsx:217 pkg/storaged/manifest.json:0
+#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "卸载"
 
@@ -9716,7 +9751,7 @@ msgstr "卸载"
 msgid "unpartitioned space on $0"
 msgstr "$0 上未分区的空间"
 
-#: pkg/metrics/metrics.jsx:112 pkg/users/manifest.json:0
+#: pkg/metrics/metrics.jsx:114 pkg/users/manifest.json:0
 msgid "user"
 msgstr "用户"
 
@@ -9767,6 +9802,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "区"
+
+#~ msgid "Checking related processes"
+#~ msgstr "检查相关的进程"
 
 #~ msgid "Encrypt data"
 #~ msgstr "加密数据"
@@ -9882,10 +9920,6 @@ msgstr "区"
 
 #~ msgid "Locked devices"
 #~ msgstr "锁定的设备"
-
-#~ msgctxt "storage-id-desc"
-#~ msgid "Locked encrypted data"
-#~ msgstr "锁住加密的数据"
 
 #~ msgctxt "storage"
 #~ msgid "Model"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-28 02:47+0000\n"
+"POT-Creation-Date: 2024-06-04 02:47+0000\n"
 "PO-Revision-Date: 2023-07-17 09:21+0000\n"
 "Last-Translator: Nathan <nathan95@live.it>\n"
 "Language-Team: Italian <https://translate.fedoraproject.org/projects/cockpit/"
@@ -27,7 +27,7 @@ msgstr ""
 msgid "# of users"
 msgstr "di utenti"
 
-#: pkg/metrics/metrics.jsx:708
+#: pkg/metrics/metrics.jsx:710
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "$0 CPU"
@@ -43,7 +43,7 @@ msgid_plural "$0 active zones"
 msgstr[0] "$0 Zona Attiva"
 msgstr[1] "$0 Zone Attive"
 
-#: pkg/metrics/metrics.jsx:730 pkg/metrics/metrics.jsx:893
+#: pkg/metrics/metrics.jsx:732 pkg/metrics/metrics.jsx:895
 msgid "$0 available"
 msgstr "$0 disponibile"
 
@@ -117,11 +117,11 @@ msgstr "Documentazione $0"
 msgid "$0 error"
 msgstr "Errore $0"
 
-#: pkg/lib/cockpit.js:2676
+#: pkg/lib/cockpit.js:2677
 msgid "$0 exited with code $1"
 msgstr "$0 terminato con codice $1"
 
-#: pkg/lib/cockpit.js:2678
+#: pkg/lib/cockpit.js:2679
 msgid "$0 failed"
 msgstr "$0 fallito"
 
@@ -138,7 +138,7 @@ msgstr[1] "$0 tentativi di accesso falliti"
 msgid "$0 filesystem"
 msgstr "$0 filesystem"
 
-#: pkg/metrics/metrics.jsx:942
+#: pkg/metrics/metrics.jsx:944
 msgid "$0 free"
 msgstr "$0 liberi"
 
@@ -162,7 +162,7 @@ msgstr "$0 è un file non esistente"
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:84
 #: pkg/storaged/partitions/partition.jsx:47
 #: pkg/storaged/partitions/format-disk-dialog.jsx:39
-#: pkg/storaged/lvm2/volume-group.jsx:85 pkg/storaged/lvm2/volume-group.jsx:336
+#: pkg/storaged/lvm2/volume-group.jsx:85 pkg/storaged/lvm2/volume-group.jsx:338
 #: pkg/storaged/lvm2/block-logical-volume.jsx:68
 #: pkg/storaged/lvm2/block-logical-volume.jsx:151
 #: pkg/storaged/stratis/filesystem.jsx:125 pkg/storaged/stratis/pool.jsx:137
@@ -181,7 +181,7 @@ msgstr "$0 non è disponibile in nessun archivio web."
 msgid "$0 key changed"
 msgstr "Chiave $0 modificata"
 
-#: pkg/lib/cockpit.js:2674
+#: pkg/lib/cockpit.js:2675
 msgid "$0 killed with signal $1"
 msgstr "$0 terminato con codice $1"
 
@@ -219,13 +219,13 @@ msgid_plural "$0 packages"
 msgstr[0] "$0 pacchetto"
 msgstr[1] "$0 pacchetti"
 
-#: pkg/packagekit/updates.jsx:702 pkg/packagekit/updates.jsx:817
+#: pkg/packagekit/updates.jsx:701 pkg/packagekit/updates.jsx:816
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 pacchetto richiede un riavvio di sistema"
 msgstr[1] "$0 pacchetti richiedono un riavvio di sistema"
 
-#: pkg/metrics/metrics.jsx:134
+#: pkg/metrics/metrics.jsx:136
 msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "$0 pagina"
@@ -237,7 +237,7 @@ msgstr[1] "$0 pagine"
 msgid "$0 partitions"
 msgstr "partizione"
 
-#: pkg/packagekit/updates.jsx:789
+#: pkg/packagekit/updates.jsx:788
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "Aggiornamento di sicurezza disponibile"
@@ -249,7 +249,7 @@ msgid_plural "$0 services have failed"
 msgstr[0] "$0 servizio ha fallito"
 msgstr[1] "$0 servizi hanno fallito"
 
-#: pkg/packagekit/updates.jsx:719 pkg/packagekit/updates.jsx:829
+#: pkg/packagekit/updates.jsx:718 pkg/packagekit/updates.jsx:828
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 servizio deve essere riavviato"
@@ -261,7 +261,7 @@ msgid_plural "$0 slots remain"
 msgstr[0] "$0 slot disponibile"
 msgstr[1] "$0 slot disponibili"
 
-#: pkg/metrics/metrics.jsx:1333
+#: pkg/metrics/metrics.jsx:1335
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 Picco"
@@ -273,12 +273,12 @@ msgstr[1] "$0 Picco"
 msgid "$0 synchronized"
 msgstr "Non sincronizzato"
 
-#: pkg/metrics/metrics.jsx:722 pkg/metrics/metrics.jsx:884
-#: pkg/metrics/metrics.jsx:950
+#: pkg/metrics/metrics.jsx:724 pkg/metrics/metrics.jsx:886
+#: pkg/metrics/metrics.jsx:952
 msgid "$0 total"
 msgstr "$0 totale"
 
-#: pkg/packagekit/updates.jsx:797
+#: pkg/packagekit/updates.jsx:796
 msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 aggiornamento disponibile"
@@ -287,6 +287,12 @@ msgstr[1] "$0 aggiornamenti disponibili"
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:309
 msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 usato di $1 ($2 salvato)"
+
+#: pkg/storaged/dialog.jsx:1360
+#, fuzzy
+#| msgid "$0 total"
+msgid "$0 used, $1 total"
+msgstr "$0 totale"
 
 #: pkg/lib/cockpit-components-plot.jsx:223
 msgid "$0 week"
@@ -316,7 +322,7 @@ msgstr "$0: crash a $1"
 msgid "$name (from $host)"
 msgstr "$name (da $host)"
 
-#: pkg/storaged/dialog.jsx:1225
+#: pkg/storaged/dialog.jsx:1265
 #, fuzzy
 #| msgid "Creating partition $target"
 msgid "(Not part of target)"
@@ -339,7 +345,7 @@ msgstr "Non montato"
 msgid "(recommended)"
 msgstr "(raccomandato)"
 
-#: pkg/packagekit/updates.jsx:799
+#: pkg/packagekit/updates.jsx:798
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", compresa $1 correzione di sicurezza"
@@ -357,7 +363,7 @@ msgstr "1 giorno"
 msgid "1 hour"
 msgstr "1 ora"
 
-#: pkg/metrics/metrics.jsx:852
+#: pkg/metrics/metrics.jsx:854
 msgid "1 min"
 msgstr "1 min"
 
@@ -393,7 +399,7 @@ msgstr "13°"
 msgid "14th"
 msgstr "14°"
 
-#: pkg/metrics/metrics.jsx:854
+#: pkg/metrics/metrics.jsx:856
 msgid "15 min"
 msgstr "15 min"
 
@@ -505,7 +511,7 @@ msgstr "40 minuti"
 msgid "4th"
 msgstr "4°"
 
-#: pkg/metrics/metrics.jsx:853
+#: pkg/metrics/metrics.jsx:855
 msgid "5 min"
 msgstr "5 min"
 
@@ -597,7 +603,7 @@ msgstr ""
 "Una nuova chiave SSH in $0 verrà creata per $1 su $2 e sarà aggiunta al file "
 "$3 di $4 su $5."
 
-#: pkg/packagekit/updates.jsx:1528
+#: pkg/packagekit/updates.jsx:1527
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
@@ -612,7 +618,7 @@ msgstr[1] ""
 msgid "A pool with this name exists already."
 msgstr "Esiste già un pool con questo nome."
 
-#: pkg/packagekit/updates.jsx:1532
+#: pkg/packagekit/updates.jsx:1531
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
@@ -622,7 +628,7 @@ msgstr[1] ""
 "Alcuni servizi devono essere riavviati perché gli aggiornamenti prendano "
 "effetto:"
 
-#: pkg/storaged/lvm2/volume-group.jsx:383
+#: pkg/storaged/lvm2/volume-group.jsx:385
 #, fuzzy
 #| msgid "Physical volumes can not be resized here."
 msgid "A volume group with missing physical volumes can not be renamed."
@@ -671,11 +677,11 @@ msgstr "Account non disponibile o non modificabile."
 msgid "Accounts"
 msgstr "Account"
 
-#: pkg/storaged/dialog.jsx:1247
+#: pkg/storaged/dialog.jsx:1287
 msgid "Action"
 msgstr "Azione"
 
-#: pkg/storaged/pages.jsx:718 pkg/apps/application-list.jsx:90
+#: pkg/storaged/pages.jsx:718 pkg/apps/application-list.jsx:92
 msgid "Actions"
 msgstr "Azioni"
 
@@ -1109,16 +1115,16 @@ msgstr ""
 msgid "Appearance"
 msgstr "Aspetto"
 
-#: pkg/apps/application-list.jsx:177
+#: pkg/apps/application-list.jsx:167
 msgid "Application information is missing"
 msgstr ""
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:184
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:174
 #: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Applicazioni"
 
-#: pkg/apps/application-list.jsx:211
+#: pkg/apps/application-list.jsx:201
 msgid "Applications list"
 msgstr "Lista applicazioni"
 
@@ -1191,7 +1197,7 @@ msgstr "È necessario almeno un dispositivo a blocchi."
 msgid "At least one disk is needed."
 msgstr "È necessario almeno un disco."
 
-#: pkg/storaged/btrfs/subvolume.jsx:366
+#: pkg/storaged/btrfs/subvolume.jsx:367
 msgid "At least one parent needs to be mounted writable"
 msgstr ""
 
@@ -1299,7 +1305,7 @@ msgstr "Script di automazione"
 msgid "Available targets on $0"
 msgstr "Target disponibili su $0"
 
-#: pkg/packagekit/updates.jsx:444 pkg/packagekit/updates.jsx:926
+#: pkg/packagekit/updates.jsx:444 pkg/packagekit/updates.jsx:925
 msgid "Available updates"
 msgstr "Aggiornamenti disponibili"
 
@@ -1432,7 +1438,7 @@ msgstr "Configurazione errata"
 msgid "Btrfs volume is mounted"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:1436
+#: pkg/packagekit/updates.jsx:1435
 msgid "Bug fix updates available"
 msgstr "Aggiornamenti per bug fix disponibili"
 
@@ -1461,8 +1467,8 @@ msgstr ""
 msgid "Bypass browser check"
 msgstr "            Bypassa il controllo del browser          "
 
-#: pkg/metrics/metrics.jsx:109 pkg/metrics/metrics.jsx:820
-#: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1949
+#: pkg/metrics/metrics.jsx:111 pkg/metrics/metrics.jsx:822
+#: pkg/metrics/metrics.jsx:1586 pkg/metrics/metrics.jsx:1963
 #: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:114
 msgid "CPU"
 msgstr "CPU"
@@ -1475,11 +1481,11 @@ msgstr "Sicurezza CPU"
 msgid "CPU security toggles"
 msgstr "Impostazioni di Sicurezza della CPU"
 
-#: pkg/metrics/metrics.jsx:108
+#: pkg/metrics/metrics.jsx:110
 msgid "CPU usage"
 msgstr "Utilizzo CPU"
 
-#: pkg/metrics/metrics.jsx:1939
+#: pkg/metrics/metrics.jsx:1953
 msgid "CPU usage/load"
 msgstr "Utilizzo CPU/load"
 
@@ -1511,7 +1517,7 @@ msgstr ""
 #: pkg/shell/shell-modals.jsx:118 pkg/shell/hosts_dialog.jsx:285
 #: pkg/shell/hosts_dialog.jsx:382 pkg/shell/hosts_dialog.jsx:514
 #: pkg/shell/hosts_dialog.jsx:891 pkg/shell/credentials.jsx:313
-#: pkg/metrics/metrics.jsx:1481 pkg/systemd/overview-cards/tuned-dialog.jsx:314
+#: pkg/metrics/metrics.jsx:1489 pkg/systemd/overview-cards/tuned-dialog.jsx:314
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/motdCard.jsx:65
@@ -1542,7 +1548,7 @@ msgstr "Non può essere abilitato"
 msgid "Cannot connect to an unknown host"
 msgstr "Impossibile connettersi a un host sconosciuto"
 
-#: pkg/lib/cockpit.js:3838
+#: pkg/lib/cockpit.js:3839
 msgid "Cannot forward login credentials"
 msgstr "Impossibile inoltrare le credenziali di accesso"
 
@@ -1557,7 +1563,7 @@ msgstr ""
 msgid "Cannot schedule event in the past"
 msgstr "Non è possibile programmare eventi del passato"
 
-#: pkg/storaged/lvm2/volume-group.jsx:387 pkg/storaged/mdraid/mdraid.jsx:303
+#: pkg/storaged/lvm2/volume-group.jsx:389 pkg/storaged/mdraid/mdraid.jsx:303
 #: pkg/storaged/drive/drive.jsx:125 pkg/storaged/btrfs/volume.jsx:128
 msgid "Capacity"
 msgstr "Capacità"
@@ -1657,7 +1663,7 @@ msgstr ""
 "La modifica delle impostazioni interromperà la connessione al server e "
 "renderà l'interfaccia utente di amministrazione non disponibile."
 
-#: pkg/packagekit/updates.jsx:908
+#: pkg/packagekit/updates.jsx:907
 msgid "Check for updates"
 msgstr "Controlla gli aggiornamenti"
 
@@ -1692,6 +1698,12 @@ msgstr "Controllo del dispositivo RAID $target"
 msgid "Checking and repairing MDRAID device $target"
 msgstr "Controllo e riparazione del dispositivo RAID $target"
 
+#: pkg/storaged/dialog.jsx:1344
+#, fuzzy
+#| msgid "Creating filesystem on $target"
+msgid "Checking filesystem usage"
+msgstr "Creazione del filesystem su $target"
+
 #: pkg/storaged/crypto/keyslots.jsx:267
 msgid "Checking for $0 package"
 msgstr "Verifica per $0 pacchetto"
@@ -1700,11 +1712,11 @@ msgstr "Verifica per $0 pacchetto"
 msgid "Checking for NBDE support in the initrd"
 msgstr "Verifica del supporto NBDE in initrd"
 
-#: pkg/apps/application-list.jsx:158
+#: pkg/apps/application-list.jsx:148
 msgid "Checking for new applications"
 msgstr "Verifica di nuove applicazioni"
 
-#: pkg/packagekit/updates.jsx:1388
+#: pkg/packagekit/updates.jsx:1387
 msgid "Checking for package updates..."
 msgstr "Verifica aggiornamento pacchetti..."
 
@@ -1713,11 +1725,7 @@ msgstr "Verifica aggiornamento pacchetti..."
 msgid "Checking installed software"
 msgstr "Verifica del software installato"
 
-#: pkg/storaged/dialog.jsx:1274
-msgid "Checking related processes"
-msgstr "Verifica dei processi correlati"
-
-#: pkg/packagekit/updates.jsx:1398
+#: pkg/packagekit/updates.jsx:1397
 msgid "Checking software status"
 msgstr "Controllo stato software"
 
@@ -1758,7 +1766,7 @@ msgid "Client software"
 msgstr "Software Client"
 
 #: pkg/lib/cockpit-components-modifications.jsx:76
-#: pkg/lib/cockpit-components-terminal.jsx:230 pkg/storaged/dialog.jsx:456
+#: pkg/lib/cockpit-components-terminal.jsx:230 pkg/storaged/dialog.jsx:485
 #: pkg/apps/utils.jsx:87 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/shell-modals.jsx:192
 #: pkg/shell/hosts_dialog.jsx:92 pkg/shell/credentials.jsx:81
@@ -1785,7 +1793,7 @@ msgstr "L'autenticazione di Cockpit non è configurata correttamente."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Configurazione Cockpit del NetworkManager e del Firewalld"
 
-#: pkg/lib/cockpit.js:3844
+#: pkg/lib/cockpit.js:3845
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit non ha potuto contattare l'host inserito."
 
@@ -1811,7 +1819,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit è un'interfaccia amministrativa interattiva per server Linux."
 
-#: pkg/lib/cockpit.js:3842
+#: pkg/lib/cockpit.js:3843
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit non è compatibile con il software del sistema."
 
@@ -1819,7 +1827,7 @@ msgstr "Cockpit non è compatibile con il software del sistema."
 msgid "Cockpit is not installed"
 msgstr "Cockpit non è installato"
 
-#: pkg/lib/cockpit.js:3836
+#: pkg/lib/cockpit.js:3837
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit non è installato sul sistema."
 
@@ -1849,7 +1857,7 @@ msgstr "Raccogliere e creare un pacchetto di dati diagnostici e di supporto"
 msgid "Collect kernel crash dumps"
 msgstr "Acquisisci i dump dei crash del kernel"
 
-#: pkg/metrics/metrics.jsx:1494
+#: pkg/metrics/metrics.jsx:1502
 msgid "Collect metrics"
 msgstr "Raccogli le metriche"
 
@@ -1862,7 +1870,7 @@ msgstr "Colore"
 msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr "Sono accettate porte, intervalli e servizi separati da virgole"
 
-#: pkg/storaged/dialog.jsx:1333 pkg/storaged/dialog.jsx:1353
+#: pkg/storaged/dialog.jsx:1433 pkg/storaged/dialog.jsx:1453
 #: pkg/systemd/timer-dialog.jsx:174
 msgid "Command"
 msgstr "Comando"
@@ -2010,7 +2018,7 @@ msgstr "Errore di connessione"
 msgid "Connection failed"
 msgstr "Connessione fallita"
 
-#: pkg/lib/cockpit.js:3834
+#: pkg/lib/cockpit.js:3835
 msgid "Connection has timed out."
 msgstr "Il collegamento è scaduto."
 
@@ -2030,7 +2038,7 @@ msgstr "Dominio contattato"
 msgid "Contains:"
 msgstr "Contiene:"
 
-#: pkg/packagekit/updates.jsx:763
+#: pkg/packagekit/updates.jsx:762
 msgid "Continue"
 msgstr "Continua"
 
@@ -2073,7 +2081,7 @@ msgstr "Copia"
 msgid "Copy to clipboard"
 msgstr "Copia negli appunti"
 
-#: pkg/metrics/metrics.jsx:744
+#: pkg/metrics/metrics.jsx:746
 msgid "Core $0"
 msgstr "Core $0"
 
@@ -2232,7 +2240,7 @@ msgstr "Crea soltanto lo snapshot"
 msgid "Create storage device"
 msgstr "Crea volume di archiviazione"
 
-#: pkg/storaged/btrfs/subvolume.jsx:146 pkg/storaged/btrfs/subvolume.jsx:359
+#: pkg/storaged/btrfs/subvolume.jsx:146 pkg/storaged/btrfs/subvolume.jsx:360
 #, fuzzy
 #| msgid "Create volume"
 msgid "Create subvolume"
@@ -2328,11 +2336,11 @@ msgstr "Ctrl-Shift-I"
 msgid "Current boot"
 msgstr "Boot corrente"
 
-#: pkg/metrics/metrics.jsx:757
+#: pkg/metrics/metrics.jsx:759
 msgid "Current top CPU usage"
 msgstr "Utilizzo massimo attuale della CPU"
 
-#: pkg/storaged/dialog.jsx:1185
+#: pkg/storaged/dialog.jsx:1222
 msgid "Currently in use"
 msgstr "Attualmente in uso"
 
@@ -2394,7 +2402,7 @@ msgstr "Domini di ricerca DNS $val"
 msgid "Daily"
 msgstr "Giornaliero"
 
-#: pkg/packagekit/updates.jsx:933
+#: pkg/packagekit/updates.jsx:932
 msgid "Danger alert:"
 msgstr "Avviso di pericolo:"
 
@@ -2536,7 +2544,7 @@ msgstr "Il ritardo deve essere un numero"
 #: pkg/storaged/stratis/filesystem.jsx:137
 #: pkg/storaged/stratis/filesystem.jsx:175 pkg/storaged/stratis/pool.jsx:149
 #: pkg/storaged/mdraid/mdraid.jsx:126 pkg/storaged/mdraid/mdraid.jsx:233
-#: pkg/storaged/btrfs/subvolume.jsx:231 pkg/storaged/btrfs/subvolume.jsx:373
+#: pkg/storaged/btrfs/subvolume.jsx:232 pkg/storaged/btrfs/subvolume.jsx:374
 #: pkg/sosreport/sosreport.jsx:369 pkg/sosreport/sosreport.jsx:468
 #: pkg/users/delete-group-dialog.js:51 pkg/users/delete-account-dialog.js:60
 #: pkg/users/account-details.js:221 pkg/systemd/abrtLog.jsx:290
@@ -2624,7 +2632,7 @@ msgstr "L'eliminazione cancella tutti i dati su un dispositivo VDO."
 msgid "Deleting erases all data on a volume group."
 msgstr "L'eliminazione cancella tutti i dati su un gruppo di volumi."
 
-#: pkg/storaged/btrfs/subvolume.jsx:232
+#: pkg/storaged/btrfs/subvolume.jsx:233
 #, fuzzy
 #| msgid "Deleting erases all data on a volume group."
 msgid "Deleting erases all data on this subvolume and all it's children."
@@ -2634,7 +2642,7 @@ msgstr "L'eliminazione cancella tutti i dati su un gruppo di volumi."
 msgid "Deletion will remove the following files:"
 msgstr "L'eliminazione rimuoverà i seguenti file:"
 
-#: pkg/storaged/dialog.jsx:1354 pkg/systemd/timer-dialog.jsx:166
+#: pkg/storaged/dialog.jsx:1454 pkg/systemd/timer-dialog.jsx:166
 #: pkg/networkmanager/firewall.jsx:702 pkg/networkmanager/firewall.jsx:846
 msgid "Description"
 msgstr "Descrizione"
@@ -2658,10 +2666,16 @@ msgstr "Dettagli"
 msgid "Development"
 msgstr "Sviluppo"
 
-#: pkg/storaged/mdraid/mdraid.jsx:302 pkg/storaged/dialog.jsx:1140
-#: pkg/storaged/dialog.jsx:1245 pkg/metrics/metrics.jsx:785
+#: pkg/storaged/mdraid/mdraid.jsx:302 pkg/storaged/dialog.jsx:1177
+#: pkg/storaged/dialog.jsx:1285 pkg/metrics/metrics.jsx:787
 msgid "Device"
 msgstr "Dispositivo"
+
+#: pkg/storaged/dialog.jsx:1364 pkg/storaged/dialog.jsx:1372
+#, fuzzy
+#| msgid "Unrecognized data"
+msgid "Device contains unrecognized data"
+msgstr "Dati non riconosciuti"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:287 pkg/storaged/drive/drive.jsx:132
 #: pkg/storaged/block/other.jsx:62
@@ -2734,9 +2748,9 @@ msgstr "Disconnesso"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/metrics/metrics.jsx:137 pkg/metrics/metrics.jsx:138
-#: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1939
-#: pkg/metrics/metrics.jsx:1951
+#: pkg/metrics/metrics.jsx:139 pkg/metrics/metrics.jsx:140
+#: pkg/metrics/metrics.jsx:1586 pkg/metrics/metrics.jsx:1953
+#: pkg/metrics/metrics.jsx:1965
 msgid "Disk I/O"
 msgstr "I/O disco"
 
@@ -2755,15 +2769,15 @@ msgstr "Frase di accesso del disco"
 #: pkg/storaged/lvm2/volume-group.jsx:198
 #: pkg/storaged/lvm2/create-dialog.jsx:52 pkg/storaged/mdraid/mdraid.jsx:156
 #: pkg/storaged/mdraid/mdraid.jsx:306 pkg/storaged/mdraid/create-dialog.jsx:99
-#: pkg/metrics/metrics.jsx:918
+#: pkg/metrics/metrics.jsx:920
 msgid "Disks"
 msgstr "Dischi"
 
-#: pkg/metrics/metrics.jsx:792
+#: pkg/metrics/metrics.jsx:794
 msgid "Disks usage"
 msgstr "Uso dei dischi"
 
-#: pkg/storaged/lvm2/volume-group.jsx:371
+#: pkg/storaged/lvm2/volume-group.jsx:373
 #, fuzzy
 #| msgid "Dismiss $0 alert"
 #| msgid_plural "Dismiss $0 alerts"
@@ -2943,7 +2957,7 @@ msgstr "Modifica host"
 msgid "Edit motd"
 msgstr "Modifica motd"
 
-#: pkg/storaged/stratis/filesystem.jsx:170 pkg/storaged/btrfs/subvolume.jsx:331
+#: pkg/storaged/stratis/filesystem.jsx:170 pkg/storaged/btrfs/subvolume.jsx:332
 #: pkg/storaged/filesystem/filesystem.jsx:100
 #, fuzzy
 #| msgid "Mount point"
@@ -3100,7 +3114,7 @@ msgstr ""
 msgid "Enforcing"
 msgstr "Applicazione"
 
-#: pkg/packagekit/updates.jsx:1438
+#: pkg/packagekit/updates.jsx:1437
 msgid "Enhancement updates available"
 msgstr "Aggiornamenti disponibili"
 
@@ -3135,7 +3149,7 @@ msgstr "Errore"
 msgid "Error and above"
 msgstr "Errore e superiore"
 
-#: pkg/metrics/metrics.jsx:1850
+#: pkg/metrics/metrics.jsx:1864
 msgid "Error has occurred"
 msgstr "Si è verificato un errore"
 
@@ -3211,7 +3225,7 @@ msgstr "Scadenza dell'account il $0"
 msgid "Export"
 msgstr "Esporta"
 
-#: pkg/metrics/metrics.jsx:1511
+#: pkg/metrics/metrics.jsx:1519
 msgid "Export to network"
 msgstr "Esporta in rete"
 
@@ -3257,7 +3271,7 @@ msgstr "Impossibile aggiungere la zona"
 msgid "Failed to change password"
 msgstr "Impossibile cambiare la password"
 
-#: pkg/metrics/metrics.jsx:1487
+#: pkg/metrics/metrics.jsx:1495
 msgid "Failed to configure PCP"
 msgstr "Impossibile configurare PCP"
 
@@ -3348,7 +3362,7 @@ msgstr "Il filesystem è bloccato"
 msgid "Filesystem name"
 msgstr "Nome del file system"
 
-#: pkg/storaged/dialog.jsx:1121
+#: pkg/storaged/dialog.jsx:1158
 #, fuzzy
 #| msgid "Creating filesystem on $target"
 msgid "Filesystem outside the target"
@@ -3508,11 +3522,11 @@ msgstr "Vai all'applicazione"
 msgid "Go to now"
 msgstr "Vai ora"
 
-#: pkg/metrics/metrics.jsx:1933
+#: pkg/metrics/metrics.jsx:1947
 msgid "Graph visibility"
 msgstr "Visibilità del grafico"
 
-#: pkg/metrics/metrics.jsx:1921
+#: pkg/metrics/metrics.jsx:1935
 msgid "Graph visibility options menu"
 msgstr "Menu delle opzioni di visibilità del grafico"
 
@@ -3636,7 +3650,7 @@ msgstr "Home Directory"
 msgid "Host"
 msgstr "Host"
 
-#: pkg/lib/cockpit.js:3830
+#: pkg/lib/cockpit.js:3831
 msgid "Host key is incorrect"
 msgstr "La chiave host non è corretta"
 
@@ -3660,7 +3674,11 @@ msgstr "Ore"
 msgid "How to check"
 msgstr "Come controllare"
 
-#: pkg/storaged/pages.jsx:714 pkg/storaged/btrfs/subvolume.jsx:414
+#: pkg/storaged/dialog.jsx:1381
+msgid "I confirm I want to lose this data forever"
+msgstr ""
+
+#: pkg/storaged/pages.jsx:714 pkg/storaged/btrfs/subvolume.jsx:415
 #: pkg/users/accounts-list.js:230 pkg/users/accounts-list.js:381
 #: pkg/users/group-create-dialog.js:47 pkg/systemd/hwinfo.jsx:291
 #: pkg/networkmanager/firewall.jsx:696
@@ -3744,12 +3762,16 @@ msgstr ""
 "Se l'impronta digitale coincide, clicca 'Accetta la chiave e connetti'. "
 "Altrimenti, non connettere e contatta l'amministratore."
 
-#: pkg/packagekit/updates.jsx:685 pkg/packagekit/updates.jsx:762
+#: pkg/packagekit/updates.jsx:684 pkg/packagekit/updates.jsx:761
 #: pkg/networkmanager/ip-settings.jsx:44
 msgid "Ignore"
 msgstr "Ignora"
 
-#: pkg/metrics/metrics.jsx:814
+#: pkg/storaged/dialog.jsx:1316
+msgid "Important data might be deleted:"
+msgstr ""
+
+#: pkg/metrics/metrics.jsx:816
 msgid "In"
 msgstr "Ingresso"
 
@@ -3812,7 +3834,7 @@ msgstr "Memoria indice"
 msgid "Indirect"
 msgstr "Indiretto"
 
-#: pkg/packagekit/updates.jsx:754
+#: pkg/packagekit/updates.jsx:753
 msgid "Info"
 msgstr "Info"
 
@@ -3841,7 +3863,7 @@ msgid "Insights: "
 msgstr "Approfondimenti: "
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:126
-#: pkg/apps/application-list.jsx:206 pkg/apps/application.jsx:52
+#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:52
 #: pkg/packagekit/kpatch.jsx:250
 msgid "Install"
 msgstr "Installa"
@@ -3854,21 +3876,21 @@ msgstr "Installa il supporto NFS"
 msgid "Install Stratis support"
 msgstr "Installa il supporto Stratis"
 
-#: pkg/packagekit/updates.jsx:1415
+#: pkg/packagekit/updates.jsx:1414
 msgid "Install all updates"
 msgstr "Installa tutti gli aggiornamenti"
 
-#: pkg/apps/application-list.jsx:200
+#: pkg/apps/application-list.jsx:190
 #, fuzzy
 #| msgid "Package information"
 msgid "Install application information"
 msgstr "Informazioni sul pacchetto"
 
-#: pkg/metrics/metrics.jsx:1818
+#: pkg/metrics/metrics.jsx:1832
 msgid "Install cockpit-pcp"
 msgstr "Installa cockpit-pcp"
 
-#: pkg/packagekit/updates.jsx:1428
+#: pkg/packagekit/updates.jsx:1427
 msgid "Install kpatch updates"
 msgstr "Installa gli aggiornamenti kpatch"
 
@@ -3876,7 +3898,7 @@ msgstr "Installa gli aggiornamenti kpatch"
 msgid "Install realmd support"
 msgstr "Installa il supporto realmd"
 
-#: pkg/packagekit/updates.jsx:1414 pkg/packagekit/updates.jsx:1421
+#: pkg/packagekit/updates.jsx:1413 pkg/packagekit/updates.jsx:1420
 msgid "Install security updates"
 msgstr "Installa gli aggiornamenti di sicurezza"
 
@@ -3896,7 +3918,7 @@ msgstr "Installa il software"
 msgid "Install the $0 package."
 msgstr "Installare il pacchetto $0"
 
-#: pkg/metrics/metrics.jsx:1817
+#: pkg/metrics/metrics.jsx:1831
 msgid "Installation not supported without installed cockpit package"
 msgstr ""
 
@@ -3924,7 +3946,7 @@ msgstr "L'installazione di $0 rimuoverebbe $1."
 msgid "Installing packages"
 msgstr "Installazione pacchetti"
 
-#: pkg/metrics/metrics.jsx:814 pkg/networkmanager/firewall.jsx:196
+#: pkg/metrics/metrics.jsx:816 pkg/networkmanager/firewall.jsx:196
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "Interfaccia"
@@ -3941,7 +3963,7 @@ msgstr "Membri interfaccia"
 msgid "Interfaces"
 msgstr "Interfacce"
 
-#: pkg/lib/cockpit.js:3832
+#: pkg/lib/cockpit.js:3833
 msgid "Internal error"
 msgstr "Errore interno"
 
@@ -4070,7 +4092,7 @@ msgstr "Voce del registro"
 msgid "Journal entry not found"
 msgstr "Voce del registro non trovata"
 
-#: pkg/metrics/metrics.jsx:1911
+#: pkg/metrics/metrics.jsx:1925
 msgid "Jump to"
 msgstr "Salta a"
 
@@ -4183,7 +4205,7 @@ msgstr "Volumi logici"
 msgid "LVM2 physical volume"
 msgstr "Volume fisico"
 
-#: pkg/storaged/lvm2/volume-group.jsx:393
+#: pkg/storaged/lvm2/volume-group.jsx:395
 #, fuzzy
 #| msgid "Physical volume"
 msgid "LVM2 physical volumes"
@@ -4223,7 +4245,7 @@ msgstr "ultima attività"
 msgid "Last cannot be removed"
 msgstr "L'ultimo slot per chiavi non può essere rimosso"
 
-#: pkg/packagekit/updates.jsx:784
+#: pkg/packagekit/updates.jsx:783
 msgid "Last checked: $0"
 msgstr "Ultimo controllo: $0"
 
@@ -4368,8 +4390,8 @@ msgstr "Elencando unità"
 msgid "Listing units failed: $0"
 msgstr "Unità elencate fallite: $0"
 
-#: pkg/metrics/metrics.jsx:115 pkg/metrics/metrics.jsx:116
-#: pkg/metrics/metrics.jsx:849 pkg/metrics/metrics.jsx:1949
+#: pkg/metrics/metrics.jsx:117 pkg/metrics/metrics.jsx:118
+#: pkg/metrics/metrics.jsx:851 pkg/metrics/metrics.jsx:1963
 msgid "Load"
 msgstr "Carico"
 
@@ -4377,7 +4399,7 @@ msgstr "Carico"
 msgid "Load balancing"
 msgstr "Bilanciamento del carico"
 
-#: pkg/metrics/metrics.jsx:1979
+#: pkg/metrics/metrics.jsx:1993
 msgid "Load earlier data"
 msgstr "Carica dati precedenti"
 
@@ -4428,7 +4450,7 @@ msgstr "Caricamento unità fallito"
 # translation auto-copied from project evolution, version 3.8.5, document
 # evolution-3.8
 #: pkg/kdump/kdump-view.jsx:438 pkg/storaged/storaged.jsx:66
-#: pkg/metrics/metrics.jsx:1978 pkg/users/accounts-list.js:318
+#: pkg/metrics/metrics.jsx:1992 pkg/users/accounts-list.js:318
 #: pkg/users/accounts-list.js:339 pkg/users/accounts-list.js:452
 #: pkg/users/account-details.js:170 pkg/systemd/services.jsx:683
 #: pkg/systemd/service.jsx:132 pkg/systemd/logsJournal.jsx:268
@@ -4462,7 +4484,7 @@ msgstr "localmente in $0"
 
 # xmp (proprietà immagine)
 #: pkg/kdump/kdump-view.jsx:243 pkg/storaged/pages.jsx:716
-#: pkg/storaged/dialog.jsx:1141 pkg/storaged/dialog.jsx:1246
+#: pkg/storaged/dialog.jsx:1178 pkg/storaged/dialog.jsx:1286
 msgid "Location"
 msgstr "Posizione"
 
@@ -4483,6 +4505,13 @@ msgstr "Blocca account"
 #| msgid "Locked"
 msgid "Locked data"
 msgstr "Bloccato"
+
+#: pkg/storaged/dialog.jsx:1368
+#, fuzzy
+#| msgctxt "storage-id-desc"
+#| msgid "Locked encrypted data"
+msgid "Locked encrypted device might contain data"
+msgstr "Dati crittografati bloccati"
 
 #: pkg/storaged/jobs-panel.jsx:43
 msgid "Locking $target"
@@ -4505,7 +4534,7 @@ msgstr "Accedi con il tuo account utente del server."
 msgid "Log messages"
 msgstr "Messaggi di log"
 
-#: pkg/shell/topnav.jsx:233 pkg/metrics/metrics.jsx:1806
+#: pkg/shell/topnav.jsx:233 pkg/metrics/metrics.jsx:1820
 #: pkg/users/logout-account-dialog.js:36
 msgid "Log out"
 msgstr "Esci"
@@ -4554,7 +4583,7 @@ msgstr "Accesso"
 msgid "Login again"
 msgstr "Effettua di nuovo il login"
 
-#: pkg/lib/cockpit.js:3822
+#: pkg/lib/cockpit.js:3823
 msgid "Login failed"
 msgstr "Login fallito"
 
@@ -4779,8 +4808,8 @@ msgstr "Età massima del messaggio $max_age"
 msgid "Media drive"
 msgstr "Unità ottica"
 
-#: pkg/metrics/metrics.jsx:123 pkg/metrics/metrics.jsx:880
-#: pkg/metrics/metrics.jsx:1572 pkg/metrics/metrics.jsx:1950
+#: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:882
+#: pkg/metrics/metrics.jsx:1586 pkg/metrics/metrics.jsx:1964
 #: pkg/systemd/overview-cards/usageCard.jsx:145 pkg/systemd/hwinfo.jsx:290
 #: pkg/systemd/hwinfo.jsx:334 pkg/systemd/service-details.jsx:659
 msgid "Memory"
@@ -4790,11 +4819,11 @@ msgstr "Memoria"
 msgid "Memory technology"
 msgstr "Tecnologia di memoria"
 
-#: pkg/metrics/metrics.jsx:122
+#: pkg/metrics/metrics.jsx:124
 msgid "Memory usage"
 msgstr "Utilizzo memoria"
 
-#: pkg/metrics/metrics.jsx:1939
+#: pkg/metrics/metrics.jsx:1953
 msgid "Memory usage/swap"
 msgstr "Utilizzo memoria/swap"
 
@@ -4823,15 +4852,15 @@ msgstr "Metodo"
 msgid "Metric"
 msgstr "Metriche"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2000
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2014
 msgid "Metrics and history"
 msgstr "Metriche e storia"
 
-#: pkg/metrics/metrics.jsx:1841
+#: pkg/metrics/metrics.jsx:1855
 msgid "Metrics history could not be loaded"
 msgstr "Non è stato possibile caricare la cronologia delle metriche"
 
-#: pkg/metrics/metrics.jsx:1463 pkg/metrics/metrics.jsx:1557
+#: pkg/metrics/metrics.jsx:1471 pkg/metrics/metrics.jsx:1571
 msgid "Metrics settings"
 msgstr "Impostazioni delle metriche"
 
@@ -4895,11 +4924,11 @@ msgstr "Obiettivi di monitoraggio"
 msgid "Monthly"
 msgstr "Mensilmente"
 
-#: pkg/packagekit/updates.jsx:940
+#: pkg/packagekit/updates.jsx:939
 msgid "More info..."
 msgstr "Più informazioni..."
 
-#: pkg/storaged/stratis/filesystem.jsx:173 pkg/storaged/btrfs/subvolume.jsx:343
+#: pkg/storaged/stratis/filesystem.jsx:173 pkg/storaged/btrfs/subvolume.jsx:344
 #: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/filesystem/mounting-dialog.jsx:356
 #: pkg/storaged/filesystem/filesystem.jsx:103
 msgid "Mount"
@@ -4955,7 +4984,7 @@ msgstr "Opzioni di montaggio"
 #: pkg/storaged/stratis/filesystem.jsx:90
 #: pkg/storaged/stratis/filesystem.jsx:222 pkg/storaged/stratis/pool.jsx:103
 #: pkg/storaged/block/format-dialog.jsx:299
-#: pkg/storaged/btrfs/subvolume.jsx:415 pkg/storaged/nfs/nfs.jsx:329
+#: pkg/storaged/btrfs/subvolume.jsx:416 pkg/storaged/nfs/nfs.jsx:329
 #: pkg/storaged/filesystem/mounting-dialog.jsx:326
 #: pkg/storaged/filesystem/filesystem.jsx:147
 msgid "Mount point"
@@ -5031,7 +5060,7 @@ msgstr "Server NTP"
 
 #: pkg/storaged/partitions/partition.jsx:227
 #: pkg/storaged/lvm2/volume-group.jsx:64 pkg/storaged/lvm2/volume-group.jsx:116
-#: pkg/storaged/lvm2/volume-group.jsx:380
+#: pkg/storaged/lvm2/volume-group.jsx:382
 #: pkg/storaged/lvm2/block-logical-volume.jsx:49
 #: pkg/storaged/lvm2/block-logical-volume.jsx:238
 #: pkg/storaged/lvm2/block-logical-volume.jsx:286
@@ -5046,7 +5075,7 @@ msgstr "Server NTP"
 #: pkg/storaged/stratis/pool.jsx:166 pkg/storaged/stratis/pool.jsx:511
 #: pkg/storaged/mdraid/mdraid.jsx:295 pkg/storaged/mdraid/create-dialog.jsx:47
 #: pkg/storaged/block/format-dialog.jsx:293
-#: pkg/storaged/btrfs/subvolume.jsx:148 pkg/storaged/btrfs/subvolume.jsx:413
+#: pkg/storaged/btrfs/subvolume.jsx:148 pkg/storaged/btrfs/subvolume.jsx:414
 #: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/filesystem/filesystem.jsx:119
 #: pkg/storaged/filesystem/filesystem.jsx:141
 #: pkg/storaged/iscsi/create-dialog.jsx:111
@@ -5107,12 +5136,12 @@ msgstr ""
 msgid "Need at least one NTP server"
 msgstr "E' necessario almeno un server NTP"
 
-#: pkg/metrics/metrics.jsx:979 pkg/metrics/metrics.jsx:1572
-#: pkg/metrics/metrics.jsx:1939 pkg/metrics/metrics.jsx:1952
+#: pkg/metrics/metrics.jsx:981 pkg/metrics/metrics.jsx:1586
+#: pkg/metrics/metrics.jsx:1953 pkg/metrics/metrics.jsx:1966
 msgid "Network"
 msgstr "Rete"
 
-#: pkg/metrics/metrics.jsx:144 pkg/metrics/metrics.jsx:145
+#: pkg/metrics/metrics.jsx:146 pkg/metrics/metrics.jsx:147
 msgid "Network I/O"
 msgstr "I/O rete"
 
@@ -5128,7 +5157,7 @@ msgstr "I dispositivi di rete e i grafici richiedono NetworkManager"
 msgid "Network logs"
 msgstr "Log di rete"
 
-#: pkg/metrics/metrics.jsx:988
+#: pkg/metrics/metrics.jsx:990
 msgid "Network usage"
 msgstr "Utilizzo rete"
 
@@ -5220,7 +5249,7 @@ msgstr "Nessun ID specificato"
 msgid "No SELinux alerts."
 msgstr "Nessun avviso SELinux."
 
-#: pkg/apps/application-list.jsx:198
+#: pkg/apps/application-list.jsx:188
 msgid "No applications installed or available."
 msgstr "Nessuna applicazione installata o disponibile."
 
@@ -5248,11 +5277,11 @@ msgstr "Nessun carrier"
 msgid "No configuration found"
 msgstr "Nessuna configurazione trovata"
 
-#: pkg/metrics/metrics.jsx:1869
+#: pkg/metrics/metrics.jsx:1883
 msgid "No data available"
 msgstr "Nessun dato disponibile"
 
-#: pkg/metrics/metrics.jsx:1865
+#: pkg/metrics/metrics.jsx:1879
 msgid "No data available between $0 and $1"
 msgstr "Nessun dato disponibile tra $0 e $1"
 
@@ -5296,7 +5325,7 @@ msgstr "nessun risultato trovato"
 msgid "No encryption"
 msgstr "Nessuna crittografia"
 
-#: pkg/metrics/metrics.jsx:1333
+#: pkg/metrics/metrics.jsx:1335
 msgid "No events"
 msgstr "Nessun evento"
 
@@ -5342,7 +5371,7 @@ msgstr "Nessuna chiave aggiunta"
 msgid "No languages match"
 msgstr "Nessuna lingua trovata"
 
-#: pkg/metrics/metrics.jsx:1149 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1151 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "Nessuna voce nel log"
 
@@ -5380,7 +5409,7 @@ msgstr "Nessun partizionamento"
 msgid "No peers added."
 msgstr "Nessuna chiave aggiunta"
 
-#: pkg/storaged/lvm2/volume-group.jsx:392
+#: pkg/storaged/lvm2/volume-group.jsx:394
 #, fuzzy
 #| msgid "Physical volumes"
 msgid "No physical volumes found"
@@ -5411,7 +5440,7 @@ msgstr "Nessuna regola trovata"
 msgid "No storage found"
 msgstr "Nessuna archiviazione"
 
-#: pkg/storaged/btrfs/subvolume.jsx:423 pkg/storaged/btrfs/filesystem.jsx:86
+#: pkg/storaged/btrfs/subvolume.jsx:424 pkg/storaged/btrfs/filesystem.jsx:86
 #: pkg/storaged/btrfs/volume.jsx:157
 #, fuzzy
 #| msgid "No logical volumes"
@@ -5515,7 +5544,7 @@ msgstr "L'utente non <b>$0</b>è autorizzato a modificare i regni"
 msgid "Not permitted to configure realms"
 msgstr "L'utente non <b>$0</b>è autorizzato a modificare i regni"
 
-#: pkg/lib/cockpit.js:3820
+#: pkg/lib/cockpit.js:3821
 msgid "Not permitted to perform this action."
 msgstr "Non è consentito eseguire questa azione."
 
@@ -5523,7 +5552,7 @@ msgstr "Non è consentito eseguire questa azione."
 msgid "Not ready"
 msgstr "Non pronto"
 
-#: pkg/packagekit/updates.jsx:1365
+#: pkg/packagekit/updates.jsx:1364
 msgid "Not registered"
 msgstr "Non Registrato"
 
@@ -5628,7 +5657,7 @@ msgstr ""
 msgid "Ooops!"
 msgstr "Ooops!"
 
-#: pkg/metrics/metrics.jsx:1450
+#: pkg/metrics/metrics.jsx:1458
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "Apri il servizio pmproxy nel firewall per condividere le metriche."
 
@@ -5667,13 +5696,13 @@ msgstr ""
 msgid "Other options"
 msgstr "Altre opzioni"
 
-#: pkg/metrics/metrics.jsx:814
+#: pkg/metrics/metrics.jsx:816
 msgid "Out"
 msgstr "Uscita"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/metrics/metrics.jsx:1999 pkg/systemd/hwinfo.jsx:307
+#: pkg/metrics/metrics.jsx:2013 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Panoramica"
@@ -5694,15 +5723,15 @@ msgstr "Sovrascrivere i dati esistenti con zeri (lento)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/storaged/dialog.jsx:1332
+#: pkg/storaged/dialog.jsx:1432
 msgid "PID"
 msgstr "PID"
 
-#: pkg/metrics/metrics.jsx:1814
+#: pkg/metrics/metrics.jsx:1828
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Pacchetto cockpit-pcp mancante per la cronologia delle metriche"
 
-#: pkg/packagekit/updates.jsx:689 pkg/packagekit/updates.jsx:768
+#: pkg/packagekit/updates.jsx:688 pkg/packagekit/updates.jsx:767
 msgid "Package information"
 msgstr "Informazioni sul pacchetto"
 
@@ -5710,11 +5739,11 @@ msgstr "Informazioni sul pacchetto"
 msgid "PackageKit crashed"
 msgstr "PackageKit si è interrotto"
 
-#: pkg/packagekit/updates.jsx:1103
+#: pkg/packagekit/updates.jsx:1102
 msgid "PackageKit is not installed"
 msgstr "PackageKit non è installato"
 
-#: pkg/packagekit/updates.jsx:1304
+#: pkg/packagekit/updates.jsx:1303
 msgid "PackageKit reported error code $0"
 msgstr "Codice di errore segnalato da PackageKit $0"
 
@@ -5932,7 +5961,7 @@ msgid ""
 "machines will be shared with each other."
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1466
+#: pkg/metrics/metrics.jsx:1474
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5969,7 +5998,7 @@ msgstr "Eliminare definitivamente $0?"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "Eliminare definitivamente $0?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:228
+#: pkg/storaged/btrfs/subvolume.jsx:229
 #, fuzzy
 #| msgid "Permanently delete $0?"
 msgid "Permanently delete subvolume $0?"
@@ -5997,7 +6026,7 @@ msgstr "Fisico"
 msgid "Physical Volumes"
 msgstr "Volumi fisici"
 
-#: pkg/storaged/lvm2/volume-group.jsx:390
+#: pkg/storaged/lvm2/volume-group.jsx:392
 #: pkg/storaged/lvm2/block-logical-volume.jsx:356
 msgid "Physical volumes"
 msgstr "Volumi fisici"
@@ -6045,7 +6074,7 @@ msgstr "Abilita Javascript per usare Web Console"
 msgid "Please install the $0 package"
 msgstr "Installare il pacchetto $0"
 
-#: pkg/packagekit/updates.jsx:1492
+#: pkg/packagekit/updates.jsx:1491
 msgid "Please resolve the issue and reload this page."
 msgstr "Per favore risolvi il problema e ricarica questa pagina."
 
@@ -6164,7 +6193,7 @@ msgstr "Dettagli del problema"
 msgid "Problem info"
 msgstr "Informazioni sul problema"
 
-#: pkg/storaged/dialog.jsx:1174
+#: pkg/storaged/dialog.jsx:1211
 msgid "Processes using the location"
 msgstr "Elabora utilizzando la posizione"
 
@@ -6281,7 +6310,7 @@ msgstr "Livello RAID"
 msgid "RAID10 needs an even number of physical volumes"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:888
+#: pkg/metrics/metrics.jsx:890
 msgid "RAM"
 msgstr "RAM"
 
@@ -6309,12 +6338,12 @@ msgstr "Posizione"
 msgid "Raw to a device"
 msgstr "Raw a un dispositivo"
 
-#: pkg/metrics/metrics.jsx:785 pkg/metrics/metrics.jsx:922
-#: pkg/metrics/metrics.jsx:967 pkg/metrics/metrics.jsx:972
+#: pkg/metrics/metrics.jsx:787 pkg/metrics/metrics.jsx:924
+#: pkg/metrics/metrics.jsx:969 pkg/metrics/metrics.jsx:974
 msgid "Read"
 msgstr "Leggere"
 
-#: pkg/metrics/metrics.jsx:1472 pkg/systemd/hwinfo.jsx:206
+#: pkg/metrics/metrics.jsx:1480 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
 msgstr "Leggi di più..."
 
@@ -6366,16 +6395,16 @@ msgstr "riapplica e riavvia"
 msgid "Reboot"
 msgstr "Riavvia"
 
-#: pkg/packagekit/updates.jsx:613
+#: pkg/packagekit/updates.jsx:612
 msgid "Reboot after completion"
 msgstr "Riavvio dopo il completamento"
 
-#: pkg/packagekit/updates.jsx:1525
+#: pkg/packagekit/updates.jsx:1524
 msgid "Reboot recommended"
 msgstr "Riavvio consigliato"
 
-#: pkg/packagekit/updates.jsx:684 pkg/packagekit/updates.jsx:759
-#: pkg/packagekit/updates.jsx:823
+#: pkg/packagekit/updates.jsx:683 pkg/packagekit/updates.jsx:758
+#: pkg/packagekit/updates.jsx:822
 msgid "Reboot system..."
 msgstr "Riavvio del sistema..."
 
@@ -6434,19 +6463,19 @@ msgstr "Generato"
 msgid "Regenerating initrd"
 msgstr "rigenerazione del initrd"
 
-#: pkg/packagekit/updates.jsx:1377
+#: pkg/packagekit/updates.jsx:1376
 msgid "Register…"
 msgstr "Registrati…"
 
-#: pkg/storaged/dialog.jsx:1262
+#: pkg/storaged/dialog.jsx:1332
 msgid "Related processes and services will be forcefully stopped."
 msgstr "I processi e i servizi correlati verranno interrotti forzatamente."
 
-#: pkg/storaged/dialog.jsx:1264
+#: pkg/storaged/dialog.jsx:1334
 msgid "Related processes will be forcefully stopped."
 msgstr "I processi correlati verranno interrotti forzatamente."
 
-#: pkg/storaged/dialog.jsx:1266
+#: pkg/storaged/dialog.jsx:1336
 msgid "Related services will be forcefully stopped."
 msgstr "I servizi correlati verranno interrotti forzatamente."
 
@@ -6502,7 +6531,7 @@ msgstr "Remoto su SSH"
 msgid "Removals:"
 msgstr "Rimozioni:"
 
-#: pkg/storaged/lvm2/volume-group.jsx:347
+#: pkg/storaged/lvm2/volume-group.jsx:349
 #: pkg/storaged/lvm2/physical-volume.jsx:88
 #: pkg/storaged/crypto/keyslots.jsx:651 pkg/storaged/crypto/keyslots.jsx:686
 #: pkg/storaged/crypto/keyslots.jsx:771 pkg/storaged/stratis/pool.jsx:440
@@ -6545,7 +6574,7 @@ msgstr "Rimuovere l'host"
 msgid "Remove item"
 msgstr "Rimuovere l'oggetto"
 
-#: pkg/storaged/lvm2/volume-group.jsx:344
+#: pkg/storaged/lvm2/volume-group.jsx:346
 #, fuzzy
 #| msgid "Removing physical volume from $target"
 msgid "Remove missing physical volumes?"
@@ -6803,11 +6832,11 @@ msgstr "Riavvia"
 msgid "Restart services"
 msgstr "Riavvia i servizi"
 
-#: pkg/packagekit/updates.jsx:760 pkg/packagekit/updates.jsx:835
+#: pkg/packagekit/updates.jsx:759 pkg/packagekit/updates.jsx:834
 msgid "Restart services..."
 msgstr "Riavvia i servizi..."
 
-#: pkg/packagekit/updates.jsx:1573
+#: pkg/packagekit/updates.jsx:1572
 msgid "Restarting"
 msgstr "Riavvio"
 
@@ -6899,7 +6928,7 @@ msgstr "Esecutore"
 msgid "Running"
 msgstr "In esecuzione"
 
-#: pkg/storaged/dialog.jsx:1335 pkg/storaged/dialog.jsx:1355
+#: pkg/storaged/dialog.jsx:1435 pkg/storaged/dialog.jsx:1455
 msgid "Runtime"
 msgstr "Runtime"
 
@@ -6998,7 +7027,7 @@ msgstr "Sabati"
 #: pkg/storaged/stratis/pool.jsx:410 pkg/storaged/stratis/pool.jsx:465
 #: pkg/storaged/btrfs/volume.jsx:96 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/filesystem/mounting-dialog.jsx:358
-#: pkg/storaged/filesystem/filesystem.jsx:126 pkg/metrics/metrics.jsx:1478
+#: pkg/storaged/filesystem/filesystem.jsx:126 pkg/metrics/metrics.jsx:1486
 #: pkg/systemd/timer-dialog.jsx:148 pkg/packagekit/kpatch.jsx:310
 #: pkg/networkmanager/dialogs-common.jsx:160
 msgid "Save"
@@ -7078,7 +7107,7 @@ msgstr "Cancellazione sicura di $target"
 msgid "Security Enhanced Linux configuration and troubleshooting"
 msgstr "Configurazione e risoluzione dei problemi di Security Enhanced Linux"
 
-#: pkg/packagekit/updates.jsx:1434
+#: pkg/packagekit/updates.jsx:1433
 msgid "Security updates available"
 msgstr "Aggiornamenti di sicurezza disponibili"
 
@@ -7145,7 +7174,7 @@ msgstr "L'indirizzo del server non può essere vuoto."
 msgid "Server cannot be empty."
 msgstr "Il server non può essere vuoto."
 
-#: pkg/lib/cockpit.js:3840
+#: pkg/lib/cockpit.js:3841
 msgid "Server has closed the connection."
 msgstr "Il server ha chiuso la connessione."
 
@@ -7153,10 +7182,10 @@ msgstr "Il server ha chiuso la connessione."
 msgid "Server software"
 msgstr "Software Server"
 
-#: pkg/storaged/dialog.jsx:1352 pkg/metrics/metrics.jsx:812
-#: pkg/metrics/metrics.jsx:813 pkg/metrics/metrics.jsx:868
-#: pkg/metrics/metrics.jsx:906 pkg/metrics/metrics.jsx:966
-#: pkg/metrics/metrics.jsx:972 pkg/networkmanager/firewall.jsx:207
+#: pkg/storaged/dialog.jsx:1452 pkg/metrics/metrics.jsx:814
+#: pkg/metrics/metrics.jsx:815 pkg/metrics/metrics.jsx:870
+#: pkg/metrics/metrics.jsx:908 pkg/metrics/metrics.jsx:968
+#: pkg/metrics/metrics.jsx:974 pkg/networkmanager/firewall.jsx:207
 msgid "Service"
 msgstr "Servizio"
 
@@ -7174,7 +7203,7 @@ msgstr "Log servizi"
 msgid "Services"
 msgstr "Servizi"
 
-#: pkg/storaged/dialog.jsx:1160
+#: pkg/storaged/dialog.jsx:1197
 msgid "Services using the location"
 msgstr "Servizi che utilizzano la posizione"
 
@@ -7237,7 +7266,7 @@ msgstr "Impostazione"
 msgid "Setting up loop device $target"
 msgstr "Impostazione del dispositivo di loop $target"
 
-#: pkg/packagekit/updates.jsx:918
+#: pkg/packagekit/updates.jsx:917
 msgid "Settings"
 msgstr "Impostazioni"
 
@@ -7361,23 +7390,23 @@ msgstr "Single rank"
 msgid "Size"
 msgstr "Dimensione"
 
-#: pkg/storaged/dialog.jsx:1077
+#: pkg/storaged/dialog.jsx:1114
 msgid "Size cannot be negative"
 msgstr "La dimensione non può essere negativa"
 
-#: pkg/storaged/dialog.jsx:1075
+#: pkg/storaged/dialog.jsx:1112
 msgid "Size cannot be zero"
 msgstr "La dimensione non può essere zero"
 
-#: pkg/storaged/dialog.jsx:1079
+#: pkg/storaged/dialog.jsx:1116
 msgid "Size is too large"
 msgstr "La dimensione è troppo grande"
 
-#: pkg/storaged/dialog.jsx:1073
+#: pkg/storaged/dialog.jsx:1110
 msgid "Size must be a number"
 msgstr "La dimensione deve essere un numero"
 
-#: pkg/storaged/dialog.jsx:1081
+#: pkg/storaged/dialog.jsx:1118
 msgid "Size must be at least $0"
 msgstr "La dimensione deve essere almeno $0"
 
@@ -7452,8 +7481,8 @@ msgstr ""
 "Qualche altro programma sta attualmente utilizzando il gestore di pacchetti, "
 "si prega di attendere..."
 
-#: pkg/packagekit/updates.jsx:736 pkg/packagekit/updates.jsx:843
-#: pkg/packagekit/updates.jsx:1536
+#: pkg/packagekit/updates.jsx:735 pkg/packagekit/updates.jsx:842
+#: pkg/packagekit/updates.jsx:1535
 msgid "Some software needs to be restarted manually"
 msgstr "Alcuni software devono essere riavviati manualmente"
 
@@ -7545,7 +7574,7 @@ msgstr "Stato"
 msgid "Static"
 msgstr "Statico"
 
-#: pkg/systemd/service-details.jsx:648 pkg/packagekit/updates.jsx:907
+#: pkg/systemd/service-details.jsx:648 pkg/packagekit/updates.jsx:906
 #: pkg/networkmanager/network-interface.jsx:265
 msgid "Status"
 msgstr "Stato"
@@ -7707,13 +7736,13 @@ msgstr "Sub-Notebook"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "La sottoscrizione alle segnalazioni di sistemd è fallita"
 
-#: pkg/storaged/btrfs/subvolume.jsx:353
+#: pkg/storaged/btrfs/subvolume.jsx:354
 #, fuzzy
 #| msgid "Volume failed to be created"
 msgid "Subvolume needs to be mounted"
 msgstr "Impossibile creare il volume"
 
-#: pkg/storaged/btrfs/subvolume.jsx:355
+#: pkg/storaged/btrfs/subvolume.jsx:356
 msgid "Subvolume needs to be mounted writable"
 msgstr ""
 
@@ -7729,8 +7758,8 @@ msgstr "Copiato con successo negli appunti!"
 msgid "Sundays"
 msgstr "Domeniche"
 
-#: pkg/storaged/swap/swap.jsx:88 pkg/metrics/metrics.jsx:130
-#: pkg/metrics/metrics.jsx:725 pkg/metrics/metrics.jsx:1950
+#: pkg/storaged/swap/swap.jsx:88 pkg/metrics/metrics.jsx:132
+#: pkg/metrics/metrics.jsx:727 pkg/metrics/metrics.jsx:1964
 msgid "Swap"
 msgstr "Swap"
 
@@ -7740,7 +7769,7 @@ msgstr "Swap"
 msgid "Swap can not be resized here"
 msgstr "I $0 filesystem non possono essere ridimensionati qui."
 
-#: pkg/metrics/metrics.jsx:129
+#: pkg/metrics/metrics.jsx:131
 msgid "Swap out"
 msgstr "Swap out"
 
@@ -8177,15 +8206,15 @@ msgstr "La chiave fornita non era valida."
 msgid "The last key slot can not be removed"
 msgstr "L'ultimo slot per chiavi non può essere rimosso"
 
-#: pkg/storaged/dialog.jsx:1370
+#: pkg/storaged/dialog.jsx:1470
 msgid "The listed processes and services will be forcefully stopped."
 msgstr "I processi e i servizi elencati verranno interrotti forzatamente."
 
-#: pkg/storaged/dialog.jsx:1372
+#: pkg/storaged/dialog.jsx:1472
 msgid "The listed processes will be forcefully stopped."
 msgstr "I processi elencati verranno interrotti forzatamente."
 
-#: pkg/storaged/dialog.jsx:1374
+#: pkg/storaged/dialog.jsx:1474
 msgid "The listed services will be forcefully stopped."
 msgstr "I servizi elencati verranno interrotti forzatamente."
 
@@ -8201,11 +8230,11 @@ msgstr ""
 msgid "The machine is rebooting"
 msgstr "La macchina si sta riavviando"
 
-#: pkg/storaged/dialog.jsx:1328
+#: pkg/storaged/dialog.jsx:1428
 msgid "The mount point $0 is in use by these processes:"
 msgstr "Il punto di montaggio $0 è utilizzato da questi processi:"
 
-#: pkg/storaged/dialog.jsx:1348
+#: pkg/storaged/dialog.jsx:1448
 msgid "The mount point $0 is in use by these services:"
 msgstr "Il punto di montaggio $0 è utilizzato da questi servizi:"
 
@@ -8250,7 +8279,7 @@ msgstr ""
 "Il server ha rifiutato di autenticare '$0' utilizzando l'autenticazione con "
 "password, e non sono disponibili altri metodi di autenticazione supportati."
 
-#: pkg/lib/cockpit.js:3824
+#: pkg/lib/cockpit.js:3825
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Il server ha rifiutato di autenticarsi utilizzando qualsiasi metodo "
@@ -8357,7 +8386,7 @@ msgstr ""
 msgid "These additional steps are necessary:"
 msgstr "Questi passaggi aggiuntivi sono necessari:"
 
-#: pkg/storaged/dialog.jsx:1242
+#: pkg/storaged/dialog.jsx:1282
 #, fuzzy
 #| msgid "This web console will be updated."
 msgid "These changes will be made:"
@@ -8401,7 +8430,7 @@ msgstr "Questo dispositivo non può essere gestito qui."
 msgid "This device cannot be managed here."
 msgstr "Questo dispositivo non può essere gestito qui."
 
-#: pkg/storaged/dialog.jsx:1137
+#: pkg/storaged/dialog.jsx:1174
 #, fuzzy
 #| msgid "This device is currently used for VDO devices."
 msgid "This device is currently in use."
@@ -8488,7 +8517,7 @@ msgstr ""
 msgid "This pool is in a degraded state."
 msgstr "L'array RAID è in uno stato degradato"
 
-#: pkg/packagekit/updates.jsx:1372
+#: pkg/packagekit/updates.jsx:1371
 msgid "This system is not registered"
 msgstr "Questo sistema non è registrato"
 
@@ -8556,7 +8585,7 @@ msgstr ""
 msgid "This user name already exists"
 msgstr "Questo nome utente esiste già"
 
-#: pkg/storaged/lvm2/volume-group.jsx:372
+#: pkg/storaged/lvm2/volume-group.jsx:374
 msgid "This volume group is missing some physical volumes."
 msgstr ""
 
@@ -8654,7 +8683,7 @@ msgstr ""
 "Per assicurare che la connessione non sia intercettata da un soggetto terzo "
 "malelvolo, verifica l'impronta digitale dell'host:"
 
-#: pkg/packagekit/updates.jsx:1375
+#: pkg/packagekit/updates.jsx:1374
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -8671,7 +8700,7 @@ msgstr ""
 "Per verificare un'impronta digitale, esegui su $0 mentre sei fisicamente di "
 "fronte alla macchina o attraverso una rete fidata:"
 
-#: pkg/metrics/metrics.jsx:1875
+#: pkg/metrics/metrics.jsx:1889
 msgid "Today"
 msgstr "Oggi"
 
@@ -8688,7 +8717,7 @@ msgstr "Attiva/disattiva la selezione della data"
 msgid "Toggle filters"
 msgstr "Attiva/disattiva i filtri"
 
-#: pkg/lib/cockpit.js:3846
+#: pkg/lib/cockpit.js:3847
 msgid "Too much data"
 msgstr "Troppi dati"
 
@@ -8696,17 +8725,17 @@ msgstr "Troppi dati"
 msgid "Tools"
 msgstr "Strumenti"
 
-#: pkg/metrics/metrics.jsx:865
+#: pkg/metrics/metrics.jsx:867
 msgid "Top 5 CPU services"
 msgstr "Primi 5 servizi CPU"
 
-#: pkg/metrics/metrics.jsx:963
+#: pkg/metrics/metrics.jsx:965
 #, fuzzy
 #| msgid "Top 5 CPU services"
 msgid "Top 5 disk usage services"
 msgstr "Primi 5 servizi CPU"
 
-#: pkg/metrics/metrics.jsx:903
+#: pkg/metrics/metrics.jsx:905
 #, fuzzy
 #| msgid "No network devices"
 msgid "Top 5 memory services"
@@ -8744,7 +8773,7 @@ msgstr "Attivato da"
 msgid "Triggers"
 msgstr "Trigger"
 
-#: pkg/metrics/metrics.jsx:1836
+#: pkg/metrics/metrics.jsx:1850
 msgid "Troubleshoot"
 msgstr "Risoluzione dei problemi"
 
@@ -8844,7 +8873,7 @@ msgstr "UDP"
 # translation auto-copied from project subscription-manager, version 1.9.X,
 # document keys, author fvalen
 #: pkg/storaged/partitions/partition.jsx:228
-#: pkg/storaged/lvm2/volume-group.jsx:386
+#: pkg/storaged/lvm2/volume-group.jsx:388
 #: pkg/storaged/lvm2/physical-volume.jsx:117
 #: pkg/storaged/stratis/stopped-pool.jsx:127 pkg/storaged/stratis/pool.jsx:516
 #: pkg/storaged/mdraid/mdraid.jsx:301 pkg/storaged/btrfs/filesystem.jsx:77
@@ -9065,7 +9094,7 @@ msgstr "Sblocco disco..."
 msgid "Unmanaged interfaces"
 msgstr "Interfacce non gestite"
 
-#: pkg/storaged/stratis/filesystem.jsx:172 pkg/storaged/btrfs/subvolume.jsx:338
+#: pkg/storaged/stratis/filesystem.jsx:172 pkg/storaged/btrfs/subvolume.jsx:339
 #: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/filesystem/mounting-dialog.jsx:357
 #: pkg/storaged/filesystem/filesystem.jsx:102
 msgid "Unmount"
@@ -9120,7 +9149,7 @@ msgstr "Volume non supportato"
 msgid "Until"
 msgstr "Fino a"
 
-#: pkg/lib/cockpit.js:3826 pkg/lib/cockpit.js:3828
+#: pkg/lib/cockpit.js:3827 pkg/lib/cockpit.js:3829
 msgid "Untrusted host"
 msgstr "Host non fidato"
 
@@ -9130,21 +9159,21 @@ msgstr "Host non fidato"
 msgid "Update"
 msgstr "Aggiorna"
 
-#: pkg/packagekit/updates.jsx:753
+#: pkg/packagekit/updates.jsx:752
 #, fuzzy
 #| msgid "Updates available"
 msgid "Update Success Table"
 msgstr "Aggiornamenti disponibili"
 
-#: pkg/packagekit/updates.jsx:956
+#: pkg/packagekit/updates.jsx:955
 msgid "Update history"
 msgstr "Cronologia degli aggiornamenti"
 
-#: pkg/apps/application-list.jsx:163
+#: pkg/apps/application-list.jsx:153
 msgid "Update package information"
 msgstr "Aggiorna informazioni sul pacchetto"
 
-#: pkg/packagekit/updates.jsx:678 pkg/packagekit/updates.jsx:748
+#: pkg/packagekit/updates.jsx:677 pkg/packagekit/updates.jsx:747
 #, fuzzy
 #| msgid "Logout successful"
 msgid "Update was successful"
@@ -9154,14 +9183,14 @@ msgstr "Logout riuscito"
 msgid "Updated"
 msgstr "Aggiornato"
 
-#: pkg/packagekit/updates.jsx:681
+#: pkg/packagekit/updates.jsx:680
 #, fuzzy
 #| msgid "Updated packages may require a restart to take effect."
 msgid "Updated packages may require a reboot to take effect."
 msgstr ""
 "I pacchetti aggiornati possono richiedere un riavvio per avere effetto."
 
-#: pkg/packagekit/updates.jsx:1440
+#: pkg/packagekit/updates.jsx:1439
 msgid "Updates available"
 msgstr "Aggiornamenti disponibili"
 
@@ -9183,6 +9212,12 @@ msgstr "Aggiornamento"
 msgid "Updating status..."
 msgstr "Aggiornamento dello stato..."
 
+#: pkg/playground/react-demo-file-upload.tsx:109
+#, fuzzy
+#| msgid "Reload"
+msgid "Upload"
+msgstr "Ricarica"
+
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:129
 #, fuzzy
 msgid "Uptime"
@@ -9195,8 +9230,8 @@ msgstr "Uptime"
 #: pkg/storaged/block/unrecognized-data.jsx:50
 #: pkg/storaged/btrfs/filesystem.jsx:79 pkg/storaged/btrfs/volume.jsx:129
 #: pkg/storaged/btrfs/device.jsx:80 pkg/storaged/filesystem/filesystem.jsx:152
-#: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
-#: pkg/metrics/metrics.jsx:1951 pkg/metrics/metrics.jsx:1952
+#: pkg/metrics/metrics.jsx:1963 pkg/metrics/metrics.jsx:1964
+#: pkg/metrics/metrics.jsx:1965 pkg/metrics/metrics.jsx:1966
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 msgid "Usage"
 msgstr "Utilizzo"
@@ -9209,7 +9244,7 @@ msgid "Usage of $0"
 msgstr "Utilizzo del core della $0CPU"
 
 # spazio su disco, quindi maschile
-#: pkg/storaged/dialog.jsx:624 pkg/storaged/dialog.jsx:1142
+#: pkg/storaged/dialog.jsx:661 pkg/storaged/dialog.jsx:1179
 #: pkg/networkmanager/dialogs-common.jsx:103
 #, fuzzy
 #| msgid "Used"
@@ -9251,8 +9286,8 @@ msgid "Use verbose logging"
 msgstr "Ultimo accesso"
 
 # spazio su disco, quindi maschile
-#: pkg/storaged/swap/swap.jsx:125 pkg/metrics/metrics.jsx:813
-#: pkg/metrics/metrics.jsx:907
+#: pkg/storaged/swap/swap.jsx:125 pkg/metrics/metrics.jsx:815
+#: pkg/metrics/metrics.jsx:909
 msgid "Used"
 msgstr "Usato"
 
@@ -9263,7 +9298,7 @@ msgstr ""
 "Utile per i mount che sono opzionali o che necessitano di interazione (come "
 "le passphrase)"
 
-#: pkg/storaged/dialog.jsx:1334 pkg/systemd/services.jsx:916
+#: pkg/storaged/dialog.jsx:1434 pkg/systemd/services.jsx:916
 msgid "User"
 msgstr "Utente"
 
@@ -9387,13 +9422,13 @@ msgstr "Versione"
 msgid "Very securely erasing $target"
 msgstr "Cancellazione molto sicura di $target"
 
-#: pkg/metrics/metrics.jsx:766 pkg/metrics/metrics.jsx:767
+#: pkg/metrics/metrics.jsx:768 pkg/metrics/metrics.jsx:769
 #, fuzzy
 #| msgid "All logs"
 msgid "View all CPUs"
 msgstr "Tutti i log"
 
-#: pkg/metrics/metrics.jsx:803
+#: pkg/metrics/metrics.jsx:805
 #, fuzzy
 #| msgid "All logs"
 msgid "View all disks"
@@ -9416,7 +9451,7 @@ msgstr "Filtra Servizi"
 msgid "View automation script"
 msgstr "Visualizza script di automazione"
 
-#: pkg/metrics/metrics.jsx:1147
+#: pkg/metrics/metrics.jsx:1149
 #, fuzzy
 #| msgid "All logs"
 msgid "View detailed logs"
@@ -9444,7 +9479,7 @@ msgstr "Tutti i log"
 msgid "View metrics and history"
 msgstr "Visualizza dettagli e cronologia"
 
-#: pkg/metrics/metrics.jsx:804
+#: pkg/metrics/metrics.jsx:806
 msgid "View per-disk throughput"
 msgstr "Visualizza il throughput per disco"
 
@@ -9456,7 +9491,7 @@ msgstr "Visualizza il sito web del progetto"
 msgid "View report"
 msgstr "Visualizza rapporto"
 
-#: pkg/packagekit/updates.jsx:618
+#: pkg/packagekit/updates.jsx:617
 #, fuzzy
 #| msgid "All logs"
 msgid "View update log"
@@ -9546,7 +9581,7 @@ msgstr "Web Console"
 msgid "Web Console for Linux servers"
 msgstr "Web Console per server Linux"
 
-#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:934
+#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:933
 #, fuzzy
 #| msgid "Web Console for Linux servers"
 msgid "Web Console will restart"
@@ -9584,7 +9619,7 @@ msgstr "Quando"
 msgid "When empty, connect with the current user"
 msgstr "Se vuoti, connetti con l'utente corrente"
 
-#: pkg/packagekit/updates.jsx:532 pkg/packagekit/updates.jsx:939
+#: pkg/packagekit/updates.jsx:532 pkg/packagekit/updates.jsx:938
 msgid ""
 "When the Web Console is restarted, you will no longer see progress "
 "information. However, the update process will continue in the background. "
@@ -9626,8 +9661,8 @@ msgstr ""
 msgid "World wide name"
 msgstr "Nome globale"
 
-#: pkg/metrics/metrics.jsx:785 pkg/metrics/metrics.jsx:926
-#: pkg/metrics/metrics.jsx:968 pkg/metrics/metrics.jsx:972
+#: pkg/metrics/metrics.jsx:787 pkg/metrics/metrics.jsx:928
+#: pkg/metrics/metrics.jsx:970 pkg/metrics/metrics.jsx:974
 msgid "Write"
 msgstr "Scrivi"
 
@@ -9689,7 +9724,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Devi aspettare più a lungo per cambiare la tua password"
 
-#: pkg/metrics/metrics.jsx:1805
+#: pkg/metrics/metrics.jsx:1819
 #, fuzzy
 #| msgid "You need to relogin to be able to see metrics"
 msgid "You need to relogin to be able to see metrics history"
@@ -9719,7 +9754,7 @@ msgstr ""
 msgid "Your browser will remember your access level across sessions."
 msgstr "Il tuo browser ricorderà il tuo livello di accesso tra le sessioni."
 
-#: pkg/packagekit/updates.jsx:1576
+#: pkg/packagekit/updates.jsx:1575
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -9727,11 +9762,11 @@ msgstr ""
 "Il server chiuderà presto la connessione. È possibile riconnettersi dopo che "
 "è stato riavviato."
 
-#: pkg/lib/cockpit.js:3816
+#: pkg/lib/cockpit.js:3817
 msgid "Your session has been terminated."
 msgstr "La tua sessione e' terminata."
 
-#: pkg/lib/cockpit.js:3818
+#: pkg/lib/cockpit.js:3819
 msgid "Your session has expired. Please log in again."
 msgstr "La sessione è scaduta. Effettua di nuovo il login."
 
@@ -9800,11 +9835,11 @@ msgstr "a"
 msgid "avc"
 msgstr "avc"
 
-#: pkg/metrics/metrics.jsx:752
+#: pkg/metrics/metrics.jsx:754
 msgid "average: $0%"
 msgstr "media: $0%"
 
-#: pkg/storaged/dialog.jsx:1119
+#: pkg/storaged/dialog.jsx:1156
 #, fuzzy
 #| msgid "Create VDO device"
 msgid "backing device for VDO device"
@@ -9848,7 +9883,7 @@ msgstr "Altri dispositivi"
 msgid "btrfs filesystem"
 msgstr "Crea filesystem"
 
-#: pkg/storaged/btrfs/subvolume.jsx:386
+#: pkg/storaged/btrfs/subvolume.jsx:387
 #, fuzzy
 #| msgid "Storage volume"
 msgid "btrfs subvolume"
@@ -9858,7 +9893,7 @@ msgstr "Volume di Archiviazione"
 msgid "btrfs subvolume $0 of $1"
 msgstr ""
 
-#: pkg/storaged/btrfs/subvolume.jsx:424 pkg/storaged/btrfs/filesystem.jsx:87
+#: pkg/storaged/btrfs/subvolume.jsx:425 pkg/storaged/btrfs/filesystem.jsx:87
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
 #, fuzzy
 #| msgid "Storage volumes"
@@ -9896,7 +9931,7 @@ msgstr "cgroups"
 msgid "change"
 msgstr "Cambia"
 
-#: pkg/metrics/metrics.jsx:654
+#: pkg/metrics/metrics.jsx:656
 #, fuzzy
 #| msgid "Cockpit is not installed"
 msgid "cockpit-podman is not installed"
@@ -9949,13 +9984,13 @@ msgstr "debug"
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
 #: pkg/storaged/stratis/filesystem.jsx:121 pkg/storaged/stratis/pool.jsx:133
 #: pkg/storaged/mdraid/mdraid.jsx:112 pkg/storaged/block/format-dialog.jsx:208
-#: pkg/storaged/btrfs/subvolume.jsx:217
+#: pkg/storaged/btrfs/subvolume.jsx:218
 #, fuzzy
 #| msgid "Delete"
 msgid "delete"
 msgstr "Cancella"
 
-#: pkg/storaged/dialog.jsx:1122
+#: pkg/storaged/dialog.jsx:1159
 msgid "device of btrfs volume"
 msgstr ""
 
@@ -9988,7 +10023,7 @@ msgid "drive"
 msgstr "disco"
 
 #: pkg/storaged/partitions/partition.jsx:232
-#: pkg/storaged/lvm2/volume-group.jsx:384
+#: pkg/storaged/lvm2/volume-group.jsx:386
 #: pkg/storaged/lvm2/block-logical-volume.jsx:288
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:141
 #: pkg/storaged/crypto/encryption.jsx:233
@@ -10257,17 +10292,17 @@ msgstr "macchina"
 msgid "mask"
 msgstr "maschera"
 
-#: pkg/metrics/metrics.jsx:753
+#: pkg/metrics/metrics.jsx:755
 msgid "max: $0%"
 msgstr "max: $0%"
 
-#: pkg/storaged/dialog.jsx:1118
+#: pkg/storaged/dialog.jsx:1155
 #, fuzzy
 #| msgid "Member of RAID device"
 msgid "member of MDRAID device"
 msgstr "Membro del dispositivo RAID"
 
-#: pkg/storaged/dialog.jsx:1120
+#: pkg/storaged/dialog.jsx:1157
 #, fuzzy
 #| msgid "Reset Storage Pool"
 msgid "member of Stratis pool"
@@ -10333,7 +10368,7 @@ msgstr "il server ssh è vuoto"
 msgid "nfs server is not valid IPv6"
 msgstr "Il server nfs non è un IPv6 valido"
 
-#: pkg/metrics/metrics.jsx:112
+#: pkg/metrics/metrics.jsx:114
 msgid "nice"
 msgstr "nice"
 
@@ -10415,7 +10450,7 @@ msgstr "pcp"
 msgid "performance"
 msgstr "Metriche di performance"
 
-#: pkg/storaged/dialog.jsx:1117
+#: pkg/storaged/dialog.jsx:1154
 #, fuzzy
 #| msgid "Create volume group"
 msgid "physical volume of LVM2 volume group"
@@ -10425,22 +10460,22 @@ msgstr "Crea gruppo di volumi"
 msgid "plugin"
 msgstr "plugin"
 
-#: pkg/metrics/metrics.jsx:1833
+#: pkg/metrics/metrics.jsx:1847
 #, fuzzy
 #| msgid "$0 service has failed"
 #| msgid_plural "$0 services have failed"
 msgid "pmlogger.service has failed"
 msgstr "$0 servizio ha fallito"
 
-#: pkg/metrics/metrics.jsx:1835
+#: pkg/metrics/metrics.jsx:1849
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service non riesce a raccogliere i dati"
 
-#: pkg/metrics/metrics.jsx:1826
+#: pkg/metrics/metrics.jsx:1840
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service non è in esecuzione"
 
-#: pkg/metrics/metrics.jsx:648
+#: pkg/metrics/metrics.jsx:650
 msgid "pod"
 msgstr "pod"
 
@@ -10589,7 +10624,7 @@ msgstr "In caso di guasto"
 msgid "stopped"
 msgstr "Fermato"
 
-#: pkg/metrics/metrics.jsx:112
+#: pkg/metrics/metrics.jsx:114
 msgid "sys"
 msgstr "sys"
 
@@ -10652,7 +10687,7 @@ msgid "unmask"
 msgstr "smaschera"
 
 #: pkg/storaged/utils.js:876 pkg/storaged/utils.js:889
-#: pkg/storaged/btrfs/subvolume.jsx:217 pkg/storaged/manifest.json:0
+#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "smonta"
 
@@ -10660,7 +10695,7 @@ msgstr "smonta"
 msgid "unpartitioned space on $0"
 msgstr "spazio non partizionato su $0"
 
-#: pkg/metrics/metrics.jsx:112 pkg/users/manifest.json:0
+#: pkg/metrics/metrics.jsx:114 pkg/users/manifest.json:0
 msgid "user"
 msgstr "utente"
 
@@ -10715,6 +10750,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zona"
+
+#~ msgid "Checking related processes"
+#~ msgstr "Verifica dei processi correlati"
 
 #~ msgid "Encrypt data"
 #~ msgstr "Crittografa dati"
@@ -10843,10 +10881,6 @@ msgstr "zona"
 
 #~ msgid "Locked devices"
 #~ msgstr "Dispositivi bloccati"
-
-#~ msgctxt "storage-id-desc"
-#~ msgid "Locked encrypted data"
-#~ msgstr "Dati crittografati bloccati"
 
 #~ msgctxt "storage"
 #~ msgid "Model"

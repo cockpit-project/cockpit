@@ -13,8 +13,8 @@ if [ -d /run/systemd/system ] && [ -n "$2" ]; then
 fi
 
 # update AppArmor profile
-if [ "$1" = "configure" ] && aa-enabled --quiet 2>/dev/null; then
-    apparmor_parser -r -T -W /etc/apparmor.d/cockpit-desktop || true
+if [ "$1" = "configure" ] && [ -e /etc/apparmor.d/cockpit-desktop ] && aa-enabled --quiet 2>/dev/null; then
+    apparmor_parser -r -T -W /etc/apparmor.d/cockpit-desktop
 fi
 
 # set up dynamic motd/issue symlinks on first-time install or upgrades from < 244 (which moved them out of the .deb)

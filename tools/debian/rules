@@ -2,6 +2,9 @@
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
+# we need an apparmor profile for >= 4.0; this exists in Ubuntu >= 24.04, but not in Debian yet
+PRE4AA = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.04 11 12 unstable)
+
 # riscv is an emulated architecture for now, and too slow to run expensive unit tests
 # hppa's threading is absurdly slow (#981127)
 SLOW_ARCHES = $(filter $(shell dpkg-architecture -qDEB_BUILD_ARCH),riscv64 hppa)
@@ -51,6 +54,15 @@ override_dh_install:
 	dh_install -Xusr/src/debug
 	# we don't need this, it contains full build paths and breaks reproducibility
 	rm -r debian/tmp/usr/lib/python*/*-packages/*.dist-info
+
+        # AppArmor profile
+ifeq ($(PRE4AA),)
+	mkdir -p debian/cockpit-ws/etc/apparmor.d/
+	install -p -m 644 tools/apparmor.d/cockpit-desktop debian/cockpit-ws/etc/apparmor.d/
+else
+	# clean up in debian unstable after broken 317-1
+	echo 'rm_conffile /etc/apparmor.d/cockpit-desktop 317-2~' > debian/cockpit-ws.maintscript
+endif
 
 	make install-tests DESTDIR=debian/cockpit-tests
 

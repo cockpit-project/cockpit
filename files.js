@@ -71,7 +71,6 @@ const info = {
         "base1/test-stream.js",
         "base1/test-types.ts",
         "base1/test-user.js",
-        "base1/test-utf8.js",
         "base1/test-websocket.js",
 
         "kdump/test-config-client.js",

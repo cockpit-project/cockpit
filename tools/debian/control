@@ -33,7 +33,7 @@ Build-Depends: debhelper-compat (= 13),
                procps <!nocheck>,
                python3-pytest-asyncio <!nocheck>,
                python3-pytest-timeout <!nocheck>,
-Standards-Version: 4.6.2
+Standards-Version: 4.7.0
 Homepage: https://cockpit-project.org/
 Vcs-Git: https://salsa.debian.org/utopia-team/cockpit.git
 Vcs-Browser: https://salsa.debian.org/utopia-team/cockpit
@@ -124,7 +124,7 @@ Depends: ${misc:Depends},
          python3,
          python3-dbus
 Suggests: udisks2-btrfs,
-          udisks2-lvm2, 
+          udisks2-lvm2,
           mdadm,
 Description: Cockpit user interface for storage
  The Cockpit components for interacting with storage.

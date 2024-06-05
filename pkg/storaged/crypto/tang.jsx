@@ -58,7 +58,7 @@ function parse_url(url) {
 }
 
 function tang_adv_payload(adv) {
-    return JSON.parse(cockpit.utf8_decoder().decode(cockpit.base64_decode(adv.payload)));
+    return JSON.parse(window.atob(adv.payload));
 }
 
 function jwk_b64_encode(bytes) {

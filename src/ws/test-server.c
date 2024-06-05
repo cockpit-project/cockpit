@@ -152,7 +152,7 @@ mock_http_qs (CockpitWebRequest *request,
 }
 
 static gboolean
-on_timeout_send (gpointer data)
+send_numbers (gpointer data)
 {
   CockpitWebResponse *response = data;
   gint *at = g_object_get_data (data, "at");
@@ -175,12 +175,62 @@ on_timeout_send (gpointer data)
   return TRUE;
 }
 
+static const char* SPLIT_UTF8_FRAMES[] = {
+    "initial",
+    /* split an é in the middle */
+    "first half \xc3",
+    "\xa9 second half",
+    "final",
+    NULL,
+};
+
 static gboolean
-mock_http_stream (CockpitWebResponse *response)
+send_split_utf8 (gpointer data)
+{
+  CockpitWebResponse *response = data;
+  gint *at = g_object_get_data (data, "at");
+  const char *frame = SPLIT_UTF8_FRAMES[*at];
+
+  if (frame == NULL)
+    {
+      cockpit_web_response_complete (response);
+      return FALSE;
+    }
+
+  (*at) += 1;
+
+  g_autoptr(GBytes) bytes = g_bytes_new_static (frame, strlen (frame));
+  cockpit_web_response_queue (response, bytes);
+  return TRUE;
+}
+
+static gboolean
+send_truncated_utf8 (gpointer data)
+{
+  CockpitWebResponse *response = data;
+  gint *at = g_object_get_data (data, "at");
+  const char *frame = SPLIT_UTF8_FRAMES[*at];
+
+  /* only send the first two frames */
+  if (*at == 2)
+    {
+      cockpit_web_response_complete (response);
+      return FALSE;
+    }
+
+  (*at) += 1;
+
+  g_autoptr(GBytes) bytes = g_bytes_new_static (frame, strlen (frame));
+  cockpit_web_response_queue (response, bytes);
+  return TRUE;
+}
+
+static gboolean
+mock_http_stream (CockpitWebResponse *response, GSourceFunc func)
 {
   cockpit_web_response_headers (response, 200, "OK", -1, NULL);
   g_object_set_data_full (G_OBJECT (response), "at", g_new0 (gint, 1), g_free);
-  g_timeout_add_full (G_PRIORITY_DEFAULT, 100, on_timeout_send,
+  g_timeout_add_full (G_PRIORITY_DEFAULT, 100, func,
                       g_object_ref (response), g_object_unref);
 
   return TRUE;
@@ -301,7 +351,11 @@ on_handle_mock (CockpitWebServer *server,
   if (g_str_equal (path, "/qs"))
     return mock_http_qs (request, response);
   if (g_str_equal (path, "/stream"))
-    return mock_http_stream (response);
+    return mock_http_stream (response, send_numbers);
+  if (g_str_equal (path, "/split-utf8"))
+    return mock_http_stream (response, send_split_utf8);
+  if (g_str_equal (path, "/truncated-utf8"))
+    return mock_http_stream (response, send_truncated_utf8);
   if (g_str_equal (path, "/headers"))
     return mock_http_headers (response, headers);
   if (g_str_equal (path, "/host"))

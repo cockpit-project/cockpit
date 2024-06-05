@@ -131,6 +131,35 @@ QUnit.test("streaming", assert => {
             });
 });
 
+QUnit.test("split UTF8 frames", assert => {
+    const done = assert.async();
+    assert.expect(1);
+
+    cockpit.http(test_server)
+            .get("/mock/split-utf8")
+            .then(resp => assert.equal(resp, "initialfirst half é second halffinal", "correct response"))
+            .finally(done);
+});
+
+QUnit.test("truncated UTF8 frame", assert => {
+    const done = assert.async();
+    assert.expect(3);
+    let received = "";
+
+    cockpit.http(test_server)
+            .get("/mock/truncated-utf8")
+            .stream(block => { received += block })
+            .then(() => assert.ok(false, "should not have succeeded"))
+            // does not include the first byte of é
+            .catch(ex => {
+                // does not include the first byte of é
+                assert.equal(received, "initialfirst half ", "received expected data");
+                assert.equal(ex.problem, "protocol-error", "error code");
+                assert.ok(ex.message.includes("unexpected end of data"), ex.message);
+            })
+            .finally(done);
+});
+
 QUnit.test("close", assert => {
     const done = assert.async();
     assert.expect(3);

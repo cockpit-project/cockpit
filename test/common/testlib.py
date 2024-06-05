@@ -1856,9 +1856,6 @@ class MachineCase(unittest.TestCase):
 
         # timedatex.service shuts down after timeout, runs into race condition with property watching
         ".*org.freedesktop.timedate1: couldn't get all properties.*Error:org.freedesktop.DBus.Error.NoReply.*",
-
-        # https://github.com/cockpit-project/cockpit/issues/19235
-        "invalid non-UTF8 @data passed as text to web_socket_connection_send.*",
     ]
 
     default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")

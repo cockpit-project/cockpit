@@ -89,7 +89,7 @@ class TestReauthorize(testlib.MachineCase):
         m.execute("echo user:foobar | chpasswd")
 
         b.default_user = "user"
-        self.login_and_go("/playground/test")
+        self.login_and_go("/playground/test", superuser=False)
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
 

@@ -16,6 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
+import codecs
 import json
 import logging
 import traceback
@@ -112,6 +113,7 @@ class Channel(Endpoint):
     channel = ''
     group = ''
     is_binary: bool
+    decoder: 'codecs.IncrementalDecoder | None'
 
     # input
     def do_control(self, command: str, message: JsonObject) -> None:
@@ -126,6 +128,7 @@ class Channel(Endpoint):
             self._ack_bytes = get_enum(message, 'send-acks', ['bytes'], None) is not None
             self.group = get_str(message, 'group', 'default')
             self.is_binary = get_enum(message, 'binary', ['raw'], None) is not None
+            self.decoder = None
             self.freeze_endpoint()
             self.do_open(message)
         elif command == 'ready':
@@ -219,7 +222,17 @@ class Channel(Endpoint):
         self.thaw_endpoint()
         self.send_control(command='ready', **kwargs)
 
+    def __decode_frame(self, data: bytes, *, final: bool = False) -> str:
+        assert self.decoder is not None
+        try:
+            return self.decoder.decode(data, final=final)
+        except UnicodeDecodeError as exc:
+            raise ChannelError('protocol-error', message=str(exc)) from exc
+
     def done(self) -> None:
+        # any residue from partial send_data() frames? this is invalid, fail the channel
+        if self.decoder is not None:
+            self.__decode_frame(b'', final=True)
         self.send_control(command='done')
 
     # tasks and close management
@@ -289,6 +302,23 @@ class Channel(Endpoint):
             self._out_sequence = out_sequence
 
         return self._out_sequence < self._out_window
+
+    def send_data(self, data: bytes) -> bool:
+        """Send data and transparently handle UTF-8 for text channels
+
+        Use this for channels which can be text, but are not guaranteed to get
+        valid UTF-8 frames -- i.e. multi-byte characters may be split across
+        frames. This is expensive, so prefer send_text() or send_bytes() wherever
+        possible.
+        """
+        if self.is_binary:
+            return self.send_bytes(data)
+
+        # for text channels we must avoid splitting UTF-8 multi-byte characters,
+        # as these can't be sent to a WebSocket (and are often confusing for text streams as well)
+        if self.decoder is None:
+            self.decoder = codecs.getincrementaldecoder('utf-8')(errors='strict')
+        return self.send_text(self.__decode_frame(data))
 
     def send_text(self, data: str) -> bool:
         """Send UTF-8 string data and handle book-keeping for flow control.
@@ -397,7 +427,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
 
     def data_received(self, data: bytes) -> None:
         assert self._transport is not None
-        if not self.send_bytes(data):
+        if not self.send_data(data):
             self._transport.pause_reading()
 
     def do_resume_send(self) -> None:
@@ -505,7 +535,7 @@ class AsyncChannel(Channel):
                 return item
 
     async def write(self, data: bytes) -> None:
-        if not self.send_bytes(data):
+        if not self.send_data(data):
             self.write_waiter = self.loop.create_future()
             await self.write_waiter
 
@@ -564,7 +594,7 @@ class GeneratorChannel(Channel):
 
     def do_resume_send(self) -> None:
         try:
-            while self.send_bytes(next(self.__generator)):
+            while self.send_data(next(self.__generator)):
                 pass
         except StopIteration as stop:
             self.done()

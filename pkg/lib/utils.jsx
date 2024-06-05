@@ -36,7 +36,7 @@ export function fmt_to_fragments(fmt) {
 
 function try_fields(dict, fields, def) {
     for (let i = 0; i < fields.length; i++)
-        if (fields[i] && dict[fields[i]])
+        if (fields[i] && dict[fields[i]] !== undefined)
             return dict[fields[i]];
     return def;
 }

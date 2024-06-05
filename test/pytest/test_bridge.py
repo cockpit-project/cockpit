@@ -1363,6 +1363,16 @@ async def test_fsinfo_targets(transport: MockTransport, tmp_path: Path) -> None:
     (tmp_path / 'lloved').symlink_to('loved')
     entries['lloved'] = {'type': 'lnk', 'target': 'loved'}
 
+    # a link to the current directory won't show up in targets since we already
+    # report its attributes directly as our toplevel state structure
+    (tmp_path / 'ldot').symlink_to('.')
+    entries['ldot'] = {'type': 'lnk', 'target': '.'}
+
+    # a link to the parent directory should definitely show up, though
+    (tmp_path / 'ldotdot').symlink_to('..')
+    entries['ldotdot'] = {'type': 'lnk', 'target': '..'}
+    targets['..'] = {'type': 'dir'}
+
     # make sure the watch managed to pick that all up
     assert await watch.next_state() == state
 

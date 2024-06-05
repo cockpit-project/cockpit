@@ -424,11 +424,17 @@ class FsInfoChannel(Channel, PathWatchListener):
 
         if self.targets:
             info['targets'] = targets = {}
+            # 'targets' is used to report attributes about the ultimate target
+            # of symlinks, but only if this information would not already be
+            # reported.  As such, we exclude '.' and any path which would end
+            # up in 'entries' (if it existed).  '..' needs special treatment:
+            # it might be `.interesting()` but it won't be in 'entries', so
+            # it's always treated as a target.
             for name in {e.get('target') for e in entries.values() if isinstance(e, dict)}:
-                if isinstance(name, str) and ('/' in name or not self.interesting(name)):
-                    # if this target is a string that we wouldn't otherwise
-                    # report, then report it via our "targets" attribute.
-                    targets[name] = self.getattrs(self.fd, name, Follow.YES)
+                if isinstance(name, str) and name != '.':
+                    # exclude anything that would end up in 'entries'
+                    if (name == '..' or '/' in name or not self.interesting(name)):
+                        targets[name] = self.getattrs(self.fd, name, Follow.YES)
 
         self.send_update({'info': info}, reset=reset)
 

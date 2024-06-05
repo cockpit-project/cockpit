@@ -3,6 +3,12 @@ set -e
 
 #DEBHELPER#
 
+# HACK: This is normally a DynamicUser=, but Debian's default nsswitch doesn't include `passwd: systemd`
+if ! grep 'passwd:.*\bsystemd\b' /etc/nsswitch.conf; then
+    echo "nss-systemd not configured, so DynamicUser= does not work. Creating static cockpit-ws user"
+    adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-ws
+fi
+
 if ! dpkg-statoverride --list /usr/lib/cockpit/cockpit-session >/dev/null; then
     dpkg-statoverride --update --add root cockpit-wsinstance 4750 /usr/lib/cockpit/cockpit-session
 fi

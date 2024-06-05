@@ -151,14 +151,8 @@ export function flatten(array_of_arrays) {
         return [];
 }
 
-export function decode_filename(encoded) {
-    return cockpit.utf8_decoder().decode(cockpit.base64_decode(encoded).slice(0, -1));
-}
-
-export function encode_filename(decoded) {
-    return cockpit.base64_encode(cockpit.utf8_encoder().encode(decoded)
-            .concat([0]));
-}
+export const decode_filename = encoded => window.atob(encoded).replace('\u0000', '');
+export const encode_filename = decoded => window.btoa(decoded + '\u0000');
 
 export function get_block_mntopts(config) {
     // treat an absent field as "default", like util-linux
@@ -233,7 +227,7 @@ export function validate_fsys_label(label, type) {
     };
 
     const limit = fs_label_max[type.replace("luks+", "")];
-    const bytes = cockpit.utf8_encoder().encode(label);
+    const bytes = new TextEncoder().encode(label);
     if (limit && bytes.length > limit) {
         // Let's not confuse people with encoding issues unless
         // they use funny characters.

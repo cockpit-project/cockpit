@@ -126,7 +126,7 @@ export function dmi_info() {
 
 // decode a binary Uint8Array with a trailing null byte
 function decode_proc_str(s) {
-    return cockpit.utf8_decoder().decode(s.slice(0, -1));
+    return new TextDecoder().decode(s.slice(0, -1));
 }
 
 export function devicetree_info() {

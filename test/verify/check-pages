@@ -46,6 +46,8 @@ class TestPages(testlib.MachineCase):
             expected = "Fedora Linux documentation" + expected
         elif m.image.startswith("rhel"):
             expected = "Red Hat Enterprise Linux documentation" + expected
+        elif "suse" in m.image:
+            expected = "openSUSE Tumbleweed documentation" + expected
         elif m.image == "arch":
             expected = "Arch Linux documentation" + expected
 

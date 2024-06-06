@@ -143,7 +143,7 @@ export class ShutdownModal extends React.Component {
         this.date_spawn.catch(e => {
             if (e.problem == "cancelled")
                 return;
-            this.setState({ error: e.message });
+            this.setState({ error: e.toString() });
         });
         this.date_spawn.finally(() => { this.date_spawn = null });
     }
@@ -156,7 +156,7 @@ export class ShutdownModal extends React.Component {
 
         cockpit.spawn(["shutdown", arg, this.state.when, this.state.message], { superuser: "require", err: "message" })
                 .then(this.props.onClose || Dialogs.close)
-                .catch(e => this.setState({ error: e }));
+                .catch(e => this.setState({ error: e.toString() }));
 
         event.preventDefault();
         return false;

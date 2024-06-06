@@ -75,7 +75,7 @@ def redisService(image):
 
 def applySettings(browser, dialog_selector):
     browser.click(f"{dialog_selector} button.pf-m-primary")
-    with browser.wait_timeout(30):
+    with browser.wait_timeout(60):
         browser.wait_not_present(dialog_selector)
 
 

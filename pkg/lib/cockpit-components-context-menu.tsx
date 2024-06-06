@@ -18,7 +18,6 @@
  */
 
 import React from "react";
-import PropTypes from "prop-types";
 
 import { Menu, MenuContent } from "@patternfly/react-core/dist/esm/components/Menu";
 
@@ -27,33 +26,36 @@ import "context-menu.scss";
 /*
  * A context menu component
  *
- * It requires two properties:
- *  - parentId, area in which it listens to left button click
- *  - children, a MenuList to be rendered in the context menu
+ * It has two properties:
+ *  - parentId (required), area in which it listens to left button click
+ *  - children (optional), a MenuList to be rendered in the context menu
  */
-export const ContextMenu = ({ parentId, children }) => {
+export const ContextMenu = ({ parentId, children } : {
+    parentId: string,
+    children?: React.ReactNode[],
+}) => {
     const [visible, setVisible] = React.useState(false);
-    const [event, setEvent] = React.useState(null);
-    const root = React.useRef(null);
+    const [event, setEvent] = React.useState<MouseEvent | null>(null);
+    const root = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
-        const _handleContextMenu = (event) => {
+        const _handleContextMenu = (event: MouseEvent) => {
             event.preventDefault();
 
             setVisible(true);
             setEvent(event);
         };
 
-        const _handleClick = (event) => {
-            if (event && event.button === 0) {
-                const wasOutside = !(event.target.contains === root.current);
+        const _handleClick = (event: MouseEvent) => {
+            if (event && event.button === 0 && event.target instanceof HTMLElement) {
+                const wasOutside = !event.target.contains(root.current);
 
                 if (wasOutside)
                     setVisible(false);
             }
         };
 
-        const parent = document.getElementById(parentId);
+        const parent = document.getElementById(parentId)!;
         parent.addEventListener('contextmenu', _handleContextMenu);
         document.addEventListener('click', _handleClick);
 
@@ -64,7 +66,7 @@ export const ContextMenu = ({ parentId, children }) => {
     }, [parentId]);
 
     React.useEffect(() => {
-        if (!event)
+        if (!event || !root.current)
             return;
 
         const clickX = event.clientX;
@@ -102,9 +104,4 @@ export const ContextMenu = ({ parentId, children }) => {
                 {children}
             </MenuContent>
         </Menu>;
-};
-
-ContextMenu.propTypes = {
-    parentId: PropTypes.string.isRequired,
-    children: PropTypes.any
 };

@@ -565,6 +565,11 @@ class Browser:
             args["type"] = "keyUp"
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
+    # FIXME: This should be key_press(), and key_press() should be something else
+    def key(self, name: str) -> None:
+        self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", key=name)
+        self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", key=name)
+
     def select_from_dropdown(self, selector: str, value: object) -> None:
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         text_selector = f"{selector} option[value='{value}']"

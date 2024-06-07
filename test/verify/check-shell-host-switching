@@ -439,16 +439,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         def tab(n):
             for _ in range(n):
-                args = {"type": "keyDown", "key": "Tab"}
-                b.cdp.invoke("Input.dispatchKeyEvent", **args)
-                args["type"] = "keyUp"
-                b.cdp.invoke("Input.dispatchKeyEvent", **args)
-
-        def enter():
-            args = {"type": "keyDown", "key": "Enter"}
-            b.cdp.invoke("Input.dispatchKeyEvent", **args)
-            args["type"] = "keyUp"
-            b.cdp.invoke("Input.dispatchKeyEvent", **args)
+                b.key("Tab")
 
         # <input type="color /> is rather difficult to set with tests
         # On Firefox the popup window cannot be targeted nor with mouse nor keayboard
@@ -464,7 +455,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
             b.key_press("0")
             tab(1)
             b.key_press("0")
-            enter()
+            b.key("Enter")
 
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         with b.wait_timeout(30):

@@ -76,7 +76,7 @@ class TestTuned(testlib.MachineCase):
         b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-v5-c-label:contains('recommended')")
         b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-v5-c-label:contains('active')")
 
-        b.click(f"{body_selector} li > button p:contains('balanced')")
+        b.click(f"{body_selector} li[data-value='balanced'] > button")
         b.wait_visible(f"{body_selector} li > button.pf-m-selected p:contains('balanced')")
 
         b.click(f"{body_selector} button.pf-m-primary")

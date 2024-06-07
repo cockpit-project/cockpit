@@ -76,18 +76,18 @@ class TestTuned(testlib.MachineCase):
         b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-v5-c-label:contains('recommended')")
         b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-v5-c-label:contains('active')")
 
-        b.click(f"{body_selector} li[data-value='balanced'] > button")
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected p:contains('balanced')")
+        b.click(f"{body_selector} li[data-value='desktop'] > button")
+        b.wait_visible(f"{body_selector} li > button.pf-m-selected p:contains('desktop')")
 
         b.click(f"{body_selector} button.pf-m-primary")
         b.wait_not_present(title_selector)
 
-        b.wait_text('#tuned-status-button', "balanced")
+        b.wait_text('#tuned-status-button', "desktop")
         check_status_tooltip("This system is using a custom profile")
 
         # Check the status of tuned, it should show the profile
         output = m.execute("tuned-adm active 2>&1 || true")
-        self.assertIn("balanced", output)
+        self.assertIn("desktop", output)
         output = m.execute("systemctl status tuned")
         self.assertIn("enabled;", output)
 

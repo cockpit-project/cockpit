@@ -566,17 +566,36 @@ class Browser:
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
     # FIXME: This should be key_press(), and key_press() should be something else
-    def key(self, name: str, repeat: int = 1) -> None:
+    def key(self, name: str, repeat: int = 1, modifiers: int = 0) -> None:
         """Press and release a named keyboard key.
 
         Use this function to input special characters or modifiers.
 
         :param name: key name like "Enter", "Delete", or "ArrowLeft"
         :param repeat: number of times to repeat this key (default 1)
+        :param modifiers: bit field: Alt=1, Ctrl=2, Meta/Command=4, Shift=8
         """
+        args: dict[str, int | str] = {}
+        if self.cdp.browser.name == "chromium":
+            # HACK: chromium doesn't understand some key codes in some situations
+            win_keys = {
+                "Backspace": 8,
+                "Enter": 13,
+                "Escape": 27,
+                "ArrowDown": 40,
+                "Insert": 45,
+            }
+            if name in win_keys:
+                args["windowsVirtualKeyCode"] = win_keys[name]
+            if name == 'Enter':
+                args["text"] = '\r'
+            # HACK: chromium needs windowsVirtualKeyCode with modifiers
+            elif len(name) == 1 and name.isalnum() and modifiers != 0:
+                args["windowsVirtualKeyCode"] = ord(name.upper())
+
         for _ in range(repeat):
-            self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", key=name)
-            self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", key=name)
+            self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", key=name, modifiers=modifiers, **args)
+            self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", key=name, modifiers=modifiers, **args)
 
     def select_from_dropdown(self, selector: str, value: object) -> None:
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
@@ -604,9 +623,9 @@ class Browser:
     ) -> None:
         self.focus(selector)
         if not append:
-            self.key_press("a", 2)  # Ctrl + a
+            self.key("a", modifiers=2)  # Ctrl + a
         if val == "":
-            self.key_press("\b")  # Backspace
+            self.key("Backspace")
         else:
             self.key_press(val)
         if blur:

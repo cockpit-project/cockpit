@@ -312,7 +312,7 @@ session    optional     pam_ssh_add.so
         b.set_input_text("#credentials-modal .pf-v5-c-select__toggle-typeahead input", "/var/test/")
         b.wait_in_text("#credentials-modal .pf-v5-c-select__menu-item.pf-m-disabled", "No such file or directory")
         b.focus("#credentials-modal .pf-v5-c-select__toggle-typeahead input")
-        b.key_press("\b\b\b\b\b")
+        b.key("Backspace", 5)
         b.wait_visible("#credentials-modal .pf-v5-c-select__menu-item.directory:contains('/var/lib/')")
         b.click("#credentials-modal .pf-v5-c-select__toggle-clear")
         b.wait_val("#credentials-modal .pf-v5-c-select__toggle-typeahead input", "")

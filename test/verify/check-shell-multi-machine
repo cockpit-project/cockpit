@@ -631,7 +631,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.set_input_text('#login-custom-password', "foobar")
         # Submit the dialog with Enter instead of clicking the Login button, for variety
         b.focus("#login-custom-password")
-        b.key_press("\r")
+        b.key("Enter")
         b.wait_not_present('#hosts_setup_server_dialog')
 
         # Reconnect

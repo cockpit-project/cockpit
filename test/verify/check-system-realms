@@ -762,7 +762,8 @@ ipa-advise enable-admins-sudo | sh -ex
         b.open("/system/terminal")
         b.enter_page("/system/terminal")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
-        b.key_press("klist\r")
+        b.key_press("klist")
+        b.key("Enter")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "Ticket cache: FILE:/run/user")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "Default principal: alice@COCKPIT.LAN")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "for client HTTP/x0.cockpit.lan@COCKPIT.LAN")
@@ -830,7 +831,8 @@ ipa-advise enable-admins-sudo | sh -ex
             b.open("/@x0.cockpit.lan/system/terminal")
             b.enter_page("/system/terminal", host="x0.cockpit.lan")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
-        b.key_press(f"{ccache_env} sudo whoami\r")
+        b.key_press(f"{ccache_env} sudo whoami")
+        b.key("Enter")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "root")
 
         # S4U proxy ticket gets cleaned up on logout
@@ -1072,7 +1074,8 @@ class TestKerberos(testlib.MachineCase):
         b.enter_page("/system/terminal")
         # wait for prompt
         b.wait_in_text(".terminal .xterm-accessibility-tree", "admin")
-        b.key_press("klist\r")
+        b.key_press("klist")
+        b.key("Enter")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "Ticket cache")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "Default principal: admin@COCKPIT.LAN")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "krbtgt/COCKPIT.LAN")

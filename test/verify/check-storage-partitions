@@ -83,11 +83,7 @@ class TestStoragePartitions(storagelib.StorageCase):
         b.mouse(slider, "click", about_half_way, 0)
         self.dialog_wait_val("size", 27.3)
         b.focus(slider + " + .pf-v5-c-slider__thumb")
-        b.key_press(chr(37), use_ord=True)  # arrow left
-        b.key_press(chr(37), use_ord=True)
-        b.key_press(chr(37), use_ord=True)
-        b.key_press(chr(37), use_ord=True)
-        b.key_press(chr(37), use_ord=True)
+        b.key("ArrowLeft", 5)
         self.dialog_wait_val("size", 26.2)
 
         # Check that changing units doesn't affect the text input

@@ -34,10 +34,10 @@ import {
     get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
     flatten, teardown_active_usage,
 } from "../utils.js";
-import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options } from "./utils.jsx";
+import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options, validate_snapshot_path } from "./utils.jsx";
 import { at_boot_input, update_at_boot_input, mounting_dialog, mount_options } from "../filesystem/mounting-dialog.jsx";
 import {
-    dialog_open, TextInput,
+    dialog_open, TextInput, CheckBoxes,
     TeardownMessage, init_teardown_usage,
 } from "../dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "../filesystem/mismounting.jsx";
@@ -171,6 +171,65 @@ function subvolume_create(volume, subvol, parent_dir) {
                 // makes it impossible to handle a situation where we have multiple subvolumes mounted.
                 // https://github.com/storaged-project/udisks/issues/1242
                 await cockpit.spawn(["btrfs", "subvolume", "create", `${parent_dir}/${vals.name}`], { superuser: "require", err: "message" });
+                await btrfs_poll();
+                if (vals.mount_point !== "") {
+                    await set_mount_options(subvol, block, vals);
+                }
+            }
+        }
+    });
+}
+
+function snapshot_create(volume, subvol, parent_dir) {
+    const block = client.blocks[volume.path];
+
+    let action_variants = [
+        { tag: null, Title: _("Create and mount") },
+        { tag: "nomount", Title: _("Create only") }
+    ];
+
+    if (client.in_anaconda_mode()) {
+        action_variants = [
+            { tag: "nomount", Title: _("Create") }
+        ];
+    }
+
+    dialog_open({
+        Title: _("Create snapshot"),
+        Fields: [
+            TextInput("path", _("Path"),
+                      {
+                          validate: path => validate_snapshot_path(path)
+                      }),
+            CheckBoxes("readonly", _("Read-only"),
+                       {
+                           fields: [
+                               { tag: "on", title: _("Make the new snapshot readonly") }
+                           ],
+                       }),
+            TextInput("mount_point", _("Mount Point"),
+                      {
+                          validate: (val, _values, variant) => {
+                              return is_valid_mount_point(client,
+                                                          block,
+                                                          client.add_mount_point_prefix(val),
+                                                          variant == "nomount");
+                          }
+                      }),
+            mount_options(false, false),
+            at_boot_input(),
+        ],
+        update: update_at_boot_input,
+        Action: {
+            Variants: action_variants,
+            action: async function (vals) {
+                // HACK: cannot use block_btrfs.CreateSnapshot as it always creates a subvolume relative to MountPoints[0] which
+                // makes it impossible to handle a situation where we have multiple subvolumes mounted.
+                // https://github.com/storaged-project/udisks/issues/1242
+                const cmd = ["btrfs", "subvolume", "snapshot"];
+                if (vals.readonly)
+                    cmd.push("-r");
+                await cockpit.spawn([...cmd, parent_dir, vals.path], { superuser: "require", err: "message" });
                 await btrfs_poll();
                 if (vals.mount_point !== "") {
                     await set_mount_options(subvol, block, vals);
@@ -362,6 +421,12 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
         title: _("Create subvolume"),
         excuse: create_excuse,
         action: () => subvolume_create(volume, subvol, (mounted && !opt_ro) ? mount_point : mount_point_in_parent),
+    });
+
+    actions.push({
+        title: _("Create snapshot"),
+        excuse: create_excuse,
+        action: () => snapshot_create(volume, subvol, (mounted && !opt_ro) ? mount_point : mount_point_in_parent),
     });
 
     let delete_excuse = "";

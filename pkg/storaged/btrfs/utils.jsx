@@ -88,3 +88,8 @@ export function validate_subvolume_name(name) {
     if (name.includes('/'))
         return cockpit.format(_("Name cannot contain the character '/'."));
 }
+
+export function validate_snapshot_path(path) {
+    if (path === "")
+        return _("Path cannot be empty.");
+}

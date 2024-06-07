@@ -1832,7 +1832,7 @@ class MachineCase(unittest.TestCase):
             self.sshd_socket = 'ssh.socket'
         else:
             self.sshd_service = 'sshd.service'
-            if image == 'arch':
+            if image == 'arch' or "suse" in image:
                 self.sshd_socket = None
             else:
                 self.sshd_socket = 'sshd.socket'

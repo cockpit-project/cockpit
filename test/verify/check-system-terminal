@@ -68,7 +68,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.key_press("clear")
         b.wait_js_cond("ph_text('.terminal').indexOf('clear') >= 0")
         # now wait for clear to take effect
-        b.key_press("\r")
+        b.key("Enter")
         b.wait_js_cond("ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
         # now we should get a clean prompt
         b.wait_in_text(line_sel(n), '$')
@@ -84,19 +84,22 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             self.assertIn("~]$", prompt)
 
         # Run some commands
-        b.key_press("whoami\r")
+        b.key_press("whoami")
+        b.key("Enter")
         wait_line(n + 1, "admin")
 
         wait_line(n + 2, prompt)
 
-        b.key_press('echo -e "1\\u0041"\r')
+        b.key_press('echo -e "1\\u0041"')
+        b.key("Enter")
         wait_line(n + 3, '1A')
 
         # The '@' sign is in the default prompt
         b.wait_in_text(".terminal-title", '@')
 
         # output flooding
-        b.key_press("seq 1000000\r")
+        b.key_press("seq 1000000")
+        b.key("Enter")
         with b.wait_timeout(300):
             b.wait_in_text(".terminal .xterm-accessibility-tree", "9999989999991000000admin@")
 
@@ -111,7 +114,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
         # Check that when we `exit` we can still reconnect with the 'Reset' button
-        b.key_press("exit\r")
+        b.key_press("exit")
+        b.key("Enter")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "disconnected")
         b.click('button:contains("Reset")')
         wait_line(n, prompt)
@@ -135,7 +139,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
             # Execute command
             wait_line(n, prompt)
-            b.key_press('echo "XYZ"\r')
+            b.key_press('echo "XYZ"')
+            b.key("Enter")
             echo_result_line = n + 1
 
             wait_line(echo_result_line, "XYZ")
@@ -157,7 +162,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
             # Wait for text to show up
             wait_line(echo_result_line + 1, prompt + "XYZ")
-            b.key_press('\r')
+            b.key('Enter')
             b.wait_in_text(line_sel(echo_result_line + 2), 'XYZ')
 
         # now reset terminal
@@ -168,7 +173,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Execute another command
         wait_line(n, prompt)
-        b.key_press('echo "foo"\r')
+        b.key_press('echo "foo"')
+        b.key("Enter")
         echo_result_line = n + 1
 
         wait_line(echo_result_line, "foo")
@@ -178,14 +184,18 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         select_line(sel, 40)
 
         # Use keyboard shortcuts to copy text
-        b.key_press(chr(45), 2, use_ord=True)  # Ctrl + Insert
-        b.key_press(chr(45), 8, use_ord=True)  # Shift + Insert
+        b.key("Insert", modifiers=2)  # Ctrl
+        b.key("Insert", modifiers=8)  # Shift
 
         # Wait for text to show up
         wait_line(echo_result_line + 1, prompt + "foo")
 
         # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
-        b.key_press('\rclear\recho $PATH > /tmp/path\r')
+        b.key("Enter")
+        b.key_press('clear')
+        b.key("Enter")
+        b.key_press("echo $PATH > /tmp/path")
+        b.key("Enter")
         # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
         wait_line(echo_result_line, prompt)
         path = m.execute("cat /tmp/path").strip()
@@ -256,7 +266,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # execute a command we can see the effect of
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') == -1")
-        b.key_press("id\r")
+        b.key_press("id")
+        b.key("Enter")
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
 
 

@@ -268,7 +268,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
 
         b.focus("#journal-grep input")
-        b.key_press("\bm.*[2-5]")
+        b.key("Backspace")
+        b.key_press("m.*[2-5]")
         b.click("#journal-grep button[aria-label=Search]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
@@ -294,7 +295,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
 
         b.focus("#journal-grep input")
-        b.key_press("\b" * 13 + "[5-6]")
+        b.key("Backspace", 13)
+        b.key_press("[5-6]")
         b.click("#journal-grep button[aria-label=Search]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
@@ -315,7 +317,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         # Check that 'until' qualifier keeps streaming until given time
         b.focus("#journal-grep input")
-        b.key_press("\b\b\b\b6-9] until:+15s")
+        b.key("Backspace", 4)
+        b.key_press("6-9] until:+15s")
         b.click("#journal-grep button[aria-label=Search]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")

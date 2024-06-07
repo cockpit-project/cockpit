@@ -301,7 +301,8 @@ OnCalendar=daily
 
                 b.wait_visible(".terminal .xterm-accessibility-tree")
                 b.wait_in_text(line_sel(1), "admin")
-                b.key_press("echo $LANG\r")
+                b.key_press("echo $LANG")
+                b.key("Enter")
                 b.wait_in_text(line_sel(2), locale)
 
             b.switch_to_top()
@@ -452,7 +453,7 @@ OnCalendar=daily
         b.wait_text("#host-apps li a:contains('Services') mark", "Se")
 
         b.focus(filter_sel)
-        b.key_press("\b\b")
+        b.key("Backspace", 2)
         b.wait_visible("#host-apps li a:contains('Logs')")
         b.wait_visible("#host-apps li a:contains('Services')")
 
@@ -465,7 +466,8 @@ OnCalendar=daily
 
         # Check it can also search by keywords
         b.focus(filter_sel)
-        b.key_press("\b\b\b\bsystemd")
+        b.key("Backspace", 4)
+        b.key_press("systemd")
         b.wait_visible("#host-apps li a:contains('Services')")
         b.wait_text("#host-apps li a:contains('Services')", "ServicesContains: systemd")
         b.wait_text("#host-apps li a:contains('Services') mark", "systemd")
@@ -480,11 +482,12 @@ OnCalendar=daily
 
         # Check that enter activates first result
         b.focus(filter_sel)
-        b.key_press("\b\b\b\b\b\b\blogs")
+        b.key("Backspace", 7)
+        b.key_press("logs")
         b.wait_not_present("#host-apps li a:contains('Services')")
         b.wait_visible("#host-apps li a:contains('Logs')")
         b.focus(filter_sel)
-        b.key_press("\r")
+        b.key("Enter")
         b.enter_page("/system/logs")
         b.wait_visible("#journal")
 
@@ -497,7 +500,7 @@ OnCalendar=daily
         b.wait_not_present("#host-apps li a:contains('Services')")
         b.wait_visible("#host-apps li a:contains('Logs')")
         b.focus(filter_sel)
-        b.key_press(chr(27))  # escape
+        b.key("Escape")
         b.wait_val(filter_sel, "")
         b.wait_visible("#host-apps li a:contains('Services')")
 
@@ -506,7 +509,7 @@ OnCalendar=daily
         b.wait_not_present("#host-apps li a:contains('Services')")
         b.wait_visible("#host-apps li a:contains('Logs')")
         b.click("button:contains('Clear search')")
-        b.key_press("\b\b\b\b")
+        b.key("Backspace", 4)
         b.wait_visible("#host-apps li a:contains('Services')")
         b.wait_not_present("button:contains('Clear search')")
 
@@ -514,9 +517,8 @@ OnCalendar=daily
         b.focus(filter_sel)
         b.key_press("s")
         b.wait_not_present("#host-apps li a:contains('Logs')")
-        b.key_press(chr(40), use_ord=True)  # arrow down
-        b.key_press(chr(40), use_ord=True)  # arrow down
-        b.key_press("\r")
+        b.key("ArrowDown", 2)
+        b.key("Enter")
         if m.ostree_image:
             b.enter_page("/users")
         else:
@@ -622,10 +624,10 @@ OnCalendar=daily
         m.execute(f"touch {stuff}/file1.txt")
         b.focus("#demo-file-ac input[type=text]")
         time.sleep(1)
-        b.key_press(["\b"] * 5)
+        b.key("Backspace", 5)
         # input is now $stuff/file
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", "file1.txt")
-        b.key_press(["\b"] * 4)
+        b.key("Backspace", 4)
         # input is now $stuff/, so all listings should be available
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "file1.txt")
 
@@ -636,7 +638,7 @@ OnCalendar=daily
         # the previous directory and back to the directory we want to list.
         # This is an implementation choice, to avoid re-reading the directories
         # content with every user input change, which is definitely a performance cost
-        b.key_press(["\b"] * 6)
+        b.key("Backspace", 6)
         time.sleep(1)
         b.key_press("stuff/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(5) button", "other")

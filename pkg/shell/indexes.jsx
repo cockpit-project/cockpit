@@ -90,7 +90,7 @@ function MachinesIndex(index_options, machines, loader) {
     Array.from(skiplinks).forEach(skiplink => {
         skiplink.addEventListener("click", ev => {
             document.getElementById(ev.target.hash.substring(1)).focus();
-            return false;
+            ev.preventDefault();
         });
     });
 

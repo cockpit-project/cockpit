@@ -158,6 +158,58 @@ class TestMenu(testlib.MachineCase):
         b.wait_visible("#login-info-message")
         b.wait_text("#login-info-message", "You have been logged out due to inactivity.")
 
+    def testKeyboardNavigation(self):
+        b = self.browser
+        self.login_and_go()
+
+        # initially shows host switcher
+        b.wait_visible("#host-toggle")
+        self.assertEqual(b.eval_js("document.activeElement.tagName"), "BODY")
+        # conceptually we want that, but we use CSS hacks (-999 offset and 1x1 size) to hide it
+        # b.wait_not_visible(".skiplink")
+
+        # press Tab once → "Skip to content" skiplink
+        b.key("Tab")
+        b.wait_js_cond("document.activeElement.classList.contains('skiplink')")
+        self.assertEqual(b.eval_js("document.activeElement.textContent"), "Skip to content")
+        self.assertEqual(b.eval_js("document.activeElement.getAttribute('href')"), "#content")
+        b.key("Enter")
+        b.wait_js_cond("document.activeElement.getAttribute('id') === 'content'")
+        self.assertEqual(b.eval_js("document.activeElement.tagName"), "DIV")
+        self.assertEqual(b.eval_js("document.activeElement.getAttribute('id')"), "content")
+
+        # reset
+        b.reload()
+        b.wait_visible("#host-toggle")
+
+        # press Tab twice → "Skip main navigation" skiplink
+        b.key("Tab")
+        self.assertEqual(b.eval_js("document.activeElement.textContent"), "Skip to content")
+        b.key("Tab")
+        self.assertEqual(b.eval_js("document.activeElement.textContent"), "Skip main navigation")
+        b.key("Enter")
+        b.wait_js_cond("document.activeElement.tagName === 'NAV'")
+        self.assertEqual(b.eval_js("document.activeElement.getAttribute('id')"), "hosts-sel")
+
+        # actually skips the page menu and goes on to top nav bar
+        b.key("Tab")
+        b.wait_js_cond("document.activeElement.getAttribute('id') === 'host-toggle'")
+        b.key("Tab")
+        if self.machine.ostree_image:
+            b.wait_js_cond("document.activeElement.textContent === 'Help'")
+        else:
+            b.wait_js_cond("document.activeElement.textContent === 'Administrative access'")
+
+        # reset
+        b.reload()
+        b.wait_visible("#host-toggle")
+
+        # without skip links, tabbing goes through page menu
+        for _ in range(5):
+            b.key("Tab")
+        # different browsers behave a bit different here -- Firefox is at "Overview", Chromium at "Logs"
+        b.wait_js_cond("document.activeElement.classList.contains('pf-v5-c-nav__link')")
+
 
 if __name__ == '__main__':
     testlib.test_main()

@@ -420,7 +420,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch", "*suse*")
     @testlib.skipOstree("No tlog")
     @testlib.skipImage("FIXME: tlog messes up bridge frame protocol", "rhel-8-10")
     def testSessionRecordingShell(self):

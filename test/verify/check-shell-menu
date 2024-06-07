@@ -205,8 +205,7 @@ class TestMenu(testlib.MachineCase):
         b.wait_visible("#host-toggle")
 
         # without skip links, tabbing goes through page menu
-        for _ in range(5):
-            b.key("Tab")
+        b.key("Tab", repeat=5)
         # different browsers behave a bit different here -- Firefox is at "Overview", Chromium at "Logs"
         b.wait_js_cond("document.activeElement.classList.contains('pf-v5-c-nav__link')")
 

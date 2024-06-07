@@ -566,9 +566,17 @@ class Browser:
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
     # FIXME: This should be key_press(), and key_press() should be something else
-    def key(self, name: str) -> None:
-        self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", key=name)
-        self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", key=name)
+    def key(self, name: str, repeat: int = 1) -> None:
+        """Press and release a named keyboard key.
+
+        Use this function to input special characters or modifiers.
+
+        :param name: key name like "Enter", "Delete", or "ArrowLeft"
+        :param repeat: number of times to repeat this key (default 1)
+        """
+        for _ in range(repeat):
+            self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", key=name)
+            self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", key=name)
 
     def select_from_dropdown(self, selector: str, value: object) -> None:
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')

@@ -625,6 +625,15 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_visible(self.card_row("btrfs subvolume", name="foo"))
         b.wait_not_present(self.card_row("Snapshots", name="foo"))
 
+        # Snapshot details
+        self.click_card_row("Snapshots", name="snap-1")
+        b.wait_text(self.card_desc("btrfs subvolume", "Name"), "snapshots/snap-1")
+        b.wait_text(self.card_desc("btrfs subvolume", "Snapshot origin"), "subdir")
+
+        # Origin link works
+        b.click(self.card_button("btrfs subvolume", "subdir"))
+        b.wait_text(self.card_desc("btrfs subvolume", "Name"), "subdir")
+
 
 if __name__ == '__main__':
     testlib.test_main()

@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
@@ -384,6 +385,16 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
             return str;
     }
 
+    let snapshot_origin = null;
+    if (subvol.id !== 5 && subvol.parent_uuid !== null) {
+        for (const sv of subvols) {
+            if (sv.uuid === subvol.parent_uuid) {
+                snapshot_origin = sv;
+                break;
+            }
+        }
+    }
+
     const card = new_card({
         title: _("btrfs subvolume"),
         next: null,
@@ -393,7 +404,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
         location: mp_text,
         component: BtrfsSubvolumeCard,
         has_warning: !!mismount_warning,
-        props: { subvol, mount_point, mismount_warning, block, fstab_config, forced_options },
+        props: { volume, subvol, snapshot_origin, mount_point, mismount_warning, block, fstab_config, forced_options },
         actions,
     });
 
@@ -412,8 +423,9 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
     }
 }
 
-const BtrfsSubvolumeCard = ({ card, subvol, mismount_warning, block, fstab_config, forced_options }) => {
+const BtrfsSubvolumeCard = ({ card, volume, subvol, snapshot_origin, mismount_warning, block, fstab_config, forced_options }) => {
     const crossrefs = get_crossrefs(subvol.uuid);
+
     return (
         <StorageCard card={card} alert={mismount_warning &&
         <MismountAlert warning={mismount_warning}
@@ -423,6 +435,14 @@ const BtrfsSubvolumeCard = ({ card, subvol, mismount_warning, block, fstab_confi
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     <StorageDescription title={_("Name")} value={subvol.pathname} />
                     <StorageDescription title={_("ID")} value={subvol.id} />
+                    {snapshot_origin !== null &&
+                    <StorageDescription title={_("Snapshot origin")}>
+                        <Button variant="link" isInline role="link"
+                                   onClick={() => cockpit.location.go(["btrfs", volume.data.uuid, snapshot_origin.pathname])}>
+                            {snapshot_origin.pathname}
+                        </Button>
+                    </StorageDescription>
+                    }
                     <StorageDescription title={_("Mount point")}>
                         <MountPoint fstab_config={fstab_config}
                                     backing_block={block} content_block={block}

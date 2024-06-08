@@ -516,56 +516,11 @@ class Browser:
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_blur', selector)
 
-    # TODO: Unify them so we can have only one
-    def key_press(self, keys: str, modifiers: int = 0, use_ord: bool = False) -> None:
-        if self.cdp.browser.name == "chromium":
-            self._key_press_chromium(keys, modifiers, use_ord)
-        else:
-            self._key_press_firefox(keys, modifiers, use_ord)
+    def input_text(self, text: str) -> None:
+        for char in text:
+            self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", text=char, key=char)
+            self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", text=char, key=char)
 
-    def _key_press_chromium(self, keys: str, modifiers: int = 0, use_ord: bool = False) -> None:
-        for key in keys:
-            args = {"type": "keyDown", "modifiers": modifiers}
-
-            # If modifiers are used we need to pass windowsVirtualKeyCode which is
-            # basically the asci decimal representation of the key
-            args["text"] = key
-            if use_ord:
-                args["windowsVirtualKeyCode"] = ord(key)
-            elif (not key.isalnum() and ord(key) < 32) or modifiers != 0:
-                args["windowsVirtualKeyCode"] = ord(key.upper())
-            else:
-                args["key"] = key
-
-            self.cdp.invoke("Input.dispatchKeyEvent", **args)
-            args["type"] = "keyUp"
-            self.cdp.invoke("Input.dispatchKeyEvent", **args)
-
-    def _key_press_firefox(self, keys: str, modifiers: int = 0, use_ord: bool = False) -> None:
-        # https://python-reference.readthedocs.io/en/latest/docs/str/ASCII.html
-        # Both line feed and carriage return are normalized to Enter (https://html.spec.whatwg.org/multipage/form-elements.html)
-        keyMap = {
-            8: "Backspace",   # Backspace key
-            9: "Tab",         # Tab key
-            10: "Enter",      # Enter key (normalized from line feed)
-            13: "Enter",      # Enter key (normalized from carriage return)
-            27: "Escape",     # Escape key
-            37: "ArrowLeft",  # Arrow key left
-            40: "ArrowDown",  # Arrow key down
-            45: "Insert",     # Insert key
-        }
-        for key in keys:
-            args = {"type": "keyDown", "modifiers": modifiers}
-
-            args["key"] = key
-            if ord(key) < 32 or use_ord:
-                args["key"] = keyMap[ord(key)]
-
-            self.cdp.invoke("Input.dispatchKeyEvent", **args)
-            args["type"] = "keyUp"
-            self.cdp.invoke("Input.dispatchKeyEvent", **args)
-
-    # FIXME: This should be key_press(), and key_press() should be something else
     def key(self, name: str, repeat: int = 1, modifiers: int = 0) -> None:
         """Press and release a named keyboard key.
 
@@ -627,7 +582,7 @@ class Browser:
         if val == "":
             self.key("Backspace")
         else:
-            self.key_press(val)
+            self.input_text(val)
         if blur:
             self.blur(selector)
 

@@ -446,11 +446,11 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
             b.click("input[type=color]")
             time.sleep(1)  # We cannot wait until the popup opens up, so just little of waiting
             b.key("Tab", repeat=3)
-            b.key_press("0")
+            b.input_text("0")
             b.key("Tab")
-            b.key_press("0")
+            b.input_text("0")
             b.key("Tab")
-            b.key_press("0")
+            b.input_text("0")
             b.key("Enter")
 
         b.click('#hosts_setup_server_dialog .pf-m-primary')

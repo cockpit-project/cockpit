@@ -301,7 +301,7 @@ OnCalendar=daily
 
                 b.wait_visible(".terminal .xterm-accessibility-tree")
                 b.wait_in_text(line_sel(1), "admin")
-                b.key_press("echo $LANG")
+                b.input_text("echo $LANG")
                 b.key("Enter")
                 b.wait_in_text(line_sel(2), locale)
 
@@ -447,7 +447,7 @@ OnCalendar=daily
 
         # Check that some page disappears and some stay
         b.focus(filter_sel)
-        b.key_press("se")
+        b.input_text("se")
         b.wait_not_present("#host-apps li a:contains('Logs')")
         b.wait_visible("#host-apps li a:contains('Services')")
         b.wait_text("#host-apps li a:contains('Services') mark", "Se")
@@ -459,7 +459,7 @@ OnCalendar=daily
 
         # Check that any substring work
         b.focus(filter_sel)
-        b.key_press("CoUN")
+        b.input_text("CoUN")
         b.wait_not_present("#host-apps li a:contains('Overview')")
         b.wait_visible("#host-apps li a:contains('Accounts')")
         b.wait_text("#host-apps li a:contains('Accounts') mark", "coun")
@@ -467,7 +467,7 @@ OnCalendar=daily
         # Check it can also search by keywords
         b.focus(filter_sel)
         b.key("Backspace", 4)
-        b.key_press("systemd")
+        b.input_text("systemd")
         b.wait_visible("#host-apps li a:contains('Services')")
         b.wait_text("#host-apps li a:contains('Services')", "ServicesContains: systemd")
         b.wait_text("#host-apps li a:contains('Services') mark", "systemd")
@@ -483,7 +483,7 @@ OnCalendar=daily
         # Check that enter activates first result
         b.focus(filter_sel)
         b.key("Backspace", 7)
-        b.key_press("logs")
+        b.input_text("logs")
         b.wait_not_present("#host-apps li a:contains('Services')")
         b.wait_visible("#host-apps li a:contains('Logs')")
         b.focus(filter_sel)
@@ -496,7 +496,7 @@ OnCalendar=daily
         b.wait_val(filter_sel, "")
 
         # Check that escape cleans the search
-        b.key_press("logs")
+        b.input_text("logs")
         b.wait_not_present("#host-apps li a:contains('Services')")
         b.wait_visible("#host-apps li a:contains('Logs')")
         b.focus(filter_sel)
@@ -505,7 +505,7 @@ OnCalendar=daily
         b.wait_visible("#host-apps li a:contains('Services')")
 
         # Check that clicking on `Clear search` cleans the search
-        b.key_press("logs")
+        b.input_text("logs")
         b.wait_not_present("#host-apps li a:contains('Services')")
         b.wait_visible("#host-apps li a:contains('Logs')")
         b.click("button:contains('Clear search')")
@@ -515,7 +515,7 @@ OnCalendar=daily
 
         # Check that arrows navigate the menu
         b.focus(filter_sel)
-        b.key_press("s")
+        b.input_text("s")
         b.wait_not_present("#host-apps li a:contains('Logs')")
         b.key("ArrowDown", 2)
         b.key("Enter")
@@ -527,7 +527,7 @@ OnCalendar=daily
         # Check we jump into subpage when defined in manifest
         b.switch_to_top()
         b.focus(filter_sel)
-        b.key_press("firew")
+        b.input_text("firew")
         b.wait_visible("#host-apps li a:contains('Networking')")
         b.wait_not_present("#host-apps li a:contains('Overview')")
         b.click("#host-apps li a:contains('Networking')")
@@ -553,7 +553,7 @@ OnCalendar=daily
         b.wait_visible("#host-apps li a:contains('Dienste')")
         b.wait_visible("#host-apps li a:contains('Protokolle')")
         b.focus(filter_sel)
-        b.key_press("dien")
+        b.input_text("dien")
         b.wait_not_present("#host-apps li a:contains('Protokolle')")
         b.wait_visible("#host-apps li a:contains('Dienste')")
         b.wait_text("#host-apps li a:contains('Dienste') mark", "Dien")
@@ -594,7 +594,7 @@ OnCalendar=daily
 
         # test file completion widget
         b.focus("#demo-file-ac input[type=text]")
-        b.key_press(stuff + "/")
+        b.input_text(stuff + "/")
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", "dir/")
@@ -606,7 +606,7 @@ OnCalendar=daily
         b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
         # test if input matches one entry, but is the prefix of other entry, widget should not descend into directory
         b.focus("#demo-file-ac input[type=text]")
-        b.key_press(stuff + "/dir")
+        b.input_text(stuff + "/dir")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/dir")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", stuff + "/dir1")
 
@@ -614,7 +614,7 @@ OnCalendar=daily
         b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
         b.wait_not_present("#file-autocomplete-widget li")
         b.focus("#demo-file-ac input[type=text]")
-        b.key_press(stuff + "/")
+        b.input_text(stuff + "/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "file1.txt")
         b.click("#file-autocomplete-widget li:nth-of-type(4) button")
@@ -640,7 +640,7 @@ OnCalendar=daily
         # content with every user input change, which is definitely a performance cost
         b.key("Backspace", 6)
         time.sleep(1)
-        b.key_press("stuff/")
+        b.input_text("stuff/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(5) button", "other")
 
         # Create test folder with known files

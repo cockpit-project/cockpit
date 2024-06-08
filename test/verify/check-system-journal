@@ -259,7 +259,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         # Test message filtering
 
         b.focus("#journal-grep input")
-        b.key_press("1")
+        b.input_text("1")
         b.click("#journal-grep button[aria-label=Search]")
 
         b.wait_js_cond('window.location.hash === "#/?priority=notice&tag=test-stream&grep=1"')
@@ -269,7 +269,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         b.focus("#journal-grep input")
         b.key("Backspace")
-        b.key_press("m.*[2-5]")
+        b.input_text("m.*[2-5]")
         b.click("#journal-grep button[aria-label=Search]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
@@ -286,7 +286,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
 
         b.focus("#journal-grep input")
-        b.key_press("FOO=bar [5-6]")
+        b.input_text("FOO=bar [5-6]")
         b.click("#journal-grep button[aria-label=Search]")
         b.wait_val("#journal-grep input", "priority:err identifier:logger FOO=bar [5-6]")
 
@@ -296,7 +296,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         b.focus("#journal-grep input")
         b.key("Backspace", 13)
-        b.key_press("[5-6]")
+        b.input_text("[5-6]")
         b.click("#journal-grep button[aria-label=Search]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
@@ -318,7 +318,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         # Check that 'until' qualifier keeps streaming until given time
         b.focus("#journal-grep input")
         b.key("Backspace", 4)
-        b.key_press("6-9] until:+15s")
+        b.input_text("6-9] until:+15s")
         b.click("#journal-grep button[aria-label=Search]")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
@@ -482,7 +482,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         ])
 
         b.focus("#journal-grep input")
-        b.key_press("until:2037-01-01\\ 00:03")
+        b.input_text("until:2037-01-01\\ 00:03")
         b.click("#journal-grep button[aria-label=Search]")
         wait_log_lines([expected_date,
                         ["check-journal", "BEFORE BOOT", ""],

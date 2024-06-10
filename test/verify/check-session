@@ -86,6 +86,39 @@ class TestSession(testlib.MachineCase):
         b.logout()
         wait_session(should_exist=False)
 
+        # try to pwn $SSH_AGENT_PID via pam_env's user_readenv=1 (CVE-2024-6126)
+
+        if m.image in ["fedora-39", "fedora-40", "centos-10", "rhel-10-0"]:
+            # pam_env user_readenv crashes in Fedora/RHEL 10, skip the test
+            # https://bugzilla.redhat.com/show_bug.cgi?id=2293045
+            return
+        if m.ostree_image:
+            # not using cockpit's PAM config
+            return
+
+        # this is enabled by default in tools/cockpit.debian.pam, as well as
+        # Debian/Ubuntu's /etc/pam.d/sshd; but not in Fedora/RHEL
+        if "debian" not in m.image and "ubuntu" not in m.image:
+            self.write_file("/etc/pam.d/cockpit", "session required pam_env.so user_readenv=1\n", append=True)
+        victim_pid = m.spawn("sleep infinity", "sleep.log")
+        self.addCleanup(m.execute, f"kill {victim_pid} || true")
+        self.write_file("/home/admin/.pam_environment", f"SSH_AGENT_PID={victim_pid}\n", owner="admin")
+
+        b.login_and_go()
+        wait_session(should_exist=True)
+        # starts ssh-agent in session
+        m.execute("pgrep -u admin ssh-agent")
+        # but the session has the modified SSH_AGENT_PID
+        bridge = m.execute("pgrep -u admin cockpit-bridge").strip()
+        agent = m.execute(f"grep --null-data SSH_AGENT_PID /proc/{bridge}/environ | xargs -0 | sed 's/.*=//'").strip()
+        self.assertEqual(agent, str(victim_pid))
+
+        # logging out still kills the actual ssh-agent, not the victim pid
+        b.logout()
+        wait_session(should_exist=False)
+        m.execute("while pgrep -u admin ssh-agent; do sleep 1; done", timeout=10)
+        m.execute(f"test -e /proc/{victim_pid}")
+
 
 if __name__ == '__main__':
     testlib.test_main()

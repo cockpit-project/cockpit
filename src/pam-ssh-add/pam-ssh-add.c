@@ -54,6 +54,9 @@ const char *pam_ssh_agent_arg = NULL;
 const char *pam_ssh_add_program = PATH_SSH_ADD;
 const char *pam_ssh_add_arg = NULL;
 
+static unsigned long ssh_agent_pid;
+static uid_t ssh_agent_uid;
+
 /* Environment */
 #define ENVIRON_SIZE 5
 #define PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -866,6 +869,25 @@ start_agent (pam_handle_t *pamh,
           error ("couldn't set agent environment: %s",
                  pam_strerror (pamh, res));
         }
+
+      /* parse and store the agent pid for later cleanup */
+      if (strncmp (auth_pid, "SSH_AGENT_PID=", 14) == 0)
+        {
+          unsigned long pid = strtoul (auth_pid + 14, NULL, 10);
+          if (pid > 0 && pid != ULONG_MAX)
+            {
+              ssh_agent_pid = pid;
+              ssh_agent_uid = auth_pwd->pw_uid;
+            }
+          else
+            {
+              error ("invalid SSH_AGENT_PID value: %s", auth_pid);
+            }
+        }
+      else
+        {
+          error ("unexpected agent pid format: %s", auth_pid);
+        }
     }
 
   free (auth_socket);
@@ -952,19 +974,25 @@ pam_sm_close_session (pam_handle_t *pamh,
                       int argc,
                       const char *argv[])
 {
-  const char *s_pid;
-  int pid = 0;
   parse_args (argc, argv);
 
   /* Kill the ssh agent we started */
-  s_pid = pam_getenv (pamh, "SSH_AGENT_PID");
-  if (s_pid)
-    pid = atoi (s_pid);
-
-  if (pid > 0)
+  if (ssh_agent_pid > 0)
     {
-      debug ("Closing %d", pid);
-      kill (pid, SIGTERM);
+      debug ("Closing %lu", ssh_agent_pid);
+      /* kill as user to guard against crashing ssh-agent and PID reuse */
+      if (setresuid (ssh_agent_uid, ssh_agent_uid,  -1) < 0)
+        {
+          error ("could not drop privileges for killing ssh agent: %m");
+          return PAM_SESSION_ERR;
+        }
+      if (kill (ssh_agent_pid, SIGTERM) < 0 && errno != ESRCH)
+        message ("could not kill ssh agent %lu: %m", ssh_agent_pid);
+      if (setresuid (0, 0, -1) < 0)
+        {
+          error ("could not restore privileges after killing ssh agent: %m");
+          return PAM_SESSION_ERR;
+        }
     }
   return PAM_SUCCESS;
 }

@@ -197,7 +197,12 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible("#accounts-create")
 
         # Create a user from the UI
-        self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd')
+        if "suse" in m.image:
+            # suse doesn't have /etc/default/useradd
+            m.execute("echo 'SHELL=/bin/true' > /etc/default/useradd")
+        else:
+            self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd')
+
         b.click('#accounts-create')
         b.wait_visible('#accounts-create-dialog')
         b.set_input_text('#accounts-create-user-name', "Berta")
@@ -415,7 +420,11 @@ class TestAccounts(testlib.MachineCase):
 
         self.login_and_go("/users")
         # Create a locked user with weak password
-        self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd')
+        if "suse" in m.image:
+            # suse doesn't have /etc/default/useradd
+            m.execute("echo 'SHELL=' > /etc/default/useradd")
+        else:
+            self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd')
         self.allow_journal_messages(".*required to change your password immediately.*")
         self.allow_journal_messages(".*user account or password has expired.*")
 

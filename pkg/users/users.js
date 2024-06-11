@@ -176,8 +176,6 @@ async function getLogins(logind_client) {
         LastLogPath = "lastlog";
     }
 
-    const lastlog = await cockpit.spawn([LastLogPath], { environ: ["LC_ALL=C"] });
-
     const currentLogins = [];
     try {
         // out args: uso (uid, name, logind object)
@@ -213,6 +211,13 @@ async function getLogins(logind_client) {
         if (err.message && !err.message.includes("bad argument --all")) {
             console.warn("Unexpected error when getting locked account information", err);
         }
+    }
+
+    let lastlog = "";
+    try {
+        lastlog = await cockpit.spawn([LastLogPath], { environ: ["LC_ALL=C"] });
+    } catch (ex) {
+        console.warn(`Failed to run ${LastLogPath}: ${ex.toString()}`);
     }
 
     // drop header and last empty line with slice

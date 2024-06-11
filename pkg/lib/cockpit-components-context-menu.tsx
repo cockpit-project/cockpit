@@ -32,7 +32,7 @@ import "context-menu.scss";
  */
 export const ContextMenu = ({ parentId, children } : {
     parentId: string,
-    children?: React.ReactNode[],
+    children?: React.ReactNode,
 }) => {
     const [visible, setVisible] = React.useState(false);
     const [event, setEvent] = React.useState<MouseEvent | null>(null);

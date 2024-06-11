@@ -24,8 +24,8 @@ import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/comp
 
 export const FormHelper = ({ helperText, helperTextInvalid, variant, icon, fieldId } :
   {
-      helperText?: string | null,
-      helperTextInvalid?: string | null,
+      helperText?: string | null | undefined,
+      helperTextInvalid?: string | null | undefined,
       variant?: "error" | "default" | "indeterminate" | "warning" | "success",
       icon?: string,
       fieldId?: string,
@@ -40,7 +40,7 @@ export const FormHelper = ({ helperText, helperTextInvalid, variant, icon, field
         <FormHelperText>
             <HelperText>
                 <HelperTextItem
-                    id={fieldId ? (fieldId + "-helper") : undefined}
+                    {...fieldId && { id: fieldId + '-helper' }}
                     variant={formHelperVariant}
                     icon={icon}>
                     {formHelperVariant === "error" ? helperTextInvalid : helperText}

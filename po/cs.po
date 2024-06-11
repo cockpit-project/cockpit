@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-04 02:47+0000\n"
+"POT-Creation-Date: 2024-06-10 02:49+0000\n"
 "PO-Revision-Date: 2024-03-01 22:35+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
@@ -116,11 +116,11 @@ msgstr "Dokumentace k $0"
 msgid "$0 error"
 msgstr "$0 chyba"
 
-#: pkg/lib/cockpit.js:2677
+#: pkg/lib/cockpit.js:2580
 msgid "$0 exited with code $1"
 msgstr "$0 skončilo s kódem $1"
 
-#: pkg/lib/cockpit.js:2679
+#: pkg/lib/cockpit.js:2582
 msgid "$0 failed"
 msgstr "$0 se nezdařilo"
 
@@ -180,7 +180,7 @@ msgstr "$0 není k dispozici z žádného z repozitářů."
 msgid "$0 key changed"
 msgstr "$0 klíč změněn"
 
-#: pkg/lib/cockpit.js:2675
+#: pkg/lib/cockpit.js:2578
 msgid "$0 killed with signal $1"
 msgstr "$0 vynuceně ukončeno signálem $1"
 
@@ -332,7 +332,7 @@ msgstr "zóna $0"
 msgid "$0: crash at $1"
 msgstr "$0: pád v $1"
 
-#: pkg/storaged/utils.js:276
+#: pkg/storaged/utils.js:270
 msgid "$name (from $host)"
 msgstr "$name (z $host)"
 
@@ -1526,7 +1526,7 @@ msgstr "Není možné zapnout"
 msgid "Cannot connect to an unknown host"
 msgstr "Nelze se připojit k neznámému hostiteli"
 
-#: pkg/lib/cockpit.js:3839
+#: pkg/lib/cockpit.js:3742
 msgid "Cannot forward login credentials"
 msgstr "Nedaří přeposlat přístupové údaje"
 
@@ -1765,7 +1765,7 @@ msgstr "Cockpit ověřování není nastaveno správně."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Nastavování NetworkManager a Firewalld v pomocí Cockpit"
 
-#: pkg/lib/cockpit.js:3845
+#: pkg/lib/cockpit.js:3748
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit se nepodařilo daný stroj kontaktovat."
 
@@ -1791,7 +1791,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit je interaktivní rozhraní pro správu linuxového serveru."
 
-#: pkg/lib/cockpit.js:3843
+#: pkg/lib/cockpit.js:3746
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit není kompatibilní se softwarem v systému."
 
@@ -1799,7 +1799,7 @@ msgstr "Cockpit není kompatibilní se softwarem v systému."
 msgid "Cockpit is not installed"
 msgstr "Cockpit není nainstalován"
 
-#: pkg/lib/cockpit.js:3837
+#: pkg/lib/cockpit.js:3740
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit není v systému nainstalován."
 
@@ -1999,7 +1999,7 @@ msgstr "Chyba připojení"
 msgid "Connection failed"
 msgstr "Připojení se nezdařilo"
 
-#: pkg/lib/cockpit.js:3835
+#: pkg/lib/cockpit.js:3738
 msgid "Connection has timed out."
 msgstr "Překročen časový limit připojení."
 
@@ -3045,7 +3045,7 @@ msgstr "Šifrovat data pomocí heslové fráze"
 msgid "Encrypted"
 msgstr "Šifrováno"
 
-#: pkg/storaged/utils.js:368
+#: pkg/storaged/utils.js:362
 msgid "Encrypted $0"
 msgstr "Šifrované $0"
 
@@ -3053,11 +3053,11 @@ msgstr "Šifrované $0"
 msgid "Encrypted Stratis pool"
 msgstr "Šifrovaný Stratis fond"
 
-#: pkg/storaged/utils.js:360
+#: pkg/storaged/utils.js:354
 msgid "Encrypted logical volume of $0"
 msgstr "Šifrovaný logický svazek na $0"
 
-#: pkg/storaged/utils.js:362
+#: pkg/storaged/utils.js:356
 msgid "Encrypted partition of $0"
 msgstr "Šifrovaný oddíl na $0"
 
@@ -3646,7 +3646,7 @@ msgstr "Domovská složka"
 msgid "Host"
 msgstr "Počítač"
 
-#: pkg/lib/cockpit.js:3831
+#: pkg/lib/cockpit.js:3734
 msgid "Host key is incorrect"
 msgstr "Klíč stroje není správný"
 
@@ -3975,7 +3975,7 @@ msgstr "Rozhraní"
 
 # auto translated by TM merge from project: Pulseaudio, version: 6.0, DocId:
 # pulseaudio.pot
-#: pkg/lib/cockpit.js:3833
+#: pkg/lib/cockpit.js:3736
 msgid "Internal error"
 msgstr "Vnitřní chyba"
 
@@ -4222,7 +4222,7 @@ msgstr "LVM2 fyzické svazky"
 msgid "LVM2 volume group"
 msgstr "LVM2 skupina svazků"
 
-#: pkg/storaged/utils.js:342
+#: pkg/storaged/utils.js:336
 msgid "LVM2 volume group $0"
 msgstr "LVM2 skupina svazků $0"
 
@@ -4558,15 +4558,15 @@ msgstr "Oddíl správy logických svazků"
 msgid "Logical size"
 msgstr "Logická velikost"
 
-#: pkg/storaged/utils.js:292
+#: pkg/storaged/utils.js:286
 msgid "Logical volume"
 msgstr "Logický svazek"
 
-#: pkg/storaged/utils.js:290
+#: pkg/storaged/utils.js:284
 msgid "Logical volume (snapshot)"
 msgstr "Logický svazek (zachycený stav)"
 
-#: pkg/storaged/utils.js:364
+#: pkg/storaged/utils.js:358
 msgid "Logical volume of $0"
 msgstr "Logický svazek na $0"
 
@@ -4578,7 +4578,7 @@ msgstr "Přihlásit"
 msgid "Login again"
 msgstr "Znovu přihlásit"
 
-#: pkg/lib/cockpit.js:3823
+#: pkg/lib/cockpit.js:3726
 msgid "Login failed"
 msgstr "Přihlášení se nezdařilo"
 
@@ -4625,7 +4625,7 @@ msgstr "MAC"
 msgid "MDRAID device"
 msgstr "MDRAID zařízení"
 
-#: pkg/storaged/utils.js:336
+#: pkg/storaged/utils.js:330
 msgid "MDRAID device $0"
 msgstr "MDRAID zařízení $0"
 
@@ -5090,19 +5090,19 @@ msgstr "Název"
 msgid "Name can not be empty."
 msgstr "Název je třeba vyplnit."
 
-#: pkg/storaged/utils.js:214 pkg/storaged/btrfs/utils.jsx:85
+#: pkg/storaged/utils.js:208 pkg/storaged/btrfs/utils.jsx:85
 msgid "Name cannot be empty."
 msgstr "Název je třeba vyplnit."
 
-#: pkg/storaged/utils.js:243
+#: pkg/storaged/utils.js:237
 msgid "Name cannot be longer than $0 bytes"
 msgstr "Název nemůže být delší než $0 bajtů"
 
-#: pkg/storaged/utils.js:241
+#: pkg/storaged/utils.js:235
 msgid "Name cannot be longer than $0 characters"
 msgstr "Název nemůže být delší než $0 znaků"
 
-#: pkg/storaged/utils.js:216
+#: pkg/storaged/utils.js:210
 msgid "Name cannot be longer than 127 characters."
 msgstr "Název nemůže být delší než 127 znaků."
 
@@ -5110,7 +5110,7 @@ msgstr "Název nemůže být delší než 127 znaků."
 msgid "Name cannot be longer than 255 characters."
 msgstr "Název nemůže být delší než 255 znaků."
 
-#: pkg/storaged/utils.js:220
+#: pkg/storaged/utils.js:214
 msgid "Name cannot contain the character '$0'."
 msgstr "Název nemůže obsahovat znak „$0“."
 
@@ -5118,7 +5118,7 @@ msgstr "Název nemůže obsahovat znak „$0“."
 msgid "Name cannot contain the character '/'."
 msgstr "Název nemůže obsahovat znak „/“."
 
-#: pkg/storaged/utils.js:222
+#: pkg/storaged/utils.js:216
 msgid "Name cannot contain whitespace."
 msgstr "Název nemůže obsahovat prázdný znak."
 
@@ -5517,7 +5517,7 @@ msgstr "Nemáte oprávnění nastavovat síťová zařízení"
 msgid "Not permitted to configure realms"
 msgstr "Nemáte oprávnění nastavovat realmy"
 
-#: pkg/lib/cockpit.js:3821
+#: pkg/lib/cockpit.js:3724
 msgid "Not permitted to perform this action."
 msgstr "Neoprávněni k provedení této akce."
 
@@ -5761,7 +5761,7 @@ msgstr "Součástí $0"
 msgid "Partition"
 msgstr "Oddíl"
 
-#: pkg/storaged/utils.js:366
+#: pkg/storaged/utils.js:360
 msgid "Partition of $0"
 msgstr "Oddíl na $0"
 
@@ -6088,7 +6088,7 @@ msgstr "Zadejte stroj ke kterému se připojit"
 msgid "Please unmount them first."
 msgstr "Prosím nejprve je odpojte."
 
-#: pkg/storaged/utils.js:286
+#: pkg/storaged/utils.js:280
 msgid "Pool for thin logical volumes"
 msgstr "Fond pro thin logické svazky"
 
@@ -7184,7 +7184,7 @@ msgstr "Adresu serveru je třeba vyplnit."
 msgid "Server cannot be empty."
 msgstr "Server je třeba vyplnit."
 
-#: pkg/lib/cockpit.js:3841
+#: pkg/lib/cockpit.js:3744
 msgid "Server has closed the connection."
 msgstr "Server zavřel spojení."
 
@@ -8205,7 +8205,7 @@ msgstr ""
 "Server odmítl ověřit „$0“ pomocí ověření heslem a nejsou k dispozici žádné "
 "další metody ověření."
 
-#: pkg/lib/cockpit.js:3825
+#: pkg/lib/cockpit.js:3728
 msgid "The server refused to authenticate using any supported methods."
 msgstr "Server odmítl ověřit u všech podporovaných metod."
 
@@ -8309,7 +8309,7 @@ msgstr "Jsou nezbytné tyto další kroky:"
 msgid "These changes will be made:"
 msgstr "Budou učiněny tyto změny:"
 
-#: pkg/storaged/utils.js:288
+#: pkg/storaged/utils.js:282
 msgid "Thin logical volume"
 msgstr "Tenký logický svazek"
 
@@ -8619,7 +8619,7 @@ msgstr "Přepnout volič datumů"
 msgid "Toggle filters"
 msgstr "Přepnout filtry"
 
-#: pkg/lib/cockpit.js:3847
+#: pkg/lib/cockpit.js:3750
 msgid "Too much data"
 msgstr "Příliš mnoho dat"
 
@@ -9012,7 +9012,7 @@ msgstr "Nepodporovaný logický svazek"
 msgid "Until"
 msgstr "Dokud"
 
-#: pkg/lib/cockpit.js:3827 pkg/lib/cockpit.js:3829
+#: pkg/lib/cockpit.js:3730 pkg/lib/cockpit.js:3732
 msgid "Untrusted host"
 msgstr "Nedůvěryhodný stroj"
 
@@ -9198,7 +9198,7 @@ msgstr "S použitím Tang serveru"
 msgid "VDO backing devices can not be made smaller"
 msgstr "Zařízení, která jsou podkladem pro VDO, není možné zmenšovat"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:139 pkg/storaged/utils.js:347
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:139 pkg/storaged/utils.js:341
 msgid "VDO device $0"
 msgstr "VDO zařízení $0"
 
@@ -9576,11 +9576,11 @@ msgstr ""
 "Server brzy zavře spojení. Po dokončení jeho restartu se budete moci opět "
 "připojit."
 
-#: pkg/lib/cockpit.js:3817
+#: pkg/lib/cockpit.js:3720
 msgid "Your session has been terminated."
 msgstr "Vaše sezení bylo ukončeno."
 
-#: pkg/lib/cockpit.js:3819
+#: pkg/lib/cockpit.js:3722
 msgid "Your session has expired. Please log in again."
 msgstr "Platnost vašeho sezení skončila. Přihlaste se znovu."
 
@@ -9711,7 +9711,7 @@ msgstr "oprava chyby"
 
 # auto translated by TM merge from project: Blivet, version: master, DocId:
 # blivet
-#: pkg/storaged/utils.js:176
+#: pkg/storaged/utils.js:170
 msgctxt "format-bytes"
 msgid "bytes"
 msgstr "bajtů"
@@ -10084,7 +10084,7 @@ msgstr "mkfs"
 msgid "more details"
 msgstr "další podrobnosti"
 
-#: pkg/storaged/utils.js:889 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:883 pkg/storaged/manifest.json:0
 msgid "mount"
 msgstr "mount"
 
@@ -10242,15 +10242,15 @@ msgstr "pouze pro čtení"
 msgid "recommended"
 msgstr "doporučeno"
 
-#: pkg/storaged/utils.js:948
+#: pkg/storaged/utils.js:942
 msgid "remove from LVM2"
 msgstr "odebrat z LVM2"
 
-#: pkg/storaged/utils.js:937
+#: pkg/storaged/utils.js:931
 msgid "remove from MDRAID"
 msgstr "odebrat z MDRAID"
 
-#: pkg/storaged/utils.js:907
+#: pkg/storaged/utils.js:901
 msgid "remove from btrfs volume"
 msgstr "odebrat z btrfs svazku"
 
@@ -10342,7 +10342,7 @@ msgstr "v kolonce ssh klíč není vyplněné jeho umístění"
 msgid "ssh server is empty"
 msgstr "není vyplněná kolonka ssh server"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:46 pkg/storaged/utils.js:926
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:46 pkg/storaged/utils.js:920
 #: pkg/storaged/mdraid/mdraid.jsx:59
 msgid "stop"
 msgstr "zastavit"
@@ -10422,12 +10422,12 @@ msgstr "neznámý cíl"
 msgid "unmask"
 msgstr "zrušit maskování"
 
-#: pkg/storaged/utils.js:876 pkg/storaged/utils.js:889
+#: pkg/storaged/utils.js:870 pkg/storaged/utils.js:883
 #: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "odpojit (unmount)"
 
-#: pkg/storaged/utils.js:535
+#: pkg/storaged/utils.js:529
 msgid "unpartitioned space on $0"
 msgstr "nerozdělené místo na $0"
 

@@ -13,6 +13,7 @@
         "checkJs": true,
         "baseUrl": "./pkg/lib",
         "esModuleInterop": true,
+        "exactOptionalPropertyTypes": true,
         "jsx": "react",
         "lib": [
             "dom",
@@ -20,7 +21,7 @@
         ],
         "noEmit": true,  // we only use `tsc` for type checking
         "skipLibCheck": true,  // don't check node_modules
-	"strict": true,
+        "strict": true,
     },
     "include": [
         "pkg/**/*"

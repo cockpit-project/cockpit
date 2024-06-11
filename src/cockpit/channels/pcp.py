@@ -502,4 +502,3 @@ class PcpMetricsChannel(AsyncChannel):
         #
         #     # self.send_meta()
         #     # construct a meta message
-

@@ -46,6 +46,11 @@ if [ "$ID" = "debian" ]; then
 fi
 
 if [ "$ID" = "opensuse-tumbleweed" ]; then
+    # Default pam policy notes pam last login date due to lastlog.so
+    # This will add cockpit's pam config to the silent list so we
+    # Don't fail due to unexpected journal lines
+    sed -i 's/sddm/sddm,cockpit/' /etc/pam.d/postlogin-session
+
     # Force allowing memory accounting and cgroup delegation in suse
     # This is because by default suse images disable both of these
     # so we can't run any tests that rely on checking memory usage

@@ -385,6 +385,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                       f"{sshd_path} $(ls {sshd_path}.d/* 2>/dev/null || true)")
             m.execute(self.restart_sshd)
 
+        if "suse" in m.image:
+            conf = "/usr/lib/pam.d/cockpit"
+
         # On Arch Linux the ordering matters due to an auth include for system-remote-login
         if self.machine.image == "arch":
             self.sed_file('1 a auth       required    mock-pam-conv-mod.so', conf)

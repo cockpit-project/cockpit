@@ -704,6 +704,16 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                           "/etc/pam.d/common-auth")
         elif m.image == "arch":
             self.sed_file("s/# deny = 3/deny = 4/", "/etc/security/faillock.conf")
+        elif "suse" in m.image:
+            m.execute("""cat <<EOF > /etc/security/faillock.conf
+deny = 4
+EOF""")
+            m.execute("""cat <<EOF >> /etc/pam.d/common-auth
+auth     [success=1 default=bad] pam_unix.so
+auth     [default=die]  pam_faillock.so authfail
+auth     sufficient     pam_faillock.so authsucc
+auth     required       pam_deny.so
+EOF""")
         else:
             # see https://access.redhat.com/solutions/62949
             self.sed_file("""/pam_unix/ {

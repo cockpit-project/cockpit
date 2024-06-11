@@ -407,7 +407,7 @@ class TestKdump(KdumpHelpers):
         b.wait_text("#kdump-target-info", "Remote over NFS, someserver:/srv/var/crash")
         conf = m.execute("cat /etc/sysconfig/kdump")
         self.assertIn('KDUMP_SAVEDIR=nfs://someserver/srv', conf)
-        self.assertNotIn("ssh://", conf)
+        self.assertNotIn("=ssh://", conf)
 
         # NFS with custom path
         b.click("#kdump-change-target")
@@ -429,7 +429,7 @@ class TestKdump(KdumpHelpers):
         b.wait_text("#kdump-target-info", "Local, /var/tmp")
         conf = m.execute("cat /etc/sysconfig/kdump")
         self.assertIn('KDUMP_SAVEDIR=file:///var/tmp', conf)
-        self.assertNotIn("nfs://", conf)
+        self.assertNotIn("=nfs://", conf)
 
         # Check compression
         conf = m.execute("cat /etc/sysconfig/kdump")

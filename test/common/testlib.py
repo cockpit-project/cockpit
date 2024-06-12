@@ -1804,6 +1804,7 @@ class MachineCase(unittest.TestCase):
 
         # btmp tracking
         "cockpit-session: pam: Last failed login:.*",
+        "cockpit-session: pam: Last login: .*",
         "cockpit-session: pam: There .* failed login attempts? since the last successful login.",
 
         # pam_lastlog complaints

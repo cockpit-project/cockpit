@@ -31,7 +31,6 @@ import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "pam_user_parser.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
-import { get_locked } from "./utils.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 
@@ -72,8 +71,8 @@ function AccountsPage() {
     useInit(async () => {
         const logind_client = cockpit.dbus("org.freedesktop.login1");
 
-        const debouncedGetLogins = debounce(100, () => {
-            getLogins(logind_client).then(setDetails);
+        const debouncedGetLoginDetails = debounce(100, () => {
+            getLoginDetails(logind_client).then(setDetails);
         });
 
         /* We are mostly interested in UserNew/UserRemoved. But SessionRemoved happens immediately after logout,
@@ -83,13 +82,13 @@ function AccountsPage() {
         logind_client.subscribe({
             interface: "org.freedesktop.login1.Manager",
             path: "/org/freedesktop/login1",
-        }, debouncedGetLogins);
+        }, debouncedGetLoginDetails);
 
         let handleUtmp;
 
         // Watch /etc/shadow to register lock/unlock/expire changes; but avoid reading it, it's sensitive data
         const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
-        handleShadow.watch(() => debouncedGetLogins(), { read: false });
+        handleShadow.watch(() => debouncedGetLoginDetails(), { read: false });
 
         const handleLogindef = cockpit.file("/etc/login.defs");
         handleLogindef.watch((logindef) => {
@@ -116,12 +115,8 @@ function AccountsPage() {
 
     const accountsInfo = useMemo(() => {
         if (accounts && details)
-            return accounts.map((account) => {
-                const detail = details.find(detail => detail.name === account.name);
-                if (detail)
-                    return Object.assign({}, account, detail);
-
-                return account;
+            return accounts.map(account => {
+                return Object.assign({}, account, details[account.name]);
             });
         else
             return [];
@@ -167,16 +162,10 @@ function AccountsPage() {
     } else return null;
 }
 
-async function getLogins(logind_client) {
-    let LastLogPath;
-    try {
-        await cockpit.spawn(["test", "-e", "/var/lib/lastlog/lastlog2.db"], { err: "ignore" });
-        LastLogPath = "lastlog2";
-    } catch (err1) {
-        LastLogPath = "lastlog";
-    }
+async function getLoginDetails(logind_client) {
+    const details = {};
 
-    const currentLogins = [];
+    // currently logged in
     try {
         // out args: uso (uid, name, logind object)
         const [users] = await logind_client.call(
@@ -188,66 +177,76 @@ async function getLogins(logind_client) {
                 ["org.freedesktop.login1.User", "State"],
                 { type: "ss", flags: "", timeout: 5000 });
             if (active.v !== "closing")
-                currentLogins.push(name);
+                details[name] = { ...details[name], loggedIn: true };
         }));
     } catch (err) {
         console.warn("Unexpected error when getting logged in accounts", err);
     }
 
+    // locked password
+
     // shadow-utils passwd supports an --all flag which is lacking on RHEL and
     // stable Fedora releases. Available at least on Fedora since
     // shadow-utils-4.14.0-5.fc40 (currently known as rawhide).
-    const locked_users_map = {};
     try {
         const locked_statuses = await cockpit.spawn(["passwd", "-S", "--all"], { superuser: "require", err: "message", environ: ["LC_ALL=C"] });
         // Slice off the last empty line
         for (const line of locked_statuses.trim().split('\n')) {
-            const username = line.split(" ")[0];
+            const name = line.split(" ")[0];
             const status = line.split(" ")[1];
-            locked_users_map[username] = status == "L";
+            details[name] = { ...details[name], isLocked: status === "L" };
         }
     } catch (err) {
-        // Only warn when it is unrelated to --all.
-        if (err.message && !err.message.includes("bad argument --all")) {
+        if (err.message?.includes("bad argument --all")) {
+            // Fallback for old passwd
+            try {
+                const shadow = await cockpit.file("/etc/shadow", { superuser: "require", err: "message" }).read();
+                for (const line of shadow.split('\n')) {
+                    const [name, hash] = line.split(":");
+                    if (name && hash)
+                        details[name] = { ...details[name], isLocked: hash.startsWith("!") };
+                }
+            } catch (err) {
+                console.warn("Unexpected error when getting locked accounts from /etc/shadow:", err);
+            }
+        } else {
             console.warn("Unexpected error when getting locked account information", err);
         }
     }
 
-    let lastlog = "";
+    // last logged in
+
+    let LastLogPath;
     try {
-        lastlog = await cockpit.spawn([LastLogPath], { environ: ["LC_ALL=C"] });
+        await cockpit.spawn(["test", "-e", "/var/lib/lastlog/lastlog2.db"], { err: "ignore" });
+        LastLogPath = "lastlog2";
+    } catch (err1) {
+        LastLogPath = "lastlog";
+    }
+
+    try {
+        const out = await cockpit.spawn([LastLogPath], { environ: ["LC_ALL=C"] });
+        await Promise.all(out.split('\n').slice(1, -1).map(async line => {
+            if (line.includes('**Never logged in**'))
+                return;
+
+            const splitLine = line.trim().split(/[ \t]+/);
+            const name = splitLine[0];
+            const date_fields = splitLine.slice(-5);
+            // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
+            try {
+                const out = await cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')],
+                                                { environ: ["LC_ALL=C"], err: "out" });
+                details[name] = { ...details[name], lastLogin: parseInt(out) * 1000 };
+            } catch (e) {
+                console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`);
+            }
+        }));
     } catch (ex) {
         console.warn(`Failed to run ${LastLogPath}: ${ex.toString()}`);
     }
 
-    // drop header and last empty line with slice
-    const promises = lastlog.split('\n').slice(1, -1).map(async line => {
-        const splitLine = line.trim().split(/[ \t]+/);
-        const name = splitLine[0];
-        // Fallback on passwd -S for Fedora and RHEL
-        const isLocked = locked_users_map[name] ?? await get_locked(name);
-
-        if (line.indexOf('**Never logged in**') > -1) {
-            return { name, loggedIn: false, lastLogin: null, isLocked };
-        }
-
-        const loggedIn = currentLogins.includes(name);
-
-        const date_fields = splitLine.slice(-5);
-        // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
-        let lastLogin = null;
-        try {
-            const out = await cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')],
-                                            { environ: ["LC_ALL=C"], err: "out" });
-            lastLogin = parseInt(out) * 1000;
-        } catch (e) {
-            console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`);
-        }
-
-        return { name, loggedIn, lastLogin, isLocked };
-    });
-
-    return Promise.all(promises);
+    return details;
 }
 
 function init() {

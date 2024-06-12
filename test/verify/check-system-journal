@@ -179,16 +179,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_journal_empty()
 
         def wait_slow10():
-            systemd_version = int(m.execute("systemctl --version | awk '{print $2; exit}'").strip())
-
-            if systemd_version >= 248:
-                # changed in https://github.com/systemd/systemd/commit/f5ec78e503
-                stop_message = "Deactivated successfully."
-            else:
-                stop_message = "Succeeded."
-
             with b.wait_timeout(30):
-                wait_log_lines([["systemd", "slow10.service: " + stop_message, ""], ["sh", "SLOW", "10"],
+                wait_log_lines([["systemd", "slow10.service: Deactivated successfully.", ""], ["sh", "SLOW", "10"],
                                 ["systemd", "Started.*Slowly log 10 identical lines.", ""]])
 
         def wait_log_present(message):

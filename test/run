@@ -20,6 +20,7 @@ set -eu
 
 test/common/make-bots
 test/common/pixel-tests pull
+vendor/checkout
 
 PREPARE_OPTS=""
 RUN_OPTS=""
@@ -50,6 +51,7 @@ case "${TEST_SCENARIO:=}" in
     *networking*)
         RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_NETWORKING")"
         PREPARE_OPTS="$PREPARE_OPTS --quick"
+        pytest test/integration
         ;;&
     *storage*)
         RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_STORAGE")"

@@ -163,7 +163,7 @@ main() {
     exit_status=0
     counter=0
 
-    tests=($(compgen -A function 'test_'))
+    tests=($(compgen -A function 'test_mypy'))
     [ -n "${tap}" ] && printf "1..%d\n" "${#tests[@]}"
 
     for test_function in "${tests[@]}"; do

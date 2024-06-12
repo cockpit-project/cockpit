@@ -200,15 +200,11 @@ async def test_superuser_dbus(bridge: Bridge, transport: MockTransport) -> None:
     root_null = await transport.check_open('null', superuser=True)
 
     # stop the bridge
-    stop = transport.send_bus_call(transport.internal_bus, '/superuser',
-                                   'cockpit.Superuser', 'Stop', [])
+    () = await transport.check_bus_call('/superuser', 'cockpit.Superuser', 'Stop', [])
 
     # that should have implicitly closed the open channel
     await transport.assert_msg('', command='close', channel=root_null)
     assert root_null not in bridge.open_channels
-
-    # The Stop method call is done now
-    await transport.assert_msg(transport.internal_bus, reply=[[]], id=stop)
 
 
 def format_methods(methods: Dict[str, str]):
@@ -242,7 +238,6 @@ async def test_superuser_dbus_pw(bridge: Bridge, transport: MockTransport, monke
     await transport.check_bus_call('/superuser', 'cockpit.Superuser', 'Answer', ['p4ssw0rd'])
     # and now the bridge should be running
     await transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'pseudo'})
-
     # Start call is now done
     await transport.assert_bus_reply(start, [])
 
@@ -280,7 +275,7 @@ async def test_superuser_dbus_wrong_pw(bridge: Bridge, transport: MockTransport,
     await transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'none'})
 
     # Start call is now done and returned failure
-    await transport.assert_bus_error(start, 'cockpit.Superuser.Error', 'pseudo says: Bad password')
+    await transport.assert_bus_error(start, 'cockpit.Superuser.Error', 'pseudo says: Bad password\n')
 
     # double-check
     await verify_root_bridge_not_running(bridge, transport)

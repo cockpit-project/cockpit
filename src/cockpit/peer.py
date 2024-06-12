@@ -18,215 +18,121 @@
 import asyncio
 import logging
 import os
-from typing import Callable, List, Optional, Sequence
+import traceback
+from typing import List, Optional, Sequence
 
-from .jsonutil import JsonObject, JsonValue
+from cockpit._vendor import ferny
+
+from .beipack import BridgeBeibootHelper
+from .jsonutil import JsonObject, JsonValue, get_str
 from .packages import BridgeConfig
 from .protocol import CockpitProblem, CockpitProtocol, CockpitProtocolError
 from .router import Endpoint, Router, RoutingRule
-from .transports import SubprocessProtocol, SubprocessTransport
 
 logger = logging.getLogger(__name__)
 
 
-class PeerError(CockpitProblem):
-    pass
+class Peer(CockpitProtocol, Endpoint):
+    saw_init: bool = False
 
-
-class PeerExited(Exception):
-    def __init__(self, exit_code: int):
-        self.exit_code = exit_code
-
-
-class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
-    done_callbacks: List[Callable[[], None]]
-    init_future: Optional[asyncio.Future]
-
-    def __init__(self, router: Router):
-        super().__init__(router)
-
-        # All Peers start out frozen — we only unfreeze after we see the first 'init' message
+    def __init__(self, rule: RoutingRule) -> None:
+        super().__init__(rule)
         self.freeze_endpoint()
 
-        self.init_future = asyncio.get_running_loop().create_future()
-        self.done_callbacks = []
-
-    # Initialization
-    async def do_connect_transport(self) -> None:
-        raise NotImplementedError
-
-    async def spawn(self, argv: Sequence[str], env: Sequence[str], **kwargs) -> asyncio.Transport:
-        # Not actually async...
-        loop = asyncio.get_running_loop()
-        user_env = dict(e.split('=', 1) for e in env)
-        return SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
-
-    async def start(self, init_host: Optional[str] = None, **kwargs: JsonValue) -> JsonObject:
-        """Request that the Peer is started and connected to the router.
-
-        Creates the transport, connects it to the protocol, and participates in
-        exchanging of init messages.  If anything goes wrong, the connection
-        will be closed and an exception will be raised.
-
-        The Peer starts out in a frozen state (ie: attempts to send messages to
-        it will initially be queued). If init_host is not None then an init
-        message is sent with the given 'host' field, plus any extra kwargs, and
-        the queue is thawed. Otherwise, the caller is responsible for sending
-        the init message and thawing the peer.
-
-        In any case, the return value is the init message from the peer.
-        """
-        assert self.init_future is not None
-
-        def _connect_task_done(task: asyncio.Task) -> None:
-            assert task is connect_task
-            try:
-                task.result()
-            except asyncio.CancelledError:  # we did that (below)
-                pass                        # we want to ignore it
-            except Exception as exc:
-                self.close(exc)
-
-        connect_task = asyncio.create_task(self.do_connect_transport())
-        connect_task.add_done_callback(_connect_task_done)
-
-        try:
-            # Wait for something to happen:
-            #   - exception from our connection function
-            #   - receiving "init" from the other side
-            #   - receiving EOF from the other side
-            #   - .close() was called
-            #   - other transport exception
-            init_message = await self.init_future
-
-        except (PeerExited, BrokenPipeError):
-            # These are fairly generic errors. PeerExited means that we observed the process exiting.
-            # BrokenPipeError means that we got EPIPE when attempting to write() to it. In both cases,
-            # the process is gone, but it's not clear why. If the connection process is still running,
-            # perhaps we'd get a better error message from it.
-            await connect_task
-            # Otherwise, re-raise
-            raise
-
-        finally:
-            self.init_future = None
-
-            # In any case (failure or success) make sure this is done.
-            if not connect_task.done():
-                connect_task.cancel()
-
-        if init_host is not None:
-            logger.debug('  sending init message back, host %s', init_host)
-            # Send "init" back
-            self.write_control(None, command='init', version=1, host=init_host, **kwargs)
-
-            # Thaw the queued messages
-            self.thaw_endpoint()
-
-        return init_message
-
-    # Background initialization
-    def start_in_background(self, init_host: Optional[str] = None, **kwargs: JsonValue) -> None:
-        def _start_task_done(task: asyncio.Task) -> None:
-            assert task is start_task
-
-            try:
-                task.result()
-            except (OSError, PeerExited, CockpitProblem, asyncio.CancelledError):
-                pass  # Those are expected.  Others will throw.
-
-        start_task = asyncio.create_task(self.start(init_host, **kwargs))
-        start_task.add_done_callback(_start_task_done)
-
-    # Shutdown
-    def add_done_callback(self, callback: Callable[[], None]) -> None:
-        self.done_callbacks.append(callback)
+    def do_init_args(self, message: JsonObject) -> JsonObject:
+        return {}
 
     # Handling of interesting events
-    def do_superuser_init_done(self) -> None:
-        pass
+    def do_init(self, message: JsonObject) -> None:
+        logger.debug('do_init(%r, %r)', self, message)
+        if self.saw_init:
+            logger.warning('received duplicate "init" control message on %r', self)
+            return
 
-    def do_authorize(self, message: JsonObject) -> None:
-        pass
+        self.saw_init = True
+
+        problem = get_str(message, 'problem', None)
+        if problem is not None:
+            raise CockpitProblem(problem, message)
+
+        assert self.router.init_host is not None
+        assert self.transport is not None
+        args: dict[str, JsonValue] = {
+            'command': 'init',
+            'host': self.router.init_host,
+            'version': 1
+        }
+        args.update(self.do_init_args(message))
+        self.write_control(args)
+        self.thaw_endpoint()
 
     def transport_control_received(self, command: str, message: JsonObject) -> None:
-        if command == 'init' and self.init_future is not None:
-            logger.debug('Got init message with active init_future.  Setting result.')
-            self.init_future.set_result(message)
-        elif command == 'authorize':
-            self.do_authorize(message)
-        elif command == 'superuser-init-done':
-            self.do_superuser_init_done()
+        if command == 'init':
+            self.do_init(message)
         else:
             raise CockpitProtocolError(f'Received unexpected control message {command}')
 
     def eof_received(self) -> bool:
-        # We always expect to be the ones to close the connection, so if we get
-        # an EOF, then we consider it to be an error.  This allows us to
-        # distinguish close caused by unexpected EOF (but no errno from a
-        # syscall failure) vs. close caused by calling .close() on our side.
-        # The process is still running at this point, so keep it and handle
-        # the error in process_exited().
-        logger.debug('Peer %s received unexpected EOF', self.__class__.__name__)
-        return True
+        logger.debug('eof_received(%r)', self)
+        return True  # wait for more information (exit status, stderr, etc.)
 
-    def do_closed(self, exc: Optional[Exception]) -> None:
+    def do_exception(self, exc: Exception) -> None:
+        if isinstance(exc, ferny.SubprocessError):
+            # a common case is that the called peer does not exist
+            # 127 is the return code from `sh -c` for ENOENT
+            if exc.returncode == 127:
+                raise CockpitProblem('no-cockpit')
+            else:
+                raise CockpitProblem('terminated', message=exc.stderr or f'Peer exited with status {exc.returncode}')
+
+    def connection_lost(self, exc: 'Exception | None' = None) -> None:
+        super().connection_lost(exc)
+
         logger.debug('Peer %s connection lost %s %s', self.__class__.__name__, type(exc), exc)
+        self.rule.endpoint_closed(self)
 
         if exc is None:
+            # No exception — just return 'terminated'
             self.shutdown_endpoint(problem='terminated')
-        elif isinstance(exc, PeerExited):
-            # a common case is that the called peer does not exist
-            if exc.exit_code == 127:
-                self.shutdown_endpoint(problem='no-cockpit')
-            else:
-                self.shutdown_endpoint(problem='terminated', message=f'Peer exited with status {exc.exit_code}')
         elif isinstance(exc, CockpitProblem):
+            # If this is already a CockpitProblem, report it
             self.shutdown_endpoint(exc.attrs)
         else:
-            self.shutdown_endpoint(problem='internal-error',
-                                   message=f"[{exc.__class__.__name__}] {exc!s}")
-
-        # If .start() is running, we need to make sure it stops running,
-        # raising the correct exception.
-        if self.init_future is not None and not self.init_future.done():
-            if exc is not None:
-                self.init_future.set_exception(exc)
+            # Otherwise, see if do_exception() waits to raise it as a CockpitProblem
+            try:
+                self.do_exception(exc)
+            except CockpitProblem as problem:
+                self.shutdown_endpoint(problem.attrs)
             else:
-                self.init_future.cancel()
+                self.shutdown_endpoint(problem='internal-error',
+                                       cause=traceback.format_exception(exc.__class__, exc, exc.__traceback__))
 
-        for callback in self.done_callbacks:
-            callback()
-
-    def process_exited(self) -> None:
-        assert isinstance(self.transport, SubprocessTransport)
-        logger.debug('Peer %s exited, status %d', self.__class__.__name__, self.transport.get_returncode())
-        returncode = self.transport.get_returncode()
-        assert isinstance(returncode, int)
-        self.close(PeerExited(returncode))
+                # OSErrors are kinda expected in many circumstances and we're
+                # not interested in treating those as programming errors
+                if not isinstance(exc, OSError):
+                    raise exc
 
     # Forwarding data: from the peer to the router
     def channel_control_received(self, channel: str, command: str, message: JsonObject) -> None:
-        if self.init_future is not None:
+        if not self.saw_init:
             raise CockpitProtocolError('Received unexpected channel control message before init')
         self.send_channel_control(channel, command, message)
 
     def channel_data_received(self, channel: str, data: bytes) -> None:
-        if self.init_future is not None:
+        if not self.saw_init:
             raise CockpitProtocolError('Received unexpected channel data before init')
         self.send_channel_data(channel, data)
 
     # Forwarding data: from the router to the peer
     def do_channel_control(self, channel: str, command: str, message: JsonObject) -> None:
-        assert self.init_future is None
+        assert self.saw_init
         self.write_control(message)
 
     def do_channel_data(self, channel: str, data: bytes) -> None:
-        assert self.init_future is None
+        assert self.saw_init
         self.write_channel_data(channel, data)
 
     def do_kill(self, host: 'str | None', group: 'str | None', message: JsonObject) -> None:
-        assert self.init_future is None
         self.write_control(message)
 
     def do_close(self) -> None:
@@ -234,35 +140,50 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
 
 
 class ConfiguredPeer(Peer):
+    helper: 'BridgeBeibootHelper | None' = None
     config: BridgeConfig
-    args: Sequence[str]
-    env: Sequence[str]
 
-    def __init__(self, router: Router, config: BridgeConfig):
+    def connection_made(self, transport: asyncio.BaseTransport) -> None:
+        super().connection_made(transport)
+        assert self.transport is not None
+
+        if self.helper is not None:
+            logger.debug('  sending payload for %r %r', self, self.config.name)
+            self.transport.write(self.helper.get_stage1().encode())
+        else:
+            logger.debug('  no payload to send for %r %r', self, self.config.name)
+
+    def __init__(
+        self, rule: RoutingRule, config: BridgeConfig, interaction_handlers: Sequence[ferny.InteractionHandler] = ()
+    ):
         self.config = config
-        self.args = config.spawn
-        self.env = config.environ
-        super().__init__(router)
+        super().__init__(rule)
 
-    async def do_connect_transport(self) -> None:
-        await self.spawn(self.args, self.env)
+        if '# cockpit-bridge' in config.spawn:
+            self.helper = BridgeBeibootHelper(self)
+            interaction_handlers = (*interaction_handlers, self.helper)
+
+        env_overrides = dict(e.split('=', 1) for e in config.environ)
+        self.transport, myself = ferny.FernyTransport.spawn(
+            lambda: self, config.spawn, env=dict(os.environ, **env_overrides),
+            interaction_handlers=interaction_handlers
+        )
+        assert myself is self
 
 
 class PeerRoutingRule(RoutingRule):
     config: BridgeConfig
-    match: JsonObject
     peer: Optional[Peer]
 
     def __init__(self, router: Router, config: BridgeConfig):
         super().__init__(router)
         self.config = config
-        self.match = config.match
         self.peer = None
 
     def apply_rule(self, options: JsonObject) -> Optional[Peer]:
         # Check that we match
 
-        for key, value in self.match.items():
+        for key, value in self.config.match.items():
             if key not in options:
                 logger.debug('        rejecting because key %s is missing', key)
                 return None
@@ -272,14 +193,12 @@ class PeerRoutingRule(RoutingRule):
 
         # Start the peer if it's not running already
         if self.peer is None:
-            self.peer = ConfiguredPeer(self.router, self.config)
-            self.peer.add_done_callback(self.peer_closed)
-            assert self.router.init_host
-            self.peer.start_in_background(init_host=self.router.init_host)
+            self.peer = ConfiguredPeer(self, self.config)
 
         return self.peer
 
-    def peer_closed(self):
+    def endpoint_closed(self, endpoint: Endpoint) -> None:
+        assert self.peer is endpoint or self.peer is None
         self.peer = None
 
     def shutdown(self):

@@ -77,7 +77,7 @@ class ChannelRoutingRule(RoutingRule):
 
         for cls in self.table.get(payload, []):
             if self.check_restrictions(cls.restrictions, options):
-                return cls(self.router)
+                return cls(self)
         else:
             return None
 

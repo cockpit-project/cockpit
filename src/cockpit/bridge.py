@@ -28,7 +28,7 @@ import stat
 import subprocess
 from typing import Iterable, List, Optional, Sequence, Tuple, Type
 
-from cockpit._vendor.ferny import interaction_client
+from cockpit._vendor import ferny
 from cockpit._vendor.systemd_ctypes import bus, run_async
 
 from . import polyfills
@@ -40,6 +40,7 @@ from .internal_endpoints import EXPORTS
 from .jsonutil import JsonError, JsonObject, get_dict
 from .packages import BridgeConfig, Packages, PackagesListener
 from .peer import PeersRoutingRule
+from .polkit import PolkitAgent
 from .remote import HostRoutingRule
 from .router import Router
 from .superuser import SuperuserRoutingRule
@@ -80,17 +81,9 @@ class Bridge(Router, PackagesListener):
 
         self.peers_rule = PeersRoutingRule(self)
 
-        if args.beipack:
-            # Some special stuff for beipack
-            self.superuser_rule.set_configs((
-                BridgeConfig({
-                    "privileged": True,
-                    "spawn": ["sudo", "-k", "-A", "python3", "-ic", "# cockpit-bridge", "--privileged"],
-                    "environ": ["SUDO_ASKPASS=ferny-askpass"],
-                }),
-            ))
-            self.packages = None
-        elif args.privileged:
+        if args.privileged or args.beipack:
+            # We never serve packages from a `--privileged` or beipacked
+            # bridge, but see below about args.beipack.
             self.packages = None
         else:
             self.packages = Packages(self)
@@ -139,15 +132,13 @@ class Bridge(Router, PackagesListener):
     def do_send_init(self) -> None:
         init_args = {
             'capabilities': {'explicit-superuser': True},
-            'command': 'init',
             'os-release': self.get_os_release(),
-            'version': 1,
         }
 
         if self.packages is not None:
             init_args['packages'] = dict.fromkeys(self.packages.packages)
 
-        self.write_control(init_args)
+        self.write_control(command='init', version=1, **init_args)
 
     # PackagesListener interface
     def packages_loaded(self) -> None:
@@ -172,13 +163,30 @@ async def run(args) -> None:
     router = Bridge(args)
     StdioTransport(asyncio.get_running_loop(), router)
 
-    logger.debug('Startup done.  Looping until connection closes.')
+    async with contextlib.AsyncExitStack() as exit_stack:
+        if args.beipack and os.getuid() != 0:
+            # sudo needs to call a SUDO_ASKPASS program, but when running out of a
+            # beipack, we don't have anything available on the filesystem.  Write
+            # one to a temporary location.
+            ferny_askpass = exit_stack.enter_context(ferny.temporary_askpass())
+            router.superuser_rule.set_configs((
+                BridgeConfig({
+                    "beipack": True,
+                    "privileged": True,
+                    "spawn": ["sudo", "-k", "-A", "python3", "-ic", "# cockpit-bridge", "--privileged"],
+                    "environ": [f"SUDO_ASKPASS={ferny_askpass}"],
+                }),
+            ))
 
-    try:
-        await router.communicate()
-    except (BrokenPipeError, ConnectionResetError):
-        # not unexpected if the peer doesn't hang up cleanly
-        pass
+        else:
+            # We want to register a polkit agent
+            await exit_stack.enter_async_context(PolkitAgent(router.superuser_rule))
+
+        try:
+            await router.communicate()
+        except (BrokenPipeError, ConnectionResetError):
+            # not unexpected if the peer doesn't hang up cleanly
+            pass
 
 
 def try_to_receive_stderr():
@@ -186,7 +194,7 @@ def try_to_receive_stderr():
         ours, theirs = socket.socketpair()
         with ours:
             with theirs:
-                interaction_client.command(2, 'cockpit.send-stderr', fds=[theirs.fileno()])
+                ferny.interaction_client.command(2, 'cockpit.send-stderr', fds=[theirs.fileno()])
             _msg, fds, _flags, _addr = socket.recv_fds(ours, 1, 1)
     except OSError:
         return
@@ -196,7 +204,7 @@ def try_to_receive_stderr():
         # We're about to abruptly drop our end of the stderr socketpair that we
         # share with the ferny agent.  ferny would normally treat that as an
         # unexpected error. Instruct it to do a clean exit, instead.
-        interaction_client.command(2, 'ferny.end')
+        ferny.interaction_client.command(2, 'ferny.end')
         os.dup2(stderr_fd, 2)
     finally:
         for fd in fds:
@@ -208,7 +216,7 @@ def setup_journald() -> bool:
     # case we're already connected to the journal but also the case where we're
     # talking to the ferny agent, while leaving logging to file or terminal
     # unaffected.
-    if not stat.S_ISSOCK(os.fstat(2).st_mode):
+    if not stat.S_ISSOCK(os.fstat(2).st_mode) and 'SSH_CLIENT' not in os.environ:
         # not a socket?  Don't redirect.
         return False
 
@@ -290,7 +298,10 @@ def main(*, beipack: bool = False) -> None:
     if args.privileged:
         try_to_receive_stderr()
 
+    args.debug |= args.beipack  # XXX
     setup_logging(debug=args.debug)
+
+    logger.debug('env: %r', os.environ)
 
     # Special modes
     if args.packages:

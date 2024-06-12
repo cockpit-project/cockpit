@@ -61,9 +61,10 @@ class Endpoint:
     router: 'Router'
     __endpoint_frozen_queue: Optional[ExecutionQueue] = None
 
-    def __init__(self, router: 'Router'):
-        router.add_endpoint(self)
-        self.router = router
+    def __init__(self, rule: 'RoutingRule'):
+        self.rule = rule
+        self.router = rule.router
+        self.router.add_endpoint(self)
 
     def freeze_endpoint(self):
         assert self.__endpoint_frozen_queue is None
@@ -126,8 +127,8 @@ class RoutingRule:
         """
         raise NotImplementedError
 
-    def shutdown(self):
-        raise NotImplementedError
+    def endpoint_closed(self, endpoint: Endpoint) -> None:
+        """Called when an endpoint created from this rule is closed."""
 
 
 class Router(CockpitProtocolServer):
@@ -239,7 +240,9 @@ class Router(CockpitProtocolServer):
 
     _communication_done: Optional[asyncio.Future] = None
 
-    def do_closed(self, exc: Optional[Exception]) -> None:
+    def connection_lost(self, exc: Optional[Exception]) -> None:
+        super().connection_lost(exc)
+
         # If we didn't send EOF yet, do it now.
         if not self._eof:
             self.eof_received()

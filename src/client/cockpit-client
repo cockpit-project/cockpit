@@ -333,7 +333,7 @@ class InternalCockpitWs:
                 LoginTo = true
 
                 [Ssh-Login]
-                Command = /usr/bin/env python3 -m cockpit.beiboot
+                Command = /usr/bin/env python3 -m cockpit.beiboot --interactive
                 """
 
             cockpit_conf.write(textwrap.dedent(config))

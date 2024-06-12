@@ -20,7 +20,11 @@ import json
 import logging
 import traceback
 import uuid
+from typing import ClassVar, Optional
 
+from cockpit._vendor import ferny, systemd_ctypes
+
+from . import transports
 from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_int, get_str, get_str_or_none, typechecked
 
 logger = logging.getLogger(__name__)
@@ -65,10 +69,10 @@ class CockpitProtocol(asyncio.Protocol):
     We need to use this because Python's SelectorEventLoop doesn't supported
     buffered protocols.
     """
+    json_encoder: ClassVar[json.JSONEncoder] = systemd_ctypes.JSONEncoder(indent=2)
     transport: 'asyncio.Transport | None' = None
+    transport_connected: bool = False
     buffer = b''
-    _closed: bool = False
-    _communication_done: 'asyncio.Future[None] | None' = None
 
     def do_ready(self) -> None:
         pass
@@ -144,41 +148,41 @@ class CockpitProtocol(asyncio.Protocol):
         return end
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
-        logger.debug('connection_made(%s)', transport)
+        logger.debug('connection_made(%r, %r, %r)', self, self.transport, transport)
+
+        # This can only ever be called once. We may already have transport set
+        # from when it was created, but if so, then it should be equal.
+        assert not self.transport_connected
+        assert self.transport is transport or self.transport is None
         assert isinstance(transport, asyncio.Transport)
+
         self.transport = transport
+        self.transport_connected = True
         self.do_ready()
 
-        if self._closed:
-            logger.debug('  but the protocol already was closed, so closing transport')
-            transport.close()
-
     def connection_lost(self, exc: 'Exception | None') -> None:
-        logger.debug('connection_lost')
+        logger.debug('connection_lost(%r, %r)', self, exc)
         assert self.transport is not None
+        self.transport_connected = False
         self.transport = None
         self.close(exc)
 
-    def close(self, exc: 'Exception | None' = None) -> None:
-        if self._closed:
-            return
-        self._closed = True
-
-        if self.transport:
-            self.transport.close()
-
-        self.do_closed(exc)
+    def close(self, exc: Optional[Exception] = None) -> None:
+        if isinstance(self.transport, ferny.FernyTransport):
+            self.transport.close(exc)
+        elif isinstance(self.transport, transports.SubprocessTransport):
+            self.transport.abort(exc)
 
     def write_channel_data(self, channel: str, payload: bytes) -> None:
         """Send a given payload (bytes) on channel (string)"""
         # Channel is certainly ascii (as enforced by .encode() below)
         frame_length = len(channel + '\n') + len(payload)
         header = f'{frame_length}\n{channel}\n'.encode('ascii')
-        if self.transport is not None:
+        if self.transport_connected and self.transport is not None:
             logger.debug('writing to transport %s', self.transport)
             self.transport.write(header + payload)
         else:
-            logger.debug('cannot write to closed transport')
+            logger.debug('cannot write to disconnected transport')
 
     def write_control(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
         """Write a control message.  See jsonutil.create_object() for details."""
@@ -194,7 +198,7 @@ class CockpitProtocol(asyncio.Protocol):
                 if result <= 0:
                     return
                 self.buffer = self.buffer[result:]
-        except CockpitProtocolError as exc:
+        except CockpitProblem as exc:
             self.close(exc)
 
     def eof_received(self) -> bool:
@@ -233,7 +237,7 @@ class CockpitProtocolServer(CockpitProtocol):
 
     # authorize request/response API
     async def request_authorization(
-        self, challenge: str, timeout: 'int | None' = None, **kwargs: JsonValue
+        self, challenge: str, _msg: 'JsonObject | None' = None, timeout: 'int | None' = None, **kwargs: JsonValue
     ) -> str:
         if self.authorizations is None:
             self.authorizations = {}
@@ -241,7 +245,7 @@ class CockpitProtocolServer(CockpitProtocol):
         future = asyncio.get_running_loop().create_future()
         try:
             self.authorizations[cookie] = future
-            self.write_control(None, command='authorize', challenge=challenge, cookie=cookie, **kwargs)
+            self.write_control(_msg, command='authorize', challenge=challenge, cookie=cookie, **kwargs)
             return await asyncio.wait_for(future, timeout)
         finally:
             self.authorizations.pop(cookie)

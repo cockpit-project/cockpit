@@ -129,10 +129,6 @@ def create_object(message: 'JsonObject | None', kwargs: JsonObject) -> JsonObjec
 
     If only message is given, it is returned, unmodified.  If message is None,
     it is equivalent to an empty dictionary.  A copy is always made.
-
-    If kwargs are present, then any underscore ('_') present in a key name is
-    rewritten to a dash ('-').  This is intended to bridge between the required
-    Python syntax when providing kwargs and idiomatic JSON (which uses '-' for
     attributes).  These values override values in message.
 
     The idea is that `message` should be used for passing data along, and

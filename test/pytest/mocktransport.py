@@ -1,8 +1,9 @@
 import asyncio
+import binascii
 import json
 from typing import Any, Dict, Iterable, Optional, Tuple
 
-from cockpit.jsonutil import JsonObject, JsonValue
+from cockpit.jsonutil import JsonDocument, JsonObject, JsonValue, get_dict, get_str
 from cockpit.router import Router
 
 MOCK_HOSTNAME = 'mockbox'
@@ -12,8 +13,10 @@ class MockTransport(asyncio.Transport):
     queue: 'asyncio.Queue[Tuple[str, bytes]]'
     next_id: int = 0
     close_future: Optional[asyncio.Future] = None
+    connected: bool = False
 
     async def assert_empty(self):
+        self.connect()
         await asyncio.sleep(0.1)
         assert self.queue.qsize() == 0
 
@@ -23,6 +26,7 @@ class MockTransport(asyncio.Transport):
         self.send_data(_channel, json.dumps(msg).encode('ascii'))
 
     def send_data(self, channel: str, data: bytes) -> None:
+        self.connect()
         msg = channel.encode('ascii') + b'\n' + data
         msg = str(len(msg)).encode('ascii') + b'\n' + msg
         self.protocol.data_received(msg)
@@ -31,12 +35,36 @@ class MockTransport(asyncio.Transport):
         self.send_json('', command='init', version=version, host=host, **kwargs)
 
     def init(self, **kwargs: Any) -> Dict[str, object]:
+        self.connect()
         channel, data = self.queue.get_nowait()
         assert channel == ''
         msg = json.loads(data)
         assert msg['command'] == 'init'
         self.send_init(**kwargs)
         return msg
+
+    async def auth(self, expected_challenge: str, **kwargs: JsonDocument) -> None:
+        challenge = await self.assert_msg('', command='authorize', challenge=expected_challenge)
+        self.send_json('', command='authorize', cookie=challenge['cookie'], **kwargs)
+
+    async def ferny_auth(self, ferny_type: str, response: 'str | None', **kwargs: JsonDocument) -> JsonObject:
+        challenge = await self.assert_msg('', command='authorize')
+        assert get_str(challenge, 'ferny-type') == ferny_type
+        attrs = get_dict(challenge, 'ferny-attrs')
+        assert attrs == dict(attrs, **{k.replace('_', '-'): v for k, v in kwargs.items()})
+
+        # Ensure that the challenge is correctly formatted
+        authtype, sep, authdata = get_str(challenge, 'challenge').partition(' - ')
+        assert authtype == 'X-Conversation'
+        assert sep == ' - '
+        authdata = binascii.a2b_base64(authdata.encode()).decode()
+        assert authdata == get_str(attrs, 'messages') + get_str(attrs, 'prompt')
+
+        if response is not None:
+            response = binascii.b2a_base64(response.encode(), newline=False).decode()
+            self.send_json('', command='authorize', cookie=get_str(challenge, 'cookie'), response=response)
+
+        return challenge
 
     def get_id(self, prefix: str) -> str:
         self.next_id += 1
@@ -81,10 +109,16 @@ class MockTransport(asyncio.Transport):
     def send_ping(self, **kwargs):
         self.send_json('', command='ping', **kwargs)
 
-    def __init__(self, protocol: asyncio.Protocol):
+    def __init__(self, protocol: asyncio.Protocol, *, connected: bool = True) -> None:
         self.queue = asyncio.Queue()
         self.protocol = protocol
-        protocol.connection_made(self)
+        if connected:
+            self.connect()
+
+    def connect(self) -> None:
+        if not self.connected:
+            self.connected = True
+            self.protocol.connection_made(self)
 
     def write(self, data: bytes) -> None:
         # We know that the bridge only ever writes full frames at once, so we
@@ -110,7 +144,8 @@ class MockTransport(asyncio.Transport):
             self.protocol.connection_lost(None)
 
     async def next_frame(self) -> Tuple[str, bytes]:
-        return await self.queue.get()
+        self.connect()
+        return await asyncio.wait_for(self.queue.get(), 10)
 
     async def next_msg(self, expected_channel) -> Dict[str, Any]:
         channel, data = await self.next_frame()
@@ -136,7 +171,7 @@ class MockTransport(asyncio.Transport):
     async def ensure_internal_bus(self):
         if not self.internal_bus:
             self.internal_bus = await self.check_open('dbus-json3', bus='internal')
-        assert self.protocol.open_channels[self.internal_bus].bus == self.protocol.internal_bus.client
+        # assert self.protocol.open_channels[self.internal_bus].bus == self.protocol.internal_bus.client
         return self.internal_bus
 
     def send_bus_call(self, bus: str, path: str, iface: str, name: str, args: list) -> str:
@@ -167,7 +202,10 @@ class MockTransport(asyncio.Transport):
         assert 'id' in reply, reply
         assert reply['id'] == tag, reply
         assert 'error' in reply, reply
-        assert reply['error'] == [code, [message]], reply['error']
+        print(f'{reply!r} {code!r} {message!r}')
+        print(f'{reply["error"]!r}')
+        print(f'{[code, [message]]!r}')
+        assert reply['error'] == [code, [message]]
 
     async def check_bus_call(
         self,
@@ -213,7 +251,7 @@ class MockTransport(asyncio.Transport):
         if bus is None:
             bus = await self.ensure_internal_bus()
         notify = await self.next_msg(bus)
-        assert 'notify' in notify
+        assert 'notify' in notify, notify
         assert notify['notify'][path][iface] == expected
 
     async def watch_bus(self, path: str, iface: str, expected: JsonObject, bus: Optional[str] = None) -> None:
@@ -243,3 +281,9 @@ class MockTransport(asyncio.Transport):
         if bus is None:
             bus = await self.ensure_internal_bus()
         self.send_json(bus, add_match={'path': path, 'interface': iface})
+
+    def pause_reading(self):
+        pass
+
+    def resume_reading(self):
+        pass

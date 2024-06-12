@@ -402,6 +402,7 @@ class TestAccounts(testlib.MachineCase):
 
         # Clean out the relevant logfiles
         m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /var/run/utmp")
+        m.execute("rm -f /var/lib/lastlog/lastlog2.db /var/lib/wtmpdb/wtmp.db")
 
         self.login_and_go("/users")
         # Create a locked user with weak password
@@ -1072,6 +1073,7 @@ class TestAccounts(testlib.MachineCase):
 
         # Clean out the relevant logfiles
         m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /var/run/utmp")
+        m.execute("rm -f /var/lib/lastlog/lastlog2.db /var/lib/wtmpdb/wtmp.db")
 
         # Login once to create an entry
         self.login_and_go("/users")

@@ -149,7 +149,7 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
     const starting_regex = /Starting ([0-9]+)\/([0-9]+).*\[Running: (.*)\]/;
 
     // TODO - Use a real API instead of scraping stdout once such an API exists
-    const task = cockpit.spawn(["sos", "report", "--batch"].concat(args),
+    const task = cockpit.spawn(["sos", "report", "--batch", "--tmp-dir", "/var/tmp"].concat(args),
                                { superuser: "require", err: "out", pty: true });
 
     task.stream(text => {

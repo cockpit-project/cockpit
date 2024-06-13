@@ -41,8 +41,8 @@ test_ruff() {
 if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
     test_mypy() {
         command -v mypy >/dev/null || skip 'no mypy'
-        for pkg in systemd_ctypes ferny bei; do
-            test -e "src/cockpit/_vendor/${pkg}/__init__.py" || skip "no ${pkg}"
+        for file in $(cat test/mypy-deps 2>/dev/null || true); do
+            test -e "${file}" || skip "no ${file}"
         done
         find_python_files | xargs -r -0 mypy --no-error-summary
     }

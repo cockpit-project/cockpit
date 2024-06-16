@@ -101,6 +101,7 @@ if [ "$PLAN" = "main" ]; then
               TestLogin.testFailingWebsocketSafari
               TestLogin.testFailingWebsocketSafariNoCA
               TestLogin.testLogging
+              TestLogin.testLoginSshBeiboot
               TestLogin.testRaw
               TestLogin.testServer
               TestLogin.testUnsupportedBrowser

@@ -151,14 +151,6 @@ test_webservice_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_webservice_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
 test_webservice_SOURCES = src/ws/test-webservice.c
 
-if WITH_COCKPIT_SSH
-
-TEST_PROGRAM += test-authssh
-test_authssh_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
-test_authssh_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
-test_authssh_SOURCES = src/ws/test-authssh.c
-
-endif
 endif
 
 noinst_PROGRAMS += mock-pam-conv-mod.so

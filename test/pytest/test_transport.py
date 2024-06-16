@@ -449,9 +449,6 @@ class TestSubprocessTransport:
         assert transport
         transport.close()
         assert transport.is_closing()
-        # FIXME: closing the channel should kill the process, like asyncio's SubprocessTransport
-        # See https://github.com/cockpit-project/cockpit/pull/18340
-        transport.kill()
         while protocol.transport is not None:
             await asyncio.sleep(0.1)
         assert protocol.transport is None
@@ -467,9 +464,6 @@ class TestSubprocessTransport:
         transport.close()
         assert protocol.transport
         assert protocol.transport.is_closing()
-        # FIXME: closing the channel should kill the process, like asyncio's SubprocessTransport
-        # See https://github.com/cockpit-project/cockpit/pull/18340
-        transport.kill()
         while protocol.transport is not None:
             await asyncio.sleep(0.1)
         assert protocol.transport is None

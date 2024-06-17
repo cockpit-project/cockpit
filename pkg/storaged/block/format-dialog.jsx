@@ -534,7 +534,7 @@ export function format_dialog(block, options) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage),
+            init_teardown_usage(client, usage),
         ]
     });
 }

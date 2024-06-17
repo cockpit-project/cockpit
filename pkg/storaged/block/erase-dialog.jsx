@@ -28,7 +28,7 @@ import {
     dialog_open,
     CheckBoxes,
     BlockingMessage, TeardownMessage,
-    init_active_usage_processes
+    init_teardown_usage,
 } from "../dialog.jsx";
 
 import { job_progress_wrapper } from "../jobs-panel.jsx";
@@ -64,7 +64,7 @@ export function erase_dialog(block) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage),
+            init_teardown_usage(client, usage),
         ]
     });
 }

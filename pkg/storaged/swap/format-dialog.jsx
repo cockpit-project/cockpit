@@ -27,7 +27,7 @@ import {
 import {
     dialog_open,
     BlockingMessage, TeardownMessage,
-    init_active_usage_processes
+    init_teardown_usage,
 } from "../dialog.jsx";
 
 import { job_progress_wrapper } from "../jobs-panel.jsx";
@@ -92,7 +92,7 @@ export function format_swap_dialog(block) {
             }
         },
         Inits: [
-            init_active_usage_processes(client, usage),
+            init_teardown_usage(client, usage),
         ]
     });
 }

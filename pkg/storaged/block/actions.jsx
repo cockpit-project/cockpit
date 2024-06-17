@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import client from "../client";
 
-import { format_disk } from "./format-disk-dialog.jsx";
+import { initialize_disk_dialog } from "../partitions/initialize-disk-dialog.jsx";
 import { format_dialog } from "./format-dialog.jsx";
 import { format_swap_dialog } from "../swap/format-dialog.jsx";
 import { erase_dialog } from "./erase-dialog.jsx";
@@ -37,8 +37,8 @@ export function block_actions(block, kind) {
     if (client.blocks_available[block.path]) {
         if (kind == "part") {
             actions.push({
-                title: _("Create partitions"),
-                action: () => format_disk(block),
+                title: _("Initialize for partitions"),
+                action: () => initialize_disk_dialog(block),
                 primary: true,
                 excuse,
             });

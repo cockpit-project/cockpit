@@ -22,7 +22,7 @@ import client from "../client";
 
 import {
     dialog_open,
-    SelectOne,
+    SelectOneRadioVertical,
     BlockingMessage, TeardownMessage,
     init_teardown_usage
 } from "../dialog.jsx";
@@ -31,8 +31,8 @@ import { job_progress_wrapper } from "../jobs-panel.jsx";
 
 const _ = cockpit.gettext;
 
-export function format_disk(block) {
-    const usage = get_active_usage(client, block.path, _("initialize"), _("delete"));
+export function initialize_disk_dialog(block) {
+    const usage = get_active_usage(client, block.path, _("write partition table"), _("delete"));
 
     if (usage.Blocking) {
         dialog_open({
@@ -42,24 +42,24 @@ export function format_disk(block) {
         return;
     }
 
+    const offer_mbr = block.Size < 2 * 1024 * 1024 * 1024 * 1024; // 2 TiB
+
     dialog_open({
-        Title: cockpit.format(_("Create partitions on $0"), block_name(block)),
+        Title: cockpit.format(_("Initialize $0 for partitions"), block_name(block)),
         Teardown: TeardownMessage(usage),
         Fields: [
-            SelectOne("type", _("Type"),
+            SelectOneRadioVertical("type", _("Type"),
                       {
                           value: "gpt",
                           choices: [
-                              { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                              {
-                                  value: "gpt",
-                                  title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                              },
-                          ]
+                              { value: "gpt", title: _("Modern (GPT)") },
+                              { value: "dos", title: _("Legacy (MBR)") },
+                          ],
+                          visible: () => offer_mbr,
                       }),
         ],
         Action: {
-            Title: _("Create partition table"),
+            Title: _("Initialize for partitions"),
             wrapper: job_progress_wrapper(client, block.path),
             disable_on_error: usage.Teardown,
             action: async function (vals) {
@@ -68,7 +68,7 @@ export function format_disk(block) {
                 };
 
                 await teardown_active_usage(client, usage);
-                await block.Format(vals.type, options);
+                await block.Format(offer_mbr ? vals.type : "gpt", options);
                 await reload_systemd();
             }
         },

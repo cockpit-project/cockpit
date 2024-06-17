@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+trap 'if [ "$?" -ne 0 ]; then id cockpit-ws || true; systemctl --all | grep cockpit; sudo journalctl -b; fi' EXIT
+
 # HACK: debian stable kernel+LXC (running on ci.d.n) breaks DynamicUser=
 if uname -r | grep -q ^6.1; then
     echo " * working around broken DynamicUser= support on Debian 12 kernel+LXC"

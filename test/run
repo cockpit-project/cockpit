@@ -66,7 +66,7 @@ case "${TEST_SCENARIO:=}" in
 esac
 
 # these are too volatile/ungated, we can't keep up with reporting issues
-if [ "$TEST_OS" = "fedora-rawhide" ] || [ "$TEST_OS" = "centos-10" ]; then
+if [ "${TEST_OS#fedora}" != "$TEST_OS" ] || [ "$TEST_OS" = "centos-10" ]; then
     export TEST_AUDIT_NO_SELINUX=1
 fi
 

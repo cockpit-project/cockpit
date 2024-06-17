@@ -1378,7 +1378,7 @@ client.stratis_start = () => {
 // not allowed.  If we need to bump it, it should be bumped here for all
 // of them at the same time.
 //
-const stratis3_interface_revision = "r5";
+const stratis3_interface_revision = "r6";
 
 function stratis3_start() {
     const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });
@@ -1399,17 +1399,13 @@ function stratis3_start() {
                             .input(passphrase);
                 };
 
-                client.stratis_set_overprovisioning = (pool, flag) => {
-                    // DBusProxy is smart enough to allow
-                    // "pool.Overprovisioning = flag" to just work,
-                    // but we want to catch any error ourselves, and
-                    // we want to wait for the method call to
-                    // complete.
-                    return stratis.call(pool.path, "org.freedesktop.DBus.Properties", "Set",
-                                        ["org.storage.stratis3.pool." + stratis3_interface_revision,
-                                            "Overprovisioning",
-                                            cockpit.variant("b", flag)
-                                        ]);
+                client.stratis_set_property = (proxy, prop, sig, value) => {
+                    // DBusProxy is smart enough to allow "proxy.Prop
+                    // = value" to just work, but we want to catch any
+                    // error ourselves, and we want to wait for the
+                    // method call to complete.
+                    return stratis.call(proxy.path, "org.freedesktop.DBus.Properties", "Set",
+                                        [proxy.iface, prop, cockpit.variant(sig, value)]);
                 };
 
                 client.features.stratis = true;

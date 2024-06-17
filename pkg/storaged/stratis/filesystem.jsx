@@ -25,7 +25,7 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import {
-    dialog_open, TextInput, BlockingMessage, TeardownMessage,
+    dialog_open, TextInput, CheckBoxes, SizeSlider, BlockingMessage, TeardownMessage,
     init_teardown_usage,
 } from "../dialog.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
@@ -47,7 +47,7 @@ import { std_reply, validate_fs_name, set_mount_options, destroy_filesystem } fr
 const _ = cockpit.gettext;
 
 export function make_stratis_filesystem_page(parent, pool, fsys,
-    offset, forced_options, managed_fsys_sizes) {
+    offset, forced_options) {
     const filesystems = client.stratis_pool_filesystems[pool.path];
     const stats = client.stratis_pool_stats[pool.path];
     const block = client.slashdevs_block[fsys.Devnode];
@@ -70,15 +70,6 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
     }
 
     function snapshot_fsys() {
-        if (managed_fsys_sizes && stats.pool_free < Number(fsys.Size)) {
-            dialog_open({
-                Title: _("Not enough space"),
-                Body: cockpit.format(_("There is not enough space in the pool to make a snapshot of this filesystem. At least $0 are required but only $1 are available."),
-                                     fmt_size(Number(fsys.Size)), fmt_size(stats.pool_free))
-            });
-            return;
-        }
-
         dialog_open({
             Title: cockpit.format(_("Create a snapshot of filesystem $0"), fsys.Name),
             Fields: [
@@ -157,21 +148,24 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
         next: null,
         page_location: ["pool", pool.Name, fsys.Name],
         page_name: fsys.Name,
-        page_size: (!managed_fsys_sizes
-            ? <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
-                                       critical={1} total={stats.fsys_total_used} offset={offset} short />
-            : <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), Number(fsys.Size)]}
-                                       critical={0.95} short />),
+        page_size: <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
+                                    critical={1} total={stats.fsys_total_used} offset={offset} short />,
         has_warning: !!mismount_warning,
         component: StratisFilesystemCard,
-        props: { pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning, offset },
+        props: { pool, fsys, fstab_config, forced_options, mismount_warning, offset },
         actions: [
             client.in_anaconda_mode() &&
                 { title: _("Edit mount point"), action: () => edit_mount_point(block, forced_options) },
             (fs_is_mounted
                 ? { title: _("Unmount"), action: unmount }
                 : { title: _("Mount"), action: mount }),
-            { title: _("Snapshot"), action: snapshot_fsys },
+            {
+                title: _("Snapshot"),
+                action: snapshot_fsys,
+                excuse: ((!pool.Overprovisioning && stats.pool_free < Number(fsys.Size))
+                    ? _("Not enough free space")
+                    : null),
+            },
             { title: _("Delete"), action: delete_fsys, danger: true },
         ]
     });
@@ -180,7 +174,7 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
 }
 
 const StratisFilesystemCard = ({
-    card, pool, fsys, fstab_config, forced_options, managed_fsys_sizes, mismount_warning, offset,
+    card, pool, fsys, fstab_config, forced_options, mismount_warning, offset,
 }) => {
     const filesystems = client.stratis_pool_filesystems[pool.path];
     const stats = client.stratis_pool_stats[pool.path];
@@ -206,6 +200,42 @@ const StratisFilesystemCard = ({
         });
     }
 
+    function set_limit() {
+        dialog_open({
+            Title: _("Set limit of virtual filesystem size"),
+            Fields: [
+                CheckBoxes("size_options", _("Options"),
+                           {
+                               value: {
+                                   custom_limit: fsys.SizeLimit[0],
+                               },
+                               fields: [
+                                   { tag: "custom_limit", title: _("Limit virtual filesystem size") },
+                               ]
+                           }),
+                SizeSlider("limit", _("Virtual size limit"),
+                           {
+                               visible: vals => vals.size_options.custom_limit,
+                               value: fsys.SizeLimit[0] && Number(fsys.SizeLimit[1]),
+                               min: Number(fsys.Size),
+                               max: pool.Overprovisioning ? stats.pool_total : stats.pool_free + Number(fsys.Size),
+                               allow_infinite: true,
+                               round: 512
+                           }),
+            ],
+            Action: {
+                Title: _("Set"),
+                action: async function (vals) {
+                    await client.stratis_set_property(fsys,
+                                                      "SizeLimit",
+                                                      "(bs)", (vals.size_options.custom_limit
+                                                          ? [true, vals.limit.toString()]
+                                                          : [false, ""]));
+                }
+            }
+        });
+    }
+
     return (
         <StorageCard card={card}
                      alert={mismount_warning &&
@@ -224,13 +254,16 @@ const StratisFilesystemCard = ({
                                     backing_block={block} content_block={block} />
                     </StorageDescription>
                     <StorageDescription title={_("Usage")}>
-                        {(!managed_fsys_sizes
-                            ? <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
+                        <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), stats.pool_total]}
                                              critical={1} total={stats.fsys_total_used} offset={offset} />
-                            : <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])), Number(fsys.Size)]}
-                                             critical={0.95} />)
-                        }
                     </StorageDescription>
+                    <StorageDescription title={_("Virtual size")}
+                                        value={fmt_size(Number(fsys.Size))} />
+                    <StorageDescription title={_("Virtual size limit")}
+                                        value={fsys.SizeLimit[0] ? fmt_size(Number(fsys.SizeLimit[1])) : _("none")}
+                                        action={<StorageLink onClick={set_limit}>
+                                            {_("edit")}
+                                        </StorageLink>} />
                 </DescriptionList>
             </CardBody>
         </StorageCard>

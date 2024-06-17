@@ -103,13 +103,13 @@ export function create_stratis_pool() {
                                          }),
                            ]
                        }),
-            CheckBoxes("managed", "",
+            CheckBoxes("overprov", "",
                        {
+                           value: { on: true },
                            fields: [
                                {
                                    tag: "on",
-                                   title: _("Manage filesystem sizes"),
-                                   tooltip: _("When this option is checked, the new pool will not allow overprovisioning. You need to specify a maximum size for each filesystem that is created in the pool. Filesystems can not be made larger after creation. Snapshots are fully allocated on creation. The sum of all maximum sizes can not exceed the size of the pool. The advantage of this is that filesystems in this pool can not run out of space in a surprising way. The disadvantage is that you need to know the maximum size for each filesystem in advance and creation of snapshots is limited.")
+                                   title: _("Overprovisioning"),
                                }
                            ]
                        })
@@ -130,7 +130,7 @@ export function create_stratis_pool() {
                                                                  clevis_info ? [true, clevis_info] : [false, ["", ""]])
                                 .then(std_reply)
                                 .then(result => {
-                                    if (vals.managed && vals.managed.on && result[0]) {
+                                    if (vals.overprov && !vals.overprov.on && result[0]) {
                                         const path = result[1][0];
                                         return client.wait_for(() => client.stratis_pools[path])
                                                 .then(pool => {

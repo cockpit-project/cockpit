@@ -134,7 +134,9 @@ export function create_stratis_pool() {
                                         const path = result[1][0];
                                         return client.wait_for(() => client.stratis_pools[path])
                                                 .then(pool => {
-                                                    return client.stratis_set_overprovisioning(pool, false);
+                                                    return client.stratis_set_property(pool,
+                                                                                       "Overprovisioning",
+                                                                                       "b", false);
                                                 });
                                     }
                                 });

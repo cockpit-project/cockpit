@@ -115,15 +115,15 @@ function create_fs(pool) {
         update: update_at_boot_input,
         Action: {
             Variants: action_variants,
-            action: function (vals) {
-                return pool.CreateFilesystems([[vals.name, vals.size ? [true, vals.size.toString()] : [false, ""]]])
-                        .then(std_reply)
-                        .then(result => {
-                            if (result[0])
-                                return set_mount_options(result[1][0][0], vals, forced_options);
-                            else
-                                return Promise.resolve();
-                        });
+            action: async function (vals) {
+                let size_spec = [false, ""];
+
+                if (managed_fsys_sizes)
+                    size_spec = [true, vals.size.toString()];
+
+                const result = await pool.CreateFilesystems([[vals.name, size_spec, [false, ""]]]).then(std_reply);
+                if (result[0])
+                    await set_mount_options(result[1][0][0], vals, forced_options);
             }
         }
     });

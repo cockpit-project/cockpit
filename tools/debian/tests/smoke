@@ -1,6 +1,14 @@
 #!/bin/sh
 set -e
 
+# HACK: debian stable kernel+LXC (running on ci.d.n) breaks DynamicUser=
+if uname -r | grep -q ^6.1; then
+    echo " * working around broken DynamicUser= support on Debian 12 kernel+LXC"
+    sudo mkdir -p /etc/systemd/system/cockpit-ws-user.service.d
+    printf '[Service]\nDynamicUser=no\n' | sudo tee /etc/systemd/system/cockpit-ws-user.service.d/no-dynamic.conf
+    sudo systemctl daemon-reload
+fi
+
 check_out() {
     echo "$OUT" | grep -q "$1" || {
         echo "output does not match '$1'" >&2

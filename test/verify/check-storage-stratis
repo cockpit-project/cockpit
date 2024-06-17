@@ -406,6 +406,135 @@ systemctl restart stratisd
         b.wait_visible(self.card("Storage"))
         b.wait_not_present(self.card_row("Storage", name="TEST1"))
 
+    def testOverprovisioning(self):
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev_1 = self.add_loopback_disk(PV_SIZE)
+        b.wait_visible(self.card_row("Storage", name=dev_1))
+
+        # Create a pool with overprov off
+        self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create Stratis pool"),
+                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                               self.dialog_check({"name": "pool0"})),
+                               values={
+                                   "disks": {dev_1: True},
+                                   "overprov.on": False
+                               })
+        self.click_card_row("Storage", name="pool0")
+
+        overprov_toggle = "input[aria-label='Allow overprovisioning']"
+        b.wait_visible(f"{overprov_toggle}:not(:checked)")
+
+        # Create filesystem with defaults.  Initial virtual size
+        # should be appropriate.
+
+        b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
+        self.dialog_wait_open()
+        self.dialog_wait_val('size_options.custom_size', val=True)
+        self.dialog_set_val('name', 'fsys1')
+        self.dialog_apply_secondary()
+        self.dialog_wait_close()
+
+        # Snapshot should be disabled now
+
+        sel = self.card_row("Stratis filesystems", name="fsys1")
+        b.click(self.dropdown_toggle(sel))
+        b.wait_visible(self.dropdown_action(sel, "Snapshot") + "[disabled]")
+        b.wait_text(self.dropdown_description(sel, "Snapshot"),
+                    "Not enough free space")
+        b.click(self.dropdown_toggle(sel))
+
+        # Switch overprov on
+
+        b.click(overprov_toggle)
+        b.wait_visible(f"{overprov_toggle}:checked")
+
+        # Snapshot succeeds
+
+        self.click_dropdown(self.card_row("Stratis filesystems", name="fsys1"), "Snapshot")
+        self.dialog_wait_open()
+        self.dialog_set_val('name', 'snap1')
+        self.dialog_apply_secondary()
+        self.dialog_wait_close()
+
+        # Filesystem creation does not ask for file size by default
+
+        b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
+        self.dialog_wait_open()
+        self.dialog_wait_val('size_options.custom_size', val=False)
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Turning overprov off should be disabled now
+
+        b.wait_visible(overprov_toggle + "[disabled]")
+
+        # Delete snapshot
+
+        self.click_dropdown(self.card_row("Stratis filesystems", name="snap1"), "Delete")
+        self.confirm()
+
+        # Switch overprov off
+
+        b.click(overprov_toggle)
+        b.wait_visible(f"{overprov_toggle}:not(:checked)")
+
+    def testFilesystemSizes(self):
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev_1 = self.add_loopback_disk(PV_SIZE)
+        b.wait_visible(self.card_row("Storage", name=dev_1))
+
+        # Create a pool
+        self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create Stratis pool"),
+                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                               self.dialog_check({"name": "pool0"})),
+                               values={"disks": {dev_1: True}})
+        self.click_card_row("Storage", name="pool0")
+
+        # Create filesystem with initial virtual size and a limit
+
+        b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
+        self.dialog_wait_open()
+        self.dialog_set_val('name', 'fsys1')
+        self.dialog_set_val('size_options.custom_size', val=True)
+        self.dialog_set_val('size', 800)
+        self.dialog_set_val('size_options.custom_limit', val=True)
+        self.dialog_set_val('limit', 1600)
+        self.dialog_apply_secondary()
+        self.dialog_wait_close()
+
+        self.click_card_row("Stratis filesystems", name="fsys1")
+
+        b.wait_text(self.card_desc("Stratis filesystem", "Virtual size"), "800 MB")
+        b.wait_text(self.card_desc("Stratis filesystem", "Virtual size limit"), "1.60 GB")
+
+        # Raise the limit
+
+        b.click(self.card_desc_action("Stratis filesystem", "Virtual size limit"))
+        self.dialog_wait_open()
+        self.dialog_wait_val('size_options.custom_limit', val=True)
+        self.dialog_wait_val('limit', 1600)
+        self.dialog_set_val('limit', 3200)
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_text(self.card_desc("Stratis filesystem", "Virtual size limit"), "3.20 GB")
+
+        # Remove limit
+
+        b.click(self.card_desc_action("Stratis filesystem", "Virtual size limit"))
+        self.dialog_wait_open()
+        self.dialog_set_val('size_options.custom_limit', val=False)
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_text(self.card_desc("Stratis filesystem", "Virtual size limit"), "none")
+
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
 class TestStorageStratisReboot(storagelib.StorageCase):
@@ -639,71 +768,6 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
         destroy()
-
-    @testlib.skipImage("Stratis too old", "rhel-8-*")
-    def testManagedSizes(self):
-        m = self.machine
-        b = self.browser
-
-        self.login_and_go("/storage")
-
-        dev_1 = "/dev/sda"
-        m.add_disk("4G", serial="DISK1")
-        b.wait_visible(self.card_row("Storage", name=dev_1))
-
-        # Create a "managed" pool
-        self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create Stratis pool"),
-                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
-                                               self.dialog_check({"name": "pool0"})),
-                               values={"managed.on": True, "disks": {dev_1: True}})
-        self.click_card_row("Storage", name="pool0")
-
-        # Create a small filesystem
-        b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
-        self.dialog({'name': 'fsys1',
-                     'size': 900,
-                     'mount_point': '/run/fsys1'})
-        b.wait_text(self.card_row_col("Stratis filesystems", 1, 1), "fsys1")
-
-        # Make a snapshot of it
-        self.click_dropdown(self.card_row("Stratis filesystems", 1), "Snapshot")
-        self.dialog({'name': 'fsys1-copy',
-                     'mount_point': '/run/fsys1-copy'})
-        b.wait_text(self.card_row_col("Stratis filesystems", 2, 1), "fsys1-copy")
-
-        # And another filesystem
-        b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
-        self.dialog({'name': 'fsys2',
-                     'size': 800,
-                     'mount_point': '/run/fsys2'})
-        b.wait_text(self.card_row_col("Stratis filesystems", 3, 1), "fsys2")
-
-        # And fill the rest by accepting the default size
-        b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
-        self.dialog({'name': 'fsys3',
-                     'mount_point': '/run/fsys3'})
-        b.wait_text(self.card_row_col("Stratis filesystems", 4, 1), "fsys3")
-        b.wait_visible(self.card_button("Stratis filesystems", "Create new filesystem") + ":disabled")
-
-        # Snapshots are impossible now
-        self.click_dropdown(self.card_row("Stratis filesystems", 1), "Snapshot")
-        self.dialog_wait_open()
-        b.wait_in_text('#dialog', "Not enough space")
-        self.dialog_cancel()
-        self.dialog_wait_close()
-
-        # Delete a filesystem, and make another snapshot
-        self.click_card_row("Stratis filesystems", 1)
-        self.click_card_dropdown("Stratis filesystem", "Delete")
-        self.confirm()
-        b.wait_visible(self.card_button("Stratis filesystems", "Create new filesystem") + ":not(:disabled)")
-        self.click_dropdown(self.card_row("Stratis filesystems", 2), "Snapshot")
-        self.dialog({'name': 'fsys2-copy',
-                     'mount_point': '/run/fsys2-copy'})
-        b.wait_visible(self.card_row("Stratis filesystems", name="fsys2-copy"))
-
-        # And the pool should be full again
-        b.wait_visible("button:contains(Create new filesystem):disabled")
 
     @testlib.skipImage("Stratis too old", "rhel-8-*")
     def testPoolResize(self):

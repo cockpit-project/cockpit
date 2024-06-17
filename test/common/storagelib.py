@@ -214,6 +214,8 @@ class StorageHelpers:
             self.browser.wait_val(sel + " .size-text input", str(val))
         elif ftype == "select":
             self.browser.wait_attr(sel, "data-value", val)
+        elif ftype == "checkbox":
+            self.browser.wait_visible(sel + (":checked" if val else ":not(:checked)"))
         else:
             self.browser.wait_val(sel, val)
 

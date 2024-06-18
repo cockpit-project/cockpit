@@ -332,10 +332,10 @@ class TestConnection(testlib.MachineCase):
         # number of https instances is bounded (DoS prevention)
         # with MaxTasks=200 und 2 threads per ws instance we should have a
         # rough limit of 100 instances, so at some point curl should start failing
-        m.execute("su -s /bin/sh -c 'RC=1; for i in `seq 120`; do "
+        m.execute("runuser -u cockpit-ws -- sh -ec 'RC=1; for i in `seq 120`; do "
                   "  echo -n $i | nc %s -U /run/cockpit/wsinstance/https-factory.sock;"
                   "  curl --silent --head --max-time 5 --unix-socket /run/cockpit/wsinstance/https@$i.sock http://dummy > /dev/null || RC=0; "
-                  "done; exit $RC' cockpit-ws" % n_opt)
+                  "done; exit $RC'" % n_opt)
 
         for type_ in ["socket", "service"]:
             active = int(m.execute("systemctl --no-legend list-units -t %s --state=active "
@@ -1005,7 +1005,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         m.spawn("socat TCP-LISTEN:9091,reuseaddr,fork TCP:localhost:9099", "socat.log")
 
         # ws with plain --no-tls should fail after login with mismatching Origin (expected http, got https)
-        m.spawn(f"su -s /bin/sh -c '{self.ws_executable} --no-tls -p 9099' cockpit-wsinstance",
+        m.spawn(f"runuser -u cockpit-wsinstance -- {self.ws_executable} --no-tls -p 9099",
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
 
@@ -1043,7 +1043,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.allow_browser_errors("Error reading machine id")
 
         # ws with --for-tls-proxy accepts only https origins, thus should work
-        m.spawn(f"su -s /bin/sh -c '{self.ws_executable} --for-tls-proxy -p 9099 -a 127.0.0.1' cockpit-wsinstance",
+        m.spawn(f"runuser -u cockpit-wsinstance -- {self.ws_executable} --for-tls-proxy -p 9099 -a 127.0.0.1",
                 "ws-fortlsproxy.log")
         m.wait_for_cockpit_running(tls=True)
         b.open(f"https://{b.address}:{b.port}/system")
@@ -1425,7 +1425,9 @@ server {
         m.execute("systemctl start nginx")
 
         def run_ws(extra_opts=""):
-            m.spawn(f"su -s /bin/sh -c '{self.libexecdir}/cockpit-ws --address=127.0.0.1 --for-tls-proxy {extra_opts}' cockpit-wsinstance", "ws.log")
+            m.spawn(
+                f"runuser -u cockpit-wsinstance -- {self.libexecdir}/cockpit-ws "
+                f"--address=127.0.0.1 --for-tls-proxy {extra_opts}", "ws.log")
             m.wait_for_cockpit_running()
 
         def kill_ws():

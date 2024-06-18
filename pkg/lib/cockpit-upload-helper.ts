@@ -93,7 +93,48 @@ export async function upload(
 
     try {
         debug('starting file send', contents);
-        const reader = contents.stream().getReader({ mode: 'byob' }); // byob to choose the block size
+
+        /* We want to use the "bring your own buffer" (byob) API so that we can
+         * decide the size of the blocks to read from the file: this is needed
+         * for flow control reasons and also to respect internal limitations in
+         * cockpit-ws.  "byob" is not available on WebKit, though:
+         *
+         *    https://caniuse.com/mdn-api_readablestreambyobreader
+         *
+         * Check if the API is available, and fake it if not.
+         */
+        let read;
+        if (typeof ReadableStreamBYOBReader === 'function') {
+            const reader = contents.stream().getReader({ mode: 'byob' });
+            read = () => reader.read(new Uint8Array(BLOCK_SIZE));
+        } else {
+            // fallback code (no 'byob' available)
+            const reader = contents.stream().getReader();
+            let buffer: Uint8Array | null = null;
+            read = async () => {
+                // No buffered data?  Try a read.
+                if (!buffer) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        return { done, value };
+                    } else {
+                        buffer = value;
+                    }
+                }
+
+                // Return the buffered data: if length < size, return it all, else return a slice
+                if (buffer.length < BLOCK_SIZE) {
+                    const value = buffer;
+                    buffer = null;
+                    return { done: false, value };
+                } else {
+                    const value = buffer.slice(0, BLOCK_SIZE);
+                    buffer = buffer.slice(BLOCK_SIZE);
+                    return { done: false, value };
+                }
+            };
+        }
+
         let eof = false;
 
         // eslint-disable-next-line no-unmodified-loop-condition
@@ -106,7 +147,7 @@ export async function upload(
              * thing, and once it returns, we need to re-evaluate our state.
              */
             if (!eof && outstanding < FLOW_WINDOW) {
-                const { done, value } = await reader.read(new Uint8Array(BLOCK_SIZE));
+                const { done, value } = await read();
                 if (done) {
                     debug('sending done');
                     channel.control({ command: 'done' });

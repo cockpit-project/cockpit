@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import client from "../client.js";
 
 import {
-    edit_crypto_config, parse_options, unparse_options, extract_option,
+    parse_options, unparse_options, extract_option,
     get_parent_blocks, is_netdev,
     decode_filename, encode_filename, block_name,
     get_active_usage, reload_systemd, teardown_active_usage,
@@ -30,13 +30,12 @@ import {
 
 import {
     dialog_open,
-    TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
+    TextInput, PassInput, CheckBoxes, SelectOne, SelectOneRadio, SizeSlider,
     BlockingMessage, TeardownMessage,
     init_teardown_usage
 } from "../dialog.jsx";
 
 import { get_fstab_config, is_valid_mount_point } from "../filesystem/utils.jsx";
-import { init_existing_passphrase, unlock_with_type } from "../crypto/keyslots.jsx";
 import { job_progress_wrapper } from "../jobs-panel.jsx";
 import { at_boot_input, update_at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 import { remember_passphrase } from "../anaconda.jsx";
@@ -82,27 +81,6 @@ export function initial_mount_options(client, block) {
     return initial_tab_options(client, block, true);
 }
 
-export function format_dialog(client, path, start, size, enable_dos_extended) {
-    const block = client.blocks[path];
-    if (block.IdUsage == "crypto") {
-        cockpit.spawn(["cryptsetup", "luksDump", decode_filename(block.Device)], { superuser: "require" })
-                .then(output => {
-                    if (output.indexOf("Keyslots:") >= 0) // This is what luksmeta-monitor-hack looks for
-                        return 2;
-                    else
-                        return 1;
-                })
-                .catch(() => {
-                    return false;
-                })
-                .then(version => {
-                    return format_dialog_internal(client, path, start, size, enable_dos_extended, version);
-                });
-    } else {
-        return format_dialog_internal(client, path, start, size, enable_dos_extended);
-    }
-}
-
 function find_root_fsys_block() {
     const root = client.anaconda?.mount_point_prefix || "/";
     for (const p in client.blocks) {
@@ -114,25 +92,25 @@ function find_root_fsys_block() {
     return null;
 }
 
-function format_dialog_internal(client, path, start, size, enable_dos_extended, old_luks_version) {
-    const block = client.blocks[path];
-    const block_part = client.blocks_part[path];
-    const block_ptable = client.blocks_ptable[path] || client.blocks_ptable[block_part?.Table];
-    const content_block = block.IdUsage == "crypto" ? client.blocks_cleartext[path] : block;
+export function format_dialog(block, options) {
+    const { free_spaces, enable_dos_extended, add_encryption } = options || { };
+    const is_already_encrypted = options?.is_encrypted;
+    const block_part = client.blocks_part[block.path];
+    const block_ptable = client.blocks_ptable[block.path] || client.blocks_ptable[block_part?.Table];
+    const content_block = block.IdUsage == "crypto" ? client.blocks_cleartext[block.path] : block;
 
-    const offer_keep_keys = block.IdUsage == "crypto";
-    const unlock_before_format = offer_keep_keys && (!content_block || content_block.ReadOnly);
-
-    const create_partition = (start !== undefined);
+    const create_partition = (free_spaces !== undefined);
 
     let title;
-    if (create_partition)
+    if (add_encryption)
+        title = cockpit.format(_("Add encryption to $0"), block_name(block));
+    else if (create_partition)
         title = cockpit.format(_("Create partition on $0"), block_name(block));
     else
-        title = cockpit.format(_("Format $0"), block_name(block));
+        title = cockpit.format(_("Format $0 as filesystem"), block_name(block));
 
     function is_filesystem(vals) {
-        return vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "swap";
+        return !add_encryption && vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot";
     }
 
     function add_fsys(storaged_name, entry) {
@@ -143,20 +121,20 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     }
 
     const filesystem_options = [];
+    if (create_partition)
+        add_fsys(true, { value: "empty", title: _("Empty") });
     add_fsys("xfs", { value: "xfs", title: "XFS" });
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     if (client.features.btrfs)
         add_fsys("btrfs", { value: "btrfs", title: "BTRFS" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
-    add_fsys("swap", { value: "swap", title: "Swap" });
     if (client.in_anaconda_mode()) {
         if (block_ptable && block_ptable.Type == "gpt" && !client.anaconda.efi)
             add_fsys(true, { value: "biosboot", title: "BIOS boot partition" });
         if (block_ptable && client.anaconda.efi)
             add_fsys(true, { value: "efi", title: "EFI system partition" });
     }
-    add_fsys(true, { value: "empty", title: _("No filesystem") });
     if (create_partition && enable_dos_extended)
         add_fsys(true, { value: "dos-extended", title: _("Extended partition") });
 
@@ -165,7 +143,9 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     }
 
     let default_type = null;
-    if (content_block?.IdUsage == "filesystem" && is_supported(content_block.IdType))
+    if (create_partition)
+        default_type = "empty";
+    else if (content_block?.IdUsage == "filesystem" && is_supported(content_block.IdType))
         default_type = content_block.IdType;
     else {
         const root_block = find_root_fsys_block();
@@ -182,6 +162,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         return vals.crypto && vals.crypto !== "none";
     }
 
+    let default_crypto_type = null;
+
     function add_crypto_type(value, title, recommended) {
         if ((client.manager.SupportedEncryptionTypes && client.manager.SupportedEncryptionTypes.indexOf(value) != -1) ||
             value == "luks1") {
@@ -189,23 +171,20 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 value,
                 title: title + (recommended ? " " + _("(recommended)") : "")
             });
+            if (recommended && !default_crypto_type)
+                default_crypto_type = value;
         }
     }
 
-    const crypto_types = [{ value: "none", title: _("No encryption") }];
-    if (offer_keep_keys) {
-        if (old_luks_version)
-            crypto_types.push({
-                value: " keep",
-                title: cockpit.format(_("Reuse existing encryption ($0)"), "LUKS" + old_luks_version)
-            });
-        else
-            crypto_types.push({ value: " keep", title: _("Reuse existing encryption") });
+    const crypto_types = [];
+    if (!add_encryption) {
+        crypto_types.push({ value: "none", title: _("No encryption") });
+        default_crypto_type = "none";
     }
     add_crypto_type("luks1", "LUKS1", false);
     add_crypto_type("luks2", "LUKS2", true);
 
-    const usage = get_active_usage(client, create_partition ? null : path, _("format"), _("delete"));
+    const usage = get_active_usage(client, create_partition ? null : block.path, _("format"), _("delete"));
 
     if (usage.Blocking) {
         dialog_open({
@@ -254,8 +233,6 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     const opt_netdev = extract_option(split_options, "_netdev");
     const extra_options = unparse_options(split_options);
 
-    let existing_passphrase_type = null;
-
     let at_boot;
     if (opt_never_auto)
         at_boot = "never";
@@ -275,22 +252,40 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         { tag: "nomount", Title: create_partition ? _("Create") : _("Format") }
     ];
 
-    let action_variants_for_swap = [
-        { tag: null, Title: create_partition ? _("Create and start") : _("Format and start") },
-        { tag: "nomount", Title: create_partition ? _("Create only") : _("Format only") }
-    ];
-
     if (client.in_anaconda_mode()) {
-        action_variants = action_variants_for_swap = [
+        action_variants = [
             { tag: "nomount", Title: create_partition ? _("Create") : _("Format") }
         ];
     }
 
-    const dlg = dialog_open({
+    if (add_encryption) {
+        action_variants = [
+            { Title: _("Add encryption") }
+        ];
+    }
+
+    let max_size = 0;
+    if (create_partition)
+        max_size = Math.max(...free_spaces.map(f => f.size));
+
+    dialog_open({
         Title: title,
         Teardown: TeardownMessage(usage),
         Fields: [
-            TextInput("name", _("Name"),
+            SelectOne("type", create_partition ? _("Format") : _("Type"),
+                      {
+                          value: default_type,
+                          choices: filesystem_options,
+                          visible: () => !add_encryption,
+                      }),
+            SizeSlider("size", _("Size"),
+                       {
+                           value: max_size,
+                           max: max_size,
+                           round: 1024 * 1024,
+                           visible: () => create_partition,
+                       }),
+            TextInput("name", _("Volume label"),
                       {
                           value: content_block?.IdLabel,
                           validate: (name, vals) => validate_fsys_label(name, vals.type),
@@ -307,76 +302,47 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                                           variant == "nomount");
                           }
                       }),
-            SelectOne("type", _("Type"),
-                      {
-                          value: default_type,
-                          choices: filesystem_options
-                      }),
-            SizeSlider("size", _("Size"),
-                       {
-                           value: size,
-                           max: size,
-                           round: 1024 * 1024,
-                           visible: function () {
-                               return create_partition;
-                           }
-                       }),
-            CheckBoxes("erase", _("Overwrite"),
-                       {
-                           fields: [
-                               { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
-                           ],
-                       }),
-            SelectOne("crypto", _("Encryption"),
-                      {
-                          choices: crypto_types,
-                          value: offer_keep_keys ? " keep" : "none",
-                          visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi",
-                          nested_fields: [
-                              PassInput("passphrase", _("Passphrase"),
-                                        {
-                                            validate: function (phrase, vals) {
-                                                if (vals.crypto != " keep" && phrase === "")
-                                                    return _("Passphrase cannot be empty");
-                                            },
-                                            visible: vals => is_encrypted(vals) && vals.crypto != " keep",
-                                            new_password: true
-                                        }),
-                              PassInput("passphrase2", _("Confirm"),
-                                        {
-                                            validate: function (phrase2, vals) {
-                                                if (vals.crypto != " keep" && phrase2 != vals.passphrase)
-                                                    return _("Passphrases do not match");
-                                            },
-                                            visible: vals => is_encrypted(vals) && vals.crypto != " keep",
-                                            new_password: true
-                                        }),
-                              CheckBoxes("store_passphrase", "",
-                                         {
-                                             visible: vals => is_encrypted(vals) && vals.crypto != " keep",
-                                             value: {
-                                                 on: false,
-                                             },
-                                             fields: [
-                                                 { title: _("Store passphrase"), tag: "on" }
-                                             ]
-                                         }),
-                              PassInput("old_passphrase", _("Passphrase"),
-                                        {
-                                            validate: function (phrase) {
-                                                if (phrase === "")
-                                                    return _("Passphrase cannot be empty");
-                                            },
-                                            visible: vals => vals.crypto == " keep" && vals.needs_explicit_passphrase,
-                                            explanation: _("The disk needs to be unlocked before formatting.  Please provide a existing passphrase.")
-                                        }),
-                              TextInput("crypto_options", _("Encryption options"),
-                                        {
-                                            visible: is_encrypted,
-                                            value: crypto_extra_options
-                                        })
-                          ]
-                      }),
+            SelectOneRadio("crypto", _("Encryption"),
+                           {
+                               choices: crypto_types,
+                               value: default_crypto_type,
+                               visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi" && vals.type != "empty" && !is_already_encrypted,
+                               nested_fields: [
+                                   PassInput("passphrase", _("Passphrase"),
+                                             {
+                                                 validate: function (phrase, vals) {
+                                                     if (phrase === "")
+                                                         return _("Passphrase cannot be empty");
+                                                 },
+                                                 visible: is_encrypted,
+                                                 new_password: true
+                                             }),
+                                   PassInput("passphrase2", _("Confirm"),
+                                             {
+                                                 validate: function (phrase2, vals) {
+                                                     if (phrase2 != vals.passphrase)
+                                                         return _("Passphrases do not match");
+                                                 },
+                                                 visible: is_encrypted,
+                                                 new_password: true
+                                             }),
+                                   CheckBoxes("store_passphrase", "",
+                                              {
+                                                  visible: is_encrypted,
+                                                  value: {
+                                                      on: false,
+                                                  },
+                                                  fields: [
+                                                      { title: _("Store passphrase"), tag: "on" }
+                                                  ]
+                                              }),
+                                   TextInput("crypto_options", _("Encryption options"),
+                                             {
+                                                 visible: is_encrypted,
+                                                 value: crypto_extra_options
+                                             })
+                               ]
+                           }),
             at_boot_input(at_boot, is_filesystem),
             mount_options(opt_ro, extra_options, is_filesystem),
         ],
@@ -385,8 +351,6 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             if (trigger == "type") {
                 if (dlg.get_value("type") == "empty") {
                     dlg.update_actions({ Variants: action_variants_for_empty });
-                } else if (dlg.get_value("type") == "swap") {
-                    dlg.update_actions({ Variants: action_variants_for_swap });
                 } else {
                     dlg.update_actions({ Variants: action_variants });
                 }
@@ -395,13 +359,12 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             }
         },
         Action: {
-            Variants: action_variants,
-            Danger: (create_partition ? null : _("Formatting erases all data on a storage device.")),
+            Variants: default_type == "empty" ? action_variants_for_empty : action_variants,
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             disable_on_error: usage.Teardown,
             action: function (vals) {
                 const mount_now = vals.variant != "nomount";
-                let type = vals.type;
+                let type = add_encryption ? "empty" : vals.type;
                 let partition_type = "";
 
                 if (type == "efi") {
@@ -414,17 +377,9 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     partition_type = "21686148-6449-6e6f-744e-656564454649";
                 }
 
-                if (type == "swap") {
-                    partition_type = (block_ptable && block_ptable.Type == "dos"
-                        ? "0x82"
-                        : "0657fd6d-a4ab-43c4-84e5-0933c84b4f4f");
-                }
-
                 const options = {
                     'tear-down': { t: 'b', v: true }
                 };
-                if (vals.erase.on)
-                    options.erase = { t: 's', v: "zero" };
                 if (vals.name)
                     options.label = { t: 's', v: vals.name };
 
@@ -432,8 +387,6 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 if (client.legacy_vdo_overlay.find_by_block(block)) {
                     options['no-discard'] = { t: 'b', v: true };
                 }
-
-                const keep_keys = is_encrypted(vals) && offer_keep_keys && vals.crypto == " keep";
 
                 const config_items = [];
                 let new_crypto_options;
@@ -457,16 +410,14 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         "track-parents": { t: 'b', v: true }
                     };
 
-                    if (!keep_keys) {
-                        if (vals.store_passphrase.on) {
-                            item["passphrase-contents"] = { t: 'ay', v: encode_filename(vals.passphrase) };
-                        } else {
-                            item["passphrase-contents"] = { t: 'ay', v: encode_filename("") };
-                        }
-                        config_items.push(["crypttab", item]);
-                        options["encrypt.passphrase"] = { t: 's', v: vals.passphrase };
-                        options["encrypt.type"] = { t: 's', v: vals.crypto };
+                    if (vals.store_passphrase.on) {
+                        item["passphrase-contents"] = { t: 'ay', v: encode_filename(vals.passphrase) };
+                    } else {
+                        item["passphrase-contents"] = { t: 'ay', v: encode_filename("") };
                     }
+                    config_items.push(["crypttab", item]);
+                    options["encrypt.passphrase"] = { t: 's', v: vals.passphrase };
+                    options["encrypt.type"] = { t: 's', v: vals.crypto };
                 }
 
                 let mount_point;
@@ -506,57 +457,23 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     }
                 }
 
-                if (type == "swap") {
-                    config_items.push(["fstab", {
-                        dir: { t: 'ay', v: encode_filename("none") },
-                        type: { t: 'ay', v: encode_filename("swap") },
-                        opts: { t: 'ay', v: encode_filename(mount_now ? "defaults" : "noauto") },
-                        freq: { t: 'i', v: 0 },
-                        passno: { t: 'i', v: 0 },
-                        "track-parents": { t: 'b', v: true }
-                    }]);
-                }
-
                 if (config_items.length > 0)
                     options["config-items"] = { t: 'a(sa{sv})', v: config_items };
 
-                async function maybe_unlock() {
-                    const content_block = client.blocks_cleartext[path];
-                    if (content_block) {
-                        if (content_block.ReadOnly) {
-                            const block_crypto = client.blocks_crypto[path];
-                            await block_crypto.Lock({});
-                            await unlock_with_type(client, block, vals.old_passphrase, existing_passphrase_type, false);
-                        }
-                        return content_block;
-                    }
-
-                    try {
-                        await unlock_with_type(client, block, vals.old_passphrase, existing_passphrase_type, false);
-                        return client.blocks_cleartext[path];
-                    } catch (error) {
-                        dlg.set_values({ needs_explicit_passphrase: true });
-                        throw error;
-                    }
-                }
-
                 function format() {
                     if (create_partition) {
+                        let start = free_spaces[0].start;
+                        for (const fs of free_spaces) {
+                            if (fs.size >= vals.size) {
+                                start = fs.start;
+                                break;
+                            }
+                        }
                         if (type == "dos-extended")
                             return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
                         else
                             return block_ptable.CreatePartitionAndFormat(start, vals.size, partition_type, "", { },
                                                                          type, options);
-                    } else if (keep_keys) {
-                        return (edit_crypto_config(block,
-                                                   (config, commit) => {
-                                                       config.options = new_crypto_options;
-                                                       return commit();
-                                                   })
-                                .then(() => maybe_unlock())
-                                .then(content_block => {
-                                    return content_block.Format(type, options);
-                                }));
                     } else {
                         return block.Format(type, options)
                                 .then(() => {
@@ -567,10 +484,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 }
 
                 function block_fsys_for_block(path) {
-                    if (keep_keys) {
-                        const content_block = client.blocks_cleartext[path];
-                        return client.blocks_fsys[content_block.path];
-                    } else if (is_encrypted(vals))
+                    if (is_encrypted(vals))
                         return (client.blocks_cleartext[path] &&
                                 client.blocks_fsys[client.blocks_cleartext[path].path]);
                     else
@@ -578,10 +492,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 }
 
                 function block_swap_for_block(path) {
-                    if (keep_keys) {
-                        const content_block = client.blocks_cleartext[path];
-                        return client.blocks_swap[content_block.path];
-                    } else if (is_encrypted(vals))
+                    if (is_encrypted(vals))
                         return (client.blocks_cleartext[path] &&
                                 client.blocks_swap[client.blocks_cleartext[path].path]);
                     else
@@ -602,19 +513,12 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     if (is_encrypted(vals) && is_filesystem(vals) && vals.mount_options?.ro) {
                         const block_crypto = await client.wait_for(() => block_crypto_for_block(path));
                         await block_crypto.Lock({});
-                        if (vals.passphrase)
-                            await block_crypto.Unlock(vals.passphrase, { "read-only": { t: "b", v: true } });
-                        else
-                            await unlock_with_type(client, block, vals.old_passphrase, existing_passphrase_type, true);
+                        await block_crypto.Unlock(vals.passphrase, { "read-only": { t: "b", v: true } });
                     }
 
                     if (is_filesystem(vals) && mount_now) {
                         const block_fsys = await client.wait_for(() => block_fsys_for_block(path));
                         await client.mount_at(client.blocks[block_fsys.path], mount_point);
-                    }
-                    if (type == "swap" && mount_now) {
-                        const block_swap = await client.wait_for(() => block_swap_for_block(path));
-                        await block_swap.Start({});
                     }
                     if (is_encrypted(vals) && vals.type != "empty" && !mount_now && !client.in_anaconda_mode()) {
                         const block_crypto = await client.wait_for(() => block_crypto_for_block(path));
@@ -631,9 +535,6 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         },
         Inits: [
             init_teardown_usage(client, usage),
-            unlock_before_format
-                ? init_existing_passphrase(block, true, type => { existing_passphrase_type = type })
-                : null
         ]
     });
 }

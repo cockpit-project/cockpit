@@ -29,7 +29,6 @@ import {
 } from "../pages.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
 import { btrfs_device_usage, btrfs_is_volume_mounted } from "./utils.jsx";
-import { btrfs_device_actions } from "./device.jsx";
 import { rename_dialog } from "./volume.jsx";
 
 const _ = cockpit.gettext;
@@ -43,7 +42,6 @@ export function make_btrfs_filesystem_card(next, backing_block, content_block) {
     return new_card({
         title: _("btrfs filesystem"),
         next,
-        actions: btrfs_device_actions(backing_block, content_block),
         component: BtrfsFilesystemCard,
         props: { backing_block, content_block },
     });

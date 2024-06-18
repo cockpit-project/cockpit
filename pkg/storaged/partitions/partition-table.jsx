@@ -32,7 +32,7 @@ import { make_partition_card, delete_partition } from "./partition.jsx";
 
 const _ = cockpit.gettext;
 
-function make_partition_pages(parent, block) {
+function make_partition_pages(parent, block, partitions) {
     const block_ptable = client.blocks_ptable[block.path];
     let counter = 0;
 
@@ -45,8 +45,7 @@ function make_partition_pages(parent, block) {
             actions: [
                 {
                     title: _("Create partition"),
-                    action: () => format_dialog(client, block.path, start, size,
-                                                enable_dos_extended),
+                    action: () => format_dialog(block, { free_spaces: [{ start, size }], enable_dos_extended }),
                 }
             ],
         });
@@ -80,12 +79,24 @@ function make_partition_pages(parent, block) {
         }
     }
 
-    process_partitions(parent, get_partitions(client, block),
-                       block_ptable.Type == 'dos');
+    process_partitions(parent, partitions, block_ptable.Type == 'dos');
+}
+
+function get_free_spaces(partitions) {
+    let result = [];
+    for (const p of partitions) {
+        if (p.type == 'free')
+            result.push({ start: p.start, size: p.size });
+        else if (p.type == 'container')
+            result = result.concat(get_free_spaces(p.partitions));
+    }
+    return result;
 }
 
 export function make_partition_table_page(parent, block, next_card) {
     const block_ptable = client.blocks_ptable[block.path];
+    const partitions = get_partitions(client, block);
+    const free_spaces = get_free_spaces(partitions);
 
     const parts_card = new_card({
         title: (block_ptable.Type
@@ -94,10 +105,18 @@ export function make_partition_table_page(parent, block, next_card) {
         next: next_card,
         component: PartitionsCard,
         props: { },
+        actions: [
+            {
+                title: _("Create partition"),
+                action: () => format_dialog(block, { free_spaces, enable_dos_extended: false }),
+                primary: true,
+                excuse: free_spaces.length == 0 ? _("No free space") : null,
+            },
+        ],
     });
 
     const p = new_page(parent, parts_card, { sorted: false });
-    make_partition_pages(p, block);
+    make_partition_pages(p, block, partitions);
 }
 
 const PartitionsCard = ({ card }) => {

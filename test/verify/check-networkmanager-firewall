@@ -390,10 +390,13 @@ class TestFirewall(netlib.NetworkCase):
         set_field("#tcp-ports", "", "")
         set_field("#tcp-ports", "80,7", "custom--http-echo")
         set_field("#udp-ports", "123", "custom--http-echo-ntp")
-        set_field("#udp-ports", "123,   50000", "custom--http-echo-ntp-50000")
-        set_field("#tcp-ports", "", "custom--ntp-50000")
-        set_field("#tcp-ports", "https", "custom--https-ntp-50000")
-        save("custom--https-ntp-50000", "443", "123, 50000")
+
+        # SUSE has port 50000 listed as mrt
+        mrt_port = "mrt" if "suse" in m.image else "50000"
+        set_field("#udp-ports", "123,   50000", f"custom--http-echo-ntp-{mrt_port}")
+        set_field("#tcp-ports", "", f"custom--ntp-{mrt_port}")
+        set_field("#tcp-ports", "https", f"custom--https-ntp-{mrt_port}")
+        save(f"custom--https-ntp-{mrt_port}", "443", "123, 50000")
 
         open_dialog()
         set_field("#tcp-ports", "80-82", "custom--80-82")

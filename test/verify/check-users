@@ -544,7 +544,13 @@ class TestAccounts(testlib.MachineCase):
 
         # Login as jussi and change role admin for itself
         b.logout()
-        b.login_and_go("/users", user="jussi", password="bar")
+        if "suse" in m.image:
+            # on suse images, you cannot use login_and_go hackery to automatigically get admin rights
+            # when the user doesn't have the same password as root
+            b.login_and_go("/users", user="jussi", password="bar", superuser=False)
+            b.become_superuser()
+        else:
+            b.login_and_go("/users", user="jussi", password="bar")
 
         # There is only one badge and it is for jussi
         b.wait_text('#current-account-badge', 'Your account')
@@ -620,7 +626,13 @@ class TestAccounts(testlib.MachineCase):
         m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
 
         # Logout and login with the new password
-        b.relogin(path="/users", user="jussi", password=good_password_2)
+        if "suse" in m.image:
+            # on suse images, you cannot use login_and_go hackery to automatigically get admin rights
+            # when the user doesn't have the same password as root
+            b.relogin(path="/users", user="jussi", password=good_password_2, superuser=False)
+            b.become_superuser()
+        else:
+            b.relogin(path="/users", user="jussi", password=good_password_2)
 
         b.go("/users")
         b.enter_page("/users")
@@ -1066,6 +1078,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present("#password-expiration")
 
         b.logout()
+
         # HACK: https://github.com/cockpit-project/cockpit/issues/20262
         self.login_and_go("/users#/scruffy", user="scruffy", superuser=False)
         b.wait_text("#account-user-name", "scruffy")

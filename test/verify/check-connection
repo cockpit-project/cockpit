@@ -1198,7 +1198,10 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
 
         # some brands miss the images, but the OSes we CI have them all
         curl_and_compare('branding.css', 'text/css', reference='/tmp/branding.ref')
-        curl_and_compare('logo.png', 'image/png')
+        if "suse" in m.image:
+            curl_and_compare('square-hicolor.svg', 'image/svg')
+        else:
+            curl_and_compare('logo.png', 'image/png')
         curl_and_compare('favicon.ico')
 
         # do a pixel test to make sure everything looks like we expect

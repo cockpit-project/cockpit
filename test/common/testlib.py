@@ -1451,10 +1451,6 @@ class MachineCase(unittest.TestCase):
     def is_devel_build(self) -> bool:
         return os.environ.get('NODE_ENV') == 'development'
 
-    def is_pybridge(self) -> bool:
-        # some tests start some other OS as first machine, bridge may not exist there
-        return any('python' in m.execute('head -c 30 /usr/bin/cockpit-bridge || true') for m in self.machines.values())
-
     def disable_preload(self, *packages: str, machine: testvm.Machine | None = None) -> None:
         if machine is None:
             machine = self.machine

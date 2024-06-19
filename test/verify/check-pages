@@ -273,8 +273,6 @@ OnCalendar=daily
         self.assertIn('en-us', languages)
         b.click("#display-language-modal footer button.pf-m-link")  # Close the menu
 
-        is_pybridge = self.is_pybridge()
-
         for language in languages:
             # Remove failed units which will show up in the first terminal line
             m.execute("systemctl reset-failed")
@@ -293,17 +291,17 @@ OnCalendar=daily
                 b.enter_page(page)
                 b.wait_language(language)
 
-            if not is_pybridge:
-                locale = language.split("-")
-                if len(locale) == 1:
-                    locale.append("")
-                locale = f"{locale[0]}_{locale[1].upper()}.UTF-8"
+            # FIXME: bridge does not set locale
+            # locale = language.split("-")
+            # if len(locale) == 1:
+            #     locale.append("")
+            # locale = f"{locale[0]}_{locale[1].upper()}.UTF-8"
 
-                b.wait_visible(".terminal .xterm-accessibility-tree")
-                b.wait_in_text(line_sel(1), "admin")
-                b.input_text("echo $LANG")
-                b.key("Enter")
-                b.wait_in_text(line_sel(2), locale)
+            # b.wait_visible(".terminal .xterm-accessibility-tree")
+            # b.wait_in_text(line_sel(1), "admin")
+            # b.input_text("echo $LANG")
+            # b.key("Enter")
+            # b.wait_in_text(line_sel(2), locale)
 
             b.switch_to_top()
 

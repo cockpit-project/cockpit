@@ -677,11 +677,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_in_text('#hosts_setup_server_dialog h1', "Could not contact")
         b.set_input_text("#edit-machine-port", "2222")
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
-        if not self.is_pybridge():
-            # Using libssh's knownhosts api port is taken into account when verifying a host
-            # with python bridge, ssh(1) tracks known hosts by name/IP, not by port
-            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-            b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
+        # ssh(1) tracks known hosts by name/IP, not by port; so not expecting a host key prompt here
         b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
         b.set_input_text("#login-custom-password", "alt-password")
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')

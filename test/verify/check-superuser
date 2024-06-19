@@ -285,11 +285,7 @@ session include system-auth
         b.enter_page("/playground/pkgs")
         b.click("#reload")
         b.leave_page()
-        if self.is_pybridge():
-            b.check_superuser_indicator("")
-        else:
-            # C bridge gets that wrong: Its .Bridges property remains at [sudo, pkexec], showing a broken indicator
-            b.check_superuser_indicator("Limited access")
+        b.check_superuser_indicator("")
         # superuser bridge goes away
         m.execute("while pgrep -u root -a cockpit-bridge; do sleep 1; done", timeout=5)
 

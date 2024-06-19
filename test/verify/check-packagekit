@@ -1045,32 +1045,17 @@ ExecStart=/usr/local/bin/{packageName}
                            mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
                            systemctl daemon-reload""")
 
-        if not self.is_pybridge():
-            # TODO: conditions not implemented on C bridge; once we drop it, drop this special case and
-            # enable the manifest documentation for conditions in doc/guide/packages.xml
-            self.assertIn("\nupdates", m.execute("cockpit-bridge --packages"))
-            self.login_and_go("/updates")
+        self.assertNotIn("\nupdates", m.execute("cockpit-bridge --packages"))
+        # should not appear in the menu at all
+        self.login_and_go(None)
+        b.wait_in_text("#host-apps .pf-m-current", "Overview")
+        self.assertNotIn("Updates", b.text("#host-apps .pf-m-current"))
 
-            # error message present
-            b.wait_in_text(".pf-v5-c-page__main-section .pf-v5-l-stack .pf-v5-c-code-block__content", "PackageKit is not installed")
-
-            # update status on front page should show error
-            b.go("/system")
-            b.enter_page("/system")
-            b.wait_text(self.update_text, "Loading available updates failed")
-            self.assertIn("exclamation", b.attr(self.update_icon, "class"))
-        else:
-            self.assertNotIn("\nupdates", m.execute("cockpit-bridge --packages"))
-            # should not appear in the menu at all
-            self.login_and_go(None)
-            b.wait_in_text("#host-apps .pf-m-current", "Overview")
-            self.assertNotIn("Updates", b.text("#host-apps .pf-m-current"))
-
-            # update status on front page should be invisible
-            b.go("/system")
-            b.enter_page("/system")
-            b.wait_visible(".system-health")
-            self.assertFalse(b.is_present(self.update_text))
+        # update status on front page should be invisible
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_visible(".system-health")
+        self.assertFalse(b.is_present(self.update_text))
 
     @testlib.nondestructive
     def testUnprivileged(self):

@@ -469,20 +469,17 @@ class TestConnection(testlib.MachineCase):
         # sure about the browser support situation for `connect-src 'self';`.
         self.assertIn("wss://127.0.0.1:9090", headers)
 
-        if self.is_pybridge():
-            # We want to make sure we're *not* sending any CORS headers.
-            CORS_HEADERS = [
-                # https://en.wikipedia.org/wiki/Cross-origin_resource_sharing#Response_headers
-                'Access-Control-Allow-Credentials',
-                'Access-Control-Expose-Headers',
-                'Access-Control-Max-Age',
-                'Access-Control-Allow-Methods',
-                'Access-Control-Allow-Headers',
-            ]
-            for cors_header in CORS_HEADERS:
-                self.assertNotIn(cors_header, headers)
-        else:
-            self.assertIn("Access-Control-Allow-Origin: https://127.0.0.1:9090", headers)
+        # We want to make sure we're *not* sending any CORS headers.
+        CORS_HEADERS = [
+            # https://en.wikipedia.org/wiki/Cross-origin_resource_sharing#Response_headers
+            'Access-Control-Allow-Credentials',
+            'Access-Control-Expose-Headers',
+            'Access-Control-Max-Age',
+            'Access-Control-Allow-Methods',
+            'Access-Control-Allow-Headers',
+        ]
+        for cors_header in CORS_HEADERS:
+            self.assertNotIn(cors_header, headers)
 
         # CORP and Frame-Options are also set for dynamic paths
         self.assertIn("Cross-Origin-Resource-Policy: same-origin", headers)
@@ -936,8 +933,6 @@ export XDG_CONFIG_DIRS=/usr/local
                   su -c "ssh test1@localhost cockpit-bridge --packages" admin | grep -q test1.*dashboard  # validate setup
                   """)
 
-        is_pybridge = self.is_pybridge()
-
         for (pages, asserts) in cases:
             for page in pages:
                 m.execute(f"""su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" {self.libexecdir}/cockpit-desktop {page}' admin""",
@@ -947,9 +942,7 @@ export XDG_CONFIG_DIRS=/usr/local
                 for a in asserts:
                     self.assertIn(a, out)
 
-                if is_pybridge:
-                    # FIXME: the C bridge leaks ssh-agent
-                    self.assertNoAdminProcessLeaks()
+                self.assertNoAdminProcessLeaks()
 
         # cockpit-desktop can start a privileged bridge through polkit
         # we don't have an agent, so just allow the privilege without interactive authentication
@@ -977,9 +970,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin", timeout=10)
         self.assertIn('id="overview"', m.execute("cat /tmp/out.html"))
 
-        if is_pybridge:
-            # FIXME: the C bridge leaks ssh-agent
-            self.assertNoAdminProcessLeaks()
+        self.assertNoAdminProcessLeaks()
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
         self.allow_journal_messages("Refusing to render service to dead parents.")
@@ -1234,15 +1225,14 @@ UnixPath=/run/cockpit/session
         # also includes menu and tools entries
         self.assertRegex(packages, r"(^|\n)system\s.*Services.*Terminal.*\s/usr/share/cockpit/systemd")
 
-        if self.is_pybridge():
-            bridges = json.loads(m.execute("cockpit-bridge --bridges").strip())
-            bridge_names = [b['name'] for b in bridges]
-            self.assertGreater(len(bridges), 0)
-            self.assertIn('sudo', bridge_names)
+        bridges = json.loads(m.execute("cockpit-bridge --bridges").strip())
+        bridge_names = [b['name'] for b in bridges]
+        self.assertGreater(len(bridges), 0)
+        self.assertIn('sudo', bridge_names)
 
-            # OStree has no PCP bridge
-            if not m.ostree_image:
-                self.assertIn(f'{self.libexecdir}/cockpit-pcp', bridge_names)
+        # OStree has no PCP bridge
+        if not m.ostree_image:
+            self.assertIn(f'{self.libexecdir}/cockpit-pcp', bridge_names)
 
 
 class TestReverseProxy(testlib.MachineCase):

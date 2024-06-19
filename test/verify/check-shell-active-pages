@@ -65,7 +65,10 @@ class TestActivePages(testlib.MachineCase):
 
         # wait for prompt in first line
         b.wait_visible(".terminal .xterm-accessibility-tree")
-        b.wait_in_text(line_sel(1), '$')
+        shell_indicator = '$'
+        if "suse" in m.image:
+            shell_indicator = '>'
+        b.wait_in_text(line_sel(1), shell_indicator)
 
         # run a command that we can easily identify, and which will die with the terminal
         b.input_text("bash -c 'exec -a kitten cat'\n")

@@ -1381,6 +1381,8 @@ class TestTimers(testlib.MachineCase):
         testlib.wait(lambda: "false" in m.execute(
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
         m.execute("timedatectl set-time '2036-01-01 12:00:00'")
+        # this sometimes confuses PAM session tracking
+        self.allow_journal_messages("cockpit-session: admin: couldn't close session: System error: Unknown error -7")
         m.reboot()
 
         m.execute("timedatectl set-time '2036-01-01 15:30:00'")

@@ -312,7 +312,7 @@ const BusWorkflowRow = ({ problem, client, workflow }) => {
                         /* GLib encodes errors for transport over the wire,
                          * but we don’t have a good way of decoding them without calling into GIO.
                          *
-                         * https://developer-old.gnome.org/gio/stable/gio-GDBusError.html#g-dbus-error-encode-gerror
+                         * https://docs.gtk.org/gio/type_func.DBusError.encode_gerror.html
                          *
                          * 19 is G_IO_ERROR_CANCELLED. No need to handle user cancellations.
                          */

@@ -1148,7 +1148,24 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
             # branding.css undergoes variable substitution based on the content of
             # /usr/lib/os-release.  Perform the substitution for ourselves for
             # validation.  envsubst comes from gettext.
-            os_release_vars = m.execute("cat /usr/lib/os-release").replace('\n', ' ')
+            os_release_vars = m.execute("cat /usr/lib/os-release")
+            # Sometimes os-release has lines containing comments which messes up the shell
+            if "#" in os_release_vars:
+                valid_lines = []
+                for line in os_release_vars.split('\n'):
+                    line = line.strip()
+                    # Ignore commented out lines
+                    if line.startswith('#'):
+                        continue
+
+                    # remove the comment at the end of line if it exists
+                    line = line.split('#')[0]
+                    valid_lines.append(line)
+
+                os_release_vars = ' '.join(valid_lines)
+            else:
+                os_release_vars = os_release_vars.replace('\n', ' ')
+
             m.execute(f'{os_release_vars} envsubst < {branddir}/branding.css > /tmp/branding.ref')
             self.addCleanup(m.execute, "rm /tmp/branding.ref")
 

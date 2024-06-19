@@ -835,7 +835,7 @@ ipa-advise enable-admins-sudo | sh -ex
         m.execute(f"! su -c '{ccache_env} klist' alice")
 
 
-@testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*")
+@testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*", "*suse*")
 @testlib.no_retry_when_changed
 class TestAD(TestRealms, CommonTests):
     def setUp(self):

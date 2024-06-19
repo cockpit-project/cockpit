@@ -125,7 +125,7 @@ def check_urls(verbose):
             if resp.getcode() >= 400:
                 failed.append(f"{url} : {resp.getcode()} {resp.reason}")
         except urllib.error.URLError as e:
-            failed.append(f"{url} : {e.code} {e.reason}")
+            failed.append(f"{url} : {e.reason}")
 
     err = ""
     success = ""

@@ -53,10 +53,20 @@ class TestSession(testlib.MachineCase):
             session_id = m.execute("loginctl list-sessions | grep -v manager | awk '/admin/ {print $1}'").strip()
             self.assertEqual(m.execute(f"loginctl show-session -p Type {session_id}").strip(), "Type=web")
 
+        if not m.ostree_image and m.image != "arch":
+            # starts ssh-agent in session
+            bridge = m.execute("pgrep -u admin cockpit-bridge").strip()
+            out = m.execute(f"grep --null-data SSH_AGENT_PID /proc/{bridge}/environ | xargs -0")
+            agent = out.split("=")[1].strip()
+            self.assertIn("ssh-agent", m.execute(f"readlink /proc/{agent}/exe").strip())
+
         # Logout
         b.logout()
         b.wait_visible("#login")
         wait_session(should_exist=False)
+
+        # cleans up ssh-agent
+        m.execute("while pgrep -u admin ssh-agent; do sleep 1; done", timeout=10)
 
         # Login again
         b.set_val("#login-user-input", "admin")

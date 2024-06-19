@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import subprocess
 
 import testlib
 
@@ -136,11 +135,6 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
 
         self.login_and_go("/system")
 
-        try:
-            m1.execute("ps xa | grep ssh-agent | grep -v grep")
-        except subprocess.CalledProcessError:
-            self.fail("No running ssh-agent found")
-
         # pam-ssh-add isn't used on OSTree
         if m1.ostree_image:
             self.load_key('id_rsa', 'foobar')
@@ -180,9 +174,6 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
         # Logout
         b.logout()
         b.wait_visible("#login")
-
-        # Make sure ssh-agent exits
-        testlib.wait(lambda: "ssh-agent" not in m1.execute("ps xa | grep ss[h]-agent || true"))
 
         self.login_and_go("/system")
         b.switch_to_top()

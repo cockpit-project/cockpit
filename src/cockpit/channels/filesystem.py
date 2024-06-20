@@ -259,10 +259,9 @@ class FsReplaceChannel(AsyncChannel):
             raise ChannelError('internal-error', message=str(exc)) from exc
 
 
-class FsWatchChannel(Channel):
+class FsWatchChannel(Channel, PathWatchListener):
     payload = 'fswatch1'
     _tag = None
-    _path = None
     _watch = None
 
     # The C bridge doesn't send the initial event, and the JS calls read()
@@ -272,7 +271,7 @@ class FsWatchChannel(Channel):
     _active = False
 
     @staticmethod
-    def mask_to_event_and_type(mask):
+    def mask_to_event_and_type(mask: InotifyEvent) -> 'tuple[str, str | None]':
         if (InotifyEvent.CREATE or InotifyEvent.MOVED_TO) in mask:
             return 'created', 'directory' if InotifyEvent.ISDIR in mask else 'file'
         elif InotifyEvent.MOVED_FROM in mask or InotifyEvent.DELETE in mask or InotifyEvent.DELETE_SELF in mask:
@@ -284,7 +283,7 @@ class FsWatchChannel(Channel):
         else:
             return 'changed', None
 
-    def do_inotify_event(self, mask, _cookie, name):
+    def do_inotify_event(self, mask: InotifyEvent, _cookie: int, name: 'bytes | None') -> None:
         logger.debug("do_inotify_event(%s): mask %X name %s", self._path, mask, name)
         event, type_ = self.mask_to_event_and_type(mask)
         if name:
@@ -300,14 +299,14 @@ class FsWatchChannel(Channel):
             self._tag = tag
             self.send_json(event=event, path=self._path, tag=self._tag, type=type_)
 
-    def do_identity_changed(self, fd, err):
+    def do_identity_changed(self, fd: 'int | None', err: 'int | None') -> None:
         logger.debug("do_identity_changed(%s): fd %s, err %s", self._path, str(fd), err)
         self._tag = tag_from_fd(fd) if fd else '-'
         if self._active:
             self.send_json(event='created' if fd else 'deleted', path=self._path, tag=self._tag)
 
-    def do_open(self, options):
-        self._path = options['path']
+    def do_open(self, options: JsonObject) -> None:
+        self._path = get_str(options, 'path')
         self._tag = None
 
         self._active = False
@@ -316,9 +315,10 @@ class FsWatchChannel(Channel):
 
         self.ready()
 
-    def do_close(self):
-        self._watch.close()
-        self._watch = None
+    def do_close(self) -> None:
+        if self._watch is not None:
+            self._watch.close()
+            self._watch = None
         self.close()
 
 

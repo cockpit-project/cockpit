@@ -265,8 +265,8 @@ class Channel(Endpoint):
         if not self._tasks:
             self._close_now()
 
-    def send_data(self, data: bytes) -> bool:
-        """Send data and handle book-keeping for flow control.
+    def send_bytes(self, data: bytes) -> bool:
+        """Send binary data and handle book-keeping for flow control.
 
         The flow control is "advisory".  The data is sent immediately, even if
         it's larger than the window.  In general you should try to send packets
@@ -275,6 +275,10 @@ class Channel(Endpoint):
         Returns True if there is still room in the window, or False if you
         should stop writing for now.  In that case, `.do_resume_send()` will be
         called later when there is more room.
+
+        Be careful with text channels (i.e. without binary="raw"): you are responsible
+        for ensuring that @data is valid UTF-8. This isn't validated here for
+        efficiency reasons.
         """
         self.send_channel_data(self.channel, data)
 
@@ -285,6 +289,17 @@ class Channel(Endpoint):
             self._out_sequence = out_sequence
 
         return self._out_sequence < self._out_window
+
+    def send_text(self, data: str) -> bool:
+        """Send UTF-8 string data and handle book-keeping for flow control.
+
+        Similar to `send_bytes`, but for text data.  The data is sent as UTF-8 encoded bytes.
+        """
+        return self.send_bytes(data.encode())
+
+    def send_json(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> bool:
+        pretty = self.json_encoder.encode(create_object(_msg, kwargs)) + '\n'
+        return self.send_text(pretty)
 
     def do_pong(self, message):
         if not self._send_pings:  # huh?
@@ -300,10 +315,6 @@ class Channel(Endpoint):
         # change to `raise NotImplementedError` after everyone implements it
 
     json_encoder: 'ClassVar[json.JSONEncoder]' = json.JSONEncoder(indent=2)
-
-    def send_json(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> bool:
-        pretty = self.json_encoder.encode(create_object(_msg, kwargs)) + '\n'
-        return self.send_data(pretty.encode())
 
     def send_control(self, command: str, **kwargs: JsonValue) -> None:
         self.send_channel_control(self.channel, command, None, **kwargs)
@@ -386,7 +397,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
 
     def data_received(self, data: bytes) -> None:
         assert self._transport is not None
-        if not self.send_data(data):
+        if not self.send_bytes(data):
             self._transport.pause_reading()
 
     def do_resume_send(self) -> None:
@@ -494,7 +505,7 @@ class AsyncChannel(Channel):
                 return item
 
     async def write(self, data: bytes) -> None:
-        if not self.send_data(data):
+        if not self.send_bytes(data):
             self.write_waiter = self.loop.create_future()
             await self.write_waiter
 
@@ -553,7 +564,7 @@ class GeneratorChannel(Channel):
 
     def do_resume_send(self) -> None:
         try:
-            while self.send_data(next(self.__generator)):
+            while self.send_bytes(next(self.__generator)):
                 pass
         except StopIteration as stop:
             self.done()

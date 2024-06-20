@@ -28,8 +28,8 @@ class EchoChannel(Channel):
     def do_open(self, options):
         self.ready()
 
-    def do_data(self, data):
-        self.send_data(data)
+    def do_data(self, data: bytes) -> None:
+        self.send_bytes(data)
 
     def do_done(self):
         self.done()

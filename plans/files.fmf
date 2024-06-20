@@ -1,0 +1,19 @@
+# reverse dependency test
+enabled: false
+
+adjust+:
+  when: revdeps == yes
+  enabled: true
+
+discover:
+    how: fmf
+    url: https://github.com/cockpit-project/cockpit-files
+    ref: "main"
+execute:
+    how: tmt
+
+# This has to duplicate cockpit-files's plan structure; see https://github.com/teemtee/tmt/issues/1770
+/files:
+    summary: Run cockpit-files tests
+    discover+:
+        test: /test/browser

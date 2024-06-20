@@ -56,6 +56,7 @@ const info = {
         "base1/test-format.ts",
         "base1/test-framed-cache.js",
         "base1/test-framed.js",
+        "base1/test-fsinfo.ts",
         "base1/test-http.js",
         "base1/test-journal-renderer.js",
         "base1/test-locale.js",

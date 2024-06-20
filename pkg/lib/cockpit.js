@@ -3896,7 +3896,7 @@ function factory() {
 
                 if (options.problem) {
                     http_debug("http problem: ", options.problem);
-                    dfd.reject(new BasicError(options.problem));
+                    dfd.reject(new BasicError(options.problem, options.message));
                 } else {
                     const body = buffer.squash();
 

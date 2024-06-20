@@ -160,7 +160,7 @@ class InternalMetricsChannel(AsyncChannel):
             self.send_meta(samples, timestamp)
 
         self.last_timestamp = self.next_timestamp
-        self.send_data(json.dumps([data]).encode())
+        self.send_text(json.dumps([data]))
 
     async def run(self, options):
         self.metrics = []

@@ -1506,9 +1506,9 @@ class TestGrafanaClient(testlib.MachineCase):
 
             bg.wait_in_text("#var-host", "grafana-client")
 
-            # expect a "Load average" panel with a sensible number
-            max_load = bg.text("div:contains('Load average') .graph-legend-series:contains('1 minute') .max")
-            self.assertGreater(float(max_load), 0)
+            # expect a "Load average" panel with sensible numbers
+            bg.wait_in_text("div[data-testid*='Load average']", "minute")
+            self.assertRegex(bg.text("div[data-testid*='Load average']"), r"[0-9]\.[0-9]")
         except Exception:
             bg.snapshot("FAIL-grafana")
             raise

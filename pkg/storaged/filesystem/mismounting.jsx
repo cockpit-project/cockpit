@@ -26,7 +26,7 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import {
     encode_filename,
     parse_options, unparse_options, extract_option, reload_systemd,
-    set_crypto_auto_option, get_mount_points,
+    get_mount_points, set_crypto_auto_option,
 } from "../utils.js";
 import { StorageButton } from "../storage-controls.jsx";
 

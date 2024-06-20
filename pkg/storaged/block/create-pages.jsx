@@ -35,7 +35,8 @@ import { make_swap_card } from "../swap/swap.jsx";
 import { make_encryption_card } from "../crypto/encryption.jsx";
 import { make_btrfs_device_card } from "../btrfs/device.jsx";
 import { make_btrfs_filesystem_card } from "../btrfs/filesystem.jsx";
-import { make_btrfs_subvolume_pages } from "../btrfs/subvolume.jsx";
+import { make_btrfs_subvolume_pages, make_btrfs_subvolume_pages_from_child_config } from "../btrfs/subvolume.jsx";
+import { find_btrfs_volume } from "../btrfs/utils.jsx";
 
 import { new_page } from "../pages.jsx";
 
@@ -58,8 +59,8 @@ export function make_block_page(parent, block, card) {
     const is_btrfs = (fstab_config.length > 0 &&
                       (fstab_config[2].indexOf("subvol=") >= 0 || fstab_config[2].indexOf("subvolid=") >= 0));
 
-    const block_btrfs_blockdev = content_block && client.blocks_fsys_btrfs[content_block.path];
-    const single_device_volume = block_btrfs_blockdev && block_btrfs_blockdev.data.num_devices === 1;
+    const btrfs_vol = find_btrfs_volume(block);
+    const single_device_volume = !btrfs_vol || btrfs_vol.data.num_devices <= 1;
 
     if (client.blocks_ptable[block.path]) {
         make_partition_table_page(parent, block, card);
@@ -85,8 +86,14 @@ export function make_block_page(parent, block, card) {
             // can not happen unless there is a bug in the code above.
             console.error("Assertion failure: is_crypto == false");
         }
-        if (fstab_config.length > 0 && !is_btrfs) {
-            card = make_filesystem_card(card, block, null, fstab_config);
+        if (fstab_config.length > 0) {
+            if (is_btrfs) {
+                if (single_device_volume)
+                    card = make_btrfs_filesystem_card(card, block, null);
+                else
+                    card = make_locked_encrypted_data_card(card, block);
+            } else
+                card = make_filesystem_card(card, block, null, fstab_config);
         } else {
             card = make_locked_encrypted_data_card(card, block);
         }
@@ -95,11 +102,11 @@ export function make_block_page(parent, block, card) {
         const block_pvol = client.blocks_pvol[content_block.path];
         const block_swap = client.blocks_swap[content_block.path];
 
-        if (block_btrfs_blockdev) {
+        if (btrfs_vol) {
             if (single_device_volume)
                 card = make_btrfs_filesystem_card(card, block, content_block);
             else
-                card = make_btrfs_device_card(card, block, content_block, block_btrfs_blockdev);
+                card = make_btrfs_device_card(card, block, content_block, btrfs_vol);
         } else if (is_filesystem) {
             card = make_filesystem_card(card, block, content_block, fstab_config);
         } else if ((content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
@@ -122,8 +129,10 @@ export function make_block_page(parent, block, card) {
 
     if (card) {
         const page = new_page(parent, card);
-        if (block_btrfs_blockdev && single_device_volume)
-            make_btrfs_subvolume_pages(page, block_btrfs_blockdev);
+        if (btrfs_vol && single_device_volume)
+            make_btrfs_subvolume_pages(page, btrfs_vol);
+        else if (!content_block && is_btrfs && single_device_volume)
+            make_btrfs_subvolume_pages_from_child_config(page, block);
         return page;
     }
 }

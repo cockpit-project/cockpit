@@ -111,6 +111,7 @@ class Channel(Endpoint):
     # These get filled in from .do_open()
     channel = ''
     group = ''
+    is_binary: bool
 
     # input
     def do_control(self, command: str, message: JsonObject) -> None:
@@ -124,6 +125,7 @@ class Channel(Endpoint):
                 self._send_pings = True
             self._ack_bytes = get_enum(message, 'send-acks', ['bytes'], None) is not None
             self.group = get_str(message, 'group', 'default')
+            self.is_binary = get_enum(message, 'binary', ['raw'], None) is not None
             self.freeze_endpoint()
             self.do_open(message)
         elif command == 'ready':

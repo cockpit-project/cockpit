@@ -21,7 +21,7 @@ import socket
 import ssl
 
 from ..channel import AsyncChannel, ChannelError
-from ..jsonutil import JsonObject, get_dict, get_enum, get_int, get_object, get_str, typechecked
+from ..jsonutil import JsonObject, get_dict, get_int, get_object, get_str, typechecked
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,6 @@ class HttpChannel(AsyncChannel):
     async def run(self, options: JsonObject) -> None:
         logger.debug('open %s', options)
 
-        binary = get_enum(options, 'binary', ['raw'], None) is not None
         method = get_str(options, 'method')
         path = get_str(options, 'path')
         headers = get_object(options, 'headers', lambda d: {k: typechecked(v, str) for k, v in d.items()}, None)
@@ -133,7 +132,7 @@ class HttpChannel(AsyncChannel):
         self.send_control(command='response',
                           status=response.status,
                           reason=response.reason,
-                          headers=self.get_headers(response, binary=binary))
+                          headers=self.get_headers(response, binary=self.is_binary))
 
         # Receive the body and finish up
         try:

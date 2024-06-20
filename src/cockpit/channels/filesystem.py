@@ -42,7 +42,6 @@ from ..jsonutil import (
     JsonError,
     JsonObject,
     get_bool,
-    get_enum,
     get_int,
     get_str,
     get_strv,
@@ -123,7 +122,6 @@ class FsReadChannel(GeneratorChannel):
 
     def do_yield_data(self, options: JsonObject) -> Generator[bytes, None, JsonObject]:
         path = get_str(options, 'path')
-        binary = get_enum(options, 'binary', ['raw'], None) is not None
         max_read_size = get_int(options, 'max_read_size', None)
 
         logger.debug('Opening file "%s" for reading', path)
@@ -134,7 +132,7 @@ class FsReadChannel(GeneratorChannel):
                 if max_read_size is not None and buf.st_size > max_read_size:
                     raise ChannelError('too-large')
 
-                if binary and stat.S_ISREG(buf.st_mode):
+                if self.is_binary and stat.S_ISREG(buf.st_mode):
                     self.ready(size_hint=buf.st_size)
                 else:
                     self.ready()
@@ -144,7 +142,7 @@ class FsReadChannel(GeneratorChannel):
                     if data == b'':
                         break
                     logger.debug('  ...sending %d bytes', len(data))
-                    if not binary:
+                    if not self.is_binary:
                         data = data.replace(b'\0', b'').decode(errors='ignore').encode()
                     yield data
 

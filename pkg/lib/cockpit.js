@@ -324,8 +324,7 @@ function calculate_url(suffix) {
     } else if (window_loc.indexOf('https:') === 0) {
         return "wss://" + window.location.host + "/" + prefix + "/" + suffix;
     } else {
-        transport_debug("Cockpit must be used over http or https");
-        return null;
+        throw new Error("Cockpit must be used over http or https");
     }
 }
 

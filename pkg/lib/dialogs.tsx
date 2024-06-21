@@ -136,16 +136,29 @@
 
 import React, { useContext, useRef, useState } from "react";
 
-export const DialogsContext = React.createContext();
-export const useDialogs = () => useContext(DialogsContext);
+export interface Dialogs {
+    show(dialog: React.ReactNode): Promise<unknown>;
+    close(args: unknown): void;
+    reject(err: unknown): void;
+    isActive(): boolean;
+}
 
-export const WithDialogs = ({ children }) => {
+export const DialogsContext = React.createContext<Dialogs | null>(null);
+export const useDialogs = () => {
+    const dialogs = useContext(DialogsContext);
+    if (dialogs === null) {
+        throw new Error("useDialogs can only be called inside of <WithDialogs/>");
+    }
+    return dialogs;
+};
+
+export const WithDialogs = ({ children } : { children: React.ReactNode }) => {
     const is_open = useRef(false); // synchronous
-    const resolveRef = useRef(null);
-    const rejectRef = useRef(null);
-    const [dialog, setDialog] = useState(null);
+    const resolveRef = useRef<((x: unknown) => void) | null>(null);
+    const rejectRef = useRef<((x: unknown) => void) | null>(null);
+    const [dialog, setDialog] = useState<React.ReactNode>(null);
 
-    const Dialogs = {
+    const Dialogs: Dialogs = {
         show: component => {
             if (component && is_open.current)
                 console.error("Dialogs.show() called for",

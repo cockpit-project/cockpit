@@ -857,6 +857,10 @@ OnCalendar=daily
         b = self.browser
         self.login_and_go()
 
+        # https://bugzilla.redhat.com/show_bug.cgi?id=2293652
+        if self.machine.image == "fedora-40":
+            self.allow_browser_errors('Warning: Encountered two children with the same key.*')
+
         # the <a> links should be unique by their href= attributes, so get these
         hrefs = b.eval_js("[...document.querySelectorAll('#nav-system .nav-item a')].map(el => el.getAttribute('href'))")
         for href in hrefs:

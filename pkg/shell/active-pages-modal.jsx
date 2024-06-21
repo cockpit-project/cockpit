@@ -25,12 +25,11 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
-import { useDialogs } from "dialogs.jsx";
 import { useInit } from "hooks";
 
 const _ = cockpit.gettext;
 
-export const ActivePagesDialog = ({ frames }) => {
+export const ActivePagesDialog = ({ dialogResult, frames }) => {
     function get_pages() {
         const result = [];
         for (const address in frames.iframes) {
@@ -57,7 +56,6 @@ export const ActivePagesDialog = ({ frames }) => {
         return result;
     }
 
-    const Dialogs = useDialogs();
     const init_pages = useInit(get_pages, [frames]);
     const [pages, setPages] = useState(init_pages);
 
@@ -66,7 +64,7 @@ export const ActivePagesDialog = ({ frames }) => {
             if (element.selected)
                 frames.remove(element.host, element.component);
         });
-        Dialogs.close();
+        dialogResult.resolve();
     }
 
     const rows = pages.map(page => {
@@ -93,11 +91,11 @@ export const ActivePagesDialog = ({ frames }) => {
     return (
         <Modal isOpen position="top" variant="small"
                id="active-pages-dialog"
-               onClose={Dialogs.close}
+               onClose={() => dialogResult.resolve()}
                title={_("Active pages")}
                footer={<>
                    <Button variant='primary' onClick={onRemove}>{_("Close selected pages")}</Button>
-                   <Button variant='link' onClick={Dialogs.close}>{_("Cancel")}</Button>
+                   <Button variant='link' onClick={() => dialogResult.resolve()}>{_("Cancel")}</Button>
                </>}
         >
             <ListingTable showHeader={false}

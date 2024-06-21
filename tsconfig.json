@@ -19,9 +19,11 @@
             "dom",
             "es2020"
         ],
+        "moduleResolution": "node",
         "noEmit": true,  // we only use `tsc` for type checking
         "skipLibCheck": true,  // don't check node_modules
         "strict": true,
+        "target": "es2020",
     },
     "include": [
         "pkg/**/*"

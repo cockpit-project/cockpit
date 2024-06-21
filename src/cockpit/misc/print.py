@@ -44,7 +44,7 @@ class Printer:
 
     def json(self, channel: str, /, **kwargs: object) -> None:
         """Send a json message (built from **kwargs) on a channel"""
-        self.data(channel, json.dumps(kwargs, indent=2).encode('utf-8') + b'\n')
+        self.data(channel, json.dumps(kwargs, indent=2).encode() + b'\n')
 
     def control(self, command: str, **kwargs: Any) -> None:
         """Send a control message, build from **kwargs"""

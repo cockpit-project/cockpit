@@ -10,7 +10,7 @@ if pw:
     interaction_client.askpass(2, writer, ['-', 'can haz pw?'], {})
     os.close(writer)
 
-    response = os.read(reader, 1024).decode('utf-8').strip()
+    response = os.read(reader, 1024).decode().strip()
     if response != pw:
         sys.stderr.write('pseudo says: Bad password\n')
         sys.exit(1)

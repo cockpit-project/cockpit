@@ -42,8 +42,8 @@ def usage():
 
 
 def send_frame(content):
-    data = json.dumps(content).encode('utf-8')
-    os.write(1, str(len(data) + 1).encode('utf-8'))
+    data = json.dumps(content).encode()
+    os.write(1, str(len(data) + 1).encode())
     os.write(1, b"\n\n")
     os.write(1, data)
 
@@ -109,7 +109,7 @@ def read_frame(fd):
         size = size - len(d)
         data += d
 
-    return data.decode("UTF-8")
+    return data.decode()
 
 
 def read_auth_reply():
@@ -129,7 +129,7 @@ def decode_basic_header(response):
     assert response
     assert response.startswith(starts), response
 
-    val = base64.b64decode(response[len(starts):].encode('utf-8')).decode("utf-8")
+    val = base64.b64decode(response[len(starts):].encode()).decode()
     user, password = val.split(':', 1)
     return user, password
 
@@ -150,7 +150,7 @@ cat /run/password""")
 
     pass_fd = os.open("/run/password", os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_CLOEXEC, mode=0o600)
     try:
-        os.write(pass_fd, password.encode("UTF-8"))
+        os.write(pass_fd, password.encode())
         os.close(pass_fd)
 
         p = subprocess.run(["ssh-add", "-t", "30", fname],

@@ -145,7 +145,7 @@ class FsReadChannel(GeneratorChannel):
                         break
                     logger.debug('  ...sending %d bytes', len(data))
                     if not binary:
-                        data = data.replace(b'\0', b'').decode('utf-8', errors='ignore').encode('utf-8')
+                        data = data.replace(b'\0', b'').decode(errors='ignore').encode()
                     yield data
 
             return {'tag': tag_from_stat(buf)}

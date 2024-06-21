@@ -1015,7 +1015,7 @@ class Browser:
             html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",
                                    no_trace=True)["result"]["value"]
             with open(filename, 'wb') as f:
-                f.write(html.encode('UTF-8'))
+                f.write(html.encode())
             attach(filename, move=True)
             print("Wrote HTML dump to " + filename)
 
@@ -1303,7 +1303,7 @@ class Browser:
         if logs:
             filename = unique_filename(f"{label or self.label}-{title}", "js.log")
             with open(filename, 'wb') as f:
-                f.write('\n'.join(logs).encode('UTF-8'))
+                f.write('\n'.join(logs).encode())
             attach(filename, move=True)
             print("Wrote JS log to " + filename)
 

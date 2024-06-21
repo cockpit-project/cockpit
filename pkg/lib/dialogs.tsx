@@ -82,36 +82,6 @@
  *   }
  * }
  *
- * If there is a situation where you want to wait until a Dialog is closed
- * after opening, you can "await Dialogs.show(<My Dialog />)"
- *
- * class Example extends React.Component {
- *   static contextType = DialogsContext;
- *
- *   async function handleClick() {
- *     try {
- *       const result = await Dialogs.show(<MyDialog />);
- *       console.log(result);
- *     catch (err) {
- *     }
- *
- *   }
- *
- *   function render() {
- *     const Dialogs = this.context;
- *     return <Button onClick={() => this.handleClick}>Open dialog</Button>;
- *   }
- * }
- *
- * class MyDialog extends React.Component {
- *   static contextType = DialogsContext;
- *
- *   render() {
- *     <Button onClick={() => Dialogs.close("yes")}>Yes</Button>
- *     <Button onClick={() => Dialogs.close("no")}>No</Button>
- *   }
- * }
- *
  *
  * - Dialogs.show(component)
  *
@@ -119,27 +89,62 @@
  * child of the inner-most enclosing "WithDialogs" component.  The
  * component is of course intended to be a dialog, such as
  * Patternfly's "Modal".  There is only ever one of these; a second
- * call to "show" is considered a bug and "Dialogs.close" should be called first.
- * "Dialogs.show" returns a promise that is settled by either "Dialogs.close" or
- * "Dialogs.reject".
+ * call to "show" is considered a bug and "Dialogs.close" must be called first.
  *
- * - Dialogs.close([args])
+ * - Dialogs.close()
  *
- * Calling "Dialogs.close([args])" will close the currently open Dialog and
- * optionally resolve the promise with the provided "args".
+ * Calling "Dialogs.close()" will close the currently open Dialog.  It can only
+ * be used with dialogs shown by `Dialogs.show()`.
  *
- * - Dialogs.reject(err)
-  *
- * Calling "Dialogs.reject(err)" will close the currently open Dialog
- * and reject the promise with the provided Error.
+ * - Dialogs.run(component, {... props})
+ *
+ * Shows a dialog and asyncronously waits for it to close.  This creates and
+ * shows a MyDialog with the given properties, plus a special "dialogResult"
+ * property which has .resolve() and .reject() methods on it.  Calling either
+ * of those will resolve the promise returned by Dialogs.run() accordingly,
+ * closing the dialog in the process.  The created dialog cannot be closed with
+ * Dialogs.close(). See the example:
+ *
+ * const MyDialog = ({ title, dialogResult }) => {
+ *     return (
+ *         <Modal title={title}>
+ *             <Button onClick={() => dialogResult.resolve("yes")}>Yes</Button>
+ *             <Button onClick={() => dialogResult.resolve("no")}>No</Button>
+ *         </Modal>
+ *     );
+ * };
+ *
+ * const AsyncDialogExample = () => {
+ *     const Dialogs = useDialogs();
+ *
+ *     const clicked = async () => {
+ *         try {
+ *             const result = await Dialogs.run(MyDialog, { title: "Example" });
+ *             console.log(result);
+ *         } catch (err) {
+ *         }
+ *     };
+ *
+ *     return <Button onClick={clicked}>Open dialog</Button>;
+ * };
+ *
+ * - Dialogs.isActive()
+ *
+ * Returns `true` if a dialog is currently being shown.
+ *
  */
 
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useState, useRef } from "react";
+
+export interface DialogResult<T> {
+    resolve(value: T): void;
+    reject(exc: unknown): void;
+}
 
 export interface Dialogs {
-    show(dialog: React.ReactNode): Promise<unknown>;
-    close(args: unknown): void;
-    reject(err: unknown): void;
+    show(dialog: React.ReactNode): void;
+    close(): void;
+    run<T, P>(component: React.ComponentType<P & { dialogResult: DialogResult<T> }>, properties: P): Promise<T>;
     isActive(): boolean;
 }
 
@@ -153,41 +158,29 @@ export const useDialogs = () => {
 };
 
 export const WithDialogs = ({ children } : { children: React.ReactNode }) => {
-    const is_open = useRef(false); // synchronous
-    const resolveRef = useRef<((x: unknown) => void) | null>(null);
-    const rejectRef = useRef<((x: unknown) => void) | null>(null);
     const [dialog, setDialog] = useState<React.ReactNode>(null);
+    type State = "close" | "show" | "run";
+    const shown = useRef<State>("close");
+
+    function transition(expected: State, to: State, arg: React.ReactNode = null) {
+        if (shown.current !== expected)
+            throw new Error(`Dialogs.${to}(${JSON.stringify(arg)}) called, but that's only valid ` +
+                            `after .${expected}(), current dialog is ${JSON.stringify(dialog)}.`);
+        shown.current = to;
+        setDialog(arg);
+    }
 
     const Dialogs: Dialogs = {
-        show: component => {
-            if (component && is_open.current)
-                console.error("Dialogs.show() called for",
-                              JSON.stringify(component),
-                              "while a dialog is already open:",
-                              JSON.stringify(dialog));
-            is_open.current = !!component;
-            setDialog(component);
-            return new Promise((resolve, reject) => {
-                resolveRef.current = resolve;
-                rejectRef.current = reject;
-            });
-        },
-        close: (args) => {
-            is_open.current = false;
-            setDialog(null);
-            if (resolveRef.current !== null) {
-                resolveRef.current(args);
-                resolveRef.current = null;
-                rejectRef.current = null;
-            }
-        },
-        reject: (err) => {
-            is_open.current = false;
-            setDialog(null);
-            if (rejectRef.current !== null) {
-                rejectRef.current(err);
-                resolveRef.current = null;
-                rejectRef.current = null;
+        show: (component: React.ReactNode) => transition("close", "show", component),
+        close: () => transition("show", "close"),
+        run: async (component, props) => {
+            try {
+                return await new Promise((resolve, reject) => {
+                    transition("close", "run",
+                               React.createElement(component, { ...props, dialogResult: { resolve, reject } }));
+                });
+            } finally {
+                transition("run", "close");
             }
         },
         isActive: () => dialog !== null

@@ -39,14 +39,12 @@ import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { useEvent, useObject } from 'hooks';
-import { useDialogs } from "dialogs.jsx";
 
 import "./credentials.scss";
 
 const _ = cockpit.gettext;
 
-export const CredentialsModal = () => {
-    const Dialogs = useDialogs();
+export const CredentialsModal = ({ dialogResult }) => {
     const keys = useObject(() => credentials.keys_instance(), null, []);
     const [addNewKey, setAddNewKey] = useState(false);
     const [dialogError, setDialogError] = useState();
@@ -75,10 +73,10 @@ export const CredentialsModal = () => {
     return (
         <>
             <Modal isOpen position="top" variant="medium"
-                   onClose={Dialogs.close}
+                   onClose={() => dialogResult.resolve()}
                    title={_("SSH keys")}
                    id="credentials-modal"
-                   footer={<Button variant='secondary' onClick={Dialogs.close}>{_("Close")}</Button>}
+                   footer={<Button variant='secondary' onClick={() => dialogResult.resolve()}>{_("Close")}</Button>}
             >
                 <Stack hasGutter>
                     {dialogError && <ModalError dialogError={dialogError} />}

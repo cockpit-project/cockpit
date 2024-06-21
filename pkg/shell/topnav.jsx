@@ -172,7 +172,7 @@ export class TopNav extends React.Component {
 
         docItems.push(<Divider key="separator1" />);
         docItems.push(<DropdownItem key="about" component="button"
-                                    onClick={() => Dialogs.show(<AboutCockpitModal />)}>
+                                    onClick={() => Dialogs.run(AboutCockpitModal, {})}>
             {_("About Web Console")}
         </DropdownItem>);
 
@@ -212,20 +212,20 @@ export class TopNav extends React.Component {
 
         if (manifest.locales)
             main_menu.push(<DropdownItem key="languages" className="display-language-menu"
-                                         onClick={() => Dialogs.show(<LangModal />)}>
+                                         onClick={() => Dialogs.run(LangModal, {})}>
                 {_("Display language")}
             </DropdownItem>);
 
         if (this.state.showActivePages)
             main_menu.push(
                 <DropdownItem key="frames" id="active-pages" component="button"
-                              onClick={() => Dialogs.show(<ActivePagesDialog frames={this.props.index.frames} />)}>
+                              onClick={() => Dialogs.run(ActivePagesDialog, { frames: this.props.index.frames })}>
                     {_("Active pages")}
                 </DropdownItem>);
 
         main_menu.push(
             <DropdownItem key="creds" id="sshkeys" component="button"
-                          onClick={() => Dialogs.show(<CredentialsModal />)}>
+                          onClick={() => Dialogs.run(CredentialsModal, {})}>
                 {_("SSH keys")}
             </DropdownItem>,
             <Divider key="separator3" />,
@@ -252,7 +252,7 @@ export class TopNav extends React.Component {
                             { this.props.index.has_oops &&
                                 <ToolbarItem>
                                     <Button id="navbar-oops" variant="link" size="lg" isDanger
-                                            onClick={() => Dialogs.show(<OopsModal />)}>{_("Ooops!")}</Button>
+                                            onClick={() => Dialogs.run(OopsModal, {})}>{_("Ooops!")}</Button>
                                 </ToolbarItem>
                             }
                             <ToolbarItem>

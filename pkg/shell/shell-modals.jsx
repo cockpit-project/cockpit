@@ -30,14 +30,12 @@ import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patter
 import { SearchIcon } from '@patternfly/react-icons';
 
 import { useInit } from "hooks";
-import { useDialogs } from "dialogs.jsx";
 
 import "menu-select-widget.scss";
 
 const _ = cockpit.gettext;
 
-export const AboutCockpitModal = () => {
-    const Dialogs = useDialogs();
+export const AboutCockpitModal = ({ dialogResult }) => {
     const [packages, setPackages] = useState(null);
 
     useInit(() => {
@@ -58,7 +56,7 @@ export const AboutCockpitModal = () => {
     return (
         <AboutModal
             isOpen
-            onClose={Dialogs.close}
+            onClose={() => dialogResult.resolve()}
             id="about-cockpit-modal"
             trademark={_("Licensed under GNU LGPL version 2.1")}
             productName={_("Web Console")}
@@ -88,10 +86,9 @@ export const AboutCockpitModal = () => {
     );
 };
 
-export const LangModal = () => {
+export const LangModal = ({ dialogResult }) => {
     const language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1") || "en-us";
 
-    const Dialogs = useDialogs();
     const [selected, setSelected] = useState(language);
     const [searchInput, setSearchInput] = useState("");
 
@@ -111,11 +108,11 @@ export const LangModal = () => {
         <Modal isOpen position="top" variant="small"
                id="display-language-modal"
                className="display-language-modal"
-               onClose={Dialogs.close}
+               onClose={() => dialogResult.resolve()}
                title={_("Display language")}
                footer={<>
                    <Button variant='primary' onClick={onSelect}>{_("Select")}</Button>
-                   <Button variant='link' onClick={Dialogs.close}>{_("Cancel")}</Button>
+                   <Button variant='link' onClick={() => dialogResult.resolve()}>{_("Cancel")}</Button>
                </>}
         >
             <Flex direction={{ default: 'column' }}>
@@ -183,13 +180,12 @@ export function TimeoutModal(props) {
     );
 }
 
-export function OopsModal(props) {
-    const Dialogs = useDialogs();
+export function OopsModal({ dialogResult }) {
     return (
         <Modal isOpen position="top" variant="medium"
-               onClose={Dialogs.close}
+               onClose={() => dialogResult.resolve()}
                title={_("Unexpected error")}
-               footer={<Button variant='secondary' onClick={Dialogs.close}>{_("Close")}</Button>}
+               footer={<Button variant='secondary' onClick={() => dialogResult.resolve()}>{_("Close")}</Button>}
         >
             {_("Cockpit had an unexpected internal error.")}
             <br />

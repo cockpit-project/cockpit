@@ -32,6 +32,19 @@ declare module 'cockpit' {
 
     export let language: string;
 
+    interface Transport {
+        csrf_token: string;
+        origin: string;
+        host: string;
+        options: JsonObject;
+        uri(suffix?: string): string;
+        wait(callback: (transport: Transport) => void): void;
+        close(problem?: string): void;
+        application(): string;
+    }
+
+    export const transport: Transport;
+
     /* === jQuery compatible promise ============== */
 
     interface DeferredPromise<T> extends Promise<T> {

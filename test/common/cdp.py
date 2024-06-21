@@ -253,10 +253,10 @@ class CDP:
         assert self._driver.stdin is not None
         assert self._driver.stdout is not None
 
-        self._driver.stdin.write(cmd.encode("UTF-8"))
+        self._driver.stdin.write(cmd.encode())
         self._driver.stdin.write(b"\n")
         self._driver.stdin.flush()
-        line = self._driver.stdout.readline().decode("UTF-8")
+        line = self._driver.stdout.readline().decode()
         if not line:
             self.kill()
             raise RuntimeError("CDP broken")

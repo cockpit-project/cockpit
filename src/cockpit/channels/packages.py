@@ -36,7 +36,7 @@ class PackagesChannel(AsyncChannel):
     def http_error(self, status: int, message: str) -> None:
         template = read_cockpit_data_file('fail.html')
         self.send_json(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
-        self.send_data(template.replace(b'@@message@@', message.encode('utf-8')))
+        self.send_data(template.replace(b'@@message@@', message.encode()))
         self.done()
         self.close()
 

@@ -55,7 +55,7 @@ class handler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.end_headers()
             if machine_id in systems:
-                self.wfile.write(json.dumps(systems[machine_id]).encode('utf-8') + b"\n")
+                self.wfile.write(json.dumps(systems[machine_id]).encode() + b"\n")
             else:
                 self.wfile.write(b"{ }\n")
             return

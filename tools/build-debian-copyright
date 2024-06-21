@@ -139,7 +139,7 @@ for dirglob in sorted(dist_copyrights):
 # force UTF-8 output, even when running in C locale
 for line in template.splitlines():
     if '#NPM' in line:
-        sys.stdout.buffer.write('\n\n'.join(paragraphs).encode('UTF-8'))
+        sys.stdout.buffer.write('\n\n'.join(paragraphs).encode())
     else:
-        sys.stdout.buffer.write(line.encode('UTF-8'))
+        sys.stdout.buffer.write(line.encode())
     sys.stdout.buffer.write(b'\n')

@@ -87,7 +87,7 @@ def build_wheel(wheel_directory: str,
         def beipack_self(main: str, args: str = '') -> bytes:
             from cockpit._vendor.bei import beipack
             contents = {name: wheel.read(name) for name in wheel.namelist()}
-            pack = beipack.pack(contents, main, args=args).encode('utf-8')
+            pack = beipack.pack(contents, main, args=args).encode()
             return lzma.compress(pack, preset=lzma.PRESET_EXTREME)
 
         def write_distinfo(filename: str, lines: Iterable[str]) -> None:

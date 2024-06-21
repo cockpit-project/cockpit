@@ -11,7 +11,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 class Handler(BaseHTTPRequestHandler):
     def do_POST_attach(self):
-        self.wfile.write(json.dumps({'result': True}).encode("UTF-8"))
+        self.wfile.write(json.dumps({'result': True}).encode())
 
     def do_POST_new(self):
         response = {
@@ -31,7 +31,7 @@ class Handler(BaseHTTPRequestHandler):
             ],
             'result': False
         }
-        self.wfile.write(json.dumps(response, indent=2).encode('UTF-8'))
+        self.wfile.write(json.dumps(response, indent=2).encode())
 
     def do_POST(self):
         content_length = int(self.headers.get('content-length', 0))
@@ -39,8 +39,8 @@ class Handler(BaseHTTPRequestHandler):
 
         # Without the cgi module, we need to massage the data to form a valid message
         p = email.parser.BytesFeedParser(policy=email.policy.HTTP)
-        p.feed('Content-Type: {}\r\n'.format(self.headers.get('content-type', '')).encode('utf-8'))
-        p.feed('\r\n'.encode('utf-8'))
+        p.feed('Content-Type: {}\r\n'.format(self.headers.get('content-type', '')).encode())
+        p.feed('\r\n'.encode())
         p.feed(data)
         m = p.close()
 

@@ -96,7 +96,7 @@ class Test:
         # If test is being skipped pick up the reason
         if self.returncode == 77:
             lines = self.output.splitlines()
-            skip_reason = lines[-1].strip().decode("utf-8")
+            skip_reason = lines[-1].strip().decode()
             self.output = b"\n".join(lines[:-1])
             self._print_test(print_tap, skip_reason=skip_reason)
             return None, 0
@@ -138,7 +138,7 @@ class Test:
                     return None, 1
 
                 if proc.returncode == 1:
-                    retry_reason = reason.decode("utf-8")
+                    retry_reason = reason.decode()
 
             except OSError as ex:
                 if ex.errno != errno.ENOENT:
@@ -279,7 +279,7 @@ def get_affected_tests(test_dir, base_branch, test_files):
     diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + base_branch, test_dir])
     # Never consider 'test/verify/check-example' to be affected - our tests for tests count on that
     # This file provides only examples, there is no place for it being flaky, no need to retry
-    changed_tests = [test.decode("utf-8") for test in diff_out.strip().splitlines() if not test.endswith(b"check-example")]
+    changed_tests = [test.decode() for test in diff_out.strip().splitlines() if not test.endswith(b"check-example")]
 
     # If more than 3 test files were changed don't consider any of them as affected
     # as it might be a PR that changes more unrelated things.
@@ -297,7 +297,7 @@ def get_affected_tests(test_dir, base_branch, test_files):
     diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + base_branch, "--", "pkg/"])
 
     # Drop changes in css files - this does not affect tests thus no reason to retry
-    files = [f.decode("utf-8") for f in diff_out.strip().splitlines() if not f.endswith(b"css")]
+    files = [f.decode() for f in diff_out.strip().splitlines() if not f.endswith(b"css")]
 
     changed_pkgs = {"check-" + pkg.split('/')[1] for pkg in files}
     changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])

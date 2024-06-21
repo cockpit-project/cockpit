@@ -307,6 +307,10 @@ class TestSelinuxEnforcing(testlib.MachineCase):
 
         self.login_and_go("/selinux")
 
+        # https://bugzilla.redhat.com/show_bug.cgi?id=2293652
+        if self.machine.image == "fedora-40":
+            self.allow_browser_errors('Warning: Encountered two children with the same key.*')
+
         #########################################################
         # wait for the page to be present
         b.wait_in_text("body", "SELinux policy")

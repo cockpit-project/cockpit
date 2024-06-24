@@ -57,9 +57,9 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 ExcludeArch: %{ix86}
 %endif
 
-# pcp stopped building on ix86
+# pcp stopped building on ix86 in Fedora 40+, and broke hard on 39: https://bugzilla.redhat.com/show_bug.cgi?id=2284431
 %define build_pcp 1
-%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+%if 0%{?fedora} >= 39 || 0%{?rhel} >= 10
 %ifarch %ix86
 %define build_pcp 0
 %endif

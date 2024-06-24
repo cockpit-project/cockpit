@@ -48,7 +48,7 @@ export const ContextMenu = ({ parentId, children } : {
 
         const _handleClick = (event: MouseEvent) => {
             if (event && event.button === 0 && event.target instanceof HTMLElement) {
-                const wasOutside = !event.target.contains(root.current);
+                const wasOutside = root.current && !root.current.contains(event.target);
 
                 if (wasOutside)
                     setVisible(false);

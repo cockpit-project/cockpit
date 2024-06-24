@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function parse_passwd_content(content) {
+function parse_passwd_content(content: string) {
     if (!content) {
         console.warn("Couldn't read /etc/passwd");
         return [];
@@ -48,7 +48,7 @@ export const etc_passwd_syntax = {
     parse: parse_passwd_content
 };
 
-function parse_group_content(content) {
+function parse_group_content(content: string) {
     // /etc/group file is used to set only secondary groups of users. The primary group is saved in /etc/passwd-
     content = (content || "").trim();
     if (!content) {
@@ -78,7 +78,7 @@ export const etc_group_syntax = {
     parse: parse_group_content
 };
 
-function parse_shells_content(content) {
+function parse_shells_content(content: string) {
     content = (content || "").trim();
     if (!content) {
         console.warn("Couldn't read /etc/shells");

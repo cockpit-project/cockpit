@@ -21,7 +21,7 @@ import React, { useState } from 'react';
 import PropTypes from "prop-types";
 
 import { MenuToggle } from "@patternfly/react-core/dist/esm/components/MenuToggle";
-import { Dropdown, DropdownList } from "@patternfly/react-core/dist/esm/components/Dropdown";
+import { Dropdown, DropdownList, DropdownPopperProps } from "@patternfly/react-core/dist/esm/components/Dropdown";
 
 import { EllipsisVIcon } from '@patternfly/react-icons';
 
@@ -36,14 +36,19 @@ import { EllipsisVIcon } from '@patternfly/react-icons';
  * require a separator between DropdownItem's use PatternFly's Divivder
  * component.
  */
-export const KebabDropdown = ({ dropdownItems, position = "end", isDisabled = false, toggleButtonId, isOpen, setIsOpen, props }) => {
+export const KebabDropdown = ({ dropdownItems, position = "end", isDisabled = false, toggleButtonId, isOpen, setIsOpen } : {
+    dropdownItems: React.ReactNode,
+    position?: DropdownPopperProps['position'],
+    isDisabled?: boolean,
+    toggleButtonId?: string;
+    isOpen?: boolean, setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>,
+}) => {
     const [isKebabOpenInternal, setKebabOpenInternal] = useState(false);
     const isKebabOpen = isOpen ?? isKebabOpenInternal;
     const setKebabOpen = setIsOpen ?? setKebabOpenInternal;
 
     return (
         <Dropdown
-            {...props}
             onOpenChange={isOpen => setKebabOpen(isOpen)}
             onSelect={() => setKebabOpen(false)}
             toggle={(toggleRef) => (

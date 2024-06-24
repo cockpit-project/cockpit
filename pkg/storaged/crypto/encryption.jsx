@@ -25,7 +25,7 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { useObject, useEvent } from "hooks";
 import * as python from "python.js";
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 
 import { dialog_open, TextInput, PassInput } from "../dialog.jsx";
 import { block_name, encode_filename, decode_filename, parse_options, unparse_options, extract_option, edit_crypto_config } from "../utils.js";

@@ -32,7 +32,7 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
 
 import * as service from "service.js";
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 import * as python from "python.js";
 import get_timesync_backend_py from "./get-timesync-backend.py";
 

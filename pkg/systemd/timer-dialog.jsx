@@ -37,7 +37,7 @@ import { useDialogs } from "dialogs.jsx";
 
 import { updateTime } from './services.jsx';
 import { create_timer } from './timer-dialog-helpers.js';
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 
 import "./timers.scss";
 

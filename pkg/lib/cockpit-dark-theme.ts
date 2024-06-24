@@ -17,13 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function debug() {
+function debug(...args: unknown[]) {
     if (window.debugging == "all" || window.debugging?.includes("style")) {
-        console.debug([`cockpit-dark-theme: ${document.documentElement.id}:`, ...arguments].join(" "));
+        console.debug([`cockpit-dark-theme: ${document.documentElement.id}:`, ...args].join(" "));
     }
 }
 
-function changeDarkThemeClass(documentElement, dark_mode) {
+function changeDarkThemeClass(documentElement: Element, dark_mode: boolean) {
     debug(`Setting cockpit theme to ${dark_mode ? "dark" : "light"}`);
 
     if (dark_mode) {
@@ -33,7 +33,7 @@ function changeDarkThemeClass(documentElement, dark_mode) {
     }
 }
 
-function _setDarkMode(_style) {
+function _setDarkMode(_style?: string) {
     const style = _style || localStorage.getItem('shell:style') || 'auto';
     let dark_mode;
     // If a user set's an explicit theme, ignore system changes.
@@ -56,10 +56,12 @@ window.addEventListener("storage", event => {
 // When changing the theme from the shell switcher the localstorage change will not fire for the same page (aka shell)
 // so we need to listen for the event on the window object.
 window.addEventListener("cockpit-style", event => {
-    const style = event.detail.style;
-    debug(`Event received from shell with 'cockpit-style'  ${style}`);
+    if (event instanceof CustomEvent) {
+        const style = event.detail.style;
+        debug(`Event received from shell with 'cockpit-style'  ${style}`);
 
-    _setDarkMode(style);
+        _setDarkMode(style);
+    }
 });
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {

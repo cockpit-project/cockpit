@@ -21,23 +21,35 @@ import React from "react";
 
 import cockpit from "cockpit";
 
-export function fmt_to_fragments(fmt) {
-    const args = Array.prototype.slice.call(arguments, 1);
-
-    function replace(part) {
+export function fmt_to_fragments(format: string, ...args: React.ReactNode[]) {
+    const fragments = format.split(/(\$[0-9]+)/g).map(part => {
         if (part[0] == "$") {
-            return args[parseInt(part.slice(1))];
+            return args[parseInt(part.slice(1))]; // placeholder, from `args`
         } else
-            return part;
-    }
+            return part; // literal string content
+    });
 
-    return React.createElement.apply(null, [React.Fragment, { }].concat(fmt.split(/(\$[0-9]+)/g).map(replace)));
+    return React.createElement(React.Fragment, { }, ...fragments);
 }
 
-function try_fields(dict, fields, def) {
-    for (let i = 0; i < fields.length; i++)
-        if (fields[i] && dict[fields[i]] !== undefined)
-            return dict[fields[i]];
+/**
+ * Checks if a JsonValue is a JsonObject, and acts as a type guard.
+ *
+ * This function produces correct results for any possible JsonValue, and also
+ * for undefined.  If you pass other types of values to this function it may
+ * return an incorrect result (ie: it doesn't check deeply, so anything that
+ * looks like a "simple object" will pass the check).
+ */
+export function is_json_dict(value: cockpit.JsonValue | undefined): value is cockpit.JsonObject {
+    return value?.constructor === Object;
+}
+
+function try_fields(
+    dict: cockpit.JsonObject, fields: (string | undefined)[], def: cockpit.JsonValue
+): cockpit.JsonValue {
+    for (const field of fields)
+        if (field && field in dict)
+            return dict[field];
     return def;
 }
 
@@ -56,12 +68,14 @@ function try_fields(dict, fields, def) {
  *      "platform:el9": { "color": "red" }
  *  }
  */
-export function get_manifest_config_matchlist(manifest_name, config_name, default_value, matches) {
+export function get_manifest_config_matchlist(
+    manifest_name: string, config_name: string, default_value: cockpit.JsonValue, matches: (string | undefined)[]
+): cockpit.JsonValue {
     const config = cockpit.manifests[manifest_name]?.config;
 
-    if (config) {
+    if (is_json_dict(config)) {
         const val = config[config_name];
-        if (typeof val === 'object' && val !== null && !Array.isArray(val))
+        if (is_json_dict(val))
             return try_fields(val, matches, default_value);
         else
             return val !== undefined ? val : default_value;

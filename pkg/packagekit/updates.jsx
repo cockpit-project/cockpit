@@ -71,7 +71,7 @@ import { WithDialogs } from "dialogs.jsx";
 
 import { superuser } from 'superuser';
 import * as PK from "packagekit.js";
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 
 import * as python from "python.js";
 import callTracerScript from './callTracer.py';

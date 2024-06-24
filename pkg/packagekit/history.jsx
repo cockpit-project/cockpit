@@ -23,7 +23,7 @@ import PropTypes from "prop-types";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { BundleIcon } from "@patternfly/react-icons";
 import { ListingTable } from "cockpit-components-table.jsx";
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 
 import cockpit from "cockpit";
 

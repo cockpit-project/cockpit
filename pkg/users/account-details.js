@@ -38,7 +38,7 @@ import { ExclamationCircleIcon, HelpIcon, UndoIcon } from '@patternfly/react-ico
 
 import cockpit from 'cockpit';
 import { superuser } from "superuser";
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { show_unexpected_error } from "./dialog-utils.js";

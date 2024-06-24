@@ -31,7 +31,7 @@ import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicke
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 
 import { ServerTime } from 'serverTime.js';
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 import { DialogsContext } from "dialogs.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 

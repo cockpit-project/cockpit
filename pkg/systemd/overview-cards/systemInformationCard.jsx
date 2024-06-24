@@ -22,7 +22,7 @@ import { Card, CardBody, CardFooter, CardTitle } from "@patternfly/react-core/di
 
 import cockpit from "cockpit";
 import * as machine_info from "machine-info.js";
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 
 import "./systemInformationCard.scss";
 

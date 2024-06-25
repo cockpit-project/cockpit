@@ -1046,7 +1046,8 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present("#password-expiration")
 
         b.logout()
-        self.login_and_go("/users", user="scruffy")
+        # HACK: https://github.com/cockpit-project/cockpit/issues/20262
+        self.login_and_go("/users", user="scruffy", superuser=False)
         b.go("#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
         b.wait_text("#account-expiration-text", "Never expire account")

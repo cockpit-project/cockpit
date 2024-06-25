@@ -37,7 +37,7 @@ import { reset_pages } from "./pages.jsx";
 import { make_overview_page } from "./overview/overview.jsx";
 import { export_mount_point_mapping } from "./anaconda.jsx";
 
-import deep_equal from "deep-equal";
+import { dequal } from 'dequal/lite';
 
 /* STORAGED CLIENT
  */
@@ -296,8 +296,8 @@ export async function btrfs_poll() {
         }
     }
 
-    if (!deep_equal(client.uuids_btrfs_subvols, uuids_subvols) || !deep_equal(client.uuids_btrfs_usage, uuids_usage) ||
-        !deep_equal(client.uuids_btrfs_default_subvol, btrfs_default_subvol)) {
+    if (!dequal(client.uuids_btrfs_subvols, uuids_subvols) || !dequal(client.uuids_btrfs_usage, uuids_usage) ||
+        !dequal(client.uuids_btrfs_default_subvol, btrfs_default_subvol)) {
         debug("btrfs_pol new subvols:", uuids_subvols);
         client.uuids_btrfs_subvols = uuids_subvols;
         client.uuids_btrfs_usage = uuids_usage;
@@ -352,7 +352,7 @@ function btrfs_findmnt_poll() {
         }
 
         // Update client state
-        if (!deep_equal(client.btrfs_mounts, btrfs_mounts)) {
+        if (!dequal(client.btrfs_mounts, btrfs_mounts)) {
             client.btrfs_mounts = btrfs_mounts;
             debug("btrfs_findmnt_poll mounts:", client.btrfs_mounts);
             client.update();

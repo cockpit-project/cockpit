@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import { useState, useEffect, useRef, useReducer } from 'react';
-import deep_equal from "deep-equal";
+import { dequal } from 'dequal/lite';
 
 /* HOOKS
  *
@@ -140,7 +140,7 @@ export function useLoggedInUser() {
 
 export function useDeepEqualMemo<T>(value: T): T {
     const ref = useRef(value);
-    if (!deep_equal(ref.current, value))
+    if (!dequal(ref.current, value))
         ref.current = value;
     return ref.current;
 }
@@ -213,7 +213,7 @@ export function useFile(path: string, options: cockpit.JsonObject) {
  * function Component(param) {
  *   const obj = useObject(() => create_object(param),
  *                         obj => obj.close(),
- *                         [param] as const, [deep_equal])
+ *                         [param] as const, [dequal])
  *
  *   ...
  * }
@@ -225,7 +225,7 @@ export function useFile(path: string, options: cockpit.JsonObject) {
  * call to useObject, i.e., at the very beginning of the first render.
  *
  * When "param" changes compared to the previous call to useObject
- * (according to the deep_equal function in the example above), the
+ * (according to the dequal function in the example above), the
  * object will also be destroyed and a new one will be created for the
  * new value of "param" (as part of the call to useObject).
  *

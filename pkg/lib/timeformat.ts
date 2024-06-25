@@ -52,12 +52,10 @@ export const distanceToNow = (t: Time, addSuffix?: boolean): string => formatDis
 
 // Parse a string localized date like 30.06.21 to a Date Object
 export function parseShortDate(dateStr: string): Date {
-    const parsed = parse(dateStr, dateShortFormat(), new Date());
-
-    // Strip time which may cause bugs in calendar
-    const time = parsed.getTime();
-    const timePortion = time % (3600 * 1000 * 24);
-    return new Date(time - timePortion);
+    // strip off time (i.e. set to midnight), to avoid confusing calendar widgets
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return parse(dateStr, dateShortFormat(), today);
 }
 
 /***

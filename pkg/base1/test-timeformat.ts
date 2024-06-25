@@ -124,10 +124,7 @@ QUnit.test("firstDayOfWeek", assert => {
     assert.equal(timeformat.firstDayOfWeek(), 1);
 });
 
-// FIXME: This test is currently time zone dependent; parseShortDate() always
-// interprets its argument as midnight UTC instead of local time; so it's even
-// off by a day for any TZ east of UTC.
-QUnit.skip("parsing", assert => {
+QUnit.test("parsing", assert => {
     cockpit.language = "en";
     const en = timeformat.parseShortDate("1/20/2024");
     assert.equal(en.getDate(), 20);

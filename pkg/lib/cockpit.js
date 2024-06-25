@@ -28,6 +28,7 @@ import { Deferred, later_invoke } from './_internal/deferred';
 import { event_mixin } from './_internal/event-mixin';
 import { url_root, transport_origin, calculate_application, calculate_url } from './_internal/location';
 import { ensure_transport, transport_globals } from './_internal/transport';
+import { FsInfoClient } from "./fsinfo";
 
 function factory() {
     const cockpit = { };
@@ -2330,24 +2331,25 @@ function factory() {
                 if (watch_channel)
                     return;
 
-                const opts = {
-                    payload: "fswatch1",
-                    path,
-                    superuser: base_channel_options.superuser,
-                };
-                watch_channel = cockpit.channel(opts);
-                watch_channel.addEventListener("message", function (event, message_string) {
-                    let message;
-                    try {
-                        message = JSON.parse(message_string);
-                    } catch (e) {
-                        message = null;
-                    }
-                    if (message && message.path == path && message.tag && message.tag != watch_tag) {
-                        if (options && options.read !== undefined && !options.read)
-                            fire_watch_callbacks(null, message.tag);
-                        else
-                            read();
+                watch_channel = new FsInfoClient(path, ["tag"], { superuser: base_channel_options.superuser });
+                watch_channel.on('change', (state) => {
+                    if (state.error) {
+                        // Behave like fsread1, not-found is not a fatal error
+                        if (state.error.problem === "not-found") {
+                            fire_watch_callbacks(null, "-");
+                        } else {
+                            const error = new BasicError(state.error.problem, state.error.message);
+                            fire_watch_callbacks(null, null, error);
+                        }
+                    } else if (state.info && state.info.tag) {
+                        // otherwise, the file is present with the given tag
+                        if (state.info.tag !== watch_tag) {
+                            // cockpit.file.watch() defaults to reading
+                            if (options?.read === false)
+                                fire_watch_callbacks(null, state.info.tag);
+                            else
+                                read();
+                        }
                     }
                 });
             } else {
@@ -2370,7 +2372,6 @@ function factory() {
             ensure_watch_channel(options);
 
             watch_tag = null;
-            read();
 
             return {
                 remove: function () {
@@ -2391,7 +2392,7 @@ function factory() {
             if (replace_channel)
                 replace_channel.close("cancelled");
             if (watch_channel)
-                watch_channel.close("cancelled");
+                watch_channel.close();
         }
 
         return self;

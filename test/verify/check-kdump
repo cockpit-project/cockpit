@@ -40,6 +40,11 @@ class KdumpHelpers(testlib.MachineCase):
         browser.wait_visible(".pf-v5-c-switch__input" + (":checked" if active else ":not(:checked)"))
 
     def enableKdump(self):
+        if "suse" in self.machine.image:
+            self.machine.execute("sed -i -r 's/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\\1 crashkernel=192M,high crashkernel=0,low\"/g' /etc/default/grub")
+            self.machine.execute("update-bootloader; systemctl enable kdump")
+            self.machine.reboot()
+
         if self.machine.image.startswith("fedora"):
             self.machine.execute("systemctl enable kdump; kdumpctl reset-crashkernel")
             self.machine.reboot()
@@ -104,7 +109,7 @@ class TestKdump(KdumpHelpers):
 
         b.wait_visible("#app")
 
-        if m.image.startswith("fedora"):
+        if m.image.startswith("fedora") or "suse" in m.image:
             # crashkernel command line not set, needs to be explicitly enabled in Fedora
             b.wait_in_text(".pf-v5-c-alert__title", "Kernel did not boot with the crashkernel setting")
             # no service on/off button
@@ -154,7 +159,10 @@ class TestKdump(KdumpHelpers):
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         with b.wait_timeout(120):  # needs to rebuild initrd
             b.wait_not_present(pathInput)
-        m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
+        if "suse" in m.image:
+            m.execute("cat /etc/sysconfig/kdump | grep -qE 'KDUMP_SAVEDIR'")
+        else:
+            m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
 
         # generate a valid kdump config with ssh target
         b.click("#kdump-change-target")
@@ -202,13 +210,19 @@ class TestKdump(KdumpHelpers):
 
         # crash the kernel and make sure it wrote a report into the right directory
         self.crashKernel(f"stored in {customPath} as vmcore")
-        m.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done", timeout=180)
-        self.assertIn("Kdump compressed dump", m.execute(f"file {customPath}/127.0.0.1*/vmcore"))
+        m.execute(f"until test -e {customPath}/*/vmcore; do sleep 1; done", timeout=180)
+        # HACK: Tumbleweed's file doesn't correctly recognise kdump's, they are only shown
+        # as data, lets skip this and just check the file exists
+        if "suse" not in m.image:
+            self.assertIn("Kdump compressed dump", m.execute(f"file {customPath}/*/vmcore"))
 
         self.login_and_go("/kdump")
         b.wait_visible("#app")
 
-        m.execute("cp /etc/kdump.conf /etc/kdump.conf.orig")
+        if "suse" in m.image:
+            m.execute("cp /etc/sysconfig/kdump /etc/sysconfig/kdump.orig")
+        else:
+            m.execute("cp /etc/kdump.conf /etc/kdump.conf.orig")
         b.click("#kdump-automation-script")
         b.click("button:contains('Shell script')")
         shell_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(3) textarea"
@@ -217,7 +231,10 @@ class TestKdump(KdumpHelpers):
         m.execute(b.text(shell_script_sel))
         b.click(".pf-v5-c-modal-box__footer button:contains('Close')")
         b.wait_not_present(".automation-script-modal")
-        m.execute("diff /etc/kdump.conf /etc/kdump.conf.orig", stdout=None)
+        if "suse" in m.image:
+            m.execute("diff /etc/sysconfig/kdump /etc/sysconfig/kdump.orig", stdout=None)
+        else:
+            m.execute("diff /etc/kdump.conf /etc/kdump.conf.orig", stdout=None)
 
         # service errors
 
@@ -502,8 +519,12 @@ class TestKdumpNFS(KdumpHelpers):
             b.wait_not_present("#kdump-settings-dialog")
 
         # explicit nfs option, unset path
-        conf = m.execute("cat /etc/kdump.conf")
-        self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
+        if "suse" in m.image:
+            conf = m.execute("cat /etc/sysconfig/kdump")
+            self.assertIn("nfs://10.111.113.2/srv/kdump", conf)
+        else:
+            conf = m.execute("cat /etc/kdump.conf")
+            self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
         self.assertNotIn("\npath", conf)
 
         try:

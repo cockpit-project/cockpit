@@ -59,12 +59,7 @@ let process_hints = null;
 let incoming_filters = null;
 let outgoing_filters = null;
 
-let transport_origin = window.location.origin;
-
-if (!transport_origin) {
-    transport_origin = window.location.protocol + "//" + window.location.hostname +
-        (window.location.port ? ':' + window.location.port : '');
-}
+const transport_origin = window.location.origin;
 
 function array_from_raw_string(str, constructor) {
     const length = str.length;

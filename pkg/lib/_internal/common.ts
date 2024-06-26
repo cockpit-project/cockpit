@@ -1,4 +1,21 @@
+export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
+export type JsonObject = Record<string, JsonValue>;
+
 export type StrOrBytes = string | Uint8Array;
+
+declare global {
+    interface CockpitMockOptions {
+        url_root?: string;
+        pathname?: string;
+        last_transport?: unknown;
+        url?: string;
+    }
+
+    interface Window {
+        mock?: CockpitMockOptions;
+        debugging?: string;
+    }
+}
 
 /*
  * The debugging property is a global that is used

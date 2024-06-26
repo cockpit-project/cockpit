@@ -1332,7 +1332,7 @@ class MachineCase(unittest.TestCase):
     runner = None
     machine: testvm.Machine
     machines: Mapping[str, testvm.Machine]
-    machine_class = None
+    machine_class: type | None = None
     browser: Browser
     network = None
     journal_start: str | None = None

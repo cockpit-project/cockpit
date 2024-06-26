@@ -1,4 +1,4 @@
-function get_url_root() {
+function get_url_root(): string | null {
     const meta_url_root = document.head.querySelector("meta[name='url-root']");
     if (meta_url_root instanceof HTMLMetaElement) {
         return meta_url_root.content.replace(/^\/+|\/+$/g, '');
@@ -16,7 +16,7 @@ export const url_root = get_url_root();
 
 export const transport_origin = window.location.origin;
 
-export function calculate_application() {
+export function calculate_application(): string {
     let path = window.location.pathname || "/";
     let _url_root = url_root;
     if (window.mock?.pathname)
@@ -37,7 +37,7 @@ export function calculate_application() {
     return path.split("/")[1];
 }
 
-export function calculate_url(suffix) {
+export function calculate_url(suffix?: string): string {
     if (!suffix)
         suffix = "socket";
     const window_loc = window.location.toString();

@@ -23,22 +23,7 @@ import {
     in_array, is_function, is_object, is_plain_object, invoke_functions, iterate_data, join_data
 } from './_internal/common';
 import { event_mixin } from './_internal/event-mixin';
-
-function get_url_root() {
-    const meta_url_root = document.head.querySelector("meta[name='url-root']");
-    if (meta_url_root instanceof HTMLMetaElement) {
-        return meta_url_root.content.replace(/^\/+|\/+$/g, '');
-    } else {
-        // fallback for cockpit-ws < 272
-        try {
-            // Sometimes this throws a SecurityError such as during testing
-            return window.localStorage.getItem('url-root');
-        } catch (e) {
-            return null;
-        }
-    }
-}
-const url_root = get_url_root();
+import { url_root, transport_origin, calculate_application, calculate_url } from './_internal/location';
 
 /* injected by tests */
 var mock = mock || { }; // eslint-disable-line no-use-before-define, no-var
@@ -61,8 +46,6 @@ let default_host = null;
 let process_hints = null;
 let incoming_filters = null;
 let outgoing_filters = null;
-
-const transport_origin = window.location.origin;
 
 function array_from_raw_string(str, constructor) {
     const length = str.length;
@@ -145,51 +128,6 @@ window.addEventListener('beforeunload', function() {
 function transport_debug() {
     if (window.debugging == "all" || window.debugging?.includes("channel"))
         console.debug.apply(console, arguments);
-}
-
-function calculate_application() {
-    let path = window.location.pathname || "/";
-    let _url_root = url_root;
-    if (window.mock?.pathname)
-        path = window.mock.pathname;
-    if (window.mock?.url_root)
-        _url_root = window.mock.url_root;
-
-    if (_url_root && path.indexOf('/' + _url_root) === 0)
-        path = path.replace('/' + _url_root, '') || '/';
-
-    if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0) {
-        if (path.indexOf("/=") === 0)
-            path = "/cockpit+" + path.split("/")[1];
-        else
-            path = "/cockpit";
-    }
-
-    return path.split("/")[1];
-}
-
-function calculate_url(suffix) {
-    if (!suffix)
-        suffix = "socket";
-    const window_loc = window.location.toString();
-    let _url_root = url_root;
-
-    if (window.mock?.url)
-        return window.mock.url;
-    if (window.mock?.url_root)
-        _url_root = window.mock.url_root;
-
-    let prefix = calculate_application();
-    if (_url_root)
-        prefix = _url_root + "/" + prefix;
-
-    if (window_loc.indexOf('http:') === 0) {
-        return "ws://" + window.location.host + "/" + prefix + "/" + suffix;
-    } else if (window_loc.indexOf('https:') === 0) {
-        return "wss://" + window.location.host + "/" + prefix + "/" + suffix;
-    } else {
-        throw new Error("Cockpit must be used over http or https");
-    }
 }
 
 /*

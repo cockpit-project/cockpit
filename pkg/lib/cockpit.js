@@ -185,7 +185,7 @@ function Channel(options) {
 
     self.wait = function wait(callback) {
         if (!waiting) {
-            waiting = cockpit.defer();
+            waiting = new Deferred();
             if (closed) {
                 waiting.reject(closed);
             } else if (ready) {
@@ -590,7 +590,7 @@ function factory() {
     }
 
     function prep_promise(values, resolved) {
-        const result = cockpit.defer();
+        const result = new Deferred();
         if (resolved)
             result.resolve.apply(result, values);
         else

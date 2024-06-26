@@ -19,16 +19,17 @@
 
 'use strict';
 
-import cockpit from 'cockpit';
-
+import type { JsonObject, JsonValue } from './_internal/common';
+import { Channel } from './_internal/channel';
 import { EventEmitter } from './event';
+import type cockpit from 'cockpit';
 
-function is_json_dict(value: cockpit.JsonValue): value is cockpit.JsonObject {
+function is_json_dict(value: JsonValue): value is JsonObject {
     return value?.constructor === Object;
 }
 
 /* RFC 7396 — JSON Merge Patch — functional */
-function json_merge(current: cockpit.JsonValue, patch: cockpit.JsonValue): cockpit.JsonValue {
+function json_merge(current: JsonValue, patch: JsonValue): JsonValue {
     if (is_json_dict(patch)) {
         const updated = is_json_dict(current) ? { ...current } : { };
 
@@ -75,25 +76,25 @@ export interface FsInfoState {
 
 export interface FsInfoEvents {
     change(state: FsInfoState): void;
-    close(message: cockpit.JsonObject): void;
+    close(message: JsonObject): void;
 }
 
 export class FsInfoClient extends EventEmitter<FsInfoEvents> {
     state: FsInfoState = { loading: true };
 
-    private partial_state: cockpit.JsonValue = null;
+    private partial_state: JsonValue = null;
     private channel: cockpit.Channel<string>;
 
-    constructor(path: string, attrs: (keyof FileInfo)[], options?: cockpit.JsonObject) {
+    constructor(path: string, attrs: (keyof FileInfo)[], options?: JsonObject) {
         super();
 
-        this.channel = cockpit.channel({
+        this.channel = new Channel({
             payload: "fsinfo",
             path,
             attrs,
             watch: true,
             ...options
-        });
+        }) as unknown as cockpit.Channel<string>;
 
         this.channel.addEventListener("message", (_event, payload) => {
             this.partial_state = json_merge(this.partial_state, JSON.parse(payload));
@@ -134,7 +135,7 @@ export class FsInfoClient extends EventEmitter<FsInfoEvents> {
     }
 }
 
-export function fsinfo(path: string, attrs: (keyof FileInfo)[], options?: cockpit.JsonObject): Promise<FileInfo> {
+export function fsinfo(path: string, attrs: (keyof FileInfo)[], options?: JsonObject): Promise<FileInfo> {
     return new Promise((resolve, reject) => {
         const client = new FsInfoClient(path, attrs, { ...options, watch: false });
         client.on('close', (message) => {

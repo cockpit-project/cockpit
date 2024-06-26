@@ -1605,11 +1605,15 @@ class MachineCase(unittest.TestCase):
         self.restore_file("/etc/subuid")
         self.restore_file("/etc/subgid")
         self.restore_file("/var/log/wtmp")
-        home_dirs = m.execute("ls /home").strip().split()
+
+        def get_home_dirs() -> Sequence[str]:
+            return m.execute("if [ -d /home ]; then ls /home; fi").strip().split()
+
+        initial_home_dirs = get_home_dirs()
 
         def cleanup_home_dirs() -> None:
-            for d in m.execute("ls /home").strip().split():
-                if d not in home_dirs:
+            for d in get_home_dirs():
+                if d not in initial_home_dirs:
                     m.execute("rm -r /home/" + d)
         self.addCleanup(cleanup_home_dirs)
 

@@ -97,11 +97,6 @@ export function ServerTime() {
         }
     });
 
-    self.format = function format(and_time) {
-        const options = { dateStyle: "medium", timeStyle: and_time ? "short" : undefined, timeZone: "UTC" };
-        return timeformat.formatter(options).format(self.utc_fake_now);
-    };
-
     const updateInterval = window.setInterval(emit_changed, 30000);
 
     self.wait = function wait() {
@@ -437,7 +432,7 @@ export function ServerTimeConfig() {
                 onClick={ () => change_systime_dialog(server_time, tz) }
                 data-timedated-initialized={ntp?.initialized}
                 isInline isDisabled={!superuser.allowed || !tz}>
-            { server_time.format(true) }
+            { timeformat.dateTime(server_time.utc_fake_now) }
         </Button>);
 
     let ntp_status = null;
@@ -598,12 +593,9 @@ function ChangeSystimeBody({ state, errors, change }) {
                             <DatePicker id="systime-date-input"
                                         aria-label={_("Pick date")}
                                         buttonAriaLabel={_("Toggle date picker")}
-                                        dateFormat={timeformat.dateShort}
-                                        dateParse={timeformat.parseShortDate}
                                         invalidFormatText=""
                                         locale={timeformat.dateFormatLang()}
                                         weekStart={timeformat.firstDayOfWeek()}
-                                        placeholder={timeformat.dateShortFormat()}
                                         onChange={(_, d) => change("manual_date", d)}
                                         value={manual_date}
                                         appendTo={() => document.body} />
@@ -654,7 +646,7 @@ function change_systime_dialog(server_time, timezone) {
     let errors = { };
 
     function get_current_time() {
-        state.manual_date = server_time.format();
+        state.manual_date = server_time.utc_fake_now.toISOString().split("T")[0];
 
         const minutes = server_time.utc_fake_now.getUTCMinutes();
         // normalize to two digits

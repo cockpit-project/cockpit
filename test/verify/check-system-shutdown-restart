@@ -125,7 +125,7 @@ class TestShutdownRestart(testlib.MachineCase):
         # Insert a date using the widget dropdown
         b.click("button[aria-label='Toggle date picker']")
         today_label = m.execute("date +'%-d %B %Y'").strip()
-        today_format = m.execute("date +'%-m/%-d/%Y'").strip()
+        today_format = m.execute("date +'%Y-%m-%d'").strip()
         b.click(f".pf-v5-c-calendar-month__dates-cell:not(.pf-m-adjacent-month) button[aria-label='{today_label}']")
         b.wait_val(".shutdown-date-picker input", today_format)
         b.blur(".shutdown-date-picker input")

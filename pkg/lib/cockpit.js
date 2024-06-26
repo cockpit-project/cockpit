@@ -24,18 +24,21 @@ import {
 } from './_internal/common';
 import { event_mixin } from './_internal/event-mixin';
 
-let url_root;
-
-const meta_url_root = document.head.querySelector("meta[name='url-root']");
-if (meta_url_root) {
-    url_root = meta_url_root.content.replace(/^\/+|\/+$/g, '');
-} else {
-    // fallback for cockpit-ws < 272
-    try {
-        // Sometimes this throws a SecurityError such as during testing
-        url_root = window.localStorage.getItem('url-root');
-    } catch (e) { }
+function get_url_root() {
+    const meta_url_root = document.head.querySelector("meta[name='url-root']");
+    if (meta_url_root instanceof HTMLMetaElement) {
+        return meta_url_root.content.replace(/^\/+|\/+$/g, '');
+    } else {
+        // fallback for cockpit-ws < 272
+        try {
+            // Sometimes this throws a SecurityError such as during testing
+            return window.localStorage.getItem('url-root');
+        } catch (e) {
+            return null;
+        }
+    }
 }
+const url_root = get_url_root();
 
 /* injected by tests */
 var mock = mock || { }; // eslint-disable-line no-use-before-define, no-var

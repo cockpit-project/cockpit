@@ -139,7 +139,7 @@ test_load_dir (void)
   cockpit_config_file = "cockpit.conf";
 
   g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"), ==, "string");
-  g_assert_cmpstr (cockpit_conf_get_dirs ()[1], ==, SRCDIR "/src/ws/mock-config");
+  g_assert_cmpstr (cockpit_conf_get_dirs ()[2], ==, SRCDIR "/src/ws/mock-config");
   cockpit_conf_cleanup ();
 }
 

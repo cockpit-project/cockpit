@@ -32,25 +32,6 @@ import { ensure_transport, transport_globals } from './_internal/transport';
 const cockpit = { };
 event_mixin(cockpit, { });
 
-/* Resolve dots and double dots */
-function resolve_path_dots(parts) {
-    const out = [];
-    const length = parts.length;
-    for (let i = 0; i < length; i++) {
-        const part = parts[i];
-        if (part === "" || part == ".") {
-            continue;
-        } else if (part == "..") {
-            if (out.length === 0)
-                return null;
-            out.pop();
-        } else {
-            out.push(part);
-        }
-    }
-    return out;
-}
-
 function factory() {
     cockpit.channel = function channel(options) {
         return new Channel(options);
@@ -1170,6 +1151,25 @@ function factory() {
         const href = get_window_location_hash();
         const options = { };
         self.path = decode(href, options);
+
+        /* Resolve dots and double dots */
+        function resolve_path_dots(parts) {
+            const out = [];
+            const length = parts.length;
+            for (let i = 0; i < length; i++) {
+                const part = parts[i];
+                if (part === "" || part == ".") {
+                    continue;
+                } else if (part == "..") {
+                    if (out.length === 0)
+                        return null;
+                    out.pop();
+                } else {
+                    out.push(part);
+                }
+            }
+            return out;
+        }
 
         function decode_path(input) {
             const parts = input.split('/').map(decodeURIComponent);

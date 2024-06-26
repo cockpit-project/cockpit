@@ -38,15 +38,17 @@ event_mixin(cockpit, { });
  * Public: https://cockpit-project.org/guide/latest/api-base1.html
  */
 
-let default_transport = null;
-let public_transport = null;
-let reload_after_disconnect = false;
-let expect_disconnect = false;
-let init_callback = null;
-let default_host = null;
-let process_hints = null;
-let incoming_filters = null;
-let outgoing_filters = null;
+const transport_globals = {
+    default_transport: null,
+    public_transport: null,
+    reload_after_disconnect: false,
+    expect_disconnect: false,
+    init_callback: null,
+    default_host: null,
+    process_hints: null,
+    incoming_filters: null,
+    outgoing_filters: null,
+};
 
 function array_from_raw_string(str, constructor) {
     const length = str.length;
@@ -123,7 +125,7 @@ function base64_decode(str, constructor) {
 }
 
 window.addEventListener('beforeunload', function() {
-    expect_disconnect = true;
+    transport_globals.expect_disconnect = true;
 }, false);
 
 function transport_debug() {
@@ -248,8 +250,8 @@ function Transport() {
     ws.onclose = function() {
         transport_debug("WebSocket onclose");
         ws = null;
-        if (reload_after_disconnect) {
-            expect_disconnect = true;
+        if (transport_globals.reload_after_disconnect) {
+            transport_globals.expect_disconnect = true;
             window.location.reload(true);
         }
         self.close();
@@ -278,9 +280,9 @@ function Transport() {
             transport_debug("recv " + channel + ":", payload);
         }
 
-        const length = incoming_filters ? incoming_filters.length : 0;
+        const length = transport_globals.incoming_filters ? transport_globals.incoming_filters.length : 0;
         for (let i = 0; i < length; i++) {
-            if (incoming_filters[i](message, channel, control) === false)
+            if (transport_globals.incoming_filters[i](message, channel, control) === false)
                 return false;
         }
 
@@ -301,7 +303,7 @@ function Transport() {
         ws = null;
         if (ows)
             ows.close();
-        if (expect_disconnect)
+        if (transport_globals.expect_disconnect)
             return;
         ready_for_channels(); /* ready to fail */
 
@@ -330,16 +332,16 @@ function Transport() {
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
         if (options.host)
-            default_host = options.host;
+            transport_globals.default_host = options.host;
 
-        if (public_transport) {
-            public_transport.options = options;
-            public_transport.csrf_token = options["csrf-token"];
-            public_transport.host = default_host;
+        if (transport_globals.public_transport) {
+            transport_globals.public_transport.options = options;
+            transport_globals.public_transport.csrf_token = options["csrf-token"];
+            transport_globals.public_transport.host = transport_globals.default_host;
         }
 
-        if (init_callback)
-            init_callback(options);
+        if (transport_globals.init_callback)
+            transport_globals.init_callback(options);
 
         if (waiting_for_init) {
             waiting_for_init = false;
@@ -369,8 +371,8 @@ function Transport() {
             /* Any pong commands are ignored */
 
         } else if (data.command == "hint") {
-            if (process_hints)
-                process_hints(data);
+            if (transport_globals.process_hints)
+                transport_globals.process_hints(data);
         } else if (channel !== undefined) {
             const func = control_cbs[channel];
             if (func)
@@ -390,13 +392,13 @@ function Transport() {
             return false;
         }
 
-        const length = outgoing_filters ? outgoing_filters.length : 0;
+        const length = transport_globals.outgoing_filters ? transport_globals.outgoing_filters.length : 0;
         for (let i = 0; i < length; i++) {
             if (channel === undefined)
                 channel = parse_channel(data);
             if (!channel && control === undefined)
                 control = JSON.parse(data);
-            if (outgoing_filters[i](data, channel, control) === false)
+            if (transport_globals.outgoing_filters[i](data, channel, control) === false)
                 return false;
         }
 
@@ -448,9 +450,9 @@ function Transport() {
 }
 
 function ensure_transport(callback) {
-    if (!default_transport)
-        default_transport = new Transport();
-    const transport = default_transport;
+    if (!transport_globals.default_transport)
+        transport_globals.default_transport = new Transport();
+    const transport = transport_globals.default_transport;
     if (transport.ready) {
         callback(transport);
     } else {
@@ -462,8 +464,8 @@ function ensure_transport(callback) {
 
 /* Always close the transport explicitly: allows parent windows to track us */
 window.addEventListener("unload", function() {
-    if (default_transport)
-        default_transport.close();
+    if (transport_globals.default_transport)
+        transport_globals.default_transport.close();
 });
 
 function Channel(options) {
@@ -565,8 +567,8 @@ function Channel(options) {
         command.channel = id;
 
         if (!command.host) {
-            if (default_host)
-                command.host = default_host;
+            if (transport_globals.default_host)
+                command.host = transport_globals.default_host;
         }
 
         if (binary)
@@ -754,41 +756,41 @@ function factory() {
 
     /* Not public API ... yet? */
     cockpit.hint = function hint(name, options) {
-        if (!default_transport)
+        if (!transport_globals.default_transport)
             return;
         if (!options)
-            options = default_host;
+            options = transport_globals.default_host;
         if (typeof options == "string")
             options = { host: options };
         options.hint = name;
         cockpit.transport.control("hint", options);
     };
 
-    cockpit.transport = public_transport = {
+    cockpit.transport = transport_globals.public_transport = {
         wait: ensure_transport,
         inject: function inject(message, out) {
-            if (!default_transport)
+            if (!transport_globals.default_transport)
                 return false;
             if (out === undefined || out)
-                return default_transport.send_data(message);
+                return transport_globals.default_transport.send_data(message);
             else
-                return default_transport.dispatch_data({ data: message });
+                return transport_globals.default_transport.dispatch_data({ data: message });
         },
         filter: function filter(callback, out) {
             if (out) {
-                if (!outgoing_filters)
-                    outgoing_filters = [];
-                outgoing_filters.push(callback);
+                if (!transport_globals.outgoing_filters)
+                    transport_globals.outgoing_filters = [];
+                transport_globals.outgoing_filters.push(callback);
             } else {
-                if (!incoming_filters)
-                    incoming_filters = [];
-                incoming_filters.push(callback);
+                if (!transport_globals.incoming_filters)
+                    transport_globals.incoming_filters = [];
+                transport_globals.incoming_filters.push(callback);
             }
         },
         close: function close(problem) {
-            if (default_transport)
-                default_transport.close(problem ? { problem } : undefined);
-            default_transport = null;
+            if (transport_globals.default_transport)
+                transport_globals.default_transport.close(problem ? { problem } : undefined);
+            transport_globals.default_transport = null;
             this.options = { };
         },
         origin: transport_origin,
@@ -801,9 +803,9 @@ function factory() {
             });
         },
         application: function () {
-            if (!default_transport || window.mock)
+            if (!transport_globals.default_transport || window.mock)
                 return calculate_application();
-            return default_transport.application;
+            return transport_globals.default_transport.application;
         },
     };
 
@@ -1978,10 +1980,10 @@ function factory() {
         cockpit.localStorage.clear(false);
 
         if (reload !== false)
-            reload_after_disconnect = true;
+            transport_globals.reload_after_disconnect = true;
         ensure_transport(function(transport) {
             if (!transport.send_control({ command: "logout", disconnect: true }))
-                window.location.reload(reload_after_disconnect);
+                window.location.reload(transport_globals.reload_after_disconnect);
         });
         window.sessionStorage.setItem("logout-intent", "explicit");
         if (reason)
@@ -2002,7 +2004,7 @@ function factory() {
     cockpit.info = { };
     event_mixin(cockpit.info, { });
 
-    init_callback = function(options) {
+    transport_globals.init_callback = function(options) {
         if (options.system)
             Object.assign(cockpit.info, options.system);
         if (options.system)
@@ -2281,7 +2283,7 @@ function factory() {
          * via a hint message from the parent. For now we are the only handler of
          * hint messages, so this is implemented rather simply on purpose.
          */
-        process_hints = function(data) {
+        transport_globals.process_hints = function(data) {
             if ("hidden" in data) {
                 hiddenHint = data.hidden;
                 visibility_change();

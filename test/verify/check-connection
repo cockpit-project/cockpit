@@ -634,6 +634,19 @@ class TestConnection(testlib.MachineCase):
         m.execute("passwd -d admin")
         m.execute("passwd -d bob")
 
+        # HACK: For SUSE images, PAM for ssh is setup in a way that disallowed passwordless ssh
+        # In order to get around this lets generate an ssh key and handle auth that way
+        if "suse" in m.image:
+            m.execute("ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N ''")
+            m.execute("""cat /root/.ssh/id_ed25519.pub > /home/admin/.ssh/authorized_keys
+                      chown admin:admin /home/admin/.ssh/authorized_keys
+                      chmod 600 /home/admin/.ssh/authorized_keys""")
+            m.execute("""mkdir -p /home/bob/.ssh
+                      cat /root/.ssh/id_ed25519.pub > /home/bob/.ssh/authorized_keys
+                      chown -R bob:bob /home/bob/.ssh
+                      chmod 700 /home/bob/.ssh
+                      chmod 600 /home/bob/.ssh/authorized_keys""")
+
         self.sed_file('$ a\\\nPermitEmptyPasswords yes', testlib.get_sshd_config_path(m.image),
                       self.restart_sshd)
 

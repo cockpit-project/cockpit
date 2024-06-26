@@ -982,7 +982,11 @@ fi
 ipa-getkeytab -p HTTP/x0.cockpit.lan -k %(keytab)s
 
 # HACK: due to sudo's "last rule wins", our /etc/sudoers rule becomes trumped by sssd's, so swap the order
-sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
+if [ -f /etc/nsswitch.conf ]; then
+    sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
+else
+    sed -i '/^sudoers:/ s/files sss/sss files/' /usr/etc/nsswitch.conf
+fi
 """
 
 # This is here because our test framework can't run ipa VM's twice

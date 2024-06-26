@@ -46,28 +46,16 @@ export function invoke_functions(functions, self, args) {
     }
 }
 
-export function iterate_data(data, callback, batch) {
-    let binary = false;
-    let len = 0;
-
-    if (!batch)
-        batch = 64 * 1024;
-
-    if (data) {
-        if (data.byteLength) {
-            len = data.byteLength;
-            binary = true;
-        } else if (data.length) {
-            len = data.length;
+export function iterate_data(data, callback, batch = 64 * 1024) {
+    if (typeof data === 'string') {
+        for (let i = 0; i < data.length; i += batch) {
+            callback(data.substring(i, i + batch));
         }
-    }
-
-    for (let i = 0; i < len; i += batch) {
-        const n = Math.min(len - i, batch);
-        if (binary)
-            callback(new window.Uint8Array(data.buffer, i, n));
-        else
-            callback(data.substr(i, n));
+    } else if (data) {
+        for (let i = 0; i < data.byteLength; i += batch) {
+            const n = Math.min(data.byteLength - i, batch);
+            callback(new Uint8Array(data.buffer, i, n));
+        }
     }
 }
 

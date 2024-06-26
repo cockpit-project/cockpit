@@ -70,6 +70,8 @@ def redisService(image):
         return "redis-server"
     if image.startswith(("fedora", "centos-10", "rhel-10")):
         return "valkey"
+    if "suse" in image:
+        return "redis.target"
     return "redis"
 
 

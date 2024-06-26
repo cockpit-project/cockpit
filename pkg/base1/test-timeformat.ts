@@ -16,8 +16,6 @@ QUnit.test("absolute formatters, English", assert => {
     assert.equal(timeformat.dateTimeNoYear(d1), "Jan 02, 03:04 AM");
     assert.equal(timeformat.weekdayDate(d1), "Tuesday, January 2, 2024");
 
-    assert.equal(timeformat.dateShortFormat(), "MM/dd/yyyy");
-
     // all of these work with numbers as time argument
     assert.equal(timeformat.dateTimeSeconds(d1.valueOf()), "Jan 2, 2024, 3:04:05 AM");
 });
@@ -33,8 +31,6 @@ QUnit.test("absolute formatters, German", assert => {
     assert.equal(timeformat.dateTimeNoYear(d1), "02. Jan., 03:04");
     assert.equal(timeformat.weekdayDate(d1), "Dienstag, 2. Januar 2024");
 
-    assert.equal(timeformat.dateShortFormat(), "dd.MM.y");
-
     // all of these work with numbers as time argument
     assert.equal(timeformat.dateTimeSeconds(d1.valueOf()), "02.01.2024, 03:04:05");
 });
@@ -44,7 +40,6 @@ QUnit.test("absolute formatters, per-country locale", assert => {
     assert.equal(timeformat.timeSeconds(d1), "03:04:05");
     assert.equal(timeformat.date(d1), "2 January 2024");
     assert.equal(timeformat.dateShort(d1), "02/01/2024");
-    assert.equal(timeformat.dateShortFormat(), "dd/MM/yyyy");
 
     cockpit.language = "pt";
     assert.equal(timeformat.date(d1), "2 de janeiro de 2024");
@@ -122,26 +117,6 @@ QUnit.test("firstDayOfWeek", assert => {
     assert.equal(timeformat.firstDayOfWeek(), 0);
     cockpit.language = "de";
     assert.equal(timeformat.firstDayOfWeek(), 1);
-});
-
-QUnit.test("parsing", assert => {
-    cockpit.language = "en";
-    const en = timeformat.parseShortDate("1/20/2024");
-    assert.equal(en.getDate(), 20);
-    assert.equal(en.getMonth(), 0); // yes, starting from 0
-    assert.equal(en.getFullYear(), "2024");
-
-    cockpit.language = "en_GB";
-    const engb = timeformat.parseShortDate("20/01/2024");
-    assert.equal(engb.getDate(), 20);
-    assert.equal(engb.getMonth(), 0); // yes, starting from 0
-    assert.equal(engb.getFullYear(), "2024");
-
-    cockpit.language = "de";
-    const de = timeformat.parseShortDate("20.01.2024");
-    assert.equal(de.getDate(), 20);
-    assert.equal(de.getMonth(), 0); // yes, starting from 0
-    assert.equal(de.getFullYear(), "2024");
 });
 
 QUnit.start();

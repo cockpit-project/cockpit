@@ -4,7 +4,7 @@
  * Time stamps are given in milliseconds since the epoch.
  */
 import cockpit from "cockpit";
-import { parse, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import * as locales from 'date-fns/locale';
 
 // this needs to be dynamic, as some pages don't initialize cockpit.language right away
@@ -41,22 +41,11 @@ export const dateTimeNoYear = (t: Time): string => formatter({ month: 'short', d
 // Wednesday, June 30, 2021
 export const weekdayDate = (t: Time): string => formatter({ dateStyle: "full" }).format(t);
 
-// The following options are helpful for placeholders
-// yyyy/mm/dd
-export const dateShortFormat = (): string => dateFnsLocale().formatLong.date({ width: 'short' });
 // about 1 hour [ago]
 export const distanceToNow = (t: Time, addSuffix?: boolean): string => formatDistanceToNow(t, {
     locale: dateFnsLocale(),
     addSuffix: addSuffix ?? false
 });
-
-// Parse a string localized date like 30.06.21 to a Date Object
-export function parseShortDate(dateStr: string): Date {
-    // strip off time (i.e. set to midnight), to avoid confusing calendar widgets
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    return parse(dateStr, dateShortFormat(), today);
-}
 
 /***
  * sorely missing from Intl: https://github.com/tc39/ecma402/issues/6

@@ -29,10 +29,10 @@ import { event_mixin } from './_internal/event-mixin';
 import { url_root, transport_origin, calculate_application, calculate_url } from './_internal/location';
 import { ensure_transport, transport_globals } from './_internal/transport';
 
-const cockpit = { };
-event_mixin(cockpit, { });
-
 function factory() {
+    const cockpit = { };
+    event_mixin(cockpit, { });
+
     cockpit.channel = function channel(options) {
         return new Channel(options);
     };
@@ -3140,8 +3140,9 @@ function factory() {
     return cockpit;
 }
 
+const cockpit = factory();
+export default cockpit;
+
 // Register cockpit object as global, so that it can be used without ES6 modules
 // we need to do that here instead of in pkg/base1/cockpit.js, so that po.js can access cockpit already
-window.cockpit = factory();
-
-export default window.cockpit;
+window.cockpit = cockpit;

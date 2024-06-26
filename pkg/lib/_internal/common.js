@@ -80,19 +80,10 @@ export function join_data(buffers, binary) {
     for (let i = 0; i < length; i++)
         total += buffers[i].length;
 
-    const data = window.Uint8Array ? new window.Uint8Array(total) : new Array(total);
-
-    if (data.set) {
-        for (let j = 0, i = 0; i < length; i++) {
-            data.set(buffers[i], j);
-            j += buffers[i].length;
-        }
-    } else {
-        for (let j = 0, i = 0; i < length; i++) {
-            for (let k = 0; k < buffers[i].length; k++)
-                data[i + j] = buffers[i][k];
-            j += buffers[i].length;
-        }
+    const data = new Uint8Array(total);
+    for (let j = 0, i = 0; i < length; i++) {
+        data.set(buffers[i], j);
+        j += buffers[i].length;
     }
 
     return data;

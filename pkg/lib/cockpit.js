@@ -26,9 +26,6 @@ import { event_mixin } from './_internal/event-mixin';
 import { url_root, transport_origin, calculate_application, calculate_url } from './_internal/location';
 import { ParentWebSocket } from './_internal/parentwebsocket';
 
-/* injected by tests */
-var mock = mock || { }; // eslint-disable-line no-use-before-define, no-var
-
 const cockpit = { };
 event_mixin(cockpit, { });
 

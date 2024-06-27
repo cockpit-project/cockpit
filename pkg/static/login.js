@@ -1,5 +1,8 @@
 import "./login.scss";
 
+import sha256 from "js-sha256";
+import { base64_decode, base64_encode } from "_internal/base64";
+
 (function(console) {
     let localStorage;
 
@@ -747,15 +750,44 @@ import "./login.scss";
     function do_hostkey_verification(data) {
         const key_db = get_known_hosts_db();
         const key = data["host-key"];
-        const key_key = key.split(" ")[0];
-        const key_type = key.split(" ")[1];
+        const [key_key, key_type, key_value] = key.split(" ");
+        const db_key = key_db[key_key];
 
-        if (key_db[key_key] == key) {
-            converse(data.id, data.default);
-            return;
+        // did we see this host before?
+        if (db_key) {
+            // exact same key → good
+            if (key_db[key_key] == key) {
+                converse(data.id, data.default);
+                return;
+            }
+
+            /* transition case: cockpit-ssh stored full public keys in the DB, like
+            * "myhost ecdsa-sha2-nistp256 AAAA[..]ToM=\n"; ssh(1) does not show them, only fingerprints, so
+            * cockpit-beiboot only responds with fingerprints as well; they look like "myhost ED25519 SHA256:JVG[..]xs"
+            * check if we can match the given fingerprint to an existing entry */
+            const db_key_value = db_key.split(" ")[2];
+            if (key_value.startsWith('SHA256:') && db_key_value && !db_key_value.includes(':')) {
+                // compute SHA256 fingerprint of reference db key and compare it
+                // we don't compare key types here as cockpit-ssh and ssh name them differently, but
+                // that's fine -- different key types will have different fingerprints
+                const fp_raw = 'SHA256:' + base64_encode(sha256.digest(base64_decode(db_key_value)));
+                // ssh omits trailing padding
+                const fp = fp_raw.replace(/=+$/, '');
+
+                // if it matches, accept
+                if (fp == key_value) {
+                    converse(data.id, data.default);
+                    return;
+                }
+
+                // otherwise, the key changed, let user confirm below; note that this could also
+                // happen because the key *type* changed: this can happen either by evolution of the SSH server, or
+                // libssh, or ssh(1), or the two disagreeing which key type to show by default, or changed admin config
+                // in either case we want the user to confirm the changed key, not treat it as "new host"
+            }
         }
 
-        if (key_db[key_key]) {
+        if (db_key) {
             id("hostkey-title").textContent = format(_("$0 key changed"), id("server-field").value);
             show("#hostkey-warning-group");
             id("hostkey-message-1").textContent = "";
@@ -793,7 +825,7 @@ import "./login.scss";
         show_form("hostkey");
         show("#get-out-link");
 
-        if (key_db[key_key]) {
+        if (db_key) {
             id("login-button").classList.add("pf-m-danger");
             id("login-button").classList.remove("pf-m-primary");
         }

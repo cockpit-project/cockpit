@@ -1010,6 +1010,40 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
         try_login("admin", "foobar", server=f"other@{my_ip}")
         check_session()
 
+        # clear login page's known host keys
+        b.eval_js("window.localStorage.setItem('known_hosts', '{}')")
+        # now it prompts for host key again
+        try_login("admin", "foobar", expect_hostkey=True)
+        check_session()
+
+        # test localStorage compatibility with full host keys from cockpit-ssh
+
+        # case 1: cockpit-ssh and ssh agree on key type (ED25519)
+        hostkey = m.execute(f"ssh-keyscan -t ssh-ed25519 {my_ip}").strip()
+        b.eval_js(f"""window.localStorage.setItem('known_hosts', '{{"{my_ip}": "{hostkey}"}}')""")
+        # login works without prompting for host key
+        try_login("admin", "foobar")
+        check_session()
+
+        # case 2: known key type, but non-matching fingerprint
+        bad_key = "AAAACdNzaCblZDIbNTEfAAAAICMiOpgxATmTdJzJSvgseN+HZnVytdrBPOatt/jXwefQ"
+        b.eval_js(f"""window.localStorage.setItem('known_hosts', '{{"{my_ip}": "{bad_key}"}}')""")
+        try_login("admin", "foobar")
+        b.wait_text("#hostkey-title", f"{my_ip} key changed")
+        b.wait_in_text("#hostkey-fingerprint", "SHA256:")
+        b.click("#login-button.pf-m-danger")
+        check_session()
+
+        # case 3: cockpit-ssh and ssh disagree on key type
+        hostkey = m.execute(f"ssh-keyscan -t ecdsa-sha2-nistp256 {my_ip}").strip()
+        b.eval_js(f"""window.localStorage.setItem('known_hosts', '{{"{my_ip}": "{hostkey}"}}')""")
+        # we also want to treat this as changed host key
+        try_login("admin", "foobar")
+        b.wait_text("#hostkey-title", f"{my_ip} key changed")
+        b.wait_in_text("#hostkey-fingerprint", "SHA256:")
+        b.click("#login-button.pf-m-danger")
+        check_session()
+
 
 if __name__ == '__main__':
     testlib.test_main()

@@ -65,6 +65,7 @@ QUnit.test("relative formatter, English", assert => {
     const minutes = now - 4 * MIN - 5 * SEC;
     const halfhour = now - 32 * MIN;
     const hours = now - 3 * HOUR - 57 * MIN;
+    const yesterday = now - 25 * HOUR;
     const days4short = now - 4 * DAY + 2 * HOUR;
     const days4long = now - 4 * DAY - 2 * HOUR;
     const week3short = now - 20 * DAY + 2 * HOUR;
@@ -85,6 +86,9 @@ QUnit.test("relative formatter, English", assert => {
 
     assert.equal(timeformat.distanceToNow(hours), "about 4 hours");
     assert.equal(timeformat.distanceToNow(hours, true), "about 4 hours ago");
+
+    assert.equal(timeformat.distanceToNow(yesterday), "1 day");
+    assert.equal(timeformat.distanceToNow(yesterday, true), "1 day ago");
 
     assert.equal(timeformat.distanceToNow(days4short), "4 days");
     assert.equal(timeformat.distanceToNow(days4long), "4 days");
@@ -107,6 +111,7 @@ QUnit.test("relative formatter, German", assert => {
     assert.equal(timeformat.distanceToNow(seconds), "weniger als 1 Minute");
     assert.equal(timeformat.distanceToNow(seconds, true), "vor weniger als 1 Minute");
 
+    assert.equal(timeformat.distanceToNow(now - 25 * HOUR), "1 Tag");
     assert.equal(timeformat.distanceToNow(now - 4 * DAY), "4 Tage");
     assert.equal(timeformat.distanceToNow(now - 21 * DAY), "21 Tage");
     assert.equal(timeformat.distanceToNow(now - 62 * DAY), "2 Monate");

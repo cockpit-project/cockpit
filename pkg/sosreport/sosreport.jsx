@@ -473,7 +473,7 @@ const SOSBody = () => {
             props: { key: path },
             columns: [
                 report.name,
-                timeformat.distanceToNow(new Date(report.date * 1000), true),
+                timeformat.distanceToNow(new Date(report.date * 1000)),
                 { title: <LabelGroup>{labels}</LabelGroup> },
                 {
                     title: <>{action}{menu}</>,

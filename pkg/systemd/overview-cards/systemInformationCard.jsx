@@ -95,7 +95,7 @@ export class SystemInformationCard extends React.Component {
                 .then(content => {
                     const uptime = parseFloat(content.split(' ')[0]);
                     const bootTime = new Date().valueOf() - uptime * 1000;
-                    this.setState({ systemUptime: timeformat.distanceToNow(bootTime, true) });
+                    this.setState({ systemUptime: timeformat.distanceToNow(bootTime) });
                 })
                 .catch(ex => console.error("Error reading system uptime", ex.toString())); // not-covered: OS error
     }

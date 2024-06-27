@@ -4,19 +4,11 @@
  * Time stamps are given in milliseconds since the epoch.
  */
 import cockpit from "cockpit";
-import { formatDistanceToNow } from 'date-fns';
-import * as locales from 'date-fns/locale';
+
+const _ = cockpit.gettext;
 
 // this needs to be dynamic, as some pages don't initialize cockpit.language right away
 export const dateFormatLang = (): string => cockpit.language.replace('_', '-');
-
-const dateFormatLangDateFns = (): string => {
-    if (cockpit.language == "en") return "enUS";
-    else return cockpit.language.replace('_', '');
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const dateFnsLocale = (): any => (locales as any)[dateFormatLangDateFns()];
 
 type Time = Date | number;
 
@@ -41,11 +33,38 @@ export const dateTimeNoYear = (t: Time): string => formatter({ month: 'short', d
 // Wednesday, June 30, 2021
 export const weekdayDate = (t: Time): string => formatter({ dateStyle: "full" }).format(t);
 
-// about 1 hour [ago]
-export const distanceToNow = (t: Time, addSuffix?: boolean): string => formatDistanceToNow(t, {
-    locale: dateFnsLocale(),
-    addSuffix: addSuffix ?? false
-});
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat/format
+const units: { name: Intl.RelativeTimeFormatUnit, max: number }[] = [
+    { name: "second", max: 60 },
+    { name: "minute", max: 3600 },
+    { name: "hour", max: 86400 },
+    { name: "day", max: 86400 * 7 },
+    { name: "week", max: 86400 * 30 },
+    { name: "month", max: 86400 * 365 },
+    { name: "year", max: Infinity },
+];
+
+// "1 hour ago" for past times, "in 1 hour" for future times
+export function distanceToNow(t: Time): string {
+    // Calculate the difference in seconds between the given date and the current date
+    const t_timestamp = t?.valueOf() ?? t;
+    const secondsDiff = Math.round((t_timestamp - Date.now()) / 1000);
+
+    // special case for < 1 minute, like date-fns
+    // we don't constantly re-render pages and there are delays, so seconds is too precise
+    if (secondsDiff <= 0 && secondsDiff > -60)
+        return _("less than a minute ago");
+    if (secondsDiff > 0 && secondsDiff < 60)
+        return _("in less than a minute");
+
+    // find the appropriate unit based on the seconds difference
+    const unitIndex = units.findIndex(u => u.max > Math.abs(secondsDiff));
+    // get the divisor to convert seconds to the appropriate unit
+    const divisor = unitIndex ? units[unitIndex - 1].max : 1;
+
+    const formatter = new Intl.RelativeTimeFormat(dateFormatLang(), { numeric: "auto" });
+    return formatter.format(Math.round(secondsDiff / divisor), units[unitIndex].name);
+}
 
 /***
  * sorely missing from Intl: https://github.com/tc39/ecma402/issues/6

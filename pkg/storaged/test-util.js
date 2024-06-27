@@ -22,9 +22,9 @@ import QUnit, { f } from "qunit-tests";
 
 QUnit.test("format_delay", function (assert) {
     const checks = [
-        [3000, "less than a minute"],
-        [60000, "1 minute"],
-        [15550000, "about 4 hours"],
+        [3000, "in less than a minute"],
+        [60000, "in 1 minute"],
+        [15550000, "in 4 hours"],
     ];
 
     assert.expect(checks.length);

@@ -61,60 +61,54 @@ const DAY = 24 * HOUR;
 
 QUnit.test("relative formatter, English", assert => {
     const now = Date.now();
-    const seconds = now - 4.5 * SEC;
-    const minutes = now - 4 * MIN - 5 * SEC;
-    const halfhour = now - 32 * MIN;
-    const hours = now - 3 * HOUR - 57 * MIN;
-    const yesterday = now - 25 * HOUR;
-    const days4short = now - 4 * DAY + 2 * HOUR;
-    const days4long = now - 4 * DAY - 2 * HOUR;
-    const week3short = now - 20 * DAY + 2 * HOUR;
-    const week3long = now - 21 * DAY - 2 * HOUR;
-    const month2short = now - 2 * 30 * DAY + 5 * DAY;
-    const month2long = now - 2 * 30 * DAY - 5 * DAY;
 
     cockpit.language = "en";
-    assert.equal(timeformat.distanceToNow(seconds), "less than a minute");
-    assert.equal(timeformat.distanceToNow(seconds, false), "less than a minute");
-    assert.equal(timeformat.distanceToNow(seconds, true), "less than a minute ago");
+    assert.equal(timeformat.distanceToNow(now + 4.5 * SEC), "in less than a minute");
+    assert.equal(timeformat.distanceToNow(now - 4.5 * SEC), "less than a minute ago");
 
-    assert.equal(timeformat.distanceToNow(minutes), "4 minutes");
-    assert.equal(timeformat.distanceToNow(minutes, true), "4 minutes ago");
+    assert.equal(timeformat.distanceToNow(now + 4 * MIN - 5 * SEC), "in 4 minutes");
+    assert.equal(timeformat.distanceToNow(now - 4 * MIN - 5 * SEC), "4 minutes ago");
+    assert.equal(timeformat.distanceToNow(now - 4 * MIN + 5 * SEC), "4 minutes ago");
 
-    assert.equal(timeformat.distanceToNow(halfhour), "32 minutes");
-    assert.equal(timeformat.distanceToNow(halfhour, true), "32 minutes ago");
+    assert.equal(timeformat.distanceToNow(now - 32 * MIN), "32 minutes ago");
+    assert.equal(timeformat.distanceToNow(now + 32 * MIN), "in 32 minutes");
 
-    assert.equal(timeformat.distanceToNow(hours), "about 4 hours");
-    assert.equal(timeformat.distanceToNow(hours, true), "about 4 hours ago");
+    assert.equal(timeformat.distanceToNow(now + 3 * HOUR + 57 * MIN), "in 4 hours");
+    assert.equal(timeformat.distanceToNow(now - 3 * HOUR - 57 * MIN), "4 hours ago");
 
-    assert.equal(timeformat.distanceToNow(yesterday), "1 day");
-    assert.equal(timeformat.distanceToNow(yesterday, true), "1 day ago");
+    assert.equal(timeformat.distanceToNow(now + 25 * HOUR), "tomorrow");
+    assert.equal(timeformat.distanceToNow(now - 25 * HOUR), "yesterday");
 
-    assert.equal(timeformat.distanceToNow(days4short), "4 days");
-    assert.equal(timeformat.distanceToNow(days4long), "4 days");
-    assert.equal(timeformat.distanceToNow(days4short, true), "4 days ago");
+    assert.equal(timeformat.distanceToNow(now + 4 * DAY - 2 * HOUR), "in 4 days");
+    assert.equal(timeformat.distanceToNow(now + 4 * DAY + 2 * HOUR), "in 4 days");
+    assert.equal(timeformat.distanceToNow(now - 4 * DAY - 2 * HOUR), "4 days ago");
+    assert.equal(timeformat.distanceToNow(now - 4 * DAY + 2 * HOUR), "4 days ago");
 
-    assert.equal(timeformat.distanceToNow(week3short), "20 days");
-    assert.equal(timeformat.distanceToNow(week3long), "21 days");
-    assert.equal(timeformat.distanceToNow(week3long, true), "21 days ago");
+    assert.equal(timeformat.distanceToNow(now + 20 * DAY), "in 3 weeks");
+    assert.equal(timeformat.distanceToNow(now + 21 * DAY), "in 3 weeks");
+    assert.equal(timeformat.distanceToNow(now - 21 * DAY), "3 weeks ago");
 
-    assert.equal(timeformat.distanceToNow(month2short), "about 2 months");
-    assert.equal(timeformat.distanceToNow(month2long), "2 months");
+    assert.equal(timeformat.distanceToNow(now + 60 * DAY), "in 2 months");
+    assert.equal(timeformat.distanceToNow(now - 60 * DAY), "2 months ago");
+
+    assert.equal(timeformat.distanceToNow(now + 1200 * DAY), "in 3 years");
+    assert.equal(timeformat.distanceToNow(now - 1200 * DAY), "3 years ago");
 });
 
 QUnit.test("relative formatter, German", assert => {
     const now = Date.now();
-    const seconds = now - 4.5 * SEC;
 
     // no need to be as thorough as with English, just spot check that it's translated
     cockpit.language = "de";
-    assert.equal(timeformat.distanceToNow(seconds), "weniger als 1 Minute");
-    assert.equal(timeformat.distanceToNow(seconds, true), "vor weniger als 1 Minute");
+    /* TODO: this first needs to be translated in po/de.po
+    assert.equal(timeformat.distanceToNow(now + 4.5 * SEC), "in weniger als 1 Minute");
+    assert.equal(timeformat.distanceToNow(now - 4.5 * SEC), "vor weniger als 1 Minute");
+    */
 
-    assert.equal(timeformat.distanceToNow(now - 25 * HOUR), "1 Tag");
-    assert.equal(timeformat.distanceToNow(now - 4 * DAY), "4 Tage");
-    assert.equal(timeformat.distanceToNow(now - 21 * DAY), "21 Tage");
-    assert.equal(timeformat.distanceToNow(now - 62 * DAY), "2 Monate");
+    assert.equal(timeformat.distanceToNow(now + 25 * HOUR), "morgen");
+    assert.equal(timeformat.distanceToNow(now - 25 * HOUR), "gestern");
+    assert.equal(timeformat.distanceToNow(now - 4 * DAY), "vor 4 Tagen");
+    assert.equal(timeformat.distanceToNow(now + 21 * DAY), "in 3 Wochen");
 });
 
 QUnit.test("firstDayOfWeek", assert => {

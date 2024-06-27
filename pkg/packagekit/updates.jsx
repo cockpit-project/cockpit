@@ -780,7 +780,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, tracerPacka
     let lastChecked;
     // PackageKit returns G_MAXUINT if the db was never checked.
     if (timeSinceRefresh !== null && timeSinceRefresh !== 2 ** 32 - 1)
-        lastChecked = cockpit.format(_("Last checked: $0"), timeformat.distanceToNow(new Date().valueOf() - timeSinceRefresh * 1000, true));
+        lastChecked = cockpit.format(_("Last checked: $0"), timeformat.distanceToNow(new Date().valueOf() - timeSinceRefresh * 1000));
 
     const notifications = [];
     if (numUpdates > 0) {

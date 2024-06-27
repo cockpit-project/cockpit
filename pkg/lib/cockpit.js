@@ -78,11 +78,6 @@ function is_plain_object(x) {
     return is_object(x) && Object.prototype.toString.call(x) === '[object Object]';
 }
 
-/* Also works for negative zero */
-function is_negative(n) {
-    return ((n = +n) || 1 / n) < 0;
-}
-
 function invoke_functions(functions, self, args) {
     const length = functions?.length ?? 0;
     for (let i = 0; i < length; i++) {
@@ -2153,6 +2148,10 @@ function factory() {
             window.clearInterval(walking);
             walking = null;
             offset = null;
+        }
+
+        function is_negative(n) {
+            return ((n = +n) || 1 / n) < 0;
         }
 
         self.move = function move(beg, end) {

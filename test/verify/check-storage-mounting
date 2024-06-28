@@ -94,7 +94,7 @@ ExecStart=/usr/bin/sleep infinity
         b.wait_in_text("#dialog", "The listed processes and services will be forcefully stopped.")
         if fstype != "btrfs":
             b.assert_pixels("#dialog", "busy-unmount", mock={"td[data-label='PID']": "1234",
-                                                             "td[data-label='Runtime']": "a little while"})
+                                                             "td[data-label='Started']": "a little while ago"})
         self.confirm()
         b.wait_in_text(self.card_desc(filesystem, "Mount point"), "The filesystem is not mounted")
 

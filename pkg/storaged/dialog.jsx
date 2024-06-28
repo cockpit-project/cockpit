@@ -1401,7 +1401,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                 u.pid,
                 { title: u.cmd.substr(0, 100), props: { modifier: "breakWord" } },
                 u.user || "-",
-                { title: format_delay(-u.since * 1000), props: { modifier: "nowrap" } }
+                { title: format_delay(-u.since * 1000, true), props: { modifier: "nowrap" } }
             ]
         };
     });
@@ -1412,7 +1412,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                 { title: u.unit.replace(/\.service$/, ""), props: { modifier: "breakWord" } },
                 { title: u.cmd.substr(0, 100), props: { modifier: "breakWord" } },
                 { title: u.desc || "", props: { modifier: "breakWord" } },
-                { title: format_delay(-u.since * 1000), props: { modifier: "nowrap" } }
+                { title: format_delay(-u.since * 1000, true), props: { modifier: "nowrap" } }
             ]
         };
     });
@@ -1432,7 +1432,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                                           { title: _("PID"), props: colprops },
                                           { title: _("Command"), props: colprops },
                                           { title: _("User"), props: colprops },
-                                          { title: _("Runtime"), props: colprops }
+                                          { title: _("Started"), props: colprops }
                                       ]
                                   }
                                       rows={process_rows} />
@@ -1452,7 +1452,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
                                           { title: _("Service"), props: colprops },
                                           { title: _("Command"), props: colprops },
                                           { title: _("Description"), props: colprops },
-                                          { title: _("Runtime"), props: colprops }
+                                          { title: _("Started"), props: colprops }
                                       ]
                                   }
                                   rows={service_rows} />

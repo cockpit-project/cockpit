@@ -191,8 +191,8 @@ export function format_fsys_usage(used, total) {
     return parts[0] + text;
 }
 
-export function format_delay(d) {
-    return timeformat.distanceToNow(new Date().valueOf() + d);
+export function format_delay(d, addSuffix) {
+    return timeformat.distanceToNow(new Date().valueOf() + d, addSuffix);
 }
 
 export function format_size_and_text(size, text) {

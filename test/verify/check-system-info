@@ -193,11 +193,11 @@ class TestSystemInfo(testlib.MachineCase):
         m.execute("mount -o bind /tmp/fake_uptime /proc/uptime")
         self.addCleanup(m.execute, "umount /proc/uptime")
         with b.wait_timeout(70):
-            b.wait_text("#system_uptime", "33 minutes")
+            b.wait_text("#system_uptime", "33 minutes ago")
         # 4 months and a bit, timeformat rounds quite aggressively; also, test a slightly different format
         m.write("/tmp/fake_uptime", "10370000 12345.30\n")
         with b.wait_timeout(70):
-            b.wait_text("#system_uptime", "4 months")
+            b.wait_text("#system_uptime", "4 months ago")
 
         self.allow_journal_messages("error loading contents of os-release: .*",  # C bridge
                                     ".* Neither /etc/os-release nor /usr/lib/os-release exists",  # py bridge

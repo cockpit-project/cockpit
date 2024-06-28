@@ -95,7 +95,7 @@ export class SystemInformationCard extends React.Component {
                 .then(content => {
                     const uptime = parseFloat(content.split(' ')[0]);
                     const bootTime = new Date().valueOf() - uptime * 1000;
-                    this.setState({ systemUptime: timeformat.distanceToNow(bootTime) });
+                    this.setState({ systemUptime: timeformat.distanceToNow(bootTime, true) });
                 })
                 .catch(ex => console.error("Error reading system uptime", ex.toString())); // not-covered: OS error
     }
@@ -126,7 +126,7 @@ export class SystemInformationCard extends React.Component {
                                 </td>
                             </tr>
                             <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th system-information-uptime" scope="row">{_("Uptime")}</th>
+                                <th className="pf-v5-c-table__th system-information-uptime" scope="row">{_("Up since")}</th>
                                 <td className="pf-v5-c-table__td">
                                     <div id="system_uptime">{this.state.systemUptime}</div>
                                 </td>

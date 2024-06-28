@@ -23,6 +23,9 @@ from machine import testvm
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 
+# Amount of times a test is re-run to find flakes / race conditions
+AMPLIFY_TEST_COUNT = 10
+
 
 def flush_stdout():
     while True:
@@ -359,10 +362,12 @@ def detect_tests(test_files, image, opts):
                     cost = 1
                 test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, todo, cost=cost)
                 if nd:
-                    nondestructive_tests.append(test)
+                    for _ in range(AMPLIFY_TEST_COUNT if opts.amplify == test_str else 1):
+                        nondestructive_tests.append(test)
                 else:
                     if not opts.nondestructive:
-                        destructive_tests.append(test)
+                        for _ in range(AMPLIFY_TEST_COUNT if opts.amplify == test_str else 1):
+                            destructive_tests.append(test)
                 test_id += 1
 
     # sort non destructive tests by class/test name, to avoid spurious errors where failures depend on the order of
@@ -548,6 +553,8 @@ def main():
                         help='Update the occurrence of naughties on cockpit-project/bots')
     parser.add_argument('--no-retry-fail', action='store_true',
                         help="Don't retry failed tests")
+    parser.add_argument('--amplify', type=str, default=None,
+                        help="Run the given tests multiple times in a row")
     opts = parser.parse_args()
 
     if opts.machine:

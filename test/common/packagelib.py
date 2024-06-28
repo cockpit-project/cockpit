@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import functools
-import json
 import logging
 import os
 import re
@@ -120,13 +118,13 @@ class PackageCase(MachineCase):
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
 
         # reset automatic updates
-        if self.backend == 'dnf4' and "dnf-automatic" in self.getSystemdExistingUnits():
+        if self.backend == 'dnf4':
             self.restore_file("/etc/dnf/automatic.conf")
             self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install "
                                  "dnf-automatic.service dnf-automatic-install.timer")
             self.machine.execute("rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")
 
-        if self.backend == 'dnf5' and "dnf5-automatic.timer" in self.getSystemdExistingUnits():
+        if self.backend == 'dnf5':
             self.restore_file("/etc/dnf/dnf5-plugins/automatic.conf")
             self.addCleanup(self.machine.execute, "systemctl disable --now dnf5-automatic.timer 2>/dev/null || true")
             self.addCleanup(self.machine.execute, "rm -r /etc/systemd/system/dnf5-automatic*.d && systemctl daemon-reload || true")
@@ -135,13 +133,6 @@ class PackageCase(MachineCase):
 
         # HACK: kpatch check sometimes complains that we don't set up a full repo in unrelated tests
         self.allow_browser_errors("Could not determine kpatch packages:.*repodata updates was not complete")
-
-    @functools.cached_property
-    def getSystemdUnitsInfo(self):
-        return json.loads(self.machine.execute("systemctl list-units -la --plain -o json"))
-
-    def getSystemdExistingUnits(self):
-        return [foo["unit"] for foo in self.getSystemdUnitsInfo]
 
     #
     # Helper functions for creating packages/repository

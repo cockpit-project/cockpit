@@ -14,6 +14,7 @@
         "baseUrl": "./pkg/lib",
         "esModuleInterop": true,
         "exactOptionalPropertyTypes": true,
+        "incremental": true,
         "jsx": "react",
         "lib": [
             "dom",
@@ -21,7 +22,6 @@
         ],
         "moduleResolution": "node",
         "noEmit": true,  // we only use `tsc` for type checking
-        "skipLibCheck": true,  // don't check node_modules
         "strict": true,
         "target": "es2020",
     },

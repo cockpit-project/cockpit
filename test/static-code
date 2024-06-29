@@ -69,13 +69,11 @@ if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
 
     test_typescript() {
         test -x node_modules/.bin/tsc -a -x /usr/bin/node || skip 'no tsc'
-	# https://github.com/microsoft/TypeScript/issues/30511
-	# We can't tell tsc to ignore the .d.ts in node_modules/ and check our
-	# own cockpit.d.ts, so we do two separate invocations as a workaround:
-	if [ -n "$(git ls-files pkg/lib)" ]; then
-	    node_modules/.bin/tsc --typeRoots /dev/null --strict pkg/lib/cockpit.d.ts
-	fi
-	node_modules/.bin/tsc --checkJs false --skipLibCheck
+        # Only display tsc output if it contains errors about something other than node_modules/
+        # https://github.com/microsoft/TypeScript/issues/30511
+        if node_modules/.bin/tsc --checkJs false --pretty false | grep -Eqv '^(node_modules| )'; then
+            node_modules/.bin/tsc ${FORCE_COLOR:+--pretty true} --checkJs false
+        fi
     }
 fi
 
@@ -160,6 +158,10 @@ main() {
     if [ ! -e .git ]; then
         echo '1..0 # SKIP not in a git checkout'
         exit 0
+    fi
+
+    if test -t 1; then
+        FORCE_COLOR=1
     fi
 
     exit_status=0

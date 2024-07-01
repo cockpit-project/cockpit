@@ -743,8 +743,10 @@ async def test_channel(bridge: Bridge, transport: MockTransport, channeltype, tm
             args = {'spawn': ['cat']}
         else:
             args = {'unix': srv}
-    elif payload == 'metrics1':
+    elif payload == 'metrics1' and channeltype.restrictions:
         args['metrics'] = [{'name': 'memory.free'}]
+    elif payload == 'metrics1':
+        pytest.skip('no PCP metric data')
     elif payload == 'dbus-json3':
         if not os.path.exists('/run/dbus/system_bus_socket'):
             pytest.skip('no dbus')

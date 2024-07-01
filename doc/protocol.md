@@ -1142,7 +1142,7 @@ The general open options are:
    * "direct": PCP metrics from plugins that are loaded into the
      Cockpit bridge directly.  Use this when in doubt.
 
-   * "pcmd": PCP metrics from the local PCP daemon.
+   * "pmcd": PCP metrics from the local PCP daemon.
 
    * A string starting with "/": PCP metrics from one or more
      archives.

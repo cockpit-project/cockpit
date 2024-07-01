@@ -116,7 +116,8 @@ exit 1""", perm="755")
         b.wait_not_present("#sos-dialog")
 
         self.allow_journal_messages('.*comm="sosreport".*')
-        self.allow_browser_errors('error: Failed to call sos report: {"problem":null,"exit_status":1,"exit_signal":null')
+        self.allow_browser_errors(
+            'error: Failed to call sos report: {"problem":null,"exit_status":1,"exit_signal":null')
 
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
@@ -150,7 +151,9 @@ only-plugins=release,date,host,cgroups,networking
 
         # There should be one archive and it should contain a bunch of debug messages
         self.assertEqual(m.execute("ls -l /var/tmp/sosreport*mylabel*.tar.xz | wc -l").strip(), "1")
-        self.assertGreater(int(m.execute("tar --wildcards -xaOf /var/tmp/sosreport*mylabel*.tar.xz '*/sos_logs/sos.log' | grep -c 'DEBUG: \\[plugin:release\\]'")), 5)
+        messages = m.execute("tar --wildcards -xaOf /var/tmp/sosreport*mylabel*.tar.xz '*/sos_logs/sos.log'"
+                             "| grep -c 'DEBUG: \\[plugin:release\\]'")
+        self.assertGreater(int(messages), 5)
 
     def testCancel(self):
         m = self.machine
@@ -181,8 +184,8 @@ only-plugins=release,date,host,cgroups,networking
         b.wait_not_present(".pf-v5-c-empty-state")
         image_os = m.image.split('-')[0]
         if image_os in ['fedora', 'debian', 'ubuntu']:
-            b.wait_visible(".app-list .pf-v5-c-data-list__item-row div[rowId='Diagnostic reports']")
-            b.wait_visible(".app-list .pf-v5-c-data-list__item-row div[rowId='Diagnostic reports'] button:contains('Remove')")
+            b.wait_visible(".app-list .pf-v5-c-data-list__item-row div[rowId='Diagnostic reports'] "
+                           "button:contains('Remove')")
         else:
             b.wait_not_present(".app-list .pf-v5-c-data-list__item-row div[rowId='Diagnostic reports']")
 

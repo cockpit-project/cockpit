@@ -723,8 +723,8 @@ password=foobar
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 5s
         time.sleep(8)
+        testlib.wait(lambda: progressValue(2) >= initial_usage + 10)
         hog_usage = progressValue(2)
-        self.assertGreater(hog_usage, initial_usage + 10)
 
         m.execute("kill %d" % mem_hog)
         # Should go back to initial_usage, but it doesn't always, for example on fedora.

@@ -44,6 +44,7 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import cockpit from "cockpit";
 import { superuser } from "superuser";
 import { useObject, useEvent } from "hooks";
+import * as python from "python";
 
 import { SuperuserButton } from "../shell/superuser.jsx";
 
@@ -52,6 +53,8 @@ import * as timeformat from "timeformat";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 import { KebabDropdown } from "cockpit-components-dropdown";
+
+import get_report_dir_py from "./get_report_dir.py";
 
 import './sosreport.scss';
 
@@ -90,8 +93,10 @@ function sosLister() {
         }
     }
 
-    function update_reports() {
-        cockpit.script('find /var/tmp -maxdepth 1 -name \'*sosreport-*.tar.*\' -print0 | xargs -0 -r stat --printf="%n\\r%W\\n"', { superuser: "require", err: "message" })
+    function update_reports(report_dir) {
+        cockpit.script(`find ${report_dir} -maxdepth 1 -name '*sosreport-*.tar.*' -print0 | ` +
+                       'xargs -0 -r stat --printf="%n\\r%W\\n"',
+                       { superuser: "require", err: "message" })
                 .then(output => {
                     const reports = { };
                     const lines = output.split("\n");
@@ -116,7 +121,7 @@ function sosLister() {
 
     let watch = null;
 
-    function restart() {
+    async function restart() {
         if (superuser.allowed === null)
             return;
 
@@ -126,14 +131,16 @@ function sosLister() {
         self.problem = null;
         watch = null;
 
-        watch = cockpit.channel({ payload: "fswatch1", path: "/var/tmp", superuser: "require" });
+        const report_dir = (await python.spawn(get_report_dir_py)).trim();
+
+        watch = cockpit.channel({ payload: "fswatch1", path: report_dir, superuser: "require" });
         watch.addEventListener("message", (event, payload) => {
             const msg = JSON.parse(payload);
             if (msg.event != "present" && parse_report_name(msg.path))
-                update_reports();
+                update_reports(report_dir);
         });
 
-        update_reports();
+        update_reports(report_dir);
     }
 
     restart();

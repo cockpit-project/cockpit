@@ -30,20 +30,25 @@ import testlib
 @testlib.nondestructive
 class TestSOS(testlib.MachineCase):
 
+    def setUp(self):
+        super().setUp()
+        m = self.machine
+
+        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            self.report_dir = "/tmp"
+        else:
+            self.report_dir = "/var/tmp"
+
+        m.execute(f"rm -rf {self.report_dir}/*sos*")
+
+        self.restore_file("/etc/sos/sos.conf")
+        m.execute(r"sed -i -e '/\[global\]/a threads=1' "
+                  r"-e '/\[report\]/a only-plugins=release,date,host,cgroups,networking' "
+                  r"/etc/sos/sos.conf")
+
     def testBasic(self, urlroot=""):
         b = self.browser
         m = self.machine
-
-        m.execute("rm -rf /var/tmp/*sos*")
-
-        self.write_file("/etc/sos/sos.conf",
-                        """
-[global]
-threads=1
-
-[report]
-only-plugins=release,date,host,cgroups,networking
-""")
 
         if urlroot != "":
             m.write("/etc/cockpit/cockpit.conf", f"[WebService]\nUrlRoot={urlroot}")
@@ -85,7 +90,7 @@ only-plugins=release,date,host,cgroups,networking
         base_report_gpg = os.path.basename(report_gpg)
         base_report = base_report_gpg.removesuffix(".gpg")
 
-        m.execute(f"test -f /var/tmp/{base_report_gpg}")
+        m.execute(f"test -f {self.report_dir}/{base_report_gpg}")
 
         # Check that /etc/release was saved. It the files does not exist, getmember raises KeyError
         # Sometimes it takes a bit of time until the file can be opened. Try it 3 times.
@@ -101,7 +106,7 @@ only-plugins=release,date,host,cgroups,networking
         b.click("tr:contains(mylabel) .pf-v5-c-menu__list-item:contains(Delete) button")
         b.click("#sos-remove-dialog button:contains(Delete)")
         # ensure it removes the report itself, and auxiliary files like .gpg
-        m.execute(f"while ls /var/tmp/{base_report}*; do sleep 1; done", stdout=None, timeout=10)
+        m.execute(f"while ls {self.report_dir}/{base_report}*; do sleep 1; done", stdout=None, timeout=10)
 
         # error reporting
         self.write_file("/usr/sbin/sos", """#!/bin/sh
@@ -126,17 +131,6 @@ exit 1""", perm="755")
         b = self.browser
         m = self.machine
 
-        m.execute("rm -rf /var/tmp/*sos*")
-
-        self.write_file("/etc/sos/sos.conf",
-                        """
-[global]
-threads=1
-
-[report]
-only-plugins=release,date,host,cgroups,networking
-""")
-
         self.login_and_go("/sosreport")
 
         b.wait_in_text("#app", "No system reports.")
@@ -150,16 +144,14 @@ only-plugins=release,date,host,cgroups,networking
             b.wait_not_present("#sos-dialog")
 
         # There should be one archive and it should contain a bunch of debug messages
-        self.assertEqual(m.execute("ls -l /var/tmp/sosreport*mylabel*.tar.xz | wc -l").strip(), "1")
-        messages = m.execute("tar --wildcards -xaOf /var/tmp/sosreport*mylabel*.tar.xz '*/sos_logs/sos.log'"
+        self.assertEqual(m.execute(f"ls -l {self.report_dir}/sosreport*mylabel*.tar.xz | wc -l").strip(), "1")
+        messages = m.execute(f"tar --wildcards -xaOf {self.report_dir}/sosreport*mylabel*.tar.xz '*/sos_logs/sos.log'"
                              "| grep -c 'DEBUG: \\[plugin:release\\]'")
         self.assertGreater(int(messages), 5)
 
     def testCancel(self):
         m = self.machine
         b = self.browser
-
-        m.execute("rm -rf /var/tmp/*sos*")
 
         self.login_and_go("/sosreport")
         b.click("button:contains('Run report')")
@@ -170,7 +162,7 @@ only-plugins=release,date,host,cgroups,networking
         b.wait_not_present("#sos-dialog")
         # cleans up properly; unfortunately closing the process is async, so need to retry a few times
         m.execute("while pgrep -a -x sos; do sleep 1; done", timeout=10)
-        self.assertEqual(m.execute("ls /var/tmp/sosreport* 2>/dev/null || true"), "")
+        self.assertEqual(m.execute(f"ls {self.report_dir}/sosreport* 2>/dev/null || true"), "")
 
     def testAppStream(self):
         b = self.browser

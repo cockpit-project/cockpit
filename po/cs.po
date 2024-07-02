@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-21 02:48+0000\n"
+"POT-Creation-Date: 2024-07-02 02:49+0000\n"
 "PO-Revision-Date: 2024-03-01 22:35+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
@@ -116,11 +116,11 @@ msgstr "Dokumentace k $0"
 msgid "$0 error"
 msgstr "$0 chyba"
 
-#: pkg/lib/cockpit.js:2580
+#: pkg/lib/cockpit.js:1411
 msgid "$0 exited with code $1"
 msgstr "$0 skončilo s kódem $1"
 
-#: pkg/lib/cockpit.js:2582
+#: pkg/lib/cockpit.js:1413
 msgid "$0 failed"
 msgstr "$0 se nezdařilo"
 
@@ -179,7 +179,7 @@ msgstr "$0 není k dispozici z žádného z repozitářů."
 msgid "$0 key changed"
 msgstr "$0 klíč změněn"
 
-#: pkg/lib/cockpit.js:2578
+#: pkg/lib/cockpit.js:1409
 msgid "$0 killed with signal $1"
 msgstr "$0 vynuceně ukončeno signálem $1"
 
@@ -706,7 +706,7 @@ msgstr "Aktivní"
 msgid "Active backup"
 msgstr "Aktivní záloha"
 
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/active-pages-modal.jsx:105
+#: pkg/shell/active-pages-modal.jsx:95 pkg/shell/active-pages-modal.jsx:103
 #: pkg/shell/topnav.jsx:223
 msgid "Active pages"
 msgstr "Aktivní stránky"
@@ -731,7 +731,7 @@ msgstr "Přizpůsobující se rozkládání přenosové zátěže odesílání"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/networkmanager/dialogs-common.jsx:160
-#: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:184
+#: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:182
 #: pkg/shell/hosts_dialog.jsx:252 pkg/systemd/timer-dialog.jsx:367
 #: pkg/storaged/crypto/keyslots.jsx:494 pkg/storaged/crypto/keyslots.jsx:817
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/lvm2/volume-group.jsx:209
@@ -811,7 +811,7 @@ msgstr "Přidat disky"
 msgid "Add iSCSI portal"
 msgstr "Přidat iSCSI portál"
 
-#: pkg/users/authorized-keys-panel.js:112 pkg/shell/credentials.jsx:90
+#: pkg/users/authorized-keys-panel.js:112 pkg/shell/credentials.jsx:88
 #: pkg/storaged/crypto/keyslots.jsx:458
 msgid "Add key"
 msgstr "Přidat klíč"
@@ -992,11 +992,11 @@ msgstr "Správa pomocí webové konzole Cockpit"
 msgid "Administrative access"
 msgstr "Přístup na úrovni správce"
 
-#: pkg/sosreport/sosreport.jsx:424
+#: pkg/sosreport/sosreport.jsx:431
 msgid "Administrative access is required to create and access reports."
 msgstr "Abyste mohli vytvářet výkazy, je třeba mít oprávnění na úrovni správy."
 
-#: pkg/sosreport/sosreport.jsx:423
+#: pkg/sosreport/sosreport.jsx:430
 msgid "Administrative access required"
 msgstr "Je vyžadován přístup na úrovni správce"
 
@@ -1171,7 +1171,7 @@ msgstr "Je vyžadováno alespoň jedno blokové zařízení."
 msgid "At least one disk is needed."
 msgstr "Je vyžadován alespoň jeden disk."
 
-#: pkg/storaged/btrfs/subvolume.jsx:367
+#: pkg/storaged/btrfs/subvolume.jsx:369
 msgid "At least one parent needs to be mounted writable"
 msgstr "Je třeba, aby alespoň jeden nadřazený byl připojen pro zápis"
 
@@ -1187,7 +1187,7 @@ msgstr "V sekundě"
 msgid "At specific time"
 msgstr "V uvedený čas"
 
-#: pkg/sosreport/sosreport.jsx:501
+#: pkg/sosreport/sosreport.jsx:508
 msgid "Attributes"
 msgstr "Atributy"
 
@@ -1265,15 +1265,15 @@ msgstr "Automatické aktualizace"
 msgid "Automatically starts"
 msgstr "Spouští se automaticky"
 
-#: pkg/lib/serverTime.js:563
+#: pkg/lib/serverTime.js:558
 msgid "Automatically using NTP"
 msgstr "Automatické použití NTP"
 
-#: pkg/lib/serverTime.js:570
+#: pkg/lib/serverTime.js:565
 msgid "Automatically using additional NTP servers"
 msgstr "Automatické použití dalších NTP serverů"
 
-#: pkg/lib/serverTime.js:571
+#: pkg/lib/serverTime.js:566
 msgid "Automatically using specific NTP servers"
 msgstr "Automatické použití uvedených NTP serverů"
 
@@ -1485,7 +1485,7 @@ msgstr ""
 "událostí."
 
 #: pkg/playground/translate.html:39 pkg/static/login.html:141
-#: pkg/sosreport/sosreport.jsx:290 pkg/sosreport/sosreport.jsx:375
+#: pkg/sosreport/sosreport.jsx:297 pkg/sosreport/sosreport.jsx:382
 #: pkg/networkmanager/dialogs-common.jsx:163
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913
@@ -1494,8 +1494,8 @@ msgstr ""
 #: pkg/apps/utils.jsx:69 pkg/kdump/kdump-view.jsx:235
 #: pkg/packagekit/updates.jsx:541 pkg/packagekit/updates.jsx:579
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/shell-modals.jsx:118 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:285
+#: pkg/shell/shell-modals.jsx:115 pkg/shell/credentials.jsx:311
+#: pkg/shell/active-pages-modal.jsx:98 pkg/shell/hosts_dialog.jsx:285
 #: pkg/shell/hosts_dialog.jsx:382 pkg/shell/hosts_dialog.jsx:514
 #: pkg/shell/hosts_dialog.jsx:891 pkg/shell/superuser.jsx:182
 #: pkg/shell/superuser.jsx:219 pkg/shell/superuser.jsx:264
@@ -1526,7 +1526,7 @@ msgstr "Není možné zapnout"
 msgid "Cannot connect to an unknown host"
 msgstr "Nelze se připojit k neznámému hostiteli"
 
-#: pkg/lib/cockpit.js:3742
+#: pkg/lib/cockpit.js:2573
 msgid "Cannot forward login credentials"
 msgstr "Nedaří přeposlat přístupové údaje"
 
@@ -1554,7 +1554,7 @@ msgstr "Nosný signál"
 msgid "Category"
 msgstr ""
 
-#: pkg/lib/serverTime.js:729 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:528
@@ -1585,7 +1585,7 @@ msgstr "Změnit štítek"
 msgid "Change passphrase"
 msgstr "Změnit heslovou frázi"
 
-#: pkg/shell/credentials.jsx:252
+#: pkg/shell/credentials.jsx:250
 msgid "Change password"
 msgstr "Změnit heslo"
 
@@ -1601,7 +1601,7 @@ msgstr "Změnit profil"
 msgid "Change shell"
 msgstr "Změnit shell"
 
-#: pkg/lib/serverTime.js:722
+#: pkg/lib/serverTime.js:714
 msgid "Change system time"
 msgstr "Změnit systémový čas"
 
@@ -1697,7 +1697,7 @@ msgstr "Zjišťuje se nainstalovaný sofware"
 msgid "Checking software status"
 msgstr "Kontroluje se stav software"
 
-#: pkg/shell/shell-modals.jsx:122
+#: pkg/shell/shell-modals.jsx:119
 msgid "Choose the language to be used in the application"
 msgstr "Vyberte jazyk aplikace"
 
@@ -1740,15 +1740,15 @@ msgstr "Klientský software"
 #: pkg/networkmanager/interfaces.js:43
 #: pkg/lib/cockpit-components-terminal.jsx:230
 #: pkg/lib/cockpit-components-modifications.jsx:76 pkg/apps/utils.jsx:87
-#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:192
-#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:92
+#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:188
+#: pkg/shell/credentials.jsx:79 pkg/shell/hosts_dialog.jsx:92
 #: pkg/shell/superuser.jsx:190 pkg/shell/superuser.jsx:198
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278 pkg/storaged/dialog.jsx:485
 msgid "Close"
 msgstr "Zavřít"
 
-#: pkg/shell/active-pages-modal.jsx:99
+#: pkg/shell/active-pages-modal.jsx:97
 msgid "Close selected pages"
 msgstr "Zavřít vybrané stránky"
 
@@ -1764,11 +1764,11 @@ msgstr "Cockpit ověřování není nastaveno správně."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Nastavování NetworkManager a Firewalld v pomocí Cockpit"
 
-#: pkg/lib/cockpit.js:3748
+#: pkg/lib/cockpit.js:2579
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit se nepodařilo daný stroj kontaktovat."
 
-#: pkg/shell/shell-modals.jsx:194
+#: pkg/shell/shell-modals.jsx:190
 msgid "Cockpit had an unexpected internal error."
 msgstr "V Cockpit došlo k neočekávané vnitřní chybě."
 
@@ -1786,11 +1786,11 @@ msgstr ""
 "zastavena v terminálu. Podobně, pokud dojde k chybě v terminálu, je toto "
 "vidět v rozhraní žurnálu v Cockpit."
 
-#: pkg/shell/shell-modals.jsx:70
+#: pkg/shell/shell-modals.jsx:68
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit je interaktivní rozhraní pro správu linuxového serveru."
 
-#: pkg/lib/cockpit.js:3746
+#: pkg/lib/cockpit.js:2577
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit není kompatibilní se softwarem v systému."
 
@@ -1798,7 +1798,7 @@ msgstr "Cockpit není kompatibilní se softwarem v systému."
 msgid "Cockpit is not installed"
 msgstr "Cockpit není nainstalován"
 
-#: pkg/lib/cockpit.js:3740
+#: pkg/lib/cockpit.js:2571
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit není v systému nainstalován."
 
@@ -1859,7 +1859,7 @@ msgstr "Příkaz nenalezen"
 
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
-#: pkg/shell/credentials.jsx:195
+#: pkg/shell/credentials.jsx:193
 msgid "Comment"
 msgstr "Komentář"
 
@@ -1943,7 +1943,7 @@ msgstr "Potvrdit nové heslo ke klíči"
 msgid "Confirm new password"
 msgstr "Potvrdit nové heslo"
 
-#: pkg/users/account-create-dialog.js:140 pkg/shell/credentials.jsx:268
+#: pkg/users/account-create-dialog.js:140 pkg/shell/credentials.jsx:266
 msgid "Confirm password"
 msgstr "Potvrzení hesla"
 
@@ -1999,7 +1999,7 @@ msgstr "Chyba připojení"
 msgid "Connection failed"
 msgstr "Připojení se nezdařilo"
 
-#: pkg/lib/cockpit.js:3738
+#: pkg/lib/cockpit.js:2569
 msgid "Connection has timed out."
 msgstr "Překročen časový limit připojení."
 
@@ -2023,7 +2023,7 @@ msgstr "Obsahuje:"
 msgid "Continue"
 msgstr "Pokračovat"
 
-#: pkg/shell/shell-modals.jsx:179
+#: pkg/shell/shell-modals.jsx:176
 msgid "Continue session"
 msgstr "Pokračovat v relaci"
 
@@ -2044,13 +2044,13 @@ msgstr "Řadič"
 msgid "Convertible"
 msgstr "Počítač 2v1"
 
-#: pkg/shell/credentials.jsx:212 pkg/shell/hosts_dialog.jsx:475
+#: pkg/shell/credentials.jsx:210 pkg/shell/hosts_dialog.jsx:475
 #: pkg/shell/hosts_dialog.jsx:478 pkg/shell/hosts_dialog.jsx:493
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/failures.jsx:43
 msgid "Copied"
 msgstr "Zkopírováno"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211 pkg/shell/credentials.jsx:212
+#: pkg/lib/cockpit-components-terminal.jsx:211 pkg/shell/credentials.jsx:210
 #: pkg/shell/hosts_dialog.jsx:475 pkg/shell/hosts_dialog.jsx:478
 #: pkg/shell/hosts_dialog.jsx:493 pkg/shell/hosts_dialog.jsx:495
 #: pkg/shell/failures.jsx:43
@@ -2084,7 +2084,7 @@ msgstr "Zhavarovat systém"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:193
 #: pkg/users/account-create-dialog.js:481 pkg/users/group-create-dialog.js:141
-#: pkg/storaged/btrfs/subvolume.jsx:141
+#: pkg/storaged/btrfs/subvolume.jsx:143
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:269
 #: pkg/storaged/lvm2/create-dialog.jsx:63
 #: pkg/storaged/lvm2/volume-group.jsx:120
@@ -2133,7 +2133,7 @@ msgstr "Vytvořit účet se snadno prolomitelným heslem"
 msgid "Create and change ownership of home directory"
 msgstr "Vytvořit a změnit vlastnictví domovské složky"
 
-#: pkg/storaged/btrfs/subvolume.jsx:135
+#: pkg/storaged/btrfs/subvolume.jsx:137
 #: pkg/storaged/block/format-dialog.jsx:270 pkg/storaged/stratis/pool.jsx:80
 msgid "Create and mount"
 msgstr "Vytvořit a připojit"
@@ -2180,7 +2180,7 @@ msgstr "Vytvořit nový soubor s úlohou s tímto obsahem."
 msgid "Create new thinly provisioned logical volume"
 msgstr "Vytvořit nový tence (thin) poskytovaný logický svazek"
 
-#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:138
 #: pkg/storaged/block/format-dialog.jsx:271
 #: pkg/storaged/block/format-dialog.jsx:280 pkg/storaged/stratis/pool.jsx:81
 msgid "Create only"
@@ -2217,7 +2217,7 @@ msgstr "Pouze pořídit zachycený stav"
 msgid "Create storage device"
 msgstr "Vytvořit zařízení úložiště"
 
-#: pkg/storaged/btrfs/subvolume.jsx:146 pkg/storaged/btrfs/subvolume.jsx:360
+#: pkg/storaged/btrfs/subvolume.jsx:148 pkg/storaged/btrfs/subvolume.jsx:362
 msgid "Create subvolume"
 msgstr "Vytvořit dílčí svazek"
 
@@ -2233,7 +2233,7 @@ msgstr "Vytvořit časovač"
 msgid "Create volume group"
 msgstr "Vytvořit skupinu svazků"
 
-#: pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:507
 msgid "Created"
 msgstr "Vytvořeno"
 
@@ -2299,7 +2299,7 @@ msgstr "Zásada šifrování není konzistentní"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:198
+#: pkg/shell/shell-modals.jsx:194
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Shift-I"
 
@@ -2514,14 +2514,14 @@ msgstr "Je třeba, aby prodleva byla číslo"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/sosreport/sosreport.jsx:369 pkg/sosreport/sosreport.jsx:468
+#: pkg/sosreport/sosreport.jsx:376 pkg/sosreport/sosreport.jsx:475
 #: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
 #: pkg/networkmanager/firewall.jsx:910
 #: pkg/networkmanager/network-interface.jsx:725
 #: pkg/users/delete-account-dialog.js:60 pkg/users/account-details.js:221
 #: pkg/users/delete-group-dialog.js:51 pkg/systemd/abrtLog.jsx:290
 #: pkg/systemd/service-details.jsx:151 pkg/systemd/service-details.jsx:713
-#: pkg/storaged/btrfs/subvolume.jsx:232 pkg/storaged/btrfs/subvolume.jsx:374
+#: pkg/storaged/btrfs/subvolume.jsx:234 pkg/storaged/btrfs/subvolume.jsx:376
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:44
 #: pkg/storaged/lvm2/volume-group.jsx:97
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:42
@@ -2562,7 +2562,7 @@ msgstr "Smazat skupinu"
 msgid "Delete pool"
 msgstr "Smazat fond"
 
-#: pkg/sosreport/sosreport.jsx:361
+#: pkg/sosreport/sosreport.jsx:368
 msgid "Delete report permanently?"
 msgstr "Smazat výkaz bez možnosti obnovení?"
 
@@ -2610,7 +2610,7 @@ msgstr "Smazání vymaže veškerá data na VDO zařízení."
 msgid "Deleting erases all data on a volume group."
 msgstr "Smazání vymaže veškerá data ve skupině svazků."
 
-#: pkg/storaged/btrfs/subvolume.jsx:233
+#: pkg/storaged/btrfs/subvolume.jsx:235
 msgid "Deleting erases all data on this subvolume and all it's children."
 msgstr ""
 "Smazání vymaže veškerá data na tomto dílčím svazku a všech jemu podřízeným."
@@ -2638,7 +2638,7 @@ msgstr "Odpojitelné"
 
 # auto translated by TM merge from project: blivet-gui, version: master,
 # DocId: po/blivet-gui
-#: pkg/packagekit/updates.jsx:450 pkg/shell/credentials.jsx:109
+#: pkg/packagekit/updates.jsx:450 pkg/shell/credentials.jsx:107
 #: pkg/systemd/overview-cards/realmd.jsx:416
 msgid "Details"
 msgstr "Podrobnosti"
@@ -2779,7 +2779,7 @@ msgstr[2] "Zahodit $0 výstrah"
 msgid "Dismiss selected alerts"
 msgstr "Zahodit označené výstrahy"
 
-#: pkg/shell/shell-modals.jsx:115 pkg/shell/topnav.jsx:216
+#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:216
 msgid "Display language"
 msgstr "Jazyk zobrazení"
 
@@ -2850,7 +2850,7 @@ msgstr "Dvojitá distribuovaná parita (RAID 6)"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/sosreport/sosreport.jsx:458 pkg/sosreport/sosreport.jsx:464
+#: pkg/sosreport/sosreport.jsx:465 pkg/sosreport/sosreport.jsx:471
 msgid "Download"
 msgstr "Stáhnout"
 
@@ -2946,7 +2946,7 @@ msgstr "Upravit motd"
 
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
-#: pkg/storaged/btrfs/subvolume.jsx:332
+#: pkg/storaged/btrfs/subvolume.jsx:334
 #: pkg/storaged/filesystem/filesystem.jsx:100
 #: pkg/storaged/stratis/filesystem.jsx:170
 msgid "Edit mount point"
@@ -3042,7 +3042,7 @@ msgstr "Šifrovat data pomocí Tang serveru s klíči"
 msgid "Encrypt data with a passphrase"
 msgstr "Šifrovat data pomocí heslové fráze"
 
-#: pkg/sosreport/sosreport.jsx:448
+#: pkg/sosreport/sosreport.jsx:455
 msgid "Encrypted"
 msgstr "Šifrováno"
 
@@ -3076,7 +3076,7 @@ msgstr "Volby šifrování"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/sosreport/sosreport.jsx:320
+#: pkg/sosreport/sosreport.jsx:327
 msgid "Encryption passphrase"
 msgstr "Šifrovací heslová fráze"
 
@@ -3130,7 +3130,7 @@ msgstr "Vymazává se $target"
 msgid "Errata"
 msgstr "Errata"
 
-#: pkg/sosreport/sosreport.jsx:392 pkg/apps/utils.jsx:81
+#: pkg/sosreport/sosreport.jsx:399 pkg/apps/utils.jsx:81
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:160
@@ -3373,7 +3373,7 @@ msgstr "Do tohoto přípojného bodu už jsou připojené souborové systémy."
 msgid "Filter by name or description"
 msgstr "Filtrovat podle názvu nebo popisu"
 
-#: pkg/shell/shell-modals.jsx:134
+#: pkg/shell/shell-modals.jsx:131
 msgid "Filter menu items"
 msgstr "Filtrovat položky nabídky"
 
@@ -3387,7 +3387,7 @@ msgstr "Filtry"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/users/authorized-keys-panel.js:128 pkg/shell/credentials.jsx:203
+#: pkg/users/authorized-keys-panel.js:128 pkg/shell/credentials.jsx:201
 msgid "Fingerprint"
 msgstr "Otisk"
 
@@ -3646,7 +3646,7 @@ msgstr "Domovská složka"
 msgid "Host"
 msgstr "Počítač"
 
-#: pkg/lib/cockpit.js:3734
+#: pkg/lib/cockpit.js:2565
 msgid "Host key is incorrect"
 msgstr "Klíč stroje není správný"
 
@@ -3682,7 +3682,7 @@ msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:696 pkg/users/accounts-list.js:230
 #: pkg/users/accounts-list.js:381 pkg/users/group-create-dialog.js:47
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:415
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:437
 #: pkg/storaged/pages.jsx:714
 msgid "ID"
 msgstr "Identif."
@@ -3975,7 +3975,7 @@ msgstr "Rozhraní"
 
 # auto translated by TM merge from project: Pulseaudio, version: 6.0, DocId:
 # pulseaudio.pot
-#: pkg/lib/cockpit.js:3736
+#: pkg/lib/cockpit.js:2567
 msgid "Internal error"
 msgstr "Vnitřní chyba"
 
@@ -3991,7 +3991,7 @@ msgstr "Neplatné"
 msgid "Invalid address $0"
 msgstr "Neplatná adresa $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:687
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
 msgid "Invalid date format"
 msgstr "Neplatný formát data"
 
@@ -4035,12 +4035,12 @@ msgstr "Neplatná předpona nebo maska sítě $0"
 msgid "Invalid range"
 msgstr "Neplatný rozsah"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:690
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "Neplatný formát času"
 
-#: pkg/lib/serverTime.js:682
+#: pkg/lib/serverTime.js:674
 msgid "Invalid timezone"
 msgstr "Neplatné časové pásmo"
 
@@ -4295,11 +4295,11 @@ msgstr "Opustit $0"
 msgid "Leave domain"
 msgstr "Opustit doménu"
 
-#: pkg/sosreport/sosreport.jsx:328
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Leave empty to skip encryption"
 msgstr "Pokud nechcete šifrovat, nevyplňujte"
 
-#: pkg/shell/shell-modals.jsx:63
+#: pkg/shell/shell-modals.jsx:61
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Licencováno pod GNU LGPL verze 2.1"
 
@@ -4426,7 +4426,7 @@ msgstr "Načítání SSH klíčů se nezdařilo"
 msgid "Loading of units failed"
 msgstr "Načítání jednotek se nezdařilo"
 
-#: pkg/shell/shell-modals.jsx:78
+#: pkg/shell/shell-modals.jsx:76
 msgid "Loading packages..."
 msgstr "Načítání balíčků…"
 
@@ -4520,7 +4520,7 @@ msgstr "Přihlásit se k $0"
 msgid "Log in with your server user account."
 msgstr "Přihlášení pomocí uživatelského účtu na tomto serveru."
 
-#: pkg/lib/serverTime.js:464
+#: pkg/lib/serverTime.js:459
 msgid "Log messages"
 msgstr "Zprávy záznamu událostí"
 
@@ -4577,7 +4577,7 @@ msgstr "Přihlásit"
 msgid "Login again"
 msgstr "Znovu přihlásit"
 
-#: pkg/lib/cockpit.js:3726
+#: pkg/lib/cockpit.js:2557
 msgid "Login failed"
 msgstr "Přihlášení se nezdařilo"
 
@@ -4762,7 +4762,7 @@ msgstr "Správa uživatelských účtů"
 msgid "Manual"
 msgstr "Ruční"
 
-#: pkg/lib/serverTime.js:562
+#: pkg/lib/serverTime.js:557
 msgid "Manually"
 msgstr "Ručně"
 
@@ -4925,7 +4925,7 @@ msgstr "Každý měsíc"
 msgid "More info..."
 msgstr "Více informací…"
 
-#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:344
+#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:346
 #: pkg/storaged/filesystem/mounting-dialog.jsx:356
 #: pkg/storaged/filesystem/filesystem.jsx:103
 #: pkg/storaged/stratis/filesystem.jsx:173
@@ -4934,7 +4934,7 @@ msgstr "Připojit (mount)"
 
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
-#: pkg/storaged/btrfs/subvolume.jsx:152
+#: pkg/storaged/btrfs/subvolume.jsx:154
 msgid "Mount Point"
 msgstr "Přípojný bod"
 
@@ -4981,7 +4981,7 @@ msgstr "Předvolby připojení"
 
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
-#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:416
+#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:446
 #: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:326
 #: pkg/storaged/filesystem/filesystem.jsx:147 pkg/storaged/stratis/pool.jsx:103
@@ -5051,7 +5051,7 @@ msgstr "NFS připojení"
 msgid "NSNA ping"
 msgstr "NSNA ping"
 
-#: pkg/lib/serverTime.js:550
+#: pkg/lib/serverTime.js:545
 msgid "NTP server"
 msgstr "NTP server"
 
@@ -5061,10 +5061,10 @@ msgstr "NTP server"
 #: pkg/networkmanager/network-main.jsx:185
 #: pkg/networkmanager/network-main.jsx:200
 #: pkg/users/authorized-keys-panel.js:127 pkg/users/group-create-dialog.js:39
-#: pkg/packagekit/updates.jsx:447 pkg/shell/credentials.jsx:101
+#: pkg/packagekit/updates.jsx:447 pkg/shell/credentials.jsx:99
 #: pkg/systemd/timer-dialog.jsx:157 pkg/systemd/hwinfo.jsx:86
-#: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/btrfs/subvolume.jsx:148
-#: pkg/storaged/btrfs/subvolume.jsx:414
+#: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/btrfs/subvolume.jsx:150
+#: pkg/storaged/btrfs/subvolume.jsx:436
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/create-dialog.jsx:47 pkg/storaged/lvm2/volume-group.jsx:64
 #: pkg/storaged/lvm2/volume-group.jsx:116
@@ -5130,7 +5130,7 @@ msgstr "Název nemůže obsahovat prázdný znak."
 msgid "Need a spare disk"
 msgstr "Potřebujete rezervní disk"
 
-#: pkg/lib/serverTime.js:695
+#: pkg/lib/serverTime.js:687
 msgid "Need at least one NTP server"
 msgstr "Je třeba alespoň jeden NTP server"
 
@@ -5227,7 +5227,7 @@ msgstr "Nový název"
 msgid "New passphrase"
 msgstr "Nová heslová fráze"
 
-#: pkg/users/password-dialogs.js:147 pkg/shell/credentials.jsx:265
+#: pkg/users/password-dialogs.js:147 pkg/shell/credentials.jsx:263
 msgid "New password"
 msgstr "Nové heslo"
 
@@ -5364,7 +5364,7 @@ msgstr "Pro tuto aplikaci nebyl nalezen žádný instalační balíček."
 msgid "No keys added"
 msgstr "Nepřidány žádné klíče"
 
-#: pkg/shell/shell-modals.jsx:152
+#: pkg/shell/shell-modals.jsx:149
 msgid "No languages match"
 msgstr "Neshoduje se s žádnými jazyky"
 
@@ -5425,12 +5425,18 @@ msgstr ""
 msgid "No rule hits"
 msgstr "Žádné zásahy pravidla"
 
+#: pkg/storaged/btrfs/subvolume.jsx:464
+#, fuzzy
+#| msgid "No snapshots"
+msgid "No snapshots found"
+msgstr "Nejsou zachycené stavy"
+
 #: pkg/storaged/overview/overview.jsx:190
 msgid "No storage found"
 msgstr "Nenalezeno žádné úložiště"
 
 #: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:424
+#: pkg/storaged/btrfs/subvolume.jsx:454
 msgid "No subvolumes"
 msgstr "Žádné dílčí svazky"
 
@@ -5443,7 +5449,7 @@ msgstr "Žádný takový soubor nebo složka"
 msgid "No system modifications"
 msgstr "Žádné modifikace systému"
 
-#: pkg/sosreport/sosreport.jsx:497
+#: pkg/sosreport/sosreport.jsx:504
 msgid "No system reports."
 msgstr "Žádné výkazy o systému."
 
@@ -5522,7 +5528,7 @@ msgstr "Nemáte oprávnění nastavovat síťová zařízení"
 msgid "Not permitted to configure realms"
 msgstr "Nemáte oprávnění nastavovat realmy"
 
-#: pkg/lib/cockpit.js:3724
+#: pkg/lib/cockpit.js:2555
 msgid "Not permitted to perform this action."
 msgstr "Neoprávněni k provedení této akce."
 
@@ -5544,7 +5550,7 @@ msgstr "Není spuštěné"
 msgid "Not set up"
 msgstr "Nenastaveno"
 
-#: pkg/lib/serverTime.js:458
+#: pkg/lib/serverTime.js:453
 msgid "Not synchronized"
 msgstr "Nesynchronizováno"
 
@@ -5562,11 +5568,11 @@ msgstr "Notebook"
 msgid "Notice and above"
 msgstr "Oznámení a závažnější"
 
-#: pkg/sosreport/sosreport.jsx:331
+#: pkg/sosreport/sosreport.jsx:338
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "Znečitelnit síťové adresy, názvy strojů a uživatelská jména"
 
-#: pkg/sosreport/sosreport.jsx:452
+#: pkg/sosreport/sosreport.jsx:459
 msgid "Obfuscated"
 msgstr "Znečitelněno"
 
@@ -5650,7 +5656,7 @@ msgstr "Operace „$operation“ na $target"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/sosreport/sosreport.jsx:330 pkg/networkmanager/bridge.jsx:104
+#: pkg/sosreport/sosreport.jsx:337 pkg/networkmanager/bridge.jsx:104
 #: pkg/users/account-details.js:263 pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
 #: pkg/storaged/stratis/create-dialog.jsx:64
@@ -5738,7 +5744,7 @@ msgstr "Balíčky"
 # #-#-#-#-#  cs.po (PACKAGE VERSION)  #-#-#-#-#
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/shell/active-pages-modal.jsx:104
+#: pkg/shell/active-pages-modal.jsx:102
 msgid "Page name"
 msgstr "Název stránky"
 
@@ -5837,15 +5843,15 @@ msgstr "Zadání heslové fráze se neshodují"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/static/login.html:99 pkg/users/account-details.js:290
-#: pkg/users/account-create-dialog.js:139 pkg/shell/credentials.jsx:119
-#: pkg/shell/credentials.jsx:262 pkg/shell/credentials.jsx:318
+#: pkg/users/account-create-dialog.js:139 pkg/shell/credentials.jsx:117
+#: pkg/shell/credentials.jsx:260 pkg/shell/credentials.jsx:316
 #: pkg/shell/hosts_dialog.jsx:845 pkg/shell/hosts_dialog.jsx:854
 #: pkg/shell/superuser.jsx:144 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
 msgid "Password"
 msgstr "Heslo"
 
-#: pkg/shell/credentials.jsx:259
+#: pkg/shell/credentials.jsx:257
 msgid "Password changed successfully"
 msgstr "Heslo úspěšně změněno"
 
@@ -5875,7 +5881,7 @@ msgstr "Heslo nebylo přijato"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/shell/credentials.jsx:274
+#: pkg/shell/credentials.jsx:272
 msgid "Password tip"
 msgstr "Nápověda pro heslo"
 
@@ -5930,7 +5936,7 @@ msgid "Path to directory"
 msgstr "Popis umístění složky"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:169
-#: pkg/shell/credentials.jsx:172
+#: pkg/shell/credentials.jsx:170
 msgid "Path to file"
 msgstr "Popis umístění serveru"
 
@@ -6006,7 +6012,7 @@ msgstr "Nenávratně smazat $0?"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "Nenávratně smazat logický svazek $0/&1?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:229
+#: pkg/storaged/btrfs/subvolume.jsx:231
 msgid "Permanently delete subvolume $0?"
 msgstr "Nenávratně smazat dílčí svazek $0?"
 
@@ -6039,7 +6045,7 @@ msgstr "Fyzické svazky"
 msgid "Physical volumes can not be resized here"
 msgstr "Zde není možné měnit velikost fyzických svazků"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:599
+#: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:594
 #: pkg/users/expiration-dialogs.js:48 pkg/systemd/timer-dialog.jsx:347
 msgid "Pick date"
 msgstr "Vyberte datum"
@@ -6205,11 +6211,11 @@ msgstr "Informace o problému"
 msgid "Processes using the location"
 msgstr "Procesy využívající toto umístění"
 
-#: pkg/sosreport/sosreport.jsx:301
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Progress: $0"
 msgstr "Stav postupu: $0"
 
-#: pkg/shell/shell-modals.jsx:74
+#: pkg/shell/shell-modals.jsx:72
 msgid "Project website"
 msgstr "Webové stránky projektu"
 
@@ -6242,7 +6248,7 @@ msgid "Provide the passphrase for the pool on these block devices:"
 msgstr "Zadejte heslovou frázi pro fond na těchto blokových zařízeních:"
 
 #: pkg/networkmanager/wireguard.jsx:237 pkg/networkmanager/wireguard.jsx:300
-#: pkg/shell/credentials.jsx:114
+#: pkg/shell/credentials.jsx:112
 msgid "Public key"
 msgstr "Veřejná část klíče"
 
@@ -6721,12 +6727,12 @@ msgid "Repeat weekly"
 msgstr "Opakovat každý týden"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/sosreport/sosreport.jsx:499 pkg/systemd/reporting.jsx:392
+#: pkg/sosreport/sosreport.jsx:506 pkg/systemd/reporting.jsx:392
 msgid "Report"
 msgstr "Nahlásit"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/sosreport/sosreport.jsx:317
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Report label"
 msgstr "Štítek výkazu"
 
@@ -6746,7 +6752,7 @@ msgstr "Nahlašování se nezdařilo"
 msgid "Reporting was canceled"
 msgstr "Nahlašování bylo zrušeno"
 
-#: pkg/sosreport/sosreport.jsx:494
+#: pkg/sosreport/sosreport.jsx:501
 msgid "Reports"
 msgstr "Výkazy"
 
@@ -6906,7 +6912,7 @@ msgstr "Vybrat"
 msgid "Run at"
 msgstr "Spustit v"
 
-#: pkg/sosreport/sosreport.jsx:304
+#: pkg/sosreport/sosreport.jsx:311
 msgid "Run new report"
 msgstr "Vytvořit nový výkaz"
 
@@ -6915,7 +6921,7 @@ msgid "Run on"
 msgstr "Spustit na"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/sosreport/sosreport.jsx:282 pkg/sosreport/sosreport.jsx:491
+#: pkg/sosreport/sosreport.jsx:289 pkg/sosreport/sosreport.jsx:498
 msgid "Run report"
 msgstr "Vytvořit výkaz"
 
@@ -6937,10 +6943,6 @@ msgstr "Spouštěč"
 #: pkg/storaged/mdraid/mdraid.jsx:297
 msgid "Running"
 msgstr "Spuštěné"
-
-#: pkg/storaged/dialog.jsx:1435 pkg/storaged/dialog.jsx:1455
-msgid "Runtime"
-msgstr "Běhové prostředí"
 
 #: pkg/selinux/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml.in:5
@@ -6983,7 +6985,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "SMART samotest $target"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:320
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
@@ -6998,7 +7000,7 @@ msgstr "SSH klíč"
 msgid "SSH key isn't a path"
 msgstr "V kolonce ssh klíč není vyplněné jeho umístění"
 
-#: pkg/shell/credentials.jsx:79 pkg/shell/credentials.jsx:95
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
 #: pkg/shell/topnav.jsx:229
 msgid "SSH keys"
 msgstr "SSH klíče"
@@ -7130,7 +7132,7 @@ msgstr "Pouze aktualizace zabezpečení"
 msgid "Security updates will be applied $0 at $1"
 msgstr "Aktualizace zabezpečení budou aplikovány $0 v $1"
 
-#: pkg/shell/shell-modals.jsx:117
+#: pkg/shell/shell-modals.jsx:114
 msgid "Select"
 msgstr "Vybrat"
 
@@ -7184,7 +7186,7 @@ msgstr "Adresu serveru je třeba vyplnit."
 msgid "Server cannot be empty."
 msgstr "Server je třeba vyplnit."
 
-#: pkg/lib/cockpit.js:3744
+#: pkg/lib/cockpit.js:2575
 msgid "Server has closed the connection."
 msgstr "Server zavřel spojení."
 
@@ -7225,7 +7227,7 @@ msgstr "Služby využívající toto umístění"
 msgid "Session"
 msgstr "Sezení"
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.jsx:174
 msgid "Session is about to expire"
 msgstr "Platnost relace brzy skončí"
 
@@ -7248,7 +7250,7 @@ msgstr "Nastavit typ oddílu na $0"
 msgid "Set password"
 msgstr "Nastavit heslo"
 
-#: pkg/lib/serverTime.js:588
+#: pkg/lib/serverTime.js:583
 msgid "Set time"
 msgstr "Nastavit čas"
 
@@ -7440,6 +7442,18 @@ msgstr "Slot $0"
 msgid "Snapshot"
 msgstr "Zachycený stav"
 
+#: pkg/storaged/btrfs/subvolume.jsx:439
+#, fuzzy
+#| msgid "Snapshot"
+msgid "Snapshot origin"
+msgstr "Zachycený stav"
+
+#: pkg/storaged/btrfs/subvolume.jsx:461
+#, fuzzy
+#| msgid "Snapshot"
+msgid "Snapshots"
+msgstr "Zachycený stav"
+
 #: pkg/systemd/service-tabs.jsx:42
 msgid "Sockets"
 msgstr "Sokety"
@@ -7555,7 +7569,8 @@ msgstr "Začít zobrazovat položky od zadaného data výše."
 msgid "Start showing entries on or older than the specified date."
 msgstr "Začít zobrazovat položky od zadaného data dál do minulosti."
 
-#: pkg/users/account-logs-panel.jsx:77
+#: pkg/users/account-logs-panel.jsx:77 pkg/storaged/dialog.jsx:1435
+#: pkg/storaged/dialog.jsx:1455
 msgid "Started"
 msgstr "Spuštěno"
 
@@ -7622,7 +7637,7 @@ msgstr "Zastavit zařízení"
 msgid "Stop editing hosts"
 msgstr "Zastavit upravování hostitelů"
 
-#: pkg/sosreport/sosreport.jsx:286
+#: pkg/sosreport/sosreport.jsx:293
 msgid "Stop report"
 msgstr "Zastavit výkaz"
 
@@ -7734,11 +7749,11 @@ msgstr "Zmenšený notebook"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "Přihlášení se k odběru systemd signálů se nezdařilo: $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:354
+#: pkg/storaged/btrfs/subvolume.jsx:356
 msgid "Subvolume needs to be mounted"
 msgstr "Je třeba, aby dílčí svazek byl připojený"
 
-#: pkg/storaged/btrfs/subvolume.jsx:356
+#: pkg/storaged/btrfs/subvolume.jsx:358
 msgid "Subvolume needs to be mounted writable"
 msgstr "Je třeba, aby dílčí svazek byl připojen pro zápis"
 
@@ -7809,15 +7824,15 @@ msgstr ""
 "Zapnutí $0 přeruší spojení se serverem a znepřístupní tak rozhraní pro jeho "
 "správu."
 
-#: pkg/lib/serverTime.js:448
+#: pkg/lib/serverTime.js:443
 msgid "Synchronized"
 msgstr "Synchronizováno"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:445
 msgid "Synchronized with $0"
 msgstr "Synchronizováno s $0"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:449
 msgid "Synchronizing"
 msgstr "Synchronizuje se"
 
@@ -7831,7 +7846,7 @@ msgstr "Synchronizuje se MDRAID zařízení $target"
 msgid "System"
 msgstr "Systém"
 
-#: pkg/sosreport/sosreport.jsx:518
+#: pkg/sosreport/sosreport.jsx:525
 msgid "System diagnostics"
 msgstr "Diagnostika systému"
 
@@ -8019,7 +8034,7 @@ msgstr ""
 "Aby ho bylo možné naformátovat, disk je třeba odemknout. Zadejte stávající "
 "heslovou frázi."
 
-#: pkg/sosreport/sosreport.jsx:379
+#: pkg/sosreport/sosreport.jsx:386
 msgid "The file $0 will be deleted."
 msgstr "Soubor $0 bude smazán."
 
@@ -8204,7 +8219,7 @@ msgstr ""
 "Server odmítl ověřit „$0“ pomocí ověření heslem a nejsou k dispozici žádné "
 "další metody ověření."
 
-#: pkg/lib/cockpit.js:3728
+#: pkg/lib/cockpit.js:2559
 msgid "The server refused to authenticate using any supported methods."
 msgstr "Server odmítl ověřit u všech podporovaných metod."
 
@@ -8259,7 +8274,7 @@ msgid ""
 msgstr ""
 "Nastavení webového prohlížeče brání ve spuštění Cockpit (nepřístupné $0)"
 
-#: pkg/shell/active-pages-modal.jsx:106
+#: pkg/shell/active-pages-modal.jsx:104
 msgid "There are currently no active pages"
 msgstr "V tuto chvíli zde nejsou žádné aktivní stránky"
 
@@ -8359,7 +8374,7 @@ msgstr "Tato skupina je primární skupinou pro následující uživatele:"
 msgid "This host will reboot after updates are installed."
 msgstr "Tento hostitel se po instalaci aktualizací restartuje."
 
-#: pkg/sosreport/sosreport.jsx:314
+#: pkg/sosreport/sosreport.jsx:321
 msgid "This information is stored only on the system."
 msgstr "Tato informace je uložena pouze lokálně na systému."
 
@@ -8553,7 +8568,7 @@ msgstr "Tier"
 msgid "Time"
 msgstr "Čas"
 
-#: pkg/lib/serverTime.js:577
+#: pkg/lib/serverTime.js:572
 msgid "Time zone"
 msgstr "Časová zóna"
 
@@ -8569,7 +8584,7 @@ msgstr "Smazání časovače se nezdařilo"
 msgid "Timers"
 msgstr "Časovače"
 
-#: pkg/shell/credentials.jsx:275
+#: pkg/shell/credentials.jsx:273
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -8605,11 +8620,11 @@ msgstr ""
 msgid "Today"
 msgstr "Dnes"
 
-#: pkg/shell/credentials.jsx:102
+#: pkg/shell/credentials.jsx:100
 msgid "Toggle"
 msgstr "Přepnout"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:600
+#: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:595
 #: pkg/users/expiration-dialogs.js:49 pkg/systemd/timer-dialog.jsx:348
 msgid "Toggle date picker"
 msgstr "Přepnout volič datumů"
@@ -8618,7 +8633,7 @@ msgstr "Přepnout volič datumů"
 msgid "Toggle filters"
 msgstr "Přepnout filtry"
 
-#: pkg/lib/cockpit.js:3750
+#: pkg/lib/cockpit.js:2581
 msgid "Too much data"
 msgstr "Příliš mnoho dat"
 
@@ -8694,7 +8709,7 @@ msgstr "Stupeň důvěryhodnosti"
 msgid "Try again"
 msgstr "Zkusit znovu"
 
-#: pkg/lib/serverTime.js:455
+#: pkg/lib/serverTime.js:450
 msgid "Trying to synchronize with $0"
 msgstr "Pokus o synchronizaci se $0"
 
@@ -8734,7 +8749,7 @@ msgstr "Zapnout přístup na úrovni správce"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:199
+#: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:197
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
 #: pkg/storaged/partitions/partition.jsx:183
 #: pkg/storaged/partitions/partition.jsx:229
@@ -8869,7 +8884,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "Neočekávaná chyba PackageKit v průběhu instalace $0: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:191
+#: pkg/shell/shell-modals.jsx:187
 msgid "Unexpected error"
 msgstr "Neočekávaná chyba"
 
@@ -8926,7 +8941,7 @@ msgstr "Neznámý název služby"
 msgid "Unknown type"
 msgstr "Neznámý typ"
 
-#: pkg/shell/credentials.jsx:312
+#: pkg/shell/credentials.jsx:310
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:36
 #: pkg/storaged/crypto/actions.jsx:40 pkg/storaged/crypto/actions.jsx:45
 #: pkg/storaged/stratis/stopped-pool.jsx:61
@@ -8945,7 +8960,7 @@ msgstr "Odemknout před změnou velikosti"
 msgid "Unlock encrypted Stratis pool"
 msgstr "Odemknout šifrovaný Stratis fond"
 
-#: pkg/shell/credentials.jsx:309
+#: pkg/shell/credentials.jsx:307
 msgid "Unlock key $0"
 msgstr "Odemknout klíč $0"
 
@@ -8964,7 +8979,7 @@ msgstr "Nespravovaná rozhraní"
 
 # auto translated by TM merge from project: blivet-gui, version: f23-branch,
 # DocId: blivet-gui
-#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:339
+#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:341
 #: pkg/storaged/filesystem/mounting-dialog.jsx:357
 #: pkg/storaged/filesystem/filesystem.jsx:102
 #: pkg/storaged/stratis/filesystem.jsx:172
@@ -9012,9 +9027,15 @@ msgstr "Nepodporovaný logický svazek"
 msgid "Until"
 msgstr "Dokud"
 
-#: pkg/lib/cockpit.js:3730 pkg/lib/cockpit.js:3732
+#: pkg/lib/cockpit.js:2561 pkg/lib/cockpit.js:2563
 msgid "Untrusted host"
 msgstr "Nedůvěryhodný stroj"
+
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:129
+#, fuzzy
+#| msgid "Up since $0"
+msgid "Up since"
+msgstr "Zapnuto od $0"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
@@ -9074,10 +9095,6 @@ msgstr "Aktualizace stavu…"
 msgid "Upload"
 msgstr "Načíst znovu"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:129
-msgid "Uptime"
-msgstr "Doba chodu od spuštění"
-
 # auto translated by TM merge from project: audit-viewer, version: default,
 # DocId: audit-viewer
 #: pkg/metrics/metrics.jsx:1963 pkg/metrics/metrics.jsx:1964
@@ -9109,7 +9126,7 @@ msgstr "Komprimovat"
 msgid "Use deduplication"
 msgstr "Deduplikovat"
 
-#: pkg/shell/credentials.jsx:133
+#: pkg/shell/credentials.jsx:131
 msgid "Use key"
 msgstr "Použít klíč"
 
@@ -9117,11 +9134,11 @@ msgstr "Použít klíč"
 msgid "Use password"
 msgstr "Použít heslo"
 
-#: pkg/shell/credentials.jsx:86
+#: pkg/shell/credentials.jsx:84
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Pro ověřování vůči ostatním systémům použít následující klíče"
 
-#: pkg/sosreport/sosreport.jsx:333
+#: pkg/sosreport/sosreport.jsx:340
 msgid "Use verbose logging"
 msgstr "Zaznamenávat podrobněji"
 
@@ -9388,7 +9405,7 @@ msgstr "Varování a závažnější"
 msgid "Weak password"
 msgstr "Snadno prolomitelné heslo"
 
-#: pkg/shell/shell-modals.jsx:64 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "Webová konzole"
 
@@ -9404,7 +9421,7 @@ msgstr "Webová konzole se restartuje"
 msgid "Web console is running in limited access mode."
 msgstr "Webová konzole je spuštěná v režimu omezeného přístupu."
 
-#: pkg/shell/shell-modals.jsx:66
+#: pkg/shell/shell-modals.jsx:64
 msgid "Web console logo"
 msgstr "Logo webové konzole"
 
@@ -9577,11 +9594,11 @@ msgstr ""
 "Server brzy zavře spojení. Po dokončení jeho restartu se budete moci opět "
 "připojit."
 
-#: pkg/lib/cockpit.js:3720
+#: pkg/lib/cockpit.js:2551
 msgid "Your session has been terminated."
 msgstr "Vaše sezení bylo ukončeno."
 
-#: pkg/lib/cockpit.js:3722
+#: pkg/lib/cockpit.js:2553
 msgid "Your session has expired. Please log in again."
 msgstr "Platnost vašeho sezení skončila. Přihlaste se znovu."
 
@@ -9608,7 +9625,7 @@ msgstr "přístup"
 
 # auto translated by TM merge from project: libvirt, version: master, DocId:
 # libvirt
-#: pkg/shell/active-pages-modal.jsx:79
+#: pkg/shell/active-pages-modal.jsx:77
 #: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:56
 msgid "active"
 msgstr "aktivní"
@@ -9689,7 +9706,7 @@ msgstr "btrfs zařízení"
 msgid "btrfs filesystem"
 msgstr "souborový systém btrfs"
 
-#: pkg/storaged/btrfs/subvolume.jsx:387
+#: pkg/storaged/btrfs/subvolume.jsx:399
 msgid "btrfs subvolume"
 msgstr "btrfs dílčí svazek"
 
@@ -9698,7 +9715,7 @@ msgid "btrfs subvolume $0 of $1"
 msgstr "btrfs dílčí svazke $0 z $1"
 
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
-#: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:425
+#: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:455
 msgid "btrfs subvolumes"
 msgstr "btrfs dílčí svazky"
 
@@ -9771,7 +9788,7 @@ msgstr "ladění"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/lvm2/volume-group.jsx:81
+#: pkg/storaged/btrfs/subvolume.jsx:220 pkg/storaged/lvm2/volume-group.jsx:81
 #: pkg/storaged/lvm2/volume-group.jsx:331
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
@@ -9968,7 +9985,11 @@ msgstr "iSCSI portál"
 msgid "ignore failure"
 msgstr "ignorovat nezdar"
 
-#: pkg/shell/shell-modals.jsx:199
+#: pkg/lib/timeformat.ts:58
+msgid "in less than a minute"
+msgstr ""
+
+#: pkg/shell/shell-modals.jsx:195
 msgid "in most browsers"
 msgstr "ve většině prohlížečů"
 
@@ -10031,6 +10052,10 @@ msgstr "klíče"
 #| msgid "patches"
 msgid "kpatch"
 msgstr "záplaty"
+
+#: pkg/lib/timeformat.ts:56
+msgid "less than a minute ago"
+msgstr ""
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -10315,6 +10340,12 @@ msgstr "zmenšit"
 msgid "shut"
 msgstr "vyp"
 
+#: pkg/storaged/btrfs/subvolume.jsx:465
+#, fuzzy
+#| msgid "Snapshot"
+msgid "snapshot"
+msgstr "Zachycený stav"
+
 #: pkg/systemd/manifest.json:0
 msgid "socket"
 msgstr "patice"
@@ -10332,7 +10363,7 @@ msgstr "podrobnosti řešení"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:185
+#: pkg/sosreport/sosreport.jsx:192
 msgid "sos report failed"
 msgstr "Nahlašování problému se nezdařilo"
 
@@ -10428,7 +10459,7 @@ msgstr "neznámý cíl"
 msgid "unmask"
 msgstr "zrušit maskování"
 
-#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/utils.js:870
+#: pkg/storaged/btrfs/subvolume.jsx:220 pkg/storaged/utils.js:870
 #: pkg/storaged/utils.js:883 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "odpojit (unmount)"
@@ -10500,6 +10531,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zóna"
+
+#~ msgid "Runtime"
+#~ msgstr "Běhové prostředí"
+
+#~ msgid "Uptime"
+#~ msgstr "Doba chodu od spuštění"
 
 #~ msgid "Checking related processes"
 #~ msgstr "Zjišťování souvisejících procesů"
@@ -12711,9 +12748,6 @@ msgstr "zóna"
 #~ msgid "Networking"
 #~ msgstr "Síť"
 
-#~ msgid "No snapshots"
-#~ msgstr "Nejsou zachycené stavy"
-
 #~ msgid "No such file found in directory '$0'"
 #~ msgstr "Ve složce „$0“ nenalezen žádný takový soubor"
 
@@ -13418,9 +13452,6 @@ msgstr "zóna"
 
 #~ msgid "Unsupported setup mechanism"
 #~ msgstr "Nepodporovaný mechanizmus nastavení"
-
-#~ msgid "Up since $0"
-#~ msgstr "Zapnuto od $0"
 
 #~ msgid "Used by containers"
 #~ msgstr "Využito kontejnery"

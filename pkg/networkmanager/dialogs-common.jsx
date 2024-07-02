@@ -175,6 +175,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, chi
 
 export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) => {
     const Dialogs = useDialogs();
+    console.log("NetworkAction re-render", buttonText, iface, connectionSettings, type);
     const model = useContext(ModelContext);
 
     if (type == "team" && !model.get_manager().Capabilities.includes(NM_CAPABILITY_TEAM))
@@ -249,8 +250,8 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
 
         if (dlg)
             resolveDeps(type)
-                    .then(() => Dialogs.show(dlg))
-                    .catch(err => console.error("NetworkAction Dialog failed:", err)); // not-covered: OS error
+                    .then(() => { console.log("open dialog"); Dialogs.show(dlg) })
+                    .catch(err => console.error("ALERT! NetworkAction Dialog failed:", err)); // not-covered: OS error
     }
 
     return (

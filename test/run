@@ -48,7 +48,7 @@ case "${TEST_SCENARIO:=}" in
 
     # split tests into roughly equal scenarios for more parallelism
     *networking*)
-        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_NETWORKING")"
+        RUN_OPTS="$RUN_OPTS TestWireGuard"
         PREPARE_OPTS="$PREPARE_OPTS --quick"
         ;;&
     *storage*)

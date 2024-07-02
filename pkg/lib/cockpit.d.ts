@@ -121,14 +121,26 @@ declare module 'cockpit' {
         close(options?: JsonObject): void;
     }
 
+    // these apply to all channels
     interface ChannelOptions {
-        payload: string;
         superuser?: "try" | "require";
         [_: string]: JsonValue | undefined;
+        binary?: boolean,
+
+        // for remote channels
+        host?: string;
+        user?: string;
+        password?: string;
+        session?: "shared" | "private";
     }
 
-    function channel(options: ChannelOptions & { binary?: false; }): Channel<string>;
-    function channel(options: ChannelOptions & { binary: true; }): Channel<Uint8Array>;
+    // this applies to opening a generic channel() with explicit payload
+    interface ChannelOpenOptions extends ChannelOptions {
+        payload: string;
+    }
+
+    function channel(options: ChannelOpenOptions & { binary?: false; }): Channel<string>;
+    function channel(options: ChannelOpenOptions & { binary: true; }): Channel<Uint8Array>;
 
     /* === cockpit.{spawn,script} ============================= */
 
@@ -138,13 +150,11 @@ declare module 'cockpit' {
         close(): void;
     }
 
-    interface SpawnOptions {
-        binary?: boolean,
+    interface SpawnOptions extends ChannelOptions {
         directory?: string;
         err?: "out" | "ignore" | "message";
         environ?: string[];
         pty?: boolean;
-        superuser?: "try" | "require";
     }
 
     function spawn(

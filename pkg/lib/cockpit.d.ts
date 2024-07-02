@@ -130,7 +130,7 @@ declare module 'cockpit' {
     function channel(options: ChannelOptions & { binary?: false; }): Channel<string>;
     function channel(options: ChannelOptions & { binary: true; }): Channel<Uint8Array>;
 
-    /* === cockpit.spawn ============================= */
+    /* === cockpit.{spawn,script} ============================= */
 
     interface Spawn<T> extends DeferredPromise<T> {
         input(message?: T | null, stream?: boolean): DeferredPromise<T>;
@@ -154,6 +154,17 @@ declare module 'cockpit' {
     function spawn(
         args: string[],
         options: SpawnOptions & { binary: true }
+    ): Spawn<Uint8Array>;
+
+    function script(
+        script: string,
+        args?: string[],
+        options?: SpawnOptions & { binary?: false }
+    ): Spawn<string>;
+    function script(
+        script: string,
+        args?: string[],
+        options?: SpawnOptions & { binary: true }
     ): Spawn<Uint8Array>;
 
     /* === cockpit.location ========================== */

@@ -23,7 +23,7 @@ function transport_debug() {
         console.debug.apply(console, arguments);
 }
 
-export function parse_channel(data) {
+function parse_channel(data) {
     let channel;
 
     /* A binary message, split out the channel */
@@ -59,7 +59,7 @@ export function parse_channel(data) {
 }
 
 /* Private Transport class */
-export function Transport() {
+function Transport() {
     const self = this;
     self.application = calculate_application();
 

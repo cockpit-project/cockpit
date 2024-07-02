@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-21 02:48+0000\n"
-"PO-Revision-Date: 2024-06-10 19:36+0000\n"
-"Last-Translator: Akihiko Odaki <akihiko.odaki@gmail.com>\n"
+"POT-Creation-Date: 2024-07-02 02:49+0000\n"
+"PO-Revision-Date: 2024-06-30 19:36+0000\n"
+"Last-Translator: Inci sakura <incisakura@icloud.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
 "cockpit/main/ja/>\n"
 "Language: ja\n"
@@ -104,11 +104,11 @@ msgstr "$0 ドキュメント"
 msgid "$0 error"
 msgstr "$0 エラー"
 
-#: pkg/lib/cockpit.js:2580
+#: pkg/lib/cockpit.js:1411
 msgid "$0 exited with code $1"
 msgstr "$0 がコード $1 で終了しました"
 
-#: pkg/lib/cockpit.js:2582
+#: pkg/lib/cockpit.js:1413
 msgid "$0 failed"
 msgstr "$0 が失敗しました"
 
@@ -161,7 +161,7 @@ msgstr "$0 は、あらゆるリポジトリーから利用できません。"
 msgid "$0 key changed"
 msgstr "$0 キーが変更されました"
 
-#: pkg/lib/cockpit.js:2578
+#: pkg/lib/cockpit.js:1409
 msgid "$0 killed with signal $1"
 msgstr "$0 がシグナル $1 で終了しました"
 
@@ -647,7 +647,7 @@ msgstr "動作中"
 msgid "Active backup"
 msgstr "アクティブなバックアップ"
 
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/active-pages-modal.jsx:105
+#: pkg/shell/active-pages-modal.jsx:95 pkg/shell/active-pages-modal.jsx:103
 #: pkg/shell/topnav.jsx:223
 msgid "Active pages"
 msgstr "アクティブページ"
@@ -670,7 +670,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "適応送信のロードバランス"
 
 #: pkg/networkmanager/dialogs-common.jsx:160
-#: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:184
+#: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:182
 #: pkg/shell/hosts_dialog.jsx:252 pkg/systemd/timer-dialog.jsx:367
 #: pkg/storaged/crypto/keyslots.jsx:494 pkg/storaged/crypto/keyslots.jsx:817
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/lvm2/volume-group.jsx:209
@@ -748,7 +748,7 @@ msgstr "ディスクの追加"
 msgid "Add iSCSI portal"
 msgstr "iSCSI ポータルの追加"
 
-#: pkg/users/authorized-keys-panel.js:112 pkg/shell/credentials.jsx:90
+#: pkg/users/authorized-keys-panel.js:112 pkg/shell/credentials.jsx:88
 #: pkg/storaged/crypto/keyslots.jsx:458
 msgid "Add key"
 msgstr "キーの追加"
@@ -924,11 +924,11 @@ msgstr "Cockpit Web コンソールでの管理"
 msgid "Administrative access"
 msgstr "管理アクセス"
 
-#: pkg/sosreport/sosreport.jsx:424
+#: pkg/sosreport/sosreport.jsx:431
 msgid "Administrative access is required to create and access reports."
 msgstr "レポートの作成およびアクセスには、管理アクセスが必要です。"
 
-#: pkg/sosreport/sosreport.jsx:423
+#: pkg/sosreport/sosreport.jsx:430
 msgid "Administrative access required"
 msgstr "管理アクセスが必要"
 
@@ -1099,7 +1099,7 @@ msgstr "1 つ以上のブロックデバイスが必要です。"
 msgid "At least one disk is needed."
 msgstr "1 つ以上のディスクが必要です。"
 
-#: pkg/storaged/btrfs/subvolume.jsx:367
+#: pkg/storaged/btrfs/subvolume.jsx:369
 msgid "At least one parent needs to be mounted writable"
 msgstr "最低でも 1 つの親を、書き込み可能な状態でマウントする必要があります"
 
@@ -1115,7 +1115,7 @@ msgstr "秒"
 msgid "At specific time"
 msgstr "特定の時間"
 
-#: pkg/sosreport/sosreport.jsx:501
+#: pkg/sosreport/sosreport.jsx:508
 msgid "Attributes"
 msgstr "属性"
 
@@ -1185,15 +1185,15 @@ msgstr "自動アップデート"
 msgid "Automatically starts"
 msgstr "自動起動"
 
-#: pkg/lib/serverTime.js:563
+#: pkg/lib/serverTime.js:558
 msgid "Automatically using NTP"
 msgstr "NTP を自動的に使用"
 
-#: pkg/lib/serverTime.js:570
+#: pkg/lib/serverTime.js:565
 msgid "Automatically using additional NTP servers"
 msgstr "追加の NTP サーバーを自動的に使用"
 
-#: pkg/lib/serverTime.js:571
+#: pkg/lib/serverTime.js:566
 msgid "Automatically using specific NTP servers"
 msgstr "特定の NTP サーバーを自動的に使用"
 
@@ -1397,7 +1397,7 @@ msgstr ""
 "現在のフィルターの組み合わせを使用して、ログを見つけることができません。"
 
 #: pkg/playground/translate.html:39 pkg/static/login.html:141
-#: pkg/sosreport/sosreport.jsx:290 pkg/sosreport/sosreport.jsx:375
+#: pkg/sosreport/sosreport.jsx:297 pkg/sosreport/sosreport.jsx:382
 #: pkg/networkmanager/dialogs-common.jsx:163
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913
@@ -1406,8 +1406,8 @@ msgstr ""
 #: pkg/apps/utils.jsx:69 pkg/kdump/kdump-view.jsx:235
 #: pkg/packagekit/updates.jsx:541 pkg/packagekit/updates.jsx:579
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/shell-modals.jsx:118 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:285
+#: pkg/shell/shell-modals.jsx:115 pkg/shell/credentials.jsx:311
+#: pkg/shell/active-pages-modal.jsx:98 pkg/shell/hosts_dialog.jsx:285
 #: pkg/shell/hosts_dialog.jsx:382 pkg/shell/hosts_dialog.jsx:514
 #: pkg/shell/hosts_dialog.jsx:891 pkg/shell/superuser.jsx:182
 #: pkg/shell/superuser.jsx:219 pkg/shell/superuser.jsx:264
@@ -1438,7 +1438,7 @@ msgstr "有効にできません"
 msgid "Cannot connect to an unknown host"
 msgstr "不明なホストには接続できません"
 
-#: pkg/lib/cockpit.js:3742
+#: pkg/lib/cockpit.js:2573
 msgid "Cannot forward login credentials"
 msgstr "ログインのクレデンシャルをフォワードできません"
 
@@ -1464,7 +1464,7 @@ msgstr "キャリア"
 msgid "Category"
 msgstr ""
 
-#: pkg/lib/serverTime.js:729 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:528
@@ -1495,7 +1495,7 @@ msgstr "ラベルの変更"
 msgid "Change passphrase"
 msgstr "パスフレーズの変更"
 
-#: pkg/shell/credentials.jsx:252
+#: pkg/shell/credentials.jsx:250
 msgid "Change password"
 msgstr "パスワードの変更"
 
@@ -1511,7 +1511,7 @@ msgstr "プロファイルの変更"
 msgid "Change shell"
 msgstr "シェルの変更"
 
-#: pkg/lib/serverTime.js:722
+#: pkg/lib/serverTime.js:714
 msgid "Change system time"
 msgstr "システム時間の変更"
 
@@ -1608,7 +1608,7 @@ msgstr "インストールされたソフトウェアの確認中"
 msgid "Checking software status"
 msgstr "ソフトウェアステータスの確認"
 
-#: pkg/shell/shell-modals.jsx:122
+#: pkg/shell/shell-modals.jsx:119
 msgid "Choose the language to be used in the application"
 msgstr "アプリケーションで使用する言語の選択"
 
@@ -1647,15 +1647,15 @@ msgstr "クライアントソフトウェア"
 #: pkg/networkmanager/interfaces.js:43
 #: pkg/lib/cockpit-components-terminal.jsx:230
 #: pkg/lib/cockpit-components-modifications.jsx:76 pkg/apps/utils.jsx:87
-#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:192
-#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:92
+#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:188
+#: pkg/shell/credentials.jsx:79 pkg/shell/hosts_dialog.jsx:92
 #: pkg/shell/superuser.jsx:190 pkg/shell/superuser.jsx:198
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278 pkg/storaged/dialog.jsx:485
 msgid "Close"
 msgstr "閉じる"
 
-#: pkg/shell/active-pages-modal.jsx:99
+#: pkg/shell/active-pages-modal.jsx:97
 msgid "Close selected pages"
 msgstr "選択されたページを閉じる"
 
@@ -1671,11 +1671,11 @@ msgstr "Cockpit の認証が間違って設定されています。"
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Cockpit の NetworkManager と Firewalld の設定"
 
-#: pkg/lib/cockpit.js:3748
+#: pkg/lib/cockpit.js:2579
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit は該当するホストに接続できませんでした。"
 
-#: pkg/shell/shell-modals.jsx:194
+#: pkg/shell/shell-modals.jsx:190
 msgid "Cockpit had an unexpected internal error."
 msgstr "cockpit で予期しない内部エラーが発生しました。"
 
@@ -1692,11 +1692,11 @@ msgstr ""
 "サービスは端末で停止できます。同様に、端末でエラーが発生した場合は、そのエ"
 "ラーを Cockpit ジャーナルインターフェースで確認できます。"
 
-#: pkg/shell/shell-modals.jsx:70
+#: pkg/shell/shell-modals.jsx:68
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit は対話型 Linux サーバー管理インターフェースです。"
 
-#: pkg/lib/cockpit.js:3746
+#: pkg/lib/cockpit.js:2577
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit にはシステム上のそのソフトウェアとの互換性がありません。"
 
@@ -1704,7 +1704,7 @@ msgstr "Cockpit にはシステム上のそのソフトウェアとの互換性�
 msgid "Cockpit is not installed"
 msgstr "Cockpit はインストールされていません"
 
-#: pkg/lib/cockpit.js:3740
+#: pkg/lib/cockpit.js:2571
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit はシステムにインストールされていません。"
 
@@ -1756,7 +1756,7 @@ msgstr "コマンド"
 msgid "Command not found"
 msgstr "コマンドが見つかりません"
 
-#: pkg/shell/credentials.jsx:195
+#: pkg/shell/credentials.jsx:193
 msgid "Comment"
 msgstr "コメント"
 
@@ -1837,7 +1837,7 @@ msgstr "新しいキーパスワードの確認"
 msgid "Confirm new password"
 msgstr "新規パスワードの確認"
 
-#: pkg/users/account-create-dialog.js:140 pkg/shell/credentials.jsx:268
+#: pkg/users/account-create-dialog.js:140 pkg/shell/credentials.jsx:266
 msgid "Confirm password"
 msgstr "パスワードの確認"
 
@@ -1893,7 +1893,7 @@ msgstr "接続エラー"
 msgid "Connection failed"
 msgstr "接続に失敗しました"
 
-#: pkg/lib/cockpit.js:3738
+#: pkg/lib/cockpit.js:2569
 msgid "Connection has timed out."
 msgstr "接続がタイムアウトしました。"
 
@@ -1917,7 +1917,7 @@ msgstr "次を含む:"
 msgid "Continue"
 msgstr "続行"
 
-#: pkg/shell/shell-modals.jsx:179
+#: pkg/shell/shell-modals.jsx:176
 msgid "Continue session"
 msgstr "セッションを続ける"
 
@@ -1938,13 +1938,13 @@ msgstr "コントローラー"
 msgid "Convertible"
 msgstr "変換可能"
 
-#: pkg/shell/credentials.jsx:212 pkg/shell/hosts_dialog.jsx:475
+#: pkg/shell/credentials.jsx:210 pkg/shell/hosts_dialog.jsx:475
 #: pkg/shell/hosts_dialog.jsx:478 pkg/shell/hosts_dialog.jsx:493
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/failures.jsx:43
 msgid "Copied"
 msgstr "コピー済み"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211 pkg/shell/credentials.jsx:212
+#: pkg/lib/cockpit-components-terminal.jsx:211 pkg/shell/credentials.jsx:210
 #: pkg/shell/hosts_dialog.jsx:475 pkg/shell/hosts_dialog.jsx:478
 #: pkg/shell/hosts_dialog.jsx:493 pkg/shell/hosts_dialog.jsx:495
 #: pkg/shell/failures.jsx:43
@@ -1978,7 +1978,7 @@ msgstr "システムのクラッシュ"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:193
 #: pkg/users/account-create-dialog.js:481 pkg/users/group-create-dialog.js:141
-#: pkg/storaged/btrfs/subvolume.jsx:141
+#: pkg/storaged/btrfs/subvolume.jsx:143
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:269
 #: pkg/storaged/lvm2/create-dialog.jsx:63
 #: pkg/storaged/lvm2/volume-group.jsx:120
@@ -2027,7 +2027,7 @@ msgstr "脆弱なパスワードを使用したアカウントの作成"
 msgid "Create and change ownership of home directory"
 msgstr "ホームディレクトリーの所有権の作成および変更"
 
-#: pkg/storaged/btrfs/subvolume.jsx:135
+#: pkg/storaged/btrfs/subvolume.jsx:137
 #: pkg/storaged/block/format-dialog.jsx:270 pkg/storaged/stratis/pool.jsx:80
 msgid "Create and mount"
 msgstr "作成およびマウント"
@@ -2072,7 +2072,7 @@ msgstr "このコンテンツで新しいタスクファイルを作成します
 msgid "Create new thinly provisioned logical volume"
 msgstr "シンプロビジョニングされた論理ボリュームの新規作成"
 
-#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:138
 #: pkg/storaged/block/format-dialog.jsx:271
 #: pkg/storaged/block/format-dialog.jsx:280 pkg/storaged/stratis/pool.jsx:81
 msgid "Create only"
@@ -2107,7 +2107,7 @@ msgstr "スナップショットの作成のみ"
 msgid "Create storage device"
 msgstr "ストレージデバイスの作成"
 
-#: pkg/storaged/btrfs/subvolume.jsx:146 pkg/storaged/btrfs/subvolume.jsx:360
+#: pkg/storaged/btrfs/subvolume.jsx:148 pkg/storaged/btrfs/subvolume.jsx:362
 msgid "Create subvolume"
 msgstr "サブボリュームの作成"
 
@@ -2123,7 +2123,7 @@ msgstr "タイマーの作成"
 msgid "Create volume group"
 msgstr "ボリュームグループの作成"
 
-#: pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:507
 msgid "Created"
 msgstr "作成済み"
 
@@ -2188,7 +2188,7 @@ msgstr "暗号化ポリシーに一貫性がありません"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:198
+#: pkg/shell/shell-modals.jsx:194
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Shift-I"
 
@@ -2399,14 +2399,14 @@ msgstr "遅延"
 msgid "Delay must be a number"
 msgstr "遅延は数字である必要があります"
 
-#: pkg/sosreport/sosreport.jsx:369 pkg/sosreport/sosreport.jsx:468
+#: pkg/sosreport/sosreport.jsx:376 pkg/sosreport/sosreport.jsx:475
 #: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
 #: pkg/networkmanager/firewall.jsx:910
 #: pkg/networkmanager/network-interface.jsx:725
 #: pkg/users/delete-account-dialog.js:60 pkg/users/account-details.js:221
 #: pkg/users/delete-group-dialog.js:51 pkg/systemd/abrtLog.jsx:290
 #: pkg/systemd/service-details.jsx:151 pkg/systemd/service-details.jsx:713
-#: pkg/storaged/btrfs/subvolume.jsx:232 pkg/storaged/btrfs/subvolume.jsx:374
+#: pkg/storaged/btrfs/subvolume.jsx:234 pkg/storaged/btrfs/subvolume.jsx:376
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:44
 #: pkg/storaged/lvm2/volume-group.jsx:97
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:42
@@ -2445,7 +2445,7 @@ msgstr "グループの削除"
 msgid "Delete pool"
 msgstr "プールの削除"
 
-#: pkg/sosreport/sosreport.jsx:361
+#: pkg/sosreport/sosreport.jsx:368
 msgid "Delete report permanently?"
 msgstr "レポートを完全に削除しますか?"
 
@@ -2498,7 +2498,7 @@ msgstr "削除すると、VDO デバイスのデータがすべて消去され�
 msgid "Deleting erases all data on a volume group."
 msgstr "削除すると、ボリュームグループのデータがすべて消去されます。"
 
-#: pkg/storaged/btrfs/subvolume.jsx:233
+#: pkg/storaged/btrfs/subvolume.jsx:235
 msgid "Deleting erases all data on this subvolume and all it's children."
 msgstr ""
 "削除すると、このサブボリュームおよびその子のデータがすべて消去されます。"
@@ -2520,7 +2520,7 @@ msgstr "デスクトップ"
 msgid "Detachable"
 msgstr "割り当て解除可能"
 
-#: pkg/packagekit/updates.jsx:450 pkg/shell/credentials.jsx:109
+#: pkg/packagekit/updates.jsx:450 pkg/shell/credentials.jsx:107
 #: pkg/systemd/overview-cards/realmd.jsx:416
 msgid "Details"
 msgstr "詳細"
@@ -2649,7 +2649,7 @@ msgstr[0] "$0 アラートの解除"
 msgid "Dismiss selected alerts"
 msgstr "選択したアラートの解除"
 
-#: pkg/shell/shell-modals.jsx:115 pkg/shell/topnav.jsx:216
+#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:216
 msgid "Display language"
 msgstr "表示言語"
 
@@ -2718,7 +2718,7 @@ msgstr "繰り返さない"
 msgid "Double distributed parity (RAID 6)"
 msgstr "ダブル分散パリティー (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:458 pkg/sosreport/sosreport.jsx:464
+#: pkg/sosreport/sosreport.jsx:465 pkg/sosreport/sosreport.jsx:471
 msgid "Download"
 msgstr "ダウンロード"
 
@@ -2800,7 +2800,7 @@ msgstr "ホストを編集する"
 msgid "Edit motd"
 msgstr "motd を編集する"
 
-#: pkg/storaged/btrfs/subvolume.jsx:332
+#: pkg/storaged/btrfs/subvolume.jsx:334
 #: pkg/storaged/filesystem/filesystem.jsx:100
 #: pkg/storaged/stratis/filesystem.jsx:170
 msgid "Edit mount point"
@@ -2890,7 +2890,7 @@ msgstr "Tang キーサーバーでデータを暗号化する"
 msgid "Encrypt data with a passphrase"
 msgstr "パスフレーズでデータを暗号化する"
 
-#: pkg/sosreport/sosreport.jsx:448
+#: pkg/sosreport/sosreport.jsx:455
 msgid "Encrypted"
 msgstr "暗号化"
 
@@ -2920,7 +2920,7 @@ msgstr "暗号化"
 msgid "Encryption options"
 msgstr "暗号化オプション"
 
-#: pkg/sosreport/sosreport.jsx:320
+#: pkg/sosreport/sosreport.jsx:327
 msgid "Encryption passphrase"
 msgstr "暗号化パスフレーズ"
 
@@ -2972,7 +2972,7 @@ msgstr "$target の削除中"
 msgid "Errata"
 msgstr "エラータ"
 
-#: pkg/sosreport/sosreport.jsx:392 pkg/apps/utils.jsx:81
+#: pkg/sosreport/sosreport.jsx:399 pkg/apps/utils.jsx:81
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:160
@@ -3209,7 +3209,7 @@ msgstr "このマウントポイントの下にはファイルシステムがマ
 msgid "Filter by name or description"
 msgstr "名前または説明による絞り込み"
 
-#: pkg/shell/shell-modals.jsx:134
+#: pkg/shell/shell-modals.jsx:131
 msgid "Filter menu items"
 msgstr "フィルターメニューアイテム"
 
@@ -3221,7 +3221,7 @@ msgstr "サービスの絞り込み"
 msgid "Filters"
 msgstr "フィルター"
 
-#: pkg/users/authorized-keys-panel.js:128 pkg/shell/credentials.jsx:203
+#: pkg/users/authorized-keys-panel.js:128 pkg/shell/credentials.jsx:201
 msgid "Fingerprint"
 msgstr "フィンガープリント"
 
@@ -3458,7 +3458,7 @@ msgstr "ホームディレクトリー"
 msgid "Host"
 msgstr "ホスト"
 
-#: pkg/lib/cockpit.js:3734
+#: pkg/lib/cockpit.js:2565
 msgid "Host key is incorrect"
 msgstr "ホスト鍵が正しくありません"
 
@@ -3488,7 +3488,7 @@ msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:696 pkg/users/accounts-list.js:230
 #: pkg/users/accounts-list.js:381 pkg/users/group-create-dialog.js:47
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:415
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:437
 #: pkg/storaged/pages.jsx:714
 msgid "ID"
 msgstr "ID"
@@ -3759,7 +3759,7 @@ msgstr "インターフェースメンバー"
 msgid "Interfaces"
 msgstr "インターフェース"
 
-#: pkg/lib/cockpit.js:3736
+#: pkg/lib/cockpit.js:2567
 msgid "Internal error"
 msgstr "内部エラー"
 
@@ -3775,7 +3775,7 @@ msgstr "無効"
 msgid "Invalid address $0"
 msgstr "無効なアドレス $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:687
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
 msgid "Invalid date format"
 msgstr "無効な日付形式"
 
@@ -3819,12 +3819,12 @@ msgstr "無効なプレフィックスまたはネットマスク $0"
 msgid "Invalid range"
 msgstr "無効な範囲"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:690
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "無効な時間形式"
 
-#: pkg/lib/serverTime.js:682
+#: pkg/lib/serverTime.js:674
 msgid "Invalid timezone"
 msgstr "無効なタイムゾーン"
 
@@ -4065,11 +4065,11 @@ msgstr "$0 の脱退"
 msgid "Leave domain"
 msgstr "ドメインの脱退"
 
-#: pkg/sosreport/sosreport.jsx:328
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Leave empty to skip encryption"
 msgstr "暗号化をスキップするには空白のままにします"
 
-#: pkg/shell/shell-modals.jsx:63
+#: pkg/shell/shell-modals.jsx:61
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "GNU LGPL バージョン 2.1 でのライセンス"
 
@@ -4196,7 +4196,7 @@ msgstr "SSH キーの読み込みに失敗しました"
 msgid "Loading of units failed"
 msgstr "ユニットの読み込みに失敗しました"
 
-#: pkg/shell/shell-modals.jsx:78
+#: pkg/shell/shell-modals.jsx:76
 msgid "Loading packages..."
 msgstr "パッケージの読み込み中..."
 
@@ -4282,7 +4282,7 @@ msgstr "$0 へのログイン"
 msgid "Log in with your server user account."
 msgstr "サーバーのユーザーアカウントでログインします。"
 
-#: pkg/lib/serverTime.js:464
+#: pkg/lib/serverTime.js:459
 msgid "Log messages"
 msgstr "ログメッセージ"
 
@@ -4333,7 +4333,7 @@ msgstr "ログイン"
 msgid "Login again"
 msgstr "再ログイン"
 
-#: pkg/lib/cockpit.js:3726
+#: pkg/lib/cockpit.js:2557
 msgid "Login failed"
 msgstr "ログインが失敗しました"
 
@@ -4504,7 +4504,7 @@ msgstr "ユーザーアカウント管理"
 msgid "Manual"
 msgstr "手作業"
 
-#: pkg/lib/serverTime.js:562
+#: pkg/lib/serverTime.js:557
 msgid "Manually"
 msgstr "手動"
 
@@ -4660,14 +4660,14 @@ msgstr "毎月"
 msgid "More info..."
 msgstr "詳細..."
 
-#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:344
+#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:346
 #: pkg/storaged/filesystem/mounting-dialog.jsx:356
 #: pkg/storaged/filesystem/filesystem.jsx:103
 #: pkg/storaged/stratis/filesystem.jsx:173
 msgid "Mount"
 msgstr "マウント"
 
-#: pkg/storaged/btrfs/subvolume.jsx:152
+#: pkg/storaged/btrfs/subvolume.jsx:154
 msgid "Mount Point"
 msgstr "マウントポイント"
 
@@ -4712,7 +4712,7 @@ msgstr "$0 に今すぐマウントします"
 msgid "Mount options"
 msgstr "マウントオプション"
 
-#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:416
+#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:446
 #: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:326
 #: pkg/storaged/filesystem/filesystem.jsx:147 pkg/storaged/stratis/pool.jsx:103
@@ -4786,7 +4786,7 @@ msgstr "NFS マウント"
 msgid "NSNA ping"
 msgstr "NSNA ping"
 
-#: pkg/lib/serverTime.js:550
+#: pkg/lib/serverTime.js:545
 msgid "NTP server"
 msgstr "NTP サーバー"
 
@@ -4794,10 +4794,10 @@ msgstr "NTP サーバー"
 #: pkg/networkmanager/network-main.jsx:185
 #: pkg/networkmanager/network-main.jsx:200
 #: pkg/users/authorized-keys-panel.js:127 pkg/users/group-create-dialog.js:39
-#: pkg/packagekit/updates.jsx:447 pkg/shell/credentials.jsx:101
+#: pkg/packagekit/updates.jsx:447 pkg/shell/credentials.jsx:99
 #: pkg/systemd/timer-dialog.jsx:157 pkg/systemd/hwinfo.jsx:86
-#: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/btrfs/subvolume.jsx:148
-#: pkg/storaged/btrfs/subvolume.jsx:414
+#: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/btrfs/subvolume.jsx:150
+#: pkg/storaged/btrfs/subvolume.jsx:436
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/create-dialog.jsx:47 pkg/storaged/lvm2/volume-group.jsx:64
 #: pkg/storaged/lvm2/volume-group.jsx:116
@@ -4863,7 +4863,7 @@ msgstr "名前にはスペースを含めることができません。"
 msgid "Need a spare disk"
 msgstr "スペアディスクが必要です"
 
-#: pkg/lib/serverTime.js:695
+#: pkg/lib/serverTime.js:687
 msgid "Need at least one NTP server"
 msgstr "少なくとも 1 つの NTP サーバーが必要です"
 
@@ -4952,7 +4952,7 @@ msgstr "新しい名前"
 msgid "New passphrase"
 msgstr "新しいパスフレーズ"
 
-#: pkg/users/password-dialogs.js:147 pkg/shell/credentials.jsx:265
+#: pkg/users/password-dialogs.js:147 pkg/shell/credentials.jsx:263
 msgid "New password"
 msgstr "新規パスワード"
 
@@ -5083,7 +5083,7 @@ msgstr "このアプリケーションのインストールパッケージが見
 msgid "No keys added"
 msgstr "追加されたキーはありません"
 
-#: pkg/shell/shell-modals.jsx:152
+#: pkg/shell/shell-modals.jsx:149
 msgid "No languages match"
 msgstr "一致する言語がありません"
 
@@ -5144,12 +5144,18 @@ msgstr ""
 msgid "No rule hits"
 msgstr "ルールヒットなし"
 
+#: pkg/storaged/btrfs/subvolume.jsx:464
+#, fuzzy
+#| msgid "No snapshots"
+msgid "No snapshots found"
+msgstr "スナップショットなし"
+
 #: pkg/storaged/overview/overview.jsx:190
 msgid "No storage found"
 msgstr "ストレージが見つかりません"
 
 #: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:424
+#: pkg/storaged/btrfs/subvolume.jsx:454
 msgid "No subvolumes"
 msgstr "サブボリュームなし"
 
@@ -5162,7 +5168,7 @@ msgstr "このようなファイルまたはディレクトリーがありませ
 msgid "No system modifications"
 msgstr "システム変更がありません"
 
-#: pkg/sosreport/sosreport.jsx:497
+#: pkg/sosreport/sosreport.jsx:504
 msgid "No system reports."
 msgstr "システムレポートがありません。"
 
@@ -5237,7 +5243,7 @@ msgstr "ネットワークデバイスの設定が許可されていません"
 msgid "Not permitted to configure realms"
 msgstr "レルムの設定が許可されていません"
 
-#: pkg/lib/cockpit.js:3724
+#: pkg/lib/cockpit.js:2555
 msgid "Not permitted to perform this action."
 msgstr "この動作を実行する権限がありません。"
 
@@ -5259,7 +5265,7 @@ msgstr "実行中ではありません"
 msgid "Not set up"
 msgstr "設定されていません"
 
-#: pkg/lib/serverTime.js:458
+#: pkg/lib/serverTime.js:453
 msgid "Not synchronized"
 msgstr "同期されていません"
 
@@ -5275,11 +5281,11 @@ msgstr "ノートブック"
 msgid "Notice and above"
 msgstr "注意以上のレベル"
 
-#: pkg/sosreport/sosreport.jsx:331
+#: pkg/sosreport/sosreport.jsx:338
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "ネットワークアドレス、ホスト名、およびユーザー名の難読化"
 
-#: pkg/sosreport/sosreport.jsx:452
+#: pkg/sosreport/sosreport.jsx:459
 msgid "Obfuscated"
 msgstr "難読化"
 
@@ -5358,7 +5364,7 @@ msgstr "ファイアウォールで pmproxy サービスを開き、メトリッ
 msgid "Operation '$operation' on $target"
 msgstr "$target 上の操作 '$operation'"
 
-#: pkg/sosreport/sosreport.jsx:330 pkg/networkmanager/bridge.jsx:104
+#: pkg/sosreport/sosreport.jsx:337 pkg/networkmanager/bridge.jsx:104
 #: pkg/users/account-details.js:263 pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
 #: pkg/storaged/stratis/create-dialog.jsx:64
@@ -5413,7 +5419,7 @@ msgstr "PID"
 
 #: pkg/metrics/metrics.jsx:1828
 msgid "Package cockpit-pcp is missing for metrics history"
-msgstr "メトリックス履歴に、パッケージ cockpit-pcp がありません"
+msgstr "履歴を利用するには cockpit-pcp が必要です"
 
 #: pkg/packagekit/updates.jsx:688 pkg/packagekit/updates.jsx:767
 msgid "Package information"
@@ -5435,7 +5441,7 @@ msgstr "PackageKit が、エラーコード $0 を報告しました"
 msgid "Packages"
 msgstr "パッケージ"
 
-#: pkg/shell/active-pages-modal.jsx:104
+#: pkg/shell/active-pages-modal.jsx:102
 msgid "Page name"
 msgstr "ページ名"
 
@@ -5522,15 +5528,15 @@ msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
 #: pkg/static/login.html:99 pkg/users/account-details.js:290
-#: pkg/users/account-create-dialog.js:139 pkg/shell/credentials.jsx:119
-#: pkg/shell/credentials.jsx:262 pkg/shell/credentials.jsx:318
+#: pkg/users/account-create-dialog.js:139 pkg/shell/credentials.jsx:117
+#: pkg/shell/credentials.jsx:260 pkg/shell/credentials.jsx:316
 #: pkg/shell/hosts_dialog.jsx:845 pkg/shell/hosts_dialog.jsx:854
 #: pkg/shell/superuser.jsx:144 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
 msgid "Password"
 msgstr "パスワード"
 
-#: pkg/shell/credentials.jsx:259
+#: pkg/shell/credentials.jsx:257
 msgid "Password changed successfully"
 msgstr "パスワードが正しく変更されました"
 
@@ -5558,7 +5564,7 @@ msgstr "パスワードを変更する必要があります"
 msgid "Password not accepted"
 msgstr "パスワードは受け入れられません"
 
-#: pkg/shell/credentials.jsx:274
+#: pkg/shell/credentials.jsx:272
 msgid "Password tip"
 msgstr "パスワードヒント"
 
@@ -5607,7 +5613,7 @@ msgid "Path to directory"
 msgstr "ディレクトリーへのパス"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:169
-#: pkg/shell/credentials.jsx:172
+#: pkg/shell/credentials.jsx:170
 msgid "Path to file"
 msgstr "ファイルのパス"
 
@@ -5679,7 +5685,7 @@ msgstr "$0 を完全に削除しますか？"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "論理ボリューム $0/$1 を完全に削除しますか?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:229
+#: pkg/storaged/btrfs/subvolume.jsx:231
 msgid "Permanently delete subvolume $0?"
 msgstr "サブボリューム $0 を完全に削除しますか？"
 
@@ -5710,7 +5716,7 @@ msgstr "物理ボリューム"
 msgid "Physical volumes can not be resized here"
 msgstr "ここでは物理ボリュームのサイズを変更できません"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:599
+#: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:594
 #: pkg/users/expiration-dialogs.js:48 pkg/systemd/timer-dialog.jsx:347
 msgid "Pick date"
 msgstr "日付けの選択"
@@ -5859,11 +5865,11 @@ msgstr "問題の情報"
 msgid "Processes using the location"
 msgstr "ロケーションを使用するプロセス"
 
-#: pkg/sosreport/sosreport.jsx:301
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Progress: $0"
 msgstr "進行状況: $0"
 
-#: pkg/shell/shell-modals.jsx:74
+#: pkg/shell/shell-modals.jsx:72
 msgid "Project website"
 msgstr "プロジェクト Web サイト"
 
@@ -5894,7 +5900,7 @@ msgid "Provide the passphrase for the pool on these block devices:"
 msgstr "このブロックデバイス上のプールのパスフレーズを指定します:"
 
 #: pkg/networkmanager/wireguard.jsx:237 pkg/networkmanager/wireguard.jsx:300
-#: pkg/shell/credentials.jsx:114
+#: pkg/shell/credentials.jsx:112
 msgid "Public key"
 msgstr "公開鍵"
 
@@ -6362,11 +6368,11 @@ msgstr "パスフレーズの繰り返し"
 msgid "Repeat weekly"
 msgstr "毎週繰り返す"
 
-#: pkg/sosreport/sosreport.jsx:499 pkg/systemd/reporting.jsx:392
+#: pkg/sosreport/sosreport.jsx:506 pkg/systemd/reporting.jsx:392
 msgid "Report"
 msgstr "レポート"
 
-#: pkg/sosreport/sosreport.jsx:317
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Report label"
 msgstr "レポートラベル"
 
@@ -6386,7 +6392,7 @@ msgstr "報告に失敗しました"
 msgid "Reporting was canceled"
 msgstr "報告はキャンセルされました"
 
-#: pkg/sosreport/sosreport.jsx:494
+#: pkg/sosreport/sosreport.jsx:501
 msgid "Reports"
 msgstr "レポート"
 
@@ -6546,7 +6552,7 @@ msgstr "選択"
 msgid "Run at"
 msgstr "実行時刻"
 
-#: pkg/sosreport/sosreport.jsx:304
+#: pkg/sosreport/sosreport.jsx:311
 msgid "Run new report"
 msgstr "新規レポートを実行する"
 
@@ -6554,7 +6560,7 @@ msgstr "新規レポートを実行する"
 msgid "Run on"
 msgstr "以下で実行"
 
-#: pkg/sosreport/sosreport.jsx:282 pkg/sosreport/sosreport.jsx:491
+#: pkg/sosreport/sosreport.jsx:289 pkg/sosreport/sosreport.jsx:498
 msgid "Run report"
 msgstr "レポートを実行する"
 
@@ -6574,10 +6580,6 @@ msgstr "ランナー"
 #: pkg/storaged/mdraid/mdraid.jsx:297
 msgid "Running"
 msgstr "実行中"
-
-#: pkg/storaged/dialog.jsx:1435 pkg/storaged/dialog.jsx:1455
-msgid "Runtime"
-msgstr "ランタイム"
 
 #: pkg/selinux/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml.in:5
@@ -6620,7 +6622,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "$target の SMART 自己テスト"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:320
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "SOS レポートは、問題の診断に役立つシステム情報を収集します。"
@@ -6633,7 +6635,7 @@ msgstr "SSH キー"
 msgid "SSH key isn't a path"
 msgstr "SSH キーはパスではありません"
 
-#: pkg/shell/credentials.jsx:79 pkg/shell/credentials.jsx:95
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
 #: pkg/shell/topnav.jsx:229
 msgid "SSH keys"
 msgstr "SSH キー"
@@ -6762,7 +6764,7 @@ msgstr "セキュリティー更新のみ"
 msgid "Security updates will be applied $0 at $1"
 msgstr "$0 $1 にセキュリティーアップデートが適用されます"
 
-#: pkg/shell/shell-modals.jsx:117
+#: pkg/shell/shell-modals.jsx:114
 msgid "Select"
 msgstr "選択"
 
@@ -6813,7 +6815,7 @@ msgstr "サーバーアドレスは空欄にできません。"
 msgid "Server cannot be empty."
 msgstr "サーバーは空欄にできません。"
 
-#: pkg/lib/cockpit.js:3744
+#: pkg/lib/cockpit.js:2575
 msgid "Server has closed the connection."
 msgstr "サーバーの接続が終了しました。"
 
@@ -6850,7 +6852,7 @@ msgstr "ロケーションを使用するサービス"
 msgid "Session"
 msgstr "セッション"
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.jsx:174
 msgid "Session is about to expire"
 msgstr "セッションはまもなく終了します"
 
@@ -6871,7 +6873,7 @@ msgstr "$0 のパーティションタイプの設定"
 msgid "Set password"
 msgstr "パスワードの設定"
 
-#: pkg/lib/serverTime.js:588
+#: pkg/lib/serverTime.js:583
 msgid "Set time"
 msgstr "時間の設定"
 
@@ -7052,6 +7054,18 @@ msgstr "スロット $0"
 msgid "Snapshot"
 msgstr "スナップショット"
 
+#: pkg/storaged/btrfs/subvolume.jsx:439
+#, fuzzy
+#| msgid "Snapshot"
+msgid "Snapshot origin"
+msgstr "スナップショット"
+
+#: pkg/storaged/btrfs/subvolume.jsx:461
+#, fuzzy
+#| msgid "Snapshot"
+msgid "Snapshots"
+msgstr "スナップショット"
+
 #: pkg/systemd/service-tabs.jsx:42
 msgid "Sockets"
 msgstr "ソケット"
@@ -7167,7 +7181,8 @@ msgstr "指定の日付以降のエントリーまたは新しいエントリー
 msgid "Start showing entries on or older than the specified date."
 msgstr "指定の日付以前のエントリーまたはそれ以前のエントリーを表示します。"
 
-#: pkg/users/account-logs-panel.jsx:77
+#: pkg/users/account-logs-panel.jsx:77 pkg/storaged/dialog.jsx:1435
+#: pkg/storaged/dialog.jsx:1455
 msgid "Started"
 msgstr "開始"
 
@@ -7228,7 +7243,7 @@ msgstr "デバイスの停止"
 msgid "Stop editing hosts"
 msgstr "ホストの編集を停止"
 
-#: pkg/sosreport/sosreport.jsx:286
+#: pkg/sosreport/sosreport.jsx:293
 msgid "Stop report"
 msgstr "レポートを停止する"
 
@@ -7332,11 +7347,11 @@ msgstr "サブノート"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "systemd シグナルへのサブスクライブに失敗しました: $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:354
+#: pkg/storaged/btrfs/subvolume.jsx:356
 msgid "Subvolume needs to be mounted"
 msgstr "サブボリュームをマウントする必要があります"
 
-#: pkg/storaged/btrfs/subvolume.jsx:356
+#: pkg/storaged/btrfs/subvolume.jsx:358
 msgid "Subvolume needs to be mounted writable"
 msgstr "サブボリュームは書き込み可能でマウントする必要があります"
 
@@ -7405,15 +7420,15 @@ msgstr ""
 "$0 をオンにすると、サーバーへの接続が切断され、管理 UI が利用できなくなりま"
 "す。"
 
-#: pkg/lib/serverTime.js:448
+#: pkg/lib/serverTime.js:443
 msgid "Synchronized"
 msgstr "同期済み"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:445
 msgid "Synchronized with $0"
 msgstr "$0 と同期済み"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:449
 msgid "Synchronizing"
 msgstr "同期中"
 
@@ -7425,7 +7440,7 @@ msgstr "MDRAID デバイス $target の同期"
 msgid "System"
 msgstr "システム"
 
-#: pkg/sosreport/sosreport.jsx:518
+#: pkg/sosreport/sosreport.jsx:525
 msgid "System diagnostics"
 msgstr "システムの診断"
 
@@ -7608,7 +7623,7 @@ msgstr ""
 "ディスクをフォーマットする前にロックを解除する必要があります。既存のパスフ"
 "レーズを指定してください。"
 
-#: pkg/sosreport/sosreport.jsx:379
+#: pkg/sosreport/sosreport.jsx:386
 msgid "The file $0 will be deleted."
 msgstr "ファイル $0 が削除されます。"
 
@@ -7794,7 +7809,7 @@ msgstr ""
 "サーバーはパスワード認証を使用した '$0' の認証を拒否しました。サポートされた"
 "他の認証方法は利用できません。"
 
-#: pkg/lib/cockpit.js:3728
+#: pkg/lib/cockpit.js:2559
 msgid "The server refused to authenticate using any supported methods."
 msgstr "サーバーはサポートされた方法を使用した認証を拒否しました。"
 
@@ -7848,7 +7863,7 @@ msgid ""
 msgstr ""
 "Web ブラウザーの設定により、Cockpit の実行は防がれます (アクセスできない $0)"
 
-#: pkg/shell/active-pages-modal.jsx:106
+#: pkg/shell/active-pages-modal.jsx:104
 msgid "There are currently no active pages"
 msgstr "現在アクティブなページはありません"
 
@@ -7948,7 +7963,7 @@ msgstr "このグループは、以下のユーザーのプライマリーグル
 msgid "This host will reboot after updates are installed."
 msgstr "このホストは、更新後に再起動します。"
 
-#: pkg/sosreport/sosreport.jsx:314
+#: pkg/sosreport/sosreport.jsx:321
 msgid "This information is stored only on the system."
 msgstr "この情報は、システムにのみ保存されます。"
 
@@ -8143,7 +8158,7 @@ msgstr "階層"
 msgid "Time"
 msgstr "時間"
 
-#: pkg/lib/serverTime.js:577
+#: pkg/lib/serverTime.js:572
 msgid "Time zone"
 msgstr "タイムゾーン"
 
@@ -8159,7 +8174,7 @@ msgstr "タイマーの削除に失敗しました"
 msgid "Timers"
 msgstr "タイマー"
 
-#: pkg/shell/credentials.jsx:275
+#: pkg/shell/credentials.jsx:273
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -8196,11 +8211,11 @@ msgstr ""
 msgid "Today"
 msgstr "今日"
 
-#: pkg/shell/credentials.jsx:102
+#: pkg/shell/credentials.jsx:100
 msgid "Toggle"
 msgstr "切り替え"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:600
+#: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:595
 #: pkg/users/expiration-dialogs.js:49 pkg/systemd/timer-dialog.jsx:348
 msgid "Toggle date picker"
 msgstr "日付選択の切り替え"
@@ -8209,7 +8224,7 @@ msgstr "日付選択の切り替え"
 msgid "Toggle filters"
 msgstr "フィルターの切り替え"
 
-#: pkg/lib/cockpit.js:3750
+#: pkg/lib/cockpit.js:2581
 msgid "Too much data"
 msgstr "データが多すぎます"
 
@@ -8281,7 +8296,7 @@ msgstr "信頼レベル"
 msgid "Try again"
 msgstr "再試行します"
 
-#: pkg/lib/serverTime.js:455
+#: pkg/lib/serverTime.js:450
 msgid "Trying to synchronize with $0"
 msgstr "$0 との同期を試行中です"
 
@@ -8319,7 +8334,7 @@ msgstr "Tuned がオフです"
 msgid "Turn on administrative access"
 msgstr "管理者アクセスをオンにする"
 
-#: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:199
+#: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:197
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
 #: pkg/storaged/partitions/partition.jsx:183
 #: pkg/storaged/partitions/partition.jsx:229
@@ -8449,7 +8464,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "$0 のインストール時に予期しない PackageKit エラーが発生しました: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:191
+#: pkg/shell/shell-modals.jsx:187
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
@@ -8504,7 +8519,7 @@ msgstr "不明なサービス名"
 msgid "Unknown type"
 msgstr "不明なタイプ"
 
-#: pkg/shell/credentials.jsx:312
+#: pkg/shell/credentials.jsx:310
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:36
 #: pkg/storaged/crypto/actions.jsx:40 pkg/storaged/crypto/actions.jsx:45
 #: pkg/storaged/stratis/stopped-pool.jsx:61
@@ -8523,7 +8538,7 @@ msgstr "サイズ変更前のロック解除"
 msgid "Unlock encrypted Stratis pool"
 msgstr "暗号化 Stratis プールのロック解除"
 
-#: pkg/shell/credentials.jsx:309
+#: pkg/shell/credentials.jsx:307
 msgid "Unlock key $0"
 msgstr "ロック解除キー $0"
 
@@ -8540,7 +8555,7 @@ msgstr "ディスクのロック解除"
 msgid "Unmanaged interfaces"
 msgstr "未管理のインターフェース"
 
-#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:339
+#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:341
 #: pkg/storaged/filesystem/mounting-dialog.jsx:357
 #: pkg/storaged/filesystem/filesystem.jsx:102
 #: pkg/storaged/stratis/filesystem.jsx:172
@@ -8588,9 +8603,15 @@ msgstr "サポートされていない論理ボリューム"
 msgid "Until"
 msgstr "フィルター終了時刻"
 
-#: pkg/lib/cockpit.js:3730 pkg/lib/cockpit.js:3732
+#: pkg/lib/cockpit.js:2561 pkg/lib/cockpit.js:2563
 msgid "Untrusted host"
 msgstr "信用できないホスト"
+
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:129
+#, fuzzy
+#| msgid "Up since $0"
+msgid "Up since"
+msgstr "$0 から稼働中"
 
 #: pkg/shell/hosts_dialog.jsx:357
 msgid "Update"
@@ -8602,7 +8623,7 @@ msgstr "更新成功テーブル"
 
 #: pkg/packagekit/updates.jsx:955
 msgid "Update history"
-msgstr "履歴の更新"
+msgstr "更新履歴"
 
 #: pkg/apps/application-list.jsx:153
 msgid "Update package information"
@@ -8646,10 +8667,6 @@ msgstr "ステータスを更新中..."
 msgid "Upload"
 msgstr "再ロード"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:129
-msgid "Uptime"
-msgstr "稼働時間"
-
 #: pkg/metrics/metrics.jsx:1963 pkg/metrics/metrics.jsx:1964
 #: pkg/metrics/metrics.jsx:1965 pkg/metrics/metrics.jsx:1966
 #: pkg/systemd/overview-cards/usageCard.jsx:128
@@ -8679,7 +8696,7 @@ msgstr "圧縮の使用"
 msgid "Use deduplication"
 msgstr "重複排除の使用"
 
-#: pkg/shell/credentials.jsx:133
+#: pkg/shell/credentials.jsx:131
 msgid "Use key"
 msgstr "キーの使用"
 
@@ -8687,11 +8704,11 @@ msgstr "キーの使用"
 msgid "Use password"
 msgstr "ユーザーパスワード"
 
-#: pkg/shell/credentials.jsx:86
+#: pkg/shell/credentials.jsx:84
 msgid "Use the following keys to authenticate against other systems"
 msgstr "他のシステムに対して認証する場合は次の鍵を使用します"
 
-#: pkg/sosreport/sosreport.jsx:333
+#: pkg/sosreport/sosreport.jsx:340
 msgid "Use verbose logging"
 msgstr "詳細なログを使用する"
 
@@ -8933,7 +8950,7 @@ msgstr "警告以上のレベル"
 msgid "Weak password"
 msgstr "脆弱なパスワード"
 
-#: pkg/shell/shell-modals.jsx:64 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "Webコンソール"
 
@@ -8949,7 +8966,7 @@ msgstr "Web コンソールが再起動します"
 msgid "Web console is running in limited access mode."
 msgstr "Web コンソールが制限付きアクセスモードで実行されています。"
 
-#: pkg/shell/shell-modals.jsx:66
+#: pkg/shell/shell-modals.jsx:64
 msgid "Web console logo"
 msgstr "Web コンソールロゴ"
 
@@ -9112,11 +9129,11 @@ msgid ""
 "restarted."
 msgstr "サーバーがまもなく接続を閉じます。再起動したら再接続できます。"
 
-#: pkg/lib/cockpit.js:3720
+#: pkg/lib/cockpit.js:2551
 msgid "Your session has been terminated."
 msgstr "セッションが終了しました。"
 
-#: pkg/lib/cockpit.js:3722
+#: pkg/lib/cockpit.js:2553
 msgid "Your session has expired. Please log in again."
 msgstr "セッションの有効期限が切れました。再度ログインしてください。"
 
@@ -9141,7 +9158,7 @@ msgstr "abrt"
 msgid "access"
 msgstr "アクセス"
 
-#: pkg/shell/active-pages-modal.jsx:79
+#: pkg/shell/active-pages-modal.jsx:77
 #: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:56
 msgid "active"
 msgstr "アクティブ"
@@ -9220,7 +9237,7 @@ msgstr "btrfs デバイス"
 msgid "btrfs filesystem"
 msgstr "Stratis ファイルシステム"
 
-#: pkg/storaged/btrfs/subvolume.jsx:387
+#: pkg/storaged/btrfs/subvolume.jsx:399
 msgid "btrfs subvolume"
 msgstr "btrfs サブボリューム"
 
@@ -9229,7 +9246,7 @@ msgid "btrfs subvolume $0 of $1"
 msgstr "$1 の btrfs サブボリューム $0"
 
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
-#: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:425
+#: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:455
 msgid "btrfs subvolumes"
 msgstr "btrfs サブボリューム"
 
@@ -9298,7 +9315,7 @@ msgstr "非アクティブ化"
 msgid "debug"
 msgstr "デバッグ"
 
-#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/lvm2/volume-group.jsx:81
+#: pkg/storaged/btrfs/subvolume.jsx:220 pkg/storaged/lvm2/volume-group.jsx:81
 #: pkg/storaged/lvm2/volume-group.jsx:331
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
@@ -9491,7 +9508,11 @@ msgstr "iSCSI ポータル"
 msgid "ignore failure"
 msgstr "失敗を無視"
 
-#: pkg/shell/shell-modals.jsx:199
+#: pkg/lib/timeformat.ts:58
+msgid "in less than a minute"
+msgstr ""
+
+#: pkg/shell/shell-modals.jsx:195
 msgid "in most browsers"
 msgstr "多くのブラウザー"
 
@@ -9552,6 +9573,10 @@ msgstr "鍵"
 #| msgid "patches"
 msgid "kpatch"
 msgstr "パッチ"
+
+#: pkg/lib/timeformat.ts:56
+msgid "less than a minute ago"
+msgstr ""
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -9828,6 +9853,12 @@ msgstr "縮小"
 msgid "shut"
 msgstr "シャット"
 
+#: pkg/storaged/btrfs/subvolume.jsx:465
+#, fuzzy
+#| msgid "Snapshot"
+msgid "snapshot"
+msgstr "スナップショット"
+
 #: pkg/systemd/manifest.json:0
 msgid "socket"
 msgstr "ソケット"
@@ -9845,7 +9876,7 @@ msgstr "ソリューションの詳細"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:185
+#: pkg/sosreport/sosreport.jsx:192
 msgid "sos report failed"
 msgstr "sos repot 失敗"
 
@@ -9935,7 +9966,7 @@ msgstr "不明なターゲット"
 msgid "unmask"
 msgstr "マスク解除"
 
-#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/utils.js:870
+#: pkg/storaged/btrfs/subvolume.jsx:220 pkg/storaged/utils.js:870
 #: pkg/storaged/utils.js:883 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "アンマウント"
@@ -10001,6 +10032,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "ゾーン"
+
+#~ msgid "Runtime"
+#~ msgstr "ランタイム"
+
+#~ msgid "Uptime"
+#~ msgstr "稼働時間"
 
 #~ msgid "Checking related processes"
 #~ msgstr "関連プロセスの確認中"
@@ -12033,9 +12070,6 @@ msgstr "ゾーン"
 #~ msgid "Networking"
 #~ msgstr "ネットワーキング"
 
-#~ msgid "No snapshots"
-#~ msgstr "スナップショットなし"
-
 #, fuzzy
 #~| msgid "No such file or directory '$0'"
 #~ msgid "No such file found in directory '$0'"
@@ -12679,9 +12713,6 @@ msgstr "ゾーン"
 
 #~ msgid "Unsupported setup mechanism"
 #~ msgstr "サポートされないセットアップメカニズム"
-
-#~ msgid "Up since $0"
-#~ msgstr "$0 から稼働中"
 
 #~ msgid "Used by containers"
 #~ msgstr "コンテナーにより使用済み"

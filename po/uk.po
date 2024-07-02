@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-21 02:48+0000\n"
+"POT-Creation-Date: 2024-07-02 02:49+0000\n"
 "PO-Revision-Date: 2024-05-27 08:10+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
@@ -114,11 +114,11 @@ msgstr "Документація з $0"
 msgid "$0 error"
 msgstr "Помилка $0"
 
-#: pkg/lib/cockpit.js:2580
+#: pkg/lib/cockpit.js:1411
 msgid "$0 exited with code $1"
 msgstr "$0 завершено роботу з кодом $1"
 
-#: pkg/lib/cockpit.js:2582
+#: pkg/lib/cockpit.js:1413
 msgid "$0 failed"
 msgstr "Помилка $0"
 
@@ -177,7 +177,7 @@ msgstr "$0 немає у жодному зі сховищ."
 msgid "$0 key changed"
 msgstr "Змінено ключ $0"
 
-#: pkg/lib/cockpit.js:2578
+#: pkg/lib/cockpit.js:1409
 msgid "$0 killed with signal $1"
 msgstr "$0 завершено з сигналом $1"
 
@@ -701,7 +701,7 @@ msgstr "Активний"
 msgid "Active backup"
 msgstr "Активне резервування"
 
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/active-pages-modal.jsx:105
+#: pkg/shell/active-pages-modal.jsx:95 pkg/shell/active-pages-modal.jsx:103
 #: pkg/shell/topnav.jsx:223
 msgid "Active pages"
 msgstr "Активні сторінки"
@@ -724,7 +724,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "Адаптивне урівноваження навантаження за передаванням"
 
 #: pkg/networkmanager/dialogs-common.jsx:160
-#: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:184
+#: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:182
 #: pkg/shell/hosts_dialog.jsx:252 pkg/systemd/timer-dialog.jsx:367
 #: pkg/storaged/crypto/keyslots.jsx:494 pkg/storaged/crypto/keyslots.jsx:817
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/lvm2/volume-group.jsx:209
@@ -802,7 +802,7 @@ msgstr "Додати диски"
 msgid "Add iSCSI portal"
 msgstr "Додати портал iSCSI"
 
-#: pkg/users/authorized-keys-panel.js:112 pkg/shell/credentials.jsx:90
+#: pkg/users/authorized-keys-panel.js:112 pkg/shell/credentials.jsx:88
 #: pkg/storaged/crypto/keyslots.jsx:458
 msgid "Add key"
 msgstr "Додати ключ"
@@ -979,12 +979,12 @@ msgstr "Адміністрування за допомогою вебконсо�
 msgid "Administrative access"
 msgstr "Адміністративний доступ"
 
-#: pkg/sosreport/sosreport.jsx:424
+#: pkg/sosreport/sosreport.jsx:431
 msgid "Administrative access is required to create and access reports."
 msgstr ""
 "Для створення звітів і доступу до звітів потрібен адміністративний доступ."
 
-#: pkg/sosreport/sosreport.jsx:423
+#: pkg/sosreport/sosreport.jsx:430
 msgid "Administrative access required"
 msgstr "Потрібен адміністративний доступ"
 
@@ -1159,7 +1159,7 @@ msgstr "Потрібен принаймні один блоковий прист
 msgid "At least one disk is needed."
 msgstr "Потрібен принаймні один диск."
 
-#: pkg/storaged/btrfs/subvolume.jsx:367
+#: pkg/storaged/btrfs/subvolume.jsx:369
 msgid "At least one parent needs to be mounted writable"
 msgstr "Принаймні один батьківський лемент має бути змонтовано для запису"
 
@@ -1175,7 +1175,7 @@ msgstr "У секунду"
 msgid "At specific time"
 msgstr "У вказаний момент часу"
 
-#: pkg/sosreport/sosreport.jsx:501
+#: pkg/sosreport/sosreport.jsx:508
 msgid "Attributes"
 msgstr "Атрибути"
 
@@ -1247,15 +1247,15 @@ msgstr "Автоматичні оновлення"
 msgid "Automatically starts"
 msgstr "Запускати автоматично"
 
-#: pkg/lib/serverTime.js:563
+#: pkg/lib/serverTime.js:558
 msgid "Automatically using NTP"
 msgstr "Автоматично на основі NTP"
 
-#: pkg/lib/serverTime.js:570
+#: pkg/lib/serverTime.js:565
 msgid "Automatically using additional NTP servers"
 msgstr "Автоматично за допомогою додаткових серверів NTP"
 
-#: pkg/lib/serverTime.js:571
+#: pkg/lib/serverTime.js:566
 msgid "Automatically using specific NTP servers"
 msgstr "Автоматично за допомогою певних серверів NTP"
 
@@ -1459,7 +1459,7 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr "Не вдалося знайти журналів на основі поточної комбінації фільтрів."
 
 #: pkg/playground/translate.html:39 pkg/static/login.html:141
-#: pkg/sosreport/sosreport.jsx:290 pkg/sosreport/sosreport.jsx:375
+#: pkg/sosreport/sosreport.jsx:297 pkg/sosreport/sosreport.jsx:382
 #: pkg/networkmanager/dialogs-common.jsx:163
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913
@@ -1468,8 +1468,8 @@ msgstr "Не вдалося знайти журналів на основі по
 #: pkg/apps/utils.jsx:69 pkg/kdump/kdump-view.jsx:235
 #: pkg/packagekit/updates.jsx:541 pkg/packagekit/updates.jsx:579
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/shell-modals.jsx:118 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:285
+#: pkg/shell/shell-modals.jsx:115 pkg/shell/credentials.jsx:311
+#: pkg/shell/active-pages-modal.jsx:98 pkg/shell/hosts_dialog.jsx:285
 #: pkg/shell/hosts_dialog.jsx:382 pkg/shell/hosts_dialog.jsx:514
 #: pkg/shell/hosts_dialog.jsx:891 pkg/shell/superuser.jsx:182
 #: pkg/shell/superuser.jsx:219 pkg/shell/superuser.jsx:264
@@ -1500,7 +1500,7 @@ msgstr "Не може бути увімкнено"
 msgid "Cannot connect to an unknown host"
 msgstr "Не вдалося з'єднатися зі невідомим вузлом"
 
-#: pkg/lib/cockpit.js:3742
+#: pkg/lib/cockpit.js:2573
 msgid "Cannot forward login credentials"
 msgstr "Не вдалося переспрямувати реєстраційні дані для входу"
 
@@ -1526,7 +1526,7 @@ msgstr "Носій сигналу"
 msgid "Category"
 msgstr "Категорія"
 
-#: pkg/lib/serverTime.js:729 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:528
@@ -1557,7 +1557,7 @@ msgstr "Змінити мітку"
 msgid "Change passphrase"
 msgstr "Змінити пароль"
 
-#: pkg/shell/credentials.jsx:252
+#: pkg/shell/credentials.jsx:250
 msgid "Change password"
 msgstr "Змінити пароль"
 
@@ -1573,7 +1573,7 @@ msgstr "Змінити профіль"
 msgid "Change shell"
 msgstr "Змінити оболонку"
 
-#: pkg/lib/serverTime.js:722
+#: pkg/lib/serverTime.js:714
 msgid "Change system time"
 msgstr "Змінити системний час"
 
@@ -1669,7 +1669,7 @@ msgstr "Перевіряємо встановлене програмне заб�
 msgid "Checking software status"
 msgstr "Перевіряємо стан програмного забезпечення"
 
-#: pkg/shell/shell-modals.jsx:122
+#: pkg/shell/shell-modals.jsx:119
 msgid "Choose the language to be used in the application"
 msgstr "Виберіть мову перекладу, яку буде використано для інтерфейсу програми"
 
@@ -1708,15 +1708,15 @@ msgstr "Клієнтське програмне забезпечення"
 #: pkg/networkmanager/interfaces.js:43
 #: pkg/lib/cockpit-components-terminal.jsx:230
 #: pkg/lib/cockpit-components-modifications.jsx:76 pkg/apps/utils.jsx:87
-#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:192
-#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:92
+#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:188
+#: pkg/shell/credentials.jsx:79 pkg/shell/hosts_dialog.jsx:92
 #: pkg/shell/superuser.jsx:190 pkg/shell/superuser.jsx:198
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278 pkg/storaged/dialog.jsx:485
 msgid "Close"
 msgstr "Закрити"
 
-#: pkg/shell/active-pages-modal.jsx:99
+#: pkg/shell/active-pages-modal.jsx:97
 msgid "Close selected pages"
 msgstr "Закрити позначені сторінки"
 
@@ -1732,11 +1732,11 @@ msgstr "Розпізнавання у Cockpit налаштовано з поми
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Налаштування Cockpit для NetworkManager і Firewalld"
 
-#: pkg/lib/cockpit.js:3748
+#: pkg/lib/cockpit.js:2579
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit не вдалося встановити зв’язок із вказаним вузлом."
 
-#: pkg/shell/shell-modals.jsx:194
+#: pkg/shell/shell-modals.jsx:190
 msgid "Cockpit had an unexpected internal error."
 msgstr "У Cockpit сталася неочікувана внутрішня помилка."
 
@@ -1755,11 +1755,11 @@ msgstr ""
 "зупинити за допомогою термінала. І навпаки, якщо трапиться помилка у "
 "терміналі, ви побачите її у інтерфейсі журналу Cockpit."
 
-#: pkg/shell/shell-modals.jsx:70
+#: pkg/shell/shell-modals.jsx:68
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit — інтерактивний інтерфейс адміністратора сервера Linux."
 
-#: pkg/lib/cockpit.js:3746
+#: pkg/lib/cockpit.js:2577
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit є несумісним із програмним забезпеченням цієї системи."
 
@@ -1767,7 +1767,7 @@ msgstr "Cockpit є несумісним із програмним забезпе
 msgid "Cockpit is not installed"
 msgstr "Cockpit не встановлено"
 
-#: pkg/lib/cockpit.js:3740
+#: pkg/lib/cockpit.js:2571
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit у цій системі не встановлено."
 
@@ -1819,7 +1819,7 @@ msgstr "Команда"
 msgid "Command not found"
 msgstr "Команду не знайдено"
 
-#: pkg/shell/credentials.jsx:195
+#: pkg/shell/credentials.jsx:193
 msgid "Comment"
 msgstr "Коментар"
 
@@ -1899,7 +1899,7 @@ msgstr "Підтвердження нового пароля до ключа"
 msgid "Confirm new password"
 msgstr "Підтвердження нового пароля"
 
-#: pkg/users/account-create-dialog.js:140 pkg/shell/credentials.jsx:268
+#: pkg/users/account-create-dialog.js:140 pkg/shell/credentials.jsx:266
 msgid "Confirm password"
 msgstr "Підтвердження пароля"
 
@@ -1955,7 +1955,7 @@ msgstr "Помилка з'єднання"
 msgid "Connection failed"
 msgstr "Не вдалося встановити з'єднання"
 
-#: pkg/lib/cockpit.js:3738
+#: pkg/lib/cockpit.js:2569
 msgid "Connection has timed out."
 msgstr "Вичерпано час очікування на з’єднання."
 
@@ -1979,7 +1979,7 @@ msgstr "Містить:"
 msgid "Continue"
 msgstr "Продовжити"
 
-#: pkg/shell/shell-modals.jsx:179
+#: pkg/shell/shell-modals.jsx:176
 msgid "Continue session"
 msgstr "Продовжити сеанс"
 
@@ -2000,13 +2000,13 @@ msgstr "Контролер"
 msgid "Convertible"
 msgstr "Змінюваний"
 
-#: pkg/shell/credentials.jsx:212 pkg/shell/hosts_dialog.jsx:475
+#: pkg/shell/credentials.jsx:210 pkg/shell/hosts_dialog.jsx:475
 #: pkg/shell/hosts_dialog.jsx:478 pkg/shell/hosts_dialog.jsx:493
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/failures.jsx:43
 msgid "Copied"
 msgstr "Скопійовано"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211 pkg/shell/credentials.jsx:212
+#: pkg/lib/cockpit-components-terminal.jsx:211 pkg/shell/credentials.jsx:210
 #: pkg/shell/hosts_dialog.jsx:475 pkg/shell/hosts_dialog.jsx:478
 #: pkg/shell/hosts_dialog.jsx:493 pkg/shell/hosts_dialog.jsx:495
 #: pkg/shell/failures.jsx:43
@@ -2040,7 +2040,7 @@ msgstr "Аварійно завершити роботу системи"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:193
 #: pkg/users/account-create-dialog.js:481 pkg/users/group-create-dialog.js:141
-#: pkg/storaged/btrfs/subvolume.jsx:141
+#: pkg/storaged/btrfs/subvolume.jsx:143
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:269
 #: pkg/storaged/lvm2/create-dialog.jsx:63
 #: pkg/storaged/lvm2/volume-group.jsx:120
@@ -2089,7 +2089,7 @@ msgstr "Створити обліковий запис із простим па�
 msgid "Create and change ownership of home directory"
 msgstr "Створення і зміна прав власності на домашній каталог"
 
-#: pkg/storaged/btrfs/subvolume.jsx:135
+#: pkg/storaged/btrfs/subvolume.jsx:137
 #: pkg/storaged/block/format-dialog.jsx:270 pkg/storaged/stratis/pool.jsx:80
 msgid "Create and mount"
 msgstr "Створити і змонтувати"
@@ -2134,7 +2134,7 @@ msgstr "Створити файл завдання із цим вмістом."
 msgid "Create new thinly provisioned logical volume"
 msgstr "Створити логічний том з тонким прогнозуванням"
 
-#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:138
 #: pkg/storaged/block/format-dialog.jsx:271
 #: pkg/storaged/block/format-dialog.jsx:280 pkg/storaged/stratis/pool.jsx:81
 msgid "Create only"
@@ -2169,7 +2169,7 @@ msgstr "Лише створити знімок"
 msgid "Create storage device"
 msgstr "Створити пристрій зберігання даних"
 
-#: pkg/storaged/btrfs/subvolume.jsx:146 pkg/storaged/btrfs/subvolume.jsx:360
+#: pkg/storaged/btrfs/subvolume.jsx:148 pkg/storaged/btrfs/subvolume.jsx:362
 msgid "Create subvolume"
 msgstr "Створити підтом"
 
@@ -2185,7 +2185,7 @@ msgstr "Створити таймер"
 msgid "Create volume group"
 msgstr "Створити групу томів"
 
-#: pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:507
 msgid "Created"
 msgstr "Створено"
 
@@ -2251,7 +2251,7 @@ msgstr "Правила шифрування є несумісними"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:198
+#: pkg/shell/shell-modals.jsx:194
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Shift-I"
 
@@ -2460,14 +2460,14 @@ msgstr "Затримка"
 msgid "Delay must be a number"
 msgstr "Значенням затримки має бути число"
 
-#: pkg/sosreport/sosreport.jsx:369 pkg/sosreport/sosreport.jsx:468
+#: pkg/sosreport/sosreport.jsx:376 pkg/sosreport/sosreport.jsx:475
 #: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
 #: pkg/networkmanager/firewall.jsx:910
 #: pkg/networkmanager/network-interface.jsx:725
 #: pkg/users/delete-account-dialog.js:60 pkg/users/account-details.js:221
 #: pkg/users/delete-group-dialog.js:51 pkg/systemd/abrtLog.jsx:290
 #: pkg/systemd/service-details.jsx:151 pkg/systemd/service-details.jsx:713
-#: pkg/storaged/btrfs/subvolume.jsx:232 pkg/storaged/btrfs/subvolume.jsx:374
+#: pkg/storaged/btrfs/subvolume.jsx:234 pkg/storaged/btrfs/subvolume.jsx:376
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:44
 #: pkg/storaged/lvm2/volume-group.jsx:97
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:42
@@ -2506,7 +2506,7 @@ msgstr "Вилучити групу"
 msgid "Delete pool"
 msgstr "Вилучити резерв"
 
-#: pkg/sosreport/sosreport.jsx:361
+#: pkg/sosreport/sosreport.jsx:368
 msgid "Delete report permanently?"
 msgstr "Вилучити звіт остаточно?"
 
@@ -2561,7 +2561,7 @@ msgstr "Вилучення призведе до витирання усіх д�
 msgid "Deleting erases all data on a volume group."
 msgstr "Вилучення призведе до витирання усіх даних на групі томів."
 
-#: pkg/storaged/btrfs/subvolume.jsx:233
+#: pkg/storaged/btrfs/subvolume.jsx:235
 msgid "Deleting erases all data on this subvolume and all it's children."
 msgstr ""
 "Вилучення призведе до витирання усіх даних на підтомі та його дочірніх "
@@ -2584,7 +2584,7 @@ msgstr "Робоча станція"
 msgid "Detachable"
 msgstr "Змінний"
 
-#: pkg/packagekit/updates.jsx:450 pkg/shell/credentials.jsx:109
+#: pkg/packagekit/updates.jsx:450 pkg/shell/credentials.jsx:107
 #: pkg/systemd/overview-cards/realmd.jsx:416
 msgid "Details"
 msgstr "Подробиці"
@@ -2715,7 +2715,7 @@ msgstr[2] "Відкинути $0 попереджень"
 msgid "Dismiss selected alerts"
 msgstr "Відкинути позначені попередження"
 
-#: pkg/shell/shell-modals.jsx:115 pkg/shell/topnav.jsx:216
+#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:216
 msgid "Display language"
 msgstr "Мова перекладу"
 
@@ -2784,7 +2784,7 @@ msgstr "Не повторювати"
 msgid "Double distributed parity (RAID 6)"
 msgstr "Подвійна розподілена парність (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:458 pkg/sosreport/sosreport.jsx:464
+#: pkg/sosreport/sosreport.jsx:465 pkg/sosreport/sosreport.jsx:471
 msgid "Download"
 msgstr "Отримати"
 
@@ -2866,7 +2866,7 @@ msgstr "Редагувати вузли"
 msgid "Edit motd"
 msgstr "Редагувати motd"
 
-#: pkg/storaged/btrfs/subvolume.jsx:332
+#: pkg/storaged/btrfs/subvolume.jsx:334
 #: pkg/storaged/filesystem/filesystem.jsx:100
 #: pkg/storaged/stratis/filesystem.jsx:170
 msgid "Edit mount point"
@@ -2956,7 +2956,7 @@ msgstr "Зашифрувати дані за допомогою сервера �
 msgid "Encrypt data with a passphrase"
 msgstr "Зашифрувати дані за допомогою пароля шифрування"
 
-#: pkg/sosreport/sosreport.jsx:448
+#: pkg/sosreport/sosreport.jsx:455
 msgid "Encrypted"
 msgstr "Зашифрований"
 
@@ -2986,7 +2986,7 @@ msgstr "Шифрування"
 msgid "Encryption options"
 msgstr "Параметри шифрування"
 
-#: pkg/sosreport/sosreport.jsx:320
+#: pkg/sosreport/sosreport.jsx:327
 msgid "Encryption passphrase"
 msgstr "Пароль шифрування"
 
@@ -3038,7 +3038,7 @@ msgstr "Витираємо $target"
 msgid "Errata"
 msgstr "Відомі помилки"
 
-#: pkg/sosreport/sosreport.jsx:392 pkg/apps/utils.jsx:81
+#: pkg/sosreport/sosreport.jsx:399 pkg/apps/utils.jsx:81
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:160
@@ -3275,7 +3275,7 @@ msgstr "Під цією точкою монтування вже змонтов�
 msgid "Filter by name or description"
 msgstr "Фільтрувати за назвою або описом"
 
-#: pkg/shell/shell-modals.jsx:134
+#: pkg/shell/shell-modals.jsx:131
 msgid "Filter menu items"
 msgstr "Фільтрувати пункти меню"
 
@@ -3287,7 +3287,7 @@ msgstr "Фільтрувати служби"
 msgid "Filters"
 msgstr "Фільтри"
 
-#: pkg/users/authorized-keys-panel.js:128 pkg/shell/credentials.jsx:203
+#: pkg/users/authorized-keys-panel.js:128 pkg/shell/credentials.jsx:201
 msgid "Fingerprint"
 msgstr "Відбиток"
 
@@ -3527,7 +3527,7 @@ msgstr "Домашній каталог"
 msgid "Host"
 msgstr "Вузол"
 
-#: pkg/lib/cockpit.js:3734
+#: pkg/lib/cockpit.js:2565
 msgid "Host key is incorrect"
 msgstr "Ключ вузла є неправильним"
 
@@ -3557,7 +3557,7 @@ msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:696 pkg/users/accounts-list.js:230
 #: pkg/users/accounts-list.js:381 pkg/users/group-create-dialog.js:47
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:415
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:437
 #: pkg/storaged/pages.jsx:714
 msgid "ID"
 msgstr "Ід."
@@ -3828,7 +3828,7 @@ msgstr "Учасники інтерфейсу"
 msgid "Interfaces"
 msgstr "Інтерфейси"
 
-#: pkg/lib/cockpit.js:3736
+#: pkg/lib/cockpit.js:2567
 msgid "Internal error"
 msgstr "Внутрішня помилка"
 
@@ -3844,7 +3844,7 @@ msgstr "Некоректний"
 msgid "Invalid address $0"
 msgstr "Некоректна адреса $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:687
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
 msgid "Invalid date format"
 msgstr "Некоректний формат дати"
 
@@ -3888,12 +3888,12 @@ msgstr "Некоректний префікс або маска мережі $0"
 msgid "Invalid range"
 msgstr "Некоректний діапазон"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:690
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "Некоректний формат визначення часу"
 
-#: pkg/lib/serverTime.js:682
+#: pkg/lib/serverTime.js:674
 msgid "Invalid timezone"
 msgstr "Некоректний часовий пояс"
 
@@ -4134,11 +4134,11 @@ msgstr "Полишити $0"
 msgid "Leave domain"
 msgstr "Полишити домен"
 
-#: pkg/sosreport/sosreport.jsx:328
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Leave empty to skip encryption"
 msgstr "Не заповнюйте, щоб пропустити шифрування"
 
-#: pkg/shell/shell-modals.jsx:63
+#: pkg/shell/shell-modals.jsx:61
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Ліцензовано за умов дотримання GNU LGPL версії 2.1"
 
@@ -4265,7 +4265,7 @@ msgstr "Не вдалося завантажити ключі SSH"
 msgid "Loading of units failed"
 msgstr "Не вдалося завантажити модулі"
 
-#: pkg/shell/shell-modals.jsx:78
+#: pkg/shell/shell-modals.jsx:76
 msgid "Loading packages..."
 msgstr "Завантаження пакунків…"
 
@@ -4351,7 +4351,7 @@ msgstr "Увійти до $0"
 msgid "Log in with your server user account."
 msgstr "Увійти на основі даних вашого облікового запису користувача сервера."
 
-#: pkg/lib/serverTime.js:464
+#: pkg/lib/serverTime.js:459
 msgid "Log messages"
 msgstr "Повідомлення журналу"
 
@@ -4402,7 +4402,7 @@ msgstr "Вхід"
 msgid "Login again"
 msgstr "Користувач ще раз"
 
-#: pkg/lib/cockpit.js:3726
+#: pkg/lib/cockpit.js:2557
 msgid "Login failed"
 msgstr "Невдала спроба увійти"
 
@@ -4573,7 +4573,7 @@ msgstr "Керування обліковими записами користу�
 msgid "Manual"
 msgstr "Вручну"
 
-#: pkg/lib/serverTime.js:562
+#: pkg/lib/serverTime.js:557
 msgid "Manually"
 msgstr "Вручну"
 
@@ -4729,14 +4729,14 @@ msgstr "Щомісяця"
 msgid "More info..."
 msgstr "Докладніше…"
 
-#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:344
+#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:346
 #: pkg/storaged/filesystem/mounting-dialog.jsx:356
 #: pkg/storaged/filesystem/filesystem.jsx:103
 #: pkg/storaged/stratis/filesystem.jsx:173
 msgid "Mount"
 msgstr "Змонтувати"
 
-#: pkg/storaged/btrfs/subvolume.jsx:152
+#: pkg/storaged/btrfs/subvolume.jsx:154
 msgid "Mount Point"
 msgstr "Точка монтування"
 
@@ -4781,7 +4781,7 @@ msgstr "Змонтувати до $0 зараз"
 msgid "Mount options"
 msgstr "Параметри монтування"
 
-#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:416
+#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:446
 #: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:326
 #: pkg/storaged/filesystem/filesystem.jsx:147 pkg/storaged/stratis/pool.jsx:103
@@ -4852,7 +4852,7 @@ msgstr "Змонтована NFS"
 msgid "NSNA ping"
 msgstr "Луна-імпульс NSNA"
 
-#: pkg/lib/serverTime.js:550
+#: pkg/lib/serverTime.js:545
 msgid "NTP server"
 msgstr "Сервер NTP"
 
@@ -4860,10 +4860,10 @@ msgstr "Сервер NTP"
 #: pkg/networkmanager/network-main.jsx:185
 #: pkg/networkmanager/network-main.jsx:200
 #: pkg/users/authorized-keys-panel.js:127 pkg/users/group-create-dialog.js:39
-#: pkg/packagekit/updates.jsx:447 pkg/shell/credentials.jsx:101
+#: pkg/packagekit/updates.jsx:447 pkg/shell/credentials.jsx:99
 #: pkg/systemd/timer-dialog.jsx:157 pkg/systemd/hwinfo.jsx:86
-#: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/btrfs/subvolume.jsx:148
-#: pkg/storaged/btrfs/subvolume.jsx:414
+#: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/btrfs/subvolume.jsx:150
+#: pkg/storaged/btrfs/subvolume.jsx:436
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/create-dialog.jsx:47 pkg/storaged/lvm2/volume-group.jsx:64
 #: pkg/storaged/lvm2/volume-group.jsx:116
@@ -4929,7 +4929,7 @@ msgstr "У назві не повинно бути пробілів."
 msgid "Need a spare disk"
 msgstr "Потрібен резервний диск"
 
-#: pkg/lib/serverTime.js:695
+#: pkg/lib/serverTime.js:687
 msgid "Need at least one NTP server"
 msgstr "Потрібен принаймні один сервер NTP"
 
@@ -5020,7 +5020,7 @@ msgstr "Нова назва"
 msgid "New passphrase"
 msgstr "Новий пароль"
 
-#: pkg/users/password-dialogs.js:147 pkg/shell/credentials.jsx:265
+#: pkg/users/password-dialogs.js:147 pkg/shell/credentials.jsx:263
 msgid "New password"
 msgstr "Новий пароль"
 
@@ -5151,7 +5151,7 @@ msgstr "Для цієї програми не знайдено пакунка д
 msgid "No keys added"
 msgstr "Не додано жодного ключа"
 
-#: pkg/shell/shell-modals.jsx:152
+#: pkg/shell/shell-modals.jsx:149
 msgid "No languages match"
 msgstr "Не є відповідною жодна мова"
 
@@ -5212,12 +5212,18 @@ msgstr ""
 msgid "No rule hits"
 msgstr "Немає збігів з правилами"
 
+#: pkg/storaged/btrfs/subvolume.jsx:464
+#, fuzzy
+#| msgid "No snapshots"
+msgid "No snapshots found"
+msgstr "Немає знімків"
+
 #: pkg/storaged/overview/overview.jsx:190
 msgid "No storage found"
 msgstr "Не знайдено сховища даних"
 
 #: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:424
+#: pkg/storaged/btrfs/subvolume.jsx:454
 msgid "No subvolumes"
 msgstr "Немає підтомів"
 
@@ -5230,7 +5236,7 @@ msgstr "Немає такого файла або каталогу"
 msgid "No system modifications"
 msgstr "Немає модифікацій системи"
 
-#: pkg/sosreport/sosreport.jsx:497
+#: pkg/sosreport/sosreport.jsx:504
 msgid "No system reports."
 msgstr "Немає системних звітів."
 
@@ -5305,7 +5311,7 @@ msgstr "Не дозволено налаштовувати пристрої ме
 msgid "Not permitted to configure realms"
 msgstr "Не дозволено налаштовувати області"
 
-#: pkg/lib/cockpit.js:3724
+#: pkg/lib/cockpit.js:2555
 msgid "Not permitted to perform this action."
 msgstr "Немає дозволу на виконання цієї дії."
 
@@ -5327,7 +5333,7 @@ msgstr "Зупинено"
 msgid "Not set up"
 msgstr "Не налаштовано"
 
-#: pkg/lib/serverTime.js:458
+#: pkg/lib/serverTime.js:453
 msgid "Not synchronized"
 msgstr "Не синхронізовано"
 
@@ -5343,11 +5349,11 @@ msgstr "Ноутбук"
 msgid "Notice and above"
 msgstr "Зауваження і вище"
 
-#: pkg/sosreport/sosreport.jsx:331
+#: pkg/sosreport/sosreport.jsx:338
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "Заплутувати адреси мережі, назви вузлів та імена користувачів"
 
-#: pkg/sosreport/sosreport.jsx:452
+#: pkg/sosreport/sosreport.jsx:459
 msgid "Obfuscated"
 msgstr "Заплутано"
 
@@ -5428,7 +5434,7 @@ msgstr ""
 msgid "Operation '$operation' on $target"
 msgstr "Дія «$operation» над $target"
 
-#: pkg/sosreport/sosreport.jsx:330 pkg/networkmanager/bridge.jsx:104
+#: pkg/sosreport/sosreport.jsx:337 pkg/networkmanager/bridge.jsx:104
 #: pkg/users/account-details.js:263 pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
 #: pkg/storaged/stratis/create-dialog.jsx:64
@@ -5506,7 +5512,7 @@ msgstr "PackageKit повідомлено про помилку із кодом 
 msgid "Packages"
 msgstr "Пакунки"
 
-#: pkg/shell/active-pages-modal.jsx:104
+#: pkg/shell/active-pages-modal.jsx:102
 msgid "Page name"
 msgstr "Назва сторінки"
 
@@ -5593,15 +5599,15 @@ msgid "Passphrases do not match"
 msgstr "Паролі не збігаються"
 
 #: pkg/static/login.html:99 pkg/users/account-details.js:290
-#: pkg/users/account-create-dialog.js:139 pkg/shell/credentials.jsx:119
-#: pkg/shell/credentials.jsx:262 pkg/shell/credentials.jsx:318
+#: pkg/users/account-create-dialog.js:139 pkg/shell/credentials.jsx:117
+#: pkg/shell/credentials.jsx:260 pkg/shell/credentials.jsx:316
 #: pkg/shell/hosts_dialog.jsx:845 pkg/shell/hosts_dialog.jsx:854
 #: pkg/shell/superuser.jsx:144 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
 msgid "Password"
 msgstr "Пароль"
 
-#: pkg/shell/credentials.jsx:259
+#: pkg/shell/credentials.jsx:257
 msgid "Password changed successfully"
 msgstr "Пароль успішно змінено"
 
@@ -5629,7 +5635,7 @@ msgstr "Пароль має бути змінено"
 msgid "Password not accepted"
 msgstr "Пароль не прийнято"
 
-#: pkg/shell/credentials.jsx:274
+#: pkg/shell/credentials.jsx:272
 msgid "Password tip"
 msgstr "Підказка щодо пароля"
 
@@ -5678,7 +5684,7 @@ msgid "Path to directory"
 msgstr "Шлях до каталогу"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:169
-#: pkg/shell/credentials.jsx:172
+#: pkg/shell/credentials.jsx:170
 msgid "Path to file"
 msgstr "Шлях до файла"
 
@@ -5747,7 +5753,7 @@ msgstr "Остаточно вилучити $0?"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "Остаточно вилучити логічний том $0/$1?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:229
+#: pkg/storaged/btrfs/subvolume.jsx:231
 msgid "Permanently delete subvolume $0?"
 msgstr "Остаточно вилучити підтом $0?"
 
@@ -5778,7 +5784,7 @@ msgstr "Фізичні томи"
 msgid "Physical volumes can not be resized here"
 msgstr "Тут не можна змінювати розміри фізичних томів"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:599
+#: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:594
 #: pkg/users/expiration-dialogs.js:48 pkg/systemd/timer-dialog.jsx:347
 msgid "Pick date"
 msgstr "Вибрати дату"
@@ -5929,11 +5935,11 @@ msgstr "Дані щодо проблеми"
 msgid "Processes using the location"
 msgstr "Процеси, що використовують це місце"
 
-#: pkg/sosreport/sosreport.jsx:301
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Progress: $0"
 msgstr "Поступ: $0"
 
-#: pkg/shell/shell-modals.jsx:74
+#: pkg/shell/shell-modals.jsx:72
 msgid "Project website"
 msgstr "Сайт проєкту"
 
@@ -5966,7 +5972,7 @@ msgid "Provide the passphrase for the pool on these block devices:"
 msgstr "Вкажіть пароль до буфера даних на цих блокових пристроях:"
 
 #: pkg/networkmanager/wireguard.jsx:237 pkg/networkmanager/wireguard.jsx:300
-#: pkg/shell/credentials.jsx:114
+#: pkg/shell/credentials.jsx:112
 msgid "Public key"
 msgstr "Відкритий ключ"
 
@@ -6436,11 +6442,11 @@ msgstr "Повторіть пароль"
 msgid "Repeat weekly"
 msgstr "Повторювати щотижня"
 
-#: pkg/sosreport/sosreport.jsx:499 pkg/systemd/reporting.jsx:392
+#: pkg/sosreport/sosreport.jsx:506 pkg/systemd/reporting.jsx:392
 msgid "Report"
 msgstr "Звіт"
 
-#: pkg/sosreport/sosreport.jsx:317
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Report label"
 msgstr "Мітка звіту"
 
@@ -6460,7 +6466,7 @@ msgstr "Невдале звітування"
 msgid "Reporting was canceled"
 msgstr "Звітування було скасовано"
 
-#: pkg/sosreport/sosreport.jsx:494
+#: pkg/sosreport/sosreport.jsx:501
 msgid "Reports"
 msgstr "Звіти"
 
@@ -6616,7 +6622,7 @@ msgstr "Вибір рядка"
 msgid "Run at"
 msgstr "Запустити"
 
-#: pkg/sosreport/sosreport.jsx:304
+#: pkg/sosreport/sosreport.jsx:311
 msgid "Run new report"
 msgstr "Запустити новий звіт"
 
@@ -6624,7 +6630,7 @@ msgstr "Запустити новий звіт"
 msgid "Run on"
 msgstr "Запустити на"
 
-#: pkg/sosreport/sosreport.jsx:282 pkg/sosreport/sosreport.jsx:491
+#: pkg/sosreport/sosreport.jsx:289 pkg/sosreport/sosreport.jsx:498
 msgid "Run report"
 msgstr "Запустити звітування"
 
@@ -6643,10 +6649,6 @@ msgstr "Засіб для запуску"
 #: pkg/storaged/mdraid/mdraid.jsx:297
 msgid "Running"
 msgstr "Працює"
-
-#: pkg/storaged/dialog.jsx:1435 pkg/storaged/dialog.jsx:1455
-msgid "Runtime"
-msgstr "Простір виконання"
 
 #: pkg/selinux/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml.in:5
@@ -6689,7 +6691,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "Самоперевірка SMART $target"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:320
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
@@ -6704,7 +6706,7 @@ msgstr "Ключ SSH"
 msgid "SSH key isn't a path"
 msgstr "Ключ SSH не вказано у форматі шляху"
 
-#: pkg/shell/credentials.jsx:79 pkg/shell/credentials.jsx:95
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
 #: pkg/shell/topnav.jsx:229
 msgid "SSH keys"
 msgstr "Ключі SSH"
@@ -6834,7 +6836,7 @@ msgstr "Лише оновлення захисту"
 msgid "Security updates will be applied $0 at $1"
 msgstr "Оновлення безпеки буде застосовано $0 о $1"
 
-#: pkg/shell/shell-modals.jsx:117
+#: pkg/shell/shell-modals.jsx:114
 msgid "Select"
 msgstr "Вибрати"
 
@@ -6886,7 +6888,7 @@ msgstr "Адреса сервера не може бути порожньою."
 msgid "Server cannot be empty."
 msgstr "Запис сервера не може бути порожнім."
 
-#: pkg/lib/cockpit.js:3744
+#: pkg/lib/cockpit.js:2575
 msgid "Server has closed the connection."
 msgstr "З’єднання розірвано сервером."
 
@@ -6923,7 +6925,7 @@ msgstr "Служби, що використовують це місце"
 msgid "Session"
 msgstr "Сеанс"
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.jsx:174
 msgid "Session is about to expire"
 msgstr "Строк дії сеансу вичерпується"
 
@@ -6944,7 +6946,7 @@ msgstr "Встановити тип розділу $0"
 msgid "Set password"
 msgstr "Встановити пароль"
 
-#: pkg/lib/serverTime.js:588
+#: pkg/lib/serverTime.js:583
 msgid "Set time"
 msgstr "Встановити час"
 
@@ -7127,6 +7129,18 @@ msgstr "Слот $0"
 msgid "Snapshot"
 msgstr "Знімок"
 
+#: pkg/storaged/btrfs/subvolume.jsx:439
+#, fuzzy
+#| msgid "Snapshot"
+msgid "Snapshot origin"
+msgstr "Знімок"
+
+#: pkg/storaged/btrfs/subvolume.jsx:461
+#, fuzzy
+#| msgid "Snapshot"
+msgid "Snapshots"
+msgstr "Знімок"
+
 #: pkg/systemd/service-tabs.jsx:42
 msgid "Sockets"
 msgstr "Сокети"
@@ -7244,7 +7258,8 @@ msgid "Start showing entries on or older than the specified date."
 msgstr ""
 "Показати показ записів, дата яких є рівною вказаній або старішою за неї."
 
-#: pkg/users/account-logs-panel.jsx:77
+#: pkg/users/account-logs-panel.jsx:77 pkg/storaged/dialog.jsx:1435
+#: pkg/storaged/dialog.jsx:1455
 msgid "Started"
 msgstr "Почато"
 
@@ -7305,7 +7320,7 @@ msgstr "Зупинити пристрій"
 msgid "Stop editing hosts"
 msgstr "Припинити редагування вузлів"
 
-#: pkg/sosreport/sosreport.jsx:286
+#: pkg/sosreport/sosreport.jsx:293
 msgid "Stop report"
 msgstr "Зупинити звітування"
 
@@ -7409,11 +7424,11 @@ msgstr "Підноутбук"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "Не вдалося підписатися на сигнали systemd: $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:354
+#: pkg/storaged/btrfs/subvolume.jsx:356
 msgid "Subvolume needs to be mounted"
 msgstr "Підтом має бути змонтовано"
 
-#: pkg/storaged/btrfs/subvolume.jsx:356
+#: pkg/storaged/btrfs/subvolume.jsx:358
 msgid "Subvolume needs to be mounted writable"
 msgstr "Підтом має бути змонтовано для запису"
 
@@ -7482,15 +7497,15 @@ msgstr ""
 "Вмикання $0 призведе до розірвання з’єднання із сервером і зробить "
 "адміністративний інтерфейс користувача недоступним."
 
-#: pkg/lib/serverTime.js:448
+#: pkg/lib/serverTime.js:443
 msgid "Synchronized"
 msgstr "Синхронізовано"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:445
 msgid "Synchronized with $0"
 msgstr "Синхронізовано із $0"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:449
 msgid "Synchronizing"
 msgstr "Синхронізація"
 
@@ -7502,7 +7517,7 @@ msgstr "Синхронізуємо пристрій MDRAID $target"
 msgid "System"
 msgstr "Система"
 
-#: pkg/sosreport/sosreport.jsx:518
+#: pkg/sosreport/sosreport.jsx:525
 msgid "System diagnostics"
 msgstr "Діагностика системи"
 
@@ -7688,7 +7703,7 @@ msgstr ""
 "Перед форматуванням диск має бути розблоковано. Будь ласка, надайте наявний "
 "пароль."
 
-#: pkg/sosreport/sosreport.jsx:379
+#: pkg/sosreport/sosreport.jsx:386
 msgid "The file $0 will be deleted."
 msgstr "Файл $0 буде вилучено."
 
@@ -7878,7 +7893,7 @@ msgstr ""
 "Сервером відмовлено у розпізнаванні «$0» за допомогою пароля. Інших "
 "підтримуваних способів розпізнавання не передбачено."
 
-#: pkg/lib/cockpit.js:3728
+#: pkg/lib/cockpit.js:2559
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Сервер відмовився розпізнавати користувача за допомогою будь-якого з "
@@ -7937,7 +7952,7 @@ msgstr ""
 "Налаштування програми для перегляду інтернету забороняють запуск Cockpit "
 "(недоступна можливість $0)"
 
-#: pkg/shell/active-pages-modal.jsx:106
+#: pkg/shell/active-pages-modal.jsx:104
 msgid "There are currently no active pages"
 msgstr "Зараз активних сторінок немає"
 
@@ -8041,7 +8056,7 @@ msgstr "Ця група є основою групою для таких кор�
 msgid "This host will reboot after updates are installed."
 msgstr "Цей вузол буде перезавантажено після встановлення оновлень."
 
-#: pkg/sosreport/sosreport.jsx:314
+#: pkg/sosreport/sosreport.jsx:321
 msgid "This information is stored only on the system."
 msgstr "Ці дані зберігатимуться лише у системі."
 
@@ -8240,7 +8255,7 @@ msgstr "Клас"
 msgid "Time"
 msgstr "Час"
 
-#: pkg/lib/serverTime.js:577
+#: pkg/lib/serverTime.js:572
 msgid "Time zone"
 msgstr "Часовий пояс"
 
@@ -8256,7 +8271,7 @@ msgstr "Не вдалося вилучити таймер"
 msgid "Timers"
 msgstr "Таймери"
 
-#: pkg/shell/credentials.jsx:275
+#: pkg/shell/credentials.jsx:273
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -8293,11 +8308,11 @@ msgstr ""
 msgid "Today"
 msgstr "Сьогодні"
 
-#: pkg/shell/credentials.jsx:102
+#: pkg/shell/credentials.jsx:100
 msgid "Toggle"
 msgstr "Перемкнути"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:600
+#: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:595
 #: pkg/users/expiration-dialogs.js:49 pkg/systemd/timer-dialog.jsx:348
 msgid "Toggle date picker"
 msgstr "Перемкнути засіб вибору дати"
@@ -8306,7 +8321,7 @@ msgstr "Перемкнути засіб вибору дати"
 msgid "Toggle filters"
 msgstr "Перемкнути фільтри"
 
-#: pkg/lib/cockpit.js:3750
+#: pkg/lib/cockpit.js:2581
 msgid "Too much data"
 msgstr "Забагато даних"
 
@@ -8378,7 +8393,7 @@ msgstr "Рівень довіри"
 msgid "Try again"
 msgstr "Спробувати ще раз"
 
-#: pkg/lib/serverTime.js:455
+#: pkg/lib/serverTime.js:450
 msgid "Trying to synchronize with $0"
 msgstr "Намагаємося синхронізуватися з $0"
 
@@ -8416,7 +8431,7 @@ msgstr "Tuned вимкнено"
 msgid "Turn on administrative access"
 msgstr "Увімкнути адміністративний доступ"
 
-#: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:199
+#: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:197
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
 #: pkg/storaged/partitions/partition.jsx:183
 #: pkg/storaged/partitions/partition.jsx:229
@@ -8545,7 +8560,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "Неочікувана помилка PackageKit під час встановлення $0: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:191
+#: pkg/shell/shell-modals.jsx:187
 msgid "Unexpected error"
 msgstr "Неочікувана помилка"
 
@@ -8600,7 +8615,7 @@ msgstr "Невідома назва служби"
 msgid "Unknown type"
 msgstr "Невідомий тип"
 
-#: pkg/shell/credentials.jsx:312
+#: pkg/shell/credentials.jsx:310
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:36
 #: pkg/storaged/crypto/actions.jsx:40 pkg/storaged/crypto/actions.jsx:45
 #: pkg/storaged/stratis/stopped-pool.jsx:61
@@ -8619,7 +8634,7 @@ msgstr "Розблокуйте до зміни розмірів"
 msgid "Unlock encrypted Stratis pool"
 msgstr "Розблокувати зашифрований буфер Stratis"
 
-#: pkg/shell/credentials.jsx:309
+#: pkg/shell/credentials.jsx:307
 msgid "Unlock key $0"
 msgstr "Розблокувати ключ $0"
 
@@ -8636,7 +8651,7 @@ msgstr "Розблоковуємо диск"
 msgid "Unmanaged interfaces"
 msgstr "Некеровані інтерфейси"
 
-#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:339
+#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:341
 #: pkg/storaged/filesystem/mounting-dialog.jsx:357
 #: pkg/storaged/filesystem/filesystem.jsx:102
 #: pkg/storaged/stratis/filesystem.jsx:172
@@ -8684,9 +8699,15 @@ msgstr "Непідтримуваний логічний том"
 msgid "Until"
 msgstr "До"
 
-#: pkg/lib/cockpit.js:3730 pkg/lib/cockpit.js:3732
+#: pkg/lib/cockpit.js:2561 pkg/lib/cockpit.js:2563
 msgid "Untrusted host"
 msgstr "Ненадійний вузол"
+
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:129
+#, fuzzy
+#| msgid "Up since $0"
+msgid "Up since"
+msgstr "Працює з $0"
 
 #: pkg/shell/hosts_dialog.jsx:357
 msgid "Update"
@@ -8742,10 +8763,6 @@ msgstr "Оновлюємо стан…"
 msgid "Upload"
 msgstr "Перезавантажити"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:129
-msgid "Uptime"
-msgstr "Тривалість роботи"
-
 #: pkg/metrics/metrics.jsx:1963 pkg/metrics/metrics.jsx:1964
 #: pkg/metrics/metrics.jsx:1965 pkg/metrics/metrics.jsx:1966
 #: pkg/systemd/overview-cards/usageCard.jsx:128
@@ -8775,7 +8792,7 @@ msgstr "Скористатися стисканням"
 msgid "Use deduplication"
 msgstr "Скористатися скасуванням дублювання"
 
-#: pkg/shell/credentials.jsx:133
+#: pkg/shell/credentials.jsx:131
 msgid "Use key"
 msgstr "Використати ключ"
 
@@ -8783,11 +8800,11 @@ msgstr "Використати ключ"
 msgid "Use password"
 msgstr "Використати пароль"
 
-#: pkg/shell/credentials.jsx:86
+#: pkg/shell/credentials.jsx:84
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Використати вказані нижче ключі для розпізнавання у інших системах"
 
-#: pkg/sosreport/sosreport.jsx:333
+#: pkg/sosreport/sosreport.jsx:340
 msgid "Use verbose logging"
 msgstr "Скористатися докладним журналюванням"
 
@@ -9031,7 +9048,7 @@ msgstr "Попередження і вище"
 msgid "Weak password"
 msgstr "Простий пароль"
 
-#: pkg/shell/shell-modals.jsx:64 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "Вебконсоль"
 
@@ -9047,7 +9064,7 @@ msgstr "Вебконсоль буде перезапущено"
 msgid "Web console is running in limited access mode."
 msgstr "Вебконсоль працює у режимі обмеженого доступу."
 
-#: pkg/shell/shell-modals.jsx:66
+#: pkg/shell/shell-modals.jsx:64
 msgid "Web console logo"
 msgstr "Логотип вебконсолі"
 
@@ -9217,11 +9234,11 @@ msgstr ""
 "Невдовзі ваш сервер розірве з’єднання. Ви можете відновити це з’єднання, "
 "щойно сервер буде перезапущено."
 
-#: pkg/lib/cockpit.js:3720
+#: pkg/lib/cockpit.js:2551
 msgid "Your session has been terminated."
 msgstr "Ваш сеанс перервано."
 
-#: pkg/lib/cockpit.js:3722
+#: pkg/lib/cockpit.js:2553
 msgid "Your session has expired. Please log in again."
 msgstr ""
 "Строк роботи у вашому сеансі вичерпано. Будь ласка, увійдіть до системи ще "
@@ -9248,7 +9265,7 @@ msgstr "abrt"
 msgid "access"
 msgstr "доступ"
 
-#: pkg/shell/active-pages-modal.jsx:79
+#: pkg/shell/active-pages-modal.jsx:77
 #: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:56
 msgid "active"
 msgstr "активний"
@@ -9325,7 +9342,7 @@ msgstr "Пристрої BTRFS"
 msgid "btrfs filesystem"
 msgstr "Файлова система BTRFS"
 
-#: pkg/storaged/btrfs/subvolume.jsx:387
+#: pkg/storaged/btrfs/subvolume.jsx:399
 msgid "btrfs subvolume"
 msgstr "Підтом btrfs"
 
@@ -9334,7 +9351,7 @@ msgid "btrfs subvolume $0 of $1"
 msgstr "Підтом BTRFS $0 з $1"
 
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
-#: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:425
+#: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:455
 msgid "btrfs subvolumes"
 msgstr "Підтоми BTRFS"
 
@@ -9403,7 +9420,7 @@ msgstr "вимкнути"
 msgid "debug"
 msgstr "діагностика"
 
-#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/lvm2/volume-group.jsx:81
+#: pkg/storaged/btrfs/subvolume.jsx:220 pkg/storaged/lvm2/volume-group.jsx:81
 #: pkg/storaged/lvm2/volume-group.jsx:331
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
@@ -9596,7 +9613,11 @@ msgstr "Портал iSCSI"
 msgid "ignore failure"
 msgstr "ігнорувати помилки"
 
-#: pkg/shell/shell-modals.jsx:199
+#: pkg/lib/timeformat.ts:58
+msgid "in less than a minute"
+msgstr ""
+
+#: pkg/shell/shell-modals.jsx:195
 msgid "in most browsers"
 msgstr "у більшості браузерів"
 
@@ -9657,6 +9678,10 @@ msgstr "ключі"
 #| msgid "patches"
 msgid "kpatch"
 msgstr "латки"
+
+#: pkg/lib/timeformat.ts:56
+msgid "less than a minute ago"
+msgstr ""
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -9935,6 +9960,12 @@ msgstr "стиснути"
 msgid "shut"
 msgstr "вимкнути"
 
+#: pkg/storaged/btrfs/subvolume.jsx:465
+#, fuzzy
+#| msgid "Snapshot"
+msgid "snapshot"
+msgstr "Знімок"
+
 #: pkg/systemd/manifest.json:0
 msgid "socket"
 msgstr "сокет"
@@ -9952,7 +9983,7 @@ msgstr "параметри рішення"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:185
+#: pkg/sosreport/sosreport.jsx:192
 msgid "sos report failed"
 msgstr "не вдалося виконати звітування для порятунку"
 
@@ -10042,7 +10073,7 @@ msgstr "невідоме призначення"
 msgid "unmask"
 msgstr "unmask"
 
-#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/utils.js:870
+#: pkg/storaged/btrfs/subvolume.jsx:220 pkg/storaged/utils.js:870
 #: pkg/storaged/utils.js:883 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "демонтувати"
@@ -10108,6 +10139,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "зона"
+
+#~ msgid "Runtime"
+#~ msgstr "Простір виконання"
+
+#~ msgid "Uptime"
+#~ msgstr "Тривалість роботи"
 
 #~ msgid "Checking related processes"
 #~ msgstr "Перевіряємо пов'язані процеси"
@@ -12195,9 +12232,6 @@ msgstr "зона"
 #~ msgid "Networking"
 #~ msgstr "Робота у мережі"
 
-#~ msgid "No snapshots"
-#~ msgstr "Немає знімків"
-
 #~ msgid "No such file found in directory '$0'"
 #~ msgstr "У каталозі «$0» немає такого файла"
 
@@ -12867,9 +12901,6 @@ msgstr "зона"
 
 #~ msgid "Unsupported setup mechanism"
 #~ msgstr "Непідтримуваний механізм налаштовування"
-
-#~ msgid "Up since $0"
-#~ msgstr "Працює з $0"
 
 #~ msgid "Used by containers"
 #~ msgstr "Використано контейнерами"

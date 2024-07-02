@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-21 02:48+0000\n"
+"POT-Creation-Date: 2024-07-02 02:49+0000\n"
 "PO-Revision-Date: 2023-11-22 21:01+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -143,11 +143,11 @@ msgstr "התיעוד של $0"
 msgid "$0 error"
 msgstr "שגיאת $0"
 
-#: pkg/lib/cockpit.js:2580
+#: pkg/lib/cockpit.js:1411
 msgid "$0 exited with code $1"
 msgstr "$0 הסתיים עם הקוד $1"
 
-#: pkg/lib/cockpit.js:2582
+#: pkg/lib/cockpit.js:1413
 msgid "$0 failed"
 msgstr "$0 נכשל"
 
@@ -212,7 +212,7 @@ msgstr "$0 אינו זמין מאף מאגר."
 msgid "$0 key changed"
 msgstr "המפתח $0 השתנה"
 
-#: pkg/lib/cockpit.js:2578
+#: pkg/lib/cockpit.js:1409
 msgid "$0 killed with signal $1"
 msgstr "$0 נקטל עם האות $1"
 
@@ -756,7 +756,7 @@ msgstr "פעיל"
 msgid "Active backup"
 msgstr "גיבוי פעיל"
 
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/active-pages-modal.jsx:105
+#: pkg/shell/active-pages-modal.jsx:95 pkg/shell/active-pages-modal.jsx:103
 #: pkg/shell/topnav.jsx:223
 msgid "Active pages"
 msgstr "עמודים פעילים"
@@ -779,7 +779,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "איזון עומס העברה מסתגל"
 
 #: pkg/networkmanager/dialogs-common.jsx:160
-#: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:184
+#: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:182
 #: pkg/shell/hosts_dialog.jsx:252 pkg/systemd/timer-dialog.jsx:367
 #: pkg/storaged/crypto/keyslots.jsx:494 pkg/storaged/crypto/keyslots.jsx:817
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/lvm2/volume-group.jsx:209
@@ -857,7 +857,7 @@ msgstr "הוספת כוננים"
 msgid "Add iSCSI portal"
 msgstr "הוספת שער גישה ל־iSCSI"
 
-#: pkg/users/authorized-keys-panel.js:112 pkg/shell/credentials.jsx:90
+#: pkg/users/authorized-keys-panel.js:112 pkg/shell/credentials.jsx:88
 #: pkg/storaged/crypto/keyslots.jsx:458
 msgid "Add key"
 msgstr "הוספת מפתח"
@@ -1038,11 +1038,11 @@ msgstr "ניהול עם המסוף המקוון Cockpit"
 msgid "Administrative access"
 msgstr "גישה ניהולית"
 
-#: pkg/sosreport/sosreport.jsx:424
+#: pkg/sosreport/sosreport.jsx:431
 msgid "Administrative access is required to create and access reports."
 msgstr "נדרשת גישה ניהולית כדי ליצור ולגשת לדוחות."
 
-#: pkg/sosreport/sosreport.jsx:423
+#: pkg/sosreport/sosreport.jsx:430
 msgid "Administrative access required"
 msgstr "נדרשת גישה ניהולית"
 
@@ -1219,7 +1219,7 @@ msgstr "נדרש התקן בלוק אחד לפחות."
 msgid "At least one disk is needed."
 msgstr "נדרש כונן אחד לפחות."
 
-#: pkg/storaged/btrfs/subvolume.jsx:367
+#: pkg/storaged/btrfs/subvolume.jsx:369
 msgid "At least one parent needs to be mounted writable"
 msgstr ""
 
@@ -1235,7 +1235,7 @@ msgstr "בשנייה"
 msgid "At specific time"
 msgstr "במועד מסוים"
 
-#: pkg/sosreport/sosreport.jsx:501
+#: pkg/sosreport/sosreport.jsx:508
 msgid "Attributes"
 msgstr "מאפיינים"
 
@@ -1305,15 +1305,15 @@ msgstr "עדכונים אוטומטיים"
 msgid "Automatically starts"
 msgstr "מתחיל אוטומטית"
 
-#: pkg/lib/serverTime.js:563
+#: pkg/lib/serverTime.js:558
 msgid "Automatically using NTP"
 msgstr "אוטומטית באמצעות NTP"
 
-#: pkg/lib/serverTime.js:570
+#: pkg/lib/serverTime.js:565
 msgid "Automatically using additional NTP servers"
 msgstr "אוטומטית באמצעות שרתי NTP נוספים"
 
-#: pkg/lib/serverTime.js:571
+#: pkg/lib/serverTime.js:566
 msgid "Automatically using specific NTP servers"
 msgstr "אוטומטית באמצעות שרתי NTP מסוימים"
 
@@ -1517,7 +1517,7 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr "לא ניתן למצוא יומנים עם שילוב המסננים הנוכחי."
 
 #: pkg/playground/translate.html:39 pkg/static/login.html:141
-#: pkg/sosreport/sosreport.jsx:290 pkg/sosreport/sosreport.jsx:375
+#: pkg/sosreport/sosreport.jsx:297 pkg/sosreport/sosreport.jsx:382
 #: pkg/networkmanager/dialogs-common.jsx:163
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913
@@ -1526,8 +1526,8 @@ msgstr "לא ניתן למצוא יומנים עם שילוב המסננים ה�
 #: pkg/apps/utils.jsx:69 pkg/kdump/kdump-view.jsx:235
 #: pkg/packagekit/updates.jsx:541 pkg/packagekit/updates.jsx:579
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/shell-modals.jsx:118 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:285
+#: pkg/shell/shell-modals.jsx:115 pkg/shell/credentials.jsx:311
+#: pkg/shell/active-pages-modal.jsx:98 pkg/shell/hosts_dialog.jsx:285
 #: pkg/shell/hosts_dialog.jsx:382 pkg/shell/hosts_dialog.jsx:514
 #: pkg/shell/hosts_dialog.jsx:891 pkg/shell/superuser.jsx:182
 #: pkg/shell/superuser.jsx:219 pkg/shell/superuser.jsx:264
@@ -1558,7 +1558,7 @@ msgstr "לא ניתן להפעיל"
 msgid "Cannot connect to an unknown host"
 msgstr "לא ניתן להתחבר למארח לא ידוע"
 
-#: pkg/lib/cockpit.js:3742
+#: pkg/lib/cockpit.js:2573
 msgid "Cannot forward login credentials"
 msgstr "לא ניתן להעביר פרטי גישה"
 
@@ -1584,7 +1584,7 @@ msgstr "ספקית"
 msgid "Category"
 msgstr ""
 
-#: pkg/lib/serverTime.js:729 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:528
@@ -1619,7 +1619,7 @@ msgstr "החלפת מעטפת"
 msgid "Change passphrase"
 msgstr "החלפת מילת צופן"
 
-#: pkg/shell/credentials.jsx:252
+#: pkg/shell/credentials.jsx:250
 msgid "Change password"
 msgstr "החלפת סיסמה"
 
@@ -1635,7 +1635,7 @@ msgstr "החלפת פרופיל"
 msgid "Change shell"
 msgstr "החלפת מעטפת"
 
-#: pkg/lib/serverTime.js:722
+#: pkg/lib/serverTime.js:714
 msgid "Change system time"
 msgstr "החלפת שעון המערכת"
 
@@ -1730,7 +1730,7 @@ msgstr "התכנה שמותקנת נבדקת"
 msgid "Checking software status"
 msgstr "מצב התכנית בבדיקה"
 
-#: pkg/shell/shell-modals.jsx:122
+#: pkg/shell/shell-modals.jsx:119
 msgid "Choose the language to be used in the application"
 msgstr "נא לבחור את שפת היישום לשימוש"
 
@@ -1769,15 +1769,15 @@ msgstr "תכנה מצד לקוח"
 #: pkg/networkmanager/interfaces.js:43
 #: pkg/lib/cockpit-components-terminal.jsx:230
 #: pkg/lib/cockpit-components-modifications.jsx:76 pkg/apps/utils.jsx:87
-#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:192
-#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:92
+#: pkg/users/dialog-utils.js:58 pkg/shell/shell-modals.jsx:188
+#: pkg/shell/credentials.jsx:79 pkg/shell/hosts_dialog.jsx:92
 #: pkg/shell/superuser.jsx:190 pkg/shell/superuser.jsx:198
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278 pkg/storaged/dialog.jsx:485
 msgid "Close"
 msgstr "סגירה"
 
-#: pkg/shell/active-pages-modal.jsx:99
+#: pkg/shell/active-pages-modal.jsx:97
 msgid "Close selected pages"
 msgstr "סגירת העמודים הנבחרים"
 
@@ -1793,11 +1793,11 @@ msgstr "האימות של Cockpit לא מוגדר נכון."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "ההגדרות של Cockpit ל־NetworkManager ול־Firewalld"
 
-#: pkg/lib/cockpit.js:3748
+#: pkg/lib/cockpit.js:2579
 msgid "Cockpit could not contact the given host."
 msgstr "ל־Cockpit אין אפשרות ליצור קשר עם המארח שסופק."
 
-#: pkg/shell/shell-modals.jsx:194
+#: pkg/shell/shell-modals.jsx:190
 msgid "Cockpit had an unexpected internal error."
 msgstr "ב־Cockpit אירעה שגיאה בלתי צפויה."
 
@@ -1814,11 +1814,11 @@ msgstr ""
 "המסוף. באותו האופן, אם מתרחשת שגיאה במסוף ניתן לצפות בה במנשק היומן של "
 "Cockpit."
 
-#: pkg/shell/shell-modals.jsx:70
+#: pkg/shell/shell-modals.jsx:68
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit הוא מנשק אינטראקטיבי לניהול שרתי לינוקס."
 
-#: pkg/lib/cockpit.js:3746
+#: pkg/lib/cockpit.js:2577
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit אינו תואם לתכנה שרצה על המערכת."
 
@@ -1826,7 +1826,7 @@ msgstr "Cockpit אינו תואם לתכנה שרצה על המערכת."
 msgid "Cockpit is not installed"
 msgstr "Cockpit אינו מותקן"
 
-#: pkg/lib/cockpit.js:3740
+#: pkg/lib/cockpit.js:2571
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit אינו מותקן על המערכת."
 
@@ -1876,7 +1876,7 @@ msgstr "פקודה"
 msgid "Command not found"
 msgstr "הפקודה לא נמצאה"
 
-#: pkg/shell/credentials.jsx:195
+#: pkg/shell/credentials.jsx:193
 msgid "Comment"
 msgstr "הערה"
 
@@ -1956,7 +1956,7 @@ msgstr "אישור סיסמה חדשה למפתח"
 msgid "Confirm new password"
 msgstr "אישור סיסמה חדשה"
 
-#: pkg/users/account-create-dialog.js:140 pkg/shell/credentials.jsx:268
+#: pkg/users/account-create-dialog.js:140 pkg/shell/credentials.jsx:266
 msgid "Confirm password"
 msgstr "אישור סיסמה"
 
@@ -2012,7 +2012,7 @@ msgstr "שגיאת התחברות"
 msgid "Connection failed"
 msgstr "ההתחברות נכשלה"
 
-#: pkg/lib/cockpit.js:3738
+#: pkg/lib/cockpit.js:2569
 msgid "Connection has timed out."
 msgstr "הזמן שהוקצב להתחברות תם."
 
@@ -2036,7 +2036,7 @@ msgstr "מכיל:"
 msgid "Continue"
 msgstr "להמשיך"
 
-#: pkg/shell/shell-modals.jsx:179
+#: pkg/shell/shell-modals.jsx:176
 msgid "Continue session"
 msgstr "להמשיך הפעלה"
 
@@ -2057,13 +2057,13 @@ msgstr "בקר"
 msgid "Convertible"
 msgstr "מתהפך"
 
-#: pkg/shell/credentials.jsx:212 pkg/shell/hosts_dialog.jsx:475
+#: pkg/shell/credentials.jsx:210 pkg/shell/hosts_dialog.jsx:475
 #: pkg/shell/hosts_dialog.jsx:478 pkg/shell/hosts_dialog.jsx:493
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/failures.jsx:43
 msgid "Copied"
 msgstr "הועתק"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211 pkg/shell/credentials.jsx:212
+#: pkg/lib/cockpit-components-terminal.jsx:211 pkg/shell/credentials.jsx:210
 #: pkg/shell/hosts_dialog.jsx:475 pkg/shell/hosts_dialog.jsx:478
 #: pkg/shell/hosts_dialog.jsx:493 pkg/shell/hosts_dialog.jsx:495
 #: pkg/shell/failures.jsx:43
@@ -2097,7 +2097,7 @@ msgstr "הקרסת המערכת"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:193
 #: pkg/users/account-create-dialog.js:481 pkg/users/group-create-dialog.js:141
-#: pkg/storaged/btrfs/subvolume.jsx:141
+#: pkg/storaged/btrfs/subvolume.jsx:143
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:269
 #: pkg/storaged/lvm2/create-dialog.jsx:63
 #: pkg/storaged/lvm2/volume-group.jsx:120
@@ -2148,7 +2148,7 @@ msgstr "יצירת חשבון עם סיסמה חלשה"
 msgid "Create and change ownership of home directory"
 msgstr "יצירה ושינוי בעלות על תיקיית הבית"
 
-#: pkg/storaged/btrfs/subvolume.jsx:135
+#: pkg/storaged/btrfs/subvolume.jsx:137
 #: pkg/storaged/block/format-dialog.jsx:270 pkg/storaged/stratis/pool.jsx:80
 msgid "Create and mount"
 msgstr "יצירה ועיגון"
@@ -2197,7 +2197,7 @@ msgstr "יצירת קובץ משימה עם התוכן הזה."
 msgid "Create new thinly provisioned logical volume"
 msgstr "יצירת כרך לוגי חדש"
 
-#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:138
 #: pkg/storaged/block/format-dialog.jsx:271
 #: pkg/storaged/block/format-dialog.jsx:280 pkg/storaged/stratis/pool.jsx:81
 msgid "Create only"
@@ -2234,7 +2234,7 @@ msgstr "יצירת תמונת מצב בלבד"
 msgid "Create storage device"
 msgstr "יצירת כרך אחסון"
 
-#: pkg/storaged/btrfs/subvolume.jsx:146 pkg/storaged/btrfs/subvolume.jsx:360
+#: pkg/storaged/btrfs/subvolume.jsx:148 pkg/storaged/btrfs/subvolume.jsx:362
 #, fuzzy
 #| msgid "Create volume"
 msgid "Create subvolume"
@@ -2252,7 +2252,7 @@ msgstr "יצירת מתזמן"
 msgid "Create volume group"
 msgstr "יצירת קבוצת כרכים"
 
-#: pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:507
 msgid "Created"
 msgstr "נוצרה"
 
@@ -2317,7 +2317,7 @@ msgstr "המדיניות הקריפטוגרפית אינה אחידה"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:198
+#: pkg/shell/shell-modals.jsx:194
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Shift-I"
 
@@ -2525,14 +2525,14 @@ msgstr "השהיה"
 msgid "Delay must be a number"
 msgstr "השהיה חייבת להיות מספר"
 
-#: pkg/sosreport/sosreport.jsx:369 pkg/sosreport/sosreport.jsx:468
+#: pkg/sosreport/sosreport.jsx:376 pkg/sosreport/sosreport.jsx:475
 #: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
 #: pkg/networkmanager/firewall.jsx:910
 #: pkg/networkmanager/network-interface.jsx:725
 #: pkg/users/delete-account-dialog.js:60 pkg/users/account-details.js:221
 #: pkg/users/delete-group-dialog.js:51 pkg/systemd/abrtLog.jsx:290
 #: pkg/systemd/service-details.jsx:151 pkg/systemd/service-details.jsx:713
-#: pkg/storaged/btrfs/subvolume.jsx:232 pkg/storaged/btrfs/subvolume.jsx:374
+#: pkg/storaged/btrfs/subvolume.jsx:234 pkg/storaged/btrfs/subvolume.jsx:376
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:44
 #: pkg/storaged/lvm2/volume-group.jsx:97
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:42
@@ -2573,7 +2573,7 @@ msgstr "מחיקת קבוצה"
 msgid "Delete pool"
 msgstr "מחיקה"
 
-#: pkg/sosreport/sosreport.jsx:361
+#: pkg/sosreport/sosreport.jsx:368
 msgid "Delete report permanently?"
 msgstr "למחוק את הדוח לצמיתות?"
 
@@ -2621,7 +2621,7 @@ msgstr "מחיקה תמחק את כל הנתונים של התקן ה־VDO."
 msgid "Deleting erases all data on a volume group."
 msgstr "מחיקה מוחקת את כל הנתונים בקבוצת כרכים."
 
-#: pkg/storaged/btrfs/subvolume.jsx:233
+#: pkg/storaged/btrfs/subvolume.jsx:235
 #, fuzzy
 #| msgid "Deleting erases all data on a volume group."
 msgid "Deleting erases all data on this subvolume and all it's children."
@@ -2644,7 +2644,7 @@ msgstr "שולחן עבודה"
 msgid "Detachable"
 msgstr "נתיק"
 
-#: pkg/packagekit/updates.jsx:450 pkg/shell/credentials.jsx:109
+#: pkg/packagekit/updates.jsx:450 pkg/shell/credentials.jsx:107
 #: pkg/systemd/overview-cards/realmd.jsx:416
 msgid "Details"
 msgstr "פרטים"
@@ -2778,7 +2778,7 @@ msgstr[3] "התעלמות מ־$0 אזעקות"
 msgid "Dismiss selected alerts"
 msgstr "התעלמות מההתראות הנבחרות"
 
-#: pkg/shell/shell-modals.jsx:115 pkg/shell/topnav.jsx:216
+#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:216
 msgid "Display language"
 msgstr "שפת התצוגה"
 
@@ -2847,7 +2847,7 @@ msgstr "לא לחזור"
 msgid "Double distributed parity (RAID 6)"
 msgstr "פיזור+קוד ריד-סולומון (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:458 pkg/sosreport/sosreport.jsx:464
+#: pkg/sosreport/sosreport.jsx:465 pkg/sosreport/sosreport.jsx:471
 msgid "Download"
 msgstr "הורדה"
 
@@ -2931,7 +2931,7 @@ msgstr "עריכת מארחים"
 msgid "Edit motd"
 msgstr "עריכת ההודעה היומית"
 
-#: pkg/storaged/btrfs/subvolume.jsx:332
+#: pkg/storaged/btrfs/subvolume.jsx:334
 #: pkg/storaged/filesystem/filesystem.jsx:100
 #: pkg/storaged/stratis/filesystem.jsx:170
 #, fuzzy
@@ -3023,7 +3023,7 @@ msgstr "הצפנת הנתונים עם שרת מפתחות Tang"
 msgid "Encrypt data with a passphrase"
 msgstr "הצפנת נתונים עם מילת צופן"
 
-#: pkg/sosreport/sosreport.jsx:448
+#: pkg/sosreport/sosreport.jsx:455
 msgid "Encrypted"
 msgstr "מוצפן"
 
@@ -3055,7 +3055,7 @@ msgstr "הצפנה"
 msgid "Encryption options"
 msgstr "אפשרויות הצפנה"
 
-#: pkg/sosreport/sosreport.jsx:320
+#: pkg/sosreport/sosreport.jsx:327
 msgid "Encryption passphrase"
 msgstr "מילת צופן ההצפנה"
 
@@ -3107,7 +3107,7 @@ msgstr "$target נמחק"
 msgid "Errata"
 msgstr "טעויות ידועות"
 
-#: pkg/sosreport/sosreport.jsx:392 pkg/apps/utils.jsx:81
+#: pkg/sosreport/sosreport.jsx:399 pkg/apps/utils.jsx:81
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:160
@@ -3343,7 +3343,7 @@ msgstr "מערכות הקבצים כבר מעוגנות תחת נקודת העי
 msgid "Filter by name or description"
 msgstr "סינון לפי שם או תיאור"
 
-#: pkg/shell/shell-modals.jsx:134
+#: pkg/shell/shell-modals.jsx:131
 msgid "Filter menu items"
 msgstr "סינון פריטי תפריט"
 
@@ -3355,7 +3355,7 @@ msgstr "סינון שירותים"
 msgid "Filters"
 msgstr "מסננים"
 
-#: pkg/users/authorized-keys-panel.js:128 pkg/shell/credentials.jsx:203
+#: pkg/users/authorized-keys-panel.js:128 pkg/shell/credentials.jsx:201
 msgid "Fingerprint"
 msgstr "טביעת אצבע"
 
@@ -3597,7 +3597,7 @@ msgstr "תיקיית בית"
 msgid "Host"
 msgstr "מארח"
 
-#: pkg/lib/cockpit.js:3734
+#: pkg/lib/cockpit.js:2565
 msgid "Host key is incorrect"
 msgstr "מפתח המארח שגוי"
 
@@ -3627,7 +3627,7 @@ msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:696 pkg/users/accounts-list.js:230
 #: pkg/users/accounts-list.js:381 pkg/users/group-create-dialog.js:47
-#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:415
+#: pkg/systemd/hwinfo.jsx:291 pkg/storaged/btrfs/subvolume.jsx:437
 #: pkg/storaged/pages.jsx:714
 msgid "ID"
 msgstr "מזהה"
@@ -3897,7 +3897,7 @@ msgstr "חברים במנשק"
 msgid "Interfaces"
 msgstr "מנשקים"
 
-#: pkg/lib/cockpit.js:3736
+#: pkg/lib/cockpit.js:2567
 msgid "Internal error"
 msgstr "שגיאה פנימה"
 
@@ -3913,7 +3913,7 @@ msgstr "שגוי"
 msgid "Invalid address $0"
 msgstr "כתובת שגויה $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:687
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
 msgid "Invalid date format"
 msgstr "מבנה התאריך שגוי"
 
@@ -3957,12 +3957,12 @@ msgstr "קידומת או מסכת רשת שגויה $0"
 msgid "Invalid range"
 msgstr "טווח שגוי"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:690
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "מבנה השעה שגוי"
 
-#: pkg/lib/serverTime.js:682
+#: pkg/lib/serverTime.js:674
 msgid "Invalid timezone"
 msgstr "אזור זמן שגוי"
 
@@ -4221,11 +4221,11 @@ msgstr "לעזוב את $0"
 msgid "Leave domain"
 msgstr "עזיבת שם התחום"
 
-#: pkg/sosreport/sosreport.jsx:328
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Leave empty to skip encryption"
 msgstr "ניתן להשאיר ריק כדי לדלג על הצפנה"
 
-#: pkg/shell/shell-modals.jsx:63
+#: pkg/shell/shell-modals.jsx:61
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "בכפוף לרישיון LGPL מבית GNU בגרסה 2.1"
 
@@ -4357,7 +4357,7 @@ msgstr "טעינת מפתחות ה־SSH נכשלה"
 msgid "Loading of units failed"
 msgstr "טעינת היחידות נכשלה"
 
-#: pkg/shell/shell-modals.jsx:78
+#: pkg/shell/shell-modals.jsx:76
 msgid "Loading packages..."
 msgstr "החבילות נטענות…"
 
@@ -4449,7 +4449,7 @@ msgstr "כניסה אל $0"
 msgid "Log in with your server user account."
 msgstr "כניסה עם חשבון המשתמש שלך בשרת."
 
-#: pkg/lib/serverTime.js:464
+#: pkg/lib/serverTime.js:459
 msgid "Log messages"
 msgstr "הודעות יומן"
 
@@ -4502,7 +4502,7 @@ msgstr "כניסה"
 msgid "Login again"
 msgstr "נא להיכנס שוב"
 
-#: pkg/lib/cockpit.js:3726
+#: pkg/lib/cockpit.js:2557
 msgid "Login failed"
 msgstr "הכניסה נכשלה"
 
@@ -4685,7 +4685,7 @@ msgstr "ניהול חשבונות משתמשים"
 msgid "Manual"
 msgstr "ידני"
 
-#: pkg/lib/serverTime.js:562
+#: pkg/lib/serverTime.js:557
 msgid "Manually"
 msgstr "ידנית"
 
@@ -4845,14 +4845,14 @@ msgstr "חודשי"
 msgid "More info..."
 msgstr "מידע נוסף…"
 
-#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:344
+#: pkg/storaged/nfs/nfs.jsx:310 pkg/storaged/btrfs/subvolume.jsx:346
 #: pkg/storaged/filesystem/mounting-dialog.jsx:356
 #: pkg/storaged/filesystem/filesystem.jsx:103
 #: pkg/storaged/stratis/filesystem.jsx:173
 msgid "Mount"
 msgstr "עיגון"
 
-#: pkg/storaged/btrfs/subvolume.jsx:152
+#: pkg/storaged/btrfs/subvolume.jsx:154
 #, fuzzy
 #| msgid "Mount point"
 msgid "Mount Point"
@@ -4899,7 +4899,7 @@ msgstr "לעגן אל $0 כעת"
 msgid "Mount options"
 msgstr "אפשרויות עיגון"
 
-#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:416
+#: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:446
 #: pkg/storaged/block/format-dialog.jsx:299
 #: pkg/storaged/filesystem/mounting-dialog.jsx:326
 #: pkg/storaged/filesystem/filesystem.jsx:147 pkg/storaged/stratis/pool.jsx:103
@@ -4972,7 +4972,7 @@ msgstr "עיגון NFS"
 msgid "NSNA ping"
 msgstr "פינג מסוג NSNA"
 
-#: pkg/lib/serverTime.js:550
+#: pkg/lib/serverTime.js:545
 msgid "NTP server"
 msgstr "שרת NTP"
 
@@ -4980,10 +4980,10 @@ msgstr "שרת NTP"
 #: pkg/networkmanager/network-main.jsx:185
 #: pkg/networkmanager/network-main.jsx:200
 #: pkg/users/authorized-keys-panel.js:127 pkg/users/group-create-dialog.js:39
-#: pkg/packagekit/updates.jsx:447 pkg/shell/credentials.jsx:101
+#: pkg/packagekit/updates.jsx:447 pkg/shell/credentials.jsx:99
 #: pkg/systemd/timer-dialog.jsx:157 pkg/systemd/hwinfo.jsx:86
-#: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/btrfs/subvolume.jsx:148
-#: pkg/storaged/btrfs/subvolume.jsx:414
+#: pkg/storaged/btrfs/volume.jsx:89 pkg/storaged/btrfs/subvolume.jsx:150
+#: pkg/storaged/btrfs/subvolume.jsx:436
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/create-dialog.jsx:47 pkg/storaged/lvm2/volume-group.jsx:64
 #: pkg/storaged/lvm2/volume-group.jsx:116
@@ -5053,7 +5053,7 @@ msgstr "השם לא יכול להכיל רווח."
 msgid "Need a spare disk"
 msgstr ""
 
-#: pkg/lib/serverTime.js:695
+#: pkg/lib/serverTime.js:687
 msgid "Need at least one NTP server"
 msgstr "נדרש שרת NTP אחד לפחות"
 
@@ -5146,7 +5146,7 @@ msgstr "שם חדש"
 msgid "New passphrase"
 msgstr "מילת צופן חדשה"
 
-#: pkg/users/password-dialogs.js:147 pkg/shell/credentials.jsx:265
+#: pkg/users/password-dialogs.js:147 pkg/shell/credentials.jsx:263
 msgid "New password"
 msgstr "סיסמה חדשה"
 
@@ -5287,7 +5287,7 @@ msgstr "לא נמצאה חבילת התקנה ליישום הזה."
 msgid "No keys added"
 msgstr "לא נוספו מפתחות"
 
-#: pkg/shell/shell-modals.jsx:152
+#: pkg/shell/shell-modals.jsx:149
 msgid "No languages match"
 msgstr "אין שפות תואמות"
 
@@ -5350,6 +5350,12 @@ msgstr "לא נמצאו תוצאות לתנאי המסנן. יש לנקות את
 msgid "No rule hits"
 msgstr "אין פגיעות בכללים"
 
+#: pkg/storaged/btrfs/subvolume.jsx:464
+#, fuzzy
+#| msgid "No snapshots"
+msgid "No snapshots found"
+msgstr "אין תמונות מצב"
+
 #: pkg/storaged/overview/overview.jsx:190
 #, fuzzy
 #| msgid "No storage"
@@ -5357,7 +5363,7 @@ msgid "No storage found"
 msgstr "אין אחסון"
 
 #: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:424
+#: pkg/storaged/btrfs/subvolume.jsx:454
 #, fuzzy
 #| msgid "No logical volumes"
 msgid "No subvolumes"
@@ -5372,7 +5378,7 @@ msgstr "אין קובץ או תיקייה בשם הזה"
 msgid "No system modifications"
 msgstr "אין שינויים במערכת"
 
-#: pkg/sosreport/sosreport.jsx:497
+#: pkg/sosreport/sosreport.jsx:504
 msgid "No system reports."
 msgstr "אין דוחות מערכת."
 
@@ -5453,7 +5459,7 @@ msgstr "המשתמש $0 אינו מורשה לשנות מתחמים"
 msgid "Not permitted to configure realms"
 msgstr "המשתמש $0 אינו מורשה לשנות מתחמים"
 
-#: pkg/lib/cockpit.js:3724
+#: pkg/lib/cockpit.js:2555
 msgid "Not permitted to perform this action."
 msgstr "לא מורשה לבצע את הפעולה הזאת."
 
@@ -5475,7 +5481,7 @@ msgstr "לא פועל"
 msgid "Not set up"
 msgstr "לא מוגדר"
 
-#: pkg/lib/serverTime.js:458
+#: pkg/lib/serverTime.js:453
 msgid "Not synchronized"
 msgstr "לא מסונכרן"
 
@@ -5491,11 +5497,11 @@ msgstr "מחברת"
 msgid "Notice and above"
 msgstr "הודעה ומעלה"
 
-#: pkg/sosreport/sosreport.jsx:331
+#: pkg/sosreport/sosreport.jsx:338
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "לערפל את כתובת הרשת, המארחים ואת שמות המשתמשים"
 
-#: pkg/sosreport/sosreport.jsx:452
+#: pkg/sosreport/sosreport.jsx:459
 msgid "Obfuscated"
 msgstr "מעורפל"
 
@@ -5572,7 +5578,7 @@ msgstr "יש לפתוח את שירות pmproxy בחומת האש כדי לשת�
 msgid "Operation '$operation' on $target"
 msgstr "המשימה ‚$operation’ על $target"
 
-#: pkg/sosreport/sosreport.jsx:330 pkg/networkmanager/bridge.jsx:104
+#: pkg/sosreport/sosreport.jsx:337 pkg/networkmanager/bridge.jsx:104
 #: pkg/users/account-details.js:263 pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
 #: pkg/storaged/stratis/create-dialog.jsx:64
@@ -5650,7 +5656,7 @@ msgstr "PackageKit דיווח את קוד השגיאה $0"
 msgid "Packages"
 msgstr "חבילות"
 
-#: pkg/shell/active-pages-modal.jsx:104
+#: pkg/shell/active-pages-modal.jsx:102
 msgid "Page name"
 msgstr "שם העמוד"
 
@@ -5739,15 +5745,15 @@ msgid "Passphrases do not match"
 msgstr "מילות הצופן אינן תואמות"
 
 #: pkg/static/login.html:99 pkg/users/account-details.js:290
-#: pkg/users/account-create-dialog.js:139 pkg/shell/credentials.jsx:119
-#: pkg/shell/credentials.jsx:262 pkg/shell/credentials.jsx:318
+#: pkg/users/account-create-dialog.js:139 pkg/shell/credentials.jsx:117
+#: pkg/shell/credentials.jsx:260 pkg/shell/credentials.jsx:316
 #: pkg/shell/hosts_dialog.jsx:845 pkg/shell/hosts_dialog.jsx:854
 #: pkg/shell/superuser.jsx:144 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
 msgid "Password"
 msgstr "סיסמה"
 
-#: pkg/shell/credentials.jsx:259
+#: pkg/shell/credentials.jsx:257
 msgid "Password changed successfully"
 msgstr "הסיסמה הוחלפה בהצלחה"
 
@@ -5775,7 +5781,7 @@ msgstr "חובה לשנות את הסיסמה"
 msgid "Password not accepted"
 msgstr "הסיסמה לא התקבלה"
 
-#: pkg/shell/credentials.jsx:274
+#: pkg/shell/credentials.jsx:272
 msgid "Password tip"
 msgstr "רמז לסיסמה"
 
@@ -5826,7 +5832,7 @@ msgid "Path to directory"
 msgstr "נתיב לתיקייה"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:169
-#: pkg/shell/credentials.jsx:172
+#: pkg/shell/credentials.jsx:170
 msgid "Path to file"
 msgstr "הנתיב לקובץ"
 
@@ -5892,7 +5898,7 @@ msgstr "למחוק את $0 לצמיתות?"
 msgid "Permanently delete logical volume $0/$1?"
 msgstr "למחוק את $0 לצמיתות?"
 
-#: pkg/storaged/btrfs/subvolume.jsx:229
+#: pkg/storaged/btrfs/subvolume.jsx:231
 #, fuzzy
 #| msgid "Permanently delete $0?"
 msgid "Permanently delete subvolume $0?"
@@ -5927,7 +5933,7 @@ msgstr "כרכים פיזיים"
 msgid "Physical volumes can not be resized here"
 msgstr "כאן ניתן לשנות גודל של כרכים פיזיים."
 
-#: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:599
+#: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:594
 #: pkg/users/expiration-dialogs.js:48 pkg/systemd/timer-dialog.jsx:347
 msgid "Pick date"
 msgstr "בחירת תאריך"
@@ -6082,11 +6088,11 @@ msgstr "מידע על הבעיה"
 msgid "Processes using the location"
 msgstr "תהליכים שמשתמשים במיקום"
 
-#: pkg/sosreport/sosreport.jsx:301
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Progress: $0"
 msgstr "התקדמות: $0"
 
-#: pkg/shell/shell-modals.jsx:74
+#: pkg/shell/shell-modals.jsx:72
 msgid "Project website"
 msgstr "אתר המיזם"
 
@@ -6117,7 +6123,7 @@ msgid "Provide the passphrase for the pool on these block devices:"
 msgstr "נא לספק מילת צופן למאגר על התקני בלוק אלו:"
 
 #: pkg/networkmanager/wireguard.jsx:237 pkg/networkmanager/wireguard.jsx:300
-#: pkg/shell/credentials.jsx:114
+#: pkg/shell/credentials.jsx:112
 msgid "Public key"
 msgstr "מפתח ציבורי"
 
@@ -6594,11 +6600,11 @@ msgstr "חזרה על מילת הצופן"
 msgid "Repeat weekly"
 msgstr "לחזור באופן שבועי"
 
-#: pkg/sosreport/sosreport.jsx:499 pkg/systemd/reporting.jsx:392
+#: pkg/sosreport/sosreport.jsx:506 pkg/systemd/reporting.jsx:392
 msgid "Report"
 msgstr "דיווח"
 
-#: pkg/sosreport/sosreport.jsx:317
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Report label"
 msgstr "תווית דיווח"
 
@@ -6618,7 +6624,7 @@ msgstr "הדיווח נכשל"
 msgid "Reporting was canceled"
 msgstr "הדיווח בוטל"
 
-#: pkg/sosreport/sosreport.jsx:494
+#: pkg/sosreport/sosreport.jsx:501
 msgid "Reports"
 msgstr "דוחות"
 
@@ -6773,7 +6779,7 @@ msgstr "בחירה"
 msgid "Run at"
 msgstr "להריץ בתזמון"
 
-#: pkg/sosreport/sosreport.jsx:304
+#: pkg/sosreport/sosreport.jsx:311
 msgid "Run new report"
 msgstr "הרצת דוח חדש"
 
@@ -6781,7 +6787,7 @@ msgstr "הרצת דוח חדש"
 msgid "Run on"
 msgstr "להריץ על"
 
-#: pkg/sosreport/sosreport.jsx:282 pkg/sosreport/sosreport.jsx:491
+#: pkg/sosreport/sosreport.jsx:289 pkg/sosreport/sosreport.jsx:498
 msgid "Run report"
 msgstr "הרצת דוח"
 
@@ -6799,10 +6805,6 @@ msgstr "שליח"
 #: pkg/storaged/mdraid/mdraid.jsx:297
 msgid "Running"
 msgstr "פועל"
-
-#: pkg/storaged/dialog.jsx:1435 pkg/storaged/dialog.jsx:1455
-msgid "Runtime"
-msgstr "זמן ריצה"
 
 #: pkg/selinux/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml.in:5
@@ -6845,7 +6847,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "בדיקת SMART עצמית של $0"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:320
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "דיווח חירום (SOS) אוסף מידע על המערכת כדי לסייע בניתוח תקלות."
@@ -6858,7 +6860,7 @@ msgstr "מפתח SSH"
 msgid "SSH key isn't a path"
 msgstr "מפתח ה־SSH אינו נתיב"
 
-#: pkg/shell/credentials.jsx:79 pkg/shell/credentials.jsx:95
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
 #: pkg/shell/topnav.jsx:229
 msgid "SSH keys"
 msgstr "מפתחות SSH"
@@ -6987,7 +6989,7 @@ msgstr "עדכוני אבטחה בלבד"
 msgid "Security updates will be applied $0 at $1"
 msgstr "עדכוני אבטחת מידע יחולו ב$0 בשעה $1"
 
-#: pkg/shell/shell-modals.jsx:117
+#: pkg/shell/shell-modals.jsx:114
 msgid "Select"
 msgstr "בחירה"
 
@@ -7040,7 +7042,7 @@ msgstr "כתובת השרת לא יכולה להיות ריקה."
 msgid "Server cannot be empty."
 msgstr "השרת לא יכול להיות ריק."
 
-#: pkg/lib/cockpit.js:3744
+#: pkg/lib/cockpit.js:2575
 msgid "Server has closed the connection."
 msgstr "השרת סגר את החיבור."
 
@@ -7077,7 +7079,7 @@ msgstr "שירותים שמשתמשים במיקום"
 msgid "Session"
 msgstr "הפעלה"
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.jsx:174
 msgid "Session is about to expire"
 msgstr "תוקף ההפעלה עומד לפוג"
 
@@ -7100,7 +7102,7 @@ msgstr "יצירת מחיצה על $0"
 msgid "Set password"
 msgstr "הגדרת סיסמה"
 
-#: pkg/lib/serverTime.js:588
+#: pkg/lib/serverTime.js:583
 msgid "Set time"
 msgstr "הגדרת שעה"
 
@@ -7287,6 +7289,18 @@ msgstr "משבצת $0"
 msgid "Snapshot"
 msgstr "תמונת מצב"
 
+#: pkg/storaged/btrfs/subvolume.jsx:439
+#, fuzzy
+#| msgid "Snapshot"
+msgid "Snapshot origin"
+msgstr "תמונת מצב"
+
+#: pkg/storaged/btrfs/subvolume.jsx:461
+#, fuzzy
+#| msgid "Snapshot"
+msgid "Snapshots"
+msgstr "תמונת מצב"
+
 #: pkg/systemd/service-tabs.jsx:42
 msgid "Sockets"
 msgstr "שקעים"
@@ -7398,7 +7412,8 @@ msgstr "להתחיל להציג רשומות בתאריך או לפני התאר
 msgid "Start showing entries on or older than the specified date."
 msgstr "להתחיל להציג רשומות בתאריך או אחרי התאריך שצוין."
 
-#: pkg/users/account-logs-panel.jsx:77
+#: pkg/users/account-logs-panel.jsx:77 pkg/storaged/dialog.jsx:1435
+#: pkg/storaged/dialog.jsx:1455
 msgid "Started"
 msgstr "הופעל"
 
@@ -7461,7 +7476,7 @@ msgstr "עצירת התקן"
 msgid "Stop editing hosts"
 msgstr "הפסקת עריכת מארחים"
 
-#: pkg/sosreport/sosreport.jsx:286
+#: pkg/sosreport/sosreport.jsx:293
 msgid "Stop report"
 msgstr "עצירת הדוח"
 
@@ -7581,13 +7596,13 @@ msgstr "תת מחברת"
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "הרישום ל־signals (אותות) של systemd נכשל: $0"
 
-#: pkg/storaged/btrfs/subvolume.jsx:354
+#: pkg/storaged/btrfs/subvolume.jsx:356
 #, fuzzy
 #| msgid "Volume failed to be created"
 msgid "Subvolume needs to be mounted"
 msgstr "יצירת הכרך נכשלה"
 
-#: pkg/storaged/btrfs/subvolume.jsx:356
+#: pkg/storaged/btrfs/subvolume.jsx:358
 msgid "Subvolume needs to be mounted writable"
 msgstr ""
 
@@ -7654,15 +7669,15 @@ msgid ""
 "administration UI unavailable."
 msgstr "הפעלת $0 תקטע את החיבור לשרת ותגרום לכך שמנשק הניהול לא יהיה זמין."
 
-#: pkg/lib/serverTime.js:448
+#: pkg/lib/serverTime.js:443
 msgid "Synchronized"
 msgstr "מסונכרן"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:445
 msgid "Synchronized with $0"
 msgstr "מסונכרן עם $0"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:449
 msgid "Synchronizing"
 msgstr "מתבצע סנכרון"
 
@@ -7676,7 +7691,7 @@ msgstr "התקן ה־RAID‏ $target מסונכרן"
 msgid "System"
 msgstr "מערכת"
 
-#: pkg/sosreport/sosreport.jsx:518
+#: pkg/sosreport/sosreport.jsx:525
 msgid "System diagnostics"
 msgstr "ניתוח המערכת"
 
@@ -7862,7 +7877,7 @@ msgid ""
 "passphrase."
 msgstr "יש לשחרר את הכונן בטרם פרמוטו. נא לספק מילת צופן נוכחית."
 
-#: pkg/sosreport/sosreport.jsx:379
+#: pkg/sosreport/sosreport.jsx:386
 msgid "The file $0 will be deleted."
 msgstr "לא ניתן למחוק את הקובץ $0."
 
@@ -8035,7 +8050,7 @@ msgid ""
 "no other supported authentication methods are available."
 msgstr "השרת סירב לאמת את ‚$0’ עם אימות בסיסמה ואין שיטות אימות אחרות נתמכות."
 
-#: pkg/lib/cockpit.js:3728
+#: pkg/lib/cockpit.js:2559
 msgid "The server refused to authenticate using any supported methods."
 msgstr "השרת סירב לאמת בעזרת השיטות הנתמכות."
 
@@ -8085,7 +8100,7 @@ msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr "הגדרות הדפדפן מונעות מ־Cockpit לפעול ($0 בלתי נגיש)"
 
-#: pkg/shell/active-pages-modal.jsx:106
+#: pkg/shell/active-pages-modal.jsx:104
 msgid "There are currently no active pages"
 msgstr "אין דפים פעילים כרגע"
 
@@ -8181,7 +8196,7 @@ msgstr "הקבוצה הזאת היא הקבוצה העיקרית של המשתמ
 msgid "This host will reboot after updates are installed."
 msgstr "מארח זה יופעל מחדש לאחר התקנת העדכונים."
 
-#: pkg/sosreport/sosreport.jsx:314
+#: pkg/sosreport/sosreport.jsx:321
 msgid "This information is stored only on the system."
 msgstr "המידע הזה מאוחסן רק במערכת."
 
@@ -8358,7 +8373,7 @@ msgstr "רמה"
 msgid "Time"
 msgstr "שעה"
 
-#: pkg/lib/serverTime.js:577
+#: pkg/lib/serverTime.js:572
 msgid "Time zone"
 msgstr "אזור זמן"
 
@@ -8374,7 +8389,7 @@ msgstr "מחיקת קוצב הזמן נכשלה"
 msgid "Timers"
 msgstr "מתזמנים"
 
-#: pkg/shell/credentials.jsx:275
+#: pkg/shell/credentials.jsx:273
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -8410,11 +8425,11 @@ msgstr ""
 msgid "Today"
 msgstr "היום"
 
-#: pkg/shell/credentials.jsx:102
+#: pkg/shell/credentials.jsx:100
 msgid "Toggle"
 msgstr "בורר"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:600
+#: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:595
 #: pkg/users/expiration-dialogs.js:49 pkg/systemd/timer-dialog.jsx:348
 msgid "Toggle date picker"
 msgstr "החלפת מצב בורר תאריכים"
@@ -8423,7 +8438,7 @@ msgstr "החלפת מצב בורר תאריכים"
 msgid "Toggle filters"
 msgstr "החלפת מצב מסננים"
 
-#: pkg/lib/cockpit.js:3750
+#: pkg/lib/cockpit.js:2581
 msgid "Too much data"
 msgstr "יותר מדי נתונים"
 
@@ -8495,7 +8510,7 @@ msgstr "רמת אמון"
 msgid "Try again"
 msgstr "לנסות שוב"
 
-#: pkg/lib/serverTime.js:455
+#: pkg/lib/serverTime.js:450
 msgid "Trying to synchronize with $0"
 msgstr "מתבצע ניסיון להסתנכרן מול $0"
 
@@ -8532,7 +8547,7 @@ msgstr "Tuned כבוי"
 msgid "Turn on administrative access"
 msgstr "הפעלת גישה ניהולית"
 
-#: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:199
+#: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:197
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
 #: pkg/storaged/partitions/partition.jsx:183
 #: pkg/storaged/partitions/partition.jsx:229
@@ -8663,7 +8678,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "שגיאת PackageKit בלתי צפויה במהלך התקנת $0:‏ $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:191
+#: pkg/shell/shell-modals.jsx:187
 msgid "Unexpected error"
 msgstr "שגיאה בלתי צפויה"
 
@@ -8720,7 +8735,7 @@ msgstr "שם השירות לא ידוע"
 msgid "Unknown type"
 msgstr "סוג לא ידוע"
 
-#: pkg/shell/credentials.jsx:312
+#: pkg/shell/credentials.jsx:310
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:36
 #: pkg/storaged/crypto/actions.jsx:40 pkg/storaged/crypto/actions.jsx:45
 #: pkg/storaged/stratis/stopped-pool.jsx:61
@@ -8739,7 +8754,7 @@ msgstr ""
 msgid "Unlock encrypted Stratis pool"
 msgstr "שחרור מאגר Stratis מוצפן"
 
-#: pkg/shell/credentials.jsx:309
+#: pkg/shell/credentials.jsx:307
 msgid "Unlock key $0"
 msgstr "שחרור המפתח $0"
 
@@ -8756,7 +8771,7 @@ msgstr "הכונן משוחרר"
 msgid "Unmanaged interfaces"
 msgstr "מנשקים לא מנוהלים"
 
-#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:339
+#: pkg/storaged/nfs/nfs.jsx:309 pkg/storaged/btrfs/subvolume.jsx:341
 #: pkg/storaged/filesystem/mounting-dialog.jsx:357
 #: pkg/storaged/filesystem/filesystem.jsx:102
 #: pkg/storaged/stratis/filesystem.jsx:172
@@ -8808,9 +8823,15 @@ msgstr "כרך לא נתמך"
 msgid "Until"
 msgstr "עד"
 
-#: pkg/lib/cockpit.js:3730 pkg/lib/cockpit.js:3732
+#: pkg/lib/cockpit.js:2561 pkg/lib/cockpit.js:2563
 msgid "Untrusted host"
 msgstr "מארח בלתי מהימן"
+
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:129
+#, fuzzy
+#| msgid "Up since $0"
+msgid "Up since"
+msgstr "פעיל מאז $0"
 
 #: pkg/shell/hosts_dialog.jsx:357
 msgid "Update"
@@ -8866,10 +8887,6 @@ msgstr "המצב מתעדכן…"
 msgid "Upload"
 msgstr "רענון"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:129
-msgid "Uptime"
-msgstr "זמן פעילות"
-
 #: pkg/metrics/metrics.jsx:1963 pkg/metrics/metrics.jsx:1964
 #: pkg/metrics/metrics.jsx:1965 pkg/metrics/metrics.jsx:1966
 #: pkg/systemd/overview-cards/usageCard.jsx:128
@@ -8899,7 +8916,7 @@ msgstr "להשתמש בדחיסה"
 msgid "Use deduplication"
 msgstr "להשתמש בהסרת כפילות"
 
-#: pkg/shell/credentials.jsx:133
+#: pkg/shell/credentials.jsx:131
 msgid "Use key"
 msgstr "להשתמש במפתח"
 
@@ -8907,11 +8924,11 @@ msgstr "להשתמש במפתח"
 msgid "Use password"
 msgstr "להשתמש בסיסמה"
 
-#: pkg/shell/credentials.jsx:86
+#: pkg/shell/credentials.jsx:84
 msgid "Use the following keys to authenticate against other systems"
 msgstr "להשתמש במפתחות הבאים כדי להתאמת מול שרתים אחרים"
 
-#: pkg/sosreport/sosreport.jsx:333
+#: pkg/sosreport/sosreport.jsx:340
 msgid "Use verbose logging"
 msgstr "להשתמש בתיעוד מפורט"
 
@@ -9159,7 +9176,7 @@ msgstr "אזהרה ומעלה"
 msgid "Weak password"
 msgstr "הגדרת סיסמה חלשה"
 
-#: pkg/shell/shell-modals.jsx:64 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "מסוף מקוון"
 
@@ -9175,7 +9192,7 @@ msgstr "המסוף המקוון יופעל מחדש"
 msgid "Web console is running in limited access mode."
 msgstr "המסוף המקוון מופעל במצב גישה מוגבלת."
 
-#: pkg/shell/shell-modals.jsx:66
+#: pkg/shell/shell-modals.jsx:64
 msgid "Web console logo"
 msgstr "לוגו המסוף המקוון"
 
@@ -9331,11 +9348,11 @@ msgid ""
 msgstr ""
 "השרת שלך יסגור את החיבור בקרוב. באפשרותך להתחבר אליו מחדש לאחר שיופעל מחדש."
 
-#: pkg/lib/cockpit.js:3720
+#: pkg/lib/cockpit.js:2551
 msgid "Your session has been terminated."
 msgstr "ההפעלה שלך הושמדה."
 
-#: pkg/lib/cockpit.js:3722
+#: pkg/lib/cockpit.js:2553
 msgid "Your session has expired. Please log in again."
 msgstr "תוקף ההפעלה שלך פג. נא להיכנס שוב."
 
@@ -9360,7 +9377,7 @@ msgstr "abrt"
 msgid "access"
 msgstr "גישה"
 
-#: pkg/shell/active-pages-modal.jsx:79
+#: pkg/shell/active-pages-modal.jsx:77
 #: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:56
 msgid "active"
 msgstr "פעיל"
@@ -9443,7 +9460,7 @@ msgstr "התקנים אחרים"
 msgid "btrfs filesystem"
 msgstr "יצירת מערכת קבצים"
 
-#: pkg/storaged/btrfs/subvolume.jsx:387
+#: pkg/storaged/btrfs/subvolume.jsx:399
 #, fuzzy
 #| msgid "Storage volume"
 msgid "btrfs subvolume"
@@ -9454,7 +9471,7 @@ msgid "btrfs subvolume $0 of $1"
 msgstr ""
 
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
-#: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:425
+#: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:455
 #, fuzzy
 #| msgid "Storage volumes"
 msgid "btrfs subvolumes"
@@ -9533,7 +9550,7 @@ msgstr "השבתה"
 msgid "debug"
 msgstr "ניפוי שגיאות"
 
-#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/lvm2/volume-group.jsx:81
+#: pkg/storaged/btrfs/subvolume.jsx:220 pkg/storaged/lvm2/volume-group.jsx:81
 #: pkg/storaged/lvm2/volume-group.jsx:331
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
@@ -9734,7 +9751,11 @@ msgstr "הוספת שער גישה ל־iSCSI"
 msgid "ignore failure"
 msgstr "התעלמות מכשל"
 
-#: pkg/shell/shell-modals.jsx:199
+#: pkg/lib/timeformat.ts:58
+msgid "in less than a minute"
+msgstr ""
+
+#: pkg/shell/shell-modals.jsx:195
 msgid "in most browsers"
 msgstr "ברוב הדפדפנים"
 
@@ -9795,6 +9816,10 @@ msgstr "מפתחות"
 #| msgid "patches"
 msgid "kpatch"
 msgstr "טלאים"
+
+#: pkg/lib/timeformat.ts:56
+msgid "less than a minute ago"
+msgstr ""
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -10080,6 +10105,12 @@ msgstr "כיווץ"
 msgid "shut"
 msgstr "לסגור"
 
+#: pkg/storaged/btrfs/subvolume.jsx:465
+#, fuzzy
+#| msgid "Snapshot"
+msgid "snapshot"
+msgstr "תמונת מצב"
+
 #: pkg/systemd/manifest.json:0
 msgid "socket"
 msgstr "שקע"
@@ -10097,7 +10128,7 @@ msgstr "פרטי הפתרון"
 msgid "sos"
 msgstr "חירום"
 
-#: pkg/sosreport/sosreport.jsx:185
+#: pkg/sosreport/sosreport.jsx:192
 #, fuzzy
 #| msgid "Reporting failed"
 msgid "sos report failed"
@@ -10191,7 +10222,7 @@ msgstr "יעד לא ידוע"
 msgid "unmask"
 msgstr "הסרת מיסוך"
 
-#: pkg/storaged/btrfs/subvolume.jsx:218 pkg/storaged/utils.js:870
+#: pkg/storaged/btrfs/subvolume.jsx:220 pkg/storaged/utils.js:870
 #: pkg/storaged/utils.js:883 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "ניתוק"
@@ -10259,6 +10290,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "אזור"
+
+#~ msgid "Runtime"
+#~ msgstr "זמן ריצה"
+
+#~ msgid "Uptime"
+#~ msgstr "זמן פעילות"
 
 #~ msgid "Checking related processes"
 #~ msgstr "התהליכים הקשורים נבדקים"
@@ -12289,9 +12326,6 @@ msgstr "אזור"
 #~ msgid "Networking"
 #~ msgstr "תקשורת"
 
-#~ msgid "No snapshots"
-#~ msgstr "אין תמונות מצב"
-
 #~ msgid "No such file found in directory '$0'"
 #~ msgstr "לא נמצא קובץ כזה בתיקייה ‚$0’"
 
@@ -12940,9 +12974,6 @@ msgstr "אזור"
 
 #~ msgid "Unsupported setup mechanism"
 #~ msgstr "מנגנון ההתקנה לא נתמך"
-
-#~ msgid "Up since $0"
-#~ msgstr "פעיל מאז $0"
 
 #~ msgid "Used by containers"
 #~ msgstr "בשימוש על ידי מכולות"

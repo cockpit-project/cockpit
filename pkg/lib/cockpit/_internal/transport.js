@@ -1,4 +1,3 @@
-import { join_data } from './common';
 import { event_mixin } from './event-mixin';
 import { calculate_application, calculate_url } from './location';
 import { ParentWebSocket } from './parentwebsocket';
@@ -14,14 +13,6 @@ export const transport_globals = {
     incoming_filters: null,
     outgoing_filters: null,
 };
-
-function array_from_raw_string(str, constructor) {
-    const length = str.length;
-    const data = new (constructor || Array)(length);
-    for (let i = 0; i < length; i++)
-        data[i] = str.charCodeAt(i) & 0xFF;
-    return data;
-}
 
 window.addEventListener('beforeunload', function() {
     transport_globals.expect_disconnect = true;
@@ -312,15 +303,18 @@ export function Transport() {
         else
             transport_debug("send control:", payload);
 
-        /* A binary message */
-        if (payload.byteLength || Array.isArray(payload)) {
-            if (payload instanceof window.ArrayBuffer)
-                payload = new window.Uint8Array(payload);
-            const output = join_data([array_from_raw_string(channel), [10], payload], true);
-            return self.send_data(output.buffer, channel, control);
+        if (typeof payload !== 'string') {
+            /* A binary message */
+            const body = payload instanceof ArrayBuffer ? new Uint8Array(payload) : payload;
 
-        /* A string message */
+            // We want to create channel + '\n' + body in binary
+            const header = new TextEncoder().encode(`${channel}\n`);
+            const output = new Uint8Array(header.length + body.length);
+            output.set(header);
+            output.set(body, header.length);
+            return self.send_data(output.buffer, channel, control);
         } else {
+            /* A string message */
             return self.send_data(channel.toString() + "\n" + payload, channel, control);
         }
     };

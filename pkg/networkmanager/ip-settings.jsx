@@ -133,8 +133,8 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         });
 
         // Prevent dialog from closing because of <form> onsubmit event
-        if (ev)
-            ev.preventDefault();
+        if (event)
+            event.preventDefault();
 
         return false;
     };

@@ -45,7 +45,7 @@ echo "$systemd" | while IFS='=' read -r name value; do
     fi
 done
 
-keys=$(ssh-keyscan -t dsa,ecdsa,ed25519,rsa -p "$port" "$host" || true)
+keys=$(ssh-keyscan -t dsa,ecdsa,ed25519,rsa -p "$port" "$host" || ssh-keyscan -t ecdsa,ed25519,rsa -p "$port" "$host" || true)
 if [ -n "$keys" ]; then
     # Some versions of ssh-keygen don't support -f reading from stdin
     # so write a tmpfile

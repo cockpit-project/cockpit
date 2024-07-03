@@ -35,10 +35,13 @@ if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "main" ]; then
     # Fedora-only packages which are not available in CentOS/RHEL
     # required by TestLogin.testBasic
     dnf install -y tcsh
-    # required by TestJournal.testAbrt*
-    dnf install -y abrt abrt-addon-ccpp reportd libreport-plugin-bugzilla libreport-fedora
     # required by TestTeam
     dnf install -y NetworkManager-team
+fi
+
+if grep -Eq 'platform:(f39|f40)' /etc/os-release; then
+    # required by TestJournal.testAbrt*
+    dnf install -y abrt abrt-addon-ccpp reportd libreport-plugin-bugzilla libreport-fedora
 fi
 
 if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "storage-basic" ]; then

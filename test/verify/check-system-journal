@@ -23,7 +23,7 @@ import testlib
 
 sleep_crash_list_sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
 
-NO_ABRT = ["debian-*", "ubuntu-*", "fedora-coreos", "rhel*", "centos-*", "arch"]
+ABRT_OS = ["fedora-39", "fedora-40"]
 
 
 class TestJournal(testlib.MachineCase):
@@ -557,7 +557,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_visible(journal_line_selector.format("INFO_MESSAGE"))
 
-    @testlib.skipImage("ABRT not available", *NO_ABRT)
+    @testlib.onlyImage("ABRT not available", *ABRT_OS)
     @testlib.nondestructive
     def testAbrtSegv(self):
         b = self.browser
@@ -590,7 +590,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#abrt-details .pf-v5-c-accordion__toggle:contains('core_backtrace')")
         b.wait_visible("#abrt-details .pf-v5-c-accordion__expandable-content.pf-m-expanded dt:contains('signal') + dd:contains('11')")
 
-    @testlib.skipImage("ABRT not available", *NO_ABRT)
+    @testlib.onlyImage("ABRT not available", *ABRT_OS)
     @testlib.nondestructive
     def testAbrtDelete(self):
         b = self.browser
@@ -621,7 +621,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible(".pf-v5-c-card__title:contains('(sleep) crashed in')")
         b.wait_not_present("button.pf-m-danger:contains('Delete')")
 
-    @testlib.skipImage("ABRT not available", *NO_ABRT)
+    @testlib.onlyImage("ABRT not available", *ABRT_OS)
     @testlib.nondestructive
     def testAbrtReport(self):
         # The testing server is located at verify/files/mock-faf-server.py
@@ -685,7 +685,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click(".pf-v5-c-modal-box__footer button:contains('No')")
         b.wait_visible("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
 
-    @testlib.skipImage("ABRT not available", *NO_ABRT)
+    @testlib.onlyImage("ABRT not available", *ABRT_OS)
     @testlib.nondestructive
     def testAbrtReportCancel(self):
         b = self.browser
@@ -720,7 +720,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') button:contains('Cancel')")
         b.wait_visible("#abrt-reporting .pf-v5-l-split:contains('Report to Cockpit') .pf-v5-l-split__item:contains('Reporting was canceled')")
 
-    @testlib.skipImage("ABRT not available", *NO_ABRT)
+    @testlib.onlyImage("ABRT not available", *ABRT_OS)
     @testlib.nondestructive
     def testAbrtReportNoReportd(self):
         b = self.browser

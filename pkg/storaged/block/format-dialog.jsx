@@ -290,12 +290,6 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         Title: title,
         Teardown: TeardownMessage(usage),
         Fields: [
-            TextInput("name", _("Name"),
-                      {
-                          value: content_block?.IdLabel,
-                          validate: (name, vals) => validate_fsys_label(name, vals.type),
-                          visible: is_filesystem
-                      }),
             TextInput("mount_point", _("Mount point"),
                       {
                           visible: is_filesystem,
@@ -321,6 +315,12 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                return create_partition;
                            }
                        }),
+            TextInput("name", _("Filesystem label"),
+                      {
+                          value: content_block?.IdLabel,
+                          validate: (name, vals) => validate_fsys_label(name, vals.type),
+                          visible: is_filesystem
+                      }),
             CheckBoxes("erase", _("Overwrite"),
                        {
                            fields: [

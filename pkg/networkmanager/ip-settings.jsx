@@ -108,7 +108,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
             setRoutes([]);
     }, [method, addresses.length, canHaveExtra, isOff]);
 
-    const onSubmit = (ev) => {
+    const onSubmit = (_ev) => {
         const createSettingsObj = () => ({
             ...settings,
             [topic]: {
@@ -131,12 +131,6 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
             setDialogError,
             onClose: Dialogs.close,
         });
-
-        // Prevent dialog from closing because of <form> onsubmit event
-        if (event)
-            event.preventDefault();
-
-        return false;
     };
     const addressIpv4Helper = (address) => {
         const config = { address, netmask: '', gateway: '' };

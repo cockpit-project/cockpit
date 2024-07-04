@@ -50,17 +50,17 @@ class TestStorageswap(storagelib.StorageCase):
         # It should have been started and have a fstab entry
         self.click_card_row("GPT partitions", 1)
         self.checkSwapUsed()
-        self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
+        testlib.wait(lambda: "defaults" in m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
 
         # Stopping should set it to noauto
         b.click(self.card_button("Swap", "Stop"))
         b.wait_text(self.card_desc("Swap", "Used"), "-")
-        self.assertIn("noauto", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
+        testlib.wait(lambda: "noauto" in m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
 
         # Start it again to test teardown below
         b.click(self.card_button("Swap", "Start"))
         self.checkSwapUsed()
-        self.assertIn("defaults", m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
+        testlib.wait(lambda: "defaults" in m.execute(f"findmnt --fstab -n -o OPTIONS {disk}1"))
 
         # It should have the right partition type
         b.wait_visible(self.card("Swap"))

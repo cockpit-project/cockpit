@@ -239,7 +239,7 @@ class Browser:
         self.coverage_label = coverage_label
         self.machine = machine
 
-        headless = not bool(os.environ.get("TEST_SHOW_BROWSER", ""))
+        headless = os.environ.get("TEST_SHOW_BROWSER", '0') == '0'
         self.browser = os.environ.get("TEST_BROWSER", "chromium")
         if self.browser == "chromium":
             self.driver = webdriver_bidi.ChromiumBidi(headless=headless)

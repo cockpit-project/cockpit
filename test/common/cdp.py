@@ -196,7 +196,7 @@ class CDP:
         self.inject_helpers = inject_helpers
         self.start_profile = start_profile
         self.browser = get_browser(os.environ.get("TEST_BROWSER", "chromium"))
-        self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
+        self.show_browser = os.environ.get("TEST_SHOW_BROWSER", '0') != '0'
         self.download_dir = tempfile.mkdtemp()
         self._driver = None
         self._browser = None

@@ -80,6 +80,7 @@ def applySettings(browser, dialog_selector):
 
 
 @testlib.skipOstree("no PCP support")
+@testlib.skipImage("pcp not currently in testing", "debian-testing")
 class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -1364,6 +1365,7 @@ class TestMetricsPackages(packagelib.PackageCase):
 
 
 @testlib.skipOstree("no PCP support")
+@testlib.skipImage("pcp not currently in testing", "debian-testing")
 class TestMultiCPU(testlib.MachineCase):
 
     provision = {
@@ -1409,6 +1411,7 @@ class TestMultiCPU(testlib.MachineCase):
 
 
 @testlib.skipOstree("no PCP support")
+@testlib.skipImage("pcp not currently in testing", "debian-testing")
 class TestGrafanaClient(testlib.MachineCase):
 
     provision = {

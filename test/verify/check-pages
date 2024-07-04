@@ -657,6 +657,7 @@ OnCalendar=daily
             b.wait_in_text(f"#file-autocomplete-widget-preselected li:nth-of-type({i + 1}) button", paths[i])
 
     @testlib.skipOstree("No PCP available")
+    @testlib.skipImage("pcp not currently in testing", "debian-testing")
     def testPlots(self):
         b = self.browser
         m = self.machine

@@ -5,6 +5,12 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # we need an apparmor profile for >= 4.0; this exists in Ubuntu >= 24.04, but not in Debian yet
 PRE4AA = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.04 11 12 unstable)
 
+# pcp isn't in Debian testing right now
+ifeq ($(shell . /etc/os-release; echo $${VERSION_CODENAME}),trixie)
+    export DH_OPTIONS = -Ncockpit-pcp
+    CONFIG_OPTIONS = --disable-pcp
+endif
+
 # riscv is an emulated architecture for now, and too slow to run expensive unit tests
 # hppa's threading is absurdly slow (#981127)
 SLOW_ARCHES = $(filter $(shell dpkg-architecture -qDEB_BUILD_ARCH),riscv64 hppa)

@@ -70,8 +70,9 @@ async def test_init_failure(rule, init_type, monkeypatch, transport):
     await transport.check_open('test', problem='protocol-error')
 
 
+# this doesn't use await, but requires an event loop
 @pytest.mark.asyncio
-async def test_immediate_shutdown(rule):
+async def test_immediate_shutdown(rule):  # noqa: RUF029
     peer = rule.apply_rule({'payload': 'test'})
     assert peer is not None
     peer.close()

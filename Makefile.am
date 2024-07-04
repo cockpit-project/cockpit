@@ -95,8 +95,7 @@ EXTRA_DIST += \
 
 check: export VERBOSE=1
 
-TEST_EXTENSIONS = .html .sh
-HTML_LOG_COMPILER = $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ $(HTML_TEST_WRAPPER) ./test-server $(COCKPIT_BRIDGE)
+TEST_EXTENSIONS = .sh
 
 VALGRIND = valgrind --trace-children=yes --quiet --error-exitcode=33 --gen-suppressions=all \
 	$(foreach file,$(wildcard $(srcdir)/tools/*.supp),--suppressions=$(file)) \
@@ -105,12 +104,10 @@ VALGRIND = valgrind --trace-children=yes --quiet --error-exitcode=33 --gen-suppr
 
 check-memory:
 	$(MAKE) LOG_FLAGS="$(VALGRIND)" \
-	        HTML_TEST_WRAPPER="$(VALGRIND)" \
 		COCKPIT_SKIP_SLOW_TESTS=1 \
 		$(AM_MAKEFLAGS) check TESTS="$(filter-out test/% bots/%,$(TESTS))"
 recheck-memory:
 	$(MAKE) LOG_FLAGS="$(VALGRIND_ARGS)" \
-	        HTML_TEST_WRAPPER="$(VALGRIND)" \
 		$(AM_MAKEFLAGS) recheck
 
 # checkout Cockpit's bots for standard test VM images and API to launch them

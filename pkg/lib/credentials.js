@@ -36,7 +36,7 @@ function Keys() {
 
     cockpit.event_target(this);
 
-    cockpit.user()
+    self.p_have_path = cockpit.user()
             .then(user => {
                 self.path = user.home + '/.ssh';
                 refresh();
@@ -180,78 +180,78 @@ function Keys() {
         return cockpit.script('dir=$(dirname "$1"); test -e "$dir" || mkdir -m 700 "$dir"', [file]);
     }
 
-    function run_keygen(file, new_type, old_pass, new_pass, two_pass) {
+    async function run_keygen(file, new_type, old_pass, new_pass, two_pass) {
         const old_exps = [/.*Enter old passphrase: $/];
         const new_exps = [/.*Enter passphrase.*/, /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
         const bad_exps = [/.*failed: passphrase is too short.*/];
 
-        return new Promise((resolve, reject) => {
-            let buffer = "";
-            let sent_new = false;
-            let failure = _("No such file or directory");
+        let buffer = "";
+        let sent_new = false;
+        let failure = _("No such file or directory");
 
-            if (new_pass !== two_pass) {
-                reject(new Error(_("The passwords do not match.")));
-                return;
+        if (new_pass !== two_pass)
+            throw new Error(_("The passwords do not match."));
+
+        // Exactly one of new_type or old_pass must be given
+        console.assert((new_type == null) != (old_pass == null));
+
+        const cmd = ["ssh-keygen", "-f", file];
+        if (new_type)
+            cmd.push("-t", new_type);
+        else
+            cmd.push("-p");
+
+        await self.p_have_path;
+
+        const proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
+
+        const timeout = window.setTimeout(() => {
+            failure = _("Prompting via ssh-keygen timed out");
+            proc.close("terminated");
+        }, 10 * 1000);
+
+        proc.stream(data => {
+            buffer += data;
+            if (old_pass) {
+                for (let i = 0; i < old_exps.length; i++) {
+                    if (old_exps[i].test(buffer)) {
+                        buffer = "";
+                        failure = _("Old password not accepted");
+                        proc.input(old_pass + "\n", true);
+                        return;
+                    }
+                }
             }
 
-            // Exactly one of new_type or old_pass must be given
-            console.assert((new_type == null) != (old_pass == null));
+            for (let i = 0; i < new_exps.length; i++) {
+                if (new_exps[i].test(buffer)) {
+                    buffer = "";
+                    proc.input(new_pass + "\n", true);
+                    failure = _("Failed to change password");
+                    sent_new = true;
+                    return;
+                }
+            }
 
-            const cmd = ["ssh-keygen", "-f", file];
-            if (new_type)
-                cmd.push("-t", new_type);
-            else
-                cmd.push("-p");
-
-            const proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
-
-            const timeout = window.setTimeout(() => {
-                failure = _("Prompting via ssh-keygen timed out");
-                proc.close("terminated");
-            }, 10 * 1000);
-
-            proc
-                    .stream(data => {
-                        buffer += data;
-                        if (old_pass) {
-                            for (let i = 0; i < old_exps.length; i++) {
-                                if (old_exps[i].test(buffer)) {
-                                    buffer = "";
-                                    failure = _("Old password not accepted");
-                                    proc.input(old_pass + "\n", true);
-                                    return;
-                                }
-                            }
-                        }
-
-                        for (let i = 0; i < new_exps.length; i++) {
-                            if (new_exps[i].test(buffer)) {
-                                buffer = "";
-                                proc.input(new_pass + "\n", true);
-                                failure = _("Failed to change password");
-                                sent_new = true;
-                                return;
-                            }
-                        }
-
-                        if (sent_new) {
-                            for (let i = 0; i < bad_exps.length; i++) {
-                                if (bad_exps[i].test(buffer)) {
-                                    failure = _("New password was not accepted");
-                                    return;
-                                }
-                            }
-                        }
-                    })
-                    .then(resolve)
-                    .catch(ex => {
-                        if (ex.exit_status)
-                            ex = new Error(failure);
-                        reject(ex);
-                    })
-                    .finally(() => window.clearInterval(timeout));
+            if (sent_new) {
+                for (let i = 0; i < bad_exps.length; i++) {
+                    if (bad_exps[i].test(buffer)) {
+                        failure = _("New password was not accepted");
+                        return;
+                    }
+                }
+            }
         });
+
+        try {
+            await proc;
+        } catch (ex) {
+            if (ex.exit_status)
+                throw new Error(failure);
+            throw ex;
+        } finally {
+            window.clearInterval(timeout);
+        }
     }
 
     self.change = function change(name, old_pass, new_pass, two_pass) {
@@ -267,7 +267,7 @@ function Keys() {
         return cockpit.file(name + ".pub").read();
     };
 
-    self.load = function(name, password) {
+    self.load = async function(name, password) {
         const ask_exp = /.*Enter passphrase for .*/;
         const perm_exp = /.*UNPROTECTED PRIVATE KEY FILE.*/;
         const bad_exp = /.*Bad passphrase.*/;
@@ -277,56 +277,56 @@ function Keys() {
         let failure = _("Not a valid private key");
         let sent_password = false;
 
-        return new Promise((resolve, reject) => {
-            const proc = cockpit.spawn(["ssh-add", name],
-                                       { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
+        await self.p_have_path;
 
-            const timeout = window.setTimeout(() => {
-                failure = _("Prompting via ssh-add timed out");
-                proc.close("terminated");
-            }, 10 * 1000);
+        const proc = cockpit.spawn(["ssh-add", name],
+                                   { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
 
-            proc
-                    .stream(data => {
-                        buffer += data;
-                        output += data;
-                        if (perm_exp.test(buffer)) {
-                            failure = _("Invalid file permissions");
-                            buffer = "";
-                        } else if (ask_exp.test(buffer)) {
-                            buffer = "";
-                            failure = _("Password not accepted");
-                            proc.input(password + "\n", true);
-                            sent_password = true;
-                        } else if (bad_exp.test(buffer)) {
-                            buffer = "";
-                            proc.input("\n", true);
-                        }
-                    })
-                    .then(() => {
-                        refresh();
-                        resolve();
-                    })
-                    .catch(ex => {
-                        console.log(output);
-                        if (ex.exit_status)
-                            ex = new Error(failure);
+        const timeout = window.setTimeout(() => {
+            failure = _("Prompting via ssh-add timed out");
+            proc.close("terminated");
+        }, 10 * 1000);
 
-                        ex.sent_password = sent_password;
-                        reject(ex);
-                    })
-                    .finally(() => window.clearInterval(timeout));
+        proc.stream(data => {
+            buffer += data;
+            output += data;
+            if (perm_exp.test(buffer)) {
+                failure = _("Invalid file permissions");
+                buffer = "";
+            } else if (ask_exp.test(buffer)) {
+                buffer = "";
+                failure = _("Password not accepted");
+                proc.input(password + "\n", true);
+                sent_password = true;
+            } else if (bad_exp.test(buffer)) {
+                buffer = "";
+                proc.input("\n", true);
+            }
         });
+
+        try {
+            await proc;
+            refresh();
+        } catch (error) {
+            console.log(output);
+            const ex = error.exit_status ? new Error(failure) : error;
+            ex.sent_password = sent_password;
+            throw ex;
+        } finally {
+            window.clearTimeout(timeout);
+        }
     };
 
-    self.unload = function unload(key) {
+    self.unload = async function unload(key) {
+        await self.p_have_path;
         const options = { pty: true, err: "message", directory: self.path };
 
-        const proc = (key.name && !key.agent_only)
-            ? cockpit.spawn(["ssh-add", "-d", key.name], options)
-            : cockpit.script(remove_key, [key.data], options);
+        if (key.name && !key.agent_only)
+            await cockpit.spawn(["ssh-add", "-d", key.name], options);
+        else
+            await cockpit.script(remove_key, [key.data], options);
 
-        return proc.then(refresh);
+        await refresh();
     };
 
     self.close = function close() {

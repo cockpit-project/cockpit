@@ -79,6 +79,7 @@ def applySettings(browser, dialog_selector):
         browser.wait_not_present(dialog_selector)
 
 
+@testlib.skipOstree("no PCP support")
 class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -113,7 +114,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         })""")
         self.assertLessEqual(leading_empty, 4)
 
-    @testlib.skipOstree("no PCP support")
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -179,7 +179,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.enter_page("/system")
         b.wait_visible('.system-information')
 
-    @testlib.skipOstree("no PCP support")
     def testEvents(self):
         b = self.browser
         m = self.machine
@@ -451,7 +450,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         self.assertIn("until=2021-3-8%2010%3A39%3A45", url)
 
     @testlib.nondestructive
-    @testlib.skipOstree("no PCP support")
     def testNoDataEnable(self):
         b = self.browser
         m = self.machine
@@ -487,7 +485,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.logout()
 
     @testlib.nondestructive
-    @testlib.skipOstree("no PCP support")
     def testNoDataFailed(self):
         b = self.browser
         m = self.machine
@@ -513,7 +510,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text("#service-details", "pmlogger.service")
 
     @testlib.nondestructive
-    @testlib.skipOstree("no PCP support")
     def testLoggerSettings(self):
         b = self.browser
         m = self.machine
@@ -547,7 +543,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
 
     @testlib.nondestructive
-    @testlib.skipOstree("no PCP support")
     def testPmProxySettings(self, customRedisService=None):
         b = self.browser
         m = self.machine
@@ -718,7 +713,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         checkEnabled(expected=True)
 
     @testlib.nondestructive
-    @testlib.skipOstree("no PCP support")
     @testlib.onlyImage("valkey is the default only in Fedora", "fedora*")
     def testPmProxySettingsRedis(self):
         self.machine.execute("systemctl mask valkey")
@@ -1369,13 +1363,13 @@ class TestMetricsPackages(packagelib.PackageCase):
         self.assertIn(redis_service, m.execute("systemctl show -p Wants --value pmproxy").strip())
 
 
+@testlib.skipOstree("no PCP support")
 class TestMultiCPU(testlib.MachineCase):
 
     provision = {
         "0": {"cpus": 2}
     }
 
-    @testlib.skipOstree("no PCP support")
     def testCPUUsage(self):
         b = self.browser
         m = self.machine

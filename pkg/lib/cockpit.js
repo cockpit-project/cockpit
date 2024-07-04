@@ -2352,6 +2352,34 @@ function factory() {
                         }
                     }
                 });
+
+                // fallback when running against bridge < 310
+                watch_channel.on('close', ex => {
+                    if (ex.problem === 'not-supported') {
+                        const opts = {
+                            payload: "fswatch1",
+                            path,
+                            superuser: base_channel_options.superuser,
+                        };
+                        watch_channel = cockpit.channel(opts);
+                        watch_channel.addEventListener("message", (event, message_string) => {
+                            let message;
+                            try {
+                                message = JSON.parse(message_string);
+                            } catch (e) {
+                                message = null;
+                            }
+                            if (message && message.path == path && message.tag && message.tag != watch_tag) {
+                                if (options && options.read !== undefined && !options.read)
+                                    fire_watch_callbacks(null, message.tag);
+                                else
+                                    read();
+                            }
+                        });
+                        // trigger initial watch event
+                        read();
+                    }
+                });
             } else {
                 if (watch_channel) {
                     watch_channel.close();

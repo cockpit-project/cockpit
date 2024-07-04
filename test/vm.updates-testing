@@ -5,10 +5,4 @@ set -eux
 exec >&2
 dnf config-manager --enable updates-testing
 dnf -y update --setopt=install_weak_deps=False
-
-# HACK: https://bodhi.fedoraproject.org/updates/FEDORA-2024-d70dfd026e
-# split the kexec-tools package; install kdump-utils manually until the next fedora-40 image refresh
-# after that bodhi update lands.
-dnf -y install kdump-utils
-
 /var/lib/download-package-sets.sh

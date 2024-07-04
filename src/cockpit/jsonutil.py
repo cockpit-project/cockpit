@@ -83,6 +83,12 @@ def get_str(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> U
     return _get(obj, lambda v: typechecked(v, str), key, default)
 
 
+def get_str_map(obj: JsonObject, key: str, default: DT | _Empty = _empty) -> DT | Mapping[str, str]:
+    def as_str_map(value: JsonValue) -> Mapping[str, str]:
+        return {key: typechecked(value, str) for key, value in typechecked(value, dict).items()}
+    return _get(obj, as_str_map, key, default)
+
+
 def get_str_or_none(obj: JsonObject, key: str, default: Optional[str]) -> Optional[str]:
     return _get(obj, lambda v: None if v is None else typechecked(v, str), key, default)
 

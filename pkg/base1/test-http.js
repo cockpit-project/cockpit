@@ -210,6 +210,10 @@ QUnit.test("headers", assert => {
             .get("/mock/headers", null, { Header1: "booo", Header2: "yay value" })
             .response((status, headers) => {
                 assert.equal(status, 201, "status code");
+
+                delete headers['Content-Type'];
+                delete headers.Date;
+                delete headers.Server;
                 assert.deepEqual(headers, {
                     Header1: "booo",
                     Header2: "yay value",
@@ -248,6 +252,10 @@ QUnit.test("connection headers", assert => {
             .get("/mock/headers", null, { Header2: "yay value", Header0: "extra" })
             .response((status, headers) => {
                 assert.equal(status, 201, "status code");
+
+                delete headers['Content-Type'];
+                delete headers.Date;
+                delete headers.Server;
                 assert.deepEqual(headers, {
                     Header0: "extra",
                     Header1: "booo",

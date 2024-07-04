@@ -232,7 +232,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
             assert.ok(false, "should not be reached");
         } catch (ex) {
             assert.equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
-            assert.equal(ex.message, "Method UnimplementedMethod is not implemented on interface com.redhat.Cockpit.DBusTests.Frobber", "error message");
+            assert.equal(ex.message, "Unknown method UnimplementedMethod or interface com.redhat.Cockpit.DBusTests.Frobber.", "error message");
         }
     });
 

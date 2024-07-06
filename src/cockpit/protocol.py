@@ -203,7 +203,7 @@ class CockpitProtocol(asyncio.Protocol):
 # Helpful functionality for "server"-side protocol implementations
 class CockpitProtocolServer(CockpitProtocol):
     init_host: 'str | None' = None
-    authorizations: 'dict[str, asyncio.Future[str]] | None' = None
+    authorizations: 'dict[str, asyncio.Future[JsonObject]] | None' = None
     next_auth_id = 0
 
     def do_send_init(self) -> None:
@@ -232,9 +232,9 @@ class CockpitProtocolServer(CockpitProtocol):
         self.do_send_init()
 
     # authorize request/response API
-    async def request_authorization(
+    async def request_authorization_object(
         self, challenge: str, timeout: 'int | None' = None, **kwargs: JsonValue
-    ) -> str:
+    ) -> JsonObject:
         if self.authorizations is None:
             self.authorizations = {}
         cookie = str(self.next_auth_id)
@@ -247,12 +247,16 @@ class CockpitProtocolServer(CockpitProtocol):
         finally:
             self.authorizations.pop(cookie)
 
+    async def request_authorization(
+        self, challenge: str, timeout: 'int | None' = None, **kwargs: JsonValue
+    ) -> str:
+        return get_str(await self.request_authorization_object(challenge, timeout, **kwargs), 'response')
+
     def do_authorize(self, message: JsonObject) -> None:
         cookie = get_str(message, 'cookie')
-        response = get_str(message, 'response')
 
         if self.authorizations is None or cookie not in self.authorizations:
             logger.warning('no matching authorize request')
             return
 
-        self.authorizations[cookie].set_result(response)
+        self.authorizations[cookie].set_result(message)

@@ -19,7 +19,6 @@ import asyncio
 import json
 import logging
 import traceback
-import uuid
 
 from .jsonutil import JsonError, JsonObject, JsonValue, create_object, get_int, get_str, get_str_or_none, typechecked
 
@@ -205,6 +204,7 @@ class CockpitProtocol(asyncio.Protocol):
 class CockpitProtocolServer(CockpitProtocol):
     init_host: 'str | None' = None
     authorizations: 'dict[str, asyncio.Future[str]] | None' = None
+    next_auth_id = 0
 
     def do_send_init(self) -> None:
         raise NotImplementedError
@@ -237,7 +237,8 @@ class CockpitProtocolServer(CockpitProtocol):
     ) -> str:
         if self.authorizations is None:
             self.authorizations = {}
-        cookie = str(uuid.uuid4())
+        cookie = str(self.next_auth_id)
+        self.next_auth_id += 1
         future = asyncio.get_running_loop().create_future()
         try:
             self.authorizations[cookie] = future

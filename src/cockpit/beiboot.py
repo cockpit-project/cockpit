@@ -32,7 +32,7 @@ from cockpit.beipack import BridgeBeibootHelper
 from cockpit.bridge import setup_logging
 from cockpit.channel import ChannelRoutingRule
 from cockpit.channels import PackagesChannel
-from cockpit.jsonutil import JsonObject
+from cockpit.jsonutil import JsonObject, get_str
 from cockpit.packages import Packages, PackagesLoader, patch_libexecdir
 from cockpit.peer import Peer
 from cockpit.protocol import CockpitProblem
@@ -172,6 +172,38 @@ class AuthorizeResponder(ferny.AskpassHandler):
             self.router.routing_rules.insert(0, ChannelRoutingRule(self.router, [PackagesChannel]))
 
 
+def python_interpreter(comment: str) -> tuple[Sequence[str], Sequence[str]]:
+    return ('python3', '-ic', f'# {comment}'), ()
+
+
+def via_ssh(cmd: Sequence[str], dest: str, ssh_askpass: Path, *ssh_opts: str) -> tuple[Sequence[str], Sequence[str]]:
+    host, _, port = dest.rpartition(':')
+    # catch cases like `host:123` but not cases like `[2001:abcd::1]
+    if port.isdigit():
+        destination = ['-p', port, host]
+    else:
+        destination = [dest]
+
+    return (
+        'ssh', *ssh_opts, *destination, shlex.join(cmd)
+    ), (
+        f'SSH_ASKPASS={ssh_askpass!s}',
+        # DISPLAY=x helps trigger a heuristic in old ssh versions to force them
+        # to use askpass.  Newer ones look at SSH_ASKPASS_REQUIRE.
+        'DISPLAY=x',
+        'SSH_ASKPASS_REQUIRE=force',
+    )
+
+
+def flatpak_spawn(cmd: Sequence[str], env: Sequence[str]) -> tuple[Sequence[str], Sequence[str]]:
+    return (
+        'flatpak-spawn', '--host',
+        *(f'--env={kv}' for kv in env),
+        *cmd
+    ), (
+    )
+
+
 class SshPeer(Peer):
     always: bool
 
@@ -181,49 +213,55 @@ class SshPeer(Peer):
         super().__init__(router)
 
     async def do_connect_transport(self) -> None:
-        beiboot_helper = BridgeBeibootHelper(self)
+        # Choose your own adventure...
+        if os.path.exists('/.flatpak-info'):
+            await self.connect_from_flatpak()
+        else:
+            await self.connect_from_bastion_host()
 
-        agent = ferny.InteractionAgent([AuthorizeResponder(self.router), beiboot_helper])
-
+    async def connect_from_flatpak(self) -> None:
         # We want to run a python interpreter somewhere...
-        cmd: Sequence[str] = ('python3', '-ic', '# cockpit-bridge')
-        env: Sequence[str] = ()
-
-        in_flatpak = os.path.exists('/.flatpak-info')
+        cmd, env = python_interpreter('cockpit-bridge')
 
         # Remote host?  Wrap command with SSH
         if self.destination != 'localhost':
-            if in_flatpak:
-                # we run ssh and thus the helper on the host, always use the xdg-cache helper
-                ssh_askpass = ensure_ferny_askpass()
-            else:
-                # outside of the flatpak we expect cockpit-ws and thus an installed helper
-                askpass = patch_libexecdir('${libexecdir}/cockpit-askpass')
-                assert isinstance(askpass, str)
-                ssh_askpass = Path(askpass)
-                if not ssh_askpass.exists():
-                    logger.error("Could not find cockpit-askpass helper at %r", askpass)
+            # we run ssh and thus the helper on the host, always use the xdg-cache helper
+            cmd, env = via_ssh(cmd, self.destination, ensure_ferny_askpass())
 
-            env = (
-                f'SSH_ASKPASS={ssh_askpass!s}',
-                'DISPLAY=x',
-                'SSH_ASKPASS_REQUIRE=force',
-            )
-            host, _, port = self.destination.rpartition(':')
-            # catch cases like `host:123` but not cases like `[2001:abcd::1]
-            if port.isdigit():
-                host_args = ['-p', port, host]
-            else:
-                host_args = [self.destination]
+        cmd, env = flatpak_spawn(cmd, env)
 
-            cmd = ('ssh', *host_args, shlex.join(cmd))
+        await self.boot(cmd, env)
 
-        # Running in flatpak?  Wrap command with flatpak-spawn --host
-        if in_flatpak:
-            cmd = ('flatpak-spawn', '--host',
-                   *(f'--env={kv}' for kv in env),
-                   *cmd)
-            env = ()
+    async def connect_from_bastion_host(self) -> None:
+        basic_password = None
+        username_opts = []
+
+        # do we have user/password (Basic auth) from the login page?
+        auth = await self.router.request_authorization_object("*")
+        response = get_str(auth, 'response')
+
+        if response.startswith('Basic '):
+            user, basic_password = base64.b64decode(response.split(' ', 1)[1]).decode().split(':', 1)
+            if user:  # this can be empty, i.e. auth is just ":"
+                logger.debug("got username %s and password from Basic auth", user)
+                username_opts = ['-l', user]
+
+        # We want to run a python interpreter somewhere...
+        cmd, env = python_interpreter('cockpit-bridge')
+
+        # outside of the flatpak we expect cockpit-ws and thus an installed helper
+        askpass = patch_libexecdir('${libexecdir}/cockpit-askpass')
+        assert isinstance(askpass, str)
+        ssh_askpass = Path(askpass)
+        if not ssh_askpass.exists():
+            logger.error("Could not find cockpit-askpass helper at %r", askpass)
+
+        cmd, env = via_ssh(cmd, self.destination, ssh_askpass, *username_opts)
+        await self.boot(cmd, env, basic_password)
+
+    async def boot(self, cmd: Sequence[str], env: Sequence[str], basic_password: 'str | None' = None) -> None:
+        beiboot_helper = BridgeBeibootHelper(self)
+        agent = ferny.InteractionAgent([AuthorizeResponder(self.router), beiboot_helper])
 
         logger.debug("Launching command: cmd=%s env=%s", cmd, env)
         transport = await self.spawn(cmd, env, stderr=agent, start_new_session=True)

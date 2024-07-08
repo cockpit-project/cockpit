@@ -39,7 +39,15 @@ class TestClient(testlib.MachineCase):
         if self.m_target.image.startswith("debian") or self.m_target.image.startswith("ubuntu"):
             self.m_target.execute("dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp")
         elif self.m_target.image != 'arch':
-            self.m_target.execute("rpm --erase --verbose cockpit-pcp pcp; systemctl daemon-reload")
+            # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
+            self.m_target.execute("""
+                if rpm -q python3-pcp; then
+                    rpm --erase --verbose cockpit-pcp pcp python3-pcp
+                else
+                    rpm --erase --verbose cockpit-pcp pcp
+                fi
+                systemctl daemon-reload
+            """)
 
         # replicate the plumbing bits of src/client/cockpit-client to set up cockpit-beiboot
         self.m_client.write("/etc/cockpit/cockpit.conf", """

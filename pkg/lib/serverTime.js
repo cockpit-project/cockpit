@@ -432,7 +432,7 @@ export function ServerTimeConfig() {
                 onClick={ () => change_systime_dialog(server_time, tz) }
                 data-timedated-initialized={ntp?.initialized}
                 isInline isDisabled={!superuser.allowed || !tz}>
-            { timeformat.dateTime(server_time.utc_fake_now) }
+            { timeformat.dateTimeUTC(server_time.utc_fake_now) }
         </Button>);
 
     let ntp_status = null;

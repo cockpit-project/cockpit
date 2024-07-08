@@ -26,6 +26,8 @@ export const date = (t: Time): string => formatter({ dateStyle: "long" }).format
 export const dateShort = (t: Time): string => formatter().format(t);
 // Jun 30, 2021, 7:41 AM
 export const dateTime = (t: Time): string => formatter({ dateStyle: "medium", timeStyle: "short" }).format(t);
+// Jun 30, 2021, 7:41 AM if `t` is in UTC format
+export const dateTimeUTC = (t: Time): string => formatter({ dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(t);
 // Jun 30, 2021, 7:41:23 AM
 export const dateTimeSeconds = (t: Time): string => formatter({ dateStyle: "medium", timeStyle: "medium" }).format(t);
 // Jun 30, 7:41 AM

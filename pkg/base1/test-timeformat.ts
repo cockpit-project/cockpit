@@ -3,7 +3,10 @@ import QUnit from 'qunit-tests';
 import cockpit from "cockpit";
 import * as timeformat from "timeformat";
 
+// this is a date for the current time zone
 const d1 = new Date("2024-01-02 03:04:05");
+// same date in UTC
+const d1_utc = 1704164645000;
 
 QUnit.test("absolute formatters, English", assert => {
     cockpit.language = "en";
@@ -15,6 +18,9 @@ QUnit.test("absolute formatters, English", assert => {
     assert.equal(timeformat.dateTimeSeconds(d1), "Jan 2, 2024, 3:04:05 AM");
     assert.equal(timeformat.dateTimeNoYear(d1), "Jan 02, 03:04 AM");
     assert.equal(timeformat.weekdayDate(d1), "Tuesday, January 2, 2024");
+
+    const utc_offset = (new Date()).getTimezoneOffset();
+    assert.equal(timeformat.dateTimeUTC(d1_utc + utc_offset), "Jan 2, 2024, 3:04 AM");
 
     // all of these work with numbers as time argument
     assert.equal(timeformat.dateTimeSeconds(d1.valueOf()), "Jan 2, 2024, 3:04:05 AM");

@@ -292,12 +292,16 @@ declare module 'cockpit' {
 
     function message(problem: string | JsonObject): string;
 
+    function format(format_string: string, ...args: unknown[]): string;
+
+    /* === i18n ===================== */
+
     function gettext(message: string): string;
     function gettext(context: string, message?: string): string;
     function ngettext(message1: string, messageN: string, n: number): string;
     function ngettext(context: string, message1: string, messageN: string, n: number): string;
 
-    function format(format_string: string, ...args: unknown[]): string;
+    function translate(): void;
 
     /* === Number formatting ===================== */
 

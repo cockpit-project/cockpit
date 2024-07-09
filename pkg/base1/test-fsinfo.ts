@@ -1,7 +1,7 @@
 import QUnit, { f } from "qunit-tests";
 
 import cockpit from "cockpit";
-import { FsInfoClient, FsInfoState, fsinfo } from "fsinfo";
+import { FsInfoClient, FsInfoState, fsinfo } from "cockpit/fsinfo";
 
 function fsinfo_err(errno: "ENOENT" | "EPERM" | "EACCES" | "ENOTDIR" | "ELOOP") {
     const problems = {

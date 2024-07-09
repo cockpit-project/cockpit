@@ -200,7 +200,7 @@ const HISTORY_METRICS = [
     { name: "disk.all.total_bytes", derive: "rate" },
 
     // network utilization
-    { name: "network.interface.total.bytes", derive: "rate", "omit-instances": ["lo"] },
+    { name: "network.interface.total.bytes", derive: "rate" },
 ];
 
 function debug() {
@@ -1710,6 +1710,7 @@ class MetricsHistory extends React.Component {
             timestamp: load_timestamp,
             limit,
             metrics: HISTORY_METRICS,
+            "omit-instances": ["lo"],
         });
 
         metrics.addEventListener("message", (event, message) => {

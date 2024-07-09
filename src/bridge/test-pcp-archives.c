@@ -242,16 +242,16 @@ static void
 test_metrics_single_archive (TestCase *tc,
                              gconstpointer unused)
 {
-  JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives/0',"
-                                 "  'metrics': [ { 'name': 'mock.value' } ],"
-                                 "  'interval': 1000"
+  JsonObject *options = json_obj("{ \"source\": \"" BUILDDIR "/mock-archives/0\","
+                                 "  \"metrics\": [ { \"name\": \"mock.value\" } ],"
+                                 "  \"interval\": 1000"
                                  "}");
 
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { \"name\": \"mock.value\", \"units\": \"\", \"semantics\": \"instant\" } ]");
 
   assert_sample (tc, "[[10],[11],[12]]");
 
@@ -262,17 +262,17 @@ static void
 test_metrics_archive_limit (TestCase *tc,
                             gconstpointer unused)
 {
-  JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives/0',"
-                                 "  'metrics': [ { 'name': 'mock.value' } ],"
-                                 "  'interval': 1000,"
-                                 "  'limit': 2"
+  JsonObject *options = json_obj("{ \"source\": \"" BUILDDIR "/mock-archives/0\","
+                                 "  \"metrics\": [ { \"name\": \"mock.value\" } ],"
+                                 "  \"interval\": 1000,"
+                                 "  \"limit\": 2"
                                  "}");
 
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { \"name\": \"mock.value\", \"units\": \"\", \"semantics\": \"instant\" } ]");
 
   assert_sample (tc, "[[10],[11]]");
 
@@ -283,17 +283,17 @@ static void
 test_metrics_archive_timestamp (TestCase *tc,
                                 gconstpointer unused)
 {
-  JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives/0',"
-                                 "  'metrics': [ { 'name': 'mock.value' } ],"
-                                 "  'interval': 1000,"
-                                 "  'timestamp': 1000"
+  JsonObject *options = json_obj("{ \"source\": \"" BUILDDIR "/mock-archives/0\","
+                                 "  \"metrics\": [ { \"name\": \"mock.value\" } ],"
+                                 "  \"interval\": 1000,"
+                                 "  \"timestamp\": 1000"
                                  "}");
 
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { \"name\": \"mock.value\", \"units\": \"\", \"semantics\": \"instant\" } ]");
 
   assert_sample (tc, "[[11],[12]]");
 
@@ -318,10 +318,10 @@ test_metrics_archive_timestamp_now (TestCase *tc,
   g_assert (pmiPutValue ("mock.now", NULL, "43") >= 0);
   g_assert (pmiWrite (now + 1, 0) >= 0);
 
-  g_autofree gchar* json = g_strdup_printf("{ 'source': '" BUILDDIR "/mock-archives/3',"
-                                           "  'metrics': [ { 'name': 'mock.now' } ],"
-                                           "  'interval': 1000,"
-                                           "  'timestamp': %lli000"
+  g_autofree gchar* json = g_strdup_printf("{ \"source\": \"" BUILDDIR "/mock-archives/3\","
+                                           "  \"metrics\": [ { \"name\": \"mock.now\" } ],"
+                                           "  \"interval\": 1000,"
+                                           "  \"timestamp\": %lli000"
                                            "}", (long long) now);
   JsonObject *options = json_obj(json);
 
@@ -329,7 +329,7 @@ test_metrics_archive_timestamp_now (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.now', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { \"name\": \"mock.now\", \"units\": \"\", \"semantics\": \"instant\" } ]");
 
   assert_sample (tc, "[[42],[43]]");
 
@@ -344,20 +344,20 @@ test_metrics_archive_directory (TestCase *tc,
   expect_broken_archive_warning();
 
   JsonObject *meta;
-  JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives',"
-                                 "  'metrics': [ { 'name': 'mock.value' } ],"
-                                 "  'interval': 1000"
+  JsonObject *options = json_obj("{ \"source\": \"" BUILDDIR "/mock-archives\","
+                                 "  \"metrics\": [ { \"name\": \"mock.value\" } ],"
+                                 "  \"interval\": 1000"
                                  "}");
   setup_metrics_channel_json (tc, options);
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { \"name\": \"mock.value\", \"units\": \"\", \"semantics\": \"instant\" } ]");
   assert_sample (tc, "[[10],[11],[12]]");
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { \"name\": \"mock.value\", \"units\": \"\", \"semantics\": \"instant\" } ]");
   assert_sample (tc, "[[13],[14],[15]]");
 
   json_object_unref (options);
@@ -370,17 +370,17 @@ test_metrics_archive_directory_timestamp (TestCase *tc,
   expect_broken_archive_warning();
 
   JsonObject *meta;
-  JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives',"
-                                 "  'metrics': [ { 'name': 'mock.value' } ],"
-                                 "  'interval': 1000,"
-                                 "  'timestamp': 4000"
+  JsonObject *options = json_obj("{ \"source\": \"" BUILDDIR "/mock-archives\","
+                                 "  \"metrics\": [ { \"name\": \"mock.value\" } ],"
+                                 "  \"interval\": 1000,"
+                                 "  \"timestamp\": 4000"
                                  "}");
 
   setup_metrics_channel_json (tc, options);
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { \"name\": \"mock.value\", \"units\": \"\", \"semantics\": \"instant\" } ]");
   assert_sample (tc, "[[14],[15]]");
 
   json_object_unref (options);
@@ -394,16 +394,16 @@ test_metrics_archive_directory_late_metric (TestCase *tc,
   cockpit_expect_message ("*no such metric: mock.late: Unknown metric name*");
 
   JsonObject *meta;
-  JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives',"
-                                 "  'metrics': [ { 'name': 'mock.late' } ],"
-                                 "  'interval': 1000"
+  JsonObject *options = json_obj("{ \"source\": \"" BUILDDIR "/mock-archives\","
+                                 "  \"metrics\": [ { \"name\": \"mock.late\" } ],"
+                                 "  \"interval\": 1000"
                                  "}");
 
   setup_metrics_channel_json (tc, options);
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.late', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { \"name\": \"mock.late\", \"units\": \"\", \"semantics\": \"instant\" } ]");
   assert_sample (tc, "[[30],[31],[32]]");
 
   json_object_unref (options);

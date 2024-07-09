@@ -641,7 +641,7 @@ class ChangeAuth extends React.Component {
 
     maybe_create_key(passphrase) {
         if (!this.state.default_ssh_key.exists)
-            return this.keys.create(this.state.default_ssh_key.name, this.state.default_ssh_key.type, passphrase, passphrase);
+            return this.keys.create(this.state.default_ssh_key.name, this.state.default_ssh_key.type, passphrase);
         else
             return Promise.resolve();
     }
@@ -727,7 +727,7 @@ class ChangeAuth extends React.Component {
                             })
                             .then(() => {
                                 if (do_key_password_change)
-                                    return this.keys.change(this.state.default_ssh_key.name, this.state.locked_identity_password, this.state.login_setup_new_key_password, this.state.login_setup_new_key_password);
+                                    return this.keys.change(this.state.default_ssh_key.name, this.state.locked_identity_password, this.state.login_setup_new_key_password);
                                 else if (this.state.auto_login)
                                     return this.maybe_create_key(this.state.login_setup_new_key_password)
                                             .then(() => this.authorize_key(this.props.full_address));

@@ -1277,7 +1277,14 @@ class TestMetricsPackages(packagelib.PackageCase):
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
-            m.execute(f"rpm --erase --verbose cockpit-pcp pcp {redis_package}")
+            # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
+            m.execute(f"""
+                if rpm -q python3-pcp; then
+                    rpm --erase --verbose cockpit-pcp pcp python3-pcp {redis_package}
+                else
+                    rpm --erase --verbose cockpit-pcp pcp {redis_package}
+                fi
+            """)
         if m.image.startswith("fedora"):
             # we removed valkey above, but also remove redis to trigger install dialog
             m.execute("rpm --erase --verbose redis")

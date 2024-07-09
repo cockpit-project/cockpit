@@ -176,10 +176,6 @@ function Keys() {
             key.name = parts[2];
     }
 
-    function ensure_ssh_directory(file) {
-        return cockpit.script('dir=$(dirname "$1"); test -e "$dir" || mkdir -m 700 "$dir"', [file]);
-    }
-
     async function run_keygen(file, new_type, old_pass, new_pass) {
         const old_exps = [/.*Enter old passphrase: $/];
         const new_exps = [/.*Enter passphrase.*/, /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
@@ -202,43 +198,32 @@ function Keys() {
 
         const proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
 
+        proc.stream(data => {
+            buffer += data;
+            if (old_pass && old_exps.some(exp => exp.test(buffer))) {
+                buffer = "";
+                failure = _("Old password not accepted");
+                proc.input(old_pass + "\n", true);
+                return;
+            }
+
+            if (new_exps.some(exp => exp.test(buffer))) {
+                buffer = "";
+                proc.input(new_pass + "\n", true);
+                failure = _("Failed to change password");
+                sent_new = true;
+                return;
+            }
+
+            if (sent_new && bad_exps.some(exp => exp.test(buffer))) {
+                failure = _("New password was not accepted");
+            }
+        });
+
         const timeout = window.setTimeout(() => {
             failure = _("Prompting via ssh-keygen timed out");
             proc.close("terminated");
         }, 10 * 1000);
-
-        proc.stream(data => {
-            buffer += data;
-            if (old_pass) {
-                for (let i = 0; i < old_exps.length; i++) {
-                    if (old_exps[i].test(buffer)) {
-                        buffer = "";
-                        failure = _("Old password not accepted");
-                        proc.input(old_pass + "\n", true);
-                        return;
-                    }
-                }
-            }
-
-            for (let i = 0; i < new_exps.length; i++) {
-                if (new_exps[i].test(buffer)) {
-                    buffer = "";
-                    proc.input(new_pass + "\n", true);
-                    failure = _("Failed to change password");
-                    sent_new = true;
-                    return;
-                }
-            }
-
-            if (sent_new) {
-                for (let i = 0; i < bad_exps.length; i++) {
-                    if (bad_exps[i].test(buffer)) {
-                        failure = _("New password was not accepted");
-                        return;
-                    }
-                }
-            }
-        });
 
         try {
             await proc;
@@ -251,18 +236,15 @@ function Keys() {
         }
     }
 
-    self.change = function change(name, old_pass, new_pass) {
-        return run_keygen(name, null, old_pass, new_pass);
+    self.change = (name, old_pass, new_pass) => run_keygen(name, null, old_pass, new_pass);
+
+    self.create = async (name, type, new_pass) => {
+        // ensure ~/.ssh directory  exists
+        await cockpit.script('dir=$(dirname "$1"); test -e "$dir" || mkdir -m 700 "$dir"', [name]);
+        await run_keygen(name, type, null, new_pass);
     };
 
-    self.create = function create(name, type, new_pass) {
-        return ensure_ssh_directory(name)
-                .then(() => run_keygen(name, type, null, new_pass));
-    };
-
-    self.get_pubkey = function get_pubkey(name) {
-        return cockpit.file(name + ".pub").read();
-    };
+    self.get_pubkey = name => cockpit.file(name + ".pub").read();
 
     self.load = async function(name, password) {
         const ask_exp = /.*Enter passphrase for .*/;
@@ -314,7 +296,7 @@ function Keys() {
         }
     };
 
-    self.unload = async function unload(key) {
+    self.unload = async function(key) {
         await self.p_have_path;
         const options = { pty: true, err: "message", directory: self.path };
 
@@ -326,7 +308,7 @@ function Keys() {
         await refresh();
     };
 
-    self.close = function close() {
+    self.close = function() {
         if (watch)
             watch.close();
         if (proc)

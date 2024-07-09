@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-02 02:49+0000\n"
-"PO-Revision-Date: 2024-07-02 14:21+0000\n"
+"POT-Creation-Date: 2024-07-09 02:49+0000\n"
+"PO-Revision-Date: 2024-07-04 20:36+0000\n"
 "Last-Translator: Jose Riha <jose1711@gmail.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
 "main/sk/>\n"
@@ -118,9 +118,9 @@ msgstr "$0 sa nepodarilo"
 #: pkg/systemd/overview-cards/lastLogin.jsx:103
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
-msgstr[0] "$0 neúspešných pokusov o prihlásenie"
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "$0 neúspešný pokus o prihlásenie"
+msgstr[1] "$0 neúspešné pokusy o prihlásenie"
+msgstr[2] "$0 neúspešných pokusov o prihlásenie"
 
 #: pkg/storaged/filesystem/filesystem.jsx:91
 msgid "$0 filesystem"
@@ -234,16 +234,16 @@ msgstr "$0 oddiel"
 #: pkg/packagekit/updates.jsx:788
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
-msgstr[0] "Je k dispozícií $0 oprava bezpečnosti"
-msgstr[1] "Sú k dispozícií $0 opravy bezpečnosti"
-msgstr[2] "Je k dispozícií $0 opráv bezpečnosti"
+msgstr[0] "Je k dispozícií $0 bezpečnostná aktualizácia"
+msgstr[1] "Sú k dispozícií $0 bezpečnostné aktualizácie"
+msgstr[2] "Je k dispozícií $0 bezpečnostných aktualizácií"
 
 #: pkg/systemd/services.jsx:600
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
-msgstr[0] "$0 služba zhavarovala"
-msgstr[1] "$0 služby zhavarovali"
-msgstr[2] "$0 služieb zhavarovalo"
+msgstr[0] "$0 služba havarovala"
+msgstr[1] "$0 služby havarovali"
+msgstr[2] "$0 služieb havarovalo"
 
 #: pkg/packagekit/updates.jsx:718 pkg/packagekit/updates.jsx:828
 msgid "$0 service needs to be restarted"
@@ -299,7 +299,7 @@ msgstr[2] "$0 týždňov"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:115
 msgid "$0 will be installed."
-msgstr "$0 bude nainštalovaný."
+msgstr "Nainštaluje sa $0."
 
 #: pkg/lib/cockpit-components-plot.jsx:217
 msgid "$0 year"
@@ -340,9 +340,9 @@ msgstr "(odporúčaný)"
 #: pkg/packagekit/updates.jsx:798
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
-msgstr[0] ", vrátane $1 opravy zabezpečenia"
-msgstr[1] ", vrátane $1 opráv zabezpečenia"
-msgstr[2] ", vrátane $1 opráv zabezpečenia"
+msgstr[0] ", vrátane $1 bezpečnostnej aktualizácie"
+msgstr[1] ", vrátane $1 bezpečnostných aktualizácií"
+msgstr[2] ", vrátane $1 bezpečnostných aktualizácií"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:95
 msgid "1 MiB"
@@ -633,7 +633,7 @@ msgstr "ARP"
 
 #: pkg/networkmanager/network-interface.jsx:422
 msgid "ARP monitoring"
-msgstr "ARP monitorovanie"
+msgstr "ARP monitoring"
 
 #: pkg/networkmanager/team.jsx:57
 msgid "ARP ping"
@@ -686,11 +686,11 @@ msgstr "Aktivujte pred zmenou veľkosti"
 
 #: pkg/storaged/jobs-panel.jsx:73
 msgid "Activating $target"
-msgstr "Aktivuje sa $target"
+msgstr "Aktivujem $target"
 
 #: pkg/networkmanager/team.jsx:51 pkg/networkmanager/interfaces.js:807
 msgid "Active"
-msgstr "Aktívny"
+msgstr "Aktívna"
 
 #: pkg/networkmanager/team.jsx:42 pkg/networkmanager/bond.jsx:44
 msgid "Active backup"
@@ -703,7 +703,7 @@ msgstr "Aktívne stránky"
 
 #: pkg/systemd/service-details.jsx:459
 msgid "Active since "
-msgstr "Aktívny od "
+msgstr "Aktívna od "
 
 #: pkg/systemd/services.jsx:828 pkg/systemd/services.jsx:829
 #: pkg/systemd/services.jsx:836
@@ -712,11 +712,11 @@ msgstr "Aktívny stav"
 
 #: pkg/networkmanager/bond.jsx:49
 msgid "Adaptive load balancing"
-msgstr "Prispôsobujúce sa rozkladanie zátaže"
+msgstr "Adaptívne rozkladanie zátaže"
 
 #: pkg/networkmanager/bond.jsx:48
 msgid "Adaptive transmit load balancing"
-msgstr "Prispôsobujúce sa rozkladanie prenosovej zátaže odesielania"
+msgstr "Adaptívne rozkladanie prenosovej zátaže odosielania"
 
 #: pkg/networkmanager/dialogs-common.jsx:160
 #: pkg/users/authorized-keys-panel.js:68 pkg/shell/credentials.jsx:182
@@ -778,7 +778,7 @@ msgstr "Pridať blokové zariadenie"
 
 #: pkg/networkmanager/bond.jsx:135 pkg/networkmanager/network-main.jsx:142
 msgid "Add bond"
-msgstr "Pridať zlúčenie liniek"
+msgstr "Pridať spojenie liniek (bond)"
 
 #: pkg/networkmanager/bridge.jsx:96 pkg/networkmanager/network-main.jsx:144
 msgid "Add bridge"
@@ -901,20 +901,21 @@ msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
 msgstr ""
-"Pridaním užívateľsky určených portov sa znovunačíta firewall, čím sa stratia "
-"nastavenia, ktoré boli vytvorené počas behu a neboli uložené!"
+"Pridaním používateľom definovaných portov dôjde k opätovnému načítaniu "
+"firewallu, čím sa stratia nastavenia, ktoré boli vytvorené počas behu a "
+"neboli uložené!"
 
 #: pkg/storaged/crypto/keyslots.jsx:444
 msgid "Adding key"
-msgstr "Pridáva sa kľúč"
+msgstr "Pridávam kľúč"
 
 #: pkg/storaged/jobs-panel.jsx:78
 msgid "Adding physical volume to $target"
-msgstr "Pridáva sa fyzický zväzok do $target"
+msgstr "Pridávam fyzický zväzok do $target"
 
 #: pkg/storaged/crypto/keyslots.jsx:324
 msgid "Adding rd.neednet=1 to kernel command line"
-msgstr "Pridáva sa rd.neednet=1 do parametrov pri zavádzaní jadra"
+msgstr "Pridávam rd.neednet=1 do parametrov pri zavádzaní jadra"
 
 #: pkg/networkmanager/network-interface.jsx:303
 msgid "Additional DNS $val"
@@ -997,7 +998,7 @@ msgid ""
 "log into this machine. This may also affect other services as DNS resolution "
 "settings and the list of trusted CAs may change."
 msgstr ""
-"Po opustení domény sa do tohto stroja budú môcť prihlásiť iba tí užívatelia, "
+"Po opustení domény sa k tomuto stroji budú môcť prihlásiť iba tí užívatelia, "
 "ktorý majú účet priamo na ňom. Môže to postihnúť aj ostatné služby, ako je "
 "nastavenie DNS prekladu a môže sa zmeniť zoznam dôveryhodných cert. autorít."
 
@@ -1068,7 +1069,7 @@ msgid ""
 "can be comma separated list of possible values."
 msgstr ""
 "V správach záznamu je možné filtrovať podľa ľubovoľného textového reťazca. "
-"Reťazec tiež môže mať podobu regulárneho výrazu. Tiež je podporované "
+"Reťazec tiež môže mať podobu regulárneho výrazu. Rovnako je podporované "
 "filtrovanie podľa polí správ záznamu udalostí. Tie uvádzajte ako medzerami "
 "oddeľované hodnoty v podobe POLE=HODNOTA, kde hodnota môže byť čiarkou "
 "oddelený zoznam možných hodnôt."
@@ -1104,15 +1105,15 @@ msgstr "Aplikovať toto riešenie"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:186
 msgid "Applying new policy... This may take a few minutes."
-msgstr "Aplikuje sa nová politika… Toto môže niekoľko minút trvať."
+msgstr "Aplikujú sa nové politiky… Toto môže niekoľko minút trvať."
 
 #: pkg/selinux/setroubleshoot-view.jsx:83
 msgid "Applying solution..."
-msgstr "Aplikuje sa riešenie..."
+msgstr "Aplikujem riešenie..."
 
 #: pkg/packagekit/updates.jsx:100
 msgid "Applying updates"
-msgstr "Aplikujú sa aktualizácie"
+msgstr "Aplikujem aktualizácie"
 
 #: pkg/packagekit/updates.jsx:101
 msgid "Applying updates failed"
@@ -1185,7 +1186,7 @@ msgstr "Overiť sa"
 
 #: pkg/networkmanager/interfaces.js:799
 msgid "Authenticating"
-msgstr "Overuje sa"
+msgstr "Overujem"
 
 #: pkg/users/account-create-dialog.js:112 pkg/shell/hosts_dialog.jsx:840
 msgid "Authentication"
@@ -1400,7 +1401,7 @@ msgstr "Chyby"
 
 #: pkg/lib/machine-info.js:79
 msgid "Bus expansion chassis"
-msgstr "Základňa rozšírení zbernice"
+msgstr "Šasi pre rozšírenie zbernice"
 
 #: pkg/shell/hosts_dialog.jsx:811
 msgid ""
@@ -1408,7 +1409,7 @@ msgid ""
 "$2, the key will be automatically made available and you can log in to $3 "
 "without password in the future."
 msgstr ""
-"Zmenou hesla k SSH kľuču $0na prihlasovacie heslo užívateľa $1na $2 bude "
+"Zmenou hesla k SSH kľúču $0 na prihlasovacie heslo používateľa $1 na $2 bude "
 "kľúč automaticky sprístupnený a na $3 sa nabudúce prihlásite už bez hesla."
 
 #: pkg/static/login.html:61
@@ -1495,7 +1496,7 @@ msgstr "Nie je možné povoliť"
 msgid "Cannot connect to an unknown host"
 msgstr "Nie je možné sa prihlásiť k neznámemu hostiteľovi"
 
-#: pkg/lib/cockpit.js:2573
+#: pkg/lib/cockpit.js:2601
 msgid "Cannot forward login credentials"
 msgstr "Nie je možné preposlať prístupové údaje"
 
@@ -1530,7 +1531,7 @@ msgstr "Zmeniť"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:181
 msgid "Change cryptographic policy"
-msgstr "Zmeniť šifrovaciu politiku"
+msgstr "Zmeniť politiky pre šifrovanie"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Change host name"
@@ -1592,7 +1593,7 @@ msgstr ""
 
 #: pkg/storaged/partitions/partition.jsx:196
 msgid "Changing partition types might prevent the system from booting."
-msgstr "Zmena typov oddielov môže brániť naštartovaniu systému."
+msgstr "Zmena typov oddielov môže spôsobiť problémy pri štarte systému."
 
 #: pkg/networkmanager/interfaces.js:1655
 msgid ""
@@ -1619,15 +1620,15 @@ msgstr "Skontrolovať odtlačok kľúča voči Tang serveru."
 
 #: pkg/storaged/jobs-panel.jsx:52
 msgid "Checking $target"
-msgstr "Overuje sa $target"
+msgstr "Overujem $target"
 
 #: pkg/networkmanager/interfaces.js:803
 msgid "Checking IP"
-msgstr "Overuje sa IP adresa"
+msgstr "Kontrolujem IP adresu"
 
 #: pkg/storaged/jobs-panel.jsx:68
 msgid "Checking MDRAID device $target"
-msgstr "Overujem RAID zariadenie $target"
+msgstr "Overujem zariadenie MDRAID $target"
 
 #: pkg/storaged/jobs-panel.jsx:69
 msgid "Checking and repairing MDRAID device $target"
@@ -1647,20 +1648,20 @@ msgstr "Zisťujem prítomnosť podpory NBDE v initrd"
 
 #: pkg/apps/application-list.jsx:148
 msgid "Checking for new applications"
-msgstr "Hľadajú sa nové aplikácie"
+msgstr "Hľadám nové aplikácie"
 
 #: pkg/packagekit/updates.jsx:1387
 msgid "Checking for package updates..."
-msgstr "Kontrolujú sa aktualizácie..."
+msgstr "Kontrolujem aktualizácie balíčkov..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:152
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:31
 msgid "Checking installed software"
-msgstr "Zisťuje sa nainštalovaný softvér"
+msgstr "Zisťujem nainštalovaný softvér"
 
 #: pkg/packagekit/updates.jsx:1397
 msgid "Checking software status"
-msgstr "Kontroluje sa stav softvéru"
+msgstr "Kontrolujem stav softvéru"
 
 #: pkg/shell/shell-modals.jsx:119
 msgid "Choose the language to be used in the application"
@@ -1676,7 +1677,7 @@ msgstr "Trieda"
 
 #: pkg/storaged/jobs-panel.jsx:60
 msgid "Cleaning up for $target"
-msgstr "Čistenie pre $target"
+msgstr "Čistím pre $target"
 
 #: pkg/systemd/service-details.jsx:163
 msgid "Clear 'Failed to start'"
@@ -1684,7 +1685,7 @@ msgstr "Vyčistiť „Nepodarilo sa spustiť“"
 
 #: pkg/systemd/logsJournal.jsx:277 pkg/systemd/services-list.jsx:58
 msgid "Clear all filters"
-msgstr "Vyčistiť všetky filtre"
+msgstr "Vypnúť všetky filtre"
 
 #: pkg/shell/nav.jsx:158
 msgid "Clear search"
@@ -1725,7 +1726,7 @@ msgstr "Cockpit overovanie nie je nastavené správne."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Konfigurácia NetworkManagera a Firewalld v Cockpite"
 
-#: pkg/lib/cockpit.js:2579
+#: pkg/lib/cockpit.js:2607
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpitu sa nepodarilo kontaktovať daného hostiteľa."
 
@@ -1742,7 +1743,7 @@ msgid ""
 "journal interface."
 msgstr ""
 "Cockpit je správca serveru, který uľahčuje správu Linuxových serverov cez "
-"webový prehliadač. Nie je žiadným problémom prechádzať medzi terminálom a "
+"webový prehliadač. Nie je žiadnym problémom prechádzať medzi terminálom a "
 "webovým nástrojom. Služba spustená cez Cockpit môže byť zastavená v "
 "termináli. Podobne, pokiaľ dôjde k chybe v termináli, je toto vidieť v "
 "rozhraní žurnálu v Cockpite."
@@ -1751,7 +1752,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit je interaktívne rozhranie pre správu linuxových serverov."
 
-#: pkg/lib/cockpit.js:2577
+#: pkg/lib/cockpit.js:2605
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit nie je kompatibilný so sofvérom na systéme."
 
@@ -1759,7 +1760,7 @@ msgstr "Cockpit nie je kompatibilný so sofvérom na systéme."
 msgid "Cockpit is not installed"
 msgstr "Cockpit nie je nainštalovaný"
 
-#: pkg/lib/cockpit.js:2571
+#: pkg/lib/cockpit.js:2599
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit nie je nainštalovaný na tomto systéme."
 
@@ -1856,15 +1857,15 @@ msgstr "Konfigurácia"
 
 #: pkg/networkmanager/interfaces.js:797
 msgid "Configuring"
-msgstr "Nastavuje sa"
+msgstr "Nastavujem"
 
 #: pkg/networkmanager/interfaces.js:801
 msgid "Configuring IP"
-msgstr "Nastavuje sa IP adresa"
+msgstr "Nastavujem IP adresu"
 
 #: pkg/kdump/manifest.json:0
 msgid "Configuring kdump"
-msgstr "Konfigurácia kdump"
+msgstr "Nastavujem kdump"
 
 #: pkg/systemd/manifest.json:0
 msgid "Configuring system settings"
@@ -1930,7 +1931,7 @@ msgstr "Pripojiť k:"
 
 #: pkg/selinux/setroubleshoot-view.jsx:330
 msgid "Connecting to SETroubleshoot daemon..."
-msgstr "Pripájanie k procesu službu SETroubleshoot…"
+msgstr "Pripájam sa k procesu službu SETroubleshoot…"
 
 #: pkg/systemd/services.jsx:291
 msgid "Connecting to dbus failed: $0"
@@ -1938,7 +1939,7 @@ msgstr "Pripojenie k dbus sa nepodarilo: $0"
 
 #: pkg/shell/indexes.jsx:462
 msgid "Connecting to the machine"
-msgstr "Pripájam sa k stroju"
+msgstr "Pripájam sa ku stroju"
 
 #: pkg/shell/hosts.jsx:163
 msgid "Connection error"
@@ -1948,7 +1949,7 @@ msgstr "Chyba pripojenia"
 msgid "Connection failed"
 msgstr "Pripojenie sa nepodarilo"
 
-#: pkg/lib/cockpit.js:2569
+#: pkg/lib/cockpit.js:2597
 msgid "Connection has timed out."
 msgstr "Časový limit spojenia vypršal."
 
@@ -2025,7 +2026,7 @@ msgstr "Umiestnenie výpisu pamäti pri páde"
 
 #: pkg/systemd/reporting.jsx:431
 msgid "Crash reporting"
-msgstr "Nahlasovanie pádu"
+msgstr "Nahlasovanie pádov"
 
 #: pkg/kdump/kdump-view.jsx:388
 msgid "Crash system"
@@ -2180,11 +2181,11 @@ msgstr "Vytvoriť skupinu zväzkov (volume group)"
 
 #: pkg/sosreport/sosreport.jsx:507
 msgid "Created"
-msgstr "Vytvorené"
+msgstr "Vytvorená"
 
 #: pkg/storaged/jobs-panel.jsx:76
 msgid "Creating LVM2 volume group $target"
-msgstr "Vytvára sa LVM2 skupina zväzkov $target"
+msgstr "Vytváram LVM2 skupinu zväzkov $target"
 
 #: pkg/storaged/jobs-panel.jsx:67
 msgid "Creating MDRAID device $target"
@@ -2228,17 +2229,17 @@ msgid ""
 "cryptographic subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos "
 "protocols."
 msgstr ""
-"Kryptografické politiky je súčasť systému, ktorá nastavuje hlavné "
+"Kryptografické politiky sú súčasť systému, ktorá nastavuje hlavné "
 "kryptografické subsystémy, pokrýva protokoly TLS, IPSec, SSH, DNSSec a "
 "Kerberos."
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:62
 msgid "Cryptographic policy"
-msgstr "Politika šifrovania"
+msgstr "Politiky pre šifrovanie"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
 msgid "Cryptographic policy is inconsistent"
-msgstr "Politika šifrovania nie je konzistentná"
+msgstr "Politiky pre šifrovanie nie sú konzistentné"
 
 #: pkg/lib/cockpit-components-terminal.jsx:212
 msgid "Ctrl+Insert"
@@ -2270,7 +2271,7 @@ msgstr "Vlastné"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:142
 msgid "Custom cryptographic policy"
-msgstr "Používateľom definovaná politika šifrovania"
+msgstr "Používateľom definovaná politiky pre šifrovanie"
 
 #: pkg/storaged/nfs/nfs.jsx:173 pkg/storaged/filesystem/mounting-dialog.jsx:64
 msgid "Custom mount options"
@@ -2278,7 +2279,7 @@ msgstr "Používateľom definované možnosti pripojenia"
 
 #: pkg/networkmanager/firewall.jsx:635
 msgid "Custom ports"
-msgstr "Užívateľsky určené porty"
+msgstr "Používateľom definované porty"
 
 #: pkg/storaged/partitions/partition.jsx:188
 msgid "Custom type"
@@ -2286,7 +2287,7 @@ msgstr "Používateľom definovaný typ"
 
 #: pkg/networkmanager/firewall.jsx:835
 msgid "Custom zones"
-msgstr "Užívateľsky určené zóny"
+msgstr "Používateľom definované zóny"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:108
 msgid "DEFAULT with SHA-1 signature verification allowed."
@@ -2418,11 +2419,11 @@ msgstr "Deaktivovať logický zväzok $0/$1?"
 
 #: pkg/networkmanager/interfaces.js:809
 msgid "Deactivating"
-msgstr "Deaktivuje sa"
+msgstr "Deaktivujem"
 
 #: pkg/storaged/jobs-panel.jsx:74
 msgid "Deactivating $target"
-msgstr "Deaktivuje sa $target"
+msgstr "Deaktivujem $target"
 
 #: pkg/systemd/logs.jsx:72
 msgid "Debug and above"
@@ -2514,11 +2515,11 @@ msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:58 pkg/storaged/jobs-panel.jsx:72
 msgid "Deleting $target"
-msgstr "Maže sa $target"
+msgstr "Odstraňujem $target"
 
 #: pkg/storaged/jobs-panel.jsx:77
 msgid "Deleting LVM2 volume group $target"
-msgstr "Maže sa LVM2 skupina zväzkov $target"
+msgstr "Odstraňujem LVM2 skupinu zväzkov $target"
 
 #: pkg/storaged/stratis/pool.jsx:148
 msgid "Deleting a Stratis pool will erase all data it contains."
@@ -2534,7 +2535,7 @@ msgstr "Odstránením logického zväzku sa zmažú všetky údaje v ňom."
 
 #: pkg/storaged/partitions/partition.jsx:57
 msgid "Deleting a partition will delete all data in it."
-msgstr "Zmazaním oddielu sa zmažú všetky dáta na ňom."
+msgstr "Odstránením oddielu sa zmažú všetky dáta na ňom."
 
 #: pkg/storaged/mdraid/mdraid.jsx:127
 msgid "Deleting erases all data on a MDRAID device."
@@ -2551,8 +2552,7 @@ msgstr "Odstránením sa zmažú všetky údaje v skupine zväzkov (volume group
 #: pkg/storaged/btrfs/subvolume.jsx:235
 msgid "Deleting erases all data on this subvolume and all it's children."
 msgstr ""
-"Odstránenie vymaže všetky údaje na tomto podzväzku a všetkých jedno "
-"potomkoch."
+"Odstránenie vymaže všetky údaje na tomto podzväzku a všetkých jeho potomkoch."
 
 #: pkg/systemd/service-details.jsx:610
 msgid "Deletion will remove the following files:"
@@ -2783,12 +2783,12 @@ msgstr "Stiahnuté"
 
 #: pkg/packagekit/updates.jsx:104
 msgid "Downloading"
-msgstr "Sťahuje sa"
+msgstr "Sťahujem"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:189
 #: pkg/storaged/crypto/keyslots.jsx:256
 msgid "Downloading $0"
-msgstr "Sťahuje sa $0"
+msgstr "Sťahujem $0"
 
 #: pkg/storaged/drive/drive.jsx:75
 msgid "Drive"
@@ -2871,7 +2871,7 @@ msgstr "Upraviť službu $0"
 
 #: pkg/networkmanager/team.jsx:154
 msgid "Edit team settings"
-msgstr "Upraviť nastavenie teamingu"
+msgstr "Upraviť nastavenia teamingu"
 
 #: pkg/users/accounts-list.js:59
 msgid "Edit user"
@@ -2879,11 +2879,11 @@ msgstr "Upraviť používateľa"
 
 #: pkg/storaged/crypto/keyslots.jsx:765
 msgid "Editing a key requires a free slot"
-msgstr "Úprava kľuču vyžaduje voľný slot"
+msgstr "Úprava kľúča vyžaduje voľný slot"
 
 #: pkg/storaged/jobs-panel.jsx:41
 msgid "Ejecting $target"
-msgstr "Vysúva sa $target"
+msgstr "Vysúvam $target"
 
 #: pkg/lib/machine-info.js:93
 msgid "Embedded PC"
@@ -2905,7 +2905,7 @@ msgstr "Prázdne heslo"
 
 #: pkg/storaged/jobs-panel.jsx:80
 msgid "Emptying $target"
-msgstr "Vyprázdňuje sa $target"
+msgstr "Vyprázdňujem $target"
 
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:254
 msgid "Enable"
@@ -2997,7 +2997,7 @@ msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:262
 msgid "Enforcing"
-msgstr "Vynucuje sa"
+msgstr "Vynucujúce"
 
 #: pkg/packagekit/updates.jsx:1437
 msgid "Enhancement updates available"
@@ -3017,7 +3017,7 @@ msgstr "Položka z"
 
 #: pkg/storaged/jobs-panel.jsx:54
 msgid "Erasing $target"
-msgstr "Maže sa $target"
+msgstr "Mažem $target"
 
 #: pkg/packagekit/updates.jsx:380
 msgid "Errata"
@@ -3097,7 +3097,7 @@ msgstr "Skvelé heslo"
 
 #: pkg/lib/machine-info.js:77
 msgid "Expansion chassis"
-msgstr "Rozširujúca základňa"
+msgstr "Rozširujúce šasi"
 
 #: pkg/users/expiration-dialogs.js:71
 msgid "Expire account on"
@@ -3258,7 +3258,7 @@ msgstr "V tomto bode pripojenia už sú pripojené systémy súborov."
 
 #: pkg/systemd/services.jsx:820
 msgid "Filter by name or description"
-msgstr "Filtrovať podľa názvu alebo popisu"
+msgstr "Filtrovať podľa názvu či popisu"
 
 #: pkg/shell/shell-modals.jsx:131
 msgid "Filter menu items"
@@ -3495,23 +3495,21 @@ msgstr "Identifikátor hierarchie"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:109
 msgid "Higher interoperability at the cost of an increased attack surface."
-msgstr ""
+msgstr "Vyššia interoperabilita za cenu zvýšeného vystavenia sa útokom."
 
 #: pkg/packagekit/history.jsx:112
 msgid "History package count"
 msgstr "Počet balíkov"
 
 #: pkg/users/account-details.js:320 pkg/users/account-create-dialog.js:84
-#, fuzzy
-#| msgid "Directory"
 msgid "Home directory"
-msgstr "Zložka"
+msgstr "Domovský adresár"
 
 #: pkg/shell/hosts_dialog.jsx:255 pkg/shell/hosts.jsx:192
 msgid "Host"
 msgstr "Hostiteľ"
 
-#: pkg/lib/cockpit.js:2565
+#: pkg/lib/cockpit.js:2593
 msgid "Host key is incorrect"
 msgstr "Kľúč stroja nie je správny"
 
@@ -3524,10 +3522,8 @@ msgid "Hosts"
 msgstr "Hostitelia"
 
 #: pkg/systemd/timer-dialog.jsx:244
-#, fuzzy
-#| msgid "Hours"
 msgid "Hourly"
-msgstr "Hodiny"
+msgstr "Každú hodinu"
 
 #: pkg/systemd/timer-dialog.jsx:212
 msgid "Hours"
@@ -3535,11 +3531,11 @@ msgstr "Hodiny"
 
 #: pkg/storaged/crypto/tang.jsx:115
 msgid "How to check"
-msgstr ""
+msgstr "Ako skontrolovať"
 
 #: pkg/storaged/dialog.jsx:1381
 msgid "I confirm I want to lose this data forever"
-msgstr ""
+msgstr "Týmto potvrdzujem, že chcem bez možnosti odvolania zmazať tieto dáta"
 
 #: pkg/networkmanager/firewall.jsx:696 pkg/users/accounts-list.js:230
 #: pkg/users/accounts-list.js:381 pkg/users/group-create-dialog.js:47
@@ -3557,6 +3553,8 @@ msgid ""
 "INTERNAL ERROR - This logical volume is marked as active and should have an "
 "associated block device. However, no such block device could be found."
 msgstr ""
+"INTERNÁ CHYBA – Tento logický zväzok je označený ako aktívny a mal by mať "
+"priradené blokové zariadenie. Žiadne také blokové zariadenie sa však nenašlo."
 
 #: pkg/networkmanager/network-main.jsx:186
 #: pkg/networkmanager/network-main.jsx:201
@@ -3568,16 +3566,16 @@ msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
 msgstr ""
+"IP adresa so smerovacou predponou (prefix). Viacero hodnôt oddeľujte "
+"čiarkou. Príklad: 192.0.2.0/24, 2001:db8::/32"
 
 #: pkg/networkmanager/network-interface.jsx:569
 msgid "IPv4"
 msgstr "IPv4"
 
 #: pkg/networkmanager/wireguard.jsx:252
-#, fuzzy
-#| msgid "IPv4 address"
 msgid "IPv4 addresses"
-msgstr "IPv4 adresa"
+msgstr "IPv4 adresy"
 
 #: pkg/networkmanager/ip-settings.jsx:162
 msgid "IPv4 settings"
@@ -3600,18 +3598,24 @@ msgid ""
 "If left empty, ID will be generated based on associated port services and "
 "port numbers"
 msgstr ""
+"Ak nie je vyplnené, identifikátor bude vytvorený na základe súvisiacich "
+"služieb na porte a čísiel portov"
 
 #: pkg/static/login.html:90
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
 msgstr ""
+"Ak as odtlačok zhoduje, kliknite na „Prijať kľúč a prihlásiť sa\". V opačnom "
+"prípade sa nepripájajte sa obráťte sa na správcu systému."
 
 #: pkg/shell/hosts_dialog.jsx:480
 msgid ""
 "If the fingerprint matches, click 'Trust and add host'. Otherwise, do not "
 "connect and contact your administrator."
 msgstr ""
+"Ak sa odtlačok zhoduje, kliknite na „Dôverovať a pridať stroj\". V opačnom "
+"prípade sa nepripájajte a obráťte sa na správcu systému."
 
 #: pkg/networkmanager/ip-settings.jsx:44 pkg/packagekit/updates.jsx:684
 #: pkg/packagekit/updates.jsx:761
@@ -3620,7 +3624,7 @@ msgstr "Ignorovať"
 
 #: pkg/storaged/dialog.jsx:1316
 msgid "Important data might be deleted:"
-msgstr ""
+msgstr "Týmto môžete vymazať dôležité údaje:"
 
 #: pkg/metrics/metrics.jsx:816
 msgid "In"
@@ -3628,7 +3632,7 @@ msgstr "Vstup"
 
 #: pkg/storaged/crypto/tang.jsx:116
 msgid "In a terminal, run: "
-msgstr ""
+msgstr "V terminále spustite: "
 
 #: pkg/shell/hosts_dialog.jsx:806 pkg/shell/hosts_dialog.jsx:823
 msgid ""
@@ -3637,7 +3641,7 @@ msgid ""
 "blank."
 msgstr ""
 "Aby v budúcnosti bolo možné prihlasovanie k $0 ako $1 bez hesla, použite "
-"prihlasovacie heslo užívateľa $2 na $3 ako heslo ku kľúču alebo heslo ku "
+"prihlasovacie heslo používateľa $2 na $3 ako heslo ku kľúču alebo heslo ku "
 "kľúču nevyplňujte."
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:69
@@ -3651,10 +3655,8 @@ msgid "Inactive"
 msgstr "Neaktívne"
 
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:33
-#, fuzzy
-#| msgid "Inactive volume"
 msgid "Inactive logical volume"
-msgstr "Neaktívny zväzok"
+msgstr "Neaktívny logický zväzok"
 
 #: pkg/networkmanager/firewall.jsx:852
 msgid "Included services"
@@ -3664,26 +3666,28 @@ msgstr "Zahrnuté služby"
 msgid ""
 "Incoming requests are blocked by default. Outgoing requests are not blocked."
 msgstr ""
+"V predvolenom nastavení sú prichádzajúce požiadavky blokované. Odchádzajúce "
+"blokované nie sú."
 
 #: pkg/storaged/filesystem/mismounting.jsx:224
 msgid "Inconsistent filesystem mount"
-msgstr ""
+msgstr "Nekonzistentný bod pripojenia systému súborov"
 
 #: pkg/systemd/terminal.jsx:160
 msgid "Increase by one"
-msgstr ""
+msgstr "Zvýšiť o jednu"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:320
 msgid "Index memory"
-msgstr ""
+msgstr "Pamäť indexu"
 
 #: pkg/systemd/services.jsx:254
 msgid "Indirect"
-msgstr "Nepriame"
+msgstr "Nepriamo"
 
 #: pkg/packagekit/updates.jsx:753
 msgid "Info"
-msgstr ""
+msgstr "Informácie"
 
 #: pkg/systemd/logs.jsx:71
 msgid "Info and above"
@@ -3699,11 +3703,11 @@ msgstr "Inicializovať disk $0"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:70
 msgid "Initializing erases all data on a disk."
-msgstr ""
+msgstr "Inicializácia vymaže všetky údaje na disku."
 
 #: pkg/packagekit/updates.jsx:583
 msgid "Initializing..."
-msgstr "Inicializácia..."
+msgstr "Inicializujem..."
 
 #: pkg/systemd/overview-cards/insights.jsx:230
 msgid "Insights: "
@@ -3720,36 +3724,28 @@ msgid "Install NFS support"
 msgstr "Nainštalovať podporu pre NFS"
 
 #: pkg/storaged/overview/overview.jsx:121
-#, fuzzy
-#| msgid "Install NFS support"
 msgid "Install Stratis support"
-msgstr "Nainštalovať podporu pre NFS"
+msgstr "Nainštalovať podporu pre Stratis"
 
 #: pkg/packagekit/updates.jsx:1414
 msgid "Install all updates"
 msgstr "Nainštalovať všetky aktualizácie"
 
 #: pkg/apps/application-list.jsx:190
-#, fuzzy
-#| msgid "Package information"
 msgid "Install application information"
-msgstr "Informácie o balíku"
+msgstr "Nainštalovať informáciu o aplikácii"
 
 #: pkg/metrics/metrics.jsx:1832
 msgid "Install cockpit-pcp"
 msgstr "Nainštalovať cockpit-pcp"
 
 #: pkg/packagekit/updates.jsx:1427
-#, fuzzy
-#| msgid "Install all updates"
 msgid "Install kpatch updates"
-msgstr "Nainštalovať všetky aktualizácie"
+msgstr "Nainštalovať kpatch aktualizácie"
 
 #: pkg/systemd/overview-cards/realmd.jsx:463
-#, fuzzy
-#| msgid "Install NFS support"
 msgid "Install realmd support"
-msgstr "Nainštalovať podporu pre NFS"
+msgstr "Nainštalovať podporu pre realmd"
 
 #: pkg/packagekit/updates.jsx:1413 pkg/packagekit/updates.jsx:1420
 msgid "Install security updates"
@@ -3764,14 +3760,12 @@ msgid "Install software"
 msgstr "Nainštalovať softvér"
 
 #: pkg/kdump/kdump-view.jsx:571
-#, fuzzy
-#| msgid "Please install the $0 package"
 msgid "Install the $0 package."
-msgstr "Nainštalujte $0 balík"
+msgstr "Nainštalujte balíček $0."
 
 #: pkg/metrics/metrics.jsx:1831
 msgid "Installation not supported without installed cockpit package"
-msgstr ""
+msgstr "Inštalácia nie je podporovaná bez nainštalovaného balíčka cockpit"
 
 #: pkg/packagekit/updates.jsx:111
 msgid "Installed"
@@ -3779,41 +3773,33 @@ msgstr "Nainštalovaný"
 
 #: pkg/apps/application.jsx:40 pkg/packagekit/updates.jsx:105
 msgid "Installing"
-msgstr "Inštaluje sa"
+msgstr "Inštalujem"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:193
 #: pkg/storaged/crypto/keyslots.jsx:260
 msgid "Installing $0"
-msgstr "Inštaluje sa $0"
+msgstr "Inštalujem $0"
 
 #: pkg/storaged/crypto/keyslots.jsx:276
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:39
-#, fuzzy
-#| msgid "Installing $0"
 msgid "Installing $0 would remove $1."
-msgstr "Inštaluje sa $0"
+msgstr "Inštalácia $0 by odobrala $1."
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:41
-#, fuzzy
-#| msgid "Installing"
 msgid "Installing packages"
-msgstr "Inštaluje sa"
+msgstr "Inštalujem balíčky"
 
 #: pkg/networkmanager/firewall.jsx:196 pkg/metrics/metrics.jsx:816
-#, fuzzy
-#| msgid "Interface"
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "Rozhranie"
-msgstr[1] "Rozhranie"
-msgstr[2] "Rozhranie"
+msgstr[1] "Rozhrania"
+msgstr[2] "Rozhraní"
 
 #: pkg/networkmanager/network-interface-members.jsx:202
 #: pkg/networkmanager/network-interface-members.jsx:204
-#, fuzzy
-#| msgid "Interfaces"
 msgid "Interface members"
-msgstr "Rozhrania"
+msgstr "Čísla rozhraní"
 
 #: pkg/networkmanager/firewall.jsx:859 pkg/networkmanager/bond.jsx:165
 #: pkg/networkmanager/network-main.jsx:180
@@ -3821,13 +3807,13 @@ msgstr "Rozhrania"
 msgid "Interfaces"
 msgstr "Rozhrania"
 
-#: pkg/lib/cockpit.js:2567
+#: pkg/lib/cockpit.js:2595
 msgid "Internal error"
 msgstr "Interná chyba"
 
 #: pkg/static/login.js:907
 msgid "Internal error: Invalid challenge header"
-msgstr ""
+msgstr "Interná chyba: neplatná hlavička výzvy"
 
 #: pkg/systemd/services.jsx:253
 msgid "Invalid"
@@ -3835,7 +3821,7 @@ msgstr "Neplatné"
 
 #: pkg/networkmanager/utils.js:89 pkg/networkmanager/utils.js:173
 msgid "Invalid address $0"
-msgstr ""
+msgstr "Neplatná adresa $0"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
 msgid "Invalid date format"
@@ -3847,11 +3833,11 @@ msgstr "Neplatný formát dátumu a času"
 
 #: pkg/users/expiration-dialogs.js:98
 msgid "Invalid expiration date"
-msgstr ""
+msgstr "Neplatný dátum skončenia platnosti"
 
 #: pkg/lib/credentials.js:294
 msgid "Invalid file permissions"
-msgstr ""
+msgstr "Neplatné práva súborov"
 
 #: pkg/users/authorized-keys-panel.js:135
 msgid "Invalid key"
@@ -3859,23 +3845,23 @@ msgstr "Neplatný kľúč"
 
 #: pkg/networkmanager/utils.js:55
 msgid "Invalid metric $0"
-msgstr ""
+msgstr "Neplatná metrika $0"
 
 #: pkg/users/expiration-dialogs.js:200
 msgid "Invalid number of days"
-msgstr ""
+msgstr "Neplatný počet dní"
 
 #: pkg/networkmanager/firewall.jsx:479
 msgid "Invalid port number"
-msgstr ""
+msgstr "Neplatné číslo portu"
 
 #: pkg/networkmanager/utils.js:41
 msgid "Invalid prefix $0"
-msgstr ""
+msgstr "Neplatná predpona $0"
 
 #: pkg/networkmanager/utils.js:134
 msgid "Invalid prefix or netmask $0"
-msgstr ""
+msgstr "Neplatná predpona alebo maska siete $0"
 
 #: pkg/networkmanager/firewall.jsx:505
 msgid "Invalid range"
@@ -3897,11 +3883,11 @@ msgstr "Neplatné meno používateľa alebo heslo"
 
 #: pkg/lib/machine-info.js:92
 msgid "IoT gateway"
-msgstr ""
+msgstr "Brána internetu vecí (IoT)"
 
 #: pkg/shell/hosts_dialog.jsx:362
 msgid "Is sshd running on a different port?"
-msgstr ""
+msgstr "Nie je sshd pustené na inom porte?"
 
 #: pkg/storaged/jobs-panel.jsx:205
 msgid "Jobs"
@@ -3921,10 +3907,8 @@ msgid "Join domain"
 msgstr "Pripojiť sa k doméne"
 
 #: pkg/systemd/overview-cards/realmd.jsx:431
-#, fuzzy
-#| msgid "Join"
 msgid "Joining"
-msgstr "Spojiť"
+msgstr "Pridávam"
 
 #: pkg/systemd/overview-cards/realmd.jsx:71
 msgid "Joining a domain requires installation of realmd"
@@ -3932,11 +3916,11 @@ msgstr "Pripájanie sa do domény vyžaduje inštaláciu realmd"
 
 #: pkg/systemd/overview-cards/realmd.jsx:161
 msgid "Joining this domain is not supported"
-msgstr ""
+msgstr "Pridanie do tejto domény nie je podporované"
 
 #: pkg/systemd/service-details.jsx:573
 msgid "Joins namespace of"
-msgstr ""
+msgstr "Pripája menný priestor od"
 
 #: pkg/systemd/logs.html:23
 msgid "Journal"
@@ -3948,23 +3932,19 @@ msgstr "Položka žurnálu"
 
 #: pkg/systemd/logDetails.jsx:146
 msgid "Journal entry not found"
-msgstr ""
+msgstr "Položka žurnálu nájdená"
 
 #: pkg/metrics/metrics.jsx:1925
 msgid "Jump to"
 msgstr "Preskočiť na"
 
 #: pkg/kdump/kdump-view.jsx:569
-#, fuzzy
-#| msgid "Cockpit is not installed"
 msgid "Kdump service is not installed."
-msgstr "Cockpit nie je nainštalovaný"
+msgstr "Služba kdump nie je nainštalovaná."
 
 #: pkg/kdump/kdump-view.jsx:604
-#, fuzzy
-#| msgid "Test kdump settings"
 msgid "Kdump settings"
-msgstr "Vyskúšať nastavenia kdump"
+msgstr "Nastavenia pre kdump"
 
 #: pkg/networkmanager/interfaces.js:69
 msgid "Keep connection"
@@ -3972,40 +3952,32 @@ msgstr "Zachovať spojenie"
 
 #: pkg/kdump/kdump-view.jsx:581
 msgid "Kernel crash dump"
-msgstr ""
+msgstr "Výpis pádov jadra systému"
 
 #: pkg/kdump/kdump-view.jsx:550
 msgid "Kernel did not boot with the $0 setting"
-msgstr ""
+msgstr "Jadro s nastavením $0 nenaštartovalo"
 
 #: pkg/kdump/index.html:23 pkg/kdump/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-kdump.metainfo.xml.in:5
 msgid "Kernel dump"
-msgstr ""
+msgstr "Výpis pamäti jadra"
 
 #: pkg/packagekit/kpatch.jsx:369
-#, fuzzy
-#| msgid "Kernel patch $0 is installed"
 msgid "Kernel live patch $0 is active"
-msgstr "Záplata jadra systému $0 je nainštalovaná"
+msgstr "Záplata za behu pre jadro systému $0 je aktívna"
 
 #: pkg/packagekit/kpatch.jsx:376
-#, fuzzy
-#| msgid "Kernel patch $0 is installed"
 msgid "Kernel live patch $0 is installed"
-msgstr "Záplata jadra systému $0 je nainštalovaná"
+msgstr "Záplata za behu pre jadro systému $0 je nainštalovaná"
 
 #: pkg/packagekit/kpatch.jsx:302
-#, fuzzy
-#| msgid "Change the settings"
 msgid "Kernel live patch settings"
-msgstr "Zmeniť nastavenia"
+msgstr "Nastavenie zaplátovania jadra systému za behu"
 
 #: pkg/packagekit/kpatch.jsx:285
-#, fuzzy
-#| msgid "Change the settings"
 msgid "Kernel live patching"
-msgstr "Zmeniť nastavenia"
+msgstr "Zaplátovanie jadra systému za behu"
 
 #: pkg/shell/hosts_dialog.jsx:796 pkg/shell/hosts_dialog.jsx:861
 msgid "Key password"
@@ -4017,7 +3989,7 @@ msgstr "Sloty kľúčov s neznámym typom tu nie je možné upraviť"
 
 #: pkg/storaged/crypto/keyslots.jsx:460
 msgid "Key source"
-msgstr ""
+msgstr "Zdroj pre kľúč"
 
 #: pkg/storaged/crypto/keyslots.jsx:802 pkg/storaged/crypto/keyslots.jsx:825
 msgid "Keys"
@@ -4031,50 +4003,40 @@ msgstr "Server s kľúčami"
 #: pkg/storaged/crypto/keyslots.jsx:487 pkg/storaged/crypto/keyslots.jsx:545
 #: pkg/storaged/stratis/create-dialog.jsx:99 pkg/storaged/stratis/pool.jsx:453
 msgid "Keyserver address"
-msgstr ""
+msgstr "Adresa servera s kľúčmi"
 
 #: pkg/storaged/crypto/keyslots.jsx:671 pkg/storaged/stratis/pool.jsx:493
 msgid "Keyserver removal may prevent unlocking $0."
-msgstr ""
+msgstr "Odobranie servera s kľúčmi môže zabrániť odomknutiu $0."
 
 #: pkg/networkmanager/teamport.jsx:93
 msgid "LACP key"
-msgstr ""
+msgstr "LACP kľúč"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:110
 msgid "LEGACY with Active Directory interoperability."
-msgstr ""
+msgstr "PÔVODNÉ s interoperabilitou s Active Directory."
 
 #: pkg/storaged/lvm2/vdo-pool.jsx:42
-#, fuzzy
-#| msgid "Pool"
 msgid "LVM2 VDO pool"
-msgstr "Úložisko"
+msgstr "LVM2 VDO pool"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:191
-#, fuzzy
-#| msgid "Logical volume"
 msgid "LVM2 logical volume"
-msgstr "Logický zväzok"
+msgstr "Logický zväzok LVM2"
 
 #: pkg/storaged/lvm2/volume-group.jsx:257
 #: pkg/storaged/lvm2/volume-group.jsx:298
-#, fuzzy
-#| msgid "Logical volumes"
 msgid "LVM2 logical volumes"
-msgstr "Logické zväzky"
+msgstr "Logické zväzky LVM2"
 
 #: pkg/storaged/lvm2/physical-volume.jsx:40
-#, fuzzy
-#| msgid "Physical volume of $0"
 msgid "LVM2 physical volume"
-msgstr "Fyzický zväzok na $0"
+msgstr "Fyzický zväzok LVM2"
 
 #: pkg/storaged/lvm2/volume-group.jsx:395
-#, fuzzy
-#| msgid "Physical volume of $0"
 msgid "LVM2 physical volumes"
-msgstr "Fyzický zväzok na $0"
+msgstr "Fyzické zväzky LVM2"
 
 #: pkg/storaged/lvm2/volume-group.jsx:231
 msgid "LVM2 volume group"
@@ -4086,7 +4048,7 @@ msgstr "LVM2 skupina zväzkov $0"
 
 #: pkg/storaged/btrfs/volume.jsx:119 pkg/storaged/btrfs/filesystem.jsx:69
 msgid "Label"
-msgstr ""
+msgstr "Štítok"
 
 #: pkg/lib/machine-info.js:68
 msgid "Laptop"
@@ -4101,36 +4063,28 @@ msgid "Last 7 days"
 msgstr "Posledných 7 dní"
 
 #: pkg/users/accounts-list.js:382
-#, fuzzy
-#| msgid "active"
 msgid "Last active"
-msgstr "Aktívny"
+msgstr "Naposledy aktívny"
 
 #: pkg/storaged/lvm2/physical-volume.jsx:73
-#, fuzzy
-#| msgid "The last key slot can not be removed"
 msgid "Last cannot be removed"
-msgstr "Posledný slot kľúča nemôže byť odobraný"
+msgstr "Posledný zostávajúci nie je možné odobrať"
 
 #: pkg/packagekit/updates.jsx:783
 msgid "Last checked: $0"
 msgstr "Naposledy skontrolované: $0"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:93
-#, fuzzy
-#| msgid "The last key slot can not be removed"
 msgid "Last disk can not be removed"
-msgstr "Posledný slot kľúča nemôže byť odobraný"
+msgstr "Posledný disk nie je možné odstrániť"
 
 #: pkg/users/account-details.js:260
 msgid "Last login"
 msgstr "Posledné prihlásenie"
 
 #: pkg/storaged/crypto/encryption.jsx:98
-#, fuzzy
-#| msgid "Last checked: $0"
 msgid "Last modified: $0"
-msgstr "Naposledy skontrolované: $0"
+msgstr "Naposledy zmenené: $0"
 
 #: pkg/systemd/overview-cards/lastLogin.jsx:90
 msgid "Last successful login:"
@@ -4139,7 +4093,7 @@ msgstr "Posledné úspešné prihlásenie:"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:192
 #: pkg/storaged/lvm2/block-logical-volume.jsx:294
 msgid "Layout"
-msgstr ""
+msgstr "Rozvrhnutie"
 
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
@@ -4151,23 +4105,21 @@ msgstr "Zistiť viac"
 
 #: pkg/systemd/overview-cards/realmd.jsx:314
 msgid "Leave $0"
-msgstr ""
+msgstr "Opustiť $0"
 
 #: pkg/systemd/overview-cards/realmd.jsx:311
 #: pkg/systemd/overview-cards/realmd.jsx:314
 #: pkg/systemd/overview-cards/realmd.jsx:316
 msgid "Leave domain"
-msgstr ""
+msgstr "Opustiť doménu"
 
 #: pkg/sosreport/sosreport.jsx:335
-#, fuzzy
-#| msgid "encryption"
 msgid "Leave empty to skip encryption"
-msgstr "Šifrovanie"
+msgstr "Ak nechcete šifrovať, nechajte prázdne"
 
 #: pkg/shell/shell-modals.jsx:61
 msgid "Licensed under GNU LGPL version 2.1"
-msgstr ""
+msgstr "Licencované pod licenciou GNU LGPL verzie 2.1"
 
 #: pkg/shell/topnav.jsx:200 pkg/systemd/terminal.jsx:175
 msgid "Light"
@@ -4175,94 +4127,81 @@ msgstr "Svetlý"
 
 #: pkg/shell/superuser.jsx:261
 msgid "Limit access"
-msgstr ""
+msgstr "Obmedziť prístup"
 
 #: pkg/shell/superuser.jsx:329
 msgid "Limited access"
-msgstr ""
+msgstr "Obmedzený prístup"
 
 #: pkg/shell/superuser.jsx:278
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
 msgstr ""
+"Režim obmedzeného prístupu obmedzuje oprávnenia pre správu. Niektoré časti "
+"webovej konzole budú poskytovať menej funkcií."
 
 #: pkg/systemd/abrtLog.jsx:143
 msgid "Limits"
-msgstr ""
+msgstr "Limity"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:67
 msgid "Linear"
-msgstr ""
+msgstr "Lineárny"
 
 #: pkg/networkmanager/team.jsx:195 pkg/networkmanager/bond.jsx:201
 msgid "Link down delay"
-msgstr ""
+msgstr "Oneskorenie neaktívnej linky"
 
 #: pkg/networkmanager/ip-settings.jsx:42
 msgid "Link local"
-msgstr ""
+msgstr "Lokálne prepojenie"
 
 #: pkg/networkmanager/bond.jsx:188
 msgid "Link monitoring"
-msgstr ""
+msgstr "Monitorovanie linky"
 
 #: pkg/networkmanager/team.jsx:192 pkg/networkmanager/bond.jsx:198
 msgid "Link up delay"
-msgstr ""
+msgstr "Oneskorenie aktívnej linky"
 
 #: pkg/networkmanager/team.jsx:185
 msgid "Link watch"
-msgstr ""
+msgstr "Stráženie linky"
 
 #: pkg/systemd/services.jsx:247 pkg/systemd/services.jsx:248
 msgid "Linked"
-msgstr ""
+msgstr "Odkazované"
 
 #: pkg/storaged/partitions/partition.jsx:126
 #: pkg/storaged/partitions/partition.jsx:133
-#, fuzzy
-#| msgid "Unmount filesystem"
 msgid "Linux filesystem data"
-msgstr "Odpojiť súborový systém"
+msgstr "Údaje linuxového systému súborov"
 
 #: pkg/storaged/partitions/partition.jsx:125
 #: pkg/storaged/partitions/partition.jsx:132
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Swap space"
 msgid "Linux swap space"
-msgstr "Odkladací priestor"
+msgstr "Odkladací priestor pre Linux"
 
 #: pkg/systemd/service-details.jsx:664
-#, fuzzy
-#| msgid "Persistent"
 msgid "Listen"
-msgstr "Trvalý"
+msgstr "Načúvať"
 
 #: pkg/networkmanager/wireguard.jsx:242
-#, fuzzy
-#| msgid "Persistent"
 msgid "Listen port"
-msgstr "Trvalý"
+msgstr "Port, na ktorom očakávať pripojenia (počúvať)"
 
 #: pkg/networkmanager/wireguard.jsx:149
-#, fuzzy
-#| msgid "Size must be a number"
 msgid "Listen port must be a number"
-msgstr "Veľkosť musí byť číslo"
+msgstr "Načúvací port musí byť číslo"
 
 #: pkg/systemd/services.jsx:683
-#, fuzzy
-#| msgid "Systemd units"
 msgid "Listing units"
-msgstr "Systemd jednotky"
+msgstr "Vypisujem jednotky"
 
 #: pkg/systemd/services.jsx:503
-#, fuzzy
-#| msgid "Last checked: $0"
 msgid "Listing units failed: $0"
-msgstr "Naposledy skontrolované: $0"
+msgstr "Vypisovanie jednotiek skončilo s chybou: $0"
 
 #: pkg/metrics/metrics.jsx:117 pkg/metrics/metrics.jsx:118
 #: pkg/metrics/metrics.jsx:851 pkg/metrics/metrics.jsx:1963
@@ -4271,11 +4210,11 @@ msgstr "Záťaž"
 
 #: pkg/networkmanager/team.jsx:43
 msgid "Load balancing"
-msgstr ""
+msgstr "Rozkladanie záťaže"
 
 #: pkg/metrics/metrics.jsx:1993
 msgid "Load earlier data"
-msgstr ""
+msgstr "Načítať skoršie dáta"
 
 #: pkg/systemd/logsJournal.jsx:289
 msgid "Load earlier entries"
@@ -4283,45 +4222,39 @@ msgstr "Načítať skoršie položky"
 
 #: pkg/packagekit/updates.jsx:102
 msgid "Loading available updates failed"
-msgstr ""
+msgstr "Načítanie dostupných aktualizácií sa nepodarilo"
 
 #: pkg/packagekit/updates.jsx:96
 msgid "Loading available updates, please wait..."
-msgstr ""
+msgstr "Načítavam dostupné aktualizácie, čakajte prosím…"
 
 #: pkg/systemd/logsJournal.jsx:290
 msgid "Loading earlier entries"
-msgstr "Načítajú sa skoršie položky"
+msgstr "Načítavam skoršie položky"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:177
 msgid "Loading keys..."
-msgstr "Načítavajú sa kľúče..."
+msgstr "Načítavam kľúče..."
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:173
 msgid "Loading of SSH keys failed"
-msgstr ""
+msgstr "Načítanie SSH kľúčov sa nepodarilo"
 
 #: pkg/systemd/services.jsx:664
-#, fuzzy
-#| msgid "Login failed"
 msgid "Loading of units failed"
-msgstr "Prihlásenie sa nepodarilo"
+msgstr "Načítanie jednotiek sa nepodarilo"
 
 #: pkg/shell/shell-modals.jsx:76
-#, fuzzy
-#| msgid "Loading keys..."
 msgid "Loading packages..."
-msgstr "Načítavajú sa kľúče..."
+msgstr "Načítavam balíčky…"
 
 #: pkg/lib/cockpit-components-modifications.jsx:134
 msgid "Loading system modifications..."
-msgstr "Načítavajú sa systémové zmeny..."
+msgstr "Načítavam systémové zmeny..."
 
 #: pkg/systemd/service.jsx:129
-#, fuzzy
-#| msgid "Login failed"
 msgid "Loading unit failed"
-msgstr "Prihlásenie sa nepodarilo"
+msgstr "Načítanie jednotiek zlyhalo"
 
 #: pkg/metrics/metrics.jsx:1992 pkg/users/accounts-list.js:318
 #: pkg/users/accounts-list.js:339 pkg/users/accounts-list.js:452
@@ -4330,31 +4263,27 @@ msgstr "Prihlásenie sa nepodarilo"
 #: pkg/systemd/services.jsx:683 pkg/systemd/logsJournal.jsx:268
 #: pkg/storaged/storaged.jsx:66
 msgid "Loading..."
-msgstr "Načítavanie..."
+msgstr "Načítavam..."
 
 #: pkg/users/index.html:23
 msgid "Local accounts"
-msgstr ""
+msgstr "Miestne účty"
 
 #: pkg/kdump/kdump-view.jsx:247
 msgid "Local filesystem"
-msgstr ""
+msgstr "Lokálny systém súborov"
 
 #: pkg/storaged/nfs/nfs.jsx:157
 msgid "Local mount point"
-msgstr ""
+msgstr "Lokálny bod pripojenia"
 
 #: pkg/storaged/overview/overview.jsx:160
-#, fuzzy
-#| msgid "Managed interfaces"
 msgid "Local storage"
-msgstr "Spravované zariadenia"
+msgstr "Lokálne úložisko"
 
 #: pkg/kdump/kdump-view.jsx:450
-#, fuzzy
-#| msgid "locally in $0"
 msgid "Local, $0"
-msgstr "lokálne v $0"
+msgstr "Lokálne, $0"
 
 #: pkg/kdump/kdump-view.jsx:243 pkg/storaged/dialog.jsx:1178
 #: pkg/storaged/dialog.jsx:1286 pkg/storaged/pages.jsx:716
@@ -4366,29 +4295,24 @@ msgid "Lock"
 msgstr "Zamknúť"
 
 #: pkg/users/lock-account-dialog.js:29
-#, fuzzy
-#| msgid "Lock"
 msgid "Lock $0"
-msgstr "Zamknúť"
+msgstr "Zamknúť $0"
 
 #: pkg/users/accounts-list.js:74
 msgid "Lock account"
 msgstr "Zamknúť účet"
 
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:30
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Encrypted data"
 msgid "Locked data"
-msgstr "Šifrované dáta"
+msgstr "Uzamknuté dáta"
 
 #: pkg/storaged/dialog.jsx:1368
 msgid "Locked encrypted device might contain data"
-msgstr ""
+msgstr "Uzamknuté zašifrované zariadenie môže obsahovať dáta"
 
 #: pkg/storaged/jobs-panel.jsx:43
 msgid "Locking $target"
-msgstr "Zamyká sa $target"
+msgstr "Zamykám $target"
 
 #: pkg/static/login.html:139 pkg/shell/hosts_dialog.jsx:764
 #: pkg/shell/failures.jsx:73 pkg/static/login.js:668
@@ -4396,14 +4320,12 @@ msgid "Log in"
 msgstr "Prihlásiť"
 
 #: pkg/shell/hosts_dialog.jsx:763
-#, fuzzy
-#| msgid "Route to $0"
 msgid "Log in to $0"
-msgstr "Trasa na $0"
+msgstr "Prihlásiť sa k $0"
 
 #: pkg/static/login.js:704
 msgid "Log in with your server user account."
-msgstr ""
+msgstr "Prihláste sa vašim účtom používateľa na serveri."
 
 #: pkg/lib/serverTime.js:459
 msgid "Log messages"
@@ -4415,10 +4337,8 @@ msgid "Log out"
 msgstr "Odhlásiť"
 
 #: pkg/users/accounts-list.js:68
-#, fuzzy
-#| msgid "Log out"
 msgid "Log user out"
-msgstr "Odhlásiť"
+msgstr "Odhlásiť používateľa"
 
 #: pkg/users/accounts-list.js:161 pkg/users/account-details.js:206
 msgid "Logged in"
@@ -4430,10 +4350,8 @@ msgstr "Logický"
 
 #: pkg/storaged/partitions/partition.jsx:127
 #: pkg/storaged/partitions/partition.jsx:134
-#, fuzzy
-#| msgid "Logical volume (snapshot)"
 msgid "Logical Volume Manager partition"
-msgstr "Logický zväzok (zachytený stav)"
+msgstr "Oddiel správy logických zväzkov"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:213
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:249
@@ -4453,16 +4371,14 @@ msgid "Logical volume of $0"
 msgstr "Logický zväzok na $0"
 
 #: pkg/static/login.js:361
-#, fuzzy
-#| msgid "login"
 msgid "Login"
-msgstr "prihlásenie"
+msgstr "Prihlásiť"
 
 #: pkg/static/login.js:404
 msgid "Login again"
 msgstr "Znovu prihlásiť"
 
-#: pkg/lib/cockpit.js:2557
+#: pkg/lib/cockpit.js:2585
 msgid "Login failed"
 msgstr "Prihlásenie sa nepodarilo"
 
@@ -4471,22 +4387,16 @@ msgid "Login format"
 msgstr "Formát prihlasovania"
 
 #: pkg/users/account-logs-panel.jsx:73
-#, fuzzy
-#| msgid "history"
 msgid "Login history"
-msgstr "história"
+msgstr "História prihlásenia"
 
 #: pkg/users/account-logs-panel.jsx:75
-#, fuzzy
-#| msgid "Login format"
 msgid "Login history list"
-msgstr "Formát prihlasovania"
+msgstr "Zoznam histórie prihlasovania"
 
 #: pkg/users/logout-account-dialog.js:29
-#, fuzzy
-#| msgid "Slot $0"
 msgid "Logout $0"
-msgstr "Slot $0"
+msgstr "Odhlásiť $0"
 
 #: pkg/static/login.js:405
 msgid "Logout successful"
@@ -4510,40 +4420,28 @@ msgstr "MAC"
 
 #: pkg/storaged/mdraid/mdraid.jsx:203 pkg/storaged/mdraid/mdraid.jsx:211
 #: pkg/storaged/mdraid/mdraid-disk.jsx:122
-#, fuzzy
-#| msgid "RAID device"
 msgid "MDRAID device"
-msgstr "RAID zariadenie"
+msgstr "Zariadenie MDRAID"
 
 #: pkg/storaged/utils.js:330
-#, fuzzy
-#| msgid "RAID device $0"
 msgid "MDRAID device $0"
-msgstr "RAID zariadenie $0"
+msgstr "MDRAID zariadenie $0"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:89
-#, fuzzy
-#| msgid "Device is read-only"
 msgid "MDRAID device is recovering"
-msgstr "Zariadenie je len na čítanie"
+msgstr "Zariadenie MDRAID sa zotavuje"
 
 #: pkg/storaged/mdraid/mdraid.jsx:200
-#, fuzzy
-#| msgid "Service is running"
 msgid "MDRAID device must be running"
-msgstr "Služba je spustená"
+msgstr "Je potrebné, aby zariadenie MDRAID bolo spustené"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:40
-#, fuzzy
-#| msgid "RAID device"
 msgid "MDRAID disk"
-msgstr "RAID zariadenie"
+msgstr "Disk MDRAID"
 
 #: pkg/storaged/mdraid/mdraid.jsx:309
-#, fuzzy
-#| msgid "Add disks"
 msgid "MDRAID disks"
-msgstr "Pridať disky"
+msgstr "Disky MDRAID"
 
 #: pkg/networkmanager/bond.jsx:54
 msgid "MII (recommended)"
@@ -4563,99 +4461,76 @@ msgstr "Identifikátor stroja"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:194
 msgid "Machine SSH key fingerprints"
-msgstr ""
+msgstr "Odtlačky SSH kľúčov stroja"
 
 #: pkg/lib/machine-info.js:76
 msgid "Main server chassis"
-msgstr "Hlavná skriňa serveru"
+msgstr "Šasi hlavného servera"
 
 #: pkg/systemd/services.jsx:238
-#, fuzzy
-#| msgid "interface"
 msgid "Maintenance"
-msgstr "rozhranie"
+msgstr "Údržba"
 
 #: pkg/shell/hosts_dialog.jsx:497
 msgid "Malicious pages on a remote machine may affect other connected hosts"
 msgstr ""
+"Škodlivé stránky na vzdialenom stroji môžu postihnúť ďalšie pripojené stroje"
 
 #: pkg/storaged/stratis/create-dialog.jsx:111
-#, fuzzy
-#| msgid "Filesystem"
 msgid "Manage filesystem sizes"
-msgstr "Súborový systém"
+msgstr "Spravovať veľkosti súborových systémov"
 
 #: src/appstream/org.cockpit-project.cockpit-storaged.metainfo.xml.in:6
-#, fuzzy
-#| msgid "Managed interfaces"
 msgid "Manage storage"
-msgstr "Spravované zariadenia"
+msgstr "Spravovať úložisko"
 
 #: pkg/networkmanager/network-main.jsx:182
 msgid "Managed interfaces"
 msgstr "Spravované zariadenia"
 
 #: pkg/storaged/manifest.json:0
-#, fuzzy
-#| msgid "Managing services"
 msgid "Managing LVMs"
-msgstr "Správa služieb"
+msgstr "Správa LVM"
 
 #: pkg/storaged/manifest.json:0
-#, fuzzy
-#| msgid "Managing user accounts"
 msgid "Managing NFS mounts"
-msgstr "Správa užívateľských účtov"
+msgstr "Správa NFS pripojení"
 
 #: pkg/storaged/manifest.json:0
-#, fuzzy
-#| msgid "Managing services"
 msgid "Managing RAIDs"
-msgstr "Správa služieb"
+msgstr "Správa RAID polí"
 
 #: pkg/storaged/manifest.json:0
-#, fuzzy
-#| msgid "Managing services"
 msgid "Managing VDOs"
-msgstr "Správa služieb"
+msgstr "Správa VDO optimalizátorov"
 
 #: pkg/networkmanager/manifest.json:0
-#, fuzzy
-#| msgid "Managing services"
 msgid "Managing VLANs"
-msgstr "Správa služieb"
+msgstr "Správa VLAN sietí"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "Managing firewall"
-msgstr ""
+msgstr "Správa brány firewall"
 
 #: pkg/networkmanager/manifest.json:0
-#, fuzzy
-#| msgid "Managing storage devices"
 msgid "Managing networking bonds"
-msgstr "Správa úložískových zariadení"
+msgstr "Správa sieťových spojení (bond)"
 
 #: pkg/networkmanager/manifest.json:0
-#, fuzzy
-#| msgid "Managing storage devices"
 msgid "Managing networking bridges"
-msgstr "Správa úložískových zariadení"
+msgstr "Správa sieťových mostov"
 
 #: pkg/networkmanager/manifest.json:0
-#, fuzzy
-#| msgid "Managing services"
 msgid "Managing networking teams"
-msgstr "Správa služieb"
+msgstr "Správa sieťového teamingu"
 
 #: pkg/storaged/manifest.json:0
 msgid "Managing partitions"
-msgstr ""
+msgstr "Správa oddielov"
 
 #: pkg/storaged/manifest.json:0
-#, fuzzy
-#| msgid "Managing services"
 msgid "Managing physical drives"
-msgstr "Správa služieb"
+msgstr "Správa fyzických diskov"
 
 #: pkg/systemd/manifest.json:0
 msgid "Managing services"
@@ -4667,7 +4542,7 @@ msgstr "Správa softvérových aktualizácií"
 
 #: pkg/users/manifest.json:0
 msgid "Managing user accounts"
-msgstr "Správa užívateľských účtov"
+msgstr "Správa používateľských účtov"
 
 #: pkg/networkmanager/ip-settings.jsx:43
 msgid "Manual"
@@ -4679,7 +4554,7 @@ msgstr "Ručne"
 
 #: pkg/storaged/jobs-panel.jsx:65
 msgid "Marking $target as faulty"
-msgstr ""
+msgstr "Označujem $target ako chybný"
 
 #: pkg/systemd/service-details.jsx:168 pkg/systemd/service-details.jsx:170
 msgid "Mask service"
@@ -4688,7 +4563,7 @@ msgstr "Maskovať službu"
 #: pkg/systemd/services.jsx:250 pkg/systemd/services.jsx:251
 #: pkg/systemd/service-details.jsx:426
 msgid "Masked"
-msgstr "Maskovaný"
+msgstr "Maskovaná"
 
 #: pkg/systemd/service-details.jsx:169
 msgid ""
@@ -4702,14 +4577,11 @@ msgstr ""
 
 #: pkg/networkmanager/network-interface.jsx:506
 msgid "Maximum message age $max_age"
-msgstr ""
+msgstr "Maximálny vek správ $max_age"
 
 #: pkg/storaged/drive/drive.jsx:62
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "Optical drive"
 msgid "Media drive"
-msgstr "Mechanika optického disku"
+msgstr "Jednotka média"
 
 #: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:882
 #: pkg/metrics/metrics.jsx:1586 pkg/metrics/metrics.jsx:1964
@@ -4721,78 +4593,68 @@ msgstr "Pamäť"
 
 #: pkg/systemd/hwinfo.jsx:291
 msgid "Memory technology"
-msgstr ""
+msgstr "Technológia pamäte"
 
 #: pkg/metrics/metrics.jsx:124
 msgid "Memory usage"
 msgstr "Využitie pamäte"
 
 #: pkg/metrics/metrics.jsx:1953
-#, fuzzy
-#| msgid "Memory usage"
 msgid "Memory usage/swap"
-msgstr "Využitie pamäte"
+msgstr "Využitie pamäte / odkladacieho priestoru (swap)"
 
 #: pkg/systemd/services.jsx:225
 msgid "Merged"
-msgstr ""
+msgstr "Zlúčené"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:198
 msgid "Message to logged in users"
-msgstr ""
+msgstr "Správa pre prihlásených používateľov"
 
 #: pkg/shell/failures.jsx:42
 msgid "Messages related to the failure might be found in the journal:"
-msgstr ""
+msgstr "Správy týkajúce sa zlyhania sa môžu nachádzať v žurnále:"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:145
 #: pkg/storaged/lvm2/vdo-pool.jsx:83
 msgid "Metadata used"
-msgstr ""
+msgstr "Využité metadáta"
 
 #: pkg/shell/superuser.jsx:205
 msgid "Method"
 msgstr "Metóda"
 
 #: pkg/networkmanager/ip-settings.jsx:382
-#, fuzzy
-#| msgid "metrics"
 msgid "Metric"
-msgstr "metriky"
+msgstr "Metrika"
 
 #: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2014
-#, fuzzy
-#| msgid "View details and history"
 msgid "Metrics and history"
-msgstr "Ukázať podrobnosti a históriu"
+msgstr "Metriky a histórie"
 
 #: pkg/metrics/metrics.jsx:1855
 msgid "Metrics history could not be loaded"
-msgstr ""
+msgstr "Nepodarilo sa načítať historické metriky"
 
 #: pkg/metrics/metrics.jsx:1471 pkg/metrics/metrics.jsx:1571
-#, fuzzy
-#| msgid "Bridge settings"
 msgid "Metrics settings"
-msgstr "Nastavenia mostu"
+msgstr "Nastavenia metrík"
 
 #: pkg/lib/machine-info.js:94
 msgid "Mini PC"
-msgstr ""
+msgstr "Mini PC"
 
 #: pkg/lib/machine-info.js:65
 msgid "Mini tower"
-msgstr ""
+msgstr "Miniveža"
 
 #: pkg/systemd/timer-dialog.jsx:273
 msgid "Minute needs to be a number between 0-59"
 msgstr "Minúta musí byť číslo medzi 0-59"
 
 #: pkg/systemd/timer-dialog.jsx:243
-#, fuzzy
-#| msgid "Minutes"
 msgid "Minutely"
-msgstr "Minúty"
+msgstr "Po minútach"
 
 #: pkg/systemd/timer-dialog.jsx:211
 msgid "Minutes"
@@ -4801,7 +4663,7 @@ msgstr "Minúty"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:77
 #: pkg/storaged/lvm2/block-logical-volume.jsx:261
 msgid "Mirrored (RAID 1)"
-msgstr ""
+msgstr "Zrkadlenie (RAID 1)"
 
 #: pkg/systemd/hwinfo.jsx:69
 msgid "Mitigations"
@@ -4820,7 +4682,7 @@ msgstr "Model"
 #: pkg/storaged/jobs-panel.jsx:44 pkg/storaged/jobs-panel.jsx:50
 #: pkg/storaged/jobs-panel.jsx:57
 msgid "Modifying $target"
-msgstr ""
+msgstr "Upravujem $target"
 
 #: pkg/packagekit/autoupdates.jsx:435 pkg/systemd/timer-dialog.jsx:317
 msgid "Mondays"
@@ -4828,15 +4690,15 @@ msgstr "Pondelky"
 
 #: pkg/networkmanager/bond.jsx:194
 msgid "Monitoring interval"
-msgstr ""
+msgstr "Interval monitorovania"
 
 #: pkg/networkmanager/bond.jsx:205
 msgid "Monitoring targets"
-msgstr ""
+msgstr "Ciele monitorovania"
 
 #: pkg/systemd/timer-dialog.jsx:247
 msgid "Monthly"
-msgstr ""
+msgstr "Každý mesiac"
 
 #: pkg/packagekit/updates.jsx:939
 msgid "More info..."
@@ -4850,18 +4712,16 @@ msgid "Mount"
 msgstr "Pripojiť (mount)"
 
 #: pkg/storaged/btrfs/subvolume.jsx:154
-#, fuzzy
-#| msgid "Mount point"
 msgid "Mount Point"
 msgstr "Bod pripojenia"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:137
 msgid "Mount after network becomes available, ignore failure"
-msgstr ""
+msgstr "Pripojiť, keď bude sieť k dispozícii, ignorovať neúspech"
 
 #: pkg/storaged/filesystem/mismounting.jsx:210
 msgid "Mount also automatically on boot"
-msgstr ""
+msgstr "Pripájať tiež automaticky pri štarte systému"
 
 #: pkg/storaged/nfs/nfs.jsx:171
 msgid "Mount at boot"
@@ -4870,15 +4730,15 @@ msgstr "Pripojiť pri štarte"
 #: pkg/storaged/filesystem/mismounting.jsx:202
 #: pkg/storaged/filesystem/mismounting.jsx:214
 msgid "Mount automatically on $0 on boot"
-msgstr ""
+msgstr "Pri štarte systému automaticky pripojiť na $0"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:129
 msgid "Mount before services start"
-msgstr ""
+msgstr "Pripojiť pred spustením služieb"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:352
 msgid "Mount configuration"
-msgstr ""
+msgstr "Nastavenie pripojenia (mount)"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:350
 msgid "Mount filesystem"
@@ -4886,15 +4746,15 @@ msgstr "pojiť súborový systém"
 
 #: pkg/storaged/filesystem/mismounting.jsx:207
 msgid "Mount now"
-msgstr ""
+msgstr "Pripojiť teraz"
 
 #: pkg/storaged/filesystem/mismounting.jsx:203
 msgid "Mount on $0 now"
-msgstr ""
+msgstr "Pripojiť na $0 teraz"
 
 #: pkg/storaged/nfs/nfs.jsx:168 pkg/storaged/filesystem/mounting-dialog.jsx:52
 msgid "Mount options"
-msgstr ""
+msgstr "Možnosti pripojenia"
 
 #: pkg/storaged/nfs/nfs.jsx:329 pkg/storaged/btrfs/subvolume.jsx:446
 #: pkg/storaged/block/format-dialog.jsx:299
@@ -4907,19 +4767,19 @@ msgstr "Bod pripojenia"
 
 #: pkg/storaged/filesystem/utils.jsx:115
 msgid "Mount point cannot be empty"
-msgstr ""
+msgstr "Je potrebné zadať bod pripojenia"
 
 #: pkg/storaged/nfs/nfs.jsx:162
 msgid "Mount point cannot be empty."
-msgstr ""
+msgstr "Je potrebné zadať bod pripojenia."
 
 #: pkg/storaged/filesystem/utils.jsx:121
 msgid "Mount point is already used for $0"
-msgstr ""
+msgstr "Bod pripojenia sa už používa pre $0"
 
 #: pkg/storaged/nfs/nfs.jsx:164
 msgid "Mount point must start with \"/\"."
-msgstr ""
+msgstr "Bod pripojenia musí začínať lomkou („/\")."
 
 #: pkg/storaged/nfs/nfs.jsx:172 pkg/storaged/filesystem/mounting-dialog.jsx:61
 msgid "Mount read only"
@@ -4927,46 +4787,45 @@ msgstr "Pripojiť iba na čítanie"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:133
 msgid "Mount without waiting, ignore failure"
-msgstr ""
+msgstr "Pripojiť bez čakania, ignorovať neúspech"
 
 #: pkg/storaged/jobs-panel.jsx:48
 msgid "Mounting $target"
-msgstr "pája sa $target"
+msgstr "Pripájam $target"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:74
 msgid "Mounts before services start"
-msgstr ""
+msgstr "Pripojenia pred spustením služieb"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:88
 msgid "Mounts in parallel with services"
-msgstr ""
+msgstr "Bude pripojené súbežne so službami"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:99
 msgid "Mounts in parallel with services, but after network is available"
 msgstr ""
+"Bude sa pripájať súbežne so službami, ale až po tom, ako bude dostupná sieť"
 
 #: pkg/lib/machine-info.js:84
 msgid "Multi-system chassis"
-msgstr "Skriňa pre viac systémov"
+msgstr "Šasi pre viac systémov"
 
 #: pkg/storaged/drive/drive.jsx:135
-#, fuzzy
-#| msgid "Other devices"
 msgid "Multipathed devices"
-msgstr "Iné zariadenia"
+msgstr "Zariadenie s viacerými cestami (multipath)"
 
 #: pkg/networkmanager/wireguard.jsx:256
 msgid ""
 "Multiple addresses can be specified using commas or spaces as delimiters."
-msgstr ""
+msgstr "Je možné zadať viacero adries (oddelených čiarkami alebo medzerami)."
 
 #: pkg/storaged/nfs/nfs.jsx:133 pkg/storaged/nfs/nfs.jsx:297
 msgid "NFS mount"
-msgstr ""
+msgstr "Pripojenie NFS"
 
 #: pkg/networkmanager/team.jsx:58
 msgid "NSNA ping"
-msgstr ""
+msgstr "NSNA ping"
 
 #: pkg/lib/serverTime.js:545
 msgid "NTP server"
@@ -5007,11 +4866,11 @@ msgstr "Názov"
 
 #: pkg/storaged/stratis/utils.jsx:32 pkg/storaged/stratis/utils.jsx:116
 msgid "Name can not be empty."
-msgstr ""
+msgstr "Názov je potrebné vyplniť."
 
 #: pkg/storaged/btrfs/utils.jsx:85 pkg/storaged/utils.js:208
 msgid "Name cannot be empty."
-msgstr ""
+msgstr "Názov je potrebné vyplniť."
 
 #: pkg/storaged/utils.js:237
 msgid "Name cannot be longer than $0 bytes"
@@ -5026,32 +4885,28 @@ msgid "Name cannot be longer than 127 characters."
 msgstr "Názov nemôže byť dlhší ako 127 znakov."
 
 #: pkg/storaged/btrfs/utils.jsx:87
-#, fuzzy
-#| msgid "Name cannot be longer than 127 characters."
 msgid "Name cannot be longer than 255 characters."
-msgstr "Názov nemôže byť dlhší ako 127 znakov."
+msgstr "Názov nemôže byť dlhší ako 255 znakov."
 
 #: pkg/storaged/utils.js:214
 msgid "Name cannot contain the character '$0'."
-msgstr ""
+msgstr "Názov nesmie obsahovať znak „$0\"."
 
 #: pkg/storaged/btrfs/utils.jsx:89
-#, fuzzy
-#| msgid "Name cannot be longer than 127 characters."
 msgid "Name cannot contain the character '/'."
-msgstr "Názov nemôže byť dlhší ako 127 znakov."
+msgstr "Nazov nesmie obsahovať znak „/\"."
 
 #: pkg/storaged/utils.js:216
 msgid "Name cannot contain whitespace."
-msgstr ""
+msgstr "Názov nesmie obsahovať prázdny znak."
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:91
 msgid "Need a spare disk"
-msgstr ""
+msgstr "Potrebujete rezervný disk"
 
 #: pkg/lib/serverTime.js:687
 msgid "Need at least one NTP server"
-msgstr ""
+msgstr "Je potrebný aspoň jeden server NTP"
 
 #: pkg/metrics/metrics.jsx:981 pkg/metrics/metrics.jsx:1586
 #: pkg/metrics/metrics.jsx:1953 pkg/metrics/metrics.jsx:1966
@@ -5064,11 +4919,11 @@ msgstr "Sieťový vstup/výstup"
 
 #: pkg/networkmanager/bond.jsx:138
 msgid "Network bond"
-msgstr ""
+msgstr "Sieťové spojenie (bond)"
 
 #: pkg/networkmanager/networkmanager.jsx:101
 msgid "Network devices and graphs require NetworkManager"
-msgstr ""
+msgstr "Sieťové zariadenia a grafy vyžadujú NetworkManager"
 
 #: pkg/networkmanager/network-main.jsx:207
 msgid "Network logs"
@@ -5087,10 +4942,8 @@ msgid "NetworkManager is not running"
 msgstr "NetworkManager nebeží"
 
 #: pkg/storaged/overview/overview.jsx:168
-#, fuzzy
-#| msgid "Network usage"
 msgid "Networked storage"
-msgstr "Využitie siete"
+msgstr "Sieťové úložisko"
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:1053
 #: pkg/networkmanager/network-interface.jsx:705
@@ -5104,20 +4957,16 @@ msgid "Never"
 msgstr "Nikdy"
 
 #: pkg/users/expiration-dialogs.js:42 pkg/users/account-details.js:75
-#, fuzzy
-#| msgid "Never lock account"
 msgid "Never expire account"
-msgstr "Nikdy nezamknúť účet"
+msgstr "Účet s neobmedzenou dobou platnosti"
 
 #: pkg/users/expiration-dialogs.js:154 pkg/users/account-details.js:67
 msgid "Never expire password"
 msgstr "Nikdy neexpirovať heslo"
 
 #: pkg/users/accounts-list.js:164
-#, fuzzy
-#| msgid "Logged in"
 msgid "Never logged in"
-msgstr "Prihlásený"
+msgstr "Nikdy neprihlásený(á)"
 
 #: pkg/storaged/nfs/nfs.jsx:133 pkg/storaged/overview/overview.jsx:151
 msgid "New NFS mount"
@@ -5128,20 +4977,16 @@ msgid "New host"
 msgstr "Nový hostiteľ"
 
 #: pkg/shell/hosts_dialog.jsx:464
-#, fuzzy
-#| msgid "New host"
 msgid "New host: $0"
-msgstr "Nový hostiteľ"
+msgstr "Nový hostiteľ: $0"
 
 #: pkg/shell/hosts_dialog.jsx:812
 msgid "New key password"
 msgstr "Nové heslo ku kľúču"
 
 #: pkg/users/rename-group-dialog.jsx:35
-#, fuzzy
-#| msgid "Rename"
 msgid "New name"
-msgstr "Premenovať"
+msgstr "Nový názov"
 
 #: pkg/storaged/crypto/keyslots.jsx:471 pkg/storaged/crypto/keyslots.jsx:521
 #: pkg/storaged/stratis/pool.jsx:404
@@ -5165,10 +5010,8 @@ msgid "No"
 msgstr "Nie"
 
 #: pkg/users/group-create-dialog.js:79
-#, fuzzy
-#| msgid "No real name specified"
 msgid "No ID specified"
-msgstr "Nie je zadaný skutočný názov"
+msgstr "Nezadaný žiaden identifikátor"
 
 #: pkg/selinux/setroubleshoot-view.jsx:325
 msgid "No SELinux alerts."
@@ -5187,14 +5030,12 @@ msgid "No block devices are available."
 msgstr "Nie sú dostupné žiadne blokové zariadenia."
 
 #: pkg/storaged/stratis/pool.jsx:562 pkg/storaged/stratis/stopped-pool.jsx:140
-#, fuzzy
-#| msgid "$0 block device"
 msgid "No block devices found"
-msgstr "$0 Blokové zariadenie"
+msgstr "Nenájdené žiadne blokové zariadenie"
 
 #: pkg/networkmanager/interfaces.js:1356
 msgid "No carrier"
-msgstr ""
+msgstr "Bez signálu"
 
 #: pkg/kdump/kdump-view.jsx:471
 msgid "No configuration found"
@@ -5206,11 +5047,11 @@ msgstr "Nie sú dostupné žiadne dáta"
 
 #: pkg/metrics/metrics.jsx:1879
 msgid "No data available between $0 and $1"
-msgstr ""
+msgstr "Nie sú k dispozícii žiadne údaje medzi $0 a $1"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:175
 msgid "No delay"
-msgstr ""
+msgstr "Bez oneskorenia"
 
 #: pkg/networkmanager/firewall.jsx:848
 msgid "No description available"
@@ -5221,69 +5062,55 @@ msgid "No description provided."
 msgstr "Nie je poskytnutý žiaden popis."
 
 #: pkg/storaged/btrfs/volume.jsx:136
-#, fuzzy
-#| msgid "$0 block device"
 msgid "No devices found"
-msgstr "$0 Blokové zariadenie"
+msgstr "Žiadne zariadene nebolo nájdené"
 
 #: pkg/storaged/lvm2/create-dialog.jsx:54
 #: pkg/storaged/lvm2/volume-group.jsx:200
 #: pkg/storaged/mdraid/create-dialog.jsx:101 pkg/storaged/mdraid/mdraid.jsx:158
 #: pkg/storaged/stratis/pool.jsx:207
 msgid "No disks are available."
-msgstr ""
+msgstr "Nie sú k dispozícii žiadne disky."
 
 #: pkg/storaged/mdraid/mdraid.jsx:308
-#, fuzzy
-#| msgid "No logs found"
 msgid "No disks found"
-msgstr "Nenájdené žiadne záznamy udalostí"
+msgstr "Neboli nájdené žiadne disky"
 
 #: pkg/storaged/iscsi/session.jsx:79
-#, fuzzy
-#| msgid "No results found"
 msgid "No drives found"
-msgstr "Neboli nájdené žiadne výsledky"
+msgstr "Neboli nájdené žiadne jednotky"
 
 #: pkg/storaged/block/format-dialog.jsx:195
-#, fuzzy
-#| msgid "encryption"
 msgid "No encryption"
-msgstr "Šifrovanie"
+msgstr "Bez šifrovania"
 
 #: pkg/metrics/metrics.jsx:1335
 msgid "No events"
-msgstr ""
+msgstr "Žiadne udalosti"
 
 #: pkg/storaged/block/format-dialog.jsx:159
 msgid "No filesystem"
-msgstr ""
+msgstr "Bez systému súborov"
 
 #: pkg/storaged/stratis/pool.jsx:354
-#, fuzzy
-#| msgid "filesystem"
 msgid "No filesystems"
-msgstr "Súborový systém"
+msgstr "Systém súborov"
 
 #: pkg/storaged/crypto/keyslots.jsx:819
 msgid "No free key slots"
-msgstr ""
+msgstr "Žiadne volné sloty pre kľúče"
 
 #: pkg/storaged/lvm2/volume-group.jsx:225
 msgid "No free space"
 msgstr "Žiadne voľné miesto"
 
 #: pkg/storaged/partitions/partition.jsx:79
-#, fuzzy
-#| msgid "Create partition"
 msgid "No free space after this partition"
-msgstr "Vytvoriť oddiel"
+msgstr "Za týmto oddielom už nie je žiadne voľné miesto"
 
 #: pkg/users/group-create-dialog.js:62
-#, fuzzy
-#| msgid "No real name specified"
 msgid "No group name specified"
-msgstr "Nie je zadaný skutočný názov"
+msgstr "Nezadali ste názov skupiny"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:179
 msgid "No host keys found."
@@ -5299,7 +5126,7 @@ msgstr "Žiadne pridané kľúče"
 
 #: pkg/shell/shell-modals.jsx:149
 msgid "No languages match"
-msgstr ""
+msgstr "Nezhoduje sa so žiadnymi jazykmi"
 
 #: pkg/metrics/metrics.jsx:1151 pkg/systemd/service.jsx:166
 msgid "No log entries"
@@ -5325,25 +5152,19 @@ msgstr "Nie je vložené žiadne médium"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:58
 msgid "No partitioning"
-msgstr ""
+msgstr "Žiaden oddiel"
 
 #: pkg/storaged/partitions/partition-table.jsx:107
-#, fuzzy
-#| msgid "No logs found"
 msgid "No partitions found"
-msgstr "Nenájdené žiadne záznamy udalostí"
+msgstr "Nenašli sa žiadne oddiely"
 
 #: pkg/networkmanager/wireguard.jsx:341
-#, fuzzy
-#| msgid "No keys added"
 msgid "No peers added."
-msgstr "Žiadne pridané kľúče"
+msgstr "Nepridané žiadne protistrany."
 
 #: pkg/storaged/lvm2/volume-group.jsx:394
-#, fuzzy
-#| msgid "Physical volume of $0"
 msgid "No physical volumes found"
-msgstr "Fyzický zväzok na $0"
+msgstr "Nenájdené žiadne fyzické zväzky"
 
 #: pkg/users/account-create-dialog.js:168
 msgid "No real name specified"
@@ -5357,44 +5178,38 @@ msgstr "Neboli nájdené žiadne výsledky"
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
+"Kritériám filtra nezodpovedajú žiadne výsledky. Pre zobrazenie výsledkov "
+"vypnite všetky filtre."
 
 #: pkg/systemd/overview-cards/insights.jsx:184
 msgid "No rule hits"
 msgstr "Žiadne zásahy pravidla"
 
 #: pkg/storaged/btrfs/subvolume.jsx:464
-#, fuzzy
-#| msgid "No logs found"
 msgid "No snapshots found"
-msgstr "Nenájdené žiadne záznamy udalostí"
+msgstr "Nenašli sa žiadne snímky"
 
 #: pkg/storaged/overview/overview.jsx:190
-#, fuzzy
-#| msgid "No logs found"
 msgid "No storage found"
-msgstr "Nenájdené žiadne záznamy udalostí"
+msgstr "Nenašlo sa žiadne úložisko"
 
 #: pkg/storaged/btrfs/volume.jsx:157 pkg/storaged/btrfs/filesystem.jsx:86
 #: pkg/storaged/btrfs/subvolume.jsx:454
-#, fuzzy
-#| msgid "No logical volumes"
 msgid "No subvolumes"
-msgstr "Žiadne logické zväzky"
+msgstr "Žiadne podzväzky"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:182
 #: pkg/lib/credentials.js:191
 msgid "No such file or directory"
-msgstr ""
+msgstr "Žiaden taký súbor alebo adresár neexistuje"
 
 #: pkg/lib/cockpit-components-modifications.jsx:129
 msgid "No system modifications"
 msgstr "Žiadne systémové zmeny"
 
 #: pkg/sosreport/sosreport.jsx:504
-#, fuzzy
-#| msgid "No system modifications"
 msgid "No system reports."
-msgstr "Žiadne systémové zmeny"
+msgstr "Žiadne výkazy o systéme."
 
 #: pkg/packagekit/autoupdates.jsx:409
 msgid "No updates"
@@ -5411,15 +5226,15 @@ msgstr "Žiadny"
 
 #: pkg/lib/credentials.js:277
 msgid "Not a valid private key"
-msgstr ""
+msgstr "Nie je platná súkromná časť kľúča"
 
 #: pkg/networkmanager/firewall-switch.jsx:65
 msgid "Not authorized to disable the firewall"
-msgstr ""
+msgstr "Nemáte oprávnenie na vypnutie brány firewall"
 
 #: pkg/networkmanager/firewall-switch.jsx:65
 msgid "Not authorized to enable the firewall"
-msgstr ""
+msgstr "Nemáte oprávnenie na zapnutie brány firewall"
 
 #: pkg/networkmanager/interfaces.js:791 pkg/packagekit/kpatch.jsx:243
 msgid "Not available"
@@ -5438,23 +5253,17 @@ msgid "Not connected to host"
 msgstr "Nepripojené k hostiteľovi"
 
 #: pkg/storaged/lvm2/physical-volume.jsx:78
-#, fuzzy
-#| msgid "Not enough space to grow."
 msgid "Not enough free space"
-msgstr "Pre zväčšenie nie je dostatok priestoru."
+msgstr "Nedostatok voľného miesta"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:95
 #: pkg/storaged/stratis/pool.jsx:304 pkg/storaged/stratis/filesystem.jsx:75
-#, fuzzy
-#| msgid "Not enough space to grow."
 msgid "Not enough space"
-msgstr "Pre zväčšenie nie je dostatok priestoru."
+msgstr "Nedostatok miesta"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:183
-#, fuzzy
-#| msgid "Not enough space to grow."
 msgid "Not enough space to grow"
-msgstr "Pre zväčšenie nie je dostatok priestoru."
+msgstr "Pre zväčšenie nie je dostatok miesta"
 
 #: pkg/systemd/services.jsx:222 pkg/storaged/pages.jsx:278
 #: pkg/storaged/pages.jsx:283
@@ -5466,18 +5275,14 @@ msgid "Not installed"
 msgstr "Nenainštalovaný"
 
 #: pkg/networkmanager/network-interface.jsx:680
-#, fuzzy
-#| msgid "Failed to clone VM $0"
 msgid "Not permitted to configure network devices"
-msgstr "Nepodarilo sa klonovanie virt. stroja $0"
+msgstr "Nemáte oprávnenie nastavovať sieťové zariadenia"
 
 #: pkg/systemd/overview-cards/realmd.jsx:462
-#, fuzzy
-#| msgid "Failed to clone VM $0"
 msgid "Not permitted to configure realms"
-msgstr "Nepodarilo sa klonovanie virt. stroja $0"
+msgstr "Nemáte oprávnenia nastavovať realmy"
 
-#: pkg/lib/cockpit.js:2555
+#: pkg/lib/cockpit.js:2583
 msgid "Not permitted to perform this action."
 msgstr "Neoprávený k vykonaniu tejto akcie."
 
@@ -5496,10 +5301,8 @@ msgid "Not running"
 msgstr "Nespustená"
 
 #: pkg/packagekit/autoupdates.jsx:472
-#, fuzzy
-#| msgid "No NFS mounts set up"
 msgid "Not set up"
-msgstr "Nie sú nastavené žiadne NFS pripojenia"
+msgstr "Nenastavené"
 
 #: pkg/lib/serverTime.js:453
 msgid "Not synchronized"
@@ -5519,11 +5322,11 @@ msgstr "Oznámenie a závažnejšie"
 
 #: pkg/sosreport/sosreport.jsx:338
 msgid "Obfuscate network addresses, hostnames, and usernames"
-msgstr ""
+msgstr "Zamaskovať sieťové adresy, názvy hostiteľov a mená používateľov"
 
 #: pkg/sosreport/sosreport.jsx:459
 msgid "Obfuscated"
-msgstr ""
+msgstr "Zamaskované"
 
 #: pkg/selinux/setroubleshoot-view.jsx:347
 msgid "Occurred $0"
@@ -5535,8 +5338,6 @@ msgstr "Vyskytlo sa medzi $0 a $1"
 
 #: pkg/lib/cockpit-components-logs-panel.jsx:98
 #: pkg/selinux/setroubleshoot-view.jsx:414
-#, fuzzy
-#| msgid "Occurances"
 msgid "Occurrences"
 msgstr "Výskyty"
 
@@ -5587,6 +5388,7 @@ msgstr "Iba núdzové"
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:112
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
+"Pri štarte systému v režime FIPS použiť iba schválené a povolené algoritmy."
 
 #: pkg/shell/topnav.jsx:255
 msgid "Ooops!"
@@ -5595,6 +5397,8 @@ msgstr "Ooops!"
 #: pkg/metrics/metrics.jsx:1458
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr ""
+"Ak chcete zdieľať metriky, otvorte na bráne firewall komunikáciu pre služby "
+"pmproxy."
 
 #: pkg/storaged/jobs-panel.jsx:89
 msgid "Operation '$operation' on $target"
@@ -5620,6 +5424,8 @@ msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
 msgstr ""
+"Aj keď nie je umožnené prihlasovanie pomocou hesla, ostatné metódy "
+"overovania sú stále k dispozícii."
 
 #: pkg/static/login.html:121
 msgid "Other options"
@@ -5636,27 +5442,21 @@ msgstr "Prehľad"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:61
 #: pkg/storaged/block/format-dialog.jsx:324
-#, fuzzy
-#| msgid "Overview"
 msgid "Overwrite"
-msgstr "Prehľad"
+msgstr "Prepísať"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:64
 #: pkg/storaged/block/format-dialog.jsx:327
-#, fuzzy
-#| msgid "Overwrite existing data with zeros"
 msgid "Overwrite existing data with zeros (slower)"
-msgstr "Prepísať existujúce dáta nulami"
+msgstr "Prepísať existujúce dáta nulami (pomalšie)"
 
 #: pkg/systemd/hwinfo.jsx:273 pkg/systemd/hwinfo.jsx:326
 msgid "PCI"
 msgstr "PCI"
 
 #: pkg/storaged/dialog.jsx:1432
-#, fuzzy
-#| msgid "ID"
 msgid "PID"
-msgstr "ID"
+msgstr "Identifikátor procesu (PID)"
 
 #: pkg/metrics/metrics.jsx:1828
 msgid "Package cockpit-pcp is missing for metrics history"
@@ -5692,7 +5492,7 @@ msgstr "Rodič"
 
 #: pkg/networkmanager/network-interface.jsx:546
 msgid "Parent $parent"
-msgstr ""
+msgstr "Nadradené $parent"
 
 #: pkg/systemd/service-details.jsx:560
 msgid "Part of"
@@ -5711,10 +5511,8 @@ msgid "Partition of $0"
 msgstr "Oddiel na $0"
 
 #: pkg/storaged/partitions/partition.jsx:213
-#, fuzzy
-#| msgid "Volume size is $0. Content size is $1."
 msgid "Partition size is $0. Content size is $1."
-msgstr "Veľkosť zväzku je $0. Veľkosť obsahu je $1."
+msgstr "Veľkosť oddielu je $0. Veľkosť obsahu na ňom je $1."
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:49
 msgid "Partitioning"
@@ -5756,10 +5554,8 @@ msgid "Passphrase cannot be empty"
 msgstr "Heslová fráza nemôže byť prázdna"
 
 #: pkg/storaged/crypto/keyslots.jsx:631
-#, fuzzy
-#| msgid "Passphrase cannot be empty"
 msgid "Passphrase from any other key slot"
-msgstr "Heslová fráza nemôže byť prázdna"
+msgstr "Heslová fráza z ľubovoľného iného slotu s kľúčom"
 
 #: pkg/storaged/crypto/keyslots.jsx:622 pkg/storaged/stratis/pool.jsx:436
 msgid "Passphrase removal may prevent unlocking $0."
@@ -5782,20 +5578,16 @@ msgid "Password"
 msgstr "Heslo"
 
 #: pkg/shell/credentials.jsx:257
-#, fuzzy
-#| msgid "Solution applied successfully"
 msgid "Password changed successfully"
-msgstr "Riešenie bolo úspešne aplikované"
+msgstr "Heslo bolo úspešne zmenené"
 
 #: pkg/users/expiration-dialogs.js:209
 msgid "Password expiration"
 msgstr "Skončenie platnosti hesla"
 
 #: pkg/users/account-create-dialog.js:358 pkg/users/password-dialogs.js:194
-#, fuzzy
-#| msgid "Name cannot be longer than $0 characters"
 msgid "Password is longer than 256 characters"
-msgstr "Názov nemôže byť dlhší ako $0 znakov"
+msgstr "Heslo nemôže byť dlhšie ako 256 znakov"
 
 #: pkg/lib/cockpit-components-password.jsx:51
 msgid "Password is not acceptable"
@@ -5814,30 +5606,24 @@ msgid "Password not accepted"
 msgstr "Heslo nebolo prijaté"
 
 #: pkg/shell/credentials.jsx:272
-#, fuzzy
-#| msgid "Password"
 msgid "Password tip"
-msgstr "Heslo"
+msgstr "Pomôcka pre heslo"
 
 #: pkg/lib/cockpit-components-terminal.jsx:215
 msgid "Paste"
 msgstr "Vložiť"
 
 #: pkg/lib/cockpit-components-terminal.jsx:223
-#, fuzzy
-#| msgid "Internal error"
 msgid "Paste error"
-msgstr "Interná chyba"
+msgstr "Chyba vkladania"
 
 #: pkg/networkmanager/wireguard.jsx:215
-#, fuzzy
-#| msgid "Use existing"
 msgid "Paste existing key"
-msgstr "Použiť existujúci"
+msgstr "Vložiť existujúci kľúč"
 
 #: pkg/users/authorized-keys-panel.js:41
 msgid "Paste the contents of your public SSH key file here"
-msgstr ""
+msgstr "Sem vložte obsah verejnej časti svojho kľúča SSH"
 
 #: pkg/systemd/abrtLog.jsx:128 pkg/systemd/service-details.jsx:654
 msgid "Path"
@@ -5845,29 +5631,27 @@ msgstr "Cesta"
 
 #: pkg/networkmanager/bridgeport.jsx:83
 msgid "Path cost"
-msgstr ""
+msgstr "Náklady trasy"
 
 #: pkg/networkmanager/network-interface.jsx:527
 msgid "Path cost $path_cost"
-msgstr ""
+msgstr "Náklady trasy $path_cost"
 
 #: pkg/storaged/nfs/nfs.jsx:145
 msgid "Path on server"
-msgstr ""
+msgstr "Cesta na serveri"
 
 #: pkg/storaged/nfs/nfs.jsx:150
 msgid "Path on server cannot be empty."
-msgstr ""
+msgstr "Cestu na server je potrebné zadať."
 
 #: pkg/storaged/nfs/nfs.jsx:152
 msgid "Path on server must start with \"/\"."
-msgstr ""
+msgstr "Je potrebné, aby cesta na serveri začínala lomkou („/\")."
 
 #: pkg/users/account-create-dialog.js:88
-#, fuzzy
-#| msgid "Directory"
 msgid "Path to directory"
-msgstr "Zložka"
+msgstr "Cesta k adresáru"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:169
 #: pkg/shell/credentials.jsx:170
@@ -5885,28 +5669,35 @@ msgstr "Pozastaviť"
 #: pkg/networkmanager/wireguard.jsx:160
 msgid "Peer #$0 has invalid endpoint port. Port must be a number."
 msgstr ""
+"Protistrana č. $0 nemá platný port koncového bodu. Port musí byť číslo."
 
 #: pkg/networkmanager/wireguard.jsx:156
 msgid ""
 "Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. "
 "1.2.3.4:51820 or example.com:51820"
 msgstr ""
+"Protistrana č. $0 nemá platný port koncového bodu. Je potrebné ho zadať ako "
+"stroj:port, napr. 1.2.3.4:51820 alebo priklad.com:51820"
 
 #: pkg/networkmanager/wireguard.jsx:268
 msgid "Peers"
-msgstr ""
+msgstr "Protistrany"
 
 #: pkg/networkmanager/wireguard.jsx:273
 msgid ""
 "Peers are other machines that connect with this one. Public keys from other "
 "machines will be shared with each other."
 msgstr ""
+"Protistrany sú iné stroje, ktoré sa k tomuto stroju prihlasujú. Verejné "
+"kľúče z ostatných strojov sa medzi sebou zdieľajú."
 
 #: pkg/metrics/metrics.jsx:1474
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
 msgstr ""
+"Perfofrmance Co-Pilot zhromažďuje a analyzuje výkonnostné metriky z vášho "
+"systému."
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:84
 msgid "Performance profile"
@@ -5914,35 +5705,29 @@ msgstr "Profil výkonu"
 
 #: pkg/lib/machine-info.js:80
 msgid "Peripheral chassis"
-msgstr "Skriňa s perifériami"
+msgstr "Šasi pre periférie"
 
 #: pkg/networkmanager/dialogs-common.jsx:77
 msgid "Permanent"
 msgstr "Trvalá"
 
 #: pkg/users/delete-group-dialog.js:33
-#, fuzzy
-#| msgid "Delete $0"
 msgid "Permanently delete $0 group?"
-msgstr "Zmazať $0"
+msgstr "Nenávratne zmazať skupinu $0?"
 
 #: pkg/storaged/lvm2/volume-group.jsx:93
 #: pkg/storaged/partitions/partition.jsx:54 pkg/storaged/mdraid/mdraid.jsx:123
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:119 pkg/storaged/stratis/pool.jsx:145
 msgid "Permanently delete $0?"
-msgstr ""
+msgstr "Nenávratne zmazať $0?"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:75
-#, fuzzy
-#| msgid "Delete $0"
 msgid "Permanently delete logical volume $0/$1?"
-msgstr "Zmazať $0"
+msgstr "Nenávratne zmazať logický zväzok $0/$1?"
 
 #: pkg/storaged/btrfs/subvolume.jsx:231
-#, fuzzy
-#| msgid "Delete $0"
 msgid "Permanently delete subvolume $0?"
-msgstr "Zmazať $0"
+msgstr "Nenávratne zmazať podzväzok $0?"
 
 #: pkg/static/login.js:933
 msgid "Permission denied"
@@ -5959,21 +5744,17 @@ msgstr "Fyzické"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:180
 #: pkg/storaged/lvm2/block-logical-volume.jsx:130
 #: pkg/storaged/block/resize.jsx:436
-#, fuzzy
-#| msgid "Logical volume"
 msgid "Physical Volumes"
-msgstr "Logický zväzok"
+msgstr "Fyzické zväzky"
 
 #: pkg/storaged/lvm2/volume-group.jsx:392
 #: pkg/storaged/lvm2/block-logical-volume.jsx:356
 msgid "Physical volumes"
-msgstr ""
+msgstr "Fyzické zväzky"
 
 #: pkg/storaged/block/resize.jsx:279
-#, fuzzy
-#| msgid "Key slots with unknown types can not be edited here"
 msgid "Physical volumes can not be resized here"
-msgstr "Sloty kľúčov s neznámym typom tu nie je možné upraviť"
+msgstr "Tu nie je možné meniť veľkosti fyzických zväzkov"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:211 pkg/lib/serverTime.js:594
 #: pkg/users/expiration-dialogs.js:48 pkg/systemd/timer-dialog.jsx:347
@@ -5981,34 +5762,32 @@ msgid "Pick date"
 msgstr "Vybrať dátum"
 
 #: pkg/systemd/service-details.jsx:185
-#, fuzzy
-#| msgid "Systemd units"
 msgid "Pin unit"
-msgstr "Systemd jednotky"
+msgstr "Pripnúť jednotku"
 
 #: pkg/networkmanager/team.jsx:200
 msgid "Ping interval"
-msgstr ""
+msgstr "Interval pre ping"
 
 #: pkg/networkmanager/team.jsx:203
 msgid "Ping target"
-msgstr ""
+msgstr "Cieľ pre ping"
 
 #: pkg/systemd/services-list.jsx:103 pkg/systemd/service-details.jsx:622
 msgid "Pinned unit"
-msgstr ""
+msgstr "Pripnutá jednotka"
 
 #: pkg/lib/machine-info.js:64
 msgid "Pizza box"
-msgstr ""
+msgstr "Veľkosť „krabice od pizzy“"
 
 #: pkg/shell/superuser.jsx:143
 msgid "Please authenticate to gain administrative access"
-msgstr ""
+msgstr "Pre získanie prístupu na úrovni správcu sa prosím overte"
 
 #: pkg/static/login.html:34
 msgid "Please enable JavaScript to use the Web Console."
-msgstr ""
+msgstr "Ak chcete používať webovú konzolu, zapnite podporu pre JavaScript."
 
 #: pkg/networkmanager/firewall.jsx:1029
 msgid "Please install the $0 package"
@@ -6016,11 +5795,11 @@ msgstr "Nainštalujte $0 balík"
 
 #: pkg/packagekit/updates.jsx:1491
 msgid "Please resolve the issue and reload this page."
-msgstr ""
+msgstr "Prosím, vyriešte problém a načítajte túto stránku znovu."
 
 #: pkg/users/expiration-dialogs.js:94
 msgid "Please specify an expiration date"
-msgstr ""
+msgstr "Zadajte dátum skončenia platnosti"
 
 #: pkg/static/login.js:576
 msgid "Please specify the host to connect to"
@@ -6028,25 +5807,23 @@ msgstr "Zadajte stroj, ku ktorému sa chcete pripojiť"
 
 #: pkg/storaged/filesystem/utils.jsx:132
 msgid "Please unmount them first."
-msgstr ""
+msgstr "Prosím, najprv ich odpojte."
 
 #: pkg/storaged/utils.js:280
 msgid "Pool for thin logical volumes"
-msgstr ""
+msgstr "Pool pre tenké logické zväzky"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:98
 msgid "Pool for thinly provisioned LVM2 logical volumes"
-msgstr ""
+msgstr "Pool pre tenko poskytované (thin provisioned) logické zväzky LVM2"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:58
 msgid "Pool for thinly provisioned volumes"
-msgstr ""
+msgstr "Pool pre tenko poskytované (thin provisioned) zväzky"
 
 #: pkg/storaged/stratis/pool.jsx:457
-#, fuzzy
-#| msgid "Old passphrase"
 msgid "Pool passphrase"
-msgstr "Pôvodná heslová fráza"
+msgstr "Heslová fráza k poolu"
 
 #: pkg/shell/hosts_dialog.jsx:365 pkg/storaged/iscsi/create-dialog.jsx:111
 msgid "Port"
@@ -6062,10 +5839,8 @@ msgid "Ports"
 msgstr "Porty"
 
 #: pkg/storaged/partitions/partition.jsx:124
-#, fuzzy
-#| msgid "Create partition"
 msgid "PowerPC PReP boot partition"
-msgstr "Vytvoriť oddiel"
+msgstr "Štartovací oddiel PReP architektúry PowerPC"
 
 #: pkg/networkmanager/ip-settings.jsx:194
 msgid "Prefix length"
@@ -6074,19 +5849,17 @@ msgstr "Dĺžka eor"
 #: pkg/networkmanager/ip-settings.jsx:194
 #: pkg/networkmanager/ip-settings.jsx:366
 msgid "Prefix length or netmask"
-msgstr ""
+msgstr "Dĺžka predpony alebo maska siete"
 
 #: pkg/networkmanager/interfaces.js:795
 msgid "Preparing"
-msgstr "Pripravuje sa"
+msgstr "Pripravujem"
 
 #: pkg/lib/machine-info.js:247 pkg/systemd/hw-detect.js:114
 msgid "Present"
 msgstr "Prítomné"
 
 #: pkg/networkmanager/dialogs-common.jsx:78
-#, fuzzy
-#| msgid "Preserve"
 msgid "Preserve"
 msgstr "Zachovať"
 
@@ -6096,7 +5869,7 @@ msgstr "Pekný názov stroja"
 
 #: pkg/systemd/logs.jsx:59
 msgid "Previous boot"
-msgstr ""
+msgstr "Predchádzajúci štart"
 
 #: pkg/networkmanager/team.jsx:174 pkg/networkmanager/bond.jsx:177
 msgid "Primary"
@@ -6110,19 +5883,15 @@ msgstr "Priorita"
 #: pkg/networkmanager/network-interface.jsx:500
 #: pkg/networkmanager/network-interface.jsx:525
 msgid "Priority $priority"
-msgstr ""
+msgstr "Priorita $priority"
 
 #: pkg/networkmanager/wireguard.jsx:213
-#, fuzzy
-#| msgid "Private"
 msgid "Private key"
-msgstr "Súkromný"
+msgstr "Súkromný kľúč"
 
 #: pkg/shell/superuser.jsx:194
-#, fuzzy
-#| msgid "Domain administrator name"
 msgid "Problem becoming administrator"
-msgstr "Meno správcu domény"
+msgstr "Problém s prepínaním na správcu"
 
 #: pkg/systemd/abrtLog.jsx:302
 msgid "Problem details"
@@ -6130,54 +5899,57 @@ msgstr "Detaily o probléme"
 
 #: pkg/systemd/abrtLog.jsx:299
 msgid "Problem info"
-msgstr ""
+msgstr "Informácia o probléme"
 
 #: pkg/storaged/dialog.jsx:1211
 msgid "Processes using the location"
-msgstr ""
+msgstr "Procesy využívajúce toto umiestnenie"
 
 #: pkg/sosreport/sosreport.jsx:308
 msgid "Progress: $0"
-msgstr ""
+msgstr "Stav postupu: $0"
 
 #: pkg/shell/shell-modals.jsx:72
 msgid "Project website"
-msgstr ""
+msgstr "Webové stránky projektu"
 
 #: pkg/users/password-dialogs.js:58
 msgid "Prompting via passwd timed out"
-msgstr ""
+msgstr "Časový limit výzvy prostredníctvom hesla bol prekročený"
 
 #: pkg/lib/credentials.js:285
 msgid "Prompting via ssh-add timed out"
-msgstr ""
+msgstr "Časový limit výzvy prostredníctvom ssh-add bol prekročený"
 
 #: pkg/lib/credentials.js:210
 msgid "Prompting via ssh-keygen timed out"
-msgstr ""
+msgstr "Časový limit výzvy prostredníctvom ssh-keygen bol prekročený"
 
 #: pkg/systemd/service-details.jsx:571
 msgid "Propagates reload to"
-msgstr ""
+msgstr "Propaguje načítať opäť k"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:123
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
 msgstr ""
+"Chráni pred očakávanými útokmi v blízkej budúcnosti za cenu horšej "
+"interoperability."
 
 #: pkg/storaged/stratis/stopped-pool.jsx:53
 msgid "Provide the passphrase for the pool on these block devices:"
-msgstr ""
+msgstr "Zadajte heslovú frázu pre pool na týchto blokových zariadeniach:"
 
 #: pkg/networkmanager/wireguard.jsx:237 pkg/networkmanager/wireguard.jsx:300
 #: pkg/shell/credentials.jsx:112
 msgid "Public key"
-msgstr ""
+msgstr "Verejný kľúč"
 
 #: pkg/networkmanager/wireguard.jsx:240
 msgid "Public key will be generated when a valid private key is entered"
 msgstr ""
+"Verejný kľúč bude vytvorený v okamihu zadania platného súkromného kľúča"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:171
 msgid "Purpose"
@@ -6237,7 +6009,7 @@ msgstr "RAID 6 (dvojitá distribuovaná parita)"
 
 #: pkg/lib/machine-info.js:81
 msgid "RAID chassis"
-msgstr "RAID skriňa"
+msgstr "Šasi pre RAID"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:51 pkg/storaged/mdraid/mdraid.jsx:296
 msgid "RAID level"
@@ -6245,7 +6017,7 @@ msgstr "RAID level"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:188
 msgid "RAID10 needs an even number of physical volumes"
-msgstr ""
+msgstr "Pre RAID 10 je potrebný párny počet fyzických zväzkov"
 
 #: pkg/metrics/metrics.jsx:890
 msgid "RAM"
@@ -6253,7 +6025,7 @@ msgstr "RAM"
 
 #: pkg/lib/machine-info.js:82
 msgid "Rack mount chassis"
-msgstr "Skriňa do racku"
+msgstr "Šasi pre umiestnenie do racku"
 
 #: pkg/networkmanager/dialogs-common.jsx:79
 msgid "Random"
@@ -6265,7 +6037,7 @@ msgstr "Rozsah"
 
 #: pkg/networkmanager/firewall.jsx:513
 msgid "Range must be strictly ordered"
-msgstr ""
+msgstr "Je potrebné, aby rozsah bol striktne radený"
 
 #: pkg/systemd/hwinfo.jsx:291
 msgid "Rank"
@@ -6273,7 +6045,7 @@ msgstr "Rank"
 
 #: pkg/kdump/kdump-view.jsx:459
 msgid "Raw to a device"
-msgstr ""
+msgstr "Neupravované na zariadení"
 
 #: pkg/metrics/metrics.jsx:787 pkg/metrics/metrics.jsx:924
 #: pkg/metrics/metrics.jsx:969 pkg/metrics/metrics.jsx:974
@@ -6282,7 +6054,7 @@ msgstr "Čítanie"
 
 #: pkg/metrics/metrics.jsx:1480 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
-msgstr ""
+msgstr "Zistiť viac…"
 
 #: pkg/systemd/service-details.jsx:493
 msgid "Read-only"
@@ -6294,7 +6066,7 @@ msgstr "Čítanie"
 
 #: pkg/kdump/kdump-view.jsx:483
 msgid "Reading..."
-msgstr "Číta sa..."
+msgstr "Čítam…"
 
 #: pkg/playground/translate.html:19
 msgid "Ready"
@@ -6322,10 +6094,8 @@ msgid "Real host name must be 64 characters or less"
 msgstr "Skutočný názov stroja musí byť 64 znakov alebo menej"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
-#, fuzzy
-#| msgid "Save and reboot"
 msgid "Reapply and reboot"
-msgstr "Uložiť a reštartovať"
+msgstr "Znovu použiť a reštartovať"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:190
 #: pkg/lib/cockpit-components-shutdown.jsx:192
@@ -6335,21 +6105,17 @@ msgid "Reboot"
 msgstr "Reštartovať"
 
 #: pkg/packagekit/updates.jsx:612
-#, fuzzy
-#| msgid "Restart recommended"
 msgid "Reboot after completion"
-msgstr "Doporučuje sa reštart"
+msgstr "Po dokončení reštartovať"
 
 #: pkg/packagekit/updates.jsx:1524
-#, fuzzy
-#| msgid "Restart recommended"
 msgid "Reboot recommended"
-msgstr "Doporučuje sa reštart"
+msgstr "Odporúčaný reštart"
 
 #: pkg/packagekit/updates.jsx:683 pkg/packagekit/updates.jsx:758
 #: pkg/packagekit/updates.jsx:822
 msgid "Reboot system..."
-msgstr ""
+msgstr "Reštartovať systém…"
 
 #: pkg/networkmanager/network-main.jsx:188
 #: pkg/networkmanager/network-main.jsx:203 pkg/networkmanager/plots.js:44
@@ -6358,14 +6124,12 @@ msgid "Receiving"
 msgstr "Prijímanie"
 
 #: pkg/static/login.html:165
-#, fuzzy
-#| msgid "Edit hosts"
 msgid "Recent hosts"
-msgstr "Upraviť hostiteľov"
+msgstr "Nedávni hostitelia"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:107
 msgid "Recommended, secure settings for current threat models."
-msgstr ""
+msgstr "Odporúčané, bezpečné nastavenia pre aktuálne modely hrozieb."
 
 #: pkg/shell/failures.jsx:72
 msgid "Reconnect"
@@ -6376,38 +6140,32 @@ msgid "Recovering"
 msgstr "Zotavuje sa"
 
 #: pkg/storaged/jobs-panel.jsx:70
-#, fuzzy
-#| msgid "Recovering RAID device $target"
 msgid "Recovering MDRAID device $target"
-msgstr "Zotavuje sa RAID zariadenia $target"
+msgstr "Zotavuje sa zariadenie MDRAID $target"
 
 #: pkg/packagekit/updates.jsx:98
 msgid "Refreshing package information"
-msgstr ""
+msgstr "Obnovujem informácie o balíčkoch"
 
 #: pkg/static/login.js:923
 msgid "Refusing to connect. Host is unknown"
-msgstr "Odmieta sa pripojenie. Stroj nie je známy"
+msgstr "Odmietam sa pripojiť. Stroj nie je známy"
 
 #: pkg/static/login.js:925
 msgid "Refusing to connect. Hostkey does not match"
-msgstr "Odmieta sa pripojenie. Kľúč stroja sa líši"
+msgstr "Odmietam sa pripojiť. Kľúč stroja sa líši"
 
 #: pkg/static/login.js:921
 msgid "Refusing to connect. Hostkey is unknown"
-msgstr "Odmieta sa pripojenie. Kľúč stroja nie je známy"
+msgstr "Odmietam sa pripojiť. Kľúč stroja nie je známy"
 
 #: pkg/networkmanager/wireguard.jsx:224
-#, fuzzy
-#| msgid "General"
 msgid "Regenerate"
-msgstr "Všeobecné"
+msgstr "Znovu vytvoriť"
 
 #: pkg/storaged/crypto/keyslots.jsx:313
-#, fuzzy
-#| msgid "Generating report"
 msgid "Regenerating initrd"
-msgstr "Generuje sa hlásenie"
+msgstr "Znovuvytváram initrd"
 
 #: pkg/packagekit/updates.jsx:1376
 msgid "Register…"
@@ -6415,15 +6173,15 @@ msgstr "Registrovať…"
 
 #: pkg/storaged/dialog.jsx:1332
 msgid "Related processes and services will be forcefully stopped."
-msgstr ""
+msgstr "Súvisiace procesy a služby budú násilne zastavené."
 
 #: pkg/storaged/dialog.jsx:1334
 msgid "Related processes will be forcefully stopped."
-msgstr ""
+msgstr "Súvisiace procesy budú násilne zastavené."
 
 #: pkg/storaged/dialog.jsx:1336
 msgid "Related services will be forcefully stopped."
-msgstr ""
+msgstr "Súvisiace služby budú násilne zastavené."
 
 #: pkg/systemd/service-details.jsx:133
 msgid "Reload"
@@ -6431,49 +6189,43 @@ msgstr "Znova načítať"
 
 #: pkg/systemd/service-details.jsx:572
 msgid "Reload propagated from"
-msgstr ""
+msgstr "Znovu načítať propagované z"
 
 #: pkg/systemd/services.jsx:233
-#, fuzzy
-#| msgid "Reading"
 msgid "Reloading"
-msgstr "Čítanie"
+msgstr "Opätovne načítam"
 
 #: pkg/packagekit/updates.jsx:509
 msgid "Reloading the state of remaining services"
-msgstr ""
+msgstr "Opätovne zisťujem stav zostávajúcich služieb"
 
 #: pkg/kdump/kdump-view.jsx:469
 msgid "Remote over CIFS/SMB"
-msgstr ""
+msgstr "Vzdialené cez CIFS/SMB"
 
 #: pkg/kdump/kdump-view.jsx:465
 msgid "Remote over FTP"
-msgstr ""
+msgstr "Vzdialené cez FTP"
 
 #: pkg/kdump/kdump-view.jsx:251
 msgid "Remote over NFS"
-msgstr ""
+msgstr "Vzdialené cez NFS"
 
 #: pkg/kdump/kdump-view.jsx:456
-#, fuzzy
-#| msgid "Remove service $0"
 msgid "Remote over NFS, $0"
-msgstr "Odstrániť službu $0"
+msgstr "Vzdialené cez NFS, $0"
 
 #: pkg/kdump/kdump-view.jsx:467
 msgid "Remote over SFTP"
-msgstr ""
+msgstr "Vzdialené cez SFTP"
 
 #: pkg/kdump/kdump-view.jsx:249
 msgid "Remote over SSH"
-msgstr ""
+msgstr "Vzdialené cez SSH"
 
 #: pkg/kdump/kdump-view.jsx:453
-#, fuzzy
-#| msgid "Remove service $0"
 msgid "Remote over SSH, $0"
-msgstr "Odstrániť službu $0"
+msgstr "Vzdialené cez SSH, $0"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:90
 msgid "Removals:"
@@ -6493,7 +6245,7 @@ msgstr "Odobrať"
 
 #: pkg/networkmanager/network-interface-members.jsx:111
 msgid "Remove $0"
-msgstr ""
+msgstr "Odobrať $0"
 
 #: pkg/networkmanager/firewall.jsx:972
 msgid "Remove $0 service from $1 zone"
@@ -6501,7 +6253,7 @@ msgstr "Odstrániť službu $0 zo zóny $1"
 
 #: pkg/storaged/crypto/keyslots.jsx:670 pkg/storaged/stratis/pool.jsx:492
 msgid "Remove $0?"
-msgstr ""
+msgstr "Odobrať $0?"
 
 #: pkg/storaged/crypto/keyslots.jsx:680 pkg/storaged/stratis/pool.jsx:490
 msgid "Remove Tang keyserver?"
@@ -6512,35 +6264,27 @@ msgid "Remove device"
 msgstr "Odstrániť zariadenie"
 
 #: pkg/static/login.js:634
-#, fuzzy
-#| msgid "Remove device"
 msgid "Remove host"
-msgstr "Odstrániť zariadenie"
+msgstr "Odstrániť hostiteľa"
 
 #: pkg/networkmanager/ip-settings.jsx:226
 #: pkg/networkmanager/ip-settings.jsx:274
 #: pkg/networkmanager/ip-settings.jsx:322
 #: pkg/networkmanager/ip-settings.jsx:394
-#, fuzzy
-#| msgid "Remove device"
 msgid "Remove item"
-msgstr "Odstrániť zariadenie"
+msgstr "Odstrániť položku"
 
 #: pkg/storaged/lvm2/volume-group.jsx:346
-#, fuzzy
-#| msgid "Logical volume"
 msgid "Remove missing physical volumes?"
-msgstr "Logický zväzok"
+msgstr "Odstrániť chýbajúce fyzické zväzky?"
 
 #: pkg/storaged/crypto/keyslots.jsx:644
 msgid "Remove passphrase in key slot $0?"
-msgstr ""
+msgstr "Odobrať heslovú frázu v slote pre kľúč $0?"
 
 #: pkg/storaged/stratis/pool.jsx:434
-#, fuzzy
-#| msgid "Repeat passphrase"
 msgid "Remove passphrase?"
-msgstr "Zopakujte heslovú frázu"
+msgstr "Odobrať heslovú frázu?"
 
 #: pkg/networkmanager/firewall.jsx:117
 msgid "Remove service $0"
@@ -6548,40 +6292,41 @@ msgstr "Odstrániť službu $0"
 
 #: pkg/networkmanager/firewall.jsx:178 pkg/networkmanager/firewall.jsx:957
 msgid "Remove zone $0"
-msgstr ""
+msgstr "Odstrániť zónu $0"
 
 #: pkg/apps/application.jsx:44
 msgid "Removing"
-msgstr "Oboberá sa"
+msgstr "Odoberám"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:191
 #: pkg/storaged/crypto/keyslots.jsx:258
 msgid "Removing $0"
-msgstr "Odstraňuje sa $0"
+msgstr "Odstraňujem $0"
 
 #: pkg/networkmanager/network-interface-members.jsx:110
 msgid ""
 "Removing $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
 msgstr ""
-"Odstránenímním $0 sa preruší spojenie so serverom a zneprístupní sa tak "
+"Odstránením $0 sa preruší spojenie so serverom a zneprístupní sa tak "
 "rozhranie pre jeho správu."
 
 #: pkg/storaged/jobs-panel.jsx:66
-#, fuzzy
-#| msgid "Removing $target from RAID device"
 msgid "Removing $target from MDRAID device"
-msgstr "Odstraňuje sa $target z RAID zariadenia"
+msgstr "Odstraňujem $target zo zariadenia MDRAID"
 
 #: pkg/storaged/crypto/keyslots.jsx:629
 msgid ""
 "Removing a passphrase without confirmation of another passphrase may prevent "
 "unlocking or key management, if other passphrases are forgotten or lost."
 msgstr ""
+"Odstránenie heslovej fráze bez potvrdenia inej heslovej fráze môže zabrániť "
+"v odomknutí alebo správe kľúčov pri strate alebo zabudnutí zostávajúcich "
+"heslových fráz."
 
 #: pkg/storaged/jobs-panel.jsx:79
 msgid "Removing physical volume from $target"
-msgstr ""
+msgstr "Odstraňujem fyzický zväzok z $target"
 
 #: pkg/networkmanager/firewall.jsx:971
 msgid ""
@@ -6589,10 +6334,13 @@ msgid ""
 "unreachable. Make sure that this zone does not apply to your current web "
 "console connection."
 msgstr ""
+"Odstránenie služby cockpit môže viesť k tomu, že webová konzola prestane byť "
+"dostupná. Uistite sa, že sa táto zóna nevzťahuje na vaše súčasné pripojenie "
+"k tejto webovej konzoli."
 
 #: pkg/networkmanager/firewall.jsx:956
 msgid "Removing the zone will remove all services within it."
-msgstr ""
+msgstr "Odstránenie zóny odoberie tiež všetky služby, ktoré obsahuje."
 
 #: pkg/users/rename-group-dialog.jsx:69 pkg/storaged/lvm2/volume-group.jsx:71
 #: pkg/storaged/lvm2/block-logical-volume.jsx:53
@@ -6602,60 +6350,50 @@ msgid "Rename"
 msgstr "Premenovať"
 
 #: pkg/storaged/stratis/pool.jsx:164
-#, fuzzy
-#| msgid "Create partition"
 msgid "Rename Stratis pool"
-msgstr "Vytvoriť oddiel"
+msgstr "Premenovať Stratis pool"
 
 #: pkg/storaged/stratis/filesystem.jsx:191
-#, fuzzy
-#| msgid "Filesystem"
 msgid "Rename filesystem"
-msgstr "Súborový systém"
+msgstr "Premenovať systém súborov"
 
 #: pkg/users/group-actions.jsx:39
-#, fuzzy
-#| msgid "Volume group"
 msgid "Rename group"
-msgstr "Skupina zväzkov"
+msgstr "Premenovať skupinu"
 
 #: pkg/users/rename-group-dialog.jsx:60
-#, fuzzy
-#| msgid "Volume group $0"
 msgid "Rename group $0"
-msgstr "Skupina zväzkov $0"
+msgstr "Premenovať skupinu $0"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:47
 #: pkg/storaged/lvm2/block-logical-volume.jsx:236
 msgid "Rename logical volume"
-msgstr ""
+msgstr "Premenovať logický zväzok"
 
 #: pkg/storaged/lvm2/volume-group.jsx:62
 msgid "Rename volume group"
-msgstr ""
+msgstr "Premenovať skupinu zväzkov (volume group)"
 
 #: pkg/storaged/jobs-panel.jsx:82
 msgid "Renaming $target"
-msgstr "Premenováva sa $target"
+msgstr "Premenovávam $target"
 
 #: pkg/users/rename-group-dialog.jsx:39
 msgid "Renaming a group may affect sudo and similar rules"
-msgstr ""
+msgstr "Premenovanie skupiny môže mať vplyv na sudo a podobné pravidlá"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:137
 #: pkg/storaged/lvm2/block-logical-volume.jsx:188
 msgid "Repair"
-msgstr ""
+msgstr "Opraviť"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:126
-#, fuzzy
-#| msgid "Logical volume of $0"
 msgid "Repair logical volume $0"
-msgstr "Logický zväzok na $0"
+msgstr "Opraviť logický zväzok $0"
 
 #: pkg/storaged/jobs-panel.jsx:53
 msgid "Repairing $target"
-msgstr "Opravuje sa $target"
+msgstr "Opravujem $target"
 
 #: pkg/systemd/timer-dialog.jsx:220 pkg/systemd/timer-dialog.jsx:241
 msgid "Repeat"
@@ -6679,10 +6417,8 @@ msgid "Report"
 msgstr "Nahlásiť"
 
 #: pkg/sosreport/sosreport.jsx:324
-#, fuzzy
-#| msgid "Report"
 msgid "Report label"
-msgstr "Nahlásiť"
+msgstr "Štítok výkazu"
 
 #: pkg/systemd/reporting.jsx:142
 msgid "Report to ABRT Analytics"
@@ -6701,10 +6437,8 @@ msgid "Reporting was canceled"
 msgstr "Nahlasovanie bolo zrušené"
 
 #: pkg/sosreport/sosreport.jsx:501
-#, fuzzy
-#| msgid "Reports:"
 msgid "Reports"
-msgstr "Hlásenia:"
+msgstr "Výkazy"
 
 #: pkg/systemd/reporting.jsx:371
 msgid "Reports:"
@@ -6712,17 +6446,15 @@ msgstr "Hlásenia:"
 
 #: pkg/users/expiration-dialogs.js:175
 msgid "Require password change every $0 days"
-msgstr ""
+msgstr "Vyžadovať zmenu hesla každých $0 dní"
 
 #: pkg/users/account-details.js:71
 msgid "Require password change on $0"
 msgstr "Vyžadovať zmenu hesla v $0"
 
 #: pkg/users/account-create-dialog.js:119
-#, fuzzy
-#| msgid "Require password change on $0"
 msgid "Require password change on first login"
-msgstr "Vyžadovať zmenu hesla v $0"
+msgstr "Pri prvom prihlásení vyžadovať zmenu hesla"
 
 #: pkg/systemd/service-details.jsx:561
 msgid "Required by"
@@ -6746,7 +6478,7 @@ msgstr "Rekvizita"
 
 #: pkg/systemd/service-details.jsx:562
 msgid "Requisite of"
-msgstr ""
+msgstr "Závislosť pre"
 
 #: pkg/kdump/kdump-view.jsx:554
 msgid ""
@@ -6754,6 +6486,9 @@ msgid ""
 "line. For example, append '$1' to $2  in $3 or use your distribution's "
 "kernel argument editor."
 msgstr ""
+"Vyhraďte pamäť v čase štartu systému nastavením voľby „$0“ na príkazovom "
+"riadku jadra systému. Napríklad, pridajte „$1“ k $2 v $3 alebo použite "
+"editor parametrov jadra systému, poskytovaný vami používanou distribúciou."
 
 #: pkg/kdump/kdump-view.jsx:610
 msgid "Reserved memory"
@@ -6770,13 +6505,15 @@ msgstr "Resetovať heslo"
 #: pkg/storaged/jobs-panel.jsx:45 pkg/storaged/jobs-panel.jsx:51
 #: pkg/storaged/jobs-panel.jsx:83
 msgid "Resizing $target"
-msgstr "Mení sa veľkosť $target"
+msgstr "Mením veľkosť $target"
 
 #: pkg/storaged/block/resize.jsx:463 pkg/storaged/block/resize.jsx:624
 msgid ""
 "Resizing an encrypted filesystem requires unlocking the disk. Please provide "
 "a current disk passphrase."
 msgstr ""
+"Zmena veľkosti šifrovaného systému súborov vyžaduje jeho odomknutie. Zadajte "
+"heslovú frázu."
 
 #: pkg/systemd/service-details.jsx:137
 msgid "Restart"
@@ -6792,45 +6529,45 @@ msgstr "Reštartovať služby..."
 
 #: pkg/packagekit/updates.jsx:1572
 msgid "Restarting"
-msgstr "Reštartuje sa"
+msgstr "Reštartujem"
 
 #: pkg/networkmanager/networkmanager.jsx:65
 msgid "Restoring connection"
-msgstr "Obnovuje sa spojenie"
+msgstr "Obnovujem spojenie"
 
 #: pkg/kdump/kdump-view.jsx:362
 msgid ""
 "Results of the crash will be copied through $0 to $1 as $2, if kdump is "
 "properly configured."
 msgstr ""
+"Ak je správne nastavený kdump, budú výsledky skopírované prostredníctvom $0 "
+"na $1 ako $2."
 
 #: pkg/kdump/kdump-view.jsx:357
 msgid ""
 "Results of the crash will be stored in $0 as $1, if kdump is properly "
 "configured."
-msgstr ""
+msgstr "Ak je správne nastavený kdump, budú výsledky uložené na $0 ako $1."
 
 #: pkg/systemd/logs.jsx:263
 msgid "Resume"
 msgstr "Obnoviť chod"
 
 #: pkg/storaged/block/format-dialog.jsx:203
-#, fuzzy
-#| msgid "encryption"
 msgid "Reuse existing encryption"
-msgstr "Šifrovanie"
+msgstr "Použiť existujúce šifrovanie"
 
 #: pkg/storaged/block/format-dialog.jsx:200
 msgid "Reuse existing encryption ($0)"
-msgstr ""
+msgstr "Použiť existujúce šifrovanie ($0)"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:236
 msgid "Review cryptographic policy"
-msgstr ""
+msgstr "Skontrolovať politiky pre šifrovanie"
 
 #: pkg/systemd/manifest.json:0
 msgid "Reviewing logs"
-msgstr "Vyhodnocovanie záznamov udalostí"
+msgstr "Kontrolujem záznamy udalostí"
 
 #: pkg/networkmanager/team.jsx:41 pkg/networkmanager/bond.jsx:43
 msgid "Round robin"
@@ -6841,48 +6578,40 @@ msgid "Routes"
 msgstr "Trasy"
 
 #: pkg/lib/cockpit-components-table.jsx:270
-#, fuzzy
-#| msgid "extension"
 msgid "Row expansion"
-msgstr "rozšírenie"
+msgstr "Rozšírenie riadka"
 
 #: pkg/lib/cockpit-components-table.jsx:271
 #: pkg/lib/cockpit-components-table.jsx:272
-#, fuzzy
-#| msgid "Select"
 msgid "Row select"
-msgstr "Vybrať"
+msgstr "Výber riadka"
 
 #: pkg/systemd/timer-dialog.jsx:252 pkg/systemd/timer-dialog.jsx:264
-#, fuzzy
-#| msgid "Run image"
 msgid "Run at"
-msgstr "Spustiť obraz"
+msgstr "Spustiť v"
 
 #: pkg/sosreport/sosreport.jsx:311
-#, fuzzy
-#| msgid "View report"
 msgid "Run new report"
-msgstr "Zobraziť hlásenie"
+msgstr "Vytvoriť nový výkaz"
 
 #: pkg/systemd/timer-dialog.jsx:266
 msgid "Run on"
-msgstr ""
+msgstr "Spustiť na"
 
 #: pkg/sosreport/sosreport.jsx:289 pkg/sosreport/sosreport.jsx:498
-#, fuzzy
-#| msgid "Report"
 msgid "Run report"
-msgstr "Nahlásiť"
+msgstr "Vytvoriť výkaz"
 
 #: pkg/shell/hosts_dialog.jsx:492
 msgid ""
 "Run this command over a trusted network or physically on the remote machine:"
 msgstr ""
+"Na vzdialenom stroji spustite – cez dôveryhodnú sieť alebo fyzicky priamo na "
+"ňom – tento príkaz:"
 
 #: pkg/networkmanager/team.jsx:162
 msgid "Runner"
-msgstr ""
+msgstr "Spúšťač"
 
 #: pkg/systemd/services.jsx:232 pkg/systemd/services.jsx:236
 #: pkg/systemd/services.jsx:696 pkg/systemd/service-details.jsx:458
@@ -6897,7 +6626,7 @@ msgstr "SELinux"
 
 #: pkg/selinux/setroubleshoot-view.jsx:324
 msgid "SELinux access control errors"
-msgstr ""
+msgstr "Chyby riadenia prístupu SELinuxu"
 
 #: pkg/selinux/setroubleshoot-view.jsx:321
 msgid "SELinux is disabled on the system"
@@ -6909,11 +6638,11 @@ msgstr "SELinux je vypnutý na tomto systéme."
 
 #: pkg/selinux/setroubleshoot-view.jsx:260
 msgid "SELinux policy"
-msgstr ""
+msgstr "Politiky SELinux"
 
 #: pkg/selinux/setroubleshoot-view.jsx:238
 msgid "SELinux system status is unknown."
-msgstr ""
+msgstr "Systémový stav SELinuxu nie je známy."
 
 #: pkg/selinux/index.html:23
 msgid "SELinux troubleshoot"
@@ -6921,20 +6650,22 @@ msgstr "Riešenie problémov SELinux"
 
 #: pkg/storaged/crypto/tang.jsx:130
 msgid "SHA-1"
-msgstr ""
+msgstr "SHA-1"
 
 #: pkg/storaged/crypto/tang.jsx:127
 msgid "SHA-256"
-msgstr ""
+msgstr "SHA-256"
 
 #: pkg/storaged/jobs-panel.jsx:40
 msgid "SMART self-test of $target"
-msgstr ""
+msgstr "SMART samotest $target"
 
 #: pkg/sosreport/sosreport.jsx:320
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
+"SOS hlásenie zhromažďuje systémové informácie napomáhajúce diagnostike "
+"problémov."
 
 #: pkg/kdump/kdump-view.jsx:295 pkg/shell/hosts_dialog.jsx:850
 msgid "SSH key"
@@ -6942,7 +6673,7 @@ msgstr "SSH kľúč"
 
 #: pkg/kdump/kdump-view.jsx:164
 msgid "SSH key isn't a path"
-msgstr ""
+msgstr "Kľúč SSH nie je zadaný ako cesta k nemu"
 
 #: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
 #: pkg/shell/topnav.jsx:229
@@ -6951,15 +6682,15 @@ msgstr "SSH kľúče"
 
 #: pkg/networkmanager/bridge.jsx:110
 msgid "STP forward delay"
-msgstr ""
+msgstr "STP oneskorenie preposielania"
 
 #: pkg/networkmanager/bridge.jsx:113
 msgid "STP hello time"
-msgstr ""
+msgstr "STP uvítací čas"
 
 #: pkg/networkmanager/bridge.jsx:116
 msgid "STP maximum message age"
-msgstr ""
+msgstr "SFTP maximálny ved správy"
 
 #: pkg/networkmanager/bridge.jsx:107
 msgid "STP priority"
@@ -6969,6 +6700,9 @@ msgstr "STP priorita"
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
+"Používatelia prehliadača Safari si budú musieť importovať samopodpísaný "
+"(self-signed) certifikát certifikačnej autority a nastaviť ho ako "
+"dôveryhodný:"
 
 #: pkg/packagekit/autoupdates.jsx:440 pkg/systemd/timer-dialog.jsx:322
 msgid "Saturdays"
@@ -6997,7 +6731,7 @@ msgstr "Uložiť zmeny"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:230
 msgid "Save space by compressing individual blocks with LZ4"
-msgstr "Šetriť priestor komprimovaním jednotlivých blokov pomocou LZ4"
+msgstr "Šetriť priestor kompresiou jednotlivých blokov pomocou LZ4"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:235
 msgid "Save space by storing identical data blocks just once"
@@ -7014,11 +6748,11 @@ msgstr ""
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:89
 msgid "Scheduled poweroff at $0"
-msgstr ""
+msgstr "Naplánované vypnutie o $0"
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:93
 msgid "Scheduled reboot at $0"
-msgstr ""
+msgstr "Naplánovaný reštart o $0"
 
 #: pkg/lib/machine-info.js:83
 msgid "Sealed-case PC"
@@ -7029,24 +6763,20 @@ msgid "Search"
 msgstr "Hľadať"
 
 #: pkg/networkmanager/ip-settings.jsx:310
-#, fuzzy
-#| msgid "Search"
 msgid "Search domain"
-msgstr "Hľadať"
+msgstr "Prehľadávané domény"
 
 #: pkg/users/accounts-list.js:287
 msgid "Search for name or ID"
-msgstr ""
+msgstr "Hľadať názov alebo identifikátor"
 
 #: pkg/users/accounts-list.js:424
 msgid "Search for name, group or ID"
-msgstr ""
+msgstr "Hľadať meno, skupinu alebo identifikátor"
 
 #: pkg/systemd/timer-dialog.jsx:280
-#, fuzzy
-#| msgid "Minute needs to be a number between 0-59"
 msgid "Second needs to be a number between 0-59"
-msgstr "Minúta musí byť číslo medzi 0-59"
+msgstr "Je potrebné, aby sekunda bola číslo medzi 0 a 59"
 
 #: pkg/systemd/timer-dialog.jsx:210
 msgid "Seconds"
@@ -7058,11 +6788,11 @@ msgstr "Kľúče zabezpečeného shellu"
 
 #: pkg/storaged/jobs-panel.jsx:61
 msgid "Securely erasing $target"
-msgstr "Bezpečne sa vymazáva $target"
+msgstr "Bezpečne mažem $target"
 
 #: src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml.in:6
 msgid "Security Enhanced Linux configuration and troubleshooting"
-msgstr ""
+msgstr "Nastavenie SELinuxu a riešenie problémov"
 
 #: pkg/packagekit/updates.jsx:1433
 msgid "Security updates available"
@@ -7073,32 +6803,28 @@ msgid "Security updates only"
 msgstr "Iba bezpečnostné aktualizácie"
 
 #: pkg/packagekit/autoupdates.jsx:491
-#, fuzzy
-#| msgid "Security updates available"
 msgid "Security updates will be applied $0 at $1"
-msgstr "Sú k dispozícií bezpečnostné aktualizácie"
+msgstr "Bezpečnostné aktualizácie budú aplikované $0 o $1"
 
 #: pkg/shell/shell-modals.jsx:114
 msgid "Select"
 msgstr "Vybrať"
 
 #: pkg/systemd/logs.jsx:322
-#, fuzzy
-#| msgid "Identifier"
 msgid "Select a identifier"
-msgstr "Identifikátor"
+msgstr "Vybrať identifikátor"
 
 #: pkg/networkmanager/ip-settings.jsx:174
-#, fuzzy
-#| msgid "Select"
 msgid "Select method"
-msgstr "Vybrať"
+msgstr "Vybrať metódu"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:127
 msgid ""
 "Select the physical volumes that should be used to repair the logical "
 "volume. At leat $0 are needed."
 msgstr ""
+"Vyberte fyzické zväzky, ktoré majú byť použité na opravu logického zväzku. "
+"Je ich potrebných aspoň $0."
 
 #: pkg/systemd/reporting.jsx:265
 msgid "Send"
@@ -7111,9 +6837,6 @@ msgid "Sending"
 msgstr "Odchádzajúce"
 
 #: pkg/storaged/drive/drive.jsx:123
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "Serial number"
 msgid "Serial number"
 msgstr "Sériové číslo"
 
@@ -7135,13 +6858,13 @@ msgstr "Adresa server nemôže byť prázdna."
 msgid "Server cannot be empty."
 msgstr "Server nemôže byť prázdny."
 
-#: pkg/lib/cockpit.js:2575
+#: pkg/lib/cockpit.js:2603
 msgid "Server has closed the connection."
 msgstr "Server zavrel spojenie."
 
 #: pkg/systemd/overview-cards/realmd.jsx:298
 msgid "Server software"
-msgstr ""
+msgstr "Serverový softvér"
 
 #: pkg/networkmanager/firewall.jsx:207 pkg/metrics/metrics.jsx:814
 #: pkg/metrics/metrics.jsx:815 pkg/metrics/metrics.jsx:870
@@ -7165,10 +6888,8 @@ msgid "Services"
 msgstr "Služby"
 
 #: pkg/storaged/dialog.jsx:1197
-#, fuzzy
-#| msgid "Service is starting"
 msgid "Services using the location"
-msgstr "Služba sa spúšťa"
+msgstr "Služby využívajúce toto umiestnenie"
 
 #: pkg/shell/topnav.jsx:304
 msgid "Session"
@@ -7187,10 +6908,8 @@ msgid "Set hostname"
 msgstr "Nastaviť názov stroja"
 
 #: pkg/storaged/partitions/partition.jsx:181
-#, fuzzy
-#| msgid "Partition of $0"
 msgid "Set partition type of $0"
-msgstr "Oddiel na $0"
+msgstr "Nastaviť typ oddielu na $0"
 
 #: pkg/users/account-details.js:295 pkg/users/password-dialogs.js:226
 #: pkg/users/password-dialogs.js:233
@@ -7210,10 +6929,8 @@ msgid "Set up"
 msgstr "Nastaviť"
 
 #: pkg/users/password-dialogs.js:245
-#, fuzzy
-#| msgid "Set password"
 msgid "Set weak password"
-msgstr "Nastaviť heslo"
+msgstr "Nastaviť ľahko prelomiteľné heslo"
 
 #: pkg/selinux/setroubleshoot-view.jsx:255
 msgid ""
@@ -7224,11 +6941,11 @@ msgstr ""
 
 #: pkg/packagekit/updates.jsx:107
 msgid "Setting up"
-msgstr "Nastavuje sa"
+msgstr "Nastavujem"
 
 #: pkg/storaged/jobs-panel.jsx:56
 msgid "Setting up loop device $target"
-msgstr ""
+msgstr "Nastavujem zariadenie spätnej slučky $target"
 
 #: pkg/packagekit/updates.jsx:917
 msgid "Settings"
@@ -7243,10 +6960,8 @@ msgid "Shared"
 msgstr "Zdielané"
 
 #: pkg/users/account-details.js:323 pkg/users/account-create-dialog.js:93
-#, fuzzy
-#| msgid "shell"
 msgid "Shell"
-msgstr "shell"
+msgstr "Shell"
 
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Shell script"
@@ -7257,50 +6972,44 @@ msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
 #: pkg/storaged/pages.jsx:698
-#, fuzzy
-#| msgid "Show all threads"
 msgid "Show all $0 rows"
-msgstr "Ukázať všetky vlákna"
+msgstr "Zobraziť všetkých $0 riadkov"
 
 #: pkg/systemd/abrtLog.jsx:264
 msgid "Show all threads"
 msgstr "Ukázať všetky vlákna"
 
 #: pkg/lib/cockpit-components-password.jsx:179
-#, fuzzy
-#| msgid "Confirm password"
 msgid "Show confirmation password"
-msgstr "Potvrdiť heslo"
+msgstr "Zobraziť potvrdenie hesla"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:95
 msgid "Show fingerprints"
-msgstr "Zobraziť otlačky"
+msgstr "Zobraziť odtlačky"
 
 #: pkg/systemd/logs.jsx:380
 msgid "Show messages containing given string."
-msgstr ""
+msgstr "Zobraziť správy obsahujúce zadaný reťazec."
 
 #: pkg/systemd/logs.jsx:369
 msgid "Show messages for the specified systemd unit."
-msgstr ""
+msgstr "Zobraziť správy pre zadanú jednotku systemd."
 
 #: pkg/systemd/logs.jsx:358
 msgid "Show messages from a specific boot."
-msgstr ""
+msgstr "Zobraziť správy z konkrétneho štartu systému."
 
 #: pkg/systemd/service-details.jsx:680
 msgid "Show more relationships"
-msgstr ""
+msgstr "Zobraziť ďalšie vzťahy"
 
 #: pkg/lib/cockpit-components-password.jsx:139
-#, fuzzy
-#| msgid "New password"
 msgid "Show password"
-msgstr "Nové heslo"
+msgstr "Zobraziť heslo"
 
 #: pkg/systemd/service-details.jsx:680
 msgid "Show relationships"
-msgstr ""
+msgstr "Zobraziť vzťahy"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:205
 #: pkg/storaged/partitions/partition.jsx:101 pkg/storaged/block/resize.jsx:635
@@ -7309,13 +7018,11 @@ msgstr "Zmenšiť"
 
 #: pkg/storaged/block/resize.jsx:551
 msgid "Shrink logical volume"
-msgstr ""
+msgstr "Zmenšiť logický zväzok"
 
 #: pkg/storaged/partitions/partition.jsx:218 pkg/storaged/block/resize.jsx:557
-#, fuzzy
-#| msgid "partition"
 msgid "Shrink partition"
-msgstr "oddiel"
+msgstr "Zmenšiť oddiel"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:280
 msgid "Shrink volume"
@@ -7332,7 +7039,7 @@ msgstr "Vypnúť"
 
 #: pkg/systemd/logs.jsx:335
 msgid "Since"
-msgstr ""
+msgstr "Od"
 
 #: pkg/lib/machine-info.js:238 pkg/systemd/hw-detect.js:90
 msgid "Single rank"
@@ -7354,11 +7061,11 @@ msgstr "Veľkosť"
 
 #: pkg/storaged/dialog.jsx:1114
 msgid "Size cannot be negative"
-msgstr ""
+msgstr "Veľkosť nemôže byť záporná"
 
 #: pkg/storaged/dialog.jsx:1112
 msgid "Size cannot be zero"
-msgstr ""
+msgstr "Veľkosť nemôže byť nulová"
 
 #: pkg/storaged/dialog.jsx:1116
 msgid "Size is too large"
@@ -7393,16 +7100,12 @@ msgid "Snapshot"
 msgstr "Zachytený stav"
 
 #: pkg/storaged/btrfs/subvolume.jsx:439
-#, fuzzy
-#| msgid "Snapshot"
 msgid "Snapshot origin"
-msgstr "Zachytený stav"
+msgstr "Pôvod snímku stavu"
 
 #: pkg/storaged/btrfs/subvolume.jsx:461
-#, fuzzy
-#| msgid "Snapshot"
 msgid "Snapshots"
-msgstr "Zachytený stav"
+msgstr "Snímky stavu"
 
 #: pkg/systemd/service-tabs.jsx:42
 msgid "Sockets"
@@ -7418,10 +7121,13 @@ msgid ""
 "mitigations have the side effect of reducing performance. Change these "
 "settings at your own risk."
 msgstr ""
+"Softvérové ošetrenie problémov zabezpečenia procesoru znižujúce riziko ich "
+"zneužitia. Majú negatívny vplyv na výkon. Nastavenie meňte na vlastnú "
+"zodpovednosť."
 
 #: pkg/storaged/drive/drive.jsx:63
 msgid "Solid State Drive"
-msgstr ""
+msgstr "Jednotka bez pohyblivých častí"
 
 #: pkg/selinux/setroubleshoot-view.jsx:89
 msgid "Solution applied successfully"
@@ -7440,20 +7146,22 @@ msgid ""
 "Some block devices of this pool have grown in size after the pool was "
 "created. The pool can be safely grown to use the newly available space."
 msgstr ""
+"Veľkosť niektorých blokových zariadení bola pre vytvorenie poolu zväčšená. "
+"Pool je možné bezpečne zväčšiť a využiť tak novo dostupné miesto."
 
 #: pkg/packagekit/updates.jsx:97
 msgid ""
 "Some other program is currently using the package manager, please wait..."
-msgstr ""
+msgstr "Správcu balíčkov aktuálne používa iný program, počkajte prosím…"
 
 #: pkg/packagekit/updates.jsx:735 pkg/packagekit/updates.jsx:842
 #: pkg/packagekit/updates.jsx:1535
 msgid "Some software needs to be restarted manually"
-msgstr ""
+msgstr "Nejaký softvér je potrebné reštartovať ručne"
 
 #: pkg/storaged/storage-controls.jsx:88
 msgid "Sorry"
-msgstr ""
+msgstr "Prepáčte"
 
 #: pkg/networkmanager/firewall.jsx:825
 msgid "Sorted from least to most trusted"
@@ -7461,15 +7169,15 @@ msgstr "Zoradené od najmenej po najviac dôverihodné"
 
 #: pkg/lib/machine-info.js:74
 msgid "Space-saving computer"
-msgstr "Miesto-šetriaci počítač"
+msgstr "Priestorovo úsporný počítač"
 
 #: pkg/networkmanager/network-interface.jsx:498
 msgid "Spanning tree protocol"
-msgstr ""
+msgstr "Spanning tree protocol"
 
 #: pkg/networkmanager/bridge.jsx:105
 msgid "Spanning tree protocol (STP)"
-msgstr ""
+msgstr "Spanning tree protocol (STP)"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:70
 msgid "Spare"
@@ -7507,11 +7215,11 @@ msgstr "Spustiť službu"
 
 #: pkg/systemd/logs.jsx:336
 msgid "Start showing entries on or newer than the specified date."
-msgstr ""
+msgstr "Začať zobrazovať položky od zadaného dátumu vyššie."
 
 #: pkg/systemd/logs.jsx:347
 msgid "Start showing entries on or older than the specified date."
-msgstr ""
+msgstr "Začať zobrazovať položky od zadaného dátumu ďalej do minulosti."
 
 #: pkg/users/account-logs-panel.jsx:77 pkg/storaged/dialog.jsx:1435
 #: pkg/storaged/dialog.jsx:1455
@@ -7519,14 +7227,12 @@ msgid "Started"
 msgstr "Spustené"
 
 #: pkg/storaged/jobs-panel.jsx:64
-#, fuzzy
-#| msgid "Starting RAID device $target"
 msgid "Starting MDRAID device $target"
-msgstr "Spúšťa sa RAID zariadenie $target"
+msgstr "Spúšťam zariadenie MDRAID $target"
 
 #: pkg/storaged/jobs-panel.jsx:46
 msgid "Starting swapspace $target"
-msgstr ""
+msgstr "Spúšťam odkladací (swap) priestor $target"
 
 #: pkg/systemd/hwinfo.jsx:291 pkg/systemd/services-list.jsx:40
 #: pkg/systemd/services-list.jsx:46 pkg/storaged/mdraid/mdraid.jsx:297
@@ -7545,7 +7251,7 @@ msgstr "Stav"
 
 #: pkg/lib/machine-info.js:95
 msgid "Stick PC"
-msgstr ""
+msgstr "Počítač vo forme USB kľúča"
 
 #: pkg/networkmanager/teamport.jsx:89
 msgid "Sticky"
@@ -7559,15 +7265,15 @@ msgstr "Zastaviť"
 
 #: pkg/systemd/service-details.jsx:527
 msgid "Stop and disable"
-msgstr ""
+msgstr "Zastaviť a vypnúť"
 
 #: pkg/storaged/nfs/nfs.jsx:268
 msgid "Stop and remove"
-msgstr ""
+msgstr "Zastaviť a odstrániť"
 
 #: pkg/storaged/nfs/nfs.jsx:245
 msgid "Stop and unmount"
-msgstr ""
+msgstr "Zastaviť a odpojiť"
 
 #: pkg/storaged/mdraid/mdraid.jsx:75
 msgid "Stop device"
@@ -7578,20 +7284,16 @@ msgid "Stop editing hosts"
 msgstr "Ukončiť upravovanie hostiteľov"
 
 #: pkg/sosreport/sosreport.jsx:293
-#, fuzzy
-#| msgid "Create report"
 msgid "Stop report"
-msgstr "Vytvoriť hlásenie"
+msgstr "Zastaviť výkaz"
 
 #: pkg/storaged/jobs-panel.jsx:63
-#, fuzzy
-#| msgid "Stopping RAID device $target"
 msgid "Stopping MDRAID device $target"
-msgstr "Zastavuje sa RAID zariadenie $target"
+msgstr "Zastavujem zariadenie MDRAID $target"
 
 #: pkg/storaged/jobs-panel.jsx:47
 msgid "Stopping swapspace $target"
-msgstr ""
+msgstr "Zastavujem odkladací (swap) priestor $target"
 
 #: pkg/storaged/index.html:23 pkg/storaged/overview/overview.jsx:56
 #: pkg/storaged/overview/overview.jsx:58 pkg/storaged/overview/overview.jsx:191
@@ -7602,7 +7304,7 @@ msgstr "Úložisko"
 
 #: pkg/storaged/storaged.jsx:72
 msgid "Storage can not be managed on this system."
-msgstr ""
+msgstr "Úložisko nie je možné na tomto systéme spravovať."
 
 #: pkg/storaged/logs-panel.jsx:39
 msgid "Storage logs"
@@ -7610,87 +7312,72 @@ msgstr "Záznamy udalostí úložiska"
 
 #: pkg/storaged/block/format-dialog.jsx:361
 msgid "Store passphrase"
-msgstr ""
+msgstr "Uložiť heslovú frázu"
 
 #: pkg/storaged/crypto/encryption.jsx:158
 #: pkg/storaged/crypto/encryption.jsx:160
 #: pkg/storaged/crypto/encryption.jsx:231
 msgid "Stored passphrase"
-msgstr ""
+msgstr "Uložená heslová fráza"
 
 #: pkg/storaged/stratis/blockdev.jsx:41
-#, fuzzy
-#| msgid "$0 block device"
 msgid "Stratis block device"
-msgstr "$0 Blokové zariadenie"
+msgstr "Blokové zariadenie Stratis"
 
 #: pkg/storaged/stratis/pool.jsx:563 pkg/storaged/stratis/stopped-pool.jsx:141
-#, fuzzy
-#| msgid "$0 block device"
 msgid "Stratis block devices"
-msgstr "$0 Blokové zariadenie"
+msgstr "Blokové zariadenia Stratis"
 
 #: pkg/storaged/block/resize.jsx:187 pkg/storaged/block/resize.jsx:276
 msgid "Stratis blockdevs can not be made smaller"
-msgstr ""
+msgstr "Blokové zariadenia Stratis nie je možné zmenšovať"
 
 #: pkg/storaged/stratis/filesystem.jsx:155
-#, fuzzy
-#| msgid "Filesystem"
 msgid "Stratis filesystem"
-msgstr "Súborový systém"
+msgstr "Systém súborov Stratis"
 
 #: pkg/storaged/stratis/pool.jsx:294
-#, fuzzy
-#| msgid "Filesystem"
 msgid "Stratis filesystems"
-msgstr "Súborový systém"
+msgstr "Systémy súborov Stratis"
 
 #: pkg/storaged/stratis/pool.jsx:355
-#, fuzzy
-#| msgid "Filesystem"
 msgid "Stratis filesystems pool"
-msgstr "Súborový systém"
+msgstr "Pool súborových systémov Stratis"
 
 #: pkg/storaged/stratis/blockdev.jsx:81 pkg/storaged/stratis/pool.jsx:269
 #: pkg/storaged/stratis/stopped-pool.jsx:98
-#, fuzzy
-#| msgid "$0 Storage pool"
-#| msgid_plural "$0 Storage pools"
 msgid "Stratis pool"
-msgstr "$0 fond úložiska"
+msgstr "Stratis pool"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:72
 #: pkg/storaged/lvm2/block-logical-volume.jsx:260
 msgid "Striped (RAID 0)"
-msgstr ""
+msgstr "Prúžkované (RAID 0)"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:82
 #: pkg/storaged/lvm2/block-logical-volume.jsx:262
 msgid "Striped and mirrored (RAID 10)"
-msgstr ""
+msgstr "Prúžkované a zrkadlené (RAID 10)"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:398
 msgid "Stripes"
-msgstr ""
+msgstr "Prúžky"
 
 #: pkg/lib/cockpit-components-password.jsx:97
-#, fuzzy
-#| msgid "Set password"
 msgid "Strong password"
-msgstr "Nastaviť heslo"
+msgstr "Silné heslo"
 
 #: pkg/systemd/services.jsx:220
 msgid "Stub"
-msgstr ""
+msgstr "Výhonok"
 
 #: pkg/shell/topnav.jsx:193
 msgid "Style"
-msgstr ""
+msgstr "Štýl"
 
 #: pkg/lib/machine-info.js:78
 msgid "Sub-Chassis"
-msgstr "Zmenšená skriňa"
+msgstr "Menšie šasi"
 
 #: pkg/lib/machine-info.js:73
 msgid "Sub-Notebook"
@@ -7698,25 +7385,23 @@ msgstr "Sub-Notebook"
 
 #: pkg/systemd/services.jsx:288
 msgid "Subscribing to systemd signals failed: $0"
-msgstr ""
+msgstr "Prihlásenie k odberu signálov systemd sa nepodarilo: $0"
 
 #: pkg/storaged/btrfs/subvolume.jsx:356
-#, fuzzy
-#| msgid "Volume failed to be created"
 msgid "Subvolume needs to be mounted"
-msgstr "Zväzok sa nepodarilo vytvoriť"
+msgstr "Je potrebné, aby bol podzväzok pripojený"
 
 #: pkg/storaged/btrfs/subvolume.jsx:358
 msgid "Subvolume needs to be mounted writable"
-msgstr ""
+msgstr "Je potrebné, aby bol podzväzok pripojený pre zápis"
 
 #: pkg/systemd/logs.jsx:415
 msgid "Successfully copied to clipboard"
-msgstr ""
+msgstr "Úspešne skopírované do schránky"
 
 #: pkg/storaged/crypto/tang.jsx:118
 msgid "Successfully copied to clipboard!"
-msgstr ""
+msgstr "Úspešne skopírované do schránky!"
 
 #: pkg/packagekit/autoupdates.jsx:441 pkg/systemd/timer-dialog.jsx:323
 msgid "Sundays"
@@ -7728,14 +7413,12 @@ msgid "Swap"
 msgstr "Odkladanie"
 
 #: pkg/storaged/block/resize.jsx:292
-#, fuzzy
-#| msgid "Cannot be enabled"
 msgid "Swap can not be resized here"
-msgstr "Nie je možné povoliť"
+msgstr "Veľkosť odkladacieho oddielu (swap) tu nie je možné meniť"
 
 #: pkg/metrics/metrics.jsx:131
 msgid "Swap out"
-msgstr ""
+msgstr "Odstránkované (swap out)"
 
 #: pkg/networkmanager/network-interface-members.jsx:68
 msgid "Switch of $0"
@@ -7752,10 +7435,8 @@ msgid "Switch on $0"
 msgstr "Zapnúť $0"
 
 #: pkg/shell/superuser.jsx:153 pkg/shell/superuser.jsx:201
-#, fuzzy
-#| msgid "Administrative access"
 msgid "Switch to administrative access"
-msgstr "Prístup na úrovni správcu"
+msgstr "Prepnúť na prístup pre správcu"
 
 #: pkg/shell/superuser.jsx:274 pkg/shell/superuser.jsx:345
 msgid "Switch to limited access"
@@ -7789,23 +7470,19 @@ msgstr "Synchronizované s $0"
 
 #: pkg/lib/serverTime.js:449
 msgid "Synchronizing"
-msgstr "Synchronizuje sa"
+msgstr "Synchronizujem"
 
 #: pkg/storaged/jobs-panel.jsx:71
-#, fuzzy
-#| msgid "Synchronizing RAID device $target"
 msgid "Synchronizing MDRAID device $target"
-msgstr "Synchronizuje sa RAID zariadenie $target"
+msgstr "Synchronizujem zariadenie MDRAID $target"
 
 #: pkg/shell/nav.jsx:46 pkg/shell/indexes.jsx:343 pkg/systemd/services.jsx:912
 msgid "System"
 msgstr "Systém"
 
 #: pkg/sosreport/sosreport.jsx:525
-#, fuzzy
-#| msgid "System modifications"
 msgid "System diagnostics"
-msgstr "Modifikácie systému"
+msgstr "Diagnostika systému"
 
 #: pkg/systemd/hwinfo.jsx:315
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:106
@@ -7852,15 +7529,15 @@ msgstr "Ciele"
 #: pkg/networkmanager/network-interface.jsx:189
 #: pkg/networkmanager/network-interface.jsx:453
 msgid "Team"
-msgstr "Tým"
+msgstr "Teaming"
 
 #: pkg/networkmanager/network-interface.jsx:483
 msgid "Team port"
-msgstr "Port teamu"
+msgstr "Port pre teaming"
 
 #: pkg/networkmanager/teamport.jsx:82
 msgid "Team port settings"
-msgstr "Nastavenia portu teamu"
+msgstr "Nastavenia portu pre teaming"
 
 #: pkg/systemd/terminal.html:4 pkg/systemd/manifest.json:0
 msgid "Terminal"
@@ -7876,7 +7553,7 @@ msgstr "Vyskúšať konfiguráciu"
 
 #: pkg/kdump/kdump-view.jsx:511
 msgid "Test is only available while the kdump service is running."
-msgstr "Test je k dispozícií len keď je spustená služba kdump."
+msgstr "Test je k dispozícií len vtedy, keď je spustená služba kdump."
 
 #: pkg/kdump/kdump-view.jsx:371
 msgid "Test kdump settings"
@@ -7888,66 +7565,48 @@ msgid ""
 "system might not automatically reboot. Do not purposefully crash the system "
 "while any important task is running."
 msgstr ""
+"Vyskúšať nastavenie kdump vyvolaním pádu jadra systému. Môže to chvíľu trvať "
+"a môže sa stať, že sa systém nereštartuje automaticky. Nevyvolávajte pád "
+"systému, ak beží nejaká dôležitá úloha."
 
 #: pkg/networkmanager/networkmanager.jsx:65
 msgid "Testing connection"
-msgstr "Skúša sa spojenie"
+msgstr "Testujem spojenie"
 
 #: pkg/storaged/crypto/keyslots.jsx:278
-#, fuzzy
-#| msgid "$0 is not available from any repository."
 msgid "The $0 package is not available from any repository."
-msgstr "$0 nie je k dispozícií v žiadom repozitári."
+msgstr "Balíček $0 nie je k dispozícii v žiadnom repozitári."
 
 #: pkg/storaged/overview/overview.jsx:122
-#, fuzzy
-#| msgid "The $0 package must be installed to create VDO devices."
 msgid "The $0 package must be installed to create Stratis pools."
 msgstr ""
-"Aby bolo možné vytvárať VDO zariadenia je potrebné mať nainštalovaný balík "
-"$0."
+"Na vytvorenie Stratis poolu je potrebné, aby bol nainštalovaný balíček $0."
 
 #: pkg/storaged/crypto/keyslots.jsx:273 pkg/storaged/crypto/keyslots.jsx:289
-#, fuzzy
-#| msgid "The $0 package must be installed to create VDO devices."
 msgid "The $0 package must be installed."
-msgstr ""
-"Aby bolo možné vytvárať VDO zariadenia je potrebné mať nainštalovaný balík "
-"$0."
+msgstr "Je potrebné nainštalovať balíček $0."
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:176
-#, fuzzy
-#| msgid "The $0 package must be installed to create VDO devices."
 msgid "The $0 package will be installed to create VDO devices."
-msgstr ""
-"Aby bolo možné vytvárať VDO zariadenia je potrebné mať nainštalovaný balík "
-"$0."
+msgstr "Aby bolo možné vytvárať zariadenia VDO, nainštaluje sa balíček $0."
 
 #: pkg/shell/hosts_dialog.jsx:159
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP adresa alebo názov stroja nemôže obsahovať prázdny znak."
 
 #: pkg/storaged/mdraid/mdraid.jsx:272
-#, fuzzy
-#| msgid "The RAID array is in a degraded state"
 msgid "The MDRAID device is in a degraded state"
-msgstr "RAID pole je v degradovanom stave"
+msgstr "Zariadenie MDRAID je v degradovanom stave"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:87
-#, fuzzy
-#| msgid "The RAID device must be running in order to remove disks."
 msgid "The MDRAID device must be running"
-msgstr "RAID zariadenie musí byť spustené aby bolo možné odobrať disky."
+msgstr "Je potrebné, aby bolo zariadenie MDRAID spustené"
 
 #: pkg/shell/hosts_dialog.jsx:828
-#, fuzzy
-#| msgid ""
-#| "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
-#| "file of ${ruser} on ${rhost}."
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
 msgstr ""
-"SSH kľúč ${key} užívateľa ${luser} na ${lhost} bude pridaný do súboru "
-"${afile} užívateľa ${ruser} na ${rhost}."
+"Kľúč SSH $0 používateľa $1 na $2 bude pridaný do súboru $3 používateľa $4 na "
+"$5."
 
 #: pkg/shell/hosts_dialog.jsx:865
 msgid ""
@@ -7958,33 +7617,21 @@ msgstr ""
 "prihlasovanie se k ostatním strojom."
 
 #: pkg/shell/hosts_dialog.jsx:773
-#, fuzzy
-#| msgid ""
-#| "The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is "
-#| "protected. You can log in with either your login password or by providing "
-#| "the password of the key at {{#strong}}{{key}}{{/strong}}."
 msgid ""
 "The SSH key for logging in to $0 is protected by a password, and the host "
 "does not allow logging in with a password. Please provide the password of "
 "the key at $1."
 msgstr ""
-"SSH kľúč pre prihlasovanie sa k {{#strong}}{{full_address}}{{/strong}} je "
-"chránený. Môžete sa buď prihlásiť svojím prihlasovacím heslom alebo zadáním "
-"hesla ku kľúču {{#strong}}{{key}}{{/strong}}."
+"Kľúč SSH na prihlásenie k $0 je chránený a hostiteľ neumožňuje prihlásenie "
+"pomocou hesla. Zadajte, prosím, heslo pre kľúč na $1."
 
 #: pkg/shell/hosts_dialog.jsx:778
-#, fuzzy
-#| msgid ""
-#| "The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is "
-#| "protected. You can log in with either your login password or by providing "
-#| "the password of the key at {{#strong}}{{key}}{{/strong}}."
 msgid ""
 "The SSH key for logging in to $0 is protected. You can log in with either "
 "your login password or by providing the password of the key at $1."
 msgstr ""
-"SSH kľúč pre prihlasovanie sa k {{#strong}}{{full_address}}{{/strong}} je "
-"chránený. Môžete sa buď prihlásiť svojím prihlasovacím heslom alebo zadáním "
-"hesla ku kľúču {{#strong}}{{key}}{{/strong}}."
+"Kľúč SSH na prihlásenie k $0 je chránený. Môžete sa pripojiť buď pomocou "
+"prihlasovacím heslom alebo zadaním hesla ku kľúču na $1."
 
 #: pkg/users/password-dialogs.js:266
 msgid "The account '$0' will be forced to change their password on next login"
@@ -8009,90 +7656,96 @@ msgstr ""
 #: pkg/storaged/crypto/keyslots.jsx:732
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
-msgstr ""
-"Prihlásený užívateľ nie je oprávnený k zobrazovaniu informácií o kľúčoch."
+msgstr "Prihlásený užívateľ nie je oprávnený zobrazovať informácie o kľúčoch."
 
 #: pkg/storaged/block/format-dialog.jsx:371
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
 msgstr ""
+"Aby bolo disk možné naformátovať, je potrebné ho odomknúť. Zadajte "
+"existujúcu heslovú frázu."
 
 #: pkg/sosreport/sosreport.jsx:386
-#, fuzzy
-#| msgid "The $0 could not be deleted"
 msgid "The file $0 will be deleted."
-msgstr "$0 sa nepodarilo zmazať"
+msgstr "Súbor $0 bude odstránený."
 
 #: pkg/storaged/filesystem/utils.jsx:191
 msgid "The filesystem has no assigned mount point."
-msgstr ""
+msgstr "Systém súborov nemá priradený bod pripojenia."
 
 #: pkg/storaged/filesystem/utils.jsx:195
 msgid "The filesystem has no permanent mount point."
-msgstr ""
+msgstr "Systém súborov nemá trvalý bod pripojenia."
 
 #: pkg/storaged/filesystem/mismounting.jsx:217
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
 msgstr ""
+"Systém súborov je nastavený tak, aby bol automaticky pripájaný pri štarte "
+"systému, ale šifrovaný kontajner, v ktorom sa nachádza, nebude v tom čase "
+"odomknutý."
 
 #: pkg/storaged/filesystem/mismounting.jsx:209
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
 msgstr ""
+"Systém súborov je teraz pripojený, ale pri ďalšom štarte systému už nebude."
 
 #: pkg/storaged/filesystem/mismounting.jsx:201
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
 msgstr ""
+"Systém súborov je teraz pripojený do $0, ale pri ďalšom štarte systému bude "
+"pripojený do $1."
 
 #: pkg/storaged/filesystem/mismounting.jsx:213
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
 msgstr ""
+"Systém súborov je teraz pripojený do $0, ale pri ďalšom štarte systému už "
+"nebude pripojený vôbec."
 
 #: pkg/storaged/filesystem/mismounting.jsx:205
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr ""
+"Systém súborov nie je pripojený, ale pri ďalšom štarte systéme už bude."
 
 #: pkg/storaged/filesystem/utils.jsx:197
 msgid "The filesystem is not mounted."
-msgstr ""
+msgstr "Systém súborov nie je pripojený."
 
 #: pkg/storaged/filesystem/utils.jsx:200
 msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
 msgstr ""
+"Systém súborov bude odomknutý pri ďalšom štarte systému. Toto môže vyžadovať "
+"zadanie heslovej fráze."
 
 #: pkg/shell/hosts_dialog.jsx:494
-#, fuzzy
-#| msgid "Show fingerprints"
 msgid "The fingerprint should match:"
-msgstr "Zobraziť otlačky"
+msgstr "Odtlačok by sa mal zhodovať:"
 
 #: pkg/packagekit/updates.jsx:514
 msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Je potrebné reštartovať nasledujúcu službu:"
+msgstr[1] "Je potrebné reštartovať nasledujúce služby:"
+msgstr[2] "Je potrebné reštartovať nasledujúce služby:"
 
 #: pkg/users/account-create-dialog.js:172
 msgid "The full name must not contain colons."
-msgstr ""
+msgstr "Celé meno musí obsahovať dvojbodky."
 
 #: pkg/users/group-create-dialog.js:83
-#, fuzzy
-#| msgid "MTU must be a positive number"
 msgid "The group ID must be positive integer"
-msgstr "MTU musí byť kladné číslo"
+msgstr "ID skupiny musí byť celé kladné číslo"
 
 #: pkg/users/group-create-dialog.js:66
 msgid ""
@@ -8107,10 +7760,12 @@ msgid ""
 "The home directory $0 already exists. Its ownership will be changed to the "
 "new user."
 msgstr ""
+"Domovský adresár $0 už existuje. Jej vlastníctvo bude zmenená na nového "
+"používateľa."
 
 #: pkg/storaged/crypto/keyslots.jsx:310
 msgid "The initrd must be regenerated."
-msgstr ""
+msgstr "Je potrebné znovu vytvoriť initrd."
 
 #: pkg/shell/hosts_dialog.jsx:695
 msgid "The key password can not be empty"
@@ -8130,31 +7785,31 @@ msgstr "Posledný slot kľúča nemôže byť odobraný"
 
 #: pkg/storaged/dialog.jsx:1470
 msgid "The listed processes and services will be forcefully stopped."
-msgstr ""
+msgstr "Uvedené procesy a služby budú násilne ukončené."
 
 #: pkg/storaged/dialog.jsx:1472
 msgid "The listed processes will be forcefully stopped."
-msgstr ""
+msgstr "Uvedené procesy budú násilne zastavené."
 
 #: pkg/storaged/dialog.jsx:1474
 msgid "The listed services will be forcefully stopped."
-msgstr ""
+msgstr "Uvedené služby budú násilne zastavené."
 
 #: pkg/lib/cockpit-components-modifications.jsx:129
 msgid "The logged in user is not permitted to view system modifications"
-msgstr ""
+msgstr "Prihlásený používateľ nie je oprávnený zobrazovať modifikácie systému"
 
 #: pkg/shell/indexes.jsx:459
 msgid "The machine is rebooting"
-msgstr ""
+msgstr "Stroj sa reštartuje"
 
 #: pkg/storaged/dialog.jsx:1428
 msgid "The mount point $0 is in use by these processes:"
-msgstr ""
+msgstr "Bod pripojenia $0 je používaný nasledujúcimi procesmi:"
 
 #: pkg/storaged/dialog.jsx:1448
 msgid "The mount point $0 is in use by these services:"
-msgstr ""
+msgstr "Bod pripojenia $0 je používaný nasledujúcimi službami:"
 
 #: pkg/shell/hosts_dialog.jsx:701
 msgid "The new key password can not be empty"
@@ -8177,6 +7832,7 @@ msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
 msgstr ""
+"Výsledný odtlačok je možné zdieľať verejnými spôsobmi, vrátane e-mailu."
 
 #: pkg/shell/hosts_dialog.jsx:484
 msgid ""
@@ -8184,6 +7840,9 @@ msgid ""
 "email. If you are asking someone else to do the verification for you, they "
 "can send the results using any method."
 msgstr ""
+"Výsledný odtlačok je bez problémov možné zdieľať prostredníctvom verejných "
+"spôsobov, vrátane e-mailu. Ak niekoho iného žiadate, aby urobil overovanie "
+"za vás, môže poslať výsledky ľubovoľnou cestou."
 
 #: pkg/static/login.js:915
 msgid ""
@@ -8193,39 +7852,47 @@ msgstr ""
 "Server odmietol overiť „$0“ pomocou overenia heslom a nie sú k dispozícií "
 "žiadne ďalšie metódy overenia."
 
-#: pkg/lib/cockpit.js:2559
+#: pkg/lib/cockpit.js:2587
 msgid "The server refused to authenticate using any supported methods."
-msgstr ""
+msgstr "Server odmietol overovanie pri všetkých podporovaných metódach."
 
 #: pkg/storaged/crypto/keyslots.jsx:427
 msgid ""
 "The system does not currently support unlocking a filesystem with a Tang "
 "keyserver during boot."
 msgstr ""
+"Systém v tejto chvíli nepodporuje odomykanie systému súborov pomocou Tang "
+"servera s kľúčmi v priebehu štartu systému."
 
 #: pkg/storaged/crypto/keyslots.jsx:426
 msgid ""
 "The system does not currently support unlocking the root filesystem with a "
 "Tang keyserver."
 msgstr ""
+"Systém aktuálne nepodporuje odomykanie koreňového systému súborov pomocou "
+"Tang servera s kľúčmi."
 
 #: pkg/systemd/hwinfo.jsx:67
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
+"Používateľ $0 nie je oprávnený meniť zmierňovanie dopadu chýb zabezpečenia "
+"procesora"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:65
 msgid "The user $0 is not permitted to change cryptographic policies"
-msgstr ""
+msgstr "Používateľ $0 nemá oprávnenia meniť politiky pre šifrovanie"
 
 #: pkg/kdump/kdump-view.jsx:505
 msgid "The user $0 is not permitted to test crash the kernel"
-msgstr ""
+msgstr "Používateľ $0 nemá oprávnenia otestovať pád jadra systému"
 
 #: pkg/users/account-details.js:466
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
 msgstr ""
+"Aby sa nové nastavenia prejavili, je potrebné, aby sa používateľ odhlásil a "
+"znovu prihlásil."
 
 #: pkg/users/account-create-dialog.js:155
 msgid ""
@@ -8239,24 +7906,27 @@ msgstr ""
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr ""
+"Nastavenie webového prehliadača bráni v spustení Cockpitu (neprístupné $0)"
 
 #: pkg/shell/active-pages-modal.jsx:104
 msgid "There are currently no active pages"
-msgstr ""
+msgstr "V tejto chvíli tu nie sú žiadne aktívne stránky"
 
 #: pkg/storaged/multipath.jsx:71
 msgid ""
 "There are devices with multiple paths on the system, but the multipath "
 "service is not running."
 msgstr ""
+"V systéme sú zariadenia s viacerými cestami, ale služba multipath nie je "
+"spustená."
 
 #: pkg/networkmanager/firewall.jsx:211
 msgid "There are no active services in this zone"
-msgstr ""
+msgstr "V tejto zóne sa nenachádzajú žiadne aktívne služby"
 
 #: pkg/users/authorized-keys-panel.js:106
 msgid "There are no authorized public keys for this account."
-msgstr ""
+msgstr "Pre tento účet nie sú žiadne poverené kľúče."
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:113
 msgid ""
@@ -8264,12 +7934,17 @@ msgid ""
 "least $0 are needed on physical volumes that are not already used for this "
 "logical volume."
 msgstr ""
+"Pre opravu nie je k dispozícii dostatok voľného miesta. Na fyzických "
+"zväzkoch je potrebných aspoň $0, ktoré ešte nie sú využité týmto logickým "
+"zväzkom."
 
 #: pkg/storaged/stratis/filesystem.jsx:76
 msgid ""
 "There is not enough space in the pool to make a snapshot of this filesystem. "
 "At least $0 are required but only $1 are available."
 msgstr ""
+"V poole nie je dostatok miesta pre vytvorenie snímky stavu systému súborov. "
+"Je potrebných aspoň $0, ale k dispozícii je len $1."
 
 #: pkg/shell/failures.jsx:41
 msgid "There was an unexpected error while connecting to the machine."
@@ -8277,49 +7952,49 @@ msgstr "Pri pripojovaní k stroji sa vyskytla neočakávaná chyba."
 
 #: pkg/storaged/crypto/keyslots.jsx:431
 msgid "These additional steps are necessary:"
-msgstr ""
+msgstr "Sú potrebné tieto ďalšie kroky:"
 
 #: pkg/storaged/dialog.jsx:1282
 msgid "These changes will be made:"
-msgstr ""
+msgstr "Vykonajú sa tieto zmeny:"
 
 #: pkg/storaged/utils.js:282
 msgid "Thin logical volume"
-msgstr ""
+msgstr "Tenký logický zväzok"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:69
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:127
 msgid "Thinly provisioned LVM2 logical volumes"
-msgstr ""
+msgstr "Tenko poskytované LVM2 logické zväzky"
 
 #: pkg/storaged/mdraid/mdraid.jsx:284
 msgid ""
 "This MDRAID device has no write-intent bitmap. Such a bitmap can reduce "
 "sychronization times significantly."
 msgstr ""
+"Toto zariadenie MDRAID nemá bitovú mapu pre write-intent. Takáto mapa môže "
+"významne skrátiť čas potrebný na synchronizáciu."
 
 #: pkg/storaged/nfs/nfs.jsx:111
 msgid "This NFS mount is in use and only its options can be changed."
-msgstr ""
+msgstr "Toto NFS pripojenie je používané a je možné meniť len jeho možnosti."
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:239
 msgid "This VDO device does not use all of its backing device."
-msgstr ""
+msgstr "Toto zariadenie VDI nepožíva zo svojho podkladového zariadenia všetko."
 
 #: pkg/storaged/block/format-dialog.jsx:246
 #: pkg/storaged/filesystem/mounting-dialog.jsx:159
 msgid "This device can not be used for the installation target."
-msgstr ""
+msgstr "Toto zariadenie nie je možné použiť ako cieľ inštalácie."
 
 #: pkg/networkmanager/network-interface.jsx:746
 msgid "This device cannot be managed here."
-msgstr ""
+msgstr "Toto zariadenie tu nie je možné spravovať."
 
 #: pkg/storaged/dialog.jsx:1174
-#, fuzzy
-#| msgid "This device is currently used for VDO devices."
 msgid "This device is currently in use."
-msgstr "Toto zariadenie sa momentálne využíva pre RAID zariadenia."
+msgstr "Toto zariadenie sa aktuálne používa."
 
 #: pkg/systemd/timer-dialog.jsx:164 pkg/systemd/timer-dialog.jsx:172
 #: pkg/systemd/timer-dialog.jsx:181
@@ -8328,93 +8003,105 @@ msgstr "Meno používateľa nesmie byť prázdne"
 
 #: pkg/users/delete-group-dialog.js:38
 msgid "This group is the primary group for the following users:"
-msgstr ""
+msgstr "Táto skupina je primárnou skupinou pre nasledujúcich používateľov:"
 
 #: pkg/packagekit/autoupdates.jsx:454
 msgid "This host will reboot after updates are installed."
 msgstr "Tento stroj bude reštartovný keď budú aktualizácie nainštalované."
 
 #: pkg/sosreport/sosreport.jsx:321
-#, fuzzy
-#| msgid "The collected information will be stored locally on the system."
 msgid "This information is stored only on the system."
-msgstr "Zozbierané informácie budú ukladané lokálne na systéme."
+msgstr "Táto informácia je uložená iba lokálne na systéme."
 
 #: pkg/storaged/stratis/pool.jsx:549
 msgid ""
 "This keyserver is the only way to unlock the pool and can not be removed."
 msgstr ""
+"Tento server s kľúčmi je jediný spôsob ako pool odomknúť a nie je ho preto "
+"možné odobrať."
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:312
 msgid ""
 "This logical volume has lost some of its physical volumes and can no longer "
 "be used. You need to delete it and create a new one to take its place."
 msgstr ""
+"Tento logický zväzok stratil všetky svoje fyzické zväzky a už ho nie je "
+"možné používať. Je potrebné ho vymazať a vytvoriť nový na jeho mieste."
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:314
 msgid ""
 "This logical volume has lost some of its physical volumes but has not lost "
 "any data yet. You should repair it to restore its original redundancy."
 msgstr ""
+"Tento logický zväzok stratil niektoré svoje fyzické zväzky, ale zatiaľ "
+"nedošlo ku strate žiadnych dát. Mali by ste ho opraviť a obnoviť tak jeho "
+"pôvodnú redundanciu."
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:316
 msgid ""
 "This logical volume has lost some of its physical volumes but might not have "
 "lost any data yet. You might be able to repair it."
 msgstr ""
+"Tento logický zväzok stratil niektoré svoje fyzické zväzky, ale "
+"pravdepodobne ešte nedošlo ku strate dát. Mali by ste byť schopný ho opraviť."
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:275
 msgid "This logical volume is not completely used by its content."
 msgstr ""
+"Tento logický zväzok nie je úplne využitý obsahom, ktorý sa na ňom nachádza."
 
 #: pkg/shell/hosts_dialog.jsx:165
 msgid "This machine has already been added."
-msgstr ""
+msgstr "Tento stroj už bol pridaný."
 
 #: pkg/systemd/overview-cards/realmd.jsx:435
 msgid "This may take a while"
-msgstr ""
+msgstr "Toto môže chvíľu trvať"
 
 #: pkg/storaged/partitions/partition.jsx:212
 msgid "This partition is not completely used by its content."
-msgstr ""
+msgstr "Tento oddiel nie je úplne využívaný obsahom, ktorý sa na ňom nachádza."
 
 #: pkg/storaged/stratis/pool.jsx:531
 msgid ""
 "This passphrase is the only way to unlock the pool and can not be removed."
 msgstr ""
+"Táto heslová fráza je jediným spôsobom, ako fond odomknúť a preto ho nie je "
+"možné odobrať."
 
 #: pkg/storaged/stratis/pool.jsx:327
 msgid "This pool does not use all the space on its block devices."
 msgstr ""
+"Tento pool nevyužíva zo svojich podkladových zariadení všetok priestor."
 
 #: pkg/storaged/stratis/pool.jsx:342
-#, fuzzy
-#| msgid "The RAID array is in a degraded state"
 msgid "This pool is in a degraded state."
-msgstr "RAID pole je v degradovanom stave"
+msgstr "Tento pool sa nachádza v degradovanom stave."
 
 #: pkg/packagekit/updates.jsx:1371
 msgid "This system is not registered"
-msgstr ""
+msgstr "Tento systém nie je zaregistrovaný"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:87
 msgid "This system is using a custom profile"
-msgstr ""
+msgstr "Tento systém používa používateľom definovaný profil"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:85
 msgid "This system is using the recommended profile"
-msgstr ""
+msgstr "Tento systém používa odporúčaný profil"
 
 #: src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml.in:8
 msgid ""
 "This tool configures the SELinux policy and can help with understanding and "
 "resolving policy violations."
 msgstr ""
+"Tento nástroj nastavuje politiky pre SELinux a môže pomôcť s porozumením a "
+"riešením porušenia pravidiel."
 
 #: src/appstream/org.cockpit-project.cockpit-kdump.metainfo.xml.in:8
 msgid "This tool configures the system to write kernel crash dumps to disk."
 msgstr ""
+"Tento nástroj nastavuje systém pre zapisovanie výpisov pádov jadra na disk."
 
 #: src/appstream/org.cockpit-project.cockpit-sosreport.metainfo.xml.in:9
 msgid ""
@@ -8424,12 +8111,19 @@ msgid ""
 "representatives, developers or system administrators to assist with "
 "technical fault-finding and debugging."
 msgstr ""
+"Tento nástroj vytvára archív nastavení a diagnostických informácií z "
+"bežiaceho systému. Archív je možné uložiť lokálne alebo centrálne pre účely "
+"sledovania či záznamu alebo je možné ho poslať zástupcom technickej podpory, "
+"vývojárom alebo správcom systému, aby tak mohli pomôcť s nájdením "
+"technického nedostatku alebo ladením chyby."
 
 #: src/appstream/org.cockpit-project.cockpit-storaged.metainfo.xml.in:8
 msgid ""
 "This tool manages local storage, such as filesystems, LVM2 volume groups, "
 "and NFS mounts."
 msgstr ""
+"Tento nástroj spravuje miestne úložisko, ako sú napríklad systémy súborov, "
+"LVM2 skupiny zväzkov a NFS pripojenia."
 
 #: src/appstream/org.cockpit-project.cockpit-networkmanager.metainfo.xml.in:8
 msgid ""
@@ -8437,10 +8131,15 @@ msgid ""
 "firewalls using NetworkManager and Firewalld. NetworkManager is incompatible "
 "with Ubuntu's default systemd-networkd and Debian's ifupdown scripts."
 msgstr ""
+"Tento nástroj spravuje sieťovanie ako napríklad sieťové spojenia (bond), "
+"teaming, mosty (bridge), VLAN siete a brány firewall pomocou nástroja "
+"NetworkManager a FIrewalld. NetworkManager nie je kompatibilný s Ubuntu v "
+"predvolenom stave pri používaní systemd-networkd a skriptami ifupdown v "
+"distribúcii Debian."
 
 #: pkg/systemd/service-details.jsx:347
 msgid "This unit is not designed to be enabled explicitly."
-msgstr ""
+msgstr "Táto jednotka je navrhnutá na to, aby bola výslovne zapnutá."
 
 #: pkg/users/account-create-dialog.js:160
 msgid "This user name already exists"
@@ -8448,11 +8147,12 @@ msgstr "Takéto meno používateľa už existuje"
 
 #: pkg/storaged/lvm2/volume-group.jsx:374
 msgid "This volume group is missing some physical volumes."
-msgstr ""
+msgstr "Tejto skupine zväzkov chýbajú niektoré fyzické zväzky."
 
 #: pkg/static/login.js:212
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr ""
+"Tento webový prehliadač je príliš starý na spustenie Web Console (chýba $0)"
 
 #: pkg/systemd/logs.jsx:360
 msgid ""
@@ -8464,6 +8164,12 @@ msgid ""
 "chronological order, 2 the second and so on; while -0 is the last boot, -1 "
 "the boot before last, and so on."
 msgstr ""
+"Toto pridá zhodu pre „_BOOT_ID=“. Ak nie je určené, zobrazia sa záznamy "
+"udalostí pre súčasný štart systému. Ak identifikátor štartu vynecháte, "
+"kladný posun prehľadá štarty od začiatku žurnálu a posun rovný alebo menší "
+"ak nula prehľadá štarty od jeho konca. Preto 1 znamená v chronologickom "
+"poradí prvý štart nájdený v žurnáli, 2 druhý atď. Odbodne -0 znamená "
+"posledný štart, -1 predposledný štart atď."
 
 #: pkg/systemd/logs.jsx:371
 msgid ""
@@ -8471,6 +8177,9 @@ msgid ""
 "find all possible messages for the given unit. Can contain more units "
 "separated by comma. "
 msgstr ""
+"Toto pridá zhodu pre „_SYSTEMD_UNIT=“, „COREDUMP_UNIT=“ a „UNIT=“ a pomôže "
+"tak nájsť všetky prípadné správy pre danú jednotku. Môže obsahovať viacero "
+"jednotiek, oddelených čiarkou. "
 
 #: pkg/shell/hosts_dialog.jsx:829
 msgid "This will allow you to log in without password in the future."
@@ -8481,6 +8190,8 @@ msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
 msgstr ""
+"Táto zóna obsahuje službu cockpit. Overte, či sa táto zóna nevzťahuje na "
+"vaše aktuálne pripojenie k tejto webovej konzoli."
 
 #: pkg/packagekit/autoupdates.jsx:438 pkg/systemd/timer-dialog.jsx:320
 msgid "Thursdays"
@@ -8488,7 +8199,7 @@ msgstr "štvrtky"
 
 #: pkg/storaged/stratis/pool.jsx:190
 msgid "Tier"
-msgstr ""
+msgstr "Vrstva (tier)"
 
 #: pkg/packagekit/history.jsx:112 pkg/systemd/logs.jsx:201
 msgid "Time"
@@ -8499,16 +8210,12 @@ msgid "Time zone"
 msgstr "Časová zóna"
 
 #: pkg/systemd/timer-dialog.jsx:155
-#, fuzzy
-#| msgid "Connection failed"
 msgid "Timer creation failed"
-msgstr "Pripojenie sa nepodarilo"
+msgstr "Vytvorenie časovača zlyhalo"
 
 #: pkg/systemd/service-details.jsx:719
-#, fuzzy
-#| msgid "Connection failed"
 msgid "Timer deletion failed"
-msgstr "Pripojenie sa nepodarilo"
+msgstr "Odstránenie časovača zlyhalo"
 
 #: pkg/systemd/service-tabs.jsx:43
 msgid "Timers"
@@ -8527,18 +8234,25 @@ msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
 msgstr ""
+"Aby ste zaistili, že do vášho pripojenia nie je zasahované záškodníckou "
+"treťou stranou, overte odtlačok kľúča hostiteľa:"
 
 #: pkg/packagekit/updates.jsx:1374
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
 msgstr ""
+"Pre získavanie aktualizácií softvéru je potrebné systém zaregistrovať v Red "
+"Hat, buď pomocou Red Hat portálu pre zákazníkov alebo miestneho serveru "
+"predplatného."
 
 #: pkg/shell/hosts_dialog.jsx:477 pkg/static/login.js:768
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
 msgstr ""
+"Ak chcete odtlačok overiť, spustite nasledujúce príkazy na $0 počas fyzickej "
+"prítomnosti pri stroji alebo prostredníctvom dôveryhodnej siete:"
 
 #: pkg/metrics/metrics.jsx:1889
 msgid "Today"
@@ -8546,22 +8260,20 @@ msgstr "Dnes"
 
 #: pkg/shell/credentials.jsx:100
 msgid "Toggle"
-msgstr ""
+msgstr "Prepnúť"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:212 pkg/lib/serverTime.js:595
 #: pkg/users/expiration-dialogs.js:49 pkg/systemd/timer-dialog.jsx:348
 msgid "Toggle date picker"
-msgstr ""
+msgstr "Prepnúť vyberač dátumov"
 
 #: pkg/systemd/services.jsx:815 pkg/systemd/logs.jsx:190
-#, fuzzy
-#| msgid "Hide filters"
 msgid "Toggle filters"
-msgstr "Skryť filtre"
+msgstr "Prepnúť filtre"
 
-#: pkg/lib/cockpit.js:2581
+#: pkg/lib/cockpit.js:2609
 msgid "Too much data"
-msgstr ""
+msgstr "Príliš veľa dát"
 
 #: pkg/shell/indexes.jsx:346
 msgid "Tools"
@@ -8572,14 +8284,12 @@ msgid "Top 5 CPU services"
 msgstr "5 služieb najviac vyťažujúcich procesor"
 
 #: pkg/metrics/metrics.jsx:965
-#, fuzzy
-#| msgid "Top 5 CPU services"
 msgid "Top 5 disk usage services"
-msgstr "5 služieb najviac vyťažujúcich procesor"
+msgstr "5 služieb najviac vyťažujúcich úložisko"
 
 #: pkg/metrics/metrics.jsx:905
 msgid "Top 5 memory services"
-msgstr ""
+msgstr "5 služieb zaberajúcich najviac pamäte"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:105
 msgid "Total size: $0"
@@ -8591,7 +8301,7 @@ msgstr "Veža"
 
 #: pkg/systemd/services.jsx:256
 msgid "Transient"
-msgstr ""
+msgstr "Prechodné"
 
 #: pkg/networkmanager/plots.js:39
 msgid "Transmitting"
@@ -8603,7 +8313,7 @@ msgstr "Spúšťač"
 
 #: pkg/systemd/service-details.jsx:552
 msgid "Triggered by"
-msgstr ""
+msgstr "Spustené na základe"
 
 #: pkg/systemd/service-details.jsx:551
 msgid "Triggers"
@@ -8618,14 +8328,12 @@ msgid "Troubleshoot…"
 msgstr "Riešiť problém…"
 
 #: pkg/shell/hosts_dialog.jsx:466
-#, fuzzy
-#| msgid "Untrusted host"
 msgid "Trust and add host"
-msgstr "Nedôveryhodnotný stroj"
+msgstr "Dôverovať a pridať hostiteľa"
 
 #: pkg/storaged/crypto/keyslots.jsx:580 pkg/storaged/stratis/utils.jsx:86
 msgid "Trust key"
-msgstr ""
+msgstr "Dôveryhodný kľúč"
 
 #: pkg/networkmanager/firewall.jsx:822
 msgid "Trust level"
@@ -8637,7 +8345,7 @@ msgstr "Skúsiť znova"
 
 #: pkg/lib/serverTime.js:450
 msgid "Trying to synchronize with $0"
-msgstr ""
+msgstr "Pokus o synchronizáciu s $0"
 
 #: pkg/packagekit/autoupdates.jsx:436 pkg/systemd/timer-dialog.jsx:318
 msgid "Tuesdays"
@@ -8645,7 +8353,7 @@ msgstr "utorky"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:257
 msgid "Tuned has failed to start"
-msgstr ""
+msgstr "Spustenie procesu služby tuned skončilo neúspechom"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:281
 msgid ""
@@ -8659,19 +8367,19 @@ msgstr ""
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:79
 msgid "Tuned is not available"
-msgstr ""
+msgstr "Tuned nie je k dispozícii"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:81
 msgid "Tuned is not running"
-msgstr ""
+msgstr "Tuned nie je spustené"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:83
 msgid "Tuned is off"
-msgstr ""
+msgstr "Tuned je vypnuté"
 
 #: pkg/shell/superuser.jsx:345
 msgid "Turn on administrative access"
-msgstr ""
+msgstr "Zapnúť prístup na úrovni správcu"
 
 #: pkg/packagekit/autoupdates.jsx:405 pkg/shell/credentials.jsx:197
 #: pkg/systemd/hwinfo.jsx:81 pkg/systemd/hwinfo.jsx:291
@@ -8684,19 +8392,20 @@ msgstr "Typ"
 
 #: pkg/storaged/partitions/partition.jsx:173
 msgid "Type can only contain the characters 0 to 9, A to F, and \"-\"."
-msgstr ""
+msgstr "Typ môže obsahovať iba znaky 0 až 9, A až F a „-“ (mínus, spojovník)."
 
 #: pkg/storaged/partitions/partition.jsx:176
 msgid "Type must be of the form NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
-msgstr ""
+msgstr "Typ musí mať podobu NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
 
 #: pkg/storaged/partitions/partition.jsx:160
 msgid "Type must contain exactly two hexadecimal characters (0 to 9, A to F)."
 msgstr ""
+"Typ musí obsahovať presne dva znaky šestnástkovej sústavy (0 až 9, A až F)."
 
 #: pkg/systemd/logs.jsx:403
 msgid "Type to filter"
-msgstr ""
+msgstr "Filtrujte písaním"
 
 #: pkg/networkmanager/firewall.jsx:207
 msgid "UDP"
@@ -8712,110 +8421,92 @@ msgstr "UUID"
 
 #: pkg/selinux/setroubleshoot-view.jsx:114
 msgid "Unable to apply this solution automatically"
-msgstr ""
+msgstr "Nedarí sa automaticky aplikovať toto riešenie"
 
 #: pkg/static/login.js:919
 msgid "Unable to connect to that address"
-msgstr ""
+msgstr "K tejto adrese sa nedarí pripojiť"
 
 #: pkg/shell/hosts_dialog.jsx:361
 msgid "Unable to contact $0."
-msgstr ""
+msgstr "Nedarí sa kontaktovať $0."
 
 #: pkg/shell/hosts_dialog.jsx:236
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
 msgstr ""
+"Nepodarilo sa kontaktovať uvedený stroj $0. Overte, či ssh beží na porte $1 "
+"alebo zadajte v jeho adrese iný port."
 
 #: pkg/selinux/setroubleshoot-view.jsx:60
 #: pkg/selinux/setroubleshoot-view.jsx:183
 msgid "Unable to get alert details."
-msgstr ""
+msgstr "Nedarí sa získať podrobnosti o výstrahe."
 
 #: pkg/shell/hosts_dialog.jsx:770
-#, fuzzy
-#| msgid ""
-#| "Unable to log in to {{#strong}}{{full_address}}{{/strong}} using SSH key "
-#| "authentication. Please provide the password. You may want to set up your "
-#| "SSH keys for automatic login."
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password. You may want to set up your SSH keys for automatic login."
 msgstr ""
-"Nepodarilo sa prihlásiť k {{#strong}}{{full_address}}{{/strong}} pomocou "
-"overenia sa SSH kľúčom. Prosím zadejte heslo. Ak sa chcete prihlasovať "
-"automaticky, nastavte SSH klúče."
+"Nepodarilo sa prihlásiť k $0 pomocou overenia SSH kľúčom. Zadajte, prosím, "
+"heslo. Ak sa chcete prihlasovať automaticky, nastavte SSH kľúče."
 
 #: pkg/shell/hosts_dialog.jsx:768
-#, fuzzy
-#| msgid ""
-#| "Unable to log in to {{#strong}}{{full_address}}{{/strong}}. The host does "
-#| "not accept password login or any of your SSH keys."
 msgid ""
 "Unable to log in to $0. The host does not accept password login or any of "
 "your SSH keys."
 msgstr ""
-"Nepodarilo sa prihlásiť k {{#strong}}{{full_address}}{{/strong}}. Hostiteľ "
-"nepríjma prihlasovanie heslom alebo žiaden z vašich SSH kľúčov."
+"Nedarí sa prihlásiť k $0. Hostiteľ neprijíma prihlasovanie heslom ani žiaden "
+"z vašich SSH kľúčov."
 
 #: pkg/storaged/iscsi/create-dialog.jsx:73
 msgid "Unable to reach server"
-msgstr ""
+msgstr "So serverom sa nepodarilo spojiť"
 
 #: pkg/storaged/nfs/nfs.jsx:266
 msgid "Unable to remove mount"
-msgstr ""
+msgstr "Účet sa nepodarilo odstrániť"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:112
-#, fuzzy
-#| msgid "Encrypted logical volume of $0"
 msgid "Unable to repair logical volume $0"
-msgstr "Šifrovaný logický zväzok na $0"
+msgstr "Nepodarilo sa opraviť logický zväzok $0"
 
 #: pkg/selinux/setroubleshoot-client.js:145
-#, fuzzy
-#| msgid "Failed to add service"
 msgid "Unable to run fix: $0"
-msgstr "Nepodarilo sa pridať službu"
+msgstr "Nepodarilo sa spustiť opravu: $0"
 
 #: pkg/kdump/kdump-view.jsx:209
-#, fuzzy
-#| msgid "Failed to add service"
 msgid "Unable to save settings"
-msgstr "Nepodarilo sa pridať službu"
+msgstr "Nepodarilo sa uložiť nastavenia"
 
 #: pkg/kdump/kdump-view.jsx:214
-#, fuzzy
-#| msgid "Failed to add service"
 msgid "Unable to save settings: $0"
-msgstr "Nepodarilo sa pridať službu"
+msgstr "Nastavenia sa nepodarilo uložiť: $0"
 
 #: pkg/selinux/setroubleshoot-client.js:49
 msgid "Unable to start setroubleshootd"
-msgstr ""
+msgstr "Nepodarilo sa spustiť setroubleshootd"
 
 #: pkg/storaged/nfs/nfs.jsx:243
 msgid "Unable to unmount filesystem"
-msgstr ""
+msgstr "Nepodarilo sa odpojiť systém súborov"
 
 #: pkg/playground/translate.html:34 pkg/playground/translate.html:39
 msgid "Unavailable"
 msgstr "Nedostupné"
 
 #: pkg/packagekit/kpatch.jsx:241
-#, fuzzy
-#| msgid "Unavailable"
 msgid "Unavailable packages"
-msgstr "Nedostupné"
+msgstr "Nedostupné balíčky"
 
 #: pkg/users/account-details.js:467
 msgid "Undo"
-msgstr ""
+msgstr "Späť"
 
 #: pkg/storaged/crypto/keyslots.jsx:294
 msgid "Unexpected PackageKit error during installation of $0: $1"
-msgstr ""
+msgstr "Neočakávaná chyba PackageKit v priebehu inštalácie $0: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
 #: pkg/shell/shell-modals.jsx:187
@@ -8823,10 +8514,8 @@ msgid "Unexpected error"
 msgstr "Neočakávaná chyba"
 
 #: pkg/storaged/block/unformatted-data.jsx:30
-#, fuzzy
-#| msgid "Unrecognized data"
 msgid "Unformatted data"
-msgstr "Nerozpoznané dáta"
+msgstr "Neformátované dáta"
 
 #: pkg/systemd/logs.jsx:368 pkg/systemd/services-list.jsx:39
 #: pkg/systemd/services-list.jsx:44
@@ -8865,7 +8554,7 @@ msgstr "Neznáma konfigurácia"
 
 #: pkg/storaged/iscsi/create-dialog.jsx:69
 msgid "Unknown host name"
-msgstr ""
+msgstr "Neznámy názov stroja"
 
 #: pkg/networkmanager/firewall.jsx:477
 msgid "Unknown service name"
@@ -8883,37 +8572,28 @@ msgid "Unlock"
 msgstr "Odomknúť"
 
 #: pkg/storaged/filesystem/mismounting.jsx:219
-#, fuzzy
-#| msgid "Do not mount automatically on boot"
 msgid "Unlock automatically on boot"
-msgstr "Nepripájať automaticky pri štarte systému"
+msgstr "Automaticky odomknúť pri štarte systému"
 
 #: pkg/storaged/block/resize.jsx:246
 msgid "Unlock before resizing"
-msgstr ""
+msgstr "Odomknúť pred zmenou veľkosti"
 
 #: pkg/storaged/stratis/stopped-pool.jsx:50
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Encrypted data"
 msgid "Unlock encrypted Stratis pool"
-msgstr "Šifrované dáta"
+msgstr "Odomknúť šifrovaný Stratis pool"
 
 #: pkg/shell/credentials.jsx:307
-#, fuzzy
-#| msgid "Unlock key"
 msgid "Unlock key $0"
-msgstr "Odomknúť kľuč"
+msgstr "Odomknúť kľúč $0"
 
 #: pkg/storaged/jobs-panel.jsx:42
 msgid "Unlocking $target"
-msgstr "Odomyká sa $target"
+msgstr "Odomykám $target"
 
 #: pkg/storaged/crypto/keyslots.jsx:223
-#, fuzzy
-#| msgid "Unlocking disk..."
 msgid "Unlocking disk"
-msgstr "Odomyká sa disk..."
+msgstr "Odomykám disk"
 
 #: pkg/networkmanager/network-main.jsx:195
 #: pkg/networkmanager/network-main.jsx:197
@@ -8928,10 +8608,8 @@ msgid "Unmount"
 msgstr "Odpojiť"
 
 #: pkg/storaged/filesystem/mounting-dialog.jsx:351
-#, fuzzy
-#| msgid "Unmount filesystem"
 msgid "Unmount filesystem $0"
-msgstr "Odpojiť súborový systém"
+msgstr "Odpojiť systém súborov $0"
 
 #: pkg/storaged/filesystem/mismounting.jsx:211
 #: pkg/storaged/filesystem/mismounting.jsx:215
@@ -8940,17 +8618,15 @@ msgstr "Odpojiť teraz"
 
 #: pkg/storaged/jobs-panel.jsx:49
 msgid "Unmounting $target"
-msgstr "Odpája sa $target"
+msgstr "Odpájam $target"
 
 #: pkg/users/authorized-keys-panel.js:134
 msgid "Unnamed"
 msgstr "Bez názvu"
 
 #: pkg/systemd/service-details.jsx:185
-#, fuzzy
-#| msgid "Systemd units"
 msgid "Unpin unit"
-msgstr "Systemd jednotky"
+msgstr "Zrušiť pripnutie jednotky"
 
 #: pkg/storaged/block/unrecognized-data.jsx:34
 msgid "Unrecognized data"
@@ -8958,41 +8634,35 @@ msgstr "Nerozpoznané dáta"
 
 #: pkg/storaged/block/resize.jsx:306
 msgid "Unrecognized data can not be made smaller here"
-msgstr ""
+msgstr "Nerozpoznané dáta tu nie je možné zmenšiť"
 
 #: pkg/storaged/block/resize.jsx:195
 msgid "Unrecognized data can not be made smaller here."
-msgstr ""
+msgstr "Nerozpoznané dáta tu nie je možné zmenšiť."
 
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:35
-#, fuzzy
-#| msgid "Unsupported volume"
 msgid "Unsupported logical volume"
-msgstr "Nepodporovaný zväzok"
+msgstr "Nepodporovaný logický zväzok"
 
 #: pkg/systemd/logs.jsx:346
 msgid "Until"
-msgstr ""
+msgstr "Až do"
 
-#: pkg/lib/cockpit.js:2561 pkg/lib/cockpit.js:2563
+#: pkg/lib/cockpit.js:2589 pkg/lib/cockpit.js:2591
 msgid "Untrusted host"
 msgstr "Nedôveryhodnotný stroj"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:129
-#, fuzzy
-#| msgid "Up since $0"
 msgid "Up since"
-msgstr "Beží od $0"
+msgstr "Beží od"
 
 #: pkg/shell/hosts_dialog.jsx:357
 msgid "Update"
 msgstr "Aktualizovať"
 
 #: pkg/packagekit/updates.jsx:752
-#, fuzzy
-#| msgid "Updates available"
 msgid "Update Success Table"
-msgstr "Sú dostupné aktualizácie"
+msgstr "Tabuľka úspechov aktualizácií"
 
 #: pkg/packagekit/updates.jsx:955
 msgid "Update history"
@@ -9000,13 +8670,11 @@ msgstr "História aktualizácií"
 
 #: pkg/apps/application-list.jsx:153
 msgid "Update package information"
-msgstr ""
+msgstr "Aktualizovať informácie o balíčkoch"
 
 #: pkg/packagekit/updates.jsx:677 pkg/packagekit/updates.jsx:747
-#, fuzzy
-#| msgid "Logout successful"
 msgid "Update was successful"
-msgstr "Odhlásenie bolo úspešné"
+msgstr "Aktualizácia bola úspešná"
 
 #: pkg/packagekit/updates.jsx:112
 msgid "Updated"
@@ -9015,6 +8683,7 @@ msgstr "Aktualizované"
 #: pkg/packagekit/updates.jsx:680
 msgid "Updated packages may require a reboot to take effect."
 msgstr ""
+"Aby sa zmeny prejavili, aktualizovaný balíček môže vyžadovať reštart systému."
 
 #: pkg/packagekit/updates.jsx:1439
 msgid "Updates available"
@@ -9026,21 +8695,19 @@ msgstr "História aktualizácií"
 
 #: pkg/packagekit/autoupdates.jsx:492
 msgid "Updates will be applied $0 at $1"
-msgstr ""
+msgstr "Aktualizácie budú aplikované $0 o $1"
 
 #: pkg/packagekit/updates.jsx:106
 msgid "Updating"
-msgstr "Aktualizuje sa"
+msgstr "Aktualizujem"
 
 #: pkg/systemd/service-details.jsx:522
 msgid "Updating status..."
-msgstr "Aktualizuje sa stav..."
+msgstr "Aktualizujem stav..."
 
 #: pkg/playground/react-demo-file-upload.tsx:109
-#, fuzzy
-#| msgid "Reload"
 msgid "Upload"
-msgstr "Znova načítať"
+msgstr "Nahrať"
 
 #: pkg/metrics/metrics.jsx:1963 pkg/metrics/metrics.jsx:1964
 #: pkg/metrics/metrics.jsx:1965 pkg/metrics/metrics.jsx:1966
@@ -9055,10 +8722,8 @@ msgid "Usage"
 msgstr "Využitie"
 
 #: pkg/storaged/storage-controls.jsx:206
-#, fuzzy
-#| msgid "Image $0"
 msgid "Usage of $0"
-msgstr "Obraz $0"
+msgstr "Využitie $0"
 
 #: pkg/networkmanager/dialogs-common.jsx:103 pkg/storaged/dialog.jsx:661
 #: pkg/storaged/dialog.jsx:1179
@@ -9066,22 +8731,16 @@ msgid "Use"
 msgstr "Použiť"
 
 #: pkg/storaged/lvm2/vdo-pool.jsx:85 pkg/storaged/legacy-vdo/legacy-vdo.jsx:328
-#, fuzzy
-#| msgid "Compression"
 msgid "Use compression"
-msgstr "Kompresia"
+msgstr "Použiť kompresiu"
 
 #: pkg/storaged/lvm2/vdo-pool.jsx:89 pkg/storaged/legacy-vdo/legacy-vdo.jsx:337
-#, fuzzy
-#| msgid "Deduplication"
 msgid "Use deduplication"
-msgstr "Deduplikácia"
+msgstr "Použiť deduplikáciu"
 
 #: pkg/shell/credentials.jsx:131
-#, fuzzy
-#| msgid "ssh key"
 msgid "Use key"
-msgstr "ssh kľúč"
+msgstr "Použiť kľúč"
 
 #: pkg/users/account-create-dialog.js:114
 msgid "Use password"
@@ -9089,13 +8748,11 @@ msgstr "Použiť heslo"
 
 #: pkg/shell/credentials.jsx:84
 msgid "Use the following keys to authenticate against other systems"
-msgstr ""
+msgstr "Pre overovanie voči ostatným systémom použiť nasledujúce kľúče"
 
 #: pkg/sosreport/sosreport.jsx:340
-#, fuzzy
-#| msgid "Last login"
 msgid "Use verbose logging"
-msgstr "Posledné prihlásenie"
+msgstr "Zaznamenávať podrobnejšie"
 
 #: pkg/metrics/metrics.jsx:815 pkg/metrics/metrics.jsx:909
 #: pkg/storaged/swap/swap.jsx:125
@@ -9106,36 +8763,32 @@ msgstr "Využité"
 msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr ""
+"Užitočné pre body pripojenia, ktoré sú voliteľné alebo vyžadujú interakciu "
+"(ako napr. heslovú frázu)"
 
 #: pkg/systemd/services.jsx:916 pkg/storaged/dialog.jsx:1434
 msgid "User"
 msgstr "Používateľ"
 
 #: pkg/users/account-create-dialog.js:104
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Používateľ"
+msgstr "Identifikátor používateľa (UID)"
 
 #: pkg/users/account-create-dialog.js:191
 msgid "User ID is already used by another user"
-msgstr ""
+msgstr "Identifikátor používateľa je už používaný iným používateľom"
 
 #: pkg/users/account-create-dialog.js:181
-#, fuzzy
-#| msgid "MTU must be a positive number"
 msgid "User ID must be a positive integer"
-msgstr "MTU musí byť kladné číslo"
+msgstr "Identifikátor používateľa musí byť celé kladné číslo"
 
 #: pkg/users/account-create-dialog.js:187
 msgid "User ID must not be higher than $0"
-msgstr ""
+msgstr "Identifikátor používateľa musí byť väčší ako $0"
 
 #: pkg/users/account-create-dialog.js:184
-#, fuzzy
-#| msgid "Name cannot be longer than $0 bytes"
 msgid "User ID must not be lower than $0"
-msgstr "Názov nemôže byť dlhší ako $0 bytov"
+msgstr "Identifikátor používateľa musí byť menší ako $0"
 
 #: pkg/static/login.html:94 pkg/users/account-details.js:256
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:264
@@ -9152,20 +8805,16 @@ msgid "Username"
 msgstr "Meno používateľa"
 
 #: pkg/storaged/manifest.json:0
-#, fuzzy
-#| msgid "encryption"
 msgid "Using LUKS encryption"
-msgstr "Šifrovanie"
+msgstr "S použitím LUKS šifrovania"
 
 #: pkg/storaged/manifest.json:0
-#, fuzzy
-#| msgid "Edit Tang keyserver"
 msgid "Using Tang server"
-msgstr "Upraviť Tang server s kľúčami"
+msgstr "S použitím servera Tang"
 
 #: pkg/storaged/block/resize.jsx:177 pkg/storaged/block/resize.jsx:286
 msgid "VDO backing devices can not be made smaller"
-msgstr ""
+msgstr "Zariadenia, ktoré sú podkladom pre VDO, nie je možné zmenšovať"
 
 #: pkg/storaged/utils.js:341 pkg/storaged/legacy-vdo/legacy-vdo.jsx:139
 msgid "VDO device $0"
@@ -9173,7 +8822,7 @@ msgstr "VDO zariadenie $0"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:101
 msgid "VDO filesystem volume (compression/deduplication)"
-msgstr ""
+msgstr "Zväzok systému súborov VDO (kompresia/deduplikácia)"
 
 #: pkg/networkmanager/network-interface.jsx:177
 #: pkg/networkmanager/network-interface.jsx:191
@@ -9187,11 +8836,11 @@ msgstr "VLAN ID"
 
 #: pkg/systemd/overview-cards/realmd.jsx:394
 msgid "Validating address"
-msgstr "Overuje sa adresa"
+msgstr "Overujem adresu"
 
 #: pkg/static/login.html:147
 msgid "Validating authentication token"
-msgstr "Kontroluje sa overovací žetón"
+msgstr "Kontrolujem overovací žetón"
 
 #: pkg/systemd/hwinfo.jsx:278 pkg/storaged/drive/drive.jsx:120
 msgid "Vendor"
@@ -9202,10 +8851,8 @@ msgid "Verified"
 msgstr "Overené"
 
 #: pkg/shell/hosts_dialog.jsx:489
-#, fuzzy
-#| msgid "Fingerprint"
 msgid "Verify fingerprint"
-msgstr "Odtlačok"
+msgstr "Overiť odtlačok"
 
 #: pkg/storaged/crypto/keyslots.jsx:576 pkg/storaged/stratis/utils.jsx:83
 msgid "Verify key"
@@ -9213,7 +8860,7 @@ msgstr "Overiť kľúč"
 
 #: pkg/packagekit/updates.jsx:108
 msgid "Verifying"
-msgstr "Overuje sa"
+msgstr "Overujem"
 
 #: pkg/packagekit/updates.jsx:448 pkg/systemd/hwinfo.jsx:91
 msgid "Version"
@@ -9221,31 +8868,23 @@ msgstr "Verzia"
 
 #: pkg/storaged/jobs-panel.jsx:62
 msgid "Very securely erasing $target"
-msgstr "Veľmi bezpečne sa maže $target"
+msgstr "Naozaj bezpečne mažem $target"
 
 #: pkg/metrics/metrics.jsx:768 pkg/metrics/metrics.jsx:769
-#, fuzzy
-#| msgid "All logs"
 msgid "View all CPUs"
-msgstr "Všetky záznamy"
+msgstr "Zobraziť všetky procesory"
 
 #: pkg/metrics/metrics.jsx:805
-#, fuzzy
-#| msgid "All logs"
 msgid "View all disks"
-msgstr "Všetky záznamy"
+msgstr "Zobraziť všetky disky"
 
 #: pkg/lib/cockpit-components-logs-panel.jsx:169
-#, fuzzy
-#| msgid "All logs"
 msgid "View all logs"
-msgstr "Všetky záznamy"
+msgstr "Zobraziť všetky záznamy udalostí"
 
 #: pkg/systemd/service-details.jsx:543
-#, fuzzy
-#| msgid "Filter services"
 msgid "View all services"
-msgstr "Filtrovať služby"
+msgstr "Zobraziť všetky služby"
 
 #: pkg/lib/cockpit-components-modifications.jsx:154
 #: pkg/kdump/kdump-view.jsx:526
@@ -9253,26 +8892,20 @@ msgid "View automation script"
 msgstr "Ukázať automatizačný skript"
 
 #: pkg/metrics/metrics.jsx:1149
-#, fuzzy
-#| msgid "All logs"
 msgid "View detailed logs"
-msgstr "Všetky záznamy"
+msgstr "Zobraziť podrobné záznamy udalostí"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:139
 msgid "View hardware details"
 msgstr "Ukázať podrobnosti o hardware"
 
 #: pkg/systemd/overview-cards/lastLogin.jsx:136
-#, fuzzy
-#| msgid "View details and history"
 msgid "View login history"
-msgstr "Ukázať podrobnosti a históriu"
+msgstr "Zobraziť históriu prihlásení"
 
 #: pkg/storaged/stratis/pool.jsx:345
-#, fuzzy
-#| msgid "All logs"
 msgid "View logs"
-msgstr "Všetky záznamy"
+msgstr "Zobraziť záznamy udalostí"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:161
 msgid "View metrics and history"
@@ -9280,7 +8913,7 @@ msgstr "Ukázať metriky a históriu"
 
 #: pkg/metrics/metrics.jsx:806
 msgid "View per-disk throughput"
-msgstr ""
+msgstr "Zobraziť toky dát pre jednotlivé disky"
 
 #: pkg/apps/application.jsx:71
 msgid "View project website"
@@ -9295,17 +8928,15 @@ msgid "View update log"
 msgstr "Zobraziť záznamy udalostí o aktualizácii"
 
 #: pkg/systemd/hwinfo.jsx:299
-#, fuzzy
-#| msgid "You can not gain administrative access."
 msgid "Viewing memory information requires administrative access."
-msgstr "Nemáte oprávnenia pre získanie prístupu na úrovni správcu systému."
+msgstr ""
+"Zobrazovanie informácií o pamäti vyžaduje oprávnenie na úrovni správcu "
+"systému."
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:117
 #: pkg/lib/cockpit-components-firewalld-request.jsx:154
-#, fuzzy
-#| msgid "Firewall"
 msgid "Visit firewall"
-msgstr "Brána firewall"
+msgstr "Prejsť na bránu firewall"
 
 #: pkg/storaged/lvm2/physical-volume.jsx:108
 msgid "Volume group"
@@ -9313,10 +8944,8 @@ msgstr "Skupina zväzkov"
 
 #: pkg/storaged/lvm2/volume-group.jsx:223
 #: pkg/storaged/lvm2/physical-volume.jsx:71
-#, fuzzy
-#| msgid "Logical volume"
 msgid "Volume group is missing physical volumes"
-msgstr "Logický zväzok"
+msgstr "Skupine zväzkov (volume group) chýbajú fyzické zväzky"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:276
 msgid "Volume size is $0. Content size is $1."
@@ -9324,30 +8953,30 @@ msgstr "Veľkosť zväzku je $0. Veľkosť obsahu je $1."
 
 #: pkg/networkmanager/interfaces.js:805
 msgid "Waiting"
-msgstr "Čaká sa"
+msgstr "Čakám"
 
 #: pkg/selinux/setroubleshoot-view.jsx:58
 #: pkg/selinux/setroubleshoot-view.jsx:181
 msgid "Waiting for details..."
-msgstr "Čaká sa na podrobnosti..."
+msgstr "Čakám na podrobnosti..."
 
 #: pkg/systemd/reporting.jsx:240
 msgid "Waiting for input…"
-msgstr "Čaká sa na vstup…"
+msgstr "Čakám na vstup…"
 
 #: pkg/apps/utils.jsx:56
 msgid "Waiting for other programs to finish using the package manager..."
-msgstr "Čaká sa až ostatné programy dokončia používanie správcu balíčkov..."
+msgstr "Čakám, kým ostatné programy ukončia spoluprácu so správcom balíčkov..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:150
 #: pkg/lib/cockpit-components-install-dialog.jsx:185
 #: pkg/storaged/crypto/keyslots.jsx:252
 msgid "Waiting for other software management operations to finish"
-msgstr "Čaká sa na dokončenie ostatných operácií správy balíčkov"
+msgstr "Čakám na dokončenie ostatných operácií správy balíčkov"
 
 #: pkg/systemd/reporting.jsx:120 pkg/systemd/reporting.jsx:331
 msgid "Waiting to start…"
-msgstr "Čaká sa na spustenie…"
+msgstr "Čakám na spustenie…"
 
 #: pkg/systemd/service-details.jsx:563
 msgid "Wanted by"
@@ -9362,10 +8991,8 @@ msgid "Warning and above"
 msgstr "Varovanie a závažnejšie"
 
 #: pkg/lib/cockpit-components-password.jsx:105
-#, fuzzy
-#| msgid "Set password"
 msgid "Weak password"
-msgstr "Nastaviť heslo"
+msgstr "Ľahko prelomiteľné heslo"
 
 #: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
 msgid "Web Console"
@@ -9376,30 +9003,24 @@ msgid "Web Console for Linux servers"
 msgstr "Webová konzola pre linuxové servery"
 
 #: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:933
-#, fuzzy
-#| msgid "Web Console for Linux servers"
 msgid "Web Console will restart"
-msgstr "Webová konzola pre linuxové servery"
+msgstr "Webová konzola sa reštartuje"
 
 #: pkg/systemd/superuser-alert.jsx:40
 msgid "Web console is running in limited access mode."
 msgstr "Webová konzola beží v režime obmedzeného prístupu."
 
 #: pkg/shell/shell-modals.jsx:64
-#, fuzzy
-#| msgid "Web Console"
 msgid "Web console logo"
-msgstr "Webová konzola"
+msgstr "Logo webovej konzole"
 
 #: pkg/packagekit/autoupdates.jsx:437 pkg/systemd/timer-dialog.jsx:319
 msgid "Wednesdays"
 msgstr "Stredy"
 
 #: pkg/systemd/timer-dialog.jsx:246
-#, fuzzy
-#| msgid "Weeks"
 msgid "Weekly"
-msgstr "Týždne"
+msgstr "Každý týždeň"
 
 #: pkg/systemd/timer-dialog.jsx:213
 msgid "Weeks"
@@ -9411,7 +9032,7 @@ msgstr "Kedy"
 
 #: pkg/shell/hosts_dialog.jsx:267
 msgid "When empty, connect with the current user"
-msgstr ""
+msgstr "Ak je prázdne, pripojíte sa ako aktuálny používateľ"
 
 #: pkg/packagekit/updates.jsx:532 pkg/packagekit/updates.jsx:938
 msgid ""
@@ -9419,6 +9040,9 @@ msgid ""
 "information. However, the update process will continue in the background. "
 "Reconnect to continue watching the update process."
 msgstr ""
+"V čase, kedy je Webová konzola reštartovaná, neuvidíte informácie o "
+"priebehu. Proces aktualizácie však bude pokračovať na pozadí. Ak chcete "
+"sledovať proces aktualizácie, znova sa pripojte."
 
 #: pkg/storaged/stratis/create-dialog.jsx:112
 msgid ""
@@ -9431,6 +9055,15 @@ msgid ""
 "to know the maximum size for each filesystem in advance and creation of "
 "snapshots is limited."
 msgstr ""
+"Ak je táto možnosť zaškrtnutá, nový pool neumožní prideľovanie miesta nad "
+"rámec celkovej kapacity (overprovisioning). Pre každý zo systému súborov "
+"vytváraných v poole je potrebné zadať jeho maximálnu veľkosť. Po tom, ako "
+"budú vytvorené, už nebude možné systémy súborov zväčšovať. Snímky stavu sú "
+"vytvárané v plnej veľkosti. Súčet všetkých maximálnych veľkostí nemôže "
+"prekračovať veľkosť poolu. Výhodou tohto prístupu je, že žiadnemu systému "
+"súborov v poole nemôže neočakávane dôjsť miesto. Nevýhodou je, že je "
+"potrebné vopred poznať maximálnu veľkosť pre každý systém súborov a "
+"vytváranie snímok stavu je obmedzené."
 
 #: pkg/systemd/terminal.jsx:176
 msgid "White"
@@ -9438,16 +9071,13 @@ msgstr "Biely"
 
 #: pkg/networkmanager/wireguard.jsx:247
 msgid "Will be set to \"Automatic\""
-msgstr ""
+msgstr "Bude nastavené na „Automaticky“"
 
 #: pkg/networkmanager/network-interface.jsx:563
 msgid "WireGuard"
-msgstr ""
+msgstr "WireGuard"
 
 #: pkg/storaged/drive/drive.jsx:124
-#, fuzzy
-#| msgctxt "storage"
-#| msgid "World wide name"
 msgid "World wide name"
 msgstr "World wide name"
 
@@ -9462,7 +9092,7 @@ msgstr "Prevažne zápis"
 
 #: pkg/storaged/plot.jsx:101
 msgid "Writing"
-msgstr "Zapisovanie"
+msgstr "Zápis"
 
 #: pkg/static/login.js:929
 msgid "Wrong user name or password"
@@ -9474,7 +9104,7 @@ msgstr "XOR"
 
 #: pkg/systemd/timer-dialog.jsx:248
 msgid "Yearly"
-msgstr ""
+msgstr "Každý rok"
 
 #: pkg/networkmanager/network-interface.jsx:241 pkg/systemd/reporting.jsx:281
 msgid "Yes"
@@ -9482,7 +9112,7 @@ msgstr "Áno"
 
 #: pkg/shell/hosts_dialog.jsx:488 pkg/static/login.js:765
 msgid "You are connecting to $0 for the first time."
-msgstr ""
+msgstr "K $0 sa pripájate prvýkrát."
 
 #: pkg/networkmanager/firewall-switch.jsx:60
 msgid "You are not authorized to modify the firewall."
@@ -9514,14 +9144,16 @@ msgstr "Musíte počkať dlhšie aby bolo možné zmeniť vaše heslo"
 #: pkg/metrics/metrics.jsx:1819
 msgid "You need to relogin to be able to see metrics history"
 msgstr ""
+"Pre zobrazenie histórie metrík je potrebné, aby ste sa odhlásili a znova "
+"prihlásili"
 
 #: pkg/shell/superuser.jsx:100
 msgid "You now have administrative access."
-msgstr ""
+msgstr "Teraz máte prístup na úrovni správcu systému."
 
 #: pkg/shell/base_index.js:555
 msgid "You will be logged out in $0 seconds."
-msgstr ""
+msgstr "Budete odhlásený za $0 sekúnd."
 
 #: pkg/users/accounts-list.js:176
 msgid "Your account"
@@ -9532,24 +9164,29 @@ msgid ""
 "Your browser does not allow paste from the context menu. You can use "
 "Shift+Insert."
 msgstr ""
+"Vami používaný prehliadač neumožňuje vkladanie z kontextovej ponuky. Ako "
+"náhradu môžete použiť Shift+Insert."
 
 #: pkg/shell/superuser.jsx:279
 msgid "Your browser will remember your access level across sessions."
 msgstr ""
+"Váš prehliadač si bude úroveň prístupu pamätať aj pre budúce spustenia."
 
 #: pkg/packagekit/updates.jsx:1575
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
 msgstr ""
+"Server čoskoro uzatvorí spojenie. Po dokončení jeho reštartu sa budete môcť "
+"opäť pripojiť."
 
-#: pkg/lib/cockpit.js:2551
+#: pkg/lib/cockpit.js:2579
 msgid "Your session has been terminated."
-msgstr ""
+msgstr "Vaša relácia bola ukončená."
 
-#: pkg/lib/cockpit.js:2553
+#: pkg/lib/cockpit.js:2581
 msgid "Your session has expired. Please log in again."
-msgstr ""
+msgstr "Platnosť vašej relácie skončila. Prihláste sa, prosím, znovu."
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:132
 #: pkg/lib/cockpit-components-firewalld-request.jsx:135
@@ -9575,7 +9212,7 @@ msgstr "prístup"
 #: pkg/shell/active-pages-modal.jsx:77
 #: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:56
 msgid "active"
-msgstr "Aktívny"
+msgstr "Aktívna"
 
 #: pkg/apps/manifest.json:0
 msgid "add-on"
@@ -9586,10 +9223,8 @@ msgid "addon"
 msgstr "doplnok"
 
 #: pkg/storaged/filesystem/utils.jsx:177
-#, fuzzy
-#| msgid "Isolated network"
 msgid "after network"
-msgstr "Izolovaná sieť"
+msgstr "po sieti"
 
 #: pkg/apps/manifest.json:0
 msgid "apps"
@@ -9613,13 +9248,11 @@ msgstr "avc"
 
 #: pkg/metrics/metrics.jsx:754
 msgid "average: $0%"
-msgstr ""
+msgstr "priemer: $0%"
 
 #: pkg/storaged/dialog.jsx:1156
-#, fuzzy
-#| msgid "Create VDO device"
 msgid "backing device for VDO device"
-msgstr "Vytvoriť VDO zariadenie"
+msgstr "zariadenie, na ktorom je zariadenie VDO založené"
 
 #: pkg/systemd/manifest.json:0
 msgid "bash"
@@ -9631,7 +9264,7 @@ msgstr "bios"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "bond"
-msgstr "zväzok"
+msgstr "spojenie (bond)"
 
 #: pkg/systemd/manifest.json:0
 msgid "boot"
@@ -9642,41 +9275,33 @@ msgid "bridge"
 msgstr "most"
 
 #: pkg/storaged/btrfs/device.jsx:42 pkg/storaged/btrfs/volume.jsx:137
-#, fuzzy
-#| msgid "Stop device"
 msgid "btrfs device"
-msgstr "Zastaviť zariadenie"
+msgstr "zariadenie btrfs"
 
 #: pkg/storaged/btrfs/volume.jsx:134
-#, fuzzy
-#| msgid "Stop device"
 msgid "btrfs devices"
-msgstr "Zastaviť zariadenie"
+msgstr "btrfs zariadenia"
 
 #: pkg/storaged/btrfs/filesystem.jsx:44
-#, fuzzy
-#| msgid "Filesystem"
 msgid "btrfs filesystem"
-msgstr "Súborový systém"
+msgstr "systém súborov btrfs"
 
 #: pkg/storaged/btrfs/subvolume.jsx:399
 msgid "btrfs subvolume"
-msgstr ""
+msgstr "podzväzok btrfs"
 
 #: pkg/storaged/filesystem/utils.jsx:81
 msgid "btrfs subvolume $0 of $1"
-msgstr ""
+msgstr "podzväzok btrfs $0 z $1"
 
 #: pkg/storaged/btrfs/volume.jsx:146 pkg/storaged/btrfs/volume.jsx:158
 #: pkg/storaged/btrfs/filesystem.jsx:87 pkg/storaged/btrfs/subvolume.jsx:455
 msgid "btrfs subvolumes"
-msgstr ""
+msgstr "podzväzky btrfs"
 
 #: pkg/storaged/btrfs/device.jsx:69 pkg/storaged/btrfs/volume.jsx:68
-#, fuzzy
-#| msgid "volume"
 msgid "btrfs volume"
-msgstr "zväzok"
+msgstr "zväzok btrfs"
 
 #: pkg/packagekit/updates.jsx:215 pkg/packagekit/updates.jsx:318
 msgid "bug fix"
@@ -9688,26 +9313,20 @@ msgid "bytes"
 msgstr "bajty"
 
 #: pkg/storaged/stratis/blockdev.jsx:57
-#, fuzzy
-#| msgid "Cache"
 msgid "cache"
-msgstr "Vyrovnávacia pamäť"
+msgstr "medzipamäť (cache)"
 
 #: pkg/systemd/manifest.json:0
 msgid "cgroups"
 msgstr "cgroups"
 
 #: pkg/users/account-details.js:331
-#, fuzzy
-#| msgid "Change"
 msgid "change"
-msgstr "Zmeniť"
+msgstr "zmeniť"
 
 #: pkg/metrics/metrics.jsx:656
-#, fuzzy
-#| msgid "Cockpit is not installed"
 msgid "cockpit-podman is not installed"
-msgstr "Cockpit nie je nainštalovaný"
+msgstr "cockpit-podman nie je nainštalovaný"
 
 #: pkg/systemd/manifest.json:0
 msgid "command"
@@ -9730,20 +9349,16 @@ msgid "crash"
 msgstr "pád"
 
 #: pkg/storaged/stratis/blockdev.jsx:55
-#, fuzzy
-#| msgid "$0 data"
 msgid "data"
-msgstr "$0 dáta"
+msgstr "údaje"
 
 #: pkg/systemd/manifest.json:0
 msgid "date"
 msgstr "dátum"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:147
-#, fuzzy
-#| msgid "Deactivate"
 msgid "deactivate"
-msgstr "Deaktivovať"
+msgstr "deaktivovať"
 
 #: pkg/systemd/manifest.json:0
 msgid "debug"
@@ -9757,14 +9372,12 @@ msgstr "ladenie"
 #: pkg/storaged/block/format-dialog.jsx:208
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80 pkg/storaged/stratis/pool.jsx:133
 #: pkg/storaged/stratis/filesystem.jsx:121
-#, fuzzy
-#| msgid "Delete"
 msgid "delete"
-msgstr "Zmazať"
+msgstr "odstrániť"
 
 #: pkg/storaged/dialog.jsx:1159
 msgid "device of btrfs volume"
-msgstr ""
+msgstr "zariadenie zväzku btrfs"
 
 #: pkg/systemd/manifest.json:0
 msgid "dimm"
@@ -9815,10 +9428,8 @@ msgid "enable"
 msgstr "povoliť"
 
 #: pkg/storaged/crypto/encryption.jsx:44
-#, fuzzy
-#| msgid "Encrypted $0"
 msgid "encrypted"
-msgstr "Šifrované $0"
+msgstr "šifrované"
 
 #: pkg/storaged/manifest.json:0
 msgid "encryption"
@@ -9833,46 +9444,32 @@ msgid "error"
 msgstr "Chyba"
 
 #: pkg/packagekit/autoupdates.jsx:480
-#, fuzzy
-#| msgid "every day"
 msgid "every Friday"
-msgstr "každý deň"
+msgstr "každý piatok"
 
 #: pkg/packagekit/autoupdates.jsx:476
-#, fuzzy
-#| msgid "every day"
 msgid "every Monday"
-msgstr "každý deň"
+msgstr "každý pondelok"
 
 #: pkg/packagekit/autoupdates.jsx:481
-#, fuzzy
-#| msgid "every day"
 msgid "every Saturday"
-msgstr "každý deň"
+msgstr "každú sobotu"
 
 #: pkg/packagekit/autoupdates.jsx:482
-#, fuzzy
-#| msgid "every day"
 msgid "every Sunday"
-msgstr "každý deň"
+msgstr "každú nedeľu"
 
 #: pkg/packagekit/autoupdates.jsx:479
-#, fuzzy
-#| msgid "every day"
 msgid "every Thursday"
-msgstr "každý deň"
+msgstr "každý štvrtok"
 
 #: pkg/packagekit/autoupdates.jsx:477
-#, fuzzy
-#| msgid "every day"
 msgid "every Tuesday"
-msgstr "každý deň"
+msgstr "každý utorok"
 
 #: pkg/packagekit/autoupdates.jsx:478
-#, fuzzy
-#| msgid "Wednesday"
 msgid "every Wednesday"
-msgstr "Streda"
+msgstr "každú stredu"
 
 #: pkg/packagekit/autoupdates.jsx:434 pkg/packagekit/autoupdates.jsx:475
 msgid "every day"
@@ -9884,7 +9481,7 @@ msgstr "rozšírenie"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:151
 msgid "failed to list ssh host keys: $0"
-msgstr ""
+msgstr "nepodarilo sa vypísať SSH kľúče stroja: $0"
 
 #: pkg/storaged/manifest.json:0
 msgid "filesystem"
@@ -9900,7 +9497,7 @@ msgstr "firewalld"
 
 #: pkg/packagekit/kpatch.jsx:268
 msgid "for current and future kernels"
-msgstr ""
+msgstr "pre existujúce a budúce jadra systému"
 
 #: pkg/packagekit/kpatch.jsx:273
 msgid "for current kernel only"
@@ -9911,20 +9508,14 @@ msgid "format"
 msgstr "Formátovať"
 
 #: pkg/systemd/overview-cards/lastLogin.jsx:38
-#, fuzzy
-#| msgctxt "<date> from <host>"
-#| msgid "$0 from $1"
 msgctxt "from <host>"
 msgid "from $0"
-msgstr "$0 z $1"
+msgstr "z $0"
 
 #: pkg/systemd/overview-cards/lastLogin.jsx:36
-#, fuzzy
-#| msgctxt "<date> on <terminal>"
-#| msgid "$0 on $1"
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
-msgstr "$0 na $1"
+msgstr "z $0 na $1"
 
 #: pkg/storaged/manifest.json:0
 msgid "fstab"
@@ -9936,7 +9527,7 @@ msgstr "grafy"
 
 #: pkg/storaged/block/resize.jsx:420
 msgid "grow"
-msgstr ""
+msgstr "zväčšiť"
 
 #: pkg/systemd/manifest.json:0
 msgid "hardware"
@@ -9951,48 +9542,36 @@ msgid "host"
 msgstr "stroj"
 
 #: pkg/storaged/drive/drive.jsx:65
-#, fuzzy
-#| msgid "iSCSI target"
 msgid "iSCSI Drive"
-msgstr "iSCSI cieľ"
+msgstr "Jednotka iSCSI"
 
 #: pkg/storaged/iscsi/session.jsx:63 pkg/storaged/iscsi/session.jsx:80
-#, fuzzy
-#| msgid "iSCSI targets"
 msgid "iSCSI drives"
-msgstr "iSCSI ciele"
+msgstr "Jednotky iSCSI"
 
 #: pkg/storaged/iscsi/session.jsx:45
-#, fuzzy
-#| msgid "Add iSCSI portal"
 msgid "iSCSI portal"
-msgstr "Pridať iSCSI portál"
+msgstr "Portál iSCSI"
 
 #: pkg/storaged/filesystem/utils.jsx:179
-#, fuzzy
-#| msgid "On failure"
 msgid "ignore failure"
-msgstr "Pri chybe"
+msgstr "ignorovať neúspech"
 
-#: pkg/lib/timeformat.ts:58
+#: pkg/lib/timeformat.ts:60
 msgid "in less than a minute"
-msgstr ""
+msgstr "o menej ako minútu"
 
 #: pkg/shell/shell-modals.jsx:195
 msgid "in most browsers"
 msgstr "vo väčšine prehliadačov"
 
 #: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:57
-#, fuzzy
-#| msgid "Content"
 msgid "inconsistent"
-msgstr "Obsah"
+msgstr "nekonzistentný"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
-#, fuzzy
-#| msgid "Initialize"
 msgid "initialize"
-msgstr "Inicializovať"
+msgstr "inicializovať"
 
 #: pkg/apps/manifest.json:0
 msgid "install"
@@ -10040,11 +9619,11 @@ msgstr "kľúče"
 
 #: pkg/packagekit/manifest.json:0
 msgid "kpatch"
-msgstr ""
+msgstr "kpatch"
 
-#: pkg/lib/timeformat.ts:56
+#: pkg/lib/timeformat.ts:58
 msgid "less than a minute ago"
-msgstr ""
+msgstr "pred menej ako minútou"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -10072,19 +9651,15 @@ msgstr "maska"
 
 #: pkg/metrics/metrics.jsx:755
 msgid "max: $0%"
-msgstr ""
+msgstr "max: $0%"
 
 #: pkg/storaged/dialog.jsx:1155
-#, fuzzy
-#| msgid "Member of RAID device"
 msgid "member of MDRAID device"
-msgstr "Člen RAID zariadenia"
+msgstr "člen zariadenia MDRAID"
 
 #: pkg/storaged/dialog.jsx:1157
-#, fuzzy
-#| msgid "Create partition"
 msgid "member of Stratis pool"
-msgstr "Vytvoriť oddiel"
+msgstr "člen Stratis poolu"
 
 #: pkg/systemd/manifest.json:0
 msgid "memory"
@@ -10103,10 +9678,8 @@ msgid "mkfs"
 msgstr "mkfs"
 
 #: pkg/kdump/kdump-view.jsx:564
-#, fuzzy
-#| msgid "Problem details"
 msgid "more details"
-msgstr "Detaily o probléme"
+msgstr "ďalšie podrobnosti"
 
 #: pkg/storaged/utils.js:883 pkg/storaged/manifest.json:0
 msgid "mount"
@@ -10129,20 +9702,16 @@ msgid "nfs"
 msgstr "nfs"
 
 #: pkg/kdump/kdump-client.js:130
-#, fuzzy
-#| msgid "ssh server is empty"
 msgid "nfs export is empty"
-msgstr "ssh server je prázdny"
+msgstr "nie je vyplnené políčko nfs exportu"
 
 #: pkg/kdump/kdump-client.js:125
-#, fuzzy
-#| msgid "ssh server is empty"
 msgid "nfs server is empty"
-msgstr "ssh server je prázdny"
+msgstr "nie je vyplnené políčko NFS servera"
 
 #: pkg/kdump/kdump-client.js:128
 msgid "nfs server is not valid IPv6"
-msgstr ""
+msgstr "nfs server nie je platná adresa IPv6"
 
 #: pkg/metrics/metrics.jsx:114
 msgid "nice"
@@ -10164,12 +9733,9 @@ msgstr[1] "z $0 procesorov"
 msgstr[2] "z $0 procesorov"
 
 #: pkg/systemd/overview-cards/lastLogin.jsx:40
-#, fuzzy
-#| msgctxt "<date> on <terminal>"
-#| msgid "$0 on $1"
 msgctxt "on <terminal>"
 msgid "on $0"
-msgstr "$0 na $1"
+msgstr "na $0"
 
 #: pkg/systemd/manifest.json:0
 msgid "operating system"
@@ -10200,14 +9766,12 @@ msgid "password"
 msgstr "heslo"
 
 #: pkg/lib/cockpit-components-password.jsx:148
-#, fuzzy
-#| msgid "password"
 msgid "password quality"
-msgstr "heslo"
+msgstr "kvalita hesla"
 
 #: pkg/packagekit/updates.jsx:343
 msgid "patches"
-msgstr ""
+msgstr "záplaty"
 
 #: pkg/systemd/manifest.json:0
 msgid "path"
@@ -10226,25 +9790,20 @@ msgid "performance"
 msgstr "výkon"
 
 #: pkg/storaged/dialog.jsx:1154
-#, fuzzy
-#| msgid "LVM volume group"
 msgid "physical volume of LVM2 volume group"
-msgstr "LVM skupina zväzkov"
+msgstr "fyzický zväzok LVM2 skupiny zväzkov (volume group)"
 
 #: pkg/apps/manifest.json:0
 msgid "plugin"
 msgstr "zásuvný model"
 
 #: pkg/metrics/metrics.jsx:1847
-#, fuzzy
-#| msgid "$0 service has failed"
-#| msgid_plural "$0 services have failed"
 msgid "pmlogger.service has failed"
-msgstr "$0 služba zhavarovala"
+msgstr "služba pmlogger.service havarovala"
 
 #: pkg/metrics/metrics.jsx:1849
 msgid "pmlogger.service is failing to collect data"
-msgstr ""
+msgstr "službe pmlogger.service sa nedarí zhromažďovať dáta"
 
 #: pkg/metrics/metrics.jsx:1840
 msgid "pmlogger.service is not running"
@@ -10252,7 +9811,7 @@ msgstr "pmlogger.service nebeží"
 
 #: pkg/metrics/metrics.jsx:650
 msgid "pod"
-msgstr ""
+msgstr "pod"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "port"
@@ -10280,17 +9839,15 @@ msgstr "odporúčaný"
 
 #: pkg/storaged/utils.js:942
 msgid "remove from LVM2"
-msgstr ""
+msgstr "odobrať z LVM2"
 
 #: pkg/storaged/utils.js:931
-#, fuzzy
-#| msgid "Removing $target from RAID device"
 msgid "remove from MDRAID"
-msgstr "Odstraňuje sa $target z RAID zariadenia"
+msgstr "odobrať z MDRAID"
 
 #: pkg/storaged/utils.js:901
 msgid "remove from btrfs volume"
-msgstr ""
+msgstr "odobrať zo zväzku btrfs"
 
 #: pkg/systemd/manifest.json:0
 msgid "restart"
@@ -10307,7 +9864,7 @@ msgstr "beží na $0"
 #: pkg/packagekit/updates.jsx:213 pkg/packagekit/updates.jsx:310
 #: pkg/packagekit/manifest.json:0
 msgid "security"
-msgstr "bezpečnosť"
+msgstr "zabezpečenie"
 
 #: pkg/selinux/manifest.json:0
 msgid "semanage"
@@ -10338,20 +9895,16 @@ msgid "show more"
 msgstr "ukázať viac"
 
 #: pkg/storaged/block/resize.jsx:566
-#, fuzzy
-#| msgid "Shrink"
 msgid "shrink"
-msgstr "Zmenšiť"
+msgstr "zmenšiť"
 
 #: pkg/systemd/manifest.json:0
 msgid "shut"
 msgstr "vypnúť"
 
 #: pkg/storaged/btrfs/subvolume.jsx:465
-#, fuzzy
-#| msgid "Snapshot"
 msgid "snapshot"
-msgstr "Zachytený stav"
+msgstr "snímka stavu"
 
 #: pkg/systemd/manifest.json:0
 msgid "socket"
@@ -10371,10 +9924,8 @@ msgid "sos"
 msgstr "sos"
 
 #: pkg/sosreport/sosreport.jsx:192
-#, fuzzy
-#| msgid "Reporting failed"
 msgid "sos report failed"
-msgstr "Nahlasovanie sa nepodarilo"
+msgstr "Nahlasovanie problému zlyhalo"
 
 #: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
@@ -10382,7 +9933,7 @@ msgstr "ssh"
 
 #: pkg/kdump/kdump-client.js:135
 msgid "ssh key isn't a path"
-msgstr ""
+msgstr "kľúč SSH nie je zadaný ako cesta k nemu"
 
 #: pkg/kdump/kdump-client.js:133
 msgid "ssh server is empty"
@@ -10391,17 +9942,15 @@ msgstr "ssh server je prázdny"
 #: pkg/storaged/utils.js:920 pkg/storaged/mdraid/mdraid.jsx:59
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:46
 msgid "stop"
-msgstr ""
+msgstr "zastaviť"
 
 #: pkg/storaged/filesystem/utils.jsx:181
-#, fuzzy
-#| msgid "On failure"
 msgid "stop boot on failure"
-msgstr "Pri chybe"
+msgstr "pri chybe zastaviť štart systému"
 
 #: pkg/storaged/mdraid/mdraid.jsx:210 pkg/storaged/stratis/stopped-pool.jsx:99
 msgid "stopped"
-msgstr ""
+msgstr "zastavené"
 
 #: pkg/metrics/metrics.jsx:114
 msgid "sys"
@@ -10429,7 +9978,7 @@ msgstr "tcp"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "team"
-msgstr "team"
+msgstr "teaming"
 
 #: pkg/systemd/manifest.json:0
 msgid "time"
@@ -10471,17 +10020,15 @@ msgstr "odpojiť"
 
 #: pkg/storaged/utils.js:529
 msgid "unpartitioned space on $0"
-msgstr ""
+msgstr "nerozdelené miesto na $0"
 
 #: pkg/packagekit/manifest.json:0
-#, fuzzy
-#| msgid "No updates"
 msgid "updates"
-msgstr "Žiadne aktualizácie"
+msgstr "aktualizácie"
 
 #: pkg/metrics/metrics.jsx:114 pkg/users/manifest.json:0
 msgid "user"
-msgstr "užívateľ"
+msgstr "používateľ"
 
 #: pkg/users/manifest.json:0
 msgid "useradd"
@@ -10492,10 +10039,8 @@ msgid "username"
 msgstr "username"
 
 #: pkg/storaged/stratis/stopped-pool.jsx:130
-#, fuzzy
-#| msgid "No description"
 msgid "using key description $0"
-msgstr "Bez popisu"
+msgstr "s použitím popisu kľúča $0"
 
 #: pkg/storaged/manifest.json:0
 msgid "vdo"
@@ -10518,10 +10063,8 @@ msgid "warning"
 msgstr "varovanie"
 
 #: pkg/networkmanager/wireguard.jsx:84
-#, fuzzy
-#| msgid "PackageKit is not installed"
 msgid "wireguard-tools package is not installed"
-msgstr "PackageKit nie je nainštalovaný"
+msgstr "balíček wireguard-tools nie je nainštalovaný"
 
 #: pkg/storaged/crypto/encryption.jsx:232
 msgid "yes"

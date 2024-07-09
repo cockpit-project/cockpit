@@ -1732,6 +1732,7 @@ class MachineCase(unittest.TestCase):
         path: str | None = None,
         *,
         user: str | None = None,
+        password: str | None = None,
         host: str | None = None,
         superuser: bool = True,
         urlroot: str | None = None,
@@ -1743,7 +1744,8 @@ class MachineCase(unittest.TestCase):
         self.machine.start_cockpit(tls=tls)
         # first load after starting cockpit tends to take longer, due to on-demand service start
         with self.browser.wait_timeout(30):
-            self.browser.login_and_go(path, user=user, host=host, superuser=superuser, urlroot=urlroot, tls=tls)
+            self.browser.login_and_go(path, user=user, password=password, host=host, superuser=superuser,
+                                      urlroot=urlroot, tls=tls)
 
     def start_machine_troubleshoot(
         self,

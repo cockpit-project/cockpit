@@ -180,7 +180,7 @@ function Keys() {
         return cockpit.script('dir=$(dirname "$1"); test -e "$dir" || mkdir -m 700 "$dir"', [file]);
     }
 
-    async function run_keygen(file, new_type, old_pass, new_pass, two_pass) {
+    async function run_keygen(file, new_type, old_pass, new_pass) {
         const old_exps = [/.*Enter old passphrase: $/];
         const new_exps = [/.*Enter passphrase.*/, /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
         const bad_exps = [/.*failed: passphrase is too short.*/];
@@ -188,9 +188,6 @@ function Keys() {
         let buffer = "";
         let sent_new = false;
         let failure = _("No such file or directory");
-
-        if (new_pass !== two_pass)
-            throw new Error(_("The passwords do not match."));
 
         // Exactly one of new_type or old_pass must be given
         console.assert((new_type == null) != (old_pass == null));
@@ -254,13 +251,13 @@ function Keys() {
         }
     }
 
-    self.change = function change(name, old_pass, new_pass, two_pass) {
-        return run_keygen(name, null, old_pass, new_pass, two_pass);
+    self.change = function change(name, old_pass, new_pass) {
+        return run_keygen(name, null, old_pass, new_pass);
     };
 
-    self.create = function create(name, type, new_pass, two_pass) {
+    self.create = function create(name, type, new_pass) {
         return ensure_ssh_directory(name)
-                .then(() => run_keygen(name, type, null, new_pass, two_pass));
+                .then(() => run_keygen(name, type, null, new_pass));
     };
 
     self.get_pubkey = function get_pubkey(name) {

@@ -1298,7 +1298,7 @@ class TestMetricsPackages(packagelib.PackageCase):
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
-            m.execute("rpm --erase --verbose cockpit-pcp pcp redis")
+            m.execute("rpm --erase --verbose cockpit-pcp pcp python3-pcp redis")
         if "centos-8" in m.image or "rhel-8" in m.image:
             # RHEL 8 ships this in a module, make sure that doesn't hide our fake package
             m.execute("dnf module disable -y redis || true")

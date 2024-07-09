@@ -28,4 +28,10 @@
     "include": [
         "pkg/**/*"
     ],
+    "exclude": [
+        // these are part of the build system, not the app
+        "pkg/lib/esbuild-*.js",
+        "pkg/lib/cockpit-*-plugin.js",
+        "pkg/lib/*2po.js"
+    ],
 }

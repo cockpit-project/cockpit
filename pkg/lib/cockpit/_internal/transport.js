@@ -1,4 +1,5 @@
-import { event_mixin } from './event-mixin';
+import { EventEmitter } from '../event';
+
 import { calculate_application, calculate_url } from './location';
 import { ParentWebSocket } from './parentwebsocket';
 
@@ -59,13 +60,13 @@ function parse_channel(data) {
 }
 
 /* Private Transport class */
-class Transport {
+/** @extends EventEmitter<{ ready(): void }> */
+class Transport extends EventEmitter {
     constructor() {
+        super();
+
         const self = this;
         self.application = calculate_application();
-
-        /* We can trigger events */
-        event_mixin(self, {});
 
         let last_channel = 0;
         let channel_seed = "";
@@ -126,7 +127,7 @@ class Transport {
         function ready_for_channels() {
             if (!self.ready) {
                 self.ready = true;
-                self.dispatchEvent("ready");
+                self.emit("ready");
             }
         }
 
@@ -352,7 +353,7 @@ export function ensure_transport(callback) {
     if (transport.ready) {
         callback(transport);
     } else {
-        transport.addEventListener("ready", function() {
+        transport.on("ready", () => {
             callback(transport);
         });
     }

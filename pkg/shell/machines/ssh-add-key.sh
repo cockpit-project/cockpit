@@ -7,6 +7,7 @@ p=${2:-authorized_keys}
 f=$d/$p
 
 if ! test -f "$f"; then
+    # shellcheck disable=SC2174 # yes, we know that -m only applies to the deepest directory
     mkdir -m 700 -p "$d"
     touch "$f"
     chmod 600 "$f"

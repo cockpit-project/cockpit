@@ -118,7 +118,7 @@ declare module 'cockpit' {
         send(data: T): void;
         control(options: ControlMessage): void;
         wait(): Promise<void>;
-        close(options?: JsonObject): void;
+        close(options?: string | JsonObject): void;
     }
 
     // these apply to all channels
@@ -147,7 +147,7 @@ declare module 'cockpit' {
     interface Spawn<T> extends DeferredPromise<T> {
         input(message?: T | null, stream?: boolean): DeferredPromise<T>;
         stream(callback: (data: T) => void): DeferredPromise<T>;
-        close(): void;
+        close(options?: string | JsonObject): void;
     }
 
     interface SpawnOptions extends ChannelOptions {

@@ -4,10 +4,10 @@
  * with `write: false`, but this is easy enough to implement ourselves.
 */
 
-import path from 'path';
-import fs from "fs";
-import util from 'node:util';
 import child_process from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import util from 'node:util';
 
 const NAME = 'cockpitCompressPlugin';
 

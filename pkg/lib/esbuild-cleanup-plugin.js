@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // always start with a fresh dist/ directory, to change between development and production, or clean up gzipped files
 export const cleanPlugin = ({ outdir = './dist', subdir = '' } = {}) => ({

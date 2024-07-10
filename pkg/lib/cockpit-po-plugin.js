@@ -1,9 +1,10 @@
-import fs from "fs";
-import glob from "glob";
-import path from "path";
+import fs from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
 
-import Jed from "jed";
 import gettext_parser from "gettext-parser";
+import glob from "glob";
+import Jed from "jed";
 
 const config = {};
 

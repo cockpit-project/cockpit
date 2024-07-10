@@ -471,7 +471,7 @@ machine         : 8561
         b.wait_text('#memory-listing tbody:nth-of-type(2) td[data-label=Rank]', "Single rank")
         b.wait_in_text('#memory-listing tbody:nth-of-type(2) td[data-label=Speed]', "2400 MT/s")
 
-    @ testlib.nondestructive
+    @testlib.nondestructive
     def testCPUSecurityMitigationsDetect(self):
         b = self.browser
         m = self.machine

@@ -65,14 +65,13 @@ class Transport extends EventEmitter {
     constructor() {
         super();
 
-        const self = this;
-        self.application = calculate_application();
+        this.application = calculate_application();
 
         let last_channel = 0;
         let channel_seed = "";
 
         if (window.mock)
-            window.mock.last_transport = self;
+            window.mock.last_transport = this;
 
         let ws;
         let ignore_health_check = false;
@@ -97,14 +96,14 @@ class Transport extends EventEmitter {
             }
 
             check_health_timer = window.setInterval(() => {
-                if (self.ready)
+                if (this.ready)
                     ws.send("\n{ \"command\": \"ping\" }");
                 if (!got_message) {
                     if (ignore_health_check) {
                         console.log("health check failure ignored");
                     } else {
                         console.log("health check failed");
-                        self.close({ problem: "timeout" });
+                        this.close({ problem: "timeout" });
                     }
                 }
                 got_message = false;
@@ -114,20 +113,20 @@ class Transport extends EventEmitter {
         if (!ws) {
             ws = { close: () => { } };
             window.setTimeout(() => {
-                self.close({ problem: "no-cockpit" });
+                this.close({ problem: "no-cockpit" });
             }, 50);
         }
 
         const control_cbs = {};
         const message_cbs = {};
         let waiting_for_init = true;
-        self.ready = false;
+        this.ready = false;
 
         /* Called when ready for channels to interact */
         const ready_for_channels = () => {
-            if (!self.ready) {
-                self.ready = true;
-                self.emit("ready");
+            if (!this.ready) {
+                this.ready = true;
+                this.emit("ready");
             }
         };
 
@@ -146,10 +145,10 @@ class Transport extends EventEmitter {
                 transport_globals.expect_disconnect = true;
                 window.location.reload(true);
             }
-            self.close();
+            this.close();
         };
 
-        ws.onmessage = self.dispatch_data = (arg) => {
+        ws.onmessage = this.dispatch_data = (arg) => {
             got_message = true;
 
             /* The first line of a message is the channel */
@@ -187,7 +186,7 @@ class Transport extends EventEmitter {
             return true;
         };
 
-        self.close = (options) => {
+        this.close = (options) => {
             if (!options)
                 options = { problem: "disconnected" };
             options.command = "close";
@@ -205,20 +204,20 @@ class Transport extends EventEmitter {
                 control_cbs[chan].apply(null, [options]);
         };
 
-        self.next_channel = () => {
+        this.next_channel = () => {
             last_channel++;
             return channel_seed + String(last_channel);
         };
 
         const process_init = (options) => {
             if (options.problem) {
-                self.close({ problem: options.problem });
+                this.close({ problem: options.problem });
                 return;
             }
 
             if (options.version !== 1) {
                 console.error("received unsupported version in init message: " + options.version);
-                self.close({ problem: "not-supported" });
+                this.close({ problem: "not-supported" });
                 return;
             }
 
@@ -254,12 +253,12 @@ class Transport extends EventEmitter {
                     console.error("received message before init: ", data.command);
                     data = { problem: "protocol-error" };
                 }
-                self.close(data);
+                this.close(data);
 
                 /* Any pings get sent back as pongs */
             } else if (data.command == "ping") {
                 data.command = "pong";
-                self.send_control(data);
+                this.send_control(data);
             } else if (data.command == "pong") {
                 /* Any pong commands are ignored */
             } else if (data.command == "hint") {
@@ -279,7 +278,7 @@ class Transport extends EventEmitter {
         };
 
         /* The channel/control arguments is used by filters, and auto-populated if necessary */
-        self.send_data = (data, channel, control) => {
+        this.send_data = (data, channel, control) => {
             if (!ws) {
                 return false;
             }
@@ -299,7 +298,7 @@ class Transport extends EventEmitter {
         };
 
         /* The control arguments is used by filters, and auto populated if necessary */
-        self.send_message = (payload, channel, control) => {
+        this.send_message = (payload, channel, control) => {
             if (channel)
                 transport_debug("send " + channel, payload);
 
@@ -315,14 +314,14 @@ class Transport extends EventEmitter {
                 const output = new Uint8Array(header.length + body.length);
                 output.set(header);
                 output.set(body, header.length);
-                return self.send_data(output.buffer, channel, control);
+                return this.send_data(output.buffer, channel, control);
             } else {
                 /* A string message */
-                return self.send_data(channel.toString() + "\n" + payload, channel, control);
+                return this.send_data(channel.toString() + "\n" + payload, channel, control);
             }
         };
 
-        self.send_control = (data) => {
+        this.send_control = (data) => {
             if (!ws && (data.command == "close" || data.command == "kill"))
                 return; /* don't complain if closed and closing */
             if (check_health_timer &&
@@ -331,15 +330,15 @@ class Transport extends EventEmitter {
                 ignore_health_check = data.data;
                 return;
             }
-            return self.send_message(JSON.stringify(data), "", data);
+            return this.send_message(JSON.stringify(data), "", data);
         };
 
-        self.register = (channel, control_cb, message_cb) => {
+        this.register = (channel, control_cb, message_cb) => {
             control_cbs[channel] = control_cb;
             message_cbs[channel] = message_cb;
         };
 
-        self.unregister = (channel) => {
+        this.unregister = (channel) => {
             delete control_cbs[channel];
             delete message_cbs[channel];
         };

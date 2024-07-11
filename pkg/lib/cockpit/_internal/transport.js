@@ -15,7 +15,7 @@ export const transport_globals = {
     outgoing_filters: null,
 };
 
-window.addEventListener('beforeunload', function() {
+window.addEventListener('beforeunload', () => {
     transport_globals.expect_disconnect = true;
 }, false);
 
@@ -96,7 +96,7 @@ class Transport extends EventEmitter {
                 }
             }
 
-            check_health_timer = window.setInterval(function() {
+            check_health_timer = window.setInterval(() => {
                 if (self.ready)
                     ws.send("\n{ \"command\": \"ping\" }");
                 if (!got_message) {
@@ -112,8 +112,8 @@ class Transport extends EventEmitter {
         }
 
         if (!ws) {
-            ws = { close: function() { } };
-            window.setTimeout(function() {
+            ws = { close: () => { } };
+            window.setTimeout(() => {
                 self.close({ problem: "no-cockpit" });
             }, 50);
         }
@@ -124,14 +124,14 @@ class Transport extends EventEmitter {
         self.ready = false;
 
         /* Called when ready for channels to interact */
-        function ready_for_channels() {
+        const ready_for_channels = () => {
             if (!self.ready) {
                 self.ready = true;
                 self.emit("ready");
             }
-        }
+        };
 
-        ws.onopen = function() {
+        ws.onopen = () => {
             if (ws) {
                 if (typeof ws.binaryType !== "undefined")
                     ws.binaryType = "arraybuffer";
@@ -139,7 +139,7 @@ class Transport extends EventEmitter {
             }
         };
 
-        ws.onclose = function() {
+        ws.onclose = () => {
             transport_debug("WebSocket onclose");
             ws = null;
             if (transport_globals.reload_after_disconnect) {
@@ -149,7 +149,7 @@ class Transport extends EventEmitter {
             self.close();
         };
 
-        ws.onmessage = self.dispatch_data = function(arg) {
+        ws.onmessage = self.dispatch_data = (arg) => {
             got_message = true;
 
             /* The first line of a message is the channel */
@@ -187,7 +187,7 @@ class Transport extends EventEmitter {
             return true;
         };
 
-        self.close = function close(options) {
+        self.close = (options) => {
             if (!options)
                 options = { problem: "disconnected" };
             options.command = "close";
@@ -205,12 +205,12 @@ class Transport extends EventEmitter {
                 control_cbs[chan].apply(null, [options]);
         };
 
-        self.next_channel = function next_channel() {
+        self.next_channel = () => {
             last_channel++;
             return channel_seed + String(last_channel);
         };
 
-        function process_init(options) {
+        const process_init = (options) => {
             if (options.problem) {
                 self.close({ problem: options.problem });
                 return;
@@ -240,9 +240,9 @@ class Transport extends EventEmitter {
                 waiting_for_init = false;
                 ready_for_channels();
             }
-        }
+        };
 
-        function process_control(data) {
+        const process_control = (data) => {
             const channel = data.channel;
 
             /* Init message received */
@@ -270,16 +270,16 @@ class Transport extends EventEmitter {
                 if (func)
                     func(data);
             }
-        }
+        };
 
-        function process_message(channel, payload) {
+        const process_message = (channel, payload) => {
             const func = message_cbs[channel];
             if (func)
                 func(payload);
-        }
+        };
 
         /* The channel/control arguments is used by filters, and auto-populated if necessary */
-        self.send_data = function send_data(data, channel, control) {
+        self.send_data = (data, channel, control) => {
             if (!ws) {
                 return false;
             }
@@ -299,7 +299,7 @@ class Transport extends EventEmitter {
         };
 
         /* The control arguments is used by filters, and auto populated if necessary */
-        self.send_message = function send_message(payload, channel, control) {
+        self.send_message = (payload, channel, control) => {
             if (channel)
                 transport_debug("send " + channel, payload);
 
@@ -322,7 +322,7 @@ class Transport extends EventEmitter {
             }
         };
 
-        self.send_control = function send_control(data) {
+        self.send_control = (data) => {
             if (!ws && (data.command == "close" || data.command == "kill"))
                 return; /* don't complain if closed and closing */
             if (check_health_timer &&
@@ -334,12 +334,12 @@ class Transport extends EventEmitter {
             return self.send_message(JSON.stringify(data), "", data);
         };
 
-        self.register = function register(channel, control_cb, message_cb) {
+        self.register = (channel, control_cb, message_cb) => {
             control_cbs[channel] = control_cb;
             message_cbs[channel] = message_cb;
         };
 
-        self.unregister = function unregister(channel) {
+        self.unregister = (channel) => {
             delete control_cbs[channel];
             delete message_cbs[channel];
         };
@@ -360,7 +360,7 @@ export function ensure_transport(callback) {
 }
 
 /* Always close the transport explicitly: allows parent windows to track us */
-window.addEventListener("unload", function() {
+window.addEventListener("unload", () => {
     if (transport_globals.default_transport)
         transport_globals.default_transport.close();
 });

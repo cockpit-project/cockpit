@@ -16,6 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+// a lot of libraries and applications use `window.debugging`, see HACKING.md
+interface Window {
+    debugging?: string;
+}
+
 declare module 'cockpit' {
     type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
     type JsonObject = Record<string, JsonValue>;

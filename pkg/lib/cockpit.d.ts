@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import '_internal/common'; // side-effecting import (`window` augmentations)
+
 declare module 'cockpit' {
     type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
     type JsonObject = Record<string, JsonValue>;

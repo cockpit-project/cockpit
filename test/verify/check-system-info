@@ -83,6 +83,8 @@ class TestSystemInfo(testlib.MachineCase):
         # set static machine ID, as they have different lengths which disturbs the pixel test
         m.execute("mv /etc/machine-id /etc/machine-id.orig")
         m.write("/etc/machine-id", "123456789abcdef123456789abcdef00")
+        # avoid "Last logged in" health card message, it breaks pixel tests and is too unpredictable
+        m.execute("rm -f /var/log/lastlog /var/lib/lastlog/lastlog2.db /var/lib/wtmpdb/wtmp.db")
 
         self.login_and_go("/system")
 

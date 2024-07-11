@@ -41,6 +41,7 @@ export const TunedPerformanceProfile = () => {
     const [btnText, setBtnText] = useState();
     const [state, setState] = useState();
     const [status, setStatus] = useState();
+    const [openDialog, setOpenDialog] = useState(false);
 
     const tunedService = useObject(() => service.proxy("tuned.service"),
                                    null,
@@ -105,11 +106,32 @@ export const TunedPerformanceProfile = () => {
         updateButton();
     }, [updateButton]);
 
-    const showDialog = () => {
-        Dialogs.show(<TunedDialog updateButton={updateButton}
-                                  poll={poll}
-                                  tunedDbus={tuned} tunedService={tunedService} />);
-    };
+    const startTuned = useCallback(() => {
+        tunedService.start()
+                .then(() => setOpenDialog(true));
+    }, [tunedService, setOpenDialog]);
+
+    const showDialog = useCallback(() => {
+        if (tunedService.state !== "running") {
+            if (!openDialog) {
+                Dialogs.show(<StartTunedDialog startTuned={startTuned} />);
+            }
+        } else {
+            setOpenDialog(false);
+            if (Dialogs.isActive()) {
+                Dialogs.close();
+            }
+            Dialogs.show(<TunedDialog updateButton={updateButton}
+                poll={poll}
+                tunedDbus={tuned} tunedService={tunedService} />);
+        }
+    }, [updateButton, poll, startTuned, tuned, tunedService, openDialog, setOpenDialog, Dialogs]);
+
+    useEffect(() => {
+        if (openDialog) {
+            showDialog();
+        }
+    }, [openDialog, showDialog]);
 
     return (
         <Tooltip id="tuned-status-tooltip" content={status}>
@@ -121,6 +143,39 @@ export const TunedPerformanceProfile = () => {
                 {btnText}
             </Button>
         </Tooltip>
+    );
+};
+
+const StartTunedDialog = ({
+    startTuned,
+}) => {
+    const [loading, setLoading] = useState(false);
+    const Dialogs = useDialogs();
+
+    const startService = () => {
+        setLoading(true);
+        startTuned();
+    };
+
+    return (
+        <Modal position="top" variant="medium"
+        className="ct-m-stretch-body"
+        isOpen
+        onClose={Dialogs.close}
+        title={_("Tuned is not running")}
+        footer={
+            <>
+                <Button variant='primary' onClick={startService}>
+                    {_("Start service")}
+                </Button>
+                <Button variant='link' onClick={Dialogs.close}>
+                    {_("Cancel")}
+                </Button>
+            </>
+        }
+        >
+            {loading && <EmptyStatePanel loading />}
+        </Modal>
     );
 };
 
@@ -244,7 +299,7 @@ const TunedDialog = ({
             const tunedProfiles = () => {
                 return tunedDbus.call('/Tuned', 'com.redhat.tuned.control', 'profiles2', [])
                         .then((result) => result[0])
-                        .catch(ex => {
+                        .catch(() => {
                             return tunedDbus.call('/Tuned', 'com.redhat.tuned.control', 'profiles', [])
                                     .then((result) => result[0]);
                         });
@@ -266,8 +321,7 @@ const TunedDialog = ({
                     .catch(setError);
         };
 
-        tunedService.start()
-                .then(updateButton)
+        updateButton()
                 .then(withTuned)
                 .catch(setError)
                 .finally(() => setLoading(false));

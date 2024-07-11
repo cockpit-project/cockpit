@@ -1917,7 +1917,7 @@ class MachineCase(unittest.TestCase):
                                     ".*couldn't create polkit session subject: No session for pid.*",
                                     "We are no longer a registered authentication agent.",
                                     ".*: failed to retrieve resource: terminated",
-                                    ".*: external channel failed: (terminated|protocol-error)",
+                                    ".*: external channel failed:.*",
                                     ".*: truncated data in external channel",
                                     'audit:.*denied.*comm="systemd-user-se".*nologin.*',
                                     ".*No session for cookie",

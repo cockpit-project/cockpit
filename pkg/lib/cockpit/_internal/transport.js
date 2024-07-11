@@ -62,64 +62,62 @@ function parse_channel(data) {
 /* Private Transport class */
 /** @extends EventEmitter<{ ready(): void }> */
 class Transport extends EventEmitter {
+    #last_channel = 0;
+    #channel_seed = "";
+    #ws;
+    #ignore_health_check = false;
+    #got_message = false;
+    #check_health_timer;
+    #control_cbs = {};
+    #message_cbs = {};
+    #waiting_for_init = true;
+
     constructor() {
         super();
 
         this.application = calculate_application();
 
-        let last_channel = 0;
-        let channel_seed = "";
-
         if (window.mock)
             window.mock.last_transport = this;
 
-        let ws;
-        let ignore_health_check = false;
-        let got_message = false;
-
         /* See if we should communicate via parent */
         if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
-            ws = new ParentWebSocket(window.parent);
+            this.#ws = new ParentWebSocket(window.parent);
 
-        let check_health_timer;
-
-        if (!ws) {
+        if (!this.#ws) {
             const ws_loc = calculate_url();
             transport_debug("connecting to " + ws_loc);
 
             if (ws_loc) {
                 if ("WebSocket" in window) {
-                    ws = new window.WebSocket(ws_loc, "cockpit1");
+                    this.#ws = new window.WebSocket(ws_loc, "cockpit1");
                 } else {
                     console.error("WebSocket not supported, application will not work!");
                 }
             }
 
-            check_health_timer = window.setInterval(() => {
+            this.#check_health_timer = window.setInterval(() => {
                 if (this.ready)
-                    ws.send("\n{ \"command\": \"ping\" }");
-                if (!got_message) {
-                    if (ignore_health_check) {
+                    this.#ws.send("\n{ \"command\": \"ping\" }");
+                if (!this.#got_message) {
+                    if (this.#ignore_health_check) {
                         console.log("health check failure ignored");
                     } else {
                         console.log("health check failed");
                         this.close({ problem: "timeout" });
                     }
                 }
-                got_message = false;
+                this.#got_message = false;
             }, 30000);
         }
 
-        if (!ws) {
-            ws = { close: () => { } };
+        if (!this.#ws) {
+            this.#ws = { close: () => { } };
             window.setTimeout(() => {
                 this.close({ problem: "no-cockpit" });
             }, 50);
         }
 
-        const control_cbs = {};
-        const message_cbs = {};
-        let waiting_for_init = true;
         this.ready = false;
 
         /* Called when ready for channels to interact */
@@ -130,17 +128,17 @@ class Transport extends EventEmitter {
             }
         };
 
-        ws.onopen = () => {
-            if (ws) {
-                if (typeof ws.binaryType !== "undefined")
-                    ws.binaryType = "arraybuffer";
-                ws.send("\n{ \"command\": \"init\", \"version\": 1 }");
+        this.#ws.onopen = () => {
+            if (this.#ws) {
+                if (typeof this.#ws.binaryType !== "undefined")
+                    this.#ws.binaryType = "arraybuffer";
+                this.#ws.send("\n{ \"command\": \"init\", \"version\": 1 }");
             }
         };
 
-        ws.onclose = () => {
+        this.#ws.onclose = () => {
             transport_debug("WebSocket onclose");
-            ws = null;
+            this.#ws = null;
             if (transport_globals.reload_after_disconnect) {
                 transport_globals.expect_disconnect = true;
                 window.location.reload(true);
@@ -148,8 +146,8 @@ class Transport extends EventEmitter {
             this.close();
         };
 
-        ws.onmessage = this.dispatch_data = (arg) => {
-            got_message = true;
+        this.#ws.onmessage = this.dispatch_data = (arg) => {
+            this.#got_message = true;
 
             /* The first line of a message is the channel */
             const message = arg.data;
@@ -190,9 +188,9 @@ class Transport extends EventEmitter {
             if (!options)
                 options = { problem: "disconnected" };
             options.command = "close";
-            window.clearInterval(check_health_timer);
-            const ows = ws;
-            ws = null;
+            window.clearInterval(this.#check_health_timer);
+            const ows = this.#ws;
+            this.#ws = null;
             if (ows)
                 ows.close();
             if (transport_globals.expect_disconnect)
@@ -200,13 +198,13 @@ class Transport extends EventEmitter {
             ready_for_channels(); /* ready to fail */
 
             /* Broadcast to everyone */
-            for (const chan in control_cbs)
-                control_cbs[chan].apply(null, [options]);
+            for (const chan in this.#control_cbs)
+                this.#control_cbs[chan].apply(null, [options]);
         };
 
         this.next_channel = () => {
-            last_channel++;
-            return channel_seed + String(last_channel);
+            this.#last_channel++;
+            return this.#channel_seed + String(this.#last_channel);
         };
 
         const process_init = (options) => {
@@ -222,7 +220,7 @@ class Transport extends EventEmitter {
             }
 
             if (options["channel-seed"])
-                channel_seed = String(options["channel-seed"]);
+                this.#channel_seed = String(options["channel-seed"]);
             if (options.host)
                 transport_globals.default_host = options.host;
 
@@ -235,8 +233,8 @@ class Transport extends EventEmitter {
             if (transport_globals.init_callback)
                 transport_globals.init_callback(options);
 
-            if (waiting_for_init) {
-                waiting_for_init = false;
+            if (this.#waiting_for_init) {
+                this.#waiting_for_init = false;
                 ready_for_channels();
             }
         };
@@ -247,8 +245,8 @@ class Transport extends EventEmitter {
             /* Init message received */
             if (data.command == "init") {
                 process_init(data);
-            } else if (waiting_for_init) {
-                waiting_for_init = false;
+            } else if (this.#waiting_for_init) {
+                this.#waiting_for_init = false;
                 if (data.command != "close" || channel) {
                     console.error("received message before init: ", data.command);
                     data = { problem: "protocol-error" };
@@ -265,21 +263,21 @@ class Transport extends EventEmitter {
                 if (transport_globals.process_hints)
                     transport_globals.process_hints(data);
             } else if (channel !== undefined) {
-                const func = control_cbs[channel];
+                const func = this.#control_cbs[channel];
                 if (func)
                     func(data);
             }
         };
 
         const process_message = (channel, payload) => {
-            const func = message_cbs[channel];
+            const func = this.#message_cbs[channel];
             if (func)
                 func(payload);
         };
 
         /* The channel/control arguments is used by filters, and auto-populated if necessary */
         this.send_data = (data, channel, control) => {
-            if (!ws) {
+            if (!this.#ws) {
                 return false;
             }
 
@@ -293,7 +291,7 @@ class Transport extends EventEmitter {
                     return false;
             }
 
-            ws.send(data);
+            this.#ws.send(data);
             return true;
         };
 
@@ -322,25 +320,25 @@ class Transport extends EventEmitter {
         };
 
         this.send_control = (data) => {
-            if (!ws && (data.command == "close" || data.command == "kill"))
+            if (!this.#ws && (data.command == "close" || data.command == "kill"))
                 return; /* don't complain if closed and closing */
-            if (check_health_timer &&
+            if (this.#check_health_timer &&
                 data.command == "hint" && data.hint == "ignore_transport_health_check") {
                 /* This is for us, process it directly. */
-                ignore_health_check = data.data;
+                this.#ignore_health_check = data.data;
                 return;
             }
             return this.send_message(JSON.stringify(data), "", data);
         };
 
         this.register = (channel, control_cb, message_cb) => {
-            control_cbs[channel] = control_cb;
-            message_cbs[channel] = message_cb;
+            this.#control_cbs[channel] = control_cb;
+            this.#message_cbs[channel] = message_cb;
         };
 
         this.unregister = (channel) => {
-            delete control_cbs[channel];
-            delete message_cbs[channel];
+            delete this.#control_cbs[channel];
+            delete this.#message_cbs[channel];
         };
     }
 }

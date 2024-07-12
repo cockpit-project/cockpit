@@ -10,36 +10,37 @@ import { transport_origin } from './location';
  *  * Never accept or send messages to another origin
  *  * An empty string message means "close" (not completely used yet)
  */
-export function ParentWebSocket(parent) {
-    const self = this;
-    self.readyState = 0;
+export class ParentWebSocket {
+    readyState = 0;
 
-    window.addEventListener("message", function receive(event) {
-        if (event.origin !== transport_origin || event.source !== parent)
-            return;
-        const data = event.data;
-        if (data === undefined || (data.length === undefined && data.byteLength === undefined))
-            return;
-        if (data.length === 0) {
-            self.readyState = 3;
-            self.onclose();
-        } else {
-            self.onmessage(event);
-        }
-    }, false);
+    constructor(parent) {
+        window.addEventListener("message", event => {
+            if (event.origin !== transport_origin || event.source !== parent)
+                return;
+            const data = event.data;
+            if (data === undefined || (data.length === undefined && data.byteLength === undefined))
+                return;
+            if (data.length === 0) {
+                this.readyState = 3;
+                this.onclose();
+            } else {
+                this.onmessage(event);
+            }
+        }, false);
 
-    self.send = function send(message) {
+        window.setTimeout(() => {
+            this.readyState = 1;
+            this.onopen();
+        }, 0);
+    }
+
+    send(message) {
         parent.postMessage(message, transport_origin);
-    };
+    }
 
-    self.close = function close() {
-        self.readyState = 3;
+    close() {
+        this.readyState = 3;
         parent.postMessage("", transport_origin);
-        self.onclose();
-    };
-
-    window.setTimeout(function() {
-        self.readyState = 1;
-        self.onopen();
-    }, 0);
+        this.onclose();
+    }
 }

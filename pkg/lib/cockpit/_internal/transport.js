@@ -19,9 +19,9 @@ window.addEventListener('beforeunload', () => {
     transport_globals.expect_disconnect = true;
 }, false);
 
-function transport_debug() {
+function transport_debug(...args) {
     if (window.debugging == "all" || window.debugging?.includes("channel"))
-        console.debug.apply(console, arguments);
+        console.debug(...args);
 }
 
 function parse_channel(data) {

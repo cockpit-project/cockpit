@@ -242,12 +242,10 @@ cockpit.transport.close([problem])
   <refsection id="cockpit-transport-filter">
     <title>cockpit.transport.filter()</title>
 <programlisting>
-cockpit.transport.filter((message, channelid, control) =>  { ... }, [out])
+cockpit.transport.filter((message, channelid, control) =>  { ... })
 </programlisting>
     <para>Add a filter to the underlying channel transport. All incoming messages will be
-      passed to each of the filter callbacks that are registered. If the <code>out</code>
-      argument is equal to <code>true</code> then the filter will receive outgoing messages
-      that being sent on the underlying channel transport.</para>
+    passed to each of the filter callbacks that are registered.</para>
     <para>This function is rarely used.</para>
     <para>Filter callbacks are called in the order they are registered. If a filter
       callback returns <code>false</code> then the message will not be dispatched

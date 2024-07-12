@@ -89,9 +89,7 @@ function factory() {
         },
         filter: function filter(callback, out) {
             if (out) {
-                if (!transport_globals.outgoing_filters)
-                    transport_globals.outgoing_filters = [];
-                transport_globals.outgoing_filters.push(callback);
+                console.error("'out' filters are no longer supported");
             } else {
                 if (!transport_globals.incoming_filters)
                     transport_globals.incoming_filters = [];

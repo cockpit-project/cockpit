@@ -31,11 +31,12 @@ class TestLogin(testlib.MachineCase):
         b = self.browser
         b.wait_visible("#content")
         b.wait_text('#current-username', 'admin')
-        b.set_layout("mobile")
-        b.click("#hosts-sel button")
-        b.wait_in_text(".view-hosts .pf-m-current", "admin @")
-        b.click("#hosts-sel button")
-        b.set_layout("desktop")
+        if self.multihost_enabled:
+            b.set_layout("mobile")
+            b.click("#hosts-sel button")
+            b.wait_in_text(".view-hosts .pf-m-current", "admin @")
+            b.click("#hosts-sel button")
+            b.set_layout("desktop")
 
     def testBasic(self):
         m = self.machine

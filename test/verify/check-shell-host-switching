@@ -115,6 +115,11 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
 
+    def enable_multihost(self, machine):
+        if not self.multihost_enabled:
+            machine.write("/etc/cockpit/shell.override.json",
+                          '{ "config": { "host_switcher": true } }')
+
     def testBasic(self):
         b = self.browser
         m1 = self.machines["machine1"]
@@ -126,6 +131,33 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # This should all work without being admin on machine1
         self.login_and_go(superuser=False)
+
+        # on recent OSes, switcher is disabled by default
+        if not self.multihost_enabled:
+            b.wait_text("#hosts-sel .ct-switcher-localonly", "admin@localhost")
+            self.assertFalse(b.is_present("#hosts-sel button"))
+            b.assert_pixels("#hosts-sel", "no-switching", skip_layouts=["mobile"])
+            b.logout()
+
+            # transition period: Existing remote hosts are still shown
+            m1.write("/etc/cockpit/machines.d/99-webui.json",
+                     '{"srv": { "address": "my.srv", "visible": true }}')
+            b.login_and_go(superuser=False)
+            b.click("#hosts-sel button")
+            self.wait_host_addresses(b, ["localhost", "my.srv"])
+            b.wait_in_text(".deprecated-add-host", "Deprecated")
+            b.assert_pixels(".nav-hosts-actions", "deprecated", skip_layouts=["mobile"])
+            # clicking on it shows popover with help
+            b.click(".deprecated-add-host")
+            b.wait_text("#popover-disabled-add-host-help-header", "Host switching is not supported")
+            b.click(".pf-v5-c-popover__close button")
+            b.wait_not_present("#popover-disabled-add-host-help-header")
+            b.logout()
+            m1.execute("rm /etc/cockpit/machines.d/99-webui.json")
+
+            # enable host switcher for this test
+            self.enable_multihost(m1)
+            b.login_and_go(superuser=False)
 
         b.assert_pixels("#nav-system", "nav-system", skip_layouts=["mobile"])
         b.set_layout("mobile")
@@ -321,6 +353,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
     def testBasicAsAdmin(self):
         b = self.browser
+        self.enable_multihost(self.machine)
 
         # When being admin, changes in the host switcher are supposed
         # to be reflected in all browser sessions.
@@ -402,6 +435,8 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         m1 = self.machines['machine1']
         m2 = self.machines['machine2']
         m3 = self.machines['machine3']
+
+        self.enable_multihost(m1)
 
         m2.execute("hostnamectl set-hostname machine2")
         m3.execute("hostnamectl set-hostname machine3")
@@ -496,6 +531,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b = self.browser
         m2 = self.machines["machine2"]
 
+        self.enable_multihost(self.machine)
         self.login_and_go(None)
 
         # And and connect to a second machine

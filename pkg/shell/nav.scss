@@ -397,6 +397,12 @@ $desktop: $phone + 1px;
   }
 }
 
+.ct-switcher-localonly {
+  padding-inline-start: var(--pf-v5-global--spacer--lg);
+  padding-block-start: var(--pf-v5-global--spacer--sm);
+  color: var(--pf-v5-global--Color--light-100);
+}
+
 .pf-v5-theme-dark {
   .pf-v5-c-select__toggle {
     > * {
@@ -667,6 +673,11 @@ $desktop: $phone + 1px;
   // Hide border from navigation items for mobile
   .pf-v5-c-menu-toggle::before {
     border: none;
+  }
+
+  // Hide local-only host switcher (i.e. when only showing the current user name)
+  .ct-switcher-localonly {
+    display: none !important;
   }
 }
 

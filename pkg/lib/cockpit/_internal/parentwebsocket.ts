@@ -11,9 +11,20 @@ import { transport_origin } from './location';
  *  * An empty string message means "close" (not completely used yet)
  */
 export class ParentWebSocket {
+    binaryType = 'arraybuffer' as const; // compatibility with Transport, which sets this
     readyState = 0;
 
-    constructor(parent) {
+    // essentially signal handlers: these are assigned to from Transport
+    onopen(): void {
+    }
+
+    onclose(): void {
+    }
+
+    onmessage(_event: MessageEvent): void {
+    }
+
+    constructor(parent: Window) {
         window.addEventListener("message", event => {
             if (event.origin !== transport_origin || event.source !== parent)
                 return;
@@ -34,11 +45,12 @@ export class ParentWebSocket {
         }, 0);
     }
 
-    send(message) {
+    // same types as the real WebSocket
+    send(message: string | ArrayBufferLike | Blob | ArrayBufferView): void {
         parent.postMessage(message, transport_origin);
     }
 
-    close() {
+    close(): void {
         this.readyState = 3;
         parent.postMessage("", transport_origin);
         this.onclose();

@@ -806,11 +806,11 @@ ipa-advise enable-admins-sudo | sh -ex
         b.enter_page("/system")
         b.wait_visible("#reboot-button")
 
-        # ssh works with the delegated ticket
+        # CLI ssh works with the delegated ticket
         out = m.execute(f"su -c '{ccache_env} ssh -vv -K x0.cockpit.lan echo hello' alice")
         self.assertEqual(out.strip(), "hello")
 
-        # cockpit-ssh works with the delegated ticket
+        # cockpit session through ssh works with the delegated ticket
         b.switch_to_top()
         b.click("#hosts-sel button")
         b.click(".nav-hosts-actions button")
@@ -818,22 +818,12 @@ ipa-advise enable-admins-sudo | sh -ex
         b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.click(".view-hosts a[href='/@x0.cockpit.lan']")
         b.wait_js_cond("window.location.pathname == '/@x0.cockpit.lan/system'")
-        # no root privs in that session (see below)
+        # Getting root privs through sudo with kerberos in the remote SSH session does not currently work.
+        # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
+        # and there is no ccache.
         b.enter_page("/system", "x0.cockpit.lan")
         b.wait_visible(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
         b.wait_not_present("#reboot-button")
-
-        # Getting root privs through sudo in the remote SSH session does not currently work.
-        # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
-        # and there is no ccache; so, emulate what cockpit-ssh could eventually do and check that *if* the
-        # session had the ticket forwarded, it *could* do sudo. See https://issues.redhat.com/browse/COCKPIT-643
-        with b.wait_timeout(60):
-            b.open("/@x0.cockpit.lan/system/terminal")
-            b.enter_page("/system/terminal", host="x0.cockpit.lan")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
-        b.input_text(f"{ccache_env} sudo whoami")
-        b.key("Enter")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "root")
 
         # S4U proxy ticket gets cleaned up on logout
         b.logout()

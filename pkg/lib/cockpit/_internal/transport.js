@@ -22,41 +22,6 @@ function transport_debug(...args) {
         console.debug(...args);
 }
 
-function parse_channel(data) {
-    let channel;
-
-    /* A binary message, split out the channel */
-    if (data instanceof window.ArrayBuffer) {
-        const binary = new window.Uint8Array(data);
-        const length = binary.length;
-        let pos;
-        for (pos = 0; pos < length; pos++) {
-            if (binary[pos] == 10) /* new line */
-                break;
-        }
-        if (pos === length) {
-            console.warn("binary message without channel");
-            return null;
-        } else if (pos === 0) {
-            console.warn("binary control message");
-            return null;
-        } else {
-            channel = String.fromCharCode.apply(null, binary.subarray(0, pos));
-        }
-
-    /* A textual message */
-    } else {
-        const pos = data.indexOf('\n');
-        if (pos === -1) {
-            console.warn("text message without channel");
-            return null;
-        }
-        channel = data.substring(0, pos);
-    }
-
-    return channel;
-}
-
 /* Private Transport class */
 /** @extends EventEmitter<{ ready(): void }> */
 class Transport extends EventEmitter {
@@ -194,27 +159,38 @@ class Transport extends EventEmitter {
             func(payload);
     }
 
+    /** @param arg{MessageEvent<string | ArrayBuffer>} */
     dispatch_data(arg) {
         this.#got_message = true;
 
-        /* The first line of a message is the channel */
         const message = arg.data;
+        let channel;
+        let control = null;
+        let payload = null;
 
-        const channel = parse_channel(message);
-        if (channel === null)
-            return false;
+        if (message instanceof ArrayBuffer) {
+            /* Binary message */
+            const frame = new window.Uint8Array(message);
+            const nl = frame.indexOf(10);
 
-        const payload = message instanceof window.ArrayBuffer
-            ? new window.Uint8Array(message, channel.length + 1)
-            : message.substring(channel.length + 1);
-        let control;
+            channel = new TextDecoder().decode(frame.subarray(0, nl));
+            if (!channel) {
+                console.warn('Received invalid binary message without a channel');
+                return false;
+            }
 
-        /* A control message, always string */
-        if (!channel) {
-            transport_debug("recv control:", payload);
-            control = JSON.parse(payload);
+            payload = frame.subarray(nl + 1);
+            transport_debug("recv binary message:", control, payload);
         } else {
-            transport_debug("recv " + channel + ":", payload);
+            const nl = message.indexOf('\n');
+            channel = message.substring(0, nl);
+            if (nl == 0) {
+                control = JSON.parse(message);
+                transport_debug("recv control:", control);
+            } else {
+                payload = message.substring(nl + 1);
+                transport_debug("recv text message:", control, payload);
+            }
         }
 
         const length = transport_globals.incoming_filters ? transport_globals.incoming_filters.length : 0;

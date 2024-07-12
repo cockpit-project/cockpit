@@ -976,6 +976,35 @@ class Browser:
         assert m is not None
         return int(m.group(1))
 
+    def start_machine_troubleshoot(
+        self,
+        new: bool = False,
+        known_host: bool = False,
+        password: str | None = None,
+        expect_closed_dialog: bool = True,
+    ) -> None:
+        self.click('#machine-troubleshoot')
+
+        self.wait_visible('#hosts_setup_server_dialog')
+        if new:
+            self.click('#hosts_setup_server_dialog button:contains(Add)')
+            if not known_host:
+                self.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
+                self.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
+                self.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
+        if password:
+            self.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+            self.set_input_text('#login-custom-password', password)
+            self.click('#hosts_setup_server_dialog button:contains(Log in)')
+        if expect_closed_dialog:
+            self.wait_not_present('#hosts_setup_server_dialog')
+
+    def add_machine(self, address: str, known_host: bool = False, password: str = "foobar") -> None:
+        self.switch_to_top()
+        self.go(f"/@{address}")
+        self.start_machine_troubleshoot(new=True, known_host=known_host, password=password)
+        self.enter_page("/system", host=address)
+
     def ignore_ssl_certificate_errors(self, ignore: bool) -> None:
         action = "continue" if ignore else "cancel"
         if opts.trace:
@@ -1746,41 +1775,6 @@ class MachineCase(unittest.TestCase):
         with self.browser.wait_timeout(30):
             self.browser.login_and_go(path, user=user, password=password, host=host, superuser=superuser,
                                       urlroot=urlroot, tls=tls)
-
-    def start_machine_troubleshoot(
-        self,
-        new: bool = False,
-        known_host: bool = False,
-        password: str | None = None,
-        expect_closed_dialog: bool = True,
-        browser: Browser | None = None
-    ) -> None:
-        b = browser or self.browser
-
-        b.click('#machine-troubleshoot')
-
-        b.wait_visible('#hosts_setup_server_dialog')
-        if new:
-            b.click('#hosts_setup_server_dialog button:contains(Add)')
-            if not known_host:
-                b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
-                b.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
-                b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
-        if password:
-            b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
-            b.set_input_text('#login-custom-password', password)
-            b.click('#hosts_setup_server_dialog button:contains(Log in)')
-        if expect_closed_dialog:
-            b.wait_not_present('#hosts_setup_server_dialog')
-
-    def add_machine(
-        self, address: str, known_host: bool = False, password: str = "foobar", browser: Browser | None = None
-    ) -> None:
-        b = browser or self.browser
-        b.switch_to_top()
-        b.go(f"/@{address}")
-        self.start_machine_troubleshoot(new=True, known_host=known_host, password=password, browser=browser)
-        b.enter_page("/system", host=address)
 
     # List of allowed journal messages during tests; these need to match the *entire* message
     default_allowed_messages = [

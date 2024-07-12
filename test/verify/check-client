@@ -62,7 +62,7 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
     def check_login(self, expected_user):
         b = self.browser
         b.wait_visible('#content')
-        b.wait_in_text("#host-toggle", expected_user)
+        b.wait_in_text("#hosts-sel", expected_user)
         b.enter_page("/system")
         if self.is_devel_build():
             b.wait_visible("#system_information_hostname_text")

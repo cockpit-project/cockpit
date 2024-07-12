@@ -163,7 +163,7 @@ class TestMenu(testlib.MachineCase):
         self.login_and_go()
 
         # initially shows host switcher
-        b.wait_visible("#host-toggle")
+        b.wait_visible("#hosts-sel")
         self.assertEqual(b.eval_js("document.activeElement.tagName"), "BODY")
         # conceptually we want that, but we use CSS hacks (-999 offset and 1x1 size) to hide it
         # b.wait_not_visible(".skiplink")
@@ -180,7 +180,7 @@ class TestMenu(testlib.MachineCase):
 
         # reset
         b.reload()
-        b.wait_visible("#host-toggle")
+        b.wait_visible("#hosts-sel")
 
         # press Tab twice → "Skip main navigation" skiplink
         b.key("Tab")
@@ -202,7 +202,7 @@ class TestMenu(testlib.MachineCase):
 
         # reset
         b.reload()
-        b.wait_visible("#host-toggle")
+        b.wait_visible("#hosts-sel")
 
         # without skip links, tabbing goes through page menu
         b.key("Tab", repeat=5)

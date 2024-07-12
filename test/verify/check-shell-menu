@@ -191,14 +191,21 @@ class TestMenu(testlib.MachineCase):
         b.wait_js_cond("document.activeElement.tagName === 'NAV'")
         self.assertEqual(b.eval_js("document.activeElement.getAttribute('id')"), "hosts-sel")
 
-        # actually skips the page menu and goes on to top nav bar
+        # actually skips the page menu and goes on to top nav bar; where exactly depends on whether
+        # the host switcher is enabled, and whether the privilege button is visible (not with ws container)
         b.key("Tab")
-        b.wait_js_cond("document.activeElement.getAttribute('id') === 'host-toggle'")
-        b.key("Tab")
-        if self.machine.ostree_image:
-            b.wait_js_cond("document.activeElement.textContent === 'Help'")
+        if self.multihost_enabled:
+            b.wait_js_cond("document.activeElement.getAttribute('id') === 'host-toggle'")
+            b.key("Tab")
+            if self.machine.ostree_image:
+                b.wait_js_cond("document.activeElement.textContent === 'Help'")
+            else:
+                b.wait_js_cond("document.activeElement.textContent === 'Administrative access'")
         else:
-            b.wait_js_cond("document.activeElement.textContent === 'Administrative access'")
+            if self.machine.ostree_image:
+                b.wait_js_cond("document.activeElement.textContent === 'Help'")
+            else:
+                b.wait_js_cond("document.activeElement.textContent === 'Administrative access'")
 
         # reset
         b.reload()

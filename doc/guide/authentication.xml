@@ -61,11 +61,35 @@
 
   </section>
 
+  <section id="direct-secondary-auth">
+    <title>Directly logging into a secondary server without a primary session</title>
+
+    <para>It is also possible to log into a secondary server without
+    opening a session on the primary server. This is useful if you
+    are not actually interested in the primary server and would only
+    use it because you do not have direct network access to the
+    secondary server.</para>
+
+    <para>In this case, <filename>cockpit-ws</filename> still runs on
+    the primary server, but the credentials from the login screen are
+    directly used with SSH to log into the secondary server given in
+    the "Connect To" field of the login screen.</para>
+
+    <para>Thus, the PAM configuration and accounts on the primary
+    server don't matter at all. Often, the only purpose of the primary
+    server is to sit on the boundary of your network and forward
+    connections to internal machines.</para>
+
+    <para>In this case, the login page will prompt you to verify
+    unknown SSH keys. Accepted keys will be remembered in the local
+    storage of your browser.</para>
+  </section>
+
   <section id="secondary-auth">
     <title>Logging into a secondary server from the primary session</title>
 
-    <para>Once you have a session on the primary server you will be
-    able to connect to additional servers by using the host switching
+    <para>Once you have a session on the primary server, it is possible
+    connect to additional servers by using the host switching
     UI of the Cockpit Shell. This is useful if you have direct network
     access to the primary server, but not to the secondary server.</para>
 
@@ -75,8 +99,25 @@
     of running a interactive shell there, however, it starts a
     <filename>cockpit-bridge</filename> process.</para>
 
-    <para>Thus, these servers will need to be running an SSH server on
-    port 22 and be configured to support one of the following
+    <para><emphasis>Warning:</emphasis> Unlike with SSH on the command line
+    though, this will also load and use the Cockpit pages (i.e. JavaScript)
+    from the remote machine, which means that the remote machine can execute
+    arbitrary code on your primary and all other connected secondary machines.
+    Hence, only connect to <emphasis>machines which you trust</emphasis>.</para>
+
+    <para>Due to this security risk, this host switcher functionality is disabled
+    by default, except on long-term stable Linux distributions (Red Hat
+    Enterprise Linux 9, Debian 12, and Ubuntu 22.04/24.04 LTS). If you are
+    comfortable with the security implications, you can enable it manually by
+    creating a file <filename>/etc/cockpit/shell.override.json</filename> with
+    the following content:</para>
+
+<programlisting>
+{ "config": { "host_switcher": true } }
+</programlisting>
+
+    <para>These servers will need to be running an SSH server
+    and be configured to support one of the following
     authentication methods.</para>
 
     <section id="password">
@@ -119,30 +160,6 @@
       keys, and will write accepted host keys into
       <filename>~/.ssh/known_hosts</filename>.</para>
     </section>
-  </section>
-
-  <section id="direct-secondary-auth">
-    <title>Directly logging into a secondary server without a primary session</title>
-
-    <para>It is also possible to log into a secondary server without
-    opening a session on the primary server. This is useful if you
-    are not actually interested in the primary server and would only
-    use it because you do not have direct network access to the
-    secondary server.</para>
-
-    <para>In this case, <filename>cockpit-ws</filename> still runs on
-    the primary server, but the credentials from the login screen are
-    directly used with SSH to log into the secondary server given in
-    the "Connect To" field of the login screen.</para>
-
-    <para>Thus, the PAM configuration and accounts on the primary
-    server don't matter at all. Often, the only purpose of the primary
-    server is to sit on the boundary of your network and forward
-    connections to internal machines.</para>
-
-    <para>In this case, the login page will prompt you to verify
-    unknown SSH keys. Accepted keys will be remembered in the local
-    storage of your browser.</para>
   </section>
 
 </chapter>

@@ -77,7 +77,7 @@ function factory() {
         cockpit.transport.control("hint", options);
     };
 
-    cockpit.transport = transport_globals.public_transport = {
+    cockpit.transport = {
         wait: ensure_transport,
         inject: function inject(message, out) {
             if (!transport_globals.default_transport)
@@ -1084,6 +1084,10 @@ function factory() {
             Object.assign(cockpit.info, options.system);
         if (options.system)
             cockpit.info.dispatchEvent("changed");
+
+        cockpit.transport.options = options;
+        cockpit.transport.csrf_token = options["csrf-token"];
+        cockpit.transport.host = transport_globals.default_host;
     };
 
     let the_user = null;

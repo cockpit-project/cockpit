@@ -11,7 +11,6 @@ export const transport_globals = {
     default_host: null,
     process_hints: null,
     incoming_filters: null,
-    outgoing_filters: null,
 };
 
 window.addEventListener('beforeunload', () => {
@@ -256,28 +255,15 @@ class Transport extends EventEmitter {
         return this.#channel_seed + String(this.#last_channel);
     }
 
-    /* The channel/control arguments is used by filters, and auto-populated if necessary */
-    send_data(data, channel, control) {
+    send_data(data) {
         if (!this.#ws) {
             return false;
         }
-
-        const length = transport_globals.outgoing_filters ? transport_globals.outgoing_filters.length : 0;
-        for (let i = 0; i < length; i++) {
-            if (channel === undefined)
-                channel = parse_channel(data);
-            if (!channel && control === undefined)
-                control = JSON.parse(data);
-            if (transport_globals.outgoing_filters[i](data, channel, control) === false)
-                return false;
-        }
-
         this.#ws.send(data);
         return true;
     }
 
-    /* The control arguments is used by filters, and auto populated if necessary */
-    send_message(payload, channel, control) {
+    send_message(payload, channel) {
         if (channel)
             transport_debug("send " + channel, payload);
 
@@ -293,10 +279,10 @@ class Transport extends EventEmitter {
             const output = new Uint8Array(header.length + body.length);
             output.set(header);
             output.set(body, header.length);
-            return this.send_data(output.buffer, channel, control);
+            return this.send_data(output.buffer);
         } else {
             /* A string message */
-            return this.send_data(channel.toString() + "\n" + payload, channel, control);
+            return this.send_data(channel.toString() + "\n" + payload);
         }
     }
 
@@ -309,7 +295,7 @@ class Transport extends EventEmitter {
             this.#ignore_health_check = data.data;
             return;
         }
-        return this.send_message(JSON.stringify(data), "", data);
+        return this.send_message(JSON.stringify(data), "");
     }
 
     register(channel, control_cb, message_cb) {

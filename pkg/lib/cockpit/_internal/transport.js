@@ -5,7 +5,6 @@ import { ParentWebSocket } from './parentwebsocket';
 
 export const transport_globals = {
     default_transport: null,
-    public_transport: null,
     reload_after_disconnect: false,
     expect_disconnect: false,
     init_callback: null,
@@ -150,12 +149,6 @@ class Transport extends EventEmitter {
             this.#channel_seed = String(options["channel-seed"]);
         if (options.host)
             transport_globals.default_host = options.host;
-
-        if (transport_globals.public_transport) {
-            transport_globals.public_transport.options = options;
-            transport_globals.public_transport.csrf_token = options["csrf-token"];
-            transport_globals.public_transport.host = transport_globals.default_host;
-        }
 
         if (transport_globals.init_callback)
             transport_globals.init_callback(options);

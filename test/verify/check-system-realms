@@ -586,17 +586,9 @@ class TestIPA(TestRealms, CommonTests):
         m.stop_cockpit()
         m.start_cockpit()
 
-        # check respecting FreeIPA's/sssd's ssh known host keys
-        b.login_and_go("/system", user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
-        b.switch_to_top()
-        b.click("#hosts-sel button")
-        b.click("button:contains('Add new host')")
-        b.wait_popup('hosts_setup_server_dialog')
-        b.set_input_text('#add-machine-address', "x0.cockpit.lan")
-        b.click('#hosts_setup_server_dialog button:contains(Add)')
-
-        b.wait_not_present('#hosts_setup_server_dialog')
-        b.wait_visible("a[href='/@x0.cockpit.lan']")
+        # check respecting FreeIPA's/sssd's ssh known host keys; login_and_go() does not expect/answer
+        # unknown host prompts
+        b.login_and_go(user=f'{self.admin_user}@cockpit.lan', password=self.admin_password, host="x0.cockpit.lan")
         # starts proper session
         m.execute("until loginctl --no-legend list-sessions | grep -qi 'admin@COCKPIT.LAN.*web console'; do sleep 1; done", timeout=10)
         b.logout()
@@ -812,12 +804,13 @@ ipa-advise enable-admins-sudo | sh -ex
 
         # cockpit session through ssh works with the delegated ticket
         b.switch_to_top()
-        b.click("#hosts-sel button")
-        b.click(".nav-hosts-actions button")
-        b.set_input_text("#add-machine-address", "x0.cockpit.lan")
-        b.click("#hosts_setup_server_dialog .pf-m-primary")
-        b.click(".view-hosts a[href='/@x0.cockpit.lan']")
-        b.wait_js_cond("window.location.pathname == '/@x0.cockpit.lan/system'")
+        b.go("/@x0.cockpit.lan/system")
+        # only ack the addition of host, no authentication/password
+        b.click("#machine-troubleshoot")
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
         # Getting root privs through sudo with kerberos in the remote SSH session does not currently work.
         # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
         # and there is no ccache.

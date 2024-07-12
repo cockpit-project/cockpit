@@ -81,20 +81,12 @@ class Transport extends EventEmitter {
             window.mock.last_transport = this;
 
         /* See if we should communicate via parent */
-        if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
+        if (window.parent !== window && window.name.indexOf("cockpit1:") === 0) {
             this.#ws = new ParentWebSocket(window.parent);
-
-        if (!this.#ws) {
+        } else {
             const ws_loc = calculate_url();
             transport_debug("connecting to " + ws_loc);
-
-            if (ws_loc) {
-                if ("WebSocket" in window) {
-                    this.#ws = new window.WebSocket(ws_loc, "cockpit1");
-                } else {
-                    console.error("WebSocket not supported, application will not work!");
-                }
-            }
+            this.#ws = new WebSocket(ws_loc, "cockpit1");
 
             this.#check_health_timer = window.setInterval(() => {
                 if (this.ready)
@@ -109,13 +101,6 @@ class Transport extends EventEmitter {
                 }
                 this.#got_message = false;
             }, 30000);
-        }
-
-        if (!this.#ws) {
-            this.#ws = { close: () => { } };
-            window.setTimeout(() => {
-                this.close({ problem: "no-cockpit" });
-            }, 50);
         }
 
         this.ready = false;

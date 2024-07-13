@@ -1,9 +1,11 @@
 import contextlib
 import glob
 import os
+import re
 import subprocess
 from typing import AsyncIterator
 
+import lcov
 import pytest
 from webdriver_bidi import ChromiumBidi
 from yarl import URL
@@ -60,6 +62,9 @@ async def test_browser(html: str) -> None:
         spawn_test_server() as base_url,
         ChromiumBidi(headless=os.environ.get('TEST_SHOW_BROWSER', '0') == '0') as browser
     ):
+        await browser.cdp("Profiler.enable")
+        await browser.cdp("Profiler.startPreciseCoverage", callCount=False, detailed=True)
+
         await browser.bidi(
             'browsingContext.navigate',
             context=browser.context,
@@ -100,6 +105,9 @@ async def test_browser(html: str) -> None:
 
         if error_message is not None:
             pytest.fail(f'Test failed: {error_message}')
+
+        coverage = await browser.cdp("Profiler.takePreciseCoverage")
+        lcov.write_lcov(coverage['result']['result'], outlabel=re.sub(r'[^A-Za-z0-9]+', '-', html))
 
 
 # run test-timeformat.ts in different time zones: west/UTC/east

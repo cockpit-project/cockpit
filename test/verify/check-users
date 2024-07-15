@@ -345,6 +345,16 @@ class TestAccounts(testlib.MachineCase):
         b.set_input_text("#accounts-filter input", "spooky")
         b.wait_visible("#accounts div.pf-v5-c-empty-state")
 
+        # clear text filters
+        b.click("#accounts-filter button[aria-label='Reset']")
+        b.wait_not_present("#accounts div.pf-v5-c-empty-state")
+
+        # clear via empty-state action
+        b.set_input_text("#accounts-filter input", "spooky")
+        b.wait_visible("#accounts div.pf-v5-c-empty-state")
+        b.click("div.pf-v5-c-empty-state button.pf-m-link")
+        b.wait_not_present("#accounts div.pf-v5-c-empty-state")
+
         b.inject_js("""
                     function getTextColumn(query_selector) {
                         const values = [];
@@ -374,9 +384,7 @@ class TestAccounts(testlib.MachineCase):
             b.set_input_text("#accounts-filter input", "users")
             names = b.eval_js("getTextColumn(\"[data-label='Username'] a\")")
             b.wait(lambda: "robert" in names)
-
-        # clear text filters
-        b.click("#accounts-filter button[aria-label='Reset']")
+            b.click("#accounts-filter button[aria-label='Reset']")
 
         # check alphabetical order of Username
         check_column_sort("[data-label='Username'] a")

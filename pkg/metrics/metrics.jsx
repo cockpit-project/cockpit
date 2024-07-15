@@ -1818,7 +1818,8 @@ class MetricsHistory extends React.Component {
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("You need to relogin to be able to see metrics history")}
-                        action={<Button onClick={() => cockpit.logout(true)}>{_("Log out")}</Button>}
+                        action={_("Log out")}
+                        onAction={() => cockpit.logout(true)}
             />;
 
         // on a single machine, cockpit-pcp depends on pcp; but this may not be the case in the beiboot scenario,

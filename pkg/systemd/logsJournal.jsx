@@ -288,7 +288,6 @@ export class JournalBox extends React.Component {
             /* Show 'Load earlier entries' button if we didn't reach start yet */
             this.state.didntReachStart
                 ? <EmptyStatePanel action={_("Load earlier entries")}
-                             actionInProgressText={_("Loading earlier entries")}
                              icon={noLogs ? ExclamationCircleIcon : undefined}
                              isActionInProgress={this.state.loading}
                              onAction={() => {
@@ -323,7 +322,7 @@ export class JournalBox extends React.Component {
                              }}
                              paragraph={noLogs ? _("You may try to load older entries.") : ""}
                              title={noLogs ? _("No logs found") : ""}
-                             loading={false} />
+                             loading={this.state.loading} />
                 : null
         );
 

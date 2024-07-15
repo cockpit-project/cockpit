@@ -536,13 +536,9 @@ export class ServiceDetails extends React.Component {
                 icon={ExclamationCircleIcon}
                 title={title}
                 paragraph={this.props.unitId}
-                action={
-                    <Button variant="link"
-                            component="a"
-                            onClick={() => cockpit.jump(path, cockpit.transport.host)}>
-                        {_("View all services")}
-                    </Button>
-                }
+                action={_("View all services")}
+                actionVariant="link"
+                onAction={() => cockpit.jump(path, cockpit.transport.host)}
             />;
         }
 

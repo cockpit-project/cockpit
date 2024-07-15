@@ -261,7 +261,7 @@ WantedBy=default.target
         # Check empty state error for nonexistent unit with valid name
         b.go(f'/system/services#/nonexistent.service{suffix}')
         b.wait_in_text(".pf-v5-c-empty-state", "Unit nonexistent.service not found")
-        b.click("a:contains('View all services')")
+        b.click("button:contains('View all services')")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')
         if user:
@@ -1190,7 +1190,7 @@ Where=/fail
         self.do_action("Stop")
 
         b.wait_in_text(".pf-v5-c-empty-state", "Unit test-transient.service not found")
-        b.click("a:contains('View all services')")
+        b.click("button:contains('View all services')")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')
 

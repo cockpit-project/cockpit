@@ -75,7 +75,7 @@ const App = () => {
                 <div id="networking-nm-crashed">
                     <EmptyStatePanel icon={ ExclamationCircleIcon }
                                      title={ _("NetworkManager is not running") }
-                                     action={ name ? _("Start service") : null }
+                                     action={nmService.exists ? _("Start service") : null}
                                      onAction={ nmService.start }
                                      secondary={
                                          <Button component="a"
@@ -99,7 +99,7 @@ const App = () => {
                 <div id="networking-nm-disabled">
                     <EmptyStatePanel icon={ ExclamationCircleIcon }
                                      title={ _("Network devices and graphs require NetworkManager") }
-                                     action={ name ? _("Enable service") : null }
+                                     action={nmService.exists ? _("Enable service") : null}
                                      onAction={() => {
                                          nmService.enable();
                                          nmService.start();

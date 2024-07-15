@@ -276,6 +276,7 @@ export class JournalBox extends React.Component {
                     {error}
                     <EmptyStatePanel action={_("Clear all filters")}
                                      icon={ExclamationCircleIcon}
+                                     actionVariant="link"
                                      onAction={() => cockpit.location.go('/')}
                                      paragraph={_("Can not find any logs using the current combination of filters.")}
                                      title={_("No logs found")}

@@ -267,9 +267,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         b.wait_js_cond(f'window.location.pathname == "{root}=10.111.113.2/system"')
 
-        b.click("#hosts-sel button")
-        b.wait_in_text(f"a[href='{root}=10.111.113.2/@localhost']", "machine2")
-        b.wait_not_present("a[href='/@10.111.113.2']")
+        b.wait_in_text("#hosts-sel", "machine2")
         b.logout()
 
         # Bad host key

@@ -321,4 +321,7 @@ declare module 'cockpit' {
     /** @deprecated */ function format_bytes(n: MaybeNumber, factor: unknown, options?: object | boolean): string | string[];
     /** @deprecated */ function format_bytes_per_sec(n: MaybeNumber, factor: unknown, options?: object | boolean): string | string[];
     /** @deprecated */ function format_bits_per_sec(n: MaybeNumber, factor: unknown, options?: object | boolean): string | string[];
+
+    /* === Session ====================== */
+    function logout(reload: boolean, reason?: string): void;
 }

@@ -280,7 +280,7 @@ export class JournalBox extends React.Component {
                                      onAction={() => cockpit.location.go('/')}
                                      paragraph={_("Can not find any logs using the current combination of filters.")}
                                      title={_("No logs found")}
-                                     loading={false} />
+                    />
                 </div>
             );
         }

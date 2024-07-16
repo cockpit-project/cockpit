@@ -97,7 +97,7 @@ export function edit_crypto_config(block, modify) {
         });
 }
 
-export function set_crypto_options(block, readonly, auto, nofail, netdev) {
+function set_crypto_options(block, readonly, auto, nofail, netdev) {
     return edit_crypto_config(block, (config, commit) => {
         const opts = config.options ? parse_options(decode_filename(config.options.v)) : [];
         if (readonly !== null) {
@@ -128,6 +128,41 @@ export function set_crypto_options(block, readonly, auto, nofail, netdev) {
 
 export function set_crypto_auto_option(block, flag) {
     return set_crypto_options(block, null, flag, null, null);
+}
+
+async function update_crypto_options_for_children(client, block) {
+    // This sets the readonly, noauto, nofail, and _netdev options as
+    // required by the content of this block device.
+
+    const block_crypto = client.blocks_crypto[block.path];
+
+    let readonly = true;
+    let noauto = true;
+    let nofail = true;
+    let netdev = true;
+
+    for (const c of block_crypto.ChildConfiguration) {
+        if (c[0] == "fstab") {
+            const opts = parse_options(decode_filename(c[1].opts.v));
+            if (opts.indexOf("ro") < 0)
+                readonly = false;
+            if (opts.indexOf("noauto") < 0)
+                noauto = false;
+            if (opts.indexOf("nofail") < 0)
+                nofail = false;
+            if (opts.indexOf("_netdev") < 0)
+                netdev = false;
+        }
+    }
+
+    await set_crypto_options(block, readonly, !noauto, nofail, netdev);
+}
+
+export async function maybe_update_crypto_options(client, block) {
+    if (client.blocks_crypto[block.path])
+        await update_crypto_options_for_children(client, block);
+    else if (client.blocks_crypto[block.CryptoBackingDevice])
+        await update_crypto_options_for_children(client, client.blocks[block.CryptoBackingDevice]);
 }
 
 export let hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
@@ -803,8 +838,8 @@ export function get_fstab_config_with_client(client, block, also_child_config, s
 
             // btrfs mounted without subvol argument.
             const btrfs_volume = client.blocks_fsys_btrfs[block.path];
-            const default_subvolid = client.uuids_btrfs_default_subvol[btrfs_volume.data.uuid];
-            if (default_subvolid === subvol.id && !opts.find(o => o.indexOf("subvol=") >= 0 || o.indexOf("subvolid=") >= 0))
+            const default_subvolid = btrfs_volume && client.uuids_btrfs_default_subvol[btrfs_volume.data.uuid];
+            if (default_subvolid && default_subvolid === subvol.id && !opts.find(o => o.indexOf("subvol=") >= 0 || o.indexOf("subvolid=") >= 0))
                 return true;
 
             return false;
@@ -815,7 +850,7 @@ export function get_fstab_config_with_client(client, block, also_child_config, s
     let config = block.Configuration.find(match);
 
     if (!config && also_child_config && client.blocks_crypto[block.path])
-        config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
+        config = client.blocks_crypto[block.path]?.ChildConfiguration.find(match);
 
     if (config && decode_filename(config[1].type.v) != "swap") {
         const mnt_opts = get_block_mntopts(config[1]).split(",");

@@ -31,10 +31,13 @@ import {
 import { StorageUsageBar } from "../storage-controls.jsx";
 import {
     encode_filename, decode_filename,
-    get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
+    reload_systemd, extract_option, parse_options,
     flatten, teardown_active_usage,
+    maybe_update_crypto_options,
 } from "../utils.js";
-import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options } from "./utils.jsx";
+import {
+    btrfs_usage, validate_subvolume_name, parse_subvol_from_options, is_probably_single_device_btrfs_volume
+} from "./utils.jsx";
 import { at_boot_input, update_at_boot_input, mounting_dialog, mount_options } from "../filesystem/mounting-dialog.jsx";
 import {
     dialog_open, TextInput,
@@ -42,20 +45,19 @@ import {
 } from "../dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "../filesystem/mismounting.jsx";
 import {
-    is_mounted, is_valid_mount_point, mount_point_text, MountPoint, edit_mount_point
+    get_fstab_config, is_mounted, is_valid_mount_point, mount_point_text, MountPoint, edit_mount_point
 } from "../filesystem/utils.jsx";
+
 import client, { btrfs_poll } from "../client.js";
 
 const _ = cockpit.gettext;
 
-function subvolume_unmount(volume, subvol, forced_options) {
-    const block = client.blocks[volume.path];
-    mounting_dialog(client, block, "unmount", forced_options, subvol);
+function subvolume_unmount(block, subvol, forced_options, subvols) {
+    mounting_dialog(client, block, "unmount", forced_options, subvol, subvols);
 }
 
-function subvolume_mount(volume, subvol, forced_options) {
-    const block = client.blocks[volume.path];
-    mounting_dialog(client, block, "mount", forced_options, subvol);
+function subvolume_mount(block, subvol, forced_options, subvols) {
+    mounting_dialog(client, block, "mount", forced_options, subvol, subvols);
 }
 
 function get_mount_point_in_parent(volume, subvol) {
@@ -69,7 +71,7 @@ function get_mount_point_in_parent(volume, subvol) {
                                   (subvol.pathname.substring(0, p.pathname.length) == p.pathname &&
                                    subvol.pathname[p.pathname.length] == "/");
         if (has_parent_subvol && is_mounted(client, block, p)) {
-            const [, pmp, opts] = get_fstab_config_with_client(client, block, false, p);
+            const [, pmp, opts] = get_fstab_config(block, false, p);
             const opt_ro = extract_option(parse_options(opts), "ro");
             if (!opt_ro) {
                 if (p.pathname == "/")
@@ -82,7 +84,7 @@ function get_mount_point_in_parent(volume, subvol) {
     return null;
 }
 
-function set_mount_options(subvol, block, vals) {
+async function set_mount_options(subvol, block, vals) {
     const mount_options = [];
     const mount_now = vals.variant != "nomount";
 
@@ -120,14 +122,12 @@ function set_mount_options(subvol, block, vals) {
                       }
                   ];
 
-    return block.AddConfigurationItem(config, {})
-            .then(reload_systemd)
-            .then(() => {
-                if (mount_now) {
-                    return client.mount_at(block, mount_point);
-                } else
-                    return Promise.resolve();
-            });
+    await block.AddConfigurationItem(config, {});
+    await reload_systemd();
+    if (mount_now)
+        await client.mount_at(block, mount_point);
+    if (is_probably_single_device_btrfs_volume(block))
+        await maybe_update_crypto_options(client, block);
 }
 
 function subvolume_create(volume, subvol, parent_dir) {
@@ -208,7 +208,7 @@ function subvolume_delete(volume, subvol, mount_point_in_parent, card) {
 
     usage.Teardown = true;
     for (const sv of all_subvols) {
-        const [config, mount_point] = get_fstab_config_with_client(client, block, false, sv);
+        const [config, mount_point] = get_fstab_config(block, false, sv);
         const fs_is_mounted = is_mounted(client, block, sv);
 
         usage.push({
@@ -257,94 +257,108 @@ function dirname(path) {
         return path.substr(0, i);
 }
 
-export function make_btrfs_subvolume_pages(parent, volume) {
-    let subvols = client.uuids_btrfs_subvols[volume.data.uuid];
-    if (!subvols) {
-        const block = client.blocks[volume.path];
-        /*
-         * Try to show subvolumes based on fstab entries. We collect
-         * all subvolumes that are mentioned in fstab entries so that
-         * the user can at least mount those.
-         *
-         * The real subvolume data structure has "id" fields and
-         * "parent" fields that refer to the ids to form a tree.  We
-         * want to do the same here, and we give fake ids to our fake
-         * subvolumes for this reason.  We don't store these fake ids
-         * in the "id" field since we don't want them to be taken
-         * seriously by the rest of the code.
-         */
-        let fake_id = 5;
-        subvols = [{ pathname: "/", id: 5, fake_id: fake_id++ }];
-        const subvols_by_pathname = { };
-        for (const config of block.Configuration) {
-            if (config[0] == "fstab") {
-                const opts = config[1].opts;
-                if (!opts)
-                    continue;
+function get_subvols_from_fstab(configuration) {
+    /*
+     * Try to show subvolumes based on fstab entries. We collect
+     * all subvolumes that are mentioned in fstab entries so that
+     * the user can at least mount those.
+     *
+     * The real subvolume data structure has "id" fields and
+     * "parent" fields that refer to the ids to form a tree.  We
+     * want to do the same here, and we give fake ids to our fake
+     * subvolumes for this reason.  We don't store these fake ids
+     * in the "id" field since we don't want them to be taken
+     * seriously by the rest of the code.
+     */
+    let fake_id = 5;
+    const subvols = [{ pathname: "/", id: 5, fake_id: fake_id++ }];
+    const subvols_by_pathname = { };
+    for (const config of configuration) {
+        if (config[0] == "fstab") {
+            const opts = config[1].opts;
+            if (!opts)
+                continue;
 
-                const fstab_subvol = parse_subvol_from_options(decode_filename(opts.v));
+            const fstab_subvol = parse_subvol_from_options(decode_filename(opts.v));
 
-                if (fstab_subvol && fstab_subvol.pathname && fstab_subvol.pathname !== "/") {
-                    fstab_subvol.fake_id = fake_id++;
-                    subvols_by_pathname[fstab_subvol.pathname] = fstab_subvol;
-                    subvols.push(fstab_subvol);
-                }
-            }
-        }
-
-        // Find parents
-        for (const pn in subvols_by_pathname) {
-            let dn = pn;
-            while (true) {
-                dn = dirname(dn);
-                if (!dn) {
-                    subvols_by_pathname[pn].parent = 5;
-                    break;
-                } else if (subvols_by_pathname[dn]) {
-                    subvols_by_pathname[pn].parent = subvols_by_pathname[dn].fake_id;
-                    break;
-                }
+            if (fstab_subvol && fstab_subvol.pathname && fstab_subvol.pathname !== "/") {
+                fstab_subvol.fake_id = fake_id++;
+                subvols_by_pathname[fstab_subvol.pathname] = fstab_subvol;
+                subvols.push(fstab_subvol);
             }
         }
     }
 
-    const root = subvols.find(s => s.id == 5);
-    if (root)
-        make_btrfs_subvolume_page(parent, volume, root, "", subvols);
+    // Find parents
+    for (const pn in subvols_by_pathname) {
+        let dn = pn;
+        while (true) {
+            dn = dirname(dn);
+            if (!dn) {
+                subvols_by_pathname[pn].parent = 5;
+                break;
+            } else if (subvols_by_pathname[dn]) {
+                subvols_by_pathname[pn].parent = subvols_by_pathname[dn].fake_id;
+                break;
+            }
+        }
+    }
+
+    return subvols;
 }
 
-function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols) {
+export function make_btrfs_subvolume_pages(parent, volume) {
+    let subvols = client.uuids_btrfs_subvols[volume.data.uuid];
+    if (!subvols) {
+        const block = client.blocks[volume.path];
+        subvols = get_subvols_from_fstab(block.Configuration);
+    }
+
+    const root = subvols.find(s => s.id == 5);
+    if (root)
+        make_btrfs_subvolume_page(parent, client.blocks[volume.path], volume, root, "", subvols);
+}
+
+export function make_btrfs_subvolume_pages_from_child_config(parent, backing_block) {
+    const block_crypto = client.blocks_crypto[backing_block.path];
+    const subvols = get_subvols_from_fstab(block_crypto.ChildConfiguration);
+
+    const root = subvols.find(s => s.id == 5);
+    if (root)
+        make_btrfs_subvolume_page(parent, backing_block, null, root, "", subvols);
+}
+
+function make_btrfs_subvolume_page(parent, backing_block, volume, subvol, path_prefix, subvols) {
     const actions = [];
 
-    const use = btrfs_usage(client, volume);
-    const block = client.blocks[volume.path];
-    const fstab_config = get_fstab_config_with_client(client, block, false, subvol);
+    const content_block = volume && client.blocks[volume.path];
+    const fstab_config = get_fstab_config(backing_block, true, subvol);
     const [, mount_point, opts] = fstab_config;
     const opt_ro = extract_option(parse_options(opts), "ro");
-    const mismount_warning = check_mismounted_fsys(block, block, fstab_config, subvol);
-    const mounted = is_mounted(client, block, subvol);
+    const mismount_warning = check_mismounted_fsys(backing_block, content_block, fstab_config, subvol);
+    const mounted = content_block && is_mounted(client, content_block, subvol);
     const mp_text = mount_point_text(mount_point, mounted);
     if (mp_text == null)
         return null;
     const forced_options = [`subvol=${subvol.pathname}`];
-    const mount_point_in_parent = get_mount_point_in_parent(volume, subvol);
+    const mount_point_in_parent = volume && get_mount_point_in_parent(volume, subvol);
 
     if (client.in_anaconda_mode()) {
         actions.push({
             title: _("Edit mount point"),
-            action: () => edit_mount_point(block, forced_options, subvol),
+            action: () => edit_mount_point(content_block || backing_block, forced_options, subvol, subvols),
         });
     }
 
     if (mounted) {
         actions.push({
             title: _("Unmount"),
-            action: () => subvolume_unmount(volume, subvol, forced_options),
+            action: () => subvolume_unmount(content_block, subvol, forced_options, subvols),
         });
     } else {
         actions.push({
             title: _("Mount"),
-            action: () => subvolume_mount(volume, subvol, forced_options),
+            action: () => subvolume_mount(content_block || backing_block, subvol, forced_options, subvols),
         });
     }
 
@@ -398,13 +412,13 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
     const card = new_card({
         title: _("btrfs subvolume"),
         next: null,
-        page_location: ["btrfs", volume.data.uuid, subvol.pathname],
+        page_location: ["btrfs", volume ? volume.data.uuid : "XXX", subvol.pathname],
         page_name: strip_prefix(subvol.pathname, path_prefix),
-        page_size: mounted && <StorageUsageBar stats={use} short />,
+        page_size: mounted && <StorageUsageBar stats={btrfs_usage(client, volume)} short />,
         location: mp_text,
         component: BtrfsSubvolumeCard,
         has_warning: !!mismount_warning,
-        props: { volume, subvol, snapshot_origin, mount_point, mismount_warning, block, fstab_config, forced_options },
+        props: { volume, subvol, subvols, snapshot_origin, mount_point, mismount_warning, content_block, backing_block, fstab_config, forced_options },
         actions,
     });
 
@@ -418,19 +432,19 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
     const page = new_page(parent, card);
     for (const sv of subvols) {
         if (sv.parent && (sv.parent === subvol.id || sv.parent === subvol.fake_id)) {
-            make_btrfs_subvolume_page(page, volume, sv, subvol.pathname + "/", subvols);
+            make_btrfs_subvolume_page(page, backing_block, volume, sv, subvol.pathname + "/", subvols);
         }
     }
 }
 
-const BtrfsSubvolumeCard = ({ card, volume, subvol, snapshot_origin, mismount_warning, block, fstab_config, forced_options }) => {
+        const BtrfsSubvolumeCard = ({ card, volume, subvol, subvols, snapshot_origin, mismount_warning, content_block, backing_block, fstab_config, forced_options }) => {
     const crossrefs = get_crossrefs(subvol.uuid);
 
     return (
         <StorageCard card={card} alert={mismount_warning &&
         <MismountAlert warning={mismount_warning}
                                     fstab_config={fstab_config}
-                                    backing_block={block} content_block={block} subvol={subvol} />}>
+                                    backing_block={backing_block} content_block={content_block} subvol={subvol} />}>
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     <StorageDescription title={_("Name")} value={subvol.pathname} />
@@ -445,8 +459,8 @@ const BtrfsSubvolumeCard = ({ card, volume, subvol, snapshot_origin, mismount_wa
                     }
                     <StorageDescription title={_("Mount point")}>
                         <MountPoint fstab_config={fstab_config}
-                                    backing_block={block} content_block={block}
-                                    forced_options={forced_options} subvol={subvol} />
+                                    backing_block={backing_block} content_block={content_block}
+                                    forced_options={forced_options} subvol={subvol} subvols={subvols} />
                     </StorageDescription>
                 </DescriptionList>
             </CardBody>

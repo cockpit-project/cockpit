@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from "cockpit";
+import client from "../client.js";
 
 import { decode_filename } from "../utils.js";
 
@@ -87,4 +88,43 @@ export function validate_subvolume_name(name) {
         return _("Name cannot be longer than 255 characters.");
     if (name.includes('/'))
         return cockpit.format(_("Name cannot contain the character '/'."));
+}
+
+// Find the o.fd.UDisks2.Filesystem.Btrfs proxy for a block device, if
+// we can.
+//
+// This might also work for locked encrypted devices.
+
+export function find_btrfs_volume(block) {
+    if (client.blocks_cleartext[block.path])
+        block = client.blocks_cleartext[block.path];
+
+    const block_btrfs = client.blocks_fsys_btrfs[block.path];
+    if (block_btrfs)
+        return block_btrfs;
+
+    // Might be a locked LUKS device. Try to figure out the uuid or
+    // label from its child fstab entries.
+    const block_crypto = client.blocks_crypto[block.path];
+    if (!block_crypto)
+        return null;
+
+    for (const c of block_crypto.ChildConfiguration) {
+        if (c[0] == "fstab") {
+            const fsname = decode_filename(c[1].fsname.v);
+            const uuid_match = fsname.match(/^UUID=(?<uuid>[A-Fa-f0-9-]+)/);
+            if (uuid_match) {
+                const btrfs = client.uuids_btrfs_volume[uuid_match.groups.uuid];
+                if (btrfs)
+                    return btrfs;
+            }
+        }
+    }
+
+    return null;
+}
+
+export function is_probably_single_device_btrfs_volume(block) {
+    const btrfs_vol = find_btrfs_volume(block);
+    return !btrfs_vol || btrfs_vol.data.num_devices <= 1;
 }

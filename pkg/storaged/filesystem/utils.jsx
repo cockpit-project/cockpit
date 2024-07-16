@@ -148,11 +148,11 @@ export function get_cryptobacking_noauto(client, block) {
     return crypto_options.indexOf("noauto") >= 0;
 }
 
-export function edit_mount_point(block, forced_options, subvol) {
-    mounting_dialog(client, block, "update", forced_options, subvol);
+export function edit_mount_point(block, forced_options, subvol, subvols) {
+    mounting_dialog(client, block, "update", forced_options, subvol, subvols);
 }
 
-export const MountPoint = ({ fstab_config, forced_options, backing_block, content_block, subvol }) => {
+export const MountPoint = ({ fstab_config, forced_options, backing_block, content_block, subvol, subvols }) => {
     const is_filesystem_mounted = content_block && is_mounted(client, content_block, subvol);
     const [, old_dir, old_opts] = fstab_config;
     const split_options = parse_options(old_opts);
@@ -217,7 +217,7 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
                 }
                 <FlexItem>
                     <StorageLink onClick={() => edit_mount_point(content_block || backing_block,
-                                                                 forced_options, subvol)}>
+                                                                 forced_options, subvol, subvols)}>
                         {_("edit")}
                     </StorageLink>
                 </FlexItem>

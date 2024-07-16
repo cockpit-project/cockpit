@@ -27,9 +27,9 @@ import { DescriptionList } from "@patternfly/react-core/dist/esm/components/Desc
 import {
     new_card, ChildrenTable, StorageCard, StorageDescription
 } from "../pages.jsx";
+import { format_dialog } from "../block/format-dialog.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
 import { btrfs_device_usage, btrfs_is_volume_mounted } from "./utils.jsx";
-import { btrfs_device_actions } from "./device.jsx";
 import { rename_dialog } from "./volume.jsx";
 
 const _ = cockpit.gettext;
@@ -43,17 +43,18 @@ export function make_btrfs_filesystem_card(next, backing_block, content_block) {
     return new_card({
         title: _("btrfs filesystem"),
         next,
-        actions: btrfs_device_actions(backing_block, content_block),
+        actions: [
+            { title: _("Format"), action: () => format_dialog(client, backing_block.path), danger: true },
+        ],
         component: BtrfsFilesystemCard,
         props: { backing_block, content_block },
     });
 }
 
 const BtrfsFilesystemCard = ({ card, backing_block, content_block }) => {
-    const block_btrfs = client.blocks_fsys_btrfs[content_block.path];
+    const block_btrfs = content_block && client.blocks_fsys_btrfs[content_block.path];
     const uuid = block_btrfs && block_btrfs.data.uuid;
     const label = block_btrfs && block_btrfs.data.label;
-    const use = btrfs_device_usage(client, uuid, block_btrfs.path);
 
     // Changing the label is only supported when the device is not mounted
     // otherwise we will get btrfs filesystem error ERROR: device /dev/vda5 is
@@ -66,18 +67,22 @@ const BtrfsFilesystemCard = ({ card, backing_block, content_block }) => {
         <StorageCard card={card}>
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
+                    { block_btrfs &&
                     <StorageDescription title={_("Label")}
-                                                value={label}
-                                                action={
-                                                    <StorageLink onClick={() => rename_dialog(block_btrfs, label)}
-                                                               excuse={is_mounted ? _("Btrfs volume is mounted") : null}>
-                                                        {_("edit")}
-                                                    </StorageLink>}
+                                        value={label}
+                                        action={
+                                            <StorageLink onClick={() => rename_dialog(block_btrfs, label)}
+                                                         excuse={is_mounted ? _("Btrfs volume is mounted") : null}>
+                                                {_("edit")}
+                                            </StorageLink>}
                     />
+                    }
+                    { content_block &&
                     <StorageDescription title={_("UUID")} value={content_block.IdUUID} />
+                    }
                     { block_btrfs &&
                     <StorageDescription title={_("Usage")}>
-                        <StorageUsageBar key="s" stats={use} />
+                        <StorageUsageBar key="s" stats={btrfs_device_usage(client, uuid, block_btrfs.path)} />
                     </StorageDescription>
                     }
                 </DescriptionList>

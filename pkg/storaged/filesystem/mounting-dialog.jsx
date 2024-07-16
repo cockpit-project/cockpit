@@ -18,9 +18,9 @@
  */
 
 import cockpit from "cockpit";
+import React from "react";
 import client from "../client.js";
 
-import React from "react";
 import { FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { HelperText, HelperTextItem, } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
@@ -28,8 +28,10 @@ import { ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons
 import {
     encode_filename,
     parse_options, unparse_options, extract_option, reload_systemd,
-    set_crypto_options, is_mounted_synch,
+    is_mounted_synch,
     get_active_usage, teardown_active_usage,
+    set_crypto_auto_option,
+    maybe_update_crypto_options,
 } from "../utils.js";
 
 import {
@@ -40,6 +42,7 @@ import {
 } from "../dialog.jsx";
 import { init_existing_passphrase, unlock_with_type } from "../crypto/keyslots.jsx";
 import { initial_tab_options } from "../block/format-dialog.jsx";
+import { is_probably_single_device_btrfs_volume } from "../btrfs/utils.jsx";
 
 import {
     is_mounted, get_fstab_config,
@@ -48,18 +51,20 @@ import {
 
 const _ = cockpit.gettext;
 
-export const mount_options = (opt_ro, extra_options, is_visible) => {
+export const mount_options = (opt_ro, extra_options, is_visible, force_ro) => {
     return CheckBoxes("mount_options", _("Mount options"),
                       {
                           visible: vals => !client.in_anaconda_mode() && (!is_visible || is_visible(vals)),
                           value: {
-                              ro: opt_ro,
+                              ro: opt_ro || force_ro,
                               extra: extra_options || false
                           },
                           fields: [
                               {
                                   title: _("Mount read only"),
                                   tag: "ro",
+                                  disabled: force_ro,
+                                  tooltip: force_ro && _("This subvolume can only be mounted read-only right now. To mount it read-write, unmount all other subvolumes first.")
                               },
                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
                           ]
@@ -149,7 +154,7 @@ export function update_at_boot_input(dlg, vals, trigger) {
         dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
 }
 
-export function mounting_dialog(client, block, mode, forced_options, subvol) {
+export function mounting_dialog(client, block, mode, forced_options, subvol, subvols) {
     const block_fsys = client.blocks_fsys[block.path];
     const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true, subvol);
     const options = old_config ? old_opts : initial_tab_options(client, block, true);
@@ -262,7 +267,33 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                     try {
                         await unlock_with_type(client, client.blocks[crypto.path],
                                                passphrase, passphrase_type, crypto_unlock_readonly);
-                        return await client.wait_for(() => client.blocks_cleartext[crypto.path]);
+                        // Check whether we have just opened a
+                        // multi-device btrfs volume. If so, we need to
+                        // give up.
+                        //
+                        // Ideally, Cockpit would always know when
+                        // something is part of a multi-device btrfs
+                        // volume, even for locked LUKS devices, and would
+                        // never let people mount subvolumes of such a
+                        // volume unless all devices are available.
+                        //
+                        // But that knowledge is based on the "x-parent"
+                        // options in /etc/fstab, and those are
+                        // unreliable.
+                        //
+                        // Thus, while we should try to not let the user
+                        // run into this situation here as much as
+                        // possible, we will probably not be able to rule
+                        // it out completely.
+                        const cleartext = await client.wait_for(() => client.blocks_cleartext[crypto.path]);
+                        if (cleartext.IdType == "btrfs" && client.features.btrfs) {
+                            const btrfs = await client.wait_for(() => client.blocks_fsys_btrfs[cleartext.path]);
+                            if (btrfs.data.num_devices > 1) {
+                                await set_crypto_auto_option(block, true);
+                                throw new Error("unexpected-multi-device-btrfs");
+                            }
+                        }
+                        return cleartext;
                     } catch (error) {
                         passphrase_type = null;
                         dlg.set_values({ needs_explicit_passphrase: true });
@@ -272,17 +303,6 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
             }
 
             return block;
-        }
-
-        function maybe_lock() {
-            if (mode == "unmount" && !subvol && !client.in_anaconda_mode()) {
-                const crypto_backing = client.blocks[block.CryptoBackingDevice];
-                const crypto_backing_crypto = crypto_backing && client.blocks_crypto[crypto_backing.path];
-                if (crypto_backing_crypto) {
-                    return crypto_backing_crypto.Lock({});
-                } else
-                    return Promise.resolve();
-            }
         }
 
         // We need to reload systemd twice: Once at the beginning so
@@ -306,7 +326,6 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                     else if (new_config && !is_mounted(client, block))
                         return maybe_mount();
                 })
-                .then(maybe_lock)
                 .then(reload_systemd));
     }
 
@@ -319,6 +338,28 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         at_boot = "nofail";
     else
         at_boot = "local";
+
+    let need_rw_backing = false;
+    let backing_is_busy = false;
+    if (subvol) {
+        for (const sv of subvols) {
+            if (sv.pathname != subvol.pathname) {
+                const [, , opts] = get_fstab_config(block, false, sv);
+                if (opts) {
+                    const opt_ro = extract_option(parse_options(opts), "ro");
+                    if (!opt_ro)
+                        need_rw_backing = true;
+                }
+                if (is_mounted(client, block, sv))
+                    backing_is_busy = true;
+            }
+        }
+    }
+
+    // If LUKS is open as read-only and is kept busy by other mounts,
+    // we can't change it to read-write.
+
+    const force_ro = client.blocks[block.CryptoBackingDevice] && block.ReadOnly && backing_is_busy;
 
     let fields = null;
     if (mode == "mount" || mode == "update") {
@@ -333,7 +374,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                                                                 mode == "update",
                                                                 subvol)
                       }),
-            mount_options(opt_ro, extra_options, null),
+            mount_options(opt_ro, extra_options, null, force_ro),
             at_boot_input(at_boot),
         ];
 
@@ -358,7 +399,17 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         update: _("Save")
     };
 
-    function do_unmount() {
+    function maybe_lock() {
+        const block_fsys = client.blocks_fsys[block.path];
+        const crypto_backing = client.blocks[block.CryptoBackingDevice];
+        const crypto_backing_crypto = crypto_backing && client.blocks_crypto[crypto_backing.path];
+        if (crypto_backing_crypto && block_fsys && block_fsys.MountPoints.length == 0 && !client.in_anaconda_mode()) {
+            return crypto_backing_crypto.Lock({});
+        } else
+            return Promise.resolve();
+    }
+
+    async function do_unmount() {
         let opts = [];
         opts.push("noauto");
         if (opt_ro)
@@ -373,29 +424,32 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
             opts = opts.concat(forced_options);
         if (extra_options)
             opts = opts.concat(extra_options);
-        return (maybe_set_crypto_options(null, false, null, null)
-                .then(() => maybe_update_config(old_dir, unparse_options(opts))));
+
+        await maybe_update_config(old_dir, unparse_options(opts));
+        if (is_probably_single_device_btrfs_volume(block)) {
+            await maybe_update_crypto_options(client, block);
+            await maybe_lock();
+        }
     }
 
     let passphrase_type;
 
-    function maybe_set_crypto_options(readonly, auto, nofail, netdev) {
-        if (client.blocks_crypto[block.path]) {
-            return set_crypto_options(block, readonly, auto, nofail, netdev);
-        } else if (client.blocks_crypto[block.CryptoBackingDevice]) {
-            return set_crypto_options(client.blocks[block.CryptoBackingDevice], readonly, auto, nofail, netdev);
-        } else
-            return Promise.resolve();
-    }
-
     const usage = get_active_usage(client, block.path, null, null, false, subvol);
+
+    function desired_crypto_readonly(vals_ro) {
+        // If LUKS is busy, we can't Lock and Unlock it, so don't try
+        // to make it read-only, even if that would be the correct
+        // thing to do.
+        if (client.blocks[block.CryptoBackingDevice] && !block.ReadOnly && backing_is_busy)
+            return false;
+        return !need_rw_backing && vals_ro;
+    }
 
     function update_explicit_passphrase(vals_ro) {
         const backing = client.blocks[block.CryptoBackingDevice];
         let need_passphrase = (block.IdUsage == "crypto" && mode == "mount");
         if (backing) {
-            // XXX - take subvols into account.
-            if (block.ReadOnly != vals_ro)
+            if (block.ReadOnly != desired_crypto_readonly(vals_ro))
                 need_passphrase = true;
         }
         dlg.set_values({ needs_explicit_passphrase: need_passphrase && !passphrase_type });
@@ -413,9 +467,9 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         Action: {
             Title: mode_action[mode],
             disable_on_error: usage.Teardown,
-            action: function (vals) {
+            action: async function (vals) {
                 if (mode == "unmount") {
-                    return do_unmount();
+                    await do_unmount();
                 } else if (mode == "mount" || mode == "update") {
                     let opts = [];
                     if ((mode == "update" && !is_filesystem_mounted) || vals.at_boot == "never")
@@ -432,17 +486,24 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                         opts = opts.concat(forced_options);
                     if (vals.mount_options?.extra)
                         opts = opts.concat(parse_options(vals.mount_options.extra));
-                    // XXX - take subvols into account.
-                    const crypto_unlock_readonly = vals.mount_options?.ro ?? opt_ro;
-                    return (maybe_update_config(client.add_mount_point_prefix(vals.mount_point),
-                                                unparse_options(opts),
-                                                vals.passphrase,
-                                                passphrase_type,
-                                                crypto_unlock_readonly)
-                            .then(() => maybe_set_crypto_options(vals.mount_options?.ro,
-                                                                 opts.indexOf("noauto") == -1,
-                                                                 vals.at_boot == "nofail",
-                                                                 vals.at_boot == "netdev")));
+                    const crypto_unlock_readonly = desired_crypto_readonly(vals.mount_options?.ro ?? opt_ro);
+                    try {
+                        await maybe_update_config(client.add_mount_point_prefix(vals.mount_point),
+                                                  unparse_options(opts),
+                                                  vals.passphrase,
+                                                  passphrase_type,
+                                                  crypto_unlock_readonly);
+                        if (is_probably_single_device_btrfs_volume(block))
+                            await maybe_update_crypto_options(client, block);
+                    } catch (error) {
+                        if (error.message == "unexpected-multi-device-btrfs") {
+                            dialog_open({
+                                Title: _("Multi-device btrfs volume detected"),
+                                Body: <p>{_("This device is only part of a btrfs volume. Please make all devices available in order to mount it.")}</p>
+                            });
+                        } else
+                            throw error;
+                    }
                 }
             }
         },

@@ -518,8 +518,11 @@ class Browser:
 
     def input_text(self, text: str) -> None:
         for char in text:
-            self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", text=char, key=char)
-            self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", text=char, key=char)
+            if char == "\n":
+                self.key("Enter")
+            else:
+                self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", text=char, key=char)
+                self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", text=char, key=char)
 
     def key(self, name: str, repeat: int = 1, modifiers: int = 0) -> None:
         """Press and release a named keyboard key.

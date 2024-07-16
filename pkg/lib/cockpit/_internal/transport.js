@@ -3,15 +3,17 @@ import { EventEmitter } from '../event';
 import { calculate_application, calculate_url } from './location';
 import { ParentWebSocket } from './parentwebsocket';
 
-export const transport_globals = {
-    default_transport: null,
-    reload_after_disconnect: false,
-    expect_disconnect: false,
-    init_callback: null,
-    default_host: null,
-    process_hints: null,
-    incoming_filters: [],
-};
+class TransportGlobals {
+    default_transport = null;
+    reload_after_disconnect = false;
+    expect_disconnect = false;
+    init_callback = null;
+    default_host = null;
+    process_hints = null;
+    incoming_filters = [];
+}
+
+export const transport_globals = new TransportGlobals();
 
 window.addEventListener('beforeunload', () => {
     transport_globals.expect_disconnect = true;

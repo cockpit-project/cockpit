@@ -22,12 +22,13 @@ def any_subprocesses() -> bool:
         return True  # at least one process (or zombie) still waitable
 
 
-@pytest.fixture(autouse=True)
-def event_loop(monkeypatch) -> Iterable[asyncio.AbstractEventLoop]:
-    loop = EventLoopPolicy().new_event_loop()
+if sys.version_info < (3, 7, 0):
+    # Polyfills for Python 3.6 (plus compat with pre-event_loop_policy pytest-asyncio versions)
 
-    if sys.version_info < (3, 7, 0):
-        # Polyfills for Python 3.6:
+    @pytest.fixture(autouse=True)
+    def event_loop(monkeypatch) -> Iterable[asyncio.AbstractEventLoop]:
+        loop = EventLoopPolicy().new_event_loop()
+
         def all_tasks(loop=loop):
             return {t for t in asyncio.Task.all_tasks(loop=loop) if not t.done()}
 
@@ -35,16 +36,28 @@ def event_loop(monkeypatch) -> Iterable[asyncio.AbstractEventLoop]:
         monkeypatch.setattr(asyncio, 'create_task', loop.create_task, raising=False)
         monkeypatch.setattr(asyncio, 'all_tasks', all_tasks, raising=False)
 
-    yield loop
+        yield loop
+
+        loop.close()
+
+else:
+    @pytest.fixture
+    def event_loop_policy() -> asyncio.AbstractEventLoopPolicy:
+        return EventLoopPolicy()
+
+
+@pytest.fixture(autouse=True)
+def _check_settled(event_loop) -> Iterable[None]:
+    yield
 
     # Let all tasks and subprocesses run to completion
     for _ in range(200):
-        if not (asyncio.all_tasks(loop) or any_subprocesses()):
+        if not (asyncio.all_tasks(event_loop) or any_subprocesses()):
             break
-        loop.run_until_complete(asyncio.sleep(0.005))
+        event_loop.run_until_complete(asyncio.sleep(0.005))
 
     # No tasks left
-    assert asyncio.all_tasks(loop=loop) == set()
+    assert asyncio.all_tasks(loop=event_loop) == set()
 
     # No subprocesses left
     if any_subprocesses():
@@ -59,5 +72,3 @@ def event_loop(monkeypatch) -> Iterable[asyncio.AbstractEventLoop]:
             pass
 
         pytest.fail('Some subprocesses still running!')
-
-    loop.close()

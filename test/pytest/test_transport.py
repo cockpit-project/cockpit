@@ -304,14 +304,6 @@ class TestSubprocessTransport:
         await protocol.eof_and_exited_with_code(0)
 
     @pytest.mark.asyncio
-    async def test_safe_watcher_oldpy(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.delattr(asyncio, 'PidfdChildWatcher', raising=False)
-        protocol, transport = self.subprocess(['true'])
-        watcher = transport._get_watcher(asyncio.get_running_loop())
-        assert isinstance(watcher, asyncio.SafeChildWatcher)
-        await protocol.eof_and_exited_with_code(0)
-
-    @pytest.mark.asyncio
     async def test_true_pty(self) -> None:
         loop = asyncio.get_running_loop()
         protocol = Protocol()

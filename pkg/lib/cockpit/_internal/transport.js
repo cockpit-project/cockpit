@@ -111,7 +111,7 @@ class Transport extends EventEmitter {
 
         if (options["channel-seed"])
             this.#channel_seed = String(options["channel-seed"]);
-        if (options.host)
+        if (typeof options.host === 'string')
             transport_globals.default_host = options.host;
 
         if (transport_globals.init_callback)
@@ -146,7 +146,7 @@ class Transport extends EventEmitter {
         } else if (data.command == "hint") {
             if (transport_globals.process_hints)
                 transport_globals.process_hints(data);
-        } else if (channel !== undefined) {
+        } else if (typeof channel === 'string') {
             const func = this.#control_cbs[channel];
             if (func)
                 func(data);

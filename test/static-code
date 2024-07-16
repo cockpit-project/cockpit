@@ -100,8 +100,8 @@ test_unsafe_security_policy() {
 }
 
 test_json_verify() {
-    # Check (almost) all JSON files for validity
-    git ls-files -z '*.json' | grep -zv ^tsconfig | xargs -r -0 python3 -c "
+    # Check JSON files for validity: exclude top-level configs (which are extended json)
+    git ls-files -z '*/*.json' | xargs -r -0 python3 -c "
 import argparse
 import json
 

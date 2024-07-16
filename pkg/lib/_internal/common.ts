@@ -33,7 +33,7 @@ if (typeof window.debugging === "undefined") {
             get: function() { return window.sessionStorage.debugging || window.localStorage.debugging },
             set: function(x) { window.sessionStorage.debugging = x }
         });
-    } catch (e) { }
+    } catch { }
 }
 
 export function in_array(array: unknown[], val: unknown): boolean {

@@ -20,9 +20,8 @@
 'use strict';
 
 import type { JsonObject, JsonValue } from './_internal/common';
-import { Channel } from './_internal/channel';
+import { Channel } from './channel';
 import { EventEmitter } from './event';
-import type cockpit from 'cockpit';
 
 function is_json_dict(value: JsonValue): value is JsonObject {
     return value?.constructor === Object;
@@ -83,7 +82,7 @@ export class FsInfoClient extends EventEmitter<FsInfoEvents> {
     state: FsInfoState = { loading: true };
 
     private partial_state: JsonValue = null;
-    private channel: cockpit.Channel<string>;
+    private channel: Channel<string>;
 
     constructor(path: string, attrs: (keyof FileInfo)[], options?: JsonObject) {
         super();
@@ -94,9 +93,9 @@ export class FsInfoClient extends EventEmitter<FsInfoEvents> {
             attrs,
             watch: true,
             ...options
-        }) as unknown as cockpit.Channel<string>;
+        });
 
-        this.channel.addEventListener("message", (_event, payload) => {
+        this.channel.on('data', payload => {
             this.partial_state = json_merge(this.partial_state, JSON.parse(payload));
 
             if (is_json_dict(this.partial_state) && !this.partial_state.partial) {
@@ -105,7 +104,7 @@ export class FsInfoClient extends EventEmitter<FsInfoEvents> {
             }
         });
 
-        this.channel.addEventListener("close", (_event, message) => {
+        this.channel.on('close', message => {
             this.emit('close', message);
         });
     }

@@ -168,10 +168,10 @@ async def test_await_cancellable_connect_init(bridge):
 
 
 @pytest.mark.asyncio
-async def test_await_cancellable_connect_close(monkeypatch, event_loop, bridge):
+async def test_await_cancellable_connect_close(monkeypatch, bridge):
     monkeypatch.setenv('INIT_TYPE', 'silence')  # make sure we never get "init"
     peer = CancellableConnect(bridge, PEER_CONFIG)
-    event_loop.call_later(0.1, peer.close)  # call peer.close() after .start() is running
+    asyncio.get_running_loop().call_later(0.1, peer.close)  # call peer.close() after .start() is running
     with pytest.raises(asyncio.CancelledError):
         await peer.start()
     # we already called .close()

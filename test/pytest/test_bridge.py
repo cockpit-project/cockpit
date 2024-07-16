@@ -928,7 +928,7 @@ async def test_flow_control(transport: MockTransport, tmp_path: Path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_large_upload(event_loop: asyncio.AbstractEventLoop, transport: MockTransport, tmp_path: Path) -> None:
+async def test_large_upload(transport: MockTransport, tmp_path: Path) -> None:
     fifo = str(tmp_path / 'pipe')
     os.mkfifo(fifo)
 
@@ -947,7 +947,7 @@ async def test_large_upload(event_loop: asyncio.AbstractEventLoop, transport: Mo
 
     # start draining now, and make sure we get everything we sent.
     with open(fifo, 'rb') as receiver:
-        received = await event_loop.run_in_executor(None, receiver.read)
+        received = await asyncio.get_running_loop().run_in_executor(None, receiver.read)
         assert len(received) == loops * Channel.BLOCK_SIZE
 
     # and now our done and close messages should come

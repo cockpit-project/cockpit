@@ -10,7 +10,7 @@ export const transport_globals = {
     init_callback: null,
     default_host: null,
     process_hints: null,
-    incoming_filters: null,
+    incoming_filters: [],
 };
 
 window.addEventListener('beforeunload', () => {
@@ -193,11 +193,9 @@ class Transport extends EventEmitter {
             }
         }
 
-        const length = transport_globals.incoming_filters ? transport_globals.incoming_filters.length : 0;
-        for (let i = 0; i < length; i++) {
-            if (transport_globals.incoming_filters[i](message, channel, control) === false)
+        for (const filter of transport_globals.incoming_filters)
+            if (filter(message, channel, control) === false)
                 return false;
-        }
 
         if (!channel)
             this.#process_control(control);

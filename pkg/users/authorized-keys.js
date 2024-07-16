@@ -80,7 +80,7 @@ function AuthorizedKeys (user_name, home_dir) {
                     return keys;
                 })
                 .catch(ex => { // not-covered: OS error
-                    cockpit.warn("Failed to list public keys:", ex.toString()); // not-covered: OS error
+                    console.warn("Failed to list public keys:", ex.toString()); // not-covered: OS error
                     return []; // not-covered: OS error
                 });
     }

@@ -7,7 +7,7 @@ function get_url_root(): string | null {
         try {
             // Sometimes this throws a SecurityError such as during testing
             return window.localStorage.getItem('url-root');
-        } catch (e) {
+        } catch {
             return null;
         }
     }

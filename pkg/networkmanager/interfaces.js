@@ -1455,7 +1455,7 @@ export function settings_applier(model, device, connection) {
         } else if (device) {
             return device.activate_with_settings(settings);
         } else {
-            cockpit.warn("No way to apply settings", connection, settings);
+            console.warn("No way to apply settings", connection, settings);
             return Promise.resolve();
         }
     };

@@ -123,7 +123,6 @@ export const PasswordFormFields = ({
                                </button>
                            </Popover>
                        }
-                       validated={error_password ? "warning" : "default"}
                        id={idPrefix + "-pw1-group"}
                        fieldId={idPrefix + "-pw1"}>
                 <InputGroup>

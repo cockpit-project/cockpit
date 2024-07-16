@@ -1,16 +1,21 @@
 import { EventEmitter } from '../event';
 
+import type { JsonObject } from './common';
 import { calculate_application, calculate_url } from './location';
 import { ParentWebSocket } from './parentwebsocket';
 
+type ControlCallback = (message: JsonObject) => void;
+type MessageCallback = (data: string | Uint8Array) => void;
+type FilterCallback = (message: string | ArrayBuffer, channel: string | null, control: JsonObject | null) => boolean;
+
 class TransportGlobals {
-    default_transport = null;
+    default_transport: Transport | null = null;
     reload_after_disconnect = false;
     expect_disconnect = false;
-    init_callback = null;
-    default_host = null;
-    process_hints = null;
-    incoming_filters = [];
+    init_callback: ControlCallback | null = null;
+    default_host: string | null = null;
+    process_hints: ControlCallback | null = null;
+    incoming_filters: FilterCallback[] = [];
 }
 
 export const transport_globals = new TransportGlobals();
@@ -19,22 +24,24 @@ window.addEventListener('beforeunload', () => {
     transport_globals.expect_disconnect = true;
 }, false);
 
-function transport_debug(...args) {
+function transport_debug(...args: unknown[]) {
     if (window.debugging == "all" || window.debugging?.includes("channel"))
         console.debug(...args);
 }
 
 /* Private Transport class */
-/** @extends EventEmitter<{ ready(): void }> */
-class Transport extends EventEmitter {
+class Transport extends EventEmitter<{ ready(): void }> {
+    application: string;
+    ready: boolean;
+
     #last_channel = 0;
     #channel_seed = "";
-    #ws;
+    #ws: WebSocket | ParentWebSocket | null;
     #ignore_health_check = false;
     #got_message = false;
     #check_health_timer;
-    #control_cbs = {};
-    #message_cbs = {};
+    #control_cbs: Record<string, ControlCallback> = {};
+    #message_cbs: Record<string, MessageCallback> = {};
     #waiting_for_init = true;
 
     constructor() {
@@ -54,7 +61,7 @@ class Transport extends EventEmitter {
             this.#ws = new WebSocket(ws_loc, "cockpit1");
 
             this.#check_health_timer = window.setInterval(() => {
-                if (this.ready)
+                if (this.ready && this.#ws)
                     this.#ws.send("\n{ \"command\": \"ping\" }");
                 if (!this.#got_message) {
                     if (this.#ignore_health_check) {
@@ -83,6 +90,7 @@ class Transport extends EventEmitter {
             this.#ws = null;
             if (transport_globals.reload_after_disconnect) {
                 transport_globals.expect_disconnect = true;
+                // @ts-expect-error force-reload parameter is Firefox-only
                 window.location.reload(true);
             }
             this.close();
@@ -99,7 +107,7 @@ class Transport extends EventEmitter {
         }
     }
 
-    #process_init(options) {
+    #process_init(options: JsonObject) {
         if (options.problem) {
             this.close({ problem: options.problem });
             return;
@@ -125,7 +133,7 @@ class Transport extends EventEmitter {
         }
     }
 
-    #process_control(data) {
+    #process_control(data: JsonObject) {
         const channel = data.channel;
 
         /* Init message received */
@@ -155,20 +163,19 @@ class Transport extends EventEmitter {
         }
     }
 
-    #process_message(channel, payload) {
+    #process_message(channel: string, payload: string | Uint8Array) {
         const func = this.#message_cbs[channel];
         if (func)
             func(payload);
     }
 
-    /** @param arg{MessageEvent<string | ArrayBuffer>} */
-    dispatch_data(arg) {
+    dispatch_data(arg: MessageEvent<string | ArrayBuffer>): boolean {
         this.#got_message = true;
 
         const message = arg.data;
         let channel;
-        let control = null;
-        let payload = null;
+        let control: JsonObject | null = null;
+        let payload: string | Uint8Array | null = null;
 
         if (message instanceof ArrayBuffer) {
             /* Binary message */
@@ -199,16 +206,15 @@ class Transport extends EventEmitter {
             if (filter(message, channel, control) === false)
                 return false;
 
-        if (!channel)
+        if (control)
             this.#process_control(control);
-
-        else
+        else if (channel && payload)
             this.#process_message(channel, payload);
 
         return true;
     }
 
-    close(options) {
+    close(options?: JsonObject): void {
         if (!options)
             options = { problem: "disconnected" };
         options.command = "close";
@@ -226,12 +232,12 @@ class Transport extends EventEmitter {
             this.#control_cbs[chan].apply(null, [options]);
     }
 
-    next_channel() {
+    next_channel(): string {
         this.#last_channel++;
         return this.#channel_seed + String(this.#last_channel);
     }
 
-    send_data(data) {
+    send_data(data: string | ArrayBuffer): boolean {
         if (!this.#ws) {
             return false;
         }
@@ -239,7 +245,7 @@ class Transport extends EventEmitter {
         return true;
     }
 
-    send_message(payload, channel) {
+    send_message(payload: string | ArrayBuffer | Uint8Array, channel: string): boolean {
         if (channel)
             transport_debug("send " + channel, payload);
 
@@ -262,30 +268,31 @@ class Transport extends EventEmitter {
         }
     }
 
-    send_control(data) {
+    send_control(data: JsonObject): boolean {
         if (!this.#ws && (data.command == "close" || data.command == "kill"))
-            return; /* don't complain if closed and closing */
+            return false; /* don't complain if closed and closing */
         if (this.#check_health_timer &&
             data.command == "hint" && data.hint == "ignore_transport_health_check") {
             /* This is for us, process it directly. */
-            this.#ignore_health_check = data.data;
-            return;
+            this.#ignore_health_check = !!data.data;
+            return false;
         }
         return this.send_message(JSON.stringify(data), "");
     }
 
-    register(channel, control_cb, message_cb) {
+    register(channel: string, control_cb: ControlCallback, message_cb: MessageCallback): void {
         this.#control_cbs[channel] = control_cb;
         this.#message_cbs[channel] = message_cb;
     }
 
-    unregister(channel) {
+    unregister(channel: string): void {
         delete this.#control_cbs[channel];
         delete this.#message_cbs[channel];
     }
 }
+export type { Transport };
 
-export function ensure_transport(callback) {
+export function ensure_transport(callback: (transport: Transport) => void) {
     if (!transport_globals.default_transport)
         transport_globals.default_transport = new Transport();
     const transport = transport_globals.default_transport;

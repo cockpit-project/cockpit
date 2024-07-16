@@ -91,8 +91,6 @@ function factory() {
             if (out) {
                 console.error("'out' filters are no longer supported");
             } else {
-                if (!transport_globals.incoming_filters)
-                    transport_globals.incoming_filters = [];
                 transport_globals.incoming_filters.push(callback);
             }
         },

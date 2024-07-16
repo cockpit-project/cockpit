@@ -455,7 +455,7 @@ const SOSBody = () => {
                 {_("Encrypted")}
             </Label>);
         if (report.obfuscated)
-            labels.push(<Label key="obf" color="gray">
+            labels.push(<Label key="obf" color="grey">
                 {_("Obfuscated")}
             </Label>);
 

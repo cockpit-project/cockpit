@@ -29,10 +29,10 @@ const _ = cockpit.gettext;
 export const InlineNotification = ({ text, detail, type = "danger", onDismiss, isInline = true, isLiveRegion = false }: {
     text: string;
     detail?: string;
-    type: AlertProps["variant"];
+    type?: AlertProps["variant"];
     onDismiss?: (ev?: Event) => void;
-    isInline: boolean;
-    isLiveRegion: boolean;
+    isInline?: boolean;
+    isLiveRegion?: boolean;
 }) => {
     const [isDetail, setIsDetail] = useState(false);
 
@@ -50,7 +50,7 @@ export const InlineNotification = ({ text, detail, type = "danger", onDismiss, i
     );
 
     return (
-        <Alert variant={type || 'danger'}
+        <Alert variant={type}
             isLiveRegion={isLiveRegion}
             isInline={isInline}
             title={<> {text} {detailButton} </>}

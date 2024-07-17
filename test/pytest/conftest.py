@@ -11,6 +11,13 @@ from cockpit._vendor.systemd_ctypes import EventLoopPolicy
 
 polyfills.install()
 
+try:
+    import pytest_asyncio._version
+    have_event_loop_policy_fixture = pytest_asyncio._version.__version_tuple__ >= (0, 22)
+except (ImportError, AttributeError):
+    # old versions don't have __version_tuple__ or event_loop_policy
+    have_event_loop_policy_fixture = False
+
 
 def any_subprocesses() -> bool:
     # Make sure we don't leak subprocesses
@@ -22,19 +29,21 @@ def any_subprocesses() -> bool:
         return True  # at least one process (or zombie) still waitable
 
 
-if sys.version_info < (3, 7, 0):
-    # Polyfills for Python 3.6 (plus compat with pre-event_loop_policy pytest-asyncio versions)
+if not have_event_loop_policy_fixture:
+    # Compatibility with pre-`event_loop_policy` versions of pytest-asyncio
 
     @pytest.fixture(autouse=True)
     def event_loop(monkeypatch) -> Iterable[asyncio.AbstractEventLoop]:
         loop = EventLoopPolicy().new_event_loop()
 
-        def all_tasks(loop=loop):
-            return {t for t in asyncio.Task.all_tasks(loop=loop) if not t.done()}
+        # Polyfills for Python 3.6
+        if sys.version_info < (3, 7, 0):
+            def all_tasks(loop=loop):
+                return {t for t in asyncio.Task.all_tasks(loop=loop) if not t.done()}
 
-        monkeypatch.setattr(asyncio, 'get_running_loop', lambda: loop, raising=False)
-        monkeypatch.setattr(asyncio, 'create_task', loop.create_task, raising=False)
-        monkeypatch.setattr(asyncio, 'all_tasks', all_tasks, raising=False)
+            monkeypatch.setattr(asyncio, 'get_running_loop', lambda: loop, raising=False)
+            monkeypatch.setattr(asyncio, 'create_task', loop.create_task, raising=False)
+            monkeypatch.setattr(asyncio, 'all_tasks', all_tasks, raising=False)
 
         yield loop
 

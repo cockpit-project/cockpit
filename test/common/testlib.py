@@ -1926,6 +1926,9 @@ class MachineCase(unittest.TestCase):
                                     'which: no python in .*'
                                     )
 
+        # happens when logging out quickly while tracer is running
+        self.allow_browser_errors("Tracer failed:.*internal-error")
+
     def check_journal_messages(self, machine: testvm.Machine | None = None) -> None:
         """Check for unexpected journal entries."""
         machine = machine or self.machine

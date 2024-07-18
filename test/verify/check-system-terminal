@@ -84,22 +84,19 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             self.assertIn("~]$", prompt)
 
         # Run some commands
-        b.input_text("whoami")
-        b.key("Enter")
+        b.input_text("whoami\n")
         wait_line(n + 1, "admin")
 
         wait_line(n + 2, prompt)
 
-        b.input_text('echo -e "1\\u0041"')
-        b.key("Enter")
+        b.input_text('echo -e "1\\u0041"\n')
         wait_line(n + 3, '1A')
 
         # The '@' sign is in the default prompt
         b.wait_in_text(".terminal-title", '@')
 
         # output flooding
-        b.input_text("seq 1000000")
-        b.key("Enter")
+        b.input_text("seq 1000000\n")
         with b.wait_timeout(300):
             b.wait_in_text(".terminal .xterm-accessibility-tree", "9999989999991000000admin@")
 
@@ -114,8 +111,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
         # Check that when we `exit` we can still reconnect with the 'Reset' button
-        b.input_text("exit")
-        b.key("Enter")
+        b.input_text("exit\n")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "disconnected")
         b.click('button:contains("Reset")')
         wait_line(n, prompt)
@@ -139,8 +135,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
             # Execute command
             wait_line(n, prompt)
-            b.input_text('echo "XYZ"')
-            b.key("Enter")
+            b.input_text('echo "XYZ"\n')
             echo_result_line = n + 1
 
             wait_line(echo_result_line, "XYZ")
@@ -173,8 +168,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Execute another command
         wait_line(n, prompt)
-        b.input_text('echo "foo"')
-        b.key("Enter")
+        b.input_text('echo "foo"\n')
         echo_result_line = n + 1
 
         wait_line(echo_result_line, "foo")
@@ -192,10 +186,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
         b.key("Enter")
-        b.input_text('clear')
-        b.key("Enter")
-        b.input_text("echo $PATH > /tmp/path")
-        b.key("Enter")
+        b.input_text('clear\n')
+        b.input_text("echo $PATH > /tmp/path\n")
         # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
         wait_line(echo_result_line, prompt)
         path = m.execute("cat /tmp/path").strip()
@@ -266,8 +258,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # execute a command we can see the effect of
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') == -1")
-        b.input_text("id")
-        b.key("Enter")
+        b.input_text("id\n")
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
 
 

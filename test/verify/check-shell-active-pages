@@ -68,8 +68,7 @@ class TestActivePages(testlib.MachineCase):
         b.wait_in_text(line_sel(1), '$')
 
         # run a command that we can easily identify, and which will die with the terminal
-        b.input_text("bash -c 'exec -a kitten cat'")
-        b.key("Enter")
+        b.input_text("bash -c 'exec -a kitten cat'\n")
 
         # wait for command to run
         m.execute("until pgrep -afx kitten; do sleep 1; done")

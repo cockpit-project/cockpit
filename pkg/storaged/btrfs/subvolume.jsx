@@ -34,11 +34,12 @@ import {
     get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
     flatten, teardown_active_usage,
 } from "../utils.js";
-import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options, validate_snapshot_path } from "./utils.jsx";
+import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options, validate_snapshots_location } from "./utils.jsx";
 import { at_boot_input, update_at_boot_input, mounting_dialog, mount_options } from "../filesystem/mounting-dialog.jsx";
 import {
     dialog_open, TextInput, CheckBoxes,
     TeardownMessage, init_teardown_usage,
+    SelectOneRadioVerticalTextInput,
 } from "../dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "../filesystem/mismounting.jsx";
 import {
@@ -180,60 +181,111 @@ function subvolume_create(volume, subvol, parent_dir) {
     });
 }
 
-function snapshot_create(volume, subvol, parent_dir) {
+async function snapshot_create(volume, subvol, parent_dir) {
     const block = client.blocks[volume.path];
-
-    let action_variants = [
-        { tag: null, Title: _("Create and mount") },
-        { tag: "nomount", Title: _("Create only") }
+    console.log(volume, subvol);
+    const action_variants = [
+        { tag: null, Title: _("Create snapshot") },
     ];
 
-    if (client.in_anaconda_mode()) {
-        action_variants = [
-            { tag: "nomount", Title: _("Create") }
-        ];
-    }
+    const getCurrentDate = async () => {
+        const out = await cockpit.spawn(["date", "+%s"]);
+        const now = parseInt(out.trim()) * 1000;
+        const d = new Date(now);
+        d.setSeconds(0);
+        d.setMilliseconds(0);
+        return d;
+    };
+
+    const folder_exists = async (path) => {
+        // Check if path does not exist and can be created
+        try {
+            await cockpit.spawn(["test", "-d", path]);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    const date = await getCurrentDate();
+    const current_date = date.toISOString().split("T")[0];
+    const current_date_time = date.toISOString().replace(":00.000Z", "");
+    const choices = [
+        {
+            value: "current_date",
+            title: cockpit.format(_("Current date $0"), current_date),
+        },
+        {
+            value: "current_date_time",
+            title: cockpit.format(_("Current date and time $0"), current_date_time),
+        },
+        {
+            value: "custom_name",
+            title: _("Custom name"),
+            type: "radioWithInput",
+        },
+    ];
 
     dialog_open({
         Title: _("Create snapshot"),
         Fields: [
-            TextInput("path", _("Path"),
+            TextInput("subvolume", _("Subvolume"),
                       {
-                          validate: path => validate_snapshot_path(path)
+                          value: subvol.pathname,
+                          disabled: true,
                       }),
-            CheckBoxes("readonly", _("Read-only"),
+            TextInput("snapshots_location", _("Snapshots location"),
+                      {
+                          placeholder: cockpit.format(_("Example, $0"), "/.snapshots"),
+                          explanation: _("Snapshots must reside within their subvolume."),
+                          validate: path => validate_snapshots_location(path, volume),
+                      }),
+            SelectOneRadioVerticalTextInput("snapshot_name", _("Snapshot name"),
+                                            {
+                                                value: { checked: "current_date", inputs: { } },
+                                                choices,
+                                                validate: (val, _values, _variant) => {
+                                                    if (val.checked === "custom_name")
+                                                        return validate_subvolume_name(val.inputs.custom_name);
+                                                }
+                                            }),
+
+            CheckBoxes("readonly", _("Option"),
                        {
                            fields: [
-                               { tag: "on", title: _("Make the new snapshot readonly") }
+                               { tag: "on", title: _("Read-only") }
                            ],
                        }),
-            TextInput("mount_point", _("Mount Point"),
-                      {
-                          validate: (val, _values, variant) => {
-                              return is_valid_mount_point(client,
-                                                          block,
-                                                          client.add_mount_point_prefix(val),
-                                                          variant == "nomount");
-                          }
-                      }),
-            mount_options(false, false),
-            at_boot_input(),
         ],
-        update: update_at_boot_input,
         Action: {
             Variants: action_variants,
             action: async function (vals) {
+                // Create snapshot location if it does not exists
+                console.log("values", vals);
+                const exists = await folder_exists(vals.snapshots_location);
+                if (!exists) {
+                    await cockpit.spawn(["btrfs", "subvolume", "create", vals.snapshots_location], { superuser: "require", err: "message" });
+                }
+
                 // HACK: cannot use block_btrfs.CreateSnapshot as it always creates a subvolume relative to MountPoints[0] which
                 // makes it impossible to handle a situation where we have multiple subvolumes mounted.
                 // https://github.com/storaged-project/udisks/issues/1242
                 const cmd = ["btrfs", "subvolume", "snapshot"];
-                if (vals.readonly)
+                if (vals.readonly?.on)
                     cmd.push("-r");
-                await cockpit.spawn([...cmd, parent_dir, vals.path], { superuser: "require", err: "message" });
-                await btrfs_poll();
-                if (vals.mount_point !== "") {
-                    await set_mount_options(subvol, block, vals);
+                let snapshot_name = "";
+                if (vals.snapshot_name.checked == "current_date") {
+                    snapshot_name = current_date;
+                } else if (vals.snapshot_name.checked === "current_date_time") {
+                    snapshot_name = current_date_time;
+                } else if (vals.snapshot_name.checked === "custom_name") {
+                    snapshot_name = vals.snapshot_name.inputs.custom_name;
                 }
+                console.log([...cmd, `/${subvol.pathname}`, `${vals.snapshots_location}/${snapshot_name}`]);
+                // TODO: need full path to subvolume
+                // ERROR: cannot snapshot '/home': Read-only file system
+                // This happens when a snapshot already exists!
+                await cockpit.spawn([...cmd, `/${subvol.pathname}`, `${vals.snapshots_location}/${snapshot_name}`], { superuser: "require", err: "message" });
             }
         }
     });

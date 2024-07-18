@@ -19,6 +19,8 @@
 import cockpit from "cockpit";
 
 import { decode_filename } from "../utils.js";
+import * as python from "python.js";
+import get_path_uuid from "./get-path-uuid.py";
 
 const _ = cockpit.gettext;
 
@@ -89,7 +91,45 @@ export function validate_subvolume_name(name) {
         return cockpit.format(_("Name cannot contain the character '/'."));
 }
 
-export function validate_snapshot_path(path) {
+export async function validate_snapshots_location(path, volume) {
     if (path === "")
-        return _("Path cannot be empty.");
+        return _("Location cannot be empty.");
+
+    try {
+        const output = await python.spawn([get_path_uuid], [path],
+                                          { environ: ["LANGUAGE=" + (cockpit.language || "en")] });
+        console.log(output);
+        const path_info = JSON.parse(output);
+        if (path_info.filesystems.length !== 1)
+            return _("Unable to detect filesystem for given path");
+
+        const fs = path_info.filesystems[0];
+        if (fs.fstype !== "btrfs")
+            return _("Provided path is not btrfs");
+
+        if (fs.uuid !== volume.data.uuid)
+            return _("Snapshot location needs to be on the same btrfs volume");
+    } catch (err) {
+        if (err.exit_status == 2)
+            return _("Parent of snapshot location does not exist");
+        console.warn("Unable to detect UUID of snapshot location", err);
+    }
+    // const path_exists = await folder_exists(path);
+    // // Verify that the parent is in the same btrfs volume
+    // if (!path_exists) {
+    // }
+    //
+    // try {
+    //     const output = await cockpit.spawn(["findmnt", "-o", "UUID", "-n", "-T", path], { err: "message" });
+    //     const uuid = output.trim();
+    //     if (uuid !== volume.data.uuid) {
+    //         return _("Snapshot location needs to be on the same btrfs volume");
+    //     }
+    // } catch (err) {
+    //     console.log(err);
+    //     if (err?.message === "") {
+    //         return _("Given path does not exist");
+    //     }
+    //     console.warn("Unable to detect UUID of snapshot location", err);
+    // }
 }

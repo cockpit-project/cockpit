@@ -272,8 +272,7 @@ class TestSelinux(testlib.MachineCase):
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
         b.focus('.terminal')
-        b.input_text('"')
-        b.key("Enter")
+        b.input_text('"\n')
         # Right click and paste
         b.mouse(".terminal", "contextmenu", btn=2)
         b.click('.contextMenu li:nth-child(2) button')

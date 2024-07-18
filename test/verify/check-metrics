@@ -68,10 +68,8 @@ def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
 def redisService(image):
     if image.startswith(("debian", "ubuntu")):
         return "redis-server"
-    if image.startswith(("fedora", "centos-10", "rhel-10")):
+    if image.startswith(("fedora", "centos-10", "rhel-10")) or "suse" in image:
         return "valkey"
-    if "suse" in image:
-        return "redis.target"
     return "redis"
 
 

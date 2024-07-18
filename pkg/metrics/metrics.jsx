@@ -1323,12 +1323,12 @@ const wait_cond = (cond, objects) => {
 
 const PCPConfigDialog = ({
     firewalldRequest,
-    s_pmlogger, s_pmproxy, s_redis, s_redis_server, s_valkey,
-    packageInstallCallback,
+    s_pmlogger, s_pmproxy, s_redis, s_redis_server, s_valkey, s_valkey_target,
+    packageInstallCallback
 }) => {
     const Dialogs = useDialogs();
     const dialogInitialProxyValue = runningService(s_pmproxy) && (
-        runningService(s_redis) || runningService(s_redis_server) || runningService(s_valkey));
+        runningService(s_redis) || runningService(s_redis_server) || runningService(s_valkey) || runningService(s_valkey_target));
     const [dialogError, setDialogError] = useState(null);
     const [dialogLoggerValue, setDialogLoggerValue] = useState(runningService(s_pmlogger));
     const [dialogProxyValue, setDialogProxyValue] = useState(dialogInitialProxyValue);
@@ -1343,7 +1343,7 @@ const PCPConfigDialog = ({
         if (dialogLoggerValue && !s_pmlogger.exists) {
             missing.push(...await get_pcp_packages());
         }
-        const redisExists = () => s_redis.exists || s_redis_server.exists || s_valkey.exists;
+        const redisExists = () => s_redis.exists || s_redis_server.exists || s_valkey.exists || s_valkey_target.exists;
         if (dialogProxyValue && !redisExists()) {
             const os_release = await read_os_release();
             missing.push(get_manifest_config_matchlist("metrics", "redis_package", "redis",
@@ -1357,7 +1357,7 @@ const PCPConfigDialog = ({
             debug("PCPConfig: package installation successful");
             await wait_cond(() => (s_pmlogger.exists &&
                                    (!dialogProxyValue || (s_pmproxy.exists && redisExists()))),
-                            [s_pmlogger, s_pmproxy, s_redis, s_redis_server, s_valkey]);
+                            [s_pmlogger, s_pmproxy, s_redis, s_redis_server, s_valkey, s_valkey_target]);
         }
     };
 
@@ -1373,6 +1373,9 @@ const PCPConfigDialog = ({
                     if (s_valkey.exists && s_valkey.unit?.UnitFileState !== 'masked') {
                         real_redis = s_valkey;
                         redis_name = "valkey.service";
+                    } else if (s_valkey_target.exists && s_valkey_target.unit?.UnitFileState !== 'masked') {
+                        real_redis = s_valkey_target;
+                        redis_name = "valkey.target";
                     } else if (s_redis_server.exists && s_redis_server.unit?.UnitFileState !== 'masked') {
                         real_redis = s_redis_server;
                         redis_name = "redis-server.service";
@@ -1498,6 +1501,7 @@ const PCPConfig = ({ buttonVariant, firewalldRequest }) => {
     const s_redis = useObject(() => service.proxy("redis.service"), null, []);
     const s_redis_server = useObject(() => service.proxy("redis-server.service"), null, []);
     const s_valkey = useObject(() => service.proxy("valkey.service"), null, []);
+    const s_valkey_target = useObject(() => service.proxy("valkey.target"), null, []);
 
     useEvent(superuser, "changed");
     useEvent(s_pmlogger, "changed");
@@ -1505,12 +1509,14 @@ const PCPConfig = ({ buttonVariant, firewalldRequest }) => {
     useEvent(s_redis, "changed");
     useEvent(s_redis_server, "changed");
     useEvent(s_valkey, "changed");
+    useEvent(s_valkey_target, "changed");
 
     debug("PCPConfig s_pmlogger.state", s_pmlogger.state);
     debug("PCPConfig s_pmproxy state", s_pmproxy.state,
           "redis exists", s_redis.exists, "state", s_redis.state,
           "redis-server exists", s_redis_server.exists, "state", s_redis_server.state,
-          "valkey exists", s_valkey.exists, "state", s_valkey.state);
+          "valkey exists", s_valkey.exists, "state", s_valkey.state,
+          "valkey-target exists", s_valkey_target.exists, "state", s_valkey_target.state);
 
     if (!superuser.allowed)
         return null;
@@ -1521,13 +1527,14 @@ const PCPConfig = ({ buttonVariant, firewalldRequest }) => {
                                       s_pmlogger={s_pmlogger}
                                       s_pmproxy={s_pmproxy}
                                       s_redis={s_redis} s_redis_server={s_redis_server} s_valkey={s_valkey}
+                                      s_valkey_target={s_valkey_target}
                                       packageInstallCallback={() => setPackageInstallStatus("done")} />);
     }
 
     return (
         <Button variant={buttonVariant} icon={<CogIcon />}
                 isDisabled={ invalidService(s_pmlogger) || invalidService(s_pmproxy) ||
-                             invalidService(s_redis) || invalidService(s_redis_server) || invalidService(s_valkey) }
+                             invalidService(s_redis) || invalidService(s_redis_server) || invalidService(s_valkey) || invalidService(s_valkey_target) }
                 onClick={show_dialog}
                 data-test-install-finished={packageInstallStatus}>
             { _("Metrics settings") }

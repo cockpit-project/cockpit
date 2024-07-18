@@ -306,7 +306,7 @@ const Row = ({ field, values, errors, onChange }) => {
         );
     } else if (!field.bare) {
         return (
-            <FormGroup hasNoPaddingTop={field.hasNoPaddingTop}>
+            <FormGroup isInline={field.isInline || false} hasNoPaddingTop={field.hasNoPaddingTop}>
                 { field_elts }
                 { nested_elts }
             </FormGroup>
@@ -645,6 +645,7 @@ export const TextInput = (tag, title, options) => {
         title,
         options,
         initial_value: options.value || "",
+        isInline: options.isInline || false,
 
         render: (val, change, validated) =>
             <TextInputPF4 data-field={tag} data-field-type="text-input"
@@ -773,6 +774,48 @@ export const SelectOneRadio = (tag, title, options) => {
                         {fields}
                     </Split>);
             }
+        }
+    };
+};
+
+export const SelectOneRadioVerticalTextInput = (tag, title, options) => {
+    return {
+        tag,
+        title,
+        options,
+        initial_value: options.value || { checked: {}, inputs: {} },
+        hasNoPaddingTop: true,
+
+        render: (val, change) => {
+            const fieldset = options.choices.map(c => {
+                const ftag = tag + "." + c.value;
+                const fval = val.checked === c.value;
+                const tval = val.inputs[c.value] || '';
+                function fchange(newval) {
+                    val.checked = newval;
+                    change(val);
+                }
+
+                function tchange(newval) {
+                    val.inputs[c.value] = newval;
+                    change(val);
+                }
+
+                return (
+                    <React.Fragment key={c.value}>
+                        <Radio isChecked={fval} data-data={fval}
+                            id={ftag}
+                            onChange={() => fchange(c.value)} label={c.title} />
+                        {fval !== false && c?.type === "radioWithInput" && <TextInputPF4 id={ftag + "-input"} value={tval} onChange={(_event, value) => tchange(value)} />}
+                    </React.Fragment>
+                );
+            });
+
+            return (
+                <div data-field={tag} data-field-type="select-radio">
+                    {fieldset}
+                </div>
+            );
         }
     };
 };

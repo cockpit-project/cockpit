@@ -717,37 +717,23 @@ export const SelectOneRadio = (tag, title, options) => {
         hasNoPaddingTop: true,
 
         render: (val, change) => {
-            return (
-                <Split hasGutter data-field={tag} data-field-type="select-radio">
-                    { options.choices.map(c => (
-                        <Radio key={c.value} isChecked={val == c.value} data-data={c.value}
+            const vertical = options?.vertical || false;
+            const fields = options.choices.map(c => (
+                <Radio key={c.value} isChecked={val == c.value} data-data={c.value}
                             id={tag + '.' + c.value}
-                            onChange={() => change(c.value)} label={c.title} />))
-                    }
-                </Split>
-            );
-        }
-    };
-};
+                            onChange={() => change(c.value)} label={c.title} />));
 
-export const SelectOneRadioVertical = (tag, title, options) => {
-    return {
-        tag,
-        title,
-        options,
-        initial_value: options.value || options.choices[0].value,
-        hasNoPaddingTop: true,
-
-        render: (val, change) => {
-            return (
-                <div data-field={tag} data-field-type="select-radio">
-                    { options.choices.map(c => (
-                        <Radio key={c.value} isChecked={val == c.value} data-data={c.value}
-                            id={tag + '.' + c.value}
-                            onChange={() => change(c.value)} label={c.title} />))
-                    }
-                </div>
-            );
+            if (vertical) {
+                return (
+                    <div data-field={tag} data-field-type="select-radio">
+                        {fields}
+                    </div>);
+            } else {
+                return (
+                    <Split hasGutter data-field={tag} data-field-type="select-radio">
+                        {fields}
+                    </Split>);
+            }
         }
     };
 };

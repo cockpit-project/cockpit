@@ -1880,10 +1880,6 @@ class MachineCase(unittest.TestCase):
         "error: Could not determine kpatch packages:.*PackageKit crashed",
     ]
 
-    if testvm.DEFAULT_IMAGE.startswith('rhel-8'):
-        # old occasional bugs in tracer, don't happen in newer versions any more
-        default_allowed_console_errors.append('Tracer failed:.*Traceback')
-
     env_allow = os.environ.get("TEST_ALLOW_BROWSER_ERRORS")
     if env_allow:
         default_allowed_console_errors += env_allow.split(",")

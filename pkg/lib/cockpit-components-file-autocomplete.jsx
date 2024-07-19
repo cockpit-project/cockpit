@@ -117,7 +117,8 @@ export class FileAutoComplete extends React.Component {
 
         channel.addEventListener("message", (ev, data) => {
             const item = JSON.parse(data);
-            if (item && item.path && item.event == 'present') {
+            if (item && item.path && item.event == 'present' &&
+                (!this.props.onlyDirectories || item.type == 'directory')) {
                 item.path = item.path + (item.type == 'directory' ? '/' : '');
                 results.push(item);
             }
@@ -203,10 +204,12 @@ FileAutoComplete.propTypes = {
     placeholder: PropTypes.string,
     superuser: PropTypes.string,
     isOptionCreatable: PropTypes.bool,
+    onlyDirectories: PropTypes.bool,
     onChange: PropTypes.func,
     value: PropTypes.string,
 };
 FileAutoComplete.defaultProps = {
     isOptionCreatable: false,
+    onlyDirectories: false,
     onChange: () => '',
 };

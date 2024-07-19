@@ -940,14 +940,17 @@ class Browser:
             user = "root" if "suse" in self.machine.image else "admin"
 
         if passwordless:
-            self.wait_in_text("div[role=dialog]:contains('Administrative access')", "You now have administrative access.")
-            self.click("div[role=dialog] button:contains('Close')")
-            self.wait_not_present("div[role=dialog]:contains('You now have administrative access.')")
+            self.wait_text("div[role=dialog] .pf-v5-c-modal-box__title", "Administrative access")
+            self.wait_in_text("div[role=dialog] .pf-v5-c-modal-box__body", "You now have administrative access.")
+            # there should be only one ("Close") button
+            self.click("div[role=dialog] .pf-v5-c-modal-box__footer button")
         else:
-            self.wait_in_text("div[role=dialog]:contains('Switch to administrative access')", f"Password for {user}:")
-            self.set_input_text("div[role=dialog]:contains('Switch to administrative access') input", password or "foobar")
-            self.click("div[role=dialog] button:contains('Authenticate')")
-            self.wait_not_present("div[role=dialog]:contains('Switch to administrative access')")
+            self.wait_text("div[role=dialog] .pf-v5-c-modal-box__title", "Switch to administrative access")
+            self.wait_in_text("div[role=dialog]", f"Password for {user}:")
+            self.set_input_text("div[role=dialog] input", password or "foobar")
+            self.click("div[role=dialog] button.pf-m-primary")
+
+        self.wait_not_present("div[role=dialog]")
 
         self.check_superuser_indicator("Administrative access")
         self.switch_to_frame(cur_frame)
@@ -957,8 +960,9 @@ class Browser:
         self.switch_to_top()
 
         self.open_superuser_dialog()
-        self.click("div[role=dialog]:contains('Switch to limited access') button:contains('Limit access')")
-        self.wait_not_present("div[role=dialog]:contains('Switch to limited access')")
+        self.wait_text("div[role=dialog] .pf-v5-c-modal-box__title", "Switch to limited access")
+        self.click("div[role=dialog] button.pf-m-primary")
+        self.wait_not_present("div[role=dialog]")
         self.check_superuser_indicator("Limited access")
 
         self.switch_to_frame(cur_frame)
@@ -996,15 +1000,18 @@ class Browser:
 
         self.wait_visible('#hosts_setup_server_dialog')
         if new:
-            self.click('#hosts_setup_server_dialog button:contains(Add)')
+            self.wait_text("#hosts_setup_server_dialog button.pf-m-primary", "Add")
+            self.click("#hosts_setup_server_dialog button.pf-m-primary")
             if not known_host:
                 self.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
                 self.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
-                self.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
+                self.wait_text("#hosts_setup_server_dialog button.pf-m-primary", "Trust and add host")
+                self.click("#hosts_setup_server_dialog button.pf-m-primary")
         if password:
             self.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
             self.set_input_text('#login-custom-password', password)
-            self.click('#hosts_setup_server_dialog button:contains(Log in)')
+            self.wait_text("#hosts_setup_server_dialog button.pf-m-primary", "Log in")
+            self.click("#hosts_setup_server_dialog button.pf-m-primary")
         if expect_closed_dialog:
             self.wait_not_present('#hosts_setup_server_dialog')
 

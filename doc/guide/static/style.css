@@ -97,6 +97,7 @@ body {
 
 
 /* Target all Firefox, since firefox has bug wrt TABLE + position: fixed */
+/* stylelint-disable-next-line at-rule-no-vendor-prefix */
 @-moz-document url-prefix() {
 	table.navigation { position: static !important; }
 	body { padding-block-start: 0 !important; }

@@ -1490,8 +1490,8 @@ class TestTimers(testlib.MachineCase):
         b.wait_visible("[data-index='0'] .week-days")
         b.click("[data-index='0'] [aria-label='Add']")
         b.select_from_dropdown("[data-index='0'] .week-days select", "fri")
-        # select time from dropdown with mouse
-        b.select_PF5("#timer-dialog [data-index='0'] .create-timer-time-picker input", ".pf-v5-c-menu", "12:30")
+        # select time in TimePicker with mouse
+        b.select_PF("#timer-dialog [data-index='0'] .create-timer-time-picker input", "12:30")
         # type time with keyboard
         b.select_from_dropdown("[data-index='1'] .week-days select", "sun")
         b.set_input_text("[data-index='1'] .create-timer-time-picker input", "20:12")

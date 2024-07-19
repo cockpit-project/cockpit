@@ -369,7 +369,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # self.waitStream(3) # FIXME: wait for new data - pcp does not handle time change greatly
         b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Today")
 
-        b.select_PF4("#date-picker-select-toggle", "Wednesday, September 16, 2020")
+        b.select_PF_deprecated("#date-picker-select-toggle", "Wednesday, September 16, 2020")
         self.assertGreater(getMaximumSpike(test=self, g_type="memory", saturation=False, hour=1600236000000, minute=51), 0.5)
         self.assertIn("Memory", events_at(1600236000000, 51))
 
@@ -678,7 +678,7 @@ class TestHistoryMetrics(testlib.MachineCase):
                   """)
         self.addCleanup(m.execute, "nmcli con delete fake; firewall-cmd --permanent --delete-zone comeandgo || true; firewall-cmd  --reload")
         checkEnable(firewalld_alert=True)
-        b.select_PF4("#firewalld-request-pmproxy", "comeandgo")
+        b.select_PF_deprecated("#firewalld-request-pmproxy", "comeandgo")
         m.execute("firewall-cmd --permanent --delete-zone comeandgo; firewall-cmd  --reload")
         b.click(".pf-v5-c-alert button.pf-m-primary")
         self.allow_browser_errors("Failed to enable pmproxy in firewalld:.*INVALID_ZONE: comeandgo.*")

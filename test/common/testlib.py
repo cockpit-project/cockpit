@@ -556,25 +556,31 @@ class Browser:
             self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", key=name, modifiers=modifiers, **args)
 
     def select_from_dropdown(self, selector: str, value: object) -> None:
+        """For an actual <select> HTML component"""
+
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         text_selector = f"{selector} option[value='{value}']"
         self._wait_present(text_selector)
         self.set_val(selector, value)
         self.wait_val(selector, value)
 
-    def select_PF4(self, selector: str, value: str) -> None:
-        self.click(f"{selector}:not([disabled]):not([aria-disabled=true])")
-        select_entry = f"{selector} + ul button:contains('{value}')"
-        self.click(select_entry)
-        if self.is_present(f"{selector}.pf-m-typeahead"):
-            self.wait_val(f"{selector} > div input[type=text]", value)
-        else:
-            self.wait_text(f"{selector} .pf-v5-c-select__toggle-text", value)
+    def select_PF(self, selector: str, value: str, menu_class: str = ".pf-v5-c-menu") -> None:
+        """For a PatternFly Select-like component
 
-    def select_PF5(self, selector_button: str, selector: str, value: object) -> None:
-        self.click(f"{selector_button}:not([disabled]):not([aria-disabled=true])")
-        select_entry = f"{selector} ul button:contains('{value}')"
-        self.click(select_entry)
+        For things like <Select> or <TimePicker>. Unfortunately none of them render as an actual <select>, but a
+        <button> or <div> with a detached menu div (which can even be in the parent).
+
+        For similar components like the deprecated <Select> you can specify a different menu class.
+        """
+        self.click(selector)
+        # SelectOption's value does not render to an actual "value" attribute, just a <li> text
+        self.click(f"{menu_class} button:contains('{value}')")
+        self.wait_not_present(menu_class)
+
+    def select_PF_deprecated(self, selector: str, value: str) -> None:
+        """For the deprecated PatternFly Select component"""
+
+        self.select_PF(selector, value, menu_class=".pf-v5-c-select__menu")
 
     def set_input_text(
         self, selector: str, val: str, append: bool = False, value_check: bool = True, blur: bool = True

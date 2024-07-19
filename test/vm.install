@@ -42,6 +42,13 @@ if [ "$ID" = "debian" ]; then
     echo '* soft core unlimited' >> /etc/security/limits.conf
 fi
 
+if [ "$ID" = "opensuse-tumbleweed" ]; then
+    # Zypper will take forever to work out these don't have net access
+    # Let's lo them
+    echo "127.0.1.1 download.opensuse.org" >> /etc/hosts
+    echo "127.0.1.1 codecs.opensuse.org" >> /etc/hosts
+fi
+
 PLATFORM_ID="${PLATFORM_ID:-}"
 if [ "${PLATFORM_ID#platform:el}" != "$PLATFORM_ID" ]; then
     # allow /usr/local/bin/ in sudo shells, to use our installed tools like the Python bridge

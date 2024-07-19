@@ -57,6 +57,11 @@ if [ "$ID" = "opensuse-tumbleweed" ]; then
     printf '[Manager]\nDefaultMemoryAccounting=yes\n' > /usr/lib/systemd/system.conf.d/80-memory-accounting.conf
     mkdir -p /etc/systemd/system/user@.service.d
     printf '[Service]\nDelegate=cpu io memory\n' > /etc/systemd/system/user@.service.d/80-cgroups-delegation.conf
+
+    # Zypper will take forever to work out these don't have net access
+    # Let's lo them
+    echo "127.0.1.1 download.opensuse.org" >> /etc/hosts
+    echo "127.0.1.1 codecs.opensuse.org" >> /etc/hosts
 fi
 
 PLATFORM_ID="${PLATFORM_ID:-}"

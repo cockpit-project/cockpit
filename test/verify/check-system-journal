@@ -206,17 +206,17 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_log_present("JUST ERROR")
 
         # We cannot open this select with tests but we need to wait until it gets loaded
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "just-a-service")
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "just-a-service")
         wait_log_not_present("JUST ERROR")
         wait_log_present("THE SERVICE")
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
         wait_log_present("JUST ERROR")
         wait_log_present("THE SERVICE")
 
-        self.browser.select_PF4("#journal-prio-menu", "Error and above")
+        b.select_PF_deprecated("#journal-prio-menu", "Error and above")
         wait_log_not_present("THE SERVICE")
         wait_log_present("JUST ERROR")
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "check-journal")
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "check-journal")
         b.wait_not_present("#journal-identifier-menu + ul button:contains('just-a-service')")
 
         b.go("#/?tag=test-stream&priority=notice")
@@ -295,16 +295,16 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
 
         # Test filters
-        b.select_PF4("#logs-predefined-filters", "Current boot")
+        b.select_PF_deprecated("#logs-predefined-filters", "Current boot")
         b.wait_val("#journal-grep input", "priority:err identifier:logger boot:0 [5-6]")
 
-        b.select_PF4("#logs-predefined-filters", "Previous boot")
+        b.select_PF_deprecated("#logs-predefined-filters", "Previous boot")
         b.wait_val("#journal-grep input", "priority:err identifier:logger boot:-1 [5-6]")
 
-        b.select_PF4("#logs-predefined-filters", "Last 24 hours")
+        b.select_PF_deprecated("#logs-predefined-filters", "Last 24 hours")
         b.wait_val("#journal-grep input", "priority:err identifier:logger since:-24hours [5-6]")
 
-        b.select_PF4("#logs-predefined-filters", "Last 7 days")
+        b.select_PF_deprecated("#logs-predefined-filters", "Last 7 days")
         b.wait_val("#journal-grep input", "priority:err identifier:logger since:-7days [5-6]")
 
         # Check that 'until' qualifier keeps streaming until given time
@@ -340,21 +340,21 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.go(f"#/?priority=err&since=@{self.test_start_time}")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
         b.wait_not_present(f"#journal-identifier-menu + ul button:contains('{tag_info}')")
 
-        self.browser.select_PF4("#journal-prio-menu", "Debug and above")
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
+        b.select_PF_deprecated("#journal-prio-menu", "Debug and above")
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_info)
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", tag_info)
 
-        self.browser.select_PF4("#journal-prio-menu", "Error and above")
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
+        b.select_PF_deprecated("#journal-prio-menu", "Error and above")
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF4("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
+        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
         b.wait_not_present(f"#journal-identifier-menu + ul button:contains('{tag_info}')")
 
     def testRebootAndTime(self):
@@ -542,17 +542,17 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
 
-        self.browser.select_PF4("#journal-prio-menu", "Only emergency")
+        b.select_PF_deprecated("#journal-prio-menu", "Only emergency")
         b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
 
-        self.browser.select_PF4("#journal-prio-menu", "Warning and above")
+        b.select_PF_deprecated("#journal-prio-menu", "Warning and above")
         b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_visible(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
 
-        self.browser.select_PF4("#journal-prio-menu", "Info and above")
+        b.select_PF_deprecated("#journal-prio-menu", "Info and above")
         b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_visible(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_visible(journal_line_selector.format("INFO_MESSAGE"))
@@ -569,13 +569,13 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
 
-        self.browser.select_PF4("#journal-prio-menu", "Critical and above")
+        b.select_PF_deprecated("#journal-prio-menu", "Critical and above")
         b.wait_visible(sleep_crash_list_sel)
 
-        self.browser.select_PF4("#journal-prio-menu", "Alert and above")
+        b.select_PF_deprecated("#journal-prio-menu", "Alert and above")
         b.wait_not_present(sleep_crash_list_sel)
 
-        self.browser.select_PF4("#journal-prio-menu", "Critical and above")
+        b.select_PF_deprecated("#journal-prio-menu", "Critical and above")
         b.click(sleep_crash_list_sel)
 
         def wait_field(name, value):

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import glob
 import json
 import logging
@@ -166,14 +167,8 @@ class PcpMetricsChannel(AsyncChannel):
 
         return (name, context_type)
 
-    def get_archives(self) -> Iterable[ArchiveInfo]:
-        name, context_type = self.get_context_and_name(self.source)
-        archives = []
-
-        if context_type == c_api.PM_CONTEXT_ARCHIVE:
-            archives = sorted(self.prepare_archives(name), key=ArchiveInfo.sort_key)
-        else:  # TODO: direct/pmcd
-            raise NotImplementedError('not implemented')
+    def get_archives(self, name: str) -> Iterable[ArchiveInfo]:
+        archives = sorted(self.prepare_archives(name), key=ArchiveInfo.sort_key)
 
         if len(archives) == 0:
             raise ChannelError('not-found')
@@ -193,15 +188,6 @@ class PcpMetricsChannel(AsyncChannel):
                 assert metric_desc is not None
                 archive.metric_descriptions.append(metric_desc)
 
-                # TODO: port from prepare_current_context
-                # Basically this filters the given instances/omitted instances
-                # Multi-instances metrics can
-                if metric_desc.desc.indom != c_api.PM_INDOM_NULL:
-                    if self.instances:
-                        ...
-                    elif self.omit_instances:
-                        ...
-
         return archives
 
     def convert_metric_description(self, context: 'pmapi.pmContext', metric: JsonObject) -> MetricInfo:
@@ -216,8 +202,8 @@ class PcpMetricsChannel(AsyncChannel):
             pm_ids = context.pmLookupName(name)
         except pmapi.pmErr as exc:
             if exc.errno() == c_api.PM_ERR_NAME:
+                logger.error("no such metric: %s", name)
                 raise MetricNotFoundError('error', message=f'no such metric: {name}') from None
-                # raise ChannelError('not-found', message=f'no such metric: {name}') from None
             else:
                 raise ChannelError('internal-error', message=str(exc)) from None
 
@@ -316,7 +302,7 @@ class PcpMetricsChannel(AsyncChannel):
             if metric_desc.factor == 1.0:
                 desc['units'] = str(metric_desc.units)  # XXX: verify
             else:
-                logging.log("units_bf %d", metric_desc.units_bf)
+                logger.debug("units_bf %d", metric_desc.units_bf)
                 raise NotImplementedError('')
                 # gchar *name = g_strdup_printf
                 # ("%s*%g", pmUnitsStr(self->metrics[i].units), 1.0/self->metrics[i].factor);
@@ -395,7 +381,7 @@ class PcpMetricsChannel(AsyncChannel):
             try:
                 for _ in range(self.archive_batch):
                     if total_fetched == self.limit:
-                        self.send_updates(archive, fetched)
+                        self.send_updates(fetched)
                         logger.debug('Reached limit "%s", stopping', self.limit)
                         return total_fetched
                     # Consider using the fetchGroup API https://pcp.readthedocs.io/en/latest/PG/PMAPI.html#fetchgroup-operation
@@ -411,15 +397,15 @@ class PcpMetricsChannel(AsyncChannel):
                         self.need_meta = self.needs_meta_update(results, descs)
                         if self.need_meta:
                             # Flush all metrics and send new meta
-                            self.send_updates(archive, fetched)
+                            self.send_updates(fetched)
                             fetched.clear()
                             self.send_meta(archive, results, context)
 
-                    fetched.append(self.parse_fetched_results(archive, context, results, descs))
+                    fetched.append(self.parse_fetched_results(context, results, descs))
                     self.last_results = results
                     total_fetched += 1
 
-                self.send_updates(archive, fetched)
+                self.send_updates(fetched)
                 fetched.clear()
             except pmapi.pmErr as exc:
                 logger.debug('Fetching error: %r, fetched %r', exc, fetched)
@@ -427,13 +413,13 @@ class PcpMetricsChannel(AsyncChannel):
                     raise ChannelError('internal-error', message=str(exc)) from None
 
                 if len(fetched) > 0:
-                    self.send_updates(archive, fetched)
+                    self.send_updates(fetched)
 
                 break
 
         return total_fetched
 
-    def parse_fetched_results(self, archive, context: 'pmapi.pmContext', results: Any, descs: Any) -> Sample:
+    def parse_fetched_results(self, context: 'pmapi.pmContext', results: Any, descs: Any) -> Sample:
         metrics = list(self.metrics)
         samples: dict[str, float | list[float]] = {}
 
@@ -447,11 +433,11 @@ class PcpMetricsChannel(AsyncChannel):
                 pass  # continue?
             # TODO: don't pass descs, look up via archive.metrics_descriptions?
             elif descs[i].indom == c_api.PM_INDOM_NULL:  # Single instance
-                values = self.build_sample(archive, context, results, descs, i, 0)
+                values = self.build_sample(context, results, descs, i, 0)
             else:  # Multi instance
                 vals = []
                 for j in range(numval):
-                    vals.append(self.build_sample(archive, context, results, descs, i, j))
+                    vals.append(self.build_sample(context, results, descs, i, j))
                 values = vals
                 # raise NotImplementedError('multi value handling, see C code')
 
@@ -459,14 +445,13 @@ class PcpMetricsChannel(AsyncChannel):
 
         return samples
 
-    def build_sample(self, archive, context, results, descs, metric: int, instance: int):
+    def build_sample(self, context, results, descs, metric: int, instance: int):
         try:
             desc = descs[metric]
         except IndexError:
-            logging.debug("no description found for metric=%s", metric)
+            logger.debug("no description found for metric=%s", metric)
             return
 
-        instanced = desc.indom != c_api.PM_INDOM_NULL
         pmid = results.contents.get_pmid(metric)
 
         logger.debug("build_sample pmid=%d, metric=%d, instance=%d", pmid, metric, instance)
@@ -486,14 +471,6 @@ class PcpMetricsChannel(AsyncChannel):
 
         valfmt = results.contents.get_valfmt(metric)
         value = results.contents.get_vlist(metric, instance)
-
-        # HACK: we return a description of the instances but this requires a handle on results
-        if instanced:
-            pmid = results.contents.get_pmid(metric)
-            instance_desc = context.pmNameInDom(desc, value.inst)
-            # HACK HACK HACK!
-            if instance_desc not in archive.instance_descriptions[pmid]:
-                archive.instance_descriptions[pmid].append(instance_desc)
 
         sample_value = None
         if content_type == c_api.PM_TYPE_64:
@@ -535,7 +512,7 @@ class PcpMetricsChannel(AsyncChannel):
         else:
             return False
 
-    def send_updates(self, archive, samples: Sequence[Sample]) -> None:
+    def send_updates(self, samples: Sequence[Sample]) -> None:
         # data: List[List[Union[float, List[Optional[Union[float, bool]]]]]] = []
         data: list[list[float | list[float]]] = []
         last_samples = self.last_samples or {}
@@ -626,26 +603,35 @@ class PcpMetricsChannel(AsyncChannel):
 
         self.parse_options(options)
         try_import_pcp()
+        name, context_type = self.get_context_and_name(self.source)
 
-        archives = self.get_archives()
+        if context_type == c_api.PM_CONTEXT_ARCHIVE:
+            archives = self.get_archives(name)
+            self.ready()  # TODO: too early? Compare with cockpit-pcp
+            self.sample_archives(archives)
+        else:
+            # context = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive_path)
+            try:
+                direct_context = pmapi.pmContext(context_type, name)
+                metric_descriptions = []
+                for metric in self.metrics:
+                    metric_desc = None
+                    try:
+                        metric_desc = self.convert_metric_description(direct_context, metric)
+                    except MetricNotFoundError:
+                        raise ChannelError('') from None
+                    assert metric_desc is not None
+                    metric_descriptions.append(metric_desc)
+            except pmapi.pmErr as exc:
+                raise ChannelError('internal-error', message=str(exc)) from None
 
-        self.ready()
+            self.ready()  # TODO: too early? Compare with cockpit-pcp
 
-        self.sample_archives(archives)
+            # TODO: we need to have a sample method which works archive independent
+            # The problem is metric descriptions, which is tied per archive, can we de-couple that?
+            # The C implementation does this per archive, and save that globally
 
-        # self.done()
-
-        # This should be try to read the BATCH_SIZE, then wait on an interval and repeat until EOL
-        # while True:
-        #
-        #     if all_read:
-        #         return
-        #
-        #     try:
-        #         await asyncio.wait_for(self.read(), self.interval / 1000)
-        #     except asyncio.TimeoutError:
-        #         # Continue the while loop, we use wait_for as an interval timer.
-        #         continue
-        #
-        #     # self.send_meta()
-        #     # construct a meta message
+            # def sample(self, archive, total_fetched):
+            while True:
+                # Get stuff
+                await asyncio.sleep(self.interval / 1000)

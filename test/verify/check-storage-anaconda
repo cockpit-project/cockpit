@@ -635,7 +635,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
         self.dialog_wait_close()
         b.wait_text(self.card_row_col("Storage", 1, 3), "Unformatted data")
 
-    @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+    @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "*suse*")
     @testlib.skipImage("No Anaconda", "arch")
     @testlib.destructive
     def testNoOndemandPackages(self):

@@ -1588,6 +1588,7 @@ class MetricsHistory extends React.Component {
         this.state = {
             hours: [], // available hours for rendering in descending order
             loading: true, // show loading indicator
+            hasLoaded: false,
             metricsAvailable: true,
             pmLoggerState: null,
             error: null,
@@ -1621,6 +1622,19 @@ class MetricsHistory extends React.Component {
             // update history metrics when in auto-update mode
             if (!cockpit.hidden && this.history_refresh_timer)
                 this.load_data(this.most_recent);
+        });
+
+        // Inifite scrolling
+        this.bottomPanelRef = createRef();
+        const callback = entries => {
+            if (!this.state.hasLoaded) this.setState({ hasLoaded: true });
+            if (this.state.hasLoaded && entries[0].isIntersecting) {
+                this.handleMoreData();
+            }
+        };
+        this.observer = new IntersectionObserver(callback, {
+            root: this.bottomPanelRef.current,
+            threshold: new Array(101).fill(0).map((v, i) => i * 0.01),
         });
     }
 
@@ -1659,6 +1673,11 @@ class MetricsHistory extends React.Component {
         const isBeibootBridge = cmdline?.includes("ic# cockpit-bridge");
 
         this.setState({ packagekitExists, isBeibootBridge });
+        this.observer.observe(this.bottomPanelRef.current);
+    }
+
+    componentWillUnmount() {
+        this.observer.disconnect();
     }
 
     handleMoreData() {
@@ -1988,11 +2007,10 @@ class MetricsHistory extends React.Component {
                                 })}
                             </CardBody>
                         </Card> }
-                        {nodata_alert}
-                        <div className="bottom-panel">
-                            { this.state.loading
-                                ? <EmptyStatePanel loading title={_("Loading...")} />
-                                : <Button onClick={this.handleMoreData}>{_("Load earlier data")}</Button> }
+                        { nodata_alert ??
+                            <Alert className="moredata" variant="info" isInline title={ cockpit.format(_("Scroll down for more data")) } /> }
+                        <div ref={this.bottomPanelRef} className="bottom-panel">
+                            { this.state.loading ?? <EmptyStatePanel loading title={_("Loading...")} /> }
                         </div>
                     </>
                 </PageSection>

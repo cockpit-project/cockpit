@@ -594,7 +594,7 @@ class TestKdumpNFSAnsible(KdumpHelpers):
             self.assertIn("Kdump compressed dump",
                           self.machines["nfs"].execute("file /srv/kdump/var/crash/10.111.113.1*/vmcore"))
         except (testlib.Error, AssertionError):
-            self.machine.print_console_log()
+            kdump_machine.print_console_log()
             raise
 
 

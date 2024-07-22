@@ -494,9 +494,9 @@ ${enableCrashKernel}
             reservedMemory = null;
         }
 
-        const serviceRunning = this.props.kdumpStatus &&
-                             this.props.kdumpStatus.installed &&
-                             this.props.kdumpStatus.state == "running";
+        const serviceRunning = this.props.kdumpStatus?.target &&
+                             this.props.kdumpStatus?.installed &&
+                             this.props.kdumpStatus?.state === "running";
 
         let testButton;
         if (serviceRunning) {

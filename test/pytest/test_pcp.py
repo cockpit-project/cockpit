@@ -12,7 +12,15 @@ import pytest
 
 # Skip tests when PCP is not available (for example in our tox env)
 try:
-    from cpmapi import PM_ID_NULL, PM_INDOM_NULL, PM_SEM_COUNTER, PM_SEM_INSTANT, PM_TYPE_DOUBLE, PM_TYPE_U32
+    from cpmapi import (
+        PM_ID_NULL,
+        PM_INDOM_NULL,
+        PM_SEM_COUNTER,
+        PM_SEM_INSTANT,
+        PM_TYPE_DOUBLE,
+        PM_TYPE_U32,
+        PM_TYPE_U64,
+    )
     from pcp import pmi
 except ImportError:
     import unittest
@@ -219,6 +227,44 @@ def disk_metrics_archive(tmpdir_factory):
             if tarinfo.isreg() and os.path.dirname(tarinfo.path).endswith("localhost.localdomain"):
                 tarinfo.name = os.path.basename(tarinfo.name)
                 tar.extract(tarinfo, str(pcp_dir))
+
+    return pcp_dir
+
+
+# Used in plots.js to scale memory from Kbytes => bytes
+# scale archive
+# {"timestamp":1721743540129,"now":1721743540129,"interval":1000,"metrics":[{"name":"mem.util.available","units":"Kbyte","semantics":"instant"}]
+# We want to request:
+# [{"name":"mem.util.available", "units": "bytes" }]
+# meta:
+# {"timestamp":1721743608588,"now":1721743608588,"interval":1000,"metrics":[{"name":"mem.util.available","units":"byte","semantics":"instant"}]}19
+@pytest.fixture
+def mem_avail_archive(tmpdir_factory):
+    pcp_dir = tmpdir_factory.mktemp('mem-avail-archives')
+    archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
+
+    # pminfo --desc -f "mem.util.available"
+    # mem.util.available
+    # Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    # Semantics: instant  Units: Kbyte
+    # value 19362828
+
+    # https://github.com/performancecopilot/pcp/blob/766a78e631998e97196eeed9cc36631f30add74b/src/collectl2pcp/metrics.c#L339
+    # pminfo -m -f "mem.util.available" 
+    domain = 60  # Linux kernel
+    pmid = archive_1.pmiID(domain, 1, 58)
+    units = archive_1.pmiUnits(1, 0, 0, 1, 0, 0)
+
+    archive_1.pmiAddMetric("mem.util.available", pmid, PM_TYPE_U64, PM_INDOM_NULL,
+                           PM_SEM_INSTANT, units)
+
+    archive_1.pmiPutValue("mem.util.available", None, "19362828")
+    archive_1.pmiWrite(0, 0)
+
+    # archive_1.pmiPutValue("mem.util.available", None, "19186852")
+    # archive_1.pmiWrite(0, 0)
+
+    archive_1.pmiEnd()
 
     return pcp_dir
 
@@ -586,6 +632,29 @@ async def test_pcp_instances_change(transport, instances_change_archive):
 
 
 @pytest.mark.asyncio
+async def test_pcp_scale_memory_unit(transport, mem_avail_archive):
+    _ = await transport.check_open('metrics1', source=str(mem_avail_archive),
+                                   metrics=[{"name": "mem.util.available", "units": "bytes"}], limit=2)
+
+    _, data = await transport.next_frame()
+    # first message is always the meta message
+    meta = json.loads(data)
+    print(meta)
+
+    assert_metrics_meta(meta, str(mem_avail_archive), 0, 1000)
+    metric = meta['metrics'][0]
+    print(metric)
+    assert metric['name'] == "mem.util.available"
+    assert metric['units'] == "byte"
+    assert metric['semantics'] == "instant"
+
+    _, data = await transport.next_frame()
+    data = json.loads(data)
+    assert data == [[19827535872]]
+    # 10367241067.379562
+
+
+@pytest.mark.asyncio
 async def test_pcp_empty(transport, empty_archive):
     _ = await transport.check_open('metrics1', source=str(empty_archive),
                                     metrics=[{"name": "mock.value", "derive": "rate"}])
@@ -593,7 +662,7 @@ async def test_pcp_empty(transport, empty_archive):
     _, data = await transport.next_frame()
     # first message is always the meta message
     meta = json.loads(data)
-    print(meta)
+    # print(meta)
 
     _, data = await transport.next_frame()
     data = json.loads(data)

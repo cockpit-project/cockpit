@@ -231,26 +231,13 @@ def disk_metrics_archive(tmpdir_factory):
     return pcp_dir
 
 
-# Used in plots.js to scale memory from Kbytes => bytes
-# scale archive
-# {"timestamp":1721743540129,"now":1721743540129,"interval":1000,"metrics":[{"name":"mem.util.available","units":"Kbyte","semantics":"instant"}]
-# We want to request:
-# [{"name":"mem.util.available", "units": "bytes" }]
-# meta:
-# {"timestamp":1721743608588,"now":1721743608588,"interval":1000,"metrics":[{"name":"mem.util.available","units":"byte","semantics":"instant"}]}19
 @pytest.fixture
 def mem_avail_archive(tmpdir_factory):
     pcp_dir = tmpdir_factory.mktemp('mem-avail-archives')
     archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
 
-    # pminfo --desc -f "mem.util.available"
-    # mem.util.available
-    # Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    # Semantics: instant  Units: Kbyte
-    # value 19362828
-
     # https://github.com/performancecopilot/pcp/blob/766a78e631998e97196eeed9cc36631f30add74b/src/collectl2pcp/metrics.c#L339
-    # pminfo -m -f "mem.util.available" 
+    # pminfo -m -f "mem.util.available"
     domain = 60  # Linux kernel
     pmid = archive_1.pmiID(domain, 1, 58)
     units = archive_1.pmiUnits(1, 0, 0, 1, 0, 0)
@@ -315,7 +302,7 @@ async def test_pcp_open(transport, archive):
     metric = metrics[0]
     assert metric['name'] == 'mock.value'
     assert 'derive' not in metric
-    assert metric['semantic'] == 'instant'
+    assert metric['semantics'] == 'instant'
 
     # assert_sample (tc, "[[10],[11],[12]]");
     _, data = await transport.next_frame()
@@ -332,7 +319,7 @@ async def test_pcp_open(transport, archive):
     metric = metrics[0]
     assert metric['name'] == 'mock.value'
     assert 'derive' not in metric
-    assert metric['semantic'] == 'instant'
+    assert metric['semantics'] == 'instant'
 
     # C bridge sends a META message per archive
 
@@ -358,7 +345,7 @@ async def test_pcp_big_archive(transport, big_archive):
     metric = metrics[0]
     assert metric['name'] == 'mock.value'
     assert 'derive' not in metric
-    assert metric['semantic'] == 'instant'
+    assert metric['semantics'] == 'instant'
 
     _, data = await transport.next_frame()
     data = json.loads(data)
@@ -446,7 +433,7 @@ async def test_pcp_instances(transport, instances_archive):
     metric = metrics[0]
     assert metric['name'] == 'kernel.all.load'
     assert 'derive' not in metric
-    assert metric['semantic'] == 'instant'
+    assert metric['semantics'] == 'instant'
     assert metric['instances'] == ['15 minute', '1 minute', '5 minute']
 
     _, data = await transport.next_frame()
@@ -662,7 +649,7 @@ async def test_pcp_empty(transport, empty_archive):
     _, data = await transport.next_frame()
     # first message is always the meta message
     meta = json.loads(data)
-    # print(meta)
+    print(meta)
 
     _, data = await transport.next_frame()
     data = json.loads(data)

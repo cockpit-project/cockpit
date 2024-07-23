@@ -94,7 +94,9 @@ class TestSession(testlib.MachineCase):
 
         # this is enabled by default in tools/cockpit.debian.pam, as well as
         # Debian/Ubuntu's /etc/pam.d/sshd; but not in Fedora/RHEL
-        if "debian" not in m.image and "ubuntu" not in m.image:
+        if "suse" in m.image:
+            self.write_file("/usr/lib/pam.d/cockpit", "session required pam_env.so user_readenv=1\n", append=True)
+        elif "debian" not in m.image and "ubuntu" not in m.image:
             self.write_file("/etc/pam.d/cockpit", "session required pam_env.so user_readenv=1\n", append=True)
         victim_pid = m.spawn("sleep infinity", "sleep.log")
         self.addCleanup(m.execute, f"kill {victim_pid} || true")

@@ -15,6 +15,52 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# PCP Channel for Performance Co-pilot Metrics
+#
+# This is the replacment of the C implementation of cockpit-pcp, it uses the
+# python pcp module (ctypes wrapper) to read PCP archives and directly connect
+# to PCP daemons.
+#
+# Cockpit supports basically two different types of sources
+# * archive - reads from a PCP archive(s) in either the default configured location `pcp-archive` or a given path.
+# * pmcd / direct - connects to the pmcd daemon and reads metrics
+#
+# The PCP channel differs in the way it delivers data to the user, when
+# requesting an archive, it is read in its entirety while when requesting other
+# modes the channel will delivers metrics per given interval.
+#
+# Global channel options:
+# * interval - the interval on which to deliver metrics
+# * timestamp - timestamp of the first sample (only an option for archives)
+# * limit - amount of samples to return, archive only option
+# * omit-instances - multi-instances to not show (for example `lo` interface in network metrics)
+# * instances - the multi-instances to show (for example only `/dev/sda`)
+#
+# Metrics
+#
+# When opening the metrics channel you can specify the metrics you are
+# interested in, a PCP metric is described in pmapi as pmDesc:
+#
+# class pmDesc:
+# pmid  - unique ID of the metric
+# type  - data type (PM_TYPE_*)
+# indom - the instance domain
+# sem   - semantics of the value
+# units - dimension and units
+#
+# Important here are the type, Cockpit only supports PM_TYPE_DOUBLE, and integers as PM_TYPE_U64.
+#
+# The instance domain denotes if the metric is has multiple instances, for
+# example a disk metric can represent data for multiple disks.
+#
+# See pminfo -f "kernel.all.load" for example:
+# kernel.all.load
+#   inst [1 or "1 minute"] value 0.5
+#   inst [5 or "5 minute"] value 0.68000001
+#   inst [15 or "15 minute"] value 0.75999999
+#
+#
+
 import asyncio
 import glob
 import json

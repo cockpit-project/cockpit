@@ -183,10 +183,31 @@ function subvolume_create(volume, subvol, parent_dir) {
 
 async function snapshot_create(volume, subvol, parent_dir) {
     const block = client.blocks[volume.path];
+    const localstorage_key = "storage:snapshot-locations";
     console.log(volume, subvol);
     const action_variants = [
         { tag: null, Title: _("Create snapshot") },
     ];
+
+    const getLocalStorageSnapshotLocs = () => {
+        const localstorage_snapshot_data = localStorage.getItem(localstorage_key);
+        if (localstorage_snapshot_data === null)
+            return null;
+
+        try {
+            return JSON.parse(localstorage_snapshot_data);
+        } catch (err) {
+            console.warn("localstorage btrfs snapshot locations data malformed", localstorage_snapshot_data);
+            return null;
+        }
+    };
+
+    const getSavedSnapshotLocation = subvol => {
+        const snapshot_locations = getLocalStorageSnapshotLocs();
+        if (snapshot_locations != null)
+            return snapshot_locations[subvol.id] || null;
+        return snapshot_locations;
+    };
 
     const getCurrentDate = async () => {
         const out = await cockpit.spawn(["date", "+%s"]);
@@ -198,7 +219,7 @@ async function snapshot_create(volume, subvol, parent_dir) {
     };
 
     const folder_exists = async (path) => {
-        // Check if path does not exist and can be created
+        // Check if path exist and can be created
         try {
             await cockpit.spawn(["test", "-d", path]);
             return true;
@@ -208,6 +229,7 @@ async function snapshot_create(volume, subvol, parent_dir) {
     };
 
     const date = await getCurrentDate();
+    // Convert dates to ISO-8601
     const current_date = date.toISOString().split("T")[0];
     const current_date_time = date.toISOString().replace(":00.000Z", "");
     const choices = [
@@ -226,6 +248,18 @@ async function snapshot_create(volume, subvol, parent_dir) {
         },
     ];
 
+    const get_snapshot_name = (vals) => {
+        let snapshot_name = "";
+        if (vals.snapshot_name.checked == "current_date") {
+            snapshot_name = current_date;
+        } else if (vals.snapshot_name.checked === "current_date_time") {
+            snapshot_name = current_date_time;
+        } else if (vals.snapshot_name.checked === "custom_name") {
+            snapshot_name = vals.snapshot_name.inputs.custom_name;
+        }
+        return snapshot_name;
+    };
+
     dialog_open({
         Title: _("Create snapshot"),
         Fields: [
@@ -236,8 +270,12 @@ async function snapshot_create(volume, subvol, parent_dir) {
                       }),
             TextInput("snapshots_location", _("Snapshots location"),
                       {
+                          value: getSavedSnapshotLocation(subvol),
                           placeholder: cockpit.format(_("Example, $0"), "/.snapshots"),
-                          explanation: _("Snapshots must reside within their subvolume."),
+                          explanation: (<>
+                              <p>{_("Snapshots must reside within the same btrfs volume.")}</p>
+                              <p>{_("When the snapshot location does not exist, it will be created as btrfs subvolume automatically.")}</p>
+                          </>),
                           validate: path => validate_snapshots_location(path, volume),
                       }),
             SelectOneRadioVerticalTextInput("snapshot_name", _("Snapshot name"),
@@ -273,19 +311,15 @@ async function snapshot_create(volume, subvol, parent_dir) {
                 const cmd = ["btrfs", "subvolume", "snapshot"];
                 if (vals.readonly?.on)
                     cmd.push("-r");
-                let snapshot_name = "";
-                if (vals.snapshot_name.checked == "current_date") {
-                    snapshot_name = current_date;
-                } else if (vals.snapshot_name.checked === "current_date_time") {
-                    snapshot_name = current_date_time;
-                } else if (vals.snapshot_name.checked === "custom_name") {
-                    snapshot_name = vals.snapshot_name.inputs.custom_name;
-                }
+
+                const snapshot_name = get_snapshot_name(vals);
                 console.log([...cmd, `/${subvol.pathname}`, `${vals.snapshots_location}/${snapshot_name}`]);
-                // TODO: need full path to subvolume
-                // ERROR: cannot snapshot '/home': Read-only file system
-                // This happens when a snapshot already exists!
-                await cockpit.spawn([...cmd, `/${subvol.pathname}`, `${vals.snapshots_location}/${snapshot_name}`], { superuser: "require", err: "message" });
+                const snapshot_location = `${vals.snapshots_location}/${snapshot_name}`;
+                await cockpit.spawn([...cmd, `/${subvol.pathname}`, snapshot_location], { superuser: "require", err: "message" });
+                localStorage.setItem(localstorage_key, JSON.stringify({ ...getLocalStorageSnapshotLocs(), [subvol.id]: vals.snapshots_location }));
+
+                // Re-trigger btrfs poll so the users sees the created snapshot in the overview or subvolume detail page
+                await btrfs_poll();
             }
         }
     });

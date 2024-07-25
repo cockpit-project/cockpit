@@ -27,7 +27,7 @@ import testlib
 
 OSesWithoutTracer = ["debian-*", "ubuntu-*", "fedora-coreos", "centos-10", "rhel-10*"]
 OSesWithDnfRestart = ["centos-10", "rhel-10*"]
-OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*"]
+OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*", "*-tumbleweed"]
 
 
 class NoSubManCase(packagelib.PackageCase):

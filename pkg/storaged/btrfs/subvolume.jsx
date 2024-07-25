@@ -262,10 +262,10 @@ function subvolume_delete(volume, subvol, mount_point_in_parent, card) {
     });
 }
 
-async function snapshot_create(volume, subvol, parent_dir) {
+async function snapshot_create(volume, subvol, subvolume_path) {
     const block = client.blocks[volume.path];
     const localstorage_key = "storage:snapshot-locations";
-    console.log(volume, subvol);
+    console.log(volume, subvol, subvolume_path);
     const action_variants = [
         { tag: null, Title: _("Create snapshot") },
     ];
@@ -394,9 +394,9 @@ async function snapshot_create(volume, subvol, parent_dir) {
                     cmd.push("-r");
 
                 const snapshot_name = get_snapshot_name(vals);
-                console.log([...cmd, `/${subvol.pathname}`, `${vals.snapshots_location}/${snapshot_name}`]);
+                console.log([...cmd, subvolume_path, `${vals.snapshots_location}/${snapshot_name}`]);
                 const snapshot_location = `${vals.snapshots_location}/${snapshot_name}`;
-                await cockpit.spawn([...cmd, `/${subvol.pathname}`, snapshot_location], { superuser: "require", err: "message" });
+                await cockpit.spawn([...cmd, subvolume_path, snapshot_location], { superuser: "require", err: "message" });
                 localStorage.setItem(localstorage_key, JSON.stringify({ ...getLocalStorageSnapshotLocs(), [subvol.id]: vals.snapshots_location }));
 
                 // Re-trigger btrfs poll so the users sees the created snapshot in the overview or subvolume detail page

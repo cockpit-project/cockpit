@@ -1,4 +1,6 @@
-import os
+# Copyright (C) 2026 Red Hat, Inc.
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
 import os.path
 import subprocess
 import sys
@@ -16,7 +18,9 @@ def main(path):
             sys.exit(2)
 
     try:
-        sys.stdout.write(subprocess.check_output(["findmnt", "--output", "UUID,fstype", "--json", "--target", path]).decode().strip())
+        sys.stdout.write(subprocess.check_output(["findmnt", "--output",
+                                                  "UUID,fstype", "--json",
+                                                  "--target", path]).decode().strip())
     except subprocess.SubprocessError as exc:
         print(exc, file=sys.stderr)
         sys.exit(3)

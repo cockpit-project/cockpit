@@ -653,6 +653,7 @@ export const TextInput = (tag, title, options) => {
                           aria-label={title}
                           value={val}
                           isDisabled={options.disabled}
+                          placeholder={options.placeholder}
                           onChange={(_event, value) => change(value)} />
     };
 };

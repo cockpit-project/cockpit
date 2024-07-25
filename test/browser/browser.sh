@@ -17,6 +17,12 @@ mkdir -p /root/.ssh
 curl https://raw.githubusercontent.com/cockpit-project/bots/main/machine/identity.pub >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 
+# HACK: broken shadow-utils
+if grep -q 'platform:f41' /etc/os-release; then
+    rpm -q shadow-utils
+    dnf update -y shadow-utils
+fi
+
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
 # and is hard to disable as it does not use systemd
 if rpm -q setroubleshoot-server; then

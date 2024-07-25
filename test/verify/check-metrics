@@ -1289,6 +1289,7 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         redis_service = redisService(m.image)
         redis_package = "valkey" if redis_service == "valkey" else "redis"
+        redis_service = f"{redis_service}.target" if "suse" in m.image else f"{redis_service}.service"
         extra_packages = ""
         if redis_package == "valkey" and m.image.startswith("fedora"):
             # Fedora has a compat package that we need to
@@ -1319,6 +1320,8 @@ class TestMetricsPackages(packagelib.PackageCase):
             """)
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
+        elif "suse" in m.image:
+            m.execute(f"zypper rm -y pcp python3-pcp {redis_package} {extra_packages}")
         else:
             m.execute(f"rpm --erase --verbose pcp python3-pcp {redis_package} {extra_packages}")
             if "centos-8" in m.image or "rhel-8" in m.image:
@@ -1337,7 +1340,7 @@ class TestMetricsPackages(packagelib.PackageCase):
             "/lib/systemd/system/pmproxy.service": dummy_service,
         }
         redis_content = {
-            f"/lib/systemd/system/{redis_service}.service": dummy_service,
+            f"/lib/systemd/system/{redis_service}": dummy_service,
         }
 
         self.createPackage("python3-pcp", "999", "1", content=cpcp_content, depends="pcp")

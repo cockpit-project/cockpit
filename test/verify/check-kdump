@@ -263,6 +263,7 @@ class TestKdump(KdumpHelpers):
         b.wait_js_cond('window.location.hash === "#/kdump.service"')
 
     @testlib.nondestructive
+    @testlib.skipImage("SUSE uses a different kdump conf format, so we'll use it's own test", "*suse*")
     def testConfiguration(self):
         b = self.browser
         m = self.machine

@@ -96,7 +96,8 @@ def info(dev):
             match = re.match(b"  ([0-9]+): clevis$", line)
             if match:
                 try:
-                    token = subprocess.check_output(["cryptsetup", "token", "export", dev, "--token-id", match.group(1)],
+                    token = subprocess.check_output(["cryptsetup", "token", "export",
+                                                     dev, "--token-id", match.group(1)],
                                                     stderr=subprocess.PIPE)
                     token_object = json.loads(token.decode())
                     if token_object.get("type") == "clevis":

@@ -188,7 +188,7 @@ async function snapshot_create(volume, subvol, subvolume_path) {
         { tag: null, Title: _("Create snapshot") },
     ];
 
-    const getLocalStorageSnapshotLocs = () => {
+    const get_local_storage_snapshots_locs = () => {
         const localstorage_snapshot_data = localStorage.getItem(localstorage_key);
         if (localstorage_snapshot_data === null)
             return null;
@@ -201,14 +201,14 @@ async function snapshot_create(volume, subvol, subvolume_path) {
         }
     };
 
-    const getSavedSnapshotLocation = subvol => {
-        const snapshot_locations = getLocalStorageSnapshotLocs();
+    const get_localstorage_snapshot_location = subvol => {
+        const snapshot_locations = get_local_storage_snapshots_locs();
         if (snapshot_locations != null)
             return snapshot_locations[subvol.id] || null;
         return snapshot_locations;
     };
 
-    const getCurrentDate = async () => {
+    const get_current_date = async () => {
         const out = await cockpit.spawn(["date", "+%s"]);
         const now = parseInt(out.trim()) * 1000;
         const d = new Date(now);
@@ -227,7 +227,7 @@ async function snapshot_create(volume, subvol, subvolume_path) {
         }
     };
 
-    const date = await getCurrentDate();
+    const date = await get_current_date();
     // Convert dates to ISO-8601
     const current_date = date.toISOString().split("T")[0];
     const current_date_time = date.toISOString().replace(":00.000Z", "");
@@ -269,7 +269,7 @@ async function snapshot_create(volume, subvol, subvolume_path) {
                       }),
             TextInput("snapshots_location", _("Snapshots location"),
                       {
-                          value: getSavedSnapshotLocation(subvol),
+                          value: get_localstorage_snapshot_location(subvol),
                           placeholder: cockpit.format(_("Example, $0"), "/.snapshots"),
                           explanation: (<>
                               <p>{_("Snapshots must reside within the same btrfs volume.")}</p>
@@ -315,7 +315,7 @@ async function snapshot_create(volume, subvol, subvolume_path) {
                 console.log([...cmd, subvolume_path, `${vals.snapshots_location}/${snapshot_name}`]);
                 const snapshot_location = `${vals.snapshots_location}/${snapshot_name}`;
                 await cockpit.spawn([...cmd, subvolume_path, snapshot_location], { superuser: "require", err: "message" });
-                localStorage.setItem(localstorage_key, JSON.stringify({ ...getLocalStorageSnapshotLocs(), [subvol.id]: vals.snapshots_location }));
+                localStorage.setItem(localstorage_key, JSON.stringify({ ...get_local_storage_snapshots_locs(), [subvol.id]: vals.snapshots_location }));
 
                 // Re-trigger btrfs poll so the users sees the created snapshot in the overview or subvolume detail page
                 await btrfs_poll();

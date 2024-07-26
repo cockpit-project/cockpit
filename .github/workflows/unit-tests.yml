@@ -32,6 +32,7 @@ jobs:
             git reset --hard ${GITHUB_SHA}
 
             vendor/checkout
+            test/common/make-bots
             ./autogen.sh
             make -j$(nproc) '${{ matrix.target }}'
           EOF

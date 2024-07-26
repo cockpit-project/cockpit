@@ -334,9 +334,10 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
             <FlexItem>{_("Since")}</FlexItem>
             <Popover headerContent={_("Start showing entries on or newer than the specified date.")}
-                     showClose={false}
                      bodyContent={sinceUntilBody}>
-                <HelpIcon />
+                <Button className="log-text-filter-popover-button" variant="plain">
+                    <HelpIcon />
+                </Button>
             </Popover>
         </Flex>
     );
@@ -345,9 +346,10 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
             <FlexItem>{_("Until")}</FlexItem>
             <Popover headerContent={_("Start showing entries on or older than the specified date.")}
-                     showClose={false}
                      bodyContent={sinceUntilBody}>
-                <HelpIcon />
+                <Button className="log-text-filter-popover-button" variant="plain">
+                    <HelpIcon />
+                </Button>
             </Popover>
         </Flex>
     );
@@ -356,9 +358,10 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
             <FlexItem>{_("Boot")}</FlexItem>
             <Popover headerContent={_("Show messages from a specific boot.")}
-                     showClose={false}
                      bodyContent={_("This will add a match for '_BOOT_ID='. If not specified the logs for the current boot will be shown. If the boot ID is omitted, a positive offset will look up the boots starting from the beginning of the journal, and an equal-or-less-than zero offset will look up boots starting from the end of the journal. Thus, 1 means the first boot found in the journal in chronological order, 2 the second and so on; while -0 is the last boot, -1 the boot before last, and so on.")}>
-                <HelpIcon />
+                <Button className="log-text-filter-popover-button" variant="plain">
+                    <HelpIcon />
+                </Button>
             </Popover>
         </Flex>
     );
@@ -367,9 +370,10 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
             <FlexItem>{_("Unit")}</FlexItem>
             <Popover headerContent={_("Show messages for the specified systemd unit.")}
-                     showClose={false}
                      bodyContent={_("This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to find all possible messages for the given unit. Can contain more units separated by comma. ")}>
-                <HelpIcon />
+                <Button className="log-text-filter-popover-button" variant="plain">
+                    <HelpIcon />
+                </Button>
             </Popover>
         </Flex>
     );
@@ -378,9 +382,10 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
             <FlexItem>{_("Free-form search")}</FlexItem>
             <Popover headerContent={_("Show messages containing given string.")}
-                     showClose={false}
                      bodyContent={_("Any text string in the logs messages can be filtered. The string can also be in the form of a regular expression. Also supports filtering by message log fields. These are space separated values, in form FIELD=VALUE, where value can be comma separated list of possible values.")}>
-                <HelpIcon />
+                <Button className="log-text-filter-popover-button" variant="plain">
+                    <HelpIcon />
+                </Button>
             </Popover>
         </Flex>
     );

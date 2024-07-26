@@ -996,6 +996,7 @@ fi
 @testlib.skipWsContainer("No sssd PAM integration in beiboot mode")
 @testlib.skipImage("No realmd available", "arch")
 @testlib.skipImage("freeipa not currently available", "debian-*")
+@testlib.skipImage("ipa-client-install util is not available for SUSE", "*suse*")
 @testlib.no_retry_when_changed
 class TestKerberos(testlib.MachineCase):
     provision = {

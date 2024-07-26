@@ -27,7 +27,6 @@ import { createRoot } from 'react-dom/client';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
-import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
@@ -331,63 +330,63 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
     const sinceUntilBody = _("Date specifications should be of the format YYYY-MM-DD hh:mm:ss. Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. 'now' refers to the current time. Finally, relative times may be specified, prefixed with '-' or '+'");
 
     const sinceLabel = (
-        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-            <FlexItem>{_("Since")}</FlexItem>
+        <>
+            {_("Since")}
             <Popover headerContent={_("Start showing entries on or newer than the specified date.")}
                      bodyContent={sinceUntilBody}>
                 <Button className="log-text-filter-popover-button" variant="plain">
                     <HelpIcon />
                 </Button>
             </Popover>
-        </Flex>
+        </>
     );
 
     const untilLabel = (
-        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-            <FlexItem>{_("Until")}</FlexItem>
+        <>
+            {_("Until")}
             <Popover headerContent={_("Start showing entries on or older than the specified date.")}
                      bodyContent={sinceUntilBody}>
                 <Button className="log-text-filter-popover-button" variant="plain">
                     <HelpIcon />
                 </Button>
             </Popover>
-        </Flex>
+        </>
     );
 
     const bootLabel = (
-        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-            <FlexItem>{_("Boot")}</FlexItem>
+        <>
+            {_("Boot")}
             <Popover headerContent={_("Show messages from a specific boot.")}
                      bodyContent={_("This will add a match for '_BOOT_ID='. If not specified the logs for the current boot will be shown. If the boot ID is omitted, a positive offset will look up the boots starting from the beginning of the journal, and an equal-or-less-than zero offset will look up boots starting from the end of the journal. Thus, 1 means the first boot found in the journal in chronological order, 2 the second and so on; while -0 is the last boot, -1 the boot before last, and so on.")}>
                 <Button className="log-text-filter-popover-button" variant="plain">
                     <HelpIcon />
                 </Button>
             </Popover>
-        </Flex>
+        </>
     );
 
     const serviceLabel = (
-        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-            <FlexItem>{_("Unit")}</FlexItem>
+        <>
+            {_("Unit")}
             <Popover headerContent={_("Show messages for the specified systemd unit.")}
                      bodyContent={_("This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to find all possible messages for the given unit. Can contain more units separated by comma. ")}>
                 <Button className="log-text-filter-popover-button" variant="plain">
                     <HelpIcon />
                 </Button>
             </Popover>
-        </Flex>
+        </>
     );
 
     const freeTextLabel = (
-        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-            <FlexItem>{_("Free-form search")}</FlexItem>
+        <>
+            {_("Free-form search")}
             <Popover headerContent={_("Show messages containing given string.")}
                      bodyContent={_("Any text string in the logs messages can be filtered. The string can also be in the form of a regular expression. Also supports filtering by message log fields. These are space separated values, in form FIELD=VALUE, where value can be comma separated list of possible values.")}>
                 <Button className="log-text-filter-popover-button" variant="plain">
                     <HelpIcon />
                 </Button>
             </Popover>
-        </Flex>
+        </>
     );
 
     const searchInputAttributes = [

@@ -69,9 +69,11 @@ if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
 
     test_typescript() {
         test -x node_modules/.bin/tsc -a -x /usr/bin/node || skip 'no tsc'
-        # Only display tsc output if it contains errors about something other than node_modules/
+        # Only display tsc output if it contains errors about something other than node_modules/,
+        # and pkg/lib for non-cockpit projects
+        [ -d pkg/base1 ] || ignore="pkg/lib|"
         # https://github.com/microsoft/TypeScript/issues/30511
-        if node_modules/.bin/tsc --checkJs false --pretty false | grep -Eqv '^(node_modules| )'; then
+        if node_modules/.bin/tsc --checkJs false --pretty false | grep -Eqv "^(node_modules|${ignore:-} )"; then
             node_modules/.bin/tsc ${FORCE_COLOR:+--pretty true} --checkJs false
         fi
     }

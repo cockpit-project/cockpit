@@ -37,6 +37,8 @@ export class SystemInformationCard extends React.Component {
             model: null,
             assetTag: null,
             systemUptime: null,
+            bootType: null,
+            securebootEnabled: false,
         };
         this.getSystemUptime = this.getSystemUptime.bind(this);
     }
@@ -45,6 +47,7 @@ export class SystemInformationCard extends React.Component {
         this.getDMIInfo();
         this.getMachineId();
         this.getSystemUptime();
+        this.getBootType();
 
         this.uptimeTimer = setInterval(this.getSystemUptime, 60000);
     }
@@ -100,6 +103,40 @@ export class SystemInformationCard extends React.Component {
                 .catch(ex => console.error("Error reading system uptime", ex.toString())); // not-covered: OS error
     }
 
+    async getBootType() {
+        // https://uefi.org/specs/UEFI/2.10/03_Boot_Manager.html#globally-defined-variables
+        let secure_boot_enabled = false;
+        const secure_boot_file = "/sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c";
+        // TODO: constant?
+        const output = await cockpit.script("set -e; test -d /sys/firmware/efi && echo 'efi' || echo 'bios'; cat /proc/sys/kernel/arch");
+        const [firmware, arch] = output.trim().split("\n");
+
+        // TODO: check if secure boot is available?
+        if (arch === "x86_64" || arch === "arm64") {
+            try {
+                const result = await cockpit.file(secure_boot_file, { binary: true }).read();
+                if (result[4] === 1)
+                    secure_boot_enabled = true;
+            } catch (err) {
+                console.warn("cannot read secure boot EFI var", err);
+            }
+
+            this.setState({
+                bootType: firmware,
+                securebootEnabled: secure_boot_enabled,
+            });
+        }
+    }
+
+    getBootTypeStr() {
+        const { bootType, securebootEnabled } = this.state;
+        if (bootType === "efi") {
+            return cockpit.format(_("EFI (Secure Boot $0)"), securebootEnabled ? _("enabled") : _("disabled"));
+        } else {
+            _("BIOS or Legacy");
+        }
+    }
+
     render() {
         return (
             <Card className="system-information">
@@ -125,6 +162,12 @@ export class SystemInformationCard extends React.Component {
                                     <div id="system_machine_id">{this.state.machineID}</div>
                                 </td>
                             </tr>
+                            {this.state.bootType && <tr className="pf-v5-c-table__tr">
+                                <th className="pf-v5-c-table__th system-information-boot-type" scope="row">{_("Boot type")}</th>
+                                <td className="pf-v5-c-table__td">
+                                    <div id="boot_type">{this.getBootTypeStr()}</div>
+                                </td>
+                            </tr>}
                             <tr className="pf-v5-c-table__tr">
                                 <th className="pf-v5-c-table__th system-information-uptime" scope="row">{_("Up since")}</th>
                                 <td className="pf-v5-c-table__td">

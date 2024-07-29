@@ -118,6 +118,8 @@ const UnknownHostDialog = ({ host, error, dialogResult }: {
     const key_type = host_key.split(" ")[1];
     cockpit.assert(key_type, "host-key did not include a key type");
 
+    const scan_cmd = `ssh-keyscan -t ${key_type} localhost | ssh-keygen -lf -`;
+
     const address = split_connection_string(host);
 
     const title = cockpit.format(error.problem === "invalid-hostkey" ? _("$0 key changed") : _("Unknown host: $0"),
@@ -131,7 +133,7 @@ const UnknownHostDialog = ({ host, error, dialogResult }: {
             <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-fingerprint pf-v5-u-font-family-monospace">{host_fp}</ClipboardCopy>
             <p className="hostkey-type">({key_type})</p>
             <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), address.address)}</p>
-            <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
+            <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{scan_cmd}</ClipboardCopy>
             <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
             <p>{_("If the fingerprint matches, click 'Trust and add host'. Otherwise, do not connect and contact your administrator.")}</p>
         </>;
@@ -146,7 +148,7 @@ const UnknownHostDialog = ({ host, error, dialogResult }: {
                                 isExpanded={verifyExpanded}
                                 onToggle={(_ev, value) => setVerifyExpanded(value) }>
                 <div>{_("Run this command over a trusted network or physically on the remote machine:")}</div>
-                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{scan_cmd}</ClipboardCopy>
                 <div>{_("The fingerprint should match:")} {fingerprint_help}</div>
                 <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v5-u-font-family-monospace">{host_fp}</ClipboardCopy>
             </ExpandableSection>

@@ -74,6 +74,7 @@ class TestSshDialog(testlib.MachineCase):
         b.wait_in_text("#ssh-unknown-host-dialog", "You are connecting to 127.0.0.1 for the first time.")
         b.click("#ssh-unknown-host-dialog .pf-v5-c-expandable-section__toggle-text")
         b.wait_visible("#ssh-unknown-host-dialog .hostkey-verify-help-cmds input")
+        b.assert_pixels("#ssh-unknown-host-dialog", "unknown-host", ignore=[".hostkey-fingerprint"])
         command = b.val("#ssh-unknown-host-dialog .hostkey-verify-help-cmds input")
         self.assertIn("ssh-keyscan", command)
         # run the command to get the fingerprint
@@ -89,6 +90,7 @@ class TestSshDialog(testlib.MachineCase):
         # user has no SSH key, so only offers password
         b.wait_text("#ssh-change-auth-dialog .pf-v5-c-modal-box__title-text", "Log in to 127.0.0.1")
         b.wait_in_text("#ssh-change-auth-dialog", "Unable to log in to user@127.0.0.1 using SSH key authentication")
+        b.assert_pixels("#ssh-change-auth-dialog", "change-auth")
         # empty password
         b.click("#ssh-change-auth-dialog button.pf-m-primary")
         b.wait_in_text("#ssh-change-auth-dialog", "The password can not be empty")
@@ -186,6 +188,9 @@ class TestSshDialog(testlib.MachineCase):
                     b.set_input_text("#login-custom-password", self.password)
                     b.click("#ssh-change-auth-dialog button.pf-m-primary")
                     b.wait_not_present("#ssh-change-auth-dialog")
+                    b.wait_visible("#ssh-not-supported-dialog")
+                    if "cancel" in button:
+                        b.assert_pixels("#ssh-not-supported-dialog", "not-supported")
                     b.click(f"#ssh-not-supported-dialog {button}")
                     b.wait_not_present("#ssh-not-supported-dialog")
                     b.wait_text("#output", "")
@@ -202,6 +207,7 @@ class TestSshDialog(testlib.MachineCase):
         b.click("button")
         b.wait_in_text("#ssh-change-auth-dialog", "host does not accept password login")
         b.wait_visible("#ssh-change-auth-dialog button.pf-m-primary:disabled")
+        b.assert_pixels("#ssh-change-auth-dialog", "not-accepted")
         b.click("#ssh-change-auth-dialog button.btn-cancel")
         b.wait_not_present("#ssh-change-auth-dialog")
 
@@ -252,6 +258,7 @@ class TestSshDialog(testlib.MachineCase):
         # fix passphrase confirmation
         b.set_input_text("#login-setup-new-key-password2", key_password)
         b.set_input_text("#login-custom-password", self.password)
+        b.assert_pixels("#ssh-change-auth-dialog", "new-key")
         b.click("#ssh-change-auth-dialog button.pf-m-primary")
         b.wait_not_present("#ssh-change-auth-dialog")
 
@@ -279,6 +286,7 @@ class TestSshDialog(testlib.MachineCase):
         b.wait_in_text("#ssh-change-auth-dialog .pf-v5-c-alert", "Password not accepted")
 
         b.set_input_text("#locked-identity-password", key_password)
+        b.assert_pixels("#ssh-change-auth-dialog", "add-key")
         b.click("#ssh-change-auth-dialog button.pf-m-primary")
         b.wait_not_present("#ssh-change-auth-dialog")
         b.wait_text("#output", "createkey")
@@ -331,6 +339,7 @@ class TestSshDialog(testlib.MachineCase):
                        "SSH key for logging in to 127.0.0.1 is protected by a password")
         b.wait_in_text("#ssh-change-auth-dialog", "host does not allow logging in with a password")
         b.set_input_text("#locked-identity-password", key_password)
+        b.assert_pixels("#ssh-change-auth-dialog", "only-key")
         b.click("#ssh-change-auth-dialog button.pf-m-primary")
         b.wait_not_present("#ssh-change-auth-dialog")
         b.wait_text("#output", "onlykey")
@@ -348,6 +357,7 @@ class TestSshDialog(testlib.MachineCase):
         b.wait_visible("#ssh-change-auth-dialog")
         b.set_checked("#auth-password", val=True)
         b.set_input_text("#login-custom-password", self.password)
+        b.assert_pixels("#ssh-change-auth-dialog", "choose")
         b.click("#ssh-change-auth-dialog button.pf-m-primary")
         b.wait_not_present("#ssh-change-auth-dialog")
         b.wait_text("#output", "choosepwd")

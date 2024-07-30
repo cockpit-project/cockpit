@@ -30,6 +30,11 @@
   .journal-filters-identifier-menu .pf-v5-c-select__menu-item {
     white-space: normal;
   }
+
+  // PatternFly added align-self oddly; this shouldn't be used in general, except for one-offs. It caused a rendering issue on the way we use the toolbar components in the logs page.
+  .pf-v5-c-toolbar .pf-v5-c-toolbar__item {
+    align-self: unset;
+  }
 }
 
 .log-details {

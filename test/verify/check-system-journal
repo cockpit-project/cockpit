@@ -222,6 +222,9 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.go("#/?tag=test-stream&priority=notice")
         wait_journal_empty()
 
+        # Verify the filter panel
+        b.assert_pixels("#journal", "journal-filters-panel", skip_layouts=["mobile"])
+
         # Test inline help
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_val("#journal-cmd-copy input", "journalctl --no-tail --since=-24hours --priority=notice --reverse -- SYSLOG_IDENTIFIER=test-stream")

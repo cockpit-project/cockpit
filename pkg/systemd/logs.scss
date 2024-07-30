@@ -9,7 +9,7 @@
   --pf-v5-c-popover--MaxWidth: min(300px, 90%);
 }
 
-#journal {
+.journal-filters {
   grid-template-rows: auto 1fr;
 
   .cockpit-log-panel {
@@ -22,17 +22,17 @@
   }
 
   // Static width for the service selector as it likes to resize a lot while loading
-  #journal-identifier-menu ul.pf-v5-c-select__menu {
+  .journal-filters-identifier-menu ul.pf-v5-c-select__menu {
     inline-size: 10rem;
   }
 
   // Long names without spaces do not wrap; triggers overflow and overlaps with check icon
-  #journal-identifier-menu .pf-v5-c-select__menu-item {
+  .journal-filters-identifier-menu .pf-v5-c-select__menu-item {
     white-space: normal;
   }
 }
 
-#log-details {
+.log-details {
   .pf-v5-l-gallery {
     --pf-v5-l-gallery--GridTemplateColumns: 1fr;
   }
@@ -81,7 +81,7 @@
   }
 }
 
-#journal-box {
+.journal-filters-box {
   flex: auto;
 
   .panel-heading {
@@ -99,18 +99,14 @@
 }
 
 .pf-v5-theme-dark {
-  #journal-box .panel-heading {
+  .journal-filters-box .panel-heading {
     color: var(--pf-v5-global--Color--400);
   }
 }
 
 /* Set min width for services in the journal view */
-#journal .cockpit-logline {
+.journal-filters .cockpit-logline {
   --log-service-min: 8rem;
-}
-
-#accordion-markup {
-  margin-block-end: 0;
 }
 
 .pf-v5-c-toolbar {
@@ -122,7 +118,7 @@
   }
 
   // Make text filter stretch to all the available space
-  .pf-v5-c-toolbar__item.text-search, #journal-grep {
+  .pf-v5-c-toolbar__item.text-search, .journal-filters-grep {
     flex-grow: 1;
   }
 
@@ -131,7 +127,7 @@
   }
 
   // Hide filters from advanced search dropdown entries which already exist in the toolbar
-  #journal-grep .pf-v5-c-panel__main-body {
+  .journal-filters-grep .pf-v5-c-panel__main-body {
     .pf-v5-c-form__group:nth-child(5), .pf-v5-c-form__group:nth-child(6) {
       display: none;
     }

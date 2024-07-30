@@ -590,9 +590,10 @@ class TestHistoryMetrics(testlib.MachineCase):
             m.execute("firewall-cmd --reload")
 
         redis = customRedisService or redisService(m.image)
+        redis_service = f"{redis}.target" if "suse" in m.image else f"{redis}.service"
         hostname = m.execute("hostname").strip()
 
-        self.addCleanup(m.execute, f"systemctl disable --now {redis}")
+        self.addCleanup(m.execute, f"systemctl disable --now {redis_service}")
 
         def checkEnable(firewalld_alert):
             b.click("#metrics-header-section button.pf-m-secondary")
@@ -607,7 +608,7 @@ class TestHistoryMetrics(testlib.MachineCase):
                 b.wait_not_present(".pf-v5-c-alert:contains(pmproxy)")
             m.execute('while [ $(systemctl is-active pmproxy) = activating ]; do sleep 1; done')
             self.assertEqual(m.execute("systemctl is-active pmproxy").strip(), "active")
-            self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
+            self.assertEqual(m.execute(f"systemctl is-active {redis_service}").strip(), "active")
             self.assertEqual(m.execute("systemctl is-enabled pmproxy").strip(), "enabled")
             self.assertIn(redis, m.execute("systemctl show -p Wants --value pmproxy").strip())
             testlib.wait(lambda: hostname in m.execute("curl --max-time 10 --silent --show-error 'http://localhost:44322/series/labels?names=hostname'"), delay=10, tries=30)
@@ -624,13 +625,13 @@ class TestHistoryMetrics(testlib.MachineCase):
             self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
             self.assertEqual(m.execute("! systemctl is-enabled pmproxy").strip(), "disabled")
             # keeps redis running, it's a shared service
-            self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
+            self.assertEqual(m.execute(f"systemctl is-active {redis_service}").strip(), "active")
             # but drops the pmproxy dependency
             self.assertNotIn(redis, m.execute("systemctl show -p Wants --value pmproxy").strip())
             m.execute("! curl --silent --show-error --max-time 10 'http://localhost:44322/series/labels?names=hostname' 2>&1")
 
         # start in a defined state; all test images have pcp and redis pre-installed
-        m.execute(f"systemctl disable --now pmlogger pmie pmproxy {redis}")
+        m.execute(f"systemctl disable --now pmlogger pmie pmproxy {redis_service}")
         m.execute("systemctl reset-failed")
         # ensure pmproxy is not already opened in firewall
         m.execute("firewall-cmd --remove-service pmproxy; firewall-cmd --permanent --remove-service pmproxy")
@@ -654,12 +655,12 @@ class TestHistoryMetrics(testlib.MachineCase):
         checkDisable()
 
         # redis already running
-        m.execute(f"systemctl start {redis}")
+        m.execute(f"systemctl start {redis_service}")
         checkEnable(firewalld_alert=True)
         checkDisable()
 
         # pmproxy already running; 44322 queries hang without redis and until restart
-        m.execute(f"systemctl disable --now {redis}; systemctl start pmproxy")
+        m.execute(f"systemctl disable --now {redis_service}; systemctl start pmproxy")
         checkEnable(firewalld_alert=True)
 
         # without firewalld
@@ -738,9 +739,9 @@ class TestHistoryMetrics(testlib.MachineCase):
             else:
                 raise testlib.Error("PCP settings dialog did not get expected value")
 
-        m.execute(f"systemctl stop {redis}")
+        m.execute(f"systemctl stop {redis_service}")
         checkEnabled(expected=False)
-        m.execute(f"systemctl start {redis}")
+        m.execute(f"systemctl start {redis_service}")
         checkEnabled(expected=True)
         m.execute("systemctl stop pmproxy")
         checkEnabled(expected=False)

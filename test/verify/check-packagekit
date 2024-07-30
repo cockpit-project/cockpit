@@ -1680,7 +1680,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
             b.wait_not_present("#settings")
             b.wait_not_present("#autoupdates-settings")
 
-    @testlib.skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch", "opensuse-tumbleweed")
     def testInstall(self):
         b = self.browser
         m = self.machine

@@ -228,6 +228,17 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")
 
+        # Test popover in advanced search
+        b.click("#journal-grep button[aria-label='Open advanced search']")
+        b.assert_pixels(".pf-v5-c-panel", "logs-filter-panel", skip_layouts=["mobile"])
+
+        b.click(".pf-v5-c-form__group:contains('Since') button")
+        b.wait_text(".pf-v5-c-popover__title-text", "Start showing entries on or newer than the specified date.")
+        b.click(".pf-v5-c-popover__close button")
+        b.wait_not_present(".pf-v5-c-popover")
+        b.click("#journal-grep button[aria-label='Open advanced search']")
+        b.wait_not_present("#journal-cmd-copy")
+
         # Test following
         m.execute("logger --tag test-stream Message 1")
         m.execute("logger --tag test-stream Message 2")
@@ -251,6 +262,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         # Test message filtering
 
         b.focus("#journal-grep input")
+
         b.input_text("1")
         b.click("#journal-grep button[aria-label=Search]")
 

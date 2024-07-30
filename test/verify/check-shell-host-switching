@@ -468,7 +468,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         # On Firefox the popup window cannot be targeted nor with mouse nor keayboard
         # On Chomium it is possible to tab-navigate through the color selector
         # So tab to RGB inputs and type in zeros
-        if b.cdp.browser.name == "chromium":
+        if b.browser == "chromium":
             b.focus("input[type=color]")
             b.click("input[type=color]")
             time.sleep(1)  # We cannot wait until the popup opens up, so just little of waiting
@@ -497,12 +497,12 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
         b.wait_val('#add-machine-address', "10.111.113.3")
-        if b.cdp.browser.name == "chromium":
+        if b.browser == "chromium":
             self.assertEqual(b.attr("input[type=color]", "value"), "#000000")
         b.wait_val('#add-machine-user', 'franz')
         b.set_input_text('#add-machine-address', "10.111.113.2")
         b.set_input_text('#add-machine-user', 'admin')
-        if b.cdp.browser.name == "chromium":
+        if b.browser == "chromium":
             self.assertNotEqual(b.attr("input[type=color]", "value"), "#000000")
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")

@@ -1419,6 +1419,8 @@ class TestMultiCPU(testlib.MachineCase):
 
 @testlib.skipOstree("no PCP support")
 @testlib.skipImage("pcp not currently in testing", "debian-testing")
+# FIXME: Works with TEST_SHOW_BROWSER; not obvious what happens
+@testlib.skipBrowser("Headless chromium spontaneously logs out Grafana", "chromium")
 class TestGrafanaClient(testlib.MachineCase):
 
     provision = {

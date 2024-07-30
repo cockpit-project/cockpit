@@ -18,6 +18,7 @@
 """Tools for writing Cockpit test cases."""
 
 import argparse
+import asyncio
 import base64
 import contextlib
 import errno
@@ -25,6 +26,7 @@ import fnmatch
 import glob
 import io
 import json
+import logging
 import os
 import re
 import shutil
@@ -32,13 +34,15 @@ import socket
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import traceback
 import unittest
-from collections.abc import Collection, Container, Iterator, Mapping, Sequence
-from typing import Any, Callable, ClassVar, Literal, Never, TypedDict, TypeVar
+from collections.abc import Collection, Container, Coroutine, Iterator, Mapping, Sequence
+from pathlib import Path
+from typing import Any, Callable, ClassVar, Literal, TypedDict, TypeVar
 
-import cdp
+import webdriver_bidi
 from lcov import write_lcov
 from lib.constants import OSTREE_IMAGES
 from machine import testvm
@@ -46,6 +50,8 @@ from PIL import Image
 
 _T = TypeVar('_T')
 _FT = TypeVar("_FT", bound=Callable[..., Any])
+
+JsonObject = dict[str, Any]
 
 BASE_DIR = os.path.realpath(f'{__file__}/../../..')
 TEST_DIR = f'{BASE_DIR}/test'
@@ -90,6 +96,25 @@ opts.address = None
 opts.jobs = 1
 opts.fetch = True
 opts.coverage = False
+
+
+# https://w3c.github.io/webdriver/#keyboard-actions for encoding key names
+WEBDRIVER_KEYS = {
+    "Backspace": "\uE003",
+    "Tab": "\uE004",
+    "Return": "\uE006",
+    "Enter": "\uE007",
+    "Shift": "\uE008",
+    "Control": "\uE009",
+    "Alt": "\uE00A",
+    "Escape": "\uE00C",
+    "ArrowLeft": "\uE012",
+    "ArrowUp": "\uE013",
+    "ArrowRight": "\uE014",
+    "ArrowDown": "\uE015",
+    "Insert": "\uE016",
+    "Delete": "\uE017",
+}
 
 
 # Browser layouts
@@ -185,6 +210,8 @@ def unique_filename(base: str, ext: str) -> str:
 
 
 class Browser:
+    driver: webdriver_bidi.WebdriverBidi
+    browser: str
     layouts: Sequence[BrowserLayout]
     current_layout: BrowserLayout | None
     port: str | int
@@ -211,39 +238,97 @@ class Browser:
         self.used_pixel_references = set[str]()
         self.coverage_label = coverage_label
         self.machine = machine
-        path = os.path.dirname(__file__)
-        sizzle_js = os.path.join(path, "../../node_modules/sizzle/dist/sizzle.js")
-        helpers = [os.path.join(path, "test-functions.js")]
-        if os.path.exists(sizzle_js):
-            helpers.append(sizzle_js)
-        self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
-                           inject_helpers=helpers,
-                           start_profile=coverage_label is not None)
+
+        headless = not bool(os.environ.get("TEST_SHOW_BROWSER", ""))
+        self.browser = os.environ.get("TEST_BROWSER", "chromium")
+        if self.browser == "chromium":
+            self.driver = webdriver_bidi.ChromiumBidi(headless=headless)
+        elif self.browser == "firefox":
+            self.driver = webdriver_bidi.FirefoxBidi(headless=headless)
+        else:
+            raise ValueError(f"unknown browser {self.browser}")
+        self.loop = asyncio.new_event_loop()
+        self.bidi_thread = threading.Thread(target=self.asyncio_loop_thread, args=(self.loop,))
+        self.bidi_thread.start()
+
+        self.run_async(self.driver.start_session())
+
+        if opts.trace:
+            logging.basicConfig(level=logging.INFO)
+            webdriver_bidi.log_command.setLevel(logging.INFO if opts.trace else logging.WARNING)
+            # not appropriate for --trace, just enable for debugging low-level protocol with browser
+            # bidiwebdriver_.log_proto.setLevel(logging.DEBUG)
+
+        test_functions = (Path(__file__).parent / "test-functions.js").read_text()
+        # Don't redefine globals, this confuses Firefox
+        test_functions = "if (window.ph_select) return; " + test_functions
+        self.bidi("script.addPreloadScript", quiet=True, functionDeclaration=f"() => {{ {test_functions} }}")
+
+        try:
+            sizzle_js = (Path(__file__).parent.parent.parent / "node_modules/sizzle/dist/sizzle.js").read_text()
+            # HACK: injecting sizzle fails on missing `document` in assert()
+            sizzle_js = sizzle_js.replace('function assert( fn ) {',
+                                          'function assert( fn ) { if (true) return true; else ')
+            # HACK: sizzle tracks document and when we switch frames, it sees the old document
+            # although we execute it in different context.
+            sizzle_js = sizzle_js.replace('context = context || document;', 'context = context || window.document;')
+            self.bidi("script.addPreloadScript", quiet=True, functionDeclaration=f"() => {{ {sizzle_js} }}")
+        except FileNotFoundError:
+            pass
+
+        if coverage_label:
+            self.cdp_command("Profiler.enable")
+            self.cdp_command("Profiler.startPreciseCoverage", callCount=False, detailed=True)
+
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
+        self.timeout = 15
         self.failed_pixel_tests = 0
         self.allow_oops = False
-        self.body_clip = None
         try:
             with open(f'{TEST_DIR}/browser-layouts.json') as fp:
                 self.layouts = json.load(fp)
         except FileNotFoundError:
             self.layouts = default_layouts
-        # Firefox CDP does not support setting EmulatedMedia
-        # https://bugzilla.mozilla.org/show_bug.cgi?id=1549434
-        if self.cdp.browser.name != "chromium":
-            self.layouts = [layout for layout in self.layouts if layout["theme"] != "dark"]
         self.current_layout = None
+        self.valid = True
 
-        # we don't have a proper SSL certificate for our tests, ignore it
-        # Firefox does not support this, tests which rely on it need to skip it
-        if self.cdp.browser.name == "chromium":
-            self.cdp.command("setSSLBadCertificateAction('continue')")
+    def run_async(self, coro: Coroutine[Any, Any, Any]) -> JsonObject:
+        """Run coro in main loop in our BiDi thread
 
-    def allow_download(self) -> None:
-        """Allow browser downloads"""
-        if self.cdp.browser.name == "chromium":
-            self.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=self.cdp.download_dir)
+        Wait for the result and return it.
+        """
+        return asyncio.run_coroutine_threadsafe(coro, self.loop).result()
+
+    @staticmethod
+    def asyncio_loop_thread(loop: asyncio.AbstractEventLoop) -> None:
+        asyncio.set_event_loop(loop)
+        loop.run_forever()
+
+    def kill(self) -> None:
+        if not self.valid:
+            return
+        self.run_async(self.driver.close())
+        self.loop.call_soon_threadsafe(self.loop.stop)
+        self.bidi_thread.join()
+        self.valid = False
+
+    def bidi(self, method: str, **params: Any) -> webdriver_bidi.JsonObject:
+        """Send a Webdriver BiDi command and return the JSON response"""
+
+        try:
+            return self.run_async(self.driver.bidi(method, **params))
+        except webdriver_bidi.WebdriverError as e:
+            raise Error(str(e)) from None
+
+    def cdp_command(self, method: str, **params: Any) -> webdriver_bidi.JsonObject:
+        """Send a Chrome DevTools Protocol command and return the JSON response"""
+
+        if self.browser == "chromium":
+            assert isinstance(self.driver, webdriver_bidi.ChromiumBidi)
+            return self.run_async(self.driver.cdp(method, **params))
+        else:
+            raise webdriver_bidi.WebdriverError("CDP is only supported in Chromium")
 
     def open(self, href: str, cookie: Mapping[str, str] | None = None, tls: bool = False) -> None:
         """Load a page into the browser.
@@ -264,14 +349,15 @@ class Browser:
             size = self.current_layout["shell_size"]
             self._set_window_size(size[0], size[1])
         if cookie:
-            self.cdp.invoke("Network.setCookie", **cookie)
+            c = {**cookie, "value": {"type": "string", "value": cookie["value"]}}
+            self.bidi("storage.setCookie", cookie=c)
 
         self.switch_to_top()
         # Some browsers optimize this away if the current URL is already href
         # (e.g. in TestKeys.testAuthorizedKeys). Load the blank page first to always
         # force a load.
-        self.cdp.invoke("Page.navigate", url="about:blank")
-        self.cdp.invoke("Page.navigate", url=href)
+        self.bidi("browsingContext.navigate", context=self.driver.context, url="about:blank", wait="complete")
+        self.bidi("browsingContext.navigate", context=self.driver.context, url=href, wait="complete")
 
     def set_user_agent(self, ua: str) -> None:
         """Set the user agent of the browser
@@ -279,7 +365,10 @@ class Browser:
         :param ua: user agent string
         :type ua: str
         """
-        self.cdp.invoke("Emulation.setUserAgentOverride", userAgent=ua)
+        if self.browser == "chromium":
+            self.cdp_command("Emulation.setUserAgentOverride", userAgent=ua)
+        else:
+            raise NotImplementedError
 
     def reload(self, ignore_cache: bool = False) -> None:
         """Reload the current page
@@ -289,8 +378,15 @@ class Browser:
         """
 
         self.switch_to_top()
-        self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
-        self.cdp.invoke("Page.reload", ignoreCache=ignore_cache)
+        self.wait_js_cond("ph_select('iframe.container-frame').every(e => e.getAttribute('data-loaded'))")
+        if self.browser == "firefox":
+            if ignore_cache:
+                webdriver_bidi.log_command.warning(
+                    "Browser.reload(): ignore_cache==True not yet supported with Firefox, ignoring")
+            self.bidi("browsingContext.reload", context=self.driver.context, wait="complete")
+        else:
+            self.bidi("browsingContext.reload", context=self.driver.context, ignoreCache=ignore_cache,
+                      wait="complete")
 
         self.machine.allow_restart_journal_messages()
 
@@ -302,14 +398,23 @@ class Browser:
 
         :param name: frame name
         """
-        self.cdp.set_frame(name)
+        if name is None:
+            self.switch_to_top()
+        else:
+            self.run_async(self.driver.switch_to_frame(name))
 
     def switch_to_top(self) -> None:
         """Switch to the main frame
 
         Switch to the main frame from for example an iframe.
         """
-        self.cdp.set_frame(None)
+        self.driver.switch_to_top()
+
+    def allow_download(self) -> None:
+        """Allow browser downloads"""
+        # this is only necessary for headless chromium
+        if self.browser == "chromium":
+            self.cdp_command("Page.setDownloadBehavior", behavior="allow", downloadPath=str(self.driver.download_dir))
 
     def upload_files(self, selector: str, files: Sequence[str]) -> None:
         """Upload a local file to the browser
@@ -317,23 +422,8 @@ class Browser:
         The selector should select the <input type="file"/> element.
         Files is a list of absolute paths to files which should be uploaded.
         """
-        r = self.cdp.invoke("Runtime.evaluate", expression='document.querySelector(%s)' % jsquote(selector))
-        objectId = r["result"]["objectId"]
-        self.cdp.invoke("DOM.setFileInputFiles", files=files, objectId=objectId)
-
-    def raise_cdp_exception(
-        self, func: str, arg: str, details: Mapping[str, Any], trailer: str | None = None
-    ) -> Never:
-        # unwrap a typical error string
-        if details.get("exception", {}).get("type") == "string":
-            msg = details["exception"]["value"]
-        elif details.get("text", None):
-            msg = details.get("text", None)
-        else:
-            msg = str(details)
-        if trailer:
-            msg += "\n" + trailer
-        raise Error("%s(%s): %s" % (func, arg, msg))
+        element = self.eval_js(f"ph_find({jsquote(selector)})")
+        self.bidi("input.setFiles", context=self.driver.context, element=element, files=files)
 
     def inject_js(self, code: str) -> None:
         """Execute JS code that does not return anything
@@ -341,8 +431,8 @@ class Browser:
         :param code: a string containing JavaScript code
         :type code: str
         """
-        self.cdp.invoke("Runtime.evaluate", expression=code, trace=code,
-                        silent=False, awaitPromise=True, returnByValue=False, no_trace=True)
+        # this is redundant now; the difference used to be important with CDP
+        self.eval_js(code)
 
     def eval_js(self, code: str, no_trace: bool = False) -> Any:
         """Execute JS code that returns something
@@ -350,21 +440,8 @@ class Browser:
         :param code: a string containing JavaScript code
         :param no_trace: do not print information about unknown return values (default False)
         """
-        result = self.cdp.invoke("Runtime.evaluate", expression=code, trace=code,
-                                 silent=False, awaitPromise=True, returnByValue=True, no_trace=no_trace)
-        if "exceptionDetails" in result:
-            self.raise_cdp_exception("eval_js", code, result["exceptionDetails"])
-        _type = result.get("result", {}).get("type")
-        if _type == 'object' and result["result"].get("subtype", "") == "error":
-            raise Error(result["result"]["description"])
-        if _type == "undefined":
-            return None
-        if _type and "value" in result["result"]:
-            return result["result"]["value"]
-
-        if opts.trace:
-            print("eval_js(%s): cannot interpret return value %s" % (code, result))
-        return None
+        return self.bidi("script.evaluate", expression=code, quiet=no_trace,
+                         awaitPromise=True, target={"context": self.driver.context})["result"]
 
     def call_js_func(self, func: str, *args: object) -> Any:
         """Call a JavaScript function
@@ -396,11 +473,13 @@ class Browser:
         :param name: the name of the cookie
         :type name: str
         """
-        cookies = self.cdp.invoke("Network.getCookies")
-        for c in cookies["cookies"]:
-            assert isinstance(c, Mapping)
-            if c["name"] == name:
-                return c
+        cookies = self.bidi("storage.getCookies", filter={"name": name})["cookies"]
+        if len(cookies) > 0:
+            c = cookies[0]
+            # if we ever need to handle "base64", add that
+            assert c["value"]["type"] == "string"
+            c["value"] = c["value"]["value"]
+            return c
         return None
 
     def go(self, url_hash: str) -> None:
@@ -439,7 +518,7 @@ class Browser:
 
         :param selector: the selector to click on
         """
-        self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "click", 0, 0, 0)
+        self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "click")
 
     def val(self, selector: str) -> Any:
         """Get the value attribute of a selector.
@@ -502,8 +581,10 @@ class Browser:
         :param selector: the selector
         :param val: boolean value to enable or disable checkbox
         """
-        self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
-        self.call_js_func('ph_set_checked', selector, val)
+        # avoid ph_set_checked, that doesn't use proper mouse emulation
+        checked = self.get_checked(selector)
+        if checked != val:
+            self.click(selector)
 
     def focus(self, selector: str) -> None:
         """Set focus on selected element.
@@ -522,43 +603,37 @@ class Browser:
         self.call_js_func('ph_blur', selector)
 
     def input_text(self, text: str) -> None:
-        for char in text:
-            if char == "\n":
-                self.key("Enter")
-            else:
-                self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", text=char, key=char)
-                self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", text=char, key=char)
+        actions = []
+        for c in text:
+            actions.append({"type": "keyDown", "value": c})
+            actions.append({"type": "keyUp", "value": c})
+        self.bidi("input.performActions", context=self.driver.context, actions=[
+            {"type": "key", "id": "key-0", "actions": actions}])
 
-    def key(self, name: str, repeat: int = 1, modifiers: int = 0) -> None:
+    def key(self, name: str, repeat: int = 1, modifiers: list[str] | None = None) -> None:
         """Press and release a named keyboard key.
 
         Use this function to input special characters or modifiers.
 
-        :param name: key name like "Enter", "Delete", or "ArrowLeft"
+        :param name: ASCII value or key name like "Enter", "Delete", or "ArrowLeft" (entry in WEBDRIVER_KEYS)
         :param repeat: number of times to repeat this key (default 1)
-        :param modifiers: bit field: Alt=1, Ctrl=2, Meta/Command=4, Shift=8
+        :param modifiers: "Shift", "Control", "Alt"
         """
-        args: dict[str, int | str] = {}
-        if self.cdp.browser.name == "chromium":
-            # HACK: chromium doesn't understand some key codes in some situations
-            win_keys = {
-                "Backspace": 8,
-                "Enter": 13,
-                "Escape": 27,
-                "ArrowDown": 40,
-                "Insert": 45,
-            }
-            if name in win_keys:
-                args["windowsVirtualKeyCode"] = win_keys[name]
-            if name == 'Enter':
-                args["text"] = '\r'
-            # HACK: chromium needs windowsVirtualKeyCode with modifiers
-            elif len(name) == 1 and name.isalnum() and modifiers != 0:
-                args["windowsVirtualKeyCode"] = ord(name.upper())
+        actions = []
+        actions_pre = []
+        actions_post = []
+        keycode = WEBDRIVER_KEYS.get(name, name)
+
+        for m in (modifiers or []):
+            actions_pre.append({"type": "keyDown", "value": WEBDRIVER_KEYS[m]})
+            actions_post.append({"type": "keyUp", "value": WEBDRIVER_KEYS[m]})
 
         for _ in range(repeat):
-            self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", key=name, modifiers=modifiers, **args)
-            self.cdp.invoke("Input.dispatchKeyEvent", type="keyUp", key=name, modifiers=modifiers, **args)
+            actions.append({"type": "keyDown", "value": keycode})
+            actions.append({"type": "keyUp", "value": keycode})
+
+        self.bidi("input.performActions", context=self.driver.context, actions=[
+            {"type": "key", "id": "key-0", "actions": actions_pre + actions + actions_post}])
 
     def select_from_dropdown(self, selector: str, value: object) -> None:
         """For an actual <select> HTML component"""
@@ -592,7 +667,7 @@ class Browser:
     ) -> None:
         self.focus(selector)
         if not append:
-            self.key("a", modifiers=2)  # Ctrl + a
+            self.key("a", modifiers=["Control"])
         if val == "":
             self.key("Backspace")
         else:
@@ -611,13 +686,13 @@ class Browser:
 
     @contextlib.contextmanager
     def wait_timeout(self, timeout: int) -> Iterator[None]:
-        old_timeout = self.cdp.timeout
-        self.cdp.timeout = timeout
+        old_timeout = self.timeout
+        self.timeout = timeout
         yield
-        self.cdp.timeout = old_timeout
+        self.timeout = old_timeout
 
     def wait(self, predicate: Callable[[], _T | None]) -> _T:
-        for _ in range(self.cdp.timeout * self.timeout_factor * 5):
+        for _ in range(self.timeout * self.timeout_factor * 5):
             val = predicate()
             if val:
                 return val
@@ -625,33 +700,45 @@ class Browser:
         raise Error('timed out waiting for predicate to become true')
 
     def wait_js_cond(self, cond: str, error_description: str = "null") -> None:
-        count = 0
-        timeout = self.cdp.timeout * self.timeout_factor
+        timeout = self.timeout * self.timeout_factor
         start = time.time()
-        while True:
-            count += 1
+        last_error = None
+        for _retry in range(5):
             try:
-                result = self.cdp.invoke("Runtime.evaluate",
-                                         expression="ph_wait_cond(() => %s, %i, %s)" % (cond, timeout * 1000, error_description),
-                                         silent=False, awaitPromise=True, trace="wait: " + cond)
-                if "exceptionDetails" in result:
-                    if self.cdp.browser.name == "firefox" and count < 20 and "ph_wait_cond is not defined" in result["exceptionDetails"].get("text", ""):
-                        time.sleep(0.1)
-                        continue
-                    trailer = "\n".join(self.cdp.get_js_log())
-                    self.raise_cdp_exception("timeout\nwait_js_cond", cond, result["exceptionDetails"], trailer)
-                if timeout > 0:
-                    duration = time.time() - start
-                    percent = int(duration / timeout * 100)
-                    if percent >= 50:
-                        print(f"WARNING: Waiting for {cond} took {duration:.1f} seconds, which is {percent}% of the timeout.")
+                self.bidi("script.evaluate",
+                          expression=f"ph_wait_cond(() => {cond}, {timeout * 1000}, {error_description})",
+                          awaitPromise=True, timeout=timeout + 5, target={"context": self.driver.context})
+
+                duration = time.time() - start
+                percent = int(duration / timeout * 100)
+                if percent >= 50:
+                    print(f"WARNING: Waiting for {cond} took {duration:.1f} seconds, which is {percent}% of the timeout.")
                 return
-            except RuntimeError as e:
-                data = e.args[0]
-                if count < 20 and isinstance(data, dict) and "response" in data and data["response"].get("message") in ["Execution context was destroyed.", "Cannot find context with specified id"]:
-                    time.sleep(1)
-                else:
-                    raise e
+            except Error as e:
+                last_error = e
+                # rewrite exception to have more context, also for compatibility with existing naughties
+                if "condition did not become true" in e.msg:
+                    raise Error(f"timeout\nwait_js_cond({cond}): {e.msg}") from None
+
+                # can happen when waiting across page reloads
+                if any(pattern in str(e) for pattern in [
+                    # during page loading
+                    "is not a function",
+                    # chromium
+                    "Execution context was destroyed",
+                    "Cannot find context",
+                    # firefox
+                    "MessageHandlerFrame' destroyed",
+                   ]):
+                    if time.time() - start < timeout:
+                        webdriver_bidi.log_command.info("wait_js_cond: Ignoring/retrying %r", e)
+                        time.sleep(1)
+                        continue
+
+                break
+
+        assert last_error
+        raise last_error
 
     def wait_js_func(self, func: str, *args: object) -> None:
         self.wait_js_cond("%s(%s)" % (func, ','.join(map(jsquote, args))))
@@ -684,7 +771,7 @@ class Browser:
         self._wait_present(selector)
         self.wait_js_func('ph_has_attr', selector, attr, val)
 
-    def wait_attr_contains(self, selector: str, attr: str, val: object) -> None:
+    def wait_attr_contains(self, selector: str, attr: str, val: str) -> None:
         self._wait_present(selector)
         self.wait_js_func('ph_attr_contains', selector, attr, val)
 
@@ -932,7 +1019,7 @@ class Browser:
         password: str | None = None,
         passwordless: bool | None = False
     ) -> None:
-        cur_frame = self.cdp.cur_frame
+        cur_context = self.driver.context
         self.switch_to_top()
 
         self.open_superuser_dialog()
@@ -955,10 +1042,10 @@ class Browser:
         self.wait_not_present("div[role=dialog]")
 
         self.check_superuser_indicator("Administrative access")
-        self.switch_to_frame(cur_frame)
+        self.driver.context = cur_context
 
     def drop_superuser(self) -> None:
-        cur_frame = self.cdp.cur_frame
+        cur_context = self.driver.context
         self.switch_to_top()
 
         self.open_superuser_dialog()
@@ -967,7 +1054,7 @@ class Browser:
         self.wait_not_present("div[role=dialog]")
         self.check_superuser_indicator("Limited access")
 
-        self.switch_to_frame(cur_frame)
+        self.driver.context = cur_context
 
     def click_system_menu(self, path: str, enter: bool = True) -> None:
         """Click on a "System" menu entry with given URL path
@@ -1025,10 +1112,12 @@ class Browser:
 
     def grant_permissions(self, *args: str) -> None:
         """Grant permissions to the browser"""
-        # https://chromedevtools.github.io/devtools-protocol/tot/Browser/#method-grantPermissions
-        self.cdp.invoke("Browser.grantPermissions",
-                        origin="http://%s:%s" % (self.address, self.port),
-                        permissions=args)
+
+        # BiDi permission extension:
+        # https://www.w3.org/TR/permissions/#automation-webdriver-bidi
+        for perm in args:
+            self.bidi("permissions.setPermission", descriptor={"name": perm}, state="granted",
+                      origin=f"http://{self.address}:{self.port}")
 
     def snapshot(self, title: str, label: str | None = None) -> None:
         """Take a snapshot of the current screen and save it as a PNG and HTML.
@@ -1036,46 +1125,43 @@ class Browser:
         Arguments:
             title: Used for the filename.
         """
-        if self.cdp and self.cdp.valid:
-            self.cdp.command("clearExceptions()")
-
+        if self.valid:
             filename = unique_filename(f"{label or self.label}-{title}", "png")
-            if self.body_clip:
-                ret = self.cdp.invoke("Page.captureScreenshot", clip=self.body_clip, no_trace=True)
-            else:
-                ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
-            if "data" in ret:
+            try:
+                ret = self.bidi("browsingContext.captureScreenshot", quiet=True,
+                                context=self.driver.top_context, origin="document")
                 with open(filename, 'wb') as f:
                     f.write(base64.standard_b64decode(ret["data"]))
                 attach(filename, move=True)
                 print("Wrote screenshot to " + filename)
-            else:
-                print("Screenshot not available")
+            except Error as e:
+                print("Screenshot not available:", e)
 
             filename = unique_filename(f"{label or self.label}-{title}", "html")
-            html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",
-                                   no_trace=True)["result"]["value"]
-            with open(filename, 'wb') as f:
-                f.write(html.encode())
-            attach(filename, move=True)
-            print("Wrote HTML dump to " + filename)
+            try:
+                html = self.eval_js("document.documentElement.outerHTML", no_trace=True)
+                with open(filename, 'wb') as f:
+                    f.write(html.encode())
+                attach(filename, move=True)
+                print("Wrote HTML dump to " + filename)
+            except Error as e:
+                print("HTML dump not available:", e)
 
     def _set_window_size(self, width: int, height: int) -> None:
-        self.cdp.invoke("Emulation.setDeviceMetricsOverride",
-                        width=width, height=height,
-                        deviceScaleFactor=0, mobile=False)
+        self.bidi("browsingContext.setViewport", context=self.driver.top_context,
+                  viewport={"width": width, "height": height})
 
     def _set_emulated_media_theme(self, name: str) -> None:
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1549434
-        if self.cdp.browser.name == "chromium":
-            self.cdp.invoke("Emulation.setEmulatedMedia", features=[{'name': 'prefers-color-scheme', 'value': name}])
+        if self.browser == "chromium":
+            self.cdp_command("Emulation.setEmulatedMedia", features=[{'name': 'prefers-color-scheme', 'value': name}])
 
     def _set_direction(self, direction: str) -> None:
-        cur_frame = self.cdp.cur_frame
+        cur_context = self.driver.context
         if self.is_present("#shell-page"):
             self.switch_to_top()
             self.set_attr("#shell-page", "dir", direction)
-        self.switch_to_frame(cur_frame)
+        self.driver.context = cur_context
         self.set_attr("html", "dir", direction)
 
     def set_layout(self, name: str) -> None:
@@ -1182,7 +1268,10 @@ class Browser:
         filename = base + "-pixels.png"
         ref_filename = os.path.join(reference_dir, filename)
         self.used_pixel_references.add(ref_filename)
-        ret = self.cdp.invoke("Page.captureScreenshot", clip=rect, no_trace=True)
+        rect["type"] = "box"
+        ret = self.bidi("browsingContext.captureScreenshot", quiet=True,
+                        context=self.driver.top_context,
+                        clip=rect)
         png_now = base64.standard_b64decode(ret["data"])
         png_ref = os.path.exists(ref_filename) and open(ref_filename, "rb").read()
         if not png_ref:
@@ -1298,7 +1387,6 @@ class Browser:
         # If the page overflows make sure to not show a scrollbar
         # Don't apply this hack for login and terminal and shell as they don't use PF Page
         if not self.is_present("#shell-page") and not self.is_present("#login-details") and not self.is_present("#system-terminal-page"):
-            self.switch_to_frame(self.cdp.cur_frame)
             classes = self.attr("main", "class")
             if "pf-v5-c-page__main" in classes:
                 self.set_attr("main.pf-v5-c-page__main", "class", f"{classes} pixel-test")
@@ -1333,14 +1421,14 @@ class Browser:
     def get_js_log(self) -> Sequence[str]:
         """Return the current javascript log"""
 
-        if self.cdp:
-            return self.cdp.get_js_log()
+        if self.valid:
+            return [str(log) for log in self.driver.logs]
         return []
 
     def copy_js_log(self, title: str, label: str | None = None) -> None:
         """Copy the current javascript log"""
 
-        logs = list(self.get_js_log())
+        logs = self.get_js_log()
         if logs:
             filename = unique_filename(f"{label or self.label}-{title}", "js.log")
             with open(filename, 'wb') as f:
@@ -1348,19 +1436,16 @@ class Browser:
             attach(filename, move=True)
             print("Wrote JS log to " + filename)
 
-    def kill(self) -> None:
-        self.cdp.kill()
-
     def write_coverage_data(self) -> None:
-        if self.coverage_label and self.cdp and self.cdp.valid:
-            coverage = self.cdp.invoke("Profiler.takePreciseCoverage")
+        if self.coverage_label and self.valid:
+            coverage = self.cdp_command("Profiler.takePreciseCoverage")["result"]
             write_lcov(coverage['result'], self.coverage_label)
 
     def assert_no_oops(self) -> None:
         if self.allow_oops:
             return
 
-        if self.cdp and self.cdp.valid:
+        if self.valid:
             self.switch_to_top()
             if self.eval_js("!!document.getElementById('navbar-oops')"):
                 assert not self.is_visible("#navbar-oops"), "Cockpit shows an Oops"
@@ -2059,7 +2144,7 @@ class MachineCase(unittest.TestCase):
         if self.browser is not None:
             try:
                 self.browser.snapshot(title, label)
-            except RuntimeError:
+            except Error:
                 # this usually runs in exception handlers; raising an exception here skips cleanup handlers, so don't
                 sys.stderr.write("Unexpected exception in snapshot():\n")
                 sys.stderr.write(traceback.format_exc())

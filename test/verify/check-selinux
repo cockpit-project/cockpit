@@ -207,11 +207,7 @@ class TestSelinux(testlib.MachineCase):
         b.click(dismiss_sel)
         b.wait_not_present(row_selector)
 
-        try:
-            b.grant_permissions("clipboardReadWrite", "clipboardSanitizedWrite")
-        except RuntimeError:
-            # fallback for older Chrome releases
-            b.grant_permissions("clipboardRead", "clipboardWrite")
+        b.grant_permissions("clipboard-read", "clipboard-write")
 
         b.wait_visible(".pf-v5-c-data-list__cell:contains(Allow zebra)")
         b.wait_visible(".pf-v5-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")

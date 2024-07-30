@@ -598,7 +598,8 @@ class TestConnection(testlib.MachineCase):
 
         # non-admin user
         m.execute("useradd -m user")
-        m.execute("groupadd user")
+        if "user" not in m.execute("cat /etc/group"):
+            m.execute("groupadd user")
         m.execute("usermod -a -G user user")
 
         # enable no-password login for 'admin' and 'user'

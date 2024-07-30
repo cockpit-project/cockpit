@@ -212,10 +212,11 @@ select.pf-v5-c-form-control {
   gap: var(--pf-v5-l-flex--spacer-base);
 
   &:not([class*="pf-m-space-items-"]) {
+    gap: var(--pf-v5-l-flex--spacer--md);
+
     > * {
       --pf-v5-l-flex--spacer--column: 0;
     }
-    gap: var(--pf-v5-l-flex--spacer--md);
   }
 
   // Negate the margin hack used by immediate flex children

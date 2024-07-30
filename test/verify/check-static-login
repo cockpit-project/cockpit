@@ -540,7 +540,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         m.start_cockpit()
         # pretend browser doesn't support a required capability
-        b.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source="window.WebSocket = undefined;")
+        b.bidi("script.addPreloadScript", functionDeclaration="""() => {
+               window.WebSocket = undefined; }""")
         b.open("/system")
         b.wait_visible("#unsupported-browser")
         b.wait_not_visible("#login-fatal")
@@ -552,9 +553,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b = self.browser
 
         m.start_cockpit()
-        b.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source="""
-          window.CSS.supports = function() { return false; };
-        """)
+        b.bidi("script.addPreloadScript", functionDeclaration="""() => {
+               window.CSS.supports = () => false; }""")
         b.open("/system")
         b.wait_visible("#unsupported-browser")
         b.wait_in_text("#bypass-browser-check", "Bypass browser check")

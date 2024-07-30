@@ -254,7 +254,8 @@ OnCalendar=daily
         b.wait_visible('#password-group')
         b.wait_text("#password-group > label", "Passwort")
 
-    @testlib.onlyImage("Enough to test on one OS, not OS specific", "rhel-9*")
+    # FIXME: Works with TEST_SHOW_BROWSER; not obvious what happens
+    @testlib.skipBrowser("Headless chromium spontaneously logs out", "chromium")
     def testAllLanguages(self):
         # Test that pages do not oops
         m = self.machine
@@ -869,7 +870,6 @@ OnCalendar=daily
         # logging out too fast, some D-Bus services get disconnected
         self.allow_restart_journal_messages()
 
-    @testlib.skipBrowser(".upload_files() doesn't work on Firefox", "firefox")
     def testUpload(self) -> None:
         b = self.browser
         m = self.machine
@@ -938,7 +938,6 @@ OnCalendar=daily
         b.upload_files("#demo-upload input[type='file']", [test_upload_file])
         b.wait_in_text(".pf-v5-c-alert", "Not permitted to perform this action")
 
-    @testlib.skipBrowser(".upload_files() doesn't work on Firefox", "firefox")
     def testUploadMultiple(self) -> None:
         b = self.browser
         m = self.machine

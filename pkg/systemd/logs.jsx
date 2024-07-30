@@ -183,7 +183,7 @@ export const LogsPage = () => {
 
     return (
         <Page>
-            <PageSection id="journal" padding={{ default: 'noPadding' }}>
+            <PageSection id="journal" className="journal-filters" padding={{ default: 'noPadding' }}>
                 <Toolbar>
                     <ToolbarContent>
                         <ToolbarToggleGroup className="pf-v5-u-flex-wrap pf-v5-u-flex-grow-1 pf-v5-u-align-items-flex-start" toggleIcon={<><span className="pf-v5-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
@@ -222,7 +222,7 @@ export const LogsPage = () => {
                                 <ToolbarItem variant="label">
                                     {_("Identifier")}
                                 </ToolbarItem>
-                                <ToolbarItem id="journal-identifier-menu">
+                                <ToolbarItem id="journal-identifier-menu" className="journal-filters-identifier-menu">
                                     <IdentifiersFilter currentIdentifiers={currentIdentifiers}
                                                     onIdentifiersFilterChange={onIdentifiersFilterChange}
                                                     identifiersFilter={identifiersFilter} />
@@ -237,6 +237,7 @@ export const LogsPage = () => {
                                     </ToolbarItem>
                                     <ToolbarItem className="text-search">
                                         <TextFilter id="journal-grep"
+                                                    className="journal-filters-grep"
                                                     key={textFilter}
                                                     textFilter={textFilter}
                                                     onTextFilterChange={onTextFilterChange}
@@ -270,7 +271,8 @@ export const LogsPage = () => {
             </PageSection>
             <PageSection padding={{ default: 'noPadding' }}
                          variant={PageSectionVariants.light}
-                         id="journal-box">
+                         id="journal-box"
+                         className="journal-filters-box">
                 <JournalBox dataFollowing={dataFollowing}
                             defaultSince={timeFilter ? timeFilter.value : getTimeFilterOption({}).value}
                             currentIdentifiers={currentIdentifiers}

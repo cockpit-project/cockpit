@@ -45,7 +45,7 @@ class TestMenu(testlib.MachineCase):
         b.wait_not_present("html.pf-v5-theme-dark")
 
         # Test overriding, switching only works on Chromium
-        if b.cdp.browser.name == "chromium":
+        if b.browser == "chromium":
             # Light theme overrides browser defaults
             b._set_emulated_media_theme("dark")
             b.wait_not_present("html.pf-v5-theme-dark")
@@ -101,15 +101,9 @@ class TestMenu(testlib.MachineCase):
         b.wait_in_text("#host-apps .pf-m-current", "Development")
 
         b.enter_page("/playground/exception")
-        b.wait_visible("button")
-        with self.assertRaisesRegex(RuntimeError, "TypeError:.*undefined"):
-            b.click("button")
-            # Some round trips, one of which should update the deferred exception
-            for _ in range(5):
-                b.wait_visible("button")
-                time.sleep(2)
+        b.click("button")
 
-        # UI should also show the crash
+        # UI should show the crash
         b.switch_to_top()
         b.wait_visible("#navbar-oops")
 

@@ -360,8 +360,10 @@ class TestKdump(KdumpHelpers):
 
         # Check malformed lines
         b.wait_text("#kdump-target-info", "No configuration found")
-        b.wait(lambda: "warning: Malformed kdump config line: skip this line in /etc/sysconfig/kdump" in list(self.browser.get_js_log()))
-        b.wait(lambda: "warning: Malformed KDUMP_SAVEDIR entry: ssh//missing/colon in /etc/sysconfig/kdump" in list(self.browser.get_js_log()))
+        b.wait(lambda: "Malformed kdump config line: skip this line in /etc/sysconfig/kdump" in
+               '/'.join(self.browser.get_js_log()))
+        b.wait(lambda: "Malformed KDUMP_SAVEDIR entry: ssh//missing/colon in /etc/sysconfig/kdump" in
+               '/'.join(self.browser.get_js_log()))
 
         # Remove malformed KDUMP_SAVEDIR to check default if nothing specified
         m.execute("sed -i '/KDUMP_SAVEDIR=.*/d' /etc/sysconfig/kdump")

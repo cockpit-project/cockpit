@@ -206,11 +206,11 @@ $desktop: $phone + 1px;
     inset: 0;
     background: var(--pf-v5-global--BackgroundColor--dark-200);
 
+    z-index: 399; // Modals have 400 and modals should be in front of host switcher
+
     .pf-v5-theme-dark & {
       background: var(--pf-v5-global--BackgroundColor--dark-300);
     }
-
-    z-index: 399; // Modals have 400 and modals should be in front of host switcher
 
     &.edit-hosts {
       .pf-v5-c-nav__list {

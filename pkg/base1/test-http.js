@@ -65,6 +65,9 @@ QUnit.test("simple request", assert => {
                         plot: {
                             label: "Plots"
                         },
+                        remote: {
+                            label: "Remote channel"
+                        },
                         service: {
                             label: "Generic Service Monitor"
                         },

@@ -1,0 +1,394 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2024 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import testlib
+
+KEY_PASSWORD = "ssh#geheim"
+BAD_FINGERPRINT = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T"
+
+
+@testlib.nondestructive
+class TestSshDialog(testlib.MachineCase):
+    def setUp(self):
+        super().setUp()
+        # test with separate users so that we can just wipe their home dirs
+        self.password = "userpwd"
+        self.machine.execute(f"useradd --create-home user; echo user:{self.password} | chpasswd")
+        self.restore_dir("/home/user")
+
+        self.other_password = "otherpwd"
+        self.machine.execute(f"useradd --create-home otheruser; echo otheruser:{self.other_password} | chpasswd")
+        self.restore_dir("/home/otheruser")
+
+    def disconnect(self):
+        # HACK: there's no UI way to disconnect; take care to not kill the main
+        # session connection with the ws container
+        self.machine.execute("pkill -ef [s]sh.*ferny.*127.0.0.1")
+
+    def testPassword(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/playground/remote", user="user", password=self.password, superuser=False)
+
+        # nonexisting host/port
+        b.set_input_text("#host", "localhost:987")
+        b.click("button")
+        b.wait_in_text("#error", "localhost port 987")
+        b.wait_in_text("#error", '"problem":"no-host"')
+
+        # previously unknown host
+        b.set_input_text("#host", "user@127.0.0.1")
+        b.click("button")
+        b.wait_text("#ssh-unknown-host-dialog .pf-v5-c-modal-box__title-text", "Unknown host: 127.0.0.1")
+
+        # cancel dialog with footer button
+        b.click("#ssh-unknown-host-dialog button.btn-cancel")
+        b.wait_not_present("#ssh-unknown-host-dialog")
+        b.wait_text("#error", '"cancel"')
+
+        # cancel dialog with X button
+        b.click("button")
+        b.click("#ssh-unknown-host-dialog button[aria-label=Close]")
+        b.wait_not_present("#ssh-unknown-host-dialog")
+        b.wait_text("#error", '"cancel"')
+
+        # try again
+        b.click("button")
+        b.wait_in_text("#ssh-unknown-host-dialog", "You are connecting to 127.0.0.1 for the first time.")
+        b.click("#ssh-unknown-host-dialog .pf-v5-c-expandable-section__toggle-text")
+        b.wait_visible("#ssh-unknown-host-dialog .hostkey-verify-help-cmds input")
+        b.assert_pixels("#ssh-unknown-host-dialog", "unknown-host", ignore=[".hostkey-fingerprint"])
+        command = b.val("#ssh-unknown-host-dialog .hostkey-verify-help-cmds input")
+        self.assertIn("ssh-keyscan", command)
+        # run the command to get the fingerprint
+        real_fp = m.execute(command).split()[1]
+        shown_fp = b.val("#ssh-unknown-host-dialog .hostkey-fingerprint input")
+        self.assertEqual(real_fp, shown_fp)
+        # Trust and add host
+        b.click("#ssh-unknown-host-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-unknown-host-dialog")
+
+        self.assertIn("127.0.0.1", m.execute("cat /home/user/.ssh/known_hosts"))
+
+        # user has no SSH key, so only offers password
+        b.wait_text("#ssh-change-auth-dialog .pf-v5-c-modal-box__title-text", "Log in to 127.0.0.1")
+        b.wait_in_text("#ssh-change-auth-dialog", "Unable to log in to user@127.0.0.1 using SSH key authentication")
+        b.assert_pixels("#ssh-change-auth-dialog", "change-auth")
+        # empty password
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_in_text("#ssh-change-auth-dialog", "The password can not be empty")
+        b.wait_attr("#login-custom-password", "aria-invalid", "true")
+
+        # wrong password
+        b.set_input_text("#login-custom-password", "wrong")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_in_text("#ssh-change-auth-dialog .pf-v5-c-alert", "Login failed")
+        # right password
+        b.set_input_text("#login-custom-password", self.password)
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+
+        # `hostname` is the default command
+        b.wait_text("#output", m.execute("hostname").strip())
+        b.wait_text("#error", "")
+
+        # now that the connection is made, further channels just work
+        b.set_input_text("#command", "cat /etc/os-release")
+        b.click("button")
+        b.wait_text("#output", m.execute("cat /etc/os-release").strip())
+        b.wait_text("#error", "")
+
+        # changing the port counts as a new channel
+        b.set_input_text("#command", "echo hello")
+        # also leave out the user@, it should default to the currently logged in user
+        b.set_input_text("#host", "127.0.0.1:22")
+        b.click("button")
+        # known host, directly to password login
+        b.wait_in_text("#ssh-change-auth-dialog", "Unable to log in to 127.0.0.1:22 using SSH key authentication")
+        # use Enter key to close the dialog instead of the button
+        b.set_input_text("#login-custom-password", self.password, blur=False)
+        b.key("Enter")
+        b.wait_not_present("#ssh-change-auth-dialog")
+
+        b.wait_text("#output", "hello")
+        b.wait_text("#error", "")
+
+        self.disconnect()
+
+        # change the host key
+        m.write("/home/user/.ssh/known_hosts", f"127.0.0.1 {BAD_FINGERPRINT}")
+        b.set_input_text("#command", "echo newkey")
+        b.click("button")
+
+        b.wait_text("#ssh-unknown-host-dialog .pf-v5-c-modal-box__title-text", "127.0.0.1 key changed")
+        b.wait_val("#ssh-unknown-host-dialog .hostkey-fingerprint input", shown_fp)
+        b.click("#ssh-unknown-host-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-unknown-host-dialog")
+
+        b.set_input_text("#login-custom-password", self.password)
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+
+        b.wait_text("#output", "newkey")
+        b.wait_text("#error", "")
+
+        # explicit user field
+        b.set_input_text("#host", "127.0.0.1")
+        b.set_input_text("#user", "otheruser")
+        b.set_input_text("#command", "whoami")
+        b.click("button")
+        b.set_input_text("#login-custom-password", self.other_password)
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+        b.wait_text("#output", "otheruser")
+        b.wait_text("#error", "")
+        self.disconnect()
+
+        # explicit user field overrides the one from host
+        b.set_input_text("#host", "user@127.0.0.1")
+        b.set_input_text("#user", "otheruser")
+        b.set_input_text("#command", "whoami")
+        b.click("button")
+        b.wait_in_text("#ssh-change-auth-dialog", "Unable to log in to user@127.0.0.1 using SSH key authentication")
+        b.set_input_text("#login-custom-password", self.other_password)
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+        b.wait_text("#output", "otheruser")
+        b.wait_text("#error", "")
+        self.disconnect()
+
+        # no-cockpit
+        b.set_input_text("#host", "127.0.0.1")
+        b.set_input_text("#user", "")
+        if not m.ostree_image:
+            try:
+                # awkward, but neither /dev/null bind mout nor overlayfs work here
+                m.execute("mv /usr/bin/cockpit-bridge /usr/bin/cockpit-bridge.disabled")
+
+                # test not-supported dialog with both the Close and the X button
+                for button in ["button.btn-cancel", "button[aria-label='Close']"]:
+                    b.click("button")
+                    b.set_input_text("#login-custom-password", self.password)
+                    b.click("#ssh-change-auth-dialog button.pf-m-primary")
+                    b.wait_not_present("#ssh-change-auth-dialog")
+                    b.wait_visible("#ssh-not-supported-dialog")
+                    if "cancel" in button:
+                        b.assert_pixels("#ssh-not-supported-dialog", "not-supported")
+                    b.click(f"#ssh-not-supported-dialog {button}")
+                    b.wait_not_present("#ssh-not-supported-dialog")
+                    b.wait_text("#output", "")
+                    b.wait_in_text("#error", '"problem":"no-cockpit"')
+                self.disconnect()
+                self.allow_journal_messages(".*cockpit-bridge:.* not found")
+            finally:
+                m.execute("mv /usr/bin/cockpit-bridge.disabled /usr/bin/cockpit-bridge")
+
+        # last test: disabled password login
+        self.write_file("/etc/ssh/sshd_config.d/01-no-password.conf", "PasswordAuthentication no",
+                        post_restore_action=self.restart_sshd)
+        m.execute(self.restart_sshd)
+        b.click("button")
+        b.wait_in_text("#ssh-change-auth-dialog", "host does not accept password login")
+        b.wait_visible("#ssh-change-auth-dialog button.pf-m-primary:disabled")
+        b.assert_pixels("#ssh-change-auth-dialog", "not-accepted")
+        b.click("#ssh-change-auth-dialog button.btn-cancel")
+        b.wait_not_present("#ssh-change-auth-dialog")
+
+    def unload_key(self):
+        b = self.browser
+        b.switch_to_top()
+        b.open_session_menu()
+        b.click("#sshkeys")
+        b.wait_visible("#credentials-modal")
+        b.wait_in_text("#credential-keys tr[data-name='id_rsa']", "id_rsa")
+        b.wait_visible("#credential-keys tr[data-name='id_rsa'] input[type=checkbox]:checked")
+        b.set_checked("#credential-keys tr[data-name='id_rsa'] input[type=checkbox]", val=False)
+        b.wait_visible("#credential-keys tr[data-name='id_rsa'] input[type=checkbox]:not(:checked)")
+        b.click("#credentials-modal button[aria-label='Close']")
+        b.wait_not_present("#credentials-modal")
+        b.switch_to_frame("cockpit1:localhost/playground/remote")
+
+    def testKey(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/playground/remote", user="user", password=self.password, superuser=False)
+        # not too noisy, and useful to debug failures
+        b.eval_js('window.debugging = "connect-ssh"')
+        b.set_input_text("#host", "127.0.0.1")
+        b.click("button")
+
+        # unknown host
+        b.wait_text("#ssh-unknown-host-dialog .pf-v5-c-modal-box__title-text", "Unknown host: 127.0.0.1")
+        b.click("#ssh-unknown-host-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-unknown-host-dialog")
+
+        # create an SSH key with password
+
+        b.wait_text("#ssh-change-auth-dialog .pf-v5-c-modal-box__title-text", "Log in to 127.0.0.1")
+        # no SSH key present yet
+        b.wait_not_present("#auth-key")
+        b.click("#login-setup-keys")
+        # this shouldn't yet apply as long as key passphrase validation fails
+        b.set_input_text("#login-custom-password", "wrong")
+        key_password = "s3kr1t"
+        b.set_input_text("#login-setup-new-key-password", key_password)
+        # non-matching passphrase
+        b.set_input_text("#login-setup-new-key-password2", "shhht")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_in_text("#ssh-change-auth-dialog", "The key passwords do not match")
+        b.wait_attr("#login-setup-new-key-password2", "aria-invalid", "true")
+        # fix passphrase confirmation
+        b.set_input_text("#login-setup-new-key-password2", key_password)
+        b.set_input_text("#login-custom-password", self.password)
+        b.assert_pixels("#ssh-change-auth-dialog", "new-key")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+
+        # `hostname` is the default command
+        hostname = m.execute("hostname").strip()
+        b.wait_text("#output", hostname)
+        b.wait_text("#error", "")
+        self.disconnect()
+
+        self.assertIn(f"user@{hostname}", m.execute("cat /home/user/.ssh/authorized_keys"))
+        self.assertIn(f"user@{hostname}", m.execute("cat /home/user/.ssh/id_rsa.pub"))
+
+        # now log in with SSH key; host is known now
+        b.set_input_text("#command", "echo createkey")
+        b.click("button")
+        b.wait_visible("#ssh-change-auth-dialog")
+        b.set_checked("#auth-key", val=True)
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_attr("#locked-identity-password", "aria-invalid", "true")
+        b.wait_in_text("#ssh-change-auth-dialog", "The key password can not be empty")
+
+        b.set_input_text("#locked-identity-password", "wrong")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_attr("#locked-identity-password", "aria-invalid", "false")
+        b.wait_in_text("#ssh-change-auth-dialog .pf-v5-c-alert", "Password not accepted")
+
+        b.set_input_text("#locked-identity-password", key_password)
+        b.assert_pixels("#ssh-change-auth-dialog", "add-key")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+        b.wait_text("#output", "createkey")
+        b.wait_text("#error", "")
+        self.disconnect()
+
+        # the key is in the agent now
+        b.switch_to_top()
+        b.open_session_menu()
+        b.click("#sshkeys")
+        b.wait_visible("#credentials-modal")
+        b.wait_in_text("#credential-keys tr[data-name='id_rsa']", "id_rsa")
+        b.wait_visible("#credential-keys tr[data-name='id_rsa'] input[type=checkbox]:checked")
+        b.click("#credentials-modal button[aria-label='Close']")
+        b.wait_not_present("#credentials-modal")
+        b.switch_to_frame("cockpit1:localhost/playground/remote")
+
+        # now that the key is loaded we can connect without any dialogs/passwords
+        b.set_input_text("#command", "echo loadedkey")
+        b.click("button")
+        b.wait_text("#output", "loadedkey")
+        b.wait_text("#error", "")
+        self.disconnect()
+
+        # different target user
+        b.set_input_text("#user", "otheruser")
+        b.set_input_text("#command", "whoami")
+        b.click("button")
+        b.set_input_text("#login-custom-password", self.other_password)
+        b.click("#login-setup-keys")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+        b.wait_text("#output", "otheruser")
+        b.wait_text("#error", "")
+        b.set_input_text("#user", "")
+        self.assertIn(f"user@{hostname}", m.execute("cat /home/otheruser/.ssh/authorized_keys"))
+        self.disconnect()
+        self.unload_key()
+
+        # disable password login in SSH to reconfigure the dialog
+        self.write_file("/etc/ssh/sshd_config.d/01-no-password.conf", "PasswordAuthentication no",
+                        post_restore_action=self.restart_sshd)
+        m.execute(self.restart_sshd)
+
+        # after unloading the key we need to enter the key password again
+        b.set_input_text("#command", "echo onlykey")
+        b.click("button")
+        b.wait_visible("#ssh-change-auth-dialog")
+        b.wait_in_text("#ssh-change-auth-dialog",
+                       "SSH key for logging in to 127.0.0.1 is protected by a password")
+        b.wait_in_text("#ssh-change-auth-dialog", "host does not allow logging in with a password")
+        b.set_input_text("#locked-identity-password", key_password)
+        b.assert_pixels("#ssh-change-auth-dialog", "only-key")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+        b.wait_text("#output", "onlykey")
+        b.wait_text("#error", "")
+        self.disconnect()
+        self.unload_key()
+
+        # re-enable password login in SSH
+        m.execute("rm /etc/ssh/sshd_config.d/01-no-password.conf")
+        m.execute(self.restart_sshd)
+
+        # chose password login with key present
+        b.set_input_text("#command", "echo choosepwd")
+        b.click("button")
+        b.wait_visible("#ssh-change-auth-dialog")
+        b.set_checked("#auth-password", val=True)
+        b.set_input_text("#login-custom-password", self.password)
+        b.assert_pixels("#ssh-change-auth-dialog", "choose")
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+        b.wait_text("#output", "choosepwd")
+        b.wait_text("#error", "")
+        self.disconnect()
+
+        # delete key
+        m.execute("rm /home/user/.ssh/id_* /home/user/.ssh/authorized_keys")
+
+        # create passwordless key
+        b.set_input_text("#command", "echo create-nopwd-key")
+        b.click("button")
+        b.wait_text("#ssh-change-auth-dialog .pf-v5-c-modal-box__title-text", "Log in to 127.0.0.1")
+        # no SSH key present yet
+        b.wait_not_present("#auth-key")
+        b.click("#login-setup-keys")
+        b.set_input_text("#login-custom-password", self.password)
+        b.click("#ssh-change-auth-dialog button.pf-m-primary")
+        b.wait_not_present("#ssh-change-auth-dialog")
+
+        b.wait_text("#output", "create-nopwd-key")
+        b.wait_text("#error", "")
+        self.disconnect()
+
+        # can reconnect without password
+        b.set_input_text("#command", "echo no-password")
+        b.click("button")
+        b.wait_text("#output", "no-password")
+        b.wait_text("#error", "")
+        self.disconnect()
+
+
+if __name__ == '__main__':
+    testlib.test_main()

@@ -1,6 +1,6 @@
 import cockpit from "cockpit";
 
-import ssh_add_key_sh from "./ssh-add-key.sh";
+import ssh_add_key_sh from "../../lib/ssh-add-key.sh";
 
 const mod = { };
 

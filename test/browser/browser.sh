@@ -100,7 +100,10 @@ fi
 echo core > /proc/sys/kernel/core_pattern
 
 # make sure that we can access cockpit through the firewall
+rpm -qa | grep firewalld
 systemctl start firewalld
+whoami
+firewall-cmd --version
 firewall-cmd --add-service=cockpit --permanent
 firewall-cmd --add-service=cockpit
 

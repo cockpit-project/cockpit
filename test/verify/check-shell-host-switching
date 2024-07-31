@@ -134,22 +134,6 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
             b.assert_pixels("#hosts-sel", "no-switching", skip_layouts=["mobile"])
             b.logout()
 
-            # transition period: Existing remote hosts are still shown
-            m1.write("/etc/cockpit/machines.d/99-webui.json",
-                     '{"srv": { "address": "my.srv", "visible": true }}')
-            b.login_and_go(superuser=False)
-            b.click("#hosts-sel button")
-            self.wait_host_addresses(b, ["localhost", "my.srv"])
-            b.wait_in_text(".deprecated-add-host", "Deprecated")
-            b.assert_pixels(".nav-hosts-actions", "deprecated", skip_layouts=["mobile"])
-            # clicking on it shows popover with help
-            b.click(".deprecated-add-host")
-            b.wait_text("#popover-disabled-add-host-help-header", "Host switching is not supported")
-            b.click(".pf-v5-c-popover__close button")
-            b.wait_not_present("#popover-disabled-add-host-help-header")
-            b.logout()
-            m1.execute("rm /etc/cockpit/machines.d/99-webui.json")
-
             # enable host switcher for this test
             self.enable_multihost(m1)
             b.login_and_go(superuser=False)

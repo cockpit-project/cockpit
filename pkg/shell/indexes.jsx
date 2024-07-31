@@ -22,10 +22,15 @@ import cockpit from "cockpit";
 import React from "react";
 import { createRoot } from "react-dom/client";
 
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+
 import { CockpitNav, CockpitNavItem, SidebarToggle } from "./nav.jsx";
 import { TopNav } from ".//topnav.jsx";
 import { CockpitHosts, CockpitCurrentHost } from "./hosts.jsx";
-import { codes, HostModal } from "./hosts_dialog.jsx";
+import { codes, HostModal, CrossMachineWarning } from "./hosts_dialog.jsx";
 import { EarlyFailure, EarlyFailureReady } from './failures.jsx';
 import { WithDialogs } from "dialogs.jsx";
 import { read_os_release } from "os-release";
@@ -53,7 +58,7 @@ function MachinesIndex(index_options, machines, loader) {
     sessionStorage.removeItem("cockpit:page_status");
 
     index_options.navigate = function (state, sidebar) {
-        return navigate(state, sidebar);
+        return navigate(state, false);
     };
     index_options.handle_notifications = function (host, page, data) {
         if (data.page_status !== undefined) {
@@ -203,7 +208,7 @@ function MachinesIndex(index_options, machines, loader) {
         } else if (!machine.visible) {
             machine.state = "failed";
             machine.problem = "not-found";
-        } else if (reconnect) {
+        } else if (reconnect || state.host == "localhost") {
             loader.connect(state.host);
         }
 
@@ -394,6 +399,7 @@ function MachinesIndex(index_options, machines, loader) {
                 React.createElement(CockpitHosts, {
                     machine: machine || {},
                     machines,
+                    loader,
                     selector: "nav-hosts",
                     hostAddr: index.href,
                     jump: index.jump,
@@ -465,6 +471,10 @@ function MachinesIndex(index_options, machines, loader) {
             }));
         }
 
+        function connect_machine() {
+            loader.connect(machine.address);
+        }
+
         let current_frame = index.current_frame();
 
         if (machine.state != "connected") {
@@ -504,15 +514,29 @@ function MachinesIndex(index_options, machines, loader) {
             const reconnect = !connecting && machine.problem != "not-found" && !troubleshooting;
 
             document.querySelector("#early-failure-ready").removeAttribute("hidden");
-            early_failure_ready_root.render(
-                <EarlyFailureReady loading={connecting || restarting}
-                                   title={title}
-                                   reconnect={reconnect}
-                                   troubleshoot={troubleshooting}
-                                   onTroubleshoot={render_troubleshoot}
-                                   watchdog_problem={watchdog_problem}
-                                   navigate={navigate}
-                                   paragraph={message} />);
+            if (machine.address == "localhost") {
+                early_failure_ready_root.render(
+                    <EarlyFailureReady loading={connecting || restarting}
+                                       title={title}
+                                       reconnect={reconnect}
+                                       troubleshoot={troubleshooting}
+                                       onTroubleshoot={render_troubleshoot}
+                                       watchdog_problem={watchdog_problem}
+                                       navigate={navigate}
+                                       paragraph={message} />);
+            } else {
+                early_failure_ready_root.render(
+                    <Page>
+                        <PageSection variant={PageSectionVariants.light}>
+                            <EmptyStatePanel title={_("Not connected")}
+                                             paragraph={<CrossMachineWarning />}
+                                             action={<Button onClick={connect_machine}>
+                                                         {_("Connect")}
+                                                     </Button>} />
+                        </PageSection>
+                    </Page>);
+            }
+
 
             update_title(null, machine);
 

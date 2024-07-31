@@ -272,7 +272,11 @@ export class CockpitHosts extends React.Component {
                                        }
                                        return Promise.resolve();
                                    }
-                                   : null } />
+                                   : (new_connection_string) => {
+                                       const parts = this.props.machines.split_connection_string(new_connection_string);
+                                       this.props.loader.connect(parts.address);
+                                       return Promise.resolve();
+                                   }} />
                 }
             </>
         );
@@ -282,6 +286,7 @@ export class CockpitHosts extends React.Component {
 CockpitHosts.propTypes = {
     machine: PropTypes.object.isRequired,
     machines: PropTypes.object.isRequired,
+    loader: PropTypes.object.isRequired,
     selector: PropTypes.string.isRequired,
     hostAddr: PropTypes.func.isRequired,
     jump: PropTypes.func.isRequired,

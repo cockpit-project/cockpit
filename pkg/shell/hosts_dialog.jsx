@@ -101,6 +101,13 @@ class NotSupported extends React.Component {
     }
 }
 
+export const CrossMachineWarning = () => {
+    return <Alert variant='warning'
+                  isInline
+                  isPlain
+                  title={_("Malicious pages on a remote machine may affect other connected hosts")} />;
+};
+
 class AddMachine extends React.Component {
     constructor(props) {
         super(props);
@@ -288,6 +295,7 @@ class AddMachine extends React.Component {
                 <Stack hasGutter>
                     { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                     {body}
+                    <CrossMachineWarning />
                 </Stack>
             </Modal>
         );
@@ -385,6 +393,7 @@ class MachinePort extends React.Component {
                 <Stack hasGutter>
                     { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                     {body}
+                    <CrossMachineWarning />
                 </Stack>
             </Modal>
         );
@@ -493,7 +502,6 @@ class HostKey extends React.Component {
                     <div>{_("The fingerprint should match:")} {fingerprint_help}</div>
                     <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
                 </ExpandableSection>
-                <Alert variant='warning' isInline isPlain title={_("Malicious pages on a remote machine may affect other connected hosts")} />
             </>;
         }
 
@@ -517,6 +525,7 @@ class HostKey extends React.Component {
                 <Stack hasGutter>
                     { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                     {body}
+                    <CrossMachineWarning />
                 </Stack>
             </Modal>
         );
@@ -894,6 +903,7 @@ class ChangeAuth extends React.Component {
                 <Stack hasGutter>
                     { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                     {body}
+                    <CrossMachineWarning />
                 </Stack>
             </Modal>
         );

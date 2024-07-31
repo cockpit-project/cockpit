@@ -381,7 +381,7 @@ function MachinesIndex(index_options, machines, loader) {
             machine = machines.lookup(state.host);
 
         // deprecation transition period: show existing remote hosts, but disable adding new ones
-        if (host_switcher_enabled || machines.list.length > 1) {
+        if (host_switcher_enabled) {
             hosts_sel_root.render(
                 React.createElement(CockpitHosts, {
                     machine: machine || {},
@@ -389,7 +389,6 @@ function MachinesIndex(index_options, machines, loader) {
                     selector: "nav-hosts",
                     hostAddr: index.href,
                     jump: index.jump,
-                    enable_add_host: host_switcher_enabled,
                 }));
         } else {
             hosts_sel_root.render(React.createElement(CockpitCurrentHost, { machine: machine || {} }));

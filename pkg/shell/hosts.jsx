@@ -8,13 +8,9 @@ import {
     CaretDownIcon,
     CaretUpIcon,
     EditIcon,
-    ExclamationCircleIcon,
-    ExternalLinkAltIcon,
     MinusIcon,
 } from '@patternfly/react-icons';
-import { Label } from "@patternfly/react-core/dist/esm/components/Label";
 import { PageSidebar } from "@patternfly/react-core/dist/esm/components/Page";
-import { Popover } from "@patternfly/react-core/dist/esm/components/Popover";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
 
 import 'polyfills';
@@ -197,22 +193,7 @@ export class CockpitHosts extends React.Component {
         const label = this.props.machine.label || "";
         const user = this.props.machine.user || this.state.current_user;
 
-        let add_host_action;
-
-        if (this.props.enable_add_host) {
-            add_host_action = <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>;
-        } else {
-            const footer = <a href="https://cockpit-project.org/blog/cockpit-322.html" target="_blank" rel="noreferrer">
-                <ExternalLinkAltIcon /> {_("Read more...")}
-            </a>;
-            add_host_action = (
-                <Popover id="disabled-add-host-help"
-                         headerContent={_("Host switching is not supported")}
-                         bodyContent={_("Connecting to remote hosts inside of a web console session is deprecated and will be removed in the future. You can still connect to your existing hosts for now.")}
-                         footerContent={footer}>
-                    <Label className="deprecated-add-host" color="blue" icon={<ExclamationCircleIcon />}>{_("Deprecated")}</Label>
-                </Popover>);
-        }
+        const add_host_action = <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>;
 
         return (
             <>
@@ -285,5 +266,4 @@ CockpitHosts.propTypes = {
     selector: PropTypes.string.isRequired,
     hostAddr: PropTypes.func.isRequired,
     jump: PropTypes.func.isRequired,
-    enable_add_host: PropTypes.bool.isRequired,
 };

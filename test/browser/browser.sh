@@ -17,10 +17,10 @@ mkdir -p /root/.ssh
 curl https://raw.githubusercontent.com/cockpit-project/bots/main/machine/identity.pub >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 
-# HACK: broken shadow-utils
-if grep -q 'platform:f41' /etc/os-release; then
-    rpm -q shadow-utils
-    dnf update -y shadow-utils
+# HACK: broken firewalld in latest c10s image, and no new images for > 1 week
+if grep -q 'platform:el10' /etc/os-release; then
+    rpm -q firewalld
+    dnf update -y firewalld
 fi
 
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),

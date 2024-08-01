@@ -24,12 +24,10 @@ import { createRoot } from "react-dom/client";
 
 import { CockpitNav, CockpitNavItem, SidebarToggle } from "./nav.jsx";
 import { TopNav } from ".//topnav.jsx";
-import { CockpitHosts, CockpitCurrentHost } from "./hosts.jsx";
+import { CockpitHosts } from "./hosts.jsx";
 import { codes, HostModal } from "./hosts_dialog.jsx";
 import { EarlyFailure, EarlyFailureReady } from './failures.jsx';
 import { WithDialogs } from "dialogs.jsx";
-import { read_os_release } from "os-release";
-import { get_manifest_config_matchlist } from "utils";
 
 import * as base_index from "./base_index";
 
@@ -100,18 +98,6 @@ function MachinesIndex(index_options, machines, loader) {
     cockpit.user().then(user => {
         current_user = user.name || "";
     }).catch(exc => console.log(exc));
-
-    /* Host switcher enabled? */
-    let host_switcher_enabled = false;
-    read_os_release().then(os_release => {
-        const enabled = os_release && get_manifest_config_matchlist(
-            "shell", "host_switcher", false,
-            [os_release.PLATFORM_ID, os_release.VERSION_CODENAME]);
-        if (enabled) {
-            host_switcher_enabled = true;
-            update_machines();
-        }
-    });
 
     /* Navigation */
     let ready = false;
@@ -388,20 +374,14 @@ function MachinesIndex(index_options, machines, loader) {
         if (!machine)
             machine = machines.lookup(state.host);
 
-        // deprecation transition period: show existing remote hosts, but disable adding new ones
-        if (host_switcher_enabled || machines.list.length > 1) {
-            hosts_sel_root.render(
-                React.createElement(CockpitHosts, {
-                    machine: machine || {},
-                    machines,
-                    selector: "nav-hosts",
-                    hostAddr: index.href,
-                    jump: index.jump,
-                    enable_add_host: host_switcher_enabled,
-                }));
-        } else {
-            hosts_sel_root.render(React.createElement(CockpitCurrentHost, { machine: machine || {} }));
-        }
+        hosts_sel_root.render(
+            React.createElement(CockpitHosts, {
+                machine: machine || {},
+                machines,
+                selector: "nav-hosts",
+                hostAddr: index.href,
+                jump: index.jump,
+            }));
     }
 
     function update_title(label, machine) {

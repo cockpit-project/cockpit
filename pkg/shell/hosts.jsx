@@ -3,24 +3,14 @@ import cockpit from "cockpit";
 import React from 'react';
 import ReactDOM from "react-dom";
 import PropTypes from 'prop-types';
-import { Button } from "@patternfly/react-core/dist/esm/components/Button";
-import {
-    CaretDownIcon,
-    CaretUpIcon,
-    EditIcon,
-    ExclamationCircleIcon,
-    ExternalLinkAltIcon,
-    MinusIcon,
-} from '@patternfly/react-icons';
-import { Label } from "@patternfly/react-core/dist/esm/components/Label";
-import { PageSidebar } from "@patternfly/react-core/dist/esm/components/Page";
-import { Popover } from "@patternfly/react-core/dist/esm/components/Popover";
-import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
+import { PageSidebar } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
+import { EditIcon, MinusIcon, CaretUpIcon, CaretDownIcon } from '@patternfly/react-icons';
 
 import 'polyfills';
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { HostModal } from "./hosts_dialog.jsx";
-import { useLoggedInUser } from "hooks";
 
 const _ = cockpit.gettext;
 const hosts_sel = document.getElementById("nav-hosts");
@@ -56,18 +46,6 @@ function HostLine({ host, user }) {
     );
 }
 
-// top left navigation element when host switching is disabled
-export const CockpitCurrentHost = ({ machine }) => {
-    const user_info = useLoggedInUser();
-
-    return (
-        <div className="ct-switcher ct-switcher-localonly pf-m-dark">
-            <HostLine user={machine.user || user_info?.name || ""} host={machine.label || ""} />
-        </div>
-    );
-};
-
-// full host switcher
 export class CockpitHosts extends React.Component {
     constructor(props) {
         super(props);
@@ -196,24 +174,6 @@ export class CockpitHosts extends React.Component {
         />;
         const label = this.props.machine.label || "";
         const user = this.props.machine.user || this.state.current_user;
-
-        let add_host_action;
-
-        if (this.props.enable_add_host) {
-            add_host_action = <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>;
-        } else {
-            const footer = <a href="https://cockpit-project.org/blog/cockpit-322.html" target="_blank" rel="noreferrer">
-                <ExternalLinkAltIcon /> {_("Read more...")}
-            </a>;
-            add_host_action = (
-                <Popover id="disabled-add-host-help"
-                         headerContent={_("Host switching is not supported")}
-                         bodyContent={_("Connecting to remote hosts inside of a web console session is deprecated and will be removed in the future. You can still connect to your existing hosts for now.")}
-                         footerContent={footer}>
-                    <Label className="deprecated-add-host" color="blue" icon={<ExclamationCircleIcon />}>{_("Deprecated")}</Label>
-                </Popover>);
-        }
-
         return (
             <>
                 <div className="ct-switcher">
@@ -253,7 +213,7 @@ export class CockpitHosts extends React.Component {
                             />
                             <div className="nav-hosts-actions">
                                 {this.props.machines.list.length > 1 && <Button variant="secondary" onClick={this.onEditHosts}>{this.state.editing ? _("Stop editing hosts") : _("Edit hosts")}</Button>}
-                                {add_host_action}
+                                <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>
                             </div>
                         </PageSidebar>
                     </HostsSelector>
@@ -285,5 +245,4 @@ CockpitHosts.propTypes = {
     selector: PropTypes.string.isRequired,
     hostAddr: PropTypes.func.isRequired,
     jump: PropTypes.func.isRequired,
-    enable_add_host: PropTypes.bool.isRequired,
 };

@@ -679,7 +679,7 @@ export function should_ignore(client, path) {
 /* GET_CHILDREN gets the direct children of the storage object at
    PATH, like the partitions of a partitioned block device, or the
    volume group of a physical volume.  By calling GET_CHILDREN
-   recursively, you can traverse the whole storage hierachy from
+   recursively, you can traverse the whole storage hierarchy from
    hardware drives at the bottom to filesystems at the top.
 
    GET_CHILDREN_FOR_TEARDOWN is similar but doesn't consider things

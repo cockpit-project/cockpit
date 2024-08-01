@@ -590,7 +590,7 @@ export function NetworkManagerModel() {
                 listen_port: get("wireguard", "listen-port", 0),
                 peers: get("wireguard", "peers", []).map(peer => ({
                     publicKey: peer['public-key'].v,
-                    endpoint: peer.endpoint?.v, // enpoint of a peer is optional
+                    endpoint: peer.endpoint?.v, // endpoint of a peer is optional
                     allowedIps: peer['allowed-ips']?.v
                 })),
             };

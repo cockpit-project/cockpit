@@ -124,7 +124,7 @@ function repair(lvol) {
 
     dialog_open({
         Title: cockpit.format(_("Repair logical volume $0"), lvol.Name),
-        Body: <div><p>{cockpit.format(_("Select the physical volumes that should be used to repair the logical volume. At leat $0 are needed."),
+        Body: <div><p>{cockpit.format(_("Select the physical volumes that should be used to repair the logical volume. At least $0 are needed."),
                                       fmt_size(missing))}</p><br /></div>,
         Fields: [
             SelectSpaces("pvs", _("Physical Volumes"),

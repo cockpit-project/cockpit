@@ -549,7 +549,7 @@ const error_dialogs = {
  * @host: Same `[user@]host[:port]` format as the channel option; must be
  *        *exactly* the same as for opening the channel afterwards
  * @user: Same as the channel option; overrides `user@` portion of @host
- * Returns: Nothing on success. Afterwards the SSH conection is established and
+ * Returns: Nothing on success. Afterwards the SSH connection is established and
  *          you can use the `host` option in channels. Throws a "cancel"
  *          exception if the user cancelled the dialog. Most SSH errors are
  *          handled in the dialogs, but you still have to expect and check for

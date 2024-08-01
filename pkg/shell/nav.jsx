@@ -18,7 +18,7 @@ export const SidebarToggle = () => {
         /* This is a HACK for catching lost clicks on the pages which live in iframes so as to close dropdown menus on the shell.
          * Note: Clicks on an <iframe> element won't trigger document.documentElement listeners, because it's literally different page with different security domain.
          * However, when clicking on an iframe moves focus to its content's window that triggers the main window.blur event.
-         * Addionally, when clicking on an element in the same iframe make sure to unset the 'active' state of the 'System' dropdown selector.
+         * Additionally, when clicking on an element in the same iframe make sure to unset the 'active' state of the 'System' dropdown selector.
          */
         const handleClickOutside = (ev) => {
             if (ev.target.id == "nav-system-item")

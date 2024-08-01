@@ -41,7 +41,7 @@ export function btrfs_device_usage(client, uuid, path) {
 }
 
 /**
- * Calculate the overal btrfs "volume" usage. UDisks only knows the usage per block.
+ * Calculate the overall btrfs "volume" usage. UDisks only knows the usage per block.
  */
 export function btrfs_usage(client, volume) {
     const block_fsys = client.blocks_fsys[volume.path];

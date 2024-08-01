@@ -127,7 +127,7 @@ const _ = cockpit.gettext;
 
    When a page appears in such a crossref table, it has dedicated
    actions, a dedicated size, and generally looks different from when
-   it appears in a "normal" childrens table. This is another source of
+   it appears in a "normal" children's table. This is another source of
    complication of how cards and pages interact.
 */
 

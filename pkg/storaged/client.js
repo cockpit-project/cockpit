@@ -338,7 +338,7 @@ function btrfs_findmnt_poll() {
                         btrfs_mounts[fs.uuid] = { };
                     }
 
-                    // We need to handle multiple mounts, they are listed seperate.
+                    // We need to handle multiple mounts, they are listed separate.
                     if (subvolid in btrfs_mounts[fs.uuid]) {
                         btrfs_mounts[fs.uuid][subvolid].mount_points.push(fs.target);
                     } else {

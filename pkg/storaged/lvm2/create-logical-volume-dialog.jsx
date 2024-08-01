@@ -155,7 +155,7 @@ export function create_logical_volume(client, vgroup) {
 
     function min_pvs_explanation(pvs, min) {
         if (pvs.length <= min)
-            return cockpit.format(_("All $0 selected physical volumes are needed for the choosen layout."),
+            return cockpit.format(_("All $0 selected physical volumes are needed for the chosen layout."),
                                   pvs.length);
         return null;
     }

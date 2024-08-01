@@ -25,7 +25,7 @@ import './cockpit-components-dynamic-list.scss';
  *     [
  *       { name: "Name must not be empty }, // first row
  *       { }, // second row
- *       { name: "Name cannot containt number", email: "Email must contain '@'" } // third row
+ *       { name: "Name cannot contain a number", email: "Email must contain '@'" } // third row
  *     ]
  */
 export class DynamicListForm extends React.Component {

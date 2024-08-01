@@ -606,7 +606,7 @@ function Loader(machines, session_only) {
                 interface: "org.freedesktop.DBus.Properties",
                 member: "PropertiesChanged"
             },
-                           function (path, iface, mamber, args) {
+                           function (path, iface, member, args) {
                                if (args[0] == "cockpit.Packages") {
                                    if (args[1].Manifests) {
                                        const manifests = JSON.parse(args[1].Manifests.v);

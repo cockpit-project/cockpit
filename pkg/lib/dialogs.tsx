@@ -98,7 +98,7 @@
  *
  * - Dialogs.run(component, {... props})
  *
- * Shows a dialog and asyncronously waits for it to close.  This creates and
+ * Shows a dialog and asynchronously waits for it to close.  This creates and
  * shows a MyDialog with the given properties, plus a special "dialogResult"
  * property which has .resolve() and .reject() methods on it.  Calling either
  * of those will resolve the promise returned by Dialogs.run() accordingly,

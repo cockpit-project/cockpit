@@ -196,7 +196,7 @@ class TestFirewall(netlib.NetworkCase):
 
         # Check that all services are shown.  This only works reliably since #12806
         active_rules = get_active_rules(m)
-        b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
+        b.wait_js_func("((sel, count) => window.ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
         b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-v5-c-table__expandable-row", "Post Office Protocol")

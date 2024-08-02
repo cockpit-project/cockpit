@@ -30,7 +30,7 @@ class TestStorageScaling(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         def count_rows():
-            return b.call_js_func('ph_count', self.card("Storage") + " tbody tr")
+            return b.call_js_func('window.ph_count', self.card("Storage") + " tbody tr")
 
         b.wait_visible(self.card_row("Storage", name="/dev/vda"))
         # Wait on btrfs subvolumes on OS'es with the install on btrfs

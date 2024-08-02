@@ -136,7 +136,7 @@ ExecStart=/usr/bin/sleep infinity
 
         def wait_ratio_in_range(sel, low, high):
             b.wait_js_func("""(function (sel, low, high) {
-              var text = ph_text(sel);
+              var text = window.ph_text(sel);
               var match = text.match('([0-9.]+) / ([0-9]+)');
               if (!match)
                 return false;

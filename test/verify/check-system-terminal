@@ -61,15 +61,15 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         # wait until first line is not empty
         n = 1
         b.wait_visible(".terminal .xterm-accessibility-tree")
-        function_str = "(function (sel) { return ph_text(sel).trim() != '%s'})" % blank_state
+        function_str = "(function (sel) { return window.ph_text(sel).trim() != '%s'})" % blank_state
         b.wait_js_func(function_str, line_sel(n))
 
         # clear any messages (for example, instructions about sudo) and wait for prompt
         b.input_text("clear")
-        b.wait_js_cond("ph_text('.terminal').indexOf('clear') >= 0")
+        b.wait_js_cond("window.ph_text('.terminal').indexOf('clear') >= 0")
         # now wait for clear to take effect
         b.key("Enter")
-        b.wait_js_cond("ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
+        b.wait_js_cond("window.ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
         # now we should get a clean prompt
         b.wait_in_text(line_sel(n), '$')
 
@@ -254,12 +254,12 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         # wait until first line is not empty
         n = 1
         b.wait_visible(".terminal .xterm-accessibility-tree")
-        b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ' '})", line_sel(n))
+        b.wait_js_func("(function (sel) { return window.ph_text(sel).trim() != ' '})", line_sel(n))
 
         # execute a command we can see the effect of
-        b.wait_js_cond("ph_text('.terminal').indexOf('uid=') == -1")
+        b.wait_js_cond("window.ph_text('.terminal').indexOf('uid=') == -1")
         b.input_text("id\n")
-        b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
+        b.wait_js_cond("window.ph_text('.terminal').indexOf('uid=') >= 0")
 
 
 if __name__ == '__main__':

@@ -2,12 +2,9 @@
 
 /*
  * These are routines used by our testing code.
- *
- * jQuery is not necessarily present. Don't rely on it
- * for routine operations.
  */
 
-function ph_select(sel) {
+window.ph_select = function(sel) {
     if (!window.Sizzle) {
         return Array.from(document.querySelectorAll(sel));
     }
@@ -20,75 +17,75 @@ function ph_select(sel) {
     } else {
         return Array.from(document.querySelectorAll(sel));
     }
-}
+};
 
-function ph_only(els, sel) {
+window.ph_only = function(els, sel) {
     if (els.length === 0)
         throw new Error(sel + " not found");
     if (els.length > 1)
         throw new Error(sel + " is ambiguous");
     return els[0];
-}
+};
 
-function ph_find (sel) {
-    const els = ph_select(sel);
-    return ph_only(els, sel);
-}
+window.ph_find = function(sel) {
+    const els = window.ph_select(sel);
+    return window.ph_only(els, sel);
+};
 
-function ph_count(sel) {
-    const els = ph_select(sel);
+window.ph_count = function(sel) {
+    const els = window.ph_select(sel);
     return els.length;
-}
+};
 
-function ph_count_check(sel, expected_num) {
-    return (ph_count(sel) == expected_num);
-}
+window.ph_count_check = function(sel, expected_num) {
+    return (window.ph_count(sel) == expected_num);
+};
 
-function ph_val (sel) {
-    const el = ph_find(sel);
+window.ph_val = function(sel) {
+    const el = window.ph_find(sel);
     if (el.value === undefined)
         throw new Error(sel + " does not have a value");
     return el.value;
-}
+};
 
-function ph_set_val (sel, val) {
-    const el = ph_find(sel);
+window.ph_set_val = function(sel, val) {
+    const el = window.ph_find(sel);
     if (el.value === undefined)
         throw new Error(sel + " does not have a value");
     el.value = val;
     const ev = new Event("change", { bubbles: true, cancelable: false });
     el.dispatchEvent(ev);
-}
+};
 
-function ph_has_val (sel, val) {
-    return ph_val(sel) == val;
-}
+window.ph_has_val = function(sel, val) {
+    return window.ph_val(sel) == val;
+};
 
-function ph_collected_text_is (sel, val) {
-    const els = ph_select(sel);
+window.ph_collected_text_is = function(sel, val) {
+    const els = window.ph_select(sel);
     const rest = els.map(el => {
         if (el.textContent === undefined)
             throw new Error(sel + " can not have text");
         return el.textContent.replaceAll("\xa0", " ");
     }).join("");
     return rest === val;
-}
+};
 
-function ph_text (sel) {
-    const el = ph_find(sel);
+window.ph_text = function(sel) {
+    const el = window.ph_find(sel);
     if (el.textContent === undefined)
         throw new Error(sel + " can not have text");
     // 0xa0 is a non-breakable space, which is a rendering detail of Chromium
     // and awkward to handle in tests; turn it into normal spaces
     return el.textContent.replaceAll("\xa0", " ");
-}
+};
 
-function ph_attr (sel, attr) {
-    return ph_find(sel).getAttribute(attr);
-}
+window.ph_attr = function(sel, attr) {
+    return window.ph_find(sel).getAttribute(attr);
+};
 
-function ph_set_attr (sel, attr, val) {
-    const el = ph_find(sel);
+window.ph_set_attr = function(sel, attr, val) {
+    const el = window.ph_find(sel);
     if (val === null || val === undefined)
         el.removeAttribute(attr);
     else
@@ -96,19 +93,19 @@ function ph_set_attr (sel, attr, val) {
 
     const ev = new Event("change", { bubbles: true, cancelable: false });
     el.dispatchEvent(ev);
-}
+};
 
-function ph_has_attr (sel, attr, val) {
-    return ph_attr(sel, attr) == val;
-}
+window.ph_has_attr = function(sel, attr, val) {
+    return window.ph_attr(sel, attr) == val;
+};
 
-function ph_attr_contains (sel, attr, val) {
-    const a = ph_attr(sel, attr);
+window.ph_attr_contains = function(sel, attr, val) {
+    const a = window.ph_attr(sel, attr);
     return a && a.indexOf(val) > -1;
-}
+};
 
-function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
-    const el = ph_find(sel);
+window.ph_mouse = function(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
+    const el = window.ph_find(sel);
 
     /* The element has to be visible, and not collapsed */
     if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName != 'svg')
@@ -160,48 +157,48 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
     /* It really had to work */
     if (!processed)
         throw new Error(sel + " is disabled or somehow doesn't process events");
-}
+};
 
-function ph_get_checked (sel) {
-    const el = ph_find(sel);
+window.ph_get_checked = function(sel) {
+    const el = window.ph_find(sel);
     if (el.checked === undefined)
         throw new Error(sel + " is not checkable");
 
     return el.checked;
-}
+};
 
-function ph_set_checked (sel, val) {
-    const el = ph_find(sel);
+window.ph_set_checked = function(sel, val) {
+    const el = window.ph_find(sel);
     if (el.checked === undefined)
         throw new Error(sel + " is not checkable");
 
     if (el.checked != val)
-        ph_mouse(sel, "click", 0, 0, 0);
-}
+        window.ph_mouse(sel, "click", 0, 0, 0);
+};
 
-function ph_is_visible (sel) {
-    const el = ph_find(sel);
+window.ph_is_visible = function(sel) {
+    const el = window.ph_find(sel);
     return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none"));
-}
+};
 
-function ph_is_present(sel) {
-    const els = ph_select(sel);
+window.ph_is_present = function(sel) {
+    const els = window.ph_select(sel);
     return els.length > 0;
-}
+};
 
-function ph_in_text (sel, text) {
-    return ph_text(sel).indexOf(text) != -1;
-}
+window.ph_in_text = function(sel, text) {
+    return window.ph_text(sel).indexOf(text) != -1;
+};
 
-function ph_text_is (sel, text) {
-    return ph_text(sel) == text;
-}
+window.ph_text_is = function(sel, text) {
+    return window.ph_text(sel) == text;
+};
 
-function ph_text_matches (sel, pattern) {
-    return ph_text(sel).match(pattern);
-}
+window.ph_text_matches = function(sel, pattern) {
+    return window.ph_text(sel).match(pattern);
+};
 
-function ph_go(href) {
+window.ph_go = function(href) {
     if (href.indexOf("#") === 0) {
         window.location.hash = href;
     } else {
@@ -213,25 +210,25 @@ function ph_go(href) {
         };
         window.parent.postMessage("\n" + JSON.stringify(control), "*");
     }
-}
+};
 
-function ph_focus(sel) {
-    ph_find(sel).focus();
-}
+window.ph_focus = function(sel) {
+    window.ph_find(sel).focus();
+};
 
-function ph_scrollIntoViewIfNeeded(sel) {
-    ph_find(sel).scrollIntoViewIfNeeded();
-}
+window.ph_scrollIntoViewIfNeeded = function(sel) {
+    window.ph_find(sel).scrollIntoViewIfNeeded();
+};
 
-function ph_blur(sel) {
-    ph_find(sel).blur();
-}
+window.ph_blur = function(sel) {
+    window.ph_find(sel).blur();
+};
 
-function ph_blur_active() {
+window.ph_blur_active = function() {
     const elt = window.document.activeElement;
     if (elt)
         elt.blur();
-}
+};
 
 class PhWaitCondTimeout extends Error {
     constructor(description) {
@@ -244,7 +241,7 @@ class PhWaitCondTimeout extends Error {
     }
 }
 
-function ph_wait_cond(cond, timeout, error_description) {
+window.ph_wait_cond = function(cond, timeout, error_description) {
     return new Promise((resolve, reject) => {
         // poll every 100 ms for now;  FIXME: poll less often and re-check on mutations using
         // https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
@@ -269,7 +266,7 @@ function ph_wait_cond(cond, timeout, error_description) {
         }
         step();
     });
-}
+};
 
 function currentFrameAbsolutePosition() {
     let currentWindow = window;
@@ -307,27 +304,27 @@ function flatten(array_of_arrays) {
         return [];
 }
 
-function ph_selector_clips(sels) {
+window.ph_selector_clips = function(sels) {
     const f = currentFrameAbsolutePosition();
-    const elts = flatten(sels.map(ph_select));
+    const elts = flatten(sels.map(window.ph_select));
     return elts.map(e => {
         const r = e.getBoundingClientRect();
         return { x: r.x + f.x, y: r.y + f.y, width: r.width, height: r.height, scale: 1 };
     });
-}
+};
 
-function ph_element_clip(sel) {
-    ph_find(sel); // just to make sure it is not ambiguous
-    return ph_selector_clips([sel])[0];
-}
+window.ph_element_clip = function(sel) {
+    window.ph_find(sel); // just to make sure it is not ambiguous
+    return window.ph_selector_clips([sel])[0];
+};
 
-function ph_count_animations(sel) {
-    return ph_find(sel).getAnimations({ subtree: true }).length;
-}
+window.ph_count_animations = function(sel) {
+    return window.ph_find(sel).getAnimations({ subtree: true }).length;
+};
 
-function ph_set_texts(new_texts) {
+window.ph_set_texts = function(new_texts) {
     for (const sel in new_texts) {
-        const elts = ph_select(sel);
+        const elts = window.ph_select(sel);
         if (elts.length == 0)
             throw new Error(sel + " not found");
         for (let elt of elts) {
@@ -357,4 +354,4 @@ function ph_set_texts(new_texts) {
             }
         }
     }
-}
+};

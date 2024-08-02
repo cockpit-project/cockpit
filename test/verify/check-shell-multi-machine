@@ -581,8 +581,8 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_text('#file-content', "1")
         b.switch_to_top()
 
-        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
-        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
+        b.eval_js('window.ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
+        b.eval_js('window.ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
         b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
 
         b.enter_page("/playground/test", "10.111.113.2")

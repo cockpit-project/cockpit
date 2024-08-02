@@ -193,7 +193,7 @@ class StorageHelpers:
 
     def dialog_combobox_choices(self, field):
         return self.browser.call_js_func("""(function (sel) {
-                                               var lis = ph_find(sel).querySelectorAll('li');
+                                               var lis = window.ph_find(sel).querySelectorAll('li');
                                                var result = [];
                                                for (i = 0; i < lis.length; ++i)
                                                  result.push(lis[i].textContent);

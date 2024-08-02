@@ -1092,7 +1092,7 @@ class TestAccounts(testlib.MachineCase):
         b.go("#/admin")
         b.wait_visible("#account-logs")
         # Header + one line of logins
-        b.wait_js_func("ph_count_check", "#account-logs tr", 2)
+        b.wait_js_func("window.ph_count_check", "#account-logs tr", 2)
 
     def testGroups(self):
         b = self.browser

@@ -91,11 +91,11 @@ class TestHistoryMetrics(testlib.MachineCase):
 
     def waitStream(self, current_max):
         # should only have at most <current_max> valid minutes, the rest should be empty
-        valid_start = self.browser.call_js_func("ph_count", ".metrics-data-cpu.valid-data")
+        valid_start = self.browser.call_js_func("window.ph_count", ".metrics-data-cpu.valid-data")
         self.assertLessEqual(valid_start, current_max)
         # page auto-updates every minute
         with self.browser.wait_timeout(90):
-            self.browser.wait_js_func("(exp => ph_count('.metrics-data-cpu.valid-data') == exp)", valid_start + 1)
+            self.browser.wait_js_func("(exp => window.ph_count('.metrics-data-cpu.valid-data') == exp)", valid_start + 1)
 
         # Should never show more then 4 empty leading minutes (block of 5 minutes but always at least one used)
         leading_empty = self.browser.call_js_func("""(function () {
@@ -134,7 +134,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text(".metrics-heading", "CPU")
 
         # only shows current hour
-        b.wait_js_func("ph_count_check", ".metrics-hour", 1)
+        b.wait_js_func("window.ph_count_check", ".metrics-hour", 1)
 
         # VM just started, we don't have 12 hours of data
         b.wait_in_text(".metrics .pf-v5-c-alert", "No data available between")
@@ -148,7 +148,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # now the gap is > 24 hours, does show date
         b.wait_in_text(".metrics .pf-v5-c-alert", year)
         # still only one hour
-        b.wait_js_func("ph_count_check", ".metrics-hour", 1)
+        b.wait_js_func("window.ph_count_check", ".metrics-hour", 1)
 
         self.waitStream(3)
 
@@ -231,7 +231,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         self.assertFalse(b.is_present("#current-swap-usage"))
 
         # Check that we don't show too much empty minutes in the first hour
-        self.assertLessEqual(b.call_js_func("ph_count", ".metrics-data-cpu"), 35)
+        self.assertLessEqual(b.call_js_func("window.ph_count", ".metrics-data-cpu"), 35)
 
         # Check metrics hour header in compressed and expanded mode
         b.click("#metrics-hour-1597662000000 button.metrics-events-expander")
@@ -480,7 +480,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # page auto-updates every minute and starts to receive data,
         # On ubuntu at least, we need to wait for two samples.
         with self.browser.wait_timeout(180):
-            self.browser.wait_js_cond("ph_count('.metrics-data-cpu.valid-data') >= 1")
+            self.browser.wait_js_cond("window.ph_count('.metrics-data-cpu.valid-data') >= 1")
         b.wait_not_present(".pf-v5-c-empty-state")
 
         b.logout()

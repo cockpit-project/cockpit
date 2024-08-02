@@ -235,6 +235,11 @@ class Browser:
             self.layouts = [layout for layout in self.layouts if layout["theme"] != "dark"]
         self.current_layout = None
 
+        # we don't have a proper SSL certificate for our tests, ignore it
+        # Firefox does not support this, tests which rely on it need to skip it
+        if self.cdp.browser.name == "chromium":
+            self.cdp.command("setSSLBadCertificateAction('continue')")
+
     def allow_download(self) -> None:
         """Allow browser downloads"""
         if self.cdp.browser.name == "chromium":
@@ -1020,12 +1025,6 @@ class Browser:
         self.go(f"/@{address}")
         self.start_machine_troubleshoot(new=True, known_host=known_host, password=password)
         self.enter_page("/system", host=address)
-
-    def ignore_ssl_certificate_errors(self, ignore: bool) -> None:
-        action = "continue" if ignore else "cancel"
-        if opts.trace:
-            print("-> Setting SSL certificate error policy to %s" % action)
-        self.cdp.command(f"setSSLBadCertificateAction('{action}')")
 
     def grant_permissions(self, *args: str) -> None:
         """Grant permissions to the browser"""

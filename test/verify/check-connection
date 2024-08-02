@@ -497,7 +497,6 @@ class TestConnection(testlib.MachineCase):
         m.upload(["../tools/debian/tests/smoke"], "/tmp")
         m.execute("/tmp/smoke")
 
-        b.ignore_ssl_certificate_errors(ignore=True)
         self.login_and_go("/system", tls=True)
         cookie = b.cookie("cockpit")
         # cookie should be marked as secure
@@ -1000,7 +999,6 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
 
-        b.ignore_ssl_certificate_errors(ignore=True)
         b.open(f"https://{b.address}:{b.port}/system")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
@@ -1277,7 +1275,6 @@ ProtocolHeader = X-Forwarded-Proto
         self.assertIn(b"subject: CN=alice; DC=COCKPIT", out)
 
         # works with browser (but we can't set our CA)
-        b.ignore_ssl_certificate_errors(ignore=True)
         (https_host, https_port) = self.machine.forward["443"].split(':')
         b.open(f"https://{https_host}:{https_port}{urlroot}/system")
         if login:
@@ -1359,7 +1356,6 @@ server {
 
         # embedding
         b = self.browser
-        b.ignore_ssl_certificate_errors(ignore=True)
         (https_host, https_port) = self.machine.forward["443"].split(':')
         b.open(f"https://{https_host}:{https_port}/embed-cockpit/index.html")
         b.set_val("#embed-address", f"https://{https_host}:{https_port}/cockpit-root")

@@ -33,7 +33,7 @@ RE_EXPENSIVE='HostSwitching|MultiMachine|Updates|Superuser|Kdump|Pages'
 case "${TEST_SCENARIO:=}" in
     *devel*) RUN_OPTS="$RUN_OPTS --coverage"; export NODE_ENV=development ;;&
     *pybridge*) RUN_OPTS="$RUN_OPTS "; PREPARE_OPTS="$PREPARE_OPTS --python" ;;&
-    *firefox*) RUN_OPTS="$RUN_OPTS "; export TEST_BROWSER=firefox ;;&
+    *firefox*) RUN_OPTS="$RUN_OPTS --no-retry-fail"; export TEST_BROWSER=firefox ;;&
 
     *daily*)
         bots/image-customize --fresh -v --script test/vm.daily "$TEST_OS"

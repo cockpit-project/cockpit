@@ -1366,7 +1366,7 @@ class Browser:
 
         if self.cdp and self.cdp.valid:
             self.switch_to_top()
-            if self.is_present("#navbar-oops"):
+            if self.eval_js("!!document.getElementById('navbar-oops')"):
                 assert not self.is_visible("#navbar-oops"), "Cockpit shows an Oops"
 
 

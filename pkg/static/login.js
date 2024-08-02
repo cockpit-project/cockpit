@@ -341,6 +341,19 @@ import "./login.scss";
     function boot() {
         window.onload = null;
 
+        if (!environment.page.allow_multi_host) {
+            // If we are currently logged in, we do not want to allow
+            // another login to a different machine. So we redirect to
+            // the current login.
+
+            const cur_machine = window.localStorage.getItem("current-machine");
+            if (cur_machine == "localhost" && window.location.pathname.startsWith("/=")) {
+                login_reload("/");
+            } else if (cur_machine && !window.location.pathname.startsWith("/=" + cur_machine)) {
+                login_reload("/=" + cur_machine);
+            }
+        }
+
         translate();
         if (window.cockpit_po && window.cockpit_po[""]) {
             document.documentElement.lang = window.cockpit_po[""].language;
@@ -948,6 +961,8 @@ import "./login.scss";
     }
 
     function login_reload (wanted) {
+        console.log("RELOAD", wanted);
+
         // Force a reload if not triggered below
         // because only the hash part of the url
         // changed
@@ -980,7 +995,7 @@ import "./login.scss";
         }
     }
 
-    function setup_localstorage (response) {
+    function setup_localstorage (response, machine) {
         /* Clear anything not prefixed with
          * different application from sessionStorage
          */
@@ -1013,6 +1028,8 @@ import "./login.scss";
         const ca_cert_url = environment.CACertUrl;
         if (ca_cert_url)
             window.sessionStorage.setItem('CACertUrl', ca_cert_url);
+
+        window.localStorage.setItem('current-machine', machine || "localhost");
     }
 
     function run(response) {
@@ -1039,7 +1056,7 @@ import "./login.scss";
          */
         clear_storage(window.sessionStorage, application, false);
 
-        setup_localstorage(response);
+        setup_localstorage(response, machine);
         login_reload(wanted);
     }
 

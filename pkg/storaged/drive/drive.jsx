@@ -29,7 +29,7 @@ import { HDDIcon, SSDIcon, MediaDriveIcon } from "../icons/gnome-icons.jsx";
 import { StorageCard, StorageDescription, new_card, new_page } from "../pages.jsx";
 import { block_name, drive_name, format_temperature, fmt_size_long, should_ignore } from "../utils.js";
 import { make_block_page } from "../block/create-pages.jsx";
-import { partitionable_block_actions } from "../partitions/actions.jsx";
+import { partitionable_block_actions } from "../block/actions.jsx";
 
 const _ = cockpit.gettext;
 
@@ -81,7 +81,7 @@ export function make_drive_page(parent, drive) {
         job_path: drive.path,
         component: DriveCard,
         props: { drive },
-        actions: block.Size > 0 ? partitionable_block_actions(block) : [],
+        actions: partitionable_block_actions(block),
     });
 
     if (block.Size > 0) {

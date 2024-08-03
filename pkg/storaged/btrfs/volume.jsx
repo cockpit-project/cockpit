@@ -34,7 +34,6 @@ import { fmt_size_long, validate_fsys_label, should_ignore } from "../utils.js";
 import { btrfs_usage, btrfs_is_volume_mounted } from "./utils.jsx";
 import { dialog_open, TextInput } from "../dialog.jsx";
 import { make_btrfs_subvolume_pages } from "./subvolume.jsx";
-import { btrfs_device_actions } from "./device.jsx";
 
 const _ = cockpit.gettext;
 
@@ -145,7 +144,6 @@ export function make_btrfs_subvolumes_card(next, block, backing_block) {
     return new_card({
         title: _("btrfs subvolumes"),
         next,
-        actions: btrfs_device_actions(block, backing_block),
         component: BtrfsSubVolumesCard,
     });
 }

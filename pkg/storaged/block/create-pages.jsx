@@ -77,23 +77,24 @@ export function make_block_page(parent, block, card) {
         content_block = block;
     }
 
-    if (is_crypto)
-        card = make_encryption_card(card, block);
-
     if (!content_block) {
         if (!is_crypto) {
             // can not happen unless there is a bug in the code above.
             console.error("Assertion failure: is_crypto == false");
         }
         if (fstab_config.length > 0 && !is_btrfs) {
+            card = make_encryption_card(card, block, true);
             card = make_filesystem_card(card, block, null, fstab_config);
         } else {
-            card = make_locked_encrypted_data_card(card, block);
+            card = make_encryption_card(card, block, false);
         }
     } else {
         const is_filesystem = content_block.IdUsage == 'filesystem';
         const block_pvol = client.blocks_pvol[content_block.path];
         const block_swap = client.blocks_swap[content_block.path];
+
+        if (is_crypto)
+            card = make_encryption_card(card, block, is_filesystem && !(block_btrfs_blockdev && !single_device_volume));
 
         if (block_btrfs_blockdev) {
             if (single_device_volume)
@@ -114,7 +115,7 @@ export function make_block_page(parent, block, card) {
                    (content_block.IdUsage == "other" && content_block.IdType == "swap")) {
             card = make_swap_card(card, block, content_block);
         } else if (client.blocks_available[content_block.path]) {
-            card = make_unformatted_data_card(card, block, content_block);
+            // No card for unformatted data
         } else {
             card = make_unrecognized_data_card(card, block, content_block);
         }

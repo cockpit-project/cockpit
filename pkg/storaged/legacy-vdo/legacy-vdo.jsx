@@ -33,6 +33,7 @@ import { StorageButton, StorageOnOff } from "../storage-controls.jsx";
 
 import { StorageCard, new_page, new_card } from "../pages.jsx";
 import { make_block_page } from "../block/create-pages.jsx";
+import { block_actions } from "../block/actions.jsx";
 
 import inotify_py from "inotify.py";
 import vdo_monitor_py from "./vdo-monitor.py";
@@ -149,6 +150,7 @@ export function make_legacy_vdo_page(parent, vdo, backing_block, next_card) {
                 ? { title: _("Stop"), action: stop }
                 : { title: _("Start"), action: () => vdo.start() }
             ),
+            ...block_actions(block),
             { title: _("Delete"), action: delete_, danger: true }
         ],
     });

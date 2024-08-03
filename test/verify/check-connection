@@ -978,7 +978,6 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.allow_journal_messages(r".*cannot reauthorize identity\(s\): unix-user:.*")
         self.allow_journal_messages("admin: Executing command .*COMMAND=.*cockpit-bridge --privileged.*")
 
-    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):
         m = self.machine
         b = self.browser
@@ -1005,12 +1004,8 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
 
-        def check_wss_log():
-            for log in self.browser.get_js_log():
-                if 'Error during WebSocket handshake: Unexpected response code: 403' in log:
-                    return True
-            return False
-        testlib.wait(check_wss_log)
+        b.wait_text(".early-failure .pf-v5-c-empty-state__title", "Connection failed")
+        b.wait_in_text(".early-failure ", "unexpected error while connecting to the machine")
 
         testlib.wait(lambda: m.execute("grep 'received request from bad Origin' /var/log/ws-notls.log"))
 

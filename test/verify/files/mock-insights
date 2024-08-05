@@ -52,13 +52,14 @@ class handler(BaseHTTPRequestHandler):
         m = self.match("/r/insights/v1/systems/([^/]+)")
         if m:
             machine_id = m[1]
-            if machine_id not in systems:
-                self.send_response(404)
-                self.end_headers()
-                return
-            self.send_response(200)
+            for system in systems.values():
+                if system["machine_id"] == machine_id:
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(json.dumps(system).encode() + b"\n")
+                    return
+            self.send_response(404)
             self.end_headers()
-            self.wfile.write(json.dumps(systems[machine_id]).encode() + b"\n")
             return
 
         m = self.match("/r/insights/v1/branch_info")
@@ -77,9 +78,10 @@ class handler(BaseHTTPRequestHandler):
                 "total": 0,
                 "results": [],
             }
-            if insights_id in systems:
-                res["total"] += 1
-                res["results"].append({"id": "123-nice-id"})
+            for system in systems.values():
+                if system["insights_id"] == insights_id:
+                    res["total"] += 1
+                    res["results"].append(system)
             self.wfile.write(json.dumps(res).encode("utf-8") + b"\n")
             return
 
@@ -88,7 +90,7 @@ class handler(BaseHTTPRequestHandler):
             inventory_id = m[1]
             self.send_response(200)
             self.end_headers()
-            if inventory_id == "123-nice-id":
+            if inventory_id in systems:
                 self.wfile.write(b'[ { "rule": { "total_risk": 3 } }, { "rule": { "total_risk": 2 } }, { "rule": { "total_risk": 1 } }]\n')
             else:
                 self.wfile.write(b'[ ]\n')
@@ -106,8 +108,10 @@ class handler(BaseHTTPRequestHandler):
             s = json.loads(data)
             s["unregistered_at"] = None
             s["account_number"] = "123456"
+            s["insights_id"] = s["machine_id"]
+            s["id"] = "123-nice-id"
             print(s)
-            systems[s["machine_id"]] = s
+            systems[s["id"]] = s
             self.send_response(200)
             self.end_headers()
             self.wfile.write(data)

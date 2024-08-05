@@ -97,6 +97,7 @@ Command = /usr/bin/env python3 -m cockpit.beiboot
 
     def checkLoginScenarios(self, *, local_bridge=True):
         self.m_client.spawn(f"runuser -u admin -- {self.libexecdir}/cockpit-ws --no-tls", "ws.log")
+        self.m_client.wait_for_cockpit_running()
 
         b = self.browser
         b.open("/")

@@ -22,6 +22,7 @@
 #include "cockpitchannelresponse.h"
 
 #include "common/cockpitchannel.h"
+#include "common/cockpitconf.h"
 #include "common/cockpitflow.h"
 #include "common/cockpitwebinject.h"
 #include "common/cockpitwebserver.h"
@@ -102,6 +103,13 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
     {
       prefixed_application = g_strdup_printf ("/%s", cockpit_creds_get_application (creds));
     }
+
+  {
+    const gboolean allow_multihost = cockpit_conf_bool ("WebService", "AllowMultiHost",
+                                                        ALLOW_MULTIHOST_DEFAULT);
+    g_string_append_printf (str, "\n    <meta name=\"allow-multihost\" content=\"%s\">",
+                            allow_multihost ? "yes" : "no");
+  }
 
   if (inject->base_path)
     {

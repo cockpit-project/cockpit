@@ -251,6 +251,7 @@ add_page_to_environment (JsonObject *object,
 {
   static gint page_login_to = -1;
   gboolean require_host = FALSE;
+  gboolean allow_multihost;
   JsonObject *page;
   const gchar *value;
 
@@ -268,9 +269,11 @@ add_page_to_environment (JsonObject *object,
     }
 
   require_host = is_cockpit_client || cockpit_conf_bool ("WebService", "RequireHost", FALSE);
+  allow_multihost = cockpit_conf_bool ("WebService", "AllowMultiHost", ALLOW_MULTIHOST_DEFAULT);
 
   json_object_set_boolean_member (page, "connect", page_login_to);
   json_object_set_boolean_member (page, "require_host", require_host);
+  json_object_set_boolean_member (page, "allow_multihost", allow_multihost);
   json_object_set_object_member (object, "page", page);
 }
 

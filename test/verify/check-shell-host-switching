@@ -115,11 +115,6 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
 
-    def enable_multihost(self, machine):
-        if not self.multihost_enabled:
-            machine.write("/etc/cockpit/shell.override.json",
-                          '{ "config": { "host_switcher": true } }')
-
     def testBasic(self):
         b = self.browser
         m1 = self.machines["machine1"]

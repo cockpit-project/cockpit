@@ -105,16 +105,13 @@
     arbitrary code on your primary and all other connected secondary machines.
     Hence, only connect to <emphasis>machines which you trust</emphasis>.</para>
 
-    <para>Due to this security risk, this host switcher functionality is disabled
-    by default, except on long-term stable Linux distributions (Red Hat
-    Enterprise Linux 9, Debian 12, and Ubuntu 22.04/24.04 LTS). If you are
-    comfortable with the security implications, you can enable it manually by
-    creating a file <filename>/etc/cockpit/shell.override.json</filename> with
-    the following content:</para>
-
-<programlisting>
-{ "config": { "host_switcher": true } }
-</programlisting>
+    <para>Due to this security risk, this host switcher functionality
+    is disabled by default, except on long-term stable Linux
+    distributions (Red Hat Enterprise Linux 9, Debian 12, and Ubuntu
+    22.04/24.04 LTS). If you are comfortable with the security
+    implications, you can enable it manually with the
+    <code>AllowMultiHost</code> option in
+    <filename>cockpit.conf</filename>.</para>
 
     <para>These servers will need to be running an SSH server
     and be configured to support one of the following

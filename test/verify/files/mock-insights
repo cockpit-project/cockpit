@@ -17,6 +17,7 @@
 # username=admin
 # password=foobar
 
+import email
 import json
 import os
 import re
@@ -124,6 +125,51 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(b'{ "reports": [ "foo", "bar" ] }\n')
             return
 
+        m = self.match("/r/insights/platform/ingress/v1/upload")
+        if m:
+            # The metadata of the system is in the multipart MIME data
+            # sent by the system for the upload; to pick it and use it
+            # we need to unpack the multipart MIME data.
+
+            # First, create prologue to the data, so it can be recognized
+            # as multipart MIME.
+            multipart_data = (
+                b"""MIME-Version: 1.0
+Content-Type: """
+                + self.headers.get("content-type").encode("utf-8")
+                + b"""
+
+"""
+            )
+            multipart_data += data
+
+            # Parse the multipart MIME data, and then look for a "metadata"
+            # file part which contains the system metadata as JSON.
+            message = email.message_from_bytes(multipart_data)
+            for part in message.walk():
+                if part.get_filename() == "metadata":
+                    s = json.loads(part.get_payload())
+                    s["id"] = "123-nice-id"
+                    print(s)
+                    systems[s["id"]] = s
+
+                    self.send_response(202)
+                    self.end_headers()
+                    self.wfile.write(
+                        b"{"
+                        b'  "request_id": "some-upload", '
+                        b'  "upload": { '
+                        b'    "account": "123456", '
+                        b'    "org_id": "123456" '
+                        b"  }"
+                        b"}\n"
+                    )
+                    return
+
+            self.send_response(400)
+            self.end_headers()
+            return
+
         self.send_response(404)
         self.end_headers()
 
@@ -136,6 +182,18 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             if machine_id in systems:
                 del systems[machine_id]
+            return
+
+        m = self.match("/r/insights/platform/inventory/v1/hosts/([^/]+)")
+        if m:
+            inventory_id = m[1]
+            if inventory_id in systems:
+                del systems[inventory_id]
+                self.send_response(200)
+                self.end_headers()
+                return
+            self.send_response(404)
+            self.end_headers()
             return
 
         self.send_response(404)

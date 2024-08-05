@@ -427,8 +427,11 @@ class ProtocolChannel(Channel, asyncio.Protocol):
 
     def data_received(self, data: bytes) -> None:
         assert self._transport is not None
-        if not self.send_data(data):
-            self._transport.pause_reading()
+        try:
+            if not self.send_data(data):
+                self._transport.pause_reading()
+        except ChannelError as exc:
+            self.close(exc.get_attrs())
 
     def do_resume_send(self) -> None:
         assert self._transport is not None

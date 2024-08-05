@@ -124,6 +124,23 @@ ForwardedForHeader = X-Forwarded-For
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term><option>AllowMultiHost</option></term>
+        <listitem>
+          <para>
+            When set to <literal>true</literal>, cockpit will allow
+            users to connect to multiple hosts in one session. The
+            default is OS specific.
+          </para>
+          <para>
+            When connecting to multiple servers, JavaScript runs
+            without isolation. All systems will be vulnerable to
+            potential attacks from other connected hosts. Enable this
+            option <emphasis>only</emphasis> when all hosts are
+            trusted.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term><option>MaxStartups</option></term>
         <listitem><para>Same as the <command>sshd</command> configuration option by the same name.
             Specifies the maximum number of concurrent login attempts

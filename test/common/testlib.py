@@ -1776,6 +1776,12 @@ class MachineCase(unittest.TestCase):
 
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
+    def enable_multihost(self, machine: testvm.Machine) -> None:
+        if not self.multihost_enabled:
+            machine.write("/etc/cockpit/cockpit.conf",
+                          '[WebService]\nAllowMultiHost=yes\n')
+            machine.restart_cockpit()
+
     def login_and_go(
         self,
         path: str | None = None,

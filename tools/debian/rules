@@ -8,7 +8,13 @@ PRE4AA = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.0
 # pcp isn't in Debian testing right now
 ifeq ($(shell . /etc/os-release; echo $${VERSION_CODENAME}),trixie)
     export DH_OPTIONS = -Ncockpit-pcp
-    CONFIG_OPTIONS = --disable-pcp
+    CONFIG_OPTIONS := --disable-pcp
+endif
+
+# keep the host switcher on in currently supported stable releases
+STABLE = $(filter $(shell . /etc/os-release; echo $${VERSION_CODENAME}),bookworm jammy noble)
+ifneq ($(STABLE),)
+    CONFIG_OPTIONS := $(CONFIG_OPTIONS) --enable-multihost
 endif
 
 # riscv is an emulated architecture for now, and too slow to run expensive unit tests

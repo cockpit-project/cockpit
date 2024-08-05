@@ -65,6 +65,11 @@ ExcludeArch: %{ix86}
 %endif
 %endif
 
+%define enable_multihost 1
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 10
+%define enable_multihost 0
+%endif
+
 # Ship custom SELinux policy
 %define selinuxtype targeted
 %define selinux_configure_arg --enable-selinux-policy=%{selinuxtype}
@@ -164,6 +169,9 @@ BuildRequires:  python3-tox-current-env
     --with-pamdir='%{pamdir}' \
 %if %{build_pcp} == 0
     --disable-pcp \
+%endif
+%if %{enable_multihost}
+    --enable-multihost \
 %endif
 
 %make_build

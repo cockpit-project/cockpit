@@ -28,8 +28,6 @@ import { CockpitHosts, CockpitCurrentHost } from "./hosts.jsx";
 import { codes, HostModal } from "./hosts_dialog.jsx";
 import { EarlyFailure, EarlyFailureReady } from './failures.jsx';
 import { WithDialogs } from "dialogs.jsx";
-import { read_os_release } from "os-release";
-import { get_manifest_config_matchlist } from "utils";
 
 import * as base_index from "./base_index";
 
@@ -103,15 +101,9 @@ function MachinesIndex(index_options, machines, loader) {
 
     /* Host switcher enabled? */
     let host_switcher_enabled = false;
-    read_os_release().then(os_release => {
-        const enabled = os_release && get_manifest_config_matchlist(
-            "shell", "host_switcher", false,
-            [os_release.PLATFORM_ID, os_release.VERSION_CODENAME]);
-        if (enabled) {
-            host_switcher_enabled = true;
-            update_machines();
-        }
-    });
+    const meta_multihost = document.head.querySelector("meta[name='allow-multihost']");
+    if (meta_multihost instanceof HTMLMetaElement && meta_multihost.content == "yes")
+        host_switcher_enabled = true;
 
     /* Navigation */
     let ready = false;

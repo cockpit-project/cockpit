@@ -302,6 +302,21 @@ fi
 
 AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])
 
+# Default for AllowMultiHost
+
+AC_MSG_CHECKING([for AllowMultiHost default])
+AC_ARG_ENABLE(multihost,
+              AS_HELP_STRING([--enable-multihost],
+                             [Set AllowMultiHost to true by default]),
+              [], [enable_multihost=no])
+AC_MSG_RESULT($enable_multihost)
+if test "$enable_multihost" = "no"; then
+   multihost_def=0
+else
+   multihost_def=1
+fi
+AC_DEFINE_UNQUOTED(ALLOW_MULTIHOST_DEFAULT, [$multihost_def], [default for AllowMultiHost configuration setting])
+
 # cockpit-client
 AC_MSG_CHECKING([whether to install cockpit-client])
 AC_ARG_ENABLE([cockpit-client],

@@ -163,6 +163,18 @@ QUnit.test("truncated UTF8 frame", assert => {
             .finally(done);
 });
 
+QUnit.test("binary data", async assert => {
+    const data = await cockpit.http({ ...test_server, binary: true }).get("/mock/binary-data");
+    assert.deepEqual(data, new Uint8Array([255, 1, 255, 2]));
+});
+
+QUnit.test("invalid UTF-8", assert => {
+    assert.rejects(
+        cockpit.http(test_server).get("/mock/binary-data"),
+        ex => ex.problem == "protocol-error" && ex.message.includes("can't decode byte 0xff"),
+        "rejects non-UTF-8 data on text channel");
+});
+
 QUnit.test("close", assert => {
     const done = assert.async();
     assert.expect(3);

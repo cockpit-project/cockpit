@@ -226,6 +226,16 @@ send_truncated_utf8 (gpointer data)
 }
 
 static gboolean
+send_binary_data (gpointer data)
+{
+  CockpitWebResponse *response = data;
+  g_autoptr(GBytes) bytes = g_bytes_new_static ("\xFF\x01\xFF\x02", 4);
+  cockpit_web_response_queue (response, bytes);
+  cockpit_web_response_complete (response);
+  return FALSE;
+}
+
+static gboolean
 mock_http_stream (CockpitWebResponse *response, GSourceFunc func)
 {
   cockpit_web_response_headers (response, 200, "OK", -1, NULL);
@@ -356,6 +366,8 @@ on_handle_mock (CockpitWebServer *server,
     return mock_http_stream (response, send_split_utf8);
   if (g_str_equal (path, "/truncated-utf8"))
     return mock_http_stream (response, send_truncated_utf8);
+  if (g_str_equal (path, "/binary-data"))
+    return mock_http_stream (response, send_binary_data);
   if (g_str_equal (path, "/headers"))
     return mock_http_headers (response, headers);
   if (g_str_equal (path, "/host"))

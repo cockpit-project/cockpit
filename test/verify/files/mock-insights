@@ -70,21 +70,25 @@ class handler(BaseHTTPRequestHandler):
 
         m = self.match("/r/insights/platform/inventory/v1/hosts\\?insights_id=(.*)")
         if m:
-            machine_id = m[1]
+            insights_id = m[1]
             self.send_response(200)
             self.end_headers()
-            if machine_id in systems:
-                self.wfile.write(b'{ "total": 1, "results": [ { "id": "123-nice-id" } ] }\n')
-            else:
-                self.wfile.write(b'{ "total": 0, "results": [ ] }\n')
+            res = {
+                "total": 0,
+                "results": [],
+            }
+            if insights_id in systems:
+                res["total"] += 1
+                res["results"].append({"id": "123-nice-id"})
+            self.wfile.write(json.dumps(res).encode("utf-8") + b"\n")
             return
 
         m = self.match("/r/insights/platform/insights/v1/system/([^/]+)/reports/")
         if m:
-            platform_id = m[1]
+            inventory_id = m[1]
             self.send_response(200)
             self.end_headers()
-            if platform_id == "123-nice-id":
+            if inventory_id == "123-nice-id":
                 self.wfile.write(b'[ { "rule": { "total_risk": 3 } }, { "rule": { "total_risk": 2 } }, { "rule": { "total_risk": 1 } }]\n')
             else:
                 self.wfile.write(b'[ ]\n')

@@ -91,6 +91,13 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         b.input_text('echo -e "1\\u0041"\n')
         wait_line(n + 3, '1A')
+        wait_line(n + 4, prompt)
+
+        # non-UTF8 data
+        m.execute(r"echo -e 'hello\xFF\x01\xFF\x02world' > " + self.vm_tmpdir + "/garbage.txt")
+        b.input_text(f'cat {self.vm_tmpdir}/garbage.txt\n')
+        wait_line(n + 5, 'helloworld')
+        wait_line(n + 6, prompt)
 
         # The '@' sign is in the default prompt
         b.wait_in_text(".terminal-title", '@')

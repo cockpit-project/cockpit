@@ -34,7 +34,8 @@ const _ = cockpit.gettext;
                     "TERM=xterm-256color",
                 ],
                 directory: user.home || "/",
-                pty: true
+                pty: true,
+                binary: true,
             });
         }
 

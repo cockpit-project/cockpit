@@ -284,7 +284,7 @@ class Browser:
         """
 
         self.switch_to_top()
-        self.wait_js_cond("window.ph_select('iframe.container-frame').every(e => e.getAttribute('data-loaded'))")
+        self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
         self.cdp.invoke("Page.reload", ignoreCache=ignore_cache)
 
         self.machine.allow_restart_journal_messages()
@@ -383,7 +383,7 @@ class Browser:
         :param mock: the mock data, see above
         :param base: if given, all selectors are relative to this one
         """
-        self.call_js_func('window.ph_set_texts', {base + " " + k: v for k, v in mock.items()})
+        self.call_js_func('ph_set_texts', {base + " " + k: v for k, v in mock.items()})
 
     def cookie(self, name: str) -> Mapping[str, object] | None:
         """Retrieve a browser cookie by name
@@ -399,7 +399,7 @@ class Browser:
         return None
 
     def go(self, url_hash: str) -> None:
-        self.call_js_func('window.ph_go', url_hash)
+        self.call_js_func('ph_go', url_hash)
 
     def mouse(
         self,
@@ -427,7 +427,7 @@ class Browser:
         :param metaKey: press the meta key
         """
         self.wait_visible(selector)
-        self.call_js_func('window.ph_mouse', selector, event, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
+        self.call_js_func('ph_mouse', selector, event, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
 
     def click(self, selector: str) -> None:
         """Click on a ui element
@@ -442,7 +442,7 @@ class Browser:
         :param selector: the selector to get the value of
         """
         self.wait_visible(selector)
-        return self.call_js_func('window.ph_val', selector)
+        return self.call_js_func('ph_val', selector)
 
     def set_val(self, selector: str, val: object) -> None:
         """Set the value attribute of a non disabled DOM element.
@@ -453,7 +453,7 @@ class Browser:
         :param val: the value to set
         """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
-        self.call_js_func('window.ph_set_val', selector, val)
+        self.call_js_func('ph_set_val', selector, val)
 
     def text(self, selector: str) -> str:
         """Get an element's textContent value.
@@ -461,7 +461,7 @@ class Browser:
         :param selector: the selector to get the value of
         """
         self.wait_visible(selector)
-        return self.call_js_func('window.ph_text', selector) or ''
+        return self.call_js_func('ph_text', selector) or ''
 
     def attr(self, selector: str, attr: str) -> Any:
         """Get the value of a given attribute of an element.
@@ -470,7 +470,7 @@ class Browser:
         :param attr: the DOM element attribute
         """
         self._wait_present(selector)
-        return self.call_js_func('window.ph_attr', selector, attr)
+        return self.call_js_func('ph_attr', selector, attr)
 
     def set_attr(self, selector: str, attr: str, val: object) -> None:
         """Set an attribute value of an element.
@@ -480,7 +480,7 @@ class Browser:
         :param val: the value of the attribute
         """
         self._wait_present(selector + ':not([disabled]):not([aria-disabled=true])')
-        self.call_js_func('window.ph_set_attr', selector, attr, val)
+        self.call_js_func('ph_set_attr', selector, attr, val)
 
     def get_checked(self, selector: str) -> bool:
         """Get checked state of a given selector.
@@ -489,7 +489,7 @@ class Browser:
         :return: the checked state
         """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
-        return self.call_js_func('window.ph_get_checked', selector)
+        return self.call_js_func('ph_get_checked', selector)
 
     def set_checked(self, selector: str, val: bool) -> None:
         """Set checked state of a given selector.
@@ -498,7 +498,7 @@ class Browser:
         :param val: boolean value to enable or disable checkbox
         """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
-        self.call_js_func('window.ph_set_checked', selector, val)
+        self.call_js_func('ph_set_checked', selector, val)
 
     def focus(self, selector: str) -> None:
         """Set focus on selected element.
@@ -506,7 +506,7 @@ class Browser:
         :param selector: the selector
         """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
-        self.call_js_func('window.ph_focus', selector)
+        self.call_js_func('ph_focus', selector)
 
     def blur(self, selector: str) -> None:
         """Remove keyboard focus from selected element.
@@ -514,7 +514,7 @@ class Browser:
         :param selector: the selector
         """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
-        self.call_js_func('window.ph_blur', selector)
+        self.call_js_func('ph_blur', selector)
 
     def input_text(self, text: str) -> None:
         for char in text:
@@ -627,7 +627,7 @@ class Browser:
             count += 1
             try:
                 result = self.cdp.invoke("Runtime.evaluate",
-                                         expression="window.ph_wait_cond(() => %s, %i, %s)" % (cond, timeout * 1000, error_description),
+                                         expression="ph_wait_cond(() => %s, %i, %s)" % (cond, timeout * 1000, error_description),
                                          silent=False, awaitPromise=True, trace="wait: " + cond)
                 if "exceptionDetails" in result:
                     if self.cdp.browser.name == "firefox" and count < 20 and "ph_wait_cond is not defined" in result["exceptionDetails"].get("text", ""):
@@ -652,72 +652,72 @@ class Browser:
         self.wait_js_cond("%s(%s)" % (func, ','.join(map(jsquote, args))))
 
     def is_present(self, selector: str) -> bool:
-        return self.call_js_func('window.ph_is_present', selector)
+        return self.call_js_func('ph_is_present', selector)
 
     def _wait_present(self, selector: str) -> None:
-        self.wait_js_func('window.ph_is_present', selector)
+        self.wait_js_func('ph_is_present', selector)
 
     def wait_not_present(self, selector: str) -> None:
-        self.wait_js_func('!window.ph_is_present', selector)
+        self.wait_js_func('!ph_is_present', selector)
 
     def is_visible(self, selector: str) -> bool:
-        return self.call_js_func('window.ph_is_visible', selector)
+        return self.call_js_func('ph_is_visible', selector)
 
     def wait_visible(self, selector: str) -> None:
         self._wait_present(selector)
-        self.wait_js_func('window.ph_is_visible', selector)
+        self.wait_js_func('ph_is_visible', selector)
 
     def wait_val(self, selector: str, val: object) -> None:
         self.wait_visible(selector)
-        self.wait_js_func('window.ph_has_val', selector, val)
+        self.wait_js_func('ph_has_val', selector, val)
 
     def wait_not_val(self, selector: str, val: str) -> None:
         self.wait_visible(selector)
-        self.wait_js_func('!window.ph_has_val', selector, val)
+        self.wait_js_func('!ph_has_val', selector, val)
 
     def wait_attr(self, selector: str, attr: str, val: object) -> None:
         self._wait_present(selector)
-        self.wait_js_func('window.ph_has_attr', selector, attr, val)
+        self.wait_js_func('ph_has_attr', selector, attr, val)
 
     def wait_attr_contains(self, selector: str, attr: str, val: object) -> None:
         self._wait_present(selector)
-        self.wait_js_func('window.ph_attr_contains', selector, attr, val)
+        self.wait_js_func('ph_attr_contains', selector, attr, val)
 
     def wait_attr_not_contains(self, selector: str, attr: str, val: object) -> None:
         self._wait_present(selector)
-        self.wait_js_func('!window.ph_attr_contains', selector, attr, val)
+        self.wait_js_func('!ph_attr_contains', selector, attr, val)
 
     def wait_not_attr(self, selector: str, attr: str, val: object) -> None:
         self._wait_present(selector)
-        self.wait_js_func('!window.ph_has_attr', selector, attr, val)
+        self.wait_js_func('!ph_has_attr', selector, attr, val)
 
     def wait_not_visible(self, selector: str) -> None:
-        self.wait_js_func('!window.ph_is_visible', selector)
+        self.wait_js_func('!ph_is_visible', selector)
 
     def wait_in_text(self, selector: str, text: str) -> None:
         self.wait_visible(selector)
-        self.wait_js_cond("window.ph_in_text(%s,%s)" % (jsquote(selector), jsquote(text)),
-                          error_description="() => 'actual text: ' + window.ph_text(%s)" % jsquote(selector))
+        self.wait_js_cond("ph_in_text(%s,%s)" % (jsquote(selector), jsquote(text)),
+                          error_description="() => 'actual text: ' + ph_text(%s)" % jsquote(selector))
 
     def wait_not_in_text(self, selector: str, text: str) -> None:
         self.wait_visible(selector)
-        self.wait_js_func('!window.ph_in_text', selector, text)
+        self.wait_js_func('!ph_in_text', selector, text)
 
     def wait_collected_text(self, selector: str, text: str) -> None:
-        self.wait_js_func('window.ph_collected_text_is', selector, text)
+        self.wait_js_func('ph_collected_text_is', selector, text)
 
     def wait_text(self, selector: str, text: str) -> None:
         self.wait_visible(selector)
-        self.wait_js_cond("window.ph_text_is(%s,%s)" % (jsquote(selector), jsquote(text)),
-                          error_description="() => 'actual text: ' + window.ph_text(%s)" % jsquote(selector))
+        self.wait_js_cond("ph_text_is(%s,%s)" % (jsquote(selector), jsquote(text)),
+                          error_description="() => 'actual text: ' + ph_text(%s)" % jsquote(selector))
 
     def wait_text_not(self, selector: str, text: str) -> None:
         self.wait_visible(selector)
-        self.wait_js_func('!window.ph_text_is', selector, text)
+        self.wait_js_func('!ph_text_is', selector, text)
 
     def wait_text_matches(self, selector: str, pattern: str) -> None:
         self.wait_visible(selector)
-        self.wait_js_func('window.ph_text_matches', selector, pattern)
+        self.wait_js_func('ph_text_matches', selector, pattern)
 
     def wait_popup(self, elem_id: str) -> None:
         """Wait for a popup to open.
@@ -1133,8 +1133,8 @@ class Browser:
 
         assert self.current_layout is not None
         self._adjust_window_for_fixed_content_size()
-        self.call_js_func('window.ph_scrollIntoViewIfNeeded', scroll_into_view or selector)
-        self.call_js_func('window.ph_blur_active')
+        self.call_js_func('ph_scrollIntoViewIfNeeded', scroll_into_view or selector)
+        self.call_js_func('ph_blur_active')
 
         # Wait for all animations to be over.  This is done by
         # counting them all over and over again until there are zero.
@@ -1158,14 +1158,14 @@ class Browser:
 
         if wait_animations:
             time.sleep(wait_delay)
-            self.wait_js_cond('window.ph_count_animations(%s) == 0' % jsquote(selector))
+            self.wait_js_cond('ph_count_animations(%s) == 0' % jsquote(selector))
 
         if mock is not None:
             self.set_mock(mock, base=selector)
             if sit_after_mock:
                 sit()
 
-        rect = self.call_js_func('window.ph_element_clip', selector)
+        rect = self.call_js_func('ph_element_clip', selector)
 
         def relative_clips(sels: Collection[str]) -> Collection[tuple[int, int, int, int]]:
             return [(
@@ -1173,7 +1173,7 @@ class Browser:
                     r['y'] - rect['y'],
                     r['x'] - rect['x'] + r['width'],
                     r['y'] - rect['y'] + r['height'])
-                    for r in self.call_js_func('window.ph_selector_clips', sels)]
+                    for r in self.call_js_func('ph_selector_clips', sels)]
 
         reference_dir = os.path.join(TEST_DIR, 'reference')
         if not os.path.exists(os.path.join(reference_dir, '.git')):

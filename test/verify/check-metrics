@@ -1516,6 +1516,8 @@ class TestGrafanaClient(testlib.MachineCase):
         except Exception:
             bg.snapshot("FAIL-grafana")
             raise
+        finally:
+            bg.kill()
 
 
 if __name__ == '__main__':

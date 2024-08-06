@@ -77,7 +77,7 @@ class TestStoragePartitions(storagelib.StorageCase):
 
         # Move the slider one pixel past the middle, this should give a fractional size.
         # See https://github.com/cockpit-project/cockpit/pull/10968 for more about this.
-        width = b.call_js_func('(function (sel) { return window.ph_find(sel).offsetWidth; })', slider)
+        width = b.call_js_func('(function (sel) { return ph_find(sel).offsetWidth; })', slider)
         about_half_way = width / 2 + 1
 
         b.mouse(slider, "click", about_half_way, 0)

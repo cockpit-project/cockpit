@@ -220,7 +220,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_visible(self.card_row("LVM2 volume group", name=dev_2))
         # this is sometimes 96, sometimes 100 MB
         cap = self.card_desc("LVM2 volume group", "Capacity")
-        b.wait_js_func("(sel => { const c = Number(window.ph_text(sel).split(' ')[0]); return c >= 96 && c <= 101 })", cap)
+        b.wait_js_func("(sel => { const c = Number(ph_text(sel).split(' ')[0]); return c >= 96 && c <= 101 })", cap)
 
         self.click_card_row("LVM2 logical volumes", name="pool")
         b.click(self.card_button("Pool for thinly provisioned LVM2 logical volumes", "Grow"))
@@ -446,10 +446,10 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Check that each PV is used exactly once.
         card = self.card("LVM2 logical volume")
-        b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
-        b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
-        b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
-        b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
+        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
+        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
+        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
         b.assert_pixels(card, "raid5-card2")
 
     def testBrokenLinear(self):
@@ -664,18 +664,18 @@ class TestStorageLvm2(storagelib.StorageCase):
             b.click(self.card_button("LVM2 logical volume", "Grow"))
             self.dialog_wait_open()
             slider = self.dialog_field("size") + " .pf-v5-c-slider .pf-v5-c-slider__rail"
-            width = b.call_js_func('(function (sel) { return window.ph_find(sel).offsetWidth; })', slider)
+            width = b.call_js_func('(function (sel) { return ph_find(sel).offsetWidth; })', slider)
             b.mouse(slider, "click", width, 0)
             self.dialog_apply()
             self.dialog_wait_close()
 
             card = self.card("LVM2 logical volume")
-            b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
-            b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
-            b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
-            b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
-            b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk5)}')", 1)
-            b.wait_js_func("window.ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk6)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk5)}')", 1)
+            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk6)}')", 1)
 
             b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), mb(expected_size))
 

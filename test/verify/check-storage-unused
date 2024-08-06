@@ -53,12 +53,12 @@ mkpart logical ext2 24 48"""
         m.execute(f"mke2fs -q -L TEST {disk1}5")
 
         b.inject_js("""
-          window.ph_texts = function (sel) {
-            return window.ph_select(sel).map(function(e) { return e.textContent });
+          ph_texts = function (sel) {
+            return ph_select(sel).map(function(e) { return e.textContent });
           }""")
 
         def check_free_block_devices():
-            blocks = b.eval_js("window.ph_texts('#dialog [data-field=\"disks\"] .select-space-details')")
+            blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .select-space-details')")
             print("blocks", blocks)
             # On Ubuntu we see /dev/ram devices as well
             # On Fedora also /dev/zram0 - see https://github.com/cockpit-project/cockpit/issues/14516

@@ -269,7 +269,7 @@ OnCalendar=daily
         b.wait_visible('#overview')
 
         self.open_lang_modal()
-        languages = b.eval_js("window.ph_select('#display-language-list li').map(e => e.attributes['data-value'].nodeValue)")
+        languages = b.eval_js("ph_select('#display-language-list li').map(e => e.attributes['data-value'].nodeValue)")
         self.assertIn('en-us', languages)
         b.click("#display-language-modal footer button.pf-m-link")  # Close the menu
 
@@ -404,8 +404,8 @@ OnCalendar=daily
         b.wait_text('#file-content', "1")
 
         b.switch_to_top()
-        b.eval_js('window.ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
-        b.eval_js('window.ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
         b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
 
         b.enter_page("/playground/test")
@@ -535,7 +535,7 @@ OnCalendar=daily
         # Filter the available languages
         b.set_input_text('#display-language-modal input[type=search]', "Deutsch")
         b.click('#display-language-modal li[data-value=de-de] button')
-        b.wait_js_func("window.ph_count_check", "#display-language-modal li", 1)
+        b.wait_js_func("ph_count_check", "#display-language-modal li", 1)
         b.set_input_text('#display-language-modal input[type=search]', "")
 
         b.click('#display-language-modal li[data-value=de-de] button')
@@ -564,9 +564,9 @@ OnCalendar=daily
         b.switch_to_top()
         b.wait_attr('iframe[name="cockpit1:localhost/playground/preloaded"]', 'data-loaded', 1)
         b.switch_to_frame("cockpit1:localhost/playground/preloaded")
-        b.wait_js_func('window.ph_text_is', "#host", m.execute("hostname").replace("\n", ""))
+        b.wait_js_func('ph_text_is', "#host", m.execute("hostname").replace("\n", ""))
         time.sleep(3)
-        b.wait_js_func('window.ph_text_is', "#release", "")
+        b.wait_js_func('ph_text_is', "#release", "")
 
         # Now navigate to it.
         b.switch_to_top()

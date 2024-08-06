@@ -38,7 +38,7 @@ class TestActivePages(testlib.MachineCase):
             b.mouse("#toggle-menu", "click", altKey=True)
             b.click("#active-pages")
             b.wait_visible("#active-pages-dialog")
-            b.wait_js_func("window.ph_count_check", "#active-pages-dialog tr", count)
+            b.wait_js_func("ph_count_check", "#active-pages-dialog tr", count)
 
         # Initially we have /system
         showPagesAssertCount(1)

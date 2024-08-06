@@ -32,13 +32,13 @@ class HostSwitcherHelpers:
         b.wait_not_present('#hosts_setup_server_dialog')
 
     def wait_discovered_addresses(self, b, expected):
-        b.wait_js_cond(f'window.ph_select("#hosts_setup_server_dialog datalist option").length == {len(expected)}')
+        b.wait_js_cond(f'ph_select("#hosts_setup_server_dialog datalist option").length == {len(expected)}')
         # Check that we rendered all expected hosts
         for address in expected:
             b._wait_present(f"#hosts_setup_server_dialog datalist option[value='{address}']")
 
     def wait_host_addresses(self, b, expected):
-        b.wait_js_cond(f'window.ph_select("#nav-hosts .nav-item a").length == {len(expected)}')
+        b.wait_js_cond(f'ph_select("#nav-hosts .nav-item a").length == {len(expected)}')
         for address in expected:
             b.wait_visible(f"#nav-hosts .nav-item a[href='/@{address}']")
 
@@ -248,7 +248,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present('#hosts_setup_server_dialog')
 
         # Test switching
-        b.wait_js_cond('window.ph_select("#nav-hosts .nav-item a").length == 3')
+        b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
 
         b.click("#nav-hosts .nav-item a[href='/@localhost']")
         b.wait_js_cond('window.location.pathname == "/system"')

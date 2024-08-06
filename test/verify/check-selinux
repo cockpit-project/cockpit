@@ -73,7 +73,7 @@ class TestSelinux(testlib.MachineCase):
         # starting rhsm.service), so let's give them some time to
         # appear before cleaning it all out.
         with b.wait_timeout(60):
-            b.wait_js_cond("window.ph_in_text('body', 'No SELinux alerts.') || window.ph_is_present('tbody .pf-v5-c-table__toggle')")
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v5-c-table__toggle')")
         time.sleep(30)
 
         dismiss_sel = ".selinux-alert-dismiss"
@@ -81,14 +81,14 @@ class TestSelinux(testlib.MachineCase):
         # there are some distros with broken SELinux policies which always appear; so first, clean these up
         while True:
             # we either have no alerts, or an expand button in the table
-            b.wait_js_cond("window.ph_in_text('body', 'No SELinux alerts.') || window.ph_is_present('tbody .pf-v5-c-table__toggle')")
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v5-c-table__toggle')")
             if "No SELinux alerts." in b.text('body'):
                 break
-            num_alerts = b.call_js_func("window.ph_count", "#selinux-alerts tbody")
+            num_alerts = b.call_js_func("ph_count", "#selinux-alerts tbody")
             b.click('tbody:first-of-type input[type=checkbox]')
             b.click(dismiss_sel)
             # wait for the dismissed alert to go away
-            b.wait_js_func("window.ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
+            b.wait_js_func("ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
 
         # wait for Modifications table to initialize
         b.wait_text_matches(".modifications-table", "Allow zebra.*write.*config")

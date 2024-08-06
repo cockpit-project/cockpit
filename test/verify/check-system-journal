@@ -35,7 +35,7 @@ class TestJournal(testlib.MachineCase):
         self.browser.inject_js("""
         ph_get_log_lines = function () {
             var lines = [ ];
-            var panels = window.ph_find('.cockpit-log-panel').childNodes;
+            var panels = ph_find('.cockpit-log-panel').childNodes;
             for (var i = 0; i < panels.length; ++i) {
                 var e = panels[i];
                 if (e.className === 'panel-heading') {
@@ -55,7 +55,7 @@ class TestJournal(testlib.MachineCase):
                     lines.push ([ ident, msg, count ]);
                 }
             }
-            var journal_start_text = window.ph_find('.journal-start').textContent;
+            var journal_start_text = ph_find('.journal-start').textContent;
             if (journal_start_text !== "")
                 lines.push(journal_start_text);
             // console.log(JSON.stringify(lines));

@@ -58,14 +58,14 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.enterAnacondaMode(anaconda_config)
 
         # There should be only one row, for our disk
-        b.wait(lambda: b.call_js_func('window.ph_count', self.card("Storage") + " tbody tr") == 1)
+        b.wait(lambda: b.call_js_func('ph_count', self.card("Storage") + " tbody tr") == 1)
         b.wait_text(self.card_row_col("Storage", 1, 3), "Unformatted data")
         b.wait_not_present(self.card_row("Storage", location="/"))
 
         # Create a volume group with a logical volume
         self.click_devices_dropdown("Create LVM2 volume group")
         self.dialog_wait_open()
-        b.wait(lambda: b.call_js_func('window.ph_count', "#dialog .select-space-name") == 1)
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog .select-space-name") == 1)
         self.dialog_set_val("disks", {disk: True})
         self.dialog_apply()
         self.dialog_wait_close()
@@ -163,7 +163,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
         # Back to the beginning
         b.wait_visible(self.card("Storage"))
-        b.wait(lambda: b.call_js_func('window.ph_count', self.card("Storage") + " tbody tr") == 1)
+        b.wait(lambda: b.call_js_func('ph_count', self.card("Storage") + " tbody tr") == 1)
         b.wait_not_present(self.card_row("Storage", location="/var"))
 
     @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
@@ -189,7 +189,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         # Create a Stratis pool
         self.click_devices_dropdown("Create Stratis pool")
         self.dialog_wait_open()
-        b.wait(lambda: b.call_js_func('window.ph_count', "#dialog .select-space-name") == 1)
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog .select-space-name") == 1)
         self.dialog_set_val("disks", {disk: True})
         self.dialog_apply()
         self.dialog_wait_close()
@@ -295,7 +295,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         b.wait_not_present(self.dialog_field("mount_options"))
         self.dialog_set_val("name", "root")
         self.dialog_set_val("mount_point", "/")
-        b.wait(lambda: b.call_js_func('window.ph_count', "#dialog button.apply") == 1)
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog button.apply") == 1)
         self.dialog_apply()
         self.dialog_wait_close()
 
@@ -431,7 +431,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_wait_val("type", "vfat")
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("size", "30")
-        b.wait(lambda: b.call_js_func('window.ph_count', "#dialog button.apply") == 1)
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog button.apply") == 1)
         b.wait_text("#dialog button.apply", "Create")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -445,7 +445,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("mount_point", "/")
         self.dialog_wait_val("type", "ext4")
-        b.wait(lambda: b.call_js_func('window.ph_count', "#dialog button.apply") == 1)
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog button.apply") == 1)
         b.wait_text("#dialog button.apply", "Format")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -499,7 +499,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         # Create a mirrored MDRAID
         self.click_devices_dropdown("Create MDRAID device")
         self.dialog_wait_open()
-        b.wait(lambda: b.call_js_func('window.ph_count', "#dialog .select-space-name") == 2)
+        b.wait(lambda: b.call_js_func('ph_count', "#dialog .select-space-name") == 2)
         self.dialog_wait_val("name", "raid0")
         self.dialog_set_val("level", "raid1")
         self.dialog_set_val("disks", {disk1: True, disk2: True})

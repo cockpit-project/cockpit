@@ -1293,7 +1293,6 @@ ProtocolHeader = X-Forwarded-Proto
             # check that we show up in the system logs from the browser's IP, not the proxy's
             self.assertIn('(172.27.0.2)', self.machine.execute('who'))
         b.logout()
-        b.cdp.invoke("Browser.close")
 
     @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")

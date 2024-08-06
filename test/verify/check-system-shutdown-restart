@@ -38,6 +38,8 @@ class TestShutdownRestart(testlib.MachineCase):
         m2 = self.machines['machine2']
         b2 = self.new_browser(m2)
 
+        self.enable_multihost(m2)
+
         m.start_cockpit()
 
         self.login_and_go("/system")

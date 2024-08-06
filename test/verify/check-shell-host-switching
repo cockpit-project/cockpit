@@ -124,19 +124,32 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         m2.execute("hostnamectl set-hostname machine2")
         m3.execute("hostnamectl set-hostname machine3")
 
+        # Switch the switcher off for the begining of this test.
+        if self.multihost_enabled:
+            m1.write("/etc/cockpit/cockpit.conf",
+                     '[WebService]\nAllowMultiHost=no\n')
+
         # This should all work without being admin on machine1
         self.login_and_go(superuser=False)
 
-        # on recent OSes, switcher is disabled by default
-        if not self.multihost_enabled:
-            b.wait_text("#hosts-sel .ct-switcher-localonly", "admin@localhost")
-            self.assertFalse(b.is_present("#hosts-sel button"))
-            b.assert_pixels("#hosts-sel", "no-switching", skip_layouts=["mobile"])
-            b.logout()
+        b.wait_text("#hosts-sel .ct-switcher-localonly", "admin@localhost")
+        self.assertFalse(b.is_present("#hosts-sel button"))
+        b.assert_pixels("#hosts-sel", "no-switching", skip_layouts=["mobile"])
 
-            # enable host switcher for this test
-            self.enable_multihost(m1)
-            b.login_and_go(superuser=False)
+        # Check that URLs to remore hosts get redirected to the local
+        # session.
+        b.wait_js_cond('window.location.pathname == "/system"')
+        b.go("/@10.111.113.2/storage")
+        b.wait_js_cond('window.location.pathname == "/storage"')
+
+        # Enable host switcher for the rest of the test
+        b.logout()
+        if self.multihost_enabled:
+            # clean up AllowMultiHost=no from above
+            m1.execute("rm /etc/cockpit/cockpit.conf")
+        self.enable_multihost(m1)
+        m1.restart_cockpit()
+        b.login_and_go(superuser=False)
 
         b.assert_pixels("#nav-system", "nav-system", skip_layouts=["mobile"])
         b.set_layout("mobile")

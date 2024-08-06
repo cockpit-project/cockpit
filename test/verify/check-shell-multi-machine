@@ -134,6 +134,7 @@ class TestMultiMachineAdd(testlib.MachineCase):
         # and failing to load sofware updates breaks pixel tests in release builds
         self.setup_provisioned_hosts(disable_preload=True)
         self.setup_ssh_auth()
+        self.enable_multihost(self.machine)
 
     def testBasic(self):
         b = self.browser
@@ -250,6 +251,7 @@ class TestMultiMachine(testlib.MachineCase):
         self.allow_journal_messages("sudo: unable to resolve host machine1: .*")
 
         self.setup_provisioned_hosts(disable_preload=True)
+        self.enable_multihost(self.machine)
 
     def checkDirectLogin(self, root='/', known_host=False):
         b = self.browser
@@ -381,7 +383,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         hostname_selector = "#system_information_hostname_text"
 
-        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nUrlRoot = cockpit-new")
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nUrlRoot = cockpit-new\nAllowMultiHost=yes\n")
         m.start_cockpit()
 
         # Make sure normal urls don't work.

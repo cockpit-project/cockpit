@@ -437,7 +437,13 @@ class CommonTests:
         do_test(alice_user_pass, ['HTTP/1.1 200 OK', '"csrf-token"'], session_leader='cockpit-session', retry=True)
 
         # enable cert based auth
-        m.write("/etc/cockpit/cockpit.conf", '[WebService]\nClientCertAuthentication = true\n', append=True)
+        # FIXME: this is ugly, and we don't currently accept multiple [WebService] sections
+        if self.multihost_enabled:
+            # no previous cockpit.conf
+            m.write("/etc/cockpit/cockpit.conf", '[WebService]\nClientCertAuthentication = true\n', append=True)
+        else:
+            # enable_multihost above already wrote [WebService]
+            m.write("/etc/cockpit/cockpit.conf", 'ClientCertAuthentication = true\n', append=True)
         # cert auth should work now
         do_test(alice_cert_key, ['HTTP/1.1 200 OK', '"csrf-token"'])
         # password auth, too
@@ -495,6 +501,7 @@ class TestRealms(testlib.MachineCase):
         self.op_admin_password = "#realms-op-admin-password"
         self.domain_sel = "#system_information_domain_button"
         self.machine.execute("hostnamectl set-hostname x0.cockpit.lan")
+        self.enable_multihost(self.machine)
 
         # realmd times out on inactivity, which occasionally races with the proxy
         self.allow_journal_messages("couldn't get all properties of org.freedesktop.realmd.Service.*org.freedesktop.DBus.Error.NoReply: Remote peer disconnected")
@@ -989,6 +996,7 @@ class TestKerberos(testlib.MachineCase):
     def setUp(self):
         super().setUp()
         maybe_setup_fake_chrony(self.machine)
+        self.enable_multihost(self.machine)
 
     def configure_kerberos(self, keytab):
         self.machines["services"].execute("/root/run-freeipa")

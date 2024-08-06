@@ -405,6 +405,7 @@ class TestSuperuserDashboard(testlib.MachineCase):
     def test(self):
         b = self.browser
         self.setup_provisioned_hosts()
+        self.enable_multihost(self.machine)
 
         self.login_and_go()
         b.go("/@10.111.113.2")

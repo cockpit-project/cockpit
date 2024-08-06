@@ -33,6 +33,7 @@ class TestRHEL8(testlib.MachineCase):
 
         stock_m = self.machines['stock']
         stock_m.execute("hostnamectl set-hostname stock")
+        self.enable_multihost(dev_m)
 
         # Wait for connectivity between the two
         stock_m.execute("ping -q -w5 -c5 10.111.113.1")

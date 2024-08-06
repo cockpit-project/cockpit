@@ -179,6 +179,14 @@ function MachinesIndex(index_options, machines, loader) {
 
         if (!state)
             state = index.retrieve_state();
+
+        // Force a redirect to localhost when the host switcher is
+        // disabled. That way, people won't accidentally connect to
+        // remote machines via URL bookmarks or similar that point to
+        // them.
+        if (!host_switcher_enabled)
+            state.host = "localhost";
+
         let machine = machines.lookup(state.host);
 
         /* No such machine */

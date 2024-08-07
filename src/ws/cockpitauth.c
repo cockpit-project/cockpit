@@ -1242,12 +1242,37 @@ base64_decode_string (const char *enc)
 }
 
 static CockpitSession *
+session_for_cookie_value (CockpitAuth *self,
+                          const gchar *cookie_value)
+{
+  gchar *decoded = NULL;
+  const char *prefix = "v=2;k=";
+  CockpitSession *ret = NULL;
+
+  g_return_val_if_fail (self != NULL, FALSE);
+
+  if (cookie_value)
+    {
+      decoded = base64_decode_string (cookie_value);
+      if (decoded != NULL)
+        {
+          if (g_str_has_prefix (decoded, prefix))
+            ret = g_hash_table_lookup (self->sessions, decoded);
+          else
+            g_debug ("invalid or unsupported cookie: %s", decoded);
+
+          g_free (decoded);
+        }
+    }
+
+  return ret;
+}
+
+static CockpitSession *
 session_for_request (CockpitAuth *self,
                      CockpitWebRequest *request)
 {
-  gchar *cookie = NULL;
   gchar *raw = NULL;
-  const char *prefix = "v=2;k=";
   CockpitSession *ret = NULL;
   gchar *application;
   gchar *cookie_name = NULL;
@@ -1260,23 +1285,12 @@ session_for_request (CockpitAuth *self,
 
   cookie_name = application_cookie_name (application);
   raw = cockpit_web_request_parse_cookie (request, cookie_name);
-  if (raw)
-    {
-      cookie = base64_decode_string (raw);
-      if (cookie != NULL)
-        {
-          if (g_str_has_prefix (cookie, prefix))
-            ret = g_hash_table_lookup (self->sessions, cookie);
-          else
-            g_debug ("invalid or unsupported cookie: %s", cookie);
+  ret = session_for_cookie_value (self, raw);
 
-          /* We must never find the default session based on a cookie */
-          g_assert (!ret || !g_str_equal (ret->cookie, LOCAL_SESSION));
-          g_assert (!ret || !g_str_equal (ret->name, LOCAL_SESSION));
-          g_free (cookie);
-        }
-      g_free (raw);
-    }
+  /* We must never find the default session based on a cookie */
+  g_assert (!ret || !g_str_equal (ret->cookie, LOCAL_SESSION));
+  g_assert (!ret || !g_str_equal (ret->name, LOCAL_SESSION));
+  g_free (raw);
 
   /* Check for a default session for auto-login */
   if (!ret)
@@ -1307,6 +1321,13 @@ cockpit_auth_check_cookie (CockpitAuth *self,
       g_debug ("received unknown/invalid credential cookie");
       return NULL;
     }
+}
+
+gboolean
+cockpit_auth_is_valid_cookie_value (CockpitAuth *self,
+                                    const gchar *cookie_value)
+{
+  return session_for_cookie_value (self, cookie_value) != NULL;
 }
 
 void

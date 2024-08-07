@@ -343,28 +343,22 @@ import "./login.scss";
         // end up on the login page, we are about to load resources
         // from two machines into the same browser origin.
 
-        const cur_machine = window.localStorage.getItem("current-machine");
-
-        // Protect against outdated cur_machine values.
-        if (cur_machine == "localhost" && !window.location.pathname.startsWith("/="))
-            return;
-        if (cur_machine && cur_machine != "localhost" && window.location.pathname.startsWith("/=" + cur_machine))
-            return;
+        const logged_into = environment["logged-into"];
+        const cur_machine = logged_into.length > 0 ? logged_into[0] : null;
 
         function redirect_to_current_machine() {
-            if (cur_machine == "localhost")
+            if (cur_machine === ".")
                 login_reload("/");
             else
                 login_reload("/=" + cur_machine);
         }
 
-        environment.page.allow_multi_host = true; // XXX
-
         if (cur_machine) {
             if (!environment.page.allow_multi_host)
                 redirect_to_current_machine();
             else {
-                id("multihost-message").textContent = format(_("You are already connected to '$0' in this browser session. Connecting to other hosts will allow them to execute arbitrary code on each other. Please be careful."), cur_machine);
+                id("multihost-message").textContent = format(_("You are already connected to '$0' in this browser session. Connecting to other hosts will allow them to execute arbitrary code on each other. Please be careful."),
+                                                             cur_machine == "." ? "localhost" : cur_machine);
                 id("multihost-get-me-there").addEventListener("click", redirect_to_current_machine);
                 show('#multihost-warning');
             }
@@ -442,7 +436,6 @@ import "./login.scss";
                 oauth_auto_login();
             }
         } else if (logout_intent) {
-            window.localStorage.removeItem("current-machine");
             show_login(logout_reason);
         } else if (need_host()) {
             show_login();
@@ -1018,7 +1011,7 @@ import "./login.scss";
         }
     }
 
-    function setup_localstorage (response, machine) {
+    function setup_localstorage (response) {
         /* Clear anything not prefixed with
          * different application from sessionStorage
          */
@@ -1051,8 +1044,6 @@ import "./login.scss";
         const ca_cert_url = environment.CACertUrl;
         if (ca_cert_url)
             window.sessionStorage.setItem('CACertUrl', ca_cert_url);
-
-        window.localStorage.setItem('current-machine', machine || "localhost");
     }
 
     function run(response) {
@@ -1079,7 +1070,7 @@ import "./login.scss";
          */
         clear_storage(window.sessionStorage, application, false);
 
-        setup_localstorage(response, machine);
+        setup_localstorage(response);
         login_reload(wanted);
     }
 

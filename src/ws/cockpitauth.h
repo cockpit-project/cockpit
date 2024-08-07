@@ -108,6 +108,8 @@ gchar *         cockpit_auth_parse_application    (const gchar *path,
 gchar *         cockpit_auth_empty_cookie_value       (const gchar *path,
                                                        gboolean secure);
 
+gchar *         cockpit_auth_cookie_name      (const gchar *path);
+
 G_END_DECLS
 
 #endif

@@ -1706,3 +1706,13 @@ cockpit_auth_empty_cookie_value (const gchar *path, gboolean secure)
 
   return cookie_line;
 }
+
+gchar *
+cockpit_auth_cookie_name (const gchar *path)
+{
+  gchar *application = cockpit_auth_parse_application (path, NULL);
+  gchar *cookie = application_cookie_name (application);
+  g_free (application);
+
+  return cookie;
+}

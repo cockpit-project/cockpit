@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-05 02:51+0000\n"
-"PO-Revision-Date: 2024-07-03 14:36+0000\n"
-"Last-Translator: Jose Riha <jose1711@gmail.com>\n"
+"POT-Creation-Date: 2024-08-07 02:51+0000\n"
+"PO-Revision-Date: 2024-08-07 03:15+0000\n"
+"Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
 "main/cs/>\n"
 "Language: cs\n"
@@ -301,10 +301,8 @@ msgstr "použito $0 z $1 ($2 ušetřeno)"
 # auto translated by TM merge from project: retrace-server, version: master,
 # DocId: retrace-server
 #: pkg/storaged/dialog.jsx:1346
-#, fuzzy
-#| msgid "$0 total"
 msgid "$0 used, $1 total"
-msgstr "$0 celkem"
+msgstr "$0 použito, $1 celkem"
 
 #: pkg/lib/cockpit-components-plot.jsx:223
 msgid "$0 week"
@@ -1042,8 +1040,6 @@ msgid "All"
 msgstr "Vše"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:158
-#, fuzzy
-#| msgid "All $0 selected physical volumes are needed for the choosen layout."
 msgid "All $0 selected physical volumes are needed for the chosen layout."
 msgstr "Všech $0 vybraných fyzických svazků je třeba pro zvolené rozvržení."
 
@@ -1092,7 +1088,7 @@ msgstr ""
 "mezerami oddělované hodnoty v podobě KOLONKA=HODNOTA, kde hodnota může být "
 "čárkou oddělovaný seznam možných hodnot."
 
-#: pkg/systemd/terminal.jsx:167
+#: pkg/systemd/terminal.jsx:168
 msgid "Appearance"
 msgstr "Vzhled"
 
@@ -1141,7 +1137,7 @@ msgstr "Aplikace aktualizací se nezdařila"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "Příhodné pro kriticky důležité přípojné body, jako např. /var"
 
-#: pkg/shell/indexes.jsx:354
+#: pkg/shell/indexes.jsx:346
 msgid "Apps"
 msgstr "Aplikace"
 
@@ -1333,7 +1329,7 @@ msgstr "Před"
 msgid "Binds to"
 msgstr "Navazuje se na"
 
-#: pkg/systemd/terminal.jsx:173
+#: pkg/systemd/terminal.jsx:174
 msgid "Black"
 msgstr "Černá"
 
@@ -1526,7 +1522,7 @@ msgstr "Zrušit restartování"
 msgid "Cannot be enabled"
 msgstr "Není možné zapnout"
 
-#: pkg/shell/indexes.jsx:487
+#: pkg/shell/indexes.jsx:479
 msgid "Cannot connect to an unknown host"
 msgstr "Nelze se připojit k neznámému hostiteli"
 
@@ -1556,7 +1552,7 @@ msgstr "Nosný signál"
 
 #: pkg/storaged/pages.jsx:713
 msgid "Category"
-msgstr ""
+msgstr "Kategorie"
 
 #: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
@@ -1672,10 +1668,8 @@ msgid "Checking and repairing MDRAID device $target"
 msgstr "Kontroluje a opravuje se MDRAID zařízení $target"
 
 #: pkg/storaged/dialog.jsx:1330
-#, fuzzy
-#| msgid "Creating filesystem on $target"
 msgid "Checking filesystem usage"
-msgstr "Vytváří se souborový systém na $target"
+msgstr "Zjišťování využití souborového systému"
 
 #: pkg/storaged/crypto/keyslots.jsx:267
 msgid "Checking for $0 package"
@@ -1729,10 +1723,8 @@ msgid "Clear all filters"
 msgstr "Vyčistit všechny filtry"
 
 #: pkg/users/accounts-list.js:341 pkg/users/accounts-list.js:455
-#, fuzzy
-#| msgid "Clear all filters"
 msgid "Clear filter"
-msgstr "Vyčistit všechny filtry"
+msgstr "Vyčistit filtr"
 
 #: pkg/shell/nav.jsx:158
 msgid "Clear search"
@@ -2004,8 +1996,11 @@ msgid ""
 "will be removed in the future. You can still connect to your existing hosts "
 "for now."
 msgstr ""
+"Připojování se ke vzdáleným hostitelům v rámci relace webové konzole je "
+"zastaralé a bude v budoucnu odebráno. K už existujícím hostitelům se "
+"prozatím ještě můžete připojovat."
 
-#: pkg/shell/indexes.jsx:482
+#: pkg/shell/indexes.jsx:474
 msgid "Connecting to the machine"
 msgstr "Připojování ke stroji"
 
@@ -2395,7 +2390,7 @@ msgstr "Denně"
 msgid "Danger alert:"
 msgstr "Výstraha na nebezpečí:"
 
-#: pkg/systemd/terminal.jsx:174 pkg/shell/topnav.jsx:203
+#: pkg/systemd/terminal.jsx:175 pkg/shell/topnav.jsx:203
 msgid "Dark"
 msgstr "Tmavý"
 
@@ -2506,7 +2501,7 @@ msgstr "Deaktivuje se $target"
 msgid "Debug and above"
 msgstr "Ladící a závažnější"
 
-#: pkg/systemd/terminal.jsx:159
+#: pkg/systemd/terminal.jsx:160
 msgid "Decrease by one"
 msgstr "Snížit o jedno"
 
@@ -2642,10 +2637,8 @@ msgid "Deletion will remove the following files:"
 msgstr "Smazání odebere následující soubory:"
 
 #: pkg/shell/hosts.jsx:213
-#, fuzzy
-#| msgid "Created"
 msgid "Deprecated"
-msgstr "Vytvořeno"
+msgstr "Zastaralé"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
@@ -2683,10 +2676,8 @@ msgid "Device"
 msgstr "Zařízení"
 
 #: pkg/storaged/dialog.jsx:1350 pkg/storaged/dialog.jsx:1358
-#, fuzzy
-#| msgid "Unrecognized data"
 msgid "Device contains unrecognized data"
-msgstr "Nerozpoznaná data"
+msgstr "Zařízení obsahuje nerozpoznaná data"
 
 #: pkg/storaged/drive/drive.jsx:132 pkg/storaged/legacy-vdo/legacy-vdo.jsx:287
 #: pkg/storaged/block/other.jsx:62
@@ -2753,7 +2744,7 @@ msgstr "Nepovolit spuštění (maskovat)"
 msgid "Disconnect"
 msgstr "Odpojit"
 
-#: pkg/shell/indexes.jsx:174
+#: pkg/shell/indexes.jsx:166
 msgid "Disconnected"
 msgstr "Odpojeno"
 
@@ -2922,7 +2913,7 @@ msgstr "Systémový oddíl EFI"
 #: pkg/networkmanager/firewall.jsx:115 pkg/packagekit/autoupdates.jsx:533
 #: pkg/packagekit/kpatch.jsx:234 pkg/kdump/kdump-view.jsx:476
 #: pkg/storaged/nfs/nfs.jsx:312 pkg/storaged/crypto/keyslots.jsx:763
-#: pkg/shell/hosts.jsx:189 pkg/shell/indexes.jsx:366
+#: pkg/shell/hosts.jsx:189 pkg/shell/indexes.jsx:358
 msgid "Edit"
 msgstr "Upravit"
 
@@ -3437,7 +3428,7 @@ msgstr "Verze firmware"
 msgid "Fix NBDE support"
 msgstr "Opravit podporu pro NBDE"
 
-#: pkg/systemd/terminal.jsx:148 pkg/systemd/terminal.jsx:158
+#: pkg/systemd/terminal.jsx:149 pkg/systemd/terminal.jsx:159
 msgid "Font size"
 msgstr "Velikost písmen"
 
@@ -3678,10 +3669,8 @@ msgid "Host key is incorrect"
 msgstr "Klíč stroje není správný"
 
 #: pkg/shell/hosts.jsx:210
-#, fuzzy
-#| msgid "Domain is not supported"
 msgid "Host switching is not supported"
-msgstr "Doména není podporována"
+msgstr "Přepínání hostitelů není podporováno"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:66
 msgid "Hostname"
@@ -3711,7 +3700,7 @@ msgstr "Jak zkontrolovat"
 
 #: pkg/storaged/dialog.jsx:1367
 msgid "I confirm I want to lose this data forever"
-msgstr ""
+msgstr "Potvrzuji, že chci tato data natrvalo ztratit"
 
 #: pkg/networkmanager/firewall.jsx:696 pkg/users/group-create-dialog.js:47
 #: pkg/users/accounts-list.js:230 pkg/users/accounts-list.js:382
@@ -3809,7 +3798,7 @@ msgstr "Ignorovat"
 
 #: pkg/storaged/dialog.jsx:1302
 msgid "Important data might be deleted:"
-msgstr ""
+msgstr "Může se stát, že budou smazána důležitá data:"
 
 #: pkg/metrics/metrics.jsx:816
 msgid "In"
@@ -3859,7 +3848,7 @@ msgstr ""
 msgid "Inconsistent filesystem mount"
 msgstr "Nekonzistentní připojení souborového systému"
 
-#: pkg/systemd/terminal.jsx:160
+#: pkg/systemd/terminal.jsx:161
 msgid "Increase by one"
 msgstr "Navýšit o jednu"
 
@@ -4337,7 +4326,7 @@ msgstr "Pokud nechcete šifrovat, nevyplňujte"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Licencováno pod GNU LGPL verze 2.1"
 
-#: pkg/systemd/terminal.jsx:175 pkg/shell/topnav.jsx:200
+#: pkg/systemd/terminal.jsx:176 pkg/shell/topnav.jsx:200
 msgid "Light"
 msgstr "Světlý"
 
@@ -4525,11 +4514,8 @@ msgid "Locked data"
 msgstr "Uzamčená data"
 
 #: pkg/storaged/dialog.jsx:1354
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Locked encrypted data"
 msgid "Locked encrypted device might contain data"
-msgstr "Uzamčená šifrovaná data"
+msgstr "Je možné, že uzamčené šifrované zařízení obsahuje data"
 
 #: pkg/storaged/jobs-panel.jsx:43
 msgid "Locking $target"
@@ -5453,10 +5439,8 @@ msgid "No rule hits"
 msgstr "Žádné zásahy pravidla"
 
 #: pkg/storaged/btrfs/subvolume.jsx:464
-#, fuzzy
-#| msgid "No snapshots"
 msgid "No snapshots found"
-msgstr "Nejsou zachycené stavy"
+msgstr "Nenalezeny žádné zachycené stavy"
 
 #: pkg/storaged/overview/overview.jsx:190
 msgid "No storage found"
@@ -5517,7 +5501,7 @@ msgstr "Nepřipojeno"
 msgid "Not connected to Insights"
 msgstr "Nepřipojeno k Insights"
 
-#: pkg/shell/indexes.jsx:485
+#: pkg/shell/indexes.jsx:477
 msgid "Not connected to host"
 msgstr "Nepřipojeno k hostiteli"
 
@@ -6846,7 +6830,7 @@ msgstr "Vyhrazená paměť"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/logs.jsx:412 pkg/systemd/terminal.jsx:183
+#: pkg/systemd/logs.jsx:412 pkg/systemd/terminal.jsx:184
 msgid "Reset"
 msgstr "Reset"
 
@@ -6930,17 +6914,13 @@ msgid "Routes"
 msgstr "Trasy"
 
 #: pkg/lib/cockpit-components-table.jsx:270
-#, fuzzy
-#| msgid "extension"
 msgid "Row expansion"
-msgstr "rozšíření"
+msgstr "Rozbalení řádku"
 
 #: pkg/lib/cockpit-components-table.jsx:271
 #: pkg/lib/cockpit-components-table.jsx:272
-#, fuzzy
-#| msgid "Select"
 msgid "Row select"
-msgstr "Vybrat"
+msgstr "Výběr řádku"
 
 #: pkg/systemd/timer-dialog.jsx:252 pkg/systemd/timer-dialog.jsx:264
 msgid "Run at"
@@ -7036,10 +7016,8 @@ msgid "SSH key isn't a path"
 msgstr "V kolonce ssh klíč není vyplněné jeho umístění"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:468
-#, fuzzy
-#| msgid "SSH key"
 msgid "SSH key login"
-msgstr "SSH klíč"
+msgstr "Přihlášení SSH klíčem"
 
 #: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
 #: pkg/shell/topnav.jsx:229
@@ -7186,10 +7164,6 @@ msgid "Select method"
 msgstr "Vybrat metodu"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:127
-#, fuzzy
-#| msgid ""
-#| "Select the physical volumes that should be used to repair the logical "
-#| "volume. At leat $0 are needed."
 msgid ""
 "Select the physical volumes that should be used to repair the logical "
 "volume. At least $0 are needed."
@@ -7305,7 +7279,7 @@ msgstr "Nastavit na"
 
 #: pkg/packagekit/updates.jsx:113
 msgid "Set up"
-msgstr "Nastavit"
+msgstr "Nastaveno"
 
 #: pkg/users/password-dialogs.js:245
 msgid "Set weak password"
@@ -7487,16 +7461,12 @@ msgid "Snapshot"
 msgstr "Zachycený stav"
 
 #: pkg/storaged/btrfs/subvolume.jsx:439
-#, fuzzy
-#| msgid "Snapshot"
 msgid "Snapshot origin"
-msgstr "Zachycený stav"
+msgstr "Původ zachyceného stavu"
 
 #: pkg/storaged/btrfs/subvolume.jsx:461
-#, fuzzy
-#| msgid "Snapshot"
 msgid "Snapshots"
-msgstr "Zachycený stav"
+msgstr "Zachycené stavy"
 
 #: pkg/systemd/service-tabs.jsx:42
 msgid "Sockets"
@@ -7888,7 +7858,7 @@ msgstr "Synchronizuje se MDRAID zařízení $target"
 
 # auto translated by TM merge from project: selinux (policycoreutils),
 # version: master, DocId: policycoreutils
-#: pkg/systemd/services.jsx:912 pkg/shell/indexes.jsx:357 pkg/shell/nav.jsx:46
+#: pkg/systemd/services.jsx:912 pkg/shell/indexes.jsx:349 pkg/shell/nav.jsx:46
 msgid "System"
 msgstr "Systém"
 
@@ -8214,7 +8184,7 @@ msgstr "Uvedené služby budou vynuceně zastaveny."
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "Přihlášený uživatel není oprávněn zobrazovat modifikace systému"
 
-#: pkg/shell/indexes.jsx:479
+#: pkg/shell/indexes.jsx:471
 msgid "The machine is rebooting"
 msgstr "Stroj se restartuje"
 
@@ -8377,10 +8347,6 @@ msgid "Thinly provisioned LVM2 logical volumes"
 msgstr "Tence poskytované LVM2 logické svazky"
 
 #: pkg/storaged/mdraid/mdraid.jsx:284
-#, fuzzy
-#| msgid ""
-#| "This MDRAID device has no write-intent bitmap. Such a bitmap can reduce "
-#| "sychronization times significantly."
 msgid ""
 "This MDRAID device has no write-intent bitmap. Such a bitmap can reduce "
 "synchronization times significantly."
@@ -8687,7 +8653,7 @@ msgstr "Přepnout filtry"
 msgid "Too much data"
 msgstr "Příliš mnoho dat"
 
-#: pkg/shell/indexes.jsx:360
+#: pkg/shell/indexes.jsx:352
 msgid "Tools"
 msgstr "Nástroje"
 
@@ -8866,16 +8832,12 @@ msgid "Unable to get alert details."
 msgstr "Nedaří se získat podrobnosti o výstraze."
 
 #: pkg/lib/cockpit-connect-ssh.tsx:396
-#, fuzzy
-#| msgid ""
-#| "Unable to log in to $0 using SSH key authentication. Please provide the "
-#| "password. You may want to set up your SSH keys for automatic login."
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password."
 msgstr ""
 "Nepodařilo se přihlásit k $0 pomocí ověření se SSH klíčem. Prosím zadejte "
-"heslo. Pokud se chcete přihlašovat automaticky, nastavte SSH klíče."
+"heslo."
 
 #: pkg/shell/hosts_dialog.jsx:769
 msgid ""
@@ -8996,10 +8958,8 @@ msgid "Unknown host name"
 msgstr "Neznámý název stroje"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:125
-#, fuzzy
-#| msgid "Unknown host key"
 msgid "Unknown host: $0"
-msgstr "Neznámý klíč stroje"
+msgstr "Neznámý hostitel: $0"
 
 #: pkg/networkmanager/firewall.jsx:477
 msgid "Unknown service name"
@@ -9099,10 +9059,8 @@ msgid "Untrusted host"
 msgstr "Nedůvěryhodný stroj"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:129
-#, fuzzy
-#| msgid "Up since $0"
 msgid "Up since"
-msgstr "Zapnuto od $0"
+msgstr "Zapnuto od"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
@@ -9157,10 +9115,8 @@ msgid "Updating status..."
 msgstr "Aktualizace stavu…"
 
 #: pkg/playground/react-demo-file-upload.tsx:109
-#, fuzzy
-#| msgid "Reload"
 msgid "Upload"
-msgstr "Načíst znovu"
+msgstr "Nahrát"
 
 # auto translated by TM merge from project: audit-viewer, version: default,
 # DocId: audit-viewer
@@ -9542,7 +9498,7 @@ msgstr ""
 "maximální velikost pro každý ze souborových systémů předen a vytváření "
 "zachycených stavů je omezené."
 
-#: pkg/systemd/terminal.jsx:176
+#: pkg/systemd/terminal.jsx:177
 msgid "White"
 msgstr "Bílá"
 
@@ -10054,7 +10010,7 @@ msgstr "ignorovat nezdar"
 
 #: pkg/lib/timeformat.ts:60
 msgid "in less than a minute"
-msgstr ""
+msgstr "za méně než minutu"
 
 #: pkg/shell/shell-modals.jsx:195
 msgid "in most browsers"
@@ -10115,14 +10071,12 @@ msgid "keys"
 msgstr "klíče"
 
 #: pkg/packagekit/manifest.json:0
-#, fuzzy
-#| msgid "patches"
 msgid "kpatch"
-msgstr "záplaty"
+msgstr "kpatch"
 
 #: pkg/lib/timeformat.ts:58
 msgid "less than a minute ago"
-msgstr ""
+msgstr "před méně než minutou"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -10408,10 +10362,8 @@ msgid "shut"
 msgstr "vyp"
 
 #: pkg/storaged/btrfs/subvolume.jsx:465
-#, fuzzy
-#| msgid "Snapshot"
 msgid "snapshot"
-msgstr "Zachycený stav"
+msgstr "zachycený stav"
 
 #: pkg/systemd/manifest.json:0
 msgid "socket"
@@ -10536,10 +10488,8 @@ msgid "unpartitioned space on $0"
 msgstr "nerozdělené místo na $0"
 
 #: pkg/packagekit/manifest.json:0
-#, fuzzy
-#| msgid "No updates"
 msgid "updates"
-msgstr "Žádné aktualizace"
+msgstr "aktualizace"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa

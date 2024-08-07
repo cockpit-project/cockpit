@@ -1335,11 +1335,14 @@ server {
         m.start_cockpit(tls=True)
         self.checkCockpitOnProxy()
 
+        # avoid crash when stopping the unit: https://bugzilla.redhat.com/show_bug.cgi?id=2304015
+        m.execute("nginx -s stop")
+
         # now test with UrlRoot
         m.write("/etc/cockpit/cockpit.conf", "UrlRoot = cockpit-root\n", append=True)
         m.execute("systemctl stop cockpit.service")
-        self.sed_file("s_location /_location /cockpit-root_", "/etc/nginx/conf.d/cockpit.conf",
-                      "systemctl restart nginx")
+        self.sed_file("s_location /_location /cockpit-root_", "/etc/nginx/conf.d/cockpit.conf")
+        m.execute("systemctl start nginx")
         self.checkCockpitOnProxy(urlroot="/cockpit-root")
 
         # get a non-cockpit file from the server
@@ -1428,10 +1431,13 @@ server {
         self.checkCockpitOnProxy(login=False)
         kill_ws()
 
+        # avoid crash when stopping the unit: https://bugzilla.redhat.com/show_bug.cgi?id=2304015
+        m.execute("nginx -s stop")
+
         # UrlRoot + login page
         m.write("/etc/cockpit/cockpit.conf", "UrlRoot = myroot\n", append=True)
-        self.sed_file("s_location /_location /myroot_", "/etc/nginx/conf.d/cockpit.conf",
-                      "systemctl restart nginx")
+        self.sed_file("s_location /_location /myroot_", "/etc/nginx/conf.d/cockpit.conf")
+        m.execute("systemctl start nginx")
         run_ws()
         self.checkCockpitOnProxy(urlroot="/myroot")
         kill_ws()

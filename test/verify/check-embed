@@ -25,7 +25,7 @@ import testlib
 @testlib.nondestructive
 class TestEmbed(testlib.MachineCase):
 
-    def testBasic(self):
+    def testBasic(self, allow_multi_host=True):
         b = self.browser
         m = self.machine
 
@@ -39,9 +39,10 @@ class TestEmbed(testlib.MachineCase):
 
         # replace the shell with our embedded page, this way we can avoid
         # cross-origin errors when executing js in the iframe
-        m.write("/etc/cockpit/cockpit.conf", """
+        m.write("/etc/cockpit/cockpit.conf", f"""
 [WebService]
 Shell=/embed-cockpit/index.html
+AllowMultiHost={"yes" if allow_multi_host else "no"}
 """)
         m.start_cockpit()
         self.login_and_go()
@@ -61,12 +62,25 @@ Shell=/embed-cockpit/index.html
         b.switch_to_frame("embed-terminal")
         b.wait_visible("#terminal")
 
-        # Clicking on the link with separate auth, shouldn't log in automatically
+        # Clicking on the link with separate auth, what happens
+        # depends on allow_multi_host
         b.switch_to_top()
         b.click("#embed-auth")
         b.wait_visible("iframe[name='embed-auth'][loaded]")
         b.switch_to_frame("embed-auth")
-        b.wait_visible("#login-user-input")
+        if allow_multi_host:
+            # When multiple connections are allowed, we get a fresh
+            # login page
+            b.wait_visible("#login-user-input")
+        else:
+            # When multiple connections are not allowed, we get
+            # redirected to "/" of the already open session. This
+            # loads the shell, which is /embed-cockpit/index.html in
+            # this test...
+            b.wait_visible("#embed-links")
+
+    def testNoMultiHost(self):
+        self.testBasic(allow_multi_host=False)
 
     @testlib.skipBrowser("Chromium cannot inspect cross-origin frames", "chromium")
     def testCrossOrigin(self):

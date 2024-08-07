@@ -102,7 +102,10 @@ gboolean        cockpit_auth_local_finish    (CockpitAuth *self,
 CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
                                                    CockpitWebRequest *request);
 
-gchar *         cockpit_auth_parse_application    (const gchar *path,
+gboolean        cockpit_auth_is_valid_cookie_value (CockpitAuth *self,
+                                                    const gchar *cookie_value);
+
+  gchar *         cockpit_auth_parse_application    (const gchar *path,
                                                    gboolean *is_host);
 
 gchar *         cockpit_auth_empty_cookie_value       (const gchar *path,

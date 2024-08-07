@@ -277,8 +277,47 @@ add_page_to_environment (JsonObject *object,
   json_object_set_object_member (object, "page", page);
 }
 
+static void
+add_logged_into_to_environment (JsonObject *object,
+                                CockpitAuth *auth,
+                                GHashTable *request_headers)
+{
+  JsonArray *logged_into = json_array_new ();
+
+  gchar *h = g_hash_table_lookup (request_headers, "Cookie");
+  while (h && *h) {
+    const gchar *start = h;
+    while (*h && *h != '=')
+      h++;
+    const gchar *equal = h;
+    while (*h && *h != ';')
+      h++;
+    const gchar *end = h;
+    if (*h)
+      h++;
+    while (*h && *h == ' ')
+      h++;
+
+    if (*equal != '=')
+      continue;
+
+    g_autofree gchar *value = g_strndup (equal + 1, end - equal - 1);
+
+    if (!cockpit_auth_is_valid_cookie_value (auth, value))
+      continue;
+
+    g_autofree gchar *name = g_strndup (start, equal - start);
+    if (g_str_equal (name, "cockpit"))
+      json_array_add_string_element(logged_into, ".");
+    else if (g_str_has_prefix (name, "machine-cockpit+"))
+      json_array_add_string_element(logged_into, name + strlen("machine-cockpit+"));
+  }
+
+  json_object_set_array_member (object, "logged_into", logged_into);
+}
+
 static GBytes *
-build_environment (GHashTable *os_release)
+build_environment (GHashTable *os_release, CockpitAuth *auth, GHashTable *request_headers)
 {
   /*
    * We don't include entirety of os-release into the
@@ -310,6 +349,7 @@ build_environment (GHashTable *os_release)
   json_object_set_boolean_member (object, "is_cockpit_client", is_cockpit_client);
 
   add_page_to_environment (object, is_cockpit_client);
+  add_logged_into_to_environment (object, auth, request_headers);
 
   hostname = g_malloc0 (HOST_NAME_MAX + 1);
   gethostname (hostname, HOST_NAME_MAX);
@@ -386,7 +426,7 @@ send_login_html (CockpitWebResponse *response,
   GBytes *po_bytes;
   CockpitWebFilter *filter3 = NULL;
 
-  environment = build_environment (ws->os_release);
+  environment = build_environment (ws->os_release, ws->auth, headers);
   filter = cockpit_web_inject_new (marker, environment, 1);
   g_bytes_unref (environment);
   cockpit_web_response_add_filter (response, filter);
@@ -455,6 +495,7 @@ send_login_html (CockpitWebResponse *response,
                                     "Content-Security-Policy", content_security_policy,
                                     "Set-Cookie", cookie_line,
                                     NULL);
+      cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
       if (cockpit_web_response_queue (response, bytes))
         cockpit_web_response_complete (response);
 

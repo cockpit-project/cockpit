@@ -78,9 +78,14 @@ class KdumpHelpers(testlib.MachineCase):
         browser.click("#kdump-automation-script")
         ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
         machine.execute("mkdir -p roles/kdump/tasks")
-        machine.write("roles/kdump/tasks/main.yml", browser.text(ansible_script_sel))
-        # Redirect to stderr as this can fail, if so we want logs
-        machine.execute("ansible -m include_role -a name=kdump localhost", check=not allow_failure, stdout=None)
+        ansible_script = browser.text(ansible_script_sel)
+        # show role for debugging
+        print("---- generated Ansible role -----")
+        print(ansible_script)
+        print("---------------------------------")
+        machine.write("roles/kdump/tasks/main.yml", ansible_script)
+        # Show stdout as this can fail, if so we want logs
+        machine.execute("ansible -vv -m include_role -a name=kdump localhost", check=not allow_failure, stdout=None)
         browser.click(".pf-v5-c-modal-box__footer button:contains('Close')")
         browser.wait_not_present(".automation-script-modal")
 

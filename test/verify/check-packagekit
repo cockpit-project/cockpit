@@ -1208,10 +1208,8 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
     }
 
     def register(self):
-        # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
-            "LC_ALL=C.UTF-8 subscription-manager register --serverurl https://services.cockpit.lan:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
-        self.machine.execute("LC_ALL=C.UTF-8 subscription-manager attach --auto")
+            "LC_ALL=C.UTF-8 subscription-manager register --org=donaldduck --activationkey=awesome_os_pool")
 
     def setUp(self):
         super().setUp()
@@ -1229,8 +1227,8 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         self.candlepin.download("/home/admin/candlepin/generated_certs/88888.pem", product_file)
 
         # # upload product info to the test machine
-        m.execute("mkdir -p /etc/pki/product")
-        m.upload([product_file], "/etc/pki/product")
+        m.execute("mkdir -p /etc/pki/product-default")
+        m.upload([product_file], "/etc/pki/product-default")
 
         # set up CA
         ca = self.candlepin.execute("cat /home/admin/candlepin/certs/candlepin-ca.crt")
@@ -1244,6 +1242,14 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         self.update_icon = "#page_status_notification_updates svg"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
+
+        # setup the repositories properly using the candlepin RPM GPG key
+        m.execute("curl -o /etc/pki/rpm-gpg/RPM-GPG-KEY-candlepin http://services.cockpit.lan:8080/RPM-GPG-KEY-candlepin")
+        m.execute("subscription-manager config --rhsm.baseurl http://services.cockpit.lan:8080")
+
+        # perform the additional configuration of subscription-manager
+        m.execute(
+            "subscription-manager config --server.hostname services.cockpit.lan --server.port 8443 --server.prefix /candlepin")
 
     def testNoUpdates(self):
         b = self.browser

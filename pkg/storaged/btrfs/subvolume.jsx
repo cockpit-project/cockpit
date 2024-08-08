@@ -34,11 +34,12 @@ import {
     get_fstab_config_with_client, reload_systemd, extract_option, parse_options,
     flatten, teardown_active_usage,
 } from "../utils.js";
-import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options } from "./utils.jsx";
+import { btrfs_usage, validate_subvolume_name, parse_subvol_from_options, validate_snapshots_location } from "./utils.jsx";
 import { at_boot_input, update_at_boot_input, mounting_dialog, mount_options } from "../filesystem/mounting-dialog.jsx";
 import {
-    dialog_open, TextInput,
+    dialog_open, TextInput, CheckBoxes,
     TeardownMessage, init_teardown_usage,
+    SelectOneRadioVerticalTextInput,
 } from "../dialog.jsx";
 import { check_mismounted_fsys, MismountAlert } from "../filesystem/mismounting.jsx";
 import {
@@ -175,6 +176,149 @@ function subvolume_create(volume, subvol, parent_dir) {
                 if (vals.mount_point !== "") {
                     await set_mount_options(subvol, block, vals);
                 }
+            }
+        }
+    });
+}
+
+async function snapshot_create(volume, subvol, subvolume_path) {
+    const localstorage_key = "storage:snapshot-locations";
+    console.log(volume, subvol, subvolume_path);
+    const action_variants = [
+        { tag: null, Title: _("Create snapshot") },
+    ];
+
+    const get_local_storage_snapshots_locs = () => {
+        const localstorage_snapshot_data = localStorage.getItem(localstorage_key);
+        if (localstorage_snapshot_data === null)
+            return null;
+
+        try {
+            return JSON.parse(localstorage_snapshot_data);
+        } catch (err) {
+            console.warn("localstorage btrfs snapshot locations data malformed", localstorage_snapshot_data);
+            return null;
+        }
+    };
+
+    const get_localstorage_snapshot_location = subvol => {
+        const snapshot_locations = get_local_storage_snapshots_locs();
+        if (snapshot_locations != null)
+            return snapshot_locations[subvol.id] || null;
+        return snapshot_locations;
+    };
+
+    const get_current_date = async () => {
+        const out = await cockpit.spawn(["date", "+%s"]);
+        const now = parseInt(out.trim()) * 1000;
+        const d = new Date(now);
+        d.setSeconds(0);
+        d.setMilliseconds(0);
+        return d;
+    };
+
+    const folder_exists = async (path) => {
+        // Check if path exist and can be created
+        try {
+            await cockpit.spawn(["test", "-d", path]);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    const date = await get_current_date();
+    // Convert dates to ISO-8601
+    const current_date = date.toISOString().split("T")[0];
+    const current_date_time = date.toISOString().replace(":00.000Z", "");
+    const choices = [
+        {
+            value: "current_date",
+            title: cockpit.format(_("Current date $0"), current_date),
+        },
+        {
+            value: "current_date_time",
+            title: cockpit.format(_("Current date and time $0"), current_date_time),
+        },
+        {
+            value: "custom_name",
+            title: _("Custom name"),
+            type: "radioWithInput",
+        },
+    ];
+
+    const get_snapshot_name = (vals) => {
+        let snapshot_name = "";
+        if (vals.snapshot_name.checked == "current_date") {
+            snapshot_name = current_date;
+        } else if (vals.snapshot_name.checked === "current_date_time") {
+            snapshot_name = current_date_time;
+        } else if (vals.snapshot_name.checked === "custom_name") {
+            snapshot_name = vals.snapshot_name.inputs.custom_name;
+        }
+        return snapshot_name;
+    };
+
+    dialog_open({
+        Title: _("Create snapshot"),
+        Fields: [
+            TextInput("subvolume", _("Subvolume"),
+                      {
+                          value: subvol.pathname,
+                          disabled: true,
+                      }),
+            TextInput("snapshots_location", _("Snapshots location"),
+                      {
+                          value: get_localstorage_snapshot_location(subvol),
+                          placeholder: cockpit.format(_("Example, $0"), "/.snapshots"),
+                          explanation: (<>
+                              <p>{_("Snapshots must reside within the same btrfs volume.")}</p>
+                              <p>{_("When the snapshot location does not exist, it will be created as btrfs subvolume automatically.")}</p>
+                          </>),
+                          validate: path => validate_snapshots_location(path, volume),
+                      }),
+            SelectOneRadioVerticalTextInput("snapshot_name", _("Snapshot name"),
+                                            {
+                                                value: { checked: "current_date", inputs: { } },
+                                                choices,
+                                                validate: (val, _values, _variant) => {
+                                                    if (val.checked === "custom_name")
+                                                        return validate_subvolume_name(val.inputs.custom_name);
+                                                }
+                                            }),
+
+            CheckBoxes("readonly", _("Option"),
+                       {
+                           fields: [
+                               { tag: "on", title: _("Read-only") }
+                           ],
+                       }),
+        ],
+        Action: {
+            Variants: action_variants,
+            action: async function (vals) {
+                // Create snapshot location if it does not exists
+                console.log("values", vals);
+                const exists = await folder_exists(vals.snapshots_location);
+                if (!exists) {
+                    await cockpit.spawn(["btrfs", "subvolume", "create", vals.snapshots_location], { superuser: "require", err: "message" });
+                }
+
+                // HACK: cannot use block_btrfs.CreateSnapshot as it always creates a subvolume relative to MountPoints[0] which
+                // makes it impossible to handle a situation where we have multiple subvolumes mounted.
+                // https://github.com/storaged-project/udisks/issues/1242
+                const cmd = ["btrfs", "subvolume", "snapshot"];
+                if (vals.readonly?.on)
+                    cmd.push("-r");
+
+                const snapshot_name = get_snapshot_name(vals);
+                console.log([...cmd, subvolume_path, `${vals.snapshots_location}/${snapshot_name}`]);
+                const snapshot_location = `${vals.snapshots_location}/${snapshot_name}`;
+                await cockpit.spawn([...cmd, subvolume_path, snapshot_location], { superuser: "require", err: "message" });
+                localStorage.setItem(localstorage_key, JSON.stringify({ ...get_local_storage_snapshots_locs(), [subvol.id]: vals.snapshots_location }));
+
+                // Re-trigger btrfs poll so the users sees the created snapshot in the overview or subvolume detail page
+                await btrfs_poll();
             }
         }
     });
@@ -362,6 +506,12 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
         title: _("Create subvolume"),
         excuse: create_excuse,
         action: () => subvolume_create(volume, subvol, (mounted && !opt_ro) ? mount_point : mount_point_in_parent),
+    });
+
+    actions.push({
+        title: _("Create snapshot"),
+        excuse: create_excuse,
+        action: () => snapshot_create(volume, subvol, (mounted && !opt_ro) ? mount_point : mount_point_in_parent),
     });
 
     let delete_excuse = "";

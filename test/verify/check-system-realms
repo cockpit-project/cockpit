@@ -408,7 +408,7 @@ class CommonTests:
                 self.assertGreaterEqual(len(sessions), 1)
                 for session in sessions:
                     out = m.execute('loginctl session-status ' + session)
-                    if "State: active" in out:  # skip closing sessions
+                    if "State: active" in out and "Class: manager" not in out:  # skip closing and manager sessions
                         self.assertIn(session_leader, out)
                         self.assertIn('cockpit-bridge', out)
                         # systemd < 255: "Service: cockpit; type web; class user"

@@ -338,6 +338,34 @@ import "./login.scss";
         event.stopPropagation();
     }
 
+    function deal_with_multihost() {
+        // If we are currently logged in to some machine, but still
+        // end up on the login page, we are about to load resources
+        // from two machines into the same browser origin. This needs
+        // to be allowed explicitly via a configuration setting.
+
+        const logged_into = environment["logged-into"];
+        const cur_machine = logged_into.length > 0 ? logged_into[0] : null;
+
+        function redirect_to_current_machine() {
+            if (cur_machine === ".")
+                login_reload("/");
+            else
+                login_reload("/=" + cur_machine);
+        }
+
+        if (cur_machine) {
+            if (!environment.page.allow_multihost)
+                redirect_to_current_machine();
+            else {
+                id("multihost-message").textContent = format(_("You are already connected to '$0' in this browser session. Connecting to other hosts will allow them to execute arbitrary code on each other. Please be careful."),
+                                                             cur_machine == "." ? "localhost" : cur_machine);
+                id("multihost-get-me-there").addEventListener("click", redirect_to_current_machine);
+                show('#multihost-warning');
+            }
+        }
+    }
+
     function boot() {
         window.onload = null;
 
@@ -347,6 +375,8 @@ import "./login.scss";
             if (window.cockpit_po[""]["language-direction"])
                 document.documentElement.dir = window.cockpit_po[""]["language-direction"];
         }
+
+        deal_with_multihost();
 
         setup_path_globals(window.location.pathname);
 

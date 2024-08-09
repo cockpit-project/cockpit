@@ -1419,6 +1419,8 @@ class TestMultiCPU(testlib.MachineCase):
 
 @testlib.skipOstree("no PCP support")
 @testlib.skipImage("pcp not currently in testing", "debian-testing")
+# FIXME: Works with TEST_SHOW_BROWSER; not obvious what happens, needs Grafana instrumentation
+@testlib.skipBrowser("Headless chromium spontaneously logs out Grafana", "chromium")
 class TestGrafanaClient(testlib.MachineCase):
 
     provision = {
@@ -1469,6 +1471,10 @@ class TestGrafanaClient(testlib.MachineCase):
         # enable pmproxy service in firewalld in the alert
         b.wait_visible("#firewalld-request-pmproxy")
         b.click(".pf-v5-c-alert button.pf-m-primary")
+
+        # we are done with the Cockpit side
+        b.logout()
+        b.kill()
 
         # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)
         bg = testlib.Browser(mg.forward['3000'], label=self.label() + "-" + mg.label, machine=self)

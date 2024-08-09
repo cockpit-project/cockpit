@@ -96,7 +96,7 @@ Shell=/shell/index.html
         b.switch_to_frame("embed-full")
 
         # X-Frame-Options sameorigin blocks frame
-        if b.cdp.browser.name == "firefox":
+        if b.browser == "firefox":
             b.wait_visible("body.neterror")
         self.assertFalse(b.is_present("#login"))
 

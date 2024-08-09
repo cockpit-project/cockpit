@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import glob
 import os.path
 import subprocess
 import tarfile
@@ -80,7 +79,7 @@ class TestSOS(testlib.MachineCase):
         b.allow_download()
 
         def downloaded_sosreports():
-            return glob.glob(os.path.join(b.cdp.download_dir, "*sosreport-*.xz.gpg"))
+            return [str(p) for p in b.driver.download_dir.glob("*sosreport-*.xz.gpg")]
 
         b.click("tr:contains(mylabel) button:contains(Download)")
         # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done

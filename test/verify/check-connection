@@ -107,7 +107,7 @@ class TestConnection(testlib.MachineCase):
         # cookie should not be marked as secure, it's not https
         cookie = b.cookie("cockpit")
         self.assertTrue(cookie["httpOnly"])
-        self.assertEqual(cookie["sameSite"], "Strict")
+        self.assertEqual(cookie["sameSite"].lower(), "strict")
         self.assertFalse(cookie["secure"])
 
         # take cockpit-ws down on the server page
@@ -502,14 +502,14 @@ class TestConnection(testlib.MachineCase):
         # cookie should be marked as secure
         self.assertTrue(cookie["httpOnly"])
         self.assertTrue(cookie["secure"])
-        self.assertEqual(cookie["sameSite"], "Strict")
+        self.assertEqual(cookie["sameSite"].lower(), "strict")
         # same after logout
         b.logout()
         cookie = b.cookie("cockpit")
         self.assertEqual(cookie["value"], "deleted")
         self.assertTrue(cookie["httpOnly"])
         self.assertTrue(cookie["secure"])
-        self.assertEqual(cookie["sameSite"], "Strict")
+        self.assertEqual(cookie["sameSite"].lower(), "strict")
 
         # http on localhost should not redirect to https
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))
@@ -978,7 +978,6 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.allow_journal_messages(r".*cannot reauthorize identity\(s\): unix-user:.*")
         self.allow_journal_messages("admin: Executing command .*COMMAND=.*cockpit-bridge --privileged.*")
 
-    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):
         m = self.machine
         b = self.browser
@@ -1005,12 +1004,8 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
 
-        def check_wss_log():
-            for log in self.browser.get_js_log():
-                if 'Error during WebSocket handshake: Unexpected response code: 403' in log:
-                    return True
-            return False
-        testlib.wait(check_wss_log)
+        b.wait_text(".early-failure .pf-v5-c-empty-state__title", "Connection failed")
+        b.wait_in_text(".early-failure ", "unexpected error while connecting to the machine")
 
         testlib.wait(lambda: m.execute("grep 'received request from bad Origin' /var/log/ws-notls.log"))
 
@@ -1335,11 +1330,15 @@ server {
         m.start_cockpit(tls=True)
         self.checkCockpitOnProxy()
 
+        # don't stop the unit! it tries to shut down gracefully, waiting for the pending cockpit connections
+        # and then systemd SIGABRTs it after 5s, which causes a crash in the journal
+        m.execute("nginx -s stop")
+
         # now test with UrlRoot
         m.write("/etc/cockpit/cockpit.conf", "UrlRoot = cockpit-root\n", append=True)
         m.execute("systemctl stop cockpit.service")
-        self.sed_file("s_location /_location /cockpit-root_", "/etc/nginx/conf.d/cockpit.conf",
-                      "systemctl restart nginx")
+        self.sed_file("s_location /_location /cockpit-root_", "/etc/nginx/conf.d/cockpit.conf")
+        m.execute("systemctl start nginx")
         self.checkCockpitOnProxy(urlroot="/cockpit-root")
 
         # get a non-cockpit file from the server
@@ -1428,10 +1427,14 @@ server {
         self.checkCockpitOnProxy(login=False)
         kill_ws()
 
+        # don't stop the unit! it tries to shut down gracefully, waiting for the pending cockpit connections
+        # and then systemd SIGABRTs it after 5s, which causes a crash in the journal
+        m.execute("nginx -s stop")
+
         # UrlRoot + login page
         m.write("/etc/cockpit/cockpit.conf", "UrlRoot = myroot\n", append=True)
-        self.sed_file("s_location /_location /myroot_", "/etc/nginx/conf.d/cockpit.conf",
-                      "systemctl restart nginx")
+        self.sed_file("s_location /_location /myroot_", "/etc/nginx/conf.d/cockpit.conf")
+        m.execute("systemctl start nginx")
         run_ws()
         self.checkCockpitOnProxy(urlroot="/myroot")
         kill_ws()

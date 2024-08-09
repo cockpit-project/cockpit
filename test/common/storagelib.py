@@ -241,7 +241,7 @@ class StorageHelpers:
 
     def dialog_wait_close(self):
         # file system operations often take longer than 10s
-        with self.browser.wait_timeout(max(self.browser.cdp.timeout, 60)):
+        with self.browser.wait_timeout(max(self.browser.timeout, 60)):
             self.browser.wait_not_present('#dialog')
 
     def dialog_check(self, expect):

@@ -133,12 +133,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Firefox does not support setting of permissions
         # and therefore we cannot test copy/paste with context menu
-        if b.cdp.browser.name != "firefox":
-            try:
-                b.grant_permissions("clipboardReadWrite", "clipboardSanitizedWrite")
-            except RuntimeError:
-                # fallback for older Chrome releases
-                b.grant_permissions("clipboardRead", "clipboardWrite")
+        if b.browser != "firefox":
+            b.grant_permissions("clipboard-read", "clipboard-write")
 
             # Execute command
             wait_line(n, prompt)
@@ -185,8 +181,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         select_line(sel, 40)
 
         # Use keyboard shortcuts to copy text
-        b.key("Insert", modifiers=2)  # Ctrl
-        b.key("Insert", modifiers=8)  # Shift
+        b.key("Insert", modifiers=["Control"])
+        b.key("Insert", modifiers=["Shift"])
 
         # Wait for text to show up
         wait_line(echo_result_line + 1, prompt + "foo")

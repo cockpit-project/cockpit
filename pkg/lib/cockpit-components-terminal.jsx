@@ -22,8 +22,8 @@ import PropTypes from "prop-types";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { MenuList, MenuItem } from "@patternfly/react-core/dist/esm/components/Menu";
-import { Terminal as Term } from "xterm";
-import { CanvasAddon } from 'xterm-addon-canvas';
+import { CanvasAddon } from '@xterm/addon-canvas';
+import { Terminal as Term } from "@xterm/xterm";
 
 import { ContextMenu } from "cockpit-components-context-menu.jsx";
 import cockpit from "cockpit";

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
 
 #
 # Copyright (C) 2017 Red Hat, Inc.
@@ -24,6 +24,7 @@ import subprocess
 import sys
 
 from cdp import CDP
+from lcov import write_lcov
 
 tap_line_re = re.compile(r'^(ok [0-9]+|not ok [0-9]+|bail out!|[0-9]+\.\.[0-9]+|# )', re.IGNORECASE)
 
@@ -54,7 +55,7 @@ opts.server = opts.server[:-1]
 if opts.strip and opts.test.startswith(opts.strip):
     opts.test = opts.test[len(opts.strip):]
 
-cdp = CDP("C.utf8")
+cdp = CDP("C.utf8", start_profile=True)
 
 try:
     cdp.browser.path(cdp.show_browser)
@@ -112,6 +113,10 @@ for t, message in cdp.read_log():
 
 server.terminate()
 server.wait()
+
+coverage = cdp.invoke("Profiler.takePreciseCoverage")
+write_lcov(coverage['result'], outlabel=re.sub(r'[^A-Za-z0-9]+', '-', os.path.relpath(opts.test)))
+
 cdp.kill()
 
 if not success:

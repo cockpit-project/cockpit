@@ -210,7 +210,7 @@ def insights_server(port):
         subprocess.check_call(["sscg"], cwd=certdir)
 
     httpd = HTTPServer(('', port), handler)
-    ctx = ssl.create_default_context()
+    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_OPTIONAL
     # with newer Pythons this is ctx.minimum_version = ssl.TLSVersion.TLSv1_2

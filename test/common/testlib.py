@@ -778,7 +778,6 @@ class Browser:
                 raise
 
         self.switch_to_frame(frame)
-        self._wait_present("body")
         self.wait_visible("body")
 
     def leave_page(self) -> None:
@@ -856,7 +855,6 @@ class Browser:
 
         self.try_login(user=user, password=password, superuser=superuser, legacy_authorized=legacy_authorized)
 
-        self._wait_present('#content')
         self.wait_visible('#content')
         if path:
             self.enter_page(path.split("#")[0], host=host)
@@ -895,7 +893,6 @@ class Browser:
         if wait_remote_session_machine:
             wait_remote_session_machine.execute("while pgrep -a cockpit-ssh; do sleep 1; done")
         self.try_login(user=user, password=password, superuser=superuser)
-        self._wait_present('#content')
         self.wait_visible('#content')
         if path:
             if path.startswith("/@"):

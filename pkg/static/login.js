@@ -354,8 +354,16 @@ import "./login.scss";
                 login_reload("/=" + cur_machine);
         }
 
-        if (cur_machine && !environment.page.allow_multihost)
-            redirect_to_current_machine();
+        if (cur_machine) {
+            if (!environment.page.allow_multihost)
+                redirect_to_current_machine();
+            else {
+                id("multihost-message").textContent = format(_("You are already connected to '$0' in this browser session. Connecting to other hosts will allow them to execute arbitrary code on each other. Please be careful."),
+                                                             cur_machine == "." ? "localhost" : cur_machine);
+                id("multihost-get-me-there").addEventListener("click", redirect_to_current_machine);
+                show('#multihost-warning');
+            }
+        }
     }
 
     function boot() {

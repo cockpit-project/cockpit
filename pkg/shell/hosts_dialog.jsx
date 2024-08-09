@@ -459,6 +459,8 @@ class HostKey extends React.Component {
             fp = this.state.error_options["host-fingerprint"];
         }
 
+        const scan_cmd = `ssh-keyscan -t ${key_type} localhost | ssh-keygen -lf -`;
+
         const callback = this.onAddKey;
         const title = cockpit.format(this.props.template === "invalid-hostkey" ? _("$0 key changed") : _("New host: $0"),
                                      this.props.host);
@@ -474,7 +476,7 @@ class HostKey extends React.Component {
                 <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
                 <p className="hostkey-type">({key_type})</p>
                 <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), this.props.host)}</p>
-                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{scan_cmd}</ClipboardCopy>
                 <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
                 <p>{_("If the fingerprint matches, click 'Trust and add host'. Otherwise, do not connect and contact your administrator.")}</p>
             </>;
@@ -489,7 +491,7 @@ class HostKey extends React.Component {
                                    isExpanded={this.state.verifyExpanded}
                                    onToggle={(_ev, verifyExpanded) => this.setState({ verifyExpanded }) }>
                     <div>{_("Run this command over a trusted network or physically on the remote machine:")}</div>
-                    <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
+                    <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{scan_cmd}</ClipboardCopy>
                     <div>{_("The fingerprint should match:")} {fingerprint_help}</div>
                     <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
                 </ExpandableSection>

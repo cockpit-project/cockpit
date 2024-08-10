@@ -254,11 +254,11 @@ OnCalendar=daily
         b.wait_visible('#password-group')
         b.wait_text("#password-group > label", "Passwort")
 
-        # Test all languages
+    @testlib.onlyImage("Enough to test on one OS, not OS specific", "rhel-9*")
+    def testAllLanguages(self):
         # Test that pages do not oops
-
-        if not m.image.startswith("rhel-"):
-            return
+        m = self.machine
+        b = self.browser
 
         def line_sel(i):
             return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i

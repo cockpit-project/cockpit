@@ -342,7 +342,7 @@ WantedBy=default.target
         b.go(f'/system/services#/{suffix}')
 
         # returns index of first unit that isn't failed
-        b.inject_js("""
+        b.eval_js("""
                     function firstWorkingUnitPos() {
                         const services = document.getElementById('services-list');
                         for (let i = 0; i < services.childElementCount; i++) {

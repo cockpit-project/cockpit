@@ -425,15 +425,6 @@ class Browser:
         element = self.eval_js(f"ph_find({jsquote(selector)})")
         self.bidi("input.setFiles", context=self.driver.context, element=element, files=files)
 
-    def inject_js(self, code: str) -> None:
-        """Execute JS code that does not return anything
-
-        :param code: a string containing JavaScript code
-        :type code: str
-        """
-        # this is redundant now; the difference used to be important with CDP
-        self.eval_js(code)
-
     def eval_js(self, code: str, no_trace: bool = False) -> Any:
         """Execute JS code that returns something
 

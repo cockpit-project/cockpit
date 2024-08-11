@@ -3,7 +3,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 import gettext_parser from "gettext-parser";
-import glob from "glob";
+import { glob } from "glob";
 import Jed from "jed";
 
 const config = {};

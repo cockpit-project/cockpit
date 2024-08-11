@@ -52,7 +52,7 @@ mkpart logical ext2 24 48"""
         m.execute("udevadm settle")
         m.execute(f"mke2fs -q -L TEST {disk1}5")
 
-        b.inject_js("""
+        b.eval_js("""
           ph_texts = function (sel) {
             return ph_select(sel).map(function(e) { return e.textContent });
           }""")

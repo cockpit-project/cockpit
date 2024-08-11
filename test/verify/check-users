@@ -355,7 +355,7 @@ class TestAccounts(testlib.MachineCase):
         b.click("div.pf-v5-c-empty-state button.pf-m-link")
         b.wait_not_present("#accounts div.pf-v5-c-empty-state")
 
-        b.inject_js("""
+        b.eval_js("""
                     function getTextColumn(query_selector) {
                         const values = [];
                         document.querySelectorAll(query_selector).forEach(node => values.push(node.innerText));

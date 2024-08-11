@@ -687,7 +687,7 @@ OnCalendar=daily
         # range, otherwise we would find any arbitrary average in a
         # graph with a slope.
 
-        b.inject_js("""
+        b.eval_js("""
           ph_plateau = function (data, min, max, duration, label) {
               var i, j;
               var sum;  // sum of data[i..j]
@@ -712,7 +712,7 @@ OnCalendar=daily
           }
         """)
 
-        b.inject_js("""
+        b.eval_js("""
           ph_plot_data_plateau = function (sel, min, max, duration, label) {
             return ph_plateau(window.plot_state.data(sel)[0].data, min, max, duration, label);
           }

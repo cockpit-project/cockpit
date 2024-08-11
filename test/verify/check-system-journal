@@ -32,7 +32,7 @@ class TestJournal(testlib.MachineCase):
         self.test_start_time = self.machine.execute("date +%s").strip()
 
     def injectExtras(self):
-        self.browser.inject_js("""
+        self.browser.eval_js("""
         ph_get_log_lines = function () {
             var lines = [ ];
             var panels = ph_find('.cockpit-log-panel').childNodes;
@@ -406,7 +406,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.login_and_go("/system/logs")
 
         self.injectExtras()
-        b.inject_js("""
+        b.eval_js("""
             localTime = function(time) {
                 var month_names = [
                     'January',

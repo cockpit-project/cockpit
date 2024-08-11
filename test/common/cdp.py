@@ -58,7 +58,7 @@ class Browser(abc.ABC):
 
     @abc.abstractmethod
     def cmd(
-        self, cdp_port: int, env: Mapping[str, str], show_browser: bool, browser_home: str, download_dir: str
+        self, cdp_port: int, env: Mapping[str, str], show_browser: bool, download_dir: str
     ) -> Sequence[str]:
         pass
 
@@ -96,7 +96,7 @@ class Chromium(Browser):
 
     @override
     def cmd(
-        self, cdp_port: int, env: Mapping[str, str], show_browser: bool, browser_home: str, download_dir: str
+        self, cdp_port: int, env: Mapping[str, str], show_browser: bool, download_dir: str
     ) -> Sequence[str]:
         exe = self.path(show_browser)
 
@@ -108,65 +108,6 @@ class Chromium(Browser):
                 # HACK: For Cockpit-Files downloading uses `window.open` which is sometimes allowed depending on unpredictable and unknown heuristics
                 "--disable-popup-blocking",
                 "--v=0", f"--remote-debugging-port={cdp_port}", "about:blank"]
-
-
-class Firefox(Browser):
-    NAME = "firefox"
-    EXECUTABLES = ["firefox-developer-edition", "firefox-nightly", "firefox"]
-    CDP_DRIVER_FILENAME = f"{TEST_DIR}/common/firefox-cdp-driver.js"
-
-    @override
-    def _path(self, show_browser: bool) -> str | None:
-        """Return path to Firefox browser."""
-        return self.find_exe()
-
-    @override
-    def cmd(
-        self, cdp_port: int, env: Mapping[str, str], show_browser: bool, browser_home: str, download_dir: str
-    ) -> Sequence[str]:
-        exe = self.path(show_browser)
-
-        subprocess.check_call([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env)
-        profile = glob.glob(os.path.join(browser_home, ".mozilla/firefox/*.blank"))[0]
-
-        with open(os.path.join(profile, "user.js"), "w") as f:
-            f.write(f"""
-                user_pref("remote.enabled", true);
-                user_pref("remote.frames.enabled", true);
-                user_pref("app.update.auto", false);
-                user_pref("datareporting.policy.dataSubmissionEnabled", false);
-                user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
-                user_pref("dom.disable_beforeunload", true);
-                user_pref("browser.download.dir", "{download_dir}");
-                user_pref("browser.download.folderList", 2);
-                user_pref("signon.rememberSignons", false);
-                user_pref("dom.navigation.locationChangeRateLimit.count", 9999);
-                // HACK: https://bugzilla.mozilla.org/show_bug.cgi?id=1746154
-                user_pref("fission.webContentIsolationStrategy", 0);
-                user_pref("fission.bfcacheInParent", false);
-                """)
-
-        with open(os.path.join(profile, "handlers.json"), "w") as f:
-            f.write('{'
-                    '"defaultHandlersVersion":{"en-US":4},'
-                    '"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}'
-                    '}')
-
-        cmd = [exe, "-P", "blank", f"--remote-debugging-port={cdp_port}", "--no-remote", "localhost"]
-        if not show_browser:
-            cmd.insert(3, "--headless")
-        return cmd
-
-
-def get_browser(browser: str) -> Browser:
-    browser_classes = [
-        Chromium,
-        Firefox,
-    ]
-    for cls in browser_classes:
-        if browser == cls.NAME:
-            return cls()
-    raise SystemError(f"Unsupported browser: {browser}")
 
 
 def jsquote(obj: object) -> str:
@@ -195,7 +136,7 @@ class CDP:
         self.trace = trace
         self.inject_helpers = inject_helpers
         self.start_profile = start_profile
-        self.browser = get_browser(os.environ.get("TEST_BROWSER", "chromium"))
+        self.browser = Chromium()
         self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
         self.download_dir = tempfile.mkdtemp()
         self._driver = None
@@ -322,8 +263,7 @@ class CDP:
             except KeyError:
                 pass
 
-            cmd = self.browser.cmd(cdp_port, environ, self.show_browser,
-                                   self._browser_home, self.download_dir)
+            cmd = self.browser.cmd(cdp_port, environ, self.show_browser, self.download_dir)
 
             # sandboxing does not work in Docker container
             self._browser = subprocess.Popen(

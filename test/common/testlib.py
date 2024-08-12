@@ -1010,42 +1010,35 @@ class Browser:
         password: str | None = None,
         passwordless: bool | None = False
     ) -> None:
-        cur_context = self.driver.context
-        self.switch_to_top()
+        with self.driver.restore_context():
+            self.open_superuser_dialog()
 
-        self.open_superuser_dialog()
+            # In (open)SUSE images, superuser access always requires the root password
+            if user is None:
+                user = "root" if "suse" in self.machine.image else "admin"
 
-        # In (open)SUSE images, superuser access always requires the root password
-        if user is None:
-            user = "root" if "suse" in self.machine.image else "admin"
+            if passwordless:
+                self.wait_in_text("div[role=dialog]", "Administrative access")
+                self.wait_in_text("div[role=dialog] .pf-v5-c-modal-box__body", "You now have administrative access.")
+                # there should be only one ("Close") button
+                self.click("div[role=dialog] .pf-v5-c-modal-box__footer button")
+            else:
+                self.wait_in_text("div[role=dialog]", "Switch to administrative access")
+                self.wait_in_text("div[role=dialog]", f"Password for {user}:")
+                self.set_input_text("div[role=dialog] input", password or "foobar")
+                self.click("div[role=dialog] button.pf-m-primary")
 
-        if passwordless:
-            self.wait_in_text("div[role=dialog]", "Administrative access")
-            self.wait_in_text("div[role=dialog] .pf-v5-c-modal-box__body", "You now have administrative access.")
-            # there should be only one ("Close") button
-            self.click("div[role=dialog] .pf-v5-c-modal-box__footer button")
-        else:
-            self.wait_in_text("div[role=dialog]", "Switch to administrative access")
-            self.wait_in_text("div[role=dialog]", f"Password for {user}:")
-            self.set_input_text("div[role=dialog] input", password or "foobar")
-            self.click("div[role=dialog] button.pf-m-primary")
+            self.wait_not_present("div[role=dialog]")
 
-        self.wait_not_present("div[role=dialog]")
-
-        self.check_superuser_indicator("Administrative access")
-        self.driver.context = cur_context
+            self.check_superuser_indicator("Administrative access")
 
     def drop_superuser(self) -> None:
-        cur_context = self.driver.context
-        self.switch_to_top()
-
-        self.open_superuser_dialog()
-        self.wait_in_text("div[role=dialog]", "Switch to limited access")
-        self.click("div[role=dialog] button.pf-m-primary")
-        self.wait_not_present("div[role=dialog]")
-        self.check_superuser_indicator("Limited access")
-
-        self.driver.context = cur_context
+        with self.driver.restore_context():
+            self.open_superuser_dialog()
+            self.wait_in_text("div[role=dialog]", "Switch to limited access")
+            self.click("div[role=dialog] button.pf-m-primary")
+            self.wait_not_present("div[role=dialog]")
+            self.check_superuser_indicator("Limited access")
 
     def click_system_menu(self, path: str, enter: bool = True) -> None:
         """Click on a "System" menu entry with given URL path
@@ -1148,11 +1141,10 @@ class Browser:
             self.cdp_command("Emulation.setEmulatedMedia", features=[{'name': 'prefers-color-scheme', 'value': name}])
 
     def _set_direction(self, direction: str) -> None:
-        cur_context = self.driver.context
-        if self.is_present("#shell-page"):
-            self.switch_to_top()
-            self.set_attr("#shell-page", "dir", direction)
-        self.driver.context = cur_context
+        with self.driver.restore_context(switch_to_top=False):
+            if self.is_present("#shell-page"):
+                self.switch_to_top()
+                self.set_attr("#shell-page", "dir", direction)
         self.set_attr("html", "dir", direction)
 
     def set_layout(self, name: str) -> None:

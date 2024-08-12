@@ -30,6 +30,7 @@ import os
 import socket
 import sys
 import tempfile
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -291,6 +292,16 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager):  # type: ignore[typ
     def switch_to_top(self) -> None:
         self.context = self.top_context
         log_command.info("← switch_to_top")
+
+    @contextlib.contextmanager
+    def restore_context(self, *, switch_to_top: bool = True) -> Iterator[None]:
+        saved = self.context
+        if switch_to_top:
+            self.switch_to_top()
+        try:
+            yield
+        finally:
+            self.context = saved
 
 
 class ChromiumBidi(WebdriverBidi):

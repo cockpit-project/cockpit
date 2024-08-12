@@ -85,15 +85,12 @@ clean-local::
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
 
-# required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
+# required for running integration tests
 node_modules/%: $(srcdir)/package-lock.json
 	@true
 
 EXTRA_DIST += \
-	node_modules/chrome-remote-interface \
-	node_modules/commander \
 	node_modules/sizzle \
-	node_modules/ws \
 	$(NULL)
 
 check: export VERBOSE=1

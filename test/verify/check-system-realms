@@ -1013,7 +1013,6 @@ class TestKerberos(testlib.MachineCase):
             self.machine.execute(self.restart_sshd)
         self.machine.execute(WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
-    @testlib.skipBrowser("Firefox cannot work with cookies", "firefox")
     def testNegotiate(self):
         self.allow_hostkey_messages()
         b = self.browser

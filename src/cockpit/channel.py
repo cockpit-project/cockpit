@@ -386,6 +386,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         raise NotImplementedError
 
     def do_open(self, options: JsonObject) -> None:
+        self._transport = None
         loop = asyncio.get_running_loop()
         self._create_transport_task = asyncio.create_task(self.create_transport(loop, options))
         self._create_transport_task.add_done_callback(self.create_transport_done)

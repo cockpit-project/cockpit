@@ -707,9 +707,6 @@ class Browser:
                 return
             except Error as e:
                 last_error = e
-                # rewrite exception to have more context, also for compatibility with existing naughties
-                if "condition did not become true" in e.msg:
-                    raise Error(f"timeout\nwait_js_cond({cond}): {e.msg}") from None
 
                 # can happen when waiting across page reloads
                 if any(pattern in str(e) for pattern in [
@@ -729,7 +726,8 @@ class Browser:
                 break
 
         assert last_error
-        raise last_error
+        # rewrite exception to have more context, also for compatibility with existing naughties
+        raise Error(f"timeout\nwait_js_cond({cond}): {last_error.msg}") from None
 
     def wait_js_func(self, func: str, *args: object) -> None:
         self.wait_js_cond("%s(%s)" % (func, ','.join(map(jsquote, args))))

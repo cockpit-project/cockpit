@@ -280,6 +280,7 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager):  # type: ignore[typ
         return nodes[0]
 
     async def switch_to_frame(self, name: str) -> None:
+        self.switch_to_top()
         frame = await self.locate(f"iframe[name='{name}']")
         cw = await self.bidi("script.callFunction",
                              functionDeclaration="f => f.contentWindow",

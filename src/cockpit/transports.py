@@ -142,7 +142,7 @@ class _Transport(asyncio.Transport):
         self._closing = True
         self._close_reader()
         self._remove_write_queue()
-        self._protocol.connection_lost(exc)
+        self._loop.call_soon(self._protocol.connection_lost, exc)
         self._close()
 
     def can_write_eof(self) -> bool:

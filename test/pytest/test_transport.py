@@ -255,6 +255,10 @@ class TestSubprocessTransport:
         assert transport.get_returncode() == 0
         assert protocol.sent == protocol.received
         transport.close()
+        # make sure the connection_lost handler isn't called immediately
+        assert protocol.transport is not None
+        # ...but "soon" (in the very next mainloop iteration)
+        await asyncio.sleep(0.01)
         assert protocol.transport is None
 
     @pytest.mark.asyncio
@@ -330,6 +334,10 @@ class TestSubprocessTransport:
         # Now let's write to the stdin with the other side closed.
         # This should be enough to immediately disconnect us (EPIPE)
         protocol.write(b'abc')
+        # make sure the connection_lost handler isn't called immediately
+        assert protocol.transport is not None
+        # ...but "soon" (in the very next mainloop iteration)
+        await asyncio.sleep(0.01)
         assert protocol.transport is None
         assert isinstance(protocol.exc, BrokenPipeError)
 
@@ -396,7 +404,11 @@ class TestSubprocessTransport:
         assert protocol.transport
         assert protocol.transport.get_write_buffer_size() == 0
         protocol.transport.close()
-        assert protocol.transport is None  # make sure it closed immediately
+        # make sure the connection_lost handler isn't called immediately
+        assert protocol.transport is not None
+        # ...but "soon" (in the very next mainloop iteration)
+        await asyncio.sleep(0.01)
+        assert protocol.transport is None
         # we have another ref on the transport
         transport.close()  # should be idempotent
 

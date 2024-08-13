@@ -224,7 +224,6 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
                                     "sudo: a password is required")
 
     # Possible workaround - ssh as `admin` and just do `m.execute()`
-    @testlib.skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
     @testlib.todoPybridgeRHEL8()
     def testLockedIdentity(self):
         b = self.browser

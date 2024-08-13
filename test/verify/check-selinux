@@ -56,7 +56,7 @@ class TestSelinux(testlib.MachineCase):
 
     @testlib.skipImage("No setroubleshoot", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("No setroubleshoot")
-    @testlib.skipBrowser("Firefox needs http to access clipboard", "firefox")
+    @testlib.skipBrowser("Firefox fails to recognize 'clipboard-read' permission", "firefox")
     def testTroubleshootAlerts(self):
         b = self.browser
         m = self.machine

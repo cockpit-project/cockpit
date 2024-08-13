@@ -57,7 +57,6 @@ class TestConnection(testlib.MachineCase):
             # show the leaked processes in the assertion
             self.fail(m.execute("pgrep -au admin '(cockpit|ssh-agent)'"))
 
-    @testlib.skipBrowser("Firefox cannot work with cookies", "firefox")
     def testBasic(self):
         m = self.machine
 
@@ -358,7 +357,6 @@ class TestConnection(testlib.MachineCase):
         out = m.execute("curl --silent --show-error --head --unix-socket /run/cockpit/wsinstance/https@new.sock http://dummy")
         self.assertIn("HTTP/1.1 200 OK", out)
 
-    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     @testlib.nondestructive
     def testTls(self):
         m = self.machine
@@ -1288,7 +1286,6 @@ ProtocolHeader = X-Forwarded-Proto
 
     @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")
-    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
         """test proxying to Cockpit with TLS
 
@@ -1369,7 +1366,6 @@ server {
 
     @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")
-    @testlib.skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
         """test proxying to Cockpit with plain HTTP
 

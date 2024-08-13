@@ -48,10 +48,6 @@ Shell=/embed-cockpit/index.html
 
         b.wait_visible("#embed-loaded")
         b.wait_visible("#embed-address")
-        m.write("/etc/cockpit/cockpit.conf", """
-[WebService]
-Shell=/shell/index.html
-""")
         b.set_val("#embed-address", f"http://{m.web_address}:{m.web_port}")
         b.click("#embed-full")
         b.wait_visible("iframe[name='embed-full'][loaded]")

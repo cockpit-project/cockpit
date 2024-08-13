@@ -366,7 +366,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     Otherwise, if the subclass implements .do_open() itself, it is responsible
     for setting up the connection and ensuring that .connection_made() is called.
     """
-    _transport: 'asyncio.Transport | None'
+    _transport: 'asyncio.Transport | None' = None
     _send_pongs: bool = True
     _last_ping: 'JsonObject | None' = None
     _create_transport_task: 'asyncio.Task[asyncio.Transport] | None' = None

@@ -28,6 +28,19 @@ window.ph_find = function(sel) {
     return window.ph_only(els, sel);
 };
 
+window.ph_find_scroll_into_view = function(sel) {
+    const el = window.ph_find(sel);
+    /* we cannot make this conditional, as there is no way to find out whether
+       an element is currently visible -- the usual trick to compare getBoundingClientRect() against
+       window.innerHeight does not work if the element is in e.g. a scrollable dialog area */
+    return new Promise(resolve => {
+        el.scrollIntoView({ behaviour: 'instant', block: 'center', inline: 'center' });
+        // scrolling needs a little bit of time to stabilize, and it's not predictable
+        // in particular, 'scrollend' is not reliably emitted
+        window.setTimeout(() => resolve(el), 200);
+    });
+};
+
 window.ph_count = function(sel) {
     const els = window.ph_select(sel);
     return els.length;

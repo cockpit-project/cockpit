@@ -114,6 +114,7 @@ WEBDRIVER_KEYS = {
     "ArrowDown": "\uE015",
     "Insert": "\uE016",
     "Delete": "\uE017",
+    "Meta": "\uE03D",
 }
 
 
@@ -502,7 +503,62 @@ class Browser:
         :param metaKey: press the meta key
         """
         self.wait_visible(selector)
-        self.call_js_func('ph_mouse', selector, event, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
+
+        # HACK: Chromium clicks don't work with iframes; use our old "synthesize MouseEvent" approach
+        # https://issues.chromium.org/issues/359616812
+        # TODO: x and y are not currently implemented: webdriver (0, 0) is the element's center, not top left corner
+        if self.browser == "chromium" or x != 0 or y != 0:
+            self.call_js_func('ph_mouse', selector, event, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
+            return
+
+        # For Firefox and regular clicks, use the BiDi API, which is more realistic -- it doesn't
+        # sidestep the browser
+        element = self.call_js_func('ph_find_scroll_into_view', selector)
+
+        actions = [{"type": "pointerMove", "x": 0, "y": 0, "origin": {"type": "element", "element": element}}]
+        down = {"type": "pointerDown", "button": btn}
+        up = {"type": "pointerUp", "button": btn}
+        if event == "click":
+            actions.extend([down, up])
+        elif event == "dblclick":
+            actions.extend([down, up, down, up])
+        elif event == "mouseenter":
+            actions.insert(0, {"type": "pointerMove", "x": 0, "y": 0, "origin": "viewport"})
+        elif event == "mouseleave":
+            actions.append({"type": "pointerMove", "x": 0, "y": 0, "origin": "viewport"})
+        else:
+            raise NotImplementedError(f"unknown event {event}")
+
+        # modifier keys
+        ev_id = f"pointer-{self.driver.last_id}"
+        keys_pre = []
+        keys_post = []
+
+        def key(type_: str, name: str) -> JsonObject:
+            return {"type": "key", "id": ev_id + type_, "actions": [{"type": type_, "value": WEBDRIVER_KEYS[name]}]}
+
+        if altKey:
+            keys_pre.append(key("keyDown", "Alt"))
+            keys_post.append(key("keyUp", "Alt"))
+        if ctrlKey:
+            keys_pre.append(key("keyDown", "Control"))
+            keys_post.append(key("keyUp", "Control"))
+        if shiftKey:
+            keys_pre.append(key("keyDown", "Shift"))
+            keys_post.append(key("keyUp", "Shift"))
+        if metaKey:
+            keys_pre.append(key("keyDown", "Meta"))
+            keys_post.append(key("keyUp", "Meta"))
+
+        # the actual mouse event
+        actions = [{
+            "id": ev_id,
+            "type": "pointer",
+            "parameters": {"pointerType": "mouse"},
+            "actions": actions,
+        }]
+
+        self.bidi("input.performActions", context=self.driver.context, actions=keys_pre + actions + keys_post)
 
     def click(self, selector: str) -> None:
         """Click on a ui element

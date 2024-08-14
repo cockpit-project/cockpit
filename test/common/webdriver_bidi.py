@@ -23,6 +23,7 @@ chromedriver+chromium (or headless_shell).
 """
 
 import asyncio
+import collections
 import contextlib
 import json
 import logging
@@ -30,10 +31,10 @@ import os
 import socket
 import sys
 import tempfile
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, AsyncIterable, Iterable
 
 import aiohttp
 
@@ -49,7 +50,7 @@ class WebdriverError(RuntimeError):
 
 
 @dataclass
-class LogMessage:
+class ConsoleMessage:
     level: str  # like "info"
     type: str  # usually "console"
     timestamp: int
@@ -65,6 +66,37 @@ class LogMessage:
 
     def __str__(self) -> str:
         return f"> {self.level}: {self.text}"
+
+
+class ConsoleLog(Iterable[ConsoleMessage], AsyncIterable[ConsoleMessage]):
+    def __init__(self) -> None:
+        self.ready = asyncio.Event()
+        self.log = collections.deque[ConsoleMessage]()
+        self.eof = False
+
+    def append(self, message: ConsoleMessage) -> None:
+        self.log.append(message)
+        self.ready.set()
+
+    def close(self) -> None:
+        self.eof = True
+        self.ready.set()
+
+    def __iter__(self) -> Iterator[ConsoleMessage]:
+        """Iterates over all items currently in the log.  If .eof is false,
+        then more items might still be added."""
+        return iter(self.log)
+
+    async def __aiter__(self) -> AsyncIterator[ConsoleMessage]:
+        """Iterates over all items in the log, waiting for the next item to
+        come, and only stopping once the browser session is closed.  Consumes
+        the log entries."""
+        while not self.eof:
+            if len(self.log):
+                yield self.log.popleft()
+            else:
+                self.ready.clear()
+                await self.ready.wait()
 
 
 @dataclass
@@ -131,7 +163,7 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager['WebdriverBidi']):
         self.headless = headless
         self.last_id = 0
         self.pending_commands: dict[int, asyncio.Future[JsonObject]] = {}
-        self.logs: list[LogMessage] = []
+        self.logs = ConsoleLog()
         self.bidi_session: BidiSession | None = None
         self.future_wait_page_load = None
         self.top_context: str | None = None  # top-level browsingContext
@@ -166,6 +198,7 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager['WebdriverBidi']):
         for fut in self.pending_commands.values():
             if not fut.done():
                 fut.set_exception(WebdriverError("websocket closed"))
+        self.logs.close()
 
     async def start_session(self) -> None:
         self.http_session = aiohttp.ClientSession(raise_for_status=True)
@@ -227,9 +260,9 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager['WebdriverBidi']):
 
                 if data["type"] == "event":
                     if data["method"] == "log.entryAdded":
-                        log = LogMessage(data["params"])
-                        self.logs.append(log)
-                        print(str(log), file=sys.stderr)
+                        message = ConsoleMessage(data["params"])
+                        self.logs.append(message)
+                        print(str(message), file=sys.stderr)
                         continue
                     if data["method"] == "browsingContext.domContentLoaded":
                         if self.future_wait_page_load:

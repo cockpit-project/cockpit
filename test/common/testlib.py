@@ -414,7 +414,7 @@ class Browser:
         """Allow browser downloads"""
         # this is only necessary for headless chromium
         if self.browser == "chromium":
-            self.cdp_command("Page.setDownloadBehavior", behavior="allow", downloadPath=str(self.driver.download_dir))
+            self.cdp_command("Browser.setDownloadBehavior", behavior="allow", downloadPath=str(self.driver.download_dir))
 
     def upload_files(self, selector: str, files: Sequence[str]) -> None:
         """Upload a local file to the browser

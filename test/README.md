@@ -180,10 +180,6 @@ You can set these environment variables to configure the test suite:
 
     TEST_JOBS  How many tests to run in parallel.  The default is 1.
 
-    TEST_CDP_PORT  Attach to an actually running browser that is compatible with
-                   the Chrome Debug Protocol, on the given port. Don't use this
-                   with parallel tests.
-
     TEST_BROWSER  What browser should be used for testing. Currently supported values:
                      "chromium"
                      "firefox"

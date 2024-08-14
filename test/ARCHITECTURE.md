@@ -21,16 +21,16 @@ usually based on a distribution's cloud image customized with:
 * Disabling system services which interfere with testing
 
 To automate user actions on the web page, Cockpit is tested in a browser
-controlled using the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/)
-(CDP) which is supported by Firefox and Chromium based browsers.
+controlled using the [Webdriver BiDi](https://w3c.github.io/webdriver-bidi/)
+protocol which is supported by all modern browsers.
 
 The Python test framework in [test/common](./common) is responsible for setting up the
 test environment, running tests and reporting of the test output.
 
-Diagram of the interaction of Browser/Machine/CDP/Test Framework.
+Diagram of the interaction of Browser/Machine/Webdriver/Test Framework.
 ```mermaid
 graph TD;
-    id[Test Framework] <-->|CDP| Browser;
+    id[Test Framework] <-->|Webdriver| Browser;
     Browser <-->|HTTPS/WebSocket| Cockpit;
     id1[Virtual Machine] <-->|HTTP/DBus/OS APIs| Cockpit;
     id[Test Framework] <-->|SSH| id1[Virtual Machine];
@@ -127,9 +127,9 @@ depending on the test class `provision` variable.
  the browser will be started, so tests which require no browser don't start a
  browser needlessly.
 
-The `CDP` class is responsible for spawning the browser, then spawning a CDP
-driver. This uses the `chrome-remote-interface` npm module to send commands to
-the spawned drivers via standard in (stdin).
+The `WebdriverBidi` class is responsible for spawning the browser and talking
+to it using the [Webdriver BiDi](https://w3c.github.io/webdriver-bidi/)
+protocol (which we implement directly for ourselves, using aiohttp).
 
 On `tearDown` the test status is inspected, if it failed test logs are
 collected and if the user has passed `--sit` the test pauses execution until

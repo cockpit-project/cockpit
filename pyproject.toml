@@ -215,6 +215,8 @@ deps =
   pytest: pytest-timeout
   pytest: pytest-xdist
 allowlist_externals = test/static-code
+setenv =
+  NO_QUNIT=1
 commands =
   pytest: python3 -m pytest -opythonpath= {posargs}
   lint: test/static-code --tap

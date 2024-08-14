@@ -29,6 +29,16 @@ def any_subprocesses() -> bool:
         return True  # at least one process (or zombie) still waitable
 
 
+# some issues:
+#   - even sourcing this will break old python versions in ways we don't care to fix
+#   - even sourcing this requires aiohttp, which isn't available everywhere
+#   - there are general issues running under tox which need investigation
+if 'NO_QUNIT' in os.environ:
+    @pytest.hookimpl
+    def pytest_ignore_collect(path) -> 'bool | None':
+        return path.basename == 'test_browser.py' or None
+
+
 if not have_event_loop_policy_fixture:
     # Compatibility with pre-`event_loop_policy` versions of pytest-asyncio
 

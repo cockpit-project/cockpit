@@ -124,7 +124,7 @@ def unpack_value(raw: Any) -> Any:
 
 
 # FIXME: No current way to say `[Self]`
-class WebdriverBidi(contextlib.AbstractAsyncContextManager):  # type: ignore[type-arg]
+class WebdriverBidi(contextlib.AbstractAsyncContextManager['WebdriverBidi']):
     http_session: aiohttp.ClientSession
 
     def __init__(self, *, headless: bool = False) -> None:
@@ -137,6 +137,7 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager):  # type: ignore[typ
         self.top_context: str | None = None  # top-level browsingContext
         self.context: str | None  # currently selected context (top or iframe)
 
+        # NB: nothing accesses self.homedir_temp.  It's only to hold the reference.
         self.homedir_temp = tempfile.TemporaryDirectory(prefix="cockpit-test-browser-home-")
         self.homedir = Path(self.homedir_temp.name)
         self.download_dir = self.homedir / 'Downloads'

@@ -201,6 +201,7 @@ export const ListingTable = ({
 
         const rowKey = rowProps.key || rowIndex;
         const isExpanded = expanded[rowKey] === undefined ? !!row.initiallyExpanded : expanded[rowKey];
+        let columnSpanCnt = 0;
         const rowPair = (
             <React.Fragment key={rowKey + "-inner-row"}>
                 <Tr {...rowProps}>
@@ -228,11 +229,15 @@ export const ListingTable = ({
                             }
                         }} />
                     }
-                    {row.columns.map((cell, cellIndex) => {
+                    {row.columns.map(cell => {
                         const { key, ...cellProps } = cell.props || {};
-                        const dataLabel = typeof cells[cellIndex] == 'object' ? cells[cellIndex].title : cells[cellIndex];
-                        const colKey = dataLabel || cellIndex;
-                        if (cells[cellIndex]?.header)
+                        const headerCell = cells[columnSpanCnt];
+                        const dataLabel = typeof headerCell == 'object' ? headerCell.title : headerCell;
+                        const colKey = dataLabel || columnSpanCnt;
+
+                        columnSpanCnt += cellProps.colSpan || 1;
+
+                        if (headerCell?.header)
                             return (
                                 <Th key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel} {...cellProps}>
                                     {typeof cell == 'object' ? cell.title : cell}

@@ -228,6 +228,8 @@ session include system-auth
         b.open_superuser_dialog()
         b.wait_in_text(".pf-v5-c-modal-box", "Password for admin")
         self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
+        b.click(".pf-v5-c-modal-box button:contains('Cancel')")
+        b.wait_not_present(".pf-v5-c-modal-box")
         b.logout()
         testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin || true"), tries=10)
         self.assertNotIn("cockpit", m.execute("loginctl --lines=0 user-status admin || true"))

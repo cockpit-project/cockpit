@@ -1,10 +1,12 @@
+import contextlib
 import glob
 import os
 import subprocess
-import sys
-from typing import Iterable
+from typing import AsyncIterator
 
 import pytest
+from webdriver_bidi import ChromiumBidi
+from yarl import URL
 
 SRCDIR = os.path.realpath(f'{__file__}/../../..')
 BUILDDIR = os.environ.get('abs_builddir', SRCDIR)
@@ -18,50 +20,90 @@ XFAIL = {
 }
 
 
-# Changed in version 3.10: Added the root_dir and dir_fd parameters.
-def glob_py310(fnmatch: str, *, root_dir: str, recursive: bool = False) -> Iterable[str]:
-    prefix = f'{root_dir}/'
-    prefixlen = len(prefix)
-
-    for result in glob.glob(f'{prefix}{fnmatch}', recursive=recursive):
-        assert result.startswith(prefix)
-        yield result[prefixlen:]
-
-
-@pytest.mark.parametrize('html', glob_py310('**/test-*.html', root_dir=f'{SRCDIR}/qunit', recursive=True))
-def test_browser(html):
-    if not os.path.exists(f'{BUILDDIR}/test-server'):
-        pytest.skip('no test-server')
-    if html in SKIP:
-        pytest.skip()
-    elif html in XFAIL:
-        pytest.xfail()
-
+@contextlib.asynccontextmanager
+async def spawn_test_server() -> AsyncIterator[URL]:  # noqa:RUF029
     if 'COVERAGE_RCFILE' in os.environ:
         coverage = ['coverage', 'run', '--parallel-mode', '--module']
     else:
         coverage = []
 
-    # Merge 2>&1 so that pytest displays an interleaved log
-    subprocess.run(['test/common/tap-cdp', f'{BUILDDIR}/test-server',
-                    sys.executable, '-m', *coverage, 'cockpit.bridge', '--debug',
-                    f'./qunit/{html}'], check=True, stderr=subprocess.STDOUT)
+    # pass the address through a separate fd, so that we can see g_debug() messages (which go to stdout)
+    addr_r, addr_w = os.pipe()
+    try:
+        server = subprocess.Popen(
+            [f'{BUILDDIR}/test-server', 'python3', '-m', *coverage, 'cockpit.bridge'],
+            env={**os.environ, 'TEST_SERVER_ADDRESS_FD': f'{addr_w}'},
+            stdin=subprocess.DEVNULL, pass_fds=(addr_w,), close_fds=True
+        )
+    except FileNotFoundError:
+        pytest.skip('No test-server')
+    os.close(addr_w)
+    address = os.read(addr_r, 1000).decode()
+    os.close(addr_r)
+
+    yield URL(address)
+
+    server.kill()
+    server.wait()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('html', glob.glob('**/test-*.html', root_dir=f'{SRCDIR}/qunit', recursive=True))
+async def test_browser(html: str) -> None:
+    if html in SKIP:
+        pytest.skip()
+    elif html in XFAIL:
+        pytest.xfail()
+
+    async with (
+        spawn_test_server() as base_url,
+        ChromiumBidi(headless=os.environ.get('TEST_SHOW_BROWSER', '0') == '0') as browser
+    ):
+        await browser.bidi(
+            'browsingContext.navigate',
+            context=browser.context,
+            url=str(base_url / 'qunit' / html),
+            wait='complete'
+        )
+
+        ignore_resource_errors = False
+        error_message = None
+
+        async for message in browser.logs:
+            if message.type == 'console':
+                if message.text == 'cockpittest-tap-done':
+                    break
+                elif message.text == 'cockpittest-tap-error':
+                    error_message = message.text
+                    break
+                elif message.text == 'cockpittest-tap-expect-resource-error':
+                    ignore_resource_errors = True
+                    continue
+                elif message.text.startswith('not ok'):
+                    error_message = message.text
+
+            elif message.type == 'warning':
+                print('WARNING', message.text)
+
+            else:
+                print('OTHER', message.type, message.args, message.text)
+
+                # fail on browser level errors
+                if ignore_resource_errors and "Failed to load resource" in message.text:
+                    continue
+
+                error_message = message.text
+                break
+        else:
+            pytest.fail("Didn't receive qunit end message")
+
+        if error_message is not None:
+            pytest.fail(f'Test failed: {error_message}')
 
 
 # run test-timeformat.ts in different time zones: west/UTC/east
+@pytest.mark.asyncio
 @pytest.mark.parametrize('tz', ['America/Toronto', 'Europe/London', 'UTC', 'Europe/Berlin', 'Australia/Sydney'])
-def test_timeformat_timezones(tz):
-    if not os.path.exists(f'{BUILDDIR}/test-server'):
-        pytest.skip('no test-server')
-    # this doesn't get built in rpm/deb package build environments, similar to test_browser()
-    built_test = './qunit/base1/test-timeformat.html'
-    if not os.path.exists(built_test):
-        pytest.skip(f'{built_test} not found')
-
-    env = os.environ.copy()
-    env['TZ'] = tz
-
-    # Merge 2>&1 so that pytest displays an interleaved log
-    subprocess.run(['test/common/tap-cdp', f'{BUILDDIR}/test-server',
-                    sys.executable, '-m', 'cockpit.bridge', '--debug',
-                    built_test], check=True, stderr=subprocess.STDOUT, env=env)
+async def test_timeformat_timezones(tz: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv('TZ', tz)
+    await test_browser('base1/test-timeformat.html')

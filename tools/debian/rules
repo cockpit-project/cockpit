@@ -83,9 +83,9 @@ execute_after_dh_install-indep:
 execute_after_dh_install-arch:
 ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 ifeq ($(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.04)
-	PYTHONPATH=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages) python3 -m pytest -vv -k 'not linter and not test_descriptions'
+	NO_QUNIT=1 PYTHONPATH=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages) python3 -m pytest -vv -k 'not linter and not test_descriptions'
 else
-	pytest -vv -k 'not linter and not test_descriptions' -opythonpath=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages)
+	NO_QUNIT=1 pytest -vv -k 'not linter and not test_descriptions' -opythonpath=$$(ls -d debian/cockpit-bridge/usr/lib/python3*/dist-packages)
 endif
 endif
 

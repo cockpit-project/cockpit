@@ -120,7 +120,6 @@ export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, 
                                        onClick={checked(onClick, setSpinning)}
                                        variant={kind || "secondary"}
                                        isDisabled={!!excuse || (spinner && spinning)}
-                                       style={excuse ? { pointerEvents: 'none' } : null}
                                        isLoading={spinner ? spinning : undefined}>
                                    {children}
                                </Button>
@@ -131,7 +130,6 @@ export const StorageLink = ({ id, excuse, onClick, children }) => (
     <StorageControl excuse={excuse}
                     content={excuse => (
                         <Button onClick={checked(onClick)}
-                                style={excuse ? { pointerEvents: 'none' } : null}
                                 variant="link"
                                 isInline
                                 isDisabled={!!excuse}>

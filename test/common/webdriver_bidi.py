@@ -153,8 +153,6 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager['WebdriverBidi']):
         assert self.bidi_session is not None
         log_proto.debug("cleaning up webdriver")
 
-        self.task_reader.cancel()
-        del self.task_reader
         await self.ws.close()
         await self.close_bidi_session()
         self.bidi_session.process.terminate()
@@ -162,12 +160,12 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager['WebdriverBidi']):
         self.bidi_session = None
         await self.http_session.close()
 
-    def ws_done_callback(self, future: asyncio.Future[None]) -> None:
+        await self.task_reader
+
+    def ws_done_callback(self, _task: asyncio.Task[None]) -> None:
         for fut in self.pending_commands.values():
             if not fut.done():
                 fut.set_exception(WebdriverError("websocket closed"))
-        if not future.cancelled():
-            log_proto.error("ws_reader crashed: %r", future.result())
 
     async def start_session(self) -> None:
         self.http_session = aiohttp.ClientSession(raise_for_status=True)

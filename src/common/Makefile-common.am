@@ -100,10 +100,10 @@ libcockpit_common_a_SOURCES = \
 	$(NULL)
 
 # libcockpit-common.a static-links an HTML template to use on failures
-nodist_libcockpit_common_a_SOURCES = src/common/fail.html.c
-src/common/fail.html.c: src/common/fail.html
+nodist_libcockpit_common_a_SOURCES = src/common/fail-html.c
+src/common/fail-html.c: src/common/fail.html
 	$(AM_V_GEN) $(top_srcdir)/tools/escape-to-c cockpit_webresponse_fail_html_text < $< > $@.tmp && mv $@.tmp $@
-CLEANFILES += src/common/fail.html.c
+CLEANFILES += src/common/fail-html.c
 EXTRA_DIST += src/common/fail.html
 
 # -----------------------------------------------------------------------------

@@ -395,7 +395,7 @@ class ChromiumBidi(WebdriverBidi):
 
         reply = None
         payload = json.dumps({"id": self.last_cdp_id, "method": method, "params": params})
-        log_proto.debug("CDP ← %r", payload)
+        log_command.info("CDP ← %r", payload)
         await self.cdp_ws.send_str(payload)
         async for msg in self.cdp_ws:
             if msg.type == aiohttp.WSMsgType.TEXT:
@@ -406,7 +406,7 @@ class ChromiumBidi(WebdriverBidi):
                     log_proto.warning("CDP message: %r", reply)
             else:
                 log_proto.debug("CDP non-text message: %r", msg)
-        log_proto.debug("CDP → %r", reply)
+        log_command.info("CDP → %r", reply)
         assert reply
         self.last_cdp_id += 1
         return reply

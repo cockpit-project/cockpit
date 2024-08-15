@@ -41,10 +41,11 @@ async def spawn_test_server() -> AsyncIterator[URL]:  # noqa:RUF029
     address = os.read(addr_r, 1000).decode()
     os.close(addr_r)
 
-    yield URL(address)
-
-    server.kill()
-    server.wait()
+    try:
+        yield URL(address)
+    finally:
+        server.kill()
+        server.wait()
 
 
 @pytest.mark.asyncio

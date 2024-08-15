@@ -34,7 +34,7 @@ import tempfile
 from collections.abc import AsyncIterator, Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, AsyncIterable, Iterable
+from typing import Any, AsyncIterable, Iterable, Self
 
 import aiohttp
 
@@ -155,8 +155,8 @@ def unpack_value(raw: Any) -> Any:
     raise ValueError(f"Unknown type in {raw!r}")
 
 
-# FIXME: No current way to say `[Self]`
-class WebdriverBidi(contextlib.AbstractAsyncContextManager['WebdriverBidi']):
+# FIXME: No current way to say `contextlib.AbstractAsyncContextManager[Self]`
+class WebdriverBidi:
     http_session: aiohttp.ClientSession
 
     def __init__(self, *, headless: bool = False) -> None:
@@ -223,7 +223,7 @@ class WebdriverBidi(contextlib.AbstractAsyncContextManager['WebdriverBidi']):
         else:
             raise WebdriverError("timed out waiting for default realm")
 
-    async def __aenter__(self) -> "WebdriverBidi":
+    async def __aenter__(self) -> Self:
         await self.start_session()
         return self
 

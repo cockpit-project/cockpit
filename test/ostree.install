@@ -5,21 +5,8 @@ set -eu
 # Note: cockpit-selinux would be desirable, but needs setroubleshoot-server which isn't installed
 cd /var/tmp/
 
-# rhel4edge includes cockpit packages in the image itself, fedora-coreos overlays them
-. /usr/lib/os-release
-if [ "${ID:-}" = "rhel" ]; then
-    rpm-ostree override replace --cache-only cockpit-bridge-*.rpm \
-        cockpit-system-*.rpm
-    rpm-ostree install --cache-only cockpit-tests-*.rpm
-else
-    rpm-ostree install --cache-only cockpit-bridge-*.rpm \
-        cockpit-networkmanager-*.rpm cockpit-system-*.rpm cockpit-tests-*.rpm
-fi
-
-# rhel4edge has passwordless sudo but a loads of tests don't expect that
-if [ "${ID:-}" = "rhel" ]; then
-    sed -i '$ d' /etc/sudoers
-fi
+rpm-ostree install --cache-only cockpit-bridge-*.rpm \
+    cockpit-networkmanager-*.rpm cockpit-system-*.rpm cockpit-tests-*.rpm
 
 # update cockpit-ws and install scripts in the container
 for rpm in /var/tmp/cockpit-ws-*.rpm /var/tmp/cockpit-bridge-*.rpm; do

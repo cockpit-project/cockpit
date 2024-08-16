@@ -172,7 +172,6 @@ You can set these environment variables to configure the test suite:
                   "fedora-40"
                   "fedora-coreos"
                   "rhel-9-4"
-                  "rhel4edge",
                   "ubuntu-2204"
                   "ubuntu-stable"
                "fedora-40" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)

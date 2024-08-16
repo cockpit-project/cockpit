@@ -24,8 +24,8 @@ from collections.abc import Collection
 import packagelib
 import testlib
 
-OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos", "rhel4edge"]
-OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "rhel4edge", "centos-*"]
+OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos"]
+OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*"]
 
 
 class NoSubManCase(packagelib.PackageCase):
@@ -1638,7 +1638,7 @@ class TestAutoUpdates(NoSubManCase):
         b.wait_visible("#autoupdates-settings button:disabled")
 
 
-@testlib.skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
+@testlib.skipImage("Image uses OSTree", "fedora-coreos")
 class TestAutoUpdatesInstall(NoSubManCase):
     def testUnsupported(self):
         b = self.browser

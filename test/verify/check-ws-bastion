@@ -22,7 +22,7 @@ import testlib
 HOST = "host.containers.internal"
 
 
-@testlib.onlyImage("no cockpit/ws container on this image", "fedora-coreos", "rhel4edge")
+@testlib.onlyImage("no cockpit/ws container on this image", "fedora-coreos")
 @testlib.nondestructive
 class TestWsBastionContainer(testlib.MachineCase):
     def setUp(self):
@@ -218,7 +218,7 @@ class TestWsBastionContainer(testlib.MachineCase):
         b.wait_visible('#content')
 
 
-@testlib.onlyImage("no cockpit/ws container on this image", "fedora-coreos", "rhel4edge")
+@testlib.onlyImage("no cockpit/ws container on this image", "fedora-coreos")
 @testlib.nondestructive
 class TestWsPrivileged(testlib.MachineCase):
     def testService(self):

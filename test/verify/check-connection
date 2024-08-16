@@ -437,7 +437,7 @@ class TestConnection(testlib.MachineCase):
 
         # certmonger generated certificate; asciibetically later than the above
         # not all images have certmonger
-        if m.image not in ["debian-stable", "debian-testing", "fedora-coreos", "rhel4edge", "arch"]:
+        if m.image not in ["debian-stable", "debian-testing", "fedora-coreos", "arch"]:
             hostname = m.execute("hostname --fqdn").strip()
             m.execute(f"getcert request -f /etc/cockpit/ws-certs.d/monger.cert -k /etc/cockpit/ws-certs.d/monger.key -D {hostname} --ca=local --wait")
             self.addCleanup(m.execute, "getcert stop-tracking -f /etc/cockpit/ws-certs.d/monger.cert")

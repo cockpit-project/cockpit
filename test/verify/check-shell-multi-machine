@@ -822,7 +822,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_not_present('#hosts_setup_server_dialog')
         b.enter_page("/system", host="fred@10.111.113.2")
 
-        # Relogin.  This should now work seamlessly (except on fedora-coreos and rhel4edge
+        # Relogin.  This should now work seamlessly (except on OSTree images
         # which don't have pam-ssh-add in its PAM stack.)
         if not m1.ostree_image:
             b.relogin(None, wait_remote_session_machine=m1)

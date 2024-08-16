@@ -336,8 +336,7 @@ class TestFirewall(netlib.NetworkCase):
         m.execute("firewall-cmd --add-service=pop3")
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_visible(".zone-section[data-id='public'] td:contains('Additional ports') + td:contains('9998')")
-        # remove service via cli and cockpit
-        m.execute("firewall-cmd --remove-service=pop3")
+        # remove service in cockpit
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v5-c-menu-toggle")
         b.click(".zone-section[data-id='public'] .pf-v5-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")

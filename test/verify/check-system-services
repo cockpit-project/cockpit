@@ -55,6 +55,9 @@ class TestServices(testlib.MachineCase):
 
     def toggle_onoff(self):
         self.browser.click(".service-top-panel .pf-v5-c-switch__input")
+        # move away from the button again to remove the tooltip; it covers the kebab
+        self.browser.mouse(".service-top-panel .pf-v5-c-switch__input", "mouseleave")
+        self.browser.wait_not_present("[role='tooltip']")
 
     def do_action(self, action):
         self.browser.click(".service-top-panel button.pf-v5-c-menu-toggle")

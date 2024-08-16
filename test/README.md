@@ -169,14 +169,13 @@ You can set these environment variables to configure the test suite:
                   "centos-10"
                   "debian-stable"
                   "debian-testing"
-                  "fedora-39"
                   "fedora-40"
                   "fedora-coreos"
                   "rhel-9-4"
                   "rhel4edge",
                   "ubuntu-2204"
                   "ubuntu-stable"
-               "fedora-39" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)
+               "fedora-40" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)
 
     TEST_JOBS  How many tests to run in parallel.  The default is 1.
 

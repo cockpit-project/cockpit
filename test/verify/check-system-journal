@@ -237,7 +237,10 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         b.click(".pf-v5-c-form__group:contains('Since') button")
         b.wait_text(".pf-v5-c-popover__title-text", "Start showing entries on or newer than the specified date.")
-        b.click(".pf-v5-c-popover__close button")
+        # FIXME: Closing the popover with the X button also closes the whole search form (just not with ph_mouse)
+        # b.click(".pf-v5-c-popover__close button")
+        # Thus close the popover the same way as we opened it, with the (i) icon
+        b.click(".pf-v5-c-form__group:contains('Since') button")
         b.wait_not_present(".pf-v5-c-popover")
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")

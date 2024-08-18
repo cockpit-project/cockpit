@@ -97,11 +97,15 @@ can mount your known host keys into the container at
 
     -v /path/to/known_hosts:/etc/ssh/ssh_known_hosts:ro,Z
 
-You can also mount an encrypted private key inside the container and set the environment variable `COCKPIT_SSH_KEY_PATH` to point to it:
+You can also mount encrypted private keys inside the container. You can set an environment variable, `COCKPIT_SSH_KEY_PATH_MYHOST`, where `MYHOST` is the uppercased hostname used in the `Connect to` field, and cockpit will use that private key to login for the specified host. Private keys can be set for multiple hosts this way by changing the value of `MYHOST`. You can also set an environment variable, `COCKPIT_SSH_KEY_PATH`, which will be used as a fallback key if no host-specific key is set:
 
-    -e COCKPIT_SSH_KEY_PATH=/id_rsa -v ~/.ssh/id_rsa:/id_rsa:ro,Z
+    -e COCKPIT_SSH_KEY_PATH_MYHOST=/.ssh/myhost_id_rsa \
+    -e COCKPIT_SSH_KEY_PATH_MYSERVER=/.ssh/myserver_id_rsa \
+    -e COCKPIT_SSH_KEY_PATH_192.168.1.1=/.ssh/another_id_rsa \
+    -e COCKPIT_SSH_KEY_PATH=/.ssh/id_rsa \
+    -v ~/.ssh/:/.ssh:ro,Z
 
-Then cockpit will use the provided password to decrypt the key and establish an SSH connection to the given host using that private key.
+Private keys can be encrypted; then cockpit uses the provided password to decrypt the key.
 
 ## More Info
 

@@ -164,58 +164,69 @@ class TestWsBastionContainer(testlib.MachineCase):
         b = self.browser
 
         KEY_PASSWORD = "sshfoobar"
+
         # old RSA/PEM format
         m.execute(f"ssh-keygen -q -f /root/id_bastion -t rsa -m PEM -N {KEY_PASSWORD}")
         m.execute(f"ssh-keyscan localhost | sed 's/^localhost/{HOST}/' > /root/known_hosts")
         self.addCleanup(m.execute, "rm /root/known_hosts /root/id_bastion /root/id_bastion.pub")
 
-        m.execute("podman run -d --name cockpit-bastion -p 9090:9090 "
-                  "-v /root/known_hosts:/etc/ssh/ssh_known_hosts:ro,Z "
-                  "-v /root/id_bastion:/id_bastion:ro,Z "
-                  "-e COCKPIT_SSH_KEY_PATH=/id_bastion "
-                  "-e G_MESSAGES_DEBUG=cockpit-ssh "
-                  "localhost/cockpit/ws")
-        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+        def do_test_key_login(ssh_key_env: str):
+            m.execute(
+                "podman run -d --name cockpit-bastion -p 9090:9090 "
+                "-v /root/known_hosts:/etc/ssh/ssh_known_hosts:ro,Z "
+                "-v /root/id_bastion:/id_bastion:ro,Z "
+                f"-e {ssh_key_env}=/id_bastion "
+                "-e G_MESSAGES_DEBUG=cockpit-ssh "
+                "localhost/cockpit/ws"
+            )
+            m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
 
-        b.open("/", tls=True)
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#server-field", HOST)
+            b.open("/", tls=True)
+            b.set_val("#login-user-input", "admin")
+            b.set_val("#server-field", HOST)
 
-        # the account password does not work
-        b.set_val("#login-password-input", "foobar")
-        b.click("#login-button")
-        b.wait_text_not("#login-error-message", "")
+            # the account password does not work
+            b.set_val("#login-password-input", "foobar")
+            b.click("#login-button")
+            b.wait_text_not("#login-error-message", "")
 
-        # SSH key password, but key is not authorized
-        b.set_val("#login-password-input", KEY_PASSWORD)
-        b.click("#login-button")
-        b.wait_text_not("#login-error-message", "")
+            # SSH key password, but key is not authorized
+            b.set_val("#login-password-input", KEY_PASSWORD)
+            b.click("#login-button")
+            b.wait_text_not("#login-error-message", "")
 
-        # authorize key
-        self.restore_file("/home/admin/.ssh/authorized_keys")
-        # Do not use authorized_keys.d as that does not work on rhel4edge
-        # Do not append but overwrite so we are sure the right key is used
-        m.execute("cat /root/id_bastion.pub > /home/admin/.ssh/authorized_keys")
+            # authorize key
+            self.restore_file("/home/admin/.ssh/authorized_keys")
+            # Do not use authorized_keys.d as that does not work on rhel4edge
+            # Do not append but overwrite so we are sure the right key is used
+            m.execute("cat /root/id_bastion.pub > /home/admin/.ssh/authorized_keys")
 
-        # fails with wrong key password
-        b.set_val("#login-password-input", "notthispassword")
-        b.click("#login-button")
-        b.wait_text_not("#login-error-message", "")
+            # fails with wrong key password
+            b.set_val("#login-password-input", "notthispassword")
+            b.click("#login-button")
+            b.wait_text_not("#login-error-message", "")
 
-        # works with correct key password
-        b.set_val("#login-password-input", KEY_PASSWORD)
-        b.click("#login-button")
-        b.wait_visible('#content')
-        b.logout()
+            # works with correct key password
+            b.set_val("#login-password-input", KEY_PASSWORD)
+            b.click("#login-button")
+            b.wait_visible('#content')
+            b.logout()
 
-        # now test with current OpenSSH format
-        m.execute(f"yes | ssh-keygen -q -f /root/id_bastion -t rsa -N {KEY_PASSWORD}")
-        m.execute("cat /root/id_bastion.pub > /home/admin/.ssh/authorized_keys")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#server-field", HOST)
-        b.set_val("#login-password-input", KEY_PASSWORD)
-        b.click("#login-button")
-        b.wait_visible('#content')
+            # now test with current OpenSSH format
+            m.execute(f"yes | ssh-keygen -q -f /root/id_bastion -t rsa -N {KEY_PASSWORD}")
+            m.execute("cat /root/id_bastion.pub > /home/admin/.ssh/authorized_keys")
+            b.set_val("#login-user-input", "admin")
+            b.set_val("#server-field", HOST)
+            b.set_val("#login-password-input", KEY_PASSWORD)
+            b.click("#login-button")
+            b.wait_visible('#content')
+
+            b.logout()
+            m.execute("podman rm -f -t0 cockpit-bastion")
+            m.execute("rm /home/admin/.ssh/authorized_keys")
+
+        for ssh_key_env in ["COCKPIT_SSH_KEY_PATH", f"COCKPIT_SSH_KEY_PATH_{HOST.upper()}"]:
+            do_test_key_login(ssh_key_env=ssh_key_env)
 
 
 @testlib.onlyImage("no cockpit/ws container on this image", "fedora-coreos")

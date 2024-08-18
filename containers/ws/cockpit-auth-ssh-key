@@ -15,15 +15,15 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
-#
-# This command is meant to be used as an authentication command launched
-# by cockpit-ws. It asks for authentication from cockpit-ws and expects
-# to receive a basic auth header in response. If COCKPIT_SSH_KEY_PATH is set
-# we will try to decrypt the key with the given password. If successful
-# we send the decrypted key to cockpit-ws for use with cockpit-ssh.
-# Once finished we exec cockpit-ssh to actually establish the ssh connection.
-# All communication with cockpit-ws happens on stdin and stdout using the
-# cockpit protocol
+
+# This command is meant to be used as an authentication command launched by
+# cockpit-ws. It asks for authentication from cockpit-ws and expects to
+# receive a basic auth header in response. If COCKPIT_SSH_KEY_PATH or
+# COCKPIT_SSH_KEY_PATH_{HOSTNAME} is set, we will try to decrypt the key with
+# the given password. If successful we send the decrypted key to cockpit-ws
+# for use with cockpit-ssh. Once finished we exec cockpit-ssh to actually
+# establish the ssh connection. All communication with cockpit-ws happens on
+# stdin and stdout using the cockpit protocol
 # (https://github.com/cockpit-project/cockpit/blob/main/doc/protocol.md)
 
 import base64
@@ -172,7 +172,8 @@ def main(args):
         usage()
 
     host = args[1]
-    key_name = os.environ.get("COCKPIT_SSH_KEY_PATH")
+    key_env = f"COCKPIT_SSH_KEY_PATH_{host.upper()}"
+    key_name = os.environ.get(key_env) or os.environ.get("COCKPIT_SSH_KEY_PATH")
     if key_name:
         send_auth_command("*", None)
         try:

@@ -23,7 +23,6 @@ import testlib
 from machine import testvm
 
 
-@testlib.nondestructive
 class TestServices(testlib.MachineCase):
 
     def setUp(self):
@@ -365,6 +364,7 @@ WantedBy=default.target
         b.go(f'/system/services#/{suffix}')
         b.wait_not_present('#test.service > svg.service-thumbtack-icon-color')
 
+    @testlib.nondestructive
     def testFilter(self):
         b = self.browser
 
@@ -495,9 +495,11 @@ WantedBy=default.target
         b.click(".pf-v5-c-chip-group:contains('Active state') .pf-v5-c-chip-group__close > button")
         b.wait_not_present(".pf-v5-c-chip-group")
 
+    @testlib.nondestructive
     def testTimer(self):
         self._testTimer(user=False)
 
+    @testlib.nondestructive
     def testTimerSession(self):
         self._testTimer(user=True)
 
@@ -630,9 +632,11 @@ WantedBy=default.target
             b.wait_not_in_text(".service-top-panel .pf-v5-c-menu__list", "Delete")
             b.click(".pf-v5-c-breadcrumb a:contains('Services')")
 
+    @testlib.nondestructive
     def testServiceMetrics(self):
         self._testServiceMetrics(user=False)
 
+    @testlib.nondestructive
     def testServiceMetricsSession(self):
         self._testServiceMetrics(user=True)
 
@@ -680,9 +684,11 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
 
+    @testlib.nondestructive
     def testOtherTypes(self):
         self._testOtherTypes(user=False)
 
+    @testlib.nondestructive
     def testOtherTypesSession(self):
         self._testOtherTypes(user=True)
 
@@ -785,6 +791,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.enter_page("/system/services")
         b.wait_js_cond('window.location.hash === "' + append_user("#/test.service") + '"')
 
+    @testlib.nondestructive
     def testApi(self):
         b = self.browser
 
@@ -809,6 +816,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.go('#/foo')
         b.wait_text('#exists', 'false')
 
+    @testlib.nondestructive
     def testConditions(self):
         m = self.machine
         b = self.browser
@@ -857,9 +865,11 @@ WantedBy=multi-user.target
         self.check_service_on(expect_reload=False)
         b.wait_not_present("#condition")
 
+    @testlib.nondestructive
     def testRelationships(self):
         self._testRelationships()
 
+    @testlib.nondestructive
     def testRelationshipsUser(self):
         self._testRelationships(user=True)
 
@@ -947,6 +957,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("After", "test-a.service"))
 
+    @testlib.nondestructive
     def testNotFound(self):
         m = self.machine
         b = self.browser
@@ -975,6 +986,7 @@ ExecStart=/bin/true
         b.click("#service-details-show-relationships button")
         b.wait_visible("#Requires a.pf-m-disabled:contains('not-found.service')")
 
+    @testlib.nondestructive
     def testResetFailed(self):
         m = self.machine
         b = self.browser
@@ -1055,6 +1067,7 @@ WantedBy=default.target
             b.click("#nav-system-item")
             b.set_layout("desktop")
 
+    @testlib.nondestructive
     def testNotifyFailed(self):
         m = self.machine
         b = self.browser
@@ -1126,6 +1139,7 @@ ExecStart=/usr/bin/false
             b.wait_not_in_text(".system-health-events", "service has failed")
             b.wait_not_in_text(".system-health-events", "services have failed")
 
+    @testlib.nondestructive
     def testHiddenFailure(self):
         m = self.machine
         b = self.browser
@@ -1159,6 +1173,7 @@ Where=/fail
 
         self.allow_journal_messages(".*type=1400 audit(.*): avc:  denied  { create } .* comm=\"systemd\" name=\"fail\".*")
 
+    @testlib.nondestructive
     def testTransientUnits(self):
         m = self.machine
         b = self.browser
@@ -1194,6 +1209,7 @@ Where=/fail
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')
 
+    @testlib.nondestructive
     def testServicesThemeConsistency(self):
         b = self.browser
 
@@ -1208,6 +1224,7 @@ Where=/fail
         b.enter_page("/system/services")
         b.wait_not_present("html.pf-v5-theme-dark")
 
+    @testlib.nondestructive
     def testServicesFiltersURLConsistency(self):
         b = self.browser
 
@@ -1267,6 +1284,7 @@ Where=/fail
         self.assertNotIn("Not running", b.text(".services-list"))
         self.assertNotIn("Static", b.text(".services-list"))
 
+    @testlib.nondestructive
     def testAlias(self):
         m = self.machine
         b = self.browser
@@ -1323,6 +1341,7 @@ WantedBy=multi-user.target
         b.wait_in_text("#service-details-unit", "/etc/systemd/system/flower-rose.service")
         b.wait_in_text('.cockpit-log-panel .pf-v5-c-card__body', "Perfume")
 
+    @testlib.nondestructive
     def testUnprivileged(self):
         b = self.browser
         m = self.machine

@@ -413,7 +413,7 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
                      submitSearchButtonLabel={_("Search")}
                      formAdditionalItems={<Stack hasGutter>
                          <Button variant="link" component="a" isInline
-                                     href="https://www.freedesktop.org/software/systemd/man/journalctl.html"
+                                     href="https://www.freedesktop.org/software/systemd/man/latest/journalctl.html"
                                      icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
                                      target="blank" rel="noopener noreferrer">
                              {_("journalctl manpage")}

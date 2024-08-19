@@ -154,6 +154,22 @@ run individual tests via `pytest -k`, like so:
 
     pytest -k test-fsinfo.html
 
+You can see JavaScript code coverage information for QUnit tests.  For a
+summary table:
+
+    pytest -k test_browser --js-cov
+
+And for detailed output on uncovered sections in a specific file, something
+like:
+
+    pytest -k test-fsinfo.html --js-cov-files='*/fsinfo.ts'
+
+Coverage information is gathered into the pytest tmpdir, regardless of which
+coverage-related commandline flags are given, so it's also possible to drill
+down after the fact — without re-running tests — using something like:
+
+    test/common/js_coverage.py -m '*/fsinfo.ts' /tmp/pytest-of-*/pytest-current/js-coverage/*
+
 There are also static code and syntax checks which you should run often:
 
     test/static-code

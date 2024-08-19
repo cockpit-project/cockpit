@@ -3,10 +3,11 @@ import glob
 import os
 import re
 import subprocess
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 import lcov
 import pytest
+from js_coverage import CoverageReport
 from webdriver_bidi import ChromiumBidi
 from yarl import URL
 
@@ -52,7 +53,7 @@ async def spawn_test_server() -> AsyncIterator[URL]:  # noqa:RUF029
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('html', glob.glob('**/test-*.html', root_dir=f'{SRCDIR}/qunit', recursive=True))
-async def test_browser(html: str) -> None:
+async def test_browser(coverage_report: CoverageReport, html: str) -> None:
     if html in SKIP:
         pytest.skip()
     elif html in XFAIL:
@@ -108,11 +109,14 @@ async def test_browser(html: str) -> None:
 
         coverage = await browser.cdp("Profiler.takePreciseCoverage")
         lcov.write_lcov(coverage['result']['result'], outlabel=re.sub(r'[^A-Za-z0-9]+', '-', html))
+        coverage_report(coverage['result'])
 
 
 # run test-timeformat.ts in different time zones: west/UTC/east
 @pytest.mark.asyncio
 @pytest.mark.parametrize('tz', ['America/Toronto', 'Europe/London', 'UTC', 'Europe/Berlin', 'Australia/Sydney'])
-async def test_timeformat_timezones(tz: str, monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_timeformat_timezones(
+    coverage_report: CoverageReport, tz: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv('TZ', tz)
-    await test_browser('base1/test-timeformat.html')
+    await test_browser(coverage_report, 'base1/test-timeformat.html')

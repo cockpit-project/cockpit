@@ -37,6 +37,8 @@ if 'NO_QUNIT' in os.environ:
     @pytest.hookimpl
     def pytest_ignore_collect(path) -> 'bool | None':
         return path.basename == 'test_browser.py' or None
+else:
+    pytest_plugins = "js_coverage"
 
 
 if not have_event_loop_policy_fixture:

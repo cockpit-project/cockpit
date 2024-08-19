@@ -775,7 +775,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         # Tell the initrd to configure our special inter-machine
         # network that has the "tang" machine.
         #
-        iface = "ens15" if m.image in ["centos-10"] else "eth1"
+        iface = "ens15" if m.image in ["centos-10", "fedora-41"] else "eth1"
         m.execute(f"grubby --update-kernel=ALL --args='ip=10.111.112.1::10.111.112.1:255.255.255.0::{iface}:off'")
 
         try:

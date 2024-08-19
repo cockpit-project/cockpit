@@ -1012,6 +1012,7 @@ class Browser:
         passwordless: bool | None = False
     ) -> None:
         with self.driver.restore_context():
+            self.switch_to_top()
             self.open_superuser_dialog()
 
             # In (open)SUSE images, superuser access always requires the root password
@@ -1035,6 +1036,7 @@ class Browser:
 
     def drop_superuser(self) -> None:
         with self.driver.restore_context():
+            self.switch_to_top()
             self.open_superuser_dialog()
             self.wait_in_text("div[role=dialog]", "Switch to limited access")
             self.click("div[role=dialog] button.pf-m-primary")
@@ -1142,7 +1144,7 @@ class Browser:
             self.cdp_command("Emulation.setEmulatedMedia", features=[{'name': 'prefers-color-scheme', 'value': name}])
 
     def _set_direction(self, direction: str) -> None:
-        with self.driver.restore_context(switch_to_top=False):
+        with self.driver.restore_context():
             if self.is_present("#shell-page"):
                 self.switch_to_top()
                 self.set_attr("#shell-page", "dir", direction)

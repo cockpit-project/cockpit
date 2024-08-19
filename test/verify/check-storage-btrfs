@@ -522,11 +522,12 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.click(self.card_button("btrfs subvolume", f"Mount automatically on {mount_point} on boot"))
         b.wait_not_present(self.card_button("btrfs subvolume", f"Mount automatically on {mount_point} on boot"))
 
-        # No warnings on main page for either subvolumes
-        b.go("#/")
-        b.wait_visible(self.card("Storage"))
-        b.wait_not_present(self.card_row("Storage", name=subvol) + ' .ct-icon-exclamation-triangle')
-        b.wait_not_present(self.card_row("Storage", name="/") + ' .ct-icon-exclamation-triangle')
+        # No warnings for either subvolume
+        b.go(f"#/")
+        self.click_card_row("Storage", name=disk1)
+        b.wait_visible(self.card("btrfs filesystem"))
+        b.wait_not_present(self.card_row("btrfs filesystem", name=subvol) + ' .ct-icon-exclamation-triangle')
+        b.wait_not_present(self.card_row("btrfs filesystem", name="/") + ' .ct-icon-exclamation-triangle')
 
     def testLuksEncrypted(self):
         m = self.machine

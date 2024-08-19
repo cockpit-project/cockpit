@@ -327,10 +327,8 @@ class WebdriverBidi:
         log_command.info("← switch_to_top")
 
     @contextlib.contextmanager
-    def restore_context(self, *, switch_to_top: bool = True) -> Iterator[None]:
+    def restore_context(self) -> Iterator[None]:
         saved = self.context
-        if switch_to_top:
-            self.switch_to_top()
         try:
             yield
         finally:

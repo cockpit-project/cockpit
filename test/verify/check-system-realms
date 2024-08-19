@@ -633,7 +633,7 @@ class TestIPA(TestRealms, CommonTests):
                           r"/pam_sss/ s/use_first_pass/forward_pass/", "/etc/pam.d/common-auth")
 
         # set up "alice" user with HOTP; that won't affect existing users (admin)
-        # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/otp
+        # https://docs.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/otp
         out = self.machines['services'].execute("""podman exec -i freeipa sh -ec '
             ipa config-mod --user-auth-type=otp
             ipa user-add --first=Alice --last=Developer alice

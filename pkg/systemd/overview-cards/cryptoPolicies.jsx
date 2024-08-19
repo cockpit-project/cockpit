@@ -115,7 +115,7 @@ const CryptoPolicyDialog = ({
                     variant='link'
                     isInline
                     icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
-                    href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/security_hardening/assembly_installing-the-system-in-fips-mode_security-hardening">
+                    href="https://docs.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/security_hardening/assembly_installing-the-system-in-fips-mode_security-hardening">
                 {_("Learn more")}
             </Button>
         </Flex>),
@@ -160,7 +160,7 @@ const CryptoPolicyDialog = ({
                         variant='link'
                         isInline
                         icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
-                        href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening">
+                        href="https://docs.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening">
                     {_("Learn more")}
                 </Button>
             }

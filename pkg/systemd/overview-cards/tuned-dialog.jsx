@@ -287,7 +287,7 @@ const TunedDialog = ({
                         variant='link'
                         isInline
                         icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
-                        href="https://docs.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/managing_systems_using_the_rhel_9_web_console/index">
+                        href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/monitoring_and_managing_system_status_and_performance/index">
                     {_("Learn more")}
                 </Button>
             }

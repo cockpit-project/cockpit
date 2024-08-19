@@ -345,7 +345,7 @@ class ChromiumBidi(WebdriverBidi):
     async def start_bidi_session(self) -> None:
         assert self.bidi_session is None
 
-        candidate_binaries = ["/usr/bin/chromium-browser"]
+        candidate_binaries = ["/usr/bin/chromium-browser", "/usr/bin/chromium"]
         if self.headless:
             candidate_binaries.insert(0, "/usr/lib64/chromium-browser/headless_shell")
         binaries = [path for path in candidate_binaries if os.path.exists(path)]

@@ -88,10 +88,6 @@ class TestSession(testlib.MachineCase):
 
         # try to pwn $SSH_AGENT_PID via pam_env's user_readenv=1 (CVE-2024-6126)
 
-        if m.image in ["fedora-39", "fedora-40", "centos-10", "rhel-10-0"]:
-            # pam_env user_readenv crashes in Fedora/RHEL 10, skip the test
-            # https://bugzilla.redhat.com/show_bug.cgi?id=2293045
-            return
         if m.ostree_image:
             # not using cockpit's PAM config
             return
@@ -102,7 +98,7 @@ class TestSession(testlib.MachineCase):
             self.write_file("/etc/pam.d/cockpit", "session required pam_env.so user_readenv=1\n", append=True)
         victim_pid = m.spawn("sleep infinity", "sleep.log")
         self.addCleanup(m.execute, f"kill {victim_pid} || true")
-        self.write_file("/home/admin/.pam_environment", f"SSH_AGENT_PID={victim_pid}\n", owner="admin")
+        self.write_file("/home/admin/.pam_environment", f"SSH_AGENT_PID DEFAULT={victim_pid}\n", owner="admin")
 
         b.login_and_go()
         wait_session(should_exist=True)

@@ -596,6 +596,9 @@ class Browser:
     def input_text(self, text: str) -> None:
         actions = []
         for c in text:
+            # quality-of-life special case
+            if c == '\n':
+                c = WEBDRIVER_KEYS["Enter"]
             actions.append({"type": "keyDown", "value": c})
             actions.append({"type": "keyUp", "value": c})
         self.bidi("input.performActions", context=self.driver.context, actions=[

@@ -160,7 +160,7 @@ const CryptoPolicyDialog = ({
                         variant='link'
                         isInline
                         icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
-                        href="https://docs.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening">
+                        href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening">
                     {_("Learn more")}
                 </Button>
             }

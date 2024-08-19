@@ -67,6 +67,12 @@ QUnit.test("simple replace", async assert => {
     assert.equal(res, "4321\n", "correct content");
 });
 
+QUnit.test("empty replace", async assert => {
+    await cockpit.file(`${dir}/bar`).replace("");
+    const res = await cockpit.spawn(["cat", `${dir}/bar`]);
+    assert.equal(res, "", "correct content");
+});
+
 QUnit.test("stringify replace", async assert => {
     await cockpit.file(dir + "/bar", { syntax: JSON }).replace({ foo: 4321 });
     const res = await cockpit.spawn(["cat", dir + "/bar"]);

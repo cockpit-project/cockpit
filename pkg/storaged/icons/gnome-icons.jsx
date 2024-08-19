@@ -1,11 +1,11 @@
-/* Icons from the GNOME projetc, http://www.gnome.org
+/* Icons from the GNOME project, https://www.gnome.org
 
    This work is licenced under the terms of either the GNU LGPL v3 or
    Creative Commons Attribution-Share Alike 3.0 United States License.
 
    To view a copy of the CC-BY-SA licence, visit
 
-   http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative
+   https://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative
 
    Commons, 171 Second Street, Suite 300, San Francisco, California 94105, USA.
 */

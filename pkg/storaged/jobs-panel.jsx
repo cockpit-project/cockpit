@@ -33,7 +33,7 @@ const _ = cockpit.gettext;
  * property of job objects.  These are from the storaged
  * documentation at
  *
- * http://storaged.org/doc/udisks2-api/latest/gdbus-org.freedesktop.UDisks2.Job.html
+ * https://storaged.org/doc/udisks2-api/latest/gdbus-org.freedesktop.UDisks2.Job.html
  */
 
 const descriptions = {

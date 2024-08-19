@@ -45,7 +45,7 @@ If you want to test against Microsoft Active Directory instead of Samba or FreeI
 simplest way is to start a temporary
 [managed AD in AWS](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/directory_microsoft_ad.html)
 (or another cloud provider). Just follow the few
-[setup steps](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/ms_ad_getting_started_create_directory.html):
+[setup steps](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/ms_ad_getting_started.html#ms_ad_getting_started_create_directory):
 Select the smallest edition, specify a directory DNS name (e. g. `ad.cockpit.lan`) and a password for the `Admin` user,
 and about 20 minutes later the domain server should be set up. The details page
 of the created domain shows the DNS server's IP; put that into `/etc/resolv.conf`.

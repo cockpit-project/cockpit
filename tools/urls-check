@@ -56,8 +56,8 @@ def main():
 
     if opts.dry_run:
         (success, err) = check_urls(opts.verbose)
-        if err:
-            print(err)
+        print(err)
+        print(success)
         sys.exit(1 if err else 0)
 
     since = time.time() - (DAYS * 86400)
@@ -134,9 +134,9 @@ def check_urls(verbose):
         err += ''.join(f'    {url}\n' for url in failed)
     else:
         success = f"Checked {len(urls)} URLs and all are valid."
-        if redirects:
-            success += "\nFollowing URLs are redirected:\n"
-            success += ''.join(f'    {url}\n' for url in redirects)
+    if redirects:
+        success += "\nFollowing URLs are redirected:\n"
+        success += ''.join(f'    {url}\n' for url in redirects)
     return success, err
 
 

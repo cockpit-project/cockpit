@@ -178,7 +178,7 @@ class TestKdump(KdumpHelpers):
         b.wait_text("#kdump-target-info", "Remote over SSH, root@localhost:/var/crash")
 
         # try to change the path to a directory that doesn't exist
-        customPath = "/var/crash2"
+        customPath = "/crash2"
         b.click("#kdump-change-target")
         b.set_val("#kdump-settings-location", "local")
         pathInput = "#kdump-settings-local-directory"
@@ -186,7 +186,7 @@ class TestKdump(KdumpHelpers):
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # we should get an error
         b.wait_in_text("#kdump-settings-dialog h4.pf-v5-c-alert__title",
-                       "Unable to save settings: Directory /var/crash2 isn't writable or doesn't exist")
+                       f"Unable to save settings: Directory {customPath} isn't writable or doesn't exist")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again
@@ -201,7 +201,7 @@ class TestKdump(KdumpHelpers):
         self.assertActive(active=True)
 
         # crash the kernel and make sure it wrote a report into the right directory
-        self.crashKernel("stored in /var/crash2 as vmcore")
+        self.crashKernel(f"stored in {customPath} as vmcore")
         m.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done", timeout=180)
         self.assertIn("Kdump compressed dump", m.execute(f"file {customPath}/127.0.0.1*/vmcore"))
 
@@ -624,7 +624,7 @@ class TestKdumpAnsible(KdumpHelpers):
         kdump_machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/* /var/cache/dnf/*")
 
         self.login_and_go("/kdump")
-        customPath = "/var/crash2"
+        customPath = "/crash2"
 
         m.execute(f"mkdir -p {customPath}")
         b.click("#kdump-change-target")
@@ -656,9 +656,9 @@ class TestKdumpAnsible(KdumpHelpers):
 
         conf = kdump_machine.execute("cat /etc/kdump.conf")
         self.assertIn("\n# Ansible managed\n", conf)
-        self.assertIn("\npath /var/crash2\n", conf)
+        self.assertIn(f"\npath {customPath}\n", conf)
 
-        self.crashKernel("stored in /var/crash2 as vmcore", machine=kdump_machine, browser=kdump_browser)
+        self.crashKernel(f"stored in {customPath} as vmcore", machine=kdump_machine, browser=kdump_browser)
         kdump_machine.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done", timeout=180)
         self.assertIn("Kdump compressed dump", kdump_machine.execute(f"file {customPath}/127.0.0.1*/vmcore"))
 

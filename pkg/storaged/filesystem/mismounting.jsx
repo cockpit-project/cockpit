@@ -45,13 +45,22 @@ export function check_mismounted_fsys(backing_block, content_block, fstab_config
     if (!(block_fsys || dir))
         return;
 
+    function ignore_mount(m) {
+        // We don't complain about the rootfs, it's probably
+        // configured somewhere else, like in the bootloader.
+        if (m == "/")
+            return true;
+
+        return false;
+    }
+
     const mounted_at = get_mount_points(client, block_fsys, subvol);
     const split_options = parse_options(opts);
     const opt_noauto = extract_option(split_options, "noauto");
     const opt_noauto_intent = extract_option(split_options, "x-cockpit-never-auto");
     const opt_systemd_automount = split_options.indexOf("x-systemd.automount") >= 0;
     const is_mounted = mounted_at.indexOf(dir) >= 0;
-    const other_mounts = mounted_at.filter(m => m != dir);
+    const other_mounts = mounted_at.filter(m => m != dir && !ignore_mount(m));
     const crypto_backing_noauto = get_cryptobacking_noauto(client, backing_block);
 
     let type;
@@ -68,10 +77,7 @@ export function check_mismounted_fsys(backing_block, content_block, fstab_config
         else if (is_mounted && opt_noauto && !opt_noauto_intent && !opt_systemd_automount)
             type = "no-mount-on-boot";
     } else if (other_mounts.length > 0) {
-        // We don't complain about the rootfs, it's probably
-        // configured somewhere else, like in the bootloader.
-        if (other_mounts[0] != "/")
-            type = "mounted-no-config";
+        type = "mounted-no-config";
     }
 
     if (type)

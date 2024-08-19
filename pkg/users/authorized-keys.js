@@ -120,7 +120,7 @@ function AuthorizedKeys (user_name, home_dir) {
             const new_lines = [];
 
             if (!content)
-                return "";
+                return null;
 
             lines = content.trim().split('\n');
             for (let i = 0; i < lines.length; i++) {
@@ -129,7 +129,7 @@ function AuthorizedKeys (user_name, home_dir) {
                 else
                     new_lines.push(lines[i]);
             }
-            return new_lines.join("\n");
+            return new_lines.join("\n") || null;
         });
     };
 

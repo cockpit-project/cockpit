@@ -714,7 +714,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         checkEnabled(expected=True)
 
     @testlib.nondestructive
-    @testlib.onlyImage("valkey is the default only in Fedora", "fedora*")
+    @testlib.onlyImage("only Fedora 40 and Fedora 39 have both valkey and redis", "fedora-40", "fedora-39")
     def testPmProxySettingsRedis(self):
         self.machine.execute("systemctl mask valkey")
         self.addCleanup(self.machine.execute, "systemctl unmask valkey")
@@ -1258,6 +1258,17 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         redis_service = redisService(m.image)
         redis_package = "valkey" if redis_service == "valkey" else "redis"
+        extra_packages = ""
+        if redis_package == "valkey":
+            if m.image in ["fedora-39", "fedora-40"]:
+                # Older Fedoras have the actual redis installed as
+                # well, and we want to remove that too to trigger the
+                # install dialog.
+                extra_packages = "redis"
+            elif m.image.startswith("fedora"):
+                # Newer Fedoras have a compat package that we need to
+                # remove at the same time as valkey.
+                extra_packages = "valkey-compat-redis"
 
         if m.ostree_image:
             self.login_and_go("/metrics")
@@ -1280,14 +1291,11 @@ class TestMetricsPackages(packagelib.PackageCase):
             # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
             m.execute(f"""
                 if rpm -q python3-pcp; then
-                    rpm --erase --verbose cockpit-pcp pcp python3-pcp {redis_package}
+                    rpm --erase --verbose cockpit-pcp pcp python3-pcp {redis_package} {extra_packages}
                 else
-                    rpm --erase --verbose cockpit-pcp pcp {redis_package}
+                    rpm --erase --verbose cockpit-pcp pcp {redis_package} {extra_packages}
                 fi
             """)
-        if m.image.startswith("fedora"):
-            # we removed valkey above, but also remove redis to trigger install dialog
-            m.execute("rpm --erase --verbose redis")
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
 

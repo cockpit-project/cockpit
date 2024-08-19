@@ -672,18 +672,27 @@ const TwoColumnTitle = ({ icon, str }) => {
 
 const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, restart, manual, reboot, tracerAvailable, history }) => {
     if (!tracerAvailable) {
+        /* tracer is not available any more in RHEL 10; as a special case, if only kpatch and kernel were
+         * updated, don't reboot (as that's their whole raison d'être) */
+        const pkgs = Object.keys(history[0] ?? {}).filter(p => p != "_time");
+        const only_kpatch = pkgs.filter(p => p.startsWith("kpatch")).length > 0 &&
+                            pkgs.filter(p => !p.startsWith("kernel") && !p.startsWith("kpatch")).length == 0;
+
+        const paragraph = only_kpatch ? null : _("Updated packages may require a reboot to take effect.");
+        const actions = only_kpatch
+            ? <Button id="ignore" variant="primary" onClick={onIgnore}>{_("Continue")}</Button>
+            : <>
+                <Button id="reboot-system" variant="primary" onClick={openRebootDialog}>{_("Reboot system...")}</Button>
+                <Button id="ignore" variant="link" onClick={onIgnore}>{_("Ignore")}</Button>
+            </>;
+
         return (<>
             <EmptyStatePanel icon={RebootingIcon}
                              title={ _("Update was successful") }
                              headingLevel="h5"
                              titleSize="4xl"
-                             paragraph={ _("Updated packages may require a reboot to take effect.") }
-                             secondary={
-                                 <>
-                                     <Button id="reboot-system" variant="primary" onClick={openRebootDialog}>{_("Reboot system...")}</Button>
-                                     <Button id="ignore" variant="link" onClick={onIgnore}>{_("Ignore")}</Button>
-                                 </>
-                             } />
+                             paragraph={paragraph}
+                             secondary={actions} />
             <div className="flow-list-blank-slate">
                 <ExpandableSection toggleText={_("Package information")}>
                     <PackageList packages={history[0]} />

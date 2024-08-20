@@ -22,6 +22,7 @@ import importlib.resources
 import logging
 import os
 import shlex
+import tempfile
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Sequence
 
@@ -210,6 +211,8 @@ class SshPeer(Peer):
     def __init__(self, router: Router, destination: str, args: argparse.Namespace):
         self.destination = destination
         self.always = args.always
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.known_hosts_file = Path(self.tmpdir.name) / 'user-known-hosts'
         super().__init__(router)
 
     async def do_connect_transport(self) -> None:
@@ -234,17 +237,20 @@ class SshPeer(Peer):
 
     async def connect_from_bastion_host(self) -> None:
         basic_password = None
-        username_opts = []
+        known_hosts = None
+        args = []
 
         # do we have user/password (Basic auth) from the login page?
         auth = await self.router.request_authorization_object("*")
         response = get_str(auth, 'response')
 
         if response.startswith('Basic '):
-            user, basic_password = base64.b64decode(response.split(' ', 1)[1]).decode().split(':', 1)
+            decoded = base64.b64decode(response[6:]).decode()
+            user_password, _, known_hosts = decoded.partition('\0')
+            user, _, basic_password = user_password.partition(':')
             if user:  # this can be empty, i.e. auth is just ":"
                 logger.debug("got username %s and password from Basic auth", user)
-                username_opts = ['-l', user]
+                args += ['-l', user]
 
         # We want to run a python interpreter somewhere...
         cmd, env = python_interpreter('cockpit-bridge')
@@ -256,7 +262,11 @@ class SshPeer(Peer):
         if not ssh_askpass.exists():
             logger.error("Could not find cockpit-askpass helper at %r", askpass)
 
-        cmd, env = via_ssh(cmd, self.destination, ssh_askpass, *username_opts)
+        if known_hosts is not None:
+            self.known_hosts_file.write_text(known_hosts)
+            args += ['-o', f'UserKnownHostsfile={self.known_hosts_file!s}']
+        cmd, env = via_ssh(cmd, self.destination, ssh_askpass, *args)
+
         await self.boot(cmd, env, basic_password)
 
     async def boot(self, cmd: Sequence[str], env: Sequence[str], basic_password: 'str | None' = None) -> None:
@@ -330,6 +340,13 @@ async def run(args) -> None:
     try:
         message = dict(await bridge.ssh_peer.start())
 
+        if bridge.ssh_peer.known_hosts_file.exists():
+            bridge.write_control(
+                command='authorize', challenge='x-login-data', cookie='-', login_data={
+                    'known-hosts': bridge.ssh_peer.known_hosts_file.read_text()
+                }
+            )
+
         # See comment in do_init() above: we tell cockpit-ws that we support
         # this and then handle it ourselves when we get the init message.
         capabilities = message.setdefault('capabilities', {})
@@ -359,7 +376,12 @@ async def run(args) -> None:
             problem = 'unknown-host'
         else:
             problem = 'internal-error'
-        bridge.write_control(command='init', problem=problem, message=str(error))
+        # if the user confirmed a new SSH host key before the error, tell the UI
+        if bridge.ssh_peer.known_hosts_file.exists():
+            bridge.write_control(command='init', problem=problem, message=str(error),
+                                 known_hosts=bridge.ssh_peer.known_hosts_file.read_text())
+        else:
+            bridge.write_control(command='init', problem=problem, message=str(error))
         return
     except CockpitProblem as exc:
         logger.debug("CockpitProblem: %s", exc)

@@ -247,6 +247,7 @@ class TestApps(packagelib.PackageCase):
             b.wait_visible('#display-language-modal')
             b.click(f'#display-language-modal li[data-value={lang}] button')
             b.click("#display-language-modal footer button.pf-m-primary")
+            b.wait_not_present('#display-language-modal')
             b.wait_language(lang)
             b.enter_page("/apps")
 

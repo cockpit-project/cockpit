@@ -1,6 +1,8 @@
 [Unit]
 Description=Dynamic user for cockpit-ws
 Documentation=man:cockpit-ws(8)
+# avoid dependency loop with basic.target/sockets.target shutdown
+DefaultDependencies=no
 BindsTo=cockpit.service
 
 [Service]

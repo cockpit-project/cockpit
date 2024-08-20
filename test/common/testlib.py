@@ -515,6 +515,12 @@ class Browser:
         # sidestep the browser
         element = self.call_js_func('ph_find_scroll_into_view', selector)
 
+        # btn=2 for context menus doesn't work with ph_mouse(); so translate the old ph_mouse() API
+        if event == "contextmenu":
+            assert btn == 0, "contextmenu event can only be done with default 'btn' value"
+            btn = 2
+            event = "click"
+
         actions = [{"type": "pointerMove", "x": 0, "y": 0, "origin": {"type": "element", "element": element}}]
         down = {"type": "pointerDown", "button": btn}
         up = {"type": "pointerUp", "button": btn}

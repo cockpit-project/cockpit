@@ -250,7 +250,7 @@ declare module 'cockpit' {
         read(): Promise<T>;
         replace(new_content: T | null, expected_tag?: FileTag): Promise<FileTag>;
         watch(callback: FileWatchCallback<T>, options?: { read?: boolean }): FileWatchHandle;
-        modify(callback: (data: T) => T, initial_content?: string, initial_tag?: FileTag): Promise<[T, FileTag]>;
+        modify(callback: (data: T | null) => T | null, initial_content?: string, initial_tag?: FileTag): Promise<[T, FileTag]>;
         close(): void;
         path: string;
     }

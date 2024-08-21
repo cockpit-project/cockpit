@@ -554,7 +554,7 @@ class TestKdumpNFS(KdumpHelpers):
 class TestKdumpNFSAnsible(KdumpHelpers):
     provision = {
         "cockpit": {"memory_mb": 512},
-        "kdump_ansible_machine": {"address": "10.111.113.1/24", "memory_mb": 1500, "capture_console": True},
+        "kdump_ansible_machine": {"address": "10.111.113.1/24", "memory_mb": 1024, "capture_console": True},
         "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512},
     }
 

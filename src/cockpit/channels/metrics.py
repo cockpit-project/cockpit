@@ -21,10 +21,10 @@ import logging
 import sys
 import time
 from collections import defaultdict
-from typing import Dict, List, NamedTuple, Optional, Set, Tuple, Union
+from typing import Dict, List, NamedTuple, Optional, Set, Tuple, Type, Union
 
 from ..channel import AsyncChannel, ChannelError
-from ..jsonutil import JsonList
+from ..jsonutil import JsonList, JsonObject
 from ..samples import SAMPLERS, SampleDescription, Sampler, Samples
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class InternalMetricsChannel(AsyncChannel):
 
     metrics: List[MetricInfo]
     samplers: Set
-    samplers_cache: Optional[Dict[str, Tuple[Sampler, SampleDescription]]] = None
+    samplers_cache: Optional[Dict[str, Tuple[Type[Sampler], SampleDescription]]] = None
 
     interval: int = 1000
     need_meta: bool = True
@@ -53,7 +53,7 @@ class InternalMetricsChannel(AsyncChannel):
         if cls.samplers_cache is None:
             cls.samplers_cache = {desc.name: (sampler, desc) for sampler in SAMPLERS for desc in sampler.descriptions}
 
-    def parse_options(self, options):
+    def parse_options(self, options: JsonObject) -> None:
         logger.debug('metrics internal open: %s, channel: %s', options, self.channel)
 
         interval = options.get('interval', self.interval)
@@ -67,6 +67,7 @@ class InternalMetricsChannel(AsyncChannel):
             logger.error('invalid "metrics" value: %s', metrics)
             raise ChannelError('protocol-error', message='invalid "metrics" option was specified (not an array)')
 
+        assert self.samplers_cache, "ensure_samples not called"
         sampler_classes = set()
         for metric in metrics:
             # validate it's an object
@@ -109,8 +110,8 @@ class InternalMetricsChannel(AsyncChannel):
         self.send_json(source='internal', interval=self.interval, timestamp=timestamp * 1000, metrics=metrics)
         self.need_meta = False
 
-    def sample(self):
-        samples = defaultdict(dict)
+    def sample(self) -> Samples:
+        samples: Samples = defaultdict(dict)
         for sampler in self.samplers:
             sampler.sample(samples)
         return samples
@@ -162,7 +163,7 @@ class InternalMetricsChannel(AsyncChannel):
         self.last_timestamp = self.next_timestamp
         self.send_text(json.dumps([data]))
 
-    async def run(self, options):
+    async def run(self, options: JsonObject) -> None:
         self.metrics = []
         self.samplers = set()
 
@@ -171,7 +172,7 @@ class InternalMetricsChannel(AsyncChannel):
         self.parse_options(options)
         self.ready()
 
-        last_samples = defaultdict(dict)
+        last_samples: Samples = defaultdict(dict)
         while True:
             samples = self.sample()
             self.send_updates(samples, last_samples)

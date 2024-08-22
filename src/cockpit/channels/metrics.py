@@ -24,7 +24,7 @@ from collections import defaultdict
 from typing import Dict, List, NamedTuple, Optional, Set, Tuple, Type, Union
 
 from ..channel import AsyncChannel, ChannelError
-from ..jsonutil import JsonList, JsonObject
+from ..jsonutil import JsonList, JsonObject, get_int
 from ..samples import SAMPLERS, SampleDescription, Sampler, Samples
 
 logger = logging.getLogger(__name__)
@@ -56,8 +56,8 @@ class InternalMetricsChannel(AsyncChannel):
     def parse_options(self, options: JsonObject) -> None:
         logger.debug('metrics internal open: %s, channel: %s', options, self.channel)
 
-        interval = options.get('interval', self.interval)
-        if not isinstance(interval, int) or interval <= 0 or interval > sys.maxsize:
+        interval = get_int(options, 'interval', self.interval)
+        if interval <= 0 or interval > sys.maxsize:
             raise ChannelError('protocol-error', message=f'invalid "interval" value: {interval}')
 
         self.interval = interval

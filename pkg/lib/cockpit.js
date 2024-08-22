@@ -2618,6 +2618,10 @@ function factory() {
             return _("Cockpit could not contact the given host.");
         else if (problem == "too-large")
             return _("Too much data");
+        else if (problem == "not-found")
+            return _("No such file or directory");
+        else if (problem == "change-conflict")
+            return _("The existing file changed unexpectedly");
         else
             return problem;
     };

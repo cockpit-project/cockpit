@@ -86,7 +86,7 @@ def build_wheel(wheel_directory: str,
 
         def beipack_self(main: str, args: str = '') -> bytes:
             from cockpit._vendor.bei import beipack
-            contents = {name: wheel.read(name) for name in wheel.namelist()}
+            contents = {name: wheel.read(name) for name in sorted(wheel.namelist())}
             pack = beipack.pack(contents, main, args=args).encode()
             return lzma.compress(pack, preset=lzma.PRESET_EXTREME)
 

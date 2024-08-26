@@ -149,10 +149,10 @@ which will output a URL to connect to with a browser, such as
 <http://localhost:8765/qunit/base1/test-dbus.html>. Adjust the path for different
 tests and inspect the results there.
 
-You can also run individual tests by specifying the `TESTS` environment
-variable:
+QUnit tests are run as part of a pytest test called `test_browser`.  You can
+run individual tests via `pytest -k`, like so:
 
-    make check TESTS=qunit/base1/test-chan.html
+    pytest -k test-fsinfo.html
 
 There are also static code and syntax checks which you should run often:
 

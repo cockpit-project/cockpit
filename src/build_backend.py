@@ -50,7 +50,7 @@ def build_sdist(sdist_directory: str,
     with gzip.GzipFile(f'{sdist_directory}/{sdist_filename}', mode='w', mtime=0) as gz:
         # https://github.com/python/typeshed/issues/5491
         with tarfile.open(fileobj=gz, mode='w|', dereference=True) as sdist:  # type: ignore[arg-type]
-            for filename in find_sources(srcpkg=True):
+            for filename in sorted(find_sources(srcpkg=True)):
                 sdist.add(filename, arcname=f'{PACKAGE}/{filename}', )
     return sdist_filename
 
@@ -100,7 +100,7 @@ def build_wheel(wheel_directory: str,
                 yield f'{info.filename},sha256={b64_digest},{info.file_size}'
             yield f'{PACKAGE}.dist-info/RECORD,,'
 
-        for filename in find_sources(srcpkg=False):
+        for filename in sorted(find_sources(srcpkg=False)):
             with open(filename, 'rb') as file:
                 write(os.path.relpath(filename, start='src'), file.read())
 

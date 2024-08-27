@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
 
+import fnmatch
 import os
 import time
 from collections.abc import Collection
@@ -24,7 +25,7 @@ from collections.abc import Collection
 import packagelib
 import testlib
 
-OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos", "centos-10", "rhel-10-0"]
+OSesWithoutTracer = ["debian-*", "ubuntu-*", "fedora-coreos", "centos-10", "rhel-10*"]
 OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*"]
 
 
@@ -269,7 +270,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         m = self.machine
 
         def check_status():
-            if m.image in OSesWithoutTracer:
+            if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):
                 b.wait_in_text("#status p", "System is up to date")
                 # PK starts from a blank state, thus should force refresh and set the "time since" to 0
                 b.wait_in_text("#last-checked", "Last checked: less than a minute ago")
@@ -390,7 +391,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 
         b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
         # if tracer is not present, reboot is recommended
-        if m.image in OSesWithoutTracer:
+        if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):
             b.wait_in_text("#app .pf-v5-c-empty-state button.pf-m-primary", "Reboot system...")
         b.click("#ignore")
 

@@ -85,7 +85,7 @@ def change_ssh_port(machine, address, sshd_socket, sshd_service, port=None, time
         machine.execute("setenforce 0")
     else:
         machine.execute(f"! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {port}")
-    if machine.image in ["ubuntu-stable"]:  # always socket activated
+    if machine.image in ["ubuntu-2404", "ubuntu-stable"]:  # always socket activated
         machine.write("/etc/systemd/system/ssh.socket.d/override.conf",
                       f"[Socket]\nListenStream=\nListenStream=127.27.0.15:22\nListenStream={address}:{port}")
         machine.execute("systemctl daemon-reload")

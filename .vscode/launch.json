@@ -1,0 +1,72 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "(gdb) Launch cockpit-ws",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/cockpit-ws",
+      "preLaunchTask": "cockpit:build_and_mount",
+      "postDebugTask": "cockpit:unmount",
+      "args": [
+        "--port",
+        "10000"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          "name": "G_DEBUG",
+          "value": "fatal-criticals"
+        },
+        {
+          "name": "G_MESSAGES_DEBUG",
+          "value": "cockpit-ws,cockpit-wrapper,cockpit-bridge"
+        }
+      ],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    },
+    {
+      "name": "(gdb) Launch cockpit-bridge",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/cockpit-bridge",
+      "preLaunchTask": "cockpit:build",
+      "args": [
+        "--packages"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          "name": "G_DEBUG",
+          "value": "fatal-criticals"
+        },
+        {
+          "name": "G_MESSAGES_DEBUG",
+          "value": "cockpit-ws,cockpit-wrapper,cockpit-bridge"
+        }
+      ],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}

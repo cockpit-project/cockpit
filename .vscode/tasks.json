@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "cockpit:build",
+      "command": "make",
+      "type": "shell",
+      "problemMatcher": []
+    },
+    {
+      "label": "cockpit:build_and_mount",
+      "command": "make && sudo mount -o bind dist/ /usr/share/cockpit/",
+      "type": "shell",
+      "problemMatcher": []
+    },
+    {
+      "label": "cockpit:unmount",
+      "command": "sudo umount /usr/share/cockpit/",
+      "type": "shell",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -772,7 +772,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # set up local (NIS) sssd provider and certificate mapping
         # newer sssd drops "file" provider, but the "proxy" provider cannot do this yet in old versions
-        if m.image in ["debian-stable", "ubuntu-2204", "ubuntu-stable"]:
+        if m.image in ["debian-stable", "ubuntu-2204"]:
             id_provider = "id_provider = files"
         else:
             id_provider = """id_provider = proxy

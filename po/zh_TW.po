@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-18 02:50+0000\n"
-"PO-Revision-Date: 2024-08-08 12:12+0000\n"
+"POT-Creation-Date: 2024-08-26 02:51+0000\n"
+"PO-Revision-Date: 2024-08-24 03:38+0000\n"
 "Last-Translator: JW Wang <v72807647@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.fedoraproject.org/"
 "projects/cockpit/main/zh_TW/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 5.6.2\n"
+"X-Generator: Weblate 5.7\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -95,7 +95,7 @@ msgstr "$0 個磁碟"
 msgid "$0 documentation"
 msgstr "$0 核對"
 
-#: pkg/static/login.js:432 pkg/static/login.js:937
+#: pkg/static/login.js:455 pkg/static/login.js:960
 msgid "$0 error"
 msgstr "$0 錯誤"
 
@@ -154,7 +154,7 @@ msgid "$0 is not available from any repository."
 msgstr "$0 在任何套件庫中都未提供。"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:125 pkg/shell/hosts_dialog.jsx:465
-#: pkg/static/login.js:759
+#: pkg/static/login.js:782
 msgid "$0 key changed"
 msgstr "金鑰 $0 已被更改"
 
@@ -191,7 +191,7 @@ msgid "$0 package"
 msgid_plural "$0 packages"
 msgstr[0] "$0 個套件"
 
-#: pkg/packagekit/updates.jsx:701 pkg/packagekit/updates.jsx:816
+#: pkg/packagekit/updates.jsx:710 pkg/packagekit/updates.jsx:825
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 個套件需要將系統重新開機"
@@ -205,7 +205,7 @@ msgstr[0] "$0 個分頁"
 msgid "$0 partitions"
 msgstr "$0 分割區"
 
-#: pkg/packagekit/updates.jsx:788
+#: pkg/packagekit/updates.jsx:797
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "$0 個可用的安全性修正檔"
@@ -215,7 +215,7 @@ msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 服務發生錯誤"
 
-#: pkg/packagekit/updates.jsx:718 pkg/packagekit/updates.jsx:828
+#: pkg/packagekit/updates.jsx:727 pkg/packagekit/updates.jsx:837
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 個服務需要被重新啟動"
@@ -239,7 +239,7 @@ msgstr "$0 已同步"
 msgid "$0 total"
 msgstr "總共 $0"
 
-#: pkg/packagekit/updates.jsx:796
+#: pkg/packagekit/updates.jsx:805
 msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 個可用的更新"
@@ -295,10 +295,10 @@ msgstr "（未掛載）"
 msgid "(recommended)"
 msgstr "（推薦）"
 
-#: pkg/packagekit/updates.jsx:798
+#: pkg/packagekit/updates.jsx:807
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
-msgstr[0] "， 包含 $1 安全修復"
+msgstr[0] "， 其中有 $1 個安全性修正"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:95
 msgid "1 MiB"
@@ -306,19 +306,19 @@ msgstr "1 MiB"
 
 #: pkg/lib/cockpit-components-plot.jsx:270
 msgid "1 day"
-msgstr "1天"
+msgstr "1 天"
 
 #: pkg/lib/cockpit-components-plot.jsx:268
 msgid "1 hour"
-msgstr "1小時"
+msgstr "1 小時"
 
 #: pkg/metrics/metrics.jsx:854
 msgid "1 min"
-msgstr "1分鐘"
+msgstr "1 分鐘"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:177
 msgid "1 minute"
-msgstr "1分鐘"
+msgstr "1 分鐘"
 
 #: pkg/lib/cockpit-components-plot.jsx:271
 msgid "1 week"
@@ -386,7 +386,7 @@ msgstr "2 MiB"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:179
 msgid "20 minutes"
-msgstr "20分鐘"
+msgstr "20 分鐘"
 
 #: pkg/systemd/timer-dialog.jsx:339
 msgid "20th"
@@ -454,7 +454,7 @@ msgstr "4 KiB"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:180
 msgid "40 minutes"
-msgstr "40分鐘"
+msgstr "40 分鐘"
 
 #: pkg/systemd/timer-dialog.jsx:336
 msgid "4th"
@@ -483,7 +483,7 @@ msgstr "6 小時"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:181
 msgid "60 minutes"
-msgstr "60分鐘"
+msgstr "60 分鐘"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:92
 msgid "64 KiB"
@@ -550,7 +550,7 @@ msgstr ""
 "將為了在 $2 上的 $1 建立一個於 $0 的新 SSH 金鑰，且其將會被加到 $5 上 $4 的 "
 "$3 檔案中。"
 
-#: pkg/packagekit/updates.jsx:1527
+#: pkg/packagekit/updates.jsx:1536
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
@@ -560,7 +560,7 @@ msgstr[0] "已更新的套件需要重新開機才能生效："
 msgid "A pool with this name exists already."
 msgstr "一個相同名稱的集區已經存在。"
 
-#: pkg/packagekit/updates.jsx:1531
+#: pkg/packagekit/updates.jsx:1540
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
@@ -590,7 +590,7 @@ msgstr "關於網頁控制台"
 msgid "Absent"
 msgstr "不存在"
 
-#: pkg/static/login.js:668
+#: pkg/static/login.js:691
 msgid "Accept key and log in"
 msgstr "接受金鑰並登入"
 
@@ -693,7 +693,7 @@ msgstr "新增 Tang 金鑰伺服器"
 
 #: pkg/networkmanager/vlan.jsx:91 pkg/networkmanager/network-main.jsx:145
 msgid "Add VLAN"
-msgstr "新增虛擬網路"
+msgstr "新增 VLAN"
 
 #: pkg/networkmanager/network-main.jsx:141
 msgid "Add VPN"
@@ -1123,11 +1123,11 @@ msgstr "認證"
 msgid "Authentication"
 msgstr "核對"
 
-#: pkg/static/login.js:927
+#: pkg/static/login.js:950
 msgid "Authentication failed"
 msgstr "認證失敗"
 
-#: pkg/static/login.js:917
+#: pkg/static/login.js:940
 msgid "Authentication failed: Server closed connection"
 msgstr "驗證失敗：伺服器已中斷連線"
 
@@ -1193,7 +1193,7 @@ msgstr "自動化腳本"
 msgid "Available targets on $0"
 msgstr "可用目標 $0"
 
-#: pkg/packagekit/updates.jsx:444 pkg/packagekit/updates.jsx:925
+#: pkg/packagekit/updates.jsx:444 pkg/packagekit/updates.jsx:934
 msgid "Available updates"
 msgstr "可用的更新"
 
@@ -1317,7 +1317,7 @@ msgstr "設定檔損壞"
 msgid "Btrfs volume is mounted"
 msgstr "Btrfs 磁碟區已掛載"
 
-#: pkg/packagekit/updates.jsx:1435
+#: pkg/packagekit/updates.jsx:1444
 msgid "Bug fix updates available"
 msgstr "錯誤修復更新可用"
 
@@ -1424,7 +1424,7 @@ msgstr "無法被啟用"
 msgid "Cannot connect to an unknown host"
 msgstr "無法連線至未知主機"
 
-#: pkg/lib/cockpit.js:2601
+#: pkg/lib/cockpit.js:2612
 msgid "Cannot forward login credentials"
 msgstr "無法轉發登入憑證"
 
@@ -1444,7 +1444,7 @@ msgstr "容量"
 
 #: pkg/networkmanager/network-interface.jsx:239
 msgid "Carrier"
-msgstr "支架"
+msgstr "載體"
 
 #: pkg/storaged/pages.jsx:713
 msgid "Category"
@@ -1456,7 +1456,7 @@ msgstr "種類"
 #: pkg/lib/serverTime.js:721 pkg/storaged/iscsi/create-dialog.jsx:171
 #: pkg/storaged/stratis/pool.jsx:528
 msgid "Change"
-msgstr "改變"
+msgstr "變更"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:181
 msgid "Change cryptographic policy"
@@ -1464,7 +1464,7 @@ msgstr "變更加密政策"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Change host name"
-msgstr "更改主機名"
+msgstr "變更主機名稱"
 
 #: pkg/storaged/overview/overview.jsx:152
 msgid "Change iSCSI initiater name"
@@ -1500,7 +1500,7 @@ msgstr "變更 shell"
 
 #: pkg/lib/serverTime.js:714
 msgid "Change system time"
-msgstr "改變系統時間"
+msgstr "變更系統時間"
 
 #: pkg/shell/hosts_dialog.jsx:810
 msgid "Change the password of $0"
@@ -1530,7 +1530,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr "更改設定將中斷與伺服器的連線，並使管理介面無法使用。"
 
-#: pkg/packagekit/updates.jsx:907
+#: pkg/packagekit/updates.jsx:916
 msgid "Check for updates"
 msgstr "檢查更新"
 
@@ -1575,7 +1575,7 @@ msgstr "正在確認 initrd 中的 NBDE 支援"
 msgid "Checking for new applications"
 msgstr "正在檢查新的應用程式"
 
-#: pkg/packagekit/updates.jsx:1387
+#: pkg/packagekit/updates.jsx:1396
 msgid "Checking for package updates..."
 msgstr "正在檢查套件更新…"
 
@@ -1584,7 +1584,7 @@ msgstr "正在檢查套件更新…"
 msgid "Checking installed software"
 msgstr "正在檢查已安裝的軟體"
 
-#: pkg/packagekit/updates.jsx:1397
+#: pkg/packagekit/updates.jsx:1406
 msgid "Checking software status"
 msgstr "正在檢查軟體狀態"
 
@@ -1648,7 +1648,7 @@ msgstr "關閉所選頁面"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:452
+#: pkg/static/login.js:475
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit 驗證設定不正確。"
 
@@ -1656,7 +1656,7 @@ msgstr "Cockpit 驗證設定不正確。"
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Cockpit 的 NetworkManager 與 Firewalld 設定"
 
-#: pkg/lib/cockpit.js:2607
+#: pkg/lib/cockpit.js:2618
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit 無法聯絡指定的主機。"
 
@@ -1680,7 +1680,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit 是一個互動式的 Linux 伺服器管理介面。"
 
-#: pkg/lib/cockpit.js:2605
+#: pkg/lib/cockpit.js:2616
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit 與該系統上的軟體不相容。"
 
@@ -1688,7 +1688,7 @@ msgstr "Cockpit 與該系統上的軟體不相容。"
 msgid "Cockpit is not installed"
 msgstr "Cockpit 未安裝"
 
-#: pkg/lib/cockpit.js:2599
+#: pkg/lib/cockpit.js:2610
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit 未安裝在系統上。"
 
@@ -1850,7 +1850,7 @@ msgstr "自動連線"
 msgid "Connect to"
 msgstr "連線至"
 
-#: pkg/static/login.js:660
+#: pkg/static/login.js:683
 msgid "Connect to:"
 msgstr "連線至："
 
@@ -1874,7 +1874,7 @@ msgstr "連線錯誤"
 msgid "Connection failed"
 msgstr "連線失敗"
 
-#: pkg/lib/cockpit.js:2597
+#: pkg/lib/cockpit.js:2608
 msgid "Connection has timed out."
 msgstr "連線已逾時。"
 
@@ -1894,7 +1894,7 @@ msgstr "已聯絡的網域"
 msgid "Contains:"
 msgstr "包含："
 
-#: pkg/packagekit/updates.jsx:762
+#: pkg/packagekit/updates.jsx:683 pkg/packagekit/updates.jsx:771
 msgid "Continue"
 msgstr "繼續"
 
@@ -2240,7 +2240,7 @@ msgstr "DNS 搜尋網域 $val"
 msgid "Daily"
 msgstr "每日"
 
-#: pkg/packagekit/updates.jsx:932
+#: pkg/packagekit/updates.jsx:941
 msgid "Danger alert:"
 msgstr "危險警示："
 
@@ -2912,7 +2912,7 @@ msgstr "作為「伺服器」的端點須被指定為 主機:連接埠 ，除此
 msgid "Enforcing"
 msgstr "強制執行"
 
-#: pkg/packagekit/updates.jsx:1437
+#: pkg/packagekit/updates.jsx:1446
 msgid "Enhancement updates available"
 msgstr "可用的增強更新"
 
@@ -2938,7 +2938,7 @@ msgstr "勘誤"
 
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/sosreport/sosreport.jsx:399
-#: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:160
+#: pkg/storaged/storage-controls.jsx:105 pkg/storaged/storage-controls.jsx:158
 #: pkg/storaged/overview/overview.jsx:94 pkg/storaged/multipath.jsx:60
 msgid "Error"
 msgstr "錯誤"
@@ -3334,7 +3334,7 @@ msgstr "群組"
 #: pkg/storaged/lvm2/vdo-pool.jsx:48 pkg/storaged/partitions/partition.jsx:107
 #: pkg/storaged/block/resize.jsx:521
 msgid "Grow"
-msgstr "增長"
+msgstr "延展"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:281
 #: pkg/storaged/partitions/partition.jsx:221
@@ -3422,7 +3422,7 @@ msgstr "家目錄"
 msgid "Host"
 msgstr "主機"
 
-#: pkg/lib/cockpit.js:2593
+#: pkg/lib/cockpit.js:2604
 msgid "Host key is incorrect"
 msgstr "主機金鑰不正確"
 
@@ -3526,8 +3526,8 @@ msgid ""
 msgstr ""
 "如果指紋相符，點選「信任並新增主機」。否則，不要連線並聯絡您的管理人員。"
 
-#: pkg/networkmanager/ip-settings.jsx:44 pkg/packagekit/updates.jsx:684
-#: pkg/packagekit/updates.jsx:761
+#: pkg/networkmanager/ip-settings.jsx:44 pkg/packagekit/updates.jsx:686
+#: pkg/packagekit/updates.jsx:770
 msgid "Ignore"
 msgstr "忽略"
 
@@ -3593,7 +3593,7 @@ msgstr "索引記憶"
 msgid "Indirect"
 msgstr "間接"
 
-#: pkg/packagekit/updates.jsx:753
+#: pkg/packagekit/updates.jsx:762
 msgid "Info"
 msgstr "資訊"
 
@@ -3635,7 +3635,7 @@ msgstr "安裝 NFS 支援"
 msgid "Install Stratis support"
 msgstr "安裝 Stratis 支援"
 
-#: pkg/packagekit/updates.jsx:1414
+#: pkg/packagekit/updates.jsx:1423
 msgid "Install all updates"
 msgstr "安裝所有更新"
 
@@ -3647,7 +3647,7 @@ msgstr "安裝應用程式資訊"
 msgid "Install cockpit-pcp"
 msgstr "安裝 cockpit-pcp"
 
-#: pkg/packagekit/updates.jsx:1427
+#: pkg/packagekit/updates.jsx:1436
 msgid "Install kpatch updates"
 msgstr "安裝 kpatch 更新"
 
@@ -3655,7 +3655,7 @@ msgstr "安裝 kpatch 更新"
 msgid "Install realmd support"
 msgstr "安裝 realmd 支援"
 
-#: pkg/packagekit/updates.jsx:1413 pkg/packagekit/updates.jsx:1420
+#: pkg/packagekit/updates.jsx:1422 pkg/packagekit/updates.jsx:1429
 msgid "Install security updates"
 msgstr "安裝安全性更新"
 
@@ -3715,11 +3715,11 @@ msgstr "介面成員"
 msgid "Interfaces"
 msgstr "介面"
 
-#: pkg/lib/cockpit.js:2595
+#: pkg/lib/cockpit.js:2606
 msgid "Internal error"
 msgstr "內部錯誤"
 
-#: pkg/static/login.js:907
+#: pkg/static/login.js:930
 msgid "Internal error: Invalid challenge header"
 msgstr "內部錯誤：無效的質詢標頭"
 
@@ -3981,7 +3981,7 @@ msgstr "最後活動時間"
 msgid "Last cannot be removed"
 msgstr "最後一個無法被移除"
 
-#: pkg/packagekit/updates.jsx:783
+#: pkg/packagekit/updates.jsx:792
 msgid "Last checked: $0"
 msgstr "最後一次檢查： $0"
 
@@ -4131,11 +4131,11 @@ msgstr "讀取這之前的項目"
 
 #: pkg/packagekit/updates.jsx:102
 msgid "Loading available updates failed"
-msgstr "加載可用更新失敗"
+msgstr "載入可用更新失敗"
 
 #: pkg/packagekit/updates.jsx:96
 msgid "Loading available updates, please wait..."
-msgstr "正在加載可用的更新，請稍候..."
+msgstr "正在載入可用的更新，請稍候..."
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:177
 msgid "Loading keys..."
@@ -4221,7 +4221,7 @@ msgstr "鎖定 $target"
 
 #: pkg/static/login.html:139 pkg/lib/cockpit-connect-ssh.tsx:390
 #: pkg/shell/failures.jsx:73 pkg/shell/hosts_dialog.jsx:765
-#: pkg/static/login.js:668
+#: pkg/static/login.js:691
 msgid "Log in"
 msgstr "登入"
 
@@ -4229,7 +4229,7 @@ msgstr "登入"
 msgid "Log in to $0"
 msgstr "登入至 $0"
 
-#: pkg/static/login.js:704
+#: pkg/static/login.js:727
 msgid "Log in with your server user account."
 msgstr "使用您的伺服器使用者帳號登入。"
 
@@ -4276,15 +4276,15 @@ msgstr "邏輯磁碟區（快照）"
 msgid "Logical volume of $0"
 msgstr "邏輯磁碟區 $0"
 
-#: pkg/static/login.js:361
+#: pkg/static/login.js:384
 msgid "Login"
 msgstr "登入"
 
-#: pkg/static/login.js:404
+#: pkg/static/login.js:427
 msgid "Login again"
 msgstr "再次登入"
 
-#: pkg/lib/cockpit.js:2585
+#: pkg/lib/cockpit.js:2596
 msgid "Login failed"
 msgstr "登入失敗"
 
@@ -4304,7 +4304,7 @@ msgstr "登入歷史紀錄清單"
 msgid "Logout $0"
 msgstr "登出 $0"
 
-#: pkg/static/login.js:405
+#: pkg/static/login.js:428
 msgid "Logout successful"
 msgstr "登出成功"
 
@@ -4606,7 +4606,7 @@ msgstr "監控目標"
 msgid "Monthly"
 msgstr "每月"
 
-#: pkg/packagekit/updates.jsx:939
+#: pkg/packagekit/updates.jsx:948
 msgid "More info..."
 msgstr "更多資訊…"
 
@@ -4853,7 +4853,7 @@ msgstr "網路儲存空間"
 #: pkg/networkmanager/firewall.jsx:1053 pkg/networkmanager/manifest.json:0
 #: src/appstream/org.cockpit-project.cockpit-networkmanager.metainfo.xml.in:5
 msgid "Networking"
-msgstr "網路作業"
+msgstr "網路"
 
 #: pkg/users/account-details.js:208
 msgid "Never"
@@ -4875,7 +4875,7 @@ msgstr "從未登入"
 msgid "New NFS mount"
 msgstr "新的 NFS 掛載"
 
-#: pkg/static/login.js:763
+#: pkg/static/login.js:786
 msgid "New host"
 msgstr "新主機"
 
@@ -4938,7 +4938,7 @@ msgstr "沒有找到區塊裝置"
 
 #: pkg/networkmanager/interfaces.js:1356
 msgid "No carrier"
-msgstr "沒有承運人"
+msgstr "無載體"
 
 #: pkg/kdump/kdump-view.jsx:471
 msgid "No configuration found"
@@ -5184,7 +5184,7 @@ msgstr "未被允許設定網路裝置"
 msgid "Not permitted to configure realms"
 msgstr "未被允許設定領域"
 
-#: pkg/lib/cockpit.js:2583
+#: pkg/lib/cockpit.js:2594
 msgid "Not permitted to perform this action."
 msgstr "不允許執行此操作。"
 
@@ -5192,7 +5192,7 @@ msgstr "不允許執行此操作。"
 msgid "Not ready"
 msgstr "沒有準備好"
 
-#: pkg/packagekit/updates.jsx:1364
+#: pkg/packagekit/updates.jsx:1373
 msgid "Not registered"
 msgstr "未註冊"
 
@@ -5365,7 +5365,7 @@ msgstr "PID"
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "需有 cockpit-pcp 套件才能使用指標度量歷史紀錄"
 
-#: pkg/packagekit/updates.jsx:688 pkg/packagekit/updates.jsx:767
+#: pkg/packagekit/updates.jsx:697 pkg/packagekit/updates.jsx:776
 msgid "Package information"
 msgstr "套件資訊"
 
@@ -5373,11 +5373,11 @@ msgstr "套件資訊"
 msgid "PackageKit crashed"
 msgstr "PackageKit 當掉了"
 
-#: pkg/packagekit/updates.jsx:1102
+#: pkg/packagekit/updates.jsx:1111
 msgid "PackageKit is not installed"
 msgstr "未安裝PackageKit"
 
-#: pkg/packagekit/updates.jsx:1303
+#: pkg/packagekit/updates.jsx:1312
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit 回報了錯誤碼 $0"
 
@@ -5627,7 +5627,7 @@ msgstr "要永久刪除邏輯磁碟區 $0/$1 嗎？"
 msgid "Permanently delete subvolume $0?"
 msgstr "要永久刪除子磁碟區 $0 嗎？"
 
-#: pkg/static/login.js:933
+#: pkg/static/login.js:956
 msgid "Permission denied"
 msgstr "使用權限被拒"
 
@@ -5693,7 +5693,7 @@ msgstr "請啟用 JavaScript 以使用網頁控制台。"
 msgid "Please install the $0 package"
 msgstr "請安裝 $0 套件"
 
-#: pkg/packagekit/updates.jsx:1491
+#: pkg/packagekit/updates.jsx:1500
 msgid "Please resolve the issue and reload this page."
 msgstr "請解決該問題並重新整理此頁。"
 
@@ -5701,7 +5701,7 @@ msgstr "請解決該問題並重新整理此頁。"
 msgid "Please specify an expiration date"
 msgstr "請指定到期日期"
 
-#: pkg/static/login.js:576
+#: pkg/static/login.js:599
 msgid "Please specify the host to connect to"
 msgstr "請指定要連線的主機"
 
@@ -5765,7 +5765,7 @@ msgstr "保留"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:284
 msgid "Pretty host name"
-msgstr "漂亮的主機名"
+msgstr "易讀主機名稱"
 
 #: pkg/systemd/logs.jsx:58
 msgid "Previous boot"
@@ -5978,17 +5978,17 @@ msgstr "已準備好"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:287
 msgid "Real host name"
-msgstr "真實主機名"
+msgstr "實際主機名稱"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:254
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
-msgstr "真實主機名稱只能包含小寫字元、數字、連字號和句點（與填充的子網域）"
+msgstr "實際主機名稱只能包含小寫字元、數字、連字號和句點（與填充的子網域）"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:252
 msgid "Real host name must be 64 characters or less"
-msgstr "真實主機名稱須等於或少於 64 個字元"
+msgstr "實際主機名稱須等於或少於 64 個字元"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
 msgid "Reapply and reboot"
@@ -6005,12 +6005,12 @@ msgstr "重新開機"
 msgid "Reboot after completion"
 msgstr "於完成後重新開機"
 
-#: pkg/packagekit/updates.jsx:1524
+#: pkg/packagekit/updates.jsx:1533
 msgid "Reboot recommended"
 msgstr "建議重新開機"
 
-#: pkg/packagekit/updates.jsx:683 pkg/packagekit/updates.jsx:758
-#: pkg/packagekit/updates.jsx:822
+#: pkg/packagekit/updates.jsx:685 pkg/packagekit/updates.jsx:767
+#: pkg/packagekit/updates.jsx:831
 msgid "Reboot system..."
 msgstr "將系統重新開機…"
 
@@ -6019,7 +6019,7 @@ msgstr "將系統重新開機…"
 #: pkg/networkmanager/network-main.jsx:188
 #: pkg/networkmanager/network-main.jsx:203
 msgid "Receiving"
-msgstr "接收"
+msgstr "正在接收"
 
 #: pkg/static/login.html:165
 msgid "Recent hosts"
@@ -6045,15 +6045,15 @@ msgstr "正在復原 MDRAID 裝置 $target"
 msgid "Refreshing package information"
 msgstr "套件資訊重新整理中"
 
-#: pkg/static/login.js:923
+#: pkg/static/login.js:946
 msgid "Refusing to connect. Host is unknown"
 msgstr "拒絕連線。未知的主機"
 
-#: pkg/static/login.js:925
+#: pkg/static/login.js:948
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "拒絕連線。 Hostkey 不相符"
 
-#: pkg/static/login.js:921
+#: pkg/static/login.js:944
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "拒絕連線。 Hostkey 未知"
 
@@ -6065,7 +6065,7 @@ msgstr "重新產生"
 msgid "Regenerating initrd"
 msgstr "重新產生 initrd"
 
-#: pkg/packagekit/updates.jsx:1376
+#: pkg/packagekit/updates.jsx:1385
 msgid "Register…"
 msgstr "註冊…"
 
@@ -6161,7 +6161,7 @@ msgstr "移除 Tang keyserver？"
 msgid "Remove device"
 msgstr "移除裝置"
 
-#: pkg/static/login.js:634
+#: pkg/static/login.js:657
 msgid "Remove host"
 msgstr "移除主機"
 
@@ -6422,11 +6422,11 @@ msgstr "重新啟動"
 msgid "Restart services"
 msgstr "重新啟動服務"
 
-#: pkg/packagekit/updates.jsx:759 pkg/packagekit/updates.jsx:834
+#: pkg/packagekit/updates.jsx:768 pkg/packagekit/updates.jsx:843
 msgid "Restart services..."
 msgstr "重新啟動服務…"
 
-#: pkg/packagekit/updates.jsx:1572
+#: pkg/packagekit/updates.jsx:1581
 msgid "Restarting"
 msgstr "重新啟動"
 
@@ -6689,7 +6689,7 @@ msgstr "正在安全抹除 $target"
 msgid "Security Enhanced Linux configuration and troubleshooting"
 msgstr "Security Enhanced Linux 設定與疑難排解"
 
-#: pkg/packagekit/updates.jsx:1433
+#: pkg/packagekit/updates.jsx:1442
 msgid "Security updates available"
 msgstr "有可用的安全性更新"
 
@@ -6753,7 +6753,7 @@ msgstr "伺服器位址不可為空值。"
 msgid "Server cannot be empty."
 msgstr "伺服器不能為空。"
 
-#: pkg/lib/cockpit.js:2603
+#: pkg/lib/cockpit.js:2614
 msgid "Server has closed the connection."
 msgstr "伺服器已關閉連線。"
 
@@ -6841,7 +6841,7 @@ msgstr "正在設定"
 msgid "Setting up loop device $target"
 msgstr "正在設定 loop 裝置 $target"
 
-#: pkg/packagekit/updates.jsx:917
+#: pkg/packagekit/updates.jsx:926
 msgid "Settings"
 msgstr "設定"
 
@@ -7053,8 +7053,8 @@ msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr "其他程式正在使用套件管理器，請稍候..."
 
-#: pkg/packagekit/updates.jsx:735 pkg/packagekit/updates.jsx:842
-#: pkg/packagekit/updates.jsx:1535
+#: pkg/packagekit/updates.jsx:744 pkg/packagekit/updates.jsx:851
+#: pkg/packagekit/updates.jsx:1544
 msgid "Some software needs to be restarted manually"
 msgstr "部份軟體需要手動重新啟動"
 
@@ -7145,7 +7145,7 @@ msgid "Static"
 msgstr "靜態"
 
 #: pkg/systemd/service-details.jsx:644
-#: pkg/networkmanager/network-interface.jsx:265 pkg/packagekit/updates.jsx:906
+#: pkg/networkmanager/network-interface.jsx:265 pkg/packagekit/updates.jsx:915
 msgid "Status"
 msgstr "狀態"
 
@@ -7713,13 +7713,13 @@ msgstr ""
 "產生的指紋可放心以公開方式分享，包含電子郵件。如果您需要其他人士為您進行驗"
 "證，那些人士可使用任何方法傳送結果。"
 
-#: pkg/static/login.js:915
+#: pkg/static/login.js:938
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
 msgstr "伺服器拒絕以密碼方式驗證 '$0'，且沒有其他受支援的驗證方式可供使用。"
 
-#: pkg/lib/cockpit.js:2587
+#: pkg/lib/cockpit.js:2598
 msgid "The server refused to authenticate using any supported methods."
 msgstr "伺服器拒絕使用任何受支援的方式進行驗證。"
 
@@ -7923,7 +7923,7 @@ msgstr "這個集區並未使用其所在的區塊裝置上所有空間。"
 msgid "This pool is in a degraded state."
 msgstr "這個集區處於降級狀態。"
 
-#: pkg/packagekit/updates.jsx:1371
+#: pkg/packagekit/updates.jsx:1380
 msgid "This system is not registered"
 msgstr "該系統未註冊"
 
@@ -8068,7 +8068,7 @@ msgid ""
 "party, please verify the host key fingerprint:"
 msgstr "要確保您的連線未被惡意的第三方截取，請驗證主機金鑰指紋："
 
-#: pkg/packagekit/updates.jsx:1374
+#: pkg/packagekit/updates.jsx:1383
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -8077,7 +8077,7 @@ msgstr ""
 "註冊此系統。"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:135 pkg/shell/hosts_dialog.jsx:478
-#: pkg/static/login.js:768
+#: pkg/static/login.js:791
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -8100,7 +8100,7 @@ msgstr "打開/關閉日期挑選器"
 msgid "Toggle filters"
 msgstr "切換篩選器"
 
-#: pkg/lib/cockpit.js:2609
+#: pkg/lib/cockpit.js:2620
 msgid "Too much data"
 msgstr "資料過多"
 
@@ -8134,7 +8134,7 @@ msgstr "暫時的"
 
 #: pkg/networkmanager/plots.js:39
 msgid "Transmitting"
-msgstr "傳輸中"
+msgstr "正在傳送"
 
 #: pkg/systemd/timer-dialog.jsx:183 pkg/systemd/services-list.jsx:45
 msgid "Trigger"
@@ -8253,7 +8253,7 @@ msgstr "UUID"
 msgid "Unable to apply this solution automatically"
 msgstr "無法自動應用此解決方案"
 
-#: pkg/static/login.js:919
+#: pkg/static/login.js:942
 msgid "Unable to connect to that address"
 msgstr "無法連線到該位址"
 
@@ -8486,7 +8486,7 @@ msgstr "未支援的邏輯磁碟區"
 msgid "Until"
 msgstr "直到"
 
-#: pkg/lib/cockpit.js:2589 pkg/lib/cockpit.js:2591
+#: pkg/lib/cockpit.js:2600 pkg/lib/cockpit.js:2602
 msgid "Untrusted host"
 msgstr "不受信任的主機"
 
@@ -8500,11 +8500,11 @@ msgstr "上線自從"
 msgid "Update"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:752
+#: pkg/packagekit/updates.jsx:761
 msgid "Update Success Table"
 msgstr "更新成功表格"
 
-#: pkg/packagekit/updates.jsx:955
+#: pkg/packagekit/updates.jsx:964
 msgid "Update history"
 msgstr "更新歷史記錄"
 
@@ -8512,7 +8512,7 @@ msgstr "更新歷史記錄"
 msgid "Update package information"
 msgstr "更新套件資訊"
 
-#: pkg/packagekit/updates.jsx:677 pkg/packagekit/updates.jsx:747
+#: pkg/packagekit/updates.jsx:691 pkg/packagekit/updates.jsx:756
 msgid "Update was successful"
 msgstr "已經成功更新"
 
@@ -8520,11 +8520,11 @@ msgstr "已經成功更新"
 msgid "Updated"
 msgstr "已更新"
 
-#: pkg/packagekit/updates.jsx:680
+#: pkg/packagekit/updates.jsx:681
 msgid "Updated packages may require a reboot to take effect."
 msgstr "可能需要重新開機，才能讓更新完成的套件生效。"
 
-#: pkg/packagekit/updates.jsx:1439
+#: pkg/packagekit/updates.jsx:1448
 msgid "Updates available"
 msgstr "可用更新"
 
@@ -8561,7 +8561,7 @@ msgstr "上傳"
 msgid "Usage"
 msgstr "使用率"
 
-#: pkg/storaged/storage-controls.jsx:206
+#: pkg/storaged/storage-controls.jsx:204
 msgid "Usage of $0"
 msgstr "$0 的使用率"
 
@@ -8633,7 +8633,7 @@ msgstr "使用者 ID 必須不小於 $0"
 msgid "User name"
 msgstr "使用者名稱"
 
-#: pkg/static/login.js:574
+#: pkg/static/login.js:597
 msgid "User name cannot be empty"
 msgstr "使用者名稱不能留白"
 
@@ -8844,7 +8844,7 @@ msgstr "網頁控制台"
 msgid "Web Console for Linux servers"
 msgstr "Linux伺服器的Web控制台"
 
-#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:933
+#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:942
 msgid "Web Console will restart"
 msgstr "網頁控制台將會重新啟動"
 
@@ -8876,7 +8876,7 @@ msgstr "時間"
 msgid "When empty, connect with the current user"
 msgstr "若留白，會以目前使用者連線"
 
-#: pkg/packagekit/updates.jsx:532 pkg/packagekit/updates.jsx:938
+#: pkg/packagekit/updates.jsx:532 pkg/packagekit/updates.jsx:947
 msgid ""
 "When the Web Console is restarted, you will no longer see progress "
 "information. However, the update process will continue in the background. "
@@ -8929,9 +8929,9 @@ msgstr "寫入為主"
 
 #: pkg/storaged/plot.jsx:101
 msgid "Writing"
-msgstr "寫入"
+msgstr "正在寫入"
 
-#: pkg/static/login.js:929
+#: pkg/static/login.js:952
 msgid "Wrong user name or password"
 msgstr "錯誤的使用者名稱或密碼"
 
@@ -8948,7 +8948,7 @@ msgid "Yes"
 msgstr "是"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:146 pkg/shell/hosts_dialog.jsx:489
-#: pkg/static/login.js:765
+#: pkg/static/login.js:788
 msgid "You are connecting to $0 for the first time."
 msgstr "您第一次連線到 $0 。"
 
@@ -9004,17 +9004,17 @@ msgstr "您的瀏覽器不允許從網頁選單貼上。您可以使用 Shift+In
 msgid "Your browser will remember your access level across sessions."
 msgstr "您的瀏覽器將在不同工作階段間記住您的存取權限等級。"
 
-#: pkg/packagekit/updates.jsx:1575
+#: pkg/packagekit/updates.jsx:1584
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
 msgstr "您的伺服器即將關閉連線。您可以在重新啟動完成後重新連線。"
 
-#: pkg/lib/cockpit.js:2579
+#: pkg/lib/cockpit.js:2590
 msgid "Your session has been terminated."
 msgstr "您的工作階段已被終止。"
 
-#: pkg/lib/cockpit.js:2581
+#: pkg/lib/cockpit.js:2592
 msgid "Your session has expired. Please log in again."
 msgstr "您的工作階段已過期。請再次登入。"
 
@@ -9154,7 +9154,7 @@ msgstr "cgroups"
 
 #: pkg/users/account-details.js:331
 msgid "change"
-msgstr "改變"
+msgstr "變更"
 
 #: pkg/metrics/metrics.jsx:656
 msgid "cockpit-podman is not installed"

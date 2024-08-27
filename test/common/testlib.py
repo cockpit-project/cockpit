@@ -1753,7 +1753,9 @@ class MachineCase(unittest.TestCase):
         self.restart_sshd = f'systemctl try-restart {self.sshd_service}'
 
         # only enabled by default on released OSes; see pkg/shell/manifest.json
-        self.multihost_enabled = image.startswith(("rhel-9", "centos-9")) or image in ["ubuntu-2204", "ubuntu-stable", "debian-stable", "fedora-39", "fedora-40", "fedora-coreos"]
+        self.multihost_enabled = image.startswith(("rhel-9", "centos-9")) or image in [
+                "ubuntu-2204", "ubuntu-2404", "ubuntu-stable", "debian-stable",
+                "fedora-39", "fedora-40", "fedora-coreos"]
 
     def nonDestructiveSetup(self) -> None:
         """generic setUp/tearDown for @nondestructive tests"""

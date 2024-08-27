@@ -552,9 +552,6 @@ class TestIPA(TestRealms, CommonTests):
 
         # validate Kerberos setup for ws
         m.execute(f"echo {self.admin_password} | kinit -f {self.admin_user}@COCKPIT.LAN")
-        # HACK: https://launchpad.net/bugs/2061055
-        if m.image == 'ubuntu-stable':
-            m.execute(self.restart_sshd)
         m.execute(WAIT_KRB_SCRIPT.format(f"{self.admin_user}@cockpit.lan"), timeout=300)
 
         # kerberos login should work
@@ -1008,9 +1005,6 @@ class TestKerberos(testlib.MachineCase):
             # no nss-myhostname there
             self.machine.execute("echo '10.111.113.1 x0.cockpit.lan' >> /etc/hosts")
         self.machine.execute(JOIN_SCRIPT % args, timeout=1800)
-        # HACK: https://launchpad.net/bugs/2061055
-        if self.machine.image == 'ubuntu-stable':
-            self.machine.execute(self.restart_sshd)
         self.machine.execute(WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
     def testNegotiate(self):

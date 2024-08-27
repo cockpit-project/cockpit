@@ -1722,10 +1722,11 @@ class MachineCase(unittest.TestCase):
             if dhcp:
                 machine.dhcp_server()
 
-        self.journal_start = self.machine.journal_cursor()
+        m = self.machine
+        self.journal_start = m.journal_cursor()
         self.browser = self.new_browser(coverage=opts.coverage)
         # fail tests on criticals
-        self.machine.write("/etc/cockpit/cockpit.conf", "[Log]\nFatal = criticals\n")
+        m.write("/etc/cockpit/cockpit.conf", "[Log]\nFatal = criticals\n")
         if self.is_nondestructive():
             self.nonDestructiveSetup()
 
@@ -1734,7 +1735,7 @@ class MachineCase(unittest.TestCase):
         if self.is_devel_build():
             self.disable_preload("packagekit", "systemd")
 
-        image = self.machine.image
+        image = m.image
 
         if image.startswith(('debian', 'ubuntu')) or image == 'arch':
             self.libexecdir = '/usr/lib/cockpit'
@@ -1754,8 +1755,11 @@ class MachineCase(unittest.TestCase):
 
         # only enabled by default on released OSes; see pkg/shell/manifest.json
         self.multihost_enabled = image.startswith(("rhel-9", "centos-9")) or image in [
-                "ubuntu-2204", "ubuntu-2404", "ubuntu-stable", "debian-stable",
+                "ubuntu-2204", "ubuntu-2404", "debian-stable",
                 "fedora-39", "fedora-40", "fedora-coreos"]
+        # Transitional code while we move ubuntu-stable from 24.04 to 24.10
+        if image == "ubuntu-stable" and m.execute(". /etc/os-release; echo $VERSION_ID").strip() == "24.04":
+            self.multihost_enabled = True
 
     def nonDestructiveSetup(self) -> None:
         """generic setUp/tearDown for @nondestructive tests"""

@@ -71,6 +71,7 @@ __all__ = (
     'Error',
     'MachineCase',
     'arg_parser',
+    'destructive',
     'no_retry_when_changed',
     'nondestructive',
     'onlyImage',
@@ -2491,6 +2492,15 @@ def nondestructive(testEntity: _T) -> _T:
     Can be used on test classes and individual test methods.
     """
     setattr(testEntity, '_testlib__nondestructive', True)
+    return testEntity
+
+
+def destructive(testEntity: _T) -> _T:
+    """Tests decorated as destructive will get their own VM
+
+    Can be used on test classes and individual test methods.
+    """
+    setattr(testEntity, '_testlib__nondestructive', False)
     return testEntity
 
 

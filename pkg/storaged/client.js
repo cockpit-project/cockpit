@@ -960,6 +960,10 @@ function init_model(callback) {
     }
 
     function enable_pk_features() {
+        if (client.in_anaconda_mode()) {
+            client.features.packagekit = false;
+            return Promise.resolve();
+        }
         return PK.detect().then(function (available) { client.features.packagekit = available });
     }
 

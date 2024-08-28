@@ -14,7 +14,7 @@ import sys
 import unittest.mock
 from collections import deque
 from pathlib import Path
-from typing import Dict, Iterable, Sequence
+from typing import Dict, Iterable, Iterator, Sequence
 
 import pytest
 
@@ -1010,7 +1010,7 @@ def fsinfo_err(err: int) -> JsonObject:
 
 
 @pytest.fixture
-def fsinfo_test_cases(tmp_path: Path) -> 'dict[Path, JsonObject]':
+def fsinfo_test_cases(tmp_path: Path) -> 'Iterator[dict[Path, JsonObject]]':
     # a normal directory
     normal_dir = tmp_path / 'dir'
     normal_dir.mkdir()
@@ -1081,7 +1081,15 @@ def fsinfo_test_cases(tmp_path: Path) -> 'dict[Path, JsonObject]':
         del expected_state[no_r_dir]
         del expected_state[no_r_file]
 
-    return expected_state
+    try:
+        yield expected_state
+
+    finally:
+        # restore writable permissions on directories.  pytest has trouble cleaning
+        # these up, otherwise...
+        for path in expected_state:
+            if not path.is_symlink() and path.is_dir():
+                path.chmod(0o700)
 
 
 @pytest.mark.asyncio

@@ -638,6 +638,32 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
         self.dialog_wait_close()
         b.wait_text(self.card_row_col("Storage", 1, 3), "Unformatted data")
 
+    @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+    @testlib.skipImage("No Anaconda", "arch")
+    @testlib.destructive
+    def testNoOndemandPackages(self):
+        b = self.browser
+        m = self.machine
+
+        disk = self.add_loopback_disk(name="loop10")
+
+        m.execute("systemctl stop stratisd; dnf remove -y stratisd stratis")
+
+        anaconda_config = {
+            "mount_point_prefix": "/sysroot",
+            "available_devices": [disk],
+        }
+
+        self.login_and_go("/storage")
+        self.enterAnacondaMode(anaconda_config)
+
+        dropdown_toggle = self.dropdown_toggle(self.card_header("Storage"))
+        raid_action = self.dropdown_action(self.card_header("Storage"), "Create MDRAID device")
+        stratis_action = self.dropdown_action(self.card_header("Storage"), "Create Stratis pool")
+        b.click(dropdown_toggle)
+        b.wait_visible(raid_action)
+        b.wait_not_present(stratis_action)
+
 
 if __name__ == '__main__':
     testlib.test_main()

@@ -895,13 +895,15 @@ function init_model(callback) {
             console.warn("Can't enable storaged btrfs module", error.toString());
         }
 
-        try {
-            await client.manager.EnableModule("iscsi", true);
-            client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
-            await client.manager_iscsi.wait();
-            client.features.iscsi = (client.manager_iscsi.valid && client.manager_iscsi.SessionsSupported !== false);
-        } catch (error) {
-            console.warn("Can't enable storaged iscsi module", error.toString());
+        if (!client.in_anaconda_mode()) {
+            try {
+                await client.manager.EnableModule("iscsi", true);
+                client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
+                await client.manager_iscsi.wait();
+                client.features.iscsi = (client.manager_iscsi.valid && client.manager_iscsi.SessionsSupported !== false);
+            } catch (error) {
+                console.warn("Can't enable storaged iscsi module", error.toString());
+            }
         }
 
         try {

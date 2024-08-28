@@ -119,14 +119,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.check_shell()
 
         if not m.ostree_image:  # logs in via ssh, not cockpit-session
-            self.assertRegex(m.execute("who"), r"(^|\n)admin *web.*(\d+\.\d+|::)")
+            # older coreutils shows the session type (web), newer ones the service name
+            self.assertRegex(m.execute("who"), r"(^|\n)admin *(web|cockpit).*(\d+\.\d+|::)")
 
         # reload, which should log us in with the cookie
         b.reload()
         self.check_shell()
 
         if not m.ostree_image:  # logs in via ssh, not cockpit-session
-            self.assertRegex(m.execute("who"), r"(^|\n)admin *web.*(\d+\.\d+|::)")
+            self.assertRegex(m.execute("who"), r"(^|\n)admin *(web|cockpit).*(\d+\.\d+|::)")
 
         b.go("/users#/admin")
         b.enter_page("/users")

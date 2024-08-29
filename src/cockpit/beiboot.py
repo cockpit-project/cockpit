@@ -350,6 +350,8 @@ async def run(args) -> None:
         logger.debug("ferny.InteractionError: %s, interpreted as: %r", exc, error)
         if isinstance(error, ferny.SshAuthenticationError):
             problem = 'authentication-failed'
+        elif isinstance(error, ferny.SshChangedHostKeyError):
+            problem = 'invalid-hostkey'
         elif isinstance(error, ferny.SshHostKeyError):
             problem = 'unknown-hostkey'
         elif isinstance(error, OSError):

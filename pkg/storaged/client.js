@@ -248,12 +248,18 @@ export async function btrfs_poll() {
                 for (const line of output.split("\n")) {
                     const m = line.match(/ID (\d+).*parent (\d+).*parent_uuid (.*)uuid (.*) path (<FS_TREE>\/)?(.*)/);
                     if (m) {
+                        const pathname = m[6];
+                        // Ignore podman btrfs subvolumes, they are an implementation detail.
+                        if (pathname.includes("containers/storage/btrfs/subvolumes")) {
+                            continue;
+                        }
+
                         // The parent uuid is the uuid of which this subvolume is a snapshot.
                         // https://github.com/torvalds/linux/blob/8d025e2092e29bfd13e56c78e22af25fac83c8ec/include/uapi/linux/btrfs.h#L885
                         let parent_uuid = m[3].trim();
                         // BTRFS_UUID_SIZE is 16
                         parent_uuid = parent_uuid.length < 16 ? null : parent_uuid;
-                        subvols.push({ pathname: m[6], id: Number(m[1]), parent: Number(m[2]), uuid: m[4], parent_uuid });
+                        subvols.push({ pathname, id: Number(m[1]), parent: Number(m[2]), uuid: m[4], parent_uuid });
                     }
                 }
                 uuids_subvols[uuid] = subvols;

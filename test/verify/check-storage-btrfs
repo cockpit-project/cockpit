@@ -99,6 +99,21 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.go("#/")
         b.wait_visible(self.card("Storage"))
 
+        # podman subvolumes are hidden, Cockpit hides everything matching "containers/storage/btrfs/subvolumes"
+        m.execute(f"""
+        mkdir -p /run/kitchen/containers/storage/btrfs/subvolumes
+        btrfs subvolume create /run/kitchen/containers/storage/btrfs/subvolumes/containername
+
+        mkdir -p /run/kitchen/.local/share/containers/storage/btrfs/subvolumes
+        btrfs subvolume create /run/kitchen/.local/share/containers/storage/btrfs/subvolumes/grafana
+
+        btrfs subvolume create {subvol_mount_point}/pancake
+        """)
+
+        b.wait_in_text(self.card_row("Storage", name="pancake"), "btrfs subvolume")
+        b.wait_not_in_text("div[data-test-card-title='Storage']", "containername")
+        b.wait_not_in_text("div[data-test-card-title='Storage']", "grafana")
+
         # mount outside of fstab, should be cleaned up when re-formatting
         m.execute(f"""
             btrfs subvolume create {mount_point}/nonfstab

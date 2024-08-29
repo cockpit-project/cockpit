@@ -1134,13 +1134,6 @@ class OsUpdates extends React.Component {
                 }
 
                 u.vendor_urls = vendor_urls;
-                // HACK: bug_urls and cve_urls also contain titles, in a not-quite-predictable order; ignore them,
-                // only pick out http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)
-                if (bug_urls)
-                    bug_urls = bug_urls.filter(url => url.match(/^https?:\/\//));
-                if (cve_urls)
-                    cve_urls = cve_urls.filter(url => url.match(/^https?:\/\//));
-
                 u.description = this.removeHeading(update_text) || changelog;
                 if (update_text)
                     u.markdown = true;

@@ -770,15 +770,15 @@ import "./login.scss";
     function do_hostkey_verification(data) {
         const key_db = get_known_hosts_db();
         const key = data["host-key"];
-        const key_key = key.split(" ")[0];
+        const key_host = key.split(" ")[0];
         const key_type = key.split(" ")[1];
 
-        if (key_db[key_key] == key) {
+        if (key_db[key_host] == key) {
             converse(data.id, data.default);
             return;
         }
 
-        if (key_db[key_key]) {
+        if (key_db[key_host]) {
             id("hostkey-title").textContent = format(_("$0 key changed"), id("server-field").value);
             show("#hostkey-warning-group");
             id("hostkey-message-1").textContent = "";
@@ -806,7 +806,7 @@ import "./login.scss";
         function call_converse() {
             id("login-button").removeEventListener("click", call_converse);
             login_failure(null, "hostkey");
-            key_db[key_key] = key;
+            key_db[key_host] = key;
             set_known_hosts_db(key_db);
             converse(data.id, data.default);
         }
@@ -816,7 +816,7 @@ import "./login.scss";
         show_form("hostkey");
         show("#get-out-link");
 
-        if (key_db[key_key]) {
+        if (key_db[key_host]) {
             id("login-button").classList.add("pf-m-danger");
             id("login-button").classList.remove("pf-m-primary");
         }

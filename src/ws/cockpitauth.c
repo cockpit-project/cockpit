@@ -125,6 +125,9 @@ typedef struct {
   /* An authorize challenge from session */
   JsonObject *authorize;
 
+  /* The failing "init" message from the session */
+  JsonObject *init_failure;
+
   /* The conversation in progress */
   gchar *conversation;
 } CockpitSession;
@@ -155,6 +158,8 @@ cockpit_session_reset (gpointer data)
   cookie = session->cookie;
   session->cookie = NULL;
   self = session->auth;
+
+  g_clear_pointer (&session->init_failure, json_object_unref);
 
   /* No accessing session after this point */
 
@@ -750,6 +755,8 @@ on_transport_control (CockpitTransport *transport,
           if (!cockpit_json_get_string (options, "message", NULL, &message))
             message = NULL;
           propagate_problem_to_error (session, options, problem, message, &error);
+          g_clear_pointer (&session->init_failure, json_object_unref);
+          session->init_failure = json_object_ref (options);
           if (session->login_task == NULL)
             {
               g_message ("ignoring failure from session process: %s", error->message);
@@ -1535,13 +1542,17 @@ cockpit_auth_login_finish (CockpitAuth *self,
 
   g_return_val_if_fail (g_task_is_valid (result, self), NULL);
 
-  if (!g_task_propagate_boolean (G_TASK (result), error))
-    goto out;
-
   CockpitSession *session = g_task_get_task_data (G_TASK (result));
+
+  if (!g_task_propagate_boolean (G_TASK (result), error))
+    {
+      if (session != NULL)
+        body = g_steal_pointer (&session->init_failure);
+      goto out;
+    }
+
   g_return_val_if_fail (session != NULL, NULL);
   g_return_val_if_fail (session->login_task == NULL, NULL);
-
   cockpit_session_reset (session);
 
   if (session->authorize)

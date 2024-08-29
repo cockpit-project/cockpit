@@ -432,7 +432,7 @@ class CommonTests:
         self.allow_journal_messages("cockpit-session: user account access failed: 4 alice: System error")
 
         # cert auth should not be enabled by default
-        do_test(alice_cert_key, ["HTTP/1.1 401 Authentication required", '"authorize"'])
+        do_test(alice_cert_key, ["HTTP/1.1 401 Authentication failed", '"authorize"'])
         # password auth should work (but might need to be retried)
         do_test(alice_user_pass, ['HTTP/1.1 200 OK', '"csrf-token"'], session_leader='cockpit-session', retry=True)
 
@@ -458,14 +458,14 @@ class CommonTests:
         self.allow_journal_messages("cockpit-session: No matching user for certificate")
         m.upload(["bob.pem", "bob.key"], "/var/tmp", relative_dir="src/tls/ca/")
         do_test(['--cert', "/var/tmp/bob.pem", '--key', "/var/tmp/bob.key"],
-                ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
+                ["HTTP/1.1 401 Authentication failed"],
                 not_expected=["crsf-token"])
         self.allow_journal_messages("cockpit-session: Failed to map certificate to user: .* Invalid certificate provided")
 
         # disallow password auth
         m.write("/etc/cockpit/cockpit.conf", "[Basic]\naction = none\n", append=True)
         do_test(alice_cert_key, ['HTTP/1.1 200 OK', '"csrf-token"'])
-        do_test(alice_user_pass, ['HTTP/1.1 401 Authentication disabled', '<h1>Authentication disabled</h1>'],
+        do_test(alice_user_pass, ['HTTP/1.1 401 Authentication disabled'],
                 not_expected=["crsf-token"])
 
         # valid user certificate which fails CA validation

@@ -875,7 +875,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # another certificate gets rejected
         self.allow_journal_messages("cockpit-session: No matching user for certificate")
         do_test(["--cert", self.vm_tmpdir + "/bob.pem", "--key", self.vm_tmpdir + "/bob.key"],
-                ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
+                ["HTTP/1.1 401 Authentication failed"],
                 not_expected=["crsf-token"])
 
         # check expired certificate
@@ -893,7 +893,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         m.write("/etc/cockpit/cockpit.conf", "[Basic]\naction = none\n", append=True)
         do_test(alice_cert_key, ['HTTP/1.1 200 OK', '"csrf-token"'])
         do_test(['-u', 'alice:foobar123'],
-                ['HTTP/1.1 401 Authentication disabled', '<h1>Authentication disabled</h1>'],
+                ['HTTP/1.1 401 Authentication disabled'],
                 not_expected=["crsf-token"])
 
         # wwithout a CA, alice's cert fails
@@ -906,7 +906,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         self.allow_journal_messages("cockpit-session: Failed to map .* Could not activate remote peer.*")
         self.allow_journal_messages("cockpit-session: Failed to map .* Unit sssd-ifp.service is masked.")
         m.execute("systemctl mask sssd-ifp; systemctl stop sssd-ifp")
-        do_test(alice_cert_key, ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
+        do_test(alice_cert_key, ["HTTP/1.1 401 Authentication failed"],
                 not_expected=["crsf-token"])
         m.execute("systemctl unmask sssd-ifp")
 

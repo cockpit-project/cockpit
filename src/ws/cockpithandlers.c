@@ -526,48 +526,37 @@ on_login_complete (GObject *object,
                    GAsyncResult *result,
                    gpointer user_data)
 {
-  CockpitWebResponse *response = user_data;
-  GError *error = NULL;
-  JsonObject *response_data = NULL;
-  GHashTable *headers;
-  GIOStream *io_stream;
-  GBytes *content;
-
-  io_stream = cockpit_web_response_get_stream (response);
-
-  headers = cockpit_web_server_new_table ();
-  response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result,
-                                             io_stream, headers, &error);
+  // consumes the reference on user_data
+  g_autoptr(CockpitWebResponse) response = g_steal_pointer (&user_data);
 
   /* Never cache a login response */
+  g_autoptr(GHashTable) headers = cockpit_web_server_new_table ();
   cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
+
+  g_autoptr(GError) error = NULL;
+  g_autoptr(JsonObject) response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result,
+                                                                   cockpit_web_response_get_stream (response),
+                                                                   headers, &error);
+
   if (error)
     {
       if (response_data)
         {
           g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup ("application/json"));
-          content = cockpit_json_write_bytes (response_data);
+          g_autoptr(GBytes) content = cockpit_json_write_bytes (response_data);
           cockpit_web_response_headers_full (response, 401, "Authentication required", -1, headers);
           cockpit_web_response_queue (response, content);
           cockpit_web_response_complete (response);
-          g_bytes_unref (content);
         }
       else
         {
           cockpit_web_response_gerror (response, headers, error);
         }
-      g_error_free (error);
     }
   else
     {
       send_login_response (response, response_data, headers);
     }
-
-  if (response_data)
-    json_object_unref (response_data);
-
-  g_hash_table_unref (headers);
-  g_object_unref (response);
 }
 
 static void

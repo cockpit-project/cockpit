@@ -1,5 +1,10 @@
 import "./login.scss";
 
+function debug(...args) {
+    if (window.debugging === 'all' || window.debugging?.includes('login'))
+        console.debug('login:', ...args);
+}
+
 (function(console) {
     let localStorage;
 
@@ -776,15 +781,20 @@ import "./login.scss";
         const key_type = key.split(" ")[1];
 
         if (key_db[key_host] == key) {
+            debug("do_hostkey_verification: received key matches known_hosts database, auto-accepting fingerprint", data.default);
             converse(data.id, data.default);
             return;
         }
 
         if (key_db[key_host]) {
+            debug("do_hostkey_verification: received key fingerprint", data.default, "for host", key_host,
+                  "does not match key in known_hosts database:", key_db[key_host], "; treating as changed");
             id("hostkey-title").textContent = format(_("$0 key changed"), login_machine);
             show("#hostkey-warning-group");
             id("hostkey-message-1").textContent = "";
         } else {
+            debug("do_hostkey_verification: received key fingerprint", data.default, "for host", key_host,
+                  "not in known_hosts database; treating as new host");
             id("hostkey-title").textContent = _("New host");
             hide("#hostkey-warning-group");
             id("hostkey-message-1").textContent = format(_("You are connecting to $0 for the first time."), login_machine);
@@ -907,6 +917,7 @@ import "./login.scss";
     }
 
     function send_login_request(method, headers, is_conversation) {
+        debug("send_login_request():", method, "headers:", JSON.stringify(headers));
         id("login-button").setAttribute('disabled', "true");
         id("login-button").setAttribute('spinning', "true");
         const xhr = new XMLHttpRequest();
@@ -923,6 +934,7 @@ import "./login.scss";
                 const resp = JSON.parse(xhr.responseText);
                 run(resp);
             } else if (xhr.status == 401) {
+                debug("send_login_request():", method, "got 401, status:", xhr.statusText, "; response:", xhr.responseText);
                 const challenge = xhr.getResponseHeader("WWW-Authenticate");
                 if (challenge && challenge.toLowerCase().indexOf("x-conversation") === 0) {
                     const prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);

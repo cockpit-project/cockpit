@@ -944,8 +944,8 @@ OnCalendar=daily
             self.assertEqual(m.execute('ls -A /mnt/upload'), '')
 
         # Upload permission error
-        b.set_file_autocomplete_val("#demo-upload", "/root/")
         b.drop_superuser()
+        b.set_file_autocomplete_val("#demo-upload", "/root/")
         b.upload_files("#demo-upload input[type='file']", [test_upload_file])
         b.wait_in_text(".pf-v5-c-alert", "Not permitted to perform this action")
 

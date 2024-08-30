@@ -95,6 +95,11 @@ void                  cockpit_web_response_content       (CockpitWebResponse *se
                                                           GBytes *block,
                                                           ...) G_GNUC_NULL_TERMINATED;
 
+void                  cockpit_web_response_error_with_body (CockpitWebResponse *self,
+                                                            guint code,
+                                                            const gchar *reason,
+                                                            GHashTable *headers,
+                                                            GBytes *body);
 void                  cockpit_web_response_error         (CockpitWebResponse *self,
                                                           guint status,
                                                           GHashTable *headers,

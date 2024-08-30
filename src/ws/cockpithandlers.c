@@ -540,18 +540,15 @@ on_login_complete (GObject *object,
 
   if (error)
     {
+      g_autoptr(GBytes) body = NULL;
+
       if (response_data)
         {
           g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup ("application/json"));
-          g_autoptr(GBytes) content = cockpit_json_write_bytes (response_data);
-          cockpit_web_response_headers_full (response, 401, "Authentication required", -1, headers);
-          cockpit_web_response_queue (response, content);
-          cockpit_web_response_complete (response);
+          body = cockpit_json_write_bytes (response_data);
         }
-      else
-        {
-          cockpit_web_response_gerror (response, headers, NULL, error);
-        }
+
+      cockpit_web_response_gerror (response, headers, body, error);
     }
   else
     {

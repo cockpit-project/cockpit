@@ -165,6 +165,7 @@ include src/branding/centos/Makefile.am
 include src/branding/debian/Makefile.am
 include src/branding/default/Makefile.am
 include src/branding/fedora/Makefile.am
+include src/branding/netfield/Makefile.am
 include src/branding/opensuse/Makefile.am
 include src/branding/rhel/Makefile.am
 include src/branding/scientific/Makefile.am

@@ -1,0 +1,771 @@
+@import url('colors.css');
+
+:root {
+  /* Use the color palette variables */
+  --hil-main: var(--primary-main);
+  --hil-variant1: var(--primary-variant1);
+  --hil-variant2: var(--primary-variant2);
+  --hil-button-hover: var(--primary-button-hover);
+  --hil-text-disabled: var(--primary-text-disabled);
+  --hil-accent1: var(--secondary-accent);
+  --hil-variant3: var(--secondary-accent2);
+  --hil-variant5: var(--secondary-variant5);
+  --secondary-variant6: var(--secondary-variant6);
+  --button-hover: var(--primary-variant1);
+  
+  --primary-variant2-blur: #ffffff80;
+
+  --box-shadow: 0px 9px 28px 8px rgb(0 0 0 / 0.05), 0px 3px 6px -4px rgb(0 0 0 / 0.12), 0px 6px 16px 0px rgb(0 0 0 / 0.08);
+
+  /* override global patternfly variables */
+  --pf-v5-c-nav__link--Color: var(--hil-main);
+  --pf-v5-global--BackgroundColor--dark-400: var(--hil-variant2);
+  --pf-v5-c-nav__link--m-current--Color: var(--hil-main);
+  --pf-v5-c-nav__link--Color: var(--hil-main);
+  --pf-v5-global--palette--black-100: var(--hil-main);
+  --pf-v5-global--BackgroundColor--dark-100: var(--hil-variant2);
+  --pf-v5-c-dropdown__toggle-button--Color: var(--hil-accent1);
+  --pf-v5-c-dropdown__toggle--m-secondary--m-split-button--Color: var(--hil-accent1);
+  --pf-v5-global--palette--blue-400: var(--hil-accent1);
+  --pf-v5-global--primary-color--light-100: var(--hil-accent1);
+  --pf-v5-c-dropdown__toggle-button--Color: var(--pf-v5-c-dropdown__toggle--m-secondary--m-split-button--Color);
+  --pf-v5-global--active-color--100: var(--hil-accent1);
+  --pf-v5-global--primary-color--300: var(--secondary-accent);
+  --pf-v5-global--palette--gold-300: var(--alert-warning);
+
+  /* modal */
+  --pf-v5-global--primary-color--100: var(--secondary-button-hover);
+  --pf-v5-global--primary-color--dark-100: var(--secondary-accent);
+  --pf-v6-chart-theme--blue--ColorScale--100: var(--secondary-accent);
+  --pf-v5-global--link--Color: var(--secondary-accent);
+  --pf-v5-global--primary-color--200: var(--secondary-accent);
+  --pf-v5-global--link--Color--hover: var(--secondary-button-hover);
+
+}
+
+@font-face {
+  font-family: defaultFont;
+  src: url(ABCDiatype-Regular.woff);
+}
+
+body.login-pf {
+  position: relative; /* Ensure the body is positioned relative */
+  overflow: hidden; /* Prevent overflow issues */
+}
+
+body.login-pf::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("GRADIENT_UI_1_RGB_GRADIENT_UI_02_RGB.png") bottom right no-repeat;
+  background-size: cover;
+  transform: scaleX(-1) translateX(100uv 2rem); /* Mirror the background image horizontally */
+  z-index: -1; /* Ensure the pseudo-element is behind other content */
+}
+
+body {
+  background-color: var(--body-color);
+  font-family: defaultFont, "Open Sans", Helvetica, Arial, sans-serif !important;
+}
+
+/* login page */
+.pf-v5-c-alert.pf-m-inline.pf-m-danger {
+  color: var(--primary-main) !important;
+  width: 384px;
+  max-width: 20rem;
+  overflow: hidden;
+  line-height: 1.5714285714285714;
+  word-wrap: break-word;
+  border: 4px transparent !important;
+  background-color: var(--secondary-variant5) !important;
+}
+
+.pf-v5-c-alert.pf-m-inline.pf-m-danger > svg {
+  color: var(--alert-error) !important;
+}
+
+.pf-v5-c-alert.pf-m-danger > svg,
+.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title {
+  color: var(--primary-main) !important;
+}
+
+/* position login container */
+.container {
+  left: 49rem;
+  top: -1rem;
+  inline-size: auto !important;
+  background-color: var(--primary-variant2-blur) !important;
+  -webkit-clip-path: polygon(79px 7px, 518px 3px, 560px 42px, 723px 45px, 764px 87px, 764px 333px, 646px 447px, 332px 450px, 282px 499px, 90px 500px, 3px 414px, -2px 82px);
+  min-width: 50rem;
+  height: 32rem;
+  background-position: -154rem -2rem !important;
+  background-repeat: no-repeat !important;
+}
+
+.container::before{
+  background: var(--primary-variant2-blur) !important;
+  -webkit-clip-path: polygon(79px 7px, 518px 3px, 560px 42px, 723px 45px, 764px 87px, 764px 333px, 646px 447px, 332px 450px, 282px 499px, 90px 500px, 3px 414px, -2px 82px);
+}
+
+.container div {
+  max-width: 16rem;
+}
+
+.login-area {
+  margin-left: 4rem;
+}
+
+#login-button {
+  box-sizing: border-box;
+  outline: none;
+  position: relative;
+  display: inline-block;
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  user-select: none;
+  touch-action: manipulation;
+  height: 32px;
+  padding: 4px 15px;
+  border-radius: 4px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-btn-medium);
+  line-height: var(--font-size-btn-medium);
+  background: var(--primary-variant1);
+  box-shadow: 0 2px 0 rgba(255, 38, 5, 0.06);
+  color: var(--primary-variant2);
+  /* invisible 'Login' text to replac content */
+  text-indent: -9999px;
+  line-height: 8px !important;
+}
+
+/* replace login button text */
+#login-button-text::after {
+  content: "Sign In";
+  text-indent: 0;
+  display: block;
+}
+
+/* login details position */
+#login-details {
+  left: 86rem;
+  top: 12rem;
+  background-color: var(--primary-variant2-blur) !important;
+  border: 10px solid transparent !important;
+  box-shadow: var(--box-shadow) !important;
+  border-radius: 8px;
+}
+#login-details .control-label span {
+  color: var(--primary-variant1);
+}
+#login-details p:first-of-type {
+  border-bottom: 1px solid var(--secondary-variant6);
+}
+
+.pf-v5-c-button.pf-m-control,
+.form-control[type="password"],
+.form-control[type="text"] {
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+}
+
+.pf-v5-c-button.pf-m-control:hover,
+.form-control[type="password"]:hover,
+.form-control[type="text"]:hover,
+.form-control[type="password"]:focus,
+.form-control[type="text"]:focus {
+  border-block-end-color: var(--primary-variant1) !important;
+  border-radius: 0px !important;
+  outline: 0 !important;
+}
+
+.pf-v5-c-clipboard-copy__group .pf-v5-c-button.pf-m-control {
+  background-color: transparent !important;
+  --pf-v5-c-button--after--BorderColor: transparent !important;
+}
+
+.pf-v5-c-clipboard-copy__expandable-content {
+  margin-top: 6px;
+  border: 1px solid var(--secondary-variant1) !important;
+  border-radius: 6px !important;
+}
+
+.pf-v5-c-clipboard-copy__group .pf-v5-c-button.pf-m-control:hover {
+  border-color: transparent !important;
+}
+
+.pf-v5-c-form__group-label-help > svg {
+  color: var(--secondary-accent) !important;
+}
+
+/* cockpit */
+#toggle-menu {
+    color: var(--hil-main) !important;
+}
+
+.pf-v5-c-masthead__content::before {
+  content: url("logo-header.png");
+  display: block;
+}
+
+#topnav {
+    text-align: center;
+    border-bottom: 1rem solid transparent;
+    border-image: linear-gradient(90deg, #fff 0.76%, #57ebe5 31.77%, #89A9AF 42.11%, #f90e35 65.37%, #83c5c7 100%);
+    border-image-slice: 1;
+    width: 100%;
+}
+
+.pf-v5-c-dropdown__toggle.pf-m-secondary.pf-m-split-button:not(.pf-m-disabled) {
+  color: var(--hil-accent1);
+}
+
+#reboot-button {
+  color: var(--hil-accent1);
+
+}
+
+#super-user-indicator span {
+    color: var(--hil-accent1) !important;
+    background-color: var(--hil-variant2) !important;
+}
+
+#toggle-docs > span {
+    color: var(--hil-main);
+}
+
+.pf-v5-c-form-control::after,
+.pf-v5-c-form-control::before,
+.pf-v5-c-form-control > :is(input, select, textarea),
+.pf-v5-c-text-input-group__text-input,
+.pf-v5-c-menu__search-input {
+  border-radius: 6px;
+  border-color: var(--secondary-variant2);
+  outline: 0;
+}
+
+.pf-v5-c-text-input-group__icon svg {
+  z-index: 10000;
+  color: var(--secondary-variant1) !important;
+}
+
+.pf-v5-c-form-control:focus:after,
+.pf-v5-c-form-control:hover:after,
+.pf-v5-c-form-control:focus:before,
+.pf-v5-c-form-control > :is(input:focus, select:focus, textarea:focus),
+.pf-v5-c-form-control > :is(input:focus-within, select:focus-within, textarea:focus-within),
+.pf-v5-c-form-control:hover:before,
+.pf-v5-c-form-control > :is(input:hover, select:hover, textarea:hover),
+.pf-v5-c-menu__search-input:focus,
+.pf-v5-c-menu__search-input:focus-within,
+.pf-v5-c-text-input-group__text-input:focus-within,
+.pf-v5-c-text-input-group__text-input:hover,
+.pf-v5-c-menu__search-input:hover {
+  border-radius: 6px;
+  box-shadow: 0 0 2px rgba(12, 112, 98, 0.14) !important;
+  border-color: #49a5aa !important;
+  box-shadow: 0 0 0 2px rgba(12, 112, 98, 0.14) !important;
+  outline: 0;
+}
+
+mark {
+  color: var(--hil-variant1) !important;
+}
+
+/* sidebar */
+.pf-v5-c-text-input-group__text {
+  background-color: var(--primary-variant2);
+}
+.pf-v5-c-text-input-group__text-input {
+  border-color: var(--secondary-variant1) !important;
+}
+.pf-v5-c-text-input-group__text-input::placeholder {
+  color: var(--secondary-variant1) !important;
+}
+
+#host-apps {
+  background-color: var(--hil-variant2) !important;
+}
+
+#host-apps h2 {
+  /* bold */
+  font-weight: 600 !important;
+  color: var(--hil-variant1) !important;
+}
+
+#host-apps span {
+    color: var(--primary-main) !important;
+}
+
+#host-apps span:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--button-hover);
+}
+
+#host-apps .no-results {
+  text-decoration: auto !important;
+  text-decoration-color: var(--button-hover) !important;
+}
+#host-apps .area-ct-subnav .non-menu-item .nav-item-hint {
+  text-decoration-color: var(--button-hover) !important;
+}
+
+/* menu text background */
+#host-apps a:hover {
+  background-color: var(--hil-variant2) !important;
+}
+
+#host-apps .nav-item-status svg path {
+  color: var(--secondary-accent1) !important;
+}
+
+#host-apps .nav-item-status svg path:hover {
+  color: var(--secondary-button-hover) !important;
+}
+
+#nav-system-item, button.ct-nav-toggle {
+  color: var(--primary-main) !important;
+}
+
+#nav-system-item > svg {
+  color: var(--primary-variant1) !important;
+}
+
+.nav-item-status > svg > path {
+  color: var(--hil-accent1) !important;
+}
+
+.pf-v5-c-nav__link.pf-m-current::after {
+  border-color: var(--secondary-accent1) !important; 
+}
+
+.pf-v5-c-tooltip__content {
+  color: var(--hil-main) !important;
+}
+
+.pf-v5-l-gallery.pf-m-gutter.ct-system-overview a {
+  color: var(--hil-accent1) !important;
+}
+
+.pf-v5-l-gallery.pf-m-gutter.ct-system-overview button {
+  color: var(--hil-variant1) !important;
+}
+
+.pf-v5-c-about-modal-box__brand-image {
+  filter: invert(100%);
+}
+
+.pf-v5-c-about-modal-box__brand,
+.pf-v5-c-about-modal-box__close,
+.pf-v5-c-about-modal-box__header,
+.pf-v5-c-about-modal-box__content {
+  color: black;
+  background-color: white;
+}
+
+.pf-v5-c-about-modal-box__header *,
+.pf-v5-c-about-modal-box__content * {
+  color: black;
+  background-color: white;
+}
+
+.pf-v5-c-about-modal-box {
+  --pf-v5-c-about-modal-box--BackgroundImage: linear-gradient(#ffffff, #ffffff), url(../shell/images/cockpit-icon.svg);
+  color: black;
+  background-color: white;
+}
+
+.pf-v5-c-modal-box svg {
+  color: black;
+  background-color: white;
+}
+
+button.ct-nav-toggle {
+  color: var(--primary-main)
+}
+
+/* Ensure links inside the div are not affected */
+.pf-v5-c-modal-box a {
+  color: var(--secondary-accent1) !important;
+}
+.pf-v5-c-modal-box a:hover {
+  color: var(--secondary-button-hover) !important;
+}
+
+.pf-v5-c-button.btn-cancel {
+  color: var(--primary-variant2) !important;
+  background-color: var(--secondary-accent1) !important;
+}
+
+.pf-v5-c-button {
+  border-radius: 4px !important;
+  font-family: var(--font-family) !important;
+  box-shadow: none !important;
+}
+
+.pf-v5-c-button.pf-m-control.login-password-toggle {
+  color: var(--secondary-variant1) !important;
+}
+
+.pf-v5-c-modal-box {
+  position: relative !important;
+  top: 100px !important;
+  width: auto !important;
+  max-width: calc(64vw - 32px) !important;
+  border-radius: 8px !important;
+}
+
+.pf-v5-c-modal-box svg:hover {
+  color: var(--secondary-button-hover) !important;
+}
+
+.pf-v5-c-modal-box__body .pf-v5-c-button.pf-m-primary {
+  color: var(--secondary-accent) !important;
+}
+.pf-v5-c-modal-box__body .pf-v5-c-button.pf-m-primary:hover {
+  color: var(--secondary-button-hover) !important;
+}
+
+.pf-v5-c-modal-box__close .pf-v5-c-button,
+.pf-v5-c-modal-box__close .pf-v5-c-button:hover,
+.pf-v5-c-about-modal-box__close .pf-v5-c-button,
+.pf-v5-c-about-modal-box__close .pf-v5-c-button:hover {
+  color: white;
+  background-color: white !important;
+}
+
+.pf-v5-c-menu__content .pf-v5-svg {
+  color: var(--secondarty-accent1) !important;
+}
+
+.pf-v5-c-menu__search * {
+  color: var(--secondary-variant1) !important;
+}
+
+.pf-v5-c-toolbar__content button.pf-v5-c-button.pf-m-link {
+  background-color: var(--primary-variant2) !important;
+}
+.pf-v5-c-toolbar__content button.pf-v5-c-button.pf-m-link:hover {
+  background-color: var(--primary-variant2) !important;
+}
+
+button.pf-v5-c-button.pf-m-link {
+  color: var(--primary-variant2) !important;
+  background-color: var(--secondary-accent1) !important;
+}
+button.pf-v5-c-button.pf-m-link:hover {
+  background-color: var(--secondary-button-hover) !important;
+}
+
+.pf-v5-c-modal-box__body .pf-v5-c-button.pf-m-secondary {
+  border-color: var(--secondary-accent) !important;
+  border-radius: 4px !important;
+  color: var(--primary-variant2) !important;
+  background-color: var(--secondary-accent) !important;
+}
+
+.pf-v5-c-modal-box__body .pf-v5-c-button.pf-m-secondary:hover {
+  border-color: var(--secondary-button-hover) !important;
+  border-radius: 4px !important;
+  color: var(--primary-variant2) !important;
+  background-color: var(--secondary-button-hover) !important;
+}
+
+.pf-v5-c-modal-box__footer .pf-v5-c-button.pf-m-primary {
+  border-radius: 4px !important;
+  color: var(--primary-variant2) !important;
+  background-color: var(--secondary-accent) !important;
+}
+.pf-v5-c-modal-box__footer .pf-v5-c-button.pf-m-primary:hover {
+  border-radius: 4px !important;
+  color: var(--primary-variant2) !important;
+  background-color: var(--secondary-button-hover) !important;
+}
+
+.pf-v5-c-modal-box__footer .pf-v5-c-button.pf-m-secondary {
+  border-radius: 4px !important;
+  color: var(--primary-variant2) !important;
+  background-color: var(--secondary-accent) !important;
+}
+
+.pf-v5-c-alert__icon > svg,
+.pf-v5-c-alert__icon:hover,
+.pf-v5-c-alert:hover,
+.pf-m-inline:hover,
+.pf-m-danger:hover,
+.pf-v5-c-alert__icon > path:hover {
+  color: var(--alert-error) !important;
+}
+
+.pf-v5-c-modal-box__footer .pf-v5-c-button.pf-m-secondary:hover {
+  border-radius: 4px !important;
+  color: var(--primary-variant2) !important;
+  background-color: var(--secondary-button-hover) !important;
+}
+
+.pf-v5-c-table__tbody .pf-v5-c-button svg {
+  color: var(--secondary-accent) !important;
+  background-color: transparent;
+}
+
+.pf-v5-c-table__tbody button {
+  background-color: transparent !important;
+}
+
+.pf-v5-c-table__toggle-icon {
+  background-color: transparent !important;
+  color: var(--secondary-accent1) !important;
+}
+
+.pf-v5-c-tabs__item-text {
+  color: var(--secondary-variant1);
+}
+
+.pf-v5-c-tabs__item-text:focus-within:after {
+  color: var(--secondary-accent);
+}
+
+.pf-v5-c-table__toggle-icon:hover,
+.pf-v5-c-table__toggle-icon:hover {
+  background-color: transparent !important;
+  color: var(--secondary-button-hover) !important;
+}
+
+/* brand logo HIDDEN */
+#badge {
+    width: 220px;
+    height: 80px;
+    background-image: url("logo-netfield.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#brand {
+  margin-left: 4rem;
+  margin-right: 10rem;
+  text-transform: uppercase;
+}
+#brand:after {
+  content: "${NAME} ${VERSION_ID}";
+}
+#index-brand {
+  content: "${NAME}";
+}
+
+#index-brand:before {
+  content: "${NAME}";
+}
+
+/* hilscher old plugins */
+#app a.active {
+  color: var(--hil-variant1) !important;
+}
+
+#app a {
+  background-color: var(--hil-variant1) !important;
+}
+
+.paneRoot > :global(div) > :global(div.tabular.menu) > :global(a.item.active) {
+  border-radius: 0 !important;
+  background-color: var(--hil-variant1) !important;
+  color: var(--hil-variant1) !important;
+  font-weight: 400 !important;
+}
+
+/* disable darkmode by overriding the color scheme */
+@media (prefers-color-scheme: dark) {
+  .pf-v5-theme-dark #header .area-ct-subnav {
+     background: var(--primary-variant2) !important;
+  }
+  .pf-v5-theme-dark .pf-v5-c-nav__link .pf-m-current {
+    background: var(--primary-variant2) !important;
+  }
+  .pf-v5-theme-dark .pf-v5-c-masthead {
+    background: var(--primary-variant2) !important;
+  }
+
+  .pf-v5-theme-dark .login-pf::after {
+    opacity: 0 !important;
+    background: url("GRADIENT_UI_1_RGB_GRADIENT_UI_02_RGB.png");
+    /* Full Height Image settings */
+    height: 100%;
+    /* Center and scale the image nicely */
+    background-position: bottom left !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-alert__title {
+    color: var(--primary-main) !important;
+  }
+
+  .pf-v5-theme-dark .login-pf .container {
+    background-color: var(--primary-variant2-blur) !important;
+    color: var(--primary-main) !important;
+  }
+
+  .pf-v5-theme-dark .login-pf .details {
+    color: var(--primary-main) !important;
+  }
+
+  .pf-v5-theme-dark .login-pf .login-password-toggle {
+    border-color: var(--primary-variant2) !important;
+    color: var(--secondary-variant1) !important;
+    background-color: var(--primary-variant2) !important;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-alert.pf-m-inline.pf-m-danger {
+    color: var(--primary-main) !important;
+    width: 384px;
+    /* max-width: calc(100vw - 48px); */
+    max-width: 20rem;
+    overflow: hidden;
+    line-height: 1.5714285714285714;
+    word-wrap: break-word;
+    border: 4px transparent !important;
+    background-color: #464f5540 !important;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-alert.pf-m-inline.pf-m-danger > svg {
+    color: var(--alert-error) !important;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-alert.pf-m-danger > svg,
+  .pf-v5-theme-dark.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title {
+    color: var(--primary-main) !important;
+  }
+
+  .pf-v5-theme-dark .form-control {
+    color: var(--primary-main) !important;
+    border-color: var(--primary-variant2) !important;
+    background-color: var(--primary-variant2) !important;
+  }
+
+  .pf-v5-theme-dark {
+    --hil-main: var(--primary-main);
+    --hil-variant1: var(--primary-variant1);
+    --hil-variant2: var(--primary-variant2);
+    --hil-button-hover: var(--primary-button-hover);
+    --hil-text-disabled: var(--primary-text-disabled);
+    --hil-accent1: var(--secondary-accent1);
+    --hil-variant3: var(--secondary-accent2);
+    --hil-variant5: var(--secondary-variant5);
+    --secondary-variant6: var(--secondary-variant6);
+    --button-hover: var(--primary-variant1);
+    /* --blur-hil-variant2: var(--secondary-main); */
+  }
+
+  /* sidebar */
+  .pf-v5-theme-dark #host-apps {
+    background-color: var(--hil-variant2) !important;
+  }
+  .pf-v5-theme-dark .pf-v5-c-nav__link.pf-m-current {
+    background-color: var(--hil-variant2) !important;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-tooltip__content {
+    color: var(--hil-main) !important;
+    background-color: var(--primary-variant2) !important;
+  }
+  .pf-v5-theme-dark .pf-v5-c-tooltip__arrow {
+    background-color: var(--primary-variant2) !important;
+  }
+
+  /* sidebar search field */
+  .pf-v5-theme-dark .pf-v5-c-text-input-group__main {
+    background-color: var(--primary-variant2);
+  }
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__brand,
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__close,
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__header,
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__content {
+    color: white;
+    background-color: var(--pf-v5-c-page__main-section--BackgroundColor);
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__brand * {
+    filter: invert(1%);
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__header *,
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__content * {
+    color: white;
+    background-color: var(--pf-v5-c-page__main-section--BackgroundColor);
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-modal-box svg {
+    color: white;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box {
+    --pf-v5-c-about-modal-box--BackgroundImage: linear-gradient(var(--pf-v5-c-page__main-section--BackgroundColor), var(--pf-v5-c-page__main-section--BackgroundColor)), url(../shell/images/cockpit-icon.svg);
+    color: white;
+    background-color: var(--pf-v5-c-page__main-section--BackgroundColor);
+  }
+
+  /* Ensure links inside the div are not affected */
+  .pf-v5-theme-dark .pf-v5-c-modal-box a {
+    color: var(--secondary-accent1) !important;
+  }
+  .pf-v5-theme-dark .pf-v5-c-modal-box a:hover {
+    color: var(--secondary-button-hover) !important;
+    border-color: var(--secondary-button-hover) !important;
+  }
+  
+  .pf-v5-theme-dark .pf-v5-c-button.btn-cancel {
+    color: var(--primary-variant2) !important;
+    background-color: var(--secondary-accent1) !important;
+  }
+  
+  .pf-v5-theme-dark .pf-v5-c-button {
+    border-radius: 4px !important;
+    font-family: var(--font-family) !important;
+    box-shadow: none !important;
+  }
+  
+  .pf-v5-theme-dark .pf-v5-c-button.pf-m-control.login-password-toggle {
+    color: var(--secondary-variant1) !important;
+  }
+  
+  .pf-v5-theme-dark .pf-v5-c-modal-box {
+    position: relative !important;
+    top: 100px !important;
+    width: auto !important;
+    max-width: calc(100vw - 32px) !important;
+    border-radius: 8px !important;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-modal-box__close {
+    background-color: transparent;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-modal-box svg {
+    background-color: transparent !important;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-modal-box svg:hover {
+    color: var(--secondary-button-hover) !important;
+  }
+  
+  .pf-v5-theme-dark .pf-v5-c-modal-box__close .pf-v5-c-button {
+    color: var(--primary-variant2) !important;
+    background-color: transparent !important;
+  }
+
+  .pf-v5-theme-dark .pf-v5-c-modal-box__close .pf-v5-c-button:hover,
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__close .pf-v5-c-button,
+  .pf-v5-theme-dark .pf-v5-c-about-modal-box__close .pf-v5-c-button:hover {
+    color: var(--secondary-accent) !important;
+    background-color: transparent !important;
+  }
+
+  .pf-v5-theme-dark .pf-m-dark.sidebar-toggle {
+    background-color: var(--primary-variant2) !important;
+  }
+}

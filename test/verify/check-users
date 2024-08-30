@@ -1089,8 +1089,7 @@ class TestAccounts(testlib.MachineCase):
         self.login_and_go("/users")
         b.logout()
 
-        self.login_and_go("/users")
-        b.go("#/admin")
+        self.login_and_go("/users#/admin")
         b.wait_visible("#account-logs")
         # Header + one line of logins
         b.wait_js_func("ph_count_check", "#account-logs tr", 2)

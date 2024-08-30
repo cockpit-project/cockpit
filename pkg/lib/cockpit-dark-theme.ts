@@ -34,14 +34,9 @@ function changeDarkThemeClass(documentElement: Element, dark_mode: boolean) {
 }
 
 function _setDarkMode(_style?: string) {
-    const style = _style || localStorage.getItem('shell:style') || 'auto';
-    let dark_mode;
-    // If a user set's an explicit theme, ignore system changes.
-    if ((window.matchMedia?.('(prefers-color-scheme: dark)').matches && style === "auto") || style === "dark") {
-        dark_mode = true;
-    } else {
-        dark_mode = false;
-    }
+    // Hilscher specific
+    // ignore browser settings to always use light theme in the cockpit shell
+    let dark_mode = false;
     changeDarkThemeClass(document.documentElement, dark_mode);
 }
 

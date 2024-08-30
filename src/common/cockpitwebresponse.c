@@ -1218,6 +1218,7 @@ cockpit_web_response_error_with_body (CockpitWebResponse *self,
 void
 cockpit_web_response_gerror (CockpitWebResponse *self,
                              GHashTable *headers,
+                             GBytes *body,
                              GError *error)
 {
   int code;
@@ -1239,7 +1240,7 @@ cockpit_web_response_gerror (CockpitWebResponse *self,
   else
     code = 500;
 
-  cockpit_web_response_error (self, code, headers, "%s", error->message);
+  cockpit_web_response_error_with_body (self, code, error->message, headers, body);
 }
 
 static gboolean

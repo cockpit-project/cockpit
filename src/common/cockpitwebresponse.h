@@ -108,6 +108,7 @@ void                  cockpit_web_response_error         (CockpitWebResponse *se
 
 void                  cockpit_web_response_gerror        (CockpitWebResponse *self,
                                                           GHashTable *headers,
+                                                          GBytes *body,
                                                           GError *error);
 
 gchar **              cockpit_web_response_resolve_roots (const gchar **roots);

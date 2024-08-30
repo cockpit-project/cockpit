@@ -550,7 +550,7 @@ on_login_complete (GObject *object,
         }
       else
         {
-          cockpit_web_response_gerror (response, headers, error);
+          cockpit_web_response_gerror (response, headers, NULL, error);
         }
     }
   else

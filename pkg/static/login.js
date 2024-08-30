@@ -552,8 +552,7 @@ import "./login.scss";
     }
 
     function host_failure(msg) {
-        const host = id("server-field").value;
-        if (!host) {
+        if (!login_machine) {
             login_failure(msg);
         } else {
             clear_errors();
@@ -590,17 +589,20 @@ import "./login.scss";
         return hosts;
     }
 
+    // value of #server-field at the time of clicking "Login"
+    let login_machine = null;
+
     function call_login() {
         login_failure(null);
+        login_machine = id("server-field").value;
         const user = trim(id("login-user-input").value);
         if (user === "" && !environment.is_cockpit_client) {
             login_failure(_("User name cannot be empty"));
-        } else if (need_host() && id("server-field").value === "") {
+        } else if (need_host() && login_machine === "") {
             login_failure(_("Please specify the host to connect to"));
         } else {
-            const machine = id("server-field").value;
-            if (machine) {
-                application = "cockpit+=" + machine;
+            if (login_machine) {
+                application = "cockpit+=" + login_machine;
                 login_path = org_login_path.replace("/" + org_application + "/", "/" + application + "/");
                 id("brand").style.display = "none";
                 id("badge").style.visibility = "hidden";
@@ -611,12 +613,12 @@ import "./login.scss";
                 brand("brand", "Cockpit");
             }
 
-            id("server-name").textContent = machine || environment.hostname;
+            id("server-name").textContent = login_machine || environment.hostname;
             id("login-button").removeEventListener("click", call_login);
 
             const password = id("login-password-input").value;
 
-            const superuser_key = "superuser:" + user + (machine ? ":" + machine : "");
+            const superuser_key = "superuser:" + user + (login_machine ? ":" + login_machine : "");
             const superuser = localStorage.getItem(superuser_key) || "none";
             localStorage.setItem("superuser-key", superuser_key);
             localStorage.setItem(superuser_key, superuser);
@@ -629,7 +631,7 @@ import "./login.scss";
                 "X-Superuser": superuser,
             };
             // allow unknown remote hosts with interactive logins with "Connect to:"
-            if (machine)
+            if (login_machine)
                 headers["X-SSH-Connect-Unknown-Hosts"] = "yes";
 
             send_login_request("GET", headers, false);
@@ -779,16 +781,16 @@ import "./login.scss";
         }
 
         if (key_db[key_host]) {
-            id("hostkey-title").textContent = format(_("$0 key changed"), id("server-field").value);
+            id("hostkey-title").textContent = format(_("$0 key changed"), login_machine);
             show("#hostkey-warning-group");
             id("hostkey-message-1").textContent = "";
         } else {
             id("hostkey-title").textContent = _("New host");
             hide("#hostkey-warning-group");
-            id("hostkey-message-1").textContent = format(_("You are connecting to $0 for the first time."), id("server-field").value);
+            id("hostkey-message-1").textContent = format(_("You are connecting to $0 for the first time."), login_machine);
         }
 
-        id("hostkey-verify-help-1").textContent = format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), id("server-field").value);
+        id("hostkey-verify-help-1").textContent = format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), login_machine);
         id("hostkey-verify-help-cmds").textContent = format("ssh-keyscan$0 localhost | ssh-keygen -lf -",
                                                             key_type ? " -t " + key_type : "");
 

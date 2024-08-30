@@ -1084,19 +1084,46 @@ cockpit_web_response_error (CockpitWebResponse *self,
                             const gchar *format,
                             ...)
 {
-  va_list var_args;
   g_autofree gchar *reason = NULL;
+  va_list ap;
+
+  if (format) {
+    va_start (ap, format);
+    reason = g_strdup_vprintf (format, ap);
+    va_end (ap);
+  }
+
+  cockpit_web_response_error_with_body (self, code, reason, headers, NULL);
+}
+
+
+/**
+ * cockpit_web_response_error_with_Body:
+ * @self: the response
+ * @status: the HTTP status code
+ * @reason: the HTTP status next (or NULL to choose one by @code)
+ * @headers: headers to include or NULL
+ *
+ * Send an error response with an optional body.  If no body is
+ * provided, sends basic HTML page containing the error.
+ */
+void
+cockpit_web_response_error_with_body (CockpitWebResponse *self,
+                                      guint code,
+                                      const gchar *reason,
+                                      GHashTable *headers,
+                                      GBytes *body)
+{
   g_autofree gchar *escaped = NULL;
   const gchar *message;
 
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
 
-  if (format)
+  if (reason)
     {
-      va_start (var_args, format);
-      reason = g_strdup_vprintf (format, var_args);
-      va_end (var_args);
-      message = reason;
+      /* If sending arbitrary messages, make sure they're escaped */
+      escaped = g_uri_escape_string (reason, " :", FALSE);
+      message = escaped;
     }
   else
     {
@@ -1142,14 +1169,6 @@ cockpit_web_response_error (CockpitWebResponse *self,
 
   g_debug ("%s: returning error: %u %s", self->logname, code, message);
 
-  /* If sending arbitrary messages, make sure they're escaped */
-  if (reason)
-    {
-      g_strstrip (reason);
-      escaped = g_uri_escape_string (reason, " :", FALSE);
-      message = escaped;
-    }
-
   if (headers)
     {
       if (!g_hash_table_lookup (headers, "Content-Type"))
@@ -1163,15 +1182,24 @@ cockpit_web_response_error (CockpitWebResponse *self,
 
   if (!g_str_equal (self->method, "HEAD"))
     {
-      extern const char *cockpit_webresponse_fail_html_text;
-      g_autoptr(GBytes) input = g_bytes_new_static (cockpit_webresponse_fail_html_text, strlen (cockpit_webresponse_fail_html_text));
-      g_autolist(GBytes) output = cockpit_template_expand (input, "@@", "@@", substitute_message, (gpointer) message);
-
-      for (GList *l = output; l != NULL; l = g_list_next (l))
+      if (body != NULL)
         {
-          if (!cockpit_web_response_queue (self, l->data))
-            /* error: early exit */
-            return;
+          // If the caller had content, send it...
+          cockpit_web_response_queue (self, body);
+        }
+      else
+        {
+          // Otherwise, show our fail.html page...
+          extern const char *cockpit_webresponse_fail_html_text;
+          g_autoptr(GBytes) input = g_bytes_new_static (cockpit_webresponse_fail_html_text, strlen (cockpit_webresponse_fail_html_text));
+          g_autolist(GBytes) output = cockpit_template_expand (input, "@@", "@@", substitute_message, (gpointer) message);
+
+          for (GList *l = output; l != NULL; l = g_list_next (l))
+            {
+              if (!cockpit_web_response_queue (self, l->data))
+                /* error: early exit */
+                return;
+            }
         }
     }
 

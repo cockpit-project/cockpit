@@ -133,7 +133,13 @@ optional_policy(`
 ')
 
 optional_policy(`
-	ssh_read_user_home_files(cockpit_ws_t)
+    ssh_read_user_home_files(cockpit_ws_t)
+')
+
+# cockpit-ws can read ssh config drop-ins like 20-systemd-ssh-proxy.conf
+optional_policy(`
+    gen_require(`type systemd_conf_t;')
+    read_files_pattern(cockpit_ws_t, systemd_conf_t, systemd_conf_t)
 ')
 
 #########################################################

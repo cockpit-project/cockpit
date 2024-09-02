@@ -985,8 +985,7 @@ class TestAccounts(testlib.MachineCase):
         m.execute("useradd scruffy -s /bin/bash -c Scruffy")
         m.execute("echo scruffy:foobar | chpasswd")
 
-        self.login_and_go("/users")
-        b.go("#/scruffy")
+        self.login_and_go("/users#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
 
         # Try to expire the account
@@ -1056,8 +1055,7 @@ class TestAccounts(testlib.MachineCase):
 
         b.logout()
         # HACK: https://github.com/cockpit-project/cockpit/issues/20262
-        self.login_and_go("/users", user="scruffy", superuser=False)
-        b.go("#/scruffy")
+        self.login_and_go("/users#/scruffy", user="scruffy", superuser=False)
         b.wait_text("#account-user-name", "scruffy")
         b.wait_text("#account-expiration-text", "Never expire account")
         b.wait_visible("#account-expiration-button[disabled]")
@@ -1066,8 +1064,7 @@ class TestAccounts(testlib.MachineCase):
 
         # Lastly force a password change
         b.logout()
-        self.login_and_go("/users")
-        b.go("#/scruffy")
+        self.login_and_go("/users#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
         b.click("#password-reset-button")
         b.wait_visible("#password-reset")

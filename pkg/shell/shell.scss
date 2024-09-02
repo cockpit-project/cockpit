@@ -130,8 +130,8 @@ $desktop: $phone + 1px;
   }
 
   @media (max-width: $phone) {
-    grid-template-areas: "main main main" "sidebar switcher header";
-    grid-template-rows: 1fr 4rem;
+    grid-template-areas: "header header header" "main main main" "sidebar sidebar sidebar";
+    grid-template-rows: max-content 1fr 4rem;
     grid-template-columns: 1fr auto auto;
     overflow: hidden;
 

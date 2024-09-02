@@ -194,11 +194,6 @@ $desktop: $phone + 1px;
     display: none !important;
   }
 
-  .area-ct-subnav {
-    // Make a separator between host selector & search
-    border-block-start: 1px solid var(--pf-v5-global--Color--300);
-  }
-
   .view-hosts .sidebar-hosts {
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
@@ -749,6 +744,7 @@ $desktop: $phone + 1px;
     // Don't show toggle icon
     .pf-v5-c-menu-toggle__icon {
       margin-inline-end: 0;
+      color: var(--hil-main);
     }
 
     .pf-v5-c-menu-toggle__image {

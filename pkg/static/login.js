@@ -312,8 +312,8 @@ function debug(...args) {
         }
 
         if (path.indexOf("/=") === 0) {
-            environment.hostname = path.substring(2).split("/")[0];
-            id("server-field").value = environment.hostname;
+            // environment.hostname = path.substring(2).split("/")[0];
+            // id("server-field").value = environment.hostname;
             toggle_options(null, true);
             path = "/cockpit+" + path.split("/")[1];
         } else if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0) {
@@ -336,11 +336,6 @@ function debug(...args) {
         // Stop the <a>'s click handler, otherwise it causes a page reload
         if (ev && ev.type === 'click')
             ev.preventDefault();
-
-        if (show === undefined)
-            show = id("server-group").hidden;
-
-        hideToggle("#server-group", !show);
 
         id("option-group").setAttribute("data-state", show);
     }
@@ -419,11 +414,6 @@ function debug(...args) {
         id("bypass-browser-check").addEventListener("keypress", toggle_options);
         id("show-other-login-options").addEventListener("click", toggle_options);
         id("show-other-login-options").addEventListener("keypress", toggle_options);
-        id("server-clear").addEventListener("click", function () {
-            const el = id("server-field");
-            el.value = "";
-            el.focus();
-        });
 
         const logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
@@ -566,7 +556,8 @@ function debug(...args) {
     }
 
     function host_failure(msg) {
-        if (!login_machine) {
+        const host = id("server-field")?.value;
+        if (!host) {
             login_failure(msg);
         } else {
             clear_errors();
@@ -620,11 +611,12 @@ function debug(...args) {
         const user = trim(id("login-user-input").value);
         if (user === "" && !environment.is_cockpit_client) {
             login_failure(_("User name cannot be empty"));
-        } else if (need_host() && login_machine === "") {
+        } else if (need_host() && id("server-field")?.value === "") {
             login_failure(_("Please specify the host to connect to"));
         } else {
-            if (login_machine) {
-                application = "cockpit+=" + login_machine;
+            const machine = id("server-field")?.value;
+            if (machine) {
+                application = "cockpit+=" + machine;
                 login_path = org_login_path.replace("/" + org_application + "/", "/" + application + "/");
                 id("brand").style.display = "none";
                 id("badge").style.visibility = "hidden";
@@ -692,7 +684,6 @@ function debug(...args) {
             b1.textContent = host;
             b1.classList.add("pf-v5-c-button", "pf-m-tertiary", "host-name");
             b1.addEventListener("click", () => {
-                id("server-field").value = host;
                 call_login();
             });
 
@@ -742,12 +733,6 @@ function debug(...args) {
             hideToggle("#option-group", !connectable || form != "login");
         }
 
-        if (!connectable || form != "login") {
-            hide("#server-group");
-        } else {
-            hideToggle("#server-group", !expanded);
-        }
-
         id("login-button").removeAttribute('disabled');
         id("login-button").removeAttribute('spinning');
         id("login-button").classList.remove("pf-m-danger");
@@ -789,7 +774,7 @@ function debug(...args) {
         if (!environment.is_cockpit_client) {
             id("login-user-input").focus();
         } else if (environment.page.require_host) {
-            id("server-field").focus();
+            id("server-field")?.focus();
         }
     }
 
@@ -832,7 +817,7 @@ function debug(...args) {
         if (db_keys) {
             debug("do_hostkey_verification: received key fingerprint", data.default, "for host", key_host,
                   "does not match key in known_hosts database:", db_keys, "; treating as changed");
-            id("hostkey-title").textContent = format(_("$0 key changed"), login_machine);
+            id("hostkey-title").textContent = format(_("$0 key changed"), id("server-field")?.value);
             show("#hostkey-warning-group");
             id("hostkey-message-1").textContent = "";
         } else {
@@ -840,10 +825,10 @@ function debug(...args) {
                   "not in known_hosts database; treating as new host");
             id("hostkey-title").textContent = _("New host");
             hide("#hostkey-warning-group");
-            id("hostkey-message-1").textContent = format(_("You are connecting to $0 for the first time."), login_machine);
+            id("hostkey-message-1").textContent = format(_("You are connecting to $0 for the first time."), id("server-field")?.value);
         }
 
-        id("hostkey-verify-help-1").textContent = format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), login_machine);
+        id("hostkey-verify-help-1").textContent = format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), id("server-field")?.value);
         id("hostkey-verify-help-cmds").textContent = format("ssh-keyscan$0 localhost | ssh-keygen -lf -",
                                                             key_type ? " -t " + key_type : "");
 
@@ -1143,7 +1128,7 @@ function debug(...args) {
 
     function run(response) {
         let wanted = window.sessionStorage.getItem('login-wanted');
-        const machine = id("server-field").value;
+        const machine = id("server-field")?.value;
 
         /* When using cockpit client remember all the addresses being used */
         if (machine && environment.is_cockpit_client) {

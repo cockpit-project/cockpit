@@ -27,7 +27,6 @@
 @import "@patternfly/patternfly/components/Icon/icon.css";
 
 :root {
-  --ct-color-host-accent: var(--pf-v5-global--active-color--100);
   --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-100);
 }
 
@@ -135,8 +134,8 @@ $desktop: $phone + 1px;
   }
 
   @media (max-width: $phone) {
-    grid-template-areas: "main main main" "sidebar switcher header";
-    grid-template-rows: 1fr 4rem;
+    grid-template-areas: "header header header" "main main main" "sidebar sidebar sidebar";
+    grid-template-rows: max-content 1fr 4rem;
     grid-template-columns: 1fr auto auto;
     overflow: hidden;
 
@@ -174,7 +173,7 @@ $desktop: $phone + 1px;
   }
 
   @media (min-width: $desktop) {
-    grid-template-areas: "switcher header" "sidebar main";
+    grid-template-areas: "header header" "sidebar main";
     grid-template-rows: max-content 1fr;
     grid-template-columns: minmax(min-content, var(--nav-width)) 1fr;
 

@@ -262,13 +262,6 @@ function MachinesIndex(index_options, machines, loader) {
         if (!compiled)
             compiled = compile(machine);
 
-        if (machine.address !== "localhost") {
-            document.getElementById("main").style.setProperty('--ct-color-host-accent', machine.color);
-        } else {
-            // Remove property to fall back to default accent color
-            document.getElementById("main").style.removeProperty('--ct-color-host-accent');
-        }
-
         const component_manifest = find_component(state, compiled);
 
         // Filtering of navigation by term
@@ -387,20 +380,6 @@ function MachinesIndex(index_options, machines, loader) {
 
         if (!machine)
             machine = machines.lookup(state.host);
-
-        // deprecation transition period: show existing remote hosts, but disable adding new ones
-        if (host_switcher_enabled) {
-            hosts_sel_root.render(
-                React.createElement(CockpitHosts, {
-                    machine: machine || {},
-                    machines,
-                    selector: "nav-hosts",
-                    hostAddr: index.href,
-                    jump: index.jump,
-                }));
-        } else {
-            hosts_sel_root.render(React.createElement(CockpitCurrentHost, { machine: machine || {} }));
-        }
     }
 
     function update_title(label, machine) {

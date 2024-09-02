@@ -238,7 +238,8 @@ class SshPeer(Peer):
     async def connect_from_bastion_host(self) -> None:
         basic_password = None
         known_hosts = None
-        args = []
+        # right now we open a new ssh connection for each auth attempt
+        args = ['-o', 'NumberOfPasswordPrompts=1']
 
         # do we have user/password (Basic auth) from the login page?
         auth = await self.router.request_authorization_object("*")

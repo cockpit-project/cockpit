@@ -766,8 +766,14 @@ function debug(...args) {
         }
     }
 
-    function set_known_hosts_db(db) {
+    function get_hostkeys(host) {
+        return get_known_hosts_db()[host];
+    }
+
+    function set_hostkeys(host, keys) {
         try {
+            const db = get_known_hosts_db();
+            db[host] = keys;
             localStorage.setItem("known_hosts", JSON.stringify(db));
         } catch (ex) {
             console.warn("Can't write known_hosts database to localStorage", ex);
@@ -775,20 +781,20 @@ function debug(...args) {
     }
 
     function do_hostkey_verification(data) {
-        const key_db = get_known_hosts_db();
         const key = data["host-key"];
         const key_host = key.split(" ")[0];
         const key_type = key.split(" ")[1];
+        const db_keys = get_hostkeys(key_host);
 
-        if (key_db[key_host] == key) {
+        if (db_keys == key) {
             debug("do_hostkey_verification: received key matches known_hosts database, auto-accepting fingerprint", data.default);
             converse(data.id, data.default);
             return;
         }
 
-        if (key_db[key_host]) {
+        if (db_keys) {
             debug("do_hostkey_verification: received key fingerprint", data.default, "for host", key_host,
-                  "does not match key in known_hosts database:", key_db[key_host], "; treating as changed");
+                  "does not match key in known_hosts database:", db_keys, "; treating as changed");
             id("hostkey-title").textContent = format(_("$0 key changed"), login_machine);
             show("#hostkey-warning-group");
             id("hostkey-message-1").textContent = "";
@@ -818,8 +824,7 @@ function debug(...args) {
         function call_converse() {
             id("login-button").removeEventListener("click", call_converse);
             login_failure(null, "hostkey");
-            key_db[key_host] = key;
-            set_known_hosts_db(key_db);
+            set_hostkeys(key_host, key);
             converse(data.id, data.default);
         }
 
@@ -828,7 +833,7 @@ function debug(...args) {
         show_form("hostkey");
         show("#get-out-link");
 
-        if (key_db[key_host]) {
+        if (db_keys) {
             id("login-button").classList.add("pf-m-danger");
             id("login-button").classList.remove("pf-m-primary");
         }

@@ -47,6 +47,15 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_in_text("#networking-graphs", "Transmitting")
         b.wait_in_text("#networking-graphs", "Receiving")
 
+        # PCP is only enabled for pixel tests
+        # zoom/range selectors are hidden when PCP is disabled
+        if b.pixels_label:
+            b.click("#zoom-control button:nth-of-type(2)")
+            b.wait_in_text("#zoom-control button.pf-v5-c-menu-toggle", "1 hour")
+            b.click("#zoom-control button.pf-v5-c-menu-toggle")
+            b.click("#zoom-control .pf-v5-c-menu ul li:nth-child(3) > button")
+            b.wait_in_text("#zoom-control button.pf-v5-c-menu-toggle", "5 minutes")
+
         # FIXME: rtl test was flaky, debug it and remove the skip
         b.assert_pixels(
             "#networking", "network-main",

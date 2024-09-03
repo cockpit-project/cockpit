@@ -23,6 +23,7 @@ import logging
 import os
 import shlex
 import tempfile
+import time
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Sequence
 
@@ -36,7 +37,7 @@ from cockpit.channels import PackagesChannel
 from cockpit.jsonutil import JsonObject, get_str
 from cockpit.packages import Packages, PackagesLoader, patch_libexecdir
 from cockpit.peer import Peer
-from cockpit.protocol import CockpitProblem
+from cockpit.protocol import CockpitProblem, CockpitProtocolError
 from cockpit.router import Router, RoutingRule
 from cockpit.transports import StdioTransport
 
@@ -151,14 +152,19 @@ class AuthorizeResponder(ferny.AskpassHandler):
             # Let's avoid all of that by just showing nothing.
             return None
 
-        challenge = 'X-Conversation - ' + base64.b64encode(prompt.encode()).decode()
+        challenge_id = f'{os.getpid()}-{time.time()}'
+        challenge_prefix = f'X-Conversation {challenge_id}'
+        challenge = challenge_prefix + ' ' + base64.b64encode(prompt.encode()).decode()
         response = await self.router.request_authorization(challenge,
                                                            messages=messages,
                                                            prompt=prompt,
                                                            hint=hint,
                                                            echo=False)
 
-        b64 = response.removeprefix('X-Conversation -').strip()
+        if not response.startswith(challenge_prefix):
+            raise CockpitProtocolError(
+                f"AuthorizeResponder: response {response} does not match challenge {challenge_prefix}")
+        b64 = response.removeprefix(challenge_prefix).strip()
         response = base64.b64decode(b64.encode()).decode()
         logger.debug('Returning a %d chars response', len(response))
         return response

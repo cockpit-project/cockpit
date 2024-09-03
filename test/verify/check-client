@@ -58,6 +58,17 @@ LoginTo = true
 [Ssh-Login]
 Command = /usr/bin/env python3 -m cockpit.beiboot
 """)
+        # use the connect_from_flatpak() code path of beiboot.py
+        self.m_client.write("/.flatpak-info", "test mock")
+        self.m_client.write("/usr/local/bin/flatpak-spawn", """#!/bin/sh -eux
+if [ "$1" = "--host" ]; then shift; continue; fi
+while [ "${1#--env=}" != "$1" ]; do
+    export "${1#--env=}"
+    shift
+    continue
+done
+exec "$@"
+""", perm="0755")
 
     def check_login(self, expected_user):
         b = self.browser

@@ -99,14 +99,15 @@ Cockpit also supports logging directly into remote machines. The remote machine 
 connect to is provided by using a application name that begins with `cockpit+=`.
 The default command used for this is cockpit-ssh.
 
-The section `SSH-Login` defines the options for all ssh commands. The section
+The section `Ssh-Login` defines the options for all ssh commands. The section
 has the same options as the other authentication sections with the following additions.
 
- * `host` The default host to log into. Defaults to 127.0.0.1.
+ * `host` The default host to log into. Defaults to 127.0.0.1. That host's key
+   will not be checked/validated.
  * `connectToUnknownHosts`. By default cockpit will refuse to connect to any machines that
- are not already present in ssh's global `known_hosts` file (usually
- `/etc/ssh/ssh_known_hosts`). Set this to `true` is to allow those connections
- to proceed.
+   are not already present in ssh's global `known_hosts` file (usually
+   `/etc/ssh/ssh_known_hosts`). Set this to `true` is to allow those connections
+   to proceed.
 
 This uses the [cockpit-ssh](https://github.com/cockpit-project/cockpit/tree/main/src/ssh)
 bridge. After the user authentication with the `"*"` challenge, if the remote
@@ -159,7 +160,7 @@ Actions
 Setting an action can modify the behavior for an auth scheme. Currently two actions
 are supported.
 
- * **remote-login-ssh** Use the `SSH-Login` section instead.
+ * **remote-login-ssh** Use the `Ssh-Login` section instead.
  * **none** Disable this auth scheme.
 
 To configure an action add the `action` option. For example to disable basic authentication,

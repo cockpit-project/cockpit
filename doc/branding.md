@@ -70,12 +70,5 @@ The branding.css file should override the following areas of the login screen:
         content: "${NAME} <b>${VARIANT}</b>";
     }
 
-The ```branding.css``` file should override the following areas of the navigation bar:
-
-    /* The text in the upper left corner of logged in Cockpit
-    #index-brand {
-        content: "${NAME} <b>${VARIANT}</b>";
-    }
-
 Notice how we can use variables from ```/etc/os-release``` in the branding.
 The value for these variables come from the machine that cockpit is logged into.

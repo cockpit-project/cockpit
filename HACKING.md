@@ -60,9 +60,14 @@ To re-create your development container from the latest image, run:
 ## Working on Cockpit's session pages
 
 Most contributors want to work on the web (HTML, JavaScript, CSS) parts of Cockpit.
+
+### Install Cockpit
+
 First, install Cockpit on your local machine as described in:
 
 <https://cockpit-project.org/running.html>
+
+### Build session pages
 
 Next, run this command from your top level Cockpit checkout directory, and make
 sure to run it as the same user that you'll use to log into Cockpit below.
@@ -70,19 +75,12 @@ sure to run it as the same user that you'll use to log into Cockpit below.
     mkdir -p ~/.local/share/
     ln -s $(pwd)/dist ~/.local/share/cockpit
 
-This will cause cockpit to read JavaScript, HTML, and CSS files directly from the
+This will cause Cockpit to read JavaScript, HTML, and CSS files directly from the
 locally built package output directory instead of using the system-installed Cockpit
 files.
 
-Now you can log into Cockpit on your local Linux machine at the following
-address. Use the same user and password that you used to log into your Linux
-desktop.
-
-<http://localhost:9090>
-
-After every change to the source files, bundles need to be rebuilt. The
-recommended and fastest way is to do that is using the "watch" mode (`-w` or
-`--watch`) on the page that you are working on. For example, if you want to
+The recommended way to build bundles is to use the "watch" mode
+(`-w` or`--watch`) on the page you are working on. For example, if you want to
 work on anything in [pkg/systemd](./pkg/systemd/), run:
 
     ./build.js -w systemd
@@ -94,8 +92,16 @@ pkg/lib/), you can also build all pages:
 
     ./build.js -w
 
-Reload cockpit in your browser after page is built. Press `Ctrl`-`C` to
-stop watch mode once you are done with changing the code.
+Now you can log into Cockpit on your local Linux machine at the following
+address, using the same username and password as your desktop login:
+
+<http://localhost:9090>
+
+Watch mode automatically rebuilds when source files are modified. Once it
+finishes building, refresh your browser to see the changes in Cockpit.
+Press `Ctrl-C` to stop watch mode when you are done changing the code.
+
+### Testing
 
 You often need to test code changes in a VM. You can set the `$RSYNC` env
 variable to copy the built page into the given SSH target's
@@ -105,6 +111,8 @@ one of these commands:
 
     RSYNC=c ./build.js -w kdump
     RSYNC=c ./build.js -w
+
+### Returning to system packages
 
 To make Cockpit use system packages again, instead of your checkout directory,
 remove the symlink with the following command and log back into Cockpit:

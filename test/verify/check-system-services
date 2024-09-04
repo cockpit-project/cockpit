@@ -415,22 +415,24 @@ WantedBy=default.target
         # test.service is not loaded, thus description search does not find it
         self.wait_service_present("test-fail.service")
         b.assert_pixels("#services-page", "text-filter-test", skip_layouts=["mobile"])
-        b.set_layout("mobile")
-        # HACK: reload for PF 5.4.0 to detect the new layout and breakpoints
-        # https://github.com/patternfly/patternfly-react/issues/10897
-        b.reload()
-        b.enter_page("/system/services")
-        # Waiting a bit for the layout to stabilize.  The scrolling of
-        # the header happens asynchronously with an animation.
-        time.sleep(2)
-        # Now scroll the header all the way to the left to get a conistent pixel test result
-        nav_scroll_btn = ".services-header button[aria-label='Scroll back']"
-        while b.call_js_func("ph_attr", nav_scroll_btn, "disabled") is None:
-            b.click(nav_scroll_btn)
-            time.sleep(0.5)
-        b.assert_pixels_in_current_layout("#services-page", "text-filter-test")
-        b.set_layout("desktop")
-        self.wait_page_load()
+
+        if b.pixels_label:
+            b.set_layout("mobile")
+            # HACK: reload for PF 5.4.0 to detect the new layout and breakpoints
+            # https://github.com/patternfly/patternfly-react/issues/10897
+            b.reload()
+            b.enter_page("/system/services")
+            # Waiting a bit for the layout to stabilize.  The scrolling of
+            # the header happens asynchronously with an animation.
+            time.sleep(2)
+            # Now scroll the header all the way to the left to get a conistent pixel test result
+            nav_scroll_btn = ".services-header button[aria-label='Scroll back']"
+            while b.call_js_func("ph_attr", nav_scroll_btn, "disabled") is None:
+                b.click(nav_scroll_btn)
+                time.sleep(0.5)
+            b.assert_pixels_in_current_layout("#services-page", "text-filter-test")
+            b.set_layout("desktop")
+            self.wait_page_load()
 
         # Filter by description capitalization not matching the unit description
         init_filter_state()

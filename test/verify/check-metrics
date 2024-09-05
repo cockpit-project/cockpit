@@ -86,8 +86,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         super().setUp()
         # start with a clean slate and avoid running into restart limits
         self.machine.execute("systemctl stop pmlogger pmproxy; systemctl reset-failed pmlogger pmproxy 2>/dev/null || true")
-        # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
-        self.pcp_dialog_selector = "#pcp-settings-modal:first-child"
+        self.pcp_dialog_selector = "#pcp-settings-modal"
 
     def waitStream(self, current_max):
         # should only have at most <current_max> valid minutes, the rest should be empty
@@ -1249,8 +1248,7 @@ BEGIN {{
 
 @testlib.skipImage("TODO: Arch Linux packagekit support", "arch")
 class TestMetricsPackages(packagelib.PackageCase):
-    # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
-    pcp_dialog_selector = "#pcp-settings-modal:first-child"
+    pcp_dialog_selector = "#pcp-settings-modal"
 
     def testBasic(self):
         b = self.browser
@@ -1441,9 +1439,7 @@ class TestGrafanaClient(testlib.MachineCase):
         m = self.machine
         b = self.browser
         mg = self.machines['services']
-
-        # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
-        pcp_dialog_selector = "#pcp-settings-modal:first-child"
+        pcp_dialog_selector = "#pcp-settings-modal"
 
         # avoid dynamic host name changes during PCP data collection, and start from clean slate
         m.execute("""systemctl stop pmlogger || true

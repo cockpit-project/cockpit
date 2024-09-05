@@ -260,7 +260,6 @@ class SELinuxStatus extends React.Component {
                     <h2>{_("SELinux policy")}</h2>
                     <Switch isChecked={this.props.selinuxStatus.enforcing}
                             label={_("Enforcing")}
-                            labelOff={_("Permissive")}
                             onChange={this.props.changeSelinuxMode} />
                 </Flex>
                 { note !== null &&

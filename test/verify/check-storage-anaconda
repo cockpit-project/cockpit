@@ -505,6 +505,8 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_set_val("disks", {disk1: True, disk2: True})
         self.dialog_apply()
         self.dialog_wait_close()
+        # Stop the raid array in case the test fails otherwise losetup can't release the devices
+        self.addCleanup(self.machine.execute, "if [ -b /dev/md/raid0 ]; then mdadm --stop /dev/md/raid0; fi;")
 
         # Create a partition with a filesystem on it
         self.click_dropdown(self.card_row("Storage", name="md/raid0"), "Create partition table")

@@ -1134,13 +1134,23 @@ class Browser:
         known_host: bool = False,
         password: str | None = None,
         expect_closed_dialog: bool = True,
+        expect_warning: bool = True,
+        need_click: bool = True
     ) -> None:
-        self.click('#machine-troubleshoot')
+        if need_click:
+            self.click('#machine-troubleshoot')
+
+        if not new and expect_warning:
+            self.wait_visible('#hosts_connect_server_dialog')
+            self.click("#hosts_connect_server_dialog button.pf-m-warning")
 
         self.wait_visible('#hosts_setup_server_dialog')
         if new:
             self.wait_text("#hosts_setup_server_dialog button.pf-m-primary", "Add")
             self.click("#hosts_setup_server_dialog button.pf-m-primary")
+            if expect_warning:
+                self.wait_visible('#hosts_connect_server_dialog')
+                self.click("#hosts_connect_server_dialog button.pf-m-warning")
             if not known_host:
                 self.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
                 self.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
@@ -1154,10 +1164,14 @@ class Browser:
         if expect_closed_dialog:
             self.wait_not_present('#hosts_setup_server_dialog')
 
-    def add_machine(self, address: str, known_host: bool = False, password: str = "foobar") -> None:
+    def add_machine(self, address: str, known_host: bool = False, password: str = "foobar",
+                    expect_warning: bool = True) -> None:
         self.switch_to_top()
         self.go(f"/@{address}")
-        self.start_machine_troubleshoot(new=True, known_host=known_host, password=password)
+        self.start_machine_troubleshoot(new=True,
+                                        known_host=known_host,
+                                        password=password,
+                                        expect_warning=expect_warning)
         self.enter_page("/system", host=address)
 
     def grant_permissions(self, *args: str) -> None:

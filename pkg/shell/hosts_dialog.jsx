@@ -38,14 +38,18 @@ import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/inde
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
-import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
+import { OutlinedQuestionCircleIcon, ExternalLinkAltIcon } from "@patternfly/react-icons";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
+import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text"
 
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
+import { fmt_to_fragments } from "utils.js";
 
 const _ = cockpit.gettext;
 
 export const codes = {
+    danger: "connect",
     "no-cockpit": "not-supported",
     "not-supported": "not-supported",
     "protocol-error": "not-supported",
@@ -101,6 +105,74 @@ class NotSupported extends React.Component {
     }
 }
 
+class Connect extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            inProgress: false,
+        };
+    }
+
+    onConnect() {
+        window.sessionStorage.setItem("connection-warning-shown", true);
+        this.setState({ inProgress: true });
+        this.props.run(this.props.try2Connect(this.props.full_address), ex => {
+            let keep_message = false;
+            if (ex.problem === "no-host") {
+                let host_id_port = this.props.full_address;
+                let port = "22";
+                const port_index = host_id_port.lastIndexOf(":");
+                if (port_index === -1) {
+                    host_id_port = this.props.full_address + ":22";
+                } else {
+                    port = host_id_port.substr(port_index + 1);
+                }
+
+                ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
+                ex.problem = "not-found";
+                keep_message = true;
+            }
+            this.setState({ inProgress: false });
+            this.props.setError(ex, keep_message);
+        });
+    }
+
+    render() {
+        return (
+            <Modal id="hosts_connect_server_dialog" isOpen
+                   position="top" variant="small"
+                   onClose={this.props.onClose}
+                   title={fmt_to_fragments(_("Connect to $0?"), <b>{this.props.host}</b>)}
+                   titleIconVariant="warning"
+                   footer={<>
+                       <HelperText>
+                           <HelperTextItem>{_("You will be reminded once per session.")}</HelperTextItem>
+                       </HelperText>
+                       <Button variant="warning" isLoading={this.state.inProgress}
+                                       onClick={() => this.onConnect()}>
+                           {_("Connect")}
+                       </Button>
+                       <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
+                           { _("Cancel") }
+                       </Button>
+                   </>}
+            >
+                <TextContent>
+                    <Text component={TextVariants.p}>
+                        {_("Remote hosts have the ability to run JavaScript on all connected hosts. Only connect to machines that you trust.")}
+                    </Text>
+                    <Text component={TextVariants.p}>
+                        <a href="https://cockpit-project.org/guide/latest/multi-host.html" target="blank" rel="noopener noreferrer">
+                            <ExternalLinkAltIcon /> {_("Read more")}
+                        </a>
+                    </Text>
+                </TextContent>
+            </Modal>
+        );
+    }
+}
+
 class AddMachine extends React.Component {
     constructor(props) {
         super(props);
@@ -124,6 +196,8 @@ class AddMachine extends React.Component {
             old_machine = props.machines_ins.lookup(props.old_address);
         if (old_machine)
             color = this.rgb2Hex(old_machine.color);
+        if (old_machine && !old_machine.visible)
+            old_machine = null;
 
         this.state = {
             user: host_user || "",
@@ -222,22 +296,27 @@ class AddMachine extends React.Component {
             });
         });
 
-        this.props.run(this.props.try2Connect(address), ex => {
-            if (ex.problem === "no-host") {
-                let host_id_port = address;
-                let port = "22";
-                const port_index = host_id_port.lastIndexOf(":");
-                if (port_index === -1)
-                    host_id_port = address + ":22";
-                else
-                    port = host_id_port.substr(port_index + 1);
+        if (!window.sessionStorage.getItem("connection-warning-shown")) {
+            this.props.setError({ problem: "danger", command: "close" });
+        } else {
+            this.props.run(this.props.try2Connect(address), ex => {
+                if (ex.problem === "no-host") {
+                    let host_id_port = address;
+                    let port = "22";
+                    const port_index = host_id_port.lastIndexOf(":");
+                    if (port_index === -1) {
+                        host_id_port = address + ":22";
+                    } else {
+                        port = host_id_port.substr(port_index + 1);
+                    }
 
-                ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
-                ex.problem = "not-found";
-            }
-            this.setState({ inProgress: false });
-            this.props.setError(ex);
-        });
+                    ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
+                    ex.problem = "not-found";
+                }
+                this.setState({ inProgress: false });
+                this.props.setError(ex);
+            });
+        }
     }
 
     render() {
@@ -495,7 +574,6 @@ class HostKey extends React.Component {
                     <div>{_("The fingerprint should match:")} {fingerprint_help}</div>
                     <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v5-u-font-family-monospace">{fp}</ClipboardCopy>
                 </ExpandableSection>
-                <Alert variant='warning' isInline isPlain title={_("Malicious pages on a remote machine may affect other connected hosts")} />
             </>;
         }
 
@@ -902,6 +980,31 @@ class ChangeAuth extends React.Component {
     }
 }
 
+export function try2Connect(machines_ins, address, options) {
+    return new Promise((resolve, reject) => {
+        const conn_options = { ...options, payload: "echo", host: address };
+
+        conn_options["init-superuser"] = get_init_superuser_for_options(conn_options);
+
+        const machine = machines_ins.lookup(address);
+        if (machine && machine.host_key && !machine.on_disk) {
+            conn_options['temp-session'] = false; // Compatibility option
+            conn_options.session = 'shared';
+            conn_options['host-key'] = machine.host_key;
+        }
+
+        const client = cockpit.channel(conn_options);
+        client.send("x");
+        client.addEventListener("message", () => {
+            resolve();
+            client.close();
+        });
+        client.addEventListener("close", (event, options) => {
+            reject(options);
+        });
+    });
+}
+
 export class HostModal extends React.Component {
     constructor(props) {
         super(props);
@@ -910,7 +1013,7 @@ export class HostModal extends React.Component {
             current_template: this.props.template || "add-machine",
             address: full_address(props.machines_ins, props.address),
             old_address: full_address(props.machines_ins, props.address),
-            error_options: null,
+            error_options: this.props.error_options,
             dialogError: "", // Error to be shown in the modal
         };
 
@@ -934,34 +1037,17 @@ export class HostModal extends React.Component {
         return host;
     }
 
-    changeContent(template, error_options) {
+    changeContent(template, error_options, with_error_message) {
         if (this.state.current_template !== template)
-            this.setState({ current_template: template, error_options });
+            this.setState({
+                current_template: template,
+                error_options,
+                dialogError: with_error_message ? cockpit.message(error_options) : null,
+            });
     }
 
     try2Connect(address, options) {
-        return new Promise((resolve, reject) => {
-            const conn_options = { ...options, payload: "echo", host: address };
-
-            conn_options["init-superuser"] = get_init_superuser_for_options(conn_options);
-
-            const machine = this.props.machines_ins.lookup(address);
-            if (machine && machine.host_key && !machine.on_disk) {
-                conn_options['temp-session'] = false; // Compatibility option
-                conn_options.session = 'shared';
-                conn_options['host-key'] = machine.host_key;
-            }
-
-            const client = cockpit.channel(conn_options);
-            client.send("x");
-            client.addEventListener("message", () => {
-                resolve();
-                client.close();
-            });
-            client.addEventListener("close", (event, options) => {
-                reject(options);
-            });
-        });
+        return try2Connect(this.props.machines_ins, address, options);
     }
 
     complete() {
@@ -975,7 +1061,7 @@ export class HostModal extends React.Component {
         this.promise_callback = callback;
     }
 
-    setError(error) {
+    setError(error, keep_message_on_change) {
         if (error === null)
             return this.setState({ dialogError: null });
 
@@ -984,7 +1070,7 @@ export class HostModal extends React.Component {
             template = codes[error.problem];
 
         if (template && this.state.current_template !== template)
-            this.changeContent(template, error);
+            this.changeContent(template, error, keep_message_on_change);
         else
             this.setState({ error_options: error, dialogError: cockpit.message(error) });
     }
@@ -1041,7 +1127,11 @@ export class HostModal extends React.Component {
             error_options: this.state.error_options,
             dialogError: this.state.dialogError,
             machines_ins: this.props.machines_ins,
-            onClose: this.props.onClose,
+            onClose: () => {
+                if (this.props.caller_cancelled)
+                    this.props.caller_cancelled();
+                this.props.onClose();
+            },
             run: this.run,
             setGoal: this.setGoal,
             setError: this.setError,
@@ -1050,7 +1140,9 @@ export class HostModal extends React.Component {
             complete: this.complete,
         };
 
-        if (template === "add-machine")
+        if (template === "connect")
+            return <Connect {...props} />;
+        else if (template === "add-machine")
             return <AddMachine {...props} />;
         else if (template === "unknown-hostkey" || template === "unknown-host" || template === "invalid-hostkey")
             return <HostKey {...props} />;

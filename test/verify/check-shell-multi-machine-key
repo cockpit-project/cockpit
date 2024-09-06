@@ -156,6 +156,8 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
 
         b.wait_text(f'#hosts_setup_server_dialog {self.primary_btn_class}', "Add")
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
+        b.wait_visible('#hosts_connect_server_dialog')
+        b.click('#hosts_connect_server_dialog button.pf-m-warning')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
@@ -185,6 +187,8 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
             self.load_key('id_rsa', 'foobar')
 
         b.go("/@10.111.113.2")
+        b.wait_visible('#hosts_connect_server_dialog')
+        b.click('#hosts_connect_server_dialog button.pf-m-warning')
         b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
 
         # Change user
@@ -253,6 +257,8 @@ Host 10.111.113.2
         b.wait_visible('#hosts_setup_server_dialog')
         b.set_input_text('#add-machine-address', "10.111.113.2")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
+        b.wait_visible('#hosts_connect_server_dialog')
+        b.click('#hosts_connect_server_dialog button.pf-m-warning')
         b.wait_in_text("#hosts_setup_server_dialog", "You are connecting to 10.111.113.2 for the first time.")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.wait_in_text("#hosts_setup_server_dialog", "/home/admin/.ssh/id_ed25519")
@@ -288,6 +294,8 @@ Host 10.111.113.2
         b.wait_visible('#hosts_setup_server_dialog')
         b.set_input_text("#add-machine-address", "10.111.113.2")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
+        b.wait_visible('#hosts_connect_server_dialog')
+        b.click('#hosts_connect_server_dialog button.pf-m-warning')
         b.wait_in_text("#hosts_setup_server_dialog", "You are connecting to 10.111.113.2 for the first time.")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.wait_in_text("#hosts_setup_server_dialog", "/home/admin/.ssh/id_rsa")

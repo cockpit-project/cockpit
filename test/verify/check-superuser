@@ -415,6 +415,8 @@ class TestSuperuserDashboard(testlib.MachineCase):
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_visible('#hosts_setup_server_dialog button:contains("Add")')
         b.click('#hosts_setup_server_dialog button:contains("Add")')
+        b.wait_visible('#hosts_connect_server_dialog')
+        b.click('#hosts_connect_server_dialog button.pf-m-warning')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
         b.click('#hosts_setup_server_dialog button.pf-m-primary')
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
@@ -444,7 +446,8 @@ class TestSuperuserDashboard(testlib.MachineCase):
         # superuser on m2 (once we have logged in there).
         self.allow_restart_journal_messages()
         b.relogin()
-        b.click('#machine-troubleshoot')
+        b.wait_visible('#hosts_connect_server_dialog')
+        b.click('#hosts_connect_server_dialog button.pf-m-warning')
         b.wait_visible('#hosts_setup_server_dialog')
         b.set_input_text("#login-custom-password", "foobar")
         b.click('#hosts_setup_server_dialog button:contains("Log in")')

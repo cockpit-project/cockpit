@@ -147,6 +147,16 @@ function Frames(index, setupIdleResetTimers) {
 
         /* Need to create a new frame */
         if (!frame) {
+            /* Never create new frames for machines that are not
+               connected yet. That would open a channel to them (for
+               loading the URL), which woould trigger the bridge to
+               attempt a log in. We want all logins to happen in a
+               single place (in hosts.jsx) so that we can get the
+               options right, and show a warning dialog.
+            */
+            if (host != "localhost" && machine.state !== "connected")
+                return null;
+
             new_frame = true;
             frame = document.createElement("iframe");
             frame.setAttribute("class", "container-frame");

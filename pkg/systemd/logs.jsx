@@ -291,9 +291,11 @@ const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, curre
     let identifiersArray;
     if (currentIdentifiers !== undefined) {
         identifiersArray = [
-            <SelectOption key="all" value={_("All")} />,
-            <Divider component="li" key="divider" />
+            <SelectOption key="all" value={_("All")} />
         ];
+        if (currentIdentifiers.length > 0) {
+            identifiersArray.push(<Divider component="li" key="divider" />);
+        }
         identifiersArray = identifiersArray.concat(
             currentIdentifiers
                     .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))

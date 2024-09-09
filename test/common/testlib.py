@@ -259,7 +259,7 @@ class Browser:
             logging.basicConfig(level=logging.INFO)
             webdriver_bidi.log_command.setLevel(logging.INFO if opts.trace else logging.WARNING)
             # not appropriate for --trace, just enable for debugging low-level protocol with browser
-            # bidiwebdriver_.log_proto.setLevel(logging.DEBUG)
+            # webdriver_bidi.log_proto.setLevel(logging.DEBUG)
 
         test_functions = (Path(__file__).parent / "test-functions.js").read_text()
         # Don't redefine globals, this confuses Firefox

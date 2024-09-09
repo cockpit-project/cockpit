@@ -31,7 +31,7 @@ import {
 } from "../pages.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
 import { fmt_size_long, validate_fsys_label, should_ignore } from "../utils.js";
-import { btrfs_usage, btrfs_is_volume_mounted } from "./utils.jsx";
+import { btrfs_usage } from "./utils.jsx";
 import { dialog_open, TextInput } from "../dialog.jsx";
 import { make_btrfs_subvolume_pages } from "./subvolume.jsx";
 import { btrfs_device_actions } from "./device.jsx";
@@ -82,7 +82,7 @@ export function make_btrfs_volume_page(parent, uuid) {
     make_btrfs_subvolume_pages(subvolumes_page, volume);
 }
 
-export function rename_dialog(block_btrfs, label) {
+function rename_dialog(block_btrfs, label, rw_mount_point) {
     dialog_open({
         Title: _("Change label"),
         Fields: [
@@ -94,36 +94,58 @@ export function rename_dialog(block_btrfs, label) {
         ],
         Action: {
             Title: _("Save"),
-            action: function (vals) {
-                return block_btrfs.SetLabel(vals.name, {});
+            action: async function (vals) {
+                if (rw_mount_point) {
+                    await cockpit.spawn(["btrfs", "filesystem", "label", rw_mount_point, vals.name],
+                                        { superuser: true });
+                    const block = client.blocks[block_btrfs.path];
+                    await block.Rescan({});
+                } else
+                    await block_btrfs.SetLabel(vals.name, {});
             }
         }
     });
 }
 
-const BtrfsVolumeCard = ({ card, block_devices, uuid, use }) => {
-    const block_btrfs = client.blocks_fsys_btrfs[block_devices[0].path];
+export const BtrfsLabelDescription = ({ block_btrfs }) => {
     const label = block_btrfs.data.label || "-";
 
-    // Changing the label is only supported when the device is not mounted
-    // otherwise we will get btrfs filesystem error ERROR: device /dev/vda5 is
-    // mounted, use mount point. This is a libblockdev/udisks limitation as it
-    // only passes the device and not the mountpoint when the device is mounted.
-    // https://github.com/storaged-project/libblockdev/issues/966
-    const is_mounted = btrfs_is_volume_mounted(client, block_devices);
+    // We can change the label when at least one filesystem subvolume
+    // is mounted rw, or when nothing is mounted.
+
+    let rw_mount_point = null;
+    let is_mounted = false;
+    const mount_points = client.btrfs_mounts[block_btrfs.data.uuid];
+    for (const id in mount_points) {
+        const mp = mount_points[id];
+        if (mp.mount_points.length > 0)
+            is_mounted = true;
+        if (mp.rw_mount_points.length > 0 && !rw_mount_point)
+            rw_mount_point = mp.rw_mount_points[0];
+    }
+
+    let excuse = null;
+    if (is_mounted && !rw_mount_point)
+        excuse = _("Filesystem is mounted read-only");
+
+    return <StorageDescription title={_("Label")}
+                               value={label}
+                               action={
+                                   <StorageLink onClick={() => rename_dialog(block_btrfs, label, rw_mount_point)}
+                                                excuse={excuse}>
+                                       {_("edit")}
+                                   </StorageLink>}
+    />;
+};
+
+const BtrfsVolumeCard = ({ card, block_devices, uuid, use }) => {
+    const block_btrfs = client.blocks_fsys_btrfs[block_devices[0].path];
 
     return (
         <StorageCard card={card}>
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
-                    <StorageDescription title={_("Label")}
-                                                value={label}
-                                                action={
-                                                    <StorageLink onClick={() => rename_dialog(block_btrfs, label)}
-                                                               excuse={is_mounted ? _("Btrfs volume is mounted") : null}>
-                                                        {_("edit")}
-                                                    </StorageLink>}
-                    />
+                    <BtrfsLabelDescription block_btrfs={block_btrfs} />
                     <StorageDescription title={_("UUID")} value={uuid} />
                     <StorageDescription title={_("Capacity")} value={fmt_size_long(use[1])} />
                     <StorageDescription title={_("Usage")}>

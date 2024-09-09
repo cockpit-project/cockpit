@@ -291,8 +291,8 @@ class WebdriverBidi:
         self.pending_commands[self.last_id] = future
         res = await asyncio.wait_for(future, timeout=timeout)
         if "result" in res:
-            value = unpack_value(res["result"])
             log_proto.debug("[id %i] unpacking raw result %r", self.last_id, res["result"])
+            value = unpack_value(res["result"])
             res["result"] = value
         self.last_id += 1
         if not quiet:

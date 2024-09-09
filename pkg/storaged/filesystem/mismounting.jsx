@@ -27,6 +27,7 @@ import {
     encode_filename,
     parse_options, unparse_options, extract_option, reload_systemd,
     set_crypto_auto_option, get_mount_points,
+    BTRFS_TOOL_MOUNT_PATH
 } from "../utils.js";
 import { StorageButton } from "../storage-controls.jsx";
 
@@ -49,6 +50,10 @@ export function check_mismounted_fsys(backing_block, content_block, fstab_config
         // We don't complain about the rootfs, it's probably
         // configured somewhere else, like in the bootloader.
         if (m == "/")
+            return true;
+
+        // This is the mount point used for monitoring btrfs filesystems.
+        if (m.startsWith(BTRFS_TOOL_MOUNT_PATH))
             return true;
 
         return false;

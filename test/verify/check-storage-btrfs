@@ -50,7 +50,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
             b.wait_visible(self.card_row("Storage", name="sda"))
 
         self.click_dropdown(self.card_row("Storage", name=dev_1), "Format")
-        self.dialog({"name": "butter", "type": "btrfs", "mount_point": mount_point})
+        self.dialog({"name": "butter", "type": "btrfs", "mount_point": mount_point, "mount_options.ro": True})
 
         # disk(s) are part of the volume card
         b.wait_visible(self.card_row("Storage", location=mount_point))
@@ -58,7 +58,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.click_card_row("Storage", name="sda")
 
         b.wait_text(self.card_desc("btrfs filesystem", "Label"), "butter")
-        # UDisks does not allow us to change the label of a mounted FS
+
+        # Can't relabel a filesystem that is mounted read-only
         b.wait_visible(self.card_desc_action("btrfs filesystem", "Label") + ":disabled")
 
         # Unmount to change label
@@ -66,14 +67,21 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.confirm()
         b.wait_visible(self.card_row("btrfs filesystem", location=f"{mount_point} (not mounted)"))
 
-        label = "butter"
+        label = "margarine"
         b.click(self.card_desc_action("btrfs filesystem", "Label"))
         self.dialog({"name": label})
         b.wait_text(self.card_desc("btrfs filesystem", "Label"), label)
 
+        # Mount writable for the rest of the test
         self.click_dropdown(self.card_row("btrfs filesystem", name="/"), "Mount")
-        self.confirm()
+        self.dialog({"mount_options.ro": False})
         b.wait_visible(self.card_row("btrfs filesystem", location=f"{mount_point}"))
+
+        # Change label
+        label = "butter"
+        b.click(self.card_desc_action("btrfs filesystem", "Label"))
+        self.dialog({"name": label})
+        b.wait_text(self.card_desc("btrfs filesystem", "Label"), label)
 
         # detect new subvolume
         subvol = "/run/butter/cake"
@@ -165,7 +173,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.click(self.dropdown_toggle(root_sel))
         b.wait_visible(self.dropdown_action(root_sel, "Create subvolume") + "[disabled]")
         b.wait_text(self.dropdown_description(root_sel, "Create subvolume"),
-                    "Subvolume needs to be mounted")
+                    "At least one subvolume needs to be mounted")
         b.click(self.dropdown_toggle(root_sel))
 
         self.click_dropdown(root_sel, "Mount")
@@ -242,32 +250,15 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
         self.dialog({"name": os.path.basename(ro_subvol), "mount_point": ro_subvol, "mount_options.ro": True})
 
-        # Since /run/butter is still mounted read-write, we can create
-        # subvolumes of "ro" using that.
-
-        self.click_dropdown(self.card_row("Storage", location=ro_subvol), "Create subvolume")
-        self.dialog({"name": "bot"}, secondary=True)
-        b.wait_visible(self.card_row("Storage", name="bot"))
-
-        # But once /run/butter has been unmounted, we can't create
-        # subvolumes of "ro" anymore.
+        # We can always create subvolumes as long as a single one is
+        # mounted, even read-only.
 
         self.click_dropdown(self.card_row("Storage", location="/run/butter"), "Unmount")
         self.confirm()
 
-        b.click(self.dropdown_toggle(self.card_row("Storage", location=ro_subvol)))
-        b.wait_visible(self.dropdown_action(self.card_row("Storage", location=ro_subvol), "Create subvolume") + "[disabled]")
-        b.wait_text(self.dropdown_description(self.card_row("Storage", location=ro_subvol), "Create subvolume"),
-                    "Subvolume needs to be mounted writable")
-        b.click(self.dropdown_toggle(self.card_row("Storage", location=ro_subvol)))
-        # remount as rw, create subvolume and remount as ro to see parents are also checked
-        m.execute(f"""
-            mount -o remount,rw /dev/sda {ro_subvol}
-            btrfs subvolume create {ro_subvol}/readonly
-            mount -o remount,ro /dev/sda {ro_subvol}
-        """)
-
-        self.check_dropdown_action_disabled(self.card_row("Storage", name="readonly"), "Create subvolume", "Subvolume needs to be mounted")
+        self.click_dropdown(self.card_row("Storage", location=ro_subvol), "Create subvolume")
+        self.dialog({"name": "bot"}, secondary=True)
+        b.wait_visible(self.card_row("Storage", name="bot"))
 
     def testDeleteSubvolume(self):
         m = self.machine
@@ -338,6 +329,23 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.dialog({"name": child_subvol}, secondary=True)
         b.wait_visible(self.card_row("Storage", name=child_subvol))
 
+        # Unmount root subvolume and delete child-subvol. That will use the mountpoint of "subvol"
+        self.click_dropdown(root_sel, "Unmount")
+        self.confirm()
+
+        self.click_dropdown(self.card_row("Storage", name=child_subvol), "Delete")
+        self.confirm()
+        b.wait_not_present(self.card_row("Storage", name=child_subvol))
+
+        # Creating inside subvol will also use its mountpoint now
+        self.click_dropdown(self.card_row("Storage", name=subvol), "Create subvolume")
+        self.dialog({"name": child_subvol}, secondary=True)
+        b.wait_visible(self.card_row("Storage", name=child_subvol))
+
+        # Mount the root subvolume again so that we can delete the lot
+        self.click_dropdown(root_sel, "Mount")
+        self.confirm()
+
         self.click_dropdown(self.card_row("Storage", name=subvol), "Delete")
         self.checkTeardownAction(1, "Device", child_subvol)
         self.checkTeardownAction(1, "Action", "delete")
@@ -365,43 +373,41 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.confirm()
         b.wait_not_present(self.card_row("Storage", location=subvol_mount_point))
 
-        # Cannot delete subvolume when no parent is mounted
         subvol = "new-subvol"
         self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
         self.dialog({"name": subvol, "mount_point": subvol_mount_point})
+
+        # We can not delete the last mounted subvolume
+
         self.click_dropdown(root_sel, "Unmount")
         self.confirm()
 
-        self.check_dropdown_action_disabled(self.card_row("Storage", location=subvol_mount_point), "Delete", "At least one parent needs to be mounted writable")
-        self.click_dropdown(root_sel, "Mount")
-        self.confirm()
-        b.wait_visible(self.card_row("Storage", location=mount_point))
+        sel = self.card_row("Storage", location=subvol_mount_point)
+        b.click(self.dropdown_toggle(sel))
+        b.wait_visible(self.dropdown_action(sel, "Delete") + "[disabled]")
+        b.wait_text(self.dropdown_description(sel, "Delete"),
+                    "The last mounted subvolume can not be deleted")
+        b.click(self.dropdown_toggle(sel))
 
-        self.click_dropdown(self.card_row("Storage", location=subvol_mount_point), "Delete")
-        self.confirm()
-
-        # Cannot delete read only mounted subvolume children and itself
+        subvol2 = "subvol2"
+        subvol2_mount_point = "/run/subvol2"
         child_subvol = "child-subvol"
-        self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
-        self.dialog({"name": subvol, "mount_point": subvol_mount_point, "mount_options.ro": True})
-        b.wait_visible(self.card_row("Storage", location=subvol_mount_point))
-        self.assertIn("ro", m.execute(f"findmnt -s -n -o OPTIONS {subvol_mount_point}"))
+        self.click_dropdown(self.card_row("Storage", location=mount_point + " (not mounted)"), "Create subvolume")
+        self.dialog({"name": subvol2, "mount_point": subvol2_mount_point, "mount_options.ro": True})
+        b.wait_visible(self.card_row("Storage", location=subvol2_mount_point))
+        self.assertIn("ro", m.execute(f"findmnt -s -n -o OPTIONS {subvol2_mount_point}"))
 
-        self.click_dropdown(self.card_row("Storage", name=subvol), "Create subvolume")
+        self.click_dropdown(self.card_row("Storage", name=subvol2), "Create subvolume")
         self.dialog({"name": child_subvol}, secondary=True)
         b.wait_visible(self.card_row("Storage", name=child_subvol))
 
-        # Allowed as root is mounted
-        self.click_dropdown(self.card_row("Storage", name=child_subvol), "Delete")
-        self.dialog_wait_open()
-        self.dialog_cancel()
-
-        # Unmount root as we can otherwise delete via root
-        self.click_dropdown(self.card_row("Storage", location=mount_point), "Unmount")
+        # Now we can delete "new-subvol"
+        self.click_dropdown(self.card_row("Storage", location=subvol_mount_point), "Delete")
         self.confirm()
-        b.wait_visible(self.card_row("Storage", location=f"{mount_point} (not mounted)"))
 
-        self.check_dropdown_action_disabled(self.card_row("Storage", name=child_subvol), "Delete", "At least one parent needs to be mounted writable")
+        # And also "child-subvol". The readonly-ness of "subvol2" should not matter
+        self.click_dropdown(self.card_row("Storage", name=child_subvol), "Delete")
+        self.confirm()
 
     def testMultiDevice(self):
         m = self.machine
@@ -523,7 +529,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_not_present(self.card_button("btrfs subvolume", f"Mount automatically on {mount_point} on boot"))
 
         # No warnings for either subvolume
-        b.go(f"#/")
+        b.go("#/")
         self.click_card_row("Storage", name=disk1)
         b.wait_visible(self.card("btrfs filesystem"))
         b.wait_not_present(self.card_row("btrfs filesystem", name=subvol) + ' .ct-icon-exclamation-triangle')
@@ -551,6 +557,9 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_in_text(self.card_row("Storage", name="sda"), "btrfs filesystem (encrypted)")
         self.click_dropdown(self.card_row("Storage", name="sda") + " + tr", "Mount")
         self.dialog({"mount_point": mount_point})
+
+        # Wait for Cockpit's own mount to go away
+        b.wait(lambda: "/var/lib/cockpit/btrfs" not in m.execute("findmnt"))
 
         m.execute(f"""
             umount {mount_point}

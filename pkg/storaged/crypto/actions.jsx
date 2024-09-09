@@ -21,8 +21,8 @@ import cockpit from "cockpit";
 import client from "../client";
 
 import { get_existing_passphrase, unlock_with_type } from "./keyslots.jsx";
-import { set_crypto_auto_option } from "../utils.js";
-import { dialog_open, PassInput } from "../dialog.jsx";
+import { set_crypto_auto_option, get_active_usage, teardown_active_usage, block_name } from "../utils.js";
+import { dialog_open, PassInput, init_teardown_usage, TeardownMessage, BlockingMessage } from "../dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -63,7 +63,32 @@ export function lock(block) {
     if (!crypto)
         return;
 
-    return crypto.Lock({}).then(() => set_crypto_auto_option(block, false));
+    const name = block_name(block);
+    const usage = get_active_usage(client, block.path, _("lock"));
+
+    if (usage.Blocking) {
+        dialog_open({
+            Title: cockpit.format(_("$0 is in use"), name),
+            Body: BlockingMessage(usage)
+        });
+        return;
+    }
+
+    dialog_open({
+        Title: cockpit.format(_("Lock $0?"), name),
+        Teardown: TeardownMessage(usage),
+        Action: {
+            Title: _("Lock"),
+            action: async function () {
+                await teardown_active_usage(client, usage);
+                await crypto.Lock({});
+                await set_crypto_auto_option(block, false);
+            }
+        },
+        Inits: [
+            init_teardown_usage(client, usage)
+        ]
+    });
 }
 
 export function std_lock_action(backing_block, content_block) {

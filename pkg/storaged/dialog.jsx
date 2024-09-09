@@ -243,7 +243,7 @@ import { FormHelper } from "cockpit-components-form-helper";
 
 import {
     decode_filename, fmt_size, block_name, format_size_and_text, format_delay, for_each_async, get_byte_units,
-    is_available_block
+    is_available_block, BTRFS_TOOL_MOUNT_PATH
 } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import client from "./client.js";
@@ -1245,6 +1245,14 @@ export const TeardownMessage = (usage, expect_single_unmount) => {
         if (use.block) {
             const name = teardown_block_name(use);
             let location = use.location;
+
+            /* Don't show mount points used internally by Cockpit.
+             * It's fine to tear them down, but we don't want people
+             * to start worrying about them.
+             */
+            if (location && location.startsWith(BTRFS_TOOL_MOUNT_PATH))
+                return;
+
             if (use.usage == "mounted") {
                 location = client.strip_mount_point_prefix(location);
                 if (location === false)
@@ -1262,6 +1270,9 @@ export const TeardownMessage = (usage, expect_single_unmount) => {
             });
         }
     });
+
+    if (rows.length == 0)
+        return null;
 
     return (
         <div className="modal-footer-teardown">

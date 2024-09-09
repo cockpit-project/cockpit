@@ -25,6 +25,8 @@ import * as timeformat from "timeformat";
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
 
+export const BTRFS_TOOL_MOUNT_PATH = "/var/lib/cockpit/btrfs/";
+
 /* UTILITIES
  */
 
@@ -864,6 +866,11 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
             const [, mount_point] = get_fstab_config_with_client(client, block);
             const has_fstab_entry = is_temporary && location == mount_point;
 
+            // Ignore the secret btrfs mount point unless we are
+            // formatting (in which case subvol is false).
+            if (btrfs_volume && subvol && location.startsWith(BTRFS_TOOL_MOUNT_PATH))
+                return;
+
             for (const u of usage) {
                 if (u.usage == 'mounted' && u.location == location) {
                     if (is_top) {
@@ -881,7 +888,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                 has_fstab_entry,
                 set_noauto: !is_top && !is_temporary,
                 actions: (is_top ? get_actions(_("unmount")) : [_("unmount")]).concat(has_fstab_entry ? [_("mount")] : []),
-                blocking: client.strip_mount_point_prefix(location) === false,
+                blocking: client.strip_mount_point_prefix(location) === false && !location.startsWith(BTRFS_TOOL_MOUNT_PATH),
             });
         }
 

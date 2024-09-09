@@ -255,7 +255,7 @@ msgstr "$0 が $1 ($2 が保存) を使用しています"
 
 #: pkg/storaged/dialog.jsx:1346
 msgid "$0 used, $1 total"
-msgstr "利用済 $0 、合計 $1"
+msgstr "利用済 $0、合計 $1"
 
 #: pkg/lib/cockpit-components-plot.jsx:223
 msgid "$0 week"
@@ -971,8 +971,6 @@ msgid "All"
 msgstr "すべて"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:158
-#, fuzzy
-#| msgid "All $0 selected physical volumes are needed for the choosen layout."
 msgid "All $0 selected physical volumes are needed for the chosen layout."
 msgstr "選択したレイアウトには、選択した $0 の物理ボリュームがすべて必要です。"
 
@@ -1464,7 +1462,7 @@ msgstr "キャリア"
 
 #: pkg/storaged/pages.jsx:713
 msgid "Category"
-msgstr "カテゴリ"
+msgstr "カテゴリー"
 
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/users/shell-dialog.js:78
@@ -1636,7 +1634,7 @@ msgstr "すべてのフィルターの消去"
 
 #: pkg/users/accounts-list.js:341 pkg/users/accounts-list.js:455
 msgid "Clear filter"
-msgstr "フィルタを外す"
+msgstr "フィルターを外す"
 
 #: pkg/shell/nav.jsx:158
 msgid "Clear search"
@@ -2809,7 +2807,7 @@ msgstr "motd を編集する"
 #: pkg/storaged/btrfs/subvolume.jsx:334 pkg/storaged/stratis/filesystem.jsx:170
 #: pkg/storaged/filesystem/filesystem.jsx:100
 msgid "Edit mount point"
-msgstr "マウントポイント 編集"
+msgstr "マウントポイントの編集"
 
 #: pkg/networkmanager/network-main.jsx:161
 msgid "Edit rules and zones"
@@ -3489,7 +3487,7 @@ msgstr "チェック方法"
 
 #: pkg/storaged/dialog.jsx:1367
 msgid "I confirm I want to lose this data forever"
-msgstr ""
+msgstr "このデータが完全に削除されることに同意します"
 
 #: pkg/users/group-create-dialog.js:47 pkg/users/accounts-list.js:230
 #: pkg/users/accounts-list.js:382 pkg/systemd/hwinfo.jsx:291
@@ -3579,7 +3577,7 @@ msgstr "無視"
 
 #: pkg/storaged/dialog.jsx:1302
 msgid "Important data might be deleted:"
-msgstr "重要データが削除されるかもしれない:"
+msgstr "重要なデータが削除される可能性があります:"
 
 #: pkg/metrics/metrics.jsx:816
 msgid "In"
@@ -4262,7 +4260,7 @@ msgstr "ロックされたデータ"
 
 #: pkg/storaged/dialog.jsx:1354
 msgid "Locked encrypted device might contain data"
-msgstr "ロック中暗号化デバイスにデータがあるようです"
+msgstr "ロックされた暗号化デバイスにはデータが含まれている可能性があります"
 
 #: pkg/storaged/jobs-panel.jsx:43
 msgid "Locking $target"
@@ -6531,12 +6529,12 @@ msgstr "ルート"
 
 #: pkg/lib/cockpit-components-table.jsx:270
 msgid "Row expansion"
-msgstr "行拡張"
+msgstr "行の拡張"
 
 #: pkg/lib/cockpit-components-table.jsx:271
 #: pkg/lib/cockpit-components-table.jsx:272
 msgid "Row select"
-msgstr "行選択"
+msgstr "行の選択"
 
 #: pkg/systemd/timer-dialog.jsx:252 pkg/systemd/timer-dialog.jsx:264
 msgid "Run at"
@@ -6627,10 +6625,8 @@ msgid "SSH key isn't a path"
 msgstr "SSH キーはパスではありません"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:468
-#, fuzzy
-#| msgid "SSH key"
 msgid "SSH key login"
-msgstr "SSH キー"
+msgstr "SSH 鍵ログイン"
 
 #: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
 #: pkg/shell/topnav.jsx:229
@@ -6774,15 +6770,10 @@ msgid "Select method"
 msgstr "メソッドの選択"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:127
-#, fuzzy
-#| msgid ""
-#| "Select the physical volumes that should be used to repair the logical "
-#| "volume. At leat $0 are needed."
 msgid ""
 "Select the physical volumes that should be used to repair the logical "
 "volume. At least $0 are needed."
-msgstr ""
-"論理ボリュームの修復に使用する物理ボリュームを選択します。$0 以上が必要です。"
+msgstr "論理ボリュームの修復に使用する物理ボリュームを選択します。$0 以上が必要です。"
 
 #: pkg/systemd/reporting.jsx:265
 msgid "Send"
@@ -7917,16 +7908,12 @@ msgid "Thinly provisioned LVM2 logical volumes"
 msgstr "シンプロビジョニングされた LVM2 論理ボリューム"
 
 #: pkg/storaged/mdraid/mdraid.jsx:284
-#, fuzzy
-#| msgid ""
-#| "This MDRAID device has no write-intent bitmap. Such a bitmap can reduce "
-#| "sychronization times significantly."
 msgid ""
 "This MDRAID device has no write-intent bitmap. Such a bitmap can reduce "
 "synchronization times significantly."
 msgstr ""
-"この MDRAID デバイスには write-intent ビットマップがありません。このビット"
-"マップを使用すると、同期時間を大幅に短縮できます。"
+"この MDRAID デバイスには write-intent ビットマップがありません。このビットマ"
+"ップを使用すると、同期時間を大幅に短縮できます。"
 
 #: pkg/storaged/nfs/nfs.jsx:111
 msgid "This NFS mount is in use and only its options can be changed."
@@ -8402,16 +8389,10 @@ msgid "Unable to get alert details."
 msgstr "アラート詳細を取得できません。"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:396
-#, fuzzy
-#| msgid ""
-#| "Unable to log in to $0 using SSH key authentication. Please provide the "
-#| "password. You may want to set up your SSH keys for automatic login."
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password."
-msgstr ""
-"SSH キー認証で $0 にログインできません。パスワードを入力してください。SSH "
-"キーを自動ログイン用に設定しておいてください。"
+msgstr "SSH 鍵認証を使用して $0 にログインできません。パスワードを入力してください。"
 
 #: pkg/shell/hosts_dialog.jsx:769
 msgid ""
@@ -8526,10 +8507,8 @@ msgid "Unknown host name"
 msgstr "不明なホスト名"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:125
-#, fuzzy
-#| msgid "Unknown host key"
 msgid "Unknown host: $0"
-msgstr "不明なホストキー"
+msgstr "不明なホスト: $0"
 
 #: pkg/networkmanager/firewall.jsx:477
 msgid "Unknown service name"
@@ -8629,7 +8608,7 @@ msgstr "信用できないホスト"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:129
 msgid "Up since"
-msgstr "$0 より稼働中"
+msgstr "起動時間:"
 
 #: pkg/shell/hosts_dialog.jsx:356
 msgid "Update"
@@ -8681,7 +8660,7 @@ msgstr "ステータスを更新中..."
 
 #: pkg/playground/react-demo-file-upload.tsx:109
 msgid "Upload"
-msgstr "ロード"
+msgstr "アップロード"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 #: pkg/storaged/lvm2/physical-volume.jsx:119

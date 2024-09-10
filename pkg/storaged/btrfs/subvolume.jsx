@@ -24,6 +24,8 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
+import { dirname } from "path";
+
 import {
     PageTable, StorageCard, StorageDescription, ChildrenTable,
     new_card, new_page, navigate_away_from_card, register_crossref, get_crossrefs,
@@ -249,14 +251,6 @@ function subvolume_delete(volume, subvol, mount_point_in_parent, card) {
     });
 }
 
-function dirname(path) {
-    const i = path.lastIndexOf("/");
-    if (i < 0)
-        return null;
-    else
-        return path.substr(0, i);
-}
-
 export function make_btrfs_subvolume_pages(parent, volume) {
     let subvols = client.uuids_btrfs_subvols[volume.data.uuid];
     if (!subvols) {
@@ -297,7 +291,7 @@ export function make_btrfs_subvolume_pages(parent, volume) {
             let dn = pn;
             while (true) {
                 dn = dirname(dn);
-                if (!dn) {
+                if (dn == "." || dn == "/") {
                     subvols_by_pathname[pn].parent = 5;
                     break;
                 } else if (subvols_by_pathname[dn]) {

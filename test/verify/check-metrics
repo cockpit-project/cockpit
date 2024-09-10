@@ -713,7 +713,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         checkEnabled(expected=True)
 
     @testlib.nondestructive
-    @testlib.onlyImage("only Fedora 40 and Fedora 39 have both valkey and redis", "fedora-40", "fedora-39")
+    @testlib.onlyImage("only Fedora 40 has both valkey and redis", "fedora-40")
     def testPmProxySettingsRedis(self):
         self.machine.execute("systemctl mask valkey")
         self.addCleanup(self.machine.execute, "systemctl unmask valkey")
@@ -1258,7 +1258,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         redis_package = "valkey" if redis_service == "valkey" else "redis"
         extra_packages = ""
         if redis_package == "valkey":
-            if m.image in ["fedora-39", "fedora-40"]:
+            if m.image == "fedora-40":
                 # Older Fedoras have the actual redis installed as
                 # well, and we want to remove that too to trigger the
                 # install dialog.

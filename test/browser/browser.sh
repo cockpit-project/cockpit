@@ -45,7 +45,7 @@ if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "main" ]; then
     dnf install -y NetworkManager-team
 fi
 
-if grep -Eq 'platform:(f39|f40)' /etc/os-release; then
+if grep -q 'platform:f40' /etc/os-release; then
     # required by TestJournal.testAbrt*
     dnf install -y abrt abrt-addon-ccpp reportd libreport-plugin-bugzilla libreport-fedora
 fi

@@ -78,6 +78,8 @@ const info = {
         "base1/test-user.js",
         "base1/test-websocket.js",
 
+        "lib/test-path.ts",
+
         "kdump/test-config-client.js",
 
         "networkmanager/test-utils.js",

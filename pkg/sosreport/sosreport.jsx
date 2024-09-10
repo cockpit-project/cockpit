@@ -40,6 +40,7 @@ import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
+import { basename as path_basename } from "path";
 
 import cockpit from "cockpit";
 import { superuser } from "superuser";
@@ -74,7 +75,7 @@ function sosLister() {
     }
 
     function parse_report_name(path) {
-        const basename = path.replace(/.*\//, "");
+        const basename = path_basename(path);
         const archive_rx = /^(secured-)?sosreport-(.*)\.tar\.[^.]+(\.gpg)?$/;
         const m = basename.match(archive_rx);
         if (m) {
@@ -197,7 +198,7 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
 }
 
 function sosDownload(path) {
-    const basename = path.replace(/.*\//, "");
+    const basename = path_basename(path);
     const query = window.btoa(JSON.stringify({
         payload: "fsread1",
         binary: "raw",

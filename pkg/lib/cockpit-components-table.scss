@@ -80,20 +80,6 @@
     font-size: var(--pf-v5-global--FontSize--sm);
     font-weight: var(--pf-v5-global--FontWeight--bold);
   }
-
-  // Adjust the padding for nested ct-tables in ct-tables
-  // FIXME: https://github.com/patternfly/patternfly/issues/4280
-  .ct-table {
-    td, th {
-      &:first-child {
-        --pf-v5-c-table--nested--first-last-child--PaddingLeft: var(--pf-v5-global--spacer--lg);
-      }
-
-      &:last-child {
-        --pf-v5-c-table--nested--first-last-child--PaddingRight: var(--pf-v5-global--spacer--lg);
-      }
-    }
-  }
 }
 
 // Special handling for rows with errors

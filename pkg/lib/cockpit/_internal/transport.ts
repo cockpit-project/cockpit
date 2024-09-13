@@ -54,8 +54,10 @@ class Transport extends EventEmitter<{ ready(): void }> {
 
         /* See if we should communicate via parent */
         if (window.parent !== window && window.name.indexOf("cockpit1:") === 0) {
+            console.log("PARENT SOCKET");
             this.#ws = new ParentWebSocket(window.parent);
         } else {
+            console.log("REAL SOCKET");
             const ws_loc = calculate_url();
             transport_debug("connecting to " + ws_loc);
             this.#ws = new WebSocket(ws_loc, "cockpit1");

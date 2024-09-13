@@ -40,13 +40,118 @@ import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { OutlinedQuestionCircleIcon, ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
-import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text"
+import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text";
 
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { fmt_to_fragments } from "utils.js";
 
+import { build_href, split_connection_string, generate_connection_string } from "./util.jsx";
+
 const _ = cockpit.gettext;
+
+export const HostModalState = () => {
+    function set_props(props, callback) {
+        self.modal_properties = props;
+        self.modal_callback = callback;
+        self.dispatchEvent("changed");
+    }
+
+    function close_modal() {
+        set_props(null, null);
+    }
+
+    function show_modal(properties) {
+        return new Promise((resolve, reject) => {
+            set_props(properties, result => { resolve(result); return Promise.resolve() });
+        });
+    }
+
+    const self = {
+        state: null,
+
+        show_modal,
+        close_modal,
+    };
+
+    cockpit.event_target(self);
+    return self;
+};
+
+export async function add_host(state) {
+    await state.show_modal({ });
+}
+
+export async function edit_host(state, shell_state, machine) {
+    const { current_machine } = shell_state;
+    const connection_string = await state.show_modal({ address: machine.address });
+    if (connection_string) {
+        const parts = split_connection_string(connection_string);
+        const addr = build_href({ host: parts.address });
+        if (machine == current_machine && parts.address != machine.address) {
+            shell_state.loader.connect(parts.address);
+            shell_state.jump(addr);
+        }
+    }
+}
+
+export async function connect_host(state, shell_state, machine) {
+    // We need to trigger the loader for machines that already
+    // have state "connected". The state of a machine object
+    // survives a full shell reload, but the loader of course has
+    // no channel open for it yet. The bridge likely has the SSH
+    // connection still open, so the loader can do its job right
+    // away, like triggering the packages reload.
+    //
+    // "localhost" is a special case: we can always connect the
+    // loader without any extra credentials and we never want to
+    // show any dialogs for it.
+    //
+    if (machine.connection_string == "localhost" ||
+        machine.state == "connected" ||
+        machine.state == "connecting") {
+        shell_state.loader.connect(machine.address);
+        return machine.connection_string;
+    }
+
+    let connection_string = null;
+
+    if (machine.problem && codes[machine.problem]) {
+        // trouble shooting
+        connection_string = await state.show_modal({
+            address: machine.address,
+            template: codes[machine.problem],
+        });
+    } else if (!window.sessionStorage.getItem("connection-warning-shown")) {
+        // connect by launching into the "Connection warning" dialog.
+        connection_string = await state.show_modal({
+            address: machine.address,
+            template: "connect"
+        });
+    } else {
+        // Try to connect without any dialog
+        try {
+            await try2Connect(shell_state.machines, machine.connection_string);
+            connection_string = machine.connection_string;
+        } catch (err) {
+            // continue with troubleshooting in the dialog
+            connection_string = await state.show_modal({
+                address: machine.address,
+                template: codes[err.problem] || "change-port",
+                error_options: err,
+            });
+        }
+    }
+
+    if (connection_string) {
+        // make the rest of the shell aware that the machine is now connected
+        const parts = split_connection_string(connection_string);
+        shell_state.loader.connect(parts.address);
+        shell_state.update();
+    }
+
+    return connection_string;
+}
 
 export const codes = {
     danger: "connect",
@@ -179,7 +284,7 @@ class AddMachine extends React.Component {
 
         let address_parts = null;
         if (this.props.full_address)
-            address_parts = this.props.machines_ins.split_connection_string(this.props.full_address);
+            address_parts = split_connection_string(this.props.full_address);
 
         let host_address = "";
         let host_user = "";
@@ -249,9 +354,9 @@ class AddMachine extends React.Component {
     }
 
     onAddHost() {
-        const parts = this.props.machines_ins.split_connection_string(this.state.address);
+        const parts = split_connection_string(this.state.address);
         // user in "User name:" field wins over user in connection string
-        const address = this.props.machines_ins.generate_connection_string(this.state.user || parts.user, parts.port, parts.address);
+        const address = generate_connection_string(this.state.user || parts.user, parts.port, parts.address);
 
         if (this.onAddressChange())
             return;
@@ -273,9 +378,9 @@ class AddMachine extends React.Component {
         this.setState({ inProgress: true });
 
         this.props.setGoal(() => {
-            const parts = this.props.machines_ins.split_connection_string(this.state.address);
+            const parts = split_connection_string(this.state.address);
             // user in "User name:" field wins over user in connection string
-            const address = this.props.machines_ins.generate_connection_string(this.state.user || parts.user, parts.port, parts.address);
+            const address = generate_connection_string(this.state.user || parts.user, parts.port, parts.address);
 
             return new Promise((resolve, reject) => {
                 this.props.machines_ins.add(address, this.state.color)
@@ -392,11 +497,9 @@ class MachinePort extends React.Component {
 
     onChangePort() {
         const promise = new Promise((resolve, reject) => {
-            const parts = this.props.machines_ins.split_connection_string(this.props.full_address);
+            const parts = split_connection_string(this.props.full_address);
             parts.port = this.state.port;
-            const address = this.props.machines_ins.generate_connection_string(parts.user,
-                                                                               parts.port,
-                                                                               parts.address);
+            const address = generate_connection_string(parts.user, parts.port, parts.address);
             const self = this;
 
             function update_host(ex) {
@@ -742,7 +845,7 @@ class ChangeAuth extends React.Component {
 
     login() {
         const options = {};
-        const user = this.props.machines_ins.split_connection_string(this.props.full_address).user || "";
+        const user = split_connection_string(this.props.full_address).user || "";
         const do_key_password_change = this.state.auto_login && this.state.default_ssh_key.unaligned_passphrase;
 
         let custom_password_error = "";
@@ -866,8 +969,8 @@ class ChangeAuth extends React.Component {
             const luser = this.state.user.name;
             const lhost = lmach ? lmach.label || lmach.address : "localhost";
             const afile = "~/.ssh/authorized_keys";
-            const ruser = this.props.machines_ins.split_connection_string(this.props.full_address).user || this.state.user.name;
-            const rhost = this.props.machines_ins.split_connection_string(this.props.full_address).address;
+            const ruser = split_connection_string(this.props.full_address).user || this.state.user.name;
+            const rhost = split_connection_string(this.props.full_address).address;
             if (!this.state.default_ssh_key.exists) {
                 auto_text = _("Create a new SSH key and authorize it");
                 auto_details = <>
@@ -980,7 +1083,7 @@ class ChangeAuth extends React.Component {
     }
 }
 
-export function try2Connect(machines_ins, address, options) {
+function try2Connect(machines_ins, address, options) {
     return new Promise((resolve, reject) => {
         const conn_options = { ...options, payload: "echo", host: address };
 
@@ -1005,7 +1108,7 @@ export function try2Connect(machines_ins, address, options) {
     });
 }
 
-export class HostModal extends React.Component {
+class HostModalInner extends React.Component {
     constructor(props) {
         super(props);
 
@@ -1031,7 +1134,7 @@ export class HostModal extends React.Component {
 
     addressOrLabel() {
         const machine = this.props.machines_ins.lookup(this.state.address);
-        let host = this.props.machines_ins.split_connection_string(this.state.address).address;
+        let host = split_connection_string(this.state.address).address;
         if (machine && machine.label)
             host = machine.label;
         return host;
@@ -1123,7 +1226,7 @@ export class HostModal extends React.Component {
             host: this.addressOrLabel(),
             full_address: this.state.address,
             old_address: this.state.old_address,
-            address_data: this.props.machines_ins.split_connection_string(this.state.address),
+            address_data: split_connection_string(this.state.address),
             error_options: this.state.error_options,
             dialogError: this.state.dialogError,
             machines_ins: this.props.machines_ins,
@@ -1158,10 +1261,21 @@ export class HostModal extends React.Component {
     }
 }
 
-HostModal.propTypes = {
+HostModalInner.propTypes = {
     machines_ins: PropTypes.object.isRequired,
     onClose: PropTypes.func.isRequired,
     caller_callback: PropTypes.func,
     address: PropTypes.string,
     template: PropTypes.string,
+};
+
+export const HostModal = ({ state, machines }) => {
+    if (!state.modal_properties)
+        return null;
+
+    return <HostModalInner machines_ins={machines}
+                           onClose={() => state.close_modal()}
+                           {...state.modal_properties}
+                           caller_callback={state.modal_callback}
+                           caller_cancelled={() => state.modal_callback(null)} />;
 };

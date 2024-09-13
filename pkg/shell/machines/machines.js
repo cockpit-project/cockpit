@@ -2,6 +2,8 @@ import cockpit from "cockpit";
 
 import ssh_add_key_sh from "../../lib/ssh-add-key.sh";
 
+import { split_connection_string, generate_connection_string } from "../util.jsx";
+
 const mod = { };
 
 /*
@@ -157,9 +159,9 @@ function Machines() {
             if (!machine.address)
                 machine.address = host;
 
-            machine.connection_string = self.generate_connection_string(machine.user,
-                                                                        machine.port,
-                                                                        machine.address);
+            machine.connection_string = generate_connection_string(machine.user,
+                                                                   machine.port,
+                                                                   machine.address);
 
             if (!machine.label) {
                 if (host == "localhost" || host == "localhost.localdomain") {
@@ -245,7 +247,7 @@ function Machines() {
     };
 
     self.add = function add(connection_string, color) {
-        let values = self.split_connection_string(connection_string);
+        let values = split_connection_string(connection_string);
         const host = values.address;
 
         values = {
@@ -323,7 +325,7 @@ function Machines() {
     };
 
     self.overlay = function overlay(host, values) {
-        const address = self.split_connection_string(host).address;
+        const address = split_connection_string(host).address;
         const changes = { };
         changes[address] = { ...last.overlay[address] };
         merge(changes[address], values);
@@ -358,49 +360,8 @@ function Machines() {
     });
 
     self.lookup = function lookup(address) {
-        const parts = self.split_connection_string(address);
+        const parts = split_connection_string(address);
         return machines[parts.address || "localhost"] || null;
-    };
-
-    self.generate_connection_string = function (user, port, addr) {
-        let address = addr;
-        if (user)
-            address = user + "@" + address;
-
-        if (port)
-            address = address + ":" + port;
-
-        return address;
-    };
-
-    self.split_connection_string = function(conn_to) {
-        const parts = {};
-        let user_spot = -1;
-        let port_spot = -1;
-
-        if (conn_to) {
-            if (conn_to.substring(0, 6) === "ssh://")
-                conn_to = conn_to.substring(6);
-            user_spot = conn_to.lastIndexOf('@');
-            port_spot = conn_to.lastIndexOf(':');
-        }
-
-        if (user_spot > 0) {
-            parts.user = conn_to.substring(0, user_spot);
-            conn_to = conn_to.substring(user_spot + 1);
-            port_spot = conn_to.lastIndexOf(':');
-        }
-
-        if (port_spot > -1) {
-            const port = parseInt(conn_to.substring(port_spot + 1), 10);
-            if (!isNaN(port)) {
-                parts.port = port;
-                conn_to = conn_to.substring(0, port_spot);
-            }
-        }
-
-        parts.address = conn_to;
-        return parts;
     };
 
     self.close = function close() {
@@ -704,7 +665,7 @@ function Loader(machines, session_only) {
     };
 
     self.expect_restart = function expect_restart(host) {
-        const parts = machines.split_connection_string(host);
+        const parts = split_connection_string(host);
         machines.overlay(parts.address, {
             restarting: true,
             problem: null

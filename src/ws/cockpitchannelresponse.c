@@ -601,6 +601,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
   gchar *channel = NULL;
   gpointer key;
   gpointer value;
+  gboolean allow_multihost;
 
   g_return_if_fail (COCKPIT_IS_WEB_SERVICE (service));
   g_return_if_fail (in_headers != NULL);
@@ -611,6 +612,14 @@ cockpit_channel_response_serve (CockpitWebService *service,
   if (!parse_host_and_etag (service, in_headers, where, path, &host, &quoted_etag))
     {
       /* Did not recognize the where */
+      goto out;
+    }
+
+  allow_multihost = cockpit_conf_bool ("WebService", "AllowMultiHost", ALLOW_MULTIHOST_DEFAULT);
+  if (!allow_multihost && g_strcmp0 (host, "localhost") != 0)
+    {
+      cockpit_web_response_error (response, 403, NULL, NULL);
+      handled = TRUE;
       goto out;
     }
 

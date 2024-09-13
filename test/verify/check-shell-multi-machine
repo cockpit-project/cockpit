@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
 
 import re
+import subprocess
 import time
 
 import testlib
@@ -375,6 +376,39 @@ class TestMultiMachine(testlib.MachineCase):
     def testDirectLogin(self):
         self.machine.start_cockpit()
         self.checkDirectLogin('/')
+
+        # Also check whether AllowMultiHost blocks access already in cockpit-ws.
+
+        b = self.browser
+        m = self.machine
+
+        self.enable_multihost(m)
+        self.setup_ssh_auth()
+
+        # login into cockpit on machine1
+        self.login_and_go("/system")
+        cookie = b.cookie("cockpit")
+
+        def http_code(url):
+            return int(subprocess.check_output(["curl",
+                                                "--silent",
+                                                "-b", f"cockpit={cookie['value']}",
+                                                "-o", "/dev/null", "-w", "%{http_code" + "}",
+                                                f"http://{b.address}:{b.port}{url}"]))
+
+        # Now we can get resources from machine1 and machine2
+        self.assertEqual(200, http_code("/cockpit/@localhost/manifests.json"))
+        self.assertEqual(200, http_code("/cockpit/@10.111.113.2/manifests.json"))
+
+        # But not when AllowMultiHost is false
+        m.write("/etc/cockpit/cockpit.conf",
+                '[WebService]\nAllowMultiHost=no\n')
+        m.restart_cockpit()
+        b.relogin("/system")
+        cookie = b.cookie("cockpit")
+
+        self.assertEqual(200, http_code("/cockpit/@localhost/manifests.json"))
+        self.assertEqual(403, http_code("/cockpit/@10.111.113.2/manifests.json"))
 
     @testlib.todoPybridgeRHEL8()
     def testUrlRoot(self):

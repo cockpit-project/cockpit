@@ -135,7 +135,13 @@ export class CockpitHosts extends React.Component {
     }
 
     async onAddNewHost() {
-        await this.showModal({ });
+        const connection_string = await this.showModal({ });
+        if (connection_string) {
+            const parts = this.props.machines.split_connection_string(connection_string);
+            const addr = this.props.hostAddr({ host: parts.address }, true);
+            this.props.loader.connect(parts.address);
+            this.props.jump(addr);
+        }
     }
 
     async onHostEdit(event, machine) {

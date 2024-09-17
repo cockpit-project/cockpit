@@ -34,9 +34,13 @@ $(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
 
 EXTRA_DIST += build.js files.js package.json package-lock.json
 
+############################## Hilscher specific list of plugins which should be excluded while installation step ####################################
+PLUGINS_TO_BE_EXCLUDE = \( -path './apps' -o -path './packagekit' -o -path './playground' -o -path './sosreport' -o -path './storaged' \) -prune -o
+######################################################################################################################################################
+
 INSTALL_DATA_LOCAL_TARGETS += install-bundles
 install-bundles:
-	cd $(srcdir)/dist; find */* -type f ! -name '*.LEGAL.txt' -a ! -path 'playground/*' -exec install -D -m 644 '{}' '$(abspath $(DESTDIR)$(datadir))/cockpit/{}' \;
+	cd $(srcdir)/dist; find . $(PLUGINS_TO_BE_EXCLUDE) -type f ! -name '*.LEGAL.txt' -a ! -path 'playground/*' -exec install -D -m 644 '{}' '$(abspath $(DESTDIR)$(datadir))/cockpit/{}' \;
 	find $(srcdir)/dist -name '*.LEGAL.txt' -exec install --target-directory '$(abspath $(DESTDIR)$(docdir))/legal' '{}' -D -m 644 '{}'  \;
 
 UNINSTALL_LOCAL_TARGETS += uninstall-bundles

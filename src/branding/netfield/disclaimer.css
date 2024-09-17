@@ -1,203 +1,211 @@
- @import url('colors.css');
+@import url('colors.css');
 
 :root {
-    --font-family: "ABC Diatype";
-    --font-size-btn-medium: 14px;
-  }
-  
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  --font-family: "ABC Diatype";
+  --font-size-btn-medium: 14px;
+}
 
-  body {
-    padding: 0;
-    box-sizing: border-box;
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  .page {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-    text-align: center;
-  }
+body {
+  padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
 
-  .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    color: white;
-    padding: 15px;
-    text-align: center;
-    z-index: 1000;
-    text-align: center;
-    border-bottom: 1rem solid transparent;
-    border-image: linear-gradient(90deg, #fff 0.76%, #57ebe5 31.77%, #89A9AF 42.11%, #f90e35 65.37%, #83c5c7 100%);
-    border-image-slice: 1;
-    width: 100%;
-    background: var(--primary-variant2, #fff);
-  }
-  
-  .header .logo {
-    content: url("logo-header.png");
-    display: flex;
-    padding: 12px 24px;
-  }
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
 
-  .page .content {
-    margin-top: 60px;
-    margin-bottom: 40px;
-    overflow-y: auto;
-    height: calc(100vh - 100px);
-    background-color: #f9f9f9;
-  }
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
-  .content .disclaimer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 120px 40px;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-  }
+.header {
+  top: 0;
+  left: 0;
+  width: 100%;
+  color: white;
+  text-align: center;
+  z-index: 1000;
+  text-align: center;
+  width: 100%;
+  background: var(--primary-variant2, #fff);
+}
 
-  .content .disclaimer .container {
-    width: 60%;
-    max-width: 800px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    min-width: 120px;
-  }
+.header .logo {
+  content: url("HIL_netFIELD-LOCAL_Logo_Black.svg");
+  max-width: 256px;
+  display: flex;
+  padding: 12px 24px;
+}
 
-  .content .disclaimer .container .textarea {
-    width: 100%;
-    height: calc(100vh - 675px);
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    overflow-y: scroll;
-    white-space: pre-wrap;
-    background-color: #f9f9f9;
-    /*hilscher textarea*/
-    font-size: 14px;
-    font-family: "ABC Diatype";
-    border-radius: 6px;
-    background: #ffffff;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #d9d9d9;
-    line-height: 1.5714285714285714;
-    list-style: none;
-    text-align: left;
-    padding: 10px;
-    white-space: pre-wrap;
-    overflow-x: hidden;
-  }
+.header .gradiant {
+  padding: 0px;
+  border-bottom: 9px solid transparent;
+  border-image: linear-gradient(90deg, #fff 0.76%, #57ebe5 31.77%, #89A9AF 42.11%, #f90e35 65.37%, #83c5c7 100%);
+  border-image-slice: 1;
+  width: 100%;
+  padding: 0px;
+}
 
-  .content .disclaimer .container .actions {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
+.content {
+  overflow-y: auto;
+  background-color: #f0f0f0;
+}
 
-  .disclaimer .container .actions a {
-    box-sizing: border-box;
-    outline: none;
-    position: relative;
-    display: inline-block;
-    font-weight: 400;
-    white-space: nowrap;
-    text-align: center;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-    user-select: none;
-    touch-action: manipulation;
-    height: 32px;
-    padding: 4px 15px;
-    color: #fff;
-    background: #222221;
-    border-radius: 4px;
-    font-family: var(--font-family);
-    box-shadow: none;
-    font-size: var(--font-size-btn-medium);
-    line-height: var(--font-size-btn-medium);
-    background-color: var(--primary-variant1);
-    text-decoration: none;
-    text-align: center;
-    line-height: 24px;
-    min-width: 80px;
-  }
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
 
-  .btn-active {
-    background-color: var(--primary-variant1) !important;
-    cursor: pointer !important;
-    pointer-events: auto !important;
-  }
+.content .disclaimer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 36px;
+  font-family: Arial, sans-serif;
+}
 
-  .btn-inactive {
-    background-color: var(--secondary-variant3) !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
-  }
+.content .disclaimer .container {
+  width: 60%;
+  max-width: 800px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  min-width: 120px;
+}
 
-  .footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: var(--secondary-variant4, #dadcdd);
-    color: white;
-    z-index: 1000;
-  }
+.content .disclaimer .container .textarea {
+  width: 100%;
+  height: calc(64vh);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow-y: scroll;
+  white-space: pre-wrap;
+  background-color: #f9f9f9;
+  font-size: 14px;
+  font-family: "ABC Diatype";
+  border-radius: 6px;
+  background: #ffffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #d9d9d9;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  text-align: left;
+  padding: 10px;
+  white-space: pre-wrap;
+  overflow-x: hidden;
+}
 
-  .footer .gradiant {
-    padding: 0px;
-    border-bottom: 1rem solid transparent;
-    border-image: linear-gradient(90deg, #fff 0.76%, #57ebe5 31.77%, #89A9AF 42.11%, #f90e35 65.37%, #83c5c7 100%);
-    border-image-slice: 1;
-    width: 100%;
-  }
+.content .disclaimer .container .actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
 
-  .footer .container {
-    display: flex;
-    padding: 48px 0 48px 24px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 80px;
-    background: var(--secondary-variant4, #dadcdd);
-    width: 100%;
-    margin-top: auto;
-  }
+.disclaimer .container .actions a {
+  box-sizing: border-box;
+  outline: none;
+  position: relative;
+  display: inline-block;
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  user-select: none;
+  touch-action: manipulation;
+  height: 32px;
+  padding: 4px 15px;
+  color: #fff;
+  background: #222221;
+  border-radius: 4px;
+  font-family: var(--font-family);
+  box-shadow: none;
+  font-size: var(--font-size-btn-medium);
+  line-height: var(--font-size-btn-medium);
+  background-color: var(--primary-variant1);
+  text-decoration: none;
+  text-align: center;
+  line-height: 24px;
+  min-width: 80px;
+}
 
-  .footer .container .logo {
-    content: url("HIL_Logo01_Claim_black_CMYK.svg");
-    display: flex;
-    padding: 16px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    cursor: initial;
-    padding: 20px;
-  }
+.btn-active {
+  background-color: var(--primary-variant1) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
 
-  .footer .container .copyright {
-    color: #000;
-    text-align: center;
-    padding: 20px;
-    font-family: var(--font-family);
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-  }
+.btn-inactive {
+  background-color: var(--secondary-variant3) !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.footer {
+  width: 100%;
+  background: var(--secondary-variant4, #dadcdd);
+  color: white;
+  z-index: 1000;
+}
+
+.footer .gradiant {
+  padding: 0px;
+  border-bottom: 9px solid transparent;
+  border-image: linear-gradient(90deg, #fff 0.76%, #57ebe5 31.77%, #89A9AF 42.11%, #f90e35 65.37%, #83c5c7 100%);
+  border-image-slice: 1;
+  width: 100%;
+}
+
+.footer .container {
+  display: flex;
+  padding: 48px 0 48px 24px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 80px;
+  background: var(--secondary-variant4, #dadcdd);
+  width: 100%;
+  margin-top: auto;
+}
+
+.footer .container .logo {
+  content: url("HIL_Logo01_Claim_black_CMYK.svg");
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: initial;
+  padding: 20px;
+}
+
+.footer .container .copyright {
+  color: #000;
+  text-align: center;
+  padding: 20px;
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+}

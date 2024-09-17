@@ -16,7 +16,7 @@
                 {agreementText}
               </div>
               <div class="actions">
-                <a href="../../" class="close-btn btn-inactive" id="close-btn" style="background-color: grey; pointer-events: none;"><span>close</span></a>
+                <a href="../../" class="close-btn btn-inactive" id="close-btn" style="background-color: grey; pointer-events: none;"><span>Close</span></a>
             </div>
             </div>
         </div>
@@ -43,9 +43,12 @@
 
     const textarea = document.getElementById('textarea');
     const closeButton = document.getElementById('close-btn');
+    // Tolerance for scroll position to reach the bottom of the textarea
+    // to activate the close button
+    const tolerance = 5;
 
     textarea.addEventListener('scroll', function() {
-      if (textarea.scrollTop + textarea.clientHeight >= textarea.scrollHeight) {
+      if ((textarea.scrollTop + textarea.clientHeight >= textarea.scrollHeight - tolerance)) {
         closeButton.classList.remove('btn-inactive');
         closeButton.classList.add('btn-active');
       }

@@ -603,7 +603,6 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 
 %files -n cockpit-pcp -f pcp.list
 %{_libexecdir}/cockpit-pcp
-%{_localstatedir}/lib/pcp/config/pmlogconf/tools/cockpit
 
 %post -n cockpit-pcp
 systemctl reload-or-try-restart pmlogger

@@ -255,9 +255,6 @@ endif
 
 if ENABLE_PCP
 
-pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools
-dist_pmlogconf_DATA = src/bridge/pmlogconf/cockpit
-
 libexec_PROGRAMS += cockpit-pcp
 
 noinst_LIBRARIES += libcockpit-pcp.a

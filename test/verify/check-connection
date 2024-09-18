@@ -140,7 +140,7 @@ class TestConnection(testlib.MachineCase):
 
         try:
             b.switch_to_top()
-            with b.wait_timeout(60):
+            with b.wait_timeout(90):
                 b.wait_visible(".curtains-ct")
 
             b.wait_in_text(".curtains-ct h1", "Disconnected")

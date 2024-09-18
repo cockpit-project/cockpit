@@ -150,7 +150,7 @@ def unpack_value(raw: Any) -> Any:
     if type_ == "object":
         obj = {}
         for k, v in raw["value"]:
-            obj[k] = unpack_value(v["value"])
+            obj[k] = unpack_value(v)
         return obj
     raise ValueError(f"Unknown type in {raw!r}")
 

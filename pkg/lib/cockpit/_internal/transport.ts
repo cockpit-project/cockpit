@@ -198,7 +198,7 @@ class Transport extends EventEmitter<{ ready(): void }> {
                 transport_debug("recv control:", control);
             } else {
                 payload = message.substring(nl + 1);
-                transport_debug("recv text message:", control, payload);
+                transport_debug("recv text message:", channel, payload);
             }
         }
 

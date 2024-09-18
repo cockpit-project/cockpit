@@ -1482,23 +1482,41 @@ class TestGrafanaClient(testlib.MachineCase):
 
         # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)
         bg = testlib.Browser(mg.forward['3000'], label=self.label() + "-" + mg.label, machine=self)
+
+        # HACK: Grafana uses zone.js which patches the global Promise object
+        # this breaks webdriver's `awaitPromise` logic, so none of our Browser.wait_*() work
+        def bgwait_present(sel):
+            for _ in range(15):
+                if bg.is_present(sel):
+                    break
+                time.sleep(1)
+            else:
+                raise testlib.Error("timed out waiting for " + sel)
+
+        # we don't get the Promise result of ph_find_scroll_into_view, use JS events
+        def bgclick(sel):
+            bgwait_present(sel)
+            bg.mouse(sel, "click", x=1)
+
         try:
             bg.open("/")
-            bg.wait_in_text("body", "Welcome to Grafana")
+            bgwait_present("input[name='password']")
+            testlib.wait(lambda: "Welcome to Grafana" in bg.text("body"))
             bg.set_input_text("input[name='user']", "admin")
             bg.set_input_text("input[name='password']", "foobar")
-            bg.click("button:contains('Log in')")
-            bg.wait_in_text("body", "Add your first data source")
+            bgclick("button:contains('Log in')")
+            testlib.wait(lambda: "Add your first data source" in bg.text("body"))
 
             # Add the PCP redis data source for our client machine
             # Cog (Configuration) menu → Data Sources → Add
             # Select PCP redis, HTTP URL http://10.111.112.1:44322
             redis_url = 'http://10.111.112.1:44322'
             bg.open("/datasources/new")
-            bg.click("[aria-label='Add new data source PCP Redis']")
+            bgclick("[aria-label='Add new data source PCP Redis']")
+            bgwait_present("input[placeholder='http://localhost:44322']")
             bg.set_input_text("input[placeholder='http://localhost:44322']", redis_url)
-            bg.click("button:contains('Save &')")  # Save & [tT]est
-            bg.wait_in_text("body", "Data source is working")
+            bgclick("button:contains('Save &')")  # Save & [tT]est
+            testlib.wait(lambda: "Data source is working" in bg.text("body"))
 
             # Grafana auto-discovers "host" variable for incoming metrics; it takes a while to receive the first
             # measurement; that event is not observable directly in Grafana, and the dashboard does not auto-update to
@@ -1508,20 +1526,20 @@ class TestGrafanaClient(testlib.MachineCase):
             testlib.wait(lambda: mg.execute(f"curl --max-time 10 --silent --show-error '{redis_url}/series/query?expr=kernel.all.load'").strip() != '[]', delay=10, tries=30)
 
             # Switch to "Dashboards" tab, import "Host Overview"
-            bg.click("a[href$='/dashboards'][role=tab]")
-            with bg.wait_timeout(60):
-                bg.wait_not_in_text("body", "Loading")
-            bg.click("tr:contains('PCP Redis: Host Overview') button:contains('Import')")
-            bg.wait_visible("tr:contains('PCP Redis: Host Overview') button:contains('Re-import')")
+            bgclick("a[href$='/dashboards'][role=tab]")
+            testlib.wait(lambda: "Loading" not in bg.text("body"))
+            bgclick("tr:contains('PCP Redis: Host Overview') button:contains('Import')")
+            bgwait_present("tr:contains('PCP Redis: Host Overview') button:contains('Re-import')")
 
             # .. and the dashboard name becomes clickable
-            bg.click("a:contains('PCP Redis: Host Overview')")
+            bgclick("a:contains('PCP Redis: Host Overview')")
 
-            bg.wait_in_text("#var-host", "grafana-client")
+            testlib.wait(lambda: "grafana-client" in bg.text("#var-host"))
 
             # expect a "Load average" panel with sensible numbers
-            bg.wait_in_text("section[data-testid*='Load average'],div[data-testid*='Load average']", "minute")
-            self.assertRegex(bg.text("section[data-testid*='Load average'],div[data-testid*='Load average']"), r"[0-9]\.[0-9]")
+            load_avg_sel = "section[data-testid*='Load average'],div[data-testid*='Load average']"
+            testlib.wait(lambda: "minute" in bg.text(load_avg_sel))
+            self.assertRegex(bg.text(load_avg_sel), r"[0-9]\.[0-9]")
         except Exception:
             bg.snapshot("FAIL-grafana")
             raise

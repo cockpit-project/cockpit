@@ -40,7 +40,7 @@ import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
-import { basename as path_basename } from "path";
+import { basename as path_basename } from "cockpit-path";
 
 import cockpit from "cockpit";
 import { superuser } from "superuser";

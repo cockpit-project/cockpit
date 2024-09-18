@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { dirname, basename } from "./path";
+import { dirname, basename } from "./cockpit-path";
 import QUnit from "qunit-tests";
 
 QUnit.test("dirname", function (assert) {

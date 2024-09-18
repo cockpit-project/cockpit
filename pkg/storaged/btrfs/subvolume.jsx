@@ -24,7 +24,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
-import { dirname } from "path";
+import { dirname } from "cockpit-path";
 
 import {
     PageTable, StorageCard, StorageDescription, ChildrenTable,

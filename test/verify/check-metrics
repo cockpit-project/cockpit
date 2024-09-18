@@ -1495,7 +1495,6 @@ class TestGrafanaClient(testlib.MachineCase):
             # Select PCP redis, HTTP URL http://10.111.112.1:44322
             redis_url = 'http://10.111.112.1:44322'
             bg.open("/datasources/new")
-            bg.wait_visible("[aria-label='Add new data source PCP Redis']")
             bg.click("[aria-label='Add new data source PCP Redis']")
             bg.set_input_text("input[placeholder='http://localhost:44322']", redis_url)
             bg.click("button:contains('Save &')")  # Save & [tT]est

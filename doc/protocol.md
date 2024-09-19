@@ -361,7 +361,7 @@ Example authorize challenge and response messages:
 ```
 
 Authorize messages are used during authentication by authentication
-commands (ei: cockpit-session, cockpit-ssh) to obtain the users credentials
+commands like `cockpit-session` to obtain the users credentials
 from cockpit-ws. An authentication command can send a authorize message
 with a response but no cookie. For example
 

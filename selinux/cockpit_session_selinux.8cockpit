@@ -16,9 +16,8 @@ For example:
 
 The cockpit_session_t SELinux type can be entered via the \fBcockpit_session_exec_t\fP file type.
 
-The default entrypoint paths for the cockpit_session_t domain are the following:
+The default entrypoint paths for the cockpit_session_t domain is \fB/usr/libexec/cockpit-session\fP.
 
-/usr/libexec/cockpit-ssh, /usr/libexec/cockpit-session
 .SH PROCESS TYPES
 SELinux defines process types (domains) for each process running on the system
 .PP
@@ -221,7 +220,7 @@ SELinux cockpit_session policy is very flexible allowing users to setup their co
 .br
 .TP 5
 Paths:
-/usr/libexec/cockpit-ssh, /usr/libexec/cockpit-session
+/usr/libexec/cockpit-session
 
 .PP
 Note: File context can be temporarily modified with the chcon command.  If you want to permanently change the file context you need to use the

@@ -6,7 +6,6 @@ Build-Depends: debhelper-compat (= 13),
                dh-python,
                gettext (>= 0.19.7),
                gettext (>= 0.21) | appstream,
-               libssh-dev (>= 0.8.5),
                zlib1g-dev,
                libkrb5-dev (>= 1.11),
                libxslt1-dev,
@@ -67,7 +66,6 @@ Depends: ${misc:Depends},
          ${python3:Depends},
          glib-networking
 Recommends: openssh-client
-Provides: cockpit-ssh
 Breaks: cockpit-ws (<< 181.x),
 Replaces: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)
 Description: Cockpit bridge server-side component

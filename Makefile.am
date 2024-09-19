@@ -174,7 +174,6 @@ include src/client/Makefile.am
 include src/common/Makefile-common.am
 include src/pam-ssh-add/Makefile.am
 include src/session/Makefile-session.am
-include src/ssh/Makefile-ssh.am
 include src/systemd/Makefile.am
 include src/tls/Makefile-tls.am
 include src/websocket/Makefile-websocket.am

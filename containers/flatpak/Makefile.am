@@ -16,12 +16,12 @@ INSTALL_FLATPAK_TARGETS = \
 	$(NULL)
 
 install-for-flatpak: $(INSTALL_FLATPAK_TARGETS)
-	appstream-util validate --nonet src/client/org.cockpit_project.CockpitClient.metainfo.xml
+	appstreamcli validate --no-net src/client/org.cockpit_project.CockpitClient.metainfo.xml
 	if test -s "${DOWNSTREAM_RELEASES_XML}"; then \
 	    $(top_srcdir)/tools/patch-metainfo \
 	        '$(DESTDIR)$(datadir)/metainfo/org.cockpit_project.CockpitClient.metainfo.xml' \
 	        "${DOWNSTREAM_RELEASES_XML}"; \
 	fi
-	appstream-util validate --nonet $(DESTDIR)$(datadir)/metainfo/org.cockpit_project.CockpitClient.metainfo.xml
+	appstreamcli validate --no-net $(DESTDIR)$(datadir)/metainfo/org.cockpit_project.CockpitClient.metainfo.xml
 	cp -rT dist/static $(DESTDIR)$(pkgdatadir)/static
 	rm -rf $(DESTDIR)$(pkgdatadir)/apps $(DESTDIR)$(pkgdatadir)/playground

@@ -175,10 +175,16 @@ class AuthorizeResponder(ferny.AskpassHandler):
         host_match = re.search(r"authenticity of host '([^ ]+) ", prompt)
         args = {}
         if fp_match and host_match:
+            hostname = host_match.group(1)
+            # common case: don't ask for localhost's host key
+            if hostname == '127.0.0.1':
+                logger.debug('auto-accepting fingerprint for 127.0.0.1: %s', host_match)
+                return 'yes'
+
             # login.js do_hostkey_verification() expects host-key to be "hostname keytype key"
             # we don't have access to the full key yet (that will be sent later as `login-data` challenge response),
             # so just send a placeholder
-            args['host-key'] = f'{host_match.group(1)} {fp_match.group(1)} login-data'
+            args['host-key'] = f'{hostname} {fp_match.group(1)} login-data'
             # very oddly named, login.js do_hostkey_verification() expects the fingerprint here for user confirmation
             args['default'] = fp_match.group(2)
 

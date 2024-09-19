@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build and install flatpak
-        run: ELEMENT_TREE_NO_INDENT=1 dbus-run-session sh -x containers/flatpak/install --user --install-deps-from=flathub
+        run: dbus-run-session sh -x containers/flatpak/install --user --install-deps-from=flathub
 
       - name: Smoke-test the installed flatpak
         run: |

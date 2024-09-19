@@ -185,8 +185,11 @@ def python_interpreter(comment: str) -> tuple[Sequence[str], Sequence[str]]:
 
 def via_ssh(cmd: Sequence[str], dest: str, ssh_askpass: Path, *ssh_opts: str) -> tuple[Sequence[str], Sequence[str]]:
     host, _, port = dest.rpartition(':')
-    # catch cases like `host:123` but not cases like `[2001:abcd::1]
-    if port.isdigit():
+    # catch cases like `host:123` but not cases like `[2001:abcd::1]` or `::1`
+    if port.isdigit() and not host.endswith(':'):
+        # strip off [] IPv6 brackets
+        if host.startswith('[') and host.endswith(']'):
+            host = host[1:-1]
         destination = ['-p', port, host]
     else:
         destination = [dest]

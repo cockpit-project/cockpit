@@ -10,12 +10,12 @@ header is built like this.
 Basic base64(user:password)
 ```
 
-A successful response is a 200 http code with a json body that contains a ```user``` field with the user
+A successful response is a 200 http code with a json body that contains a `user` field with the user
 name of the user that was just logged in. Additional fields may be present
 
 Other http codes are considered errors. Generally these are 401 or 403 http status codes.
 In most cases the error can detrived from the status text. Examples are
- ```authentication-failed```, ```authentication-unavailable``` or ```access-denied```
+`authentication-failed`, `authentication-unavailable` or `access-denied`
  In some cases additional error messages may be included.
 
 In some authentication setups additional steps are required. When this happens cockpit will

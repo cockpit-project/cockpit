@@ -26,7 +26,7 @@ Anaconda needs to tell Cockpit which devices can be used to install
 the OS on. This is done with the "available_devices" entry, which is
 an array of strings.
 
-```
+```json
 {
   "available_devices": [ "/dev/sda" ]
 }
@@ -42,7 +42,7 @@ Mount point prefix
 Cockpit can be put into a kind of "chroot" environment by giving it a
 mount point prefix like so:
 
-```
+```json
 {
   "mount_point_prefix": "/sysroot"
 }
@@ -68,7 +68,7 @@ created easily.
 
 This is done by setting the "efi" flag to true or false:
 
-```
+```json
 {
   "efi": true
 }
@@ -83,7 +83,7 @@ back to the type of the filesystem mounted as "/". When in Anaconda
 mode, there might not be anything assigned to "/" yet, and in this
 case, Cockpit will use the type from "default_fsys_type".
 
-```
+```json
 {
   "default_fsys_type": "xfs"
 }
@@ -99,11 +99,11 @@ is mostly information from fstab.
 The "cockpit_mount_points" entry in local storage will have a JSON
 encoded object, for example:
 
-```
+```json
 {
   "/dev/sda": {
     "type": "filesystem",
-    "dir": "/",
+    "dir": "/"
   },
   "/dev/sdb": {
     "type": "swap"
@@ -113,7 +113,7 @@ encoded object, for example:
     "content": {
       "type": "filesystem",
       "subvolumes": {
-        "home": { dir: "/home" }
+        "home": { "dir": "/home" }
       }
     }
   }
@@ -160,5 +160,4 @@ Cockpit also remembers and exports encryption passphrases in session
 storage, in the "cockpit_passphrases" entry. This is a map from device
 names to cleartext passphrases. This is only done when Cockpit runs in
 a "secure context", see
-
-    https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts
+https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts

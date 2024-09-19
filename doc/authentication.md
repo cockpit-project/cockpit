@@ -192,7 +192,7 @@ The following environment variables are set by cockpit-ws when spawning an auth 
 
  * **COCKPIT_REMOTE_PEER** Set to the ip address of the connecting user.
 
-The following environment variables are used to set options for the `cockpit-ssh` process:
+The following environment variables are used to set options for SSH connections:
 
  * **COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS** Set to `1` to  allow connecting to
    hosts that are not present in the current `known_hosts` files. If not set,

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-# Here we send our PID as a message on channel '11x', which we happen to know will be
-# 31 bytes long. After that we echo anything sent
-
-/usr/bin/printf '37\n\n{ \"command\" : \"init\", \"version\": 1 }31\n11x\n{ "pid": % 16s }' $$
-exec /bin/cat

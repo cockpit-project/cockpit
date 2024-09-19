@@ -55,11 +55,13 @@ Control messages are always sent in the control channel. They always have an
 empty channel. The payload of a control message is always a json
 object. There is always a "command" field:
 
-    {
-        "command": <command>,
-        "channel": <channel>,
-        ...
-    }
+```
+{
+    "command": <command>,
+    "channel": <channel>,
+    ...
+}
+```
 
 If a control message pertains to a specific channel it has a "channel" field
 containing the id of the channel. It is invalid to have a present but empty
@@ -125,12 +127,14 @@ The channel id must not already be in use by another channel.
 
 An example of an open:
 
-    {
-        "command": "open",
-        "channel": "a4",
-        "payload": "stream",
-        "host": "localhost"
-    }
+```json
+{
+    "command": "open",
+    "channel": "a4",
+    "payload": "stream",
+    "host": "localhost"
+}
+```
 
 This message is sent to the cockpit-bridge.
 
@@ -176,30 +180,33 @@ wish to throttle the data that they're sending to the bridge.
 
 Because the host parameter is how cockpit maps url requests to the correct bridge,
 cockpit may need to additional information to route the message correctly.
-For example you want to connect to a container ```my-container``` running
+For example you want to connect to a container `my-container` running
 on "my.host".
 
 To allow this the host parameter can encode a key/value pair that will
 be expanded in the open command json. The format is host+key+value. For example
 
-    {
-        "command": "open",
-        "channel": "a4",
-        "payload": "stream",
-        "host": "my.host+container+my-container"
-    }
+```json
+{
+    "command": "open",
+    "channel": "a4",
+    "payload": "stream",
+    "host": "my.host+container+my-container"
+}
+```
 
 will be expanded to
 
-    {
-        "command": "open",
-        "channel": "a4",
-        "payload": "stream",
-        "host": "my.host",
-        "host-container": "my-container",
-        "host": "my.host"
-    }
-
+```json
+{
+    "command": "open",
+    "channel": "a4",
+    "payload": "stream",
+    "host": "my.host",
+    "host-container": "my-container",
+    "host": "my.host"
+}
+```
 
 Command: close
 --------------
@@ -213,11 +220,13 @@ The following fields are defined:
 
 The channel id must be set.  An example of a close:
 
-    {
-        "command": "close",
-        "channel" : "5x",
-        "problem": "access-denied"
-    }
+```json
+{
+    "command": "close",
+    "channel" : "5x",
+    "problem": "access-denied"
+}
+```
 
 Any protocol participant can send this message. The cockpit-bridge and cockpit-ws
 backends will send this message when a channel closes whether because of an
@@ -236,9 +245,11 @@ The "auth-method-results" object contains a key for each method that cockpit-ws
 is able to attempt authentication with as well as the result of the attempt.
 For example:
 
-    {
-        "password": "denied"
-    }
+```json
+{
+    "password": "denied"
+}
+```
 
 This possible "result" values are:
 
@@ -304,9 +315,11 @@ is set this "ping" will be forwarded. Otherwise it be limited to a single hop.
 
 An example of a ping:
 
-    {
-        "command": "ping",
-    }
+```json
+{
+"command": "ping"
+}
+```
 
 Any protocol participant can send a "ping". It is responded to by sending
 a "pong" with identical options as a reply. If a "ping" is sent with a
@@ -331,27 +344,33 @@ For challenge/response authentication, the following fields are defined:
 
 Example authorize challenge and response messages:
 
-    {
-        "command": "authorize",
-        "cookie": "555",
-        "challenge": "crypt1:74657374:$6$2rcph,noe92ot..."
-    }
+```json
+{
+    "command": "authorize",
+    "cookie": "555",
+    "challenge": "crypt1:74657374:$6$2rcph,noe92ot..."
+}
+```
 
-    {
-        "command": "authorize",
-        "cookie": "555",
-        "response": "crypt1:$6$r0oetn2039ntoen..."
-    }
+```json
+{
+    "command": "authorize",
+    "cookie": "555",
+    "response": "crypt1:$6$r0oetn2039ntoen..."
+}
+```
 
 Authorize messages are used during authentication by authentication
 commands (ei: cockpit-session, cockpit-ssh) to obtain the users credentials
 from cockpit-ws. An authentication command can send a authorize message
 with a response but no cookie. For example
 
-    {
-        "command": "authorize",
-        "response": "Basic ..."
-    }
+```json
+{
+    "command": "authorize",
+    "response": "Basic ..."
+}
+```
 
 In that case cockpit-ws will store the response and use it in a reply
 to a subsequent challenge.
@@ -438,10 +457,12 @@ is received, then the channel is closed with a "protocol-error".
 Method calls are a JSON object with a "call" field, whose value is an array,
 with parameters in this order: path, interface, method, in arguments.
 
-    {
-        "call": [ "/path", "org.Interface", "Method", [ "arg0", 1, "arg2" ] ],
-        "id": "cookie"
-    }
+```json
+{
+    "call": [ "/path", "org.Interface", "Method", [ "arg0", 1, "arg2" ] ],
+    "id": "cookie"
+}
+```
 
 All the various parameters must be valid for their use. arguments may be
 null if no DBus method call body is expected. If a "type" field is specified
@@ -468,26 +489,30 @@ Method reply messages are JSON objects with a "reply" field whose value is
 an array, the array contains another array of out arguments, or null if
 the DBus reply had no body.
 
-    {
-        "reply": [ [ "arg0", 1, 2 ] ],
-        "id": "cookie"
-    }
+```json
+{
+    "reply": [ [ "arg0", 1, 2 ] ],
+    "id": "cookie"
+}
+```
 
 If the call had a "type" field, then the reply will have one too containing
 the DBus type signature of the arguments. If a "flags" field was present on
 the call, then "flags" will also be present on the reply. Valid out flags
 are:
 
- * ">": Big endian message
- * "<": Little endian message
+ * `>`: Big endian message
+ * `<`: Little endian message
 
 An error message is JSON object with an "error" field whose value is an
 array. The array contains: error name, error arguments
 
-    {
-        "error": [ "org.Error", [ "Usually a message" ] ]
-	"id": "cookie"
-    }
+```json
+{
+    "error": [ "org.Error", [ "Usually a message" ] ],
+    "id": "cookie"
+}
+```
 
 To receive signals you must subscribe to them. This is done by sending a
 "add-match" message. It contains various fields to match on. If a field
@@ -506,15 +531,17 @@ given string as their first argument. If any of the values are not
 valid according to the dbus specification, the channel will close with
 a "protocol-error".
 
-    {
-        "add-match": {
-            "name": "org.the.Name",
-            "path": "/the/path",
-            "interface": "org.Interface",
-            "member": "SignalName",
-            "arg0": "first argument",
-        }
+```json
+{
+    "add-match": {
+        "name": "org.the.Name",
+        "path": "/the/path",
+        "interface": "org.Interface",
+        "member": "SignalName",
+        "arg0": "first argument"
     }
+}
+```
 
 If the "name" field is omitted, it will be populated from the "open" message.
 If no "name" was specified in the "open" message, then DBus messages from any
@@ -526,31 +553,37 @@ times before the signals are actually unsubscribed.
 
 The form of "remove-match" is identical to "add-match".
 
-    {
-        "remove-match": {
-            "name": "org.the.Name",
-            "path": "/the/path",
-            "interface": "org.Interface",
-            "member": "SignalName",
-            "arg0": "first argument",
-        }
+```json
+{
+    "remove-match": {
+        "name": "org.the.Name",
+        "path": "/the/path",
+        "interface": "org.Interface",
+        "member": "SignalName",
+        "arg0": "first argument"
     }
+}
+```
 
 Signals are sent in JSON objects that have a "signal" field, which is an
 array of parameters: path, interface, signal name, and arguments. arguments
 may be null if the DBus signal had no body.
 
-    {
-        "signal": [ "/the/path", "org.Interface", "SignalName", [ "arg0", 1, 2 ] ]
-    }
+```json
+{
+    "signal": [ "/the/path", "org.Interface", "SignalName", [ "arg0", 1, 2 ] ]
+}
+```
 
 If a signal message is sent to the bridge, the signal will be emitted.
 In addition a "destination" field may be present to indicate whether
 the signal should be broadcast or not.
 
-    {
-        "signal": [ "/the/path", "org.Interface", "SignalName", [ "arg0", 1, 2 ] ]
-    }
+```json
+{
+    "signal": [ "/the/path", "org.Interface", "SignalName", [ "arg0", 1, 2 ] ]
+}
+```
 
 If the bus name of the sender of the signal does not match the "name" field of
 the "open" message, then a "name" field will be included with the "signal" message.
@@ -563,23 +596,27 @@ interfaces, otherwise DBus introspection is used. The "id" field is
 optional, if present a "reply" will be sent with this same "id" when
 the watch has sent "notify" messages about the things being watched.
 
-    {
-        "watch": {
-            "name": "org.the.Name",
-	    "path": "/the/path/to/watch",
-            "interface": org.Interface
-        }
-	"id": 5
-    }
+```json
+{
+    "watch": {
+        "name": "org.the.Name",
+        "path": "/the/path/to/watch",
+        "interface": "org.Interface"
+    },
+    "id": 5
+}
+```
 
 To remove a watch, pass the identical parameters with an "unwatch"
 request.
 
-    {
-        "unwatch": {
-            "path": "/the/path/to/watch"
-        }
+```json
+{
+    "unwatch": {
+        "path": "/the/path/to/watch"
     }
+}
+```
 
 If the "name" field is omitted, it will be populated from the "open" message.
 Either a "name" field must be specified here or in the "open" message.
@@ -589,20 +626,22 @@ addition of interfaces without properties, which will be an empty
 interface object, or interfaces removed, which will be null. Only the
 changes since the last "notify" message will be sent.
 
-    {
-	"notify": {
-            "/a/path": {
-                "org.Interface1": {
-                    "Prop1": x,
-                    "Prop2": y
-                },
-		"org.Interface2": { }
+```json
+{
+    "notify": {
+        "/a/path": {
+            "org.Interface1": {
+                "Prop1": "x",
+                "Prop2": 1
             },
-            "/another/path": {
-                "org.Removed": null
-            }
+            "org.Interface2": { }
+        },
+        "/another/path": {
+            "org.Removed": null
         }
     }
+}
+```
 
 If the bus name of the sender of the signal does not match the "name" field of
 the "open" message, then a "name" field will be included with the "notify" message.
@@ -612,20 +651,22 @@ first time an interface is sent using a "notify" message, a "meta"
 will be sent with that interface introspection info. Additional fields
 will be defined here, but this is it for now.
 
-    {
-        "meta": {
-            "org.Interface": {
-                "methods": {
-                    "Method1": { },
-                    "Method2": { }
-                },
-                "properties": {
-                    "Prop1": { "flags": "rw" },
-                    "Prop2": { "flags": "r" }
-                }
+```json
+{
+    "meta": {
+        "org.Interface": {
+            "methods": {
+                "Method1": { },
+                "Method2": { }
+            },
+            "properties": {
+                "Prop1": { "flags": "rw" },
+                "Prop2": { "flags": "r" }
             }
         }
     }
+}
+```
 
 If the bus name of the sender of the signal does not match the "name" field of
 the "open" message, then a "name" field will be included with the "meta" message.
@@ -636,9 +677,11 @@ When the owner of the DBus "name" (specified in the open message) changes an "ow
 message is sent. The owner value will be the id of the owner or null if the name
 is unowned.
 
-    {
-        "owner": "1:"
-    }
+```json
+{
+    "owner": "1:"
+}
+```
 
 A "publish" message can be used to export DBus interfaces on the bus. The bridge
 will then send "call" messages back to the frontend for each method invocation
@@ -647,17 +690,21 @@ with DBus meta information. If a cookie is specified then a reply will be sent
 when the interface is published. If the interface is already published at the given
 path, it will be replaced.
 
-   {
-       "publish": [ "/a/path", "org.Interface" ],
-       "id": "cookie"
-   }
+```json
+{
+    "publish": [ "/a/path", "org.Interface" ],
+    "id": "cookie"
+}
+```
 
 An "unpublish" message will unexport a DBus interface on the bus. It is not an
 error if no such interface has been published.
 
-   {
-       "unpublish": [ "/a/path", "org.Interface" ],
-   }
+```json
+{
+    "unpublish": [ "/a/path", "org.Interface" ]
+}
+```
 
 DBus types are encoded in various places in these messages, such as the
 arguments. These types are encoded as follows:
@@ -674,10 +721,12 @@ arguments. These types are encoded as follows:
  * variant: encoded as a JSON object with a "v" field containing a value
    and a "t" field containing a DBus type signature.
 
-   {
-       "v": "value",
-       "t": "s"
-   }
+```json
+{
+    "v": "value",
+    "t": "s"
+}
+```
 
 Payload: http-stream2
 ---------------------
@@ -1188,12 +1237,16 @@ The general open options are:
 You specify the desired metrics as an array of objects, where each
 object describes one metric.  For example:
 
-    [ { name: "kernel.all.cpu.user",
-        units: "millisec",
-        derive: "rate"
-      },
-      ...
-    ]
+```json
+[
+    {
+        "name": "kernel.all.cpu.user",
+        "units": "millisec",
+        "derive": "rate"
+    },
+    ...
+]
+```
 
 A metric description can contain the following fields:
 
@@ -1256,6 +1309,7 @@ message, and more fields might be present in the objects of the
 
 The 'data' messages are nested arrays in this shape:
 
+```
     [  // first point in time
        [
           // first metric (instanced, with two instances)
@@ -1275,10 +1329,11 @@ The 'data' messages are nested arrays in this shape:
           // same shape again as for the first point in time
        ]
     ]
+```
 
 Thus, a 'data' message contains data for one or more points in time
 where samples have been taken.  A point in time is always one
-"interval" later than the previous point in time, even when they are
+`interval` later than the previous point in time, even when they are
 reported in the same 'data' message.
 
 For real time monitoring, you will generally only receive one point in
@@ -1287,12 +1342,12 @@ might report multiple points in time in one message, to improve
 efficiency.
 
 For each point in time, there is an array with samples for each
-metric, in the same order as the "metrics" option used when opening
+metric, in the same order as the `metrics` option used when opening
 the channel.
 
 For non-instanced metrics, the array contains the value of the metric.
 For instanced metrics, the array contains another array with samples
-for each instance, in the same order as reported in the "instances"
+for each instance, in the same order as reported in the `instances`
 field of the most recent 'meta' message.
 
 In order to gain efficiency, 'data' messages are usually compressed.
@@ -1300,8 +1355,8 @@ This is done by only transmitting the differences from one point in
 time to the next.
 
 If a value for a metric or a instance is the same as at the previous
-point in time, the channel transmits a "null" value instead.
-Additionally, "null" values at the end of an array are suppressed by
+point in time, the channel transmits a `null` value instead.
+Additionally, `null` values at the end of an array are suppressed by
 transmitting a shorter array.
 
 For example, say the samples for three points in time are
@@ -1320,8 +1375,8 @@ This compression only happens when the last and current value belong
 to the same instance of the same metric.  Thus, the client does not
 need to track layout changes when decompressing data messages.
 
-Instead of a number of "null", a data message can also contain
-"false".  This indicates an error of some kind, or an unavailable
+Instead of a number of `null`, a data message can also contain
+`false`.  This indicates an error of some kind, or an unavailable
 value.
 
 **PCP metric source**
@@ -1336,11 +1391,11 @@ The format of the "units" member is the same as the one used by
 The metric information objects in the 'meta' messages for PCP sources
 also contain these fields:
 
- * "semantics" (string): The semantics of this metric, one of
-   "counter", "instant", or "discrete".
+ * `semantics` (string): The semantics of this metric, one of
+   `counter`, `instant`, or `discrete`.
 
 Only numeric metrics are currently supported.  Non-numeric metrics
-have all their samples set to "false".
+have all their samples set to `false`.
 
 Problem codes
 -------------
@@ -1348,15 +1403,15 @@ Problem codes
 These are problem codes for errors that cockpit-web responds to. They should
 be self explanatory. It's totally not interesting to arbitrarily invent new
 codes. Instead the web needs to be ready to react to these problems. When in
-doubt use "internal-error".
+doubt use `internal-error`.
 
- * "internal-error"
- * "no-cockpit"
- * "no-session"
- * "access-denied"
- * "authentication-failed"
- * "not-found"
- * "terminated"
- * "timeout"
- * "unknown-hostkey"
- * "no-forwarding"
+ * `internal-error`
+ * `no-cockpit`
+ * `no-session`
+ * `access-denied`
+ * `authentication-failed`
+ * `not-found`
+ * `terminated`
+ * `timeout`
+ * `unknown-hostkey`
+ * `no-forwarding`

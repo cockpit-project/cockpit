@@ -1033,7 +1033,7 @@ class Browser:
     ) -> None:
         self.logout()
         if wait_remote_session_machine:
-            wait_remote_session_machine.execute("while pgrep -a cockpit-ssh; do sleep 1; done")
+            wait_remote_session_machine.execute("while pgrep -af '[c]ockpit.beiboot'; do sleep 1; done")
         self.try_login(user=user, password=password, superuser=superuser)
         self.wait_visible('#content')
         if path:
@@ -2113,7 +2113,6 @@ class MachineCase(unittest.TestCase):
             "_COMM=cockpit-ws",
             "GLIB_DOMAIN=cockpit-ws",
             "GLIB_DOMAIN=cockpit-bridge",
-            "GLIB_DOMAIN=cockpit-ssh",
             "GLIB_DOMAIN=cockpit-pcp"
         ]
 

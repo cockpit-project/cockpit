@@ -245,6 +245,24 @@ add_oauth_to_environment (JsonObject *environment)
   }
 }
 
+static bool have_command (const char *name)
+{
+    gint status;
+    g_autoptr(GError) error = NULL;
+    g_autofree gchar *command = g_strdup_printf ("command -v %s", name);
+    if (g_spawn_sync (NULL,
+                    (gchar * []){ "/bin/sh", "-ec", command, NULL },
+                    NULL,
+                    G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
+                    NULL, NULL, NULL, NULL, &status, &error))
+      return status == 0;
+    else
+      {
+        g_warning ("Failed to check for %s: %s", name, error->message);
+        return FALSE;
+      }
+}
+
 static void
 add_page_to_environment (JsonObject *object,
                          gboolean    is_cockpit_client)
@@ -263,9 +281,11 @@ add_page_to_environment (JsonObject *object,
 
   if (page_login_to < 0)
     {
-      page_login_to = cockpit_conf_bool ("WebService", "LoginTo",
-                                         g_file_test (cockpit_ws_ssh_program,
-                                                      G_FILE_TEST_IS_EXECUTABLE));
+      /* cockpit.beiboot is part of cockpit-bridge package */
+      gboolean have_ssh = have_command ("ssh") && have_command ("cockpit-bridge");
+      if (!have_ssh)
+        g_info ("cockpit-bridge or ssh are not available, disabling remote logins");
+      page_login_to = cockpit_conf_bool ("WebService", "LoginTo", have_ssh);
     }
 
   require_host = is_cockpit_client || cockpit_conf_bool ("WebService", "RequireHost", FALSE);

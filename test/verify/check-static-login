@@ -99,7 +99,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # Try to login as user with correct password
         b.try_login("user", "abcdefg")
         if m.ostree_image:
-            b.wait_in_text("#login-error-message", "Server closed connection")
+            b.wait_in_text("#login-error-message", "Wrong user name or password")
         else:
             b.wait_text("#login-error-message", "Permission denied")
         self.assertNotIn("web", m.execute("who"))
@@ -152,7 +152,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.open("/=192.168.99.99/")
         b.wait_visible("#login")
         b.wait_not_visible("#option-group")
-        # logging in does not go via cockpit-ssh (which would cause a connection failure)
+        # logging in does not go via ssh (which would cause a connection failure)
         b.try_login()
         # this isn't the most helpful error message, but this is essentially hacking
         b.wait_text("#login-error-message", "Wrong user name or password")
@@ -163,10 +163,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.open("/system")
         b.wait_visible("#option-group")
 
-        # And now we remove cockpit-ssh which affects the default
+        # And now we remove ssh which affects the default
         if not m.ostree_image:
-            self.restore_file(f"{self.libexecdir}/cockpit-ssh")
-            m.execute(f"rm {self.libexecdir}/cockpit-ssh")
+            self.restore_file("/usr/bin/ssh")
+            m.execute("rm /usr/bin/ssh")
             m.restart_cockpit()
             b.open("/system")
             b.wait_visible("#login")
@@ -381,8 +381,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_in_text("#conversation-prompt", "life the universe")
         b.set_val('#conversation-input', '43')
         b.click('#login-button')
-
+        if m.ostree_image:
+            # ssh asks for password again, despite NumberOfPasswordPrompts=1
+            b.wait_in_text("#conversation-prompt", "nonexisting@127.0.0.1's password")
+            b.set_val('#conversation-input', 'blahblah')
+            b.click('#login-button')
         b.wait_text_not("#login-error-message", "")
+
         b.try_login("admin", "foobar")
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
@@ -954,21 +959,16 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # by IPv6 address and port
         check_server("[::1]:22", expect_fp_ack=True)
 
-    # check cockpit-beiboot as replacement of cockpit-ssh on the login page
-    # once that becomes the default, TestMultiMachine* and the other TestLogin* cover this
     @testlib.skipImage("needs pybridge", "rhel-8*", "centos-8*")
     # enable this once our cockpit/ws container can beiboot
     @testlib.skipOstree("client setup does not work with ws container")
-    def testLoginSshBeiboot(self):
+    def testSSH(self):
         m = self.machine
         b = self.browser
 
         # this matches our bots test VMs
         my_ip = "172.27.0.15"
-        m.write("/etc/cockpit/cockpit.conf", """
-[Ssh-Login]
-Command = /usr/bin/env python3 -m cockpit.beiboot
-""", append=True)
+
         m.start_cockpit()
 
         def try_login(user, password, server=None, expect_hostkey=False):

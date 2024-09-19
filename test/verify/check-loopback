@@ -58,10 +58,7 @@ class TestLoopback(testlib.MachineCase):
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")
         b.click('#login-button')
-        b.wait_visible('#login-fatal')
-        self.assertIn(
-            "The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.",
-            b.text('#login-fatal'))
+        b.wait_in_text('#login-error-message', "Wrong user name or password")
 
         self.allow_journal_messages("Cannot run program cockpit-bridge: No such file or directory",
                                     ".*server offered unsupported authentication methods: public-key.*")

@@ -102,10 +102,6 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
         self.machine2.execute("useradd user -c User", direct=True)
         self.machine2.execute(
             "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)", direct=True)
-        # HACK - Increase MaxAuthTries because of
-        # https://bugs.libssh.org/T233 and because we have a lot of
-        # keys and cockpit-ssh tries them all, and many of them twice.
-        self.machine2.write("/etc/ssh/sshd_config", "MaxAuthTries 100", append=True)
         self.machine2.execute(self.restart_sshd, direct=True)
         self.machine2.wait_execute()
 

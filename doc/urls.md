@@ -60,7 +60,7 @@ Direct to machine urls
 ======================
 
 Cockpit-ws supports logging in directly to a remote machine, without first
-authenticating on the machine that cockpit-ws is running on. A cockpit-ssh
+authenticating on the machine that cockpit-ws is running on. A `cockpit-beiboot`
 processes is spawned that connects via SSH to the remote machine and all
 requests are proxied via that connection.
 

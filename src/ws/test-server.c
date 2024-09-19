@@ -1018,9 +1018,6 @@ main (int argc,
     bridge_argv[i++] = "cockpit.bridge";
   }
 
-  // Use a local ssh session command
-  cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";
-
   loop = g_main_loop_new (NULL, FALSE);
 
   g_bus_own_name (G_BUS_TYPE_SESSION,

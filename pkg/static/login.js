@@ -822,13 +822,6 @@ function debug(...args) {
         const key_type = key.split(" ")[1];
         const db_keys = get_hostkeys(key_host);
 
-        // code path for old C cockpit-ssh, which doesn't set a known_hosts file in advance (like beiboot)
-        if (db_keys == key) {
-            debug("do_hostkey_verification: received key matches known_hosts database, auto-accepting fingerprint", data.default);
-            converse(data.id, data.default);
-            return;
-        }
-
         if (db_keys) {
             debug("do_hostkey_verification: received key fingerprint", data.default, "for host", key_host,
                   "does not match key in known_hosts database:", db_keys, "; treating as changed");
@@ -861,17 +854,15 @@ function debug(...args) {
         function call_converse() {
             id("login-button").removeEventListener("click", call_converse);
             login_failure(null, "hostkey");
+            // cockpit-beiboot sends only a placeholder, defer to login-data in setup_localstorage()
             if (key.endsWith(" login-data")) {
-                // cockpit-beiboot sends only a placeholder, defer to login-data in setup_localstorage()
                 login_data_host = key_host;
-                debug("call_converse(): got placeholder host key (beiboot code path) for", login_data_host,
-                      ", deferring db update");
+                debug("call_converse(): got placeholder host keyfor", login_data_host, ", deferring db update");
+                converse(data.id, data.default);
             } else {
-                // cockpit-ssh already sends the actual key here
-                set_hostkeys(key_host, key);
-                debug("call_converse(): got real host key (cockpit-ssh code path) for", login_data_host);
+                console.error("login: got unexpected host key prompt, expecting login-data placeholder:", key);
+                fatal(_("Internal protocol error"));
             }
-            converse(data.id, data.default);
         }
 
         id("login-button").addEventListener("click", call_converse);
@@ -1033,7 +1024,7 @@ function debug(...args) {
                             ssh_host_key_change_host = login_machine;
                             call_login();
                         } else {
-                            // but only once, to avoid loops; this is also the code path for cockpit-ssh
+                            // but only once, to avoid loops
                             debug("send_login_request(): invalid-hostkey, and already retried, giving up");
                             host_failure(_("Refusing to connect. Hostkey does not match"));
                         }

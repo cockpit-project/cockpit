@@ -315,6 +315,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.logout()
 
         # Bad host key
+        b.eval_js("""window.localStorage.setItem("known_hosts", '{}')""")
         m.write("/etc/ssh/ssh_known_hosts", "10.111.113.2 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW")
         b.open(f"{root}=10.111.113.2")
         b.wait_visible("#login")

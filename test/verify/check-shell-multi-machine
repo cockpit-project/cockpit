@@ -368,7 +368,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_not_visible("#server-group")
         b.click('#login-button')
         b.wait_visible("#server-group")
-        b.wait_in_text("#login-error-message", "Unable to connect")
+        b.wait_in_text("#login-error-message", "Refusing to connect")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()

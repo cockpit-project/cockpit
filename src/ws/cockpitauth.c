@@ -49,9 +49,12 @@
 #define ACTION_NONE "none"
 #define LOCAL_SESSION "local-session"
 
+/* for the time being, we only support running an installed cockpit-bridge on the remote,
+ * and leave beibooting to the flatpak */
+const gchar *cockpit_ws_ssh_program = "/usr/bin/env python3 -m cockpit.beiboot --remote-bridge=always";
+
 /* Some tunables that can be set from tests */
 const gchar *cockpit_ws_session_program = LIBEXECDIR "/cockpit-session";
-const gchar *cockpit_ws_ssh_program = LIBEXECDIR "/cockpit-ssh";
 
 /* Timeout of authenticated session when no connections */
 guint cockpit_ws_service_idle = 15;
@@ -1054,7 +1057,6 @@ cockpit_session_launch (CockpitAuth *self,
       return NULL;
     }
 
-  /* this might be unset, which means "allow if cockpit-ssh is installed"; if it isn't, this will fail later on */
   if (host && !cockpit_conf_bool ("WebService", "LoginTo", TRUE)) {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Direct remote login is disabled");

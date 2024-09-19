@@ -347,6 +347,7 @@ class TestConnection(testlib.MachineCase):
 
         self.allow_journal_messages(".*cockpit-ws.*dumped core.*")
         self.allow_journal_messages(".*Error creating thread: Resource temporarily unavailable.*")
+        self.allow_journal_messages(".*Failed to check for ssh: Failed to fork.*")
 
         # initial instance still works
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --show-error -k --head https://127.0.0.1:9090"))

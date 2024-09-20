@@ -26,7 +26,7 @@ import shlex
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Sequence
+from typing import Dict, Iterable, Literal, Optional, Sequence
 
 from cockpit import polyfills
 from cockpit._vendor import ferny
@@ -110,6 +110,14 @@ BEIBOOT_GADGETS = {
     def report_exists(files):
         command('cockpit.report-exists', {name: os.path.exists(name) for name in files})
     """,
+    "force_exec": r"""
+    import os
+    def force_exec(argv):
+        try:
+            os.execvp(argv[0], argv)
+        except OSError as e:
+            command('cockpit.fail-no-cockpit', str(e))
+    """,
     **ferny.BEIBOOT_GADGETS
 }
 
@@ -129,7 +137,7 @@ class DefaultRoutingRule(RoutingRule):
 
 
 class AuthorizeResponder(ferny.AskpassHandler):
-    commands = ('ferny.askpass', 'cockpit.report-exists')
+    commands = ('ferny.askpass', 'cockpit.report-exists', 'cockpit.fail-no-cockpit')
     router: Router
 
     def __init__(self, router: Router, basic_password: Optional[str]):
@@ -216,6 +224,9 @@ class AuthorizeResponder(ferny.AskpassHandler):
             self.router.packages = Packages(loader=ProxyPackagesLoader(file_status))  # type: ignore[attr-defined]
             self.router.routing_rules.insert(0, ChannelRoutingRule(self.router, [PackagesChannel]))
 
+        if command == 'cockpit.fail-no-cockpit':
+            raise CockpitProblem('no-cockpit', message=args[0])
+
 
 def python_interpreter(comment: str) -> tuple[Sequence[str], Sequence[str]]:
     return ('python3', '-ic', f'# {comment}'), ()
@@ -253,11 +264,11 @@ def flatpak_spawn(cmd: Sequence[str], env: Sequence[str]) -> tuple[Sequence[str]
 
 
 class SshPeer(Peer):
-    always: bool
+    mode: 'Literal["always"] | Literal["never"] | Literal["auto"]'
 
     def __init__(self, router: Router, destination: str, args: argparse.Namespace):
         self.destination = destination
-        self.always = args.always
+        self.remote_bridge = args.remote_bridge
         self.tmpdir = tempfile.TemporaryDirectory()
         self.known_hosts_file = Path(self.tmpdir.name) / 'user-known-hosts'
         super().__init__(router)
@@ -324,9 +335,12 @@ class SshPeer(Peer):
         logger.debug("Launching command: cmd=%s env=%s", cmd, env)
         transport = await self.spawn(cmd, env, stderr=agent, start_new_session=True)
 
-        if not self.always:
+        if self.remote_bridge == 'auto':
             exec_cockpit_bridge_steps = [('try_exec', (['cockpit-bridge'],))]
+        elif self.remote_bridge == 'always':
+            exec_cockpit_bridge_steps = [('force_exec', (['cockpit-bridge'],))]
         else:
+            assert self.remote_bridge == 'never'
             exec_cockpit_bridge_steps = []
 
         # Send the first-stage bootloader
@@ -451,7 +465,10 @@ def main() -> None:
     polyfills.install()
 
     parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
-    parser.add_argument('--always', action='store_true', help="Never try to run cockpit-bridge from the system")
+    parser.add_argument('--remote-bridge', choices=['auto', 'never', 'always'], default='auto',
+                        help="How to run cockpit-bridge from the remote host: auto: if installed (default), "
+                        "never: always copy the local one; "
+                        "always: fail if not installed")
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('destination', help="Name of the remote host to connect to, or 'localhost'")
     args = parser.parse_args()

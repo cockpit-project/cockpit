@@ -35,8 +35,8 @@ def any_subprocesses() -> bool:
 #   - there are general issues running under tox which need investigation
 if 'NO_QUNIT' in os.environ:
     @pytest.hookimpl
-    def pytest_ignore_collect(path) -> 'bool | None':
-        return path.basename == 'test_browser.py' or None
+    def pytest_ignore_collect(collection_path) -> 'bool | None':
+        return collection_path.name == 'test_browser.py' or None
 else:
     pytest_plugins = "js_coverage"
 

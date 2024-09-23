@@ -116,13 +116,6 @@ class TestWsBastionContainer(testlib.MachineCase):
                   "localhost/cockpit/ws")
         check_login()
 
-        # connect to all unknown hosts
-        # FIXME: this does not work
-        # m.execute("podman run -d --name cockpit-bastion -p 9090:9090 "
-        #           "-e COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS=1 "
-        #           "localhost/cockpit/ws")
-        # check_login()
-
     def testCustomConf(self):
         m = self.machine
         b = self.browser

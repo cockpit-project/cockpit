@@ -319,6 +319,10 @@ class SshPeer(Peer):
         if not ssh_askpass.exists():
             logger.error("Could not find cockpit-askpass helper at %r", askpass)
 
+        env_known_hosts = os.getenv('COCKPIT_SSH_KNOWN_HOSTS_FILE')
+        if env_known_hosts is not None:
+            args += ['-o', f'GlobalKnownHostsFile={env_known_hosts}']
+
         if known_hosts is not None:
             self.known_hosts_file.write_text(known_hosts)
             args += ['-o', f'UserKnownHostsfile={self.known_hosts_file!s}']

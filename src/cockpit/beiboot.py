@@ -309,6 +309,9 @@ class SshPeer(Peer):
                 logger.debug("got username %s and password from Basic auth", user)
                 args += ['-l', user]
 
+        if basic_password is None:
+            args += ['-o', 'PasswordAuthentication=no']
+
         # We want to run a python interpreter somewhere...
         cmd, env = python_interpreter('cockpit-bridge')
 

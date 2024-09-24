@@ -444,6 +444,8 @@ async def run(args) -> None:
         elif isinstance(error, OSError):
             # usually DNS/socket errors
             problem = 'unknown-host'
+        elif isinstance(error, ferny.SshError):
+            problem = 'authentication-failed'
         else:
             problem = 'internal-error'
         # if the user confirmed a new SSH host key before the error, tell the UI

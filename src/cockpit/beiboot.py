@@ -269,6 +269,7 @@ class SshPeer(Peer):
         self.remote_bridge = args.remote_bridge
         self.tmpdir = tempfile.TemporaryDirectory()
         self.known_hosts_file = Path(self.tmpdir.name) / 'user-known-hosts'
+        self.basic_password: 'str | None' = None
         super().__init__(router)
 
     async def do_connect_transport(self) -> None:
@@ -292,7 +293,6 @@ class SshPeer(Peer):
         await self.boot(cmd, env)
 
     async def connect_from_bastion_host(self) -> None:
-        basic_password = None
         known_hosts = None
         # right now we open a new ssh connection for each auth attempt
         args = ['-o', 'NumberOfPasswordPrompts=1']
@@ -304,12 +304,12 @@ class SshPeer(Peer):
         if response.startswith('Basic '):
             decoded = base64.b64decode(response[6:]).decode()
             user_password, _, known_hosts = decoded.partition('\0')
-            user, _, basic_password = user_password.partition(':')
+            user, _, self.basic_password = user_password.partition(':')
             if user:  # this can be empty, i.e. auth is just ":"
                 logger.debug("got username %s and password from Basic auth", user)
                 args += ['-l', user]
 
-        if basic_password is None:
+        if self.basic_password is None:
             args += ['-o', 'PasswordAuthentication=no']
 
         # We want to run a python interpreter somewhere...
@@ -331,11 +331,11 @@ class SshPeer(Peer):
             args += ['-o', f'UserKnownHostsfile={self.known_hosts_file!s}']
         cmd, env = via_ssh(cmd, self.destination, ssh_askpass, *args)
 
-        await self.boot(cmd, env, basic_password)
+        await self.boot(cmd, env)
 
-    async def boot(self, cmd: Sequence[str], env: Sequence[str], basic_password: 'str | None' = None) -> None:
+    async def boot(self, cmd: Sequence[str], env: Sequence[str]) -> None:
         beiboot_helper = BridgeBeibootHelper(self)
-        agent = ferny.InteractionAgent([AuthorizeResponder(self.router, basic_password), beiboot_helper])
+        agent = ferny.InteractionAgent([AuthorizeResponder(self.router, self.basic_password), beiboot_helper])
 
         logger.debug("Launching command: cmd=%s env=%s", cmd, env)
         transport = await self.spawn(cmd, env, stderr=agent, start_new_session=True)
@@ -359,13 +359,21 @@ class SshPeer(Peer):
         # Wait for "init" or error, handling auth and beiboot requests
         await agent.communicate()
 
-    def transport_control_received(self, command: str, message: JsonObject) -> None:
-        if command == 'authorize':
-            # We've disabled this for explicit-superuser bridges, but older
-            # bridges don't support that and will ask us anyway.
-            return
+    def do_superuser_init_done(self) -> None:
+        self.basic_password = None
 
-        super().transport_control_received(command, message)
+    def do_authorize(self, message: JsonObject) -> None:
+        logger.debug("SshPeer.do_authorize: %r; have password %s", message, self.basic_password is not None)
+        if get_str(message, 'challenge').startswith('plain1:'):
+            cookie = get_str(message, 'cookie')
+            if self.basic_password is not None:
+                logger.debug("SshPeer.do_authorize: responded with password")
+                self.write_control(command='authorize', cookie=cookie, response=self.basic_password)
+                self.basic_password = None  # once is enough
+                return
+
+        logger.debug("SshPeer.do_authorize: authentication-unavailable")
+        self.write_control(command='authorize', cookie=cookie, problem='authentication-unavailable')
 
 
 class SshBridge(Router):
@@ -387,14 +395,9 @@ class SshBridge(Router):
         pass  # wait for the peer to do it first
 
     def do_init(self, message):
-        # https://github.com/cockpit-project/cockpit/issues/18927
-        #
-        # We tell cockpit-ws that we have the explicit-superuser capability and
-        # handle it ourselves (just below) by sending `superuser-init-done` and
-        # passing {'superuser': False} on to the actual bridge (Python or C).
-        if isinstance(message.get('superuser'), dict):
-            self.write_control(command='superuser-init-done')
-        message['superuser'] = False
+        # forward our init options to the remote bridge; we are transparent
+        # except for the explicit-superuser handling in SshPeer
+        logger.debug("SshBridge.do_init: %r", message)
         self.ssh_peer.write_control(message)
 
 

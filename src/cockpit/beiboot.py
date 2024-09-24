@@ -149,15 +149,13 @@ class AuthorizeResponder(ferny.AskpassHandler):
         logger.debug("AuthorizeResponder: prompt %r, messages %r, hint %r", prompt, messages, hint)
 
         if self.have_basic_password and 'password:' in prompt.lower():
-            # with our NumberOfPasswordPrompts=1 ssh should never actually ask us more than once; assert that
-            if self.basic_password is None:
-                raise CockpitProtocolError(
-                    f"ssh asked for password a second time, but we already sent it; prompt: {messages}")
-
-            logger.debug("AuthorizeResponder: sending Basic auth password for prompt %r", prompt)
-            reply = self.basic_password
-            self.basic_password = None
-            return reply
+            # only the first prompt is the current password (with NumberOfPasswordPrompts=1); further prompts
+            # are e.g. forced/expired PAM password changes
+            if self.basic_password is not None:
+                logger.debug("AuthorizeResponder: sending Basic auth password for prompt %r", prompt)
+                reply = self.basic_password
+                self.basic_password = None
+                return reply
 
         if hint == 'none':
             # We have three problems here:

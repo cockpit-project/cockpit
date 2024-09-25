@@ -136,15 +136,15 @@ export class TopNav extends React.Component {
             }
         }
 
-        const item = this.props.compiled.items[this.props.state.component];
-        if (item && item.docs)
-            docs = item.docs;
-
-        // Check for parent as well
-        if (docs.length === 0) {
-            const comp = cockpit.manifests[this.props.state.component];
-            if (comp && comp.parent && comp.parent.docs)
-                docs = comp.parent.docs;
+        // Check first whether we have docs in the "parent" section of
+        // the manifest.
+        const comp = cockpit.manifests[this.props.state.component];
+        if (comp && comp.parent && comp.parent.docs)
+            docs = comp.parent.docs;
+        else {
+            const item = this.props.compiled.items[this.props.state.component];
+            if (item.docs)
+                docs = item.docs;
         }
 
         const docItems = [];

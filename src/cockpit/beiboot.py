@@ -400,6 +400,10 @@ class SshBridge(Router):
         logger.debug("SshBridge.do_init: %r", message)
         self.ssh_peer.write_control(message)
 
+    def setup_session(self) -> None:
+        # if ssh dies during the session, go down with it
+        self.ssh_peer.add_done_callback(self.close)
+
 
 async def run(args) -> None:
     logger.debug("Hi. How are you today?")
@@ -464,6 +468,7 @@ async def run(args) -> None:
         return
 
     logger.debug('Startup done.  Looping until connection closes.')
+    bridge.setup_session()
     try:
         await bridge.communicate()
     except BrokenPipeError:

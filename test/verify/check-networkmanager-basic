@@ -331,9 +331,6 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_visible("#networking-edit-mac")
         b.wait_visible(f".pf-v5-c-card__header:contains('{iface}') .pf-v5-c-switch input:not(disabled)")
 
-        # FIXME: if pcp is running, cockpit-pcp throws this warning
-        self.allow_journal_messages('received invalid "host" field in kill command')
-
 
 if __name__ == '__main__':
     testlib.test_main()

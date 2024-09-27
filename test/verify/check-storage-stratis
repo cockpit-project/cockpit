@@ -432,7 +432,7 @@ systemctl restart stratisd
 
         b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
         self.dialog_wait_open()
-        self.dialog_wait_val('size_options.custom_size', val=True)
+        self.dialog_wait_val('set_custom_size.enabled', val=True)
         self.dialog_set_val('name', 'fsys1')
         self.dialog_apply_secondary()
         self.dialog_wait_close()
@@ -463,7 +463,7 @@ systemctl restart stratisd
 
         b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
         self.dialog_wait_open()
-        self.dialog_wait_val('size_options.custom_size', val=False)
+        self.dialog_wait_val('set_custom_size.enabled', val=False)
         self.dialog_cancel()
         self.dialog_wait_close()
 
@@ -501,9 +501,9 @@ systemctl restart stratisd
         b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
         self.dialog_wait_open()
         self.dialog_set_val('name', 'fsys1')
-        self.dialog_set_val('size_options.custom_size', val=True)
+        self.dialog_set_val('set_custom_size.enabled', val=True)
         self.dialog_set_val('size', 800)
-        self.dialog_set_val('size_options.custom_limit', val=True)
+        self.dialog_set_val('set_custom_limit.enabled', val=True)
         self.dialog_set_val('limit', 1600)
         self.dialog_apply_secondary()
         self.dialog_wait_close()

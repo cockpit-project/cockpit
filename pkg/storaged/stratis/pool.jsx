@@ -92,28 +92,35 @@ function create_fs(pool) {
                       {
                           validate: name => validate_fs_name(null, name, filesystems)
                       }),
-            CheckBoxes("size_options", _("Manage virtual size"),
+            CheckBoxes("set_custom_size", _("Stratis filesystem"),
                        {
                            value: {
-                               custom_size: !pool.Overprovisioning,
-                               custom_limit: false,
+                               enabled: !pool.Overprovisioning,
                            },
                            fields: [
-                               { tag: "custom_size", title: _("Specify initial virtual filesystem size") },
-                               { tag: "custom_limit", title: _("Limit virtual filesystem size") },
+                               { tag: "enabled", title: _("Set initial size") },
                            ]
                        }),
-            SizeSlider("size", _("Initial virtual size"),
+            SizeSlider("size", "",
                        {
-                           visible: vals => vals.size_options.custom_size,
+                           visible: vals => vals.set_custom_size.enabled,
                            min: fsys_min_size,
                            max: pool.Overprovisioning ? stats.pool_total : stats.pool_free,
                            allow_infinite: pool.Overprovisioning,
                            round: 512
                        }),
-            SizeSlider("limit", _("Virtual size limit"),
+            CheckBoxes("set_custom_limit", "",
                        {
-                           visible: vals => vals.size_options.custom_limit,
+                           value: {
+                               enabled: false,
+                           },
+                           fields: [
+                               { tag: "enabled", title: _("Limit size") },
+                           ]
+                       }),
+            SizeSlider("limit", "",
+                       {
+                           visible: vals => vals.set_custom_limit.enabled,
                            min: fsys_min_size,
                            max: pool.Overprovisioning ? stats.pool_total : stats.pool_free,
                            allow_infinite: true,
@@ -136,9 +143,9 @@ function create_fs(pool) {
             Variants: action_variants,
             action: async function (vals) {
                 let size_spec = [false, ""]; let limit_spec = [false, ""];
-                if (vals.size_options.custom_size)
+                if (vals.set_custom_size.enabled)
                     size_spec = [true, vals.size.toString()];
-                if (vals.size_options.custom_limit)
+                if (vals.set_custom_limit.enabled)
                     limit_spec = [true, vals.limit.toString()];
                 const result = await pool.CreateFilesystems([[vals.name, size_spec, limit_spec]]).then(std_reply);
                 if (result[0])

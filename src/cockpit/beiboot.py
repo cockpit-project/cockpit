@@ -429,6 +429,9 @@ async def run(args) -> None:
         logger.debug("CockpitProblem: %s", exc)
         bridge.write_control(exc.attrs, command='init')
         return
+    except asyncio.CancelledError:
+        logger.debug("Peer bridge got cancelled, exiting")
+        return
 
     logger.debug('Startup done.  Looping until connection closes.')
     try:

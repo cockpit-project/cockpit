@@ -123,9 +123,6 @@ cockpit_web_server_add_fd_listener (CockpitWebServer *self,
                                     int fd,
                                     GError **error);
 
-GIOStream *
-cockpit_web_server_connect (CockpitWebServer *self);
-
 void
 cockpit_web_server_set_protocol_header (CockpitWebServer *self,
                                         const gchar *protocol_header);

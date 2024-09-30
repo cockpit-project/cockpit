@@ -2114,7 +2114,6 @@ class MachineCase(unittest.TestCase):
             "_COMM=cockpit-ws",
             "GLIB_DOMAIN=cockpit-ws",
             "GLIB_DOMAIN=cockpit-bridge",
-            "GLIB_DOMAIN=cockpit-pcp"
         ]
 
         if not self.allow_core_dumps:

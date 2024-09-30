@@ -32,10 +32,4 @@ GList *           cockpit_template_expand         (GBytes *input,
                                                    CockpitTemplateFunc func,
                                                    gpointer user_data);
 
-JsonObject *      cockpit_template_expand_json    (JsonObject *object,
-                                                   const gchar *start_marker,
-                                                   const gchar *end_marker,
-                                                   CockpitTemplateFunc func,
-                                                   gpointer user_data);
-
 #endif /* COCKPIT_TEMPLATE_H__ */

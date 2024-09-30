@@ -120,64 +120,6 @@ test_expand (TestCase *tc,
   g_list_free_full (output, (GDestroyNotify)g_bytes_unref);
 }
 
-static void
-test_json (TestCase *tc,
-           gconstpointer data)
-{
-  g_autoptr(JsonObject) input = json_object_new ();
-  g_autoptr(JsonObject) expected_at = json_object_new ();
-  g_autoptr(JsonObject) expected_brackets = json_object_new ();
-  g_autoptr(JsonObject) expected_both = json_object_new ();
-
-  for (int i = 0; i < G_N_ELEMENTS (expand_fixtures); i++)
-    {
-      const Fixture *fixture = &expand_fixtures[i];
-      g_autofree gchar *output = g_strjoinv ("", (gchar **) fixture->output);
-
-      json_object_set_string_member (input, fixture->name, fixture->input);
-
-      if (g_str_equal (fixture->start, "@@"))
-        {
-          /* ${...} won't expand anything here */
-          json_object_set_string_member (expected_brackets, fixture->name, fixture->input);
-
-          /* the other cases will */
-          json_object_set_string_member (expected_at, fixture->name, output);
-          json_object_set_string_member (expected_both, fixture->name, output);
-        }
-      else
-        {
-          g_assert (g_str_equal (fixture->start, "${"));
-
-          /* @@...@@ won't expand anything here */
-          json_object_set_string_member (expected_at, fixture->name, fixture->input);
-
-          /* the other cases will */
-          json_object_set_string_member (expected_brackets, fixture->name, output);
-          json_object_set_string_member (expected_both, fixture->name, output);
-        }
-    }
-
-  json_object_seal (input);
-
-  /* Let's try the cases now */
-  g_autoptr(JsonObject) at_results = cockpit_template_expand_json (input, "@@", "@@",
-                                                                   lookup_table, tc->variables);
-  g_assert (json_object_equal (at_results, expected_at));
-
-  g_autoptr(JsonObject) bracket_results = cockpit_template_expand_json (input, "${", "}",
-                                                                        lookup_table, tc->variables);
-  g_assert (json_object_equal (at_results, expected_at));
-
-  g_autoptr(JsonObject) bracket_at_results = cockpit_template_expand_json (bracket_results, "@@", "@@",
-                                                                           lookup_table, tc->variables);
-  g_assert (json_object_equal (bracket_at_results, expected_both));
-
-  g_autoptr(JsonObject) at_bracket_results = cockpit_template_expand_json (at_results, "${", "}",
-                                                                           lookup_table, tc->variables);
-  g_assert (json_object_equal (at_bracket_results, expected_both));
-}
-
 int
 main (int argc,
       char *argv[])
@@ -193,8 +135,6 @@ main (int argc,
       g_test_add (name, TestCase, expand_fixtures + i, setup, test_expand, teardown);
       g_free (name);
     }
-
-  g_test_add ("/template/expand/json", TestCase, NULL, setup, test_json, teardown);
 
   return g_test_run ();
 }

@@ -1258,12 +1258,6 @@ cockpit_web_request_respond (CockpitWebRequest *self)
 }
 
 const gchar *
-cockpit_web_request_get_original_path (CockpitWebRequest *self)
-{
-  return self->original_path;
-}
-
-const gchar *
 cockpit_web_request_get_path (CockpitWebRequest *self)
 {
   return self->path;
@@ -1406,17 +1400,3 @@ cockpit_web_request_get_client_certificate (CockpitWebRequest *self)
   cockpit_json_get_string (metadata, "client-certificate", NULL, &client_certificate);
   return client_certificate;
 }
-
-gboolean
-cockpit_web_request_accepts_encoding (CockpitWebRequest *self,
-                                      const gchar *encoding)
-{
-  const gchar *accept = g_hash_table_lookup (self->headers, "Accept-Encoding");
-  if (!accept)
-    return TRUE;
-  g_auto(GStrv) encodings = cockpit_web_server_parse_accept_list (accept, NULL);
-  return g_strv_contains ((const gchar **) encodings, encoding) ||
-         g_strv_contains ((const gchar **) encodings, "*");
-}
-
-/* ---------------------------------------------------------------------------------------------------- */

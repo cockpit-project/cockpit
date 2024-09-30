@@ -77,6 +77,8 @@ def tag_from_fd(fd):
         return None
 
 
+# DEPRECATED: https://github.com/cockpit-project/cockpit/pull/21055
+# as of 2024-09-30 there are no more users of this in any known project
 class FsListChannel(Channel):
     payload = 'fslist1'
 

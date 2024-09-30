@@ -57,14 +57,6 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 ExcludeArch: %{ix86}
 %endif
 
-# pcp stopped building on ix86 in Fedora 40+, and broke hard on 39: https://bugzilla.redhat.com/show_bug.cgi?id=2284431
-%define build_pcp 1
-%if 0%{?fedora} >= 39 || 0%{?rhel} >= 10
-%ifarch %ix86
-%define build_pcp 0
-%endif
-%endif
-
 %define enable_multihost 1
 %if 0%{?fedora} >= 41 || 0%{?rhel} >= 10
 %define enable_multihost 0
@@ -97,19 +89,10 @@ BuildRequires: glib2-devel >= 2.50.0
 BuildRequires: systemd-devel >= 235
 %if 0%{?suse_version}
 BuildRequires: distribution-release
-%if %{build_pcp}
-BuildRequires: libpcp-devel
-BuildRequires: pcp-devel
-BuildRequires: libpcp3
-BuildRequires: libpcp_import1
-%endif
 BuildRequires: openssh
 BuildRequires: distribution-logos
 BuildRequires: wallpaper-branding
 %else
-%if %{build_pcp}
-BuildRequires: pcp-libs-devel
-%endif
 BuildRequires: openssh-clients
 BuildRequires: docbook-style-xsl
 %endif
@@ -132,7 +115,7 @@ Requires: cockpit-system
 # Optional components
 Recommends: (cockpit-storaged if udisks2)
 Recommends: (cockpit-packagekit if dnf)
-Suggests: cockpit-pcp
+Suggests: python3-pcp
 
 %if 0%{?rhel} == 0
 Recommends: (cockpit-networkmanager if NetworkManager)
@@ -166,12 +149,10 @@ BuildRequires:  python3-tox-current-env
     --docdir=%_defaultdocdir/%{name} \
 %endif
     --with-pamdir='%{pamdir}' \
-%if %{build_pcp} == 0
-    --disable-pcp \
-%endif
 %if %{enable_multihost}
     --enable-multihost \
 %endif
+    --disable-pcp \
 
 %make_build
 
@@ -197,11 +178,6 @@ echo '%dir %{_datadir}/cockpit/base1' >> base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f -o -type l >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
-
-%if %{build_pcp}
-echo '%dir %{_datadir}/cockpit/pcp' > pcp.list
-find %{buildroot}%{_datadir}/cockpit/pcp -type f >> pcp.list
-%endif
 
 echo '%dir %{_datadir}/cockpit/shell' >> system.list
 find %{buildroot}%{_datadir}/cockpit/shell -type f >> system.list
@@ -294,6 +270,7 @@ Conflicts: cockpit-storaged < 233
 Conflicts: cockpit-system < 233
 Conflicts: cockpit-tests < 233
 Conflicts: cockpit-docker < 233
+Obsoletes: cockpit-pcp < 326
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
@@ -343,6 +320,7 @@ Recommends: PackageKit
 Recommends: setroubleshoot-server >= 3.3.3
 Recommends: /usr/bin/kdumpctl
 Suggests: NetworkManager-team
+Suggests: python3-pcp
 Provides: cockpit-kdump = %{version}-%{release}
 Provides: cockpit-networkmanager = %{version}-%{release}
 Provides: cockpit-selinux = %{version}-%{release}
@@ -587,24 +565,6 @@ These files are not required for running Cockpit.
 %{pamdir}/mock-pam-conv-mod.so
 %{_unitdir}/cockpit-session.socket
 %{_unitdir}/cockpit-session@.service
-
-%if %{build_pcp}
-
-%package -n cockpit-pcp
-Summary: Cockpit PCP integration
-Requires: cockpit-bridge >= %{required_base}
-Requires: pcp
-
-%description -n cockpit-pcp
-Cockpit support for reading PCP metrics and loading PCP archives.
-
-%files -n cockpit-pcp -f pcp.list
-%{_libexecdir}/cockpit-pcp
-
-%post -n cockpit-pcp
-systemctl reload-or-try-restart pmlogger
-
-%endif
 
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages

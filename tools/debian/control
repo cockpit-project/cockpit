@@ -13,11 +13,8 @@ Build-Depends: debhelper-compat (= 13),
                libgnutls28-dev (>= 3.4.3) | gnutls-dev,
                libsystemd-dev (>= 235),
                libpolkit-agent-1-dev,
-               libpcp3-dev,
                libjson-glib-dev,
                libpam0g-dev,
-               libpcp-import1-dev,
-               libpcp-pmda3-dev,
                pkgconf,
                systemd-dev | systemd (<< 253-2~),
                xsltproc,
@@ -49,9 +46,12 @@ Recommends: cockpit-storaged (>= ${source:Version}),
             cockpit-networkmanager (>= ${source:Version}),
             cockpit-packagekit (>= ${source:Version}),
 Suggests: cockpit-doc (>= ${source:Version}),
-          cockpit-pcp (>= ${source:Version}),
           cockpit-sosreport (>= ${source:Version}),
+          python3-pcp,
           xdg-utils,
+Replaces: cockpit-pcp (<< 236)
+Provides: cockpit-pcp
+Conflicts: cockpit-pcp
 Description: Web Console for Linux servers
  The Cockpit Web Console enables users to administer GNU/Linux servers using a
  web browser.
@@ -91,15 +91,6 @@ Depends: ${misc:Depends},
 Description: Cockpit user interface for networking
  The Cockpit components for interacting with networking configuration.
  Incompatible with systemd-networkd/ifupdown defined networks.
-
-Package: cockpit-pcp
-Architecture: any
-Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         cockpit-bridge (>= ${source:Version}),
-         pcp
-Description: Cockpit PCP integration
- Cockpit support for reading PCP metrics and loading PCP archives.
 
 Package: cockpit-packagekit
 Architecture: all

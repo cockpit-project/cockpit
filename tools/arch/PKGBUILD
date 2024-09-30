@@ -4,7 +4,7 @@
 # Contributor: Anatol Pomozov <anatol.pomozov@gmail.com>
 
 pkgbase=cockpit
-pkgname=(cockpit cockpit-packagekit cockpit-pcp cockpit-storaged cockpit-test)
+pkgname=(cockpit cockpit-packagekit cockpit-storaged cockpit-test)
 pkgver=0
 pkgrel=1
 pkgdesc='A systemd web based user interface for Linux servers'
@@ -12,7 +12,7 @@ arch=('x86_64')
 url='https://cockpit-project.org/'
 license=(LGPL)
 makedepends=(krb5 accountsservice json-glib glib-networking glib2-devel
-             git intltool gtk-doc gobject-introspection networkmanager xmlto npm pcp
+             git intltool gtk-doc gobject-introspection networkmanager xmlto npm
              python-build python-installer python-wheel)
 source=("cockpit-${pkgver}.tar.xz"
         "cockpit.pam")
@@ -36,13 +36,16 @@ build() {
     --disable-dependency-tracking \
     --disable-silent-rules \
     --with-admin-group=wheel \
+    --disable-pcp \
   make all
 }
 
 package_cockpit() {
   depends=(krb5 json-glib glib-networking python)
+  provides=(cockpit-pcp)
+  replaces=(cockpit-pcp)
   backup=('etc/pam.d/cockpit' 'etc/cockpit/disallowed-users')
-  optdepends=("cockpit-pcp: reading performance metrics"
+  optdepends=("pcp: reading performance metrics"
               "cockpit-storaged: manage storage"
               "cockpit-packagekit: manage packaged"
               "cockpit-podman: user interface for managing podman containers"
@@ -85,19 +88,6 @@ package_cockpit-test() {
   cd ..
 
   _do_package_component playground
-}
-
-package_cockpit-pcp() {
-  pkgdesc='Cockpit support for reading PCP metrics and loading PCP archives'
-  depends=(cockpit pcp)
-
-  cd cockpit-$pkgver
-  make DESTDIR="$pkgdir"/tmp install
-
-  cd "$pkgdir"/tmp
-  bsdtar -cf - usr/share/cockpit/pcp usr/lib/cockpit/cockpit-pcp \
-    | bsdtar -xf - -C "$pkgdir"
-  rm -rf "$pkgdir"/tmp
 }
 
 _do_package_component() {

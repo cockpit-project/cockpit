@@ -657,21 +657,6 @@ cockpit_web_server_start (CockpitWebServer *self)
   g_socket_service_start (self->socket_service);
 }
 
-GIOStream *
-cockpit_web_server_connect (CockpitWebServer *self)
-{
-  g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), NULL);
-
-  g_autoptr(GIOStream) server = NULL;
-  g_autoptr(GIOStream) client = NULL;
-
-  cockpit_socket_streampair (&client, &server);
-
-  cockpit_web_request_start (self, server, TRUE);
-
-  return g_steal_pointer (&client);
-}
-
 /* ---------------------------------------------------------------------------------------------------- */
 
 void

@@ -1572,18 +1572,6 @@ cockpit_pipe_take_stderr_as_utf8 (CockpitPipe *self)
   return data;
 }
 
-void
-cockpit_pipe_stop_stderr_capture (CockpitPipe *self)
-{
-  CockpitPipePrivate *priv = cockpit_pipe_get_instance_private (self);
-
-  if (priv->err_buffer)
-    {
-      priv->err_forward_to_log = TRUE;
-      forward_error (self);
-    }
-}
-
 /**
  * cockpit_pipe_exit_status:
  * @self: a pipe

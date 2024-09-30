@@ -105,41 +105,6 @@ cockpit_memfd_read (int      fd,
   return g_steal_pointer (&content);
 }
 
-gboolean
-cockpit_memfd_read_from_envvar (gchar      **result,
-                                const char  *envvar,
-                                GError     **error)
-{
-  const gchar *fd_str = g_getenv (envvar);
-
-  if (fd_str == NULL)
-    {
-      /* Environment variable unset is a valid (empty) result. */
-      *result = NULL;
-      return TRUE;
-    }
-
-  char *end;
-  long value = strtol (fd_str, &end, 10);
-  if (*end || value < 0 || value >= INT_MAX)
-    {
-      g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_INVAL,
-                   "invalid value for %s environment variable: %s", envvar, fd_str);
-      return FALSE;
-    }
-  int fd = (int) value;
-  g_unsetenv (envvar);
-
-  gchar *content = cockpit_memfd_read (fd, error);
-  close (fd);
-
-  if (content == NULL)
-    return FALSE;
-
-  *result = content;
-  return TRUE;
-}
-
 JsonObject *
 cockpit_memfd_read_json (gint fd,
                          GError **error)

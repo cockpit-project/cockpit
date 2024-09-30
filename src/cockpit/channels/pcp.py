@@ -660,6 +660,10 @@ class PcpMetricsChannel(AsyncChannel):
 
         self.parse_options(options)
         try_import_pcp()
+        # HACK: the mock package test only sets pmapi to true
+        if pmapi is True:  # pragma: no cover
+            raise ChannelError('not-supported')
+
         name, context_type = self.get_context_and_name(self.source)
 
         if context_type == c_api.PM_CONTEXT_ARCHIVE:

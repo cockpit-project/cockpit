@@ -26,7 +26,6 @@
 #include <systemd/sd-login.h>
 
 #include <sys/types.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
@@ -114,27 +113,6 @@ cockpit_system_load_os_release (void)
   g_free (contents);
 
   return result;
-}
-
-char *
-cockpit_system_session_id (void)
-{
-  char *session_id;
-  pid_t pid;
-  int res;
-
-  pid = getppid ();
-  res = sd_pid_get_session (pid, &session_id);
-  if (res == 0)
-    {
-      return session_id;
-    }
-  else
-    {
-      if (res != -ENODATA && res != -ENXIO)
-        g_message ("could not look up session id for bridge process: %u: %s", pid, g_strerror (-res));
-      return NULL;
-    }
 }
 
 void

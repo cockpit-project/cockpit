@@ -263,17 +263,17 @@ test_copy (Fixture *fixture,
 }
 
 const gchar *no_files[] = { NULL };
-const gchar *good_rsa_files[] = { SRCDIR "/src/bridge/mock-server.crt",
-                                  SRCDIR "/src/bridge/mock-server.key", NULL };
+const gchar *good_rsa_files[] = { SRCDIR "/test/data/mock-server.crt",
+                                  SRCDIR "/test/data/mock-server.key", NULL };
 const gchar *good_ecc_files[] = { SRCDIR "/src/ws/mock-ecc.crt",
                                   SRCDIR "/src/ws/mock-ecc.key", NULL };
 const gchar *bad_files[] = { SRCDIR "/bad", NULL };
-const gchar *bad_files2[] = { SRCDIR "/src/bridge/mock-server.crt", SRCDIR "/bad2", NULL };
+const gchar *bad_files2[] = { SRCDIR "/test/data/mock-server.crt", SRCDIR "/bad2", NULL };
 const gchar *invalid_files1[] = { SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
                                   SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf", NULL };
-const gchar *invalid_files2[] = { SRCDIR "/src/bridge/mock-server.crt",
-                                  SRCDIR "/src/bridge/mock-client.crt", NULL };
-const gchar *invalid_files3[] = { SRCDIR "/src/bridge/mock-client.key", NULL };
+const gchar *invalid_files2[] = { SRCDIR "/test/data/mock-server.crt",
+                                  SRCDIR "/test/data/mock-client.crt", NULL };
+const gchar *invalid_files3[] = { SRCDIR "/test/data/mock-client.key", NULL };
 
 static const TestCase case_good_rsa_file = {
   .files = good_rsa_files,

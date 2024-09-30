@@ -960,8 +960,8 @@ main (int argc,
   g_assert (g_mkdir_with_parents (machines_dir, 0755) == 0);
 
   cockpit_setenv_check ("PYTHONPATH", SRCDIR "/src", TRUE);
-  cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
-  cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/test/data/mock-resource/home", TRUE);
+  cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/test/data/mock-resource/system", TRUE);
   cockpit_setenv_check ("XDG_CONFIG_DIRS", config_dir, TRUE);
 
   setup_path (argv[0]);

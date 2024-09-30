@@ -984,7 +984,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.ostree_setup_ws()
 
         # set up a poor man's reverse TLS proxy with socat
-        m.upload(["../src/bridge/mock-server.crt", "../src/bridge/mock-server.key"], "/tmp")
+        m.upload(["../test/data/mock-server.crt", "../test/data/mock-server.key"], "/tmp")
         m.spawn("socat OPENSSL-LISTEN:9090,reuseaddr,fork,cert=/tmp/mock-server.crt,"
                 "key=/tmp/mock-server.key,verify=0 TCP:localhost:9099",
                 "socat-tls.log")

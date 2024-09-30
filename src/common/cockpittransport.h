@@ -92,9 +92,6 @@ void        cockpit_transport_thaw           (CockpitTransport *transport,
 GBytes *    cockpit_transport_parse_frame    (GBytes *message,
                                               gchar **channel);
 
-GBytes *    cockpit_transport_maybe_frame    (GBytes *message,
-                                              gchar **channel);
-
 gboolean    cockpit_transport_parse_command  (GBytes *payload,
                                               const gchar **command,
                                               const gchar **channel,

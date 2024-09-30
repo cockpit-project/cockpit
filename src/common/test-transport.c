@@ -603,27 +603,6 @@ test_parse_frame_bad (void)
 }
 
 static void
-test_parse_frame_maybe (void)
-{
-  gchar *channel = NULL;
-  GBytes *message;
-  GBytes *payload;
-
-  message = g_bytes_new_static ("b\x00y\ntest", 8);
-  payload = cockpit_transport_maybe_frame (message, &channel);
-  g_assert (payload == NULL);
-  g_bytes_unref (message);
-  g_free (channel);
-
-  channel = NULL;
-  message = g_bytes_new_static ("test", 4);
-  payload = cockpit_transport_maybe_frame (message, &channel);
-  g_assert (payload == NULL);
-  g_bytes_unref (message);
-  g_free (channel);
-}
-
-static void
 test_parse_command (void)
 {
   const gchar *input = "{ \"command\": \"test\", \"channel\": \"66\", \"opt\": \"one\" }";
@@ -732,7 +711,6 @@ main (int argc,
 
   g_test_add_func ("/transport/parse-frame/ok", test_parse_frame);
   g_test_add_func ("/transport/parse-frame/bad", test_parse_frame_bad);
-  g_test_add_func ("/transport/parse-frame/maybe", test_parse_frame_maybe);
 
   g_test_add_func ("/transport/parse-command/normal", test_parse_command);
   g_test_add_func ("/transport/parse-command/no-channel", test_parse_command_no_channel);

@@ -29,8 +29,6 @@ GHashTable *         cockpit_system_load_os_release            (void);
 
 const gchar **       cockpit_system_os_release_fields          (void);
 
-char *               cockpit_system_session_id                 (void);
-
 void                 cockpit_setenv_check                     (const char *variable,
                                                                const char *value,
                                                                gboolean overwrite);

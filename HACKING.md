@@ -220,7 +220,7 @@ The Python bridge can be used interactively on a local machine:
 To make it easy to test out channels without having to write out messages
 manually, `cockpit.misc.print` can be used:
 
-    PYTHONPATH=src python3 -m cockpit.misc.print open fslist1 path=/etc watch=False | PYTHONPATH=src python3 -m cockpit.bridge
+    PYTHONPATH=src python3 -m cockpit.misc.print open fsinfo path=/etc 'attrs=["type", "entries"]' | PYTHONPATH=src python3 -m cockpit.bridge
 
 These shell aliases might be useful when experimenting with the protocol:
 

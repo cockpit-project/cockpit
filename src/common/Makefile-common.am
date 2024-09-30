@@ -82,8 +82,6 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpittransport.h \
 	src/common/cockpitunicode.c \
 	src/common/cockpitunicode.h \
-	src/common/cockpitunixsignal.c \
-	src/common/cockpitunixsignal.h \
 	src/common/cockpitwebfilter.c \
 	src/common/cockpitwebfilter.h \
 	src/common/cockpitwebinject.c \
@@ -178,11 +176,6 @@ TEST_PROGRAM += test-unicode
 test_unicode_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_unicode_LDADD = $(TEST_LIBS)
 test_unicode_SOURCES = src/common/test-unicode.c
-
-TEST_PROGRAM += test-unixsignal
-test_unixsignal_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_unixsignal_LDADD = $(TEST_LIBS)
-test_unixsignal_SOURCES = src/common/test-unixsignal.c
 
 TEST_PROGRAM += test-webcertificate
 test_webcertificate_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)

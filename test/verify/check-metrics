@@ -1254,6 +1254,11 @@ class TestMetricsPackages(packagelib.PackageCase):
         b = self.browser
         m = self.machine
 
+        # Packaging python in the correct directory generates some noisy *pyc*
+        # files on at least Fedora, for testing purposes extend PYTHONPATH and
+        # install to /usr/local/lib in the fake python3-pcp package.
+        self.write_file("/etc/environment", "PYTHONPATH=/usr/local/lib")
+
         redis_service = redisService(m.image)
         redis_package = "valkey" if redis_service == "valkey" else "redis"
         extra_packages = ""
@@ -1270,7 +1275,7 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         if m.ostree_image:
             self.login_and_go("/metrics")
-            b.wait_in_text(".pf-v5-c-empty-state", "cockpit-pcp is missing")
+            b.wait_in_text(".pf-v5-c-empty-state", "PCP is missing")
             b.wait_not_present(".pf-v5-c-empty-state button.pf-m-primary")
 
             b.click("#metrics-header-section button.pf-m-secondary")
@@ -1285,9 +1290,9 @@ class TestMetricsPackages(packagelib.PackageCase):
             # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
             m.execute("""
                 if dpkg -l python3-pcp; then
-                    dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge python3-pcp cockpit-pcp pcp redis redis-server
+                    dpkg --purge python3-pcp pcp redis redis-server
                 else
-                    dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp redis redis-server
+                    dpkg --purge pcp redis redis-server
                 fi
             """)
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
@@ -1296,17 +1301,18 @@ class TestMetricsPackages(packagelib.PackageCase):
             # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
             m.execute(f"""
                 if rpm -q python3-pcp; then
-                    rpm --erase --verbose cockpit-pcp pcp python3-pcp {redis_package} {extra_packages}
+                    rpm --erase --verbose pcp python3-pcp {redis_package} {extra_packages}
                 else
-                    rpm --erase --verbose cockpit-pcp pcp {redis_package} {extra_packages}
+                    rpm --erase --verbose pcp {redis_package} {extra_packages}
                 fi
             """)
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
 
+        # Fake it enough for cockpit.channels.pcp to import succesfully
         cpcp_content = {
-            "/usr/share/cockpit/pcp/manifest.json": '{"requires": {"cockpit": "135"}, "bridges": [{"match": { "payload": "metrics1"},"spawn": [ "/usr/libexec/cockpit-pcp" ]}]}',
-            "/usr/libexec/cockpit-pcp": "true",
+            "/usr/local/lib/pcp.py": "pmapi = True",
+            "/usr/local/lib/cpmapi.py": "",
         }
         pcp_content = {
             "/lib/systemd/system/pmlogger.service": dummy_service,
@@ -1316,8 +1322,7 @@ class TestMetricsPackages(packagelib.PackageCase):
             f"/lib/systemd/system/{redis_service}.service": dummy_service,
         }
 
-        self.createPackage("cockpit-pcp", "999", "1", content=cpcp_content, depends="pcp",
-                           postinst="chmod +x /usr/libexec/cockpit-pcp")
+        self.createPackage("python3-pcp", "999", "1", content=cpcp_content, depends="pcp")
         self.createPackage("pcp", "999", "1", content=pcp_content, postinst="systemctl daemon-reload")
         self.createPackage(redis_package, "999", "1", content=redis_content, postinst="systemctl daemon-reload")
         self.enableRepo()
@@ -1325,7 +1330,7 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         # install c-pcp from the empty state
         self.login_and_go("/metrics")
-        b.wait_in_text(".pf-v5-c-empty-state", "cockpit-pcp is missing")
+        b.wait_in_text(".pf-v5-c-empty-state", "Install PCP support")
         b.click(".pf-v5-c-empty-state button.pf-m-primary")
         b.click("#dialog button:contains('Install')")
         b.wait_not_present("#dialog")
@@ -1340,7 +1345,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         b.logout()
 
         # install c-pcp from the Metrics Settings dialog
-        m.execute("pkcon remove -y cockpit-pcp pcp")
+        m.execute("pkcon remove -y python3-pcp pcp")
         self.login_and_go("/metrics")
         b.click("#metrics-header-section button.pf-m-secondary")
         b.wait_visible(self.pcp_dialog_selector)
@@ -1363,7 +1368,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
         b.enter_page("/metrics")
-        # this is just a fake cockpit-pcp package
+        # this is just a fake python3-pcp package
         b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
         b.wait_in_text(".pf-v5-c-empty-state", "pmlogger.service is failing to collect data")
 

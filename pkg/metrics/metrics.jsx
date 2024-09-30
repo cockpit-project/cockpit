@@ -238,6 +238,18 @@ function make_rows(rows, rowProps, columnLabels) {
     );
 }
 
+async function get_pcp_packages() {
+    const os_release = await read_os_release();
+    const pcp_packages = ["pcp"];
+
+    // PCP contains the Python module on Arch Linux, for all other distro's it is split up.
+    if (os_release.ID !== "arch") {
+        pcp_packages.push("python3-pcp");
+    }
+
+    return pcp_packages;
+}
+
 class CurrentMetrics extends React.Component {
     constructor(props) {
         super(props);
@@ -1381,8 +1393,11 @@ const PCPConfigDialog = ({
     const handleInstall = async () => {
     // when enabling services, install missing packages on demand
         const missing = [];
-        if (dialogLoggerValue && !s_pmlogger.exists)
-            missing.push("cockpit-pcp");
+        let pcp_missing = false;
+        if (dialogLoggerValue && !s_pmlogger.exists) {
+            missing.push(...await get_pcp_packages());
+            pcp_missing = true;
+        }
         const redisExists = () => s_redis.exists || s_redis_server.exists || s_valkey.exists;
         if (dialogProxyValue && !redisExists()) {
             const os_release = await read_os_release();
@@ -1395,7 +1410,7 @@ const PCPConfigDialog = ({
             Dialogs.close();
             await install_dialog(missing);
             debug("PCPConfig: package installation successful");
-            if (missing.indexOf("cockpit-pcp") >= 0)
+            if (pcp_missing)
                 setNeedsLogout(true);
             await wait_cond(() => (s_pmlogger.exists &&
                                    (!dialogProxyValue || (s_pmproxy.exists && redisExists()))),
@@ -1595,6 +1610,7 @@ class MetricsHistory extends React.Component {
             selectedDate: null,
             packagekitExists: false,
             isBeibootBridge: false,
+            isPythonPCPInstalled: null,
             selectedVisibility: this.columns.reduce((a, v) => ({ ...a, [v[0]]: true }), {})
         };
 
@@ -1686,8 +1702,8 @@ class MetricsHistory extends React.Component {
         }, () => this.load_data(sel, sel === this.today_midnight ? undefined : 24 * SAMPLES_PER_H, true));
     }
 
-    handleInstall() {
-        install_dialog("cockpit-pcp")
+    async handleInstall() {
+        install_dialog(await get_pcp_packages())
                 .then(() => this.props.setNeedsLogout(true))
                 .catch(() => null); // ignore cancel
     }
@@ -1789,8 +1805,10 @@ class MetricsHistory extends React.Component {
                 this.setState({
                     loading: false,
                     metricsAvailable: false,
+                    isPythonPCPInstalled: message?.message !== "python3-pcp not installed",
                 });
             } else {
+                this.setState({ isPythonPCPInstalled: true });
                 debug("loaded metrics for timestamp", timeformat.dateTime(load_timestamp), "new hours", JSON.stringify(Array.from(new_hours)));
                 new_hours.forEach(hour => debug("hour", hour, "data", JSON.stringify(this.data[hour])));
 
@@ -1824,14 +1842,11 @@ class MetricsHistory extends React.Component {
 
         // on a single machine, cockpit-pcp depends on pcp; but this may not be the case in the beiboot scenario,
         // so additionally check if pcp is available on the logged in target machine
-        if ((cockpit.manifests && !cockpit.manifests.pcp) || this.pmlogger_service.exists === false)
+        if (this.state.isPythonPCPInstalled === false || this.pmlogger_service.exists === false)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
-                        title={_("Package cockpit-pcp is missing for metrics history")}
-                        action={this.state.isBeibootBridge === true
-                            // See https://github.com/cockpit-project/cockpit/issues/19143
-                            ? <Text>{ _("Installation not supported without installed cockpit package") }</Text>
-                            : this.state.packagekitExists && <Button onClick={this.handleInstall}>{_("Install cockpit-pcp")}</Button>}
+                        title={_("PCP is missing for metrics history")}
+                        action={this.state.packagekitExists && <Button onClick={this.handleInstall}>{_("Install PCP support")}</Button>}
             />;
 
         if (!this.state.metricsAvailable) {

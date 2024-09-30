@@ -25,8 +25,4 @@
 char *          cockpit_hex_encode            (const void *data,
                                                ssize_t length);
 
-void *          cockpit_hex_decode            (const char *hex,
-                                               ssize_t hexlen,
-                                               size_t *length);
-
 #endif

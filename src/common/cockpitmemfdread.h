@@ -29,11 +29,6 @@ gchar *
 cockpit_memfd_read (gint fd,
                     GError **error);
 
-gboolean
-cockpit_memfd_read_from_envvar (gchar **result,
-                                const char *envvar,
-                                GError **error);
-
 JsonObject *
 cockpit_memfd_read_json (gint fd,
                          GError **error);

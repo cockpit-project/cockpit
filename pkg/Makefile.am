@@ -16,11 +16,6 @@ EXTRA_DIST += \
 	$(pixmaps_DATA) \
 	$(NULL)
 
-if ENABLE_PCP
-pcpmanifestdir = $(datadir)/cockpit/pcp
-dist_pcpmanifest_DATA = pkg/pcp/manifest.json
-endif
-
 # one built file in dist/ which we use as dependency
 DIST_STAMP = $(srcdir)/dist/static/manifest.json
 

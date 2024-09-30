@@ -23,7 +23,6 @@
 
 #include "cockpitmemory.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 static const char HEX[] = "0123456789abcdef";
@@ -46,41 +45,5 @@ cockpit_hex_encode (const void * data,
       out[i * 2 + 1] = HEX[in[i] & 0xf];
     }
   out[i * 2] = '\0';
-  return out;
-}
-
-void *
-cockpit_hex_decode (const char *hex,
-                    ssize_t hexlen,
-                    size_t *length)
-{
-  const char *hpos;
-  const char *lpos;
-  char *out;
-  int i;
-
-  if (hexlen < 0)
-    hexlen = strlen (hex);
-  if (hexlen % 2 != 0)
-    return NULL;
-
-  out = mallocx (hexlen / 2 + 1);
-  for (i = 0; i < hexlen / 2; i++)
-    {
-      hpos = strchr (HEX, hex[i * 2]);
-      lpos = strchr (HEX, hex[i * 2 + 1]);
-      if (hpos == NULL || lpos == NULL)
-        {
-          free (out);
-          return NULL;
-        }
-      out[i] = ((hpos - HEX) << 4) | ((lpos - HEX) & 0xf);
-    }
-
-  /* A convenience null termination */
-  out[i] = '\0';
-
-  if (length)
-    *length = i;
   return out;
 }

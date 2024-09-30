@@ -148,11 +148,6 @@ test_hash_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_hash_LDADD = $(TEST_LIBS)
 test_hash_SOURCES = src/common/test-hash.c
 
-TEST_PROGRAM += test-hex
-test_hex_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_hex_LDADD = $(TEST_LIBS)
-test_hex_SOURCES = src/common/test-hex.c
-
 TEST_PROGRAM += test-json
 test_json_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_json_LDADD = $(TEST_LIBS)

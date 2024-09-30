@@ -164,11 +164,6 @@ test_pipe_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_pipe_LDADD = $(TEST_LIBS)
 test_pipe_SOURCES = src/common/test-pipe.c
 
-TEST_PROGRAM += test-system
-test_system_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_system_LDADD = $(TEST_LIBS)
-test_system_SOURCES = src/common/test-system.c
-
 TEST_PROGRAM += test-template
 test_template_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_template_LDADD = $(TEST_LIBS)

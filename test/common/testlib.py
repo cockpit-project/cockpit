@@ -116,6 +116,7 @@ WEBDRIVER_KEYS = {
     "Insert": "\uE016",
     "Delete": "\uE017",
     "Meta": "\uE03D",
+    "F2": "\uE032",
 }
 
 

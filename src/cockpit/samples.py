@@ -398,15 +398,23 @@ class MountSampler(Sampler):
                 if line[0] != '/':
                     continue
 
-                path = line.split()[1]
+                fs_spec, fs_file, _fs_vfstype, fs_mntopts, *_rest = line.split()
+
+                # Skip read-only loop mounts
+                if '/loop' in fs_spec and 'ro' in fs_mntopts.split(','):
+                    continue
+                # Hide flatpaks
+                if 'revokefs-fuse' in fs_spec and 'flatpak' in fs_file:
+                    continue
+
                 try:
-                    res = os.statvfs(path)
+                    res = os.statvfs(fs_file)
                 except OSError:
                     continue
                 frsize = res.f_frsize
                 total = frsize * res.f_blocks
-                samples['mount.total'][path] = total
-                samples['mount.used'][path] = total - frsize * res.f_bfree
+                samples['mount.total'][fs_file] = total
+                samples['mount.used'][fs_file] = total - frsize * res.f_bfree
 
 
 class BlockSampler(Sampler):

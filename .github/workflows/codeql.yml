@@ -37,7 +37,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gettext libssh-dev zlib1g-dev libkrb5-dev libxslt1-dev libglib2.0-dev libgnutls28-dev libsystemd-dev libpolkit-agent-1-dev libpcp3-dev libjson-glib-dev libpam0g-dev libpcp-import1-dev libpcp-pmda3-dev systemd xsltproc xmlto docbook-xsl
+          sudo apt-get install -y --no-install-recommends gettext zlib1g-dev libkrb5-dev libxslt1-dev libglib2.0-dev libgnutls28-dev libsystemd-dev libpolkit-agent-1-dev libpcp3-dev libjson-glib-dev libpam0g-dev libpcp-import1-dev libpcp-pmda3-dev systemd xsltproc xmlto docbook-xsl
         if: ${{ matrix.language == 'cpp' }}
 
       - name: Build

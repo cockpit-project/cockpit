@@ -168,6 +168,8 @@ const CURRENT_METRICS = [
     { name: "cpu.core.nice", derive: "rate" },
     { name: "disk.dev.read", units: "bytes", derive: "rate" },
     { name: "disk.dev.written", units: "bytes", derive: "rate" },
+    { name: "mount.total", units: "bytes" },
+    { name: "mount.used", units: "bytes" },
 ];
 
 const CPU_TEMPERATURE_METRICS = [
@@ -282,14 +284,10 @@ class CurrentMetrics extends React.Component {
         this.onMetricsUpdate = this.onMetricsUpdate.bind(this);
         this.onTemperatureUpdate = this.onTemperatureUpdate.bind(this);
         this.onPrivilegedMetricsUpdate = this.onPrivilegedMetricsUpdate.bind(this);
-        this.updateMounts = this.updateMounts.bind(this);
         this.updateLoad = this.updateLoad.bind(this);
 
         cockpit.addEventListener("visibilitychange", this.onVisibilityChange);
         this.onVisibilityChange();
-
-        // regularly update info about filesystems
-        this.updateMounts();
 
         // there is no internal metrics channel for load yet; see https://github.com/cockpit-project/cockpit/pull/14510
         this.updateLoad();
@@ -337,71 +335,6 @@ class CurrentMetrics extends React.Component {
             this.metrics_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: INTERVAL, metrics: CURRENT_METRICS });
             this.metrics_channel.addEventListener("message", this.onMetricsUpdate);
         }
-    }
-
-    /* Return Set of mount points which should not be shown in Disks card */
-    hideMounts(procMounts) {
-        const result = new Set();
-        procMounts.trim().split("\n")
-                .forEach(line => {
-                    // looks like this: /dev/loop1 /var/mnt iso9660 ro,relatime,nojoliet,check=s,map=n,blocksize=2048 0 0
-                    const fields = line.split(' ');
-                    const options = fields[3].split(',');
-
-                    /* hide read-only loop mounts; these are often things like snaps or iso images
-                     * which are always at 100% capacity, but are uninteresting for disk usage alerts */
-                    if ((fields[0].indexOf("/loop") >= 0 && options.indexOf('ro') >= 0))
-                        result.add(fields[1]);
-                    /* hide flatpaks */
-                    if ((fields[0].indexOf('revokefs-fuse') >= 0 && fields[1].indexOf('flatpak') >= 0))
-                        result.add(fields[1]);
-                });
-        return result;
-    }
-
-    updateMounts() {
-        Promise.all([
-            /* df often exits with non-zero if it encounters any filesystem it can't read;
-               but that's fine, get info about all the others */
-            cockpit.script("df --local --exclude-type=tmpfs --exclude-type=devtmpfs --block-size=1 --output=target,size,avail,pcent || true",
-                           { err: "message" }),
-            cockpit.file("/proc/mounts").read()
-        ])
-                .then(([df_out, mounts_out]) => {
-                    const hide = this.hideMounts(mounts_out);
-
-                    // skip first line with the headings
-                    const mounts = [];
-                    df_out.trim()
-                            .split("\n")
-                            .slice(1)
-                            .forEach(s => {
-                                const fields = s.split(/ +/);
-                                if (fields.length != 4) {
-                                    console.warn("Invalid line in df:", s);
-                                    return;
-                                }
-
-                                if (hide.has(fields[0]))
-                                    return;
-                                mounts.push({
-                                    target: fields[0],
-                                    size: Number(fields[1]),
-                                    avail: Number(fields[2]),
-                                    use: Number(fields[3].slice(0, -1)), /* strip off '%' */
-                                });
-                            });
-
-                    debug("df parsing done:", JSON.stringify(mounts));
-                    this.setState({ mounts });
-
-                    // update it again regularly
-                    window.setTimeout(this.updateMounts, 10000);
-                })
-                .catch(ex => {
-                    console.warn("Failed to run df or read /proc/mounts:", ex.toString());
-                    this.setState({ mounts: [] });
-                });
     }
 
     updateLoad() {
@@ -465,6 +398,8 @@ class CurrentMetrics extends React.Component {
             this.cgroupMemoryNames = data.metrics[10].instances.slice();
             console.assert(data.metrics[14].name === 'disk.dev.read');
             this.disksNames = data.metrics[14].instances.slice();
+            console.assert(data.metrics[16].name === 'mount.total');
+            this.mountPoints = data.metrics[16].instances.slice();
             debug("metrics message was meta, new net instance names", JSON.stringify(this.netInterfacesNames));
             return;
         }
@@ -548,6 +483,18 @@ class CurrentMetrics extends React.Component {
         if (notMappedContainers.length !== 0) {
             this.update_podman_name_mapping(notMappedContainers);
         }
+
+        const mountsTotal = this.samples[16];
+        const mountsUsed = this.samples[17];
+        newState.mounts = mountsTotal.map((mountTotal, i) => {
+            return {
+                target: this.mountPoints[i],
+                size: mountTotal,
+                avail: mountTotal - mountsUsed[i],
+                use: Math.round(mountsUsed[i] / mountTotal * 100),
+            };
+        });
+
         this.setState(newState);
     }
 

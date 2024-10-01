@@ -60,7 +60,7 @@ can_exec(cockpit_ws_t,ssh_exec_t)
 
 # cockpit-ws can read from /dev/urandom
 dev_read_urand(cockpit_ws_t) # for authkey
-dev_read_rand(cockpit_ws_t)  # for libssh
+dev_read_rand(cockpit_ws_t)  # for ssh
 
 # cockpit-ws allows connections on websm port
 corenet_tcp_bind_websm_port(cockpit_ws_t)

@@ -314,7 +314,7 @@ static const TestCase case_bad_file = {
 static const TestCase case_bad_file2 = {
   .files = bad_files2,
 
-  .check_stdout = "",
+  .check_stdout = "Unable to read*",
   .check_stderr = "*open*mock-server.key*No such file*",
   .check_exit = EXIT_FAILURE,
 
@@ -334,7 +334,7 @@ static const TestCase case_invalid1 = {
 static const TestCase case_invalid2 = {
   .files = invalid_files2,
 
-  .check_stdout = "",
+  .check_stdout = "Unable to read*",
   .check_stderr = "*open*mock-server.key*No such file*",
   .check_exit = EXIT_FAILURE,
 

@@ -56,6 +56,9 @@
 // We tolerate the deprecated merged cert/key files only for cockpit-tls.
 static bool tolerate_merged_cert_key;
 
+// Depending on the mode, some errors are recoverable.
+static bool exit_on_error;
+
 typedef struct
 {
   char *certificate_filename;
@@ -66,13 +69,16 @@ typedef struct
   char *filename_for_errors;
 } CertificateKeyPair;
 
-static void
+static int
 read_file (const char     *filename,
            gnutls_datum_t *result)
 {
   int fd = open (filename, O_RDONLY);
   if (fd == -1)
-    err (EXIT_FAILURE, "open: %s", filename);
+    {
+      warn ("open: %s", filename);
+      return -1;
+    }
 
   struct stat buf;
   if (fstat (fd, &buf) != 0)
@@ -94,6 +100,7 @@ read_file (const char     *filename,
   result->data[s] = '\0';
 
   close (fd);
+  return 0;
 }
 
 static void
@@ -277,12 +284,20 @@ certificate_and_key_split (CertificateKeyPair *self)
   return false;
 }
 
-static void
+static int
 certificate_and_key_read (CertificateKeyPair *self,
                           const char         *certificate_filename)
 {
   self->certificate_filename = strdupx (certificate_filename);
-  read_file (self->certificate_filename, &self->certificate);
+
+  if (read_file (self->certificate_filename, &self->certificate) < 0)
+    return -1;
+
+  if (self->certificate.size == 0)
+    {
+      warnx ("empty: %s", self->certificate_filename);
+      return -1;
+    }
 
   if (certificate_and_key_split (self))
     {
@@ -298,13 +313,23 @@ certificate_and_key_read (CertificateKeyPair *self,
   else
     {
       self->key_filename = cockpit_certificate_key_path (self->certificate_filename);
-      read_file (self->key_filename, &self->key);
+
+      if (read_file (self->key_filename, &self->key) < 0)
+        return -1;
+
+      if (self->key.size == 0)
+        {
+          warnx ("empty: %s", self->key_filename);
+          return -1;
+        }
     }
 
   if (self->key_filename)
     asprintfx (&self->filename_for_errors, "%s/.key", self->certificate_filename);
   else
     self->filename_for_errors = strdupx (self->certificate_filename);
+
+  return 0;
 }
 
 static gnutls_certificate_credentials_t
@@ -343,7 +368,16 @@ cockpit_certificate_find (CertificateKeyPair *result,
       return false;
     }
 
-  certificate_and_key_read (result, certificate_filename);
+  if (certificate_and_key_read (result, certificate_filename) < 0)
+    {
+      if (verbose)
+        printf ("Unable to read certificate file or key file\n");
+
+      if (exit_on_error)
+        exit (EXIT_FAILURE);
+
+      return false;
+    }
 
   gnutls_certificate_credentials_t creds = certificate_and_key_parse_to_creds (result);
 
@@ -387,7 +421,8 @@ cockpit_certificate_selfsign (CertificateKeyPair *result)
     errx (EXIT_FAILURE, "%s exited with non-zero status %d",
           COCKPIT_CERTIFICATE_HELPER, WEXITSTATUS (status));
 
-  certificate_and_key_read (result, COCKPIT_SELFSIGNED_PATH);
+  if (certificate_and_key_read (result, COCKPIT_SELFSIGNED_PATH) < 0)
+   exit (EXIT_FAILURE);
 
   /* We just generated this ourselves, so we don't bother to check it
    * for validity.
@@ -409,6 +444,9 @@ main (int argc, char **argv)
     for_cockpit_tls = true;
   else
     errx (EXIT_FAILURE, "usage: %s [--check | --for-cockpit-tls]", argv[0]);
+
+  if (check)
+    exit_on_error = true;
 
   if (for_cockpit_tls)
     tolerate_merged_cert_key = true;

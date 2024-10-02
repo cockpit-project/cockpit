@@ -38,7 +38,9 @@ class TestClient(testlib.MachineCase):
         # validate on-demand install: this does not work on arch, non-split package
         if self.m_target.image.startswith("debian") or self.m_target.image.startswith("ubuntu"):
             self.m_target.execute("dpkg --purge pcp")
-        elif self.m_target.image != 'arch':
+        elif self.m_target.image == 'arch':
+            self.m_target.execute("pacman -Rdd --noconfirm pcp")
+        else:
             # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
             self.m_target.execute("""
                 if rpm -q python3-pcp; then
@@ -144,15 +146,14 @@ exec "$@"
         b.become_superuser()
 
         # python3-pcp is installed on client, but not on target; recognize that
-        if self.m_target.image != 'arch':
-            b.go("/metrics")
-            b.enter_page("/metrics")
-            b.wait_in_text(".pf-v5-c-empty-state", "PCP is missing")
-            # on-demand install is allowed
-            b.wait_in_text(".pf-v5-c-empty-state button.pf-m-primary", "Install PCP support")
-            b.click(".pf-v5-c-empty-state button.pf-m-primary")
-            b.wait_in_text(".pf-v5-c-modal-box", "pcp will be installed")
-            b.click(".pf-v5-c-modal-box button.cancel")
+        b.go("/metrics")
+        b.enter_page("/metrics")
+        b.wait_in_text(".pf-v5-c-empty-state", "PCP is missing")
+        # on-demand install is allowed
+        b.wait_in_text(".pf-v5-c-empty-state button.pf-m-primary", "Install PCP support")
+        b.click(".pf-v5-c-empty-state button.pf-m-primary")
+        b.wait_in_text(".pf-v5-c-modal-box", "pcp will be installed")
+        b.click(".pf-v5-c-modal-box button.cancel")
 
         b.drop_superuser()
         self.logout()

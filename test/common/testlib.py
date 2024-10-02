@@ -905,10 +905,15 @@ class Browser:
 
         self.switch_to_top()
 
+        def wait_no_curtain() -> None:
+            # Older shells make the curtain invisible, newer shells
+            # remove it entirely. Let's cater to both.
+            self.wait_js_cond('!ph_is_present(".curtains-ct") || !ph_is_visible(".curtains-ct")')
+
         while True:
             try:
                 self._wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
-                self.wait_not_visible(".curtains-ct")
+                wait_no_curtain()
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break
             except Error as ex:
@@ -916,7 +921,7 @@ class Browser:
                     reconnect = False
                     if self.is_present("#machine-reconnect"):
                         self.click("#machine-reconnect")
-                        self.wait_not_visible(".curtains-ct")
+                        wait_no_curtain()
                         continue
                 raise
 

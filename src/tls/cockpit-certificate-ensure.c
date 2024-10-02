@@ -408,7 +408,7 @@ main (int argc, char **argv)
   else if (argc == 2 && strcmp (argv[1], "--for-cockpit-tls") == 0)
     for_cockpit_tls = true;
   else
-    errx (EXIT_FAILURE, "usage: %s [--check]", argv[0]);
+    errx (EXIT_FAILURE, "usage: %s [--check | --for-cockpit-tls]", argv[0]);
 
   if (for_cockpit_tls)
     tolerate_merged_cert_key = true;

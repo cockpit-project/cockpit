@@ -592,7 +592,7 @@ class TestIPA(TestRealms, CommonTests):
 
         # check respecting FreeIPA's/sssd's ssh known host keys; login_and_go() does not expect/answer
         # unknown host prompts
-        b.login_and_go(user=f'{self.admin_user}@cockpit.lan', password=self.admin_password, host="x0.cockpit.lan")
+        b.login_and_go(user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
         # starts proper session
         m.execute("until loginctl --no-legend list-sessions | grep -qi 'admin@COCKPIT.LAN.*web console'; do sleep 1; done", timeout=10)
         b.logout()

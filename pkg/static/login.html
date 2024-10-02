@@ -29,12 +29,12 @@
     <div class="container-body">
       <h1 id="brand" class="hide-before"></h1>
 
-      <div id="error-group" class="pf-v6-c-alert pf-m-danger pf-m-plain pf-m-inline dialog-error noscript" aria-label="inline danger alert">
-        <div class="pf-v6-c-alert__icon">
-          <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
-            <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
-          </svg>
-        </div>
+    <div id="error-group" class="pf-v6-c-alert pf-m-danger pf-m-plain pf-m-inline dialog-error noscript" aria-label="inline danger alert">
+      <div class="pf-v6-c-alert__icon">
+        <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+          <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
+        </svg>
+      </div>
         <p class="pf-v6-c-alert__title">
           <span id="login-error-title" class="pf-v6-screen-reader"></span>
         </p>
@@ -43,6 +43,17 @@
             <span class="noscript" translate="yes">Please enable JavaScript to use the Web Console.</span>
           </p>
         </div>
+      </div>
+
+      <div id="disclaimer-error-group" class="pf-v6-c-alert pf-m-danger pf-m-inline dialog-error disclaimer-error" aria-label="inline danger alert">
+        <div class="pf-v6-c-alert__icon">
+          <svg fill="currentColor" viewBox="0 0 512 512">
+            <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
+          </svg>
+        </div>
+        <span id="disclaimer-error-message" class="pf-v6-c-alert__title">
+          <span class="noscript" translate="yes"></span>
+        </span>
       </div>
 
       <div class="unsupported-browser" id="unsupported-browser" hidden="true">
@@ -130,6 +141,11 @@
             <input type="password" class="form-control" id="conversation-input" autocomplete="one-time-code" />
           </div>
 
+        <div id="legal-disclaimer-group" class="disclaimer-checkbox-group">
+          <input type="checkbox" id="acceptLegalDisclaimer" name="acceptLegalDisclaimer">
+          <label id="acceptLegalDisclaimerLabel" for="acceptLegalDisclaimer">I have read and accept the <a href="cockpit/static/disclaimer.html">Disclaimer</a> </label>
+        </div>
+
           <div id="option-group">
             <a href="#" id="show-other-login-options" class="pf-v6-c-expandable-section__toggle">
               <!-- Icon from FontAwesome 4.7.0; https://fontawesome.com/v4/license/ -->
@@ -168,11 +184,23 @@
         <a id="login-again" class="pf-v6-c-button pf-m-primary" href="#" translate="yes" hidden="true">Try again</a>
       </div>
     </div>
-    <div class="container-footer details" id="login-details" hidden="true">
-        <p>
-          <label class="control-label"><span translate="yes">Server</span>: <span id="server-name"></span></label>
-        </p>
+  </div>
+
+  <div class="container-footer details" id="login-details" hidden="true">
+    <!-- Hilscher specific code -->
+    <div id="system-use-notification" hidden="true">
+      <p>
+        <label class="control-label"><span translate="yes">System use notification</span>:</label>
+      </p>
+      <p id="system-use-notification-note" class="login-note"></p>
+      <div id="system-use-notification-show-more-btn" hidden="true">
+        <a href="cockpit/static/systemUseNotification.html">Show complete notification</a>
+      </div>
+      <hr class="solid">
     </div>
+    <p>
+      <label class="control-label"><span translate="yes">Server</span>: <span id="server-name"></span></label>
+    </p>
   </div>
 
   <div class="container" id="recent-hosts" hidden="true">

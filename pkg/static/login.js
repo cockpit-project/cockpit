@@ -313,7 +313,7 @@ function debug(...args) {
 
         if (path.indexOf("/=") === 0) {
             // environment.hostname = path.substring(2).split("/")[0];
-            // id("server-field").value = environment.hostname;
+            // id("server-field")?.value = environment.hostname;
             toggle_options(null, true);
             path = "/cockpit+" + path.split("/")[1];
         } else if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0) {
@@ -443,6 +443,7 @@ function debug(...args) {
     }
 
     function standard_auto_login() {
+        deleteDisclaimerCookie();
         const xhr = new XMLHttpRequest();
         xhr.open("GET", login_path, true);
         xhr.onreadystatechange = function () {
@@ -450,6 +451,13 @@ function debug(...args) {
                 if (xhr.status == 200) {
                     run(JSON.parse(xhr.responseText));
                 } else if (xhr.status == 401) {
+                    // Hilscher specific
+                    // If the legal disclaimer is not accepted show checkbox
+                    if (xhr.statusText.indexOf("legal-disclaimer-acceptance-required") > -1) {
+                        display_legal_disclaimer_checkbox(true);
+                        display_legal_disclaimer_text(true, "Legal Disclaimer must be accepted");
+                    }
+
                     show_login();
                 } else if (xhr.statusText) {
                     fatal(decodeURIComponent(xhr.statusText));
@@ -605,10 +613,16 @@ function debug(...args) {
     let ssh_host_key_change_host = null;
 
     function call_login() {
+        const disclaimerCookieValue = getCookieValue("legalDisclaimerAccepted");
+        if (disclaimerCookieValue === "false") {
+            return;
+        }
+
         login_failure(null);
         login_machine = id("server-field").value;
         login_data_host = null;
         const user = trim(id("login-user-input").value);
+
         if (user === "" && !environment.is_cockpit_client) {
             login_failure(_("User name cannot be empty"));
         } else if (need_host() && id("server-field")?.value === "") {
@@ -758,6 +772,18 @@ function debug(...args) {
             clear_info();
             if (e.which == 13)
                 id("login-password-input").focus();
+        }, false);
+
+        // Hilscher specific
+        id("acceptLegalDisclaimer").addEventListener("change", function() {
+            const display = !this.checked;
+            display_legal_disclaimer_text(display, "Legal Disclaimer must be accepted");
+            setDisclaimerCookie(this.checked);
+
+            if (display) {
+                // Display only legal disclaimer and hide other possible errors.
+                login_failure(null);
+            }
         }, false);
 
         const do_login = function(e) {
@@ -1022,6 +1048,15 @@ function debug(...args) {
                             debug("send_login_request(): invalid-hostkey, and already retried, giving up");
                             host_failure(_("Refusing to connect. Hostkey does not match"));
                         }
+                    } else if (xhr.statusText.indexOf("legal-disclaimer-acceptance-required") > -1) {
+                        // Hilscher specific
+                        // If the legal disclaimer is not accepted show checkbox
+                        display_legal_disclaimer_checkbox(true);
+                        display_legal_disclaimer_text(true, "Legal Disclaimer must be accepted");
+                    } else if (xhr.statusText.indexOf("legal-disclaimer-acceptance-and-authentication-required") > -1) {
+                        // Hilscher specific
+                        // If the legal disclaimer is not accepted show checkbox
+                        display_legal_disclaimer_checkbox(true, "Wrong user name or password.");
                     } else if (is_conversation) {
                         login_failure(_("Authentication failed"));
                     } else {
@@ -1152,6 +1187,67 @@ function debug(...args) {
 
         setup_localstorage(response);
         login_reload(wanted);
+    }
+
+    /**
+     * Show eg. hide the legal disclaimer checkbox.
+     *
+     * @param {Boolean} display If true the legal disclaimer acceptance checkbox is displayed.
+     * @param {String} message The error message.
+     */
+    function display_legal_disclaimer_checkbox(display, message) {
+        if (display === true) {
+            id("legal-disclaimer-group").classList.add('visible');
+            host_failure(_(message));
+        } else {
+            id("legal-disclaimer-group").classList.remove('visible');
+            deleteDisclaimerCookie();
+        }
+    }
+
+    /**
+     * Show or hide the legal disclaimer text.
+     *
+     * @param {Boolean} display If true the legal disclaimer text is displayed.
+     * @param {String} text The disclaimer text.
+     */
+    function display_legal_disclaimer_text(display, text) {
+        if (display === true) {
+            id("disclaimer-error-group").classList.add('visible');
+        } else {
+            id("disclaimer-error-group").classList.remove('visible');
+        }
+        id("disclaimer-error-message").textContent = text ? _(text) : '';
+    }
+
+    /**
+     * Delete the legal disclaimer acceptance cookie by setting it to
+     * an empty value and setting the expires attribute to a value in the past.
+     */
+    function deleteDisclaimerCookie() {
+        document.cookie = "legalDisclaimerAccepted= ; expires = Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict ";
+    }
+
+    /**
+     * Set the legal disclaimer acceptance cookie to the value of the
+     * disclaimer checkbox. This is only done if the checkbox is visible.
+     */
+    function setDisclaimerCookie(state) {
+        document.cookie = `legalDisclaimerAccepted=${state}; SameSite=Strict`;
+    }
+
+    function getCookieValue(name) {
+        const cookieArr = document.cookie.split(";");
+
+        for (const cookie of cookieArr) {
+            const cookiePair = cookie.split("=");
+
+            if (name == cookiePair[0].trim()) {
+                return decodeURIComponent(cookiePair[1]);
+            }
+        }
+
+        return null;
     }
 
     window.onload = boot;

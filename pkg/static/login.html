@@ -35,6 +35,15 @@
       </h2>
     </div>
 
+    <div id="disclaimer-error-group" class="pf-v5-c-alert pf-m-danger pf-m-inline dialog-error disclaimer-error" aria-label="inline danger alert">
+      <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+        <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
+      </svg>
+      <h2 id="disclaimer-error-message" class="pf-v5-c-alert__title">
+        <span class="noscript" translate="yes"></span>
+      </h2>
+    </div>
+
     <div class="unsupported-browser" id="unsupported-browser" hidden="true">
       <h2 class="unsupported-browser-heading" translate="yes">A modern browser is required for security, reliability, and performance.</h2>
       <div class="browser-recommendations">
@@ -112,6 +121,11 @@
           <div id="conversation-message"></div>
           <label id="conversation-prompt" for="conversation-input"></label>
           <input type="password" class="form-control" id="conversation-input" autocomplete="one-time-code" />
+        </div>
+
+        <div id="legal-disclaimer-group" class="disclaimer-checkbox-group">
+          <input type="checkbox" id="acceptLegalDisclaimer" name="acceptLegalDisclaimer">
+          <label id="acceptLegalDisclaimerLabel" for="acceptLegalDisclaimer">I have read and accept the <a href="cockpit/static/disclaimer" target="_blank">Disclaimer</a> </label>
         </div>
 
         <div id="option-group">

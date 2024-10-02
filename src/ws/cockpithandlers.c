@@ -27,6 +27,8 @@
 #include "cockpitwebservice.h"
 #include "cockpitws.h"
 
+#include "hilscherlegaldisclaimer.h"
+
 #include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitwebcertificate.h"
@@ -566,6 +568,19 @@ handle_login (CockpitHandlerData *data,
   CockpitCreds *creds;
   JsonObject *creds_json = NULL;
 
+  // Hilscher specific code
+  // Check if the manufactures legal disclaimer was accepted.
+  if (!hilscher_legalDisclaimerAccepted ())
+  {
+    // If the disclaimer isn't already accepted the disclaimer cookie must be set true
+    GHashTable * headers = cockpit_web_request_get_headers (request);
+    if (hilscher_getDisclaimerCookieState (headers) != DISCLAIMER_COOKIE_SET_TRUE)
+      {
+        hilscher_sendErrorResponse (response);
+        return;
+      }
+  }
+  
   if (service)
     {
       out_headers = cockpit_web_server_new_table ();

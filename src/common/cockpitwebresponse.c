@@ -1228,6 +1228,10 @@ cockpit_web_response_gerror (CockpitWebResponse *self,
   if (g_error_matches (error,
                        COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED))
     code = 401;
+  // Hilscher specific code to handle not accepted disclaimer error
+  else if (g_error_matches(error,
+                           COCKPIT_ERROR, COCKPIT_ERROR_HILSCHER_DISCLAIMER_AND_AUTHENTICATION_FAILED))
+    code = 401;
   else if (g_error_matches (error,
                        COCKPIT_ERROR, COCKPIT_ERROR_PERMISSION_DENIED))
     code = 403;

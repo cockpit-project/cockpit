@@ -157,10 +157,6 @@ p {
   grid-gap: 1rem;
 }
 
-label {
-  display: inline-block;
-}
-
 #option-group,
 .control-label {
   font-size: 0.875rem;
@@ -464,6 +460,7 @@ label.checkbox {
 .pf-v5-c-alert.pf-m-inline.pf-m-danger {
   background: #faeae8;
   border-color: #c9190b;
+  margin-left: 4rem;
 }
 
 .pf-v5-c-alert.pf-m-danger > svg {
@@ -937,6 +934,25 @@ input[type="password"] + .login-password-toggle .password-hide {
 
 .pf-v5-c-helper-text.pf-m-warning {
   color: #795600;
+}
+
+.disclaimer-checkbox-group {
+  display: none;
+  margin-top: 10px;
+}
+
+.disclaimer-checkbox-group.visible {
+  display: block;
+  margin-top: 10px;
+}
+
+.disclaimer-error {
+  display: none;
+}
+
+.disclaimer-error.visible {
+  display: flex;
+  align-items: center;
 }
 
 /* Dark */

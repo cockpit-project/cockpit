@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>netFIELD - Disclaimer</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="disclaimer.css">
+<body>
+    <div class="page">
+        <header class="header">
+            <div class="logo"></div>
+        </header>
+        <div class="content">
+          <div class="disclaimer">
+            <div class="container">
+              <div class="textarea" id="textarea">
+                {agreementText}
+              </div>
+              <div class="actions">
+                <a href="../../" class="close-btn btn-inactive" id="close-btn" style="background-color: grey; pointer-events: none;"><span>close</span></a>
+            </div>
+            </div>
+        </div>
+
+      </div>
+      <div class="footer">
+        <div class="gradiant"></div>
+        <div class="container">
+              <div class="logo"></div>
+              <span class="copyright" data-testid="typography-element" >© 2025 Hilscher Gesellschaft für Systemautomation mbH</span>
+          </div>
+        </div>
+    </div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('disclaimer')
+            .then(response => response.text())
+            .then(text => {
+                document.getElementById('textarea').textContent = text;
+            })
+            .catch(error => console.error('Error loading agreement text:', error));
+    });
+
+    const textarea = document.getElementById('textarea');
+    const closeButton = document.getElementById('close-btn');
+
+    textarea.addEventListener('scroll', function() {
+      if (textarea.scrollTop + textarea.clientHeight >= textarea.scrollHeight) {
+        closeButton.classList.remove('btn-inactive');
+        closeButton.classList.add('btn-active');
+      }
+    });
+</script>
+</html>

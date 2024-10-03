@@ -1327,13 +1327,6 @@ class TestMetricsPackages(packagelib.PackageCase):
         b.click(".pf-v5-c-empty-state button.pf-m-primary")
         b.click("#dialog button:contains('Install')")
         b.wait_not_present("#dialog")
-        b.click("button:contains('Log out')")
-        b.leave_page()
-        b.click("button:contains('Reconnect')")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "foobar")
-        b.click('#login-button')
-        b.enter_page("/metrics")
         b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
         b.logout()
 
@@ -1353,17 +1346,11 @@ class TestMetricsPackages(packagelib.PackageCase):
         m.execute('until [ $(systemctl is-enabled pmlogger) = enabled ]; do sleep 1; done')
         # also needs to wait for activating → active
         m.execute('until [ $(systemctl is-active pmlogger) = active ]; do sleep 1; done')
-        # triggers "needs logout"
-        b.click("button:contains('Log out')")
-        b.leave_page()
-        b.click("button:contains('Reconnect')")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "foobar")
-        b.click('#login-button')
-        b.enter_page("/metrics")
-        # this is just a fake python3-pcp package
         b.wait_in_text(".pf-v5-c-empty-state", "Metrics history could not be loaded")
         b.wait_in_text(".pf-v5-c-empty-state", "pmlogger.service is failing to collect data")
+        # wait till systemd actions are finished before opening a new dialog,
+        # not doing so creates a race where Dialogs.close() can be called when opening a new dialog.
+        b.wait_visible("#metrics-header-section button.pf-m-secondary[data-test-install-finished='done']")
 
         # install redis
         b.click("#metrics-header-section button.pf-m-secondary")

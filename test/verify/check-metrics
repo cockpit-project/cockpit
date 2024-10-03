@@ -1298,14 +1298,7 @@ class TestMetricsPackages(packagelib.PackageCase):
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
-            # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
-            m.execute(f"""
-                if rpm -q python3-pcp; then
-                    rpm --erase --verbose pcp python3-pcp {redis_package} {extra_packages}
-                else
-                    rpm --erase --verbose pcp {redis_package} {extra_packages}
-                fi
-            """)
+            m.execute(f"rpm --erase --verbose pcp python3-pcp {redis_package} {extra_packages}")
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
 

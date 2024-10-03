@@ -41,13 +41,8 @@ class TestClient(testlib.MachineCase):
         elif self.m_target.image == 'arch':
             self.m_target.execute("pacman -Rdd --noconfirm pcp")
         else:
-            # TODO: remove conditional when all images have python3-pcp and a Python PCP bridge
             self.m_target.execute("""
-                if rpm -q python3-pcp; then
-                    rpm --erase --verbose pcp python3-pcp
-                else
-                    rpm --erase --verbose pcp
-                fi
+                rpm --erase --verbose pcp python3-pcp
                 systemctl daemon-reload
             """)
 

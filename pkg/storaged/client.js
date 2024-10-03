@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// HI!
+
 import cockpit from 'cockpit';
 import * as PK from 'packagekit';
 import { superuser } from 'superuser';

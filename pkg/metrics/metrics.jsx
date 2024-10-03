@@ -1323,8 +1323,8 @@ const wait_cond = (cond, objects) => {
 
 const PCPConfigDialog = ({
     firewalldRequest,
-    needsLogout, setNeedsLogout,
     s_pmlogger, s_pmproxy, s_redis, s_redis_server, s_valkey,
+    packageInstallCallback,
 }) => {
     const Dialogs = useDialogs();
     const dialogInitialProxyValue = runningService(s_pmproxy) && (
@@ -1340,10 +1340,8 @@ const PCPConfigDialog = ({
     const handleInstall = async () => {
     // when enabling services, install missing packages on demand
         const missing = [];
-        let pcp_missing = false;
         if (dialogLoggerValue && !s_pmlogger.exists) {
             missing.push(...await get_pcp_packages());
-            pcp_missing = true;
         }
         const redisExists = () => s_redis.exists || s_redis_server.exists || s_valkey.exists;
         if (dialogProxyValue && !redisExists()) {
@@ -1357,8 +1355,6 @@ const PCPConfigDialog = ({
             Dialogs.close();
             await install_dialog(missing);
             debug("PCPConfig: package installation successful");
-            if (pcp_missing)
-                setNeedsLogout(true);
             await wait_cond(() => (s_pmlogger.exists &&
                                    (!dialogProxyValue || (s_pmproxy.exists && redisExists()))),
                             [s_pmlogger, s_pmproxy, s_redis, s_redis_server, s_valkey]);
@@ -1420,8 +1416,9 @@ const PCPConfigDialog = ({
                                     firewalldRequest({ service: "pmproxy", title: _("Open the pmproxy service in the firewall to share metrics.") });
                                 else
                                     firewalldRequest(null);
+                                packageInstallCallback();
                             })
-                            .catch(err => { setPending(false); setDialogError(err.toString()) });
+                            .catch(err => { packageInstallCallback(); setPending(false); setDialogError(err.toString()) });
                 })
                 .catch(() => null); // ignore cancel in install dialog
     };
@@ -1491,8 +1488,9 @@ const PCPConfigDialog = ({
         </Modal>);
 };
 
-const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogout }) => {
+const PCPConfig = ({ buttonVariant, firewalldRequest }) => {
     const Dialogs = useDialogs();
+    const [packageInstallStatus, setPackageInstallStatus] = useState(null);
 
     const s_pmlogger = useObject(() => service.proxy("pmlogger.service"), null, []);
     const s_pmproxy = useObject(() => service.proxy("pmproxy.service"), null, []);
@@ -1508,7 +1506,7 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
     useEvent(s_redis_server, "changed");
     useEvent(s_valkey, "changed");
 
-    debug("PCPConfig s_pmlogger.state", s_pmlogger.state, "needs logout", needsLogout);
+    debug("PCPConfig s_pmlogger.state", s_pmlogger.state);
     debug("PCPConfig s_pmproxy state", s_pmproxy.state,
           "redis exists", s_redis.exists, "state", s_redis.state,
           "redis-server exists", s_redis_server.exists, "state", s_redis_server.state,
@@ -1518,18 +1516,20 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
         return null;
 
     function show_dialog() {
+        setPackageInstallStatus(null);
         Dialogs.show(<PCPConfigDialog firewalldRequest={firewalldRequest}
-                                      needsLogout={needsLogout} setNeedsLogout={setNeedsLogout}
                                       s_pmlogger={s_pmlogger}
                                       s_pmproxy={s_pmproxy}
-                                      s_redis={s_redis} s_redis_server={s_redis_server} s_valkey={s_valkey} />);
+                                      s_redis={s_redis} s_redis_server={s_redis_server} s_valkey={s_valkey}
+                                      packageInstallCallback={() => setPackageInstallStatus("done")} />);
     }
 
     return (
         <Button variant={buttonVariant} icon={<CogIcon />}
                 isDisabled={ invalidService(s_pmlogger) || invalidService(s_pmproxy) ||
                              invalidService(s_redis) || invalidService(s_redis_server) || invalidService(s_valkey) }
-                onClick={show_dialog}>
+                onClick={show_dialog}
+                data-test-install-finished={packageInstallStatus}>
             { _("Metrics settings") }
         </Button>);
 };
@@ -1651,7 +1651,7 @@ class MetricsHistory extends React.Component {
 
     async handleInstall() {
         install_dialog(await get_pcp_packages())
-                .then(() => this.props.setNeedsLogout(true))
+                .then(() => this.initialLoadData())
                 .catch(() => null); // ignore cancel
     }
 
@@ -1779,14 +1779,6 @@ class MetricsHistory extends React.Component {
     }
 
     render() {
-        if (this.props.needsLogout)
-            return <EmptyStatePanel
-                        icon={ExclamationCircleIcon}
-                        title={_("You need to relogin to be able to see metrics history")}
-                        action={_("Log out")}
-                        onAction={() => cockpit.logout(true)}
-            />;
-
         // on a single machine, cockpit-pcp depends on pcp; but this may not be the case in the beiboot scenario,
         // so additionally check if pcp is available on the logged in target machine
         if (this.state.isPythonPCPInstalled === false || this.pmlogger_service.exists === false)
@@ -1803,9 +1795,7 @@ class MetricsHistory extends React.Component {
             if (this.pmlogger_service.state === 'stopped') {
                 paragraph = _("pmlogger.service is not running");
                 action = <PCPConfig buttonVariant="primary"
-                                    firewalldRequest={this.props.firewalldRequest}
-                                    needsLogout={this.props.needsLogout}
-                                    setNeedsLogout={this.props.setNeedsLogout} />;
+                                    firewalldRequest={this.props.firewalldRequest} />;
             } else {
                 if (this.pmlogger_service.state === 'failed')
                     paragraph = _("pmlogger.service has failed");
@@ -1965,7 +1955,6 @@ class MetricsHistory extends React.Component {
 
 export const Application = () => {
     const [firewalldRequest, setFirewalldRequest] = useState(null);
-    const [needsLogout, setNeedsLogout] = useState(false);
 
     return (
         <WithDialogs>
@@ -1980,9 +1969,7 @@ export const Application = () => {
                         </FlexItem>
                         <FlexItem align={{ default: 'alignRight' }}>
                             <PCPConfig buttonVariant="secondary"
-                                             firewalldRequest={setFirewalldRequest}
-                                             needsLogout={needsLogout}
-                                             setNeedsLogout={setNeedsLogout} />
+                                             firewalldRequest={setFirewalldRequest} />
                         </FlexItem>
                     </Flex>
                 </PageSection>
@@ -1992,9 +1979,7 @@ export const Application = () => {
                 <PageSection>
                     <CurrentMetrics />
                 </PageSection>
-                <MetricsHistory firewalldRequest={setFirewalldRequest}
-                                needsLogout={needsLogout}
-                                setNeedsLogout={setNeedsLogout} />
+                <MetricsHistory firewalldRequest={setFirewalldRequest} />
             </Page>
         </WithDialogs>);
 };

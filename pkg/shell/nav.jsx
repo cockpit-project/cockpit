@@ -9,6 +9,8 @@ import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchIn
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { ContainerNodeIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 
+import { build_href } from "./util.jsx";
+
 const _ = cockpit.gettext;
 
 export const SidebarToggle = () => {
@@ -114,8 +116,8 @@ export class CockpitNav extends React.Component {
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.current !== prevState.current)
             return {
-                current: nextProps.current,
                 search: "",
+                current: nextProps.current,
             };
         return null;
     }
@@ -166,7 +168,6 @@ CockpitNav.propTypes = {
     groups: PropTypes.array.isRequired,
     selector: PropTypes.string.isRequired,
     item_render: PropTypes.func.isRequired,
-    current: PropTypes.string.isRequired,
     filtering: PropTypes.func.isRequired,
     sorting: PropTypes.func.isRequired,
     jump: PropTypes.func.isRequired,
@@ -247,4 +248,125 @@ CockpitNavItem.propTypes = {
     term: PropTypes.string,
     header: PropTypes.string,
     actions: PropTypes.node,
+};
+
+export const PageNav = ({ state }) => {
+    const {
+        current_machine,
+        current_manifest_item,
+        current_machine_manifest_items,
+        page_status,
+    } = state;
+
+    if (!current_machine || current_machine.state != "connected") {
+        return null;
+    }
+
+    // Filtering of navigation by term
+    function keyword_filter(item, term) {
+        function keyword_relevance(current_best, item) {
+            const translate = item.translate || false;
+            const weight = item.weight || 0;
+            let score;
+            let _m = "";
+            let best = { score: -1 };
+            item.matches.forEach(m => {
+                if (translate)
+                    _m = _(m);
+                score = -1;
+                // Best score when starts in translate language
+                if (translate && _m.indexOf(term) == 0)
+                    score = 4 + weight;
+                // Second best score when starts in English
+                else if (m.indexOf(term) == 0)
+                    score = 3 + weight;
+                // Substring consider only when at least 3 letters were used
+                else if (term.length >= 3) {
+                    if (translate && _m.indexOf(term) >= 0)
+                        score = 2 + weight;
+                    else if (m.indexOf(term) >= 0)
+                        score = 1 + weight;
+                }
+                if (score > best.score) {
+                    best = { keyword: m, score };
+                }
+            });
+            if (best.score > current_best.score) {
+                current_best = { keyword: best.keyword, score: best.score, goto: item.goto || null };
+            }
+            return current_best;
+        }
+
+        const new_item = Object.assign({}, item);
+        new_item.keyword = { score: -1 };
+        if (!term)
+            return new_item;
+        const best_keyword = new_item.keywords.reduce(keyword_relevance, { score: -1 });
+        if (best_keyword.score > -1) {
+            new_item.keyword = best_keyword;
+            return new_item;
+        }
+        return null;
+    }
+
+    // Rendering of separate navigation menu items
+    function nav_item(item, term) {
+        const active = current_manifest_item.path === item.path;
+
+        // Parse path
+        let path = item.path;
+        let hash = item.hash;
+        if (item.keyword.goto) {
+            if (item.keyword.goto[0] === "/")
+                path = item.keyword.goto.substr(1);
+            else
+                hash = item.keyword.goto;
+        }
+
+        // Parse page status
+        let status = null;
+        if (page_status[current_machine.key])
+            status = page_status[current_machine.key][item.path];
+
+        return (
+            <CockpitNavItem key={item.label}
+                            name={item.label}
+                            active={active}
+                            status={status}
+                            keyword={item.keyword.keyword}
+                            term={term}
+                            to={build_href({ host: current_machine.address, path, hash })}
+                            jump={state.jump} />
+        );
+    }
+
+    const groups = [
+        {
+            name: _("Apps"),
+            items: current_machine_manifest_items.ordered("dashboard"),
+        }, {
+            name: _("System"),
+            items: current_machine_manifest_items.ordered("menu"),
+        }, {
+            name: _("Tools"),
+            items: current_machine_manifest_items.ordered("tools"),
+        }
+    ].filter(i => i.items.length > 0);
+
+    if (current_machine_manifest_items.items.apps && groups.length === 3)
+        groups[0].action = {
+            label: _("Edit"),
+            path: build_href({
+                host: current_machine.address,
+                path: current_machine_manifest_items.items.apps.path
+            })
+        };
+
+    return <CockpitNav groups={groups}
+                       selector="host-apps"
+                       item_render={nav_item}
+                       filtering={keyword_filter}
+                       sorting={(a, b) => { return b.keyword.score - a.keyword.score }}
+                       current={current_manifest_item.path}
+                       jump={state.jump} />;
 };

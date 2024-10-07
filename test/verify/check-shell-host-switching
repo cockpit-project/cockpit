@@ -40,14 +40,17 @@ class HostSwitcherHelpers:
     def wait_host_addresses(self, b, expected):
         b.wait_js_cond(f'ph_select("#nav-hosts .nav-item a").length == {len(expected)}')
         for address in expected:
-            b.wait_visible(f"#nav-hosts .nav-item a[href='/@{address}']")
+            if address == "localhost":
+                b.wait_visible("#nav-hosts .nav-item a[href='/']")
+            else:
+                b.wait_visible(f"#nav-hosts .nav-item a[href='/@{address}']")
 
     def machine_remove(self, b, address, second_to_last=False):
         b.click("button:contains('Edit hosts')")
         b.click(f".nav-item a[href='/@{address}'] + span button.nav-action.pf-m-danger")
         if second_to_last:
             b.wait_not_present("button:contains('Stop editing hosts')")
-            b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
+            b.wait_not_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
         else:
             b.click("button:contains('Stop editing hosts')")
 
@@ -90,7 +93,7 @@ class HostSwitcherHelpers:
         if expected_user:
             b.wait_text("#current-username", expected_user)
         # Switch back to localhost, since the rest of the test expects that
-        b.click("a[href='/@localhost']")
+        b.click("a[href='/']")
         b.click("#hosts-sel button")
 
 
@@ -136,7 +139,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.assertFalse(b.is_present("#hosts-sel button"))
         b.assert_pixels("#hosts-sel", "no-switching", skip_layouts=["mobile"])
 
-        # Check that URLs to remore hosts get redirected to the local
+        # Check that URLs to remote hosts get redirected to the local
         # session.
         b.wait_js_cond('window.location.pathname == "/system"')
         b.go("/@10.111.113.2/storage")
@@ -180,13 +183,13 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
-        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger:disabled")
-        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-secondary:disabled")
+        b.wait_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-danger:disabled")
+        b.wait_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-secondary:disabled")
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-danger:not(:disabled)")
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
         b.assert_pixels(".edit-hosts", "edit-hosts")
         b.click("button:contains('Stop editing hosts')")
-        b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
+        b.wait_not_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
         b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
 
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
@@ -242,7 +245,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         # Test switching
         b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
 
-        b.click("#nav-hosts .nav-item a[href='/@localhost']")
+        b.click("#nav-hosts .nav-item a[href='/']")
         b.wait_js_cond('window.location.pathname == "/system"')
 
         b.click("#hosts-sel button")
@@ -373,12 +376,12 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
-        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger:disabled")
-        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-secondary:disabled")
+        b.wait_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-danger:disabled")
+        b.wait_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-secondary:disabled")
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-danger:not(:disabled)")
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
         b.click("button:contains('Stop editing hosts')")
-        b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
+        b.wait_not_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
         b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
 
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
@@ -533,7 +536,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
         self.assertIn("admin", m2.execute("loginctl"))
         b.click("#hosts-sel button")
-        b.click("a[href='/@localhost']")
+        b.click("a[href='/']")
         b.relogin()
         time.sleep(60)
         self.assertNotIn(m2.execute("loginctl"), "admin")

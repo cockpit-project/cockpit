@@ -5,8 +5,6 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # we need an apparmor profile for >= 4.0; this exists in Ubuntu >= 24.04, but not in Debian yet
 PRE4AA = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.04 11 12 unstable)
 
-CONFIG_OPTIONS :=
-
 # keep the host switcher on in currently supported stable releases
 STABLE = $(filter $(shell . /etc/os-release; echo $${VERSION_CODENAME}),bookworm jammy noble)
 ifneq ($(STABLE),)

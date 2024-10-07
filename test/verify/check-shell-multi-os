@@ -79,7 +79,7 @@ class TestRHEL8(testlib.MachineCase):
 
         # stock → dev: via shell Add host
         stock_b.login_and_go()
-        stock_b.add_machine("10.111.113.1")
+        stock_b.add_machine("10.111.113.1", expect_warning=False)
         stock_b.wait_in_text(".ct-overview-header-hostname", dev_hostname)
 
 

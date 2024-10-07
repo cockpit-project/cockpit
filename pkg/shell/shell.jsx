@@ -67,7 +67,10 @@ const Shell = () => {
 
     useEvent(state, "connect", () => {
         console.log("CONNECT", state.current_machine.address);
-        connect_host(host_modal_state, state, state.current_machine);
+        // We could launch some dialogs here, but the traditional
+        // behavior is to just connect the loader and open the dialogs
+        // from the troubleshoot button.
+        state.loader.connect(state.current_machine.address);
     });
 
     const {

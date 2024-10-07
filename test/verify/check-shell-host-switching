@@ -66,8 +66,7 @@ class HostSwitcherHelpers:
         # HACK: Dropping the machine does not terminate SSH connection; https://github.com/cockpit-project/cockpit/issues/19672
         self.machine.execute(f"pkill -f [s]sh.*{address}; while pgrep -f [s]sh.*{address}; do sleep 1; done")
 
-    def add_new_machine(self, b, address, known_host=False, pixel_label=None, user=None, expect_password_auth=False,
-                        expect_warning=False):
+    def add_new_machine(self, b, address, known_host=False, pixel_label=None, user=None, expect_password_auth=False):
         b.click("button:contains('Add new host')")
         b.wait_visible('#hosts_setup_server_dialog')
         b.set_input_text('#add-machine-address', address)
@@ -76,9 +75,6 @@ class HostSwitcherHelpers:
         if pixel_label:
             b.assert_pixels("#hosts_setup_server_dialog", pixel_label)
         b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
-        if expect_warning:
-            b.wait_visible('#hosts_connect_server_dialog')
-            b.click('#hosts_connect_server_dialog button.pf-m-warning')
         if not known_host:
             b.wait_in_text('#hosts_setup_server_dialog',
                            f"You are connecting to {address.removeprefix('ssh://')} for the first time")
@@ -90,14 +86,8 @@ class HostSwitcherHelpers:
         with b.wait_timeout(30):
             b.wait_not_present('#hosts_setup_server_dialog')
 
-    def connect_and_wait(self, b, address, expected_user=None, expect_warning=False):
+    def connect_and_wait(self, b, address, expected_user=None):
         b.click(f"a[href='/@{address}']")
-        if expect_warning:
-            b.wait_visible('#hosts_connect_server_dialog')
-            b.click('#hosts_connect_server_dialog button.pf-m-warning')
-        # wait for host switcher to close after connecting
-        b.wait_not_present("#nav-hosts.interact")
-        # open it again
         b.click("#hosts-sel button")
         b.wait_visible(f".connected a[href='/@{address}']")
         if expected_user:
@@ -186,30 +176,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_in_text("#nav-hosts .nav-item a", "mydhcpname")
         m1.execute("hostnamectl set-hostname 'localhost'")
 
-        # Add a host with a couple of mistakes on the way
-        b.click("button:contains('Add new host')")
-        b.wait_visible('#hosts_setup_server_dialog')
-        b.set_input_text('#add-machine-address', "10.111.113.2:1234")
-        b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
-        # Port is wrong but we first have to confirm that we really want to connect
-        b.wait_visible('#hosts_connect_server_dialog')
-        b.assert_pixels("#hosts_connect_server_dialog", "host-connect-dialog")
-        b.click('#hosts_connect_server_dialog button.pf-m-warning')
-        # Now we are back in the "Add host" dialog with the error
-        b.wait_in_text('#hosts_setup_server_dialog', "Unable to contact the given host 10.111.113.2:1234. Make sure it has ssh running on port 1234, or specify another port in the address.")
-        # Give another wrong address
-        b.set_input_text('#add-machine-address', "10.111.113.2:4321")
-        b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
-        # Error happens immediatly now.
-        b.wait_in_text('#hosts_setup_server_dialog', "Unable to contact the given host 10.111.113.2:4321. Make sure it has ssh running on port 4321, or specify another port in the address.")
-        # Now do it right
-        b.set_input_text('#add-machine-address', "10.111.113.2")
-        b.assert_pixels("#hosts_setup_server_dialog", "host-add-dialog")
-        b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
-        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time")
-        b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_not_present('#hosts_setup_server_dialog')
-
+        self.add_new_machine(b, "10.111.113.2", pixel_label="host-add-dialog")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         # defaults to current host user name "admin"
         self.connect_and_wait(b, "10.111.113.2", "admin")
@@ -332,18 +299,12 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.connect_and_wait(b, "10.111.113.2", "someone")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
-        # switch off warnings for the rest of this test (nneds the
-        # relogin below to take effect)
-        m1.write("/etc/cockpit/cockpit.conf",
-                 '[Session]\nWarnBeforeConnecting=false\n',
-                 append=True)
-
         # reset session store to forget previous user/host connections
         b.relogin()
         b.click("#hosts-sel button")
 
-        # ssh:// prefix and implied user, no warning because we switched it off above
-        self.add_new_machine(b, "ssh://10.111.113.2", known_host=True, expect_warning=False)
+        # ssh:// prefix and implied user
+        self.add_new_machine(b, "ssh://10.111.113.2", known_host=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2", "admin")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
@@ -407,11 +368,11 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b2.click("#hosts-sel button")
         self.wait_host_addresses(b2, ["localhost"])
 
-        self.add_new_machine(b, "10.111.113.2", expect_warning=True)
+        self.add_new_machine(b, "10.111.113.2")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2")
-        self.connect_and_wait(b2, "10.111.113.2", expect_warning=True)
+        self.connect_and_wait(b2, "10.111.113.2")
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
@@ -487,7 +448,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.login_and_go(superuser=False)
 
         b.click("#hosts-sel button")
-        self.add_new_machine(b, "10.111.113.3", expect_warning=True)
+        self.add_new_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
         self.connect_and_wait(b, "10.111.113.3")
 
@@ -568,9 +529,9 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.enable_multihost(self.machine)
         self.login_and_go(None)
 
-        # Add and connect to a second machine
+        # And and connect to a second machine
         b.click("#hosts-sel button")
-        self.add_new_machine(b, "10.111.113.2", expect_warning=True)
+        self.add_new_machine(b, "10.111.113.2")
         b.click("a[href='/@10.111.113.2']")
         b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
         self.assertIn("admin", m2.execute("loginctl"))

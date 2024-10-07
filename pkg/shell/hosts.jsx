@@ -122,14 +122,17 @@ export class CockpitHosts extends React.Component {
     }
 
     async onHostSwitch(machine) {
-        const { state, host_modal_state } = this.props;
+        const { state } = this.props;
 
-        const connection_string = await connect_host(host_modal_state, state, machine);
-        if (connection_string) {
-            const parts = split_connection_string(connection_string);
-            const addr = build_href({ host: parts.address });
-            state.jump(addr);
-        }
+        // We could launch the connection dialogs here and not jump at
+        // all when the login fails (or is cancelled), but the
+        // traditional behavior is to jump and then try to connect.
+
+        const connection_string = machine.connection_string;
+        const parts = split_connection_string(connection_string);
+        const addr = build_href({ host: parts.address });
+        state.jump(addr);
+        state.ensure_connection();
     }
 
     onEditHosts() {

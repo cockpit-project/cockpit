@@ -45,24 +45,6 @@ export function ShellState() {
     if (meta_multihost instanceof HTMLMetaElement && meta_multihost.content == "yes")
         config.host_switcher_enabled = true;
 
-    /* Should show warning before connecting? */
-    let config_ready = false;
-    cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetString",
-                                                 ["Session", "WarnBeforeConnecting"], [])
-            .then(([result]) => {
-                if (result == "false" || result == "no") {
-                    window.sessionStorage.setItem("connection-warning-shown", "yes");
-                }
-            })
-            .catch(e => {
-                if (e.name != "cockpit.Config.KeyError")
-                    console.warn("Error reading WarnBeforeConnecting configuration:", e.message);
-            })
-            .finally(() => {
-                config_ready = true;
-                on_ready();
-            });
-
     /* MACHINES DATABASE AND MANIFEST LOADER
      *
      * These are part of the machinery in the basement that maintains
@@ -92,7 +74,7 @@ export function ShellState() {
         on_ready();
 
     function on_ready() {
-        if (machines.ready && config_ready) {
+        if (machines.ready) {
             self.ready = true;
             window.addEventListener("popstate", ev => {
                 update();
@@ -515,6 +497,7 @@ export function ShellState() {
 
         // Methods
         jump,
+        ensure_connection,
         remove_frame,
         most_recent_path_for_host,
 

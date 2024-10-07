@@ -38,13 +38,10 @@ import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/inde
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
-import { OutlinedQuestionCircleIcon, ExternalLinkAltIcon } from "@patternfly/react-icons";
-import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
-import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text";
+import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
-import { fmt_to_fragments } from "utils.js";
 
 import { build_href, split_connection_string, generate_connection_string } from "./util.jsx";
 
@@ -122,12 +119,6 @@ export async function connect_host(state, shell_state, machine) {
             address: machine.address,
             template: codes[machine.problem],
         });
-    } else if (!window.sessionStorage.getItem("connection-warning-shown")) {
-        // connect by launching into the "Connection warning" dialog.
-        connection_string = await state.show_modal({
-            address: machine.address,
-            template: "connect"
-        });
     } else {
         // Try to connect without any dialog
         try {
@@ -154,7 +145,6 @@ export async function connect_host(state, shell_state, machine) {
 }
 
 export const codes = {
-    danger: "connect",
     "no-cockpit": "not-supported",
     "not-supported": "not-supported",
     "protocol-error": "not-supported",
@@ -205,74 +195,6 @@ class NotSupported extends React.Component {
                     { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                     <p>{cockpit.format(_("A compatible version of Cockpit is not installed on $0."), this.props.full_address)}</p>
                 </Stack>
-            </Modal>
-        );
-    }
-}
-
-class Connect extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            inProgress: false,
-        };
-    }
-
-    onConnect() {
-        window.sessionStorage.setItem("connection-warning-shown", true);
-        this.setState({ inProgress: true });
-        this.props.run(this.props.try2Connect(this.props.full_address), ex => {
-            let keep_message = false;
-            if (ex.problem === "no-host") {
-                let host_id_port = this.props.full_address;
-                let port = "22";
-                const port_index = host_id_port.lastIndexOf(":");
-                if (port_index === -1) {
-                    host_id_port = this.props.full_address + ":22";
-                } else {
-                    port = host_id_port.substr(port_index + 1);
-                }
-
-                ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
-                ex.problem = "not-found";
-                keep_message = true;
-            }
-            this.setState({ inProgress: false });
-            this.props.setError(ex, keep_message);
-        });
-    }
-
-    render() {
-        return (
-            <Modal id="hosts_connect_server_dialog" isOpen
-                   position="top" variant="small"
-                   onClose={this.props.onClose}
-                   title={fmt_to_fragments(_("Connect to $0?"), <b>{this.props.host}</b>)}
-                   titleIconVariant="warning"
-                   footer={<>
-                       <HelperText>
-                           <HelperTextItem>{_("You will be reminded once per session.")}</HelperTextItem>
-                       </HelperText>
-                       <Button variant="warning" isLoading={this.state.inProgress}
-                                       onClick={() => this.onConnect()}>
-                           {_("Connect")}
-                       </Button>
-                       <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
-                           { _("Cancel") }
-                       </Button>
-                   </>}
-            >
-                <TextContent>
-                    <Text component={TextVariants.p}>
-                        {_("Remote hosts have the ability to run JavaScript on all connected hosts. Only connect to machines that you trust.")}
-                    </Text>
-                    <Text component={TextVariants.p}>
-                        <a href="https://cockpit-project.org/guide/latest/multi-host.html" target="blank" rel="noopener noreferrer">
-                            <ExternalLinkAltIcon /> {_("Read more")}
-                        </a>
-                    </Text>
-                </TextContent>
             </Modal>
         );
     }
@@ -401,27 +323,23 @@ class AddMachine extends React.Component {
             });
         });
 
-        if (!window.sessionStorage.getItem("connection-warning-shown")) {
-            this.props.setError({ problem: "danger", command: "close" });
-        } else {
-            this.props.run(this.props.try2Connect(address), ex => {
-                if (ex.problem === "no-host") {
-                    let host_id_port = address;
-                    let port = "22";
-                    const port_index = host_id_port.lastIndexOf(":");
-                    if (port_index === -1) {
-                        host_id_port = address + ":22";
-                    } else {
-                        port = host_id_port.substr(port_index + 1);
-                    }
-
-                    ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
-                    ex.problem = "not-found";
+        this.props.run(this.props.try2Connect(address), ex => {
+            if (ex.problem === "no-host") {
+                let host_id_port = address;
+                let port = "22";
+                const port_index = host_id_port.lastIndexOf(":");
+                if (port_index === -1) {
+                    host_id_port = address + ":22";
+                } else {
+                    port = host_id_port.substr(port_index + 1);
                 }
-                this.setState({ inProgress: false });
-                this.props.setError(ex);
-            });
-        }
+
+                ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
+                ex.problem = "not-found";
+            }
+            this.setState({ inProgress: false });
+            this.props.setError(ex);
+        });
     }
 
     render() {
@@ -1243,9 +1161,7 @@ class HostModalInner extends React.Component {
             complete: this.complete,
         };
 
-        if (template === "connect")
-            return <Connect {...props} />;
-        else if (template === "add-machine")
+        if (template === "add-machine")
             return <AddMachine {...props} />;
         else if (template === "unknown-hostkey" || template === "unknown-host" || template === "invalid-hostkey")
             return <HostKey {...props} />;

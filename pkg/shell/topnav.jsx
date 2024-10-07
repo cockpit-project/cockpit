@@ -44,18 +44,7 @@ export class TopNav extends React.Component {
     constructor(props) {
         super(props);
 
-        let hash = props.state.hash;
-        let component = props.state.component;
-
-        if (props.machine && props.compiled.compat && props.compiled.compat[component]) { // Old cockpit packages used to be in shell/shell.html
-            hash = props.compiled.compat[component];
-            component = "shell/shell";
-        }
-        const frame = component ? props.index.frames.lookup(props.machine, component, hash) : undefined;
-
         this.state = {
-            component,
-            frame,
             docsOpened: false,
             menuOpened: false,
             showActivePages: false,
@@ -83,26 +72,6 @@ export class TopNav extends React.Component {
         window.removeEventListener("blur", this.handleClickOutside);
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        let hash = nextProps.state.hash;
-        let component = nextProps.state.component;
-
-        if (nextProps.machine && nextProps.compiled.compat && nextProps.compiled.compat[component]) { // Old cockpit packages used to be in shell/shell.html
-            hash = nextProps.compiled.compat[component];
-            component = "shell/shell";
-        }
-
-        if (component !== prevState.component) {
-            const frame = component ? nextProps.index.frames.lookup(nextProps.machine, component, hash) : undefined;
-            return {
-                frame,
-                component,
-            };
-        }
-
-        return null;
-    }
-
     handleModeClick = (event, isSelected) => {
         const theme = event.currentTarget.id;
         this.setState({ theme });
@@ -115,34 +84,53 @@ export class TopNav extends React.Component {
         window.dispatchEvent(styleEvent);
 
         localStorage.setItem("shell:style", theme);
+        this.props.state.update();
     };
 
     render() {
         const Dialogs = this.context;
-        const connected = this.props.machine.state === "connected";
+        const {
+            current_location,
+            current_machine,
+            current_machine_manifest_items,
+            current_frame,
+        } = this.props.state;
+
+        const connected = current_machine.state === "connected";
 
         let docs = [];
 
         if (!this.superuser_connection || (this.superuser_connection.options.host !=
-                                           this.props.machine.connection_string)) {
+                                           current_machine.connection_string)) {
             if (this.superuser_connection) {
                 this.superuser_connection.close();
                 this.superuser_connection = null;
             }
 
             if (connected) {
-                this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: this.props.machine.connection_string });
+                this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: current_machine.connection_string });
                 this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
             }
         }
 
-        const item = this.props.compiled.items[this.props.state.component];
+        // NOTE: The following is arguably wrong. We should not index
+        // the manifest items with the location path. Instead, we
+        // should use state.current_manifest_item.
+        //
+        // See https://github.com/cockpit-project/cockpit/issues/21040
+        //
+        const item = current_machine_manifest_items.items[current_location.path];
         if (item && item.docs)
             docs = item.docs;
 
-        // Check for parent as well
+        // NOTE: The following is also arguably wrong. We should not
+        // index the manifests with the location path either. We
+        // should use only the first component after splitting the
+        // path at "/".  Also, we should look into
+        // current_machine.manifests instead of cockpit.manifests.
+        //
         if (docs.length === 0) {
-            const comp = cockpit.manifests[this.props.state.component];
+            const comp = cockpit.manifests[current_location.path];
             if (comp && comp.parent && comp.parent.docs)
                 docs = comp.parent.docs;
         }
@@ -187,7 +175,7 @@ export class TopNav extends React.Component {
               onClick={() => {
                   this.setState(prevState => { return { menuOpened: !prevState.menuOpened } });
               }}>
-                <SuperuserIndicator proxy={this.superuser} host={this.props.machine.connection_string} />
+                <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
             </div>,
             <Divider key="separator2" className="mobile_v" />,
             <DropdownGroup label={_("Style")} key="dark-switcher">
@@ -219,7 +207,7 @@ export class TopNav extends React.Component {
         if (this.state.showActivePages)
             main_menu.push(
                 <DropdownItem key="frames" id="active-pages" component="button"
-                              onClick={() => Dialogs.run(ActivePagesDialog, { frames: this.props.index.frames })}>
+                              onClick={() => Dialogs.run(ActivePagesDialog, { state: this.props.state })}>
                     {_("Active pages")}
                 </DropdownItem>);
 
@@ -239,17 +227,17 @@ export class TopNav extends React.Component {
                 <MastheadContent>
                     <Toolbar id="toolbar" isFullHeight isStatic>
                         <ToolbarContent className="ct-topnav-content">
-                            {(connected && this.state.frame && !this.state.frame.getAttribute("data-ready")) &&
+                            { (current_frame && !current_frame.ready) &&
                                 <ToolbarItem id="machine-spinner">
                                     <Spinner size="lg" style={{ "--pf-v5-c-spinner--Color": "#fff", "--pf-v5-c-spinner--diameter": "2rem" }} />
                                 </ToolbarItem>
                             }
                             { connected &&
                                 <ToolbarItem id="super-user-indicator" className="super-user-indicator desktop_v">
-                                    <SuperuserIndicator proxy={this.superuser} host={this.props.machine.connection_string} />
+                                    <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
                                 </ToolbarItem>
                             }
-                            { this.props.index.has_oops &&
+                            { this.props.state.has_oops &&
                                 <ToolbarItem>
                                     <Button id="navbar-oops" variant="link" size="lg" isDanger
                                             onClick={() => Dialogs.run(OopsModal, {})}>{_("Ooops!")}</Button>

@@ -29,20 +29,18 @@ import { useInit } from "hooks";
 
 const _ = cockpit.gettext;
 
-export const ActivePagesDialog = ({ dialogResult, frames }) => {
+export const ActivePagesDialog = ({ dialogResult, state }) => {
     function get_pages() {
         const result = [];
-        for (const address in frames.iframes) {
-            for (const component in frames.iframes[address]) {
-                const iframe = frames.iframes[address][component];
+        for (const frame of Object.values(state.frames)) {
+            if (frame.url) {
+                const active = (frame == state.current_frame ||
+                                state.most_recent_path_for_host(frame.host) == frame.path);
                 result.push({
-                    frame: iframe,
-                    component,
-                    address,
-                    name: iframe.getAttribute("name"),
-                    active: iframe.getAttribute("data-active") === 'true',
-                    selected: iframe.getAttribute("data-active") === 'true',
-                    displayName: address === "localhost" ? "/" + component : address + ":/" + component
+                    frame,
+                    active,
+                    selected: active,
+                    displayName: frame.host === "localhost" ? "/" + frame.path : frame.host + ":/" + frame.path,
                 });
             }
         }
@@ -61,8 +59,9 @@ export const ActivePagesDialog = ({ dialogResult, frames }) => {
 
     function onRemove() {
         pages.forEach(element => {
-            if (element.selected)
-                frames.remove(element.host, element.component);
+            if (element.selected) {
+                state.remove_frame(element.frame.name);
+            }
         });
         dialogResult.resolve();
     }
@@ -80,8 +79,8 @@ export const ActivePagesDialog = ({ dialogResult, frames }) => {
         }];
         return ({
             props: {
-                key: page.name,
-                'data-row-id': page.name
+                key: page.frame.name,
+                'data-row-id': page.frame.name
             },
             columns,
             selected: page.selected,

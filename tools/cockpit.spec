@@ -152,7 +152,6 @@ BuildRequires:  python3-tox-current-env
 %if %{enable_multihost}
     --enable-multihost \
 %endif
-    --disable-pcp \
 
 %make_build
 

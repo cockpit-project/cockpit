@@ -23,8 +23,6 @@ import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated
 import PropTypes from "prop-types";
 import { debounce } from 'throttle-debounce';
 
-import { fsinfo } from "cockpit/fsinfo";
-
 const _ = cockpit.gettext;
 
 export class FileAutoComplete extends React.Component {
@@ -60,7 +58,7 @@ export class FileAutoComplete extends React.Component {
                 path = value.slice(0, value.length - 1);
 
             const match = this.state.displayFiles
-                    .find(entry => (entry.type == 'dir' && entry.path == path + '/') || (entry.type == 'reg' && entry.path == path));
+                    .find(entry => (entry.type == 'directory' && entry.path == path + '/') || (entry.type == 'file' && entry.path == path));
 
             if (match) {
                 // If match file path is a prefix of another file, do not update current directory,
@@ -69,7 +67,7 @@ export class FileAutoComplete extends React.Component {
                 const isPrefix = this.state.displayFiles.filter(entry => entry.path.startsWith(value)).length > 1;
                 // If the inserted string corresponds to a directory listed in the results
                 // update the current directory and refetch results
-                if (match.type == 'dir' && !isPrefix)
+                if (match.type == 'directory' && !isPrefix)
                     cb(match.path);
                 else
                     this.setState({ value: match.path });
@@ -93,7 +91,7 @@ export class FileAutoComplete extends React.Component {
 
     onCreateOption(newValue) {
         this.setState(prevState => ({
-            displayFiles: [...prevState.displayFiles, { type: "reg", path: newValue }]
+            displayFiles: [...prevState.displayFiles, { type: "file", path: newValue }]
         }));
     }
 
@@ -101,17 +99,30 @@ export class FileAutoComplete extends React.Component {
         if (this.state.directory == path)
             return;
 
-        fsinfo(path, ['type', 'entries'], { superuser: this.props.superuser })
-                .then(info => {
-                    const results = [];
-                    for (const name in info.entries ?? {}) {
-                        const type = info.entries[name].type;
-                        if (!this.props.onlyDirectories || type == 'dir')
-                            results.push({ type, path: name + (type == 'dir' ? '/' : '') });
-                    }
-                    this.finishUpdate(results, null, path);
-                })
-                .catch(error => this.finishUpdate([], error.message, path));
+        const channel = cockpit.channel({
+            payload: "fslist1",
+            path,
+            superuser: this.props.superuser,
+            watch: false,
+        });
+        const results = [];
+
+        channel.addEventListener("ready", () => {
+            this.finishUpdate(results, null, path);
+        });
+
+        channel.addEventListener("close", (ev, data) => {
+            this.finishUpdate(results, data.message, path);
+        });
+
+        channel.addEventListener("message", (ev, data) => {
+            const item = JSON.parse(data);
+            if (item && item.path && item.event == 'present' &&
+                (!this.props.onlyDirectories || item.type == 'directory')) {
+                item.path = item.path + (item.type == 'directory' ? '/' : '');
+                results.push(item);
+            }
+        });
     }
 
     finishUpdate(results, error, directory) {
@@ -126,7 +137,7 @@ export class FileAutoComplete extends React.Component {
 
         if (directory) {
             listItems.unshift({
-                type: "dir",
+                type: "directory",
                 path: directory
             });
         }

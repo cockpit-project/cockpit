@@ -103,8 +103,6 @@ def create_manifest(
                 'buildsystem': 'autotools',
                 'config-opts': [
                     '--enable-cockpit-client',
-                    '--disable-polkit',
-                    '--disable-pcp',
                     '--with-systemdunitdir=/invalid',
                     'CPPFLAGS=-Itools/mock-build-env',
                     '--with-admin-group=root',

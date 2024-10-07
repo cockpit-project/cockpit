@@ -61,18 +61,6 @@ AM_CONDITIONAL(SELINUX_POLICY_ENABLED, test "$enable_selinux_policy" != "no")
 AC_SUBST(SELINUX_POLICY_TYPE, [${enable_selinux_policy}])
 AC_MSG_RESULT($enable_selinux_policy)
 
-# --disable-polkit
-AC_MSG_CHECKING([whether to build polkit support])
-AC_ARG_ENABLE(polkit, AS_HELP_STRING([--disable-polkit], [Disable usage of polkit]))
-AM_CONDITIONAL(WITH_POLKIT, test "$enable_polkit" != 'no')
-if test "$enable_polkit" != 'no'; then
-  AC_DEFINE([WITH_POLKIT], 1, [Whether to build with polkit support])
-fi
-AC_MSG_RESULT(${enable_polkit:=yes})
-
-# TODO: remove this and clean up the old bridge in src/bridge/
-AM_CONDITIONAL(WITH_OLD_BRIDGE, false)
-
 AC_SEARCH_LIBS([argp_parse], [argp])
 case "$ac_cv_search_argp_parse" in
     no) AC_MSG_FAILURE([failed to find argp_parse]) ;;
@@ -99,9 +87,6 @@ PKG_CHECK_MODULES(libsystemd, [libsystemd >= 235])
 PKG_CHECK_MODULES(json_glib, [json-glib-1.0 >= 1.4])
 PKG_CHECK_MODULES(gnutls, [gnutls >= 3.6.0])
 PKG_CHECK_MODULES(krb5, [krb5-gssapi >= 1.11 krb5 >= 1.11])
-if test "$enable_polkit" != "no"; then
-  PKG_CHECK_MODULES(polkit, [polkit-agent-1 >= 0.105])
-fi
 
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,
@@ -126,42 +111,6 @@ AC_CHECK_LIB(crypt, crypt_r, [ true ],
   [AC_MSG_ERROR([Couldn't find crypt library. Try installing glibc-devel])]
 )
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
-
-# pcp
-AC_MSG_CHECKING([whether to build with PCP])
-AC_ARG_ENABLE(pcp, AS_HELP_STRING([--disable-pcp], [Disable usage of PCP]))
-
-if test "$enable_pcp" = "no"; then
-  AC_MSG_RESULT($enable_pcp)
-
-else
-  if test "$enable_pcp" = ""; then
-    disable_msg="(perhaps --disable-pcp)"
-  fi
-
-  enable_pcp="yes"
-  AC_MSG_RESULT($enable_pcp)
-
-  AC_CHECK_HEADER([pcp/pmapi.h], ,
-    [AC_MSG_ERROR([Couldn't find pcp headers $disable_msg])]
-  )
-  AC_CHECK_HEADERS([pcp/import.h pcp/pmda.h], ,
-    [AC_MSG_ERROR([Couldn't find pcp headers $disable_msg])],
-    [#include <pcp/pmapi.h>]
-  )
-  AC_CHECK_LIB(pcp, pmNewContext, [ true ],
-    [AC_MSG_ERROR([Couldn't find pcp library $disable_msg])]
-  )
-  AC_CHECK_LIB(pcp_pmda, pmdaCacheLookup, [ true ],
-    [AC_MSG_ERROR([Couldn't find pcp_pmda library $disable_msg])]
-  )
-  AC_CHECK_LIB(pcp_import, pmiStart, [ true ],
-    [AC_MSG_ERROR([Couldn't find pcp_import library $disable_msg])]
-  )
-  COCKPIT_PCP_LIBS="$COCKPIT_PCP_LIBS -lpcp"
-fi
-
-AM_CONDITIONAL([ENABLE_PCP], [test "$enable_pcp" = "yes"])
 
 # systemd
 AC_ARG_WITH([systemdunitdir], [AS_HELP_STRING([--with-systemdunitdir=DIR],
@@ -423,8 +372,6 @@ echo "
         Node environment:           ${NODE_ENV}
         With coverage:              ${enable_coverage}
         With address sanitizer:     ${asan_status}
-        With PCP:                   ${enable_pcp}
-        With polkit:                ${enable_polkit}
         SELinux Policy:             ${enable_selinux_policy}
 
         cockpit-client:             ${enable_cockpit_client}

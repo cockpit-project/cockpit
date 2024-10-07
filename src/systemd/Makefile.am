@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# all systemd units, tmpfiles, and related helpers
+# all systemd units, tmpfiles, polkit, and related helpers
 
 systemdgenerated = $(NULL)
 systemdgenerated_in = $(patsubst %,%.in,$(systemdgenerated))
@@ -62,3 +62,12 @@ nodist_tmpfilesconf_DATA = src/systemd/tmpfiles.d/cockpit-ws.conf
 sysusersconfdir = $(prefix)/lib/sysusers.d
 dist_sysusersconf_DATA = src/systemd/sysusers.d/cockpit-wsinstance.conf
 
+# -----------------
+# Policykit
+polkitdir = $(datadir)/polkit-1/actions
+systemdgenerated += $(nodist_polkit_DATA)
+nodist_polkit_DATA = src/systemd/org.cockpit-project.cockpit-bridge.policy
+
+# unlike the other files in this directory, our .in transformation is for translation
+src/systemd/%.policy: src/systemd/%.policy.in $(PO_FILES)
+	$(AM_V_GEN) mkdir -p $(dir $@) && GETTEXTDATADIRS=$(srcdir)/po msgfmt --xml -d $(top_srcdir)/po --template $< --output $@

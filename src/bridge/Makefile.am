@@ -234,22 +234,6 @@ dist_check_DATA += \
 endif
 
 # -----------------------------------------------------------------------------
-# polkit
-
-polkit_in_files  = src/bridge/org.cockpit-project.cockpit-bridge.policy.in
-EXTRA_DIST += $(polkit_in_files)
-
-if WITH_POLKIT
-polkitdir        = $(datadir)/polkit-1/actions
-polkit_DATA = $(polkit_in_files:.policy.in=.policy)
-
-%.policy: %.policy.in $(PO_FILES)
-	$(AM_V_GEN) GETTEXTDATADIRS=$(srcdir)/po msgfmt --xml -d $(top_srcdir)/po --template $< --output $@
-
-CLEANFILES += $(polkit_DATA)
-endif
-
-# -----------------------------------------------------------------------------
 # PCP
 
 if ENABLE_PCP

@@ -167,19 +167,6 @@ export const LangModal = ({ dialogResult }) => {
     );
 };
 
-export function TimeoutModal(props) {
-    return (
-        <Modal isOpen position="top" variant="medium"
-               showClose={false}
-               title={_("Session is about to expire")}
-               id="session-timeout-modal"
-               footer={<Button variant='primary' onClick={props.onClose}>{_("Continue session")}</Button>}
-        >
-            {props.text}
-        </Modal>
-    );
-}
-
 export function OopsModal({ dialogResult }) {
     return (
         <Modal isOpen position="top" variant="medium"

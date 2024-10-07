@@ -711,7 +711,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_not_present('#hosts_setup_server_dialog')
 
         # Reconnect
-        b.wait_not_visible(".curtains-ct")
+        b.wait_not_present(".curtains-ct")
         b.enter_page('/system', "10.111.113.2")
 
         b.logout()
@@ -736,7 +736,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_not_present('#hosts_setup_server_dialog')
 
         # Reconnect
-        b.wait_not_visible(".curtains-ct")
+        b.wait_not_present(".curtains-ct")
         b.enter_page('/system', "10.111.113.2")
         b.logout()
         b.wait_visible("#login")
@@ -759,7 +759,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b.wait_not_present('#hosts_setup_server_dialog')
 
-        b.wait_not_visible(".curtains-ct")
+        b.wait_not_present(".curtains-ct")
         b.enter_page('/system', "10.111.113.2:2222")
         b.logout()
 

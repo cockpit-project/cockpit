@@ -929,7 +929,7 @@ OnCalendar=daily
             # Early ENOSPC error (before we would block on 'ack')
             m.execute("mkdir -p /mnt/upload; mount -t tmpfs -o size=1M none /mnt/upload;")
             self.addCleanup(m.execute, "umount /mnt/upload; rmdir /mnt/upload;")
-            b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/")
+            b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/", verify=True)
             b.upload_files("#demo-upload input[type='file']", [big_file])
             b.wait_visible("#upload-file-btn:not(:disabled)")
             b.wait_in_text(".pf-v5-c-alert", "No space left on device")
@@ -937,7 +937,7 @@ OnCalendar=daily
 
             # Later ENOSPC error (after we've blocked)
             m.execute("umount /mnt/upload; mount -t tmpfs -o size=10M none /mnt/upload;")
-            b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/")
+            b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/", verify=True)
             b.upload_files("#demo-upload input[type='file']", [big_file])
             b.wait_visible("#upload-file-btn:not(:disabled)")
             b.wait_in_text(".pf-v5-c-alert", "No space left on device")
@@ -945,7 +945,7 @@ OnCalendar=daily
 
         # Upload permission error
         b.drop_superuser()
-        b.set_file_autocomplete_val("#demo-upload", "/root/")
+        b.set_file_autocomplete_val("#demo-upload", "/root/", verify=True)
         b.upload_files("#demo-upload input[type='file']", [test_upload_file])
         b.wait_in_text(".pf-v5-c-alert", "Not permitted to perform this action")
 
@@ -962,7 +962,7 @@ OnCalendar=daily
 
         self.login_and_go("/playground/react-patterns")  # , debugging="upload")
         b.wait_visible("#demo-upload")
-        b.set_file_autocomplete_val("#demo-upload", dest_dir)
+        b.set_file_autocomplete_val("#demo-upload", dest_dir, verify=True)
         b.upload_files("#demo-upload input[type='file']", files)
 
         with b.wait_timeout(30):

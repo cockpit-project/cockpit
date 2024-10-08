@@ -86,11 +86,11 @@ export function push_window_location(location) {
     window.history.pushState(null, "", encode_location(location));
 }
 
-export function CompiledComponents() {
+function CompiledComponents(manifests) {
     const self = this;
     self.items = {};
 
-    self.load = function(manifests, section) {
+    self.load = function(section) {
         Object.entries(manifests || { }).forEach(([name, manifest]) => {
             Object.entries(manifest[section] || { }).forEach(([prop, info]) => {
                 const item = {
@@ -168,20 +168,27 @@ export function CompiledComponents() {
 
         // Still don't know where it comes from, check for parent
         if (!component) {
-            const comp = cockpit.manifests[path];
+            const comp = manifests[path];
             if (comp && comp.parent)
                 component = comp.parent.component;
         }
 
         return self.items[component] || { path, label: path, section: "menu" };
     };
+
+    self.find_path_manifest = function(path) {
+        const parts = path.split("/");
+        const pkg = parts[0];
+
+        return manifests[pkg] || { };
+    };
 }
 
 export function compile_manifests(manifests) {
-    const compiled = new CompiledComponents();
-    compiled.load(manifests, "tools");
-    compiled.load(manifests, "dashboard");
-    compiled.load(manifests, "menu");
+    const compiled = new CompiledComponents(manifests);
+    compiled.load("tools");
+    compiled.load("dashboard");
+    compiled.load("menu");
     return compiled;
 }
 

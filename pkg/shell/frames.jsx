@@ -36,47 +36,6 @@
 
 import React, { useRef, useEffect } from 'react';
 
-function poll_frame_ready(state, frame, elt, count, setupFrameWindow) {
-    let ready = false;
-
-    try {
-        if (elt.contentWindow.document && elt.contentWindow.document.body) {
-            ready = (elt.contentWindow.location.href != "about:blank" &&
-                     elt.contentWindow.document.body.offsetWidth > 0 &&
-                     elt.contentWindow.document.body.offsetHeight > 0);
-        }
-    } catch (ex) {
-        ready = true;
-    }
-
-    if (!count)
-        count = 0;
-
-    count += 1;
-    if (count > 50)
-        ready = true;
-
-    if (ready) {
-        if (!frame.ready) {
-            frame.ready = true;
-            state.update();
-        }
-
-        if (elt.contentWindow && setupFrameWindow)
-            setupFrameWindow(elt.contentWindow);
-
-        if (elt.contentDocument && elt.contentDocument.documentElement) {
-            elt.contentDocument.documentElement.lang = state.config.language;
-            if (state.config.language_direction)
-                elt.contentDocument.documentElement.dir = state.config.language_direction;
-        }
-    } else {
-        window.setTimeout(function() {
-            poll_frame_ready(state, frame, elt, count + 1, setupFrameWindow);
-        }, 100);
-    }
-}
-
 export const Frames = ({ state, idle_state, hidden }) => {
     const content_ref = useRef(null);
     const { frames, current_frame } = state;
@@ -96,6 +55,29 @@ export const Frames = ({ state, idle_state, hidden }) => {
             elt.style.display = "none";
             content.appendChild(elt);
             return elt;
+        }
+
+        function setup_iframe(frame, iframe) {
+            idle_state.setupIdleResetEventListeners(iframe.contentWindow);
+            iframe.contentWindow.addEventListener("unload", () => teardown_iframe(frame, iframe), { once: true });
+
+            if (iframe.contentDocument && iframe.contentDocument.documentElement) {
+                iframe.contentDocument.documentElement.lang = state.config.language;
+                if (state.config.language_direction)
+                    iframe.contentDocument.documentElement.dir = state.config.language_direction;
+            }
+
+            if (!frame.ready) {
+                frame.ready = true;
+                state.update();
+            }
+        }
+
+        function teardown_iframe(frame, iframe) {
+            if (frame.ready) {
+                frame.ready = false;
+                state.update();
+            }
         }
 
         const iframes_by_name = {};
@@ -124,15 +106,11 @@ export const Frames = ({ state, idle_state, hidden }) => {
                 iframe = iframe_new(name);
                 iframe.setAttribute("class", "container-frame");
                 iframe.setAttribute("data-host", frame.host);
+                iframe.addEventListener("load", () => setup_iframe(frame, iframe));
             }
 
             if (iframe.getAttribute("title") != frame.title)
                 iframe.setAttribute("title", frame.title);
-
-            if (frame.ready && iframe.getAttribute("data-ready") == null)
-                iframe.setAttribute("data-ready", "1");
-            else if (!frame.ready && iframe.getAttribute("data-ready"))
-                iframe.removeAttribute("data-ready");
 
             if (frame.loaded && iframe.getAttribute("data-loaded") == null)
                 iframe.setAttribute("data-loaded", "1");
@@ -154,31 +132,9 @@ export const Frames = ({ state, idle_state, hidden }) => {
                     iframe.contentWindow.location.replace(src);
                 }
                 iframe.setAttribute('src', src);
-
-                poll_frame_ready(state, frame, iframe, 0, win => idle_state.setupIdleResetEventListeners(win));
             }
 
-            iframe.style.display = (!hidden && frame == current_frame) ? "block" : "none";
-
-            // This makes the initial "about:blank" document of the
-            // iframe dark if necessary, to avoid some flickering.
-            //
-            // NOTE: This works well with Chrome, but not with
-            // Firefox, which seems to create a couple of new
-            // documentElements as time goes on, and they all start
-            // out white.
-            if (!iframes_by_name[name] && iframe.contentDocument.documentElement) {
-                const style = localStorage.getItem('shell:style') || 'auto';
-                if ((window.matchMedia &&
-                     window.matchMedia('(prefers-color-scheme: dark)').matches &&
-                     style === "auto") ||
-                    style === "dark") {
-                    // --pf-v5-global--BackgroundColor--dark-300
-                    iframe.contentDocument.documentElement.style.background = '#1b1d21';
-                } else {
-                    iframe.contentDocument.documentElement.style.background = 'white';
-                }
-            }
+            iframe.style.display = (!hidden && frame == current_frame && frame.ready) ? "block" : "none";
         }
     });
 

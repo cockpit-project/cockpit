@@ -589,6 +589,7 @@ class TestMultiMachine(testlib.MachineCase):
     @testlib.todoPybridgeRHEL8()
     def testFrameReload(self):
         b = self.browser
+        m2 = self.machines["machine2"]
 
         frame = "cockpit1:10.111.113.2/playground/test"
         m2_path = "/@10.111.113.2/playground/test"
@@ -601,9 +602,13 @@ class TestMultiMachine(testlib.MachineCase):
         b.go(m2_path)
         b.enter_page("/playground/test", "10.111.113.2")
 
-        b.wait_text('#file-content', "0")
-        b.click("#modify-file")
-        b.wait_text('#file-content', "1")
+        # Check that channels are closed when a frame is reloaded.
+
+        # Lock a file on m2, that keeps a channel open.
+        m2.execute("touch /tmp/playground-test-lock")
+        b.click(".lock-channel button")
+        b.wait_in_text(".lock-channel span", 'locked')
+        m2.execute("! flock --nonblock /tmp/playground-test-lock true")
 
         # load the same page on m1
         b.switch_to_top()
@@ -611,20 +616,18 @@ class TestMultiMachine(testlib.MachineCase):
         b.enter_page("/playground/test")
         b.wait_text('#file-content', "0")
 
-        # go back to m2 and reload frame.
-        b.switch_to_top()
+        # Now reload the m2 frame by kicking its "src" attribute.
         b.go(m2_path)
         b.enter_page("/playground/test", "10.111.113.2")
-        b.wait_text('#file-content', "1")
+        b.wait_in_text(".lock-channel span", 'locked')
         b.switch_to_top()
-
-        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
-        b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
+
+        # The channel and the lock should have gone away
+        m2.execute("flock --timeout 10 /tmp/playground-test-lock true")
 
         b.enter_page("/playground/test", "10.111.113.2")
-
-        b.wait_text('#file-content', "1")
+        b.wait_not_in_text(".lock-channel span", 'locked')
 
         self.allow_hostkey_messages()
 

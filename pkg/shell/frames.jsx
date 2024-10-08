@@ -21,15 +21,14 @@
    pages.
 
    We can't let React itself manipulate the iframe DOM elements,
-   unfortunately, for two reasons:
+   unfortunately, for these reasons:
 
    - We need to be super careful when setting the "src" attribute of
      an iframe element. Otherwise we get spurious browsing history
      entries that cause the Back button of browsers to behave
      erratically.
 
-   - At least Chromium 128.0.6613.137 crashes when our iframe elements
-     are removed from the DOM.
+   - We need to adjust the window and document inside the iframe a bit.
 
    Thus, we use a giant useEffect hook to reimplement the incremental
    DOM updates that React would do for us.
@@ -87,47 +86,23 @@ export const Frames = ({ state, idle_state, hidden }) => {
         if (!content)
             return;
 
-        const free_iframes = [];
-
         function iframe_remove(elt) {
-            // XXX - chromium crashes somewhere down the line when
-            // removing iframes here. So we strip them of their
-            // attributes, put them on a list, and reuse them
-            // eventually.
-            state.router.unregister_name(elt.getAttribute('name'));
-            elt.removeAttribute('name');
-            elt.removeAttribute('title');
-            elt.removeAttribute('src');
-            elt.removeAttribute('data-host');
-            elt.removeAttribute("data-ready");
-            elt.removeAttribute("data-loaded");
-            elt.removeAttribute('class');
-            elt.style.display = "none";
-            free_iframes.push(elt);
+            elt.remove();
         }
 
         function iframe_new(name) {
-            let elt = free_iframes.shift();
-            if (!elt) {
-                elt = document.createElement("iframe");
-                elt.setAttribute("name", name);
-                elt.style.display = "none";
-                content.appendChild(elt);
-            } else {
-                elt.setAttribute("name", name);
-                elt.contentWindow.name = name;
-            }
+            const elt = document.createElement("iframe");
+            elt.setAttribute("name", name);
+            elt.style.display = "none";
+            content.appendChild(elt);
             return elt;
         }
 
         const iframes_by_name = {};
 
         for (const c of content.children) {
-            if (c.nodeName == "IFRAME") {
-                if (c.getAttribute('name'))
-                    iframes_by_name[c.getAttribute('name')] = c;
-                else
-                    free_iframes.push(c);
+            if (c.nodeName == "IFRAME" && c.getAttribute('name')) {
+                iframes_by_name[c.getAttribute('name')] = c;
             }
         }
 

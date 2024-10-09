@@ -813,6 +813,8 @@ ipa-advise enable-admins-sudo | sh -ex
         b.wait_visible('#hosts_setup_server_dialog')
         b.click('#hosts_setup_server_dialog button:contains(Add)')
         b.wait_not_present('#hosts_setup_server_dialog')
+        b.wait_visible('#hosts_connect_server_dialog')
+        b.click('#hosts_connect_server_dialog button.pf-m-warning')
 
         # Getting root privs through sudo with kerberos in the remote SSH session does not currently work.
         # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
@@ -1071,6 +1073,8 @@ class TestKerberos(testlib.MachineCase):
         b.wait_visible('#hosts_setup_server_dialog')
         b.click('#hosts_setup_server_dialog button:contains(Add)')
         b.wait_not_present('#hosts_setup_server_dialog')
+        b.wait_visible('#hosts_connect_server_dialog')
+        b.click('#hosts_connect_server_dialog button.pf-m-warning')
 
         b.enter_page("/system/terminal", host="x0.cockpit.lan")
         b.wait_visible(".terminal")

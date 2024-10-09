@@ -43,7 +43,7 @@ import {
 } from "../utils.js";
 
 import {
-    dialog_open, SelectSpaces, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes,
+    dialog_open, SelectSpaces, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes, Group,
     BlockingMessage, TeardownMessage,
     init_teardown_usage
 } from "../dialog.jsx";
@@ -92,40 +92,42 @@ function create_fs(pool) {
                       {
                           validate: name => validate_fs_name(null, name, filesystems)
                       }),
-            CheckBoxes("set_custom_size", _("Stratis filesystem"),
-                       {
-                           value: {
-                               enabled: !pool.Overprovisioning,
-                           },
-                           fields: [
-                               { tag: "enabled", title: _("Set initial size") },
-                           ]
-                       }),
-            SizeSlider("size", "",
-                       {
-                           visible: vals => vals.set_custom_size.enabled,
-                           min: fsys_min_size,
-                           max: pool.Overprovisioning ? stats.pool_total : stats.pool_free,
-                           allow_infinite: pool.Overprovisioning,
-                           round: 512
-                       }),
-            CheckBoxes("set_custom_limit", "",
-                       {
-                           value: {
-                               enabled: false,
-                           },
-                           fields: [
-                               { tag: "enabled", title: _("Limit size") },
-                           ]
-                       }),
-            SizeSlider("limit", "",
-                       {
-                           visible: vals => vals.set_custom_limit.enabled,
-                           min: fsys_min_size,
-                           max: pool.Overprovisioning ? stats.pool_total : stats.pool_free,
-                           allow_infinite: true,
-                           round: 512
-                       }),
+            Group(_("Stratis filesystem"), [
+                CheckBoxes("set_custom_size", null,
+                           {
+                               value: {
+                                   enabled: !pool.Overprovisioning,
+                               },
+                               fields: [
+                                   { tag: "enabled", title: _("Set initial size") },
+                               ]
+                           }),
+                SizeSlider("size", null,
+                           {
+                               visible: vals => vals.set_custom_size.enabled,
+                               min: fsys_min_size,
+                               max: pool.Overprovisioning ? stats.pool_total : stats.pool_free,
+                               allow_infinite: pool.Overprovisioning,
+                               round: 512
+                           }),
+                CheckBoxes("set_custom_limit", null,
+                           {
+                               value: {
+                                   enabled: false,
+                               },
+                               fields: [
+                                   { tag: "enabled", title: _("Limit size") },
+                               ]
+                           }),
+                SizeSlider("limit", null,
+                           {
+                               visible: vals => vals.set_custom_limit.enabled,
+                               min: fsys_min_size,
+                               max: pool.Overprovisioning ? stats.pool_total : stats.pool_free,
+                               allow_infinite: true,
+                               round: 512
+                           }),
+            ]),
             TextInput("mount_point", _("Mount point"),
                       {
                           validate: (val, values, variant) => {

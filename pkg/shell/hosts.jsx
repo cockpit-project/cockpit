@@ -15,7 +15,7 @@ import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
 
 import 'polyfills';
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
-import { HostModal } from "./hosts_dialog.jsx";
+import { HostModal, try2Connect, codes } from "./hosts_dialog.jsx";
 import { useLoggedInUser } from "hooks";
 
 const _ = cockpit.gettext;
@@ -73,8 +73,8 @@ export class CockpitHosts extends React.Component {
             editing: false,
             current_user: "",
             current_key: props.machine.key,
-            show_modal: false,
-            edit_machine: null,
+            modal_properties: null,
+            modal_callback: null,
         };
 
         this.toggleMenu = this.toggleMenu.bind(this);
@@ -89,6 +89,16 @@ export class CockpitHosts extends React.Component {
         cockpit.user().then(user => {
             this.setState({ current_user: user.name || "" });
         }).catch(exc => console.log(exc));
+
+        window.trigger_connection_flow = machine => {
+            if (!this.state.modal_properties)
+                this.connectHost(machine);
+        };
+        this.props.index.navigate(null, true);
+    }
+
+    componentWillUnmount() {
+        window.trigger_connection_flow = null;
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -116,12 +126,86 @@ export class CockpitHosts extends React.Component {
         });
     }
 
-    onAddNewHost() {
-        this.setState({ show_modal: true });
+    showModal(properties) {
+        return new Promise((resolve, reject) => {
+            this.setState({ modal_properties: properties,
+                            modal_callback: result => { resolve(result); return Promise.resolve() },
+                          });
+        });
     }
 
-    onHostEdit(event, machine) {
-        this.setState({ show_modal: true, edit_machine: machine });
+    async onAddNewHost() {
+        const connection_string = await this.showModal({ });
+        if (connection_string) {
+            const parts = this.props.machines.split_connection_string(connection_string);
+            const addr = this.props.hostAddr({ host: parts.address }, true);
+            this.props.loader.connect(parts.address);
+            this.props.jump(addr);
+        }
+    }
+
+    async onHostEdit(event, machine) {
+        const connection_string = await this.showModal({ address: machine.address });
+        if (connection_string) {
+            const parts = this.props.machines.split_connection_string(connection_string);
+            const addr = this.props.hostAddr({ host: parts.address }, true);
+            if (machine == this.props.machine && parts.address != machine.address) {
+                this.props.loader.connect(parts.address);
+                this.props.jump(addr);
+            }
+        }
+    }
+
+    async connectHost(machine) {
+        if (machine.address == "localhost" || machine.state == "connected" || machine.state == "connecting")
+            return machine.connection_string;
+
+        let connection_string = null;
+
+        if (machine.problem && codes[machine.problem]) {
+            // trouble shooting
+            connection_string = await this.showModal({
+                address: machine.address,
+                template: codes[machine.problem],
+            });
+        } else if (!window.sessionStorage.getItem("connection-warning-shown")) {
+            // connect by launching into the "Connection warning" dialog.
+            connection_string = await this.showModal({
+                address: machine.address,
+                template: "connect"
+            });
+        } else {
+            // Try to connect without any dialog
+            try {
+                await try2Connect(this.props.machines, machine.connection_string);
+                connection_string = machine.connection_string;
+            } catch (err) {
+                // continue with troubleshooting in the dialog
+                connection_string = await this.showModal({
+                    address: machine.address,
+                    template: codes[err.problem] || "change-port",
+                    error_options: err,
+                });
+            }
+        }
+
+        if (connection_string) {
+            // make the rest of the shell aware that the machine is now connected
+            const parts = this.props.machines.split_connection_string(connection_string);
+            this.props.loader.connect(parts.address);
+            this.props.index.navigate();
+        }
+
+        return connection_string;
+    }
+
+    async onHostSwitch(machine) {
+        const connection_string = await this.connectHost(machine);
+        if (connection_string) {
+            const parts = this.props.machines.split_connection_string(connection_string);
+            const addr = this.props.hostAddr({ host: parts.address }, true);
+            this.props.jump(addr);
+        }
     }
 
     onEditHosts() {
@@ -180,7 +264,7 @@ export class CockpitHosts extends React.Component {
                 header={(m.user ? m.user : this.state.current_user) + " @"}
                 status={m.state === "failed" ? { type: "error", title: _("Connection error") } : null}
                 className={m.state}
-                jump={this.props.jump}
+                jump={() => this.onHostSwitch(m)}
                 actions={<>
                     <Tooltip content={_("Edit")} position="right">
                         <Button isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={e => this.onHostEdit(e, m)} key={m.label + "edit"} variant="secondary"><EditIcon /></Button>
@@ -240,20 +324,13 @@ export class CockpitHosts extends React.Component {
                     </HostsSelector>
                     }
                 </div>
-                {this.state.show_modal &&
-                    <HostModal machines_ins={this.props.machines}
-                               onClose={() => this.setState({ show_modal: false, edit_machine: null })}
-                               address={this.state.edit_machine ? this.state.edit_machine.address : null}
-                               caller_callback={this.state.edit_machine
-                                   ? (new_connection_string) => {
-                                       const parts = this.props.machines.split_connection_string(new_connection_string);
-                                       if (this.state.edit_machine == this.props.machine && parts.address != this.state.edit_machine.address) {
-                                           const addr = this.props.hostAddr({ host: parts.address }, true);
-                                           this.props.jump(addr);
-                                       }
-                                       return Promise.resolve();
-                                   }
-                                   : null } />
+                {this.state.modal_properties &&
+                 <HostModal machines_ins={this.props.machines}
+                            onClose={() => this.setState({ modal_properties: null })}
+                            {...this.state.modal_properties}
+                            caller_callback={this.state.modal_callback}
+                            caller_cancelled={() => this.state.modal_callback(null)}
+                 />
                 }
             </>
         );
@@ -263,6 +340,8 @@ export class CockpitHosts extends React.Component {
 CockpitHosts.propTypes = {
     machine: PropTypes.object.isRequired,
     machines: PropTypes.object.isRequired,
+    index: PropTypes.object.isRequired,
+    loader: PropTypes.object.isRequired,
     selector: PropTypes.string.isRequired,
     hostAddr: PropTypes.func.isRequired,
     jump: PropTypes.func.isRequired,

@@ -25,7 +25,7 @@ import { createRoot } from "react-dom/client";
 import { CockpitNav, CockpitNavItem, SidebarToggle } from "./nav.jsx";
 import { TopNav } from ".//topnav.jsx";
 import { CockpitHosts, CockpitCurrentHost } from "./hosts.jsx";
-import { codes, HostModal } from "./hosts_dialog.jsx";
+import { codes } from "./hosts_dialog.jsx";
 import { EarlyFailure, EarlyFailureReady } from './failures.jsx';
 import { WithDialogs } from "dialogs.jsx";
 
@@ -80,9 +80,6 @@ function MachinesIndex(index_options, machines, loader) {
         update_topbar();
     });
 
-    /* Is troubleshooting dialog open */
-    let troubleshooting_opened = false;
-
     sidebar_toggle_root.render(<SidebarToggle />);
 
     // Focus with skiplinks
@@ -105,11 +102,31 @@ function MachinesIndex(index_options, machines, loader) {
     if (meta_multihost instanceof HTMLMetaElement && meta_multihost.content == "yes")
         host_switcher_enabled = true;
 
+    /* Should show warning before connecting? */
+    let config_ready = false;
+    cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetString",
+                                                 ["Session", "WarnBeforeConnecting"], [])
+            .then(([result]) => {
+                if (result == "false" || result == "no") {
+                    window.sessionStorage.setItem("connection-warning-shown", "yes");
+                }
+            })
+            .catch(e => {
+                if (e.name != "cockpit.Config.KeyError")
+                    console.warn("Error reading WarnBeforeConnecting configuration:", e.message);
+            })
+            .finally(() => {
+                config_ready = true;
+                on_ready();
+            });
+
     /* Navigation */
     let ready = false;
     function on_ready() {
-        ready = true;
-        index.ready();
+        if (machines.ready && config_ready) {
+            ready = true;
+            index.ready();
+        }
     }
 
     function preload_frames () {
@@ -170,11 +187,15 @@ function MachinesIndex(index_options, machines, loader) {
                                paragraph={cockpit.message(watchdog_problem)} />);
     }
 
+    function trigger_connection_flow(machine) {
+        if (window.trigger_connection_flow) {
+            window.trigger_connection_flow(machine);
+        }
+    }
+
     /* Handles navigation */
     function navigate(state, reconnect) {
-        /* If this is a watchdog problem or we are troubleshooting
-         * let the dialog handle it */
-        if (watchdog_problem || troubleshooting_opened)
+        if (watchdog_problem)
             return;
 
         if (!state)
@@ -204,7 +225,11 @@ function MachinesIndex(index_options, machines, loader) {
             machine.state = "failed";
             machine.problem = "not-found";
         } else if (reconnect) {
-            loader.connect(state.host);
+            if (state.host == "localhost") {
+                loader.connect(state.host);
+            } else {
+                trigger_connection_flow(machine);
+            }
         }
 
         const compiled = compile(machine);
@@ -394,6 +419,8 @@ function MachinesIndex(index_options, machines, loader) {
                 React.createElement(CockpitHosts, {
                     machine: machine || {},
                     machines,
+                    index,
+                    loader,
                     selector: "nav-hosts",
                     hostAddr: index.href,
                     jump: index.jump,
@@ -443,27 +470,7 @@ function MachinesIndex(index_options, machines, loader) {
         return component;
     }
 
-    let troubleshoot_dialog_root = null;
-
     function update_frame(machine, state, compiled) {
-        function render_troubleshoot() {
-            troubleshooting_opened = true;
-            const template = codes[machine.problem] || "change-port";
-            if (!troubleshoot_dialog_root)
-                troubleshoot_dialog_root = root('troubleshoot-dialog');
-            troubleshoot_dialog_root.render(React.createElement(HostModal, {
-                template,
-                address: machine.address,
-                machines_ins: machines,
-                onClose: () => {
-                    troubleshoot_dialog_root.unmount();
-                    troubleshoot_dialog_root = null;
-                    troubleshooting_opened = false;
-                    navigate(null, true);
-                }
-            }));
-        }
-
         let current_frame = index.current_frame();
 
         if (machine.state != "connected") {
@@ -508,9 +515,9 @@ function MachinesIndex(index_options, machines, loader) {
                                    title={title}
                                    reconnect={reconnect}
                                    troubleshoot={troubleshooting}
-                                   onTroubleshoot={render_troubleshoot}
+                                   onTroubleshoot={() => trigger_connection_flow(machine)}
                                    watchdog_problem={watchdog_problem}
-                                   navigate={navigate}
+                                   navigate={() => trigger_connection_flow(machine)}
                                    paragraph={message} />);
 
             update_title(null, machine);

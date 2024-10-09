@@ -200,6 +200,7 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
 function sosDownload(path) {
     const basename = path_basename(path);
     const query = window.btoa(JSON.stringify({
+        host: cockpit.transport.host,
         payload: "fsread1",
         binary: "raw",
         path,

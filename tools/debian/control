@@ -47,11 +47,7 @@ Recommends: cockpit-storaged (>= ${source:Version}),
             cockpit-packagekit (>= ${source:Version}),
 Suggests: cockpit-doc (>= ${source:Version}),
           cockpit-sosreport (>= ${source:Version}),
-          python3-pcp,
           xdg-utils,
-Replaces: cockpit-pcp (<< 236)
-Provides: cockpit-pcp
-Conflicts: cockpit-pcp
 Description: Web Console for Linux servers
  The Cockpit Web Console enables users to administer GNU/Linux servers using a
  web browser.
@@ -67,7 +63,10 @@ Depends: ${misc:Depends},
          glib-networking
 Recommends: openssh-client
 Breaks: cockpit-ws (<< 181.x),
-Replaces: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)
+Replaces: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x), cockpit-pcp (<< 236)
+Provides: cockpit-pcp
+Conflicts: cockpit-pcp
+Suggests: python3-pcp
 Description: Cockpit bridge server-side component
  The Cockpit bridge component installed server side and runs commands on
  the system on behalf of the web based user interface.
@@ -129,7 +128,6 @@ Depends: ${misc:Depends},
          openssl,
 # policykit-1 was split into multiple packages; keep old name for Debian 11 and Ubuntu
 Recommends: sudo | pkexec | policykit-1
-Suggests: lastlog2
 Provides: cockpit-shell,
           cockpit-systemd,
           cockpit-tuned,
@@ -137,6 +135,7 @@ Provides: cockpit-shell,
 Conflicts: cockpit-shell
 Breaks: cockpit-dashboard
 Replaces: cockpit-shell, cockpit-dashboard
+Suggests: lastlog2
 Description: Cockpit admin interface for a system
  Cockpit admin interface package for configuring and
  troubleshooting a system.

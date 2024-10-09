@@ -28,52 +28,123 @@ import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
+import { codes } from "./hosts_dialog.jsx";
+
 const _ = cockpit.gettext;
 
-export const EarlyFailure = ({ ca_cert_url }) => {
+export const EarlyFailure = () => {
+    let ca_cert_url = null;
+    if (window.navigator.userAgent.indexOf("Safari") >= 0)
+        ca_cert_url = window.sessionStorage.getItem("CACertUrl");
+
     return (
-        <Page>
-            <PageSection variant={PageSectionVariants.light}>
-                <EmptyStatePanel icon={ExclamationCircleIcon}
-                                 title={ _("Connection failed") }
-                                 paragraph={
-                                     <Stack hasGutter>
-                                         <div>{_("There was an unexpected error while connecting to the machine.")}</div>
-                                         <div>{_("Messages related to the failure might be found in the journal:")}</div>
-                                         <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")}>journalctl -u cockpit</ClipboardCopy>
-                                         {ca_cert_url && <div id="safari-cert-help">
-                                             <div>{_("Safari users need to import and trust the certificate of the self-signing CA:")}</div>
-                                             <Button variant="link" component="a" id="safari-cert" href={ca_cert_url} download>ca.cer</Button>
-                                         </div>}
-                                     </Stack>
-                                 } />
-            </PageSection>
-        </Page>
+        <div id="early-failure" className="early-failure">
+            <Page>
+                <PageSection variant={PageSectionVariants.light}>
+                    <EmptyStatePanel icon={ExclamationCircleIcon}
+                                     title={ _("Connection failed") }
+                                     paragraph={
+                                         <Stack hasGutter>
+                                             <div>{_("There was an unexpected error while connecting to the machine.")}</div>
+                                             <div>{_("Messages related to the failure might be found in the journal:")}</div>
+                                             <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")}>journalctl -u cockpit</ClipboardCopy>
+                                             {ca_cert_url && <div id="safari-cert-help">
+                                                 <div>{_("Safari users need to import and trust the certificate of the self-signing CA:")}</div>
+                                                 <Button variant="link" component="a" id="safari-cert" href={ca_cert_url} download>ca.cer</Button>
+                                             </div>}
+                                         </Stack>
+                                     } />
+                </PageSection>
+            </Page>
+        </div>
     );
 };
 
-export const EarlyFailureReady = ({ loading, title, paragraph, reconnect, troubleshoot, onTroubleshoot, watchdog_problem, navigate }) => {
-    const onReconnect = () => {
-        if (watchdog_problem) {
-            cockpit.sessionStorage.clear();
-            window.location.reload(true);
+const EarlyFailureReady = ({
+    loading,
+    title,
+    paragraph,
+    reconnect,
+    troubleshoot,
+    onTroubleshoot,
+    watchdog_problem,
+    onReconnect
+}) => {
+    return (
+        <div id="early-failure-ready" className="curtains-ct">
+            <Page>
+                <PageSection variant={PageSectionVariants.light}>
+                    <EmptyStatePanel icon={!loading ? ExclamationCircleIcon : undefined}
+                                     loading={loading}
+                                     title={title}
+                                     action={<>
+                                         {reconnect &&
+                                         <Button id="machine-reconnect" onClick={onReconnect}>
+                                             {_("Reconnect")}
+                                         </Button>}
+                                         {troubleshoot &&
+                                         <Button id="machine-troubleshoot" onClick={onTroubleshoot}>
+                                             {_("Log in")}
+                                         </Button>}
+                                     </>}
+                                     paragraph={paragraph} />
+                </PageSection>
+            </Page>
+        </div>
+    );
+};
+
+export const Disconnected = ({ problem }) => {
+    return (
+        <EarlyFailureReady title={_("Disconnected")}
+                               reconnect
+                               watchdog_problem={problem}
+                               onReconnect={() => {
+                                   cockpit.sessionStorage.clear();
+                                   window.location.reload(true);
+                               }}
+                               paragraph={cockpit.message(problem)} />
+    );
+};
+
+export const MachineTroubleshoot = ({ machine, onClick }) => {
+    const connecting = (machine.state == "connecting");
+    let title, message;
+    if (machine.restarting) {
+        title = _("The machine is rebooting");
+        message = "";
+    } else if (connecting) {
+        title = _("Connecting to the machine");
+        message = "";
+    } else {
+        title = _("Not connected to host");
+        if (machine.problem == "not-found") {
+            message = _("Cannot connect to an unknown host");
         } else {
-            navigate(null, true);
+            const error = machine.problem || machine.state;
+            if (error)
+                message = cockpit.message(error);
+            else
+                message = "";
         }
-    };
+    }
+
+    let troubleshooting = false;
+
+    if (!machine.restarting && (machine.problem === "no-host" || !!codes[machine.problem])) {
+        troubleshooting = true;
+    }
+
+    const restarting = !!machine.restarting;
+    const reconnect = !connecting && machine.problem != "not-found" && !troubleshooting;
 
     return (
-        <Page>
-            <PageSection variant={PageSectionVariants.light}>
-                <EmptyStatePanel icon={!loading ? ExclamationCircleIcon : undefined}
-                                 loading={loading}
-                                 title={title}
-                                 action={<>
-                                     {reconnect && <Button id="machine-reconnect" onClick={onReconnect}>{_("Reconnect")}</Button>}
-                                     {troubleshoot && <Button id="machine-troubleshoot" onClick={onTroubleshoot}>{_("Log in")}</Button>}
-                                 </>}
-                                 paragraph={paragraph} />
-            </PageSection>
-        </Page>
+        <EarlyFailureReady loading={connecting || restarting}
+                           title={title}
+                           reconnect={reconnect}
+                           troubleshoot={troubleshooting}
+                           onTroubleshoot={onClick}
+                           onReconnect={onClick}
+                           paragraph={message} />
     );
 };

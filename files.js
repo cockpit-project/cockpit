@@ -28,7 +28,7 @@ const info = {
         "playground/remote.tsx",
 
         "selinux/selinux.js",
-        "shell/shell.js",
+        "shell/shell.jsx",
         "sosreport/sosreport.jsx",
         "static/login.js",
         "storaged/storaged.jsx",

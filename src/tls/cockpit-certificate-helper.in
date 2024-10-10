@@ -81,6 +81,9 @@ cmd_selfsign() {
     test ! -e "${CA_FILE}" || install_cert "${CA_FILE}"
     install_cert "${CERTFILE}"
     install_key "${KEYFILE}"
+
+    # Force writing of new files on disk.
+    sync
 }
 
 cmd_ipa_request() {

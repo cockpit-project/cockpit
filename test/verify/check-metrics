@@ -1352,6 +1352,13 @@ class TestMetricsPackages(packagelib.PackageCase):
         # not doing so creates a race where Dialogs.close() can be called when opening a new dialog.
         b.wait_visible("#metrics-header-section button.pf-m-secondary[data-test-install-finished='done']")
 
+        # HACK: There's a PF bug that makes the memory tooltip stay around forever
+        # once opening the PCP config dialog; make sure it goes away, to avoid
+        # obscuring the pmproxy switch
+        if b.is_present(".pf-v5-c-tooltip"):
+            b.mouse("#current-memory-usage-description", "mouseleave")
+            b.wait_not_present(".pf-v5-c-tooltip")
+
         # install redis
         b.click("#metrics-header-section button.pf-m-secondary")
         b.wait_visible(self.pcp_dialog_selector)

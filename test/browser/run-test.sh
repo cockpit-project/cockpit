@@ -47,6 +47,7 @@ if [ "$PLAN" = "main" ]; then
            TestAccounts
            TestBonding
            TestBridge
+           TestConnection.testCloneContainer
            TestFirewall
            TestJournal
            TestKdump

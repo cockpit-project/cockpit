@@ -1355,6 +1355,8 @@ class TestMetricsPackages(packagelib.PackageCase):
         # install redis
         b.click("#metrics-header-section button.pf-m-secondary")
         b.wait_visible(self.pcp_dialog_selector)
+        if b.is_present(".pf-v5-c-tooltip"):
+            b.mouse("#current-memory-usage-description", "mouseleave")
         b.wait_visible("#switch-pmproxy:not(:checked)")
         b.click("#switch-pmproxy")
         b.wait_visible("#switch-pmproxy:checked")

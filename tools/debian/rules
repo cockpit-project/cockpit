@@ -53,9 +53,9 @@ override_dh_install:
 
 	# unpackaged modules
 	rm -r debian/tmp/usr/share/cockpit/kdump
-	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
+	rm debian/tmp/usr/share/metainfo/org.cockpit_project.cockpit_kdump.metainfo.xml
 	rm -r debian/tmp/usr/share/cockpit/selinux
-	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
+	rm debian/tmp/usr/share/metainfo/org.cockpit_project.cockpit_selinux.metainfo.xml
 
 	dh_install -Xusr/src/debug
 	# we don't need this, it contains full build paths and breaks reproducibility

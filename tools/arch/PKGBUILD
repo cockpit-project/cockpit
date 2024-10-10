@@ -64,11 +64,11 @@ package_cockpit() {
 
   # remove unused plugins
   rm -rf "$pkgdir"/usr/share/cockpit/{selinux,playground,sosreport} \
-         "$pkgdir"/usr/share/metainfo/org.cockpit-project.cockpit-{selinux,sosreport}.metainfo.xml
+         "$pkgdir"/usr/share/metainfo/org.cockpit_project.cockpit_{selinux,sosreport}.metainfo.xml
 
   # remove plugins packaged separately
   rm -rf "$pkgdir"/usr/share/cockpit/{apps,packagekit,pcp,storaged} \
-         "$pkgdir"/usr/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml \
+         "$pkgdir"/usr/share/metainfo/org.cockpit_project.cockpit_storaged.metainfo.xml \
          "$pkgdir"/usr/lib/cockpit/cockpit-pcp \
          "$pkgdir"/var/lib/pcp
 
@@ -99,9 +99,10 @@ _do_package_component() {
   bsdtar -cf - usr/share/cockpit/$_component \
     | bsdtar -xf - -C "$pkgdir"
 
-  [ -f usr/share/metainfo/org.cockpit-project.$pkgname.metainfo.xml ] && \
-    install -Dm644 usr/share/metainfo/org.cockpit-project.$pkgname.metainfo.xml \
-      "$pkgdir"/usr/share/metainfo/org.cockpit-project.$pkgname.metainfo.xml
+  metainfo="usr/share/metainfo/org.cockpit_project.cockpit_${_component}.metainfo.xml"
+
+  [ -f "$metainfo" ] && \
+    install -Dm644 "$metainfo" "$pkgdir/$metainfo"
 
   rm -rf "$pkgdir"/tmp
 }

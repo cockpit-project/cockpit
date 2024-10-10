@@ -34,7 +34,7 @@ class TestApps(packagelib.PackageCase):
 
     def createAppStreamPackage(self, name, version, revision, install=False):
         self.createPackage(name, version, revision, content={
-            f"/usr/share/metainfo/org.cockpit-project.{name}.metainfo.xml": f"""
+            f"/usr/share/metainfo/org.cockpit_project.{name}.metainfo.xml": f"""
 <component type="addon">
   <extends>org.cockpit_project.cockpit</extends>
   <id>org.cockpit-project.{name}</id>

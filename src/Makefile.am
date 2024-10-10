@@ -76,11 +76,11 @@ AM_CFLAGS = \
 
 metainfodir = ${datarootdir}/metainfo
 nodist_metainfo_DATA = \
-	src/appstream/org.cockpit-project.cockpit-sosreport.metainfo.xml \
-	src/appstream/org.cockpit-project.cockpit-kdump.metainfo.xml \
-	src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml \
-	src/appstream/org.cockpit-project.cockpit-storaged.metainfo.xml \
-	src/appstream/org.cockpit-project.cockpit-networkmanager.metainfo.xml \
+	src/appstream/org.cockpit_project.cockpit_sosreport.metainfo.xml \
+	src/appstream/org.cockpit_project.cockpit_kdump.metainfo.xml \
+	src/appstream/org.cockpit_project.cockpit_selinux.metainfo.xml \
+	src/appstream/org.cockpit_project.cockpit_storaged.metainfo.xml \
+	src/appstream/org.cockpit_project.cockpit_networkmanager.metainfo.xml \
 	$(NULL)
 
 metainfo_in = $(patsubst %,%.in,$(nodist_metainfo_DATA))

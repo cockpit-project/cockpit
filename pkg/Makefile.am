@@ -4,8 +4,8 @@ pkg_TESTS = \
 
 TESTS += $(pkg_TESTS)
 
-pixmapsdir = ${datarootdir}/pixmaps
-pixmaps_DATA = pkg/sosreport/cockpit-sosreport.png
+icons64dir = ${datarootdir}/icons/hicolor/64x64/apps
+dist_icons64_DATA = pkg/sosreport/cockpit-sosreport.png
 
 EXTRA_DIST += \
 	pkg/users/mock \
@@ -13,7 +13,6 @@ EXTRA_DIST += \
 	pkg/lib/cockpit-po-plugin.js \
 	$(pkg_TESTS) \
 	$(metainfo_DATA) \
-	$(pixmaps_DATA) \
 	$(NULL)
 
 # one built file in dist/ which we use as dependency

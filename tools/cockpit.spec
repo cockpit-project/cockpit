@@ -237,7 +237,7 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.met
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-networkmanager.metainfo.xml
-rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
+rm -f %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/cockpit-sosreport.png
 %endif
 
 # -------------------------------------------------------------------------------
@@ -255,7 +255,7 @@ troubleshooting, interactive command-line sessions, and more.
 %{_docdir}/cockpit/COPYING
 %{_docdir}/cockpit/README.md
 %{_datadir}/metainfo/cockpit.appdata.xml
-%{_datadir}/pixmaps/cockpit.png
+%{_datadir}/icons/hicolor/128x128/apps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
 
 
@@ -487,7 +487,7 @@ sosreport tool.
 
 %files sosreport -f sosreport.list
 %{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
-%{_datadir}/pixmaps/cockpit-sosreport.png
+%{_datadir}/icons/hicolor/64x64/apps/cockpit-sosreport.png
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager

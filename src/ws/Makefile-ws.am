@@ -169,7 +169,7 @@ $(nodist_appdata_DATA): $(appdata_in) $(PO_FILES)
 CLEANFILES += $(nodist_appdata_DATA)
 EXTRA_DIST += $(appdata_in)
 
-pixmapdir = $(datadir)/pixmaps
-dist_pixmap_DATA = src/ws/cockpit.png
+icons128dir = ${datarootdir}/icons/hicolor/128x128/apps
+dist_icons128_DATA = src/ws/cockpit.png
 
 libexec_SCRIPTS += src/ws/cockpit-desktop

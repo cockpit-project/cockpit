@@ -14,6 +14,7 @@ if [ -d /host ]; then
     set +x
 
     /bin/mount --bind /host/usr/share/pixmaps /usr/share/pixmaps
+    /bin/mount --bind /host/usr/share/icons /usr/share/icons
     /bin/mount --bind /host/var /var
     /bin/mount --bind /host/etc/ssh /etc/ssh
 

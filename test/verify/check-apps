@@ -38,13 +38,13 @@ class TestApps(packagelib.PackageCase):
 <component type="addon">
   <extends>org.cockpit_project.cockpit</extends>
   <id>org.cockpit-project.{name}</id>
-  <icon type="local">/usr/share/pixmaps/{name}.png</icon>
+  <icon type="stock">{name}</icon>
   <name>{name}</name>
   <summary>{name} application for testing</summary>
   <launchable type="cockpit-manifest">{name}</launchable>
 </component>
 """,
-            f"/usr/share/pixmaps/{name}.png": {"path": "/var/tmp/test.png"}}, install=install)
+            f"/usr/share/icons/hicolor/64x64/apps/{name}.png": {"path": "/var/tmp/test.png"}}, install=install)
         self.appstream_collection.add(name)
 
     def createAppStreamRepoPackage(self, subdir=None):

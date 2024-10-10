@@ -163,6 +163,17 @@ def convert_local_icon(xml):
     return None
 
 
+def convert_stock_icon(xml):
+    icon = xml.text
+
+    def try_size(size: str, extension: str):
+        path = os.path.join("/usr/share/icons/hicolor", size, "apps", f"{icon}.{extension}")
+        return path if os.path.exists(path) else None
+
+    return (try_size("64x64", "svg") or try_size("64x64", "png") or
+            try_size("128x128", "svg") or try_size("128x128", "png"))
+
+
 def find_and_convert_icon(directory, origin, xml):
     if xml is None:
         return None
@@ -177,6 +188,8 @@ def find_and_convert_icon(directory, origin, xml):
             return convert_remote_icon(icon)
         elif icon.attrib['type'] == 'local':
             return convert_local_icon(icon)
+        elif icon.attrib['type'] == 'stock':
+            return convert_stock_icon(icon)
 
     return None
 

@@ -123,11 +123,9 @@ export function ShellState() {
      * for its "ready", "loaded", and "hash" properties.
      *
      * The "ready" property starts out false and goes to true once the
-     * corresponding iframe has created the document and window
-     * objects for the actual frame content and you can attach event
-     * handlers to it. The "loaded" property starts out false and goes
-     * true once the code loaded into the frame has sent its "init"
-     * message.
+     * corresponding iframe has loaded its URL. The "loaded" property
+     * starts out false and goes true once the code loaded into the
+     * frame has sent its "init" message.
      *
      * Removing things (frames) is complicated, as usual.  We need to
      * be able to represent the state "The current frame has been

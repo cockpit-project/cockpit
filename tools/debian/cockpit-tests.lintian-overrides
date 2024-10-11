@@ -1,1 +1,3 @@
 cockpit-tests: package-contains-documentation-outside-usr-share-doc *usr/share/cockpit/*html*
+# triggered on demand by cockpit.service
+cockpit-tests: systemd-service-file-missing-documentation-key *cockpit-session@.service*

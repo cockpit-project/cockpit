@@ -37,7 +37,12 @@ class HostSwitcherHelpers:
         for address in expected:
             b._wait_present(f"#hosts_setup_server_dialog datalist option[value='{address}']")
 
-    def wait_host_addresses(self, b, expected):
+    def wait_host_addresses(self, b, expected, host_switcher_is_open=True):
+        if not host_switcher_is_open:
+            # wait for host switcher to close
+            b.wait_not_present("#nav-hosts.interact")
+            # open it again
+            b.click("#hosts-sel button")
         b.wait_js_cond(f'ph_select("#nav-hosts .nav-item a").length == {len(expected)}')
         for address in expected:
             if address == "localhost":
@@ -91,6 +96,14 @@ class HostSwitcherHelpers:
         with b.wait_timeout(30):
             b.wait_not_present('#hosts_setup_server_dialog')
 
+    def wait_connected(self, b, address, expected_user=None):
+        b.wait_visible(f".connected a[href='/@{address}']")
+        if expected_user:
+            b.wait_text("#current-username", expected_user)
+        # Switch back to localhost, since the rest of the test expects that
+        b.click("a[href='/']")
+        b.click("#hosts-sel button")
+
     def connect_and_wait(self, b, address, expected_user=None, expect_warning=False):
         b.click(f"a[href='/@{address}']")
         if expect_warning:
@@ -101,12 +114,7 @@ class HostSwitcherHelpers:
         b.wait_not_present("#nav-hosts.interact")
         # open it again
         b.click("#hosts-sel button")
-        b.wait_visible(f".connected a[href='/@{address}']")
-        if expected_user:
-            b.wait_text("#current-username", expected_user)
-        # Switch back to localhost, since the rest of the test expects that
-        b.click("a[href='/']")
-        b.click("#hosts-sel button")
+        self.wait_connected(b, address, expected_user)
 
 
 @testlib.skipBeiboot("host switching disabled in beiboot mode")
@@ -212,9 +220,9 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_not_present('#hosts_setup_server_dialog')
 
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
         # defaults to current host user name "admin"
-        self.connect_and_wait(b, "10.111.113.2", "admin")
+        self.wait_connected(b, "10.111.113.2", "admin")
 
         # Main host should have both buttons disabled, the second both enabled
         b.click("button:contains('Edit hosts')")
@@ -230,8 +238,8 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         self.add_new_machine(b, "10.111.113.3")
-        self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.3", "admin")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.3", "admin")
 
         b.assert_pixels("#nav-hosts", "nav-hosts-2-remotes")
 
@@ -247,16 +255,16 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # Add one back, check addresses on both browsers
         self.add_new_machine(b, "10.111.113.2", known_host=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2")
         self.check_discovered_addresses(b, ["10.111.113.3"])
 
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         # And the second one, check addresses
         self.add_new_machine(b, "10.111.113.3", known_host=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
-        self.connect_and_wait(b, "10.111.113.3")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.3")
         self.check_discovered_addresses(b, [])
 
         # Test change user, not doing in edit to reuse machines
@@ -324,14 +332,14 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # plain address and separate "User name:" field
         self.add_new_machine(b, "10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2", "someone")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         # address with user and different "User name:" field, latter wins
         self.add_new_machine(b, "admin@10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2", "someone")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         # switch off warnings for the rest of this test (nneds the
@@ -346,37 +354,37 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # ssh:// prefix and implied user, no warning because we switched it off above
         self.add_new_machine(b, "ssh://10.111.113.2", known_host=True, expect_warning=False)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2", "admin")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2", "admin")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         # ssh:// prefix and separate "User name:" field
         self.add_new_machine(b, "ssh://10.111.113.2", known_host=True, user="admin")
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2", "admin")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2", "admin")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         self.add_new_machine(b, "ssh://10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2", "someone")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         # ssh:// prefix with user name
         self.add_new_machine(b, "ssh://someone@10.111.113.2", known_host=True, expect_password_auth=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2", "someone")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         # ssh:// prefix with user and different "User name:" field, latter wins
         self.add_new_machine(b, "ssh://admin@10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2", "someone")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         # ssh:// prefix with user name and port in the connection target
         self.add_new_machine(b, "ssh://admin@10.111.113.2:22", known_host=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.2")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
@@ -410,9 +418,9 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.wait_host_addresses(b2, ["localhost"])
 
         self.add_new_machine(b, "10.111.113.2", expect_warning=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2")
+        self.wait_connected(b, "10.111.113.2")
         self.connect_and_wait(b2, "10.111.113.2", expect_warning=True)
 
         # Main host should have both buttons disabled, the second both enabled
@@ -428,9 +436,9 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
         self.add_new_machine(b, "10.111.113.3")
-        self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"], host_switcher_is_open=False)
         self.wait_host_addresses(b2, ["localhost", "10.111.113.3", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.3")
+        self.wait_connected(b, "10.111.113.3")
         self.connect_and_wait(b2, "10.111.113.3")
 
         # Remove two
@@ -449,9 +457,9 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # Add one back, check addresses on both browsers
         self.add_new_machine(b, "10.111.113.2", known_host=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"], host_switcher_is_open=False)
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
-        self.connect_and_wait(b, "10.111.113.2")
+        self.wait_connected(b, "10.111.113.2")
         self.check_discovered_addresses(b, ["10.111.113.3"])
         self.check_discovered_addresses(b2, ["10.111.113.3"])
 
@@ -459,9 +467,9 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         # And the second one, check addresses on both browsers
         self.add_new_machine(b, "10.111.113.3", known_host=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"], host_switcher_is_open=False)
         self.wait_host_addresses(b2, ["localhost", "10.111.113.2", "10.111.113.3"])
-        self.connect_and_wait(b, "10.111.113.3")
+        self.wait_connected(b, "10.111.113.3")
         self.check_discovered_addresses(b, [])
         self.check_discovered_addresses(b2, [])
 
@@ -490,8 +498,8 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
 
         b.click("#hosts-sel button")
         self.add_new_machine(b, "10.111.113.3", expect_warning=True)
-        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
-        self.connect_and_wait(b, "10.111.113.3")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3"], host_switcher_is_open=False)
+        self.wait_connected(b, "10.111.113.3")
 
         b.click("button:contains('Edit hosts')")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
@@ -573,7 +581,6 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         # Add and connect to a second machine
         b.click("#hosts-sel button")
         self.add_new_machine(b, "10.111.113.2", expect_warning=True)
-        b.click("a[href='/@10.111.113.2']")
         b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
         self.assertIn("admin", m2.execute("loginctl"))
         b.click("#hosts-sel button")

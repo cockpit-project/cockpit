@@ -4,6 +4,11 @@ cockpit-ws: font-outside-font-dir *usr/share/cockpit/static/fonts/*
 cockpit-ws: font-in-non-font-package *usr/share/cockpit/static/fonts/*
 cockpit-ws: groff-message *macro *an-trap*usr/share/man/man8/cockpit-ws.8.gz*
 cockpit-ws: package-contains-documentation-outside-usr-share-doc *usr/share/cockpit/*html*
+# the binaries are in /usr/lib/cockpit, but we still want to document them
+cockpit-ws: spare-manual-page *cockpit-desktop.*
+cockpit-ws: spare-manual-page *cockpit-tls.*
+cockpit-ws: spare-manual-page *cockpit-ws.*
+cockpit-ws: spare-manual-page *pam_ssh_add*
 # triggered on demand by cockpit.service
 cockpit-ws: systemd-service-file-missing-install-key *cockpit-wsinstance*
 # triggered by cockpit.socket

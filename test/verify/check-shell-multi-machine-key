@@ -259,7 +259,7 @@ Host 10.111.113.2
         b.wait_in_text("#hosts_setup_server_dialog", "/home/admin/.ssh/id_ed25519")
         b.set_input_text("#locked-identity-password", "locked")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
-        b.wait_visible("a[href='/@10.111.113.2']")
+        b.enter_page("/system", "10.111.113.2")
         self.allow_hostkey_messages()
 
     def testLockedDefaultIdentity(self):
@@ -295,7 +295,7 @@ Host 10.111.113.2
         b.wait_in_text("#hosts_setup_server_dialog", "/home/admin/.ssh/id_rsa")
         b.set_input_text("#locked-identity-password", "foobarfoo")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
-        b.wait_visible("a[href='/@10.111.113.2']")
+        b.enter_page("/system", "10.111.113.2")
         self.allow_hostkey_messages()
 
 

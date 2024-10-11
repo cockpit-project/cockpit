@@ -114,7 +114,7 @@ export class CockpitHosts extends React.Component {
     }
 
     async onAddNewHost() {
-        await add_host(this.props.host_modal_state);
+        await add_host(this.props.host_modal_state, this.props.state);
     }
 
     async onHostEdit(event, machine) {

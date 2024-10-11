@@ -78,20 +78,32 @@ export const HostModalState = () => {
     return self;
 };
 
-export async function add_host(state) {
-    await state.show_modal({ });
+/* Activate and jump to a newly added machine, identified by its
+   connection string.
+ */
+function jump_to_new_connection_string(shell_state, connection_string) {
+    // Get the address of the machine from its connection string
+    const addr = split_connection_string(connection_string).address;
+    // Tell the Loader that now is the time to start monitoring the
+    // manifests.
+    shell_state.loader.connect(addr);
+    // Navigate to it.
+    shell_state.jump(build_href({ host: addr }));
+}
+
+export async function add_host(state, shell_state) {
+    const connection_string = await state.show_modal({ });
+    if (connection_string)
+        jump_to_new_connection_string(shell_state, connection_string);
 }
 
 export async function edit_host(state, shell_state, machine) {
     const { current_machine } = shell_state;
     const connection_string = await state.show_modal({ address: machine.address });
     if (connection_string) {
-        const parts = split_connection_string(connection_string);
-        const addr = build_href({ host: parts.address });
-        if (machine == current_machine && parts.address != machine.address) {
-            shell_state.loader.connect(parts.address);
-            shell_state.jump(addr);
-        }
+        const addr = split_connection_string(connection_string).address;
+        if (machine == current_machine && addr != machine.address)
+            jump_to_new_connection_string(shell_state, connection_string);
     }
 }
 

@@ -51,6 +51,9 @@ override_dh_install:
 	# handled by package maintainer scripts
 	rm debian/tmp/etc/motd.d/cockpit debian/tmp/etc/issue.d/cockpit.issue
 
+	# already processed into debian/copyright
+	rm -r debian/tmp/usr/share/doc/cockpit/legal
+
 	# unpackaged modules
 	rm -r debian/tmp/usr/share/cockpit/kdump
 	rm debian/tmp/usr/share/metainfo/org.cockpit_project.cockpit_kdump.metainfo.xml

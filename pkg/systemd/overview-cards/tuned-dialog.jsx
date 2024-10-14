@@ -41,6 +41,7 @@ export const TunedPerformanceProfile = () => {
     const [btnText, setBtnText] = useState();
     const [state, setState] = useState();
     const [status, setStatus] = useState();
+    const oldServiceState = useRef(null);
 
     const tunedService = useInit(() => service.proxy("tuned.service"));
     const tunedDbus = useObject(
@@ -53,7 +54,14 @@ export const TunedPerformanceProfile = () => {
         [superuser.allowed]);
 
     useEvent(superuser, "reconnect");
-    useEvent(tunedService, "changed", () => update(tunedDbus));
+    useEvent(tunedService, "changed", () => {
+        // We get a flood of "changed" events sometimes without the
+        // state actually changing. So let's protect against that.
+        if (oldServiceState.current != tunedService.state) {
+            oldServiceState.current = tunedService.state;
+            update(tunedDbus);
+        }
+    });
 
     function poll(tuned) {
         return Promise.all([

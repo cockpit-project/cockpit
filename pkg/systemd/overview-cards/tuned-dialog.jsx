@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
@@ -31,7 +31,7 @@ import { EmptyStatePanel } from 'cockpit-components-empty-state.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ProfilesMenuDialogBody } from './profiles-menu-dialog-body.jsx';
 import { superuser } from 'superuser';
-import { useObject, useEvent } from "hooks";
+import { useObject, useEvent, useInit } from "hooks";
 import { useDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
@@ -42,14 +42,20 @@ export const TunedPerformanceProfile = () => {
     const [state, setState] = useState();
     const [status, setStatus] = useState();
 
-    const tunedService = useObject(() => service.proxy("tuned.service"),
-                                   null,
-                                   []);
-    const tuned = useObject(() => cockpit.dbus("com.redhat.tuned", { superuser: "try" }),
-                            obj => obj.close(),
-                            [superuser.allowed, tunedService.state]);
+    const tunedService = useInit(() => service.proxy("tuned.service"));
+    const tunedDbus = useObject(
+        () => {
+            const tuned = cockpit.dbus("com.redhat.tuned", { superuser: "try" });
+            update(tuned);
+            return tuned;
+        },
+        obj => obj.close(),
+        [superuser.allowed]);
 
-    const poll = useCallback(() => {
+    useEvent(superuser, "reconnect");
+    useEvent(tunedService, "changed", () => update(tunedDbus));
+
+    function poll(tuned) {
         return Promise.all([
             tuned.call('/Tuned', 'com.redhat.tuned.control', 'is_running', []),
             tuned.call('/Tuned', 'com.redhat.tuned.control', 'active_profile', []),
@@ -67,48 +73,38 @@ export const TunedPerformanceProfile = () => {
                     else
                         return Promise.reject(ex);
                 });
-    }, [tunedService, tuned]);
+    }
 
-    const updateButton = useCallback(() => {
-        return poll()
-                .then(res => {
-                    const { state, active, recommended } = res;
-                    let status;
+    async function update(tuned) {
+        try {
+            const { state, active, recommended } = await poll(tuned);
+            let status;
 
-                    if (state == "not-installed")
-                        status = _("Tuned is not available");
-                    else if (state == "not-running")
-                        status = _("Tuned is not running");
-                    else if (active == "none")
-                        status = _("Tuned is off");
-                    else if (active == recommended)
-                        status = _("This system is using the recommended profile");
-                    else
-                        status = _("This system is using a custom profile");
+            if (state == "not-installed")
+                status = _("Tuned is not available");
+            else if (state == "not-running")
+                status = _("Tuned is not running");
+            else if (active == "none")
+                status = _("Tuned is off");
+            else if (active == recommended)
+                status = _("This system is using the recommended profile");
+            else
+                status = _("This system is using a custom profile");
+            setBtnText(state == "running" ? active : _("none"));
+            setState(state);
+            setStatus(status);
+        } catch (ex) {
+            console.warn("failed to poll tuned", ex);
 
-                    setBtnText(state == "running" ? active : _("none"));
-                    setState(state);
-                    setStatus(status);
-                })
-                .catch((ex) => {
-                    console.warn("failed to poll tuned", ex);
-
-                    setBtnText("error");
-                    setStatus(_("Communication with tuned has failed"));
-                });
-    }, [poll, setBtnText, setState, setStatus]);
-
-    useEvent(superuser, "changed");
-    useEvent(tunedService, "changed", () => updateButton());
-
-    useEffect(() => {
-        updateButton();
-    }, [updateButton]);
+            setBtnText("error");
+            setStatus(_("Communication with tuned has failed"));
+        }
+    }
 
     const showDialog = () => {
-        Dialogs.show(<TunedDialog updateButton={updateButton}
-                                  poll={poll}
-                                  tunedDbus={tuned} tunedService={tunedService} />);
+        Dialogs.show(<TunedDialog updateButton={() => update(tunedDbus)}
+                                  poll={() => poll(tunedDbus)}
+                                  tunedDbus={tunedDbus} tunedService={tunedService} />);
     };
 
     return (

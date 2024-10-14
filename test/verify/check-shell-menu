@@ -175,6 +175,7 @@ class TestMenu(testlib.MachineCase):
         # reset
         b.reload()
         b.wait_visible("#hosts-sel")
+        b.wait_text("#super-user-indicator", "Administrative access")
 
         # press Tab twice → "Skip main navigation" skiplink
         b.key("Tab")
@@ -186,20 +187,12 @@ class TestMenu(testlib.MachineCase):
         self.assertEqual(b.eval_js("document.activeElement.getAttribute('id')"), "hosts-sel")
 
         # actually skips the page menu and goes on to top nav bar; where exactly depends on whether
-        # the host switcher is enabled, and whether the privilege button is visible (not with ws container)
+        # the host switcher is enabled.
         b.key("Tab")
         if self.multihost_enabled:
             b.wait_js_cond("document.activeElement.getAttribute('id') === 'host-toggle'")
             b.key("Tab")
-            if self.machine.ostree_image:
-                b.wait_js_cond("document.activeElement.textContent === 'Help'")
-            else:
-                b.wait_js_cond("document.activeElement.textContent === 'Administrative access'")
-        else:
-            if self.machine.ostree_image:
-                b.wait_js_cond("document.activeElement.textContent === 'Help'")
-            else:
-                b.wait_js_cond("document.activeElement.textContent === 'Administrative access'")
+        b.wait_js_cond("document.activeElement.textContent === 'Administrative access'")
 
         # reset
         b.reload()

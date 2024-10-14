@@ -70,6 +70,10 @@ class TestWsBastionContainer(testlib.MachineCase):
 
         b.wait_visible('#content')
         b.wait_text('#current-username', 'admin')
+        # Our test VM only pre-installs -system and -networkmanager
+        b.wait_in_text("#host-apps", "Overview")
+        b.wait_in_text("#host-apps", "Networking")
+        self.assertNotIn("Kernel dump", b.text("#host-apps"))
         # runs the ssh target's bridge (no beiboot)
         m.execute("pgrep -f /usr/bin/[c]ockpit-bridge")
         b.logout()
@@ -89,6 +93,14 @@ class TestWsBastionContainer(testlib.MachineCase):
         b.try_login()
         b.wait_visible('#content')
         m.execute("pgrep -f '[p]ython3 -ic # cockpit-bridge'")
+        # beiboot mode has extra included pages
+        b.wait_in_text("#host-apps", "Overview")
+        b.wait_in_text("#host-apps", "Networking")
+        b.wait_in_text("#host-apps", "Kernel dump")
+        b.wait_in_text("#host-apps", "SELinux")
+        # but Storage and Applications are hidden due to failing manifest conditions
+        self.assertNotIn("Storage", b.text("#host-apps"))
+        self.assertNotIn("Applications", b.text("#host-apps"))
         b.logout()
 
     def testKnownHosts(self):

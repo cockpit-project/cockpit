@@ -1,6 +1,17 @@
 #!/bin/sh
 set -eu
 
+# keep in sync with containers/ws/install.sh
+PACKAGES="
+kdump
+networkmanager
+packagekit
+selinux
+sosreport
+storaged
+system
+"
+
 cd /var/tmp/
 
 # install/upgrade RPMs that apply to OSTree
@@ -9,12 +20,8 @@ rpm-ostree install --cache-only cockpit-bridge-*.rpm \
     cockpit-networkmanager-*.rpm cockpit-system-*.rpm cockpit-tests-*.rpm
 
 # update cockpit packages and install scripts in the container
-for rpm in /var/tmp/cockpit-ws-*.rpm \
-           /var/tmp/cockpit-bridge-*.rpm \
-           /var/tmp/cockpit-networkmanager-*.rpm \
-           /var/tmp/cockpit-system-*.rpm \
-           /var/tmp/cockpit-tests-*.rpm; do
-    rpm2cpio "$rpm" | cpio -i --make-directories --directory=/var/tmp/install
+for rpm in ws bridge tests $PACKAGES; do
+    rpm2cpio /var/tmp/cockpit-$rpm-*.rpm | cpio -i --make-directories --directory=/var/tmp/install
 done
 podman run --name build-cockpit -i \
     -v /var/tmp/:/run/build:Z \

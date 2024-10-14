@@ -391,6 +391,20 @@ This <is <not XML.
         b.wait_not_present(".pf-v5-c-empty-state")
         b.wait_visible(".app-list .pf-v5-c-data-list__item-row:contains('Summary 2')")
 
+    def testNoPackageKit(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("systemctl stop packagekit")
+        system_service = m.execute("systemctl show -p FragmentPath packagekit.service | cut -f2 -d=").strip()
+        m.execute(f"mv {system_service} {system_service}.disabled")
+        self.addCleanup(m.execute, f"mv {system_service}.disabled {system_service}")
+
+        self.assertNotIn("\napps", m.execute("cockpit-bridge --packages"))
+        self.login_and_go(None)
+        b.wait_in_text("#host-apps", "Terminal")
+        self.assertNotIn("Applications", b.text("#host-apps"))
+
 
 if __name__ == '__main__':
     testlib.test_main()

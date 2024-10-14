@@ -1,4 +1,8 @@
 {
+    "conditions": [
+        {"path-exists": "/lib/systemd/system/packagekit.service"},
+        {"path-not-exists": "/sysroot/ostree"}
+    ],
     "tools": {
         "index": {
             "label": "Applications",

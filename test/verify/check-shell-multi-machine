@@ -355,6 +355,23 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_in_text(hostname_selector, "machine2")
         b.logout()
 
+        # beiboot mode: same OS → compatible, supported
+        break_bridge(m2)
+        b.try_login(password="alt-password")
+        b.wait_visible('#content')
+        b.logout()
+
+        # beiboot mode: future OS version → incompatible, not supported
+        # rolling OSes don't have a VERSION_ID
+        if m.image not in ["arch", "debian-testing"]:
+            m2.execute("sed -i '/^VERSION_ID/ s/$/1/' /etc/os-release")
+            b.try_login(password="alt-password")
+            b.wait_in_text('#login-error-message', "A compatible version of Cockpit is not installed on 10.111.113.2")
+            source_os = m.execute('. /etc/os-release; echo "$ID $VERSION_ID"').strip()
+            b.wait_in_text('#login-error-message', f"This is only supported for {source_os} on the target machine")
+
+        fix_bridge(m2)
+
         login_options = '#show-other-login-options'
 
         # Connect to bad machine

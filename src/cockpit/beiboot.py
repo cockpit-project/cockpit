@@ -32,7 +32,7 @@ from cockpit import polyfills
 from cockpit._vendor import ferny
 from cockpit._vendor.bei import bootloader
 from cockpit.beipack import BridgeBeibootHelper
-from cockpit.bridge import setup_logging
+from cockpit.bridge import parse_os_release, setup_logging
 from cockpit.channel import ChannelRoutingRule
 from cockpit.channels import PackagesChannel
 from cockpit.jsonutil import JsonObject, get_str
@@ -110,6 +110,15 @@ BEIBOOT_GADGETS = {
     def report_exists(files):
         command('cockpit.report-exists', {name: os.path.exists(name) for name in files})
     """,
+    "check_os_release": r"""
+    import os
+    def check_os_release(_argv):
+        try:
+            with open('/etc/os-release') as f:
+                command('cockpit.check-os-release', f.read())
+        except OSError:
+                command('cockpit.check-os-release', "")
+    """,
     "force_exec": r"""
     import os
     def force_exec(argv):
@@ -137,7 +146,7 @@ class DefaultRoutingRule(RoutingRule):
 
 
 class AuthorizeResponder(ferny.AskpassHandler):
-    commands = ('ferny.askpass', 'cockpit.report-exists', 'cockpit.fail-no-cockpit')
+    commands = ('ferny.askpass', 'cockpit.report-exists', 'cockpit.fail-no-cockpit', 'cockpit.check-os-release')
     router: Router
 
     def __init__(self, router: Router, basic_password: Optional[str]):
@@ -225,6 +234,23 @@ class AuthorizeResponder(ferny.AskpassHandler):
         if command == 'cockpit.fail-no-cockpit':
             raise CockpitProblem('no-cockpit', message=args[0])
 
+        if command == 'cockpit.check-os-release':
+            remote_os = parse_os_release(args[0])
+            logger.debug("cockpit.check-os-release: remote: %r", remote_os)
+            try:
+                with open("/etc/os-release") as f:
+                    local_os = parse_os_release(f.read())
+            except OSError as e:
+                logger.warning("failed to read local /etc/os-release, skipping OS compatibility check: %s", e)
+                return
+
+            logger.debug("cockpit.check-os-release: local: %r", local_os)
+            # for now, just support the same OS
+            if remote_os.get('ID') != local_os.get('ID') or remote_os.get('VERSION_ID') != local_os.get('VERSION_ID'):
+                unsupported = f'{remote_os.get("ID", "?")} {remote_os.get("VERSION_ID", "")}'
+                supported = f'{local_os.get("ID", "?")} {local_os.get("VERSION_ID", "")}'
+                raise CockpitProblem('no-cockpit', unsupported=unsupported, supported=supported)
+
 
 def python_interpreter(comment: str) -> tuple[Sequence[str], Sequence[str]]:
     return ('python3', '-ic', f'# {comment}'), ()
@@ -262,7 +288,7 @@ def flatpak_spawn(cmd: Sequence[str], env: Sequence[str]) -> tuple[Sequence[str]
 
 
 class SshPeer(Peer):
-    mode: 'Literal["always"] | Literal["never"] | Literal["auto"]'
+    mode: 'Literal["always"] | Literal["never"] | Literal["supported"] | Literal["auto"]'
 
     def __init__(self, router: Router, destination: str, args: argparse.Namespace):
         self.destination = destination
@@ -344,6 +370,9 @@ class SshPeer(Peer):
             exec_cockpit_bridge_steps = [('try_exec', (['cockpit-bridge'],))]
         elif self.remote_bridge == 'always':
             exec_cockpit_bridge_steps = [('force_exec', (['cockpit-bridge'],))]
+        elif self.remote_bridge == 'supported':
+            # native bridge first; check OS compatibility for beiboot fallback
+            exec_cockpit_bridge_steps = [('try_exec', (['cockpit-bridge'],)), ('check_os_release', ([],))]
         else:
             assert self.remote_bridge == 'never'
             exec_cockpit_bridge_steps = []
@@ -480,9 +509,10 @@ def main() -> None:
     polyfills.install()
 
     parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
-    parser.add_argument('--remote-bridge', choices=['auto', 'never', 'always'], default='auto',
+    parser.add_argument('--remote-bridge', choices=['auto', 'never', 'supported', 'always'], default='auto',
                         help="How to run cockpit-bridge from the remote host: auto: if installed (default), "
                         "never: always copy the local one; "
+                        "supported: if not installed, copy local one for compatible OSes, fail otherwise; "
                         "always: fail if not installed")
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('destination', help="Name of the remote host to connect to, or 'localhost'")

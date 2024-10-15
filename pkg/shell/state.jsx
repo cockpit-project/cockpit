@@ -469,6 +469,18 @@ export function ShellState() {
      *
      * And then, the "metrics" path has the "Overview" item associated
      * with it, although the two come from different packages.
+     *
+     * - current_manifest
+     *
+     * The manifest corresponding to the "path" part of
+     * "current_location". The "current_manifest_item" is not
+     * necessarily part of this manifest, but this manifest is always
+     * from the same package as the files loaded for the current
+     * location.
+     *
+     * For example, for the "metrics" path the "current_manifest" will
+     * be for the "metrics" package, while "current_manifest_item" is
+     * for the "Overview" menu entry from the "system" package.
      */
 
     const self = {
@@ -484,6 +496,7 @@ export function ShellState() {
         current_machine: null,
         current_manifest_item: null,
         current_machine_manifest_items: null,
+        current_manifest: null,
 
         // Methods
         jump,
@@ -552,6 +565,7 @@ export function ShellState() {
         self.current_machine = machine;
         self.current_machine_manifest_items = compiled;
         self.current_manifest_item = item;
+        self.current_manifest = compiled.find_path_manifest(location.path);
 
         let frame = null;
         if (location.path && (machine.state == "connected" || machine.state == "connecting"))

@@ -90,9 +90,9 @@ export class TopNav extends React.Component {
     render() {
         const Dialogs = this.context;
         const {
-            current_location,
             current_machine,
-            current_machine_manifest_items,
+            current_manifest_item,
+            current_manifest,
             current_frame,
         } = this.props.state;
 
@@ -113,27 +113,12 @@ export class TopNav extends React.Component {
             }
         }
 
-        // NOTE: The following is arguably wrong. We should not index
-        // the manifest items with the location path. Instead, we
-        // should use state.current_manifest_item.
-        //
-        // See https://github.com/cockpit-project/cockpit/issues/21040
-        //
-        const item = current_machine_manifest_items.items[current_location.path];
-        if (item && item.docs)
-            docs = item.docs;
-
-        // NOTE: The following is also arguably wrong. We should not
-        // index the manifests with the location path either. We
-        // should use only the first component after splitting the
-        // path at "/".  Also, we should look into
-        // current_machine.manifests instead of cockpit.manifests.
-        //
-        if (docs.length === 0) {
-            const comp = cockpit.manifests[current_location.path];
-            if (comp && comp.parent && comp.parent.docs)
-                docs = comp.parent.docs;
-        }
+        // Check first whether we have docs in the "parent" section of
+        // the manifest.
+        if (current_manifest.parent && current_manifest.parent.docs)
+            docs = current_manifest.parent.docs;
+        else if (current_manifest_item.docs)
+            docs = current_manifest_item.docs;
 
         const docItems = [];
 

@@ -132,6 +132,11 @@ OnCalendar=daily
         b.go("/network")
         self.checkDocs(["Managing networking bonds", "Managing networking teams",
                         "Managing networking bridges", "Managing VLANs", "Managing firewall"])
+        b.go("/system")
+        self.checkDocs(["Configuring system settings"])
+        b.go("/network/firewall")
+        self.checkDocs(["Managing networking bonds", "Managing networking teams",
+                        "Managing networking bridges", "Managing VLANs", "Managing firewall"])
         b.go("/system/services")
 
         m.restart_cockpit()

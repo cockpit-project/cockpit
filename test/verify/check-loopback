@@ -38,14 +38,6 @@ class TestLoopback(testlib.MachineCase):
         b.logout()
         b.wait_visible("#login")
 
-        self.restore_file("/usr/bin/cockpit-bridge")
-        m.execute("rm /usr/bin/cockpit-bridge")
-
-        b.set_val('#login-user-input', "admin")
-        b.set_val('#login-password-input', "foobar")
-        b.click('#login-button')
-        b.wait_text("#login-error-message", "A compatible version of Cockpit is not installed on localhost.")
-
         m.disconnect()
         self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
         m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")

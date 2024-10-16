@@ -1036,6 +1036,8 @@ function debug(...args) {
                 }
             } else if (xhr.status == 403) {
                 login_failure(_(decodeURIComponent(xhr.statusText)) || _("Permission denied"));
+            } else if (xhr.status == 500 && xhr.statusText.indexOf("no-cockpit") > -1) {
+                login_failure(format(_("A compatible version of Cockpit is not installed on $0."), login_machine || "localhost"));
             } else if (xhr.statusText) {
                 fatal(decodeURIComponent(xhr.statusText));
             } else {

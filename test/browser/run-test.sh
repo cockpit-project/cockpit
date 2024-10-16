@@ -7,7 +7,7 @@ PLAN="$1"
 cd "${SOURCE}"
 
 # tests need cockpit's bots/ libraries
-git clone --depth=1 https://github.com/cockpit-project/bots
+git clone -b nspawn-machine --depth=1 https://github.com/cockpit-project/bots
 
 # release tarballs include the necessary npm modules for testing
 if [ -d .git ]; then
@@ -47,6 +47,7 @@ if [ "$PLAN" = "main" ]; then
            TestAccounts
            TestBonding
            TestBridge
+           TestConnection.testCloneContainer
            TestFirewall
            TestJournal
            TestKdump

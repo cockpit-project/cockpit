@@ -18,6 +18,8 @@
 
 set -eu
 
+export COCKPIT_BOTS_REF=nspawn-machine
+
 test/common/make-bots
 test/common/pixel-tests pull
 

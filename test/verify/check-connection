@@ -1222,6 +1222,25 @@ UnixPath=/run/cockpit/session
         self.assertGreater(len(bridges), 0)
         self.assertIn('sudo', bridge_names)
 
+    @testlib.skipOstree("OSTree doesn't have networkd")
+    @testlib.nondestructive
+    def testCloneContainer(self):
+        m = self.machine
+        m2 = m.clone_container()
+
+        # the two now have independent file systems
+        m.write("/tmp/stamp-host", "host")
+        m.write("/run/stamp-host", "host")
+        m2.write("/tmp/stamp-container", "container")
+        m2.write("/run/stamp-container", "container")
+        m.execute("! ls /tmp/stamp-container; ! ls /run/stamp-container")
+        m2.execute("! ls /tmp/stamp-host; ! ls /run/stamp-host")
+
+        # and independent systemd
+        m.execute("systemctl stop systemd-hostnamed.service")
+        m2.execute("systemctl start systemd-hostnamed.service")
+        m.execute("! systemctl status systemd-hostnamed.service")
+
 
 class TestReverseProxy(testlib.MachineCase):
 

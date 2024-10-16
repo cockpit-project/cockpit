@@ -130,6 +130,30 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("user-info").textContent = JSON.stringify(info);
     });
 
+    const fsreplace_btn = document.getElementById("fsreplace1-create");
+    const fsreplace_error = document.getElementById("fsreplace1-error");
+    fsreplace_btn.addEventListener("click", e => {
+        fsreplace_btn.disabled = true;
+        fsreplace_error.textContent = '';
+        const filename = document.getElementById("fsreplace1-filename").value;
+        const content = document.getElementById("fsreplace1-content").value;
+        const attrs = { };
+        for (const field of ["owner", "group"]) {
+            const val = document.getElementById(`fsreplace1-${field}`).value;
+            if (!val)
+                continue;
+
+            attrs[field] = val;
+        }
+        cockpit.file(filename, { superuser: "try" }).replace(content, undefined, attrs)
+                .catch(exc => {
+                    fsreplace_error.textContent = exc.toString();
+                })
+                .finally(() => {
+                    fsreplace_btn.disabled = false;
+                });
+    });
+
     cockpit.addEventListener("visibilitychange", show_hidden);
     show_hidden();
 });

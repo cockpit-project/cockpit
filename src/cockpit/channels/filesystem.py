@@ -168,10 +168,18 @@ class FsReplaceChannel(AsyncChannel):
             os.unlink(path)
         return '-'
 
-    async def set_contents(self, path: str, tag: 'str | None', data: 'bytes | None', size: 'int | None') -> str:
+    async def set_contents(self, path: str, tag: 'str | None', data: 'bytes | None', size: 'int | None',
+                           uid: 'int | None', gid: 'int | None') -> str:
         dirname, basename = os.path.split(path)
         tmpname: str | None
         fd, tmpname = tempfile.mkstemp(dir=dirname, prefix=f'.{basename}-')
+
+        def chown_if_required(fd: 'int'):
+            if uid is not None and gid is not None:
+                os.fchown(fd, uid, gid)
+            elif uid is not None:
+                os.fchown(fd, uid, uid)
+
         try:
             if size is not None:
                 logger.debug('fallocate(%s.tmp, %d)', path, size)
@@ -195,12 +203,14 @@ class FsReplaceChannel(AsyncChannel):
                 # no preconditions about what currently exists or not
                 # calculate the file mode from the umask
                 os.fchmod(fd, 0o666 & ~my_umask())
+                chown_if_required(fd)
                 os.rename(tmpname, path)
                 tmpname = None
 
             elif tag == '-':
                 # the file must not exist.  file mode from umask.
                 os.fchmod(fd, 0o666 & ~my_umask())
+                chown_if_required(fd)
                 os.link(tmpname, path)  # will fail if file exists
 
             else:
@@ -225,6 +235,11 @@ class FsReplaceChannel(AsyncChannel):
         path = get_str(options, 'path')
         size = get_int(options, 'size', None)
         tag = get_str(options, 'tag', None)
+        uid = get_int(options, 'owner', None)
+        gid = get_int(options, 'group', None)
+
+        if gid is not None and uid is None:
+            raise ChannelError('cannot provide a gid without a uid')
 
         try:
             # In the `size` case, .set_contents() sends the ready only after
@@ -232,7 +247,7 @@ class FsReplaceChannel(AsyncChannel):
             # `size`, we need to send the ready() up front in order to
             # receive the first frame and decide if we're creating or deleting.
             if size is not None:
-                tag = await self.set_contents(path, tag, b'', size)
+                tag = await self.set_contents(path, tag, b'', size, uid, gid)
             else:
                 self.ready()
                 data = await self.read()
@@ -240,7 +255,7 @@ class FsReplaceChannel(AsyncChannel):
                 if data is None:
                     tag = self.delete(path, tag)
                 else:
-                    tag = await self.set_contents(path, tag, data, None)
+                    tag = await self.set_contents(path, tag, data, None, uid, gid)
 
             self.done()
             return {'tag': tag}

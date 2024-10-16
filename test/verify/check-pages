@@ -191,6 +191,10 @@ OnCalendar=daily
         b.click("#display-language-modal footer button.pf-m-primary")
         b.wait_language("de-de")
 
+        # Wait for the shell to be fully loaded again so that b.go()
+        # starts working.
+        b.enter_page("/metrics")
+
         # Check that the system page is translated
         b.go("/system")
         b.enter_page("/system")
@@ -549,6 +553,11 @@ OnCalendar=daily
         b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
         b.wait_language("de-de")
+
+        # Wait for the shell to be fully loaded again so that b.go()
+        # starts working.
+        b.enter_page("/network/firewall")
+
         b.go("/system")
         b.enter_page("/system")
         b.wait_in_text(".ct-overview-header", "Neustart")

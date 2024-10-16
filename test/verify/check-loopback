@@ -44,8 +44,7 @@ class TestLoopback(testlib.MachineCase):
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")
         b.click('#login-button')
-        b.wait_visible('#login-fatal')
-        self.assertIn("no-cockpit", b.text('#login-fatal'))
+        b.wait_text("#login-error-message", "A compatible version of Cockpit is not installed on localhost.")
 
         m.disconnect()
         self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
@@ -53,8 +52,6 @@ class TestLoopback(testlib.MachineCase):
         m.execute(self.restart_sshd)
         m.wait_execute()
 
-        b.reload()
-        b.wait_visible("#login")
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")
         b.click('#login-button')

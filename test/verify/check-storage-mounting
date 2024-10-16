@@ -28,7 +28,7 @@ class TestStorageMounting(storagelib.StorageCase):
         b = self.browser
 
         b.wait_visible(self.card("btrfs filesystem"))
-        self.click_card_row("btrfs filesystem", name="/")
+        self.click_card_row("btrfs filesystem", name="top-level")
         b.wait_visible(self.card("btrfs subvolume"))
 
     def testMounting(self):

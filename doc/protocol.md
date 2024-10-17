@@ -853,6 +853,9 @@ following options can be specified:
    size of the terminal window. Values must be integers between 0 and 0xffff.
    This option is only valid if "pty" is true.
 
+For type "spawn", the `ready` message contains a "pid" field with the spawned
+process ID.
+
 If an "done" is sent to the bridge on this channel, then the socket and/or pipe
 input is shutdown. The channel will send an "done" when the output of the socket
 or pipe is done.

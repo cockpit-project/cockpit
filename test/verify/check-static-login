@@ -87,7 +87,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Try to login as a non-existing user
         b.try_login("nonexisting", "blahblah")
-        b.wait_text_not("#login-error-message", "")
+        b.wait_text("#login-error-title", "Authentication failed")
+        b.wait_text("#login-error-message", "Wrong user name or password")
         self.assertNotIn("web", m.execute("who"))
 
         # Try to login as user with a wrong password
@@ -98,10 +99,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Try to login as user with correct password
         b.try_login("user", "abcdefg")
-        if m.ostree_image:
-            b.wait_in_text("#login-error-message", "Wrong user name or password")
-        else:
-            b.wait_text("#login-error-message", "Permission denied")
+        b.wait_text("#login-error-title", "Authentication failed" if m.ostree_image else "Permission denied")
         self.assertNotIn("web", m.execute("who"))
 
         # Try to login with disabled shell; this does not work on OSTree where
@@ -110,7 +108,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             m.execute("usermod --shell /bin/false admin; sync")
             b.reload()
             b.try_login("admin", "foobar")
-            b.wait_text_not("#login-error-message", "")
+            b.wait_text_not("#login-error-title", "")
+            self.assertIn(b.text("#login-error-title"),
+                          ["Permission denied", "Authentication failed"])
             m.execute("usermod --shell /bin/bash admin; sync")
 
         # Login as admin
@@ -155,6 +155,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # logging in does not go via ssh (which would cause a connection failure)
         b.try_login()
         # this isn't the most helpful error message, but this is essentially hacking
+        b.wait_text("#login-error-title", "Authentication failed")
         b.wait_text("#login-error-message", "Wrong user name or password")
 
         # Default options be to display these options
@@ -241,11 +242,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Do some bogus login attempts
         b.try_login('admin', 'xyz')
-        b.wait_text_not("#login-error-message", "")
+        b.wait_text("#login-error-title", "Authentication failed")
         b.try_login('admin', 'xyz')
-        b.wait_text_not("#login-error-message", "")
+        b.wait_text("#login-error-title", "Authentication failed")
         b.try_login('admin', 'xyz')
-        b.wait_text_not("#login-error-message", "")
+        b.wait_text("#login-error-title", "Authentication failed")
 
         # We should see those bogus attempts now
         verify_correct(has_last=False, n_fail=3)
@@ -386,7 +387,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_in_text("#conversation-prompt", "nonexisting@127.0.0.1's password")
             b.set_val('#conversation-input', 'blahblah')
             b.click('#login-button')
-        b.wait_text_not("#login-error-message", "")
+        b.wait_text_not("#login-error-title", "")
 
         b.try_login("admin", "foobar")
         b.wait_visible("#conversation-group")
@@ -646,7 +647,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         def expect_failed_login(user, password, n_failed):
             b.try_login(user, password)
-            b.wait_text_not("#login-error-message", "")
+            b.wait_text_not("#login-error-title", "")
+            # this depends on the use case and OS implementation -- should just be something sensible
+            self.assertIn(b.text("#login-error-title"),
+                          ["Permission denied", "Authentication failed", "Wrong user name or password"])
             expect_fail_count(n_failed, user=user)
 
         def expect_successful_login(user, password):
@@ -745,14 +749,16 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # root login is disabled by default via /etc/cockpit/disallowed-users on everything except RHEL 8
         if not m.image.startswith("rhel-8"):
             b.try_login("root", "foobar")
-            b.wait_in_text("#login-error-message", "Permission denied")
+            b.wait_in_text("#login-error-title", "Permission denied")
+            b.wait_not_visible("#login-error-message")
 
         # disable root login with pam_access
         self.enable_root_login()
         self.write_file("/etc/security/access.conf", "- : root : ALL\n", append=True)
         self.sed_file("1 aaccount required pam_access.so", "/etc/pam.d/cockpit")
         b.try_login(user="root")
-        b.wait_in_text("#login-error-message", "Permission denied")
+        b.wait_in_text("#login-error-title", "Permission denied")
+        b.wait_not_visible("#login-error-message")
 
         self.allow_journal_messages(r"cockpit-session: user account access failed.*root.*")
 
@@ -1013,6 +1019,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 
         # host key is now known, but wrong password
         try_login("admin", "wrong")
+        b.wait_text("#login-error-title", "Authentication failed")
         b.wait_text("#login-error-message", "Wrong user name or password")
         check_no_processes()
         # goes back to normal login form
@@ -1051,7 +1058,9 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         b.wait_text("#hostkey-title", f"{my_ip} key changed")
         b.wait_in_text("#hostkey-fingerprint", "SHA256:")
         b.click("#login-button.pf-m-danger")
-        b.wait_text("#login-error-message", "Authentication failed")
+        b.wait_text("#login-error-title", "Authentication failed")
+        # no details, it's a PAM conversation
+        b.wait_not_visible("#login-error-message")
         check_no_processes()
         # new host key is accepted and updated in db
         # confirmation replaces (not amends) known key

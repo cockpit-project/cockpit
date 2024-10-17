@@ -327,7 +327,8 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
         b.wait_visible("#server-group")
-        b.wait_in_text("#login-error-message", "Hostkey does not match")
+        b.wait_text("#login-error-title", "Refusing to connect")
+        b.wait_text("#login-error-message", "Hostkey does not match")
 
         # Clear bad host key in /etc and set bad host key in
         # localStorage.
@@ -365,9 +366,12 @@ class TestMultiMachine(testlib.MachineCase):
         if m.image not in ["arch", "debian-testing"]:
             m2.execute("sed -i '/^VERSION_ID/ s/$/1/' /etc/os-release")
             b.try_login(password="alt-password")
-            b.wait_in_text('#login-error-message', "A compatible version of Cockpit is not installed on 10.111.113.2")
             source_os = m.execute('. /etc/os-release; echo "$NAME $VERSION_ID"').strip()
-            b.wait_in_text('#login-error-message', f"This is only supported for {source_os} on the target machine")
+            b.wait_text('#login-error-title', "Packageless session unavailable")
+            b.wait_in_text('#login-error-message', "Transient packageless sessions")
+            b.wait_in_text('#login-error-message', source_os)
+            b.wait_in_text('#login-error-message', "Install the cockpit-system package")
+            b.wait_in_text('#login-error-message', "on 10.111.113.2")
 
         fix_bridge(m2)
 
@@ -384,7 +388,8 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_not_visible("#server-group")
         b.click('#login-button')
         b.wait_visible("#server-group")
-        b.wait_in_text("#login-error-message", "Refusing to connect")
+        b.wait_text("#login-error-title", "Refusing to connect")
+        b.wait_text("#login-error-message", "Host is unknown")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()

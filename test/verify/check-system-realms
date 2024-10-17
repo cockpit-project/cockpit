@@ -659,7 +659,8 @@ class TestIPA(TestRealms, CommonTests):
         # wrong token (wrong number of digits)
         b.set_val("#conversation-input", "1234")
         b.click('#login-button')
-        b.wait_text("#login-error-message", "Authentication failed")
+        b.wait_text("#login-error-title", "Authentication failed")
+        b.wait_not_visible("#login-error-message")
 
         b.set_val('#login-user-input', "alice")
         b.set_val('#login-password-input', "alicessecret")

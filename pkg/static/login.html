@@ -14,11 +14,13 @@
 </head>
 
 <body class="login-pf">
-  <div id="banner" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden="true">
-    <svg fill="currentColor" viewBox="0 0 448 512" aria-hidden="true">
-      <path d="M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z" />
-    </svg>
-    <span id="banner-message" class="pf-v5-c-alert__title"></span>
+  <div id="banner" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline info alert" hidden="true">
+    <div class="pf-v5-c-alert__icon">
+      <svg fill="currentColor" viewBox="0 0 448 512" aria-hidden="true">
+        <path d="M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z" />
+      </svg>
+    </div>
+    <span id="banner-message" class="pf-v5-c-alert__description"></span>
   </div>
 
   <span id="badge"></span>
@@ -27,12 +29,19 @@
     <h1 id="brand" class="hide-before"></h1>
 
     <div id="error-group" class="pf-v5-c-alert pf-m-danger pf-m-inline dialog-error noscript" aria-label="inline danger alert">
-      <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
-        <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
-      </svg>
-      <h2 id="login-error-message" class="pf-v5-c-alert__title">
-        <span class="noscript" translate="yes">Please enable JavaScript to use the Web Console.</span>
-      </h2>
+      <div class="pf-v5-c-alert__icon">
+        <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+          <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
+        </svg>
+      </div>
+      <p class="pf-v5-c-alert__title">
+         <span id="login-error-title" class="pf-v5-screen-reader"></span>
+      </p>
+      <div class="pf-v5-c-alert__description">
+        <p id="login-error-message">
+          <span class="noscript" translate="yes">Please enable JavaScript to use the Web Console.</span>
+        </p>
+      </div>
     </div>
 
     <div class="unsupported-browser" id="unsupported-browser" hidden="true">
@@ -64,7 +73,7 @@
       </details>
     </div>
 
-    <div id="info-group" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline danger alert" hidden="true">
+    <div id="info-group" class="pf-v5-c-alert pf-m-info pf-m-inline dialog-error" aria-label="inline info alert" hidden="true">
       <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
         <path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z" />
       </svg>
@@ -77,9 +86,11 @@
         <div id="hostkey-group" class="form-group" hidden="true">
           <h1 id="hostkey-title"></h1>
           <div id="hostkey-warning-group" class="pf-v5-c-alert pf-m-warning pf-m-inline dialog-error" aria-label="inline warning alert" hidden="true">
-            <svg fill="currentColor" viewBox="0 0 576 512" aria-hidden="true"><path d="M569.52 440.01c18.46 32-4.71 71.99-41.58 71.99H48.05c-36.93 0-60-40.05-41.57-71.99L246.42 24c18.47-32.01 64.72-31.96 83.16 0L569.52 440zM288 354a46 46 0 100 92 46 46 0 000-92zm-43.67-165.35l7.41 136A12 12 0 00263.74 336h48.54a12 12 0 0011.98-11.35l7.42-136A12 12 0 00319.7 176h-63.38a12 12 0 00-11.98 12.65z"/></svg>
-            <h2 translate="yes" class="pf-v5-c-alert__title">Changed keys are often the result of an operating system reinstallation. However, an unexpected change may indicate a third-party attempt to intercept your connection.</h2>
-              </div>
+            <div class="pf-v5-c-alert__icon">
+              <svg fill="currentColor" viewBox="0 0 576 512" aria-hidden="true"><path d="M569.52 440.01c18.46 32-4.71 71.99-41.58 71.99H48.05c-36.93 0-60-40.05-41.57-71.99L246.42 24c18.47-32.01 64.72-31.96 83.16 0L569.52 440zM288 354a46 46 0 100 92 46 46 0 000-92zm-43.67-165.35l7.41 136A12 12 0 00263.74 336h48.54a12 12 0 0011.98-11.35l7.42-136A12 12 0 00319.7 176h-63.38a12 12 0 00-11.98 12.65z"/></svg>
+            </div>
+            <span translate="yes" class="pf-v5-c-alert__description">Changed keys are often the result of an operating system reinstallation. However, an unexpected change may indicate a third-party attempt to intercept your connection.</span>
+          </div>
           <p id="hostkey-message-1"></p>
           <p translate="yes">To ensure that your connection is not intercepted by a malicious third-party, please verify the host key fingerprint:</p>
           <pre id="hostkey-fingerprint"></pre>

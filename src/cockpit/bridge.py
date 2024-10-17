@@ -26,7 +26,7 @@ import shlex
 import socket
 import stat
 import subprocess
-from typing import Iterable, List, Optional, Sequence, Tuple, Type
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Type
 
 from cockpit._vendor.ferny import interaction_client
 from cockpit._vendor.systemd_ctypes import bus, run_async
@@ -115,19 +115,7 @@ class Bridge(Router, PackagesListener):
                 logger.warning("Neither /etc/os-release nor /usr/lib/os-release exists")
                 return {}
 
-        os_release = {}
-        for line in file.readlines():
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-            try:
-                k, v = line.split('=')
-                (v_parsed, ) = shlex.split(v)  # expect exactly one token
-            except ValueError:
-                logger.warning('Ignoring invalid line in os-release: %r', line)
-                continue
-            os_release[k] = v_parsed
-        return os_release
+        return parse_os_release(file.read())
 
     def do_init(self, message: JsonObject) -> None:
         # we're only interested in the case where this is a dict, but
@@ -240,6 +228,22 @@ def setup_logging(*, debug: bool) -> None:
                 continue
 
             logging.getLogger(module).setLevel(logging.DEBUG)
+
+
+def parse_os_release(text: str) -> Dict[str, str]:
+    os_release = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        try:
+            k, v = line.split('=')
+            (v_parsed, ) = shlex.split(v)  # expect exactly one token
+        except ValueError:
+            logger.warning('Ignoring invalid line in os-release: %r', line)
+            continue
+        os_release[k] = v_parsed
+    return os_release
 
 
 def start_ssh_agent() -> None:

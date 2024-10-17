@@ -63,7 +63,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_visible(self.card_desc_action("btrfs filesystem", "Label") + ":disabled")
 
         # Unmount to change label
-        self.click_dropdown(self.card_row("btrfs filesystem", name="/"), "Unmount")
+        self.click_dropdown(self.card_row("btrfs filesystem", name="top-level"), "Unmount")
         self.confirm()
         b.wait_visible(self.card_row("btrfs filesystem", location=f"{mount_point} (not mounted)"))
 
@@ -73,7 +73,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_text(self.card_desc("btrfs filesystem", "Label"), label)
 
         # Mount writable for the rest of the test
-        self.click_dropdown(self.card_row("btrfs filesystem", name="/"), "Mount")
+        self.click_dropdown(self.card_row("btrfs filesystem", name="top-level"), "Mount")
         self.dialog({"mount_options.ro": False})
         b.wait_visible(self.card_row("btrfs filesystem", location=f"{mount_point}"))
 
@@ -92,7 +92,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.confirm()
 
         b.wait_visible(self.card_row("btrfs filesystem", location=f"{mount_point} (not mounted)"))
-        self.click_dropdown(self.card_row("btrfs filesystem", name="/"), "Mount")
+        self.click_dropdown(self.card_row("btrfs filesystem", name="top-level"), "Mount")
         self.confirm()
 
         b.wait_visible(self.card_row("btrfs filesystem", location=mount_point))
@@ -591,7 +591,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         self.click_card_row("Storage", name="sda")
-        b.wait_visible(self.card_row("btrfs filesystem", name="/"))
+        b.wait_visible(self.card_row("btrfs filesystem", name="top-level"))
 
     def testNothingMounted(self):
         m = self.machine

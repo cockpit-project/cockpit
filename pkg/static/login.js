@@ -543,15 +543,17 @@ function debug(...args) {
         id("login-info-message").textContent = "";
     }
 
-    function login_failure(msg, form) {
+    function login_failure(title, msg, form) {
         clear_errors();
-        if (msg) {
+        if (title) {
             /* OAuth failures are always fatal */
             if (oauth) {
-                fatal(msg);
+                fatal(title);
             } else {
                 show_form(form || "login");
+                id("login-error-title").textContent = title;
                 id("login-error-message").textContent = msg;
+                hideToggle("#error-group .pf-v5-c-alert__description", !msg);
                 show("#error-group");
             }
         }
@@ -565,12 +567,14 @@ function debug(...args) {
         }
     }
 
-    function host_failure(msg) {
+    function host_failure(title, msg) {
         if (!login_machine) {
             login_failure(msg);
         } else {
             clear_errors();
+            id("login-error-title").textContent = title;
             id("login-error-message").textContent = msg;
+            hideToggle("#error-group .pf-v5-c-alert__description", !msg);
             show("#error-group");
             toggle_options(null, true);
             show_form("login");
@@ -853,7 +857,7 @@ function debug(...args) {
 
         function call_converse() {
             id("login-button").removeEventListener("click", call_converse);
-            login_failure(null, "hostkey");
+            login_failure(null, null, "hostkey");
             // cockpit-beiboot sends only a placeholder, defer to login-data in setup_localstorage()
             if (key.endsWith(" login-data")) {
                 login_data_host = key_host;
@@ -905,12 +909,12 @@ function debug(...args) {
         function call_converse() {
             id("conversation-input").removeEventListener("keydown", key_down);
             id("login-button").removeEventListener("click", call_converse);
-            login_failure(null, "conversation");
+            login_failure(null, null, "conversation");
             converse(prompt_data.id, id("conversation-input").value);
         }
 
         function key_down(e) {
-            login_failure(null, "conversation");
+            login_failure(null, null, "conversation");
             if (e.which == 13) {
                 call_converse();
             }
@@ -1009,13 +1013,13 @@ function debug(...args) {
                         const user = trim(id("login-user-input").value);
                         fatal(format(_("The server refused to authenticate '$0' using password authentication, and no other supported authentication methods are available."), user));
                     } else if (xhr.statusText.indexOf("terminated") > -1) {
-                        login_failure(_("Authentication failed: Server closed connection"));
+                        login_failure(_("Authentication failed"), _("Server closed connection"));
                     } else if (xhr.statusText.indexOf("no-host") > -1) {
                         host_failure(_("Unable to connect to that address"));
                     } else if (xhr.statusText.indexOf("unknown-hostkey") > -1) {
-                        host_failure(_("Refusing to connect. Hostkey is unknown"));
+                        host_failure(_("Refusing to connect"), _("Hostkey is unknown"));
                     } else if (xhr.statusText.indexOf("unknown-host") > -1) {
-                        host_failure(_("Refusing to connect. Host is unknown"));
+                        host_failure(_("Refusing to connect"), _("Host is unknown"));
                     } else if (xhr.statusText.indexOf("invalid-hostkey") > -1) {
                         /* ssh/ferny/beiboot immediately fail in this case, it's not a conversation;
                          * ask the user for confirmation and try again */
@@ -1026,24 +1030,30 @@ function debug(...args) {
                         } else {
                             // but only once, to avoid loops
                             debug("send_login_request(): invalid-hostkey, and already retried, giving up");
-                            host_failure(_("Refusing to connect. Hostkey does not match"));
+                            host_failure(_("Refusing to connect"), _("Hostkey does not match"));
                         }
                     } else if (is_conversation) {
                         login_failure(_("Authentication failed"));
                     } else {
-                        login_failure(_("Wrong user name or password"));
+                        login_failure(_("Authentication failed"), _("Wrong user name or password"));
                     }
                 }
             } else if (xhr.status == 403) {
-                login_failure(_(decodeURIComponent(xhr.statusText)) || _("Permission denied"));
+                const status = decodeURIComponent(xhr.statusText).trim();
+                login_failure(_("Permission denied"), status === "Permission denied" ? "" : status);
             } else if (xhr.status == 500 && xhr.statusText.indexOf("no-cockpit") > -1) {
-                // always show what's going on
-                let message = format(_("A compatible version of Cockpit is not installed on $0."), login_machine || "localhost");
-                // in beiboot mode we get some more info
+                let message = format(
+                    _("Install the cockpit-system package (and optionally other cockpit packages) on $0 to enable web console access."),
+                    login_machine || "localhost");
+
+                // with os-release (all but really weird targets) we get some more info
                 const error = JSON.parse(xhr.responseText);
                 if (error.supported)
-                    message += " " + format(_("This is only supported for $0 on the target machine."), error.supported);
-                login_failure(message);
+                    message = format(
+                        _("Transient packageless sessions require the same operating system and version, for compatibility reasons: $0."),
+                        error.supported) + " " + message;
+
+                login_failure(_("Packageless session unavailable"), message);
             } else if (xhr.statusText) {
                 fatal(decodeURIComponent(xhr.statusText));
             } else {

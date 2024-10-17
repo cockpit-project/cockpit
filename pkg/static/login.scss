@@ -416,61 +416,61 @@ label.checkbox {
   inline-size: 1.5rem;
 }
 
-/* Alerts */
+// Alerts: structure
+
 .pf-v5-c-alert {
-  color: #151515;
-  position: relative;
-  grid-template-columns: max-content 1fr max-content;
-  grid-template-rows: 1fr auto;
-  grid-template-areas:
-    "icon title   action"
-    ".    content content";
-  background-color: #fff;
-  margin-block: 0 1.5rem;
-  margin-inline: 0;
   display: grid;
-  border: 3px solid #009596;
-  border-width: 2px 0 0;
-  box-shadow: rgb(3 3 3 / 16%) 0 0.5rem 1rem 0, rgb(3 3 3 / 8%) 0 0 0.5rem 0;
+  grid-template: "icon content" / auto 1fr;
+  gap: 0.5rem 1rem;
+  align-items: start;
 }
 
-.pf-v5-c-alert.pf-m-inline {
-  box-shadow: none;
+.pf-v5-c-alert__title,
+.pf-v5-c-alert__description {
+  grid-column: content;
 }
 
-.pf-v5-c-alert > svg {
-  grid-area: icon;
-  block-size: 1.125rem;
-  inline-size: 1.125rem;
-  margin-block: 1.25rem 1rem;
-  margin-inline: 1rem;
-  float: inline-start;
-  color: #009596;
-}
+// Alerts: styling
 
-@supports (display: grid) {
-  .pf-v5-c-alert > svg {
-    float: none;
-    margin-inline-end: 0;
+.pf-v5-c-alert {
+  margin: 1rem;
+  padding-block: 0.75rem;
+  padding-inline: 1rem;
+  border-block-start: 2px solid;
+
+  p {
+    margin: 0;
   }
 }
 
-.pf-v5-c-alert__title {
-  grid-area: title;
-  font-size: 1rem;
-  margin: 1rem;
+.pf-v5-c-alert__icon {
+  // vertically align the icon's top edge with the text; https://blog.kizu.dev/cap-height-align/
+  margin-block-start: calc((1cap - 1ex) / 2);
 }
+
+.pf-v5-c-alert__icon svg {
+  display: block;
+  block-size: 1.125rem;
+  inline-size: 1.125rem;
+}
+
+.pf-v5-c-alert__title {
+  font-weight: 700; // pf-v5-global--FontWeight--bold
+}
+
+// Alert: colors for types
 
 .pf-v5-c-alert.pf-m-inline.pf-m-danger {
   background: #faeae8;
   border-color: #c9190b;
 }
 
-.pf-v5-c-alert.pf-m-danger > svg {
+.pf-v5-c-alert.pf-m-danger svg {
   color: #c9190b;
 }
 
-.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title {
+.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title,
+.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__description {
   color: #a30000;
 }
 
@@ -479,11 +479,12 @@ label.checkbox {
   border-color: #f0ab00;
 }
 
-.pf-v5-c-alert.pf-m-warning > svg {
+.pf-v5-c-alert.pf-m-warning svg {
   color: #f0ab00;
 }
 
-.pf-v5-c-alert.pf-m-warning .pf-v5-c-alert__title {
+.pf-v5-c-alert.pf-m-warning .pf-v5-c-alert__title,
+.pf-v5-c-alert.pf-m-warning .pf-v5-c-alert__description {
   color: #795600;
 }
 
@@ -492,11 +493,12 @@ label.checkbox {
   border-color: #73bcf7;
 }
 
-.pf-v5-c-alert.pf-m-info > svg {
+.pf-v5-c-alert.pf-m-info svg {
   color: #73bcf7;
 }
 
-.pf-v5-c-alert.pf-m-info .pf-v5-c-alert__title {
+.pf-v5-c-alert.pf-m-info .pf-v5-c-alert__title,
+.pf-v5-c-alert.pf-m-info .pf-v5-c-alert__description {
   color: #004368;
 }
 
@@ -1002,7 +1004,8 @@ input[type="password"] + .login-password-toggle .password-hide {
   }
 
   .pf-v5-c-alert.pf-m-danger > svg,
-  .pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title {
+  .pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title,
+  .pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__description {
     color: #fe5142;
   }
 

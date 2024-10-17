@@ -109,7 +109,9 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
 
         try:
             transport = SubprocessTransport(loop, self, args, pty=pty, window=window, env=env, cwd=cwd, stderr=stderr)
-            logger.debug('Spawned process args=%s pid=%i', args, transport.get_pid())
+            pid = transport.get_pid()
+            self._ready_info = {'pid': pid}
+            logger.debug('Spawned process args=%s pid=%i', args, pid)
             return transport
         except FileNotFoundError as error:
             raise ChannelError('not-found') from error

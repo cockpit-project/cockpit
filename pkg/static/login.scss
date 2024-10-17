@@ -455,10 +455,19 @@ label.checkbox {
   }
 }
 
+.pf-v5-c-alert__title, .pf-v5-c-alert__description {
+  font-size: 1rem;
+  margin-inline: 1rem;
+}
+
 .pf-v5-c-alert__title {
   grid-area: title;
-  font-size: 1rem;
-  margin: 1rem;
+  font-weight: 700; // pf-v5-global--FontWeight--bold
+  margin-block-start: 1rem;
+}
+
+.pf-v5-c-alert__description {
+  grid-area: content;
 }
 
 .pf-v5-c-alert.pf-m-inline.pf-m-danger {
@@ -470,7 +479,8 @@ label.checkbox {
   color: #c9190b;
 }
 
-.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title {
+.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title,
+.pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__description {
   color: #a30000;
 }
 
@@ -483,7 +493,8 @@ label.checkbox {
   color: #f0ab00;
 }
 
-.pf-v5-c-alert.pf-m-warning .pf-v5-c-alert__title {
+.pf-v5-c-alert.pf-m-warning .pf-v5-c-alert__title,
+.pf-v5-c-alert.pf-m-warning .pf-v5-c-alert__description {
   color: #795600;
 }
 
@@ -496,7 +507,8 @@ label.checkbox {
   color: #73bcf7;
 }
 
-.pf-v5-c-alert.pf-m-info .pf-v5-c-alert__title {
+.pf-v5-c-alert.pf-m-info .pf-v5-c-alert__title,
+.pf-v5-c-alert.pf-m-info .pf-v5-c-alert__description {
   color: #004368;
 }
 
@@ -1002,7 +1014,8 @@ input[type="password"] + .login-password-toggle .password-hide {
   }
 
   .pf-v5-c-alert.pf-m-danger > svg,
-  .pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title {
+  .pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__title,
+  .pf-v5-c-alert.pf-m-danger .pf-v5-c-alert__description {
     color: #fe5142;
   }
 

@@ -328,7 +328,8 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
         b.wait_visible("#server-group")
-        b.wait_in_text("#login-error-message", "Hostkey does not match")
+        b.wait_text("#login-error-title", "Refusing to connect")
+        b.wait_text("#login-error-message", "Hostkey does not match")
 
         # Clear bad host key in /etc and set bad host key in
         # localStorage.
@@ -368,7 +369,8 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_not_visible("#server-group")
         b.click('#login-button')
         b.wait_visible("#server-group")
-        b.wait_in_text("#login-error-message", "Refusing to connect")
+        b.wait_text("#login-error-title", "Refusing to connect")
+        b.wait_text("#login-error-message", "Host is unknown")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()

@@ -30,7 +30,7 @@ import { superuser } from "superuser.js";
 const _ = cockpit.gettext;
 
 export const SuperuserAlert = () => {
-    if (superuser.allowed)
+    if (superuser.allowed || !superuser.configured)
         return null;
 
     return <Alert className="ct-limited-access-alert"

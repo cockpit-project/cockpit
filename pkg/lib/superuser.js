@@ -39,6 +39,11 @@ import cockpit from "cockpit";
  * access should be shown when the "allowed" field is exactly false,
  * but not when it is null.
  *
+ * - superuser.configured
+ *
+ * This is true when the shell has at least one superuser bridge configured,
+ * false if there are no superuser bridges, or null during initialization.
+ *
  * - superuser.addEventListener("changed", () => ...)
  *
  * The event handler is called whenever superuser.allowed has changed.
@@ -79,8 +84,15 @@ function Superuser() {
         return proxy.Current != "none";
     };
 
+    const compute_configured = () => {
+        if (proxy.Current == "init")
+            return null;
+        return (proxy.Bridges?.length ?? 0) > 0;
+    };
+
     const self = {
         allowed: compute_allowed(),
+        configured: null,
         reload_page_on_change
     };
 
@@ -93,6 +105,7 @@ function Superuser() {
             } else {
                 const prev = self.allowed;
                 self.allowed = allowed;
+                self.configured = compute_configured();
                 self.dispatchEvent("changed");
                 if (prev != null)
                     self.dispatchEvent("reconnect");

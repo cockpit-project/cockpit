@@ -239,7 +239,7 @@ class ServicesPageBody extends React.Component {
         };
 
         // Possible UnitFileState values: enabled, enabled-runtime, linked, linked-runtime, alias, masked, masked-runtime, static, disabled, invalid, indirect, generated, transient, bad
-        // See: typedef enum UnitFileState https://github.com/systemd/systemd/blob/main/src/basic/unit-file.h
+        // See: typedef enum UnitFileState https://github.com/systemd/systemd/blob/main/src/shared/unit-file.h
         this.unitFileState = {
             enabled: _("Enabled"),
             "enabled-runtime": _("Enabled"),

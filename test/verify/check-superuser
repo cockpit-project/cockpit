@@ -291,6 +291,12 @@ session include system-auth
         # superuser bridge goes away
         m.execute("while pgrep -u root -a cockpit-bridge; do sleep 1; done", timeout=5)
 
+        # no banner for "running in limited access mode", there are no bridge configs
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_visible("#system_information_os_text")
+        b.wait_not_present(".pf-v5-c-alert:contains('Web console is running in limited access mode')")
+
     def testSingleLabelBridgeConfig(self):
         b = self.browser
 

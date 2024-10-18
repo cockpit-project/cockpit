@@ -370,6 +370,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     _send_pongs: bool = True
     _last_ping: 'JsonObject | None' = None
     _create_transport_task: 'asyncio.Task[asyncio.Transport] | None' = None
+    _ready_info: 'JsonObject | None' = None
 
     # read-side EOF handling
     _close_on_eof: bool = False
@@ -400,7 +401,10 @@ class ProtocolChannel(Channel, asyncio.Protocol):
             return
 
         self.connection_made(transport)
-        self.ready()
+        if self._ready_info is not None:
+            self.ready(**self._ready_info)
+        else:
+            self.ready()
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         assert isinstance(transport, asyncio.Transport)

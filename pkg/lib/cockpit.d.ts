@@ -77,7 +77,7 @@ declare module 'cockpit' {
         (event: CustomEvent<Parameters<E>>, ...args: Parameters<E>) => void;
 
     interface EventSource<EM extends EventMap> {
-        addEventListener<E extends keyof EM>(event: E, listener: EventListener<EM[E]>): void;
+        addEventListener<E extends keyof EM>(event: E, listener: EventListener<EM[E]>, options?: JsonObject): void;
         removeEventListener<E extends keyof EM>(event: E, listener: EventListener<EM[E]>): void;
         dispatchEvent<E extends keyof EM>(event: E, ...args: Parameters<EM[E]>): void;
     }

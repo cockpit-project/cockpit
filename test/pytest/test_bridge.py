@@ -770,6 +770,9 @@ async def test_channel(bridge: Bridge, transport: MockTransport, channeltype, tm
             assert control['channel'] == ch
             command = control['command']
             if command == 'ready':
+                if 'spawn' in args:
+                    assert isinstance(control['pid'], int)
+                    assert os.readlink(f"/proc/{control['pid']}/exe").endswith("/cat")
                 # If we get ready, it's our turn to send data first.
                 # Hopefully we didn't receive any before.
                 assert not saw_data

@@ -161,22 +161,20 @@ QUnit.test("replace with tag", async assert => {
     const done = assert.async();
     const file = cockpit.file(dir + "/barfoo");
 
-    file.read()
-            .then(async (content, tag_1) => {
-                assert.equal(content, null, "file does not exist");
-                assert.equal(tag_1, "-", "first tag is -");
-                const tag_2 = await file.replace("klmn\n", tag_1);
-                assert.notEqual(tag_2, "-", "second tag is not -");
-                const tag_3 = await file.replace("KLMN\n", tag_2);
-                assert.notEqual(tag_3, tag_2, "third tag is different");
-                try {
-                    await file.replace("opqr\n", tag_2);
-                    assert.ok(false, "should have failed");
-                } catch (error) {
-                    assert.equal(error.problem, "change-conflict", "wrong tag is rejected");
-                    done();
-                }
-            });
+    const [content, tag_1] = await file.read2();
+    assert.equal(content, null, "file does not exist");
+    assert.equal(tag_1, "-", "first tag is -");
+    const tag_2 = await file.replace("klmn\n", tag_1);
+    assert.notEqual(tag_2, "-", "second tag is not -");
+    const tag_3 = await file.replace("KLMN\n", tag_2);
+    assert.notEqual(tag_3, tag_2, "third tag is different");
+    try {
+        await file.replace("opqr\n", tag_2);
+        assert.ok(false, "should have failed");
+    } catch (error) {
+        assert.equal(error.problem, "change-conflict", "wrong tag is rejected");
+        done();
+    }
 });
 
 QUnit.test("modify", async assert => {

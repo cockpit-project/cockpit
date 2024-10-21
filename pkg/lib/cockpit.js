@@ -2157,6 +2157,7 @@ function factory() {
         const self = {
             path,
             read,
+            read2,
             replace,
             modify,
 
@@ -2241,6 +2242,10 @@ function factory() {
 
             read_promise = dfd.promise;
             return read_promise;
+        }
+
+        function read2() {
+            return read().then((content, tag) => [content, tag]);
         }
 
         let replace_channel = null;

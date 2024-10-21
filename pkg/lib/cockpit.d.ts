@@ -248,6 +248,7 @@ declare module 'cockpit' {
 
     interface FileHandle<T> {
         read(): Promise<T>;
+        read2(): Promise<[T, FileTag]>;
         replace(new_content: T | null, expected_tag?: FileTag): Promise<FileTag>;
         watch(callback: FileWatchCallback<T>, options?: { read?: boolean }): FileWatchHandle;
         modify(callback: (data: T | null) => T | null, initial_content?: string, initial_tag?: FileTag): Promise<[T, FileTag]>;

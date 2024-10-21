@@ -1100,6 +1100,14 @@ The following options can be specified in the "open" control message:
    you don't set this field, the actual tag will not be checked.  To
    express that you expect the file to not exist, use "-" as the tag.
 
+* "uid": The expected uid of the file.  If set, fsreplace1 chowns the
+  file to the given uid, and optionally gid if set.  This requires
+  superuser privileges to be available
+
+* "gid": The expected gid of the file.  If set, fsreplace chowns the
+  file to the given gid if the uid is also set.  This requires
+  superuser privileges to be available
+
 You should write the new content to the channel as one or more
 messages.  To indicate the end of the content, send a "done" message.
 

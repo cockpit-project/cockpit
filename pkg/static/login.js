@@ -1037,7 +1037,13 @@ function debug(...args) {
             } else if (xhr.status == 403) {
                 login_failure(_(decodeURIComponent(xhr.statusText)) || _("Permission denied"));
             } else if (xhr.status == 500 && xhr.statusText.indexOf("no-cockpit") > -1) {
-                login_failure(format(_("A compatible version of Cockpit is not installed on $0."), login_machine || "localhost"));
+                // always show what's going on
+                let message = format(_("A compatible version of Cockpit is not installed on $0."), login_machine || "localhost");
+                // in beiboot mode we get some more info
+                const error = JSON.parse(xhr.responseText);
+                if (error.supported)
+                    message += " " + format(_("This is only supported for $0 on the target machine."), error.supported);
+                login_failure(message);
             } else if (xhr.statusText) {
                 fatal(decodeURIComponent(xhr.statusText));
             } else {

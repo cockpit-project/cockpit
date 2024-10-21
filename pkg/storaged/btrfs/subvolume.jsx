@@ -404,6 +404,16 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
             return str;
     }
 
+    // Show the hidden "root" of a btrfs filesystem as "top-level" as "/" can
+    // be confused with the root filesystem.
+    // https://btrfs.readthedocs.io/en/latest/Subvolumes.html
+    function subvol_name(subvol, path_prefix) {
+        if (subvol.id === 5) {
+            return _("top-level");
+        }
+        return strip_prefix(subvol.pathname, path_prefix);
+    }
+
     let snapshot_origin = null;
     if (subvol.id !== 5 && subvol.parent_uuid !== null) {
         for (const sv of subvols) {
@@ -418,7 +428,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
         title: _("btrfs subvolume"),
         next: null,
         page_location: ["btrfs", volume.data.uuid, subvol.pathname],
-        page_name: strip_prefix(subvol.pathname, path_prefix),
+        page_name: subvol_name(subvol, path_prefix),
         page_size: mounted && <StorageUsageBar stats={use} short />,
         location: mp_text,
         component: BtrfsSubvolumeCard,
@@ -444,6 +454,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
 
 const BtrfsSubvolumeCard = ({ card, volume, subvol, snapshot_origin, mismount_warning, block, fstab_config, forced_options }) => {
     const crossrefs = get_crossrefs(subvol.uuid);
+    console.log(subvol);
 
     return (
         <StorageCard card={card} alert={mismount_warning &&
@@ -452,7 +463,7 @@ const BtrfsSubvolumeCard = ({ card, volume, subvol, snapshot_origin, mismount_wa
                                     backing_block={block} content_block={block} subvol={subvol} />}>
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
-                    <StorageDescription title={_("Name")} value={subvol.pathname} />
+                    <StorageDescription title={_("Name")} value={subvol.id === 5 ? _("top-level") : subvol.pathname} />
                     <StorageDescription title={_("ID")} value={subvol.id} />
                     {snapshot_origin !== null &&
                     <StorageDescription title={_("Snapshot origin")}>

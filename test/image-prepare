@@ -142,6 +142,43 @@ def build_install_ostree(dist_tar, image, verbose, quick):
     return args
 
 
+def build_install_container(dist_tar, image, verbose, quick):
+    """Build VM with cockpit/ws container
+
+    This can test an image with beibooting from a cockpit/ws container, without
+    any installed cockpit packages.
+    """
+    # this needs to be the image that corresponds to the actual cockpit/ws container
+    # parse from containers/ws/Dockerfile
+    with open(os.path.join(BASE_DIR, "containers/ws/Dockerfile")) as f:
+        for line in f:
+            if line.startswith("FROM"):
+                fedora_version = line.split('fedora:')[1].split()[0]
+                break
+        else:
+            raise ValueError("failed to parse Fedora version from ws container")
+
+    with create_machine(f"fedora-{fedora_version}") as m:
+        build_rpms(dist_tar, m, verbose, quick)
+        # copy them where ws-container.install expects them
+        m.execute(r"find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm' -exec mv {} /var/tmp/ \;")
+        # create container
+        m.upload([os.path.join(BASE_DIR, "containers")], "/var/tmp/")
+        with open(os.path.join(TEST_DIR, "ws-container.install")) as f:
+            m.execute(f.read())
+        # download container
+        m.execute("podman save cockpit/ws -o /var/tmp/ws.tar")
+        m.download("/var/tmp/ws.tar", os.path.abspath("tmp/"))
+
+    return [
+        # install container
+        "--upload", os.path.abspath("tmp/ws.tar") + ":/var/tmp/",
+        "--run-command", "podman load -i /var/tmp/ws.tar; rm /var/tmp/ws.tar",
+        # remove preinstalled rpms
+        "--run-command", "dnf -C remove -y cockpit-bridge cockpit-ws",
+    ]
+
+
 def validate_packages():
     """Post-install package checks"""
 
@@ -171,6 +208,7 @@ def main():
     parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
     parser.add_argument('-o', '--overlay', action='store_true',
                         help='Install into existing test/image/ overlay instead of from pristine base image')
+    parser.add_argument('--container', action='store_true', help='Install cockpit/ws container instead of rpms')
     parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
@@ -186,6 +224,8 @@ def main():
 
     if args.image == "fedora-coreos":
         customize += build_install_ostree(dist_tar, args.image, args.verbose, args.quick)
+    elif args.container:
+        customize += build_install_container(dist_tar, args.image, args.verbose, args.quick)
     else:
         customize += build_install_package(dist_tar, args.image)
 

@@ -61,6 +61,10 @@ case "${TEST_SCENARIO:=}" in
     *other*)
         RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -Ev "$RE_NETWORKING|$RE_STORAGE|$RE_EXPENSIVE")"
         ;;&
+    *ws-container*)
+        PREPARE_OPTS="$PREPARE_OPTS --quick --container"
+        RUN_OPTS="$RUN_OPTS "
+        ;;&
 
 esac
 

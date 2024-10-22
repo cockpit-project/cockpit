@@ -840,7 +840,6 @@ class TestConnection(testlib.MachineCase):
         self.assertLess(rss, 250000)
 
     @testlib.nondestructive
-    @testlib.skipImage("Broken with C bridge", "rhel-8*")
     def testFlowControlUpload(self):
         m = self.machine
         b = self.browser

@@ -30,7 +30,6 @@ class TestShutdownRestart(testlib.MachineCase):
         super().setUp()
         self.setup_provisioned_hosts()
 
-    @testlib.todoPybridgeRHEL8()
     def testBasic(self):
         m = self.machine
         b = self.browser

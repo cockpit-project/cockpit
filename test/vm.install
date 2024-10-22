@@ -10,7 +10,13 @@ fi
 . /usr/lib/os-release
 
 # our tests expect cockpit.socket to not be running after boot, only after start_cockpit()
-if ! type rpm-ostree >/dev/null 2>&1; then
+# socket isn't present on CoreOS or with cockpit/ws scenario
+HAVE_COCKPIT_SOCKET=
+if [ -n "$(systemctl --no-legend list-unit-files cockpit.socket || true)" ]; then
+    HAVE_COCKPIT_SOCKET=1
+fi
+
+if [ -n "$HAVE_COCKPIT_SOCKET" ]; then
     systemctl disable cockpit.socket
 fi
 
@@ -52,8 +58,10 @@ if [ "$PLATFORM_ID" = "platform:el10" ]; then
 fi
 
 # start cockpit once to ensure it works, and generate the certificate (to avoid re-doing that for each test)
-systemctl start cockpit
-systemctl stop cockpit
+if [ -n "$HAVE_COCKPIT_SOCKET" ]; then
+    systemctl start cockpit
+    systemctl stop cockpit
+fi
 
 # clean out the journal
 journalctl --flush

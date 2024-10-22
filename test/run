@@ -32,7 +32,6 @@ RE_EXPENSIVE='HostSwitching|MultiMachine|Updates|Superuser|Kdump|Pages'
 # every known case needs to set RUN_OPTS to something non-empty, so that we can check if we hit any branch
 case "${TEST_SCENARIO:=}" in
     *devel*) RUN_OPTS="$RUN_OPTS --coverage"; export NODE_ENV=development ;;&
-    *pybridge*) RUN_OPTS="$RUN_OPTS "; PREPARE_OPTS="$PREPARE_OPTS --python" ;;&
     *firefox*) RUN_OPTS="$RUN_OPTS "; export TEST_BROWSER=firefox ;;&
 
     *daily*)

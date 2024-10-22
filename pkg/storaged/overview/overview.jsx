@@ -148,7 +148,7 @@ const OverviewCard = ({ card, plot_state }) => {
     ].filter(item => !!item);
 
     const net_menu_items = [
-        !client.in_anaconda_mode() && menu_item(nfs_feature, _("New NFS mount"), () => nfs_fstab_dialog(null, null)),
+        menu_item(nfs_feature, _("New NFS mount"), () => nfs_fstab_dialog(null, null)),
         menu_item(iscsi_feature, _("Change iSCSI initiater name"), () => iscsi_change_name()),
         menu_item(iscsi_feature, _("Add iSCSI portal"), () => iscsi_discover()),
     ].filter(item => !!item);

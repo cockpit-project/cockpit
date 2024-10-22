@@ -89,6 +89,49 @@ case, Cockpit will use the type from "default_fsys_type".
 }
 ```
 
+Overriding Cockpit feature detection
+------------------------------------
+
+Cockpit Storage performs feature detection when it loads and disables
+parts of its UI accordingly. For example, the "Create LVM2 volume
+group" menu item will only be shown when the LVM2 support for UDisks2
+is installed.
+
+Anaconda can override this feature detection and force LVM2 to be off
+even if all necessary software is installed.
+
+This is done with the `features` entry:
+
+```json
+{
+  "features": {
+    "lvm2": false,
+    "stratis": false,
+  }
+}
+```
+
+The defaults for this, when in Anaconda mode, are as follows. They
+make sense for offline operation.
+
+```
+{
+  "btrfs": true,
+  "lvm2": true,
+  "vdo": true,
+  "legacy_vdo": true,
+  "stratis": true,
+  "nfs": false,
+  "iscsi": false,
+  "clevis": false,
+  "packagekit": false
+}
+```
+
+NOTE: A feature can not really be forced on when the code for it is
+not installed. Setting a feature to "true" in the Anconda config means
+that Cockpit will run its normal feature detection for it.
+
 Exported information
 --------------------
 

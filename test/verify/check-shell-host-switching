@@ -97,7 +97,6 @@ class HostSwitcherHelpers:
         b.click("#hosts-sel button")
 
 
-@testlib.todoPybridgeRHEL8()
 class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
     provision = {
         'machine1': {"address": "10.111.113.1/20", "memory_mb": 512},

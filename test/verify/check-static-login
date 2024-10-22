@@ -959,7 +959,6 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # by IPv6 address and port
         check_server("[::1]:22", expect_fp_ack=True)
 
-    @testlib.skipImage("needs pybridge", "rhel-8*", "centos-8*")
     # enable this once our cockpit/ws container can beiboot
     @testlib.skipOstree("client setup does not work with ws container")
     def testSSH(self):

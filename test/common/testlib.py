@@ -83,7 +83,6 @@ __all__ = (
     'test_main',
     'timeout',
     'todo',
-    'todoPybridgeRHEL8',
     'wait',
 )
 
@@ -2532,12 +2531,6 @@ def todo(reason: str = '') -> Callable[[_T], _T]:
         setattr(testEntity, '_testlib__todo', reason)
         return testEntity
     return wrapper
-
-
-def todoPybridgeRHEL8(reason: str | None = None) -> Callable[[_T], _T]:
-    # We don't currently test this scenario but we probably want to bring it
-    # back some day.  We'll implement this again when we do that.
-    return lambda testEntity: testEntity
 
 
 def timeout(seconds: int) -> Callable[[_T], _T]:

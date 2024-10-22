@@ -117,7 +117,6 @@ def change_ssh_port(machine, address, sshd_socket, sshd_service, port=None, time
     raise error
 
 
-@testlib.todoPybridgeRHEL8()
 class TestMultiMachineAdd(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},
@@ -428,7 +427,6 @@ class TestMultiMachine(testlib.MachineCase):
         self.assertEqual(200, http_code("/cockpit/@localhost/manifests.json"))
         self.assertEqual(403, http_code("/cockpit/@10.111.113.2/manifests.json"))
 
-    @testlib.todoPybridgeRHEL8()
     def testUrlRoot(self):
         b = self.browser
         m = self.machine
@@ -490,7 +488,6 @@ class TestMultiMachine(testlib.MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
 
-    @testlib.todoPybridgeRHEL8()
     def testExternalPage(self):
         b = self.browser
         m1 = self.machine
@@ -522,7 +519,6 @@ class TestMultiMachine(testlib.MachineCase):
 
         self.allow_hostkey_messages()
 
-    @testlib.todoPybridgeRHEL8()
     def testFrameNavigation(self):
         b = self.browser
         m2 = self.machine2
@@ -603,7 +599,6 @@ class TestMultiMachine(testlib.MachineCase):
                                     ".*: bridge program failed: Child process exited with code .*",
                                     "/playground/test.html: failed to retrieve resource: authentication-failed")
 
-    @testlib.todoPybridgeRHEL8()
     def testFrameReload(self):
         b = self.browser
         m2 = self.machines["machine2"]
@@ -648,7 +643,6 @@ class TestMultiMachine(testlib.MachineCase):
 
         self.allow_hostkey_messages()
 
-    @testlib.todoPybridgeRHEL8()
     def testTroubleshooting(self):
         b = self.browser
         m1 = self.machine
@@ -796,7 +790,6 @@ class TestMultiMachine(testlib.MachineCase):
                                     '.*: server offered unsupported authentication methods: .*')
 
     @testlib.skipImage("TODO: Broken on Arch Linux", "arch")
-    @testlib.todoPybridgeRHEL8()
     def testSshKeySetup(self):
         b = self.browser
         m1 = self.machine
@@ -889,7 +882,6 @@ class TestMultiMachine(testlib.MachineCase):
 
         self.allow_hostkey_messages()
 
-    @testlib.todoPybridgeRHEL8()
     def testSshKeySetupCustom(self):
         b = self.browser
         m1 = self.machine

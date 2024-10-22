@@ -121,8 +121,8 @@ def build_install_package(dist_tar, image):
 def build_install_ostree(dist_tar, image, verbose, quick):
     """Special treatment of build/install on CoreOS
 
-    OSTree image can't build packages, build them on corresponding OSes and invoke
-    test/ostree.install to install them into the OSTree and the cockpit/ws container.
+    OSTree image can't build packages, build them on corresponding OSes and
+    install them into the OSTree and the cockpit/ws container.
     """
     rpms = build_rpms(dist_tar, testmap.get_build_image(image), verbose, quick)
     args = []
@@ -130,6 +130,7 @@ def build_install_ostree(dist_tar, image, verbose, quick):
         args += ["--upload", f"{rpm}:/var/tmp/"]
     args += [
         "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
+        "--script", os.path.join(TEST_DIR, "ws-container.install"),
         "--script", os.path.join(TEST_DIR, "ostree.install")]
     return args
 

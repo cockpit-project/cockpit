@@ -290,9 +290,9 @@ export function proxy(name, kind) {
 
             call_manager(dbus, method, args)
                     .then(([path]) => { pending_job_path = path })
-                    .catch(() => {
+                    .catch(ex => {
                         dbus.close();
-                        reject();
+                        reject(ex);
                     });
         });
     }

@@ -1,8 +1,8 @@
 @use "./system-global.scss";
 /* System Time Modal dialog needs table.css */
 @use "../lib/table.css";
-@import "global-variables";
-@import "@patternfly/patternfly/components/Table/table.scss";
+@use "global-variables";
+@use "@patternfly/patternfly/components/Table/table.scss" as table2;
 
 .ct-limited-access-alert {
   --pf-v5-c-alert--GridTemplateColumns: auto auto 1fr;
@@ -20,7 +20,7 @@
   //
   // When we have the upcoming version of PF4 in Cockpit, we should drop this code
   // (and adjust things for the button to show up on the side of desktop mode instead)
-  @media (max-width: $pf-v5-global--breakpoint--lg) {
+  @media (max-width: global-variables.$pf-v5-global--breakpoint--lg) {
     grid-template-areas: "icon title" ". content" ". action";
     grid-gap: var(--pf-v5-global--spacer--sm) 0;
   }
@@ -35,7 +35,7 @@
   }
 
   // Align left content with the rest of the page
-  @media (min-width: $pf-v5-global--breakpoint--xl) {
+  @media (min-width: global-variables.$pf-v5-global--breakpoint--xl) {
     padding-inline-start: var(--pf-v5-global--spacer--lg);
   }
 }

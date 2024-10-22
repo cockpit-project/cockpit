@@ -1,6 +1,6 @@
 @use "ct-card";
 @use "page";
-@import "global-variables";
+@use "global-variables";
 
 #firewall,
 #network-page {
@@ -216,7 +216,7 @@ th {
   }
 }
 
-@media screen and (max-width: $pf-v5-global--breakpoint--md) {
+@media screen and (max-width: global-variables.$pf-v5-global--breakpoint--md) {
   .zone-section-heading.pf-v5-c-card__header {
     padding-inline-start: var(--pf-v5-global--spacer--md);
   }
@@ -315,7 +315,7 @@ th {
 
 // HACK: MenuToggle has inline-block by default which makes it not appear under
 // the entry above
-@media screen and (max-width: $pf-v5-global--breakpoint--sm) {
+@media screen and (max-width: global-variables.$pf-v5-global--breakpoint--sm) {
   .pf-v5-c-table__td .pf-v5-c-menu-toggle.pf-m-plain {
     display: inline-flex;
     align-items: flex-start;

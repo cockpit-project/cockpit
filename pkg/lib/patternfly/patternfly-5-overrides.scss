@@ -1,3 +1,4 @@
+@use "sass:math";
 /*** PF5 overrides ***/
 // Pull in variables (for breakpoints)
 @use "global-variables" as *;
@@ -48,7 +49,7 @@ to wrap around when there isn't enough space.
 /* Fix select menu rendering */
 ul.pf-v5-c-select__menu {
   /* Don't get too tall */
-  max-block-size: min(20rem, 50vh);
+  max-block-size: math.min(20rem, 50vh);
   /* Don't have a horizontal scrollbar */
   overflow-y: auto;
 }

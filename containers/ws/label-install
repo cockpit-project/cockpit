@@ -14,14 +14,6 @@ if [ ! -d /host/etc -o ! -d /host/proc -o ! -d /host/var/run ]; then
     echo "cockpit-run: host file system is not mounted at /host" >&2
     exit 1
 fi
-if [ ! -f /host/usr/bin/cockpit-bridge ]; then
-    echo "cockpit-run: cockpit-bridge must be installed in the host" >&2
-    exit 1
-fi
-if [ ! -d /host/usr/share/cockpit ]; then
-    echo "cockpit-run: cockpit-system and other resources must be installed in the host" >&2
-    exit 1
-fi
 if [ -f /host/usr/libexec/cockpit-ws ]; then
     echo "cockpit-ws must not be installed in the host" >&2
     exit 1

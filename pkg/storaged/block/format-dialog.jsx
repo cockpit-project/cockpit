@@ -392,6 +392,9 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 }
                 if (vals.type == "efi" && !vals.mount_point)
                     dlg.set_values({ mount_point: "/boot/efi" });
+            } else if (trigger == "crypto") {
+                if (vals.crypto != "none" && vals.crypto != " keep")
+                    dlg.show_field("crypto_options");
             }
         },
         Action: {

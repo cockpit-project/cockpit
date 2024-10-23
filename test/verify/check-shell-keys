@@ -190,7 +190,7 @@ class TestKeys(testlib.MachineCase):
             return b.text(f"tr[data-name='{identifier}'] + tr dt:contains({dtype}) + dd > div")
 
         # Operating systems where auto loading doesn't work
-        auto_load = not m.ostree_image
+        auto_load = not m.ws_container
 
         if m.image == "arch":
             self.write_file("/etc/pam.d/cockpit", """

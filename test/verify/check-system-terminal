@@ -193,7 +193,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
         wait_line(echo_result_line, prompt)
         path = m.execute("cat /tmp/path").strip()
-        if m.ostree_image:
+        if m.ws_container:
             self.assertIn("/usr/local/bin:/usr/bin", path)
         elif m.image == "arch":
             self.assertIn("/usr/local/sbin:/usr/local/bin:/usr/bin", path)

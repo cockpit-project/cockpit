@@ -1097,7 +1097,7 @@ ExecStart=/usr/local/bin/{packageName}
 
 
 @testlib.skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
-@testlib.skipOstree("Image uses OSTree")
+@testlib.skipWsContainer("no cockpit-ws package with cockpit/ws container")
 class TestWsUpdate(NoSubManCase):
     def testBasic(self):
         # The main case for this is that cockpit-ws itself gets upgraded, which

@@ -56,7 +56,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             else:
                 self.sed_file(f'/nologin/a {admins_only_pam}', remote_filename)
 
-        deny_non_root("/etc/pam.d/cockpit")
+        if not m.ws_container:
+            deny_non_root("/etc/pam.d/cockpit")
         deny_non_root("/etc/pam.d/sshd")
 
         m.start_cockpit()
@@ -67,7 +68,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#login-user-input")
         b.wait_not_visible("#banner")
 
-        if m.ostree_image:
+        if m.ws_container:
             m.execute("podman exec ws printf '[Session]\nBanner = /host/etc/issue\n' > /etc/cockpit/cockpit.conf")
         else:
             m.execute("printf '[Session]\nBanner = /etc/issue\n' > /etc/cockpit/cockpit.conf")
@@ -99,12 +100,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Try to login as user with correct password
         b.try_login("user", "abcdefg")
-        b.wait_text("#login-error-title", "Authentication failed" if m.ostree_image else "Permission denied")
+        b.wait_text("#login-error-title", "Authentication failed" if m.ws_container else "Permission denied")
         self.assertNotIn("web", m.execute("who"))
 
         # Try to login with disabled shell; this does not work on OSTree where
         # we log in through ssh
-        if not m.ostree_image:
+        if not m.ws_container:
             m.execute("usermod --shell /bin/false admin; sync")
             b.reload()
             b.try_login("admin", "foobar")
@@ -118,7 +119,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.login_and_go()
         self.check_shell()
 
-        if not m.ostree_image:  # logs in via ssh, not cockpit-session
+        if not m.ws_container:  # logs in via ssh, not cockpit-session
             # older coreutils shows the session type (web), newer ones the service name
             self.assertRegex(m.execute("who"), r"(^|\n)admin *(web|cockpit).*(\d+\.\d+|::)")
 
@@ -126,7 +127,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.reload()
         self.check_shell()
 
-        if not m.ostree_image:  # logs in via ssh, not cockpit-session
+        if not m.ws_container:  # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *(web|cockpit).*(\d+\.\d+|::)")
 
         b.go("/users#/admin")
@@ -165,7 +166,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#option-group")
 
         # And now we remove ssh which affects the default
-        if not m.ostree_image:
+        if not m.ws_container:
             self.restore_file("/usr/bin/ssh")
             m.execute("rm /usr/bin/ssh")
             m.restart_cockpit()
@@ -198,7 +199,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
                                     "noise-rc-.*")
 
-    @testlib.skipOstree("logs in via ssh, not cockpit-session")
+    @testlib.skipWsContainer("logs in via ssh, not cockpit-session")
     def testLogging(self):
         m = self.machine
         b = self.browser
@@ -260,7 +261,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b = self.browser
 
         # On OSTree this happens over ssh
-        if m.ostree_image:
+        if m.ws_container:
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
             m.execute(self.restart_sshd)
@@ -284,7 +285,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        if m.ostree_image:
+        if m.ws_container:
             b.wait_in_text("#conversation-prompt", "You are required to change your password")
         else:
             b.wait_in_text("#conversation-message", "You are required to change your password")
@@ -301,7 +302,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#login-button')
 
         # We should see a message
-        if m.ostree_image:
+        if m.ws_container:
             b.wait_in_text("#conversation-prompt", "BAD PASSWORD")
         else:
             b.wait_in_text("#conversation-message", "BAD PASSWORD")
@@ -324,7 +325,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#login-button')
 
         # We should see a message
-        if m.ostree_image:
+        if m.ws_container:
             b.wait_in_text("#conversation-prompt", "passwords do not match")
         else:
             b.wait_in_text("#conversation-message", "passwords do not match")
@@ -358,7 +359,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m = self.machine
         b = self.browser
         conf = "/etc/pam.d/cockpit"
-        if m.ostree_image:
+        if m.ws_container:
             conf = "/etc/pam.d/sshd"
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
@@ -382,7 +383,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_in_text("#conversation-prompt", "life the universe")
         b.set_val('#conversation-input', '43')
         b.click('#login-button')
-        if m.ostree_image:
+        if m.ws_container:
             # ssh asks for password again, despite NumberOfPasswordPrompts=1
             b.wait_in_text("#conversation-prompt", "nonexisting@127.0.0.1's password")
             b.set_val('#conversation-input', 'blahblah')
@@ -473,8 +474,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # not an admin
         b.wait_visible(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
 
-        b.wait_in_text('#system_last_login', "Last successful login")
-        b.wait_in_text('#system_last_login_from', "web console")
+        # ws container does not keep login history
+        if not m.ws_container:
+            b.wait_in_text('#system_last_login', "Last successful login")
+            b.wait_in_text('#system_last_login_from', "web console")
 
         b.logout()
         # not allowed to restricted users
@@ -496,8 +499,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # passing login info memfd should work
         b.logout()
         b.login_and_go("/system", user="priv")
-        b.wait_in_text('#system_last_login', "Last successful login")
-        b.wait_in_text('#system_last_login_from', "web console")
+        # ws container does not keep login history
+        if not m.ws_container:
+            b.wait_in_text('#system_last_login', "Last successful login")
+            b.wait_in_text('#system_last_login_from', "web console")
 
         b.go("/playground/test")
         b.enter_page("/playground/test")
@@ -573,7 +578,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.check_shell()
 
-    @testlib.skipOstree("Starting on OSTree is weird")
+    @testlib.skipWsContainer("no local config with cockpit/ws container")
     def testFailingWebsocket(self, safari=False, cacert=False):
         m = self.machine
         b = self.browser
@@ -611,12 +616,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_not_present("#safari-cert-help")
 
     @testlib.skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
-    @testlib.skipOstree("Starting on OSTree is weird")
+    @testlib.skipWsContainer("no local config with cockpit/ws container")
     def testFailingWebsocketSafari(self):
         self.testFailingWebsocket(safari=True, cacert=True)
 
     @testlib.skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
-    @testlib.skipOstree("Starting on OSTree is weird")
+    @testlib.skipWsContainer("no local config with cockpit/ws container")
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 
@@ -728,8 +733,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # and login again
         expect_successful_login("admin", "foobar")
 
-        # ostree images log in via sshd, which forbids root logging in with a password
-        if not m.ostree_image:
+        # ws container logs in via sshd, which forbids root logging in with a password
+        if not m.ws_container:
             # make sure root never gets locked out
             for n in range(1, 10):
                 expect_failed_login("root", "bad", n)
@@ -738,7 +743,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(".*[aA]ccount .*locked due to .* failed logins.*")
         self.allow_journal_messages(".*minutes left to unlock.*")
 
-    @testlib.skipOstree("root logins disabled by default with ssh")
+    @testlib.skipWsContainer("root logins disabled by default with ssh")
     def testPamAccess(self):
         b = self.browser
         m = self.machine
@@ -762,7 +767,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_journal_messages(r"cockpit-session: user account access failed.*root.*")
 
-    @testlib.skipOstree("sssd not available")
+    @testlib.skipWsContainer("sssd/cockpit-session not available with ws container")
     @testlib.skipImage("sssd not currently in testing", "debian-testing")
     def testClientCertAuthentication(self):
         m = self.machine
@@ -966,7 +971,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         check_server("[::1]:22", expect_fp_ack=True)
 
     # enable this once our cockpit/ws container can beiboot
-    @testlib.skipOstree("client setup does not work with ws container")
+    @testlib.skipWsContainer("client setup does not work with ws container")
     def testSSH(self):
         m = self.machine
         b = self.browser

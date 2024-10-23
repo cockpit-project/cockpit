@@ -614,7 +614,7 @@ class TestAccounts(testlib.MachineCase):
         b.click('#accounts-list td[data-label="Username"] a[href="#/damaged"]')
         b.wait_in_text("#account-title", "Damaged")
 
-        if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
+        if not m.ws_container:  # User is not shown as logged in when logged in through Cockpit
             b.go("#/admin")
             b.wait_visible("#account-logout[disabled]")
 
@@ -655,12 +655,12 @@ class TestAccounts(testlib.MachineCase):
         b.logout()
 
         # login in second window to check if last login is updated in accounts list
-        if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
+        if not m.ws_container:  # User is not shown as logged in when logged in through Cockpit
             b2.login_and_go("/users")
             b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", "Never logged in")
 
-        # On OSTree this happens over ssh
-        if m.ostree_image:
+        # with container this happens over ssh
+        if m.ws_container:
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
             m.execute(self.restart_sshd)
@@ -933,7 +933,7 @@ class TestAccounts(testlib.MachineCase):
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .pf-v5-c-modal-box__body", "must wait longer")
 
-    @testlib.skipOstree("ssh root login not allowed")
+    @testlib.skipWsContainer("ssh root login not allowed")
     def testRootLogin(self):
         m = self.machine
         b = self.browser
@@ -1073,7 +1073,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_in_text("#password-expiration-text", "Password must be changed")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
 
-    @testlib.skipOstree("User is not shown as logged in when logged in through Cockpit")
+    @testlib.skipWsContainer("User is not shown as logged in with cockpit/ws")
     def testAccountLogs(self):
         b = self.browser
         m = self.machine

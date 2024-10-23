@@ -860,8 +860,8 @@ OnCalendar=daily
         b.switch_to_top()
         assert_location("/system")
 
-        # CoreOS does not keep login history
-        if not self.machine.ostree_image:
+        # ws container does not keep login history
+        if not self.machine.ws_container:
 
             b.enter_page("/system")
             b.click("button:contains(View login history)")

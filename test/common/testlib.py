@@ -1814,7 +1814,7 @@ class MachineCase(unittest.TestCase):
         # cockpit configuration
         self.restore_dir("/etc/cockpit")
 
-        if not m.ostree_image:
+        if not m.ws_container:
             # for storage tests
             self.restore_file("/etc/fstab")
             self.restore_file("/etc/crypttab")
@@ -2388,9 +2388,8 @@ class MachineCase(unittest.TestCase):
         By default root login is disabled in cockpit, removing the root entry of /etc/cockpit/disallowed-users allows root to login.
         """
 
-        # fedora-coreos runs cockpit-ws in a containter so does not install cockpit-ws on the host
         disallowed_conf = '/etc/cockpit/disallowed-users'
-        if not self.machine.ostree_image and self.file_exists(disallowed_conf):
+        if not self.machine.ws_container and self.file_exists(disallowed_conf):
             self.sed_file('/root/d', disallowed_conf)
 
     def setup_provisioned_hosts(self, disable_preload: bool = False) -> None:
@@ -2488,6 +2487,13 @@ def skipOstree(reason: str) -> Callable[[_FT], _FT]:
     Skip test for *reason* on OSTree images defined in OSTREE_IMAGES in bots/lib/constants.py.
     """
     if testvm.DEFAULT_IMAGE in OSTREE_IMAGES:
+        return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
+    return lambda testEntity: testEntity
+
+
+def skipWsContainer(reason: str) -> Callable[[_FT], _FT]:
+    """Decorator for skipping a test with cockpit/ws"""
+    if testvm.DEFAULT_IMAGE in OSTREE_IMAGES or "ws-container" in os.getenv("TEST_SCENARIO", ""):
         return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
     return lambda testEntity: testEntity
 

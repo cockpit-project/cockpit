@@ -48,12 +48,12 @@ class TestSession(testlib.MachineCase):
         wait_session(should_exist=True)
 
         # Check session type
-        if not m.ostree_image:
+        if not m.ws_container:
             # Systemd 256 also shows a class=manager session for admin
             session_id = m.execute("loginctl list-sessions | grep -v manager | awk '/admin/ {print $1}'").strip()
             self.assertEqual(m.execute(f"loginctl show-session -p Type {session_id}").strip(), "Type=web")
 
-        if not m.ostree_image and m.image != "arch":
+        if not m.ws_container and m.image != "arch":
             # starts ssh-agent in session
             bridge = m.execute("pgrep -u admin cockpit-bridge").strip()
             out = m.execute(f"grep --null-data SSH_AGENT_PID /proc/{bridge}/environ | xargs -0")
@@ -88,7 +88,7 @@ class TestSession(testlib.MachineCase):
 
         # try to pwn $SSH_AGENT_PID via pam_env's user_readenv=1 (CVE-2024-6126)
 
-        if m.ostree_image:
+        if m.ws_container:
             # not using cockpit's PAM config
             return
 

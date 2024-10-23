@@ -35,6 +35,10 @@ updates:
       xterm:
         patterns:
           - "@xterm/*"
+    ignore:
+      # https://github.com/cockpit-project/cockpit/issues/21151
+      - dependency-name: "sass"
+      - versions: ["1.80.x", "2.x"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

@@ -1046,7 +1046,9 @@ ExecStart=/usr/local/bin/{packageName}
                            mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
                            systemctl daemon-reload""")
 
-        self.assertNotIn("\nupdates", m.execute("cockpit-bridge --packages"))
+        # no bridge in beiboot mode
+        if not testlib.isBeibootLogin():
+            self.assertNotIn("\nupdates", m.execute("cockpit-bridge --packages"))
         # should not appear in the menu at all
         self.login_and_go(None)
         b.wait_in_text("#host-apps .pf-m-current", "Overview")
@@ -1202,6 +1204,7 @@ class TestKpatchInstall(NoSubManCase):
 
 
 @testlib.onlyImage("No subscriptions", "rhel-*")
+@testlib.skipBeiboot("sub-man-cockpit not contained in cockpit/ws")
 class TestUpdatesSubscriptions(packagelib.PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},

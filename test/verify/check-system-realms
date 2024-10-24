@@ -484,6 +484,7 @@ class CommonTests:
 
 
 @testlib.skipOstree("No realmd available")
+@testlib.skipWsContainer("No sssd PAM integration in beiboot mode")
 @testlib.skipImage("No realmd available", "arch")
 @testlib.no_retry_when_changed
 class TestRealms(testlib.MachineCase):
@@ -982,6 +983,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 
 @testlib.skipOstree("No realmd available")
+@testlib.skipWsContainer("No sssd PAM integration in beiboot mode")
 @testlib.skipImage("No realmd available", "arch")
 @testlib.skipImage("freeipa not currently available", "debian-*")
 @testlib.no_retry_when_changed

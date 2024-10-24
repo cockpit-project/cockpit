@@ -22,6 +22,7 @@ import time
 import testlib
 
 
+@testlib.skipBeiboot("no local overrides/config in beiboot mode")
 @testlib.nondestructive
 class TestMenu(testlib.MachineCase):
 

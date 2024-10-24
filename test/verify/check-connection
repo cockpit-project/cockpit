@@ -359,6 +359,7 @@ class TestConnection(testlib.MachineCase):
         self.assertIn("HTTP/1.1 200 OK", out)
 
     @testlib.nondestructive
+    @testlib.skipBeiboot("beiboot doesn't have certs on the host")
     def testTls(self):
         m = self.machine
         b = self.browser
@@ -975,6 +976,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.allow_journal_messages(r".*cannot reauthorize identity\(s\): unix-user:.*")
         self.allow_journal_messages("admin: Executing command .*COMMAND=.*cockpit-bridge --privileged.*")
 
+    @testlib.skipBeiboot("test does not make sense in beiboot mode")
     def testReverseProxy(self):
         m = self.machine
         b = self.browser
@@ -1054,6 +1056,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://172.27.0.15:9091"))
 
     @testlib.nondestructive
+    @testlib.skipBeiboot("beiboot doesn't use systemd units")
     def testCaCert(self):
         m = self.machine
 
@@ -1198,6 +1201,7 @@ UnixPath=/run/cockpit/session
         self.assertFalse(b.is_present("#nav-system li:contains(Services)"))
 
     @testlib.nondestructive
+    @testlib.skipBeiboot("no cockpit-bridge binary on host in beiboot mode")
     def testBridgeCLI(self):
         m = self.machine
 

@@ -38,6 +38,7 @@ class TestLogin(testlib.MachineCase):
             b.click("#hosts-sel button")
             b.set_layout("desktop")
 
+    # @testlib.skipBeiboot("no local cockpit PAM config in beiboot mode")
     def testBasic(self):
         m = self.machine
         b = self.browser

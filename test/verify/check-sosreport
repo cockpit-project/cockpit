@@ -163,6 +163,7 @@ exit 1""", perm="755")
         m.execute("while pgrep -a -x sos; do sleep 1; done", timeout=10)
         self.assertEqual(m.execute(f"ls {self.report_dir}/sosreport* 2>/dev/null || true"), "")
 
+    @testlib.skipBeiboot("apps not available in beiboot mode")
     def testAppStream(self):
         b = self.browser
         m = self.machine

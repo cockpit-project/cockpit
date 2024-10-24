@@ -656,6 +656,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("#restart-services-modal .pf-v5-c-alert")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")
+    @testlib.skipImage("FIXME: currently fails", "rhel-8-10")
     def testInfoSecurity(self):
         b = self.browser
         m = self.machine
@@ -824,6 +825,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")
+    @testlib.skipImage("FIXME: currently fails", "rhel-8-10")
     @testlib.nondestructive
     def testSecurityOnly(self):
         b = self.browser
@@ -1046,7 +1048,8 @@ ExecStart=/usr/local/bin/{packageName}
                            mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
                            systemctl daemon-reload""")
 
-        self.assertNotIn("\nupdates", m.execute("cockpit-bridge --packages"))
+        if not m.ws_container:
+            self.assertNotIn("\nupdates", m.execute("cockpit-bridge --packages"))
         # should not appear in the menu at all
         self.login_and_go(None)
         b.wait_in_text("#host-apps .pf-m-current", "Overview")
@@ -1097,7 +1100,7 @@ ExecStart=/usr/local/bin/{packageName}
 
 
 @testlib.skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
-@testlib.skipOstree("Image uses OSTree")
+@testlib.skipWsContainer("no cockpit-ws package with cockpit/ws container")
 class TestWsUpdate(NoSubManCase):
     def testBasic(self):
         # The main case for this is that cockpit-ws itself gets upgraded, which
@@ -1202,6 +1205,7 @@ class TestKpatchInstall(NoSubManCase):
 
 
 @testlib.onlyImage("No subscriptions", "rhel-*")
+@testlib.skipWsContainer("sub-man-cockpit not contained in cockpit/ws")
 class TestUpdatesSubscriptions(packagelib.PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},

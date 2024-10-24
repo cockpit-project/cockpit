@@ -43,15 +43,23 @@ def install():
         class AsyncExitStack:
             async def __aenter__(self):
                 self.cms = []
+                self.async_cms = []
                 return self
 
             async def enter_async_context(self, cm):
                 result = await cm.__aenter__()
+                self.async_cms.append(cm)
+                return result
+
+            def enter_context(self, cm):
+                result = cm.__enter__()
                 self.cms.append(cm)
                 return result
 
             async def __aexit__(self, exc_type, exc_value, traceback):
-                for cm in self.cms:
+                for cm in self.async_cms:
                     cm.__aexit__(exc_type, exc_value, traceback)
+                for cm in self.cms:
+                    cm.__exit__(exc_type, exc_value, traceback)
 
         contextlib.AsyncExitStack = AsyncExitStack

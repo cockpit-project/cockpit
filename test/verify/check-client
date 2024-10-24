@@ -21,7 +21,7 @@ import testlib
 
 
 # enable this once our cockpit/ws container can beiboot
-@testlib.skipOstree("client setup does not work with ws container")
+@testlib.skipWsContainer("client setup does not work with ws container")
 class TestClient(testlib.MachineCase):
 
     provision = {

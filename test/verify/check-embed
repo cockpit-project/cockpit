@@ -23,6 +23,7 @@ import testlib
 
 
 @testlib.nondestructive
+@testlib.skipWsContainer("no local overrides/config with cockpit/ws container")
 class TestEmbed(testlib.MachineCase):
 
     def testBasic(self, allow_multi_host=True):

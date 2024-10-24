@@ -20,7 +20,7 @@
 import testlib
 
 
-@testlib.skipOstree("OSTree always uses loopback")
+@testlib.skipWsContainer("cockpit/ws always uses loopback")
 @testlib.nondestructive
 class TestLoopback(testlib.MachineCase):
 

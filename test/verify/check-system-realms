@@ -485,6 +485,7 @@ class CommonTests:
 
 @testlib.skipOstree("No realmd available")
 @testlib.skipImage("No realmd available", "arch")
+@testlib.skipWsContainer("No sssd PAM integration with cockpit/ws container")
 @testlib.no_retry_when_changed
 class TestRealms(testlib.MachineCase):
     """Common variables and tests for all supported domain backends"""
@@ -984,6 +985,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 @testlib.skipOstree("No realmd available")
 @testlib.skipImage("No realmd available", "arch")
 @testlib.skipImage("freeipa not currently available", "debian-*")
+@testlib.skipWsContainer("No sssd PAM integration with cockpit/ws container")
 @testlib.no_retry_when_changed
 class TestKerberos(testlib.MachineCase):
     provision = {

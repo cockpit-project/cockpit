@@ -124,6 +124,7 @@ class TestSuperuser(testlib.MachineCase):
         self.write_file("/etc/sudoers.d/admin", "admin ALL=(ALL) NOPASSWD:ALL")
         b.become_superuser(passwordless=True)
 
+    @testlib.skipWsContainer("no local PAM config with cockpit/ws container")
     def testTwoPasswds(self):
         b = self.browser
         m = self.machine
@@ -217,7 +218,8 @@ session include system-auth
         b.wait_in_text(".pf-v5-c-modal-box", "Password for admin")
         status = m.execute("loginctl --lines=0 user-status admin")
         self.assertIn("sudo", status)
-        self.assertIn("cockpit-askpass", status)
+        if not m.ws_container:
+            self.assertIn("cockpit-askpass", status)
 
         b.click(".pf-v5-c-modal-box button:contains('Cancel')")
         b.wait_not_present(".pf-v5-c-modal-box")
@@ -227,13 +229,15 @@ session include system-auth
         # logging out cleans up pending sudo auth; user should either go to "State: closing" or disappear completely
         b.open_superuser_dialog()
         b.wait_in_text(".pf-v5-c-modal-box", "Password for admin")
-        self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
+        if not m.ws_container:
+            self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
         b.click(".pf-v5-c-modal-box button:contains('Cancel')")
         b.wait_not_present(".pf-v5-c-modal-box")
         b.logout()
         testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin || true"), tries=10)
         self.assertNotIn("cockpit", m.execute("loginctl --lines=0 user-status admin || true"))
 
+    @testlib.skipWsContainer("no local overrides/config with cockpit/ws container")
     def testBrokenBridgeConfig(self):
         b = self.browser
         m = self.machine
@@ -268,6 +272,7 @@ session include system-auth
         b.wait_not_present(".pf-v5-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
+    @testlib.skipWsContainer("no local overrides/config with cockpit/ws container")
     def testRemoveBridgeConfig(self):
         m = self.machine
         b = self.browser
@@ -297,6 +302,7 @@ session include system-auth
         b.wait_visible("#system_information_os_text")
         b.wait_not_present(".pf-v5-c-alert:contains('Web console is running in limited access mode')")
 
+    @testlib.skipWsContainer("no local overrides/config with cockpit/ws container")
     def testSingleLabelBridgeConfig(self):
         b = self.browser
 
@@ -324,6 +330,7 @@ session include system-auth
         b.click(".pf-v5-c-modal-box button:contains('Close')")
         b.check_superuser_indicator("Limited access")
 
+    @testlib.skipWsContainer("no local overrides/config with cockpit/ws container")
     def testMultipleBridgeConfig(self):
         b = self.browser
 
@@ -403,6 +410,7 @@ session include system-auth
         b.wait_not_present(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
 
 
+@testlib.skipWsContainer("host switching disabled in cockpit/ws by default")
 class TestSuperuserDashboard(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},

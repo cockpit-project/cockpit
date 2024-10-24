@@ -59,7 +59,7 @@ class TestReauthorize(testlib.MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
-    @testlib.skipOstree("ssh root login not allowed")
+    @testlib.skipWsContainer("ssh root login not allowed")
     def testSuper(self):
         b = self.browser
 

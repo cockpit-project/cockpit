@@ -48,6 +48,7 @@ test_html = """
 
 
 @testlib.nondestructive
+@testlib.skipWsContainer("no local cockpit packages with cockpit/ws")
 class TestPackages(testlib.MachineCase):
 
     def testBasic(self):

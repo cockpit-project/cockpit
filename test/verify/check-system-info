@@ -628,6 +628,7 @@ fi
                                     'done')
 
     @testlib.onlyImage("insights-client is only on RHEL", "rhel*")
+    @testlib.skipWsContainer("no local overrides/config with cockpit/ws container")
     @testlib.nondestructive
     def testInsightsStatus(self):
         m = self.machine

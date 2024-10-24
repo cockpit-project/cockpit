@@ -38,6 +38,7 @@ class TestLogin(testlib.MachineCase):
             b.click("#hosts-sel button")
             b.set_layout("desktop")
 
+    # @testlib.skipWsContainer("no local cockpit PAM config with cockpit/ws container")
     def testBasic(self):
         m = self.machine
         b = self.browser

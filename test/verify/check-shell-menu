@@ -22,6 +22,7 @@ import time
 import testlib
 
 
+@testlib.skipWsContainer("no local overrides/config with cockpit/ws container")
 @testlib.nondestructive
 class TestMenu(testlib.MachineCase):
 

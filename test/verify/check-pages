@@ -421,6 +421,7 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
+    @testlib.skipWsContainer("no local overrides/config with cockpit/ws container")
     def testShellReload(self):
         b = self.browser
         m = self.machine

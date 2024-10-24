@@ -628,6 +628,7 @@ fi
                                     'done')
 
     @testlib.onlyImage("insights-client is only on RHEL", "rhel*")
+    @testlib.skipBeiboot("no local overrides/config in beiboot mode")
     @testlib.nondestructive
     def testInsightsStatus(self):
         m = self.machine

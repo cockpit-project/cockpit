@@ -48,6 +48,7 @@ test_html = """
 
 
 @testlib.nondestructive
+@testlib.skipBeiboot("no local cockpit packages in beiboot mode")
 class TestPackages(testlib.MachineCase):
 
     def testBasic(self):

@@ -719,6 +719,8 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         b.wait_not_present(panel + 'ul li:contains("Slot 1")')
 
     @testlib.skipImage("TODO: don't know how to encrypt the rootfs", "debian-*", "ubuntu-*", "arch")
+    # this doesn't work in ostree either, but we don't run storage tests there
+    @testlib.skipWsContainer("newly built root doesn't contain ws container")
     @testlib.timeout(1200)
     def testRootReboot(self):
         m = self.machine

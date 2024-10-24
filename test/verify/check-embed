@@ -23,6 +23,7 @@ import testlib
 
 
 @testlib.nondestructive
+@testlib.skipBeiboot("no local overrides/config in beiboot mode")
 class TestEmbed(testlib.MachineCase):
 
     def testBasic(self, allow_multi_host=True):

@@ -421,6 +421,7 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
+    @testlib.skipBeiboot("no local overrides/config in beiboot mode")
     def testShellReload(self):
         b = self.browser
         m = self.machine

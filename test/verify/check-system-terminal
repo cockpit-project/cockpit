@@ -37,24 +37,32 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         # Remove failed units which will show up in the first terminal line
         self.machine.execute("systemctl reset-failed")
 
+    def wait_line(self, lineno, text):
+        b = self.browser
+        try:
+            b.wait_text(line_sel(lineno), text)
+        except Exception as e:
+            print("-----")
+            for j in range(max(1, lineno - 5), lineno + 5):
+                print(b.text(line_sel(j)))
+            print("-----")
+            raise e
+
+    def clear_terminal(self):
+        b = self.browser
+        b.input_text("clear")
+        b.wait_js_cond("ph_text('.terminal').indexOf('clear') >= 0")
+        # now wait for clear to take effect
+        b.key("Enter")
+        b.wait_js_cond("ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
+
     @testlib.nondestructive
     def testBasic(self):
         b = self.browser
         m = self.machine
 
         self.login_and_go("/system/terminal")
-
         blank_state = ' '
-
-        def wait_line(i, t):
-            try:
-                b.wait_text(line_sel(i), t)
-            except Exception as e:
-                print("-----")
-                for j in range(max(1, i - 5), i + 5):
-                    print(b.text(line_sel(j)))
-                print("-----")
-                raise e
 
         # wait until first line is not empty
         n = 1
@@ -62,12 +70,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         function_str = "(function (sel) { return ph_text(sel).trim() != '%s'})" % blank_state
         b.wait_js_func(function_str, line_sel(n))
 
-        # clear any messages (for example, instructions about sudo) and wait for prompt
-        b.input_text("clear")
-        b.wait_js_cond("ph_text('.terminal').indexOf('clear') >= 0")
-        # now wait for clear to take effect
-        b.key("Enter")
-        b.wait_js_cond("ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
+        self.clear_terminal()
         # now we should get a clean prompt
         b.wait_in_text(line_sel(n), '$')
 
@@ -83,19 +86,19 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Run some commands
         b.input_text("whoami\n")
-        wait_line(n + 1, "admin")
+        self.wait_line(n + 1, "admin")
 
-        wait_line(n + 2, prompt)
+        self.wait_line(n + 2, prompt)
 
         b.input_text('echo -e "1\\u0041"\n')
-        wait_line(n + 3, '1A')
-        wait_line(n + 4, prompt)
+        self.wait_line(n + 3, '1A')
+        self.wait_line(n + 4, prompt)
 
         # non-UTF8 data
         m.execute(r"echo -e 'hello\xFF\x01\xFF\x02world' > " + self.vm_tmpdir + "/garbage.txt")
         b.input_text(f'cat {self.vm_tmpdir}/garbage.txt\n')
-        wait_line(n + 5, 'helloworld')
-        wait_line(n + 6, prompt)
+        self.wait_line(n + 5, 'helloworld')
+        self.wait_line(n + 6, prompt)
 
         # The '@' sign is in the default prompt
         b.wait_in_text(".terminal-title", '@')
@@ -112,14 +115,14 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.click('button:contains("Reset")')
 
         # assert that the output from earlier is gone
-        wait_line(n + 1, blank_state)
+        self.wait_line(n + 1, blank_state)
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
         # Check that when we `exit` we can still reconnect with the 'Reset' button
         b.input_text("exit\n")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "disconnected")
         b.click('button:contains("Reset")')
-        wait_line(n, prompt)
+        self.wait_line(n, prompt)
         b.wait_not_in_text(".terminal .xterm-accessibility-tree", "disconnected")
 
         def select_line(sel, width):
@@ -135,11 +138,11 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             b.grant_permissions("clipboard-read", "clipboard-write")
 
             # Execute command
-            wait_line(n, prompt)
+            self.wait_line(n, prompt)
             b.input_text('echo "XYZ"\n')
             echo_result_line = n + 1
 
-            wait_line(echo_result_line, "XYZ")
+            self.wait_line(echo_result_line, "XYZ")
 
             sel = line_sel(echo_result_line)
 
@@ -157,7 +160,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             b.click('.contextMenu li:nth-child(2) button')
 
             # Wait for text to show up
-            wait_line(echo_result_line + 1, prompt + "XYZ")
+            self.wait_line(echo_result_line + 1, prompt + "XYZ")
             b.key('Enter')
             b.wait_in_text(line_sel(echo_result_line + 2), 'XYZ')
 
@@ -165,14 +168,14 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.click('button:contains("Reset")')
 
         # assert that the output from earlier is gone
-        wait_line(n + 1, blank_state)
+        self.wait_line(n + 1, blank_state)
 
         # Execute another command
-        wait_line(n, prompt)
+        self.wait_line(n, prompt)
         b.input_text('echo "foo"\n')
         echo_result_line = n + 1
 
-        wait_line(echo_result_line, "foo")
+        self.wait_line(echo_result_line, "foo")
 
         sel = line_sel(echo_result_line)
         # Highlight 40px (3 letters, never wider that ~14px)
@@ -183,14 +186,14 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.key("Insert", modifiers=["Shift"])
 
         # Wait for text to show up
-        wait_line(echo_result_line + 1, prompt + "foo")
+        self.wait_line(echo_result_line + 1, prompt + "foo")
 
         # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
         b.key("Enter")
         b.input_text('clear\n')
         b.input_text("echo $PATH > /tmp/path\n")
         # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
-        wait_line(echo_result_line, prompt)
+        self.wait_line(echo_result_line, prompt)
         path = m.execute("cat /tmp/path").strip()
         if m.ws_container:
             self.assertIn("/usr/local/bin:/usr/bin", path)
@@ -261,6 +264,77 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') == -1")
         b.input_text("id\n")
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
+
+    @testlib.nondestructive
+    def testOpenPath(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/system/terminal")
+
+        blank_state = ' '
+
+        # Wait until first line is not empty
+        b.wait_visible(".terminal .xterm-accessibility-tree")
+        function_str = "(function (sel) { return ph_text(sel).trim() != '%s'})" % blank_state
+        b.wait_js_func(function_str, line_sel(1))
+
+        self.clear_terminal()
+
+        # Change to directory that exists
+        b.go("#/?path=/tmp")
+        b.wait_visible(".terminal .xterm-accessibility-tree")
+        self.wait_line(1, "disconnected")
+        self.clear_terminal()
+        b.input_text("pwd\n")
+        self.wait_line(2, "/tmp")
+        b.wait_not_present(".pf-v5-c-alert")
+
+        # Error on dir non-exist
+        b.go("#/?path=/doesnotexist")
+        b.wait_in_text(".pf-v5-c-alert", "does not exist")
+        # If there's an error, we shouldn't reset the terminal
+        b.input_text("pwd\n")
+        self.wait_line(4, "/tmp")
+        # Clear the error
+        b.click('.pf-v5-c-alert__action button')
+        b.wait_not_present(".pf-v5-c-alert")
+
+        # Error on change to non-dir
+        b.go("#/?path=/etc%2Fos-release")
+        b.wait_in_text(".pf-v5-c-alert", "not a directory")
+        # If there's an error, we shouldn't reset the terminal
+        b.input_text("pwd\n")
+        self.wait_line(6, "/tmp")
+        # Clear the error
+        b.click('div.pf-v5-c-alert__action button')
+        b.wait_not_present(".pf-v5-c-alert")
+        b.wait_js_cond('window.location.hash == "#/"')
+
+        # Prompt for change if terminal busy
+        b.input_text("sh -c 'echo busybusybusy; echo $$; exec sleep infinity'\n")
+        b.wait_in_text(line_sel(8), 'busybusybusy')
+        pid = b.text(line_sel(9))
+        # m.execute(["false"])
+        b.go("#/?path=/tmp")
+        b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "still a process running")
+        # Cancel change
+        b.click("button:contains('Cancel')")
+        b.wait_not_present(".pf-v5-c-alert")
+        b.wait_js_cond('window.location.hash == "#/"')
+        # Check busy process is still running
+        m.execute(f"kill -0 {pid}")
+        b.wait_in_text(line_sel(8), 'busybusybusy')
+        # Confirm change
+        b.go("#/?path=/var")
+        b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "still a process running")
+        b.click("button:contains('Continue')")
+        b.wait_not_present(".pf-v5-c-alert.pf-m-danger")
+        self.wait_line(1, "disconnected")
+        self.clear_terminal()
+        b.input_text("pwd\n")
+        self.wait_line(2, "/var")
+        self.assertIn("No such process", m.execute(f"kill -0 {pid} 2>&1 || true"))
 
 
 if __name__ == '__main__':

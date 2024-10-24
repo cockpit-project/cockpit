@@ -1,9 +1,10 @@
+@use "sass:meta";
 @use "ct-card";
 @use "page";
 
 // Import utilities for `pf-u...` classes
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
-@import "global-variables.scss";
+@include meta.load-css("global-variables.scss");
 
 #account .pf-v5-c-card {
   @extend .ct-card;

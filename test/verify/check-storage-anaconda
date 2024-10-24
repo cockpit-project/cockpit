@@ -167,6 +167,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         b.wait_not_present(self.card_row("Storage", location="/var"))
 
     @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+    @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
     def testStratis(self):
         m = self.machine
         b = self.browser

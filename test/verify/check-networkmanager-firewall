@@ -63,6 +63,7 @@ class TestFirewall(netlib.NetworkCase):
         if m.image == "arch":
             m.execute("firewall-cmd --zone 'public' --change-interface='eth0'; firewall-cmd --runtime-to-permanent")
 
+    @testlib.skipImage("FIXME: get_num_zones() race condition, moves from 1 to 2", "rhel-8-10")
     def testNetworkingPage(self):
         b = self.browser
         m = self.machine

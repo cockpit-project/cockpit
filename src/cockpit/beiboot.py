@@ -247,8 +247,8 @@ class AuthorizeResponder(ferny.AskpassHandler):
             logger.debug("cockpit.check-os-release: local: %r", local_os)
             # for now, just support the same OS
             if remote_os.get('ID') != local_os.get('ID') or remote_os.get('VERSION_ID') != local_os.get('VERSION_ID'):
-                unsupported = f'{remote_os.get("ID", "?")} {remote_os.get("VERSION_ID", "")}'
-                supported = f'{local_os.get("ID", "?")} {local_os.get("VERSION_ID", "")}'
+                unsupported = f'{remote_os.get("NAME", remote_os.get("ID", "?"))} {remote_os.get("VERSION_ID", "")}'
+                supported = f'{local_os.get("NAME", local_os.get("ID", "?"))} {local_os.get("VERSION_ID", "")}'
                 raise CockpitProblem('no-cockpit', unsupported=unsupported, supported=supported)
 
 

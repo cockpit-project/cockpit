@@ -117,6 +117,7 @@ def change_ssh_port(machine, address, sshd_socket, sshd_service, port=None, time
     raise error
 
 
+@testlib.skipWsContainer("host switching disabled in cockpit/ws by default")
 class TestMultiMachineAdd(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},
@@ -236,6 +237,7 @@ class TestMultiMachineAdd(testlib.MachineCase):
         self.allow_hostkey_messages()
 
 
+@testlib.skipWsContainer("host switching disabled in cockpit/ws by default")
 class TestMultiMachine(testlib.MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},

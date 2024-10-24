@@ -1918,6 +1918,8 @@ class MachineCase(unittest.TestCase):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def enable_multihost(self, machine: testvm.Machine) -> None:
+        if self.machine.ws_container:
+            raise NotImplementedError("multi-host config change not currently implemented for cockpit/ws container")
         if not self.multihost_enabled:
             machine.write("/etc/cockpit/cockpit.conf",
                           '[WebService]\nAllowMultiHost=yes\n')

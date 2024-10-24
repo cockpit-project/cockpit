@@ -81,6 +81,7 @@ def applySettings(browser, dialog_selector):
 
 @testlib.skipOstree("no PCP support")
 @testlib.skipImage("pcp not currently in testing", "debian-testing")
+@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -1247,6 +1248,7 @@ BEGIN {{
 
 
 @testlib.skipImage("TODO: Arch Linux packagekit support", "arch")
+@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 class TestMetricsPackages(packagelib.PackageCase):
     pcp_dialog_selector = "#pcp-settings-modal"
 
@@ -1378,6 +1380,7 @@ class TestMetricsPackages(packagelib.PackageCase):
 
 @testlib.skipOstree("no PCP support")
 @testlib.skipImage("pcp not currently in testing", "debian-testing")
+@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 class TestMultiCPU(testlib.MachineCase):
 
     provision = {

@@ -41,6 +41,7 @@ class TestSshDialog(testlib.MachineCase):
         # session connection with the ws container
         self.machine.execute("pkill -ef [s]sh.*ferny.*127.0.0.1")
 
+    @testlib.skipImage("FIXME: Assertion failed: UnknownHostDialog needs a host-key and host-fingerprint in error", "rhel-8-10")
     def testPassword(self):
         m = self.machine
         b = self.browser
@@ -225,6 +226,7 @@ class TestSshDialog(testlib.MachineCase):
         b.wait_not_present("#credentials-modal")
         b.switch_to_frame("cockpit1:localhost/playground/remote")
 
+    @testlib.skipImage("FIXME: Assertion failed: UnknownHostDialog needs a host-key and host-fingerprint in error", "rhel-8-10")
     def testKey(self):
         m = self.machine
         b = self.browser

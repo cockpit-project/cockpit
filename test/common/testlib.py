@@ -1918,6 +1918,8 @@ class MachineCase(unittest.TestCase):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def enable_multihost(self, machine: testvm.Machine) -> None:
+        if isBeibootLogin():
+            raise NotImplementedError("multi-host config change not currently implemented for beiboot scenario")
         if not self.multihost_enabled:
             machine.write("/etc/cockpit/cockpit.conf",
                           '[WebService]\nAllowMultiHost=yes\n')
@@ -2491,9 +2493,20 @@ def skipOstree(reason: str) -> Callable[[_FT], _FT]:
     return lambda testEntity: testEntity
 
 
+def isBeibootLogin() -> bool:
+    return "ws-container" in os.getenv("TEST_SCENARIO", "")
+
+
 def skipWsContainer(reason: str) -> Callable[[_FT], _FT]:
     """Decorator for skipping a test with cockpit/ws"""
-    if testvm.DEFAULT_IMAGE in OSTREE_IMAGES or "ws-container" in os.getenv("TEST_SCENARIO", ""):
+    if testvm.DEFAULT_IMAGE in OSTREE_IMAGES or isBeibootLogin():
+        return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
+    return lambda testEntity: testEntity
+
+
+def skipBeiboot(reason: str) -> Callable[[_FT], _FT]:
+    """Decorator for skipping a test with cockpit/ws in beiboot mode"""
+    if isBeibootLogin():
         return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
     return lambda testEntity: testEntity
 

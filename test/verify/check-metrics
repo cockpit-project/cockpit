@@ -1191,6 +1191,10 @@ BEGIN {{
             b.wait_visible(progress_sel)
             b.logout()
 
+            # no host-local configs/overrides in beiboot mode
+            if testlib.isBeibootLogin():
+                return
+
             # without cockpit-storaged, mounts are not links
             self.restore_file("/usr/share/cockpit/storaged/manifest.json")
             m.write("/usr/share/cockpit/storaged/manifest.json", "")

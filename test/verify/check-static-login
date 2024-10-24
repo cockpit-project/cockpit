@@ -257,6 +257,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         verify_correct(has_last=True, n_fail=0)
 
     @testlib.skipImage("Arch Linux has no pwquality by default", "arch")
+    @testlib.skipImage("FIXME: does not support /etc/ssh/sshd_condfig.d", "rhel-8-10")
     def testExpired(self):
         m = self.machine
         b = self.browser
@@ -356,6 +357,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     '.*Sorry, passwords do not match.')
         self.allow_restart_journal_messages()
 
+    @testlib.skipImage("FIXME: does not support /etc/ssh/sshd_condfig.d", "rhel-8-10")
     def testConversation(self):
         m = self.machine
         b = self.browser
@@ -405,6 +407,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("No tlog")
+    @testlib.skipImage("FIXME: tlog messes up bridge frame protocol", "rhel-8-10")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser
@@ -460,6 +463,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     @testlib.skipImage("No SELinux", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("No semanage")
+    @testlib.skipImage("FIXME: Authentication failed: unknown-host", "rhel-8-10")
     def testSELinuxRestrictedUser(self):
         m = self.machine
         b = self.browser

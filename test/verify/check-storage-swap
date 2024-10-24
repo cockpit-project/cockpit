@@ -27,8 +27,8 @@ import testlib
 class TestStorageswap(storagelib.StorageCase):
 
     def checkSwapUsed(self):
-        # this relies on PCP, which is not currently in testing
-        if self.machine.image == "debian-testing":
+        # this relies on PCP, which is missing on some images
+        if self.machine.image in ["debian-testing", "rhel-8-10"]:
             return
 
         self.browser.wait_text(self.card_desc("Swap", "Used"), "0 B")

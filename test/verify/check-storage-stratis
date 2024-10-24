@@ -47,6 +47,7 @@ def create_pool_key(machine, keyname, passphrase):
 
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+@testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
 @testlib.nondestructive
 class TestStorageStratis(storagelib.StorageCase):
     def setUp(self):
@@ -537,6 +538,7 @@ systemctl restart stratisd
 
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+@testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
 class TestStorageStratisReboot(storagelib.StorageCase):
     # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
     provision = {

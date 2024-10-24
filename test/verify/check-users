@@ -662,7 +662,7 @@ class TestAccounts(testlib.MachineCase):
         # with container this happens over ssh
         if m.ws_container:
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
-            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
+            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null) || true")
             m.execute(self.restart_sshd)
 
         b.wait_visible("#login")

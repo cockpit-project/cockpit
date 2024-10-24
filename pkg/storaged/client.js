@@ -859,43 +859,64 @@ function init_model(callback) {
         if (!client.manager.valid)
             return;
 
-        try {
-            await client.manager.EnableModule("btrfs", true);
-            client.manager_btrfs = proxy("Manager.BTRFS", "Manager");
-            await client.manager_btrfs.wait();
-            client.features.btrfs = client.manager_btrfs.valid;
-            if (client.features.btrfs)
-                btrfs_start_polling();
-        } catch (error) {
-            console.warn("Can't enable storaged btrfs module", error.toString());
+        if (!client.anaconda_feature("btrfs")) {
+            client.features.btrfs = false;
+        } else {
+            try {
+                await client.manager.EnableModule("btrfs", true);
+                client.manager_btrfs = proxy("Manager.BTRFS", "Manager");
+                await client.manager_btrfs.wait();
+                client.features.btrfs = client.manager_btrfs.valid;
+                if (client.features.btrfs)
+                    btrfs_start_polling();
+            } catch (error) {
+                console.warn("Can't enable storaged btrfs module", error.toString());
+            }
         }
 
-        try {
-            await client.manager.EnableModule("iscsi", true);
-            client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
-            await client.manager_iscsi.wait();
-            client.features.iscsi = (client.manager_iscsi.valid && client.manager_iscsi.SessionsSupported !== false);
-        } catch (error) {
-            console.warn("Can't enable storaged iscsi module", error.toString());
+        if (!client.anaconda_feature("iscsi")) {
+            client.features.iscsi = false;
+        } else {
+            try {
+                await client.manager.EnableModule("iscsi", true);
+                client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
+                await client.manager_iscsi.wait();
+                client.features.iscsi = (client.manager_iscsi.valid
+                                         && client.manager_iscsi.SessionsSupported !== false);
+            } catch (error) {
+                console.warn("Can't enable storaged iscsi module", error.toString());
+            }
         }
 
-        try {
-            await client.manager.EnableModule("lvm2", true);
-            client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
-            await client.manager_lvm2.wait();
-            client.features.lvm2 = client.manager_lvm2.valid;
-        } catch (error) {
-            console.warn("Can't enable storaged lvm2 module", error.toString());
+        if (!client.anaconda_feature("lvm2")) {
+            client.features.iscsi = false;
+        } else {
+            try {
+                await client.manager.EnableModule("lvm2", true);
+                client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
+                await client.manager_lvm2.wait();
+                client.features.lvm2 = client.manager_lvm2.valid;
+            } catch (error) {
+                console.warn("Can't enable storaged lvm2 module", error.toString());
+            }
         }
     }
 
     function enable_lvm_create_vdo_feature() {
+        if (!client.anaconda_feature("vdo")) {
+            client.features.lvm_create_vdo = false;
+            return Promise.resolve();
+        }
         return cockpit.spawn(["vdoformat", "--version"], { err: "ignore" })
                 .then(() => { client.features.lvm_create_vdo = true; return Promise.resolve() })
                 .catch(() => Promise.resolve());
     }
 
     function enable_legacy_vdo_features() {
+        if (!client.anaconda_feature("legacy-vdo")) {
+            client.features.legacy_vdo = false;
+            return Promise.resolve();
+        }
         return client.legacy_vdo_overlay.start().then(
             function (success) {
                 // hack here
@@ -908,6 +929,10 @@ function init_model(callback) {
     }
 
     function enable_clevis_features() {
+        if (!client.anaconda_feature("clevis")) {
+            client.features.clevis = false;
+            return Promise.resolve();
+        }
         return cockpit.script("type clevis-luks-bind", { err: "ignore" }).then(
             function () {
                 client.features.clevis = true;
@@ -919,6 +944,10 @@ function init_model(callback) {
     }
 
     function enable_nfs_features() {
+        if (!client.anaconda_feature("nfs")) {
+            client.features.nfs = false;
+            return Promise.resolve();
+        }
         // mount.nfs might be in */sbin but that isn't always in
         // $PATH, such as when connecting from CentOS to another
         // machine via SSH as non-root.
@@ -935,7 +964,7 @@ function init_model(callback) {
     }
 
     function enable_pk_features() {
-        if (client.in_anaconda_mode()) {
+        if (!client.anaconda_feature("packagekit")) {
             client.features.packagekit = false;
             return Promise.resolve();
         }
@@ -1366,7 +1395,15 @@ client.stratis_start = () => {
 const stratis3_interface_revision = "r6";
 
 function stratis3_start() {
-    const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });
+    let stratis_service = "org.storage.stratis3";
+
+    if (!client.anaconda_feature("stratis")) {
+        // HACK - There is no real clean way to switch off Stratis in
+        // Cockpit except by making it look for a bogus name...
+        stratis_service = "does.not.exist";
+    }
+
+    const stratis = cockpit.dbus(stratis_service, { superuser: "try" });
     client.stratis_manager = stratis.proxy("org.storage.stratis3.Manager." + stratis3_interface_revision,
                                            "/org/storage/stratis3");
 
@@ -1459,6 +1496,28 @@ client.get_config = (name, def) =>
     get_manifest_config_matchlist("storage", name, def, [client.os_release.PLATFORM_ID, client.os_release.ID]);
 
 client.in_anaconda_mode = () => !!client.anaconda;
+
+client.anaconda_feature = (tag) => {
+    if (!client.anaconda)
+        return true;
+
+    const default_anaconda_features = {
+        nfs: false,
+        iscsi: false,
+        clevis: false,
+        packagekit: false,
+    };
+
+    let val = undefined;
+    if (client.anaconda.features)
+        val = client.anaconda.features[tag];
+    if (val === undefined)
+        val = default_anaconda_features[tag];
+    if (val === undefined)
+        val = true;
+
+    return val;
+};
 
 client.strip_mount_point_prefix = (dir) => {
     const mpp = client.anaconda?.mount_point_prefix;

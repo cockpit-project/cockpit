@@ -47,6 +47,7 @@ import { WithDialogs } from "dialogs.jsx";
 
 import s_bus from "./busnames.js";
 import "./services.scss";
+import { BootInfo } from "./bootInfo.jsx";
 
 const _ = cockpit.gettext;
 
@@ -920,7 +921,9 @@ const ServicesPage = () => {
                         {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialog isLoading={isLoading} owner={owner} />}
                     </Flex>
                 </PageSection>}
-                <ServicesPageBody
+                { activeTab == "boot"
+                    ? <BootInfo user={owner} />
+                    : <ServicesPageBody
                     key={owner}
                     activeTab={activeTab}
                     owner={owner}
@@ -928,7 +931,8 @@ const ServicesPage = () => {
                     setTabErrors={setTabErrors}
                     isLoading={isLoading}
                     setIsLoading={setIsLoading}
-                />
+                    />
+                }
             </Page>
         </WithDialogs>
     );

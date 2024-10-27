@@ -40,6 +40,10 @@ updates:
       - dependency-name: "sass"
       - versions: ["1.80.x", "2.x"]
 
+      # lots of work, do this explicitly
+      - dependency-name: "@patternfly/*"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     open-pull-requests-limit: 3

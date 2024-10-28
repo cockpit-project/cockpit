@@ -31,6 +31,23 @@ SOFTWARE.
    We don't use it directly from the @patternfly/react-templates node
    module since we want to add features to it, and also to isolate us
    from gratuitous upstream changes.
+
+   Our changes:
+
+   - There is a new "selectedIsTrusted" option to say that the the
+     "selected" value should always be assumed to be right even if it
+     is not in the list of "selectOptions".
+
+     This option is automatically set to "true" when isCreatable is
+     true. Thus, when allowing creation of things, you don't need to
+     put artificial entries into selectOptions for things that don't
+     yet exist.
+
+     Setting selectIsTrusted to true is also useful when the
+     "selected" and "selectOptions" properties are produced
+     asynchronously from each other. Maybe you know "selected" already
+     but "selectOptions" isn't ready yet.
+
 */
 
 /* eslint-disable */
@@ -66,6 +83,8 @@ export interface TypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSe
   innerRef?: React.Ref<any>;
   /** Options of the select */
   selectOptions: TypeaheadSelectOption[];
+  /** Is the selected option valid even when it is not in the list? */
+  selectedIsTrusted?: boolean;
   /** Callback triggered on selection. */
   onSelect?: (
     _event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<HTMLInputElement> | undefined,
@@ -108,6 +127,7 @@ const defaultFilterFunction = (filterValue: string, options: TypeaheadSelectOpti
 export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> = ({
   innerRef,
   selectOptions,
+  selectedIsTrusted,
   onSelect,
   onToggle,
   onInputChange,
@@ -133,8 +153,16 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
   const NO_RESULTS = 'no results';
 
+  if (isCreatable)
+    selectedIsTrusted = true;
+
   const selected = React.useMemo(
-    () => selectOptions?.find((option) => option.value === props.selected || option.isSelected),
+    () => {
+       let res = selectOptions?.find((option) => option.value === props.selected || option.isSelected);
+       if (!res && props.selected && selectedIsTrusted)
+         res = { value: props.selected, content: props.selected };
+       return res;
+    },
     [props.selected, selectOptions]
   );
 

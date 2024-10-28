@@ -559,7 +559,7 @@ spawn_and_wait (const char **argv, const char **envp,
         abort_with_message ("setresgid: couldn't set gid to %u: %m\n", (int) gid);
 
       if (setresuid (uid, uid, uid) != 0)
-        abort_with_message ("setresgid: couldn't set uid to %u: %m\n", (int) gid);
+        abort_with_message ("setresuid: couldn't set uid to %u: %m\n", (int) uid);
 
       /* paranoid */
       {

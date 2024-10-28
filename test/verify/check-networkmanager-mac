@@ -47,8 +47,8 @@ class TestNetworkingMAC(netlib.NetworkCase):
             new_mac = self.network.interface()["mac"]
             b.click("#network-interface-mac button")
             b.wait_visible("#network-mac-settings-dialog")
-            b.set_input_text('#network-mac-settings-mac-input-select-typeahead', new_mac)
-            b.click(".pf-v5-c-select ul > li > button")
+            b.set_input_text('#network-mac-settings-mac-input input', new_mac)
+            b.click(".pf-v5-c-menu ul > li > button")
             b.click("#network-mac-settings-save")
             b.wait_not_present("#network-mac-settings-dialog")
 
@@ -88,8 +88,8 @@ class TestNetworkingMAC(netlib.NetworkCase):
             new_mac = self.network.interface()["mac"]
             b.click("#network-interface-mac button")
             b.wait_visible("#network-mac-settings-dialog")
-            b.set_input_text('#network-mac-settings-mac-input-select-typeahead', new_mac)
-            b.click(".pf-v5-c-select ul > li > button")
+            b.set_input_text('#network-mac-settings-mac-input input', new_mac)
+            b.click(".pf-v5-c-menu ul > li > button")
             b.click("#network-mac-settings-save")
             b.wait_not_present("#network-mac-settings-dialog")
 

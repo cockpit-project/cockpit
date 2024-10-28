@@ -16,12 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ExclamationTriangleIcon, UserIcon } from "@patternfly/react-icons";
 
 import * as timeformat from "timeformat";
+import { useInit } from "hooks";
 
 import cockpit from "cockpit";
 
@@ -55,28 +56,25 @@ const LastLogin = () => {
     const [messages, setLoginMessages] = useState(null);
     const [name, setName] = useState(null);
 
-    useEffect(() => {
-        if (messages === null) {
-            const bridge = cockpit.dbus(null, { bus: "internal" });
-            bridge.call("/LoginMessages", "cockpit.LoginMessages", "Get", [])
-                    .then(reply => {
-                        const obj = JSON.parse(reply[0]);
-                        if (obj.version == 1) {
-                            setLoginMessages(obj);
-                        } else {
-                        // empty reply is okay -- older bridges just don't send that information
-                            if (obj.version !== undefined)
-                                console.error("unknown login-messages:", reply[0]);
-                        }
-                    })
-                    .catch(error => {
-                        console.error("failed to fetch login messages:", error);
-                    });
+    useInit(async () => {
+        const user = await cockpit.user();
+        setName(user.name);
+
+        const bridge = cockpit.dbus(null, { bus: "internal" });
+        try {
+            const [reply] = await bridge.call("/LoginMessages", "cockpit.LoginMessages", "Get", []);
+            const obj = JSON.parse(reply);
+            if (obj.version == 1) {
+                setLoginMessages(obj);
+            } else {
+                // empty reply is okay -- older bridges just don't send that information
+                if (obj.version !== undefined)
+                    console.error("unknown login-messages:", reply);
+            }
+        } catch (error) {
+            console.error("failed to fetch login messages:", error);
         }
-        if (name === null) {
-            cockpit.user().then(user => setName(user.name));
-        }
-    }, [messages, name]);
+    });
 
     if (messages === null || !messages['last-login-time']) {
         return null;

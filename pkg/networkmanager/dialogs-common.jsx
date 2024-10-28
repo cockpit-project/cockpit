@@ -25,7 +25,6 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
-import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
@@ -44,6 +43,7 @@ import { ModelContext } from './model-context.jsx';
 import { useDialogs } from "dialogs.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { read_os_release } from "os-release.js";
+import { TypeaheadSelect } from "cockpit-components-typeahead-select";
 
 import {
     apply_group_member,
@@ -59,65 +59,54 @@ const _ = cockpit.gettext;
 const NM_CAPABILITY_TEAM = 1;
 
 export const MacMenu = ({ idPrefix, model, mac, setMAC }) => {
-    const [isOpen, setIsOpen] = useState(false);
     const [optionsMap, setOptionsMap] = useState([]);
 
     useEffect(() => {
-        const optionsMapInit = [];
-
+        // Find all macs and the interfaces that use them.
+        const macs = {};
         model.list_interfaces().forEach(iface => {
             if (iface.Device && iface.Device.HwAddress && iface.Device.HwAddress !== "00:00:00:00:00:00") {
-                optionsMapInit.push({
-                    toString: () => cockpit.format("$0 ($1)", iface.Device.HwAddress, iface.Name),
-                    value: iface.Device.HwAddress
-                });
+                if (!macs[iface.Device.HwAddress])
+                    macs[iface.Device.HwAddress] = [];
+                macs[iface.Device.HwAddress].push(iface.Name);
             }
         });
+
+        const optionsMapInit = [];
+        Object.keys(macs).sort().forEach(mac => {
+            optionsMapInit.push({
+                content: cockpit.format("$0 ($1)", mac, macs[mac].join(", ")),
+                value: mac,
+            });
+        });
+
         optionsMapInit.push(
-            { toString: () => _("Permanent"), value: "permanent" },
-            { toString: () => _("Preserve"), value: "preserve" },
-            { toString: () => _("Random"), value: "random" },
-            { toString: () => _("Stable"), value: "stable" },
+            { content: _("Permanent"), value: "permanent" },
+            { content: _("Preserve"), value: "preserve" },
+            { content: _("Random"), value: "random" },
+            { content: _("Stable"), value: "stable" },
         );
         setOptionsMap(optionsMapInit);
     }, [model]);
 
     const clearSelection = () => {
         setMAC(undefined);
-        setIsOpen(false);
     };
 
     const onSelect = (_, selection) => {
-        if (typeof selection == 'object')
-            setMAC(selection.value);
-        else
-            setMAC(selection);
-        setIsOpen(false);
-    };
-
-    const onCreateOption = newValue => {
-        setOptionsMap([...optionsMap, { value: newValue, toString: () => newValue }]);
+        setMAC(selection);
     };
 
     return (
-        <Select createText={_("Use")}
-                isCreatable
-                isOpen={isOpen}
-                menuAppendTo={() => document.body}
-                onClear={clearSelection}
-                onCreateOption={onCreateOption}
-                onSelect={onSelect}
-                onToggle={(_event, value) => setIsOpen(value)}
-                selections={optionsMap.find(option => option.value == mac)}
-                variant="typeahead"
-                toggleId={idPrefix + "-mac-input"}
-        >
-            {optionsMap.map((option, index) => (
-                <SelectOption key={index}
-                              value={option}
-                />
-            ))}
-        </Select>
+        <TypeaheadSelect toggleProps={{ id: idPrefix + "-mac-input" }}
+                         isScrollable
+                         placeholder=""
+                         isCreatable
+                         createOptionMessage={val => cockpit.format(_("Use $0"), val)}
+                         onClearSelection={clearSelection}
+                         onSelect={onSelect}
+                         selected={mac}
+                         selectOptions={optionsMap} />
     );
 };
 

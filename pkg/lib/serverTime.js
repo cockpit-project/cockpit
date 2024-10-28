@@ -29,6 +29,7 @@ import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicke
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { TypeaheadSelect } from "cockpit-components-typeahead-select";
 import { useObject, useEvent } from "hooks.js";
 
 import * as service from "service.js";
@@ -504,7 +505,6 @@ function ValidatedInput({ errors, error_key, children }) {
 }
 
 function ChangeSystimeBody({ state, errors, change }) {
-    const [zonesOpen, setZonesOpen] = useState(false);
     const [modeOpen, setModeOpen] = useState(false);
 
     const {
@@ -571,13 +571,13 @@ function ChangeSystimeBody({ state, errors, change }) {
         <Form isHorizontal>
             <FormGroup fieldId="systime-timezones" label={_("Time zone")}>
                 <Validated errors={errors} error_key="time_zone">
-                    <Select id="systime-timezones" variant="typeahead"
-                            isOpen={zonesOpen} onToggle={(_, isOpen) => setZonesOpen(isOpen)}
-                            selections={time_zone}
-                            onSelect={(event, value) => { setZonesOpen(false); change("time_zone", value) }}
-                            menuAppendTo="parent">
-                        { time_zones.map(tz => <SelectOption key={tz} value={tz}>{tz.replaceAll("_", " ")}</SelectOption>) }
-                    </Select>
+                    <TypeaheadSelect toggleProps={ { id: "systime-timezones" } }
+                                     isScrollable
+                                     selected={time_zone}
+                                     onSelect={(event, value) => { change("time_zone", value) }}
+                                     selectOptions={time_zones.map(tz => (
+                                         { value: tz, content: tz.replaceAll("_", " ") }
+                                     ))} />
                 </Validated>
             </FormGroup>
             <FormGroup fieldId="change_systime" label={_("Set time")} isStack>

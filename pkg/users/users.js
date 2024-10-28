@@ -27,6 +27,7 @@ import { debounce } from 'throttle-debounce';
 
 import cockpit from 'cockpit';
 import { superuser } from "superuser";
+import { getLastlog2 } from "logins";
 import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "pam_user_parser.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -216,34 +217,33 @@ async function getLoginDetails(logind_client) {
 
     // last logged in
 
-    let LastLogPath;
     try {
-        await cockpit.spawn(["test", "-e", "/var/lib/lastlog/lastlog2.db"], { err: "ignore" });
-        LastLogPath = "lastlog2";
-    } catch (err1) {
-        LastLogPath = "lastlog";
-    }
+        // merge lastlog2 into details
+        for (const [name, last] of Object.entries(await getLastlog2()))
+            details[name] = { ...details[name], lastLogin: last.time * 1000 };
+    } catch (err) {
+        // fall back to legacy lastlog
+        try {
+            const out = await cockpit.spawn(["lastlog"], { environ: ["LC_ALL=C"] });
+            await Promise.all(out.split('\n').slice(1, -1).map(async line => {
+                if (line.includes('**Never logged in**'))
+                    return;
 
-    try {
-        const out = await cockpit.spawn([LastLogPath], { environ: ["LC_ALL=C"] });
-        await Promise.all(out.split('\n').slice(1, -1).map(async line => {
-            if (line.includes('**Never logged in**'))
-                return;
-
-            const splitLine = line.trim().split(/[ \t]+/);
-            const name = splitLine[0];
-            const date_fields = splitLine.slice(-5);
-            // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
-            try {
-                const out = await cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')],
-                                                { environ: ["LC_ALL=C"], err: "out" });
-                details[name] = { ...details[name], lastLogin: parseInt(out) * 1000 };
-            } catch (e) {
-                console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`);
-            }
-        }));
-    } catch (ex) {
-        console.warn(`Failed to run ${LastLogPath}: ${ex.toString()}`);
+                const splitLine = line.trim().split(/[ \t]+/);
+                const name = splitLine[0];
+                const date_fields = splitLine.slice(-5);
+                // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
+                try {
+                    const out = await cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')],
+                                                    { environ: ["LC_ALL=C"], err: "out" });
+                    details[name] = { ...details[name], lastLogin: parseInt(out) * 1000 };
+                } catch (e) {
+                    console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`);
+                }
+            }));
+        } catch (ex) {
+            console.warn(`Failed to run lastlog: ${ex.toString()}`);
+        }
     }
 
     return details;

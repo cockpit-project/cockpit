@@ -23,6 +23,7 @@ import { ExclamationTriangleIcon, UserIcon } from "@patternfly/react-icons";
 
 import * as timeformat from "timeformat";
 import { useInit } from "hooks";
+import { getLastlog2 } from "logins";
 
 import cockpit from "cockpit";
 
@@ -54,6 +55,7 @@ const getFormattedDateTime = (time) => {
 
 const LastLogin = () => {
     const [messages, setLoginMessages] = useState(null);
+    const [lastlog, setLastlog] = useState(null);
     const [name, setName] = useState(null);
 
     useInit(async () => {
@@ -74,19 +76,28 @@ const LastLogin = () => {
         } catch (error) {
             console.error("failed to fetch login messages:", error);
         }
+
+        try {
+            setLastlog((await getLastlog2(user.name))[user.name]);
+        } catch (error) {
+            console.log("failed to fetch lastlog2:", error);
+        }
     });
 
-    if (messages === null || !messages['last-login-time']) {
+    const lastLoginTime = messages?.['last-login-time'] ?? lastlog?.time;
+    if (!lastLoginTime)
         return null;
-    }
+
+    const lastLoginFrom = messages?.['last-login-host'] || lastlog?.from;
+    const lastLoginPort = messages?.['last-login-line'] || lastlog?.port;
 
     let icon = null;
     let headerText = null;
     let underlineText = null;
     let headerClass = "pf-v5-u-text-break-word";
     let underlineClass = "pf-v5-u-text-break-word";
-    const lastLoginText = _("Last successful login:") + " " + getFormattedDateTime(messages['last-login-time'] * 1000);
-    const failedLogins = messages['fail-count'];
+    const lastLoginText = _("Last successful login:") + " " + getFormattedDateTime(lastLoginTime * 1000);
+    const failedLogins = messages?.['fail-count'];
 
     if (failedLogins) {
         let iconClass = "system-information-failed-login-warning-icon";
@@ -99,12 +110,12 @@ const LastLogin = () => {
 
         icon = <ExclamationTriangleIcon className={iconClass} />;
         headerText = cockpit.format(cockpit.ngettext("$0 failed login attempt", "$0 failed login attempts", failedLogins), failedLogins);
-        underlineText = getFormattedDateTime(messages['last-login-time'] * 1000) + " " + generate_line(messages['last-login-host'], messages['last-login-line']);
+        underlineText = getFormattedDateTime(lastLoginTime * 1000) + " " + generate_line(lastLoginFrom, lastLoginPort);
     } else {
         icon = <UserIcon className="system-information-last-login-icon" />;
         headerText = lastLoginText;
         underlineClass += " ct-grey-text pf-v5-u-font-size-sm";
-        underlineText = generate_line(messages['last-login-host'], messages['last-login-line']);
+        underlineText = generate_line(lastLoginFrom, lastLoginPort);
     }
 
     return (

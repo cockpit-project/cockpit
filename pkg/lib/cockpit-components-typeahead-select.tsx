@@ -48,6 +48,14 @@ SOFTWARE.
      asynchronously from each other. Maybe you know "selected" already
      but "selectOptions" isn't ready yet.
 
+   - Allow dividers.
+
+       [
+         ...
+         { divider: true },
+         ...
+       ]
+
 */
 
 /* eslint-disable */
@@ -64,6 +72,7 @@ import {
   TextInputGroupMain,
   TextInputGroupUtilities,
   Button,
+  Divider,
   MenuToggleProps,
   SelectProps
 } from '@patternfly/react-core';
@@ -76,6 +85,8 @@ export interface TypeaheadSelectOption extends Omit<SelectOptionProps, 'content'
   value: string | number;
   /** Indicator for option being selected */
   isSelected?: boolean;
+  /** Is this just a divider */
+  divider?: boolean;
 }
 
 export interface TypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSelect'> {
@@ -437,8 +448,10 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
     >
       <SelectList>
         {filteredSelections.map((option, index) => {
-          const { content, value, ...props } = option;
+          if (option.divider)
+              return <Divider key={option.key || index} component="li" />;
 
+          const { content, value, ...props } = option;
           return (
             <SelectOption key={value} value={value} isFocused={focusedItemIndex === index} {...props}>
               {content}

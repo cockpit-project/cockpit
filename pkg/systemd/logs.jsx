@@ -26,7 +26,6 @@ import { createRoot } from 'react-dom/client';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
-import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
@@ -38,6 +37,8 @@ import {
     FilterIcon,
     HelpIcon,
 } from '@patternfly/react-icons';
+
+import { TypeaheadSelect } from "cockpit-components-typeahead-select";
 
 import {
     checkJournalctlGrep,
@@ -107,7 +108,7 @@ export const LogsPage = () => {
     const [isOpenTimeFilter, setIsOpenTimeFilter] = useState(false);
     // `prio` is a legacy name. Accept it, but don't generate it
     const [journalPrio, setJournalPrio] = useState(getPrioFilterOption(options));
-    const [identifiersFilter, setIdentifiersFilter] = useState(options.tag || _("All"));
+    const [identifiersFilter, setIdentifiersFilter] = useState(options.tag || "all");
     const [showTextSearch, setShowTextSearch] = useState(false);
     const [textFilter, setTextFilter] = useState(full_grep);
     const [timeFilter, setTimeFilter] = useState(getTimeFilterOption(options));
@@ -123,7 +124,7 @@ export const LogsPage = () => {
             if (path.length == 1) return;
 
             setJournalPrio(getPrioFilterOption(options));
-            setIdentifiersFilter(options.tag || _("All"));
+            setIdentifiersFilter(options.tag || "all");
             setTextFilter(full_grep);
             setTimeFilter(getTimeFilterOption(options));
         }
@@ -152,7 +153,7 @@ export const LogsPage = () => {
     const onIdentifiersFilterChange = (value) => {
         setUpdateIdentifiersList(false);
 
-        if (value == _("All")) {
+        if (value == "all") {
             delete options.tag;
             updateUrl(Object.assign(options));
         } else {
@@ -286,46 +287,33 @@ export const LogsPage = () => {
 };
 
 const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, currentIdentifiers }) => {
-    const [isOpenIdentifiersFilter, setIsOpenIdentifiersFilter] = useState(false);
-
     let identifiersArray;
     if (currentIdentifiers !== undefined) {
         identifiersArray = [
-            <SelectOption key="all" value={_("All")} />
+            { value: "all", content: _("All") }
         ];
         if (currentIdentifiers.length > 0) {
-            identifiersArray.push(<Divider component="li" key="divider" />);
+            identifiersArray.push({ divider: true, key: "divider" });
         }
         identifiersArray = identifiersArray.concat(
             currentIdentifiers
                     .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-                    .map(unit => <SelectOption key={unit} value={unit} />)
+                    .map(unit => ({ value: unit, content: unit }))
         );
     } else {
         identifiersArray = [
-            <SelectOption key={identifiersFilter} value={identifiersFilter} isDisabled />
+            { value: identifiersFilter, content: identifiersFilter, isDisabled: true }
         ];
     }
 
-    /* The noResultsFoundText is not shown because of https://github.com/patternfly/patternfly-react/issues/6005 */
     return (
-        <Select {...(currentIdentifiers === undefined && { loadingVariant: 'spinner' })}
-                onToggle={(_, isOpen) => setIsOpenIdentifiersFilter(isOpen)}
-                onSelect={(e, selection) => {
-                    setIsOpenIdentifiersFilter(false);
-                    onIdentifiersFilterChange(selection);
-                }}
-                isOpen={isOpenIdentifiersFilter}
-                noResultsFoundText={_("No results found")}
-                onClear={() => {
-                    setIsOpenIdentifiersFilter(false);
-                    onIdentifiersFilterChange(_("All"));
-                }}
-                selections={identifiersFilter}
-                typeAheadAriaLabel={_("Select a identifier")}
-                variant="typeahead">
-            {identifiersArray}
-        </Select>
+        <TypeaheadSelect selectOptions={identifiersArray}
+                         isScrollable
+                         selected={identifiersFilter}
+                         selectedIsTrusted
+                         onSelect={(e, selection) => { onIdentifiersFilterChange(selection) }}
+                         onClearSelection={identifiersFilter != "all" && (() => { onIdentifiersFilterChange("all") })}
+        />
     );
 };
 

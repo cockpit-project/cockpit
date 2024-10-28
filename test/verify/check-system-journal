@@ -206,17 +206,17 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_log_present("JUST ERROR")
 
         # We cannot open this select with tests but we need to wait until it gets loaded
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "just-a-service")
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "just-a-service")
         wait_log_not_present("JUST ERROR")
         wait_log_present("THE SERVICE")
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "All")
         wait_log_present("JUST ERROR")
         wait_log_present("THE SERVICE")
 
         b.select_PF_deprecated("#journal-prio-menu", "Error and above")
         wait_log_not_present("THE SERVICE")
         wait_log_present("JUST ERROR")
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "check-journal")
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "check-journal")
         b.wait_not_present("#journal-identifier-menu + ul button:contains('just-a-service')")
 
         b.go("#/?tag=test-stream&priority=notice")
@@ -358,21 +358,21 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.go(f"#/?priority=err&since=@{self.test_start_time}")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", tag_error)
         b.wait_not_present(f"#journal-identifier-menu + ul button:contains('{tag_info}')")
 
         b.select_PF_deprecated("#journal-prio-menu", "Debug and above")
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "All")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", tag_info)
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", tag_error)
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", tag_info)
 
         b.select_PF_deprecated("#journal-prio-menu", "Error and above")
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", "All")
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "All")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF_deprecated("#journal-identifier-menu .pf-v5-c-select__toggle", tag_error)
+        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", tag_error)
         b.wait_not_present(f"#journal-identifier-menu + ul button:contains('{tag_info}')")
 
     def testRebootAndTime(self):
@@ -499,8 +499,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         "Load earlier entries"
                         ])
 
-        b.click("#journal-identifier-menu .pf-v5-c-select__toggle")
-        b.wait_visible("#journal-identifier-menu .pf-v5-c-select__toggle + ul button:contains('check-journal')")
+        b.click("#journal-identifier-menu .pf-v5-c-menu-toggle__button")
+        b.wait_visible("#journal-identifier-menu ul button:contains('check-journal')")
 
         # New messages are not streamed when 'until' is in the past
         m.execute("logger -p user.err --tag check-journal RIGHT NOW")

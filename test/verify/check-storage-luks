@@ -33,6 +33,7 @@ def console_screenshot(machine, name):
 
 
 @testlib.nondestructive
+@testlib.skipImage("cryptsetup uses too much memory, OOM on our test VMs", "rhel-8-*")
 class TestStorageLuks(storagelib.StorageCase):
 
     def testLuks(self):

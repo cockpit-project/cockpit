@@ -407,6 +407,7 @@ ExecStart=/usr/bin/sleep infinity
 
 
 @testlib.nondestructive
+@testlib.skipImage("cryptsetup uses too much memory, OOM on our test VMs", "rhel-8-*")
 class TestStorageMountingLUKS(storagelib.StorageCase):
     def testEncryptedMountingHelp(self):
         m = self.machine

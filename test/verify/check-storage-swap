@@ -96,6 +96,7 @@ class TestStorageswap(storagelib.StorageCase):
         b.wait_text(self.card_desc("Swap", "Used"), "0")
         testlib.wait(lambda: "defaults" in m.execute(f"findmnt --fstab -n -o OPTIONS {disk}"))
 
+    @testlib.skipImage("cryptsetup uses too much memory, OOM on our test VMs", "rhel-8-*")
     def testEncrypted(self):
         b = self.browser
         m = self.machine

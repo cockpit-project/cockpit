@@ -87,22 +87,34 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#login-user-input")
         b.wait_not_visible("#banner")
 
+        def cockpit_sessions():
+            """Return list of users who have a running Cockpit session"""
+            # unfortunately the session type isn't part of the list view/query
+            # --json=short is very recent, not yet available in Fedora 40 and older; so parse lines
+            users = []
+            for line in m.execute("loginctl --no-legend list-sessions").strip().splitlines():
+                fields = line.split()
+                info = m.execute(f"loginctl show-session {fields[0]}")
+                if "Type=web" in info and "State=closing" not in info:
+                    users.append(fields[2])
+            return users
+
         # Try to login as a non-existing user
         b.try_login("nonexisting", "blahblah")
         b.wait_text("#login-error-title", "Authentication failed")
         b.wait_text("#login-error-message", "Wrong user name or password")
-        self.assertNotIn("web", m.execute("who"))
+        self.assertEqual(cockpit_sessions(), [])
 
         # Try to login as user with a wrong password
         b.try_login("user", "gfedcba")
         b.wait_text_not("#login-error-message", "")
-        self.assertNotIn("web", m.execute("who"))
+        self.assertEqual(cockpit_sessions(), [])
         self.allow_journal_messages(".* user: Authentication failure.*")
 
         # Try to login as user with correct password
         b.try_login("user", "abcdefg")
         b.wait_text("#login-error-title", "Authentication failed" if m.ws_container else "Permission denied")
-        self.assertNotIn("web", m.execute("who"))
+        self.assertEqual(cockpit_sessions(), [])
 
         # Try to login with disabled shell; this does not work on OSTree where
         # we log in through ssh
@@ -122,14 +134,14 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         if not m.ws_container:  # logs in via ssh, not cockpit-session
             # older coreutils shows the session type (web), newer ones the service name
-            self.assertRegex(m.execute("who"), r"(^|\n)admin *(web|cockpit).*(\d+\.\d+|::)")
+            self.assertEqual(cockpit_sessions(), ["admin"])
 
         # reload, which should log us in with the cookie
         b.reload()
         self.check_shell()
 
         if not m.ws_container:  # logs in via ssh, not cockpit-session
-            self.assertRegex(m.execute("who"), r"(^|\n)admin *(web|cockpit).*(\d+\.\d+|::)")
+            self.assertEqual(cockpit_sessions(), ["admin"])
 
         b.go("/users#/admin")
         b.enter_page("/users")
@@ -142,7 +154,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Change login screen options
         b.logout()
-        b.wait(lambda: "web console" not in m.execute("who"))
+        self.assertEqual(cockpit_sessions(), [])
         b.wait_visible("#option-group")
         m.execute("printf '[WebService]\nLoginTo = false\n' > /etc/cockpit/cockpit.conf")
         m.restart_cockpit()

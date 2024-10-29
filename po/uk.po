@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-15 02:59+0000\n"
-"PO-Revision-Date: 2024-09-17 07:05+0000\n"
+"POT-Creation-Date: 2024-10-28 03:01+0000\n"
+"PO-Revision-Date: 2024-10-28 15:46+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/uk/>\n"
@@ -110,7 +110,7 @@ msgstr "Диски $0"
 msgid "$0 documentation"
 msgstr "Документація з $0"
 
-#: pkg/static/login.js:469 pkg/static/login.js:1042
+#: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "Помилка $0"
 
@@ -174,7 +174,7 @@ msgstr "$0 використовується"
 msgid "$0 is not available from any repository."
 msgstr "$0 немає у жодному зі сховищ."
 
-#: pkg/static/login.js:828 pkg/lib/cockpit-connect-ssh.tsx:125
+#: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
 #: pkg/shell/hosts_dialog.jsx:565
 msgid "$0 key changed"
 msgstr "Змінено ключ $0"
@@ -582,7 +582,7 @@ msgstr "У цьому буфері вже існує файлова систем
 msgid "A group with this name already exists"
 msgstr "Група з такою назвою вже існує"
 
-#: pkg/static/login.html:39
+#: pkg/static/login.html:48
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr ""
@@ -652,7 +652,7 @@ msgstr "Про «Вебконсоль»"
 msgid "Absent"
 msgstr "Відсутній"
 
-#: pkg/static/login.js:734
+#: pkg/static/login.js:738
 msgid "Accept key and log in"
 msgstr "Прийняти ключ і увійти"
 
@@ -1168,10 +1168,8 @@ msgid "At least one disk is needed."
 msgstr "Потрібен принаймні один диск."
 
 #: pkg/storaged/btrfs/subvolume.jsx:379
-#, fuzzy
-#| msgid "Subvolume needs to be mounted"
 msgid "At least one subvolume needs to be mounted"
-msgstr "Підтом має бути змонтовано"
+msgstr "Має бути змонтовано принаймні один підтом"
 
 #: pkg/systemd/timer-dialog.jsx:262
 msgid "At minute"
@@ -1206,13 +1204,9 @@ msgstr "Автентифікація"
 msgid "Authentication"
 msgstr "Розпізнавання"
 
-#: pkg/static/login.js:1032
+#: pkg/static/login.js:1016 pkg/static/login.js:1036 pkg/static/login.js:1038
 msgid "Authentication failed"
 msgstr "Не вдалось пройти розпізнавання"
-
-#: pkg/static/login.js:1012
-msgid "Authentication failed: Server closed connection"
-msgstr "Не вдалося пройти розпізнавання: з’єднання розірвано сервером"
 
 #: src/systemd/org.cockpit-project.cockpit-bridge.policy.in:11
 msgid ""
@@ -1423,7 +1417,7 @@ msgstr ""
 "доступ до ключа буде автоматично відкрито і ви зможете надалі входити до $3 "
 "без пароля."
 
-#: pkg/static/login.html:61
+#: pkg/static/login.html:70
 msgid "Bypass browser check"
 msgstr "Обійти перевірку браузера"
 
@@ -1466,13 +1460,13 @@ msgstr ""
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Не вдалося знайти журналів на основі поточної комбінації фільтрів."
 
-#: pkg/static/login.html:141 pkg/playground/translate.html:39
+#: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:314
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
 #: pkg/systemd/overview-cards/motdCard.jsx:65
 #: pkg/networkmanager/dialogs-common.jsx:163
@@ -1570,11 +1564,11 @@ msgstr "Змінити пароль"
 msgid "Change password"
 msgstr "Змінити пароль"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:307
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:309
 msgid "Change performance profile"
 msgstr "Зміна профілю швидкодії"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:311
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:313
 msgid "Change profile"
 msgstr "Змінити профіль"
 
@@ -1594,7 +1588,7 @@ msgstr "Змінити пароль до $0"
 msgid "Change the settings"
 msgstr "Змінити параметри"
 
-#: pkg/static/login.html:81 pkg/lib/cockpit-connect-ssh.tsx:131
+#: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
 #: pkg/shell/hosts_dialog.jsx:574
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
@@ -1836,7 +1830,7 @@ msgstr "Команду не знайдено"
 msgid "Comment"
 msgstr "Коментар"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:97
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:91
 msgid "Communication with tuned has failed"
 msgstr "Не вдалося обмінятися даними з tuned"
 
@@ -1940,11 +1934,11 @@ msgstr "Конфліктує"
 msgid "Connect automatically"
 msgstr "З’єднуватися автоматично"
 
-#: pkg/static/login.html:127
+#: pkg/static/login.html:138
 msgid "Connect to"
 msgstr "З’єднатися з"
 
-#: pkg/static/login.js:726
+#: pkg/static/login.js:730
 msgid "Connect to:"
 msgstr "З’єднатися з:"
 
@@ -2654,7 +2648,7 @@ msgstr "Вимкнути багатопотоковість"
 msgid "Disable the firewall"
 msgstr "Вимкнути брандмауер"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:233
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:225
 msgid "Disable tuned"
 msgstr "Вимкнути tuned"
 
@@ -2801,7 +2795,7 @@ msgstr "Подвійна розподілена парність (RAID 6)"
 msgid "Download"
 msgstr "Отримати"
 
-#: pkg/static/login.html:42
+#: pkg/static/login.html:51
 msgid "Download a new browser for free"
 msgstr "Отримайте новий браузер безкоштовно"
 
@@ -3193,11 +3187,11 @@ msgstr "Не вдалося налаштувати PCP"
 msgid "Failed to delete alert: $0"
 msgstr "Не вдалося вилучити нагадування: $0"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:162
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:158
 msgid "Failed to disable tuned"
 msgstr "Не вдалося вимкнути tuned"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:183
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:179
 msgid "Failed to disable tuned profile"
 msgstr "Не вдалося вимкнути профіль tuned"
 
@@ -3213,7 +3207,7 @@ msgstr "Не вдалося змінити службу"
 msgid "Failed to enable $0 in firewalld"
 msgstr "Не вдалося увімкнути $0 у firewalld"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:160
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:156
 msgid "Failed to enable tuned"
 msgstr "Не вдалося увімкнути tuned"
 
@@ -3254,7 +3248,7 @@ msgstr "Не вдалося зберегти параметри"
 msgid "Failed to start"
 msgstr "Не вдалося запустити"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:194
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:188
 msgid "Failed to switch profile"
 msgstr "Не вдалося перемкнути профіль"
 
@@ -3272,10 +3266,8 @@ msgid "Filesystem is locked"
 msgstr "Файлову систему заблоковано"
 
 #: pkg/storaged/btrfs/volume.jsx:129
-#, fuzzy
-#| msgid "Filesystem is locked"
 msgid "Filesystem is mounted read-only"
-msgstr "Файлову систему заблоковано"
+msgstr "Файлову систему змонтовано лише для читання"
 
 #: pkg/storaged/filesystem/filesystem.jsx:117
 msgid "Filesystem name"
@@ -3512,7 +3504,7 @@ msgid "Hello time $hello_time"
 msgstr "Час вітання $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:295 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
 msgid "Help"
 msgstr "Довідка"
 
@@ -3545,9 +3537,21 @@ msgstr "Домашній каталог"
 msgid "Host"
 msgstr "Вузол"
 
+#: pkg/static/login.js:1022
+msgid "Host is unknown"
+msgstr "Невідомий вузол"
+
 #: pkg/lib/cockpit.js:2604
 msgid "Host key is incorrect"
 msgstr "Ключ вузла є неправильним"
+
+#: pkg/static/login.js:1033
+msgid "Hostkey does not match"
+msgstr "Ключ вузла є невідповідним"
+
+#: pkg/static/login.js:1020
+msgid "Hostkey is unknown"
+msgstr "Ключ вузла є невідомим"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:66
 msgid "Hostname"
@@ -3638,7 +3642,7 @@ msgstr ""
 "Якщо не заповнювати, ідентифікатор буде створено на основі пов'язаних служб "
 "портів та номерів портів"
 
-#: pkg/static/login.html:90
+#: pkg/static/login.html:101
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -3760,10 +3764,8 @@ msgid "Install NFS support"
 msgstr "Встановити підтримку NFS"
 
 #: pkg/metrics/metrics.jsx:1788
-#, fuzzy
-#| msgid "Install NFS support"
 msgid "Install PCP support"
-msgstr "Встановити підтримку NFS"
+msgstr "Встановити підтримку PCP"
 
 #: pkg/storaged/overview/overview.jsx:121
 msgid "Install Stratis support"
@@ -3802,6 +3804,14 @@ msgstr "Встановити програмне забезпечення"
 #: pkg/kdump/kdump-view.jsx:571
 msgid "Install the $0 package."
 msgstr "Встановіть пакунок $0."
+
+#: pkg/static/login.js:1046
+msgid ""
+"Install the cockpit-system package (and optionally other cockpit packages) "
+"on $0 to enable web console access."
+msgstr ""
+"Встановіть пакунок cockpit-system (а також, необов'язково, інші пакунки "
+"cockpit) на $0, щоб уможливити доступ до вебконсолі."
 
 #: pkg/packagekit/updates.jsx:111
 msgid "Installed"
@@ -3847,15 +3857,13 @@ msgstr "Інтерфейси"
 msgid "Internal error"
 msgstr "Внутрішня помилка"
 
-#: pkg/static/login.js:986
+#: pkg/static/login.js:990
 msgid "Internal error: Invalid challenge header"
 msgstr "Внутрішня помилка: некоректний заголовок виклику"
 
-#: pkg/static/login.js:864
-#, fuzzy
-#| msgid "Internal error"
+#: pkg/static/login.js:868
 msgid "Internal protocol error"
-msgstr "Внутрішня помилка"
+msgstr "Помилка внутрішнього протоколу"
 
 #: pkg/systemd/services.jsx:253
 msgid "Invalid"
@@ -4140,7 +4148,7 @@ msgstr "Розкладка"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:291
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
 msgid "Learn more"
@@ -4173,10 +4181,8 @@ msgid "Limit access"
 msgstr "Обмежити доступ"
 
 #: pkg/storaged/stratis/pool.jsx:119
-#, fuzzy
-#| msgid "Limits"
 msgid "Limit size"
-msgstr "Обмеження"
+msgstr "Обмеження розміру"
 
 #: pkg/storaged/stratis/filesystem.jsx:213
 msgid "Limit virtual filesystem size"
@@ -4349,10 +4355,8 @@ msgid "Lock $0"
 msgstr "Заблокувати $0"
 
 #: pkg/storaged/crypto/actions.jsx:78
-#, fuzzy
-#| msgid "Lock $0"
 msgid "Lock $0?"
-msgstr "Заблокувати $0"
+msgstr "Заблокувати $0?"
 
 #: pkg/users/accounts-list.js:74
 msgid "Lock account"
@@ -4370,7 +4374,7 @@ msgstr "На заблокованому зашифрованому пристр�
 msgid "Locking $target"
 msgstr "Блокуємо $target"
 
-#: pkg/static/login.html:139 pkg/static/login.js:734
+#: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
 #: pkg/shell/hosts_dialog.jsx:865
 msgid "Log in"
@@ -4380,7 +4384,7 @@ msgstr "Увійти"
 msgid "Log in to $0"
 msgstr "Увійти до $0"
 
-#: pkg/static/login.js:770
+#: pkg/static/login.js:774
 msgid "Log in with your server user account."
 msgstr "Увійти на основі даних вашого облікового запису користувача сервера."
 
@@ -5024,7 +5028,7 @@ msgstr "Ніколи не входив"
 msgid "New NFS mount"
 msgstr "Нове монтування NFS"
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:838
 msgid "New host"
 msgstr "Новий вузол"
 
@@ -5270,7 +5274,7 @@ msgstr "Немає оновлень"
 msgid "No user name specified"
 msgstr "Не вказано імені користувача"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:224
 #: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
 msgid "None"
 msgstr "Немає"
@@ -5464,7 +5468,7 @@ msgstr "Дія «$operation» над $target"
 msgid "Options"
 msgstr "Параметри"
 
-#: pkg/static/login.html:49
+#: pkg/static/login.html:58
 msgid "Or use a bundled browser"
 msgstr "Або скористайтеся комплектним браузером"
 
@@ -5480,7 +5484,7 @@ msgstr ""
 "Навіть якщо розпізнавання за інтерактивним паролем заборонено, можна "
 "скористатися іншими способами розпізнавання."
 
-#: pkg/static/login.html:121
+#: pkg/static/login.html:132
 msgid "Other options"
 msgstr "Інші параметри"
 
@@ -5512,10 +5516,8 @@ msgid "PCI"
 msgstr "PCI"
 
 #: pkg/metrics/metrics.jsx:1787
-#, fuzzy
-#| msgid "Package cockpit-pcp is missing for metrics history"
 msgid "PCP is missing for metrics history"
-msgstr "Не вистачає пакунка cockpit-pcp для журналу метрики"
+msgstr "Не вистачає PCP для журналу метрики"
 
 #: pkg/storaged/dialog.jsx:1460
 msgid "PID"
@@ -5536,6 +5538,10 @@ msgstr "PackageKit не встановлено"
 #: pkg/packagekit/updates.jsx:1305
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit повідомлено про помилку із кодом $0"
+
+#: pkg/static/login.js:1056
+msgid "Packageless session unavailable"
+msgstr "Сеанс без пакунків не доступний"
 
 #: pkg/packagekit/updates.jsx:363
 msgid "Packages"
@@ -5628,7 +5634,7 @@ msgstr "Вилучення пароля може завадити розблок
 msgid "Passphrases do not match"
 msgstr "Паролі не збігаються"
 
-#: pkg/static/login.html:99 pkg/lib/cockpit-connect-ssh.tsx:442
+#: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
 #: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
@@ -5788,7 +5794,7 @@ msgstr "Остаточно вилучити логічний том $0/$1?"
 msgid "Permanently delete subvolume $0?"
 msgstr "Остаточно вилучити підтом $0?"
 
-#: pkg/static/login.js:1038
+#: pkg/static/login.js:1043
 msgid "Permission denied"
 msgstr "Доступ заборонено"
 
@@ -5841,7 +5847,7 @@ msgid "Please authenticate to gain administrative access"
 msgstr ""
 "Будь ласка, пройдіть розпізнавання, щоб отримати адміністративний доступ"
 
-#: pkg/static/login.html:34
+#: pkg/static/login.html:42
 msgid "Please enable JavaScript to use the Web Console."
 msgstr ""
 "Щоб мати змогу користуватися вебконсоллю, будь ласка, увімкніть JavaScript."
@@ -5858,7 +5864,7 @@ msgstr "Будь ласка, усуньте проблему і перезава
 msgid "Please specify an expiration date"
 msgstr "Будь ласка, вкажіть кінцеву дату строку дії"
 
-#: pkg/static/login.js:624
+#: pkg/static/login.js:628
 msgid "Please specify the host to connect to"
 msgstr "Будь ласка, вкажіть вузол, з яким слід встановити з'єднання"
 
@@ -6182,7 +6188,7 @@ msgstr "Перезавантажити систему…"
 msgid "Receiving"
 msgstr "Отримання"
 
-#: pkg/static/login.html:165
+#: pkg/static/login.html:176
 msgid "Recent hosts"
 msgstr "Нещодавні вузли"
 
@@ -6206,17 +6212,9 @@ msgstr "Відновлюємо пристрій MDRAID $target"
 msgid "Refreshing package information"
 msgstr "Оновлюємо дані щодо пакунків"
 
-#: pkg/static/login.js:1018
-msgid "Refusing to connect. Host is unknown"
-msgstr "Відмовляємо у з’єднанні. Невідомий вузол."
-
-#: pkg/static/login.js:1029
-msgid "Refusing to connect. Hostkey does not match"
-msgstr "Відмовляємо у з’єднанні. Ключі вузла не збігаються."
-
-#: pkg/static/login.js:1016
-msgid "Refusing to connect. Hostkey is unknown"
-msgstr "Відмовляємо у з’єднанні. Невідомий ключ вузла."
+#: pkg/static/login.js:1020 pkg/static/login.js:1022 pkg/static/login.js:1033
+msgid "Refusing to connect"
+msgstr "Відмова у з’єднанні"
 
 #: pkg/networkmanager/wireguard.jsx:224
 msgid "Regenerate"
@@ -6322,7 +6320,7 @@ msgstr "Вилучити сервер ключів Tang?"
 msgid "Remove device"
 msgstr "Вилучити пристрій"
 
-#: pkg/static/login.js:700
+#: pkg/static/login.js:704
 msgid "Remove host"
 msgstr "Вилучити вузол"
 
@@ -6905,7 +6903,7 @@ msgstr "Надсилання"
 msgid "Serial number"
 msgstr "Серійний номер"
 
-#: pkg/static/login.html:159 pkg/networkmanager/ip-settings.jsx:256
+#: pkg/static/login.html:170 pkg/networkmanager/ip-settings.jsx:256
 #: pkg/kdump/kdump-view.jsx:267 pkg/kdump/kdump-view.jsx:289
 #: pkg/storaged/nfs/nfs.jsx:328
 msgid "Server"
@@ -6922,6 +6920,10 @@ msgstr "Адреса сервера не може бути порожньою."
 #: pkg/storaged/nfs/nfs.jsx:141
 msgid "Server cannot be empty."
 msgstr "Запис сервера не може бути порожнім."
+
+#: pkg/static/login.js:1016
+msgid "Server closed connection"
+msgstr "З’єднання розірвано сервером"
 
 #: pkg/lib/cockpit.js:2614
 msgid "Server has closed the connection."
@@ -6973,10 +6975,8 @@ msgid "Set hostname"
 msgstr "Встановити назву вузла"
 
 #: pkg/storaged/stratis/pool.jsx:102
-#, fuzzy
-#| msgid "initialize"
 msgid "Set initial size"
-msgstr "ініціалізувати"
+msgstr "Встановити початковий розмір"
 
 #: pkg/storaged/stratis/filesystem.jsx:205
 msgid "Set limit of virtual filesystem size"
@@ -7854,10 +7854,8 @@ msgid "The last key slot can not be removed"
 msgstr "Не можна вилучати останній слот ключів"
 
 #: pkg/storaged/btrfs/subvolume.jsx:382
-#, fuzzy
-#| msgid "The last key slot can not be removed"
 msgid "The last mounted subvolume can not be deleted"
-msgstr "Не можна вилучати останній слот ключів"
+msgstr "Не можна вилучати останній змонтований підтом"
 
 #: pkg/storaged/dialog.jsx:1498
 msgid "The listed processes and services will be forcefully stopped."
@@ -7901,7 +7899,7 @@ msgstr "Пароль не може бути порожнім"
 msgid "The passwords do not match"
 msgstr "Паролі не збігаються"
 
-#: pkg/static/login.html:89 pkg/lib/cockpit-connect-ssh.tsx:137
+#: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
 #: pkg/shell/hosts_dialog.jsx:580
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
@@ -7920,7 +7918,7 @@ msgstr ""
 "електронною поштою. Якщо ви просите когось виконати перевірку для вас, вони "
 "можуть надсилати результати за допомогою будь-якого способу."
 
-#: pkg/static/login.js:1010
+#: pkg/static/login.js:1014
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -8159,11 +8157,11 @@ msgstr "Цей буфер перебуває у стані із погіршен
 msgid "This system is not registered"
 msgstr "Цю систему не зареєстровано"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:87
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
 msgid "This system is using a custom profile"
 msgstr "Ця система використовує нетиповий профіль"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:85
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
 msgid "This system is using the recommended profile"
 msgstr "Ця система використовує рекомендований профіль"
 
@@ -8176,12 +8174,12 @@ msgstr ""
 "усунути порушення правил."
 
 #: src/appstream/org.cockpit_project.cockpit_kdump.metainfo.xml.in:8
-#, fuzzy
-#| msgid "This tool configures the system to write kernel crash dumps to disk."
 msgid ""
 "This tool configures the system to write kernel crash dumps. It supports the "
 "\"local\" (disk), \"ssh\", and \"nfs\" dump targets."
-msgstr "Цей інструмент налаштовує систему на запис дампів аварій ядра на диск."
+msgstr ""
+"Цей інструмент налаштовує систему на запис дампів аварій ядра. Передбачено "
+"підтримку призначень дампу «local» (диск), «ssh» та «nfs»."
 
 #: src/appstream/org.cockpit_project.cockpit_sosreport.metainfo.xml.in:9
 msgid ""
@@ -8310,7 +8308,7 @@ msgstr ""
 "Підказка: для автоматичного розпізнавання на інших системах встановіть "
 "однаковий пароль для ключа і для входу до системи."
 
-#: pkg/static/login.html:84 pkg/lib/cockpit-connect-ssh.tsx:132
+#: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
 #: pkg/shell/hosts_dialog.jsx:575
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
@@ -8328,7 +8326,7 @@ msgstr ""
 "зареєструвати у Red Hat або за допомогою порталу клієнтів Red Hat, або за "
 "допомогою локального сервера передплати."
 
-#: pkg/static/login.js:839 pkg/lib/cockpit-connect-ssh.tsx:135
+#: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
 #: pkg/shell/hosts_dialog.jsx:578
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -8386,6 +8384,14 @@ msgstr "Башточка"
 msgid "Transient"
 msgstr "Проміжний"
 
+#: pkg/static/login.js:1053
+msgid ""
+"Transient packageless sessions require the same operating system and "
+"version, for compatibility reasons: $0."
+msgstr ""
+"Проміжні сеанси без пакунків потребують однакової операційної системи та "
+"версії з міркувань сумісності: $0."
+
 #: pkg/networkmanager/plots.js:39
 msgid "Transmitting"
 msgstr "Передавання"
@@ -8422,7 +8428,7 @@ msgstr "Довіряти ключу"
 msgid "Trust level"
 msgstr "Рівень довіри"
 
-#: pkg/static/login.html:153
+#: pkg/static/login.html:164
 msgid "Try again"
 msgstr "Спробувати ще раз"
 
@@ -8434,11 +8440,11 @@ msgstr "Намагаємося синхронізуватися з $0"
 msgid "Tuesdays"
 msgstr "Вівторки"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:257
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:249
 msgid "Tuned has failed to start"
 msgstr "Tuned не вдалося запустити"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:281
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:283
 msgid ""
 "Tuned is a service that monitors your system and optimizes the performance "
 "under certain workloads. The core of Tuned are profiles, which tune your "
@@ -8448,15 +8454,15 @@ msgstr ""
 "певних умов навантаження. Ядром Tuned є профілі, які налаштовують вашу "
 "систему для різних умов користування."
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:75
 msgid "Tuned is not available"
 msgstr "Tuned недоступна"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:77
 msgid "Tuned is not running"
 msgstr "Tuned не запущено"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
 msgid "Tuned is off"
 msgstr "Tuned вимкнено"
 
@@ -8507,7 +8513,7 @@ msgstr "UUID"
 msgid "Unable to apply this solution automatically"
 msgstr "Не вдалося застосувати це рішення у автоматичному режимі"
 
-#: pkg/static/login.js:1014
+#: pkg/static/login.js:1018
 msgid "Unable to connect to that address"
 msgstr "Не вдалося встановити з’єднання із цією адресою"
 
@@ -8885,12 +8891,12 @@ msgstr "Ідентифікатор користувача має бути чис
 msgid "User ID must not be lower than $0"
 msgstr "Ідентифікатор користувача не повинен бути меншим за $0"
 
-#: pkg/static/login.html:94 pkg/users/account-details.js:256
+#: pkg/static/login.html:105 pkg/users/account-details.js:256
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
 msgid "User name"
 msgstr "Ім'я користувача"
 
-#: pkg/static/login.js:622
+#: pkg/static/login.js:626
 msgid "User name cannot be empty"
 msgstr "Ім’я користувача не може бути порожнім"
 
@@ -8933,7 +8939,7 @@ msgstr "Ід. VLAN"
 msgid "Validating address"
 msgstr "Перевіряємо чинність адреси"
 
-#: pkg/static/login.html:147
+#: pkg/static/login.html:158
 msgid "Validating authentication token"
 msgstr "Перевіряємо ключ розпізнавання"
 
@@ -9185,7 +9191,7 @@ msgstr "Здебільшого запис"
 msgid "Writing"
 msgstr "Запис"
 
-#: pkg/static/login.js:1034
+#: pkg/static/login.js:1038
 msgid "Wrong user name or password"
 msgstr "Помилкове ім’я користувача чи пароль"
 
@@ -9201,7 +9207,7 @@ msgstr "Щорічно"
 msgid "Yes"
 msgstr "Так"
 
-#: pkg/static/login.js:836 pkg/lib/cockpit-connect-ssh.tsx:146
+#: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
 #: pkg/shell/hosts_dialog.jsx:589
 msgid "You are connecting to $0 for the first time."
 msgstr "Ви вперше встановлюєте з'єднання із $0."
@@ -9717,10 +9723,8 @@ msgid "less than a minute ago"
 msgstr "менш, ніж хвилину тому"
 
 #: pkg/storaged/crypto/actions.jsx:67
-#, fuzzy
-#| msgid "Block"
 msgid "lock"
-msgstr "Блок"
+msgstr "заблокувати"
 
 #: pkg/users/manifest.json:0
 msgid "login"
@@ -9814,7 +9818,7 @@ msgstr "Сервер nfs не є коректним сервером IPv6"
 msgid "nice"
 msgstr "пріоритетність"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:89
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:84
 #: pkg/storaged/crypto/encryption.jsx:232
 #: pkg/storaged/crypto/encryption.jsx:235
 #: pkg/storaged/stratis/stopped-pool.jsx:130
@@ -10175,6 +10179,15 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "зона"
+
+#~ msgid "Authentication failed: Server closed connection"
+#~ msgstr "Не вдалося пройти розпізнавання: з’єднання розірвано сервером"
+
+#~ msgid "Refusing to connect. Host is unknown"
+#~ msgstr "Відмовляємо у з’єднанні. Невідомий вузол."
+
+#~ msgid "Refusing to connect. Hostkey is unknown"
+#~ msgstr "Відмовляємо у з’єднанні. Невідомий ключ вузла."
 
 #~ msgid "You need to relogin to be able to see metrics history"
 #~ msgstr ""

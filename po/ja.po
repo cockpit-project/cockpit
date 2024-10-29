@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-15 02:59+0000\n"
+"POT-Creation-Date: 2024-10-28 03:01+0000\n"
 "PO-Revision-Date: 2024-09-07 12:38+0000\n"
 "Last-Translator: Jelle van der Waa <jvanderw@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -100,7 +100,7 @@ msgstr "$0 ディスク"
 msgid "$0 documentation"
 msgstr "$0 ドキュメント"
 
-#: pkg/static/login.js:469 pkg/static/login.js:1042
+#: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "$0 エラー"
 
@@ -158,7 +158,7 @@ msgstr "$0 は使用されています"
 msgid "$0 is not available from any repository."
 msgstr "$0 は、あらゆるリポジトリーから利用できません。"
 
-#: pkg/static/login.js:828 pkg/lib/cockpit-connect-ssh.tsx:125
+#: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
 #: pkg/shell/hosts_dialog.jsx:565
 msgid "$0 key changed"
 msgstr "$0 キーが変更されました"
@@ -534,7 +534,7 @@ msgstr "この名前のファイルシステムは、すでにこのプールに
 msgid "A group with this name already exists"
 msgstr "この名前のグループはすでに存在します"
 
-#: pkg/static/login.html:39
+#: pkg/static/login.html:48
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr ""
@@ -598,7 +598,7 @@ msgstr "Webコンソールについて"
 msgid "Absent"
 msgstr "不在"
 
-#: pkg/static/login.js:734
+#: pkg/static/login.js:738
 msgid "Accept key and log in"
 msgstr "キーを受け入れてログイン"
 
@@ -1148,13 +1148,9 @@ msgstr "認証中"
 msgid "Authentication"
 msgstr "認証"
 
-#: pkg/static/login.js:1032
+#: pkg/static/login.js:1016 pkg/static/login.js:1036 pkg/static/login.js:1038
 msgid "Authentication failed"
 msgstr "認証に失敗しました"
-
-#: pkg/static/login.js:1012
-msgid "Authentication failed: Server closed connection"
-msgstr "認証に失敗しました: サーバーの接続が切断されました"
 
 #: src/systemd/org.cockpit-project.cockpit-bridge.policy.in:11
 msgid ""
@@ -1363,7 +1359,7 @@ msgstr ""
 "動的にキーが使えるようになります。これで、パスワードなしで $3 にログインでき"
 "るようになります。"
 
-#: pkg/static/login.html:61
+#: pkg/static/login.html:70
 msgid "Bypass browser check"
 msgstr "ブラウザーチェックの回避"
 
@@ -1406,13 +1402,13 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "現在のフィルターの組み合わせを使用して、ログを見つけることができません。"
 
-#: pkg/static/login.html:141 pkg/playground/translate.html:39
+#: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:314
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
 #: pkg/systemd/overview-cards/motdCard.jsx:65
 #: pkg/networkmanager/dialogs-common.jsx:163
@@ -1510,11 +1506,11 @@ msgstr "パスフレーズの変更"
 msgid "Change password"
 msgstr "パスワードの変更"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:307
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:309
 msgid "Change performance profile"
 msgstr "パフォーマンスプロファイルの変更"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:311
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:313
 msgid "Change profile"
 msgstr "プロファイルの変更"
 
@@ -1534,7 +1530,7 @@ msgstr "$0 のパスワードを変更します"
 msgid "Change the settings"
 msgstr "設定の変更"
 
-#: pkg/static/login.html:81 pkg/lib/cockpit-connect-ssh.tsx:131
+#: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
 #: pkg/shell/hosts_dialog.jsx:574
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
@@ -1775,7 +1771,7 @@ msgstr "コマンドが見つかりません"
 msgid "Comment"
 msgstr "コメント"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:97
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:91
 msgid "Communication with tuned has failed"
 msgstr "tuned との通信に失敗しました"
 
@@ -1880,11 +1876,11 @@ msgstr "競合"
 msgid "Connect automatically"
 msgstr "自動的に接続"
 
-#: pkg/static/login.html:127
+#: pkg/static/login.html:138
 msgid "Connect to"
 msgstr "接続先"
 
-#: pkg/static/login.js:726
+#: pkg/static/login.js:730
 msgid "Connect to:"
 msgstr "接続先:"
 
@@ -2592,7 +2588,7 @@ msgstr "同時マルチスレッディングの無効化"
 msgid "Disable the firewall"
 msgstr "ファイアウォールの無効化"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:233
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:225
 msgid "Disable tuned"
 msgstr "tuned の無効化"
 
@@ -2737,7 +2733,7 @@ msgstr "ダブル分散パリティー (RAID 6)"
 msgid "Download"
 msgstr "ダウンロード"
 
-#: pkg/static/login.html:42
+#: pkg/static/login.html:51
 msgid "Download a new browser for free"
 msgstr "新しいブラウザーを無料でダウンロードします"
 
@@ -3129,11 +3125,11 @@ msgstr "PCP の設定に失敗しました"
 msgid "Failed to delete alert: $0"
 msgstr "アラートの削除に失敗しました: $0"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:162
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:158
 msgid "Failed to disable tuned"
 msgstr "tuned の無効化に失敗しました"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:183
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:179
 msgid "Failed to disable tuned profile"
 msgstr "tuned プロファイルの無効化に失敗しました"
 
@@ -3149,7 +3145,7 @@ msgstr "サービスの編集に失敗しました"
 msgid "Failed to enable $0 in firewalld"
 msgstr "firewalld での $0 の有効化に失敗しました"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:160
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:156
 msgid "Failed to enable tuned"
 msgstr "tuned の有効化に失敗しました"
 
@@ -3190,7 +3186,7 @@ msgstr "設定の保存に失敗しました"
 msgid "Failed to start"
 msgstr "起動に失敗"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:194
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:188
 msgid "Failed to switch profile"
 msgstr "プロファイルの切り替えに失敗しました"
 
@@ -3446,7 +3442,7 @@ msgid "Hello time $hello_time"
 msgstr "Hello タイム $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:295 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
 msgid "Help"
 msgstr "ヘルプ"
 
@@ -3478,8 +3474,26 @@ msgstr "ホームディレクトリー"
 msgid "Host"
 msgstr "ホスト"
 
+#: pkg/static/login.js:1022
+#, fuzzy
+#| msgid "unknown"
+msgid "Host is unknown"
+msgstr "不明"
+
 #: pkg/lib/cockpit.js:2604
 msgid "Host key is incorrect"
+msgstr "ホスト鍵が正しくありません"
+
+#: pkg/static/login.js:1033
+#, fuzzy
+#| msgid "Refusing to connect. Hostkey does not match"
+msgid "Hostkey does not match"
+msgstr "接続を拒否しています。ホストキーが一致しません"
+
+#: pkg/static/login.js:1020
+#, fuzzy
+#| msgid "Host key is incorrect"
+msgid "Hostkey is unknown"
 msgstr "ホスト鍵が正しくありません"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:66
@@ -3571,7 +3585,7 @@ msgstr ""
 "空白のままの場合、関連付けられたポートサービスおよびポート番号に基づいて ID "
 "が生成されます"
 
-#: pkg/static/login.html:90
+#: pkg/static/login.html:101
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -3737,6 +3751,12 @@ msgstr "ソフトウェアをインストール"
 msgid "Install the $0 package."
 msgstr "$0 パッケージをインストールします。"
 
+#: pkg/static/login.js:1046
+msgid ""
+"Install the cockpit-system package (and optionally other cockpit packages) "
+"on $0 to enable web console access."
+msgstr ""
+
 #: pkg/packagekit/updates.jsx:111
 msgid "Installed"
 msgstr "インストール済み"
@@ -3779,11 +3799,11 @@ msgstr "インターフェース"
 msgid "Internal error"
 msgstr "内部エラー"
 
-#: pkg/static/login.js:986
+#: pkg/static/login.js:990
 msgid "Internal error: Invalid challenge header"
 msgstr "内部エラー: 無効なチャレンジヘッダー"
 
-#: pkg/static/login.js:864
+#: pkg/static/login.js:868
 #, fuzzy
 #| msgid "Internal error"
 msgid "Internal protocol error"
@@ -4072,7 +4092,7 @@ msgstr "レイアウト"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:291
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
 msgid "Learn more"
@@ -4304,7 +4324,7 @@ msgstr "ロックされた暗号化デバイスにはデータが含まれてい
 msgid "Locking $target"
 msgstr "$target のロック中"
 
-#: pkg/static/login.html:139 pkg/static/login.js:734
+#: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
 #: pkg/shell/hosts_dialog.jsx:865
 msgid "Log in"
@@ -4314,7 +4334,7 @@ msgstr "ログイン"
 msgid "Log in to $0"
 msgstr "$0 へのログイン"
 
-#: pkg/static/login.js:770
+#: pkg/static/login.js:774
 msgid "Log in with your server user account."
 msgstr "サーバーのユーザーアカウントでログインします。"
 
@@ -4959,7 +4979,7 @@ msgstr "ログインされていません"
 msgid "New NFS mount"
 msgstr "NFS の新規マウント"
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:838
 msgid "New host"
 msgstr "新規ホスト"
 
@@ -5205,7 +5225,7 @@ msgstr "更新なし"
 msgid "No user name specified"
 msgstr "ユーザー名が指定されていません"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:224
 #: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
 msgid "None"
 msgstr "なし"
@@ -5397,7 +5417,7 @@ msgstr "$target 上の操作 '$operation'"
 msgid "Options"
 msgstr "オプション"
 
-#: pkg/static/login.html:49
+#: pkg/static/login.html:58
 msgid "Or use a bundled browser"
 msgstr "あるいは、バンドルされたブラウザーを使用します"
 
@@ -5412,7 +5432,7 @@ msgid ""
 msgstr ""
 "対話式パスワード認証が許可されない場合でも、他の認証方法を利用できます。"
 
-#: pkg/static/login.html:121
+#: pkg/static/login.html:132
 msgid "Other options"
 msgstr "他のオプション"
 
@@ -5470,6 +5490,10 @@ msgstr "PackageKit はインストールされていません"
 #: pkg/packagekit/updates.jsx:1305
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit が、エラーコード $0 を報告しました"
+
+#: pkg/static/login.js:1056
+msgid "Packageless session unavailable"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:363
 msgid "Packages"
@@ -5562,7 +5586,7 @@ msgstr "パスフレーズの削除で、$0 のロック解除ができない可
 msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
-#: pkg/static/login.html:99 pkg/lib/cockpit-connect-ssh.tsx:442
+#: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
 #: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
@@ -5725,7 +5749,7 @@ msgstr "論理ボリューム $0/$1 を完全に削除しますか?"
 msgid "Permanently delete subvolume $0?"
 msgstr "サブボリューム $0 を完全に削除しますか？"
 
-#: pkg/static/login.js:1038
+#: pkg/static/login.js:1043
 msgid "Permission denied"
 msgstr "パーミッションが拒否されました"
 
@@ -5777,7 +5801,7 @@ msgstr "ピザ箱"
 msgid "Please authenticate to gain administrative access"
 msgstr "管理者アクセスを得るために認証を行ってください"
 
-#: pkg/static/login.html:34
+#: pkg/static/login.html:42
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "Web コンソールを使用するには JavaScript を有効にしてください。"
 
@@ -5793,7 +5817,7 @@ msgstr "問題を解決し、このページを再ロードしてください。
 msgid "Please specify an expiration date"
 msgstr "有効期限を指定してください"
 
-#: pkg/static/login.js:624
+#: pkg/static/login.js:628
 msgid "Please specify the host to connect to"
 msgstr "接続するホストを指定してください"
 
@@ -6114,7 +6138,7 @@ msgstr "システムの再起動..."
 msgid "Receiving"
 msgstr "受信中"
 
-#: pkg/static/login.html:165
+#: pkg/static/login.html:176
 msgid "Recent hosts"
 msgstr "直近のホスト"
 
@@ -6138,17 +6162,11 @@ msgstr "MDRAID デバイス $target の復旧"
 msgid "Refreshing package information"
 msgstr "パッケージ情報の更新中"
 
-#: pkg/static/login.js:1018
-msgid "Refusing to connect. Host is unknown"
-msgstr "接続を拒否しています。ホストが不明です"
-
-#: pkg/static/login.js:1029
-msgid "Refusing to connect. Hostkey does not match"
-msgstr "接続を拒否しています。ホストキーが一致しません"
-
-#: pkg/static/login.js:1016
-msgid "Refusing to connect. Hostkey is unknown"
-msgstr "接続を拒否しています。ホストキーが不明です"
+#: pkg/static/login.js:1020 pkg/static/login.js:1022 pkg/static/login.js:1033
+#, fuzzy
+#| msgid "Restoring connection"
+msgid "Refusing to connect"
+msgstr "接続の復元"
 
 #: pkg/networkmanager/wireguard.jsx:224
 msgid "Regenerate"
@@ -6254,7 +6272,7 @@ msgstr "Tang キーサーバーを削除しますか？"
 msgid "Remove device"
 msgstr "デバイスの削除"
 
-#: pkg/static/login.js:700
+#: pkg/static/login.js:704
 msgid "Remove host"
 msgstr "ホストの削除"
 
@@ -6833,7 +6851,7 @@ msgstr "送信中"
 msgid "Serial number"
 msgstr "シリアルナンバー"
 
-#: pkg/static/login.html:159 pkg/networkmanager/ip-settings.jsx:256
+#: pkg/static/login.html:170 pkg/networkmanager/ip-settings.jsx:256
 #: pkg/kdump/kdump-view.jsx:267 pkg/kdump/kdump-view.jsx:289
 #: pkg/storaged/nfs/nfs.jsx:328
 msgid "Server"
@@ -6850,6 +6868,12 @@ msgstr "サーバーアドレスは空欄にできません。"
 #: pkg/storaged/nfs/nfs.jsx:141
 msgid "Server cannot be empty."
 msgstr "サーバーは空欄にできません。"
+
+#: pkg/static/login.js:1016
+#, fuzzy
+#| msgid "Server has closed the connection."
+msgid "Server closed connection"
+msgstr "サーバーの接続が終了しました。"
 
 #: pkg/lib/cockpit.js:2614
 msgid "Server has closed the connection."
@@ -7818,7 +7842,7 @@ msgstr "パスワードは空にできません"
 msgid "The passwords do not match"
 msgstr "パスワードが一致しません"
 
-#: pkg/static/login.html:89 pkg/lib/cockpit-connect-ssh.tsx:137
+#: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
 #: pkg/shell/hosts_dialog.jsx:580
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
@@ -7837,7 +7861,7 @@ msgstr ""
 "ありません。他の人に検証を依頼した場合、その人は任意の方法で結果を送信できま"
 "す。"
 
-#: pkg/static/login.js:1010
+#: pkg/static/login.js:1014
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -8064,11 +8088,11 @@ msgstr "このプールは、degraded の状態にあります。"
 msgid "This system is not registered"
 msgstr "このシステムは登録されていません"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:87
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
 msgid "This system is using a custom profile"
 msgstr "このシステムはカスタムプロファイルを使用しています"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:85
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
 msgid "This system is using the recommended profile"
 msgstr "このシステムは推奨プロファイルを使用しています"
 
@@ -8214,7 +8238,7 @@ msgstr ""
 "ヒント: 他のシステムに対して自動的に認証する場合は、鍵のパスワードをログイン"
 "パスワードに一致させます。"
 
-#: pkg/static/login.html:84 pkg/lib/cockpit-connect-ssh.tsx:132
+#: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
 #: pkg/shell/hosts_dialog.jsx:575
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
@@ -8232,7 +8256,7 @@ msgstr ""
 "があります。登録には、Red Hat カスタマーポータルまたはローカルのサブスクリプ"
 "ションサーバーを使用します。"
 
-#: pkg/static/login.js:839 pkg/lib/cockpit-connect-ssh.tsx:135
+#: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
 #: pkg/shell/hosts_dialog.jsx:578
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -8290,6 +8314,12 @@ msgstr "タワー"
 msgid "Transient"
 msgstr "一時的"
 
+#: pkg/static/login.js:1053
+msgid ""
+"Transient packageless sessions require the same operating system and "
+"version, for compatibility reasons: $0."
+msgstr ""
+
 #: pkg/networkmanager/plots.js:39
 msgid "Transmitting"
 msgstr "送信中"
@@ -8326,7 +8356,7 @@ msgstr "キーを信頼します"
 msgid "Trust level"
 msgstr "信頼レベル"
 
-#: pkg/static/login.html:153
+#: pkg/static/login.html:164
 msgid "Try again"
 msgstr "再試行します"
 
@@ -8338,11 +8368,11 @@ msgstr "$0 との同期を試行中です"
 msgid "Tuesdays"
 msgstr "毎週火曜日"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:257
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:249
 msgid "Tuned has failed to start"
 msgstr "Tuned の起動に失敗しました"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:281
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:283
 msgid ""
 "Tuned is a service that monitors your system and optimizes the performance "
 "under certain workloads. The core of Tuned are profiles, which tune your "
@@ -8352,15 +8382,15 @@ msgstr ""
 "サービスです。Tuned のコアは、さまざまなユースケースに合わせてシステムを調整"
 "するプロファイルです。"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:75
 msgid "Tuned is not available"
 msgstr "Tuned が利用できません"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:77
 msgid "Tuned is not running"
 msgstr "Tuned 未実行"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
 msgid "Tuned is off"
 msgstr "Tuned がオフです"
 
@@ -8413,7 +8443,7 @@ msgstr "UUID"
 msgid "Unable to apply this solution automatically"
 msgstr "このソリューションを自動的に適用できません"
 
-#: pkg/static/login.js:1014
+#: pkg/static/login.js:1018
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
@@ -8788,12 +8818,12 @@ msgstr "ユーザー ID は $0 よりも大きくすることはできません"
 msgid "User ID must not be lower than $0"
 msgstr "ユーザー ID は $0 よりも小さくすることはできません"
 
-#: pkg/static/login.html:94 pkg/users/account-details.js:256
+#: pkg/static/login.html:105 pkg/users/account-details.js:256
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
 msgid "User name"
 msgstr "ユーザー名"
 
-#: pkg/static/login.js:622
+#: pkg/static/login.js:626
 msgid "User name cannot be empty"
 msgstr "ユーザー名は空にできません"
 
@@ -8836,7 +8866,7 @@ msgstr "VLAN ID"
 msgid "Validating address"
 msgstr "アドレスの検証"
 
-#: pkg/static/login.html:147
+#: pkg/static/login.html:158
 msgid "Validating authentication token"
 msgstr "認証トークンの検証"
 
@@ -9089,7 +9119,7 @@ msgstr "多くは書き込み"
 msgid "Writing"
 msgstr "書き込み中"
 
-#: pkg/static/login.js:1034
+#: pkg/static/login.js:1038
 msgid "Wrong user name or password"
 msgstr "ユーザー名またはパスワードが間違っています"
 
@@ -9105,7 +9135,7 @@ msgstr "毎年"
 msgid "Yes"
 msgstr "はい"
 
-#: pkg/static/login.js:836 pkg/lib/cockpit-connect-ssh.tsx:146
+#: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
 #: pkg/shell/hosts_dialog.jsx:589
 msgid "You are connecting to $0 for the first time."
 msgstr "初めて $0 に接続しています。"
@@ -9711,7 +9741,7 @@ msgstr "NFS サーバーは有効な IPv6 ではありません"
 msgid "nice"
 msgstr "Nice 値"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:89
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:84
 #: pkg/storaged/crypto/encryption.jsx:232
 #: pkg/storaged/crypto/encryption.jsx:235
 #: pkg/storaged/stratis/stopped-pool.jsx:130
@@ -10070,6 +10100,15 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "ゾーン"
+
+#~ msgid "Authentication failed: Server closed connection"
+#~ msgstr "認証に失敗しました: サーバーの接続が切断されました"
+
+#~ msgid "Refusing to connect. Host is unknown"
+#~ msgstr "接続を拒否しています。ホストが不明です"
+
+#~ msgid "Refusing to connect. Hostkey is unknown"
+#~ msgstr "接続を拒否しています。ホストキーが不明です"
 
 #~ msgid "You need to relogin to be able to see metrics history"
 #~ msgstr "メトリックス履歴を表示するには、ログインし直す必要があります"

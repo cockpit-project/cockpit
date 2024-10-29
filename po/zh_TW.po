@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-15 02:59+0000\n"
+"POT-Creation-Date: 2024-10-28 03:01+0000\n"
 "PO-Revision-Date: 2024-10-11 02:38+0000\n"
 "Last-Translator: JW Wang <v72807647@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.fedoraproject.org/"
@@ -95,7 +95,7 @@ msgstr "$0 個磁碟"
 msgid "$0 documentation"
 msgstr "$0 核對"
 
-#: pkg/static/login.js:469 pkg/static/login.js:1042
+#: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "$0 錯誤"
 
@@ -153,7 +153,7 @@ msgstr "$0 正被使用"
 msgid "$0 is not available from any repository."
 msgstr "$0 在任何套件庫中都未提供。"
 
-#: pkg/static/login.js:828 pkg/lib/cockpit-connect-ssh.tsx:125
+#: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
 #: pkg/shell/hosts_dialog.jsx:565
 msgid "$0 key changed"
 msgstr "金鑰 $0 已被更改"
@@ -529,7 +529,7 @@ msgstr "一個相同名稱的檔案系統已經存在於這個集區中。"
 msgid "A group with this name already exists"
 msgstr "具有此名稱的群組已經存在"
 
-#: pkg/static/login.html:39
+#: pkg/static/login.html:48
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr "需要現代瀏覽器以確保安全、可靠與效能。"
@@ -590,7 +590,7 @@ msgstr "關於網頁控制台"
 msgid "Absent"
 msgstr "不存在"
 
-#: pkg/static/login.js:734
+#: pkg/static/login.js:738
 msgid "Accept key and log in"
 msgstr "接受金鑰並登入"
 
@@ -1133,13 +1133,9 @@ msgstr "認證"
 msgid "Authentication"
 msgstr "核對"
 
-#: pkg/static/login.js:1032
+#: pkg/static/login.js:1016 pkg/static/login.js:1036 pkg/static/login.js:1038
 msgid "Authentication failed"
 msgstr "認證失敗"
-
-#: pkg/static/login.js:1012
-msgid "Authentication failed: Server closed connection"
-msgstr "驗證失敗：伺服器已中斷連線"
 
 #: src/systemd/org.cockpit-project.cockpit-bridge.policy.in:11
 msgid ""
@@ -1346,7 +1342,7 @@ msgstr ""
 "藉由把 SSH 金鑰 $0 的密碼改成 $2 上 $1 的登入密碼，該金鑰將會被自動設定妥當，"
 "使您接下來可無須密碼即登入 $3。"
 
-#: pkg/static/login.html:61
+#: pkg/static/login.html:70
 msgid "Bypass browser check"
 msgstr "繞過瀏覽器檢查"
 
@@ -1388,13 +1384,13 @@ msgstr "可為主機名稱、IP 位址、別名或者 ssh:// URI"
 msgid "Can not find any logs using the current combination of filters."
 msgstr "使用目前的篩選器組合無法找到任何紀錄檔。"
 
-#: pkg/static/login.html:141 pkg/playground/translate.html:39
+#: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:314
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
 #: pkg/systemd/overview-cards/motdCard.jsx:65
 #: pkg/networkmanager/dialogs-common.jsx:163
@@ -1492,11 +1488,11 @@ msgstr "變更通行片語"
 msgid "Change password"
 msgstr "更改密碼"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:307
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:309
 msgid "Change performance profile"
 msgstr "變更效能設定檔"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:311
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:313
 msgid "Change profile"
 msgstr "變更設定檔"
 
@@ -1516,7 +1512,7 @@ msgstr "變更 $0 的密碼"
 msgid "Change the settings"
 msgstr "更改設定"
 
-#: pkg/static/login.html:81 pkg/lib/cockpit-connect-ssh.tsx:131
+#: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
 #: pkg/shell/hosts_dialog.jsx:574
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
@@ -1747,7 +1743,7 @@ msgstr "找不到指令"
 msgid "Comment"
 msgstr "備註"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:97
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:91
 msgid "Communication with tuned has failed"
 msgstr "與 tuned 通訊失敗"
 
@@ -1853,11 +1849,11 @@ msgstr "衝突"
 msgid "Connect automatically"
 msgstr "自動連線"
 
-#: pkg/static/login.html:127
+#: pkg/static/login.html:138
 msgid "Connect to"
 msgstr "連線至"
 
-#: pkg/static/login.js:726
+#: pkg/static/login.js:730
 msgid "Connect to:"
 msgstr "連線至："
 
@@ -2549,7 +2545,7 @@ msgstr "停用同步多執行緒"
 msgid "Disable the firewall"
 msgstr "停用防火牆"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:233
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:225
 msgid "Disable tuned"
 msgstr "停用 tuned"
 
@@ -2696,7 +2692,7 @@ msgstr "雙重分散式奇偶存放 (RAID 6)"
 msgid "Download"
 msgstr "下載"
 
-#: pkg/static/login.html:42
+#: pkg/static/login.html:51
 msgid "Download a new browser for free"
 msgstr "免費下載新的瀏覽器"
 
@@ -3085,11 +3081,11 @@ msgstr "設定 PCP 失敗"
 msgid "Failed to delete alert: $0"
 msgstr "刪除警示失敗： $0"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:162
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:158
 msgid "Failed to disable tuned"
 msgstr "停用 tuned 失敗"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:183
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:179
 msgid "Failed to disable tuned profile"
 msgstr "停用 tuned 設定檔失敗"
 
@@ -3105,7 +3101,7 @@ msgstr "編輯服務失敗"
 msgid "Failed to enable $0 in firewalld"
 msgstr "啟用 firewalld 中的 $0 失敗"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:160
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:156
 msgid "Failed to enable tuned"
 msgstr "無法啟用 tuned"
 
@@ -3145,7 +3141,7 @@ msgstr "儲存設定失敗"
 msgid "Failed to start"
 msgstr "啟動失敗"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:194
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:188
 msgid "Failed to switch profile"
 msgstr "切換設定檔失敗"
 
@@ -3401,7 +3397,7 @@ msgid "Hello time $hello_time"
 msgstr "Hello 時間 $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:295 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
 msgid "Help"
 msgstr "說明"
 
@@ -3433,8 +3429,26 @@ msgstr "家目錄"
 msgid "Host"
 msgstr "主機"
 
+#: pkg/static/login.js:1022
+#, fuzzy
+#| msgid "unknown"
+msgid "Host is unknown"
+msgstr "不明"
+
 #: pkg/lib/cockpit.js:2604
 msgid "Host key is incorrect"
+msgstr "主機金鑰不正確"
+
+#: pkg/static/login.js:1033
+#, fuzzy
+#| msgid "Refusing to connect. Hostkey does not match"
+msgid "Hostkey does not match"
+msgstr "拒絕連線。 Hostkey 不相符"
+
+#: pkg/static/login.js:1020
+#, fuzzy
+#| msgid "Host key is incorrect"
+msgid "Hostkey is unknown"
 msgstr "主機金鑰不正確"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:66
@@ -3523,7 +3537,7 @@ msgid ""
 "port numbers"
 msgstr "如果未填寫，將會依所相聯的連接埠服務與連接埠號碼產生 ID"
 
-#: pkg/static/login.html:90
+#: pkg/static/login.html:101
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -3682,6 +3696,12 @@ msgstr "安裝軟體"
 msgid "Install the $0 package."
 msgstr "安裝 $0 套件。"
 
+#: pkg/static/login.js:1046
+msgid ""
+"Install the cockpit-system package (and optionally other cockpit packages) "
+"on $0 to enable web console access."
+msgstr ""
+
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
 #: pkg/packagekit/updates.jsx:111
@@ -3726,11 +3746,11 @@ msgstr "介面"
 msgid "Internal error"
 msgstr "內部錯誤"
 
-#: pkg/static/login.js:986
+#: pkg/static/login.js:990
 msgid "Internal error: Invalid challenge header"
 msgstr "內部錯誤：無效的質詢標頭"
 
-#: pkg/static/login.js:864
+#: pkg/static/login.js:868
 msgid "Internal protocol error"
 msgstr "內部協定錯誤"
 
@@ -4019,7 +4039,7 @@ msgstr "配置"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:291
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
 msgid "Learn more"
@@ -4245,7 +4265,7 @@ msgstr "已鎖定的加密裝置可能含有資料"
 msgid "Locking $target"
 msgstr "鎖定 $target"
 
-#: pkg/static/login.html:139 pkg/static/login.js:734
+#: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
 #: pkg/shell/hosts_dialog.jsx:865
 msgid "Log in"
@@ -4255,7 +4275,7 @@ msgstr "登入"
 msgid "Log in to $0"
 msgstr "登入至 $0"
 
-#: pkg/static/login.js:770
+#: pkg/static/login.js:774
 msgid "Log in with your server user account."
 msgstr "使用您的伺服器使用者帳號登入。"
 
@@ -4897,7 +4917,7 @@ msgstr "從未登入"
 msgid "New NFS mount"
 msgstr "新的 NFS 掛載"
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:838
 msgid "New host"
 msgstr "新主機"
 
@@ -5141,7 +5161,7 @@ msgstr "沒有更新"
 msgid "No user name specified"
 msgstr "未指定使用者名稱"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:224
 #: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
 msgid "None"
 msgstr "無"
@@ -5333,7 +5353,7 @@ msgstr "運營'$operation' 上 $target"
 msgid "Options"
 msgstr "選項"
 
-#: pkg/static/login.html:49
+#: pkg/static/login.html:58
 msgid "Or use a bundled browser"
 msgstr "或使用隨附的瀏覽器"
 
@@ -5349,7 +5369,7 @@ msgid ""
 "password authentication is not allowed."
 msgstr "即使互動式密碼驗證不被允許時，仍可使用其他的驗證方式。"
 
-#: pkg/static/login.html:121
+#: pkg/static/login.html:132
 msgid "Other options"
 msgstr "其他選擇"
 
@@ -5407,6 +5427,10 @@ msgstr "未安裝PackageKit"
 #: pkg/packagekit/updates.jsx:1305
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit 回報了錯誤碼 $0"
+
+#: pkg/static/login.js:1056
+msgid "Packageless session unavailable"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:363
 msgid "Packages"
@@ -5499,7 +5523,7 @@ msgstr "刪除通行片語可能會導致無法解鎖 $0。"
 msgid "Passphrases do not match"
 msgstr "通行片語不相符"
 
-#: pkg/static/login.html:99 pkg/lib/cockpit-connect-ssh.tsx:442
+#: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
 #: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
@@ -5656,7 +5680,7 @@ msgstr "要永久刪除邏輯磁碟區 $0/$1 嗎？"
 msgid "Permanently delete subvolume $0?"
 msgstr "要永久刪除子磁碟區 $0 嗎？"
 
-#: pkg/static/login.js:1038
+#: pkg/static/login.js:1043
 msgid "Permission denied"
 msgstr "使用權限被拒"
 
@@ -5710,7 +5734,7 @@ msgstr "披薩盒"
 msgid "Please authenticate to gain administrative access"
 msgstr "請進行驗證以獲得管理員存取權限"
 
-#: pkg/static/login.html:34
+#: pkg/static/login.html:42
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "請啟用 JavaScript 以使用網頁控制台。"
 
@@ -5726,7 +5750,7 @@ msgstr "請解決該問題並重新整理此頁。"
 msgid "Please specify an expiration date"
 msgstr "請指定到期日期"
 
-#: pkg/static/login.js:624
+#: pkg/static/login.js:628
 msgid "Please specify the host to connect to"
 msgstr "請指定要連線的主機"
 
@@ -6047,7 +6071,7 @@ msgstr "將系統重新開機…"
 msgid "Receiving"
 msgstr "正在接收"
 
-#: pkg/static/login.html:165
+#: pkg/static/login.html:176
 msgid "Recent hosts"
 msgstr "最近的主機"
 
@@ -6071,17 +6095,11 @@ msgstr "正在復原 MDRAID 裝置 $target"
 msgid "Refreshing package information"
 msgstr "套件資訊重新整理中"
 
-#: pkg/static/login.js:1018
-msgid "Refusing to connect. Host is unknown"
-msgstr "拒絕連線。未知的主機"
-
-#: pkg/static/login.js:1029
-msgid "Refusing to connect. Hostkey does not match"
-msgstr "拒絕連線。 Hostkey 不相符"
-
-#: pkg/static/login.js:1016
-msgid "Refusing to connect. Hostkey is unknown"
-msgstr "拒絕連線。 Hostkey 未知"
+#: pkg/static/login.js:1020 pkg/static/login.js:1022 pkg/static/login.js:1033
+#, fuzzy
+#| msgid "Restoring connection"
+msgid "Refusing to connect"
+msgstr "正在恢復連線"
 
 #: pkg/networkmanager/wireguard.jsx:224
 msgid "Regenerate"
@@ -6187,7 +6205,7 @@ msgstr "移除 Tang keyserver？"
 msgid "Remove device"
 msgstr "移除裝置"
 
-#: pkg/static/login.js:700
+#: pkg/static/login.js:704
 msgid "Remove host"
 msgstr "移除主機"
 
@@ -6762,7 +6780,7 @@ msgstr "序號"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/static/login.html:159 pkg/networkmanager/ip-settings.jsx:256
+#: pkg/static/login.html:170 pkg/networkmanager/ip-settings.jsx:256
 #: pkg/kdump/kdump-view.jsx:267 pkg/kdump/kdump-view.jsx:289
 #: pkg/storaged/nfs/nfs.jsx:328
 msgid "Server"
@@ -6779,6 +6797,12 @@ msgstr "伺服器位址不可為空值。"
 #: pkg/storaged/nfs/nfs.jsx:141
 msgid "Server cannot be empty."
 msgstr "伺服器不能為空。"
+
+#: pkg/static/login.js:1016
+#, fuzzy
+#| msgid "Server has closed the connection."
+msgid "Server closed connection"
+msgstr "伺服器已關閉連線。"
 
 #: pkg/lib/cockpit.js:2614
 msgid "Server has closed the connection."
@@ -7728,7 +7752,7 @@ msgstr "密碼不可為空值"
 msgid "The passwords do not match"
 msgstr "密碼不匹配"
 
-#: pkg/static/login.html:89 pkg/lib/cockpit-connect-ssh.tsx:137
+#: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
 #: pkg/shell/hosts_dialog.jsx:580
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
@@ -7744,7 +7768,7 @@ msgstr ""
 "產生的指紋可放心以公開方式分享，包含電子郵件。如果您需要其他人士為您進行驗"
 "證，那些人士可使用任何方法傳送結果。"
 
-#: pkg/static/login.js:1010
+#: pkg/static/login.js:1014
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7950,11 +7974,11 @@ msgstr "這個集區處於降級狀態。"
 msgid "This system is not registered"
 msgstr "該系統未註冊"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:87
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
 msgid "This system is using a custom profile"
 msgstr "此系統正在使用自訂設定檔"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:85
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
 msgid "This system is using the recommended profile"
 msgstr "此系統正在使用建議的設定檔"
 
@@ -8088,7 +8112,7 @@ msgid ""
 msgstr ""
 "提示：可將您的金鑰密碼與您的登入密碼設為相同的，以自動於其他系統進行驗證。"
 
-#: pkg/static/login.html:84 pkg/lib/cockpit-connect-ssh.tsx:132
+#: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
 #: pkg/shell/hosts_dialog.jsx:575
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
@@ -8103,7 +8127,7 @@ msgstr ""
 "要取得軟體更新，須透過 Red Hat Customer Portal 或內部的訂閱伺服器向 Red Hat "
 "註冊此系統。"
 
-#: pkg/static/login.js:839 pkg/lib/cockpit-connect-ssh.tsx:135
+#: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
 #: pkg/shell/hosts_dialog.jsx:578
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -8159,6 +8183,12 @@ msgstr "塔"
 msgid "Transient"
 msgstr "暫時的"
 
+#: pkg/static/login.js:1053
+msgid ""
+"Transient packageless sessions require the same operating system and "
+"version, for compatibility reasons: $0."
+msgstr ""
+
 #: pkg/networkmanager/plots.js:39
 msgid "Transmitting"
 msgstr "正在傳送"
@@ -8195,7 +8225,7 @@ msgstr "信任金鑰"
 msgid "Trust level"
 msgstr "信任等級"
 
-#: pkg/static/login.html:153
+#: pkg/static/login.html:164
 msgid "Try again"
 msgstr "再試一次"
 
@@ -8207,11 +8237,11 @@ msgstr "正在嘗試與 $0 同步"
 msgid "Tuesdays"
 msgstr "每週二"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:257
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:249
 msgid "Tuned has failed to start"
 msgstr "Tuned 啟動失敗"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:281
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:283
 msgid ""
 "Tuned is a service that monitors your system and optimizes the performance "
 "under certain workloads. The core of Tuned are profiles, which tune your "
@@ -8220,15 +8250,15 @@ msgstr ""
 "Tuned 是一個監控您的系統並改善特定工作負載效能的服務。Tuned 的核心是設定檔，"
 "其基於不同的使用情境調整您的系統。"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:75
 msgid "Tuned is not available"
 msgstr "Tuned 無法使用"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:77
 msgid "Tuned is not running"
 msgstr "Tuned 非執行中"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
 msgid "Tuned is off"
 msgstr "Tuned 已關閉"
 
@@ -8280,7 +8310,7 @@ msgstr "UUID"
 msgid "Unable to apply this solution automatically"
 msgstr "無法自動應用此解決方案"
 
-#: pkg/static/login.js:1014
+#: pkg/static/login.js:1018
 msgid "Unable to connect to that address"
 msgstr "無法連線到該位址"
 
@@ -8655,12 +8685,12 @@ msgstr "使用者 ID 必須不大於 $0"
 msgid "User ID must not be lower than $0"
 msgstr "使用者 ID 必須不小於 $0"
 
-#: pkg/static/login.html:94 pkg/users/account-details.js:256
+#: pkg/static/login.html:105 pkg/users/account-details.js:256
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
 msgid "User name"
 msgstr "使用者名稱"
 
-#: pkg/static/login.js:622
+#: pkg/static/login.js:626
 msgid "User name cannot be empty"
 msgstr "使用者名稱不能留白"
 
@@ -8703,7 +8733,7 @@ msgstr "VLAN ID"
 msgid "Validating address"
 msgstr "正在驗證位址"
 
-#: pkg/static/login.html:147
+#: pkg/static/login.html:158
 msgid "Validating authentication token"
 msgstr "驗證身份驗證令牌"
 
@@ -8956,7 +8986,7 @@ msgstr "寫入為主"
 msgid "Writing"
 msgstr "正在寫入"
 
-#: pkg/static/login.js:1034
+#: pkg/static/login.js:1038
 msgid "Wrong user name or password"
 msgstr "錯誤的使用者名稱或密碼"
 
@@ -8972,7 +9002,7 @@ msgstr "每年"
 msgid "Yes"
 msgstr "是"
 
-#: pkg/static/login.js:836 pkg/lib/cockpit-connect-ssh.tsx:146
+#: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
 #: pkg/shell/hosts_dialog.jsx:589
 msgid "You are connecting to $0 for the first time."
 msgstr "您第一次連線到 $0 。"
@@ -9578,7 +9608,7 @@ msgstr "nfs 伺服器非有效的 IPv6 位址"
 msgid "nice"
 msgstr "nice 值"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:89
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:84
 #: pkg/storaged/crypto/encryption.jsx:232
 #: pkg/storaged/crypto/encryption.jsx:235
 #: pkg/storaged/stratis/stopped-pool.jsx:130
@@ -9937,6 +9967,15 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "區域"
+
+#~ msgid "Authentication failed: Server closed connection"
+#~ msgstr "驗證失敗：伺服器已中斷連線"
+
+#~ msgid "Refusing to connect. Host is unknown"
+#~ msgstr "拒絕連線。未知的主機"
+
+#~ msgid "Refusing to connect. Hostkey is unknown"
+#~ msgstr "拒絕連線。 Hostkey 未知"
 
 #~ msgid "You need to relogin to be able to see metrics history"
 #~ msgstr "您需要重新登入才能看到指標度量歷史紀錄"

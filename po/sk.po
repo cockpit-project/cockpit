@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-15 02:59+0000\n"
+"POT-Creation-Date: 2024-10-28 03:01+0000\n"
 "PO-Revision-Date: 2024-07-21 05:38+0000\n"
 "Last-Translator: Jose Riha <jose1711@gmail.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -103,7 +103,7 @@ msgstr "$0 Disky"
 msgid "$0 documentation"
 msgstr "Dokumentácia k $0"
 
-#: pkg/static/login.js:469 pkg/static/login.js:1042
+#: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "$0 chyba"
 
@@ -167,7 +167,7 @@ msgstr "$0 sa používa"
 msgid "$0 is not available from any repository."
 msgstr "$0 nie je k dispozícií v žiadom repozitári."
 
-#: pkg/static/login.js:828 pkg/lib/cockpit-connect-ssh.tsx:125
+#: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
 #: pkg/shell/hosts_dialog.jsx:565
 msgid "$0 key changed"
 msgstr "$0 kľúč sa zmenil"
@@ -575,7 +575,7 @@ msgstr "Systém súborov s týmto názvom už v tomto poole existuje."
 msgid "A group with this name already exists"
 msgstr "Skupina s takým názvom už existuje"
 
-#: pkg/static/login.html:39
+#: pkg/static/login.html:48
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr ""
@@ -649,7 +649,7 @@ msgstr "O webovej konzoli"
 msgid "Absent"
 msgstr "Chýba"
 
-#: pkg/static/login.js:734
+#: pkg/static/login.js:738
 msgid "Accept key and log in"
 msgstr "Prijať kľúč a prihlásiť sa"
 
@@ -1209,13 +1209,9 @@ msgstr "Overujem"
 msgid "Authentication"
 msgstr "Overovanie"
 
-#: pkg/static/login.js:1032
+#: pkg/static/login.js:1016 pkg/static/login.js:1036 pkg/static/login.js:1038
 msgid "Authentication failed"
 msgstr "Overenie sa nepodarilo"
-
-#: pkg/static/login.js:1012
-msgid "Authentication failed: Server closed connection"
-msgstr "Overenie zlyhalo: Server prerušil spojenie"
 
 #: src/systemd/org.cockpit-project.cockpit-bridge.policy.in:11
 msgid ""
@@ -1426,7 +1422,7 @@ msgstr ""
 "Zmenou hesla k SSH kľúču $0 na prihlasovacie heslo používateľa $1 na $2 bude "
 "kľúč automaticky sprístupnený a na $3 sa nabudúce prihlásite už bez hesla."
 
-#: pkg/static/login.html:61
+#: pkg/static/login.html:70
 msgid "Bypass browser check"
 msgstr "Obísť kontrolu prehliadača"
 
@@ -1468,13 +1464,13 @@ msgstr "Môže byť názov hostiteľa, IP adresa, alias alebo ssh:// URI"
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 
-#: pkg/static/login.html:141 pkg/playground/translate.html:39
+#: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:314
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
 #: pkg/systemd/overview-cards/motdCard.jsx:65
 #: pkg/networkmanager/dialogs-common.jsx:163
@@ -1572,11 +1568,11 @@ msgstr "Zmeniť heslovú frázu"
 msgid "Change password"
 msgstr "Zmeniť heslo"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:307
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:309
 msgid "Change performance profile"
 msgstr "Zmeniť profil výkonu"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:311
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:313
 msgid "Change profile"
 msgstr "Zmeniť profil"
 
@@ -1596,7 +1592,7 @@ msgstr "Zmeniť heslo kľúča $0"
 msgid "Change the settings"
 msgstr "Zmeniť nastavenia"
 
-#: pkg/static/login.html:81 pkg/lib/cockpit-connect-ssh.tsx:131
+#: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
 #: pkg/shell/hosts_dialog.jsx:574
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
@@ -1838,7 +1834,7 @@ msgstr "Príkaz nebol nájdený"
 msgid "Comment"
 msgstr "Komentár"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:97
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:91
 msgid "Communication with tuned has failed"
 msgstr "Komunikácia s tuned sa nepodarila"
 
@@ -1942,11 +1938,11 @@ msgstr "V konflikte"
 msgid "Connect automatically"
 msgstr "Pripojiť sa automaticky"
 
-#: pkg/static/login.html:127
+#: pkg/static/login.html:138
 msgid "Connect to"
 msgstr "Pripojiť sa k"
 
-#: pkg/static/login.js:726
+#: pkg/static/login.js:730
 msgid "Connect to:"
 msgstr "Pripojiť sa k:"
 
@@ -2649,7 +2645,7 @@ msgstr "Vypnúť simultánny multithreading"
 msgid "Disable the firewall"
 msgstr "Vypnúť bránu firewall"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:233
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:225
 msgid "Disable tuned"
 msgstr "Vypnúť tuned"
 
@@ -2796,7 +2792,7 @@ msgstr "Dvojitá distribuovaná parita (RAID 6)"
 msgid "Download"
 msgstr "Stiahnúť"
 
-#: pkg/static/login.html:42
+#: pkg/static/login.html:51
 msgid "Download a new browser for free"
 msgstr "Stiahnite si zdarma nový prehliadač"
 
@@ -3188,11 +3184,11 @@ msgstr "Nepodarilo sa nastaviť PCP"
 msgid "Failed to delete alert: $0"
 msgstr "Nepodarilo sa odstrániť výstrahu: $0"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:162
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:158
 msgid "Failed to disable tuned"
 msgstr "Nepodarilo sa deaktivovať tuned"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:183
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:179
 msgid "Failed to disable tuned profile"
 msgstr "Nepodarilo sa vypnúť profil tuned"
 
@@ -3208,7 +3204,7 @@ msgstr "Službu sa nepodarilo upraviť"
 msgid "Failed to enable $0 in firewalld"
 msgstr "Nepodarilo sa povoliť $0 vo firewalld"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:160
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:156
 msgid "Failed to enable tuned"
 msgstr "Nepodarilo sa aktivovať tuned"
 
@@ -3249,7 +3245,7 @@ msgstr "Nastavenia sa nepodarilo uložiť"
 msgid "Failed to start"
 msgstr "Nepodarilo sa spustiť"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:194
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:188
 msgid "Failed to switch profile"
 msgstr "Nepodarilo sa prepnúť profil"
 
@@ -3505,7 +3501,7 @@ msgid "Hello time $hello_time"
 msgstr "Oznamovací čas $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:295 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
 msgid "Help"
 msgstr "Nápoveda"
 
@@ -3537,8 +3533,26 @@ msgstr "Domovský adresár"
 msgid "Host"
 msgstr "Hostiteľ"
 
+#: pkg/static/login.js:1022
+#, fuzzy
+#| msgid "unknown"
+msgid "Host is unknown"
+msgstr "neznáme"
+
 #: pkg/lib/cockpit.js:2604
 msgid "Host key is incorrect"
+msgstr "Kľúč stroja nie je správny"
+
+#: pkg/static/login.js:1033
+#, fuzzy
+#| msgid "Refusing to connect. Hostkey does not match"
+msgid "Hostkey does not match"
+msgstr "Odmietam sa pripojiť. Kľúč stroja sa líši"
+
+#: pkg/static/login.js:1020
+#, fuzzy
+#| msgid "Host key is incorrect"
+msgid "Hostkey is unknown"
 msgstr "Kľúč stroja nie je správny"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:66
@@ -3631,7 +3645,7 @@ msgstr ""
 "Ak nie je vyplnené, identifikátor bude vytvorený na základe súvisiacich "
 "služieb na porte a čísiel portov"
 
-#: pkg/static/login.html:90
+#: pkg/static/login.html:101
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -3795,6 +3809,12 @@ msgstr "Nainštalovať softvér"
 msgid "Install the $0 package."
 msgstr "Nainštalujte balíček $0."
 
+#: pkg/static/login.js:1046
+msgid ""
+"Install the cockpit-system package (and optionally other cockpit packages) "
+"on $0 to enable web console access."
+msgstr ""
+
 #: pkg/packagekit/updates.jsx:111
 msgid "Installed"
 msgstr "Nainštalovaný"
@@ -3839,11 +3859,11 @@ msgstr "Rozhrania"
 msgid "Internal error"
 msgstr "Interná chyba"
 
-#: pkg/static/login.js:986
+#: pkg/static/login.js:990
 msgid "Internal error: Invalid challenge header"
 msgstr "Interná chyba: neplatná hlavička výzvy"
 
-#: pkg/static/login.js:864
+#: pkg/static/login.js:868
 #, fuzzy
 #| msgid "Internal error"
 msgid "Internal protocol error"
@@ -4132,7 +4152,7 @@ msgstr "Rozvrhnutie"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:291
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
 msgid "Learn more"
@@ -4364,7 +4384,7 @@ msgstr "Uzamknuté zašifrované zariadenie môže obsahovať dáta"
 msgid "Locking $target"
 msgstr "Zamykám $target"
 
-#: pkg/static/login.html:139 pkg/static/login.js:734
+#: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
 #: pkg/shell/hosts_dialog.jsx:865
 msgid "Log in"
@@ -4374,7 +4394,7 @@ msgstr "Prihlásiť"
 msgid "Log in to $0"
 msgstr "Prihlásiť sa k $0"
 
-#: pkg/static/login.js:770
+#: pkg/static/login.js:774
 msgid "Log in with your server user account."
 msgstr "Prihláste sa vašim účtom používateľa na serveri."
 
@@ -5015,7 +5035,7 @@ msgstr "Nikdy neprihlásený(á)"
 msgid "New NFS mount"
 msgstr "Nové NFS pripojenie"
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:838
 msgid "New host"
 msgstr "Nový hostiteľ"
 
@@ -5261,7 +5281,7 @@ msgstr "Žiadne aktualizácie"
 msgid "No user name specified"
 msgstr "Nebolo zadané meno používateľa"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:224
 #: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
 msgid "None"
 msgstr "Žiadny"
@@ -5454,7 +5474,7 @@ msgstr "Operácia '$operation' na $target"
 msgid "Options"
 msgstr "Možnosti"
 
-#: pkg/static/login.html:49
+#: pkg/static/login.html:58
 msgid "Or use a bundled browser"
 msgstr "Alebo použite pribalený prehliadač"
 
@@ -5470,7 +5490,7 @@ msgstr ""
 "Aj keď nie je umožnené prihlasovanie pomocou hesla, ostatné metódy "
 "overovania sú stále k dispozícii."
 
-#: pkg/static/login.html:121
+#: pkg/static/login.html:132
 msgid "Other options"
 msgstr "Iné voľby"
 
@@ -5528,6 +5548,10 @@ msgstr "PackageKit nie je nainštalovaný"
 #: pkg/packagekit/updates.jsx:1305
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit ohlásil chybový kód $0"
+
+#: pkg/static/login.js:1056
+msgid "Packageless session unavailable"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:363
 msgid "Packages"
@@ -5620,7 +5644,7 @@ msgstr "Zmazanie heslovej fráze môže brániť odomknutiu $0."
 msgid "Passphrases do not match"
 msgstr "Heslové frázy sa líšia"
 
-#: pkg/static/login.html:99 pkg/lib/cockpit-connect-ssh.tsx:442
+#: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
 #: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
@@ -5782,7 +5806,7 @@ msgstr "Nenávratne odstránť logický zväzok $0/$1?"
 msgid "Permanently delete subvolume $0?"
 msgstr "Nenávratne odstrániť podzväzok $0?"
 
-#: pkg/static/login.js:1038
+#: pkg/static/login.js:1043
 msgid "Permission denied"
 msgstr "Prístup odmietnutý"
 
@@ -5834,7 +5858,7 @@ msgstr "Veľkosť „krabice od pizzy“"
 msgid "Please authenticate to gain administrative access"
 msgstr "Pre získanie prístupu na úrovni správcu sa prosím overte"
 
-#: pkg/static/login.html:34
+#: pkg/static/login.html:42
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "Ak chcete používať webovú konzolu, zapnite podporu pre JavaScript."
 
@@ -5850,7 +5874,7 @@ msgstr "Prosím, vyriešte problém a načítajte túto stránku znovu."
 msgid "Please specify an expiration date"
 msgstr "Zadajte dátum skončenia platnosti"
 
-#: pkg/static/login.js:624
+#: pkg/static/login.js:628
 msgid "Please specify the host to connect to"
 msgstr "Zadajte stroj, ku ktorému sa chcete pripojiť"
 
@@ -6174,7 +6198,7 @@ msgstr "Reštartovať systém…"
 msgid "Receiving"
 msgstr "Prijímanie"
 
-#: pkg/static/login.html:165
+#: pkg/static/login.html:176
 msgid "Recent hosts"
 msgstr "Nedávni hostitelia"
 
@@ -6198,17 +6222,11 @@ msgstr "Zotavuje sa zariadenie MDRAID $target"
 msgid "Refreshing package information"
 msgstr "Obnovujem informácie o balíčkoch"
 
-#: pkg/static/login.js:1018
-msgid "Refusing to connect. Host is unknown"
-msgstr "Odmietam sa pripojiť. Stroj nie je známy"
-
-#: pkg/static/login.js:1029
-msgid "Refusing to connect. Hostkey does not match"
-msgstr "Odmietam sa pripojiť. Kľúč stroja sa líši"
-
-#: pkg/static/login.js:1016
-msgid "Refusing to connect. Hostkey is unknown"
-msgstr "Odmietam sa pripojiť. Kľúč stroja nie je známy"
+#: pkg/static/login.js:1020 pkg/static/login.js:1022 pkg/static/login.js:1033
+#, fuzzy
+#| msgid "Restoring connection"
+msgid "Refusing to connect"
+msgstr "Obnovujem spojenie"
 
 #: pkg/networkmanager/wireguard.jsx:224
 msgid "Regenerate"
@@ -6314,7 +6332,7 @@ msgstr "Odstrániť Tang server s kľúčami?"
 msgid "Remove device"
 msgstr "Odstrániť zariadenie"
 
-#: pkg/static/login.js:700
+#: pkg/static/login.js:704
 msgid "Remove host"
 msgstr "Odstrániť hostiteľa"
 
@@ -6903,7 +6921,7 @@ msgstr "Odchádzajúce"
 msgid "Serial number"
 msgstr "Sériové číslo"
 
-#: pkg/static/login.html:159 pkg/networkmanager/ip-settings.jsx:256
+#: pkg/static/login.html:170 pkg/networkmanager/ip-settings.jsx:256
 #: pkg/kdump/kdump-view.jsx:267 pkg/kdump/kdump-view.jsx:289
 #: pkg/storaged/nfs/nfs.jsx:328
 msgid "Server"
@@ -6920,6 +6938,12 @@ msgstr "Adresa server nemôže byť prázdna."
 #: pkg/storaged/nfs/nfs.jsx:141
 msgid "Server cannot be empty."
 msgstr "Server nemôže byť prázdny."
+
+#: pkg/static/login.js:1016
+#, fuzzy
+#| msgid "Server has closed the connection."
+msgid "Server closed connection"
+msgstr "Server zavrel spojenie."
 
 #: pkg/lib/cockpit.js:2614
 msgid "Server has closed the connection."
@@ -7893,7 +7917,7 @@ msgstr "Heslo nemôže byť prázdne"
 msgid "The passwords do not match"
 msgstr "Heslá sa líšia"
 
-#: pkg/static/login.html:89 pkg/lib/cockpit-connect-ssh.tsx:137
+#: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
 #: pkg/shell/hosts_dialog.jsx:580
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
@@ -7911,7 +7935,7 @@ msgstr ""
 "spôsobov, vrátane e-mailu. Ak niekoho iného žiadate, aby urobil overovanie "
 "za vás, môže poslať výsledky ľubovoľnou cestou."
 
-#: pkg/static/login.js:1010
+#: pkg/static/login.js:1014
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -8145,11 +8169,11 @@ msgstr "Tento pool sa nachádza v degradovanom stave."
 msgid "This system is not registered"
 msgstr "Tento systém nie je zaregistrovaný"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:87
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
 msgid "This system is using a custom profile"
 msgstr "Tento systém používa používateľom definovaný profil"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:85
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
 msgid "This system is using the recommended profile"
 msgstr "Tento systém používa odporúčaný profil"
 
@@ -8296,7 +8320,7 @@ msgstr ""
 "Tip: Nastavte si heslo ku kľúču rovnaké ako pre prihlasovanie a budete se "
 "voči ostatným systémom overovať automaticky."
 
-#: pkg/static/login.html:84 pkg/lib/cockpit-connect-ssh.tsx:132
+#: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
 #: pkg/shell/hosts_dialog.jsx:575
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
@@ -8314,7 +8338,7 @@ msgstr ""
 "Hat, buď pomocou Red Hat portálu pre zákazníkov alebo miestneho serveru "
 "predplatného."
 
-#: pkg/static/login.js:839 pkg/lib/cockpit-connect-ssh.tsx:135
+#: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
 #: pkg/shell/hosts_dialog.jsx:578
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -8372,6 +8396,12 @@ msgstr "Veža"
 msgid "Transient"
 msgstr "Prechodné"
 
+#: pkg/static/login.js:1053
+msgid ""
+"Transient packageless sessions require the same operating system and "
+"version, for compatibility reasons: $0."
+msgstr ""
+
 #: pkg/networkmanager/plots.js:39
 msgid "Transmitting"
 msgstr "Odosielanie"
@@ -8408,7 +8438,7 @@ msgstr "Dôveryhodný kľúč"
 msgid "Trust level"
 msgstr "Stupeň dôveryhodnosti"
 
-#: pkg/static/login.html:153
+#: pkg/static/login.html:164
 msgid "Try again"
 msgstr "Skúsiť znova"
 
@@ -8420,11 +8450,11 @@ msgstr "Pokus o synchronizáciu s $0"
 msgid "Tuesdays"
 msgstr "utorky"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:257
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:249
 msgid "Tuned has failed to start"
 msgstr "Spustenie procesu služby tuned skončilo neúspechom"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:281
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:283
 msgid ""
 "Tuned is a service that monitors your system and optimizes the performance "
 "under certain workloads. The core of Tuned are profiles, which tune your "
@@ -8434,15 +8464,15 @@ msgstr ""
 "určitými typmi záťaží. Jadrom Tuned sú profily, ktoré ladia váš systém pre "
 "rôzne prípady použitia."
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:75
 msgid "Tuned is not available"
 msgstr "Tuned nie je k dispozícii"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:77
 msgid "Tuned is not running"
 msgstr "Tuned nie je spustené"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
 msgid "Tuned is off"
 msgstr "Tuned je vypnuté"
 
@@ -8493,7 +8523,7 @@ msgstr "UUID"
 msgid "Unable to apply this solution automatically"
 msgstr "Nedarí sa automaticky aplikovať toto riešenie"
 
-#: pkg/static/login.js:1014
+#: pkg/static/login.js:1018
 msgid "Unable to connect to that address"
 msgstr "K tejto adrese sa nedarí pripojiť"
 
@@ -8877,12 +8907,12 @@ msgstr "Identifikátor používateľa musí byť väčší ako $0"
 msgid "User ID must not be lower than $0"
 msgstr "Identifikátor používateľa musí byť menší ako $0"
 
-#: pkg/static/login.html:94 pkg/users/account-details.js:256
+#: pkg/static/login.html:105 pkg/users/account-details.js:256
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
 msgid "User name"
 msgstr "Meno používateľa"
 
-#: pkg/static/login.js:622
+#: pkg/static/login.js:626
 msgid "User name cannot be empty"
 msgstr "Meno používateľa nesmie byť prázdne"
 
@@ -8925,7 +8955,7 @@ msgstr "VLAN ID"
 msgid "Validating address"
 msgstr "Overujem adresu"
 
-#: pkg/static/login.html:147
+#: pkg/static/login.html:158
 msgid "Validating authentication token"
 msgstr "Kontrolujem overovací žetón"
 
@@ -9179,7 +9209,7 @@ msgstr "Prevažne zápis"
 msgid "Writing"
 msgstr "Zápis"
 
-#: pkg/static/login.js:1034
+#: pkg/static/login.js:1038
 msgid "Wrong user name or password"
 msgstr "Chybné meno používateľa alebo heslo"
 
@@ -9195,7 +9225,7 @@ msgstr "Každý rok"
 msgid "Yes"
 msgstr "Áno"
 
-#: pkg/static/login.js:836 pkg/lib/cockpit-connect-ssh.tsx:146
+#: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
 #: pkg/shell/hosts_dialog.jsx:589
 msgid "You are connecting to $0 for the first time."
 msgstr "K $0 sa pripájate prvýkrát."
@@ -9805,7 +9835,7 @@ msgstr "nfs server nie je platná adresa IPv6"
 msgid "nice"
 msgstr "prednosť (nice)"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:89
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:84
 #: pkg/storaged/crypto/encryption.jsx:232
 #: pkg/storaged/crypto/encryption.jsx:235
 #: pkg/storaged/stratis/stopped-pool.jsx:130
@@ -10166,6 +10196,15 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zóna"
+
+#~ msgid "Authentication failed: Server closed connection"
+#~ msgstr "Overenie zlyhalo: Server prerušil spojenie"
+
+#~ msgid "Refusing to connect. Host is unknown"
+#~ msgstr "Odmietam sa pripojiť. Stroj nie je známy"
+
+#~ msgid "Refusing to connect. Hostkey is unknown"
+#~ msgstr "Odmietam sa pripojiť. Kľúč stroja nie je známy"
 
 #~ msgid "You need to relogin to be able to see metrics history"
 #~ msgstr ""

@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-15 02:59+0000\n"
-"PO-Revision-Date: 2024-10-13 06:38+0000\n"
+"POT-Creation-Date: 2024-10-28 03:01+0000\n"
+"PO-Revision-Date: 2024-10-28 06:38+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -99,7 +99,7 @@ msgstr "$0 디스크"
 msgid "$0 documentation"
 msgstr "$0 문서"
 
-#: pkg/static/login.js:469 pkg/static/login.js:1042
+#: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "$0 오류"
 
@@ -157,7 +157,7 @@ msgstr "$0 사용 중"
 msgid "$0 is not available from any repository."
 msgstr "$0는 저장소에서 사용 할 수 없습니다."
 
-#: pkg/static/login.js:828 pkg/lib/cockpit-connect-ssh.tsx:125
+#: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
 #: pkg/shell/hosts_dialog.jsx:565
 msgid "$0 key changed"
 msgstr "$0 키 변경됩니다"
@@ -533,7 +533,7 @@ msgstr "이 이름을 가진 파일 시스템이 이미 이 풀에 있습니다.
 msgid "A group with this name already exists"
 msgstr "이 이름으로된 그룹이 이미 존재합니다"
 
-#: pkg/static/login.html:39
+#: pkg/static/login.html:48
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr "보안, 안정성, 성능을 위해 최신 브라우저가 필요합니다."
@@ -594,7 +594,7 @@ msgstr "웹 콘솔 정보"
 msgid "Absent"
 msgstr "부재"
 
-#: pkg/static/login.js:734
+#: pkg/static/login.js:738
 msgid "Accept key and log in"
 msgstr "키 수락 및 로그인"
 
@@ -1141,13 +1141,9 @@ msgstr "인증 중입니다"
 msgid "Authentication"
 msgstr "인증"
 
-#: pkg/static/login.js:1032
+#: pkg/static/login.js:1016 pkg/static/login.js:1036 pkg/static/login.js:1038
 msgid "Authentication failed"
 msgstr "인증 실패"
-
-#: pkg/static/login.js:1012
-msgid "Authentication failed: Server closed connection"
-msgstr "인증 실패: 서버 연결 끊김"
 
 #: src/systemd/org.cockpit-project.cockpit-bridge.policy.in:11
 msgid ""
@@ -1354,7 +1350,7 @@ msgstr ""
 "SSH 키 $0의 비밀번호를 $1의 ($2에서) 로그인 비밀번호로 변경하면, 키가 자동으"
 "로 제공되며 추후 비밀번호 없이 $3에 로그인 할 수 있습니다."
 
-#: pkg/static/login.html:61
+#: pkg/static/login.html:70
 msgid "Bypass browser check"
 msgstr "웹 탐색기 점검을 우회합니다"
 
@@ -1396,13 +1392,13 @@ msgstr "호스트 이름, IP 주소, 별칭 이름 또는 ssh:// URI일 수 있�
 msgid "Can not find any logs using the current combination of filters."
 msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 
-#: pkg/static/login.html:141 pkg/playground/translate.html:39
+#: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:314
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
 #: pkg/systemd/overview-cards/motdCard.jsx:65
 #: pkg/networkmanager/dialogs-common.jsx:163
@@ -1500,11 +1496,11 @@ msgstr "암호문 변경"
 msgid "Change password"
 msgstr "비밀번호 변경"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:307
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:309
 msgid "Change performance profile"
 msgstr "성능 프로파일 변경"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:311
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:313
 msgid "Change profile"
 msgstr "프로파일 변경"
 
@@ -1524,7 +1520,7 @@ msgstr "$0의 비밀번호 변경"
 msgid "Change the settings"
 msgstr "설정 변경"
 
-#: pkg/static/login.html:81 pkg/lib/cockpit-connect-ssh.tsx:131
+#: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
 #: pkg/shell/hosts_dialog.jsx:574
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
@@ -1760,7 +1756,7 @@ msgstr "명령을 찾을 수 없음"
 msgid "Comment"
 msgstr "설명"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:97
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:91
 msgid "Communication with tuned has failed"
 msgstr "tuned와의 통신에 실패했습니다"
 
@@ -1864,11 +1860,11 @@ msgstr "충돌"
 msgid "Connect automatically"
 msgstr "자동으로 연결"
 
-#: pkg/static/login.html:127
+#: pkg/static/login.html:138
 msgid "Connect to"
 msgstr "연결 대상"
 
-#: pkg/static/login.js:726
+#: pkg/static/login.js:730
 msgid "Connect to:"
 msgstr "연결 대상:"
 
@@ -2570,7 +2566,7 @@ msgstr "동시 멀티스레딩 비활성화"
 msgid "Disable the firewall"
 msgstr "방화벽 비활성화"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:233
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:225
 msgid "Disable tuned"
 msgstr "tuned 비활성화"
 
@@ -2719,7 +2715,7 @@ msgstr "이중 분산 패리티 (레이드 6)"
 msgid "Download"
 msgstr "내려받기"
 
-#: pkg/static/login.html:42
+#: pkg/static/login.html:51
 msgid "Download a new browser for free"
 msgstr "신규 브라우저 내려받기 (무료)"
 
@@ -3110,11 +3106,11 @@ msgstr "PCP 구성에 실패하였습니다"
 msgid "Failed to delete alert: $0"
 msgstr "알림을 삭제하지 못했습니다: $0"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:162
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:158
 msgid "Failed to disable tuned"
 msgstr "tuned 비활성화에 실패했습니다"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:183
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:179
 msgid "Failed to disable tuned profile"
 msgstr "조정된 프로파일 비활성화에 실패함"
 
@@ -3130,7 +3126,7 @@ msgstr "서비스 편집하는데 실패"
 msgid "Failed to enable $0 in firewalld"
 msgstr "방화벽에서 $0 활성화에 실패"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:160
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:156
 msgid "Failed to enable tuned"
 msgstr "tuned 활성화에 실패하였습니다"
 
@@ -3171,7 +3167,7 @@ msgstr "설정을 저장하는데 실패함"
 msgid "Failed to start"
 msgstr "시작하지 못했습니다"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:194
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:188
 msgid "Failed to switch profile"
 msgstr "프로파일 전환에 실패했습니다"
 
@@ -3427,7 +3423,7 @@ msgid "Hello time $hello_time"
 msgstr "Hello 타임 $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:295 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
 msgid "Help"
 msgstr "도움말"
 
@@ -3459,9 +3455,21 @@ msgstr "홈 디렉토리"
 msgid "Host"
 msgstr "호스트"
 
+#: pkg/static/login.js:1022
+msgid "Host is unknown"
+msgstr "호스를 알 수 없습니다"
+
 #: pkg/lib/cockpit.js:2604
 msgid "Host key is incorrect"
 msgstr "호스트 키가 잘못되었습니다"
+
+#: pkg/static/login.js:1033
+msgid "Hostkey does not match"
+msgstr "호스트키가 일치하지 않습니다"
+
+#: pkg/static/login.js:1020
+msgid "Hostkey is unknown"
+msgstr "호스트키를 알 수 없습니다"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:66
 msgid "Hostname"
@@ -3550,7 +3558,7 @@ msgid ""
 msgstr ""
 "만약 비워져 있으면, ID는 연관된 포트 서비스와 포트 번호를 기반으로 발생합니다"
 
-#: pkg/static/login.html:90
+#: pkg/static/login.html:101
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -3711,6 +3719,14 @@ msgstr "소프트웨어 설치"
 msgid "Install the $0 package."
 msgstr "$0 꾸러미를 설치합니다."
 
+#: pkg/static/login.js:1046
+msgid ""
+"Install the cockpit-system package (and optionally other cockpit packages) "
+"on $0 to enable web console access."
+msgstr ""
+"웹 콘솔 접근을 활성화 하도록 $0에 cockpit-system 꾸러미(및 선택적인 다른 "
+"cockpit 꾸러미)를 설치합니다."
+
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
 #: pkg/packagekit/updates.jsx:111
@@ -3755,11 +3771,11 @@ msgstr "연결장치"
 msgid "Internal error"
 msgstr "내부 오류"
 
-#: pkg/static/login.js:986
+#: pkg/static/login.js:990
 msgid "Internal error: Invalid challenge header"
 msgstr "내부 오류: 잘못된 챌린지 헤더"
 
-#: pkg/static/login.js:864
+#: pkg/static/login.js:868
 msgid "Internal protocol error"
 msgstr "내부 통신규약 오류"
 
@@ -4048,7 +4064,7 @@ msgstr "배열"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:291
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
 msgid "Learn more"
@@ -4283,7 +4299,7 @@ msgstr "잠긴 암호화된 장치에 자료가 포함 될 수 있습니다"
 msgid "Locking $target"
 msgstr "$target 잠금 중"
 
-#: pkg/static/login.html:139 pkg/static/login.js:734
+#: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
 #: pkg/shell/hosts_dialog.jsx:865
 msgid "Log in"
@@ -4293,7 +4309,7 @@ msgstr "로그인"
 msgid "Log in to $0"
 msgstr "$0에 로그인"
 
-#: pkg/static/login.js:770
+#: pkg/static/login.js:774
 msgid "Log in with your server user account."
 msgstr "서버 사용자 계정으로 로그인합니다."
 
@@ -4935,7 +4951,7 @@ msgstr "로그인 하지 않음"
 msgid "New NFS mount"
 msgstr "신규 NFS 적재"
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:838
 msgid "New host"
 msgstr "신규 호스트"
 
@@ -5181,7 +5197,7 @@ msgstr "최신화 없음"
 msgid "No user name specified"
 msgstr "지정된 사용자 이름이 없습니다"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:224
 #: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
 msgid "None"
 msgstr "없음"
@@ -5373,7 +5389,7 @@ msgstr "$target에서 '$operation' 작업"
 msgid "Options"
 msgstr "옵션"
 
-#: pkg/static/login.html:49
+#: pkg/static/login.html:58
 msgid "Or use a bundled browser"
 msgstr "번들된 브라우저 사용"
 
@@ -5389,7 +5405,7 @@ msgstr ""
 "다른 인증 방식은 대화형 비밀번호 인증이 허용되지 않을 때에 여전히 사용 할 수 "
 "있습니다."
 
-#: pkg/static/login.html:121
+#: pkg/static/login.html:132
 msgid "Other options"
 msgstr "기타 옵션"
 
@@ -5447,6 +5463,10 @@ msgstr "PackageKit이 설치되어 있지 않습니다"
 #: pkg/packagekit/updates.jsx:1305
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit가 오류 코드 $0를 보고했습니다"
+
+#: pkg/static/login.js:1056
+msgid "Packageless session unavailable"
+msgstr "꾸러미 없는 세션을 사용 할 수 없음"
 
 #: pkg/packagekit/updates.jsx:363
 msgid "Packages"
@@ -5541,7 +5561,7 @@ msgstr "암호문 제거에서 $0 잠금 해제가 되지 않을 수 있습니�
 msgid "Passphrases do not match"
 msgstr "암호문이 일치하지 않습니다"
 
-#: pkg/static/login.html:99 pkg/lib/cockpit-connect-ssh.tsx:442
+#: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
 #: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
@@ -5702,7 +5722,7 @@ msgstr "영구적으로 논리 볼륨 $0/$1를 삭제할까요?"
 msgid "Permanently delete subvolume $0?"
 msgstr "영구적으로 하위볼륨 $0를 삭제 할까요?"
 
-#: pkg/static/login.js:1038
+#: pkg/static/login.js:1043
 msgid "Permission denied"
 msgstr "권한이 거부되었습니다"
 
@@ -5756,7 +5776,7 @@ msgstr "피자 박스"
 msgid "Please authenticate to gain administrative access"
 msgstr "관리 접근 권한을 얻으려면 인증하세요"
 
-#: pkg/static/login.html:34
+#: pkg/static/login.html:42
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "웹 콘솔을 사용하려면 JavaScript를 활성화하십시오."
 
@@ -5772,7 +5792,7 @@ msgstr "문제를 해결하고 이 부분을 다시 적재하세요."
 msgid "Please specify an expiration date"
 msgstr "만료 날짜를 지정해 주십시오"
 
-#: pkg/static/login.js:624
+#: pkg/static/login.js:628
 msgid "Please specify the host to connect to"
 msgstr "연결할 호스트를 지정해 주십시오"
 
@@ -6094,7 +6114,7 @@ msgstr "시스템 재시작..."
 msgid "Receiving"
 msgstr "수신중"
 
-#: pkg/static/login.html:165
+#: pkg/static/login.html:176
 msgid "Recent hosts"
 msgstr "최근 호스트"
 
@@ -6118,17 +6138,9 @@ msgstr "MD레이드 장치 $target 복구 중"
 msgid "Refreshing package information"
 msgstr "꾸러미 정보 새로고침 중"
 
-#: pkg/static/login.js:1018
-msgid "Refusing to connect. Host is unknown"
-msgstr "연결을 거부하고 있습니다. 알 수 없는 호스트입니다"
-
-#: pkg/static/login.js:1029
-msgid "Refusing to connect. Hostkey does not match"
-msgstr "연결을 거부하고 있습니다. 호스트 키가 일치하지 않습니다"
-
-#: pkg/static/login.js:1016
-msgid "Refusing to connect. Hostkey is unknown"
-msgstr "연결을 거부하고 있습니다. 알 수 없는 호스트 키입니다"
+#: pkg/static/login.js:1020 pkg/static/login.js:1022 pkg/static/login.js:1033
+msgid "Refusing to connect"
+msgstr "연결 하는데 거부 중"
 
 #: pkg/networkmanager/wireguard.jsx:224
 msgid "Regenerate"
@@ -6234,7 +6246,7 @@ msgstr "Tang 키 서버 삭제?"
 msgid "Remove device"
 msgstr "장치 삭제"
 
-#: pkg/static/login.js:700
+#: pkg/static/login.js:704
 msgid "Remove host"
 msgstr "호스트 제거"
 
@@ -6814,7 +6826,7 @@ msgstr "일련 번호"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/static/login.html:159 pkg/networkmanager/ip-settings.jsx:256
+#: pkg/static/login.html:170 pkg/networkmanager/ip-settings.jsx:256
 #: pkg/kdump/kdump-view.jsx:267 pkg/kdump/kdump-view.jsx:289
 #: pkg/storaged/nfs/nfs.jsx:328
 msgid "Server"
@@ -6831,6 +6843,10 @@ msgstr "서버 주소는 비워둘 수 없습니다."
 #: pkg/storaged/nfs/nfs.jsx:141
 msgid "Server cannot be empty."
 msgstr "서버는 비워둘 수 없습니다."
+
+#: pkg/static/login.js:1016
+msgid "Server closed connection"
+msgstr "서버 연결이 종료됨"
 
 #: pkg/lib/cockpit.js:2614
 msgid "Server has closed the connection."
@@ -7788,7 +7804,7 @@ msgstr "비밀번호를 비워둘 수 없습니다"
 msgid "The passwords do not match"
 msgstr "비밀번호가 일치하지 않습니다"
 
-#: pkg/static/login.html:89 pkg/lib/cockpit-connect-ssh.tsx:137
+#: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
 #: pkg/shell/hosts_dialog.jsx:580
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
@@ -7806,7 +7822,7 @@ msgstr ""
 "약 누군가 당신을 위해 인증하도록 요청하는 경우, 어떤 방식을 사용하든 결과를 "
 "전송 할 수 있습니다."
 
-#: pkg/static/login.js:1010
+#: pkg/static/login.js:1014
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -8023,11 +8039,11 @@ msgstr "이 풀은 성능이 저하된 상태입니다."
 msgid "This system is not registered"
 msgstr "이 시스템은 등록되어 있지 않습니다"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:87
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
 msgid "This system is using a custom profile"
 msgstr "이 시스템은 사용자 정의 프로파일을 사용하고 있습니다"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:85
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
 msgid "This system is using the recommended profile"
 msgstr "이 시스템은 권장 프로파일을 사용하고 있습니다"
 
@@ -8170,7 +8186,7 @@ msgstr ""
 "도움말: 다른 시스템에 자동으로 인증하려면 키 비밀번호가 로그인 비밀번호와 일"
 "치해야 합니다."
 
-#: pkg/static/login.html:84 pkg/lib/cockpit-connect-ssh.tsx:132
+#: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
 #: pkg/shell/hosts_dialog.jsx:575
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
@@ -8187,7 +8203,7 @@ msgstr ""
 "소프트웨어 최신화 하려면, 이 시스템은 Red Hat 고객 포털이나 로컬 서브스크립"
 "션 서버를 사용하여 Red Hat에 등록되어 있어야 합니다."
 
-#: pkg/static/login.js:839 pkg/lib/cockpit-connect-ssh.tsx:135
+#: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
 #: pkg/shell/hosts_dialog.jsx:578
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -8245,6 +8261,14 @@ msgstr "타워"
 msgid "Transient"
 msgstr "과도현상"
 
+#: pkg/static/login.js:1053
+msgid ""
+"Transient packageless sessions require the same operating system and "
+"version, for compatibility reasons: $0."
+msgstr ""
+"일시적으로 꾸러미 없는 세션은 호환성 원인으로 동일한 운영체제 및 버전이 필요"
+"합니다: $0."
+
 #: pkg/networkmanager/plots.js:39
 msgid "Transmitting"
 msgstr "전송중"
@@ -8281,7 +8305,7 @@ msgstr "신뢰 키"
 msgid "Trust level"
 msgstr "신뢰 단계"
 
-#: pkg/static/login.html:153
+#: pkg/static/login.html:164
 msgid "Try again"
 msgstr "다시 시도"
 
@@ -8293,11 +8317,11 @@ msgstr "$0와 동기화를 시도 중입니다"
 msgid "Tuesdays"
 msgstr "화요일"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:257
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:249
 msgid "Tuned has failed to start"
 msgstr "Tuned 시작에 실패했습니다"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:281
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:283
 msgid ""
 "Tuned is a service that monitors your system and optimizes the performance "
 "under certain workloads. The core of Tuned are profiles, which tune your "
@@ -8306,15 +8330,15 @@ msgstr ""
 "Tuned는 시스템을 모니터링하고 특정 워크로드에 대해 성능을 최적화하는 서비스입"
 "니다. Tuned의 핵심은 다른 사용 사례에 맞게 시스템을 조정하는 프로파일입니다."
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:75
 msgid "Tuned is not available"
 msgstr "Tuned를 사용 할 수 없습니다"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:81
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:77
 msgid "Tuned is not running"
 msgstr "Tuned가 동작되지 않음"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:83
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:79
 msgid "Tuned is off"
 msgstr "Tuned이 종료되어 있습니다"
 
@@ -8367,7 +8391,7 @@ msgstr "UUID"
 msgid "Unable to apply this solution automatically"
 msgstr "이와 같은 해결책을 자동으로 적용 할 수 없습니다"
 
-#: pkg/static/login.js:1014
+#: pkg/static/login.js:1018
 msgid "Unable to connect to that address"
 msgstr "해당 주소에 연결 할 수 없음"
 
@@ -8745,12 +8769,12 @@ msgstr "사용자 ID는 $0보다 크지 않아야만 합니다"
 msgid "User ID must not be lower than $0"
 msgstr "사용자 ID는 $0보다 작지 안아야만 합니다"
 
-#: pkg/static/login.html:94 pkg/users/account-details.js:256
+#: pkg/static/login.html:105 pkg/users/account-details.js:256
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
 msgid "User name"
 msgstr "사용자 이름"
 
-#: pkg/static/login.js:622
+#: pkg/static/login.js:626
 msgid "User name cannot be empty"
 msgstr "사용자 이름을 입력하셔야 합니다"
 
@@ -8793,7 +8817,7 @@ msgstr "VLAN ID"
 msgid "Validating address"
 msgstr "주소 확인"
 
-#: pkg/static/login.html:147
+#: pkg/static/login.html:158
 msgid "Validating authentication token"
 msgstr "인증 토큰 확인"
 
@@ -9045,7 +9069,7 @@ msgstr "대부분 쓰기"
 msgid "Writing"
 msgstr "쓰기"
 
-#: pkg/static/login.js:1034
+#: pkg/static/login.js:1038
 msgid "Wrong user name or password"
 msgstr "잘못된 사용자 이름 또는 비밀번호"
 
@@ -9061,7 +9085,7 @@ msgstr "매년"
 msgid "Yes"
 msgstr "네"
 
-#: pkg/static/login.js:836 pkg/lib/cockpit-connect-ssh.tsx:146
+#: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
 #: pkg/shell/hosts_dialog.jsx:589
 msgid "You are connecting to $0 for the first time."
 msgstr "처음으로 $0에 연결됩니다."
@@ -9670,7 +9694,7 @@ msgstr "nfs 서버는 유효한 IPv6가 아닙니다"
 msgid "nice"
 msgstr "우선순위"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:89
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:84
 #: pkg/storaged/crypto/encryption.jsx:232
 #: pkg/storaged/crypto/encryption.jsx:235
 #: pkg/storaged/stratis/stopped-pool.jsx:130
@@ -10029,6 +10053,15 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "영역"
+
+#~ msgid "Authentication failed: Server closed connection"
+#~ msgstr "인증 실패: 서버 연결 끊김"
+
+#~ msgid "Refusing to connect. Host is unknown"
+#~ msgstr "연결을 거부하고 있습니다. 알 수 없는 호스트입니다"
+
+#~ msgid "Refusing to connect. Hostkey is unknown"
+#~ msgstr "연결을 거부하고 있습니다. 알 수 없는 호스트 키입니다"
 
 #~ msgid "You need to relogin to be able to see metrics history"
 #~ msgstr "메트릭을 기록을 보려면 다시 로그인해야 합니다"

@@ -269,15 +269,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         verify_correct(has_last=True, n_fail=0)
 
     @testlib.skipImage("Arch Linux has no pwquality by default", "arch")
-    @testlib.skipImage("FIXME: does not support /etc/ssh/sshd_condfig.d", "rhel-8-10")
     def testExpired(self):
         m = self.machine
         b = self.browser
 
-        # On OSTree this happens over ssh
+        # with the ws container this happens over ssh
         if m.ws_container:
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
-            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
+            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' "
+                      "/etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
             m.execute(self.restart_sshd)
 
         # test steps below assume a pam_pwquality config with retry > 1; on some images authselect drops that setting
@@ -369,7 +369,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     '.*Sorry, passwords do not match.')
         self.allow_restart_journal_messages()
 
-    @testlib.skipImage("FIXME: does not support /etc/ssh/sshd_condfig.d", "rhel-8-10")
+    @testlib.skipImage("FIXME: asks for password again instead of mock-pam-conv", "rhel-8-10")
     def testConversation(self):
         m = self.machine
         b = self.browser
@@ -377,7 +377,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if m.ws_container:
             conf = "/etc/pam.d/sshd"
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
-            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
+            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' "
+                      "/etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
             m.execute(self.restart_sshd)
 
         # On Arch Linux the ordering matters due to an auth include for system-remote-login

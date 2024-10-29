@@ -81,7 +81,6 @@ def applySettings(browser, dialog_selector):
 
 @testlib.skipOstree("no PCP support")
 @testlib.skipImage("pcp not currently in testing", "debian-testing")
-@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -417,7 +416,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # Now add the journal
         # Older systemds get a slightly wrong log window with --since/until, so only run on newer ones
-        if re.search(r"centos-9|rhel-9|debian-stable|ubuntu-2204", self.machine.image):
+        if re.search(r"centos-[89]|rhel-[89]|debian-stable|ubuntu-2204", self.machine.image):
             return
 
         m.upload(["verify/files/metrics-archives/journal.journal.gz"], "/tmp")
@@ -1252,7 +1251,6 @@ BEGIN {{
 
 
 @testlib.skipImage("TODO: Arch Linux packagekit support", "arch")
-@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 class TestMetricsPackages(packagelib.PackageCase):
     pcp_dialog_selector = "#pcp-settings-modal"
 
@@ -1305,6 +1303,9 @@ class TestMetricsPackages(packagelib.PackageCase):
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
             m.execute(f"rpm --erase --verbose pcp python3-pcp {redis_package} {extra_packages}")
+            if "centos-8" in m.image or "rhel-8" in m.image:
+                # RHEL 8 ships this in a module, make sure that doesn't hide our fake package
+                m.execute("dnf module disable -y redis || true")
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
 
@@ -1384,7 +1385,6 @@ class TestMetricsPackages(packagelib.PackageCase):
 
 @testlib.skipOstree("no PCP support")
 @testlib.skipImage("pcp not currently in testing", "debian-testing")
-@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 class TestMultiCPU(testlib.MachineCase):
 
     provision = {

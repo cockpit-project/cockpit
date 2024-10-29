@@ -52,7 +52,8 @@ class TestUpdates(NoSubManCase):
         super().setUp()
 
         # apt does not support severity enhancement metadata
-        self.supports_severity = self.backend != "apt"
+        # only PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) supports severity
+        self.supports_severity = (self.backend != "apt") and (not self.machine.image.startswith("rhel-8"))
 
         if self.supports_severity:
             self.enhancement_severity = "enhancement"
@@ -656,7 +657,6 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("#restart-services-modal .pf-v5-c-alert")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")
-    @testlib.skipImage("FIXME: currently fails", "rhel-8-10")
     def testInfoSecurity(self):
         b = self.browser
         m = self.machine
@@ -825,7 +825,6 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")
-    @testlib.skipImage("FIXME: currently fails", "rhel-8-10")
     @testlib.nondestructive
     def testSecurityOnly(self):
         b = self.browser

@@ -63,7 +63,6 @@ class TestFirewall(netlib.NetworkCase):
         if m.image == "arch":
             m.execute("firewall-cmd --zone 'public' --change-interface='eth0'; firewall-cmd --runtime-to-permanent")
 
-    @testlib.skipImage("FIXME: get_num_zones() race condition, moves from 1 to 2", "rhel-8-10")
     def testNetworkingPage(self):
         b = self.browser
         m = self.machine
@@ -71,10 +70,11 @@ class TestFirewall(netlib.NetworkCase):
         def get_num_zones():
             return int(m.execute("firewall-cmd --get-active-zones | grep --count '^[a-zA-Z]'").strip())
 
+        self.login_and_go("/network", superuser=False)
+
         active_zones = get_num_zones()
 
         # Zones should be visible as unprivileged user
-        self.login_and_go("/network", superuser=False)
         self.wait_onoff("#networking-firewall-summary", val=True)
         wait_unit_state(m, "firewalld", "active")
         b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
@@ -86,6 +86,7 @@ class TestFirewall(netlib.NetworkCase):
         self.wait_onoff("#networking-firewall-summary", val=True)
         wait_unit_state(m, "firewalld", "active")
 
+        active_zones = get_num_zones()
         b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
 
         self.toggle_onoff("#networking-firewall-summary")

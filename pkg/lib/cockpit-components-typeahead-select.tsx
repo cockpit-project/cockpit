@@ -48,6 +48,11 @@ SOFTWARE.
      asynchronously from each other. Maybe you know "selected" already
      but "selectOptions" isn't ready yet.
 
+   - When not actively filtering, the "clear" button is only shown
+     when there is also a onClearSelection function (and when
+     something is selected). Without such a function, nothing will
+     change when hitting the clear button.
+
    - Allow dividers.
 
        [
@@ -425,7 +430,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
           aria-controls="select-typeahead-listbox"
         />
         <TextInputGroupUtilities
-          {...(!(isFiltering && filterValue) && !selected ? { style: { display: 'none' } } : {})}
+          {...(!(isFiltering && filterValue) && !(selected && onClearSelection) ? { style: { display: 'none' } } : {})}
         >
           <Button variant="plain" onClick={onClearButtonClick} aria-label="Clear input value">
             <TimesIcon aria-hidden />

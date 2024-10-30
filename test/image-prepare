@@ -38,7 +38,8 @@ BOTS_DIR = f'{BASE_DIR}/bots'
 @contextmanager
 def create_machine(image):
     subprocess.check_call([os.path.join(BOTS_DIR, "image-download"), image])
-    machine = machine_virtual.VirtMachine(image=image)
+    network = machine_virtual.VirtNetwork(image=image)
+    machine = machine_virtual.VirtMachine(image=image, networking=network.host(restrict=True))
     try:
         machine.start()
         machine.wait_boot()

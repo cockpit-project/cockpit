@@ -65,6 +65,7 @@ SOFTWARE.
 
 /* eslint-disable */
 
+import cockpit from "cockpit";
 import React from 'react';
 import {
   Select,
@@ -82,6 +83,8 @@ import {
   SelectProps
 } from '@patternfly/react-core';
 import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
+
+const _ = cockpit.gettext;
 
 export interface TypeaheadSelectOption extends Omit<SelectOptionProps, 'content' | 'isSelected'> {
   /** Content of the select option. */
@@ -134,9 +137,6 @@ export interface TypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSe
   toggleProps?: MenuToggleProps;
 }
 
-const defaultNoOptionsFoundMessage = (filter: string) => `No results found for "${filter}"`;
-const defaultCreateOptionMessage = (newValue: string) => `Create "${newValue}"`;
-
 const defaultFilterFunction = (filterValue: string, options: TypeaheadSelectOption[]) =>
   options.filter((o) => String(o.content).toLowerCase().includes(filterValue.toLowerCase()));
 
@@ -150,11 +150,11 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
   filterFunction = defaultFilterFunction,
   onClearSelection,
   placeholder = 'Select an option',
-  noOptionsAvailableMessage = 'No options are available',
-  noOptionsFoundMessage = defaultNoOptionsFoundMessage,
+  noOptionsAvailableMessage = _("No results found"),
+  noOptionsFoundMessage = _("No results found"),
   isCreatable = false,
   isCreateOptionOnTop = false,
-  createOptionMessage = defaultCreateOptionMessage,
+  createOptionMessage = "",
   isDisabled = false,
   toggleWidth,
   toggleProps,
@@ -168,6 +168,9 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
   const textInputRef = React.useRef<HTMLInputElement>();
 
   const NO_RESULTS = 'no results';
+
+  if (isCreatable && !createOptionMessage)
+    throw "isCreatable requires createOptionMessage";
 
   if (isCreatable)
     selectedIsTrusted = true;

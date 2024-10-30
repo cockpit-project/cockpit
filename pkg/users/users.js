@@ -208,10 +208,10 @@ async function getLoginDetails(logind_client) {
                         details[name] = { ...details[name], isLocked: hash.startsWith("!") };
                 }
             } catch (err) {
-                console.warn("Unexpected error when getting locked accounts from /etc/shadow:", err);
+                console.warn("Unexpected error when getting locked accounts from /etc/shadow:", err.toString());
             }
         } else {
-            console.warn("Unexpected error when getting locked account information", err);
+            console.warn("Unexpected error when getting locked account information:", err.toString());
         }
     }
 

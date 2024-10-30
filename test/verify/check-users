@@ -961,15 +961,12 @@ class TestAccounts(testlib.MachineCase):
             b.click('#account-set-password-dialog button.apply')
             b.wait_not_present('#account-set-password-dialog')
 
+        b.logout()
+
         # Logout and login with the new password
         for user in ["anton", "root"]:
+            b.login_and_go("/users", user=user, password=new_password)
             b.logout()
-            b.open("/users")
-            b.wait_visible("#login")
-            b.set_val("#login-user-input", user)
-            b.set_val("#login-password-input", new_password)
-            b.click('#login-button')
-            b.wait_visible('#content')
 
     def accountExpiryInfo(self, account, field):
         for line in self.machine.execute(f"LC_ALL=C chage -l {account}").split("\n"):

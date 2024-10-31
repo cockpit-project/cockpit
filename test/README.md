@@ -24,6 +24,11 @@ You first need to build cockpit, and install it into a VM:
 
 This uses the default OS image. See `$TEST_OS` below how to select a different one.
 
+See `test/image-prepare --help` for some special modes, like skipping unit
+tests, building overlays, or preparing an image with the
+[cockpit/ws container](https://quay.io/repository/cockpit/ws) instead of RPMs.
+See our scenarios in [test/run](./run) for how they are being used.
+
 In most cases you want to run an individual test in a suite, for example:
 
     test/verify/check-metrics TestCurrentMetrics.testCPU

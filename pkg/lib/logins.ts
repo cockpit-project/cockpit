@@ -17,16 +17,21 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type cockpit from "cockpit";
 import * as python from "python";
 
 // @ts-expect-error TS2307 this isn't a TS module, just a magic esbuild "text" import rule
 import lastlog2_py from "./lastlog2.py";
 
-/* Return lastlog2 database as { username → { time, tty, host } } object.
+export type LastlogEntry = {
+    time: number;
+    tty: string;
+    host: string;
+};
+
+/* Return lastlog2 database as { username → LastLogin } object.
  * Throws an exception if the db does not exist, i.e. the system isn't using lastlog2.
 */
-export async function getLastlog2(user?: string): Promise<cockpit.JsonObject> {
+export async function getLastlog2(user?: string): Promise<Record<string, LastlogEntry>> {
     const out = await python.spawn(lastlog2_py, user ? [user] : [], { err: "message" });
     return JSON.parse(out);
 }

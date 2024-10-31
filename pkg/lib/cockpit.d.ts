@@ -192,6 +192,10 @@ declare module 'cockpit' {
 
     export const location: Location;
 
+    /* === cockpit.jump ========================== */
+
+    function jump(path: string, host?: string): void;
+
     /* === cockpit page visibility =============== */
 
     export let hidden: boolean;
@@ -214,10 +218,17 @@ declare module 'cockpit' {
         track?: boolean;
     }
 
+    type DBusCallOptions = {
+        flags?: "" | "i",
+        type?: string,
+        timeout?: number,
+    };
+
     interface DBusClient {
         readonly unique_name: string;
         readonly options: DBusOptions;
         proxy(interface: string, path: string, options?: { watch?: boolean }): DBusProxy;
+        call(path: string, iface: string, method: string, args?: unknown[] | null, options?: DBusCallOptions): Promise<unknown[]>;
         close(): void;
     }
 

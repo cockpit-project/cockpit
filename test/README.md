@@ -22,8 +22,7 @@ You first need to build cockpit, and install it into a VM:
 
     test/image-prepare
 
-This uses the default OS image, which is currently Fedora 39. See `$TEST_OS`
-below how to select a different one.
+This uses the default OS image. See `$TEST_OS` below how to select a different one.
 
 In most cases you want to run an individual test in a suite, for example:
 
@@ -164,18 +163,11 @@ to push pixel tests.
 
 You can set these environment variables to configure the test suite:
 
- * `TEST_OS`: The OS to run the tests in.  Currently supported values:
-    - "centos-9-stream"
-    - "centos-10"
-    - "debian-stable"
-    - "debian-testing"
-    - "fedora-40"
-    - "fedora-coreos"
-    - "rhel-9-4"
-    - "ubuntu-2204"
-    - "ubuntu-stable"
-
-  "fedora-40" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)
+ * `TEST_OS`: The OS to run the tests in, like "fedora-coreos" or
+    "debian-stable". See the "cockpit-project/cockpit" section in the
+    [test map](https://github.com/cockpit-project/bots/blob/main/lib/testmap.py)
+    for all supported values. "fedora-40" is the default (`TEST_OS_DEFAULT` in
+    bots' [constants.py](https://github.com/cockpit-project/bots/blob/main/lib/constants.py)).
 
  * `TEST_JOBS`:  How many tests to run in parallel.  The default is 1.
 

@@ -29,13 +29,14 @@ import "./shutdownStatus.scss";
 
 const _ = cockpit.gettext;
 
-const getScheduledShutdown = (setShutdownTime, setShutdownType) => {
+const getScheduledShutdown = (setShutdownTime: (t: number) => void, setShutdownType: (t: string) => void) => {
     const client = cockpit.dbus("org.freedesktop.login1");
     return client.call("/org/freedesktop/login1", "org.freedesktop.DBus.Properties", "Get",
                        ["org.freedesktop.login1.Manager", "ScheduledShutdown"], { type: "ss" })
             .then(([result]) => {
-                setShutdownType(result.v[0]);
-                setShutdownTime(result.v[1]);
+                const [type, time] = (result as cockpit.Variant).v as [string, number];
+                setShutdownType(type);
+                setShutdownTime(time);
             })
             .catch(err => console.warn("Failed to get ScheduledShutdown property", err.toString()));
 };
@@ -52,8 +53,8 @@ const cancelShutdownAction = () => {
 };
 
 export const ShutDownStatus = () => {
-    const [shutdownType, setShutdownType] = useState(null);
-    const [shutdownTime, setShutdownTime] = useState(0);
+    const [shutdownType, setShutdownType] = useState<string | null>(null);
+    const [shutdownTime, setShutdownTime] = useState<number | null>(0);
 
     useEffect(() => {
         getScheduledShutdown(setShutdownTime, setShutdownType);
@@ -72,13 +73,15 @@ export const ShutDownStatus = () => {
         return null;
     }
 
-    const date = new Date(shutdownTime / 1000);
-    const now = new Date();
     let displayDate = null;
-    if (date.getFullYear() == now.getFullYear()) {
-        displayDate = timeformat.dateTimeNoYear(date);
-    } else {
-        displayDate = timeformat.dateTime(date);
+    if (shutdownTime) {
+        const date = new Date(shutdownTime / 1000);
+        const now = new Date();
+        if (date.getFullYear() == now.getFullYear()) {
+            displayDate = timeformat.dateTimeNoYear(date);
+        } else {
+            displayDate = timeformat.dateTime(date);
+        }
     }
 
     let text;

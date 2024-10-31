@@ -203,17 +203,25 @@ git submodules:
 Refer to the [testing README](test/README.md) for details on running the Cockpit
 integration tests locally.
 
-## Python bridge
+## Bridge
 
-Most distro releases now ship a replacement for the C bridge written in Python.
-It resides in `src/cockpit` with most of its rules in `src/Makefile.am`.  This
-directory was chosen because it matches the standard so-called "src layout"
-convention for Python packages, where each package (`cockpit`) is a
+The Cockpit bridge is the initial program launched in a Cockpit Linux session:
+Its stdin/out is connected to the web socket (and thus to JavaScript in the
+[pages](pkg/)), where it speaks a [JSON protocol](doc/protocol.md) that
+multiplexes "channels" -- abstractions of operating system APIs that the pages
+use to implement their functionality. This protocol is translated into
+operating system calls such as opening or writing files, D-Bus calls, or HTTP
+queries. Think of the bridge as the moral equivalent of "bash" in a human SSH
+session.
+
+The bridge resides in `src/cockpit` with most of its rules in `src/Makefile.am`.
+This directory was chosen because it matches the standard so-called "src
+layout" convention for Python packages, where each package (`cockpit`) is a
 subdirectory of the `src` directory.
 
 ### Running the bridge
 
-The Python bridge can be used interactively on a local machine:
+The bridge can be used interactively on a local machine out of the source tree:
 
     PYTHONPATH=src python3 -m cockpit.bridge
 
@@ -227,21 +235,15 @@ These shell aliases might be useful when experimenting with the protocol:
     alias cpy='PYTHONPATH=src python3 -m cockpit.bridge'
     alias cpf='PYTHONPATH=src python3 -m cockpit.misc.print'
 
-When working with the Python bridge on test images, note that `rhel-8*` still
-uses the C bridge. So if you want to explicitly have the Python bridge on those
-images use:
-
-    ./test/image-prepare --python
-
 To enable debug logging in journal on a test image, you can pass `--debug` to
 `image-prepare`. This will set `COCKPIT_DEBUG=all` to `/etc/environment`, if
 you are only interested channel debug messages change `all` to
 `cockpit.channel`.
 
-### Testing the Python bridge
+### Testing the bridge
 
-There are a growing number of Python `unittest` tests being written to test
-parts of the new bridge code.  You can run these with `make pytest` or
+There are a growing number of [pytest](https://docs.pytest.org) tests being written to test
+the bridge code.  You can run these with `make pytest` or
 `make pytest-cov`.  Those are both just rules to make sure that the
 `systemd_ctypes` submodule is checked out before running `pytest` from the
 source directory.

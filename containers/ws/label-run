@@ -42,6 +42,8 @@ else
 
     /usr/libexec/cockpit-certificate-ensure
 
-    eval $(ssh-agent)
+    if [ -z "$SSH_AUTH_SOCK" ]; then
+        eval "$(ssh-agent)"
+    fi
     exec /usr/libexec/cockpit-ws --local-ssh "$@"
 fi

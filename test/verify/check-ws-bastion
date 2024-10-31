@@ -255,6 +255,58 @@ class TestWsBastionContainer(testlib.MachineCase):
         for ssh_key_env in ["COCKPIT_SSH_KEY_PATH", f"COCKPIT_SSH_KEY_PATH_{HOST.upper()}"]:
             do_test_key_login(ssh_key_env=ssh_key_env)
 
+    def testExternalAgent(self):
+        m = self.machine
+        b = self.browser
+
+        KEY_PASSWORD = "sshfoobar"
+
+        # run the container as user -- as root does not make sense, as we want to
+        # share the user's SSH key with it
+        m.execute(f"podman save localhost/cockpit/ws -o {self.vm_tmpdir}/cockpit-ws.tar")
+
+        # HACK: user podman does not add default route if the host doesn't have any
+        m.execute("ip route add default via 172.27.0.1")
+        self.addCleanup(m.execute, "ip route del default")
+
+        self.restore_dir("/home/admin")
+        m.execute("runuser -u admin -- sh -ex", input=f"""
+        # we don't start a real login session here, fake it
+        cd $HOME
+        export XDG_RUNTIME_DIR=$HOME/run
+        mkdir -p "$XDG_RUNTIME_DIR"
+
+        # create new key, set it up for logging into host
+        ssh-keygen -q -f ~/.ssh/id_bastion -N {KEY_PASSWORD}
+        cat ~/.ssh/id_bastion.pub > /home/admin/.ssh/authorized_keys
+        ssh-keyscan localhost | sed 's/^localhost/{HOST}/' > ~/.ssh/known_hosts
+
+        # start agent, load key
+        eval $(ssh-agent -a $XDG_RUNTIME_DIR/ssh-agent)
+        printf '#!/bin/sh\necho {KEY_PASSWORD}\n' > /tmp/pwd
+        chmod u+x /tmp/pwd
+        SSH_ASKPASS_REQUIRE=force SSH_ASKPASS=/tmp/pwd ssh-add ~/.ssh/id_bastion
+        rm /tmp/pwd
+        ssh-add -l
+
+        # run container
+        podman load -i {self.vm_tmpdir}/cockpit-ws.tar
+        podman run -d --rm --name cockpit-bastion -p 9090:9090 \
+                -v ~/.ssh/known_hosts:/etc/ssh/ssh_known_hosts:ro \
+                -v $XDG_RUNTIME_DIR/ssh-agent:/ssh-agent \
+                -e SSH_AUTH_SOCK=/ssh-agent \
+                --security-opt=label=disable \
+                -e COCKPIT_DEBUG=all localhost/cockpit/ws
+
+        until curl --fail --head -k https://localhost:9090/; do sleep 1; done
+        """)
+
+        # login works without a password, using the external agent
+        b.open("/", tls=True)
+        b.set_val("#server-field", HOST)
+        b.try_login(password="")
+        b.wait_visible('#content')
+
 
 @testlib.onlyImage("no cockpit/ws container on this image", "fedora-coreos")
 @testlib.nondestructive

@@ -42,6 +42,8 @@ else
 
     /usr/libexec/cockpit-certificate-ensure
 
-    eval $(ssh-agent)
+    # start SSH agent, unless we already got pointed to one
+    [ -n "${SSH_AUTH_SOCK:-}" ] || eval "$(ssh-agent)"
+
     exec /usr/libexec/cockpit-ws --local-ssh "$@"
 fi

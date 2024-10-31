@@ -47,28 +47,26 @@ const _ = cockpit.gettext;
  *            excuse in a tooltip.
  */
 
-class StorageControl extends React.Component {
-    render() {
-        const excuse = this.props.excuse;
-        if (!client.superuser.allowed)
-            return <div />;
+const StorageControl = ({ excuse, excuse_placement, content } :
+                        { excuse, excuse_placement?, content }) => {
+    if (!client.superuser.allowed)
+        return <div />;
 
-        if (excuse) {
-            return (
-                <Tooltip id="tip-storage" content={excuse}
-                         position={this.props.excuse_placement || TooltipPosition.top}>
-                    <span>
-                        { this.props.content(excuse) }
-                    </span>
+    if (excuse) {
+        return (
+            <Tooltip id="tip-storage" content={excuse}
+            position={excuse_placement || TooltipPosition.top}>
+                <span>
+                { content(excuse) }
+            </span>
                 </Tooltip>
-            );
-        } else {
-            return this.props.content();
-        }
+        );
+    } else {
+        return content();
     }
-}
+};
 
-function checked(callback, setSpinning, excuse) {
+function checked(callback, setSpinning?, excuse?) {
     return function (event) {
         if (!event)
             return;
@@ -110,7 +108,8 @@ function checked(callback, setSpinning, excuse) {
     };
 }
 
-export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, spinner }) => {
+export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, spinner } :
+                              { id?, kind, excuse, onClick, children, ariaLabel?, spinner? }) => {
     const [spinning, setSpinning] = useState(false);
 
     return <StorageControl excuse={excuse}
@@ -120,13 +119,13 @@ export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, 
                                        onClick={checked(onClick, setSpinning)}
                                        variant={kind || "secondary"}
                                        isDisabled={!!excuse || (spinner && spinning)}
-                                       isLoading={spinner ? spinning : undefined}>
+                                       isLoading={spinner ? spinning : false}>
                                    {children}
                                </Button>
                            )} />;
 };
 
-export const StorageLink = ({ id, excuse, onClick, children }) => (
+export const StorageLink = ({ excuse, onClick, children }) => (
     <StorageControl excuse={excuse}
                     content={excuse => (
                         <Button onClick={checked(onClick)}
@@ -141,43 +140,36 @@ export const StorageLink = ({ id, excuse, onClick, children }) => (
 // StorageOnOff - OnOff switch for asynchronous actions.
 //
 
-export class StorageOnOff extends React.Component {
-    constructor() {
-        super();
-        this.state = { promise: null };
-    }
+export const StorageOnOff = ({ excuse, "aria-label": aria_label, state, onChange }) => {
+    const [promise, setPromise] = useState(null);
+    const [promise_goal_state, setPromiseGoalState] = useState(null);
 
-    render() {
-        const self = this;
-
-        function onChange(_event, val) {
-            const promise = self.props.onChange(val);
-            if (promise) {
-                promise.catch(error => {
-                    dialog_open({
-                        Title: _("Error"),
-                        Body: error.toString()
-                    });
-                })
-                        .finally(() => { self.setState({ promise: null }) });
-            }
-
-            self.setState({ promise, promise_goal_state: val });
+    function _onChange(_event, val) {
+        const promise = onChange(val);
+        if (promise) {
+            promise.catch(error => {
+                dialog_open({
+                    Title: _("Error"),
+                    Body: error.toString()
+                });
+            })
+                .finally(() => { setPromise(null) });
         }
 
-        return (
-            <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => (
-                                <Switch isChecked={this.state.promise
-                                    ? this.state.promise_goal_state
-                                    : this.props.state}
-                                                 aria-label={this.props['aria-label']}
-                                                 isDisabled={!!(excuse || this.state.promise)}
-                                                 onChange={onChange} />
-                            )} />
-        );
+        setPromise(promise);
+        setPromiseGoalState(val);
     }
-}
+
+    return (
+        <StorageControl excuse={excuse}
+                        content={(excuse) => (
+                            <Switch isChecked={promise ? promise_goal_state : state}
+                                    aria-label={aria_label}
+                                    isDisabled={!!(excuse || promise)}
+                                    onChange={_onChange} />
+                        )} />
+    );
+};
 
 /* Render a usage bar showing props.stats[0] out of props.stats[1]
  * bytes in use.  If the ratio is above props.critical, the bar will be
@@ -200,7 +192,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, short }
             </span>
             <div className={"usage-bar" + (fraction > critical ? " usage-bar-danger" : "") + (short ? " usage-bar-short" : "")}
                  role="progressbar"
-                 aria-valuemin="0" aria-valuemax={stats[1]} aria-valuenow={stats[0]}
+                 aria-valuemin={0} aria-valuemax={stats[1]} aria-valuenow={stats[0]}
                  aria-label={cockpit.format(_("Usage of $0"), block)}
                  aria-valuetext={labelText}>
                 <div className="usage-bar-indicator usage-bar-other" aria-hidden="true" style={{ width: total_fraction * 100 + "%" }} />
@@ -232,7 +224,8 @@ export const StorageMenuItem = ({ onClick, danger, excuse, children }) => (
     </DropdownItem>
 );
 
-export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
+export const StorageBarMenu = ({ label, isKebab, menuItems } :
+                               { label?, isKebab, menuItems }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     if (!client.superuser.allowed)

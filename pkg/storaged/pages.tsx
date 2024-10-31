@@ -131,8 +131,8 @@ const _ = cockpit.gettext;
    complication of how cards and pages interact.
 */
 
-let pages = null;
-let crossrefs = null;
+let pages: Map<string, any> = new Map();
+let crossrefs: Map<string, any> = new Map();
 
 export const PAGE_CATEGORY_PHYSICAL = 1;
 export const PAGE_CATEGORY_VIRTUAL = 2;
@@ -181,7 +181,7 @@ function size_from_card(card) {
     return size_from_card(card.next);
 }
 
-export function new_page(parent, card, options) {
+export function new_page(parent, card, options = {}) {
     const page = {
         location: location_from_card(card),
         name: name_from_card(card),
@@ -191,13 +191,13 @@ export function new_page(parent, card, options) {
         parent,
         children: [],
         card,
-        options: options || {},
+        options,
+        columns: [
+            card.title,
+            card.location,
+            size_from_card(card),
+        ]
     };
-    page.columns = [
-        card.title,
-        card.location,
-        size_from_card(card),
-    ];
     if (parent)
         parent.children.push(page);
     while (card) {
@@ -225,6 +225,26 @@ export function new_card({
     has_warning, has_danger, job_path,
     component, props,
     actions,
+} : {
+    title?,
+    location?,
+    next?,
+    type_extra?,
+    id_extra?,
+    page_name?,
+    page_icon?,
+    page_category?,
+    page_key?,
+    page_location?,
+    page_size?,
+    page_block?,
+    for_summary?,
+    has_warning?,
+    has_danger?,
+    job_path?,
+    component?,
+    props?,
+    actions?,
 }) {
     if (page_block) {
         page_location = [block_location(page_block)];
@@ -317,7 +337,7 @@ function make_menu_item(action) {
 }
 
 function make_page_kebab(page) {
-    const items = [];
+    const items: React.JSX.Element[] = [];
 
     function card_item_group(card) {
         const a = card.actions || [];
@@ -372,8 +392,8 @@ const ActionButtons = ({ card }) => {
         return false;
     }
 
-    const buttons = [];
-    const items = [];
+    const buttons: React.JSX.Element[] = [];
+    const items: React.JSX.Element[] = [];
 
     if (!card.actions)
         return null;
@@ -396,7 +416,7 @@ const ActionButtons = ({ card }) => {
 };
 
 function page_type_extra(page) {
-    const extra = [];
+    const extra: any[] = [];
     let c = page.card;
     while (c) {
         if (c.type_extra)
@@ -434,8 +454,8 @@ function page_type(page) {
 // Thus, we end up with things like "Partition - MDRAID device".
 
 function page_block_summary_1(page) {
-    let description = null;
-    const extra = [];
+    let description = "";
+    const extra: any[] = [];
     for (let card = page.card; card; card = card.next) {
         if (card.for_summary) {
             description = card.id_extra || card.title;
@@ -460,9 +480,9 @@ function page_block_summary(page) {
         return desc1 || desc2;
 }
 
-let narrow_query = null;
+let narrow_query: any = null;
 
-export const useIsNarrow = (onChange) => {
+export const useIsNarrow = (onChange?) => {
     if (!narrow_query) {
         const val = window.getComputedStyle(window.document.body).getPropertyValue("--pf-v5-global--breakpoint--md");
         narrow_query = window.matchMedia(`(max-width: ${val})`);
@@ -472,12 +492,13 @@ export const useIsNarrow = (onChange) => {
     return narrow_query.matches;
 };
 
-export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, show_icons }) => {
+export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, show_icons } :
+                          { emptyCaption, aria_label, pages?, crossrefs?, sorted, show_icons }) => {
     const [collapsed, setCollapsed] = useState(true);
-    const firstKeys = useRef(false);
+    const firstKeys : any = useRef(false);
     const narrow = useIsNarrow(() => { firstKeys.current = false });
 
-    let rows = [];
+    let rows: React.JSX.Element[] = [];
     const row_keys = new Set();
 
     function make_row(page, crossref, level, border, key) {
@@ -502,7 +523,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 return false;
         }
 
-        let info = null;
+        let info: React.JSX.Element | null = null;
         if (card_has_job(page.card))
             info = <>{"\n"}<Spinner isInline size="md" /></>;
         if (card_has_danger(page.card))
@@ -609,7 +630,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
         } else {
             const cols = [
                 <Td key="1" onClick={onClick}>
-                    <div className="indent" style={ { "--level": level } }>
+                    <div className="indent" style={ { "--level": level } as React.CSSProperties }>
                         <Truncate content={name} />
                         {info}
                     </div>
@@ -688,7 +709,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
         </EmptyState>;
     }
 
-    let show_all_button = null;
+    let show_all_button: React.JSX.Element | null = null;
     if (rows.length > 50 && collapsed) {
         show_all_button = (
             <Bullseye>
@@ -756,7 +777,7 @@ function page_display_name(page) {
 }
 
 const PageCardStackItems = ({ page, plot_state }) => {
-    const items = [];
+    const items: React.JSX.Element[] = [];
     let c = page.card;
     while (c) {
         items.push(<React.Fragment key={items.length}>
@@ -775,7 +796,7 @@ export function block_location(block) {
 }
 
 const StorageBreadcrumb = ({ page }) => {
-    const parent_crumbs = [];
+    const parent_crumbs: React.JSX.Element[] = [];
     let pp = page.parent;
     while (pp) {
         parent_crumbs.unshift(
@@ -793,7 +814,8 @@ const StorageBreadcrumb = ({ page }) => {
         </Breadcrumb>);
 };
 
-export const StorageCard = ({ card, alert, alerts, actions, children }) => {
+export const StorageCard = ({ card, alert, alerts, actions, children } :
+                            { card, alert?, alerts?, actions?, children }) => {
     return (
         <Card data-test-card-title={card.title}>
             { (client.in_anaconda_mode() && card.page.parent && !card.next) &&
@@ -847,7 +869,7 @@ export const StoragePage = ({ location, plot_state }) => {
             <PageSection isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
                 <Stack hasGutter>
                     <MultipathAlert client={client} />
-                    <PageCardStackItems page={page} plot_state={plot_state} noarrow />
+                    <PageCardStackItems page={page} plot_state={plot_state} />
                 </Stack>
             </PageSection>
         </Page>

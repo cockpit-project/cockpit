@@ -64,8 +64,7 @@ promise.then(user => { ... });
     <title>Permission lookup</title>
 
     <para>Cockpit provides a mechanism for checking if the current user satisfies a
-      given criteria. Currently capable of checking for root users, and group
-      membership. This is meant for updating UI elements based on what actions the
+      given criteria. This is meant for updating UI elements based on what actions the
       user can perform. It is <emphasis>not an access control mechanism</emphasis>.</para>
 
     <refsection id="cockpit-permission-constructor">
@@ -74,10 +73,22 @@ promise.then(user => { ... });
 permission = cockpit.permission([options])
 </programlisting>
 
-      <para>Create a new permission object to check if the current user has permission.
-        The "root" user is always given permission. The <code>options</code> argument
-        can contain a <code>"group"</code> field, and members of that group are also
-        given permission.</para>
+      <para>Create a new permission object to check if the current user has a particular
+      permission specified by <code>options</code>:</para>
+      <variablelist>
+        <varlistentry>
+          <term><code>admin: true</code></term>
+          <listitem><para>True if the session has superuser privileges, i.e. can run channels as root
+            with <code>{ superuser: "require" }</code>.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><code>group:</code>&nbsp;<emphasis>name</emphasis></term>
+           <listitem><para>True if the currently logged user is a member of group <emphasis>name</emphasis>.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The permission result is always true for the "root" user. When <code>options</code> is not given,
+      check if the current user is root.</para>
     </refsection>
 
     <refsection id="cockpit-permission-allowed">

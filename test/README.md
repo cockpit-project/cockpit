@@ -164,32 +164,30 @@ to push pixel tests.
 
 You can set these environment variables to configure the test suite:
 
-    TEST_OS    The OS to run the tests in.  Currently supported values:
-                  "centos-9-stream"
-                  "centos-10"
-                  "debian-stable"
-                  "debian-testing"
-                  "fedora-40"
-                  "fedora-coreos"
-                  "rhel-9-4"
-                  "ubuntu-2204"
-                  "ubuntu-stable"
-               "fedora-40" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)
+ * `TEST_OS`: The OS to run the tests in.  Currently supported values:
+    - "centos-9-stream"
+    - "centos-10"
+    - "debian-stable"
+    - "debian-testing"
+    - "fedora-40"
+    - "fedora-coreos"
+    - "rhel-9-4"
+    - "ubuntu-2204"
+    - "ubuntu-stable"
 
-    TEST_JOBS  How many tests to run in parallel.  The default is 1.
+  "fedora-40" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)
 
-    TEST_BROWSER  What browser should be used for testing. Currently supported values:
-                     "chromium"
-                     "firefox"
-                  "chromium" is the default.
+ * `TEST_JOBS`:  How many tests to run in parallel.  The default is 1.
 
-    TEST_SHOW_BROWSER  Set to run browser interactively. When not specified,
-                       browser is run in headless mode. When set to "pixels",
-                       the browser will be resized to the exact dimensions that
-                       are used for pixel tests.
+ * `TEST_BROWSER`: What browser should be used for testing. Currently supported
+   values are "chromium" and "firefox". "chromium" is the default.
 
-    TEST_TIMEOUT_FACTOR Scale normal timeouts by given integer. Useful for
-                        slow/busy testbeds or architectures.
+ * `TEST_SHOW_BROWSER`: Set to run browser interactively. When not specified,
+   browser is run in headless mode. When set to "pixels", the browser will be
+   resized to the exact dimensions that are used for pixel tests.
+
+ * `TEST_TIMEOUT_FACTOR`: Scale normal timeouts by given integer. Useful for
+   slow/busy testbeds or architectures.
 
 See the [bots documentation](https://github.com/cockpit-project/bots/blob/main/README.md)
 for details about the tools and configuration for these.

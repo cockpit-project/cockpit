@@ -130,7 +130,7 @@ export interface TypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSe
   /** Message to display when no options match the filter. */
   noOptionsFoundMessage?: string | ((filter: string) => string);
   /** Flag indicating the select should be disabled. */
-  isDisabled: boolean;
+  isDisabled?: boolean;
   /** Width of the toggle. */
   toggleWidth?: string;
   /** Additional props passed to the toggle. */

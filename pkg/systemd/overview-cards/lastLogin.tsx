@@ -23,7 +23,7 @@ import { ExclamationTriangleIcon, UserIcon } from "@patternfly/react-icons";
 
 import * as timeformat from "timeformat";
 import { useInit } from "hooks";
-import { getLastlog2 } from "logins";
+import { LastlogEntry, getLastlog2 } from "logins";
 
 import cockpit from "cockpit";
 
@@ -32,7 +32,7 @@ import './lastLogin.scss';
 const _ = cockpit.gettext;
 
 // Do the full combinatorial thing to improve translatability
-const generate_line = (host, line) => {
+const generate_line = (host?: string, line?: string): string => {
     let message = "";
     if (host && line) {
         message = cockpit.format(_("from <host> on <terminal>", "from $0 on $1"), host, line);
@@ -44,7 +44,7 @@ const generate_line = (host, line) => {
     return message;
 };
 
-const getFormattedDateTime = (time) => {
+const getFormattedDateTime = (time: number): string => {
     const now = new Date();
     const date = new Date(time);
     if (date.getFullYear() == now.getFullYear()) {
@@ -53,10 +53,17 @@ const getFormattedDateTime = (time) => {
     return timeformat.dateTime(date);
 };
 
+type LoginMessages = {
+    "last-login-time": number,
+    "last-login-host": string,
+    "last-login-line": string,
+    "fail-count"?: number,
+};
+
 const LastLogin = () => {
-    const [messages, setLoginMessages] = useState(null);
-    const [lastlog, setLastlog] = useState(null);
-    const [name, setName] = useState(null);
+    const [messages, setLoginMessages] = useState<LoginMessages | null>(null);
+    const [lastlog, setLastlog] = useState<LastlogEntry | null>(null);
+    const [name, setName] = useState<string | null>(null);
 
     useInit(async () => {
         const user = await cockpit.user();
@@ -65,7 +72,7 @@ const LastLogin = () => {
         const bridge = cockpit.dbus(null, { bus: "internal" });
         try {
             const [reply] = await bridge.call("/LoginMessages", "cockpit.LoginMessages", "Get", []);
-            const obj = JSON.parse(reply);
+            const obj = JSON.parse(reply as string);
             if (obj.version == 1) {
                 setLoginMessages(obj);
             } else {
@@ -84,12 +91,12 @@ const LastLogin = () => {
         }
     });
 
-    const lastLoginTime = messages?.['last-login-time'] ?? lastlog?.time;
+    const lastLoginTime: number | undefined = messages?.['last-login-time'] ?? lastlog?.time;
     if (!lastLoginTime)
         return null;
 
-    const lastLoginFrom = messages?.['last-login-host'] || lastlog?.from;
-    const lastLoginPort = messages?.['last-login-line'] || lastlog?.port;
+    const lastLoginFrom = messages?.['last-login-host'] || lastlog?.host;
+    const lastLoginPort = messages?.['last-login-line'] || lastlog?.tty;
 
     let icon = null;
     let headerText = null;

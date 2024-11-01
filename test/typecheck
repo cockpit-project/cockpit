@@ -1,0 +1,83 @@
+#! /usr/bin/python
+
+import subprocess
+import re
+import sys
+
+# Run tsc as a type checker and throw away most of its output, in a
+# controlled way.
+
+# These errors are ignored for "relaxed" files. This is supposed to be
+# roughly equivalent to "noImplicitAny = false".
+
+ignored_codes = [
+    "TS2683",   # 'this' implicitly has type 'any' because it does not have a type annotation.
+    "TS7005",   # Variable '*' implicitly has an 'any[]' type.
+    "TS7006",   # Parameter '*' implicitly has an 'any' type.
+    "TS7008",   # Member '*' implicitly has an 'any[]' type.
+    "TS7009",   # 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
+    "TS7010",   # '*', which lacks return-type annotation, implicitly has an 'any' return type.
+    "TS7015",   # Element implicitly has an 'any' type because index expression is not of type '*'.
+    "TS7016",   # Could not find a declaration file for module '*'...
+    "TS7019",   # Rest parameter '*' implicitly has an 'any[]' type
+    "TS7022",   # '*' implicitly has type 'any'...
+    "TS7023",   # '*' implicitly has return type 'any' because ...
+    "TS7024",   #  Function implicitly has return type 'any' because ...
+    "TS7031",   # Binding element '*' implicitly has an 'any' type.
+    "TS7034",   # Variable '*' implicitly has type 'any' in some locations where its type cannot be determined.
+    "TS7053",   # Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '*'.
+]
+
+def should_ignore(path):
+    if path.startswith("node_modules/"):
+        return True
+    return False
+
+is_relaxed_memo = dict()
+
+def is_relaxed(path):
+    if path in is_relaxed_memo:
+        return is_relaxed_memo[path]
+    with open(path) as fp:
+        n = 0
+        relaxed = False
+        while n < 50:
+            line = fp.readline()
+            if line is None:
+                break
+            if "@cockpit-ts-relaxed" in line:
+                relaxed = True
+                break
+            n += 1
+        is_relaxed_memo[path] = relaxed
+        return relaxed
+
+num_errors = 0
+
+def show_error(lines):
+    global num_errors
+    num_errors += 1
+    for l in lines:
+        sys.stdout.write(l)
+
+def consider(lines):
+    m = re.match("([^:]*)\\(.*\\): error ([^:]*): .*", lines[0])
+    if m and not should_ignore(m[1]):
+        relaxed = is_relaxed(m[1])
+        if not relaxed or m[2] not in ignored_codes:
+            show_error(lines)
+
+proc = subprocess.Popen(["node_modules/.bin/tsc", "--checkJS", "false", "--pretty", "false"],
+                        stdout=subprocess.PIPE, text=True)
+cur=[]
+for line in proc.stdout:
+    if line[0] == " ":
+        cur += [line]
+    else:
+        if len(cur) > 0:
+            consider(cur)
+        cur=[line]
+if len(cur) > 0:
+    consider(cur)
+
+sys.exit(1 if num_errors > 0 else 0)

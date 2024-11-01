@@ -14,11 +14,17 @@ install_cert() {
 
     # The certificate should be world-readable
     chmod a+r "${destination}"
+
+    # Force flush to disk for embedded devices
+    sync "${destination}"
 }
 
 install_key() {
     local destination="${COCKPIT_WS_CERTS_D}/$1"
     mv -Z "$1" "${destination}"
+
+    # Force flush to disk for embedded devices
+    sync "${destination}"
 }
 
 selfsign_sscg() {

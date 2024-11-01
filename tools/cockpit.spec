@@ -132,10 +132,8 @@ BuildRequires:  python3-pip
 %if 0%{?rhel} == 0 && !0%{?suse_version}
 # All of these are only required for running pytest (which we only do on Fedora)
 BuildRequires:  procps-ng
-BuildRequires:  pyproject-rpm-macros
 BuildRequires:  python3-pytest-asyncio
 BuildRequires:  python3-pytest-timeout
-BuildRequires:  python3-tox-current-env
 %endif
 
 %prep
@@ -158,7 +156,8 @@ BuildRequires:  python3-tox-current-env
 make -j$(nproc) check
 
 %if 0%{?rhel} == 0
-%tox
+export NO_QUNIT=1
+%pytest
 %endif
 
 %install

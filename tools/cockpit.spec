@@ -134,7 +134,6 @@ BuildRequires:  python3-pip
 BuildRequires:  procps-ng
 BuildRequires:  pyproject-rpm-macros
 BuildRequires:  python3-pytest-asyncio
-BuildRequires:  python3-pytest-cov
 BuildRequires:  python3-pytest-timeout
 BuildRequires:  python3-tox-current-env
 %endif

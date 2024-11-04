@@ -980,6 +980,12 @@ on_web_service_idling (CockpitWebService *service,
   if (session->timeout_tag)
     g_source_remove (session->timeout_tag);
 
+  if (!g_strcmp0 (session->cookie, LOCAL_SESSION))
+    {
+      g_debug ("local session is idle, keeping");
+      return;
+    }
+
   g_debug ("session is idle");
 
   /*

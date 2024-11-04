@@ -859,15 +859,25 @@ class TestConnection(testlib.MachineCase):
     @testlib.nondestructive
     def testLocalSession(self):
         m = self.machine
-        b = self.browser
 
         def check_session():
             m.wait_for_cockpit_running('localhost', 9090)
+            b = self.browser
             # session works directly, no login page
             b.open("/")
             b.wait_visible('#content')
             b.enter_page("/system")
             b.switch_to_top()
+
+            # disconnect browser, and wait past ws session timeout
+            b.kill()
+            time.sleep(17)  # cockpit_ws_service_idle plus a bit
+            self.browser = self.new_browser()
+            b = self.browser
+
+            # can start new session
+            b.open("/")
+            b.wait_visible('#content')
 
             # shut it down, wait until it is gone
             m.execute("pkill cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")

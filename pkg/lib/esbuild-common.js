@@ -20,6 +20,7 @@ export const esbuildStylesPlugins = [
     }),
     sassPlugin({
         loadPaths: [...nodePaths, 'node_modules'],
+        filter: /\.scss/,
         quietDeps: true,
         async transform(source, resolveDir, path) {
             if (path.includes('patternfly-5-cockpit.scss')) {

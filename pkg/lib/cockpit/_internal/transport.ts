@@ -18,7 +18,19 @@ class TransportGlobals {
     incoming_filters: FilterCallback[] = [];
 }
 
-export const transport_globals = new TransportGlobals();
+// the transport globals must be a *real* global, across bundles -- i.e. a <script>ed cockpit.js and bundled
+// channel.ts must share the same instance, to avoid initializing transports (and thus initing) twice
+
+declare global {
+    interface Document {
+        cockpit_transport_globals?: TransportGlobals;
+    }
+}
+
+if (!document.cockpit_transport_globals)
+    document.cockpit_transport_globals = new TransportGlobals();
+
+export const transport_globals = document.cockpit_transport_globals;
 
 window.addEventListener('beforeunload', () => {
     transport_globals.expect_disconnect = true;

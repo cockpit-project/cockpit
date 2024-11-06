@@ -1016,37 +1016,6 @@ The life-cycle of the channel works like this:
 
  - The channel will stay open until the client closes it.
 
-Payload: fswatch1
------------------
-
-You will get a stream of change notifications for a file or a
-directory.
-
-The following options can be specified in the "open" control message:
-
- * "path": The path name to watch.  This should be an absolute path to
-   a file or directory.
-
-Each message on the stream will be a JSON object with the following
-fields:
-
- * "event": A string describing the kind of change.  One of "changed",
-   "deleted", "created", "attribute-changed", "moved", or "done-hint".
-
- * "path": The absolute path name of the file that has changed.
-
- * "other": The absolute path name of the other file in case of a "moved"
-   event.
-
- * "type": If the event was created this contains the type of the new file.
-   Will be one of: file, directory, link, special or unknown.
-
-In case of an error, the channel will be closed.  In addition to the
-usual "problem" field, the "close" control message sent by the server
-might have the following additional fields:
-
- * "message": A string in the current locale describing the error.
-
 Payload: fsread1
 ----------------
 

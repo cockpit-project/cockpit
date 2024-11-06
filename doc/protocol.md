@@ -1079,7 +1079,7 @@ fields:
  * "tag": The transaction tag for the returned file content.  The tag
    for a non-existing file is "-".
 
-It is not permitted to send data in an fslist1 channel. This channel
+It is not permitted to send data in an fsread1 channel. This channel
 sends a "done" when all file data was sent.
 
 Payload: fsreplace1

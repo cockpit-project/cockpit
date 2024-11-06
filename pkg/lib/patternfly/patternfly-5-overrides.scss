@@ -397,3 +397,10 @@ select.pf-v5-c-form-control {
 .pf-v5-c-card.pf-m-selectable, .pf-v5-c-card.pf-m-clickable {
   isolation: auto;
 }
+
+/* Style secondary button in dark mode as secondary */
+.pf-v5-c-menu-toggle.pf-m-secondary.pf-m-split-button {
+    .pf-v5-theme-dark & {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+  }
+}

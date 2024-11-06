@@ -40,6 +40,10 @@ set -eu
 exec_prefix="@prefix@"
 libexecdir="@libexecdir@"
 
+# start browser in a temporary home dir, so that it does not interfere with your real one
+BROWSER_HOME=$(mktemp --directory --tmpdir cockpit.desktop.XXXXXX)
+export BROWSER_HOME
+
 # find suitable browser, unless already set by $BROWSER
 # We can't use xdg-open, it does too much magic behind the back to connect to
 # existing instances (outside of our namespace) and does not allow us to reduce
@@ -63,16 +67,24 @@ detect_browser()
         fi
     done
 
+    # create firefox profile
+    FIREFOX_PROFILE="$BROWSER_HOME/profile"
+    mkdir "$FIREFOX_PROFILE"
+    cat <<EOF > "$FIREFOX_PROFILE/user.js"
+user_pref("datareporting.policy.dataSubmissionEnabled", false);
+user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+user_pref("browser.toolbars.bookmarks.visibility", "never");
+EOF
+
     if type firefox >/dev/null 2>&1; then
-        # TODO: Find a way to disable the privacy notice tab, via mozilla.cfg?
         # TODO: Find a way to disable the URL bar
-        BROWSER="firefox --no-remote"
+        BROWSER="firefox --profile $FIREFOX_PROFILE --no-remote"
         return 0
     fi
 
     for id in org.mozilla.firefox org.mozilla.Firefox; do
         if flatpak info $id >/dev/null 2>&1; then
-            BROWSER="flatpak run $id --no-remote"
+            BROWSER="flatpak run --filesystem=$BROWSER_HOME $id --profile $FIREFOX_PROFILE --no-remote"
             return 0
         fi
     done
@@ -115,9 +127,6 @@ SCRIPT='
 set -eu
 # new namespaces have lo down by default
 ip link set lo up >&2
-
-# start browser in a temporary home dir, so that it does not interfere with your real one
-export BROWSER_HOME=$(mktemp --directory --tmpdir cockpit.desktop.XXXXXX)
 
 # forward parent stdin and stdout (from bridge) to cockpit-ws
 # it pretty well does not matter which port we use in our own namespace, so use standard http

@@ -30,7 +30,6 @@ function Keys() {
     self.path = null;
     self.items = { };
 
-    let watch = null;
     let proc = null;
     let timeout = null;
 
@@ -43,35 +42,6 @@ function Keys() {
             });
 
     function refresh() {
-        function on_message(ev, payload) {
-            const item = JSON.parse(payload);
-            const name = item.path;
-            if (name && name.indexOf("/") === -1 && name.slice(-4) === ".pub") {
-                if (item.event === "present" || item.event === "created" ||
-                item.event === "changed" || item.event === "deleted") {
-                    window.clearInterval(timeout);
-                    timeout = window.setTimeout(refresh, 100);
-                }
-            }
-        }
-
-        function on_close(ev, data) {
-            watch.removeEventListener("close", on_close);
-            watch.removeEventListener("message", on_message);
-            if (!data.problem || data.problem == "not-found") {
-                watch = null; /* Watch again */
-            } else {
-                console.warn("couldn't watch " + self.path + ": " + (data.message || data.problem));
-                watch = false; /* Don't watch again */
-            }
-        }
-
-        if (watch === null) {
-            watch = cockpit.channel({ payload: "fswatch1", path: self.path });
-            watch.addEventListener("close", on_close);
-            watch.addEventListener("message", on_message);
-        }
-
         if (proc)
             return;
 
@@ -309,8 +279,6 @@ function Keys() {
     };
 
     self.close = function() {
-        if (watch)
-            watch.close();
         if (proc)
             proc.close();
         window.clearTimeout(timeout);

@@ -369,12 +369,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     '.*Sorry, passwords do not match.')
         self.allow_restart_journal_messages()
 
-    @testlib.skipImage("FIXME: asks for password again instead of mock-pam-conv", "rhel-8-10")
+    @testlib.skipWsContainer("mock-pam-conv from cockpit-tests not installed")
     def testConversation(self):
         m = self.machine
         b = self.browser
         conf = "/etc/pam.d/cockpit"
-        if m.ws_container:
+        if m.ostree_image:
             conf = "/etc/pam.d/sshd"
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' "

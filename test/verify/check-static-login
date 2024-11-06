@@ -476,7 +476,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     @testlib.skipImage("No SELinux", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("No semanage")
-    @testlib.skipImage("FIXME: Authentication failed: unknown-host", "rhel-8-10")
     def testSELinuxRestrictedUser(self):
         m = self.machine
         b = self.browser
@@ -509,6 +508,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages('.*type=1400.*avc:  denied  { connectto } .* path="/run/user/.*/bus" scontext=user_u:user_r:user_t:s0.*')
 
         # sysadm_u
+        # not allowed by default in RHEL 8
+        if m.image.startswith("rhel-8"):
+            m.execute("setsebool -P ssh_sysadm_login 1")
+            self.addCleanup(m.execute, "setsebool -P ssh_sysadm_login 0")
         m.execute("useradd priv; echo 'priv:foobar' | chpasswd")
         m.execute("usermod -aG wheel priv")
         m.execute("semanage login -a -s sysadm_u priv")

@@ -17,7 +17,24 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-function parse_passwd_content(content: string) {
+export interface PamCommon {
+    name: string,
+    password: string,
+    gid: number,
+}
+
+export interface PasswdUserInfo extends PamCommon {
+    uid: number,
+    gecos: string,
+    home: string,
+    shell: string,
+}
+
+export interface EtcGroupInfo extends PamCommon {
+    userlist: string[],
+}
+
+function parse_passwd_content(content: string): PasswdUserInfo[] {
     if (!content) {
         console.warn("Couldn't read /etc/passwd");
         return [];
@@ -48,7 +65,7 @@ export const etc_passwd_syntax = {
     parse: parse_passwd_content
 };
 
-function parse_group_content(content: string) {
+function parse_group_content(content: string): EtcGroupInfo[] {
     // /etc/group file is used to set only secondary groups of users. The primary group is saved in /etc/passwd-
     content = (content || "").trim();
     if (!content) {

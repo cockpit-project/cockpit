@@ -70,6 +70,13 @@ detect_browser()
         return 0
     fi
 
+    for id in org.mozilla.firefox org.mozilla.Firefox; do
+        if flatpak info $id >/dev/null 2>&1; then
+            BROWSER="flatpak run $id --no-remote"
+            return 0
+        fi
+    done
+
     # TODO: is there a simple way to use webkitgtk?
     echo "No suitable browser found (Chromium/Chrome, or Firefox)" >&2
     exit 1

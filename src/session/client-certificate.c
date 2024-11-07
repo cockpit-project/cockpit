@@ -31,7 +31,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/un.h>
 #include <syslog.h>
 #include <unistd.h>
 
@@ -41,6 +43,39 @@
 
 #define CLIENT_CERTIFICATE_DIRECTORY   "/run/cockpit/tls/clients"
 
+static int
+open_proc_pid (pid_t pid)
+{
+    char path[100];
+    int r = snprintf (path, sizeof path, "/proc/%lu", (unsigned long) pid);
+    if (r < 0 || r >= sizeof path)
+        errx (EX, "memory error");
+    int fd = open (path, O_DIRECTORY | O_NOFOLLOW | O_PATH | O_CLOEXEC);
+    if (fd < 0)
+      err (EX, "failed to open %s", path);
+    return fd;
+}
+
+static size_t
+read_proc_file (int dirfd, const char *name, char *buffer, size_t bufsize)
+{
+  int fd = openat (dirfd, name, O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    err (EX, "Failed to open %s proc file", name);
+
+  /* we don't accept/expect EINTR or short reads here: this is /proc, and we don't have
+   * signal handlers which survive the login */
+  ssize_t len = read (fd, buffer, bufsize);
+  if (len < 0)
+    err (EX, "Failed to read /proc file %s", name);
+
+  close (fd);
+  if (len >= bufsize)
+    errx (EX, "proc file %s exceeds buffer size %zu", name, bufsize);
+  buffer[len] = '\0';
+  return len;
+}
+
 /* This is a bit lame, but having a hard limit on peer certificates is
  * desirable: Let's not get DoSed by huge certs */
 #define MAX_PEER_CERT_SIZE 100000
@@ -49,29 +84,47 @@
  * including "0::" prefix and newline.
  * NB: the kernel doesn't allow newlines in cgroup names. */
 static char *
-read_proc_self_cgroup (size_t *out_length)
+read_proc_pid_cgroup (int dirfd, size_t *out_length)
 {
-  FILE *fp = fopen ("/proc/self/cgroup", "r");
-
-  if (fp == NULL)
-    {
-      warn ("Failed to open /proc/self/cgroup");
-      exit_init_problem ("internal-error", "Failed to open /proc/self/cgroup");
-    }
-
   char buffer[1024];
-  *out_length = fread (buffer, 1, sizeof (buffer) - 1, fp);
-  buffer[*out_length] = '\0';
-  fclose (fp);
+  size_t len = read_proc_file (dirfd, "cgroup", buffer, sizeof buffer);
 
-  if (*out_length > 5 &&  /* at least "0::/\n" */
-      *out_length <= sizeof (buffer) - 1 && /* not too big */
-      strncmp (buffer, "0::", 3) == 0 && /* must be a cgroupsv2 */
-      buffer[*out_length - 1] == '\n') /* must end with a newline */
-    return strdupx (buffer);
+  if (strncmp (buffer, "0::/", 4) == 0 && /* must be a cgroupsv2 */
+      buffer[len - 1] == '\n') /* must end with a newline */
+    {
+      *out_length = len;
+      return strdupx (buffer);
+    }
 
   warnx ("unexpected cgroups content, certificate matching only supports cgroup v2: '%s'", buffer);
   exit_init_problem ("authentication-unavailable", "certificate matching only supports cgroup v2");
+}
+
+static
+unsigned long long get_proc_pid_start_time (int dirfd)
+{
+  char buffer[4096];
+  read_proc_file (dirfd, "stat", buffer, sizeof buffer);
+
+  /* start time is the token at index 19 after the '(process name)' entry - since only this
+  * field can contain the ')' character, search backwards for this to avoid malicious
+  * processes trying to fool us; See proc_pid_stat(5) */
+  const char *p = strrchr (buffer, ')');
+  if (p == NULL)
+    errx (EX, "Failed to find process name in /proc/pid/stat: %s", buffer);
+  for (int i = 0; i <= 19; i++) /* NB: ')' is the first token */
+    {
+      p = strchr (p, ' ');
+      if (p == NULL)
+        errx (EX, "Failed to find start time in /proc/pid/stat");
+      ++p; /* skip over the space */
+    }
+
+  char *endptr;
+  unsigned long long start_time = strtoull (p, &endptr, 10);
+  if (*endptr != ' ')
+    errx (EX, "Failed to parse start time in /proc/pid/stat from %s", p);
+  return start_time;
 }
 
 /* valid_256_bit_hex_string:
@@ -301,11 +354,53 @@ cockpit_session_client_certificate_map_user (const char *client_certificate_file
       exit_init_problem ("authentication-unavailable", "No https instance certificate present");
     }
 
+  /* check if stdin is a Unix socket; then we are being called via cockpit-session@.service and need to
+   * check the cgroup of our peer */
+  struct ucred ucred;
+  socklen_t ucred_len = sizeof ucred;
+  int ws_pid_dirfd;
+  if (getsockopt (STDIN_FILENO, SOL_SOCKET, SO_PEERCRED, &ucred, &ucred_len) == 0 &&
+      /* this is an inout parameter, be extra suspicious */
+      ucred_len >= sizeof ucred)
+    {
+      debug ("unix socket mode, reading cgroup from peer pid %d", ucred.pid);
+      ws_pid_dirfd = open_proc_pid (ucred.pid);
+      unsigned long long ws_start_time = get_proc_pid_start_time (ws_pid_dirfd);
+
+      int my_pid_dirfd = open_proc_pid (getpid ());
+      unsigned long long my_start_time = get_proc_pid_start_time (my_pid_dirfd);
+      close (my_pid_dirfd);
+
+      debug ("peer start time: %llu, my start time: %llu", ws_start_time, my_start_time);
+
+      /* Guard against pid recycling: If a malicious user captures ws, keeps the socket in a forked child and exits
+       * the original pid, they can trap a different user to login, get the old pid (pointing ot their cgroup), and
+       * capture their session. To prevent that, require that ws must have started earlier than ourselves. */
+      if (my_start_time < ws_start_time)
+        {
+          warnx ("start time of this process (%llu) is older than cockpit-ws (%llu), pid recycling attack?",
+                  my_start_time, ws_start_time);
+          close (ws_pid_dirfd);
+          exit_init_problem ("access-denied", "implausible cockpit-ws start time");
+        }
+    }
+  else {
+    debug ("failed to read stdin peer credentials: %m; not in socket mode, reading cgroup from my own pid %d", getpid ());
+    ws_pid_dirfd = open_proc_pid (getpid ());
+  }
+
   size_t ws_cgroup_length;
-  char *ws_cgroup = read_proc_self_cgroup (&ws_cgroup_length);
+  char *ws_cgroup = read_proc_pid_cgroup (ws_pid_dirfd, &ws_cgroup_length);
   assert (ws_cgroup);
+  close (ws_pid_dirfd);
+
+  /* read_proc_pid_cgroup() already ensures that, but just in case we refactor this: this is *essential* for the
+   * subsequent comparison */
+  if (ws_cgroup[ws_cgroup_length - 1] != '\n')
+    errx (EX, "cgroup does not end in newline");
+
   /* A simple prefix comparison is appropriate here because ws_cgroup
-   * will contain exactly one newline (at the end), and the expected
+   * contains exactly one newline (at the end), and the expected
    * value of ws_cgroup is on the first line in cert_pem.
    */
   if (strncmp (cert_pem, ws_cgroup, ws_cgroup_length) != 0)

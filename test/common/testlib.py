@@ -1764,7 +1764,7 @@ class MachineCase(unittest.TestCase):
         # only enabled by default on released OSes; see pkg/shell/manifest.json
         self.multihost_enabled = image.startswith(("rhel-9", "centos-9")) or image in [
                 "ubuntu-2204", "ubuntu-2404", "debian-stable",
-                "fedora-39", "fedora-40", "fedora-coreos"]
+                "fedora-39", "fedora-40"]
         # Transitional code while we move ubuntu-stable from 24.04 to 24.10
         if image == "ubuntu-stable" and m.execute(". /etc/os-release; echo $VERSION_ID").strip() == "24.04":
             self.multihost_enabled = True

@@ -31,6 +31,8 @@ import './cockpit-components-truncate.scss';
 export const Truncate = ({
     content,
     ...props
+}: {
+    content: string,
 }) => {
     return (
         <span className="pf-v5-c-truncate ct-no-truncate-min-width" {...props}>

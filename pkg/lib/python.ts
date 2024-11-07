@@ -17,9 +17,14 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import cockpit from "cockpit";
+import cockpit, { BasicError } from "cockpit";
 
 const pyinvoke = ["sh", "-ec", "exec $(command -v /usr/libexec/platform-python || command -v python3) -c \"$@\"", "--"];
+
+export interface PythonExitStatus extends BasicError {
+    exit_status: number | null,
+    exit_signal: number | null,
+}
 
 // only declare the string variant for the time being; we don't use the binary variant
 export function spawn (

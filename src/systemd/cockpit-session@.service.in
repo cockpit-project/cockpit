@@ -7,3 +7,5 @@ StandardInput=socket
 StandardOutput=inherit
 StandardError=journal
 User=root
+# bridge error, authentication failure, or timeout, that's not a problem with the unit
+SuccessExitStatus=1 5 127

@@ -146,6 +146,27 @@ AC_DEFINE_UNQUOTED([PATH_SSH_ADD], ["$SSH_ADD"], [Location of ssh-add binary])
 AC_PATH_PROG([SSH_AGENT], [ssh-agent], [/usr/bin/ssh-agent], [$PATH:/usr/local/bin:/usr/bin:/bin])
 AC_DEFINE_UNQUOTED([PATH_SSH_AGENT], ["$SSH_AGENT"], [Location of ssh-agent binary])
 
+# Fuzzing
+AC_MSG_CHECKING([for fuzzing])
+AC_ARG_ENABLE(fuzzing,
+              AS_HELP_STRING([--enable-fuzzing=no/yes],
+                             [Turn the fuzzing on or off])
+             )
+
+if test "$enable_fuzzing" = "yes"; then
+    if test -z "$LIB_FUZZING_ENGINE"; then
+        FUZZING_ENGINE="-fsanitize=fuzzer"
+    else
+        FUZZING_ENGINE="$LIB_FUZZING_ENGINE"
+    fi
+    AC_SUBST(FUZZING_ENGINE)
+    fuzzing_status="yes"
+else
+    fuzzing_status="no"
+fi
+AM_CONDITIONAL(WITH_FUZZING, test "$enable_fuzzing" = "yes")
+AC_MSG_RESULT($fuzzing_status)
+
 # Address sanitizer
 AC_MSG_CHECKING([for asan flags])
 AC_ARG_ENABLE(asan,
@@ -371,6 +392,7 @@ echo "
         Debug mode:                 ${debug_status}
         Node environment:           ${NODE_ENV}
         With coverage:              ${enable_coverage}
+        With fuzzing:               ${fuzzing_status}
         With address sanitizer:     ${asan_status}
         SELinux Policy:             ${enable_selinux_policy}
 

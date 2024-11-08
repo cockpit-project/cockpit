@@ -189,3 +189,15 @@ TEST_PROGRAM += test-webserver
 test_webserver_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_webserver_LDADD = $(TEST_LIBS)
 test_webserver_SOURCES = src/common/test-webserver.c
+
+if WITH_FUZZING
+noinst_PROGRAMS += fuzz_authorize
+fuzz_authorize_SOURCES = src/common/fuzz_authorize.c
+fuzz_authorize_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS)
+fuzz_authorize_LDADD = $(libcockpit_common_a_LIBS) $(FUZZING_ENGINE)
+
+noinst_PROGRAMS += fuzz_base64
+fuzz_base64_SOURCES = src/common/fuzz_base64.c
+fuzz_base64_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS)
+fuzz_base64_LDADD = $(libcockpit_common_a_LIBS) $(FUZZING_ENGINE)
+endif

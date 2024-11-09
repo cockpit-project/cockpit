@@ -186,7 +186,7 @@ class NotSupported extends React.Component {
                    onClose={this.props.onClose}
                    title={_("Cockpit is not installed")}
                    footer={
-                       <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
+                       <Button variant="secondary" className="btn-cancel" onClick={this.props.onClose}>
                            { _("Close") }
                        </Button>
                    }

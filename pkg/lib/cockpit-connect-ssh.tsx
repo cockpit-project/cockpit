@@ -511,7 +511,7 @@ const NotSupportedDialog = ({ host, error, dialogResult }: {
             onClose={() => dialogResult.reject(error)}
             title={_("Cockpit is not installed")}
             footer={
-                <Button variant="link" className="btn-cancel" onClick={() => dialogResult.reject(error)}>
+                <Button variant="secondary" className="btn-cancel" onClick={() => dialogResult.reject(error)}>
                     { _("Close") }
                 </Button>
             }

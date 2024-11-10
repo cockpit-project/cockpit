@@ -24,6 +24,7 @@
 #include "common/cockpitframe.h"
 #include "common/cockpitjsonprint.h"
 #include "common/cockpithacks.h"
+#include "common/cockpitmemory.h"
 
 #include <fcntl.h>
 #include <paths.h>
@@ -52,16 +53,9 @@ static FILE *authf = NULL;
 char *
 read_authorize_response (const char *what)
 {
-  const char *auth_response = ",\"response\":\"";
-  size_t auth_response_size = 13;
-  const char *auth_suffix = "\"}";
-  size_t auth_suffix_size = 2;
   unsigned char *message;
-  ssize_t len;
-
   debug ("reading %s authorize message", what);
-
-  len = cockpit_frame_read (STDIN_FILENO, &message);
+  ssize_t len = cockpit_frame_read (STDIN_FILENO, &message);
   if (len < 0)
     err (EX, "couldn't read %s", what);
   if (len == 0)
@@ -69,24 +63,42 @@ read_authorize_response (const char *what)
        debug ("EOF reading %s authorize message", what);
        exit (0);
     }
+  return (char *)message;
+}
 
+char *get_authorize_key (const char *json, const char *key, bool required)
+{
   /*
-   * The authorize messages we receive always have an exact prefix and suffix:
+   * The authorize messages we receive always have this structure:
    *
    * \n{"command":"authorize","cookie":"NNN","response":"...."}
+   *
+   * We make many assumptions/restrictions here to keep the parser simple. In particular, no extra
+   * whitespace, everything is a string, and no escaped ".
    */
-  if (len <= auth_prefix_size + auth_response_size + auth_suffix_size ||
-      memcmp (message, auth_prefix, auth_prefix_size) != 0 ||
-      memcmp (message + auth_prefix_size, auth_response, auth_response_size) != 0 ||
-      memcmp (message + (len - auth_suffix_size), auth_suffix, auth_suffix_size) != 0)
+  if (json == NULL || json[0] != '\n' || json[1] != '{')
+    errx (EX, "authorize message doesn't start with \\n{");
+
+  char *key_match;
+  int key_match_len = asprintfx (&key_match, "\"%s\":\"", key);
+
+  const char *match = strstr (json, key_match);
+  free (key_match);
+  if (!match)
     {
-      errx (EX, "didn't receive expected \"authorize\" message");
+      if (required)
+        errx (EX, "authorize message missing required key %s", key);
+      debug ("authorize message missing optional key %s", key);
+      return NULL;
     }
 
-  len -= auth_prefix_size + auth_response_size + auth_suffix_size;
-  memmove (message, message + auth_prefix_size + auth_response_size, len);
-  message[len] = '\0';
-  return (char *)message;
+  /* advance to the start of the value */
+  match += key_match_len;
+  /* find end of value */
+  size_t value_len = strcspn (match, "\"");
+  if (match[value_len] != '"')
+    errx (EX, "syntax error, expected closing quote");
+  return strndup (match, value_len);
 }
 
 void

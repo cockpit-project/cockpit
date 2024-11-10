@@ -136,8 +136,6 @@ pam_conv_func (int num_msg,
                void *appdata_ptr)
 {
   char **password = (char **)appdata_ptr;
-  char *authorization = NULL;
-  char *prompt_resp = NULL;
 
   /* For keeping track of messages returned by PAM */
   char *err_msg = NULL;
@@ -216,8 +214,11 @@ pam_conv_func (int num_msg,
               txt_msg = NULL;
             }
 
-          authorization = read_authorize_response (msg[i]->msg);
-          prompt_resp = cockpit_authorize_parse_x_conversation (authorization, NULL);
+          char *authorization = read_authorize_response (msg[i]->msg);
+          char *response = get_authorize_key (authorization, "response", true);
+          char *prompt_resp = cockpit_authorize_parse_x_conversation (response, NULL);
+          cockpit_memory_clear (response, -1);
+          free (response);
 
           debug ("got prompt response");
           if (prompt_resp)
@@ -231,8 +232,7 @@ pam_conv_func (int num_msg,
               success = 0;
             }
 
-          if (authorization)
-            cockpit_memory_clear (authorization, -1);
+          cockpit_memory_clear (authorization, -1);
           free (authorization);
         }
     }
@@ -577,7 +577,6 @@ perform_gssapi (const char *rhost,
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
   gss_OID mech_type = GSS_C_NO_OID;
   pam_handle_t *pamh = NULL;
-  char *response = NULL;
   char *challenge;
   OM_uint32 flags = 0;
   char *str = NULL;
@@ -646,11 +645,17 @@ perform_gssapi (const char *rhost,
       input.length = 0;
 
       debug ("need to continue gssapi negotiation");
-      response = read_authorize_response ("negotiate");
+      char *authorize = read_authorize_response ("negotiate");
+      char *response = get_authorize_key (authorize, "response", false);
+      cockpit_memory_clear (authorize, -1);
+      free (authorize);
+
       input.value = cockpit_authorize_parse_negotiate (response, &input.length);
       if (response)
-        cockpit_memory_clear (response, -1);
-      free (response);
+        {
+          cockpit_memory_clear (response, -1);
+          free (response);
+        }
     }
 
   str = map_gssapi_to_local (name, mech_type);
@@ -897,7 +902,6 @@ main (int argc,
   pam_handle_t *pamh = NULL;
   OM_uint32 minor;
   const char *rhost;
-  char *authorization;
   char *type = NULL;
   const char **env;
   char *ccache = NULL;
@@ -943,19 +947,23 @@ main (int argc,
   write_control_end ();
 
   /* And get back the authorization header */
-  authorization = read_authorize_response ("authorization");
-  if (!cockpit_authorize_type (authorization, &type))
+  char *authorization = read_authorize_response ("authorization");
+  char *response = get_authorize_key (authorization, "response", true);
+  cockpit_memory_clear (authorization, -1);
+  free (authorization);
+
+  if (!cockpit_authorize_type (response, &type))
     errx (EX, "invalid authorization header received");
 
   if (strcmp (type, "basic") == 0)
-    pamh = perform_basic (rhost, authorization);
+    pamh = perform_basic (rhost, response);
   else if (strcmp (type, "negotiate") == 0)
-    pamh = perform_gssapi (rhost, authorization);
+    pamh = perform_gssapi (rhost, response);
   else if (strcmp (type, "tls-cert") == 0)
-    pamh = perform_tlscert (rhost, authorization);
+    pamh = perform_tlscert (rhost, response);
 
-  cockpit_memory_clear (authorization, -1);
-  free (authorization);
+  cockpit_memory_clear (response, -1);
+  free (response);
 
   if (!pamh)
     errx (2, "unrecognized authentication method: %s", type);

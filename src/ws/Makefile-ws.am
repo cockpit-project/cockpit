@@ -110,7 +110,7 @@ mock_echo_SOURCES = src/ws/mock-echo.c
 check_PROGRAMS += mock-auth-command
 mock_auth_command_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 mock_auth_command_LDADD = $(libcockpit_common_a_LIBS) $(TEST_LIBS)
-mock_auth_command_SOURCES = src/ws/mock-auth-command.c
+mock_auth_command_SOURCES = src/ws/mock-auth-command.c src/session/session-utils.c
 
 TEST_PROGRAM += test-auth
 test_auth_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)

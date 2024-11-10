@@ -64,6 +64,7 @@ void utmp_log (int login, const char *rhost, FILE *messages);
 void btmp_log (const char *username, const char *rhost);
 
 char* read_authorize_response (const char *what);
+char* get_authorize_key (const char *json, const char *key, bool required);
 void write_authorize_begin (void);
 void write_control_string (const char *field, const char *str);
 void write_control_bool (const char *field, bool val);

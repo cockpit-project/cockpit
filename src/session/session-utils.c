@@ -70,7 +70,7 @@ char *get_authorize_key (const char *json, const char *key, bool required)
   /*
    * The authorize messages we receive always have this structure:
    *
-   * \n{"command":"authorize","cookie":"NNN","response":"...."}
+   * \n{"command":"authorize","cookie":"NNN","response":"...",...more entries...}
    *
    * We make many assumptions/restrictions here to keep the parser simple. In particular, no extra
    * whitespace, everything is a string, and no escaped ".

@@ -521,12 +521,14 @@ session_start_process (const gchar **argv,
 static void
 send_authorize_reply (CockpitTransport *transport,
                       const gchar *cookie,
-                      const gchar *authorization)
+                      const gchar *authorization,
+                      const gchar *remote_peer)
 {
   const gchar *fields[] = {
     "command", "authorize",
     "cookie", cookie,
     "response", authorization,
+    remote_peer ? "remote-peer" : NULL, remote_peer,
     NULL
   };
 
@@ -616,7 +618,8 @@ reply_authorize_challenge (CockpitSession *session)
   if (cockpit_authorize_type (session->authorization, &authorization_type) &&
       (g_str_equal (authorize_type, "*") || g_str_equal (authorize_type, authorization_type)))
     {
-      send_authorize_reply (session->transport, cookie, session->authorization);
+      const gchar *remote_peer = cockpit_creds_get_rhost (cockpit_web_service_get_creds (session->service));
+      send_authorize_reply (session->transport, cookie, session->authorization, remote_peer);
       cockpit_memory_clear (session->authorization, -1);
       g_free (session->authorization);
       session->authorization = NULL;
@@ -784,7 +787,7 @@ on_transport_control (CockpitTransport *transport,
 
           /* return a negative answer; we handle unknown hosts interactively, or want to fail on them */
           g_debug ("received x-host-key authorize challenge");
-          send_authorize_reply (session->transport, cookie, "");
+          send_authorize_reply (session->transport, cookie, "", NULL /* does not need remote_peer here */);
           return TRUE;
         }
 
@@ -903,7 +906,6 @@ build_session_credentials (CockpitAuth *self,
   char *raw = NULL;
 
   GBytes *password = NULL;
-  gchar *remote_peer = NULL;
   gchar *csrf_token = NULL;
 
   superuser = cockpit_web_request_lookup_header (request, "X-Superuser");
@@ -937,7 +939,7 @@ build_session_credentials (CockpitAuth *self,
         }
     }
 
-  remote_peer = cockpit_web_request_get_remote_address (request);
+  g_autofree gchar *remote_peer = cockpit_web_request_get_remote_address (request);
   csrf_token = cockpit_auth_nonce (self);
 
   creds = cockpit_creds_new (application,
@@ -948,7 +950,6 @@ build_session_credentials (CockpitAuth *self,
                              COCKPIT_CRED_SUPERUSER, superuser,
                              NULL);
 
-  g_free (remote_peer);
   if (raw)
     {
       cockpit_memory_clear (raw, strlen (raw));
@@ -1122,12 +1123,6 @@ cockpit_session_launch (CockpitAuth *self,
   if (command != NULL)
     {
       g_auto(GStrv) env = g_get_environ ();
-      if (cockpit_creds_get_rhost (creds))
-        {
-          env = g_environ_setenv (env, "COCKPIT_REMOTE_PEER",
-                                  cockpit_creds_get_rhost (creds),
-                                  TRUE);
-        }
       if (g_strcmp0 (cockpit_web_request_lookup_header (request, "X-SSH-Connect-Unknown-Hosts"), "yes") == 0)
         {
           env = g_environ_setenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS",

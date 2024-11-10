@@ -31,6 +31,7 @@ type cockpit_session_t;
 type cockpit_session_exec_t;
 domain_type(cockpit_session_t)
 domain_entry_file(cockpit_session_t,cockpit_session_exec_t)
+init_daemon_domain(cockpit_session_t,cockpit_session_exec_t)
 
 ########################################
 #
@@ -109,7 +110,8 @@ sysnet_exec_ifconfig(cockpit_ws_t)
 cockpit_session_domtrans(cockpit_ws_t)
 allow cockpit_ws_t cockpit_session_t:process signal_perms;
 
-# cockpit-session communicates back with cockpit-ws
+# cockpit-session communicates with cockpit-ws over a unix socket
+allow cockpit_ws_t cockpit_session_t:unix_stream_socket connectto;
 allow cockpit_session_t cockpit_ws_t:unix_stream_socket rw_stream_socket_perms;
 
 # cockpit-tls and cockpit-ws communicate over a Unix socket
@@ -168,6 +170,13 @@ read_files_pattern(cockpit_session_t, cockpit_var_run_t, cockpit_var_run_t)
 list_dirs_pattern(cockpit_session_t, cockpit_var_run_t, cockpit_var_run_t)
 
 kernel_read_network_state(cockpit_session_t)
+
+# SELinux-restricted users can communicate with existing cockpit-session socket connection
+gen_require(`
+    type user_t;
+    type sysadm_t;
+')
+allow { user_t sysadm_t } cockpit_session_t:unix_stream_socket rw_stream_socket_perms;
 
 # cockpit-session runs a full pam stack, including pam_selinux.so
 auth_login_pgm_domain(cockpit_session_t)

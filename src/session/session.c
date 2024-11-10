@@ -54,7 +54,6 @@ static const char *env_names[] = {
   "G_MESSAGES_DEBUG",
   "G_SLICE",
   "PATH",
-  "COCKPIT_REMOTE_PEER",
   NULL
 };
 
@@ -912,7 +911,6 @@ main (int argc,
 {
   pam_handle_t *pamh = NULL;
   OM_uint32 minor;
-  const char *rhost;
   char *type = NULL;
   const char **env;
   char *ccache = NULL;
@@ -933,8 +931,6 @@ main (int argc,
   alarm (60);  /* like cockpit_ws_auth_response_timeout on the ws side */
 
   program_name = basename (argv[0]);
-
-  rhost = getenv ("COCKPIT_REMOTE_PEER") ?: "";
 
   save_environment ();
 
@@ -961,6 +957,10 @@ main (int argc,
 
   /* And get back the authorization header */
   char *authorization = read_authorize_response ("authorization");
+  char *remote_peer = get_authorize_key (authorization, "remote-peer", false);
+  /* the functions below require a non-NULL rhost */
+  const char *rhost = remote_peer ?: "";
+  debug ("initial authorize response rhost: %s", rhost);
   char *response = get_authorize_key (authorization, "response", true);
   cockpit_memory_clear (authorization, -1);
   free (authorization);
@@ -1077,6 +1077,9 @@ main (int argc,
 
   pam_end (pamh, PAM_SUCCESS);
 
+  rhost = NULL;
+  free (remote_peer);
+  remote_peer = NULL;
   free (last_err_msg);
   last_err_msg = NULL;
   free (last_txt_msg);

@@ -51,8 +51,12 @@ The response will look something like this
     "command": "authorize",
     "cookie": "cookie",
     "response": "Basic dXNlcjpwYXNzd29yZAo=",
+    "remote-peer": "1.2.3.4",
 }
 ```
+
+`remote-peer` is the IP address of the connecting user, if known (otherwise
+unset).
 
 A `*` challenge requests whatever credentials the parent process has. Most auth
 commands will want to begin by issuing a `*` challenge.
@@ -188,12 +192,8 @@ for more details. This will affect how many custom authentication processes can 
 Environment Variables
 ---------------------
 
-The following environment variables are set by cockpit-ws when spawning an auth process:
-
- * **COCKPIT_REMOTE_PEER** Set to the ip address of the connecting user, if
-   known (otherwise unset).
-
-The following environment variables are used to set options for SSH connections:
+The following environment variables are set by cockpit-ws when spawning an auth process for
+SSH connections:
 
  * **COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS** Set to `1` to  allow connecting to
    hosts that are not present in the current `known_hosts` files. If not set,

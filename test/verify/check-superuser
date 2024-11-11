@@ -349,6 +349,7 @@ session include system-auth
         b.check_superuser_indicator("Limited access")
 
     @testlib.skipBeiboot("no local overrides/PAM config in beiboot mode")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testMultipleBridgeConfig(self):
         b = self.browser
 

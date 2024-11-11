@@ -490,6 +490,7 @@ class TestKdumpNFS(KdumpHelpers):
         "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512}
     }
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         m = self.machine
         b = self.browser

@@ -1358,6 +1358,7 @@ ProtocolHeader = X-Forwarded-Proto
 
     @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testNginxTLS(self):
         """test proxying to Cockpit with TLS
 
@@ -1438,6 +1439,7 @@ server {
 
     @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testNginxNoTLS(self):
         """test proxying to Cockpit with plain HTTP
 

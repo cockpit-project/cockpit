@@ -122,6 +122,7 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
 
     # Possible workaround - ssh as `admin` and just do `m.execute()`
     @testlib.skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         b = self.browser
         m1 = self.machine

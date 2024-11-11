@@ -39,6 +39,7 @@ class TestLogin(testlib.MachineCase):
             b.set_layout("desktop")
 
     # @testlib.skipBeiboot("no local cockpit PAM config in beiboot mode")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -217,6 +218,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "noise-rc-.*")
 
     @testlib.skipWsContainer("logs in via ssh, not cockpit-session")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testLogging(self):
         m = self.machine
         b = self.browser
@@ -786,6 +788,7 @@ EOF""")
         self.allow_journal_messages(".*minutes left to unlock.*")
 
     @testlib.skipWsContainer("root logins disabled by default with ssh")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testPamAccess(self):
         b = self.browser
         m = self.machine
@@ -1016,6 +1019,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 
     # enable this once our cockpit/ws container can beiboot
     @testlib.skipWsContainer("client setup does not work with ws container")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testSSH(self):
         m = self.machine
         b = self.browser

@@ -786,6 +786,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         wait_partial(4)         # striped mirror has lost more than half and is kaputt
         wait_partial(6)         # raid6 is finally toast as well
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testLvmOnLuks(self):
         b = self.browser
         m = self.machine

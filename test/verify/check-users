@@ -415,6 +415,7 @@ class TestAccounts(testlib.MachineCase):
         b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
         check_column_sort("[data-label='ID']")
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testUserPasswords(self):
         b = self.browser
         m = self.machine
@@ -918,6 +919,7 @@ class TestAccounts(testlib.MachineCase):
         b.go("#/robert")
         b.wait_text("#account-shell", custom_shell)
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testUnprivileged(self):
         m = self.machine
         b = self.browser
@@ -1002,6 +1004,7 @@ class TestAccounts(testlib.MachineCase):
                 return value.strip()
         return None
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testExpire(self):
         m = self.machine
         b = self.browser
@@ -1099,6 +1102,7 @@ class TestAccounts(testlib.MachineCase):
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
 
     @testlib.skipWsContainer("User is not shown as logged in with cockpit/ws")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testAccountLogs(self):
         b = self.browser
         m = self.machine

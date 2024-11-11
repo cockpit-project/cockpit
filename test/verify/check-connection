@@ -176,8 +176,8 @@ class TestConnection(testlib.MachineCase):
             b.set_val("#login-user-input", "admin")
             b.set_val("#login-password-input", "foobar")
             b.click('#login-button')
-            b.wait_visible('#login-fatal-message')
-            b.wait_text('#login-fatal-message', "The cockpit package is not installed")
+            b.wait_visible('#login-error-message')
+            b.wait_in_text('#login-error-message', "Install the cockpit-system package")
             m.execute("while B=$(command -v cockpit-bridge.disabled); do mv $B ${B%.disabled}; done")
 
         # Lets crash a systemd-controlled process and see if we get a proper backtrace in the logs

@@ -479,7 +479,7 @@ def create_coverage_report() -> None:
         diff_file = f"{BASE_DIR}/lcov/diff.info"
         excludes = []
         # Exclude pkg/lib in Cockpit projects such as podman/machines.
-        if title != "cockpit.git":
+        if title != "cockpit.git" and title != "cockpit":
             excludes = ["--exclude", "pkg/lib"]
         subprocess.check_call(["lcov", "--quiet", "--output", all_file, *excludes,
                                *itertools.chain(*[["--add", f] for f in lcov_files])])

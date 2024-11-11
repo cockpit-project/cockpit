@@ -64,6 +64,11 @@ read_authorize_response (const char *what)
   len = cockpit_frame_read (STDIN_FILENO, &message);
   if (len < 0)
     err (EX, "couldn't read %s", what);
+  if (len == 0)
+    {
+       debug ("EOF reading %s authorize message", what);
+       exit (0);
+    }
 
   /*
    * The authorize messages we receive always have an exact prefix and suffix:

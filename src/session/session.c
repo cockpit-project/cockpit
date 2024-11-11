@@ -42,6 +42,9 @@ static char *conversation = NULL;
 
 #define COCKPIT_KTAB PACKAGE_SYSCONF_DIR "/cockpit/krb5.keytab"
 
+/* exit status if cockpit-bridge binary does not exist */
+#define EXIT_NOT_FOUND 127
+
 static gss_cred_id_t creds = GSS_C_NO_CREDENTIAL;
 
 /* Environment variables to transfer */
@@ -1041,6 +1044,21 @@ main (int argc,
   else
     {
       status = spawn_and_wait (bridge_argv, env, NULL, -1, pwd->pw_uid, pwd->pw_gid);
+    }
+
+
+  /* translate no-cockpit error for the UI, as the precise status cannot be propagated
+   * through the session Unix socket */
+  if (WIFEXITED (status) && WEXITSTATUS (status) == EXIT_NOT_FOUND)
+    {
+      debug ("bridge exited with status %d, no-cockpit", status);
+      const char *no_cockpit = "\n{\"command\":\"init\",\"version\":1,\"problem\":\"no-cockpit\",\"message\":\"cockpit-bridge not found\"}";
+      if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)no_cockpit, strlen (no_cockpit)) < 0)
+          err (EX, "couldn't write init message");
+    }
+  else
+    {
+      debug ("bridge exited with status %d", status);
     }
 
   pam_end (pamh, PAM_SUCCESS);

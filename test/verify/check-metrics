@@ -181,6 +181,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.enter_page("/system")
         b.wait_visible('.system-information')
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testEvents(self):
         b = self.browser
         m = self.machine
@@ -1279,6 +1280,7 @@ BEGIN {{
 class TestMetricsPackages(packagelib.PackageCase):
     pcp_dialog_selector = "#pcp-settings-modal"
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         b = self.browser
         m = self.machine

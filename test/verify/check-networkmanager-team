@@ -28,6 +28,7 @@ import testlib
 @testlib.skipImage("team not supported", "centos-10*", "rhel-10*")
 @testlib.nondestructive
 class TestTeam(netlib.NetworkCase):
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         b = self.browser
 
@@ -90,6 +91,7 @@ class TestTeam(netlib.NetworkCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testActive(self):
         b = self.browser
         m = self.machine

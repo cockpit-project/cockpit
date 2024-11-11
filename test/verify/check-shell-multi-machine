@@ -451,6 +451,7 @@ class TestMultiMachine(testlib.MachineCase):
         self.assertEqual(200, http_code("/cockpit/@localhost/manifests.json"))
         self.assertEqual(403, http_code("/cockpit/@10.111.113.2/manifests.json"))
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testUrlRoot(self):
         b = self.browser
         m = self.machine
@@ -670,6 +671,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         self.allow_hostkey_messages()
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testTroubleshooting(self):
         b = self.browser
         m1 = self.machine
@@ -816,6 +818,7 @@ class TestMultiMachine(testlib.MachineCase):
                                     '.*: server offered unsupported authentication methods: .*')
 
     @testlib.skipImage("TODO: Broken on Arch Linux", "arch")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testSshKeySetup(self):
         b = self.browser
         m1 = self.machine

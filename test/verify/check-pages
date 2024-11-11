@@ -784,6 +784,7 @@ OnCalendar=daily
         b.wait_text("#received-type", "-")
         b.wait_text("#received-title", "-")
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testHistory(self):
 
         b = self.browser

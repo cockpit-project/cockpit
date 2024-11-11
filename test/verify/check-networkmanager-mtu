@@ -23,6 +23,7 @@ import testlib
 
 @testlib.nondestructive
 class TestNetworkingMTU(netlib.NetworkCase):
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testMtu(self):
         b = self.browser
         m = self.machine

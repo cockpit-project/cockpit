@@ -414,17 +414,30 @@ export class KdumpPage extends React.Component {
 # A reboot will be required if crashkernel was not set before
 kdumpctl reset-crashkernel`;
         }
-        const shell = `
+        let shell;
+        if (this.state.os_release.NAME?.includes('MicroOS')) {
+            enableCrashKernel = `
+# A reboot will be required if crashkernel was not set before
+transactional-update setup-kdump`;
+            shell = `
+cat > /etc/kdump.conf << EOF
+ ${kdumpconf}
+EOF
+${enableCrashKernel}
+        `;
+        } else {
+            shell = `
 cat > /etc/kdump.conf << EOF
 ${kdumpconf}
 EOF
 systemctl enable --now kdump.service
 ${enableCrashKernel}
 `;
+        }
 
         Dialogs.show(
             <ModificationsExportDialog
-              ansible={exportAnsibleTask(this.props.kdumpStatus.config, this.state.os_release)}
+              ansible={ this.state.os_release.NAME?.includes('MicroOS') ? null : exportAnsibleTask(this.props.kdumpStatus.config, this.state.os_release)}
               shell={shell}
               onClose={Dialogs.close}
             />);

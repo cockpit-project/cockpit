@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 03:01+0000\n"
+"POT-Creation-Date: 2024-11-11 02:58+0000\n"
 "PO-Revision-Date: 2024-07-21 05:38+0000\n"
 "Last-Translator: Jose Riha <jose1711@gmail.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -115,7 +115,7 @@ msgstr "$0 skončilo s kódom $1"
 msgid "$0 failed"
 msgstr "$0 sa nepodarilo"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:112
+#: pkg/systemd/overview-cards/lastLogin.tsx:119
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "$0 neúspešný pokus o prihlásenie"
@@ -977,12 +977,12 @@ msgstr "Správa pomocou webovej konzole Cockpit"
 msgid "Administrative access"
 msgstr "Prístup na úrovni správcu"
 
-#: pkg/sosreport/sosreport.jsx:433
+#: pkg/sosreport/sosreport.jsx:428
 msgid "Administrative access is required to create and access reports."
 msgstr ""
 "Aby ste mohli vytvárať výkazy, je potrebné mať oprávnenia na úrovni správcu."
 
-#: pkg/sosreport/sosreport.jsx:432
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access required"
 msgstr "Vyžaduje sa prístup na úrovni správcu"
 
@@ -1187,7 +1187,7 @@ msgstr "V sekunde"
 msgid "At specific time"
 msgstr "V konkrétny čas"
 
-#: pkg/sosreport/sosreport.jsx:510
+#: pkg/sosreport/sosreport.jsx:505
 msgid "Attributes"
 msgstr "Atribúty"
 
@@ -1485,16 +1485,16 @@ msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
 #: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
 #: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:299
-#: pkg/sosreport/sosreport.jsx:384
+#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
+#: pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "Zrušiť"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:93
 msgid "Cancel poweroff"
 msgstr "Zrušiť vypínanie"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:94
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:97
 msgid "Cancel reboot"
 msgstr "Zrušiť reštart"
 
@@ -2204,7 +2204,7 @@ msgstr "Vytvoriť časovač"
 msgid "Create volume group"
 msgstr "Vytvoriť skupinu zväzkov (volume group)"
 
-#: pkg/sosreport/sosreport.jsx:509
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Created"
 msgstr "Vytvorená"
 
@@ -2501,7 +2501,7 @@ msgstr "Je potrebné, aby oneskorenie bolo číslo"
 #: pkg/storaged/stratis/filesystem.jsx:128
 #: pkg/storaged/stratis/filesystem.jsx:169 pkg/storaged/stratis/pool.jsx:177
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:395
-#: pkg/sosreport/sosreport.jsx:378 pkg/sosreport/sosreport.jsx:477
+#: pkg/sosreport/sosreport.jsx:373 pkg/sosreport/sosreport.jsx:472
 msgid "Delete"
 msgstr "Odstrániť"
 
@@ -2526,7 +2526,7 @@ msgstr "Odstrániť skupinu"
 msgid "Delete pool"
 msgstr "Odstrániť pool"
 
-#: pkg/sosreport/sosreport.jsx:370
+#: pkg/sosreport/sosreport.jsx:365
 msgid "Delete report permanently?"
 msgstr "Odstrániť výkaz bez možnosti jeho obnovenia?"
 
@@ -2792,7 +2792,7 @@ msgstr "Neopakovať"
 msgid "Double distributed parity (RAID 6)"
 msgstr "Dvojitá distribuovaná parita (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:467 pkg/sosreport/sosreport.jsx:473
+#: pkg/sosreport/sosreport.jsx:462 pkg/sosreport/sosreport.jsx:468
 msgid "Download"
 msgstr "Stiahnúť"
 
@@ -2963,7 +2963,7 @@ msgstr "Šifrovať údaje pomocou Tang servera s kľúčmi"
 msgid "Encrypt data with a passphrase"
 msgstr "Šifrovať údaje pomocou heslovej fráze"
 
-#: pkg/sosreport/sosreport.jsx:457
+#: pkg/sosreport/sosreport.jsx:452
 msgid "Encrypted"
 msgstr "Šifrované"
 
@@ -2993,7 +2993,7 @@ msgstr "Šifrovanie"
 msgid "Encryption options"
 msgstr "Možnosti šifrovania"
 
-#: pkg/sosreport/sosreport.jsx:329
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Encryption passphrase"
 msgstr "Šifrovacia heslová fráza"
 
@@ -3048,7 +3048,7 @@ msgstr "Errata"
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:401
+#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
 msgstr "Chyba"
 
@@ -3174,7 +3174,7 @@ msgstr "Nepodarilo sa pridať službu"
 msgid "Failed to add zone"
 msgstr "Nepodarilo sa pridať zónu"
 
-#: pkg/lib/credentials.js:213 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:183 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "Nepodarilo sa zmeniť heslo"
@@ -3496,7 +3496,7 @@ msgstr "Jednotka pevného disku"
 msgid "Hardware information"
 msgstr "Informácie o hardware"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.tsx:36
 msgid "Health"
 msgstr "Kondícia systému"
 
@@ -3893,7 +3893,7 @@ msgstr "Neplatný formát dátumu a času"
 msgid "Invalid expiration date"
 msgstr "Neplatný dátum skončenia platnosti"
 
-#: pkg/lib/credentials.js:273
+#: pkg/lib/credentials.js:243
 msgid "Invalid file permissions"
 msgstr "Neplatné práva súborov"
 
@@ -4145,7 +4145,7 @@ msgstr "Posledné prihlásenie"
 msgid "Last modified: $0"
 msgstr "Naposledy zmenené: $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:99
+#: pkg/systemd/overview-cards/lastLogin.tsx:106
 msgid "Last successful login:"
 msgstr "Posledné úspešné prihlásenie:"
 
@@ -4172,7 +4172,7 @@ msgstr "Opustiť $0"
 msgid "Leave domain"
 msgstr "Opustiť doménu"
 
-#: pkg/sosreport/sosreport.jsx:337
+#: pkg/sosreport/sosreport.jsx:332
 msgid "Leave empty to skip encryption"
 msgstr "Ak nechcete šifrovať, nechajte prázdne"
 
@@ -5064,7 +5064,7 @@ msgstr "Nová heslová fráza"
 msgid "New password"
 msgstr "Nové heslo"
 
-#: pkg/lib/credentials.js:219 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:189 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "Nové heslo nebolo prijaté"
 
@@ -5265,7 +5265,7 @@ msgstr "Nenašlo sa žiadne úložisko"
 msgid "No subvolumes"
 msgstr "Žiadne podzväzky"
 
-#: pkg/lib/credentials.js:186
+#: pkg/lib/credentials.js:156
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:158
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:159
 msgid "No such file or directory"
@@ -5275,7 +5275,7 @@ msgstr "Žiaden taký súbor alebo adresár neexistuje"
 msgid "No system modifications"
 msgstr "Žiadne systémové zmeny"
 
-#: pkg/sosreport/sosreport.jsx:506
+#: pkg/sosreport/sosreport.jsx:501
 msgid "No system reports."
 msgstr "Žiadne výkazy o systéme."
 
@@ -5292,7 +5292,7 @@ msgstr "Nebolo zadané meno používateľa"
 msgid "None"
 msgstr "Žiadny"
 
-#: pkg/lib/credentials.js:256
+#: pkg/lib/credentials.js:226
 msgid "Not a valid private key"
 msgstr "Nie je platná súkromná časť kľúča"
 
@@ -5388,11 +5388,11 @@ msgstr "Notebook"
 msgid "Notice and above"
 msgstr "Oznámenie a závažnejšie"
 
-#: pkg/sosreport/sosreport.jsx:340
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "Zamaskovať sieťové adresy, názvy hostiteľov a mená používateľov"
 
-#: pkg/sosreport/sosreport.jsx:461
+#: pkg/sosreport/sosreport.jsx:456
 msgid "Obfuscated"
 msgstr "Zamaskované"
 
@@ -5421,7 +5421,7 @@ msgstr "Pôvodná heslová fráza"
 msgid "Old password"
 msgstr "Pôvodné heslo"
 
-#: pkg/lib/credentials.js:205 pkg/users/password-dialogs.js:55
+#: pkg/lib/credentials.js:175 pkg/users/password-dialogs.js:55
 msgid "Old password not accepted"
 msgstr "Pôvodné heslo nebolo prijaté"
 
@@ -5476,7 +5476,7 @@ msgstr "Operácia '$operation' na $target"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
 #: pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
-#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:339
+#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:334
 msgid "Options"
 msgstr "Možnosti"
 
@@ -5684,7 +5684,7 @@ msgstr "Heslo je príliš slabé"
 msgid "Password must be changed"
 msgstr "Heslo musí byť zmenené"
 
-#: pkg/lib/credentials.js:277
+#: pkg/lib/credentials.js:247
 msgid "Password not accepted"
 msgstr "Heslo nebolo prijaté"
 
@@ -5985,7 +5985,7 @@ msgstr "Informácia o probléme"
 msgid "Processes using the location"
 msgstr "Procesy využívajúce toto umiestnenie"
 
-#: pkg/sosreport/sosreport.jsx:310
+#: pkg/sosreport/sosreport.jsx:305
 msgid "Progress: $0"
 msgstr "Stav postupu: $0"
 
@@ -5997,11 +5997,11 @@ msgstr "Webové stránky projektu"
 msgid "Prompting via passwd timed out"
 msgstr "Časový limit výzvy prostredníctvom hesla bol prekročený"
 
-#: pkg/lib/credentials.js:265
+#: pkg/lib/credentials.js:235
 msgid "Prompting via ssh-add timed out"
 msgstr "Časový limit výzvy prostredníctvom ssh-add bol prekročený"
 
-#: pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:194
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Časový limit výzvy prostredníctvom ssh-keygen bol prekročený"
 
@@ -6487,11 +6487,11 @@ msgstr "Zopakujte heslovú frázu"
 msgid "Repeat weekly"
 msgstr "Opakovať každý týždeň"
 
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:508
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:503
 msgid "Report"
 msgstr "Nahlásiť"
 
-#: pkg/sosreport/sosreport.jsx:326
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Report label"
 msgstr "Štítok výkazu"
 
@@ -6511,7 +6511,7 @@ msgstr "Nahlasovanie sa nepodarilo"
 msgid "Reporting was canceled"
 msgstr "Nahlasovanie bolo zrušené"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:498
 msgid "Reports"
 msgstr "Výkazy"
 
@@ -6665,7 +6665,7 @@ msgstr "Výber riadka"
 msgid "Run at"
 msgstr "Spustiť v"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Run new report"
 msgstr "Vytvoriť nový výkaz"
 
@@ -6673,7 +6673,7 @@ msgstr "Vytvoriť nový výkaz"
 msgid "Run on"
 msgstr "Spustiť na"
 
-#: pkg/sosreport/sosreport.jsx:291 pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:286 pkg/sosreport/sosreport.jsx:495
 msgid "Run report"
 msgstr "Vytvoriť výkaz"
 
@@ -6735,7 +6735,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "SMART samotest $target"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:317
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
@@ -6829,11 +6829,11 @@ msgstr ""
 "Uloženie novej heslovej frázy vyžaduje odomknutie disku. Zadajte súčasnú "
 "heslovú frázu k disku."
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:89
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:92
 msgid "Scheduled poweroff at $0"
 msgstr "Naplánované vypnutie o $0"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:96
 msgid "Scheduled reboot at $0"
 msgstr "Naplánovaný reštart o $0"
 
@@ -7380,7 +7380,7 @@ msgstr "Zastaviť zariadenie"
 msgid "Stop editing hosts"
 msgstr "Ukončiť upravovanie hostiteľov"
 
-#: pkg/sosreport/sosreport.jsx:295
+#: pkg/sosreport/sosreport.jsx:290
 msgid "Stop report"
 msgstr "Zastaviť výkaz"
 
@@ -7569,7 +7569,7 @@ msgstr "Synchronizujem zariadenie MDRAID $target"
 msgid "System"
 msgstr "Systém"
 
-#: pkg/sosreport/sosreport.jsx:527
+#: pkg/sosreport/sosreport.jsx:522
 msgid "System diagnostics"
 msgstr "Diagnostika systému"
 
@@ -7755,7 +7755,7 @@ msgstr ""
 "Aby bolo disk možné naformátovať, je potrebné ho odomknúť. Zadajte "
 "existujúcu heslovú frázu."
 
-#: pkg/sosreport/sosreport.jsx:388
+#: pkg/sosreport/sosreport.jsx:383
 msgid "The file $0 will be deleted."
 msgstr "Súbor $0 bude odstránený."
 
@@ -8098,7 +8098,7 @@ msgstr "Táto skupina je primárnou skupinou pre nasledujúcich používateľov:
 msgid "This host will reboot after updates are installed."
 msgstr "Tento stroj bude reštartovný keď budú aktualizácie nainštalované."
 
-#: pkg/sosreport/sosreport.jsx:323
+#: pkg/sosreport/sosreport.jsx:318
 msgid "This information is stored only on the system."
 msgstr "Táto informácia je uložená iba lokálne na systéme."
 
@@ -8874,7 +8874,7 @@ msgstr "Použiť heslo"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Pre overovanie voči ostatným systémom použiť nasledujúce kľúče"
 
-#: pkg/sosreport/sosreport.jsx:342
+#: pkg/sosreport/sosreport.jsx:337
 msgid "Use verbose logging"
 msgstr "Zaznamenávať podrobnejšie"
 
@@ -9023,7 +9023,7 @@ msgstr "Zobraziť podrobné záznamy udalostí"
 msgid "View hardware details"
 msgstr "Zobraziť podrobnosti o hardvéri"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:145
+#: pkg/systemd/overview-cards/lastLogin.tsx:152
 msgid "View login history"
 msgstr "Zobraziť históriu prihlásení"
 
@@ -9626,12 +9626,12 @@ msgstr "iba pre aktuálnu verziu jadra"
 msgid "format"
 msgstr "Formátovať"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:40
+#: pkg/systemd/overview-cards/lastLogin.tsx:40
 msgctxt "from <host>"
 msgid "from $0"
 msgstr "z $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:38
+#: pkg/systemd/overview-cards/lastLogin.tsx:38
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
 msgstr "z $0 na $1"
@@ -9858,7 +9858,7 @@ msgstr[0] "z $0 procesoru"
 msgstr[1] "z $0 procesorov"
 msgstr[2] "z $0 procesorov"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:42
+#: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "na $0"
@@ -10049,7 +10049,7 @@ msgstr "detaily riešenia"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:193
+#: pkg/sosreport/sosreport.jsx:188
 msgid "sos report failed"
 msgstr "Nahlasovanie problému zlyhalo"
 

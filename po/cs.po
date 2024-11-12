@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 03:01+0000\n"
-"PO-Revision-Date: 2024-11-02 11:38+0000\n"
+"POT-Creation-Date: 2024-11-11 02:58+0000\n"
+"PO-Revision-Date: 2024-11-11 06:38+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
 "main/cs/>\n"
@@ -124,7 +124,7 @@ msgstr "$0 skončilo s kódem $1"
 msgid "$0 failed"
 msgstr "$0 se nezdařilo"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:112
+#: pkg/systemd/overview-cards/lastLogin.tsx:119
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "$0 nepodařený pokus o přihlášení"
@@ -314,7 +314,7 @@ msgstr[2] "$0 týdnů"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:115
 msgid "$0 will be installed."
-msgstr "$0 bude nainstalováno."
+msgstr "Bude nainstalováno $0."
 
 #: pkg/lib/cockpit-components-plot.jsx:219
 msgid "$0 year"
@@ -992,12 +992,12 @@ msgstr "Správa pomocí webové konzole Cockpit"
 msgid "Administrative access"
 msgstr "Přístup na úrovni správce"
 
-#: pkg/sosreport/sosreport.jsx:433
+#: pkg/sosreport/sosreport.jsx:428
 msgid "Administrative access is required to create and access reports."
 msgstr ""
 "Abyste mohli vytvářet hlášení, je třeba mít oprávnění na úrovni správy."
 
-#: pkg/sosreport/sosreport.jsx:432
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access required"
 msgstr "Je vyžadován přístup na úrovni správy"
 
@@ -1195,7 +1195,7 @@ msgstr "V sekundě"
 msgid "At specific time"
 msgstr "V uvedený čas"
 
-#: pkg/sosreport/sosreport.jsx:510
+#: pkg/sosreport/sosreport.jsx:505
 msgid "Attributes"
 msgstr "Atributy"
 
@@ -1272,15 +1272,15 @@ msgstr "Spouští se automaticky"
 
 #: pkg/lib/serverTime.js:558
 msgid "Automatically using NTP"
-msgstr "Automatické použití NTP"
+msgstr "Automaticky pomocí NTP"
 
 #: pkg/lib/serverTime.js:565
 msgid "Automatically using additional NTP servers"
-msgstr "Automatické použití dalších NTP serverů"
+msgstr "Automaticky pomocí dalších NTP serverů"
 
 #: pkg/lib/serverTime.js:566
 msgid "Automatically using specific NTP servers"
-msgstr "Automatické použití uvedených NTP serverů"
+msgstr "Automaticky pomocí konkrétních NTP serverů"
 
 #: pkg/lib/cockpit-components-modifications.jsx:86
 msgid "Automation script"
@@ -1337,7 +1337,7 @@ msgstr "Navazuje se na"
 
 #: pkg/systemd/terminal.jsx:174
 msgid "Black"
-msgstr "Černá"
+msgstr "Černý"
 
 #: pkg/lib/machine-info.js:87
 msgid "Blade"
@@ -1509,16 +1509,16 @@ msgstr ""
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
 #: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
 #: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:299
-#: pkg/sosreport/sosreport.jsx:384
+#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
+#: pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "Storno"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:93
 msgid "Cancel poweroff"
 msgstr "Zrušit vypínání"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:94
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:97
 msgid "Cancel reboot"
 msgstr "Zrušit restartování"
 
@@ -1595,7 +1595,7 @@ msgstr "Změnit heslo"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:309
 msgid "Change performance profile"
-msgstr "Změnit profil výkonu"
+msgstr "Změnit výkonnostní profil"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:313
 msgid "Change profile"
@@ -2108,10 +2108,8 @@ msgid "Create"
 msgstr "Vytvořit"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:177
-#, fuzzy
-#| msgid "Create"
 msgid "Create $0"
-msgstr "Vytvořit"
+msgstr "Vytvořit $0"
 
 #: pkg/storaged/overview/overview.jsx:146
 msgid "Create LVM2 volume group"
@@ -2250,7 +2248,7 @@ msgstr "Vytvořit časovač"
 msgid "Create volume group"
 msgstr "Vytvořit skupinu svazků"
 
-#: pkg/sosreport/sosreport.jsx:509
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Created"
 msgstr "Vytvořeno"
 
@@ -2552,7 +2550,7 @@ msgstr "Je třeba, aby prodleva byla číslo"
 #: pkg/storaged/stratis/filesystem.jsx:128
 #: pkg/storaged/stratis/filesystem.jsx:169 pkg/storaged/stratis/pool.jsx:177
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:395
-#: pkg/sosreport/sosreport.jsx:378 pkg/sosreport/sosreport.jsx:477
+#: pkg/sosreport/sosreport.jsx:373 pkg/sosreport/sosreport.jsx:472
 msgid "Delete"
 msgstr "Smazat"
 
@@ -2579,7 +2577,7 @@ msgstr "Smazat skupinu"
 msgid "Delete pool"
 msgstr "Smazat fond"
 
-#: pkg/sosreport/sosreport.jsx:370
+#: pkg/sosreport/sosreport.jsx:365
 msgid "Delete report permanently?"
 msgstr "Smazat hlášení bez možnosti obnovení?"
 
@@ -2863,7 +2861,7 @@ msgstr "Dvojitá distribuovaná parita (RAID 6)"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/sosreport/sosreport.jsx:467 pkg/sosreport/sosreport.jsx:473
+#: pkg/sosreport/sosreport.jsx:462 pkg/sosreport/sosreport.jsx:468
 msgid "Download"
 msgstr "Stáhnout"
 
@@ -3054,7 +3052,7 @@ msgstr "Šifrovat data pomocí Tang serveru s klíči"
 msgid "Encrypt data with a passphrase"
 msgstr "Šifrovat data pomocí heslové fráze"
 
-#: pkg/sosreport/sosreport.jsx:457
+#: pkg/sosreport/sosreport.jsx:452
 msgid "Encrypted"
 msgstr "Šifrováno"
 
@@ -3088,7 +3086,7 @@ msgstr "Předvolby šifrování"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/sosreport/sosreport.jsx:329
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Encryption passphrase"
 msgstr "Šifrovací heslová fráze"
 
@@ -3145,7 +3143,7 @@ msgstr "Errata"
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:401
+#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
 msgstr "Chyba"
 
@@ -3273,7 +3271,7 @@ msgstr "Službu se nepodařilo přidat"
 msgid "Failed to add zone"
 msgstr "Zónu se nepodařilo přidat"
 
-#: pkg/lib/credentials.js:213 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:183 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "Nepodařilo se změnit heslo"
@@ -3293,7 +3291,7 @@ msgstr "Nepodařilo se zakázat proces služby tuned"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:179
 msgid "Failed to disable tuned profile"
-msgstr "Nepodařilo se vypnout profil tuned"
+msgstr "Nepodařilo se vypnout tuned profil"
 
 #: pkg/shell/hosts_dialog.jsx:436
 msgid "Failed to edit machine: $0"
@@ -3619,7 +3617,7 @@ msgstr "Jednotka pevného disku"
 msgid "Hardware information"
 msgstr "Informace o hardware"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.tsx:36
 msgid "Health"
 msgstr "Celkový stav"
 
@@ -3939,7 +3937,8 @@ msgstr "Nainstalovat aktualizace zabezpečení"
 
 #: pkg/selinux/setroubleshoot-view.jsx:333
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
-msgstr "Nainstalovat setroubleshoot-server pro řešení potíží s SELinux."
+msgstr ""
+"Pokud chcete řešit potíže s SELinux, nainstalujte setroubleshoot-server."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:112
 msgid "Install software"
@@ -4045,7 +4044,7 @@ msgstr "Neplatný formát data a času"
 msgid "Invalid expiration date"
 msgstr "Neplatné datum skončení platnosti"
 
-#: pkg/lib/credentials.js:273
+#: pkg/lib/credentials.js:243
 msgid "Invalid file permissions"
 msgstr "Neplatná oprávnění k souboru"
 
@@ -4311,7 +4310,7 @@ msgstr "Poslední přihlášení"
 msgid "Last modified: $0"
 msgstr "Naposledy zkontrolováno: $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:99
+#: pkg/systemd/overview-cards/lastLogin.tsx:106
 msgid "Last successful login:"
 msgstr "Poslední úspěšné přihlášení:"
 
@@ -4338,7 +4337,7 @@ msgstr "Opustit $0"
 msgid "Leave domain"
 msgstr "Opustit doménu"
 
-#: pkg/sosreport/sosreport.jsx:337
+#: pkg/sosreport/sosreport.jsx:332
 msgid "Leave empty to skip encryption"
 msgstr "Pokud nechcete šifrovat, nevyplňujte"
 
@@ -5275,7 +5274,7 @@ msgstr "Nová heslová fráze"
 msgid "New password"
 msgstr "Nové heslo"
 
-#: pkg/lib/credentials.js:219 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:189 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "Nové heslo nebylo přijato"
 
@@ -5482,7 +5481,7 @@ msgstr "Nenalezeno žádné úložiště"
 msgid "No subvolumes"
 msgstr "Žádné dílčí svazky"
 
-#: pkg/lib/credentials.js:186
+#: pkg/lib/credentials.js:156
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:158
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:159
 msgid "No such file or directory"
@@ -5492,7 +5491,7 @@ msgstr "Žádný takový soubor nebo složka"
 msgid "No system modifications"
 msgstr "Žádné modifikace systému"
 
-#: pkg/sosreport/sosreport.jsx:506
+#: pkg/sosreport/sosreport.jsx:501
 msgid "No system reports."
 msgstr "Žádná hlášení o systému."
 
@@ -5509,7 +5508,7 @@ msgstr "Nebylo zadáno uživatelské jméno"
 msgid "None"
 msgstr "Žádné"
 
-#: pkg/lib/credentials.js:256
+#: pkg/lib/credentials.js:226
 msgid "Not a valid private key"
 msgstr "Není platná soukromá část klíče"
 
@@ -5611,11 +5610,11 @@ msgstr "Notebook"
 msgid "Notice and above"
 msgstr "Oznámení a závažnější"
 
-#: pkg/sosreport/sosreport.jsx:340
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "Znečitelnit síťové adresy, názvy strojů a uživatelská jména"
 
-#: pkg/sosreport/sosreport.jsx:461
+#: pkg/sosreport/sosreport.jsx:456
 msgid "Obfuscated"
 msgstr "Znečitelněno"
 
@@ -5644,7 +5643,7 @@ msgstr "Původní heslová fráze"
 msgid "Old password"
 msgstr "Původní heslo"
 
-#: pkg/lib/credentials.js:205 pkg/users/password-dialogs.js:55
+#: pkg/lib/credentials.js:175 pkg/users/password-dialogs.js:55
 msgid "Old password not accepted"
 msgstr "Původní heslo nebylo přijato"
 
@@ -5703,7 +5702,7 @@ msgstr "Operace „$operation“ na $target"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
 #: pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
-#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:339
+#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:334
 msgid "Options"
 msgstr "Přepínače"
 
@@ -5929,7 +5928,7 @@ msgstr "Heslo je příliš slabé"
 msgid "Password must be changed"
 msgstr "Heslo je třeba změnit"
 
-#: pkg/lib/credentials.js:277
+#: pkg/lib/credentials.js:247
 msgid "Password not accepted"
 msgstr "Heslo nepřijato"
 
@@ -6040,7 +6039,7 @@ msgstr ""
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:84
 msgid "Performance profile"
-msgstr "Profil výkonnosti"
+msgstr "Výkonnostní profil"
 
 #: pkg/lib/machine-info.js:80
 msgid "Peripheral chassis"
@@ -6262,7 +6261,7 @@ msgstr "Informace o problému"
 msgid "Processes using the location"
 msgstr "Procesy využívající toto umístění"
 
-#: pkg/sosreport/sosreport.jsx:310
+#: pkg/sosreport/sosreport.jsx:305
 msgid "Progress: $0"
 msgstr "Stav postupu: $0"
 
@@ -6274,11 +6273,11 @@ msgstr "Webové stránky projektu"
 msgid "Prompting via passwd timed out"
 msgstr "Časový limit výzvy prostřednictvím hesla překročen"
 
-#: pkg/lib/credentials.js:265
+#: pkg/lib/credentials.js:235
 msgid "Prompting via ssh-add timed out"
 msgstr "Časový limit výzvy prostřednictvím ssh-add překročen"
 
-#: pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:194
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Časový limit výzvy prostřednictvím ssh-keygen překročen"
 
@@ -6414,7 +6413,7 @@ msgstr "Zjistit více…"
 
 #: pkg/systemd/service-details.jsx:493
 msgid "Read-only"
-msgstr "Pouze pro čtení"
+msgstr "Pouze číst"
 
 #: pkg/storaged/plot.jsx:96
 msgid "Reading"
@@ -6771,12 +6770,12 @@ msgid "Repeat weekly"
 msgstr "Opakovat každý týden"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:508
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:503
 msgid "Report"
 msgstr "Nahlásit"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/sosreport/sosreport.jsx:326
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Report label"
 msgstr "Štítek hlášení"
 
@@ -6796,7 +6795,7 @@ msgstr "Nahlašování se nezdařilo"
 msgid "Reporting was canceled"
 msgstr "Nahlašování bylo zrušeno"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:498
 msgid "Reports"
 msgstr "Hlášení"
 
@@ -6953,7 +6952,7 @@ msgstr "Výběr řádku"
 msgid "Run at"
 msgstr "Spustit v"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Run new report"
 msgstr "Vytvořit nové hlášení"
 
@@ -6962,7 +6961,7 @@ msgid "Run on"
 msgstr "Spustit na"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/sosreport/sosreport.jsx:291 pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:286 pkg/sosreport/sosreport.jsx:495
 msgid "Run report"
 msgstr "Vytvořit hlášení"
 
@@ -7026,7 +7025,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "SMART samotest $target"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:317
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
@@ -7119,11 +7118,11 @@ msgstr ""
 "Uložení nové heslové fráze vyžaduje odemknutí disku. Zadejte stávající "
 "heslovou frázi k disku."
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:89
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:92
 msgid "Scheduled poweroff at $0"
 msgstr "Naplánované vypnutí v $0"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:96
 msgid "Scheduled reboot at $0"
 msgstr "Naplánovaný restart v $0"
 
@@ -7686,7 +7685,7 @@ msgstr "Zastavit zařízení"
 msgid "Stop editing hosts"
 msgstr "Zastavit upravování hostitelů"
 
-#: pkg/sosreport/sosreport.jsx:295
+#: pkg/sosreport/sosreport.jsx:290
 msgid "Stop report"
 msgstr "Zastavit vytváření hlášení"
 
@@ -7887,7 +7886,7 @@ msgstr "Synchronizuje se MDRAID zařízení $target"
 msgid "System"
 msgstr "Systém"
 
-#: pkg/sosreport/sosreport.jsx:527
+#: pkg/sosreport/sosreport.jsx:522
 msgid "System diagnostics"
 msgstr "Diagnostika systému"
 
@@ -8075,7 +8074,7 @@ msgstr ""
 "Aby ho bylo možné naformátovat, disk je třeba odemknout. Zadejte stávající "
 "heslovou frázi."
 
-#: pkg/sosreport/sosreport.jsx:388
+#: pkg/sosreport/sosreport.jsx:383
 msgid "The file $0 will be deleted."
 msgstr "Soubor $0 bude smazán."
 
@@ -8409,7 +8408,7 @@ msgstr "Tato skupina je primární skupinou pro následující uživatele:"
 msgid "This host will reboot after updates are installed."
 msgstr "Tento hostitel se po instalaci aktualizací restartuje."
 
-#: pkg/sosreport/sosreport.jsx:323
+#: pkg/sosreport/sosreport.jsx:318
 msgid "This information is stored only on the system."
 msgstr "Tato informace je uložena pouze lokálně na systému."
 
@@ -9175,10 +9174,8 @@ msgid "Use"
 msgstr "Použít"
 
 #: pkg/networkmanager/dialogs-common.jsx:105 pkg/storaged/dialog.jsx:677
-#, fuzzy
-#| msgid "Core $0"
 msgid "Use $0"
-msgstr "Jádro $0"
+msgstr "Použít $0"
 
 #: pkg/storaged/lvm2/vdo-pool.jsx:85 pkg/storaged/legacy-vdo/legacy-vdo.jsx:328
 msgid "Use compression"
@@ -9200,7 +9197,7 @@ msgstr "Použít heslo"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Pro ověřování se vůči ostatním systémům použít následující klíče"
 
-#: pkg/sosreport/sosreport.jsx:342
+#: pkg/sosreport/sosreport.jsx:337
 msgid "Use verbose logging"
 msgstr "Zaznamenávat podrobněji"
 
@@ -9371,7 +9368,7 @@ msgstr "Zobrazit podrobné záznamy událostí"
 msgid "View hardware details"
 msgstr "Zobrazit podrobnosti o hardware"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:145
+#: pkg/systemd/overview-cards/lastLogin.tsx:152
 msgid "View login history"
 msgstr "Zobrazit historii přihlášení"
 
@@ -9518,7 +9515,7 @@ msgstr "Týdny"
 
 #: pkg/packagekit/autoupdates.jsx:428
 msgid "When"
-msgstr "Když"
+msgstr "Kdy"
 
 #: pkg/shell/hosts_dialog.jsx:368
 msgid "When empty, connect with the current user"
@@ -9536,7 +9533,7 @@ msgstr ""
 
 #: pkg/systemd/terminal.jsx:177
 msgid "White"
-msgstr "Bílá"
+msgstr "Bílý"
 
 #: pkg/networkmanager/wireguard.jsx:247
 msgid "Will be set to \"Automatic\""
@@ -9990,12 +9987,12 @@ msgstr "pouze pro stávající jádro systému"
 msgid "format"
 msgstr "formátovat"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:40
+#: pkg/systemd/overview-cards/lastLogin.tsx:40
 msgctxt "from <host>"
 msgid "from $0"
 msgstr "z $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:38
+#: pkg/systemd/overview-cards/lastLogin.tsx:38
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
 msgstr "z $0 na $1"
@@ -10226,7 +10223,7 @@ msgstr[0] "z $0 procesoru"
 msgstr[1] "ze $0 procesorů"
 msgstr[2] "z $0 procesorů"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:42
+#: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "na $0"
@@ -10419,7 +10416,7 @@ msgstr "podrobnosti řešení"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:193
+#: pkg/sosreport/sosreport.jsx:188
 msgid "sos report failed"
 msgstr "Nahlášení problému se nezdařilo"
 

@@ -149,7 +149,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
   onInputChange,
   filterFunction = defaultFilterFunction,
   onClearSelection,
-  placeholder = 'Select an option',
+  placeholder = _("Select an option"),
   noOptionsAvailableMessage = _("No results found"),
   noOptionsFoundMessage = _("No results found"),
   isCreatable = false,

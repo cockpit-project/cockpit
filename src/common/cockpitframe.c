@@ -277,8 +277,9 @@ cockpit_frame_read (int fd,
       return -1;
     }
 
-  /* We now have size equal to the number of bytes we need to return. */
-  unsigned char *buffer = malloc (size);
+  /* We now have size equal to the number of bytes we need to return. Add an extra byte for a NUL terminator,
+   * to be friendly to callers for text frames. */
+  unsigned char *buffer = calloc (1, size + 1);
   if (buffer == NULL)
     return -1; /* ENOMEM */
 

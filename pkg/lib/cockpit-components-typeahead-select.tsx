@@ -320,7 +320,9 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
     openMenu();
 
-    if (filteredSelections.every((option) => option.isDisabled)) {
+    const ignore = o => o.isDisabled || o.divider;
+
+    if (filteredSelections.every(ignore)) {
       return;
     }
 
@@ -332,8 +334,8 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
         indexToFocus = focusedItemIndex - 1;
       }
 
-      // Skip disabled options
-      while (filteredSelections[indexToFocus].isDisabled) {
+      // Skip non-items
+      while (ignore(filteredSelections[indexToFocus])) {
         indexToFocus--;
         if (indexToFocus === -1) {
           indexToFocus = filteredSelections.length - 1;
@@ -349,8 +351,8 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
         indexToFocus = focusedItemIndex + 1;
       }
 
-      // Skip disabled options
-      while (filteredSelections[indexToFocus].isDisabled) {
+      // Skip non-items
+      while (ignore(filteredSelections[indexToFocus])) {
         indexToFocus++;
         if (indexToFocus === filteredSelections.length) {
           indexToFocus = 0;

@@ -122,6 +122,8 @@ test_valid (Fixture *pipe, const TestCase *tc)
       g_assert_cmpint (size, ==, i);
       for (gint j = 0; j < size; j++)
         g_assert (output[j] == ' ');
+      /* ensure it's NUL terminated */
+      g_assert (output[size] == '\0');
 
       /* Make sure our pattern is there */
       char buffer[7];

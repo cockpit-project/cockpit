@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 03:01+0000\n"
+"POT-Creation-Date: 2024-11-11 02:58+0000\n"
 "PO-Revision-Date: 2024-11-03 12:38+0000\n"
 "Last-Translator: Luna Jernberg <bittin@reimu.nl>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -113,7 +113,7 @@ msgstr "$0 avslutade med kod $1"
 msgid "$0 failed"
 msgstr "$0 misslyckades"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:112
+#: pkg/systemd/overview-cards/lastLogin.tsx:119
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "$0 misslyckat inloggningsförsök"
@@ -948,11 +948,11 @@ msgstr "Administration med Cockpits webbkonsol"
 msgid "Administrative access"
 msgstr "Administrativ tillgång"
 
-#: pkg/sosreport/sosreport.jsx:433
+#: pkg/sosreport/sosreport.jsx:428
 msgid "Administrative access is required to create and access reports."
 msgstr "Administrativ åtkomst krävs för att skapa och komma åt rapporter."
 
-#: pkg/sosreport/sosreport.jsx:432
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access required"
 msgstr "Administrativ åtkomst krävs"
 
@@ -1147,7 +1147,7 @@ msgstr "På sekund"
 msgid "At specific time"
 msgstr "Vid en specifik tidpunkt"
 
-#: pkg/sosreport/sosreport.jsx:510
+#: pkg/sosreport/sosreport.jsx:505
 msgid "Attributes"
 msgstr "Attribut"
 
@@ -1445,16 +1445,16 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
 #: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
 #: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:299
-#: pkg/sosreport/sosreport.jsx:384
+#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
+#: pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:93
 msgid "Cancel poweroff"
 msgstr "Avbryt avstängning"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:94
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:97
 msgid "Cancel reboot"
 msgstr "Avbryt omstart"
 
@@ -2161,7 +2161,7 @@ msgstr "Skapa en timer"
 msgid "Create volume group"
 msgstr "Skapa en volymgrupp"
 
-#: pkg/sosreport/sosreport.jsx:509
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Created"
 msgstr "Skapad"
 
@@ -2459,7 +2459,7 @@ msgstr "Fördröjning måste vara en siffra"
 #: pkg/storaged/stratis/filesystem.jsx:128
 #: pkg/storaged/stratis/filesystem.jsx:169 pkg/storaged/stratis/pool.jsx:177
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:395
-#: pkg/sosreport/sosreport.jsx:378 pkg/sosreport/sosreport.jsx:477
+#: pkg/sosreport/sosreport.jsx:373 pkg/sosreport/sosreport.jsx:472
 msgid "Delete"
 msgstr "Ta bort"
 
@@ -2484,7 +2484,7 @@ msgstr "Ta bort grupp"
 msgid "Delete pool"
 msgstr "Ta bort pool"
 
-#: pkg/sosreport/sosreport.jsx:370
+#: pkg/sosreport/sosreport.jsx:365
 msgid "Delete report permanently?"
 msgstr "Ta bort rapporten permanent?"
 
@@ -2748,7 +2748,7 @@ msgstr "Upprepa inte"
 msgid "Double distributed parity (RAID 6)"
 msgstr "Dubbel distribuerad paritet (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:467 pkg/sosreport/sosreport.jsx:473
+#: pkg/sosreport/sosreport.jsx:462 pkg/sosreport/sosreport.jsx:468
 msgid "Download"
 msgstr "Hämta"
 
@@ -2919,7 +2919,7 @@ msgstr "Kryptera data med en Tang-nyckelserver"
 msgid "Encrypt data with a passphrase"
 msgstr "Kryptera data med en lösenfras"
 
-#: pkg/sosreport/sosreport.jsx:457
+#: pkg/sosreport/sosreport.jsx:452
 msgid "Encrypted"
 msgstr "Krypterad"
 
@@ -2949,7 +2949,7 @@ msgstr "Kryptering"
 msgid "Encryption options"
 msgstr "Krypteringsalternativ"
 
-#: pkg/sosreport/sosreport.jsx:329
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Encryption passphrase"
 msgstr "Krypteringslösenfras"
 
@@ -3004,7 +3004,7 @@ msgstr "Errata"
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:401
+#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
 msgstr "Fel"
 
@@ -3130,7 +3130,7 @@ msgstr "Kunde inte lägga till tjänst"
 msgid "Failed to add zone"
 msgstr "Kunde inte lägga till zon"
 
-#: pkg/lib/credentials.js:213 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:183 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "Misslyckades att ändra lösenord"
@@ -3450,7 +3450,7 @@ msgstr "Hårddiskenhet"
 msgid "Hardware information"
 msgstr "Hårdvaruinformation"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.tsx:36
 msgid "Health"
 msgstr "Hälsa"
 
@@ -3836,7 +3836,7 @@ msgstr "Felaktigt datumformat och felaktigt tidsformat"
 msgid "Invalid expiration date"
 msgstr "Felaktigt utgångsdatum"
 
-#: pkg/lib/credentials.js:273
+#: pkg/lib/credentials.js:243
 msgid "Invalid file permissions"
 msgstr "Felaktiga filrättigheter"
 
@@ -4088,7 +4088,7 @@ msgstr "Senaste inloggning"
 msgid "Last modified: $0"
 msgstr "Senast ändrad: $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:99
+#: pkg/systemd/overview-cards/lastLogin.tsx:106
 msgid "Last successful login:"
 msgstr "Senaste lyckade inloggning:"
 
@@ -4115,7 +4115,7 @@ msgstr "Lämna $0"
 msgid "Leave domain"
 msgstr "Lämna domänen"
 
-#: pkg/sosreport/sosreport.jsx:337
+#: pkg/sosreport/sosreport.jsx:332
 msgid "Leave empty to skip encryption"
 msgstr "Lämna tomt för att hoppa över kryptering"
 
@@ -5000,7 +5000,7 @@ msgstr "Ny lösenfras"
 msgid "New password"
 msgstr "Nytt lösenord"
 
-#: pkg/lib/credentials.js:219 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:189 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "Det nya lösenordet godtogs inte"
 
@@ -5201,7 +5201,7 @@ msgstr "Ingen lagring hittades"
 msgid "No subvolumes"
 msgstr "Inga undervolymer"
 
-#: pkg/lib/credentials.js:186
+#: pkg/lib/credentials.js:156
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:158
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:159
 msgid "No such file or directory"
@@ -5211,7 +5211,7 @@ msgstr "Filen eller katalogen finns inte"
 msgid "No system modifications"
 msgstr "Inga systemändringar"
 
-#: pkg/sosreport/sosreport.jsx:506
+#: pkg/sosreport/sosreport.jsx:501
 msgid "No system reports."
 msgstr "Inga systemrapporter."
 
@@ -5228,7 +5228,7 @@ msgstr "Inget användarnamn angivet"
 msgid "None"
 msgstr "Inga"
 
-#: pkg/lib/credentials.js:256
+#: pkg/lib/credentials.js:226
 msgid "Not a valid private key"
 msgstr "Inte en giltig privat nyckel"
 
@@ -5324,11 +5324,11 @@ msgstr "Bärbar (notebook)"
 msgid "Notice and above"
 msgstr "Notering och högre"
 
-#: pkg/sosreport/sosreport.jsx:340
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "Mörka nätverksadresser, värdnamn och användarnamn"
 
-#: pkg/sosreport/sosreport.jsx:461
+#: pkg/sosreport/sosreport.jsx:456
 msgid "Obfuscated"
 msgstr "Mörkad"
 
@@ -5357,7 +5357,7 @@ msgstr "Gammal lösenfras"
 msgid "Old password"
 msgstr "Gammalt lösenord"
 
-#: pkg/lib/credentials.js:205 pkg/users/password-dialogs.js:55
+#: pkg/lib/credentials.js:175 pkg/users/password-dialogs.js:55
 msgid "Old password not accepted"
 msgstr "Det gamla lösenordet accepterades inte"
 
@@ -5410,7 +5410,7 @@ msgstr "Åtgärden ”$operation” på $target"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
 #: pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
-#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:339
+#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:334
 msgid "Options"
 msgstr "Alternativ"
 
@@ -5614,7 +5614,7 @@ msgstr "Lösenordet är för svagt"
 msgid "Password must be changed"
 msgstr "Lösenordet måste ändras"
 
-#: pkg/lib/credentials.js:277
+#: pkg/lib/credentials.js:247
 msgid "Password not accepted"
 msgstr "Lösenordet accepterades inte"
 
@@ -5913,7 +5913,7 @@ msgstr "Probleminformation"
 msgid "Processes using the location"
 msgstr "Processer som använder platsen"
 
-#: pkg/sosreport/sosreport.jsx:310
+#: pkg/sosreport/sosreport.jsx:305
 msgid "Progress: $0"
 msgstr "Förlopp: $0"
 
@@ -5925,11 +5925,11 @@ msgstr "Projektwebbsajt"
 msgid "Prompting via passwd timed out"
 msgstr "Tidsgränsen överskreds vid fråga via passwd"
 
-#: pkg/lib/credentials.js:265
+#: pkg/lib/credentials.js:235
 msgid "Prompting via ssh-add timed out"
 msgstr "Tidsgränsen överskreds vid fråga via ssh-add"
 
-#: pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:194
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Tidsgränsen överskreds vid fråga via ssh-keygen"
 
@@ -6411,11 +6411,11 @@ msgstr "Upprepa lösenfrasen"
 msgid "Repeat weekly"
 msgstr "Upprepa varje vecka"
 
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:508
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:503
 msgid "Report"
 msgstr "Rapport"
 
-#: pkg/sosreport/sosreport.jsx:326
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Report label"
 msgstr "Rapportetikett"
 
@@ -6435,7 +6435,7 @@ msgstr "Rapporteringen misslyckades"
 msgid "Reporting was canceled"
 msgstr "Rapporteringen avbröts"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:498
 msgid "Reports"
 msgstr "Rapporter"
 
@@ -6591,7 +6591,7 @@ msgstr "Radval"
 msgid "Run at"
 msgstr "Kör vid"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Run new report"
 msgstr "Kör en ny rapport"
 
@@ -6599,7 +6599,7 @@ msgstr "Kör en ny rapport"
 msgid "Run on"
 msgstr "Kör på"
 
-#: pkg/sosreport/sosreport.jsx:291 pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:286 pkg/sosreport/sosreport.jsx:495
 msgid "Run report"
 msgstr "Kör en rapport"
 
@@ -6661,7 +6661,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "SMART-självtest av $target"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:317
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
@@ -6752,11 +6752,11 @@ msgstr ""
 "Att spara en ny lösenfras kräver att disken låses upp. Ge en aktuell "
 "disklösenfras."
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:89
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:92
 msgid "Scheduled poweroff at $0"
 msgstr "Schemalagd avstängning vid $0"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:96
 msgid "Scheduled reboot at $0"
 msgstr "Schemalagd omstart till $0"
 
@@ -7296,7 +7296,7 @@ msgstr "Stoppa enhet"
 msgid "Stop editing hosts"
 msgstr "Sluta redigera värdar"
 
-#: pkg/sosreport/sosreport.jsx:295
+#: pkg/sosreport/sosreport.jsx:290
 msgid "Stop report"
 msgstr "Stoppa rapporten"
 
@@ -7485,7 +7485,7 @@ msgstr "Synkroniserar MDRAID-enheten $target"
 msgid "System"
 msgstr "System"
 
-#: pkg/sosreport/sosreport.jsx:527
+#: pkg/sosreport/sosreport.jsx:522
 msgid "System diagnostics"
 msgstr "Systemdiagnostik"
 
@@ -7670,7 +7670,7 @@ msgid ""
 "passphrase."
 msgstr "Disken måste låsas upp innan formatering. Ange en befintlig lösenfras."
 
-#: pkg/sosreport/sosreport.jsx:388
+#: pkg/sosreport/sosreport.jsx:383
 msgid "The file $0 will be deleted."
 msgstr "Filen $0 kommer att raderas."
 
@@ -8007,7 +8007,7 @@ msgid "This host will reboot after updates are installed."
 msgstr ""
 "Denna värd kommer att starta om efter att uppdateringar har installerats."
 
-#: pkg/sosreport/sosreport.jsx:323
+#: pkg/sosreport/sosreport.jsx:318
 msgid "This information is stored only on the system."
 msgstr "Denna information lagras endast på systemet."
 
@@ -8773,7 +8773,7 @@ msgstr "Använd lösenord"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Använd följande nycklar för att autentisera mot andra system"
 
-#: pkg/sosreport/sosreport.jsx:342
+#: pkg/sosreport/sosreport.jsx:337
 msgid "Use verbose logging"
 msgstr "Använd utförlig loggning"
 
@@ -8922,7 +8922,7 @@ msgstr "Visa detaljerade loggar"
 msgid "View hardware details"
 msgstr "Visa hårdvarudetaljer"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:145
+#: pkg/systemd/overview-cards/lastLogin.tsx:152
 msgid "View login history"
 msgstr "Visa inloggningshistorik"
 
@@ -9521,12 +9521,12 @@ msgstr "för nuvarande kärna endast"
 msgid "format"
 msgstr "formatera"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:40
+#: pkg/systemd/overview-cards/lastLogin.tsx:40
 msgctxt "from <host>"
 msgid "from $0"
 msgstr "från $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:38
+#: pkg/systemd/overview-cards/lastLogin.tsx:38
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
 msgstr "från $0 på $1"
@@ -9750,7 +9750,7 @@ msgid_plural "of $0 CPUs"
 msgstr[0] "av $0 CPU-kärna"
 msgstr[1] "av $0 CPU-kärnor"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:42
+#: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "på $0"
@@ -9941,7 +9941,7 @@ msgstr "lösningsdetaljer"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:193
+#: pkg/sosreport/sosreport.jsx:188
 msgid "sos report failed"
 msgstr "sos rapportering misslyckades"
 

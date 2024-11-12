@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 03:01+0000\n"
+"POT-Creation-Date: 2024-11-11 02:58+0000\n"
 "PO-Revision-Date: 2024-11-04 14:20+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
@@ -111,7 +111,7 @@ msgstr "$0가 코드 $1로 종료됨"
 msgid "$0 failed"
 msgstr "$0가 실패"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:112
+#: pkg/systemd/overview-cards/lastLogin.tsx:119
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "$0 로그인 시도 실패"
@@ -921,11 +921,11 @@ msgstr "Cockpit 웹 콘솔로 관리"
 msgid "Administrative access"
 msgstr "관리 접근"
 
-#: pkg/sosreport/sosreport.jsx:433
+#: pkg/sosreport/sosreport.jsx:428
 msgid "Administrative access is required to create and access reports."
 msgstr "관리 접근은 보고서 생성하거고 접근해야 합니다."
 
-#: pkg/sosreport/sosreport.jsx:432
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access required"
 msgstr "필요한 관리 접근"
 
@@ -1119,7 +1119,7 @@ msgstr "초"
 msgid "At specific time"
 msgstr "특정 시간"
 
-#: pkg/sosreport/sosreport.jsx:510
+#: pkg/sosreport/sosreport.jsx:505
 msgid "Attributes"
 msgstr "속성"
 
@@ -1413,16 +1413,16 @@ msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
 #: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
 #: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:299
-#: pkg/sosreport/sosreport.jsx:384
+#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
+#: pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "취소"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:93
 msgid "Cancel poweroff"
 msgstr "전원 끄기 취소"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:94
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:97
 msgid "Cancel reboot"
 msgstr "재부팅 취소"
 
@@ -2126,7 +2126,7 @@ msgstr "볼륨 그룹 만들기"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/sosreport/sosreport.jsx:509
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Created"
 msgstr "생성일"
 
@@ -2419,7 +2419,7 @@ msgstr "지연은 숫자여야 합니다"
 #: pkg/storaged/stratis/filesystem.jsx:128
 #: pkg/storaged/stratis/filesystem.jsx:169 pkg/storaged/stratis/pool.jsx:177
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:395
-#: pkg/sosreport/sosreport.jsx:378 pkg/sosreport/sosreport.jsx:477
+#: pkg/sosreport/sosreport.jsx:373 pkg/sosreport/sosreport.jsx:472
 msgid "Delete"
 msgstr "삭제"
 
@@ -2444,7 +2444,7 @@ msgstr "그룹 삭제"
 msgid "Delete pool"
 msgstr "풀 삭제"
 
-#: pkg/sosreport/sosreport.jsx:370
+#: pkg/sosreport/sosreport.jsx:365
 msgid "Delete report permanently?"
 msgstr "영구적으로 보고를 삭제?"
 
@@ -2713,7 +2713,7 @@ msgstr "이중 분산 패리티 (레이드 6)"
 
 # translation auto-copied from project CFSE, version sam-1.2, document app,
 # author eukim
-#: pkg/sosreport/sosreport.jsx:467 pkg/sosreport/sosreport.jsx:473
+#: pkg/sosreport/sosreport.jsx:462 pkg/sosreport/sosreport.jsx:468
 msgid "Download"
 msgstr "내려받기"
 
@@ -2884,7 +2884,7 @@ msgstr "Tang 키 서버로 데이터 암호화"
 msgid "Encrypt data with a passphrase"
 msgstr "암호로 데이터 암호화"
 
-#: pkg/sosreport/sosreport.jsx:457
+#: pkg/sosreport/sosreport.jsx:452
 msgid "Encrypted"
 msgstr "암호화됨"
 
@@ -2914,7 +2914,7 @@ msgstr "암호화"
 msgid "Encryption options"
 msgstr "암호화 옵션"
 
-#: pkg/sosreport/sosreport.jsx:329
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Encryption passphrase"
 msgstr "암호화된 암호"
 
@@ -2969,7 +2969,7 @@ msgstr "에라타"
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:401
+#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
 msgstr "오류"
 
@@ -3094,7 +3094,7 @@ msgstr "서비스 추가 실패"
 msgid "Failed to add zone"
 msgstr "영역 추가 실패"
 
-#: pkg/lib/credentials.js:213 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:183 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "비밀번호 변경 실패"
@@ -3416,7 +3416,7 @@ msgstr "하드 디스크 드라이브"
 msgid "Hardware information"
 msgstr "하드웨어 정보"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.tsx:36
 msgid "Health"
 msgstr "상태"
 
@@ -3801,7 +3801,7 @@ msgstr "잘못된 날짜 형식 및 잘못된 시간 형식"
 msgid "Invalid expiration date"
 msgstr "잘못된 만료 기간"
 
-#: pkg/lib/credentials.js:273
+#: pkg/lib/credentials.js:243
 msgid "Invalid file permissions"
 msgstr "잘못된 파일 권한"
 
@@ -4055,7 +4055,7 @@ msgstr "마지막 로그인"
 msgid "Last modified: $0"
 msgstr "마지막 수정 날짜: $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:99
+#: pkg/systemd/overview-cards/lastLogin.tsx:106
 msgid "Last successful login:"
 msgstr "마지막으로 성공한 로그인:"
 
@@ -4082,7 +4082,7 @@ msgstr "$0 나가기"
 msgid "Leave domain"
 msgstr "도메인 나가기"
 
-#: pkg/sosreport/sosreport.jsx:337
+#: pkg/sosreport/sosreport.jsx:332
 msgid "Leave empty to skip encryption"
 msgstr "암호화를 건너뛰려면 공백으로 둡니다"
 
@@ -4978,7 +4978,7 @@ msgstr "신규 암호문"
 msgid "New password"
 msgstr "신규 비밀번호"
 
-#: pkg/lib/credentials.js:219 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:189 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "신규 비밀번호가 허용되지 않습니다"
 
@@ -5179,7 +5179,7 @@ msgstr "저장소를 찾을 수 없음"
 msgid "No subvolumes"
 msgstr "하위볼륨 없음"
 
-#: pkg/lib/credentials.js:186
+#: pkg/lib/credentials.js:156
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:158
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:159
 msgid "No such file or directory"
@@ -5189,7 +5189,7 @@ msgstr "이러한 파일 또는 디렉토리가 없습니다"
 msgid "No system modifications"
 msgstr "시스템 수정 없음"
 
-#: pkg/sosreport/sosreport.jsx:506
+#: pkg/sosreport/sosreport.jsx:501
 msgid "No system reports."
 msgstr "시스템 보고 없음."
 
@@ -5206,7 +5206,7 @@ msgstr "지정된 사용자 이름이 없습니다"
 msgid "None"
 msgstr "없음"
 
-#: pkg/lib/credentials.js:256
+#: pkg/lib/credentials.js:226
 msgid "Not a valid private key"
 msgstr "유효한 개인 키가 없습니다"
 
@@ -5304,11 +5304,11 @@ msgstr "노트북"
 msgid "Notice and above"
 msgstr "알림 이상의 수준"
 
-#: pkg/sosreport/sosreport.jsx:340
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "네트워크 주소, 호스트이름과 사용자이름 난독화"
 
-#: pkg/sosreport/sosreport.jsx:461
+#: pkg/sosreport/sosreport.jsx:456
 msgid "Obfuscated"
 msgstr "난독화됨"
 
@@ -5337,7 +5337,7 @@ msgstr "이전 비밀번호"
 msgid "Old password"
 msgstr "이전 비밀번호"
 
-#: pkg/lib/credentials.js:205 pkg/users/password-dialogs.js:55
+#: pkg/lib/credentials.js:175 pkg/users/password-dialogs.js:55
 msgid "Old password not accepted"
 msgstr "이전 비밀번호가 허용되지 않습니다"
 
@@ -5389,7 +5389,7 @@ msgstr "$target에서 '$operation' 작업"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
 #: pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
-#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:339
+#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:334
 msgid "Options"
 msgstr "옵션"
 
@@ -5599,7 +5599,7 @@ msgstr "비밀번호가 너무 취약합니다"
 msgid "Password must be changed"
 msgstr "비밀번호를 변경해야 합니다"
 
-#: pkg/lib/credentials.js:277
+#: pkg/lib/credentials.js:247
 msgid "Password not accepted"
 msgstr "비밀번호가 허용되지 않습니다"
 
@@ -5901,7 +5901,7 @@ msgstr "문제 정보"
 msgid "Processes using the location"
 msgstr "위치를 사용하는 프로세스"
 
-#: pkg/sosreport/sosreport.jsx:310
+#: pkg/sosreport/sosreport.jsx:305
 msgid "Progress: $0"
 msgstr "진행: $0"
 
@@ -5913,11 +5913,11 @@ msgstr "프로젝트 웹사이트"
 msgid "Prompting via passwd timed out"
 msgstr "비밀번호를 통한 메세지 제공 시간이 초과되었습니다"
 
-#: pkg/lib/credentials.js:265
+#: pkg/lib/credentials.js:235
 msgid "Prompting via ssh-add timed out"
 msgstr "ssh-add를 통한 메세지 제공 시간이 초과되었습니다"
 
-#: pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:194
 msgid "Prompting via ssh-keygen timed out"
 msgstr "ssh-keygen을 통한 메세지 제공시간이 초과되었습니다"
 
@@ -6398,11 +6398,11 @@ msgstr "암호문 반복"
 msgid "Repeat weekly"
 msgstr "매주 반복"
 
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:508
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:503
 msgid "Report"
 msgstr "보고"
 
-#: pkg/sosreport/sosreport.jsx:326
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Report label"
 msgstr "보고 이름표"
 
@@ -6422,7 +6422,7 @@ msgstr "보고에 실패했습니다"
 msgid "Reporting was canceled"
 msgstr "보고가 취소되었습니다"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:498
 msgid "Reports"
 msgstr "보고서"
 
@@ -6577,7 +6577,7 @@ msgstr "행 선택"
 msgid "Run at"
 msgstr "다음에서 실행"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Run new report"
 msgstr "신규 보고서 실행"
 
@@ -6585,7 +6585,7 @@ msgstr "신규 보고서 실행"
 msgid "Run on"
 msgstr "다음 실행"
 
-#: pkg/sosreport/sosreport.jsx:291 pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:286 pkg/sosreport/sosreport.jsx:495
 msgid "Run report"
 msgstr "보고서 실행"
 
@@ -6646,7 +6646,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "$target의 SMART 셀프 테스트"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:317
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "SOS 보고는 문제 진단과 함께 도움이 되는 시스템 정보를 수집합니다."
@@ -6734,11 +6734,11 @@ msgstr ""
 "신규 암호문를 저장하려면 디스크 잠금 해제가 필요합니다. 현재 디스크의 암호문"
 "을 제공하십시오."
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:89
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:92
 msgid "Scheduled poweroff at $0"
 msgstr "$0에 예약된 전원 끄기"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:96
 msgid "Scheduled reboot at $0"
 msgstr "$0에서 예정된 재시작"
 
@@ -7284,7 +7284,7 @@ msgstr "장치 중지"
 msgid "Stop editing hosts"
 msgstr "호스트 편집 중지"
 
-#: pkg/sosreport/sosreport.jsx:295
+#: pkg/sosreport/sosreport.jsx:290
 msgid "Stop report"
 msgstr "보고서 멈춤"
 
@@ -7471,7 +7471,7 @@ msgstr "MD레이드 장치 $target 동기화 중"
 msgid "System"
 msgstr "시스템"
 
-#: pkg/sosreport/sosreport.jsx:527
+#: pkg/sosreport/sosreport.jsx:522
 msgid "System diagnostics"
 msgstr "시스템 진단"
 
@@ -7652,7 +7652,7 @@ msgstr ""
 "디스크는 초기화 하기 전에 잠금이 해제된 상태이어야 합니다.  기존 암호문를 입"
 "력하세요."
 
-#: pkg/sosreport/sosreport.jsx:388
+#: pkg/sosreport/sosreport.jsx:383
 msgid "The file $0 will be deleted."
 msgstr "파일 $0가 삭제됩니다."
 
@@ -7972,7 +7972,7 @@ msgstr "이 그룹은 다음 사용자를 위한 기본 그룹입니다:"
 msgid "This host will reboot after updates are installed."
 msgstr "최신화가 설치되면 이 호스트가 재시작됩니다."
 
-#: pkg/sosreport/sosreport.jsx:323
+#: pkg/sosreport/sosreport.jsx:318
 msgid "This information is stored only on the system."
 msgstr "이와 같은 정보는 시스템에서만 저장됩니다."
 
@@ -8734,7 +8734,7 @@ msgstr "비밀번호 사용"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "다른 시스템에 대해 인증하려면 다음 키를 사용합니다"
 
-#: pkg/sosreport/sosreport.jsx:342
+#: pkg/sosreport/sosreport.jsx:337
 msgid "Use verbose logging"
 msgstr "상세한 로그인 사용"
 
@@ -8883,7 +8883,7 @@ msgstr "상세한 기록 보기"
 msgid "View hardware details"
 msgstr "하드웨어 세부 사항보기"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:145
+#: pkg/systemd/overview-cards/lastLogin.tsx:152
 msgid "View login history"
 msgstr "로그인 내역 보기"
 
@@ -9481,12 +9481,12 @@ msgstr "현재 커널만"
 msgid "format"
 msgstr "포맷"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:40
+#: pkg/systemd/overview-cards/lastLogin.tsx:40
 msgctxt "from <host>"
 msgid "from $0"
 msgstr "$0에서"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:38
+#: pkg/systemd/overview-cards/lastLogin.tsx:38
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
 msgstr "$1의 $0에서"
@@ -9711,7 +9711,7 @@ msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
 msgstr[0] "$0 CPU"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:42
+#: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "$0에서"
@@ -9902,7 +9902,7 @@ msgstr "해결 상세 정보"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:193
+#: pkg/sosreport/sosreport.jsx:188
 msgid "sos report failed"
 msgstr "sos 보고에 실패했습니다"
 

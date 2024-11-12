@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 03:01+0000\n"
+"POT-Creation-Date: 2024-11-11 02:58+0000\n"
 "PO-Revision-Date: 2024-09-07 12:38+0000\n"
 "Last-Translator: Jelle van der Waa <jvanderw@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -119,7 +119,7 @@ msgstr "进程 $0 已退出，返回码为 $1"
 msgid "$0 failed"
 msgstr "进程 $0 运行时出错"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:112
+#: pkg/systemd/overview-cards/lastLogin.tsx:119
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "$0 次登录失败"
@@ -923,11 +923,11 @@ msgstr "使用 Cockpit 网页控制台管理系统"
 msgid "Administrative access"
 msgstr "管理员模式"
 
-#: pkg/sosreport/sosreport.jsx:433
+#: pkg/sosreport/sosreport.jsx:428
 msgid "Administrative access is required to create and access reports."
 msgstr "创建和查阅报告需要管理员权限。"
 
-#: pkg/sosreport/sosreport.jsx:432
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access required"
 msgstr "需要管理员权限"
 
@@ -1123,7 +1123,7 @@ msgstr "在秒"
 msgid "At specific time"
 msgstr "在指定时间"
 
-#: pkg/sosreport/sosreport.jsx:510
+#: pkg/sosreport/sosreport.jsx:505
 msgid "Attributes"
 msgstr "属性"
 
@@ -1416,16 +1416,16 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
 #: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
 #: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:299
-#: pkg/sosreport/sosreport.jsx:384
+#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
+#: pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "取消"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:93
 msgid "Cancel poweroff"
 msgstr "取消关机"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:94
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:97
 msgid "Cancel reboot"
 msgstr "取消重启"
 
@@ -2124,7 +2124,7 @@ msgstr "创建定时器"
 msgid "Create volume group"
 msgstr "创建卷组"
 
-#: pkg/sosreport/sosreport.jsx:509
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Created"
 msgstr "已创建"
 
@@ -2409,7 +2409,7 @@ msgstr "延迟必须是一个数字"
 #: pkg/storaged/stratis/filesystem.jsx:128
 #: pkg/storaged/stratis/filesystem.jsx:169 pkg/storaged/stratis/pool.jsx:177
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:395
-#: pkg/sosreport/sosreport.jsx:378 pkg/sosreport/sosreport.jsx:477
+#: pkg/sosreport/sosreport.jsx:373 pkg/sosreport/sosreport.jsx:472
 msgid "Delete"
 msgstr "删除"
 
@@ -2434,7 +2434,7 @@ msgstr "删除用户组"
 msgid "Delete pool"
 msgstr "删除池"
 
-#: pkg/sosreport/sosreport.jsx:370
+#: pkg/sosreport/sosreport.jsx:365
 msgid "Delete report permanently?"
 msgstr "永久删除报告？"
 
@@ -2695,7 +2695,7 @@ msgstr "不要重复"
 msgid "Double distributed parity (RAID 6)"
 msgstr "双重分布式奇偶校验 (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:467 pkg/sosreport/sosreport.jsx:473
+#: pkg/sosreport/sosreport.jsx:462 pkg/sosreport/sosreport.jsx:468
 msgid "Download"
 msgstr "下载"
 
@@ -2866,7 +2866,7 @@ msgstr "使用 Tang 密钥服务器加密数据"
 msgid "Encrypt data with a passphrase"
 msgstr "使用密码加密数据"
 
-#: pkg/sosreport/sosreport.jsx:457
+#: pkg/sosreport/sosreport.jsx:452
 msgid "Encrypted"
 msgstr "已加密"
 
@@ -2896,7 +2896,7 @@ msgstr "加密"
 msgid "Encryption options"
 msgstr "加密选项"
 
-#: pkg/sosreport/sosreport.jsx:329
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Encryption passphrase"
 msgstr "加密密码短语"
 
@@ -2949,7 +2949,7 @@ msgstr "勘误"
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:401
+#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
 msgstr "错误"
 
@@ -3073,7 +3073,7 @@ msgstr "添加服务失败"
 msgid "Failed to add zone"
 msgstr "添加区域失败"
 
-#: pkg/lib/credentials.js:213 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:183 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "修改密码失败"
@@ -3394,7 +3394,7 @@ msgstr "硬盘设备"
 msgid "Hardware information"
 msgstr "硬件信息"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.tsx:36
 msgid "Health"
 msgstr "健康"
 
@@ -3779,7 +3779,7 @@ msgstr "无效的日期格式和时间格式"
 msgid "Invalid expiration date"
 msgstr "无效的过期时间"
 
-#: pkg/lib/credentials.js:273
+#: pkg/lib/credentials.js:243
 msgid "Invalid file permissions"
 msgstr "无效的文件权限"
 
@@ -4031,7 +4031,7 @@ msgstr "最近登陆"
 msgid "Last modified: $0"
 msgstr "最后修改于： $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:99
+#: pkg/systemd/overview-cards/lastLogin.tsx:106
 msgid "Last successful login:"
 msgstr "最后成功的登录："
 
@@ -4058,7 +4058,7 @@ msgstr "离开 $0"
 msgid "Leave domain"
 msgstr "离开域"
 
-#: pkg/sosreport/sosreport.jsx:337
+#: pkg/sosreport/sosreport.jsx:332
 msgid "Leave empty to skip encryption"
 msgstr "留空以跳过加密"
 
@@ -4945,7 +4945,7 @@ msgstr "新密码"
 msgid "New password"
 msgstr "新密码"
 
-#: pkg/lib/credentials.js:219 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:189 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "新密码不被接受"
 
@@ -5144,7 +5144,7 @@ msgstr "没有找到存储"
 msgid "No subvolumes"
 msgstr "没有子卷"
 
-#: pkg/lib/credentials.js:186
+#: pkg/lib/credentials.js:156
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:158
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:159
 msgid "No such file or directory"
@@ -5154,7 +5154,7 @@ msgstr "没有该文件或目录"
 msgid "No system modifications"
 msgstr "没有系统改变"
 
-#: pkg/sosreport/sosreport.jsx:506
+#: pkg/sosreport/sosreport.jsx:501
 msgid "No system reports."
 msgstr "没有系统报告。"
 
@@ -5171,7 +5171,7 @@ msgstr "未指定用户名"
 msgid "None"
 msgstr "无"
 
-#: pkg/lib/credentials.js:256
+#: pkg/lib/credentials.js:226
 msgid "Not a valid private key"
 msgstr "无效的私钥"
 
@@ -5267,11 +5267,11 @@ msgstr "笔记本"
 msgid "Notice and above"
 msgstr "Notice 及更高级别"
 
-#: pkg/sosreport/sosreport.jsx:340
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "模糊处理网络地址、主机名和用户名"
 
-#: pkg/sosreport/sosreport.jsx:461
+#: pkg/sosreport/sosreport.jsx:456
 msgid "Obfuscated"
 msgstr "模糊处理"
 
@@ -5300,7 +5300,7 @@ msgstr "旧密码"
 msgid "Old password"
 msgstr "旧密码"
 
-#: pkg/lib/credentials.js:205 pkg/users/password-dialogs.js:55
+#: pkg/lib/credentials.js:175 pkg/users/password-dialogs.js:55
 msgid "Old password not accepted"
 msgstr "旧密码不被接受"
 
@@ -5351,7 +5351,7 @@ msgstr "$target 上的操作 '$operation'"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
 #: pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
-#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:339
+#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:334
 msgid "Options"
 msgstr "选项"
 
@@ -5557,7 +5557,7 @@ msgstr "密码太弱"
 msgid "Password must be changed"
 msgstr "密码必须被修改"
 
-#: pkg/lib/credentials.js:277
+#: pkg/lib/credentials.js:247
 msgid "Password not accepted"
 msgstr "密码未接受"
 
@@ -5854,7 +5854,7 @@ msgstr "问题信息"
 msgid "Processes using the location"
 msgstr "使用位置的进程"
 
-#: pkg/sosreport/sosreport.jsx:310
+#: pkg/sosreport/sosreport.jsx:305
 msgid "Progress: $0"
 msgstr "进度：$0"
 
@@ -5866,11 +5866,11 @@ msgstr "项目网站"
 msgid "Prompting via passwd timed out"
 msgstr "通过密码提示已超时"
 
-#: pkg/lib/credentials.js:265
+#: pkg/lib/credentials.js:235
 msgid "Prompting via ssh-add timed out"
 msgstr "通过 ssh-add 提示超时"
 
-#: pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:194
 msgid "Prompting via ssh-keygen timed out"
 msgstr "通过 ssh-keygen 提示超时"
 
@@ -6347,11 +6347,11 @@ msgstr "重复密码"
 msgid "Repeat weekly"
 msgstr "每周重复"
 
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:508
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:503
 msgid "Report"
 msgstr "报告"
 
-#: pkg/sosreport/sosreport.jsx:326
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Report label"
 msgstr "报告标签"
 
@@ -6371,7 +6371,7 @@ msgstr "报告失败"
 msgid "Reporting was canceled"
 msgstr "报告已取消"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:498
 msgid "Reports"
 msgstr "报告"
 
@@ -6520,7 +6520,7 @@ msgstr "行选择"
 msgid "Run at"
 msgstr "运行于"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Run new report"
 msgstr "运行新报告"
 
@@ -6528,7 +6528,7 @@ msgstr "运行新报告"
 msgid "Run on"
 msgstr "运行于"
 
-#: pkg/sosreport/sosreport.jsx:291 pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:286 pkg/sosreport/sosreport.jsx:495
 msgid "Run report"
 msgstr "运行报告"
 
@@ -6588,7 +6588,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "$target SMART 自检"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:317
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "SOS 报告会收集系统信息，以帮助诊断问题。"
@@ -6673,11 +6673,11 @@ msgid ""
 "current disk passphrase."
 msgstr "保存新密码需要解锁磁盘。请提供当前的磁盘密码。"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:89
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:92
 msgid "Scheduled poweroff at $0"
 msgstr "计划在 $0 关闭电源"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:96
 msgid "Scheduled reboot at $0"
 msgstr "计划在 $0 重启"
 
@@ -7214,7 +7214,7 @@ msgstr "停止设备"
 msgid "Stop editing hosts"
 msgstr "停止编辑主机"
 
-#: pkg/sosreport/sosreport.jsx:295
+#: pkg/sosreport/sosreport.jsx:290
 msgid "Stop report"
 msgstr "停止报告"
 
@@ -7399,7 +7399,7 @@ msgstr "同步 MDRAID 设备 $target"
 msgid "System"
 msgstr "系统"
 
-#: pkg/sosreport/sosreport.jsx:527
+#: pkg/sosreport/sosreport.jsx:522
 msgid "System diagnostics"
 msgstr "系统诊断"
 
@@ -7574,7 +7574,7 @@ msgid ""
 "passphrase."
 msgstr "在格式化之前需要解锁磁盘。请提供现有的密码短语。"
 
-#: pkg/sosreport/sosreport.jsx:388
+#: pkg/sosreport/sosreport.jsx:383
 msgid "The file $0 will be deleted."
 msgstr "文件 $0 将被删除。"
 
@@ -7877,7 +7877,7 @@ msgstr "这个组是以下用户的主组："
 msgid "This host will reboot after updates are installed."
 msgstr "安装更新后此主机将重启。"
 
-#: pkg/sosreport/sosreport.jsx:323
+#: pkg/sosreport/sosreport.jsx:318
 msgid "This information is stored only on the system."
 msgstr "这些信息只保存在系统中。"
 
@@ -8612,7 +8612,7 @@ msgstr "使用密码"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "使用以下密钥来验证其他系统"
 
-#: pkg/sosreport/sosreport.jsx:342
+#: pkg/sosreport/sosreport.jsx:337
 msgid "Use verbose logging"
 msgstr "使用详细日志记录"
 
@@ -8759,7 +8759,7 @@ msgstr "查看详细日志"
 msgid "View hardware details"
 msgstr "查看硬件详细信息"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:145
+#: pkg/systemd/overview-cards/lastLogin.tsx:152
 msgid "View login history"
 msgstr "查看登录历史记录"
 
@@ -9353,12 +9353,12 @@ msgstr "只对于当前的内核"
 msgid "format"
 msgstr "格式"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:40
+#: pkg/systemd/overview-cards/lastLogin.tsx:40
 msgctxt "from <host>"
 msgid "from $0"
 msgstr "来自 $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:38
+#: pkg/systemd/overview-cards/lastLogin.tsx:38
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
 msgstr "来自 $1 上的 $0"
@@ -9583,7 +9583,7 @@ msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
 msgstr[0] "$0 CPU"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:42
+#: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "在 $0 上"
@@ -9774,7 +9774,7 @@ msgstr "方案详情"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:193
+#: pkg/sosreport/sosreport.jsx:188
 msgid "sos report failed"
 msgstr "sos 报告失败"
 

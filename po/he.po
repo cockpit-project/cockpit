@@ -24,8 +24,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 03:01+0000\n"
-"PO-Revision-Date: 2023-11-22 21:01+0000\n"
+"POT-Creation-Date: 2024-11-11 02:58+0000\n"
+"PO-Revision-Date: 2024-11-11 06:38+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
 "main/he/>\n"
@@ -35,7 +35,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.2.1\n"
+"X-Generator: Weblate 5.8.2\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -66,28 +66,20 @@ msgid "$0 available"
 msgstr "$0 זמינים"
 
 #: pkg/storaged/block/resize.jsx:266
-#, fuzzy
-#| msgid "$0 filesystems can not be made larger."
 msgid "$0 can not be made larger"
-msgstr "אי אפשר להגדיל $0 ממערכות הקבצים."
+msgstr "אי אפשר להגדיל את $0"
 
 #: pkg/storaged/block/resize.jsx:263
-#, fuzzy
-#| msgid "$0 filesystems can not be made smaller."
 msgid "$0 can not be made smaller"
-msgstr "אי אפשר להקטין $0 ממערכות הקבצים."
+msgstr "אי אפשר להקטין את $0"
 
 #: pkg/storaged/block/resize.jsx:259
-#, fuzzy
-#| msgid "$0 filesystems can not be resized here."
 msgid "$0 can not be resized"
-msgstr "אי אפשר לשנות כאן גודל של $0 ממערכות הקבצים."
+msgstr "אי אפשר לשנות את הגודל של $0"
 
 #: pkg/storaged/block/resize.jsx:255
-#, fuzzy
-#| msgid "$0 filesystems can not be resized here."
 msgid "$0 can not be resized here"
-msgstr "אי אפשר לשנות כאן גודל של $0 ממערכות הקבצים."
+msgstr "אי אפשר לשנות כאן את הגודל של $0"
 
 #: pkg/storaged/mdraid/mdraid.jsx:262
 msgid "$0 chunk size"
@@ -151,7 +143,7 @@ msgstr "$0 הסתיים עם הקוד $1"
 msgid "$0 failed"
 msgstr "$0 נכשל"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:112
+#: pkg/systemd/overview-cards/lastLogin.tsx:119
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "ניסיון כניסה שנכשל"
@@ -160,9 +152,6 @@ msgstr[2] "$0 ניסיונות כניסה שנכשלו"
 msgstr[3] "$0 ניסיונות כניסה שנכשלו"
 
 #: pkg/storaged/filesystem/filesystem.jsx:91
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "$0 filesystem"
 msgid "$0 filesystem"
 msgstr "מערכת קבצים $0"
 
@@ -1040,11 +1029,11 @@ msgstr "ניהול עם המסוף המקוון Cockpit"
 msgid "Administrative access"
 msgstr "גישה ניהולית"
 
-#: pkg/sosreport/sosreport.jsx:433
+#: pkg/sosreport/sosreport.jsx:428
 msgid "Administrative access is required to create and access reports."
 msgstr "נדרשת גישה ניהולית כדי ליצור ולגשת לדוחות."
 
-#: pkg/sosreport/sosreport.jsx:432
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access required"
 msgstr "נדרשת גישה ניהולית"
 
@@ -1250,7 +1239,7 @@ msgstr "בשנייה"
 msgid "At specific time"
 msgstr "במועד מסוים"
 
-#: pkg/sosreport/sosreport.jsx:510
+#: pkg/sosreport/sosreport.jsx:505
 msgid "Attributes"
 msgstr "מאפיינים"
 
@@ -1547,16 +1536,16 @@ msgstr "לא ניתן למצוא יומנים עם שילוב המסננים ה�
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
 #: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
 #: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:299
-#: pkg/sosreport/sosreport.jsx:384
+#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
+#: pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "ביטול"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:93
 msgid "Cancel poweroff"
 msgstr "ביטול כיבוי"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:94
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:97
 msgid "Cancel reboot"
 msgstr "ביטול הפעלה מחדש"
 
@@ -2279,7 +2268,7 @@ msgstr "יצירת מתזמן"
 msgid "Create volume group"
 msgstr "יצירת קבוצת כרכים"
 
-#: pkg/sosreport/sosreport.jsx:509
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Created"
 msgstr "נוצרה"
 
@@ -2573,7 +2562,7 @@ msgstr "השהיה חייבת להיות מספר"
 #: pkg/storaged/stratis/filesystem.jsx:128
 #: pkg/storaged/stratis/filesystem.jsx:169 pkg/storaged/stratis/pool.jsx:177
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:395
-#: pkg/sosreport/sosreport.jsx:378 pkg/sosreport/sosreport.jsx:477
+#: pkg/sosreport/sosreport.jsx:373 pkg/sosreport/sosreport.jsx:472
 msgid "Delete"
 msgstr "מחיקה"
 
@@ -2600,7 +2589,7 @@ msgstr "מחיקת קבוצה"
 msgid "Delete pool"
 msgstr "מחיקה"
 
-#: pkg/sosreport/sosreport.jsx:370
+#: pkg/sosreport/sosreport.jsx:365
 msgid "Delete report permanently?"
 msgstr "למחוק את הדוח לצמיתות?"
 
@@ -2872,7 +2861,7 @@ msgstr "לא לחזור"
 msgid "Double distributed parity (RAID 6)"
 msgstr "פיזור+קוד ריד-סולומון (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:467 pkg/sosreport/sosreport.jsx:473
+#: pkg/sosreport/sosreport.jsx:462 pkg/sosreport/sosreport.jsx:468
 msgid "Download"
 msgstr "הורדה"
 
@@ -3047,7 +3036,7 @@ msgstr "הצפנת הנתונים עם שרת מפתחות Tang"
 msgid "Encrypt data with a passphrase"
 msgstr "הצפנת נתונים עם מילת צופן"
 
-#: pkg/sosreport/sosreport.jsx:457
+#: pkg/sosreport/sosreport.jsx:452
 msgid "Encrypted"
 msgstr "מוצפן"
 
@@ -3079,7 +3068,7 @@ msgstr "הצפנה"
 msgid "Encryption options"
 msgstr "אפשרויות הצפנה"
 
-#: pkg/sosreport/sosreport.jsx:329
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Encryption passphrase"
 msgstr "מילת צופן ההצפנה"
 
@@ -3134,7 +3123,7 @@ msgstr "טעויות ידועות"
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:401
+#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
 msgstr "שגיאה"
 
@@ -3258,7 +3247,7 @@ msgstr "הוספת השירות נכשל"
 msgid "Failed to add zone"
 msgstr "הוספת האזור נכשלה"
 
-#: pkg/lib/credentials.js:213 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:183 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "החלפת הסיסמה נכשלה"
@@ -3586,7 +3575,7 @@ msgstr ""
 msgid "Hardware information"
 msgstr "פרטי חומרה"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.tsx:36
 msgid "Health"
 msgstr "בריאות"
 
@@ -3983,7 +3972,7 @@ msgstr "מבנה תאריך שגוי ומבנה שעה שגוי"
 msgid "Invalid expiration date"
 msgstr "מועד התפוגה שגוי"
 
-#: pkg/lib/credentials.js:273
+#: pkg/lib/credentials.js:243
 msgid "Invalid file permissions"
 msgstr "הרשאות הקובץ שגויות"
 
@@ -4253,7 +4242,7 @@ msgstr "כניסה אחרונה"
 msgid "Last modified: $0"
 msgstr "שינוי אחרון: $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:99
+#: pkg/systemd/overview-cards/lastLogin.tsx:106
 msgid "Last successful login:"
 msgstr "כניסה אחרונה שהצליחה:"
 
@@ -4280,7 +4269,7 @@ msgstr "לעזוב את $0"
 msgid "Leave domain"
 msgstr "עזיבת שם התחום"
 
-#: pkg/sosreport/sosreport.jsx:337
+#: pkg/sosreport/sosreport.jsx:332
 msgid "Leave empty to skip encryption"
 msgstr "ניתן להשאיר ריק כדי לדלג על הצפנה"
 
@@ -5215,7 +5204,7 @@ msgstr "מילת צופן חדשה"
 msgid "New password"
 msgstr "סיסמה חדשה"
 
-#: pkg/lib/credentials.js:219 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:189 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "הסיסמה החדשה לא התקבלה"
 
@@ -5434,7 +5423,7 @@ msgstr "אין אחסון"
 msgid "No subvolumes"
 msgstr "אין כרכים לוגיים"
 
-#: pkg/lib/credentials.js:186
+#: pkg/lib/credentials.js:156
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:158
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:159
 msgid "No such file or directory"
@@ -5444,7 +5433,7 @@ msgstr "אין קובץ או תיקייה בשם הזה"
 msgid "No system modifications"
 msgstr "אין שינויים במערכת"
 
-#: pkg/sosreport/sosreport.jsx:506
+#: pkg/sosreport/sosreport.jsx:501
 msgid "No system reports."
 msgstr "אין דוחות מערכת."
 
@@ -5461,7 +5450,7 @@ msgstr "לא צוין שם משתמש"
 msgid "None"
 msgstr "אין"
 
-#: pkg/lib/credentials.js:256
+#: pkg/lib/credentials.js:226
 msgid "Not a valid private key"
 msgstr "לא מפתח פרטי תקני"
 
@@ -5563,11 +5552,11 @@ msgstr "מחברת"
 msgid "Notice and above"
 msgstr "הודעה ומעלה"
 
-#: pkg/sosreport/sosreport.jsx:340
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "לערפל את כתובת הרשת, המארחים ואת שמות המשתמשים"
 
-#: pkg/sosreport/sosreport.jsx:461
+#: pkg/sosreport/sosreport.jsx:456
 msgid "Obfuscated"
 msgstr "מעורפל"
 
@@ -5596,7 +5585,7 @@ msgstr "מילת צופן ישנה"
 msgid "Old password"
 msgstr "סיסמה ישנה"
 
-#: pkg/lib/credentials.js:205 pkg/users/password-dialogs.js:55
+#: pkg/lib/credentials.js:175 pkg/users/password-dialogs.js:55
 msgid "Old password not accepted"
 msgstr "הסיסמה הישנה לא התקבלה"
 
@@ -5648,7 +5637,7 @@ msgstr "המשימה ‚$operation’ על $target"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
 #: pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
-#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:339
+#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:334
 msgid "Options"
 msgstr "אפשרויות"
 
@@ -5858,7 +5847,7 @@ msgstr "הסיסמה חלשה מדי"
 msgid "Password must be changed"
 msgstr "חובה לשנות את הסיסמה"
 
-#: pkg/lib/credentials.js:277
+#: pkg/lib/credentials.js:247
 msgid "Password not accepted"
 msgstr "הסיסמה לא התקבלה"
 
@@ -6166,7 +6155,7 @@ msgstr "מידע על הבעיה"
 msgid "Processes using the location"
 msgstr "תהליכים שמשתמשים במיקום"
 
-#: pkg/sosreport/sosreport.jsx:310
+#: pkg/sosreport/sosreport.jsx:305
 msgid "Progress: $0"
 msgstr "התקדמות: $0"
 
@@ -6178,11 +6167,11 @@ msgstr "אתר המיזם"
 msgid "Prompting via passwd timed out"
 msgstr "משך הצגת הבקשה דרך passwd תם"
 
-#: pkg/lib/credentials.js:265
+#: pkg/lib/credentials.js:235
 msgid "Prompting via ssh-add timed out"
 msgstr "משך הצגת הבקשה דרך ssh-add תם"
 
-#: pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:194
 msgid "Prompting via ssh-keygen timed out"
 msgstr "משך הצגת הבקשה דרך ssh-keygen תם"
 
@@ -6673,11 +6662,11 @@ msgstr "חזרה על מילת הצופן"
 msgid "Repeat weekly"
 msgstr "לחזור באופן שבועי"
 
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:508
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:503
 msgid "Report"
 msgstr "דיווח"
 
-#: pkg/sosreport/sosreport.jsx:326
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Report label"
 msgstr "תווית דיווח"
 
@@ -6697,7 +6686,7 @@ msgstr "הדיווח נכשל"
 msgid "Reporting was canceled"
 msgstr "הדיווח בוטל"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:498
 msgid "Reports"
 msgstr "דוחות"
 
@@ -6852,7 +6841,7 @@ msgstr "בחירה"
 msgid "Run at"
 msgstr "להריץ בתזמון"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Run new report"
 msgstr "הרצת דוח חדש"
 
@@ -6860,7 +6849,7 @@ msgstr "הרצת דוח חדש"
 msgid "Run on"
 msgstr "להריץ על"
 
-#: pkg/sosreport/sosreport.jsx:291 pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:286 pkg/sosreport/sosreport.jsx:495
 msgid "Run report"
 msgstr "הרצת דוח"
 
@@ -6920,7 +6909,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "בדיקת SMART עצמית של $0"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:317
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "דיווח חירום (SOS) אוסף מידע על המערכת כדי לסייע בניתוח תקלות."
@@ -7010,11 +6999,11 @@ msgstr ""
 "שמירת מילת צופן חדשה דורשת את שחרור הכונן. נא לספק את מילת הצופן הנוכחית של "
 "הכונן."
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:89
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:92
 msgid "Scheduled poweroff at $0"
 msgstr "תוזמן כיבוי ל־$0"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:96
 msgid "Scheduled reboot at $0"
 msgstr "תוזמנה הפעלה מחדש ל־$0"
 
@@ -7567,7 +7556,7 @@ msgstr "עצירת התקן"
 msgid "Stop editing hosts"
 msgstr "הפסקת עריכת מארחים"
 
-#: pkg/sosreport/sosreport.jsx:295
+#: pkg/sosreport/sosreport.jsx:290
 msgid "Stop report"
 msgstr "עצירת הדוח"
 
@@ -7772,7 +7761,7 @@ msgstr "התקן ה־RAID‏ $target מסונכרן"
 msgid "System"
 msgstr "מערכת"
 
-#: pkg/sosreport/sosreport.jsx:527
+#: pkg/sosreport/sosreport.jsx:522
 msgid "System diagnostics"
 msgstr "ניתוח המערכת"
 
@@ -7958,7 +7947,7 @@ msgid ""
 "passphrase."
 msgstr "יש לשחרר את הכונן בטרם פרמוטו. נא לספק מילת צופן נוכחית."
 
-#: pkg/sosreport/sosreport.jsx:388
+#: pkg/sosreport/sosreport.jsx:383
 msgid "The file $0 will be deleted."
 msgstr "לא ניתן למחוק את הקובץ $0."
 
@@ -8275,7 +8264,7 @@ msgstr "הקבוצה הזאת היא הקבוצה העיקרית של המשתמ
 msgid "This host will reboot after updates are installed."
 msgstr "מארח זה יופעל מחדש לאחר התקנת העדכונים."
 
-#: pkg/sosreport/sosreport.jsx:323
+#: pkg/sosreport/sosreport.jsx:318
 msgid "This information is stored only on the system."
 msgstr "המידע הזה מאוחסן רק במערכת."
 
@@ -9042,7 +9031,7 @@ msgstr "להשתמש בסיסמה"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "להשתמש במפתחות הבאים כדי להתאמת מול שרתים אחרים"
 
-#: pkg/sosreport/sosreport.jsx:342
+#: pkg/sosreport/sosreport.jsx:337
 msgid "Use verbose logging"
 msgstr "להשתמש בתיעוד מפורט"
 
@@ -9191,7 +9180,7 @@ msgstr "הצגת יומנים מפורטים"
 msgid "View hardware details"
 msgstr "הצגת פרטי חומרה"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:145
+#: pkg/systemd/overview-cards/lastLogin.tsx:152
 msgid "View login history"
 msgstr "הצגת היסטוריית כניסות למערכת"
 
@@ -9815,12 +9804,12 @@ msgstr "לליבה הנוכחית בלבד"
 msgid "format"
 msgstr "פרמוט"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:40
+#: pkg/systemd/overview-cards/lastLogin.tsx:40
 msgctxt "from <host>"
 msgid "from $0"
 msgstr "מ־$0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:38
+#: pkg/systemd/overview-cards/lastLogin.tsx:38
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
 msgstr "מ־$0 על גבי $1"
@@ -10058,7 +10047,7 @@ msgstr[1] "מתוך $0 מעבדים"
 msgstr[2] "מתוך $0 מעבדים"
 msgstr[3] "מתוך $0 מעבדים"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:42
+#: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "על גבי $0"
@@ -10255,7 +10244,7 @@ msgstr "פרטי הפתרון"
 msgid "sos"
 msgstr "חירום"
 
-#: pkg/sosreport/sosreport.jsx:193
+#: pkg/sosreport/sosreport.jsx:188
 #, fuzzy
 #| msgid "Reporting failed"
 msgid "sos report failed"

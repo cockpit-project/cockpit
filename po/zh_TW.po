@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 03:01+0000\n"
-"PO-Revision-Date: 2024-10-31 17:38+0000\n"
+"POT-Creation-Date: 2024-11-11 02:58+0000\n"
+"PO-Revision-Date: 2024-11-07 10:38+0000\n"
 "Last-Translator: JW Wang <v72807647@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.fedoraproject.org/"
 "projects/cockpit/main/zh_TW/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 5.7.2\n"
+"X-Generator: Weblate 5.8.2\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -107,7 +107,7 @@ msgstr "$0 結束執行並回傳 $1"
 msgid "$0 failed"
 msgstr "$0 失敗"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:112
+#: pkg/systemd/overview-cards/lastLogin.tsx:119
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "$0 次嘗試登入失敗"
@@ -151,7 +151,7 @@ msgstr "$0 正被使用"
 #: pkg/lib/cockpit-components-install-dialog.jsx:160
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:35
 msgid "$0 is not available from any repository."
-msgstr "$0 在任何套件庫中都未提供。"
+msgstr "$0 在任何軟體庫中都未提供。"
 
 #: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
 #: pkg/shell/hosts_dialog.jsx:565
@@ -189,12 +189,12 @@ msgstr "其他 $0 筆..."
 #: pkg/packagekit/history.jsx:91
 msgid "$0 package"
 msgid_plural "$0 packages"
-msgstr[0] "$0 個套件"
+msgstr[0] "$0 個軟體包"
 
 #: pkg/packagekit/updates.jsx:710 pkg/packagekit/updates.jsx:825
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
-msgstr[0] "$0 個套件需要將系統重新開機"
+msgstr[0] "$0 個軟體包需要將系統重新開機"
 
 #: pkg/metrics/metrics.jsx:136
 msgid "$0 page"
@@ -523,7 +523,7 @@ msgstr "未在 $0 上安裝相容的 Cockpit 版本。"
 
 #: pkg/storaged/stratis/utils.jsx:120
 msgid "A filesystem with this name exists already in this pool."
-msgstr "一個相同名稱的檔案系統已經存在於這個集區中。"
+msgstr "一個相同名稱的檔案系統已經存在於這個集池中。"
 
 #: pkg/users/group-create-dialog.js:71
 msgid "A group with this name already exists"
@@ -554,11 +554,11 @@ msgstr ""
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
-msgstr[0] "已更新的套件需要重新開機才能生效："
+msgstr[0] "已更新的軟體包需要重新開機才能生效："
 
 #: pkg/storaged/stratis/utils.jsx:34
 msgid "A pool with this name exists already."
-msgstr "一個相同名稱的集區已經存在。"
+msgstr "一個相同名稱的集池已經存在。"
 
 #: pkg/packagekit/updates.jsx:1533
 msgid "A service needs to be restarted for the updates to take effect:"
@@ -835,7 +835,7 @@ msgstr "新增 $0 將中斷與伺服器的連線，屆時管理介面將無法�
 msgid ""
 "Adding a keyserver requires unlocking the pool. Please provide the existing "
 "pool passphrase."
-msgstr "新增金鑰伺服器需要先解鎖集區。請提供既有集區的通行片語。"
+msgstr "新增金鑰伺服器需要先解鎖集池。請提供既有集池的通行片語。"
 
 #: pkg/networkmanager/firewall.jsx:607
 msgid ""
@@ -875,7 +875,7 @@ msgstr "額外的位址 $val"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:82
 msgid "Additional packages:"
-msgstr "額外套件："
+msgstr "額外軟體包："
 
 #: pkg/networkmanager/firewall.jsx:151
 msgid "Additional ports"
@@ -915,11 +915,11 @@ msgstr "使用 Cockpit 網頁控制台進行管理"
 msgid "Administrative access"
 msgstr "管理員存取模式"
 
-#: pkg/sosreport/sosreport.jsx:433
+#: pkg/sosreport/sosreport.jsx:428
 msgid "Administrative access is required to create and access reports."
 msgstr "需要管理權限才能建立或存取報告。"
 
-#: pkg/sosreport/sosreport.jsx:432
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access required"
 msgstr "需要管理員權限"
 
@@ -1111,7 +1111,7 @@ msgstr "於秒"
 msgid "At specific time"
 msgstr "在特定時間"
 
-#: pkg/sosreport/sosreport.jsx:510
+#: pkg/sosreport/sosreport.jsx:505
 msgid "Attributes"
 msgstr "屬性"
 
@@ -1405,16 +1405,16 @@ msgstr "使用目前的篩選器組合無法找到任何紀錄檔。"
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
 #: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
 #: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:299
-#: pkg/sosreport/sosreport.jsx:384
+#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
+#: pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "取消"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:93
 msgid "Cancel poweroff"
 msgstr "取消關機"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:94
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:97
 msgid "Cancel reboot"
 msgstr "取消重新開機"
 
@@ -1566,7 +1566,7 @@ msgstr "正在檢查檔案系統使用量"
 
 #: pkg/storaged/crypto/keyslots.jsx:267
 msgid "Checking for $0 package"
-msgstr "正在檢查 $0 套件"
+msgstr "正在檢查 $0 軟體包"
 
 #: pkg/storaged/crypto/keyslots.jsx:303
 msgid "Checking for NBDE support in the initrd"
@@ -1578,7 +1578,7 @@ msgstr "正在檢查新的應用程式"
 
 #: pkg/packagekit/updates.jsx:1389
 msgid "Checking for package updates..."
-msgstr "正在檢查套件更新…"
+msgstr "正在檢查軟體包更新…"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:152
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:31
@@ -1977,10 +1977,8 @@ msgid "Create"
 msgstr "建立"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:177
-#, fuzzy
-#| msgid "Create"
 msgid "Create $0"
-msgstr "建立"
+msgstr "建立 $0"
 
 #: pkg/storaged/overview/overview.jsx:146
 msgid "Create LVM2 volume group"
@@ -2117,7 +2115,7 @@ msgstr "建立磁碟區群組"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/sosreport/sosreport.jsx:509
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Created"
 msgstr "已建立"
 
@@ -2402,7 +2400,7 @@ msgstr "延遲必須為數字"
 #: pkg/storaged/stratis/filesystem.jsx:128
 #: pkg/storaged/stratis/filesystem.jsx:169 pkg/storaged/stratis/pool.jsx:177
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:395
-#: pkg/sosreport/sosreport.jsx:378 pkg/sosreport/sosreport.jsx:477
+#: pkg/sosreport/sosreport.jsx:373 pkg/sosreport/sosreport.jsx:472
 msgid "Delete"
 msgstr "刪除"
 
@@ -2427,7 +2425,7 @@ msgstr "刪除群組"
 msgid "Delete pool"
 msgstr "刪除集區"
 
-#: pkg/sosreport/sosreport.jsx:370
+#: pkg/sosreport/sosreport.jsx:365
 msgid "Delete report permanently?"
 msgstr "要永遠刪除報告嗎？"
 
@@ -2447,7 +2445,7 @@ msgstr "正在刪除 LVM2 磁碟區群組 $target"
 
 #: pkg/storaged/stratis/pool.jsx:176
 msgid "Deleting a Stratis pool will erase all data it contains."
-msgstr "刪除 Stratis 集區將刪除其包含的的所有資料。"
+msgstr "刪除 Stratis 集池將刪除其包含的的所有資料。"
 
 #: pkg/storaged/stratis/filesystem.jsx:127
 msgid "Deleting a filesystem will delete all data in it."
@@ -2692,7 +2690,7 @@ msgstr "不要重複"
 msgid "Double distributed parity (RAID 6)"
 msgstr "雙重分散式奇偶存放 (RAID 6)"
 
-#: pkg/sosreport/sosreport.jsx:467 pkg/sosreport/sosreport.jsx:473
+#: pkg/sosreport/sosreport.jsx:462 pkg/sosreport/sosreport.jsx:468
 msgid "Download"
 msgstr "下載"
 
@@ -2863,7 +2861,7 @@ msgstr "使用 Tang 金鑰伺服器加密資料"
 msgid "Encrypt data with a passphrase"
 msgstr "使用通行片語加密資料"
 
-#: pkg/sosreport/sosreport.jsx:457
+#: pkg/sosreport/sosreport.jsx:452
 msgid "Encrypted"
 msgstr "已加密"
 
@@ -2873,7 +2871,7 @@ msgstr "加密 $0"
 
 #: pkg/storaged/stratis/pool.jsx:294
 msgid "Encrypted Stratis pool"
-msgstr "已加密的 Stratis 集區"
+msgstr "已加密的 Stratis 集池"
 
 #: pkg/storaged/utils.js:356
 msgid "Encrypted logical volume of $0"
@@ -2893,7 +2891,7 @@ msgstr "加密"
 msgid "Encryption options"
 msgstr "加密選項"
 
-#: pkg/sosreport/sosreport.jsx:329
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Encryption passphrase"
 msgstr "加密通行片語"
 
@@ -2946,7 +2944,7 @@ msgstr "勘誤"
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:401
+#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
 msgstr "錯誤"
 
@@ -3071,7 +3069,7 @@ msgstr "新增服務失敗"
 msgid "Failed to add zone"
 msgstr "新增區域失敗"
 
-#: pkg/lib/credentials.js:213 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:183 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "無法更改密碼"
@@ -3366,7 +3364,7 @@ msgstr "擴展分割區"
 
 #: pkg/storaged/stratis/pool.jsx:356
 msgid "Grow the pool to take all space"
-msgstr "擴展集區並使用所有空間"
+msgstr "擴展集池並使用所有空間"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:238
 msgid "Grow to take all space"
@@ -3392,7 +3390,7 @@ msgstr "傳統硬碟"
 msgid "Hardware information"
 msgstr "硬體資訊"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.tsx:36
 msgid "Health"
 msgstr "系統摘要"
 
@@ -3423,7 +3421,7 @@ msgstr "更高的可交互運作性會造成攻擊面增加的代價。"
 
 #: pkg/packagekit/history.jsx:112
 msgid "History package count"
-msgstr "歷史套件數量"
+msgstr "歷史軟體包數量"
 
 #: pkg/users/account-details.js:320 pkg/users/account-create-dialog.js:84
 msgid "Home directory"
@@ -3692,15 +3690,15 @@ msgstr "安裝軟體"
 
 #: pkg/kdump/kdump-view.jsx:571
 msgid "Install the $0 package."
-msgstr "安裝 $0 套件。"
+msgstr "安裝 $0 軟體包。"
 
 #: pkg/static/login.js:1046
 msgid ""
 "Install the cockpit-system package (and optionally other cockpit packages) "
 "on $0 to enable web console access."
 msgstr ""
-"在 $0 上安裝 cockpit-system 套件 (與其他選擇性的 cockpit 套件) 以使用網頁控制"
-"台存取功能。"
+"在 $0 上安裝 cockpit-system 軟體包（與其他選擇性的 cockpit 軟體包）以使用網頁"
+"控制台存取功能。"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
@@ -3724,7 +3722,7 @@ msgstr "安裝 $0 將會移除 $1 。"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:41
 msgid "Installing packages"
-msgstr "安裝套件"
+msgstr "安裝軟體包"
 
 #: pkg/metrics/metrics.jsx:775 pkg/networkmanager/firewall.jsx:196
 msgid "Interface"
@@ -3774,7 +3772,7 @@ msgstr "無效的日期與時間格式"
 msgid "Invalid expiration date"
 msgstr "失效日期無效"
 
-#: pkg/lib/credentials.js:273
+#: pkg/lib/credentials.js:243
 msgid "Invalid file permissions"
 msgstr "檔案權限無效"
 
@@ -3961,7 +3959,7 @@ msgstr "具 Active Directory 互通性的 LEGACY。"
 
 #: pkg/storaged/lvm2/vdo-pool.jsx:42
 msgid "LVM2 VDO pool"
-msgstr "LVM2 VDO 集區"
+msgstr "LVM2 VDO 集池"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:191
 msgid "LVM2 logical volume"
@@ -4028,7 +4026,7 @@ msgstr "上次登入"
 msgid "Last modified: $0"
 msgstr "最後變更於： $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:99
+#: pkg/systemd/overview-cards/lastLogin.tsx:106
 msgid "Last successful login:"
 msgstr "最近一次成功登入："
 
@@ -4055,7 +4053,7 @@ msgstr "離開 $0"
 msgid "Leave domain"
 msgstr "離開網域"
 
-#: pkg/sosreport/sosreport.jsx:337
+#: pkg/sosreport/sosreport.jsx:332
 msgid "Leave empty to skip encryption"
 msgstr "留白以略過加密"
 
@@ -4190,7 +4188,7 @@ msgstr "讀取單元失敗"
 
 #: pkg/shell/shell-modals.jsx:76
 msgid "Loading packages..."
-msgstr "正在讀取套件..."
+msgstr "正在載入軟體包..."
 
 #: pkg/lib/cockpit-components-modifications.jsx:134
 msgid "Loading system modifications..."
@@ -4940,7 +4938,7 @@ msgstr "新的通行片語"
 msgid "New password"
 msgstr "新密碼"
 
-#: pkg/lib/credentials.js:219 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:189 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "不接受新密碼"
 
@@ -5060,7 +5058,7 @@ msgstr "沒有找到主機金鑰。"
 
 #: pkg/apps/utils.jsx:77
 msgid "No installation package found for this application."
-msgstr "找不到此應用程式的安裝套件。"
+msgstr "找不到此應用程式的安裝軟體包。"
 
 #: pkg/storaged/crypto/keyslots.jsx:736
 msgid "No keys added"
@@ -5139,7 +5137,7 @@ msgstr "未找到儲存空間"
 msgid "No subvolumes"
 msgstr "無子磁碟區"
 
-#: pkg/lib/credentials.js:186
+#: pkg/lib/credentials.js:156
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:158
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:159
 msgid "No such file or directory"
@@ -5149,7 +5147,7 @@ msgstr "無此檔案或目錄"
 msgid "No system modifications"
 msgstr "沒有系統異動"
 
-#: pkg/sosreport/sosreport.jsx:506
+#: pkg/sosreport/sosreport.jsx:501
 msgid "No system reports."
 msgstr "沒有系統報告。"
 
@@ -5166,7 +5164,7 @@ msgstr "未指定使用者名稱"
 msgid "None"
 msgstr "無"
 
-#: pkg/lib/credentials.js:256
+#: pkg/lib/credentials.js:226
 msgid "Not a valid private key"
 msgstr "不是有效的私鑰"
 
@@ -5264,11 +5262,11 @@ msgstr "筆記型"
 msgid "Notice and above"
 msgstr "通知與更高等級"
 
-#: pkg/sosreport/sosreport.jsx:340
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "將網路位址、主機名稱與使用者名稱混淆處理"
 
-#: pkg/sosreport/sosreport.jsx:461
+#: pkg/sosreport/sosreport.jsx:456
 msgid "Obfuscated"
 msgstr "已混淆處理"
 
@@ -5297,7 +5295,7 @@ msgstr "舊的通行片語"
 msgid "Old password"
 msgstr "舊密碼"
 
-#: pkg/lib/credentials.js:205 pkg/users/password-dialogs.js:55
+#: pkg/lib/credentials.js:175 pkg/users/password-dialogs.js:55
 msgid "Old password not accepted"
 msgstr "舊密碼不被接受"
 
@@ -5349,7 +5347,7 @@ msgstr "運營'$operation' 上 $target"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
 #: pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
-#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:339
+#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:334
 msgid "Options"
 msgstr "選項"
 
@@ -5414,7 +5412,7 @@ msgstr "PID"
 
 #: pkg/packagekit/updates.jsx:697 pkg/packagekit/updates.jsx:776
 msgid "Package information"
-msgstr "套件資訊"
+msgstr "軟體包資訊"
 
 #: pkg/lib/packagekit.js:130
 msgid "PackageKit crashed"
@@ -5430,11 +5428,11 @@ msgstr "PackageKit 回報了錯誤碼 $0"
 
 #: pkg/static/login.js:1056
 msgid "Packageless session unavailable"
-msgstr "未提供無須套件的工作階段"
+msgstr "未提供無須軟體包的工作階段"
 
 #: pkg/packagekit/updates.jsx:363
 msgid "Packages"
-msgstr "套件"
+msgstr "軟體包"
 
 #: pkg/shell/active-pages-modal.jsx:101
 msgid "Page name"
@@ -5557,7 +5555,7 @@ msgstr "密碼太弱了"
 msgid "Password must be changed"
 msgstr "密碼必須更改"
 
-#: pkg/lib/credentials.js:277
+#: pkg/lib/credentials.js:247
 msgid "Password not accepted"
 msgstr "密碼不被接受"
 
@@ -5740,7 +5738,7 @@ msgstr "請啟用 JavaScript 以使用網頁控制台。"
 
 #: pkg/networkmanager/firewall.jsx:1029
 msgid "Please install the $0 package"
-msgstr "請安裝 $0 套件"
+msgstr "請安裝 $0 軟體包"
 
 #: pkg/packagekit/updates.jsx:1493
 msgid "Please resolve the issue and reload this page."
@@ -5760,19 +5758,19 @@ msgstr "請先卸載它們。"
 
 #: pkg/storaged/utils.js:282
 msgid "Pool for thin logical volumes"
-msgstr "精簡邏輯磁碟區集區"
+msgstr "精簡邏輯磁碟區"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:98
 msgid "Pool for thinly provisioned LVM2 logical volumes"
-msgstr "用於精簡佈建 LVM2 邏輯磁碟區的集區"
+msgstr "用於精簡佈建 LVM2 邏輯磁碟區的集池"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:58
 msgid "Pool for thinly provisioned volumes"
-msgstr "用於精簡佈建磁碟區的集區"
+msgstr "用於精簡佈建磁碟區的集池"
 
 #: pkg/storaged/stratis/pool.jsx:482
 msgid "Pool passphrase"
-msgstr "集區的通行片語"
+msgstr "集池的通行片語"
 
 #: pkg/shell/hosts_dialog.jsx:464 pkg/storaged/iscsi/create-dialog.jsx:111
 msgid "Port"
@@ -5855,7 +5853,7 @@ msgstr "問題資訊"
 msgid "Processes using the location"
 msgstr "正在使用該位置的處理程序"
 
-#: pkg/sosreport/sosreport.jsx:310
+#: pkg/sosreport/sosreport.jsx:305
 msgid "Progress: $0"
 msgstr "進度： $0"
 
@@ -5867,11 +5865,11 @@ msgstr "專案網站"
 msgid "Prompting via passwd timed out"
 msgstr "以 passwd 提示輸入已逾時"
 
-#: pkg/lib/credentials.js:265
+#: pkg/lib/credentials.js:235
 msgid "Prompting via ssh-add timed out"
 msgstr "以 ssh-add 提示輸入已逾時"
 
-#: pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:194
 msgid "Prompting via ssh-keygen timed out"
 msgstr "以 ssh-keygen 提示輸入已逾時"
 
@@ -5887,7 +5885,7 @@ msgstr "以犧牲可交互運作性為代價，保護可預期的近期未來攻
 
 #: pkg/storaged/stratis/stopped-pool.jsx:53
 msgid "Provide the passphrase for the pool on these block devices:"
-msgstr "提供這些區塊裝置上的集區的通行片語："
+msgstr "提供這些區塊裝置上的集池集通行片語："
 
 #: pkg/networkmanager/wireguard.jsx:237 pkg/networkmanager/wireguard.jsx:300
 #: pkg/shell/credentials.jsx:112
@@ -6093,7 +6091,7 @@ msgstr "正在復原 MDRAID 裝置 $target"
 
 #: pkg/packagekit/updates.jsx:98
 msgid "Refreshing package information"
-msgstr "套件資訊重新整理中"
+msgstr "軟體包資訊重新整理中"
 
 #: pkg/static/login.js:1020 pkg/static/login.js:1022 pkg/static/login.js:1033
 msgid "Refusing to connect"
@@ -6289,7 +6287,7 @@ msgstr "重新命名"
 
 #: pkg/storaged/stratis/pool.jsx:192
 msgid "Rename Stratis pool"
-msgstr "重新命名 Stratis 集區"
+msgstr "重新命名 Stratis 集池"
 
 #: pkg/storaged/stratis/filesystem.jsx:185
 msgid "Rename filesystem"
@@ -6351,12 +6349,12 @@ msgid "Repeat weekly"
 msgstr "每週重複"
 
 # translation auto-copied from project abrt, version master, document abrt
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:508
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:503
 msgid "Report"
 msgstr "回報"
 
 # translation auto-copied from project abrt, version master, document abrt
-#: pkg/sosreport/sosreport.jsx:326
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Report label"
 msgstr "報告標籤"
 
@@ -6377,7 +6375,7 @@ msgid "Reporting was canceled"
 msgstr "回報已被取消"
 
 # translation auto-copied from project abrt, version master, document abrt
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:498
 msgid "Reports"
 msgstr "報告"
 
@@ -6530,7 +6528,7 @@ msgid "Run at"
 msgstr "執行於"
 
 # translation auto-copied from project abrt, version master, document abrt
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Run new report"
 msgstr "執行新的報告"
 
@@ -6539,7 +6537,7 @@ msgid "Run on"
 msgstr "執行於"
 
 # translation auto-copied from project abrt, version master, document abrt
-#: pkg/sosreport/sosreport.jsx:291 pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:286 pkg/sosreport/sosreport.jsx:495
 msgid "Run report"
 msgstr "執行報告"
 
@@ -6599,7 +6597,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "$target 的 SMART 自我測試"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:317
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "SOS 報告蒐集系統資訊以協助診斷問題。"
@@ -6684,11 +6682,11 @@ msgid ""
 "current disk passphrase."
 msgstr "儲存新密碼需要先解鎖磁碟。請提供一個現有的通行片語。"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:89
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:92
 msgid "Scheduled poweroff at $0"
 msgstr "預定於 $0 關機"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:96
 msgid "Scheduled reboot at $0"
 msgstr "預定於 $0 重新開機"
 
@@ -7096,13 +7094,13 @@ msgid ""
 "Some block devices of this pool have grown in size after the pool was "
 "created. The pool can be safely grown to use the newly available space."
 msgstr ""
-"這個集區中的某些區塊裝置空間在集區建立之後已被擴充。這個集區可安全的擴展以使"
+"這個集池中的某些區塊裝置空間在集區建立之後已被擴充。這個集池可安全的擴展以使"
 "用新的可用空間。"
 
 #: pkg/packagekit/updates.jsx:97
 msgid ""
 "Some other program is currently using the package manager, please wait..."
-msgstr "其他程式正在使用套件管理器，請稍候..."
+msgstr "其他程式正在使用軟體包管理器，請稍候..."
 
 #: pkg/packagekit/updates.jsx:744 pkg/packagekit/updates.jsx:851
 #: pkg/packagekit/updates.jsx:1537
@@ -7233,7 +7231,7 @@ msgstr "停止裝置"
 msgid "Stop editing hosts"
 msgstr "結束主機編輯"
 
-#: pkg/sosreport/sosreport.jsx:295
+#: pkg/sosreport/sosreport.jsx:290
 msgid "Stop report"
 msgstr "停止報告"
 
@@ -7292,12 +7290,12 @@ msgstr "Stratis 檔案系統"
 
 #: pkg/storaged/stratis/pool.jsx:380
 msgid "Stratis filesystems pool"
-msgstr "Stratis 檔案系統集區"
+msgstr "Stratis 檔案系統集池"
 
 #: pkg/storaged/stratis/stopped-pool.jsx:98
 #: pkg/storaged/stratis/blockdev.jsx:81 pkg/storaged/stratis/pool.jsx:294
 msgid "Stratis pool"
-msgstr "Stratis 集區"
+msgstr "Stratis 集池"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:72
 #: pkg/storaged/lvm2/block-logical-volume.jsx:260
@@ -7420,7 +7418,7 @@ msgstr "正在同步 MDRAID 裝置 $target"
 msgid "System"
 msgstr "系統"
 
-#: pkg/sosreport/sosreport.jsx:527
+#: pkg/sosreport/sosreport.jsx:522
 msgid "System diagnostics"
 msgstr "系統診斷"
 
@@ -7515,19 +7513,19 @@ msgstr "正在測試連線"
 
 #: pkg/storaged/crypto/keyslots.jsx:278
 msgid "The $0 package is not available from any repository."
-msgstr "$0 套件在任何套件庫中都未提供。"
+msgstr "$0 軟體包在任何軟體庫中都未提供。"
 
 #: pkg/storaged/overview/overview.jsx:122
 msgid "The $0 package must be installed to create Stratis pools."
-msgstr "須安裝 $0 套件以建立 Stratis 集區。"
+msgstr "須安裝 $0 軟體包以建立 Stratis 集池。"
 
 #: pkg/storaged/crypto/keyslots.jsx:273 pkg/storaged/crypto/keyslots.jsx:289
 msgid "The $0 package must be installed."
-msgstr "必須安裝 $0 套件。"
+msgstr "必須安裝 $0 軟體包。"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:176
 msgid "The $0 package will be installed to create VDO devices."
-msgstr "須安裝 $0 套件以建立 VDO 裝置。"
+msgstr "須安裝 $0 軟體包以建立 VDO 裝置。"
 
 #: pkg/shell/hosts_dialog.jsx:259
 msgid "The IP address or hostname cannot contain whitespace."
@@ -7596,7 +7594,7 @@ msgid ""
 "passphrase."
 msgstr "需要先解鎖磁碟才能格式化。請提供一個現有的通行片語。"
 
-#: pkg/sosreport/sosreport.jsx:388
+#: pkg/sosreport/sosreport.jsx:383
 msgid "The file $0 will be deleted."
 msgstr "$0 檔案將會被刪除。"
 
@@ -7899,14 +7897,14 @@ msgstr "此群組是下列使用者的主要群組："
 msgid "This host will reboot after updates are installed."
 msgstr "安裝更新後會將此主機重新開機。"
 
-#: pkg/sosreport/sosreport.jsx:323
+#: pkg/sosreport/sosreport.jsx:318
 msgid "This information is stored only on the system."
 msgstr "此資訊只被存在系統中。"
 
 #: pkg/storaged/stratis/pool.jsx:589
 msgid ""
 "This keyserver is the only way to unlock the pool and can not be removed."
-msgstr "該 keyserver 是唯一解鎖集區的方式，故不可被移除。"
+msgstr "該 keyserver 是唯一解鎖集池的方式，故不可被移除。"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:312
 msgid ""
@@ -7950,15 +7948,15 @@ msgstr "此分割區的內容物未完整利用該分割區。"
 #: pkg/storaged/stratis/pool.jsx:571
 msgid ""
 "This passphrase is the only way to unlock the pool and can not be removed."
-msgstr "此通行片語是唯一可解鎖該集區的方法，故無法被移除。"
+msgstr "此通行片語是唯一可解鎖該集池的方法，故無法被移除。"
 
 #: pkg/storaged/stratis/pool.jsx:352
 msgid "This pool does not use all the space on its block devices."
-msgstr "這個集區並未使用其所在的區塊裝置上所有空間。"
+msgstr "這個集池並未使用其所在的區塊裝置上所有空間。"
 
 #: pkg/storaged/stratis/pool.jsx:367
 msgid "This pool is in a degraded state."
-msgstr "這個集區處於降級狀態。"
+msgstr "這個集池處於降級狀態。"
 
 #: pkg/packagekit/updates.jsx:1373
 msgid "This system is not registered"
@@ -8177,7 +8175,8 @@ msgstr "暫時的"
 msgid ""
 "Transient packageless sessions require the same operating system and "
 "version, for compatibility reasons: $0."
-msgstr "暫時性的無須套件工作階段因相容性問題，須為相同的作業系統與版本： $0 。"
+msgstr ""
+"暫時性的無須軟體包工作階段因相容性問題，須為相同的作業系統與版本： $0 。"
 
 #: pkg/networkmanager/plots.js:39
 msgid "Transmitting"
@@ -8379,7 +8378,7 @@ msgstr "無法使用"
 
 #: pkg/packagekit/kpatch.jsx:241
 msgid "Unavailable packages"
-msgstr "未提供的套件"
+msgstr "未提供的軟體包"
 
 #: pkg/users/account-details.js:467
 msgid "Undo"
@@ -8466,7 +8465,7 @@ msgstr "在調整大小前解鎖"
 
 #: pkg/storaged/stratis/stopped-pool.jsx:50
 msgid "Unlock encrypted Stratis pool"
-msgstr "解鎖已加密的 Stratis 集區"
+msgstr "解鎖已加密的 Stratis 集池"
 
 #: pkg/shell/credentials.jsx:307
 msgid "Unlock key $0"
@@ -8556,7 +8555,7 @@ msgstr "更新歷史記錄"
 
 #: pkg/apps/application-list.jsx:153
 msgid "Update package information"
-msgstr "更新套件資訊"
+msgstr "更新軟體包資訊"
 
 #: pkg/packagekit/updates.jsx:691 pkg/packagekit/updates.jsx:756
 msgid "Update was successful"
@@ -8568,7 +8567,7 @@ msgstr "已更新"
 
 #: pkg/packagekit/updates.jsx:681
 msgid "Updated packages may require a reboot to take effect."
-msgstr "可能需要重新開機，才能讓更新完成的套件生效。"
+msgstr "可能需要重新開機，才能讓更新完成的軟體包生效。"
 
 #: pkg/packagekit/updates.jsx:1441
 msgid "Updates available"
@@ -8617,10 +8616,8 @@ msgid "Use"
 msgstr "使用"
 
 #: pkg/networkmanager/dialogs-common.jsx:105 pkg/storaged/dialog.jsx:677
-#, fuzzy
-#| msgid "Core $0"
 msgid "Use $0"
-msgstr "核心 $0"
+msgstr "使用 $0"
 
 #: pkg/storaged/lvm2/vdo-pool.jsx:85 pkg/storaged/legacy-vdo/legacy-vdo.jsx:328
 msgid "Use compression"
@@ -8642,7 +8639,7 @@ msgstr "使用密碼"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "使用以下金鑰對其他系統進行驗證"
 
-#: pkg/sosreport/sosreport.jsx:342
+#: pkg/sosreport/sosreport.jsx:337
 msgid "Use verbose logging"
 msgstr "使用較多細節的日誌紀錄"
 
@@ -8793,7 +8790,7 @@ msgstr "檢視詳細紀錄檔"
 msgid "View hardware details"
 msgstr "詳細資料"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:145
+#: pkg/systemd/overview-cards/lastLogin.tsx:152
 msgid "View login history"
 msgstr "檢視登入歷史紀錄"
 
@@ -8829,7 +8826,7 @@ msgstr "檢視記憶體資訊需要管理員存取權限。"
 msgid ""
 "Virtual filesystem sizes are larger than the pool. Overprovisioning can not "
 "be disabled."
-msgstr "虛擬檔案系統大小比集區還大。無法關閉超額佈建。"
+msgstr "虛擬檔案系統大小比集池還大。無法關閉超額佈建。"
 
 #: pkg/storaged/stratis/filesystem.jsx:260
 msgid "Virtual size"
@@ -8875,7 +8872,7 @@ msgstr "正在等待輸入…"
 
 #: pkg/apps/utils.jsx:56
 msgid "Waiting for other programs to finish using the package manager..."
-msgstr "等待其他程式結束使用套件管理器..."
+msgstr "等待其他程式結束使用軟體包管理器..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:150
 #: pkg/lib/cockpit-components-install-dialog.jsx:185
@@ -9387,12 +9384,12 @@ msgstr "只用於目前的核心"
 msgid "format"
 msgstr "格式化"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:40
+#: pkg/systemd/overview-cards/lastLogin.tsx:40
 msgctxt "from <host>"
 msgid "from $0"
 msgstr "從 $0"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:38
+#: pkg/systemd/overview-cards/lastLogin.tsx:38
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
 msgstr "從 $1 上的 $0"
@@ -9545,7 +9542,7 @@ msgstr "MDRAID 裝置的成員"
 
 #: pkg/storaged/dialog.jsx:1169
 msgid "member of Stratis pool"
-msgstr "Stratis 集區的成員"
+msgstr "Stratis 集池的成員"
 
 #: pkg/systemd/manifest.json:0
 msgid "memory"
@@ -9617,7 +9614,7 @@ msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
 msgstr[0] "/ $0 個 CPU"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:42
+#: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "於 $0"
@@ -9632,7 +9629,7 @@ msgstr "作業系統"
 
 #: pkg/packagekit/manifest.json:0
 msgid "package"
-msgstr "套件"
+msgstr "軟體包"
 
 #: pkg/packagekit/manifest.json:0
 msgid "packagekit"
@@ -9808,7 +9805,7 @@ msgstr "解決方案詳細資訊"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:193
+#: pkg/sosreport/sosreport.jsx:188
 msgid "sos report failed"
 msgstr "sos 報告失敗"
 
@@ -9949,7 +9946,7 @@ msgstr "警告"
 
 #: pkg/networkmanager/wireguard.jsx:84
 msgid "wireguard-tools package is not installed"
-msgstr "wireguard-tools 套件未安裝"
+msgstr "wireguard-tools 軟體包未安裝"
 
 #: pkg/storaged/crypto/encryption.jsx:232
 msgid "yes"

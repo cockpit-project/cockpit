@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 03:01+0000\n"
+"POT-Creation-Date: 2024-11-11 02:58+0000\n"
 "PO-Revision-Date: 2024-10-31 17:38+0000\n"
 "Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -122,7 +122,7 @@ msgstr "$0 poistui koodilla $1"
 msgid "$0 failed"
 msgstr "$0 epäonnistui"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:112
+#: pkg/systemd/overview-cards/lastLogin.tsx:119
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "$0 epäonnistunut sisäänkirjautumisyritys"
@@ -1000,12 +1000,12 @@ msgstr "Hallinta Cockpit-verkkokonsolilla"
 msgid "Administrative access"
 msgstr "Ylläpitäjän käyttöoikeudet"
 
-#: pkg/sosreport/sosreport.jsx:433
+#: pkg/sosreport/sosreport.jsx:428
 msgid "Administrative access is required to create and access reports."
 msgstr ""
 "Raporttien luomiseen ja käyttämiseen tarvitaan ylläpitäjän käyttöoikeudet."
 
-#: pkg/sosreport/sosreport.jsx:432
+#: pkg/sosreport/sosreport.jsx:427
 msgid "Administrative access required"
 msgstr "Tarvitaan ylläpitäjän käyttöoikeudet"
 
@@ -1208,7 +1208,7 @@ msgstr "Toiseksi"
 msgid "At specific time"
 msgstr "Tiettynä aikana"
 
-#: pkg/sosreport/sosreport.jsx:510
+#: pkg/sosreport/sosreport.jsx:505
 msgid "Attributes"
 msgstr "Attribuutit"
 
@@ -1510,16 +1510,16 @@ msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
 #: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
 #: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:299
-#: pkg/sosreport/sosreport.jsx:384
+#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
+#: pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "Peru"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:93
 msgid "Cancel poweroff"
 msgstr "Peru sammutus"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:94
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:97
 msgid "Cancel reboot"
 msgstr "Peru uudelleenkäynnistys"
 
@@ -2241,7 +2241,7 @@ msgstr "Luo ajastin"
 msgid "Create volume group"
 msgstr "Luo taltioryhmä"
 
-#: pkg/sosreport/sosreport.jsx:509
+#: pkg/sosreport/sosreport.jsx:504
 msgid "Created"
 msgstr "Luotu"
 
@@ -2528,7 +2528,7 @@ msgstr "Viiveen tulee olla numero"
 #: pkg/storaged/stratis/filesystem.jsx:128
 #: pkg/storaged/stratis/filesystem.jsx:169 pkg/storaged/stratis/pool.jsx:177
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:395
-#: pkg/sosreport/sosreport.jsx:378 pkg/sosreport/sosreport.jsx:477
+#: pkg/sosreport/sosreport.jsx:373 pkg/sosreport/sosreport.jsx:472
 msgid "Delete"
 msgstr "Poista"
 
@@ -2553,7 +2553,7 @@ msgstr "Poista ryhmä"
 msgid "Delete pool"
 msgstr "Poista varanto"
 
-#: pkg/sosreport/sosreport.jsx:370
+#: pkg/sosreport/sosreport.jsx:365
 msgid "Delete report permanently?"
 msgstr "Poista raportti pysyvästi?"
 
@@ -2825,7 +2825,7 @@ msgstr "Älä toista"
 msgid "Double distributed parity (RAID 6)"
 msgstr "RAID 6 (kaksinkertainen hajautettu pariteetti)"
 
-#: pkg/sosreport/sosreport.jsx:467 pkg/sosreport/sosreport.jsx:473
+#: pkg/sosreport/sosreport.jsx:462 pkg/sosreport/sosreport.jsx:468
 msgid "Download"
 msgstr "Lataa"
 
@@ -3010,7 +3010,7 @@ msgstr "Muokkaa Tang-avainpalvelinta"
 msgid "Encrypt data with a passphrase"
 msgstr "Salauksen tunnuslause"
 
-#: pkg/sosreport/sosreport.jsx:457
+#: pkg/sosreport/sosreport.jsx:452
 msgid "Encrypted"
 msgstr "Salattu"
 
@@ -3040,7 +3040,7 @@ msgstr "Salaus"
 msgid "Encryption options"
 msgstr "Salauksen valinnat"
 
-#: pkg/sosreport/sosreport.jsx:329
+#: pkg/sosreport/sosreport.jsx:324
 msgid "Encryption passphrase"
 msgstr "Salauksen tunnuslause"
 
@@ -3093,7 +3093,7 @@ msgstr "Virheet"
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
 #: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
-#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:401
+#: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
 msgstr "Virhe"
 
@@ -3217,7 +3217,7 @@ msgstr "Palvelun lisääminen epäonnistui"
 msgid "Failed to add zone"
 msgstr "Vyöhykkeen lisääminen epäonnistui"
 
-#: pkg/lib/credentials.js:213 pkg/users/password-dialogs.js:103
+#: pkg/lib/credentials.js:183 pkg/users/password-dialogs.js:103
 #: pkg/users/password-dialogs.js:125
 msgid "Failed to change password"
 msgstr "Salasanan vaihtaminen epäonnistui"
@@ -3552,7 +3552,7 @@ msgstr "Kiintolevy"
 msgid "Hardware information"
 msgstr "Laitteistotiedot"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.tsx:36
 msgid "Health"
 msgstr "Terveys"
 
@@ -3952,7 +3952,7 @@ msgstr "Virheellinen päivämuoto ja aikamuoto"
 msgid "Invalid expiration date"
 msgstr "Ei kelvollinen vanhenemispäivä"
 
-#: pkg/lib/credentials.js:273
+#: pkg/lib/credentials.js:243
 msgid "Invalid file permissions"
 msgstr "Virheelliset tiedosto-oikeudet"
 
@@ -4214,7 +4214,7 @@ msgstr "Edellinen kirjautuminen"
 msgid "Last modified: $0"
 msgstr "Viimeksi muokattu: $0 sitten"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:99
+#: pkg/systemd/overview-cards/lastLogin.tsx:106
 msgid "Last successful login:"
 msgstr "Edellinen onnistunut kirjautuminen:"
 
@@ -4241,7 +4241,7 @@ msgstr "Poistu $0:sta"
 msgid "Leave domain"
 msgstr "Jätä toimialue"
 
-#: pkg/sosreport/sosreport.jsx:337
+#: pkg/sosreport/sosreport.jsx:332
 msgid "Leave empty to skip encryption"
 msgstr "Jätä tyhjäksi ohittaaksesi salauksen"
 
@@ -5170,7 +5170,7 @@ msgstr "Uusi tunnuslause"
 msgid "New password"
 msgstr "Uusi salasana"
 
-#: pkg/lib/credentials.js:219 pkg/users/password-dialogs.js:86
+#: pkg/lib/credentials.js:189 pkg/users/password-dialogs.js:86
 msgid "New password was not accepted"
 msgstr "Uutta salasanaa ei hyväksytty"
 
@@ -5391,7 +5391,7 @@ msgstr "Ei tallennustilaa"
 msgid "No subvolumes"
 msgstr "Ei loogisia taltioita"
 
-#: pkg/lib/credentials.js:186
+#: pkg/lib/credentials.js:156
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:158
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:159
 msgid "No such file or directory"
@@ -5401,7 +5401,7 @@ msgstr "Tiedostoa tai hakemistoa ei löydy"
 msgid "No system modifications"
 msgstr "Ei järjestelmän muutoksia"
 
-#: pkg/sosreport/sosreport.jsx:506
+#: pkg/sosreport/sosreport.jsx:501
 msgid "No system reports."
 msgstr "Ei järjestelmän ilmoituksia."
 
@@ -5418,7 +5418,7 @@ msgstr "Käyttäjänimeä ei ole määritetty"
 msgid "None"
 msgstr "Ei yhtään"
 
-#: pkg/lib/credentials.js:256
+#: pkg/lib/credentials.js:226
 msgid "Not a valid private key"
 msgstr "Ei kelvollinen yksityinen avain"
 
@@ -5516,11 +5516,11 @@ msgstr "Muistikirja"
 msgid "Notice and above"
 msgstr "Ilmoitus ja yli"
 
-#: pkg/sosreport/sosreport.jsx:340
+#: pkg/sosreport/sosreport.jsx:335
 msgid "Obfuscate network addresses, hostnames, and usernames"
 msgstr "Hämärrä verkko-osoitteet, isäntänimet ja käyttäjänimet"
 
-#: pkg/sosreport/sosreport.jsx:461
+#: pkg/sosreport/sosreport.jsx:456
 msgid "Obfuscated"
 msgstr "Hämärretty"
 
@@ -5549,7 +5549,7 @@ msgstr "Vanha tunnuslause"
 msgid "Old password"
 msgstr "Vanha salasana"
 
-#: pkg/lib/credentials.js:205 pkg/users/password-dialogs.js:55
+#: pkg/lib/credentials.js:175 pkg/users/password-dialogs.js:55
 msgid "Old password not accepted"
 msgstr "Vanhaa salasanaa ei hyväksytty"
 
@@ -5603,7 +5603,7 @@ msgstr "Toimi '$operation' $target:lla"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
 #: pkg/storaged/crypto/encryption.jsx:234
 #: pkg/storaged/stratis/create-dialog.jsx:64
-#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:339
+#: pkg/storaged/stratis/filesystem.jsx:207 pkg/sosreport/sosreport.jsx:334
 msgid "Options"
 msgstr "Valinnat"
 
@@ -5813,7 +5813,7 @@ msgstr "Salasana on liian heikko"
 msgid "Password must be changed"
 msgstr "Salasana tulee vaihtaa"
 
-#: pkg/lib/credentials.js:277
+#: pkg/lib/credentials.js:247
 msgid "Password not accepted"
 msgstr "Salasanaa ei hyväksytty"
 
@@ -6123,7 +6123,7 @@ msgstr "Ongelmatiedot"
 msgid "Processes using the location"
 msgstr "Prosessit, jotka käyttävät sijaintia"
 
-#: pkg/sosreport/sosreport.jsx:310
+#: pkg/sosreport/sosreport.jsx:305
 msgid "Progress: $0"
 msgstr "Edistyminen: $0"
 
@@ -6135,11 +6135,11 @@ msgstr "Projektin verkkosivusto"
 msgid "Prompting via passwd timed out"
 msgstr "Kysely 'passwd':n kautta aikakatkaistiin"
 
-#: pkg/lib/credentials.js:265
+#: pkg/lib/credentials.js:235
 msgid "Prompting via ssh-add timed out"
 msgstr "Kysely 'ssh-add':in kautta aikakatkaistiin"
 
-#: pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:194
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Kysely 'ssh-keygen':in kautta aikakatkaistiin"
 
@@ -6635,11 +6635,11 @@ msgstr "Toista tunnuslause"
 msgid "Repeat weekly"
 msgstr "Toista joka viikko"
 
-#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:508
+#: pkg/systemd/reporting.jsx:392 pkg/sosreport/sosreport.jsx:503
 msgid "Report"
 msgstr "Raportoi"
 
-#: pkg/sosreport/sosreport.jsx:326
+#: pkg/sosreport/sosreport.jsx:321
 msgid "Report label"
 msgstr "Raportin nimiö"
 
@@ -6659,7 +6659,7 @@ msgstr "Raportointi epäonnistui"
 msgid "Reporting was canceled"
 msgstr "Raportointi peruutettiin"
 
-#: pkg/sosreport/sosreport.jsx:503
+#: pkg/sosreport/sosreport.jsx:498
 msgid "Reports"
 msgstr "Ilmoitukset"
 
@@ -6816,7 +6816,7 @@ msgstr "Valitse"
 msgid "Run at"
 msgstr "Aja klo"
 
-#: pkg/sosreport/sosreport.jsx:313
+#: pkg/sosreport/sosreport.jsx:308
 msgid "Run new report"
 msgstr "Tee uusi raportti"
 
@@ -6824,7 +6824,7 @@ msgstr "Tee uusi raportti"
 msgid "Run on"
 msgstr "Aja kohteessa"
 
-#: pkg/sosreport/sosreport.jsx:291 pkg/sosreport/sosreport.jsx:500
+#: pkg/sosreport/sosreport.jsx:286 pkg/sosreport/sosreport.jsx:495
 msgid "Run report"
 msgstr "Tee raportti"
 
@@ -6884,7 +6884,7 @@ msgstr "SHA-256"
 msgid "SMART self-test of $target"
 msgstr "Levyn $target SMART-itsetesti"
 
-#: pkg/sosreport/sosreport.jsx:322
+#: pkg/sosreport/sosreport.jsx:317
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
@@ -6977,11 +6977,11 @@ msgstr ""
 "Uuden salasanan tallentaminen edellyttää levyn lukituksen avaamista. Anna "
 "nykyinen levyn tunnuslause."
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:89
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:92
 msgid "Scheduled poweroff at $0"
 msgstr "Ajastettu sammutus $0"
 
-#: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#: pkg/systemd/overview-cards/shutdownStatus.tsx:96
 msgid "Scheduled reboot at $0"
 msgstr "Ajastettu sammutus kello $0"
 
@@ -7534,7 +7534,7 @@ msgstr "Pysäytä laite"
 msgid "Stop editing hosts"
 msgstr "Lopeta koneiden muokkaaminen"
 
-#: pkg/sosreport/sosreport.jsx:295
+#: pkg/sosreport/sosreport.jsx:290
 msgid "Stop report"
 msgstr "Pysäytä raportti"
 
@@ -7735,7 +7735,7 @@ msgstr "Synkronoidaan MDRAID-laitetta $target"
 msgid "System"
 msgstr "Järjestelmä"
 
-#: pkg/sosreport/sosreport.jsx:527
+#: pkg/sosreport/sosreport.jsx:522
 msgid "System diagnostics"
 msgstr "Järjestelmän diagnostiikka"
 
@@ -7927,7 +7927,7 @@ msgid ""
 "passphrase."
 msgstr "Levy on avattava ennen alustamista. Anna olemassa oleva tunnuslause."
 
-#: pkg/sosreport/sosreport.jsx:388
+#: pkg/sosreport/sosreport.jsx:383
 msgid "The file $0 will be deleted."
 msgstr "Tiedosto $0 poistetaan."
 
@@ -8275,7 +8275,7 @@ msgstr "Tämä ryhmä on ensisijainen ryhmä seuraaville käyttäjille:"
 msgid "This host will reboot after updates are installed."
 msgstr "Tämä kone käynnistyy uudelleen, kun päivitykset on asennettu."
 
-#: pkg/sosreport/sosreport.jsx:323
+#: pkg/sosreport/sosreport.jsx:318
 msgid "This information is stored only on the system."
 msgstr "Nämä tiedot tallennetaan vain järjestelmään."
 
@@ -9060,7 +9060,7 @@ msgstr "Käytä salasanaa"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Käytä seuraavia avaimia todentamaan muita järjestelmiä kohden"
 
-#: pkg/sosreport/sosreport.jsx:342
+#: pkg/sosreport/sosreport.jsx:337
 msgid "Use verbose logging"
 msgstr "Käytä monisanaista lokia"
 
@@ -9209,7 +9209,7 @@ msgstr "Katso yksityiskohtaiset lokit"
 msgid "View hardware details"
 msgstr "Tarkastele laitteiston yksityiskohtia"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:145
+#: pkg/systemd/overview-cards/lastLogin.tsx:152
 msgid "View login history"
 msgstr "Tarkastele kirjautumishistoriaa"
 
@@ -9825,12 +9825,12 @@ msgstr "vain nykyiselle kernelille"
 msgid "format"
 msgstr "alusta"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:40
+#: pkg/systemd/overview-cards/lastLogin.tsx:40
 msgctxt "from <host>"
 msgid "from $0"
 msgstr "$0:sta"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:38
+#: pkg/systemd/overview-cards/lastLogin.tsx:38
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
 msgstr "sijainnista $0 päätteellä $1"
@@ -10064,7 +10064,7 @@ msgid_plural "of $0 CPUs"
 msgstr[0] "$0 CPU:sta"
 msgstr[1] "$0 CPU:ista"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:42
+#: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "päätteellä $0"
@@ -10257,7 +10257,7 @@ msgstr "ratkaisun yksityiskohdat"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/sosreport/sosreport.jsx:193
+#: pkg/sosreport/sosreport.jsx:188
 msgid "sos report failed"
 msgstr "sos-raportointi epäonnistui"
 

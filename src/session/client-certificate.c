@@ -300,27 +300,27 @@ cockpit_session_client_certificate_map_user (const char *client_certificate_file
       return NULL;
     }
 
-  size_t my_cgroup_length;
-  char *my_cgroup = read_proc_self_cgroup (&my_cgroup_length);
-  if (my_cgroup == NULL)
+  size_t ws_cgroup_length;
+  char *ws_cgroup = read_proc_self_cgroup (&ws_cgroup_length);
+  if (ws_cgroup == NULL)
     {
       warnx ("Could not determine cgroup of this process");
       return NULL;
     }
-  /* A simple prefix comparison is appropriate here because my_cgroup
+  /* A simple prefix comparison is appropriate here because ws_cgroup
    * will contain exactly one newline (at the end), and the expected
-   * value of my_cgroup is on the first line in cert_pem.
+   * value of ws_cgroup is on the first line in cert_pem.
    */
-  if (strncmp (cert_pem, my_cgroup, my_cgroup_length) != 0)
+  if (strncmp (cert_pem, ws_cgroup, ws_cgroup_length) != 0)
     {
       warnx ("This client certificate is only meant to be used from another cgroup");
-      free (my_cgroup);
+      free (ws_cgroup);
       return NULL;
     }
-  free (my_cgroup);
+  free (ws_cgroup);
 
   /* ask sssd to map cert to a user */
-  if (!sssd_map_certificate (cert_pem + my_cgroup_length, &sssd_user))
+  if (!sssd_map_certificate (cert_pem + ws_cgroup_length, &sssd_user))
     return NULL;
 
   return sssd_user;

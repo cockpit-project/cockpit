@@ -1407,7 +1407,7 @@ function factory() {
                 this.message = cockpit.message(options.problem);
             else if (this.exit_signal !== null)
                 this.message = cockpit.format(_("$0 killed with signal $1"), name, this.exit_signal);
-            else if (this.exit_status !== undefined)
+            else if (this.exit_status !== null)
                 this.message = cockpit.format(_("$0 exited with code $1"), name, this.exit_status);
             else
                 this.message = cockpit.format(_("$0 failed"), name);

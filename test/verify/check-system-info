@@ -939,7 +939,8 @@ class TestSystemInfoTime(packagelib.PackageCase):
 
         # Gain admin access
         b.click(".pf-v5-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        user = testlib.get_superuser(m.image)
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user}:")
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")

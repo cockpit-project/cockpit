@@ -897,6 +897,15 @@ pass_to_child (int signo)
     kill (child, signo);
 }
 
+static void
+on_authorize_timeout (int signo)
+{
+  /* Can't use errx() here: https://man7.org/linux/man-pages/man7/signal-safety.7.html */
+  static const char msg[] = "timed out waiting for authorize response\n";
+  write (STDERR_FILENO, msg, sizeof (msg) - 1);
+  _exit(EX);
+}
+
 int
 main (int argc,
       char **argv)
@@ -918,6 +927,11 @@ main (int argc,
   if (argc != 1 && argc != 2)
     errx (2, "invalid arguments to cockpit-session");
 
+  /* the initial authorization response should not take forever, time-bound it to guard
+   * against hacking/PID recycling attempts */
+  sigaction (SIGALRM, &(struct sigaction) { .sa_handler = on_authorize_timeout, .sa_flags = 0 }, NULL);
+  alarm (60);  /* like cockpit_ws_auth_response_timeout on the ws side */
+
   program_name = basename (argv[0]);
 
   rhost = getenv ("COCKPIT_REMOTE_PEER") ?: "";
@@ -938,9 +952,6 @@ main (int argc,
         err (1, "couldn't switch permissions correctly");
     }
 
-  signal (SIGALRM, SIG_DFL);
-  signal (SIGQUIT, SIG_DFL);
-
   cockpit_authorize_logger (authorize_logger, DEBUG_SESSION);
 
   /* Request authorization header */
@@ -956,6 +967,10 @@ main (int argc,
 
   if (!cockpit_authorize_type (response, &type))
     errx (EX, "invalid authorization header received");
+
+  /* stop time-bounding */
+  alarm (0);
+  sigaction (SIGALRM, &(struct sigaction) { .sa_handler = SIG_DFL, .sa_flags = 0 }, NULL);
 
   if (strcmp (type, "basic") == 0)
     pamh = perform_basic (rhost, response);

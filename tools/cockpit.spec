@@ -165,7 +165,7 @@ export NO_QUNIT=1
 make install-tests DESTDIR=%{buildroot}
 %if 0%{?suse_version} > 1500
 mkdir -p $RPM_BUILD_ROOT%{_pam_vendordir}
-install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_pam_vendordir}/cockpit
+install -p -m 644 tools/cockpit.suse.pam $RPM_BUILD_ROOT%{_pam_vendordir}/cockpit
 %else
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit

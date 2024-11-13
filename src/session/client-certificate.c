@@ -47,10 +47,7 @@
 
 /* Reads the cgroupsv2-style /proc/[pid]/cgroup file of the process,
  * including "0::" prefix and newline.
- *
- * In case of cgroupsv1, look for the name=systemd controller, and fake
- * it.
- */
+ * NB: the kernel doesn't allow newlines in cgroup names. */
 static char *
 read_proc_self_cgroup (size_t *out_length)
 {
@@ -62,44 +59,19 @@ read_proc_self_cgroup (size_t *out_length)
       return NULL;
     }
 
-  /* Support cgroups v1 by looping.
-   * Once we no longer need this support, we can drop the loop, switch
-   * to fread(), and just return the entire content of the file.
-   *
-   * NB: the kernel doesn't allow newlines in cgroup names.
-   */
   char buffer[1024];
-  char *result = NULL;
-  while (fgets (buffer, sizeof buffer, fp))
-    {
-      if (strncmp (buffer, "0::", 3) == 0)
-        {
-          /* cgroupsv2 (or hybrid) case.  Return the entire line. */
-          result = strdupx (buffer);
-          break;
-        }
-      else if (strncmp (buffer, "1:name=systemd:", 15) == 0)
-        {
-          /* cgroupsv1.  Rewrite to what we'd expect from cgroupsv2. */
-          asprintfx (&result, "0::%s", buffer + 15);
-          break;
-        }
-    }
-
+  *out_length = fread (buffer, 1, sizeof (buffer) - 1, fp);
+  buffer[*out_length] = '\0';
   fclose (fp);
 
-  assert (result != NULL);
+  if (*out_length > 5 &&  /* at least "0::/\n" */
+      *out_length <= sizeof (buffer) - 1 && /* not too big */
+      strncmp (buffer, "0::", 3) == 0 && /* must be a cgroupsv2 */
+      buffer[*out_length - 1] == '\n') /* must end with a newline */
+    return strdupx (buffer);
 
-  *out_length = strlen (result);
-
-  /* Make sure we have a non-empty result, and that it ends with a
-   * newline: this could only fail if the kernel returned something
-   * unexpected.
-   */
-  assert (*out_length >= 5); /* "0::/\n" */
-  assert (result[*out_length - 1] == '\n');
-
-  return result;
+  warnx ("unexpected cgroups content, certificate matching only supports cgroup v2: '%s'", buffer);
+  return NULL;
 }
 
 /* valid_256_bit_hex_string:

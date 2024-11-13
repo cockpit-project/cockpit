@@ -2534,6 +2534,10 @@ class MachineCase(unittest.TestCase):
         if not self.machine.ws_container and self.file_exists(disallowed_conf):
             self.sed_file('/root/d', disallowed_conf)
 
+    def get_sudo_user(self) -> str:
+        # In (open)SUSE images, superuser access always requires the root password
+        return "root" if "suse" in self.image else "admin"
+
     def reboot(self, timeout_sec: int | None = None) -> None:
         self.allow_restart_journal_messages()
         if timeout_sec is None:

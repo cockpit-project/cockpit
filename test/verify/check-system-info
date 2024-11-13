@@ -875,7 +875,6 @@ class TestSystemInfoTime(packagelib.PackageCase):
         b.click(f"#change_systime button:contains('{mode}')")
         b.wait_in_text("#system_information_change_systime #change_systime_btn", mode)
 
-    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testTime(self):
         m = self.machine
         b = self.browser
@@ -902,10 +901,11 @@ class TestSystemInfoTime(packagelib.PackageCase):
         b.wait_visible('#system_information_systime_button[disabled]')
 
         # Gain admin access
+        user = self.get_sudo_user()
         b.wait_in_text(".ct-limited-access-alert", "Web console is running in limited access mode.")
         b.click(".ct-limited-access-alert button")
         b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
-        b.wait_in_text(".pf-v6-c-modal-box", "Password for admin:")
+        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
         b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v6-c-modal-box")

@@ -615,7 +615,7 @@ cockpit_web_response_complete (CockpitWebResponse *self)
   g_object_ref (self);
   self->complete = TRUE;
 
-  if (self->chunked)
+  if (self->chunked && !g_str_equal(self->method, "HEAD"))
     {
       bytes = g_bytes_new_static ("0\r\n\r\n", 5);
       queue_bytes (self, bytes);

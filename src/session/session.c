@@ -421,6 +421,8 @@ perform_basic (const char *rhost,
   char *user = NULL;
   int res;
 
+  assert (rhost != NULL);
+  assert (authorization != NULL);
 
   debug ("basic authentication");
 
@@ -585,6 +587,9 @@ perform_gssapi (const char *rhost,
   char *str = NULL;
   OM_uint32 caps = 0;
   int res;
+
+  assert (rhost != NULL);
+  assert (authorization != NULL);
 
   res = PAM_AUTH_ERR;
 
@@ -761,6 +766,9 @@ perform_tlscert (const char *rhost,
   struct pam_conv conv = { pam_conv_func_dummy, };
   pam_handle_t *pamh;
   int res;
+
+  assert (rhost != NULL);
+  assert (authorization != NULL);
 
   debug ("start tls-cert authentication for cockpit-ws %u", getppid ());
 

@@ -46,8 +46,17 @@ export const CryptoPolicyRow = () => {
     useEffect(() => {
         cockpit.file("/proc/sys/crypto/fips_enabled").read()
                 .then(content => setFipsEnabled(content ? content.trim() === "1" : false));
-        cockpit.file("/etc/crypto-policies/state/current")
-                .watch(content => setCurrentCryptoPolicy(content ? content.trim() : null));
+        cockpit.file("/etc/crypto-policies/config")
+                .watch(async contents => {
+                    // Ask crypto-policies to get correct FIPS state, as that dominates the configured policy
+                    try {
+                        setCurrentCryptoPolicy((await cockpit.spawn(["update-crypto-policies", "--show"])).trim());
+                    } catch (error) {
+                        console.warn("Failed to get current crypto policy:", error.toString(),
+                                     "; falling back to /etc/crypto-policies/config");
+                        setCurrentCryptoPolicy(contents.trim());
+                    }
+                });
         // RHEL-8-8 has no SHA1 subpolicy
         cockpit.file("/usr/share/crypto-policies/policies/modules/SHA1.pmod").read()
                 .then(content => setShaSubPolicyAvailable(content ? content.trim() : false));

@@ -73,6 +73,9 @@ export function get_init_superuser_for_options(options) {
 function Machines() {
     const self = this;
 
+    // HACK - tell TypeScript that addEventListener exists.
+    self.addEventListener = null;
+
     cockpit.event_target(self);
 
     let flat = null;

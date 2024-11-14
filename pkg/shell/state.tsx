@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// @cockpit-ts-relaxed
+
 import cockpit from "cockpit";
 
 import { Router } from "./router.jsx";
@@ -27,6 +29,8 @@ import {
 } from "./util.jsx";
 
 export function ShellState() {
+    let self = null;
+
     /* CONFIG
      */
 
@@ -57,13 +61,13 @@ export function ShellState() {
 
     machines.addEventListener("ready", on_ready);
 
-    machines.addEventListener("removed", (ev, machine) => {
+    machines.addEventListener("removed", (_, machine) => {
         remove_machine_frames(machine);
     });
-    machines.addEventListener("added", (ev, machine) => {
+    machines.addEventListener("added", (_, machine) => {
         preload_machine_frames(machine);
     });
-    machines.addEventListener("updated", (ev, machine) => {
+    machines.addEventListener("updated", (_, machine) => {
         if (!machine.visible || machine.problem)
             remove_machine_frames(machine);
         else
@@ -76,7 +80,7 @@ export function ShellState() {
     function on_ready() {
         if (machines.ready) {
             self.ready = true;
-            window.addEventListener("popstate", ev => {
+            window.addEventListener("popstate", () => {
                 update();
                 ensure_frame_loaded();
                 ensure_connection();
@@ -92,7 +96,7 @@ export function ShellState() {
      */
 
     const watchdog = cockpit.channel({ payload: "null" });
-    watchdog.addEventListener("close", (event, options) => {
+    watchdog.addEventListener("close", (_, options) => {
         const watchdog_problem = options.problem || "disconnected";
         console.warn("transport closed: " + watchdog_problem);
         self.problem = watchdog_problem;
@@ -319,12 +323,12 @@ export function ShellState() {
         },
     };
 
+    const router = new Router(router_callbacks);
+
     function send_frame_hidden_hint (frame_name) {
         const hidden = !self.current_frame || self.current_frame.name != frame_name;
         router.hint(frame_name, { hidden });
     }
-
-    const router = new Router(router_callbacks);
 
     /* NAVIGATION
      *
@@ -483,36 +487,6 @@ export function ShellState() {
      * for the "Overview" menu entry from the "system" package.
      */
 
-    const self = {
-        ready: false,
-        problem: null,
-        has_oops: false,
-
-        config,
-        page_status,
-        frames,
-
-        current_location: null,
-        current_machine: null,
-        current_manifest_item: null,
-        current_machine_manifest_items: null,
-        current_manifest: null,
-
-        // Methods
-        jump,
-        ensure_connection,
-        remove_frame,
-        most_recent_path_for_host,
-
-        // Access to the inner parts of the machinery, use with
-        // caution.
-        machines,
-        loader,
-        router,
-    };
-
-    cockpit.event_target(self);
-
     function update() {
         if (!self.ready || self.problem) {
             self.dispatchEvent("update");
@@ -590,7 +564,36 @@ export function ShellState() {
         self.dispatchEvent("update");
     }
 
-    self.update = update;
+    self = {
+        ready: false,
+        problem: null,
+        has_oops: false,
+
+        config,
+        page_status,
+        frames,
+
+        current_location: null,
+        current_machine: null,
+        current_manifest_item: null,
+        current_machine_manifest_items: null,
+        current_manifest: null,
+
+        // Methods
+        jump,
+        ensure_connection,
+        remove_frame,
+        most_recent_path_for_host,
+        update,
+
+        // Access to the inner parts of the machinery, use with
+        // caution.
+        machines,
+        loader,
+        router,
+    };
+
+    cockpit.event_target(self);
 
     return self;
 }

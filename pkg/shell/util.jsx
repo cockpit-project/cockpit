@@ -25,13 +25,17 @@ import cockpit from "cockpit";
  * but is not needed when simply generating a string for a link.
  */
 
-function encode_location_raw(location, with_root) {
+export function encode_location(location: Location): string {
+    const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
+    if (shell_embedded)
+        return window.location.toString();
+
     const path = [];
     if (location.host && location.host !== "localhost")
         path.push("@" + location.host);
     if (location.path)
         path.push.apply(path, location.path.split("/"));
-    let string = cockpit.location.encode(path, null, with_root);
+    let string = cockpit.location.encode(path, null, true);
     if (location.hash && location.hash !== "/")
         string += "#" + location.hash;
     return string;
@@ -57,16 +61,6 @@ export function decode_location(string) {
         path.pop();
     location.path = path.join("/");
     return location;
-}
-
-/* Build an href for use in an <a> */
-export function build_href(location) {
-    return encode_location_raw(location, false);
-}
-
-function encode_location(location) {
-    const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
-    return shell_embedded ? window.location : encode_location_raw(location, true);
 }
 
 export function decode_window_location() {

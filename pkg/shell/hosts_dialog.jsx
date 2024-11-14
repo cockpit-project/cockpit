@@ -43,7 +43,7 @@ import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 
-import { build_href, split_connection_string, generate_connection_string } from "./util.jsx";
+import { split_connection_string, generate_connection_string } from "./util.jsx";
 
 const _ = cockpit.gettext;
 
@@ -84,10 +84,9 @@ export async function edit_host(state, shell_state, machine) {
     const connection_string = await state.show_modal({ address: machine.address });
     if (connection_string) {
         const parts = split_connection_string(connection_string);
-        const addr = build_href({ host: parts.address });
         if (machine == current_machine && parts.address != machine.address) {
             shell_state.loader.connect(parts.address);
-            shell_state.jump(addr);
+            shell_state.jump({ host: parts.address });
         }
     }
 }

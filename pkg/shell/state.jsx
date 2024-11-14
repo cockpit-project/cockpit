@@ -406,7 +406,7 @@ export function ShellState() {
         }
 
         if (location.host !== current.host ||
-            location.path !== current.pathframe_change ||
+            location.path !== current.path ||
             location.hash !== current.hash) {
             push_window_location(location);
             update();

@@ -122,14 +122,6 @@ function factory() {
         return result.promise.then(fulfilled, rejected, updated);
     };
 
-    cockpit.resolve = function resolve(result) {
-        return cockpit.defer().resolve(result).promise;
-    };
-
-    cockpit.reject = function reject(ex) {
-        return cockpit.defer().reject(ex).promise;
-    };
-
     cockpit.defer = function() {
         return new Deferred();
     };

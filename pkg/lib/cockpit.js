@@ -116,12 +116,6 @@ function factory() {
         },
     };
 
-    cockpit.when = function when(value, fulfilled, rejected, updated) {
-        const result = cockpit.defer();
-        result.resolve(value);
-        return result.promise.then(fulfilled, rejected, updated);
-    };
-
     cockpit.defer = function() {
         return new Deferred();
     };

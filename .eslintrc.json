@@ -72,8 +72,12 @@
             // https://typescript-eslint.io/rules/no-use-before-define
             // Note: you must disable the base rule as it can report incorrect errors
             "no-use-before-define": "off",
-            "@typescript-eslint/no-use-before-define": "error",
-
+            "@typescript-eslint/no-use-before-define": [
+              "error",
+              {
+                "functions": false
+              }
+            ],
             // as recommended by https://typescript-eslint.io/rules/no-unused-vars/
             "@typescript-eslint/no-unused-vars": [
               "error",

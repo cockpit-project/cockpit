@@ -41,7 +41,6 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
     def testBasic(self):
         b = self.browser
         m = self.machine
-        b.default_user = "admin"
 
         self.login_and_go("/system/terminal")
 

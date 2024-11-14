@@ -1087,7 +1087,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.assertEqual(m.execute("curl -sfS http://localhost:9090/ca.cer"), "FAKE CERT FOR TESTING\n")
 
     @testlib.nondestructive
-    def test_branding(self):
+    def testBranding(self):
         m = self.machine
         m.start_cockpit()
 

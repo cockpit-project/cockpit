@@ -78,7 +78,12 @@ class Config(bus.Object, interface='cockpit.Config'):
         cockpit_conf = lookup_config('cockpit.conf')
         logger.debug("cockpit.Config: loading %s", cockpit_conf)
         # this may not exist, but it's ok to not have a config file and thus leave self.config empty
-        self.config.read(cockpit_conf)
+        try:
+            self.config.read(cockpit_conf)
+        except configparser.Error as exc:
+            logger.warning("cockpit.conf is invalid: %s", exc)
+            self.config.clear()
+            return
 
 
 class Environment(bus.Object, interface='cockpit.Environment'):

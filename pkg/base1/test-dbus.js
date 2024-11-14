@@ -524,6 +524,20 @@ Empty=
     assert.rejects(proxy.GetString("SomeSection", "UnknownKey"),
                    /key.*UnknownKey.*not exist/,
                    "unknown key raises an error");
+
+    // empty config
+    await cockpit.file(configDir + "/cockpit/cockpit.conf").replace("");
+    await proxy.Reload();
+    assert.rejects(proxy.GetString("SomeSection", "SomeA"),
+                   /key.*SomeSection.*not exist/,
+                   "query in empty config raises an error");
+
+    // broken config (missing section header)
+    await cockpit.file(configDir + "/cockpit/cockpit.conf").replace("SomeA = two");
+    await proxy.Reload();
+    assert.rejects(proxy.GetString("SomeSection", "SomeA"),
+                   /key.*SomeSection.*not exist/,
+                   "query in broken config raises an error");
 });
 
 QUnit.test("nonexisting address", async assert => {

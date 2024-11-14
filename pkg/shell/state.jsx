@@ -549,7 +549,8 @@ export function ShellState() {
             const menu_items = compiled.ordered("menu");
             if (menu_items.length > 0 && menu_items[0])
                 location.path = menu_items[0].path;
-            location.path = "system";
+            else
+                location.path = "system";
             replace_window_location(location);
         }
 

@@ -204,6 +204,16 @@ class TestMenu(testlib.MachineCase):
         # different browsers behave a bit different here -- Firefox is at "Overview", Chromium at "Logs"
         b.wait_js_cond("document.activeElement.classList.contains('pf-v5-c-nav__link')")
 
+    def testCustomLandingPage(self):
+        b = self.browser
+        m = self.machine
+
+        # # Make the logs page the default page
+        m.write("/etc/cockpit/systemd.override.json", '{"menu":{"index":{"order":100},"logs":{"order":1}}}')
+
+        self.login_and_go()
+        b.wait_js_cond('window.location.pathname == "/system/logs"')
+
 
 if __name__ == '__main__':
     testlib.test_main()

@@ -205,7 +205,7 @@ function Machines() {
         const data = { ...machine, ...values };
         window.sessionStorage.setItem(skey, JSON.stringify(data));
         self.overlay(host, values);
-        return cockpit.when([]);
+        return Promise.resolve([]);
     }
 
     function update_saved_machine(host, values) {

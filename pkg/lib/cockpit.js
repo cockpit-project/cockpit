@@ -26,7 +26,8 @@ import {
 } from './cockpit/_internal/common';
 import { Deferred, later_invoke } from './cockpit/_internal/deferred';
 import { event_mixin } from './cockpit/_internal/event-mixin';
-import { url_root, transport_origin, calculate_application, calculate_url } from './cockpit/_internal/location-utils';
+import { transport_origin, calculate_application, calculate_url } from './cockpit/_internal/location-utils';
+import { Location } from 'cockpit/_internal/location';
 import { ensure_transport, transport_globals } from './cockpit/_internal/transport';
 import { FsInfoClient } from "./cockpit/fsinfo";
 
@@ -1121,180 +1122,6 @@ function factory() {
 
     let last_loc = null;
 
-    function Location() {
-        const self = this;
-        const application = cockpit.transport.application();
-        self.url_root = url_root || "";
-
-        if (window.mock?.url_root)
-            self.url_root = window.mock.url_root;
-
-        if (application.indexOf("cockpit+=") === 0) {
-            if (self.url_root)
-                self.url_root += '/';
-            self.url_root = self.url_root + application.replace("cockpit+", '');
-        }
-
-        const href = window.location.hash.slice(1);
-        const options = { };
-        self.path = decode(href, options);
-
-        /* Resolve dots and double dots */
-        function resolve_path_dots(parts) {
-            const out = [];
-            const length = parts.length;
-            for (let i = 0; i < length; i++) {
-                const part = parts[i];
-                if (part === "" || part == ".") {
-                    continue;
-                } else if (part == "..") {
-                    if (out.length === 0)
-                        return [];
-                    out.pop();
-                } else {
-                    out.push(part);
-                }
-            }
-            return out;
-        }
-
-        function decode_path(input) {
-            const parts = input.split('/').map(decodeURIComponent);
-            let result, i;
-            let pre_parts = [];
-
-            if (self.url_root)
-                pre_parts = self.url_root.split('/').map(decodeURIComponent);
-
-            if (input && input[0] !== "/" && self.path !== undefined) {
-                result = [...self.path];
-                result.pop();
-                result = result.concat(parts);
-            } else {
-                result = parts;
-            }
-
-            result = resolve_path_dots(result);
-            for (i = 0; i < pre_parts.length; i++) {
-                if (pre_parts[i] !== result[i])
-                    break;
-            }
-            if (i == pre_parts.length)
-                result.splice(0, pre_parts.length);
-
-            return result;
-        }
-
-        function encode(path, options, with_root) {
-            if (typeof path == "string")
-                path = decode_path(path);
-
-            let href = "/" + path.map(encodeURIComponent).join("/");
-            if (with_root && self.url_root && href.indexOf("/" + self.url_root + "/") !== 0)
-                href = "/" + self.url_root + href;
-
-            /* Undo unnecessary encoding of these */
-            href = href.replaceAll("%40", "@");
-            href = href.replaceAll("%3D", "=");
-            href = href.replaceAll("%2B", "+");
-            href = href.replaceAll("%23", "#");
-
-            let opt;
-            const query = [];
-            function push_option(v) {
-                query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(v));
-            }
-
-            if (options) {
-                for (opt in options) {
-                    let value = options[opt];
-                    if (!Array.isArray(value))
-                        value = [value];
-                    value.forEach(push_option);
-                }
-                if (query.length > 0)
-                    href += "?" + query.join("&");
-            }
-            return href;
-        }
-
-        function decode(href, options) {
-            if (href[0] == '#')
-                href = href.substring(1);
-
-            const pos = href.indexOf('?');
-            const first = (pos === -1) ? href : href.substring(0, pos);
-            const path = decode_path(first);
-            if (pos !== -1 && options) {
-                href.substring(pos + 1).split("&")
-                .forEach(function(opt) {
-                    const parts = opt.split('=');
-                    const name = decodeURIComponent(parts[0]);
-                    const value = decodeURIComponent(parts[1]);
-                    if (options[name]) {
-                        let last = options[name];
-                        if (!Array.isArray(last))
-                            last = options[name] = [last];
-                        last.push(value);
-                    } else {
-                        options[name] = value;
-                    }
-                });
-            }
-
-            return path;
-        }
-
-        function href_for_go_or_replace(/* ... */) {
-            let href;
-            if (arguments.length == 1 && arguments[0] instanceof Location) {
-                href = String(arguments[0]);
-            } else if (typeof arguments[0] == "string") {
-                const options = arguments[1] || { };
-                href = encode(decode(arguments[0], options), options);
-            } else {
-                href = encode.apply(self, arguments);
-            }
-            return href;
-        }
-
-        function replace(/* ... */) {
-            if (self !== last_loc)
-                return;
-            const href = href_for_go_or_replace.apply(self, arguments);
-            window.location.replace(window.location.pathname + '#' + href);
-        }
-
-        function go(/* ... */) {
-            if (self !== last_loc)
-                return;
-            const href = href_for_go_or_replace.apply(self, arguments);
-            window.location.hash = '#' + href;
-        }
-
-        Object.defineProperties(self, {
-            path: {
-                enumerable: true,
-                writable: false,
-                value: self.path
-            },
-            options: {
-                enumerable: true,
-                writable: false,
-                value: options
-            },
-            href: {
-                enumerable: true,
-                value: href
-            },
-            go: { value: go },
-            replace: { value: replace },
-            encode: { value: encode },
-            decode: { value: decode },
-            toString: { value: function() { return href } }
-        });
-    }
-
     Object.defineProperty(cockpit, "location", {
         enumerable: true,
         get: function() {
@@ -1308,6 +1135,8 @@ function factory() {
     });
 
     window.addEventListener("hashchange", function() {
+        if (last_loc)
+            last_loc.invalidate();
         last_loc = null;
         const hash = window.location.hash.slice(1);
         cockpit.hint("location", { hash });

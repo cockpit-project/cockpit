@@ -84,20 +84,23 @@ export const CryptoPolicyRow = () => {
     );
 };
 
-const setPolicy = (policy, setError, setInProgress) => {
+const setPolicy = async (policy, setError, setInProgress) => {
     setInProgress(true);
 
-    let promise;
-    if (policy === "FIPS") {
-        promise = cockpit.spawn(["fips-mode-setup", "--enable"], { superuser: "require", err: "message" });
-    } else {
-        promise = cockpit.spawn(["fips-mode-setup", "--disable"], { superuser: "require", err: "message" }).then(() =>
-            cockpit.spawn(["update-crypto-policies", "--set", policy], { superuser: "require", err: "message" }));
-    }
+    try {
+        if (policy === "FIPS") {
+            await cockpit.spawn(["fips-mode-setup", "--enable"], { superuser: "require", err: "message" });
+        } else {
+            await cockpit.spawn(["fips-mode-setup", "--disable"], { superuser: "require", err: "message" });
+            await cockpit.spawn(["update-crypto-policies", "--set", policy], { superuser: "require", err: "message" });
+        }
 
-    promise.then(() => cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: "require", err: "message" }))
-            .catch(error => setError(error))
-            .finally(() => setInProgress(false));
+        await cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: "require", err: "message" });
+    } catch (error) {
+        setError(error);
+    } finally {
+        setInProgress(false);
+    }
 };
 
 const CryptoPolicyDialog = ({

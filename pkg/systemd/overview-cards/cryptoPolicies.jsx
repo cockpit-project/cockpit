@@ -38,15 +38,21 @@ const _ = cockpit.gettext;
 const displayProfileText = profile => profile === "DEFAULT" ? _("Default") : profile;
 const isInconsistentPolicy = (policy, fipsEnabled) => policy === "FIPS" !== fipsEnabled;
 
+const getFipsConfigurable = () => cockpit.spawn(["/bin/sh", "-c", "command -v fips-mode-setup"], { error: "ignore" })
+        .then(() => true)
+        .catch(() => false);
+
 export const CryptoPolicyRow = () => {
     const Dialogs = useDialogs();
     const [currentCryptoPolicy, setCurrentCryptoPolicy] = useState(null);
     const [fipsEnabled, setFipsEnabled] = useState(null);
+    const [fipsConfigurable, setFipsConfigurable] = useState(null);
     const [shaSubPolicyAvailable, setShaSubPolicyAvailable] = useState(null);
 
     useInit(() => {
         cockpit.file("/proc/sys/crypto/fips_enabled").read()
                 .then(content => setFipsEnabled(content ? content.trim() === "1" : false));
+        getFipsConfigurable().then(v => setFipsConfigurable(v));
         cockpit.file("/etc/crypto-policies/config")
                 .watch(async contents => {
                     // Ask crypto-policies to get correct FIPS state, as that dominates the configured policy
@@ -63,36 +69,41 @@ export const CryptoPolicyRow = () => {
                 .then(content => setShaSubPolicyAvailable(content ? content.trim() : false));
     });
 
-    if (!currentCryptoPolicy) {
+    if (currentCryptoPolicy === null || fipsEnabled === null || fipsConfigurable === null)
         return null;
-    }
+
+    const policyRender = (currentCryptoPolicy.startsWith("FIPS") && !fipsConfigurable)
+        /* read-only mode; can't switch away from FIPS without fips-mode-setup */
+        ? <span id="crypto-policy-current">{displayProfileText(currentCryptoPolicy)}</span>
+        : <PrivilegedButton variant="link" buttonId="crypto-policy-button" tooltipId="tip-crypto-policy"
+                            excuse={ _("The user $0 is not permitted to change cryptographic policies") }
+                            onClick={() => Dialogs.show(<CryptoPolicyDialog
+                                                            currentCryptoPolicy={currentCryptoPolicy}
+                                                            setCurrentCryptoPolicy={setCurrentCryptoPolicy}
+                                                            fipsEnabled={fipsEnabled}
+                                                            fipsConfigurable={fipsConfigurable}
+                                                            shaSubPolicyAvailable={shaSubPolicyAvailable} />)}>
+            {displayProfileText(currentCryptoPolicy)}
+        </PrivilegedButton>;
 
     return (
         <tr className="pf-v5-c-table__tr">
             <th className="pf-v5-c-table__th" scope="row">{_("Cryptographic policy")}</th>
-            <td className="pf-v5-c-table__td">
-                <PrivilegedButton variant="link" buttonId="crypto-policy-button" tooltipId="tip-crypto-policy"
-                                  excuse={ _("The user $0 is not permitted to change cryptographic policies") }
-                                  onClick={() => Dialogs.show(<CryptoPolicyDialog
-                                                                  currentCryptoPolicy={currentCryptoPolicy}
-                                                                  setCurrentCryptoPolicy={setCurrentCryptoPolicy}
-                                                                  fipsEnabled={fipsEnabled}
-                                                                  shaSubPolicyAvailable={shaSubPolicyAvailable} />)}>
-                    {displayProfileText(currentCryptoPolicy)}
-                </PrivilegedButton>
-            </td>
+            <td className="pf-v5-c-table__td">{policyRender}</td>
         </tr>
     );
 };
 
-const setPolicy = async (policy, setError, setInProgress) => {
+const setPolicy = async (policy, setError, setInProgress, fipsConfigurable) => {
     setInProgress(true);
 
     try {
         if (policy === "FIPS") {
+            cockpit.assert(fipsConfigurable, "calling setPolicy(FIPS) without fips-mode-setup");
             await cockpit.spawn(["fips-mode-setup", "--enable"], { superuser: "require", err: "message" });
         } else {
-            await cockpit.spawn(["fips-mode-setup", "--disable"], { superuser: "require", err: "message" });
+            if (fipsConfigurable)
+                await cockpit.spawn(["fips-mode-setup", "--disable"], { superuser: "require", err: "message" });
             await cockpit.spawn(["update-crypto-policies", "--set", policy], { superuser: "require", err: "message" });
         }
 
@@ -107,6 +118,7 @@ const setPolicy = async (policy, setError, setInProgress) => {
 const CryptoPolicyDialog = ({
     currentCryptoPolicy,
     fipsEnabled,
+    fipsConfigurable,
     reApply,
     shaSubPolicyAvailable,
 }) => {
@@ -138,6 +150,8 @@ const CryptoPolicyDialog = ({
 
     const policies = Object.keys(cryptopolicies)
             .filter(pol => pol.endsWith(':SHA1') ? shaSubPolicyAvailable : true)
+            // cannot enable fips without fips-mode-setup
+            .filter(pol => pol.startsWith("FIPS") ? fipsConfigurable : true)
             .map(policy => ({
                 name: policy,
                 title: displayProfileText(policy),
@@ -198,7 +212,8 @@ const CryptoPolicyDialog = ({
                        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                            {_("Applying new policy... This may take a few minutes.")}
                        </Flex>}
-                       <Button id="crypto-policy-save-reboot" variant='primary' onClick={() => setPolicy(selected, setError, setInProgress)}
+                       <Button id="crypto-policy-save-reboot" variant='primary'
+                               onClick={() => setPolicy(selected, setError, setInProgress, fipsConfigurable)}
                                isDisabled={inProgress} isLoading={inProgress}
                        >
                            {reApply ? _("Reapply and reboot") : _("Apply and reboot")}
@@ -222,13 +237,18 @@ export const CryptoPolicyStatus = () => {
     const Dialogs = useDialogs();
     const [currentCryptoPolicy, setCurrentCryptoPolicy] = useState(null);
     const [fipsEnabled, setFipsEnabled] = useState(null);
+    const [fipsConfigurable, setFipsConfigurable] = useState(null);
 
     useInit(() => {
         cockpit.file("/etc/crypto-policies/state/current")
                 .watch(content => setCurrentCryptoPolicy(content ? content.trim().split(':', 1)[0] : undefined));
+        getFipsConfigurable().then(v => setFipsConfigurable(v));
         cockpit.file("/proc/sys/crypto/fips_enabled").read()
                 .then(content => setFipsEnabled(content ? content.trim() === "1" : false));
     });
+
+    if (currentCryptoPolicy === null || fipsConfigurable === null)
+        return null;
 
     if (isInconsistentPolicy(currentCryptoPolicy, fipsEnabled)) {
         return (
@@ -242,6 +262,7 @@ export const CryptoPolicyStatus = () => {
                         <Button isInline variant="link" className="pf-v5-u-font-size-sm"
                                 onClick={() => Dialogs.show(<CryptoPolicyDialog currentCryptoPolicy={currentCryptoPolicy}
                                                                                 fipsEnabled={fipsEnabled}
+                                                                                fipsConfigurable={fipsConfigurable}
                                                                                 reApply />)}>
                             {_("Review cryptographic policy")}
                         </Button>

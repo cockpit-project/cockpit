@@ -16,7 +16,7 @@ import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
 import 'polyfills';
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { build_href, split_connection_string } from "./util.jsx";
-import { add_host, edit_host } from "./hosts_dialog.jsx";
+import { add_host, edit_host, connect_host } from "./hosts_dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -122,17 +122,14 @@ export class CockpitHosts extends React.Component {
     }
 
     async onHostSwitch(machine) {
-        const { state } = this.props;
+        const { state, host_modal_state } = this.props;
 
-        // We could launch the connection dialogs here and not jump at
-        // all when the login fails (or is cancelled), but the
-        // traditional behavior is to jump and then try to connect.
-
-        const connection_string = machine.connection_string;
-        const parts = split_connection_string(connection_string);
-        const addr = build_href({ host: parts.address });
-        state.jump(addr);
-        state.ensure_connection();
+        const connection_string = await connect_host(host_modal_state, state, machine);
+        if (connection_string) {
+            const parts = split_connection_string(connection_string);
+            const addr = build_href({ host: parts.address });
+            state.jump(addr);
+        }
     }
 
     onEditHosts() {

@@ -33,6 +33,7 @@ declare module 'cockpit' {
     export const manifests: { [package in string]?: JsonObject };
 
     export let language: string;
+    export let language_direction: string;
 
     interface Transport {
         csrf_token: string;
@@ -97,6 +98,8 @@ declare module 'cockpit' {
     interface ChangedEvents {
         changed(): void;
     }
+
+    function event_target<T, EM extends EventMap>(obj: T): T & EventSource<EM>;
 
     /* === Channel =============================== */
 

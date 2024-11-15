@@ -61,6 +61,14 @@ class TestSystemInfo(testlib.MachineCase):
         # Most OSes don't set nosmt by default, but there are some exceptions
         self.expect_smt_default = self.machine.image in ["fedora-coreos"]
 
+        self.supportsFIPS = re.match('fedora|((centos|rhel)-(8|9)).*', self.machine.image)
+        # HACK: temporary: we are in the middle of transitioning centos/rhel-10 images away from fips-mode-setup;
+        # until https://github.com/cockpit-project/bots/pull/7095 and https://github.com/cockpit-project/bots/pull/7091
+        # land, do runtime detection
+        if self.machine.image in ["centos-10", "rhel-10-0"]:
+            if '/bin' in self.machine.execute("command -v fips-mode-setup", check=False):
+                self.supportsFIPS = True
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -823,8 +831,22 @@ password=foobar
         b.click("#crypto-policy-dialog button.pf-v5-c-button.pf-m-link")
 
         # FIPS mode
-        new_profile = "FIPS"
-        change_profile(profile, new_profile)
+        if self.supportsFIPS:
+            change_profile(profile, "FIPS")
+        else:
+            # FIPS is not an available choice
+            b.click("#crypto-policy-button")
+            b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected", shown_profile_text(profile))
+            self.assertNotIn("FIPS", b.text("#crypto-policy-dialog"))
+            b.click("#crypto-policy-dialog button:contains('Cancel')")
+            b.wait_not_present("#crypto-policy-dialog")
+
+            # pretend the machine already has FIPS enabled, then it can't be disabled
+            m.execute(cmd + " --set FIPS")  # this is known incomplete/invalid, but suffices to set the UI state
+            b.wait_text("#crypto-policy-current", "FIPS")
+            self.assertFalse(b.is_present("#crypto-policy-button"))
+            m.execute(cmd + f" --set {profile}")  # this is known incomplete/invalid, but suffices to set the UI state
+            b.wait_text("#crypto-policy-button", shown_profile_text(profile))
 
     @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("crypto-policies not available")
@@ -839,14 +861,24 @@ password=foobar
         self.login_and_go("/system")
         b.wait_text("#inconsistent_crypto_policy", "FIPS is not properly enabled")
         b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
-        b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
+        if self.supportsFIPS:
+            # fix the FIPS policy
+            b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
+        else:
+            # pick any valid non-FIPS policy
+            b.click("#crypto-policy-dialog .pf-v5-c-menu__list-item[data-value='DEFAULT'] button")
         b.click("#crypto-policy-save-reboot")
         # Initramfs re-generation takes a while
         m.wait_reboot(timeout_sec=600)
         m.start_cockpit()
         self.login_and_go("/system")
-        b.wait_text("#crypto-policy-button", "FIPS")
-        self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "1")
+        if self.supportsFIPS:
+            b.wait_text("#crypto-policy-button", "FIPS")
+            self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "1")
+        else:
+            b.wait_text("#crypto-policy-button", "Default")
+            # rest of the test does not apply any more
+            return
 
         m.execute(cmd + " --set DEFAULT")
         b.wait_text("#inconsistent_crypto_policy", "Cryptographic policy is inconsistent")

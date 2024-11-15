@@ -9,7 +9,7 @@ import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchIn
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { ContainerNodeIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 
-import { build_href } from "./util.jsx";
+import { encode_location } from "./util.jsx";
 
 const _ = cockpit.gettext;
 
@@ -145,10 +145,14 @@ export class CockpitNav extends React.Component {
                             <div className="nav-group-heading">
                                 <h2 className="pf-v5-c-nav__section-title" id={"section-title-" + g.name}>{g.name}</h2>
                                 { g.action &&
-                                    <a className="pf-v5-c-nav__section-title nav-item" href={g.action.path} onClick={ ev => {
-                                        this.props.jump(g.action.path);
-                                        ev.preventDefault();
-                                    }}>{g.action.label}</a>
+                                    <a className="pf-v5-c-nav__section-title nav-item"
+                                        href={encode_location(g.action.target)}
+                                        onClick={ ev => {
+                                            this.props.jump(g.action.target);
+                                            ev.preventDefault();
+                                        }}>
+                                        {g.action.label}
+                                    </a>
                                 }
                             </div>
                             <ul className="pf-v5-c-nav__list">
@@ -220,8 +224,9 @@ export function CockpitNavItem(props) {
         <li className={classes.join(" ")}>
             <a className={"pf-v5-c-nav__link" + (props.active ? " pf-m-current" : "")}
                 aria-current={props.active && "page"}
-                href={cockpit.location.encode(props.to, {}, true)} onClick={ev => {
-                    props.jump(props.to);
+                href={props.href}
+                onClick={ev => {
+                    props.onClick();
                     ev.preventDefault();
                 }}>
                 { props.header && <span className="nav-item-hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
@@ -240,8 +245,8 @@ export function CockpitNavItem(props) {
 
 CockpitNavItem.propTypes = {
     name: PropTypes.string.isRequired,
-    to: PropTypes.string.isRequired,
-    jump: PropTypes.func,
+    href: PropTypes.string.isRequired,
+    onClick: PropTypes.func,
     status: PropTypes.object,
     active: PropTypes.bool,
     keyword: PropTypes.string,
@@ -328,6 +333,8 @@ export const PageNav = ({ state }) => {
         if (page_status[current_machine.key])
             status = page_status[current_machine.key][item.path];
 
+        const target_location = { host: current_machine.address, path, hash };
+
         return (
             <CockpitNavItem key={item.label}
                             name={item.label}
@@ -335,8 +342,8 @@ export const PageNav = ({ state }) => {
                             status={status}
                             keyword={item.keyword.keyword}
                             term={term}
-                            to={build_href({ host: current_machine.address, path, hash })}
-                            jump={state.jump} />
+                            href={encode_location(target_location)}
+                            onClick={() => state.jump(target_location)} />
         );
     }
 
@@ -356,10 +363,10 @@ export const PageNav = ({ state }) => {
     if (current_machine_manifest_items.items.apps && groups.length === 3)
         groups[0].action = {
             label: _("Edit"),
-            path: build_href({
+            target: {
                 host: current_machine.address,
-                path: current_machine_manifest_items.items.apps.path
-            })
+                path: current_machine_manifest_items.items.apps.path,
+            }
         };
 
     return <CockpitNav groups={groups}

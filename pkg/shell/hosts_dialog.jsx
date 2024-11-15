@@ -46,7 +46,7 @@ import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { fmt_to_fragments } from "utils.js";
 
-import { build_href, split_connection_string, generate_connection_string } from "./util.jsx";
+import { split_connection_string, generate_connection_string } from "./util.jsx";
 
 const _ = cockpit.gettext;
 
@@ -88,7 +88,7 @@ function jump_to_new_connection_string(shell_state, connection_string) {
     // manifests.
     shell_state.loader.connect(addr);
     // Navigate to it.
-    shell_state.jump(build_href({ host: addr }));
+    shell_state.jump({ host: addr });
 }
 
 export async function add_host(state, shell_state) {

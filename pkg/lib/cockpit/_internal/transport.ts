@@ -1,7 +1,7 @@
 import { EventEmitter } from '../event';
 
 import type { JsonObject } from './common';
-import { calculate_application, calculate_url } from './location';
+import { calculate_application, calculate_url } from './location-utils';
 import { ParentWebSocket } from './parentwebsocket';
 
 type ControlCallback = (message: JsonObject) => void;

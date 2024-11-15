@@ -1,4 +1,4 @@
-import { transport_origin } from './location';
+import { transport_origin } from './location-utils';
 
 /*
  * A WebSocket that connects to parent frame. The mechanism

@@ -26,7 +26,7 @@ import {
 } from './cockpit/_internal/common';
 import { Deferred, later_invoke } from './cockpit/_internal/deferred';
 import { event_mixin } from './cockpit/_internal/event-mixin';
-import { url_root, transport_origin, calculate_application, calculate_url } from './cockpit/_internal/location';
+import { url_root, transport_origin, calculate_application, calculate_url } from './cockpit/_internal/location-utils';
 import { ensure_transport, transport_globals } from './cockpit/_internal/transport';
 import { FsInfoClient } from "./cockpit/fsinfo";
 

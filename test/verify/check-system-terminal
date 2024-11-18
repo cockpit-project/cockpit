@@ -187,9 +187,17 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Wait for text to show up
         self.wait_line(echo_result_line + 1, prompt + "foo")
+        b.key("Backspace", repeat=3)
+
+        # Key-who-must-not-be-named, non-breakable space does weird things,
+        # see https://github.com/cockpit-project/cockpit/issues/21213
+        # this must not crash the session, should be ignored
+        b.input_text("echo space")
+        b.key("Space", modifiers=["Control"])
+        b.key("Enter")
+        self.wait_line(echo_result_line + 2, "space")
 
         # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
-        b.key("Enter")
         b.input_text('clear\n')
         b.input_text("echo $PATH > /tmp/path\n")
         # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run

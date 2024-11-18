@@ -108,6 +108,7 @@ WEBDRIVER_KEYS = {
     "Control": "\uE009",
     "Alt": "\uE00A",
     "Escape": "\uE00C",
+    "Space": "\uE00D",
     "ArrowLeft": "\uE012",
     "ArrowUp": "\uE013",
     "ArrowRight": "\uE014",

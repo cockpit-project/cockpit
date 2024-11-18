@@ -323,9 +323,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.input_text("sh -c 'echo busybusybusy; echo $$; exec sleep infinity'\n")
         b.wait_in_text(line_sel(8), 'busybusybusy')
         pid = b.text(line_sel(9))
-        # m.execute(["false"])
         b.go("#/?path=/tmp")
-        b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "still a process running")
+        b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "Running process prevents directory change")
         # Cancel change
         b.click("button:contains('Cancel')")
         b.wait_not_present(".pf-v5-c-alert")
@@ -335,8 +334,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_in_text(line_sel(8), 'busybusybusy')
         # Confirm change
         b.go("#/?path=/var")
-        b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "still a process running")
-        b.click("button:contains('Continue')")
+        b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "Running process prevents directory change")
+        b.click("button:contains('Change directory')")
         b.wait_not_present(".pf-v5-c-alert.pf-m-danger")
         self.wait_line(1, "disconnected")
         self.clear_terminal()

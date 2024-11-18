@@ -272,7 +272,7 @@ const _ = cockpit.gettext;
                     </div>
                     <div className="ct-terminal-dir-alert">
                         {this.state.pathError && <Alert isInline
-                            title={_("Error opening directory")}
+                            title={_("Unable to open directory")}
                             variant="warning"
                             actionClose={<AlertActionCloseButton onClose={this.dismiss} />}>
                             <p>{_(this.state.pathError)}</p>
@@ -280,17 +280,17 @@ const _ = cockpit.gettext;
                         }
 
                         {this.state.changePathBusy && <Alert isInline
-                            title={_("Change directory?")}
+                            title={_("Running process prevents directory change")}
                             variant="danger"
                             actionClose={<AlertActionCloseButton onClose={() =>
                                 this.setState({ changePathBusy: false })} />}
                             actionLinks={
                                 <>
-                                    <Button variant="secondary" size="sm" onClick={this.forceChangeDirectory}>{_("Continue")}</Button>
+                                    <Button variant="danger" size="sm" onClick={this.forceChangeDirectory}>{_("Change directory")}</Button>
                                     <AlertActionLink onClick={this.dismiss}>{_("Cancel")}</AlertActionLink>
                                 </>
                             }>
-                            {_("There is still a process running in this terminal. Changing the directory will kill it.")}
+                            {_("Changing the directory will forcefully stop the currently running process. The process can also be stopped manually in the terminal before continuing.")}
                         </Alert>
                         }
                     </div>

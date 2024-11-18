@@ -1166,8 +1166,8 @@ function factory() {
             if (self.url_root)
                 pre_parts = self.url_root.split('/').map(decodeURIComponent);
 
-            if (input && input[0] !== "/") {
-                result = [].concat(self.path);
+            if (input && input[0] !== "/" && self.path !== undefined) {
+                result = [...self.path];
                 result.pop();
                 result = result.concat(parts);
             } else {

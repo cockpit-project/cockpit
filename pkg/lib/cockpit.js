@@ -1149,7 +1149,7 @@ function factory() {
                     continue;
                 } else if (part == "..") {
                     if (out.length === 0)
-                        return null;
+                        return [];
                     out.pop();
                 } else {
                     out.push(part);

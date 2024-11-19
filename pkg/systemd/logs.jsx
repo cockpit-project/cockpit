@@ -293,7 +293,7 @@ const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, curre
             { value: "all", content: _("All") }
         ];
         if (currentIdentifiers.length > 0) {
-            identifiersArray.push({ divider: true, key: "divider" });
+            identifiersArray.push({ decorator: "divider", key: "divider" });
         }
         identifiersArray = identifiersArray.concat(
             currentIdentifiers

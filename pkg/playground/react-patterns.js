@@ -30,6 +30,7 @@ import { PatternDialogBody } from "./react-demo-dialog.jsx";
 import { showCardsDemo } from "./react-demo-cards.jsx";
 import { showUploadDemo } from "./react-demo-file-upload.jsx";
 import { showFileAcDemo, showFileAcDemoPreselected } from "./react-demo-file-autocomplete.jsx";
+import { showTypeaheadDemo } from "./react-demo-typeahead.jsx";
 
 /* -----------------------------------------------------------------------------
   Modal Dialog
@@ -125,6 +126,9 @@ document.addEventListener("DOMContentLoaded", function() {
     // File autocomplete
     showFileAcDemo(document.getElementById('demo-file-ac'));
     showFileAcDemoPreselected(document.getElementById('demo-file-ac-preselected'));
+
+    // Plain typeahead select with headers and dividers
+    showTypeaheadDemo(document.getElementById('demo-typeahead'));
 
     // Cards
     showCardsDemo(document.getElementById('demo-cards'));

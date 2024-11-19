@@ -1,0 +1,136 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2024 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
+
+import testlib
+
+
+@testlib.nondestructive
+class TestLib(testlib.MachineCase):
+
+    def testTypeaheadSelect(self):
+        b = self.browser
+
+        # Login
+
+        self.login_and_go("/playground/react-patterns")
+
+        # No clear button
+
+        b.wait_not_visible("#demo-typeahead .pf-v5-c-text-input-group__utilities button")
+
+        # Open menu, pixel test
+
+        b.click("#demo-typeahead .pf-v5-c-menu-toggle__button")
+        b.assert_pixels("#typeahead-widget", "menu")
+        b.wait_text("#toggles", "1")
+        b.wait_text("#changes", "0")
+
+        # Select from menu (with mouse)
+
+        b.click("#typeahead-widget .pf-v5-c-menu__item:contains(Hawaii)")
+        b.wait_not_present("#typeahead-widget")
+        b.assert_pixels("#demo-typeahead .pf-v5-c-menu-toggle", "input")
+        b.wait_text("#value", "HI")
+        b.wait_text("#toggles", "2")
+        b.wait_text("#changes", "0")
+
+        # Clear
+
+        b.click("#demo-typeahead .pf-v5-c-text-input-group__utilities button")
+        b.wait_not_visible("#demo-typeahead .pf-v5-c-text-input-group__utilities button")
+        b.wait_text("#value", "-")
+        b.wait_text("#toggles", "2")
+        b.wait_text("#changes", "1")
+
+        # Open by clicking into input, close with ESC
+
+        b.click("#demo-typeahead .pf-v5-c-text-input-group__text-input")
+        b.wait_visible("#typeahead-widget")
+        b.key("Escape")
+        b.wait_not_present("#typeahead-widget")
+        b.wait_text("#toggles", "4")
+        b.wait_text("#changes", "1")
+
+        # Select with keys, verify that dividers and headers are skipped
+
+        b.click("#demo-typeahead .pf-v5-c-menu-toggle__button")
+        b.wait_visible("#typeahead-widget")
+        b.key("ArrowDown")
+        b.key("ArrowUp")     # wraps around
+        b.key("ArrowUp")     # skips over divider
+        b.key("ArrowDown")   # skips over divider
+        b.key("ArrowDown")   # wraps around
+        b.key("ArrowDown")   # skips over divider and header
+        b.key("ArrowDown")
+        b.key("Enter")
+        b.wait_not_present("#typeahead-widget")
+        b.wait_text("#value", "AL")
+        b.wait_val("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Alabama")
+        b.wait_text("#toggles", "6")
+        b.wait_text("#changes", "1")
+
+        b.click("#demo-typeahead .pf-v5-c-text-input-group__utilities button")
+        b.wait_text("#value", "-")
+        b.wait_text("#toggles", "6")
+        b.wait_text("#changes", "2")
+
+        # Search for non-existent
+
+        b.set_input_text("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Olabama")
+        b.wait_text("#typeahead-widget .pf-v5-c-menu__item", "'Olabama' not found")
+        b.click("#demo-typeahead .pf-v5-c-menu-toggle__button")
+        b.wait_not_present("#typeahead-widget")
+        b.wait_text("#toggles", "8")
+        b.wait_text("#changes", "9")
+
+        # Again with formatted "not found" message
+
+        b.set_checked("#notFoundIsString", val=True)
+        b.set_input_text("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Olabama")
+        b.wait_text("#typeahead-widget .pf-v5-c-menu__item", "Not found")
+        b.click("#demo-typeahead .pf-v5-c-menu-toggle__button")
+        b.wait_not_present("#typeahead-widget")
+        b.wait_text("#toggles", "10")
+        b.wait_text("#changes", "16")
+
+        # Search for existing, pixel test, select
+
+        b.set_input_text("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Flori")
+        b.wait_visible("#typeahead-widget")
+        b.assert_pixels("#typeahead-widget", "search")
+        b.click("#typeahead-widget .pf-v5-c-menu__item:contains(Florida)")
+        b.wait_not_present("#typeahead-widget")
+        b.wait_text("#value", "FL")
+        b.wait_text("#toggles", "12")
+        b.wait_text("#changes", "21")
+
+        # Enable creation, create new state
+
+        b.set_checked("#isCreatable", val=True)
+        b.set_input_text("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Flori")
+        b.click("#typeahead-widget .pf-v5-c-menu__item:contains(Create Flori)")
+        b.wait_not_present("#typeahead-widget")
+        b.wait_text("#value", "Flori")
+        b.wait_val("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Flori")
+        b.wait_text("#toggles", "14")
+        b.wait_text("#changes", "26")
+
+
+if __name__ == '__main__':
+    testlib.test_main()

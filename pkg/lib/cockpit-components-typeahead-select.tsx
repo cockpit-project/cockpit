@@ -57,9 +57,24 @@ SOFTWARE.
 
        [
          ...
-         { divider: true },
+         { decorator: "divider", key: "..." },
          ...
        ]
+
+   - Allow headers.
+
+       [
+         ...
+         { decorator: "header", content: _("Nice things"), key: "..." }
+         { value: "icecream", content: _("Icecream") },
+         ...
+       ]
+
+     Note that PatternFly uses SelectGroup and MenuGroup instead of
+     headers, but their recursive nature makes them harder to
+     implement here, mostly because of how keyboard navigation is
+     done. And there is no visual nesting going on anyway. Keeping the
+     options a flat list is just all around easier.
 
 */
 
@@ -83,19 +98,37 @@ import {
   SelectProps
 } from '@patternfly/react-core';
 import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
+import "cockpit-components-typeahead-select.scss";
 
 const _ = cockpit.gettext;
 
-export interface TypeaheadSelectOption extends Omit<SelectOptionProps, 'content' | 'isSelected'> {
+export interface TypeaheadSelectDividerOption {
+  decorator: "divider";
+
+  key: string | number;
+};
+
+export interface TypeaheadSelectHeaderOption {
+  decorator: "header";
+
+  content: string | number;
+  key: string | number;
+};
+
+export interface TypeaheadSelectMenuOption extends Omit<SelectOptionProps, 'content' | 'isSelected'> {
+  decorator?: undefined;
+
   /** Content of the select option. */
   content: string | number;
   /** Value of the select option. */
   value: string | number;
   /** Indicator for option being selected */
   isSelected?: boolean;
-  /** Is this just a divider */
-  divider?: boolean;
 }
+
+export type TypeaheadSelectOption = TypeaheadSelectMenuOption |
+                                    TypeaheadSelectDividerOption |
+                                    TypeaheadSelectHeaderOption;
 
 export interface TypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSelect'> {
   /** @hide Forwarded ref */
@@ -137,8 +170,27 @@ export interface TypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSe
   toggleProps?: MenuToggleProps;
 }
 
-const defaultFilterFunction = (filterValue: string, options: TypeaheadSelectOption[]) =>
-  options.filter((o) => String(o.content).toLowerCase().includes(filterValue.toLowerCase()));
+const defaultFilterFunction = (filterValue: string, options: TypeaheadSelectOption[]) => {
+    // Filter by search term, keep headers and dividers
+    const filtered = options.filter((o) => {
+        return o.decorator || String(o.content).toLowerCase().includes(filterValue.toLowerCase());
+    });
+
+    //  Remove headers that have nothing following them, and dividers that have nothing in front of them.
+    const filtered2 = filtered.filter((o, i) => {
+        if (o.decorator == "header" && (i >= filtered.length - 1 || filtered[i + 1].decorator))
+            return false;
+        if (o.decorator == "divider" && (i <= 0 || filtered[i - 1].decorator))
+            return false;
+        return true;
+    });
+
+    // If the last item is now a divider, remove it as well.
+    if (filtered2.length > 0 && filtered2[filtered2.length-1].decorator == "divider")
+        filtered2.pop();
+
+    return filtered2;
+};
 
 export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> = ({
   innerRef,
@@ -175,9 +227,14 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
   if (isCreatable)
     selectedIsTrusted = true;
 
+  const isMenu = (o: TypeaheadSelectOption): o is TypeaheadSelectMenuOption => !o.decorator;
+  const isEnabledMenu = (o: TypeaheadSelectOption): o is TypeaheadSelectMenuOption => !(o.decorator || o.isDisabled);
+
   const selected = React.useMemo(
     () => {
-       let res = selectOptions?.find((option) => option.value === props.selected || option.isSelected);
+       let res = selectOptions?.find((o): o is TypeaheadSelectMenuOption =>
+                                     (isEnabledMenu(o) &&
+                                      (o.value === props.selected || !!o.isSelected)));
        if (!res && props.selected && selectedIsTrusted)
          res = { value: props.selected, content: props.selected };
        return res;
@@ -195,7 +252,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
       if (
         isCreatable &&
         filterValue.trim() &&
-        !newSelectOptions.find((o) => String(o.content).toLowerCase() === filterValue.toLowerCase())
+        !newSelectOptions.find((o) => isMenu(o) && String(o.content).toLowerCase() === filterValue.toLowerCase())
       ) {
         const createOption = {
           content: typeof createOptionMessage === 'string' ? createOptionMessage : createOptionMessage(filterValue),
@@ -253,7 +310,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
   const setActiveAndFocusedItem = (itemIndex: number) => {
     setFocusedItemIndex(itemIndex);
-    const focusedItem = selectOptions[itemIndex];
+    const focusedItem = selectOptions[itemIndex] as TypeaheadSelectMenuOption;
     setActiveItemId(String(focusedItem.value));
   };
 
@@ -290,7 +347,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
   const selectOption = (
     _event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<HTMLInputElement> | undefined,
-    option: TypeaheadSelectOption
+    option: TypeaheadSelectMenuOption
   ) => {
     onSelect && onSelect(_event, option.value);
     closeMenu();
@@ -298,7 +355,8 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
   const _onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
     if (value && value !== NO_RESULTS) {
-      const optionToSelect = selectOptions.find((option) => option.value === value);
+        const optionToSelect = selectOptions.find(
+            (option): option is TypeaheadSelectMenuOption => isMenu(option) && option.value === value);
       if (optionToSelect) {
         selectOption(_event, optionToSelect);
       } else if (isCreatable) {
@@ -320,9 +378,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
     openMenu();
 
-    const ignore = o => o.isDisabled || o.divider;
-
-    if (filteredSelections.every(ignore)) {
+    if (filteredSelections.every(o => !isMenu(o))) {
       return;
     }
 
@@ -335,7 +391,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
       }
 
       // Skip non-items
-      while (ignore(filteredSelections[indexToFocus])) {
+      while (!isEnabledMenu(filteredSelections[indexToFocus])) {
         indexToFocus--;
         if (indexToFocus === -1) {
           indexToFocus = filteredSelections.length - 1;
@@ -352,7 +408,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
       }
 
       // Skip non-items
-      while (ignore(filteredSelections[indexToFocus])) {
+      while (!isEnabledMenu(filteredSelections[indexToFocus])) {
         indexToFocus++;
         if (indexToFocus === filteredSelections.length) {
           indexToFocus = 0;
@@ -364,7 +420,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
   };
 
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const focusedItem = focusedItemIndex !== null ? filteredSelections[focusedItemIndex] : null;
+    const focusedItem = (focusedItemIndex !== null ? filteredSelections[focusedItemIndex] : null) as TypeaheadSelectMenuOption | null;
 
     switch (event.key) {
       case 'Enter':
@@ -458,8 +514,18 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
     >
       <SelectList>
         {filteredSelections.map((option, index) => {
-          if (option.divider)
-              return <Divider key={option.key || index} component="li" />;
+          if (option.decorator == "divider")
+              return <Divider key={option.key} component="li" />;
+
+          if (option.decorator == "header") {
+              return (
+                  <SelectOption key={option.key}
+                                isDisabled
+                                className="ct-typeahead-header">
+                      {option.content}
+                  </SelectOption>
+              );
+          }
 
           const { content, value, ...props } = option;
           return (

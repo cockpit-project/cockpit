@@ -37,7 +37,7 @@ const _ = cockpit.gettext;
  * Enables showing shell and ansible script. Shell one is mandatory and ansible one can be omitted.
  *
  */
-export const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => {
+export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
     const [active_tab, setActiveTab] = React.useState("ansible");
     const [copied, setCopied] = React.useState(false);
     const [timeoutId, setTimeoutId] = React.useState(null);
@@ -79,7 +79,7 @@ export const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => 
     );
 
     return (
-        <Modal isOpen={show} className="automation-script-modal"
+        <Modal isOpen className="automation-script-modal"
                position="top" variant="medium"
                onClose={onClose}
                footer={footer}
@@ -108,7 +108,6 @@ export const ModificationsExportDialog = ({ show, onClose, shell, ansible }) => 
 ModificationsExportDialog.propTypes = {
     shell: PropTypes.string.isRequired,
     ansible: PropTypes.string.isRequired,
-    show: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
@@ -145,7 +144,10 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
 
     return (
         <>
-            <ModificationsExportDialog show={showDialog} shell={shell} ansible={ansible} onClose={() => setShowDialog(false)} />
+            { showDialog &&
+                <ModificationsExportDialog shell={shell} ansible={ansible}
+                onClose={() => setShowDialog(false)} />
+            }
             <Card className="modifications-table">
                 <CardHeader>
                     <CardTitle component="h2">{title}</CardTitle>

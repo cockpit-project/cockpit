@@ -426,7 +426,6 @@ ${enableCrashKernel}
             <ModificationsExportDialog
               ansible={exportAnsibleTask(this.props.kdumpStatus.config, this.state.os_release)}
               shell={shell}
-              show
               onClose={Dialogs.close}
             />);
     }

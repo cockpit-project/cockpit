@@ -38,7 +38,7 @@ const _ = cockpit.gettext;
  *
  */
 export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
-    const [active_tab, setActiveTab] = React.useState("ansible");
+    const [active_tab, setActiveTab] = React.useState(ansible ? "ansible" : "shell");
     const [copied, setCopied] = React.useState(false);
     const [timeoutId, setTimeoutId] = React.useState(null);
 
@@ -85,18 +85,20 @@ export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
                footer={footer}
                title={_("Automation script") }>
             <Tabs activeKey={active_tab} onSelect={handleSelect}>
-                <Tab eventKey="ansible" title={_("Ansible")}>
-                    <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={ansible.trim()} />
-                    <div className="ansible-docs-link">
-                        <OutlinedQuestionCircleIcon />
-                        { _("Create new task file with this content.") }
-                        <Button variant="link" component="a" href="https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html"
-                                target="_blank" rel="noopener noreferrer"
-                                icon={<ExternalLinkAltIcon />}>
-                            { _("Ansible roles documentation") }
-                        </Button>
-                    </div>
-                </Tab>
+                { ansible &&
+                    <Tab eventKey="ansible" title={_("Ansible")}>
+                        <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={ansible.trim()} />
+                        <div className="ansible-docs-link">
+                            <OutlinedQuestionCircleIcon />
+                            { _("Create new task file with this content.") }
+                            <Button variant="link" component="a" href="https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html"
+                                    target="_blank" rel="noopener noreferrer"
+                                    icon={<ExternalLinkAltIcon />}>
+                                { _("Ansible roles documentation") }
+                            </Button>
+                        </div>
+                    </Tab>
+                }
                 <Tab eventKey="shell" title={_("Shell script")}>
                     <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={shell.trim()} />
                 </Tab>
@@ -180,5 +182,5 @@ Modifications.propTypes = {
     permitted: PropTypes.bool.isRequired,
     entries: PropTypes.arrayOf(PropTypes.string),
     shell: PropTypes.string.isRequired,
-    ansible: PropTypes.string.isRequired,
+    ansible: PropTypes.string,
 };

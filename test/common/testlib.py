@@ -490,7 +490,8 @@ class Browser:
         ctrlKey: bool = False,
         shiftKey: bool = False,
         altKey: bool = False,
-        metaKey: bool = False
+        metaKey: bool = False,
+        scrollVisible: bool = True,
     ) -> None:
         """Simulate a browser mouse event
 
@@ -503,6 +504,7 @@ class Browser:
         :param shiftKey: press the shift key
         :param altKey: press the alt key
         :param metaKey: press the meta key
+        :param scrollVisible: set to False in rare cases where scrolling an element into view triggers side effects
         """
         self.wait_visible(selector)
 
@@ -515,7 +517,7 @@ class Browser:
 
         # For Firefox and regular clicks, use the BiDi API, which is more realistic -- it doesn't
         # sidestep the browser
-        element = self.call_js_func('ph_find_scroll_into_view', selector)
+        element = self.call_js_func('ph_find_scroll_into_view' if scrollVisible else 'ph_find', selector)
 
         # btn=2 for context menus doesn't work with ph_mouse(); so translate the old ph_mouse() API
         if event == "contextmenu":
@@ -1021,7 +1023,9 @@ class Browser:
             # happens when cockpit is still running
             self.open_session_menu()
             try:
-                self.click('#logout')
+                # HACK: scrolling into view sometimes triggers TopNav's handleClickOutside() hack
+                # we don't need it here, if the session menu is visible then so is the dropdown
+                self.mouse('#logout', "click", scrollVisible=False)
             except RuntimeError as e:
                 # logging out does destroy the current frame context, it races with the CDP driver finishing the command
                 if "Execution context was destroyed" not in str(e):

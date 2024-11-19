@@ -575,6 +575,19 @@ class Browser:
         """
         self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "click")
 
+    def drag(self, selector: str, dragType: str, filename: str | None = None) -> None:
+        """Simulate drag events
+
+        When filename is specified a file is created to simulate an upload for drop event
+
+        :param selector: target element
+        :param dragType: the drag event to simulate (dragenter, dragleave, dragover, drop, ...)
+        :param filename: name of file to be uploaded
+        """
+
+        self.wait_visible(selector)
+        return self.call_js_func('ph_drag_event', selector, dragType, filename)
+
     def val(self, selector: str) -> Any:
         """Get the value attribute of a selector.
 

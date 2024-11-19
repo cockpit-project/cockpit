@@ -194,6 +194,33 @@ window.ph_mouse = function(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, meta
         throw new Error(sel + " is disabled or somehow doesn't process events");
 };
 
+window.ph_drag_event = function(sel, eventType, filename) {
+    const el = window.ph_find(sel);
+
+    /* The element has to be visible, and not collapsed */
+    if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName != 'svg')
+        throw new Error(sel + " is not visible");
+
+    let dataTransfer = null;
+    if (filename) {
+        const content = "Random file content: 4";
+        const file = new File([content], filename, { type: "text/plain" });
+        dataTransfer = new DataTransfer();
+        dataTransfer.dropEffect = "move";
+
+        // The DataTransfer.files property is read-only as this object has a processing
+        // and security check that is handled by the browser during drag-and-drop events.
+        // Work around it and create a DataTransfer object with a single small textfile.
+        Object.defineProperty(dataTransfer, 'files', {
+            value: [file],
+            writable: false,
+        });
+    }
+
+    const ev = new DragEvent(eventType, { bubbles: true, dataTransfer });
+    el.dispatchEvent(ev);
+};
+
 window.ph_get_checked = function(sel) {
     const el = window.ph_find(sel);
     if (el.checked === undefined)

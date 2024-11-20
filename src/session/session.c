@@ -33,6 +33,7 @@
 #include <fcntl.h>
 
 static char *last_txt_msg = NULL;
+static char *last_err_msg = NULL;
 static char *conversation = NULL;
 
 /* This program opens a session for a given user and runs the bridge in

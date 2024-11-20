@@ -172,11 +172,7 @@ class TestConnection(testlib.MachineCase):
             # pretend cockpit-bridge is not installed, expect specific error message
             m.execute("while B=$(command -v cockpit-bridge); do mv $B ${B}.disabled; done")
             b.open("/system")
-            b.wait_visible("#login")
-            b.set_val("#login-user-input", "admin")
-            b.set_val("#login-password-input", "foobar")
-            b.click('#login-button')
-            b.wait_visible('#login-error-message')
+            b.try_login()
             b.wait_in_text('#login-error-message', "Install the cockpit-system package")
             m.execute("while B=$(command -v cockpit-bridge.disabled); do mv $B ${B%.disabled}; done")
 

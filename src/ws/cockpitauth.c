@@ -838,7 +838,9 @@ on_transport_closed (CockpitTransport *transport,
 
       if (cockpit_pipe_get_pid (pipe, NULL))
         status = cockpit_pipe_exit_status (pipe);
-      g_debug ("%s: authentication process exited: %d; problem %s", session->name, status, problem);
+
+      g_debug ("%s: authentication process exited: %d; problem %s; have authorize challenge? %i",
+              session->name, status, problem, session->authorize != NULL);
 
       if (captured_error)
         {
@@ -847,17 +849,22 @@ on_transport_closed (CockpitTransport *transport,
         }
       /* we get "access-denied" both if cockpit-session cannot execute cockpit-bridge (common case)
        * and if cockpit-session itself is not executable (corner case, messed up install) */
-      else if (problem && (!session->authorize || g_strcmp0 (problem, "access-denied") != 0))
+      if (!session->authorize)
+        {
+          g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                       "Authentication not available");
+        }
+      else if (g_strcmp0 (problem, "access-denied") == 0)
+        {
+          g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                       "Authentication failed");
+        }
+      else
         {
           g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
                        g_strcmp0 (problem, "no-cockpit") == 0
                            ? "The cockpit package is not installed"
                            : "Internal error in login process");
-        }
-      else
-        {
-          g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                       "Authentication failed");
         }
     }
 

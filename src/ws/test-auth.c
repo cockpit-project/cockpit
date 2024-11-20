@@ -756,8 +756,8 @@ static const SuccessFixture fixture_data_then_success = {
 };
 
 static const ErrorFixture fixture_bad_command = {
-  .error_code = COCKPIT_ERROR_FAILED,
-  .error_message = "Internal error in login process",
+  .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
+  .error_message = "Authentication not available",
   .header = "badcommand bad",
 };
 

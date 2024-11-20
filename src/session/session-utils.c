@@ -42,7 +42,6 @@ const char *program_name;
 struct passwd *pwd;
 pid_t child;
 int want_session = 1;
-char *last_err_msg = NULL;
 
 static char *auth_prefix = NULL;
 static size_t auth_prefix_size = 0;

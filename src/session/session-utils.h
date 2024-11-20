@@ -53,8 +53,6 @@
 
 extern const char *program_name;
 extern struct passwd *pwd;
-extern char *last_err_msg;
-extern char *last_err_msg;
 extern int want_session;
 extern pid_t child;
 

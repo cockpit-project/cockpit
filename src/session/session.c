@@ -769,8 +769,7 @@ perform_tlscert (const char *rhost,
   const char *client_certificate_filename = authorization + 9;
 
   char *username = cockpit_session_client_certificate_map_user (client_certificate_filename);
-  if (username == NULL)
-    exit_pam_init_problem (PAM_AUTH_ERR);
+  assert (username != NULL);
 
   res = pam_start ("cockpit", username, &conv, &pamh);
   if (res != PAM_SUCCESS)

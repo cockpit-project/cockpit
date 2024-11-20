@@ -423,6 +423,8 @@ async def test_fsread1_errors(transport: MockTransport) -> None:
     await transport.check_open('fsread1', path='/etc/passwd', max_read_size="lol",
                                problem='protocol-error',
                                reply_keys={'message': "attribute 'max_read_size': must have type int"})
+    await transport.check_open('fsread1', path='/etc/passwd', max_read_size=1,
+                               problem='too-large')
 
 
 @pytest.mark.asyncio
@@ -552,6 +554,21 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     transport.send_done(ch)
     await transport.assert_msg('', command='done', channel=ch)
     await transport.check_close(channel=ch)
+
+    # tag is "-" and file should not exist
+    newfile = tmp_path / 'new'
+    ch = await transport.check_open('fsreplace1', path=str(newfile), tag='-')
+    transport.send_data(ch, b'some stuff')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert newfile.read_text() == 'some stuff'
+
+    # delete the now written newfile with tag='-' the file should now exist so this should fail
+    ch = await transport.check_open('fsreplace1', path=str(newfile), tag='-')
+    transport.send_done(ch)
+    await transport.assert_msg('', problem='change-conflict', channel=ch)
+    assert newfile.exists()
 
 
 @pytest.mark.asyncio

@@ -377,15 +377,14 @@ open_session (pam_handle_t *pamh)
 }
 
 __attribute__((__noreturn__)) static void
-exit_init_problem (int result_code)
+exit_pam_init_problem (int result_code)
 {
   const char *problem = NULL;
   const char *message = NULL;
-  char *payload = NULL;
 
   assert (result_code != PAM_SUCCESS);
 
-  debug ("writing init problem %d", result_code);
+  debug ("writing PAM init problem %d", result_code);
 
   if (result_code == PAM_AUTH_ERR || result_code == PAM_USER_UNKNOWN)
     problem = "authentication-failed";
@@ -401,15 +400,7 @@ exit_init_problem (int result_code)
   else
     message = pam_strerror (NULL, result_code);
 
-  if (asprintf (&payload, "\n{\"command\":\"init\",\"version\":1,\"problem\":\"%s\",\"message\":\"%s\"}",
-                problem, message) < 0)
-    errx (EX, "couldn't allocate memory for message");
-
-  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)payload, strlen (payload)) < 0)
-    err (EX, "couldn't write init message");
-
-  free (payload);
-  exit (5);
+  exit_init_problem (problem, message);
 }
 
 static pam_handle_t *
@@ -432,7 +423,7 @@ perform_basic (const char *rhost,
   if (password == NULL)
     {
       debug ("bad basic auth input");
-      exit_init_problem (PAM_BUF_ERR);
+      exit_pam_init_problem (PAM_BUF_ERR);
     }
 
   conv.appdata_ptr = &password;
@@ -461,7 +452,7 @@ perform_basic (const char *rhost,
 
   /* Our exit code is a PAM code */
   if (res != PAM_SUCCESS)
-    exit_init_problem (res);
+    exit_pam_init_problem (res);
 
   return pamh;
 }
@@ -703,7 +694,7 @@ out:
   free (str);
 
   if (res != PAM_SUCCESS)
-    exit_init_problem (res);
+    exit_pam_init_problem (res);
 
   return pamh;
 }
@@ -779,7 +770,7 @@ perform_tlscert (const char *rhost,
 
   char *username = cockpit_session_client_certificate_map_user (client_certificate_filename);
   if (username == NULL)
-    exit_init_problem (PAM_AUTH_ERR);
+    exit_pam_init_problem (PAM_AUTH_ERR);
 
   res = pam_start ("cockpit", username, &conv, &pamh);
   if (res != PAM_SUCCESS)
@@ -796,7 +787,7 @@ perform_tlscert (const char *rhost,
 
   /* Our exit code is a PAM code */
   if (res != PAM_SUCCESS)
-    exit_init_problem (res);
+    exit_pam_init_problem (res);
 
   return pamh;
 }
@@ -1016,7 +1007,7 @@ main (int argc,
         err (EX, "%s: can't init groups", pwd->pw_name);
 
       if (!user_has_valid_login_shell (env))
-        exit_init_problem (PAM_PERM_DENIED);
+        exit_pam_init_problem (PAM_PERM_DENIED);
 
       signal (SIGTERM, pass_to_child);
       signal (SIGINT, pass_to_child);

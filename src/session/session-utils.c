@@ -164,6 +164,24 @@ write_control_end (void)
   auth_msg_size = 0;
 }
 
+__attribute__((__noreturn__)) void
+exit_init_problem (const char *problem, const char *message)
+{
+  char *payload = NULL;
+
+  debug ("writing init problem %s message %s", problem, message);
+
+  if (asprintf (&payload, "\n{\"command\":\"init\",\"version\":1,\"problem\":\"%s\",\"message\":\"%s\"}",
+                problem, message) < 0)
+    errx (EX, "couldn't allocate memory for message");
+
+  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)payload, strlen (payload)) < 0)
+    err (EX, "couldn't write init message");
+
+  free (payload);
+  exit (5);
+}
+
 void
 build_string (char **buf,
               size_t *size,

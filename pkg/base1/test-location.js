@@ -285,6 +285,7 @@ QUnit.test("test", function (assert) {
     assert.deepEqual(cockpit.location.path, ["hello"], "path is right");
 
     window.setTimeout(function() {
+        /* window.location.hash has changed so the old `location` object is no longer valid and .go/replace are ignored */
         location.go(["not-gonna-happen"]);
         assert.strictEqual(window.location.hash, "#/other", "hash is correct");
 

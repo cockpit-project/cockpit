@@ -40,6 +40,8 @@ else
         dnf download cockpit-$rpm
         unpack cockpit-$rpm-*.rpm
     done
+    # do everything through SSH, no local authentication in the container
+    rm $INSTALLROOT/usr/libexec/cockpit-session
 fi
 
 rm -rf /build/var/cache/dnf /build/var/lib/dnf /build/var/lib/rpm* /build/var/log/*

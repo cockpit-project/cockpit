@@ -68,6 +68,8 @@ void write_control_string (const char *field, const char *str);
 void write_control_bool (const char *field, bool val);
 void write_control_end (void);
 
+__attribute__((__noreturn__)) void exit_init_problem (const char *problem, const char *message);
+
 int
 spawn_and_wait (const char **argv,
                 const char **envp,

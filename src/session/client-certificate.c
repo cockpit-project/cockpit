@@ -56,7 +56,7 @@ read_proc_self_cgroup (size_t *out_length)
   if (fp == NULL)
     {
       warn ("Failed to open /proc/self/cgroup");
-      return NULL;
+      exit_init_problem ("internal-error", "Failed to open /proc/self/cgroup");
     }
 
   char buffer[1024];
@@ -71,7 +71,7 @@ read_proc_self_cgroup (size_t *out_length)
     return strdupx (buffer);
 
   warnx ("unexpected cgroups content, certificate matching only supports cgroup v2: '%s'", buffer);
-  return NULL;
+  exit_init_problem ("authentication-unavailable", "certificate matching only supports cgroup v2");
 }
 
 /* valid_256_bit_hex_string:
@@ -285,7 +285,8 @@ out:
  *
  * Read the given certificate file, ensure that it belongs to our own cgroup, and ask
  * sssd to map it to a user. If everything matches as expected, return the user name.
- * Otherwise return %NULL, a warning message will already have been logged.
+ * Otherwise exit the process with sending an appropriate error to stdout using the
+ * Cockpit protocol.
  */
 char *
 cockpit_session_client_certificate_map_user (const char *client_certificate_filename)
@@ -297,16 +298,12 @@ cockpit_session_client_certificate_map_user (const char *client_certificate_file
   if (read_cert_file (client_certificate_filename, cert_pem, sizeof cert_pem) < 0)
     {
       warnx ("No https instance certificate present");
-      return NULL;
+      exit_init_problem ("authentication-unavailable", "No https instance certificate present");
     }
 
   size_t ws_cgroup_length;
   char *ws_cgroup = read_proc_self_cgroup (&ws_cgroup_length);
-  if (ws_cgroup == NULL)
-    {
-      warnx ("Could not determine cgroup of this process");
-      return NULL;
-    }
+  assert (ws_cgroup);
   /* A simple prefix comparison is appropriate here because ws_cgroup
    * will contain exactly one newline (at the end), and the expected
    * value of ws_cgroup is on the first line in cert_pem.
@@ -315,13 +312,13 @@ cockpit_session_client_certificate_map_user (const char *client_certificate_file
     {
       warnx ("This client certificate is only meant to be used from another cgroup");
       free (ws_cgroup);
-      return NULL;
+      exit_init_problem ("access-denied", "mismatching client certificate");
     }
   free (ws_cgroup);
 
   /* ask sssd to map cert to a user */
   if (!sssd_map_certificate (cert_pem + ws_cgroup_length, &sssd_user))
-    return NULL;
+    exit_init_problem ("authentication-failed", "sssd does not know this certificate");
 
   return sssd_user;
 }

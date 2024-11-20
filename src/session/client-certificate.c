@@ -354,40 +354,41 @@ cockpit_session_client_certificate_map_user (const char *client_certificate_file
       exit_init_problem ("authentication-unavailable", "No https instance certificate present");
     }
 
-  /* check if stdin is a Unix socket; then we are being called via cockpit-session@.service and need to
-   * check the cgroup of our peer */
+  /* We only support being called via cockpit-session.socket (i.e. Unix socket).
+   * We need to check the cgroup of cockpit-ws (our peer) */
   struct ucred ucred;
   socklen_t ucred_len = sizeof ucred;
-  int ws_pid_dirfd;
-  if (getsockopt (STDIN_FILENO, SOL_SOCKET, SO_PEERCRED, &ucred, &ucred_len) == 0 &&
+  if (getsockopt (STDIN_FILENO, SOL_SOCKET, SO_PEERCRED, &ucred, &ucred_len) != 0 ||
       /* this is an inout parameter, be extra suspicious */
-      ucred_len >= sizeof ucred)
+      ucred_len < sizeof ucred)
     {
-      debug ("unix socket mode, reading cgroup from peer pid %d", ucred.pid);
-      ws_pid_dirfd = open_proc_pid (ucred.pid);
-      unsigned long long ws_start_time = get_proc_pid_start_time (ws_pid_dirfd);
-
-      int my_pid_dirfd = open_proc_pid (getpid ());
-      unsigned long long my_start_time = get_proc_pid_start_time (my_pid_dirfd);
-      close (my_pid_dirfd);
-
-      debug ("peer start time: %llu, my start time: %llu", ws_start_time, my_start_time);
-
-      /* Guard against pid recycling: If a malicious user captures ws, keeps the socket in a forked child and exits
-       * the original pid, they can trap a different user to login, get the old pid (pointing ot their cgroup), and
-       * capture their session. To prevent that, require that ws must have started earlier than ourselves. */
-      if (my_start_time < ws_start_time)
-        {
-          warnx ("start time of this process (%llu) is older than cockpit-ws (%llu), pid recycling attack?",
-                  my_start_time, ws_start_time);
-          close (ws_pid_dirfd);
-          exit_init_problem ("access-denied", "implausible cockpit-ws start time");
-        }
+      debug ("failed to read stdin peer credentials: %m; not in socket mode?");
+      warnx ("Certificate authentication only supported with cockpit-session.socket");
+      exit_init_problem ("authentication-unavailable", "Certificate authentication only supported with cockpit-session.socket");
     }
-  else {
-    debug ("failed to read stdin peer credentials: %m; not in socket mode, reading cgroup from my own pid %d", getpid ());
-    ws_pid_dirfd = open_proc_pid (getpid ());
-  }
+
+  /* this is an inout parameter, be extra suspicious */
+  assert (ucred_len >= sizeof ucred);
+  debug ("unix socket mode, reading cgroup from peer pid %d", ucred.pid);
+  int ws_pid_dirfd = open_proc_pid (ucred.pid);
+  unsigned long long ws_start_time = get_proc_pid_start_time (ws_pid_dirfd);
+
+  int my_pid_dirfd = open_proc_pid (getpid ());
+  unsigned long long my_start_time = get_proc_pid_start_time (my_pid_dirfd);
+  close (my_pid_dirfd);
+
+  debug ("peer start time: %llu, my start time: %llu", ws_start_time, my_start_time);
+
+  /* Guard against pid recycling: If a malicious user captures ws, keeps the socket in a forked child and exits
+    * the original pid, they can trap a different user to login, get the old pid (pointing ot their cgroup), and
+    * capture their session. To prevent that, require that ws must have started earlier than ourselves. */
+  if (my_start_time < ws_start_time)
+    {
+      warnx ("start time of this process (%llu) is older than cockpit-ws (%llu), pid recycling attack?",
+              my_start_time, ws_start_time);
+      close (ws_pid_dirfd);
+      exit_init_problem ("access-denied", "implausible cockpit-ws start time");
+    }
 
   size_t ws_cgroup_length;
   char *ws_cgroup = read_proc_pid_cgroup (ws_pid_dirfd, &ws_cgroup_length);

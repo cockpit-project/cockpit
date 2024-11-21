@@ -275,8 +275,8 @@ class CommonTests:
         self.allow_journal_messages(".*No authentication agent found.*")
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
-        # HACK: idling too long on the login page in Negotiate cockpit-session while polling for stuff
-        # (this should be fixed properly in cockpit-ws)
+        # HACK: idling too long on the login page in Negotiate while waiting for FreeIPA to init
+        # times out in ws and kills cockpit-session; this should be fixed properly in ws
         self.allow_journal_messages('.*session timed out during authentication')
         self.allow_journal_messages('.*authentication timed out')
 

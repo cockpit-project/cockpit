@@ -4,7 +4,7 @@ set -e
 #DEBHELPER#
 
 # remove dpkg-statoverride on upgrade
-if dpkg-statoverride --list /usr/lib/cockpit/cockpit-session >/dev/null; then
+if [ "$1" = "configure" ] && dpkg-statoverride --list /usr/lib/cockpit/cockpit-session >/dev/null; then
     dpkg-statoverride --remove /usr/lib/cockpit/cockpit-session
     chmod 755 /usr/lib/cockpit/cockpit-session
     chgrp root /usr/lib/cockpit/cockpit-session

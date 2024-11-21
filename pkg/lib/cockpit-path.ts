@@ -22,7 +22,7 @@ function drop_slashes(path : string): string {
     let pos = path.length;
     while (pos > 1 && path[pos - 1] == "/")
         pos -= 1;
-    return pos == path.length ? path : path.substr(0, pos);
+    return pos == path.length ? path : path.substring(0, pos);
 }
 
 export function dirname(path : string): string {
@@ -33,7 +33,7 @@ export function dirname(path : string): string {
     else if (pos == 0)
         return "/";
     else
-        return drop_slashes(norm.substr(0, pos));
+        return drop_slashes(norm.substring(0, pos));
 }
 
 export function basename(path : string): string {
@@ -42,5 +42,5 @@ export function basename(path : string): string {
     if (pos < 0)
         return norm;
     else
-        return norm.substr(pos + 1);
+        return norm.substring(pos + 1);
 }

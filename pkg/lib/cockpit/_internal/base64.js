@@ -30,7 +30,7 @@ export function base64_encode(data) {
         }
     }
 
-    return str.substr(0, str.length - 2 + mod3) + (mod3 === 2 ? '' : mod3 === 1 ? '=' : '==');
+    return str.substring(0, str.length - 2 + mod3) + (mod3 === 2 ? '' : mod3 === 1 ? '=' : '==');
 }
 
 function b64_to_uint6 (x) {

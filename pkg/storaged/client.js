@@ -1467,7 +1467,7 @@ client.strip_mount_point_prefix = (dir) => {
         if (dir.indexOf(mpp) != 0)
             return false;
 
-        dir = dir.substr(mpp.length);
+        dir = dir.substring(mpp.length);
         if (dir == "")
             dir = "/";
     }

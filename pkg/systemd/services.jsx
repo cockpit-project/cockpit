@@ -585,7 +585,7 @@ class ServicesPageBody extends React.Component {
 
         Object.values(this.units).forEach(u => {
             if (u.ActiveState == "failed" && u.LoadState != "not-found") {
-                const suffix = u.Id.substr(u.Id.lastIndexOf('.') + 1);
+                const suffix = u.Id.substring(u.Id.lastIndexOf('.') + 1);
                 if (service_tabs_suffixes.includes(suffix)) {
                     tabErrors[suffix] = true;
                     failed.add(u.Id);

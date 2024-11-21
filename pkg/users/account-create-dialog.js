@@ -235,7 +235,7 @@ function suggest_username(realname) {
 
         for (let k = 0; k < str.length;) {
             if (!is_valid_char_name(str[k]))
-                str = str.substr(0, k) + str.substr(k + 1);
+                str = str.substring(0, k) + str.substring(k + 1);
             else
                 k++;
         }

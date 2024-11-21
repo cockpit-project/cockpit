@@ -131,7 +131,7 @@ class SELinuxEventDetails extends React.Component {
                 lines.forEach(l => {
                     if (l[0] == "#") { // command
                         if (lastCommand) // When appending command remove "# ". Only the first command keeps it and it is removed later on
-                            parts[parts.length - 1] += ("\n" + l.substr(2));
+                            parts[parts.length - 1] += ("\n" + l.substring(2));
                         else
                             parts.push(l);
                         lastCommand = true;
@@ -144,7 +144,7 @@ class SELinuxEventDetails extends React.Component {
                     ? <TextArea aria-label={_("solution")}
                                 readOnlyVariant="plain"
                                 key={p}
-                                defaultValue={p.substr(2)} />
+                                defaultValue={p.substring(2)} />
                     : <span key={p}>{p}</span>);
             }
 

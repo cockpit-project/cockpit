@@ -1220,10 +1220,10 @@ function factory() {
 
         function decode(href, options) {
             if (href[0] == '#')
-                href = href.substr(1);
+                href = href.substring(1);
 
             const pos = href.indexOf('?');
-            const first = (pos === -1) ? href : href.substr(0, pos);
+            const first = (pos === -1) ? href : href.substring(0, pos);
             const path = decode_path(first);
             if (pos !== -1 && options) {
                 href.substring(pos + 1).split("&")

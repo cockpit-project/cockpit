@@ -399,7 +399,15 @@ exit_pam_init_problem (int result_code)
   else
     message = pam_strerror (NULL, result_code);
 
-  exit_init_problem (problem, message);
+  /* we send the message through the Cockpit protocol, make sure we don't break JSON encoding */
+  char *message_sanitized = strdupx (message);
+  char *c;
+  while ((c = strchr (message_sanitized, '"')) != NULL)
+    *c = '\'';
+  while ((c = strchr (message_sanitized, '\\')) != NULL)
+    *c = '/';
+
+  exit_init_problem (problem, message_sanitized);
 }
 
 static pam_handle_t *

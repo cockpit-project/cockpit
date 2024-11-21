@@ -1233,7 +1233,7 @@ function factory() {
                     const value = decodeURIComponent(parts[1]);
                     if (options[name]) {
                         let last = options[name];
-                        if (!Array.isArray(value))
+                        if (!Array.isArray(last))
                             last = options[name] = [last];
                         last.push(value);
                     } else {

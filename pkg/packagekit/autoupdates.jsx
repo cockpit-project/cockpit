@@ -123,7 +123,7 @@ class Dnf4Impl extends ImplBase {
             // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
             const calIdx = output.indexOf("OnCalendar=");
             if (calIdx >= 0) {
-                this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
+                this.parseCalendar(output.substring(calIdx).split('\n')[0].split("=")[1]);
             } else {
                 if (output.indexOf("InactiveSec=1d\n") >= 0)
                     this.day = this.time = "";
@@ -253,7 +253,7 @@ class Dnf5Impl extends ImplBase {
             // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
             const calIdx = output.indexOf("OnCalendar=");
             if (calIdx >= 0) {
-                this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
+                this.parseCalendar(output.substring(calIdx).split('\n')[0].split("=")[1]);
             } else {
                 if (output.indexOf("InactiveSec=1d\n") >= 0)
                     this.day = this.time = "";

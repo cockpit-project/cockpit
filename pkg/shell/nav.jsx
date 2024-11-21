@@ -318,7 +318,7 @@ export const PageNav = ({ state }) => {
         let hash = item.hash;
         if (item.keyword.goto) {
             if (item.keyword.goto[0] === "/")
-                path = item.keyword.goto.substr(1);
+                path = item.keyword.goto.substring(1);
             else
                 hash = item.keyword.goto;
         }

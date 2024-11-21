@@ -239,9 +239,9 @@ const PageSystemInformationChangeHostname = () => {
                     .toLowerCase()
                     .replace(/['".]+/g, "")
                     .replace(/[^a-zA-Z0-9]+/g, "-");
-            new_hostname = new_hostname.substr(0, 64);
+            new_hostname = new_hostname.substring(0, 64);
             if (first_dot >= 0)
-                new_hostname = new_hostname + old_hostname.substr(first_dot);
+                new_hostname = new_hostname + old_hostname.substring(first_dot);
             set_hostname(new_hostname);
         }
     }

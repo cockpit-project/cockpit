@@ -225,7 +225,7 @@ export class JournalBox extends React.Component {
                 .then(entries => {
                     entries.split("\n").forEach(entry => {
                         if (entry)
-                            currentServices.add(entry.substr(entry.indexOf('=') + 1));
+                            currentServices.add(entry.substring(entry.indexOf('=') + 1));
                     });
                 })
                 .catch(e => {

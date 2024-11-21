@@ -243,7 +243,7 @@ class Connect extends React.Component {
                 if (port_index === -1) {
                     host_id_port = this.props.full_address + ":22";
                 } else {
-                    port = host_id_port.substr(port_index + 1);
+                    port = host_id_port.substring(port_index + 1);
                 }
 
                 ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);
@@ -424,7 +424,7 @@ class AddMachine extends React.Component {
                     if (port_index === -1) {
                         host_id_port = address + ":22";
                     } else {
-                        port = host_id_port.substr(port_index + 1);
+                        port = host_id_port.substring(port_index + 1);
                     }
 
                     ex.message = cockpit.format(_("Unable to contact the given host $0. Make sure it has ssh running on port $1, or specify another port in the address."), host_id_port, port);

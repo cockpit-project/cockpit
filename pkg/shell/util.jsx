@@ -121,8 +121,8 @@ function CompiledComponents(manifests) {
                 /* Split out any hash in the path */
                 const pos = item.path.indexOf("#");
                 if (pos !== -1) {
-                    item.hash = item.path.substr(pos + 1);
-                    item.path = item.path.substr(0, pos);
+                    item.hash = item.path.substring(pos + 1);
+                    item.path = item.path.substring(0, pos);
                 }
 
                 /* Fix component for compatibility and normalize it */

@@ -848,7 +848,7 @@ export function NetworkManagerModel() {
                     function snarf_prop(line, env, prop) {
                         const prefix = "E: " + env + "=";
                         if (line.indexOf(prefix) === 0) {
-                            props[prop] = line.substr(prefix.length);
+                            props[prop] = line.substring(prefix.length);
                         }
                     }
                     res.split('\n').forEach(function(line) {

@@ -1422,7 +1422,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
         return {
             columns: [
                 u.pid,
-                { title: u.cmd.substr(0, 100), props: { modifier: "breakWord" } },
+                { title: u.cmd.substring(0, 100), props: { modifier: "breakWord" } },
                 u.user || "-",
                 { title: format_delay(-u.since * 1000), props: { modifier: "nowrap" } }
             ]
@@ -1433,7 +1433,7 @@ export const StopProcessesMessage = ({ mount_point, users }) => {
         return {
             columns: [
                 { title: u.unit.replace(/\.service$/, ""), props: { modifier: "breakWord" } },
-                { title: u.cmd.substr(0, 100), props: { modifier: "breakWord" } },
+                { title: u.cmd.substring(0, 100), props: { modifier: "breakWord" } },
                 { title: u.desc || "", props: { modifier: "breakWord" } },
                 { title: format_delay(-u.since * 1000), props: { modifier: "nowrap" } }
             ]

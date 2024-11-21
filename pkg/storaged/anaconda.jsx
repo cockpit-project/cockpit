@@ -102,7 +102,7 @@ export function export_mount_point_mapping() {
                 const device = decode_filename(c[1].device.v);
                 let content_info;
                 if (device.startsWith("UUID=")) {
-                    content_info = tab_info(config, device.substr(5));
+                    content_info = tab_info(config, device.substring(5));
                 }
 
                 return {

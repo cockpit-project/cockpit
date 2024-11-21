@@ -73,7 +73,7 @@ export function account_expiration_dialog(account, expire_date) {
     const state = {
         mode: expire_date ? "expires" : "never",
         before: parts,
-        date: expire_date?.toISOString().substr(0, 10) ?? ""
+        date: expire_date?.toISOString().substring(0, 10) ?? ""
     };
 
     let errors = { };
@@ -119,7 +119,7 @@ export function account_expiration_dialog(account, expire_date) {
                             const prog = ["/usr/sbin/usermod", "-e"];
                             if (state.mode == "expires") {
                                 const date = new Date(state.date + "T12:00:00Z");
-                                prog.push(date.toISOString().substr(0, 10));
+                                prog.push(date.toISOString().substring(0, 10));
                             } else
                                 prog.push("");
                             prog.push(account.name);

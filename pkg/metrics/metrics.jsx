@@ -606,7 +606,7 @@ class CurrentMetrics extends React.Component {
                     onClick={() => cgroupClickHandler(name, is_user, is_container, uid)}
                     isDisabled={is_container && !podman_installed}>
                 <TableText wrapModifier="truncate">
-                    {is_container ? _("pod") + " " + (this.getCachedPodName(uid, name) || name.substr(0, 12)) : name}
+                    {is_container ? _("pod") + " " + (this.getCachedPodName(uid, name) || name.substring(0, 12)) : name}
                 </TableText>
             </Button>
         );

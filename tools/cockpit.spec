@@ -377,7 +377,6 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit-motd.service
 %{_unitdir}/cockpit.socket
-%{_unitdir}/cockpit-ws-user.service
 %{_unitdir}/cockpit-session-socket-user.service
 %{_unitdir}/cockpit-session.socket
 %{_unitdir}/cockpit-session@.service

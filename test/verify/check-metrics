@@ -1559,7 +1559,8 @@ class TestGrafanaClient(testlib.MachineCase):
             # .. and the dashboard name becomes clickable
             bgclick("a:contains('PCP Redis: Host Overview')")
 
-            testlib.wait(lambda: "grafana-client" in bg.text("#var-host"))
+            # expect the hostname in the dashboard controls
+            bgwait_present("[data-testid*='link text grafana-client']")
 
             # expect a "Load average" panel with sensible numbers
             load_avg_sel = "section[data-testid*='Load average'],div[data-testid*='Load average']"

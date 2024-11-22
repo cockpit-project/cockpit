@@ -788,6 +788,8 @@ class Browser:
                     "Cannot find context",
                     # firefox
                     "MessageHandlerFrame' destroyed",
+                    # page helpers not yet loaded
+                    "ph_wait_cond is not defined",
                    ]):
                     if time.time() - start < timeout:
                         webdriver_bidi.log_command.info("wait_js_cond: Ignoring/retrying %r", e)

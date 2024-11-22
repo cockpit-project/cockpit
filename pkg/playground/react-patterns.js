@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import 'cockpit-dark-theme'; // once per page
 
 import '../lib/patternfly/patternfly-5-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";

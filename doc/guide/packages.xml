@@ -108,7 +108,6 @@ $ cockpit-bridge --packages
           where there are conflicts. For example given two packages with the same
           <code>name</code> a package is chosen based on its priority.</para></listitem>
       </varlistentry>
-      <!-- TODO: enable this once moving to the Python bridge by default; also update example below
       <varlistentry>
         <term>conditions</term>
         <listitem><para>An optional list of <code>{"predicate": "value"}</code> objects. Cockpit will only
@@ -117,7 +116,6 @@ $ cockpit-bridge --packages
           This is preferable to using <code>priority</code>, but only available since Cockpit FIXME-RELEASE.</para>
         </listitem>
       </varlistentry>
-      -->
       <varlistentry>
         <term>requires</term>
         <listitem><para>An optional JSON object that contains a <code>"cockpit"</code>
@@ -262,7 +260,6 @@ $ cockpit-bridge --packages
 }
 </programlisting>
 
-<!-- TODO: enable this once moving to the Python bridge by default
 <programlisting>
 {
   "version": 0,
@@ -282,7 +279,6 @@ $ cockpit-bridge --packages
   }
 }
 </programlisting>
--->
 
   </section>
 

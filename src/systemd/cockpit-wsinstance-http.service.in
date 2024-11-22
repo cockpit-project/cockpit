@@ -7,5 +7,16 @@ After=cockpit-session.socket
 
 [Service]
 ExecStart=@libexecdir@/cockpit-ws --no-tls --port=0
-DynamicUser=true
+DynamicUser=yes
 Group=cockpit-session-socket
+
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ProtectSystem=strict
+MemoryDenyWriteExecute=yes
+SystemCallFilter=@system-service
+
+# cockpit-tls does all our outside web related networking, but ws also calls ssh
+PrivateIPC=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6

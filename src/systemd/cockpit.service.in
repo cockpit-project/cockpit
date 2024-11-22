@@ -3,9 +3,6 @@ Description=Cockpit Web Service
 Documentation=man:cockpit-ws(8)
 Requires=cockpit.socket
 Requires=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
-# ensure our DynamicUser exists
-Requires=cockpit-ws-user.service cockpit-wsinstance-socket-user.service
-After=cockpit-ws-user.service cockpit-wsinstance-socket-user.service
 # we need to start after the sockets so that we can instantly forward incoming requests
 After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
 
@@ -13,9 +10,10 @@ After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
 RuntimeDirectory=cockpit/tls
 ExecStartPre=+@libexecdir@/cockpit-certificate-ensure --for-cockpit-tls
 ExecStart=@libexecdir@/cockpit-tls
-User=cockpit-ws
-Group=cockpit-ws
-SupplementaryGroups=cockpit-wsinstance-socket
+DynamicUser=yes
+# otherwise systemd uses 'cockpit' even if it exists as a normal user account
+User=cockpit-systemd-service
+Group=cockpit-wsinstance-socket
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true

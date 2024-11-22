@@ -10,3 +10,14 @@ Slice=system-cockpithttps.slice
 ExecStart=@libexecdir@/cockpit-ws --for-tls-proxy --port=0
 DynamicUser=yes
 Group=cockpit-session-socket
+
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ProtectSystem=strict
+MemoryDenyWriteExecute=yes
+SystemCallFilter=@system-service
+
+# cockpit-tls does all our outside web related networking, but ws also calls ssh
+PrivateIPC=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6

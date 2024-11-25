@@ -18,5 +18,9 @@ NoNewPrivileges=yes
 ProtectSystem=strict
 PrivateDevices=yes
 ProtectKernelTunables=yes
-RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 MemoryDenyWriteExecute=yes
+
+# cockpit-tls speaks to the outside world via socket activation, and to cockpit-ws via Unix socket
+PrivateIPC=yes
+PrivateNetwork=yes
+RestrictAddressFamilies=AF_UNIX

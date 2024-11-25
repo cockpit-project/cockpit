@@ -119,7 +119,7 @@ remove the symlink with the following command and log back into Cockpit:
 
     rm ~/.local/share/cockpit
 
-## Working on the non-web parts of Cockpit
+## Building and unit tests
 
 Cockpit uses autotools, so there are familiar `./configure` script and
 Makefile targets.

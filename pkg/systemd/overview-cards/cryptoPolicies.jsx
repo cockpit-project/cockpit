@@ -61,7 +61,8 @@ export const CryptoPolicyRow = () => {
                     } catch (error) {
                         console.warn("Failed to get current crypto policy:", error.toString(),
                                      "; falling back to /etc/crypto-policies/config");
-                        setCurrentCryptoPolicy(contents.trim());
+                        const filteredContent = contents?.split('\n').filter(line => !line.startsWith("#")).join('\n');
+                        setCurrentCryptoPolicy(filteredContent?.trim() ?? null);
                     }
                 });
         // RHEL-8-8 has no SHA1 subpolicy

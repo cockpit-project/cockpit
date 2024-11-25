@@ -1,0 +1,95 @@
+#!/bin/sh
+# This file is part of Cockpit.
+#
+# Copyright (C) 2024 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
+
+# Build and install tree as systemd-sysext.
+# See ../HACKING.MD section "Working on your local machine: systemd-sysext"
+
+set -eu
+
+SYSEXT_NAME="cockpit-git"
+SYSEXT_DIR="/run/extensions/$SYSEXT_NAME"
+
+build() {
+    rm -rf tmp/sysext
+    if [ ! -e Makefile ]; then
+        ./autogen.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-strict --enable-debug --disable-dependency-tracking
+    fi
+    make install DESTDIR=tmp/sysext
+    install -D -m 644 $PAMFILE tmp/sysext/usr/lib/pam.d/cockpit
+    install -d tmp/sysext/usr/lib/extension-release.d
+    printf "ID=$ID\nVERSION_ID=$VERSION_ID\n" > tmp/sysext/usr/lib/extension-release.d/"extension-release.$SYSEXT_NAME"
+}
+
+stop() {
+    if systemctl is-active --quiet cockpit.socket; then
+        systemctl stop cockpit.socket
+    fi
+    if systemctl is-enabled --quiet cockpit.socket; then
+        systemctl disable cockpit.socket
+    fi
+    if systemd-sysext --no-legend status | grep -qw "$SYSEXT_NAME"; then
+        systemd-sysext unmerge
+    fi
+    if [ -d $SYSEXT_DIR ]; then
+        rm -rf "$SYSEXT_DIR"
+    fi
+}
+
+if [ "${1:-}" = root-stop ]; then
+    stop
+    exit 0
+fi
+
+if [ "${1:-}" = install ]; then
+    stop
+    mkdir -p "$(dirname $SYSEXT_DIR)"
+    cp -r tmp/sysext "$SYSEXT_DIR"
+    systemd-sysext merge
+
+    echo
+    systemd-sysext status --no-pager
+
+    systemctl start cockpit.socket
+    exit 0
+fi
+
+. /etc/os-release
+
+case "$ID" in
+    # rolling release, no $VERSION_ID
+    arch) PAMFILE=tools/arch/cockpit.pam; VERSION_ID=latest ;;
+    fedora|centos|rhel) PAMFILE=tools/cockpit.pam ;;
+    debian|ubuntu) PAMFILE=tools/cockpit.debian.pam ;;
+    *) echo "Unsupported distribution: $ID"; exit 1 ;;
+esac
+
+# build mode
+
+# call ourselves in install mode
+if [ "${1:-}" = "stop" ]; then
+    arg="root-stop"
+else
+    build
+    arg="install"
+fi
+
+if systemd-detect-virt --quiet --container; then
+    flatpak-spawn --host sudo -S "$0" "$arg"
+else
+    sudo "$0" "$arg"
+fi

@@ -14,11 +14,9 @@ DynamicUser=yes
 # otherwise systemd uses 'cockpit' even if it exists as a normal user account
 User=cockpit-systemd-service
 Group=cockpit-wsinstance-socket
-NoNewPrivileges=true
+NoNewPrivileges=yes
 ProtectSystem=strict
-ProtectHome=true
-PrivateTmp=true
-PrivateDevices=true
-ProtectKernelTunables=true
+PrivateDevices=yes
+ProtectKernelTunables=yes
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-MemoryDenyWriteExecute=true
+MemoryDenyWriteExecute=yes

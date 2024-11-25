@@ -116,6 +116,16 @@ function factory() {
         },
     };
 
+    cockpit.resolve = function resolve(result) {
+        console.warn("cockpit.resolve() is deprecated. Use Promise.resolve()");
+        return Promise.resolve(result);
+    };
+
+    cockpit.reject = function reject(ex) {
+        console.warn("cockpit.reject() is deprecated. Use Promise.reject()");
+        return Promise.reject(ex);
+    };
+
     cockpit.defer = function() {
         return new Deferred();
     };

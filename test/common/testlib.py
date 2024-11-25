@@ -1178,7 +1178,7 @@ class Browser:
         if expect_closed_dialog:
             self.wait_not_present('#hosts_setup_server_dialog')
 
-    def add_machine(self, address: str, known_host: bool = False, password: str = "foobar",
+    def add_machine(self, address: str, known_host: bool = False, password: str | None = "foobar",
                     expect_warning: bool = True) -> None:
         self.switch_to_top()
         self.go(f"/@{address}")

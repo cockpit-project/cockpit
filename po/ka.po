@@ -26,8 +26,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-13 02:57+0000\n"
-"PO-Revision-Date: 2024-11-04 14:20+0000\n"
+"POT-Creation-Date: 2024-11-26 03:03+0000\n"
+"PO-Revision-Date: 2024-11-22 05:38+0000\n"
 "Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
 "Language-Team: Georgian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/ka/>\n"
@@ -116,19 +116,23 @@ msgstr[1] "$0 ცალი დისკი აკლია"
 msgid "$0 disks"
 msgstr "$0 დისკი"
 
-#: pkg/shell/topnav.jsx:142
+#: pkg/shell/topnav.jsx:127
 msgid "$0 documentation"
 msgstr "$0 დოკუმენტაცია"
+
+#: pkg/systemd/terminal.jsx:164
+msgid "$0 does not exist"
+msgstr "$0 არ არსებობს"
 
 #: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "$0 შეცდომა"
 
-#: pkg/lib/cockpit.js:1411
+#: pkg/lib/cockpit.js:1407
 msgid "$0 exited with code $1"
 msgstr "$0-ის გამოსვლის კოდია $1"
 
-#: pkg/lib/cockpit.js:1413
+#: pkg/lib/cockpit.js:1409
 msgid "$0 failed"
 msgstr "$0 წარუმატებელია"
 
@@ -176,17 +180,21 @@ msgstr "$0 არსებული ფაილია"
 msgid "$0 is in use"
 msgstr "$0 გამოიყენება"
 
+#: pkg/systemd/terminal.jsx:160
+msgid "$0 is not a directory"
+msgstr "$0 საქაღალდე არაა"
+
 #: pkg/lib/cockpit-components-install-dialog.jsx:160
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:35
 msgid "$0 is not available from any repository."
 msgstr "$0 ხელმიუწვდომელია ყველა რეპოზიტორიიდან."
 
 #: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
-#: pkg/shell/hosts_dialog.jsx:565
+#: pkg/shell/hosts_dialog.jsx:659
 msgid "$0 key changed"
 msgstr "$0 გასაღები შეიცვალა"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1405
 msgid "$0 killed with signal $1"
 msgstr "$0 მოკვდა სიგნალით $1"
 
@@ -561,7 +569,7 @@ msgstr "მერვე"
 msgid "9th"
 msgstr "მეცხრე"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:520 pkg/shell/hosts_dialog.jsx:196
+#: pkg/lib/cockpit-connect-ssh.tsx:520 pkg/shell/hosts_dialog.jsx:218
 msgid "A compatible version of Cockpit is not installed on $0."
 msgstr "$0-ზე არ აყენია Cockpit-ის თავსებადი ვერსია."
 
@@ -587,7 +595,7 @@ msgstr ""
 "ქსელური bond აერთიანებს ქსელის მრავალ ინტერფეისს ერთ ლოგიკურ ინტერფეისში "
 "უფრო მაღალი გამტარობის ან წვდომადომის მისაღებად."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:413 pkg/shell/hosts_dialog.jsx:896
+#: pkg/lib/cockpit-connect-ssh.tsx:413 pkg/shell/hosts_dialog.jsx:990
 msgid ""
 "A new SSH key at $0 will be created for $1 on $2 and it will be added to the "
 "$3 file of $4 on $5."
@@ -629,7 +637,7 @@ msgstr "ARP-ის მონიტორინგი"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/topnav.jsx:164
+#: pkg/shell/topnav.jsx:149
 msgid "About Web Console"
 msgstr "ვებ კონსოლის შესახებ"
 
@@ -687,7 +695,7 @@ msgid "Active backup"
 msgstr "აქტიური მარქაფი"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:211
+#: pkg/shell/topnav.jsx:196
 msgid "Active pages"
 msgstr "აქტიური გვერდები"
 
@@ -709,7 +717,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "გადაცემის დატვირთვის ადაპტაციური გადანაწილება"
 
 #: pkg/systemd/timer-dialog.jsx:367 pkg/networkmanager/dialogs-common.jsx:149
-#: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:353
+#: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:447
 #: pkg/shell/credentials.jsx:182 pkg/storaged/lvm2/volume-group.jsx:209
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/mdraid/mdraid.jsx:167
 #: pkg/storaged/iscsi/create-dialog.jsx:120
@@ -800,7 +808,7 @@ msgstr "გასაღებების სერვერის დამა�
 msgid "Add member"
 msgstr "წევრის დამატება"
 
-#: pkg/shell/hosts.jsx:212 pkg/shell/hosts_dialog.jsx:352
+#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "ახალი ჰოსტის დამატება"
 
@@ -1047,11 +1055,11 @@ msgstr "ნებადართული მისამართები"
 msgid "An additional $0 must be selected"
 msgstr "საჭიროა დამატებით $0-ის მონიშვნა"
 
-#: pkg/lib/cockpit-components-modifications.jsx:88
+#: pkg/lib/cockpit-components-modifications.jsx:89
 msgid "Ansible"
 msgstr "Ansible"
 
-#: pkg/lib/cockpit-components-modifications.jsx:96
+#: pkg/lib/cockpit-components-modifications.jsx:97
 msgid "Ansible roles documentation"
 msgstr "Ansible-ის როლების დოკუმენტაცია"
 
@@ -1068,7 +1076,7 @@ msgstr ""
 "მნისვნელობებს FIELD=VALUE ფორმაში, სადაც მნიშვნელობები შეიძლება "
 "წარმოადგენდეს მძიმით გამოყოფილ შესაძლო მნიშვნელობების სიას."
 
-#: pkg/systemd/terminal.jsx:168
+#: pkg/systemd/terminal.jsx:252
 msgid "Appearance"
 msgstr "გარეგნობა"
 
@@ -1085,7 +1093,7 @@ msgstr "აპლიკაციები"
 msgid "Applications list"
 msgstr "აპების სია"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:220
 msgid "Apply and reboot"
 msgstr "გადატარება და გადატვირთვა"
 
@@ -1097,7 +1105,7 @@ msgstr "გაშვებული ბირთვის პაჩების 
 msgid "Apply this solution"
 msgstr "ამ გადაწყვეტის გადატარება"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:186
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:214
 msgid "Applying new policy... This may take a few minutes."
 msgstr "ახალი წესების გადატარება... შეიძლება რამდენიმე წუთი დასჭირდეს."
 
@@ -1182,7 +1190,7 @@ msgid "Authenticating"
 msgstr "ავთენტიკაცია"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:436 pkg/users/account-create-dialog.js:112
-#: pkg/shell/hosts_dialog.jsx:941
+#: pkg/shell/hosts_dialog.jsx:1035
 msgid "Authentication"
 msgstr "ავთენტიკაცია"
 
@@ -1202,7 +1210,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "საჭიროა ავთენტიკაცია"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:425 pkg/shell/hosts_dialog.jsx:927
+#: pkg/lib/cockpit-connect-ssh.tsx:425 pkg/shell/hosts_dialog.jsx:1021
 msgid "Authorize SSH key"
 msgstr "SSH გასაღების ავტორიზაცია"
 
@@ -1222,7 +1230,7 @@ msgstr "ავტომატური"
 msgid "Automatic (DHCP only)"
 msgstr "ავტომატური (მხოლოდ DHCP)"
 
-#: pkg/shell/hosts_dialog.jsx:971
+#: pkg/shell/hosts_dialog.jsx:1065
 msgid "Automatic login"
 msgstr "ავტომატური შესვლა"
 
@@ -1299,7 +1307,7 @@ msgstr "წინ"
 msgid "Binds to"
 msgstr "ებმება"
 
-#: pkg/systemd/terminal.jsx:174
+#: pkg/systemd/terminal.jsx:258
 msgid "Black"
 msgstr "შავი"
 
@@ -1389,7 +1397,7 @@ msgstr "შეცდომები"
 msgid "Bus expansion chassis"
 msgstr "მატარებლის გაფართოების შასი"
 
-#: pkg/shell/hosts_dialog.jsx:912
+#: pkg/shell/hosts_dialog.jsx:1006
 msgid ""
 "By changing the password of the SSH key $0 to the login password of $1 on "
 "$2, the key will be automatically made available and you can log in to $3 "
@@ -1433,7 +1441,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "ქეში"
 
-#: pkg/shell/hosts_dialog.jsx:363
+#: pkg/shell/hosts_dialog.jsx:457
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "შეიძლება იყოს ჰოსტის სახელი, IP მისამართი, DNS სახელი ან ssh://URI"
 
@@ -1445,8 +1453,9 @@ msgstr ""
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
-#: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
+#: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
+#: pkg/systemd/reporting.jsx:383
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:223
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
@@ -1461,11 +1470,11 @@ msgstr ""
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
-#: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
-#: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
-#: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
-#: pkg/sosreport/sosreport.jsx:379
+#: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
+#: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
+#: pkg/shell/hosts_dialog.jsx:709 pkg/shell/hosts_dialog.jsx:1086
+#: pkg/shell/credentials.jsx:311 pkg/storaged/jobs-panel.jsx:140
+#: pkg/sosreport/sosreport.jsx:294 pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "გაუქმება"
 
@@ -1485,7 +1494,7 @@ msgstr "ვერ ჩაირთვება"
 msgid "Cannot connect to an unknown host"
 msgstr "უცნობ ჰოსტთან მიერთების პრობლემა"
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2608
 msgid "Cannot forward login credentials"
 msgstr "მომხმარებლისადაპაროლის გადაგზავნის შეცდომა"
 
@@ -1518,9 +1527,13 @@ msgstr "კატეგორია"
 msgid "Change"
 msgstr "შეცვლა"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:181
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:209
 msgid "Change cryptographic policy"
 msgstr "კრიპტოგრაფიული პოლიტიკის შეცვლა"
+
+#: pkg/systemd/terminal.jsx:289
+msgid "Change directory"
+msgstr "საქაღალდის შეცვლა"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Change host name"
@@ -1562,7 +1575,7 @@ msgstr "გარსის შეცვლა"
 msgid "Change system time"
 msgstr "სისტემური დროის შეცვლა"
 
-#: pkg/shell/hosts_dialog.jsx:910
+#: pkg/shell/hosts_dialog.jsx:1004
 msgid "Change the password of $0"
 msgstr "$0-ის პაროლის შეცვლა"
 
@@ -1571,7 +1584,7 @@ msgid "Change the settings"
 msgstr "პარამეტრების შეცვლა"
 
 #: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
-#: pkg/shell/hosts_dialog.jsx:574
+#: pkg/shell/hosts_dialog.jsx:668
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1585,6 +1598,14 @@ msgstr ""
 msgid "Changing partition types might prevent the system from booting."
 msgstr ""
 "დანაყოფის ტიპების შეცვლამ, შეიძლება, სისტემის ჩატვირთვას ხელი შეუშალოს."
+
+#: pkg/systemd/terminal.jsx:293
+msgid ""
+"Changing the directory will forcefully stop the currently running process. "
+"The process can also be stopped manually in the terminal before continuing."
+msgstr ""
+"საქაღალდის შეცვლა ამჟამად გაშვებულ პროცესს ნაძალადევად დაასრულებს. პროცესი, "
+"შეგიძლიათ, ხელით, ტერმინალიდანაც მოკლათ."
 
 #: pkg/networkmanager/interfaces.js:1655
 msgid ""
@@ -1697,11 +1718,11 @@ msgstr "კლიენტი პროგრამა"
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
 #: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
-#: pkg/lib/cockpit-components-terminal.jsx:230
+#: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
 #: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
-#: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:190
+#: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
 msgstr "დახურვა"
@@ -1722,7 +1743,7 @@ msgstr "Cockpit-ის ავთენტიკაციის არასწ�
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "NetworkManager-ის და Firewalld-ის მორგება Cockpit-ით"
 
-#: pkg/lib/cockpit.js:2618
+#: pkg/lib/cockpit.js:2614
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit-ს მითითებულ ჰოსტთან დაკავშირება არ შეუძლია ."
 
@@ -1750,16 +1771,16 @@ msgstr ""
 "Cockpit-ი წარმოადგენს ლინუქსის სერვერების ადმინისტრირების ინტერაქტიულ "
 "ინტერფეისს."
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2612
 msgid "Cockpit is not compatible with the software on the system."
 msgstr ""
 "Cockpit-ი შეუთავსებელია თქვენს სერვერზე დაყენებულ პროგრამულ უზრუნველყოფასთან."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:512 pkg/shell/hosts_dialog.jsx:187
+#: pkg/lib/cockpit-connect-ssh.tsx:512 pkg/shell/hosts_dialog.jsx:209
 msgid "Cockpit is not installed"
 msgstr "Cockpit-ი დაყენებული არაა"
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2606
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit-ი ამ სისტემაზე დაყენებული არაა."
 
@@ -1794,7 +1815,7 @@ msgstr "ოპერაციული სისტემის ბირთვ�
 msgid "Collect metrics"
 msgstr "მეტრიკების შეგროვება"
 
-#: pkg/shell/hosts_dialog.jsx:370
+#: pkg/shell/hosts_dialog.jsx:464
 msgid "Color"
 msgstr "ფერი"
 
@@ -1880,11 +1901,11 @@ msgstr "დასტური"
 msgid "Confirm deletion of $0"
 msgstr "დაადასტურეთ $0-ის წაშლა"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:418 pkg/shell/hosts_dialog.jsx:902
+#: pkg/lib/cockpit-connect-ssh.tsx:418 pkg/shell/hosts_dialog.jsx:996
 msgid "Confirm key password"
 msgstr "მეორედ შეიყვანეთ გასაღების პაროლი"
 
-#: pkg/shell/hosts_dialog.jsx:918
+#: pkg/shell/hosts_dialog.jsx:1012
 msgid "Confirm new key password"
 msgstr "დაადასტურეთ გასაღების ახალი პაროლი"
 
@@ -1916,6 +1937,10 @@ msgstr "კონფლიქტშია"
 msgid "Conflicts"
 msgstr "კონფლიქტები"
 
+#: pkg/shell/hosts_dialog.jsx:271
+msgid "Connect"
+msgstr "დაკავშირება"
+
 #: pkg/networkmanager/network-interface.jsx:324
 msgid "Connect automatically"
 msgstr "ავტომატურად დაკავშირება"
@@ -1924,9 +1949,22 @@ msgstr "ავტომატურად დაკავშირება"
 msgid "Connect to"
 msgstr "დაკავშირება"
 
+#: pkg/shell/hosts_dialog.jsx:263
+msgid "Connect to $0?"
+msgstr "დავუკავშირდე $0-ს?"
+
 #: pkg/static/login.js:730
 msgid "Connect to:"
 msgstr "დაკავშირება:"
+
+#: pkg/shell/hosts_dialog.jsx:280
+msgid ""
+"Connected hosts can fully control each other. This includes running programs "
+"that could harm your system or steal data. Only connect to trusted machines."
+msgstr ""
+"დაკავშირებულ ჰოსტებს ერთმანეთის კონტროლი შეუძლიათ. ეს შეიცავს გაშვებულ "
+"პროგრამებსაც, რომლებსაც ზიანის მოტანა, ან მონაცემების მოპარვა შეუძლიათ. "
+"დაუკავშირდით, მხოლოდ, სანდო მანქანებს."
 
 #: pkg/selinux/setroubleshoot-view.jsx:329
 msgid "Connecting to SETroubleshoot daemon..."
@@ -1940,7 +1978,7 @@ msgstr "dbus-თან დაკავშირების შეცდომ�
 msgid "Connecting to the machine"
 msgstr "მანქანასთან დაკავშირება"
 
-#: pkg/shell/hosts.jsx:197
+#: pkg/shell/hosts.jsx:194
 msgid "Connection error"
 msgstr "დაკავშირების შეცდომა"
 
@@ -1948,7 +1986,7 @@ msgstr "დაკავშირების შეცდომა"
 msgid "Connection failed"
 msgstr "დაკავშირების შეცდომა"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2604
 msgid "Connection has timed out."
 msgstr "კავშირის დრო გავიდა."
 
@@ -1995,18 +2033,18 @@ msgstr "გარდაქმნადი"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:133 pkg/lib/cockpit-connect-ssh.tsx:136
 #: pkg/lib/cockpit-connect-ssh.tsx:151 pkg/lib/cockpit-connect-ssh.tsx:153
-#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:576
-#: pkg/shell/hosts_dialog.jsx:579 pkg/shell/hosts_dialog.jsx:594
-#: pkg/shell/hosts_dialog.jsx:596 pkg/shell/credentials.jsx:210
+#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:670
+#: pkg/shell/hosts_dialog.jsx:673 pkg/shell/hosts_dialog.jsx:688
+#: pkg/shell/hosts_dialog.jsx:690 pkg/shell/credentials.jsx:210
 msgid "Copied"
 msgstr "დაკოპირებულია"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:222
 #: pkg/lib/cockpit-connect-ssh.tsx:133 pkg/lib/cockpit-connect-ssh.tsx:136
 #: pkg/lib/cockpit-connect-ssh.tsx:151 pkg/lib/cockpit-connect-ssh.tsx:153
-#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:576
-#: pkg/shell/hosts_dialog.jsx:579 pkg/shell/hosts_dialog.jsx:594
-#: pkg/shell/hosts_dialog.jsx:596 pkg/shell/credentials.jsx:210
+#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:670
+#: pkg/shell/hosts_dialog.jsx:673 pkg/shell/hosts_dialog.jsx:688
+#: pkg/shell/hosts_dialog.jsx:690 pkg/shell/credentials.jsx:210
 msgid "Copy"
 msgstr "კოპირება"
 
@@ -2019,11 +2057,11 @@ msgstr "ბაფერში კოპირება"
 msgid "Core $0"
 msgstr "ბირთვი $0"
 
-#: pkg/shell/hosts_dialog.jsx:455
+#: pkg/shell/hosts_dialog.jsx:549
 msgid "Could not contact $0"
 msgstr "$0-ს ვერ დავუკავშირდი"
 
-#: pkg/kdump/kdump-view.jsx:221 pkg/kdump/kdump-view.jsx:617
+#: pkg/kdump/kdump-view.jsx:221 pkg/kdump/kdump-view.jsx:629
 msgid "Crash dump location"
 msgstr "ავარიული დამპის მდებარეობა"
 
@@ -2069,7 +2107,7 @@ msgstr "RAID მოწყობილობის შექმნა"
 msgid "Create Stratis pool"
 msgstr "Stratis-ის პულის შექმნა"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:411 pkg/shell/hosts_dialog.jsx:894
+#: pkg/lib/cockpit-connect-ssh.tsx:411 pkg/shell/hosts_dialog.jsx:988
 msgid "Create a new SSH key and authorize it"
 msgstr "შექმენით SSH-ის ახალი გასაღები და გაატარეთ ავტორიზაცია"
 
@@ -2126,7 +2164,7 @@ msgstr "ახალი ჯგუფის შექმნა"
 msgid "Create new logical volume"
 msgstr "ახალი ლოგიკური ტომის შექმნა"
 
-#: pkg/lib/cockpit-components-modifications.jsx:92
+#: pkg/lib/cockpit-components-modifications.jsx:93
 msgid "Create new task file with this content."
 msgstr "ახალი ამოცანის ამ შემცველობით შექმნა."
 
@@ -2229,7 +2267,7 @@ msgstr ""
 msgid "Critical and above"
 msgstr "კრიტიკული და ზემოთ"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:182
 msgid ""
 "Cryptographic Policies is a system component that configures the core "
 "cryptographic subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos "
@@ -2239,15 +2277,15 @@ msgstr ""
 "კრიპტოგრაფიული ქვესისტემების, TLS/IPSec/SSH/DNNSEC და kerberos-ის "
 "კონფიგურაციას უზრუნველყოფს."
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:62
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:92
 msgid "Cryptographic policy"
 msgstr "კრიპტოგრაფიის პოლიტიკა"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:261
 msgid "Cryptographic policy is inconsistent"
 msgstr "კრიპტოგრაფიის პოლიტიკა არამდგრადია"
 
-#: pkg/lib/cockpit-components-terminal.jsx:212
+#: pkg/lib/cockpit-components-terminal.jsx:223
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
@@ -2267,7 +2305,7 @@ msgstr "CPU-ის მიმდინარე დატვირთვა"
 msgid "Currently in use"
 msgstr "ამჟამად გამოიყენება"
 
-#: pkg/kdump/kdump-view.jsx:535
+#: pkg/kdump/kdump-view.jsx:547
 msgid "Currently not supported"
 msgstr "ამჟამად მხარდაჭერილი არაა"
 
@@ -2275,7 +2313,7 @@ msgstr "ამჟამად მხარდაჭერილი არაა"
 msgid "Custom"
 msgstr "ხელით"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:142
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:170
 msgid "Custom cryptographic policy"
 msgstr "კრიპტოგრაფიის პოლიტიკის მორგება"
 
@@ -2295,7 +2333,7 @@ msgstr "მომხმარებლის ტიპი"
 msgid "Custom zones"
 msgstr "ხელით მითითებული ზონები"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:108
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:134
 msgid "DEFAULT with SHA-1 signature verification allowed."
 msgstr "DEFAULT-ი SHA-1 ხელმოწერის გადამოწმებით დაშვებულია."
 
@@ -2323,7 +2361,7 @@ msgstr "დღიურად"
 msgid "Danger alert:"
 msgstr "საშიშროების შეტყობინება:"
 
-#: pkg/systemd/terminal.jsx:175 pkg/shell/topnav.jsx:191
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
 msgid "Dark"
 msgstr "ბლენი"
 
@@ -2436,7 +2474,7 @@ msgstr "$target-ის დეაქტივაცია"
 msgid "Debug and above"
 msgstr "გამართვა და ზემოთ"
 
-#: pkg/systemd/terminal.jsx:160
+#: pkg/systemd/terminal.jsx:244
 msgid "Decrease by one"
 msgstr "ერთით შემცირება"
 
@@ -2449,7 +2487,7 @@ msgstr "გამოყოფილი ლუწობა (RAID 4)"
 msgid "Deduplication"
 msgstr "დედუპლიკაცია"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37 pkg/shell/topnav.jsx:185
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
 msgid "Default"
 msgstr "ნაგულისხმები"
 
@@ -2640,7 +2678,7 @@ msgstr "tuned-ის გამორთვა"
 
 #: pkg/systemd/services.jsx:246 pkg/systemd/services.jsx:687
 #: pkg/systemd/service-details.jsx:436 pkg/networkmanager/ip-settings.jsx:46
-#: pkg/networkmanager/firewall-switch.jsx:80 pkg/kdump/kdump-view.jsx:541
+#: pkg/networkmanager/firewall-switch.jsx:80 pkg/kdump/kdump-view.jsx:553
 #: pkg/packagekit/autoupdates.jsx:470 pkg/packagekit/kpatch.jsx:253
 msgid "Disabled"
 msgstr "გათიშულია"
@@ -2707,7 +2745,7 @@ msgstr[1] "$0 ცალი გაფრთხილების მოცილ�
 msgid "Dismiss selected alerts"
 msgstr "მონიშნული გაფრთხილებების მოცილება"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:204
+#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
 msgid "Display language"
 msgstr "ენა"
 
@@ -2811,9 +2849,9 @@ msgstr "ორმაგი რანგი"
 msgid "EFI system partition"
 msgstr "EFI-ის სისტემური დანაყოფი"
 
-#: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:476
+#: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:201 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "ჩასწორება"
@@ -2846,11 +2884,11 @@ msgstr "Bridge-ის პარამეტრების ჩასწორე
 msgid "Edit custom service in $0 zone"
 msgstr "ხელით მითითებული სერვისის ჩასწორება ზონაში $0"
 
-#: pkg/shell/hosts_dialog.jsx:352
+#: pkg/shell/hosts_dialog.jsx:446
 msgid "Edit host"
 msgstr "ჰოსტის ჩასწორება"
 
-#: pkg/shell/hosts.jsx:251
+#: pkg/shell/hosts.jsx:248
 msgid "Edit hosts"
 msgstr "hosts ფაილის ჩასწორება"
 
@@ -2931,7 +2969,7 @@ msgstr "ბრანდმაუერის ჩართვა"
 
 #: pkg/systemd/services.jsx:244 pkg/systemd/services.jsx:245
 #: pkg/systemd/services.jsx:686 pkg/networkmanager/firewall-switch.jsx:80
-#: pkg/kdump/kdump-view.jsx:541 pkg/packagekit/kpatch.jsx:256
+#: pkg/kdump/kdump-view.jsx:553 pkg/packagekit/kpatch.jsx:256
 msgid "Enabled"
 msgstr "ჩართულია"
 
@@ -3129,11 +3167,11 @@ msgstr "გაფართოებული ინფორმაცია"
 msgid "Extended partition"
 msgstr "გაფართოებული განაყოფი"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:261
 msgid "FIPS is not properly enabled"
 msgstr "FIPS-ი სწორად არაა ჩართული"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:122
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:148
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "FIPS დამატებითი საერთო პირობის შეზღუდვებით."
 
@@ -3141,7 +3179,7 @@ msgstr "FIPS დამატებითი საერთო პირობ�
 msgid "Failed"
 msgstr "შეცდომით"
 
-#: pkg/shell/hosts_dialog.jsx:319
+#: pkg/shell/hosts_dialog.jsx:409
 msgid "Failed to add machine: $0"
 msgstr "მანქანის დამატების შეცდომა: $0"
 
@@ -3179,7 +3217,7 @@ msgstr "tuned-ის გამორთვის შეცდომა"
 msgid "Failed to disable tuned profile"
 msgstr "tuned-ის პროფილის გამორთვის შეცდომა"
 
-#: pkg/shell/hosts_dialog.jsx:436
+#: pkg/shell/hosts_dialog.jsx:530
 msgid "Failed to edit machine: $0"
 msgstr "მანქანის ჩასწორების შეცდომა: $0"
 
@@ -3302,7 +3340,7 @@ msgstr "მიკროკოდის ვერსია"
 msgid "Fix NBDE support"
 msgstr "NBDE-ის მხარდაჭერის გასწორება"
 
-#: pkg/systemd/terminal.jsx:149 pkg/systemd/terminal.jsx:159
+#: pkg/systemd/terminal.jsx:233 pkg/systemd/terminal.jsx:243
 msgid "Font size"
 msgstr "ფონტის ზომა"
 
@@ -3485,8 +3523,8 @@ msgstr "ჯანმრთელობა"
 msgid "Hello time $hello_time"
 msgstr "მისალმების დრო $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
 msgid "Help"
 msgstr "დახმარება"
 
@@ -3502,7 +3540,7 @@ msgstr "პაროლის დამალვა"
 msgid "Hierarchy ID"
 msgstr "იერარქიის ID"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:109
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:135
 msgid "Higher interoperability at the cost of an increased attack surface."
 msgstr "მაღალი ურთიერთკავშირი შეტევის გაზრდილი ზედაპირის ხარჯზე."
 
@@ -3514,7 +3552,7 @@ msgstr "ისტორიის პაკეტის რიცხვი"
 msgid "Home directory"
 msgstr "საწყისი საქაღალდე"
 
-#: pkg/shell/hosts.jsx:228 pkg/shell/hosts_dialog.jsx:356
+#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "ჰოსტი"
 
@@ -3522,7 +3560,7 @@ msgstr "ჰოსტი"
 msgid "Host is unknown"
 msgstr "ჰოსტი უცნობია"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2600
 msgid "Host key is incorrect"
 msgstr "ჰოსტის გასაღები არასწორია"
 
@@ -3538,7 +3576,7 @@ msgstr "ჰოსტის გასაღები უცნობია"
 msgid "Hostname"
 msgstr "ჰოსტის სახელი"
 
-#: pkg/shell/hosts.jsx:186
+#: pkg/shell/hosts.jsx:183
 msgid "Hosts"
 msgstr "ჰოსტები"
 
@@ -3631,7 +3669,7 @@ msgstr ""
 "თუ ანაბეჭდი ემთხვევა, დააწექით \"გასაღების მიღება და შესვლა\"-ს. ან არ "
 "შეხვიდეთ და დაუკავშირდით ადმინისტრატორს."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:138 pkg/shell/hosts_dialog.jsx:581
+#: pkg/lib/cockpit-connect-ssh.tsx:138 pkg/shell/hosts_dialog.jsx:675
 msgid ""
 "If the fingerprint matches, click 'Trust and add host'. Otherwise, do not "
 "connect and contact your administrator."
@@ -3656,7 +3694,7 @@ msgstr "შიგნით"
 msgid "In a terminal, run: "
 msgstr "ტერმინალში გაუშვით: "
 
-#: pkg/shell/hosts_dialog.jsx:907 pkg/shell/hosts_dialog.jsx:924
+#: pkg/shell/hosts_dialog.jsx:1001 pkg/shell/hosts_dialog.jsx:1018
 msgid ""
 "In order to allow log in to $0 as $1 without password in the future, use the "
 "login password of $2 on $3 as the key password, or leave the key password "
@@ -3694,7 +3732,7 @@ msgstr ""
 msgid "Inconsistent filesystem mount"
 msgstr "ფაილური სისტემის არასწორი მიმაგრება"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/terminal.jsx:245
 msgid "Increase by one"
 msgstr "ერთით გაზრდა"
 
@@ -3780,7 +3818,7 @@ msgstr "SELinux-ის შეცდომებში გასარკვე�
 msgid "Install software"
 msgstr "პროგრამების დაყენება"
 
-#: pkg/kdump/kdump-view.jsx:571
+#: pkg/kdump/kdump-view.jsx:583
 msgid "Install the $0 package."
 msgstr "დააყენეთ პაკეტი $0."
 
@@ -3831,7 +3869,7 @@ msgstr "ინტერფეისის წევრები"
 msgid "Interfaces"
 msgstr "ინტერფეისები"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2602
 msgid "Internal error"
 msgstr "შიდა შეცდომა"
 
@@ -3913,7 +3951,7 @@ msgstr "არასწორი მომხმარებელი ან პ
 msgid "IoT gateway"
 msgstr "IoT gateway"
 
-#: pkg/shell/hosts_dialog.jsx:461
+#: pkg/shell/hosts_dialog.jsx:555
 msgid "Is sshd running on a different port?"
 msgstr "sshd-ი სხვა პორტზე ხომ არაა გაშვებული?"
 
@@ -3966,11 +4004,11 @@ msgstr "ჟურნალის ერთეული ნაპოვნი ა
 msgid "Jump to"
 msgstr "გადასვლა"
 
-#: pkg/kdump/kdump-view.jsx:569
+#: pkg/kdump/kdump-view.jsx:581
 msgid "Kdump service is not installed."
 msgstr "Kdump-ის სერვისი დაყენებული არაა."
 
-#: pkg/kdump/kdump-view.jsx:604
+#: pkg/kdump/kdump-view.jsx:616
 msgid "Kdump settings"
 msgstr "kdump-ის პარამეტრები"
 
@@ -3978,11 +4016,11 @@ msgstr "kdump-ის პარამეტრები"
 msgid "Keep connection"
 msgstr "კავშირის შენარჩუნება"
 
-#: pkg/kdump/kdump-view.jsx:581
+#: pkg/kdump/kdump-view.jsx:593
 msgid "Kernel crash dump"
 msgstr "ოპერაციული სისტემის ბირთვის ავარიის დამპი"
 
-#: pkg/kdump/kdump-view.jsx:550
+#: pkg/kdump/kdump-view.jsx:562
 msgid "Kernel did not boot with the $0 setting"
 msgstr "ბირთვი პარამეტრით $0 არ ჩაიტვირთა"
 
@@ -4008,7 +4046,7 @@ msgid "Kernel live patching"
 msgstr "ოპერაციული სისტემის გაშვებული ბირთვის ჩასწორება"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:414 pkg/lib/cockpit-connect-ssh.tsx:459
-#: pkg/shell/hosts_dialog.jsx:897 pkg/shell/hosts_dialog.jsx:962
+#: pkg/shell/hosts_dialog.jsx:991 pkg/shell/hosts_dialog.jsx:1056
 msgid "Key password"
 msgstr "გასაღების პაროლი"
 
@@ -4044,7 +4082,7 @@ msgstr ""
 msgid "LACP key"
 msgstr "LACP გასაღები"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:110
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:136
 msgid "LEGACY with Active Directory interoperability."
 msgstr "LEGACY-ი Active Directory-სთან სამუშაოდ."
 
@@ -4126,8 +4164,8 @@ msgstr "ბოლო წარმატებული შესვლა:"
 msgid "Layout"
 msgstr "განლაგება"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:145
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:192
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
@@ -4152,7 +4190,7 @@ msgstr "შიფრაციის გამოსატოვებლად �
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "ლიცენზირებულია GNU LGPL -ის ვერსია 2.1-ით"
 
-#: pkg/systemd/terminal.jsx:176 pkg/shell/topnav.jsx:188
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
 msgid "Light"
 msgstr "ღია"
 
@@ -4283,7 +4321,7 @@ msgstr "სერვისების ჩატვირთვის შეც�
 msgid "Loading packages..."
 msgstr "პაკეტების ჩატვირთვა..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:134
+#: pkg/lib/cockpit-components-modifications.jsx:135
 msgid "Loading system modifications..."
 msgstr "სისტემის ცვლილებების ჩატვირთვა..."
 
@@ -4293,7 +4331,7 @@ msgstr "სერვისების ჩატვირთვის შეც�
 
 #: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
-#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:438
+#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
 #: pkg/users/accounts-list.js:339 pkg/users/accounts-list.js:453
 #: pkg/storaged/storaged.jsx:66
@@ -4316,7 +4354,7 @@ msgstr "მიმაგრების ლოკალური წერტი�
 msgid "Local storage"
 msgstr "ლოკალური საცავი"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:462
 msgid "Local, $0"
 msgstr "ლოკალური, $0"
 
@@ -4356,11 +4394,11 @@ msgstr "$target-ის ჩაკეტვა"
 
 #: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
-#: pkg/shell/hosts_dialog.jsx:865
+#: pkg/shell/hosts_dialog.jsx:959
 msgid "Log in"
 msgstr "შესვლა"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:389 pkg/shell/hosts_dialog.jsx:864
+#: pkg/lib/cockpit-connect-ssh.tsx:389 pkg/shell/hosts_dialog.jsx:958
 msgid "Log in to $0"
 msgstr "$0-ში შესვლა"
 
@@ -4372,7 +4410,7 @@ msgstr "შედით სერვერის თქვენი ანგა
 msgid "Log messages"
 msgstr "ჟურნალის შეტყობინებები"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:221
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
 msgid "Log out"
 msgstr "გასვლა"
 
@@ -4418,7 +4456,7 @@ msgstr "შესვლა"
 msgid "Login again"
 msgstr "თავიდან შესვლა"
 
-#: pkg/lib/cockpit.js:2596
+#: pkg/lib/cockpit.js:2592
 msgid "Login failed"
 msgstr "შესვლა წარუმატებელია"
 
@@ -4511,7 +4549,7 @@ msgstr "სერვერის მთავარი შასი"
 msgid "Maintenance"
 msgstr "სარემონტო"
 
-#: pkg/shell/hosts_dialog.jsx:598
+#: pkg/shell/hosts_dialog.jsx:692
 msgid "Malicious pages on a remote machine may affect other connected hosts"
 msgstr ""
 "დაშორებულ მანქანებზე დაჰოსტილ მავნე გვერდებს სხვა მიერთებულ ჰოსტებზეც "
@@ -5009,11 +5047,11 @@ msgstr "ახალი NFS მიმაგრება"
 msgid "New host"
 msgstr "ახალი ჰოსტი"
 
-#: pkg/shell/hosts_dialog.jsx:565
+#: pkg/shell/hosts_dialog.jsx:659
 msgid "New host: $0"
 msgstr "ახალი ჰოსტი: $0"
 
-#: pkg/shell/hosts_dialog.jsx:913
+#: pkg/shell/hosts_dialog.jsx:1007
 msgid "New key password"
 msgstr "გასაღების ახალი პაროლი"
 
@@ -5070,7 +5108,7 @@ msgstr "ბლოკური მოწყობილობები აღმ�
 msgid "No carrier"
 msgstr "შეამოწმეთ კავშირი"
 
-#: pkg/kdump/kdump-view.jsx:471
+#: pkg/kdump/kdump-view.jsx:483
 msgid "No configuration found"
 msgstr "კონფიგურაცია ნაპოვნი არაა"
 
@@ -5236,7 +5274,7 @@ msgstr "ქვეტომების გარეშე"
 msgid "No such file or directory"
 msgstr "ფაილი ან საქაღალდე არ არსებობს"
 
-#: pkg/lib/cockpit-components-modifications.jsx:129
+#: pkg/lib/cockpit-components-modifications.jsx:130
 msgid "No system modifications"
 msgstr "სისტემა შეცვლილი არაა"
 
@@ -5253,7 +5291,7 @@ msgid "No user name specified"
 msgstr "მომხმარებელი მითითებული არაა"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:224
-#: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
+#: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:500
 msgid "None"
 msgstr "არცერთი"
 
@@ -5315,7 +5353,7 @@ msgstr "ქსელური მოწყობილობების მო�
 msgid "Not permitted to configure realms"
 msgstr "realm-ების მორგების წვდომა აკრძალულია"
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2590
 msgid "Not permitted to perform this action."
 msgstr "არ გაქვთ მითითებული მოქმედების შესასრულებლად საკმარისი წვდომა."
 
@@ -5390,7 +5428,7 @@ msgstr "ძველი პაროლი"
 msgid "Old password not accepted"
 msgstr "ძველი პაროლი მიუღებელია"
 
-#: pkg/kdump/kdump-view.jsx:463
+#: pkg/kdump/kdump-view.jsx:475
 msgid "On a mounted device"
 msgstr "მიმაგრებულ მოწყობილობაზე"
 
@@ -5418,12 +5456,12 @@ msgstr "დაშვებულია მხოლოდ ლათინურ�
 msgid "Only emergency"
 msgstr "მხოლოდ გადაუდებელ შემთხვევაში"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:112
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:138
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "FIPS რეჟიმში ჩატვირთვისას მხოლოდ დადასტურებული ალგორითმების გამოყენება."
 
-#: pkg/shell/topnav.jsx:243
+#: pkg/shell/topnav.jsx:228
 msgid "Ooops!"
 msgstr "უკაცრავად!"
 
@@ -5612,7 +5650,7 @@ msgstr "საკვანძო ფრაზები ერთმანეთ�
 #: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
-#: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
+#: pkg/shell/hosts_dialog.jsx:1040 pkg/shell/hosts_dialog.jsx:1049
 #: pkg/shell/credentials.jsx:117 pkg/shell/credentials.jsx:260
 #: pkg/shell/credentials.jsx:316 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
@@ -5651,11 +5689,11 @@ msgstr "პაროლი მიუღებელია"
 msgid "Password tip"
 msgstr "პაროლის მინიშნება"
 
-#: pkg/lib/cockpit-components-terminal.jsx:215
+#: pkg/lib/cockpit-components-terminal.jsx:226
 msgid "Paste"
 msgstr "ჩასმა"
 
-#: pkg/lib/cockpit-components-terminal.jsx:223
+#: pkg/lib/cockpit-components-terminal.jsx:234
 msgid "Paste error"
 msgstr "ჩასმის შეცდომა"
 
@@ -5863,7 +5901,7 @@ msgstr "თხლად გაწერილი საცავების პ
 msgid "Pool passphrase"
 msgstr "პულის საკვანძო ფრაზა"
 
-#: pkg/shell/hosts_dialog.jsx:464 pkg/storaged/iscsi/create-dialog.jsx:111
+#: pkg/shell/hosts_dialog.jsx:558 pkg/storaged/iscsi/create-dialog.jsx:111
 msgid "Port"
 msgstr "პორტი"
 
@@ -5968,7 +6006,7 @@ msgstr "მოთხოვნას ssh-keygen-ის გავლით დრ�
 msgid "Propagates reload to"
 msgstr "გადატვირთვა გავრცელდება"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:123
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:149
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -6080,7 +6118,7 @@ msgstr "დიაპაზონი მკაცრად უნდა იყო
 msgid "Rank"
 msgstr "რანგი"
 
-#: pkg/kdump/kdump-view.jsx:459
+#: pkg/kdump/kdump-view.jsx:471
 msgid "Raw to a device"
 msgstr "პირდაპირი წვდომა მოწყობილობასთან"
 
@@ -6088,6 +6126,10 @@ msgstr "პირდაპირი წვდომა მოწყობილ�
 #: pkg/metrics/metrics.jsx:928 pkg/metrics/metrics.jsx:933
 msgid "Read"
 msgstr "წაკითხვა"
+
+#: pkg/shell/hosts_dialog.jsx:284
+msgid "Read more"
+msgstr "იხილეთ მეტი"
 
 #: pkg/metrics/metrics.jsx:1439 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
@@ -6101,7 +6143,7 @@ msgstr "მხოლოდ წასაკითხად"
 msgid "Reading"
 msgstr "ვკითხულობ"
 
-#: pkg/kdump/kdump-view.jsx:483
+#: pkg/kdump/kdump-view.jsx:495
 msgid "Reading..."
 msgstr "კითხვა..."
 
@@ -6130,7 +6172,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "ჯოსტის რეალური სახელი 64 სიმბოლოზე დიდი არ უნდა იყოს"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:220
 msgid "Reapply and reboot"
 msgstr "თავიდან გადატარება და გადატვირთვა"
 
@@ -6165,7 +6207,7 @@ msgstr "მიღება"
 msgid "Recent hosts"
 msgstr "ბოლო ჰოსტები"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:107
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:133
 msgid "Recommended, secure settings for current threat models."
 msgstr "რეკომენდებული, დაცული პარამეტრები მიმდინარე დაცვის მოდელისთვის."
 
@@ -6229,11 +6271,11 @@ msgstr "თავიდან ჩატვირთვა"
 msgid "Reloading the state of remaining services"
 msgstr "დარჩენილი სერვისების მდგომარეობის გადატვირთვა"
 
-#: pkg/kdump/kdump-view.jsx:469
+#: pkg/kdump/kdump-view.jsx:481
 msgid "Remote over CIFS/SMB"
 msgstr "გარედან CIFS/SMB-ზე"
 
-#: pkg/kdump/kdump-view.jsx:465
+#: pkg/kdump/kdump-view.jsx:477
 msgid "Remote over FTP"
 msgstr "გარედან FTP-ზე"
 
@@ -6241,11 +6283,11 @@ msgstr "გარედან FTP-ზე"
 msgid "Remote over NFS"
 msgstr "გარედან NFS-ზე"
 
-#: pkg/kdump/kdump-view.jsx:456
+#: pkg/kdump/kdump-view.jsx:468
 msgid "Remote over NFS, $0"
 msgstr "დაშორებული NFS-ის ზემოდან, $0"
 
-#: pkg/kdump/kdump-view.jsx:467
+#: pkg/kdump/kdump-view.jsx:479
 msgid "Remote over SFTP"
 msgstr "გარედან SFTP-ზე"
 
@@ -6253,7 +6295,7 @@ msgstr "გარედან SFTP-ზე"
 msgid "Remote over SSH"
 msgstr "გარედან SSH-ზე"
 
-#: pkg/kdump/kdump-view.jsx:453
+#: pkg/kdump/kdump-view.jsx:465
 msgid "Remote over SSH, $0"
 msgstr "დაშორებული SSH-ის ზემოდან, $0"
 
@@ -6263,7 +6305,7 @@ msgstr "წაიშლება:"
 
 #: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:204
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
 #: pkg/storaged/lvm2/volume-group.jsx:349
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -6510,7 +6552,7 @@ msgstr "მოთხოვნა"
 msgid "Requisite of"
 msgstr "ვის საჭიროებასა წარმოადგენს"
 
-#: pkg/kdump/kdump-view.jsx:554
+#: pkg/kdump/kdump-view.jsx:566
 msgid ""
 "Reserve memory at boot time by setting a '$0' option on the kernel command "
 "line. For example, append '$1' to $2  in $3 or use your distribution's "
@@ -6520,11 +6562,11 @@ msgstr ""
 "მაგალითად, მიაწერეთ '$1' $2-ს    $3-ში ან გამოიყენეთ თქვენი დისტრიბუტივის "
 "ბირთვის არგუმენტების რედაქტორი."
 
-#: pkg/kdump/kdump-view.jsx:610
+#: pkg/kdump/kdump-view.jsx:622
 msgid "Reserved memory"
 msgstr "რეზერვირებული მეხსიერება"
 
-#: pkg/systemd/logs.jsx:402 pkg/systemd/terminal.jsx:184
+#: pkg/systemd/logs.jsx:402 pkg/systemd/terminal.jsx:268
 msgid "Reset"
 msgstr "საწყის მნიშვნელობებზე დაბრუნება"
 
@@ -6593,7 +6635,7 @@ msgstr "არსებული დაშიფვრის გამოყე�
 msgid "Reuse existing encryption ($0)"
 msgstr "არსებული დაშიფვრის ($0) გამოყენება"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:236
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:268
 msgid "Review cryptographic policy"
 msgstr "კრიპტოგრაფიის პოლიტიკის გადახედვა"
 
@@ -6634,7 +6676,7 @@ msgstr "გასაშვები პლატფორმა"
 msgid "Run report"
 msgstr "ანგარიშის გაშვება"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:150 pkg/shell/hosts_dialog.jsx:593
+#: pkg/lib/cockpit-connect-ssh.tsx:150 pkg/shell/hosts_dialog.jsx:687
 msgid ""
 "Run this command over a trusted network or physically on the remote machine:"
 msgstr "გაუშვით ეს ბრძანება სანდო ქსელით ან ფიზიკურად, დაშორებულ მანქანაზე:"
@@ -6648,6 +6690,10 @@ msgstr "გამშვები"
 #: pkg/storaged/mdraid/mdraid.jsx:297
 msgid "Running"
 msgstr "გაშვებული"
+
+#: pkg/systemd/terminal.jsx:283
+msgid "Running process prevents directory change"
+msgstr "გაშვებული პროცესი ხელს უშლის საქაღალდის შეცვლას"
 
 #: pkg/selinux/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_selinux.metainfo.xml.in:5
@@ -6698,7 +6744,7 @@ msgstr ""
 "დასახმარებლად."
 
 #: pkg/kdump/kdump-view.jsx:295 pkg/lib/cockpit-connect-ssh.tsx:448
-#: pkg/shell/hosts_dialog.jsx:951
+#: pkg/shell/hosts_dialog.jsx:1045
 msgid "SSH key"
 msgstr "SSH გასაღები"
 
@@ -6710,7 +6756,7 @@ msgstr "SSH გასაღები ბილიკს არ წარმო�
 msgid "SSH key login"
 msgstr "SSH გასაღებით შესვლა"
 
-#: pkg/shell/topnav.jsx:217 pkg/shell/credentials.jsx:77
+#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
 #: pkg/shell/credentials.jsx:93
 msgid "SSH keys"
 msgstr "SSH გასაღებები"
@@ -6895,7 +6941,7 @@ msgstr "სერვერი არ შეიძლება ცარიელ
 msgid "Server closed connection"
 msgstr "სერვერმა დახურა კავშირი"
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2610
 msgid "Server has closed the connection."
 msgstr "სერვერმა დახურა კავშირი."
 
@@ -6910,7 +6956,7 @@ msgstr "სერვერული პროგრამები"
 msgid "Service"
 msgstr "სერვისი"
 
-#: pkg/kdump/kdump-view.jsx:563
+#: pkg/kdump/kdump-view.jsx:575
 msgid "Service has an error"
 msgstr "სერვისის შეცდომა"
 
@@ -6928,7 +6974,7 @@ msgstr "სერვისები"
 msgid "Services using the location"
 msgstr "მდებარეობის გამომყენებელი სერვისები"
 
-#: pkg/shell/topnav.jsx:292
+#: pkg/shell/topnav.jsx:277
 msgid "Session"
 msgstr "სესია"
 
@@ -6936,7 +6982,7 @@ msgstr "სესია"
 msgid "Session is about to expire"
 msgstr "სესიას ვადა გასდის"
 
-#: pkg/shell/hosts_dialog.jsx:353 pkg/storaged/stratis/filesystem.jsx:227
+#: pkg/shell/hosts_dialog.jsx:447 pkg/storaged/stratis/filesystem.jsx:227
 msgid "Set"
 msgstr "დაყენება"
 
@@ -7008,11 +7054,11 @@ msgstr "ზიარი"
 msgid "Shell"
 msgstr "გარსი"
 
-#: pkg/lib/cockpit-components-modifications.jsx:100
+#: pkg/lib/cockpit-components-modifications.jsx:102
 msgid "Shell script"
 msgstr "გარსის სკრიპტი"
 
-#: pkg/lib/cockpit-components-terminal.jsx:216
+#: pkg/lib/cockpit-components-terminal.jsx:227
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
@@ -7122,11 +7168,11 @@ msgstr "ზომა რიცხვი უნდა იყოს"
 msgid "Size must be at least $0"
 msgstr "ზომის მინიმალური მნიშვნელობაა $0"
 
-#: pkg/shell/shell.jsx:120
+#: pkg/shell/shell.jsx:117
 msgid "Skip main navigation"
 msgstr "მთავარი ნავიგაციის გამოტოვება"
 
-#: pkg/shell/shell.jsx:119
+#: pkg/shell/shell.jsx:116
 msgid "Skip to content"
 msgstr "შემცველობაზე გადახტომა"
 
@@ -7323,7 +7369,7 @@ msgstr "გაჩერება და მოძრობა"
 msgid "Stop device"
 msgstr "მოწყობილობის გაჩერება"
 
-#: pkg/shell/hosts.jsx:251
+#: pkg/shell/hosts.jsx:248
 msgid "Stop editing hosts"
 msgstr "hosts ფაილის ჩასწორების დამთავრება"
 
@@ -7415,7 +7461,7 @@ msgstr "ძლიერი პაროლი"
 msgid "Stub"
 msgstr "Stub"
 
-#: pkg/shell/topnav.jsx:181
+#: pkg/shell/topnav.jsx:166
 msgid "Style"
 msgstr "სტილი"
 
@@ -7583,11 +7629,11 @@ msgstr "ტერმინალი"
 msgid "Terminate session"
 msgstr "სესიის დასრულება"
 
-#: pkg/kdump/kdump-view.jsx:507 pkg/kdump/kdump-view.jsx:515
+#: pkg/kdump/kdump-view.jsx:519 pkg/kdump/kdump-view.jsx:527
 msgid "Test configuration"
 msgstr "კონფიგურაციის ტესტი"
 
-#: pkg/kdump/kdump-view.jsx:511
+#: pkg/kdump/kdump-view.jsx:523
 msgid "Test is only available while the kdump service is running."
 msgstr "ტესტი ხელმისაწვდომია მხოლოდ როცა სერვისი kdump გაშვებულია."
 
@@ -7626,7 +7672,7 @@ msgstr "საჭიროა დაყენებული იყოს პა
 msgid "The $0 package will be installed to create VDO devices."
 msgstr "VDO მოწყობილობების შესაქმნელად დაყენდება პაკეტი $0."
 
-#: pkg/shell/hosts_dialog.jsx:259
+#: pkg/shell/hosts_dialog.jsx:349
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP მისამართი და ჰოსტის სახელი არ შეიძლება ცარიელ ადგილებს შეიცავდეს."
 
@@ -7638,11 +7684,11 @@ msgstr "MDRAID მოწყობილობა ავარიულ მდგ
 msgid "The MDRAID device must be running"
 msgstr "MDRAID მოწყობილობა გაშვებული უნდა იყოს"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:426 pkg/shell/hosts_dialog.jsx:929
+#: pkg/lib/cockpit-connect-ssh.tsx:426 pkg/shell/hosts_dialog.jsx:1023
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
 msgstr "SSH გასაღები $1-ის $0 $2-ზე დაემატება ფაილ $3-ს $5-ზე $4-ს."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:463 pkg/shell/hosts_dialog.jsx:966
+#: pkg/lib/cockpit-connect-ssh.tsx:463 pkg/shell/hosts_dialog.jsx:1060
 msgid ""
 "The SSH key $0 will be made available for the remainder of the session and "
 "will be available for login to other hosts as well."
@@ -7650,7 +7696,7 @@ msgstr ""
 "SSH გასაღები $0 ხელმისაწვდომია სესიის ბოლომდე და ხელმისაწვდომი იქნება სხვა "
 "ჰოსტებზე შესასვლელადაც."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:398 pkg/shell/hosts_dialog.jsx:874
+#: pkg/lib/cockpit-connect-ssh.tsx:398 pkg/shell/hosts_dialog.jsx:968
 msgid ""
 "The SSH key for logging in to $0 is protected by a password, and the host "
 "does not allow logging in with a password. Please provide the password of "
@@ -7659,7 +7705,7 @@ msgstr ""
 "$0-ზე შესასვლელი SSH გასაღები პაროლითაა დაცული და ჰოსტს პაროლით შესვლა "
 "გამორთული აქვს. შეიყვანეთ $1-ზე არსებული გასაღების პაროლი."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:400 pkg/shell/hosts_dialog.jsx:879
+#: pkg/lib/cockpit-connect-ssh.tsx:400 pkg/shell/hosts_dialog.jsx:973
 msgid ""
 "The SSH key for logging in to $0 is protected. You can log in with either "
 "your login password or by providing the password of the key at $1."
@@ -7761,7 +7807,7 @@ msgstr ""
 "ფაილური სისტემა განიბლოკება და მიმაგრდება შემდეგი ჩატვირთვისას. ამას "
 "საკვანძო სიტყვის შეყვანა შეიძლება დასჭირდეს."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:152 pkg/shell/hosts_dialog.jsx:595
+#: pkg/lib/cockpit-connect-ssh.tsx:152 pkg/shell/hosts_dialog.jsx:689
 msgid "The fingerprint should match:"
 msgstr "ანაბეჭდების უნდა ემთხვეოდეს:"
 
@@ -7799,12 +7845,12 @@ msgstr ""
 msgid "The initrd must be regenerated."
 msgstr "Initrd-ის თავიდან გენერაცია აუცილებელია."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:342 pkg/shell/hosts_dialog.jsx:796
+#: pkg/lib/cockpit-connect-ssh.tsx:342 pkg/shell/hosts_dialog.jsx:890
 msgid "The key password can not be empty"
 msgstr "გასაღების პაროლი ცარიელი ვერ იქნება"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:344 pkg/shell/hosts_dialog.jsx:799
-#: pkg/shell/hosts_dialog.jsx:805
+#: pkg/lib/cockpit-connect-ssh.tsx:344 pkg/shell/hosts_dialog.jsx:893
+#: pkg/shell/hosts_dialog.jsx:899
 msgid "The key passwords do not match"
 msgstr "გასაღების პაროლები არ ემთხვევა"
 
@@ -7832,7 +7878,7 @@ msgstr "ჩამოთვლილი პროცესები ძალი�
 msgid "The listed services will be forcefully stopped."
 msgstr "ჩამოთვლილი სერვისები ძალით გაჩერდება."
 
-#: pkg/lib/cockpit-components-modifications.jsx:129
+#: pkg/lib/cockpit-components-modifications.jsx:130
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "შესულ მომხმარებელს არ აქვს სისტემური ცვლილებების ნახვს უფლება"
 
@@ -7848,11 +7894,11 @@ msgstr "მიმაგრების წერტილი $0 დაკავ�
 msgid "The mount point $0 is in use by these services:"
 msgstr "მიმაგრების წერტილი $0 გამოიყენება ჩამოთვლილი სერვისების მიერ:"
 
-#: pkg/shell/hosts_dialog.jsx:802
+#: pkg/shell/hosts_dialog.jsx:896
 msgid "The new key password can not be empty"
 msgstr "გასაღების ახალი საკვანძო სიტყვა ცარიელი ვერ იქნება"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:336 pkg/shell/hosts_dialog.jsx:780
+#: pkg/lib/cockpit-connect-ssh.tsx:336 pkg/shell/hosts_dialog.jsx:874
 msgid "The password can not be empty"
 msgstr "პაროლი არ შეიძლება ცარიელი იყოს"
 
@@ -7861,13 +7907,13 @@ msgid "The passwords do not match"
 msgstr "პაროლები არ ემთხვევა"
 
 #: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
-#: pkg/shell/hosts_dialog.jsx:580
+#: pkg/shell/hosts_dialog.jsx:674
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
 msgstr "მიღებული ანაბეჭდების გაზიარება პრობლემა არაა."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:142 pkg/shell/hosts_dialog.jsx:585
+#: pkg/lib/cockpit-connect-ssh.tsx:142 pkg/shell/hosts_dialog.jsx:679
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email. If you are asking someone else to do the verification for you, they "
@@ -7885,7 +7931,7 @@ msgstr ""
 "სერვერმა უარყო $0-ის ავთენტიკაცია პაროლის საშუალებით და ავთენტიკაციის სხვა "
 "საშუალებები ხელმიუწვდომელია."
 
-#: pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2594
 msgid "The server refused to authenticate using any supported methods."
 msgstr "სერვერმა ყველა მხარდაჭერილი მეთოდით ავთენტიკაცია უარჰყო."
 
@@ -7911,11 +7957,11 @@ msgstr ""
 "მომხმარებელს '$0' არ აქვს უფლება შეცვალოს პროცესორის უსაფრთხოების პროგრამული "
 "გადაწყვეტილების პარამეტრები"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:65
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 msgid "The user $0 is not permitted to change cryptographic policies"
 msgstr "მომხმარებელს '$0' კრიპტოგრაფიის პოლიტიკის შეცვლის უფლება არ აქვს"
 
-#: pkg/kdump/kdump-view.jsx:505
+#: pkg/kdump/kdump-view.jsx:517
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "მომხმარებელს '$0' ბირთვის სატესტო ავარის ტესტი უფლება არ აქვს"
 
@@ -8073,7 +8119,7 @@ msgstr ""
 msgid "This logical volume is not completely used by its content."
 msgstr "ლოგიკური საცავი მთლიანად არ გამოიყენება."
 
-#: pkg/shell/hosts_dialog.jsx:265
+#: pkg/shell/hosts_dialog.jsx:355
 msgid "This machine has already been added."
 msgstr "ეს მანქანა უკვე დამატებულია."
 
@@ -8204,7 +8250,7 @@ msgstr ""
 "მითითებული ერთეულის ჟურნალის შეტყობინებებში საძებნად. შეიძლება შეიცავდეს მეტ "
 "ერთეულსაც, გამოყოფილს მძიმეებით. "
 
-#: pkg/shell/hosts_dialog.jsx:930
+#: pkg/shell/hosts_dialog.jsx:1024
 msgid "This will allow you to log in without password in the future."
 msgstr "უფლებას მოგცემთ მომავალში პაროლის გარეშე შეხვიდეთ."
 
@@ -8253,7 +8299,7 @@ msgstr ""
 "პაროლი გასაღების პაროლს."
 
 #: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
-#: pkg/shell/hosts_dialog.jsx:575
+#: pkg/shell/hosts_dialog.jsx:669
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -8270,7 +8316,7 @@ msgstr ""
 "დარეგისტრირება RedHat-ის პორტალით ან გამოწერების ლოკალური სერვერით."
 
 #: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
-#: pkg/shell/hosts_dialog.jsx:578
+#: pkg/shell/hosts_dialog.jsx:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -8295,7 +8341,7 @@ msgstr "თარიღის ამრჩევის გადართვა"
 msgid "Toggle filters"
 msgstr "ფილტრების ჩართ/გამორთ"
 
-#: pkg/lib/cockpit.js:2620
+#: pkg/lib/cockpit.js:2616
 msgid "Too much data"
 msgstr "მეტისმეტად ბევრი მონაცემი"
 
@@ -8359,7 +8405,7 @@ msgstr "პრობლემების გადაწყვეტა"
 msgid "Troubleshoot…"
 msgstr "პრობლემების გადაწყვეტა…"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:127 pkg/shell/hosts_dialog.jsx:567
+#: pkg/lib/cockpit-connect-ssh.tsx:127 pkg/shell/hosts_dialog.jsx:661
 msgid "Trust and add host"
 msgstr "ჰოსტის ნდობა და დამატება"
 
@@ -8460,11 +8506,11 @@ msgstr "გადაწყვეტის ავტომატური გა�
 msgid "Unable to connect to that address"
 msgstr "მისამართზე დაკავშირების შეცდომა"
 
-#: pkg/shell/hosts_dialog.jsx:460
+#: pkg/shell/hosts_dialog.jsx:554
 msgid "Unable to contact $0."
 msgstr "$0-თან კავშირის შეცდომა."
 
-#: pkg/shell/hosts_dialog.jsx:337
+#: pkg/shell/hosts_dialog.jsx:249 pkg/shell/hosts_dialog.jsx:430
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -8483,7 +8529,7 @@ msgid ""
 "password."
 msgstr "$0-ზე SSH გასაღებით ავთენტიკაციის შესვლის პრობლემა. შეიყვანეთ პაროლი."
 
-#: pkg/shell/hosts_dialog.jsx:871
+#: pkg/shell/hosts_dialog.jsx:965
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password. You may want to set up your SSH keys for automatic login."
@@ -8491,13 +8537,17 @@ msgstr ""
 "$0-ზე SSH გასაღებით ავთენტიკაციის შესვლის პრობლემა. შეიყვანეთ პაროლი. "
 "ავტომატური შესვლისთვის შეიძლება საჭირო გახდეს თქვენი SSH გასაღებების მორგება."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:394 pkg/shell/hosts_dialog.jsx:869
+#: pkg/lib/cockpit-connect-ssh.tsx:394 pkg/shell/hosts_dialog.jsx:963
 msgid ""
 "Unable to log in to $0. The host does not accept password login or any of "
 "your SSH keys."
 msgstr ""
 "$0-ზე შესვლის პრობლემა. ჰოსტი არ იღებს პაროლით შესვლას ან არცერთ თქვენს SSH "
 "გასაღებს."
+
+#: pkg/systemd/terminal.jsx:275
+msgid "Unable to open directory"
+msgstr "საქაღალდის გახსნა შეუძლებელია"
 
 #: pkg/storaged/iscsi/create-dialog.jsx:73
 msgid "Unable to reach server"
@@ -8690,7 +8740,7 @@ msgstr "მხარდაუჭერელი ლოგიკური ტო�
 msgid "Until"
 msgstr "დასასრულის დრო"
 
-#: pkg/lib/cockpit.js:2600 pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
 msgid "Untrusted host"
 msgstr "არასანდო ჰოსტი"
 
@@ -8698,7 +8748,7 @@ msgstr "არასანდო ჰოსტი"
 msgid "Up since"
 msgstr "აქტიურია საიდან"
 
-#: pkg/shell/hosts_dialog.jsx:456
+#: pkg/shell/hosts_dialog.jsx:550
 msgid "Update"
 msgstr "განახლება"
 
@@ -8836,7 +8886,7 @@ msgid "User ID must not be lower than $0"
 msgstr "მომხმარებლის ID $0-ზე ნაკლები ვერ იქნება"
 
 #: pkg/static/login.html:105 pkg/users/account-details.js:256
-#: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
+#: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:459
 msgid "User name"
 msgstr "მომხმარებლის სახელი"
 
@@ -8895,7 +8945,7 @@ msgstr "მომწოდებელი"
 msgid "Verified"
 msgstr "შემოწმებული"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:147 pkg/shell/hosts_dialog.jsx:590
+#: pkg/lib/cockpit-connect-ssh.tsx:147 pkg/shell/hosts_dialog.jsx:684
 msgid "Verify fingerprint"
 msgstr "ანაბეჭდის გადამოწმება"
 
@@ -8931,8 +8981,8 @@ msgstr "ყველა ჟურნალის ნახვა"
 msgid "View all services"
 msgstr "ყველა სერვისის ნახვა"
 
-#: pkg/kdump/kdump-view.jsx:526
-#: pkg/lib/cockpit-components-modifications.jsx:154
+#: pkg/kdump/kdump-view.jsx:538
+#: pkg/lib/cockpit-components-modifications.jsx:158
 msgid "View automation script"
 msgstr "ავტომატიზაციის სკრიპტის ნახვა"
 
@@ -9091,7 +9141,7 @@ msgstr "კვირა"
 msgid "When"
 msgstr "როდის"
 
-#: pkg/shell/hosts_dialog.jsx:368
+#: pkg/shell/hosts_dialog.jsx:462
 msgid "When empty, connect with the current user"
 msgstr "როცა ცარიელია, მიმდინარე მომხმარებლით შესვლა"
 
@@ -9105,7 +9155,7 @@ msgstr ""
 "მიმდინარეობის შესახებ. მაგრამ განახლების პროცესი ფონურად გაგრძელდება. "
 "მიმდინარეობის დასანახავად დაუკავშირდით თავიდან."
 
-#: pkg/systemd/terminal.jsx:177
+#: pkg/systemd/terminal.jsx:261
 msgid "White"
 msgstr "თეთრი"
 
@@ -9151,7 +9201,7 @@ msgid "Yes"
 msgstr "დიახ"
 
 #: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
-#: pkg/shell/hosts_dialog.jsx:589
+#: pkg/shell/hosts_dialog.jsx:683
 msgid "You are connecting to $0 for the first time."
 msgstr "$0-ს პირველად უკავშირდებით."
 
@@ -9173,7 +9223,7 @@ msgstr "გამოხვედით უქმედ ყოფნის გა
 msgid "You may try to load older entries."
 msgstr "სცადეთ ჩატვირთოთ ძველი ელემენტები."
 
-#: pkg/shell/hosts_dialog.jsx:875 pkg/shell/hosts_dialog.jsx:880
+#: pkg/shell/hosts_dialog.jsx:969 pkg/shell/hosts_dialog.jsx:974
 msgid "You may want to change the password of the key for automatic login."
 msgstr "ავტომატურად შესაცვლელად შეიძლება გასაღების პაროლის შეცვლა მოგიწიოთ."
 
@@ -9189,11 +9239,15 @@ msgstr "ახლა გაქვთ ადმინისტრატორი�
 msgid "You will be logged out in $0 seconds."
 msgstr "გახვალთ $0 წამში."
 
+#: pkg/shell/hosts_dialog.jsx:267
+msgid "You will be reminded once per session."
+msgstr "შეგახსენებთ ერთხელ თითოეული სესიისთვის."
+
 #: pkg/users/accounts-list.js:176
 msgid "Your account"
 msgstr "თქვენი ანგარიში"
 
-#: pkg/lib/cockpit-components-terminal.jsx:233
+#: pkg/lib/cockpit-components-terminal.jsx:244
 msgid ""
 "Your browser does not allow paste from the context menu. You can use "
 "Shift+Insert."
@@ -9213,11 +9267,11 @@ msgstr ""
 "თქვენი სერვერი მალე კავშირს დახურავს. გადატვირთვის შემდეგ შეგეძლებათ თავიდან "
 "დაუკავშირდეთ."
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2586
 msgid "Your session has been terminated."
 msgstr "თქვენი სესია გაწყვეტილია."
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2588
 msgid "Your session has expired. Please log in again."
 msgstr "სესიის ვადა გასულია. თავიდან შედით."
 
@@ -9616,7 +9670,7 @@ msgstr "დაყენება"
 msgid "interface"
 msgstr "ინტერფეისი"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:458
 msgid "invalid: multiple targets defined"
 msgstr "არასწორია: განსაზღვრულია ერთზე მეტი სამიზნე"
 
@@ -9644,7 +9698,7 @@ msgstr "journalctl-ის მინი-დოკუმენტაცია"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:539
+#: pkg/kdump/kdump-view.jsx:551
 msgid "kdump status"
 msgstr "kdump-ის მდგომარეობა"
 
@@ -9716,7 +9770,7 @@ msgstr "შემოვლა"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:564
+#: pkg/kdump/kdump-view.jsx:576
 msgid "more details"
 msgstr "მეტი დეტალი"
 

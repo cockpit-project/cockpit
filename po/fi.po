@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-13 02:57+0000\n"
-"PO-Revision-Date: 2024-10-31 17:38+0000\n"
-"Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
+"POT-Creation-Date: 2024-11-26 03:03+0000\n"
+"PO-Revision-Date: 2024-11-22 05:38+0000\n"
+"Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/fi/>\n"
 "Language: fi\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 5.7.2\n"
+"X-Generator: Weblate 5.8.2\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -45,28 +45,20 @@ msgid "$0 available"
 msgstr "$0 käytettävissä"
 
 #: pkg/storaged/block/resize.jsx:266
-#, fuzzy
-#| msgid "$0 filesystems can not be made larger."
 msgid "$0 can not be made larger"
-msgstr "tiedostojärjestelmiä $0 ei voida suurentaa."
+msgstr "$0:ta ei voi tehdä suuremmaksi"
 
 #: pkg/storaged/block/resize.jsx:263
-#, fuzzy
-#| msgid "$0 filesystems can not be made smaller."
 msgid "$0 can not be made smaller"
-msgstr "tiedostojärjestelmiä $0 ei voida pienentää."
+msgstr "$0:ta ei voi tehdä pienemmäksi"
 
 #: pkg/storaged/block/resize.jsx:259
-#, fuzzy
-#| msgid "$0 filesystems can not be resized here."
 msgid "$0 can not be resized"
-msgstr "tiedostojärjestelmien $0 kokoa ei voida muuttaa tässä."
+msgstr "$0:n kokoa ei voi muuttaa"
 
 #: pkg/storaged/block/resize.jsx:255
-#, fuzzy
-#| msgid "$0 filesystems can not be resized here."
 msgid "$0 can not be resized here"
-msgstr "tiedostojärjestelmien $0 kokoa ei voida muuttaa tässä."
+msgstr "$0:n kokoa ei voi muuttaa tässä"
 
 #: pkg/storaged/mdraid/mdraid.jsx:262
 msgid "$0 chunk size"
@@ -106,19 +98,23 @@ msgstr[1] "$0 levyjä ei löydy"
 msgid "$0 disks"
 msgstr "$0 levyt"
 
-#: pkg/shell/topnav.jsx:142
+#: pkg/shell/topnav.jsx:127
 msgid "$0 documentation"
 msgstr "$0 -dokumentaatio"
+
+#: pkg/systemd/terminal.jsx:164
+msgid "$0 does not exist"
+msgstr "$0 ei ole olemassa"
 
 #: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "$0 virhe"
 
-#: pkg/lib/cockpit.js:1411
+#: pkg/lib/cockpit.js:1407
 msgid "$0 exited with code $1"
 msgstr "$0 poistui koodilla $1"
 
-#: pkg/lib/cockpit.js:1413
+#: pkg/lib/cockpit.js:1409
 msgid "$0 failed"
 msgstr "$0 epäonnistui"
 
@@ -129,11 +125,8 @@ msgstr[0] "$0 epäonnistunut sisäänkirjautumisyritys"
 msgstr[1] "$0 epäonnistutta sisäänkirjautumisyritystä"
 
 #: pkg/storaged/filesystem/filesystem.jsx:91
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "$0 filesystem"
 msgid "$0 filesystem"
-msgstr "$0 tiedostojärjestelmä"
+msgstr "$0-tiedostojärjestelmä"
 
 #: pkg/metrics/metrics.jsx:903
 msgid "$0 free"
@@ -169,17 +162,21 @@ msgstr "$0 on olemassa oleva tiedosto"
 msgid "$0 is in use"
 msgstr "$0 on käytössä"
 
+#: pkg/systemd/terminal.jsx:160
+msgid "$0 is not a directory"
+msgstr "$0 ei ole hakemisto"
+
 #: pkg/lib/cockpit-components-install-dialog.jsx:160
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:35
 msgid "$0 is not available from any repository."
 msgstr "$0 ei ole saatavilla mistään ohjelmistovarastosta."
 
 #: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
-#: pkg/shell/hosts_dialog.jsx:565
+#: pkg/shell/hosts_dialog.jsx:659
 msgid "$0 key changed"
 msgstr "$0 avain muuttunut"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1405
 msgid "$0 killed with signal $1"
 msgstr "$0 tapettu signaalilla $1"
 
@@ -230,10 +227,8 @@ msgstr[0] "$0 sivu"
 msgstr[1] "$0 sivua"
 
 #: pkg/storaged/partitions/partition-table.jsx:92
-#, fuzzy
-#| msgid "partition"
 msgid "$0 partitions"
-msgstr "osio"
+msgstr "$0 osiota"
 
 #: pkg/packagekit/updates.jsx:797
 msgid "$0 security fix available"
@@ -285,10 +280,8 @@ msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 käytetty kohteesta $1 ($2 tallennettu)"
 
 #: pkg/storaged/dialog.jsx:1383
-#, fuzzy
-#| msgid "$0 total"
 msgid "$0 used, $1 total"
-msgstr "$0 yhteensä"
+msgstr "$0 käytetty, $1 yhteensä"
 
 #: pkg/lib/cockpit-components-plot.jsx:225
 msgid "$0 week"
@@ -319,23 +312,17 @@ msgid "$name (from $host)"
 msgstr "$name (kohteesta $host)"
 
 #: pkg/storaged/dialog.jsx:1285
-#, fuzzy
-#| msgid "Creating partition $target"
 msgid "(Not part of target)"
-msgstr "Luodaan osiota $target"
+msgstr "(Ei osa kohdetta)"
 
 #: pkg/storaged/filesystem/utils.jsx:239
-#, fuzzy
-#| msgid "Local mount point"
 msgid "(no assigned mount point)"
-msgstr "Paikallinen liitoskohta"
+msgstr "(ei määritettyä liitoskohtaa)"
 
 #: pkg/storaged/nfs/nfs.jsx:294 pkg/storaged/filesystem/utils.jsx:236
 #: pkg/storaged/filesystem/utils.jsx:241
-#, fuzzy
-#| msgid "Not mounted"
 msgid "(not mounted)"
-msgstr "Ei liitetty"
+msgstr "(ei liitetty)"
 
 #: pkg/storaged/block/format-dialog.jsx:190
 msgid "(recommended)"
@@ -564,7 +551,7 @@ msgstr "8."
 msgid "9th"
 msgstr "9."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:520 pkg/shell/hosts_dialog.jsx:196
+#: pkg/lib/cockpit-connect-ssh.tsx:520 pkg/shell/hosts_dialog.jsx:218
 msgid "A compatible version of Cockpit is not installed on $0."
 msgstr "Yhteensopivaa versiota Cockpitistä ei ole asennettu kohteessa $0."
 
@@ -591,7 +578,7 @@ msgstr ""
 "Verkkosidos yhdistää useita verkkoliitäntöjä yhdeksi loogiseksi liitännäksi, "
 "jolla on korkeampi suorituskyky tai redundanssi."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:413 pkg/shell/hosts_dialog.jsx:896
+#: pkg/lib/cockpit-connect-ssh.tsx:413 pkg/shell/hosts_dialog.jsx:990
 msgid ""
 "A new SSH key at $0 will be created for $1 on $2 and it will be added to the "
 "$3 file of $4 on $5."
@@ -624,10 +611,8 @@ msgstr[1] ""
 "voimaan:"
 
 #: pkg/storaged/lvm2/volume-group.jsx:385
-#, fuzzy
-#| msgid "Physical volumes can not be resized here."
 msgid "A volume group with missing physical volumes can not be renamed."
-msgstr "Fyysisten taltioiden kokoja ei voida muuttaa tässä."
+msgstr "Taltioryhmää, josta puuttuu fyysisiä asemia, ei voi nimetä uudelleen."
 
 #: pkg/networkmanager/bond.jsx:55
 msgid "ARP"
@@ -641,7 +626,7 @@ msgstr "ARP-monitorointi"
 msgid "ARP ping"
 msgstr "ARP:n ping"
 
-#: pkg/shell/topnav.jsx:164
+#: pkg/shell/topnav.jsx:149
 msgid "About Web Console"
 msgstr "Tietoja Verkkokonsolista"
 
@@ -654,10 +639,8 @@ msgid "Accept key and log in"
 msgstr "Hyväksy avain ja kirjaudu sisään"
 
 #: pkg/lib/cockpit-components-password.jsx:101
-#, fuzzy
-#| msgid "Set password"
 msgid "Acceptable password"
-msgstr "Aseta salasana"
+msgstr "Hyväksyttävä salasana"
 
 #: pkg/users/expiration-dialogs.js:108
 msgid "Account expiration"
@@ -686,7 +669,7 @@ msgstr "Aktivoi"
 
 #: pkg/storaged/block/resize.jsx:314
 msgid "Activate before resizing"
-msgstr ""
+msgstr "Aktivoi ennen koon muuttamista"
 
 #: pkg/storaged/jobs-panel.jsx:73
 msgid "Activating $target"
@@ -701,7 +684,7 @@ msgid "Active backup"
 msgstr "Aktiivinen varmennus"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:211
+#: pkg/shell/topnav.jsx:196
 msgid "Active pages"
 msgstr "Aktiiviset sivut"
 
@@ -723,7 +706,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "Mukautuva lähtevän kuorman tasaus"
 
 #: pkg/systemd/timer-dialog.jsx:367 pkg/networkmanager/dialogs-common.jsx:149
-#: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:353
+#: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:447
 #: pkg/shell/credentials.jsx:182 pkg/storaged/lvm2/volume-group.jsx:209
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/mdraid/mdraid.jsx:167
 #: pkg/storaged/iscsi/create-dialog.jsx:120
@@ -740,10 +723,8 @@ msgstr "Lisää $0"
 
 #: pkg/networkmanager/ip-settings.jsx:239
 #: pkg/networkmanager/ip-settings.jsx:244
-#, fuzzy
-#| msgid "Tang keyserver"
 msgid "Add DNS server"
-msgstr "Tang-avainpalvelin"
+msgstr "Lisää DNS-palvelin"
 
 #: pkg/storaged/crypto/keyslots.jsx:421
 msgid "Add Network Bound Disk Encryption"
@@ -758,20 +739,16 @@ msgid "Add VLAN"
 msgstr "Lisää VLAN"
 
 #: pkg/networkmanager/network-main.jsx:141
-#, fuzzy
-#| msgid "Add VLAN"
 msgid "Add VPN"
-msgstr "Lisää VLAN"
+msgstr "Lisää VPN"
 
 #: pkg/networkmanager/wireguard.jsx:205
 msgid "Add WireGuard VPN"
-msgstr ""
+msgstr "Lisää WireGuard VPN"
 
 #: pkg/storaged/mdraid/mdraid.jsx:286
-#, fuzzy
-#| msgid "Add item"
 msgid "Add a bitmap"
-msgstr "Lisää kohta"
+msgstr "Lisää bittikartta"
 
 #: pkg/networkmanager/firewall.jsx:1038
 msgid "Add a new zone"
@@ -779,10 +756,8 @@ msgstr "Lisää uusi vyöhyke"
 
 #: pkg/networkmanager/ip-settings.jsx:173
 #: pkg/networkmanager/ip-settings.jsx:178
-#, fuzzy
-#| msgid "MAC address"
 msgid "Add address"
-msgstr "MAC-osoite"
+msgstr "Lisää osoite"
 
 #: pkg/storaged/stratis/pool.jsx:216 pkg/storaged/stratis/pool.jsx:307
 msgid "Add block devices"
@@ -815,16 +790,14 @@ msgid "Add key"
 msgstr "Lisää avain"
 
 #: pkg/storaged/stratis/pool.jsx:584
-#, fuzzy
-#| msgid "Tang keyserver"
 msgid "Add keyserver"
-msgstr "Tang-avainpalvelin"
+msgstr "Lisää avainpalvelin"
 
 #: pkg/networkmanager/network-interface-members.jsx:187
 msgid "Add member"
 msgstr "Lisää jäsen"
 
-#: pkg/shell/hosts.jsx:212 pkg/shell/hosts_dialog.jsx:352
+#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "Lisää uusi kone"
 
@@ -860,17 +833,13 @@ msgstr "Lisää julkinen avain"
 
 #: pkg/networkmanager/ip-settings.jsx:335
 #: pkg/networkmanager/ip-settings.jsx:340
-#, fuzzy
-#| msgid "Add item"
 msgid "Add route"
-msgstr "Lisää kohta"
+msgstr "Lisää reitti"
 
 #: pkg/networkmanager/ip-settings.jsx:287
 #: pkg/networkmanager/ip-settings.jsx:292
-#, fuzzy
-#| msgid "DNS search domains"
 msgid "Add search domain"
-msgstr "DNS-hakutoimialueet"
+msgstr "Lisää hakutoimialue"
 
 #: pkg/networkmanager/firewall.jsx:181 pkg/networkmanager/firewall.jsx:594
 msgid "Add services"
@@ -909,16 +878,12 @@ msgstr ""
 "hallintakäyttöliittymä ei ole saatavilla."
 
 #: pkg/storaged/stratis/pool.jsx:486
-#, fuzzy
-#| msgid ""
-#| "Saving a new passphrase requires unlocking the disk. Please provide a "
-#| "current disk passphrase."
 msgid ""
 "Adding a keyserver requires unlocking the pool. Please provide the existing "
 "pool passphrase."
 msgstr ""
-"Uuden salasanan tallentaminen edellyttää levyn lukituksen avaamista. Anna "
-"nykyinen levyn tunnuslause."
+"Avainpalvelimen lisääminen edellyttää altaan lukituksen avaamista. Syötä "
+"olemassa oleva altaan tunnuslause."
 
 #: pkg/networkmanager/firewall.jsx:607
 msgid ""
@@ -987,10 +952,8 @@ msgid "Addresses"
 msgstr "Osoitteet"
 
 #: pkg/networkmanager/wireguard.jsx:52
-#, fuzzy
-#| msgid "Address cannot be empty"
 msgid "Addresses are not formatted correctly"
-msgstr "Osoite ei voi olla tyhjä"
+msgstr "Osoitteet eivät ole oikein muotoiltuja"
 
 #: src/systemd/org.cockpit-project.cockpit-bridge.policy.in:10
 msgid "Administration with Cockpit Web Console"
@@ -1050,7 +1013,7 @@ msgstr "Kaikki"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:158
 msgid "All $0 selected physical volumes are needed for the chosen layout."
-msgstr ""
+msgstr "Kaikki $0 valitut fyysiset taltiot tarvitaan valittuun asetteluun."
 
 #: pkg/packagekit/autoupdates.jsx:421
 msgid "All updates"
@@ -1061,10 +1024,8 @@ msgid "All-in-one"
 msgstr "Kaikki yhdessä"
 
 #: pkg/storaged/stratis/pool.jsx:558
-#, fuzzy
-#| msgid "Allowed addresses"
 msgid "Allocated"
-msgstr "Sallitut osoitteet"
+msgstr "Varattu"
 
 #: pkg/storaged/stratis/pool.jsx:549
 msgid "Allow overprovisioning"
@@ -1075,10 +1036,8 @@ msgid "Allow running (unmask)"
 msgstr "Salli, että suoritetaan (paljastaa)"
 
 #: pkg/networkmanager/wireguard.jsx:318
-#, fuzzy
-#| msgid "Allowed addresses"
 msgid "Allowed IPs"
-msgstr "Sallitut osoitteet"
+msgstr "Sallitut IP-osoitteet"
 
 #: pkg/networkmanager/firewall.jsx:200 pkg/networkmanager/firewall.jsx:876
 msgid "Allowed addresses"
@@ -1086,13 +1045,13 @@ msgstr "Sallitut osoitteet"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:122
 msgid "An additional $0 must be selected"
-msgstr ""
+msgstr "Ylimääräinen $0 on valittava"
 
-#: pkg/lib/cockpit-components-modifications.jsx:88
+#: pkg/lib/cockpit-components-modifications.jsx:89
 msgid "Ansible"
 msgstr "Ansible"
 
-#: pkg/lib/cockpit-components-modifications.jsx:96
+#: pkg/lib/cockpit-components-modifications.jsx:97
 msgid "Ansible roles documentation"
 msgstr "Ansible-roolien dokumentaatio"
 
@@ -1109,13 +1068,13 @@ msgstr ""
 "muodossa KENTTÄ=ARVO, jossa arvo voi olla pilkuilla erotettu luettelo "
 "mahdollisista arvoista."
 
-#: pkg/systemd/terminal.jsx:168
+#: pkg/systemd/terminal.jsx:252
 msgid "Appearance"
 msgstr "Ulkomuoto"
 
 #: pkg/apps/application-list.jsx:167
 msgid "Application information is missing"
-msgstr ""
+msgstr "Sovellustiedot puuttuvat"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:174
 #: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
@@ -1126,7 +1085,7 @@ msgstr "Sovellukset"
 msgid "Applications list"
 msgstr "Sovellusten luettelo"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:220
 msgid "Apply and reboot"
 msgstr "Käytä ja käynnistä uudelleen"
 
@@ -1138,7 +1097,7 @@ msgstr "Asenna ytimen live-paikkaukset"
 msgid "Apply this solution"
 msgstr "Toteuta tämä ratkaisu"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:186
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:214
 msgid "Applying new policy... This may take a few minutes."
 msgstr "Uuden käytännön soveltaminen; tämä saattaa kestää muutaman minuutin."
 
@@ -1191,10 +1150,8 @@ msgid "At least one disk is needed."
 msgstr "Vähintään yksi levy tarvitaan."
 
 #: pkg/storaged/btrfs/subvolume.jsx:379
-#, fuzzy
-#| msgid "Volume failed to be created"
 msgid "At least one subvolume needs to be mounted"
-msgstr "Taltion luominen epäonnnistui"
+msgstr "Ainakin yksi alitaltio on liitettävä"
 
 #: pkg/systemd/timer-dialog.jsx:262
 msgid "At minute"
@@ -1225,7 +1182,7 @@ msgid "Authenticating"
 msgstr "Tunnistaudutaan"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:436 pkg/users/account-create-dialog.js:112
-#: pkg/shell/hosts_dialog.jsx:941
+#: pkg/shell/hosts_dialog.jsx:1035
 msgid "Authentication"
 msgstr "Tunnistautuminen"
 
@@ -1245,7 +1202,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "Tunnistautuminen vaaditaan"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:425 pkg/shell/hosts_dialog.jsx:927
+#: pkg/lib/cockpit-connect-ssh.tsx:425 pkg/shell/hosts_dialog.jsx:1021
 msgid "Authorize SSH key"
 msgstr "Valtuuta SSH-avain"
 
@@ -1265,7 +1222,7 @@ msgstr "Automaattinen"
 msgid "Automatic (DHCP only)"
 msgstr "Automaattinen (vain DHCP)"
 
-#: pkg/shell/hosts_dialog.jsx:971
+#: pkg/shell/hosts_dialog.jsx:1065
 msgid "Automatic login"
 msgstr "Automaattinen sisäänkirjautuminen"
 
@@ -1307,10 +1264,8 @@ msgstr "BIOS"
 
 #: pkg/storaged/partitions/partition.jsx:87
 #: pkg/storaged/partitions/partition.jsx:122
-#, fuzzy
-#| msgid "partition"
 msgid "BIOS boot partition"
-msgstr "osio"
+msgstr "BIOS-käynnistysosio"
 
 #: pkg/systemd/hwinfo.jsx:108
 msgid "BIOS date"
@@ -1344,7 +1299,7 @@ msgstr "Ennen"
 msgid "Binds to"
 msgstr "Sitoo tähän"
 
-#: pkg/systemd/terminal.jsx:174
+#: pkg/systemd/terminal.jsx:258
 msgid "Black"
 msgstr "Musta"
 
@@ -1434,7 +1389,7 @@ msgstr "Viat"
 msgid "Bus expansion chassis"
 msgstr "Väylän laajennusalusta"
 
-#: pkg/shell/hosts_dialog.jsx:912
+#: pkg/shell/hosts_dialog.jsx:1006
 msgid ""
 "By changing the password of the SSH key $0 to the login password of $1 on "
 "$2, the key will be automatically made available and you can log in to $3 "
@@ -1445,10 +1400,8 @@ msgstr ""
 "koneelle $3 jatkossa ilman salasanaa."
 
 #: pkg/static/login.html:70
-#, fuzzy
-#| msgid "            Bypass browser check          "
 msgid "Bypass browser check"
-msgstr "            Ohita selaimen tarkistus          "
+msgstr "Ohita selaimen tarkistus"
 
 #: pkg/metrics/metrics.jsx:111 pkg/metrics/metrics.jsx:781
 #: pkg/metrics/metrics.jsx:1548 pkg/metrics/metrics.jsx:1917
@@ -1480,7 +1433,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "Välimuisti"
 
-#: pkg/shell/hosts_dialog.jsx:363
+#: pkg/shell/hosts_dialog.jsx:457
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "Voi olla konenimi, IP-osoite, aliaksen nimi tai ssh:// URI"
 
@@ -1491,8 +1444,9 @@ msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
-#: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
+#: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
+#: pkg/systemd/reporting.jsx:383
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:223
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
@@ -1507,11 +1461,11 @@ msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
-#: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
-#: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
-#: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
-#: pkg/sosreport/sosreport.jsx:379
+#: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
+#: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
+#: pkg/shell/hosts_dialog.jsx:709 pkg/shell/hosts_dialog.jsx:1086
+#: pkg/shell/credentials.jsx:311 pkg/storaged/jobs-panel.jsx:140
+#: pkg/sosreport/sosreport.jsx:294 pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "Peru"
 
@@ -1531,7 +1485,7 @@ msgstr "Ei voida ottaa käyttöön"
 msgid "Cannot connect to an unknown host"
 msgstr "Ei voida yhdistää tuntemattomaan koneeseen"
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2608
 msgid "Cannot forward login credentials"
 msgstr "Kirjautumistietoja ei voi välittää eteenpäin"
 
@@ -1557,7 +1511,7 @@ msgstr "Kuljetin"
 
 #: pkg/storaged/pages.jsx:713
 msgid "Category"
-msgstr ""
+msgstr "Luokka"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
 #: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
@@ -1566,9 +1520,13 @@ msgstr ""
 msgid "Change"
 msgstr "Vaihda"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:181
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:209
 msgid "Change cryptographic policy"
 msgstr "Muuta kryptografista käytäntöä"
+
+#: pkg/systemd/terminal.jsx:289
+msgid "Change directory"
+msgstr "Vaihda hakemistoa"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Change host name"
@@ -1610,7 +1568,7 @@ msgstr "Vaihda komentotulkkia"
 msgid "Change system time"
 msgstr "Vaihda järjestelmän aika"
 
-#: pkg/shell/hosts_dialog.jsx:910
+#: pkg/shell/hosts_dialog.jsx:1004
 msgid "Change the password of $0"
 msgstr "Vaihda avaimen $0 salasana"
 
@@ -1619,7 +1577,7 @@ msgid "Change the settings"
 msgstr "Vaihda asetuksia"
 
 #: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
-#: pkg/shell/hosts_dialog.jsx:574
+#: pkg/shell/hosts_dialog.jsx:668
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1631,7 +1589,16 @@ msgstr ""
 
 #: pkg/storaged/partitions/partition.jsx:196
 msgid "Changing partition types might prevent the system from booting."
+msgstr "Osiotyyppien muuttaminen saattaa estää järjestelmää käynnistymästä."
+
+#: pkg/systemd/terminal.jsx:293
+msgid ""
+"Changing the directory will forcefully stop the currently running process. "
+"The process can also be stopped manually in the terminal before continuing."
 msgstr ""
+"Hakemiston muuttaminen pysäyttää voimalla parhaillaan käynnissä olevan "
+"prosessin. Prosessi voidaan pysäyttää myös manuaalisesti terminaalissa ennen "
+"jatkamista."
 
 #: pkg/networkmanager/interfaces.js:1655
 msgid ""
@@ -1673,10 +1640,8 @@ msgid "Checking and repairing MDRAID device $target"
 msgstr "Tarkistetaan ja korjataan MDRAID-laite $target"
 
 #: pkg/storaged/dialog.jsx:1367
-#, fuzzy
-#| msgid "Creating filesystem on $target"
 msgid "Checking filesystem usage"
-msgstr "Luodaan tiedostojärjestelmää $target:een"
+msgstr "Tarkistetaan tiedostojärjestelmän käyttöä"
 
 #: pkg/storaged/crypto/keyslots.jsx:267
 msgid "Checking for $0 package"
@@ -1746,11 +1711,11 @@ msgstr "Asiakasohjelmisto"
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
 #: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
-#: pkg/lib/cockpit-components-terminal.jsx:230
+#: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
 #: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
-#: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:190
+#: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
 msgstr "Sulje"
@@ -1771,7 +1736,7 @@ msgstr "Cockpitin tunnistautuminen on konfiguroitu virheellisesti."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "NetworkManagerin ja Firewalld:n Cockit-asetukset"
 
-#: pkg/lib/cockpit.js:2618
+#: pkg/lib/cockpit.js:2614
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit ei saanut yhteyttä koneeseen."
 
@@ -1798,15 +1763,15 @@ msgid "Cockpit is an interactive Linux server admin interface."
 msgstr ""
 "Cockpit on vuorovaikutteinen Linux-palvelimen ylläpitäjän käyttöliittymä."
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2612
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit ei ole yhteensopiva järjestelmän ohjelmiston kanssa."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:512 pkg/shell/hosts_dialog.jsx:187
+#: pkg/lib/cockpit-connect-ssh.tsx:512 pkg/shell/hosts_dialog.jsx:209
 msgid "Cockpit is not installed"
 msgstr "Cockpit ei ole asennettu"
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2606
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit ei ole asennettu järjestelmässä."
 
@@ -1840,7 +1805,7 @@ msgstr "Kerää ytimen kaatumisvedoksia"
 msgid "Collect metrics"
 msgstr "Kerää mittarit"
 
-#: pkg/shell/hosts_dialog.jsx:370
+#: pkg/shell/hosts_dialog.jsx:464
 msgid "Color"
 msgstr "Väri"
 
@@ -1926,11 +1891,11 @@ msgstr "Vahvista"
 msgid "Confirm deletion of $0"
 msgstr "Vahvista kohteen $0 poistaminen"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:418 pkg/shell/hosts_dialog.jsx:902
+#: pkg/lib/cockpit-connect-ssh.tsx:418 pkg/shell/hosts_dialog.jsx:996
 msgid "Confirm key password"
 msgstr "Vahvista avaimen salasana"
 
-#: pkg/shell/hosts_dialog.jsx:918
+#: pkg/shell/hosts_dialog.jsx:1012
 msgid "Confirm new key password"
 msgstr "Vahvista uusi avaimen salasana"
 
@@ -1962,6 +1927,10 @@ msgstr "Näiden kanssa ristiriitainen"
 msgid "Conflicts"
 msgstr "Ristiriidat"
 
+#: pkg/shell/hosts_dialog.jsx:271
+msgid "Connect"
+msgstr "Yhdistä"
+
 #: pkg/networkmanager/network-interface.jsx:324
 msgid "Connect automatically"
 msgstr "Yhdistä automaattisesti"
@@ -1970,9 +1939,22 @@ msgstr "Yhdistä automaattisesti"
 msgid "Connect to"
 msgstr "Yhdistä"
 
+#: pkg/shell/hosts_dialog.jsx:263
+msgid "Connect to $0?"
+msgstr "Yhdistetäänkö $0:aan?"
+
 #: pkg/static/login.js:730
 msgid "Connect to:"
 msgstr "Yhdistä kohteeseen:"
+
+#: pkg/shell/hosts_dialog.jsx:280
+msgid ""
+"Connected hosts can fully control each other. This includes running programs "
+"that could harm your system or steal data. Only connect to trusted machines."
+msgstr ""
+"Yhdistetyt isännät voivat hallita toisiaan täysin. Tämä sisältää sellaisten "
+"ohjelmien suorittamisen, jotka voivat vahingoittaa järjestelmääsi tai "
+"varastaa tietoja. Yhdistä vain luotettuihin koneisiin."
 
 #: pkg/selinux/setroubleshoot-view.jsx:329
 msgid "Connecting to SETroubleshoot daemon..."
@@ -1986,7 +1968,7 @@ msgstr "Yhteyden muodostaminen dbus-verkkoon epäonnistui: $0"
 msgid "Connecting to the machine"
 msgstr "Yhdistetään koneeseen"
 
-#: pkg/shell/hosts.jsx:197
+#: pkg/shell/hosts.jsx:194
 msgid "Connection error"
 msgstr "Yhteysvirhe"
 
@@ -1994,7 +1976,7 @@ msgstr "Yhteysvirhe"
 msgid "Connection failed"
 msgstr "Yhteys epäonnistui"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2604
 msgid "Connection has timed out."
 msgstr "Yhteys aikakatkaistiin."
 
@@ -2041,18 +2023,18 @@ msgstr "Muunnettavissa"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:133 pkg/lib/cockpit-connect-ssh.tsx:136
 #: pkg/lib/cockpit-connect-ssh.tsx:151 pkg/lib/cockpit-connect-ssh.tsx:153
-#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:576
-#: pkg/shell/hosts_dialog.jsx:579 pkg/shell/hosts_dialog.jsx:594
-#: pkg/shell/hosts_dialog.jsx:596 pkg/shell/credentials.jsx:210
+#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:670
+#: pkg/shell/hosts_dialog.jsx:673 pkg/shell/hosts_dialog.jsx:688
+#: pkg/shell/hosts_dialog.jsx:690 pkg/shell/credentials.jsx:210
 msgid "Copied"
 msgstr "Kopioitu"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:222
 #: pkg/lib/cockpit-connect-ssh.tsx:133 pkg/lib/cockpit-connect-ssh.tsx:136
 #: pkg/lib/cockpit-connect-ssh.tsx:151 pkg/lib/cockpit-connect-ssh.tsx:153
-#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:576
-#: pkg/shell/hosts_dialog.jsx:579 pkg/shell/hosts_dialog.jsx:594
-#: pkg/shell/hosts_dialog.jsx:596 pkg/shell/credentials.jsx:210
+#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:670
+#: pkg/shell/hosts_dialog.jsx:673 pkg/shell/hosts_dialog.jsx:688
+#: pkg/shell/hosts_dialog.jsx:690 pkg/shell/credentials.jsx:210
 msgid "Copy"
 msgstr "Kopio"
 
@@ -2065,11 +2047,11 @@ msgstr "Kopioi leikepöydälle"
 msgid "Core $0"
 msgstr "Ydin $0"
 
-#: pkg/shell/hosts_dialog.jsx:455
+#: pkg/shell/hosts_dialog.jsx:549
 msgid "Could not contact $0"
 msgstr "Ei saatu yhteyttä kohteeseen $0"
 
-#: pkg/kdump/kdump-view.jsx:221 pkg/kdump/kdump-view.jsx:617
+#: pkg/kdump/kdump-view.jsx:221 pkg/kdump/kdump-view.jsx:629
 msgid "Crash dump location"
 msgstr "Kaatumisen tyhjennyksen sijainti"
 
@@ -2095,10 +2077,8 @@ msgid "Create"
 msgstr "Luo"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:177
-#, fuzzy
-#| msgid "Create"
 msgid "Create $0"
-msgstr "Luo"
+msgstr "Luo $0"
 
 #: pkg/storaged/overview/overview.jsx:146
 msgid "Create LVM2 volume group"
@@ -2117,7 +2097,7 @@ msgstr "Luo RAID-laite"
 msgid "Create Stratis pool"
 msgstr "Luo stratisvaranto"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:411 pkg/shell/hosts_dialog.jsx:894
+#: pkg/lib/cockpit-connect-ssh.tsx:411 pkg/shell/hosts_dialog.jsx:988
 msgid "Create a new SSH key and authorize it"
 msgstr "Luo uusi SSH-avain ja valtuuta se"
 
@@ -2143,10 +2123,8 @@ msgid "Create and mount"
 msgstr "Luo ja liitä"
 
 #: pkg/storaged/block/format-dialog.jsx:279
-#, fuzzy
-#| msgid "Create and mount"
 msgid "Create and start"
-msgstr "Luo ja liitä"
+msgstr "Luo ja käynnistä"
 
 #: pkg/storaged/stratis/pool.jsx:89
 msgid "Create filesystem"
@@ -2176,7 +2154,7 @@ msgstr "Luo uusi ryhmä"
 msgid "Create new logical volume"
 msgstr "Luo uusi looginen taltio"
 
-#: pkg/lib/cockpit-components-modifications.jsx:92
+#: pkg/lib/cockpit-components-modifications.jsx:93
 msgid "Create new task file with this content."
 msgstr "Luo uusi tehtävätiedosto tällä sisällöllä."
 
@@ -2218,16 +2196,12 @@ msgid "Create snapshot only"
 msgstr "Luo vain tilannevedos"
 
 #: pkg/storaged/overview/overview.jsx:174
-#, fuzzy
-#| msgid "Create storage volume"
 msgid "Create storage device"
-msgstr "Luo varastointitaltio"
+msgstr "Luo tallennuslaite"
 
 #: pkg/storaged/btrfs/subvolume.jsx:155 pkg/storaged/btrfs/subvolume.jsx:386
-#, fuzzy
-#| msgid "Create volume"
 msgid "Create subvolume"
-msgstr "Luo taltio"
+msgstr "Luo alitaltio"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:42
 msgid "Create thin volume"
@@ -2285,7 +2259,7 @@ msgstr ""
 msgid "Critical and above"
 msgstr "Kriittinen ja yli"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:182
 msgid ""
 "Cryptographic Policies is a system component that configures the core "
 "cryptographic subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos "
@@ -2295,15 +2269,15 @@ msgstr ""
 "salausalijärjestelmät, jotka kattavat TLS-, IPSec-, SSH-, DNSSec- ja "
 "Kerberos-protokollat."
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:62
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:92
 msgid "Cryptographic policy"
 msgstr "Kryptografinen käytäntö"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:261
 msgid "Cryptographic policy is inconsistent"
 msgstr "Kryptografinen käytäntö on epäjohdonmukainen"
 
-#: pkg/lib/cockpit-components-terminal.jsx:212
+#: pkg/lib/cockpit-components-terminal.jsx:223
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
@@ -2323,17 +2297,15 @@ msgstr "Nykyinen korkein suoritinten käyttö"
 msgid "Currently in use"
 msgstr "Tällä hetkellä käytössä"
 
-#: pkg/kdump/kdump-view.jsx:535
-#, fuzzy
-#| msgid "Currently in use"
+#: pkg/kdump/kdump-view.jsx:547
 msgid "Currently not supported"
-msgstr "Tällä hetkellä käytössä"
+msgstr "Ei tällä hetkellä tuettu"
 
 #: pkg/storaged/partitions/partition.jsx:154
 msgid "Custom"
 msgstr "Mukautettu"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:142
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:170
 msgid "Custom cryptographic policy"
 msgstr "Mukautettu kryptografinen käytäntö"
 
@@ -2346,16 +2318,14 @@ msgid "Custom ports"
 msgstr "Mukautetut portit"
 
 #: pkg/storaged/partitions/partition.jsx:188
-#, fuzzy
-#| msgid "Custom path"
 msgid "Custom type"
-msgstr "Mukautettu polku"
+msgstr "Mukautettu tyyppi"
 
 #: pkg/networkmanager/firewall.jsx:835
 msgid "Custom zones"
 msgstr "Mukautetut vyöhykkeet"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:108
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:134
 msgid "DEFAULT with SHA-1 signature verification allowed."
 msgstr "OLETUS, SHA-1-allekirjoituksen vahvistus sallittu."
 
@@ -2383,7 +2353,7 @@ msgstr "Joka päivä"
 msgid "Danger alert:"
 msgstr "Vaaran hälytys:"
 
-#: pkg/systemd/terminal.jsx:175 pkg/shell/topnav.jsx:191
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
 msgid "Dark"
 msgstr "Tumma"
 
@@ -2402,6 +2372,9 @@ msgid ""
 "selected physical volumes, to improve both reliability and performance. At "
 "least four volumes need to be selected."
 msgstr ""
+"Tiedot tallennetaan kahtena kopiona ja myös vuorotellen valituille "
+"fyysisille määrille luotettavuuden ja suorituskyvyn parantamiseksi. "
+"Vähintään neljä taltiota on valittava."
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:142
 msgid ""
@@ -2479,7 +2452,7 @@ msgstr "Deaktivoidaan $target"
 msgid "Debug and above"
 msgstr "Virheenkorjaus ja yli"
 
-#: pkg/systemd/terminal.jsx:160
+#: pkg/systemd/terminal.jsx:244
 msgid "Decrease by one"
 msgstr "Vähennä yhdellä"
 
@@ -2494,7 +2467,7 @@ msgstr "RAID 4 (omistettu pariteetti)"
 msgid "Deduplication"
 msgstr "Päällekkäisyyden poisto"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37 pkg/shell/topnav.jsx:185
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
 msgid "Default"
 msgstr "Oletus"
 
@@ -2685,7 +2658,7 @@ msgstr "Poista tuned käytöstä"
 
 #: pkg/systemd/services.jsx:246 pkg/systemd/services.jsx:687
 #: pkg/systemd/service-details.jsx:436 pkg/networkmanager/ip-settings.jsx:46
-#: pkg/networkmanager/firewall-switch.jsx:80 pkg/kdump/kdump-view.jsx:541
+#: pkg/networkmanager/firewall-switch.jsx:80 pkg/kdump/kdump-view.jsx:553
 #: pkg/packagekit/autoupdates.jsx:470 pkg/packagekit/kpatch.jsx:253
 msgid "Disabled"
 msgstr "Ei käytössä"
@@ -2752,7 +2725,7 @@ msgstr[1] "Hylkää $0 hälytykset"
 msgid "Dismiss selected alerts"
 msgstr "Hylkää valitut hälytykset"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:204
+#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
 msgid "Display language"
 msgstr "Käytettävä kieli"
 
@@ -2860,9 +2833,9 @@ msgstr "Kaksinkertainen sijoitus"
 msgid "EFI system partition"
 msgstr "EFI-järjestelmäosio"
 
-#: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:476
+#: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:201 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "Muokkaa"
@@ -2901,11 +2874,11 @@ msgstr "Sillan asetukset"
 msgid "Edit custom service in $0 zone"
 msgstr "Muokkaa mukautettua palvelua $0-vyöhykkeellä"
 
-#: pkg/shell/hosts_dialog.jsx:352
+#: pkg/shell/hosts_dialog.jsx:446
 msgid "Edit host"
 msgstr "Muokkaa konetta"
 
-#: pkg/shell/hosts.jsx:251
+#: pkg/shell/hosts.jsx:248
 msgid "Edit hosts"
 msgstr "Muokkaa koneita"
 
@@ -2990,7 +2963,7 @@ msgstr "Ota palomuuri käyttöön"
 
 #: pkg/systemd/services.jsx:244 pkg/systemd/services.jsx:245
 #: pkg/systemd/services.jsx:686 pkg/networkmanager/firewall-switch.jsx:80
-#: pkg/kdump/kdump-view.jsx:541 pkg/packagekit/kpatch.jsx:256
+#: pkg/kdump/kdump-view.jsx:553 pkg/packagekit/kpatch.jsx:256
 msgid "Enabled"
 msgstr "Käytössä"
 
@@ -3189,11 +3162,11 @@ msgstr "Laajennettu tieto"
 msgid "Extended partition"
 msgstr "Laajennettu osio"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:261
 msgid "FIPS is not properly enabled"
 msgstr "FIPS ei ole otettu oikein käyttöön"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:122
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:148
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "FIPS jossa muita yleisiä kriteerejä koskevia rajoituksia."
 
@@ -3201,7 +3174,7 @@ msgstr "FIPS jossa muita yleisiä kriteerejä koskevia rajoituksia."
 msgid "Failed"
 msgstr "Epäonnistui"
 
-#: pkg/shell/hosts_dialog.jsx:319
+#: pkg/shell/hosts_dialog.jsx:409
 msgid "Failed to add machine: $0"
 msgstr "Ei voitu lisätä konetta: $0"
 
@@ -3239,7 +3212,7 @@ msgstr "tuned:n käytöstä poistaminen epäonnistui"
 msgid "Failed to disable tuned profile"
 msgstr "muokatun profiilin käytöstä poistaminen epäonnistui"
 
-#: pkg/shell/hosts_dialog.jsx:436
+#: pkg/shell/hosts_dialog.jsx:530
 msgid "Failed to edit machine: $0"
 msgstr "Koneen muokkaaminen epäonnistui: $0"
 
@@ -3369,7 +3342,7 @@ msgstr "Laiteohjelmiston versio"
 msgid "Fix NBDE support"
 msgstr "Korjaa NBDE-tuki"
 
-#: pkg/systemd/terminal.jsx:149 pkg/systemd/terminal.jsx:159
+#: pkg/systemd/terminal.jsx:233 pkg/systemd/terminal.jsx:243
 msgid "Font size"
 msgstr "Kirjasinkoko"
 
@@ -3560,8 +3533,8 @@ msgstr "Terveys"
 msgid "Hello time $hello_time"
 msgstr "Tervehdysaika $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
 msgid "Help"
 msgstr "Ohje"
 
@@ -3579,7 +3552,7 @@ msgstr "Piilota salasana"
 msgid "Hierarchy ID"
 msgstr "Hierarkiatunnus"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:109
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:135
 msgid "Higher interoperability at the cost of an increased attack surface."
 msgstr ""
 "Parempi yhteentoimivuus lisääntyneen hyökkäysrajapinnan kustannuksella."
@@ -3592,7 +3565,7 @@ msgstr "Historian pakettien määrä"
 msgid "Home directory"
 msgstr "Kotihakemisto"
 
-#: pkg/shell/hosts.jsx:228 pkg/shell/hosts_dialog.jsx:356
+#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "Kone"
 
@@ -3602,7 +3575,7 @@ msgstr "Kone"
 msgid "Host is unknown"
 msgstr "tuntematon"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2600
 msgid "Host key is incorrect"
 msgstr "Koneen avain on väärin"
 
@@ -3622,7 +3595,7 @@ msgstr "Koneen avain on väärin"
 msgid "Hostname"
 msgstr "Koneen nimi"
 
-#: pkg/shell/hosts.jsx:186
+#: pkg/shell/hosts.jsx:183
 msgid "Hosts"
 msgstr "Koneet"
 
@@ -3712,7 +3685,7 @@ msgstr ""
 "Jos sormenjälki on sama, napsauta \"Hyväksy avain ja kirjaudu sisään\". "
 "Muussa tapauksessa älä kirjaudu sisään ja ota yhteyttä ylläpitäjään."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:138 pkg/shell/hosts_dialog.jsx:581
+#: pkg/lib/cockpit-connect-ssh.tsx:138 pkg/shell/hosts_dialog.jsx:675
 msgid ""
 "If the fingerprint matches, click 'Trust and add host'. Otherwise, do not "
 "connect and contact your administrator."
@@ -3737,7 +3710,7 @@ msgstr "Sisään"
 msgid "In a terminal, run: "
 msgstr "Suorita päätteessä: "
 
-#: pkg/shell/hosts_dialog.jsx:907 pkg/shell/hosts_dialog.jsx:924
+#: pkg/shell/hosts_dialog.jsx:1001 pkg/shell/hosts_dialog.jsx:1018
 msgid ""
 "In order to allow log in to $0 as $1 without password in the future, use the "
 "login password of $2 on $3 as the key password, or leave the key password "
@@ -3776,7 +3749,7 @@ msgstr "Saapuvat pyynnöt estetään oletuksena. Lähteviä pyyntöjä ei estet�
 msgid "Inconsistent filesystem mount"
 msgstr "Epäjohdonmukainen tiedostojärjestelmän liitos"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/terminal.jsx:245
 msgid "Increase by one"
 msgstr "Lisää yhdellä"
 
@@ -3867,7 +3840,7 @@ msgstr ""
 msgid "Install software"
 msgstr "Asennetaan ohjelmistoja"
 
-#: pkg/kdump/kdump-view.jsx:571
+#: pkg/kdump/kdump-view.jsx:583
 #, fuzzy
 #| msgid "Please install the $0 package"
 msgid "Install the $0 package."
@@ -3918,7 +3891,7 @@ msgstr "Liitännän jäsenet"
 msgid "Interfaces"
 msgstr "Liitännät"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2602
 msgid "Internal error"
 msgstr "Sisäinen virhe"
 
@@ -4002,7 +3975,7 @@ msgstr "Virheellinen käyttäjätunnus tai salasana"
 msgid "IoT gateway"
 msgstr "IoT -yhdyskäytävä"
 
-#: pkg/shell/hosts_dialog.jsx:461
+#: pkg/shell/hosts_dialog.jsx:555
 msgid "Is sshd running on a different port?"
 msgstr "Onko sshd käynnissä eri portissa?"
 
@@ -4055,13 +4028,13 @@ msgstr "Päiväkirjan tietuetta ei löytynyt"
 msgid "Jump to"
 msgstr "Hyppää päiväykseen"
 
-#: pkg/kdump/kdump-view.jsx:569
+#: pkg/kdump/kdump-view.jsx:581
 #, fuzzy
 #| msgid "Cockpit is not installed"
 msgid "Kdump service is not installed."
 msgstr "Cockpit ei ole asennettu"
 
-#: pkg/kdump/kdump-view.jsx:604
+#: pkg/kdump/kdump-view.jsx:616
 #, fuzzy
 #| msgid "Test kdump settings"
 msgid "Kdump settings"
@@ -4071,11 +4044,11 @@ msgstr "Testaa kdump-asetukset"
 msgid "Keep connection"
 msgstr "Pidä yhteys"
 
-#: pkg/kdump/kdump-view.jsx:581
+#: pkg/kdump/kdump-view.jsx:593
 msgid "Kernel crash dump"
 msgstr "Ytimen kaatumisvedos"
 
-#: pkg/kdump/kdump-view.jsx:550
+#: pkg/kdump/kdump-view.jsx:562
 msgid "Kernel did not boot with the $0 setting"
 msgstr ""
 
@@ -4101,7 +4074,7 @@ msgid "Kernel live patching"
 msgstr "Ytimen live-korjauksia asennetaan"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:414 pkg/lib/cockpit-connect-ssh.tsx:459
-#: pkg/shell/hosts_dialog.jsx:897 pkg/shell/hosts_dialog.jsx:962
+#: pkg/shell/hosts_dialog.jsx:991 pkg/shell/hosts_dialog.jsx:1056
 msgid "Key password"
 msgstr "Avaimen salasana"
 
@@ -4135,7 +4108,7 @@ msgstr "Avaimenpalvelimen poisto voi estää lukituksen avaamisen$0."
 msgid "LACP key"
 msgstr "LACP-avain"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:110
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:136
 msgid "LEGACY with Active Directory interoperability."
 msgstr "LEGACY Active Directoryn yhteentoimivuudella."
 
@@ -4223,8 +4196,8 @@ msgstr "Edellinen onnistunut kirjautuminen:"
 msgid "Layout"
 msgstr ""
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:145
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:192
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
@@ -4249,7 +4222,7 @@ msgstr "Jätä tyhjäksi ohittaaksesi salauksen"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Käytetään GNU LGPL -versio 2.1 lisenssiä"
 
-#: pkg/systemd/terminal.jsx:176 pkg/shell/topnav.jsx:188
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
 msgid "Light"
 msgstr "Vaalea"
 
@@ -4393,7 +4366,7 @@ msgstr "Yksiköiden lataus epäonnistui"
 msgid "Loading packages..."
 msgstr "Ladataan paketteja..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:134
+#: pkg/lib/cockpit-components-modifications.jsx:135
 msgid "Loading system modifications..."
 msgstr "Ladataan järjestelmän muutoksia ..."
 
@@ -4403,7 +4376,7 @@ msgstr "Yksiköiden lataus epäonnistui"
 
 #: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
-#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:438
+#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
 #: pkg/users/accounts-list.js:339 pkg/users/accounts-list.js:453
 #: pkg/storaged/storaged.jsx:66
@@ -4428,7 +4401,7 @@ msgstr "Paikallinen liitoskohta"
 msgid "Local storage"
 msgstr "Ei tallennustilaa"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:462
 #, fuzzy
 #| msgid "locally in $0"
 msgid "Local, $0"
@@ -4475,11 +4448,11 @@ msgstr "Lukitaan $target"
 
 #: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
-#: pkg/shell/hosts_dialog.jsx:865
+#: pkg/shell/hosts_dialog.jsx:959
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:389 pkg/shell/hosts_dialog.jsx:864
+#: pkg/lib/cockpit-connect-ssh.tsx:389 pkg/shell/hosts_dialog.jsx:958
 msgid "Log in to $0"
 msgstr "Kirjaudu kohteeseen $0"
 
@@ -4491,7 +4464,7 @@ msgstr "Kirjaudu sisään palvelimesi käyttäjätilillä."
 msgid "Log messages"
 msgstr "Kirjaa viestit"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:221
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
@@ -4539,7 +4512,7 @@ msgstr "Sisäänkirjautuminen"
 msgid "Login again"
 msgstr "Kirjaudu sisään uudelleen"
 
-#: pkg/lib/cockpit.js:2596
+#: pkg/lib/cockpit.js:2592
 msgid "Login failed"
 msgstr "Kirjautuminen epäonnistui"
 
@@ -4640,7 +4613,7 @@ msgstr "Pääpalvelimen runko"
 msgid "Maintenance"
 msgstr "Ylläpito"
 
-#: pkg/shell/hosts_dialog.jsx:598
+#: pkg/shell/hosts_dialog.jsx:692
 msgid "Malicious pages on a remote machine may affect other connected hosts"
 msgstr ""
 
@@ -5147,13 +5120,13 @@ msgstr "Uusi NFS-liitos"
 msgid "New host"
 msgstr "Uusi kone"
 
-#: pkg/shell/hosts_dialog.jsx:565
+#: pkg/shell/hosts_dialog.jsx:659
 #, fuzzy
 #| msgid "New host"
 msgid "New host: $0"
 msgstr "Uusi kone"
 
-#: pkg/shell/hosts_dialog.jsx:913
+#: pkg/shell/hosts_dialog.jsx:1007
 msgid "New key password"
 msgstr "Uuden avaimen salasana"
 
@@ -5210,7 +5183,7 @@ msgstr "Lohkolaitetta ei löytynyt"
 msgid "No carrier"
 msgstr "Ei kantajaa"
 
-#: pkg/kdump/kdump-view.jsx:471
+#: pkg/kdump/kdump-view.jsx:483
 msgid "No configuration found"
 msgstr "Konfigurointitietoja ei löytynyt"
 
@@ -5397,7 +5370,7 @@ msgstr "Ei loogisia taltioita"
 msgid "No such file or directory"
 msgstr "Tiedostoa tai hakemistoa ei löydy"
 
-#: pkg/lib/cockpit-components-modifications.jsx:129
+#: pkg/lib/cockpit-components-modifications.jsx:130
 msgid "No system modifications"
 msgstr "Ei järjestelmän muutoksia"
 
@@ -5414,7 +5387,7 @@ msgid "No user name specified"
 msgstr "Käyttäjänimeä ei ole määritetty"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:224
-#: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
+#: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:500
 msgid "None"
 msgstr "Ei yhtään"
 
@@ -5478,7 +5451,7 @@ msgstr "Alueen määrittäminen ei ole sallittua"
 msgid "Not permitted to configure realms"
 msgstr "Alueen määrittäminen ei ole sallittua"
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2590
 msgid "Not permitted to perform this action."
 msgstr "Ei oikeutta suorittaa tätä toimintoa."
 
@@ -5553,7 +5526,7 @@ msgstr "Vanha salasana"
 msgid "Old password not accepted"
 msgstr "Vanhaa salasanaa ei hyväksytty"
 
-#: pkg/kdump/kdump-view.jsx:463
+#: pkg/kdump/kdump-view.jsx:475
 msgid "On a mounted device"
 msgstr "Liitetyllä laitteella"
 
@@ -5581,13 +5554,13 @@ msgstr "Vain aakkoset, numerot, : , _ , . , @ , - ovat sallittuja"
 msgid "Only emergency"
 msgstr "Vain hätätilanne"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:112
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:138
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "Käytä vain hyväksyttyjä ja sallittuja algoritmeja käynnistettäessä FIPS-"
 "tilassa."
 
-#: pkg/shell/topnav.jsx:243
+#: pkg/shell/topnav.jsx:228
 msgid "Ooops!"
 msgstr "Hups!"
 
@@ -5782,7 +5755,7 @@ msgstr "Tunnuslauseet eivät täsmää"
 #: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
-#: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
+#: pkg/shell/hosts_dialog.jsx:1040 pkg/shell/hosts_dialog.jsx:1049
 #: pkg/shell/credentials.jsx:117 pkg/shell/credentials.jsx:260
 #: pkg/shell/credentials.jsx:316 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
@@ -5821,11 +5794,11 @@ msgstr "Salasanaa ei hyväksytty"
 msgid "Password tip"
 msgstr "Salasanan vihje"
 
-#: pkg/lib/cockpit-components-terminal.jsx:215
+#: pkg/lib/cockpit-components-terminal.jsx:226
 msgid "Paste"
 msgstr "Siirrä"
 
-#: pkg/lib/cockpit-components-terminal.jsx:223
+#: pkg/lib/cockpit-components-terminal.jsx:234
 msgid "Paste error"
 msgstr "Liittämisvirhe"
 
@@ -6038,7 +6011,7 @@ msgstr "Varanto ohuesti varattuja taltioita varten"
 msgid "Pool passphrase"
 msgstr "Vanha tunnuslause"
 
-#: pkg/shell/hosts_dialog.jsx:464 pkg/storaged/iscsi/create-dialog.jsx:111
+#: pkg/shell/hosts_dialog.jsx:558 pkg/storaged/iscsi/create-dialog.jsx:111
 msgid "Port"
 msgstr "Portti"
 
@@ -6147,7 +6120,7 @@ msgstr "Kysely 'ssh-keygen':in kautta aikakatkaistiin"
 msgid "Propagates reload to"
 msgstr "Laajentaa uudelleenlatausta kohteeseen"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:123
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:149
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -6259,7 +6232,7 @@ msgstr "Alueen on oltava tiukasti järjestetty"
 msgid "Rank"
 msgstr "Sijoitus"
 
-#: pkg/kdump/kdump-view.jsx:459
+#: pkg/kdump/kdump-view.jsx:471
 msgid "Raw to a device"
 msgstr "Raw laitteeseen"
 
@@ -6267,6 +6240,12 @@ msgstr "Raw laitteeseen"
 #: pkg/metrics/metrics.jsx:928 pkg/metrics/metrics.jsx:933
 msgid "Read"
 msgstr "Luku"
+
+#: pkg/shell/hosts_dialog.jsx:284
+#, fuzzy
+#| msgid "Read more..."
+msgid "Read more"
+msgstr "Lue lisää..."
 
 #: pkg/metrics/metrics.jsx:1439 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
@@ -6280,7 +6259,7 @@ msgstr "Vain luku"
 msgid "Reading"
 msgstr "Luetaan"
 
-#: pkg/kdump/kdump-view.jsx:483
+#: pkg/kdump/kdump-view.jsx:495
 msgid "Reading..."
 msgstr "Luetaan..."
 
@@ -6309,7 +6288,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "Oikea konenimi saa sisältää enintään 64 merkkiä"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:220
 msgid "Reapply and reboot"
 msgstr "Ota käyttöön uudelleen ja käynnistä uudelleen"
 
@@ -6344,7 +6323,7 @@ msgstr "Vastaanotetaan"
 msgid "Recent hosts"
 msgstr "Viimeaikaiset isännät"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:107
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:133
 msgid "Recommended, secure settings for current threat models."
 msgstr "Suositeltu, turvalliset asetukset nykyisiä uhkamalleja vastaan."
 
@@ -6412,11 +6391,11 @@ msgstr "Ladataan uudelleen"
 msgid "Reloading the state of remaining services"
 msgstr "Ladataan jäljellä olevien palvelujen tila"
 
-#: pkg/kdump/kdump-view.jsx:469
+#: pkg/kdump/kdump-view.jsx:481
 msgid "Remote over CIFS/SMB"
 msgstr "Etäkäyttö CIFS/SMB:n välityksellä"
 
-#: pkg/kdump/kdump-view.jsx:465
+#: pkg/kdump/kdump-view.jsx:477
 msgid "Remote over FTP"
 msgstr "Etäkäyttö FTP:n välityksellä"
 
@@ -6424,13 +6403,13 @@ msgstr "Etäkäyttö FTP:n välityksellä"
 msgid "Remote over NFS"
 msgstr "Etäkäyttö NFS:n välityksellä"
 
-#: pkg/kdump/kdump-view.jsx:456
+#: pkg/kdump/kdump-view.jsx:468
 #, fuzzy
 #| msgid "Remote over NFS"
 msgid "Remote over NFS, $0"
 msgstr "Etäkäyttö NFS:n välityksellä"
 
-#: pkg/kdump/kdump-view.jsx:467
+#: pkg/kdump/kdump-view.jsx:479
 msgid "Remote over SFTP"
 msgstr "Etäkäyttö SFTP:n välityksellä"
 
@@ -6438,7 +6417,7 @@ msgstr "Etäkäyttö SFTP:n välityksellä"
 msgid "Remote over SSH"
 msgstr "Etäkäyttö SSH:n välityksellä"
 
-#: pkg/kdump/kdump-view.jsx:453
+#: pkg/kdump/kdump-view.jsx:465
 #, fuzzy
 #| msgid "Remote over SSH"
 msgid "Remote over SSH, $0"
@@ -6450,7 +6429,7 @@ msgstr "Poistot:"
 
 #: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:204
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
 #: pkg/storaged/lvm2/volume-group.jsx:349
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -6703,18 +6682,18 @@ msgstr "Vaaditaan"
 msgid "Requisite of"
 msgstr "Tämä vaaditaan"
 
-#: pkg/kdump/kdump-view.jsx:554
+#: pkg/kdump/kdump-view.jsx:566
 msgid ""
 "Reserve memory at boot time by setting a '$0' option on the kernel command "
 "line. For example, append '$1' to $2  in $3 or use your distribution's "
 "kernel argument editor."
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:610
+#: pkg/kdump/kdump-view.jsx:622
 msgid "Reserved memory"
 msgstr "Varattu muisti"
 
-#: pkg/systemd/logs.jsx:402 pkg/systemd/terminal.jsx:184
+#: pkg/systemd/logs.jsx:402 pkg/systemd/terminal.jsx:268
 msgid "Reset"
 msgstr "Nollaa"
 
@@ -6783,7 +6762,7 @@ msgstr "Käytä olemassa olevaa salausta uudelleen"
 msgid "Reuse existing encryption ($0)"
 msgstr "Käytä olemassa olevaa salausta uudelleen ($0)"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:236
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:268
 msgid "Review cryptographic policy"
 msgstr "Tarkastele kryptografista käytäntöä"
 
@@ -6828,7 +6807,7 @@ msgstr "Aja kohteessa"
 msgid "Run report"
 msgstr "Tee raportti"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:150 pkg/shell/hosts_dialog.jsx:593
+#: pkg/lib/cockpit-connect-ssh.tsx:150 pkg/shell/hosts_dialog.jsx:687
 msgid ""
 "Run this command over a trusted network or physically on the remote machine:"
 msgstr ""
@@ -6842,6 +6821,10 @@ msgstr "Suorittaja"
 #: pkg/storaged/mdraid/mdraid.jsx:297
 msgid "Running"
 msgstr "Käynnissä"
+
+#: pkg/systemd/terminal.jsx:283
+msgid "Running process prevents directory change"
+msgstr ""
 
 #: pkg/selinux/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_selinux.metainfo.xml.in:5
@@ -6892,7 +6875,7 @@ msgstr ""
 "diagnosoinnissa."
 
 #: pkg/kdump/kdump-view.jsx:295 pkg/lib/cockpit-connect-ssh.tsx:448
-#: pkg/shell/hosts_dialog.jsx:951
+#: pkg/shell/hosts_dialog.jsx:1045
 msgid "SSH key"
 msgstr "SSH-avain"
 
@@ -6906,7 +6889,7 @@ msgstr "SSH-avain ei ole polku"
 msgid "SSH key login"
 msgstr "SSH-avain"
 
-#: pkg/shell/topnav.jsx:217 pkg/shell/credentials.jsx:77
+#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
 #: pkg/shell/credentials.jsx:93
 msgid "SSH keys"
 msgstr "SSH-avaimet"
@@ -7089,7 +7072,7 @@ msgstr "Palvelin ei voi olla tyhjä."
 msgid "Server closed connection"
 msgstr "Palvelin on sulkenut yhteyden."
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2610
 msgid "Server has closed the connection."
 msgstr "Palvelin on sulkenut yhteyden."
 
@@ -7104,7 +7087,7 @@ msgstr "Palvelinohjelmisto"
 msgid "Service"
 msgstr "Palvelu"
 
-#: pkg/kdump/kdump-view.jsx:563
+#: pkg/kdump/kdump-view.jsx:575
 msgid "Service has an error"
 msgstr "Palvelussa on virhe"
 
@@ -7122,7 +7105,7 @@ msgstr "Palvelut"
 msgid "Services using the location"
 msgstr "Palvelut, jotka käyttävät sijaintia"
 
-#: pkg/shell/topnav.jsx:292
+#: pkg/shell/topnav.jsx:277
 msgid "Session"
 msgstr "Istunto"
 
@@ -7130,7 +7113,7 @@ msgstr "Istunto"
 msgid "Session is about to expire"
 msgstr "Istunto on päättymässä"
 
-#: pkg/shell/hosts_dialog.jsx:353 pkg/storaged/stratis/filesystem.jsx:227
+#: pkg/shell/hosts_dialog.jsx:447 pkg/storaged/stratis/filesystem.jsx:227
 msgid "Set"
 msgstr "Aseta"
 
@@ -7205,11 +7188,11 @@ msgstr "Jaettu"
 msgid "Shell"
 msgstr "Komentotulkki"
 
-#: pkg/lib/cockpit-components-modifications.jsx:100
+#: pkg/lib/cockpit-components-modifications.jsx:102
 msgid "Shell script"
 msgstr "Komentotulkin komentosarja"
 
-#: pkg/lib/cockpit-components-terminal.jsx:216
+#: pkg/lib/cockpit-components-terminal.jsx:227
 msgid "Shift+Insert"
 msgstr "Vaihto + Syöttö"
 
@@ -7325,11 +7308,11 @@ msgstr "Koon tulee olla numero"
 msgid "Size must be at least $0"
 msgstr "Koon tulee olla vähintään $0"
 
-#: pkg/shell/shell.jsx:120
+#: pkg/shell/shell.jsx:117
 msgid "Skip main navigation"
 msgstr "Ohita päävalikko"
 
-#: pkg/shell/shell.jsx:119
+#: pkg/shell/shell.jsx:116
 msgid "Skip to content"
 msgstr "Siirry sisältöön"
 
@@ -7530,7 +7513,7 @@ msgstr "Pysäytä ja irrota"
 msgid "Stop device"
 msgstr "Pysäytä laite"
 
-#: pkg/shell/hosts.jsx:251
+#: pkg/shell/hosts.jsx:248
 msgid "Stop editing hosts"
 msgstr "Lopeta koneiden muokkaaminen"
 
@@ -7632,7 +7615,7 @@ msgstr "Aseta salasana"
 msgid "Stub"
 msgstr "Tynkä"
 
-#: pkg/shell/topnav.jsx:181
+#: pkg/shell/topnav.jsx:166
 msgid "Style"
 msgstr "Tyyli"
 
@@ -7802,11 +7785,11 @@ msgstr "Pääte"
 msgid "Terminate session"
 msgstr "Lopeta istunto"
 
-#: pkg/kdump/kdump-view.jsx:507 pkg/kdump/kdump-view.jsx:515
+#: pkg/kdump/kdump-view.jsx:519 pkg/kdump/kdump-view.jsx:527
 msgid "Test configuration"
 msgstr "Testimääritys"
 
-#: pkg/kdump/kdump-view.jsx:511
+#: pkg/kdump/kdump-view.jsx:523
 msgid "Test is only available while the kdump service is running."
 msgstr "Testi on käytettävissä vain kdump-palvelun ollessa käynnissä."
 
@@ -7849,7 +7832,7 @@ msgstr "Paketti $0 on asennettava."
 msgid "The $0 package will be installed to create VDO devices."
 msgstr "Paketti $0 asennetaan VDO-laitteiden luomiseksi."
 
-#: pkg/shell/hosts_dialog.jsx:259
+#: pkg/shell/hosts_dialog.jsx:349
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP-osoite tai konenimi ei voi sisältää välilyöntiä."
 
@@ -7863,13 +7846,13 @@ msgstr "MDRAID-laite on heikentyneessä tilassa"
 msgid "The MDRAID device must be running"
 msgstr "RAID-laitteen on oltava käynnissä levyjen poistamiseksi."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:426 pkg/shell/hosts_dialog.jsx:929
+#: pkg/lib/cockpit-connect-ssh.tsx:426 pkg/shell/hosts_dialog.jsx:1023
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
 msgstr ""
 "Käyttäjän $0:n SSH-avain $1 koneella $2 lisätään käyttäjän $4 tiedostoon $3 "
 "koneella $5."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:463 pkg/shell/hosts_dialog.jsx:966
+#: pkg/lib/cockpit-connect-ssh.tsx:463 pkg/shell/hosts_dialog.jsx:1060
 msgid ""
 "The SSH key $0 will be made available for the remainder of the session and "
 "will be available for login to other hosts as well."
@@ -7877,7 +7860,7 @@ msgstr ""
 "SSH-avain $0 on käytettävissä koko istunnon ajan ja on käytettävissä myös "
 "muille koneille sisäänkirjautumista varten."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:398 pkg/shell/hosts_dialog.jsx:874
+#: pkg/lib/cockpit-connect-ssh.tsx:398 pkg/shell/hosts_dialog.jsx:968
 msgid ""
 "The SSH key for logging in to $0 is protected by a password, and the host "
 "does not allow logging in with a password. Please provide the password of "
@@ -7886,7 +7869,7 @@ msgstr ""
 "SSH-avain koneelle $0 sisäänkirjautumista varten on suojattu salasanalla, "
 "eikä kone salli salasanalla kirjautumista. Anna avaimen $1 salasana."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:400 pkg/shell/hosts_dialog.jsx:879
+#: pkg/lib/cockpit-connect-ssh.tsx:400 pkg/shell/hosts_dialog.jsx:973
 msgid ""
 "The SSH key for logging in to $0 is protected. You can log in with either "
 "your login password or by providing the password of the key at $1."
@@ -7992,7 +7975,7 @@ msgstr ""
 "Tiedostojärjestelmän lukitus avataan ja se liitetään järjestelmään "
 "seuraavassa käynnistyksessä. Tämä saattaa edellyttää salasanan syöttämistä."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:152 pkg/shell/hosts_dialog.jsx:595
+#: pkg/lib/cockpit-connect-ssh.tsx:152 pkg/shell/hosts_dialog.jsx:689
 #, fuzzy
 #| msgid "Show fingerprints"
 msgid "The fingerprint should match:"
@@ -8032,12 +8015,12 @@ msgstr ""
 msgid "The initrd must be regenerated."
 msgstr "Initrd on luotava uudelleen."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:342 pkg/shell/hosts_dialog.jsx:796
+#: pkg/lib/cockpit-connect-ssh.tsx:342 pkg/shell/hosts_dialog.jsx:890
 msgid "The key password can not be empty"
 msgstr "Avaimen salasana ei voi olla tyhjä"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:344 pkg/shell/hosts_dialog.jsx:799
-#: pkg/shell/hosts_dialog.jsx:805
+#: pkg/lib/cockpit-connect-ssh.tsx:344 pkg/shell/hosts_dialog.jsx:893
+#: pkg/shell/hosts_dialog.jsx:899
 msgid "The key passwords do not match"
 msgstr "Avainsalasanat eivät täsmää"
 
@@ -8067,7 +8050,7 @@ msgstr "Listatut palvelut lopetetaan väkisin."
 msgid "The listed services will be forcefully stopped."
 msgstr "Listatut palvelut lopetetaan väkisin."
 
-#: pkg/lib/cockpit-components-modifications.jsx:129
+#: pkg/lib/cockpit-components-modifications.jsx:130
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "Sisäänkirjautunut käyttäjä ei saa tarkastella järjestelmän muutoksia"
 
@@ -8083,11 +8066,11 @@ msgstr "Liitoskohta $0 on näiden prosessien käytössä:"
 msgid "The mount point $0 is in use by these services:"
 msgstr "Liitoskohta $0 on näiden palveluiden käytössä:"
 
-#: pkg/shell/hosts_dialog.jsx:802
+#: pkg/shell/hosts_dialog.jsx:896
 msgid "The new key password can not be empty"
 msgstr "Uuden avaimen salasana ei voi olla tyhjä"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:336 pkg/shell/hosts_dialog.jsx:780
+#: pkg/lib/cockpit-connect-ssh.tsx:336 pkg/shell/hosts_dialog.jsx:874
 msgid "The password can not be empty"
 msgstr "Salasana ei voi olla tyhjä"
 
@@ -8096,7 +8079,7 @@ msgid "The passwords do not match"
 msgstr "Salasanat eivät täsmää"
 
 #: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
-#: pkg/shell/hosts_dialog.jsx:580
+#: pkg/shell/hosts_dialog.jsx:674
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -8104,7 +8087,7 @@ msgstr ""
 "Tuloksena oleva sormenjälki sopii jakaa julkisilla menetelmillä, mukaan "
 "lukien sähköposti."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:142 pkg/shell/hosts_dialog.jsx:585
+#: pkg/lib/cockpit-connect-ssh.tsx:142 pkg/shell/hosts_dialog.jsx:679
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email. If you are asking someone else to do the verification for you, they "
@@ -8119,7 +8102,7 @@ msgstr ""
 "Palvelin kieltäytyi todentamasta käyttäjää '$0' salasanatodennusta käyttäen, "
 "eikä muita tuettuja todennustapoja ole käytettävissä."
 
-#: pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2594
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Palvelin kieltäytyi tunnistautumista käyttäen mitään tuetuista tavoista."
@@ -8144,11 +8127,11 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "Käyttäjä $0 ei saa muuttaa suorittimen suojauksen lievennyksiä"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:65
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 msgid "The user $0 is not permitted to change cryptographic policies"
 msgstr "Käyttäjällä $0 ei ole oikeutta muokata kryptografisia käytäntöjä"
 
-#: pkg/kdump/kdump-view.jsx:505
+#: pkg/kdump/kdump-view.jsx:517
 #, fuzzy
 #| msgid "The user <b>$0</b> is not permitted to manage servers"
 msgid "The user $0 is not permitted to test crash the kernel"
@@ -8308,7 +8291,7 @@ msgstr ""
 msgid "This logical volume is not completely used by its content."
 msgstr "Sisältö ei käytä tätä loogista taltiota kokonaan."
 
-#: pkg/shell/hosts_dialog.jsx:265
+#: pkg/shell/hosts_dialog.jsx:355
 msgid "This machine has already been added."
 msgstr "Tämä kone on jo lisätty."
 
@@ -8446,7 +8429,7 @@ msgstr ""
 "löytääkseen kaikki mahdolliset viestit annetulle yksikölle. Voi sisältää "
 "enemmän yksiköitä pilkuilla erotettuna. "
 
-#: pkg/shell/hosts_dialog.jsx:930
+#: pkg/shell/hosts_dialog.jsx:1024
 msgid "This will allow you to log in without password in the future."
 msgstr "Tämän avulla voit tulevaisuudessa kirjautua sisään ilman salasanaa."
 
@@ -8495,7 +8478,7 @@ msgstr ""
 "jotta voit automaattisesti tunnistautua muita järjestelmiä kohden."
 
 #: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
-#: pkg/shell/hosts_dialog.jsx:575
+#: pkg/shell/hosts_dialog.jsx:669
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -8513,7 +8496,7 @@ msgstr ""
 "tilauspalvelinta."
 
 #: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
-#: pkg/shell/hosts_dialog.jsx:578
+#: pkg/shell/hosts_dialog.jsx:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -8538,7 +8521,7 @@ msgstr "Vaihda päivämäärän valitsin"
 msgid "Toggle filters"
 msgstr "Vaihda suodattimet"
 
-#: pkg/lib/cockpit.js:2620
+#: pkg/lib/cockpit.js:2616
 msgid "Too much data"
 msgstr "Liian paljon dataa"
 
@@ -8600,7 +8583,7 @@ msgstr "Vianetsintä"
 msgid "Troubleshoot…"
 msgstr "Vianetsintä…"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:127 pkg/shell/hosts_dialog.jsx:567
+#: pkg/lib/cockpit-connect-ssh.tsx:127 pkg/shell/hosts_dialog.jsx:661
 #, fuzzy
 #| msgid "Untrusted host"
 msgid "Trust and add host"
@@ -8704,11 +8687,11 @@ msgstr "Tämän ratkaisun automaattinen asettaminen epäonnistui"
 msgid "Unable to connect to that address"
 msgstr "Siihen osoitteeseen yhdistäminen epäonnistui"
 
-#: pkg/shell/hosts_dialog.jsx:460
+#: pkg/shell/hosts_dialog.jsx:554
 msgid "Unable to contact $0."
 msgstr "Ei saada yhteyttä kohteeseen $0."
 
-#: pkg/shell/hosts_dialog.jsx:337
+#: pkg/shell/hosts_dialog.jsx:249 pkg/shell/hosts_dialog.jsx:430
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -8733,7 +8716,7 @@ msgstr ""
 "Ei voida kirjautua sisään koneelle $0 SSH-avaimella. Anna salasana. Haluat "
 "ehkä määrittää SSH-avaimesi automaattista kirjautumista varten."
 
-#: pkg/shell/hosts_dialog.jsx:871
+#: pkg/shell/hosts_dialog.jsx:965
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password. You may want to set up your SSH keys for automatic login."
@@ -8741,13 +8724,19 @@ msgstr ""
 "Ei voida kirjautua sisään koneelle $0 SSH-avaimella. Anna salasana. Haluat "
 "ehkä määrittää SSH-avaimesi automaattista kirjautumista varten."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:394 pkg/shell/hosts_dialog.jsx:869
+#: pkg/lib/cockpit-connect-ssh.tsx:394 pkg/shell/hosts_dialog.jsx:963
 msgid ""
 "Unable to log in to $0. The host does not accept password login or any of "
 "your SSH keys."
 msgstr ""
 "Ei voida kirjautua sisään koneelle $0. Kone ei hyväksy salasanakirjautumista "
 "tai mitään SSH-avaimistasi."
+
+#: pkg/systemd/terminal.jsx:275
+#, fuzzy
+#| msgid "Path to directory"
+msgid "Unable to open directory"
+msgstr "Polku hakemistoon"
 
 #: pkg/storaged/iscsi/create-dialog.jsx:73
 msgid "Unable to reach server"
@@ -8948,7 +8937,7 @@ msgstr "Tukematon taltio"
 msgid "Until"
 msgstr "Kunnes"
 
-#: pkg/lib/cockpit.js:2600 pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
 msgid "Untrusted host"
 msgstr "Epäluotettava kone"
 
@@ -8958,7 +8947,7 @@ msgstr "Epäluotettava kone"
 msgid "Up since"
 msgstr "Siitä asti kun"
 
-#: pkg/shell/hosts_dialog.jsx:456
+#: pkg/shell/hosts_dialog.jsx:550
 msgid "Update"
 msgstr "Päivitä"
 
@@ -9101,7 +9090,7 @@ msgid "User ID must not be lower than $0"
 msgstr "Käyttäjän ID-numero ei saa olla pienempi kuin $0"
 
 #: pkg/static/login.html:105 pkg/users/account-details.js:256
-#: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
+#: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:459
 msgid "User name"
 msgstr "Käyttäjänimi"
 
@@ -9160,7 +9149,7 @@ msgstr "Toimittaja"
 msgid "Verified"
 msgstr "Vahvistettu"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:147 pkg/shell/hosts_dialog.jsx:590
+#: pkg/lib/cockpit-connect-ssh.tsx:147 pkg/shell/hosts_dialog.jsx:684
 msgid "Verify fingerprint"
 msgstr "Vahvista sormenjälki"
 
@@ -9196,8 +9185,8 @@ msgstr "Katso kaikki lokit"
 msgid "View all services"
 msgstr "Katso kaikki palvelut"
 
-#: pkg/kdump/kdump-view.jsx:526
-#: pkg/lib/cockpit-components-modifications.jsx:154
+#: pkg/kdump/kdump-view.jsx:538
+#: pkg/lib/cockpit-components-modifications.jsx:158
 msgid "View automation script"
 msgstr "Näytä automaatio-komentosarja"
 
@@ -9364,7 +9353,7 @@ msgstr "Viikot"
 msgid "When"
 msgstr "Kun"
 
-#: pkg/shell/hosts_dialog.jsx:368
+#: pkg/shell/hosts_dialog.jsx:462
 msgid "When empty, connect with the current user"
 msgstr "Tyhjänä ollessa, muodosta yhteys nykyisenä käyttäjänä"
 
@@ -9378,7 +9367,7 @@ msgstr ""
 "tietoja. Päivitysprosessi jatkuu kuitenkin taustalla. Muodosta yhteys "
 "uudelleen jatkaaksesi päivitysprosessin seurantaa."
 
-#: pkg/systemd/terminal.jsx:177
+#: pkg/systemd/terminal.jsx:261
 msgid "White"
 msgstr "Valkoinen"
 
@@ -9424,7 +9413,7 @@ msgid "Yes"
 msgstr "Kyllä"
 
 #: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
-#: pkg/shell/hosts_dialog.jsx:589
+#: pkg/shell/hosts_dialog.jsx:683
 msgid "You are connecting to $0 for the first time."
 msgstr "Yhdistät koneeseen $0 ensimmäistä kertaa."
 
@@ -9447,7 +9436,7 @@ msgstr "Sinut on kirjautunut ulos toimimattomuuden vuoksi."
 msgid "You may try to load older entries."
 msgstr "Voit yrittää ladata vanhempia merkintöjä."
 
-#: pkg/shell/hosts_dialog.jsx:875 pkg/shell/hosts_dialog.jsx:880
+#: pkg/shell/hosts_dialog.jsx:969 pkg/shell/hosts_dialog.jsx:974
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
 "Haluat ehkä vaihtaa avaimen salasanan automaattista sisäänkirjautumista "
@@ -9465,11 +9454,17 @@ msgstr "Sinulla on nyt ylläpitäjän käyttöoikeudet."
 msgid "You will be logged out in $0 seconds."
 msgstr "Sinut kirjataan ulos $0 sekunnin kuluttua."
 
+#: pkg/shell/hosts_dialog.jsx:267
+#, fuzzy
+#| msgid "You will be logged out in $0 seconds."
+msgid "You will be reminded once per session."
+msgstr "Sinut kirjataan ulos $0 sekunnin kuluttua."
+
 #: pkg/users/accounts-list.js:176
 msgid "Your account"
 msgstr "Tilisi"
 
-#: pkg/lib/cockpit-components-terminal.jsx:233
+#: pkg/lib/cockpit-components-terminal.jsx:244
 msgid ""
 "Your browser does not allow paste from the context menu. You can use "
 "Shift+Insert."
@@ -9488,11 +9483,11 @@ msgstr ""
 "Palvelimesi sulkee yhteyden pian. Voit muodostaa yhteyden uudelleen, kun "
 "palvelin on käynnistynyt uudelleen."
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2586
 msgid "Your session has been terminated."
 msgstr "Istuntosi on päätetty."
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2588
 msgid "Your session has expired. Please log in again."
 msgstr "Istuntosi on vahventunut. Ole hyvä ja kirjaudu uudelleen sisään."
 
@@ -9905,7 +9900,7 @@ msgstr "asenna"
 msgid "interface"
 msgstr "liitäntä"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:458
 msgid "invalid: multiple targets defined"
 msgstr "virheellinen: useita kohteita määritelty"
 
@@ -9933,7 +9928,7 @@ msgstr "journalctl:n man-sivu"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:539
+#: pkg/kdump/kdump-view.jsx:551
 msgid "kdump status"
 msgstr "kdump-tila"
 
@@ -10009,7 +10004,7 @@ msgstr "lievennys"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:564
+#: pkg/kdump/kdump-view.jsx:576
 msgid "more details"
 msgstr "lisätietoja"
 
@@ -11487,9 +11482,6 @@ msgstr "vyöhyke"
 #~ msgid "Confirm this action"
 #~ msgstr "Vahvista tämä toimi"
 
-#~ msgid "Connect"
-#~ msgstr "Yhdistä"
-
 #~ msgid "Connect with any viewer application for following protocols"
 #~ msgstr "Yhdistä mihin tahansa katseluohjelmaan seuraaviin protokolliin"
 
@@ -12957,9 +12949,6 @@ msgstr "vyöhyke"
 
 #~ msgid "Synchronize"
 #~ msgstr "Synkronoi"
-
-#~ msgid "This image does not exist."
-#~ msgstr "Tätä kuvaa ei ole olemassa."
 
 #~ msgid "Type a password"
 #~ msgstr "Kirjoita salasana"

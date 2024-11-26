@@ -36,7 +36,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { useInit } from "hooks";
 
 import * as PackageKit from "./packagekit.js";
-import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
+import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils";
 import { ActionButton } from "./application.jsx";
 
 const _ = cockpit.gettext;

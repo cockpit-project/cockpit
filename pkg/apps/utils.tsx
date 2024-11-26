@@ -27,14 +27,21 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-export function icon_url(path_or_url) {
+export function icon_url(path_or_url: string): string {
     if (!path_or_url)
         return "default.png";
 
     if (path_or_url[0] != '/')
         return path_or_url;
 
-    const queryobj = {
+    interface QueryObj {
+        payload: string,
+        binary: "raw",
+        path: string,
+        external?: { [key: string]: string }
+    }
+
+    const queryobj: QueryObj = {
         payload: "fsread1",
         binary: "raw",
         path: path_or_url,
@@ -49,7 +56,17 @@ export function icon_url(path_or_url) {
     return prefix + '?' + query;
 }
 
-export const ProgressBar = ({ size, title, data, ariaLabelledBy }) => {
+export interface JobProgress {
+    percentage: number,
+    waiting: boolean,
+    cancel: React.MouseEventHandler,
+}
+
+export const ProgressBar = ({ size, data, ariaLabelledBy }: {
+    size?: "lg" | "md" | "sm",
+    data: JobProgress,
+    ariaLabelledBy?: string,
+}) => {
     if (data.waiting) {
         return (<Split>
             <SplitItem className="progress-title" isFilled>
@@ -64,12 +81,14 @@ export const ProgressBar = ({ size, title, data, ariaLabelledBy }) => {
     }
 };
 
-export const CancelButton = ({ data }) => (
+export const CancelButton = ({ data }: { data: JobProgress }) => (
     <Button variant="secondary" isDisabled={!data.cancel} onClick={data.cancel}>
         {_("Cancel")}
     </Button>);
 
-export const show_error = ex => {
+// ex is a PackageKit error; requires typing pkg/lib/packagekit.js first
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const show_error = (ex: any) => {
     if (ex.code == "cancelled")
         return;
 
@@ -89,7 +108,26 @@ export const show_error = ex => {
         });
 };
 
-export const launch = (comp) => {
+export interface Launchable {
+    type: string,
+    name: string,
+}
+
+// see pkg/apps/watch-appstream.py
+export interface Component {
+    id: string,
+    pkgname: string,
+    name: string,
+    summary: string,
+    description: string,
+    icon: string, // this is a path
+    screenshots: { full: string }[],
+    launchables: Launchable[],
+    urls: { type: string, link: string }[],
+    installed?: boolean,
+}
+
+export const launch = (comp: Component) => {
     for (let i = 0; i < comp.launchables.length; i++) {
         if (comp.launchables[i].type == "cockpit-manifest") {
             cockpit.jump([comp.launchables[i].name]);

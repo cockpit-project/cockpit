@@ -251,8 +251,9 @@ label.checkbox {
   display: inline-block;
 }
 
-.spinner {
-  display: inline-flex;
+.pf-v5-c-button[spinning] .spinner,
+#login-wait-validating .spinner {
+    display: inline-flex;
 }
 
 .form-group::after {
@@ -399,7 +400,7 @@ label.checkbox {
 }
 
 .login-pf .container .help-block {
-  color: #fff;
+  color: unset;
 }
 
 .login-pf .container .form-group:last-child,
@@ -543,6 +544,14 @@ label.checkbox {
 
 .spinner {
   border-color: rgb(255 255 255 / 75%) rgb(255 255 255 / 25%) rgb(255 255 255 / 25%);
+}
+
+html:not(.pf-v5-theme-dark) #login-wait-validating .spinner {
+  border-color: rgb(51 51 51 / 75%) rgb(51 51 51 / 25%) rgb(51 51 51 / 25%);
+}
+
+.pf-v5-theme-dark a.pf-v5-c-button {
+  color: unset;
 }
 
 #hostkey-fingerprint {

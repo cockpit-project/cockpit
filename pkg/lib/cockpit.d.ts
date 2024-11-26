@@ -194,7 +194,7 @@ declare module 'cockpit' {
 
     /* === cockpit.jump ========================== */
 
-    function jump(path: string, host?: string): void;
+    function jump(path: string | string[], host?: string): void;
 
     /* === cockpit page visibility =============== */
 

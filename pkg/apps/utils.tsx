@@ -27,6 +27,12 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
+export function debug(...args: unknown[]) {
+    if (window.debugging == "all" || window.debugging?.includes("apps")) {
+        console.debug("apps:", ...args);
+    }
+}
+
 export function icon_url(path_or_url: string): string {
     if (!path_or_url)
         return "default.png";
@@ -130,6 +136,7 @@ export interface Component {
 export const launch = (comp: Component) => {
     for (let i = 0; i < comp.launchables.length; i++) {
         if (comp.launchables[i].type == "cockpit-manifest") {
+            debug("launching", comp.launchables[i].name, "in component", JSON.stringify(comp));
             cockpit.jump([comp.launchables[i].name]);
             return;
         }

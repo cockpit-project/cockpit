@@ -18,7 +18,7 @@ The cockpit_ws_t SELinux type can be entered via the \fBcockpit_ws_exec_t\fP fil
 
 The default entrypoint paths for the cockpit_ws_t domain are the following:
 
-/usr/libexec/cockpit-ws, /usr/libexec/cockpit-tls, /usr/share/cockpit/motd/update-motd, /usr/libexec/cockpit-wsinstance-factory
+/usr/libexec/cockpit-ws, /usr/libexec/cockpit-tls, /usr/libexec/cockpit-wsinstance-factory
 .SH PROCESS TYPES
 SELinux defines process types (domains) for each process running on the system
 .PP
@@ -173,7 +173,7 @@ SELinux cockpit_ws policy is very flexible allowing users to setup their cockpit
 .br
 .TP 5
 Paths:
-/usr/libexec/cockpit-ws, /usr/libexec/cockpit-tls, /usr/share/cockpit/motd/update-motd, /usr/libexec/cockpit-wsinstance-factory
+/usr/libexec/cockpit-ws, /usr/libexec/cockpit-tls, /usr/libexec/cockpit-wsinstance-factory
 
 .PP
 Note: File context can be temporarily modified with the chcon command.  If you want to permanently change the file context you need to use the

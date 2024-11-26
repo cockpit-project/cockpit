@@ -27,11 +27,12 @@ import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { usePageLocation, useObject, useEvent } from "hooks";
+
 import { ApplicationList } from "./application-list.jsx";
 import { Application } from "./application.jsx";
 import { get_metainfo_db } from "./appstream.js";
-import { usePageLocation, useObject, useEvent } from "hooks";
-import { show_error } from "./utils.jsx";
+import { show_error } from "./utils";
 
 const App = () => {
     const [progress, setProgress] = useState({});

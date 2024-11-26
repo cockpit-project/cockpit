@@ -28,8 +28,7 @@ import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import * as PackageKit from "./packagekit.js";
-
-import { icon_url, launch, ProgressBar, CancelButton } from "./utils.jsx";
+import { icon_url, launch, ProgressBar, CancelButton } from "./utils";
 
 import "./application.scss";
 

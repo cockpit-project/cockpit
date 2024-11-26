@@ -18,6 +18,14 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Dockerfile  must correspond to latest release, not main
+      - name: Check out latest tag
+        run: |
+          git checkout $(git rev-list --tags --max-count=1)
+          git describe
 
       - name: Log into container registry
         run: $RUNC login -u ${{ secrets.QUAY_BOTUSER }} -p ${{ secrets.QUAY_TOKEN }} quay.io

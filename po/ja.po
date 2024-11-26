@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-13 02:57+0000\n"
+"POT-Creation-Date: 2024-11-26 03:03+0000\n"
 "PO-Revision-Date: 2024-11-03 12:38+0000\n"
 "Last-Translator: Inci sakura <incisakura@icloud.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -96,19 +96,25 @@ msgstr[0] "$0 本のディスクがありません"
 msgid "$0 disks"
 msgstr "$0 ディスク"
 
-#: pkg/shell/topnav.jsx:142
+#: pkg/shell/topnav.jsx:127
 msgid "$0 documentation"
 msgstr "$0 ドキュメント"
+
+#: pkg/systemd/terminal.jsx:164
+#, fuzzy
+#| msgid "This image does not exist."
+msgid "$0 does not exist"
+msgstr "このイメージは存在しません。"
 
 #: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "$0 エラー"
 
-#: pkg/lib/cockpit.js:1411
+#: pkg/lib/cockpit.js:1407
 msgid "$0 exited with code $1"
 msgstr "$0 がコード $1 で終了しました"
 
-#: pkg/lib/cockpit.js:1413
+#: pkg/lib/cockpit.js:1409
 msgid "$0 failed"
 msgstr "$0 が失敗しました"
 
@@ -153,17 +159,23 @@ msgstr "$0 は既存のファイルです"
 msgid "$0 is in use"
 msgstr "$0 は使用されています"
 
+#: pkg/systemd/terminal.jsx:160
+#, fuzzy
+#| msgid "Path to directory"
+msgid "$0 is not a directory"
+msgstr "ディレクトリーへのパス"
+
 #: pkg/lib/cockpit-components-install-dialog.jsx:160
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:35
 msgid "$0 is not available from any repository."
 msgstr "$0 は、あらゆるリポジトリーから利用できません。"
 
 #: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
-#: pkg/shell/hosts_dialog.jsx:565
+#: pkg/shell/hosts_dialog.jsx:659
 msgid "$0 key changed"
 msgstr "$0 キーが変更されました"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1405
 msgid "$0 killed with signal $1"
 msgstr "$0 がシグナル $1 で終了しました"
 
@@ -522,7 +534,7 @@ msgstr "8 日"
 msgid "9th"
 msgstr "9 日"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:520 pkg/shell/hosts_dialog.jsx:196
+#: pkg/lib/cockpit-connect-ssh.tsx:520 pkg/shell/hosts_dialog.jsx:218
 msgid "A compatible version of Cockpit is not installed on $0."
 msgstr "Cockpit の互換バージョンが $0 にインストールされていません。"
 
@@ -549,7 +561,7 @@ msgstr ""
 "ネットワークボンディングは、複数のネットワークインターフェイスを単一の論理イ"
 "ンターフェイスにまとめることで、スループットや冗長性を向上させます。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:413 pkg/shell/hosts_dialog.jsx:896
+#: pkg/lib/cockpit-connect-ssh.tsx:413 pkg/shell/hosts_dialog.jsx:990
 msgid ""
 "A new SSH key at $0 will be created for $1 on $2 and it will be added to the "
 "$3 file of $4 on $5."
@@ -590,7 +602,7 @@ msgstr "ARP 監視"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/topnav.jsx:164
+#: pkg/shell/topnav.jsx:149
 msgid "About Web Console"
 msgstr "Webコンソールについて"
 
@@ -648,7 +660,7 @@ msgid "Active backup"
 msgstr "アクティブなバックアップ"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:211
+#: pkg/shell/topnav.jsx:196
 msgid "Active pages"
 msgstr "アクティブページ"
 
@@ -670,7 +682,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "適応送信のロードバランス"
 
 #: pkg/systemd/timer-dialog.jsx:367 pkg/networkmanager/dialogs-common.jsx:149
-#: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:353
+#: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:447
 #: pkg/shell/credentials.jsx:182 pkg/storaged/lvm2/volume-group.jsx:209
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/mdraid/mdraid.jsx:167
 #: pkg/storaged/iscsi/create-dialog.jsx:120
@@ -761,7 +773,7 @@ msgstr "キーサーバーの追加"
 msgid "Add member"
 msgstr "メンバーの追加"
 
-#: pkg/shell/hosts.jsx:212 pkg/shell/hosts_dialog.jsx:352
+#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "新規ホストの追加"
 
@@ -1006,11 +1018,11 @@ msgstr "許可されたアドレス"
 msgid "An additional $0 must be selected"
 msgstr "追加の $0 を選択する必要があります"
 
-#: pkg/lib/cockpit-components-modifications.jsx:88
+#: pkg/lib/cockpit-components-modifications.jsx:89
 msgid "Ansible"
 msgstr "Ansible"
 
-#: pkg/lib/cockpit-components-modifications.jsx:96
+#: pkg/lib/cockpit-components-modifications.jsx:97
 msgid "Ansible roles documentation"
 msgstr "Ansible ロールのドキュメント"
 
@@ -1026,7 +1038,7 @@ msgstr ""
 "ルタリングもサポートできます。これらは、FIELD=VALUE の形式でスペースで区切っ"
 "た値は、使用できる値のカンマ区切りのリストになります。"
 
-#: pkg/systemd/terminal.jsx:168
+#: pkg/systemd/terminal.jsx:252
 msgid "Appearance"
 msgstr "外観"
 
@@ -1043,7 +1055,7 @@ msgstr "アプリケーション"
 msgid "Applications list"
 msgstr "アプリケーションリスト"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:220
 msgid "Apply and reboot"
 msgstr "適用して再起動する"
 
@@ -1055,7 +1067,7 @@ msgstr "カーネルライブパッチの適用"
 msgid "Apply this solution"
 msgstr "このソリューションの適用"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:186
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:214
 msgid "Applying new policy... This may take a few minutes."
 msgstr "新しいポリシーを適用しています... これには数分かかる場合があります。"
 
@@ -1139,7 +1151,7 @@ msgid "Authenticating"
 msgstr "認証中"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:436 pkg/users/account-create-dialog.js:112
-#: pkg/shell/hosts_dialog.jsx:941
+#: pkg/shell/hosts_dialog.jsx:1035
 msgid "Authentication"
 msgstr "認証"
 
@@ -1157,7 +1169,7 @@ msgstr "Cockpit Web コンソールでの特権タスクの実行には、認証
 msgid "Authentication required"
 msgstr "認証が必要です"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:425 pkg/shell/hosts_dialog.jsx:927
+#: pkg/lib/cockpit-connect-ssh.tsx:425 pkg/shell/hosts_dialog.jsx:1021
 msgid "Authorize SSH key"
 msgstr "SSH キーの認証"
 
@@ -1177,7 +1189,7 @@ msgstr "自動"
 msgid "Automatic (DHCP only)"
 msgstr "自動 (DHCP のみ)"
 
-#: pkg/shell/hosts_dialog.jsx:971
+#: pkg/shell/hosts_dialog.jsx:1065
 msgid "Automatic login"
 msgstr "自動ログイン"
 
@@ -1254,7 +1266,7 @@ msgstr "前"
 msgid "Binds to"
 msgstr "バインドする"
 
-#: pkg/systemd/terminal.jsx:174
+#: pkg/systemd/terminal.jsx:258
 msgid "Black"
 msgstr "黒"
 
@@ -1344,7 +1356,7 @@ msgstr "バグ"
 msgid "Bus expansion chassis"
 msgstr "バス拡張シャーシ"
 
-#: pkg/shell/hosts_dialog.jsx:912
+#: pkg/shell/hosts_dialog.jsx:1006
 msgid ""
 "By changing the password of the SSH key $0 to the login password of $1 on "
 "$2, the key will be automatically made available and you can log in to $3 "
@@ -1388,7 +1400,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "キャッシュ"
 
-#: pkg/shell/hosts_dialog.jsx:363
+#: pkg/shell/hosts_dialog.jsx:457
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "ホスト名、IP アドレス、エイリアス名、または ssh:// URI を指定できます"
 
@@ -1400,8 +1412,9 @@ msgstr ""
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
-#: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
+#: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
+#: pkg/systemd/reporting.jsx:383
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:223
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
@@ -1416,11 +1429,11 @@ msgstr ""
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
-#: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
-#: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
-#: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
-#: pkg/sosreport/sosreport.jsx:379
+#: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
+#: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
+#: pkg/shell/hosts_dialog.jsx:709 pkg/shell/hosts_dialog.jsx:1086
+#: pkg/shell/credentials.jsx:311 pkg/storaged/jobs-panel.jsx:140
+#: pkg/sosreport/sosreport.jsx:294 pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "取り消し"
 
@@ -1440,7 +1453,7 @@ msgstr "有効にできません"
 msgid "Cannot connect to an unknown host"
 msgstr "不明なホストには接続できません"
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2608
 msgid "Cannot forward login credentials"
 msgstr "ログインのクレデンシャルをフォワードできません"
 
@@ -1473,9 +1486,15 @@ msgstr "カテゴリー"
 msgid "Change"
 msgstr "変更"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:181
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:209
 msgid "Change cryptographic policy"
 msgstr "暗号化ポリシーの変更"
+
+#: pkg/systemd/terminal.jsx:289
+#, fuzzy
+#| msgid "Home directory"
+msgid "Change directory"
+msgstr "ホームディレクトリー"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Change host name"
@@ -1517,7 +1536,7 @@ msgstr "シェルの変更"
 msgid "Change system time"
 msgstr "システム時間の変更"
 
-#: pkg/shell/hosts_dialog.jsx:910
+#: pkg/shell/hosts_dialog.jsx:1004
 msgid "Change the password of $0"
 msgstr "$0 のパスワードを変更します"
 
@@ -1526,7 +1545,7 @@ msgid "Change the settings"
 msgstr "設定の変更"
 
 #: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
-#: pkg/shell/hosts_dialog.jsx:574
+#: pkg/shell/hosts_dialog.jsx:668
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1540,6 +1559,12 @@ msgstr ""
 msgid "Changing partition types might prevent the system from booting."
 msgstr ""
 "パーティションタイプを変更すると、システムが起動しなくなる可能性があります。"
+
+#: pkg/systemd/terminal.jsx:293
+msgid ""
+"Changing the directory will forcefully stop the currently running process. "
+"The process can also be stopped manually in the terminal before continuing."
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:1655
 msgid ""
@@ -1652,11 +1677,11 @@ msgstr "クライアントソフトウェア"
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
 #: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
-#: pkg/lib/cockpit-components-terminal.jsx:230
+#: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
 #: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
-#: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:190
+#: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
 msgstr "閉じる"
@@ -1677,7 +1702,7 @@ msgstr "Cockpit の認証が間違って設定されています。"
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Cockpit の NetworkManager と Firewalld の設定"
 
-#: pkg/lib/cockpit.js:2618
+#: pkg/lib/cockpit.js:2614
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit は該当するホストに接続できませんでした。"
 
@@ -1702,15 +1727,15 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit は対話型 Linux サーバー管理インターフェースです。"
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2612
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit にはシステム上のそのソフトウェアとの互換性がありません。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:512 pkg/shell/hosts_dialog.jsx:187
+#: pkg/lib/cockpit-connect-ssh.tsx:512 pkg/shell/hosts_dialog.jsx:209
 msgid "Cockpit is not installed"
 msgstr "Cockpit はインストールされていません"
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2606
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit はシステムにインストールされていません。"
 
@@ -1745,7 +1770,7 @@ msgstr "カーネルクラッシュダンプの収集"
 msgid "Collect metrics"
 msgstr "メトリクスの収集"
 
-#: pkg/shell/hosts_dialog.jsx:370
+#: pkg/shell/hosts_dialog.jsx:464
 msgid "Color"
 msgstr "色"
 
@@ -1831,11 +1856,11 @@ msgstr "確認"
 msgid "Confirm deletion of $0"
 msgstr "$0 の削除を確定する"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:418 pkg/shell/hosts_dialog.jsx:902
+#: pkg/lib/cockpit-connect-ssh.tsx:418 pkg/shell/hosts_dialog.jsx:996
 msgid "Confirm key password"
 msgstr "キーパスワードの確認"
 
-#: pkg/shell/hosts_dialog.jsx:918
+#: pkg/shell/hosts_dialog.jsx:1012
 msgid "Confirm new key password"
 msgstr "新しいキーパスワードの確認"
 
@@ -1867,6 +1892,10 @@ msgstr "競合する"
 msgid "Conflicts"
 msgstr "競合"
 
+#: pkg/shell/hosts_dialog.jsx:271
+msgid "Connect"
+msgstr "接続"
+
 #: pkg/networkmanager/network-interface.jsx:324
 msgid "Connect automatically"
 msgstr "自動的に接続"
@@ -1875,9 +1904,21 @@ msgstr "自動的に接続"
 msgid "Connect to"
 msgstr "接続先"
 
+#: pkg/shell/hosts_dialog.jsx:263
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to $0?"
+msgstr "接続先"
+
 #: pkg/static/login.js:730
 msgid "Connect to:"
 msgstr "接続先:"
+
+#: pkg/shell/hosts_dialog.jsx:280
+msgid ""
+"Connected hosts can fully control each other. This includes running programs "
+"that could harm your system or steal data. Only connect to trusted machines."
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:329
 msgid "Connecting to SETroubleshoot daemon..."
@@ -1891,7 +1932,7 @@ msgstr "dbus への接続に失敗しました: $0"
 msgid "Connecting to the machine"
 msgstr "マシンへ接続中"
 
-#: pkg/shell/hosts.jsx:197
+#: pkg/shell/hosts.jsx:194
 msgid "Connection error"
 msgstr "接続エラー"
 
@@ -1899,7 +1940,7 @@ msgstr "接続エラー"
 msgid "Connection failed"
 msgstr "接続に失敗しました"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2604
 msgid "Connection has timed out."
 msgstr "接続がタイムアウトしました。"
 
@@ -1946,18 +1987,18 @@ msgstr "変換可能"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:133 pkg/lib/cockpit-connect-ssh.tsx:136
 #: pkg/lib/cockpit-connect-ssh.tsx:151 pkg/lib/cockpit-connect-ssh.tsx:153
-#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:576
-#: pkg/shell/hosts_dialog.jsx:579 pkg/shell/hosts_dialog.jsx:594
-#: pkg/shell/hosts_dialog.jsx:596 pkg/shell/credentials.jsx:210
+#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:670
+#: pkg/shell/hosts_dialog.jsx:673 pkg/shell/hosts_dialog.jsx:688
+#: pkg/shell/hosts_dialog.jsx:690 pkg/shell/credentials.jsx:210
 msgid "Copied"
 msgstr "コピー済み"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:222
 #: pkg/lib/cockpit-connect-ssh.tsx:133 pkg/lib/cockpit-connect-ssh.tsx:136
 #: pkg/lib/cockpit-connect-ssh.tsx:151 pkg/lib/cockpit-connect-ssh.tsx:153
-#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:576
-#: pkg/shell/hosts_dialog.jsx:579 pkg/shell/hosts_dialog.jsx:594
-#: pkg/shell/hosts_dialog.jsx:596 pkg/shell/credentials.jsx:210
+#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:670
+#: pkg/shell/hosts_dialog.jsx:673 pkg/shell/hosts_dialog.jsx:688
+#: pkg/shell/hosts_dialog.jsx:690 pkg/shell/credentials.jsx:210
 msgid "Copy"
 msgstr "コピー"
 
@@ -1970,11 +2011,11 @@ msgstr "クリップボードにコピー"
 msgid "Core $0"
 msgstr "コア $0"
 
-#: pkg/shell/hosts_dialog.jsx:455
+#: pkg/shell/hosts_dialog.jsx:549
 msgid "Could not contact $0"
 msgstr "$0 に問い合わせられませんでした"
 
-#: pkg/kdump/kdump-view.jsx:221 pkg/kdump/kdump-view.jsx:617
+#: pkg/kdump/kdump-view.jsx:221 pkg/kdump/kdump-view.jsx:629
 msgid "Crash dump location"
 msgstr "クラッシュダンプの場所"
 
@@ -2020,7 +2061,7 @@ msgstr "RAID デバイスの作成"
 msgid "Create Stratis pool"
 msgstr "Stratis プールの作成"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:411 pkg/shell/hosts_dialog.jsx:894
+#: pkg/lib/cockpit-connect-ssh.tsx:411 pkg/shell/hosts_dialog.jsx:988
 msgid "Create a new SSH key and authorize it"
 msgstr "新しい SSH キーを作成して承認します"
 
@@ -2077,7 +2118,7 @@ msgstr "グループの新規作成"
 msgid "Create new logical volume"
 msgstr "論理ボリュームの新規作成"
 
-#: pkg/lib/cockpit-components-modifications.jsx:92
+#: pkg/lib/cockpit-components-modifications.jsx:93
 msgid "Create new task file with this content."
 msgstr "このコンテンツで新しいタスクファイルを作成します。"
 
@@ -2180,7 +2221,7 @@ msgstr ""
 msgid "Critical and above"
 msgstr "重大以上のレベル"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:182
 msgid ""
 "Cryptographic Policies is a system component that configures the core "
 "cryptographic subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos "
@@ -2189,15 +2230,15 @@ msgstr ""
 "暗号化ポリシーは、TLS、IPSec、SSH、DNSSec、および Kerberos プロトコルに対応す"
 "るコア暗号化サブシステムを設定するシステムコンポーネントです。"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:62
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:92
 msgid "Cryptographic policy"
 msgstr "暗号化ポリシー"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:261
 msgid "Cryptographic policy is inconsistent"
 msgstr "暗号化ポリシーに一貫性がありません"
 
-#: pkg/lib/cockpit-components-terminal.jsx:212
+#: pkg/lib/cockpit-components-terminal.jsx:223
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
@@ -2217,7 +2258,7 @@ msgstr "現在の CPU 使用率のトップ"
 msgid "Currently in use"
 msgstr "現在使用中"
 
-#: pkg/kdump/kdump-view.jsx:535
+#: pkg/kdump/kdump-view.jsx:547
 msgid "Currently not supported"
 msgstr "現在サポートされていません"
 
@@ -2225,7 +2266,7 @@ msgstr "現在サポートされていません"
 msgid "Custom"
 msgstr "カスタム"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:142
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:170
 msgid "Custom cryptographic policy"
 msgstr "カスタム暗号化ポリシー"
 
@@ -2245,7 +2286,7 @@ msgstr "カスタムタイプ"
 msgid "Custom zones"
 msgstr "カスタムゾーン"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:108
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:134
 msgid "DEFAULT with SHA-1 signature verification allowed."
 msgstr "SHA-1 署名検証があるデフォルトは使用できます。"
 
@@ -2273,7 +2314,7 @@ msgstr "毎日"
 msgid "Danger alert:"
 msgstr "Danger アラート:"
 
-#: pkg/systemd/terminal.jsx:175 pkg/shell/topnav.jsx:191
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
 msgid "Dark"
 msgstr "ダーク"
 
@@ -2386,7 +2427,7 @@ msgstr "$target の非アクティブ化"
 msgid "Debug and above"
 msgstr "デバッグ以上のレベル"
 
-#: pkg/systemd/terminal.jsx:160
+#: pkg/systemd/terminal.jsx:244
 msgid "Decrease by one"
 msgstr "1 つ減らす"
 
@@ -2399,7 +2440,7 @@ msgstr "専用パリティー (RAID 4)"
 msgid "Deduplication"
 msgstr "重複"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37 pkg/shell/topnav.jsx:185
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
 msgid "Default"
 msgstr "デフォルト"
 
@@ -2592,7 +2633,7 @@ msgstr "tuned の無効化"
 
 #: pkg/systemd/services.jsx:246 pkg/systemd/services.jsx:687
 #: pkg/systemd/service-details.jsx:436 pkg/networkmanager/ip-settings.jsx:46
-#: pkg/networkmanager/firewall-switch.jsx:80 pkg/kdump/kdump-view.jsx:541
+#: pkg/networkmanager/firewall-switch.jsx:80 pkg/kdump/kdump-view.jsx:553
 #: pkg/packagekit/autoupdates.jsx:470 pkg/packagekit/kpatch.jsx:253
 msgid "Disabled"
 msgstr "無効"
@@ -2658,7 +2699,7 @@ msgstr[0] "$0 アラートの解除"
 msgid "Dismiss selected alerts"
 msgstr "選択したアラートの解除"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:204
+#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
 msgid "Display language"
 msgstr "表示言語"
 
@@ -2762,9 +2803,9 @@ msgstr "デュアルランク"
 msgid "EFI system partition"
 msgstr "EFI システムパーティション"
 
-#: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:476
+#: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:201 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "編集"
@@ -2797,11 +2838,11 @@ msgstr "ブリッジ設定の編集"
 msgid "Edit custom service in $0 zone"
 msgstr "$0 ゾーンでカスタムサービスを編集する"
 
-#: pkg/shell/hosts_dialog.jsx:352
+#: pkg/shell/hosts_dialog.jsx:446
 msgid "Edit host"
 msgstr "ホストを編集する"
 
-#: pkg/shell/hosts.jsx:251
+#: pkg/shell/hosts.jsx:248
 msgid "Edit hosts"
 msgstr "ホストを編集する"
 
@@ -2882,7 +2923,7 @@ msgstr "ファイアウォールを有効にします"
 
 #: pkg/systemd/services.jsx:244 pkg/systemd/services.jsx:245
 #: pkg/systemd/services.jsx:686 pkg/networkmanager/firewall-switch.jsx:80
-#: pkg/kdump/kdump-view.jsx:541 pkg/packagekit/kpatch.jsx:256
+#: pkg/kdump/kdump-view.jsx:553 pkg/packagekit/kpatch.jsx:256
 msgid "Enabled"
 msgstr "有効"
 
@@ -3081,11 +3122,11 @@ msgstr "拡張情報"
 msgid "Extended partition"
 msgstr "拡張パーティション"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:261
 msgid "FIPS is not properly enabled"
 msgstr "FIPS が適切に有効化されていません"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:122
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:148
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "さらにコモンクライテリアの制限がある FIPS。"
 
@@ -3093,7 +3134,7 @@ msgstr "さらにコモンクライテリアの制限がある FIPS。"
 msgid "Failed"
 msgstr "失敗"
 
-#: pkg/shell/hosts_dialog.jsx:319
+#: pkg/shell/hosts_dialog.jsx:409
 msgid "Failed to add machine: $0"
 msgstr "マシンの追加に失敗しました: $0"
 
@@ -3131,7 +3172,7 @@ msgstr "tuned の無効化に失敗しました"
 msgid "Failed to disable tuned profile"
 msgstr "tuned プロファイルの無効化に失敗しました"
 
-#: pkg/shell/hosts_dialog.jsx:436
+#: pkg/shell/hosts_dialog.jsx:530
 msgid "Failed to edit machine: $0"
 msgstr "マシンの編集に失敗しました: $0"
 
@@ -3254,7 +3295,7 @@ msgstr "ファームウェアバージョン"
 msgid "Fix NBDE support"
 msgstr "NBDE サポートの修正"
 
-#: pkg/systemd/terminal.jsx:149 pkg/systemd/terminal.jsx:159
+#: pkg/systemd/terminal.jsx:233 pkg/systemd/terminal.jsx:243
 msgid "Font size"
 msgstr "フォントのサイズ"
 
@@ -3437,8 +3478,8 @@ msgstr "ヘルス"
 msgid "Hello time $hello_time"
 msgstr "Hello タイム $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
 msgid "Help"
 msgstr "ヘルプ"
 
@@ -3454,7 +3495,7 @@ msgstr "パスワードの非表示"
 msgid "Hierarchy ID"
 msgstr "階層 ID"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:109
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:135
 msgid "Higher interoperability at the cost of an increased attack surface."
 msgstr "攻撃対象が増えるという代償を払ってでも、相互運用性を高めます。"
 
@@ -3466,7 +3507,7 @@ msgstr "履歴パッケージ数"
 msgid "Home directory"
 msgstr "ホームディレクトリー"
 
-#: pkg/shell/hosts.jsx:228 pkg/shell/hosts_dialog.jsx:356
+#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "ホスト"
 
@@ -3474,7 +3515,7 @@ msgstr "ホスト"
 msgid "Host is unknown"
 msgstr "不明ホスト"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2600
 msgid "Host key is incorrect"
 msgstr "ホスト鍵が正しくありません"
 
@@ -3490,7 +3531,7 @@ msgstr "ホストキーが不明です"
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: pkg/shell/hosts.jsx:186
+#: pkg/shell/hosts.jsx:183
 msgid "Hosts"
 msgstr "ホスト"
 
@@ -3583,7 +3624,7 @@ msgstr ""
 "フィンガープリントが一致する場合は、Accept key and login をクリックします。一"
 "致しない場合は、ログインせずに、管理者にお問い合わせください。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:138 pkg/shell/hosts_dialog.jsx:581
+#: pkg/lib/cockpit-connect-ssh.tsx:138 pkg/shell/hosts_dialog.jsx:675
 msgid ""
 "If the fingerprint matches, click 'Trust and add host'. Otherwise, do not "
 "connect and contact your administrator."
@@ -3608,7 +3649,7 @@ msgstr "内"
 msgid "In a terminal, run: "
 msgstr "ターミナルで以下を実行します: "
 
-#: pkg/shell/hosts_dialog.jsx:907 pkg/shell/hosts_dialog.jsx:924
+#: pkg/shell/hosts_dialog.jsx:1001 pkg/shell/hosts_dialog.jsx:1018
 msgid ""
 "In order to allow log in to $0 as $1 without password in the future, use the "
 "login password of $2 on $3 as the key password, or leave the key password "
@@ -3647,7 +3688,7 @@ msgstr ""
 msgid "Inconsistent filesystem mount"
 msgstr "一貫性のないシステムマウント"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/terminal.jsx:245
 msgid "Increase by one"
 msgstr "1 つ増やす"
 
@@ -3735,7 +3776,7 @@ msgstr ""
 msgid "Install software"
 msgstr "ソフトウェアをインストール"
 
-#: pkg/kdump/kdump-view.jsx:571
+#: pkg/kdump/kdump-view.jsx:583
 msgid "Install the $0 package."
 msgstr "$0 パッケージをインストールします。"
 
@@ -3785,7 +3826,7 @@ msgstr "インターフェースメンバー"
 msgid "Interfaces"
 msgstr "インターフェース"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2602
 msgid "Internal error"
 msgstr "内部エラー"
 
@@ -3867,7 +3908,7 @@ msgstr "無効なユーザー名またはパスワード"
 msgid "IoT gateway"
 msgstr "IoT ゲートウェイ"
 
-#: pkg/shell/hosts_dialog.jsx:461
+#: pkg/shell/hosts_dialog.jsx:555
 msgid "Is sshd running on a different port?"
 msgstr "sshd が別のポートで実行されていますか?"
 
@@ -3920,11 +3961,11 @@ msgstr "ジャーナルエントリーが見つかりません"
 msgid "Jump to"
 msgstr "次にジャンプ"
 
-#: pkg/kdump/kdump-view.jsx:569
+#: pkg/kdump/kdump-view.jsx:581
 msgid "Kdump service is not installed."
 msgstr "Kdump サービスがインストールされていません。"
 
-#: pkg/kdump/kdump-view.jsx:604
+#: pkg/kdump/kdump-view.jsx:616
 msgid "Kdump settings"
 msgstr "Kdump 設定"
 
@@ -3932,11 +3973,11 @@ msgstr "Kdump 設定"
 msgid "Keep connection"
 msgstr "接続の保持"
 
-#: pkg/kdump/kdump-view.jsx:581
+#: pkg/kdump/kdump-view.jsx:593
 msgid "Kernel crash dump"
 msgstr "カーネルクラッシュダンプ"
 
-#: pkg/kdump/kdump-view.jsx:550
+#: pkg/kdump/kdump-view.jsx:562
 msgid "Kernel did not boot with the $0 setting"
 msgstr "カーネルが $0 設定を使用してブートしませんでした"
 
@@ -3962,7 +4003,7 @@ msgid "Kernel live patching"
 msgstr "カーネルライブパッチ"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:414 pkg/lib/cockpit-connect-ssh.tsx:459
-#: pkg/shell/hosts_dialog.jsx:897 pkg/shell/hosts_dialog.jsx:962
+#: pkg/shell/hosts_dialog.jsx:991 pkg/shell/hosts_dialog.jsx:1056
 msgid "Key password"
 msgstr "キーパスワード"
 
@@ -3996,7 +4037,7 @@ msgstr "キーサーバーの削除により、$0 のロック解除ができな
 msgid "LACP key"
 msgstr "LACP キー"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:110
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:136
 msgid "LEGACY with Active Directory interoperability."
 msgstr "Active Directory との相互運用性があるレガシー。"
 
@@ -4078,8 +4119,8 @@ msgstr "最後の正常ログイン:"
 msgid "Layout"
 msgstr "レイアウト"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:145
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:192
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
@@ -4104,7 +4145,7 @@ msgstr "暗号化をスキップするには空白のままにします"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "GNU LGPL バージョン 2.1 でのライセンス"
 
-#: pkg/systemd/terminal.jsx:176 pkg/shell/topnav.jsx:188
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
 msgid "Light"
 msgstr "ライト"
 
@@ -4235,7 +4276,7 @@ msgstr "ユニットの読み込みに失敗しました"
 msgid "Loading packages..."
 msgstr "パッケージの読み込み中..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:134
+#: pkg/lib/cockpit-components-modifications.jsx:135
 msgid "Loading system modifications..."
 msgstr "システム変更をロード中..."
 
@@ -4245,7 +4286,7 @@ msgstr "ユニットのロードに失敗しました"
 
 #: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
-#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:438
+#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
 #: pkg/users/accounts-list.js:339 pkg/users/accounts-list.js:453
 #: pkg/storaged/storaged.jsx:66
@@ -4268,7 +4309,7 @@ msgstr "ローカルマウントポイント"
 msgid "Local storage"
 msgstr "ローカルストレージ"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:462
 msgid "Local, $0"
 msgstr "ローカル、$0"
 
@@ -4308,11 +4349,11 @@ msgstr "$target のロック中"
 
 #: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
-#: pkg/shell/hosts_dialog.jsx:865
+#: pkg/shell/hosts_dialog.jsx:959
 msgid "Log in"
 msgstr "ログイン"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:389 pkg/shell/hosts_dialog.jsx:864
+#: pkg/lib/cockpit-connect-ssh.tsx:389 pkg/shell/hosts_dialog.jsx:958
 msgid "Log in to $0"
 msgstr "$0 へのログイン"
 
@@ -4324,7 +4365,7 @@ msgstr "サーバーのユーザーアカウントでログインします。"
 msgid "Log messages"
 msgstr "ログメッセージ"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:221
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
 msgid "Log out"
 msgstr "ログアウト"
 
@@ -4370,7 +4411,7 @@ msgstr "ログイン"
 msgid "Login again"
 msgstr "再ログイン"
 
-#: pkg/lib/cockpit.js:2596
+#: pkg/lib/cockpit.js:2592
 msgid "Login failed"
 msgstr "ログインが失敗しました"
 
@@ -4463,7 +4504,7 @@ msgstr "メインサーバーシャーシ"
 msgid "Maintenance"
 msgstr "メンテナンス"
 
-#: pkg/shell/hosts_dialog.jsx:598
+#: pkg/shell/hosts_dialog.jsx:692
 msgid "Malicious pages on a remote machine may affect other connected hosts"
 msgstr ""
 "リモートマシン上の悪意のあるページが、接続されている他のホストに影響を与える"
@@ -4965,11 +5006,11 @@ msgstr "NFS の新規マウント"
 msgid "New host"
 msgstr "新規ホスト"
 
-#: pkg/shell/hosts_dialog.jsx:565
+#: pkg/shell/hosts_dialog.jsx:659
 msgid "New host: $0"
 msgstr "新しいホスト: $0"
 
-#: pkg/shell/hosts_dialog.jsx:913
+#: pkg/shell/hosts_dialog.jsx:1007
 msgid "New key password"
 msgstr "新しいキーパスワード"
 
@@ -5026,7 +5067,7 @@ msgstr "ブロックデバイスが見つかりません"
 msgid "No carrier"
 msgstr "キャリアなし"
 
-#: pkg/kdump/kdump-view.jsx:471
+#: pkg/kdump/kdump-view.jsx:483
 msgid "No configuration found"
 msgstr "設定が見つかりません"
 
@@ -5193,7 +5234,7 @@ msgstr "サブボリュームなし"
 msgid "No such file or directory"
 msgstr "このようなファイルまたはディレクトリーがありません"
 
-#: pkg/lib/cockpit-components-modifications.jsx:129
+#: pkg/lib/cockpit-components-modifications.jsx:130
 msgid "No system modifications"
 msgstr "システム変更がありません"
 
@@ -5210,7 +5251,7 @@ msgid "No user name specified"
 msgstr "ユーザー名が指定されていません"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:224
-#: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
+#: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:500
 msgid "None"
 msgstr "なし"
 
@@ -5272,7 +5313,7 @@ msgstr "ネットワークデバイスの設定が許可されていません"
 msgid "Not permitted to configure realms"
 msgstr "レルムの設定が許可されていません"
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2590
 msgid "Not permitted to perform this action."
 msgstr "この動作を実行する権限がありません。"
 
@@ -5347,7 +5388,7 @@ msgstr "古いパスワード"
 msgid "Old password not accepted"
 msgstr "古いパスワードは受け入れられません"
 
-#: pkg/kdump/kdump-view.jsx:463
+#: pkg/kdump/kdump-view.jsx:475
 msgid "On a mounted device"
 msgstr "マウントされたデバイス上"
 
@@ -5375,13 +5416,13 @@ msgstr "アルファベット、数字、:、 _ 、.、@、- のみを使用で�
 msgid "Only emergency"
 msgstr "緊急のみ"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:112
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:138
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "FIPS モードで起動する場合は、承認および許可されたアルゴリズムのみを使用してく"
 "ださい。"
 
-#: pkg/shell/topnav.jsx:243
+#: pkg/shell/topnav.jsx:228
 msgid "Ooops!"
 msgstr "問題が発生しました!"
 
@@ -5569,7 +5610,7 @@ msgstr "パスフレーズが一致しません"
 #: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
-#: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
+#: pkg/shell/hosts_dialog.jsx:1040 pkg/shell/hosts_dialog.jsx:1049
 #: pkg/shell/credentials.jsx:117 pkg/shell/credentials.jsx:260
 #: pkg/shell/credentials.jsx:316 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
@@ -5608,11 +5649,11 @@ msgstr "パスワードは受け入れられません"
 msgid "Password tip"
 msgstr "パスワードヒント"
 
-#: pkg/lib/cockpit-components-terminal.jsx:215
+#: pkg/lib/cockpit-components-terminal.jsx:226
 msgid "Paste"
 msgstr "貼り付け"
 
-#: pkg/lib/cockpit-components-terminal.jsx:223
+#: pkg/lib/cockpit-components-terminal.jsx:234
 msgid "Paste error"
 msgstr "貼り付けエラー"
 
@@ -5821,7 +5862,7 @@ msgstr "シンプロビジョニングされたボリューム用プール"
 msgid "Pool passphrase"
 msgstr "プールパスフレーズ"
 
-#: pkg/shell/hosts_dialog.jsx:464 pkg/storaged/iscsi/create-dialog.jsx:111
+#: pkg/shell/hosts_dialog.jsx:558 pkg/storaged/iscsi/create-dialog.jsx:111
 msgid "Port"
 msgstr "ポート"
 
@@ -5926,7 +5967,7 @@ msgstr "ssh-keygen によるプロンプトがタイムアウトしました"
 msgid "Propagates reload to"
 msgstr "再ロード先を伝搬"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:123
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:149
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -6037,7 +6078,7 @@ msgstr "範囲の順序は厳密でなければなりません"
 msgid "Rank"
 msgstr "ランク"
 
-#: pkg/kdump/kdump-view.jsx:459
+#: pkg/kdump/kdump-view.jsx:471
 msgid "Raw to a device"
 msgstr "デバイスに対する Raw"
 
@@ -6045,6 +6086,12 @@ msgstr "デバイスに対する Raw"
 #: pkg/metrics/metrics.jsx:928 pkg/metrics/metrics.jsx:933
 msgid "Read"
 msgstr "読み取り"
+
+#: pkg/shell/hosts_dialog.jsx:284
+#, fuzzy
+#| msgid "Read more..."
+msgid "Read more"
+msgstr "さらに読む..."
 
 #: pkg/metrics/metrics.jsx:1439 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
@@ -6058,7 +6105,7 @@ msgstr "読み取り専用"
 msgid "Reading"
 msgstr "読み取り中"
 
-#: pkg/kdump/kdump-view.jsx:483
+#: pkg/kdump/kdump-view.jsx:495
 msgid "Reading..."
 msgstr "読み取り中 ..."
 
@@ -6087,7 +6134,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "実際のホスト名は 64 文字以下である必要があります"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:220
 msgid "Reapply and reboot"
 msgstr "再適用して再起動する"
 
@@ -6122,7 +6169,7 @@ msgstr "受信中"
 msgid "Recent hosts"
 msgstr "直近のホスト"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:107
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:133
 msgid "Recommended, secure settings for current threat models."
 msgstr "現在の脅威モデルに推奨される安全な設定。"
 
@@ -6186,11 +6233,11 @@ msgstr "リロード中"
 msgid "Reloading the state of remaining services"
 msgstr "残りのサービス状態の再読み込み"
 
-#: pkg/kdump/kdump-view.jsx:469
+#: pkg/kdump/kdump-view.jsx:481
 msgid "Remote over CIFS/SMB"
 msgstr "CIFS/SMB 経由のリモート"
 
-#: pkg/kdump/kdump-view.jsx:465
+#: pkg/kdump/kdump-view.jsx:477
 msgid "Remote over FTP"
 msgstr "FTP 経由のリモート"
 
@@ -6198,11 +6245,11 @@ msgstr "FTP 経由のリモート"
 msgid "Remote over NFS"
 msgstr "NFS 経由のリモート"
 
-#: pkg/kdump/kdump-view.jsx:456
+#: pkg/kdump/kdump-view.jsx:468
 msgid "Remote over NFS, $0"
 msgstr "NFS 経由のリモート、$0"
 
-#: pkg/kdump/kdump-view.jsx:467
+#: pkg/kdump/kdump-view.jsx:479
 msgid "Remote over SFTP"
 msgstr "SFTP 経由のリモート"
 
@@ -6210,7 +6257,7 @@ msgstr "SFTP 経由のリモート"
 msgid "Remote over SSH"
 msgstr "SSH 経由のリモート"
 
-#: pkg/kdump/kdump-view.jsx:453
+#: pkg/kdump/kdump-view.jsx:465
 msgid "Remote over SSH, $0"
 msgstr "SSH 経由のリモート、$0"
 
@@ -6220,7 +6267,7 @@ msgstr "削除:"
 
 #: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:204
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
 #: pkg/storaged/lvm2/volume-group.jsx:349
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -6466,7 +6513,7 @@ msgstr "必須"
 msgid "Requisite of"
 msgstr "必須の"
 
-#: pkg/kdump/kdump-view.jsx:554
+#: pkg/kdump/kdump-view.jsx:566
 msgid ""
 "Reserve memory at boot time by setting a '$0' option on the kernel command "
 "line. For example, append '$1' to $2  in $3 or use your distribution's "
@@ -6476,11 +6523,11 @@ msgstr ""
 "してください。たとえば、'$1' を $3 の $2 に追加するか、ディストリビューション"
 "のカーネル引数エディターを使用します。"
 
-#: pkg/kdump/kdump-view.jsx:610
+#: pkg/kdump/kdump-view.jsx:622
 msgid "Reserved memory"
 msgstr "予約済みメモリー"
 
-#: pkg/systemd/logs.jsx:402 pkg/systemd/terminal.jsx:184
+#: pkg/systemd/logs.jsx:402 pkg/systemd/terminal.jsx:268
 msgid "Reset"
 msgstr "リセット"
 
@@ -6549,7 +6596,7 @@ msgstr "既存の暗号化を再利用"
 msgid "Reuse existing encryption ($0)"
 msgstr "既存の暗号化を再利用 ($0)"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:236
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:268
 msgid "Review cryptographic policy"
 msgstr "暗号化ポリシーを確認する"
 
@@ -6590,7 +6637,7 @@ msgstr "以下で実行"
 msgid "Run report"
 msgstr "レポートを実行する"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:150 pkg/shell/hosts_dialog.jsx:593
+#: pkg/lib/cockpit-connect-ssh.tsx:150 pkg/shell/hosts_dialog.jsx:687
 msgid ""
 "Run this command over a trusted network or physically on the remote machine:"
 msgstr ""
@@ -6606,6 +6653,10 @@ msgstr "ランナー"
 #: pkg/storaged/mdraid/mdraid.jsx:297
 msgid "Running"
 msgstr "実行中"
+
+#: pkg/systemd/terminal.jsx:283
+msgid "Running process prevents directory change"
+msgstr ""
 
 #: pkg/selinux/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_selinux.metainfo.xml.in:5
@@ -6654,7 +6705,7 @@ msgid ""
 msgstr "SOS レポートは、問題の診断に役立つシステム情報を収集します。"
 
 #: pkg/kdump/kdump-view.jsx:295 pkg/lib/cockpit-connect-ssh.tsx:448
-#: pkg/shell/hosts_dialog.jsx:951
+#: pkg/shell/hosts_dialog.jsx:1045
 msgid "SSH key"
 msgstr "SSH キー"
 
@@ -6666,7 +6717,7 @@ msgstr "SSH キーはパスではありません"
 msgid "SSH key login"
 msgstr "SSH 鍵ログイン"
 
-#: pkg/shell/topnav.jsx:217 pkg/shell/credentials.jsx:77
+#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
 #: pkg/shell/credentials.jsx:93
 msgid "SSH keys"
 msgstr "SSH キー"
@@ -6847,7 +6898,7 @@ msgstr "サーバーは空欄にできません。"
 msgid "Server closed connection"
 msgstr "サーバーが接続を終了しました"
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2610
 msgid "Server has closed the connection."
 msgstr "サーバーの接続が終了しました。"
 
@@ -6862,7 +6913,7 @@ msgstr "サーバーソフトウェア"
 msgid "Service"
 msgstr "サービス"
 
-#: pkg/kdump/kdump-view.jsx:563
+#: pkg/kdump/kdump-view.jsx:575
 msgid "Service has an error"
 msgstr "サービスでエラーが発生しました"
 
@@ -6880,7 +6931,7 @@ msgstr "サービス"
 msgid "Services using the location"
 msgstr "ロケーションを使用するサービス"
 
-#: pkg/shell/topnav.jsx:292
+#: pkg/shell/topnav.jsx:277
 msgid "Session"
 msgstr "セッション"
 
@@ -6888,7 +6939,7 @@ msgstr "セッション"
 msgid "Session is about to expire"
 msgstr "セッションはまもなく終了します"
 
-#: pkg/shell/hosts_dialog.jsx:353 pkg/storaged/stratis/filesystem.jsx:227
+#: pkg/shell/hosts_dialog.jsx:447 pkg/storaged/stratis/filesystem.jsx:227
 msgid "Set"
 msgstr "セット"
 
@@ -6958,11 +7009,11 @@ msgstr "共有"
 msgid "Shell"
 msgstr "シェル"
 
-#: pkg/lib/cockpit-components-modifications.jsx:100
+#: pkg/lib/cockpit-components-modifications.jsx:102
 msgid "Shell script"
 msgstr "シェルスクリプト"
 
-#: pkg/lib/cockpit-components-terminal.jsx:216
+#: pkg/lib/cockpit-components-terminal.jsx:227
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
@@ -7072,11 +7123,11 @@ msgstr "サイズは数値である必要があります"
 msgid "Size must be at least $0"
 msgstr "サイズは $0 以上にする必要があります"
 
-#: pkg/shell/shell.jsx:120
+#: pkg/shell/shell.jsx:117
 msgid "Skip main navigation"
 msgstr "メインナビゲーションをスキップします"
 
-#: pkg/shell/shell.jsx:119
+#: pkg/shell/shell.jsx:116
 msgid "Skip to content"
 msgstr "コンテンツへスキップ"
 
@@ -7273,7 +7324,7 @@ msgstr "停止してアンマウント"
 msgid "Stop device"
 msgstr "デバイスの停止"
 
-#: pkg/shell/hosts.jsx:251
+#: pkg/shell/hosts.jsx:248
 msgid "Stop editing hosts"
 msgstr "ホストの編集を停止"
 
@@ -7365,7 +7416,7 @@ msgstr "強固なパスワード"
 msgid "Stub"
 msgstr "スタブ"
 
-#: pkg/shell/topnav.jsx:181
+#: pkg/shell/topnav.jsx:166
 msgid "Style"
 msgstr "スタイル"
 
@@ -7533,11 +7584,11 @@ msgstr "端末"
 msgid "Terminate session"
 msgstr "セッションの終了"
 
-#: pkg/kdump/kdump-view.jsx:507 pkg/kdump/kdump-view.jsx:515
+#: pkg/kdump/kdump-view.jsx:519 pkg/kdump/kdump-view.jsx:527
 msgid "Test configuration"
 msgstr "設定のテスト"
 
-#: pkg/kdump/kdump-view.jsx:511
+#: pkg/kdump/kdump-view.jsx:523
 msgid "Test is only available while the kdump service is running."
 msgstr "テストは kdump サービスが実行中の間だけ利用可能です。"
 
@@ -7577,7 +7628,7 @@ msgstr "$0 パッケージがインストールされている必要がありま
 msgid "The $0 package will be installed to create VDO devices."
 msgstr "$0 パッケージがインストールされ、VDO デバイスを作成します。"
 
-#: pkg/shell/hosts_dialog.jsx:259
+#: pkg/shell/hosts_dialog.jsx:349
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP アドレスまたはホスト名には空白を含めることができません。"
 
@@ -7589,11 +7640,11 @@ msgstr "MDRAID デバイスがデグレード状態です"
 msgid "The MDRAID device must be running"
 msgstr "MDRAID デバイスが実行中である必要があります"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:426 pkg/shell/hosts_dialog.jsx:929
+#: pkg/lib/cockpit-connect-ssh.tsx:426 pkg/shell/hosts_dialog.jsx:1023
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
 msgstr "$2 の $1 の SSH キー $0 は、$5 上の $4 の $3 ファイルに追加されます。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:463 pkg/shell/hosts_dialog.jsx:966
+#: pkg/lib/cockpit-connect-ssh.tsx:463 pkg/shell/hosts_dialog.jsx:1060
 msgid ""
 "The SSH key $0 will be made available for the remainder of the session and "
 "will be available for login to other hosts as well."
@@ -7601,7 +7652,7 @@ msgstr ""
 "SSH キー $0 はセッションの残りの時間に利用できるようになり、他のホストにもロ"
 "グインできるようになります。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:398 pkg/shell/hosts_dialog.jsx:874
+#: pkg/lib/cockpit-connect-ssh.tsx:398 pkg/shell/hosts_dialog.jsx:968
 msgid ""
 "The SSH key for logging in to $0 is protected by a password, and the host "
 "does not allow logging in with a password. Please provide the password of "
@@ -7610,7 +7661,7 @@ msgstr ""
 "$0 にログインするための SSH キーはパスワードで保護され、パスワードによるログ"
 "インを許可しません。$1 にキーのパスワードを指定してください。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:400 pkg/shell/hosts_dialog.jsx:879
+#: pkg/lib/cockpit-connect-ssh.tsx:400 pkg/shell/hosts_dialog.jsx:973
 msgid ""
 "The SSH key for logging in to $0 is protected. You can log in with either "
 "your login password or by providing the password of the key at $1."
@@ -7712,7 +7763,7 @@ msgstr ""
 "ファイルシステムはロック解除され、次回の起動時にマウントされます。パスフレー"
 "ズの入力が必要になる場合があります。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:152 pkg/shell/hosts_dialog.jsx:595
+#: pkg/lib/cockpit-connect-ssh.tsx:152 pkg/shell/hosts_dialog.jsx:689
 msgid "The fingerprint should match:"
 msgstr "フィンガープリントは次のものと一致する必要があります:"
 
@@ -7749,12 +7800,12 @@ msgstr ""
 msgid "The initrd must be regenerated."
 msgstr "initrd を再生成する必要があります。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:342 pkg/shell/hosts_dialog.jsx:796
+#: pkg/lib/cockpit-connect-ssh.tsx:342 pkg/shell/hosts_dialog.jsx:890
 msgid "The key password can not be empty"
 msgstr "キーのパスワードは空にすることはできません"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:344 pkg/shell/hosts_dialog.jsx:799
-#: pkg/shell/hosts_dialog.jsx:805
+#: pkg/lib/cockpit-connect-ssh.tsx:344 pkg/shell/hosts_dialog.jsx:893
+#: pkg/shell/hosts_dialog.jsx:899
 msgid "The key passwords do not match"
 msgstr "キーのパスワードが一致しません"
 
@@ -7782,7 +7833,7 @@ msgstr "一覧表示されたプロセスは強制的に停止されます。"
 msgid "The listed services will be forcefully stopped."
 msgstr "一覧表示されたサービスは強制的に停止されます。"
 
-#: pkg/lib/cockpit-components-modifications.jsx:129
+#: pkg/lib/cockpit-components-modifications.jsx:130
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "ログインしているユーザーには、システム変更を表示する権限がありません"
 
@@ -7798,11 +7849,11 @@ msgstr "マウントポイント $0 は、以下のプロセスにより使用�
 msgid "The mount point $0 is in use by these services:"
 msgstr "マウントポイント $0 は、以下のサービスにより使用されています:"
 
-#: pkg/shell/hosts_dialog.jsx:802
+#: pkg/shell/hosts_dialog.jsx:896
 msgid "The new key password can not be empty"
 msgstr "新しいキーのパスワードは空にすることはできません"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:336 pkg/shell/hosts_dialog.jsx:780
+#: pkg/lib/cockpit-connect-ssh.tsx:336 pkg/shell/hosts_dialog.jsx:874
 msgid "The password can not be empty"
 msgstr "パスワードは空にできません"
 
@@ -7811,7 +7862,7 @@ msgid "The passwords do not match"
 msgstr "パスワードが一致しません"
 
 #: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
-#: pkg/shell/hosts_dialog.jsx:580
+#: pkg/shell/hosts_dialog.jsx:674
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7819,7 +7870,7 @@ msgstr ""
 "作成されたフィンガープリントは、電子メールを含むパブリックメソッドを介して共"
 "有すると問題ありません。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:142 pkg/shell/hosts_dialog.jsx:585
+#: pkg/lib/cockpit-connect-ssh.tsx:142 pkg/shell/hosts_dialog.jsx:679
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email. If you are asking someone else to do the verification for you, they "
@@ -7837,7 +7888,7 @@ msgstr ""
 "サーバーはパスワード認証を使用した '$0' の認証を拒否しました。サポートされた"
 "他の認証方法は利用できません。"
 
-#: pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2594
 msgid "The server refused to authenticate using any supported methods."
 msgstr "サーバーはサポートされた方法を使用した認証を拒否しました。"
 
@@ -7861,11 +7912,11 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "ユーザー $0 は、cpu セキュリティー緩和の変更を許可されていません"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:65
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 msgid "The user $0 is not permitted to change cryptographic policies"
 msgstr "ユーザー $0 は、暗号化ポリシーの変更を許可されていません"
 
-#: pkg/kdump/kdump-view.jsx:505
+#: pkg/kdump/kdump-view.jsx:517
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "ユーザー $0 は、カーネルクラッシュのテストを許可されていません"
 
@@ -8024,7 +8075,7 @@ msgstr ""
 msgid "This logical volume is not completely used by its content."
 msgstr "この論理ボリュームは、コンテンツによって完全には使用されていません。"
 
-#: pkg/shell/hosts_dialog.jsx:265
+#: pkg/shell/hosts_dialog.jsx:355
 msgid "This machine has already been added."
 msgstr "このマシンはすでに追加されています。"
 
@@ -8157,7 +8208,7 @@ msgstr ""
 "ニットに対する考えられるメッセージをすべて特定します。複数のユニットをコンマ"
 "で区切ることができます。 "
 
-#: pkg/shell/hosts_dialog.jsx:930
+#: pkg/shell/hosts_dialog.jsx:1024
 msgid "This will allow you to log in without password in the future."
 msgstr "これにより、今後はパスワードなしでログインできるようになります。"
 
@@ -8206,7 +8257,7 @@ msgstr ""
 "パスワードに一致させます。"
 
 #: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
-#: pkg/shell/hosts_dialog.jsx:575
+#: pkg/shell/hosts_dialog.jsx:669
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -8224,7 +8275,7 @@ msgstr ""
 "ションサーバーを使用します。"
 
 #: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
-#: pkg/shell/hosts_dialog.jsx:578
+#: pkg/shell/hosts_dialog.jsx:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -8249,7 +8300,7 @@ msgstr "日付選択の切り替え"
 msgid "Toggle filters"
 msgstr "フィルターの切り替え"
 
-#: pkg/lib/cockpit.js:2620
+#: pkg/lib/cockpit.js:2616
 msgid "Too much data"
 msgstr "データが多すぎます"
 
@@ -8313,7 +8364,7 @@ msgstr "トラブルシュート"
 msgid "Troubleshoot…"
 msgstr "トラブルシュート…"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:127 pkg/shell/hosts_dialog.jsx:567
+#: pkg/lib/cockpit-connect-ssh.tsx:127 pkg/shell/hosts_dialog.jsx:661
 msgid "Trust and add host"
 msgstr "ホストを信頼して追加"
 
@@ -8416,11 +8467,11 @@ msgstr "このソリューションを自動的に適用できません"
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
-#: pkg/shell/hosts_dialog.jsx:460
+#: pkg/shell/hosts_dialog.jsx:554
 msgid "Unable to contact $0."
 msgstr "$0 と通信できません。"
 
-#: pkg/shell/hosts_dialog.jsx:337
+#: pkg/shell/hosts_dialog.jsx:249 pkg/shell/hosts_dialog.jsx:430
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -8440,7 +8491,7 @@ msgid ""
 msgstr ""
 "SSH 鍵認証を使用して $0 にログインできません。パスワードを入力してください。"
 
-#: pkg/shell/hosts_dialog.jsx:871
+#: pkg/shell/hosts_dialog.jsx:965
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password. You may want to set up your SSH keys for automatic login."
@@ -8448,13 +8499,19 @@ msgstr ""
 "SSH キー認証で $0 にログインできません。パスワードを入力してください。SSH "
 "キーを自動ログイン用に設定しておいてください。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:394 pkg/shell/hosts_dialog.jsx:869
+#: pkg/lib/cockpit-connect-ssh.tsx:394 pkg/shell/hosts_dialog.jsx:963
 msgid ""
 "Unable to log in to $0. The host does not accept password login or any of "
 "your SSH keys."
 msgstr ""
 "$0 にログインできません。ホストが、パスワードログインまたは SSH キーを受け付"
 "けていません。"
+
+#: pkg/systemd/terminal.jsx:275
+#, fuzzy
+#| msgid "Path to directory"
+msgid "Unable to open directory"
+msgstr "ディレクトリーへのパス"
 
 #: pkg/storaged/iscsi/create-dialog.jsx:73
 msgid "Unable to reach server"
@@ -8647,7 +8704,7 @@ msgstr "サポートされていない論理ボリューム"
 msgid "Until"
 msgstr "フィルター終了時刻"
 
-#: pkg/lib/cockpit.js:2600 pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
 msgid "Untrusted host"
 msgstr "信用できないホスト"
 
@@ -8655,7 +8712,7 @@ msgstr "信用できないホスト"
 msgid "Up since"
 msgstr "起動時間:"
 
-#: pkg/shell/hosts_dialog.jsx:456
+#: pkg/shell/hosts_dialog.jsx:550
 msgid "Update"
 msgstr "更新"
 
@@ -8791,7 +8848,7 @@ msgid "User ID must not be lower than $0"
 msgstr "ユーザー ID は $0 よりも小さくすることはできません"
 
 #: pkg/static/login.html:105 pkg/users/account-details.js:256
-#: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
+#: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:459
 msgid "User name"
 msgstr "ユーザー名"
 
@@ -8850,7 +8907,7 @@ msgstr "ベンダー"
 msgid "Verified"
 msgstr "検証済み"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:147 pkg/shell/hosts_dialog.jsx:590
+#: pkg/lib/cockpit-connect-ssh.tsx:147 pkg/shell/hosts_dialog.jsx:684
 msgid "Verify fingerprint"
 msgstr "フィンガープリントの検証"
 
@@ -8886,8 +8943,8 @@ msgstr "すべてのログの表示"
 msgid "View all services"
 msgstr "すべてのサービスの表示"
 
-#: pkg/kdump/kdump-view.jsx:526
-#: pkg/lib/cockpit-components-modifications.jsx:154
+#: pkg/kdump/kdump-view.jsx:538
+#: pkg/lib/cockpit-components-modifications.jsx:158
 msgid "View automation script"
 msgstr "オートメーションスクリプトの表示"
 
@@ -9046,7 +9103,7 @@ msgstr "週"
 msgid "When"
 msgstr "条件"
 
-#: pkg/shell/hosts_dialog.jsx:368
+#: pkg/shell/hosts_dialog.jsx:462
 msgid "When empty, connect with the current user"
 msgstr "空の場合は、現在のユーザーに接続します"
 
@@ -9060,7 +9117,7 @@ msgstr ""
 "ロセスはバックグラウンドで続行されます。更新プロセスの監視を継続するには、再"
 "接続します。"
 
-#: pkg/systemd/terminal.jsx:177
+#: pkg/systemd/terminal.jsx:261
 msgid "White"
 msgstr "白"
 
@@ -9106,7 +9163,7 @@ msgid "Yes"
 msgstr "はい"
 
 #: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
-#: pkg/shell/hosts_dialog.jsx:589
+#: pkg/shell/hosts_dialog.jsx:683
 msgid "You are connecting to $0 for the first time."
 msgstr "初めて $0 に接続しています。"
 
@@ -9128,7 +9185,7 @@ msgstr "アクティビティーがないためログアウトされました。
 msgid "You may try to load older entries."
 msgstr "古いエントリーのロードを試行することができます。"
 
-#: pkg/shell/hosts_dialog.jsx:875 pkg/shell/hosts_dialog.jsx:880
+#: pkg/shell/hosts_dialog.jsx:969 pkg/shell/hosts_dialog.jsx:974
 msgid "You may want to change the password of the key for automatic login."
 msgstr "自動ログイン用の鍵のパスワードの変更が必要な場合があります。"
 
@@ -9144,11 +9201,17 @@ msgstr "これで管理者アクセスが可能になりました。"
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 秒後にログアウトされます。"
 
+#: pkg/shell/hosts_dialog.jsx:267
+#, fuzzy
+#| msgid "You will be logged out in $0 seconds."
+msgid "You will be reminded once per session."
+msgstr "$0 秒後にログアウトされます。"
+
 #: pkg/users/accounts-list.js:176
 msgid "Your account"
 msgstr "お使いのアカウント"
 
-#: pkg/lib/cockpit-components-terminal.jsx:233
+#: pkg/lib/cockpit-components-terminal.jsx:244
 msgid ""
 "Your browser does not allow paste from the context menu. You can use "
 "Shift+Insert."
@@ -9166,11 +9229,11 @@ msgid ""
 "restarted."
 msgstr "サーバーがまもなく接続を閉じます。再起動したら再接続できます。"
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2586
 msgid "Your session has been terminated."
 msgstr "セッションが終了しました。"
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2588
 msgid "Your session has expired. Please log in again."
 msgstr "セッションの有効期限が切れました。再度ログインしてください。"
 
@@ -9569,7 +9632,7 @@ msgstr "インストール"
 msgid "interface"
 msgstr "インターフェース"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:458
 msgid "invalid: multiple targets defined"
 msgstr "無効: 複数のターゲットが定義されています"
 
@@ -9597,7 +9660,7 @@ msgstr "journalctl man ページ"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:539
+#: pkg/kdump/kdump-view.jsx:551
 msgid "kdump status"
 msgstr "kdump ステータス"
 
@@ -9669,7 +9732,7 @@ msgstr "軽減"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:564
+#: pkg/kdump/kdump-view.jsx:576
 msgid "more details"
 msgstr "詳細"
 
@@ -11150,9 +11213,6 @@ msgstr "ゾーン"
 
 #~ msgid "Confirm this action"
 #~ msgstr "この動作を確認"
-
-#~ msgid "Connect"
-#~ msgstr "接続"
 
 #~ msgid "Connect with any viewer application for following protocols"
 #~ msgstr "以下のプロトコル用のビューアーアプリケーションへ接続"
@@ -12807,9 +12867,6 @@ msgstr "ゾーン"
 #~ "The following containers depend on this image and will become unusable."
 #~ msgstr ""
 #~ "以下のコンテナーはこのイメージに依存しており、使用できなくなります。"
-
-#~ msgid "This image does not exist."
-#~ msgstr "このイメージは存在しません。"
 
 #~ msgid "Type a password"
 #~ msgstr "パスワードを入力します"

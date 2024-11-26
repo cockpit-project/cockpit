@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-13 02:57+0000\n"
+"POT-Creation-Date: 2024-11-26 03:03+0000\n"
 "PO-Revision-Date: 2023-07-31 12:26+0000\n"
 "Last-Translator: yangyangdaji <1504305527@qq.com>\n"
 "Language-Team: Norwegian Bokmål <https://translate.fedoraproject.org/"
@@ -130,19 +130,25 @@ msgstr[1] "$0 disker mangler"
 msgid "$0 disks"
 msgstr "$0 disker"
 
-#: pkg/shell/topnav.jsx:142
+#: pkg/shell/topnav.jsx:127
 msgid "$0 documentation"
 msgstr "$0 dokumentasjon"
+
+#: pkg/systemd/terminal.jsx:164
+#, fuzzy
+#| msgid "VM $0 does not exist on $1 connection"
+msgid "$0 does not exist"
+msgstr "VM $0 finnes ikke på $1-tilkobling"
 
 #: pkg/static/login.js:469 pkg/static/login.js:1060
 msgid "$0 error"
 msgstr "$0 feil"
 
-#: pkg/lib/cockpit.js:1411
+#: pkg/lib/cockpit.js:1407
 msgid "$0 exited with code $1"
 msgstr "$0 avsluttet med koden $1"
 
-#: pkg/lib/cockpit.js:1413
+#: pkg/lib/cockpit.js:1409
 msgid "$0 failed"
 msgstr "$0 feilet"
 
@@ -200,17 +206,23 @@ msgstr "$0 disk mangler"
 msgid "$0 is in use"
 msgstr "$0 er i aktiv bruk"
 
+#: pkg/systemd/terminal.jsx:160
+#, fuzzy
+#| msgid "Directory"
+msgid "$0 is not a directory"
+msgstr "Katalog"
+
 #: pkg/lib/cockpit-components-install-dialog.jsx:160
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:35
 msgid "$0 is not available from any repository."
 msgstr "$0 er ikke tilgjengelig fra noe depot."
 
 #: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:125
-#: pkg/shell/hosts_dialog.jsx:565
+#: pkg/shell/hosts_dialog.jsx:659
 msgid "$0 key changed"
 msgstr "$0 nøkkel endret"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1405
 msgid "$0 killed with signal $1"
 msgstr "$0 drept med signal $1"
 
@@ -603,7 +615,7 @@ msgstr "8."
 msgid "9th"
 msgstr "9."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:520 pkg/shell/hosts_dialog.jsx:196
+#: pkg/lib/cockpit-connect-ssh.tsx:520 pkg/shell/hosts_dialog.jsx:218
 #, fuzzy
 #| msgid ""
 #| "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
@@ -636,7 +648,7 @@ msgstr ""
 "En nettverksbinding kombinerer flere nettverksgrensesnitt til ett logisk "
 "grensesnitt med høyere gjennomstrømning eller redundans."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:413 pkg/shell/hosts_dialog.jsx:896
+#: pkg/lib/cockpit-connect-ssh.tsx:413 pkg/shell/hosts_dialog.jsx:990
 #, fuzzy
 #| msgid ""
 #| "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it "
@@ -690,7 +702,7 @@ msgstr "ARP overvåking"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/topnav.jsx:164
+#: pkg/shell/topnav.jsx:149
 msgid "About Web Console"
 msgstr "Om Web konsoll"
 
@@ -752,7 +764,7 @@ msgid "Active backup"
 msgstr ""
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:211
+#: pkg/shell/topnav.jsx:196
 msgid "Active pages"
 msgstr "Aktive sider"
 
@@ -776,7 +788,7 @@ msgid "Adaptive transmit load balancing"
 msgstr ""
 
 #: pkg/systemd/timer-dialog.jsx:367 pkg/networkmanager/dialogs-common.jsx:149
-#: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:353
+#: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:447
 #: pkg/shell/credentials.jsx:182 pkg/storaged/lvm2/volume-group.jsx:209
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/mdraid/mdraid.jsx:167
 #: pkg/storaged/iscsi/create-dialog.jsx:120
@@ -881,7 +893,7 @@ msgstr "Tang nøkkelserver"
 msgid "Add member"
 msgstr "Legg til medlem"
 
-#: pkg/shell/hosts.jsx:212 pkg/shell/hosts_dialog.jsx:352
+#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "Legg til ny vert"
 
@@ -1161,11 +1173,11 @@ msgstr "Tillatte adresser"
 msgid "An additional $0 must be selected"
 msgstr ""
 
-#: pkg/lib/cockpit-components-modifications.jsx:88
+#: pkg/lib/cockpit-components-modifications.jsx:89
 msgid "Ansible"
 msgstr "Ansible"
 
-#: pkg/lib/cockpit-components-modifications.jsx:96
+#: pkg/lib/cockpit-components-modifications.jsx:97
 msgid "Ansible roles documentation"
 msgstr "Ansible roller dokumentasjon"
 
@@ -1177,7 +1189,7 @@ msgid ""
 "can be comma separated list of possible values."
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:168
+#: pkg/systemd/terminal.jsx:252
 msgid "Appearance"
 msgstr "Utseende"
 
@@ -1194,7 +1206,7 @@ msgstr "Applikasjoner"
 msgid "Applications list"
 msgstr "Applikasjonsliste"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:220
 #, fuzzy
 #| msgid "Save and reboot"
 msgid "Apply and reboot"
@@ -1210,7 +1222,7 @@ msgstr "Tar i bruk oppdateringer"
 msgid "Apply this solution"
 msgstr "Bruk denne løsningen"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:186
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:214
 msgid "Applying new policy... This may take a few minutes."
 msgstr ""
 
@@ -1310,7 +1322,7 @@ msgid "Authenticating"
 msgstr "Autentiserer"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:436 pkg/users/account-create-dialog.js:112
-#: pkg/shell/hosts_dialog.jsx:941
+#: pkg/shell/hosts_dialog.jsx:1035
 msgid "Authentication"
 msgstr "Autentisering"
 
@@ -1330,7 +1342,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "Autentisering kreves"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:425 pkg/shell/hosts_dialog.jsx:927
+#: pkg/lib/cockpit-connect-ssh.tsx:425 pkg/shell/hosts_dialog.jsx:1021
 #, fuzzy
 #| msgid "Authorize SSH key."
 msgid "Authorize SSH key"
@@ -1352,7 +1364,7 @@ msgstr "Automatisk"
 msgid "Automatic (DHCP only)"
 msgstr "Automatisk (kun DHCP)"
 
-#: pkg/shell/hosts_dialog.jsx:971
+#: pkg/shell/hosts_dialog.jsx:1065
 msgid "Automatic login"
 msgstr "Automatisk pålogging"
 
@@ -1437,7 +1449,7 @@ msgstr "Før"
 msgid "Binds to"
 msgstr "Binder seg til"
 
-#: pkg/systemd/terminal.jsx:174
+#: pkg/systemd/terminal.jsx:258
 msgid "Black"
 msgstr "Svart"
 
@@ -1531,7 +1543,7 @@ msgstr "Feil"
 msgid "Bus expansion chassis"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:912
+#: pkg/shell/hosts_dialog.jsx:1006
 #, fuzzy
 #| msgid ""
 #| "By changing the password of the SSH key ${key} to the login password of "
@@ -1582,7 +1594,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "Hurtigbuffer"
 
-#: pkg/shell/hosts_dialog.jsx:363
+#: pkg/shell/hosts_dialog.jsx:457
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "Kan være et vertsnavn, IP-adresse, aliasnavn eller ssh:// URI"
 
@@ -1593,8 +1605,9 @@ msgstr "Finner ingen logger med den nåværende kombinasjonen av filtre."
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
 #: pkg/metrics/metrics.jsx:1448 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
-#: pkg/systemd/hwinfo.jsx:231 pkg/systemd/reporting.jsx:383
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:194
+#: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
+#: pkg/systemd/reporting.jsx:383
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:223
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:316
 #: pkg/systemd/overview-cards/realmd.jsx:434
@@ -1609,11 +1622,11 @@ msgstr "Finner ingen logger med den nåværende kombinasjonen av filtre."
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
-#: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:386
-#: pkg/shell/hosts_dialog.jsx:481 pkg/shell/hosts_dialog.jsx:615
-#: pkg/shell/hosts_dialog.jsx:992 pkg/shell/credentials.jsx:311
-#: pkg/storaged/jobs-panel.jsx:140 pkg/sosreport/sosreport.jsx:294
-#: pkg/sosreport/sosreport.jsx:379
+#: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
+#: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
+#: pkg/shell/hosts_dialog.jsx:709 pkg/shell/hosts_dialog.jsx:1086
+#: pkg/shell/credentials.jsx:311 pkg/storaged/jobs-panel.jsx:140
+#: pkg/sosreport/sosreport.jsx:294 pkg/sosreport/sosreport.jsx:379
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -1635,7 +1648,7 @@ msgstr "Kan ikke aktiveres"
 msgid "Cannot connect to an unknown host"
 msgstr "Kan ikke koble til en ukjent vert"
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2608
 msgid "Cannot forward login credentials"
 msgstr "Kan ikke videresende påloggingsinformasjonen"
 
@@ -1670,11 +1683,17 @@ msgstr ""
 msgid "Change"
 msgstr "Endre"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:181
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:209
 #, fuzzy
 #| msgid "Custom encryption options"
 msgid "Change cryptographic policy"
 msgstr "Tilpassede krypteringsalternativer"
+
+#: pkg/systemd/terminal.jsx:289
+#, fuzzy
+#| msgid "Directory"
+msgid "Change directory"
+msgstr "Katalog"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Change host name"
@@ -1722,7 +1741,7 @@ msgstr "Endre passfrase"
 msgid "Change system time"
 msgstr "Endre systemtid"
 
-#: pkg/shell/hosts_dialog.jsx:910
+#: pkg/shell/hosts_dialog.jsx:1004
 #, fuzzy
 #| msgid "Change the password of ${key}."
 msgid "Change the password of $0"
@@ -1733,7 +1752,7 @@ msgid "Change the settings"
 msgstr "Endre innstillingene"
 
 #: pkg/static/login.html:92 pkg/lib/cockpit-connect-ssh.tsx:131
-#: pkg/shell/hosts_dialog.jsx:574
+#: pkg/shell/hosts_dialog.jsx:668
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1745,6 +1764,12 @@ msgstr ""
 
 #: pkg/storaged/partitions/partition.jsx:196
 msgid "Changing partition types might prevent the system from booting."
+msgstr ""
+
+#: pkg/systemd/terminal.jsx:293
+msgid ""
+"Changing the directory will forcefully stop the currently running process. "
+"The process can also be stopped manually in the terminal before continuing."
 msgstr ""
 
 #: pkg/networkmanager/interfaces.js:1655
@@ -1868,11 +1893,11 @@ msgstr "Klient programvare"
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
 #: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
-#: pkg/lib/cockpit-components-terminal.jsx:230
+#: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
 #: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
-#: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:190
+#: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
 msgstr "Lukk"
@@ -1893,7 +1918,7 @@ msgstr "Cockpit autentisering er konfigurert feil."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr ""
 
-#: pkg/lib/cockpit.js:2618
+#: pkg/lib/cockpit.js:2614
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit kunne ikke kontakte den angitte verten."
 
@@ -1919,15 +1944,15 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit er et interaktivt administrasjonsgrensesnitt for Linux-server."
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2612
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit er ikke kompatibel med programvaren på systemet."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:512 pkg/shell/hosts_dialog.jsx:187
+#: pkg/lib/cockpit-connect-ssh.tsx:512 pkg/shell/hosts_dialog.jsx:209
 msgid "Cockpit is not installed"
 msgstr "Cockpit er ikke installert"
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2606
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit er ikke installert på systemet."
 
@@ -1964,7 +1989,7 @@ msgstr "Kjerne dump"
 msgid "Collect metrics"
 msgstr "Aktiver lagret metrikk"
 
-#: pkg/shell/hosts_dialog.jsx:370
+#: pkg/shell/hosts_dialog.jsx:464
 msgid "Color"
 msgstr "Farge"
 
@@ -2055,11 +2080,11 @@ msgstr "Bekreft"
 msgid "Confirm deletion of $0"
 msgstr "Bekreft sletting av $0"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:418 pkg/shell/hosts_dialog.jsx:902
+#: pkg/lib/cockpit-connect-ssh.tsx:418 pkg/shell/hosts_dialog.jsx:996
 msgid "Confirm key password"
 msgstr "Bekreft nøkkel-passord"
 
-#: pkg/shell/hosts_dialog.jsx:918
+#: pkg/shell/hosts_dialog.jsx:1012
 msgid "Confirm new key password"
 msgstr "Bekreft nytt nøkkel-passord"
 
@@ -2097,6 +2122,10 @@ msgstr ""
 msgid "Conflicts"
 msgstr "Konflikter"
 
+#: pkg/shell/hosts_dialog.jsx:271
+msgid "Connect"
+msgstr "Koble til"
+
 #: pkg/networkmanager/network-interface.jsx:324
 msgid "Connect automatically"
 msgstr "Koble til automatisk"
@@ -2105,11 +2134,23 @@ msgstr "Koble til automatisk"
 msgid "Connect to"
 msgstr "Koble til"
 
+#: pkg/shell/hosts_dialog.jsx:263
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to $0?"
+msgstr "Koble til"
+
 #: pkg/static/login.js:730
 #, fuzzy
 #| msgid "Connect to"
 msgid "Connect to:"
 msgstr "Koble til"
+
+#: pkg/shell/hosts_dialog.jsx:280
+msgid ""
+"Connected hosts can fully control each other. This includes running programs "
+"that could harm your system or steal data. Only connect to trusted machines."
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:329
 msgid "Connecting to SETroubleshoot daemon..."
@@ -2125,7 +2166,7 @@ msgstr "Tilkoblingen feilet"
 msgid "Connecting to the machine"
 msgstr "Kobler til maskinen"
 
-#: pkg/shell/hosts.jsx:197
+#: pkg/shell/hosts.jsx:194
 msgid "Connection error"
 msgstr "Tilkoblingsfeil"
 
@@ -2133,7 +2174,7 @@ msgstr "Tilkoblingsfeil"
 msgid "Connection failed"
 msgstr "Tilkoblingen feilet"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2604
 msgid "Connection has timed out."
 msgstr "Tidsavbrudd for tilkoblingen."
 
@@ -2182,18 +2223,18 @@ msgstr "Konverterbar"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:133 pkg/lib/cockpit-connect-ssh.tsx:136
 #: pkg/lib/cockpit-connect-ssh.tsx:151 pkg/lib/cockpit-connect-ssh.tsx:153
-#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:576
-#: pkg/shell/hosts_dialog.jsx:579 pkg/shell/hosts_dialog.jsx:594
-#: pkg/shell/hosts_dialog.jsx:596 pkg/shell/credentials.jsx:210
+#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:670
+#: pkg/shell/hosts_dialog.jsx:673 pkg/shell/hosts_dialog.jsx:688
+#: pkg/shell/hosts_dialog.jsx:690 pkg/shell/credentials.jsx:210
 msgid "Copied"
 msgstr ""
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:222
 #: pkg/lib/cockpit-connect-ssh.tsx:133 pkg/lib/cockpit-connect-ssh.tsx:136
 #: pkg/lib/cockpit-connect-ssh.tsx:151 pkg/lib/cockpit-connect-ssh.tsx:153
-#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:576
-#: pkg/shell/hosts_dialog.jsx:579 pkg/shell/hosts_dialog.jsx:594
-#: pkg/shell/hosts_dialog.jsx:596 pkg/shell/credentials.jsx:210
+#: pkg/shell/failures.jsx:50 pkg/shell/hosts_dialog.jsx:670
+#: pkg/shell/hosts_dialog.jsx:673 pkg/shell/hosts_dialog.jsx:688
+#: pkg/shell/hosts_dialog.jsx:690 pkg/shell/credentials.jsx:210
 msgid "Copy"
 msgstr "Kopier"
 
@@ -2206,13 +2247,13 @@ msgstr "Kopier til utklippstavle"
 msgid "Core $0"
 msgstr "Kjerne $0"
 
-#: pkg/shell/hosts_dialog.jsx:455
+#: pkg/shell/hosts_dialog.jsx:549
 #, fuzzy
 #| msgid "Could not contact {{host}}"
 msgid "Could not contact $0"
 msgstr "Kunne ikke kontakte {{host}}"
 
-#: pkg/kdump/kdump-view.jsx:221 pkg/kdump/kdump-view.jsx:617
+#: pkg/kdump/kdump-view.jsx:221 pkg/kdump/kdump-view.jsx:629
 msgid "Crash dump location"
 msgstr "Crash dump plassering"
 
@@ -2266,7 +2307,7 @@ msgstr "Opprett RAID-enhet"
 msgid "Create Stratis pool"
 msgstr "Opprett lagrings-pool"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:411 pkg/shell/hosts_dialog.jsx:894
+#: pkg/lib/cockpit-connect-ssh.tsx:411 pkg/shell/hosts_dialog.jsx:988
 #, fuzzy
 #| msgid "Create a new SSH key and authorize it."
 msgid "Create a new SSH key and authorize it"
@@ -2337,7 +2378,7 @@ msgstr "Opprett volumgruppe"
 msgid "Create new logical volume"
 msgstr "Opprett nytt logisk volum"
 
-#: pkg/lib/cockpit-components-modifications.jsx:92
+#: pkg/lib/cockpit-components-modifications.jsx:93
 msgid "Create new task file with this content."
 msgstr "Opprett ny oppgavefil med dette innholdet."
 
@@ -2464,24 +2505,24 @@ msgstr ""
 msgid "Critical and above"
 msgstr "Kritisk og over"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:182
 msgid ""
 "Cryptographic Policies is a system component that configures the core "
 "cryptographic subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos "
 "protocols."
 msgstr ""
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:62
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:92
 #, fuzzy
 #| msgid "Custom encryption options"
 msgid "Cryptographic policy"
 msgstr "Tilpassede krypteringsalternativer"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:261
 msgid "Cryptographic policy is inconsistent"
 msgstr ""
 
-#: pkg/lib/cockpit-components-terminal.jsx:212
+#: pkg/lib/cockpit-components-terminal.jsx:223
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
@@ -2507,7 +2548,7 @@ msgstr "Gjeldende"
 msgid "Currently in use"
 msgstr "Gjeldende"
 
-#: pkg/kdump/kdump-view.jsx:535
+#: pkg/kdump/kdump-view.jsx:547
 #, fuzzy
 #| msgid "Current"
 msgid "Currently not supported"
@@ -2519,7 +2560,7 @@ msgstr "Gjeldende"
 msgid "Custom"
 msgstr "egendefinert"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:142
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:170
 #, fuzzy
 #| msgid "Custom encryption options"
 msgid "Custom cryptographic policy"
@@ -2543,7 +2584,7 @@ msgstr "Egendefinert sti"
 msgid "Custom zones"
 msgstr "Egendefinerte soner"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:108
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:134
 msgid "DEFAULT with SHA-1 signature verification allowed."
 msgstr ""
 
@@ -2571,7 +2612,7 @@ msgstr "Daglig"
 msgid "Danger alert:"
 msgstr "Farevarsel:"
 
-#: pkg/systemd/terminal.jsx:175 pkg/shell/topnav.jsx:191
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
 msgid "Dark"
 msgstr "Mørk"
 
@@ -2665,7 +2706,7 @@ msgstr "Deaktiverer $target"
 msgid "Debug and above"
 msgstr "Debug og over"
 
-#: pkg/systemd/terminal.jsx:160
+#: pkg/systemd/terminal.jsx:244
 msgid "Decrease by one"
 msgstr "Reduser med en"
 
@@ -2680,7 +2721,7 @@ msgstr "RAID 4 (dedikert paritet)"
 msgid "Deduplication"
 msgstr "Deduplisering"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37 pkg/shell/topnav.jsx:185
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
 msgid "Default"
 msgstr ""
 
@@ -2899,7 +2940,7 @@ msgstr "Deaktiver tuned"
 
 #: pkg/systemd/services.jsx:246 pkg/systemd/services.jsx:687
 #: pkg/systemd/service-details.jsx:436 pkg/networkmanager/ip-settings.jsx:46
-#: pkg/networkmanager/firewall-switch.jsx:80 pkg/kdump/kdump-view.jsx:541
+#: pkg/networkmanager/firewall-switch.jsx:80 pkg/kdump/kdump-view.jsx:553
 #: pkg/packagekit/autoupdates.jsx:470 pkg/packagekit/kpatch.jsx:253
 msgid "Disabled"
 msgstr "Deaktivert"
@@ -2979,7 +3020,7 @@ msgstr[1] "Forkast"
 msgid "Dismiss selected alerts"
 msgstr "Lukk valgte sider"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:204
+#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
 msgid "Display language"
 msgstr "Visnings språk"
 
@@ -3101,9 +3142,9 @@ msgstr "Dobbel rangering"
 msgid "EFI system partition"
 msgstr "Utvidet partisjon"
 
-#: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:476
+#: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:201 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "Rediger"
@@ -3144,11 +3185,11 @@ msgstr "Bro-innstillinger"
 msgid "Edit custom service in $0 zone"
 msgstr "Legg til tjenester i $0-sonen"
 
-#: pkg/shell/hosts_dialog.jsx:352
+#: pkg/shell/hosts_dialog.jsx:446
 msgid "Edit host"
 msgstr "Rediger vert"
 
-#: pkg/shell/hosts.jsx:251
+#: pkg/shell/hosts.jsx:248
 msgid "Edit hosts"
 msgstr "Rediger verter"
 
@@ -3243,7 +3284,7 @@ msgstr "Aktiver brannmuren"
 
 #: pkg/systemd/services.jsx:244 pkg/systemd/services.jsx:245
 #: pkg/systemd/services.jsx:686 pkg/networkmanager/firewall-switch.jsx:80
-#: pkg/kdump/kdump-view.jsx:541 pkg/packagekit/kpatch.jsx:256
+#: pkg/kdump/kdump-view.jsx:553 pkg/packagekit/kpatch.jsx:256
 msgid "Enabled"
 msgstr "Aktivert"
 
@@ -3466,11 +3507,11 @@ msgstr "Utvidet informasjon"
 msgid "Extended partition"
 msgstr "Utvidet partisjon"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:230
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:261
 msgid "FIPS is not properly enabled"
 msgstr ""
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:122
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:148
 msgid "FIPS with further Common Criteria restrictions."
 msgstr ""
 
@@ -3478,7 +3519,7 @@ msgstr ""
 msgid "Failed"
 msgstr "Feilet"
 
-#: pkg/shell/hosts_dialog.jsx:319
+#: pkg/shell/hosts_dialog.jsx:409
 msgid "Failed to add machine: $0"
 msgstr "Kunne ikke legge til maskin: $0"
 
@@ -3520,7 +3561,7 @@ msgstr "Kunne ikke deaktivere tuned"
 msgid "Failed to disable tuned profile"
 msgstr "Kunne ikke deaktivere tuned profil"
 
-#: pkg/shell/hosts_dialog.jsx:436
+#: pkg/shell/hosts_dialog.jsx:530
 msgid "Failed to edit machine: $0"
 msgstr "Kunne ikke redigere maskin: $0"
 
@@ -3668,7 +3709,7 @@ msgstr "Fastvareversjon"
 msgid "Fix NBDE support"
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:149 pkg/systemd/terminal.jsx:159
+#: pkg/systemd/terminal.jsx:233 pkg/systemd/terminal.jsx:243
 msgid "Font size"
 msgstr "Skriftstørrelse"
 
@@ -3875,8 +3916,8 @@ msgstr "Helse"
 msgid "Hello time $hello_time"
 msgstr ""
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:168
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:262
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
 msgid "Help"
 msgstr "Hjelp"
 
@@ -3896,7 +3937,7 @@ msgstr "Bruker passord"
 msgid "Hierarchy ID"
 msgstr ""
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:109
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:135
 msgid "Higher interoperability at the cost of an increased attack surface."
 msgstr ""
 
@@ -3910,7 +3951,7 @@ msgstr ""
 msgid "Home directory"
 msgstr "Katalog"
 
-#: pkg/shell/hosts.jsx:228 pkg/shell/hosts_dialog.jsx:356
+#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "Vert"
 
@@ -3920,7 +3961,7 @@ msgstr "Vert"
 msgid "Host is unknown"
 msgstr "ukjent"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2600
 msgid "Host key is incorrect"
 msgstr "Vertsnøkkelen er feil"
 
@@ -3940,7 +3981,7 @@ msgstr "Vertsnøkkelen er feil"
 msgid "Hostname"
 msgstr "Vertsnavn"
 
-#: pkg/shell/hosts.jsx:186
+#: pkg/shell/hosts.jsx:183
 msgid "Hosts"
 msgstr "Verter"
 
@@ -4030,7 +4071,7 @@ msgstr ""
 "Hvis fingeravtrykket stemmer overens, klikker du på \"Godta nøkkel og logg "
 "inn\". Ellers ikke logg inn og kontakt administratoren din."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:138 pkg/shell/hosts_dialog.jsx:581
+#: pkg/lib/cockpit-connect-ssh.tsx:138 pkg/shell/hosts_dialog.jsx:675
 #, fuzzy
 #| msgid ""
 #| "If the fingerprint matches, click \"Accept key and connect\". Otherwise, "
@@ -4059,7 +4100,7 @@ msgstr "Inn"
 msgid "In a terminal, run: "
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:907 pkg/shell/hosts_dialog.jsx:924
+#: pkg/shell/hosts_dialog.jsx:1001 pkg/shell/hosts_dialog.jsx:1018
 #, fuzzy
 #| msgid ""
 #| "In order to allow log in to ${rhost} as ${ruser} without password in the "
@@ -4103,7 +4144,7 @@ msgstr ""
 msgid "Inconsistent filesystem mount"
 msgstr "Inkonsistent filsystemmontering"
 
-#: pkg/systemd/terminal.jsx:161
+#: pkg/systemd/terminal.jsx:245
 msgid "Increase by one"
 msgstr "Øk med en"
 
@@ -4207,7 +4248,7 @@ msgstr "Installer setroubleshoot-server for å feilsøke SELinux-hendelser."
 msgid "Install software"
 msgstr "Installer programvare"
 
-#: pkg/kdump/kdump-view.jsx:571
+#: pkg/kdump/kdump-view.jsx:583
 #, fuzzy
 #| msgid "Please install the $0 package"
 msgid "Install the $0 package."
@@ -4264,7 +4305,7 @@ msgstr "Grensesnittmedlemmer"
 msgid "Interfaces"
 msgstr "Grensesnitt"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2602
 msgid "Internal error"
 msgstr "Intern feil"
 
@@ -4350,7 +4391,7 @@ msgstr "Ugyldig brukernavn eller passord"
 msgid "IoT gateway"
 msgstr "IoT-gateway"
 
-#: pkg/shell/hosts_dialog.jsx:461
+#: pkg/shell/hosts_dialog.jsx:555
 msgid "Is sshd running on a different port?"
 msgstr "Kjører sshd på en annen port?"
 
@@ -4407,13 +4448,13 @@ msgstr "Journaloppføring ikke funnet"
 msgid "Jump to"
 msgstr "Gå til"
 
-#: pkg/kdump/kdump-view.jsx:569
+#: pkg/kdump/kdump-view.jsx:581
 #, fuzzy
 #| msgid "Cockpit is not installed"
 msgid "Kdump service is not installed."
 msgstr "Cockpit er ikke installert"
 
-#: pkg/kdump/kdump-view.jsx:604
+#: pkg/kdump/kdump-view.jsx:616
 #, fuzzy
 #| msgid "Test kdump settings"
 msgid "Kdump settings"
@@ -4423,13 +4464,13 @@ msgstr "Test kdump-innstillinger"
 msgid "Keep connection"
 msgstr "Hold forbindelsen"
 
-#: pkg/kdump/kdump-view.jsx:581
+#: pkg/kdump/kdump-view.jsx:593
 #, fuzzy
 #| msgid "Kernel dump"
 msgid "Kernel crash dump"
 msgstr "Kjerne dump"
 
-#: pkg/kdump/kdump-view.jsx:550
+#: pkg/kdump/kdump-view.jsx:562
 msgid "Kernel did not boot with the $0 setting"
 msgstr ""
 
@@ -4463,7 +4504,7 @@ msgid "Kernel live patching"
 msgstr "Kjerne dump"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:414 pkg/lib/cockpit-connect-ssh.tsx:459
-#: pkg/shell/hosts_dialog.jsx:897 pkg/shell/hosts_dialog.jsx:962
+#: pkg/shell/hosts_dialog.jsx:991 pkg/shell/hosts_dialog.jsx:1056
 msgid "Key password"
 msgstr "Nøkkel-passord"
 
@@ -4497,7 +4538,7 @@ msgstr "Fjerning av nøkkelserver kan forhindre opplåsing av $0."
 msgid "LACP key"
 msgstr "LACP-nøkkel"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:110
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:136
 msgid "LEGACY with Active Directory interoperability."
 msgstr ""
 
@@ -4603,8 +4644,8 @@ msgstr "Siste feilede pålogging:"
 msgid "Layout"
 msgstr ""
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:119
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:164
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:145
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:192
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:293
 #: pkg/networkmanager/bond.jsx:152 pkg/lib/cockpit-components-dialog.jsx:234
 #: pkg/lib/cockpit-components-dialog.jsx:241
@@ -4635,7 +4676,7 @@ msgstr "Bruker LUKS-kryptering"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "GNU LGPL versjon 2.1"
 
-#: pkg/systemd/terminal.jsx:176 pkg/shell/topnav.jsx:188
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
 msgid "Light"
 msgstr "Lys"
 
@@ -4788,7 +4829,7 @@ msgstr "Lasting av SSH-nøkler feilet"
 msgid "Loading packages..."
 msgstr "Laster nøkler..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:134
+#: pkg/lib/cockpit-components-modifications.jsx:135
 msgid "Loading system modifications..."
 msgstr "Laster inn systemendringer ..."
 
@@ -4800,7 +4841,7 @@ msgstr "Innlogging feilet"
 
 #: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
-#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:438
+#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
 #: pkg/users/accounts-list.js:339 pkg/users/accounts-list.js:453
 #: pkg/storaged/storaged.jsx:66
@@ -4825,7 +4866,7 @@ msgstr "Lokalt monteringspunkt"
 msgid "Local storage"
 msgstr "Ingen lagring"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:462
 #, fuzzy
 #| msgid "locally in $0"
 msgid "Local, $0"
@@ -4874,11 +4915,11 @@ msgstr "Låser $target"
 
 #: pkg/static/login.html:150 pkg/static/login.js:738
 #: pkg/lib/cockpit-connect-ssh.tsx:390 pkg/shell/failures.jsx:87
-#: pkg/shell/hosts_dialog.jsx:865
+#: pkg/shell/hosts_dialog.jsx:959
 msgid "Log in"
 msgstr "Logg inn"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:389 pkg/shell/hosts_dialog.jsx:864
+#: pkg/lib/cockpit-connect-ssh.tsx:389 pkg/shell/hosts_dialog.jsx:958
 #, fuzzy
 #| msgid "Go to $0"
 msgid "Log in to $0"
@@ -4892,7 +4933,7 @@ msgstr "Logg inn med server brukerkontoen din."
 msgid "Log messages"
 msgstr "Logg meldinger"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:221
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
 msgid "Log out"
 msgstr "Logg ut"
 
@@ -4944,7 +4985,7 @@ msgstr "Siste innlogging"
 msgid "Login again"
 msgstr "Logg inn igjen"
 
-#: pkg/lib/cockpit.js:2596
+#: pkg/lib/cockpit.js:2592
 msgid "Login failed"
 msgstr "Innlogging feilet"
 
@@ -5055,7 +5096,7 @@ msgstr ""
 msgid "Maintenance"
 msgstr "grensesnitt"
 
-#: pkg/shell/hosts_dialog.jsx:598
+#: pkg/shell/hosts_dialog.jsx:692
 msgid "Malicious pages on a remote machine may affect other connected hosts"
 msgstr ""
 
@@ -5578,13 +5619,13 @@ msgstr "Ny NFS-montering"
 msgid "New host"
 msgstr "Ny vert"
 
-#: pkg/shell/hosts_dialog.jsx:565
+#: pkg/shell/hosts_dialog.jsx:659
 #, fuzzy
 #| msgid "New host"
 msgid "New host: $0"
 msgstr "Ny vert"
 
-#: pkg/shell/hosts_dialog.jsx:913
+#: pkg/shell/hosts_dialog.jsx:1007
 msgid "New key password"
 msgstr "Nytt nøkkelpassord"
 
@@ -5651,7 +5692,7 @@ msgstr "Ingen oppstartsenhet funnet"
 msgid "No carrier"
 msgstr "Ingen transportør"
 
-#: pkg/kdump/kdump-view.jsx:471
+#: pkg/kdump/kdump-view.jsx:483
 msgid "No configuration found"
 msgstr "Ingen konfigurasjon funnet"
 
@@ -5844,7 +5885,7 @@ msgstr "Ingen logiske volumer"
 msgid "No such file or directory"
 msgstr "Ingen slik fil eller katalog"
 
-#: pkg/lib/cockpit-components-modifications.jsx:129
+#: pkg/lib/cockpit-components-modifications.jsx:130
 msgid "No system modifications"
 msgstr "Ingen systemendringer"
 
@@ -5863,7 +5904,7 @@ msgid "No user name specified"
 msgstr "Ingen brukernavn spesifisert"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:224
-#: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:488
+#: pkg/networkmanager/firewall.jsx:854 pkg/kdump/kdump-view.jsx:500
 msgid "None"
 msgstr "Ingen"
 
@@ -5937,7 +5978,7 @@ msgstr "Kunne ikke klone VM $0"
 msgid "Not permitted to configure realms"
 msgstr "Kunne ikke klone VM $0"
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2590
 msgid "Not permitted to perform this action."
 msgstr "Ikke tillatt å utføre denne handlingen."
 
@@ -6016,7 +6057,7 @@ msgstr "Gammelt passord"
 msgid "Old password not accepted"
 msgstr "Gammelt passord aksepteres ikke"
 
-#: pkg/kdump/kdump-view.jsx:463
+#: pkg/kdump/kdump-view.jsx:475
 msgid "On a mounted device"
 msgstr "På en montert enhet"
 
@@ -6044,11 +6085,11 @@ msgstr "Bare biokstaver, tall,:, _,. , @ , - er tillatt"
 msgid "Only emergency"
 msgstr "Bare nødsituasjon"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:112
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:138
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 
-#: pkg/shell/topnav.jsx:243
+#: pkg/shell/topnav.jsx:228
 msgid "Ooops!"
 msgstr ""
 
@@ -6255,7 +6296,7 @@ msgstr "Passfraser stemmer ikke overens"
 #: pkg/static/login.html:110 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/lib/cockpit-connect-ssh.tsx:452 pkg/users/account-details.js:290
 #: pkg/users/account-create-dialog.js:139 pkg/shell/superuser.jsx:144
-#: pkg/shell/hosts_dialog.jsx:946 pkg/shell/hosts_dialog.jsx:955
+#: pkg/shell/hosts_dialog.jsx:1040 pkg/shell/hosts_dialog.jsx:1049
 #: pkg/shell/credentials.jsx:117 pkg/shell/credentials.jsx:260
 #: pkg/shell/credentials.jsx:316 pkg/storaged/iscsi/create-dialog.jsx:34
 #: pkg/storaged/iscsi/create-dialog.jsx:140
@@ -6300,11 +6341,11 @@ msgstr "Passord ikke akseptert"
 msgid "Password tip"
 msgstr "Passord"
 
-#: pkg/lib/cockpit-components-terminal.jsx:215
+#: pkg/lib/cockpit-components-terminal.jsx:226
 msgid "Paste"
 msgstr "Lim inn"
 
-#: pkg/lib/cockpit-components-terminal.jsx:223
+#: pkg/lib/cockpit-components-terminal.jsx:234
 #, fuzzy
 #| msgid "Internal error"
 msgid "Paste error"
@@ -6532,7 +6573,7 @@ msgstr "Pool for tynt provisjonerte volumer"
 msgid "Pool passphrase"
 msgstr "Gammel passordfrase"
 
-#: pkg/shell/hosts_dialog.jsx:464 pkg/storaged/iscsi/create-dialog.jsx:111
+#: pkg/shell/hosts_dialog.jsx:558 pkg/storaged/iscsi/create-dialog.jsx:111
 msgid "Port"
 msgstr "Port"
 
@@ -6645,7 +6686,7 @@ msgstr "Spørring via ssh-keygen ble tidsavbrutt"
 msgid "Propagates reload to"
 msgstr "Videreformidler omlasting til"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:123
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:149
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -6756,7 +6797,7 @@ msgstr ""
 msgid "Rank"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:459
+#: pkg/kdump/kdump-view.jsx:471
 msgid "Raw to a device"
 msgstr ""
 
@@ -6764,6 +6805,12 @@ msgstr ""
 #: pkg/metrics/metrics.jsx:928 pkg/metrics/metrics.jsx:933
 msgid "Read"
 msgstr "Les"
+
+#: pkg/shell/hosts_dialog.jsx:284
+#, fuzzy
+#| msgid "Read more..."
+msgid "Read more"
+msgstr "Les mer…"
 
 #: pkg/metrics/metrics.jsx:1439 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
@@ -6779,7 +6826,7 @@ msgstr "Skrivebeskyttet"
 msgid "Reading"
 msgstr "Last på nytt"
 
-#: pkg/kdump/kdump-view.jsx:483
+#: pkg/kdump/kdump-view.jsx:495
 msgid "Reading..."
 msgstr "Lesing..."
 
@@ -6808,7 +6855,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "Faktisk vertsnavn må være på 64 tegn eller mindre"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:220
 #, fuzzy
 #| msgid "Save and reboot"
 msgid "Reapply and reboot"
@@ -6849,7 +6896,7 @@ msgstr "Mottar"
 msgid "Recent hosts"
 msgstr "Rediger verter"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:107
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:133
 msgid "Recommended, secure settings for current threat models."
 msgstr ""
 
@@ -6923,11 +6970,11 @@ msgstr "Last på nytt"
 msgid "Reloading the state of remaining services"
 msgstr "Last inn tilstanden på gjenværende tjenestene"
 
-#: pkg/kdump/kdump-view.jsx:469
+#: pkg/kdump/kdump-view.jsx:481
 msgid "Remote over CIFS/SMB"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:465
+#: pkg/kdump/kdump-view.jsx:477
 #, fuzzy
 #| msgid "Remove zone $0"
 msgid "Remote over FTP"
@@ -6937,13 +6984,13 @@ msgstr "Fjern sone $0"
 msgid "Remote over NFS"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:456
+#: pkg/kdump/kdump-view.jsx:468
 #, fuzzy
 #| msgid "Remove zone $0"
 msgid "Remote over NFS, $0"
 msgstr "Fjern sone $0"
 
-#: pkg/kdump/kdump-view.jsx:467
+#: pkg/kdump/kdump-view.jsx:479
 #, fuzzy
 #| msgid "Remove zone $0"
 msgid "Remote over SFTP"
@@ -6953,7 +7000,7 @@ msgstr "Fjern sone $0"
 msgid "Remote over SSH"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:453
+#: pkg/kdump/kdump-view.jsx:465
 #, fuzzy
 #| msgid "Remove zone $0"
 msgid "Remote over SSH, $0"
@@ -6965,7 +7012,7 @@ msgstr ""
 
 #: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:204
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
 #: pkg/storaged/lvm2/volume-group.jsx:349
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -7243,18 +7290,18 @@ msgstr "Nødvendig"
 msgid "Requisite of"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:554
+#: pkg/kdump/kdump-view.jsx:566
 msgid ""
 "Reserve memory at boot time by setting a '$0' option on the kernel command "
 "line. For example, append '$1' to $2  in $3 or use your distribution's "
 "kernel argument editor."
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:610
+#: pkg/kdump/kdump-view.jsx:622
 msgid "Reserved memory"
 msgstr "Reservert minne"
 
-#: pkg/systemd/logs.jsx:402 pkg/systemd/terminal.jsx:184
+#: pkg/systemd/logs.jsx:402 pkg/systemd/terminal.jsx:268
 msgid "Reset"
 msgstr "Tilbakestill"
 
@@ -7321,7 +7368,7 @@ msgstr "Bruker LUKS-kryptering"
 msgid "Reuse existing encryption ($0)"
 msgstr ""
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:236
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:268
 #, fuzzy
 #| msgid "Custom encryption options"
 msgid "Review cryptographic policy"
@@ -7372,7 +7419,7 @@ msgstr ""
 msgid "Run report"
 msgstr "Rapport"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:150 pkg/shell/hosts_dialog.jsx:593
+#: pkg/lib/cockpit-connect-ssh.tsx:150 pkg/shell/hosts_dialog.jsx:687
 msgid ""
 "Run this command over a trusted network or physically on the remote machine:"
 msgstr ""
@@ -7386,6 +7433,10 @@ msgstr ""
 #: pkg/storaged/mdraid/mdraid.jsx:297
 msgid "Running"
 msgstr "Kjører"
+
+#: pkg/systemd/terminal.jsx:283
+msgid "Running process prevents directory change"
+msgstr ""
 
 #: pkg/selinux/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_selinux.metainfo.xml.in:5
@@ -7434,7 +7485,7 @@ msgid ""
 msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:295 pkg/lib/cockpit-connect-ssh.tsx:448
-#: pkg/shell/hosts_dialog.jsx:951
+#: pkg/shell/hosts_dialog.jsx:1045
 msgid "SSH key"
 msgstr "SSH-nøkkel"
 
@@ -7450,7 +7501,7 @@ msgstr "ssh-nøkkel er ikke en bane"
 msgid "SSH key login"
 msgstr "SSH-nøkkel"
 
-#: pkg/shell/topnav.jsx:217 pkg/shell/credentials.jsx:77
+#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
 #: pkg/shell/credentials.jsx:93
 msgid "SSH keys"
 msgstr "SSH-nøkler"
@@ -7644,7 +7695,7 @@ msgstr "Serveren kan ikke være tom."
 msgid "Server closed connection"
 msgstr "Serveren har lukket forbindelsen."
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2610
 msgid "Server has closed the connection."
 msgstr "Serveren har lukket forbindelsen."
 
@@ -7659,7 +7710,7 @@ msgstr "Server programvare"
 msgid "Service"
 msgstr "Tjeneste"
 
-#: pkg/kdump/kdump-view.jsx:563
+#: pkg/kdump/kdump-view.jsx:575
 msgid "Service has an error"
 msgstr "Tjenesten har en feil"
 
@@ -7679,7 +7730,7 @@ msgstr "Tjenester"
 msgid "Services using the location"
 msgstr "Tjenesten starter"
 
-#: pkg/shell/topnav.jsx:292
+#: pkg/shell/topnav.jsx:277
 msgid "Session"
 msgstr "Økt"
 
@@ -7687,7 +7738,7 @@ msgstr "Økt"
 msgid "Session is about to expire"
 msgstr "Økten er i ferd med å utløpe"
 
-#: pkg/shell/hosts_dialog.jsx:353 pkg/storaged/stratis/filesystem.jsx:227
+#: pkg/shell/hosts_dialog.jsx:447 pkg/storaged/stratis/filesystem.jsx:227
 msgid "Set"
 msgstr "Sett"
 
@@ -7769,11 +7820,11 @@ msgstr "Delt"
 msgid "Shell"
 msgstr "skall"
 
-#: pkg/lib/cockpit-components-modifications.jsx:100
+#: pkg/lib/cockpit-components-modifications.jsx:102
 msgid "Shell script"
 msgstr "Shell-skript"
 
-#: pkg/lib/cockpit-components-terminal.jsx:216
+#: pkg/lib/cockpit-components-terminal.jsx:227
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
@@ -7891,11 +7942,11 @@ msgstr "Størrelsen må være et tall"
 msgid "Size must be at least $0"
 msgstr "Størrelsen må være minst $0"
 
-#: pkg/shell/shell.jsx:120
+#: pkg/shell/shell.jsx:117
 msgid "Skip main navigation"
 msgstr ""
 
-#: pkg/shell/shell.jsx:119
+#: pkg/shell/shell.jsx:116
 msgid "Skip to content"
 msgstr "Gå til innhold"
 
@@ -8099,7 +8150,7 @@ msgstr "Stopp og demonter"
 msgid "Stop device"
 msgstr "Stopp enhet"
 
-#: pkg/shell/hosts.jsx:251
+#: pkg/shell/hosts.jsx:248
 msgid "Stop editing hosts"
 msgstr "Slutt å redigere verter"
 
@@ -8211,7 +8262,7 @@ msgstr "Angi passord"
 msgid "Stub"
 msgstr ""
 
-#: pkg/shell/topnav.jsx:181
+#: pkg/shell/topnav.jsx:166
 msgid "Style"
 msgstr ""
 
@@ -8399,11 +8450,11 @@ msgstr "Terminal"
 msgid "Terminate session"
 msgstr "Avslutt økt"
 
-#: pkg/kdump/kdump-view.jsx:507 pkg/kdump/kdump-view.jsx:515
+#: pkg/kdump/kdump-view.jsx:519 pkg/kdump/kdump-view.jsx:527
 msgid "Test configuration"
 msgstr "Test konfigurasjon"
 
-#: pkg/kdump/kdump-view.jsx:511
+#: pkg/kdump/kdump-view.jsx:523
 msgid "Test is only available while the kdump service is running."
 msgstr "Test er bare tilgjengelig mens kdump-tjenesten kjører."
 
@@ -8454,7 +8505,7 @@ msgstr "$0-pakken må være installert for å opprette VDO-enheter."
 msgid "The $0 package will be installed to create VDO devices."
 msgstr "$0-pakken må være installert for å opprette VDO-enheter."
 
-#: pkg/shell/hosts_dialog.jsx:259
+#: pkg/shell/hosts_dialog.jsx:349
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP-adressen eller vertsnavnet kan ikke inneholde mellomrom."
 
@@ -8470,7 +8521,7 @@ msgstr "RAID-matrisen er i degradert tilstand"
 msgid "The MDRAID device must be running"
 msgstr "RAID-enheten må kjøre for å kunne fjerne disker."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:426 pkg/shell/hosts_dialog.jsx:929
+#: pkg/lib/cockpit-connect-ssh.tsx:426 pkg/shell/hosts_dialog.jsx:1023
 #, fuzzy
 #| msgid ""
 #| "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
@@ -8480,7 +8531,7 @@ msgstr ""
 "SSH-nøkkelen ${key} på ${luser} på ${lhost} vil bli lagt til ${afile}-filen "
 "på ${ruser} på ${rhost}."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:463 pkg/shell/hosts_dialog.jsx:966
+#: pkg/lib/cockpit-connect-ssh.tsx:463 pkg/shell/hosts_dialog.jsx:1060
 #, fuzzy
 #| msgid ""
 #| "The SSH key {{#strong}}{{key}}{{/strong}} will be made available for the "
@@ -8493,7 +8544,7 @@ msgstr ""
 "SSH-nøkkelen {{#strong}}{{key}}{{/strong}} blir gjort tilgjengelig for "
 "resten av økten og vil også være tilgjengelig for pålogging til andre verter."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:398 pkg/shell/hosts_dialog.jsx:874
+#: pkg/lib/cockpit-connect-ssh.tsx:398 pkg/shell/hosts_dialog.jsx:968
 #, fuzzy
 #| msgid ""
 #| "The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is "
@@ -8508,7 +8559,7 @@ msgstr ""
 "beskyttet. Du kan logge på med enten påloggingspassordet ditt eller ved å "
 "oppgi passordet til nøkkelen på {{#strong}}{{key}}{{/strong}}."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:400 pkg/shell/hosts_dialog.jsx:879
+#: pkg/lib/cockpit-connect-ssh.tsx:400 pkg/shell/hosts_dialog.jsx:973
 #, fuzzy
 #| msgid ""
 #| "The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is "
@@ -8617,7 +8668,7 @@ msgid ""
 "require inputting a passphrase."
 msgstr ""
 
-#: pkg/lib/cockpit-connect-ssh.tsx:152 pkg/shell/hosts_dialog.jsx:595
+#: pkg/lib/cockpit-connect-ssh.tsx:152 pkg/shell/hosts_dialog.jsx:689
 #, fuzzy
 #| msgid "Show fingerprints"
 msgid "The fingerprint should match:"
@@ -8661,12 +8712,12 @@ msgstr ""
 msgid "The initrd must be regenerated."
 msgstr ""
 
-#: pkg/lib/cockpit-connect-ssh.tsx:342 pkg/shell/hosts_dialog.jsx:796
+#: pkg/lib/cockpit-connect-ssh.tsx:342 pkg/shell/hosts_dialog.jsx:890
 msgid "The key password can not be empty"
 msgstr "Nøkkelpassordet kan ikke være tomt"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:344 pkg/shell/hosts_dialog.jsx:799
-#: pkg/shell/hosts_dialog.jsx:805
+#: pkg/lib/cockpit-connect-ssh.tsx:344 pkg/shell/hosts_dialog.jsx:893
+#: pkg/shell/hosts_dialog.jsx:899
 msgid "The key passwords do not match"
 msgstr "Nøkkelpassordene stemmer ikke overens"
 
@@ -8699,7 +8750,7 @@ msgstr ""
 msgid "The listed services will be forcefully stopped."
 msgstr "Følgende tjeneste startes på nytt:"
 
-#: pkg/lib/cockpit-components-modifications.jsx:129
+#: pkg/lib/cockpit-components-modifications.jsx:130
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "Den påloggede brukeren har ikke lov til å se systemendringer"
 
@@ -8715,11 +8766,11 @@ msgstr ""
 msgid "The mount point $0 is in use by these services:"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:802
+#: pkg/shell/hosts_dialog.jsx:896
 msgid "The new key password can not be empty"
 msgstr "Det nye nøkkelpassordet kan ikke være tomt"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:336 pkg/shell/hosts_dialog.jsx:780
+#: pkg/lib/cockpit-connect-ssh.tsx:336 pkg/shell/hosts_dialog.jsx:874
 #, fuzzy
 #| msgid "The key password can not be empty"
 msgid "The password can not be empty"
@@ -8730,7 +8781,7 @@ msgid "The passwords do not match"
 msgstr "Passordene samsvarer ikke"
 
 #: pkg/static/login.html:100 pkg/lib/cockpit-connect-ssh.tsx:137
-#: pkg/shell/hosts_dialog.jsx:580
+#: pkg/shell/hosts_dialog.jsx:674
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -8738,7 +8789,7 @@ msgstr ""
 "Det resulterende fingeravtrykket er greit å dele via offentlige metoder, "
 "inkludert e-post."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:142 pkg/shell/hosts_dialog.jsx:585
+#: pkg/lib/cockpit-connect-ssh.tsx:142 pkg/shell/hosts_dialog.jsx:679
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email. If you are asking someone else to do the verification for you, they "
@@ -8753,7 +8804,7 @@ msgstr ""
 "Serveren nektet å autentisere '$0' ved hjelp av passordgodkjenning, og ingen "
 "andre støttede godkjenningsmetoder er tilgjengelige."
 
-#: pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2594
 msgid "The server refused to authenticate using any supported methods."
 msgstr "Serveren nektet å godkjenne ved hjelp av de støttede metodene."
 
@@ -8773,13 +8824,13 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "Brukeren $0 har ikke lov til å endre CPU-sikkerhetsreduksjoner"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:65
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 #, fuzzy
 #| msgid "The user $0 is not permitted to change cpu security mitigations"
 msgid "The user $0 is not permitted to change cryptographic policies"
 msgstr "Brukeren $0 har ikke lov til å endre CPU-sikkerhetsreduksjoner"
 
-#: pkg/kdump/kdump-view.jsx:505
+#: pkg/kdump/kdump-view.jsx:517
 #, fuzzy
 #| msgid "The user $0 is not permitted to change cpu security mitigations"
 msgid "The user $0 is not permitted to test crash the kernel"
@@ -8932,7 +8983,7 @@ msgstr ""
 msgid "This logical volume is not completely used by its content."
 msgstr "Dette logiske volumet brukes ikke fullstendig av innholdet."
 
-#: pkg/shell/hosts_dialog.jsx:265
+#: pkg/shell/hosts_dialog.jsx:355
 msgid "This machine has already been added."
 msgstr "Denne maskinen er allerede lagt til."
 
@@ -9041,7 +9092,7 @@ msgid ""
 "separated by comma. "
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:930
+#: pkg/shell/hosts_dialog.jsx:1024
 msgid "This will allow you to log in without password in the future."
 msgstr "Dette vil tillate deg å logge på uten passord i fremtiden."
 
@@ -9092,7 +9143,7 @@ msgstr ""
 "for automatisk autentisering mot andre systemer."
 
 #: pkg/static/login.html:95 pkg/lib/cockpit-connect-ssh.tsx:132
-#: pkg/shell/hosts_dialog.jsx:575
+#: pkg/shell/hosts_dialog.jsx:669
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -9110,7 +9161,7 @@ msgstr ""
 "abonnementsserver."
 
 #: pkg/static/login.js:843 pkg/lib/cockpit-connect-ssh.tsx:135
-#: pkg/shell/hosts_dialog.jsx:578
+#: pkg/shell/hosts_dialog.jsx:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -9137,7 +9188,7 @@ msgstr ""
 msgid "Toggle filters"
 msgstr "Skjul filtre"
 
-#: pkg/lib/cockpit.js:2620
+#: pkg/lib/cockpit.js:2616
 msgid "Too much data"
 msgstr "For mye data"
 
@@ -9205,7 +9256,7 @@ msgstr "Feilsøk"
 msgid "Troubleshoot…"
 msgstr "Feilsøk…"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:127 pkg/shell/hosts_dialog.jsx:567
+#: pkg/lib/cockpit-connect-ssh.tsx:127 pkg/shell/hosts_dialog.jsx:661
 msgid "Trust and add host"
 msgstr ""
 
@@ -9307,13 +9358,13 @@ msgstr "Kan ikke bruke denne løsningen automatisk"
 msgid "Unable to connect to that address"
 msgstr "Kan ikke koble til den adressen"
 
-#: pkg/shell/hosts_dialog.jsx:460
+#: pkg/shell/hosts_dialog.jsx:554
 #, fuzzy
 #| msgid "Unable to get alert: $0"
 msgid "Unable to contact $0."
 msgstr "Kan ikke bli varslet: $0"
 
-#: pkg/shell/hosts_dialog.jsx:337
+#: pkg/shell/hosts_dialog.jsx:249 pkg/shell/hosts_dialog.jsx:430
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -9340,7 +9391,7 @@ msgstr ""
 "nøkkel autentisering. Oppgi passordet. Det kan være lurt å konfigurere SSH-"
 "nøklene for automatisk pålogging."
 
-#: pkg/shell/hosts_dialog.jsx:871
+#: pkg/shell/hosts_dialog.jsx:965
 #, fuzzy
 #| msgid ""
 #| "Unable to log in to {{#strong}}{{full_address}}{{/strong}} using SSH key "
@@ -9354,7 +9405,7 @@ msgstr ""
 "nøkkel autentisering. Oppgi passordet. Det kan være lurt å konfigurere SSH-"
 "nøklene for automatisk pålogging."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:394 pkg/shell/hosts_dialog.jsx:869
+#: pkg/lib/cockpit-connect-ssh.tsx:394 pkg/shell/hosts_dialog.jsx:963
 #, fuzzy
 #| msgid ""
 #| "Unable to log in to {{#strong}}{{full_address}}{{/strong}}. The host does "
@@ -9365,6 +9416,12 @@ msgid ""
 msgstr ""
 "Kan ikke logge på {{#strong}}{{full_address}}{{/strong}}. Verten godtar ikke "
 "passordinnlogging eller noen av SSH-nøklene dine."
+
+#: pkg/systemd/terminal.jsx:275
+#, fuzzy
+#| msgid "Directory"
+msgid "Unable to open directory"
+msgstr "Katalog"
 
 #: pkg/storaged/iscsi/create-dialog.jsx:73
 msgid "Unable to reach server"
@@ -9588,7 +9645,7 @@ msgstr "Volum som ikke støttes"
 msgid "Until"
 msgstr ""
 
-#: pkg/lib/cockpit.js:2600 pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
 msgid "Untrusted host"
 msgstr ""
 
@@ -9598,7 +9655,7 @@ msgstr ""
 msgid "Up since"
 msgstr "Aktiv siden"
 
-#: pkg/shell/hosts_dialog.jsx:456
+#: pkg/shell/hosts_dialog.jsx:550
 msgid "Update"
 msgstr "Oppdater"
 
@@ -9753,7 +9810,7 @@ msgid "User ID must not be lower than $0"
 msgstr "Navnet kan ikke være lengre enn $0 byte"
 
 #: pkg/static/login.html:105 pkg/users/account-details.js:256
-#: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:365
+#: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:459
 msgid "User name"
 msgstr "Brukernavn"
 
@@ -9812,7 +9869,7 @@ msgstr "Leverandør"
 msgid "Verified"
 msgstr "Verifisert"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:147 pkg/shell/hosts_dialog.jsx:590
+#: pkg/lib/cockpit-connect-ssh.tsx:147 pkg/shell/hosts_dialog.jsx:684
 #, fuzzy
 #| msgid "Fingerprint"
 msgid "Verify fingerprint"
@@ -9858,8 +9915,8 @@ msgstr "Alle logger"
 msgid "View all services"
 msgstr "Filtrer tjenester"
 
-#: pkg/kdump/kdump-view.jsx:526
-#: pkg/lib/cockpit-components-modifications.jsx:154
+#: pkg/kdump/kdump-view.jsx:538
+#: pkg/lib/cockpit-components-modifications.jsx:158
 msgid "View automation script"
 msgstr "Vis automatiseringsskript"
 
@@ -10041,7 +10098,7 @@ msgstr "Uker"
 msgid "When"
 msgstr "Når"
 
-#: pkg/shell/hosts_dialog.jsx:368
+#: pkg/shell/hosts_dialog.jsx:462
 msgid "When empty, connect with the current user"
 msgstr ""
 
@@ -10055,7 +10112,7 @@ msgstr ""
 "informasjon. Oppdateringsprosessen vil imidlertid fortsette i bakgrunnen. "
 "Koble til igjen for å fortsette å se oppdateringsprosessen."
 
-#: pkg/systemd/terminal.jsx:177
+#: pkg/systemd/terminal.jsx:261
 msgid "White"
 msgstr "Hvit"
 
@@ -10103,7 +10160,7 @@ msgid "Yes"
 msgstr "Ja"
 
 #: pkg/static/login.js:840 pkg/lib/cockpit-connect-ssh.tsx:146
-#: pkg/shell/hosts_dialog.jsx:589
+#: pkg/shell/hosts_dialog.jsx:683
 msgid "You are connecting to $0 for the first time."
 msgstr "Du kobler til $0 for første gang."
 
@@ -10127,7 +10184,7 @@ msgstr "Du har blitt logget ut på grunn av inaktivitet."
 msgid "You may try to load older entries."
 msgstr "Du kan prøve å laste inn eldre oppføringer."
 
-#: pkg/shell/hosts_dialog.jsx:875 pkg/shell/hosts_dialog.jsx:880
+#: pkg/shell/hosts_dialog.jsx:969 pkg/shell/hosts_dialog.jsx:974
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
 "Det kan være lurt å endre passordet til nøkkelen for automatisk pålogging."
@@ -10144,11 +10201,17 @@ msgstr "Du har nå administrativ tilgang."
 msgid "You will be logged out in $0 seconds."
 msgstr "Du blir logget ut om $0 sekunder."
 
+#: pkg/shell/hosts_dialog.jsx:267
+#, fuzzy
+#| msgid "You will be logged out in $0 seconds."
+msgid "You will be reminded once per session."
+msgstr "Du blir logget ut om $0 sekunder."
+
 #: pkg/users/accounts-list.js:176
 msgid "Your account"
 msgstr "Din konto"
 
-#: pkg/lib/cockpit-components-terminal.jsx:233
+#: pkg/lib/cockpit-components-terminal.jsx:244
 msgid ""
 "Your browser does not allow paste from the context menu. You can use "
 "Shift+Insert."
@@ -10166,11 +10229,11 @@ msgstr ""
 "Serveren din lukker tilkoblingen snart. Du kan koble til igjen etter at den "
 "har startet på nytt."
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2586
 msgid "Your session has been terminated."
 msgstr "Økten din er avsluttet."
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2588
 msgid "Your session has expired. Please log in again."
 msgstr "Økten din har utløpt. Vennligst logg inn igjen."
 
@@ -10632,7 +10695,7 @@ msgstr "installer"
 msgid "interface"
 msgstr "grensesnitt"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:458
 msgid "invalid: multiple targets defined"
 msgstr "ugyldig: flere mål er definert"
 
@@ -10660,7 +10723,7 @@ msgstr "journalctl manpage"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:539
+#: pkg/kdump/kdump-view.jsx:551
 msgid "kdump status"
 msgstr "kdump status"
 
@@ -10738,7 +10801,7 @@ msgstr ""
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:564
+#: pkg/kdump/kdump-view.jsx:576
 #, fuzzy
 #| msgid "More details"
 msgid "more details"
@@ -12175,9 +12238,6 @@ msgstr "sone"
 #~ msgid "Confirm this action"
 #~ msgstr "Bekreft denne handlingen"
 
-#~ msgid "Connect"
-#~ msgstr "Koble til"
-
 #~ msgid "Connect with any viewer application for following protocols"
 #~ msgstr ""
 #~ "Koble til et hvilket som helst visningsprogram for følgende protokoller"
@@ -12873,9 +12933,6 @@ msgstr "sone"
 
 #~ msgid "VM $0 already exists"
 #~ msgstr "VM $0 fnnes allerede"
-
-#~ msgid "VM $0 does not exist on $1 connection"
-#~ msgstr "VM $0 finnes ikke på $1-tilkobling"
 
 #~ msgid "VM $0 failed to force reboot"
 #~ msgstr "VM $0 klarte ikke å tvinge omstart"

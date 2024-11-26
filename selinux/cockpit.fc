@@ -7,7 +7,7 @@
 
 /usr/libexec/cockpit-session	--	gen_context(system_u:object_r:cockpit_session_exec_t,s0)
 
-/usr/share/cockpit/motd/update-motd    -- gen_context(system_u:object_r:cockpit_ws_exec_t,s0)
+/usr/share/cockpit/motd/update-motd    -- gen_context(system_u:object_r:shell_exec_t,s0)
 
 /var/lib/cockpit(/.*)?      gen_context(system_u:object_r:cockpit_var_lib_t,s0)
 

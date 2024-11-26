@@ -63,7 +63,6 @@ const App = () => {
         return <Application metainfo_db={metainfo_db}
                             action={action}
                             progress={progress[id]}
-                            progressTitle={progressTitle[id]}
                             id={id} />;
     } else { /* redirect */
         console.warn("not a apps location: " + path);

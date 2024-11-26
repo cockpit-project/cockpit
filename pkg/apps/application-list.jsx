@@ -56,7 +56,7 @@ const ApplicationRow = ({ comp, progress, progress_title, action }) => {
         summary_or_progress = (
             <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                 <span id={comp.name + "-progress"} className="progress-title-span">{progress_title}</span>
-                <ProgressBar title={progress_title} data={progress} ariaLabelledBy={comp.name + "-progress"} />
+                <ProgressBar data={progress} ariaLabelledBy={comp.name + "-progress"} />
             </Flex>);
     } else {
         if (error) {
@@ -145,7 +145,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
 
     let refresh_progress, refresh_button, tbody;
     if (progress) {
-        refresh_progress = <ProgressBar id="refresh-progress" size="sm" title={_("Checking for new applications")} data={progress} />;
+        refresh_progress = <ProgressBar id="refresh-progress" size="sm" data={progress} />;
         refresh_button = <CancelButton data={progress} />;
     } else {
         refresh_progress = null;

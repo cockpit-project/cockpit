@@ -450,6 +450,8 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
         b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
         b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+
+        b.wait_not_in_text(card, "synchronized")
         b.assert_pixels(card, "raid5-card2")
 
     def testBrokenLinear(self):

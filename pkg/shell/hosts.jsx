@@ -15,7 +15,8 @@ import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
 
 import 'polyfills';
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
-import { encode_location, split_connection_string } from "./util.jsx";
+import { encode_location } from "./util.jsx";
+import { split_connection_string } from "./machines/machines";
 import { add_host, edit_host, connect_host } from "./hosts_dialog.jsx";
 
 const _ = cockpit.gettext;

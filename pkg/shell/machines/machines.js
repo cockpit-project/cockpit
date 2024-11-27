@@ -2,8 +2,6 @@ import cockpit from "cockpit";
 
 import ssh_add_key_sh from "../../lib/ssh-add-key.sh";
 
-import { split_connection_string, generate_connection_string } from "../util.jsx";
-
 const mod = { };
 
 /*
@@ -68,6 +66,47 @@ export function get_init_superuser_for_options(options) {
         value = "none";
 
     return value;
+}
+
+export function generate_connection_string(user, port, addr) {
+    let address = addr;
+    if (user)
+        address = user + "@" + address;
+
+    if (port)
+        address = address + ":" + port;
+
+    return address;
+}
+
+export function split_connection_string (conn_to) {
+    const parts = { address: "" };
+    let user_spot = -1;
+    let port_spot = -1;
+
+    if (conn_to) {
+        if (conn_to.substring(0, 6) === "ssh://")
+            conn_to = conn_to.substring(6);
+        user_spot = conn_to.lastIndexOf('@');
+        port_spot = conn_to.lastIndexOf(':');
+    }
+
+    if (user_spot > 0) {
+        parts.user = conn_to.substring(0, user_spot);
+        conn_to = conn_to.substring(user_spot + 1);
+        port_spot = conn_to.lastIndexOf(':');
+    }
+
+    if (port_spot > -1) {
+        const port = parseInt(conn_to.substring(port_spot + 1), 10);
+        if (!isNaN(port)) {
+            parts.port = port;
+            conn_to = conn_to.substring(0, port_spot);
+        }
+    }
+
+    parts.address = conn_to;
+    return parts;
 }
 
 function Machines() {

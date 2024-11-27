@@ -19,11 +19,11 @@
 
 import cockpit from "cockpit";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createRoot } from "react-dom/client";
 
 import { WithDialogs } from "dialogs.jsx";
-import { useInit, useEvent, useLoggedInUser } from "hooks";
+import { useInit, useEvent, useOn, useLoggedInUser } from "hooks";
 
 import { TopNav } from "./topnav.jsx";
 import { SidebarToggle, PageNav } from "./nav.jsx";
@@ -57,17 +57,19 @@ const SkipLink = ({ focus_id, children }) => {
 
 const Shell = () => {
     const current_user = useLoggedInUser()?.name || "";
-    const state = useInit(() => ShellState());
+    const state = useInit(() => new ShellState());
     const idle_state = useInit(() => IdleTimeoutState());
     const host_modal_state = useInit(() => HostModalState());
 
-    useEvent(state, "update");
+    useOn(state, "update");
     useEvent(idle_state, "update");
     useEvent(host_modal_state, "changed");
 
-    useEvent(state, "connect", () => {
-        connect_host(host_modal_state, state, state.current_machine);
-    });
+    useEffect(() => {
+        return state.on("connect", () => {
+            connect_host(host_modal_state, state, state.current_machine);
+        });
+    }, [host_modal_state, state]);
 
     const {
         ready, problem,

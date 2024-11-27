@@ -19,7 +19,15 @@
 
 import cockpit from "cockpit";
 
-export function encode_location(location) {
+import { ManifestKeyword, ManifestDocs, Manifest, Manifests, Machine } from "./machines/machines";
+
+export interface Location {
+    host: string;
+    path: string;
+    hash: string;
+}
+
+export function encode_location(location: Location): string {
     const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
     if (shell_embedded)
         return window.location.toString();
@@ -28,36 +36,35 @@ export function encode_location(location) {
     if (location.host && location.host !== "localhost")
         path.push("@" + location.host);
     if (location.path)
-        path.push.apply(path, location.path.split("/"));
-    let string = cockpit.location.encode(path, null, true);
+        path.push(...location.path.split("/"));
+    let string = cockpit.location.encode(path, undefined, true);
     if (location.hash && location.hash !== "/")
         string += "#" + location.hash;
     return string;
 }
 
 /* Decodes navigate state from a string */
-export function decode_location(string) {
-    const location = { hash: "" };
+export function decode_location(string: string): Location {
+    let hash = "";
     const pos = string.indexOf("#");
     if (pos !== -1) {
-        location.hash = string.substring(pos + 1);
+        hash = string.substring(pos + 1);
         string = string.substring(0, pos);
     }
     if (string[0] != '/')
         string = "/" + string;
     const path = cockpit.location.decode(string);
-    if (path[0] && path[0][0] == "@") {
-        location.host = path.shift().substring(1);
-    } else {
-        location.host = "localhost";
-    }
+    let host;
+    if (path[0] && path[0][0] == "@")
+        host = (path.shift() as string).substring(1);
+    else
+        host = "localhost";
     if (path.length && path[path.length - 1] == "index")
         path.pop();
-    location.path = path.join("/");
-    return location;
+    return { host, path: path.join("/"), hash };
 }
 
-export function decode_window_location() {
+export function decode_window_location(): Location {
     const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 
     if (shell_embedded)
@@ -66,28 +73,43 @@ export function decode_window_location() {
         return decode_location(window.location.pathname + window.location.hash);
 }
 
-export function replace_window_location(location) {
+export function replace_window_location(location: Location): void {
     window.history.replaceState(null, "", encode_location(location));
 }
 
-export function push_window_location(location) {
+export function push_window_location(location: Location): void {
     window.history.pushState(null, "", encode_location(location));
 }
 
-function CompiledComponents(manifests) {
-    const self = this;
-    self.items = {};
+export interface ManifestItem {
+    path: string;
+    hash: string;
+    section: string;
+    label: string;
+    order: number;
+    docs: ManifestDocs[] | undefined;
+    keywords: ManifestKeyword[];
+}
 
-    self.load = function(section) {
-        Object.entries(manifests || { }).forEach(([name, manifest]) => {
+export class CompiledComponents {
+    manifests: Manifests;
+    items: { [path: string] : ManifestItem; } = { };
+
+    constructor(manifests?: Manifests) {
+        this.manifests = manifests || { };
+    }
+
+    load(section: string): void {
+        Object.entries(this.manifests).forEach(([name, manifest]) => {
             Object.entries(manifest[section] || { }).forEach(([prop, info]) => {
-                const item = {
+                const item: ManifestItem = {
+                    path: "", // set below
+                    hash: "", // set below
                     section,
-                    label: cockpit.gettext(info.label) || prop,
+                    label: info.label ? cockpit.gettext(info.label) : prop,
                     order: info.order === undefined ? 1000 : info.order,
                     docs: info.docs,
-                    keywords: info.keywords || [{ matches: [] }],
-                    keyword: { score: -1 }
+                    keywords: info.keywords || [{ matches: [], weight: 3, translate: true }],
                 };
 
                 // Always first keyword should be page name
@@ -118,16 +140,16 @@ function CompiledComponents(manifests) {
                     item.path = name + "/" + item.path;
                 if (item.path.slice(-6) == "/index")
                     item.path = item.path.slice(0, -6);
-                self.items[item.path] = item;
+                this.items[item.path] = item;
             });
         });
-    };
+    }
 
-    self.ordered = function(section) {
-        const list = [];
-        for (const x in self.items) {
-            if (!section || self.items[x].section === section)
-                list.push(self.items[x]);
+    ordered(section: string): ManifestItem[] {
+        const list: ManifestItem[] = [];
+        for (const x in this.items) {
+            if (!section || this.items[x].section === section)
+                list.push(this.items[x]);
         }
         list.sort(function(a, b) {
             let ret = a.order - b.order;
@@ -136,43 +158,51 @@ function CompiledComponents(manifests) {
             return ret;
         });
         return list;
-    };
+    }
 
-    self.search = function(prop, value) {
-        for (const x in self.items) {
-            if (self.items[x][prop] === value)
-                return self.items[x];
-        }
-    };
-
-    self.find_path_item = function(path) {
+    find_path_item(path: string): ManifestItem {
         let component = path;
-        if (self.items[path] === undefined) {
+        if (this.items[path] === undefined) {
             let s = path;
-            while (s && self.items[s] === undefined)
+            while (s && this.items[s] === undefined)
                 s = s.substring(0, s.lastIndexOf("/"));
             component = s;
         }
 
         // Still don't know where it comes from, check for parent
-        if (!component && manifests) {
-            const comp = manifests[path];
-            if (comp && comp.parent)
-                component = comp.parent.component;
+        if (!component) {
+            const comp = this.manifests[path];
+            if (comp && comp.parent && comp.parent.component)
+                component = comp.parent.component as string;
         }
 
-        return self.items[component] || { path, label: path, section: "menu" };
-    };
+        const item = this.items[component];
+        if (item)
+            return item;
 
-    self.find_path_manifest = function(path) {
+        // Return something that can be used when the user navigates
+        // to a URL for a non-existing component.
+
+        return {
+            path,
+            label: path,
+            section: "menu",
+            hash: "",
+            order: 3,
+            keywords: [],
+            docs: undefined
+        };
+    }
+
+    find_path_manifest(path: string): Manifest {
         const parts = path.split("/");
         const pkg = parts[0];
 
-        return (manifests && manifests[pkg]) || { };
-    };
+        return (this.manifests[pkg]) || { };
+    }
 }
 
-export function compile_manifests(manifests) {
+export function compile_manifests(manifests?: Manifests): CompiledComponents {
     const compiled = new CompiledComponents(manifests);
     compiled.load("tools");
     compiled.load("dashboard");
@@ -180,14 +210,14 @@ export function compile_manifests(manifests) {
     return compiled;
 }
 
-function component_checksum(machine, path) {
+function component_checksum(machine: Machine, path: string): string | undefined {
     const parts = path.split("/");
     const pkg = parts[0];
     if (machine.manifests && machine.manifests[pkg] && machine.manifests[pkg][".checksum"])
         return "$" + machine.manifests[pkg][".checksum"];
 }
 
-export function compute_frame_url(machine, path) {
+export function compute_frame_url(machine: Machine, path: string): string {
     let base, checksum;
     if (machine.manifests && machine.manifests[".checksum"])
         checksum = "$" + machine.manifests[".checksum"];
@@ -219,45 +249,4 @@ export function compute_frame_url(machine, path) {
     url += ".html";
 
     return url;
-}
-
-export function generate_connection_string(user, port, addr) {
-    let address = addr;
-    if (user)
-        address = user + "@" + address;
-
-    if (port)
-        address = address + ":" + port;
-
-    return address;
-}
-
-export function split_connection_string (conn_to) {
-    const parts = {};
-    let user_spot = -1;
-    let port_spot = -1;
-
-    if (conn_to) {
-        if (conn_to.substring(0, 6) === "ssh://")
-            conn_to = conn_to.substring(6);
-        user_spot = conn_to.lastIndexOf('@');
-        port_spot = conn_to.lastIndexOf(':');
-    }
-
-    if (user_spot > 0) {
-        parts.user = conn_to.substring(0, user_spot);
-        conn_to = conn_to.substring(user_spot + 1);
-        port_spot = conn_to.lastIndexOf(':');
-    }
-
-    if (port_spot > -1) {
-        const port = parseInt(conn_to.substring(port_spot + 1), 10);
-        if (!isNaN(port)) {
-            parts.port = port;
-            conn_to = conn_to.substring(0, port_spot);
-        }
-    }
-
-    parts.address = conn_to;
-    return parts;
 }

@@ -19,7 +19,9 @@
 
 import cockpit from "cockpit";
 
-import { get_init_superuser_for_options } from "./machines/machines";
+import {
+    get_init_superuser_for_options, split_connection_string, generate_connection_string
+} from "./machines/machines";
 import * as credentials from "credentials";
 import ssh_show_default_key_sh from "../lib/ssh-show-default-key.sh";
 import ssh_add_key_sh from "../lib/ssh-add-key.sh";
@@ -45,8 +47,6 @@ import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { fmt_to_fragments } from "utils.js";
-
-import { split_connection_string, generate_connection_string } from "./util.jsx";
 
 const _ = cockpit.gettext;
 

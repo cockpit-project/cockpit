@@ -188,6 +188,9 @@ declare module 'cockpit' {
         href: string;
         go(path: Location | string, options?: { [key: string]: string }): void;
         replace(path: Location | string, options?: { [key: string]: string }): void;
+
+        encode(path: string[], options?: { [key: string]: string }, with_root?: boolean): string;
+        decode(string: string, options?: { [key: string]: string }): string[];
     }
 
     export const location: Location;

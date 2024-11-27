@@ -17,121 +17,186 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @cockpit-ts-relaxed
-
 import cockpit from "cockpit";
 
+import { EventEmitter } from "cockpit/event";
+
 import { Router } from "./router.jsx";
-import { machines as machines_factory } from "./machines/machines.js";
+import {
+    machines as machines_factory,
+    Machine, Machines, Loader, Manifest
+} from "./machines/machines.js";
 import {
     decode_location, decode_window_location, push_window_location, replace_window_location,
     compile_manifests, compute_frame_url,
+    Location, ManifestItem, CompiledComponents,
 } from "./util.jsx";
 
-export function ShellState() {
-    let self = null;
+export interface ShellConfig {
+    language: string;
+    language_direction: string;
+    host_switcher_enabled: boolean;
+}
+
+export interface ShellFrame {
+    name: string;
+    host: string;
+    path: string;
+    title: string;
+    url: string | null;
+    hash: string;
+    ready: boolean;
+    loaded: boolean;
+}
+
+export interface ShellStateEvents {
+    update: () => void;
+    connect: () => void;
+}
+
+export class ShellState extends EventEmitter<ShellStateEvents> {
+    constructor() {
+        super();
+        this.config = this.#init_config();
+
+        this.machines = this.#init_machines();
+        this.loader = this.#init_loader();
+        this.router = this.#init_router();
+
+        this.#init_watch_dogs();
+        this.#init_page_status();
+
+        this.#on_ready();
+    }
+
+    /* READINESS STATE
+     */
+
+    ready: boolean = false;
+    problem: string | null = null;
+    has_oops: boolean = false;
+
+    #on_ready() {
+        if (this.machines.ready && this.#config_ready) {
+            this.ready = true;
+            window.addEventListener("popstate", () => {
+                this.update();
+                this.ensure_frame_loaded();
+                this.ensure_connection();
+            });
+
+            this.update();
+            this.ensure_frame_loaded();
+            this.ensure_connection();
+        }
+    }
 
     /* CONFIG
      */
 
-    let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
-    if (!language)
-        language = navigator.language.toLowerCase(); // Default to Accept-Language header
+    config: ShellConfig;
 
-    const config = {
-        language,
-        language_direction: cockpit.language_direction,
-        host_switcher_enabled: false,
-    };
+    #config_ready: boolean = false;
 
-    /* Host switcher enabled? */
-    const meta_multihost = document.head.querySelector("meta[name='allow-multihost']");
-    if (meta_multihost instanceof HTMLMetaElement && meta_multihost.content == "yes")
-        config.host_switcher_enabled = true;
+    #init_config() {
+        let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
+        if (!language)
+            language = navigator.language.toLowerCase(); // Default to Accept-Language header
 
-    /* Should show warning before connecting? */
-    let config_ready = false;
-    cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetString",
-                                                 ["Session", "WarnBeforeConnecting"], {})
-            .then(([result]) => {
-                if (result == "false" || result == "no") {
-                    window.sessionStorage.setItem("connection-warning-shown", "yes");
-                }
-            })
-            .catch(e => {
-                if (e.name != "cockpit.Config.KeyError")
-                    console.warn("Error reading WarnBeforeConnecting configuration:", e.message);
-            })
-            .finally(() => {
-                config_ready = true;
-                on_ready();
-            });
+        const config = {
+            language,
+            language_direction: cockpit.language_direction,
+            host_switcher_enabled: false,
+        };
 
-    /* MACHINES DATABASE AND MANIFEST LOADER
+        /* Host switcher enabled? */
+        const meta_multihost = document.head.querySelector("meta[name='allow-multihost']");
+        if (meta_multihost instanceof HTMLMetaElement && meta_multihost.content == "yes")
+            config.host_switcher_enabled = true;
+
+        /* Should show warning before connecting? */
+        this.#config_ready = false;
+        cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetString",
+                                                     ["Session", "WarnBeforeConnecting"], {})
+                .then(([result]) => {
+                    if (result == "false" || result == "no") {
+                        window.sessionStorage.setItem("connection-warning-shown", "yes");
+                    }
+                })
+                .catch(e => {
+                    if (e.name != "cockpit.Config.KeyError")
+                        console.warn("Error reading WarnBeforeConnecting configuration:", e.message);
+                })
+                .finally(() => {
+                    this.#config_ready = true;
+                    this.#on_ready();
+                });
+
+        return config;
+    }
+
+    /* MACHINES AND LOADER
      *
      * These are part of the machinery in the basement that maintains
-     * the database of all hosts (including "localhost", and monitors
+     * the database of all hosts (including "localhost"), and monitors
      * their manifests.
      */
 
-    const machines = machines_factory.instance();
-    const loader = machines_factory.loader(machines);
+    machines: Machines;
+    loader: Loader;
 
-    machines.addEventListener("ready", on_ready);
+    #init_machines() {
+        const machines = machines_factory.instance();
 
-    machines.addEventListener("removed", (_, machine) => {
-        remove_machine_frames(machine);
-    });
-    machines.addEventListener("added", (_, machine) => {
-        preload_machine_frames(machine);
-    });
-    machines.addEventListener("updated", (_, machine) => {
-        if (!machine.visible || machine.problem)
-            remove_machine_frames(machine);
-        else
-            preload_machine_frames(machine);
-    });
+        machines.addEventListener("ready", () => this.#on_ready());
 
-    function on_ready() {
-        if (machines.ready && config_ready) {
-            self.ready = true;
-            window.addEventListener("popstate", () => {
-                update();
-                ensure_frame_loaded();
-                ensure_connection();
-            });
+        machines.addEventListener("removed", (_, machine) => {
+            this.#remove_machine_frames(machine);
+        });
+        machines.addEventListener("added", (_, machine) => {
+            this.#preload_machine_frames(machine);
+        });
+        machines.addEventListener("updated", (_, machine) => {
+            if (!machine.visible || machine.problem)
+                this.#remove_machine_frames(machine);
+            else
+                this.#preload_machine_frames(machine);
+        });
 
-            update();
-            ensure_frame_loaded();
-            ensure_connection();
-        }
+        return machines;
+    }
+
+    #init_loader() {
+        return machines_factory.loader(this.machines);
     }
 
     /* WATCH DOGS
      */
 
-    const watchdog = cockpit.channel({ payload: "null" });
-    watchdog.addEventListener("close", (_, options) => {
-        const watchdog_problem = options.problem || "disconnected";
-        console.warn("transport closed: " + watchdog_problem);
-        self.problem = watchdog_problem;
-        // We might get here real early, before events seem to
-        // work. Let's push the update processing to the event loop.
-        setTimeout(() => update(), 0);
-    });
+    #init_watch_dogs() {
+        const watchdog = cockpit.channel({ payload: "null" });
+        watchdog.addEventListener("close", (_, options) => {
+            const watchdog_problem = options.problem as string || "disconnected";
+            console.warn("transport closed: " + watchdog_problem);
+            this.problem = watchdog_problem;
+            // We might get here real early, before events seem to
+            // work. Let's push the update processing to the event loop.
+            setTimeout(() => this.update(), 0);
+        });
 
-    const old_onerror = window.onerror;
-    window.onerror = function cockpit_error_handler(msg, url, line) {
-        // Errors with url == "" are not logged apparently, so let's
-        // not show the "Oops" for them either.
-        if (url != "") {
-            self.has_oops = true;
-            update();
-        }
-        if (old_onerror)
-            return old_onerror(msg, url, line);
-        return false;
-    };
+        const old_onerror = window.onerror;
+        window.onerror = (msg, url, line) => {
+            // Errors with url == "" are not logged apparently, so let's
+            // not show the "Oops" for them either.
+            if (url != "") {
+                this.has_oops = true;
+                this.update();
+            }
+            if (old_onerror)
+                return old_onerror(msg, url, line);
+            return false;
+        };
+    }
 
     /* FRAMES
      *
@@ -156,9 +221,9 @@ export function ShellState() {
      * in the "jump" method.
      */
 
-    const frames = { };
+    frames: { [name: string]: ShellFrame } = { };
 
-    function ensure_frame(machine, path, hash, title) {
+    #ensure_frame(machine: Machine, path: string, hash: string | null, title: string): ShellFrame | null {
         /* Never create new frames for machines that are not
            connected yet. That would open a channel to them (for
            loading the URL), which woould trigger the bridge to
@@ -170,67 +235,69 @@ export function ShellState() {
             return null;
 
         const name = "cockpit1:" + machine.connection_string + "/" + path;
-        let frame = frames[name];
+        let frame = this.frames[name];
 
         if (!frame) {
-            frame = frames[name] = {
+            frame = this.frames[name] = {
                 name,
                 host: machine.address,
                 path,
                 url: compute_frame_url(machine, path),
+                hash: hash || "/",
                 title,
                 ready: false,
                 loaded: false,
             };
+        } else {
+            // XXX - shouldn't we leave the hash alone when it is null here?
+            frame.hash = hash || "/";
         }
-
-        frame.hash = hash || "/";
         return frame;
     }
 
-    function ensure_frame_loaded () {
-        if (self.current_frame && self.current_frame.url == null) {
+    ensure_frame_loaded (): void {
+        if (this.current_frame && this.current_frame.url == null) {
             // Let update() recreate the frame.
-            delete frames[self.current_frame.name];
-            self.current_frame = null;
-            update();
+            delete this.frames[this.current_frame.name];
+            this.current_frame = null;
+            this.update();
         }
     }
 
-    function kill_frame(name) {
+    #kill_frame(name: string): void {
         // Only mark frame as dead, it gets removed for real during
         // the call to "update".
-        frames[name].url = null;
+        this.frames[name].url = null;
     }
 
-    function remove_frame (name) {
-        kill_frame(name);
-        update();
+    remove_frame (name: string): void {
+        this.#kill_frame(name);
+        this.update();
     }
 
-    function remove_machine_frames (machine) {
-        const names = Object.keys(frames);
+    #remove_machine_frames (machine: Machine): void {
+        const names = Object.keys(this.frames);
         for (const n of names) {
-            if (frames[n].host == machine.address)
-                kill_frame(n);
+            if (this.frames[n].host == machine.address)
+                this.#kill_frame(n);
         }
-        update();
+        this.update();
     }
 
-    function preload_machine_frames (machine) {
+    #preload_machine_frames (machine: Machine) {
         const manifests = machine.manifests;
         const compiled = compile_manifests(manifests);
         for (const c in manifests) {
-            const preload = manifests[c].preload;
+            const preload = manifests[c].preload as unknown as string[];
             if (preload && preload.length) {
                 for (const p of preload) {
                     const path = (p == "index") ? c : c + "/" + p;
                     const item = compiled.find_path_item(path);
-                    ensure_frame(machine, path, null, item.label);
+                    this.#ensure_frame(machine, path, null, item.label);
                 }
             }
         }
-        update();
+        this.update();
     }
 
     /* PAGE STATUS
@@ -240,15 +307,18 @@ export function ShellState() {
      * individual pages have access to all collected statuses.
      */
 
-    const page_status = { };
-    sessionStorage.removeItem("cockpit:page_status");
+    page_status: { [host: string]: { [page: string]: unknown } } = { };
 
-    function notify_page_status(host, page, status) {
-        if (!page_status[host])
-            page_status[host] = { };
-        page_status[host][page] = status;
-        sessionStorage.setItem("cockpit:page_status", JSON.stringify(page_status));
-        update();
+    #init_page_status() {
+        sessionStorage.removeItem("cockpit:page_status");
+    }
+
+    #notify_page_status(host: string, page: string, status: unknown) {
+        if (!this.page_status[host])
+            this.page_status[host] = { };
+        this.page_status[host][page] = status;
+        sessionStorage.setItem("cockpit:page_status", JSON.stringify(this.page_status));
+        this.update();
     }
 
     /* ROUTER
@@ -260,89 +330,93 @@ export function ShellState() {
      * process these and other noteworthy events.
      */
 
-    const router_callbacks = {
-        /* The router has just processed the "init" message of the
-         * code loaded into the frame named FRAME_NAME.
-         *
-         * We set the "loaded" property to help the tests, and also
-         * tell the frame whether it is visible or not.
-         */
-        frame_is_initialized: function (frame_name) {
-            const frame = frames[frame_name];
-            if (frame) {
-                frame.loaded = true;
-                update();
-            }
-            send_frame_hidden_hint(frame_name);
-        },
+    router: Router;
 
-        /* The frame named FRAME_NAME wants the shell to jump to
-         * LOCATION.
-         *
-         * Only requests from the current frame are honored.  But the
-         * tests also use this extensively for navigation, and might
-         * send messages from the top-most window, which we know is
-         * named "cockpit1".
-         */
-        perform_frame_jump_command: function (frame_name, location) {
-            if (frame_name == "cockpit1" || (self.current_frame && self.current_frame.name == frame_name)) {
-                jump(location);
-                ensure_connection();
-            }
-        },
+    #init_router() {
+        const callbacks = {
+            /* The router has just processed the "init" message of the
+             * code loaded into the frame named FRAME_NAME.
+             *
+             * We set the "loaded" property to help the tests, and also
+             * tell the frame whether it is visible or not.
+             */
+            frame_is_initialized: (frame_name: string) => {
+                const frame = this.frames[frame_name];
+                if (frame) {
+                    frame.loaded = true;
+                    this.update();
+                }
+                this.#send_frame_hidden_hint(frame_name);
+            },
 
-        /* The frame named FRAME_NAMED has just changed the hash part
-         * of its URL. That's how frames navigate within themselves.
-         *
-         * When the current frame does that, we need to reflect the
-         * hash change in the shell URL as well.
-         */
-        perform_frame_hash_track: function (frame_name, hash) {
-            /* Note that we ignore tracking for old shell code */
-            if (self.current_frame && self.current_frame.name === frame_name &&
-                frame_name && frame_name.indexOf("/shell/shell") === -1) {
-                /* The browser has already pushed an appropriate entry to
-                   the history, so let's just replace it with one that
-                   includes the right hash.
-                */
-                const location = Object.assign({}, decode_window_location(), { hash });
-                replace_window_location(location);
-                remember_location(location.host, location.path, location.hash);
-                update();
-            }
-        },
+            /* The frame named FRAME_NAME wants the shell to jump to
+             * LOCATION.
+             *
+             * Only requests from the current frame are honored.  But the
+             * tests also use this extensively for navigation, and might
+             * send messages from the top-most window, which we know is
+             * named "cockpit1".
+             */
+            perform_frame_jump_command: (frame_name: string, location: Location | string) => {
+                if (frame_name == "cockpit1" || (this.current_frame && this.current_frame.name == frame_name)) {
+                    this.jump(location);
+                    this.ensure_connection();
+                }
+            },
 
-        /* A notification has been received from a frame. We only
-         * handle page status notifications, such as the ones that
-         * tell you when software updates are available.  PAGE is the
-         * "well-known name" of a page, such as "system",
-         * "network/firewall", or "updates".
-         */
-        handle_notifications: function (host, page, data) {
-            if (data.page_status !== undefined)
-                notify_page_status(host, page, data.page_status);
-        },
+            /* The frame named FRAME_NAMED has just changed the hash part
+             * of its URL. That's how frames navigate within themselves.
+             *
+             * When the current frame does that, we need to reflect the
+             * hash change in the shell URL as well.
+             */
+            perform_frame_hash_track: (frame_name: string, hash: string) => {
+                /* Note that we ignore tracking for old shell code */
+                if (this.current_frame && this.current_frame.name === frame_name &&
+                    frame_name && frame_name.indexOf("/shell/shell") === -1) {
+                    /* The browser has already pushed an appropriate entry to
+                       the history, so let's just replace it with one that
+                       includes the right hash.
+                     */
+                    const location = Object.assign({}, decode_window_location(), { hash });
+                    replace_window_location(location);
+                    this.#remember_location(location.host, location.path, location.hash);
+                    this.update();
+                }
+            },
 
-        /* One of the frames has experienced a unhandled JavaScript exception.
-         */
-        show_oops: function () {
-            self.has_oops = true;
-            update();
-        },
+            /* A notification has been received from a frame. We only
+             * handle page status notifications, such as the ones that
+             * tell you when software updates are available.  PAGE is the
+             * "well-known name" of a page, such as "system",
+             * "network/firewall", or "updates".
+             */
+            handle_notifications: (host: string, page: string, data: { page_status?: unknown }) => {
+                if (data.page_status !== undefined)
+                    this.#notify_page_status(host, page, data.page_status);
+            },
 
-        /* The host with address HOST has just initiated a restart. We
-         * tell the loader.
-         */
-        expect_restart: function (host) {
-            loader.expect_restart(host);
-        },
-    };
+            /* One of the frames has experienced a unhandled JavaScript exception.
+             */
+            show_oops: () => {
+                this.has_oops = true;
+                this.update();
+            },
 
-    const router = new Router(router_callbacks);
+            /* The host with address HOST has just initiated a restart. We
+             * tell the loader.
+             */
+            expect_restart: (host: string) => {
+                this.loader.expect_restart(host);
+            },
+        };
 
-    function send_frame_hidden_hint (frame_name) {
-        const hidden = !self.current_frame || self.current_frame.name != frame_name;
-        router.hint(frame_name, { hidden });
+        return new Router(callbacks);
+    }
+
+    #send_frame_hidden_hint (frame_name: string) {
+        const hidden = !this.current_frame || this.current_frame.name != frame_name;
+        this.router.hint(frame_name, { hidden });
     }
 
     /* NAVIGATION
@@ -382,27 +456,27 @@ export function ShellState() {
      * location, but will not wait for this to be complete.
      */
 
-    const last_path_for_host = { };
-    const last_hash_for_host_path = { };
+    #last_path_for_host: Record<string, string> = { };
+    #last_hash_for_host_path: Record<string, Record<string, string>> = { };
 
-    function most_recent_path_for_host(host) {
-        return last_path_for_host[host] || "";
+    most_recent_path_for_host(host: string) {
+        return this.#last_path_for_host[host] || "";
     }
 
-    function most_recent_hash_for_path(host, path) {
-        if (last_hash_for_host_path[host])
-            return last_hash_for_host_path[host][path] || null;
+    #most_recent_hash_for_path(host: string, path: string) {
+        if (this.#last_hash_for_host_path[host])
+            return this.#last_hash_for_host_path[host][path] || null;
         return null;
     }
 
-    function remember_location(host, path, hash) {
-        last_path_for_host[host] = path;
-        if (!last_hash_for_host_path[host])
-            last_hash_for_host_path[host] = { };
-        last_hash_for_host_path[host][path] = hash;
+    #remember_location(host: string, path: string, hash: string) {
+        this.#last_path_for_host[host] = path;
+        if (!this.#last_hash_for_host_path[host])
+            this.#last_hash_for_host_path[host] = { };
+        this.#last_hash_for_host_path[host][path] = hash;
     }
 
-    function jump (location) {
+    jump (location: Partial<Location> | string): boolean {
         if (typeof (location) === "string")
             location = decode_location(location);
 
@@ -415,11 +489,11 @@ export function ShellState() {
             location.host = current.host || "localhost";
 
         if (!location.path)
-            location.path = most_recent_path_for_host(location.host);
+            location.path = this.most_recent_path_for_host(location.host);
 
         if (!location.hash) {
             if (location.host != current.host || location.path != current.path)
-                location.hash = most_recent_hash_for_path(location.host, location.path);
+                location.hash = this.#most_recent_hash_for_path(location.host, location.path) || "/";
             else
                 console.warn('Shell jump with hash and no frame change. Please use "/" as the hash to jump to the top sub-page.');
         }
@@ -427,29 +501,29 @@ export function ShellState() {
         if (location.host !== current.host ||
             location.path !== current.path ||
             location.hash !== current.hash) {
-            push_window_location(location);
-            update();
-            ensure_frame_loaded();
+            push_window_location(location as Location);
+            this.update();
+            this.ensure_frame_loaded();
             return true;
         }
 
-        ensure_frame_loaded();
+        this.ensure_frame_loaded();
         return false;
     }
 
-    function ensure_connection() {
-        if (self.current_machine) {
+    ensure_connection() {
+        if (this.current_machine) {
             // Handle localhost right here, we never need user
             // interactions for it, and it is kind of important to not
             // mess up connecting to localhost. So we avoid relying on
             // the bigger machinery for it.
             //
-            if (self.current_machine.connection_string == "localhost") {
-                loader.connect("localhost");
+            if (this.current_machine.connection_string == "localhost") {
+                this.loader.connect("localhost");
                 return;
             }
 
-            self.dispatchEvent("connect");
+            this.emit("connect");
         }
     }
 
@@ -502,9 +576,17 @@ export function ShellState() {
      * for the "Overview" menu entry from the "system" package.
      */
 
-    function update() {
-        if (!self.ready || self.problem) {
-            self.dispatchEvent("update");
+    current_location: Location | null = null;
+    current_machine: Machine | null = null;
+    current_manifest_item: ManifestItem | null = null;
+    current_machine_manifest_items: CompiledComponents | null = null;
+    current_manifest: Manifest | null = null;
+
+    current_frame: ShellFrame | null = null;
+
+    update() {
+        if (!this.ready || this.problem) {
+            this.emit("update");
             return;
         }
 
@@ -514,12 +596,12 @@ export function ShellState() {
         // disabled. That way, people won't accidentally connect to
         // remote machines via URL bookmarks or similar that point to
         // them.
-        if (!self.config.host_switcher_enabled) {
+        if (!this.config.host_switcher_enabled) {
             location.host = "localhost";
             replace_window_location(location);
         }
 
-        let machine = machines.lookup(location.host);
+        let machine = this.machines.lookup(location.host);
 
         /* No such machine */
         if (!machine || !machine.visible) {
@@ -548,69 +630,36 @@ export function ShellState() {
         // host/path combinaton.  This is used by JUMP to complete
         // partial locations.
         //
-        remember_location(location.host, location.path, location.hash);
+        this.#remember_location(location.host, location.path, location.hash);
 
         const item = compiled.find_path_item(location.path);
 
-        self.current_location = location;
-        self.current_machine = machine;
-        self.current_machine_manifest_items = compiled;
-        self.current_manifest_item = item;
-        self.current_manifest = compiled.find_path_manifest(location.path);
+        this.current_location = location;
+        this.current_machine = machine;
+        this.current_machine_manifest_items = compiled;
+        this.current_manifest_item = item;
+        this.current_manifest = compiled.find_path_manifest(location.path);
 
         let frame = null;
         if (location.path && (machine.state == "connected" || machine.state == "connecting"))
-            frame = ensure_frame(machine, location.path, location.hash, item.label);
+            frame = this.#ensure_frame(machine, location.path, location.hash, item.label);
 
-        if (frame != self.current_frame) {
-            const prev_frame = self.current_frame;
-            self.current_frame = frame;
+        if (frame != this.current_frame) {
+            const prev_frame = this.current_frame;
+            this.current_frame = frame;
 
             if (prev_frame)
-                send_frame_hidden_hint(prev_frame.name);
+                this.#send_frame_hidden_hint(prev_frame.name);
             if (frame)
-                send_frame_hidden_hint(frame.name);
+                this.#send_frame_hidden_hint(frame.name);
         }
 
         // Remove all dead frames that are not the current one.
-        for (const n of Object.keys(frames)) {
-            if (frames[n].url == null && frames[n] != self.current_frame)
-                delete frames[n];
+        for (const n of Object.keys(this.frames)) {
+            if (this.frames[n].url == null && this.frames[n] != this.current_frame)
+                delete this.frames[n];
         }
 
-        self.dispatchEvent("update");
+        this.emit("update");
     }
-
-    self = {
-        ready: false,
-        problem: null,
-        has_oops: false,
-
-        config,
-        page_status,
-        frames,
-
-        current_location: null,
-        current_machine: null,
-        current_manifest_item: null,
-        current_machine_manifest_items: null,
-        current_manifest: null,
-
-        // Methods
-        jump,
-        remove_frame,
-        most_recent_path_for_host,
-        update,
-
-        // Access to the inner parts of the machinery, use with
-        // caution.
-        machines,
-        loader,
-        router,
-    };
-
-    cockpit.event_target(self);
-    on_ready();
-
-    return self;
 }

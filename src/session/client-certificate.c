@@ -137,7 +137,7 @@ get_ws_proc_fd (int unix_fd)
   socklen_t ucred_len = sizeof ucred;
   if (getsockopt (unix_fd, SOL_SOCKET, SO_PEERCRED, &ucred, &ucred_len) != 0 ||
       /* this is an inout parameter, be extra suspicious */
-      ucred_len < sizeof ucred)
+      ucred_len != sizeof ucred)
     {
       debug ("failed to read stdin peer credentials: %m; not in socket mode?");
       warnx ("Certificate authentication only supported with cockpit-session.socket");

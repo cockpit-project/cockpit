@@ -52,7 +52,7 @@ export function ShellState() {
     /* Should show warning before connecting? */
     let config_ready = false;
     cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetString",
-                                                 ["Session", "WarnBeforeConnecting"], [])
+                                                 ["Session", "WarnBeforeConnecting"], {})
             .then(([result]) => {
                 if (result == "false" || result == "no") {
                     window.sessionStorage.setItem("connection-warning-shown", "yes");
@@ -425,7 +425,7 @@ export function ShellState() {
         }
 
         if (location.host !== current.host ||
-            location.path !== current.pathframe_change ||
+            location.path !== current.path ||
             location.hash !== current.hash) {
             push_window_location(location);
             update();

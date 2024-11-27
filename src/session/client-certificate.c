@@ -31,6 +31,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef HAVE_PIDFD_GETPID
+#include <sys/pidfd.h>
+#endif
+
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -127,11 +132,9 @@ unsigned long long get_proc_pid_start_time (int dirfd)
   return start_time;
 }
 
-/* Get a /proc/[pid] dirfd for our Unix socket peer (i.e. cockpit-ws).
- * We only support being called via cockpit-session.socket (i.e. Unix socket).
- */
+/* Fallback for get_ws_proc_fd() on older kernels which don't support enough pidfd API */
 static int
-get_ws_proc_fd (int unix_fd)
+get_ws_proc_fd_pid_time (int unix_fd)
 {
   struct ucred ucred;
   socklen_t ucred_len = sizeof ucred;
@@ -166,6 +169,60 @@ get_ws_proc_fd (int unix_fd)
     }
 
   return ws_proc_dirfd;
+}
+
+/* Get a /proc/[pid] dirfd for our Unix socket peer (i.e. cockpit-ws).
+ * We only support being called via cockpit-session.socket (i.e. Unix socket).
+ */
+static int
+get_ws_proc_fd (int unix_fd)
+{
+#if defined(SO_PEERPIDFD) && defined(HAVE_PIDFD_GETPID)
+  int pidfd = -1;
+  socklen_t socklen = sizeof pidfd;
+  /* this is always the pidfd for the process that started the communication, it cannot be recycled */
+  if (getsockopt (unix_fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &socklen) < 0)
+    {
+      if (errno == ENOPROTOOPT)
+        {
+          debug ("SO_PEERPIDFD not supported: %m, falling back to pid/time check");
+          return get_ws_proc_fd_pid_time (unix_fd);
+        }
+
+      warn ("Failed to get peer pidfd");
+      exit_init_problem ("access-denied", "Failed to get peer pidfd");
+    }
+  /* this is an inout parameter, be extra suspicious; this really Should Not Happen™, so bomb out */
+  if (socklen != sizeof pidfd)
+    errx (EX, "SO_PEERPIDFD returned too small result");
+
+  /* get pid for pidfd; from here on this is racy and could suffer from PID recycling */
+  pid_t pid = pidfd_getpid (pidfd);
+  if (pid < 0)
+    {
+      /* be *very* strict here. This could theoretically ENOSYS if glibc has pidfd_getpid() but the kernel doesn't
+       * support it; but err on the side of denying access rather than falling back */
+      warn ("Failed to get pid from pidfd");
+      exit_init_problem ("access-denied", "Failed to get pid from pidfd");
+    }
+
+  debug ("pid from ws peer pidfd: %i", (int) pid);
+  int ws_proc_dirfd = open_proc_pid (pid);
+
+  /* check that the pid is still valid to guard against recycling */
+  if (pidfd_getpid (pidfd) != pid)
+    {
+      warn ("original pid %i is not valid any more", (int) pid);
+      exit_init_problem ("access-denied", "Failed to get cockpit-ws pid");
+    }
+
+  close (pidfd);
+  return ws_proc_dirfd;
+
+#else
+  debug ("not built with pidfd support, falling back to pid/time check");
+  return get_ws_proc_fd_pid_time (unix_fd);
+#endif
 }
 
 /* valid_256_bit_hex_string:

@@ -40,6 +40,7 @@ AC_CHECK_TOOL(AR, ar)
 
 AC_CHECK_FUNCS(
     closefrom
+    pidfd_getpid
 )
 
 AM_SILENT_RULES([yes])

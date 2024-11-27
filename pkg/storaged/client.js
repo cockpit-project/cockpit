@@ -835,11 +835,36 @@ function update_indices() {
     }
 }
 
+let lvm2_poll_timer = null;
+
+function update_lvm2_polling(for_visibility) {
+    const need_polling = !cockpit.hidden && !!Object.values(client.vgroups).find(vg => vg.NeedsPolling);
+
+    function poll() {
+        for (const path in client.vgroups) {
+            const vg = client.vgroups[path];
+            if (vg.NeedsPolling) {
+                vg.Poll();
+            }
+        }
+    }
+
+    if (need_polling && lvm2_poll_timer == null) {
+        lvm2_poll_timer = window.setInterval(poll, 2000);
+        if (for_visibility)
+            poll();
+    } else if (!need_polling && lvm2_poll_timer) {
+        window.clearInterval(lvm2_poll_timer);
+        lvm2_poll_timer = null;
+    }
+}
+
 client.update = (first_time) => {
     if (first_time)
         client.ready = true;
     if (client.ready) {
         update_indices();
+        update_lvm2_polling(false);
         reset_pages();
         make_overview_page();
         export_mount_point_mapping();
@@ -1010,6 +1035,7 @@ function init_model(callback) {
                     client.storaged_client.addEventListener('notify', () => client.update());
 
                     update_indices();
+                    cockpit.addEventListener("visibilitychange", () => update_lvm2_polling(true));
                     btrfs_poll().then(() => {
                         client.update(true);
                         callback();

@@ -523,7 +523,7 @@ class TestAccounts(testlib.MachineCase):
         b.set_checked('#account-locked', val=False)
         b.wait(lambda: not is_locked())
         b.wait_not_present(admin_role_sel + f" .pf-v5-c-label:contains(:{m.get_admin_group()})")
-        b.click("#account-groups")
+        b.click("#account-groups > button")
         b.click(admin_role_sel + f" li:contains({m.get_admin_group()}) > button")
         b.wait(is_admin)
         b.wait_not_present("#account-groups-helper")
@@ -1098,9 +1098,9 @@ class TestAccounts(testlib.MachineCase):
             else:
                 testlib.wait(lambda: "testgroup0" in m.execute("groups admin"))
 
-            b.wait_not_present(".pf-v5-c-select__menu")
-            b.click("#account-groups")
-            b.click(f".pf-v5-c-select__menu li:contains({group}) button")
+            b.wait_not_present(".pf-v5-c-menu")
+            b.click("#account-groups > button")
+            b.click(f".pf-v5-c-menu li:contains({group}) button")
             if enabled:
                 b.wait_in_text(".pf-v5-c-label-group__list", group)
                 b.wait_not_present(f".pf-v5-c-select__menu li:contains({group}) button")

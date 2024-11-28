@@ -300,6 +300,17 @@ class Browser:
 
         return self.driver is not None and self.driver.bidi_session is not None
 
+    def have_test_api(self) -> bool:
+        """Check if the browser is running and has a Cockpit page
+
+        I.e. are our test-functions.js available? This is only true after
+        opening cockpit, not for the initial blank page (before login_and_go)
+        or other URLs like Grafana.
+        """
+        if not self._is_running():
+            return False
+        return self.eval_js("!!window.ph_find")
+
     def run_async(self, coro: Coroutine[Any, Any, Any]) -> JsonObject:
         """Run coro in main loop in our BiDi thread
 
@@ -1527,7 +1538,7 @@ class Browser:
         if self.allow_oops:
             return
 
-        if self._is_running():
+        if self.have_test_api():
             self.switch_to_top()
             if self.eval_js("!!document.getElementById('navbar-oops')"):
                 assert not self.is_visible("#navbar-oops"), "Cockpit shows an Oops"

@@ -28,7 +28,6 @@ import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/comp
 import { Label, LabelGroup } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
@@ -40,6 +39,7 @@ import cockpit from 'cockpit';
 import { superuser } from "superuser";
 import * as timeformat from "timeformat";
 import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
+import { MultiTypeaheadSelect } from "cockpit-components-multi-typeahead-select";
 
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
@@ -344,7 +344,6 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
 }
 
 export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
-    const [isOpenGroup, setIsOpenGroup] = useState(false);
     const [selected, setSelected] = useState();
     const [primaryGroupName, setPrimaryGroupName] = useState();
     const [loading, setLoading] = useState(true);
@@ -382,7 +381,6 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
         setModifyingGroup(true);
         return cockpit.spawn(["gpasswd", "-d", name, group], { superuser: "require", err: "message" })
                 .then(() => {
-                    setIsOpenGroup(false);
                     setModifyingGroup(false);
                 }, show_unexpected_error);
     };
@@ -394,36 +392,17 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
         setModifyingGroup(true);
         return cockpit.spawn(["gpasswd", "-a", name, group], { superuser: "require", err: "message" })
                 .then(() => {
-                    setIsOpenGroup(false);
                     setModifyingGroup(false);
                 }, show_unexpected_error);
-    };
-
-    const onSelectGroup = (event, selection) => {
-        if (selected.includes(selection)) {
-            removeGroup(selection);
-        } else {
-            addGroup(selection);
-        }
     };
 
     const chipGroupComponent = () => {
         return (
             <LabelGroup numLabels={10}>
                 {(selected || []).map((currentLabel, index) => {
-                    const optional = currentLabel !== primaryGroupName && superuser.allowed
-                        ? {
-                            onClose: ev => {
-                                ev.stopPropagation();
-                                removeGroup(currentLabel);
-                            }
-                        }
-                        : {};
-
                     return (
                         <Label key={currentLabel}
                                color={groups.find(group => group.name === currentLabel).isAdmin ? "gold" : "cyan"}
-                               {...optional}
                         >
                             {currentLabel}
                         </Label>
@@ -441,24 +420,21 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
             validated={history.length > 0 ? "warning" : "default"}
         >
             {superuser.allowed
-                ? <Select
-                   chipGroupComponent={chipGroupComponent()}
-                   isDisabled={!superuser.allowed || loading || modifyingGroup}
-                   isOpen={isOpenGroup}
-                   onSelect={onSelectGroup}
-                   onToggle={(_, isOpen) => setIsOpenGroup(isOpen)}
-                   selections={selected}
-                   toggleId="account-groups"
-                   variant="typeaheadmulti"
-                >
-                    {groups.map((option, index) => (
-                        <SelectOption
-                            isDisabled={option.name == primaryGroupName}
-                            key={index}
-                            value={option.name}
-                        />
-                    ))}
-                </Select>
+                ? <MultiTypeaheadSelect
+                      isScrollable
+                      isDisabled={loading || modifyingGroup}
+                      onAdd={val => addGroup(val)}
+                      onRemove={val => removeGroup(val)}
+                      options={groups.map((option, index) => {
+                          return {
+                              value: option.name,
+                              content: option.name,
+                              color: option.isAdmin ? "gold" : "cyan",
+                              isDisabled: option.name == primaryGroupName,
+                          };
+                      })}
+                      selected={selected || []}
+                      toggleProps={{ id: "account-groups" }} />
                 : chipGroupComponent()}
             {(history.length > 0)
                 ? <HelperText className="pf-v5-c-form__helper-text">

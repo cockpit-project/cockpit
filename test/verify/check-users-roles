@@ -109,11 +109,11 @@ class TestRoles(testlib.MachineCase):
         self.login_and_go("/users")
         b.go("#/admin")
 
-        b.click("#account-groups")
-        b.wait_visible(".pf-v5-c-select__menu li:contains(docker)")
+        b.click("#account-groups > button")
+        b.wait_visible(".pf-v5-c-menu li:contains(docker)")
 
         m.execute("groupdel docker")
-        b.wait_not_present(".pf-v5-c-select__menu li:contains(docker)")
+        b.wait_not_present(".pf-v5-c-menu li:contains(docker)")
 
 
 if __name__ == '__main__':

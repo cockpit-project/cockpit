@@ -131,6 +131,10 @@ class StorageHelpers:
 
         self.addCleanup(self.machine.execute, f"if [ -d /dev/{vgname} ]; then vgremove --force {vgname}; fi")
 
+    def addCleanupMount(self, mount_point):
+        self.addCleanup(self.machine.execute,
+                        f"if mountpoint -q {mount_point}; then umount {mount_point}; fi")
+
     # Dialogs
 
     def dialog_wait_open(self):

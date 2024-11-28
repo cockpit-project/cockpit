@@ -178,7 +178,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         self.click_dropdown(root_sel, "Mount")
         self.dialog({"mount_point": mount_point})
-        self.addCleanup(self.machine.execute, f"umount {mount_point} || true")
+        self.addCleanupMount(mount_point)
         b.wait_in_text(self.card_row("Storage", location=mount_point), "btrfs subvolume")
         self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
 
@@ -213,7 +213,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.dialog_set_val("mount_point", subvol_mount_point)
         self.dialog_apply()
         self.dialog_wait_close()
-        self.addCleanup(self.machine.execute, f"umount {subvol_mount_point} || true")
+        self.addCleanupMount(subvol_mount_point)
         b.wait_in_text(self.card_row("Storage", location=subvol_mount_point), "btrfs subvolume")
 
         # Finding the correct subvolume parent from a non-mounted subvolume
@@ -229,8 +229,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.dialog({"name": os.path.basename(left_subvol_mount), "mount_point": left_subvol_mount})
         self.click_dropdown(self.card_row("Storage", location=mount_point), "Create subvolume")
         self.dialog({"name": os.path.basename(right_subvol_mount), "mount_point": right_subvol_mount})
-        self.addCleanup(self.machine.execute, f"umount {left_subvol_mount} || true")
-        self.addCleanup(self.machine.execute, f"umount {right_subvol_mount} || true")
+        self.addCleanupMount(left_subvol_mount)
+        self.addCleanupMount(right_subvol_mount)
 
         b.wait_in_text(self.card_row("Storage", location=left_subvol_mount), "btrfs subvolume")
         b.wait_in_text(self.card_row("Storage", location=right_subvol_mount), "btrfs subvolume")
@@ -279,7 +279,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         root_sel = self.card_row("Storage", name="sda") + " + tr"
         self.click_dropdown(root_sel, "Mount")
         self.dialog({"mount_point": mount_point})
-        self.addCleanup(self.machine.execute, f"umount {mount_point} || true")
+        self.addCleanupMount(mount_point)
 
         # No Delete button for the root subvolume
         b.click(self.dropdown_toggle(root_sel))

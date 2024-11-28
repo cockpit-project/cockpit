@@ -36,6 +36,11 @@ TASK_NAME = "Validate all URLs"
 
 USER_AGENT = "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0"
 
+IGNORE = [
+    "https://www.gnome.org",  # keeps causing 403 from GitHub; DNS or user-agent ban?
+    "*example.com*",  # some tests use demo urls
+]
+
 KNOWN_REDIRECTS = [
     # fnmatch-like
     "https://access.redhat.com/security/updates/classification/#",
@@ -113,7 +118,9 @@ def check_urls(verbose):
         if not url:
             continue
 
-        if urllib.parse.urlparse(url).hostname.endswith(".example.com"):  # Some tests use demo urls
+        if any(fnmatch.fnmatch(url, pattern) for pattern in IGNORE):
+            if verbose:
+                print(f"Ignoring: {url}")
             continue
 
         if verbose:

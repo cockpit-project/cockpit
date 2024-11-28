@@ -417,7 +417,8 @@ class Browser:
         """Allow browser downloads"""
         # this is only necessary for headless chromium
         if self.browser == "chromium":
-            self.cdp_command("Browser.setDownloadBehavior", behavior="allow", downloadPath=str(self.driver.download_dir))
+            self.cdp_command("Browser.setDownloadBehavior", behavior="allow",
+                             downloadPath=str(self.driver.download_dir))
 
     def upload_files(self, selector: str, files: Sequence[str]) -> None:
         """Upload a local file to the browser
@@ -774,7 +775,8 @@ class Browser:
                 duration = time.time() - start
                 percent = int(duration / timeout * 100)
                 if percent >= 50:
-                    print(f"WARNING: Waiting for {cond} took {duration:.1f} seconds, which is {percent}% of the timeout.")
+                    print(f"WARNING: Waiting for {cond} took {duration:.1f} seconds, "
+                          f"which is {percent}% of the timeout.")
                 return
             except Error as e:
                 last_error = e
@@ -1029,7 +1031,7 @@ class Browser:
                 # we don't need it here, if the session menu is visible then so is the dropdown
                 self.mouse('#logout', "click", scrollVisible=False)
             except RuntimeError as e:
-                # logging out does destroy the current frame context, it races with the CDP driver finishing the command
+                # logging out does destroy the current frame context, it races with the driver finishing the command
                 if "Execution context was destroyed" not in str(e):
                     raise
         self.wait_visible('#login')
@@ -1580,7 +1582,8 @@ class MachineCase(unittest.TestCase):
         if opts.address:
             if forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
-            machine = testvm.Machine(address=opts.address, image=image or self.image, verbose=opts.trace, browser=opts.browser)
+            machine = testvm.Machine(address=opts.address, image=image or self.image,
+                                     verbose=opts.trace, browser=opts.browser)
             if cleanup:
                 self.addCleanup(machine.disconnect)
         else:

@@ -34,6 +34,8 @@ SOFTWARE.
 
 */
 
+/* eslint-disable */
+
 import React from 'react';
 import {
   Select,
@@ -67,7 +69,7 @@ export interface MultiTypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 
   initialOptions: MultiTypeaheadSelectOption[];
   /** Callback triggered on selection. */
   onSelectionChange?: (
-    _event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<HTMLInputElement>,
+    _event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<HTMLInputElement> | undefined,
     selections: (string | number)[]
   ) => void;
   /** Callback triggered when the select opens or closes. */
@@ -94,7 +96,7 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
   onInputChange,
   placeholder = 'Select an option',
   noOptionsFoundMessage = (filter) => `No results found for "${filter}"`,
-  isDisabled,
+  isDisabled = false,
   toggleWidth,
   toggleProps,
   ...props
@@ -103,7 +105,7 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
   const [selected, setSelected] = React.useState<(string | number)[]>(
     (initialOptions?.filter((o) => o.selected) ?? []).map((o) => o.value)
   );
-  const [inputValue, setInputValue] = React.useState<string>();
+  const [inputValue, setInputValue] = React.useState<string>("");
   const [selectOptions, setSelectOptions] = React.useState<MultiTypeaheadSelectOption[]>(initialOptions);
   const [focusedItemIndex, setFocusedItemIndex] = React.useState<number | null>(null);
   const [activeItemId, setActiveItemId] = React.useState<string | null>(null);

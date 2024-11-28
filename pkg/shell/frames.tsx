@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// @cockpit-ts-relaxed
+
 /* This is the React component that renders all the iframes for the
    pages.
 
@@ -36,20 +38,23 @@
 
 import React, { useRef, useEffect } from 'react';
 
-export const Frames = ({ state, idle_state, hidden }) => {
-    const content_ref = useRef(null);
+import { ShellState, ShellFrame } from "./state";
+
+export const Frames = ({ state, idle_state, hidden }: { state: ShellState, idle_state, hidden: boolean }) => {
+    const content_ref = useRef<HTMLDivElement | null>(null);
     const { frames, current_frame } = state;
 
     useEffect(() => {
-        const content = content_ref.current;
-        if (!content)
+        if (!content_ref.current)
             return;
 
-        function iframe_remove(elt) {
+        const content = content_ref.current;
+
+        function iframe_remove(elt: HTMLIFrameElement) {
             elt.remove();
         }
 
-        function iframe_new(name) {
+        function iframe_new(name: string) {
             const elt = document.createElement("iframe");
             elt.setAttribute("name", name);
             elt.style.display = "none";
@@ -57,9 +62,9 @@ export const Frames = ({ state, idle_state, hidden }) => {
             return elt;
         }
 
-        function setup_iframe(frame, iframe) {
+        function setup_iframe(frame: ShellFrame, iframe: HTMLIFrameElement) {
             idle_state.setupIdleResetEventListeners(iframe.contentWindow);
-            iframe.contentWindow.addEventListener("unload", () => teardown_iframe(frame, iframe), { once: true });
+            iframe.contentWindow!.addEventListener("unload", () => teardown_iframe(frame), { once: true });
 
             if (iframe.contentDocument && iframe.contentDocument.documentElement) {
                 iframe.contentDocument.documentElement.lang = state.config.language;
@@ -73,18 +78,20 @@ export const Frames = ({ state, idle_state, hidden }) => {
             }
         }
 
-        function teardown_iframe(frame, iframe) {
+        function teardown_iframe(frame: ShellFrame) {
             if (frame.ready) {
                 frame.ready = false;
                 state.update();
             }
         }
 
-        const iframes_by_name = {};
+        const iframes_by_name: Record<string, HTMLIFrameElement> = {};
 
-        for (const c of content.children) {
-            if (c.nodeName == "IFRAME" && c.getAttribute('name')) {
-                iframes_by_name[c.getAttribute('name')] = c;
+        for (let i = 0; i < content.children.length; i++) {
+            const c = content.children[i];
+            const name = c.getAttribute('name');
+            if (c.nodeName == "IFRAME" && name) {
+                iframes_by_name[name] = c as HTMLIFrameElement;
             }
         }
 
@@ -142,5 +149,5 @@ export const Frames = ({ state, idle_state, hidden }) => {
                 id="content"
                 className="area-ct-content"
                 role="main"
-                tabIndex="-1" />;
+                tabIndex={-1} />;
 };

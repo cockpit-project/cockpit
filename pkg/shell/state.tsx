@@ -43,7 +43,7 @@ interface ShellPageStatus {
     message: string; // ???
 }
 
-interface ShellFrame {
+export interface ShellFrame {
     name: string;
     host: string;
     path: string;

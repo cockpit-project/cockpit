@@ -194,7 +194,7 @@ ExecStart=/usr/bin/sleep infinity
         if fstype == "btrfs":
             self._navigate_root_subvolume()
             b.wait_in_text(self.card_desc("btrfs subvolume", "Mount point"), "/run/foo")
-            self.addCleanup(m.execute, "umount /run/foo || true")
+            self.addCleanupMount("/run/foo")
         else:
             b.wait_text(self.card_desc(filesystem, "Name"), "FILESYSTEM")
             b.wait_in_text(self.card_desc(filesystem, "Mount point"), "/run/foo")
@@ -494,9 +494,8 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         self.addCleanupVG("test")
-        self.addCleanup(m.execute,
-                        "umount /run/data || true;"
-                        "cryptsetup close $(lsblk -lno NAME /dev/test/one | tail -1) || true")
+        self.addCleanup(m.execute, "cryptsetup close $(lsblk -lno NAME /dev/test/one | tail -1) || true")
+        self.addCleanupMount("/run/data")
 
         # Quickly make two logical volumes
         disk = self.add_ram_disk()

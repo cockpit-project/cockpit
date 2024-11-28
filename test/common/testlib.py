@@ -294,7 +294,11 @@ class Browser:
         except FileNotFoundError:
             self.layouts = default_layouts
         self.current_layout = None
-        self.valid = True
+
+    def _is_running(self) -> bool:
+        """True initially, false after calling .kill()"""
+
+        return self.driver is not None and self.driver.bidi_session is not None
 
     def run_async(self, coro: Coroutine[Any, Any, Any]) -> JsonObject:
         """Run coro in main loop in our BiDi thread
@@ -309,12 +313,11 @@ class Browser:
         loop.run_forever()
 
     def kill(self) -> None:
-        if not self.valid:
+        if not self._is_running():
             return
         self.run_async(self.driver.close())
         self.loop.call_soon_threadsafe(self.loop.stop)
         self.bidi_thread.join()
-        self.valid = False
 
     def bidi(self, method: str, **params: Any) -> webdriver_bidi.JsonObject:
         """Send a Webdriver BiDi command and return the JSON response"""
@@ -1205,7 +1208,7 @@ class Browser:
         Arguments:
             title: Used for the filename.
         """
-        if self.valid:
+        if self._is_running():
             filename = unique_filename(f"{label or self.label}-{title}", "png")
             try:
                 ret = self.bidi("browsingContext.captureScreenshot", quiet=True,
@@ -1500,7 +1503,7 @@ class Browser:
     def get_js_log(self) -> Sequence[str]:
         """Return the current javascript log"""
 
-        if self.valid:
+        if self._is_running():
             return [str(log) for log in self.driver.logs]
         return []
 
@@ -1516,7 +1519,7 @@ class Browser:
             print("Wrote JS log to " + filename)
 
     def write_coverage_data(self) -> None:
-        if self.coverage_label and self.valid:
+        if self.coverage_label and self._is_running():
             coverage = self.cdp_command("Profiler.takePreciseCoverage")["result"]
             write_lcov(coverage['result'], self.coverage_label)
 
@@ -1524,7 +1527,7 @@ class Browser:
         if self.allow_oops:
             return
 
-        if self.valid:
+        if self._is_running():
             self.switch_to_top()
             if self.eval_js("!!document.getElementById('navbar-oops')"):
                 assert not self.is_visible("#navbar-oops"), "Cockpit shows an Oops"

@@ -170,8 +170,8 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.set_checked("#column-visibility-option-network", val=True)
 
         # Change date to yesterday, should be empty
-        b.click("#date-picker-select-toggle .pf-v5-c-select__toggle-arrow")
-        b.click(".pf-v5-c-select__menu-wrapper:nth-child(2) button")
+        b.click("#date-picker-select-toggle")
+        b.click(".pf-v5-c-menu__list-item:nth-child(2) button")
         b.wait_text(".pf-v5-c-empty-state", "No data available")
 
         # Breadcrumb back to Overview page
@@ -369,9 +369,9 @@ class TestHistoryMetrics(testlib.MachineCase):
         m.execute("timedatectl set-time @1600550674")
         self.login_and_go("/metrics")
         # self.waitStream(3) # FIXME: wait for new data - pcp does not handle time change greatly
-        b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Today")
+        b.wait_text("#date-picker-select-toggle .pf-v5-c-menu-toggle__text", "Today")
 
-        b.select_PF_deprecated("#date-picker-select-toggle", "Wednesday, September 16, 2020")
+        b.select_PF("#date-picker-select-toggle", "Wednesday, September 16, 2020")
         # memory spike at :50 or :51 (depends on PCP version)
         try:
             self.assertGreater(getMaximumSpike(test=self, g_type="memory", saturation=False, hour=1600236000000, minute=50), 0.3)
@@ -383,11 +383,11 @@ class TestHistoryMetrics(testlib.MachineCase):
         # Reload should keep the filters intact
         b.reload()
         b.enter_page("/metrics")
-        b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Wednesday, September 16, 2020")
+        b.wait_text("#date-picker-select-toggle .pf-v5-c-menu-toggle__text", "Wednesday, September 16, 2020")
 
         b.click("#date-picker-select-toggle")
-        b.click(".pf-v5-c-select__menu-item:contains('Today')")
-        b.wait_text("#date-picker-select-toggle .pf-v5-c-select__toggle-text", "Today")
+        b.click(".pf-v5-c-menu__list-item:contains('Today') button")
+        b.wait_text("#date-picker-select-toggle .pf-v5-c-menu-toggle__text", "Today")
         # self.waitStream(4) # FIXME: wait for new data - pcp does not handle time change greatly
 
         b.logout()
@@ -696,7 +696,7 @@ class TestHistoryMetrics(testlib.MachineCase):
                   """)
         self.addCleanup(m.execute, "nmcli con delete fake; firewall-cmd --permanent --delete-zone comeandgo || true; firewall-cmd  --reload")
         checkEnable(firewalld_alert=True)
-        b.select_PF_deprecated("#firewalld-request-pmproxy", "comeandgo")
+        b.select_PF("#firewalld-request-pmproxy", "comeandgo")
         m.execute("firewall-cmd --permanent --delete-zone comeandgo; firewall-cmd  --reload")
         b.click(".pf-v5-c-alert button.pf-m-primary")
         self.allow_browser_errors("Failed to enable pmproxy in firewalld:.*INVALID_ZONE: comeandgo.*")

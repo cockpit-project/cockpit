@@ -17,18 +17,18 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 import cockpit from "cockpit";
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
-import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { SimpleSelect } from "cockpit-components-simple-select";
 import { TypeaheadSelect } from "cockpit-components-typeahead-select";
 import { useObject, useEvent } from "hooks.js";
 
@@ -507,8 +507,6 @@ function ValidatedInput({ errors, error_key, children }) {
 }
 
 function ChangeSystimeBody({ state, errors, change }) {
-    const [modeOpen, setModeOpen] = useState(false);
-
     const {
         time_zone, time_zones,
         mode,
@@ -556,18 +554,19 @@ function ChangeSystimeBody({ state, errors, change }) {
     );
 
     const mode_options = [
-        <SelectOption key="manual_time" value="manual_time">{_("Manually")}</SelectOption>,
-        <SelectOption key="ntp_time" value="ntp_time" isDisabled={!ntp_supported}>{_("Automatically using NTP")}</SelectOption>
+        { value: "manual_time", content: _("Manually") },
+        { value: "ntp_time", content: _("Automatically using NTP"), isDisabled: !ntp_supported },
     ];
 
     if (custom_ntp.backend)
         mode_options.push(
-            <SelectOption key="ntp_time_custom" value="ntp_time_custom" isDisabled={!ntp_supported}>
-                { custom_ntp.backend == "chronyd"
+            {
+                value: "ntp_time_custom",
+                isDisabled: !ntp_supported,
+                content: (custom_ntp.backend == "chronyd")
                     ? _("Automatically using additional NTP servers")
                     : _("Automatically using specific NTP servers")
-                }
-            </SelectOption>);
+            });
 
     return (
         <Form isHorizontal>
@@ -583,12 +582,11 @@ function ChangeSystimeBody({ state, errors, change }) {
                 </Validated>
             </FormGroup>
             <FormGroup fieldId="change_systime" label={_("Set time")} isStack>
-                <Select id="change_systime"
-                        isOpen={modeOpen} onToggle={(_, isOpen) => setModeOpen(isOpen)}
-                        selections={mode} onSelect={(event, value) => { setModeOpen(false); change("mode", value) }}
-                        menuAppendTo="parent">
-                    { mode_options }
-                </Select>
+                <SimpleSelect
+                    id="change_systime"
+                    options={mode_options}
+                    selected={mode}
+                    onSelect={value => change("mode", value)} />
                 { mode == "manual_time" &&
                     <Flex spaceItems={{ default: 'spaceItemsSm' }} id="systime-manual-row">
                         <ValidatedInput errors={errors} error_key="manual_date">

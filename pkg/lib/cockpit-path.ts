@@ -41,6 +41,8 @@ export function basename(path : string): string {
     const pos = norm.lastIndexOf("/");
     if (pos < 0)
         return norm;
+    else if (pos == 0)
+        return "/";
     else
         return norm.substring(pos + 1);
 }

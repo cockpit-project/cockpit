@@ -351,6 +351,10 @@ class TestSystemInfo(testlib.MachineCase):
         m.write("/sys/class/dmi/id/board_vendor", "brdven")
         m.write("/sys/class/dmi/id/board_name", "brdnam")
         b.reload()
+        b.enter_page("/system/hwinfo")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "brdnam")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(3) dd', "brdven")
+
         b.go("/system")
         b.enter_page('/system')
         b.wait_in_text('#system_information_hardware_text', "brdven brdnam")
@@ -359,9 +363,6 @@ class TestSystemInfo(testlib.MachineCase):
         else:
             b.wait_not_present('#system_information_asset_tag_text')
         b.click(hardware_page_link)
-        b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(2) dd', "brdnam")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(1) .pf-v5-c-description-list__group:nth-of-type(3) dd', "brdven")
 
         # /proc/cpuinfo on x86; very incomplete, just what pkg/lib/machine-info.js looks at
         m.write("/tmp/cpuinfo", """processor\t: 0
@@ -436,7 +437,6 @@ machine         : 8561
         m.execute("umount /sys/class/dmi/id")
         m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")
         b.reload()
-        b.go("/system/hwinfo")
         b.enter_page('/system/hwinfo')
 
         # Memory details should be shown from our mocked DMI information from systemd's test files.

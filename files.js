@@ -66,6 +66,7 @@ const info = {
         "base1/test-location.js",
         "base1/test-metrics.js",
         "base1/test-no-jquery.js",
+        "base1/test-path.ts",
         "base1/test-permissions.js",
         "base1/test-promise.ts",
         "base1/test-protocol.js",
@@ -77,8 +78,6 @@ const info = {
         "base1/test-types.ts",
         "base1/test-user.js",
         "base1/test-websocket.js",
-
-        "lib/test-path.ts",
 
         "kdump/test-config-client.js",
 

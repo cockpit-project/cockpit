@@ -32,10 +32,23 @@ SOFTWARE.
    module since we want to add features to it, and also to isolate us
    from gratuitous upstream changes.
 
+   Our changes:
+
+   - The selection is controlled from the outside and not maintained
+     as internal state. This is how things should work with React.
+
+   - Changes are announced via incremental onAdd and onRemove
+     handlers.
+
+   - We use Labels instead of Chips, since we want colors.
+
+   - The clear button clears the input text, not the selection.
+
 */
 
 /* eslint-disable */
 
+import cockpit from "cockpit";
 import React from 'react';
 import {
   Select,
@@ -50,28 +63,32 @@ import {
   Button,
   MenuToggleProps,
   SelectProps,
-  ChipGroup,
-  Chip
 } from '@patternfly/react-core';
+import { Label, LabelGroup, LabelProps } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 
-export interface MultiTypeaheadSelectOption extends Omit<SelectOptionProps, 'content'> {
+const _ = cockpit.gettext;
+
+export interface MultiTypeaheadSelectOption extends Omit<SelectOptionProps, 'content' | 'isSelected'> {
   /** Content of the select option. */
   content: string | number;
   /** Value of the select option. */
   value: string | number;
+  /** Color */
+  color?: LabelProps["color"];
 }
 
 export interface MultiTypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSelect'> {
   /** @hide Forwarded ref */
   innerRef?: React.Ref<any>;
-  /** Initial options of the select. */
-  initialOptions: MultiTypeaheadSelectOption[];
-  /** Callback triggered on selection. */
-  onSelectionChange?: (
-    _event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<HTMLInputElement> | undefined,
-    selections: (string | number)[]
-  ) => void;
+  /** Options of the select. */
+  options: MultiTypeaheadSelectOption[];
+  /** Selected values */
+  selected: (string | number)[];
+  /** Callback triggered when an option is added. */
+  onAdd: (value: (string | number)) => void;
+  /** Callback triggered wehn an option is removed. */
+  onRemove: (value: (string | number)) => void;
   /** Callback triggered when the select opens or closes. */
   onToggle?: (nextIsOpen: boolean) => void;
   /** Callback triggered when the text in the input field changes. */
@@ -90,23 +107,22 @@ export interface MultiTypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 
 
 export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSelectProps> = ({
   innerRef,
-  initialOptions,
-  onSelectionChange,
+  options,
+  selected,
+  onAdd,
+  onRemove,
   onToggle,
   onInputChange,
-  placeholder = 'Select an option',
-  noOptionsFoundMessage = (filter) => `No results found for "${filter}"`,
+  placeholder = '',
+  noOptionsFoundMessage = _filter => _("No results found"),
   isDisabled = false,
   toggleWidth,
   toggleProps,
   ...props
 }: MultiTypeaheadSelectProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState<(string | number)[]>(
-    (initialOptions?.filter((o) => o.selected) ?? []).map((o) => o.value)
-  );
   const [inputValue, setInputValue] = React.useState<string>("");
-  const [selectOptions, setSelectOptions] = React.useState<MultiTypeaheadSelectOption[]>(initialOptions);
+  const [selectOptions, setSelectOptions] = React.useState<MultiTypeaheadSelectOption[]>(options);
   const [focusedItemIndex, setFocusedItemIndex] = React.useState<number | null>(null);
   const [activeItemId, setActiveItemId] = React.useState<string | null>(null);
   const textInputRef = React.useRef<HTMLInputElement>();
@@ -119,11 +135,11 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
   };
 
   React.useEffect(() => {
-    let newSelectOptions: MultiTypeaheadSelectOption[] = initialOptions;
+    let newSelectOptions: MultiTypeaheadSelectOption[] = options;
 
     // Filter menu items based on the text input value when one exists
     if (inputValue) {
-      newSelectOptions = initialOptions.filter((option) =>
+      newSelectOptions = options.filter((option) =>
         String(option.content).toLowerCase().includes(inputValue.toLowerCase())
       );
 
@@ -145,12 +161,7 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
 
     setSelectOptions(newSelectOptions);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputValue, initialOptions]);
-
-  React.useEffect(
-    () => setSelected((initialOptions?.filter((o) => o.selected) ?? []).map((o) => o.value)),
-    [initialOptions]
-  );
+  }, [inputValue, options]);
 
   const setActiveAndFocusedItem = (itemIndex: number) => {
     setFocusedItemIndex(itemIndex);
@@ -178,28 +189,17 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
     }
   };
 
-  const selectOption = (
-    _event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<HTMLInputElement> | undefined,
-    option: string | number
-  ) => {
-    const selections = selected.includes(option) ? selected.filter((o) => option !== o) : [...selected, option];
-
-    onSelectionChange && onSelectionChange(_event, selections);
-    setSelected(selections);
-  };
-
-  const clearOption = (
-    _event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<HTMLInputElement> | undefined,
-    option: string | number
-  ) => {
-    const selections = selected.filter((o) => option !== o);
-    onSelectionChange && onSelectionChange(_event, selections);
-    setSelected(selections);
+  const selectOption = (option: string | number) => {
+    if (selected.includes(option))
+      onRemove(option);
+    else
+      onAdd(option);
   };
 
   const _onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
     if (value && value !== NO_RESULTS) {
-      selectOption(_event, value);
+      selectOption(value);
+      closeMenu();
     }
   };
 
@@ -264,7 +264,7 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
     switch (event.key) {
       case 'Enter':
         if (isOpen && focusedItem && focusedItem.value !== NO_RESULTS && !focusedItem.isAriaDisabled) {
-          selectOption(event, focusedItem?.value);
+          selectOption(focusedItem?.value);
         }
 
         if (!isOpen) {
@@ -287,19 +287,17 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
     textInputRef?.current?.focus();
   };
 
-  const onClearButtonClick = (ev: React.MouseEvent) => {
-    setSelected([]);
+  const onClearButtonClick = (_ev: React.MouseEvent) => {
+    setInputValue('');
     onInputChange && onInputChange('');
     resetActiveAndFocusedItem();
     textInputRef?.current?.focus();
-    onSelectionChange && onSelectionChange(ev, []);
   };
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
       variant="typeahead"
-      aria-label="Multi select Typeahead menu toggle"
       onClick={onToggleClick}
       isExpanded={isOpen}
       isDisabled={isDisabled}
@@ -325,23 +323,28 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
           isExpanded={isOpen}
           aria-controls="select-typeahead-listbox"
         >
-          <ChipGroup aria-label="Current selections">
-            {selected.map((selection, index) => (
-              <Chip
-                key={index}
-                datatest-id={`${selection}-chip`}
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  clearOption(ev, selection);
-                }}
-              >
-                {initialOptions.find((o) => o.value === selection)?.content}
-              </Chip>
-            ))}
-          </ChipGroup>
+            <LabelGroup numLabels={10}>
+                {selected.map((selection) => {
+                    const option = options.find((o) => o.value === selection);
+                    if (!option)
+                        return null;
+                    const { content, color } = option;
+                    function onClose(ev: React.MouseEvent<Element, MouseEvent>) {
+                        ev.stopPropagation();
+                        onRemove(selection);
+                    }
+                    return (
+                        <Label key={selection}
+                               {...(!option.isDisabled ? { onClose } : { }) }
+                               {...(color ? { color } : { }) } >
+                            {content}
+                        </Label>
+                    );
+                })}
+            </LabelGroup>
         </TextInputGroupMain>
-        <TextInputGroupUtilities {...(selected.length === 0 ? { style: { display: 'none' } } : {})}>
-          <Button variant="plain" onClick={onClearButtonClick} aria-label="Clear input value">
+        <TextInputGroupUtilities {...(!inputValue ? { style: { display: 'none' } } : {})}>
+          <Button variant="plain" onClick={onClearButtonClick} aria-label={_("Clear input value")}>
             <TimesIcon aria-hidden />
           </Button>
         </TextInputGroupUtilities>

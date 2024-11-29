@@ -330,7 +330,7 @@ class CommonTests:
         b.wait_popup("shutdown-dialog")
         b.click("#delay")
         b.click("button:contains('No delay')")
-        b.wait_text("#delay .pf-v5-c-select__toggle-text", "No delay")
+        b.wait_text("#delay .pf-v5-c-menu-toggle__text", "No delay")
         b.click("#shutdown-dialog button:contains(Reboot)")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")

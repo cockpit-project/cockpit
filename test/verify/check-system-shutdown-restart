@@ -51,7 +51,7 @@ class TestShutdownRestart(testlib.MachineCase):
         b.set_input_text("#message", "Rebooting for maintenance")
         b.click("#delay")
         b.click("button:contains('No delay')")
-        b.wait_text("#delay .pf-v5-c-select__toggle-text", "No delay")
+        b.wait_text("#delay .pf-v5-c-menu-toggle__text", "No delay")
         b.click(f"#shutdown-dialog button{self.danger_btn_class}")
         b.switch_to_top()
 
@@ -79,7 +79,7 @@ class TestShutdownRestart(testlib.MachineCase):
         b2.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
         b2.click("#delay")
         b2.click("button:contains('No delay')")
-        b2.wait_text("#delay .pf-v5-c-select__toggle-text", "No delay")
+        b2.wait_text("#delay .pf-v5-c-menu-toggle__text", "No delay")
         b2.click(f"#shutdown-dialog button{self.danger_btn_class}")
         b2.switch_to_top()
 
@@ -104,7 +104,7 @@ class TestShutdownRestart(testlib.MachineCase):
         b.wait_not_present("#delay-helper")
         b.click("#delay")
         b.click("button:contains('Specific time')")
-        b.wait_text("#delay .pf-v5-c-select__toggle-text", "Specific time")
+        b.wait_text("#delay .pf-v5-c-menu-toggle__text", "Specific time")
         b.wait_not_val("#shutdown-time-input", "")
         b.wait_not_present("#delay-helper")
         old = b.val("#shutdown-time-input")

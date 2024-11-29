@@ -45,6 +45,7 @@ QUnit.test("basename", function (assert) {
         ["foo", "foo"],
         ["bar/foo/", "foo"],
         ["//bar//foo///", "foo"],
+        ["/", "/"],
     ];
 
     assert.expect(checks.length);

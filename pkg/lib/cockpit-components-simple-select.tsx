@@ -59,7 +59,7 @@ export interface SimpleSelectProps extends Omit<SelectProps, 'toggle'> {
   /** Initial options of the select. */
   initialOptions?: SimpleSelectOption[];
   /** Callback triggered on selection. */
-  onSelect?: (_event: React.MouseEvent<Element, MouseEvent>, selection: string | number) => void;
+  onSelect?: (_event: React.MouseEvent<Element, MouseEvent> | undefined, selection: string | number | undefined) => void;
   /** Callback triggered when the select opens or closes. */
   onToggle?: (nextIsOpen: boolean) => void;
   /** Flag indicating the select should be disabled. */
@@ -77,7 +77,7 @@ export interface SimpleSelectProps extends Omit<SelectProps, 'toggle'> {
 const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
   innerRef,
   initialOptions,
-  isDisabled,
+  isDisabled = false,
   onSelect,
   onToggle,
   toggleContent,
@@ -111,7 +111,7 @@ const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
 
   const _onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
     onSelect && onSelect(_event, value);
-    setSelected(initialOptions.find((o) => o.value === value));
+    setSelected(initialOptions?.find((o) => o.value === value));
     onToggle && onToggle(true);
     setIsOpen(false);
   };

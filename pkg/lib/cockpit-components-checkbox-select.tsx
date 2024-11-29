@@ -61,7 +61,7 @@ export interface CheckboxSelectProps extends Omit<SelectProps, 'toggle'> {
   /** Initial options of the select. */
   initialOptions?: CheckboxSelectOption[];
   /** Callback triggered on selection. */
-  onSelect?: (_event: React.MouseEvent<Element, MouseEvent>, value?: string | number) => void;
+  onSelect?: (_event: React.MouseEvent<Element, MouseEvent> | undefined, value?: string | number) => void;
   /** Callback triggered when the select opens or closes. */
   onToggle?: (nextIsOpen: boolean) => void;
   /** Flag indicating the select should be disabled. */
@@ -77,7 +77,7 @@ export interface CheckboxSelectProps extends Omit<SelectProps, 'toggle'> {
 const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
   innerRef,
   initialOptions,
-  isDisabled,
+  isDisabled = false,
   onSelect: passedOnSelect,
   onToggle,
   toggleContent,

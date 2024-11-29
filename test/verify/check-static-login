@@ -559,7 +559,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
         b.click("#delay")
         b.click("button:contains('5 minutes')")
-        b.wait_text("#delay .pf-v5-c-select__toggle-text", "5 minutes")
+        b.wait_text("#delay .pf-v5-c-menu-toggle__text", "5 minutes")
         b.click(f"#shutdown-dialog button{self.danger_btn_class}")
 
         # cancel reboot

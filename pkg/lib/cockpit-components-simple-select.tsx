@@ -32,6 +32,22 @@ SOFTWARE.
    module since we might want to add features to it, and also to
    isolate us from gratuitous upstream changes.
 
+   Our changes:
+
+   - The selection is controlled from the outside and not maintained
+     as internal state. This is how things should work with React.
+
+   - The selected value can be any JavaScript value, not just a string
+     or number. Normally, the (stringified) value is used as a React
+     key. If your values are not suitable for this because they are
+     neither strings nor numbers, you need to provide an explicit key.
+
+     { key: 12, value: { param: "boot", value: 12 }, content: _("Boot number 12") }
+
+   - Support for dividers.
+
+     { decorator: "divider", key: "..." }
+
 */
 
 /* eslint-disable */
@@ -42,24 +58,38 @@ import {
   SelectList,
   SelectOption,
   SelectOptionProps,
-  SelectProps
+  SelectProps,
 } from '@patternfly/react-core/dist/esm/components/Select';
+import { Divider } from '@patternfly/react-core/dist/esm/components/Divider';
 import { MenuToggle, MenuToggleElement, MenuToggleProps } from '@patternfly/react-core/dist/esm/components/MenuToggle';
 
-export interface SimpleSelectOption extends Omit<SelectOptionProps, 'content'> {
+export interface SimpleSelectDividerOption {
+  decorator: "divider";
+
+  key: string | number;
+};
+
+export interface SimpleSelectMenuOption extends Omit<SelectOptionProps, 'content'> {
+  decorator?: undefined;
+
   /** Content of the select option. */
   content: React.ReactNode;
   /** Value of the select option. */
-  value: string | number;
+  value: unknown;
 }
 
-export interface SimpleSelectProps extends Omit<SelectProps, 'toggle'> {
+export type SimpleSelectOption = SimpleSelectMenuOption |
+                                 SimpleSelectDividerOption;
+
+export interface SimpleSelectProps extends Omit<SelectProps, 'toggle' | 'onSelect'> {
   /** @hide Forwarded ref */
   innerRef?: React.Ref<any>;
   /** Initial options of the select. */
-  initialOptions?: SimpleSelectOption[];
+  options: SimpleSelectOption[];
+  /** Selected option */
+  selected: unknown;
   /** Callback triggered on selection. */
-  onSelect?: (_event: React.MouseEvent<Element, MouseEvent> | undefined, selection: string | number | undefined) => void;
+  onSelect: (selection: unknown) => void;
   /** Callback triggered when the select opens or closes. */
   onToggle?: (nextIsOpen: boolean) => void;
   /** Flag indicating the select should be disabled. */
@@ -76,29 +106,25 @@ export interface SimpleSelectProps extends Omit<SelectProps, 'toggle'> {
 
 const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
   innerRef,
-  initialOptions,
+  options,
+  selected,
   isDisabled = false,
   onSelect,
   onToggle,
   toggleContent,
-  toggleWidth = '200px',
+  toggleWidth,
   toggleProps,
-  placeholder = 'Select a value',
+  placeholder = '',
   ...props
 }: SimpleSelectProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState<SimpleSelectOption | undefined>();
 
-  React.useEffect(() => {
-    const selectedOption = initialOptions?.find((option) => option.selected);
-    setSelected(selectedOption);
-  }, [initialOptions]);
-
-  const simpleSelectOptions = initialOptions?.map((option) => {
-    const { content, value, ...props } = option;
-    const isSelected = selected?.value === value;
+  const simpleSelectOptions = options.map((option, index) => {
+    if (option.decorator == "divider")
+      return <Divider key={option.key} component="li" />;
+    const { content, value, key, ...props } = option;
     return (
-      <SelectOption value={value} key={value} isSelected={isSelected} {...props}>
+      <SelectOption value={value} key={key !== undefined ? key : `${value}`} {...props}>
         {content}
       </SelectOption>
     );
@@ -109,12 +135,18 @@ const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
     setIsOpen(!isOpen);
   };
 
-  const _onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
-    onSelect && onSelect(_event, value);
-    setSelected(initialOptions?.find((o) => o.value === value));
+  const _onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: unknown) => {
+    if (value)
+      onSelect(value);
     onToggle && onToggle(true);
     setIsOpen(false);
   };
+
+  let content: React.ReactNode = placeholder;
+  if (toggleContent)
+    content = toggleContent;
+  else if (selected)
+    content = options.find((o): o is SimpleSelectMenuOption => !o.decorator && o.value == selected)?.content;
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
@@ -129,7 +161,7 @@ const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
       }
       {...toggleProps}
     >
-      {toggleContent ? toggleContent : selected?.content || placeholder}
+      {content}
     </MenuToggle>
   );
 

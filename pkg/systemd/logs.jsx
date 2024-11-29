@@ -29,7 +29,6 @@ import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/Clipbo
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
-import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem, ToolbarToggleGroup } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import {
@@ -38,6 +37,7 @@ import {
     HelpIcon,
 } from '@patternfly/react-icons';
 
+import { SimpleSelect } from "cockpit-components-simple-select";
 import { TypeaheadSelect } from "cockpit-components-typeahead-select";
 
 import {
@@ -55,36 +55,45 @@ import "./logs.scss";
 const _ = cockpit.gettext;
 
 const timeFilterOptions = [
-    { key: "boot", value: 0, toString: () => _("Current boot"), },
-    { key: "boot", value: "-1", toString: () => _("Previous boot") },
-    { key: "since", value: "-24hours", toString: () => _("Last 24 hours"), default: true },
-    { key: "since", value: "-7days", toString: () => _("Last 7 days") },
+    { value: "current", content: _("Current boot") },
+    { value: "previous", content: _("Previous boot") },
+    { value: "last24h", content: _("Last 24 hours") },
+    { value: "last7d", content: _("Last 7 days") },
 ];
 
+const timeFilterParams = {
+    current: { param: "boot", value: 0 },
+    previous: { param: "boot", value: "-1" },
+    last24h: { param: "since", value: "-24hours" },
+    last7d: { param: "since", value: "-7days" },
+};
+
 const journalPrioOptions = [
-    { value: "emerg", toString: () => _("Only emergency") },
-    { value: "alert", toString: () => _("Alert and above") },
-    { value: "crit", toString: () => _("Critical and above") },
-    { value: "err", toString: () => _("Error and above") },
-    { value: "warning", toString: () => _("Warning and above") },
-    { value: "notice", toString: () => _("Notice and above") },
-    { value: "info", toString: () => _("Info and above") },
-    { value: "debug", toString: () => _("Debug and above") },
+    { value: "emerg", content: _("Only emergency") },
+    { value: "alert", content: _("Alert and above") },
+    { value: "crit", content: _("Critical and above") },
+    { value: "err", content: _("Error and above") },
+    { value: "warning", content: _("Warning and above") },
+    { value: "notice", content: _("Notice and above") },
+    { value: "info", content: _("Info and above") },
+    { value: "debug", content: _("Debug and above") },
 ];
 
 const getPrioFilterOption = options => {
-    if (options.priority || options.prio)
-        return journalPrioOptions.find(option => option.value == options.priority || option.value == options.prio);
-
-    return journalPrioOptions.find(option => option.value == "err");
+    // `prio` is a legacy name. Accept it, but don't generate it
+    return options.priority || options.prio;
 };
 
 const getTimeFilterOption = options => {
+    function find_key(param, value) {
+        const e = Object.entries(timeFilterParams).find(([k, e]) => e.param == param && e.value == value);
+        return e && e[0];
+    }
     if (options.boot)
-        return timeFilterOptions.find(option => option.key == 'boot' && option.value == options.boot);
+        return find_key("boot", options.boot);
     else if (options.since)
-        return timeFilterOptions.find(option => option.key == 'since' && option.value == options.since);
-    return timeFilterOptions.find(option => 'default' in option); // Use the default key
+        return find_key("since", options.since);
+    return "last24h";
 };
 
 export const LogsPage = () => {
@@ -104,9 +113,6 @@ export const LogsPage = () => {
     const [currentIdentifiers, setCurrentIdentifiers] = useState(undefined);
     const [dataFollowing, setDataFollowing] = useState(follow);
     const [filteredQuery, setFilteredQuery] = useState(undefined);
-    const [isOpenPrioFilter, setIsOpenPrioFilter] = useState(false);
-    const [isOpenTimeFilter, setIsOpenTimeFilter] = useState(false);
-    // `prio` is a legacy name. Accept it, but don't generate it
     const [journalPrio, setJournalPrio] = useState(getPrioFilterOption(options));
     const [identifiersFilter, setIdentifiersFilter] = useState(options.tag || "all");
     const [showTextSearch, setShowTextSearch] = useState(false);
@@ -167,20 +173,24 @@ export const LogsPage = () => {
         updateUrl(Object.assign(getOptionsFromTextInput(value)));
     };
 
-    const onTimeFilterChange = (newTimeFilter) => {
+    const onTimeFilterChange = (value) => {
         setUpdateIdentifiersList(true);
 
-        if (newTimeFilter.key == 'boot' && newTimeFilter.value !== "0") // Don't follow if specific boot is picked
+        const newTimeFilter = timeFilterParams[value];
+
+        if (newTimeFilter.param == 'boot' && newTimeFilter.value !== "0") // Don't follow if specific boot is picked
             setDataFollowing(false);
-        else if (options.boot && options.boot !== "0" && newTimeFilter.key !== "boot") // Start following is specific boot is removed
+        else if (options.boot && options.boot !== "0" && newTimeFilter.param !== "boot") // Start following is specific boot is removed
             setDataFollowing(true);
 
         // Remove all parameters which can be set up using filters
         delete options.boot;
         delete options.since;
 
-        cockpit.location.go([], Object.assign(options, { [newTimeFilter.key]: newTimeFilter.value }));
+        cockpit.location.go([], Object.assign(options, { [newTimeFilter.param]: newTimeFilter.value }));
     };
+
+    const timeFilterParam = timeFilterParams[timeFilter];
 
     return (
         <Page>
@@ -190,34 +200,24 @@ export const LogsPage = () => {
                         <ToolbarToggleGroup className="pf-v5-u-flex-wrap pf-v5-u-flex-grow-1 pf-v5-u-align-items-flex-start" toggleIcon={<><span className="pf-v5-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
                             <ToolbarGroup>
                                 <ToolbarItem>
-                                    <Select toggleId="logs-predefined-filters"
-                                            isOpen={isOpenTimeFilter}
-                                            onToggle={(_, isOpen) => setIsOpenTimeFilter(isOpen)}
-                                            onSelect={(e, selection) => {
-                                                setIsOpenTimeFilter(false);
-                                                onTimeFilterChange(selection);
-                                            }}
-                                            selections={timeFilter}
-                                            placeholderText={_("Time")}>
-                                        {timeFilterOptions.map(option => <SelectOption key={option.value}
-                                                                                       value={option} />)}
-                                    </Select>
+                                    <SimpleSelect
+                                        toggleProps={{ id: "logs-predefined-filters" }}
+                                        placeholder={_("Time")}
+                                        onSelect={onTimeFilterChange}
+                                        options={timeFilterOptions}
+                                        selected={timeFilter} />
                                 </ToolbarItem>
 
                                 <ToolbarItem variant="label">
                                     {_("Priority")}
                                 </ToolbarItem>
                                 <ToolbarItem>
-                                    <Select toggleId="journal-prio-menu"
-                                            isOpen={isOpenPrioFilter}
-                                            onToggle={(_, isOpen) => setIsOpenPrioFilter(isOpen)}
-                                            onSelect={(e, selection) => {
-                                                setIsOpenPrioFilter(false);
-                                                onJournalPrioChange(selection.value);
-                                            }}
-                                            selections={journalPrio}>
-                                        {journalPrioOptions.map(option => <SelectOption key={option.value} value={option} />)}
-                                    </Select>
+                                    <SimpleSelect
+                                        toggleProps={{ id: "journal-prio-menu" }}
+                                        placeholder={_("Priority")}
+                                        onSelect={onJournalPrioChange}
+                                        options={journalPrioOptions}
+                                        selected={journalPrio} />
                                 </ToolbarItem>
 
                                 <ToolbarItem variant="label">
@@ -253,7 +253,7 @@ export const LogsPage = () => {
                                                 isDisabled={options.boot && options.boot !== "0"}
                                                 onClick={() => {
                                                     // Reset time filter if following mode is now selected but we are on a specific boot
-                                                    if (!dataFollowing && timeFilter && timeFilter.key == "boot" && timeFilter.value !== "0") {
+                                                    if (!dataFollowing && timeFilterParam && timeFilterParam.param == "boot" && timeFilterParam.value !== "0") {
                                                         setTimeFilter(undefined);
                                                     }
 
@@ -275,7 +275,7 @@ export const LogsPage = () => {
                          id="journal-box"
                          className="journal-filters-box">
                 <JournalBox dataFollowing={dataFollowing}
-                            defaultSince={timeFilter ? timeFilter.value : getTimeFilterOption({}).value}
+                            defaultSince={(timeFilterParam && timeFilterParam.param == "since") ? timeFilterParam.value : timeFilterParams.last24h.value}
                             currentIdentifiers={currentIdentifiers}
                             setCurrentIdentifiers={setCurrentIdentifiers}
                             setFilteredQuery={setFilteredQuery}

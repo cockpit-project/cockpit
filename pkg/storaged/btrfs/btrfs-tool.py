@@ -16,6 +16,7 @@
 # wont get confused.
 
 import contextlib
+import ctypes
 import fcntl
 import json
 import os
@@ -65,19 +66,6 @@ def mount_database():
         os.write(fd, data)
     finally:
         os.close(fd)
-
-
-# There is contextlib.chdir in Python 3.11, which we should use once
-# it is available everywhere.
-#
-@contextlib.contextmanager
-def context_chdir(path):
-    old_cwd = os.getcwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(old_cwd)
 
 
 def list_filesystems():
@@ -143,9 +131,10 @@ def remove_tmp_mountpoint(db, uuid):
 
 
 def remove_all_tmp_mountpoints():
-    with mount_database() as db:
-        for mp in set(tmp_mountpoints):
-            remove_tmp_mountpoint(db, mp)
+    if len(tmp_mountpoints) > 0:
+        with mount_database() as db:
+            for mp in set(tmp_mountpoints):
+                remove_tmp_mountpoint(db, mp)
 
 
 def force_mount_point(db, fs, opt_repair):
@@ -241,15 +230,34 @@ def cmd_poll(opt_mount):
     sys.stdout.flush()
 
 
+def unshare_mounts():
+    # The os.unshare function is available since Python 3.12, but we
+    # still need to support older Pythons.
+    if "unshare" in os.__dict__:
+        os.unshare(os.CLONE_NEWNS)
+    else:
+        libc = ctypes.CDLL(None)
+        libc.unshare.argtypes = [ctypes.c_int]
+        get_errno_loc = libc.__errno_location
+        get_errno_loc.restype = ctypes.POINTER(ctypes.c_int)
+        ret = libc.unshare(2**17)
+        if ret != 0:
+            errno = get_errno_loc()[0]
+            raise OSError(errno, os.strerror(errno))
+
+
 def cmd_do(uuid, cmd):
     debug(f"DO {uuid} {cmd}")
-    with mount_database() as db:
-        filesystems = list_filesystems()
-        for fs in filesystems.values():
-            if fs['uuid'] == uuid:
-                mp = force_mount_point(db, fs, opt_repair=True)
-                with context_chdir(mp):
-                    subprocess.check_call(cmd)
+    filesystems = list_filesystems()
+    for fs in filesystems.values():
+        if fs['uuid'] == uuid:
+            path = "/run/cockpit/btrfs"
+            dev = fs['devices'][0]
+            os.makedirs(path, mode=0o700, exist_ok=True)
+            unshare_mounts()
+            subprocess.check_call(["mount", "--make-rprivate", "/"])
+            subprocess.check_call(["mount", dev, path])
+            subprocess.check_call(cmd, cwd=path)
 
 
 def cmd(args):

@@ -113,7 +113,7 @@ class TestServices(testlib.MachineCase):
 
         self.browser.click("#services-dropdown-file-state")
         for state in states:
-            self.browser.set_checked(f".pf-v5-c-select__menu label:contains('{state}') input", val=True)
+            self.browser.set_checked(f".pf-v5-c-menu__item:contains('{state}') input", val=True)
         self.browser.click("#services-dropdown-file-state")
         for state in states:
             self.browser.wait_visible(f".pf-v5-c-chip-group__label:contains('File state') + .pf-v5-c-chip-group__list li:contains('{state}')")
@@ -124,7 +124,7 @@ class TestServices(testlib.MachineCase):
 
         self.browser.click("#services-dropdown-active-state")
         for state in states:
-            self.browser.set_checked(f".pf-v5-c-select__menu label:contains('{state}') input", val=True)
+            self.browser.set_checked(f".pf-v5-c-menu__item:contains('{state}') input", val=True)
         self.browser.click("#services-dropdown-active-state")
         for state in states:
             self.browser.wait_visible(f".pf-v5-c-chip-group__label:contains('Active state') + .pf-v5-c-chip-group__list li:contains('{state}')")

@@ -98,6 +98,8 @@ if [ "$PLAN" = "main" ]; then
 
               TestNetworkingBasic.testIpHelper
               TestNetworkingBasic.testNoService
+              TestNetworkingCheckpoints.testCheckpoint
+              TestNetworkingCheckpoints.testCheckpointSlowRollback
               TestNetworkingUnmanaged.testUnmanaged
 
               TestSOS.testWithUrlRoot

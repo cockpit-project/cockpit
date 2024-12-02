@@ -153,21 +153,23 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # Graphs are by default all visible
         b.click("button[aria-label='Graph visibility options menu']")
-        b.wait_visible("#column-visibility-option-cpu:checked")
+        b.wait_visible(".pf-v5-c-menu__list-item:contains(CPU)")
+        b.wait_visible(".pf-v5-c-menu__list-item:contains(CPU) input")
+        b.wait_visible(".pf-v5-c-menu__list-item:contains(CPU) input:checked")
         b.wait_visible(".metrics-label-graph:contains(CPU)")
-        b.wait_visible("#column-visibility-option-memory:checked")
+        b.wait_visible(".pf-v5-c-menu__list-item:contains(Memory) input:checked")
         b.wait_visible(".metrics-label-graph:contains(Memory)")
-        b.wait_visible("#column-visibility-option-disks:checked")
+        b.wait_visible(".pf-v5-c-menu__list-item:contains(Disk I/O) input:checked")
         b.wait_visible(".metrics-label-graph:contains(Disk I/O)")
-        b.wait_visible("#column-visibility-option-network:checked")
+        b.wait_visible(".pf-v5-c-menu__list-item:contains(Network) input:checked")
         b.wait_visible(".metrics-label-graph:contains(Network)")
 
         # Change graph visibility
         b.wait_visible(".metrics-events:contains('Network I/O')")
-        b.set_checked("#column-visibility-option-network", val=False)
+        b.set_checked(".pf-v5-c-menu__list-item:contains(Network) input", val=False)
         b.wait_not_present(".metrics-events:contains('Network I/O')")
         b.wait_not_present(".metrics-label-graph:contains(Network)")
-        b.set_checked("#column-visibility-option-network", val=True)
+        b.set_checked(".pf-v5-c-menu__list-item:contains(Network) input", val=True)
 
         # Change date to yesterday, should be empty
         b.click("#date-picker-select-toggle")

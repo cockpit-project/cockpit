@@ -31,6 +31,22 @@ SOFTWARE.
    We don't use it directly from the @patternfly/react-templates node
    module since we want to add features to it, and also to isolate us
    from gratuitous upstream changes.
+
+   Our changes:
+
+   - The selection is controlled from the outside and not maintained
+     as internal state. This is how things should work with React.
+
+   - The selected value can be any JavaScript value, not just a string
+     or number. Normally, the (stringified) value is used as a React
+     key. If your values are not suitable for this because they are
+     neither strings nor numbers, you need to provide an explicit key.
+
+     { key: 12, value: { param: "filestate", value: "enabled" }, content: _("Enabled") }
+
+   - The badge is always maintained by this component, in a way that
+     avoids layout flicker.
+
 */
 
 /* eslint-disable */
@@ -52,52 +68,53 @@ export interface CheckboxSelectOption extends Omit<SelectOptionProps, 'content'>
   /** Content of the select option. */
   content: React.ReactNode;
   /** Value of the select option. */
-  value: string | number;
+  value: unknown;
 }
 
-export interface CheckboxSelectProps extends Omit<SelectProps, 'toggle'> {
+export interface CheckboxSelectProps extends Omit<SelectProps, 'toggle' | 'onSelect'> {
   /** @hide Forwarded ref */
   innerRef?: React.Ref<any>;
-  /** Initial options of the select. */
-  initialOptions?: CheckboxSelectOption[];
-  /** Callback triggered on selection. */
-  onSelect?: (_event: React.MouseEvent<Element, MouseEvent> | undefined, value?: string | number) => void;
+  /** Options of the select. */
+  options?: CheckboxSelectOption[];
+  /** Currently checked options */
+  selected: unknown[];
+  /** Callback triggered when checking or unchecking an option. */
+  onSelect: (value: unknown, checked: boolean) => void;
   /** Callback triggered when the select opens or closes. */
   onToggle?: (nextIsOpen: boolean) => void;
   /** Flag indicating the select should be disabled. */
   isDisabled?: boolean;
-  /** Content of the toggle. Defaults to a string with badge count of selected options. */
-  toggleContent?: React.ReactNode;
+  /** Content of the toggle. */
+  toggleContent: React.ReactNode;
   /** Width of the toggle. */
   toggleWidth?: string;
   /** Additional props passed to the toggle. */
   toggleProps?: MenuToggleProps;
+  /** Is there a badge with the selected options count? */
+  noBadge?: boolean,
 }
 
 const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
   innerRef,
-  initialOptions,
+  options,
+  selected,
   isDisabled = false,
-  onSelect: passedOnSelect,
+  onSelect,
   onToggle,
   toggleContent,
-  toggleWidth = '200px',
+  toggleWidth,
   toggleProps,
+  noBadge = false,
   ...props
 }: CheckboxSelectProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState<string[]>([]);
 
-  React.useEffect(() => {
-    const selectedOptions = initialOptions?.filter((option) => option.selected);
-    setSelected(selectedOptions?.map((selectedOption) => String(selectedOption.value)) ?? []);
-  }, [initialOptions]);
-
-  const checkboxSelectOptions = initialOptions?.map((option) => {
-    const { content, value, ...props } = option;
-    const isSelected = selected.includes(`${value}`);
+  const checkboxSelectOptions = options?.map((option) => {
+    const { content, value, key, ...props } = option;
+    const isSelected = selected.includes(value);
     return (
-      <SelectOption value={value} key={value} hasCheckbox isSelected={isSelected} {...props}>
+      <SelectOption value={value} key={key !== undefined ? key : `${value}`}
+                    hasCheckbox isSelected={isSelected} {...props}>
         {content}
       </SelectOption>
     );
@@ -108,22 +125,10 @@ const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
     setIsOpen(!isOpen);
   };
 
-  const onSelect = (event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
-    const valueString = `${value}`;
-    if (selected.includes(valueString)) {
-      setSelected((prevSelected) => prevSelected.filter((item) => item !== valueString));
-    } else {
-      setSelected((prevSelected) => [...prevSelected, valueString]);
-    }
-    passedOnSelect && passedOnSelect(event, value);
+  const _onSelect = (event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
+      if (value && event)
+          onSelect(value, (event.target as HTMLInputElement).checked);
   };
-
-  const defaultToggleContent = (
-    <>
-      Filter by status
-      {selected.length > 0 && <Badge isRead>{selected.length}</Badge>}
-    </>
-  );
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
@@ -138,7 +143,11 @@ const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
       }
       {...toggleProps}
     >
-      {toggleContent || defaultToggleContent}
+      {toggleContent}
+      {!noBadge &&
+       <Badge style={{ visibility: selected.length > 0 ? "visible" : "hidden" }} isRead>
+         {selected.length}
+       </Badge>}
     </MenuToggle>
   );
 
@@ -146,7 +155,7 @@ const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
     <Select
       isOpen={isOpen}
       selected={selected}
-      onSelect={onSelect}
+      onSelect={_onSelect}
       onOpenChange={(isOpen) => {
         onToggle && onToggle(isOpen);
         setIsOpen(isOpen);

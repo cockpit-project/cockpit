@@ -628,11 +628,11 @@ class TestConnection(testlib.MachineCase):
         m = self.machine
 
         # non-admin user
-        m.execute("useradd user")
+        m.execute("useradd bob")
 
-        # enable no-password login for 'admin' and 'user'
+        # enable no-password login for 'admin' and 'bob'
         m.execute("passwd -d admin")
-        m.execute("passwd -d user")
+        m.execute("passwd -d bob")
 
         self.sed_file('$ a\\\nPermitEmptyPasswords yes', '/etc/ssh/sshd_config',
                       self.restart_sshd)
@@ -654,10 +654,10 @@ class TestConnection(testlib.MachineCase):
             # check issue (should be exactly the same as motd)
             assertInOrNot(string, m.execute("cat /etc/issue.d/cockpit.issue"), expected=expected)
 
-            # check motd as 'root' (via cat) and 'admin' and 'user' (via ssh)
+            # check motd as 'root' (via cat) and 'admin' and 'bob' (via ssh)
             assertInOrNot(string, m.execute("cat /etc/motd.d/cockpit"), expected=expected)
             checkMotdForUser(string, expected=expected, user='admin')
-            checkMotdForUser(string, expected=old_pam and expected, user='user')
+            checkMotdForUser(string, expected=old_pam and expected, user='bob')
 
         m.stop_cockpit()
         checkMotdContent('systemctl')

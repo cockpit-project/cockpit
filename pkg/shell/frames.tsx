@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @cockpit-ts-relaxed
-
 /* This is the React component that renders all the iframes for the
    pages.
 
@@ -39,8 +37,9 @@
 import React, { useRef, useEffect } from 'react';
 
 import { ShellState, ShellFrame } from "./state";
+import { IdleTimeoutState } from "./idle";
 
-export const Frames = ({ state, idle_state, hidden }: { state: ShellState, idle_state, hidden: boolean }) => {
+export const Frames = ({ state, idle_state, hidden }: { state: ShellState, idle_state: IdleTimeoutState, hidden: boolean }) => {
     const content_ref = useRef<HTMLDivElement | null>(null);
     const { frames, current_frame } = state;
 
@@ -63,8 +62,11 @@ export const Frames = ({ state, idle_state, hidden }: { state: ShellState, idle_
         }
 
         function setup_iframe(frame: ShellFrame, iframe: HTMLIFrameElement) {
+            if (!iframe.contentWindow)
+                return;
+
             idle_state.setupIdleResetEventListeners(iframe.contentWindow);
-            iframe.contentWindow!.addEventListener("unload", () => teardown_iframe(frame), { once: true });
+            iframe.contentWindow.addEventListener("unload", () => teardown_iframe(frame), { once: true });
 
             if (iframe.contentDocument && iframe.contentDocument.documentElement) {
                 iframe.contentDocument.documentElement.lang = state.config.language;

@@ -106,6 +106,7 @@ if [ "$PLAN" = "main" ]; then
 
               TestSystemInfo.testInsightsStatus
               TestSystemInfo.testMotd
+              TestSystemInfo.testOverview
               TestSystemInfo.testShutdownStatus
 
               TestJournal.testAbrtDelete

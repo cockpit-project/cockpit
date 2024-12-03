@@ -696,12 +696,14 @@ password=foobar
         self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
         b.logout()
 
+    @testlib.nondestructive
     def testOverview(self):
         m = self.machine
         b = self.browser
 
         # packagekit often eats a lot of CPU; silence it to not screw up the "system is idle" test
         m.execute("systemctl mask packagekit")
+        self.addCleanup(m.execute, "systemctl unmask packagekit")
 
         def progressValue(number):
             return b.get_pf_progress_value(f".system-usage tr:nth-child({number})")
@@ -730,14 +732,16 @@ password=foobar
         # replacing it's own process with the sleep (as a "tail call
         # optimization") and thereby dropping the memory blob too early.
         #
-        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=200 iflag=fullblock); touch /tmp/hogged; sleep infinity; true", "mem_hog.log")
-        m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
-        # bars update every 5s
-        time.sleep(8)
-        testlib.wait(lambda: progressValue(2) >= initial_usage + 10)
-        hog_usage = progressValue(2)
-
-        m.execute("kill %d" % mem_hog)
+        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=200 iflag=fullblock); touch /tmp/hogged; sleep infinity; true",
+                          "mem_hog.log")
+        try:
+            m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
+            # bars update every 5s
+            time.sleep(8)
+            testlib.wait(lambda: progressValue(2) >= initial_usage + 10)
+            hog_usage = progressValue(2)
+        finally:
+            m.execute("kill %d" % mem_hog)
         # Should go back to initial_usage, but it doesn't always, for example on fedora.
         # So let's be happy if the usage drops significantly
         testlib.wait(lambda: progressValue(2) <= hog_usage - 15)

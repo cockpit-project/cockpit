@@ -47,7 +47,7 @@ export class IdleTimeoutState extends EventEmitter<IdleTimeoutStateEvents> {
         super();
 
         cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetUInt",
-                                                     ["Session", "IdleTimeout", 0, 240, 0], [])
+                                                     ["Session", "IdleTimeout", 0, 240, 0], {})
                 .then(result => {
                     this.#session_timeout = (result[0] as number) * 60000;
                     if (this.#session_timeout > 0 && this.#standard_login) {

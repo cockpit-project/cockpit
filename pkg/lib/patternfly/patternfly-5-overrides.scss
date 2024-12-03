@@ -81,6 +81,11 @@ select.pf-v5-c-form-control {
   margin-inline-end: 0;
 }
 
+// ... except for select dropdowns in dialogs
+.pf-v5-c-form__group-control .pf-v5-c-menu-toggle__controls:last-child > .pf-v5-c-menu-toggle__toggle-icon {
+    margin-inline-end: var(--pf-v5-c-menu-toggle__toggle-icon--MarginRight);
+}
+
 // Fix menus cropping contents
 // https://github.com/patternfly/patternfly/issues/6565
 .pf-v5-c-menu__item-text {

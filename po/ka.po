@@ -26,8 +26,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-26 03:03+0000\n"
-"PO-Revision-Date: 2024-11-22 05:38+0000\n"
+"POT-Creation-Date: 2024-12-02 03:06+0000\n"
+"PO-Revision-Date: 2024-12-02 15:47+0000\n"
 "Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
 "Language-Team: Georgian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/ka/>\n"
@@ -166,7 +166,7 @@ msgstr[1] "$0 მოხვედრა, მნიშვნელოვნის 
 msgid "$0 is an existing file"
 msgstr "$0 არსებული ფაილია"
 
-#: pkg/storaged/lvm2/volume-group.jsx:85 pkg/storaged/lvm2/volume-group.jsx:338
+#: pkg/storaged/lvm2/volume-group.jsx:83 pkg/storaged/lvm2/volume-group.jsx:315
 #: pkg/storaged/lvm2/block-logical-volume.jsx:68
 #: pkg/storaged/lvm2/block-logical-volume.jsx:151
 #: pkg/storaged/partitions/partition.jsx:47
@@ -621,7 +621,7 @@ msgid_plural ""
 msgstr[0] "განსაახლებლად სერვისს სჭირდება სისტემის გადატვირთვა:"
 msgstr[1] "განსაახლებლად სერვისებს სჭირდებათ სისტემის გადატვირთვა:"
 
-#: pkg/storaged/lvm2/volume-group.jsx:385
+#: pkg/storaged/lvm2/volume-group.jsx:362
 msgid "A volume group with missing physical volumes can not be renamed."
 msgstr "ტომების ჯგუფს, რომელსაც ფიზიკური ტომები აკლია, სახელს ვერ გადაარქმევთ."
 
@@ -718,7 +718,7 @@ msgstr "გადაცემის დატვირთვის ადაპ�
 
 #: pkg/systemd/timer-dialog.jsx:367 pkg/networkmanager/dialogs-common.jsx:149
 #: pkg/users/authorized-keys-panel.js:68 pkg/shell/hosts_dialog.jsx:447
-#: pkg/shell/credentials.jsx:182 pkg/storaged/lvm2/volume-group.jsx:209
+#: pkg/shell/credentials.jsx:182 pkg/storaged/lvm2/volume-group.jsx:207
 #: pkg/storaged/nfs/nfs.jsx:188 pkg/storaged/mdraid/mdraid.jsx:167
 #: pkg/storaged/iscsi/create-dialog.jsx:120
 #: pkg/storaged/iscsi/create-dialog.jsx:144
@@ -786,7 +786,7 @@ msgstr "ხიდის დამატება"
 msgid "Add disk"
 msgstr "დისკის დამატება"
 
-#: pkg/storaged/lvm2/volume-group.jsx:196 pkg/storaged/mdraid/mdraid.jsx:154
+#: pkg/storaged/lvm2/volume-group.jsx:194 pkg/storaged/mdraid/mdraid.jsx:154
 msgid "Add disks"
 msgstr "დისკების დამატება"
 
@@ -824,7 +824,7 @@ msgstr "საკვანძო ფრაზის დამატება"
 msgid "Add peer"
 msgstr "პარტნიორის დამატება"
 
-#: pkg/storaged/lvm2/volume-group.jsx:243
+#: pkg/storaged/lvm2/volume-group.jsx:241
 msgid "Add physical volume"
 msgstr "ფიზიკური ტომის დამატება"
 
@@ -1152,7 +1152,7 @@ msgid "At least one block device is needed."
 msgstr "საჭიროა ერთი ბლოკური ტიპის მოწყობილობა მაინც."
 
 #: pkg/storaged/lvm2/create-dialog.jsx:57
-#: pkg/storaged/lvm2/volume-group.jsx:203 pkg/storaged/mdraid/mdraid.jsx:161
+#: pkg/storaged/lvm2/volume-group.jsx:201 pkg/storaged/mdraid/mdraid.jsx:161
 #: pkg/storaged/stratis/pool.jsx:238
 msgid "At least one disk is needed."
 msgstr "საჭიროა ერთი დისკი მაინც."
@@ -1507,7 +1507,7 @@ msgstr "ამ სისტემაზე realmd-ს არარსებო�
 msgid "Cannot schedule event in the past"
 msgstr "მოვლენის წარსულ დროში დანიშვნა შეუძლებელია"
 
-#: pkg/storaged/lvm2/volume-group.jsx:389 pkg/storaged/mdraid/mdraid.jsx:303
+#: pkg/storaged/lvm2/volume-group.jsx:366 pkg/storaged/mdraid/mdraid.jsx:303
 #: pkg/storaged/drive/drive.jsx:125 pkg/storaged/btrfs/volume.jsx:150
 msgid "Capacity"
 msgstr "მოცულობა"
@@ -2077,7 +2077,7 @@ msgstr "ავარიული სისტემა"
 #: pkg/storaged/lvm2/create-dialog.jsx:63
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:58
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:270
-#: pkg/storaged/lvm2/volume-group.jsx:120
+#: pkg/storaged/lvm2/volume-group.jsx:118
 #: pkg/storaged/mdraid/create-dialog.jsx:112
 #: pkg/storaged/block/format-dialog.jsx:275
 #: pkg/storaged/block/format-dialog.jsx:285
@@ -2160,7 +2160,7 @@ msgstr "ახალი ფაილური სისტემის შექ
 msgid "Create new group"
 msgstr "ახალი ჯგუფის შექმნა"
 
-#: pkg/storaged/lvm2/volume-group.jsx:264
+#: pkg/storaged/lvm2/volume-group.jsx:262
 msgid "Create new logical volume"
 msgstr "ახალი ლოგიკური ტომის შექმნა"
 
@@ -2190,8 +2190,8 @@ msgstr "$0-ზე სექციის შექმნა"
 msgid "Create partition table"
 msgstr "დაყოფის ცხრილის შექმნა"
 
-#: pkg/storaged/lvm2/volume-group.jsx:114
-#: pkg/storaged/lvm2/volume-group.jsx:132
+#: pkg/storaged/lvm2/volume-group.jsx:112
+#: pkg/storaged/lvm2/volume-group.jsx:130
 msgid "Create snapshot"
 msgstr "სწრაფი ასლის შექმნა"
 
@@ -2509,7 +2509,7 @@ msgstr "დაყოვნება რიცხვი უნდა იყოს
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:44
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:42
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:109
-#: pkg/storaged/lvm2/volume-group.jsx:97
+#: pkg/storaged/lvm2/volume-group.jsx:95
 #: pkg/storaged/lvm2/block-logical-volume.jsx:79
 #: pkg/storaged/lvm2/block-logical-volume.jsx:222
 #: pkg/storaged/partitions/partition-table.jsx:61
@@ -2538,7 +2538,7 @@ msgstr "ანგარიშის წაშლა"
 msgid "Delete files"
 msgstr "ფაილების წაშლა"
 
-#: pkg/users/group-actions.jsx:45 pkg/storaged/lvm2/volume-group.jsx:248
+#: pkg/users/group-actions.jsx:45 pkg/storaged/lvm2/volume-group.jsx:246
 msgid "Delete group"
 msgstr "ჯგუფის წაშლა"
 
@@ -2594,7 +2594,7 @@ msgstr ""
 "VDO მოწყობილობის წაშლის შემთხვევაში ასევე წაიშლება ზედ მდებარე ყველა "
 "მონაცემი."
 
-#: pkg/storaged/lvm2/volume-group.jsx:96
+#: pkg/storaged/lvm2/volume-group.jsx:94
 msgid "Deleting erases all data on a volume group."
 msgstr "საცავების ჯგუფის წაშლისას ასევე წაიშლება ზედ მდებარე მონაცემებიც."
 
@@ -2722,7 +2722,7 @@ msgid "Disk passphrase"
 msgstr "დისკის საკვანძო სიტყვა"
 
 #: pkg/metrics/metrics.jsx:879 pkg/storaged/lvm2/create-dialog.jsx:52
-#: pkg/storaged/lvm2/volume-group.jsx:198 pkg/storaged/mdraid/mdraid.jsx:156
+#: pkg/storaged/lvm2/volume-group.jsx:196 pkg/storaged/mdraid/mdraid.jsx:156
 #: pkg/storaged/mdraid/mdraid.jsx:306 pkg/storaged/mdraid/create-dialog.jsx:99
 msgid "Disks"
 msgstr "დისკები"
@@ -2731,7 +2731,7 @@ msgstr "დისკები"
 msgid "Disks usage"
 msgstr "დისკების გამოყენება"
 
-#: pkg/storaged/lvm2/volume-group.jsx:373
+#: pkg/storaged/lvm2/volume-group.jsx:350
 msgid "Dismiss"
 msgstr "მოცილება"
 
@@ -4094,8 +4094,8 @@ msgstr "LVM2 VDO პული"
 msgid "LVM2 logical volume"
 msgstr "LVM2 ლოგიკური ტომი"
 
-#: pkg/storaged/lvm2/volume-group.jsx:257
-#: pkg/storaged/lvm2/volume-group.jsx:298
+#: pkg/storaged/lvm2/volume-group.jsx:255
+#: pkg/storaged/lvm2/volume-group.jsx:279
 msgid "LVM2 logical volumes"
 msgstr "LVM2 ლოგიკური ტომები"
 
@@ -4103,11 +4103,11 @@ msgstr "LVM2 ლოგიკური ტომები"
 msgid "LVM2 physical volume"
 msgstr "LVM2 ფიზიკური ტომი"
 
-#: pkg/storaged/lvm2/volume-group.jsx:395
+#: pkg/storaged/lvm2/volume-group.jsx:372
 msgid "LVM2 physical volumes"
 msgstr "LVM2 ფიზიკური ტომები"
 
-#: pkg/storaged/lvm2/volume-group.jsx:231
+#: pkg/storaged/lvm2/volume-group.jsx:229
 msgid "LVM2 volume group"
 msgstr "LVM2 ტომების ჯგუფი"
 
@@ -4912,9 +4912,9 @@ msgstr "NTP სერვერი"
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:138
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
-#: pkg/storaged/lvm2/vdo-pool.jsx:78 pkg/storaged/lvm2/volume-group.jsx:64
-#: pkg/storaged/lvm2/volume-group.jsx:116
-#: pkg/storaged/lvm2/volume-group.jsx:382
+#: pkg/storaged/lvm2/vdo-pool.jsx:78 pkg/storaged/lvm2/volume-group.jsx:62
+#: pkg/storaged/lvm2/volume-group.jsx:114
+#: pkg/storaged/lvm2/volume-group.jsx:359
 #: pkg/storaged/lvm2/block-logical-volume.jsx:49
 #: pkg/storaged/lvm2/block-logical-volume.jsx:238
 #: pkg/storaged/lvm2/block-logical-volume.jsx:286
@@ -5137,7 +5137,7 @@ msgid "No devices found"
 msgstr "მოწყობილობები აღმოჩენილი არაა"
 
 #: pkg/storaged/lvm2/create-dialog.jsx:54
-#: pkg/storaged/lvm2/volume-group.jsx:200 pkg/storaged/mdraid/mdraid.jsx:158
+#: pkg/storaged/lvm2/volume-group.jsx:198 pkg/storaged/mdraid/mdraid.jsx:158
 #: pkg/storaged/mdraid/create-dialog.jsx:101 pkg/storaged/stratis/pool.jsx:235
 msgid "No disks are available."
 msgstr "დისკები ხელმიუწვდომელია."
@@ -5170,7 +5170,7 @@ msgstr "ფაილური სისტემების გარეშე"
 msgid "No free key slots"
 msgstr "გასაღების თავისუფალი სლოტების გარეშე"
 
-#: pkg/storaged/lvm2/volume-group.jsx:225
+#: pkg/storaged/lvm2/volume-group.jsx:223
 msgid "No free space"
 msgstr "თავისუფალი ადგილის გარეშე"
 
@@ -5203,7 +5203,7 @@ msgid "No log entries"
 msgstr "ჟურნალის ცარიელია"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:126
-#: pkg/storaged/lvm2/volume-group.jsx:297
+#: pkg/storaged/lvm2/volume-group.jsx:278
 msgid "No logical volumes"
 msgstr "ლოგიკური ტომების გარეშე"
 
@@ -5232,7 +5232,7 @@ msgstr "დანაყოფები ვერ ვიპოვე"
 msgid "No peers added."
 msgstr "პარტნიორები დამატებული არაა."
 
-#: pkg/storaged/lvm2/volume-group.jsx:394
+#: pkg/storaged/lvm2/volume-group.jsx:371
 msgid "No physical volumes found"
 msgstr "ფიზიკური ტომები ვერ ვიპოვე"
 
@@ -5240,8 +5240,8 @@ msgstr "ფიზიკური ტომები ვერ ვიპოვე
 msgid "No real name specified"
 msgstr "რეალური სახელი მითითებული არაა"
 
-#: pkg/lib/cockpit-components-typeahead-select.tsx:153
-#: pkg/lib/cockpit-components-typeahead-select.tsx:154 pkg/shell/nav.jsx:159
+#: pkg/lib/cockpit-components-typeahead-select.tsx:205
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:159
 msgid "No results found"
 msgstr "შედეგები ნაპოვნი არაა"
 
@@ -5795,7 +5795,7 @@ msgstr "მუდმივი"
 msgid "Permanently delete $0 group?"
 msgstr "სამუდამოდ წავშალო $0 ჯგუფი?"
 
-#: pkg/storaged/lvm2/volume-group.jsx:93
+#: pkg/storaged/lvm2/volume-group.jsx:91
 #: pkg/storaged/partitions/partition.jsx:54 pkg/storaged/mdraid/mdraid.jsx:123
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:119 pkg/storaged/stratis/pool.jsx:173
 msgid "Permanently delete $0?"
@@ -5823,7 +5823,7 @@ msgstr "ფიზიკური"
 msgid "Physical Volumes"
 msgstr "ფიზიკური ტომები"
 
-#: pkg/storaged/lvm2/volume-group.jsx:392
+#: pkg/storaged/lvm2/volume-group.jsx:369
 #: pkg/storaged/lvm2/block-logical-volume.jsx:356
 msgid "Physical volumes"
 msgstr "ფიზიკური ტომები"
@@ -6306,7 +6306,7 @@ msgstr "წაიშლება:"
 #: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
 #: pkg/users/authorized-keys-panel.js:142
 #: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
-#: pkg/storaged/lvm2/volume-group.jsx:349
+#: pkg/storaged/lvm2/volume-group.jsx:326
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
 #: pkg/storaged/crypto/keyslots.jsx:686 pkg/storaged/crypto/keyslots.jsx:771
@@ -6346,7 +6346,7 @@ msgstr "ჰოსტის წაშლა"
 msgid "Remove item"
 msgstr "ელემენტის წაშლა"
 
-#: pkg/storaged/lvm2/volume-group.jsx:346
+#: pkg/storaged/lvm2/volume-group.jsx:323
 msgid "Remove missing physical volumes?"
 msgstr "წავშალო ნაკლული ფიზიკური ტომები?"
 
@@ -6413,7 +6413,7 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr "ზონის წაშლა მასში მყოფი სერვისების წაშლასაც გამოიწევევს."
 
-#: pkg/users/rename-group-dialog.jsx:69 pkg/storaged/lvm2/volume-group.jsx:71
+#: pkg/users/rename-group-dialog.jsx:69 pkg/storaged/lvm2/volume-group.jsx:69
 #: pkg/storaged/lvm2/block-logical-volume.jsx:53
 #: pkg/storaged/lvm2/block-logical-volume.jsx:242
 #: pkg/storaged/stratis/filesystem.jsx:194 pkg/storaged/stratis/pool.jsx:201
@@ -6441,7 +6441,7 @@ msgstr "ჯგუფის ($0) სახელის გადარქმე�
 msgid "Rename logical volume"
 msgstr "ლოგიკური ტომისთვის სახელის გადარქმევა"
 
-#: pkg/storaged/lvm2/volume-group.jsx:62
+#: pkg/storaged/lvm2/volume-group.jsx:60
 msgid "Rename volume group"
 msgstr "ტომების ჯგუფისათვის სახელის გადარქმევა"
 
@@ -6892,6 +6892,10 @@ msgstr "უსაფრთხოების პაჩები გადატ�
 #: pkg/shell/shell-modals.jsx:114
 msgid "Select"
 msgstr "არჩევა"
+
+#: pkg/lib/cockpit-components-typeahead-select.tsx:204
+msgid "Select an option"
+msgstr "აირჩიეთ პარამეტრი"
 
 #: pkg/networkmanager/ip-settings.jsx:168
 msgid "Select method"
@@ -8216,7 +8220,7 @@ msgstr "ერთეული პირდაპირი ჩართვის�
 msgid "This user name already exists"
 msgstr "მომხმარებლის სახელი უკვე არსებობს"
 
-#: pkg/storaged/lvm2/volume-group.jsx:374
+#: pkg/storaged/lvm2/volume-group.jsx:351
 msgid "This volume group is missing some physical volumes."
 msgstr "ამ ტომების ჯგუფის ფიზიკური ტომები აკლია."
 
@@ -8489,7 +8493,7 @@ msgstr "გასაფილტრად აკრიფეთ"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/storaged/lvm2/volume-group.jsx:388
+#: pkg/storaged/lvm2/volume-group.jsx:365
 #: pkg/storaged/lvm2/physical-volume.jsx:117
 #: pkg/storaged/partitions/partition.jsx:228 pkg/storaged/mdraid/mdraid.jsx:301
 #: pkg/storaged/stratis/stopped-pool.jsx:127 pkg/storaged/stratis/pool.jsx:541
@@ -9052,7 +9056,7 @@ msgstr "ბრანდმაუერზე გადასვლა"
 msgid "Volume group"
 msgstr "ტომების ჯგუფი"
 
-#: pkg/storaged/lvm2/volume-group.jsx:223
+#: pkg/storaged/lvm2/volume-group.jsx:221
 #: pkg/storaged/lvm2/physical-volume.jsx:71
 msgid "Volume group is missing physical volumes"
 msgstr "ტომების ჯგუფს ფიზიკური ტომები აკლია"
@@ -9451,7 +9455,7 @@ msgstr "დეაქტივაცია"
 msgid "debug"
 msgstr "შეცდომების მოძებნა"
 
-#: pkg/storaged/lvm2/volume-group.jsx:81 pkg/storaged/lvm2/volume-group.jsx:331
+#: pkg/storaged/lvm2/volume-group.jsx:79 pkg/storaged/lvm2/volume-group.jsx:308
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
 #: pkg/storaged/partitions/partition.jsx:43
 #: pkg/storaged/partitions/format-disk-dialog.jsx:35
@@ -9499,7 +9503,7 @@ msgstr "დისკი"
 #: pkg/networkmanager/dialogs-common.jsx:250 pkg/users/account-details.js:285
 #: pkg/users/account-details.js:315
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:141
-#: pkg/storaged/lvm2/volume-group.jsx:386
+#: pkg/storaged/lvm2/volume-group.jsx:363
 #: pkg/storaged/lvm2/block-logical-volume.jsx:288
 #: pkg/storaged/partitions/partition.jsx:232
 #: pkg/storaged/filesystem/utils.jsx:221
@@ -10170,9 +10174,6 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "ზონა"
-
-#~ msgid "Select a identifier"
-#~ msgstr "აირჩიეთ იდენტიფიკატორი"
 
 #~ msgid "Authentication failed: Server closed connection"
 #~ msgstr "ავთენტიკაციის შეცდომა: სერვერმა კავშირი დახურა"

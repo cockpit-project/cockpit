@@ -47,7 +47,7 @@ export function make_iscsi_session_page(parent, session) {
         page_location: ["iscsi", session.data.target_name],
         page_name: session.data.target_name,
         page_icon: NetworkIcon,
-        page_categroy: PAGE_CATEGORY_NETWORK,
+        page_category: PAGE_CATEGORY_NETWORK,
         component: ISCSISessionCard,
         props: { session },
         actions: [

@@ -44,8 +44,11 @@ class NetworkHelpers:
         if dhcp_cidr:
             # up the remote end, give it an IP, and start DHCP server
             self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")
-            server = self.machine.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
-                                        f"--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{name} --no-resolv "
+
+            # TODO: Consider running all env's through /run/dnsmasq
+            lease_path = "/run/dnsmasq" if "suse" in self.machine.image else "/tmp"
+            server = self.machine.spawn(f"mkdir -p {lease_path}; dnsmasq --keep-in-foreground --log-queries --log-facility=- "
+                                        f"--conf-file=/dev/null --dhcp-leasefile={lease_path}/leases.{name} --no-resolv "
                                         f"--bind-interfaces --except-interface=lo --interface=v_{name} --dhcp-range={dhcp_range[0]},{dhcp_range[1]},4h",
                                         f"dhcp-{name}.log")
             self.addCleanup(self.machine.execute, "kill %i" % server)

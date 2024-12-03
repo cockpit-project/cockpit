@@ -556,10 +556,24 @@ class AddEditServicesModal extends React.Component {
     componentDidMount() {
         firewall.getAvailableServices()
                 .then(services => this.setState({ services }));
-        cockpit.file('/etc/services').read()
-                .then(content => this.setState({
-                    avail_services: this.parseServices(content)
-                }));
+        async function fetchServices(component) {
+            try {
+                await cockpit.spawn(["test", "-e", "/usr/etc/services"], { err: "ignore" });
+                cockpit.file('/usr/etc/services').read()
+                        .then(content => component.setState({
+                            avail_services: component.parseServices(content)
+                        }));
+            } catch (err1) {
+                cockpit.file('/etc/services').read()
+                        .then(content => component.setState({
+                            avail_services: component.parseServices(content)
+                        }));
+            }
+        }
+
+        if (this.state.avail_services === null) {
+            fetchServices(this);
+        }
     }
 
     onFilterChanged(value) {

@@ -46,6 +46,10 @@ class PackageCase(MachineCase):
             self.backend = "dnf5"
             self.primary_arch = "noarch"
             self.secondary_arch = "x86_64"
+        elif "suse" in self.machine.image:
+            self.backend = "zypper"
+            self.primary_arch = "noarch"
+            self.secondary_arch = "x86_64"
         elif self.machine.image == "arch":
             self.backend = "alpm"
             self.primary_arch = "any"
@@ -157,7 +161,7 @@ class PackageCase(MachineCase):
         else:
             self.createRpm(name, version, release, depends, postinst, install, content, arch, provides)
         if updateinfo:
-            self.updateInfo[(name, version, release)] = updateinfo
+            self.updateInfo[name, version, release] = updateinfo
 
     def createDeb(self, name, version, depends, postinst, install, content, arch, provides):
         """Create a dummy deb in repo_dir on self.machine
@@ -262,6 +266,13 @@ mkdir -p {0}
 cp ~/rpmbuild/RPMS/{4}/*.rpm {0}
 rm -rf ~/rpmbuild
 """
+        if self.backend == "zypper":
+            cmd = """
+rpmbuild --quiet -bb /tmp/spec
+mkdir -p {0}
+cp /usr/src/packages/RPMS/{4}/*.rpm {0}
+"""
+
         if install:
             cmd += "rpm -i {0}/{1}-{2}-{3}.*.rpm"
         self.machine.execute(cmd.format(self.repo_dir, name, version, release, arch))
@@ -434,6 +445,10 @@ Server = file://{self.repo_dir}
             """
             self.machine.write("/etc/pacman.conf", config)
             self.machine.execute("pacman -Sy")
+
+        elif self.backend == "zypper":
+            # Need to work out how zypper handles repo changelogs so we can handle that here
+            self.machine.execute(f"zypper ar --no-gpgcheck --refresh {self.repo_dir} local")
 
         else:
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=2306114

@@ -80,6 +80,7 @@ class TestApps(packagelib.PackageCase):
         # ignore the corresponding journal entry
         self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self, urlroot=""):
         b = self.browser
         m = self.machine
@@ -139,9 +140,11 @@ class TestApps(packagelib.PackageCase):
         b.wait_visible(f".app-list .pf-v5-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testOsMap(self):
         b = self.browser
         m = self.machine

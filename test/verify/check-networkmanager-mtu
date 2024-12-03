@@ -28,6 +28,7 @@ class TestNetworkingMTU(netlib.NetworkCase):
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 512}
     }
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testMtu(self):
         b = self.browser
         m = self.machine

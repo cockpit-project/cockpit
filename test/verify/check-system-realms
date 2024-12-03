@@ -513,6 +513,7 @@ class TestRealms(testlib.MachineCase):
 
 @testlib.no_retry_when_changed
 @testlib.skipImage("freeipa not currently available", "debian-testing")
+@testlib.skipImage("ipa-client-install not available", "opensuse-tumbleweed")
 class TestIPA(TestRealms, CommonTests):
     def setUp(self):
         super().setUp()
@@ -739,7 +740,8 @@ ipa-advise enable-admins-sudo | sh -ex
         """)
 
         # enable ssh GSSAPI authentication
-        m.execute("sed -ri 's/#GSSAPIAuthentication.*/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
+        sshd_path = testlib.get_sshd_config_path(m.image)
+        m.execute(f"sed -ri 's/#GSSAPIAuthentication.*/GSSAPIAuthentication yes/' {sshd_path}")
         m.execute(self.restart_sshd)
 
         # avoid "unknown host" error in SSH
@@ -834,7 +836,7 @@ ipa-advise enable-admins-sudo | sh -ex
         m.execute(f"! su -c '{ccache_env} klist' alice")
 
 
-@testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*")
+@testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*", "*suse*")
 @testlib.no_retry_when_changed
 class TestAD(TestRealms, CommonTests):
     def setUp(self):
@@ -981,7 +983,11 @@ fi
 ipa-getkeytab -p HTTP/x0.cockpit.lan -k %(keytab)s
 
 # HACK: due to sudo's "last rule wins", our /etc/sudoers rule becomes trumped by sssd's, so swap the order
-sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
+if [ -f /etc/nsswitch.conf ]; then
+    sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
+else
+    sed -i '/^sudoers:/ s/files sss/sss files/' /usr/etc/nsswitch.conf
+fi
 """
 
 # This is here because our test framework can't run ipa VM's twice
@@ -991,6 +997,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 @testlib.skipWsContainer("No sssd PAM integration in beiboot mode")
 @testlib.skipImage("No realmd available", "arch")
 @testlib.skipImage("freeipa not currently available", "debian-*")
+@testlib.skipImage("ipa-client-install util is not available for SUSE", "*suse*")
 @testlib.no_retry_when_changed
 class TestKerberos(testlib.MachineCase):
     provision = {

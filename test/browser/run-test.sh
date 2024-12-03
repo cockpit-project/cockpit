@@ -143,6 +143,7 @@ fi
 if [ "$PLAN" = "storage-basic" ]; then
     TESTS="TestStorageBasic
            TestStorageBtrfs
+           TestStorageMdRaid
            TestStorageMounting
            TestStorageMountingLUKS
            TestStorageMsDOS

@@ -65,6 +65,65 @@ ignored_codes = [
                 # index type '*'.
 ]
 
+javascript_ignored_codes = [
+    "TS2683",   # 'this' implicitly has type 'any' because it does not have a type annotation.
+    "TS7005",   # Variable '*' implicitly has an 'any[]' type.
+    "TS7006",   # Parameter '*' implicitly has an 'any' type.
+    "TS7008",   # Member '*' implicitly has an 'any[]' type.
+    "TS7009",   # 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
+    "TS7010",   # '*', which lacks return-type annotation, implicitly has an 'any' return type.
+    "TS7015",   # Element implicitly has an 'any' type because index expression is not of type '*'.
+    "TS7016",   # Could not find a declaration file for module '*'...
+    "TS7019",   # Rest parameter '*' implicitly has an 'any[]' type
+    "TS7022",   # '*' implicitly has type 'any'...
+    "TS7023",   # '*' implicitly has return type 'any' because ...
+    "TS7024",   # Function implicitly has return type 'any' because ...
+    "TS7031",   # Binding element '*' implicitly has an 'any' type.
+    "TS7034",   # Variable '*' implicitly has type 'any' in some locations where its type cannot be determined.
+    "TS7053",   # Element implicitly has an 'any' type because expression of type 'any' can't be used to
+                # index type '*'.
+    "TS2531",   # Object is possibly 'null'.
+    "TS2339",   # Property X does not exist on type '{}'.
+    "TS2307",   # Cannot find module 'Y' or its corresponding type declarations.
+    "TS18046",  # 'X' is of type 'unknown'.
+    "TS2322",   # Type 'X' is not assignable to type 'never'.
+    "TS2375",   # Type 'X' is not assignable to type 'never'.
+    "TS18047",  # 'Y' is possibly 'null'.
+    "TS2345",   # Argument of type 'null' is not assignable to parameter of type '(Comparator<never> | undefined)[]'.
+    "TS2571",   # Object is of type 'unknown'.
+    "TS2353",   # Object literal may only specify known properties
+    "TS2533",   # Object is possibly 'null' or 'undefined'.
+    "TS2532",   # Object is possibly 'undefined'.
+    "TS18048",  # 'X' is possibly 'undefined'.
+    "TS2741",   # Property 'X' is missing in type
+    "TS2740",   # Property 'X' is missing in type
+    "TS2551",   # Property 'X' does not exist on type
+    "TS2304",   # Cannot find name 'X'
+    "TS2581",   # Cannot find name '$'. Do you need to install type definitions for jQuery?
+    "TS2305",   # Module '"./machines/machines"' has no exported member 'get_init_superuser_for_options'.
+    "TS2790",   # The operand of a 'delete' operator must be optional.
+    "TS2367",   # This comparison appears to be unintentional because the types 'Error' and 'string' have no overlap.
+    "TS2363",   # The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum.
+    "TS2362",   # The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum
+    "TS2538",   # Type 'null' cannot be used as an index type.
+    "TS2559",   # Type 'never[]' has no properties in common with type 'DBusCallOptions'.
+    "TS2365",   # Operator '<=' cannot be applied to types 'boolean' and 'number'.
+    "TS2769",   # No overload matches this call.
+    "TS2739",   # Type '{ title: string; value: string; }' is missing the following properties from type
+    "TS2407",   # The right-hand side of a 'for...in' statement must be of type 'any'
+    "TS2464",   # A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+    "TS2488",   # Type 'X' must have a '[Symbol.iterator]()' method that returns an iterator.
+    "TS2349",   # This expression is not callable.
+    "TS1345",   # An expression of type 'void' cannot be tested for truthiness.
+    "TS2693",   # 'X' only refers to a type
+    "TS2561",   # Object literal may only specify known properties, but 'page_categroy' does not exist in type
+    "TS2554",   # Expected 0 arguments, but got 1.
+    "TS2810",   # Expected 1 argument, but got 0.
+    "TS2550",   # Property 'replaceAll' does not exist on type 'string'.
+    "TS2447",   # The '|' operator is not allowed for boolean types.
+    "TS2540",   # Cannot assign to 'location' because it is a read-only property.
+]
+
 
 in_core_project = os.path.exists("pkg/base1")
 
@@ -97,13 +156,16 @@ def consider(lines):
     m = re.match("([^:]*)\\(.*\\): error ([^:]*): .*", lines[0])
     if m and not should_ignore(m[1]):
         relaxed = is_relaxed(m[1])
-        if not relaxed or m[2] not in ignored_codes:
+        is_js = m[1].endswith(('.js', '.jsx'))
+
+        if is_js and m[2] not in javascript_ignored_codes:
+            show_error(lines)
+        if not is_js and (not relaxed or m[2] not in ignored_codes):
             show_error(lines)
 
 
 try:
-    proc = subprocess.Popen(["node_modules/.bin/tsc", "--checkJS", "false", "--pretty", "false"],
-                            stdout=subprocess.PIPE, text=True)
+    proc = subprocess.Popen(["node_modules/.bin/tsc", "--pretty", "false"], stdout=subprocess.PIPE, text=True)
 except FileNotFoundError:
     print("no tsc")
     sys.exit(77)

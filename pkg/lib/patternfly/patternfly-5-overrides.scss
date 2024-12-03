@@ -75,15 +75,10 @@ select.pf-v5-c-form-control {
   margin: 0;
 }
 
-// Fix the double-spacing issue for other dropdowns
+// Fix the double-spacing issue in the toolbar
 // https://github.com/patternfly/patternfly/issues/6632
-.pf-v5-c-menu-toggle__controls:last-child > .pf-v5-c-menu-toggle__toggle-icon {
+.pf-v5-c-toolbar .pf-v5-c-menu-toggle__controls:last-child > .pf-v5-c-menu-toggle__toggle-icon {
   margin-inline-end: 0;
-}
-
-// ... except for select dropdowns in dialogs
-.pf-v5-c-form__group-control .pf-v5-c-menu-toggle__controls:last-child > .pf-v5-c-menu-toggle__toggle-icon {
-    margin-inline-end: var(--pf-v5-c-menu-toggle__toggle-icon--MarginRight);
 }
 
 // Fix menus cropping contents

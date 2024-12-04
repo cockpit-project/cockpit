@@ -1040,6 +1040,9 @@ class TestSystemInfoTime(packagelib.PackageCase):
         testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
         prev_timesyncd_start = get_timesyncd_start()
 
+        # not predictable which of 0 or 1 timesyncd picks, but it should be one of those
+        self.assertIn(".ntp.example.com", m.execute("timedatectl timesync-status"))
+
         # Set conf from the outside, check that we pick that up, and
         # switch to default servers.
         m.write(conf, "[Time]\nNTP=2.ntp.example.com\n")
@@ -1057,6 +1060,8 @@ class TestSystemInfoTime(packagelib.PackageCase):
 
         # restarts timesyncd to pick up the new config
         testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
+
+        self.assertNotIn("example.com", m.execute("timedatectl timesync-status"))
 
     @testlib.skipImage("chronyd not available", "arch")
     def testTimeServersChronyd(self):

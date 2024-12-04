@@ -124,6 +124,7 @@ class TestSuperuser(testlib.MachineCase):
         b.become_superuser(passwordless=True)
 
     @testlib.skipBeiboot("no local PAM config in beiboot mode")
+    @testlib.skipOstree("mock-pam-conv not installed")
     def testTwoPasswds(self):
         b = self.browser
         m = self.machine

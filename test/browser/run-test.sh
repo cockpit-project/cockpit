@@ -94,6 +94,7 @@ if [ "$PLAN" = "main" ]; then
               TestLogin.testSSH
               TestLogin.testRaw
               TestLogin.testServer
+              TestLogin.testSELinuxRestrictedUser
               TestLogin.testUnsupportedBrowser
 
               TestNetworkingBasic.testIpHelper

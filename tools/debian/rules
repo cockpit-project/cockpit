@@ -72,8 +72,6 @@ ifeq ($(PRE4AA),)
 	install -p -m 644 tools/apparmor.d/cockpit-desktop debian/cockpit-ws/etc/apparmor.d/
 endif
 
-	make install-tests DESTDIR=debian/cockpit-tests
-
 execute_after_dh_install-indep:
 	# avoid dh_missing failure
 	rm -r debian/tmp/usr/lib/python*

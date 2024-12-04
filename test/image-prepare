@@ -94,7 +94,16 @@ def build_install_package(dist_tar, image):
     # our images have distro cockpit packages pre-installed, remove them
     args = ["--run-command"]
     if 'debian' in image or 'ubuntu' in image:
-        args.append("dpkg --purge cockpit cockpit-ws cockpit-bridge cockpit-system")
+        # set up pbuilder hook to make install-tests
+        cmd = """
+        set -ex
+        dpkg --purge cockpit cockpit-ws cockpit-bridge cockpit-system
+        mkdir -p /var/tmp/tests
+        echo 'HOOKDIR="/etc/pbuilder-hooks"' >> /etc/pbuilderrc
+        echo 'BINDMOUNTS="/var/tmp/tests"' >> /etc/pbuilderrc
+        """
+        args.append(cmd)
+        args += ["--upload", os.path.join(TEST_DIR, "pbuilder-hooks") + ":/etc/"]
     else:
         # subscription-manager-cockpit needs these, thus --nodeps
         args.append(r"""
@@ -104,6 +113,18 @@ def build_install_package(dist_tar, image):
         """)
 
     args += ["--build", dist_tar]
+
+    # install the playground
+    args += ["--upload", os.path.join(BASE_DIR, "dist/playground") + ":/usr/local/share/cockpit/"]
+
+    # install mock pam module; we don't want to ship it as package, so fish it out of the build root
+    args.append("--run-command")
+    if 'debian' in image or 'ubuntu' in image:
+        args.append(r"find /var/tmp/tests -name mock-pam-conv-mod.so -exec cp {} /lib/x86_64-linux-gnu/security \;")
+    elif 'arch' in image:
+        args.append(r"find /var/lib/archbuild -name mock-pam-conv-mod.so -exec cp {} /usr/lib/security/ \;")
+    else:
+        args.append(r"find /var/lib/mock -name mock-pam-conv-mod.so -exec cp {} /usr/lib64/security/ \;")
 
     if 'debian' in image or 'ubuntu' in image:
         args.append("--run-command")
@@ -139,7 +160,8 @@ def build_install_ostree(dist_tar, image, verbose, quick):
     args += [
         "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
         "--script", os.path.join(TEST_DIR, "ws-container.install"),
-        "--script", os.path.join(TEST_DIR, "ostree.install")]
+        "--script", os.path.join(TEST_DIR, "ostree.install"),
+        "--upload", os.path.join(BASE_DIR, "dist/playground") + ":/usr/local/share/cockpit/"]
     return args
 
 
@@ -161,8 +183,10 @@ def build_install_container(dist_tar, image, verbose, quick):
 
     with create_machine(f"fedora-{fedora_version}") as m:
         build_rpms(dist_tar, m, verbose, quick)
-        # copy them where ws-container.install expects them
+        # copy the rpms and playground where ws-container.install expects them
         m.execute(r"find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm' -exec mv {} /var/tmp/ \;")
+        m.execute("mkdir -p /var/tmp/install/usr/share/cockpit/")
+        m.upload([os.path.join(BASE_DIR, "dist/playground")], "/var/tmp/install/usr/share/cockpit/")
         # create container
         m.upload([os.path.join(BASE_DIR, "containers")], "/var/tmp/")
         with open(os.path.join(TEST_DIR, "ws-container.install")) as f:

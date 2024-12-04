@@ -162,7 +162,6 @@ export NO_QUNIT=1
 
 %install
 %make_install
-make install-tests DESTDIR=%{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
@@ -208,9 +207,6 @@ find %{buildroot}%{_datadir}/cockpit/apps -type f >> packagekit.list
 
 echo '%dir %{_datadir}/cockpit/selinux' > selinux.list
 find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
-
-echo '%dir %{_datadir}/cockpit/playground' > tests.list
-find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 
 echo '%dir %{_datadir}/cockpit/static' > static.list
 echo '%dir %{_datadir}/cockpit/static/fonts' >> static.list
@@ -313,6 +309,7 @@ Provides: cockpit-kdump = %{version}-%{release}
 Provides: cockpit-networkmanager = %{version}-%{release}
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
+Obsoletes: cockpit-tests < 331
 %endif
 %if 0%{?fedora}
 Recommends: (reportd if abrt)
@@ -538,20 +535,6 @@ The Cockpit component for managing storage.  This package uses udisks.
 
 %files -n cockpit-storaged -f storaged.list
 %{_datadir}/metainfo/org.cockpit_project.cockpit_storaged.metainfo.xml
-
-%package -n cockpit-tests
-Summary: Tests for Cockpit
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-system >= %{required_base}
-Requires: openssh-clients
-Provides: cockpit-test-assets = %{version}-%{release}
-
-%description -n cockpit-tests
-This package contains tests and files used while testing Cockpit.
-These files are not required for running Cockpit.
-
-%files -n cockpit-tests -f tests.list
-%{pamdir}/mock-pam-conv-mod.so
 
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages

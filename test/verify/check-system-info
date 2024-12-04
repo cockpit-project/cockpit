@@ -995,6 +995,9 @@ class TestSystemInfoTime(packagelib.PackageCase):
         m = self.machine
         b = self.browser
 
+        # run this test with a tight umask to check proper file permissions (timesyncd runs as non-root)
+        self.sed_file(r"/^UMASK/ s/0../077/", "/etc/login.defs")
+
         if m.image.startswith("debian") or m.image.startswith("ubuntu") or m.image == "arch":
             if m.execute("type chronyc || true").strip() != "":
                 # chronyd is default, install timesyncd

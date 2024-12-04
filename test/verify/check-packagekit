@@ -796,7 +796,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.click(".pf-v5-c-expandable-section__toggle")
         self.assertHistory(".pf-v5-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
 
-        if m.image in OSesWithoutTracer:
+        if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):
             # do the reboot; this will disconnect the web UI
             b.click("#app .pf-v5-c-empty-state button.pf-m-primary")
             b.wait_visible("#shutdown-dialog")

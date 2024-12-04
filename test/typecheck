@@ -71,7 +71,6 @@ javascript_ignored_codes = [
     "TS7006",   # Parameter '*' implicitly has an 'any' type.
     "TS7008",   # Member '*' implicitly has an 'any[]' type.
     "TS7009",   # 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
-    "TS7010",   # '*', which lacks return-type annotation, implicitly has an 'any' return type.
     "TS7015",   # Element implicitly has an 'any' type because index expression is not of type '*'.
     "TS7016",   # Could not find a declaration file for module '*'...
     "TS7019",   # Rest parameter '*' implicitly has an 'any[]' type
@@ -151,14 +150,17 @@ def show_error(lines):
         sys.stdout.write(line)
 
 
-def consider(lines):
+def consider(lines, js_error_codes):
     m = re.match("([^:]*)\\(.*\\): error ([^:]*): .*", lines[0])
     if m and not should_ignore(m[1]):
         relaxed = is_relaxed(m[1])
         is_js = m[1].endswith(('.js', '.jsx'))
 
-        if is_js and m[2] not in javascript_ignored_codes:
-            show_error(lines)
+        if is_js:
+            if m[2] not in javascript_ignored_codes:
+                show_error(lines)
+            else:
+                js_error_codes.add(m[2])
         if not is_js and (not relaxed or m[2] not in ignored_codes):
             show_error(lines)
 
@@ -170,15 +172,23 @@ except FileNotFoundError:
     sys.exit(77)
 
 cur = []
+js_error_codes = set[str]()
 if proc.stdout:
     for line in proc.stdout:
         if line[0] == " ":
             cur += [line]
         else:
             if len(cur) > 0:
-                consider(cur)
+                consider(cur, js_error_codes)
             cur = [line]
     if len(cur) > 0:
-        consider(cur)
+        consider(cur, js_error_codes)
+
+# Fail on unused ignored JavaScript error codes, so accidental or intentional fixes don't get ignored.
+if len(js_error_codes) != len(javascript_ignored_codes):
+    errors = set(javascript_ignored_codes) - set(js_error_codes)
+    print(f"Unused JavaScript ignored error codes found: {','.join(errors)}", file=sys.stderr)
+    sys.exit(1)
+
 
 sys.exit(1 if num_errors > 0 else 0)

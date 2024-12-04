@@ -1,7 +1,8 @@
 @use "page";
 @use "ct-card";
-@import "global-variables";
-@import "@patternfly/patternfly/utilities/Text/text.scss";
+@use "sass:math";
+@use "global-variables";
+@use "@patternfly/patternfly/utilities/Text/text.scss";
 
 // utilities for `pf-u...` classes
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
@@ -827,7 +828,7 @@ $graphs: cpu, memory, disks, network;
 
     .pf-v5-c-popover__content {
       // Limit the width of the popover in desktop mode
-      max-inline-size: max(30rem, 40vw);
+      max-inline-size: math.max(30rem, 40vw);
     }
   }
 }
@@ -843,7 +844,7 @@ $graphs: cpu, memory, disks, network;
 
     .pf-v5-c-popover__content {
       // Limit the width of the popover in desktop mode
-      max-inline-size: max(100vw);
+      max-inline-size: math.max(100vw);
     }
 
     // As a sheet at the bottom, it doesn't point to anything

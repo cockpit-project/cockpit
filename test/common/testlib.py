@@ -732,11 +732,6 @@ class Browser:
         self.click(f"{menu_class} button:contains('{value}')")
         self.wait_not_present(menu_class)
 
-    def select_PF_deprecated(self, selector: str, value: str) -> None:
-        """For the deprecated PatternFly Select component"""
-
-        self.select_PF(selector, value, menu_class=".pf-v5-c-select__menu")
-
     def set_input_text(
         self, selector: str, val: str, append: bool = False, value_check: bool = True, blur: bool = True
     ) -> None:

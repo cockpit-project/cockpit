@@ -263,9 +263,14 @@ declare module 'cockpit' {
         remove(): void;
     }
 
+    interface ReplaceAttrs {
+      owner: string | number;
+      group: string | number;
+    }
+
     interface FileHandle<T> {
         read(): Promise<T>;
-        replace(new_content: T | null, expected_tag?: FileTag): Promise<FileTag>;
+        replace(new_content: T | null, expected_tag?: FileTag, attrs?: ReplaceAttrs): Promise<FileTag>;
         watch(callback: FileWatchCallback<T>, options?: { read?: boolean }): FileWatchHandle;
         modify(callback: (data: T | null) => T | null, initial_content?: string, initial_tag?: FileTag): Promise<[T, FileTag]>;
         close(): void;

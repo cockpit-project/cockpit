@@ -2229,7 +2229,7 @@ function factory() {
 
         let replace_channel = null;
 
-        function replace(new_content, expected_tag) {
+        function replace(new_content, expected_tag, attrs) {
             const dfd = cockpit.defer();
 
             let file_content;
@@ -2247,8 +2247,12 @@ function factory() {
                 ...base_channel_options,
                 payload: "fsreplace1",
                 path,
-                tag: expected_tag
+                tag: expected_tag,
             };
+
+            if (attrs)
+                opts.attrs = attrs;
+
             replace_channel = cockpit.channel(opts);
 
             replace_channel.addEventListener("close", function (event, message) {

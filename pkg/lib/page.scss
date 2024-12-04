@@ -191,6 +191,14 @@ html:not(.index-page) body {
   margin-block: var(--offset);
 }
 
+// RTL: Pass through computer-generated text as-is
+// Important: Only apply this to elements that are or can be inline.
+// In many cases, it may be better to wrap output text with a <bdi> element
+.ct-rtl-passthrough {
+  display: inline;
+  unicode-bidi: plaintext;
+}
+
 // To be used only from testlib.py for pixel-tests
 main.pixel-test {
   overflow-y: clip;

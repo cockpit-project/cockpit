@@ -1119,17 +1119,7 @@ function factory() {
      * Cockpit location
      */
 
-    /* HACK: Mozilla will unescape 'window.location.hash' before returning
-     * it, which is broken.
-     *
-     * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
-     */
-
     let last_loc = null;
-
-    function get_window_location_hash() {
-        return (window.location.href.split('#')[1] || '');
-    }
 
     function Location() {
         const self = this;
@@ -1145,7 +1135,7 @@ function factory() {
             self.url_root = self.url_root + application.replace("cockpit+", '');
         }
 
-        const href = get_window_location_hash();
+        const href = window.location.hash.slice(1);
         const options = { };
         self.path = decode(href, options);
 
@@ -1308,7 +1298,7 @@ function factory() {
     Object.defineProperty(cockpit, "location", {
         enumerable: true,
         get: function() {
-            if (!last_loc || last_loc.href !== get_window_location_hash())
+            if (!last_loc || last_loc.href !== window.location.hash.slice(1))
                 last_loc = new Location();
             return last_loc;
         },
@@ -1319,9 +1309,7 @@ function factory() {
 
     window.addEventListener("hashchange", function() {
         last_loc = null;
-        let hash = window.location.hash;
-        if (hash.indexOf("#") === 0)
-            hash = hash.substring(1);
+        const hash = window.location.hash.slice(1);
         cockpit.hint("location", { hash });
         cockpit.dispatchEvent("locationchanged");
     });

@@ -260,14 +260,6 @@ troubleshooting, interactive command-line sessions, and more.
 %package bridge
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
-# 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)
-Conflicts: cockpit-dashboard < 233
-Conflicts: cockpit-networkmanager < 233
-Conflicts: cockpit-storaged < 233
-Conflicts: cockpit-system < 233
-Conflicts: cockpit-tests < 233
-Conflicts: cockpit-docker < 233
-Obsoletes: cockpit-pcp < 326
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
@@ -308,7 +300,6 @@ Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
 Provides: cockpit-users = %{version}-%{release}
-Obsoletes: cockpit-dashboard < %{version}-%{release}
 %if 0%{?rhel}
 Requires: NetworkManager >= 1.6
 Requires: sos
@@ -342,7 +333,6 @@ Requires: openssl
 Requires: glib2 >= 2.50.0
 Requires: (selinux-policy >= %{_selinux_policy_version} if selinux-policy-%{selinuxtype})
 Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
-Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
 Suggests: sssd-dbus >= 2.6.2

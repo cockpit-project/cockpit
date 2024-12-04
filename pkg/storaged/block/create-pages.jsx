@@ -58,7 +58,7 @@ export function make_block_page(parent, block, card) {
     const is_btrfs = (fstab_config.length > 0 &&
                       (fstab_config[2].indexOf("subvol=") >= 0 || fstab_config[2].indexOf("subvolid=") >= 0));
 
-    const block_btrfs_blockdev = content_block && client.blocks_fsys_btrfs[content_block.path];
+    const block_btrfs_blockdev = client.features.btrfs && content_block && client.blocks_fsys_btrfs[content_block.path];
     const single_device_volume = block_btrfs_blockdev && block_btrfs_blockdev.data.num_devices === 1;
 
     if (client.blocks_ptable[block.path]) {

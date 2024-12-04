@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eux
+cd "$(find $BUILDDIR -type d -maxdepth 1 -name 'cockpit-*')"
+make DESTDIR=/var/tmp/tests install-tests

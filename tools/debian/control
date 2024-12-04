@@ -131,20 +131,11 @@ Provides: cockpit-shell,
           cockpit-tuned,
           cockpit-users
 Suggests: lastlog2
+Conflicts: cockpit-tests (<< 331)
+Replaces: cockpit-tests (<< 331)
 Description: Cockpit admin interface for a system
  Cockpit admin interface package for configuring and
  troubleshooting a system.
-
-Package: cockpit-tests
-Architecture: any
-Multi-Arch: foreign
-Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         cockpit-system (>= ${source:Version}),
-         openssh-client
-Description: Tests for Cockpit
- This package contains tests and files used while testing Cockpit.
- These files are not required for running Cockpit.
 
 Package: cockpit-ws
 Architecture: any

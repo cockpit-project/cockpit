@@ -13,7 +13,7 @@ storaged
 system
 "
 
-for rpm in ws bridge tests $PACKAGES; do
+for rpm in ws bridge $PACKAGES; do
     rpm2cpio /var/tmp/cockpit-$rpm-*.rpm | cpio -i --make-directories --directory=/var/tmp/install
 done
 

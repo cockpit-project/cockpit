@@ -369,7 +369,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     '.*Sorry, passwords do not match.')
         self.allow_restart_journal_messages()
 
-    @testlib.skipWsContainer("mock-pam-conv from cockpit-tests not installed")
+    @testlib.skipWsContainer("mock-pam-conv not installed")
     def testConversation(self):
         m = self.machine
         b = self.browser

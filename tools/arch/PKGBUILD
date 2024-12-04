@@ -4,7 +4,7 @@
 # Contributor: Anatol Pomozov <anatol.pomozov@gmail.com>
 
 pkgbase=cockpit
-pkgname=(cockpit cockpit-packagekit cockpit-storaged cockpit-test)
+pkgname=(cockpit cockpit-packagekit cockpit-storaged)
 pkgver=0
 pkgrel=1
 pkgdesc='A systemd web based user interface for Linux servers'
@@ -73,18 +73,6 @@ package_cockpit() {
   # Disallow root login by default
   printf "# List of users which are not allowed to login to Cockpit\nroot\n" > "$pkgdir"/etc/cockpit/disallowed-users
   chmod 644 "$pkgdir"/etc/cockpit/disallowed-users
-}
-
-package_cockpit-test() {
-  pkgdesc='Cockpit test playground'
-  depends=(cockpit)
-
-  # Install test
-  cd cockpit-$pkgver
-  make DESTDIR="$pkgdir" install-tests
-  cd ..
-
-  _do_package_component playground
 }
 
 _do_package_component() {

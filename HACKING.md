@@ -180,14 +180,14 @@ down after the fact — without re-running tests — using something like:
 
 There are also static code and syntax checks which you should run often:
 
-    test/static-code
+    test/common/static-code
 
 It is highly recommended to set up a git pre-push hook, to avoid pushing PRs
 that will fail on trivial errors:
 
     ln -s ../../tools/git-hook-pre-push .git/hooks/pre-push
 
-This calls `test/static-code` for each commit you're trying to push.
+This calls `test/common/static-code` for each commit you're trying to push.
 
 You can also set up a post-commit hook to do the same, after each commit:
 
@@ -255,7 +255,7 @@ The tests require at least `pytest` 7.0.0 or higher to run.
 Cockpit uses [ESLint](https://eslint.org/) to automatically check JavaScript
 code style in `.js` and `.jsx` files.
 
-The linter is executed as part of `test/static-code`.
+The linter is executed as part of `test/common/static-code`.
 
 For developer convenience, the ESLint can be started explicitly by:
 
@@ -277,13 +277,13 @@ unused identifiers, and other JavaScript-related issues.
 Cockpit uses [Stylelint](https://stylelint.io/) to automatically check CSS code
 style in `.css` and `.scss` files.
 
-The linter is executed as part of `test/static-code`.
+The linter is executed as part of `test/common/static-code`.
 
 For developer convenience, the Stylelint can be started explicitly by:
 
     npm run stylelint
 
-But note that this only covers files in `pkg/`. `test/static-code` covers
+But note that this only covers files in `pkg/`. `test/common/static-code` covers
 *all* (S)CSS files tracked in git.
 
 Some rule violations can be automatically fixed by running:

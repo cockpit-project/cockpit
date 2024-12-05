@@ -78,7 +78,7 @@ distcheck-hook::
 # -----------------------------------------------------------------------------
 
 TESTS = \
-	test/static-code \
+	test/common/static-code \
 	$(NULL)
 
 clean-local::

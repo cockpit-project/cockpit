@@ -75,12 +75,6 @@ select.pf-v5-c-form-control {
   margin: 0;
 }
 
-// Fix the double-spacing issue for other dropdowns
-// https://github.com/patternfly/patternfly/issues/6632
-.pf-v5-c-menu-toggle__controls:last-child > .pf-v5-c-menu-toggle__toggle-icon {
-  margin-inline-end: 0;
-}
-
 // Fix menus cropping contents
 // https://github.com/patternfly/patternfly/issues/6565
 .pf-v5-c-menu__item-text {
@@ -403,4 +397,13 @@ select.pf-v5-c-form-control {
     .pf-v5-theme-dark & {
     background-color: var(--pf-v5-global--BackgroundColor--400);
   }
+}
+
+/* Menu toggles are transparent in light mode (but not in dark
+   mode). This makes them white on a white page (fine), but grey in a
+   grey toolbar. The deprecated Select had a white background. Let's
+   make MenuToggles match.
+*/
+html:not(.pf-v5-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
+    background-color: var(--pf-v5-global--BackgroundColor--100);
 }

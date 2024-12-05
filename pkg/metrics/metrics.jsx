@@ -55,6 +55,7 @@ import { get_manifest_config_matchlist } from "utils";
 import { useObject, useEvent, useInit } from "hooks.js";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 
+import { SimpleSelect } from "cockpit-components-simple-select.jsx";
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
 import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
@@ -1632,7 +1633,7 @@ class MetricsHistory extends React.Component {
         this.setState({ isDatepickerOpened: isOpen });
     }
 
-    handleSelect(e, sel) {
+    handleSelect(sel) {
         // Stop fetching of new data
         if (this.history_refresh_timer !== null) {
             window.clearTimeout(this.history_refresh_timer);
@@ -1841,7 +1842,7 @@ class MetricsHistory extends React.Component {
                 .map((_undef, i) => {
                     const date = this.today_midnight - i * 86400000;
                     const text = i == 0 ? _("Today") : timeformat.weekdayDate(date);
-                    return <SelectOption key={date} value={date}>{text}</SelectOption>;
+                    return { value: date, content: text };
                 });
 
         function Label(props) {
@@ -1874,17 +1875,16 @@ class MetricsHistory extends React.Component {
                 <PageGroup stickyOnBreakpoint={{ default: 'top' }}>
                     <section className="metrics-heading">
                         <Flex className="metrics-selectors" spaceItems={{ default: 'spaceItemsSm' }}>
-                            <Select
-                                className="select-min metrics-label"
-                                aria-label={_("Jump to")}
-                                onToggle={this.handleToggle}
+                            <SimpleSelect
                                 onSelect={this.handleSelect}
-                                isOpen={this.state.isDatepickerOpened}
-                                selections={this.state.selectedDate}
-                                toggleId="date-picker-select-toggle"
-                            >
-                                {options}
-                            </Select>
+                                selected={this.state.selectedDate}
+                                options={options}
+                                isScrollable
+                                toggleProps={{
+                                    id: "date-picker-select-toggle",
+                                    className: "select-min metrics-label",
+                                    "aria-label": _("Jump to")
+                                }} />
                             <Select
                                 toggleAriaLabel={_("Graph visibility options menu")}
                                 className="select-min metrics-label"

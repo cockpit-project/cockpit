@@ -19,9 +19,10 @@
 import React, { useState } from 'react';
 import { Alert, AlertActionCloseButton, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import { PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+
+import { SimpleSelect } from "cockpit-components-simple-select";
 
 import cockpit from 'cockpit';
 import './cockpit-components-firewalld-request.scss';
@@ -48,7 +49,6 @@ function debug() {
 export const FirewalldRequest = ({ service, title, pageSection }) => {
     const [zones, setZones] = useState(null);
     const [selectedZone, setSelectedZone] = useState(null);
-    const [zoneSelectorOpened, setZoneSelectorOpened] = useState(false);
     const [enabledAnywhere, setEnabledAnywhere] = useState(null);
     const [enableError, setEnableError] = useState(null);
     debug("FirewalldRequest", service, "zones", JSON.stringify(zones), "selected zone", selectedZone, "enabledAnywhere", enabledAnywhere);
@@ -131,15 +131,14 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
                         <ToolbarGroup spaceItems={{ default: "spaceItemsMd" }}>
                             <ToolbarItem variant="label">{ _("Zone") }</ToolbarItem>
                             <ToolbarItem>
-                                <Select
-                                    aria-label={_("Zone")}
-                                    onToggle={(_event, isOpen) => setZoneSelectorOpened(isOpen)}
-                                    isOpen={zoneSelectorOpened}
-                                    onSelect={ (e, sel) => { setSelectedZone(sel); setZoneSelectorOpened(false) } }
-                                    selections={selectedZone}
-                                    toggleId={"firewalld-request-" + service}>
-                                    { zones.map(zone => <SelectOption key={zone} value={zone}>{zone}</SelectOption>) }
-                                </Select>
+                                <SimpleSelect
+                                    onSelect={setSelectedZone}
+                                    selected={selectedZone}
+                                    options={zones.map(zone => ({ value: zone, content: zone }))}
+                                    toggleProps={{
+                                        id: "firewalld-request-" + service,
+                                        "aria-label": _("Zone"),
+                                    }} />
                             </ToolbarItem>
 
                             <ToolbarItem>

@@ -1,9 +1,11 @@
 #! /usr/bin/python3
 
+import argparse
 import os
 import re
 import subprocess
 import sys
+from collections import Counter
 from functools import cache
 
 # Run tsc as a type checker and throw away much of its output, in a
@@ -160,7 +162,7 @@ def consider(lines, js_error_codes):
             if m[2] not in javascript_ignored_codes:
                 show_error(lines)
             else:
-                js_error_codes.add(m[2])
+                js_error_codes[m[2]] += 1
         if not is_js and (not relaxed or m[2] not in ignored_codes):
             show_error(lines)
 
@@ -172,7 +174,11 @@ except FileNotFoundError:
     sys.exit(77)
 
 cur = []
-js_error_codes = set[str]()
+js_error_codes = Counter()
+parser = argparse.ArgumentParser(description="Run tsc as a typechecker with an allowlist of errors for JavaScript and TypeScript files")
+parser.add_argument("--stats", action="store_true", help="Display stats of the most common TypeScript errors in JavaScript files")
+args = parser.parse_args()
+
 if proc.stdout:
     for line in proc.stdout:
         if line[0] == " ":
@@ -184,12 +190,16 @@ if proc.stdout:
     if len(cur) > 0:
         consider(cur, js_error_codes)
 
-# Fail on unused ignored JavaScript error codes, so accidental or intentional fixes don't get ignored.
-# For now this only applies to cockpit itself, we need to see how much this makes sense in external projects.
-if in_core_project and len(js_error_codes) != len(javascript_ignored_codes):
-    errors = set(javascript_ignored_codes) - set(js_error_codes)
-    print(f"Unused JavaScript ignored error codes found: {','.join(errors)}", file=sys.stderr)
-    sys.exit(1)
+if args.stats:
+    for ts_error, count in js_error_codes.most_common():
+        print(ts_error, count)
+else:
+    # Fail on unused ignored JavaScript error codes, so accidental or intentional fixes don't get ignored.
+    # For now this only applies to cockpit itself, we need to see how much this makes sense in external projects.
+    if in_core_project and len(js_error_codes) != len(javascript_ignored_codes):
+        errors = set(javascript_ignored_codes) - set(js_error_codes)
+        print(f"Unused JavaScript ignored error codes found: {','.join(errors)}", file=sys.stderr)
+        sys.exit(1)
 
 
 sys.exit(1 if num_errors > 0 else 0)

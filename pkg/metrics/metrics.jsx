@@ -32,7 +32,6 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { Page, PageGroup, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Progress, ProgressVariant } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
-import { Select, SelectOption } from "@patternfly/react-core/dist/esm/deprecated/components/Select/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
@@ -55,6 +54,8 @@ import { get_manifest_config_matchlist } from "utils";
 import { useObject, useEvent, useInit } from "hooks.js";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 
+import { SimpleSelect } from "cockpit-components-simple-select.jsx";
+import { CheckboxSelect } from "cockpit-components-checkbox-select.jsx";
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
 import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
@@ -1632,7 +1633,7 @@ class MetricsHistory extends React.Component {
         this.setState({ isDatepickerOpened: isOpen });
     }
 
-    handleSelect(e, sel) {
+    handleSelect(sel) {
         // Stop fetching of new data
         if (this.history_refresh_timer !== null) {
             window.clearTimeout(this.history_refresh_timer);
@@ -1841,7 +1842,7 @@ class MetricsHistory extends React.Component {
                 .map((_undef, i) => {
                     const date = this.today_midnight - i * 86400000;
                     const text = i == 0 ? _("Today") : timeformat.weekdayDate(date);
-                    return <SelectOption key={date} value={date}>{text}</SelectOption>;
+                    return { value: date, content: text };
                 });
 
         function Label(props) {
@@ -1856,17 +1857,15 @@ class MetricsHistory extends React.Component {
         }
 
         const columnVisibilityMenuItems = this.columns.map(itm => {
-            return (
-                <SelectOption
-                    key={itm[0]}
-                    value={itm[1]}
-                    inputId={'column-visibility-option-' + itm[0]} />
-            );
+            return {
+                value: itm[0],
+                content: itm[1],
+            };
         });
         const selections = (
             this.columns
                     .filter(itm => this.state.selectedVisibility[itm[0]])
-                    .map(itm => itm[1])
+                    .map(itm => itm[0])
         );
 
         return (
@@ -1874,34 +1873,30 @@ class MetricsHistory extends React.Component {
                 <PageGroup stickyOnBreakpoint={{ default: 'top' }}>
                     <section className="metrics-heading">
                         <Flex className="metrics-selectors" spaceItems={{ default: 'spaceItemsSm' }}>
-                            <Select
-                                className="select-min metrics-label"
-                                aria-label={_("Jump to")}
-                                onToggle={this.handleToggle}
+                            <SimpleSelect
                                 onSelect={this.handleSelect}
-                                isOpen={this.state.isDatepickerOpened}
-                                selections={this.state.selectedDate}
-                                toggleId="date-picker-select-toggle"
-                            >
-                                {options}
-                            </Select>
-                            <Select
-                                toggleAriaLabel={_("Graph visibility options menu")}
-                                className="select-min metrics-label"
-                                variant="checkbox"
-                                isCheckboxSelectionBadgeHidden
-                                isOpen={!!this.state.isOpenColumnVisibility}
-                                onSelect={(_, selection) => {
-                                    const s = this.columns.find(itm => itm[1] == selection);
+                                selected={this.state.selectedDate}
+                                options={options}
+                                isScrollable
+                                toggleProps={{
+                                    id: "date-picker-select-toggle",
+                                    className: "select-min metrics-label",
+                                    "aria-label": _("Jump to")
+                                }} />
+                            <CheckboxSelect
+                                toggleProps={{
+                                    "aria-label": _("Graph visibility options menu"),
+                                    className: "select-min metrics-label",
+                                }}
+                                toggleContent={_("Graph visibility")}
+                                noBadge
+                                onSelect={(selection, checked) => {
                                     this.setState(prevState => ({
-                                        selectedVisibility: { ...prevState.selectedVisibility, [s[0]]: !prevState.selectedVisibility[s[0]] }
+                                        selectedVisibility: { ...prevState.selectedVisibility, [selection]: checked }
                                     }));
                                 }}
-                                onToggle={() => this.setState({ isOpenColumnVisibility: !this.state.isOpenColumnVisibility })}
-                                placeholderText={_("Graph visibility")}
-                                selections={selections}>
-                                {columnVisibilityMenuItems}
-                            </Select>
+                                selected={selections}
+                                options={columnVisibilityMenuItems} />
                         </Flex>
                         <Stack className="metrics-label-graph-mobile">
                             {[["cpu", _("CPU usage/load")], ["memory", _("Memory usage/swap")], ["disks", _("Disk I/O")], ["network", _("Network")]]

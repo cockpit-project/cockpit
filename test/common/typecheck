@@ -185,7 +185,8 @@ if proc.stdout:
         consider(cur, js_error_codes)
 
 # Fail on unused ignored JavaScript error codes, so accidental or intentional fixes don't get ignored.
-if len(js_error_codes) != len(javascript_ignored_codes):
+# For now this only applies to cockpit itself, we need to see how much this makes sense in external projects.
+if in_core_project and len(js_error_codes) != len(javascript_ignored_codes):
     errors = set(javascript_ignored_codes) - set(js_error_codes)
     print(f"Unused JavaScript ignored error codes found: {','.join(errors)}", file=sys.stderr)
     sys.exit(1)

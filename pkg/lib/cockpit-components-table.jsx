@@ -140,7 +140,7 @@ export const ListingTable = ({
             </EmptyStateBody>
         </EmptyState>;
 
-    if (rows == 0) {
+    if (rows.length == 0) {
         let emptyState = null;
         if (emptyComponent)
             emptyState = emptyComponent;

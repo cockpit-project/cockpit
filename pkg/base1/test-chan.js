@@ -118,7 +118,7 @@ function MockWebSocket(url, protocol) {
         if (typeof code != "number" && typeof code != "undefined")
             throw Error("WebSocket.close(@code) is not a number: " + typeof code);
         if (typeof reason != "string" && typeof reason != "undefined")
-            throw Error("WebSocket.close(@reason) is not a number: " + typeof string);
+            throw Error("WebSocket.close(@reason) is not a number: " + typeof reason);
         if (this.readyState > 1)
             throw Error("WebSocket.close() called on a closed WebSocket" + this.readyState + " " + code + reason);
         this.readyState = 3;

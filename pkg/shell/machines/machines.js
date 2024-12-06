@@ -727,6 +727,7 @@ function Loader(machines, session_only) {
         proxy.addEventListener("changed", data => {
             // unwrap variants from D-Bus call
             const wrapped = proxy.Machines;
+            cockpit.assert(typeof wrapped === "object" && wrapped !== null, "unexpected type of Machines property");
             const data_unwrap = {};
             for (const host in wrapped) {
                 const host_props = {};

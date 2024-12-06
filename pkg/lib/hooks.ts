@@ -18,6 +18,7 @@
  */
 
 import cockpit from 'cockpit';
+import { EventEmitter } from 'cockpit/event';
 import { useState, useEffect, useRef, useReducer } from 'react';
 import { dequal } from 'dequal/lite';
 
@@ -310,6 +311,16 @@ export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: c
         obj?.addEventListener(event, update);
         return () => obj?.removeEventListener(event, update);
     }, [obj, event, handler]);
+}
+
+/* Same as useEvent, but for our own EventEmitter.
+ */
+export function useOn<EM extends { [E in keyof EM]: (...args: never[]) => void }, E extends keyof EM>(object: EventEmitter<EM>, event: E): void {
+    const [, forceUpdate] = useReducer(x => x + 1, 0);
+
+    useEffect(() => {
+        return object?.on(event, forceUpdate as EM[E]);
+    }, [object, event]);
 }
 
 /* - useInit(func, deps, comps)

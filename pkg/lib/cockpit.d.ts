@@ -122,7 +122,7 @@ declare module 'cockpit' {
         valid: boolean;
         send(data: T): void;
         control(options: ControlMessage): void;
-        wait(): Promise<void>;
+        wait(callback?: (data: T) => void): Promise<T>;
         close(options?: string | JsonObject): void;
     }
 

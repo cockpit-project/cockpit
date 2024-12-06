@@ -36,7 +36,8 @@ export const IdleTimeoutState = () => {
     let current_idle_time = 0;
 
     const self = {
-        final_countdown: false,
+        /** @type {number | null} */
+        final_countdown: null,
     };
 
     function update() {
@@ -47,7 +48,7 @@ export const IdleTimeoutState = () => {
 
     function idleTick() {
         current_idle_time += 5000;
-        if (self.final_countdown === false && current_idle_time >= session_timeout - final_countdown_secs * 1000) {
+        if (self.final_countdown === null && current_idle_time >= session_timeout - final_countdown_secs * 1000) {
             // It's the final countdown...
             self.final_countdown = final_countdown_secs;
             final_countdown_timer = window.setInterval(finalCountdownTick, 1000);
@@ -56,14 +57,15 @@ export const IdleTimeoutState = () => {
     }
 
     function finalCountdownTick() {
+        cockpit.assert(self.final_countdown !== null);
         self.final_countdown -= 1;
         if (self.final_countdown <= 0)
             cockpit.logout(true, _("You have been logged out due to inactivity."));
         update();
     }
 
-    function resetTimer(ev) {
-        if (self.final_countdown === false)
+    function resetTimer() {
+        if (self.final_countdown === null)
             current_idle_time = 0;
     }
 
@@ -98,7 +100,7 @@ export const IdleTimeoutState = () => {
 
     self.cancel_final_countdown = function () {
         current_idle_time = 0;
-        self.final_countdown = false;
+        self.final_countdown = null;
         window.clearInterval(final_countdown_timer);
         update();
     };
@@ -107,7 +109,7 @@ export const IdleTimeoutState = () => {
 };
 
 export const FinalCountdownModal = ({ state }) => {
-    if (state.final_countdown === false)
+    if (state.final_countdown === null)
         return null;
 
     return (

@@ -235,6 +235,7 @@ declare module 'cockpit' {
         readonly options: DBusOptions;
         proxy(interface?: string, path?: string, options?: { watch?: boolean }): DBusProxy;
         call(path: string, iface: string, method: string, args?: unknown[] | null, options?: DBusCallOptions): Promise<unknown[]>;
+        watch(path: string): DeferredPromise<void>,
         close(): void;
     }
 

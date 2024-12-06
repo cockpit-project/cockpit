@@ -196,7 +196,7 @@ declare module 'cockpit' {
         decode(string: string, options?: { [key: string]: string }): string[];
     }
 
-    export const location: Location;
+    export let location: Location;
 
     /* === cockpit.jump ========================== */
 

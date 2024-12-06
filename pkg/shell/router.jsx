@@ -144,7 +144,7 @@ export function Router(callbacks) {
         }
 
         unique_id += 1;
-        const seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
+        const seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id.toString() + "!";
         const source = {
             name,
             window: child,

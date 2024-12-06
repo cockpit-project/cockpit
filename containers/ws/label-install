@@ -10,7 +10,7 @@ IMAGE=${1:-}
 cd /
 PATH="/bin:/sbin"
 
-if [ ! -d /host/etc -o ! -d /host/proc -o ! -d /host/var/run ]; then
+if [ ! -d /host/etc -o ! -d /host/proc -o ! -d /host/run ]; then
     echo "cockpit-run: host file system is not mounted at /host" >&2
     exit 1
 fi

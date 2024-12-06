@@ -82,29 +82,29 @@ The SELinux process type cockpit_ws_t can manage files labeled with the followin
 .br
 .B cluster_var_run_t
 
-	/var/run/crm(/.*)?
+	/run/crm(/.*)?
 .br
-	/var/run/cman_.*
+	/run/cman_.*
 .br
-	/var/run/rsctmp(/.*)?
+	/run/rsctmp(/.*)?
 .br
-	/var/run/aisexec.*
+	/run/aisexec.*
 .br
-	/var/run/heartbeat(/.*)?
+	/run/heartbeat(/.*)?
 .br
-	/var/run/pcsd-ruby.socket
+	/run/pcsd-ruby.socket
 .br
-	/var/run/corosync-qnetd(/.*)?
+	/run/corosync-qnetd(/.*)?
 .br
-	/var/run/corosync-qdevice(/.*)?
+	/run/corosync-qdevice(/.*)?
 .br
-	/var/run/corosync\.pid
+	/run/corosync\.pid
 .br
-	/var/run/cpglockd\.pid
+	/run/cpglockd\.pid
 .br
-	/var/run/rgmanager\.pid
+	/run/rgmanager\.pid
 .br
-	/var/run/cluster/rgmanager\.sk
+	/run/cluster/rgmanager\.sk
 .br
 
 .br
@@ -116,9 +116,9 @@ The SELinux process type cockpit_ws_t can manage files labeled with the followin
 .br
 .B cockpit_var_run_t
 
-	/var/run/cockpit(/.*)?
+	/run/cockpit(/.*)?
 .br
-	/var/run/cockpit-ws(/.*)?
+	/run/cockpit-ws(/.*)?
 .br
 
 .br
@@ -146,9 +146,9 @@ The SELinux process type cockpit_ws_t can manage files labeled with the followin
 .br
 .B systemd_passwd_var_run_t
 
-	/var/run/systemd/ask-password(/.*)?
+	/run/systemd/ask-password(/.*)?
 .br
-	/var/run/systemd/ask-password-block(/.*)?
+	/run/systemd/ask-password-block(/.*)?
 .br
 
 .SH FILE CONTEXTS

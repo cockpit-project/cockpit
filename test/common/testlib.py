@@ -1634,7 +1634,7 @@ class MachineCase(unittest.TestCase):
                 pass
             else:
                 if machine.image == reference_image:
-                    pixels_label = self.label()
+                    pixels_label = self.label() + ('-efi' if machine.is_efi else '')
         browser = Browser(machine.web_address,
                           label=label, pixels_label=pixels_label, coverage_label=self.label() if coverage else None,
                           port=machine.web_port, machine=self)

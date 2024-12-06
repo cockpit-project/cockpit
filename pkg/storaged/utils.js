@@ -1150,7 +1150,10 @@ export function get_byte_units(guide_value) {
         { factor: 1000 ** 4, name: "TB" },
     ];
     // Find the biggest unit which gives two digits left of the decimal point (>= 10)
-    const unit = units.findLastIndex(unit => guide_value / unit.factor >= 10);
+    let unit;
+    for (unit = units.length - 1; unit >= 0; unit--)
+        if (guide_value / units[unit].factor >= 10)
+            break;
     // Mark it selected.  If we couldn't find one (-1), then use MB.
     units[Math.max(0, unit)].selected = true;
     return units;

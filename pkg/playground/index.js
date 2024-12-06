@@ -12,6 +12,7 @@ function id(sel) {
 
 function init() {
     const entries = cockpit.manifests.playground.playground;
+    cockpit.assert(typeof entries === "object", "Invalid playground manifest");
     const nav = id("nav");
 
     for (const p in entries) {

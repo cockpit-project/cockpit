@@ -68,7 +68,7 @@ const MSEC_PER_H = 3600000;
 const INTERVAL = 5000;
 const SAMPLES_PER_H = MSEC_PER_H / INTERVAL;
 const SAMPLES_PER_MIN = SAMPLES_PER_H / 60;
-const SVG_YMAX = (SAMPLES_PER_MIN - 1).toString();
+const SVG_YMAX = (SAMPLES_PER_MIN - 1);
 const LOAD_HOURS = 12;
 const _ = cockpit.gettext;
 

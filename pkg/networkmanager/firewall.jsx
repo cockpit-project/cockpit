@@ -791,7 +791,7 @@ class ActivateZoneModal extends React.Component {
         const interfaces = firewall.availableInterfaces.filter(i => {
             let inZone = false;
             firewall.activeZones.forEach(z => {
-                inZone |= firewall.zones[z].interfaces.indexOf(i.device) !== -1;
+                inZone ||= firewall.zones[z].interfaces.indexOf(i.device) !== -1;
             });
             return !inZone;
         });

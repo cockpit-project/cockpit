@@ -483,7 +483,7 @@ class ServicesPageBody extends React.Component {
                     const unit_files = {};
                     unitFilesResults.forEach(([UnitFilePath, UnitFileState]) => {
                         const Id = UnitFilePath.split('/').pop();
-                        if (!this.isUnitHandled(Id) | this.isTemplate(Id))
+                        if (!this.isUnitHandled(Id) || this.isTemplate(Id))
                             return;
 
                         this.seenUnitFileStates.add(UnitFileState);

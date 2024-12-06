@@ -32,7 +32,7 @@ const pkgOptions = {
     nodePaths,
     outbase: './pkg',
     outdir: "./dist",
-    target: ['es2020'],
+    target: ['es2021'],
 };
 
 // context options for qunit tests in qunit/

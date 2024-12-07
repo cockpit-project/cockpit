@@ -119,6 +119,10 @@ You can also mount encrypted private keys inside the container. You can set an e
 
 Private keys can be encrypted; then cockpit uses the provided password to decrypt the key.
 
+### SSH_AUTH_SOCK
+
+By default the container starts its own ssh-agent. Alternatively `SSH_AUTH_SOCK` environment variable can be set to surpress starting ssh-agent.
+
 ## More Info
 
  * [Cockpit Project](https://cockpit-project.org)

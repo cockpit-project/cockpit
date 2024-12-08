@@ -309,7 +309,6 @@ Provides: cockpit-kdump = %{version}-%{release}
 Provides: cockpit-networkmanager = %{version}-%{release}
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
-Obsoletes: cockpit-tests < 331
 %endif
 %if 0%{?fedora}
 Recommends: (reportd if abrt)
@@ -335,6 +334,7 @@ Recommends: system-logos
 Suggests: sssd-dbus >= 2.6.2
 # for cockpit-desktop
 Suggests: python3
+Obsoletes: cockpit-tests < 331
 
 # prevent hard python3 dependency for cockpit-desktop, it falls back to other browsers
 %global __requires_exclude_from ^%{_libexecdir}/cockpit-client$

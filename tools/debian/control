@@ -131,8 +131,6 @@ Provides: cockpit-shell,
           cockpit-tuned,
           cockpit-users
 Suggests: lastlog2
-Conflicts: cockpit-tests (<< 331)
-Replaces: cockpit-tests (<< 331)
 Description: Cockpit admin interface for a system
  Cockpit admin interface package for configuring and
  troubleshooting a system.
@@ -148,6 +146,8 @@ Depends: ${misc:Depends},
          libnss-systemd,
 Suggests: sssd-dbus (>= 2.6.2),
          python3,
+Conflicts: cockpit-tests (<< 331)
+Replaces: cockpit-tests (<< 331)
 Description: Cockpit Web Service
  The Cockpit Web Service listens on the network, and authenticates
  users.

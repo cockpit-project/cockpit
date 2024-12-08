@@ -20,7 +20,7 @@ src/systemd/%: src/systemd/%.in
 # unit files
 systemdgenerated += $(nodist_systemdunit_DATA)
 nodist_systemdunit_DATA = \
-	src/systemd/cockpit-motd.service \
+	src/systemd/cockpit-issue.service \
 	src/systemd/cockpit.service \
 	src/systemd/cockpit.socket \
 	src/systemd/cockpit-session@.service \
@@ -40,17 +40,17 @@ dist_systemdunit_DATA = \
 	$(NULL)
 
 # -----------------
-# motd
-motddir = $(datadir)/$(PACKAGE)/motd/
-dist_motd_DATA = src/systemd/inactive.motd
-dist_motd_SCRIPTS = src/systemd/update-motd
+# issue
+issuedir = $(datadir)/$(PACKAGE)/issue/
+dist_issue_DATA = src/systemd/inactive.issue
+dist_issue_SCRIPTS = src/systemd/update-issue
 
 # Automake: 'Variables using ... ‘sysconf’ ... are installed by install-exec.'
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/motd.d
-	ln -sTfr $(DESTDIR)/run/cockpit/motd $(DESTDIR)$(sysconfdir)/motd.d/cockpit
+	ln -sTfr $(DESTDIR)/run/cockpit/issue $(DESTDIR)$(sysconfdir)/motd.d/cockpit
 	mkdir -p $(DESTDIR)$(sysconfdir)/issue.d
-	ln -sTfr $(DESTDIR)/run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
+	ln -sTfr $(DESTDIR)/run/cockpit/issue $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
 
 # -----------------
 # tmpfiles

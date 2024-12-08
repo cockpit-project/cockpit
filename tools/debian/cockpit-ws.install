@@ -1,7 +1,7 @@
 etc/cockpit/ws-certs.d
 etc/pam.d/cockpit
 ${env:deb_systemdsystemunitdir}/cockpit.service
-${env:deb_systemdsystemunitdir}/cockpit-motd.service
+${env:deb_systemdsystemunitdir}/cockpit-issue.service
 ${env:deb_systemdsystemunitdir}/cockpit.socket
 ${env:deb_systemdsystemunitdir}/cockpit-session.socket
 ${env:deb_systemdsystemunitdir}/cockpit-session@.service
@@ -27,7 +27,7 @@ usr/lib/cockpit/cockpit-desktop
 usr/lib/cockpit/cockpit-certificate-ensure
 usr/lib/cockpit/cockpit-certificate-helper
 usr/share/cockpit/branding/
-usr/share/cockpit/motd/
+usr/share/cockpit/issue/
 usr/share/cockpit/static/
 usr/share/man/man1/cockpit-desktop.1
 usr/share/man/man5/cockpit.conf.5

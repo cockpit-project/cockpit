@@ -37,7 +37,7 @@ override_dh_auto_configure:
 override_dh_auto_install:
 	DEB_PYTHON_INSTALL_LAYOUT=deb dh_auto_install
 
-# avoid trying to start cockpit-motd.service and cockpit-wsinstance-*.socket etc.
+# avoid trying to start cockpit-issue.service and cockpit-wsinstance-*.socket etc.
 override_dh_installsystemd:
 	dh_installsystemd -p cockpit-ws cockpit.socket
 

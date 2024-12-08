@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-# syntax: update-motd [port [hostname [ipaddr [protocol]]]]
+# syntax: update-issue [port [hostname [ipaddr [protocol]]]]
 # each argument can be given as the empty string to use the default
 
 # port number from cmdline, then systemctl file, then 9090
@@ -21,4 +21,4 @@ protocol=${4:-https}
 hostname_url="${protocol}://${hostname}:${port}/"
 ip_url="${ip:+ or ${protocol}://${ip}:${port}/}"
 
-printf 'Web console: %s%s\n\n' "${hostname_url}" "${ip_url}"  > /run/cockpit/active.motd
+printf 'Web console: %s%s\n\n' "${hostname_url}" "${ip_url}"  > /run/cockpit/active.issue

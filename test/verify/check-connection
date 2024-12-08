@@ -733,8 +733,8 @@ class TestConnection(testlib.MachineCase):
         # fresh install (most of our test images have cockpit-ws preinstalled, so the first test above does not cover that)
         install()
         # verify that we installed relative links in the new package
-        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "../../run/cockpit/motd")
-        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "../../run/cockpit/motd")
+        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "../../run/cockpit/issue")
+        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "../../run/cockpit/issue")
         if root_login_disallowed:
             self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
 

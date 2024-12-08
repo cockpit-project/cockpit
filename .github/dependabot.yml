@@ -44,6 +44,10 @@ updates:
       - dependency-name: "@patternfly/*"
         versions: ["6.x"]
 
+      # PF5 requires fixed major React version
+      - dependency-name: "*react*"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     open-pull-requests-limit: 3

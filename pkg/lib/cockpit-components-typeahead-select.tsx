@@ -76,6 +76,10 @@ SOFTWARE.
      done. And there is no visual nesting going on anyway. Keeping the
      options a flat list is just all around easier.
 
+   - Remove the custom menu key navigation. It wasn't doing anything,
+     actually, except duplicating what the menu already does and
+     producing a second focus item that was mostly out of sync with
+     the one already maintained by the Select component.
 */
 
 /* eslint-disable */
@@ -215,8 +219,6 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
   const [isOpen, setIsOpen] = React.useState(false);
   const [filterValue, setFilterValue] = React.useState<string>('');
   const [isFiltering, setIsFiltering] = React.useState<boolean>(false);
-  const [focusedItemIndex, setFocusedItemIndex] = React.useState<number | null>(null);
-  const [activeItemId, setActiveItemId] = React.useState<string | null>(null);
   const textInputRef = React.useRef<HTMLInputElement>();
 
   const NO_RESULTS = 'no results';
@@ -308,31 +310,21 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFiltering]);
 
-  const setActiveAndFocusedItem = (itemIndex: number) => {
-    setFocusedItemIndex(itemIndex);
-    const focusedItem = selectOptions[itemIndex] as TypeaheadSelectMenuOption;
-    setActiveItemId(String(focusedItem.value));
-  };
-
-  const resetActiveAndFocusedItem = () => {
-    setFocusedItemIndex(null);
-    setActiveItemId(null);
-  };
-
-  const openMenu = () => {
+  const openMenu = (menuFocus: boolean = false) => {
     if (!isOpen) {
       onToggle && onToggle(true);
       setIsOpen(true);
-      setTimeout(() => {
-        textInputRef.current?.focus();
-      }, 100);
+      if (!menuFocus) {
+        setTimeout(() => {
+          textInputRef.current?.focus();
+        }, 100);
+      }
     }
   };
 
   const closeMenu = () => {
     onToggle && onToggle(false);
     setIsOpen(false);
-    resetActiveAndFocusedItem();
     setIsFiltering(false);
     setFilterValue(String(selected?.content ?? ''));
   };
@@ -369,72 +361,16 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
     setIsFiltering(true);
     setFilterValue(value || '');
     onInputChange && onInputChange(value);
-
-    resetActiveAndFocusedItem();
-  };
-
-  const handleMenuArrowKeys = (key: string) => {
-    let indexToFocus = 0;
-
-    openMenu();
-
-    if (filteredSelections.every(o => !isMenu(o))) {
-      return;
-    }
-
-    if (key === 'ArrowUp') {
-      // When no index is set or at the first index, focus to the last, otherwise decrement focus index
-      if (focusedItemIndex === null || focusedItemIndex === 0) {
-        indexToFocus = filteredSelections.length - 1;
-      } else {
-        indexToFocus = focusedItemIndex - 1;
-      }
-
-      // Skip non-items
-      while (!isEnabledMenu(filteredSelections[indexToFocus])) {
-        indexToFocus--;
-        if (indexToFocus === -1) {
-          indexToFocus = filteredSelections.length - 1;
-        }
-      }
-    }
-
-    if (key === 'ArrowDown') {
-      // When no index is set or at the last index, focus to the first, otherwise increment focus index
-      if (focusedItemIndex === null || focusedItemIndex === filteredSelections.length - 1) {
-        indexToFocus = 0;
-      } else {
-        indexToFocus = focusedItemIndex + 1;
-      }
-
-      // Skip non-items
-      while (!isEnabledMenu(filteredSelections[indexToFocus])) {
-        indexToFocus++;
-        if (indexToFocus === filteredSelections.length) {
-          indexToFocus = 0;
-        }
-      }
-    }
-
-    setActiveAndFocusedItem(indexToFocus);
   };
 
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const focusedItem = (focusedItemIndex !== null ? filteredSelections[focusedItemIndex] : null) as TypeaheadSelectMenuOption | null;
-
     switch (event.key) {
       case 'Enter':
-        if (isOpen && focusedItem && focusedItem.value !== NO_RESULTS && !focusedItem.isAriaDisabled) {
-          selectOption(event, focusedItem);
-        }
-
         openMenu();
-
         break;
       case 'ArrowUp':
       case 'ArrowDown':
-        event.preventDefault();
-        handleMenuArrowKeys(event.key);
+        openMenu(true);
         break;
     }
   };
@@ -455,7 +391,6 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
     setFilterValue('');
     onInputChange && onInputChange('');
     setIsFiltering(false);
-    resetActiveAndFocusedItem();
     textInputRef.current?.focus();
     onClearSelection && onClearSelection();
   };
@@ -485,7 +420,6 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
           autoComplete="off"
           innerRef={textInputRef}
           placeholder={placeholder}
-          {...(activeItemId && { 'aria-activedescendant': activeItemId })}
           role="combobox"
           isExpanded={isOpen}
           aria-controls="select-typeahead-listbox"
@@ -529,7 +463,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
           const { content, value, ...props } = option;
           return (
-            <SelectOption key={value} value={value} isFocused={focusedItemIndex === index} {...props}>
+            <SelectOption key={value} value={value} {...props}>
               {content}
             </SelectOption>
           );

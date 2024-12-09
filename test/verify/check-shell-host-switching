@@ -183,6 +183,14 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present("#nav-system.interact")
         b.set_layout("desktop")
 
+        # this looks different (focused) when the mouse is inside (default 0,0 possition), so move it away
+        # chromium is stubborn here, we *have* to move the real mouse, not just do this with synthetic MouseEvents
+        b.bidi("input.performActions", context=b.driver.context, actions=[{
+            "id": "move-away",
+            "type": "pointer",
+            "parameters": {"pointerType": "mouse"},
+            "actions": [{"type": "pointerMove", "x": 200, "y": 200, "origin": "viewport"}]
+        }])
         b.assert_pixels("#hosts-sel", "hosts-sel-closed")
 
         b.click("#hosts-sel button")

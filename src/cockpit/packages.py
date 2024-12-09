@@ -271,7 +271,7 @@ class Package:
                 self.translations[f'{basename}.js'][lower_locale] = name
             else:
                 # strip out trailing '.gz' components
-                basename = re.sub('.gz$', '', name)
+                basename = re.sub(r'.gz$', '', name)
                 logger.debug('Adding content %r -> %r', basename, name)
                 self.files[basename] = name
 

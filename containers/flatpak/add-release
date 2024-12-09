@@ -15,7 +15,7 @@ def element(tag, text=None, children=(), **kwargs):
 
 
 def points_from_body(body):
-    for text in re.split('^ *-', body, flags=re.MULTILINE):
+    for text in re.split(r'^ *-', body, flags=re.MULTILINE):
         if point := ' '.join(text.split()).strip():
             yield element('li', point)
 

@@ -165,7 +165,7 @@ except FileNotFoundError:
     sys.exit(77)
 
 cur = []
-js_error_codes = Counter()
+js_error_codes: Counter = Counter()
 parser = argparse.ArgumentParser(description="Run tsc as a typechecker with an allowlist of errors for JavaScript and TypeScript files")
 parser.add_argument("--stats", action="store_true", help="Display stats of the most common TypeScript errors in JavaScript files")
 args = parser.parse_args()

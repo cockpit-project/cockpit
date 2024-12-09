@@ -1425,19 +1425,19 @@ class TestAutoUpdates(NoSubManCase):
             else:
                 raise NotImplementedError(self.backend)
 
-        def assertTypeDnf(_type):
-            if _type == "all":
+        def assertTypeDnf(type_):
+            if type_ == "all":
                 match = '= default'
-            elif _type == "security":
+            elif type_ == "security":
                 match = '= security'
             else:
-                raise ValueError(_type)
+                raise ValueError(type_)
 
             self.assertIn(match, m.execute(f"grep upgrade_type {self.config}"))
 
-        def assertType(_type):
+        def assertType(type_):
             if "dnf" in self.backend:
-                assertTypeDnf(_type)
+                assertTypeDnf(type_)
             else:
                 raise NotImplementedError(self.backend)
 

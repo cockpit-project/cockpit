@@ -189,7 +189,8 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
     }
   };
 
-  const selectOption = (option: string | number) => {
+    const selectOption = (option: string | number) => {
+    console.log("SEL", option, selected, selected.includes(option));
     if (selected.includes(option))
       onRemove(option);
     else

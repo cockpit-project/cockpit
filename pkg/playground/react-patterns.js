@@ -31,6 +31,7 @@ import { showCardsDemo } from "./react-demo-cards.jsx";
 import { showUploadDemo } from "./react-demo-file-upload.jsx";
 import { showFileAcDemo, showFileAcDemoPreselected } from "./react-demo-file-autocomplete.jsx";
 import { showTypeaheadDemo } from "./react-demo-typeahead.jsx";
+import { showMultiTypeaheadDemo } from "./react-demo-multi-typeahead.jsx";
 
 /* -----------------------------------------------------------------------------
   Modal Dialog
@@ -129,6 +130,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Plain typeahead select with headers and dividers
     showTypeaheadDemo(document.getElementById('demo-typeahead'));
+
+    // Multi typeahead
+    showMultiTypeaheadDemo(document.getElementById('demo-multi-typeahead'));
 
     // Cards
     showCardsDemo(document.getElementById('demo-cards'));

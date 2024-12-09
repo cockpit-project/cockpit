@@ -120,7 +120,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
 
         ver = self.machine.execute(
             "busctl --system get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version || true")
-        ver_match = re.match('s "(.*)"', ver)
+        ver_match = re.match(r's "(.*)"', ver)
         if ver_match:
             self.networkmanager_version = [int(x) for x in ver_match.group(1).split(".")]
         else:

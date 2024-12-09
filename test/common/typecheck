@@ -144,7 +144,7 @@ def show_error(lines):
 
 
 def consider(lines, js_error_codes):
-    m = re.match("([^:]*)\\(.*\\): error ([^:]*): .*", lines[0])
+    m = re.match(r"([^:]*)\(.*\): error ([^:]*): .*", lines[0])
     if m and not should_ignore(m[1]):
         relaxed = is_relaxed(m[1])
         is_js = m[1].endswith(('.js', '.jsx'))

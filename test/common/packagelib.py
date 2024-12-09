@@ -157,7 +157,7 @@ class PackageCase(MachineCase):
         else:
             self.createRpm(name, version, release, depends, postinst, install, content, arch, provides)
         if updateinfo:
-            self.updateInfo[(name, version, release)] = updateinfo
+            self.updateInfo[name, version, release] = updateinfo
 
     def createDeb(self, name, version, depends, postinst, install, content, arch, provides):
         """Create a dummy deb in repo_dir on self.machine

@@ -361,7 +361,7 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
         !isOpen && closeMenu();
       }}
       toggle={toggle}
-      shouldFocusFirstItemOnOpen={false}
+      variant="typeahead"
       ref={innerRef}
       {...props}
     >

@@ -660,7 +660,7 @@ class StorageCase(MachineCase, StorageHelpers):
         super().setUp()
 
         ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
-        m = re.match('s "(.*)"', ver)
+        m = re.match(r's "(.*)"', ver)
         if m:
             self.storaged_version = list(map(int, m.group(1).split(".")))
         else:

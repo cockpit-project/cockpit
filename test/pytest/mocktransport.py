@@ -17,10 +17,10 @@ class MockTransport(asyncio.Transport):
         await asyncio.sleep(0.1)
         assert self.queue.qsize() == 0
 
-    def send_json(self, _channel: str, **kwargs) -> None:
+    def send_json(self, channel_: str, **kwargs) -> None:
         # max_read_size is one of our special keys which uses underscores
         msg = {k.replace('_', '-') if k != "max_read_size" else k: v for k, v in kwargs.items()}
-        self.send_data(_channel, json.dumps(msg).encode('ascii'))
+        self.send_data(channel_, json.dumps(msg).encode('ascii'))
 
     def send_data(self, channel: str, data: bytes) -> None:
         msg = channel.encode('ascii') + b'\n' + data

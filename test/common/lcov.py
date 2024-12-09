@@ -406,7 +406,7 @@ def get_review_comments(diff_info_file):
         # Don't complain about lines that contain only punctuation, or
         # nothing but "else".  We don't seem to get reliable
         # information for them.
-        if not re.search('[a-zA-Z0-9]', text.replace("else", "")):
+        if not re.search(r'[a-zA-Z0-9]', text.replace("else", "")):
             return False
         return True
 

@@ -57,11 +57,11 @@ def my_umask() -> int:
     return (match and int(match.group(1), 8)) or 0o077
 
 
-def tag_from_stat(buf):
+def tag_from_stat(buf) -> str:
     return f'1:{buf.st_ino}-{buf.st_mtime}-{buf.st_mode:o}-{buf.st_uid}-{buf.st_gid}'
 
 
-def tag_from_path(path):
+def tag_from_path(path) -> 'str | None':
     try:
         return tag_from_stat(os.stat(path))
     except FileNotFoundError:
@@ -70,7 +70,7 @@ def tag_from_path(path):
         return None
 
 
-def tag_from_fd(fd):
+def tag_from_fd(fd) -> 'str | None':
     try:
         return tag_from_stat(os.fstat(fd))
     except OSError:
@@ -151,7 +151,8 @@ class FsReadChannel(GeneratorChannel):
             return {'tag': tag_from_stat(buf)}
 
         except FileNotFoundError:
-            return {'tag': '-'}
+            # Using `yield` and `return {value}` generator, but GeneratorChannel does expect this
+            return {'tag': '-'}  # noqa: B901
         except PermissionError as exc:
             raise ChannelError('access-denied') from exc
         except OSError as exc:
@@ -168,7 +169,9 @@ class FsReplaceChannel(AsyncChannel):
             os.unlink(path)
         return '-'
 
-    async def set_contents(self, path: str, tag: 'str | None', data: 'bytes | None', size: 'int | None') -> str:
+    async def set_contents(
+        self, path: str, tag: 'str | None', data: 'bytes | None', size: 'int | None'
+    ) -> 'str | None':
         dirname, basename = os.path.split(path)
         tmpname: str | None
         fd, tmpname = tempfile.mkstemp(dir=dirname, prefix=f'.{basename}-')
@@ -261,7 +264,7 @@ class FsReplaceChannel(AsyncChannel):
 
 class FsWatchChannel(Channel, PathWatchListener):
     payload = 'fswatch1'
-    _tag = None
+    _tag: 'str | None' = None
     _watch = None
 
     # The C bridge doesn't send the initial event, and the JS calls read()

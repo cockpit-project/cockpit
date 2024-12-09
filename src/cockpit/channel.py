@@ -327,8 +327,8 @@ class Channel(Endpoint):
         """
         return self.send_bytes(data.encode())
 
-    def send_json(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> bool:
-        pretty = self.json_encoder.encode(create_object(_msg, kwargs)) + '\n'
+    def send_json(self, msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> bool:
+        pretty = self.json_encoder.encode(create_object(msg, kwargs)) + '\n'
         return self.send_text(pretty)
 
     def do_pong(self, message):

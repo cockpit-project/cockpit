@@ -73,9 +73,9 @@ def info(dev):
             in_luks2_token_section = True
 
         if in_luks2_slot_section:
-            match = re.match(b"  ([0-9]+): luks2$", line)
+            match = re.match(rb"  ([0-9]+): luks2$", line)
         else:
-            match = re.match(b"Key Slot ([0-9]+): ENABLED$", line)
+            match = re.match(rb"Key Slot ([0-9]+): ENABLED$", line)
         if match:
             slot = int(match.group(1))
             entry = {"Index": {"v": slot}}
@@ -93,7 +93,7 @@ def info(dev):
                 slots[slot] = entry
 
         if in_luks2_token_section:
-            match = re.match(b"  ([0-9]+): clevis$", line)
+            match = re.match(rb"  ([0-9]+): clevis$", line)
             if match:
                 try:
                     token = subprocess.check_output(["cryptsetup", "token", "export",

@@ -55,8 +55,11 @@ class TestRunTestListing(unittest.TestCase):
         self.assertIn(b"TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", ndtests.stdout)
 
         # nondestructive tests are sorted alphabetically
-        verify_ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], check=True, capture_output=True)
-        self.assertRegex(verify_ndtests.stdout, re.compile(b".*TestAccounts.*TestFirewall.*TestLogin.*TestServices.*TestTerminal.*", re.S))
+        verify_ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"],
+                                        check=True, capture_output=True)
+        self.assertRegex(
+            verify_ndtests.stdout,
+            re.compile(rb".*TestAccounts.*TestFirewall.*TestLogin.*TestServices.*TestTerminal.*", re.S))
 
     def testNonDestructive(self):
         self.assertEqual(subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "--nondestructive", "-l", "TestExample"]).strip().decode(),

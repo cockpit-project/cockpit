@@ -156,7 +156,7 @@ def get_subvolume_info(mp):
     lines = subprocess.check_output(["btrfs", "subvolume", "list", "-apuq", mp]).splitlines()
     subvols = []
     for line in lines:
-        match = re.match(b"ID (\\d+).*parent (\\d+).*parent_uuid (.*)uuid (.*) path (<FS_TREE>/)?(.*)", line)
+        match = re.match(rb"ID (\d+).*parent (\d+).*parent_uuid (.*)uuid (.*) path (<FS_TREE>/)?(.*)", line)
         if match:
             pathname = match[6].decode(errors='replace')
             # Ignore podman btrfs subvolumes, they are an implementation detail.
@@ -169,13 +169,13 @@ def get_subvolume_info(mp):
                         'uuid': match[4].decode(),
                         'parent_uuid': None if match[3][0] == ord("-") else match[3].decode().strip()
                     }
-            ]
+                ]
     return subvols
 
 
 def get_default_subvolume(mp):
     output = subprocess.check_output(["btrfs", "subvolume", "get-default", mp])
-    match = re.match(b"ID (\\d+).*", output)
+    match = re.match(rb"ID (\d+).*", output)
     if match:
         return int(match[1])
     else:
@@ -186,7 +186,7 @@ def get_usages(uuid):
     output = subprocess.check_output(["btrfs", "filesystem", "show", "--raw", uuid])
     usages = {}
     for line in output.splitlines():
-        match = re.match(b".*used\\s+(\\d+)\\s+path\\s+([\\w/]+).*", line)
+        match = re.match(rb".*used\s+(\d+)\s+path\s+([\w/]+).*", line)
         if match:
             usages[match[2].decode()] = int(match[1])
     return usages

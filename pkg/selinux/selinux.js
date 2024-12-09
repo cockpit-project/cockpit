@@ -129,7 +129,7 @@ const initStore = function(rootElement) {
      * This function will only be called if the backend functionality is actually present
      */
     const deleteAlert = function(alertId) {
-        return dataStore.client.capabilities.deleteAlert(alertId)
+        return dataStore.client.deleteAlert(alertId)
                 .then(() => {
                     let idx;
                     for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
@@ -155,7 +155,7 @@ const initStore = function(rootElement) {
     const render = function() {
         if (!dataStore.reactRoot)
             dataStore.reactRoot = createRoot(rootElement);
-        const enableDeleteAlert = ('capabilities' in dataStore.client && 'deleteAlert' in dataStore.client.capabilities);
+
         dataStore.reactRoot.render(React.createElement(SETroubleshootPage, {
             connected: dataStore.connected,
             connecting: dataStore.connecting,
@@ -163,7 +163,7 @@ const initStore = function(rootElement) {
             dismissError,
             entries: dataStore.entries,
             runFix,
-            deleteAlert: enableDeleteAlert ? deleteAlert : undefined,
+            deleteAlert,
             selinuxStatus: dataStore.selinuxStatus,
             selinuxStatusError: dataStore.selinuxStatusError,
             changeSelinuxMode: selinuxChangeMode,
@@ -255,19 +255,14 @@ const initStore = function(rootElement) {
 
     dataStore.connectionTimeout = 5000;
 
-    function capablitiesChanged(capabilities) {
-        dataStore.capabilities = capabilities;
-        render();
-    }
-
     // try to connect
     dataStore.tryConnect = function() {
         if (dataStore.connecting === null) {
             dataStore.connecting = window.setTimeout(setErrorIfNotConnected, dataStore.connectionTimeout);
             render();
             // initialize our setroubleshootd client
-            dataStore.client.init(capablitiesChanged)
-                    .then(capablitiesChanged => {
+            dataStore.client.init()
+                    .then(() => {
                         dataStore.connected = true;
                         window.clearTimeout(dataStore.connecting);
                         dataStore.connecting = null;

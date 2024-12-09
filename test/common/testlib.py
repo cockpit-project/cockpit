@@ -2489,13 +2489,13 @@ def jsquote(js: object) -> str:
     return json.dumps(js)
 
 
-def get_decorator(method: object, _class: object, name: str, default: Any = None) -> Any:
+def get_decorator(method: object, class_: object, name: str, default: Any = None) -> Any:
     """Get decorator value of a test method or its class
 
     Return None if the decorator was not set.
     """
     attr = "_testlib__" + name
-    return getattr(method, attr, getattr(_class, attr, default))
+    return getattr(method, attr, getattr(class_, attr, default))
 
 
 ###########################

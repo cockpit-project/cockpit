@@ -39,9 +39,9 @@ class CockpitProblem(Exception):
     """
     attrs: JsonObject
 
-    def __init__(self, problem: str, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
+    def __init__(self, problem: str, msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
         kwargs['problem'] = problem
-        self.attrs = create_object(_msg, kwargs)
+        self.attrs = create_object(msg, kwargs)
         super().__init__(get_str(self.attrs, 'message', problem))
 
     def get_attrs(self) -> JsonObject:
@@ -179,10 +179,10 @@ class CockpitProtocol(asyncio.Protocol):
         else:
             logger.debug('cannot write to closed transport')
 
-    def write_control(self, _msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
+    def write_control(self, msg: 'JsonObject | None' = None, **kwargs: JsonValue) -> None:
         """Write a control message.  See jsonutil.create_object() for details."""
-        logger.debug('sending control message %r %r', _msg, kwargs)
-        pretty = json.dumps(create_object(_msg, kwargs), indent=2) + '\n'
+        logger.debug('sending control message %r %r', msg, kwargs)
+        pretty = json.dumps(create_object(msg, kwargs), indent=2) + '\n'
         self.write_channel_data('', pretty.encode())
 
     def data_received(self, data: bytes) -> None:

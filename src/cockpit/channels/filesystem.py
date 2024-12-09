@@ -151,7 +151,8 @@ class FsReadChannel(GeneratorChannel):
             return {'tag': tag_from_stat(buf)}
 
         except FileNotFoundError:
-            return {'tag': '-'}
+            # Using `yield` and `return {value}` generator, but GeneratorChannel does expect this
+            return {'tag': '-'}  # noqa: B901
         except PermissionError as exc:
             raise ChannelError('access-denied') from exc
         except OSError as exc:

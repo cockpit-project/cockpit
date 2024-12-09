@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
 
 import testlib
+import time
 
 
 @testlib.nondestructive
@@ -70,14 +71,27 @@ class TestLib(testlib.MachineCase):
         # Select with keys, verify that dividers and headers are skipped
 
         b.click("#demo-typeahead .pf-v5-c-menu-toggle__button")
+        # The PF typeahead template asynchronously moves the focus to
+        # the text input, and navigation would be yanked to the start
+        # or end of the menu.  Let's wait for this to be over.
+        time.sleep(1)
+
         b.wait_visible("#typeahead-widget")
+        b.wait_visible("#demo-typeahead input:focus")
         b.key("ArrowDown")
+        b.wait_text("#demo-typeahead :focus", "The Start")
         b.key("ArrowUp")     # wraps around
+        b.wait_text("#demo-typeahead :focus", "The End")
         b.key("ArrowUp")     # skips over divider
+        b.wait_text("#demo-typeahead :focus", "Wyoming")
         b.key("ArrowDown")   # skips over divider
+        b.wait_text("#demo-typeahead :focus", "The End")
         b.key("ArrowDown")   # wraps around
+        b.wait_text("#demo-typeahead :focus", "The Start")
         b.key("ArrowDown")   # skips over divider and header
+        b.wait_text("#demo-typeahead :focus", "Alaska")
         b.key("ArrowDown")
+        b.wait_text("#demo-typeahead :focus", "Alabama")
         b.key("Enter")
         b.wait_not_present("#typeahead-widget")
         b.wait_text("#value", "AL")

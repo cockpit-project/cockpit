@@ -909,7 +909,8 @@ on_authorize_timeout (int signo)
 {
   /* Can't use errx() here: https://man7.org/linux/man-pages/man7/signal-safety.7.html */
   static const char msg[] = "timed out waiting for authorize response\n";
-  write (STDERR_FILENO, msg, sizeof (msg) - 1);
+  /* ignore write errors(-Wunused-result); if that fails, we can do absolutely nothing about it */
+  (void) !write (STDERR_FILENO, msg, sizeof (msg) - 1);
   _exit(EX);
 }
 

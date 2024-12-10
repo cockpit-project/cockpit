@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-02 03:06+0000\n"
+"POT-Creation-Date: 2024-12-07 03:05+0000\n"
 "PO-Revision-Date: 2024-11-03 12:38+0000\n"
 "Last-Translator: Inci sakura <incisakura@icloud.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -110,11 +110,11 @@ msgstr "このイメージは存在しません。"
 msgid "$0 error"
 msgstr "$0 エラー"
 
-#: pkg/lib/cockpit.js:1407
+#: pkg/lib/cockpit.js:1224
 msgid "$0 exited with code $1"
 msgstr "$0 がコード $1 で終了しました"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1226
 msgid "$0 failed"
 msgstr "$0 が失敗しました"
 
@@ -175,7 +175,7 @@ msgstr "$0 は、あらゆるリポジトリーから利用できません。"
 msgid "$0 key changed"
 msgstr "$0 キーが変更されました"
 
-#: pkg/lib/cockpit.js:1405
+#: pkg/lib/cockpit.js:1222
 msgid "$0 killed with signal $1"
 msgstr "$0 がシグナル $1 で終了しました"
 
@@ -773,7 +773,7 @@ msgstr "キーサーバーの追加"
 msgid "Add member"
 msgstr "メンバーの追加"
 
-#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
+#: pkg/shell/hosts.jsx:208 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "新規ホストの追加"
 
@@ -1047,7 +1047,7 @@ msgid "Application information is missing"
 msgstr "アプリケーション情報が見つかりません"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:174
-#: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:145 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "アプリケーション"
 
@@ -1087,7 +1087,7 @@ msgstr "アップデートの適用に失敗しました"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "/var などの重要なマウントに適しています"
 
-#: pkg/shell/nav.jsx:345
+#: pkg/shell/nav.jsx:352
 msgid "Apps"
 msgstr "アプリ"
 
@@ -1201,15 +1201,15 @@ msgstr "自動アップデート"
 msgid "Automatically starts"
 msgstr "自動起動"
 
-#: pkg/lib/serverTime.js:558
+#: pkg/lib/serverTime.js:560
 msgid "Automatically using NTP"
 msgstr "NTP を自動的に使用"
 
-#: pkg/lib/serverTime.js:565
+#: pkg/lib/serverTime.js:567
 msgid "Automatically using additional NTP servers"
 msgstr "追加の NTP サーバーを自動的に使用"
 
-#: pkg/lib/serverTime.js:566
+#: pkg/lib/serverTime.js:568
 msgid "Automatically using specific NTP servers"
 msgstr "特定の NTP サーバーを自動的に使用"
 
@@ -1422,7 +1422,7 @@ msgstr ""
 #: pkg/networkmanager/dialogs-common.jsx:152
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913 pkg/kdump/kdump-view.jsx:235
-#: pkg/apps/utils.jsx:69 pkg/lib/cockpit-components-shutdown.jsx:193
+#: pkg/apps/utils.tsx:92 pkg/lib/cockpit-components-shutdown.jsx:193
 #: pkg/lib/cockpit-components-dialog.jsx:131
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
@@ -1453,7 +1453,7 @@ msgstr "有効にできません"
 msgid "Cannot connect to an unknown host"
 msgstr "不明なホストには接続できません"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2425
 msgid "Cannot forward login credentials"
 msgstr "ログインのクレデンシャルをフォワードできません"
 
@@ -1480,7 +1480,7 @@ msgid "Category"
 msgstr "カテゴリー"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
-#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:723 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:568
 msgid "Change"
@@ -1532,7 +1532,7 @@ msgstr "プロファイルの変更"
 msgid "Change shell"
 msgstr "シェルの変更"
 
-#: pkg/lib/serverTime.js:714
+#: pkg/lib/serverTime.js:716
 msgid "Change system time"
 msgstr "システム時間の変更"
 
@@ -1617,10 +1617,6 @@ msgstr "$0 パッケージの確認中"
 msgid "Checking for NBDE support in the initrd"
 msgstr "initrd での NBDE サポートの確認中"
 
-#: pkg/apps/application-list.jsx:148
-msgid "Checking for new applications"
-msgstr "新しいアプリケーションの確認中"
-
 #: pkg/packagekit/updates.jsx:1389
 msgid "Checking for package updates..."
 msgstr "パッケージの更新を確認しています..."
@@ -1662,7 +1658,13 @@ msgstr "すべてのフィルターの消去"
 msgid "Clear filter"
 msgstr "フィルターを外す"
 
-#: pkg/shell/nav.jsx:160
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+#, fuzzy
+#| msgid "Clear filter"
+msgid "Clear input value"
+msgstr "フィルターを外す"
+
+#: pkg/shell/nav.jsx:164
 msgid "Clear search"
 msgstr "検索の消去"
 
@@ -1676,7 +1678,7 @@ msgstr "クライアントソフトウェア"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
-#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
+#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.tsx:112
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
@@ -1702,7 +1704,7 @@ msgstr "Cockpit の認証が間違って設定されています。"
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Cockpit の NetworkManager と Firewalld の設定"
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2431
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit は該当するホストに接続できませんでした。"
 
@@ -1727,7 +1729,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit は対話型 Linux サーバー管理インターフェースです。"
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2429
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit にはシステム上のそのソフトウェアとの互換性がありません。"
 
@@ -1735,7 +1737,7 @@ msgstr "Cockpit にはシステム上のそのソフトウェアとの互換性�
 msgid "Cockpit is not installed"
 msgstr "Cockpit はインストールされていません"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2423
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit はシステムにインストールされていません。"
 
@@ -1932,7 +1934,7 @@ msgstr "dbus への接続に失敗しました: $0"
 msgid "Connecting to the machine"
 msgstr "マシンへ接続中"
 
-#: pkg/shell/hosts.jsx:194
+#: pkg/shell/hosts.jsx:193
 msgid "Connection error"
 msgstr "接続エラー"
 
@@ -1940,7 +1942,7 @@ msgstr "接続エラー"
 msgid "Connection failed"
 msgstr "接続に失敗しました"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2421
 msgid "Connection has timed out."
 msgstr "接続がタイムアウトしました。"
 
@@ -1956,7 +1958,7 @@ msgstr "構成するもの"
 msgid "Contacted domain"
 msgstr "接続されたドメイン"
 
-#: pkg/shell/nav.jsx:232
+#: pkg/shell/nav.jsx:237
 msgid "Contains:"
 msgstr "次を含む:"
 
@@ -1964,7 +1966,7 @@ msgstr "次を含む:"
 msgid "Continue"
 msgstr "続行"
 
-#: pkg/shell/idle.jsx:120
+#: pkg/shell/idle.jsx:122
 msgid "Continue session"
 msgstr "セッションを続ける"
 
@@ -2805,7 +2807,7 @@ msgstr "EFI システムパーティション"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "編集"
@@ -2842,7 +2844,7 @@ msgstr "$0 ゾーンでカスタムサービスを編集する"
 msgid "Edit host"
 msgstr "ホストを編集する"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Edit hosts"
 msgstr "ホストを編集する"
 
@@ -3022,7 +3024,7 @@ msgid "Errata"
 msgstr "エラータ"
 
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
-#: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
+#: pkg/apps/utils.tsx:106 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
 #: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
@@ -3387,7 +3389,7 @@ msgstr "生成しました"
 msgid "Go to $0"
 msgstr "$0 に移動"
 
-#: pkg/apps/application.jsx:109
+#: pkg/apps/application.jsx:108
 msgid "Go to application"
 msgstr "アプリケーションへ移動"
 
@@ -3411,7 +3413,7 @@ msgstr "グループ"
 msgid "Group name"
 msgstr "グループ名"
 
-#: pkg/users/account-details.js:440 pkg/users/accounts-list.js:313
+#: pkg/users/account-details.js:419 pkg/users/accounts-list.js:313
 #: pkg/users/accounts-list.js:317
 msgid "Groups"
 msgstr "グループ"
@@ -3507,7 +3509,7 @@ msgstr "履歴パッケージ数"
 msgid "Home directory"
 msgstr "ホームディレクトリー"
 
-#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
+#: pkg/shell/hosts.jsx:224 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "ホスト"
 
@@ -3515,7 +3517,7 @@ msgstr "ホスト"
 msgid "Host is unknown"
 msgstr "不明ホスト"
 
-#: pkg/lib/cockpit.js:2600
+#: pkg/lib/cockpit.js:2417
 msgid "Host key is incorrect"
 msgstr "ホスト鍵が正しくありません"
 
@@ -3531,7 +3533,7 @@ msgstr "ホストキーが不明です"
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: pkg/shell/hosts.jsx:183
+#: pkg/shell/hosts.jsx:182
 msgid "Hosts"
 msgstr "ホスト"
 
@@ -3728,7 +3730,7 @@ msgstr "初期化中..."
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:52
+#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:51
 #: pkg/lib/cockpit-components-install-dialog.jsx:126
 #: pkg/packagekit/kpatch.jsx:250
 msgid "Install"
@@ -3792,7 +3794,7 @@ msgstr ""
 msgid "Installed"
 msgstr "インストール済み"
 
-#: pkg/apps/application.jsx:40 pkg/packagekit/updates.jsx:105
+#: pkg/apps/application.jsx:39 pkg/packagekit/updates.jsx:105
 msgid "Installing"
 msgstr "インストール中"
 
@@ -3826,7 +3828,7 @@ msgstr "インターフェースメンバー"
 msgid "Interfaces"
 msgstr "インターフェース"
 
-#: pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2419
 msgid "Internal error"
 msgstr "内部エラー"
 
@@ -3846,7 +3848,7 @@ msgstr "無効"
 msgid "Invalid address $0"
 msgstr "無効なアドレス $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:681
 msgid "Invalid date format"
 msgstr "無効な日付形式"
 
@@ -3890,12 +3892,12 @@ msgstr "無効なプレフィックスまたはネットマスク $0"
 msgid "Invalid range"
 msgstr "無効な範囲"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:684
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "無効な時間形式"
 
-#: pkg/lib/serverTime.js:674
+#: pkg/lib/serverTime.js:676
 msgid "Invalid timezone"
 msgstr "無効なタイムゾーン"
 
@@ -4361,7 +4363,7 @@ msgstr "$0 へのログイン"
 msgid "Log in with your server user account."
 msgstr "サーバーのユーザーアカウントでログインします。"
 
-#: pkg/lib/serverTime.js:460
+#: pkg/lib/serverTime.js:462
 msgid "Log messages"
 msgstr "ログメッセージ"
 
@@ -4411,7 +4413,7 @@ msgstr "ログイン"
 msgid "Login again"
 msgstr "再ログイン"
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2409
 msgid "Login failed"
 msgstr "ログインが失敗しました"
 
@@ -4578,7 +4580,7 @@ msgstr "ユーザーアカウント管理"
 msgid "Manual"
 msgstr "手作業"
 
-#: pkg/lib/serverTime.js:557
+#: pkg/lib/serverTime.js:559
 msgid "Manually"
 msgstr "手動"
 
@@ -4858,7 +4860,7 @@ msgstr "NFS マウント"
 msgid "NSNA ping"
 msgstr "NSNA ping"
 
-#: pkg/lib/serverTime.js:545
+#: pkg/lib/serverTime.js:547
 msgid "NTP server"
 msgstr "NTP サーバー"
 
@@ -4934,7 +4936,7 @@ msgstr "名前にはスペースを含めることができません。"
 msgid "Need a spare disk"
 msgstr "スペアディスクが必要です"
 
-#: pkg/lib/serverTime.js:687
+#: pkg/lib/serverTime.js:689
 msgid "Need at least one NTP server"
 msgstr "少なくとも 1 つの NTP サーバーが必要です"
 
@@ -5087,7 +5089,7 @@ msgstr "遅延なし"
 msgid "No description available"
 msgstr "利用可能な説明はありません"
 
-#: pkg/apps/application.jsx:85
+#: pkg/apps/application.jsx:84
 msgid "No description provided."
 msgstr "説明が入力されていません。"
 
@@ -5145,7 +5147,7 @@ msgstr "グループ名が指定されていません"
 msgid "No host keys found."
 msgstr "ホストキーが見つかりません。"
 
-#: pkg/apps/utils.jsx:77
+#: pkg/apps/utils.tsx:102
 msgid "No installation package found for this application."
 msgstr "このアプリケーションのインストールパッケージが見つかりませんでした。"
 
@@ -5199,8 +5201,9 @@ msgstr "物理ボリュームが見つかりません"
 msgid "No real name specified"
 msgstr "実際の名前が指定されていません"
 
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:159
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
 msgid "No results found"
 msgstr "結果が見つかりません"
 
@@ -5313,7 +5316,7 @@ msgstr "ネットワークデバイスの設定が許可されていません"
 msgid "Not permitted to configure realms"
 msgstr "レルムの設定が許可されていません"
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2407
 msgid "Not permitted to perform this action."
 msgstr "この動作を実行する権限がありません。"
 
@@ -5335,7 +5338,7 @@ msgstr "未実行"
 msgid "Not set up"
 msgstr "設定されていません"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:456
 msgid "Not synchronized"
 msgstr "同期されていません"
 
@@ -5794,7 +5797,7 @@ msgid "Physical volumes can not be resized here"
 msgstr "ここでは物理ボリュームのサイズを変更できません"
 
 #: pkg/systemd/timer-dialog.jsx:347 pkg/lib/cockpit-components-shutdown.jsx:211
-#: pkg/lib/serverTime.js:594 pkg/users/expiration-dialogs.js:48
+#: pkg/lib/serverTime.js:596 pkg/users/expiration-dialogs.js:48
 msgid "Pick date"
 msgstr "日付けの選択"
 
@@ -6265,9 +6268,9 @@ msgstr "SSH 経由のリモート、$0"
 msgid "Removals:"
 msgstr "削除:"
 
-#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
+#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:49
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:200
 #: pkg/storaged/lvm2/volume-group.jsx:326
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -6328,7 +6331,7 @@ msgstr "サービス $0 を削除します"
 msgid "Remove zone $0"
 msgstr "ゾーン $0 を削除します"
 
-#: pkg/apps/application.jsx:44
+#: pkg/apps/application.jsx:43
 msgid "Removing"
 msgstr "削除中"
 
@@ -6904,7 +6907,7 @@ msgstr "サーバーは空欄にできません。"
 msgid "Server closed connection"
 msgstr "サーバーが接続を終了しました"
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2427
 msgid "Server has closed the connection."
 msgstr "サーバーの接続が終了しました。"
 
@@ -6941,7 +6944,7 @@ msgstr "ロケーションを使用するサービス"
 msgid "Session"
 msgstr "セッション"
 
-#: pkg/shell/idle.jsx:116
+#: pkg/shell/idle.jsx:118
 msgid "Session is about to expire"
 msgstr "セッションはまもなく終了します"
 
@@ -6970,7 +6973,7 @@ msgstr "$0 のパーティションタイプの設定"
 msgid "Set password"
 msgstr "パスワードの設定"
 
-#: pkg/lib/serverTime.js:583
+#: pkg/lib/serverTime.js:585
 msgid "Set time"
 msgstr "時間の設定"
 
@@ -7330,7 +7333,7 @@ msgstr "停止してアンマウント"
 msgid "Stop device"
 msgstr "デバイスの停止"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Stop editing hosts"
 msgstr "ホストの編集を停止"
 
@@ -7503,15 +7506,15 @@ msgstr ""
 "$0 をオンにすると、サーバーへの接続が切断され、管理 UI が利用できなくなりま"
 "す。"
 
-#: pkg/lib/serverTime.js:444
+#: pkg/lib/serverTime.js:446
 msgid "Synchronized"
 msgstr "同期済み"
 
-#: pkg/lib/serverTime.js:446
+#: pkg/lib/serverTime.js:448
 msgid "Synchronized with $0"
 msgstr "$0 と同期済み"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:452
 msgid "Synchronizing"
 msgstr "同期中"
 
@@ -7519,7 +7522,7 @@ msgstr "同期中"
 msgid "Synchronizing MDRAID device $target"
 msgstr "MDRAID デバイス $target の同期"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:348
+#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
 msgid "System"
 msgstr "システム"
 
@@ -7894,7 +7897,7 @@ msgstr ""
 "サーバーはパスワード認証を使用した '$0' の認証を拒否しました。サポートされた"
 "他の認証方法は利用できません。"
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2411
 msgid "The server refused to authenticate using any supported methods."
 msgstr "サーバーはサポートされた方法を使用した認証を拒否しました。"
 
@@ -7926,7 +7929,7 @@ msgstr "ユーザー $0 は、暗号化ポリシーの変更を許可されて�
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "ユーザー $0 は、カーネルクラッシュのテストを許可されていません"
 
-#: pkg/users/account-details.js:466
+#: pkg/users/account-details.js:442
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8238,7 +8241,7 @@ msgstr "階層"
 msgid "Time"
 msgstr "時間"
 
-#: pkg/lib/serverTime.js:572
+#: pkg/lib/serverTime.js:574
 msgid "Time zone"
 msgstr "タイムゾーン"
 
@@ -8298,7 +8301,7 @@ msgid "Toggle"
 msgstr "切り替え"
 
 #: pkg/systemd/timer-dialog.jsx:348 pkg/lib/cockpit-components-shutdown.jsx:212
-#: pkg/lib/serverTime.js:595 pkg/users/expiration-dialogs.js:49
+#: pkg/lib/serverTime.js:597 pkg/users/expiration-dialogs.js:49
 msgid "Toggle date picker"
 msgstr "日付選択の切り替え"
 
@@ -8306,11 +8309,11 @@ msgstr "日付選択の切り替え"
 msgid "Toggle filters"
 msgstr "フィルターの切り替え"
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2433
 msgid "Too much data"
 msgstr "データが多すぎます"
 
-#: pkg/shell/nav.jsx:351
+#: pkg/shell/nav.jsx:358
 msgid "Tools"
 msgstr "ツール"
 
@@ -8386,7 +8389,7 @@ msgstr "信頼レベル"
 msgid "Try again"
 msgstr "再試行します"
 
-#: pkg/lib/serverTime.js:451
+#: pkg/lib/serverTime.js:453
 msgid "Trying to synchronize with $0"
 msgstr "$0 との同期を試行中です"
 
@@ -8559,7 +8562,7 @@ msgstr "利用できません"
 msgid "Unavailable packages"
 msgstr "利用できないパッケージ"
 
-#: pkg/users/account-details.js:467
+#: pkg/users/account-details.js:443
 msgid "Undo"
 msgstr "元に戻す"
 
@@ -8603,7 +8606,7 @@ msgstr "不明な \"$0\""
 msgid "Unknown ($0)"
 msgstr "不明な ($0)"
 
-#: pkg/apps/application.jsx:103
+#: pkg/apps/application.jsx:102
 msgid "Unknown application"
 msgstr "不明なアプリケーション"
 
@@ -8710,7 +8713,7 @@ msgstr "サポートされていない論理ボリューム"
 msgid "Until"
 msgstr "フィルター終了時刻"
 
-#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2413 pkg/lib/cockpit.js:2415
 msgid "Untrusted host"
 msgstr "信用できないホスト"
 
@@ -8978,7 +8981,7 @@ msgstr "メトリックスおよび履歴の表示"
 msgid "View per-disk throughput"
 msgstr "ディスクごとのスループットの表示"
 
-#: pkg/apps/application.jsx:71
+#: pkg/apps/application.jsx:70
 msgid "View project website"
 msgstr "プロジェクト Web サイトの表示"
 
@@ -9042,7 +9045,7 @@ msgstr "詳細を待機中..."
 msgid "Waiting for input…"
 msgstr "入力を待機中…"
 
-#: pkg/apps/utils.jsx:56
+#: pkg/apps/utils.tsx:79
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr ""
 "パッケージマネージャーを使用して、その他のプログラムを終了するのを待機中..."
@@ -9183,7 +9186,7 @@ msgid ""
 "account."
 msgstr "このアカウントに承認された公開鍵を表示するパーミッションがありません。"
 
-#: pkg/shell/idle.jsx:61
+#: pkg/shell/idle.jsx:63
 msgid "You have been logged out due to inactivity."
 msgstr "アクティビティーがないためログアウトされました。"
 
@@ -9203,7 +9206,7 @@ msgstr "パスワードを変更するにはより長い時間の経過が必要
 msgid "You now have administrative access."
 msgstr "これで管理者アクセスが可能になりました。"
 
-#: pkg/shell/idle.jsx:122
+#: pkg/shell/idle.jsx:124
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 秒後にログアウトされます。"
 
@@ -9235,11 +9238,11 @@ msgid ""
 "restarted."
 msgstr "サーバーがまもなく接続を閉じます。再起動したら再接続できます。"
 
-#: pkg/lib/cockpit.js:2586
+#: pkg/lib/cockpit.js:2403
 msgid "Your session has been terminated."
 msgstr "セッションが終了しました。"
 
-#: pkg/lib/cockpit.js:2588
+#: pkg/lib/cockpit.js:2405
 msgid "Your session has expired. Please log in again."
 msgstr "セッションの有効期限が切れました。再度ログインしてください。"
 
@@ -10137,6 +10140,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "ゾーン"
+
+#~ msgid "Checking for new applications"
+#~ msgstr "新しいアプリケーションの確認中"
 
 #~ msgid "Authentication failed: Server closed connection"
 #~ msgstr "認証に失敗しました: サーバーの接続が切断されました"

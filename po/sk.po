@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-02 03:06+0000\n"
+"POT-Creation-Date: 2024-12-07 03:05+0000\n"
 "PO-Revision-Date: 2024-07-21 05:38+0000\n"
 "Last-Translator: Jose Riha <jose1711@gmail.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -113,11 +113,11 @@ msgstr "$0 je existujúci súbor"
 msgid "$0 error"
 msgstr "$0 chyba"
 
-#: pkg/lib/cockpit.js:1407
+#: pkg/lib/cockpit.js:1224
 msgid "$0 exited with code $1"
 msgstr "$0 skončilo s kódom $1"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1226
 msgid "$0 failed"
 msgstr "$0 sa nepodarilo"
 
@@ -184,7 +184,7 @@ msgstr "$0 nie je k dispozícií v žiadom repozitári."
 msgid "$0 key changed"
 msgstr "$0 kľúč sa zmenil"
 
-#: pkg/lib/cockpit.js:1405
+#: pkg/lib/cockpit.js:1222
 msgid "$0 killed with signal $1"
 msgstr "$0 nútene ukončené signálom $1"
 
@@ -824,7 +824,7 @@ msgstr "Pridať server s kľúčmi"
 msgid "Add member"
 msgstr "Pridať člena"
 
-#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
+#: pkg/shell/hosts.jsx:208 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "Pridať nového hostiteľa"
 
@@ -1108,7 +1108,7 @@ msgid "Application information is missing"
 msgstr "Informácie o aplikácii chýbajú"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:174
-#: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:145 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Aplikácie"
 
@@ -1148,7 +1148,7 @@ msgstr "Aplikácia aktualizácií sa nepodarila"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "Vhodné pre kriticky dôležité body pripojenia, ako napríklad /var"
 
-#: pkg/shell/nav.jsx:345
+#: pkg/shell/nav.jsx:352
 msgid "Apps"
 msgstr "Aplikácie"
 
@@ -1268,15 +1268,15 @@ msgstr "Automatické aktualizácie"
 msgid "Automatically starts"
 msgstr "Spúšťa sa automaticky"
 
-#: pkg/lib/serverTime.js:558
+#: pkg/lib/serverTime.js:560
 msgid "Automatically using NTP"
 msgstr "Automaticky využitím NTP"
 
-#: pkg/lib/serverTime.js:565
+#: pkg/lib/serverTime.js:567
 msgid "Automatically using additional NTP servers"
 msgstr "Automatické využitím ďalších NTP serverov"
 
-#: pkg/lib/serverTime.js:566
+#: pkg/lib/serverTime.js:568
 msgid "Automatically using specific NTP servers"
 msgstr "Automaticky využitím konkrétnych NTP serverov"
 
@@ -1488,7 +1488,7 @@ msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 #: pkg/networkmanager/dialogs-common.jsx:152
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913 pkg/kdump/kdump-view.jsx:235
-#: pkg/apps/utils.jsx:69 pkg/lib/cockpit-components-shutdown.jsx:193
+#: pkg/apps/utils.tsx:92 pkg/lib/cockpit-components-shutdown.jsx:193
 #: pkg/lib/cockpit-components-dialog.jsx:131
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
@@ -1519,7 +1519,7 @@ msgstr "Nie je možné povoliť"
 msgid "Cannot connect to an unknown host"
 msgstr "Nie je možné sa prihlásiť k neznámemu hostiteľovi"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2425
 msgid "Cannot forward login credentials"
 msgstr "Nie je možné preposlať prístupové údaje"
 
@@ -1546,7 +1546,7 @@ msgid "Category"
 msgstr "Kategória"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
-#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:723 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:568
 msgid "Change"
@@ -1598,7 +1598,7 @@ msgstr "Zmeniť profil"
 msgid "Change shell"
 msgstr "Zmeniť shell"
 
-#: pkg/lib/serverTime.js:714
+#: pkg/lib/serverTime.js:716
 msgid "Change system time"
 msgstr "Zmeniť systémový čas"
 
@@ -1682,10 +1682,6 @@ msgstr "Kontrolujem balíček $0"
 msgid "Checking for NBDE support in the initrd"
 msgstr "Zisťujem prítomnosť podpory NBDE v initrd"
 
-#: pkg/apps/application-list.jsx:148
-msgid "Checking for new applications"
-msgstr "Hľadám nové aplikácie"
-
 #: pkg/packagekit/updates.jsx:1389
 msgid "Checking for package updates..."
 msgstr "Kontrolujem aktualizácie balíčkov..."
@@ -1727,7 +1723,13 @@ msgstr "Vypnúť všetky filtre"
 msgid "Clear filter"
 msgstr "Vyčistiť filter"
 
-#: pkg/shell/nav.jsx:160
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+#, fuzzy
+#| msgid "Clear filter"
+msgid "Clear input value"
+msgstr "Vyčistiť filter"
+
+#: pkg/shell/nav.jsx:164
 msgid "Clear search"
 msgstr "Vyčistiť vyhľadávanie"
 
@@ -1741,7 +1743,7 @@ msgstr "Softvér klienta"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
-#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
+#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.tsx:112
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
@@ -1767,7 +1769,7 @@ msgstr "Cockpit overovanie nie je nastavené správne."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Konfigurácia NetworkManagera a Firewalld v Cockpite"
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2431
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpitu sa nepodarilo kontaktovať daného hostiteľa."
 
@@ -1793,7 +1795,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit je interaktívne rozhranie pre správu linuxových serverov."
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2429
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit nie je kompatibilný so sofvérom na systéme."
 
@@ -1801,7 +1803,7 @@ msgstr "Cockpit nie je kompatibilný so sofvérom na systéme."
 msgid "Cockpit is not installed"
 msgstr "Cockpit nie je nainštalovaný"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2423
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit nie je nainštalovaný na tomto systéme."
 
@@ -1998,7 +2000,7 @@ msgstr "Pripojenie k dbus sa nepodarilo: $0"
 msgid "Connecting to the machine"
 msgstr "Pripájam sa ku stroju"
 
-#: pkg/shell/hosts.jsx:194
+#: pkg/shell/hosts.jsx:193
 msgid "Connection error"
 msgstr "Chyba pripojenia"
 
@@ -2006,7 +2008,7 @@ msgstr "Chyba pripojenia"
 msgid "Connection failed"
 msgstr "Pripojenie sa nepodarilo"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2421
 msgid "Connection has timed out."
 msgstr "Časový limit spojenia vypršal."
 
@@ -2022,7 +2024,7 @@ msgstr "Skladá sa z"
 msgid "Contacted domain"
 msgstr "Pripojená doména"
 
-#: pkg/shell/nav.jsx:232
+#: pkg/shell/nav.jsx:237
 msgid "Contains:"
 msgstr "Obsahuje:"
 
@@ -2030,7 +2032,7 @@ msgstr "Obsahuje:"
 msgid "Continue"
 msgstr "Pokračovať"
 
-#: pkg/shell/idle.jsx:120
+#: pkg/shell/idle.jsx:122
 msgid "Continue session"
 msgstr "Pokračovať v relácii"
 
@@ -2870,7 +2872,7 @@ msgstr "Systémový oddiel EFI"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "Upraviť"
@@ -2907,7 +2909,7 @@ msgstr "Upraviť používateľom definovanú službu v zóne $0"
 msgid "Edit host"
 msgstr "Upraviť hostiteľa"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Edit hosts"
 msgstr "Upraviť hostiteľov"
 
@@ -3087,7 +3089,7 @@ msgid "Errata"
 msgstr "Errata"
 
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
-#: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
+#: pkg/apps/utils.tsx:106 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
 #: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
@@ -3454,7 +3456,7 @@ msgstr "Vytvorené"
 msgid "Go to $0"
 msgstr "Prejsť na $0"
 
-#: pkg/apps/application.jsx:109
+#: pkg/apps/application.jsx:108
 msgid "Go to application"
 msgstr "Prejsť na aplikáciu"
 
@@ -3478,7 +3480,7 @@ msgstr "Skupina"
 msgid "Group name"
 msgstr "Názov skupiny"
 
-#: pkg/users/account-details.js:440 pkg/users/accounts-list.js:313
+#: pkg/users/account-details.js:419 pkg/users/accounts-list.js:313
 #: pkg/users/accounts-list.js:317
 msgid "Groups"
 msgstr "Skupiny"
@@ -3574,7 +3576,7 @@ msgstr "Počet balíkov"
 msgid "Home directory"
 msgstr "Domovský adresár"
 
-#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
+#: pkg/shell/hosts.jsx:224 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "Hostiteľ"
 
@@ -3584,7 +3586,7 @@ msgstr "Hostiteľ"
 msgid "Host is unknown"
 msgstr "neznáme"
 
-#: pkg/lib/cockpit.js:2600
+#: pkg/lib/cockpit.js:2417
 msgid "Host key is incorrect"
 msgstr "Kľúč stroja nie je správny"
 
@@ -3604,7 +3606,7 @@ msgstr "Kľúč stroja nie je správny"
 msgid "Hostname"
 msgstr "Názov stroja"
 
-#: pkg/shell/hosts.jsx:183
+#: pkg/shell/hosts.jsx:182
 msgid "Hosts"
 msgstr "Hostitelia"
 
@@ -3802,7 +3804,7 @@ msgstr "Inicializujem..."
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:52
+#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:51
 #: pkg/lib/cockpit-components-install-dialog.jsx:126
 #: pkg/packagekit/kpatch.jsx:250
 msgid "Install"
@@ -3864,7 +3866,7 @@ msgstr ""
 msgid "Installed"
 msgstr "Nainštalovaný"
 
-#: pkg/apps/application.jsx:40 pkg/packagekit/updates.jsx:105
+#: pkg/apps/application.jsx:39 pkg/packagekit/updates.jsx:105
 msgid "Installing"
 msgstr "Inštalujem"
 
@@ -3900,7 +3902,7 @@ msgstr "Čísla rozhraní"
 msgid "Interfaces"
 msgstr "Rozhrania"
 
-#: pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2419
 msgid "Internal error"
 msgstr "Interná chyba"
 
@@ -3922,7 +3924,7 @@ msgstr "Neplatné"
 msgid "Invalid address $0"
 msgstr "Neplatná adresa $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:681
 msgid "Invalid date format"
 msgstr "Neplatný formát dátumu"
 
@@ -3966,12 +3968,12 @@ msgstr "Neplatná predpona alebo maska siete $0"
 msgid "Invalid range"
 msgstr "Neplatný rozsah"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:684
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "Neplatný formát čase"
 
-#: pkg/lib/serverTime.js:674
+#: pkg/lib/serverTime.js:676
 msgid "Invalid timezone"
 msgstr "Neplatná časová zóna"
 
@@ -4443,7 +4445,7 @@ msgstr "Prihlásiť sa k $0"
 msgid "Log in with your server user account."
 msgstr "Prihláste sa vašim účtom používateľa na serveri."
 
-#: pkg/lib/serverTime.js:460
+#: pkg/lib/serverTime.js:462
 msgid "Log messages"
 msgstr "Záznamy udalostí"
 
@@ -4493,7 +4495,7 @@ msgstr "Prihlásiť"
 msgid "Login again"
 msgstr "Znovu prihlásiť"
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2409
 msgid "Login failed"
 msgstr "Prihlásenie sa nepodarilo"
 
@@ -4659,7 +4661,7 @@ msgstr "Správa používateľských účtov"
 msgid "Manual"
 msgstr "Ručne"
 
-#: pkg/lib/serverTime.js:557
+#: pkg/lib/serverTime.js:559
 msgid "Manually"
 msgstr "Ručne"
 
@@ -4936,7 +4938,7 @@ msgstr "Pripojenie NFS"
 msgid "NSNA ping"
 msgstr "NSNA ping"
 
-#: pkg/lib/serverTime.js:545
+#: pkg/lib/serverTime.js:547
 msgid "NTP server"
 msgstr "NTP server"
 
@@ -5012,7 +5014,7 @@ msgstr "Názov nesmie obsahovať prázdny znak."
 msgid "Need a spare disk"
 msgstr "Potrebujete rezervný disk"
 
-#: pkg/lib/serverTime.js:687
+#: pkg/lib/serverTime.js:689
 msgid "Need at least one NTP server"
 msgstr "Je potrebný aspoň jeden server NTP"
 
@@ -5165,7 +5167,7 @@ msgstr "Bez oneskorenia"
 msgid "No description available"
 msgstr "Nie je k dispozícií žiaden popis"
 
-#: pkg/apps/application.jsx:85
+#: pkg/apps/application.jsx:84
 msgid "No description provided."
 msgstr "Nie je poskytnutý žiaden popis."
 
@@ -5223,7 +5225,7 @@ msgstr "Nezadali ste názov skupiny"
 msgid "No host keys found."
 msgstr "Neboli nájdené žiadne kľúče stroja."
 
-#: pkg/apps/utils.jsx:77
+#: pkg/apps/utils.tsx:102
 msgid "No installation package found for this application."
 msgstr "Pre túto aplikáciu nebol nájdený žiaden inštalačný balíček."
 
@@ -5277,8 +5279,9 @@ msgstr "Nenájdené žiadne fyzické zväzky"
 msgid "No real name specified"
 msgstr "Nie je zadaný skutočný názov"
 
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:159
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
 msgid "No results found"
 msgstr "Neboli nájdené žiadne výsledky"
 
@@ -5391,7 +5394,7 @@ msgstr "Nemáte oprávnenie nastavovať sieťové zariadenia"
 msgid "Not permitted to configure realms"
 msgstr "Nemáte oprávnenia nastavovať realmy"
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2407
 msgid "Not permitted to perform this action."
 msgstr "Neoprávený k vykonaniu tejto akcie."
 
@@ -5413,7 +5416,7 @@ msgstr "Nespustená"
 msgid "Not set up"
 msgstr "Nenastavené"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:456
 msgid "Not synchronized"
 msgstr "Nezosynchronizované"
 
@@ -5877,7 +5880,7 @@ msgid "Physical volumes can not be resized here"
 msgstr "Tu nie je možné meniť veľkosti fyzických zväzkov"
 
 #: pkg/systemd/timer-dialog.jsx:347 pkg/lib/cockpit-components-shutdown.jsx:211
-#: pkg/lib/serverTime.js:594 pkg/users/expiration-dialogs.js:48
+#: pkg/lib/serverTime.js:596 pkg/users/expiration-dialogs.js:48
 msgid "Pick date"
 msgstr "Vybrať dátum"
 
@@ -6353,9 +6356,9 @@ msgstr "Vzdialené cez SSH, $0"
 msgid "Removals:"
 msgstr "Odstránenia:"
 
-#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
+#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:49
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:200
 #: pkg/storaged/lvm2/volume-group.jsx:326
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -6416,7 +6419,7 @@ msgstr "Odstrániť službu $0"
 msgid "Remove zone $0"
 msgstr "Odstrániť zónu $0"
 
-#: pkg/apps/application.jsx:44
+#: pkg/apps/application.jsx:43
 msgid "Removing"
 msgstr "Odoberám"
 
@@ -7004,7 +7007,7 @@ msgstr "Server nemôže byť prázdny."
 msgid "Server closed connection"
 msgstr "Server zavrel spojenie."
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2427
 msgid "Server has closed the connection."
 msgstr "Server zavrel spojenie."
 
@@ -7041,7 +7044,7 @@ msgstr "Služby využívajúce toto umiestnenie"
 msgid "Session"
 msgstr "Sedenie"
 
-#: pkg/shell/idle.jsx:116
+#: pkg/shell/idle.jsx:118
 msgid "Session is about to expire"
 msgstr "Relácia čoskoro skončí"
 
@@ -7072,7 +7075,7 @@ msgstr "Nastaviť typ oddielu na $0"
 msgid "Set password"
 msgstr "Nastaviť heslo"
 
-#: pkg/lib/serverTime.js:583
+#: pkg/lib/serverTime.js:585
 msgid "Set time"
 msgstr "Nastaviť čas"
 
@@ -7433,7 +7436,7 @@ msgstr "Zastaviť a odpojiť"
 msgid "Stop device"
 msgstr "Zastaviť zariadenie"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Stop editing hosts"
 msgstr "Ukončiť upravovanie hostiteľov"
 
@@ -7606,15 +7609,15 @@ msgstr ""
 "Zapnutím $0 sa preruší spojenie so serverom a zneprístupní sa tak rozhranie "
 "pre jeho správu."
 
-#: pkg/lib/serverTime.js:444
+#: pkg/lib/serverTime.js:446
 msgid "Synchronized"
 msgstr "Synchronizované"
 
-#: pkg/lib/serverTime.js:446
+#: pkg/lib/serverTime.js:448
 msgid "Synchronized with $0"
 msgstr "Synchronizované s $0"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:452
 msgid "Synchronizing"
 msgstr "Synchronizujem"
 
@@ -7622,7 +7625,7 @@ msgstr "Synchronizujem"
 msgid "Synchronizing MDRAID device $target"
 msgstr "Synchronizujem zariadenie MDRAID $target"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:348
+#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
 msgid "System"
 msgstr "Systém"
 
@@ -8002,7 +8005,7 @@ msgstr ""
 "Server odmietol overiť „$0“ pomocou overenia heslom a nie sú k dispozícií "
 "žiadne ďalšie metódy overenia."
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2411
 msgid "The server refused to authenticate using any supported methods."
 msgstr "Server odmietol overovanie pri všetkých podporovaných metódach."
 
@@ -8036,7 +8039,7 @@ msgstr "Používateľ $0 nemá oprávnenia meniť politiky pre šifrovanie"
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "Používateľ $0 nemá oprávnenia otestovať pád jadra systému"
 
-#: pkg/users/account-details.js:466
+#: pkg/users/account-details.js:442
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8355,7 +8358,7 @@ msgstr "Vrstva (tier)"
 msgid "Time"
 msgstr "Čas"
 
-#: pkg/lib/serverTime.js:572
+#: pkg/lib/serverTime.js:574
 msgid "Time zone"
 msgstr "Časová zóna"
 
@@ -8415,7 +8418,7 @@ msgid "Toggle"
 msgstr "Prepnúť"
 
 #: pkg/systemd/timer-dialog.jsx:348 pkg/lib/cockpit-components-shutdown.jsx:212
-#: pkg/lib/serverTime.js:595 pkg/users/expiration-dialogs.js:49
+#: pkg/lib/serverTime.js:597 pkg/users/expiration-dialogs.js:49
 msgid "Toggle date picker"
 msgstr "Prepnúť vyberač dátumov"
 
@@ -8423,11 +8426,11 @@ msgstr "Prepnúť vyberač dátumov"
 msgid "Toggle filters"
 msgstr "Prepnúť filtre"
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2433
 msgid "Too much data"
 msgstr "Príliš veľa dát"
 
-#: pkg/shell/nav.jsx:351
+#: pkg/shell/nav.jsx:358
 msgid "Tools"
 msgstr "Nástroje"
 
@@ -8501,7 +8504,7 @@ msgstr "Stupeň dôveryhodnosti"
 msgid "Try again"
 msgstr "Skúsiť znova"
 
-#: pkg/lib/serverTime.js:451
+#: pkg/lib/serverTime.js:453
 msgid "Trying to synchronize with $0"
 msgstr "Pokus o synchronizáciu s $0"
 
@@ -8677,7 +8680,7 @@ msgstr "Nedostupné"
 msgid "Unavailable packages"
 msgstr "Nedostupné balíčky"
 
-#: pkg/users/account-details.js:467
+#: pkg/users/account-details.js:443
 msgid "Undo"
 msgstr "Späť"
 
@@ -8721,7 +8724,7 @@ msgstr "Neznáme \"$0\""
 msgid "Unknown ($0)"
 msgstr "Neznáme ($0)"
 
-#: pkg/apps/application.jsx:103
+#: pkg/apps/application.jsx:102
 msgid "Unknown application"
 msgstr "Neznáma aplikácia"
 
@@ -8830,7 +8833,7 @@ msgstr "Nepodporovaný logický zväzok"
 msgid "Until"
 msgstr "Až do"
 
-#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2413 pkg/lib/cockpit.js:2415
 msgid "Untrusted host"
 msgstr "Nedôveryhodnotný stroj"
 
@@ -9102,7 +9105,7 @@ msgstr "Zobraziť metriky a históriu"
 msgid "View per-disk throughput"
 msgstr "Zobraziť toky dát pre jednotlivé disky"
 
-#: pkg/apps/application.jsx:71
+#: pkg/apps/application.jsx:70
 msgid "View project website"
 msgstr "Webové stránky projektu"
 
@@ -9170,7 +9173,7 @@ msgstr "Čakám na podrobnosti..."
 msgid "Waiting for input…"
 msgstr "Čakám na vstup…"
 
-#: pkg/apps/utils.jsx:56
+#: pkg/apps/utils.tsx:79
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr "Čakám, kým ostatné programy ukončia spoluprácu so správcom balíčkov..."
 
@@ -9310,7 +9313,7 @@ msgid ""
 "account."
 msgstr "Nemáte oprávnenia zobrazovať overené kľúče pre tento účet."
 
-#: pkg/shell/idle.jsx:61
+#: pkg/shell/idle.jsx:63
 msgid "You have been logged out due to inactivity."
 msgstr "Boli ste odhlásený z dôvodu neaktivity."
 
@@ -9331,7 +9334,7 @@ msgstr "Musíte počkať dlhšie aby bolo možné zmeniť vaše heslo"
 msgid "You now have administrative access."
 msgstr "Teraz máte prístup na úrovni správcu systému."
 
-#: pkg/shell/idle.jsx:122
+#: pkg/shell/idle.jsx:124
 msgid "You will be logged out in $0 seconds."
 msgstr "Budete odhlásený za $0 sekúnd."
 
@@ -9366,11 +9369,11 @@ msgstr ""
 "Server čoskoro uzatvorí spojenie. Po dokončení jeho reštartu sa budete môcť "
 "opäť pripojiť."
 
-#: pkg/lib/cockpit.js:2586
+#: pkg/lib/cockpit.js:2403
 msgid "Your session has been terminated."
 msgstr "Vaša relácia bola ukončená."
 
-#: pkg/lib/cockpit.js:2588
+#: pkg/lib/cockpit.js:2405
 msgid "Your session has expired. Please log in again."
 msgstr "Platnosť vašej relácie skončila. Prihláste sa, prosím, znovu."
 
@@ -10272,6 +10275,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zóna"
+
+#~ msgid "Checking for new applications"
+#~ msgstr "Hľadám nové aplikácie"
 
 #~ msgid "Authentication failed: Server closed connection"
 #~ msgstr "Overenie zlyhalo: Server prerušil spojenie"

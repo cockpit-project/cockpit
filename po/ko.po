@@ -11,9 +11,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-02 03:06+0000\n"
-"PO-Revision-Date: 2024-12-02 15:47+0000\n"
-"Last-Translator: 김인수 <simmon@nplob.com>\n"
+"POT-Creation-Date: 2024-12-07 03:05+0000\n"
+"PO-Revision-Date: 2024-12-06 07:38+0000\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
 "Language: ko\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 5.8.2\n"
+"X-Generator: Weblate 5.8.4\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -107,11 +108,11 @@ msgstr "$0가 존재하지 않습니다"
 msgid "$0 error"
 msgstr "$0 오류"
 
-#: pkg/lib/cockpit.js:1407
+#: pkg/lib/cockpit.js:1224
 msgid "$0 exited with code $1"
 msgstr "$0가 코드 $1로 종료됨"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1226
 msgid "$0 failed"
 msgstr "$0가 실패"
 
@@ -170,7 +171,7 @@ msgstr "$0는 저장소에서 사용 할 수 없습니다."
 msgid "$0 key changed"
 msgstr "$0 키 변경됩니다"
 
-#: pkg/lib/cockpit.js:1405
+#: pkg/lib/cockpit.js:1222
 msgid "$0 killed with signal $1"
 msgstr "$1 시그널에 의해 $0가 종료되었습니다"
 
@@ -767,7 +768,7 @@ msgstr "키 서버 추가"
 msgid "Add member"
 msgstr "멤버 추가"
 
-#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
+#: pkg/shell/hosts.jsx:208 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "신규 호스트 추가"
 
@@ -1040,7 +1041,7 @@ msgid "Application information is missing"
 msgstr "응용프로그램 정보가 누락되었습니다"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:174
-#: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:145 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "응용프로그램"
 
@@ -1080,7 +1081,7 @@ msgstr "최신화 적용 실패"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "/var와 같은 중요한 적재에 적절한"
 
-#: pkg/shell/nav.jsx:345
+#: pkg/shell/nav.jsx:352
 msgid "Apps"
 msgstr "앱"
 
@@ -1194,15 +1195,15 @@ msgstr "자동 최신화"
 msgid "Automatically starts"
 msgstr "자동 시작"
 
-#: pkg/lib/serverTime.js:558
+#: pkg/lib/serverTime.js:560
 msgid "Automatically using NTP"
 msgstr "자동으로 NTP 사용"
 
-#: pkg/lib/serverTime.js:565
+#: pkg/lib/serverTime.js:567
 msgid "Automatically using additional NTP servers"
 msgstr "추가 NTP 서버를 자동으로 사용"
 
-#: pkg/lib/serverTime.js:566
+#: pkg/lib/serverTime.js:568
 msgid "Automatically using specific NTP servers"
 msgstr "특정 NTP 서버를 자동으로 사용"
 
@@ -1412,7 +1413,7 @@ msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 #: pkg/networkmanager/dialogs-common.jsx:152
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913 pkg/kdump/kdump-view.jsx:235
-#: pkg/apps/utils.jsx:69 pkg/lib/cockpit-components-shutdown.jsx:193
+#: pkg/apps/utils.tsx:92 pkg/lib/cockpit-components-shutdown.jsx:193
 #: pkg/lib/cockpit-components-dialog.jsx:131
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
@@ -1443,7 +1444,7 @@ msgstr "활성화할 수 없습니다"
 msgid "Cannot connect to an unknown host"
 msgstr "알 수 없는 호스트에 연결 할 수 없습니다"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2425
 msgid "Cannot forward login credentials"
 msgstr "로그인 정보를 전송할 수 없습니다"
 
@@ -1470,7 +1471,7 @@ msgid "Category"
 msgstr "분류"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
-#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:723 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:568
 msgid "Change"
@@ -1520,7 +1521,7 @@ msgstr "프로파일 변경"
 msgid "Change shell"
 msgstr "쉘 변경"
 
-#: pkg/lib/serverTime.js:714
+#: pkg/lib/serverTime.js:716
 msgid "Change system time"
 msgstr "시스템 시간 변경"
 
@@ -1604,10 +1605,6 @@ msgstr "$0 꾸러미를 점검 중"
 msgid "Checking for NBDE support in the initrd"
 msgstr "initrd에서 NBDE 지원을 위한 점검하기"
 
-#: pkg/apps/application-list.jsx:148
-msgid "Checking for new applications"
-msgstr "신규 응용프로그램 확인 중"
-
 #: pkg/packagekit/updates.jsx:1389
 msgid "Checking for package updates..."
 msgstr "꾸러미 최신화 점검 중 ..."
@@ -1649,7 +1646,11 @@ msgstr "모든 필터 지우기"
 msgid "Clear filter"
 msgstr "필터 지우기"
 
-#: pkg/shell/nav.jsx:160
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+msgid "Clear input value"
+msgstr "입력 값 초기화"
+
+#: pkg/shell/nav.jsx:164
 msgid "Clear search"
 msgstr "검색 지우기"
 
@@ -1663,7 +1664,7 @@ msgstr "클라이언트 소프트웨어"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
-#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
+#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.tsx:112
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
@@ -1689,7 +1690,7 @@ msgstr "Cockpit 인증이 잘못 설정되어 있습니다."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "NetworkManager 및 Firewalld의 Cockpit 구성"
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2431
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit을 지정된 호스트에 연결 할 수 없습니다."
 
@@ -1714,7 +1715,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit은 대화형 리눅스 서버 관리 연결장치입니다."
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2429
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit은 시스템의 소프트웨어와 호환성이 없습니다."
 
@@ -1722,7 +1723,7 @@ msgstr "Cockpit은 시스템의 소프트웨어와 호환성이 없습니다."
 msgid "Cockpit is not installed"
 msgstr "Cockpit이 설치되어 있지 않습니다"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2423
 msgid "Cockpit is not installed on the system."
 msgstr "시스템에 Cockpit이 설치되어 있지 않습니다."
 
@@ -1917,7 +1918,7 @@ msgstr "dbus에 연결하는 데 실패했습니다: $0"
 msgid "Connecting to the machine"
 msgstr "장치에 연결 중입니다"
 
-#: pkg/shell/hosts.jsx:194
+#: pkg/shell/hosts.jsx:193
 msgid "Connection error"
 msgstr "연결 오류"
 
@@ -1925,7 +1926,7 @@ msgstr "연결 오류"
 msgid "Connection failed"
 msgstr "연결 실패"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2421
 msgid "Connection has timed out."
 msgstr "연결 시간 초과."
 
@@ -1941,7 +1942,7 @@ msgstr "구성"
 msgid "Contacted domain"
 msgstr "연락 된 도메인"
 
-#: pkg/shell/nav.jsx:232
+#: pkg/shell/nav.jsx:237
 msgid "Contains:"
 msgstr "포함:"
 
@@ -1949,7 +1950,7 @@ msgstr "포함:"
 msgid "Continue"
 msgstr "진행"
 
-#: pkg/shell/idle.jsx:120
+#: pkg/shell/idle.jsx:122
 msgid "Continue session"
 msgstr "세션 계속 진행"
 
@@ -2788,7 +2789,7 @@ msgstr "EFI 시스템 파티션"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "편집"
@@ -2825,7 +2826,7 @@ msgstr "$0 영역에서 사용자 정의 서비스 편집"
 msgid "Edit host"
 msgstr "호스트 편집"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Edit hosts"
 msgstr "호스트 편집"
 
@@ -3005,7 +3006,7 @@ msgid "Errata"
 msgstr "에라타"
 
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
-#: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
+#: pkg/apps/utils.tsx:106 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
 #: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
@@ -3371,7 +3372,7 @@ msgstr "생성됨"
 msgid "Go to $0"
 msgstr "$0로 이동"
 
-#: pkg/apps/application.jsx:109
+#: pkg/apps/application.jsx:108
 msgid "Go to application"
 msgstr "응용프로그램으로 이동"
 
@@ -3395,7 +3396,7 @@ msgstr "그룹"
 msgid "Group name"
 msgstr "그룹 이름"
 
-#: pkg/users/account-details.js:440 pkg/users/accounts-list.js:313
+#: pkg/users/account-details.js:419 pkg/users/accounts-list.js:313
 #: pkg/users/accounts-list.js:317
 msgid "Groups"
 msgstr "그룹"
@@ -3491,7 +3492,7 @@ msgstr "기록 꾸러미 수"
 msgid "Home directory"
 msgstr "홈 디렉토리"
 
-#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
+#: pkg/shell/hosts.jsx:224 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "호스트"
 
@@ -3499,7 +3500,7 @@ msgstr "호스트"
 msgid "Host is unknown"
 msgstr "호스를 알 수 없습니다"
 
-#: pkg/lib/cockpit.js:2600
+#: pkg/lib/cockpit.js:2417
 msgid "Host key is incorrect"
 msgstr "호스트 키가 잘못되었습니다"
 
@@ -3515,7 +3516,7 @@ msgstr "호스트키를 알 수 없습니다"
 msgid "Hostname"
 msgstr "호스트 이름"
 
-#: pkg/shell/hosts.jsx:183
+#: pkg/shell/hosts.jsx:182
 msgid "Hosts"
 msgstr "호스트"
 
@@ -3709,7 +3710,7 @@ msgstr "초기화 중..."
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:52
+#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:51
 #: pkg/lib/cockpit-components-install-dialog.jsx:126
 #: pkg/packagekit/kpatch.jsx:250
 msgid "Install"
@@ -3773,7 +3774,7 @@ msgstr ""
 msgid "Installed"
 msgstr "설치되었습니다"
 
-#: pkg/apps/application.jsx:40 pkg/packagekit/updates.jsx:105
+#: pkg/apps/application.jsx:39 pkg/packagekit/updates.jsx:105
 msgid "Installing"
 msgstr "설치 중"
 
@@ -3807,7 +3808,7 @@ msgstr "연결장치 구성원"
 msgid "Interfaces"
 msgstr "연결장치"
 
-#: pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2419
 msgid "Internal error"
 msgstr "내부 오류"
 
@@ -3827,7 +3828,7 @@ msgstr "유효하지 않음"
 msgid "Invalid address $0"
 msgstr "잘못된 주소 $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:681
 msgid "Invalid date format"
 msgstr "잘못된 날짜 형식"
 
@@ -3871,12 +3872,12 @@ msgstr "잘못된 접두어 또는 넷마스크 $0"
 msgid "Invalid range"
 msgstr "잘못된 범위"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:684
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "잘못된 시간 형식"
 
-#: pkg/lib/serverTime.js:674
+#: pkg/lib/serverTime.js:676
 msgid "Invalid timezone"
 msgstr "잘못된 시간대"
 
@@ -4353,7 +4354,7 @@ msgstr "$0에 로그인"
 msgid "Log in with your server user account."
 msgstr "서버 사용자 계정으로 로그인합니다."
 
-#: pkg/lib/serverTime.js:460
+#: pkg/lib/serverTime.js:462
 msgid "Log messages"
 msgstr "로그 메세지"
 
@@ -4403,7 +4404,7 @@ msgstr "로그인"
 msgid "Login again"
 msgstr "다시 로그인"
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2409
 msgid "Login failed"
 msgstr "로그인 실패"
 
@@ -4572,7 +4573,7 @@ msgstr "사용자 계정 관리"
 msgid "Manual"
 msgstr "수동"
 
-#: pkg/lib/serverTime.js:557
+#: pkg/lib/serverTime.js:559
 msgid "Manually"
 msgstr "수동"
 
@@ -4847,7 +4848,7 @@ msgstr "NFS 적재"
 msgid "NSNA ping"
 msgstr "NSNA 핑"
 
-#: pkg/lib/serverTime.js:545
+#: pkg/lib/serverTime.js:547
 msgid "NTP server"
 msgstr "NTP 서버"
 
@@ -4923,7 +4924,7 @@ msgstr "이름에는 공백이 없어야 합니다."
 msgid "Need a spare disk"
 msgstr "예비 디스크가 필요합니다"
 
-#: pkg/lib/serverTime.js:687
+#: pkg/lib/serverTime.js:689
 msgid "Need at least one NTP server"
 msgstr "최소 하나의 NTP 서버가 필요합니다"
 
@@ -5076,7 +5077,7 @@ msgstr "지연 없음"
 msgid "No description available"
 msgstr "사용 가능한 설명 없음"
 
-#: pkg/apps/application.jsx:85
+#: pkg/apps/application.jsx:84
 msgid "No description provided."
 msgstr "설명이 없습니다."
 
@@ -5134,7 +5135,7 @@ msgstr "지정된 그룹 이름이 없습니다"
 msgid "No host keys found."
 msgstr "호스트 키를 찾을 수 없습니다."
 
-#: pkg/apps/utils.jsx:77
+#: pkg/apps/utils.tsx:102
 msgid "No installation package found for this application."
 msgstr "이 꾸러미에 대한 설치 꾸러미를 찾을 수 없습니다."
 
@@ -5188,8 +5189,9 @@ msgstr "물리 볼륨을 찾을 수 없음"
 msgid "No real name specified"
 msgstr "실제 이름이 지정되지 않았습니다"
 
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:159
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
 msgid "No results found"
 msgstr "결과를 찾을 수 없습니다"
 
@@ -5304,7 +5306,7 @@ msgstr "네트워크 장치 구성을 허용하지 않습니다"
 msgid "Not permitted to configure realms"
 msgstr "영역 구성을 허용하지 않습니다"
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2407
 msgid "Not permitted to perform this action."
 msgstr "이 작업을 실행할 수 있는 권한이 없습니다."
 
@@ -5326,7 +5328,7 @@ msgstr "미동작"
 msgid "Not set up"
 msgstr "설정 없음"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:456
 msgid "Not synchronized"
 msgstr "동기화 되어 있지 않습니다"
 
@@ -5790,7 +5792,7 @@ msgid "Physical volumes can not be resized here"
 msgstr "물리적 볼륨은 여기에서 크기를 변경 할 수 없습니다"
 
 #: pkg/systemd/timer-dialog.jsx:347 pkg/lib/cockpit-components-shutdown.jsx:211
-#: pkg/lib/serverTime.js:594 pkg/users/expiration-dialogs.js:48
+#: pkg/lib/serverTime.js:596 pkg/users/expiration-dialogs.js:48
 msgid "Pick date"
 msgstr "날짜 선택"
 
@@ -6260,9 +6262,9 @@ msgstr "SSH, $0를 통한 원격 연결"
 msgid "Removals:"
 msgstr "삭제:"
 
-#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
+#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:49
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:200
 #: pkg/storaged/lvm2/volume-group.jsx:326
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -6325,7 +6327,7 @@ msgstr "$0 영역 제거"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/apps/application.jsx:44
+#: pkg/apps/application.jsx:43
 msgid "Removing"
 msgstr "삭제 중"
 
@@ -6898,7 +6900,7 @@ msgstr "서버는 비워둘 수 없습니다."
 msgid "Server closed connection"
 msgstr "서버 연결이 종료됨"
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2427
 msgid "Server has closed the connection."
 msgstr "서버 연결이 종료되었습니다."
 
@@ -6935,7 +6937,7 @@ msgstr "위치를 사용 중인 서비스"
 msgid "Session"
 msgstr "세션"
 
-#: pkg/shell/idle.jsx:116
+#: pkg/shell/idle.jsx:118
 msgid "Session is about to expire"
 msgstr "세션이 곧 만료됩니다"
 
@@ -6965,7 +6967,7 @@ msgstr "$0의 파티션 유형을 설정"
 msgid "Set password"
 msgstr "비밀번호 설정"
 
-#: pkg/lib/serverTime.js:583
+#: pkg/lib/serverTime.js:585
 msgid "Set time"
 msgstr "시간 설정"
 
@@ -7330,7 +7332,7 @@ msgstr "중지 및 적재 해제"
 msgid "Stop device"
 msgstr "장치 중지"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Stop editing hosts"
 msgstr "호스트 편집 중지"
 
@@ -7499,15 +7501,15 @@ msgid ""
 "administration UI unavailable."
 msgstr "$0 을 켜면 서버와의 연결이 끊어지며 관리 UI를 사용 할 수 없게 됩니다."
 
-#: pkg/lib/serverTime.js:444
+#: pkg/lib/serverTime.js:446
 msgid "Synchronized"
 msgstr "동기화됩니다"
 
-#: pkg/lib/serverTime.js:446
+#: pkg/lib/serverTime.js:448
 msgid "Synchronized with $0"
 msgstr "$0와 동기화됩니다"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:452
 msgid "Synchronizing"
 msgstr "동기화 중"
 
@@ -7517,7 +7519,7 @@ msgstr "MD레이드 장치 $target 동기화 중"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:348
+#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
 msgid "System"
 msgstr "시스템"
 
@@ -7880,7 +7882,7 @@ msgstr ""
 "서버가 비밀번호 인증을 사용하여 '$0' 인증을 거부했습니다. 지원되는 다른 인증 "
 "방법을 사용 할 수 없습니다."
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2411
 msgid "The server refused to authenticate using any supported methods."
 msgstr "서버가 지원되는 방법을 사용하여 인증을 거부했습니다."
 
@@ -7912,7 +7914,7 @@ msgstr "사용자 $0는 암호화 정책을 변경 할 수 없습니다"
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "사용자 $0는 커널 충돌을 시험하도록 허용되지 않습니다"
 
-#: pkg/users/account-details.js:466
+#: pkg/users/account-details.js:442
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8212,7 +8214,7 @@ msgid "Time"
 msgstr "시간"
 
 # ctx::sourcefile::/rhn/account/LocalePreferences
-#: pkg/lib/serverTime.js:572
+#: pkg/lib/serverTime.js:574
 msgid "Time zone"
 msgstr "시간대"
 
@@ -8271,7 +8273,7 @@ msgid "Toggle"
 msgstr "전환"
 
 #: pkg/systemd/timer-dialog.jsx:348 pkg/lib/cockpit-components-shutdown.jsx:212
-#: pkg/lib/serverTime.js:595 pkg/users/expiration-dialogs.js:49
+#: pkg/lib/serverTime.js:597 pkg/users/expiration-dialogs.js:49
 msgid "Toggle date picker"
 msgstr "날짜 선택기 전환"
 
@@ -8279,11 +8281,11 @@ msgstr "날짜 선택기 전환"
 msgid "Toggle filters"
 msgstr "필터 전환"
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2433
 msgid "Too much data"
 msgstr "데이터가 너무 많습니다"
 
-#: pkg/shell/nav.jsx:351
+#: pkg/shell/nav.jsx:358
 msgid "Tools"
 msgstr "도구"
 
@@ -8359,7 +8361,7 @@ msgstr "신뢰 단계"
 msgid "Try again"
 msgstr "다시 시도"
 
-#: pkg/lib/serverTime.js:451
+#: pkg/lib/serverTime.js:453
 msgid "Trying to synchronize with $0"
 msgstr "$0와 동기화를 시도 중입니다"
 
@@ -8529,7 +8531,7 @@ msgstr "사용 불가능"
 msgid "Unavailable packages"
 msgstr "사용 할 수 없는 꾸러미"
 
-#: pkg/users/account-details.js:467
+#: pkg/users/account-details.js:443
 msgid "Undo"
 msgstr "실행 취소"
 
@@ -8573,7 +8575,7 @@ msgstr "알 수 없는 \"$0\""
 msgid "Unknown ($0)"
 msgstr "알 수 없음 ($0)"
 
-#: pkg/apps/application.jsx:103
+#: pkg/apps/application.jsx:102
 msgid "Unknown application"
 msgstr "알 수 없는 응용프로그램"
 
@@ -8680,7 +8682,7 @@ msgstr "미지원 논리 볼륨"
 msgid "Until"
 msgstr "까지"
 
-#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2413 pkg/lib/cockpit.js:2415
 msgid "Untrusted host"
 msgstr "지원되지 않는 호스트"
 
@@ -8953,7 +8955,7 @@ msgstr "측정 항목과 내역 보기"
 msgid "View per-disk throughput"
 msgstr "디스크-당 처리량 보기"
 
-#: pkg/apps/application.jsx:71
+#: pkg/apps/application.jsx:70
 msgid "View project website"
 msgstr "프로젝트 웹사이트 보기"
 
@@ -9016,7 +9018,7 @@ msgstr "상세 정보 대기 중..."
 msgid "Waiting for input…"
 msgstr "입력 대기 중…"
 
-#: pkg/apps/utils.jsx:56
+#: pkg/apps/utils.tsx:79
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr ""
 "꾸러미 관리자를 사용 중이어서 다른 프로그램이 종료 할 때까지 대기 중..."
@@ -9157,7 +9159,7 @@ msgid ""
 "account."
 msgstr "이 계정에 승인된 공개 키를 표시할 수 있는 권한이 없습니다."
 
-#: pkg/shell/idle.jsx:61
+#: pkg/shell/idle.jsx:63
 msgid "You have been logged out due to inactivity."
 msgstr "비활성 상태로 인해 로그 아웃되었습니다."
 
@@ -9177,7 +9179,7 @@ msgstr "비밀번호 변경을 위해 조금 더 기다려 주십시오"
 msgid "You now have administrative access."
 msgstr "이제 관리자 접근 권한이 있습니다."
 
-#: pkg/shell/idle.jsx:122
+#: pkg/shell/idle.jsx:124
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 초 후에 로그 아웃됩니다."
 
@@ -9207,11 +9209,11 @@ msgid ""
 "restarted."
 msgstr "서버 연결이 종료됩니다. 다시 시작하여 연결을 재개할 수 있습니다."
 
-#: pkg/lib/cockpit.js:2586
+#: pkg/lib/cockpit.js:2403
 msgid "Your session has been terminated."
 msgstr "세션이 종료되었습니다."
 
-#: pkg/lib/cockpit.js:2588
+#: pkg/lib/cockpit.js:2405
 msgid "Your session has expired. Please log in again."
 msgstr "세션이 만료되었습니다. 다시 로그인하십시오."
 
@@ -10114,6 +10116,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "영역"
+
+#~ msgid "Checking for new applications"
+#~ msgstr "신규 응용프로그램 확인 중"
 
 #~ msgid "Authentication failed: Server closed connection"
 #~ msgstr "인증 실패: 서버 연결 끊김"

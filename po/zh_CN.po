@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-02 03:06+0000\n"
+"POT-Creation-Date: 2024-12-07 03:05+0000\n"
 "PO-Revision-Date: 2024-09-07 12:38+0000\n"
 "Last-Translator: Jelle van der Waa <jvanderw@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -117,11 +117,11 @@ msgstr "该镜像不存在。"
 msgid "$0 error"
 msgstr "$0 个错误"
 
-#: pkg/lib/cockpit.js:1407
+#: pkg/lib/cockpit.js:1224
 msgid "$0 exited with code $1"
 msgstr "进程 $0 已退出，返回码为 $1"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1226
 msgid "$0 failed"
 msgstr "进程 $0 运行时出错"
 
@@ -182,7 +182,7 @@ msgstr "没有提供 $0 组件的仓库。"
 msgid "$0 key changed"
 msgstr "已更改 $0 个密钥"
 
-#: pkg/lib/cockpit.js:1405
+#: pkg/lib/cockpit.js:1222
 msgid "$0 killed with signal $1"
 msgstr "进程 $0 被信号 $1 终止"
 
@@ -777,7 +777,7 @@ msgstr "添加密钥服务器"
 msgid "Add member"
 msgstr "添加成员"
 
-#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
+#: pkg/shell/hosts.jsx:208 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "添加新主机"
 
@@ -1046,7 +1046,7 @@ msgid "Application information is missing"
 msgstr "缺少应用程序信息"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:174
-#: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:145 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "应用程序"
 
@@ -1086,7 +1086,7 @@ msgstr "更新安装失败"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "适用于关键挂载，如 /var"
 
-#: pkg/shell/nav.jsx:345
+#: pkg/shell/nav.jsx:352
 msgid "Apps"
 msgstr "应用程序"
 
@@ -1202,15 +1202,15 @@ msgstr "自动更新"
 msgid "Automatically starts"
 msgstr "自动启动"
 
-#: pkg/lib/serverTime.js:558
+#: pkg/lib/serverTime.js:560
 msgid "Automatically using NTP"
 msgstr "自动使用 NTP"
 
-#: pkg/lib/serverTime.js:565
+#: pkg/lib/serverTime.js:567
 msgid "Automatically using additional NTP servers"
 msgstr "自动使用额外的 NTP 服务器"
 
-#: pkg/lib/serverTime.js:566
+#: pkg/lib/serverTime.js:568
 msgid "Automatically using specific NTP servers"
 msgstr "自动使用指定的 NTP 服务器"
 
@@ -1419,7 +1419,7 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/networkmanager/dialogs-common.jsx:152
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913 pkg/kdump/kdump-view.jsx:235
-#: pkg/apps/utils.jsx:69 pkg/lib/cockpit-components-shutdown.jsx:193
+#: pkg/apps/utils.tsx:92 pkg/lib/cockpit-components-shutdown.jsx:193
 #: pkg/lib/cockpit-components-dialog.jsx:131
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
@@ -1450,7 +1450,7 @@ msgstr "无法被启用"
 msgid "Cannot connect to an unknown host"
 msgstr "不能连接至未知主机"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2425
 msgid "Cannot forward login credentials"
 msgstr "无法转发登录凭证"
 
@@ -1477,7 +1477,7 @@ msgid "Category"
 msgstr "类别"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
-#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:723 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:568
 msgid "Change"
@@ -1529,7 +1529,7 @@ msgstr "变更配置"
 msgid "Change shell"
 msgstr "修改 shell"
 
-#: pkg/lib/serverTime.js:714
+#: pkg/lib/serverTime.js:716
 msgid "Change system time"
 msgstr "修改系统时间"
 
@@ -1608,10 +1608,6 @@ msgstr "检查 $0 软件包"
 msgid "Checking for NBDE support in the initrd"
 msgstr "在 initrd 中检查 NBDE 支持"
 
-#: pkg/apps/application-list.jsx:148
-msgid "Checking for new applications"
-msgstr "检查新的应用"
-
 #: pkg/packagekit/updates.jsx:1389
 msgid "Checking for package updates..."
 msgstr "正在检查软件包更新..."
@@ -1653,7 +1649,13 @@ msgstr "清除所有过滤规则"
 msgid "Clear filter"
 msgstr "清除过滤器"
 
-#: pkg/shell/nav.jsx:160
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+#, fuzzy
+#| msgid "Clear filter"
+msgid "Clear input value"
+msgstr "清除过滤器"
+
+#: pkg/shell/nav.jsx:164
 msgid "Clear search"
 msgstr "清除搜寻"
 
@@ -1667,7 +1669,7 @@ msgstr "客户端软件"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
-#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
+#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.tsx:112
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
@@ -1693,7 +1695,7 @@ msgstr "Cockpit 验证的配置不正确。"
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "NetworkManager 的 Cockpit 配置和防火墙"
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2431
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit 无法联系指定的主机。"
 
@@ -1717,7 +1719,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit 是一个交互式 Linux 服务器管理接口。"
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2429
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit 与系统上的软件不兼容。"
 
@@ -1725,7 +1727,7 @@ msgstr "Cockpit 与系统上的软件不兼容。"
 msgid "Cockpit is not installed"
 msgstr "Cockpit 未安装"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2423
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit 未安装在系统上。"
 
@@ -1918,7 +1920,7 @@ msgstr "连接到 dbus 失败：$0"
 msgid "Connecting to the machine"
 msgstr "正在连接至主机"
 
-#: pkg/shell/hosts.jsx:194
+#: pkg/shell/hosts.jsx:193
 msgid "Connection error"
 msgstr "连接错误"
 
@@ -1926,7 +1928,7 @@ msgstr "连接错误"
 msgid "Connection failed"
 msgstr "连接失败"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2421
 msgid "Connection has timed out."
 msgstr "连接超时。"
 
@@ -1942,7 +1944,7 @@ msgstr "组成"
 msgid "Contacted domain"
 msgstr "联系的域"
 
-#: pkg/shell/nav.jsx:232
+#: pkg/shell/nav.jsx:237
 msgid "Contains:"
 msgstr "包含："
 
@@ -1950,7 +1952,7 @@ msgstr "包含："
 msgid "Continue"
 msgstr "继续"
 
-#: pkg/shell/idle.jsx:120
+#: pkg/shell/idle.jsx:122
 msgid "Continue session"
 msgstr "继续会话"
 
@@ -2773,7 +2775,7 @@ msgstr "EFI 系统分区"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "编辑"
@@ -2810,7 +2812,7 @@ msgstr "编辑 $0 区中的自定义服务"
 msgid "Edit host"
 msgstr "编辑主机"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Edit hosts"
 msgstr "编辑多个主机"
 
@@ -2988,7 +2990,7 @@ msgid "Errata"
 msgstr "勘误"
 
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
-#: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
+#: pkg/apps/utils.tsx:106 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
 #: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
@@ -3352,7 +3354,7 @@ msgstr "生成的"
 msgid "Go to $0"
 msgstr "前往 $0"
 
-#: pkg/apps/application.jsx:109
+#: pkg/apps/application.jsx:108
 msgid "Go to application"
 msgstr "转到应用"
 
@@ -3376,7 +3378,7 @@ msgstr "组"
 msgid "Group name"
 msgstr "用户组名称"
 
-#: pkg/users/account-details.js:440 pkg/users/accounts-list.js:313
+#: pkg/users/account-details.js:419 pkg/users/accounts-list.js:313
 #: pkg/users/accounts-list.js:317
 msgid "Groups"
 msgstr "用户组"
@@ -3472,7 +3474,7 @@ msgstr "历史软件包数量"
 msgid "Home directory"
 msgstr "家目录"
 
-#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
+#: pkg/shell/hosts.jsx:224 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "主机"
 
@@ -3482,7 +3484,7 @@ msgstr "主机"
 msgid "Host is unknown"
 msgstr "未知"
 
-#: pkg/lib/cockpit.js:2600
+#: pkg/lib/cockpit.js:2417
 msgid "Host key is incorrect"
 msgstr "主机密钥不正确"
 
@@ -3502,7 +3504,7 @@ msgstr "主机密钥不正确"
 msgid "Hostname"
 msgstr "主机名"
 
-#: pkg/shell/hosts.jsx:183
+#: pkg/shell/hosts.jsx:182
 msgid "Hosts"
 msgstr "主机"
 
@@ -3690,7 +3692,7 @@ msgstr "初始化中..."
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:52
+#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:51
 #: pkg/lib/cockpit-components-install-dialog.jsx:126
 #: pkg/packagekit/kpatch.jsx:250
 msgid "Install"
@@ -3752,7 +3754,7 @@ msgstr ""
 msgid "Installed"
 msgstr "已安装"
 
-#: pkg/apps/application.jsx:40 pkg/packagekit/updates.jsx:105
+#: pkg/apps/application.jsx:39 pkg/packagekit/updates.jsx:105
 msgid "Installing"
 msgstr "正在安装"
 
@@ -3786,7 +3788,7 @@ msgstr "接口成员"
 msgid "Interfaces"
 msgstr "接口"
 
-#: pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2419
 msgid "Internal error"
 msgstr "内部错误"
 
@@ -3808,7 +3810,7 @@ msgstr "无效"
 msgid "Invalid address $0"
 msgstr "无效的地址 $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:681
 msgid "Invalid date format"
 msgstr "无效的日期格式"
 
@@ -3852,12 +3854,12 @@ msgstr "无效的前缀或掩码 $0"
 msgid "Invalid range"
 msgstr "无效范围"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:684
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "无效的时间格式"
 
-#: pkg/lib/serverTime.js:674
+#: pkg/lib/serverTime.js:676
 msgid "Invalid timezone"
 msgstr "无效的时区"
 
@@ -4327,7 +4329,7 @@ msgstr "登录到 $0"
 msgid "Log in with your server user account."
 msgstr "使用您的服务器用户帐户登录。"
 
-#: pkg/lib/serverTime.js:460
+#: pkg/lib/serverTime.js:462
 msgid "Log messages"
 msgstr "日志消息"
 
@@ -4377,7 +4379,7 @@ msgstr "登录"
 msgid "Login again"
 msgstr "再次登录"
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2409
 msgid "Login failed"
 msgstr "登录失败"
 
@@ -4542,7 +4544,7 @@ msgstr "管理用户帐户"
 msgid "Manual"
 msgstr "手动"
 
-#: pkg/lib/serverTime.js:557
+#: pkg/lib/serverTime.js:559
 msgid "Manually"
 msgstr "手动的"
 
@@ -4817,7 +4819,7 @@ msgstr "NFS 挂载"
 msgid "NSNA ping"
 msgstr "NSNA ping"
 
-#: pkg/lib/serverTime.js:545
+#: pkg/lib/serverTime.js:547
 msgid "NTP server"
 msgstr "NTP 服务器"
 
@@ -4893,7 +4895,7 @@ msgstr "名称不能包含空格。"
 msgid "Need a spare disk"
 msgstr "需要一个备用磁盘"
 
-#: pkg/lib/serverTime.js:687
+#: pkg/lib/serverTime.js:689
 msgid "Need at least one NTP server"
 msgstr "至少需要一个 NTP 服务器"
 
@@ -5046,7 +5048,7 @@ msgstr "无延时"
 msgid "No description available"
 msgstr "没有可用描述"
 
-#: pkg/apps/application.jsx:85
+#: pkg/apps/application.jsx:84
 msgid "No description provided."
 msgstr "没有提供说明。"
 
@@ -5104,7 +5106,7 @@ msgstr "没有指定组名称"
 msgid "No host keys found."
 msgstr "没有找到主机密钥。"
 
-#: pkg/apps/utils.jsx:77
+#: pkg/apps/utils.tsx:102
 msgid "No installation package found for this application."
 msgstr "没有找到该应用的安装包。"
 
@@ -5158,8 +5160,9 @@ msgstr "没有找到物理卷"
 msgid "No real name specified"
 msgstr "未指定真实姓名"
 
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:159
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
 msgid "No results found"
 msgstr "没有找到结果"
 
@@ -5270,7 +5273,7 @@ msgstr "不允许配置网络设备"
 msgid "Not permitted to configure realms"
 msgstr "不允许配置域"
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2407
 msgid "Not permitted to perform this action."
 msgstr "不允许执行该操作。"
 
@@ -5292,7 +5295,7 @@ msgstr "未运行"
 msgid "Not set up"
 msgstr "未设置"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:456
 msgid "Not synchronized"
 msgstr "未同步"
 
@@ -5746,7 +5749,7 @@ msgid "Physical volumes can not be resized here"
 msgstr "此处无法调整物理卷的大小"
 
 #: pkg/systemd/timer-dialog.jsx:347 pkg/lib/cockpit-components-shutdown.jsx:211
-#: pkg/lib/serverTime.js:594 pkg/users/expiration-dialogs.js:48
+#: pkg/lib/serverTime.js:596 pkg/users/expiration-dialogs.js:48
 msgid "Pick date"
 msgstr "选择日期"
 
@@ -6217,9 +6220,9 @@ msgstr "通过 SSH 的远程, $0"
 msgid "Removals:"
 msgstr "移除："
 
-#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
+#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:49
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:200
 #: pkg/storaged/lvm2/volume-group.jsx:326
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -6280,7 +6283,7 @@ msgstr "删除服务 $0"
 msgid "Remove zone $0"
 msgstr "移除区 $0"
 
-#: pkg/apps/application.jsx:44
+#: pkg/apps/application.jsx:43
 msgid "Removing"
 msgstr "删除"
 
@@ -6842,7 +6845,7 @@ msgstr "名称不能为空。"
 msgid "Server closed connection"
 msgstr "服务器关闭了连接。"
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2427
 msgid "Server has closed the connection."
 msgstr "服务器关闭了连接。"
 
@@ -6879,7 +6882,7 @@ msgstr "使用位置的服务"
 msgid "Session"
 msgstr "会话"
 
-#: pkg/shell/idle.jsx:116
+#: pkg/shell/idle.jsx:118
 msgid "Session is about to expire"
 msgstr "会话即将到期"
 
@@ -6910,7 +6913,7 @@ msgstr "设置分区类型 $0"
 msgid "Set password"
 msgstr "设置密码"
 
-#: pkg/lib/serverTime.js:583
+#: pkg/lib/serverTime.js:585
 msgid "Set time"
 msgstr "设置时间"
 
@@ -7267,7 +7270,7 @@ msgstr "停止并卸载"
 msgid "Stop device"
 msgstr "停止设备"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Stop editing hosts"
 msgstr "停止编辑主机"
 
@@ -7436,15 +7439,15 @@ msgid ""
 "administration UI unavailable."
 msgstr "打开 $0 将中断与服务器的连接，并将导致管理界面不可用。"
 
-#: pkg/lib/serverTime.js:444
+#: pkg/lib/serverTime.js:446
 msgid "Synchronized"
 msgstr "已同步"
 
-#: pkg/lib/serverTime.js:446
+#: pkg/lib/serverTime.js:448
 msgid "Synchronized with $0"
 msgstr "与 $0 同步"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:452
 msgid "Synchronizing"
 msgstr "同步"
 
@@ -7452,7 +7455,7 @@ msgstr "同步"
 msgid "Synchronizing MDRAID device $target"
 msgstr "同步 MDRAID 设备 $target"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:348
+#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
 msgid "System"
 msgstr "系统"
 
@@ -7801,7 +7804,7 @@ msgid ""
 msgstr ""
 "服务器拒绝使用密码验证的方法来验证 '$0'，并且没有其他支持的验证途径可以使用。"
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2411
 msgid "The server refused to authenticate using any supported methods."
 msgstr "服务器拒绝使用任何支持的方式来验证。"
 
@@ -7829,7 +7832,7 @@ msgstr "用户 $0 不允许修改加密策略"
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "用户 $0 不允许测试内核崩溃"
 
-#: pkg/users/account-details.js:466
+#: pkg/users/account-details.js:442
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8112,7 +8115,7 @@ msgstr "层"
 msgid "Time"
 msgstr "时间"
 
-#: pkg/lib/serverTime.js:572
+#: pkg/lib/serverTime.js:574
 msgid "Time zone"
 msgstr "时区"
 
@@ -8166,7 +8169,7 @@ msgid "Toggle"
 msgstr "切换"
 
 #: pkg/systemd/timer-dialog.jsx:348 pkg/lib/cockpit-components-shutdown.jsx:212
-#: pkg/lib/serverTime.js:595 pkg/users/expiration-dialogs.js:49
+#: pkg/lib/serverTime.js:597 pkg/users/expiration-dialogs.js:49
 msgid "Toggle date picker"
 msgstr "切换日期选择器"
 
@@ -8174,11 +8177,11 @@ msgstr "切换日期选择器"
 msgid "Toggle filters"
 msgstr "切换过滤器"
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2433
 msgid "Too much data"
 msgstr "太多数据"
 
-#: pkg/shell/nav.jsx:351
+#: pkg/shell/nav.jsx:358
 msgid "Tools"
 msgstr "工具"
 
@@ -8252,7 +8255,7 @@ msgstr "信任级别"
 msgid "Try again"
 msgstr "重试"
 
-#: pkg/lib/serverTime.js:451
+#: pkg/lib/serverTime.js:453
 msgid "Trying to synchronize with $0"
 msgstr "正在尝试与 $0 同步"
 
@@ -8418,7 +8421,7 @@ msgstr "不可用"
 msgid "Unavailable packages"
 msgstr "不可用的软件包"
 
-#: pkg/users/account-details.js:467
+#: pkg/users/account-details.js:443
 msgid "Undo"
 msgstr "撤消"
 
@@ -8462,7 +8465,7 @@ msgstr "未知 \"$0\""
 msgid "Unknown ($0)"
 msgstr "未知 ($0)"
 
-#: pkg/apps/application.jsx:103
+#: pkg/apps/application.jsx:102
 msgid "Unknown application"
 msgstr "未知应用"
 
@@ -8569,7 +8572,7 @@ msgstr "不支持的逻辑卷"
 msgid "Until"
 msgstr "直到"
 
-#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2413 pkg/lib/cockpit.js:2415
 msgid "Untrusted host"
 msgstr "不可信的主机"
 
@@ -8838,7 +8841,7 @@ msgstr "查看指标和历史记录"
 msgid "View per-disk throughput"
 msgstr "查看每个磁盘的吞吐量"
 
-#: pkg/apps/application.jsx:71
+#: pkg/apps/application.jsx:70
 msgid "View project website"
 msgstr "查看项目网站"
 
@@ -8904,7 +8907,7 @@ msgstr "等待详情..."
 msgid "Waiting for input…"
 msgstr "等待输入…"
 
-#: pkg/apps/utils.jsx:56
+#: pkg/apps/utils.tsx:79
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr "正在等待其他程序来结束使用软件包管理器..."
 
@@ -9043,7 +9046,7 @@ msgid ""
 "account."
 msgstr "您没有权限查看此帐户的授权公钥."
 
-#: pkg/shell/idle.jsx:61
+#: pkg/shell/idle.jsx:63
 msgid "You have been logged out due to inactivity."
 msgstr "您由于不活动而已注销。"
 
@@ -9063,7 +9066,7 @@ msgstr "您需要等待更长时间来修改您的密码"
 msgid "You now have administrative access."
 msgstr "您已经获取了管理员权限。"
 
-#: pkg/shell/idle.jsx:122
+#: pkg/shell/idle.jsx:124
 msgid "You will be logged out in $0 seconds."
 msgstr "您将在$0秒钟后登出。"
 
@@ -9093,11 +9096,11 @@ msgid ""
 "restarted."
 msgstr "您的服务器将要关闭连接。您可以在其重启后重新连接。"
 
-#: pkg/lib/cockpit.js:2586
+#: pkg/lib/cockpit.js:2403
 msgid "Your session has been terminated."
 msgstr "会话被终止。"
 
-#: pkg/lib/cockpit.js:2588
+#: pkg/lib/cockpit.js:2405
 msgid "Your session has expired. Please log in again."
 msgstr "会话超时。请重新登录。"
 
@@ -9997,6 +10000,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "区"
+
+#~ msgid "Checking for new applications"
+#~ msgstr "检查新的应用"
 
 #~ msgid "Authentication failed: Server closed connection"
 #~ msgstr "认证失败：服务端已关闭连接"

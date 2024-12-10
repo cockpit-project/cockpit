@@ -107,7 +107,9 @@ class InternalMetricsChannel(AsyncChannel):
                     'semantics': metricinfo.desc.semantics
                 })
 
-        self.send_json(source='internal', interval=self.interval, timestamp=timestamp * 1000, metrics=metrics)
+        now = int(time.time()) * 1000
+        self.send_json(source='internal', interval=self.interval, timestamp=timestamp * 1000,
+                       now=now, metrics=metrics)
         self.need_meta = False
 
     def sample(self) -> Samples:

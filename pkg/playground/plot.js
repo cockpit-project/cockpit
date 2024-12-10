@@ -16,10 +16,16 @@ const pmcd_metric = {
     units: "bytes"
 };
 
+const internal_metric = {
+    internal: ["memory.used"],
+    units: "bytes",
+};
+
 document.addEventListener("DOMContentLoaded", function() {
     const plot_state = new PlotState();
     plot_state.plot_single('direct', direct_metric);
     plot_state.plot_single('pmcd', pmcd_metric);
+    plot_state.plot_single('internal', internal_metric);
 
     // For the tests
     window.plot_state = plot_state;
@@ -34,5 +40,11 @@ document.addEventListener("DOMContentLoaded", function() {
         <SvgPlot className="mem-graph"
                  title="PMCD" config={bytes_config}
                  plot_state={plot_state} plot_id="pmcd" />
+    );
+
+    createRoot(document.getElementById('plot-internal')).render(
+        <SvgPlot className="mem-graph"
+                 title="Internal" config={bytes_config}
+                 plot_state={plot_state} plot_id="internal" />
     );
 });

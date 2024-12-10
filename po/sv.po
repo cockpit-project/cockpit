@@ -7,9 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-02 03:06+0000\n"
-"PO-Revision-Date: 2024-12-02 15:47+0000\n"
-"Last-Translator: Luna Jernberg <bittin@reimu.nl>\n"
+"POT-Creation-Date: 2024-12-07 03:05+0000\n"
+"PO-Revision-Date: 2024-12-06 07:38+0000\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/sv/>\n"
 "Language: sv\n"
@@ -17,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 5.8.2\n"
+"X-Generator: Weblate 5.8.4\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -109,11 +110,11 @@ msgstr "0$ existerar inte"
 msgid "$0 error"
 msgstr "$0 fel"
 
-#: pkg/lib/cockpit.js:1407
+#: pkg/lib/cockpit.js:1224
 msgid "$0 exited with code $1"
 msgstr "$0 avslutade med kod $1"
 
-#: pkg/lib/cockpit.js:1409
+#: pkg/lib/cockpit.js:1226
 msgid "$0 failed"
 msgstr "$0 misslyckades"
 
@@ -175,7 +176,7 @@ msgstr "$0 är inte tillgängligt från något förråd."
 msgid "$0 key changed"
 msgstr "$0 nyckel ändrad"
 
-#: pkg/lib/cockpit.js:1405
+#: pkg/lib/cockpit.js:1222
 msgid "$0 killed with signal $1"
 msgstr "$0 dödad med signal $1"
 
@@ -792,7 +793,7 @@ msgstr "Lägg till nyckelserver"
 msgid "Add member"
 msgstr "Lägg till medlem"
 
-#: pkg/shell/hosts.jsx:209 pkg/shell/hosts_dialog.jsx:446
+#: pkg/shell/hosts.jsx:208 pkg/shell/hosts_dialog.jsx:446
 msgid "Add new host"
 msgstr "Lägg till ny värd"
 
@@ -1067,7 +1068,7 @@ msgid "Application information is missing"
 msgstr "Applikationinformation saknas"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:174
-#: pkg/apps/application.jsx:146 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:145 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Program"
 
@@ -1107,7 +1108,7 @@ msgstr "Att lägga på uppdateringar misslyckades"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "Lämplig för kritiska monteringar, såsom /var"
 
-#: pkg/shell/nav.jsx:345
+#: pkg/shell/nav.jsx:352
 msgid "Apps"
 msgstr "Program"
 
@@ -1224,15 +1225,15 @@ msgstr "Automatiska uppdateringar"
 msgid "Automatically starts"
 msgstr "Startar automatiskt"
 
-#: pkg/lib/serverTime.js:558
+#: pkg/lib/serverTime.js:560
 msgid "Automatically using NTP"
 msgstr "Använder automatiskt NTP"
 
-#: pkg/lib/serverTime.js:565
+#: pkg/lib/serverTime.js:567
 msgid "Automatically using additional NTP servers"
 msgstr "Använder automatiskt ytterligare NTP-servrar"
 
-#: pkg/lib/serverTime.js:566
+#: pkg/lib/serverTime.js:568
 msgid "Automatically using specific NTP servers"
 msgstr "Använder automatiskt specifika NTP-servrar"
 
@@ -1444,7 +1445,7 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/networkmanager/dialogs-common.jsx:152
 #: pkg/networkmanager/firewall.jsx:613 pkg/networkmanager/firewall.jsx:814
 #: pkg/networkmanager/firewall.jsx:913 pkg/kdump/kdump-view.jsx:235
-#: pkg/apps/utils.jsx:69 pkg/lib/cockpit-components-shutdown.jsx:193
+#: pkg/apps/utils.tsx:92 pkg/lib/cockpit-components-shutdown.jsx:193
 #: pkg/lib/cockpit-components-dialog.jsx:131
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
@@ -1475,7 +1476,7 @@ msgstr "Kan inte slås på"
 msgid "Cannot connect to an unknown host"
 msgstr "Kan inte ansluta till en okänd maskin"
 
-#: pkg/lib/cockpit.js:2608
+#: pkg/lib/cockpit.js:2425
 msgid "Cannot forward login credentials"
 msgstr "Kan inte vidarebefordra inloggningsuppgifterna"
 
@@ -1503,7 +1504,7 @@ msgid "Category"
 msgstr "Kategori"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
-#: pkg/lib/serverTime.js:721 pkg/users/shell-dialog.js:78
+#: pkg/lib/serverTime.js:723 pkg/users/shell-dialog.js:78
 #: pkg/users/expiration-dialogs.js:115 pkg/users/expiration-dialogs.js:217
 #: pkg/storaged/iscsi/create-dialog.jsx:171 pkg/storaged/stratis/pool.jsx:568
 msgid "Change"
@@ -1553,7 +1554,7 @@ msgstr "Ändra profil"
 msgid "Change shell"
 msgstr "Ändra skal"
 
-#: pkg/lib/serverTime.js:714
+#: pkg/lib/serverTime.js:716
 msgid "Change system time"
 msgstr "Ändra systemtid"
 
@@ -1639,10 +1640,6 @@ msgstr "Söker efter $0 paket"
 msgid "Checking for NBDE support in the initrd"
 msgstr "Söker efter NBDE-stöd i initrd"
 
-#: pkg/apps/application-list.jsx:148
-msgid "Checking for new applications"
-msgstr "Kontrollerar om det finns nya program"
-
 #: pkg/packagekit/updates.jsx:1389
 msgid "Checking for package updates..."
 msgstr "Söker efter programuppdateringar..."
@@ -1684,7 +1681,11 @@ msgstr "Nollställ alla filter"
 msgid "Clear filter"
 msgstr "Rensa filter"
 
-#: pkg/shell/nav.jsx:160
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+msgid "Clear input value"
+msgstr "Rensa inmatningsvärde"
+
+#: pkg/shell/nav.jsx:164
 msgid "Clear search"
 msgstr "Nollställ sökning"
 
@@ -1698,7 +1699,7 @@ msgstr "Klientprogramvara"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:195
 #: pkg/systemd/overview-cards/realmd.jsx:278
-#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.jsx:87
+#: pkg/networkmanager/interfaces.js:43 pkg/apps/utils.tsx:112
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
@@ -1724,7 +1725,7 @@ msgstr "Cockpit-autentisering är felaktigt konfigurerad."
 msgid "Cockpit configuration of NetworkManager and Firewalld"
 msgstr "Cockpit konfiguration av NetworkManager och Firewalld"
 
-#: pkg/lib/cockpit.js:2614
+#: pkg/lib/cockpit.js:2431
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit kunde inte kontakta den angivna värden."
 
@@ -1750,7 +1751,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit är ett interaktivt administratörsgränssnitt för Linuxservrar."
 
-#: pkg/lib/cockpit.js:2612
+#: pkg/lib/cockpit.js:2429
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit är inte kompatibelt med programvaran på systemet."
 
@@ -1758,7 +1759,7 @@ msgstr "Cockpit är inte kompatibelt med programvaran på systemet."
 msgid "Cockpit is not installed"
 msgstr "Cockpit är inte installerat"
 
-#: pkg/lib/cockpit.js:2606
+#: pkg/lib/cockpit.js:2423
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit är inte installerat på systemet."
 
@@ -1954,7 +1955,7 @@ msgstr "Anslutningen till dbus misslyckades: $0"
 msgid "Connecting to the machine"
 msgstr "Ansluter till maskinen"
 
-#: pkg/shell/hosts.jsx:194
+#: pkg/shell/hosts.jsx:193
 msgid "Connection error"
 msgstr "Anslutningsfel"
 
@@ -1962,7 +1963,7 @@ msgstr "Anslutningsfel"
 msgid "Connection failed"
 msgstr "Anslutningen misslyckades"
 
-#: pkg/lib/cockpit.js:2604
+#: pkg/lib/cockpit.js:2421
 msgid "Connection has timed out."
 msgstr "Anslutningens tidsgräns överskreds."
 
@@ -1978,7 +1979,7 @@ msgstr "Består av"
 msgid "Contacted domain"
 msgstr "Kontaktade domänen"
 
-#: pkg/shell/nav.jsx:232
+#: pkg/shell/nav.jsx:237
 msgid "Contains:"
 msgstr "Innehåller:"
 
@@ -1986,7 +1987,7 @@ msgstr "Innehåller:"
 msgid "Continue"
 msgstr "Fortsätt"
 
-#: pkg/shell/idle.jsx:120
+#: pkg/shell/idle.jsx:122
 msgid "Continue session"
 msgstr "Fortsätt session"
 
@@ -2823,7 +2824,7 @@ msgstr "EFI-systempartition"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:198 pkg/shell/nav.jsx:358 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "Redigera"
@@ -2860,7 +2861,7 @@ msgstr "Redigera anpassad tjänst i $0 zon"
 msgid "Edit host"
 msgstr "Redigera värd"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Edit hosts"
 msgstr "Redigera värdar"
 
@@ -3040,7 +3041,7 @@ msgid "Errata"
 msgstr "Errata"
 
 #: pkg/systemd/services.jsx:224 pkg/systemd/service-details.jsx:274
-#: pkg/apps/utils.jsx:81 pkg/storaged/overview/overview.jsx:94
+#: pkg/apps/utils.tsx:106 pkg/storaged/overview/overview.jsx:94
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:105
 #: pkg/storaged/storage-controls.jsx:158 pkg/sosreport/sosreport.jsx:396
 msgid "Error"
@@ -3405,7 +3406,7 @@ msgstr "Genererad"
 msgid "Go to $0"
 msgstr "Gå till $0"
 
-#: pkg/apps/application.jsx:109
+#: pkg/apps/application.jsx:108
 msgid "Go to application"
 msgstr "Gå till programmet"
 
@@ -3429,7 +3430,7 @@ msgstr "Grupp"
 msgid "Group name"
 msgstr "Gruppnamn"
 
-#: pkg/users/account-details.js:440 pkg/users/accounts-list.js:313
+#: pkg/users/account-details.js:419 pkg/users/accounts-list.js:313
 #: pkg/users/accounts-list.js:317
 msgid "Groups"
 msgstr "Grupper"
@@ -3525,7 +3526,7 @@ msgstr "Historiepaketantal"
 msgid "Home directory"
 msgstr "Hemkatalog"
 
-#: pkg/shell/hosts.jsx:225 pkg/shell/hosts_dialog.jsx:450
+#: pkg/shell/hosts.jsx:224 pkg/shell/hosts_dialog.jsx:450
 msgid "Host"
 msgstr "Värd"
 
@@ -3533,7 +3534,7 @@ msgstr "Värd"
 msgid "Host is unknown"
 msgstr "Värd är okänd"
 
-#: pkg/lib/cockpit.js:2600
+#: pkg/lib/cockpit.js:2417
 msgid "Host key is incorrect"
 msgstr "Värdnyckeln är felaktig"
 
@@ -3549,7 +3550,7 @@ msgstr "Värdnyckeln är okänd"
 msgid "Hostname"
 msgstr "Värdnamn"
 
-#: pkg/shell/hosts.jsx:183
+#: pkg/shell/hosts.jsx:182
 msgid "Hosts"
 msgstr "Värdar"
 
@@ -3745,7 +3746,7 @@ msgstr "Initierar …"
 msgid "Insights: "
 msgstr "Detaljer: "
 
-#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:52
+#: pkg/apps/application-list.jsx:196 pkg/apps/application.jsx:51
 #: pkg/lib/cockpit-components-install-dialog.jsx:126
 #: pkg/packagekit/kpatch.jsx:250
 msgid "Install"
@@ -3807,7 +3808,7 @@ msgstr ""
 msgid "Installed"
 msgstr "Installerad"
 
-#: pkg/apps/application.jsx:40 pkg/packagekit/updates.jsx:105
+#: pkg/apps/application.jsx:39 pkg/packagekit/updates.jsx:105
 msgid "Installing"
 msgstr "Installerar"
 
@@ -3842,7 +3843,7 @@ msgstr "Gränssnittsmedlemmar"
 msgid "Interfaces"
 msgstr "Gränssnitt"
 
-#: pkg/lib/cockpit.js:2602
+#: pkg/lib/cockpit.js:2419
 msgid "Internal error"
 msgstr "Internt fel"
 
@@ -3862,7 +3863,7 @@ msgstr "Felaktig"
 msgid "Invalid address $0"
 msgstr "Felaktig adress $0"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:679
+#: pkg/lib/cockpit-components-shutdown.jsx:118 pkg/lib/serverTime.js:681
 msgid "Invalid date format"
 msgstr "Felaktigt datumformat"
 
@@ -3906,12 +3907,12 @@ msgstr "Felaktigt prefix eller nätmask $0"
 msgid "Invalid range"
 msgstr "Felaktigt område"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:682
+#: pkg/lib/cockpit-components-shutdown.jsx:115 pkg/lib/serverTime.js:684
 #: pkg/packagekit/autoupdates.jsx:449
 msgid "Invalid time format"
 msgstr "Felaktigt tidsformat"
 
-#: pkg/lib/serverTime.js:674
+#: pkg/lib/serverTime.js:676
 msgid "Invalid timezone"
 msgstr "Felaktig tidszon"
 
@@ -4377,7 +4378,7 @@ msgstr "Logga in till $0"
 msgid "Log in with your server user account."
 msgstr "Logga in med ditt serveranvändarkonto."
 
-#: pkg/lib/serverTime.js:460
+#: pkg/lib/serverTime.js:462
 msgid "Log messages"
 msgstr "Loggmeddelanden"
 
@@ -4427,7 +4428,7 @@ msgstr "Inloggning"
 msgid "Login again"
 msgstr "Logga in igen"
 
-#: pkg/lib/cockpit.js:2592
+#: pkg/lib/cockpit.js:2409
 msgid "Login failed"
 msgstr "Inloggningen misslyckades"
 
@@ -4592,7 +4593,7 @@ msgstr "Hantera användarkonton"
 msgid "Manual"
 msgstr "Manuell"
 
-#: pkg/lib/serverTime.js:557
+#: pkg/lib/serverTime.js:559
 msgid "Manually"
 msgstr "Manuellt"
 
@@ -4869,7 +4870,7 @@ msgstr "NFS-montering"
 msgid "NSNA ping"
 msgstr "NSNA-ping"
 
-#: pkg/lib/serverTime.js:545
+#: pkg/lib/serverTime.js:547
 msgid "NTP server"
 msgstr "NTP-server"
 
@@ -4945,7 +4946,7 @@ msgstr "Namnet får inte innehålla blanktecken."
 msgid "Need a spare disk"
 msgstr "Behöver en reservdisk"
 
-#: pkg/lib/serverTime.js:687
+#: pkg/lib/serverTime.js:689
 msgid "Need at least one NTP server"
 msgstr "Behöver åtminstone en NTP-server"
 
@@ -5098,7 +5099,7 @@ msgstr "Ingen fördröjning"
 msgid "No description available"
 msgstr "Ingen beskrivning finns"
 
-#: pkg/apps/application.jsx:85
+#: pkg/apps/application.jsx:84
 msgid "No description provided."
 msgstr "Ingen beskrivning tillhandahållen."
 
@@ -5156,7 +5157,7 @@ msgstr "Inget gruppnamn angivet"
 msgid "No host keys found."
 msgstr "Inga värdnycklar hittade."
 
-#: pkg/apps/utils.jsx:77
+#: pkg/apps/utils.tsx:102
 msgid "No installation package found for this application."
 msgstr "Inget installationspaket hittat för detta program."
 
@@ -5210,8 +5211,9 @@ msgstr "Inga fysiska volymer hittades"
 msgid "No real name specified"
 msgstr "Inget verkligt namn angivet"
 
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:159
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
 msgid "No results found"
 msgstr "Inga resultat funna"
 
@@ -5324,7 +5326,7 @@ msgstr "Inte tillåtet att konfigurera nätverksenheter"
 msgid "Not permitted to configure realms"
 msgstr "Inte tillåtet att konfigurera att ändra riken"
 
-#: pkg/lib/cockpit.js:2590
+#: pkg/lib/cockpit.js:2407
 msgid "Not permitted to perform this action."
 msgstr "Inte tillåtet att utföra denna åtgärd."
 
@@ -5346,7 +5348,7 @@ msgstr "Kör inte"
 msgid "Not set up"
 msgstr "Inte uppsatt"
 
-#: pkg/lib/serverTime.js:454
+#: pkg/lib/serverTime.js:456
 msgid "Not synchronized"
 msgstr "Inte synkroniserad"
 
@@ -5802,7 +5804,7 @@ msgid "Physical volumes can not be resized here"
 msgstr "Storleken på fysiska volymer kan inte ändras här"
 
 #: pkg/systemd/timer-dialog.jsx:347 pkg/lib/cockpit-components-shutdown.jsx:211
-#: pkg/lib/serverTime.js:594 pkg/users/expiration-dialogs.js:48
+#: pkg/lib/serverTime.js:596 pkg/users/expiration-dialogs.js:48
 msgid "Pick date"
 msgstr "Välj datum"
 
@@ -6273,9 +6275,9 @@ msgstr "Fjärr över SSH, $0"
 msgid "Removals:"
 msgstr "Borttagningar:"
 
-#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:50
+#: pkg/systemd/timer-dialog.jsx:361 pkg/apps/application.jsx:49
 #: pkg/users/authorized-keys-panel.js:142
-#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:201
+#: pkg/users/authorized-keys-panel.js:150 pkg/shell/hosts.jsx:200
 #: pkg/storaged/lvm2/volume-group.jsx:326
 #: pkg/storaged/lvm2/physical-volume.jsx:88 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/mdraid/mdraid-disk.jsx:98 pkg/storaged/crypto/keyslots.jsx:651
@@ -6336,7 +6338,7 @@ msgstr "Ta bort tjänst $0"
 msgid "Remove zone $0"
 msgstr "Ta bort zon $0"
 
-#: pkg/apps/application.jsx:44
+#: pkg/apps/application.jsx:43
 msgid "Removing"
 msgstr "Tar bort"
 
@@ -6914,7 +6916,7 @@ msgstr "Servern får inte vara tom."
 msgid "Server closed connection"
 msgstr "Servern stängde anslutningen"
 
-#: pkg/lib/cockpit.js:2610
+#: pkg/lib/cockpit.js:2427
 msgid "Server has closed the connection."
 msgstr "Servern har stängt förbindelsen."
 
@@ -6951,7 +6953,7 @@ msgstr "Tjänster som använder platsen"
 msgid "Session"
 msgstr "Session"
 
-#: pkg/shell/idle.jsx:116
+#: pkg/shell/idle.jsx:118
 msgid "Session is about to expire"
 msgstr "Sessionen är på väg att löpa ut"
 
@@ -6980,7 +6982,7 @@ msgstr "Ställ in partitionstyp till $0"
 msgid "Set password"
 msgstr "Sätt lösenord"
 
-#: pkg/lib/serverTime.js:583
+#: pkg/lib/serverTime.js:585
 msgid "Set time"
 msgstr "Ställ in tiden"
 
@@ -7342,7 +7344,7 @@ msgstr "Stoppa och avmontera"
 msgid "Stop device"
 msgstr "Stoppa enhet"
 
-#: pkg/shell/hosts.jsx:248
+#: pkg/shell/hosts.jsx:247
 msgid "Stop editing hosts"
 msgstr "Sluta redigera värdar"
 
@@ -7515,15 +7517,15 @@ msgstr ""
 "Att sätta på $0 kommer bryta anslutningen till servern, och kommer göra "
 "administrationsgränssnittet otillgängligt."
 
-#: pkg/lib/serverTime.js:444
+#: pkg/lib/serverTime.js:446
 msgid "Synchronized"
 msgstr "Synkroniserad"
 
-#: pkg/lib/serverTime.js:446
+#: pkg/lib/serverTime.js:448
 msgid "Synchronized with $0"
 msgstr "Synkroniserad med $0"
 
-#: pkg/lib/serverTime.js:450
+#: pkg/lib/serverTime.js:452
 msgid "Synchronizing"
 msgstr "Synkroniserar"
 
@@ -7531,7 +7533,7 @@ msgstr "Synkroniserar"
 msgid "Synchronizing MDRAID device $target"
 msgstr "Synkroniserar MDRAID-enheten $target"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:348
+#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
 msgid "System"
 msgstr "System"
 
@@ -7909,7 +7911,7 @@ msgstr ""
 "Servern vägrade att autentisera ”$0” med lösenordsautentisering, och inga "
 "andra stödda autentiseringsmetoder är tillgängliga."
 
-#: pkg/lib/cockpit.js:2594
+#: pkg/lib/cockpit.js:2411
 msgid "The server refused to authenticate using any supported methods."
 msgstr "Servern vägrade att autentisera med några stödda metoder."
 
@@ -7941,7 +7943,7 @@ msgstr "Användaren $0 har inte rättighet att ändra kryptografisk policy"
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "Användaren $0 har inte tillåtelse att testa att krascha kärnan"
 
-#: pkg/users/account-details.js:466
+#: pkg/users/account-details.js:442
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8254,7 +8256,7 @@ msgstr "Nivå"
 msgid "Time"
 msgstr "Tid"
 
-#: pkg/lib/serverTime.js:572
+#: pkg/lib/serverTime.js:574
 msgid "Time zone"
 msgstr "Tidszon"
 
@@ -8314,7 +8316,7 @@ msgid "Toggle"
 msgstr "Växla"
 
 #: pkg/systemd/timer-dialog.jsx:348 pkg/lib/cockpit-components-shutdown.jsx:212
-#: pkg/lib/serverTime.js:595 pkg/users/expiration-dialogs.js:49
+#: pkg/lib/serverTime.js:597 pkg/users/expiration-dialogs.js:49
 msgid "Toggle date picker"
 msgstr "Växla datumväljare"
 
@@ -8322,11 +8324,11 @@ msgstr "Växla datumväljare"
 msgid "Toggle filters"
 msgstr "Växla filter"
 
-#: pkg/lib/cockpit.js:2616
+#: pkg/lib/cockpit.js:2433
 msgid "Too much data"
 msgstr "För mycket data"
 
-#: pkg/shell/nav.jsx:351
+#: pkg/shell/nav.jsx:358
 msgid "Tools"
 msgstr "Verktyg"
 
@@ -8402,7 +8404,7 @@ msgstr "Tillitsnivå"
 msgid "Try again"
 msgstr "Försök igen"
 
-#: pkg/lib/serverTime.js:451
+#: pkg/lib/serverTime.js:453
 msgid "Trying to synchronize with $0"
 msgstr "Försök att synkronisera med $0"
 
@@ -8572,7 +8574,7 @@ msgstr "Otillgänglig"
 msgid "Unavailable packages"
 msgstr "Otillgängliga paket"
 
-#: pkg/users/account-details.js:467
+#: pkg/users/account-details.js:443
 msgid "Undo"
 msgstr "Ångra"
 
@@ -8616,7 +8618,7 @@ msgstr "Okänt ”$0”"
 msgid "Unknown ($0)"
 msgstr "Okänt ($0)"
 
-#: pkg/apps/application.jsx:103
+#: pkg/apps/application.jsx:102
 msgid "Unknown application"
 msgstr "Okänt program"
 
@@ -8723,7 +8725,7 @@ msgstr "Den logiska volymen stöds inte"
 msgid "Until"
 msgstr "Tills"
 
-#: pkg/lib/cockpit.js:2596 pkg/lib/cockpit.js:2598
+#: pkg/lib/cockpit.js:2413 pkg/lib/cockpit.js:2415
 msgid "Untrusted host"
 msgstr "Ej betrodd värd"
 
@@ -8992,7 +8994,7 @@ msgstr "Visa mätvärden och historik"
 msgid "View per-disk throughput"
 msgstr "Visa per disk genomströmning"
 
-#: pkg/apps/application.jsx:71
+#: pkg/apps/application.jsx:70
 msgid "View project website"
 msgstr "Visa projektwebbsajt"
 
@@ -9056,7 +9058,7 @@ msgstr "Väntar på detaljer …"
 msgid "Waiting for input…"
 msgstr "Väntar på inmatning…"
 
-#: pkg/apps/utils.jsx:56
+#: pkg/apps/utils.tsx:79
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr "Väntar på att andra program skall sluta använda pakethanteraren …"
 
@@ -9198,7 +9200,7 @@ msgstr ""
 "Du har inte rättigheter att se de auktoriserade publika nycklarna för detta "
 "konto."
 
-#: pkg/shell/idle.jsx:61
+#: pkg/shell/idle.jsx:63
 msgid "You have been logged out due to inactivity."
 msgstr "Du har blivit utloggad på grund av inaktivitet."
 
@@ -9218,7 +9220,7 @@ msgstr "Du måste vänta längre på att ändra ditt lösenord"
 msgid "You now have administrative access."
 msgstr "Du har nu administrativ åtkomst."
 
-#: pkg/shell/idle.jsx:122
+#: pkg/shell/idle.jsx:124
 msgid "You will be logged out in $0 seconds."
 msgstr "Du kommer att loggas ut om $0 sekunder."
 
@@ -9250,11 +9252,11 @@ msgstr ""
 "Din server kommer stänga förbindelsen snart. Du kan återansluta efter att "
 "den har startat om."
 
-#: pkg/lib/cockpit.js:2586
+#: pkg/lib/cockpit.js:2403
 msgid "Your session has been terminated."
 msgstr "Din session har avslutats."
 
-#: pkg/lib/cockpit.js:2588
+#: pkg/lib/cockpit.js:2405
 msgid "Your session has expired. Please log in again."
 msgstr "Din session har gått ut. Logga in igen."
 
@@ -10153,6 +10155,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zon"
+
+#~ msgid "Checking for new applications"
+#~ msgstr "Kontrollerar om det finns nya program"
 
 #~ msgid "Authentication failed: Server closed connection"
 #~ msgstr "Autentiseringen misslyckades: servern stängde ner förbindelsen"

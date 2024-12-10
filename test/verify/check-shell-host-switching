@@ -198,14 +198,6 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_not_present("#nav-system.interact")
         b.set_layout("desktop")
 
-        # this looks different (focused) when the mouse is inside (default 0,0 possition), so move it away
-        # chromium is stubborn here, we *have* to move the real mouse, not just do this with synthetic MouseEvents
-        b.bidi("input.performActions", context=b.driver.context, actions=[{
-            "id": "move-away",
-            "type": "pointer",
-            "parameters": {"pointerType": "mouse"},
-            "actions": [{"type": "pointerMove", "x": 200, "y": 200, "origin": "viewport"}]
-        }])
         b.assert_pixels("#hosts-sel", "hosts-sel-closed")
 
         self.open_host_switcher()
@@ -237,6 +229,8 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to contact the given host 10.111.113.2:4321. Make sure it has ssh running on port 4321, or specify another port in the address.")
         # Now do it right
         b.set_input_text('#add-machine-address', "10.111.113.2")
+        # move the mouse away to avoid highlighting any UI element (pixel ref does not expect that)
+        b.mouse("#hosts-sel", "mouseenter")
         b.assert_pixels("#hosts_setup_server_dialog", "host-add-dialog")
         b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time")

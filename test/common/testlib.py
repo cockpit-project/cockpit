@@ -526,11 +526,11 @@ class Browser:
         # HACK: Chromium clicks don't work with iframes; use our old "synthesize MouseEvent" approach
         # https://issues.chromium.org/issues/359616812
         # TODO: x and y are not currently implemented: webdriver (0, 0) is the element's center, not top left corner
-        if self.browser == "chromium" or x != 0 or y != 0:
+        if (self.browser == "chromium" and not self.driver.in_top_context()) or x != 0 or y != 0:
             self.call_js_func('ph_mouse', selector, event, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
             return
 
-        # For Firefox and regular clicks, use the BiDi API, which is more realistic -- it doesn't
+        # For Firefox and top frame with Chromium, use the BiDi API, which is more realistic -- it doesn't
         # sidestep the browser
         element = self.call_js_func('ph_find_scroll_into_view' if scrollVisible else 'ph_find', selector)
 
@@ -1478,6 +1478,14 @@ class Browser:
             classes = self.attr("main", "class")
             if "pf-v5-c-page__main" in classes:
                 self.set_attr("main.pf-v5-c-page__main", "class", f"{classes} pixel-test")
+
+        # move the mouse to a harmless place where it doesn't accidentally focus anything (as that changes UI)
+        self.bidi("input.performActions", context=self.driver.context, actions=[{
+            "id": "move-away",
+            "type": "pointer",
+            "parameters": {"pointerType": "mouse"},
+            "actions": [{"type": "pointerMove", "x": 2000, "y": 0, "origin": "viewport"}]
+        }])
 
         if self.current_layout:
             previous_layout = self.current_layout["name"]

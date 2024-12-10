@@ -58,11 +58,11 @@ const SkipLink = ({ focus_id, children }) => {
 const Shell = () => {
     const current_user = useLoggedInUser()?.name || "";
     const state = useInit(() => new ShellState());
-    const idle_state = useInit(() => IdleTimeoutState());
+    const idle_state = useInit(() => new IdleTimeoutState());
     const host_modal_state = useInit(() => HostModalState());
 
     useOn(state, "update");
-    useEvent(idle_state, "update");
+    useOn(idle_state, "update");
     useEvent(host_modal_state, "changed");
 
     useEffect(() => {

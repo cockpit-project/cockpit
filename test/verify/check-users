@@ -1079,14 +1079,26 @@ class TestAccounts(testlib.MachineCase):
         m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /run/utmp")
         m.execute("rm -f /var/lib/lastlog/lastlog2.db /var/lib/wtmpdb/wtmp.db")
 
-        # Login once to create an entry
-        self.login_and_go("/users")
+        # First login: no entries yet
+        self.login_and_go("/users#/admin")
+        # just the header, nothing else
+        b.wait_text("#account-logs", "Login history")
+        self.assertFalse(b.is_present("#account-logs tr"))
         b.logout()
 
+        year = m.execute("date +%Y").strip()
+
+        # second login: one entry from the first one
         self.login_and_go("/users#/admin")
-        b.wait_visible("#account-logs")
         # Header + one line of logins
         b.wait_js_func("ph_count_check", "#account-logs tr", 2)
+        started = b.text("#account-logs [data-label='Started']")
+        ended = b.text("#account-logs [data-label='Ended']")
+        self.assertIn(year, started)
+        self.assertIn(year, ended)
+        self.assertGreaterEqual(ended, started)
+        # this is the correct IP for our CI, and we don't run this on tmt
+        b.wait_text("#account-logs [data-label='From']", "::ffff:172.27.0.2")
 
     def testGroups(self):
         b = self.browser

@@ -752,6 +752,12 @@ OnCalendar=daily
         with b.wait_timeout(60):
             b.wait_js_func("ph_plot_data_plateau", "pmcd", mem_avail * 0.85, mem_avail * 1.15, 15, "mem")
 
+        # Internal metrics only has memory used (memory.used) as a metric not available memory.
+        meminfo = read_mem_info(m)
+        mem_avail = meminfo['MemTotal'] - meminfo['MemAvailable']
+        with b.wait_timeout(60):
+            b.wait_js_func("ph_plot_data_plateau", "internal", mem_avail * 0.85, mem_avail * 1.15, 15, "mem")
+
     @testlib.skipBrowser("Headless chromium is missing the synthetic mouseenter", "chromium")
     def testPageStatus(self):
         b = self.browser

@@ -63,3 +63,10 @@ TEST_PROGRAM += test-websocket
 test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
 test_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS)
 test_websocket_SOURCES = src/websocket/test-websocket.c
+
+if WITH_FUZZING
+noinst_PROGRAMS += fuzz_websocket
+fuzz_websocket_SOURCES = src/websocket/fuzz_websocket.c
+fuzz_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
+fuzz_websocket_LDADD = $(libwebsocket_a_LIBS) $(libcockpit_common_a_LIBS) $(FUZZING_ENGINE)
+endif

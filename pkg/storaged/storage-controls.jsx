@@ -200,7 +200,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, short }
             </span>
             <div className={"usage-bar" + (fraction > critical ? " usage-bar-danger" : "") + (short ? " usage-bar-short" : "")}
                  role="progressbar"
-                 aria-valuemin="0" aria-valuemax={stats[1]} aria-valuenow={stats[0]}
+                 aria-valuemin={0} aria-valuemax={stats[1]} aria-valuenow={stats[0]}
                  aria-label={cockpit.format(_("Usage of $0"), block)}
                  aria-valuetext={labelText}>
                 <div className="usage-bar-indicator usage-bar-other" aria-hidden="true" style={{ width: total_fraction * 100 + "%" }} />

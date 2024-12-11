@@ -1,39 +1,9 @@
 import { EventSource, EventMap } from "cockpit";
 
+import { Manifests } from "../manifests";
+
 export function generate_connection_string(user: string | null, port: string | null, addr: string) : string;
 export function split_connection_string (conn_to: string) : { address: string, user?: string, port?: number };
-
-export interface ManifestKeyword {
-    matches: string[];
-    goto?: string;
-    weight: number;
-    translate: boolean;
-}
-
-export interface ManifestDocs {
-    label: string;
-    url: string;
-}
-
-export interface ManifestEntry {
-    path?: string;
-    label?: string;
-    order?: number;
-    docs?: ManifestDocs[];
-    keywords?: ManifestKeyword[];
-}
-
-export interface ManifestSection {
-    [name: string]: ManifestEntry;
-}
-
-export interface Manifest {
-    [section: string]: ManifestSection;
-}
-
-export interface Manifests {
-    [pkg: string]: Manifest;
-}
 
 export interface Machine {
     key: string;

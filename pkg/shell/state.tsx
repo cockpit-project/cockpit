@@ -24,13 +24,14 @@ import { EventEmitter } from "cockpit/event";
 import { Router } from "./router.jsx";
 import {
     machines as machines_factory,
-    Machine, Machines, Loader, Manifest
+    Machine, Machines, Loader
 } from "./machines/machines.js";
 import {
     decode_location, decode_window_location, push_window_location, replace_window_location,
     compile_manifests, compute_frame_url,
     Location, ManifestItem, CompiledComponents,
 } from "./util.jsx";
+import { Manifest } from "./manifests";
 
 export interface ShellConfig {
     language: string;

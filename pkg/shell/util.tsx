@@ -19,7 +19,8 @@
 
 import cockpit from "cockpit";
 
-import { ManifestKeyword, ManifestDocs, Manifest, Manifests, Machine } from "./machines/machines";
+import { ManifestKeyword, ManifestDocs, ManifestSection, Manifest, Manifests } from "./manifests";
+import { Machine } from "./machines/machines";
 
 export interface Location {
     host: string;
@@ -99,9 +100,10 @@ export class CompiledComponents {
         this.manifests = manifests || { };
     }
 
-    load(section: string): void {
+    load(section: string, getter: (man: Manifest) => ManifestSection | undefined): void {
         Object.entries(this.manifests).forEach(([name, manifest]) => {
-            Object.entries(manifest[section] || { }).forEach(([prop, info]) => {
+            const manifest_section = getter(manifest) || {};
+            Object.entries(manifest_section).forEach(([prop, info]) => {
                 const item: ManifestItem = {
                     path: "", // set below
                     hash: "", // set below
@@ -173,7 +175,7 @@ export class CompiledComponents {
         if (!component) {
             const comp = this.manifests[path];
             if (comp && comp.parent && comp.parent.component)
-                component = comp.parent.component as string;
+                component = comp.parent.component;
         }
 
         const item = this.items[component];
@@ -204,9 +206,9 @@ export class CompiledComponents {
 
 export function compile_manifests(manifests?: Manifests): CompiledComponents {
     const compiled = new CompiledComponents(manifests);
-    compiled.load("tools");
-    compiled.load("dashboard");
-    compiled.load("menu");
+    compiled.load("tools", m => m.tools);
+    compiled.load("dashboard", m => m.dashboard);
+    compiled.load("menu", m => m.menu);
     return compiled;
 }
 

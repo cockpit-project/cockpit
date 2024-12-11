@@ -281,6 +281,8 @@ session    optional     pam_ssh_add.so
 
         # Log off and log back in, and we should have both loaded automatically
         if auto_load:
+            b.click("#credentials-modal button[aria-label=Close]")
+            b.wait_not_present("#credentials-modal")
             b.logout()
             b.login_and_go()
             keys = list_keys()
@@ -357,6 +359,9 @@ session    optional     pam_ssh_add.so
         b.wait_not_present("h1:contains('Unlock key /tmp/new_with_passphrase.rsa')")
         b.wait_not_present("#ssh-file-add")
         b.wait_js_func("ph_count_check", "#credential-keys tbody", 4)
+
+        b.click("#credentials-modal button[aria-label=Close]")
+        b.wait_not_present("#credentials-modal")
 
 
 if __name__ == '__main__':

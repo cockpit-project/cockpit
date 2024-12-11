@@ -1,4 +1,4 @@
-import { EventSource, EventMap } from "cockpit";
+import { EventSource, EventMap, JsonObject } from "cockpit";
 
 export function generate_connection_string(user: string | null, port: string | null, addr: string) : string;
 export function split_connection_string (conn_to: string) : { address: string, user?: string, port?: number };
@@ -27,9 +27,7 @@ export interface ManifestSection {
     [name: string]: ManifestEntry;
 }
 
-export interface Manifest {
-    [section: string]: ManifestSection;
-}
+export type Manifest = JsonObject;
 
 export interface Manifests {
     [pkg: string]: Manifest;

@@ -247,8 +247,13 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed .spikes_count", "3 spikes")
         b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed .spikes_info", "1 Memory, 1 Disk I/O, 1 Network I/O")
 
+        # HACK: the bottom panel has some unpredictable extra white line at the bottom, but is also uninteresting
+        b.eval_js("document.querySelector('.bottom-panel').style.display = 'none'")
+
         b.assert_pixels(".metrics", "metrics-history-compressed-hour", ignore=[".nodata"],
                         skip_layouts=["mobile"], wait_after_layout_change=True)
+
+        b.eval_js("document.querySelector('.bottom-panel').style.removeProperty('display')")
 
         # Check that events are not visible for compressed hours
         b.wait_not_present("#metrics-hour-1597662000000 div.metrics-minute[data-minute='28'] .metrics-events")

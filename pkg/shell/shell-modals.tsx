@@ -45,7 +45,7 @@ export const AboutCockpitModal = ({ dialogResult }) => {
     useInit(() => {
         const packages = [];
         const cmd = "(set +e; rpm -qa --qf '%{NAME} %{VERSION}\\n'; dpkg-query -f '${Package} ${Version}\n' --show; pacman -Q) 2> /dev/null | grep cockpit | sort";
-        cockpit.spawn(["bash", "-c", cmd], [], { err: "message" })
+        cockpit.spawn(["bash", "-c", cmd], { err: "message" })
                 .then(pkgs =>
                     pkgs.trim().split("\n")
                             .forEach(p => {
@@ -103,7 +103,7 @@ export const LangModal = ({ dialogResult }) => {
         const cookie = "CockpitLang=" + encodeURIComponent(selected) + "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
         document.cookie = cookie;
         window.localStorage.setItem("cockpit.lang", selected);
-        window.location.reload(true);
+        window.location.reload();
     }
 
     const manifest = import_ShellManifest(cockpit.manifests.shell || { });

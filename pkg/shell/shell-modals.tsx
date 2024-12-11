@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// @cockpit-ts-relaxed
+
 import cockpit from "cockpit";
 import React, { useState } from "react";
 import { AboutModal } from "@patternfly/react-core/dist/esm/components/AboutModal/index.js";
@@ -31,12 +33,14 @@ import { SearchIcon } from '@patternfly/react-icons';
 
 import { useInit } from "hooks";
 
+import { import_ShellManifest } from "./manifests";
+
 import "menu-select-widget.scss";
 
 const _ = cockpit.gettext;
 
 export const AboutCockpitModal = ({ dialogResult }) => {
-    const [packages, setPackages] = useState(null);
+    const [packages, setPackages] = useState<{ name: string, version: string }[]>([]);
 
     useInit(() => {
         const packages = [];
@@ -102,7 +106,7 @@ export const LangModal = ({ dialogResult }) => {
         window.location.reload(true);
     }
 
-    const manifest = cockpit.manifests.shell || { };
+    const manifest = import_ShellManifest(cockpit.manifests.shell || { });
 
     return (
         <Modal isOpen position="top" variant="small"
@@ -121,7 +125,7 @@ export const LangModal = ({ dialogResult }) => {
                       isPlain
                       isScrollable
                       className="ct-menu-select-widget"
-                      onSelect={(_, selected) => setSelected(selected)}
+                      onSelect={(_, selected) => setSelected(selected as string)}
                       activeItemId={selected}
                       selected={selected}>
                     <MenuSearch>
@@ -140,8 +144,9 @@ export const LangModal = ({ dialogResult }) => {
                         <MenuList>
                             {
                                 (() => {
-                                    const filteredLocales = Object.keys(manifest.locales || {})
-                                            .filter(key => !searchInput || manifest.locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()));
+                                    const locales = manifest.locales || {};
+                                    const filteredLocales = Object.keys(locales)
+                                            .filter(key => !searchInput || locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()));
 
                                     if (filteredLocales.length === 0) {
                                         return (
@@ -153,7 +158,7 @@ export const LangModal = ({ dialogResult }) => {
                                     return filteredLocales.map(key => {
                                         return (
                                             <MenuItem itemId={key} key={key} data-value={key}>
-                                                {manifest.locales[key]}
+                                                {locales[key]}
                                             </MenuItem>
                                         );
                                     });

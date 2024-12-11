@@ -27,7 +27,7 @@ export interface Location {
     hash: string;
 }
 
-export function encode_location(location: Location): string {
+export function encode_location(location: Partial<Location>): string {
     const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
     if (shell_embedded)
         return window.location.toString();

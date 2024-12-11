@@ -354,6 +354,7 @@ WantedBy=default.target
                         }
                     }
                   """)
+        b.wait_visible("#services-list")
         pos = b.eval_js('firstWorkingUnitPos();')
         b.wait_text(f'#services-list > tbody:nth-child({pos + 1}) > tr > th > div > div > a', 'test')
         b.is_present('#test.service > svg.service-thumbtack-icon-color')

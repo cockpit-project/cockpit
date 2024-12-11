@@ -29,6 +29,8 @@ import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/co
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import { CogIcon, ExternalLinkAltIcon, HelpIcon } from '@patternfly/react-icons';
 
+import { ShellState } from "./state";
+import { ManifestDocs, ManifestParentSection, import_ShellManifest } from "./manifests";
 import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { CredentialsModal } from './credentials.jsx';
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
@@ -38,11 +40,33 @@ import { DialogsContext } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
+interface TopNavProps {
+    state: ShellState;
+}
+
+interface TopNavState {
+    docsOpened: boolean;
+    menuOpened: boolean;
+    showActivePages: boolean;
+    osRelease: cockpit.JsonObject;
+    theme: string;
+}
+
 export class TopNav extends React.Component {
     static contextType = DialogsContext;
+    declare context: React.ContextType<typeof DialogsContext>;
 
-    constructor(props) {
+    props: TopNavProps;
+    state: TopNavState;
+
+    superuser_connection: cockpit.DBusClient | null = null;
+    superuser: cockpit.DBusProxy | null = null;
+
+    handleClickOutside: () => void;
+
+    constructor(props: TopNavProps) {
         super(props);
+        this.props = props;
 
         this.state = {
             docsOpened: false,
@@ -51,9 +75,6 @@ export class TopNav extends React.Component {
             osRelease: {},
             theme: localStorage.getItem('shell:style') || 'auto',
         };
-
-        this.superuser_connection = null;
-        this.superuser = null;
 
         read_os_release().then(os => this.setState({ osRelease: os || {} }));
 
@@ -72,8 +93,7 @@ export class TopNav extends React.Component {
         window.removeEventListener("blur", this.handleClickOutside);
     }
 
-    handleModeClick = (event, isSelected) => {
-        const theme = event.currentTarget.id;
+    handleModeClick = (theme: string) => {
         this.setState({ theme });
 
         const styleEvent = new CustomEvent("cockpit-style", {
@@ -88,7 +108,7 @@ export class TopNav extends React.Component {
     };
 
     render() {
-        const Dialogs = this.context;
+        const Dialogs = this.context!;
         const {
             current_machine,
             current_manifest_item,
@@ -96,9 +116,11 @@ export class TopNav extends React.Component {
             current_frame,
         } = this.props.state;
 
+        cockpit.assert(current_machine && current_manifest && current_manifest_item);
+
         const connected = current_machine.state === "connected";
 
-        let docs = [];
+        let docs: ManifestDocs[] = [];
 
         if (!this.superuser_connection || (this.superuser_connection.options.host !=
                                            current_machine.connection_string)) {
@@ -115,20 +137,23 @@ export class TopNav extends React.Component {
 
         // Check first whether we have docs in the "parent" section of
         // the manifest.
-        if (current_manifest.parent && current_manifest.parent.docs)
-            docs = current_manifest.parent.docs;
+        const parent = (current_manifest.parent || {}) as ManifestParentSection;
+        if (parent.docs)
+            docs = parent.docs;
         else if (current_manifest_item.docs)
             docs = current_manifest_item.docs;
 
         const docItems = [];
 
-        if (this.state.osRelease.DOCUMENTATION_URL)
+        if (typeof this.state.osRelease?.DOCUMENTATION_URL == "string")
             docItems.push(<DropdownItem key="os-doc" to={this.state.osRelease.DOCUMENTATION_URL} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
                 {cockpit.format(_("$0 documentation"), this.state.osRelease.NAME)}
             </DropdownItem>);
 
+        const shell_manifest = import_ShellManifest(cockpit.manifests.shell || {});
+
         // global documentation for cockpit as a whole
-        (cockpit.manifests.shell?.docs ?? []).forEach(doc => {
+        (shell_manifest.docs ?? []).forEach(doc => {
             docItems.push(<DropdownItem key={doc.label} to={doc.url} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
                 {doc.label}
             </DropdownItem>);
@@ -149,8 +174,6 @@ export class TopNav extends React.Component {
             {_("About Web Console")}
         </DropdownItem>);
 
-        const manifest = cockpit.manifests.shell || { };
-
         // HACK: This should be a DropdownItem so the normal onSelect closing behaviour works, but we can't embed a button in a button
         const main_menu = [
             <div // eslint-disable-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
@@ -158,7 +181,7 @@ export class TopNav extends React.Component {
               className="mobile_v"
               key="superusermobile"
               onClick={() => {
-                  this.setState(prevState => { return { menuOpened: !prevState.menuOpened } });
+                  this.setState((prevState: TopNavState) => { return { menuOpened: !prevState.menuOpened } });
               }}>
                 <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
             </div>,
@@ -169,13 +192,13 @@ export class TopNav extends React.Component {
                         <ToggleGroup key="dark-switcher-togglegroup">
                             <ToggleGroupItem key="dark-switcher-auto" buttonId="auto" text={_("Default")}
                                 isSelected={this.state.theme === "auto"}
-                                onChange={this.handleModeClick} />
+                                onChange={() => this.handleModeClick("auto")} />
                             <ToggleGroupItem key="dark-switcher-light" buttonId="light" text={_("Light")}
                                 isSelected={this.state.theme === "light"}
-                                onChange={this.handleModeClick} />
+                                onChange={() => this.handleModeClick("light")} />
                             <ToggleGroupItem key="dark-switcher-dark" buttonId="dark" text={_("Dark")}
                                 isSelected={this.state.theme === "dark"}
-                                onChange={this.handleModeClick} />
+                                onChange={() => this.handleModeClick("dark")} />
                         </ToggleGroup>
                     </DropdownItem>
                 </DropdownList>
@@ -183,7 +206,7 @@ export class TopNav extends React.Component {
             <Divider key="separatorDark" />,
         ];
 
-        if (manifest.locales)
+        if (shell_manifest.locales)
             main_menu.push(<DropdownItem key="languages" className="display-language-menu"
                                          onClick={() => Dialogs.run(LangModal, {})}>
                 {_("Display language")}
@@ -214,7 +237,7 @@ export class TopNav extends React.Component {
                         <ToolbarContent className="ct-topnav-content">
                             { (current_frame && !current_frame.ready) &&
                                 <ToolbarItem id="machine-spinner">
-                                    <Spinner size="lg" style={{ "--pf-v5-c-spinner--Color": "#fff", "--pf-v5-c-spinner--diameter": "2rem" }} />
+                                    <Spinner size="lg" style={{ "--pf-v5-c-spinner--Color": "#fff", "--pf-v5-c-spinner--diameter": "2rem" } as React.CSSProperties } />
                                 </ToolbarItem>
                             }
                             { connected &&
@@ -232,8 +255,10 @@ export class TopNav extends React.Component {
                                 <Dropdown
                                     id="toggle-docs-menu"
                                     onSelect={() => {
-                                        this.setState(prevState => { return { docsOpened: !prevState.docsOpened } });
-                                        document.getElementById("toggle-docs").focus();
+                                        this.setState((prevState: TopNavState) => {
+                                            return { docsOpened: !prevState.docsOpened };
+                                        });
+                                        document.getElementById("toggle-docs")?.focus();
                                     }}
                                     toggle={(toggleRef) => (
                                         <MenuToggle
@@ -243,7 +268,12 @@ export class TopNav extends React.Component {
                                           icon={<HelpIcon className="toggle-docs-icon pf-v5-c-icon pf-m-lg" />}
                                           isExpanded={this.state.docsOpened}
                                           isFullHeight
-                                          onClick={() => { this.setState(prevState => ({ docsOpened: !prevState.docsOpened, menuOpened: false })) }}>
+                                          onClick={() => {
+                                              this.setState((prevState: TopNavState) => ({
+                                                  docsOpened: !prevState.docsOpened,
+                                                  menuOpened: false
+                                              }));
+                                          }}>
                                             {_("Help")}
                                         </MenuToggle>
                                     )}
@@ -259,8 +289,10 @@ export class TopNav extends React.Component {
                                 <Dropdown
                                     id="toggle-menu-menu"
                                     onSelect={() => {
-                                        this.setState(prevState => { return { menuOpened: !prevState.menuOpened } });
-                                        document.getElementById("toggle-menu").focus();
+                                        this.setState((prevState: TopNavState) => {
+                                            return { menuOpened: !prevState.menuOpened };
+                                        });
+                                        document.getElementById("toggle-menu")?.focus();
                                     }}
                                     toggle={(toggleRef) => (
                                         <MenuToggle
@@ -271,7 +303,11 @@ export class TopNav extends React.Component {
                                           isExpanded={this.state.menuOpened}
                                           isFullHeight
                                           onClick={(event) => {
-                                              this.setState(prevState => ({ menuOpened: !prevState.menuOpened, docsOpened: false, showActivePages: event.altKey }));
+                                              this.setState((prevState: TopNavState) => ({
+                                                  menuOpened: !prevState.menuOpened,
+                                                  docsOpened: false,
+                                                  showActivePages: event.altKey
+                                              }));
                                           }}
                                         >
                                             {_("Session")}

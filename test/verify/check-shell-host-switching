@@ -594,8 +594,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.click("#hosts-sel button")
         b.click("a[href='/']")
         b.relogin()
-        time.sleep(60)
-        self.assertNotIn(m2.execute("loginctl"), "admin")
+        m2.execute("while loginctl | grep admin; do sleep 1; done")
 
 
 if __name__ == '__main__':

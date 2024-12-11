@@ -75,7 +75,7 @@ export class JournalOutput {
         const full_content = [time, message, ident].join("\n");
 
         return (
-            <div className="cockpit-logline" role="row" tabIndex="0" key={entry.__CURSOR}
+            <div className="cockpit-logline" role="row" tabIndex={0} key={entry.__CURSOR}
                 data-cursor={entry.__CURSOR}
                 onClick={ev => this.onEvent(ev, entry.__CURSOR, full_content)}
                 onKeyDown={ev => this.onEvent(ev, entry.__CURSOR, full_content)}>

@@ -220,6 +220,7 @@ declare module 'cockpit' {
     interface DBusOptions {
         bus?: string;
         address?: string;
+        host?: string;
         superuser?: "require" | "try";
         track?: boolean;
     }

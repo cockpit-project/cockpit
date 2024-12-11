@@ -128,7 +128,7 @@ const Shell = () => {
                 </nav>
             </div>
 
-            <nav id="hosts-sel" className="navbar navbar-default navbar-pf navbar-pf-vertical" tabIndex="-1">
+            <nav id="hosts-sel" className="navbar navbar-default navbar-pf navbar-pf-vertical" tabIndex={-1}>
                 { config.host_switcher_enabled
                     ? <CockpitHosts state={state} host_modal_state={host_modal_state} selector="nav-hosts" />
                     : <CockpitCurrentHost current_user={current_user} machine={current_machine} />
@@ -144,7 +144,7 @@ const Shell = () => {
             <Frames hidden={!!failure} state={state} idle_state={idle_state} />
 
             { failure &&
-            <div id="failure-content" className="area-ct-content" role="main" tabIndex="-1">
+            <div id="failure-content" className="area-ct-content" role="main" tabIndex={-1}>
                 { failure }
             </div>
             }

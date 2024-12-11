@@ -55,6 +55,14 @@ export interface ShellStateEvents {
     connect: () => void;
 }
 
+// NOTE - this is defined in pkg/lib/notifications.js and should be
+// imported from there once that file has been typed.
+//
+export interface PageStatus {
+    type: string;
+    title: string;
+}
+
 export class ShellState extends EventEmitter<ShellStateEvents> {
     constructor() {
         super();
@@ -308,13 +316,13 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
      * individual pages have access to all collected statuses.
      */
 
-    page_status: { [host: string]: { [page: string]: unknown } } = { };
+    page_status: { [host: string]: { [page: string]: PageStatus } } = { };
 
     #init_page_status() {
         sessionStorage.removeItem("cockpit:page_status");
     }
 
-    #notify_page_status(host: string, page: string, status: unknown) {
+    #notify_page_status(host: string, page: string, status: PageStatus) {
         if (!this.page_status[host])
             this.page_status[host] = { };
         this.page_status[host][page] = status;
@@ -392,7 +400,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
              * "well-known name" of a page, such as "system",
              * "network/firewall", or "updates".
              */
-            handle_notifications: (host: string, page: string, data: { page_status?: unknown }) => {
+            handle_notifications: (host: string, page: string, data: { page_status?: PageStatus }) => {
                 if (data.page_status !== undefined)
                     this.#notify_page_status(host, page, data.page_status);
             },

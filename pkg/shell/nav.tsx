@@ -1,7 +1,25 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2024 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import cockpit from "cockpit";
 
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Nav } from "@patternfly/react-core/dist/esm/components/Nav/index.js";
@@ -9,7 +27,9 @@ import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchIn
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { ContainerNodeIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 
-import { encode_location } from "./util.jsx";
+import { Location, encode_location, ManifestItem } from "./util.jsx";
+import { ShellState, PageStatus } from "./state";
+import { ManifestKeyword } from "./manifests";
 
 const _ = cockpit.gettext;
 
@@ -22,8 +42,8 @@ export const SidebarToggle = () => {
          * However, when clicking on an iframe moves focus to its content's window that triggers the main window.blur event.
          * Additionally, when clicking on an element in the same iframe make sure to unset the 'active' state of the 'System' dropdown selector.
          */
-        const handleClickOutside = (ev) => {
-            if (ev.target.id == "nav-system-item")
+        const handleClickOutside = (ev: Event) => {
+            if ((ev.target as Element).id == "nav-system-item")
                 return;
 
             setActive(false);
@@ -37,7 +57,7 @@ export const SidebarToggle = () => {
     }, []);
 
     useEffect(() => {
-        document.getElementById("nav-system").classList.toggle("interact", active);
+        document.getElementById("nav-system")!.classList.toggle("interact", active);
     }, [active]);
 
     return (
@@ -50,8 +70,45 @@ export const SidebarToggle = () => {
     );
 };
 
+interface NavKeyword {
+    keyword: string;
+    score: number;
+    goto: string | null;
+}
+
+interface NavItem extends ManifestItem {
+    keyword: NavKeyword;
+}
+
+interface ItemGroup<T> {
+    name: string;
+    items: T[];
+    action?: {
+        label: string;
+        target: Partial<Location>;
+    } | undefined;
+}
+
+interface CockpitNavProps {
+    groups: ItemGroup<ManifestItem>[];
+    selector: string;
+    current: string;
+    filtering: (item: ManifestItem, term: string) => NavItem | null;
+    sorting: (a: NavItem, b: NavItem) => number;
+    item_render: (item: NavItem, term: string) => React.ReactNode;
+    jump: (loc: Partial<Location>) => void;
+}
+
+interface CockpitNavState {
+    search: string;
+    current: string;
+}
+
 export class CockpitNav extends React.Component {
-    constructor(props) {
+    props: CockpitNavProps;
+    state: CockpitNavState;
+
+    constructor(props : CockpitNavProps) {
         super(props);
 
         this.state = {
@@ -60,29 +117,31 @@ export class CockpitNav extends React.Component {
         };
 
         this.clearSearch = this.clearSearch.bind(this);
+        this.props = props;
     }
 
     componentDidMount() {
-        const self = this;
         const sel = this.props.selector;
         // Click on active menu item (when using arrows to navigate through menu)
         function clickActiveItem() {
             const cur = document.activeElement;
-            if (cur.nodeName === "INPUT") {
-                const el = document.querySelector("#" + sel + " li:first-of-type a");
+            if (cur instanceof HTMLInputElement) {
+                const el = document.querySelector<HTMLElement>("#" + sel + " li:first-of-type a");
                 if (el)
                     el.click();
-            } else {
+            } else if (cur instanceof HTMLElement) {
                 cur.click();
+            } else {
+                console.error("Active element not a HTMLElement");
             }
         }
 
         // Move focus to next item in menu (when using arrows to navigate through menu)
         // With arguments it is possible to change direction
-        function focusNextItem(begin, step) {
+        function focusNextItem(begin: number, step: number) {
             const cur = document.activeElement;
-            const all = Array.from(document.querySelectorAll("#" + sel + " li a"));
-            if (cur.nodeName === "INPUT" && all) {
+            const all = Array.from(document.querySelectorAll<HTMLElement>("#" + sel + " li a"));
+            if (cur instanceof HTMLInputElement && all.length > 0) {
                 if (begin < 0)
                     begin = all.length - 1;
                 all[begin].focus();
@@ -90,30 +149,29 @@ export class CockpitNav extends React.Component {
                 let i = all.findIndex(item => item === cur);
                 i += step;
                 if (i < 0 || i >= all.length)
-                    document.querySelector("#" + sel + " .pf-v5-c-text-input-group__text-input").focus();
+                    document.querySelector<HTMLElement>("#" + sel + " .pf-v5-c-text-input-group__text-input")?.focus();
                 else
                     all[i].focus();
             }
         }
 
-        function navigate_apps(ev) {
-            if (ev.keyCode === 13) // Enter
+        const navigate_apps = (ev: KeyboardEvent) => {
+            if (ev.key == "Enter")
                 clickActiveItem();
-            else if (ev.keyCode === 40) // Arrow Down
+            else if (ev.key == "ArrowDown")
                 focusNextItem(0, 1);
-            else if (ev.keyCode === 38) // Arrow Up
+            else if (ev.key == "ArrowUp")
                 focusNextItem(-1, -1);
-            else if (ev.keyCode === 27) { // Escape - clean selection
-                self.setState({ search: "" });
-                document.querySelector("#" + sel + " .pf-v5-c-text-input-group__text-input").focus();
+            else if (ev.key == "Escape") {
+                this.setState({ search: "" });
+                document.querySelector<HTMLElement>("#" + sel + " .pf-v5-c-text-input-group__text-input")?.focus();
             }
-        }
+        };
 
-        document.getElementById(sel).addEventListener("keyup", navigate_apps);
-        document.getElementById(sel).addEventListener("change", navigate_apps);
+        document.getElementById(sel)?.addEventListener("keyup", navigate_apps);
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps: CockpitNavProps, prevState: CockpitNavState) {
         if (nextProps.current !== prevState.current)
             return {
                 search: "",
@@ -127,10 +185,10 @@ export class CockpitNav extends React.Component {
     }
 
     render() {
-        const groups = [];
+        const groups: ItemGroup<NavItem>[] = [];
         const term = this.state.search.toLowerCase();
         this.props.groups.forEach(g => {
-            const new_items = g.items.map(i => this.props.filtering(i, term)).filter(Boolean);
+            const new_items = g.items.map(i => this.props.filtering(i, term)).filter(i => !!i);
             new_items.sort(this.props.sorting);
             if (new_items.length > 0)
                 groups.push({ name: g.name, items: new_items, action: g.action });
@@ -148,7 +206,8 @@ export class CockpitNav extends React.Component {
                                     <a className="pf-v5-c-nav__section-title nav-item"
                                         href={encode_location(g.action.target)}
                                         onClick={ ev => {
-                                            this.props.jump(g.action.target);
+                                            if (g.action)
+                                                this.props.jump(g.action.target);
                                             ev.preventDefault();
                                         }}>
                                         {g.action.label}
@@ -168,20 +227,11 @@ export class CockpitNav extends React.Component {
     }
 }
 
-CockpitNav.propTypes = {
-    groups: PropTypes.array.isRequired,
-    selector: PropTypes.string.isRequired,
-    item_render: PropTypes.func.isRequired,
-    filtering: PropTypes.func.isRequired,
-    sorting: PropTypes.func.isRequired,
-    jump: PropTypes.func.isRequired,
-};
-
-function PageStatus({ status, name }) {
+function PageStatus({ status, name } : { status: PageStatus, name: string }) {
     // Generate name for the status
-    let desc = name.toLowerCase().split(" ");
-    desc.push(status.type);
-    desc = desc.join("-");
+    const desc_parts = name.toLowerCase().split(" ");
+    desc_parts.push(status.type);
+    const desc = desc_parts.join("-");
 
     return (
         <Tooltip id={desc + "-tooltip"} content={status.title}
@@ -197,8 +247,8 @@ function PageStatus({ status, name }) {
     );
 }
 
-function FormattedText({ keyword, term }) {
-    function split_text(text, term) {
+function FormattedText({ keyword, term } : { keyword: string, term: string }) {
+    function split_text(text: string, term: string) {
         const b = text.toLowerCase().indexOf(term);
         const e = b + term.length;
         return [text.substring(0, b), text.substring(b, e), text.substring(e, text.length)];
@@ -210,7 +260,18 @@ function FormattedText({ keyword, term }) {
     );
 }
 
-export function CockpitNavItem(props) {
+export function CockpitNavItem(props : {
+    name: string;
+    header?: string;
+    className?: string;
+    active: boolean;
+    status: PageStatus | null;
+    keyword: string;
+    term: string;
+    href: string;
+    onClick: () => void;
+    actions?: React.ReactNode;
+}) {
     const s = props.status;
     const name_matches = props.keyword === props.name.toLowerCase();
     let header_matches = false;
@@ -243,19 +304,7 @@ export function CockpitNavItem(props) {
     );
 }
 
-CockpitNavItem.propTypes = {
-    name: PropTypes.string.isRequired,
-    href: PropTypes.string.isRequired,
-    onClick: PropTypes.func,
-    status: PropTypes.object,
-    active: PropTypes.bool,
-    keyword: PropTypes.string,
-    term: PropTypes.string,
-    header: PropTypes.string,
-    actions: PropTypes.node,
-};
-
-export const PageNav = ({ state }) => {
+export const PageNav = ({ state } : { state: ShellState }) => {
     const {
         current_machine,
         current_manifest_item,
@@ -263,18 +312,19 @@ export const PageNav = ({ state }) => {
         page_status,
     } = state;
 
-    if (!current_machine || current_machine.state != "connected") {
+    if (!current_machine || current_machine.state != "connected")
         return null;
-    }
+
+    cockpit.assert(current_machine_manifest_items && current_manifest_item);
 
     // Filtering of navigation by term
-    function keyword_filter(item, term) {
-        function keyword_relevance(current_best, item) {
+    function keyword_filter(item: ManifestItem, term: string): NavItem | null {
+        function keyword_relevance(current_best: NavKeyword, item: ManifestKeyword) {
             const translate = item.translate || false;
             const weight = item.weight || 0;
             let score;
             let _m = "";
-            let best = { score: -1 };
+            let best: NavKeyword = { keyword: "", score: -1, goto: null };
             item.matches.forEach(m => {
                 if (translate)
                     _m = _(m);
@@ -293,20 +343,19 @@ export const PageNav = ({ state }) => {
                         score = 1 + weight;
                 }
                 if (score > best.score) {
-                    best = { keyword: m, score };
+                    best = { keyword: m, score, goto: item.goto || null };
                 }
             });
             if (best.score > current_best.score) {
-                current_best = { keyword: best.keyword, score: best.score, goto: item.goto || null };
+                current_best = best;
             }
             return current_best;
         }
 
-        const new_item = Object.assign({}, item);
-        new_item.keyword = { score: -1 };
+        const new_item: NavItem = Object.assign({ keyword: { keyword: "", score: -1, goto: null } }, item);
         if (!term)
             return new_item;
-        const best_keyword = new_item.keywords.reduce(keyword_relevance, { score: -1 });
+        const best_keyword = new_item.keywords.reduce(keyword_relevance, { keyword: "", score: -1, goto: null });
         if (best_keyword.score > -1) {
             new_item.keyword = best_keyword;
             return new_item;
@@ -315,8 +364,8 @@ export const PageNav = ({ state }) => {
     }
 
     // Rendering of separate navigation menu items
-    function nav_item(item, term) {
-        const active = current_manifest_item.path === item.path;
+    function nav_item(item: NavItem, term: string) {
+        const active = current_manifest_item?.path === item.path;
 
         // Parse path
         let path = item.path;
@@ -330,10 +379,10 @@ export const PageNav = ({ state }) => {
 
         // Parse page status
         let status = null;
-        if (page_status[current_machine.key])
-            status = page_status[current_machine.key][item.path];
+        if (page_status[current_machine!.key])
+            status = page_status[current_machine!.key][item.path];
 
-        const target_location = { host: current_machine.address, path, hash };
+        const target_location = { host: current_machine!.address, path, hash };
 
         return (
             <CockpitNavItem key={item.label}
@@ -347,7 +396,7 @@ export const PageNav = ({ state }) => {
         );
     }
 
-    const groups = [
+    const groups: ItemGroup<ManifestItem>[] = [
         {
             name: _("Apps"),
             items: current_machine_manifest_items.ordered("dashboard"),

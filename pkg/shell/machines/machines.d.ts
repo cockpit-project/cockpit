@@ -2,6 +2,7 @@ import { EventSource, EventMap, JsonObject } from "cockpit";
 
 export function generate_connection_string(user: string | null, port: string | null, addr: string) : string;
 export function split_connection_string (conn_to: string) : { address: string, user?: string, port?: number };
+export function host_superuser_storage_key(host?: string): string | null;
 
 export interface ManifestKeyword {
     matches: string[];
@@ -40,6 +41,7 @@ export interface Machine {
     user?: string;
     port?: number;
     label: string;
+    color?: string;
     state: null | "failed" | "connecting" | "connected";
     manifests?: Manifests;
     checksum?: string;
@@ -58,6 +60,8 @@ export interface Machines extends EventSource<MachinesEvents> {
     ready: boolean;
 
     lookup: (conection_string: string) => Machine;
+    list: Machines[];
+    change: (key: string, props: Partial<Machine>) => void;
 }
 
 interface Loader {

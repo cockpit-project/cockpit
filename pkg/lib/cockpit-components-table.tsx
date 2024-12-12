@@ -25,6 +25,10 @@ import {
     Table, Thead, Tbody, Tr, Th, Td,
     SortByDirection,
 } from '@patternfly/react-table';
+import type {
+    TdProps, ThProps, TrProps, TableProps,
+    OnSelect,
+} from '@patternfly/react-table';
 import { EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateActions } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
@@ -65,11 +69,60 @@ const _ = cockpit.gettext;
  *   event, isSelected, rowIndex, rowData, extraData. rowData contains props with an id property of the clicked row.
  * - onHeaderSelect: event, isSelected.
  */
+
+interface ListingTableRowColumnProps {
+    title: React.ReactNode;
+    sortKey?: string;
+    props?: TdProps | ThProps;
+}
+
+type ListingTableRowColumn = React.ReactNode | ListingTableRowColumnProps;
+
+function cell_is_props(cell: ListingTableRowColumn): cell is ListingTableRowColumnProps {
+    return typeof cell == "object" && (cell as ListingTableRowColumnProps).title !== undefined;
+}
+
+export interface ListingTableRowProps {
+    columns: ListingTableRowColumn[];
+    props?: TrProps;
+    expandedContent?: React.ReactNode;
+    selected?: boolean;
+    initiallyExpanded?: boolean;
+    hasPadding?: boolean;
+}
+
+export interface ListingTableColumnProps {
+    title: string;
+    header?: boolean;
+    sortable?: boolean;
+    props?: ThProps;
+}
+
+export interface ListingTableProps extends Omit<TableProps, 'rows' | 'onSelect'> {
+    actions?: React.ReactNode[],
+    afterToggle?: (expanded: boolean) => void,
+    caption?: string,
+    className?: string,
+    columns: (string | ListingTableColumnProps)[],
+    emptyCaption?: React.ReactNode,
+    emptyCaptionDetail?: React.ReactNode,
+    emptyComponent?: React.ReactNode,
+    isEmptyStateInTable?: boolean,
+    loading?: string,
+    onRowClick?: (event: React.KeyboardEvent | React.MouseEvent | undefined, row: ListingTableRowProps) => void,
+    onSelect?: OnSelect;
+    onHeaderSelect?: OnSelect,
+    rows: ListingTableRowProps[],
+    showHeader?: boolean,
+    sortBy?: { index: number, direction: SortByDirection },
+    sortMethod?: (rows: ListingTableRowProps[], dir: SortByDirection, index: number) => ListingTableRowProps[],
+}
+
 export const ListingTable = ({
     actions = [],
     afterToggle,
     caption = '',
-    className,
+    className = '',
     columns: cells = [],
     emptyCaption = '',
     emptyCaptionDetail,
@@ -84,11 +137,11 @@ export const ListingTable = ({
     sortBy,
     sortMethod,
     ...extraProps
-}) => {
+} : ListingTableProps) => {
     let rows = [...tableRows];
-    const [expanded, setExpanded] = useState({});
-    const [newItems, setNewItems] = useState([]);
-    const [currentRowsKeys, setCurrentRowsKeys] = useState([]);
+    const [expanded, setExpanded] = useState<Record<string | number, boolean>>({});
+    const [newItems, setNewItems] = useState<React.Key[]>([]);
+    const [currentRowsKeys, setCurrentRowsKeys] = useState<React.Key[]>([]);
     const [activeSortIndex, setActiveSortIndex] = useState(sortBy?.index ?? 0);
     const [activeSortDirection, setActiveSortDirection] = useState(sortBy?.direction ?? SortByDirection.asc);
     const rowKeys = rows.map(row => row.props?.key)
@@ -98,8 +151,8 @@ export const ListingTable = ({
 
     useEffect(() => {
         // Don't highlight all when the list gets loaded
-        const _currentRowsKeys = JSON.parse(currentRowsKeysStr);
-        const _rowKeys = JSON.parse(rowKeysStr);
+        const _currentRowsKeys: React.Key[] = JSON.parse(currentRowsKeysStr);
+        const _rowKeys: React.Key[] = JSON.parse(rowKeysStr);
 
         if (_currentRowsKeys.length !== 0) {
             const new_keys = _rowKeys.filter(key => _currentRowsKeys.indexOf(key) === -1);
@@ -112,10 +165,10 @@ export const ListingTable = ({
         setCurrentRowsKeys(crk => [...new Set([...crk, ..._rowKeys])]);
     }, [currentRowsKeysStr, rowKeysStr]);
 
-    const isSortable = cells.some(col => col.sortable);
+    const isSortable = cells.some(col => typeof col != "string" && col.sortable);
     const isExpandable = rows.some(row => row.expandedContent);
 
-    const tableProps = {};
+    const tableProps: TableProps = {};
 
     /* Basic table properties */
     tableProps.className = "ct-table";
@@ -174,17 +227,29 @@ export const ListingTable = ({
         rows = [{ columns: emptyStateCell }];
     }
 
-    const sortRows = () => {
+    const sortRows = (): ListingTableRowProps[] => {
+        function sortkey(col: ListingTableRowColumn): string {
+            if (typeof col == "string")
+                return col;
+            if (cell_is_props(col)) {
+                if (col.sortKey)
+                    return col.sortKey;
+                if (typeof col.title == "string")
+                    return col.title;
+            }
+            return "";
+        }
+
         const sortedRows = rows.sort((a, b) => {
             const aitem = a.columns[activeSortIndex];
             const bitem = b.columns[activeSortIndex];
 
-            return ((typeof aitem == 'string' ? aitem : (aitem.sortKey || aitem.title)).localeCompare(typeof bitem == 'string' ? bitem : (bitem.sortKey || bitem.title)));
+            return sortkey(aitem).localeCompare(sortkey(bitem));
         });
         return activeSortDirection === SortByDirection.asc ? sortedRows : sortedRows.reverse();
     };
 
-    const onSort = (event, index, direction) => {
+    const onSort = (_event: unknown, index: number, direction: SortByDirection) => {
         setActiveSortIndex(index);
         setActiveSortDirection(direction);
     };
@@ -199,6 +264,8 @@ export const ListingTable = ({
         if (rowProps.key && newItems.indexOf(rowProps.key) >= 0)
             rowProps.className = (rowProps.className || "") + " ct-new-item";
 
+        cockpit.assert(typeof rowProps.key != "bigint");
+
         const rowKey = rowProps.key || rowIndex;
         const isExpanded = expanded[rowKey] === undefined ? !!row.initiallyExpanded : expanded[rowKey];
         let columnSpanCnt = 0;
@@ -208,7 +275,10 @@ export const ListingTable = ({
                     {isExpandable
                         ? (row.expandedContent
                             ? <Td expand={{
-                                rowIndex: rowKey,
+                                // HACK - rowIndex is declared to be a number, but we have always used
+                                //        it with strings, and that worked ok. The tests expect it.
+                                //        But I guess we really shouldn't...
+                                rowIndex: rowKey as number,
                                 isExpanded,
                                 onToggle: () => {
                                     if (afterToggle)
@@ -230,23 +300,35 @@ export const ListingTable = ({
                         }} />
                     }
                     {row.columns.map(cell => {
-                        const { key, ...cellProps } = cell.props || {};
+                        let props: TdProps | ThProps;
+                        let children: React.ReactNode;
+                        if (cell_is_props(cell)) {
+                            props = cell.props || {};
+                            children = cell.title;
+                        } else {
+                            props = {};
+                            children = cell;
+                        }
+                        const { key, ...cellProps } = props;
                         const headerCell = cells[columnSpanCnt];
                         const dataLabel = typeof headerCell == 'object' ? headerCell.title : headerCell;
                         const colKey = dataLabel || columnSpanCnt;
 
                         columnSpanCnt += cellProps.colSpan || 1;
 
-                        if (headerCell?.header)
+                        if (typeof headerCell != "string" && headerCell?.header) {
                             return (
-                                <Th key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel} {...cellProps}>
-                                    {typeof cell == 'object' ? cell.title : cell}
+                                <Th key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel}
+                                    {...cellProps as ThProps}>
+                                    {children}
                                 </Th>
                             );
+                        }
 
                         return (
-                            <Td key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel} {...cellProps}>
-                                {typeof cell == 'object' ? cell.title : cell}
+                            <Td key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel}
+                                {...cellProps as TdProps}>
+                                {children}
                             </Td>
                         );
                     })}
@@ -259,7 +341,7 @@ export const ListingTable = ({
             </React.Fragment>
         );
 
-        return <Tbody key={rowKey} isExpanded={row.expandedContent && isExpanded}>{rowPair}</Tbody>;
+        return <Tbody key={rowKey} isExpanded={Boolean(row.expandedContent) && isExpanded}>{rowPair}</Tbody>;
     });
 
     return (
@@ -279,9 +361,9 @@ export const ListingTable = ({
                             isSelected: rows.every(r => r.selected)
                         }} />}
                         {cells.map((column, columnIndex) => {
-                            const columnProps = column.props;
+                            const columnProps = typeof column == "string" ? {} : column.props;
                             const sortParams = (
-                                column.sortable
+                                (typeof column != "string" && column.sortable)
                                     ? {
                                         sort: {
                                             sortBy: {

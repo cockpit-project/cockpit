@@ -100,7 +100,7 @@ this by passing your own configuration as a volume:
 Similarly you can also provide a custom `/etc/os-release` to change the
 branding.
 
-### SSH authentication
+### SSH authentication: Share keys with container
 
 The login page asks the user to confirm unknown SSH host key fingerprints.  You
 can mount your known host keys into the container at
@@ -118,6 +118,20 @@ You can also mount encrypted private keys inside the container. You can set an e
     -v ~/.ssh/:/.ssh:ro,Z
 
 Private keys can be encrypted; then cockpit uses the provided password to decrypt the key.
+
+### SSH authentication: Share SSH agent with container
+
+Alternatively, if you use [ssh-agent](https://linux.die.net/man/1/ssh-agent) on
+your host, you can share it with the container and run the container as your
+own user (*not* as system container!). Then logging into remote machines from
+Cockpit's login page re-uses the loaded private keys. For that, bind-mount the
+agent socket in the container and tell it its path. If your host has SELinux
+enabled, you need to disable the isolation for the container, so that it is
+allowed to connect to the agent socket:
+
+    -v $SSH_AUTH_SOCK:/ssh-agent \
+    -e SSH_AUTH_SOCK=/ssh-agent \
+    --security-opt=label=disable
 
 ## More Info
 

@@ -76,9 +76,7 @@ interface NavKeyword {
     goto: string | null;
 }
 
-interface NavItem extends ManifestItem {
-    keyword: NavKeyword;
-}
+type NavItem<T> = T & { keyword: NavKeyword }
 
 interface ItemGroup<T> {
     name: string;
@@ -89,13 +87,13 @@ interface ItemGroup<T> {
     } | undefined;
 }
 
-interface CockpitNavProps {
-    groups: ItemGroup<ManifestItem>[];
+interface CockpitNavProps<T> {
+    groups: ItemGroup<T>[];
     selector: string;
     current: string;
-    filtering: (item: ManifestItem, term: string) => NavItem | null;
-    sorting: (a: NavItem, b: NavItem) => number;
-    item_render: (item: NavItem, term: string) => React.ReactNode;
+    filtering: (item: T, term: string) => NavItem<T> | null;
+    sorting: (a: NavItem<T>, b: NavItem<T>) => number;
+    item_render: (item: NavItem<T>, term: string) => React.ReactNode;
     jump: (loc: Location) => void;
 }
 
@@ -104,11 +102,11 @@ interface CockpitNavState {
     current: string;
 }
 
-export class CockpitNav extends React.Component {
-    props: CockpitNavProps;
+export class CockpitNav<T> extends React.Component {
+    props: CockpitNavProps<T>;
     state: CockpitNavState;
 
-    constructor(props : CockpitNavProps) {
+    constructor(props : CockpitNavProps<T>) {
         super(props);
 
         this.state = {
@@ -169,7 +167,7 @@ export class CockpitNav extends React.Component {
         document.getElementById(sel)?.addEventListener("keyup", navigate_apps);
     }
 
-    static getDerivedStateFromProps(nextProps: CockpitNavProps, prevState: CockpitNavState) {
+    getDerivedStateFromProps(nextProps: CockpitNavProps<T>, prevState: CockpitNavState) {
         if (nextProps.current !== prevState.current)
             return {
                 search: "",
@@ -183,10 +181,10 @@ export class CockpitNav extends React.Component {
     }
 
     render() {
-        const groups: ItemGroup<NavItem>[] = [];
+        const groups: ItemGroup<NavItem<T>>[] = [];
         const term = this.state.search.toLowerCase();
         this.props.groups.forEach(g => {
-            const new_items = g.items.map(i => this.props.filtering(i, term)).filter((i): i is NavItem => !!i);
+            const new_items = g.items.map(i => this.props.filtering(i, term)).filter((i): i is NavItem<T> => !!i);
             new_items.sort(this.props.sorting);
             if (new_items.length > 0)
                 groups.push({ name: g.name, items: new_items, action: g.action });
@@ -315,7 +313,7 @@ export const PageNav = ({ state } : { state: ShellState }) => {
     }
 
     // Filtering of navigation by term
-    function keyword_filter(item: ManifestItem, term: string): NavItem | null {
+    function keyword_filter(item: ManifestItem, term: string): NavItem<ManifestItem> | null {
         function keyword_relevance(current_best: NavKeyword, item: ManifestKeyword) {
             const translate = item.translate || false;
             const weight = item.weight || 0;
@@ -349,7 +347,7 @@ export const PageNav = ({ state } : { state: ShellState }) => {
             return current_best;
         }
 
-        const new_item: NavItem = Object.assign({ keyword: { keyword: "", score: -1, goto: null } }, item);
+        const new_item: NavItem<ManifestItem> = Object.assign({ keyword: { keyword: "", score: -1, goto: null } }, item);
         if (!term)
             return new_item;
         const best_keyword = new_item.keywords.reduce(keyword_relevance, { keyword: "", score: -1, goto: null });
@@ -361,7 +359,7 @@ export const PageNav = ({ state } : { state: ShellState }) => {
     }
 
     // Rendering of separate navigation menu items
-    function nav_item(item: NavItem, term: string) {
+    function nav_item(item: NavItem<ManifestItem>, term: string) {
         const active = current_manifest_item?.path === item.path;
 
         // Parse path

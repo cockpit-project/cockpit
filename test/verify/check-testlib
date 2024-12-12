@@ -162,7 +162,7 @@ class TestRunTest(testlib.MachineCase):
         self.assertNotRegex(stdout, b"testNoRetry # RETRY")
 
         # Check retry logic for changed source
-        shell = os.path.join("pkg", "shell", "hosts.jsx")
+        shell = os.path.join("pkg", "shell", "hosts.tsx")
         self.assertTrue(os.path.exists(shell))
 
         with open(shell, 'r') as f:

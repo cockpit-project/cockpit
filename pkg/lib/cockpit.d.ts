@@ -343,4 +343,7 @@ declare module 'cockpit' {
 
     /* === Session ====================== */
     function logout(reload: boolean, reason?: string): void;
+
+    export let localStorage: Storage;
+    export let sessionStorage: Storage;
 }

@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// @cockpit-ts-relaxed
+
 import cockpit from "cockpit";
 
 import React, { useState } from "react";
@@ -27,9 +29,11 @@ import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { useInit } from "hooks";
 
+import { ShellState } from "./state";
+
 const _ = cockpit.gettext;
 
-export const ActivePagesDialog = ({ dialogResult, state }) => {
+export const ActivePagesDialog = ({ dialogResult, state } : { dialogResult, state: ShellState }) => {
     function get_pages() {
         const result = [];
         for (const frame of Object.values(state.frames)) {

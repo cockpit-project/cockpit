@@ -1,8 +1,28 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2024 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
+ */
+
+// @cockpit-ts-relaxed
+
 import cockpit from "cockpit";
 
 import React from 'react';
 import ReactDOM from "react-dom";
-import PropTypes from 'prop-types';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button";
 import {
     CaretDownIcon,
@@ -19,23 +39,30 @@ import { encode_location } from "./util.jsx";
 import { split_connection_string } from "./machines/machines";
 import { add_host, edit_host, connect_host } from "./hosts_dialog.jsx";
 
+import { ShellState } from "./state";
+
 const _ = cockpit.gettext;
 
 class HostsSelector extends React.Component {
-    constructor() {
-        super();
+    el: HTMLDivElement;
+    props: { children };
+
+    constructor(props) {
+        super(props);
+        this.props = props;
+
         this.el = document.createElement("div");
         this.el.className = "view-hosts";
     }
 
     componentDidMount() {
         const hosts_sel = document.getElementById("nav-hosts");
-        hosts_sel.appendChild(this.el);
+        hosts_sel?.appendChild(this.el);
     }
 
     componentWillUnmount() {
         const hosts_sel = document.getElementById("nav-hosts");
-        hosts_sel.removeChild(this.el);
+        hosts_sel?.removeChild(this.el);
     }
 
     render() {
@@ -63,10 +90,16 @@ export const CockpitCurrentHost = ({ current_user, machine }) => {
     );
 };
 
+interface CockpitHostsState { opened, editing, current_user, current_key }
+
 // full host switcher
 export class CockpitHosts extends React.Component {
+    props: { selector, host_modal_state, state: ShellState };
+    state: CockpitHostsState;
+
     constructor(props) {
         super(props);
+        this.props = props;
 
         this.state = {
             opened: false,
@@ -91,7 +124,7 @@ export class CockpitHosts extends React.Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.state.current_machine.key !== prevState.current_key) {
-            document.getElementById(nextProps.selector).classList.toggle("interact", false);
+            document.getElementById(nextProps.selector)?.classList.toggle("interact", false);
             return {
                 current_key: nextProps.state.current_machine.key,
                 opened: false,
@@ -102,9 +135,9 @@ export class CockpitHosts extends React.Component {
     }
 
     toggleMenu() {
-        document.getElementById(this.props.selector).classList.toggle("interact", !this.state.opened);
+        document.getElementById(this.props.selector)?.classList.toggle("interact", !this.state.opened);
 
-        this.setState(s => {
+        this.setState((s: CockpitHostsState) => {
             return (
                 {
                     opened: !s.opened,
@@ -118,7 +151,7 @@ export class CockpitHosts extends React.Component {
         await add_host(this.props.host_modal_state, this.props.state);
     }
 
-    async onHostEdit(event, machine) {
+    async onHostEdit(_event, machine) {
         await edit_host(this.props.host_modal_state, this.props.state, machine);
     }
 
@@ -133,7 +166,7 @@ export class CockpitHosts extends React.Component {
     }
 
     onEditHosts() {
-        this.setState(s => { return { editing: !s.editing } });
+        this.setState((s: CockpitHostsState) => { return { editing: !s.editing } });
     }
 
     onRemove(event, machine) {
@@ -202,8 +235,8 @@ export class CockpitHosts extends React.Component {
                     </Tooltip>
                 </>}
         />;
-        const label = current_machine.label || "";
-        const user = current_machine.user || this.state.current_user;
+        const label = current_machine?.label || "";
+        const user = current_machine?.user || this.state.current_user;
 
         const add_host_action = <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>;
 
@@ -238,7 +271,7 @@ export class CockpitHosts extends React.Component {
                             selector={this.props.selector}
                             groups={groups}
                             item_render={render}
-                            sorting={(a, b) => true}
+                            sorting={(_a, _b) => true}
                             filtering={this.filterHosts}
                             current={label}
                             jump={() => console.error("internal error: jump not supported in hosts selector")}
@@ -254,9 +287,3 @@ export class CockpitHosts extends React.Component {
         );
     }
 }
-
-CockpitHosts.propTypes = {
-    state: PropTypes.object.isRequired,
-    host_modal_state: PropTypes.object.isRequired,
-    selector: PropTypes.string.isRequired,
-};

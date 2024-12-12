@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// @cockpit-ts-relaxed
+
 import cockpit from "cockpit";
 import React, { useState } from "react";
 import { useObject, useInit, useEvent } from "hooks";
@@ -48,14 +50,14 @@ const UnlockDialog = ({ proxy, host }) => {
     const D = useDialogs();
     useInit(init, [proxy, host]);
 
-    const [methods, setMethods] = useState(null);
-    const [method, setMethod] = useState(false);
+    const [methods, setMethods] = useState<string[] | null>(null);
+    const [method, setMethod] = useState<string | false>(false);
     const [busy, setBusy] = useState(false);
     const [cancel, setCancel] = useState(() => D.close);
-    const [prompt, setPrompt] = useState(null);
-    const [message, setMessage] = useState(null);
+    const [prompt, setPrompt] = useState<{ message: string, prompt: string, echo: boolean } | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState(null);
-    const [errorVariant, setErrorVariant] = useState(null);
+    const [errorVariant, setErrorVariant] = useState<"danger" | "warning" | null>(null);
     const [value, setValue] = useState("");
 
     function start(method) {
@@ -67,7 +69,7 @@ const UnlockDialog = ({ proxy, host }) => {
 
         let did_prompt = false;
 
-        const onprompt = (event, message, prompt, def, echo, error) => {
+        const onprompt = (_event, message, prompt, def, echo, error) => {
             setBusy(false);
             setPrompt({
                 message: sudo_polish(message),
@@ -134,7 +136,7 @@ const UnlockDialog = ({ proxy, host }) => {
     const validated = errorVariant == "danger" ? "error" : errorVariant;
 
     let title = null;
-    let title_icon = null;
+    let title_icon: null | "danger" = null;
     let body = null;
     let footer = null;
 
@@ -230,7 +232,7 @@ const UnlockDialog = ({ proxy, host }) => {
                variant="medium"
                onClose={cancel}
                title={title}
-               titleIconVariant={title_icon}
+               titleIconVariant={title_icon || undefined}
                footer={footer}>
             {body}
         </Modal>
@@ -283,7 +285,7 @@ const LockDialog = ({ proxy, host }) => {
     );
 };
 
-const SuperuserDialogs = ({ superuser_proxy, host, create_trigger }) => {
+const SuperuserDialogs = ({ superuser_proxy, host = undefined, create_trigger }) => {
     const D = useDialogs();
     useEvent(superuser_proxy, "changed",
              () => {
@@ -338,7 +340,10 @@ export const SuperuserIndicator = ({ proxy, host }) => {
 };
 
 export const SuperuserButton = () => {
-    const proxy = useObject(() => cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser"));
+    const proxy = useObject(
+        () => cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser"),
+        null,
+        []);
 
     const create_trigger = (unlocked, onclick) =>
         <Button onClick={onclick}>

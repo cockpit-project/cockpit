@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// @cockpit-ts-relaxed
+
 import cockpit from "cockpit";
 
 import React, { useEffect } from 'react';
@@ -47,7 +49,7 @@ const SkipLink = ({ focus_id, children }) => {
         <a className="screenreader-text skiplink desktop_v"
            href={"#" + focus_id}
            onClick={ev => {
-               document.getElementById(focus_id).focus();
+               document.getElementById(focus_id)?.focus();
                ev.preventDefault();
            }}>
             {children}
@@ -86,6 +88,8 @@ const Shell = () => {
     if (!ready)
         return null;
 
+    cockpit.assert(current_machine && current_manifest_item);
+
     const title_parts = [];
     if (current_manifest_item.label)
         title_parts.push(current_manifest_item.label);
@@ -112,7 +116,7 @@ const Shell = () => {
              style={
                  {
                      '--ct-color-host-accent': (current_machine.address == "localhost" ? undefined : current_machine.color)
-                 }
+                 } as React.CSSProperties
              }>
 
             <SkipLink focus_id="content">{_("Skip to content")}</SkipLink>
@@ -155,6 +159,10 @@ const Shell = () => {
         </div>);
 };
 
+interface ShellWindow extends Window {
+    features?: object;
+}
+
 function init() {
     cockpit.translate();
 
@@ -165,17 +173,17 @@ function init() {
     window.name = "cockpit1";
 
     /* Tell the pages about our features. */
-    window.features = {
+    (window as ShellWindow).features = {
         navbar_is_for_current_machine: true
     };
 
     function follow(arg) {
         /* A promise of some sort */
         if (arguments.length == 1 && typeof arg.then == "function") {
-            arg.then(function() { console.log.apply(console, arguments) },
-                     function() { console.error.apply(console, arguments) });
+            arg.then(function(...args) { console.log(...args) },
+                     function(...args) { console.error(...args) });
             if (typeof arg.stream == "function")
-                arg.stream(function() { console.log.apply(console, arguments) });
+                arg.stream(function(...args) { console.log(...args) });
         }
     }
 
@@ -190,7 +198,7 @@ function init() {
         }
     });
 
-    const root = createRoot(document.getElementById("shell"));
+    const root = createRoot(document.getElementById("shell")!);
     root.render(<WithDialogs><Shell /></WithDialogs>);
 }
 

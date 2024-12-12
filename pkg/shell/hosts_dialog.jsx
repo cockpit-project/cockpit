@@ -74,8 +74,7 @@ export const HostModalState = () => {
         close_modal,
     };
 
-    cockpit.event_target(self);
-    return self;
+    return cockpit.event_target(self);
 };
 
 /* Activate and jump to a newly added machine, identified by its

@@ -47,11 +47,11 @@ except (ValueError, ImportError):
 
 libexecdir = os.path.realpath(__file__ + '/..')
 
-libc6 = ctypes.cdll.LoadLibrary('libc.so.6')
+sys_prctl = ctypes.CDLL(None).prctl
 
 
 def prctl(*args):
-    if libc6.prctl(*args) != 0:
+    if sys_prctl(*args) != 0:
         raise Exception('prctl() failed')
 
 

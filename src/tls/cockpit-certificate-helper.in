@@ -76,6 +76,12 @@ cmd_selfsign() {
     local KEYFILE="0-self-signed.key"
     local CA_FILE="0-self-signed-ca.pem"
 
+    # do not stomp over a partial key -- the admin tried to do something wrong
+    if [ -e "${COCKPIT_WS_CERTS_D}/${KEYFILE}" ] && [ ! -e "${COCKPIT_WS_CERTS_D}/${CERTFILE}" ]; then
+        echo "Error: Found $KEYFILE but no $CERTFILE. Please remove the key file first." >&2
+        exit 1
+    fi
+
     mkdir -pZ "$COCKPIT_WS_CERTS_D"
 
     # We renew certificates up to 30 days before expiry, so give ourselves a

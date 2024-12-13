@@ -33,11 +33,11 @@ from typing import Any, ClassVar, Sequence
 
 from .jsonutil import JsonObject, get_int
 
-libc6 = ctypes.cdll.LoadLibrary('libc.so.6')
+sys_prctl = ctypes.CDLL(None).prctl
 
 
 def prctl(*args: int) -> None:
-    if libc6.prctl(*args) != 0:
+    if sys_prctl(*args) != 0:
         raise OSError('prctl() failed')
 
 

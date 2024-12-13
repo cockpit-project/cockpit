@@ -689,6 +689,17 @@ cockpit_handler_default (CockpitWebServer *server,
   path = cockpit_web_response_get_path (response);
   g_return_val_if_fail (path != NULL, FALSE);
 
+  /* robots.txt is unauthorized and works on any directory */
+  if (g_str_has_suffix (path, "/robots.txt"))
+    {
+      g_autoptr(GHashTable) out_headers = cockpit_web_server_new_table ();
+      g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup ("text/plain"));
+      const char *body ="User-agent: *\nDisallow: /\n";
+      g_autoptr(GBytes) content = g_bytes_new_static (body, strlen (body));
+      cockpit_web_response_content (response, out_headers, content, NULL);
+      return TRUE;
+    }
+
   resource = g_str_has_prefix (path, "/cockpit/") ||
              g_str_has_prefix (path, "/cockpit+") ||
              g_str_equal (path, "/cockpit");

@@ -813,6 +813,12 @@ class TestConnection(testlib.MachineCase):
         self.assertIn("HTTP/1.1 200", out)
         self.assertNotIn("<html>", out)
 
+        # robots.txt from any directory and with/without TLS, and without auth
+        expected = "User-agent: *\nDisallow: /\n"
+        self.assertEqual(m.execute("curl http://localhost:9000/robots.txt"), expected)
+        self.assertEqual(m.execute("curl http://localhost:9000/somedir/robots.txt"), expected)
+        self.assertEqual(m.execute("curl -k https://localhost:9000/robots.txt"), expected)
+
     @testlib.nondestructive
     def testHeadRequest(self):
         m = self.machine

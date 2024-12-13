@@ -414,11 +414,20 @@ class TestConnection(testlib.MachineCase):
                     self.assertIn(s, out)
 
             # missing key
-            m.execute("rm /etc/cockpit/ws-certs.d/0-self-signed.key")
+            orig_key = m.execute("cat /etc/cockpit/ws-certs.d/0-self-signed.key")
+            m.execute("mv /etc/cockpit/ws-certs.d/0-self-signed.key /etc/cockpit/ws-certs.d/key.bak")
             check_fail(["0-self-signed.key", "No such file or directory"])
             # broken key
             m.write("/etc/cockpit/ws-certs.d/0-self-signed.key", "-----BEGIN PRIVATE KEY-----\nnope")
             check_fail(["/etc/cockpit/ws-certs.d/0-self-signed.cert/.key", "decoding error"])
+            m.execute("mv /etc/cockpit/ws-certs.d/key.bak /etc/cockpit/ws-certs.d/0-self-signed.key")
+            # missing cert; does not stomp over the existing key
+            m.execute("rm /etc/cockpit/ws-certs.d/0-self-signed.cert")
+            check_fail(["Found 0-self-signed.key but no 0-self-signed.cert", "Please remove the key file first"])
+            self.assertEqual(m.execute("cat /etc/cockpit/ws-certs.d/0-self-signed.key"), orig_key)
+            # broken cert
+            m.write("/etc/cockpit/ws-certs.d/0-self-signed.cert", "-----BEGIN CERTIFICATE-----\nnope")
+            check_fail(["/etc/cockpit/ws-certs.d/0-self-signed.cert/.key", "header error"])
 
         # gets along with missing directory
         m.execute("rm -r /etc/cockpit/ws-certs.d")

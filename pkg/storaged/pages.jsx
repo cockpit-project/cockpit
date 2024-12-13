@@ -587,7 +587,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
 
         if (narrow) {
             rows.push(
-                <Card key={key} onClick={onClick}
+                <Card key={key}
                       className={"ct-small-table-card" +
                                  (page.location ? " ct-clickable-card" : null) +
                                  (is_new ? " ct-new-item" : "")}
@@ -595,11 +595,13 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                       data-test-row-location={page.columns[1]}>
                     <CardBody>
                         <Split hasGutter>
-                            { icon && <SplitItem>{icon}</SplitItem> }
-                            <SplitItem isFilled><strong><Truncate content={name} /></strong>{info}</SplitItem>
+                            { icon && <SplitItem onClick={onClick}>{icon}</SplitItem> }
+                            <SplitItem isFilled onClick={onClick}>
+                                <strong><Truncate content={name} /></strong>{info}
+                            </SplitItem>
                             <SplitItem>{actions}</SplitItem>
                         </Split>
-                        <Split hasGutter isWrappable>
+                        <Split hasGutter isWrappable onClick={onClick}>
                             <SplitItem>{type}</SplitItem>
                             <SplitItem isFilled>{location}</SplitItem>
                             <SplitItem isFilled className="pf-v5-u-text-align-right">{size}</SplitItem>

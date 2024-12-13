@@ -407,3 +407,14 @@ select.pf-v5-c-form-control {
 html:not(.pf-v5-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
     background-color: var(--pf-v5-global--BackgroundColor--100);
 }
+
+/* Give secondary buttons a white/grey background instead of their
+   default transparent one. This gives them better contrast in
+   toolbars.
+*/
+.pf-v5-c-button.pf-m-secondary:not(.pf-m-disabled) {
+  background-color: var(--pf-v5-global--BackgroundColor--100);
+  .pf-v5-theme-dark & {
+     background-color: var(--pf-v5-global--BackgroundColor--400);
+  }
+}

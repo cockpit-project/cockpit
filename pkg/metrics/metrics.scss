@@ -852,3 +852,12 @@ $graphs: cpu, memory, disks, network;
     }
   }
 }
+
+/* Menu toggles are transparent in light mode (but not in dark
+   mode). This makes them white on a white page (fine), but grey in a
+   grey toolbar. The deprecated Select had a white background. Let's
+   make MenuToggles match.
+*/
+html:not(.pf-v5-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+}

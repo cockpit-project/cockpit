@@ -76,6 +76,8 @@ cmd_selfsign() {
     local KEYFILE="0-self-signed.key"
     local CA_FILE="0-self-signed-ca.pem"
 
+    mkdir -pZ "$COCKPIT_WS_CERTS_D"
+
     # We renew certificates up to 30 days before expiry, so give ourselves a
     # year, plus 30 days.  The maximum is variously mentioned to be 397 or 398.
     local DAYS=395
@@ -110,6 +112,7 @@ cmd_ipa_request() {
         ipa-getkeytab -p "HTTP/${HOST}" -k "${KEYTAB}"
 
     # request the certificate and put it into our certificate directory, so that auto-refresh works
+    mkdir -pZ "$COCKPIT_WS_CERTS_D"
     ipa-getcert request -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" -K "HTTP/${HOST}" -m 640 -o root:root -M 644 -w -v
 }
 

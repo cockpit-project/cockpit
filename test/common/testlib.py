@@ -1395,7 +1395,7 @@ class Browser:
             # Pixels that are different but have been ignored are
             # marked in the delta image in green.
 
-            def masked(ref: tuple[int, int, int, int]) -> bool:
+            def masked(ref: tuple[int, ...]) -> bool:
                 return ref[3] != 255
 
             def ignorable_coord(x: int, y: int) -> bool:
@@ -1404,25 +1404,38 @@ class Browser:
                         return True
                 return False
 
-            def ignorable_change(a: tuple[int, int, int], b: tuple[int, int, int]) -> bool:
+            def ignorable_change(a: tuple[int, ...], b: tuple[int, ...]) -> bool:
                 return abs(a[0] - b[0]) <= 2 and abs(a[1] - b[1]) <= 2 and abs(a[2] - b[2]) <= 2
 
             def img_eq(ref: Image.Image, now: Image.Image, delta: Image.Image) -> bool:
                 # This is slow but exactly what we want.
                 # ImageMath might be able to speed this up.
                 # no-untyped-call: see https://github.com/python-pillow/Pillow/issues/8029
-                data_ref = ref.load()  # type: ignore[no-untyped-call]
-                data_now = now.load()  # type: ignore[no-untyped-call]
-                data_delta = delta.load()  # type: ignore[no-untyped-call]
+                data_ref = ref.load()
+                data_now = now.load()
+                data_delta = delta.load()
+                assert data_ref
+                assert data_now
+                assert data_delta
                 result = True
                 count = 0
                 width, height = delta.size
                 for y in range(height):
                     for x in range(width):
+                        # we only support RGBA
+                        ref_pixel = data_ref[x, y]
+                        now_pixel = data_now[x, y]
+                        # we only support RGBA, not single-channel float (grayscale)
+                        assert isinstance(ref_pixel, tuple)
+                        assert isinstance(now_pixel, tuple)
                         if x >= ref.size[0] or x >= now.size[0] or y >= ref.size[1] or y >= now.size[1]:
                             result = False
-                        elif data_ref[x, y] != data_now[x, y]:
-                            if masked(data_ref[x, y]) or ignorable_coord(x, y) or ignorable_change(data_ref[x, y], data_now[x, y]):
+                        elif ref_pixel != now_pixel:
+                            if (
+                                    masked(ref_pixel) or
+                                    ignorable_coord(x, y) or
+                                    ignorable_change(ref_pixel, now_pixel)
+                               ):
                                 data_delta[x, y] = (0, 255, 0, 255)
                             else:
                                 data_delta[x, y] = (255, 0, 0, 255)
@@ -1430,7 +1443,7 @@ class Browser:
                                 if count > 20:
                                     result = False
                         else:
-                            data_delta[x, y] = data_ref[x, y]
+                            data_delta[x, y] = ref_pixel
                 return result
 
             if not img_eq(img_ref, img_now, img_delta):
@@ -1438,7 +1451,7 @@ class Browser:
                     # Preserve alpha channel so that the 'now'
                     # image can be used as the new reference image
                     # without further changes
-                    img_now.putalpha(img_ref.getchannel("A"))  # type: ignore[no-untyped-call]
+                    img_now.putalpha(img_ref.getchannel("A"))
                 img_now.save(filename)
                 attach(filename, move=True)
                 ref_filename_for_attach = base + "-reference.png"

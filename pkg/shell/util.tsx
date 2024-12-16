@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 
-import { ManifestKeyword, ManifestDocs, Manifest, Manifests, Machine } from "./machines/machines";
+import { ManifestKeyword, ManifestDocs, ManifestSection, Manifest, Manifests, Machine } from "./machines/machines";
 
 export interface Location {
     host: string;
@@ -27,7 +27,7 @@ export interface Location {
     hash: string;
 }
 
-export function encode_location(location: Location): string {
+export function encode_location(location: Partial<Location>): string {
     const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
     if (shell_embedded)
         return window.location.toString();
@@ -91,6 +91,16 @@ export interface ManifestItem {
     keywords: ManifestKeyword[];
 }
 
+export interface ManifestParentSection {
+    component?: string;
+    docs?: ManifestDocs[];
+}
+
+export interface ShellManifest {
+    docs?: ManifestDocs[];
+    locales?: { [id: string]: string };
+}
+
 export class CompiledComponents {
     manifests: Manifests;
     items: { [path: string] : ManifestItem; } = { };
@@ -101,7 +111,8 @@ export class CompiledComponents {
 
     load(section: string): void {
         Object.entries(this.manifests).forEach(([name, manifest]) => {
-            Object.entries(manifest[section] || { }).forEach(([prop, info]) => {
+            const manifest_section = (manifest[section] || {}) as ManifestSection;
+            Object.entries(manifest_section).forEach(([prop, info]) => {
                 const item: ManifestItem = {
                     path: "", // set below
                     hash: "", // set below
@@ -172,8 +183,11 @@ export class CompiledComponents {
         // Still don't know where it comes from, check for parent
         if (!component) {
             const comp = this.manifests[path];
-            if (comp && comp.parent && comp.parent.component)
-                component = comp.parent.component as string;
+            if (comp && comp.parent) {
+                const parent = comp.parent as ManifestParentSection;
+                if (parent.component)
+                    component = parent.component;
+            }
         }
 
         const item = this.items[component];

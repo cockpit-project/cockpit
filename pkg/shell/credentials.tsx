@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// @cockpit-ts-relaxed
+
 import cockpit from "cockpit";
 import React, { useState } from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
@@ -44,13 +46,188 @@ import "./credentials.scss";
 
 const _ = cockpit.gettext;
 
+const AddNewKey = ({ load, unlockKey, onClose }) => {
+    const [addNewKeyLoading, setAddNewKeyLoading] = useState(false);
+    const [newKeyPath, setNewKeyPath] = useState("");
+    const [newKeyPathError, setNewKeyPathError] = useState();
+
+    const addCustomKey = () => {
+        setAddNewKeyLoading(true);
+        load(newKeyPath)
+                .then(onClose)
+                .catch(ex => {
+                    if (!ex.sent_password)
+                        setNewKeyPathError(ex.message);
+                    else
+                        unlockKey(newKeyPath);
+                })
+                .finally(() => setAddNewKeyLoading(false));
+    };
+
+    return (
+        <Grid hasGutter>
+            <GridItem span={9} id="ssh-file-add-key">
+                <FileAutoComplete onChange={setNewKeyPath}
+                                  placeholder={_("Path to file")}
+                                  superuser="try" />
+                {newKeyPathError && <HelperText className="pf-v5-c-form__helper-text">
+                    <HelperTextItem variant="error">{newKeyPathError}</HelperTextItem>
+                </HelperText>}
+            </GridItem>
+            <GridItem span={1}>
+                <Button id="ssh-file-add"
+                        isDisabled={addNewKeyLoading || !newKeyPath}
+                        isLoading={addNewKeyLoading}
+                        onClick={addCustomKey}
+                        variant="secondary">
+                    {_("Add")}
+                </Button>
+            </GridItem>
+        </Grid>
+    );
+};
+
+const KeyDetails = ({ currentKey }) => {
+    return (
+        <DescriptionList className="pf-m-horizontal-on-sm">
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Comment")}</DescriptionListTerm>
+                <DescriptionListDescription>{currentKey.comment}</DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
+                <DescriptionListDescription>{currentKey.type}</DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Fingerprint")}</DescriptionListTerm>
+                <DescriptionListDescription>{currentKey.fingerprint}</DescriptionListDescription>
+            </DescriptionListGroup>
+        </DescriptionList>
+    );
+};
+
+const PublicKey = ({ currentKey }) => {
+    return (
+        <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} variant={ClipboardCopyVariant.expansion}>
+            {currentKey.data.trim()}
+        </ClipboardCopy>
+    );
+};
+
+const KeyPassword = ({ currentKey, change, setDialogError }) => {
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [inProgress, setInProgress] = useState<boolean | undefined>(undefined);
+    const [newPassword, setNewPassword] = useState('');
+    const [oldPassword, setOldPassword] = useState('');
+
+    function changePassword() {
+        if (!currentKey || !currentKey.name)
+            return;
+
+        setInProgress(true);
+        setDialogError();
+
+        if (oldPassword === undefined || newPassword === undefined || confirmPassword === undefined)
+            setDialogError("Invalid password fields");
+
+        change(currentKey.name, oldPassword, newPassword, confirmPassword)
+                .then(() => {
+                    setOldPassword('');
+                    setNewPassword('');
+                    setConfirmPassword('');
+                    setInProgress(false);
+                })
+                .catch(ex => {
+                    setDialogError(ex.message);
+                    setInProgress(undefined);
+                });
+    }
+
+    const changePasswordBtn = (
+        <Button variant="primary"
+                id={(currentKey.name || currentKey.comment) + "-change-password"}
+                {... inProgress !== undefined ? { isDisabled: inProgress, isLoading: inProgress } : {} }
+                onClick={() => changePassword()}>{_("Change password")}</Button>
+    );
+
+    return (
+        <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
+            {inProgress === false && <HelperText>
+                <HelperTextItem variant="success" hasIcon>
+                    {_("Password changed successfully")}
+                </HelperTextItem>
+            </HelperText>}
+            <FormGroup label={_("Password")} fieldId={(currentKey.name || currentKey.comment) + "-old-password"} type="password">
+                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-old-password"} value={oldPassword} onChange={(_event, value) => setOldPassword(value)} />
+            </FormGroup>
+            <FormGroup label={_("New password")} fieldId={(currentKey.name || currentKey.comment) + "-new-password"} type="password">
+                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-new-password"} value={newPassword} onChange={(_event, value) => setNewPassword(value)} />
+            </FormGroup>
+            <FormGroup label={_("Confirm password")} fieldId={(currentKey.name || currentKey.comment) + "-confirm-password"} type="password">
+                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-confirm-password"} value={confirmPassword} onChange={(_event, value) => setConfirmPassword(value)} />
+            </FormGroup>
+            <ActionGroup>
+                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <Popover
+                        aria-label={_("Password tip")}
+                        bodyContent={_("Tip: Make your key password match your login password to automatically authenticate against other systems.")}
+                    >
+                        <button className="pf-v5-c-form__group-label-help ct-icon-info-circle"
+                                onClick={e => e.preventDefault()}
+                                type="button">
+                            <InfoCircleIcon />
+                        </button>
+                    </Popover>
+                    {changePasswordBtn}
+                </Flex>
+            </ActionGroup>
+        </Form>
+    );
+};
+
+const UnlockKey = ({ keyName, load, onClose }) => {
+    const [password, setPassword] = useState<string>("");
+    const [dialogError, setDialogError] = useState();
+
+    function load_key() {
+        if (!keyName)
+            return;
+
+        load(keyName, password)
+                .then(onClose)
+                .catch(ex => {
+                    setDialogError(ex.message);
+                    console.warn("loading key failed: ", ex.message);
+                });
+    }
+
+    return (
+        <Modal isOpen position="top" variant="small"
+               onClose={onClose}
+               title={cockpit.format(_("Unlock key $0"), keyName)}
+               footer={
+                   <>
+                       <Button variant="primary" id={keyName + "-unlock"} isDisabled={!keyName} onClick={load_key}>{_("Unlock")}</Button>
+                       <Button variant='link' onClick={onClose}>{_("Cancel")}</Button>
+                   </>
+               }>
+            <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
+                {dialogError && <ModalError dialogError={dialogError} />}
+                <FormGroup label={_("Password")} fieldId={keyName + "-password"} type="password">
+                    <TextInput type="password" id={keyName + "-password"} value={password} onChange={(_event, value) => setPassword(value)} />
+                </FormGroup>
+            </Form>
+        </Modal>
+    );
+};
+
 export const CredentialsModal = ({ dialogResult }) => {
     const keys = useObject(() => credentials.keys_instance(), null, []);
     const [addNewKey, setAddNewKey] = useState(false);
     const [dialogError, setDialogError] = useState();
     const [unlockKey, setUnlockKey] = useState();
 
-    useEvent(keys, "changed");
+    useEvent(keys as unknown as cockpit.EventSource<cockpit.EventMap>, "changed");
 
     if (!keys)
         return null;
@@ -142,181 +319,5 @@ export const CredentialsModal = ({ dialogResult }) => {
             </Modal>
             {unlockKey && <UnlockKey keyName={unlockKey} load={keys.load} onClose={() => { setUnlockKey(undefined); setAddNewKey(false) }} />}
         </>
-    );
-};
-
-const AddNewKey = ({ load, unlockKey, onClose }) => {
-    const [addNewKeyLoading, setAddNewKeyLoading] = useState(false);
-    const [newKeyPath, setNewKeyPath] = useState("");
-    const [newKeyPathError, setNewKeyPathError] = useState();
-
-    const addCustomKey = () => {
-        setAddNewKeyLoading(true);
-        load(newKeyPath)
-                .then(onClose)
-                .catch(ex => {
-                    if (!ex.sent_password)
-                        setNewKeyPathError(ex.message);
-                    else
-                        unlockKey(newKeyPath);
-                })
-                .finally(() => setAddNewKeyLoading(false));
-    };
-
-    return (
-        <Grid hasGutter>
-            <GridItem span={9} id="ssh-file-add-key">
-                <FileAutoComplete onChange={setNewKeyPath}
-                                  placeholder={_("Path to file")}
-                                  superuser="try" />
-                {newKeyPathError && <HelperText className="pf-v5-c-form__helper-text">
-                    <HelperTextItem variant="error">{newKeyPathError}</HelperTextItem>
-                </HelperText>}
-            </GridItem>
-            <GridItem span={1}>
-                <Button id="ssh-file-add"
-                        isDisabled={addNewKeyLoading || !newKeyPath}
-                        isLoading={addNewKeyLoading}
-                        onClick={addCustomKey}
-                        variant="secondary">
-                    {_("Add")}
-                </Button>
-            </GridItem>
-        </Grid>
-    );
-};
-
-const KeyDetails = ({ currentKey }) => {
-    return (
-        <DescriptionList className="pf-m-horizontal-on-sm">
-            <DescriptionListGroup>
-                <DescriptionListTerm>{_("Comment")}</DescriptionListTerm>
-                <DescriptionListDescription>{currentKey.comment}</DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
-                <DescriptionListDescription>{currentKey.type}</DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>{_("Fingerprint")}</DescriptionListTerm>
-                <DescriptionListDescription>{currentKey.fingerprint}</DescriptionListDescription>
-            </DescriptionListGroup>
-        </DescriptionList>
-    );
-};
-
-const PublicKey = ({ currentKey }) => {
-    return (
-        <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} variant={ClipboardCopyVariant.expansion}>
-            {currentKey.data.trim()}
-        </ClipboardCopy>
-    );
-};
-
-const KeyPassword = ({ currentKey, change, setDialogError }) => {
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [inProgress, setInProgress] = useState(undefined);
-    const [newPassword, setNewPassword] = useState('');
-    const [oldPassword, setOldPassword] = useState('');
-
-    function changePassword() {
-        if (!currentKey || !currentKey.name)
-            return;
-
-        setInProgress(true);
-        setDialogError();
-
-        if (oldPassword === undefined || newPassword === undefined || confirmPassword === undefined)
-            setDialogError("Invalid password fields");
-
-        change(currentKey.name, oldPassword, newPassword, confirmPassword)
-                .then(() => {
-                    setOldPassword('');
-                    setNewPassword('');
-                    setConfirmPassword('');
-                    setInProgress(false);
-                })
-                .catch(ex => {
-                    setDialogError(ex.message);
-                    setInProgress(undefined);
-                });
-    }
-
-    const changePasswordBtn = (
-        <Button variant="primary"
-                id={(currentKey.name || currentKey.comment) + "-change-password"}
-                isDisabled={inProgress}
-                isLoading={inProgress}
-                onClick={() => changePassword()}>{_("Change password")}</Button>
-    );
-
-    return (
-        <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
-            {inProgress === false && <HelperText>
-                <HelperTextItem variant="success" hasIcon>
-                    {_("Password changed successfully")}
-                </HelperTextItem>
-            </HelperText>}
-            <FormGroup label={_("Password")} fieldId={(currentKey.name || currentKey.comment) + "-old-password"} type="password">
-                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-old-password"} value={oldPassword} onChange={(_event, value) => setOldPassword(value)} />
-            </FormGroup>
-            <FormGroup label={_("New password")} fieldId={(currentKey.name || currentKey.comment) + "-new-password"} type="password">
-                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-new-password"} value={newPassword} onChange={(_event, value) => setNewPassword(value)} />
-            </FormGroup>
-            <FormGroup label={_("Confirm password")} fieldId={(currentKey.name || currentKey.comment) + "-confirm-password"} type="password">
-                <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-confirm-password"} value={confirmPassword} onChange={(_event, value) => setConfirmPassword(value)} />
-            </FormGroup>
-            <ActionGroup>
-                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                    <Popover
-                        aria-label={_("Password tip")}
-                        bodyContent={_("Tip: Make your key password match your login password to automatically authenticate against other systems.")}
-                    >
-                        <button className="pf-v5-c-form__group-label-help ct-icon-info-circle"
-                                onClick={e => e.preventDefault()}
-                                type="button">
-                            <InfoCircleIcon />
-                        </button>
-                    </Popover>
-                    {changePasswordBtn}
-                </Flex>
-            </ActionGroup>
-        </Form>
-    );
-};
-
-const UnlockKey = ({ keyName, load, onClose }) => {
-    const [password, setPassword] = useState();
-    const [dialogError, setDialogError] = useState();
-
-    function load_key() {
-        if (!keyName)
-            return;
-
-        load(keyName, password)
-                .then(onClose)
-                .catch(ex => {
-                    setDialogError(ex.message);
-                    console.warn("loading key failed: ", ex.message);
-                });
-    }
-
-    return (
-        <Modal isOpen position="top" variant="small"
-               onClose={onClose}
-               title={cockpit.format(_("Unlock key $0"), keyName)}
-               footer={
-                   <>
-                       <Button variant="primary" id={keyName + "-unlock"} isDisabled={!keyName} onClick={load_key}>{_("Unlock")}</Button>
-                       <Button variant='link' onClick={onClose}>{_("Cancel")}</Button>
-                   </>
-               }>
-            <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
-                {dialogError && <ModalError dialogError={dialogError} />}
-                <FormGroup label={_("Password")} fieldId={keyName + "-password"} type="password">
-                    <TextInput type="password" id={keyName + "-password"} value={password} onChange={(_event, value) => setPassword(value)} />
-                </FormGroup>
-            </Form>
-        </Modal>
     );
 };

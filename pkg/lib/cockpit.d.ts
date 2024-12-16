@@ -220,6 +220,7 @@ declare module 'cockpit' {
     interface DBusOptions {
         bus?: string;
         address?: string;
+        host?: string;
         superuser?: "require" | "try";
         track?: boolean;
     }
@@ -342,4 +343,7 @@ declare module 'cockpit' {
 
     /* === Session ====================== */
     function logout(reload: boolean, reason?: string): void;
+
+    export let localStorage: Storage;
+    export let sessionStorage: Storage;
 }

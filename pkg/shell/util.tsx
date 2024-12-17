@@ -27,7 +27,7 @@ export interface Location {
     hash: string;
 }
 
-export function encode_location(location: Location): string {
+export function encode_location(location: Partial<Location>): string {
     const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
     if (shell_embedded)
         return window.location.toString();
@@ -73,11 +73,11 @@ export function decode_window_location(): Location {
         return decode_location(window.location.pathname + window.location.hash);
 }
 
-export function replace_window_location(location: Location): void {
+export function replace_window_location(location: Partial<Location>): void {
     window.history.replaceState(null, "", encode_location(location));
 }
 
-export function push_window_location(location: Location): void {
+export function push_window_location(location: Partial<Location>): void {
     window.history.pushState(null, "", encode_location(location));
 }
 

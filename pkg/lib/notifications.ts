@@ -115,28 +115,34 @@ Usage:
 
 */
 
-import cockpit from "cockpit";
+import cockpit, { JsonValue, JsonObject } from "cockpit";
 import { dequal } from 'dequal/lite';
 
-class PageStatus {
+export interface Status {
+    type?: string | null;
+    title?: string;
+    details?: JsonObject;
+}
+
+class PageStatus extends EventTarget {
+    valid: boolean = false;
+    cur_own: Status | null = null;
+
     constructor() {
-        cockpit.event_target(this);
+        super();
         window.addEventListener("storage", event => {
             if (event.key == "cockpit:page_status") {
-                this.dispatchEvent("changed");
+                this.dispatchEvent(new CustomEvent("changed"));
             }
         });
 
-        this.cur_own = null;
-
-        this.valid = false;
         cockpit.transport.wait(() => {
             this.valid = true;
-            this.dispatchEvent("changed");
+            this.dispatchEvent(new CustomEvent("changed"));
         });
     }
 
-    get(page, host) {
+    get(page: string, host?: string): Status | null | undefined {
         let page_status;
 
         if (!this.valid)
@@ -146,7 +152,7 @@ class PageStatus {
             host = cockpit.transport.host;
 
         try {
-            page_status = JSON.parse(sessionStorage.getItem("cockpit:page_status"));
+            page_status = JSON.parse(sessionStorage.getItem("cockpit:page_status") || "{}");
         } catch {
             return null;
         }
@@ -156,10 +162,10 @@ class PageStatus {
         return null;
     }
 
-    set_own(status) {
+    set_own(status: Status | null) {
         if (!dequal(status, this.cur_own)) {
             this.cur_own = status;
-            cockpit.transport.control("notify", { page_status: status });
+            cockpit.transport.control("notify", { page_status: status as JsonValue });
         }
     }
 }

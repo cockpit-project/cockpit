@@ -156,7 +156,9 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
       }
 
       // Open the menu when the input value changes and the new value is not empty
-      openMenu();
+      if (!isOpen) {
+        openMenu();
+      }
     }
 
     setSelectOptions(newSelectOptions);

@@ -440,14 +440,23 @@ class TestHistoryMetrics(testlib.MachineCase):
             return
 
         m.upload(["verify/files/metrics-archives/journal.journal.gz"], "/tmp")
+        # we need to move all other existing journals out of the way, otherwise boot order is going back in time
         m.execute("""gunzip /tmp/journal.journal.gz
+                     systemctl stop systemd-journald
+                     rm /var/log/journal/*/*.journal
                      cp /tmp/journal.journal /var/log/journal/*/""")
         b.reload()
         b.enter_page("/metrics")
 
-        # details for above load event
+        # Expand metrics when loaded
         b.wait_in_text(".metrics-heading", "CPU")
         b.click("#metrics-hour-1615197600000 button.metrics-events-expander")
+
+        # Show boot as event
+        with b.wait_timeout(60):
+            b.wait_in_text(".metrics-minute[data-minute='35']", "Boot")
+
+        # details for above load event
         b.click(f"{load_minute_sel} .metrics-events button.spikes_info")
         b.wait_in_text(".cockpit-log-panel", "load-hog")
         action = "Stopping" if load_minute == 39 else "Started"

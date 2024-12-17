@@ -357,7 +357,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
              * send messages from the top-most window, which we know is
              * named "cockpit1".
              */
-            perform_frame_jump_command: (frame_name: string, location: Location | string) => {
+            perform_frame_jump_command: (frame_name: string, location: string) => {
                 if (frame_name == "cockpit1" || (this.current_frame && this.current_frame.name == frame_name)) {
                     this.jump(location);
                     this.ensure_connection();
@@ -477,7 +477,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
     }
 
     jump (location: Partial<Location> | string): boolean {
-        if (typeof (location) === "string")
+        if (typeof location === "string")
             location = decode_location(location);
 
         const current = decode_window_location();
@@ -501,7 +501,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         if (location.host !== current.host ||
             location.path !== current.path ||
             location.hash !== current.hash) {
-            push_window_location(location as Location);
+            push_window_location(location);
             this.update();
             this.ensure_frame_loaded();
             return true;

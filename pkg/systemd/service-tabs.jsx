@@ -41,7 +41,8 @@ export function ServiceTabs({ onChange, activeTab, tabErrors }) {
         target: _("Targets"),
         socket: _("Sockets"),
         timer: _("Timers"),
-        path: _("Paths")
+        path: _("Paths"),
+        boot: _("Boot")
     };
 
     const [activeItem, setActiveItem] = useState(activeTab);

@@ -1101,7 +1101,20 @@ class MetricsMinute extends React.Component {
         });
 
         let desc;
-        if (this.props.isExpanded && this.props.events) {
+        if (this.props.isExpanded && this.props.booted) {
+            const timestamp = this.props.startTime + (this.props.minute * 60000);
+            desc = (
+                <div className="metrics-events">
+                    <time>{ timeformat.time(timestamp) }</time>
+                    <span className="spikes_count" />
+                    <span className="spikes_info">
+                        <span className="type">
+                            {_("Boot")}
+                        </span>
+                    </span>
+                </div>
+            );
+        } else if (this.props.isExpanded && this.props.events) {
             const timestamp = this.props.startTime + (this.props.minute * 60000);
 
             const logsPanel = (
@@ -1170,6 +1183,7 @@ class MetricsHour extends React.Component {
         if (this.state.dataItems !== nextProps.data.length ||
             this.state.isHourExpanded !== nextState.isHourExpanded ||
             this.props.startTime !== nextProps.startTime ||
+            this.props.boots !== nextProps.boots ||
             Object.keys(this.props.selectedVisibility).some(itm => this.props.selectedVisibility[itm] != nextProps.selectedVisibility[itm])) {
             this.updateGraphs(nextProps.data, nextProps.startTime, nextProps.selectedVisibility, nextState.isHourExpanded);
             return false;
@@ -1237,6 +1251,8 @@ class MetricsHour extends React.Component {
             const dataOffset = minute * SAMPLES_PER_MIN;
             const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
             const rawSlice = this.props.data.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
+            const is_boot = this.props.boots.includes(minute);
+
             minuteGraphs.push(
                 <MetricsMinute
                     isExpanded={isHourExpanded}
@@ -1246,7 +1262,8 @@ class MetricsHour extends React.Component {
                     rawData={rawSlice}
                     events={minute_events[minute]}
                     startTime={this.props.startTime}
-                    selectedVisibility={selectedVisibility} />
+                    selectedVisibility={selectedVisibility}
+                    booted={is_boot} />
             );
         }
 
@@ -1559,7 +1576,8 @@ class MetricsHistory extends React.Component {
             packagekitExists: false,
             isBeibootBridge: false,
             isPythonPCPInstalled: null,
-            selectedVisibility: this.columns.reduce((a, v) => ({ ...a, [v[0]]: true }), {})
+            selectedVisibility: this.columns.reduce((a, v) => ({ ...a, [v[0]]: true }), {}),
+            boots: [], // journalctl --list-boots as [{started: Date, ended: Date}]
         };
 
         this.handleMoreData = this.handleMoreData.bind(this);
@@ -1621,8 +1639,24 @@ class MetricsHistory extends React.Component {
         } catch (_ex) {}
 
         const isBeibootBridge = cmdline?.includes("ic# cockpit-bridge");
-
         this.setState({ packagekitExists, isBeibootBridge });
+
+        try {
+            // Only 14 days of metrics are shown
+            // Requires superuser on Debian/Ubuntu, on Fedora/Arch users in the wheel group can list without superuser.
+            const output = await cockpit.spawn(["journalctl", "--list-boots", "--since", "-15d", "--output", "json"], { superuser: "try" });
+            const list_boots = JSON.parse(output);
+            const boots = list_boots.map(boot => {
+                return {
+                    started: new Date(boot?.first_entry / 1000),
+                    ended: new Date(boot?.last_entry / 1000),
+                    current_boot: boot?.index === 0,
+                };
+            });
+            this.setState({ boots });
+        } catch (exc) {
+            console.warn("journalctl --list-boots failed", exc);
+        }
     }
 
     handleMoreData() {
@@ -1922,6 +1956,11 @@ class MetricsHistory extends React.Component {
                         <Card isPlain>
                             <CardBody className="metrics-history">
                                 { this.state.hours.map((time, i) => {
+                                    const date_time = new Date(time);
+                                    const boot_minutes = this.state.boots.filter(reboot => reboot.started.getDay() === date_time.getDay() &&
+                                                                                           reboot.started.getYear() === date_time.getYear() &&
+                                                                                           reboot.started.getHours() === date_time.getHours())
+                                            .map(reboot => reboot.started.getMinutes());
                                     const showHeader = i == 0 || timeformat.date(time) != timeformat.date(this.state.hours[i - 1]);
 
                                     return (
@@ -1929,7 +1968,8 @@ class MetricsHistory extends React.Component {
                                             {showHeader && <TextContent><Text component={TextVariants.h3} className="metrics-time"><time>{ timeformat.date(time) }</time></Text></TextContent>}
                                             <MetricsHour key={time} startTime={parseInt(time)}
                                                          selectedVisibility={this.state.selectedVisibility}
-                                                         data={this.data[time]} clipLeading={i == 0} />
+                                                         data={this.data[time]} clipLeading={i == 0}
+                                                         boots={boot_minutes} />
                                         </React.Fragment>
                                     );
                                 })}

@@ -78,6 +78,7 @@ const info = {
         "base1/test-types.ts",
         "base1/test-user.js",
         "base1/test-websocket.js",
+        "base1/test-import-json.ts",
 
         "kdump/test-config-client.js",
 

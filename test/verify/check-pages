@@ -1047,6 +1047,23 @@ OnCalendar=daily
         b.wait_visible("#fsreplace1-create")
         set_content_and_validate(path, "user data", custom_context)
 
+    @testlib.skipBeiboot("no local overrides/config in beiboot mode")
+    def testInvalidManifest(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/system")
+        b.switch_to_top()
+        self.check_system_menu("Overview", present=True)
+        self.check_system_menu("Networking", present=True)
+
+        # Break the Networking manifest by violating the type of the "order" field.
+        m.write("/etc/cockpit/networkmanager.override.json", '{"menu":{"index":{"order":"not-a-number"}}}')
+
+        b.reload()
+        self.check_system_menu("Overview", present=True)
+        self.check_system_menu("Networking", present=False)
+
 
 if __name__ == '__main__':
     testlib.test_main()

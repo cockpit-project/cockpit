@@ -1,5 +1,6 @@
 import cockpit from "cockpit";
 import { import_Manifests } from "../manifests";
+import { validate } from "import-json";
 
 import ssh_add_key_sh from "../../lib/ssh-add-key.sh";
 
@@ -110,6 +111,10 @@ export function split_connection_string (conn_to) {
     return parts;
 }
 
+function import_manifests(val) {
+    return validate("manifests", val, import_Manifests, {});
+}
+
 function Machines() {
     const self = this;
 
@@ -127,7 +132,7 @@ function Machines() {
         overlay: {
             localhost: {
                 visible: true,
-                manifests: cockpit.manifests
+                manifests: import_manifests(cockpit.manifests)
             }
         }
     };
@@ -573,7 +578,7 @@ function Loader(machines, session_only) {
             request.responseType = "json";
             request.open("GET", url, true);
             request.addEventListener("load", () => {
-                const overlay = { manifests: import_Manifests(request.response) };
+                const overlay = { manifests: import_manifests(request.response) };
                 const etag = request.getResponseHeader("ETag");
                 if (etag) /* and remove quotes */
                     overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
@@ -611,7 +616,7 @@ function Loader(machines, session_only) {
                                if (args[0] == "cockpit.Packages") {
                                    if (args[1].Manifests) {
                                        const manifests = JSON.parse(args[1].Manifests.v);
-                                       machines.overlay(host, { manifests: import_Manifests(manifests) });
+                                       machines.overlay(host, { manifests: import_manifests(manifests) });
                                    }
                                }
                            });

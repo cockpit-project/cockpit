@@ -33,6 +33,7 @@ import {
     Location, ManifestItem, CompiledComponents,
 } from "./util.jsx";
 import { Manifest, ShellManifest, import_ShellManifest } from "./manifests";
+import { validate } from "import-json";
 
 export interface ShellConfig {
     language: string;
@@ -110,7 +111,8 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
             language,
             language_direction: cockpit.language_direction,
             host_switcher_enabled: false,
-            manifest: import_ShellManifest(cockpit.manifests.shell || {}),
+            manifest: validate("manifests.shell", cockpit.manifests.shell, import_ShellManifest,
+                               { docs: undefined, locales: undefined }),
         };
 
         /* Host switcher enabled? */

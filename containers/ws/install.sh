@@ -4,7 +4,7 @@ set -ex
 
 OSVER=$(. /etc/os-release && echo "$VERSION_ID")
 INSTALLROOT=/build
-INSTALL="dnf install -y --installroot=$INSTALLROOT --releasever=$OSVER --setopt=install_weak_deps=False"
+INSTALL="dnf install -y --installroot=$INSTALLROOT --releasever=$OSVER --setopt=install_weak_deps=False --use-host-config"
 
 # keep in sync with test/ws-container.install
 PACKAGES="

@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 
 import { EventEmitter } from "cockpit/event";
+import { Status } from "notifications";
 
 import { Router } from "./router.jsx";
 import {
@@ -53,14 +54,6 @@ export interface ShellFrame {
 export interface ShellStateEvents {
     update: () => void;
     connect: () => void;
-}
-
-// NOTE - this is defined in pkg/lib/notifications.js and should be
-// imported from there once that file has been typed.
-//
-export interface PageStatus {
-    type: string;
-    title: string;
 }
 
 export class ShellState extends EventEmitter<ShellStateEvents> {
@@ -316,13 +309,13 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
      * individual pages have access to all collected statuses.
      */
 
-    page_status: { [host: string]: { [page: string]: PageStatus } } = { };
+    page_status: { [host: string]: { [page: string]: Status } } = { };
 
     #init_page_status() {
         sessionStorage.removeItem("cockpit:page_status");
     }
 
-    #notify_page_status(host: string, page: string, status: PageStatus) {
+    #notify_page_status(host: string, page: string, status: Status) {
         if (!this.page_status[host])
             this.page_status[host] = { };
         this.page_status[host][page] = status;
@@ -400,7 +393,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
              * "well-known name" of a page, such as "system",
              * "network/firewall", or "updates".
              */
-            handle_notifications: (host: string, page: string, data: { page_status?: PageStatus }) => {
+            handle_notifications: (host: string, page: string, data: { page_status?: Status }) => {
                 if (data.page_status !== undefined)
                     this.#notify_page_status(host, page, data.page_status);
             },

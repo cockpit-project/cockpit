@@ -27,8 +27,9 @@ import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchIn
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { ContainerNodeIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 
+import { Status } from "notifications";
 import { Location, encode_location, ManifestItem } from "./util.jsx";
-import { ShellState, PageStatus } from "./state";
+import { ShellState } from "./state";
 import { ManifestKeyword } from "./manifests";
 
 const _ = cockpit.gettext;
@@ -227,10 +228,10 @@ export class CockpitNav extends React.Component {
     }
 }
 
-function PageStatus({ status, name } : { status: PageStatus, name: string }) {
+function PageStatus({ status, name } : { status: Status, name: string }) {
     // Generate name for the status
     const desc_parts = name.toLowerCase().split(" ");
-    desc_parts.push(status.type);
+    desc_parts.push(status.type || "");
     const desc = desc_parts.join("-");
 
     return (
@@ -265,7 +266,7 @@ export function CockpitNavItem(props : {
     header?: string;
     className?: string;
     active: boolean;
-    status: PageStatus | null;
+    status: Status | null;
     keyword: string;
     term: string;
     href: string;

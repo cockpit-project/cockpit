@@ -32,12 +32,13 @@ import {
     compile_manifests, compute_frame_url,
     Location, ManifestItem, CompiledComponents,
 } from "./util.jsx";
-import { Manifest } from "./manifests";
+import { Manifest, ShellManifest, import_ShellManifest } from "./manifests";
 
 export interface ShellConfig {
     language: string;
     language_direction: string;
     host_switcher_enabled: boolean;
+    manifest: ShellManifest;
 }
 
 export interface ShellFrame {
@@ -109,6 +110,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
             language,
             language_direction: cockpit.language_direction,
             host_switcher_enabled: false,
+            manifest: import_ShellManifest(cockpit.manifests.shell || {}),
         };
 
         /* Host switcher enabled? */

@@ -35,7 +35,7 @@ import { SearchIcon } from '@patternfly/react-icons';
 
 import { useInit } from "hooks";
 
-import { import_ShellManifest } from "./manifests";
+import { ShellState } from "./state";
 
 import "menu-select-widget.scss";
 
@@ -90,7 +90,7 @@ export const AboutCockpitModal = ({ dialogResult }) => {
     );
 };
 
-export const LangModal = ({ dialogResult }) => {
+export const LangModal = ({ dialogResult, state } : { dialogResult, state: ShellState }) => {
     const language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1") || "en-us";
 
     const [selected, setSelected] = useState(language);
@@ -105,8 +105,6 @@ export const LangModal = ({ dialogResult }) => {
         window.localStorage.setItem("cockpit.lang", selected);
         window.location.reload();
     }
-
-    const manifest = import_ShellManifest(cockpit.manifests.shell || { });
 
     return (
         <Modal isOpen position="top" variant="small"
@@ -144,7 +142,7 @@ export const LangModal = ({ dialogResult }) => {
                         <MenuList>
                             {
                                 (() => {
-                                    const locales = manifest.locales || {};
+                                    const locales = state.config.manifest.locales || {};
                                     const filteredLocales = Object.keys(locales)
                                             .filter(key => !searchInput || locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()));
 

@@ -30,7 +30,7 @@ import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dis
 import { CogIcon, ExternalLinkAltIcon, HelpIcon } from '@patternfly/react-icons';
 
 import { ShellState } from "./state";
-import { ManifestDocs, ManifestParentSection, import_ShellManifest } from "./manifests";
+import { ManifestDocs, ManifestParentSection } from "./manifests";
 import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { CredentialsModal } from './credentials.jsx';
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
@@ -150,7 +150,7 @@ export class TopNav extends React.Component {
                 {cockpit.format(_("$0 documentation"), this.state.osRelease.NAME)}
             </DropdownItem>);
 
-        const shell_manifest = import_ShellManifest(cockpit.manifests.shell || {});
+        const shell_manifest = this.props.state.config.manifest;
 
         // global documentation for cockpit as a whole
         (shell_manifest.docs ?? []).forEach(doc => {
@@ -208,7 +208,7 @@ export class TopNav extends React.Component {
 
         if (shell_manifest.locales)
             main_menu.push(<DropdownItem key="languages" className="display-language-menu"
-                                         onClick={() => Dialogs.run(LangModal, {})}>
+                                         onClick={() => Dialogs.run(LangModal, { state: this.props.state })}>
                 {_("Display language")}
             </DropdownItem>);
 

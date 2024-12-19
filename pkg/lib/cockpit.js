@@ -1547,21 +1547,23 @@ function factory() {
         const self = this;
         event_mixin(self, { });
 
+        self.client = client;
+        self.iface = iface;
+        self.path_namespace = path_namespace;
+
         let waits;
 
+        self.wait = function(func) {
+            if (func)
+                waits.always(func);
+            return waits;
+        };
+
         Object.defineProperties(self, {
-            client: { value: client, enumerable: false, writable: false },
-            iface: { value: iface, enumerable: false, writable: false },
-            path_namespace: { value: path_namespace, enumerable: false, writable: false },
-            wait: {
-                enumerable: false,
-                writable: false,
-                value: function(func) {
-                    if (func)
-                        waits.always(func);
-                    return waits;
-                }
-            }
+            client: { enumerable: false, writable: false },
+            iface: { enumerable: false, writable: false },
+            path_namespace: { enumerable: false, writable: false },
+            wait: { enumerable: false, writable: false },
         });
 
         /* Subscribe to signals once for all proxies */

@@ -1900,6 +1900,8 @@ function factory() {
             if (!options)
                 options = { };
             ensure_cache();
+            // this isn't a real class and only internal API; cockpit.d.ts annotates the return value DBusProxies
+            // @ts-expect-error TS7009: 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
             return new DBusProxies(self, cache, String(iface), String(path_namespace), options);
         };
     }

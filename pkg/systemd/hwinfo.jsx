@@ -125,9 +125,11 @@ const SystemInfo = ({ info, onSecurityClick }) => {
     );
 };
 
+let cachedMitigations;
+
 function availableMitigations() {
-    if (availableMitigations.cachedMitigations !== undefined)
-        return Promise.resolve(availableMitigations.cachedMitigations);
+    if (cachedMitigations !== undefined)
+        return Promise.resolve(cachedMitigations);
     /* nosmt */
     const promises = [cockpit.spawn(["lscpu"], { environ: ["LC_ALL=C.UTF-8"], }), cockpit.file("/proc/cmdline").read()];
     return Promise.all(promises).then(values => {
@@ -146,12 +148,12 @@ function availableMitigations() {
         const nosmt_available = threads_per_core > 1 && (values[1].indexOf("nosmt=") === -1 || values[1].indexOf("nosmt=force") !== -1);
         const mitigations_match = values[1].match(/\bmitigations=(\S*)\b/);
 
-        availableMitigations.cachedMitigations = {
+        cachedMitigations = {
             available: nosmt_available,
             nosmt_enabled,
             mitigations_arg: mitigations_match ? mitigations_match[1] : undefined,
         };
-        return availableMitigations.cachedMitigations;
+        return cachedMitigations;
     });
 }
 
@@ -172,7 +174,7 @@ const CPUSecurityMitigationsDialog = () => {
             options = ['set', 'nosmt'];
         } else {
             // this may either be an argument of its own, or part of mitigations=
-            const ma = availableMitigations.cachedMitigations.mitigations_arg;
+            const ma = cachedMitigations.mitigations_arg;
             if (ma && ma.indexOf("nosmt") >= 0) {
                 const new_args = ma.split(',').filter(opt => opt != 'nosmt');
                 options = ['set', 'mitigations=' + new_args.join(',')];

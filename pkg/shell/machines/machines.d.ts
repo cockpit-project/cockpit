@@ -4,6 +4,8 @@ import { Manifests } from "../manifests";
 
 export function generate_connection_string(user: string | null, port: string | null, addr: string) : string;
 export function split_connection_string (conn_to: string) : { address: string, user?: string, port?: number };
+export function get_init_superuser_for_options (options: {[key: string]: string }) : string | null;
+export function host_superuser_storage_key (host: string): string;
 
 export interface Machine {
     key: string;

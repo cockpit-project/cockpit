@@ -50,11 +50,7 @@ export function get_metainfo_db() {
                         debug("read metainfo_db:", metainfo_db);
                     }
                 })
-                .fail(function (error) {
-                    if (error != "closed") {
-                        console.warn(error);
-                    }
-                });
+                .catch(error => console.warn("watch-appstream.py failed:", error));
     }
 
     return metainfo_db;

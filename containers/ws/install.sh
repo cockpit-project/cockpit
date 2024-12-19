@@ -44,5 +44,5 @@ else
     rm $INSTALLROOT/usr/libexec/cockpit-session
 fi
 
-rm -rf /build/var/cache/dnf /build/var/lib/dnf /build/var/lib/rpm* /build/var/log/*
+rm -rf /build/var/cache/*dnf* /build/var/lib/dnf /build/var/lib/rpm* /build/var/log/*
 rm -rf /container/rpms || true

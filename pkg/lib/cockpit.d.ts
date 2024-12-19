@@ -213,6 +213,12 @@ declare module 'cockpit' {
         changed(changes: { [property: string]: unknown }): void;
     }
 
+    interface DBusProxiesEvents extends EventMap {
+        added(proxy: DBusProxy): void;
+        changed(proxy: DBusProxy): void;
+        removed(proxy: DBusProxy): void;
+    }
+
     interface DBusProxy extends EventSource<DBusProxyEvents> {
         valid: boolean;
         [property: string]: unknown;
@@ -232,10 +238,18 @@ declare module 'cockpit' {
         timeout?: number,
     };
 
+    interface DBusProxies extends EventSource<DBusProxiesEvents> {
+        client: DBusClient;
+        iface: string;
+        path_namespace: string;
+        wait(callback?: () => void): Promise<void>;
+    }
+
     interface DBusClient {
         readonly unique_name: string;
         readonly options: DBusOptions;
         proxy(interface?: string, path?: string, options?: { watch?: boolean }): DBusProxy;
+        proxies(interface?: string, path_namespace?: string, options?: { watch?: boolean }): DBusProxies;
         call(path: string, iface: string, method: string, args?: unknown[] | null, options?: DBusCallOptions): Promise<unknown[]>;
         watch(path: string): DeferredPromise<void>,
         close(): void;

@@ -69,27 +69,25 @@ export interface SimpleSelectDividerOption {
   key: string | number;
 };
 
-export interface SimpleSelectMenuOption extends Omit<SelectOptionProps, 'content'> {
+export interface SimpleSelectMenuOption<T> extends Omit<SelectOptionProps, 'content'> {
   decorator?: undefined;
 
   /** Content of the select option. */
   content: React.ReactNode;
   /** Value of the select option. */
-  value: unknown;
+  value: T;
 }
 
-export type SimpleSelectOption = SimpleSelectMenuOption |
-                                 SimpleSelectDividerOption;
+export type SimpleSelectOption<T> = SimpleSelectMenuOption<T> |
+                                    SimpleSelectDividerOption;
 
-export interface SimpleSelectProps extends Omit<SelectProps, 'toggle' | 'onSelect'> {
-  /** @hide Forwarded ref */
-  innerRef?: React.Ref<any>;
+export interface SimpleSelectProps<T> extends Omit<SelectProps, 'toggle' | 'onSelect'> {
   /** Initial options of the select. */
-  options: SimpleSelectOption[];
+  options: SimpleSelectOption<T>[];
   /** Selected option */
   selected: unknown;
   /** Callback triggered on selection. */
-  onSelect: (selection: unknown) => void;
+  onSelect: (selection: T) => void;
   /** Callback triggered when the select opens or closes. */
   onToggle?: (nextIsOpen: boolean) => void;
   /** Flag indicating the select should be disabled. */
@@ -104,8 +102,7 @@ export interface SimpleSelectProps extends Omit<SelectProps, 'toggle' | 'onSelec
   toggleProps?: MenuToggleProps;
 }
 
-const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
-  innerRef,
+export function SimpleSelect<T>({
   options,
   selected,
   isDisabled = false,
@@ -116,10 +113,10 @@ const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
   toggleProps,
   placeholder = '',
   ...props
-}: SimpleSelectProps) => {
+}: SimpleSelectProps<T>) {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const simpleSelectOptions = options.map((option, index) => {
+  const simpleSelectOptions = options.map(option => {
     if (option.decorator == "divider")
       return <Divider key={option.key} component="li" />;
     const { content, value, key, ...props } = option;
@@ -135,9 +132,10 @@ const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
     setIsOpen(!isOpen);
   };
 
-  const _onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: unknown) => {
-    if (value)
+  const _onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: T | undefined) => {
+    if (value) {
       onSelect(value);
+    }
     onToggle && onToggle(true);
     setIsOpen(false);
   };
@@ -146,7 +144,7 @@ const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
   if (toggleContent)
     content = toggleContent;
   else if (selected)
-    content = options.find((o): o is SimpleSelectMenuOption => !o.decorator && o.value == selected)?.content;
+    content = options.find((o): o is SimpleSelectMenuOption<T> => !o.decorator && o.value == selected)?.content;
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
@@ -169,6 +167,7 @@ const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
     <Select
       isOpen={isOpen}
       selected={selected}
+      // @ts-expect-error https://github.com/patternfly/patternfly-react/issues/11361
       onSelect={_onSelect}
       onOpenChange={(isOpen) => {
         onToggle && onToggle(isOpen);
@@ -176,16 +175,11 @@ const SimpleSelectBase: React.FunctionComponent<SimpleSelectProps> = ({
       }}
       toggle={toggle}
       shouldFocusToggleOnSelect
-      ref={innerRef}
       {...props}
     >
       <SelectList>{simpleSelectOptions}</SelectList>
     </Select>
   );
 };
-
-export const SimpleSelect = React.forwardRef((props: SimpleSelectProps, ref: React.Ref<any>) => (
-  <SimpleSelectBase {...props} innerRef={ref} />
-));
 
 SimpleSelect.displayName = 'SimpleSelect';

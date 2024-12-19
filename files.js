@@ -65,7 +65,6 @@ const info = {
         "base1/test-locale.js",
         "base1/test-location.js",
         "base1/test-metrics.js",
-        "base1/test-no-jquery.js",
         "base1/test-path.ts",
         "base1/test-permissions.js",
         "base1/test-promise.ts",

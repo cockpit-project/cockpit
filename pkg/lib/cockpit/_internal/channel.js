@@ -103,7 +103,12 @@ export function Channel(options) {
         /* Now open the channel */
         const command = { };
         for (const i in options)
-            command[i] = options[i];
+            if (i !== "binary")
+                command[i] = options[i];
+        /* handle binary specially: Our JS API has always been boolean, while the wire protocol is
+         * a string with the only valid value "raw". */
+        if (binary)
+            command.binary = "raw";
         command.command = "open";
         command.channel = id;
 
@@ -111,11 +116,6 @@ export function Channel(options) {
             if (transport_globals.default_host)
                 command.host = transport_globals.default_host;
         }
-
-        if (binary)
-            command.binary = "raw";
-        else
-            delete command.binary;
 
         command["flow-control"] = true;
         transport.send_control(command);

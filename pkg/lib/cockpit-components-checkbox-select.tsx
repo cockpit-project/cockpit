@@ -64,22 +64,20 @@ import {
   SelectProps
 } from '@patternfly/react-core';
 
-export interface CheckboxSelectOption extends Omit<SelectOptionProps, 'content'> {
+export interface CheckboxSelectOption<T> extends Omit<SelectOptionProps, 'content'> {
   /** Content of the select option. */
   content: React.ReactNode;
   /** Value of the select option. */
-  value: unknown;
+  value: T;
 }
 
-export interface CheckboxSelectProps extends Omit<SelectProps, 'toggle' | 'onSelect'> {
-  /** @hide Forwarded ref */
-  innerRef?: React.Ref<any>;
+export interface CheckboxSelectProps<T> extends Omit<SelectProps, 'toggle' | 'onSelect'> {
   /** Options of the select. */
-  options?: CheckboxSelectOption[];
+  options?: CheckboxSelectOption<T>[];
   /** Currently checked options */
-  selected: unknown[];
+  selected: T[];
   /** Callback triggered when checking or unchecking an option. */
-  onSelect: (value: unknown, checked: boolean) => void;
+  onSelect: (value: T, checked: boolean) => void;
   /** Callback triggered when the select opens or closes. */
   onToggle?: (nextIsOpen: boolean) => void;
   /** Flag indicating the select should be disabled. */
@@ -94,8 +92,7 @@ export interface CheckboxSelectProps extends Omit<SelectProps, 'toggle' | 'onSel
   noBadge?: boolean,
 }
 
-const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
-  innerRef,
+export function CheckboxSelect<T>({
   options,
   selected,
   isDisabled = false,
@@ -106,7 +103,7 @@ const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
   toggleProps,
   noBadge = false,
   ...props
-}: CheckboxSelectProps) => {
+}: CheckboxSelectProps<T>) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const checkboxSelectOptions = options?.map((option) => {
@@ -125,9 +122,10 @@ const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
     setIsOpen(!isOpen);
   };
 
-  const _onSelect = (event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
-      if (value && event)
-          onSelect(value, (event.target as HTMLInputElement).checked);
+  const _onSelect = (event: React.MouseEvent<Element, MouseEvent> | undefined, value: T | undefined) => {
+    if (value && event) {
+      onSelect(value, (event.target as HTMLInputElement).checked);
+    }
   };
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
@@ -155,13 +153,13 @@ const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
     <Select
       isOpen={isOpen}
       selected={selected}
+      // @ts-expect-error https://github.com/patternfly/patternfly-react/issues/11361
       onSelect={_onSelect}
       onOpenChange={(isOpen) => {
         onToggle && onToggle(isOpen);
         setIsOpen(isOpen);
       }}
       toggle={toggle}
-      ref={innerRef}
       role="menu"
       {...props}
     >
@@ -169,7 +167,3 @@ const CheckboxSelectBase: React.FunctionComponent<CheckboxSelectProps> = ({
     </Select>
   );
 };
-
-export const CheckboxSelect = React.forwardRef((props: CheckboxSelectProps, ref: React.Ref<any>) => (
-  <CheckboxSelectBase {...props} innerRef={ref} />
-));

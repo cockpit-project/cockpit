@@ -790,7 +790,13 @@ const ServicesPageFilters = ({
     const onDeleteChipGroup = (typeLabel) => {
         const type = getFilterLabelKey(typeLabel);
 
-        setFilters({ ...filters, [type]: [] });
+        if (type)
+            setFilters({ ...filters, [type]: [] });
+        else
+            setFilters({
+                activeState: [],
+                fileState: []
+            });
     };
 
     const onClearAllFilters = useCallback(() => {

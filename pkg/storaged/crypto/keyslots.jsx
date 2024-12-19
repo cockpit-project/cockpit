@@ -387,6 +387,7 @@ function ensure_non_root_nbde_support(steps, progress, client, block) {
             .then(() => ensure_crypto_option(steps, progress, client, block, "_netdev"));
 }
 
+/** @type (client: any, path: string) => boolean */
 function contains_rootfs(client, path) {
     const block = client.blocks[path];
     const crypto = client.blocks_crypto[path];

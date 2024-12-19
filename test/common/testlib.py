@@ -2360,7 +2360,7 @@ class MachineCase(unittest.TestCase):
         If the directory needs to survive reboot, `reboot_safe=True` needs to be specified; then this
         will just backup/restore the directory instead of bind-mounting, which is less robust.
         """
-        if not self.is_nondestructive() and not self.machine.ostree_image:
+        if not self.is_nondestructive():
             return  # skip for efficiency reasons
 
         exe = self.machine.execute

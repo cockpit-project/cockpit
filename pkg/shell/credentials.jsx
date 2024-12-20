@@ -88,7 +88,7 @@ export const CredentialsModal = ({ dialogResult }) => {
                             {_("Add key")}
                         </Button>
                     </Flex>
-                    {addNewKey && <AddNewKey load={keys.load} unlockKey={setUnlockKey} onClose={() => setAddNewKey(false)} />}
+                    {addNewKey && <AddNewKey keys={keys} unlockKey={setUnlockKey} onClose={() => setAddNewKey(false)} />}
                     <ListingTable
                         aria-label={ _("SSH keys") }
                         gridBreakPoint=''
@@ -113,7 +113,7 @@ export const CredentialsModal = ({ dialogResult }) => {
                                     renderer: PublicKey,
                                 },
                                 {
-                                    data: { currentKey, change: keys.change, setDialogError },
+                                    data: { currentKey, keys, setDialogError },
                                     name: _("Password"),
                                     renderer: KeyPassword,
                                 },
@@ -140,22 +140,22 @@ export const CredentialsModal = ({ dialogResult }) => {
                         })} />
                 </Stack>
             </Modal>
-            {unlockKey && <UnlockKey keyName={unlockKey} load={keys.load} onClose={() => { setUnlockKey(undefined); setAddNewKey(false) }} />}
+            {unlockKey && <UnlockKey keyName={unlockKey} keys={keys} onClose={() => { setUnlockKey(undefined); setAddNewKey(false) }} />}
         </>
     );
 };
 
-const AddNewKey = ({ load, unlockKey, onClose }) => {
+const AddNewKey = ({ keys, unlockKey, onClose }) => {
     const [addNewKeyLoading, setAddNewKeyLoading] = useState(false);
     const [newKeyPath, setNewKeyPath] = useState("");
     const [newKeyPathError, setNewKeyPathError] = useState();
 
     const addCustomKey = () => {
         setAddNewKeyLoading(true);
-        load(newKeyPath)
+        keys.load(newKeyPath)
                 .then(onClose)
                 .catch(ex => {
-                    if (!ex.sent_password)
+                    if (!(ex instanceof credentials.KeyLoadError) || !ex.sent_password)
                         setNewKeyPathError(ex.message);
                     else
                         unlockKey(newKeyPath);
@@ -213,7 +213,7 @@ const PublicKey = ({ currentKey }) => {
     );
 };
 
-const KeyPassword = ({ currentKey, change, setDialogError }) => {
+const KeyPassword = ({ currentKey, keys, setDialogError }) => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [inProgress, setInProgress] = useState(undefined);
     const [newPassword, setNewPassword] = useState('');
@@ -229,7 +229,7 @@ const KeyPassword = ({ currentKey, change, setDialogError }) => {
         if (oldPassword === undefined || newPassword === undefined || confirmPassword === undefined)
             setDialogError("Invalid password fields");
 
-        change(currentKey.name, oldPassword, newPassword, confirmPassword)
+        keys.change(currentKey.name, oldPassword, newPassword)
                 .then(() => {
                     setOldPassword('');
                     setNewPassword('');
@@ -285,7 +285,7 @@ const KeyPassword = ({ currentKey, change, setDialogError }) => {
     );
 };
 
-const UnlockKey = ({ keyName, load, onClose }) => {
+const UnlockKey = ({ keyName, keys, onClose }) => {
     const [password, setPassword] = useState();
     const [dialogError, setDialogError] = useState();
 
@@ -293,7 +293,7 @@ const UnlockKey = ({ keyName, load, onClose }) => {
         if (!keyName)
             return;
 
-        load(keyName, password)
+        keys.load(keyName, password)
                 .then(onClose)
                 .catch(ex => {
                     setDialogError(ex.message);

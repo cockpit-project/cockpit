@@ -17,67 +17,91 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import cockpit from "cockpit";
+import cockpit, { SpawnOptions } from "cockpit";
 
+// @ts-expect-error: magic verbatim string import, not a JS module
 import lister from "credentials-ssh-private-keys.sh";
+// @ts-expect-error: magic verbatim string import, not a JS module
 import remove_key from "credentials-ssh-remove-key.sh";
 
 const _ = cockpit.gettext;
 
-function Keys() {
-    const self = this;
+export interface Key {
+    type: string;
+    comment: string;
+    data: string;
+    name?: string;
+    loaded?: boolean;
+    agent_only?: boolean;
+    size?: number | null;
+    fingerprint?: string;
+}
 
-    self.path = null;
-    self.items = { };
+export class KeyLoadError extends Error {
+    sent_password: boolean;
 
-    let proc = null;
-    let timeout = null;
+    constructor(sent_password: boolean, message: string) {
+        super(message);
+        this.sent_password = sent_password;
+    }
+}
 
-    cockpit.event_target(this);
+class Keys extends EventTarget {
+    path: string | null = null;
+    items: Record<string, Key> = { };
 
-    self.p_have_path = cockpit.user()
-            .then(user => {
-                self.path = user.home + '/.ssh';
-                refresh();
-            });
+    #p_have_path: Promise<void>;
 
-    function refresh() {
-        if (proc)
-            return;
-
-        window.clearTimeout(timeout);
-        timeout = null;
-
-        proc = cockpit.script(lister, [self.path], { err: "message" });
-        proc
-                .then(data => process(data))
-                .catch(ex => console.warn("failed to list keys in home directory: " + ex.message))
-                .finally(() => {
-                    proc = null;
-
-                    if (!timeout)
-                        timeout = window.setTimeout(refresh, 5000);
+    constructor() {
+        super();
+        this.#p_have_path = cockpit.user()
+                .then(user => {
+                    this.path = user.home + '/.ssh';
+                    this.#refresh();
                 });
     }
 
-    function process(data) {
+    #proc: cockpit.Spawn<string> | null = null;
+    #timeout: number | null = null;
+
+    #refresh(): void {
+        if (this.#proc || !this.path)
+            return;
+
+        if (this.#timeout)
+            window.clearTimeout(this.#timeout);
+        this.#timeout = null;
+
+        this.#proc = cockpit.script(lister, [this.path], { err: "message" });
+        this.#proc
+                .then(data => this.#process(data))
+                .catch(ex => console.warn("failed to list keys in home directory: " + ex.message))
+                .finally(() => {
+                    this.#proc = null;
+
+                    if (!this.#timeout)
+                        this.#timeout = window.setTimeout(() => this.#refresh(), 5000);
+                });
+    }
+
+    #process(data: string): void {
         const blocks = data.split('\v');
-        let key;
+        let key: Key | undefined;
         const items = { };
 
         /* First block is the data from ssh agent */
         blocks[0].trim().split("\n")
-                .forEach(function(line) {
-                    key = parse_key(line, items);
+                .forEach(line => {
+                    key = this.#parse_key(line, items);
                     if (key)
                         key.loaded = true;
                 });
 
         /* Next come individual triples of blocks */
-        blocks.slice(1).forEach(function(block, i) {
+        blocks.slice(1).forEach((block, i) => {
             switch (i % 3) {
             case 0:
-                key = parse_key(block, items);
+                key = this.#parse_key(block, items);
                 break;
             case 1:
                 if (key) {
@@ -92,16 +116,16 @@ function Keys() {
                 break;
             case 2:
                 if (key)
-                    parse_info(block, key);
+                    this.#parse_info(block, key);
                 break;
             }
         });
 
-        self.items = items;
-        self.dispatchEvent("changed");
+        this.items = items;
+        this.dispatchEvent(new CustomEvent("changed"));
     }
 
-    function parse_key(line, items) {
+    #parse_key(line: string, items: Record<string, Key>): Key | undefined {
         const parts = line.trim().split(" ");
         let id, type, comment;
 
@@ -123,16 +147,22 @@ function Keys() {
         }
 
         let key = items[id];
-        if (!key)
-            key = items[id] = { };
+        if (key) {
+            key.type = type;
+            key.comment = comment;
+            key.data = line;
+        } else {
+            key = items[id] = {
+                type,
+                comment,
+                data: line,
+            };
+        }
 
-        key.type = type;
-        key.comment = comment;
-        key.data = line;
         return key;
     }
 
-    function parse_info(line, key) {
+    #parse_info(line: string, key: Key): void {
         const parts = line.trim().split(" ")
                 .filter(n => !!n);
 
@@ -146,7 +176,7 @@ function Keys() {
             key.name = parts[2];
     }
 
-    async function run_keygen(file, new_type, old_pass, new_pass) {
+    async #run_keygen(file: string, new_type: string | null, old_pass: string | null, new_pass: string): Promise<void> {
         const old_exps = [/.*Enter old passphrase: $/];
         const new_exps = [/.*Enter passphrase.*/, /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
         const bad_exps = [/.*failed: passphrase is too short.*/];
@@ -164,9 +194,10 @@ function Keys() {
         else
             cmd.push("-p");
 
-        await self.p_have_path;
+        await this.#p_have_path;
+        cockpit.assert(this.path);
 
-        const proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
+        const proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: this.path });
 
         proc.stream(data => {
             buffer += data;
@@ -198,7 +229,7 @@ function Keys() {
         try {
             await proc;
         } catch (ex) {
-            if (ex.exit_status)
+            if (ex instanceof cockpit.ProcessError && ex.exit_status)
                 throw new Error(failure);
             throw ex;
         } finally {
@@ -206,17 +237,21 @@ function Keys() {
         }
     }
 
-    self.change = (name, old_pass, new_pass) => run_keygen(name, null, old_pass, new_pass);
+    async change(name: string, old_pass: string, new_pass: string): Promise<void> {
+        await this.#run_keygen(name, null, old_pass, new_pass);
+    }
 
-    self.create = async (name, type, new_pass) => {
+    async create(name: string, type: string, new_pass: string): Promise<void> {
         // ensure ~/.ssh directory  exists
         await cockpit.script('dir=$(dirname "$1"); test -e "$dir" || mkdir -m 700 "$dir"', [name]);
-        await run_keygen(name, type, null, new_pass);
-    };
+        await this.#run_keygen(name, type, null, new_pass);
+    }
 
-    self.get_pubkey = name => cockpit.file(name + ".pub").read();
+    async get_pubkey(name: string): Promise<string> {
+        return await cockpit.file(name + ".pub").read();
+    }
 
-    self.load = async function(name, password) {
+    async load(name: string, password: string): Promise<void> {
         const ask_exp = /.*Enter passphrase for .*/;
         const perm_exp = /.*UNPROTECTED PRIVATE KEY FILE.*/;
         const bad_exp = /.*Bad passphrase.*/;
@@ -226,10 +261,11 @@ function Keys() {
         let failure = _("Not a valid private key");
         let sent_password = false;
 
-        await self.p_have_path;
+        await this.#p_have_path;
+        cockpit.assert(this.path);
 
         const proc = cockpit.spawn(["ssh-add", name],
-                                   { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path });
+                                   { pty: true, environ: ["LC_ALL=C"], err: "out", directory: this.path });
 
         const timeout = window.setTimeout(() => {
             failure = _("Prompting via ssh-add timed out");
@@ -255,35 +291,44 @@ function Keys() {
 
         try {
             await proc;
-            refresh();
+            this.#refresh();
         } catch (error) {
             console.log(output);
-            const ex = error.exit_status ? new Error(failure) : error;
-            ex.sent_password = sent_password;
+            let ex: KeyLoadError | unknown;
+            if (error instanceof cockpit.ProcessError && error.exit_status) {
+                ex = new KeyLoadError(sent_password, failure);
+            } else if (error instanceof Error) {
+                ex = new KeyLoadError(sent_password, error.message);
+            } else {
+                ex = error;
+            }
             throw ex;
         } finally {
             window.clearTimeout(timeout);
         }
-    };
+    }
 
-    self.unload = async function(key) {
-        await self.p_have_path;
-        const options = { pty: true, err: "message", directory: self.path };
+    async unload(key: Key): Promise<void> {
+        await this.#p_have_path;
+        cockpit.assert(this.path);
+
+        const options: SpawnOptions & { binary?: false; } = { pty: true, err: "message", directory: this.path };
 
         if (key.name && !key.agent_only)
             await cockpit.spawn(["ssh-add", "-d", key.name], options);
         else
             await cockpit.script(remove_key, [key.data], options);
 
-        await refresh();
-    };
+        this.#refresh();
+    }
 
-    self.close = function() {
-        if (proc)
-            proc.close();
-        window.clearTimeout(timeout);
-        timeout = null;
-    };
+    close() {
+        if (this.#proc)
+            this.#proc.close();
+        if (this.#timeout)
+            window.clearTimeout(this.#timeout);
+        this.#timeout = null;
+    }
 }
 
 export function keys_instance() {

@@ -31,6 +31,8 @@ def find_sources(*, srcpkg: bool) -> Iterable[str]:
         )
 
     for path, _dirs, files in os.walk('src', followlinks=True):
+        _dirs.sort()
+        files.sort()
         if '__init__.py' in files:
             yield from [os.path.join(path, file) for file in files]
 

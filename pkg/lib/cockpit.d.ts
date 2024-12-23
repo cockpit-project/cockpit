@@ -150,6 +150,13 @@ declare module 'cockpit' {
 
     /* === cockpit.{spawn,script} ============================= */
 
+    class ProcessError {
+        problem: string | null;
+        exit_status: number | null;
+        exit_signal: number | null;
+        message: string;
+    }
+
     interface Spawn<T> extends DeferredPromise<T> {
         input(message?: T | null, stream?: boolean): DeferredPromise<T>;
         stream(callback: (data: T) => void): DeferredPromise<T>;

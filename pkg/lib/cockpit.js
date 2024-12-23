@@ -1233,6 +1233,8 @@ function factory() {
         };
     }
 
+    cockpit.ProcessError = ProcessError;
+
     function spawn_debug() {
         if (window.debugging == "all" || window.debugging?.includes("spawn"))
             console.debug.apply(console, arguments);

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 03:06+0000\n"
+"POT-Creation-Date: 2024-12-20 02:58+0000\n"
 "PO-Revision-Date: 2024-12-06 07:38+0000\n"
 "Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
 "memory@weblate.org>\n"
@@ -98,7 +98,7 @@ msgstr[1] "$0 diskar saknas"
 msgid "$0 disks"
 msgstr "$0 diskar"
 
-#: pkg/shell/topnav.jsx:127
+#: pkg/shell/topnav.tsx:150
 msgid "$0 documentation"
 msgstr "$0 dokumentation"
 
@@ -254,7 +254,7 @@ msgid_plural "$0 slots remain"
 msgstr[0] "$0 fack återstår"
 msgstr[1] "$0 fack återstår"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 spik"
@@ -622,7 +622,7 @@ msgstr "ARP-övervakning"
 msgid "ARP ping"
 msgstr "ARP-ping"
 
-#: pkg/shell/topnav.jsx:149
+#: pkg/shell/topnav.tsx:174
 msgid "About Web Console"
 msgstr "Om webkonsolen"
 
@@ -680,7 +680,7 @@ msgid "Active backup"
 msgstr "Aktiv reserv"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:196
+#: pkg/shell/topnav.tsx:219
 msgid "Active pages"
 msgstr "Aktiva sidor"
 
@@ -688,8 +688,8 @@ msgstr "Aktiva sidor"
 msgid "Active since "
 msgstr "Aktiv sedan "
 
-#: pkg/systemd/services.jsx:828 pkg/systemd/services.jsx:829
-#: pkg/systemd/services.jsx:836
+#: pkg/systemd/services.jsx:824 pkg/systemd/services.jsx:828
+#: pkg/systemd/services.jsx:830
 msgid "Active state"
 msgstr "Aktivt tillstånd"
 
@@ -1108,7 +1108,7 @@ msgstr "Att lägga på uppdateringar misslyckades"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "Lämplig för kritiska monteringar, såsom /var"
 
-#: pkg/shell/nav.jsx:352
+#: pkg/shell/nav.tsx:402
 msgid "Apps"
 msgstr "Program"
 
@@ -1326,7 +1326,7 @@ msgstr "Blockerat"
 msgid "Bond"
 msgstr "Binda"
 
-#: pkg/systemd/logs.jsx:338
+#: pkg/metrics/metrics.jsx:1112 pkg/systemd/logs.jsx:338
 msgid "Boot"
 msgstr "Start"
 
@@ -1395,7 +1395,7 @@ msgid "Bypass browser check"
 msgstr "Förbigå webbläsarkontroll"
 
 #: pkg/metrics/metrics.jsx:112 pkg/metrics/metrics.jsx:782
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1946
 #: pkg/systemd/hwinfo.jsx:114 pkg/systemd/overview-cards/usageCard.jsx:133
 msgid "CPU"
 msgstr "CPU"
@@ -1412,7 +1412,7 @@ msgstr "CPU-säkerhetsinställningar"
 msgid "CPU usage"
 msgstr "CPU-användning"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "CPU usage/load"
 msgstr "CPU-användning/belastning"
 
@@ -1433,7 +1433,7 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr "Hittade inga loggar med dessa filter aktiva."
 
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
-#: pkg/metrics/metrics.jsx:1449 pkg/systemd/timer-dialog.jsx:151
+#: pkg/metrics/metrics.jsx:1466 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
 #: pkg/systemd/reporting.jsx:383
@@ -1450,7 +1450,7 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
+#: pkg/shell/shell-modals.tsx:119 pkg/shell/active-pages-modal.jsx:97
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
 #: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
@@ -1653,7 +1653,7 @@ msgstr "Kontrollerar installerad programvara"
 msgid "Checking software status"
 msgstr "Kontrollerar programvarustatus"
 
-#: pkg/shell/shell-modals.jsx:119
+#: pkg/shell/shell-modals.tsx:123
 msgid "Choose the language to be used in the application"
 msgstr "Välj språk som skall användas i programmet"
 
@@ -1681,11 +1681,11 @@ msgstr "Nollställ alla filter"
 msgid "Clear filter"
 msgstr "Rensa filter"
 
-#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:349
 msgid "Clear input value"
 msgstr "Rensa inmatningsvärde"
 
-#: pkg/shell/nav.jsx:164
+#: pkg/shell/nav.tsx:224
 msgid "Clear search"
 msgstr "Nollställ sökning"
 
@@ -1703,7 +1703,7 @@ msgstr "Klientprogramvara"
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
-#: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
+#: pkg/shell/shell-modals.tsx:180 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
@@ -1729,7 +1729,7 @@ msgstr "Cockpit konfiguration av NetworkManager och Firewalld"
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit kunde inte kontakta den angivna värden."
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.tsx:182
 msgid "Cockpit had an unexpected internal error."
 msgstr "Cockpit hade ett oväntat internt fel."
 
@@ -1747,7 +1747,7 @@ msgstr ""
 "stoppas via terminalen. Likaledes, om ett fel uppstår i terminalen kan det "
 "ses i Cockpits journalgränssnitt."
 
-#: pkg/shell/shell-modals.jsx:68
+#: pkg/shell/shell-modals.tsx:72
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit är ett interaktivt administratörsgränssnitt för Linuxservrar."
 
@@ -1789,7 +1789,7 @@ msgstr "Samla och paketera diagnostik och support data"
 msgid "Collect kernel crash dumps"
 msgstr "Samla kärnkraschdumpar"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1479
 msgid "Collect metrics"
 msgstr "Samla in mätvärden"
 
@@ -1979,7 +1979,7 @@ msgstr "Består av"
 msgid "Contacted domain"
 msgstr "Kontaktade domänen"
 
-#: pkg/shell/nav.jsx:237
+#: pkg/shell/nav.tsx:299
 msgid "Contains:"
 msgstr "Innehåller:"
 
@@ -2266,7 +2266,7 @@ msgstr "Kryptografipolicyn är inkonsekvent"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:181
+#: pkg/shell/shell-modals.tsx:186
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Skift-J"
 
@@ -2338,7 +2338,7 @@ msgstr "Dagligen"
 msgid "Danger alert:"
 msgstr "Fara varning:"
 
-#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.tsx:199
 msgid "Dark"
 msgstr "Mörk"
 
@@ -2464,7 +2464,7 @@ msgstr "Dedikerad paritet (RAID 4)"
 msgid "Deduplication"
 msgstr "Avduplicering"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.tsx:193
 msgid "Default"
 msgstr "Standard"
 
@@ -2677,8 +2677,8 @@ msgid "Disconnected"
 msgstr "Frånkopplad"
 
 #: pkg/metrics/metrics.jsx:140 pkg/metrics/metrics.jsx:141
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1907
-#: pkg/metrics/metrics.jsx:1919
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1936
+#: pkg/metrics/metrics.jsx:1948
 msgid "Disk I/O"
 msgstr "Disk-I/O"
 
@@ -2718,7 +2718,7 @@ msgstr[1] "Avfärda $0 larm"
 msgid "Dismiss selected alerts"
 msgstr "Avvisa valda aviseringar"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
+#: pkg/shell/shell-modals.tsx:116 pkg/shell/topnav.tsx:212
 msgid "Display language"
 msgstr "Visningsspråk"
 
@@ -2824,7 +2824,7 @@ msgstr "EFI-systempartition"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/nav.tsx:415 pkg/shell/hosts.jsx:197 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "Redigera"
@@ -3051,7 +3051,7 @@ msgstr "Fel"
 msgid "Error and above"
 msgstr "Fel och högre"
 
-#: pkg/metrics/metrics.jsx:1819
+#: pkg/metrics/metrics.jsx:1853
 msgid "Error has occurred"
 msgstr "Fel har uppstått"
 
@@ -3128,7 +3128,7 @@ msgstr "Upphör konto på $0"
 msgid "Export"
 msgstr "Exportera"
 
-#: pkg/metrics/metrics.jsx:1479
+#: pkg/metrics/metrics.jsx:1496
 msgid "Export to network"
 msgstr "Exportera till nätverk"
 
@@ -3174,7 +3174,7 @@ msgstr "Kunde inte lägga till zon"
 msgid "Failed to change password"
 msgstr "Misslyckades att ändra lösenord"
 
-#: pkg/metrics/metrics.jsx:1455
+#: pkg/metrics/metrics.jsx:1472
 msgid "Failed to configure PCP"
 msgstr "Misslyckades att konfigurera PCP"
 
@@ -3248,8 +3248,8 @@ msgstr "Misslyckades att starta"
 msgid "Failed to switch profile"
 msgstr "Misslyckades att byta profil"
 
-#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:845
-#: pkg/systemd/services.jsx:852
+#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
+#: pkg/systemd/services.jsx:849
 msgid "File state"
 msgstr "Filstatus"
 
@@ -3277,11 +3277,11 @@ msgstr "Filsystem utanför mål"
 msgid "Filesystems are already mounted below this mountpoint."
 msgstr "Filsystem är redan monterade under denna monteringspunkt."
 
-#: pkg/systemd/services.jsx:820
+#: pkg/systemd/services.jsx:816
 msgid "Filter by name or description"
 msgstr "Filtrera efter namn eller beskrivning"
 
-#: pkg/shell/shell-modals.jsx:131
+#: pkg/shell/shell-modals.tsx:135
 msgid "Filter menu items"
 msgstr "Filtrera menyalternativ"
 
@@ -3414,11 +3414,11 @@ msgstr "Gå till programmet"
 msgid "Go to now"
 msgstr "Gå till nu"
 
-#: pkg/metrics/metrics.jsx:1901
+#: pkg/metrics/metrics.jsx:1925
 msgid "Graph visibility"
 msgstr "Grafens synlighet"
 
-#: pkg/metrics/metrics.jsx:1889
+#: pkg/metrics/metrics.jsx:1922
 msgid "Graph visibility options menu"
 msgstr "Meny med alternativ för grafsynlighet"
 
@@ -3498,7 +3498,7 @@ msgid "Hello time $hello_time"
 msgstr "Hälsningstid $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.tsx:277
 msgid "Help"
 msgstr "Hjälp"
 
@@ -3756,7 +3756,7 @@ msgstr "Installera"
 msgid "Install NFS support"
 msgstr "Installera stöd för NFS"
 
-#: pkg/metrics/metrics.jsx:1789
+#: pkg/metrics/metrics.jsx:1823
 msgid "Install PCP support"
 msgstr "Installera PCP-stöd"
 
@@ -3974,7 +3974,7 @@ msgstr "Journalpost"
 msgid "Journal entry not found"
 msgstr "Journalposten hittades inte"
 
-#: pkg/metrics/metrics.jsx:1886
+#: pkg/metrics/metrics.jsx:1918
 msgid "Jump to"
 msgstr "Hoppa till"
 
@@ -4158,11 +4158,11 @@ msgstr "Lämna domänen"
 msgid "Leave empty to skip encryption"
 msgstr "Lämna tomt för att hoppa över kryptering"
 
-#: pkg/shell/shell-modals.jsx:61
+#: pkg/shell/shell-modals.tsx:65
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Licensierad under GNU LGPL version 2.1"
 
-#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.tsx:196
 msgid "Light"
 msgstr "Ljust"
 
@@ -4253,7 +4253,7 @@ msgid "Listing units failed: $0"
 msgstr "Misslyckades att lista enheter: $0"
 
 #: pkg/metrics/metrics.jsx:118 pkg/metrics/metrics.jsx:119
-#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1946
 msgid "Load"
 msgstr "Belastning"
 
@@ -4261,7 +4261,7 @@ msgstr "Belastning"
 msgid "Load balancing"
 msgstr "Lastbalansering"
 
-#: pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1982
 msgid "Load earlier data"
 msgstr "Läs in tidigare data"
 
@@ -4289,7 +4289,7 @@ msgstr "Inläsningen av SSH-nycklar misslyckades"
 msgid "Loading of units failed"
 msgstr "Inläsningen av enheter misslyckades"
 
-#: pkg/shell/shell-modals.jsx:76
+#: pkg/shell/shell-modals.tsx:80
 msgid "Loading packages..."
 msgstr "Läser in paket..."
 
@@ -4301,7 +4301,7 @@ msgstr "Läser in anpassningar till systemet..."
 msgid "Loading unit failed"
 msgstr "Läsa in enhet misslyckades"
 
-#: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
+#: pkg/metrics/metrics.jsx:1981 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
@@ -4382,7 +4382,7 @@ msgstr "Logga in med ditt serveranvändarkonto."
 msgid "Log messages"
 msgstr "Loggmeddelanden"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.tsx:229
 msgid "Log out"
 msgstr "Logga ut"
 
@@ -4629,7 +4629,7 @@ msgid "Media drive"
 msgstr "Media enhet"
 
 #: pkg/metrics/metrics.jsx:126 pkg/metrics/metrics.jsx:842
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1918
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1947
 #: pkg/systemd/service-details.jsx:655 pkg/systemd/hwinfo.jsx:290
 #: pkg/systemd/hwinfo.jsx:334 pkg/systemd/overview-cards/usageCard.jsx:145
 msgid "Memory"
@@ -4643,7 +4643,7 @@ msgstr "Minnesteknologi"
 msgid "Memory usage"
 msgstr "Minnesanvändning"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "Memory usage/swap"
 msgstr "Minnesanvändning/swap"
 
@@ -4672,15 +4672,15 @@ msgstr "Metod"
 msgid "Metric"
 msgstr "Mått"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1967
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2002
 msgid "Metrics and history"
 msgstr "Mått och historik"
 
-#: pkg/metrics/metrics.jsx:1810
+#: pkg/metrics/metrics.jsx:1844
 msgid "Metrics history could not be loaded"
 msgstr "Metrikhistoriken kunde inte läsas in"
 
-#: pkg/metrics/metrics.jsx:1431 pkg/metrics/metrics.jsx:1534
+#: pkg/metrics/metrics.jsx:1448 pkg/metrics/metrics.jsx:1551
 msgid "Metrics settings"
 msgstr "Måttinställningar"
 
@@ -4950,8 +4950,8 @@ msgstr "Behöver en reservdisk"
 msgid "Need at least one NTP server"
 msgstr "Behöver åtminstone en NTP-server"
 
-#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1549
-#: pkg/metrics/metrics.jsx:1907 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1566
+#: pkg/metrics/metrics.jsx:1936 pkg/metrics/metrics.jsx:1949
 msgid "Network"
 msgstr "Nätverk"
 
@@ -5083,11 +5083,11 @@ msgstr "Ingen bärvåg"
 msgid "No configuration found"
 msgstr "Ingen konfiguration hittad"
 
-#: pkg/metrics/metrics.jsx:1838
+#: pkg/metrics/metrics.jsx:1872
 msgid "No data available"
 msgstr "Ingen data tillgänglig"
 
-#: pkg/metrics/metrics.jsx:1834
+#: pkg/metrics/metrics.jsx:1868
 msgid "No data available between $0 and $1"
 msgstr "Ingen data tillgänglig mellan $0 och $1"
 
@@ -5125,7 +5125,7 @@ msgstr "Inga diskar funna"
 msgid "No encryption"
 msgstr "Ingen kryptering"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "No events"
 msgstr "Inga händelser"
 
@@ -5165,11 +5165,11 @@ msgstr "Inget installationspaket hittat för detta program."
 msgid "No keys added"
 msgstr "Inga nycklar tillagda"
 
-#: pkg/shell/shell-modals.jsx:149
+#: pkg/shell/shell-modals.tsx:154
 msgid "No languages match"
 msgstr "Inga språk matchar"
 
-#: pkg/metrics/metrics.jsx:1111 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1124 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "Inga loggposter"
 
@@ -5213,7 +5213,7 @@ msgstr "Inget verkligt namn angivet"
 
 #: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.tsx:223
 msgid "No results found"
 msgstr "Inga resultat funna"
 
@@ -5434,11 +5434,11 @@ msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "Använd endast godkända och tillåtna algoritmer vid uppstart i FIPS-läge."
 
-#: pkg/shell/topnav.jsx:228
+#: pkg/shell/topnav.tsx:251
 msgid "Ooops!"
 msgstr "Hoppsan!"
 
-#: pkg/metrics/metrics.jsx:1417
+#: pkg/metrics/metrics.jsx:1434
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "Öppna pmproxy-tjänsten i brandväggen för att dela mätvärden."
 
@@ -5482,7 +5482,7 @@ msgstr "Ut"
 msgid "Overprovisioning"
 msgstr "Överprovisionering"
 
-#: pkg/metrics/metrics.jsx:1966 pkg/systemd/hwinfo.jsx:307
+#: pkg/metrics/metrics.jsx:2001 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Översikt"
@@ -5501,7 +5501,7 @@ msgstr "Skriv över befintlig data med nollor (långsammare)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1788
+#: pkg/metrics/metrics.jsx:1822
 msgid "PCP is missing for metrics history"
 msgstr "PCP saknas för statistikhistorik"
 
@@ -5743,7 +5743,7 @@ msgstr ""
 "Jämlikar är andra maskiner som ansluter till denna. Offentliga nycklar från "
 "andra maskiner kommer att delas med varandra."
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1451
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5957,7 +5957,7 @@ msgstr "Processer som använder platsen"
 msgid "Progress: $0"
 msgstr "Förlopp: $0"
 
-#: pkg/shell/shell-modals.jsx:72
+#: pkg/shell/shell-modals.tsx:76
 msgid "Project website"
 msgstr "Projektwebbsajt"
 
@@ -6103,7 +6103,7 @@ msgstr "Läs"
 msgid "Read more"
 msgstr "Läs mer"
 
-#: pkg/metrics/metrics.jsx:1440 pkg/systemd/hwinfo.jsx:206
+#: pkg/metrics/metrics.jsx:1457 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
 msgstr "Läs mer..."
 
@@ -6622,12 +6622,12 @@ msgstr "Turas om"
 msgid "Routes"
 msgstr "Rutter"
 
-#: pkg/lib/cockpit-components-table.jsx:275
+#: pkg/lib/cockpit-components-table.tsx:357
 msgid "Row expansion"
 msgstr "Radexpansion"
 
-#: pkg/lib/cockpit-components-table.jsx:276
-#: pkg/lib/cockpit-components-table.jsx:277
+#: pkg/lib/cockpit-components-table.tsx:358
+#: pkg/lib/cockpit-components-table.tsx:359
 msgid "Row select"
 msgstr "Radval"
 
@@ -6729,8 +6729,8 @@ msgstr "SSH-nyckel är inte en sökväg"
 msgid "SSH key login"
 msgstr "SSH-nyckel inloggning"
 
-#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
-#: pkg/shell/credentials.jsx:93
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
+#: pkg/shell/topnav.tsx:225
 msgid "SSH keys"
 msgstr "SSH-nycklar"
 
@@ -6761,7 +6761,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "Lördagar"
 
-#: pkg/metrics/metrics.jsx:1446 pkg/systemd/timer-dialog.jsx:148
+#: pkg/metrics/metrics.jsx:1463 pkg/systemd/timer-dialog.jsx:148
 #: pkg/networkmanager/dialogs-common.jsx:149 pkg/packagekit/kpatch.jsx:310
 #: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/filesystem/mounting-dialog.jsx:358
@@ -6812,7 +6812,7 @@ msgstr "Schemalagd omstart till $0"
 msgid "Sealed-case PC"
 msgstr "PC med slutet hölje"
 
-#: pkg/systemd/logs.jsx:391 pkg/shell/nav.jsx:141
+#: pkg/systemd/logs.jsx:391 pkg/shell/nav.tsx:200
 msgid "Search"
 msgstr "Sök"
 
@@ -6860,7 +6860,7 @@ msgstr "Säkerhetsuppdateringar endast"
 msgid "Security updates will be applied $0 at $1"
 msgstr "Säkerhetsuppdateringar kommer att tillämpas $0 vid $1"
 
-#: pkg/shell/shell-modals.jsx:114
+#: pkg/shell/shell-modals.tsx:118
 msgid "Select"
 msgstr "Välj"
 
@@ -6949,7 +6949,7 @@ msgstr "Tjänster"
 msgid "Services using the location"
 msgstr "Tjänster som använder platsen"
 
-#: pkg/shell/topnav.jsx:277
+#: pkg/shell/topnav.tsx:313
 msgid "Session"
 msgstr "Session"
 
@@ -7436,7 +7436,7 @@ msgstr "Starkt lösenord"
 msgid "Stub"
 msgstr "Stubbe"
 
-#: pkg/shell/topnav.jsx:166
+#: pkg/shell/topnav.tsx:189
 msgid "Style"
 msgstr "Stil"
 
@@ -7465,7 +7465,7 @@ msgid "Sundays"
 msgstr "Söndagar"
 
 #: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:687
-#: pkg/metrics/metrics.jsx:1918 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1947 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "Växlingsutrymme"
 
@@ -7533,7 +7533,7 @@ msgstr "Synkroniserar"
 msgid "Synchronizing MDRAID device $target"
 msgstr "Synkroniserar MDRAID-enheten $target"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
+#: pkg/systemd/services.jsx:914 pkg/shell/nav.tsx:69 pkg/shell/nav.tsx:405
 msgid "System"
 msgstr "System"
 
@@ -8307,7 +8307,7 @@ msgstr ""
 "För att verifiera ett fingeravtryck, kör följande på $0 medan du fysiskt "
 "sitter vid maskinen eller genom ett pålitligt nätverk:"
 
-#: pkg/metrics/metrics.jsx:1844
+#: pkg/metrics/metrics.jsx:1878
 msgid "Today"
 msgstr "Idag"
 
@@ -8320,7 +8320,7 @@ msgstr "Växla"
 msgid "Toggle date picker"
 msgstr "Växla datumväljare"
 
-#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:815
+#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:811
 msgid "Toggle filters"
 msgstr "Växla filter"
 
@@ -8328,7 +8328,7 @@ msgstr "Växla filter"
 msgid "Too much data"
 msgstr "För mycket data"
 
-#: pkg/shell/nav.jsx:358
+#: pkg/shell/nav.tsx:408
 msgid "Tools"
 msgstr "Verktyg"
 
@@ -8380,7 +8380,7 @@ msgstr "Utlöst av"
 msgid "Triggers"
 msgstr "Utlösare"
 
-#: pkg/metrics/metrics.jsx:1805
+#: pkg/metrics/metrics.jsx:1839
 msgid "Troubleshoot"
 msgstr "Felsök"
 
@@ -8583,7 +8583,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "Oväntat PackageKit-fel under installation av $0: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:174
+#: pkg/shell/shell-modals.tsx:179
 msgid "Unexpected error"
 msgstr "Oväntat fel"
 
@@ -8785,8 +8785,8 @@ msgstr "Uppdaterar status..."
 msgid "Upload"
 msgstr "Ladda upp"
 
-#: pkg/metrics/metrics.jsx:1917 pkg/metrics/metrics.jsx:1918
-#: pkg/metrics/metrics.jsx:1919 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1946 pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1948 pkg/metrics/metrics.jsx:1949
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 #: pkg/storaged/lvm2/physical-volume.jsx:119
 #: pkg/storaged/block/unrecognized-data.jsx:50
@@ -8845,7 +8845,7 @@ msgstr ""
 "Användbart för monteringar som är valfria eller behöver interaktion (som "
 "lösenfraser)"
 
-#: pkg/systemd/services.jsx:916 pkg/storaged/dialog.jsx:1457
+#: pkg/systemd/services.jsx:918 pkg/storaged/dialog.jsx:1457
 msgid "User"
 msgstr "Användare"
 
@@ -8970,7 +8970,7 @@ msgstr "Visa alla tjänster"
 msgid "View automation script"
 msgstr "Visa automatiseringsskript"
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1122
 msgid "View detailed logs"
 msgstr "Visa detaljerade loggar"
 
@@ -9088,7 +9088,7 @@ msgstr "Varning och högre"
 msgid "Weak password"
 msgstr "Svagt lösenord"
 
-#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.tsx:66 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "Webbkonsol"
 
@@ -9104,7 +9104,7 @@ msgstr "Webbkonsolen kommer att starta om"
 msgid "Web console is running in limited access mode."
 msgstr "Webbkonsolen körs i begränsad åtkomstläge."
 
-#: pkg/shell/shell-modals.jsx:64
+#: pkg/shell/shell-modals.tsx:68
 msgid "Web console logo"
 msgstr "Webbkonsolens logotyp"
 
@@ -9635,7 +9635,7 @@ msgstr "ignorera fel"
 msgid "in less than a minute"
 msgstr "i mindre än en minut"
 
-#: pkg/shell/shell-modals.jsx:182
+#: pkg/shell/shell-modals.tsx:187
 msgid "in most browsers"
 msgstr "i de flesta webbläsare"
 
@@ -9875,15 +9875,15 @@ msgstr "fysisk volym på LVM2 volymgrupp"
 msgid "plugin"
 msgstr "insticksmodul"
 
-#: pkg/metrics/metrics.jsx:1802
+#: pkg/metrics/metrics.jsx:1836
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service har misslyckats"
 
-#: pkg/metrics/metrics.jsx:1804
+#: pkg/metrics/metrics.jsx:1838
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service misslyckas att samla in data"
 
-#: pkg/metrics/metrics.jsx:1797
+#: pkg/metrics/metrics.jsx:1831
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service körs inte"
 

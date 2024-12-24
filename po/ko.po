@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 03:06+0000\n"
+"POT-Creation-Date: 2024-12-20 02:58+0000\n"
 "PO-Revision-Date: 2024-12-06 07:38+0000\n"
 "Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
 "memory@weblate.org>\n"
@@ -96,7 +96,7 @@ msgstr[0] "$0 디스크가 없습니다"
 msgid "$0 disks"
 msgstr "$0 디스크"
 
-#: pkg/shell/topnav.jsx:127
+#: pkg/shell/topnav.tsx:150
 msgid "$0 documentation"
 msgstr "$0 문서"
 
@@ -238,7 +238,7 @@ msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 슬롯이 남아 있습니다"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 순간 사용량"
@@ -595,7 +595,7 @@ msgstr "ARP 모니터링"
 msgid "ARP ping"
 msgstr "ARP 핑"
 
-#: pkg/shell/topnav.jsx:149
+#: pkg/shell/topnav.tsx:174
 msgid "About Web Console"
 msgstr "웹 콘솔 정보"
 
@@ -653,7 +653,7 @@ msgid "Active backup"
 msgstr "활성 백업"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:196
+#: pkg/shell/topnav.tsx:219
 msgid "Active pages"
 msgstr "활성 페이지"
 
@@ -661,8 +661,8 @@ msgstr "활성 페이지"
 msgid "Active since "
 msgstr "이후 활성화 "
 
-#: pkg/systemd/services.jsx:828 pkg/systemd/services.jsx:829
-#: pkg/systemd/services.jsx:836
+#: pkg/systemd/services.jsx:824 pkg/systemd/services.jsx:828
+#: pkg/systemd/services.jsx:830
 msgid "Active state"
 msgstr "활성화 상태"
 
@@ -1081,7 +1081,7 @@ msgstr "최신화 적용 실패"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "/var와 같은 중요한 적재에 적절한"
 
-#: pkg/shell/nav.jsx:352
+#: pkg/shell/nav.tsx:402
 msgid "Apps"
 msgstr "앱"
 
@@ -1296,7 +1296,7 @@ msgstr "차단됨"
 msgid "Bond"
 msgstr "본드"
 
-#: pkg/systemd/logs.jsx:338
+#: pkg/metrics/metrics.jsx:1112 pkg/systemd/logs.jsx:338
 msgid "Boot"
 msgstr "부팅"
 
@@ -1363,7 +1363,7 @@ msgid "Bypass browser check"
 msgstr "웹 탐색기 점검을 우회합니다"
 
 #: pkg/metrics/metrics.jsx:112 pkg/metrics/metrics.jsx:782
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1946
 #: pkg/systemd/hwinfo.jsx:114 pkg/systemd/overview-cards/usageCard.jsx:133
 msgid "CPU"
 msgstr "중앙처리장치"
@@ -1380,7 +1380,7 @@ msgstr "중앙처리장치 보안 전환"
 msgid "CPU usage"
 msgstr "중앙처리장치 사용량"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "CPU usage/load"
 msgstr "중앙처리장치 사용량/부하"
 
@@ -1401,7 +1401,7 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
-#: pkg/metrics/metrics.jsx:1449 pkg/systemd/timer-dialog.jsx:151
+#: pkg/metrics/metrics.jsx:1466 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
 #: pkg/systemd/reporting.jsx:383
@@ -1418,7 +1418,7 @@ msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
+#: pkg/shell/shell-modals.tsx:119 pkg/shell/active-pages-modal.jsx:97
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
 #: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
@@ -1618,7 +1618,7 @@ msgstr "설치된 소프트웨어 확인 중"
 msgid "Checking software status"
 msgstr "소프트웨어 상태 확인 중"
 
-#: pkg/shell/shell-modals.jsx:119
+#: pkg/shell/shell-modals.tsx:123
 msgid "Choose the language to be used in the application"
 msgstr "응용프로그램에 사용 할 언어를 선택하세요"
 
@@ -1646,11 +1646,11 @@ msgstr "모든 필터 지우기"
 msgid "Clear filter"
 msgstr "필터 지우기"
 
-#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:349
 msgid "Clear input value"
 msgstr "입력 값 초기화"
 
-#: pkg/shell/nav.jsx:164
+#: pkg/shell/nav.tsx:224
 msgid "Clear search"
 msgstr "검색 지우기"
 
@@ -1668,7 +1668,7 @@ msgstr "클라이언트 소프트웨어"
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
-#: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
+#: pkg/shell/shell-modals.tsx:180 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
@@ -1694,7 +1694,7 @@ msgstr "NetworkManager 및 Firewalld의 Cockpit 구성"
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit을 지정된 호스트에 연결 할 수 없습니다."
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.tsx:182
 msgid "Cockpit had an unexpected internal error."
 msgstr "Cockpit에서 예기치 않은 내부 오류가 발생했습니다."
 
@@ -1711,7 +1711,7 @@ msgstr ""
 "서비스는 터미널을 통해 중지할 수 있습니다. 마찬가지로 터미널에서 오류가 발생"
 "한 경우 해당 오류를 Cockpit 저널 연결장치에서 확인 할 수 있습니다."
 
-#: pkg/shell/shell-modals.jsx:68
+#: pkg/shell/shell-modals.tsx:72
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit은 대화형 리눅스 서버 관리 연결장치입니다."
 
@@ -1752,7 +1752,7 @@ msgstr "진단 및 지원 자료 수집 및 꾸러미"
 msgid "Collect kernel crash dumps"
 msgstr "커널 충돌 덤프 수집"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1479
 msgid "Collect metrics"
 msgstr "메트릭 수집"
 
@@ -1942,7 +1942,7 @@ msgstr "구성"
 msgid "Contacted domain"
 msgstr "연락 된 도메인"
 
-#: pkg/shell/nav.jsx:237
+#: pkg/shell/nav.tsx:299
 msgid "Contains:"
 msgstr "포함:"
 
@@ -2230,7 +2230,7 @@ msgstr "암호화 정책이 일관적이지 않습니다"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:181
+#: pkg/shell/shell-modals.tsx:186
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Shift-I"
 
@@ -2302,7 +2302,7 @@ msgstr "매일"
 msgid "Danger alert:"
 msgstr "위험 경고:"
 
-#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.tsx:199
 msgid "Dark"
 msgstr "어둡게"
 
@@ -2424,7 +2424,7 @@ msgstr "전용 페리티 (레이드 4)"
 msgid "Deduplication"
 msgstr "중복"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.tsx:193
 msgid "Default"
 msgstr "기본"
 
@@ -2641,8 +2641,8 @@ msgstr "연결 해제됩니다"
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
 #: pkg/metrics/metrics.jsx:140 pkg/metrics/metrics.jsx:141
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1907
-#: pkg/metrics/metrics.jsx:1919
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1936
+#: pkg/metrics/metrics.jsx:1948
 msgid "Disk I/O"
 msgstr "디스크 I/O"
 
@@ -2681,7 +2681,7 @@ msgstr[0] "$0 경고 해제"
 msgid "Dismiss selected alerts"
 msgstr "선택한 경고 해제"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
+#: pkg/shell/shell-modals.tsx:116 pkg/shell/topnav.tsx:212
 msgid "Display language"
 msgstr "표시 언어"
 
@@ -2789,7 +2789,7 @@ msgstr "EFI 시스템 파티션"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/nav.tsx:415 pkg/shell/hosts.jsx:197 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "편집"
@@ -3016,7 +3016,7 @@ msgstr "오류"
 msgid "Error and above"
 msgstr "오류 이상"
 
-#: pkg/metrics/metrics.jsx:1819
+#: pkg/metrics/metrics.jsx:1853
 msgid "Error has occurred"
 msgstr "오류가 발생했습니다"
 
@@ -3092,7 +3092,7 @@ msgstr "$0의 계정 만료"
 msgid "Export"
 msgstr "내보내기"
 
-#: pkg/metrics/metrics.jsx:1479
+#: pkg/metrics/metrics.jsx:1496
 msgid "Export to network"
 msgstr "네트워크로 내보내기"
 
@@ -3138,7 +3138,7 @@ msgstr "영역 추가 실패"
 msgid "Failed to change password"
 msgstr "비밀번호 변경 실패"
 
-#: pkg/metrics/metrics.jsx:1455
+#: pkg/metrics/metrics.jsx:1472
 msgid "Failed to configure PCP"
 msgstr "PCP 구성에 실패하였습니다"
 
@@ -3212,8 +3212,8 @@ msgstr "시작하지 못했습니다"
 msgid "Failed to switch profile"
 msgstr "프로파일 전환에 실패했습니다"
 
-#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:845
-#: pkg/systemd/services.jsx:852
+#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
+#: pkg/systemd/services.jsx:849
 msgid "File state"
 msgstr "파일 상태"
 
@@ -3241,11 +3241,11 @@ msgstr "대상 외부의 파일시스템"
 msgid "Filesystems are already mounted below this mountpoint."
 msgstr "파일 시스템은 이미 이 적재지점 아래에 적재되어 있습니다."
 
-#: pkg/systemd/services.jsx:820
+#: pkg/systemd/services.jsx:816
 msgid "Filter by name or description"
 msgstr "이름 또는 설명에 따라 필터링"
 
-#: pkg/shell/shell-modals.jsx:131
+#: pkg/shell/shell-modals.tsx:135
 msgid "Filter menu items"
 msgstr "필터 메뉴 항목"
 
@@ -3380,11 +3380,11 @@ msgstr "응용프로그램으로 이동"
 msgid "Go to now"
 msgstr "지금 바로 가기"
 
-#: pkg/metrics/metrics.jsx:1901
+#: pkg/metrics/metrics.jsx:1925
 msgid "Graph visibility"
 msgstr "그래프 가시성"
 
-#: pkg/metrics/metrics.jsx:1889
+#: pkg/metrics/metrics.jsx:1922
 msgid "Graph visibility options menu"
 msgstr "그래프 가시성 옵션 메뉴"
 
@@ -3464,7 +3464,7 @@ msgid "Hello time $hello_time"
 msgstr "Hello 타임 $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.tsx:277
 msgid "Help"
 msgstr "도움말"
 
@@ -3720,7 +3720,7 @@ msgstr "설치"
 msgid "Install NFS support"
 msgstr "NFS 지원 설치"
 
-#: pkg/metrics/metrics.jsx:1789
+#: pkg/metrics/metrics.jsx:1823
 msgid "Install PCP support"
 msgstr "PCP 지원 설치"
 
@@ -3941,7 +3941,7 @@ msgstr "저널 항목"
 msgid "Journal entry not found"
 msgstr "저널 항목를 찾을 수 없습니다"
 
-#: pkg/metrics/metrics.jsx:1886
+#: pkg/metrics/metrics.jsx:1918
 msgid "Jump to"
 msgstr "다음으로 이동"
 
@@ -4125,11 +4125,11 @@ msgstr "도메인 나가기"
 msgid "Leave empty to skip encryption"
 msgstr "암호화를 건너뛰려면 공백으로 둡니다"
 
-#: pkg/shell/shell-modals.jsx:61
+#: pkg/shell/shell-modals.tsx:65
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "GNU LGPL 버전 2.1 하에서 인가됨"
 
-#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.tsx:196
 msgid "Light"
 msgstr "밝게"
 
@@ -4220,7 +4220,7 @@ msgid "Listing units failed: $0"
 msgstr "단위 나열에 실패함: $0"
 
 #: pkg/metrics/metrics.jsx:118 pkg/metrics/metrics.jsx:119
-#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1946
 msgid "Load"
 msgstr "적재"
 
@@ -4228,7 +4228,7 @@ msgstr "적재"
 msgid "Load balancing"
 msgstr "부하 분산"
 
-#: pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1982
 msgid "Load earlier data"
 msgstr "이전 자료 적재"
 
@@ -4260,7 +4260,7 @@ msgstr "단위 로드에 실패했습니다"
 
 # translation auto-copied from project oVirt, version ovirt-3.5, document
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
-#: pkg/shell/shell-modals.jsx:76
+#: pkg/shell/shell-modals.tsx:80
 msgid "Loading packages..."
 msgstr "꾸러미 적재 중..."
 
@@ -4274,7 +4274,7 @@ msgstr "장치 적재에 실패함"
 
 # translation auto-copied from project oVirt, version ovirt-3.5, document
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
-#: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
+#: pkg/metrics/metrics.jsx:1981 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
@@ -4358,7 +4358,7 @@ msgstr "서버 사용자 계정으로 로그인합니다."
 msgid "Log messages"
 msgstr "로그 메세지"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.tsx:229
 msgid "Log out"
 msgstr "로그아웃"
 
@@ -4608,7 +4608,7 @@ msgid "Media drive"
 msgstr "미디어 드라이브"
 
 #: pkg/metrics/metrics.jsx:126 pkg/metrics/metrics.jsx:842
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1918
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1947
 #: pkg/systemd/service-details.jsx:655 pkg/systemd/hwinfo.jsx:290
 #: pkg/systemd/hwinfo.jsx:334 pkg/systemd/overview-cards/usageCard.jsx:145
 msgid "Memory"
@@ -4622,7 +4622,7 @@ msgstr "메모리 기술"
 msgid "Memory usage"
 msgstr "메모리 사용량"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "Memory usage/swap"
 msgstr "메모리 사용량/스왑"
 
@@ -4651,15 +4651,15 @@ msgstr "방식"
 msgid "Metric"
 msgstr "메트릭"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1967
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2002
 msgid "Metrics and history"
 msgstr "측정 항목과 내역 보기"
 
-#: pkg/metrics/metrics.jsx:1810
+#: pkg/metrics/metrics.jsx:1844
 msgid "Metrics history could not be loaded"
 msgstr "메트릭 내역을 적재 할 수 없습니다"
 
-#: pkg/metrics/metrics.jsx:1431 pkg/metrics/metrics.jsx:1534
+#: pkg/metrics/metrics.jsx:1448 pkg/metrics/metrics.jsx:1551
 msgid "Metrics settings"
 msgstr "메트릭 설정"
 
@@ -4928,8 +4928,8 @@ msgstr "예비 디스크가 필요합니다"
 msgid "Need at least one NTP server"
 msgstr "최소 하나의 NTP 서버가 필요합니다"
 
-#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1549
-#: pkg/metrics/metrics.jsx:1907 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1566
+#: pkg/metrics/metrics.jsx:1936 pkg/metrics/metrics.jsx:1949
 msgid "Network"
 msgstr "네트워크"
 
@@ -5061,11 +5061,11 @@ msgstr "캐리어 없음"
 msgid "No configuration found"
 msgstr "설정을 찾을 수 없습니다"
 
-#: pkg/metrics/metrics.jsx:1838
+#: pkg/metrics/metrics.jsx:1872
 msgid "No data available"
 msgstr "사용 가능한 데이터 없음"
 
-#: pkg/metrics/metrics.jsx:1834
+#: pkg/metrics/metrics.jsx:1868
 msgid "No data available between $0 and $1"
 msgstr "$0 ~ $1 사이에 사용 가능한 데이터 없음"
 
@@ -5103,7 +5103,7 @@ msgstr "드라이브를 찾을 수 없음"
 msgid "No encryption"
 msgstr "암호화 없음"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "No events"
 msgstr "사건 없음"
 
@@ -5143,11 +5143,11 @@ msgstr "이 꾸러미에 대한 설치 꾸러미를 찾을 수 없습니다."
 msgid "No keys added"
 msgstr "추가된 키가 없습니다"
 
-#: pkg/shell/shell-modals.jsx:149
+#: pkg/shell/shell-modals.tsx:154
 msgid "No languages match"
 msgstr "일치하는 언어가 없습니다"
 
-#: pkg/metrics/metrics.jsx:1111 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1124 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "로그 항목이 없습니다"
 
@@ -5191,7 +5191,7 @@ msgstr "실제 이름이 지정되지 않았습니다"
 
 #: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.tsx:223
 msgid "No results found"
 msgstr "결과를 찾을 수 없습니다"
 
@@ -5413,11 +5413,11 @@ msgstr "긴급 상황에서만"
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr "FIPS 방식으로 부팅 할 때에 승인되고 허용된 알고리즘만 사용하세요."
 
-#: pkg/shell/topnav.jsx:228
+#: pkg/shell/topnav.tsx:251
 msgid "Ooops!"
 msgstr "어머나!"
 
-#: pkg/metrics/metrics.jsx:1417
+#: pkg/metrics/metrics.jsx:1434
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "메트릭을 공유하는 방화벽에서 pmproxy 서비스를 엽니다."
 
@@ -5463,7 +5463,7 @@ msgstr "과도공급"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/metrics/metrics.jsx:1966 pkg/systemd/hwinfo.jsx:307
+#: pkg/metrics/metrics.jsx:2001 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "개요"
@@ -5484,7 +5484,7 @@ msgstr "기존의 자료를 제로로 덮어쓰기 (더 느리게)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1788
+#: pkg/metrics/metrics.jsx:1822
 msgid "PCP is missing for metrics history"
 msgstr "메트릭 내역에 꾸러미 PCP가 누락되어 있습니다"
 
@@ -5729,7 +5729,7 @@ msgstr ""
 "장치(peer)는 이와 같은 장치에 연결되어 있는 다른 장비입니다. 다른 장비에서 공"
 "용 키는 서로 공유됩니다."
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1451
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5945,7 +5945,7 @@ msgstr "위치를 사용하는 프로세스"
 msgid "Progress: $0"
 msgstr "진행: $0"
 
-#: pkg/shell/shell-modals.jsx:72
+#: pkg/shell/shell-modals.tsx:76
 msgid "Project website"
 msgstr "프로젝트 웹사이트"
 
@@ -6090,7 +6090,7 @@ msgstr "읽기"
 msgid "Read more"
 msgstr "더 알아보기"
 
-#: pkg/metrics/metrics.jsx:1440 pkg/systemd/hwinfo.jsx:206
+#: pkg/metrics/metrics.jsx:1457 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
 msgstr "더 알아보기..."
 
@@ -6608,12 +6608,12 @@ msgstr "라운드 로빈"
 msgid "Routes"
 msgstr "경로"
 
-#: pkg/lib/cockpit-components-table.jsx:275
+#: pkg/lib/cockpit-components-table.tsx:357
 msgid "Row expansion"
 msgstr "행 확장"
 
-#: pkg/lib/cockpit-components-table.jsx:276
-#: pkg/lib/cockpit-components-table.jsx:277
+#: pkg/lib/cockpit-components-table.tsx:358
+#: pkg/lib/cockpit-components-table.tsx:359
 msgid "Row select"
 msgstr "행 선택"
 
@@ -6712,8 +6712,8 @@ msgstr "ssh 키는 경로가 없습니다"
 msgid "SSH key login"
 msgstr "SSH 키 로그인"
 
-#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
-#: pkg/shell/credentials.jsx:93
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
+#: pkg/shell/topnav.tsx:225
 msgid "SSH keys"
 msgstr "SSH 키"
 
@@ -6743,7 +6743,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "토요일"
 
-#: pkg/metrics/metrics.jsx:1446 pkg/systemd/timer-dialog.jsx:148
+#: pkg/metrics/metrics.jsx:1463 pkg/systemd/timer-dialog.jsx:148
 #: pkg/networkmanager/dialogs-common.jsx:149 pkg/packagekit/kpatch.jsx:310
 #: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/filesystem/mounting-dialog.jsx:358
@@ -6794,7 +6794,7 @@ msgstr "$0에서 예정된 재시작"
 msgid "Sealed-case PC"
 msgstr "쉴드 케이스 PC"
 
-#: pkg/systemd/logs.jsx:391 pkg/shell/nav.jsx:141
+#: pkg/systemd/logs.jsx:391 pkg/shell/nav.tsx:200
 msgid "Search"
 msgstr "검색"
 
@@ -6842,7 +6842,7 @@ msgstr "보안 최신화만"
 msgid "Security updates will be applied $0 at $1"
 msgstr "보안 최신화는 $1에서 $0에 적용됩니다"
 
-#: pkg/shell/shell-modals.jsx:114
+#: pkg/shell/shell-modals.tsx:118
 msgid "Select"
 msgstr "선택"
 
@@ -6933,7 +6933,7 @@ msgstr "서비스"
 msgid "Services using the location"
 msgstr "위치를 사용 중인 서비스"
 
-#: pkg/shell/topnav.jsx:277
+#: pkg/shell/topnav.tsx:313
 msgid "Session"
 msgstr "세션"
 
@@ -7424,7 +7424,7 @@ msgstr "강력한 비밀번호"
 msgid "Stub"
 msgstr "스텁"
 
-#: pkg/shell/topnav.jsx:166
+#: pkg/shell/topnav.tsx:189
 msgid "Style"
 msgstr "유형"
 
@@ -7453,7 +7453,7 @@ msgid "Sundays"
 msgstr "일요일"
 
 #: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:687
-#: pkg/metrics/metrics.jsx:1918 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1947 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "스왑"
 
@@ -7519,7 +7519,7 @@ msgstr "MD레이드 장치 $target 동기화 중"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
+#: pkg/systemd/services.jsx:914 pkg/shell/nav.tsx:69 pkg/shell/nav.tsx:405
 msgid "System"
 msgstr "시스템"
 
@@ -8264,7 +8264,7 @@ msgstr ""
 "지문을 확인하려면 물리적인 장치 또는 신뢰할 수 있는 네트워크를 통해 $0에서 다"
 "음을 실행합니다:"
 
-#: pkg/metrics/metrics.jsx:1844
+#: pkg/metrics/metrics.jsx:1878
 msgid "Today"
 msgstr "오늘"
 
@@ -8277,7 +8277,7 @@ msgstr "전환"
 msgid "Toggle date picker"
 msgstr "날짜 선택기 전환"
 
-#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:815
+#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:811
 msgid "Toggle filters"
 msgstr "필터 전환"
 
@@ -8285,7 +8285,7 @@ msgstr "필터 전환"
 msgid "Too much data"
 msgstr "데이터가 너무 많습니다"
 
-#: pkg/shell/nav.jsx:358
+#: pkg/shell/nav.tsx:408
 msgid "Tools"
 msgstr "도구"
 
@@ -8337,7 +8337,7 @@ msgstr "트리거 대상"
 msgid "Triggers"
 msgstr "트리거"
 
-#: pkg/metrics/metrics.jsx:1805
+#: pkg/metrics/metrics.jsx:1839
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
@@ -8540,7 +8540,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "$0 설치 중에 예상치 못한 PackageKit 오류: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:174
+#: pkg/shell/shell-modals.tsx:179
 msgid "Unexpected error"
 msgstr "예상치 못한 오류"
 
@@ -8746,8 +8746,8 @@ msgstr "올려주기"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/metrics/metrics.jsx:1917 pkg/metrics/metrics.jsx:1918
-#: pkg/metrics/metrics.jsx:1919 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1946 pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1948 pkg/metrics/metrics.jsx:1949
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 #: pkg/storaged/lvm2/physical-volume.jsx:119
 #: pkg/storaged/block/unrecognized-data.jsx:50
@@ -8804,7 +8804,7 @@ msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr "선택적이거나 상호 작용이 필요한 적재에 유용함 (암호문과 같은 경우)"
 
-#: pkg/systemd/services.jsx:916 pkg/storaged/dialog.jsx:1457
+#: pkg/systemd/services.jsx:918 pkg/storaged/dialog.jsx:1457
 msgid "User"
 msgstr "사용자"
 
@@ -8931,7 +8931,7 @@ msgstr "모든 서비스 보기"
 msgid "View automation script"
 msgstr "자동 스크립트 보기"
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1122
 msgid "View detailed logs"
 msgstr "상세한 기록 보기"
 
@@ -9049,7 +9049,7 @@ msgstr "경고 이상의 수준"
 msgid "Weak password"
 msgstr "취약한 비밀번호"
 
-#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.tsx:66 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "웹 콘솔"
 
@@ -9065,7 +9065,7 @@ msgstr "웹 콘솔이 재시작됩니다"
 msgid "Web console is running in limited access mode."
 msgstr "웹 콘솔이 제한된 접근 방식으로 실행 중입니다."
 
-#: pkg/shell/shell-modals.jsx:64
+#: pkg/shell/shell-modals.tsx:68
 msgid "Web console logo"
 msgstr "웹 콘솔 로고"
 
@@ -9595,7 +9595,7 @@ msgstr "실패를 무시"
 msgid "in less than a minute"
 msgstr "1분도 안되어"
 
-#: pkg/shell/shell-modals.jsx:182
+#: pkg/shell/shell-modals.tsx:187
 msgid "in most browsers"
 msgstr "대부분의 브라우저에서"
 
@@ -9836,15 +9836,15 @@ msgstr "LVM2 볼륨 그룹의 물리적인 볼륨"
 msgid "plugin"
 msgstr "플러그인"
 
-#: pkg/metrics/metrics.jsx:1802
+#: pkg/metrics/metrics.jsx:1836
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service가 실패했습니다"
 
-#: pkg/metrics/metrics.jsx:1804
+#: pkg/metrics/metrics.jsx:1838
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service는 자료 수집에 실패하였습니다"
 
-#: pkg/metrics/metrics.jsx:1797
+#: pkg/metrics/metrics.jsx:1831
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service가 동작 하지 않습니다"
 

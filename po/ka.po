@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 03:06+0000\n"
+"POT-Creation-Date: 2024-12-20 02:58+0000\n"
 "PO-Revision-Date: 2024-12-06 07:38+0000\n"
 "Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
 "memory@weblate.org>\n"
@@ -117,7 +117,7 @@ msgstr[1] "$0 ცალი დისკი აკლია"
 msgid "$0 disks"
 msgstr "$0 დისკი"
 
-#: pkg/shell/topnav.jsx:127
+#: pkg/shell/topnav.tsx:150
 msgid "$0 documentation"
 msgstr "$0 დოკუმენტაცია"
 
@@ -273,7 +273,7 @@ msgid_plural "$0 slots remain"
 msgstr[0] "დარჩენილია $0 სლოტი"
 msgstr[1] "დარჩენილი სლოტების რაოდენობა $0"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 პიკი"
@@ -638,7 +638,7 @@ msgstr "ARP-ის მონიტორინგი"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/topnav.jsx:149
+#: pkg/shell/topnav.tsx:174
 msgid "About Web Console"
 msgstr "ვებ კონსოლის შესახებ"
 
@@ -696,7 +696,7 @@ msgid "Active backup"
 msgstr "აქტიური მარქაფი"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:196
+#: pkg/shell/topnav.tsx:219
 msgid "Active pages"
 msgstr "აქტიური გვერდები"
 
@@ -704,8 +704,8 @@ msgstr "აქტიური გვერდები"
 msgid "Active since "
 msgstr "აქტიურია "
 
-#: pkg/systemd/services.jsx:828 pkg/systemd/services.jsx:829
-#: pkg/systemd/services.jsx:836
+#: pkg/systemd/services.jsx:824 pkg/systemd/services.jsx:828
+#: pkg/systemd/services.jsx:830
 msgid "Active state"
 msgstr "აქტიური მდგომარეობა"
 
@@ -1126,7 +1126,7 @@ msgstr "განახლებების გადატარების �
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "სათანადოა კრიტიკული მიმაგრების წერტილებისთვის, როგორიცაა /var"
 
-#: pkg/shell/nav.jsx:352
+#: pkg/shell/nav.tsx:402
 msgid "Apps"
 msgstr "აპები"
 
@@ -1344,7 +1344,7 @@ msgstr "დაბლოკილია"
 msgid "Bond"
 msgstr "ინტერფეისების გადაბმა"
 
-#: pkg/systemd/logs.jsx:338
+#: pkg/metrics/metrics.jsx:1112 pkg/systemd/logs.jsx:338
 msgid "Boot"
 msgstr "ჩატვირთვა"
 
@@ -1413,7 +1413,7 @@ msgid "Bypass browser check"
 msgstr "ბრაუზერის შემოწმების გამოტოვება"
 
 #: pkg/metrics/metrics.jsx:112 pkg/metrics/metrics.jsx:782
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1946
 #: pkg/systemd/hwinfo.jsx:114 pkg/systemd/overview-cards/usageCard.jsx:133
 msgid "CPU"
 msgstr "CPU"
@@ -1430,7 +1430,7 @@ msgstr "CPU-ის უსაფრთხოების გადამრთვ
 msgid "CPU usage"
 msgstr "CPU-ის გამოყენება"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "CPU usage/load"
 msgstr "CPU-ის გამოყენება/დატვირთვა"
 
@@ -1452,7 +1452,7 @@ msgstr ""
 "მიმდინარე ფილტრების კომბინაციის ჟურნალში ჩანაწერების მოძებნა შეუძლებელია."
 
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
-#: pkg/metrics/metrics.jsx:1449 pkg/systemd/timer-dialog.jsx:151
+#: pkg/metrics/metrics.jsx:1466 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
 #: pkg/systemd/reporting.jsx:383
@@ -1469,7 +1469,7 @@ msgstr ""
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
+#: pkg/shell/shell-modals.tsx:119 pkg/shell/active-pages-modal.jsx:97
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
 #: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
@@ -1672,7 +1672,7 @@ msgstr "დაყენებული პროგრამული უზრ�
 msgid "Checking software status"
 msgstr "პროგრამის სტატუსის შემოწმება"
 
-#: pkg/shell/shell-modals.jsx:119
+#: pkg/shell/shell-modals.tsx:123
 msgid "Choose the language to be used in the application"
 msgstr "აირჩიეთ აპლიკაციის ენა"
 
@@ -1700,11 +1700,11 @@ msgstr "ყველა ფილტრის გასუფთავება"
 msgid "Clear filter"
 msgstr "ფილტრის გასუფთავება"
 
-#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:349
 msgid "Clear input value"
 msgstr "შეყვანილი მნიშვნელობის გასუფთავება"
 
-#: pkg/shell/nav.jsx:164
+#: pkg/shell/nav.tsx:224
 msgid "Clear search"
 msgstr "ძებნის გასუფთავება"
 
@@ -1722,7 +1722,7 @@ msgstr "კლიენტი პროგრამა"
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
-#: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
+#: pkg/shell/shell-modals.tsx:180 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
@@ -1748,7 +1748,7 @@ msgstr "NetworkManager-ის და Firewalld-ის მორგება Cock
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit-ს მითითებულ ჰოსტთან დაკავშირება არ შეუძლია ."
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.tsx:182
 msgid "Cockpit had an unexpected internal error."
 msgstr "Cockpit-ის შიდა შეცდომა."
 
@@ -1766,7 +1766,7 @@ msgstr ""
 "ტერმინალთაც. ასევე, თუ შეცდომა დაფიქსირდება ტერმინალში, მისი ნახვა Cockpit-"
 "ის საშუალებითაც შეგიძლიათ."
 
-#: pkg/shell/shell-modals.jsx:68
+#: pkg/shell/shell-modals.tsx:72
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr ""
 "Cockpit-ი წარმოადგენს ლინუქსის სერვერების ადმინისტრირების ინტერაქტიულ "
@@ -1812,7 +1812,7 @@ msgstr "მოაგროვეთ დიაგნოსტიკური დ�
 msgid "Collect kernel crash dumps"
 msgstr "ოპერაციული სისტემის ბირთვის ავარიის დამპები"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1479
 msgid "Collect metrics"
 msgstr "მეტრიკების შეგროვება"
 
@@ -2003,7 +2003,7 @@ msgstr "შედგება"
 msgid "Contacted domain"
 msgstr "დომენთან კავშირი წარმატებულია"
 
-#: pkg/shell/nav.jsx:237
+#: pkg/shell/nav.tsx:299
 msgid "Contains:"
 msgstr "შეიცავს:"
 
@@ -2290,7 +2290,7 @@ msgstr "კრიპტოგრაფიის პოლიტიკა არ�
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:181
+#: pkg/shell/shell-modals.tsx:186
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Shift-I"
 
@@ -2362,7 +2362,7 @@ msgstr "დღიურად"
 msgid "Danger alert:"
 msgstr "საშიშროების შეტყობინება:"
 
-#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.tsx:199
 msgid "Dark"
 msgstr "ბლენი"
 
@@ -2488,7 +2488,7 @@ msgstr "გამოყოფილი ლუწობა (RAID 4)"
 msgid "Deduplication"
 msgstr "დედუპლიკაცია"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.tsx:193
 msgid "Default"
 msgstr "ნაგულისხმები"
 
@@ -2705,8 +2705,8 @@ msgid "Disconnected"
 msgstr "გამომძვრალია"
 
 #: pkg/metrics/metrics.jsx:140 pkg/metrics/metrics.jsx:141
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1907
-#: pkg/metrics/metrics.jsx:1919
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1936
+#: pkg/metrics/metrics.jsx:1948
 msgid "Disk I/O"
 msgstr "დისკის I/O"
 
@@ -2746,7 +2746,7 @@ msgstr[1] "$0 ცალი გაფრთხილების მოცილ�
 msgid "Dismiss selected alerts"
 msgstr "მონიშნული გაფრთხილებების მოცილება"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
+#: pkg/shell/shell-modals.tsx:116 pkg/shell/topnav.tsx:212
 msgid "Display language"
 msgstr "ენა"
 
@@ -2852,7 +2852,7 @@ msgstr "EFI-ის სისტემური დანაყოფი"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/nav.tsx:415 pkg/shell/hosts.jsx:197 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "ჩასწორება"
@@ -3079,7 +3079,7 @@ msgstr "შეცდომა"
 msgid "Error and above"
 msgstr "შეცდომა და ზემოთ"
 
-#: pkg/metrics/metrics.jsx:1819
+#: pkg/metrics/metrics.jsx:1853
 msgid "Error has occurred"
 msgstr "შეცდომა"
 
@@ -3155,7 +3155,7 @@ msgstr "ანგარიშის ვადა $0"
 msgid "Export"
 msgstr "გატანა"
 
-#: pkg/metrics/metrics.jsx:1479
+#: pkg/metrics/metrics.jsx:1496
 msgid "Export to network"
 msgstr "ქსელში გატანა"
 
@@ -3201,7 +3201,7 @@ msgstr "ზონის დამატების შეცდომა"
 msgid "Failed to change password"
 msgstr "პაროლის შეცვლის შეცდომა"
 
-#: pkg/metrics/metrics.jsx:1455
+#: pkg/metrics/metrics.jsx:1472
 msgid "Failed to configure PCP"
 msgstr "PCP-ის მორგების შეცდომა"
 
@@ -3275,8 +3275,8 @@ msgstr "გაშვების შეცდომა"
 msgid "Failed to switch profile"
 msgstr "პროფილის გადართვის შეცდომა"
 
-#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:845
-#: pkg/systemd/services.jsx:852
+#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
+#: pkg/systemd/services.jsx:849
 msgid "File state"
 msgstr "ფაილის მდგომარეობა"
 
@@ -3304,11 +3304,11 @@ msgstr "ფაილური სისტემა სამიზნის გ
 msgid "Filesystems are already mounted below this mountpoint."
 msgstr "ამ მიმაგრების წერტილის ქვეშ ფაილური სისტემები უკვე მიმაგრებულია."
 
-#: pkg/systemd/services.jsx:820
+#: pkg/systemd/services.jsx:816
 msgid "Filter by name or description"
 msgstr "სახელით ან აღწერით გაფილტვრა"
 
-#: pkg/shell/shell-modals.jsx:131
+#: pkg/shell/shell-modals.tsx:135
 msgid "Filter menu items"
 msgstr "მენიუს ელემენტების გაფილტვრა"
 
@@ -3441,11 +3441,11 @@ msgstr "აპლიკაციაზე გადასვლა"
 msgid "Go to now"
 msgstr "ახლავე გადასვლა"
 
-#: pkg/metrics/metrics.jsx:1901
+#: pkg/metrics/metrics.jsx:1925
 msgid "Graph visibility"
 msgstr "გრაფიკის ხილვადობა"
 
-#: pkg/metrics/metrics.jsx:1889
+#: pkg/metrics/metrics.jsx:1922
 msgid "Graph visibility options menu"
 msgstr "გრაფიკის ხილვადობის პარამეტრების მენიუ"
 
@@ -3525,7 +3525,7 @@ msgid "Hello time $hello_time"
 msgstr "მისალმების დრო $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.tsx:277
 msgid "Help"
 msgstr "დახმარება"
 
@@ -3783,7 +3783,7 @@ msgstr "დაყენება"
 msgid "Install NFS support"
 msgstr "NFS-ის მხარდაჭერის დაყენება"
 
-#: pkg/metrics/metrics.jsx:1789
+#: pkg/metrics/metrics.jsx:1823
 msgid "Install PCP support"
 msgstr "PCP-ის მხარდაჭერის დაყენება"
 
@@ -4001,7 +4001,7 @@ msgstr "ჟურნალის ელემენტი"
 msgid "Journal entry not found"
 msgstr "ჟურნალის ერთეული ნაპოვნი არაა"
 
-#: pkg/metrics/metrics.jsx:1886
+#: pkg/metrics/metrics.jsx:1918
 msgid "Jump to"
 msgstr "გადასვლა"
 
@@ -4187,11 +4187,11 @@ msgstr "დომენიდან გასვლა"
 msgid "Leave empty to skip encryption"
 msgstr "შიფრაციის გამოსატოვებლად ცარიელი დატოვეთ"
 
-#: pkg/shell/shell-modals.jsx:61
+#: pkg/shell/shell-modals.tsx:65
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "ლიცენზირებულია GNU LGPL -ის ვერსია 2.1-ით"
 
-#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.tsx:196
 msgid "Light"
 msgstr "ღია"
 
@@ -4282,7 +4282,7 @@ msgid "Listing units failed: $0"
 msgstr "სერვისების სიის გამოტანის შეცდომა: $0"
 
 #: pkg/metrics/metrics.jsx:118 pkg/metrics/metrics.jsx:119
-#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1946
 msgid "Load"
 msgstr "ჩატვირთვა"
 
@@ -4290,7 +4290,7 @@ msgstr "ჩატვირთვა"
 msgid "Load balancing"
 msgstr "დატვირთვის გადანაწილება"
 
-#: pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1982
 msgid "Load earlier data"
 msgstr "ადრინდელი მონაცემების ჩატვირთვა"
 
@@ -4318,7 +4318,7 @@ msgstr "SSH გასაღებების ჩატვირთვის შ
 msgid "Loading of units failed"
 msgstr "სერვისების ჩატვირთვის შეცდომა"
 
-#: pkg/shell/shell-modals.jsx:76
+#: pkg/shell/shell-modals.tsx:80
 msgid "Loading packages..."
 msgstr "პაკეტების ჩატვირთვა..."
 
@@ -4330,7 +4330,7 @@ msgstr "სისტემის ცვლილებების ჩატვ�
 msgid "Loading unit failed"
 msgstr "სერვისების ჩატვირთვის შეცდომა"
 
-#: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
+#: pkg/metrics/metrics.jsx:1981 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
@@ -4411,7 +4411,7 @@ msgstr "შედით სერვერის თქვენი ანგა
 msgid "Log messages"
 msgstr "ჟურნალის შეტყობინებები"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.tsx:229
 msgid "Log out"
 msgstr "გასვლა"
 
@@ -4660,7 +4660,7 @@ msgid "Media drive"
 msgstr "მედია დისკი"
 
 #: pkg/metrics/metrics.jsx:126 pkg/metrics/metrics.jsx:842
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1918
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1947
 #: pkg/systemd/service-details.jsx:655 pkg/systemd/hwinfo.jsx:290
 #: pkg/systemd/hwinfo.jsx:334 pkg/systemd/overview-cards/usageCard.jsx:145
 msgid "Memory"
@@ -4674,7 +4674,7 @@ msgstr "მეხსიერების ტექნოლოგია"
 msgid "Memory usage"
 msgstr "მეხსიერების გამოყენება"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "Memory usage/swap"
 msgstr "მეხსიერების გამოყენება/სვოპი"
 
@@ -4703,15 +4703,15 @@ msgstr "მეთოდი"
 msgid "Metric"
 msgstr "მეტრული"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1967
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2002
 msgid "Metrics and history"
 msgstr "გრაფიკების და ისტორიის ნახვა"
 
-#: pkg/metrics/metrics.jsx:1810
+#: pkg/metrics/metrics.jsx:1844
 msgid "Metrics history could not be loaded"
 msgstr "მეტრიკების ისტორიის ჩატვირთვის შეცდომა"
 
-#: pkg/metrics/metrics.jsx:1431 pkg/metrics/metrics.jsx:1534
+#: pkg/metrics/metrics.jsx:1448 pkg/metrics/metrics.jsx:1551
 msgid "Metrics settings"
 msgstr "მეტრიკების მორგება"
 
@@ -4980,8 +4980,8 @@ msgstr "საჭიროა სათადარიგო დისკი"
 msgid "Need at least one NTP server"
 msgstr "საჭიროა ერთი NTP სერვერი მაინც"
 
-#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1549
-#: pkg/metrics/metrics.jsx:1907 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1566
+#: pkg/metrics/metrics.jsx:1936 pkg/metrics/metrics.jsx:1949
 msgid "Network"
 msgstr "ქსელი"
 
@@ -5113,11 +5113,11 @@ msgstr "შეამოწმეთ კავშირი"
 msgid "No configuration found"
 msgstr "კონფიგურაცია ნაპოვნი არაა"
 
-#: pkg/metrics/metrics.jsx:1838
+#: pkg/metrics/metrics.jsx:1872
 msgid "No data available"
 msgstr "მონაცემები ხელმიუწვდომელია"
 
-#: pkg/metrics/metrics.jsx:1834
+#: pkg/metrics/metrics.jsx:1868
 msgid "No data available between $0 and $1"
 msgstr "$0-დან $1-მდე მონაცემები ნაპოვნი არაა"
 
@@ -5155,7 +5155,7 @@ msgstr "ამძრავები ვერ ვიპოვე"
 msgid "No encryption"
 msgstr "დაშიფვრის გარეშე"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "No events"
 msgstr "მოვლენების გარეშე"
 
@@ -5195,11 +5195,11 @@ msgstr "აპლიკაციის შესაბამისი პაკ�
 msgid "No keys added"
 msgstr "გასაღებები არ დამატებულა"
 
-#: pkg/shell/shell-modals.jsx:149
+#: pkg/shell/shell-modals.tsx:154
 msgid "No languages match"
 msgstr "შესაბამისი ენის გარეშე"
 
-#: pkg/metrics/metrics.jsx:1111 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1124 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "ჟურნალის ცარიელია"
 
@@ -5243,7 +5243,7 @@ msgstr "რეალური სახელი მითითებული 
 
 #: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.tsx:223
 msgid "No results found"
 msgstr "შედეგები ნაპოვნი არაა"
 
@@ -5463,11 +5463,11 @@ msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "FIPS რეჟიმში ჩატვირთვისას მხოლოდ დადასტურებული ალგორითმების გამოყენება."
 
-#: pkg/shell/topnav.jsx:228
+#: pkg/shell/topnav.tsx:251
 msgid "Ooops!"
 msgstr "უკაცრავად!"
 
-#: pkg/metrics/metrics.jsx:1417
+#: pkg/metrics/metrics.jsx:1434
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "მეტრიკების გასაზიარებლად ბრანდმაუერში გახსენით pmproxy-ის სერვისი."
 
@@ -5511,7 +5511,7 @@ msgstr "გარე"
 msgid "Overprovisioning"
 msgstr "სამუშაოდ მომზადების გადამეტტვირთვა"
 
-#: pkg/metrics/metrics.jsx:1966 pkg/systemd/hwinfo.jsx:307
+#: pkg/metrics/metrics.jsx:2001 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "გადახედვა"
@@ -5530,7 +5530,7 @@ msgstr "არსებულ მონაცემებზე ნულებ�
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1788
+#: pkg/metrics/metrics.jsx:1822
 msgid "PCP is missing for metrics history"
 msgstr "მეტრიკების ისტორიაში PCP არ არსებობს"
 
@@ -5773,7 +5773,7 @@ msgstr ""
 "პარტნიორები სხვა მანქანებია, რომლებიც ამას უერთდებიან. საჯარო გასაღებები "
 "სხვა მანქანებიდან ასევე გაზიარებული იქნება."
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1451
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5988,7 +5988,7 @@ msgstr "მდებარეობის გამოყენებელი �
 msgid "Progress: $0"
 msgstr "მიმდინარეობა: $0"
 
-#: pkg/shell/shell-modals.jsx:72
+#: pkg/shell/shell-modals.tsx:76
 msgid "Project website"
 msgstr "პროექტის ვებგვერდი"
 
@@ -6133,7 +6133,7 @@ msgstr "წაკითხვა"
 msgid "Read more"
 msgstr "იხილეთ მეტი"
 
-#: pkg/metrics/metrics.jsx:1440 pkg/systemd/hwinfo.jsx:206
+#: pkg/metrics/metrics.jsx:1457 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
 msgstr "მეტის წაკითხვა..."
 
@@ -6653,12 +6653,12 @@ msgstr "Round robin"
 msgid "Routes"
 msgstr "მარშრუტები"
 
-#: pkg/lib/cockpit-components-table.jsx:275
+#: pkg/lib/cockpit-components-table.tsx:357
 msgid "Row expansion"
 msgstr "მწკრივის გაფართოება"
 
-#: pkg/lib/cockpit-components-table.jsx:276
-#: pkg/lib/cockpit-components-table.jsx:277
+#: pkg/lib/cockpit-components-table.tsx:358
+#: pkg/lib/cockpit-components-table.tsx:359
 msgid "Row select"
 msgstr "მწკრივის არჩევა"
 
@@ -6758,8 +6758,8 @@ msgstr "SSH გასაღები ბილიკს არ წარმო�
 msgid "SSH key login"
 msgstr "SSH გასაღებით შესვლა"
 
-#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
-#: pkg/shell/credentials.jsx:93
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
+#: pkg/shell/topnav.tsx:225
 msgid "SSH keys"
 msgstr "SSH გასაღებები"
 
@@ -6790,7 +6790,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "შაბათობით"
 
-#: pkg/metrics/metrics.jsx:1446 pkg/systemd/timer-dialog.jsx:148
+#: pkg/metrics/metrics.jsx:1463 pkg/systemd/timer-dialog.jsx:148
 #: pkg/networkmanager/dialogs-common.jsx:149 pkg/packagekit/kpatch.jsx:310
 #: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/filesystem/mounting-dialog.jsx:358
@@ -6843,7 +6843,7 @@ msgstr "გადატვირთვის დროა $0"
 msgid "Sealed-case PC"
 msgstr "დალუქული PC"
 
-#: pkg/systemd/logs.jsx:391 pkg/shell/nav.jsx:141
+#: pkg/systemd/logs.jsx:391 pkg/shell/nav.tsx:200
 msgid "Search"
 msgstr "ძებნა"
 
@@ -6891,7 +6891,7 @@ msgstr "მხოლოდ უსაფრთხოების განახ�
 msgid "Security updates will be applied $0 at $1"
 msgstr "უსაფრთხოების პაჩები გადატარდება $0-ზე $1-ზე"
 
-#: pkg/shell/shell-modals.jsx:114
+#: pkg/shell/shell-modals.tsx:118
 msgid "Select"
 msgstr "არჩევა"
 
@@ -6980,7 +6980,7 @@ msgstr "სერვისები"
 msgid "Services using the location"
 msgstr "მდებარეობის გამომყენებელი სერვისები"
 
-#: pkg/shell/topnav.jsx:277
+#: pkg/shell/topnav.tsx:313
 msgid "Session"
 msgstr "სესია"
 
@@ -7467,7 +7467,7 @@ msgstr "ძლიერი პაროლი"
 msgid "Stub"
 msgstr "Stub"
 
-#: pkg/shell/topnav.jsx:166
+#: pkg/shell/topnav.tsx:189
 msgid "Style"
 msgstr "სტილი"
 
@@ -7496,7 +7496,7 @@ msgid "Sundays"
 msgstr "კვირაობით"
 
 #: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:687
-#: pkg/metrics/metrics.jsx:1918 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1947 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "სვაპი"
 
@@ -7564,7 +7564,7 @@ msgstr "სინქრონიზაცია"
 msgid "Synchronizing MDRAID device $target"
 msgstr "MDRAID მოწყობილობა $target-ის სინქრონიზაცია"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
+#: pkg/systemd/services.jsx:914 pkg/shell/nav.tsx:69 pkg/shell/nav.tsx:405
 msgid "System"
 msgstr "სისტემა"
 
@@ -8330,7 +8330,7 @@ msgstr ""
 "ანაბეჭდის შესამოწმებლად გაუშვით ეს ბრძანება $0-ზე როცა ფიზიკურად ან სანდო "
 "ქსელით იქნებით შესული მანქანაზე:"
 
-#: pkg/metrics/metrics.jsx:1844
+#: pkg/metrics/metrics.jsx:1878
 msgid "Today"
 msgstr "დღეს"
 
@@ -8343,7 +8343,7 @@ msgstr "გადართვა"
 msgid "Toggle date picker"
 msgstr "თარიღის ამრჩევის გადართვა"
 
-#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:815
+#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:811
 msgid "Toggle filters"
 msgstr "ფილტრების ჩართ/გამორთ"
 
@@ -8351,7 +8351,7 @@ msgstr "ფილტრების ჩართ/გამორთ"
 msgid "Too much data"
 msgstr "მეტისმეტად ბევრი მონაცემი"
 
-#: pkg/shell/nav.jsx:358
+#: pkg/shell/nav.tsx:408
 msgid "Tools"
 msgstr "ხელსაწყოები"
 
@@ -8403,7 +8403,7 @@ msgstr "დამტრიგერებელი"
 msgid "Triggers"
 msgstr "ტრიგერები"
 
-#: pkg/metrics/metrics.jsx:1805
+#: pkg/metrics/metrics.jsx:1839
 msgid "Troubleshoot"
 msgstr "პრობლემების გადაწყვეტა"
 
@@ -8604,7 +8604,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "მოულოდნელი PackageKit-ის შეცდომა $0-ის დაყენებისას: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:174
+#: pkg/shell/shell-modals.tsx:179
 msgid "Unexpected error"
 msgstr "მოულოდნელი შეცდომა"
 
@@ -8807,8 +8807,8 @@ msgstr "სტატუსის განახლება..."
 msgid "Upload"
 msgstr "ატვირთვა"
 
-#: pkg/metrics/metrics.jsx:1917 pkg/metrics/metrics.jsx:1918
-#: pkg/metrics/metrics.jsx:1919 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1946 pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1948 pkg/metrics/metrics.jsx:1949
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 #: pkg/storaged/lvm2/physical-volume.jsx:119
 #: pkg/storaged/block/unrecognized-data.jsx:50
@@ -8867,7 +8867,7 @@ msgstr ""
 "გამოსადეგია მიმაგრების წერტილებისთვის, რომლებიც სავალდებული არაა და ჩარევას "
 "საჭიროებს (მაგ: საკვანძო სიტყვის შეყვანას)"
 
-#: pkg/systemd/services.jsx:916 pkg/storaged/dialog.jsx:1457
+#: pkg/systemd/services.jsx:918 pkg/storaged/dialog.jsx:1457
 msgid "User"
 msgstr "მომხმარებელი"
 
@@ -8992,7 +8992,7 @@ msgstr "ყველა სერვისის ნახვა"
 msgid "View automation script"
 msgstr "ავტომატიზაციის სკრიპტის ნახვა"
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1122
 msgid "View detailed logs"
 msgstr "დეტალური ჟურნალის ნახვა"
 
@@ -9111,7 +9111,7 @@ msgstr "წინასწარი გაფრთხილებები დ�
 msgid "Weak password"
 msgstr "სუსტი პაროლი"
 
-#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.tsx:66 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "ვებ კონსოლი"
 
@@ -9127,7 +9127,7 @@ msgstr "ვებ კონსოლი დარესტარტდება"
 msgid "Web console is running in limited access mode."
 msgstr "ვებ კონსოლი გაშვებულია შეზღუდული წვდომის რეჟიმში."
 
-#: pkg/shell/shell-modals.jsx:64
+#: pkg/shell/shell-modals.tsx:68
 msgid "Web console logo"
 msgstr "ვებ კონსოლის ლოგო"
 
@@ -9656,7 +9656,7 @@ msgstr "გამოტოვება შეცდომის შემთხ�
 msgid "in less than a minute"
 msgstr "წუთზე ნაკლებში"
 
-#: pkg/shell/shell-modals.jsx:182
+#: pkg/shell/shell-modals.tsx:187
 msgid "in most browsers"
 msgstr "ბრაუზერების უმეტესობაში"
 
@@ -9896,15 +9896,15 @@ msgstr "LVM2 საცავების ჯგუფის წევრი ფ�
 msgid "plugin"
 msgstr "ჩადგმა"
 
-#: pkg/metrics/metrics.jsx:1802
+#: pkg/metrics/metrics.jsx:1836
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service-ის შეცდომა"
 
-#: pkg/metrics/metrics.jsx:1804
+#: pkg/metrics/metrics.jsx:1838
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service-ის შეცდომა მონაცემების შეგროვებისას"
 
-#: pkg/metrics/metrics.jsx:1797
+#: pkg/metrics/metrics.jsx:1831
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service გაშვებული არაა"
 

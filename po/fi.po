@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 03:06+0000\n"
-"PO-Revision-Date: 2024-11-22 05:38+0000\n"
+"POT-Creation-Date: 2024-12-20 02:58+0000\n"
+"PO-Revision-Date: 2024-12-20 13:38+0000\n"
 "Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/fi/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 5.8.2\n"
+"X-Generator: Weblate 5.9.1\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -98,7 +98,7 @@ msgstr[1] "$0 levyjä ei löydy"
 msgid "$0 disks"
 msgstr "$0 levyt"
 
-#: pkg/shell/topnav.jsx:127
+#: pkg/shell/topnav.tsx:150
 msgid "$0 documentation"
 msgstr "$0 -dokumentaatio"
 
@@ -254,7 +254,7 @@ msgid_plural "$0 slots remain"
 msgstr[0] "$0 paikka on jäljellä"
 msgstr[1] "$0 paikkaa on jäljellä"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 piikki"
@@ -626,7 +626,7 @@ msgstr "ARP-monitorointi"
 msgid "ARP ping"
 msgstr "ARP:n ping"
 
-#: pkg/shell/topnav.jsx:149
+#: pkg/shell/topnav.tsx:174
 msgid "About Web Console"
 msgstr "Tietoja Verkkokonsolista"
 
@@ -684,7 +684,7 @@ msgid "Active backup"
 msgstr "Aktiivinen varmennus"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:196
+#: pkg/shell/topnav.tsx:219
 msgid "Active pages"
 msgstr "Aktiiviset sivut"
 
@@ -692,8 +692,8 @@ msgstr "Aktiiviset sivut"
 msgid "Active since "
 msgstr "Aktiivinen lähtien "
 
-#: pkg/systemd/services.jsx:828 pkg/systemd/services.jsx:829
-#: pkg/systemd/services.jsx:836
+#: pkg/systemd/services.jsx:824 pkg/systemd/services.jsx:828
+#: pkg/systemd/services.jsx:830
 msgid "Active state"
 msgstr "Aktiivinen tila"
 
@@ -1117,7 +1117,7 @@ msgstr "Päivitysten asentaminen epäonnistui"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "Soveltuu kriittisiin liitoksiin, kuten /var"
 
-#: pkg/shell/nav.jsx:352
+#: pkg/shell/nav.tsx:402
 msgid "Apps"
 msgstr "Sovellukset"
 
@@ -1335,7 +1335,7 @@ msgstr "Estetty"
 msgid "Bond"
 msgstr "Side"
 
-#: pkg/systemd/logs.jsx:338
+#: pkg/metrics/metrics.jsx:1112 pkg/systemd/logs.jsx:338
 msgid "Boot"
 msgstr "Käynnistys"
 
@@ -1404,7 +1404,7 @@ msgid "Bypass browser check"
 msgstr "Ohita selaimen tarkistus"
 
 #: pkg/metrics/metrics.jsx:112 pkg/metrics/metrics.jsx:782
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1946
 #: pkg/systemd/hwinfo.jsx:114 pkg/systemd/overview-cards/usageCard.jsx:133
 msgid "CPU"
 msgstr "Suoritin"
@@ -1421,7 +1421,7 @@ msgstr "Suorittimen turvallisuusvalinnat"
 msgid "CPU usage"
 msgstr "Suorittimen käyttö"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "CPU usage/load"
 msgstr "Suorittimen käyttö/kuorma"
 
@@ -1442,7 +1442,7 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
-#: pkg/metrics/metrics.jsx:1449 pkg/systemd/timer-dialog.jsx:151
+#: pkg/metrics/metrics.jsx:1466 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
 #: pkg/systemd/reporting.jsx:383
@@ -1459,7 +1459,7 @@ msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
+#: pkg/shell/shell-modals.tsx:119 pkg/shell/active-pages-modal.jsx:97
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
 #: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
@@ -1664,7 +1664,7 @@ msgstr "Tarkistetaan asennettu ohjelmisto"
 msgid "Checking software status"
 msgstr "Tarkistetaan ohjelmiston tila"
 
-#: pkg/shell/shell-modals.jsx:119
+#: pkg/shell/shell-modals.tsx:123
 msgid "Choose the language to be used in the application"
 msgstr "Valitse sovelluksessa käytettävä kieli"
 
@@ -1692,13 +1692,11 @@ msgstr "Tyhjennä kaikki suodattimet"
 msgid "Clear filter"
 msgstr "Tyhjennä suodatin"
 
-#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
-#, fuzzy
-#| msgid "Clear filter"
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:349
 msgid "Clear input value"
-msgstr "Tyhjennä suodatin"
+msgstr "Tyhjennä syöttöarvo"
 
-#: pkg/shell/nav.jsx:164
+#: pkg/shell/nav.tsx:224
 msgid "Clear search"
 msgstr "Tyhjennä haku"
 
@@ -1716,7 +1714,7 @@ msgstr "Asiakasohjelmisto"
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
-#: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
+#: pkg/shell/shell-modals.tsx:180 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
@@ -1742,7 +1740,7 @@ msgstr "NetworkManagerin ja Firewalld:n Cockit-asetukset"
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit ei saanut yhteyttä koneeseen."
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.tsx:182
 msgid "Cockpit had an unexpected internal error."
 msgstr "Cockpitissa oli odottamaton sisäinen virhe."
 
@@ -1760,7 +1758,7 @@ msgstr ""
 "päätteessä näkyvä virheilmoitus voidaan nähdä myös Cockpitin journal-"
 "näkymässä."
 
-#: pkg/shell/shell-modals.jsx:68
+#: pkg/shell/shell-modals.tsx:72
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr ""
 "Cockpit on vuorovaikutteinen Linux-palvelimen ylläpitäjän käyttöliittymä."
@@ -1803,7 +1801,7 @@ msgstr "Kerää ja paketoi diagnostiikkaa ja tukitietoja"
 msgid "Collect kernel crash dumps"
 msgstr "Kerää ytimen kaatumisvedoksia"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1479
 msgid "Collect metrics"
 msgstr "Kerää mittarit"
 
@@ -1994,7 +1992,7 @@ msgstr "Näistä koostuu"
 msgid "Contacted domain"
 msgstr "Toimialue, johon otettiin yhteyttä"
 
-#: pkg/shell/nav.jsx:237
+#: pkg/shell/nav.tsx:299
 msgid "Contains:"
 msgstr "Sisältää:"
 
@@ -2283,7 +2281,7 @@ msgstr "Kryptografinen käytäntö on epäjohdonmukainen"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:181
+#: pkg/shell/shell-modals.tsx:186
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Vaihto-I"
 
@@ -2355,7 +2353,7 @@ msgstr "Joka päivä"
 msgid "Danger alert:"
 msgstr "Vaaran hälytys:"
 
-#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.tsx:199
 msgid "Dark"
 msgstr "Tumma"
 
@@ -2425,7 +2423,7 @@ msgid ""
 "'now' refers to the current time. Finally, relative times may be specified, "
 "prefixed with '-' or '+'"
 msgstr ""
-"Päivämäärätietojen on oltava muodossa VVVV-KK-PP hh:mm:ss. Vaihtoehtoisesti "
+"Päivämäärätietojen on oltava muodossa VVVV-KK-PP tt:mm:ss. Vaihtoehtoisesti "
 "merkkijonot \"eilen\", \"tänään\", \"huomenna\" ymmärretään. \"nyt\" viittaa "
 "nykyiseen aikaan. Lopuksi suhteelliset ajat voidaan määrittää etuliitteellä "
 "'-' tai '+'"
@@ -2469,7 +2467,7 @@ msgstr "RAID 4 (omistettu pariteetti)"
 msgid "Deduplication"
 msgstr "Päällekkäisyyden poisto"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.tsx:193
 msgid "Default"
 msgstr "Oletus"
 
@@ -2686,8 +2684,8 @@ msgid "Disconnected"
 msgstr "Katkaistu"
 
 #: pkg/metrics/metrics.jsx:140 pkg/metrics/metrics.jsx:141
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1907
-#: pkg/metrics/metrics.jsx:1919
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1936
+#: pkg/metrics/metrics.jsx:1948
 msgid "Disk I/O"
 msgstr "Levyn I/O"
 
@@ -2727,7 +2725,7 @@ msgstr[1] "Hylkää $0 hälytykset"
 msgid "Dismiss selected alerts"
 msgstr "Hylkää valitut hälytykset"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
+#: pkg/shell/shell-modals.tsx:116 pkg/shell/topnav.tsx:212
 msgid "Display language"
 msgstr "Käytettävä kieli"
 
@@ -2837,7 +2835,7 @@ msgstr "EFI-järjestelmäosio"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/nav.tsx:415 pkg/shell/hosts.jsx:197 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "Muokkaa"
@@ -3076,7 +3074,7 @@ msgstr "Virhe"
 msgid "Error and above"
 msgstr "Virhe ja yli"
 
-#: pkg/metrics/metrics.jsx:1819
+#: pkg/metrics/metrics.jsx:1853
 msgid "Error has occurred"
 msgstr "Tapahtui virhe"
 
@@ -3151,7 +3149,7 @@ msgstr "Vanhenna tili $0"
 msgid "Export"
 msgstr "Vie"
 
-#: pkg/metrics/metrics.jsx:1479
+#: pkg/metrics/metrics.jsx:1496
 msgid "Export to network"
 msgstr "Vie verkkoon"
 
@@ -3197,7 +3195,7 @@ msgstr "Vyöhykkeen lisääminen epäonnistui"
 msgid "Failed to change password"
 msgstr "Salasanan vaihtaminen epäonnistui"
 
-#: pkg/metrics/metrics.jsx:1455
+#: pkg/metrics/metrics.jsx:1472
 msgid "Failed to configure PCP"
 msgstr "PCP:n määritys epäonnistui"
 
@@ -3271,8 +3269,8 @@ msgstr "Käynnistäminen epäonnistui"
 msgid "Failed to switch profile"
 msgstr "Profiilin vaihtaminen epäonnistui"
 
-#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:845
-#: pkg/systemd/services.jsx:852
+#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
+#: pkg/systemd/services.jsx:849
 msgid "File state"
 msgstr "Tiedoston tila"
 
@@ -3307,11 +3305,11 @@ msgid "Filesystems are already mounted below this mountpoint."
 msgstr ""
 "Tiedostojärjestelmä on jo liitetty hakemistoon $0. Jatkaminen irrottaa sen."
 
-#: pkg/systemd/services.jsx:820
+#: pkg/systemd/services.jsx:816
 msgid "Filter by name or description"
 msgstr "Suodata nimen tai kuvauksen mukaan"
 
-#: pkg/shell/shell-modals.jsx:131
+#: pkg/shell/shell-modals.tsx:135
 msgid "Filter menu items"
 msgstr "Suodata valikkokohteita"
 
@@ -3446,11 +3444,11 @@ msgstr "Siirry sovellukseen"
 msgid "Go to now"
 msgstr "Mene nyt"
 
-#: pkg/metrics/metrics.jsx:1901
+#: pkg/metrics/metrics.jsx:1925
 msgid "Graph visibility"
 msgstr "Kaavion näkyvyys"
 
-#: pkg/metrics/metrics.jsx:1889
+#: pkg/metrics/metrics.jsx:1922
 msgid "Graph visibility options menu"
 msgstr "Kaavion näkyvyysasetusvalikko"
 
@@ -3536,7 +3534,7 @@ msgid "Hello time $hello_time"
 msgstr "Tervehdysaika $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.tsx:277
 msgid "Help"
 msgstr "Ohje"
 
@@ -3801,7 +3799,7 @@ msgstr "Asennus"
 msgid "Install NFS support"
 msgstr "Asenna NFS-tuki"
 
-#: pkg/metrics/metrics.jsx:1789
+#: pkg/metrics/metrics.jsx:1823
 #, fuzzy
 #| msgid "Install NFS support"
 msgid "Install PCP support"
@@ -4026,7 +4024,7 @@ msgstr "Päiväkirjan tietue"
 msgid "Journal entry not found"
 msgstr "Päiväkirjan tietuetta ei löytynyt"
 
-#: pkg/metrics/metrics.jsx:1886
+#: pkg/metrics/metrics.jsx:1918
 msgid "Jump to"
 msgstr "Hyppää päiväykseen"
 
@@ -4220,11 +4218,11 @@ msgstr "Jätä toimialue"
 msgid "Leave empty to skip encryption"
 msgstr "Jätä tyhjäksi ohittaaksesi salauksen"
 
-#: pkg/shell/shell-modals.jsx:61
+#: pkg/shell/shell-modals.tsx:65
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Käytetään GNU LGPL -versio 2.1 lisenssiä"
 
-#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.tsx:196
 msgid "Light"
 msgstr "Vaalea"
 
@@ -4328,7 +4326,7 @@ msgid "Listing units failed: $0"
 msgstr "Yksiköiden listaus epäonnistui: $0"
 
 #: pkg/metrics/metrics.jsx:118 pkg/metrics/metrics.jsx:119
-#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1946
 msgid "Load"
 msgstr "Kuormitus"
 
@@ -4336,7 +4334,7 @@ msgstr "Kuormitus"
 msgid "Load balancing"
 msgstr "Kuormantasaus"
 
-#: pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1982
 msgid "Load earlier data"
 msgstr "Lataa aiemmat tiedot"
 
@@ -4364,7 +4362,7 @@ msgstr "SSH-avainten lataaminen epäonnistui"
 msgid "Loading of units failed"
 msgstr "Yksiköiden lataus epäonnistui"
 
-#: pkg/shell/shell-modals.jsx:76
+#: pkg/shell/shell-modals.tsx:80
 msgid "Loading packages..."
 msgstr "Ladataan paketteja..."
 
@@ -4376,7 +4374,7 @@ msgstr "Ladataan järjestelmän muutoksia ..."
 msgid "Loading unit failed"
 msgstr "Yksiköiden lataus epäonnistui"
 
-#: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
+#: pkg/metrics/metrics.jsx:1981 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
@@ -4466,7 +4464,7 @@ msgstr "Kirjaudu sisään palvelimesi käyttäjätilillä."
 msgid "Log messages"
 msgstr "Kirjaa viestit"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.tsx:229
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
@@ -4726,7 +4724,7 @@ msgid "Media drive"
 msgstr "Optinen asema"
 
 #: pkg/metrics/metrics.jsx:126 pkg/metrics/metrics.jsx:842
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1918
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1947
 #: pkg/systemd/service-details.jsx:655 pkg/systemd/hwinfo.jsx:290
 #: pkg/systemd/hwinfo.jsx:334 pkg/systemd/overview-cards/usageCard.jsx:145
 msgid "Memory"
@@ -4740,7 +4738,7 @@ msgstr "Muistitekniikka"
 msgid "Memory usage"
 msgstr "Muistin käyttö"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "Memory usage/swap"
 msgstr "Muistin käyttö/näennäismuisti"
 
@@ -4769,15 +4767,15 @@ msgstr "Menetelmä"
 msgid "Metric"
 msgstr "Mittarit"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1967
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2002
 msgid "Metrics and history"
 msgstr "Mittarit ja historia"
 
-#: pkg/metrics/metrics.jsx:1810
+#: pkg/metrics/metrics.jsx:1844
 msgid "Metrics history could not be loaded"
 msgstr "Mittaushistoriaa ei voitu ladata"
 
-#: pkg/metrics/metrics.jsx:1431 pkg/metrics/metrics.jsx:1534
+#: pkg/metrics/metrics.jsx:1448 pkg/metrics/metrics.jsx:1551
 msgid "Metrics settings"
 msgstr "Mittareiden asetukset"
 
@@ -5052,8 +5050,8 @@ msgstr ""
 msgid "Need at least one NTP server"
 msgstr "Tarvitaan vähintään yksi NTP-palvelin"
 
-#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1549
-#: pkg/metrics/metrics.jsx:1907 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1566
+#: pkg/metrics/metrics.jsx:1936 pkg/metrics/metrics.jsx:1949
 msgid "Network"
 msgstr "Verkko"
 
@@ -5189,11 +5187,11 @@ msgstr "Ei kantajaa"
 msgid "No configuration found"
 msgstr "Konfigurointitietoja ei löytynyt"
 
-#: pkg/metrics/metrics.jsx:1838
+#: pkg/metrics/metrics.jsx:1872
 msgid "No data available"
 msgstr "Ei tietoja saatavilla"
 
-#: pkg/metrics/metrics.jsx:1834
+#: pkg/metrics/metrics.jsx:1868
 msgid "No data available between $0 and $1"
 msgstr "Tietoja ei ole saatavilla välillä $0 ja $1"
 
@@ -5237,7 +5235,7 @@ msgstr "Tuloksia ei löytynyt"
 msgid "No encryption"
 msgstr "Ei salausta"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "No events"
 msgstr "Ei tapahtumia"
 
@@ -5279,11 +5277,11 @@ msgstr "Tälle sovellukselle ei löytynyt asennuspakettia."
 msgid "No keys added"
 msgstr "Ei avaimia lisätty"
 
-#: pkg/shell/shell-modals.jsx:149
+#: pkg/shell/shell-modals.tsx:154
 msgid "No languages match"
 msgstr "Ei hakua vastaavia kieliä"
 
-#: pkg/metrics/metrics.jsx:1111 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1124 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "Ei lokimerkintöjä"
 
@@ -5333,7 +5331,7 @@ msgstr "Oikeaa nimeä ei ole määritetty"
 
 #: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.tsx:223
 msgid "No results found"
 msgstr "Tuloksia ei löytynyt"
 
@@ -5563,11 +5561,11 @@ msgstr ""
 "Käytä vain hyväksyttyjä ja sallittuja algoritmeja käynnistettäessä FIPS-"
 "tilassa."
 
-#: pkg/shell/topnav.jsx:228
+#: pkg/shell/topnav.tsx:251
 msgid "Ooops!"
 msgstr "Hups!"
 
-#: pkg/metrics/metrics.jsx:1417
+#: pkg/metrics/metrics.jsx:1434
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "Avaa pmproxy-palvelu palomuurissa jakaaksesi mittaustietoja."
 
@@ -5613,7 +5611,7 @@ msgstr "Ulos"
 msgid "Overprovisioning"
 msgstr "versio"
 
-#: pkg/metrics/metrics.jsx:1966 pkg/systemd/hwinfo.jsx:307
+#: pkg/metrics/metrics.jsx:2001 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Esittely"
@@ -5632,7 +5630,7 @@ msgstr "Korvaa olemassa olevat tiedot nollilla (hitaampi)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1788
+#: pkg/metrics/metrics.jsx:1822
 #, fuzzy
 #| msgid "Package cockpit-pcp is missing for metrics history"
 msgid "PCP is missing for metrics history"
@@ -5876,7 +5874,7 @@ msgid ""
 "machines will be shared with each other."
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1451
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -6078,10 +6076,8 @@ msgid "Priority $priority"
 msgstr "Prioriteetti $priority"
 
 #: pkg/networkmanager/wireguard.jsx:213
-#, fuzzy
-#| msgid "Private"
 msgid "Private key"
-msgstr "Yksityinen"
+msgstr "Yksityinen avain"
 
 #: pkg/shell/superuser.jsx:194
 msgid "Problem becoming administrator"
@@ -6103,7 +6099,7 @@ msgstr "Prosessit, jotka käyttävät sijaintia"
 msgid "Progress: $0"
 msgstr "Edistyminen: $0"
 
-#: pkg/shell/shell-modals.jsx:72
+#: pkg/shell/shell-modals.tsx:76
 msgid "Project website"
 msgstr "Projektin verkkosivusto"
 
@@ -6245,12 +6241,10 @@ msgid "Read"
 msgstr "Luku"
 
 #: pkg/shell/hosts_dialog.jsx:284
-#, fuzzy
-#| msgid "Read more..."
 msgid "Read more"
-msgstr "Lue lisää..."
+msgstr "Lue lisää"
 
-#: pkg/metrics/metrics.jsx:1440 pkg/systemd/hwinfo.jsx:206
+#: pkg/metrics/metrics.jsx:1457 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
 msgstr "Lue lisää..."
 
@@ -6781,18 +6775,16 @@ msgstr "kiertovuorottelu"
 msgid "Routes"
 msgstr "Reitit"
 
-#: pkg/lib/cockpit-components-table.jsx:275
+#: pkg/lib/cockpit-components-table.tsx:357
 #, fuzzy
 #| msgid "extension"
 msgid "Row expansion"
 msgstr "laajennus"
 
-#: pkg/lib/cockpit-components-table.jsx:276
-#: pkg/lib/cockpit-components-table.jsx:277
-#, fuzzy
-#| msgid "Select"
+#: pkg/lib/cockpit-components-table.tsx:358
+#: pkg/lib/cockpit-components-table.tsx:359
 msgid "Row select"
-msgstr "Valitse"
+msgstr "Rivin valinta"
 
 #: pkg/systemd/timer-dialog.jsx:252 pkg/systemd/timer-dialog.jsx:264
 msgid "Run at"
@@ -6892,8 +6884,8 @@ msgstr "SSH-avain ei ole polku"
 msgid "SSH key login"
 msgstr "SSH-avain"
 
-#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
-#: pkg/shell/credentials.jsx:93
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
+#: pkg/shell/topnav.tsx:225
 msgid "SSH keys"
 msgstr "SSH-avaimet"
 
@@ -6924,7 +6916,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "Lauantai"
 
-#: pkg/metrics/metrics.jsx:1446 pkg/systemd/timer-dialog.jsx:148
+#: pkg/metrics/metrics.jsx:1463 pkg/systemd/timer-dialog.jsx:148
 #: pkg/networkmanager/dialogs-common.jsx:149 pkg/packagekit/kpatch.jsx:310
 #: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/filesystem/mounting-dialog.jsx:358
@@ -6975,7 +6967,7 @@ msgstr "Ajastettu sammutus kello $0"
 msgid "Sealed-case PC"
 msgstr "Suljettu tietokonekotelo"
 
-#: pkg/systemd/logs.jsx:391 pkg/shell/nav.jsx:141
+#: pkg/systemd/logs.jsx:391 pkg/shell/nav.tsx:200
 msgid "Search"
 msgstr "Haku"
 
@@ -7023,7 +7015,7 @@ msgstr "Vain tietoturvapäivityksiä"
 msgid "Security updates will be applied $0 at $1"
 msgstr "Turvallisuuspäivitykset asennetaan $0 klo $1"
 
-#: pkg/shell/shell-modals.jsx:114
+#: pkg/shell/shell-modals.tsx:118
 msgid "Select"
 msgstr "Valitse"
 
@@ -7114,7 +7106,7 @@ msgstr "Palvelut"
 msgid "Services using the location"
 msgstr "Palvelut, jotka käyttävät sijaintia"
 
-#: pkg/shell/topnav.jsx:277
+#: pkg/shell/topnav.tsx:313
 msgid "Session"
 msgstr "Istunto"
 
@@ -7624,7 +7616,7 @@ msgstr "Aseta salasana"
 msgid "Stub"
 msgstr "Tynkä"
 
-#: pkg/shell/topnav.jsx:166
+#: pkg/shell/topnav.tsx:189
 msgid "Style"
 msgstr "Tyyli"
 
@@ -7653,7 +7645,7 @@ msgid "Sundays"
 msgstr "Sunnuntai"
 
 #: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:687
-#: pkg/metrics/metrics.jsx:1918 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1947 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "Sivutus"
 
@@ -7723,7 +7715,7 @@ msgstr "Synkronoidaan"
 msgid "Synchronizing MDRAID device $target"
 msgstr "Synkronoidaan MDRAID-laitetta $target"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
+#: pkg/systemd/services.jsx:914 pkg/shell/nav.tsx:69 pkg/shell/nav.tsx:405
 msgid "System"
 msgstr "Järjestelmä"
 
@@ -8513,7 +8505,7 @@ msgstr ""
 "Vahvistaaksesi sormenjäljen, suorita seuraava koneella $0 istuessasi "
 "fyysisesti koneen ääressä tai luotettavan verkon kautta:"
 
-#: pkg/metrics/metrics.jsx:1844
+#: pkg/metrics/metrics.jsx:1878
 msgid "Today"
 msgstr "Tänään"
 
@@ -8526,7 +8518,7 @@ msgstr "Vaihda"
 msgid "Toggle date picker"
 msgstr "Vaihda päivämäärän valitsin"
 
-#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:815
+#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:811
 msgid "Toggle filters"
 msgstr "Vaihda suodattimet"
 
@@ -8534,7 +8526,7 @@ msgstr "Vaihda suodattimet"
 msgid "Too much data"
 msgstr "Liian paljon dataa"
 
-#: pkg/shell/nav.jsx:358
+#: pkg/shell/nav.tsx:408
 msgid "Tools"
 msgstr "Työkalut"
 
@@ -8584,7 +8576,7 @@ msgstr "Tämän laukaisema"
 msgid "Triggers"
 msgstr "Laukaisimet"
 
-#: pkg/metrics/metrics.jsx:1805
+#: pkg/metrics/metrics.jsx:1839
 msgid "Troubleshoot"
 msgstr "Vianetsintä"
 
@@ -8798,7 +8790,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "Odottamaton PackageKit-virhe paketin $0 asennuksen aikana: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:174
+#: pkg/shell/shell-modals.tsx:179
 msgid "Unexpected error"
 msgstr "Odottamaton virhe"
 
@@ -8951,10 +8943,8 @@ msgid "Untrusted host"
 msgstr "Epäluotettava kone"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:129
-#, fuzzy
-#| msgid "Since"
 msgid "Up since"
-msgstr "Siitä asti kun"
+msgstr "Käynnissä lähtien"
 
 #: pkg/shell/hosts_dialog.jsx:550
 msgid "Update"
@@ -9007,13 +8997,11 @@ msgid "Updating status..."
 msgstr "Päivitetään tilaa ..."
 
 #: pkg/playground/react-demo-file-upload.tsx:109
-#, fuzzy
-#| msgid "Reload"
 msgid "Upload"
-msgstr "Lataa uudelleen"
+msgstr "Uloslataa"
 
-#: pkg/metrics/metrics.jsx:1917 pkg/metrics/metrics.jsx:1918
-#: pkg/metrics/metrics.jsx:1919 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1946 pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1948 pkg/metrics/metrics.jsx:1949
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 #: pkg/storaged/lvm2/physical-volume.jsx:119
 #: pkg/storaged/block/unrecognized-data.jsx:50
@@ -9074,7 +9062,7 @@ msgstr ""
 "Hyödyllinen liitoksille, jotka ovat valinnaisia tai tarvitsevat "
 "vuorovaikutusta (kuten tunnuslauseita)"
 
-#: pkg/systemd/services.jsx:916 pkg/storaged/dialog.jsx:1457
+#: pkg/systemd/services.jsx:918 pkg/storaged/dialog.jsx:1457
 msgid "User"
 msgstr "Käyttäjä"
 
@@ -9199,7 +9187,7 @@ msgstr "Katso kaikki palvelut"
 msgid "View automation script"
 msgstr "Näytä automaatio-komentosarja"
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1122
 msgid "View detailed logs"
 msgstr "Katso yksityiskohtaiset lokit"
 
@@ -9326,7 +9314,7 @@ msgstr "Varoitus ja yli"
 msgid "Weak password"
 msgstr "Aseta heikko salasana"
 
-#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.tsx:66 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "Verkkokonsoli"
 
@@ -9342,7 +9330,7 @@ msgstr "Verkkokonsoli käynnistyy uudelleen"
 msgid "Web console is running in limited access mode."
 msgstr "Verkkokonsoli toimii rajoitetun pääsyn tilassa."
 
-#: pkg/shell/shell-modals.jsx:64
+#: pkg/shell/shell-modals.tsx:68
 msgid "Web console logo"
 msgstr "Verkkokonsolilogo"
 
@@ -9889,7 +9877,7 @@ msgstr "jätä virhe huomiotta"
 msgid "in less than a minute"
 msgstr ""
 
-#: pkg/shell/shell-modals.jsx:182
+#: pkg/shell/shell-modals.tsx:187
 msgid "in most browsers"
 msgstr "useimmissa selaimissa"
 
@@ -10133,15 +10121,15 @@ msgstr "LVM2-taltioryhmän fyysinen taltio"
 msgid "plugin"
 msgstr "kytkettävä"
 
-#: pkg/metrics/metrics.jsx:1802
+#: pkg/metrics/metrics.jsx:1836
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service on epäonnistunut"
 
-#: pkg/metrics/metrics.jsx:1804
+#: pkg/metrics/metrics.jsx:1838
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service ei onnistu tietojen keräämisessä"
 
-#: pkg/metrics/metrics.jsx:1797
+#: pkg/metrics/metrics.jsx:1831
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service ei ole käynnissä"
 

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 03:06+0000\n"
+"POT-Creation-Date: 2024-12-20 02:58+0000\n"
 "PO-Revision-Date: 2024-07-21 05:38+0000\n"
 "Last-Translator: Jose Riha <jose1711@gmail.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -99,7 +99,7 @@ msgstr[2] "$0 diskov chýba"
 msgid "$0 disks"
 msgstr "$0 Disky"
 
-#: pkg/shell/topnav.jsx:127
+#: pkg/shell/topnav.tsx:150
 msgid "$0 documentation"
 msgstr "Dokumentácia k $0"
 
@@ -273,7 +273,7 @@ msgstr[0] "$0 slot ostáva"
 msgstr[1] "$0 sloty ostávajú"
 msgstr[2] "$0 slotov ostáva"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 špička"
@@ -653,7 +653,7 @@ msgstr "ARP monitoring"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/topnav.jsx:149
+#: pkg/shell/topnav.tsx:174
 msgid "About Web Console"
 msgstr "O webovej konzoli"
 
@@ -711,7 +711,7 @@ msgid "Active backup"
 msgstr "Aktívna záloha"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:196
+#: pkg/shell/topnav.tsx:219
 msgid "Active pages"
 msgstr "Aktívne stránky"
 
@@ -719,8 +719,8 @@ msgstr "Aktívne stránky"
 msgid "Active since "
 msgstr "Aktívna od "
 
-#: pkg/systemd/services.jsx:828 pkg/systemd/services.jsx:829
-#: pkg/systemd/services.jsx:836
+#: pkg/systemd/services.jsx:824 pkg/systemd/services.jsx:828
+#: pkg/systemd/services.jsx:830
 msgid "Active state"
 msgstr "Aktívny stav"
 
@@ -1148,7 +1148,7 @@ msgstr "Aplikácia aktualizácií sa nepodarila"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "Vhodné pre kriticky dôležité body pripojenia, ako napríklad /var"
 
-#: pkg/shell/nav.jsx:352
+#: pkg/shell/nav.tsx:402
 msgid "Apps"
 msgstr "Aplikácie"
 
@@ -1369,7 +1369,7 @@ msgstr "Blokované"
 msgid "Bond"
 msgstr "Väzba"
 
-#: pkg/systemd/logs.jsx:338
+#: pkg/metrics/metrics.jsx:1112 pkg/systemd/logs.jsx:338
 msgid "Boot"
 msgstr "Zavádzanie"
 
@@ -1438,7 +1438,7 @@ msgid "Bypass browser check"
 msgstr "Obísť kontrolu prehliadača"
 
 #: pkg/metrics/metrics.jsx:112 pkg/metrics/metrics.jsx:782
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1946
 #: pkg/systemd/hwinfo.jsx:114 pkg/systemd/overview-cards/usageCard.jsx:133
 msgid "CPU"
 msgstr "CPU"
@@ -1455,7 +1455,7 @@ msgstr "Prepínače zabezpečenia procesora"
 msgid "CPU usage"
 msgstr "Využitie procesoru"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "CPU usage/load"
 msgstr "Využitie procesora/záťaž (load)"
 
@@ -1476,7 +1476,7 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
-#: pkg/metrics/metrics.jsx:1449 pkg/systemd/timer-dialog.jsx:151
+#: pkg/metrics/metrics.jsx:1466 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
 #: pkg/systemd/reporting.jsx:383
@@ -1493,7 +1493,7 @@ msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
+#: pkg/shell/shell-modals.tsx:119 pkg/shell/active-pages-modal.jsx:97
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
 #: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
@@ -1695,7 +1695,7 @@ msgstr "Zisťujem nainštalovaný softvér"
 msgid "Checking software status"
 msgstr "Kontrolujem stav softvéru"
 
-#: pkg/shell/shell-modals.jsx:119
+#: pkg/shell/shell-modals.tsx:123
 msgid "Choose the language to be used in the application"
 msgstr "Vyberte jazyk aplikácie"
 
@@ -1723,13 +1723,13 @@ msgstr "Vypnúť všetky filtre"
 msgid "Clear filter"
 msgstr "Vyčistiť filter"
 
-#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:349
 #, fuzzy
 #| msgid "Clear filter"
 msgid "Clear input value"
 msgstr "Vyčistiť filter"
 
-#: pkg/shell/nav.jsx:164
+#: pkg/shell/nav.tsx:224
 msgid "Clear search"
 msgstr "Vyčistiť vyhľadávanie"
 
@@ -1747,7 +1747,7 @@ msgstr "Softvér klienta"
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
-#: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
+#: pkg/shell/shell-modals.tsx:180 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
@@ -1773,7 +1773,7 @@ msgstr "Konfigurácia NetworkManagera a Firewalld v Cockpite"
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpitu sa nepodarilo kontaktovať daného hostiteľa."
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.tsx:182
 msgid "Cockpit had an unexpected internal error."
 msgstr "V Cockpite nastala neočakávaná vnútorná chyba."
 
@@ -1791,7 +1791,7 @@ msgstr ""
 "termináli. Podobne, pokiaľ dôjde k chybe v termináli, je toto vidieť v "
 "rozhraní žurnálu v Cockpite."
 
-#: pkg/shell/shell-modals.jsx:68
+#: pkg/shell/shell-modals.tsx:72
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit je interaktívne rozhranie pre správu linuxových serverov."
 
@@ -1835,7 +1835,7 @@ msgstr "Zhromaždiť a zabaliť dáta pre diagnostiku a podporu"
 msgid "Collect kernel crash dumps"
 msgstr "Zhromaždiť výpisy pádov jadra systému"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1479
 msgid "Collect metrics"
 msgstr "Zhromažďovať metriky"
 
@@ -2024,7 +2024,7 @@ msgstr "Skladá sa z"
 msgid "Contacted domain"
 msgstr "Pripojená doména"
 
-#: pkg/shell/nav.jsx:237
+#: pkg/shell/nav.tsx:299
 msgid "Contains:"
 msgstr "Obsahuje:"
 
@@ -2313,7 +2313,7 @@ msgstr "Politiky pre šifrovanie nie sú konzistentné"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:181
+#: pkg/shell/shell-modals.tsx:186
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Shift-I"
 
@@ -2385,7 +2385,7 @@ msgstr "Denne"
 msgid "Danger alert:"
 msgstr "Výstraha pred nebezpečenstvom:"
 
-#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.tsx:199
 msgid "Dark"
 msgstr "Tmavý"
 
@@ -2510,7 +2510,7 @@ msgstr "Vyhradená parita (RAID 4)"
 msgid "Deduplication"
 msgstr "Deduplikácia"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.tsx:193
 msgid "Default"
 msgstr "Predvolené"
 
@@ -2724,8 +2724,8 @@ msgid "Disconnected"
 msgstr "Odpojené"
 
 #: pkg/metrics/metrics.jsx:140 pkg/metrics/metrics.jsx:141
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1907
-#: pkg/metrics/metrics.jsx:1919
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1936
+#: pkg/metrics/metrics.jsx:1948
 msgid "Disk I/O"
 msgstr "Diskový V/V"
 
@@ -2766,7 +2766,7 @@ msgstr[2] "Zahodiť $0 upozornení"
 msgid "Dismiss selected alerts"
 msgstr "Zahodiť označené výstrahy"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
+#: pkg/shell/shell-modals.tsx:116 pkg/shell/topnav.tsx:212
 msgid "Display language"
 msgstr "Jazyk zobrazenia"
 
@@ -2872,7 +2872,7 @@ msgstr "Systémový oddiel EFI"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/nav.tsx:415 pkg/shell/hosts.jsx:197 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "Upraviť"
@@ -3099,7 +3099,7 @@ msgstr "Chyba"
 msgid "Error and above"
 msgstr "Chyba a závažnejšie"
 
-#: pkg/metrics/metrics.jsx:1819
+#: pkg/metrics/metrics.jsx:1853
 msgid "Error has occurred"
 msgstr "Vyskytla sa chyba"
 
@@ -3176,7 +3176,7 @@ msgstr "Ukončiť platnosť účtu dňa $0"
 msgid "Export"
 msgstr "Exportovať"
 
-#: pkg/metrics/metrics.jsx:1479
+#: pkg/metrics/metrics.jsx:1496
 msgid "Export to network"
 msgstr "Exportovať do siete"
 
@@ -3222,7 +3222,7 @@ msgstr "Nepodarilo sa pridať zónu"
 msgid "Failed to change password"
 msgstr "Nepodarilo sa zmeniť heslo"
 
-#: pkg/metrics/metrics.jsx:1455
+#: pkg/metrics/metrics.jsx:1472
 msgid "Failed to configure PCP"
 msgstr "Nepodarilo sa nastaviť PCP"
 
@@ -3296,8 +3296,8 @@ msgstr "Nepodarilo sa spustiť"
 msgid "Failed to switch profile"
 msgstr "Nepodarilo sa prepnúť profil"
 
-#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:845
-#: pkg/systemd/services.jsx:852
+#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
+#: pkg/systemd/services.jsx:849
 msgid "File state"
 msgstr "Stav súboru"
 
@@ -3327,11 +3327,11 @@ msgstr "Systém súborov mimo cieľa"
 msgid "Filesystems are already mounted below this mountpoint."
 msgstr "V tomto bode pripojenia už sú pripojené systémy súborov."
 
-#: pkg/systemd/services.jsx:820
+#: pkg/systemd/services.jsx:816
 msgid "Filter by name or description"
 msgstr "Filtrovať podľa názvu či popisu"
 
-#: pkg/shell/shell-modals.jsx:131
+#: pkg/shell/shell-modals.tsx:135
 msgid "Filter menu items"
 msgstr "Filtrovať položky ponuky"
 
@@ -3464,11 +3464,11 @@ msgstr "Prejsť na aplikáciu"
 msgid "Go to now"
 msgstr "Prejsť na súčasnosť"
 
-#: pkg/metrics/metrics.jsx:1901
+#: pkg/metrics/metrics.jsx:1925
 msgid "Graph visibility"
 msgstr "Zobrazené grafy"
 
-#: pkg/metrics/metrics.jsx:1889
+#: pkg/metrics/metrics.jsx:1922
 msgid "Graph visibility options menu"
 msgstr "Ponuka možností viditeľnosti grafu"
 
@@ -3548,7 +3548,7 @@ msgid "Hello time $hello_time"
 msgstr "Oznamovací čas $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.tsx:277
 msgid "Help"
 msgstr "Nápoveda"
 
@@ -3814,7 +3814,7 @@ msgstr "Inštalovať"
 msgid "Install NFS support"
 msgstr "Nainštalovať podporu pre NFS"
 
-#: pkg/metrics/metrics.jsx:1789
+#: pkg/metrics/metrics.jsx:1823
 #, fuzzy
 #| msgid "Install NFS support"
 msgid "Install PCP support"
@@ -4035,7 +4035,7 @@ msgstr "Položka žurnálu"
 msgid "Journal entry not found"
 msgstr "Položka žurnálu nájdená"
 
-#: pkg/metrics/metrics.jsx:1886
+#: pkg/metrics/metrics.jsx:1918
 msgid "Jump to"
 msgstr "Preskočiť na"
 
@@ -4219,11 +4219,11 @@ msgstr "Opustiť doménu"
 msgid "Leave empty to skip encryption"
 msgstr "Ak nechcete šifrovať, nechajte prázdne"
 
-#: pkg/shell/shell-modals.jsx:61
+#: pkg/shell/shell-modals.tsx:65
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Licencované pod licenciou GNU LGPL verzie 2.1"
 
-#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.tsx:196
 msgid "Light"
 msgstr "Svetlý"
 
@@ -4318,7 +4318,7 @@ msgid "Listing units failed: $0"
 msgstr "Vypisovanie jednotiek skončilo s chybou: $0"
 
 #: pkg/metrics/metrics.jsx:118 pkg/metrics/metrics.jsx:119
-#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1946
 msgid "Load"
 msgstr "Záťaž"
 
@@ -4326,7 +4326,7 @@ msgstr "Záťaž"
 msgid "Load balancing"
 msgstr "Rozkladanie záťaže"
 
-#: pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1982
 msgid "Load earlier data"
 msgstr "Načítať skoršie dáta"
 
@@ -4354,7 +4354,7 @@ msgstr "Načítanie SSH kľúčov sa nepodarilo"
 msgid "Loading of units failed"
 msgstr "Načítanie jednotiek sa nepodarilo"
 
-#: pkg/shell/shell-modals.jsx:76
+#: pkg/shell/shell-modals.tsx:80
 msgid "Loading packages..."
 msgstr "Načítavam balíčky…"
 
@@ -4366,7 +4366,7 @@ msgstr "Načítavam systémové zmeny..."
 msgid "Loading unit failed"
 msgstr "Načítanie jednotiek zlyhalo"
 
-#: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
+#: pkg/metrics/metrics.jsx:1981 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
@@ -4449,7 +4449,7 @@ msgstr "Prihláste sa vašim účtom používateľa na serveri."
 msgid "Log messages"
 msgstr "Záznamy udalostí"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.tsx:229
 msgid "Log out"
 msgstr "Odhlásiť"
 
@@ -4697,7 +4697,7 @@ msgid "Media drive"
 msgstr "Jednotka média"
 
 #: pkg/metrics/metrics.jsx:126 pkg/metrics/metrics.jsx:842
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1918
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1947
 #: pkg/systemd/service-details.jsx:655 pkg/systemd/hwinfo.jsx:290
 #: pkg/systemd/hwinfo.jsx:334 pkg/systemd/overview-cards/usageCard.jsx:145
 msgid "Memory"
@@ -4711,7 +4711,7 @@ msgstr "Technológia pamäte"
 msgid "Memory usage"
 msgstr "Využitie pamäte"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "Memory usage/swap"
 msgstr "Využitie pamäte / odkladacieho priestoru (swap)"
 
@@ -4740,15 +4740,15 @@ msgstr "Metóda"
 msgid "Metric"
 msgstr "Metrika"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1967
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2002
 msgid "Metrics and history"
 msgstr "Metriky a histórie"
 
-#: pkg/metrics/metrics.jsx:1810
+#: pkg/metrics/metrics.jsx:1844
 msgid "Metrics history could not be loaded"
 msgstr "Nepodarilo sa načítať historické metriky"
 
-#: pkg/metrics/metrics.jsx:1431 pkg/metrics/metrics.jsx:1534
+#: pkg/metrics/metrics.jsx:1448 pkg/metrics/metrics.jsx:1551
 msgid "Metrics settings"
 msgstr "Nastavenia metrík"
 
@@ -5018,8 +5018,8 @@ msgstr "Potrebujete rezervný disk"
 msgid "Need at least one NTP server"
 msgstr "Je potrebný aspoň jeden server NTP"
 
-#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1549
-#: pkg/metrics/metrics.jsx:1907 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1566
+#: pkg/metrics/metrics.jsx:1936 pkg/metrics/metrics.jsx:1949
 msgid "Network"
 msgstr "Sieť"
 
@@ -5151,11 +5151,11 @@ msgstr "Bez signálu"
 msgid "No configuration found"
 msgstr "Nebola nájdená žiadna konfigurácia"
 
-#: pkg/metrics/metrics.jsx:1838
+#: pkg/metrics/metrics.jsx:1872
 msgid "No data available"
 msgstr "Nie sú dostupné žiadne dáta"
 
-#: pkg/metrics/metrics.jsx:1834
+#: pkg/metrics/metrics.jsx:1868
 msgid "No data available between $0 and $1"
 msgstr "Nie sú k dispozícii žiadne údaje medzi $0 a $1"
 
@@ -5193,7 +5193,7 @@ msgstr "Neboli nájdené žiadne jednotky"
 msgid "No encryption"
 msgstr "Bez šifrovania"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "No events"
 msgstr "Žiadne udalosti"
 
@@ -5233,11 +5233,11 @@ msgstr "Pre túto aplikáciu nebol nájdený žiaden inštalačný balíček."
 msgid "No keys added"
 msgstr "Žiadne pridané kľúče"
 
-#: pkg/shell/shell-modals.jsx:149
+#: pkg/shell/shell-modals.tsx:154
 msgid "No languages match"
 msgstr "Nezhoduje sa so žiadnymi jazykmi"
 
-#: pkg/metrics/metrics.jsx:1111 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1124 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "Žiadne záznamy udalostí"
 
@@ -5281,7 +5281,7 @@ msgstr "Nie je zadaný skutočný názov"
 
 #: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.tsx:223
 msgid "No results found"
 msgstr "Neboli nájdené žiadne výsledky"
 
@@ -5502,11 +5502,11 @@ msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "Pri štarte systému v režime FIPS použiť iba schválené a povolené algoritmy."
 
-#: pkg/shell/topnav.jsx:228
+#: pkg/shell/topnav.tsx:251
 msgid "Ooops!"
 msgstr "Ooops!"
 
-#: pkg/metrics/metrics.jsx:1417
+#: pkg/metrics/metrics.jsx:1434
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr ""
 "Ak chcete zdieľať metriky, otvorte na bráne firewall komunikáciu pre služby "
@@ -5554,7 +5554,7 @@ msgstr "Výstup"
 msgid "Overprovisioning"
 msgstr "Verzia"
 
-#: pkg/metrics/metrics.jsx:1966 pkg/systemd/hwinfo.jsx:307
+#: pkg/metrics/metrics.jsx:2001 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Prehľad"
@@ -5573,7 +5573,7 @@ msgstr "Prepísať existujúce dáta nulami (pomalšie)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1788
+#: pkg/metrics/metrics.jsx:1822
 #, fuzzy
 #| msgid "Package cockpit-pcp is missing for metrics history"
 msgid "PCP is missing for metrics history"
@@ -5818,7 +5818,7 @@ msgstr ""
 "Protistrany sú iné stroje, ktoré sa k tomuto stroju prihlasujú. Verejné "
 "kľúče z ostatných strojov sa medzi sebou zdieľajú."
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1451
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -6033,7 +6033,7 @@ msgstr "Procesy využívajúce toto umiestnenie"
 msgid "Progress: $0"
 msgstr "Stav postupu: $0"
 
-#: pkg/shell/shell-modals.jsx:72
+#: pkg/shell/shell-modals.tsx:76
 msgid "Project website"
 msgstr "Webové stránky projektu"
 
@@ -6182,7 +6182,7 @@ msgstr "Čítanie"
 msgid "Read more"
 msgstr "Zistiť viac…"
 
-#: pkg/metrics/metrics.jsx:1440 pkg/systemd/hwinfo.jsx:206
+#: pkg/metrics/metrics.jsx:1457 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
 msgstr "Zistiť viac…"
 
@@ -6702,12 +6702,12 @@ msgstr "Round robin"
 msgid "Routes"
 msgstr "Trasy"
 
-#: pkg/lib/cockpit-components-table.jsx:275
+#: pkg/lib/cockpit-components-table.tsx:357
 msgid "Row expansion"
 msgstr "Rozšírenie riadka"
 
-#: pkg/lib/cockpit-components-table.jsx:276
-#: pkg/lib/cockpit-components-table.jsx:277
+#: pkg/lib/cockpit-components-table.tsx:358
+#: pkg/lib/cockpit-components-table.tsx:359
 msgid "Row select"
 msgstr "Výber riadka"
 
@@ -6811,8 +6811,8 @@ msgstr "Kľúč SSH nie je zadaný ako cesta k nemu"
 msgid "SSH key login"
 msgstr "SSH kľúč"
 
-#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
-#: pkg/shell/credentials.jsx:93
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
+#: pkg/shell/topnav.tsx:225
 msgid "SSH keys"
 msgstr "SSH kľúče"
 
@@ -6844,7 +6844,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "Soboty"
 
-#: pkg/metrics/metrics.jsx:1446 pkg/systemd/timer-dialog.jsx:148
+#: pkg/metrics/metrics.jsx:1463 pkg/systemd/timer-dialog.jsx:148
 #: pkg/networkmanager/dialogs-common.jsx:149 pkg/packagekit/kpatch.jsx:310
 #: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/filesystem/mounting-dialog.jsx:358
@@ -6895,7 +6895,7 @@ msgstr "Naplánovaný reštart o $0"
 msgid "Sealed-case PC"
 msgstr "Počítač so zapäčatenou skriňou"
 
-#: pkg/systemd/logs.jsx:391 pkg/shell/nav.jsx:141
+#: pkg/systemd/logs.jsx:391 pkg/shell/nav.tsx:200
 msgid "Search"
 msgstr "Hľadať"
 
@@ -6943,7 +6943,7 @@ msgstr "Iba bezpečnostné aktualizácie"
 msgid "Security updates will be applied $0 at $1"
 msgstr "Bezpečnostné aktualizácie budú aplikované $0 o $1"
 
-#: pkg/shell/shell-modals.jsx:114
+#: pkg/shell/shell-modals.tsx:118
 msgid "Select"
 msgstr "Vybrať"
 
@@ -7040,7 +7040,7 @@ msgstr "Služby"
 msgid "Services using the location"
 msgstr "Služby využívajúce toto umiestnenie"
 
-#: pkg/shell/topnav.jsx:277
+#: pkg/shell/topnav.tsx:313
 msgid "Session"
 msgstr "Sedenie"
 
@@ -7528,7 +7528,7 @@ msgstr "Silné heslo"
 msgid "Stub"
 msgstr "Výhonok"
 
-#: pkg/shell/topnav.jsx:166
+#: pkg/shell/topnav.tsx:189
 msgid "Style"
 msgstr "Štýl"
 
@@ -7557,7 +7557,7 @@ msgid "Sundays"
 msgstr "Nedele"
 
 #: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:687
-#: pkg/metrics/metrics.jsx:1918 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1947 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "Odkladanie (swap)"
 
@@ -7625,7 +7625,7 @@ msgstr "Synchronizujem"
 msgid "Synchronizing MDRAID device $target"
 msgstr "Synchronizujem zariadenie MDRAID $target"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
+#: pkg/systemd/services.jsx:914 pkg/shell/nav.tsx:69 pkg/shell/nav.tsx:405
 msgid "System"
 msgstr "Systém"
 
@@ -8409,7 +8409,7 @@ msgstr ""
 "Ak chcete odtlačok overiť, spustite nasledujúce príkazy na $0 počas fyzickej "
 "prítomnosti pri stroji alebo prostredníctvom dôveryhodnej siete:"
 
-#: pkg/metrics/metrics.jsx:1844
+#: pkg/metrics/metrics.jsx:1878
 msgid "Today"
 msgstr "Dnes"
 
@@ -8422,7 +8422,7 @@ msgstr "Prepnúť"
 msgid "Toggle date picker"
 msgstr "Prepnúť vyberač dátumov"
 
-#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:815
+#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:811
 msgid "Toggle filters"
 msgstr "Prepnúť filtre"
 
@@ -8430,7 +8430,7 @@ msgstr "Prepnúť filtre"
 msgid "Too much data"
 msgstr "Príliš veľa dát"
 
-#: pkg/shell/nav.jsx:358
+#: pkg/shell/nav.tsx:408
 msgid "Tools"
 msgstr "Nástroje"
 
@@ -8480,7 +8480,7 @@ msgstr "Spustené na základe"
 msgid "Triggers"
 msgstr "Spúšťače"
 
-#: pkg/metrics/metrics.jsx:1805
+#: pkg/metrics/metrics.jsx:1839
 msgid "Troubleshoot"
 msgstr "Riešiť problém"
 
@@ -8689,7 +8689,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "Neočakávaná chyba PackageKit v priebehu inštalácie $0: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:174
+#: pkg/shell/shell-modals.tsx:179
 msgid "Unexpected error"
 msgstr "Neočakávaná chyba"
 
@@ -8894,8 +8894,8 @@ msgstr "Aktualizujem stav..."
 msgid "Upload"
 msgstr "Nahrať"
 
-#: pkg/metrics/metrics.jsx:1917 pkg/metrics/metrics.jsx:1918
-#: pkg/metrics/metrics.jsx:1919 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1946 pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1948 pkg/metrics/metrics.jsx:1949
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 #: pkg/storaged/lvm2/physical-volume.jsx:119
 #: pkg/storaged/block/unrecognized-data.jsx:50
@@ -8956,7 +8956,7 @@ msgstr ""
 "Užitočné pre body pripojenia, ktoré sú voliteľné alebo vyžadujú interakciu "
 "(ako napr. heslovú frázu)"
 
-#: pkg/systemd/services.jsx:916 pkg/storaged/dialog.jsx:1457
+#: pkg/systemd/services.jsx:918 pkg/storaged/dialog.jsx:1457
 msgid "User"
 msgstr "Používateľ"
 
@@ -9081,7 +9081,7 @@ msgstr "Zobraziť všetky služby"
 msgid "View automation script"
 msgstr "Zobraziť automatizačný skript"
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1122
 msgid "View detailed logs"
 msgstr "Zobraziť podrobné záznamy udalostí"
 
@@ -9203,7 +9203,7 @@ msgstr "Varovanie a závažnejšie"
 msgid "Weak password"
 msgstr "Ľahko prelomiteľné heslo"
 
-#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.tsx:66 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "Webová konzola"
 
@@ -9219,7 +9219,7 @@ msgstr "Webová konzola sa reštartuje"
 msgid "Web console is running in limited access mode."
 msgstr "Webová konzola beží v režime obmedzeného prístupu."
 
-#: pkg/shell/shell-modals.jsx:64
+#: pkg/shell/shell-modals.tsx:68
 msgid "Web console logo"
 msgstr "Logo webovej konzole"
 
@@ -9752,7 +9752,7 @@ msgstr "ignorovať neúspech"
 msgid "in less than a minute"
 msgstr "o menej ako minútu"
 
-#: pkg/shell/shell-modals.jsx:182
+#: pkg/shell/shell-modals.tsx:187
 msgid "in most browsers"
 msgstr "vo väčšine prehliadačov"
 
@@ -9995,15 +9995,15 @@ msgstr "fyzický zväzok LVM2 skupiny zväzkov (volume group)"
 msgid "plugin"
 msgstr "zásuvný model"
 
-#: pkg/metrics/metrics.jsx:1802
+#: pkg/metrics/metrics.jsx:1836
 msgid "pmlogger.service has failed"
 msgstr "služba pmlogger.service havarovala"
 
-#: pkg/metrics/metrics.jsx:1804
+#: pkg/metrics/metrics.jsx:1838
 msgid "pmlogger.service is failing to collect data"
 msgstr "službe pmlogger.service sa nedarí zhromažďovať dáta"
 
-#: pkg/metrics/metrics.jsx:1797
+#: pkg/metrics/metrics.jsx:1831
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service nebeží"
 

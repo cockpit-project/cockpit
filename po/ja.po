@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 03:06+0000\n"
+"POT-Creation-Date: 2024-12-20 02:58+0000\n"
 "PO-Revision-Date: 2024-11-03 12:38+0000\n"
 "Last-Translator: Inci sakura <incisakura@icloud.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -96,7 +96,7 @@ msgstr[0] "$0 本のディスクがありません"
 msgid "$0 disks"
 msgstr "$0 ディスク"
 
-#: pkg/shell/topnav.jsx:127
+#: pkg/shell/topnav.tsx:150
 msgid "$0 documentation"
 msgstr "$0 ドキュメント"
 
@@ -242,7 +242,7 @@ msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 スロットが残ります"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "$0 spike"
 msgid_plural "$0 spikes"
 msgstr[0] "$0 スパイク"
@@ -602,7 +602,7 @@ msgstr "ARP 監視"
 msgid "ARP ping"
 msgstr "ARP ping"
 
-#: pkg/shell/topnav.jsx:149
+#: pkg/shell/topnav.tsx:174
 msgid "About Web Console"
 msgstr "Webコンソールについて"
 
@@ -660,7 +660,7 @@ msgid "Active backup"
 msgstr "アクティブなバックアップ"
 
 #: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
-#: pkg/shell/topnav.jsx:196
+#: pkg/shell/topnav.tsx:219
 msgid "Active pages"
 msgstr "アクティブページ"
 
@@ -668,8 +668,8 @@ msgstr "アクティブページ"
 msgid "Active since "
 msgstr "アクティブになった日時 "
 
-#: pkg/systemd/services.jsx:828 pkg/systemd/services.jsx:829
-#: pkg/systemd/services.jsx:836
+#: pkg/systemd/services.jsx:824 pkg/systemd/services.jsx:828
+#: pkg/systemd/services.jsx:830
 msgid "Active state"
 msgstr "アクティブ状態"
 
@@ -1087,7 +1087,7 @@ msgstr "アップデートの適用に失敗しました"
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "/var などの重要なマウントに適しています"
 
-#: pkg/shell/nav.jsx:352
+#: pkg/shell/nav.tsx:402
 msgid "Apps"
 msgstr "アプリ"
 
@@ -1302,7 +1302,7 @@ msgstr "ブロック済み"
 msgid "Bond"
 msgstr "ボンディング"
 
-#: pkg/systemd/logs.jsx:338
+#: pkg/metrics/metrics.jsx:1112 pkg/systemd/logs.jsx:338
 msgid "Boot"
 msgstr "ブート"
 
@@ -1371,7 +1371,7 @@ msgid "Bypass browser check"
 msgstr "ブラウザーチェックの回避"
 
 #: pkg/metrics/metrics.jsx:112 pkg/metrics/metrics.jsx:782
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1946
 #: pkg/systemd/hwinfo.jsx:114 pkg/systemd/overview-cards/usageCard.jsx:133
 msgid "CPU"
 msgstr "CPU"
@@ -1388,7 +1388,7 @@ msgstr "CPU セキュリティートグル"
 msgid "CPU usage"
 msgstr "CPU 使用率"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "CPU usage/load"
 msgstr "CPU 使用率/負荷"
 
@@ -1410,7 +1410,7 @@ msgstr ""
 "現在のフィルターの組み合わせを使用して、ログを見つけることができません。"
 
 #: pkg/static/login.html:152 pkg/playground/translate.html:39
-#: pkg/metrics/metrics.jsx:1449 pkg/systemd/timer-dialog.jsx:151
+#: pkg/metrics/metrics.jsx:1466 pkg/systemd/timer-dialog.jsx:151
 #: pkg/systemd/service-details.jsx:86 pkg/systemd/service-details.jsx:711
 #: pkg/systemd/hwinfo.jsx:231 pkg/systemd/terminal.jsx:290
 #: pkg/systemd/reporting.jsx:383
@@ -1427,7 +1427,7 @@ msgstr ""
 #: pkg/lib/cockpit-connect-ssh.tsx:180 pkg/lib/cockpit-connect-ssh.tsx:491
 #: pkg/packagekit/autoupdates.jsx:400 pkg/packagekit/updates.jsx:541
 #: pkg/packagekit/updates.jsx:579 pkg/packagekit/kpatch.jsx:315
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/shell-modals.jsx:115
+#: pkg/shell/shell-modals.tsx:119 pkg/shell/active-pages-modal.jsx:97
 #: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:219
 #: pkg/shell/superuser.jsx:264 pkg/shell/hosts_dialog.jsx:274
 #: pkg/shell/hosts_dialog.jsx:480 pkg/shell/hosts_dialog.jsx:575
@@ -1630,7 +1630,7 @@ msgstr "インストールされたソフトウェアの確認中"
 msgid "Checking software status"
 msgstr "ソフトウェアステータスの確認"
 
-#: pkg/shell/shell-modals.jsx:119
+#: pkg/shell/shell-modals.tsx:123
 msgid "Choose the language to be used in the application"
 msgstr "アプリケーションで使用する言語の選択"
 
@@ -1658,13 +1658,13 @@ msgstr "すべてのフィルターの消去"
 msgid "Clear filter"
 msgstr "フィルターを外す"
 
-#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:347
+#: pkg/lib/cockpit-components-multi-typeahead-select.tsx:349
 #, fuzzy
 #| msgid "Clear filter"
 msgid "Clear input value"
 msgstr "フィルターを外す"
 
-#: pkg/shell/nav.jsx:164
+#: pkg/shell/nav.tsx:224
 msgid "Clear search"
 msgstr "検索の消去"
 
@@ -1682,7 +1682,7 @@ msgstr "クライアントソフトウェア"
 #: pkg/lib/cockpit-components-terminal.jsx:241
 #: pkg/lib/cockpit-components-modifications.jsx:76
 #: pkg/lib/cockpit-connect-ssh.tsx:515 pkg/users/dialog-utils.js:58
-#: pkg/shell/shell-modals.jsx:175 pkg/shell/superuser.jsx:190
+#: pkg/shell/shell-modals.tsx:180 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/hosts_dialog.jsx:212
 #: pkg/shell/credentials.jsx:79 pkg/storaged/dialog.jsx:504
 msgid "Close"
@@ -1708,7 +1708,7 @@ msgstr "Cockpit の NetworkManager と Firewalld の設定"
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit は該当するホストに接続できませんでした。"
 
-#: pkg/shell/shell-modals.jsx:177
+#: pkg/shell/shell-modals.tsx:182
 msgid "Cockpit had an unexpected internal error."
 msgstr "cockpit で予期しない内部エラーが発生しました。"
 
@@ -1725,7 +1725,7 @@ msgstr ""
 "サービスは端末で停止できます。同様に、端末でエラーが発生した場合は、そのエ"
 "ラーを Cockpit ジャーナルインターフェースで確認できます。"
 
-#: pkg/shell/shell-modals.jsx:68
+#: pkg/shell/shell-modals.tsx:72
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit は対話型 Linux サーバー管理インターフェースです。"
 
@@ -1768,7 +1768,7 @@ msgstr "診断およびサポートデータの収集とパッケージ化"
 msgid "Collect kernel crash dumps"
 msgstr "カーネルクラッシュダンプの収集"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1479
 msgid "Collect metrics"
 msgstr "メトリクスの収集"
 
@@ -1958,7 +1958,7 @@ msgstr "構成するもの"
 msgid "Contacted domain"
 msgstr "接続されたドメイン"
 
-#: pkg/shell/nav.jsx:237
+#: pkg/shell/nav.tsx:299
 msgid "Contains:"
 msgstr "次を含む:"
 
@@ -2244,7 +2244,7 @@ msgstr "暗号化ポリシーに一貫性がありません"
 msgid "Ctrl+Insert"
 msgstr "Ctrl+Insert"
 
-#: pkg/shell/shell-modals.jsx:181
+#: pkg/shell/shell-modals.tsx:186
 msgid "Ctrl-Shift-I"
 msgstr "Ctrl-Shift-I"
 
@@ -2316,7 +2316,7 @@ msgstr "毎日"
 msgid "Danger alert:"
 msgstr "Danger アラート:"
 
-#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.jsx:176
+#: pkg/systemd/terminal.jsx:259 pkg/shell/topnav.tsx:199
 msgid "Dark"
 msgstr "ダーク"
 
@@ -2442,7 +2442,7 @@ msgstr "専用パリティー (RAID 4)"
 msgid "Deduplication"
 msgstr "重複"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.jsx:170
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:38 pkg/shell/topnav.tsx:193
 msgid "Default"
 msgstr "デフォルト"
 
@@ -2661,8 +2661,8 @@ msgid "Disconnected"
 msgstr "切断されています"
 
 #: pkg/metrics/metrics.jsx:140 pkg/metrics/metrics.jsx:141
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1907
-#: pkg/metrics/metrics.jsx:1919
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1936
+#: pkg/metrics/metrics.jsx:1948
 msgid "Disk I/O"
 msgstr "ディスク I/O"
 
@@ -2701,7 +2701,7 @@ msgstr[0] "$0 アラートの解除"
 msgid "Dismiss selected alerts"
 msgstr "選択したアラートの解除"
 
-#: pkg/shell/shell-modals.jsx:112 pkg/shell/topnav.jsx:189
+#: pkg/shell/shell-modals.tsx:116 pkg/shell/topnav.tsx:212
 msgid "Display language"
 msgstr "表示言語"
 
@@ -2807,7 +2807,7 @@ msgstr "EFI システムパーティション"
 
 #: pkg/networkmanager/firewall.jsx:115 pkg/kdump/kdump-view.jsx:488
 #: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:234
-#: pkg/shell/hosts.jsx:197 pkg/shell/nav.jsx:365 pkg/storaged/nfs/nfs.jsx:312
+#: pkg/shell/nav.tsx:415 pkg/shell/hosts.jsx:197 pkg/storaged/nfs/nfs.jsx:312
 #: pkg/storaged/crypto/keyslots.jsx:763
 msgid "Edit"
 msgstr "編集"
@@ -3034,7 +3034,7 @@ msgstr "エラー"
 msgid "Error and above"
 msgstr "エラー以上のレベル"
 
-#: pkg/metrics/metrics.jsx:1819
+#: pkg/metrics/metrics.jsx:1853
 msgid "Error has occurred"
 msgstr "エラーが発生しました"
 
@@ -3111,7 +3111,7 @@ msgstr "アカウントの有効期限: $0"
 msgid "Export"
 msgstr "エクスポート"
 
-#: pkg/metrics/metrics.jsx:1479
+#: pkg/metrics/metrics.jsx:1496
 msgid "Export to network"
 msgstr "ネットワークへエクスポート"
 
@@ -3157,7 +3157,7 @@ msgstr "ゾーンの追加に失敗しました"
 msgid "Failed to change password"
 msgstr "パスワードの変更に失敗しました"
 
-#: pkg/metrics/metrics.jsx:1455
+#: pkg/metrics/metrics.jsx:1472
 msgid "Failed to configure PCP"
 msgstr "PCP の設定に失敗しました"
 
@@ -3231,8 +3231,8 @@ msgstr "起動に失敗"
 msgid "Failed to switch profile"
 msgstr "プロファイルの切り替えに失敗しました"
 
-#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:845
-#: pkg/systemd/services.jsx:852
+#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
+#: pkg/systemd/services.jsx:849
 msgid "File state"
 msgstr "ファイル状態"
 
@@ -3260,11 +3260,11 @@ msgstr "ターゲット外のファイルシステム"
 msgid "Filesystems are already mounted below this mountpoint."
 msgstr "このマウントポイントの下にはファイルシステムがマウント済みです。"
 
-#: pkg/systemd/services.jsx:820
+#: pkg/systemd/services.jsx:816
 msgid "Filter by name or description"
 msgstr "名前または説明による絞り込み"
 
-#: pkg/shell/shell-modals.jsx:131
+#: pkg/shell/shell-modals.tsx:135
 msgid "Filter menu items"
 msgstr "フィルターメニューアイテム"
 
@@ -3397,11 +3397,11 @@ msgstr "アプリケーションへ移動"
 msgid "Go to now"
 msgstr "今すぐ移動"
 
-#: pkg/metrics/metrics.jsx:1901
+#: pkg/metrics/metrics.jsx:1925
 msgid "Graph visibility"
 msgstr "グラフ表示の可否"
 
-#: pkg/metrics/metrics.jsx:1889
+#: pkg/metrics/metrics.jsx:1922
 msgid "Graph visibility options menu"
 msgstr "グラフ表示オプションメニュー"
 
@@ -3481,7 +3481,7 @@ msgid "Hello time $hello_time"
 msgstr "Hello タイム $hello_time"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:196
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.jsx:247
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:297 pkg/shell/topnav.tsx:277
 msgid "Help"
 msgstr "ヘルプ"
 
@@ -3740,7 +3740,7 @@ msgstr "インストール"
 msgid "Install NFS support"
 msgstr "NFS サポートをインストールする"
 
-#: pkg/metrics/metrics.jsx:1789
+#: pkg/metrics/metrics.jsx:1823
 msgid "Install PCP support"
 msgstr "PCP サポートをインストール"
 
@@ -3959,7 +3959,7 @@ msgstr "ジャーナルエントリー"
 msgid "Journal entry not found"
 msgstr "ジャーナルエントリーが見つかりません"
 
-#: pkg/metrics/metrics.jsx:1886
+#: pkg/metrics/metrics.jsx:1918
 msgid "Jump to"
 msgstr "次にジャンプ"
 
@@ -4143,11 +4143,11 @@ msgstr "ドメインの脱退"
 msgid "Leave empty to skip encryption"
 msgstr "暗号化をスキップするには空白のままにします"
 
-#: pkg/shell/shell-modals.jsx:61
+#: pkg/shell/shell-modals.tsx:65
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "GNU LGPL バージョン 2.1 でのライセンス"
 
-#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.jsx:173
+#: pkg/systemd/terminal.jsx:260 pkg/shell/topnav.tsx:196
 msgid "Light"
 msgstr "ライト"
 
@@ -4238,7 +4238,7 @@ msgid "Listing units failed: $0"
 msgstr "ユニットの一覧表示に失敗しました: $0"
 
 #: pkg/metrics/metrics.jsx:118 pkg/metrics/metrics.jsx:119
-#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1917
+#: pkg/metrics/metrics.jsx:811 pkg/metrics/metrics.jsx:1946
 msgid "Load"
 msgstr "ロード"
 
@@ -4246,7 +4246,7 @@ msgstr "ロード"
 msgid "Load balancing"
 msgstr "ロードバランシング"
 
-#: pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1982
 msgid "Load earlier data"
 msgstr "以前のデータのロード"
 
@@ -4274,7 +4274,7 @@ msgstr "SSH キーの読み込みに失敗しました"
 msgid "Loading of units failed"
 msgstr "ユニットの読み込みに失敗しました"
 
-#: pkg/shell/shell-modals.jsx:76
+#: pkg/shell/shell-modals.tsx:80
 msgid "Loading packages..."
 msgstr "パッケージの読み込み中..."
 
@@ -4286,7 +4286,7 @@ msgstr "システム変更をロード中..."
 msgid "Loading unit failed"
 msgstr "ユニットのロードに失敗しました"
 
-#: pkg/metrics/metrics.jsx:1946 pkg/systemd/services.jsx:683
+#: pkg/metrics/metrics.jsx:1981 pkg/systemd/services.jsx:683
 #: pkg/systemd/logDetails.jsx:173 pkg/systemd/service.jsx:132
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:450
 #: pkg/users/account-details.js:170 pkg/users/accounts-list.js:318
@@ -4367,7 +4367,7 @@ msgstr "サーバーのユーザーアカウントでログインします。"
 msgid "Log messages"
 msgstr "ログメッセージ"
 
-#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:206
+#: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.tsx:229
 msgid "Log out"
 msgstr "ログアウト"
 
@@ -4616,7 +4616,7 @@ msgid "Media drive"
 msgstr "メディアドライブ"
 
 #: pkg/metrics/metrics.jsx:126 pkg/metrics/metrics.jsx:842
-#: pkg/metrics/metrics.jsx:1549 pkg/metrics/metrics.jsx:1918
+#: pkg/metrics/metrics.jsx:1566 pkg/metrics/metrics.jsx:1947
 #: pkg/systemd/service-details.jsx:655 pkg/systemd/hwinfo.jsx:290
 #: pkg/systemd/hwinfo.jsx:334 pkg/systemd/overview-cards/usageCard.jsx:145
 msgid "Memory"
@@ -4630,7 +4630,7 @@ msgstr "メモリーテクノロジー"
 msgid "Memory usage"
 msgstr "メモリー使用状況"
 
-#: pkg/metrics/metrics.jsx:1907
+#: pkg/metrics/metrics.jsx:1936
 msgid "Memory usage/swap"
 msgstr "メモリー使用量/スワップ"
 
@@ -4659,15 +4659,15 @@ msgstr "方法"
 msgid "Metric"
 msgstr "メトリック"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1967
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2002
 msgid "Metrics and history"
 msgstr "メトリックスおよび履歴"
 
-#: pkg/metrics/metrics.jsx:1810
+#: pkg/metrics/metrics.jsx:1844
 msgid "Metrics history could not be loaded"
 msgstr "メトリックス履歴をロードできませんでした"
 
-#: pkg/metrics/metrics.jsx:1431 pkg/metrics/metrics.jsx:1534
+#: pkg/metrics/metrics.jsx:1448 pkg/metrics/metrics.jsx:1551
 msgid "Metrics settings"
 msgstr "メトリックス設定"
 
@@ -4940,8 +4940,8 @@ msgstr "スペアディスクが必要です"
 msgid "Need at least one NTP server"
 msgstr "少なくとも 1 つの NTP サーバーが必要です"
 
-#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1549
-#: pkg/metrics/metrics.jsx:1907 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:941 pkg/metrics/metrics.jsx:1566
+#: pkg/metrics/metrics.jsx:1936 pkg/metrics/metrics.jsx:1949
 msgid "Network"
 msgstr "ネットワーク"
 
@@ -5073,11 +5073,11 @@ msgstr "キャリアなし"
 msgid "No configuration found"
 msgstr "設定が見つかりません"
 
-#: pkg/metrics/metrics.jsx:1838
+#: pkg/metrics/metrics.jsx:1872
 msgid "No data available"
 msgstr "利用可能なデータなし"
 
-#: pkg/metrics/metrics.jsx:1834
+#: pkg/metrics/metrics.jsx:1868
 msgid "No data available between $0 and $1"
 msgstr "$0 と $1 間で利用できるデータなし"
 
@@ -5115,7 +5115,7 @@ msgstr "ドライブが見つかりません"
 msgid "No encryption"
 msgstr "暗号化なし"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1312
 msgid "No events"
 msgstr "イベントがありません"
 
@@ -5155,11 +5155,11 @@ msgstr "このアプリケーションのインストールパッケージが見
 msgid "No keys added"
 msgstr "追加されたキーはありません"
 
-#: pkg/shell/shell-modals.jsx:149
+#: pkg/shell/shell-modals.tsx:154
 msgid "No languages match"
 msgstr "一致する言語がありません"
 
-#: pkg/metrics/metrics.jsx:1111 pkg/systemd/service.jsx:166
+#: pkg/metrics/metrics.jsx:1124 pkg/systemd/service.jsx:166
 msgid "No log entries"
 msgstr "ログエントリーなし"
 
@@ -5203,7 +5203,7 @@ msgstr "実際の名前が指定されていません"
 
 #: pkg/lib/cockpit-components-multi-typeahead-select.tsx:117
 #: pkg/lib/cockpit-components-typeahead-select.tsx:205
-#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.jsx:163
+#: pkg/lib/cockpit-components-typeahead-select.tsx:206 pkg/shell/nav.tsx:223
 msgid "No results found"
 msgstr "結果が見つかりません"
 
@@ -5425,11 +5425,11 @@ msgstr ""
 "FIPS モードで起動する場合は、承認および許可されたアルゴリズムのみを使用してく"
 "ださい。"
 
-#: pkg/shell/topnav.jsx:228
+#: pkg/shell/topnav.tsx:251
 msgid "Ooops!"
 msgstr "問題が発生しました!"
 
-#: pkg/metrics/metrics.jsx:1417
+#: pkg/metrics/metrics.jsx:1434
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "ファイアウォールで pmproxy サービスを開き、メトリックを共有します。"
 
@@ -5472,7 +5472,7 @@ msgstr "外"
 msgid "Overprovisioning"
 msgstr "オーバープロビジョニング"
 
-#: pkg/metrics/metrics.jsx:1966 pkg/systemd/hwinfo.jsx:307
+#: pkg/metrics/metrics.jsx:2001 pkg/systemd/hwinfo.jsx:307
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "概要"
@@ -5491,7 +5491,7 @@ msgstr "既存のデータをゼロで上書き (低速)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1788
+#: pkg/metrics/metrics.jsx:1822
 msgid "PCP is missing for metrics history"
 msgstr "履歴を利用するには PCP が必要です"
 
@@ -5735,7 +5735,7 @@ msgstr ""
 "ピアとは、このマシンに接続する他のマシンです。他のマシンの公開鍵が相互に共有"
 "されます。"
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1451
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5950,7 +5950,7 @@ msgstr "ロケーションを使用するプロセス"
 msgid "Progress: $0"
 msgstr "進行状況: $0"
 
-#: pkg/shell/shell-modals.jsx:72
+#: pkg/shell/shell-modals.tsx:76
 msgid "Project website"
 msgstr "プロジェクト Web サイト"
 
@@ -6096,7 +6096,7 @@ msgstr "読み取り"
 msgid "Read more"
 msgstr "さらに読む..."
 
-#: pkg/metrics/metrics.jsx:1440 pkg/systemd/hwinfo.jsx:206
+#: pkg/metrics/metrics.jsx:1457 pkg/systemd/hwinfo.jsx:206
 msgid "Read more..."
 msgstr "さらに読む..."
 
@@ -6615,12 +6615,12 @@ msgstr "ラウンドロビン"
 msgid "Routes"
 msgstr "ルート"
 
-#: pkg/lib/cockpit-components-table.jsx:275
+#: pkg/lib/cockpit-components-table.tsx:357
 msgid "Row expansion"
 msgstr "行の拡張"
 
-#: pkg/lib/cockpit-components-table.jsx:276
-#: pkg/lib/cockpit-components-table.jsx:277
+#: pkg/lib/cockpit-components-table.tsx:358
+#: pkg/lib/cockpit-components-table.tsx:359
 msgid "Row select"
 msgstr "行の選択"
 
@@ -6720,8 +6720,8 @@ msgstr "SSH キーはパスではありません"
 msgid "SSH key login"
 msgstr "SSH 鍵ログイン"
 
-#: pkg/shell/topnav.jsx:202 pkg/shell/credentials.jsx:77
-#: pkg/shell/credentials.jsx:93
+#: pkg/shell/credentials.jsx:77 pkg/shell/credentials.jsx:93
+#: pkg/shell/topnav.tsx:225
 msgid "SSH keys"
 msgstr "SSH キー"
 
@@ -6751,7 +6751,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "毎週土曜日"
 
-#: pkg/metrics/metrics.jsx:1446 pkg/systemd/timer-dialog.jsx:148
+#: pkg/metrics/metrics.jsx:1463 pkg/systemd/timer-dialog.jsx:148
 #: pkg/networkmanager/dialogs-common.jsx:149 pkg/packagekit/kpatch.jsx:310
 #: pkg/storaged/partitions/partition.jsx:197 pkg/storaged/nfs/nfs.jsx:188
 #: pkg/storaged/filesystem/mounting-dialog.jsx:358
@@ -6802,7 +6802,7 @@ msgstr "再起動が $0 に予定されています"
 msgid "Sealed-case PC"
 msgstr "シールドケース PC"
 
-#: pkg/systemd/logs.jsx:391 pkg/shell/nav.jsx:141
+#: pkg/systemd/logs.jsx:391 pkg/shell/nav.tsx:200
 msgid "Search"
 msgstr "検索"
 
@@ -6850,7 +6850,7 @@ msgstr "セキュリティー更新のみ"
 msgid "Security updates will be applied $0 at $1"
 msgstr "$0 $1 にセキュリティーアップデートが適用されます"
 
-#: pkg/shell/shell-modals.jsx:114
+#: pkg/shell/shell-modals.tsx:118
 msgid "Select"
 msgstr "選択"
 
@@ -6940,7 +6940,7 @@ msgstr "サービス"
 msgid "Services using the location"
 msgstr "ロケーションを使用するサービス"
 
-#: pkg/shell/topnav.jsx:277
+#: pkg/shell/topnav.tsx:313
 msgid "Session"
 msgstr "セッション"
 
@@ -7425,7 +7425,7 @@ msgstr "強固なパスワード"
 msgid "Stub"
 msgstr "スタブ"
 
-#: pkg/shell/topnav.jsx:166
+#: pkg/shell/topnav.tsx:189
 msgid "Style"
 msgstr "スタイル"
 
@@ -7454,7 +7454,7 @@ msgid "Sundays"
 msgstr "毎週日曜日"
 
 #: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:687
-#: pkg/metrics/metrics.jsx:1918 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1947 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "スワップ"
 
@@ -7522,7 +7522,7 @@ msgstr "同期中"
 msgid "Synchronizing MDRAID device $target"
 msgstr "MDRAID デバイス $target の同期"
 
-#: pkg/systemd/services.jsx:912 pkg/shell/nav.jsx:48 pkg/shell/nav.jsx:355
+#: pkg/systemd/services.jsx:914 pkg/shell/nav.tsx:69 pkg/shell/nav.tsx:405
 msgid "System"
 msgstr "システム"
 
@@ -8292,7 +8292,7 @@ msgstr ""
 "フィンガープリントを確認するには、マシン上に物理的に置かれるか、信頼できる"
 "ネットワークを介して $0 で次のコマンドを実行します:"
 
-#: pkg/metrics/metrics.jsx:1844
+#: pkg/metrics/metrics.jsx:1878
 msgid "Today"
 msgstr "今日"
 
@@ -8305,7 +8305,7 @@ msgstr "切り替え"
 msgid "Toggle date picker"
 msgstr "日付選択の切り替え"
 
-#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:815
+#: pkg/systemd/logs.jsx:188 pkg/systemd/services.jsx:811
 msgid "Toggle filters"
 msgstr "フィルターの切り替え"
 
@@ -8313,7 +8313,7 @@ msgstr "フィルターの切り替え"
 msgid "Too much data"
 msgstr "データが多すぎます"
 
-#: pkg/shell/nav.jsx:358
+#: pkg/shell/nav.tsx:408
 msgid "Tools"
 msgstr "ツール"
 
@@ -8365,7 +8365,7 @@ msgstr "トリガー元"
 msgid "Triggers"
 msgstr "トリガー"
 
-#: pkg/metrics/metrics.jsx:1805
+#: pkg/metrics/metrics.jsx:1839
 msgid "Troubleshoot"
 msgstr "トラブルシュート"
 
@@ -8571,7 +8571,7 @@ msgid "Unexpected PackageKit error during installation of $0: $1"
 msgstr "$0 のインストール時に予期しない PackageKit エラーが発生しました: $1"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:174
+#: pkg/shell/shell-modals.tsx:179
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
@@ -8773,8 +8773,8 @@ msgstr "ステータスを更新中..."
 msgid "Upload"
 msgstr "アップロード"
 
-#: pkg/metrics/metrics.jsx:1917 pkg/metrics/metrics.jsx:1918
-#: pkg/metrics/metrics.jsx:1919 pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1946 pkg/metrics/metrics.jsx:1947
+#: pkg/metrics/metrics.jsx:1948 pkg/metrics/metrics.jsx:1949
 #: pkg/systemd/overview-cards/usageCard.jsx:128
 #: pkg/storaged/lvm2/physical-volume.jsx:119
 #: pkg/storaged/block/unrecognized-data.jsx:50
@@ -8832,7 +8832,7 @@ msgid ""
 msgstr ""
 "オプションのマウントや対話が必要なマウント (パスフレーズなど) に役立ちます"
 
-#: pkg/systemd/services.jsx:916 pkg/storaged/dialog.jsx:1457
+#: pkg/systemd/services.jsx:918 pkg/storaged/dialog.jsx:1457
 msgid "User"
 msgstr "ユーザー"
 
@@ -8957,7 +8957,7 @@ msgstr "すべてのサービスの表示"
 msgid "View automation script"
 msgstr "オートメーションスクリプトの表示"
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1122
 msgid "View detailed logs"
 msgstr "詳細なログを表示する"
 
@@ -9076,7 +9076,7 @@ msgstr "警告以上のレベル"
 msgid "Weak password"
 msgstr "脆弱なパスワード"
 
-#: pkg/shell/shell-modals.jsx:62 pkg/shell/manifest.json:0
+#: pkg/shell/shell-modals.tsx:66 pkg/shell/manifest.json:0
 msgid "Web Console"
 msgstr "Webコンソール"
 
@@ -9092,7 +9092,7 @@ msgstr "Web コンソールが再起動します"
 msgid "Web console is running in limited access mode."
 msgstr "Web コンソールが制限付きアクセスモードで実行されています。"
 
-#: pkg/shell/shell-modals.jsx:64
+#: pkg/shell/shell-modals.tsx:68
 msgid "Web console logo"
 msgstr "Web コンソールロゴ"
 
@@ -9621,7 +9621,7 @@ msgstr "失敗を無視"
 msgid "in less than a minute"
 msgstr "一分以内"
 
-#: pkg/shell/shell-modals.jsx:182
+#: pkg/shell/shell-modals.tsx:187
 msgid "in most browsers"
 msgstr "多くのブラウザー"
 
@@ -9860,15 +9860,15 @@ msgstr "LVM2 ボリュームグループの物理ボリューム"
 msgid "plugin"
 msgstr "プラグイン"
 
-#: pkg/metrics/metrics.jsx:1802
+#: pkg/metrics/metrics.jsx:1836
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service が失敗しました"
 
-#: pkg/metrics/metrics.jsx:1804
+#: pkg/metrics/metrics.jsx:1838
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service がデータの収集に失敗しました"
 
-#: pkg/metrics/metrics.jsx:1797
+#: pkg/metrics/metrics.jsx:1831
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service サービスが実行されていません"
 

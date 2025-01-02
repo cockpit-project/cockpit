@@ -85,7 +85,7 @@ export interface SimpleSelectProps<T> extends Omit<SelectProps, 'toggle' | 'onSe
   /** Initial options of the select. */
   options: SimpleSelectOption<T>[];
   /** Selected option */
-  selected: unknown;
+  selected: T;
   /** Callback triggered on selection. */
   onSelect: (selection: T) => void;
   /** Callback triggered when the select opens or closes. */

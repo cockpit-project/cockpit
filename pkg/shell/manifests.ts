@@ -19,6 +19,12 @@
 
 import { JsonValue } from "cockpit";
 
+import {
+    import_json_object,
+    import_string, import_number, import_boolean, import_record, import_array,
+    import_optional, import_mandatory
+} from "import-json";
+
 export interface ManifestKeyword {
     matches: string[];
     goto?: string;
@@ -26,9 +32,29 @@ export interface ManifestKeyword {
     translate?: boolean;
 }
 
+function import_ManifestKeyword(val: JsonValue): ManifestKeyword {
+    const obj = import_json_object(val);
+    const res: ManifestKeyword = {
+        matches: import_mandatory(obj, "matches", v => import_array(v, import_string)),
+    };
+    import_optional(res, obj, "goto", import_string);
+    import_optional(res, obj, "weight", import_number);
+    import_optional(res, obj, "translate", import_boolean);
+    return res;
+}
+
 export interface ManifestDocs {
     label: string;
     url: string;
+}
+
+function import_ManifestDocs(val: JsonValue): ManifestDocs {
+    const obj = import_json_object(val);
+    const res: ManifestDocs = {
+        label: import_mandatory(obj, "label", import_string),
+        url: import_mandatory(obj, "url", import_string),
+    };
+    return res;
 }
 
 export interface ManifestEntry {
@@ -39,13 +65,36 @@ export interface ManifestEntry {
     keywords?: ManifestKeyword[];
 }
 
+function import_ManifestEntry(val: JsonValue): ManifestEntry {
+    const obj = import_json_object(val);
+    const res: ManifestEntry = { };
+    import_optional(res, obj, "path", import_string);
+    import_optional(res, obj, "label", import_string);
+    import_optional(res, obj, "order", import_number);
+    import_optional(res, obj, "docs", v => import_array(v, import_ManifestDocs));
+    import_optional(res, obj, "keywords", v => import_array(v, import_ManifestKeyword));
+    return res;
+}
+
 export interface ManifestSection {
     [name: string]: ManifestEntry;
+}
+
+function import_ManifestSection(val: JsonValue): ManifestSection {
+    return import_record(val, import_ManifestEntry);
 }
 
 export interface ManifestParentSection {
     component?: string;
     docs?: ManifestDocs[];
+}
+
+function import_ManifestParentSection(val: JsonValue): ManifestParentSection {
+    const obj = import_json_object(val);
+    const res: ManifestParentSection = { };
+    import_optional(res, obj, "component", import_string);
+    import_optional(res, obj, "docs", v => import_array(v, import_ManifestDocs));
+    return res;
 }
 
 export interface Manifest {
@@ -58,13 +107,24 @@ export interface Manifest {
     ".checksum"?: string;
 }
 
+function import_Manifest(val: JsonValue): Manifest {
+    const obj = import_json_object(val);
+    const res: Manifest = { };
+    import_optional(res, obj, "dashboard", import_ManifestSection);
+    import_optional(res, obj, "menu", import_ManifestSection);
+    import_optional(res, obj, "tools", import_ManifestSection);
+    import_optional(res, obj, "preload", v => import_array(v, import_string));
+    import_optional(res, obj, "parent", import_ManifestParentSection);
+    import_optional(res, obj, ".checksum", import_string);
+    return res;
+}
+
 export interface Manifests {
     [pkg: string]: Manifest;
 }
 
 export function import_Manifests(val: JsonValue): Manifests {
-    // TODO - validate against schema
-    return val as unknown as Manifests;
+    return import_record(val, import_Manifest);
 }
 
 export interface ShellManifest {
@@ -73,6 +133,9 @@ export interface ShellManifest {
 }
 
 export function import_ShellManifest(val: JsonValue): ShellManifest {
-    // TODO - validate against schema
-    return val as unknown as ShellManifest;
+    const obj = import_json_object(val);
+    const res: ShellManifest = { };
+    import_optional(res, obj, "docs", v => import_array(v, import_ManifestDocs));
+    import_optional(res, obj, "locales", v => import_record(v, import_string));
+    return res;
 }

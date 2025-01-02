@@ -101,7 +101,7 @@ import {
   SelectProps
 } from '@patternfly/react-core';
 import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
-import "cockpit-components-typeahead-select.scss";
+import "cockpit-components-select.scss";
 
 const _ = cockpit.gettext;
 
@@ -529,7 +529,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
               return (
                   <SelectOption key={option.key}
                                 isDisabled
-                                className="ct-typeahead-header">
+                                className="ct-select-header">
                       {option.content}
                   </SelectOption>
               );

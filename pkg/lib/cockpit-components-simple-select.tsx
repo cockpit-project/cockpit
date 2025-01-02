@@ -48,6 +48,10 @@ SOFTWARE.
 
      { decorator: "divider", key: "..." }
 
+   - Support for headers.
+
+     { decorator: "header", content: _("Also available"), key: "..." }
+
 */
 
 /* eslint-disable */
@@ -63,10 +67,19 @@ import {
 import { Divider } from '@patternfly/react-core/dist/esm/components/Divider';
 import { MenuToggle, MenuToggleElement, MenuToggleProps } from '@patternfly/react-core/dist/esm/components/MenuToggle';
 
+import "cockpit-components-select.scss";
+
 export interface SimpleSelectDividerOption {
   decorator: "divider";
 
   key: string | number;
+};
+
+export interface SimpleSelectHeaderOption {
+  decorator: "header";
+
+  key: string | number;
+  content: React.ReactNode;
 };
 
 export interface SimpleSelectMenuOption<T> extends Omit<SelectOptionProps, 'content'> {
@@ -79,7 +92,8 @@ export interface SimpleSelectMenuOption<T> extends Omit<SelectOptionProps, 'cont
 }
 
 export type SimpleSelectOption<T> = SimpleSelectMenuOption<T> |
-                                    SimpleSelectDividerOption;
+                                    SimpleSelectDividerOption |
+                                    SimpleSelectHeaderOption;
 
 export interface SimpleSelectProps<T> extends Omit<SelectProps, 'toggle' | 'onSelect'> {
   /** Initial options of the select. */
@@ -119,6 +133,16 @@ export function SimpleSelect<T>({
   const simpleSelectOptions = options.map(option => {
     if (option.decorator == "divider")
       return <Divider key={option.key} component="li" />;
+
+    if (option.decorator == "header")
+      return (
+        <SelectOption key={option.key}
+            isDisabled
+            className="ct-select-header">
+            {option.content}
+        </SelectOption>
+      );
+
     const { content, value, key, ...props } = option;
     return (
       <SelectOption value={value} key={key !== undefined ? key : `${value}`} {...props}>

@@ -160,7 +160,6 @@ const UnlockDialog = ({ proxy, host }) => {
                 <FormGroup
                     fieldId="switch-to-admin-access-password"
                     label={prompt.prompt}
-                    validated={!error ? "default" : validated || "error"}
                 >
                     <TextInput
                         autoFocus // eslint-disable-line jsx-a11y/no-autofocus

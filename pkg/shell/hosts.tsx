@@ -271,7 +271,7 @@ export class CockpitHosts extends React.Component {
                             selector={this.props.selector}
                             groups={groups}
                             item_render={render}
-                            sorting={(_a, _b) => true}
+                            sorting={(_a, _b) => 1}
                             filtering={this.filterHosts}
                             current={label}
                             jump={() => console.error("internal error: jump not supported in hosts selector")}

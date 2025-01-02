@@ -69,7 +69,6 @@ const EarlyFailureReady = ({
     reconnect = false,
     troubleshoot = false,
     onTroubleshoot = () => {},
-    watchdog_problem,
     onReconnect = () => {},
 } : {
     loading?: boolean,
@@ -78,7 +77,6 @@ const EarlyFailureReady = ({
     reconnect?: boolean,
     troubleshoot?: boolean,
     onTroubleshoot?: () => void,
-    watchdog_problem?: string,
     onReconnect?: () => void,
 }) => {
     return (
@@ -109,10 +107,9 @@ export const Disconnected = ({ problem }) => {
     return (
         <EarlyFailureReady title={_("Disconnected")}
                                reconnect
-                               watchdog_problem={problem}
                                onReconnect={() => {
                                    cockpit.sessionStorage.clear();
-                                   window.location.reload(true);
+                                   window.location.reload();
                                }}
                                paragraph={cockpit.message(problem)} />
     );

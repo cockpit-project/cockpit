@@ -148,6 +148,7 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
         newSelectOptions = [
           {
             isAriaDisabled: true,
+            isDisabled: true,
             content:
               typeof noOptionsFoundMessage === 'string' ? noOptionsFoundMessage : noOptionsFoundMessage(inputValue),
             value: NO_RESULTS

@@ -76,6 +76,8 @@ SOFTWARE.
      done. And there is no visual nesting going on anyway. Keeping the
      options a flat list is just all around easier.
 
+   - Support for a footer.
+
 */
 
 /* eslint-disable */
@@ -88,6 +90,7 @@ import {
   SelectList,
   SelectOptionProps,
   MenuToggle,
+  MenuFooter,
   MenuToggleElement,
   TextInputGroup,
   TextInputGroupMain,
@@ -164,6 +167,8 @@ export interface TypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSe
   noOptionsFoundMessage?: string | ((filter: string) => string);
   /** Flag indicating the select should be disabled. */
   isDisabled?: boolean;
+  /** Optional footer */
+  footer?: React.ReactNode;
   /** Width of the toggle. */
   toggleWidth?: string;
   /** Additional props passed to the toggle. */
@@ -208,6 +213,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
   isCreateOptionOnTop = false,
   createOptionMessage = "",
   isDisabled = false,
+  footer = null,
   toggleWidth,
   toggleProps,
   ...props
@@ -535,6 +541,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
           );
         })}
       </SelectList>
+      { footer && <MenuFooter>{footer}</MenuFooter> }
     </Select>
   );
 };

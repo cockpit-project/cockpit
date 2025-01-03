@@ -274,6 +274,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
         newSelectOptions = [
           {
             isAriaDisabled: true,
+            isDisabled: true,
             content:
               typeof noOptionsFoundMessage === 'string' ? noOptionsFoundMessage : noOptionsFoundMessage(filterValue),
             value: NO_RESULTS
@@ -287,6 +288,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
       newSelectOptions = [
         {
           isAriaDisabled: true,
+          isDisabled: true,
           content: noOptionsAvailableMessage,
           value: NO_RESULTS
         }
@@ -316,7 +318,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
   const setActiveAndFocusedItem = (itemIndex: number) => {
     setFocusedItemIndex(itemIndex);
-    const focusedItem = selectOptions[itemIndex] as TypeaheadSelectMenuOption;
+    const focusedItem = filteredSelections[itemIndex] as TypeaheadSelectMenuOption;
     setActiveItemId(String(focusedItem.value));
   };
 
@@ -384,7 +386,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
 
     openMenu();
 
-    if (filteredSelections.every(o => !isMenu(o))) {
+    if (filteredSelections.every(o => !isEnabledMenu(o))) {
       return;
     }
 

@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+// @cockpit-ts-relaxed
+
 import cockpit from "cockpit";
 import React from "react";
 
@@ -26,7 +28,7 @@ import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/d
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 
 import { codes } from "./hosts_dialog.jsx";
 
@@ -61,20 +63,27 @@ export const EarlyFailure = () => {
 };
 
 const EarlyFailureReady = ({
-    loading,
+    loading = false,
     title,
     paragraph,
-    reconnect,
-    troubleshoot,
-    onTroubleshoot,
-    watchdog_problem,
-    onReconnect
+    reconnect = false,
+    troubleshoot = false,
+    onTroubleshoot = () => {},
+    onReconnect = () => {},
+} : {
+    loading?: boolean,
+    title: string,
+    paragraph: string,
+    reconnect?: boolean,
+    troubleshoot?: boolean,
+    onTroubleshoot?: () => void,
+    onReconnect?: () => void,
 }) => {
     return (
         <div id="early-failure-ready" className="curtains-ct">
             <Page>
                 <PageSection variant={PageSectionVariants.light}>
-                    <EmptyStatePanel icon={!loading ? ExclamationCircleIcon : undefined}
+                    <EmptyStatePanel {... !loading ? { icon: ExclamationCircleIcon } : {} }
                                      loading={loading}
                                      title={title}
                                      action={<>
@@ -98,10 +107,9 @@ export const Disconnected = ({ problem }) => {
     return (
         <EarlyFailureReady title={_("Disconnected")}
                                reconnect
-                               watchdog_problem={problem}
                                onReconnect={() => {
                                    cockpit.sessionStorage.clear();
-                                   window.location.reload(true);
+                                   window.location.reload();
                                }}
                                paragraph={cockpit.message(problem)} />
     );

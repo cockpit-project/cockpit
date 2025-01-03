@@ -46,7 +46,7 @@ export class KeyLoadError extends Error {
     }
 }
 
-class Keys extends EventTarget {
+export class Keys extends EventTarget {
     path: string | null = null;
     items: Record<string, Key> = { };
 

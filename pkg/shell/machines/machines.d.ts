@@ -14,6 +14,7 @@ export interface Machine {
     user?: string;
     port?: number;
     label: string;
+    color?: string;
     state: null | "failed" | "connecting" | "connected";
     manifests?: Manifests;
     checksum?: string;
@@ -32,6 +33,8 @@ export interface Machines extends EventSource<MachinesEvents> {
     ready: boolean;
 
     lookup: (conection_string: string) => Machine;
+    list: Machines[];
+    change: (key: string, props: Partial<Machine>) => void;
 }
 
 interface Loader {

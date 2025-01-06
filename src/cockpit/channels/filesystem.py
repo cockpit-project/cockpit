@@ -562,6 +562,7 @@ class FsInfoChannel(Channel, PathWatchListener):
             try:
                 fd = Handle.open(self.path, os.O_PATH if self.follow else os.O_PATH | os.O_NOFOLLOW)
             except OSError as exc:
+                assert exc.errno  # noqa: PT017 - mypy thinks that errno can be None
                 self.report_error(exc.errno)
             else:
                 self.report_initial_state(fd)

@@ -1,0 +1,99 @@
+[[listen]]
+== TCP Port and Address
+
+Cockpit's `cockpit-ws` component is configured by default to accept
+connections on port `9090`. This is the port that is documented for a
+"Web-based System Manager" to listen on. It is also relatively
+memorable.
+
+However there are many reasons you may wish to change the default port.
+For example other software may use port `9090` or you may wish to setup
+Cockpit to listen on `443` instead. It is also possible to have Cockpit
+only listen on one specific IP address.
+
+Note that it is only required to have Cockpit listening on a TCP port on
+the server that you access with your web browser. If you add multiple
+servers with host switcher, Cockpit will connect to those servers via
+`ssh`.
+
+The systems that Cockpit runs on are typically locked down with
+firewalls, SELinux, so changing the default port is not as easy as
+editing a configuration file.
+
+[[listen-systemd]]
+=== Cockpit systemd Socket
+
+On servers with
+https://www.freedesktop.org/wiki/Software/systemd/[`systemd`] Cockpit
+starts on demand via socket activation. To change its port and/or
+address you should place the following content in the
+`/etc/systemd/system/cockpit.socket.d/listen.conf` file. Create the file
+and directories in that path which not already exist. The `ListenStream`
+option specifies the desired address and TCP port.
+
+....
+[Socket]
+ListenStream=
+ListenStream=443
+....
+
+....
+[Socket]
+ListenStream=
+ListenStream=7777
+ListenStream=192.168.1.1:443
+FreeBind=yes
+....
+
+NOTE: The first line with an empty value is intentional. `systemd`
+allows multiple `Listen` directives to be declared in a single socket
+unit; an empty value in a drop-in file resets the list and thus disables
+the default port 9090 from the original unit.
+
+The `FreeBind` option is highly recommended when defining specific IP
+addresses. See the
+https://www.freedesktop.org/software/systemd/man/systemd.socket.html[`systemd.socket`
+manpage] for details.
+
+In order for the changes to take effect, run the following commands:
+
+....
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart cockpit.socket
+....
+
+[[listen-selinux]]
+=== SELinux Port
+
+If https://selinuxproject.org/page/Main_Page[SELinux] is protecting your
+server, then you will need to tell it to allow Cockpit to listen on the
+new port. Run the following command to do so. The last argument
+specifies the desired TCP port.
+
+....
+$ sudo semanage port -a -t websm_port_t -p tcp 9999
+....
+
+If the port is already defined by some other part of the SELinux policy,
+then you will need to use the `-m` argument to modify the definition.
+That's the case with the `443` SSL port, which is typically defined as
+an `http_port_t` port.
+
+....
+$ sudo semanage port -m -t websm_port_t -p tcp 443
+....
+
+The changes should take effect immediately.
+
+[[listen-firewalld]]
+=== Firewalld Port
+
+If https://fedoraproject.org/wiki/FirewallD[Firewalld] is configured as
+your firewall, then you will need to tell it to allow Cockpit to receive
+connections on the new port. Run the following commands to do so. The
+last options specify the desired TCP port.
+
+....
+$ sudo firewall-cmd [--zone=ZONE] --add-port=443/tcp
+$ sudo firewall-cmd --permanent [--zone=ZONE] --add-port=443/tcp
+....

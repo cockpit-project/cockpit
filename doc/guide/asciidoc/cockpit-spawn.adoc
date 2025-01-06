@@ -1,0 +1,202 @@
+cockpit.js: Spawning Processes
+
+Spawning processes or scripts
+
+This is the API for spawning a process and receiving its output, as well
+as exit codes.
+
+[[cockpit-spawn-spawn]]
+== cockpit.spawn()
+
+....
+process = cockpit.spawn(args, [options])
+....
+
+Spawns a process on the system.
+
+The `args` should be an array starting with the executable and
+containing all the arguments to pass on the command line. If `args` is a
+string then it is interpreted as an executable name. The optional
+`options` argument is a javascript plain object and can contain any of
+the following fields:
+
+`"binary"`::
+  If set to `true` then handle the input and output of the process as
+  arrays of binary bytes.
+`"directory"`::
+  The directory to spawn the process in.
+`"err"`::
+  Controls where the standard error is sent. By default it is logged to
+  the journal. If set to `"out"` it is included in with the output data.
+  If set to `"ignore"` then the error output is discarded. If set to
+  `"message"`, then it will be returned as the error message. When the
+  `"pty"` field is set, this field has no effect.
+`"environ"`::
+  An optional array that contains strings to be used as additional
+  environment variables for the new process. These are `"NAME=VALUE"`
+  strings.
+`"pty"`::
+  Launch the process in its own PTY terminal, and send/receive terminal
+  input and output.
+`"batch"`::
+  Batch data coming from the process in blocks of at least this size.
+  This is not a guarantee. After a short timeout the data will be sent
+  even if the data doesn't match the batch size. Defaults to zero.
+`"latency"`::
+  The timeout for flushing any cached data in milliseconds.
+`"superuser"`::
+  Set to `"require"` to spawn the process as root instead of the logged
+  in user. If the currently logged in user is not permitted to become
+  root (eg: via `pkexec`) then the `client` will immediately be
+  link:#cockpit-dbus-onclose[closed] with a `"access-denied"` problem
+  code.
+  +
+  Set to `"try"` to try to run the process as root, but if that fails,
+  fall back to an unprivileged process.
+
+The spawned process is a
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[promise]
+that will complete if the process exits successfully, or fail if there's
+a problem. Some additional methods besides the standard promise methods
+are documented below.
+
+The standard output of the process is made available via the spawned
+process object. Any non-UTF8 output from the process will be coerced
+into textual form. It is highly recommended that only textual output be
+produced by the command. The standard error is logged to the journal.
+
+[[cockpit-spawn-script]]
+== cockpit.script()
+
+....
+process = cockpit.script(script, [args], [options])
+....
+
+Run a shell script on the system.
+
+This function link:#cockpit-spawn-spawn[spawns] a Bourne shell script
+process. The full text of the `/bin/sh` shell script should be passed in
+as the first argument. The `args` can be an array of arguments, not
+including the executable, which are passed to the script as `$1`, `$2`
+and so on. Shebang options are not used or respected.
+
+The `options` is an optional javascript plain object and can include any
+of the fields listed for the
+link:#cockpit-spawn-spawn[`cockpit.spawn()`] function.
+
+The spawned process is a
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[promise]
+that will complete if the script exits successfully, or fail if there's
+a problem. Some additional methods besides the standard promise methods
+are documented below.
+
+The standard output of the process is made available via the spawned
+process object. Any non-UTF8 output from the process will be coerced
+into textual form. It is highly recommended that only textual output be
+produced by the command. The standard error is logged to the journal by
+default.
+
+[[cockpit-spawn-then]]
+== process.then()
+
+....
+process.then((data[, message]) => { ... })
+....
+
+This is a standard
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[promise]
+method. It sets up a handler to be called when the process finishes
+successfully.
+
+The `data` argument contains the standard output of the process. If it a
+string, unless the process was opened in binary mode, in which case the
+`data` is an array of bytes. If a `process.stream()` handler is set up,
+then any standard output data consumed by the handler will not be
+included in the `data` argument.
+
+If the process was spawned with the `"err"` option set to `"message"`
+then the second argument will contain the standard error output of the
+process.
+
+[[cockpit-spawn-catch]]
+== process.catch()
+
+....
+process.catch((exception[, data]) => { ... })
+....
+
+This is a standard
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise]
+method. It sets up a handler to be called when the process fails,
+terminates or exits.
+
+The `exception` object passed to the handler can have the following
+fields:
+
+`message`::
+  A message describing the exception. If the process was spawned with
+  the `"err"` option set to `"message"` then the second argument will
+  contain the standard error output of the process.
+`problem`::
+  A link:#cockpit-problems[problem code] string when a problem occurred
+  starting or communicating with the process. This is `null` if the
+  process exited or was terminated.
+`exit_status`::
+  The numeric exit status of the process. This is `null` if the process
+  did not exit.
+`exit_signal`::
+  A string representing a unix signal that caused the process to
+  terminate. This is `null` if the process did not terminate because of
+  a signal.
+
+If the process actually ran and produced output before failing, it will
+be available in the `data` argument. Otherwise this argument will be
+`undefined`.
+
+[[cockpit-spawn-stream]]
+== process.stream()
+
+....
+process.stream(data => { ... })
+....
+
+This sets up a handler to be called when the process has standard
+output. The handler will be called multiple times. The handler will be
+called regardless of whether the process ends up exiting successfully or
+not.
+
+Only one handler may be registered at a time. Registering an additional
+handler replaces the previous one. The handler receives either string
+`data` or an array of binary bytes as its argument. A stream handler may
+return a number, which indicates the number of characters or bytes
+consumed from `data`. Any data not consumed will be included again the
+next time the handler is called.
+
+If a `process.stream()` handler is set up, then the `process.then()`
+handlers will only get any remaining data not consumed by the stream
+handler.
+
+[[cockpit-spawn-input]]
+== process.input()
+
+....
+process.input(data, [stream])
+....
+
+This method writes `data` to the standard input of the process. If
+`data` is `null` or `undefined` it is not sent. The `data` should be a
+string or an array of bytes if the process was opened in binary mode.
+
+If `stream` is set to `true` then this function may be called again with
+further input. Otherwise the standard input of the process is closed.
+
+[[cockpit-spawn-close]]
+== process.close()
+
+....
+process.close([problem])
+....
+
+Close the process by closing its standard input and output. If `problem`
+is specified it should be a standard link:#cockpit-problems[problem
+code] string. In this case the process will be terminated with a signal.

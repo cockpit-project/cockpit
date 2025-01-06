@@ -1,0 +1,42 @@
+[[feature-packagekit]]
+== Package Updates
+
+Cockpit uses the
+https://www.freedesktop.org/software/PackageKit/gtk-doc/api-reference.html[PackageKit]
+D-Bus API to get information about available package updates and to
+apply them, in an Operating System independent manner.
+
+To perform similar tasks from the command line, use the
+https://www.freedesktop.org/software/PackageKit/pk-using.html[pkcon]
+command:
+
+....
+$ pkcon refresh
+
+$ pkcon get-updates
+Available  sudo-1.8.20p2-1.fc26.x86_64 (updates-testing)
+    Allows restricted root access for specified users
+Available  vim-filesystem-2:8.0.617-1.fc26.x86_64 (updates-testing)
+    VIM filesystem layout
+Available  vim-minimal-2:8.0.617-1.fc26.x86_64 (updates-testing)
+    A minimal version of the VIM editor
+
+$ pkcon get-update-detail sudo
+Details about the update:6.x86_64 [fedora]
+ Package: sudo-1.8.20p2-1.fc26.x86_64
+ Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1452941
+ Update text: - update to 1.8.20p2
+    - added sudo package to dnf/yum protected packages
+
+$ pkcon update
+The following packages have to be updated:
+ sudo-1.8.20p2-1.fc26.x86_64    Allows restricted root access for specified users
+ vim-filesystem-2:8.0.617-1.fc26.x86_64 VIM filesystem layout
+ vim-minimal-2:8.0.617-1.fc26.x86_64    A minimal version of the VIM editor
+Proceed with changes? [N/y] y
+[...]
+....
+
+Of course you can also use your Operating System specific commands for
+that, such as `dnf updateinfo info` on Fedora or `sudo apt upgrade` on
+Debian.

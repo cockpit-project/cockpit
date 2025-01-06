@@ -1,0 +1,250 @@
+cockpit.js: File Access
+
+Reading, writing, and watching files.
+
+The `cockpit.file` API lets you read, write, and watch regular files in
+their entirety. It cannot efficiently do random access in a big file or
+read non-regular files such as `/dev/random`.
+
+....
+file = cockpit.file(path,
+                    { syntax: syntax_object,
+                      binary: boolean,
+                      max_read_size: int,
+                      superuser: string,
+                    })
+
+promise = file.read()
+promise
+    .then((content, tag) => { ... })
+    .catch(error => { ... })
+
+promise = file.replace(content, [ expected_tag ])
+promise
+    .then(new_tag => { ... })
+    .catch(error => { ... })
+
+promise = file.modify(callback, [ initial_content, initial_tag ]
+promise
+    .then((new_content, new_tag) => { ... })
+    .catch(error => { ... })
+
+file.watch((content, tag, [error]) => { }, [ { read: boolean } ])
+
+file.close()
+....
+
+[[cockpit-file-simple]]
+== Simple reading and writing
+
+You can read a file with code like this:
+
+....
+cockpit.file("/path/to/file").read()
+    .then((content, tag) => {
+        ...
+    })
+    .catch(error => {
+        ...
+    });
+....
+
+It is recommended to use absolute paths. Relative paths are resolved
+against `/`. To work with the current user's files
+link:#cockpit-user[cockpit.user()] can be used to get the user's home
+directory.
+
+The `read()` method returns a
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise].
+
+When successful, the promise will be resolved with the content of the
+file. Unless you specify options to change this (see below), the file is
+assumed to be text in the UTF-8 encoding, and `content` will be a
+string.
+
+The tag that is passed to the `then()` callback is a short string that
+is associated with the file and changes whenever the content of the file
+changes. It is meant to be used with `replace()`.
+
+It is not an error when the file does not exist. In this case, the
+`then()` callback will be called with a `null` value for `content` and
+`tag` is `"-"`.
+
+The `superuser` option can be used the same way as described in the
+link:#cockpit-channels-channel[cockpit.channel()] to provide a different
+access level to the file.
+
+You can use the `max_read_size` option to limit the amount of data that
+is read. If the file is larger than the given number of bytes, no data
+is read and the channel is closed with problem code `too-large`. The
+default limit is 16 MiB.
+
+To write to a file, use code like this:
+
+....
+cockpit.file("/path/to/file").replace("my new content\n")
+    .then(tag => {
+        ...
+    })
+    .catch(error => {
+        ...
+    });
+....
+
+The `replace()` method returns a
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise].
+
+When the promise is resolved, the file has been atomically replaced (via
+the `rename()` syscall) with the new content. As with `read()`, by
+default the new content is a string and will be written to the file as
+UTF-8. The returned tag corresponds to the new content of the file.
+
+When the promise is rejected because of an error, the file or its meta
+data has not been changed in any way.
+
+As a special case, passing the value `null` to `replace()` will remove
+the file.
+
+The `replace()` method can also check for conflicting changes to a file.
+You can pass a tag (as returned by `read()` or `replace()`) to
+`replace()`, and the file will only be replaced if it still has the
+given tag. If the tag of the file has changed, `replace()` will fail
+with an error object that has `error.problem == "change-conflict"`. See
+`modify()` below for a convenient way to achieve transactional updates
+to a file.
+
+[[cockpit-file-format]]
+== File format
+
+By default, a file is assumed to be text encoded in UTF-8, and the
+`read()` and `replace()` functions use strings to represent the content.
+
+By specifying the `syntax.parser()` and `syntax.stringify()` options,
+you can cause `read()` to parse the content before passing it back to
+you, and `replace()` to unparse it before writing.
+
+The main idea is to be able to write `{ syntax: JSON }`, of course, but
+you can easily pass in individual functions or make your own
+parser/unparser object:
+
+....
+cockpit.file("/path/to/file.json", { syntax: JSON })
+
+var syntax_object = {
+    parse:     my_parser,
+    stringify: my_unparser
+};
+
+cockpit.file("/path/to/file", { syntax: syntax_object })
+....
+
+Any exceptions thrown by the `parse()` and `stringify()` functions are
+caught and reported as read or write errors.
+
+The `null` value that is used to represent the content of a non-existing
+file (see "Simple reading and writing", above) is not passed through the
+`parse()` and `stringify()` functions.
+
+[[cockpit-file-binary]]
+== Binary files
+
+By default the content of the file is assumed to be text encoded as
+UTF-8 and it can not contain zero bytes. The content is represented as a
+JavaScript string with `read()`, `replace()`, etc. By setting the
+`binary` option to true when creating the proxy, no assumptions are
+placed on the content, and it is represented as a `Uint8Array` in
+JavaScript.
+
+[[cockpit-file-atomic]]
+== Atomic modifications
+
+Use `modify()` to modify the content of the file safely. A call to
+`modify()` will read the content of the file, call `callback` on the
+content, and then replace the content of the file with the return value
+of the callback.
+
+The `modify()` method uses the `read()` and `replace()` methods
+internally in the obvious way. Thus, the `syntax.parse()` and
+`syntax.stringify()` options work as expected, `null` represents a
+non-existing file, and the watch callbacks are fired.
+
+It will do this one or more times, until no other conflicting changes
+have been made to the file between reading and replacing it.
+
+The callback is called like this
+
+....
+new_content = callback (old_content)
+....
+
+The callback is allowed to mutate `old_content`, but note that this will
+also mutate the objects that are passed to the watch callbacks.
+Returning `undefined` from the proxy is the same as returning
+`old_content`.
+
+The `modify()` method returns a
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise].
+
+The promise will be resolved with the new content and its tag, like so
+
+....
+function shout(old_content) {
+    return old_content.toUpperCase();
+}
+
+cockpit.file("/path/to/file").modify(shout)
+    .then((content, tag) => {
+        ...
+    })
+    .catch(error => {
+        ...
+    });
+....
+
+If you have cached the last content and tag results of the `read()` or
+`modify()` method, or the last values passed to a watch callback, you
+can pass them to `modify()` as the second and third argument. In this
+case, `modify()` will skip the initial read and start with the given
+values.
+
+[[cockpit-file-notify]]
+== Change notifications
+
+Calling `watch()` will start monitoring the file for external changes.
+
+....
+handle = file.watch(callback);
+
+handle_no_read = file.watch(callback, { read: false });
+....
+
+Whenever a change occurs, the `callback()` is called with the new
+content and tag of the file. This might happen because of external
+changes, but also as part of calls to `read()`, `replace()`, and
+`modify()`.
+
+When a read error occurs, the `callback()` is called with an error as a
+third argument. Write errors are not reported via the watch callback.
+
+Calling `watch()` will also automatically call `read()` to get the
+initial content of the file. Thus, you normally don't need to call
+`read()` at all when using `watch()`.
+
+To disable the automatic reading, e.g. for large files or unreadable
+file system objects, set the `read` option to `false`. The first
+`content` argument of the callback will then always be `null`.
+
+To free the resources used for monitoring, call `handle.remove()`.
+
+[[cockpit-file-path]]
+== file.path
+
+A string containing the path that was passed to the `cockpit.file()`
+method.
+
+[[cockpit-file-close]]
+== Closing
+
+Call the `close()` method on a file proxy to cancel all ongoing
+operations, such as reading, writing, and monitoring. The proxy should
+not be used after closing it.

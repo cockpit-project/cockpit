@@ -1,0 +1,406 @@
+[[packages]]
+== Cockpit Packages
+
+Cockpit is separated into various packages, each of which brings
+specific features and/or code.
+
+[WARNING]
+====
+In addition, any APIs or behavior not explicitly documented here is an
+internal API and can be changed at any time.
+====
+
+[[package-layout]]
+=== Layout of Package Files
+
+A package consists of one or more files placed in a directory or its
+subdirectories. It must have a `manifest.json` file and follow certain
+naming conventions.
+
+The name of a package is the name of the directory.
+
+The name of the package must be ASCII alphanumeric, and may contain an
+underscore. Names of directories and files in the package must consist
+of ASCII alphanumeric along with dash, underscore, dot, and comma. No
+spaces are allowed.
+
+Cockpit uses the data directories from the
+https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html[XDG
+Base Directory Specification] to locate packages. The `$XDG_DATA_DIRS`
+represents a colon separate list of system data directories, and
+`$XDG_DATA_HOME` is a user specific data directory. If the environment
+variables are not set, defaults are used, according to the spec. If
+cockpit has been built with an alternate `--prefix=/path` then the
+`$prefix/share/cockpit` is used by default.
+
+A `cockpit/` subdirectories in any of these data directories is the
+location where packages are loaded by Cockpit. If Cockpit finds a
+package with the same name, in multiple data directories, then the first
+one wins. According to the spec the first data directory is
+`$XDG_DATA_HOME` and then `$XDG_DATA_DIRS` in order.
+
+This means that, by default the following directories are searched for
+cockpit packages, and in this order:
+
+* `~/.local/share/cockpit/`
+* `/usr/local/share/cockpit/`
+* `/usr/share/cockpit/`
+
+Packages placed in `$XDG_DATA_HOME` are not cached by Cockpit or the web
+browser. Other packages are cached aggressively, and are accessed using
+a checksum of the files in the packages and their names.
+
+You can use the following command to list the packages installed on a
+server. You'll note that it's output may change when you run the command
+as different users, if there are packages installed in the user's home
+directory.
+
+....
+$ cockpit-bridge --packages
+...
+....
+
+To further clarify things, here is an example package called
+"my-package" and its file layout:
+
+....
+/usr/share/cockpit/
+    my-package/
+        manifest.json
+        file.html
+        some.js
+....
+
+Place or symlink packages in your `~/.local/share/cockpit` directory (or
+appropriate `$XDG_DATA_HOME` location) that you would like to modify and
+develop. System installed packages should not change while Cockpit is
+running.
+
+=== Package Manifest
+
+Each package has a `manifest.json` file. It is a JSON object. The
+following fields may be present in the manifest:
+
+content-security-policy::
+  By default Cockpit serves packages using a strict
+  https://en.wikipedia.org/wiki/Content_Security_Policy[Content Security
+  Policy], which among other things does not allow inline styles or
+  scripts. This can be overridden on a per-package basis, with this
+  setting.
+  +
+  If the overridden content security policy does not contain a
+  `default-src`, `connect-src`, `base-uri`, `form-action`, `object-src`,
+  or `block-all-mixed-content` then these will be added to the policy
+  from the manifest.
+name::
+  An optional string that changes the name of the package. Normally
+  packages derive their name from the directory that they are located
+  in. This field overrides that name.
+priority::
+  An optional number that specifies which package is preferred in cases
+  where there are conflicts. For example given two packages with the
+  same `name` a package is chosen based on its priority.
+requires::
+  An optional JSON object that contains a `"cockpit"` string version
+  number. The package will only be usable if the Cockpit bridge and
+  javascript base are equal or newer than the given version number.
+version::
+  An informational version number for the package.
+preload::
+  A list of identifiers of the components that should be preloaded.
+  Normally, the files of a component are loaded when the user navigates
+  to it for the first time. The files of a preloaded component are
+  loaded immediately after the user logs in, and the initialization code
+  of the component is invoked.
+  +
+  The value of this field is an array of strings, where each string is
+  one of the keys used in the `dashboard`, `menu`, or `tool` fields that
+  are explained below.
+parent::
+  This option is used when module does not have its own menu item but is
+  a part of a different module. This is described by JSON object with
+  properties `component` which takes name of the superordinate component
+  and `docs` with list of documentation URLs for the given page. See
+  below for structure of `docs` property.
+
+In addition, the following keys contain information about where
+components of the package should appear in Cockpit's user interface.
+Each of these keys is optional and contains an object mapping unique
+identifiers to menu items, which are described below. (The naming of
+these fields doesn't perfectly match the current user interface for
+historical reasons.)
+
+dashboard::
+  Dashboard items appear in the menu under the section _Apps_.
+menu::
+  These items appear in the menu under the section _System_. This
+  section is roughly ordered into these categories (with their _order_
+  in parentheses):
+  +
+  * System Information (10)
+  * Logs (20)
+  * Configuring major subsystems (30-40)
+  * Things running on the machine (VMs, Containers - 50-60)
+  * Implementation Details (Accounts, Services - 70-100)
+tools::
+  These items appear in the menu under the section _Tools_.
+
+Menu items and tools are registered using JSON objects that have the
+following properties:
+
+label::
+  The label for the menu item or tool.
+order::
+  An optional order number to place this menu item or tool. Lower
+  numbers are listed first.
+path::
+  The relative path to the HTML file within the package that implements
+  the menu item or tool.
+docs::
+  List of documentation URLs for the given page. Each item is an object
+  containing `label` and `url`.
+keywords::
+  Keywords that describe the page and which are used for searching.
+  These keywords should be lowercase. Keywords is a list containing
+  keyword items as described below. Page label is prepended as first
+  keyword in the first keyword item.
+
+Keyword items are registered using JSON objects that have the following
+properties:
+
+matches::
+  List of keywords to be matched.
+goto::
+  Optional path that is used for all keywords in this item. When this
+  argument starts with slash, then it is used as pathname, otherwise it
+  is used as hash. Defining `goto:"page_hash"` in page with
+  `path:"/page_path"` would redirect to `/page_path#page_hash`, while
+  `goto:"/page_path"` would redirect to `/page_path` ignoring default
+  page path.
+weight::
+  How much keywords are prioritized over others. Default is 3.
+translate::
+  `false` when keywords should not be localized. Default is `true`.
+
+An example manifest.json with some optional properties set:
+
+....
+{
+  "version": 0,
+  "require": {
+      "cockpit": "120"
+  },
+  "tools": {
+     "mytool": {
+        "label": "My Tool",
+        "path": "tool.html"
+     }
+  }
+}
+....
+
+[[package-manifest-override]]
+=== Manifest overrides
+
+To change a manifest system-wide, a file
+`<package-directory-name>.override.json` may be placed into
+`/etc/cockpit/`, or below `$XDG_CONFIG_DIRS` if set (see
+link:./cockpit.conf.5.html[cockpit.conf]). To change it for a particular
+user only, put the override into `~/.config/cockpit`.
+
+These override the information in the manifest in the simple
+https://tools.ietf.org/html/rfc7386[JSON Merge Patch] format.
+
+This can be used to hide or modify menu items of an existing package.
+For example `/etc/cockpit/systemd.override.json` or
+`~/.config/cockpit/systemd.override.json` could hide the _Logs_ menu
+item and move the _Services_ menu item to the top of the menu.
+
+....
+{
+  "menu": {
+    "logs": null,
+    "services": {
+      "order": -1
+    }
+  }
+}
+....
+
+[[package-links]]
+=== Package Links and Paths
+
+When referring to files in your package, such as in a hyperlink or a
+`<style>` tag or `<script>` tag, simply use a relative path, and refer
+to the files in the same directory. When you need to refer to files in
+another package use a relative link.
+
+For example here's how to include the base `cockpit.js` script in your
+HTML from the `latest` package:
+
+....
+<script src="../base1/cockpit.js"></script>
+....
+
+Do not assume you can link to any file in any other package. Refer to
+the link:#development[list of API packages] for those that are available
+for use.
+
+[[package-minified]]
+=== Content Negotiation
+
+In order to support gzipped and/or minified data, the files in a package
+are loaded using content negotiation logic. A HTTP request for the file
+`test.js` in the package named `mypackage` will return
+`mypackage/test.js` or `mypackage/test.js.gz` (in undefined preference).
+If neither exists, then it returns `mypackage/test.js.min` or
+`mypackage/test.js.min.gz` (again in undefined preference).
+
+When packages are loaded from a system directory, Cockpit optimizes the
+file system lookups above, by pre-listing the files. This is one of the
+reasons that you should never change packages installed to a system
+directory while Cockpit is running.
+
+[[package-api]]
+=== Using Cockpit API
+
+Cockpit has API available for writing packages. There is no API
+available for external callers to invoke via HTTP, REST or otherwise.
+
+API from various packages can be used to implement Cockpit packages.
+Each package listed here has some API available for use. Only the API
+explicitly documented should be used.
+
+* link:#development[API Listing]
+
+To include javascript from the API, simply load it into your HTML using
+a script tag. Alternatively you can use an javascript loader.
+
+[[package-bridges]]
+=== Bridges for specific tasks
+
+On the server side the link:#cockpit-bridge.1[`cockpit-bridge`] connects
+to various system APIs that the front end UI requests it to. There are
+additional bridges for specific tasks that the main `cockpit-bridge`
+cannot handle, such as using the PCP C library API.
+
+These additional bridges can be registered in a `"bridges"` section of a
+package's `manifest.json` file. Building such a bridge is a complex
+tasks, and we will skip over that here. However it is useful to adjust
+how these additional bridges are called, and so we'll look at how they
+are registered.
+
+An example `manifest.json` with a bridges section:
+
+....
+{
+    "bridges": [
+        {
+            "match": { "payload": "metrics1" },
+            "spawn": [ "/usr/libexec/cockpit-pcp" ]
+        }
+    ]
+}
+....
+
+The bridges are considered in the order they are listed in the array.
+Use the `manifest.json``"priority"` field to control order between
+packages. The bridges are registered using JSON objects that have the
+following properties:
+
+environ::
+  Optional, additional environment variables to pass to the bridge
+  command.
+match::
+  The `"match"` object describes which channel open command options need
+  to match for a given channel to be handed over to this bridge.
+privileged::
+  If set to `true`, this marks the bridge as a superuser bridge. Cockpit
+  will start one of these explicitly when trying to escalate the
+  privileges of a session. A privileged bridge can not have a `"match"`
+  property.
+label::
+  Setting this enables selection of privileged bridges in the UI. When
+  no privileged bridge has a `label`, then Cockpit will start the bridge
+  that runs `sudo`. This is the case in a default Cockpit installation.
+  When at least one privileged bridge has a `label` then the user can
+  select one of them when escalating privileges. As a special case, if
+  only one bridge has a `label`, then the step of selecting a bridge is
+  omitted in the UI and that one bridge is always started.
+  +
+  Thus, if you add a privileged bridge with a `label` in a new manifest,
+  Cockpit will use that bridge the next time a user opens the
+  "Administrative access" dialog. If you want the user to choose between
+  the `sudo` method and your new one, you need to duplicate the `sudo`
+  bridge definition in your manifest and give it a label.
+problem::
+  If a problem is specified, and this bridge fails to start up then
+  channels will be closed with this problem code. Otherwise later
+  bridges or internal handlers for the channel will be invoked.
+spawn::
+  The command and arguments to invoke.
+
+The `spawn` and `environ` values can be dynamically taken from a
+matching open command values. When a value in either the `spawn` or
+`environ` array contains a named variable wrapped in `${}`, the variable
+will be replaced with the value contained in the matching open command.
+Only named variables are supported and name can only contain letters,
+numbers and the following symbols: `._-`
+
+For example a bridges section like:
+
+....
+{
+  "bridges": [
+    {
+      "match": { "payload": "example" },
+      "environ": [ "TAG=${tag}" ],
+      "spawn: [ "/example-bridge", "--tag", "${tag}" ],
+      "problem": "access-denied"
+    }
+  ]
+}
+....
+
+when a open command is received with a payload of `example` with `tag`
+value of `tag1`. The following command will be spawned
+
+....
+TAG=tag1 /example-bridge --tag tag1
+....
+
+Processes that are reused so if another open command with a "tag" of
+`tag1` is received. The open command will be passed to existing process,
+rather than spawning a new one. However a open command with an tag of
+`tag2` will spawn a new command:
+
+....
+TAG=tag2 /example-bridge --tag tag2
+....
+
+If you need to include `${}`, as an actual value in your arguments you
+can escape it by prefixing it with a `\`
+
+[[package-replace]]
+=== Replacing an existing package
+
+If the functionality in a package replaces that of another package then
+it can replace that package by claiming the same `name` and a higher
+`priority`.
+
+For example, a package in the `/usr/share/cockpit/disks` directory could
+replace Cockpit's _storage_ package with a `manifest.json` like this:
+
+....
+{
+  "version": 0,
+  "name": "storage",
+  "priority": 10,
+  "menu": {
+     "index": {
+        "label": "Disk Storage",
+        "order": 15
+     }
+  }
+}
+....

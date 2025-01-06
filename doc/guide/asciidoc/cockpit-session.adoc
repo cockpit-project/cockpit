@@ -1,0 +1,92 @@
+cockpit.js: User Session
+
+User information and login session state
+
+[[cockpit-logout]]
+== cockpit.logout()
+
+....
+cockpit.logout([reload])
+....
+
+Logout of Cockpit. Unless `reload` is `false` this will also cause the
+page to be reloaded, so that the user can see the logged out state.
+
+[[cockpit-user]]
+== cockpit.user()
+
+....
+var promise = cockpit.user();
+promise.then(user => { ... });
+....
+
+This object contains information about the user that's currently logged
+into cockpit. The following fields are defined:
+
+`"id"`::
+  This is unix user id.
+`"gid"`::
+  This is unix user group id.
+`"name"`::
+  This is the unix user name like `"root"`.
+`"full_name"`::
+  This is a readable name for the user.
+`"groups"`::
+  This is an array of group names to which the user belongs. Since
+  version 318, the first item in this list is the primary group.
+`"home"`::
+  This is user's home directory.
+`"shell"`::
+  This is unix user shell.
+
+Returns a promise that completes once the user information is available.
+
+[[cockpit-permission]]
+== Permission lookup
+
+Cockpit provides a mechanism for checking if the current user satisfies
+a given criteria. Currently capable of checking for root users, and
+group membership. This is meant for updating UI elements based on what
+actions the user can perform. It is _not an access control mechanism_.
+
+[[cockpit-permission-constructor]]
+=== cockpit.permission()
+
+....
+permission = cockpit.permission([options])
+....
+
+Create a new permission object to check if the current user has
+permission. The "root" user is always given permission. The `options`
+argument can contain a `"group"` field, and members of that group are
+also given permission.
+
+[[cockpit-permission-allowed]]
+=== permission.allowed
+
+A boolean value which indicates if the permission is allowed or not.
+This will be `null` if the permission is unknown, or there was an error
+checking the permission or the permission data has not yet loaded. This
+property will update asynchronously and if you wish to be notified of
+changes connect to the
+link:#cockpit-permission-changed[permission.onchanged] event.
+
+[[cockpit-permission-changed]]
+=== permission.onchanged
+
+....
+permission.addEventListener("changed", function() { ... })
+....
+
+This event is fired when the permission changes. In particular the
+link:#cockpit-permission-allowed[permission.allowed] property.
+
+[[cockpit-permission-close]]
+=== permission.close()
+
+....
+permission.close()
+....
+
+Closes the permission object and tears down any registered callbacks and
+dbus subscriptions.

@@ -1,0 +1,280 @@
+[[cert-authentication]]
+== Certificate/smart card authentication
+
+Cockpit can use TLS client certificates for authenticating users.
+Commonly these are provided by a smart card, but it's equally possible
+to import certificates directly into the web browser.
+
+This requires the host to be in an Identity Management domain like
+https://www.freeipa.org[FreeIPA] or
+https://en.wikipedia.org/wiki/Active_Directory[Active Directory], which
+can associate certificates to users.
+
+To authenticate users from a Identity Management domain, the server that
+Cockpit is running on must be joined to that domain. See the
+link:#sso-server[SSO server requirements] for details.
+
+[[certauth-server-cert-generation]]
+=== User certificate generation
+
+Generating the certificates for users is usually done with a certificate
+management system like https://pagure.io/certmonger[certmonger] or
+https://www.freeipa.org/page/PKI[FreeIPA], which are not documented
+here. This command generates a simple key and certificate request for
+the "alice" user:
+
+....
+openssl req -new -newkey rsa:2048 -days 365 \
+    -keyout alice.key -out alice.csr -subj "/CN=alice"
+....
+
+Now get this certificate request signed by the Certificate Authority of
+your Identity Management domain, to get a PEM certificate. Browsers and
+smart cart utilities accept PKCS#12 format for importing/transfer, so
+convert the certificate/key pair; it will ask for and protect it with a
+transfer password:
+
+....
+openssl pkcs12 -export -in alice.pem -inkey alice.key -out alice.p12
+....
+
+Don't forget to clean up the key file when you do not need it any more:
+
+....
+shred -u alice.key
+....
+
+You can now import `alice.p12` directly into your browser, with giving
+the transfer password set above. Or
+https://linux.die.net/man/1/pkcs15-init[put the certificate onto a smart
+card]:
+
+....
+pkcs15-init --store-private-key alice.p12 --format pkcs12 --auth-id 01
+....
+
+[[certauth-server-ipa]]
+=== Certificate mapping with FreeIPA
+
+The recommended method to sign a user certificate request and associate
+it to a user is `ipa cert-request`:
+
+....
+ipa cert-request alice.csr --principal=alice --certificate-out=alice.pem
+....
+
+Alternatively, if you are using a different CA, you can use
+`ipa user-add-cert` to associate the signed certificate to the user.
+This expects PEM format, but without the `-----BEGIN`/`-----END`
+markers:
+
+....
+ipa user-add-cert alice --certificate="$(grep -v ^---- alice.pem)"
+....
+
+See the
+https://www.freeipa.org/page/V4/User_Certificates#Feature_Management[FreeIPA
+User Certificates documentation] for details.
+
+[[certauth-server-ms-ad]]
+=== Certificate mapping with Microsoft Active Directory
+
+The domain user certificates get imported into the
+`userCertificate;binary` LDAP attribute. The following commands convert
+the PEM certificate into binary DER form, create an
+https://ldap.com/ldif-the-ldap-data-interchange-format/[LDIF] file and
+apply it to the LDAP server running on the domain controller
+"dc.example.com":
+
+....
+openssl x509 -outform der -in alice.pem -out alice.der
+
+cat <<EOF > alice.ldif
+version: 1
+dn: cn=alice,ou=users,ou=YOUR_NETBIOS_NAME,dc=example,dc=com
+changetype: modify
+add: userCertificate;binary
+userCertificate;binary:< file://$(pwd)/alice.der
+EOF
+
+ldapmodify -H ldap://dc.example.com -f alice.ldif
+....
+
+[[certauth-server-samba-ad]]
+=== Certificate mapping with Samba Active Directory
+
+At least some versions of https://www.samba.org/[Samba] do not support
+the `userCertificate;binary` LDAP attribute, so the import has to happen
+in base64 PEM form into the textual `userCertificate` attribute instead.
+Also, Samba uses a slightly different user hierarchy:
+
+....
+cat <<EOF > alice.ldif
+version: 1
+dn: cn=alice,cn=users,dc=example,dc=com
+changetype: modify
+add: userCertificate
+userCertificate: $(grep -v ^---- alice.pem | tr -d '\n')
+EOF
+
+ldapmodify -H ldap://dc.example.com  -f alice.ldif
+....
+
+As `userCertificate` is a text instead of binary field, you need to set
+up a
+https://www.mankier.com/5/sssd.conf#Certificate_Mapping_Section[certificate
+mapping rule] in `sssd.conf(5)` in a `[certmap/domain/rulename]`
+section, for example:
+
+....
+[certmap/example.com/adcerts]
+# we match full certificates, so it is not important to check anything here
+matchrule = <KU>digitalSignature
+maprule = LDAP:(userCertificate={cert!base64})
+....
+
+[[certauth-server-cockpitconf]]
+=== Cockpit web server configuration
+
+Set the trusted Certificate Authority of your user certificates in
+`sssd`, either by copying the CA PEM file to
+`/etc/sssd/pki/sssd_auth_ca_db.pem` or setting the
+https://www.mankier.com/5/sssd.conf#Services_Sections-PAM_configuration_options[`pam_cert_db_path`]
+configuration option to the path of the CA. If you use FreeIPA and its
+CA:
+
+....
+cp /etc/ipa/ca.crt /etc/sssd/pki/sssd_auth_ca_db.pem
+....
+
+Certificate authentication needs to be enabled in
+link:./cockpit.conf.5.html[cockpit.conf] explicitly:
+
+....
+[WebService]
+ClientCertAuthentication = yes
+....
+
+When enabling this mode,
+https://github.com/cockpit-project/cockpit/blob/main/doc/authentication.md[other
+authentication types] commonly get disabled, so that _only_ client
+certificate authentication will be accepted. By default, after a failed
+certificate authentication attempt, Cockpit's normal login page will
+appear and permit other login types such as `basic` (passwords) or
+`negotiate` (Kerberos). For example, password authentication gets
+disabled with:
+
+....
+[basic]
+action = none
+....
+
+[[certauth-server-resourcelimits]]
+=== Cockpit web server resource limits
+
+When using certificate authentication, all requests with a particular
+certificate will be handled by a separate and isolated instance of the
+link:./cockpit-ws.8.html[cockpit-ws] web server. This protects against
+possible vulnerabilities in the web server and prevents an attacker from
+impersonating another user. However, this introduces a potential Denial
+of Service: Some remote attacker could create a large number of
+certificates and send a large number of http requests to Cockpit with
+these.
+
+To mitigate that, all `cockpit-ws` instances run in a
+`system-cockpithttps.slice`
+https://www.freedesktop.org/software/systemd/man/systemd.slice.html[systemd
+slice unit] which
+https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html[limits
+the collective resources] of these web server instances: by default,
+this slice sets a limit of 200 threads (roughly 100 instances of
+`cockpit-ws` -- in other words, a maximum of 100 parallel user sessions
+with different certificates) and a 75% (soft)/90% (hard) memory limit.
+
+You are welcome to adjust these limits to your need through a
+https://www.freedesktop.org/software/systemd/man/systemd.unit.html[drop-in].
+For example:
+
+....
+# systemctl edit system-cockpithttps.slice
+
+[Slice]
+# change existing value
+TasksMax=100
+# add new restriction
+CPUQuota=30%
+....
+
+[[certauth-forwarding]]
+=== Authentication to other services like sudo and ssh
+
+Once you logged into Cockpit with a certificate, you likely need to
+switch to administrative mode (root privileges through sudo), or connect
+to remote machines through SSH. If your user account has a password,
+that can be used for authenticating to sudo or ssh as usual.
+
+_Supported with FreeIPA only:_ As an alternative to password
+authentication, you can also declare the initial Cockpit certificate
+authentication as trusted for authenticating to SSH, sudo, or other
+services. For that purpose, Cockpit automatically creates an
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu/bde93b0e-f3c9-4ddf-9f44-e1453be7af5a[S4U2Proxy
+Kerberos ticket] in the user session:
+
+....
+$ klist
+Ticket cache: FILE:/run/user/1894000001/cockpit-session-3692.ccache
+Default principal: user@EXAMPLE.COM
+
+Valid starting     Expires            Service principal
+07/30/21 09:19:06  07/31/21 09:19:06  HTTP/myhost.example.com@EXAMPLE.COM
+07/30/21 09:19:06  07/31/21 09:19:06  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+    for client HTTP/myhost.example.com@EXAMPLE.COM
+....
+
+You can set up
+https://www.freeipa.org/page/V4/Service_Constraint_Delegation[constrained
+delegation rules] to enumerate which hosts (including its own) that
+ticket is trusted to access. For example, if the cockpit session runs on
+host `myhost.example.com` and should be trusted to access its own host
+(through sudo) and another host `remote.example.com` (through ssh),
+create a delegation like this:
+
+....
+# a list of target machines which can be accessed by a particular rule
+ipa servicedelegationtarget-add cockpit-target
+ipa servicedelegationtarget-add-member cockpit-target \
+  --principals=host/myhost.example.com@EXAMPLE.COM \
+  --principals=host/remote.example.com@EXAMPLE.COM
+
+# allow cockpit sessions (HTTP/ principal) to access that host list
+ipa servicedelegationrule-add cockpit-delegation
+ipa servicedelegationrule-add-member cockpit-delegation \
+  --principals=HTTP/myhost.example.com@EXAMPLE.COM
+ipa servicedelegationrule-add-target cockpit-delegation \
+  --servicedelegationtargets=cockpit-target
+....
+
+In addition, you need to enable GSS (Kerberos) authentication in the
+corresponding services.
+
+* For SSH, enable `GSSAPIAuthentication yes` in
+https://linux.die.net/man/5/sshd_config[/etc/ssh/sshd_config].
+* For sudo, enable `pam_sss_gss` as described in the
+https://www.mankier.com/8/pam_sss_gss[manpage]: In
+`/etc/sssd/sssd.conf`: Add an entry for your domain:
++
+....
+[domain/example.com]
+pam_gssapi_services = sudo, sudo-i
+....
++
+In `/etc/pam.d/sudo`, enable the module in the first line:
++
+....
+auth sufficient pam_sss_gss.so
+....
+
+_Caveat:_ The delegated S4U ticket is not yet forwarded to remote SSH
+hosts when connecting to them from Cockpit, so authenticating to sudo on
+the remote host with that ticket does not work. This will be provided in
+a future version.

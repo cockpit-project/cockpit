@@ -1,0 +1,58 @@
+[[privileges]]
+== Privileges and Permissions
+
+When a user is logged into Cockpit, they are logged into a normal
+session that has exactly the same privileges as if they logged in via
+SSH or on the console.
+
+However, Cockpit will usually try to escalate the privileges of the user
+using https://www.freedesktop.org/wiki/Software/polkit/[Policy Kit] or
+https://www.sudo.ws/[sudo]. If the user is able to escalate privileges
+from the command line by typing in their password again (or without
+typing in any password), then Cockpit will be able to escalate the
+privileges of the session to "root" immediately upon login.
+
+The user can change the privileges of a session from within that
+session, via the "Administrative access" indicator in the top bar. From
+that indicator, the user can drop "root" privileges and regain them. On
+the next login, Cockpit will give the session the same privileges.
+
+Usually a user needs to be in the `wheel` Unix user group for the user
+to be able to escalate privileges in this way. However both Policy Kit
+and sudo may be configured to use other criteria.
+
+[[privileges-polkit]]
+=== Customizing Polkit Privileges
+
+Services like
+https://www.freedesktop.org/wiki/Software/systemd/[systemd] and
+https://wiki.gnome.org/Projects/NetworkManager[NetworkManager] use
+https://www.freedesktop.org/wiki/Software/polkit/[Polkit] to validate
+and escalate privileges. It is possible to customize these rules with
+files in `/etc/polkit-1/rules.d`.
+
+Polkit rules files are
+https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html[javascript
+with specific methods and objects]. For example, placing the following
+polkit rule to `/etc/polkit-1.rules.d/10-operators.rule` allows all
+users in the `operators` group to start, stop, restart and otherwise
+manage systemd services:
+
+....
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units") {
+        if (subject.isInGroup("operators")) {
+            return polkit.Result.YES;
+        }
+    }
+});
+....
+
+In order to allow a certain group to perform any administrative action
+you could add a rule like this:
+
+....
+polkit.addAdminRule(function(action, subject) {
+    return ["unix-group:operators"];
+});
+....

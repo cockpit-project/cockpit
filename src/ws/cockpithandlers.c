@@ -337,21 +337,8 @@ add_logged_into_to_environment (JsonObject *object,
 }
 
 static GBytes *
-build_environment (GHashTable *os_release, CockpitAuth *auth, GHashTable *request_headers)
+build_environment (CockpitAuth *auth, GHashTable *request_headers)
 {
-  /*
-   * We don't include entirety of os-release into the
-   * environment for the login.html page. There could
-   * be unexpected things in here.
-   *
-   * However since we are displaying branding based on
-   * the OS name variant flavor and version, including
-   * the corresponding information is not a leak.
-   */
-  static const gchar *release_fields[] = {
-    "NAME", "ID", "PRETTY_NAME", "VARIANT", "VARIANT_ID", "CPE_NAME", "ID_LIKE", "DOCUMENTATION_URL"
-  };
-
   static const gchar *prefix = "\n    <script>\nvar environment = ";
   static const gchar *suffix = ";\n    </script>";
 
@@ -376,18 +363,6 @@ build_environment (GHashTable *os_release, CockpitAuth *auth, GHashTable *reques
   hostname[HOST_NAME_MAX] = '\0';
   json_object_set_string_member (object, "hostname", hostname);
   g_free (hostname);
-
-  if (os_release)
-    {
-      osr = json_object_new ();
-      for (i = 0; i < G_N_ELEMENTS (release_fields); i++)
-        {
-          value = g_hash_table_lookup (os_release, release_fields[i]);
-          if (value)
-            json_object_set_string_member (osr, release_fields[i], value);
-        }
-      json_object_set_object_member (object, "os-release", osr);
-    }
 
   add_oauth_to_environment (object);
 
@@ -446,7 +421,7 @@ send_login_html (CockpitWebResponse *response,
   GBytes *po_bytes;
   CockpitWebFilter *filter3 = NULL;
 
-  environment = build_environment (ws->os_release, ws->auth, headers);
+  environment = build_environment (ws->auth, headers);
   filter = cockpit_web_inject_new (marker, environment, 1);
   g_bytes_unref (environment);
   cockpit_web_response_add_filter (response, filter);

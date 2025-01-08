@@ -345,10 +345,7 @@ build_environment (CockpitAuth *auth, GHashTable *request_headers)
   GByteArray *buffer;
   GBytes *bytes;
   JsonObject *object;
-  const gchar *value;
   gchar *hostname;
-  JsonObject *osr;
-  gint i;
 
   object = json_object_new ();
 

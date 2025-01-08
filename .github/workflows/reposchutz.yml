@@ -6,8 +6,7 @@ on:
 jobs:
   check:
     name: Protection checks
-    # 22.04's podman has issues with piping and causes tar errors
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write

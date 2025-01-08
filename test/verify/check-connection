@@ -1176,6 +1176,18 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         b.wait_visible("#login")
         b.assert_pixels("body", "login-screen")
 
+        # our supported OSes should all have branding make sure it matches os-release
+        if m.image.startswith("ubuntu"):
+            # reflects src/branding/ubuntu/branding.scss
+            expected = m.execute('. /usr/lib/os-release; echo "$PRETTY_NAME"').strip()
+        else:
+            expected = m.execute('. /usr/lib/os-release; echo "$NAME $VARIANT"').strip()
+            # quirk: trailing space hard to avoid due to the empty variant wrapped in <b>
+            if m.image == 'arch':
+                expected += ' '
+
+        b.wait_text("#brand", expected)
+
     @testlib.skipOstree("tests cockpit-ws package")
     @testlib.skipWsContainer("tests cockpit-ws package")
     @testlib.nondestructive

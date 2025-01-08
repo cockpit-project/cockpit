@@ -10,8 +10,7 @@ jobs:
       contents: read
       pull-requests: write
     timeout-minutes: 5
-    # 22.04's podman has issues with piping and causes tar errors
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: ${{ contains(github.event.pull_request.labels.*.name, 'node_modules') }}
 
     steps:

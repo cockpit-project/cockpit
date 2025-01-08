@@ -8,8 +8,7 @@ on:
 
 jobs:
   source:
-    # 22.04's podman has issues with piping and causes tar errors
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       # create GitHub release
       contents: write

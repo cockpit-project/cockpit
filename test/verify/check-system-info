@@ -894,7 +894,8 @@ password=foobar
         b.click(".system-health-crypto-policies button.pf-v5-c-button.pf-m-link")
         b.wait_in_text(".pf-v5-c-menu__item.pf-m-selected .pf-v5-c-label.pf-m-orange", "inconsistent")
         b.click("#crypto-policy-save-reboot")
-        self.wait_reboot()
+        # Initramfs re-generation takes a while
+        self.wait_reboot(timeout_sec=600)
         m.start_cockpit()
         self.login_and_go("/system")
         b.wait_text("#crypto-policy-button", "Default")

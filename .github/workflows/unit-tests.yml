@@ -33,6 +33,6 @@ jobs:
 
             vendor/checkout
             test/common/make-bots
-            ./autogen.sh
+            ./autogen.sh --enable-strict
             make -j$(nproc) '${{ matrix.target }}'
           EOF

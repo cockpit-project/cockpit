@@ -363,17 +363,33 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_visible('#content')
         b.logout()
 
-        # beiboot mode: future OS version → incompatible, not supported
+        # beiboot mode: known remote OS; m2 runs TEST_OS, so we cover all supported ones in our testmap
+        # damage local os-release to avoid the "same unknown OS" code path
+        m.execute('''sed -i '/^ID=/ s/=.*/=testux/; /^PLATFORM_ID/d; /^VERSION_ID=/ s/=.*$/="0815"/' '''
+                  "/etc/os-release")
         # rolling OSes don't have a VERSION_ID
-        if m.image not in ["arch", "debian-testing"]:
-            m2.execute("sed -i '/^VERSION_ID/ s/$/1/' /etc/os-release")
-            b.try_login(password="alt-password")
-            source_os = m.execute('. /etc/os-release; echo "$NAME $VERSION_ID"').strip()
-            b.wait_text('#login-error-title', "Packageless session unavailable")
-            b.wait_in_text('#login-error-message', "Transient packageless sessions")
-            b.wait_in_text('#login-error-message', source_os)
-            b.wait_in_text('#login-error-message', "Install the cockpit-system package")
-            b.wait_in_text('#login-error-message', "on 10.111.113.2")
+        if m.image in ["arch", "debian-testing"]:
+            m.execute('''echo 'VERSION_ID="0815"' >> /etc/os-release''')
+        b.try_login(password="alt-password")
+        b.wait_visible('#content')
+        b.logout()
+
+        # beiboot mode: different OS version → incompatible, not supported
+        if m2.image in ["arch", "debian-testing"]:
+            # rolling OSes don't have a VERSION_ID
+            m2.execute('''echo 'VERSION_ID="0815"' >> /etc/os-release''')
+        else:
+            m2.execute('''sed -i '/^VERSION_ID/ s/=.*$/="0815"/; /^PLATFORM_ID/d' /etc/os-release''')
+        b.try_login(password="alt-password")
+        b.wait_text('#login-error-title', "Packageless session unavailable")
+        b.wait_in_text('#login-error-message', "Install the cockpit-system package")
+        b.wait_in_text('#login-error-message', "on 10.111.113.2")
+
+        # beiboot mode: local and remote OS are unknown but the same
+        m2.execute('''sed -i '/^ID=/ s/=.*/=testux/' /etc/os-release''')
+        b.try_login(password="alt-password")
+        b.wait_visible('#content')
+        b.logout()
 
         fix_bridge(m2)
 

@@ -36,6 +36,7 @@ from cockpit.bridge import parse_os_release, setup_logging
 from cockpit.channel import ChannelRoutingRule
 from cockpit.channels import PackagesChannel
 from cockpit.jsonutil import JsonObject, get_str
+from cockpit.osinfo import supported_oses
 from cockpit.packages import Packages, PackagesLoader, patch_libexecdir
 from cockpit.peer import Peer
 from cockpit.protocol import CockpitProblem, CockpitProtocolError
@@ -236,20 +237,30 @@ class AuthorizeResponder(ferny.AskpassHandler):
 
         if command == 'cockpit.check-os-release':
             remote_os = parse_os_release(args[0])
+            logger.debug("cockpit.check-os-release: remote OS: %r", remote_os)
+            logger.debug("cockpit.check-os-release: supported OSes: %r", supported_oses)
+
+            for osinfo in supported_oses:
+                # we want to allow e.g. VERSION_ID == None matching to check for key absence
+                if all(remote_os.get(k) == v for k, v in osinfo.items()):
+                    logger.debug("cockpit.check-os-release: remote matches supported OS %r", osinfo)
+                    return
+
+            # allow unknown OSes as long as local and remote are the same
             logger.debug("cockpit.check-os-release: remote: %r", remote_os)
             try:
                 with open("/etc/os-release") as f:
-                    local_os = parse_os_release(f.read())
+                    this_os = parse_os_release(f.read())
             except OSError as e:
                 logger.warning("failed to read local /etc/os-release, skipping OS compatibility check: %s", e)
                 return
 
-            logger.debug("cockpit.check-os-release: local: %r", local_os)
-            # for now, just support the same OS
-            if remote_os.get('ID') != local_os.get('ID') or remote_os.get('VERSION_ID') != local_os.get('VERSION_ID'):
-                unsupported = f'{remote_os.get("NAME", remote_os.get("ID", "?"))} {remote_os.get("VERSION_ID", "")}'
-                supported = f'{local_os.get("NAME", local_os.get("ID", "?"))} {local_os.get("VERSION_ID", "")}'
-                raise CockpitProblem('no-cockpit', unsupported=unsupported, supported=supported)
+            if remote_os.get('ID') == this_os.get('ID') and remote_os.get('VERSION_ID') == this_os.get('VERSION_ID'):
+                logger.debug("cockpit.check-os-release: remote OS matches local OS %r", this_os)
+                return
+
+            unsupported = f'{remote_os.get("NAME", remote_os.get("ID", "?"))} {remote_os.get("VERSION_ID", "")}'
+            raise CockpitProblem('no-cockpit', unsupported=unsupported)
 
 
 def python_interpreter(comment: str) -> tuple[Sequence[str], Sequence[str]]:

@@ -85,6 +85,8 @@ class BrowserTest(unittest.TestCase):
             result = v
 
         def on_timeout():
+            self.win_actions.activate_action("run-js", GLib.Variant.new_string(
+                'new XMLSerializer().serializeToString(document)'))
             nonlocal result
             result = "timed out waiting for JavaScript result"
 

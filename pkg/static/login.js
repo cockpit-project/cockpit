@@ -1042,16 +1042,9 @@ function debug(...args) {
                 const status = decodeURIComponent(xhr.statusText).trim();
                 login_failure(_("Permission denied"), status === "Permission denied" ? "" : status);
             } else if (xhr.status == 500 && xhr.statusText.indexOf("no-cockpit") > -1) {
-                let message = format(
+                const message = format(
                     _("Install the cockpit-system package (and optionally other cockpit packages) on $0 to enable web console access."),
                     login_machine || "localhost");
-
-                // with os-release (all but really weird targets) we get some more info
-                const error = JSON.parse(xhr.responseText);
-                if (error.supported)
-                    message = format(
-                        _("Transient packageless sessions require the same operating system and version, for compatibility reasons: $0."),
-                        error.supported) + " " + message;
 
                 login_failure(_("Packageless session unavailable"), message);
             } else if (xhr.statusText) {

@@ -1130,7 +1130,7 @@ function debug(...args) {
             if (login_data_host) {
                 const hostkey = response["login-data"]["known-hosts"];
                 if (hostkey) {
-                    console.debug("setup_localstorage(): updating known_hosts database for deferred host key for", login_data_host, ":", hostkey);
+                    debug("setup_localstorage(): updating known_hosts database for deferred host key for", login_data_host, ":", hostkey);
                     set_hostkeys(login_data_host, hostkey);
                 } else {
                     console.error("login.js internal error: setup_localstorage() received a pending login-data host, but login-data does not contain known-hosts");

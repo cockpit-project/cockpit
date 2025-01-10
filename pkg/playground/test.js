@@ -132,4 +132,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cockpit.addEventListener("visibilitychange", show_hidden);
     show_hidden();
+
+    const fsreplace_btn = document.getElementById("fsreplace1-create");
+    const fsreplace_error = document.getElementById("fsreplace1-error");
+    fsreplace_btn.addEventListener("click", e => {
+        fsreplace_btn.disabled = true;
+        fsreplace_error.textContent = '';
+        const filename = document.getElementById("fsreplace1-filename").value;
+        const content = document.getElementById("fsreplace1-content").value;
+        const use_tag = document.getElementById("fsreplace1-use-tag").checked;
+        const file = cockpit.file(filename, { superuser: "try" });
+
+        file.read().then((_content, tag) => {
+            file.replace(content, use_tag ? tag : undefined)
+                    .catch(exc => {
+                        fsreplace_error.textContent = exc.toString();
+                    })
+                    .finally(() => {
+                        fsreplace_btn.disabled = false;
+                    });
+        });
+    });
 });

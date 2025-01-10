@@ -16,13 +16,6 @@ system
 for rpm in ws bridge $PACKAGES; do
     rpm2cpio /var/tmp/cockpit-$rpm-*.rpm | cpio -i --make-directories --directory=/var/tmp/install
 done
-
-# HACK: Fedora CoreOS is already on Python 3.13, while Fedora-40 is Python3.12
-if [ -d /var/tmp/install/usr/lib/python3.13/site-packages/cockpit ]; then
-    mkdir -p /var/tmp/install/usr/lib/python3.12/site-packages/
-    mv /var/tmp/install/usr/lib/python3.13/site-packages/cockpit /var/tmp/install/usr/lib/python3.12/site-packages/
-fi
-
 podman run --name build-cockpit -i \
     -v /var/tmp/:/run/build:Z \
     quay.io/cockpit/ws sh -exc '

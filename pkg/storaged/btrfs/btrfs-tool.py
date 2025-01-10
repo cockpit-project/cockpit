@@ -225,6 +225,7 @@ def cmd_monitor(opt_mount):
 
 
 def cmd_poll(opt_mount):
+    unshare_mounts()
     infos = poll(opt_mount, opt_repair=True)
     sys.stdout.write(json.dumps(infos) + "\n")
     sys.stdout.flush()
@@ -245,6 +246,8 @@ def unshare_mounts():
             errno = get_errno_loc()[0]
             raise OSError(errno, os.strerror(errno))
 
+    subprocess.check_call(["mount", "--make-rprivate", "/"])
+
 
 def cmd_do(uuid, cmd):
     debug(f"DO {uuid} {cmd}")
@@ -255,7 +258,6 @@ def cmd_do(uuid, cmd):
             dev = fs['devices'][0]
             os.makedirs(path, mode=0o700, exist_ok=True)
             unshare_mounts()
-            subprocess.check_call(["mount", "--make-rprivate", "/"])
             subprocess.check_call(["mount", dev, path])
             subprocess.check_call(cmd, cwd=path)
 

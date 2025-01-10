@@ -25,7 +25,7 @@ import * as timeformat from "timeformat";
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
 
-export const BTRFS_TOOL_MOUNT_PATH = "/var/lib/cockpit/btrfs/";
+export const BTRFS_TOOL_MOUNT_PATH = "/run/cockpit/btrfs/";
 
 /* UTILITIES
  */

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+
+# version 332 moved the btrfs temp mounts db to /run
+if [ "$1" = "configure" ] && dpkg --compare-versions "$2" lt-nl 322 && [ -d /var/lib/cockpit/btrfs ]; then
+   rm -rf --one-file-system  /var/lib/cockpit/btrfs || true
+fi

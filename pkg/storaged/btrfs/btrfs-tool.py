@@ -33,7 +33,7 @@ def debug(msg):
     pass
 
 
-TMP_MP_DIR = "/var/lib/cockpit/btrfs"
+TMP_MP_DIR = "/run/cockpit/btrfs"
 
 
 def read_all(fd):
@@ -106,7 +106,7 @@ def add_tmp_mountpoint(db, fs, dev, opt_repair):
         else:
             db[uuid] = 1
         if not fs['has_tmp_mountpoint'] and (db[uuid] == 1 or opt_repair):
-            path = TMP_MP_DIR + "/" + uuid
+            path = os.path.join(TMP_MP_DIR, uuid)
             debug(f"MOUNTING {path}")
             os.makedirs(path, exist_ok=True)
             subprocess.check_call(["mount", dev, path])
@@ -118,7 +118,7 @@ def remove_tmp_mountpoint(db, uuid):
         debug(f"REMOVING {uuid}")
         tmp_mountpoints.remove(uuid)
         if db[uuid] == 1:
-            path = TMP_MP_DIR + "/" + uuid
+            path = os.path.join(TMP_MP_DIR, uuid)
             try:
                 debug(f"UNMOUNTING {path}")
                 subprocess.check_call(["umount", path])
@@ -139,7 +139,7 @@ def remove_all_tmp_mountpoints():
 
 def force_mount_point(db, fs, opt_repair):
     add_tmp_mountpoint(db, fs, fs['devices'][0], opt_repair)
-    return TMP_MP_DIR + "/" + fs['uuid']
+    return os.path.join(TMP_MP_DIR, fs['uuid'])
 
 
 def get_mount_point(db, fs, opt_mount, opt_repair):
@@ -251,7 +251,7 @@ def cmd_do(uuid, cmd):
     filesystems = list_filesystems()
     for fs in filesystems.values():
         if fs['uuid'] == uuid:
-            path = "/run/cockpit/btrfs"
+            path = os.path.join(TMP_MP_DIR, uuid)
             dev = fs['devices'][0]
             os.makedirs(path, mode=0o700, exist_ok=True)
             unshare_mounts()

@@ -546,6 +546,13 @@ The Cockpit component for managing storage.  This package uses udisks.
 %files -n cockpit-storaged -f storaged.list
 %{_datadir}/metainfo/org.cockpit_project.cockpit_storaged.metainfo.xml
 
+%post storaged
+
+# version 332 moved the btrfs temp mounts db to /run
+if [ "$1" = 2 ] && [ -d /var/lib/cockpit/btrfs ]; then
+    rm -rf --one-file-system  /var/lib/cockpit/btrfs || true
+fi
+
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages
 BuildArch: noarch

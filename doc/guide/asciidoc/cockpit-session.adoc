@@ -45,8 +45,7 @@ Returns a promise that completes once the user information is available.
 == Permission lookup
 
 Cockpit provides a mechanism for checking if the current user satisfies
-a given criteria. Currently capable of checking for root users, and
-group membership. This is meant for updating UI elements based on what
+a given criteria. This is meant for updating UI elements based on what
 actions the user can perform. It is _not an access control mechanism_.
 
 [[cockpit-permission-constructor]]
@@ -56,10 +55,17 @@ actions the user can perform. It is _not an access control mechanism_.
 permission = cockpit.permission([options])
 ....
 
-Create a new permission object to check if the current user has
-permission. The "root" user is always given permission. The `options`
-argument can contain a `"group"` field, and members of that group are
-also given permission.
+Create a new permission object to check if the current user has a
+particular permission specified by `options`:
+
+`admin: true`::
+  True if the session has superuser privileges, i.e. can run channels as
+  root with `{ superuser: "require" }`.
+`group:` _name_::
+  True if the currently logged user is a member of group _name_.
+
+The permission result is always true for the "root" user. When `options`
+is not given, check if the current user is root.
 
 [[cockpit-permission-allowed]]
 === permission.allowed

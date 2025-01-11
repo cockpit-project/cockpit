@@ -1,0 +1,41 @@
+[[multi-host]]
+== Managing multiple hosts at the same time
+
+Cockpit allows you to access multiple hosts in a single session, by
+establishing SSH connections to other hosts. This is quite similar to
+logging into these other hosts using the `ssh` command on the command
+line, with one very important difference:
+
+Code from the local host and all the remote hosts run at the same time,
+in the same browser context. They are not isolated from each other in
+the browser. All code effectively has the same privileges as the primary
+session on the local host.
+
+Thus, _you should only only connect to remote hosts that you trust_. You
+must be sure that none of the hosts that you connect to will cause
+Cockpit to load malicious JavaScript code into your browser.
+
+Therefore, Cockpit will warn you before connecting to more than one
+host. It is also possible to disable multiple hosts entirely, and some
+operating systems do this already by default.
+
+You can prevent loading of JavaScript, HTML, etc from more than one host
+by adding this to `cockpit.conf`:
+
+....
+    [WebService]
+    AllowMultiHost=false
+  
+....
+
+When you allow multiple hosts in a single Cockpit session by setting
+`AllowMultiHost` to true, then the user will be warned once per session,
+before connecting to the second host. If that is still too much, you can
+switch the warning off completely by adding the following to
+`cockpit.conf`:
+
+....
+    [Session]
+    WarnBeforeConnecting=false
+  
+....

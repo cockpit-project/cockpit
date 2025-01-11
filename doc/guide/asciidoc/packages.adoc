@@ -100,6 +100,12 @@ priority::
   An optional number that specifies which package is preferred in cases
   where there are conflicts. For example given two packages with the
   same `name` a package is chosen based on its priority.
+conditions::
+  An optional list of `{"predicate": "value"}` objects. Cockpit will
+  only consider the package if _all_ conditions are met. Currently
+  supported predicates are `path-exists` and `path-not-exists`. Unknown
+  predicates are ignored. This is preferable to using `priority`, but
+  only available since Cockpit FIXME-RELEASE.
 requires::
   An optional JSON object that contains a `"cockpit"` string version
   number. The package will only be usable if the Cockpit bridge and
@@ -190,6 +196,26 @@ An example manifest.json with some optional properties set:
   "require": {
       "cockpit": "120"
   },
+  "tools": {
+     "mytool": {
+        "label": "My Tool",
+        "path": "tool.html"
+     }
+  }
+}
+....
+
+....
+{
+  "version": 0,
+  "require": {
+    "cockpit": "120"
+  },
+  "conditions": [
+    {"path-exists": "/usr/bin/mytool"},
+    {"path-exists": "/etc/mytool.conf"},
+    {"path-not-exist": "/etc/incompatible-tool"}
+  ],
   "tools": {
      "mytool": {
         "label": "My Tool",

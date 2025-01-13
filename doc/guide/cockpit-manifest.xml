@@ -9,12 +9,13 @@
 
   <refsection id="cockpit-manifest-loading">
     <title>Loading Manifests</title>
-    <para>You can load manifest info by loading the <code>./manifest.json</code> file in
-      your package. In addition there is a shortcut, by loading the <code>../manifests.json</code>
-      you can load all the manifests at once.</para>
+    <para>For a convenient access to all page manifests, include
+      <code>&lt;script src="../manifests.js"&gt;&lt;/script&gt;</code> into your page to register
+      the manifests at the <code>cockpit.manifests</code> global variable.</para>
 
-    <para>Lastly load the <code>../manifests.js</code> file to register the manifests at
-      the <code>cockpit.manifests</code> global variable.</para>
+    <para>You can also load <code>../manifests.json</code> directly in your page, with
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch"><code>fetch()</code></ulink>.
+      </para>
   </refsection>
 
 </refentry>

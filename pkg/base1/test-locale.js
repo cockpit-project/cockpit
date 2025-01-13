@@ -37,6 +37,15 @@ const ru = {
     "$0 bit": ["$0 bits", "$0 бит", "$0 бита", "$0 бит"]
 };
 
+const zh_CN = {
+    "": {
+        language: "zh_CN",
+        "language-direction": "ltr",
+        "plural-forms": (n) => 0,
+    },
+    "$0 important hit": [null, "$0 次命中（含关键命中）"],
+};
+
 QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.locale, "function", "cockpit.locale is a function");
 });
@@ -83,12 +92,18 @@ QUnit.test("ngettext simple", function (assert) {
 QUnit.test("ngettext complex", function (assert) {
     cockpit.locale(null); /* clear it */
     cockpit.locale(ru);
-    assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 0), "$0 бит", "zero things");
-    assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 1), "$0 бит", "one thing");
-    assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 5), "$0 бит", "multiple things");
-    assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 23), "$0 бита", "genitive singular");
-    assert.equal(cockpit.ngettext("$0 byte", "$0 bytes", 1), "$0 byte", "default one");
-    assert.equal(cockpit.ngettext("$0 byte", "$0 bytes", 2), "$0 bytes", "default multiple");
+    assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 0), "$0 бит", "ru, zero things");
+    assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 1), "$0 бит", "ru, one thing");
+    assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 5), "$0 бит", "ru, multiple things");
+    assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 23), "$0 бита", "ru, genitive singular");
+    assert.equal(cockpit.ngettext("$0 byte", "$0 bytes", 1), "$0 byte", "ru, default one");
+    assert.equal(cockpit.ngettext("$0 byte", "$0 bytes", 2), "$0 bytes", "ru, default multiple");
+
+    cockpit.locale(null); /* clear it */
+    cockpit.locale(zh_CN);
+    [0, 1, 2].forEach(i =>
+        assert.equal(cockpit.ngettext("$0 important hit", "$0 XXX", i), "$0 次命中（含关键命中）", `zh_CN, ${i} things`)
+    );
 });
 
 QUnit.test("translate document", function (assert) {

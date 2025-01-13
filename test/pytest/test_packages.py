@@ -233,7 +233,7 @@ def test_translation(pkgdir):
     assert document.data.read() == b''
 
     # make sure the manifest translations get sent along with manifests.js
-    document = packages.load_path('/manifests.js', {'Accept-Language': 'de'})
+    document = packages.load_path('/manifests-i18n.js', {'Accept-Language': 'de'})
     contents = document.data.read()
     assert b'eins\n' in contents
     assert b'zwo\n' in contents

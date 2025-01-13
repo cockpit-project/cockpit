@@ -516,26 +516,27 @@ class Packages(bus.Object, interface='cockpit.Packages'):
             self.reload()
         self.saw_first_reload_hint = True
 
-    def load_manifests_js(self, headers: JsonObject) -> Document:
+    def load_manifests_js(self, headers: JsonObject, *, i18n: bool) -> Document:
         logger.debug('Serving /manifests.js')
 
         chunks: List[bytes] = []
 
         # Send the translations required for the manifest files, from each package
-        locales = parse_accept_language(get_str(headers, 'Accept-Language', ''))
-        for name, package in self.packages.items():
-            if name in ['static', 'base1']:
-                continue
+        if i18n:
+            locales = parse_accept_language(get_str(headers, 'Accept-Language', ''))
+            for name, package in self.packages.items():
+                if name in ['static', 'base1']:
+                    continue
 
-            # find_translation will always find at least 'en'
-            translation = package.load_translation('po.manifest.js', locales)
-            with translation.data:
-                if translation.content_encoding == 'gzip':
-                    data = gzip.decompress(translation.data.read())
-                else:
-                    data = translation.data.read()
+                # find_translation will always find at least 'en'
+                translation = package.load_translation('po.manifest.js', locales)
+                with translation.data:
+                    if translation.content_encoding == 'gzip':
+                        data = gzip.decompress(translation.data.read())
+                    else:
+                        data = translation.data.read()
 
-            chunks.append(data)
+                chunks.append(data)
 
         chunks.append(b"""
             (function (root, data) {
@@ -573,7 +574,9 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         if packagename is not None:
             return self.packages[packagename].load_path(filename, headers)
         elif filename == 'manifests.js':
-            return self.load_manifests_js(headers)
+            return self.load_manifests_js(headers, i18n=False)
+        elif filename == 'manifests-i18n.js':
+            return self.load_manifests_js(headers, i18n=True)
         elif filename == 'manifests.json':
             return self.load_manifests_json()
         else:

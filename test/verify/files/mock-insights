@@ -180,8 +180,7 @@ Content-Type: """
             machine_id = m[1]
             self.send_response(200)
             self.end_headers()
-            if machine_id in systems:
-                del systems[machine_id]
+            systems.pop(machine_id, None)
             return
 
         m = self.match("/r/insights/platform/inventory/v1/hosts/([^/]+)")

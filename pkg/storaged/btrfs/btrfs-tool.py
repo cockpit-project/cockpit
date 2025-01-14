@@ -15,9 +15,7 @@
 # This tool can be run multiple times concurrently with itself, and it
 # wont get confused.
 
-import contextlib
 import ctypes
-import fcntl
 import json
 import os
 import re
@@ -34,38 +32,6 @@ def debug(msg):
 
 
 TMP_MP_DIR = "/run/cockpit/btrfs"
-
-
-def read_all(fd):
-    data = b""
-    while True:
-        part = os.read(fd, 4096)
-        if len(part) == 0:
-            return data
-        data += part
-
-
-@contextlib.contextmanager
-def mount_database():
-    path = TMP_MP_DIR + "/db"
-    os.makedirs(TMP_MP_DIR, mode=0o700, exist_ok=True)
-    fd = os.open(path, os.O_RDWR | os.O_CREAT)
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    data = read_all(fd)
-    blob = {}
-    try:
-        if len(data) > 0:
-            blob = json.loads(data)
-    except Exception as err:
-        sys.stderr.write(f"Failed to read {path} as JSON: {err}\n")
-    try:
-        yield blob
-        data = json.dumps(blob).encode() + b"\n"
-        os.lseek(fd, 0, os.SEEK_SET)
-        os.truncate(fd, 0)
-        os.write(fd, data)
-    finally:
-        os.close(fd)
 
 
 def list_filesystems():
@@ -92,62 +58,37 @@ def list_filesystems():
     return filesystems
 
 
-tmp_mountpoints = set()
+def get_tmp_mountpoint_path(uuid):
+    return os.path.join(TMP_MP_DIR, uuid)
 
 
-def add_tmp_mountpoint(db, fs, dev, opt_repair):
-    global tmp_mountpoints
+def add_tmp_mountpoint(fs):
     uuid = fs['uuid']
-    if uuid not in tmp_mountpoints:
-        debug(f"ADDING {uuid}")
-        tmp_mountpoints.add(uuid)
-        if uuid in db and db[uuid] > 0:
-            db[uuid] += 1
-        else:
-            db[uuid] = 1
-        if not fs['has_tmp_mountpoint'] and (db[uuid] == 1 or opt_repair):
-            path = os.path.join(TMP_MP_DIR, uuid)
-            debug(f"MOUNTING {path}")
-            os.makedirs(path, exist_ok=True)
-            subprocess.check_call(["mount", dev, path])
+    path = get_tmp_mountpoint_path(uuid)
+    debug(f"MOUNTING {path}")
+    os.makedirs(path, exist_ok=True)
+    subprocess.check_call(["mount", fs['devices'][0], path])
+    return path
 
 
-def remove_tmp_mountpoint(db, uuid):
-    global tmp_mountpoints
-    if uuid in tmp_mountpoints:
-        debug(f"REMOVING {uuid}")
-        tmp_mountpoints.remove(uuid)
-        if db[uuid] == 1:
-            path = os.path.join(TMP_MP_DIR, uuid)
-            try:
-                debug(f"UNMOUNTING {path}")
-                subprocess.check_call(["umount", path])
-                subprocess.check_call(["rmdir", path])
-            except Exception as err:
-                sys.stderr.write(f"Failed to unmount {path}: {err}\n")
-            del db[uuid]
-        else:
-            db[uuid] -= 1
+def remove_tmp_mountpoint(uuid):
+    path = get_tmp_mountpoint_path(uuid)
+    try:
+        debug(f"UNMOUNTING {path}")
+        subprocess.check_call(["umount", path])
+    except Exception as err:
+        sys.stderr.write(f"Failed to unmount {path}: {err}\n")
 
 
-def remove_all_tmp_mountpoints():
-    if len(tmp_mountpoints) > 0:
-        with mount_database() as db:
-            for mp in set(tmp_mountpoints):
-                remove_tmp_mountpoint(db, mp)
-
-
-def force_mount_point(db, fs, opt_repair):
-    add_tmp_mountpoint(db, fs, fs['devices'][0], opt_repair)
-    return os.path.join(TMP_MP_DIR, fs['uuid'])
-
-
-def get_mount_point(db, fs, opt_mount, opt_repair):
+def get_mount_point(fs, opt_mount):
     if len(fs['mountpoints']) > 0:
-        remove_tmp_mountpoint(db, fs['uuid'])
+        if fs['has_tmp_mountpoint']:
+            remove_tmp_mountpoint(fs['uuid'])
         return fs['mountpoints'][0]
+    elif fs['has_tmp_mountpoint']:
+        return get_tmp_mountpoint_path(fs['uuid'])
     elif opt_mount:
-        return force_mount_point(db, fs, opt_repair)
+        return add_tmp_mountpoint(fs)
     else:
         return None
 
@@ -192,32 +133,31 @@ def get_usages(uuid):
     return usages
 
 
-def poll(opt_mount, opt_repair):
-    debug(f"POLL mount {opt_mount} repair {opt_repair}")
-    with mount_database() as db:
-        filesystems = list_filesystems()
-        info = {}
-        for fs in filesystems.values():
-            mp = get_mount_point(db, fs, opt_mount, opt_repair)
-            if mp:
-                try:
-                    info[fs['uuid']] = {
-                        'subvolumes': get_subvolume_info(mp),
-                        'default_subvolume': get_default_subvolume(mp),
-                        'usages': get_usages(fs['uuid']),
-                    }
-                except Exception as err:
-                    info[fs['uuid']] = {'error': str(err)}
+def poll(opt_mount):
+    debug(f"POLL mount {opt_mount}")
+    filesystems = list_filesystems()
+    info = {}
+    for fs in filesystems.values():
+        mp = get_mount_point(fs, opt_mount)
+        if mp:
+            try:
+                info[fs['uuid']] = {
+                    'subvolumes': get_subvolume_info(mp),
+                    'default_subvolume': get_default_subvolume(mp),
+                    'usages': get_usages(fs['uuid']),
+                }
+            except Exception as err:
+                info[fs['uuid']] = {'error': str(err)}
     return info
 
 
 def cmd_monitor(opt_mount):
-    old_infos = poll(opt_mount, opt_repair=False)
+    old_infos = poll(opt_mount)
     sys.stdout.write(json.dumps(old_infos) + "\n")
     sys.stdout.flush()
     while True:
         time.sleep(5.0)
-        new_infos = poll(opt_mount, opt_repair=False)
+        new_infos = poll(opt_mount)
         if new_infos != old_infos:
             sys.stdout.write(json.dumps(new_infos) + "\n")
             sys.stdout.flush()
@@ -225,7 +165,7 @@ def cmd_monitor(opt_mount):
 
 
 def cmd_poll(opt_mount):
-    infos = poll(opt_mount, opt_repair=True)
+    infos = poll(opt_mount)
     sys.stdout.write(json.dumps(infos) + "\n")
     sys.stdout.flush()
 
@@ -244,6 +184,7 @@ def unshare_mounts():
         if ret != 0:
             errno = get_errno_loc()[0]
             raise OSError(errno, os.strerror(errno))
+    subprocess.check_call(["mount", "--make-rslave", "/"])
 
 
 def cmd_do(uuid, cmd):
@@ -254,13 +195,12 @@ def cmd_do(uuid, cmd):
             path = TMP_MP_DIR
             dev = fs['devices'][0]
             os.makedirs(path, mode=0o700, exist_ok=True)
-            unshare_mounts()
-            subprocess.check_call(["mount", "--make-rprivate", "/"])
             subprocess.check_call(["mount", dev, path])
             subprocess.check_call(cmd, cwd=path)
 
 
 def cmd(args):
+    unshare_mounts()
     if len(args) > 1:
         if args[1] == "poll":
             cmd_poll(len(args) > 2)
@@ -277,8 +217,6 @@ def main(args):
     except Exception as err:
         sys.stderr.write(str(err) + "\n")
         sys.exit(1)
-    finally:
-        remove_all_tmp_mountpoints()
 
 
 main(sys.argv)

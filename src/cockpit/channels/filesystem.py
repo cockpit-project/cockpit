@@ -208,12 +208,24 @@ class FsReplaceChannel(AsyncChannel):
 
             else:
                 # the file must exist with the given tag
-                buf = os.stat(path)
-                if tag != tag_from_stat(buf):
-                    raise ChannelError('change-conflict')
-                # chown/chmod from the existing file permissions
-                os.fchmod(fd, stat.S_IMODE(buf.st_mode))
-                os.fchown(fd, buf.st_uid, buf.st_gid)
+                path_fd = os.open(path, os.O_RDONLY)
+
+                try:
+                    buf = os.stat(path_fd)
+                    if tag != tag_from_stat(buf):
+                        raise ChannelError('change-conflict')
+                    # chown/chmod from the existing file permissions
+                    os.fchmod(fd, stat.S_IMODE(buf.st_mode))
+                    os.fchown(fd, buf.st_uid, buf.st_gid)
+                    try:
+                        selinux_context = os.getxattr(path_fd, 'security.selinux')
+                        os.setxattr(fd, 'security.selinux', selinux_context)
+                        logger.debug("SELinux context '%s' set on '%s'", selinux_context, path)
+                    except OSError as exc:
+                        logger.exception("Error getting or setting SELinux context from original file: '%s'", exc)
+                finally:
+                    os.close(path_fd)
+
                 os.rename(tmpname, path)
                 tmpname = None
 

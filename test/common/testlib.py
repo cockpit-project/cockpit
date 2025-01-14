@@ -1749,12 +1749,9 @@ class MachineCase(unittest.TestCase):
             # First create all machines, wait for them later
             for key in sorted(provision.keys()):
                 options = dict(provision[key])
-                if 'address' in options:
-                    del options['address']
-                if 'dns' in options:
-                    del options['dns']
-                if 'dhcp' in options:
-                    del options['dhcp']
+                options.pop('address', None)
+                options.pop('dns', None)
+                options.pop('dhcp', None)
                 if 'restrict' not in options:
                     options['restrict'] = restrict
                 machine = self.new_machine(**options)

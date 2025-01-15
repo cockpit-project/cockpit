@@ -55,15 +55,16 @@ const client = {
 
 cockpit.event_target(client);
 
-client.run = (func) => {
-    const prom = func();
-    if (prom) {
-        client.busy += 1;
-        return prom.finally(() => {
-            client.busy -= 1;
-            client.dispatchEvent("changed");
-        });
-    }
+client.run = async (func) => {
+    if (client.in_anaconda_mode())
+        await btrfs_stop_monitoring();
+    const prom = func() || Promise.resolve();
+    client.busy += 1;
+    await prom.finally(() => {
+        client.busy -= 1;
+        btrfs_start_monitor();
+        client.dispatchEvent("changed");
+    });
 };
 
 /* Superuser
@@ -344,10 +345,15 @@ export async function btrfs_poll() {
     btrfs_update(data);
 }
 
+let btrfs_monitor_channel = null;
+
 function btrfs_start_monitor() {
     if (!client.superuser.allowed || !client.features.btrfs) {
         return;
     }
+
+    if (btrfs_monitor_channel)
+        return;
 
     const channel = python.spawn(btrfs_tool_py, ["monitor", ...btrfs_poll_options()], { superuser: "require" });
     let buf = "";
@@ -365,6 +371,20 @@ function btrfs_start_monitor() {
     channel.catch(err => {
         throw new Error(err.toString());
     });
+
+    btrfs_monitor_channel = channel;
+}
+
+function btrfs_stop_monitoring() {
+    if (btrfs_monitor_channel) {
+        const res = btrfs_monitor_channel.then(() => {
+            btrfs_monitor_channel = null;
+        });
+        btrfs_monitor_channel.close();
+        return res;
+    } else {
+        return Promise.resolve();
+    }
 }
 
 function btrfs_start_polling() {

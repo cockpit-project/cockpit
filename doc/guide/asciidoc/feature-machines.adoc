@@ -1,0 +1,67 @@
+[[feature-machines]]
+== Multiple Machines
+
+Cockpit can connect to multiple machines from a single Cockpit session.
+These are listed in the host switcher.
+
+These additional machines are accessed via SSH from the machine that the
+first machine connected to, and are link:#authentication[authenticated]
+with the logged in user's password and/or SSH keys.
+
+SSH host keys are stored in `/etc/ssh/ssh_known_hosts`.
+
+The machine data is stored in `/etc/cockpit/machines.d/*.json`, or below
+`$XDG_CONFIG_DIRS` if set (see
+link:./cockpit.conf.5.html[cockpit.conf]). Settings in lexicographically
+later files amend or override settings in earlier ones. Cockpit itself
+writes into `99-webui.json`; packages or admins who want to
+pre-configure machines should ship files like `05-mymachine.json` so
+that changes from the web interface override the pre-configured files.
+
+Each JSON file contains an object that maps machine IDs to objects that
+define the properties of that machine. The ID can be a human readable
+name or an IP address or any other unique value, and is shown in the web
+interface until conneting to it the first time, at which point the web
+interface will show the machine's host name.
+
+The following properties are recognized:
+
+`"address"`::
+  _(string, mandatory)_ IP address or DNS name of the machine
+`"visible"`::
+  _(boolean, optional)_ If `true`, the machine will be displayed and
+  available for managing with Cockpit. If `false` (the default), it will
+  not be displayed, but still taken into account for type-ahead search
+  when adding new machines in the web interface.
+`"user"`::
+  _(string, optional)_ User name on the remote machine. When not given,
+  Cockpit will default to the user name that was being used to log into
+  Cockpit itself.
+`"port"`::
+  _(integer, optional)_ ssh port of the remote machine. When not given,
+  the default port 22 is used.
+`"color"`::
+  _(string, optional)_ Color to assign to the machine label in the web
+  interface. This can be either given as
+  `rgb(r_value, g_value, b_value)` with each value being an integer
+  between 0 and 255, or as a color name like `yellow`. When not given,
+  Cockpit will assign an unused color automatically.
+
+Example:
+
+....
+{
+    "web server": {
+        "address": "192.168.2.4",
+        "visible": true,
+        "color": "rgb(100, 200, 0)",
+        "user": "admin"
+    },
+    "192.168.2.1": {
+        "address": "192.168.2.1",
+        "port": 2222,
+        "visible": true,
+        "color": "green"
+    }
+}
+....

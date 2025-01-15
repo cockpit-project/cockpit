@@ -1,0 +1,95 @@
+cockpit.js: Localization
+
+Localization and translations
+
+Cockpit provides a https://www.gnu.org/software/gettext/[`gettext()`]
+like API for easy translation of strings.
+
+[[cockpit-locale-language]]
+== cockpit.language
+
+The current locale language code. This is set based on the
+link:#cockpit-locale-locale[`cockpit.locale()`] data loaded.
+
+[[cockpit-locale-locale]]
+== cockpit.locale()
+
+....
+cockpit.locale(po)
+....
+
+Load locale information for a given `po` data. The data should be JSON
+data in the https://www.npmjs.org/package/po2json[po2json] format. The
+data will be loaded globally. If `po` data has already been loaded, then
+this will extend that loaded data with additional strings. Any identical
+translations strings will be replaced with the new strings. A `null`
+argument clears all the locale information previously loaded.
+
+Various methods such as
+link:#cockpit-locale-gettext[`cockpit.gettext()`] make use of the loaded
+data.
+
+[[cockpit-locale-gettext]]
+== cockpit.gettext()
+
+....
+translated = cockpit.gettext([context], string)
+var _ = cockpit.gettext
+var C_ = cockpit.gettext
+translated = _("string")
+translated = C_("context", "string")
+....
+
+Lookup `string` for translation in the loaded locale data. The
+translated string will be returned, or `string` will be returned if no
+such translated string is present. The `context` argument is an optional
+string used to qualify the string.
+
+This function can be assigned to a variable called `_` (underscore)
+which will make your code work with the typical `_("string")` syntax.
+
+[[cockpit-locale-noop]]
+== cockpit.noop()
+
+....
+var N_ = cockpit.noop
+var NC_ = cockpit.noop
+....
+
+A noop function suitable for assigning to `N_` or `NC_` so that gettext
+scanners will be able to find translatable strings. More specifically
+this function returns its last argument.
+
+[[cockpit-locale-ngettext]]
+== cockpit.ngettext()
+
+....
+translated = cockpit.ngettext([context], string1, stringN, number)
+....
+
+Lookup a string appropriate for a pluralization form of the `number`.
+Various languages have complex pluralization forms that go far between
+the singular and plural forms speakers of English are familiar with. If
+no such translated string is found then either one of `string1` or
+`stringN` is returned according to simple pluralization rules.
+
+The `context` argument is an optional string used to qualify the string.
+
+[[cockpit-locale-translate]]
+== cockpit.translate()
+
+....
+cockpit.translate()
+cockpit.translate(element, ...)
+cockpit.translate(selection)
+....
+
+The document will be scanned for `translate` tags and they will be
+translated according to the strings in loaded locale data. One or more
+`element` arguments may be specified. These are DOM elements for
+specific parts of the document to be translated. If no `element` is
+specified then the entire document is translated.
+
+If an array or array-like object is passed as a `selection` then all DOM
+elements in the array will be treated as parts of the document to be
+translated.

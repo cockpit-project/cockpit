@@ -1111,5 +1111,90 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         check_store_hostkey(real_hostkey)
 
 
+@testlib.skipBeiboot("host switching disabled in beiboot mode")
+class TestLoginMultiHost(testlib.MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m1 = self.machines["machine1"]
+
+        ip = "172.27.0.15"
+
+        # Disallow multiple sessions initially
+
+        if self.multihost_enabled:
+            m1.write("/etc/cockpit/cockpit.conf",
+                     '[WebService]\nAllowMultiHost=no\n')
+
+        m1.start_cockpit()
+
+        # Log in via SSH
+
+        b.open(f"/={ip}/playground")
+        b.set_val('#login-user-input', "admin")
+        b.set_val('#login-password-input', "foobar")
+        b.click("#login-button")
+        b.wait_in_text("#hostkey-fingerprint", "SHA256:")
+        b.click("#login-button")
+        b.wait_visible('#content')
+        self.assertEqual(b.eval_js("window.location.pathname"), f"/={ip}/playground")
+
+        # Go back to login page. The SSH session from above will still
+        # be active (for some time until it times out) and the login
+        # page will immediately redirect us to it.  We will end up on
+        # the Overview (instead of the playground).
+
+        b.eval_js("window.location = '/'")  # b.go would run into a "navigation canceled error"
+        b.wait_js_cond(f"window.location.pathname == '/={ip}/system'")
+        b.wait_visible('#content')
+        b.logout()
+
+        # Enable host switcher for the rest of the test
+
+        if self.multihost_enabled:
+            # clean up AllowMultiHost=no from above
+            m1.execute("rm /etc/cockpit/cockpit.conf")
+        self.enable_multihost(m1)
+        m1.restart_cockpit()
+
+        # Log in via SSH
+
+        b.open("/")
+        b.set_val('#login-user-input', "admin")
+        b.set_val('#login-password-input', "foobar")
+        b.click("#show-other-login-options")
+        b.set_val("#server-field", ip)
+        b.click("#login-button")
+        b.wait_visible('#content')
+
+        # Go back to login page. The SSH session will still be active
+        # as before, but now the login page will merely warn us about
+        # it.
+
+        b.open("/")
+        b.wait_in_text("#multihost-warning", f"You are already connected to '{ip}' in this browser session")
+        b.assert_pixels("body", "warning")
+
+        # Clicking on the button should redirect us to that session
+
+        b.click("#multihost-warning button")
+        b.wait_visible('#content')
+        self.assertEqual(b.eval_js("window.location.pathname"), f"/={ip}/system")
+
+        # Go back to login and log in locally anyway.
+
+        b.open("/")
+        b.set_val('#login-user-input', "admin")
+        b.set_val('#login-password-input', "foobar")
+        b.click("#login-button")
+        b.wait_visible('#content')
+        self.assertEqual(b.eval_js("window.location.pathname"), "/system")
+
+        # Go back to first session, it should still be there
+
+        b.open(f"/={ip}")
+        b.wait_visible('#content')
+        self.assertEqual(b.eval_js("window.location.pathname"), f"/={ip}/system")
+
+
 if __name__ == '__main__':
     testlib.test_main()

@@ -23,11 +23,18 @@ import React from "react";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
-import sha1 from "js-sha1";
-import sha256 from "js-sha256";
+import { useInit } from "hooks";
+
 import stable_stringify from "json-stable-stringify-without-jsonify";
 
 const _ = cockpit.gettext;
+
+async function digest(text, hash) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const digest = await window.crypto.subtle.digest(hash, data);
+    return [...new Uint8Array(digest)];
+}
 
 export function validate_url(url) {
     if (url.length === 0)
@@ -68,7 +75,7 @@ function jwk_b64_encode(bytes) {
             .replace(/=+$/, '');
 }
 
-function compute_thp(jwk) {
+async function compute_thp(jwk) {
     const REQUIRED_ATTRS = {
         RSA: ['kty', 'p', 'd', 'q', 'dp', 'dq', 'qi', 'oth'],
         EC: ['kty', 'crv', 'x', 'y'],
@@ -83,10 +90,23 @@ function compute_thp(jwk) {
     const req = REQUIRED_ATTRS[jwk.kty];
     const norm = { };
     req.forEach(k => { if (k in jwk) norm[k] = jwk[k]; });
-    return {
-        sha256: jwk_b64_encode(sha256.digest(stable_stringify(norm))),
-        sha1: jwk_b64_encode(sha1.digest(stable_stringify(norm)))
-    };
+
+    const hashes = {};
+    try {
+        const sha256 = jwk_b64_encode(await digest(stable_stringify(norm), "SHA-256"));
+        hashes.sha256 = sha256;
+    } catch (err) {
+        console.warn("Unable to create a sha256 hash", err);
+    }
+
+    try {
+        const sha1 = jwk_b64_encode(await digest(stable_stringify(norm), "SHA-1"));
+        hashes.sha1 = sha1;
+    } catch (err) {
+        console.warn("Unable to create a sha1 hash", err);
+    }
+
+    return hashes;
 }
 
 function compute_sigkey_thps(adv) {
@@ -106,7 +126,15 @@ function compute_sigkey_thps(adv) {
 export const TangKeyVerification = ({ url, adv }) => {
     const parsed = parse_url(url);
     const cmd = cockpit.format("ssh $0 tang-show-keys $1", parsed.hostname, parsed.port);
-    const sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
+    const [sigkey_thps, setSigKey] = React.useState(null);
+
+    useInit(async () => {
+        const sigkey = await Promise.all(compute_sigkey_thps(tang_adv_payload(adv)));
+        setSigKey(sigkey);
+    });
+
+    if (sigkey_thps === null)
+        return null;
 
     return (
         <TextContent>

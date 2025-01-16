@@ -23,7 +23,6 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 
 import { fmt_to_fragments } from 'utils.jsx';
 import * as utils from './utils.js';
-import { v4 as uuidv4 } from 'uuid';
 
 import "./networking.scss";
 
@@ -1420,7 +1419,7 @@ export function complete_settings(settings, device) {
     }
 
     settings.connection.id = device.Interface;
-    settings.connection.uuid = uuidv4();
+    settings.connection.uuid = window.crypto.randomUUID();
 
     if (device.DeviceType == 'ethernet') {
         settings.connection.type = '802-3-ethernet';

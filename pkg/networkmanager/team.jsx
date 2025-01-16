@@ -28,7 +28,6 @@ import { MemberInterfaceChoices, NetworkModal, Name, dialogSave } from './dialog
 import { ModelContext } from './model-context.jsx';
 import { useDialogs } from "dialogs.jsx";
 
-import { v4 as uuidv4 } from 'uuid';
 import {
     member_connection_for_interface,
     member_interface_choices,
@@ -216,7 +215,7 @@ export const getGhostSettings = ({ newIfaceName }) => {
                 id: newIfaceName,
                 autoconnect: true,
                 type: "team",
-                uuid: uuidv4(),
+                uuid: window.crypto.randomUUID(),
                 interface_name: newIfaceName,
             },
             team: {

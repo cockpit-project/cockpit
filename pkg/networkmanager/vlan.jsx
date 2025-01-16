@@ -28,7 +28,6 @@ import { Name, NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 import { useDialogs } from "dialogs.jsx";
 
-import { v4 as uuidv4 } from 'uuid';
 import {
     is_interface_connection,
     is_interesting_interface,
@@ -122,7 +121,7 @@ export const getGhostSettings = () => {
                 id: "",
                 autoconnect: true,
                 type: "vlan",
-                uuid: uuidv4(),
+                uuid: window.crypto.randomUUID(),
                 interface_name: ""
             },
             vlan: {

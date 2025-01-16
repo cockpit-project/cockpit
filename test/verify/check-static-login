@@ -615,6 +615,32 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 
+    def enable_faillock(self, count: int):
+        m = self.machine
+        # ensure we have no faillock in our pam config already
+        # arch has faillock enabled by default
+        if m.image != "arch":
+            m.execute("! grep -r faillock /etc/pam.d")
+
+        # add it to the pam config
+        if m.image.startswith('debian-') or m.image.startswith('ubuntu'):
+            # enable pam_faillock.  see example in pam_faillock(8)
+            self.sed_file(r"/fallback if no module succeeds/ s/^/"
+                          f"auth [default=die] pam_faillock.so authfail deny={count}\\n"
+                          f"auth sufficient pam_faillock.so authsucc deny={count}\\n/",
+                          "/etc/pam.d/common-auth")
+        elif m.image == "arch":
+            self.sed_file(f"s/# deny = 3/deny = {count}/", "/etc/security/faillock.conf")
+        else:
+            # see https://access.redhat.com/solutions/62949
+            self.sed_file("/pam_unix/ {"
+                          "s/sufficient/[success=1 default=ignore]/\n"
+                          f"aauth [default=die] pam_faillock.so authfail audit deny={count} unlock_time=600\n"
+                          f"aauth sufficient pam_faillock.so authsucc audit deny={count} unlock_time=600\n"
+                          "}", "/etc/pam.d/password-auth")
+
+        m.execute("grep -r faillock /etc/pam.d")
+
     def testFaillock(self):
         m = self.machine
         b = self.browser
@@ -651,30 +677,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.logout()
 
         self.enable_root_login()
-
-        # ensure we have no module in our pam config already
-        # arch has faillock enabled by default
-        if m.image != "arch":
-            m.execute(f"! grep -r '{module}' /etc/pam.d")
-
-        # add it to the pam config
-        if m.image.startswith('debian-') or m.image.startswith('ubuntu'):
-            # enable pam_faillock.  see example in pam_faillock(8)
-            self.sed_file(r"/fallback if no module succeeds/ s/^/"
-                          r"auth [default=die] pam_faillock.so authfail deny=4\n"
-                          r"auth sufficient pam_faillock.so authsucc deny=4\n/",
-                          "/etc/pam.d/common-auth")
-        elif m.image == "arch":
-            self.sed_file("s/# deny = 3/deny = 4/", "/etc/security/faillock.conf")
-        else:
-            # see https://access.redhat.com/solutions/62949
-            self.sed_file("""/pam_unix/ {
-                      s/sufficient/[success=1 default=ignore]/\n
-                      aauth [default=die] pam_faillock.so authfail audit deny=4 unlock_time=600\n
-                      aauth sufficient pam_faillock.so authsucc audit deny=4 unlock_time=600\n
-                      }""", "/etc/pam.d/password-auth")
-
-        m.execute(f"grep -r '{module}' /etc/pam.d")
+        self.enable_faillock(4)
 
         m.start_cockpit()
 

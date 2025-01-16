@@ -512,7 +512,7 @@ process_transport_authorize (CockpitWebService *self,
   char *alloc = NULL;
   const char *response = NULL;
   const gchar *challenge;
-  const gchar *password;
+  const gchar *password = NULL;
   const gchar *host;
   GBytes *data;
 
@@ -579,6 +579,14 @@ process_transport_authorize (CockpitWebService *self,
                                                  NULL);
       cockpit_transport_send (transport, NULL, payload);
       g_bytes_unref (payload);
+    }
+
+  /* only give the password once; if the superuser bridge asks again, the password is either wrong, or PAM has
+   * follow-up questions (such as a forced password change); we must not respond with the same password again */
+  if (password)
+    {
+      g_debug ("authorize: poisoning password after using it once");
+      cockpit_creds_poison (self->creds);
     }
 
   free (type);

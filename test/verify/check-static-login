@@ -633,11 +633,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             self.sed_file(f"s/# deny = 3/deny = {count}/", "/etc/security/faillock.conf")
         else:
             # see https://access.redhat.com/solutions/62949
-            self.sed_file("/pam_unix/ {"
-                          "s/sufficient/[success=1 default=ignore]/\n"
-                          f"aauth [default=die] pam_faillock.so authfail audit deny={count} unlock_time=600\n"
-                          f"aauth sufficient pam_faillock.so authsucc audit deny={count} unlock_time=600\n"
-                          "}", "/etc/pam.d/password-auth")
+            sed = ("/^auth.*pam_unix/ {"
+                   "s/sufficient/[success=1 default=ignore]/\n"
+                   f"aauth [default=die] pam_faillock.so authfail audit deny={count} unlock_time=600\n"
+                   f"aauth sufficient pam_faillock.so authsucc audit deny={count} unlock_time=600\n"
+                   "}")
+            self.sed_file(sed, "/etc/pam.d/password-auth")
+            self.sed_file(sed, "/etc/pam.d/system-auth")
 
         m.execute("grep -r faillock /etc/pam.d")
 

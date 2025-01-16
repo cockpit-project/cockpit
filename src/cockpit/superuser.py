@@ -99,9 +99,11 @@ class AuthorizeResponder(CockpitResponder):
     def __init__(self, router: Router):
         self.router = router
 
-    async def do_askpass(self, messages: str, prompt: str, hint: str) -> str:
+    async def do_askpass(self, messages: str, prompt: str, hint: str) -> 'str | None':
         hexuser = ''.join(f'{c:02x}' for c in getpass.getuser().encode('ascii'))
-        return await self.router.request_authorization(f'plain1:{hexuser}')
+        password = await self.router.request_authorization(f'plain1:{hexuser}')
+        # translate "no password" from authorize protocol (empty string) to ferny protocol (None)
+        return None if password == '' else password
 
 
 class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface='cockpit.Superuser'):

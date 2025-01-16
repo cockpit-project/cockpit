@@ -197,8 +197,9 @@ main (int argc,
             {
               if (g_str_equal (field, cookie) && g_str_equal (command, "authorize"))
                 {
+                  /* If we don't have a password, the response is an empty string; abort askpass with non-zero exit */
                   /* The password is written back on stdout */
-                  if (write_all (STDOUT_FILENO, response, -1) && write_all (STDOUT_FILENO, "\n", 1))
+                  if (*response && write_all (STDOUT_FILENO, response, -1) && write_all (STDOUT_FILENO, "\n", 1))
                     ret = 0;
                 }
               else

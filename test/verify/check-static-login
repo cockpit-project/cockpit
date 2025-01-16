@@ -735,6 +735,46 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(".*[aA]ccount .*locked due to .* failed logins.*")
         self.allow_journal_messages(".*minutes left to unlock.*")
 
+    @testlib.skipOstree("no local config with cockpit/ws container")
+    def testAutomaticSudoFaillock(self):
+        m = self.machine
+        b = self.browser
+
+        # only tolerate one failure; unfortunately sending no password (the second time) counts as second failure
+        self.enable_faillock(3)
+        self.addCleanup(m.execute, "faillock --user admin --reset")
+        # configure the account to force a password change
+        m.execute("chage -d 0 admin")
+        self.allow_journal_messages('.*You are required to change your password immediately.*',
+                                    '.*user account or password has expired.*')
+        m.start_cockpit()
+        b.open("/")
+        b.try_login()
+
+        # set new password
+        new_pass = "fooBetterBar1@#"
+        if m.ws_container:
+            b.wait_in_text("#conversation-prompt", "You are required to change your password")
+        else:
+            b.wait_in_text("#conversation-message", "You are required to change your password")
+        b.set_val('#conversation-input', 'foobar')
+        b.click('#login-button')
+        b.wait_in_text("#conversation-prompt", "New password")
+        b.set_val('#conversation-input', new_pass)
+        b.click('#login-button')
+        b.wait_in_text("#conversation-prompt", "Retype")
+        b.set_val('#conversation-input', new_pass)
+        b.click('#login-button')
+        b.wait_visible('#content')
+        # automatic sudo will still try the old password
+        b.check_superuser_indicator("Limited access")
+        b.logout()
+
+        # can now login with new password and sudo, account isn't locked
+        b.login_and_go(password=new_pass)
+        b.check_superuser_indicator("Administrative access")
+        b.logout()
+
     @testlib.skipOstree("root logins disabled by default with ssh")
     def testPamAccess(self):
         b = self.browser

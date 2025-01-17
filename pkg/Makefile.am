@@ -20,7 +20,7 @@ DIST_STAMP = $(srcdir)/dist/static/manifest.json
 
 # dynamic pkg → dist dependency, to rebuild the bundles if any web related file changes
 # exclude automake unit test log files
-PKG_INPUTS = $(shell find $(srcdir)/pkg -type f ! -name 'test*.trs' ! -name 'test*.log')
+PKG_INPUTS = $(shell find $(srcdir)/pkg $(srcdir)/po -type f ! -name 'test*.trs' ! -name 'test*.log')
 
 V_BUNDLE = $(V_BUNDLE_$(V))
 V_BUNDLE_ = $(V_BUNDLE_$(AM_DEFAULT_VERBOSITY))

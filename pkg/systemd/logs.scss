@@ -117,6 +117,20 @@
 .pf-v5-c-toolbar {
   --pf-v5-c-toolbar--BackgroundColor: var(--pf-v5-c-page__main-section--BackgroundColor);
 
+  // We want menu toggles and secondary buttons in light mode to have
+  // a white background to increase their text-to-background contrast
+  // and to match the SearchInput component.
+
+  html:not(.pf-v5-theme-dark) & {
+      .pf-v5-c-menu-toggle {
+          --pf-v5-c-menu-toggle--BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
+      }
+
+      .pf-v5-c-button {
+          --pf-v5-c-button--m-secondary--BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
+      }
+  }
+
   // Make toolbar stretch to all the available space and wrap up to two lines
   .pf-v5-c-toolbar__group:nth-child(3) {
     flex-grow: 1;
@@ -141,11 +155,6 @@
   .pf-v5-c-toolbar__expandable-content.pf-m-expanded .pf-v5-c-divider {
     display: none;
   }
-
-  // FIXME: When porting the selects to the PF5 select implementation drop this
-  .pf-v5-c-toolbar__item {
-    align-self: center;
-  }
 }
 
 .log-text-filter-popover-button {
@@ -155,13 +164,4 @@
     svg {
       color: var(--pf-v5-global--Color--100);
     }
-}
-
-/* Menu toggles are transparent in light mode (but not in dark
-   mode). This makes them white on a white page (fine), but grey in a
-   grey toolbar. The deprecated Select had a white background. Let's
-   make MenuToggles match.
-*/
-html:not(.pf-v5-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
-    background-color: var(--pf-v5-global--BackgroundColor--100);
 }

@@ -1,0 +1,107 @@
+#!/usr/bin/python3
+# This file is part of Cockpit.
+#
+# Copyright (C) 2025 Red Hat, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import argparse
+import json
+import pathlib
+from collections import defaultdict
+from collections.abc import Iterable
+from typing import Any
+
+PO_HEADER = r"""msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE_VERSION\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Cockpit manifest2po\n"
+"""
+
+
+def get_docs_strings(docs: list[dict[str, str]]) -> Iterable[str]:
+    for doc in docs:
+        assert 'label' in doc, 'doc entry without label'
+        yield doc['label']
+
+
+def get_keyword_strings(keywords: list[dict[str, list[str]]]) -> Iterable[str]:
+    for keyword in keywords:
+        assert 'matches' in keyword, 'keywords entry without matches'
+        for match in keyword['matches']:
+            yield match
+
+
+def get_menu_strings(menu: dict[str, Any]) -> Iterable[str]:
+    for entry in menu.values():
+        if label := entry.get('label'):
+            yield label
+        if keywords := entry.get('keywords'):
+            yield from get_keyword_strings(keywords)
+        if docs := entry.get('docs'):
+            yield from get_docs_strings(docs)
+
+
+def get_bridges_strings(bridges: list[dict[str, str]]) -> Iterable[str]:
+    for bridge in bridges:
+        if label := bridge.get('label'):
+            yield label
+
+
+def get_manifest_strings(manifest: dict[str, Any]) -> Iterable[str]:
+    if menu := manifest.get('menu'):
+        yield from get_menu_strings(menu)
+    if tools := manifest.get('tools'):
+        yield from get_menu_strings(tools)
+    if bridges := manifest.get('bridges'):
+        yield from get_bridges_strings(bridges)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(prog='manifest2po',
+                                     description='Extracts translatable strings from manifest.json files')
+    parser.add_argument('-d', '--directory', help='Base directory for input files')
+    parser.add_argument('-o', '--output', help='Output files', required=True)
+    parser.add_argument('files', nargs='+', help='One or more input files', type=pathlib.Path, metavar='FILE')
+
+    args = parser.parse_args()
+    strings = defaultdict[str, set[str]](set)
+
+    files: Iterable[pathlib.Path] = args.files
+    for file in files:
+        if file.name != 'manifest.json':
+            continue
+
+        # Qualify the filename if necessary
+        full_path = args.directory / file if args.directory else file
+        with open(full_path, 'r') as fp:
+            manifest = json.load(fp)
+            for msgid in get_manifest_strings(manifest):
+                strings[msgid].add(str(file))
+
+    # Write PO file
+    with open(args.output, 'w') as fp:
+        fp.write(PO_HEADER)
+        for msgid in strings:
+            manifest_filenames = ' '.join([f'{fname}:0' for fname in strings[msgid]])
+            fp.write(f"\n#: {manifest_filenames}\n")
+            fp.write(f'msgid "{msgid}"\n')
+            fp.write('msgstr ""\n')
+
+
+if __name__ == "__main__":
+    main()

@@ -29,9 +29,6 @@ fi
 
 export TEST_ALLOW_JOURNAL_MESSAGES
 
-# Chromium sometimes gets OOM killed on testing farm
-export TEST_BROWSER=firefox
-
 # make it easy to check in logs
 echo "TEST_ALLOW_JOURNAL_MESSAGES: ${TEST_ALLOW_JOURNAL_MESSAGES:-}"
 echo "TEST_AUDIT_NO_SELINUX: ${TEST_AUDIT_NO_SELINUX:-}"

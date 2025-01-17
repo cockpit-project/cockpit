@@ -55,6 +55,12 @@ const bond_monitoring_choices =
         { choice: 'arp', title: _("ARP") }
     ];
 
+const modes_with_primary = [
+        'active-backup',
+        'balance-tlb',
+        'balance-alb'
+    ];
+
 export const BondDialog = ({ connection, dev, settings }) => {
     const Dialogs = useDialogs();
     const idPrefix = "network-bond-settings";
@@ -77,9 +83,12 @@ export const BondDialog = ({ connection, dev, settings }) => {
     const [memberChoices, setMemberChoices] = useState(memberChoicesInit);
     const [mode, setMode] = useState(options.mode);
     const [monitoringTargets, setMonitoringTargets] = useState(options.arp_ip_target);
-    const [primary, setPrimary] = useState(undefined);
+    const [primary, setPrimary] = useState(options.primary);
 
     const onSubmit = (ev) => {
+        const options = settings.bond.options;
+        delete options['primary'];
+
         const createSettingsObj = () => ({
             ...settings,
             connection: {
@@ -94,7 +103,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                 ...settings.bond,
                 interface_name: iface,
                 options: {
-                    ...settings.bond.options,
+                    ...options,
                     mode,
                     ...(linkMonitoring == 'mii' && {
                         miimon: linkMonitoringInterval,
@@ -105,7 +114,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                         arp_interval: linkMonitoringInterval,
                         arp_ip_target: monitoringTargets,
                     }),
-                    ...(mode == "active-backup" && { primary })
+                    ...(modes_with_primary.includes(mode) && primary && { primary })
                 }
             }
         });
@@ -174,11 +183,11 @@ export const BondDialog = ({ connection, dev, settings }) => {
                         {bond_mode_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>
-                {mode == "active-backup" && <FormGroup fieldId={idPrefix + "-primary-select"} label={_("Primary")}>
+                {modes_with_primary.includes(mode) && <FormGroup fieldId={idPrefix + "-primary-select"} label={_("Primary")}>
                     <FormSelect id={idPrefix + "-primary-select"} onChange={(_, val) => setPrimary(val)}
                                 value={primary}>
                         <>
-                            <FormSelectOption key='-' value={null} label='-' />
+                            <FormSelectOption key='-' value='' label='-' />
                             {Object.keys(memberChoices)
                                     .filter(iface => memberChoices[iface])
                                     .map(iface => <FormSelectOption key={iface} label={iface} value={iface} />)}

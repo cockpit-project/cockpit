@@ -47,7 +47,7 @@ const App = () => {
                                 []);
     useEvent(nmService, "changed");
 
-    const model = useObject(() => new NetworkManagerModel(), null, []);
+    const model = useObject(() => new NetworkManagerModel(), null, [superuser.allowed]);
     useEvent(model, "changed");
 
     const nmRunning_ref = useRef(undefined);

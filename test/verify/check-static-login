@@ -1110,6 +1110,27 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         check_session()
         check_store_hostkey(real_hostkey)
 
+    @testlib.skipOstree("No NFS server")
+    def testNFSHomeDir(self):
+        m = self.machine
+
+        # set up admin's home dir on NFS
+        self.restore_dir("/srv")
+        m.execute("mkdir -p /srv/nfshome/admin; chown admin:admin /srv/nfshome/admin")
+        self.write_file("/etc/exports", "/srv/nfshome 127.0.0.0/24(rw)\n",
+                        post_restore_action="systemctl restart nfs-server")
+        m.execute("systemctl restart nfs-server")
+        m.execute("mount 127.0.0.1:/srv/nfshome/admin /home/admin")
+        self.addCleanup(m.execute, "until umount /home/admin; do sleep 1; done")
+
+        self.login_and_go()
+
+        self.assertIn("admin", m.execute("loginctl --no-legend list-sessions"))
+        self.browser.logout()
+
+        # cleans up session
+        m.execute("while loginctl --no-legend list-sessions | grep admin; do sleep 1; done")
+
 
 if __name__ == '__main__':
     testlib.test_main()

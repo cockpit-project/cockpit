@@ -348,7 +348,7 @@ class ChromiumBidi(WebdriverBidi):
 
         candidate_binaries = ["/usr/bin/chromium-browser", "/usr/bin/chromium"]
         if self.headless:
-            candidate_binaries.insert(0, "/usr/lib64/chromium-browser/headless_shell")
+            candidate_binaries.append("/usr/lib64/chromium-browser/headless_shell")
         binaries = [path for path in candidate_binaries if os.path.exists(path)]
         if not binaries:
             raise WebdriverError(f"no Chromium binary found: tried {' '.join(candidate_binaries)}")

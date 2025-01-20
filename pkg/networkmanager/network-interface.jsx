@@ -264,8 +264,7 @@ export const NetworkInterfacePage = ({
             <DescriptionListGroup>
                 <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
                 <DescriptionListDescription className="networking-interface-status">
-                    {activeConnection}
-                    {state ? <span>{state}</span> : null}
+                    {[activeConnection, state].filter(val => val).join(", ")}
                 </DescriptionListDescription>
             </DescriptionListGroup>
         );

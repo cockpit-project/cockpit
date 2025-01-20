@@ -258,8 +258,6 @@ OnCalendar=daily
         b.wait_visible('#password-group')
         b.wait_text("#password-group > label", "Passwort")
 
-    # FIXME: Works with TEST_SHOW_BROWSER; not obvious what happens
-    @testlib.skipBrowser("Headless chromium spontaneously logs out", "chromium")
     def testAllLanguages(self):
         # Test that pages do not oops
         m = self.machine

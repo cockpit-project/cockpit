@@ -382,6 +382,7 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
         { title: _("ID"), sortable: true },
         { title: _("Last active"), sortable: true },
         { title: _("Group") },
+        { title: "", sortable: false, props: { screenReaderText: _("Actions") } },
     ];
 
     const sortRows = (rows, direction, idx) => {

@@ -1422,28 +1422,30 @@ class Browser:
                 width, height = delta.size
                 for y in range(height):
                     for x in range(width):
-                        # we only support RGBA
-                        ref_pixel = data_ref[x, y]
-                        now_pixel = data_now[x, y]
-                        # we only support RGBA, not single-channel float (grayscale)
-                        assert isinstance(ref_pixel, tuple)
-                        assert isinstance(now_pixel, tuple)
                         if x >= ref.size[0] or x >= now.size[0] or y >= ref.size[1] or y >= now.size[1]:
                             result = False
-                        elif ref_pixel != now_pixel:
-                            if (
-                                    masked(ref_pixel) or
-                                    ignorable_coord(x, y) or
-                                    ignorable_change(ref_pixel, now_pixel)
-                               ):
-                                data_delta[x, y] = (0, 255, 0, 255)
-                            else:
-                                data_delta[x, y] = (255, 0, 0, 255)
-                                count += 1
-                                if count > 20:
-                                    result = False
                         else:
-                            data_delta[x, y] = ref_pixel
+                            # we only support RGBA
+                            ref_pixel = data_ref[x, y]
+                            now_pixel = data_now[x, y]
+                            # we only support RGBA, not single-channel float (grayscale)
+                            assert isinstance(ref_pixel, tuple)
+                            assert isinstance(now_pixel, tuple)
+
+                            if ref_pixel != now_pixel:
+                                if (
+                                        masked(ref_pixel) or
+                                        ignorable_coord(x, y) or
+                                        ignorable_change(ref_pixel, now_pixel)
+                                ):
+                                    data_delta[x, y] = (0, 255, 0, 255)
+                                else:
+                                    data_delta[x, y] = (255, 0, 0, 255)
+                                    count += 1
+                                    if count > 20:
+                                        result = False
+                            else:
+                                data_delta[x, y] = ref_pixel
                 return result
 
             if not img_eq(img_ref, img_now, img_delta):

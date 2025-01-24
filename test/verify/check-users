@@ -298,6 +298,30 @@ class TestAccounts(testlib.MachineCase):
             b.click("#account-confirm-delete-dialog footer button.pf-m-danger.apply")
             b.wait_not_in_text('#accounts-list', "Robert Robertson")
 
+        # test logout other user
+        createUser(
+            browser=b,
+            machine=m,
+            user_name="paul",
+            real_name="Paul Robertson",
+            password=good_password,
+            locked=False,
+            force_password_change=False,
+            custom_shell="/bin/bash",  # CoreOS defaults to /bin/true
+        )
+        b2 = self.new_browser(m)
+        b2.login_and_go("/system", user="paul", password=good_password)
+        b.wait_in_text("#accounts-list tbody tr:contains('paul')", "Logged in")
+
+        performUserAction(b, 'paul', 'Log user out')
+        b.click("#account-confirm-logout-dialog footer .pf-m-primary")
+        b2.switch_to_top()
+        b2.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        # HACK: lastlog does not record sessions from ssh
+        if not m.ws_container:
+            b.wait_in_text("#accounts-list tbody tr:contains('paul')", m.execute("date +'%b %-d, %Y'").strip())
+
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
         self.allow_journal_messages("passwd: user.*does not exist")

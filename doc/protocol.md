@@ -1018,6 +1018,10 @@ Returns the contents of a file and its current 'transaction tag'.
 The following options can be specified in the "open" control message:
 
  * "path": The path name of the file to read.
+ * "max_read_size": option to limit the amount of data that is read.  If the
+   file is larger than the given number of bytes, no data is read and the
+   channel is closed with problem code "too-large".  The default limit is 16
+   MiB.  The limit can be completely removed by setting it to -1.
 
 The ready message contains a "size-hint" when the channel is opened
 with the "binary" option set to "raw".

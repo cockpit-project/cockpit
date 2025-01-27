@@ -125,14 +125,14 @@ class FsReadChannel(GeneratorChannel):
 
     def do_yield_data(self, options: JsonObject) -> Generator[bytes, None, JsonObject]:
         path = get_str(options, 'path')
-        max_read_size = get_int(options, 'max_read_size', None)
+        max_read_size = get_int(options, 'max_read_size', 16 * 1024 * 1024)
 
         logger.debug('Opening file "%s" for reading', path)
 
         try:
             with open(path, 'rb') as filep:
                 buf = os.stat(filep.fileno())
-                if max_read_size is not None and buf.st_size > max_read_size:
+                if max_read_size != -1 and buf.st_size > max_read_size:
                     raise ChannelError('too-large')
 
                 if self.is_binary and stat.S_ISREG(buf.st_mode):

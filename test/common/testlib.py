@@ -2854,8 +2854,6 @@ def wait(func: Callable[[], _T | None], msg: str | None = None, delay: int = 1, 
         except Exception:
             if t == tries - 1:
                 raise
-            else:
-                pass
         t = t + 1
         time.sleep(delay)
     raise Error(msg or "Condition did not become true.")

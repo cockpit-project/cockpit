@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eux
+
+cd /var/tmp/
+
+# bootc images have their own deployed image in a local registry
+podman run -d --rm --name ostree-registry -p 5000:5000 -v /var/lib/cockpit-test-registry/:/var/lib/registry localhost/test-registry
+
+# build updated bootc image with our RPMs
+podman build -t localhost/bootc-test --layers=false -f - . <<EOF
+FROM localhost:5000/bootc:latest
+COPY ./rpms /tmp/rpms
+RUN rpm --upgrade --verbose /tmp/rpms/*.rpm && rm -r /tmp/rpms
+COPY ./playground /usr/share/cockpit/playground
+EOF
+
+# deploy it
+bootc switch --transport containers-storage localhost/bootc-test
+
+# clean up
+podman rm -ft0 ostree-registry
+podman rmi localhost:5000/bootc localhost/bootc-test
+
+# ensure that we don't accidentally test with container
+podman rmi quay.io/cockpit/ws:latest

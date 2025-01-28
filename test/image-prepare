@@ -165,6 +165,25 @@ def build_install_ostree(dist_tar, image, verbose, quick):
     return args
 
 
+def build_install_bootc(dist_tar, image, verbose, quick):
+    """Special treatment of build/install on Bootc
+
+    bootc image can't build packages, build them on corresponding OSes, build a new bootc
+    image with the rpms, and deploy it.
+    """
+    with create_machine(testmap.get_build_image(image)) as machine:
+        rpms = build_rpms(dist_tar, machine, verbose, quick)
+    args = ["--run-command", "mkdir -p /var/tmp/rpms"]
+    for rpm in rpms:
+        if not any(r in rpm for r in [".src", "debug", "packagekit", "storaged"]):
+            args += ["--upload", f"{rpm}:/var/tmp/rpms/"]
+    args += [
+        "--upload", os.path.join(BASE_DIR, "dist/playground") + ":/var/tmp/",
+        "--script", os.path.join(TEST_DIR, "bootc.install"),
+    ]
+    return args
+
+
 def build_install_container(dist_tar, image, verbose, quick):
     """Build VM with cockpit/ws container
 
@@ -253,6 +272,8 @@ def main():
 
     if args.image == "fedora-coreos":
         customize += build_install_ostree(dist_tar, args.image, args.verbose, args.quick)
+    elif args.image.endswith("-bootc"):
+        customize += build_install_bootc(dist_tar, args.image, args.verbose, args.quick)
     elif args.container:
         customize += build_install_container(dist_tar, args.image, args.verbose, args.quick)
     else:

@@ -17,6 +17,10 @@ storaged
 system
 "
 
+EXTERNAL_COCKPIT_PACKAGES="
+cockpit-files
+"
+
 dnf install -y 'dnf-command(download)' cpio
 $INSTALL coreutils-single util-linux-core sed sscg python3 openssh-clients
 
@@ -43,6 +47,11 @@ else
     # do everything through SSH, no local authentication in the container
     rm $INSTALLROOT/usr/libexec/cockpit-session
 fi
+
+for rpm in $EXTERNAL_COCKPIT_PACKAGES; do
+    dnf download $rpm
+    unpack $rpm-*.rpm
+done
 
 rm -rf /build/var/cache/*dnf* /build/var/lib/dnf /build/var/lib/rpm* /build/var/log/*
 rm -rf /container/rpms || true

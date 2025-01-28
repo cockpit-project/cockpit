@@ -255,7 +255,6 @@ troubleshooting, interactive command-line sessions, and more.
 
 %package bridge
 Summary: Cockpit bridge server-side component
-Requires: glib-networking
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the

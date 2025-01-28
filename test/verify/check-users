@@ -164,6 +164,20 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible("#accounts")
         b.wait_not_in_text('#accounts-list', "Anton Arbitrary")
 
+        m.execute("useradd --create-home barney")
+        m.execute("echo barney:foobar | chpasswd")
+        m.execute("runuser -u barney -- touch /home/barney/test.txt")
+        m.execute("test -f /home/barney/test.txt")
+
+        with b.wait_timeout(30):
+            b.wait_in_text('#accounts-list', "barney")
+        performUserAction(b, 'barney', 'Delete')
+        b.set_checked("#account-confirm-delete-files", val=True)
+        b.click('#account-confirm-delete-dialog button.apply')
+        b.wait_not_present('#account-confirm-delete-dialog')
+        m.execute("! test -e /home/barney/test.txt")
+        b.wait_not_in_text('#accounts-list', "barney")
+
         # Attempt a real name with a colon
         b.click('#accounts-create')
         b.wait_visible('#accounts-create-dialog')

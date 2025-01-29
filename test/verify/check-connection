@@ -160,7 +160,7 @@ class TestConnection(testlib.MachineCase):
 
         self.assertNoAdminProcessLeaks()
 
-        if not m.ws_container:  # no cockpit-session
+        if not m.ws_container and not m.ostree_image:  # no cockpit-session or r/o file system
             # damage cockpit-session socket → "Authentication not available"
             m.execute(f"chmod g-x {self.libexecdir}/cockpit-session")
             try:

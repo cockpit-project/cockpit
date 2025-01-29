@@ -38,7 +38,7 @@ class TestConnection(testlib.MachineCase):
         and to make sure that overlaying cockpit-ws works as well.
         """
         m = self.machine
-        if not m.ostree_image:
+        if not m.ostree_image or "bootc" in m.image:
             return
 
         # uninstall cockpit/ws container startup script

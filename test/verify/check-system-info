@@ -594,7 +594,9 @@ fi
 
         # updates mitigations=nosmt when that is present
         m.upload(["../pkg/lib/kernelopt.sh"], "/tmp/")
-        m.execute("/tmp/kernelopt.sh remove nosmt; /tmp/kernelopt.sh set mitigations=auto,nosmt")
+        if self.expect_smt_default:
+            m.execute("/tmp/kernelopt.sh remove nosmt")
+        m.execute("/tmp/kernelopt.sh set mitigations=auto,nosmt")
         self.reboot()
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')

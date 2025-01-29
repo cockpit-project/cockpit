@@ -1281,6 +1281,7 @@ BEGIN {{
 
 
 @testlib.skipImage("TODO: Arch Linux packagekit support", "arch")
+@testlib.skipImage("image has pcp installed, but cannot be removed", "*-bootc")
 class TestMetricsPackages(packagelib.PackageCase):
     pcp_dialog_selector = "#pcp-settings-modal"
 

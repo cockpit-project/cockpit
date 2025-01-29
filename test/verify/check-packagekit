@@ -1642,7 +1642,7 @@ class TestAutoUpdates(NoSubManCase):
         b.wait_visible("#autoupdates-settings button:disabled")
 
 
-@testlib.skipImage("Image uses OSTree", "fedora-coreos")
+@testlib.skipOstree("Image uses OSTree")
 class TestAutoUpdatesInstall(NoSubManCase):
     def testUnsupported(self):
         b = self.browser

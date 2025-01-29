@@ -180,8 +180,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # And now we remove ssh which affects the default
         if not m.ws_container:
-            self.restore_file("/usr/bin/ssh")
-            m.execute("rm /usr/bin/ssh")
+            m.execute("mount -o bind /dev/null /usr/bin/ssh")
+            self.addCleanup(m.execute, "umount /usr/bin/ssh")
             m.restart_cockpit()
             b.open("/system")
             b.wait_visible("#login")

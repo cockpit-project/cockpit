@@ -118,11 +118,11 @@ class TestImageCustomize(unittest.TestCase):
 
         with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
             subprocess.check_call(["bots/image-customize", "--verbose",
-                                   "--resize", "20G", img])
+                                   "--resize", "30G", img])
 
         output = subprocess.check_output(["qemu-img", "info", "--output=json", img], encoding="utf-8")
         info = json.loads(output)
-        self.assertEqual(int(info['virtual-size']) // 1024 // 1024 // 1024, 20)
+        self.assertEqual(int(info['virtual-size']) // 1024 // 1024 // 1024, 30)
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")

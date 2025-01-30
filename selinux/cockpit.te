@@ -223,3 +223,12 @@ optional_policy(`
 optional_policy(`
     gnome_exec_keyringd(cockpit_session_t)
 ')
+
+#########################################################
+#
+#  Misc
+#
+
+# systemd can clean up cockpit's tmp files
+manage_dirs_pattern(init_t, cockpit_tmp_t, cockpit_tmp_t)
+manage_files_pattern(init_t, cockpit_tmp_t, cockpit_tmp_t)

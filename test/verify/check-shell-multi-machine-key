@@ -135,8 +135,8 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
 
         self.login_and_go("/system")
 
-        # pam-ssh-add isn't used on OSTree
-        if m1.ostree_image:
+        # pam-ssh-add isn't used with ws container
+        if m1.ws_container:
             self.load_key('id_rsa', 'foobar')
             self.check_keys(["2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"],
                             ["2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])

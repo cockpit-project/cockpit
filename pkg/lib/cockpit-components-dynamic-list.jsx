@@ -13,7 +13,7 @@ import './cockpit-components-dynamic-list.scss';
  *   - emptyStateString
  *   - onChange
  *   - id
- *   - itemcomponent
+ *   - itemcomponent (React element type)
  *   - formclass (optional)
  *   - options (optional)
  *   - onValidationChange: A handler function which updates the parent's component's validation object.
@@ -86,7 +86,7 @@ export class DynamicListForm extends React.Component {
                                 if (item === undefined)
                                     return null;
 
-                                return React.cloneElement(this.props.itemcomponent, {
+                                return React.createElement(this.props.itemcomponent, {
                                     idx,
                                     item,
                                     id: id + "-" + idx,
@@ -135,7 +135,7 @@ DynamicListForm.propTypes = {
     emptyStateString: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     id: PropTypes.string.isRequired,
-    itemcomponent: PropTypes.object.isRequired,
+    itemcomponent: PropTypes.elementType.isRequired,
     formclass: PropTypes.string,
     options: PropTypes.object,
     validationFailed: PropTypes.array,

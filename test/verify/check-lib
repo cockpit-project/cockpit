@@ -237,6 +237,51 @@ class TestLib(testlib.MachineCase):
         b.wait_text("#multi-toggles", "14")
         b.wait_text("#multi-changes", "18")
 
+    def testDrilldown(self):
+        b = self.browser
+
+        # Login
+
+        self.login_and_go("/playground/react-patterns")
+
+        # Open, pixel test
+
+        b.click("#demo-kebab-drilldown button.pf-v5-c-menu-toggle")
+        b.wait_visible("#kebab-drilldown-root:not(.pf-m-drilled-in)")
+        b.wait_not_visible("#kebab-drilldown-moretools")
+        b.assert_pixels("#kebab-drilldown-root", "root")
+
+        # Click Settings, menu must close
+
+        b.click("#demo-kebab-drilldown button:contains(Settings)")
+        b.wait_not_present("#demo-kebab-root")
+        b.wait_not_present("#demo-kebab-moretools")
+        b.wait_in_text("#demo-kebab-drilldown", "Last action: Settings")
+
+        # Open, drill down, pixel test
+
+        b.click("#demo-kebab-drilldown button.pf-v5-c-menu-toggle")
+        b.click("#kebab-drilldown-root > div > ul > li > button:contains(More tools)")
+        b.wait_visible("#kebab-drilldown-root.pf-m-drilled-in")
+        b.wait_visible("#kebab-drilldown-moretools")
+        b.assert_pixels("#kebab-drilldown-moretools", "drilled-down")
+
+        # Drill up, drill down again
+
+        b.click("#kebab-drilldown-moretools button:contains(More tools)")
+        b.wait_visible("#kebab-drilldown-root:not(.pf-m-drilled-in)")
+        b.wait_not_visible("#kebab-drilldown-moretools")
+        b.click("#kebab-drilldown-root > div > ul > li > button:contains(More tools)")
+        b.wait_visible("#kebab-drilldown-root.pf-m-drilled-in")
+        b.wait_visible("#kebab-drilldown-moretools")
+
+        # Click File bug, menu must close
+
+        b.click("#demo-kebab-drilldown button:contains(File bug)")
+        b.wait_not_present("#demo-kebab-root")
+        b.wait_not_present("#demo-kebab-moretools")
+        b.wait_in_text("#demo-kebab-drilldown", "Last action: File bug")
+
 
 if __name__ == '__main__':
     testlib.test_main()

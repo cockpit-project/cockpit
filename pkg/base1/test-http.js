@@ -424,6 +424,8 @@ QUnit.test("parallel stress test", async assert => {
         return;
     }
 
+    assert.timeout(6000);
+
     const num = 1000;
     assert.expect(num + 1);
 

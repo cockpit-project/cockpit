@@ -52,7 +52,7 @@ import { KebabDropdown } from "cockpit-components-dropdown";
 
 const _ = cockpit.gettext;
 
-const UserActions = ({ account }) => {
+const UserActions = ({ account, current }) => {
     const actions = [
         <DropdownItem key="edit-user"
                       onClick={ev => { ev.preventDefault(); cockpit.location.go(account.name) }}>
@@ -63,7 +63,7 @@ const UserActions = ({ account }) => {
     superuser.allowed && actions.push(
         <Divider key="separator-0" />,
         <DropdownItem key="log-user-out"
-                      isDisabled={account.uid === 0 || !account.loggedIn}
+                      isDisabled={account.uid === 0 || !account.loggedIn || current }
                       onClick={() => logoutAccountDialog(account) }>
             {_("Log user out")}
         </DropdownItem>,
@@ -74,8 +74,8 @@ const UserActions = ({ account }) => {
             {_("Lock account")}
         </DropdownItem>,
         <DropdownItem key="delete-account"
-                      isDisabled={account.uid === 0}
-                      className={account.uid === 0 ? "" : "delete-resource-red"}
+                      isDisabled={account.uid === 0 || current}
+                      className={account.uid === 0 || current ? "" : "delete-resource-red"}
                       onClick={() => delete_account_dialog(account) }>
             {_("Delete account")}
         </DropdownItem>,
@@ -201,7 +201,7 @@ const getAccountRow = (account, current, groups) => {
             props: { width: 20 },
         },
         {
-            title: <UserActions account={account} />,
+            title: <UserActions account={account} current={current} />,
             props: { className: "pf-v5-c-table__action" }
         },
     ];

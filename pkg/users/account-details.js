@@ -212,11 +212,11 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
     const actions = superuser.allowed && (
         <>
             <Button variant="secondary" onClick={() => logout_account()} id="account-logout"
-              isDisabled={!account.loggedIn || account.uid == 0}>
+              isDisabled={!account.loggedIn || account.uid == 0 || user === current_user}>
                 {_("Terminate session")}
             </Button>
             { "\n" }
-            <Button isDisabled={account.uid == 0} variant="danger" id="account-delete"
+            <Button isDisabled={account.uid == 0 || user === current_user} variant="danger" id="account-delete"
                   onClick={() => delete_account_dialog(account)}>
                 {_("Delete")}
             </Button>

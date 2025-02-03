@@ -192,6 +192,13 @@ class TestAccounts(testlib.MachineCase):
         b.set_checked("#account-locked", val=True)
         b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
 
+        # Check admin user
+        b.go("#/admin")
+        b.wait_text("#account-user-name", "admin")
+        # delete/logout are disabled for the current user
+        b.wait_visible("#account-delete[disabled]")
+        b.wait_visible("#account-logout[disabled]")
+
         # go back to accounts overview, check pf-v5-c-breadcrumb
         b.click("#account .pf-v5-c-breadcrumb a")
         b.wait_visible("#accounts-create")

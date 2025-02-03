@@ -3,6 +3,7 @@ bin_PROGRAMS =
 libexec_PROGRAMS =
 libexec_SCRIPTS =
 sbin_PROGRAMS =
+PYTHON3 ?= python3
 
 # -----------------------------------------------------------------------------
 #  Python
@@ -26,8 +27,8 @@ install-python:
 	@# This needs to work on RHEL8 up through modern Fedora, offline, with
 	@# system packages available to the build.
 	@# See https://github.com/pypa/pip/issues/3063 for --ignore-installed
-	python3 -m pip install --no-index --force-reinstall --ignore-installed --root='$(DESTDIR)/' --prefix='$(prefix)' \
-		"$$(python3 '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
+	$(PYTHON3) -m pip install --no-index --force-reinstall --ignore-installed --root='$(DESTDIR)/' --prefix='$(prefix)' \
+		"$$($(PYTHON3) '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
 	mkdir -p $(DESTDIR)$(libexecdir)
 	mv -t $(DESTDIR)$(libexecdir) $(DESTDIR)$(bindir)/cockpit-askpass
 

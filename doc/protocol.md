@@ -161,10 +161,6 @@ reserved.
 One such special group name is "default", which contains all channels which
 were opened without specifying a group.
 
-Another one is the "fence" group. While any channels are open in the "fence"
-group, any channels opened after that point will be blocked and wait until all
-channels in the "fence" group are closed before resuming.
-
 The "flow-control" option controls whether a channel should attempt to throttle
 itself via flow control when sending or receiving large amounts of data. The
 current default (when this option is not provided) is to not do flow control.
@@ -778,8 +774,6 @@ payload type:
 
 You may also specify these options:
 
- * "connection": A stable identifier for connection sharing, i.e.
-   sending multiple requests to a single open connection.
  * "headers": JSON object with additional request headers
  * "tls": Set to a object to use an https connection.
 

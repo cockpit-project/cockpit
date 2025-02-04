@@ -38,11 +38,6 @@ http = cockpit.http(options)
         <listitem><para>Object properties for an https connection. See
         <code><ulink url="https://github.com/cockpit-project/cockpit/blob/main/doc/protocol.md#payload-http-stream2">http-stream2 TLS options</ulink></code>.</para></listitem>
       </varlistentry>
-      <varlistentry>
-        <term><code>"connection"</code></term>
-        <listitem><para>A connection identifier. Subsequent channel requests with the same
-          identifier will try to use the same connection if it is still open.</para></listitem>
-      </varlistentry>
 
       <varlistentry>
         <term><code>"headers"</code></term>

@@ -462,6 +462,14 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_visible(self.card_row("btrfs volume", name=disk1))
         b.wait_visible(self.card_row("btrfs volume", name=disk2))
 
+        # device details page
+        self.click_card_row("btrfs volume", name="sda")
+        b.wait_visible(self.card("btrfs device"))
+        b.wait_text(self.card_desc("btrfs device", "btrfs volume"), "raid1")
+        b.click(self.card_desc("btrfs device", "btrfs volume") + " button")
+        b.wait_visible(self.card("btrfs volume"))
+        b.wait_text(self.card_desc("btrfs volume", "Label"), label)
+
         # unmount via main page
         b.go("#/")
         b.wait_visible(self.card("Storage"))

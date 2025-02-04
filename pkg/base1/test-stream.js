@@ -1,5 +1,5 @@
 import cockpit from "cockpit";
-import QUnit, { mock_info } from "qunit-tests";
+import QUnit from "qunit-tests";
 
 const QS_REQUEST = "HEAD /mock/qs HTTP/1.0\nHOST: localhost\n\n";
 
@@ -12,18 +12,13 @@ QUnit.test("TCP stream port without a service", async assert => {
     const done = assert.async();
     assert.expect(2);
 
-    const is_pybridge = await mock_info("pybridge");
-
     const channel = cockpit.channel({ payload: "stream", address: "127.0.0.99", port: 2222 });
 
     channel.addEventListener("close", (ev, options) => {
         assert.equal(options.problem, "not-found", "channel should have failed");
-        if (is_pybridge)
-            assert.equal(options.message,
-                         "[Errno 111] Connect call failed ('127.0.0.99', 2222)",
-                         "detailed error message");
-        else
-            assert.equal(options.message, undefined, "C bridge does not give detailed error message");
+        assert.equal(options.message,
+                     "[Errno 111] Connect call failed ('127.0.0.99', 2222)",
+                     "detailed error message");
         done();
     });
 });

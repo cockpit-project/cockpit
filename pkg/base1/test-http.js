@@ -297,60 +297,6 @@ QUnit.test("http promise recursive", assert => {
     assert.equal(typeof promise3.input, "function", "promise3.input()");
 });
 
-QUnit.test("http keep alive", async assert => {
-    assert.expect(1);
-
-    // connection sharing is not implemented in the pybridge
-    if (await mock_info("pybridge")) {
-        assert.rejects(
-            cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection"),
-            ex => ex.problem == "protocol-error" && ex.status == undefined,
-            "rejects connection option on python bridge");
-        return;
-    }
-
-    /*
-     * The /mock/connection handler returns an identifier that changes if
-     * a different connection is used.
-     */
-    const first = await cockpit.http({ port: test_server.port, connection: "marmalade" }).get("/mock/connection");
-    const second = await cockpit.http({ port: test_server.port, connection: "marmalade" }).get("/mock/connection");
-    assert.equal(first, second, "same connection");
-});
-
-QUnit.test("http connection different", async assert => {
-    assert.expect(1);
-
-    // connection sharing is not implemented in the pybridge
-    if (await mock_info("pybridge")) {
-        assert.ok(true);
-        return;
-    }
-
-    /*
-     * The /mock/connection handler returns an identifier that changes if
-     * a different connection is used.
-     */
-    const first = await cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection");
-    const second = await cockpit.http({ port: test_server.port, connection: "two" }).get("/mock/connection");
-    assert.notEqual(first, second, "different connection");
-});
-
-QUnit.test("http connection without address", async assert => {
-    assert.expect(1);
-
-    // connection sharing is not implemented in the pybridge
-    if (await mock_info("pybridge")) {
-        assert.ok(true);
-        return;
-    }
-
-    // Able to reuse connection client info and not specify address again.
-    const first = await cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection");
-    const second = await cockpit.http({ connection: "one" }).get("/mock/connection");
-    assert.equal(first, second, "same connection");
-});
-
 QUnit.test("no dns address", assert => {
     assert.expect(1);
 
@@ -406,15 +352,10 @@ QUnit.test("wrong options", async assert => {
         ex => ex.problem == "protocol-error" && ex.status == undefined,
         "rejects request with both port and unix option");
 
-    // This is disallowed in the pybridge, but allowed in the C bridge
-    if (await mock_info("pybridge")) {
-        assert.rejects(
-            cockpit.http({ unix: "/nonexisting/socket", tls: {} }).get("/"),
-            ex => ex.problem == "protocol-error" && ex.status == undefined,
-            "rejects request with both unix and tls option");
-    } else {
-        assert.ok(true, "skipping on python bridge, not implemented");
-    }
+    assert.rejects(
+        cockpit.http({ unix: "/nonexisting/socket", tls: {} }).get("/"),
+        ex => ex.problem == "protocol-error" && ex.status == undefined,
+        "rejects request with both unix and tls option");
 });
 
 QUnit.test("parallel stress test", async assert => {

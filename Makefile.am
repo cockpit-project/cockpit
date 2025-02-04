@@ -5,6 +5,7 @@ man_MANS =
 noinst_DATA =
 noinst_LIBRARIES =
 noinst_PROGRAMS =
+PYTHON3 ?= python3
 
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
 FORCE:
@@ -45,7 +46,7 @@ distdir: $(DISTFILES)
 # Needed to ensure the tarball is correct for $(VERSION) override
 dist-hook: $(distdir)/src/cockpit/_version.py
 $(distdir)/src/cockpit/_version.py: FORCE
-	python3 '$(srcdir)'/src/build_backend.py --copy '$(srcdir)' '$(distdir)'
+	$(PYTHON3) '$(srcdir)'/src/build_backend.py --copy '$(srcdir)' '$(distdir)'
 	@rm -f $(distdir)/src/cockpit/_version.py
 	$(AM_V_GEN) echo "__version__ = '$(VERSION)'" > $@
 

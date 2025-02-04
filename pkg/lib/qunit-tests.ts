@@ -28,19 +28,11 @@ export const mock_info = async (key: string) => {
     return (await response.json())[key];
 };
 
-// Convenience for skipping tests that the python bridge can't yet
-// handle.
-
-let is_pybridge: boolean | null = null;
+// Convenience for skipping tests that our python bridge can't yet
+// handle (the C bridge implemented these features)
 
 export const skipWithPybridge = async (name: string, callback: (assert: unknown) => void | Promise<void>) => {
-    if (is_pybridge === null)
-        is_pybridge = await mock_info("pybridge");
-
-    if (is_pybridge)
-        QUnit.skip(name, callback);
-    else
-        QUnit.test(name, callback);
+    QUnit.skip(name, callback);
 };
 
 /* Always use explicit start */

@@ -1,5 +1,5 @@
 import cockpit from "cockpit";
-import QUnit, { mock_info, skipWithPybridge } from "qunit-tests";
+import QUnit, { skipWithPybridge } from "qunit-tests";
 
 import { common_dbus_tests, dbus_track_tests } from "./test-dbus-common.js";
 
@@ -547,15 +547,9 @@ QUnit.test("nonexisting address", async assert => {
         await dbus.call("/org/freedesktop/DBus", "org.freedesktop.DBus", "Hello", []);
         assert.ok(false, "should not be reached");
     } catch (ex) {
-        if (await mock_info("pybridge")) {
-            assert.equal(ex.problem, "protocol-error", "got right close code");
-            assert.equal(ex.message, "failed to connect to none bus: [Errno 2] sd_bus_start: No such file or directory",
-                         "error message");
-        } else {
-            // C bridge has a weird error code
-            assert.equal(ex.problem, "internal-error", "got right close code");
-            assert.equal(ex.message, "Could not connect: No such file or directory", "error message");
-        }
+        assert.equal(ex.problem, "protocol-error", "got right close code");
+        assert.equal(ex.message, "failed to connect to none bus: [Errno 2] sd_bus_start: No such file or directory",
+                     "error message");
     }
 });
 

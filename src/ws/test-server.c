@@ -121,7 +121,6 @@ mock_http_info (CockpitWebRequest *request,
                 CockpitWebResponse *response)
 {
   g_autoptr(JsonObject) info = json_object_new ();
-  json_object_set_boolean_member (info, "pybridge", strstr (bridge_argv[0], "py") != NULL);
   json_object_set_boolean_member (info, "skip_slow_tests", g_getenv ("COCKPIT_SKIP_SLOW_TESTS") != NULL);
 
   g_autoptr(GBytes) bytes = cockpit_json_write_bytes (info);

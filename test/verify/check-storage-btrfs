@@ -445,6 +445,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.click_dropdown(self.card_row("Storage", name=label) + " + tr", "Mount")
         self.dialog({"mount_point": mount_point})
         b.wait_visible(self.card_row("Storage", location=mount_point))
+        self.addCleanup(m.execute, f"while mountpoint -q {mount_point} && ! umount {mount_point}; do sleep 0.2; done;")
 
         # create subvolume
         m.execute(f"""
@@ -456,6 +457,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.click_dropdown(self.card_row("Storage", name=os.path.basename(subvol)), "Mount")
         self.dialog({"mount_point": subvol_mount_point})
         b.wait_visible(self.card_row("Storage", location=subvol_mount_point))
+        self.addCleanup(m.execute, f"while mountpoint -q {subvol_mount_point} && ! umount {subvol_mount_point}; do sleep 0.2; done;")
 
         # devices overview
         self.click_card_row("Storage", name=label)

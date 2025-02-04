@@ -115,7 +115,7 @@ import os
 seen = set()
 for s in json.load(sys.stdin):
     c = s['context']
-    if 'pybridge' in c or 'firefox' in c or 'devel' in c:
+    if 'firefox' in c or 'devel' in c:
         continue
     if c.split('/')[0] == sys.argv[1] and s['target_url']:
         url=os.path.dirname(s['target_url'])

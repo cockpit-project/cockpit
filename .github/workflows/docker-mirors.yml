@@ -1,0 +1,22 @@
+# Keep https://quay.io/repository/cockpit/grafana up to date from
+# https://hub.docker.com/r/bitnami/grafana/ . Our bots images use that mirror
+# to work around docker.io pull rate limits (but bots.git doesn't have a quay
+# secret)
+name: docker-mirror
+on:
+  schedule:
+    - cron: '0 3 * * 3'
+  # can be run manually on https://github.com/cockpit-project/cockpit/actions
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment: quay.io
+    permissions: {}
+    timeout-minutes: 20
+    steps:
+      - name: Log into quay
+        run: docker login -u="${{ secrets.QUAY_BOTUSER }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
+
+      - name: Synchronize grafana container
+        run: skopeo copy docker://docker.io/bitnami/grafana docker://quay.io/cockpit/grafana

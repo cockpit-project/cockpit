@@ -434,6 +434,12 @@ cockpit_web_server_parse_cookie (GHashTable *headers,
   gint diff;
   gint offset;
 
+  
+  // Hilscher specific
+  // ignore 'CockpitLang' cookie and set default language to 'en'
+  if (g_str_equal (name, "CockpitLang"))
+    return g_strdup ("en");
+
   header = g_hash_table_lookup (headers, "Cookie");
   if (!header)
     return NULL;

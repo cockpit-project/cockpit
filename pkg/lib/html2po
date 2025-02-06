@@ -1,0 +1,99 @@
+#!/usr/bin/python3
+
+# Extracts translatable strings from HTML files in the following forms:
+#
+# <tag translate>String</tag>
+# <tag translate context="value">String</tag>
+#
+# Note that some of the use of the translated may not support all the strings
+# depending on the code actually using these strings to translate the HTML.
+
+
+import argparse
+import collections.abc
+import json
+import pathlib
+from collections import defaultdict
+from html.parser import HTMLParser
+
+PO_HEADER = r"""msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE_VERSION\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Cockpit html2po\n"
+"""
+
+
+class MyHTMLParser(HTMLParser):
+    current_attr: tuple[str | None, str] | None = None
+    filename: str
+
+    def __init__(self, filename: str):
+        self.strings = defaultdict[tuple[str | None, str], set[str]](set)
+        self.filename = filename
+        super().__init__()
+
+    def handle_starttag(self, tag, attrs):
+        translatable = False
+        context = None
+
+        # attrs => (key, value) where value needs to be split
+        for (attr, value) in attrs:
+            if attr == 'translate-context':
+                context = value
+            elif attr == 'context':
+                context = value
+            elif attr == 'translate' and (value is None or 'yes' in value.split(' ')):
+                translatable = True
+
+        if not translatable:
+            return
+
+        lineno = self.getpos()[0]
+        filename = f'{self.filename}:{lineno}'
+        self.current_attr = (context, filename)
+
+    def handle_data(self, data: str):
+        if self.current_attr and data:
+            context, filename = self.current_attr
+            self.strings[context, data].add(filename)
+            self.current_attr = None
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(prog='html2po',
+                                     description='Extracts translatable strings from HTML files')
+    parser.add_argument('-d', '--directory', help='Base directory for input files')
+    parser.add_argument('-o', '--output', help='Output file')
+    parser.add_argument('files', nargs='+', help='One or more input files', type=pathlib.Path, metavar='FILE')
+
+    args = parser.parse_args()
+    strings = defaultdict[tuple[str | None, str], set[str]](set)
+
+    files: collections.abc.Iterable[pathlib.Path] = args.files
+    for file in files:
+        # Qualify the filename if necessary
+        full_path = args.directory / file if args.directory else file
+
+        htmlparser = MyHTMLParser(str(file))
+        with open(full_path, 'r') as fp:
+            htmlparser.feed(fp.read())
+            for ctx_msgid, filename in htmlparser.strings.items():
+                strings[ctx_msgid].update(filename)
+
+    with open(args.output, 'w') as fp:
+        fp.write(PO_HEADER)
+        for (context, msgid), filenames in strings.items():
+            fp.write(f"\n#: {' '.join(filenames)}\n")
+            # json.dumps() to escape any quotes in translation text or context
+            if context:
+                fp.write(f'msgctxt {json.dumps(context)}\n')
+
+            fp.write(f'msgid {json.dumps(msgid)}\n')
+            fp.write('msgstr ""\n')
+
+
+if __name__ == "__main__":
+    main()

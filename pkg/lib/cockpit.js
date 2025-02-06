@@ -2311,7 +2311,7 @@ function factory() {
             /* The list of things to translate */
             let list = null;
             if (what[w].querySelectorAll)
-                list = what[w].querySelectorAll("[translatable], [translate]");
+                list = what[w].querySelectorAll("[translate]");
             if (!list)
                 continue;
 
@@ -2319,7 +2319,7 @@ function factory() {
             for (let i = 0; i < list.length; i++) {
                 const el = list[i];
 
-                let val = el.getAttribute("translate") || el.getAttribute("translatable") || "yes";
+                let val = el.getAttribute("translate") || "yes";
                 if (val == "no")
                     continue;
 
@@ -2334,7 +2334,6 @@ function factory() {
                 }
 
                 /* Mark this thing as translated */
-                el.removeAttribute("translatable");
                 el.removeAttribute("translate");
             }
         }

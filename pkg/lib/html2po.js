@@ -110,8 +110,8 @@ function tag(node) {
     let nest = true;
 
     /* Extract translate strings */
-    if ("translate" in attrs || "translatable" in attrs) {
-        tasks = (attrs.translate || attrs.translatable || "yes").split(" ");
+    if ("translate" in attrs) {
+        tasks = (attrs.translate || "yes").split(" ");
 
         /* Calculate the line location taking into account nested parsing */
         line = (node.location || { }).line || 0;

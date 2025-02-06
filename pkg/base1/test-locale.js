@@ -197,42 +197,6 @@ QUnit.test("translate glade", function (assert) {
     assert.equal(tcon.hasAttribute("translate"), false, "translate context attribute removed");
 });
 
-QUnit.test("translate attributes", function (assert) {
-    cockpit.locale(null);
-    cockpit.locale(pig_latin);
-
-    const div = document.createElement('div');
-    div.innerHTML = "<span translate='title' title='Control' id='translatable-attribute'>Waiting</span>" +
-                    "<div><span translate='title' translate-context='key' title='Control'" +
-                    "id='translatable-attribute-context'>Waiting</span>" +
-                    "<span translate='yes title' title='User' id='translatable-attribute-both'>Waiting</span></div>" +
-                    "<span translate='  yes title ' title='User' id='translatable-attribute-syntax'>Waiting</span>";
-
-    document.getElementById('translations').appendChild(div);
-
-    cockpit.translate(div);
-
-    const attr = document.getElementById('translatable-attribute');
-    assert.equal(attr.getAttribute("title"), "Ontrolcay", "translate attribute");
-    assert.equal(attr.innerHTML, "Waiting", "translate attribute doesn't affect text");
-    assert.equal(attr.hasAttribute("translate"), false, "translate element removed");
-
-    const context = document.getElementById('translatable-attribute-context');
-    assert.equal(context.getAttribute("title"), "OntrolCAY", "translatable element");
-    assert.equal(context.innerHTML, "Waiting", "translate context doesn't affect text");
-    assert.equal(context.hasAttribute("translate"), false, "translate element removed");
-
-    const both = document.getElementById('translatable-attribute-both');
-    assert.equal(both.getAttribute("title"), "Useray", "translate attribute both");
-    assert.equal(both.innerHTML, "Aitingway", "translate text both");
-    assert.equal(both.hasAttribute("translate"), false, "translate removed");
-
-    const syntax = document.getElementById('translatable-attribute-both');
-    assert.equal(syntax.getAttribute("title"), "Useray", "translate syntax both");
-    assert.equal(syntax.innerHTML, "Aitingway", "translate syntax both");
-    assert.equal(syntax.hasAttribute("translate"), false, "translate removed");
-});
-
 function init() {
     /* Area for translate tests to play in */
     const div = document.createElement('div');

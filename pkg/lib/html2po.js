@@ -5,13 +5,6 @@
  *
  * <tag translate>String</tag>
  * <tag translate context="value">String</tag>
- * <tag translate="...">String</tag>
- * <tag translate-attr attr="String"></tag>
- *
- * Supports the following angular-gettext compatible forms:
- *
- * <translate>String</translate>
- * <tag translate-plural="Plural">Singular</tag>
  *
  * Note that some of the use of the translated may not support all the strings
  * depending on the code actually using these strings to translate the HTML.
@@ -119,7 +112,6 @@ function tag(node) {
 
         entry = {
             msgctxt: attrs['translate-context'] || attrs.context,
-            msgid_plural: attrs['translate-plural'],
             locations: [filename + ":" + line]
         };
 
@@ -131,10 +123,6 @@ function tag(node) {
             if (task == "yes" || task == "translate") {
                 copy.msgid = extract(node.children);
                 nest = false;
-
-            /* An attribute */
-            } else if (task) {
-                copy.msgid = attrs[task];
             }
 
             if (copy.msgid)
@@ -211,13 +199,7 @@ function finish() {
         if (entry.msgctxt)
             result.push('msgctxt ' + escape(entry.msgctxt));
         result.push('msgid ' + escape(entry.msgid));
-        if (entry.msgid_plural) {
-            result.push('msgid_plural ' + escape(entry.msgid_plural));
-            result.push('msgstr[0] ""');
-            result.push('msgstr[1] ""');
-        } else {
-            result.push('msgstr ""');
-        }
+        result.push('msgstr ""');
         result.push('');
     }
 

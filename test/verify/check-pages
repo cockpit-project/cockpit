@@ -229,10 +229,6 @@ OnCalendar=daily
         self.assertEqual(b.text("#translate-html"), "Bereit")
         self.assertEqual(b.text("#translate-html-context"), "Bereiten")
         self.assertEqual(b.text("#translate-html-yes"), "Nicht bereit")
-        self.assertEqual(b.attr("#translate-html-title", "title"), u"Nicht verfügbar")
-        self.assertEqual(b.text("#translate-html-title"), "Cancel")
-        self.assertEqual(b.attr("#translate-html-yes-title", "title"), u"Nicht verfügbar")
-        self.assertEqual(b.text("#translate-html-yes-title"), "Abbrechen")
 
         # Glade section
         self.assertEqual(b.text("#translatable-glade"), "Leer")
@@ -368,10 +364,6 @@ OnCalendar=daily
         self.assertEqual(b.text('#translate-html'), 'Pronto')
         self.assertEqual(b.text('#translate-html-context'), 'Pronto')
         self.assertEqual(b.text('#translate-html-yes'), u'Não está pronto')
-        self.assertEqual(b.attr('#translate-html-title', 'title'), u'Indisponível')
-        self.assertEqual(b.text('#translate-html-title'), 'Cancel')
-        self.assertEqual(b.attr('#translate-html-yes-title', 'title'), u'Indisponível')
-        self.assertEqual(b.text('#translate-html-yes-title'), 'Cancelar')
 
         # Glade section
         self.assertEqual(b.text('#translatable-glade'), 'Vazio')

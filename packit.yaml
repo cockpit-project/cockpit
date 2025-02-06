@@ -20,15 +20,18 @@ srpm_build_deps:
   - nodejs
   - npm
   - systemd-devel
+
 # use the nicely formatted release NEWS from our upstream release, instead of git shortlog
 copy_upstream_release_description: true
+
 jobs:
   - job: tests
     identifier: self
     trigger: pull_request
     targets:
       - fedora-41
-      - fedora-42
+      # https://pagure.io/fedora-infrastructure/issue/12389
+      # - fedora-42
       - fedora-latest-stable-aarch64
       - fedora-rawhide
       - centos-stream-9-x86_64
@@ -55,7 +58,7 @@ jobs:
     trigger: pull_request
     targets:
       # big-endian
-      - fedora-development-s390x
+      - fedora-latest-stable-s390x
 
   # for cross-project testing
   - job: copr_build

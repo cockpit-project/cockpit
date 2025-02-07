@@ -799,22 +799,34 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         self.skip_if_no_layouts()
 
-        # Make sure that Cockpit gets the layout description right for
-        # encrypted physical volumes
+        # Make sure that Cockpit either gets the layout description
+        # right for encrypted physical volumes, or doesn't show any
+        # layout (for older versions of UDisks2 without
+        # https://github.com/storaged-project/udisks/pull/1206.
 
         self.login_and_go("/storage")
 
-        disk = self.add_loopback_disk()
-        b.wait_visible(self.card_row("Storage", name=disk))
+        disk = self.add_ram_disk()
+        disk2 = self.add_loopback_disk()
+
+        b.wait_visible(self.card_row("Storage", name=disk2))
         m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}")
         m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk} dm-test")
         self.addCleanup(m.execute, "cryptsetup close dm-test || true")
-        m.execute("vgcreate vgroup0 /dev/mapper/dm-test")
+        m.execute(f"vgcreate vgroup0 /dev/mapper/dm-test {disk2}")
         self.addCleanupVG("vgroup0")
         m.execute("lvcreate vgroup0 -n lvol0 -l100%FREE")
 
         self.click_card_row("Storage", name="lvol0")
-        b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk))
+        if (self.storaged_version < [2, 11]):
+            # "Physical volumes" should not be displayed since we
+            # might miss the encrypted ones dues to a bug in UDisks2.
+            b.wait_text(self.card_desc("LVM2 logical volume", "Name"), "lvol0")
+            b.wait_not_present(self.card_desc("LVM2 logical volume", "Physical volumes"))
+        else:
+            # We should have both disks listed as physical volumes
+            b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk))
+            b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk2))
 
 
 class TestStorageLvm2Destructive(storagelib.StorageCase):

@@ -68,7 +68,7 @@ class Application extends React.Component {
                 return null;
         }
 
-        if (client.features == false || client.older_than("2.6"))
+        if (client.features == false || client.younger_than("2.6"))
             return <EmptyStatePanel icon={ExclamationCircleIcon} title={ _("Storage can not be managed on this system.") } />;
 
         // We maintain the plot state here so that the plots stay

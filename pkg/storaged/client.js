@@ -588,12 +588,12 @@ function update_indices() {
         const struct = client.lvols[path].Structure;
         const lvol = client.lvols[path];
 
-        // HACK - UDisks2 can't find the PVs of a segment when they
-        //        are on a device mapper device.
+        // HACK - UDisks2 befopre 2.11 can't find the PVs of a segment
+        //        when they are on a device mapper device.
         //
         // https://github.com/storaged-project/udisks/pull/1206
 
-        if (vgroups_with_dm_pvs[lvol.VolumeGroup])
+        if (!client.at_least("2.11") && vgroups_with_dm_pvs[lvol.VolumeGroup])
             continue;
 
         let summary;
@@ -1066,8 +1066,12 @@ function init_model(callback) {
     });
 }
 
-client.older_than = function older_than(version) {
+client.younger_than = function younger_than(version) {
     return utils.compare_versions(this.manager.Version, version) < 0;
+};
+
+client.at_least = function at_least(version) {
+    return utils.compare_versions(this.manager.Version, version) >= 0;
 };
 
 /* Mount users

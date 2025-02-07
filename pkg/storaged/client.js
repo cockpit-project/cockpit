@@ -510,8 +510,6 @@ function update_indices() {
         client.vgnames_vgroup[vgroup.Name] = vgroup;
     }
 
-    const vgroups_with_dm_pvs = { };
-
     client.vgroups_pvols = { };
     for (path in client.vgroups) {
         client.vgroups_pvols[path] = [];
@@ -520,13 +518,6 @@ function update_indices() {
         pvol = client.blocks_pvol[path];
         if (client.vgroups_pvols[pvol.VolumeGroup] !== undefined) {
             client.vgroups_pvols[pvol.VolumeGroup].push(pvol);
-            {
-                // HACK - this is needed below to deal with a UDisks2 bug.
-                // https://github.com/storaged-project/udisks/pull/1206
-                const block = client.blocks[path];
-                if (block && utils.decode_filename(block.Device).indexOf("/dev/dm-") == 0)
-                    vgroups_with_dm_pvs[pvol.VolumeGroup] = true;
-            }
         }
     }
     function cmp_pvols(a, b) {
@@ -587,14 +578,6 @@ function update_indices() {
     for (path in client.lvols) {
         const struct = client.lvols[path].Structure;
         const lvol = client.lvols[path];
-
-        // HACK - UDisks2 can't find the PVs of a segment when they
-        //        are on a device mapper device.
-        //
-        // https://github.com/storaged-project/udisks/pull/1206
-
-        if (vgroups_with_dm_pvs[lvol.VolumeGroup])
-            continue;
 
         let summary;
         let status = "";
